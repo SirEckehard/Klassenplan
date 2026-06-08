@@ -37,7 +37,7 @@ Development mode uses **relaxed CSP** to support Hot Module Replacement (HMR):
 
 ```javascript
 'script-src \'self\' \'unsafe-inline\'', // Dev mode needs inline for HMR
-'style-src \'self\' \'unsafe-inline\' https://fonts.googleapis.com', // Dev mode needs inline for HMR
+'style-src \'self\' \'unsafe-inline\'', // Dev mode needs inline for HMR
 'connect-src \'self\' ws: wss:', // Allow WebSocket for HMR
 ```
 
@@ -57,9 +57,8 @@ All production responses (served via nginx, see [`nginx.conf`](../nginx.conf)) i
 Content-Security-Policy: ...        # see above
 X-Content-Type-Options: nosniff
 X-Frame-Options: DENY
-X-XSS-Protection: 1; mode=block
 Referrer-Policy: strict-origin-when-cross-origin
-Permissions-Policy: geolocation=(), microphone=(), camera=()
+Permissions-Policy: geolocation=(), microphone=(), camera=(), browsing-topics=(), interest-cohort=()
 ```
 
 **What each header does:**
@@ -67,9 +66,8 @@ Permissions-Policy: geolocation=(), microphone=(), camera=()
 1. **Content-Security-Policy**: Restricts resource loading (scripts, styles, etc.)
 2. **X-Content-Type-Options**: Prevents MIME-sniffing attacks
 3. **X-Frame-Options**: Prevents clickjacking via iframes
-4. **X-XSS-Protection**: Browser-level XSS filter (legacy support)
-5. **Referrer-Policy**: Controls referrer information sent with requests
-6. **Permissions-Policy**: Disables unnecessary browser APIs (geolocation, camera, mic)
+4. **Referrer-Policy**: Controls referrer information sent with requests
+5. **Permissions-Policy**: Disables unnecessary browser APIs (geolocation, camera, mic) and opts out of FLoC/Topics (`browsing-topics`, `interest-cohort`)
 
 ## Code Security
 

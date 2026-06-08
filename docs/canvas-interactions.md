@@ -3,10 +3,12 @@
 ## Scope
 
 This document describes the current pointer and keyboard flows around
-`useCanvasInteraction`, `usePointerLongPress`, `useTableInteraction`, and
-`useKeyboardInteraction`. It shows which events are handled where, which
-context data is needed, and which side effects are triggered. The overview is
-the basis for using declarative state machines.
+`useCanvasInteraction`, `useTableInteraction`, and `useKeyboardInteraction`. It
+shows which events are handled where, which context data is needed, and which
+side effects are triggered. Long-press timing is now owned by
+`canvasPointerMachine` (`longPressMode: 'machine'`); the former
+`usePointerLongPress` hook has been removed. The overview is the basis for the
+declarative state machines that drive these flows.
 
 ## Shared context & mutable references
 
@@ -17,8 +19,11 @@ the basis for using declarative state machines.
     the current pointer including its start coordinates.
   - The `clipboard` snapshot (tables + feature count) feeds guards for
     long-press events.
-  - `longPressDurations` + `longPressMode` decide whether timers come directly
-    from the machine or – as currently – run via legacy refs.
+  - `longPressDurations` + `longPressMode` configure the long-press timing.
+    `longPressMode` now defaults to `'machine'`, so the `after` transitions
+    (`TABLE_LONG_PRESS_DELAY`, `CANVAS_LONG_PRESS_DELAY`) fire directly from the
+    machine; the `'legacy'` value still exists in the `LongPressMode` union but
+    is no longer wired up anywhere.
 - **`useTableInteraction`** holds the UI-adjacent mutation pieces:
   - `capturedPointerId` for pointer capture on the SVG.
   - `dragInfo` (indices + start positions) and `hasDragged` for delta
@@ -248,9 +253,10 @@ injected via `actionApiRef` from the hook and still use `snapshot()`,
   vs. right-click) but end up in the same states.
 - Keyboard listeners are attached globally to the window and were hard to test
   in isolation.
-- **Long-press control** lived in `usePointerLongPress` for a long time. The
-  machine already offers `after` transitions (`TABLE_LONG_PRESS_DELAY`,
-  `CANVAS_LONG_PRESS_DELAY`). As long as `longPressMode = 'legacy'` is active,
-  timers stay disabled; a full migration would require pointer moves to write
-  the latest client coordinates into the machine context and limit
-  `usePointerLongPress` to drag thresholds only.
+- **Long-press control** used to live in `usePointerLongPress`. That hook has
+  been removed: the machine now owns long-press timing via its `after`
+  transitions (`TABLE_LONG_PRESS_DELAY`, `CANVAS_LONG_PRESS_DELAY`) with
+  `longPressMode: 'machine'` as the default. The pending refs
+  (`pendingTableLongPressRef` / `pendingCanvasLongPressRef`) still cache the
+  client/scene coordinates the menu needs when the timer fires, while pointer
+  moves feed the latest coordinates into the machine context.

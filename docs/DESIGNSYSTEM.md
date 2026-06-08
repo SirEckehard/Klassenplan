@@ -84,7 +84,7 @@ The central radii live in `@theme`:
 
 ## 6. Classroom features & feature palette
 
-The classroom features (windows, doors, teacher's desk, blackboard) are rendered as `ClassroomFeature` shapes on the canvas. Colors are encoded directly in `ClassroomCanvas.tsx` and align with the primary palette:
+The classroom features (windows, doors, teacher's desk, blackboard) are rendered as `ClassroomFeature` shapes on the canvas. Colors live in `src/utils/ui/featureStyles.ts` (`getFeatureStyles()`, light/dark palettes per feature type) and are consumed by `ClassroomCanvas.tsx`. They align with the primary palette:
 
 - **Window**: light blue (`#dbeafe`) / dark mode `#1e3a8a`, border `#1d4ed8` or `#60a5fa`
 - **Door**: warm amber (`#fef3c7`) / dark mode `#78350f`, border `#b45309` or `#fbbf24`

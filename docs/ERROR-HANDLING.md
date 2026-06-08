@@ -152,7 +152,7 @@ The central handler in [src/utils/errorHandling.ts](../src/utils/errorHandling.t
 | `ERROR` | `error` | 5 s | Yes |
 | `CRITICAL` | `critical` | persistent | Yes, must be closed manually |
 
-Prefer the convenience helpers from `errorHandlers` (see [errorHandling.ts:163](../src/utils/errorHandling.ts#L163)) over direct calls to `handleError`:
+Prefer the convenience helpers from `errorHandlers` (see [errorHandling.ts:164](../src/utils/errorHandling.ts#L164)) over direct calls to `handleError`:
 
 ```ts
 import { errorHandlers } from '@/utils/errorHandling';

@@ -18,7 +18,7 @@ Klassenplan's main value therefore lies not in the *optimal* seating plan, but i
 
 ## 2. Attributes: contextual, not diagnostic
 
-All student attributes in Klassenplan (`restless`, `shy`, `concentrationIssues`, `performanceStrong`, `performanceWeak`, `sensoryImpairment`, `socialRole`) are intended as **contextual descriptions of current behavior**, not as stable diagnoses or personality traits.
+All student attributes in Klassenplan (`restless`, `shy`, `concentrationIssues`, `performanceStrong`, `performanceWeak`, `needsFrontSeat`, `socialRole`) are intended as **contextual descriptions of current behavior**, not as stable diagnoses or personality traits.
 
 Theoretical background:
 
@@ -30,9 +30,21 @@ Theoretical background:
 - Use attributes as a tool for seating-plan optimization, not as character descriptions of children
 - Reflect on attributes in student conversations where pedagogically appropriate
 
-### Special case: `sensoryImpairment`
+### Special case: `needsFrontSeat`
 
-This field very likely touches **Art. 9 GDPR** (special categories of personal data: health). Before recording it, teachers should make sure there is an appropriate legal basis (e.g. consent from legal guardians, or a school-law basis). German state-level school data-protection regulations (NRW: VO-DV I; Bavaria: BaySchO; BW: DatenschutzVO Schule) may impose stricter requirements than the GDPR.
+As of v1.5.0 this field is deliberately **reason-agnostic**: it only records that a
+student should get a fixed seat in the front row, regardless of the underlying
+reason (hearing/vision impairment, concentration, height, or simply teacher
+preference). The label was changed from "Hearing/vision impairment" to "Front
+seats" precisely to avoid encoding a health diagnosis in the data.
+
+If a teacher sets this flag *because of* a health condition, the **reason** (kept
+outside the tool) may still touch **Art. 9 GDPR** (special categories of personal
+data: health). The flag itself stores no such reason, but teachers should make
+sure there is an appropriate legal basis (e.g. consent from legal guardians, or a
+school-law basis) where a health motive applies. German state-level school
+data-protection regulations (NRW: VO-DV I; Bavaria: BaySchO; BW: DatenschutzVO
+Schule) may impose stricter requirements than the GDPR.
 
 ---
 
@@ -51,7 +63,7 @@ The weights in [`src/utils/mixSettings.ts`](../src/utils/mixSettings.ts) are nor
 | `preferLanguageMixing` | 4 | Language support through proximity is pedagogically plausible, but not a direct language-support measure (Gogolin & Lange 2011) |
 | `peerTutoring` | 3 | Effective (Hattie d ≈ 0.55), but only with didactic framing; spatial proximity alone does not create peer tutoring |
 | `homogeneousPerformanceGroups` | 3 | Weak evidence (Hattie d ≈ 0.12); parity with `peerTutoring` is deliberate, as both approaches are legitimate |
-| `preferFrontForSensoryImpairment` | 5 | Important accessibility measure; higher weight is justified |
+| `preferFrontForNeedsFrontSeat` | 5 | Important accessibility measure; higher weight is justified |
 | `preferFrontForSmallerStudents` | 3 | Visibility heuristic; pragmatic, but no research backing |
 | `preferGenderMix` | 2 | Deliberately low weight; gender categories are complex (Butler 1990); the default signals optionality |
 | `avoidShyAlone` | 2 | Social inclusion matters; low weight because it is hard to operationalize |

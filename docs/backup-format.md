@@ -28,7 +28,7 @@ import:
 
 - Maximum file size of the encrypted backup: **2 MB**.
 - Maximum size of the decrypted JSON payload: **1 MB**.
-- At most **500** entries in `students`.
+- At most **36** entries in `students` (`MAX_STUDENTS`).
 - At most **200** entries in `seatingHistory` and `mixHistory`.
 - At most **100** entries in `classroomTemplates`.
 - At most **500** entries in `lockedPositions`.
