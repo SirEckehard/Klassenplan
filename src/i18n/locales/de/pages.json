@@ -2,9 +2,8 @@
   "startPage": {
     "heroTitle": "Sitzplan erstellen leicht gemacht",
     "heroDescription": "Direkt aus dem Schulalltag & gemeinsam mit dem Feedback von Lehrkräften entwickelt.",
-    "heroBadge": "kostenlos & keine Werbung",
+    "heroBadge": "Kostenlos, keine Werbung & Open Source.",
     "heroBadgeTooltip": "Gehe zu Unterstützen",
-
     "whyKlassenplanTitle": "Warum Klassenplan?",
     "whyKlassenplanItems": {
       "privacy": "Fokus auf Datenschutz",
@@ -27,7 +26,7 @@
     },
     "ctaButton": "Plane jetzt deine Klasse!",
     "faqLink": "Erfahre mehr im FAQ!",
-    "contactLink": "Oder schreib eine Nachricht!"
+    "contactLink": "Schreib eine Nachricht!"
   },
   "support": {
     "title": "Klassenplan unterstützen",
@@ -37,7 +36,9 @@
   "feedback": {
     "title": "Kontakt",
     "description": "Ich freue mich über dein Feedback zu Klassenplan! Ob Lob, Verbesserungsvorschläge oder Fehlerberichte – jede Nachricht hilft mir, Klassenplan besser zu machen. Klick einfach auf den Button, um mir eine E-Mail zu schreiben.",
-    "bugNote": "Wenn du Bugs oder Feature-Wünsche teilst, hänge gern Screenshots, Videos oder kurze, klare Beschreibungen an, damit ich das Problem besser nachvollziehen kann."
+    "bugNote": "Wenn du Bugs oder Feature-Wünsche teilst, hänge gern Screenshots, Videos oder kurze, klare Beschreibungen an, damit ich das Problem besser nachvollziehen kann.",
+    "githubNote": "Klassenplan ist Open Source – den Quellcode findest du auf GitHub:",
+    "githubLink": "github.com/SirEckehard/Klassenplan"
   },
   "legal": {
     "germanOnlyNote": "Dieser Inhalt ist nur auf Deutsch verfügbar, da es sich um rechtlich verbindliche Informationen handelt."
@@ -338,7 +339,9 @@
       },
       "feedback": {
         "q": "Wie kann ich Feedback geben oder mitmachen?",
-        "a": "Über die Feedback-Seite kannst du jederzeit eine Nachricht schicken. Ich freue mich über Praxiserfahrungen, Fehlerberichte und Feature-Ideen."
+        "a": "Über die Feedback-Seite kannst du jederzeit eine Nachricht schicken. Ich freue mich über Praxiserfahrungen, Fehlerberichte und Feature-Ideen.",
+        "openSource": "Klassenplan ist Open Source: Du kannst den Quellcode einsehen, Fehler melden oder dich mit eigenen Beiträgen einbringen.",
+        "githubLink": "Zum Projekt auf GitHub"
       }
     },
     "footer": {

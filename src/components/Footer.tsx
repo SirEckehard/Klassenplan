@@ -8,6 +8,7 @@ import {
   GitDiffIcon,
   IdentificationCardIcon,
   ShieldCheckIcon,
+  GithubLogoIcon,
 } from '@phosphor-icons/react';
 import { useTranslation } from 'react-i18next';
 import ThemeToggle from './ThemeToggle';
@@ -17,6 +18,7 @@ import { useSeatingPlanActions } from '@/contexts/SeatingPlanContext';
 import { showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
 import { menuSurfaceClass } from '@/utils';
 import ConfirmDialog from '@/components/ui/modals/ConfirmDialog';
+import { GITHUB_REPO_URL } from '@/config/links';
 
 const Footer: React.FC = () => {
   const { t } = useTranslation('common');
@@ -114,6 +116,16 @@ const Footer: React.FC = () => {
             <ShieldCheckIcon className="h-3.5 w-3.5" aria-hidden="true" />
             {t('nav.datenschutz')}
           </LocalizedLink>
+          <span className={separatorClass}>|</span>
+          <a
+            href={GITHUB_REPO_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={linkClass}
+          >
+            <GithubLogoIcon className="h-3.5 w-3.5" aria-hidden="true" />
+            {t('nav.github')}
+          </a>
         </nav>
       </div>
 

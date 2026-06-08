@@ -18,6 +18,7 @@ import { cardSurfaceClass, secondaryButtonClass } from '@/utils';
 import { KpLockup } from '@/components/KpLockup';
 import { usePageSeo } from '@/hooks/usePageSeo';
 import { useTranslation } from 'react-i18next';
+import { GITHUB_REPO_URL } from '@/config/links';
 
 interface FaqItem {
   question: string;
@@ -357,7 +358,22 @@ export default function FAQ() {
           },
           {
             question: t('faq.projekt.feedback.q'),
-            answer: <p>{t('faq.projekt.feedback.a')}</p>,
+            answer: (
+              <div className="space-y-2">
+                <p>{t('faq.projekt.feedback.a')}</p>
+                <p>
+                  {t('faq.projekt.feedback.openSource')}{' '}
+                  <a
+                    href={GITHUB_REPO_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-medium text-blue-600 underline hover:text-blue-700 dark:text-blue-300 dark:hover:text-blue-200"
+                  >
+                    {t('faq.projekt.feedback.githubLink')}
+                  </a>
+                </p>
+              </div>
+            ),
           },
         ],
       },

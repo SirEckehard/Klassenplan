@@ -1,10 +1,11 @@
 import { useTranslation } from 'react-i18next';
-import { MailboxIcon } from '@phosphor-icons/react';
+import { MailboxIcon, GithubLogoIcon } from '@phosphor-icons/react';
 import Seo from '@/components/Seo';
 import { LocalizedLink } from '@/components/LocalizedLink';
 import { cardSurfaceClass, primaryButtonClass } from '@/utils';
 import { KpLockup } from '@/components/KpLockup';
 import { usePageSeo } from '@/hooks/usePageSeo';
+import { GITHUB_REPO_URL } from '@/config/links';
 
 // Contact page that points users to email instead of a form
 export default function Feedback() {
@@ -71,6 +72,28 @@ export default function Feedback() {
               className={`${cardSurfaceClass} border px-4 py-4 text-sm text-gray-600 dark:text-gray-300`}
             >
               <p>{t('feedback.bugNote')}</p>
+            </div>
+
+            <div
+              className={`${cardSurfaceClass} border px-4 py-4 text-sm text-gray-600 dark:text-gray-300`}
+            >
+              <p className="flex items-center gap-2">
+                <GithubLogoIcon
+                  aria-hidden="true"
+                  className="h-5 w-5 shrink-0"
+                />
+                <span>
+                  {t('feedback.githubNote')}{' '}
+                  <a
+                    href={GITHUB_REPO_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-medium text-blue-600 underline hover:text-blue-700 dark:text-blue-300 dark:hover:text-blue-200"
+                  >
+                    {t('feedback.githubLink')}
+                  </a>
+                </span>
+              </p>
             </div>
           </div>
         </section>

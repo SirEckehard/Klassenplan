@@ -2,7 +2,7 @@
   "startPage": {
     "heroTitle": "Seating plans made easy",
     "heroDescription": "Built straight from the classroom & developed together with teachers.",
-    "heroBadge": "free & no ads",
+    "heroBadge": "Free, no ads & open source.",
     "heroBadgeTooltip": "Go to Support",
     "whyKlassenplanTitle": "Why Klassenplan?",
     "whyKlassenplanItems": {
@@ -26,7 +26,7 @@
     },
     "ctaButton": "Plan your class now!",
     "faqLink": "Learn more in the FAQ!",
-    "contactLink": "Or send a message!"
+    "contactLink": "Send a message!"
   },
   "support": {
     "title": "Support Klassenplan",
@@ -36,7 +36,9 @@
   "feedback": {
     "title": "Contact",
     "description": "I appreciate your feedback on Klassenplan! Whether praise, suggestions for improvement, or bug reports – every message helps me make Klassenplan better. Simply click the button to send me an email.",
-    "bugNote": "When sharing bugs or feature requests, please attach screenshots, videos, or clear descriptions so I can better understand the issue."
+    "bugNote": "When sharing bugs or feature requests, please attach screenshots, videos, or clear descriptions so I can better understand the issue.",
+    "githubNote": "Klassenplan is open source – you can find the source code on GitHub:",
+    "githubLink": "github.com/SirEckehard/Klassenplan"
   },
   "legal": {
     "germanOnlyNote": "This content is only available in German as it contains legally binding information."
@@ -337,7 +339,9 @@
       },
       "feedback": {
         "q": "How can I give feedback or participate?",
-        "a": "You can send a message at any time via the feedback page. I look forward to practical experiences, bug reports, and feature ideas."
+        "a": "You can send a message at any time via the feedback page. I look forward to practical experiences, bug reports, and feature ideas.",
+        "openSource": "Klassenplan is open source: you can view the source code, report bugs, or contribute your own changes.",
+        "githubLink": "View the project on GitHub"
       }
     },
     "footer": {

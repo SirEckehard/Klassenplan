@@ -18,7 +18,8 @@
     "faq": "FAQ",
     "changelog": "Changelog",
     "support": "Support",
-    "feedback": "Feedback"
+    "feedback": "Feedback",
+    "github": "GitHub"
   },
   "buttons": {
     "save": "Save",
