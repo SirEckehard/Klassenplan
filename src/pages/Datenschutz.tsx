@@ -18,7 +18,7 @@ export default function Datenschutz() {
       <Seo
         {...metadata}
         structuredData={{
-          '@type': 'PrivacyPolicy',
+          '@type': 'WebPage',
           name: metadata.title,
           inLanguage: metadata.lang,
           description: metadata.description,
