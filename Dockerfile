@@ -16,7 +16,10 @@ COPY . .
 RUN npm run build
 
 # Stage 2: Production
-FROM nginx:alpine
+# Pin to 1.28-alpine: the nginx-mod-http-brotli apk package is only built for
+# this nginx version. The floating `nginx:alpine` tag moved to 1.31.x, for which
+# no matching Brotli module exists yet, breaking `apk add nginx-mod-http-brotli`.
+FROM nginx:1.28-alpine
 
 # Copy built assets from builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
