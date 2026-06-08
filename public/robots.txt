@@ -1,0 +1,25 @@
+User-agent: *
+# Content preferences (contentsignals.org). Current stance: fully allow
+# search indexing, AI-assisted answers and AI training. Adjust a value to
+# "no" to opt out of that use without blocking the crawler outright.
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /server/
+
+# AI crawlers are explicitly welcome. A condensed, machine-readable
+# description of this site is available at /llms.txt and /llms-full.txt
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+Sitemap: https://klassenplan.de/sitemap.xml

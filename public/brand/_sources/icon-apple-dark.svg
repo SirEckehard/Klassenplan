@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Klassenplan">
+  <title>Klassenplan</title>
+  <rect width="300" height="300" fill="#1B4965"/>
+  <g transform="translate(30 30)">
+    <g fill="#3B82F6">
+      <rect x="8" y="8" width="40" height="40" rx="8"/>
+      <rect x="146" y="8" width="40" height="40" rx="8"/>
+      <rect x="8" y="54" width="40" height="40" rx="8"/>
+      <rect x="100" y="54" width="40" height="40" rx="8"/>
+      <rect x="8" y="100" width="40" height="40" rx="8"/>
+      <rect x="54" y="100" width="40" height="40" rx="8"/>
+      <rect x="8" y="146" width="40" height="40" rx="8"/>
+      <rect x="100" y="146" width="40" height="40" rx="8"/>
+      <rect x="8" y="192" width="40" height="40" rx="8"/>
+      <rect x="146" y="192" width="40" height="40" rx="8"/>
+    </g>
+    <rect x="192" y="100" width="40" height="40" rx="8" fill="#FBBF24"/>
+  </g>
+</svg>

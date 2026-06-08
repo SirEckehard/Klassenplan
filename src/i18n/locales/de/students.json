@@ -1,0 +1,282 @@
+{
+  "classManagement": {
+    "title": "Klassenverwaltung",
+    "activeClass": "Aktive Klasse",
+    "noClassSelected": "Keine Klasse ausgewählt",
+    "noClasses": "Noch keine Klassen",
+    "selectClass": "Klasse auswählen",
+    "newClass": "Neue Klasse",
+    "editClass": "Klasse bearbeiten",
+    "deleteClass": "Klasse löschen",
+    "clearStudents": "Alle Schüler entfernen",
+    "classes": "Klassen",
+    "clear": "Leeren",
+    "delete": "Löschen"
+  },
+  "gender": {
+    "title": "Geschlecht",
+    "boy": "Junge",
+    "girl": "Mädchen",
+    "diverse": "Divers",
+    "noSelection": "Geschlecht: keine Angabe (optional)",
+    "noValue": "Keine Angabe",
+    "hint": "Geschlechtsangaben sind optional, für spezifisches Mischen notwendig.",
+    "selection": "Geschlechtsauswahl"
+  },
+  "studentFlags": {
+    "restless": {
+      "label": "unruhig",
+      "tooltip": "Unruhiges Verhalten"
+    },
+    "shy": {
+      "label": "schüchtern",
+      "tooltip": "Zurückhaltendes Verhalten"
+    },
+    "concentrationIssues": {
+      "label": "ablenkbar",
+      "tooltip": "Leicht ablenkbar"
+    },
+    "needsFrontSeat": {
+      "label": "Vordere Plätze",
+      "tooltip": "Braucht vorderen Platz"
+    },
+    "performanceStrong": {
+      "label": "leistungsstark",
+      "tooltip": "Besondere Stärken"
+    },
+    "performanceWeak": {
+      "label": "leistungsschwach",
+      "tooltip": "Förderbedarf"
+    }
+  },
+  "listHeader": {
+    "gender": "Geschl.",
+    "genderFull": "Geschlecht",
+    "height": "Größe",
+    "heightFull": "Körpergröße",
+    "language": "Sprache",
+    "languageFull": "Sprachniveau",
+    "strong": "stark",
+    "strongFull": "Leistungsstark",
+    "weak": "schwach",
+    "weakFull": "Leistungsschwach",
+    "front": "vorn",
+    "frontFull": "Vorderer Platz",
+    "restless": "unruhig",
+    "restlessFull": "Unruhiges Verhalten",
+    "shy": "schüch.",
+    "shyFull": "Schüchtern",
+    "distracted": "ablenk.",
+    "distractedFull": "Leicht ablenkbar",
+    "role": "Rolle",
+    "roleFull": "Soziale Rolle",
+    "wish": "Wunsch",
+    "wishFull": "Wunschpartner",
+    "avoid": "meiden",
+    "avoidFull": "Distanzwunsch",
+    "window": "Fenster",
+    "windowFull": "Fensterplatz",
+    "door": "Tür",
+    "doorFull": "Türnähe"
+  },
+  "studentList": {
+    "title": "Klassenliste",
+    "addStudent": "Schüler hinzufügen",
+    "newStudent": "Neuer Schüler",
+    "studentName": "Name des Schülers",
+    "noStudents": "Noch keine Schüler hinzugefügt",
+    "studentCount": "{{count}} Schüler",
+    "removeStudent": "Schüler entfernen",
+    "editStudent": "Schüler bearbeiten",
+    "placeholders": "Platzhalter",
+    "createPlaceholders": "Platzhalter erstellen",
+    "delete": "Löschen",
+    "removeStudentTitle": "{{name}} entfernen"
+  },
+  "csv": {
+    "import": "Klassenliste importieren",
+    "export": "Klassenliste exportieren",
+    "uploadCsv": "CSV hochladen",
+    "templateLink": "CSV-Vorlage",
+    "downloadTemplate": "CSV-Vorlage herunterladen",
+    "externalModernCsv": "Externer Link zu Modern CSV",
+    "softwareRecommendation": "Software-Empfehlung für die Verwaltung von CSV-Dateien:"
+  },
+  "viewMode": {
+    "showLabels": "Beschriftung anzeigen",
+    "hideLabels": "Beschriftung ausblenden",
+    "showLabelsShortcut": "Beschriftung anzeigen (⌘/Strg+B)",
+    "hideLabelsShortcut": "Beschriftung ausblenden (⌘/Strg+B)",
+    "labels": "Beschriftung"
+  },
+  "partners": {
+    "wishPartner": "Wunschpartner",
+    "wishPartners": "Wunschpartner",
+    "distancePartner": "Distanzpartner",
+    "distancePartners": "Distanzpartner",
+    "selectPartner": "Wunschpartner auswählen",
+    "removePartner": "Partner entfernen",
+    "priority": "Priorität",
+    "maxPartners": "Maximal 3 Partner möglich",
+    "partner": "Partner",
+    "noWishPartner": "Kein Wunschpartner",
+    "noPartnerSelected": "Kein Partner ausgewählt"
+  },
+  "distance": {
+    "label": "Distanz",
+    "noDistancePartner": "Kein Distanzpartner",
+    "noDistanceSelected": "Kein Distanzwunsch ausgewählt",
+    "distanceWish": "Distanzpartner",
+    "distanceWishes": "Distanzpartner",
+    "selectDistance": "Distanzpartner auswählen"
+  },
+  "height": {
+    "title": "Körpergröße",
+    "small": "Klein",
+    "medium": "Mittel",
+    "tall": "Groß",
+    "noHeight": "Keine Angabe",
+    "smallTooltip": "Kleinere Schüler werden bevorzugt vorne platziert",
+    "mediumTooltip": "Mittlere Größe - keine Bevorzugung",
+    "tallTooltip": "Größere Schüler werden bevorzugt hinten platziert"
+  },
+  "languageSkill": {
+    "title": "Sprachniveau",
+    "short": "Sprache",
+    "native": "Muttersprache",
+    "fluent": "Fließend",
+    "intermediate": "Fortgeschritten",
+    "beginner": "Anfänger",
+    "daz": "DaZ-Förderung",
+    "notSet": "Nicht angegeben",
+    "tooltip": {
+      "native": "Deutsch ist Muttersprache",
+      "fluent": "Fließend (C1/C2)",
+      "intermediate": "Fortgeschritten (B1/B2)",
+      "beginner": "Anfänger (A1/A2)",
+      "daz": "Benötigt DaZ-Förderung (Deutsch als Zweitsprache)"
+    }
+  },
+  "socialRole": {
+    "title": "Soziale Rolle",
+    "short": "Rolle",
+    "mediator": "Mediator",
+    "leader": "Anführer",
+    "loner": "Einzelgänger",
+    "socialHub": "Mittelpunkt",
+    "neutral": "Neutral",
+    "tooltip": {
+      "mediator": "Wirkt beruhigend auf Mitschüler, kann Konflikte entschärfen",
+      "leader": "Übernimmt gerne Führung, starke Persönlichkeit",
+      "loner": "Arbeitet lieber allein, braucht Ruhe",
+      "socialHub": "Beliebter Mittelpunkt, zieht Aufmerksamkeit an"
+    }
+  },
+  "roomPreference": {
+    "title": "Raumpräferenz",
+    "window": "Fenster",
+    "door": "Tür",
+    "windowSeat": "Platz am Fenster",
+    "doorProximity": "Platz an der Tür",
+    "nearWindow": "Am Fenster",
+    "nearDoor": "An der Tür",
+    "noPreference": "Keine Präferenz",
+    "windowTooltip": "Schüler bevorzugt Plätze am Fenster",
+    "doorTooltip": "Schüler bevorzugt Plätze an der Tür"
+  },
+  "quickEntry": {
+    "title": "Schnell-Namenerfassung",
+    "subtitle": "Trage fehlende Namen nacheinander ein.",
+    "description": "Gib die Namen der Schüler ein, einen pro Zeile",
+    "placeholder": "Max Mustermann\nErika Musterfrau\n...",
+    "create": "Klasse erstellen",
+    "remainingOne": "Noch 1 Schüler ohne Namen.",
+    "remainingMultiple": "Noch {{count}} Schüler ohne Namen.",
+    "nameForStudent": "Name für Schüler {{number}}",
+    "enterName": "Name eintragen",
+    "skip": "Überspringen",
+    "skipTitle": "Aktuellen Schüler überspringen (Alt/Option+→)",
+    "save": "Name speichern",
+    "saveTitle": "Name speichern (Enter)",
+    "allUpdated": "Alle Namen wurden aktualisiert.",
+    "noticeTitleSingular": "Ein Schüler hat noch keinen Namen.",
+    "noticeTitlePlural": "{{count}} Schüler haben noch keinen Namen.",
+    "noticeDescription": "Starte die Schnell-Namenerfassung, um alle fehlenden Namen zu ergänzen.",
+    "noticeHint": "Hinweis: Alle weiteren Schülerdetails pflegst du direkt in der Schülerliste hinzu.",
+    "startButton": "Schnell-Namenerfassung starten",
+    "startButtonTitle": "Fehlende Namen schnell hinzufügen"
+  },
+  "dialogs": {
+    "deleteClassTitle": "Klasse löschen",
+    "deleteClassMessage": "Möchtest du diese Klasse wirklich löschen? Alle Schüler und Sitzpläne werden unwiderruflich entfernt.",
+    "clearStudentsTitle": "Alle Schüler entfernen",
+    "clearStudentsMessage": "Möchtest du wirklich alle Schüler aus dieser Klasse entfernen?",
+    "editClassTitle": "Klasse bearbeiten",
+    "className": "Klassenname",
+    "classLabel": "Klassenkürzel",
+    "classNotes": "Notizen"
+  },
+  "specialNeeds": {
+    "title": "Besondere Bedürfnisse",
+    "vision": "Sehen",
+    "hearing": "Hören",
+    "restless": "Unruhig",
+    "active": "aktiv",
+    "inactive": "inaktiv",
+    "clickToToggle": "Klicken zum Umschalten"
+  },
+  "nameEditor": {
+    "saveName": "Namen speichern",
+    "cancelEdit": "Bearbeitung abbrechen",
+    "editName": "Namen bearbeiten: {{name}}",
+    "editButton": "Namen bearbeiten",
+    "editTitle": "Klick oder Eingabetaste zum Bearbeiten",
+    "truncatedTitle": "Wird in Tischansicht gekürzt: \"{{preview}}\"",
+    "truncatedLabel": "Gekürzter Name: {{preview}}",
+    "truncatedEditTitle": "Wird in Tischansicht gekürzt: \"{{preview}}\" (Klick oder Eingabetaste zum Bearbeiten)"
+  },
+  "classDialog": {
+    "createTitle": "Neue Klasse erstellen",
+    "editTitle": "Klasse bearbeiten",
+    "createSubtitle": "Füge einen Namen und optional das Schuljahr und weitere Notizen hinzu.",
+    "editSubtitle": "Passe Name, Schuljahr oder Notizen an.",
+    "className": "Klassenname",
+    "classNamePlaceholder": "z. B. Klasse 7b",
+    "schoolYear": "Schuljahr",
+    "schoolYearPlaceholder": "z. B. 2025/26",
+    "notes": "Notizen",
+    "notesPlaceholder": "Besonderheiten, Schwerpunkt, etc.",
+    "createButton": "Klasse anlegen"
+  },
+  "quickClass": {
+    "invalidCount": "Bitte gib eine Zahl zwischen 1 und {{max}} ein.",
+    "decreaseCount": "Anzahl verringern",
+    "increaseCount": "Anzahl erhöhen",
+    "placeholderCount": "Anzahl Platzhalter-Schüler",
+    "createTitle": "Klasse mit leeren Platzhaltern anlegen",
+    "createButton": "Klasse anlegen"
+  },
+  "common": {
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "optional": "optional",
+    "active": "aktiv",
+    "inactive": "inaktiv"
+  },
+  "studentInput": {
+    "title": "Klassenliste",
+    "proceedShortcut": "Weiter (Alt/Option+→)",
+    "proceedButton": "Weiter zum Klassenraum",
+    "emptyClassTitle": "{{className}} ist noch leer.",
+    "emptyClassHint": "Lege Schüler an, indem du Platzhalter anlegst, sie einzeln hinzufügst oder eine bestehende CSV importierst. Alle Eingaben gelten nur für diese Klasse.",
+    "emptyClassCsvHint": "Du kannst auch diese CSV-Vorlage nutzen und sie mit den Namen deiner Schüler befüllen. Klicke dann auf Klassenliste und lade die CSV-Datei hoch.",
+    "removeStudentTitle": "Schüler entfernen",
+    "removeStudentMessage": "Möchtest du {{studentName}} wirklich entfernen? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "thisStudent": "diesen Schüler",
+    "studentRemoved": "{{studentName}} wurde entfernt.",
+    "clearAllTitle": "Alle Schüler entfernen",
+    "clearAllMessage": "Möchtest du wirklich alle Schüler aus {{className}} entfernen? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "yourClass": "deine Klasse",
+    "placeholdersCreated": "{{count}} Schüler-Platzhalter erstellt. Fülle jetzt die Namen und Details aus."
+  }
+}

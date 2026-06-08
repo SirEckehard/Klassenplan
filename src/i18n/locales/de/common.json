@@ -1,0 +1,163 @@
+{
+  "skipToContent": "Zum Inhalt springen",
+  "notFound": {
+    "code": "404",
+    "title": "Seite nicht gefunden",
+    "message": "Diese Seite existiert nicht oder wurde verschoben.",
+    "home": "Zur Startseite"
+  },
+  "language": {
+    "de": "Deutsch",
+    "en": "English",
+    "select": "Sprache wählen"
+  },
+  "nav": {
+    "home": "Home",
+    "impressum": "Impressum",
+    "datenschutz": "Datenschutz",
+    "faq": "FAQ",
+    "changelog": "Changelog",
+    "support": "Unterstützen",
+    "feedback": "Feedback"
+  },
+  "buttons": {
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "add": "Hinzufügen",
+    "close": "Schließen",
+    "back": "Zurück",
+    "next": "Weiter",
+    "confirm": "Bestätigen",
+    "undo": "Rückgängig",
+    "redo": "Wiederholen",
+    "print": "Drucken",
+    "toGenerator": "Direkt zum Generator",
+    "contactUs": "Kontakt aufnehmen",
+    "giveFeedback": "Feedback geben"
+  },
+  "labels": {
+    "yes": "Ja",
+    "no": "Nein",
+    "name": "Name",
+    "class": "Klasse",
+    "student": "Schüler",
+    "students": "Schüler",
+    "table": "Tisch",
+    "tables": "Tische",
+    "seat": "Sitzplatz",
+    "seats": "Sitzplätze",
+    "version": "Version"
+  },
+  "features": {
+    "window": "Fenster",
+    "door": "Tür",
+    "board": "Tafel",
+    "podium": "Pult"
+  },
+  "gender": {
+    "male": "männlich",
+    "female": "weiblich",
+    "diverse": "divers"
+  },
+  "studentFlags": {
+    "restless": "unruhig",
+    "shy": "schüchtern",
+    "concentrationIssues": "ablenkbar",
+    "needsFrontSeat": "Vordere Plätze",
+    "performanceStrong": "leistungsstark",
+    "performanceWeak": "leistungsschwach"
+  },
+  "studentFlagTooltips": {
+    "restless": "Zeigt aktuell unruhiges Verhalten im Unterricht",
+    "shy": "Zeigt aktuell zurückhaltendes Verhalten im Unterricht",
+    "concentrationIssues": "Lässt sich aktuell leicht ablenken",
+    "needsFrontSeat": "Benötigt einen festen vorderen Platz",
+    "performanceStrong": "Zeigt aktuell besondere Stärken im Unterricht",
+    "performanceWeak": "Zeigt aktuell Förderbedarf im Unterricht"
+  },
+  "heightCategories": {
+    "small": "klein",
+    "medium": "mittel",
+    "tall": "groß"
+  },
+  "theme": {
+    "light": "Hell",
+    "dark": "Dunkel",
+    "toggle": "Design wechseln"
+  },
+  "pages": {
+    "faq": {
+      "title": "Häufige Fragen",
+      "description": "Hier findest du Antworten zu Algorithmus, Einstellungen, Bedienung und dem Projekt.",
+      "stillUnclear": "Noch etwas unklar?",
+      "stillUnclearDescription": "Wenn deine Frage hier nicht beantwortet wurde, melde dich gern per E-Mail. Alle Informationen findest du auf unserer Kontaktseite."
+    },
+    "changelog": {
+      "title": "Changelog",
+      "description": "Alle Änderungen und neuen Features im Überblick",
+      "newFeatures": "Neue Features",
+      "improvements": "Verbesserungen",
+      "bugfixes": "Fehlerbehebungen",
+      "knownIssues": "Bekannte Fehler",
+      "feedbackTitle": "Fragen oder Feedback?",
+      "feedbackDescription": "Ich freue mich über dein Feedback zu neuen Features und Verbesserungen."
+    },
+    "export": {
+      "title": "Export",
+      "backToSeating": "Zurück zum Sitzplan",
+      "preview": "Vorschau",
+      "roomElements": "Raumelemente",
+      "showBoard": "Tafel anzeigen",
+      "showWindows": "Fenster anzeigen",
+      "showDoor": "Tür anzeigen",
+      "showPodium": "Pult anzeigen",
+      "showConnections": "Verbindungen anzeigen",
+      "showNeeds": "Bedürfnisse anzeigen",
+      "showFullNames": "Namen vollständig anzeigen"
+    }
+  },
+  "errors": {
+    "generic": "Ein Fehler ist aufgetreten",
+    "tryAgain": "Bitte versuche es erneut",
+    "layoutUnavailable": "Layout-Editor vorübergehend nicht verfügbar",
+    "layoutDescription": "Beim Rendern des Klassenzimmer-Layouts ist ein Fehler aufgetreten. Bitte versuche es erneut oder lade die Seite neu.",
+    "planUnavailable": "Sitzplan-Ansicht konnte nicht angezeigt werden",
+    "planDescription": "Beim Rendern des Sitzplans ist ein Fehler aufgetreten. Bitte versuche es erneut oder lade die Seite neu.",
+    "studentListUnavailable": "Klassenliste konnte nicht geladen werden",
+    "studentListDescription": "Beim Rendern des Klassenlisten-Schritts ist ein Fehler aufgetreten. Du kannst es erneut versuchen oder die Seite neu laden."
+  },
+  "common": {
+    "retry": "Erneut versuchen",
+    "reloadPage": "Seite neu laden",
+    "errorDetails": "Fehlerdetails",
+    "closeDialog": "Dialog schließen"
+  },
+  "footer": {
+    "settings": "Einstellungen",
+    "clearAllData": "Alle Daten löschen"
+  },
+  "dialogs": {
+    "confirmTitle": "Bestätigung",
+    "savePlanFailedConfirm": "Sitzplan konnte nicht gespeichert werden. Trotzdem zurückkehren?",
+    "importOverwriteConfirm": "Achtung: Der Import überschreibt alle vorhandenen Daten (Schüler, Sitzpläne, Sitzkreis-Layouts etc.). Diese Aktion kann nicht rückgängig gemacht werden. Möchtest du fortfahren?",
+    "clearAllData": {
+      "title": "Alle Daten löschen",
+      "message": "Möchtest du wirklich alle Daten (inkl. Klassenliste, Vorlagen etc.) löschen?",
+      "confirm": "Löschen",
+      "cancel": "Abbrechen"
+    }
+  },
+  "help": {
+    "title": "Hilfe",
+    "instructions": "Anleitung",
+    "shortcuts": "Tastenkürzel"
+  },
+  "pwa": {
+    "updateAvailable": "Neue Version verfügbar",
+    "reload": "Aktualisieren",
+    "install": "Als App installieren",
+    "installDesc": "Klassenplan als App installieren und offline nutzen!"
+  }
+}

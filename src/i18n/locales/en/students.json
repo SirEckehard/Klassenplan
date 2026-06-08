@@ -1,0 +1,282 @@
+{
+  "classManagement": {
+    "title": "Class Management",
+    "activeClass": "Active Class",
+    "noClassSelected": "No class selected",
+    "noClasses": "No classes yet",
+    "selectClass": "Select class",
+    "newClass": "New Class",
+    "editClass": "Edit class",
+    "deleteClass": "Delete class",
+    "clearStudents": "Remove all students",
+    "classes": "Classes",
+    "clear": "Clear",
+    "delete": "Delete"
+  },
+  "gender": {
+    "title": "Gender",
+    "boy": "Boy",
+    "girl": "Girl",
+    "diverse": "Diverse",
+    "noSelection": "Gender: not specified (optional)",
+    "noValue": "Not specified",
+    "hint": "Gender is optional, required for specific mixing.",
+    "selection": "Gender selection"
+  },
+  "studentFlags": {
+    "restless": {
+      "label": "restless",
+      "tooltip": "Restless behavior"
+    },
+    "shy": {
+      "label": "shy",
+      "tooltip": "Withdrawn behavior"
+    },
+    "concentrationIssues": {
+      "label": "easily distracted",
+      "tooltip": "Easily distracted"
+    },
+    "needsFrontSeat": {
+      "label": "front seat",
+      "tooltip": "Needs a front seat"
+    },
+    "performanceStrong": {
+      "label": "high performer",
+      "tooltip": "Particular strengths"
+    },
+    "performanceWeak": {
+      "label": "needs support",
+      "tooltip": "Needs support"
+    }
+  },
+  "listHeader": {
+    "gender": "Gender",
+    "genderFull": "Gender",
+    "height": "Height",
+    "heightFull": "Body height",
+    "language": "Lang.",
+    "languageFull": "Language level",
+    "strong": "strong",
+    "strongFull": "High performer",
+    "weak": "weak",
+    "weakFull": "Needs support",
+    "front": "front",
+    "frontFull": "Front seat",
+    "restless": "restl.",
+    "restlessFull": "Restless behavior",
+    "shy": "shy",
+    "shyFull": "Shy",
+    "distracted": "distr.",
+    "distractedFull": "Easily distracted",
+    "role": "role",
+    "roleFull": "Social role",
+    "wish": "wish",
+    "wishFull": "Wish partner",
+    "avoid": "avoid",
+    "avoidFull": "Avoid partner",
+    "window": "window",
+    "windowFull": "Window seat",
+    "door": "door",
+    "doorFull": "Near door"
+  },
+  "studentList": {
+    "title": "Class List",
+    "addStudent": "Add student",
+    "newStudent": "New Student",
+    "studentName": "Student name",
+    "noStudents": "No students added yet",
+    "studentCount": "{{count}} students",
+    "removeStudent": "Remove student",
+    "editStudent": "Edit student",
+    "placeholders": "Placeholders",
+    "createPlaceholders": "Create placeholders",
+    "delete": "Delete",
+    "removeStudentTitle": "Remove {{name}}"
+  },
+  "csv": {
+    "import": "Import class list",
+    "export": "Export class list",
+    "uploadCsv": "Upload CSV",
+    "templateLink": "CSV template",
+    "downloadTemplate": "Download CSV template",
+    "externalModernCsv": "External link to Modern CSV",
+    "softwareRecommendation": "Software recommendation for managing CSV files:"
+  },
+  "viewMode": {
+    "showLabels": "Show labels",
+    "hideLabels": "Hide labels",
+    "showLabelsShortcut": "Show labels (⌘/Ctrl+B)",
+    "hideLabelsShortcut": "Hide labels (⌘/Ctrl+B)",
+    "labels": "Labels"
+  },
+  "partners": {
+    "wishPartner": "Preferred Partner",
+    "wishPartners": "Preferred Partners",
+    "distancePartner": "Distance Partner",
+    "distancePartners": "Distance Partners",
+    "selectPartner": "Select preferred partner",
+    "removePartner": "Remove partner",
+    "priority": "Priority",
+    "maxPartners": "Maximum 3 partners allowed",
+    "partner": "Partner",
+    "noWishPartner": "No preferred partner",
+    "noPartnerSelected": "No partner selected"
+  },
+  "distance": {
+    "label": "Distance",
+    "noDistancePartner": "No distance partner",
+    "noDistanceSelected": "No distance partner selected",
+    "distanceWish": "Distance Partner",
+    "distanceWishes": "Distance Partners",
+    "selectDistance": "Select distance partner"
+  },
+  "height": {
+    "title": "Height",
+    "small": "Short",
+    "medium": "Medium",
+    "tall": "Tall",
+    "noHeight": "Not specified",
+    "smallTooltip": "Shorter students are preferably placed at the front",
+    "mediumTooltip": "Medium height - no preference",
+    "tallTooltip": "Taller students are preferably placed at the back"
+  },
+  "languageSkill": {
+    "title": "Language Level",
+    "short": "Language",
+    "native": "Native",
+    "fluent": "Fluent",
+    "intermediate": "Intermediate",
+    "beginner": "Beginner",
+    "daz": "Language Support",
+    "notSet": "Not specified",
+    "tooltip": {
+      "native": "German is native language",
+      "fluent": "Fluent (C1/C2)",
+      "intermediate": "Intermediate (B1/B2)",
+      "beginner": "Beginner (A1/A2)",
+      "daz": "Needs language support (German as second language)"
+    }
+  },
+  "socialRole": {
+    "title": "Social Role",
+    "short": "Role",
+    "mediator": "Mediator",
+    "leader": "Leader",
+    "loner": "Loner",
+    "socialHub": "Social Hub",
+    "neutral": "Neutral",
+    "tooltip": {
+      "mediator": "Has calming effect on classmates, can defuse conflicts",
+      "leader": "Likes to take charge, strong personality",
+      "loner": "Prefers working alone, needs quiet",
+      "socialHub": "Popular center of attention, draws attention"
+    }
+  },
+  "roomPreference": {
+    "title": "Room Preference",
+    "window": "Window",
+    "door": "Door",
+    "windowSeat": "Window Seat",
+    "doorProximity": "Near Door",
+    "nearWindow": "Near Window",
+    "nearDoor": "Near Door",
+    "noPreference": "No preference",
+    "windowTooltip": "Student prefers seats near the window",
+    "doorTooltip": "Student prefers seats near the door"
+  },
+  "quickEntry": {
+    "title": "Quick Name Entry",
+    "subtitle": "Enter missing names one by one.",
+    "description": "Enter student names, one per line",
+    "placeholder": "John Doe\nJane Smith\n...",
+    "create": "Create Class",
+    "remainingOne": "1 student without name remaining.",
+    "remainingMultiple": "{{count}} students without names remaining.",
+    "nameForStudent": "Name for student {{number}}",
+    "enterName": "Enter name",
+    "skip": "Skip",
+    "skipTitle": "Skip current student (Alt/Option+→)",
+    "save": "Save name",
+    "saveTitle": "Save name (Enter)",
+    "allUpdated": "All names have been updated.",
+    "noticeTitleSingular": "One student is still missing a name.",
+    "noticeTitlePlural": "{{count}} students are still missing names.",
+    "noticeDescription": "Start the quick name entry to complete all missing names.",
+    "noticeHint": "Note: Add all further student details directly in the class list.",
+    "startButton": "Start quick name entry",
+    "startButtonTitle": "Quickly add missing names"
+  },
+  "dialogs": {
+    "deleteClassTitle": "Delete Class",
+    "deleteClassMessage": "Are you sure you want to delete this class? All students and seating plans will be permanently removed.",
+    "clearStudentsTitle": "Remove All Students",
+    "clearStudentsMessage": "Are you sure you want to remove all students from this class?",
+    "editClassTitle": "Edit Class",
+    "className": "Class Name",
+    "classLabel": "Class Label",
+    "classNotes": "Notes"
+  },
+  "specialNeeds": {
+    "title": "Special Needs",
+    "vision": "Vision",
+    "hearing": "Hearing",
+    "restless": "Restless",
+    "active": "active",
+    "inactive": "inactive",
+    "clickToToggle": "Click to toggle"
+  },
+  "nameEditor": {
+    "saveName": "Save name",
+    "cancelEdit": "Cancel editing",
+    "editName": "Edit name: {{name}}",
+    "editButton": "Edit name",
+    "editTitle": "Click or press Enter to edit",
+    "truncatedTitle": "Will be truncated in table view: \"{{preview}}\"",
+    "truncatedLabel": "Truncated name: {{preview}}",
+    "truncatedEditTitle": "Will be truncated in table view: \"{{preview}}\" (Click or press Enter to edit)"
+  },
+  "classDialog": {
+    "createTitle": "Create New Class",
+    "editTitle": "Edit Class",
+    "createSubtitle": "Add a name and optionally the school year and other notes.",
+    "editSubtitle": "Adjust name, school year, or notes.",
+    "className": "Class Name",
+    "classNamePlaceholder": "e.g. Class 7B",
+    "schoolYear": "School Year",
+    "schoolYearPlaceholder": "e.g. 2025/26",
+    "notes": "Notes",
+    "notesPlaceholder": "Details, focus, etc.",
+    "createButton": "Create Class"
+  },
+  "quickClass": {
+    "invalidCount": "Please enter a number between 1 and {{max}}.",
+    "decreaseCount": "Decrease count",
+    "increaseCount": "Increase count",
+    "placeholderCount": "Number of placeholder students",
+    "createTitle": "Create class with empty placeholders",
+    "createButton": "Create Class"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "optional": "optional",
+    "active": "active",
+    "inactive": "inactive"
+  },
+  "studentInput": {
+    "title": "Class List",
+    "proceedShortcut": "Continue (Alt/Option+→)",
+    "proceedButton": "Proceed to Classroom",
+    "emptyClassTitle": "{{className}} is still empty.",
+    "emptyClassHint": "Add students by creating placeholders, adding them individually, or importing an existing CSV. All entries apply only to this class.",
+    "emptyClassCsvHint": "You can also use this CSV template and fill it with your students' names. Then click on Class List and upload the CSV file.",
+    "removeStudentTitle": "Remove Student",
+    "removeStudentMessage": "Do you really want to remove {{studentName}}? This action cannot be undone.",
+    "thisStudent": "this student",
+    "studentRemoved": "{{studentName}} has been removed.",
+    "clearAllTitle": "Remove All Students",
+    "clearAllMessage": "Do you really want to remove all students from {{className}}? This action cannot be undone.",
+    "yourClass": "your class",
+    "placeholdersCreated": "{{count}} student placeholders created. Now fill in the names and details."
+  }
+}

@@ -1,0 +1,142 @@
+{
+  "v1_5_0": {
+    "0": "Neues Logo",
+    "1": "Neue Schriftart: DM Sans – moderne und gut lesbare Schrift für alle Bildschirmgrößen",
+    "2": "Überarbeitete Startseite mit Vorschau-Screenshots",
+    "3": "Klareres Wording: 'Hör-/Sehschwäche' heißt jetzt 'Vordere Plätze' – ein fester Platz in der vorderen Reihe, unabhängig vom Grund",
+    "4": "Schärfere Unterscheidung: 'Unruhe' (lenkt andere ab) und 'Ablenkbarkeit' (lässt sich leicht ablenken) sind jetzt klar getrennt",
+    "5": "Neue Icons (Phosphor) und optische Feinschliffe in Footer, Buttons und Bedürfnis-Anzeigen",
+    "6": "Fehlerhaftes Icon korrigiert",
+    "7": "Kleine Darstellungsfehler behoben"
+  },
+  "v1_4_2": {
+    "0": "FAQ: Hinweis ergänzt, was Sitzpläne leisten können (und was nicht)",
+    "1": "Den Button 'Alle Daten löschen' in den Footer verschoben",
+    "2": "Stabilitäts- und Qualitätsverbesserungen"
+  },
+  "v1_4_1": {
+    "0": "Stabilitäts- und Sicherheitsverbesserungen"
+  },
+  "v1_4_0": {
+    "0": "Neuer Server (Hetzner): Alle Daten werden ausschließlich in Deutschland gespeichert und verarbeitet",
+    "1": "Dynamische Tafelpositions-Erkennung: Der Algorithmus erkennt automatisch, wo sich die Tafel befindet – ist die Tafel links im Raum, gilt auch links als 'vorne'",
+    "2": "Algorithmusverbesserungen",
+    "3": "Anpassung der Größe der Tische",
+    "4": "UI/UX-Optimierungen",
+    "5": "Sicherheitsupdates"
+  },
+  "v1_3_0": {
+    "0": "Englische Übersetzung: Die gesamte Anwendung ist jetzt zweisprachig (Deutsch/Englisch) verfügbar",
+    "1": "Neuer Wizard-Flow: Überarbeitete Schritt-für-Schritt-Anzeige mit verbesserter Benutzerführung",
+    "2": "Sprachkompetenz & Soziale Rolle: Neue Schülerattribute zur Berücksichtigung beim Mischen",
+    "3": "Verbesserte PWA-Funktionalität: Update-Benachrichtigungen und 'Als App installieren'-Option (nur Chrome & Edge)",
+    "4": "Vereinfachte Startseite mit überarbeitetem Design",
+    "5": "Logischere und konsistente Reihenfolge der Mischkriterien in Schritt 1 und 3",
+    "6": "In Schritt 3 werden nur die tatsächlich genutzten Mischkriterien angezeigt",
+    "7": "Verbessertes Autosave-Verhalten",
+    "8": "Sicherheitsupdates und verbesserte Fehlerbehandlung"
+  },
+  "v1_2_1": {
+    "0": "Backup-Import für Klassenräume mit 6er-Gruppentischen repariert",
+    "1": "Sicherheits- und Stabilitätsverbesserungen"
+  },
+  "v1_2_0": {
+    "0": "Mehrklassen-Verwaltung: Lege beliebig viele Klassen an und behalte Sitzpläne je Klasse separat im Blick",
+    "1": "Mehrfache Wunsch- und Distanzpartner: Wähle bis zu 3 Partner pro Schüler mit Prioritätsreihenfolge, die vom Algorithmus berücksichtigt werden",
+    "2": "Offline-Verfügbarkeit – lade Klassenplan einmalig und nutze den Generator anschließend vollständig ohne Internet",
+    "3": "Verbesserte Statistiken mit farbigem Feedback direkt im Sitzplan zur schnelleren Einschätzung der Zusammensetzung",
+    "4": "Kompakte Klassenlisten-Ansicht mit optionalen Icon-Beschriftungen für mehr Übersicht",
+    "5": "Vielfältige UI-/UX-Optimierungen und Stabilitätsupdates"
+  },
+  "v1_1_3": {
+    "0": "Verbesserte Handhabung von langen Namen im Sitzkreis",
+    "1": "Refinements am Algorithmus zur besseren Berücksichtigung von Fenster- und Türnähe",
+    "2": "Optimierte Performance beim Laden und Speichern von Klassenräumen",
+    "3": "Verschiedene Verbesserungen an der Codebasis und Stabilität",
+    "4": "Verschiedene UI/UX-Verbesserungen",
+    "5": "Vorbereitungen für Offline-Unterstützung und PWA-Funktionalität"
+  },
+  "v1_1_2": {
+    "0": "Fenster, Türen und Pult können jetzt im Klassenraum hinzugefügt und verschoben werden",
+    "1": "Algorithmus beachtet nun Wünsche zur Fenster- bzw. Türnähe",
+    "2": "UI/UX-Verbesserungen",
+    "3": "Statistikanzeige erweitert und korrigiert",
+    "4": "Drucken in Safari verbessert"
+  },
+  "v1_1_1": {
+    "0": "Einführung der Schnell-Namenerfassung, wenn Funktion \"Klasse anlegen\" benutzt wird",
+    "1": "Geschlechtsangaben sind optional",
+    "2": "Sitzplan und Sitzkreis können in Export unabhängig voneinander gedreht werden",
+    "3": "Statistikanzeige in Schritt 3 liefert gelegentlich fehlerhafte Werte.",
+    "4": "Safari: Fehlerhafte Drucken-Vorschau im Druckdialog & zusätzliche leere Seite"
+  },
+  "v1_1_0": {
+    "0": "Komplettes UI-Redesign mit modernen, konsistenten Bedienelementen",
+    "1": "Einführung der Körpergrößen-Funktion",
+    "2": "Speicher- und Backup-Verwaltung öffnet sich jetzt in einem eigenen Fenster",
+    "3": "Beim Speichern von Klassenraum-Vorlagen in Schritt 2 erscheint nun ein Dialog mit Überschreiben-Option.",
+    "4": "Optimierte Darstellung des Lock-Icons und der Bedürfnisindikatoren direkt unter den Namen.",
+    "5": "Hochformat ist jetzt das Standardformat für Exporte; für Sitzkreise bleibt Querformat empfohlen.",
+    "6": "Unterstützung für Namen mit bis zu 12 Zeichen inklusive automatischer Skalierung",
+    "7": "Statistikanzeige in Schritt 3 liefert gelegentlich fehlerhafte Werte.",
+    "8": "Safari: Fehlerhafte Drucken-Vorschau im Druckdialog & zusätzliche leere Seite"
+  },
+  "v1_0_3": {
+    "0": "Schnelleinrichtung \"Klasse anlegen\" in Klassenliste hinzugefügt",
+    "1": "Einführung der Distanzwunsch-Funktion",
+    "2": "\"Klassenraum einrichten\"-Quick-Setup-Menü in Klassenraum hinzugefügt und aus Klassenliste entfernt",
+    "3": "Verwaltung der Klassenraum-Vorlagen in das neue Quick-Setup-Menü integriert",
+    "4": "CSV-Import von Klassenlisten verbessert: unterstützter Import für externe Listen (z.B. Schülerlisten mit Noten)",
+    "5": "UI/UX-Verbesserungen",
+    "6": "Verbesserte Barrierefreiheit und Tastaturnavigation",
+    "7": "Verbesserte Performance",
+    "8": "Wiederholungs-Kriterium für Sitzpläne repariert"
+  },
+  "v1_0_2": {
+    "0": "Umstrukturierung der Klassenliste mit Kompakt- und Detailansicht",
+    "1": "Einführung der minimierten und erweiterten Sidebar in Klassenraum, Sitzplan/-kreis und Export",
+    "2": "FAQ-Seite mit Antworten auf häufige Fragen hinzugefügt",
+    "3": "UI/UX-Verbesserungen",
+    "4": "Fehlerbehebungen und Stabilitätsverbesserungen"
+  },
+  "v1_0_1": {
+    "0": "Sitzkreis-Modus hinzugefügt",
+    "1": "PDF-Export-Vorschau optimiert: Hoch- und Querformat mit verbesserter Darstellung",
+    "2": "UI/UX-Verbesserungen",
+    "3": "Fehlerbehebungen und Stabilitätsverbesserungen"
+  },
+  "v1_0_0": {
+    "0": "Intelligenter Sitzplan-Algorithmus",
+    "1": "Klassenraum-Editor mit Drag-and-Drop-Funktionalität",
+    "2": "Backup & Restore Funktionalität mit IndexedDB",
+    "3": "Dark Mode Unterstützung",
+    "4": "PDF-Export für Sitzpläne"
+  },
+  "types": {
+    "feature": "Neue Features",
+    "improvement": "Verbesserungen",
+    "bugfix": "Fehlerbehebungen",
+    "knownissue": "Bekannte Fehler"
+  },
+  "header": {
+    "title": "Changelog",
+    "subtitle": "Alle Änderungen und neuen Features im Überblick",
+    "homeLink": "Zur Startseite",
+    "aria": {
+      "banner": "Changelog Überblick",
+      "intro": "changelog-intro"
+    }
+  },
+  "footer": {
+    "title": "Fragen oder Feedback?",
+    "text": "Ich freue mich über dein Feedback zu neuen Features und Verbesserungen.",
+    "feedbackBtn": "Feedback geben",
+    "generatorBtn": "Direkt zum Generator"
+  },
+  "updateNotice": {
+    "newInVersion": "Neu in Version {{version}}",
+    "intro": "Klassenplan wurde aktualisiert. Hier sind die wichtigsten Verbesserungen auf einen Blick.",
+    "dismiss": "Verstanden",
+    "link": "Gesamtes Changelog"
+  }
+}

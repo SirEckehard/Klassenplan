@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="de">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="description"
+    content="Organisiere Sitzpläne effizient und datenschutzkonform mit dem digitalen Klassenplan-Tool." />
+  <meta name="robots" content="index,follow" />
+  <meta name="fragment" content="!" />
+  <meta property="og:title" content="Klassenplan – Intelligente Sitzpläne für Schulen" />
+  <meta property="og:description"
+    content="Organisiere Sitzpläne effizient und datenschutzkonform mit dem digitalen Klassenplan-Tool." />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="de_DE" />
+  <meta property="og:site_name" content="Klassenplan" />
+  <meta property="og:image" content="https://klassenplan.de/brand/lockup/klassenplan-lockup.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="226" />
+  <meta property="og:image:alt" content="Klassenplan – Intelligente Sitzpläne für Schulen" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Klassenplan – Intelligente Sitzpläne für Schulen" />
+  <meta name="twitter:description"
+    content="Organisiere Sitzpläne effizient und datenschutzkonform mit dem digitalen Klassenplan-Tool." />
+  <meta name="twitter:image" content="https://klassenplan.de/brand/lockup/klassenplan-lockup.png" />
+  <link rel="canonical" href="https://klassenplan.de/" />
+  <title>Klassenplan – Intelligente Sitzpläne für Schulen</title>
+  <link rel="icon" type="image/svg+xml" href="/brand/master/klassenplan-mark.svg" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/brand/favicon/favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/brand/favicon/favicon-16.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/brand/favicon/favicon-32-dark.png"
+    media="(prefers-color-scheme: dark)" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/brand/favicon/favicon-16-dark.png"
+    media="(prefers-color-scheme: dark)" />
+  <link rel="shortcut icon" href="/brand/favicon/favicon.ico" />
+  <!-- PWA Configuration -->
+  <meta name="theme-color" content="#1B4965" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <!-- iOS Specific -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/brand/ios/apple-touch-icon-180.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/brand/ios/apple-touch-icon-180-dark.png"
+    media="(prefers-color-scheme: dark)" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Klassenplan" />
+  <!-- Speculation Rules: prefetch the most likely next routes (complements the
+       JS routePreloader for full-page navigations from a cold start). Conservative
+       eagerness keeps this from prefetching on every hover. -->
+  <script type="speculationrules">
+    {
+      "prefetch": [
+        {
+          "source": "list",
+          "eagerness": "moderate",
+          "urls": ["/generator", "/export", "/faq", "/en/generator", "/en/export"]
+        }
+      ]
+    }
+  </script>
+  <script>
+    // Capture PWA install prompt immediately to avoid race conditions
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      window.deferredPrompt = e;
+      // Dispatch custom event for React to pick up
+      window.dispatchEvent(new Event('pwa-installable'));
+    });
+  </script>
+</head>
+
+<body>
+  <div id="root"></div>
+  <!-- Vite lädt direkt dein Entry-File als ES Module -->
+  <script type="module" src="/src/index.tsx"></script>
+</body>
+
+</html>

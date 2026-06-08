@@ -1,0 +1,92 @@
+[
+  {
+    "path": "/",
+    "title": "Klassenplan – Intelligente Sitzpläne für Schulen",
+    "description": "Klassenplan ist ein kostenloser Sitzplan-Generator für die Schule. Erstelle individuelle Sitzpläne in flexibel einrichtbaren Klassenräume und mische den Plan nach pädagogischen Attributen in nur wenigen Schritten.",
+    "titleEn": "Klassenplan – Smart Seating Charts for Schools",
+    "descriptionEn": "Klassenplan is a free seating-chart generator for schools. Create individual seating plans in flexibly arranged classrooms and shuffle them by pedagogical attributes in just a few steps.",
+    "changefreq": "weekly",
+    "priority": 1.0,
+    "ogType": "website"
+  },
+  {
+    "path": "/generator",
+    "title": "Sitzplan-Generator | Klassenplan",
+    "description": "Klassenplan ist ein kostenloser Sitzplan-Generator für die Schule. Erstelle individuelle Sitzpläne in flexibel einrichtbaren Klassenräume und mische den Plan nach pädagogischen Attributen in nur wenigen Schritten.",
+    "titleEn": "Seating Chart Generator | Klassenplan",
+    "descriptionEn": "Klassenplan is a free seating-chart generator for schools. Create individual seating plans in flexibly arranged classrooms and shuffle them by pedagogical attributes in just a few steps.",
+    "changefreq": "weekly",
+    "priority": 0.9,
+    "ogType": "website"
+  },
+  {
+    "path": "/export",
+    "title": "Sitzpläne exportieren | Klassenplan",
+    "description": "Exportiere deinen erstellten Sitzplan als PDF oder drucke ihn direkt aus Klassenplan.",
+    "titleEn": "Export Seating Charts | Klassenplan",
+    "descriptionEn": "Export your finished seating chart as a PDF or print it directly from Klassenplan.",
+    "changefreq": "monthly",
+    "priority": 0.7,
+    "ogType": "article"
+  },
+  {
+    "path": "/impressum",
+    "title": "Impressum | Klassenplan",
+    "description": "Kontaktdaten, Verantwortliche und rechtliche Angaben zum Projekt Klassenplan.",
+    "titleEn": "Legal Notice | Klassenplan",
+    "descriptionEn": "Contact details, responsible parties and legal information about the Klassenplan project.",
+    "changefreq": "yearly",
+    "priority": 0.4,
+    "ogType": "article"
+  },
+  {
+    "path": "/datenschutz",
+    "title": "Datenschutz | Klassenplan",
+    "description": "Erfahre, wie Klassenplan deine Daten schützt und welche Informationen lokal gespeichert werden.",
+    "titleEn": "Privacy | Klassenplan",
+    "descriptionEn": "Learn how Klassenplan protects your data and which information is stored locally.",
+    "changefreq": "yearly",
+    "priority": 0.5,
+    "ogType": "article"
+  },
+  {
+    "path": "/feedback",
+    "title": "Kontakt | Klassenplan",
+    "description": "Nimm direkt Kontakt mit dem Klassenplan-Team per E-Mail auf.",
+    "titleEn": "Contact | Klassenplan",
+    "descriptionEn": "Get in touch with the Klassenplan team directly by email.",
+    "changefreq": "quarterly",
+    "priority": 0.6,
+    "ogType": "article"
+  },
+  {
+    "path": "/faq",
+    "title": "FAQ | Klassenplan",
+    "description": "Antworten auf häufige Fragen rund um Algorithmus, Bedienung und Organisation von Klassenplan.",
+    "titleEn": "FAQ | Klassenplan",
+    "descriptionEn": "Answers to common questions about the algorithm, usage and organisation of Klassenplan.",
+    "changefreq": "monthly",
+    "priority": 0.65,
+    "ogType": "article"
+  },
+  {
+    "path": "/changelog",
+    "title": "Changelog | Klassenplan",
+    "description": "Alle Änderungen, neuen Features und Verbesserungen von Klassenplan im Überblick.",
+    "titleEn": "Changelog | Klassenplan",
+    "descriptionEn": "All changes, new features and improvements to Klassenplan at a glance.",
+    "changefreq": "monthly",
+    "priority": 0.6,
+    "ogType": "article"
+  },
+  {
+    "path": "/support",
+    "title": "Unterstützen | Klassenplan",
+    "description": "Unterstütze die Weiterentwicklung von Klassenplan mit einer freiwilligen Spende via PayPal.",
+    "titleEn": "Support | Klassenplan",
+    "descriptionEn": "Support the continued development of Klassenplan with a voluntary donation via PayPal.",
+    "changefreq": "quarterly",
+    "priority": 0.5,
+    "ogType": "article"
+  }
+]

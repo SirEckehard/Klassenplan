@@ -1,0 +1,555 @@
+{
+  "steps": {
+    "step1": "Class List",
+    "step2": "Classroom",
+    "step3": "Seating Plan",
+    "step3Circle": "Seating Circle",
+    "step4": "Export"
+  },
+  "help": {
+    "students": {
+      "title": "Class List",
+      "item1": "Add students: manually, via \"Create Class\" or CSV import.",
+      "item2": "Select up to 3 preferred and distance partners per student – the order determines priority.",
+      "item3": "Toggle the labels under the buttons in the student list."
+    },
+    "layout": {
+      "title": "Classroom",
+      "item1": "Choose a template or add tables by clicking.",
+      "item2": "Move and rotate tables via drag & drop.",
+      "item3": "Multi-select: Shift or Ctrl/Cmd + click, or draw a selection rectangle.",
+      "item4": "Right-click (desktop) or long press (touch) opens the context menu.",
+      "item5": "Save custom classroom templates via the sidebar."
+    },
+    "plan": {
+      "title": "Seating Plan",
+      "item1": "Adjust the weighting of criteria (0-10) in the sidebar.",
+      "item2": "Drag students to other seats via drag & drop.",
+      "item3": "Click the lock icon to lock a seat for the next shuffle.",
+      "item4": "Statistics badges show how well criteria are met."
+    },
+    "circle": {
+      "title": "Seating Circle",
+      "item1": "Drag students to new positions via drag & drop.",
+      "item2": "Green lines show connections to table neighbors in the seating plan.",
+      "item3": "Toggle connections in the sidebar or with key C."
+    },
+    "export": {
+      "title": "Export",
+      "item1": "Customize the name of your seating plan.",
+      "item2": "Switch between portrait and landscape format for PDF export.",
+      "item3": "Choose between different display options like blackboard or full names.",
+      "item4": "Toggle preview between Seating Plan and Seating Circle (top right)."
+    }
+  },
+  "sidebar": {
+    "settings": "Settings",
+    "mixSettings": "Mix Settings",
+    "weights": "Weights",
+    "mix": "Mix",
+    "save": "Save",
+    "templates": "Classroom Templates",
+    "statistics": "Statistics",
+    "options": "Options",
+    "openOptions": "Open options",
+    "ariaLabel": "Options Sidebar",
+    "collapseShortcut": "Collapse sidebar (⌘/Ctrl+B)",
+    "collapseLabel": "Collapse sidebar",
+    "expandShortcut": "Expand sidebar (⌘/Ctrl+B)",
+    "expandLabel": "Expand sidebar"
+  },
+  "tooltip": {
+    "compactModeHint": "Tip: Click here or press ⌘/Ctrl+B to switch to compact view",
+    "sidebarHint": "Tip: Click here or press ⌘/Ctrl+B to collapse the sidebar"
+  },
+  "canvas": {
+    "addTable": "Add Table",
+    "addFeature": "Add room element",
+    "pasteTables": "Paste tables",
+    "pasteFeature": "Paste room element",
+    "deleteTable": "Delete Table",
+    "rotateTable": "Rotate Table",
+    "lockSeat": "Lock Seat",
+    "unlockSeat": "Unlock Seat",
+    "undo": "Undo",
+    "undoLabel": "Undo last action"
+  },
+  "actions": {
+    "shuffle": "Shuffle",
+    "refine": "Refine",
+    "reset": "Reset",
+    "export": "Export",
+    "print": "Print",
+    "savePlan": "Save Plan",
+    "saveShortcut": "Save Plan (Ctrl/Cmd+S)",
+    "exportShortcut": "Export (Ctrl/Cmd+E)",
+    "backShortcut": "Back (Alt/Option+←)",
+    "retryMix": "Try again",
+    "mixNow": "Shuffle now"
+  },
+  "mode": {
+    "table": "Seating Plan",
+    "tableView": "Show Seating Plan",
+    "circle": "Seating Circle",
+    "circleView": "Show Seating Circle"
+  },
+  "circleView": {
+    "step3": "Step 3: Edit Seating Plan",
+    "step3Desc": "Shuffle seats or adjust them via drag & drop.",
+    "title": "Seating Circle",
+    "syncTitle": "Sync circle with seating plan",
+    "syncButton": "Sync with Plan",
+    "shuffleTitle": "Randomly shuffle circle",
+    "shuffleButton": "Shuffle randomly",
+    "showConnections": "Show connections",
+    "generatingTitle": "Generating seating circle...",
+    "generatingHint": "The seating circle is automatically created based on the table plan.",
+    "connectionDescription": "Neighborhood connections between students.",
+    "syncDescription": "Sync the circle with changes in the seating plan.",
+    "shuffleDescription": "Only change the circle (seating plan stays unchanged)."
+  },
+  "seat": {
+    "lockSeat": "Lock seat",
+    "unlockSeat": "Unlock seat",
+    "fulfillmentTitle": "Fulfillment {{percentage}}%"
+  },
+  "mixButton": {
+    "label": "Shuffle",
+    "title": "Shuffle seating plan",
+    "loadingTitle": "Shuffling in progress...",
+    "loadingAriaLabel": "Shuffling in progress"
+  },
+  "messages": {
+    "noStudents": "No students added yet",
+    "noTables": "No tables placed yet",
+    "notEnoughSeats": "Not enough seats for all students"
+  },
+  "cookieConsent": {
+    "message": "This website stores necessary information locally in your browser. No cookies are used and no data is transmitted to servers. More information in our",
+    "privacyLink": "Privacy Policy",
+    "accept": "Got it"
+  },
+  "navigation": {
+    "toHome": "Go to Home",
+    "menuTitle": "Storage & Backup",
+    "menuSubtitle": "Manage your seating plans, shuffle results, and backups.",
+    "closeMenu": "Close Storage & Backup",
+    "quickActions": "Quick Actions",
+    "quickActionsHint": "Save the current plan or load the last shuffle result.",
+    "savePlan": "Save Plan",
+    "noPlanAvailable": "No plan available",
+    "loadLastMix": "Load last shuffle result",
+    "noMixResults": "No shuffle results",
+    "savedPlansTitle": "Saved Seating Plans",
+    "savedPlansDescription": "{{count}} saved seating plans",
+    "mixHistoryTitle": "Shuffle History",
+    "mixHistoryDescription": "{{count}} shuffle results",
+    "backupTitle": "Backup",
+    "backupDescription": "Backup and restore all data.",
+    "exportBackup": "Export Backup",
+    "exportBackupHint": "Save all data and settings as JSON.",
+    "importBackup": "Import Backup",
+    "importBackupHint": "Restore all data and settings."
+  },
+  "storage": {
+    "sectionTitle": "Storage & Backup",
+    "exportBackup": "Export backup",
+    "importBackup": "Import backup",
+    "showAllPlans": "Show all plans",
+    "backupExported": "Backup exported.",
+    "historyTitle": "Saved Plans & Shuffle History",
+    "savedPlans": "Saved Plans",
+    "mixHistory": "Shuffle History",
+    "noPlans": "No saved plans available.",
+    "noMixes": "No shuffle results available.",
+    "planLoaded": "Plan \"{{name}}\" loaded.",
+    "planDeleted": "Plan \"{{name}}\" deleted.",
+    "mixLoaded": "Shuffle result from {{time}} loaded.",
+    "mixDeleted": "Shuffle result deleted."
+  },
+  "classActions": {
+    "emptyState": {
+      "title": "Add a Class!",
+      "description": "After adding a class, you can use all actions to manage students.",
+      "step1": "Start with <strong>\"New Class\"</strong> and enter name, school year or notes.",
+      "step2": "After saving, you can add students.",
+      "createButton": "New Class",
+      "hint": "You can create as many classes as you like and switch between them.",
+      "importButton": "Import Backup",
+      "importHint": "Restore previously backed up classes, students, and seating plans."
+    },
+    "deleteDialog": {
+      "title": "Delete Class",
+      "message": "Do you want to permanently delete {{className}}? All students, seating plans and saved data for this class will be lost.",
+      "confirmLabel": "Delete Class",
+      "cancelLabel": "Cancel",
+      "fallbackName": "the current class"
+    }
+  },
+  "mix": {
+    "title": "Mix Criteria",
+    "description": "Set the importance of different criteria (0-10).",
+    "enableAll": "Enable all criteria",
+    "disableAll": "Disable all criteria",
+    "toggleAll": "All criteria",
+    "on": "On",
+    "off": "Off",
+    "weightTooltip": "Weight: {{value}}/10 – The higher the value, the more important this criterion is for seating assignment.",
+    "randomWarning": "All criteria disabled - Shuffling is completely random!",
+    "categories": {
+      "avoidance": "Avoidance",
+      "promotion": "Support",
+      "needs": "Needs",
+      "environment": "Room"
+    },
+    "criteria": {
+      "avoidPreviousPairs": {
+        "label": "Repetition",
+        "desc": "Separate students who sat together last time"
+      },
+      "avoidRestlessTogether": {
+        "label": "Restlessness",
+        "desc": "Separate students showing restless behavior"
+      },
+      "avoidConcentrationTogether": {
+        "label": "Distractibility",
+        "desc": "Separate students with concentration difficulties"
+      },
+      "avoidShyAlone": {
+        "label": "Shyness",
+        "desc": "Don't let students with withdrawn behavior sit alone"
+      },
+      "preferGenderMix": {
+        "label": "Gender",
+        "desc": "Mix genders for balanced table composition"
+      },
+      "considerWishPartners": {
+        "label": "Preferred Partners",
+        "desc": "Consider students' partner requests"
+      },
+      "avoidConflictPartners": {
+        "label": "Distance Requests",
+        "desc": "Separate students with distance requests"
+      },
+      "peerTutoring": {
+        "label": "Support (heterogeneous)",
+        "desc": "Pair students with different performance levels together"
+      },
+      "homogeneousPerformanceGroups": {
+        "label": "Support (homogeneous)",
+        "desc": "Group students with similar support needs together"
+      },
+      "preferFrontForNeedsFrontSeat": {
+        "label": "Front seats",
+        "desc": "Place students needing front seats at the front"
+      },
+      "preferFrontForSmallerStudents": {
+        "label": "Height",
+        "desc": "Shorter students front, taller students back"
+      },
+      "preferWindowSeats": {
+        "label": "Window Seats",
+        "desc": "Place students with window preference near windows"
+      },
+      "preferDoorSeats": {
+        "label": "Door Proximity",
+        "desc": "Place students with door preference near the entrance"
+      }
+    },
+    "criteriaDescriptions": {
+      "avoidPreviousPairs": "Separate students who sat together last time.",
+      "avoidRestlessTogether": "Separate students showing restless behavior.",
+      "avoidConcentrationTogether": "Separate students with concentration difficulties.",
+      "avoidShyAlone": "Don't let students with withdrawn behavior sit alone.",
+      "preferGenderMix": "Mix genders for balanced table composition.",
+      "considerWishPartners": "Consider students' partner preferences.",
+      "avoidConflictPartners": "Separate students with distance requests.",
+      "peerTutoring": "Pair students with different performance levels together.",
+      "homogeneousPerformanceGroups": "Group students with similar performance levels together.",
+      "preferFrontForNeedsFrontSeat": "Place students needing front seats in the front rows.",
+      "preferFrontForSmallerStudents": "Shorter students in front, taller students in back.",
+      "preferWindowSeats": "Honor window seat preferences.",
+      "preferDoorSeats": "Honor door proximity preferences."
+    },
+    "allOn": "All on",
+    "allOff": "All off",
+    "sectionDescription": "Set the importance of each criterion (0–10)",
+    "criterionNotAvailable": "Criterion not available",
+    "active": "active",
+    "inactive": "inactive"
+  },
+  "layout": {
+    "singleSeat": "Single Seat",
+    "doubleSeat": "Double Seat",
+    "group4": "Group of 4",
+    "group6": "Group of 6",
+    "tableTypes": "Table Types",
+    "tableTypesDescription": "Drag tables into the classroom.",
+    "roomElements": "Room Elements",
+    "roomElementsDescription": "Drag windows, doors, teacher's desk or blackboard into the classroom.",
+    "setupClassroom": "Set Up Classroom",
+    "saveTemplate": "Save current classroom as template",
+    "saveTemplateButton": "Save Template",
+    "saveTemplateShortcut": "Save classroom template",
+    "place": "place",
+    "statusBadge": "{{students}} students, {{seats}} seats.",
+    "classroomTitle": "Classroom",
+    "planTitle": "Seating Plan",
+    "window": "Window",
+    "door": "Door",
+    "board": "Blackboard",
+    "podium": "Teacher's Desk",
+    "quickSetupShortcut": "(Ctrl/Cmd+E)",
+    "overwriteTemplateMessage": "The current template has been modified. Do you want to overwrite the existing template?",
+    "overwrite": "Overwrite"
+  },
+  "export": {
+    "title": "Title",
+    "titlePlaceholder": "Enter seating plan title",
+    "pageFormat": "Page Format",
+    "landscape": "Landscape",
+    "portrait": "Portrait",
+    "printShortcut": "Print (Ctrl/Cmd+P)",
+    "tablePdfShortcut": "Export PDF (Ctrl/Cmd+E)",
+    "circlePdfShortcut": "Export circle PDF",
+    "tablePdfButton": "Seating Plan PDF",
+    "circlePdfButton": "Circle Plan PDF",
+    "tableDefaultFilename": "Seating Plan",
+    "circleDefaultFilename": "Circle Plan",
+    "editTitle": "Edit Title",
+    "pageFormatTable": "Seating Plan Format",
+    "pageFormatCircle": "Seating Circle Format",
+    "dragDropHint": "Drag elements here",
+    "dragDropPlace": "Drop here",
+    "backToSeating": "Back to Seating Plan",
+    "backTitle": "Back (Alt/Option+←)",
+    "preview": "Preview",
+    "previewUpdating": "Updating preview...",
+    "roomElements": "Room Elements",
+    "displayOptions": "Export display options",
+    "switchPreviewHint": "Switch the preview between seating plan and seating circle above",
+    "showConnections": "Show connections",
+    "showBoard": "Show board",
+    "showWindows": "Show windows",
+    "showDoor": "Show door",
+    "showPodium": "Show podium",
+    "showNeeds": "Show special needs",
+    "showFullNames": "Show full names",
+    "showClassInfo": "Show additional class info",
+    "generatingCircle": "Creating seating circle...",
+    "cancelCircleGeneration": "Cancel",
+    "printDownloadedInfo": "Pop-up blocked - PDF was downloaded. Please open the file to print.",
+    "errors": {
+      "printPreviewUnavailable": "The print preview is not ready yet. Please wait a moment and try again.",
+      "printPreparationFailed": "Could not prepare printing. Please try again.",
+      "printStartFailed": "Could not start printing. Please try again.",
+      "printFrameMissing": "Could not prepare printing (Frame missing).",
+      "printPopupBlocked": "The print window was blocked. Please allow pop-ups for this page.",
+      "tablePdfFailed": "Seating plan PDF export failed. Please try again.",
+      "circlePdfFailed": "Seating circle PDF export failed. Please try again.",
+      "circleGenerationFailed": "Could not generate seating circle."
+    }
+  },
+  "wizard": {
+    "step": "Step",
+    "goToStep": "Go to step {{step}}",
+    "progressLabel": "Wizard Progress",
+    "stepLabels": {
+      "students": "Students",
+      "layout": "Room",
+      "plan": "Plan"
+    },
+    "backToStudents": "Back to Class List",
+    "forwardToPlan": "Proceed to Seating Plan",
+    "backToStudentsShortcut": "Back to Class List (Alt/Option+←)",
+    "forwardToPlanShortcut": "Proceed to Seating Plan (Alt/Option+→)"
+  },
+  "template": {
+    "saveTitle": "Save Classroom Template",
+    "tables": "Tables",
+    "seats": "Seats",
+    "nameLabel": "Template Name",
+    "namePlaceholder": "e.g. Classroom 1",
+    "nameAriaLabel": "Enter template name",
+    "duplicateWarning": "A template with this name already exists.",
+    "overwriteLabel": "Or overwrite existing template",
+    "noSelection": "-- No selection (new template) --",
+    "overwrite": "Overwrite",
+    "saveName": "Save name",
+    "cancelEdit": "Cancel editing",
+    "editName": "Edit template name: {{name}}",
+    "clickToEdit": "Click or press Enter to edit"
+  },
+  "circle": {
+    "backToClassroom": "Back to Classroom",
+    "planNamePlaceholder": "Name for this seating plan",
+    "planNameLabel": "Enter a name for this seating plan",
+    "planNameError": "Please enter a name.",
+    "date": "Date"
+  },
+  "editor": {
+    "workspace": "Workspace",
+    "showGrid": "Show grid",
+    "showBoard": "Show blackboard",
+    "showWindows": "Show windows",
+    "showDoor": "Show door",
+    "showPodium": "Show teacher's desk",
+    "showStatistics": "Show statistics",
+    "statisticsLabel": "Show statistics – Total score {{score}}%",
+    "autoMixRunning": "Auto-shuffle in progress",
+    "autoMixWait": "Please wait a moment while the new seating plan is being created.",
+    "autoMixFailed": "Auto-shuffle failed",
+    "classDataChanged": "Class data has been changed",
+    "classDataChangedHint": "Your adjustments are visible. Shuffle the plan again so the algorithm can respond optimally.",
+    "hideNotice": "Hide notice",
+    "viewOptions": "View Options",
+    "viewSettings": "View Settings",
+    "snapToGrid": "Snap to grid"
+  },
+  "quickSetup": {
+    "title": "Set Up Classroom",
+    "subtitle": "Choose a table type or (if available) a saved template.",
+    "selectType": "Select table type",
+    "hint": "Choose a table type to automatically create the classroom or drag a table type from the sidebar into the classroom.",
+    "overwriteHint": "Do you want to overwrite your current layout? Then choose a table type or load a template.",
+    "closeLabel": "Close classroom setup",
+    "loadButton": "Load",
+    "overwriteTemplate": "Overwrite classroom template",
+    "deleteTemplate": "Delete classroom template",
+    "deleteDialogTitle": "Delete Template",
+    "deleteConfirm": "Do you really want to delete this classroom template?",
+    "deleteConfirmNamed": "Do you really want to delete the classroom template \"{{name}}\"?"
+  },
+  "common": {
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "copy": "Copy",
+    "cut": "Cut",
+    "close": "Close",
+    "seats": "Seats",
+    "pl": "Seats",
+    "defaultClassName": "My Class",
+    "newClassName": "New Class"
+  },
+  "planCard": {
+    "planAriaLabel": "Seating plan {{name}}",
+    "loadPlan": "Load seating plan",
+    "loadPlanAriaLabel": "Load seating plan {{name}}",
+    "deletePlan": "Delete seating plan",
+    "deletePlanAriaLabel": "Delete seating plan {{name}}",
+    "deleteDialogTitle": "Delete Seating Plan",
+    "deleteDialogMessage": "Do you really want to delete the seating plan \"{{name}}\"?",
+    "studentsBadge": "{{count}} students",
+    "tablesBadge": "{{count}} tables",
+    "seatsPerTableBadge": "{{count}} / table",
+    "load": "Load",
+    "editName": "Edit name"
+  },
+  "mixHistory": {
+    "loadTitle": "Load mix result",
+    "loadAriaLabel": "Load mix result from {{time}}",
+    "deleteTitle": "Delete mix result",
+    "deleteAriaLabel": "Delete mix result from {{time}}",
+    "deleteDialogTitle": "Delete Mix Result",
+    "deleteDialogMessage": "Do you really want to delete the mix result from {{time}}?",
+    "emptyTitle": "No shuffles created yet",
+    "emptyHint": "Create your first seating plan"
+  },
+  "planList": {
+    "editNameAriaLabel": "Edit seating plan name: {{name}}",
+    "editNameTitle": "Click or press Enter to edit",
+    "loadTitle": "Load seating plan",
+    "loadAriaLabel": "Load seating plan {{name}}",
+    "deleteTitle": "Delete seating plan",
+    "deleteAriaLabel": "Delete seating plan {{name}}",
+    "deleteDialogTitle": "Delete Seating Plan",
+    "deleteDialogMessage": "Do you really want to delete the seating plan \"{{name}}\"?",
+    "emptyTitle": "No plans saved yet",
+    "emptyHint": "Save your first plan in step 3"
+  },
+  "statisticsBadge": {
+    "title": "Criteria Fulfillment",
+    "close": "Close",
+    "overallLabel": "Total",
+    "hoverHint": "Hover over a criterion to highlight the affected seats in the seating plan. Click to pin the highlight.",
+    "hoverHintShort": "Hover to highlight",
+    "overallScore": "Overall Score:",
+    "weightLabel": "Weight: {{weight}}/10",
+    "footerHint": "Tip: Adjust the weights in the options."
+  },
+  "shortcuts": {
+    "labels": {
+      "global": "General",
+      "students": "Students",
+      "layout": "Classroom",
+      "plan": "Seating Plan",
+      "circle": "Seating Circle",
+      "export": "Export"
+    },
+    "descriptions": {
+      "global_toggleHelp": "Show keyboard shortcuts",
+      "global_closeDialog": "Close dialogs or help window",
+      "global_toggleSidebar": "Expand/Collapse options sidebar",
+      "students_addStudent": "Add student (in the name field)",
+      "students_toClassroom": "Switch to Classroom",
+      "layout_toStudentList": "Return to Class List",
+      "layout_toSeatingPlan": "Switch to Seating Plan",
+      "layout_toggleQuickSetup": "Open or close Quick Setup",
+      "layout_multiSelect": "Select multiple tables (or drag a selection rectangle)",
+      "layout_moveTables": "Move selected tables (Shift = larger steps)",
+      "layout_deleteTables": "Delete selected tables",
+      "layout_cutTables": "Cut selected tables",
+      "layout_copyTables": "Copy selected tables",
+      "layout_pasteTables": "Paste copied tables",
+      "layout_rotateLeftRight": "Rotate selected tables (Q = counter-clockwise, E = clockwise)",
+      "layout_rotate90": "Rotate selected tables in 90° steps",
+      "layout_undo": "Undo last change",
+      "plan_toClassroom": "Return to Classroom",
+      "plan_shuffle": "Reshuffle seating plan",
+      "plan_savePlan": "Save Seating Plan",
+      "plan_openExport": "Open Export view",
+      "circle_toClassroom": "Return to Classroom",
+      "circle_toggleConnections": "Show/Hide neighbor connections",
+      "circle_moveStudent": "Move student in circle",
+      "circle_saveCircle": "Save Seating Circle",
+      "circle_openExport": "Open Export view",
+      "export_backToPlan": "Back to Seating Plan",
+      "export_exportPdf": "Download Seating Plan as PDF",
+      "export_exportCirclePdf": "Download Seating Circle as PDF",
+      "export_print": "Print Seating Plan"
+    },
+    "keys": {
+      "global_toggleHelp": "?",
+      "global_closeDialog": "Esc",
+      "global_toggleSidebar": "Ctrl/Cmd + B",
+      "students_addStudent": "Enter",
+      "students_toClassroom": "Alt/Option + Right Arrow",
+      "layout_toStudentList": "Alt/Option + Left Arrow",
+      "layout_toSeatingPlan": "Alt/Option + Right Arrow",
+      "layout_toggleQuickSetup": "Ctrl/Cmd + E",
+      "layout_multiSelect": "Shift or Ctrl/Cmd + Click",
+      "layout_moveTables": "Arrow Keys",
+      "layout_deleteTables": "Del / Backspace",
+      "layout_cutTables": "Ctrl/Cmd + X",
+      "layout_copyTables": "Ctrl/Cmd + C",
+      "layout_pasteTables": "Ctrl/Cmd + V",
+      "layout_rotateLeftRight": "Q / E",
+      "layout_rotate90": "Shift + Q / Shift + E",
+      "layout_undo": "Ctrl/Cmd + Z",
+      "plan_toClassroom": "Alt/Option + Left Arrow",
+      "plan_shuffle": "Ctrl/Cmd + M",
+      "plan_savePlan": "Ctrl/Cmd + S",
+      "plan_openExport": "Ctrl/Cmd + E",
+      "circle_toClassroom": "Alt/Option + Left Arrow",
+      "circle_toggleConnections": "C",
+      "circle_moveStudent": "Drag & Drop",
+      "circle_saveCircle": "Ctrl/Cmd + S",
+      "circle_openExport": "Ctrl/Cmd + E",
+      "export_backToPlan": "Alt/Option + Left Arrow",
+      "export_exportPdf": "Ctrl/Cmd + Shift + T",
+      "export_exportCirclePdf": "Ctrl/Cmd + Shift + C",
+      "export_print": "Ctrl/Cmd + P"
+    }
+  }
+}

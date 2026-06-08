@@ -1,0 +1,5 @@
+# Security policy for klassenplan.de (RFC 9116)
+Contact: mailto:webmaster@klassenplan.de
+Expires: 2027-06-07T00:00:00.000Z
+Preferred-Languages: de, en
+Canonical: https://klassenplan.de/.well-known/security.txt

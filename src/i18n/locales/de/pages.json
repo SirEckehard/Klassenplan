@@ -1,0 +1,351 @@
+{
+  "startPage": {
+    "heroTitle": "Sitzplan erstellen leicht gemacht",
+    "heroDescription": "Direkt aus dem Schulalltag & gemeinsam mit dem Feedback von Lehrkräften entwickelt.",
+    "heroBadge": "kostenlos & keine Werbung",
+    "heroBadgeTooltip": "Gehe zu Unterstützen",
+
+    "whyKlassenplanTitle": "Warum Klassenplan?",
+    "whyKlassenplanItems": {
+      "privacy": "Fokus auf Datenschutz",
+      "privacyDescription": "DSGVO-konform in Deutschland gehostet, kein Konto, keine Cloud & funktioniert offline.",
+      "algorithm": "Intelligenter Algorithmus",
+      "algorithmDescription": "Beachtet Bedürfnisse, soziale Rollen, Raumpräferenzen & mehr.",
+      "editor": "Flexibler Klassenraum-Editor",
+      "editorDescription": "Drag & Drop für verschiedene Tische & Raumelemente."
+    },
+    "howItWorksTitle": "So funktioniert's:",
+    "howItWorksItems": {
+      "step1Title": "Klassenliste",
+      "step1Text": "Schüler hinzufügen & Bedürfnisse wählen.",
+      "step2Title": "Klassenraum",
+      "step2Text": "Speichere deinen Klassenraum als Vorlage.",
+      "step3Title": "Sitzplan & Sitzkreis",
+      "step3Text": "Mischen & optimieren – automatisch angepasster Sitzkreis.",
+      "step4Title": "Export",
+      "step4Text": "Als PDF exportieren & drucken."
+    },
+    "ctaButton": "Plane jetzt deine Klasse!",
+    "faqLink": "Erfahre mehr im FAQ!",
+    "contactLink": "Oder schreib eine Nachricht!"
+  },
+  "support": {
+    "title": "Klassenplan unterstützen",
+    "description1": "Klassenplan ist ein kostenloses Tool an dem ich in meiner freien Zeit arbeite. Ich habe Klassenplan ursprünglich für meinen eigenen Bedarf entwickelt und freue mich, wenn es dir ebenfalls hilft und du es gern nutzt.",
+    "description2": "Wenn du Klassenplan magst und dessen laufenden Serverkosten sowie die Weiterentwicklung unterstützen möchtest, freue ich mich über eine Spende via PayPal oder per Kreditkarte. Vielen Dank!"
+  },
+  "feedback": {
+    "title": "Kontakt",
+    "description": "Ich freue mich über dein Feedback zu Klassenplan! Ob Lob, Verbesserungsvorschläge oder Fehlerberichte – jede Nachricht hilft mir, Klassenplan besser zu machen. Klick einfach auf den Button, um mir eine E-Mail zu schreiben.",
+    "bugNote": "Wenn du Bugs oder Feature-Wünsche teilst, hänge gern Screenshots, Videos oder kurze, klare Beschreibungen an, damit ich das Problem besser nachvollziehen kann."
+  },
+  "legal": {
+    "germanOnlyNote": "Dieser Inhalt ist nur auf Deutsch verfügbar, da es sich um rechtlich verbindliche Informationen handelt."
+  },
+  "faq": {
+    "header": {
+      "title": "Häufige Fragen",
+      "subtitle": "Hier findest du Antworten zu Algorithmus, Einstellungen, Bedienung und dem Projekt.",
+      "ariaOverview": "FAQ Überblick",
+      "ariaNav": "FAQ Schnellnavigation"
+    },
+    "disclaimer": {
+      "title": "Was Sitzpläne leisten können – und was nicht?",
+      "body": "Klassenplan ist ein Werkzeug zur Unterstützung deiner pädagogischen Arbeit, kein Ersatz dafür. Sitzordnungen haben laut Bildungsforschung einen kleinen, aber messbaren Effekt auf das Lernverhalten.",
+      "hattieNote": "Zur Einordnung: Hattie (2009, Visible Learning) beziffert die Effektstärke von Sitzordnungen auf d ≈ 0,1–0,2, während z.B. direktes Feedback (d ≈ 0,73) deutlich wirkungsvoller ist. Der Sitzplan ist nur ein Baustein unter vielen.",
+      "callToAction": "Die von Klassenplan erstellten Sitzpläne sind Ausgangspunkte, keine fertigen Lösungen. Deine pädagogische Einschätzung ist entscheidend."
+    },
+    "allgemein": {
+      "title": "Allgemeine Fragen",
+      "description": "Algorithmus, Datenschutz und Offline-Nutzung im Überblick.",
+      "algo_intro": {
+        "q": "Was macht der Mischalgorithmus überhaupt?",
+        "a": "Der Algorithmus verteilt deine Klasse anhand gewichteter Kriterien auf alle verfügbaren Plätze. Er startet mit einer heuristischen Erstbelegung und verfeinert sie in mehreren Durchläufen. Dabei berücksichtigt er Wunsch- und Distanzpartner, besondere Bedürfnisse, Körpergrößen, Fenster-/Türpräferenzen & weiteres."
+      },
+      "algo_neighbors": {
+        "q": "Wie bewertet der Algorithmus Nachbarn?",
+        "intro": "Es gibt drei Abstufungen von Nachbarschaften, die unterschiedlich stark gewichtet werden:",
+        "li1": "direkte Sitznachbarn (höchstes Gewicht)",
+        "li2": "seitliche Nachbartische (mittlere Gewichtung)",
+        "li3": "gegenüberliegende Nachbarn (geringere Gewichtung)",
+        "outro": "Diese Abstufungen helfen, freie Layouts realistisch abzubilden und Konflikte gezielt zu vermeiden."
+      },
+      "no_account": {
+        "q": "Brauche ich ein Konto oder Internet?",
+        "a": "Nein. Klassenplan läuft komplett lokal (IndexedDB + localStorage) und funktioniert nach dem ersten Laden auch offline. Es gibt keine Anmeldung und keine Cloud-Synchronisation. Für Geräte- oder Browserwechsel nutzt du den Backup-Export/Import."
+      },
+      "imperfect": {
+        "q": "Warum arbeitet der Algorithmus nicht \"perfekt\"?",
+        "a": "Eine perfekte Lösung müsste alle Kombinationen prüfen und wäre bei größeren Klassen nicht praktikabel. Mit dem heuristischen Ansatz erzielt Klassenplan schnelle, nachvollziehbare Ergebnisse, die du per Drag & Drop weiter verfeinern kannst."
+      },
+      "gender_language": {
+        "q": "Warum wird das generische Maskulinum verwendet?",
+        "a": "Aus Gründen der Lesbarkeit und Barrierefreiheit wird das generische Maskulinum verwendet. Alle Geschlechter sind gleichermaßen angesprochen."
+      },
+      "gender_mixing": {
+        "q": "Warum sind die Geschlechter nicht alle abwechselnd verteilt?",
+        "a": "Der Algorithmus bewertet Tischgruppen im Kontext des gesamten Raums. Ein Tausch kann an einer Stelle helfen, an anderer Stelle aber größere Konflikte erzeugen. Höhere Gewichte für das Kriterium \"Geschlechter mischen\" erzwingen strengere Platzierungen, ziehen dann aber andere Regeln (z. B. Wunschpartner) seltener vor. Die Geschlechtsangabe ist optional und wird neutral behandelt, wenn nicht angegeben."
+      }
+    },
+    "eigenschaften": {
+      "title": "Schülereigenschaften & Kriterien",
+      "description": "Übersicht aller Eigenschaften und wie der Algorithmus sie verwendet.",
+      "intro": "In Schritt 1 kannst du für jeden Schüler verschiedene Eigenschaften hinterlegen. Diese fließen in Schritt 3 in die Sitzplan-Berechnung ein. Hier findest du eine Übersicht aller Eigenschaften, was sie bedeuten und wie der Algorithmus sie berücksichtigt.",
+      "algorithmLabel": "Algorithmus:",
+      "tableHeaders": {
+        "property": "Eigenschaft",
+        "description": "Beschreibung",
+        "algorithm": "Algorithmus-Auswirkung"
+      },
+      "categories": {
+        "identity": "Identität",
+        "abilities": "Fähigkeiten",
+        "behavior": "Verhalten",
+        "social": "Soziales",
+        "room": "Raumpräferenzen"
+      },
+      "props": {
+        "gender": {
+          "label": "Geschlecht",
+          "description": "Junge, Mädchen oder Divers – optionale Angabe.",
+          "algorithm": "Sorgt für geschlechtergemischte Tischgruppen, wenn aktiviert."
+        },
+        "height": {
+          "label": "Körpergröße",
+          "description": "Klein, Mittel oder Groß – beeinflusst die Sitzreihe.",
+          "algorithm": "Platziert kleinere Schüler vorne und größere hinten für freie Sicht."
+        },
+        "languageSkill": {
+          "label": "Sprachkenntnisse",
+          "description": "Von Muttersprachler bis DaZ-Förderung.",
+          "algorithm": "Setzt sprachstarke Schüler neben Anfänger zur gegenseitigen Unterstützung."
+        },
+        "performanceStrong": {
+          "label": "Leistungsstark",
+          "description": "Zeigt aktuell besondere Stärken im Unterricht.",
+          "algorithm": "Ermöglicht heterogene (Peer-Tutoring) oder homogene Gruppierung."
+        },
+        "performanceWeak": {
+          "label": "Leistungsschwach",
+          "description": "Zeigt aktuell Förderbedarf im Unterricht.",
+          "algorithm": "Ermöglicht gezielte Paarung mit leistungsstarken Schülern."
+        },
+        "needsFrontSeat": {
+          "label": "Vorderer Platz",
+          "description": "Dieser Schüler benötigt einen vorderen Platz.",
+          "algorithm": "Platziert bevorzugt in den vorderen Reihen."
+        },
+        "restless": {
+          "label": "Unruhig",
+          "description": "Zeigt aktuell unruhiges Verhalten im Unterricht.",
+          "algorithm": "Trennt Schüler mit Unruheverhalten voneinander."
+        },
+        "shy": {
+          "label": "Schüchtern",
+          "description": "Zeigt aktuell zurückhaltendes Verhalten im Unterricht.",
+          "algorithm": "Platziert Schüler mit zurückhaltendem Verhalten neben ruhigeren Mitschülern."
+        },
+        "concentrationIssues": {
+          "label": "Ablenkbar",
+          "description": "Zeigt aktuell Konzentrationsschwierigkeiten im Unterricht.",
+          "algorithm": "Verteilt Schüler mit Konzentrationsschwierigkeiten im Raum und trennt sie von Schülern mit Unruheverhalten."
+        },
+        "socialRole": {
+          "label": "Soziale Rolle",
+          "description": "Mediator, Anführer, Einzelgänger oder Mittelpunkt.",
+          "algorithm": "Verteilt soziale Rollen gleichmäßig auf Tische für ausgewogene Gruppendynamik."
+        },
+        "wishPartner": {
+          "label": "Wunschpartner",
+          "description": "Bis zu 3 priorisierte Partner, mit denen das Kind gern sitzt.",
+          "algorithm": "Platziert Wunschpartner am selben Tisch, Priorität 1 zählt stärker."
+        },
+        "avoidPartner": {
+          "label": "Distanzwunsch",
+          "description": "Bis zu 3 Schüler, von denen Abstand gehalten werden soll.",
+          "algorithm": "Platziert diese Schüler an verschiedenen Tischen."
+        },
+        "prefersWindow": {
+          "label": "Fensterplatz",
+          "description": "Bevorzugt einen Platz am Fenster.",
+          "algorithm": "Platziert den Schüler näher am Fenster, wenn möglich."
+        },
+        "prefersDoor": {
+          "label": "Türnähe",
+          "description": "Bevorzugt einen Platz nahe der Tür.",
+          "algorithm": "Platziert den Schüler näher an der Tür, wenn möglich."
+        }
+      }
+    },
+    "wunschpartner": {
+      "title": "Wunsch- & Distanzpartner",
+      "description": "Wie Wunschpartner, Distanzwünsche und Förderbedarfe in die Berechnung einfließen.",
+      "multi": {
+        "q": "Wie funktionieren mehrere Wunsch- und Distanzpartner?",
+        "a": "Pro Schüler kannst du bis zu 3 Wunsch- und Distanzpartner wählen. Die Reihenfolge bestimmt die Priorität – der erste gewählte Partner wird stärker gewichtet als der dritte. Der Algorithmus versucht, möglichst viele Wünsche zu erfüllen, wobei Priorität 1 Vorrang hat."
+      },
+      "force": {
+        "q": "Werden Wunschpartner immer berücksichtigt?",
+        "a": "Aktivierst du \"Wunschpartner berücksichtigen\", platziert der Algorithmus Paare gemeinsam, sofern andere Regeln nicht dagegen sprechen. Bei Gruppentischen (4er/6er) zählt auch ein Platz am selben Tisch als teilweise erfüllt."
+      },
+      "needs": {
+        "q": "Wie geht das System mit Unruheverhalten, Konzentrationsschwierigkeiten und Distanzwunsch um?",
+        "a": "Für Unruheverhalten, Konzentrationsschwierigkeiten und Distanzwünsche gibt es eigene Gewichte. Schüler mit Unruheverhalten erhalten Abstand zueinander, Schüler mit Konzentrationsschwierigkeiten werden im Raum verteilt und Distanzwünsche werden respektiert, solange genug Plätze verfügbar sind."
+      },
+      "height": {
+        "q": "Wie berücksichtigt Klassenplan Körpergrößen und Raumpräferenzen?",
+        "a": "Körpergrößen fließen in die Platzwahl ein, damit Sichtachsen frei bleiben. Fenster- und Türpräferenzen werden pro Schüler gespeichert und zusammen mit den Raum-Features aus Schritt 2 gewichtet."
+      }
+    },
+    "layout": {
+      "title": "Sitzplan-Struktur & Layout",
+      "description": "Hinweise zu Tischlayouts, Raumelementen, Sitzabständen und Limits.",
+      "best": {
+        "q": "Welche Layouts funktionieren am besten?",
+        "a": "Freie Layouts sind erlaubt: Du kannst Tische, Fenster, Türen, Pult und Tafel per Drag & Drop platzieren oder Klassenraum-Vorlagen nutzen. Der Sitzkreis bleibt mit dem Tischlayout synchron und lässt sich separat anpassen."
+      },
+      "measure": {
+        "q": "Wie werden Abstände gemessen?",
+        "a": "Die Sitzpositionen werden als Pixelkoordinaten gespeichert. Direkte Nachbarn liegen innerhalb der Tischbreite und -höhe plus Puffer, seitliche und frontale Nachbarn dürfen etwas weiter entfernt sein, bis sie nicht mehr als relevant gelten."
+      },
+      "limits": {
+        "q": "Gibt es Grenzen bei Schülern und Sitzplätzen?",
+        "a": "Ja. Klassenplan ist auf maximal 36 Schüler ausgelegt. Das System warnt, wenn weniger Plätze als Schüler verfügbar sind."
+      }
+    },
+    "settings": {
+      "title": "Einstellungen & Gewichtung",
+      "description": "So interpretierst du die Gewichtungen und die Statistik-Badges.",
+      "weights": {
+        "q": "Was bedeuten die Gewichte (0–10)?",
+        "a": "Die Gewichte definieren, wie stark eine Regel ins Ergebnis einfließt. Je höher der Wert, desto stärker werden passende Sitznachbarn belohnt oder Konflikte bestraft. Ein Wert von 8 setzt sich deutlich öfter durch als ein Wert von 2."
+      },
+      "check": {
+        "q": "Wie erkenne ich, dass eine Mischung den Kriterien entspricht?",
+        "a": "Die Statistik-Badges in Schritt 3 zeigen Geschlechterverteilung, Raumpräferenzen (Fenster/Tür), Distanzwünsche und weitere Kriterien. Änderungen durch Locks oder Drag & Drop werden sofort in den Kennzahlen und im Sitzkreis gespiegelt."
+      },
+      "colors": {
+        "q": "Was bedeuten die Farben in den Statistik-Badges?",
+        "intro": "Die Ampelfarben zeigen den Erfüllungsgrad:",
+        "green": "Grün",
+        "green_desc": "– gut erfüllt (über 70%)",
+        "yellow": "Gelb",
+        "yellow_desc": "– teilweise erfüllt (40–70%)",
+        "red": "Rot",
+        "red_desc": "– verbesserbar (unter 40%)"
+      },
+      "percent": {
+        "q": "Wie werden Prozentwerte bei mehreren Wunschpartnern berechnet?",
+        "intro": "Jeder Wunschpartner zählt einzeln in die Statistik:",
+        "li1": "Direkter Sitznachbar = 100% erfüllt",
+        "li2": "Am selben Gruppentisch (4er/6er) = 50% erfüllt",
+        "li3": "Anderer Tisch = 0% erfüllt",
+        "example": "Beispiel: 3 Wunschpartner, davon 1 daneben (100%) + 1 am Tisch (50%) + 1 woanders (0%) = (100+50+0) / 3 = 50%"
+      },
+      "interact": {
+        "q": "Was passiert bei Klick oder Hover auf die Statistik-Badges?",
+        "a": "Du kannst Badges anklicken, um die zugehörigen Schüler dauerhaft im Sitzplan hervorzuheben. Beim Hovern siehst du eine temporäre Vorschau. So erkennst du schnell, welche Platzierungen zur Verbesserung des Mischergebnisses beitragen könnten."
+      },
+      "repeat": {
+        "q": "Wie funktioniert die Wiederholungsvermeidung?",
+        "intro": "Die Wiederholungsbewertung berücksichtigt sowohl gespeicherte Sitzpläne als auch die aktuelle Misch-Historie der Sitzung:",
+        "li1_b": "Gespeicherte Pläne:",
+        "li1": "Paare aus älteren Plänen erhalten abnehmende Gewichtung (neuere zählen stärker)",
+        "li2_b": "Aktuelle Session:",
+        "li2": "Die letzten Mischungen werden stärker gewichtet, damit sich Paare nicht sofort wiederholen",
+        "outro": "So wird vermieden, dass dieselben Schüler ständig nebeneinander sitzen – auch wenn du mehrfach hintereinander mischst."
+      },
+      "values": {
+        "q": "Was zeigen die einzelnen Statistik-Werte an?",
+        "intro": "Jedes Kriterium hat seinen eigenen Erfüllungsgrad, z.B.:",
+        "li1_b": "Wunschpartner:",
+        "li1": "Anteil erfüllter Wünsche (direkter Partner oder am Tisch)",
+        "li2_b": "Distanzwünsche:",
+        "li2": "Anteil eingehaltener Distanzwünsche (nicht am selben Tisch)",
+        "li3_b": "Wiederholung:",
+        "li3": "Anteil neuer Paare (keine Wiederholung aus vorherigen Plänen)",
+        "li4_b": "Unruheverhalten/Konzentration:",
+        "li4": "Anteil der betroffenen Schüler, die voneinander getrennt sind",
+        "li5_b": "Geschlechter:",
+        "li5": "Anteil der Tische mit ausgewogener Verteilung"
+      }
+    },
+    "backups": {
+      "title": "Backups & Persistenz",
+      "description": "Wie Daten lokal gespeichert werden und was mit Backups passiert.",
+      "where": {
+        "q": "Wo liegen meine Daten?",
+        "a": "Alle Daten werden im Browser gespeichert (IndexedDB für Kerndaten, localStorage für Einstellungen). Es gibt keine Cloud, kein Konto und keine Server-Synchronisation. Deine Daten bleiben auf deinem Gerät und sind nicht von außen zugänglich."
+      },
+      "how": {
+        "q": "Wie funktioniert das Backup?",
+        "a": "Der Export erstellt eine verschlüsselte JSON-Datei mit Schülern, Sitzplänen, Misch-Historie, Sitzkreis, Klassenzimmer-Features, Vorlagen und Einstellungen."
+      },
+      "update": {
+        "q": "Was passiert nach einem Update von Klassenplan mit meinem Backup?",
+        "a": "Backups sind aufwärtskompatibel. Neue Versionen migrieren ältere Sicherungen automatisch. Nach größeren Änderungen lohnt sich ein frischer Export, damit du die neueste Struktur gesichert hast."
+      }
+    },
+    "tipps": {
+      "title": "Tipps bei unerwünschten Ergebnissen",
+      "description": "Was du tun kannst, wenn eine Mischung nicht sofort überzeugt.",
+      "improve": {
+        "q": "Wie kann ich das Ergebnis verbessern?",
+        "intro": "Nutze eine Kombination aus folgenden Strategien:",
+        "li1": "Gewichte für relevante Kriterien erhöhen",
+        "li2": "Mehrfach mischen, um unterschiedliche Zufallsstarts zu nutzen",
+        "li3": "Einzelne Plätze manuell via Drag & Drop anpassen und bei Bedarf sperren, sodass der Algorithmus diese nicht mehr verändert."
+      }
+    },
+    "oberflaeche": {
+      "title": "Bedienung & Benutzeroberfläche",
+      "description": "Fragen rund um Dark Mode, Tastaturkürzel, Touch und alternative Ansichten.",
+      "print": {
+        "q": "Ich möchte den Sitzplan ausdrucken und die Tafel als Orientierungshilfe unten angezeigt haben. Geht das?",
+        "a": "Ja. Wechsle im Exportbereich in die Hochformat-Ansicht und aktiviere \"Tafel anzeigen\". So behältst du auch auf dem Ausdruck die Orientierung im Klassenraum."
+      },
+      "dark": {
+        "q": "Gibt es einen Dark Mode?",
+        "a": "Ja. Über den Schalter im Footer kannst du jederzeit zwischen hellen und dunklen Farbschema wechseln. Deine Auswahl wird lokal im Browser gespeichert und beim nächsten Besuch automatisch geladen."
+      },
+      "shortcuts": {
+        "q": "Welche Tastaturkürzel unterstützt der Editor?",
+        "a": "Im Klassenraum-Editor stehen dir u. a. Strg/Cmd + C, Strg/Cmd + V und Strg/Cmd + X zum Kopieren, Einfügen und Ausschneiden von Tischen zur Verfügung. Oben rechts im Hilfebereich findest du eine vollständige Übersicht der verfügbaren Kürzel."
+      },
+      "circle": {
+        "q": "Wie funktioniert der Sitzkreis-Modus?",
+        "a": "Wechsle über den Schalter in Schritt 3 zum Bereich \"Sitzkreis\". Klassenplan berechnet automatisch einen passenden Kreis und koppelt ihn an deinen aktuellen Sitzplan. Du kannst die Plätze im Sitzkreis manuell per Drag & Drop anpassen ohne dabei den Sitzplan zu verändern und anschließend separat exportieren."
+      },
+      "tablet": {
+        "q": "Kann ich Klassenplan am Tablet oder Whiteboard nutzen?",
+        "a": "Ja. Die Oberfläche ist touch-optimiert, inklusive Long-Press für Kontextmenüs. Auf Tablets und Whiteboards funktioniert alles flüssig. Die Nutzung auf einem Smartphone ist möglich, aber nicht empfohlen."
+      },
+      "pwa": {
+        "q": "Kann ich Klassenplan wie eine App installieren?",
+        "a": "Ja! Klassenplan ist eine Progressive Web App (PWA) und kann direkt auf deinem Gerät installiert werden. In Chrome, Edge oder Safari findest du im Browser-Menü die Option \"Zum Startbildschirm hinzufügen\" oder \"App installieren\". Danach startet Klassenplan wie eine eigenständige App aus dem Dock oder dem Startmenü – schneller, mit eigenem Icon und ohne Browserleiste."
+      }
+    },
+    "projekt": {
+      "title": "Projekt & Support",
+      "description": "Informationen zu Kosten, Updates und wie du dich einbringen kannst.",
+      "cost": {
+        "q": "Kostet Klassenplan etwas?",
+        "a": "Nein, Klassenplan ist ein kostenloses Tool an dem ich in meiner freien Zeit arbeite. Ich habe Klassenplan ursprünglich für meinen eigenen Bedarf (mit der Hilfe von Claude Code) entwickelt und freue mich, wenn es dir ebenfalls hilft und du es gern nutzt. Wenn du Klassenplan magst und dessen Hostingkosten sowie die weitere Weiterentwicklung unterstützen möchtest, freue ich mich über eine Spende via PayPal. Alle Infos findest du unter \"Unterstüzen\" . Vielen Dank!"
+      },
+      "update": {
+        "q": "Wie erhalte ich Updates?",
+        "a": "Neue Versionen werden automatisch geladen, sobald du die Seite neu lädst. Die wichtigsten Änderungen findest du im Changelog."
+      },
+      "feedback": {
+        "q": "Wie kann ich Feedback geben oder mitmachen?",
+        "a": "Über die Feedback-Seite kannst du jederzeit eine Nachricht schicken. Ich freue mich über Praxiserfahrungen, Fehlerberichte und Feature-Ideen."
+      }
+    },
+    "footer": {
+      "title": "Noch etwas unklar?",
+      "text": "Wenn deine Frage hier nicht beantwortet wurde, schreibe mir gern über die Kontaktseite.",
+      "contactBtn": "Kontakt aufnehmen",
+      "generatorBtn": "Direkt zum Generator"
+    }
+  }
+}

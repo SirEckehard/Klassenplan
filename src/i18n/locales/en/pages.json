@@ -1,0 +1,350 @@
+{
+  "startPage": {
+    "heroTitle": "Seating plans made easy",
+    "heroDescription": "Built straight from the classroom & developed together with teachers.",
+    "heroBadge": "free & no ads",
+    "heroBadgeTooltip": "Go to Support",
+    "whyKlassenplanTitle": "Why Klassenplan?",
+    "whyKlassenplanItems": {
+      "privacy": "Focus on data protection",
+      "privacyDescription": "GDPR-compliant, hosted in Germany, no account, no cloud & works offline.",
+      "algorithm": "Intelligent algorithm",
+      "algorithmDescription": "Considers needs, social roles, room preferences & more.",
+      "editor": "Flexible classroom editor",
+      "editorDescription": "Drag & drop for various tables & room elements."
+    },
+    "howItWorksTitle": "How it works:",
+    "howItWorksItems": {
+      "step1Title": "Class List",
+      "step1Text": "Add students & choose needs.",
+      "step2Title": "Classroom",
+      "step2Text": "Save your classroom as a template.",
+      "step3Title": "Seating Plan & Circle",
+      "step3Text": "Mix & adjust – automatically generated seating circle.",
+      "step4Title": "Export",
+      "step4Text": "Export as PDF & print."
+    },
+    "ctaButton": "Plan your class now!",
+    "faqLink": "Learn more in the FAQ!",
+    "contactLink": "Or send a message!"
+  },
+  "support": {
+    "title": "Support Klassenplan",
+    "description1": "Klassenplan is a free tool that I develop in my spare time. I originally created Klassenplan for my own needs and I'm happy if it helps you too and you enjoy using it.",
+    "description2": "If you like Klassenplan and want to support its operational costs and development, I appreciate donations via PayPal or credit card. Thank you!"
+  },
+  "feedback": {
+    "title": "Contact",
+    "description": "I appreciate your feedback on Klassenplan! Whether praise, suggestions for improvement, or bug reports – every message helps me make Klassenplan better. Simply click the button to send me an email.",
+    "bugNote": "When sharing bugs or feature requests, please attach screenshots, videos, or clear descriptions so I can better understand the issue."
+  },
+  "legal": {
+    "germanOnlyNote": "This content is only available in German as it contains legally binding information."
+  },
+  "faq": {
+    "header": {
+      "title": "Frequently Asked Questions",
+      "subtitle": "Here you can find answers about the algorithm, settings, usage, and the project.",
+      "ariaOverview": "FAQ Overview",
+      "ariaNav": "FAQ Quick Navigation"
+    },
+    "disclaimer": {
+      "title": "What seating plans can achieve – and what they can't?",
+      "body": "Klassenplan is a tool to support your teaching practice, not a replacement for it. Research shows that seating arrangements have a small but measurable effect on learning behavior.",
+      "hattieNote": "For context: Hattie (2009, Visible Learning) reports an effect size of d ≈ 0.1–0.2 for seating arrangements, while e.g. direct feedback (d ≈ 0.73) is considerably more impactful. The seating plan is one piece of the puzzle.",
+      "callToAction": "The seating plans created by Klassenplan are starting points, not finished solutions. Your pedagogical assessment is decisive."
+    },
+    "allgemein": {
+      "title": "General Questions",
+      "description": "Overview of algorithm, privacy, and offline usage.",
+      "algo_intro": {
+        "q": "What does the mixing algorithm actually do?",
+        "a": "The algorithm distributes your class to all available seats based on weighted criteria. It starts with a heuristic initial placement and refines it in several passes. It takes into account preferred and distant partners, special needs, body heights, window/door preferences & more."
+      },
+      "algo_neighbors": {
+        "q": "How does the algorithm evaluate neighbors?",
+        "intro": "There are three gradations of neighborhoods that are weighted differently:",
+        "li1": "direct neighbors (highest weight)",
+        "li2": "side neighbors (medium weight)",
+        "li3": "neighbors across/opposite (lower weight)",
+        "outro": "These gradations help to realistically represent free layouts and specifically avoid conflicts."
+      },
+      "no_account": {
+        "q": "Do I need an account or internet?",
+        "a": "No. Klassenplan runs completely locally (IndexedDB + localStorage) and works offline after the first load. There is no login and no cloud synchronization. For device or browser switching, use the backup export/import."
+      },
+      "imperfect": {
+        "q": "Why doesn't the algorithm work \"perfectly\"?",
+        "a": "A perfect solution would have to check all combinations and would not be practical for larger classes. With the heuristic approach, Klassenplan achieves fast, comprehensible results that you can further refine via drag & drop."
+      },
+      "gender_language": {
+        "q": "Why is the generic masculine form used?",
+        "a": "For reasons of readability and accessibility, the generic masculine is used. All genders are equally addressed."
+      },
+      "gender_mixing": {
+        "q": "Why aren't genders distributed perfectly alternately?",
+        "a": "The algorithm evaluates table groups in the context of the entire room. A swap might help in one place but create larger conflicts elsewhere. Higher weights for the \"Mix genders\" criterion force stricter placements but may override other rules (e.g. preferred partners) less often. Gender information is optional and treated neutrally if not provided."
+      }
+    },
+    "eigenschaften": {
+      "title": "Student Properties & Criteria",
+      "description": "Overview of all properties and how the algorithm uses them.",
+      "intro": "In Step 1, you can set various properties for each student. These flow into the seating plan calculation in Step 3. Here you'll find an overview of all properties, what they mean, and how the algorithm considers them.",
+      "algorithmLabel": "Algorithm:",
+      "tableHeaders": {
+        "property": "Property",
+        "description": "Description",
+        "algorithm": "Algorithm Effect"
+      },
+      "categories": {
+        "identity": "Identity",
+        "abilities": "Abilities",
+        "behavior": "Behavior",
+        "social": "Social",
+        "room": "Room Preferences"
+      },
+      "props": {
+        "gender": {
+          "label": "Gender",
+          "description": "Boy, Girl, or Diverse – optional information.",
+          "algorithm": "Creates gender-mixed table groups when enabled."
+        },
+        "height": {
+          "label": "Height",
+          "description": "Small, Medium, or Tall – affects seating row.",
+          "algorithm": "Places smaller students at the front and taller ones at the back for clear sightlines."
+        },
+        "languageSkill": {
+          "label": "Language Skills",
+          "description": "From native speaker to ESL support.",
+          "algorithm": "Pairs language-strong students with beginners for mutual support."
+        },
+        "performanceStrong": {
+          "label": "High Performer",
+          "description": "Currently showing particular strengths in class.",
+          "algorithm": "Enables heterogeneous (peer tutoring) or homogeneous grouping."
+        },
+        "performanceWeak": {
+          "label": "Needs Support",
+          "description": "Currently showing additional support needs in class.",
+          "algorithm": "Enables targeted pairing with high-performing students."
+        },
+        "needsFrontSeat": {
+          "label": "Front seat",
+          "description": "This student needs a front seat.",
+          "algorithm": "Places this student preferably in the front rows."
+        },
+        "restless": {
+          "label": "Restless",
+          "description": "Currently showing restless behavior in class.",
+          "algorithm": "Separates students with restless behavior from each other."
+        },
+        "shy": {
+          "label": "Shy",
+          "description": "Currently showing reserved behavior in class.",
+          "algorithm": "Places students with reserved behavior next to quieter classmates."
+        },
+        "concentrationIssues": {
+          "label": "Easily Distracted",
+          "description": "Currently showing concentration difficulties in class.",
+          "algorithm": "Distributes students with concentration difficulties in the room and separates them from students with restless behavior."
+        },
+        "socialRole": {
+          "label": "Social Role",
+          "description": "Mediator, Leader, Loner, or Social Hub.",
+          "algorithm": "Distributes social roles evenly across tables for balanced group dynamics."
+        },
+        "wishPartner": {
+          "label": "Preferred Partner",
+          "description": "Up to 3 prioritized partners the student wants to sit with.",
+          "algorithm": "Places preferred partners at the same table, priority 1 counts more."
+        },
+        "avoidPartner": {
+          "label": "Distance Request",
+          "description": "Up to 3 students to keep distance from.",
+          "algorithm": "Places these students at different tables."
+        },
+        "prefersWindow": {
+          "label": "Window Seat",
+          "description": "Prefers a seat by the window.",
+          "algorithm": "Places the student closer to the window when possible."
+        },
+        "prefersDoor": {
+          "label": "Near Door",
+          "description": "Prefers a seat near the door.",
+          "algorithm": "Places the student closer to the door when possible."
+        }
+      }
+    },
+    "wunschpartner": {
+      "title": "Preferred & Distant Partners",
+      "description": "How preferred partners, distance wishes, and special needs influence the calculation.",
+      "multi": {
+        "q": "How do multiple preferred and distant partners work?",
+        "a": "You can select up to 3 preferred and distant partners per student. The order determines the priority – the first selected partner is weighted more heavily than the third. The algorithm tries to fulfill as many wishes as possible, with Priority 1 taking precedence."
+      },
+      "force": {
+        "q": "Are preferred partners always considered?",
+        "a": "If you activate \"Consider preferred partners\", the algorithm places pairs together unless other rules speak against it. At group tables (4/6), a seat at the same table counts as partially fulfilled."
+      },
+      "needs": {
+        "q": "How does the system handle restless behavior, concentration difficulties, and distance wishes?",
+        "a": "There are separate weights for restless behavior, concentration difficulties, and distance wishes. Students with restless behavior are separated from each other, students with concentration difficulties are distributed in the room, and distance wishes are respected as long as enough seats are available."
+      },
+      "height": {
+        "q": "How does Klassenplan consider body heights and room preferences?",
+        "a": "Body heights are included in the seat selection so that lines of sight remain clear. Window and door preferences are saved per student and weighted together with the room features from Step 2."
+      }
+    },
+    "layout": {
+      "title": "Seating Plan Structure & Layout",
+      "description": "Notes on table layouts, room elements, seat distances, and limits.",
+      "best": {
+        "q": "Which layouts work best?",
+        "a": "Free layouts are allowed: You can place tables, windows, doors, desk, and blackboard via drag & drop or use classroom templates. The seating circle remains synchronized with the table layout and can be adjusted separately."
+      },
+      "measure": {
+        "q": "How are distances measured?",
+        "a": "Seat positions are stored as pixel coordinates. Direct neighbors lie within the table width and height plus buffer; side and frontal neighbors may be slightly further away until they are no longer considered relevant."
+      },
+      "limits": {
+        "q": "Are there limits on students and seats?",
+        "a": "Yes. Klassenplan is designed for a maximum of 36 students. The system warns if fewer seats than students are available."
+      }
+    },
+    "settings": {
+      "title": "Settings & Weighting",
+      "description": "How to interpret the weights and statistics badges.",
+      "weights": {
+        "q": "What do the weights (0–10) mean?",
+        "a": "The weights define how strongly a rule influences the result. The higher the value, the more strongly suitable neighbors are rewarded or conflicts punished. A value of 8 prevails significantly more often than a value of 2."
+      },
+      "check": {
+        "q": "How do I recognize that a mix meets the criteria?",
+        "a": "The statistics badges in Step 3 show gender distribution, room preferences (window/door), distance wishes, and other criteria. Changes via locks or drag & drop are immediately reflected in the key figures and the seating circle."
+      },
+      "colors": {
+        "q": "What do the colors in the statistics badges mean?",
+        "intro": "The traffic light colors show the degree of fulfillment:",
+        "green": "Green",
+        "green_desc": "– well fulfilled (over 70%)",
+        "yellow": "Yellow",
+        "yellow_desc": "– partially fulfilled (40–70%)",
+        "red": "Red",
+        "red_desc": "– improveable (under 40%)"
+      },
+      "percent": {
+        "q": "How are percentages calculated for multiple preferred partners?",
+        "intro": "Each preferred partner counts individually in the statistics:",
+        "li1": "Direct neighbor = 100% fulfilled",
+        "li2": "At the same group table (4/6) = 50% fulfilled",
+        "li3": "Different table = 0% fulfilled",
+        "example": "Example: 3 partners, 1 adjacent (100%) + 1 at table (50%) + 1 elsewhere (0%) = (100+50+0) / 3 = 50%"
+      },
+      "interact": {
+        "q": "What happens when clicking or hovering over statistics badges?",
+        "a": "You can click badges to permanently highlight the associated students in the seating plan. When hovering, you see a temporary preview. This allows you to quickly recognize which placements could contribute to improving the mix result."
+      },
+      "repeat": {
+        "q": "How does repeat avoidance work?",
+        "intro": "The repetition evaluation considers both saved seating plans and the current mix history of the session:",
+        "li1_b": "Saved plans:",
+        "li1": "Pairs from older plans receive decreasing weight (newer ones count more)",
+        "li2_b": "Current Session:",
+        "li2": "The last mixes are weighted more heavily so that pairs do not repeat immediately",
+        "outro": "This avoids the same students sitting next to each other constantly – even if you mix multiple times in a row."
+      },
+      "values": {
+        "q": "What do the individual statistics values indicate?",
+        "intro": "Each criterion has its own degree of fulfillment, e.g.:",
+        "li1_b": "Preferred partners:",
+        "li1": "Share of fulfilled wishes (direct partner or at table)",
+        "li2_b": "Distance wishes:",
+        "li2": "Share of respected distance wishes (not at the same table)",
+        "li3_b": "Repetition:",
+        "li3": "Share of new pairs (no repetition from previous plans)",
+        "li4_b": "Restless Behavior/Concentration:",
+        "li4": "Share of affected students who are separated from each other",
+        "li5_b": "Genders:",
+        "li5": "Share of tables with balanced distribution"
+      }
+    },
+    "backups": {
+      "title": "Backups & Persistence",
+      "description": "How data is stored locally and what happens with backups.",
+      "where": {
+        "q": "Where is my data stored?",
+        "a": "All data is stored in the browser (IndexedDB for core data, localStorage for settings). There is no cloud, no account, and no server synchronization. Your data stays on your device and is not accessible from outside."
+      },
+      "how": {
+        "q": "How does the backup work?",
+        "a": "The export creates an encrypted JSON file with students, seating plans, mix history, seating circle, classroom features, templates, and settings."
+      },
+      "update": {
+        "q": "What happens to my backup after a Klassenplan update?",
+        "a": "Backups are backward compatible. New versions automatically migrate older backups. After major changes, it is worth creating a fresh export so that you have secured the latest structure."
+      }
+    },
+    "tipps": {
+      "title": "Tips for unwanted results",
+      "description": "What you can do if a mix doesn't convince immediately.",
+      "improve": {
+        "q": "How can I improve the result?",
+        "intro": "Use a combination of the following strategies:",
+        "li1": "Increase weights for relevant criteria",
+        "li2": "Mix multiple times to use different random starts",
+        "li3": "Adjust individual seats manually via drag & drop and lock them if necessary so that the algorithm no longer changes them."
+      }
+    },
+    "oberflaeche": {
+      "title": "Operation & User Interface",
+      "description": "Questions about Dark Mode, keyboard shortcuts, touch, and alternative views.",
+      "print": {
+        "q": "I want to print the seating plan and have the blackboard shown at the bottom as orientation. Is that possible?",
+        "a": "Yes. Switch to portrait view in the export area and activate \"Show blackboard\". This way you keep orientation in the classroom even on the printout."
+      },
+      "dark": {
+        "q": "Is there a Dark Mode?",
+        "a": "Yes. You can switch between light and dark color schemes at any time via the switch in the footer. Your selection is stored locally in the browser and loaded automatically on your next visit."
+      },
+      "shortcuts": {
+        "q": "Which keyboard shortcuts does the editor support?",
+        "a": "In the classroom editor, Ctrl/Cmd + C, Ctrl/Cmd + V, and Ctrl/Cmd + X are available for copying, pasting, and cutting tables. You can find a complete overview of available shortcuts in the help area at the top right."
+      },
+      "circle": {
+        "q": "How does the Seating Circle mode work?",
+        "a": "Switch to the \"Seating Circle\" area via the toggle in Step 3. Klassenplan automatically calculates a suitable circle and links it to your current seating plan. You can adjust the seats in the seating circle manually via drag & drop without changing the seating plan and then export them separately."
+      },
+      "tablet": {
+        "q": "Can I use Klassenplan on a tablet or whiteboard?",
+        "a": "Yes. The interface is touch-optimized, including long-press for context menus. Everything works smoothly on tablets and whiteboards. Using it on a smartphone is possible, but not recommended."
+      },
+      "pwa": {
+        "q": "Can I install Klassenplan like an app?",
+        "a": "Yes! Klassenplan is a Progressive Web App (PWA) and can be installed directly on your device. In Chrome, Edge, or Safari, look for \"Add to Home Screen\" or \"Install App\" in the browser menu. After that, Klassenplan launches like a standalone app from the dock or start menu – faster, with its own icon, and without the browser bar."
+      }
+    },
+    "projekt": {
+      "title": "Project & Support",
+      "description": "Information on costs, updates, and how you can contribute.",
+      "cost": {
+        "q": "Does Klassenplan cost anything?",
+        "a": "No, Klassenplan is a free tool that I work on in my free time. I originally developed Klassenplan for my own needs (with the help of Claude Code) and I am happy if it helps you too and you like using it. If you like Klassenplan and would like to support its hosting costs as well as further development, I would be happy about a donation via PayPal. You can find all info under \"Support\". Thank you!"
+      },
+      "update": {
+        "q": "How do I get updates?",
+        "a": "New versions are loaded automatically as soon as you reload the page. You can find the most important changes in the Changelog."
+      },
+      "feedback": {
+        "q": "How can I give feedback or participate?",
+        "a": "You can send a message at any time via the feedback page. I look forward to practical experiences, bug reports, and feature ideas."
+      }
+    },
+    "footer": {
+      "title": "Still unclear?",
+      "text": "If your question was not answered here, please write to me via the contact page.",
+      "contactBtn": "Contact me",
+      "generatorBtn": "Go to Generator"
+    }
+  }
+}

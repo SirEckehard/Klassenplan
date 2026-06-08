@@ -1,0 +1,244 @@
+# Changelog
+
+All notable changes to this project are documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/).
+
+## [1.5.0] - 2026-05-10
+
+### Added
+
+- **New logo and brand identity** – Klassenplan has a fresh, clear look that runs consistently through the app, PDF export, and preview
+- **New typeface: DM Sans** – Modern typography throughout, including PDF export and print preview
+- **Reworked landing page** – New preview screenshots show every step of the workflow at a glance
+
+### Improved
+
+- **Clearer wording for student needs**
+  - "Hearing/vision impairment" is now **"Front seats"** – describes the actual intent more precisely: a fixed seat in the front row, regardless of the reason
+  - Clearer distinction between **disruptive** (active, distracts others) and **distractible** (passive, is easily distracted)
+- **New icon set (Phosphor)** – Sharper, more consistent icons throughout the UI
+- **FAQ revised** – Content updated
+- **Visual polish** – Footer, buttons, and need indicators (pills) refined
+
+### Fixed
+
+- Incorrect icon in the shuffle options
+- Minor display glitches on the need indicators
+
+## [1.4.2] - 2026-05-02
+
+### Improved
+
+- FAQ: Added a note on what seating plans can and cannot do
+- "Delete all data" moved to the footer
+- Stability and quality improvements
+
+## [1.4.1] - 2026-03-29
+
+### Improved
+
+- Stability and security improvements
+
+## [1.4.0] - 2026-01-23
+
+### Added
+
+- New server (Hetzner): All data is stored and processed exclusively in Germany
+- Dynamic blackboard-position detection: The algorithm now detects automatically where the blackboard is – if it sits on the left side of the room, "front" means left too
+
+### Improved
+
+- Algorithm improvements
+- Adjusted table sizes
+- UI/UX refinements
+- Security updates
+
+## [1.3.0] - 2026-01-04
+
+### Added
+
+- English translation: The entire application is now bilingual (German/English)
+- New wizard flow: Reworked step-by-step assistant with improved guidance
+- Language proficiency (DaZ support): New student attribute factored into shuffling
+- Social role: New student attribute (e.g. class representative) for better group composition
+- URL-based language selection: Language can be set via `/en` or `/de` in the URL
+- Improved PWA functionality: Update notifications and "Install as app" option
+
+### Improved
+
+- More logical and consistent ordering of shuffle criteria in steps 1 and 3
+- Simplified landing page with reworked design and FAQ
+- Filter logic now shows only the shuffle criteria actually in use
+- Unified icon-toggle logic – icons now show the action rather than the state
+- Navigation: Consistent back/next button colors (orange/blue)
+- Export: New option for additional class info (year level, notes) in the PDF
+- Seating circle: Save button integrated into the name-field row
+- Footer with improved theme and language toggles
+- Auto-save on export only triggers on actual changes
+- Improved stability when switching classes and during data persistence
+
+### Security & Technical
+
+- Security updates for all dependencies
+- Improved error handling with structured logging
+- Fixed race conditions in the persistence layer
+- Optimized keyboard shortcuts without conflicts (Cmd/Ctrl+E)
+- Code quality: ESLint errors fixed, TypeScript typing improved
+
+### Fixed
+
+- Duplicate validation for class names
+- Trackpad zoom getting stuck
+- Improved auto-save behavior when leaving the editor
+
+## [1.2.1] - 2025-12-31
+
+### Fixed
+
+- Backup import for classrooms with 6-seat group tables
+
+### Improved
+
+- Code quality: Removed unused variables and stale imports
+
+## [1.2.0] - 2025-12-13
+
+### Added
+
+- Multi-class management: Create any number of classes and keep their seating plans separate
+- Multiple preferred and distance partners: Pick up to 3 partners per student in priority order, all taken into account by the algorithm
+- Offline availability – load Klassenplan once and use the generator fully without an internet connection afterwards
+
+### Improved
+
+- Improved statistics with color-coded feedback directly on the seating plan for a faster read on composition
+- Compact class-list view with optional icon labels for better overview
+- Various UI/UX refinements and stability updates
+
+## [1.1.3] - 2025-11-08
+
+### Improved
+
+- Better handling of long names in the seating circle
+- Algorithm refinements for window and door proximity
+- Optimized performance when loading and saving classrooms
+- Various improvements to codebase and stability
+- Various UI/UX improvements
+- Groundwork for offline support and PWA functionality
+
+## [1.1.2] - 2025-10-31
+
+### Added
+
+- Windows, doors, and the teacher's desk can now be added and moved inside the classroom
+- Algorithm now respects window- and door-proximity preferences
+
+### Improved
+
+- UI/UX improvements
+
+### Fixed
+
+- Statistics display extended and corrected
+- Improved printing in Safari
+
+## [1.1.1] - 2025-10-25
+
+### Added
+
+- Quick name entry when using "Create class"
+
+### Improved
+
+- Gender attribute is optional
+- Seating plan and seating circle can be rotated independently in the export
+
+### Known Issues
+
+- Statistics display in step 3 occasionally returns incorrect values
+- Safari: Faulty print preview in the print dialog & extra blank page
+
+## [1.1.0] - 2025-10-22
+
+### Added
+
+- Complete UI redesign with modern, consistent controls
+- Introduction of the body-height feature
+
+### Improved
+
+- Storage and backup management now opens in its own window
+- Saving classroom templates in step 2 now shows a dialog with an overwrite option
+- Refined display of the lock icon and need indicators directly beneath names
+- Portrait is now the default export format; landscape is still recommended for seating circles
+- Support for names up to 12 characters with automatic scaling
+
+### Known Issues
+
+- Statistics display in step 3 occasionally returns incorrect values
+- Safari: Faulty print preview in the print dialog & extra blank page
+
+## [1.0.3] - 2025-10-16
+
+### Added
+
+- Quick "Create class" setup added to the class list
+- Introduction of the distance-preference feature
+- "Set up classroom" quick-setup menu added to the classroom view and removed from the class list
+
+### Improved
+
+- Classroom-template management integrated into the new quick-setup menu
+- CSV import for class lists improved: supports importing external lists (e.g. student lists with grades)
+- UI/UX improvements
+- Improved accessibility and keyboard navigation
+- Improved performance
+
+### Fixed
+
+- Fixed the repetition criterion for seating plans
+
+## [1.0.2] - 2025-10-05
+
+### Added
+
+- Restructured class list with compact and detailed views
+- Introduced minimized and expanded sidebar in classroom, seating plan/circle, and export views
+- Added FAQ page with answers to common questions
+
+### Improved
+
+- UI/UX improvements
+
+### Fixed
+
+- Bug fixes and stability improvements
+
+## [1.0.1] - 2025-09-28
+
+### Added
+
+- Seating circle mode
+- PDF export preview improved: portrait and landscape with refined rendering
+
+### Improved
+
+- UI/UX improvements
+
+### Fixed
+
+- Bug fixes and stability improvements
+
+## [1.0.0] - 2025-08-30
+
+Initial release
+
+### Added
+
+- Intelligent seating-plan algorithm
+- Classroom editor with drag-and-drop
+- Backup & restore via IndexedDB
+- Dark mode support
+- PDF export for seating plans

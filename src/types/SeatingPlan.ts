@@ -1,0 +1,85 @@
+import type { ClassroomScene } from './ClassroomScene';
+import type { CircleLayout, CircleExportData } from './Circle';
+import type { Student, SeatingArrangement, ClassCollectionState } from './base';
+
+export type NeighborWeightDirection = 'direct' | 'side' | 'front' | 'back';
+
+export interface NeighborWeightConfig {
+  direct: number;
+  side: number;
+  front: number;
+  back: number;
+}
+
+export interface NeighborWeightSettings {
+  behavioral: NeighborWeightConfig;
+  gender: NeighborWeightConfig;
+}
+
+export interface MixSettings {
+  avoidPreviousPairs: number;
+  avoidRestlessTogether: number;
+  avoidConcentrationTogether: number;
+  avoidConcentrationNearRestless: number;
+  avoidShyAlone: number;
+  preferGenderMix: number;
+  considerWishPartners: number;
+  avoidConflictPartners: number;
+  peerTutoring: number;
+  homogeneousPerformanceGroups: number;
+  preferFrontForNeedsFrontSeat: number;
+  preferFrontForSmallerStudents: number;
+  preferWindowSeats: number;
+  preferDoorSeats: number;
+  /** Pair language-strong with language-weak students (0-100) */
+  preferLanguageMixing: number;
+  /** Distribute social roles evenly across tables (0-100) */
+  distributeSocialRoles: number;
+  neighborWeights: NeighborWeightSettings;
+}
+
+export interface MixResult {
+  id: number;
+  timestamp: string;
+  seating: SeatingArrangement;
+  mixSettings: MixSettings;
+}
+
+// Map of studentId -> fixed position
+export type LockedPositions = Record<string, { table: number; seat: number }>;
+
+export interface SavedPlan {
+  id: string;
+  name: string;
+  date: string; // Date formatted with de-DE locale
+  seating: SeatingArrangement;
+  scene: ClassroomScene;
+  locks?: LockedPositions; // Optional persisted locks
+  circleLayout?: CircleLayout; // Optional circle layout
+}
+
+export interface ClassroomTemplate {
+  id: number;
+  name: string;
+  description?: string;
+  scene: ClassroomScene;
+}
+
+// Bundle used for full export/import of app state (versioned)
+export interface ExportBundleV1 {
+  version: number;
+  students: Student[];
+  seatingHistory: SavedPlan[];
+  mixHistory: MixResult[];
+  classroomScene: ClassroomScene;
+  mixSettings: MixSettings;
+  lockedPositions: LockedPositions;
+  classroomTemplates: ClassroomTemplate[];
+  circleLayouts?: CircleExportData[]; // Optional circle layouts
+  currentCircleLayout?: CircleLayout | null; // Current active circle layout
+  classCollection?: ClassCollectionState | null;
+}
+
+export type ExportBundle = ExportBundleV1; // Alias for the current version
+
+export type ScalarMixSettingKey = Exclude<keyof MixSettings, 'neighborWeights'>;

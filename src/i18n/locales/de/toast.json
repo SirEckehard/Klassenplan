@@ -1,0 +1,137 @@
+{
+  "save": {
+    "success": "Erfolgreich gespeichert.",
+    "error": "Speichern fehlgeschlagen. Bitte versuche es erneut.",
+    "templateSuccess": "Vorlage erfolgreich gespeichert.",
+    "templateError": "Fehler beim Speichern der Vorlage."
+  },
+  "load": {
+    "success": "Erfolgreich geladen.",
+    "error": "Fehler beim Laden.",
+    "templateSuccess": "Vorlage erfolgreich geladen",
+    "templateError": "Fehler beim Laden der Vorlage"
+  },
+  "delete": {
+    "success": "Erfolgreich gelöscht",
+    "error": "Fehler beim Löschen",
+    "templateSuccess": "Vorlage erfolgreich gelöscht",
+    "templateError": "Fehler beim Löschen der Vorlage"
+  },
+  "template": {
+    "nameEmpty": "Vorlagenname darf nicht leer sein",
+    "nameInvalid": "Ungültiger Vorlagenname",
+    "nameExists": "Eine Vorlage mit diesem Namen existiert bereits",
+    "renameSuccess": "Vorlage erfolgreich umbenannt",
+    "renameError": "Vorlage konnte nicht umbenannt werden. Name existiert bereits oder ist ungültig.",
+    "updateSuccess": "Vorlage erfolgreich aktualisiert",
+    "updateError": "Fehler beim Aktualisieren der Vorlage"
+  },
+  "export": {
+    "success": "Export erfolgreich",
+    "error": "Fehler beim Export",
+    "pdfSuccess": "PDF erfolgreich exportiert",
+    "pdfError": "Fehler beim PDF-Export"
+  },
+  "import": {
+    "success": "Import erfolgreich",
+    "error": "Fehler beim Import",
+    "invalidFormat": "Ungültiges Dateiformat"
+  },
+  "backup": {
+    "createSuccess": "Backup erfolgreich erstellt",
+    "createError": "Fehler beim Erstellen des Backups",
+    "restoreSuccess": "Backup erfolgreich wiederhergestellt",
+    "restoreError": "Fehler beim Wiederherstellen des Backups",
+    "exported": "Backup exportiert",
+    "webCryptoExportError": "Sicheres Backup nicht möglich: Browser unterstützt keine Verschlüsselung.",
+    "webCryptoImportError": "Entschlüsselung nicht möglich: Browser unterstützt keine Verschlüsselung.",
+    "decryptFailed": "Entschlüsselung fehlgeschlagen.",
+    "importSuccess": "Daten wurden erfolgreich importiert."
+  },
+  "generation": {
+    "success": "Sitzplan erfolgreich generiert",
+    "error": "Fehler bei der Sitzplan-Generierung",
+    "noStudents": "Keine Schüler vorhanden",
+    "noSeats": "Keine Sitzplätze vorhanden",
+    "insufficientSeats": "Es gibt weniger Sitzplätze als Schüler.",
+    "circleError": "Sitzkreis konnte nicht erstellt werden. Bitte versuche es erneut.",
+    "circleCancelled": "Sitzkreis-Erstellung wurde abgebrochen"
+  },
+  "validation": {
+    "nameRequired": "Bitte gib einen Namen ein.",
+    "passwordRequired": "Bitte gib ein Passwort ein.",
+    "fileTooLarge": "Datei ist zu groß",
+    "invalidFile": "Ungültige Datei"
+  },
+  "general": {
+    "copySuccess": "In Zwischenablage kopiert",
+    "copyError": "Fehler beim Kopieren",
+    "updateSuccess": "Erfolgreich aktualisiert",
+    "updateError": "Fehler beim Aktualisieren"
+  },
+  "class": {
+    "createSuccess": "Neue Klasse erstellt",
+    "createError": "Klasse konnte nicht erstellt werden",
+    "nameExists": "Eine Klasse mit diesem Namen existiert bereits",
+    "updateSuccess": "Klasse aktualisiert",
+    "updateError": "Klasse konnte nicht aktualisiert werden",
+    "duplicateSuccess": "Klasse dupliziert",
+    "duplicateError": "Klasse konnte nicht dupliziert werden",
+    "deleteSuccess": "Klasse gelöscht",
+    "deleteError": "Klasse konnte nicht gelöscht werden",
+    "switchSuccess": "Klasse gewechselt",
+    "switchError": "Klasse konnte nicht gewechselt werden",
+    "switchUnsaved": "Es gab noch Änderungen in der vorherigen Klasse – sie wurden dort gespeichert.",
+    "activatedName": "Klasse {{name}} aktiviert",
+    "createdActivatedName": "Klasse {{name}} erstellt und aktiviert",
+    "createdName": "Klasse {{name}} erstellt",
+    "updatedName": "Klasseninfos für {{name}} aktualisiert",
+    "duplicatedName": "Klasse {{name}} dupliziert",
+    "deletedName": "Klasse {{name}} gelöscht"
+  },
+  "network": {
+    "error": "Netzwerkfehler",
+    "connectionError": "Verbindungsfehler",
+    "timeout": "Zeitüberschreitung"
+  },
+  "student": {
+    "nameEmpty": "Name darf nicht leer sein",
+    "nameInvalid": "Ungültiger Name",
+    "nameExists": "Schüler mit diesem Namen existiert bereits",
+    "maxReached": "Maximale Schüleranzahl erreicht",
+    "genderRequired": "Geschlechtsangaben sind optional. Ergänze sie nur, wenn du damit arbeiten möchtest.",
+    "addFirst": "Bitte zuerst Schüler hinzufügen",
+    "incompleteData": "Bitte ergänze die fehlenden Namen. Geschlechtsangaben kannst du optional später hinzufügen.",
+    "missingNames": "Bitte ergänze die fehlenden Namen. Geschlechtsangaben sind optional.",
+    "missingGender": "Hinweis: Einige Geschlechtsangaben fehlen. Diese Information ist optional.",
+    "missingNamesAndGender": "Es fehlen Namen. Geschlechtsangaben können optional ergänzt werden."
+  },
+  "csv": {
+    "invalidFile": "Bitte gültige CSV-Datei auswählen",
+    "parseError": "CSV-Datei konnte nicht gelesen werden",
+    "readError": "Fehler beim Lesen der CSV-Datei",
+    "longNamesImported": "Namen importiert - einige werden gekürzt dargestellt",
+    "nameColumnError": "CSV muss eine Spalte mit Namen enthalten (z.B. \"Name\", \"Vorname\" oder \"Nachname\")",
+    "importedCount": "{{count}} Schüler erfolgreich importiert"
+  },
+  "seating": {
+    "seatsInsufficient": "Zu wenig Sitzplätze für alle Schüler",
+    "seatLockedDrop": "Dieser Sitzplatz ist gesperrt.",
+    "classroomNotSetup": "Bitte richte zuerst den Klassenraum ein."
+  },
+  "plan": {
+    "nameChangeError": "Name konnte nicht geändert werden",
+    "noneToSave": "Kein Sitzplan zum Speichern",
+    "saveFailed": "Sitzplan konnte nicht gespeichert werden",
+    "saved": "Sitzplan \"{{name}}\" gespeichert"
+  },
+  "mix": {
+    "deleted": "Misch-Ergebnis gelöscht",
+    "noneAvailable": "Keine Misch-Ergebnisse vorhanden"
+  },
+  "data": {
+    "deleted": "Alle Daten wurden gelöscht",
+    "deleteError": "Daten konnten nicht gelöscht werden. Nutze die Löschen-Funktion deines Browsers.",
+    "preferencesReset": "Deine Einstellungen wurden zurückgesetzt, da gespeicherte Daten beschädigt waren."
+  }
+}

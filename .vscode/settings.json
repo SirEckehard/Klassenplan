@@ -1,0 +1,10 @@
+{
+  "workbench.editor.showTabs": "multiple",
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
+  "css.lint.unknownAtRules": "ignore"
+}

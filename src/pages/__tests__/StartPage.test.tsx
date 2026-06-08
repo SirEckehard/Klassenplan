@@ -1,0 +1,29 @@
+import '@testing-library/jest-dom/vitest';
+import { render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+import { describe, it, expect } from 'vitest';
+import '@/i18n'; // Initialize i18n for tests
+import StartPage from '../StartPage';
+
+// Test main heading and navigation link on the start page
+describe('StartPage', () => {
+  it('renders heading and link to generator', () => {
+    render(
+      <MemoryRouter>
+        <StartPage />
+      </MemoryRouter>,
+    );
+
+    expect(
+      screen.getByRole('link', { name: /^Zur Startseite$/i }),
+    ).toBeInTheDocument();
+    // CTA button - match either German or English text
+    const link = screen.getByRole('link', {
+      name: /Zum Generator wechseln und Klasse planen/i,
+    });
+    expect(
+      screen.getByText(/Plane jetzt deine Klasse|Plan your class now/i),
+    ).toBeInTheDocument();
+    expect(link).toHaveAttribute('href', '/generator');
+  });
+});

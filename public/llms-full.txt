@@ -1,0 +1,60 @@
+# Klassenplan – ausführliche Beschreibung / extended description
+
+> Klassenplan ist ein kostenloser, datenschutzfreundlicher Sitzplan-Generator für Schulen.
+> Er läuft vollständig als Progressive Web App im Browser; Schülerdaten verlassen das Gerät nicht.
+> Klassenplan is a free, privacy-friendly seating-chart generator for schools, running entirely
+> in the browser as a Progressive Web App; student data never leaves the device.
+
+## Was Klassenplan löst / Problem it solves
+
+Lehrkräfte müssen regelmäßig Sitzpläne erstellen und anpassen – etwa nach Lernpartnerschaften,
+Verhalten, Sprachförderung oder bei Klassenarbeiten. Das manuelle Umsortieren ist mühsam.
+Klassenplan automatisiert das Mischen nach frei definierbaren pädagogischen Attributen und
+erzeugt druckfertige Pläne, ohne dass personenbezogene Daten an einen Server übertragen werden.
+
+## Typischer Ablauf / Typical workflow
+
+1. Klassenliste anlegen: Schülernamen manuell eingeben oder per CSV importieren; optional
+   Attribute (z. B. Förderbedarf, Gruppen) hinterlegen.
+2. Klassenraum einrichten: Tische und Sitzgruppen frei anordnen (Drag & Drop) oder einen
+   Sitzkreis erzeugen.
+3. Sitzplan generieren und nach Attributen mischen; Ergebnis bei Bedarf erneut mischen oder
+   einzelne Plätze manuell anpassen.
+4. Exportieren: als PDF speichern oder direkt drucken – sowohl für Sitzplan als auch Sitzkreis.
+
+## Funktionen im Detail / Features
+
+- Klassenverwaltung: mehrere Klassen/Pläne, lokale Speicherung, Verlauf.
+- CSV-Import: schnelles Einlesen vorhandener Klassenlisten.
+- Layout-Editor: flexible Raumgestaltung, Tische, Sitzkreis.
+- Misch-Algorithmus: verteilt Schüler nach gewählten Kriterien.
+- Export: hochwertige PDF-Ausgabe und Druckansicht.
+- PWA: offline nutzbar, installierbar, schnelle Ladezeiten.
+- Mehrsprachigkeit: Deutsch (Standard) und Englisch unter dem Präfix /en.
+- Barrierearmut: semantisches HTML, Tastaturbedienung, Dark Mode.
+
+## Datenschutz / Privacy
+
+- Keine Benutzerkonten, keine Anmeldung.
+- Keine Analyse-/Tracking-Skripte.
+- Schüler- und Klassendaten werden ausschließlich lokal im Browser (IndexedDB) gespeichert
+  und nicht an Server übertragen.
+- Optionale Spenden laufen über PayPal (nur auf der Support-Seite).
+
+## Seitenübersicht / Pages
+
+- https://klassenplan.de/            – Startseite / overview
+- https://klassenplan.de/generator   – Sitzplan-Generator
+- https://klassenplan.de/export      – Export / Druck
+- https://klassenplan.de/faq         – Häufige Fragen
+- https://klassenplan.de/datenschutz – Datenschutz
+- https://klassenplan.de/changelog   – Changelog
+- https://klassenplan.de/support     – Unterstützen / Spenden
+- https://klassenplan.de/impressum   – Impressum
+- https://klassenplan.de/feedback    – Kontakt
+- Englische Varianten jeweils unter /en (z. B. https://klassenplan.de/en/generator)
+
+## Technik / Tech
+
+- React + Vite, Progressive Web App, Service Worker, IndexedDB.
+- Kontakt: webmaster@klassenplan.de

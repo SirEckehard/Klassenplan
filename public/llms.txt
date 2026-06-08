@@ -1,0 +1,40 @@
+# Klassenplan
+
+> Klassenplan ist ein kostenloser, datenschutzfreundlicher Sitzplan-Generator für Schulen.
+> Lehrkräfte erstellen damit individuelle Sitzpläne für flexibel einrichtbare Klassenräume
+> und mischen die Sitzordnung in wenigen Schritten nach pädagogischen Kriterien.
+> Alle Daten bleiben lokal im Browser (IndexedDB) – es gibt keine Server-Konten und kein Tracking.
+
+Klassenplan is a free, privacy-friendly seating-chart generator for schools. It runs entirely
+in the browser as a Progressive Web App; student data never leaves the device.
+
+## Funktionen / Features
+
+- Klassenlisten anlegen oder per CSV importieren (Schülernamen, Attribute)
+- Klassenraum frei einrichten (Tische, Sitzkreis, Anordnung per Drag & Drop)
+- Sitzplan automatisch nach pädagogischen Attributen mischen (Algorithmus)
+- Export als PDF oder direkter Druck (Sitzplan und Sitzkreis)
+- Mehrsprachig: Deutsch (Standard) und Englisch (/en)
+- Offline nutzbar (PWA, Service Worker), installierbar
+
+## Wichtige Seiten / Key pages
+
+- [Startseite](https://klassenplan.de/): Überblick und Einstieg
+- [Generator](https://klassenplan.de/generator): Sitzpläne erstellen und mischen
+- [Export](https://klassenplan.de/export): Sitzpläne als PDF exportieren/drucken
+- [FAQ](https://klassenplan.de/faq): Häufige Fragen zu Algorithmus und Bedienung
+- [Datenschutz](https://klassenplan.de/datenschutz): Datenschutzhinweise (lokal-first)
+- [Changelog](https://klassenplan.de/changelog): Änderungen und neue Funktionen
+- [Impressum](https://klassenplan.de/impressum): Rechtliche Angaben
+- [Kontakt](https://klassenplan.de/feedback): Kontakt zum Team
+
+## Englische Varianten / English versions
+
+Jede Seite ist unter dem Präfix `/en` auf Englisch verfügbar, z. B.
+https://klassenplan.de/en und https://klassenplan.de/en/generator.
+
+## Hinweise / Notes
+
+- Datenschutz: Keine Konten, kein Tracking, keine Übertragung von Schülerdaten an Server.
+- Technik: React + Vite, Progressive Web App.
+- Kontakt: webmaster@klassenplan.de

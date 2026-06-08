@@ -1,0 +1,95 @@
+/**
+ * Centralized storage key definitions for the application.
+ * Contains all localStorage and IndexedDB keys in one place.
+ */
+
+export const STORAGE_KEYS = {
+  localStorage: {
+    theme: 'theme',
+    cookieConsent: 'cookieConsent',
+    showGrid: 'showGrid',
+    showBoard: 'showBoard',
+    showWindows: 'showWindows',
+    showDoor: 'showDoor',
+    showPodium: 'showPodium',
+    seatingMode: 'spg.seatingMode',
+    lockSeatLabelOrientation: 'lockSeatLabelOrientation',
+    seatLabelRotation: 'seatLabelRotation',
+    lastSeenVersion: 'spg.lastSeenVersion',
+    mixSettings: 'spg.mixSettings',
+    sidebarExpanded: 'spg.sidebarExpanded',
+    sidebarActiveTab: 'spg.sidebarActiveTab',
+    hasVisitedApp: 'spg.hasVisitedApp',
+  },
+  indexedDB: {
+    students: 'spg.students',
+    seatingHistory: 'spg.seatingHistory',
+    mixHistory: 'spg.mixHistory',
+    currentSeating: 'spg.currentSeating',
+    lockedPositions: 'spg.lockedPositions',
+    classroomScene: 'spg.classroomScene',
+    classroomTemplates: 'spg.classroomTemplates',
+    mixSettings: 'spg.mixSettings',
+    circleLayouts: 'spg.circleLayouts',
+    currentCircleLayout: 'spg.currentCircleLayout',
+    classCollection: 'spg.classCollection',
+    version: 'spg.version',
+  },
+} as const;
+
+// Legacy exports for backward compatibility
+export const LOCAL_STORAGE_KEYS = STORAGE_KEYS.localStorage;
+export const DB_KEYS = STORAGE_KEYS.indexedDB;
+
+// Type definitions
+export type LocalStorageKey = keyof typeof STORAGE_KEYS.localStorage;
+export type LocalStorageValue =
+  (typeof STORAGE_KEYS.localStorage)[LocalStorageKey];
+
+export type IndexedDBKey = keyof typeof STORAGE_KEYS.indexedDB;
+export type IndexedDBValue = (typeof STORAGE_KEYS.indexedDB)[IndexedDBKey];
+
+export type StorageKey = LocalStorageKey | IndexedDBKey;
+
+// Project localStorage keys array for cleanup operations
+export const PROJECT_LOCAL_STORAGE_KEYS = [
+  STORAGE_KEYS.localStorage.theme,
+  STORAGE_KEYS.localStorage.cookieConsent,
+  STORAGE_KEYS.localStorage.showGrid,
+  STORAGE_KEYS.localStorage.showBoard,
+  STORAGE_KEYS.localStorage.showWindows,
+  STORAGE_KEYS.localStorage.showDoor,
+  STORAGE_KEYS.localStorage.showPodium,
+  STORAGE_KEYS.localStorage.seatingMode,
+  STORAGE_KEYS.localStorage.lockSeatLabelOrientation,
+  STORAGE_KEYS.localStorage.seatLabelRotation,
+  STORAGE_KEYS.localStorage.lastSeenVersion,
+  STORAGE_KEYS.localStorage.mixSettings,
+  STORAGE_KEYS.localStorage.sidebarExpanded,
+  STORAGE_KEYS.localStorage.sidebarActiveTab,
+  STORAGE_KEYS.localStorage.hasVisitedApp,
+] as const;
+
+export type ProjectLocalStorageKey =
+  (typeof PROJECT_LOCAL_STORAGE_KEYS)[number];
+
+/**
+ * Get all localStorage keys for the project
+ */
+export function getLocalStorageKeys(): readonly string[] {
+  return PROJECT_LOCAL_STORAGE_KEYS;
+}
+
+/**
+ * Get all IndexedDB keys for the project
+ */
+export function getIndexedDBKeys(): readonly string[] {
+  return Object.values(STORAGE_KEYS.indexedDB);
+}
+
+/**
+ * Get all storage keys (localStorage + IndexedDB) for the project
+ */
+export function getAllStorageKeys(): readonly string[] {
+  return [...getLocalStorageKeys(), ...getIndexedDBKeys()];
+}

@@ -1,0 +1,163 @@
+{
+  "skipToContent": "Skip to content",
+  "notFound": {
+    "code": "404",
+    "title": "Page not found",
+    "message": "This page doesn't exist or has been moved.",
+    "home": "Back to home"
+  },
+  "language": {
+    "de": "Deutsch",
+    "en": "English",
+    "select": "Select language"
+  },
+  "nav": {
+    "home": "Home",
+    "impressum": "Legal Notice",
+    "datenschutz": "Privacy Policy",
+    "faq": "FAQ",
+    "changelog": "Changelog",
+    "support": "Support",
+    "feedback": "Feedback"
+  },
+  "buttons": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "confirm": "Confirm",
+    "undo": "Undo",
+    "redo": "Redo",
+    "print": "Print",
+    "toGenerator": "Go to Generator",
+    "contactUs": "Contact Us",
+    "giveFeedback": "Give Feedback"
+  },
+  "labels": {
+    "yes": "Yes",
+    "no": "No",
+    "name": "Name",
+    "class": "Class",
+    "student": "Student",
+    "students": "Students",
+    "table": "Table",
+    "tables": "Tables",
+    "seat": "Seat",
+    "seats": "Seats",
+    "version": "Version"
+  },
+  "features": {
+    "window": "Window",
+    "door": "Door",
+    "board": "Blackboard",
+    "podium": "Teacher's Desk"
+  },
+  "gender": {
+    "male": "male",
+    "female": "female",
+    "diverse": "diverse"
+  },
+  "studentFlags": {
+    "restless": "restless",
+    "shy": "shy",
+    "concentrationIssues": "easily distracted",
+    "needsFrontSeat": "front seat",
+    "performanceStrong": "high performer",
+    "performanceWeak": "needs support"
+  },
+  "studentFlagTooltips": {
+    "restless": "Currently showing restless behavior in class",
+    "shy": "Currently showing withdrawn behavior in class",
+    "concentrationIssues": "Gets distracted easily at the moment",
+    "needsFrontSeat": "Needs a fixed front seat",
+    "performanceStrong": "Currently showing particular strengths in class",
+    "performanceWeak": "Currently showing support needs in class"
+  },
+  "heightCategories": {
+    "small": "short",
+    "medium": "medium",
+    "tall": "tall"
+  },
+  "theme": {
+    "light": "Light",
+    "dark": "Dark",
+    "toggle": "Toggle theme"
+  },
+  "pages": {
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "description": "Find answers about the algorithm, settings, usage, and the project.",
+      "stillUnclear": "Still have questions?",
+      "stillUnclearDescription": "If your question wasn't answered here, feel free to contact us via email. All information can be found on our contact page."
+    },
+    "changelog": {
+      "title": "Changelog",
+      "description": "All changes and new features at a glance",
+      "newFeatures": "New Features",
+      "improvements": "Improvements",
+      "bugfixes": "Bug Fixes",
+      "knownIssues": "Known Issues",
+      "feedbackTitle": "Questions or Feedback?",
+      "feedbackDescription": "I appreciate your feedback on new features and improvements."
+    },
+    "export": {
+      "title": "Export",
+      "backToSeating": "Back to Seating Plan",
+      "preview": "Preview",
+      "roomElements": "Room Elements",
+      "showBoard": "Show Blackboard",
+      "showWindows": "Show Windows",
+      "showDoor": "Show Door",
+      "showPodium": "Show Teacher's Desk",
+      "showConnections": "Show Connections",
+      "showNeeds": "Show Special Needs",
+      "showFullNames": "Show Full Names"
+    }
+  },
+  "errors": {
+    "generic": "An error occurred",
+    "tryAgain": "Please try again",
+    "layoutUnavailable": "Layout Editor temporarily unavailable",
+    "layoutDescription": "An error occurred while rendering the classroom layout. Please try again or reload the page.",
+    "planUnavailable": "Seating Plan view could not be displayed",
+    "planDescription": "An error occurred while rendering the seating plan. Please try again or reload the page.",
+    "studentListUnavailable": "Class list could not be loaded",
+    "studentListDescription": "An error occurred while rendering the class list step. You can try again or reload the page."
+  },
+  "common": {
+    "retry": "Try Again",
+    "reloadPage": "Reload Page",
+    "errorDetails": "Error Details",
+    "closeDialog": "Close dialog"
+  },
+  "footer": {
+    "settings": "Settings",
+    "clearAllData": "Clear all data"
+  },
+  "dialogs": {
+    "confirmTitle": "Confirmation",
+    "savePlanFailedConfirm": "Seating plan could not be saved. Return anyway?",
+    "importOverwriteConfirm": "Warning: The import will overwrite all existing data (students, seating plans, circle layouts, etc.). This action cannot be undone. Do you want to continue?",
+    "clearAllData": {
+      "title": "Clear all data",
+      "message": "Do you really want to delete all data (including class list, templates, etc.)?",
+      "confirm": "Delete",
+      "cancel": "Cancel"
+    }
+  },
+  "help": {
+    "title": "Help",
+    "instructions": "Instructions",
+    "shortcuts": "Shortcuts"
+  },
+  "pwa": {
+    "updateAvailable": "New version available",
+    "reload": "Update",
+    "install": "Install as App",
+    "installDesc": "Install Klassenplan as App and use it offline!"
+  }
+}

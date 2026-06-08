@@ -1,0 +1,555 @@
+{
+  "steps": {
+    "step1": "Klassenliste",
+    "step2": "Klassenraum",
+    "step3": "Sitzplan",
+    "step3Circle": "Sitzkreis",
+    "step4": "Export"
+  },
+  "help": {
+    "students": {
+      "title": "Klassenliste",
+      "item1": "Füge Schüler hinzu: manuell, per \"Klasse anlegen\" oder über CSV-Import.",
+      "item2": "Wähle bis zu 3 Wunsch- und Distanzpartner pro Schüler – die Reihenfolge bestimmt die Priorität.",
+      "item3": "Blende die Beschriftung unter den Buttons in der Schülerliste ein bzw. aus."
+    },
+    "layout": {
+      "title": "Klassenraum",
+      "item1": "Wähle eine Vorlage oder füge Tische per Klick hinzu.",
+      "item2": "Verschiebe und drehe Tische per Drag & Drop.",
+      "item3": "Mehrfachauswahl: Shift oder Strg/Cmd + Klick oder Auswahl-Rechteck aufziehen.",
+      "item4": "Rechtsklick (Desktop) oder langes Drücken (Touch) öffnet das Kontextmenü.",
+      "item5": "Speichere eigene Klassenraum-Vorlagen über die Sidebar."
+    },
+    "plan": {
+      "title": "Sitzplan",
+      "item1": "Passe die Gewichtung der Kriterien (0-10) in der Sidebar an.",
+      "item2": "Ziehe Schüler per Drag & Drop auf andere Plätze.",
+      "item3": "Klicke auf das Schloss-Symbol, um einen Platz beim nächsten Mischen zu sperren.",
+      "item4": "Statistik-Badges zeigen, wie gut die Kriterien erfüllt sind."
+    },
+    "circle": {
+      "title": "Sitzkreis",
+      "item1": "Ziehe Schüler per Drag & Drop auf neue Positionen.",
+      "item2": "Grüne Linien zeigen Verbindungen zu Tischnachbarn im Sitzplan.",
+      "item3": "Blende Verbindungen in der Sidebar oder mit Taste C ein/aus."
+    },
+    "export": {
+      "title": "Export",
+      "item1": "Passe den Namen deines Sitzplans an.",
+      "item2": "Wechsel zwischen Hochformat und Querformat für den PDF-Export.",
+      "item3": "Wähle zwischen den verschiedenen Ansichtsoptionen: Tafel, Bedürfnisse und Namen vollständig anzeigen.",
+      "item4": "Wechsle die Vorschau zwischen Sitzplan und Sitzkreis oben rechts."
+    }
+  },
+  "sidebar": {
+    "settings": "Einstellungen",
+    "mixSettings": "Misch-Einstellungen",
+    "weights": "Gewichtungen",
+    "mix": "Mischen",
+    "save": "Speichern",
+    "templates": "Klassenraum-Vorlagen",
+    "statistics": "Statistiken",
+    "options": "Optionen",
+    "openOptions": "Optionen öffnen",
+    "ariaLabel": "Optionen-Sidebar",
+    "collapseShortcut": "Sidebar minimieren (⌘/Strg+B)",
+    "collapseLabel": "Sidebar minimieren",
+    "expandShortcut": "Sidebar erweitern (⌘/Strg+B)",
+    "expandLabel": "Sidebar erweitern"
+  },
+  "tooltip": {
+    "compactModeHint": "Tipp: Klicke hier oder drücke ⌘/Strg+B für die kompakte Ansicht",
+    "sidebarHint": "Tipp: Klicke hier oder drücke ⌘/Strg+B um die Sidebar zu minimieren"
+  },
+  "canvas": {
+    "addFeature": "Raumelement hinzufügen",
+    "pasteTables": "Tische einfügen",
+    "pasteFeature": "Raumelement einfügen",
+    "addTable": "Tisch hinzufügen",
+    "deleteTable": "Tisch löschen",
+    "rotateTable": "Tisch drehen",
+    "lockSeat": "Platz sperren",
+    "unlockSeat": "Platz entsperren",
+    "undo": "Rückgängig",
+    "undoLabel": "Letzte Aktion rückgängig machen"
+  },
+  "actions": {
+    "shuffle": "Mischen",
+    "refine": "Verfeinern",
+    "reset": "Zurücksetzen",
+    "export": "Exportieren",
+    "print": "Drucken",
+    "savePlan": "Plan speichern",
+    "saveShortcut": "Plan speichern (Strg/Cmd+S)",
+    "exportShortcut": "Exportieren (Strg/Cmd+E)",
+    "backShortcut": "Zurück (Alt/Option+←)",
+    "retryMix": "Erneut mischen",
+    "mixNow": "Jetzt neu mischen"
+  },
+  "mode": {
+    "table": "Sitzplan",
+    "tableView": "Sitzplan anzeigen",
+    "circle": "Sitzkreis",
+    "circleView": "Sitzkreis anzeigen"
+  },
+  "circleView": {
+    "step3": "Schritt 3: Sitzplan bearbeiten",
+    "step3Desc": "Plätze mischen, per Drag and Drop anpassen.",
+    "title": "Sitzkreis",
+    "syncTitle": "Sitzkreis an Sitzplan anpassen",
+    "syncButton": "An Sitzplan anpassen",
+    "shuffleTitle": "Sitzkreis zufällig anordnen",
+    "shuffleButton": "Zufällig mischen",
+    "showConnections": "Verbindungen anzeigen",
+    "generatingTitle": "Sitzkreis wird generiert...",
+    "generatingHint": "Der Sitzkreis wird automatisch basierend auf dem Tischplan erstellt.",
+    "connectionDescription": "Nachbarschaftsverbindungen zwischen Schülern.",
+    "syncDescription": "Sitzkreis an Änderungen im Sitzplan anpassen.",
+    "shuffleDescription": "Nur Sitzkreis ändern (Sitzplan bleibt unverändert)."
+  },
+  "seat": {
+    "lockSeat": "Sitzplatz sperren",
+    "unlockSeat": "Sitzplatz entsperren",
+    "fulfillmentTitle": "Erfüllung {{percentage}}%"
+  },
+  "mixButton": {
+    "label": "Mischen",
+    "title": "Sitzplan mischen",
+    "loadingTitle": "Mischvorgang läuft...",
+    "loadingAriaLabel": "Mischvorgang läuft"
+  },
+  "messages": {
+    "noStudents": "Noch keine Schüler hinzugefügt",
+    "noTables": "Noch keine Tische platziert",
+    "notEnoughSeats": "Nicht genügend Sitzplätze für alle Schüler"
+  },
+  "cookieConsent": {
+    "message": "Diese Website speichert notwendige Informationen lokal in deinem Browser. Es werden keine Cookies verwendet und keine Daten an Server übertragen. Weitere Informationen findest du in unserer",
+    "privacyLink": "Datenschutzerklärung",
+    "accept": "Verstanden"
+  },
+  "navigation": {
+    "toHome": "Zur Startseite",
+    "menuTitle": "Speicher & Backup",
+    "menuSubtitle": "Verwalte deine Sitzpläne, Mischergebnisse und Backups.",
+    "closeMenu": "Speicher & Backup schließen",
+    "quickActions": "Schnellaktionen",
+    "quickActionsHint": "Speichere den aktuellen Plan oder lade das letzte Mischergebnis.",
+    "savePlan": "Plan speichern",
+    "noPlanAvailable": "Kein Plan vorhanden",
+    "loadLastMix": "Letztes Mischergebnis laden",
+    "noMixResults": "Keine Misch-Ergebnisse",
+    "savedPlansTitle": "Gespeicherte Sitzpläne",
+    "savedPlansDescription": "{{count}} gespeicherte Sitzpläne",
+    "mixHistoryTitle": "Misch-Historie",
+    "mixHistoryDescription": "{{count}} Misch-Ergebnisse",
+    "backupTitle": "Backup",
+    "backupDescription": "Alle Daten sichern und wiederherstellen.",
+    "exportBackup": "Backup exportieren",
+    "exportBackupHint": "Alle Daten und Einstellungen als JSON sichern.",
+    "importBackup": "Backup importieren",
+    "importBackupHint": "Alle Daten und Einstellungen wiederherstellen."
+  },
+  "storage": {
+    "sectionTitle": "Speicher & Backup",
+    "exportBackup": "Backup exportieren",
+    "importBackup": "Backup importieren",
+    "showAllPlans": "Alle Pläne anzeigen",
+    "backupExported": "Backup exportiert.",
+    "historyTitle": "Gespeicherte Pläne & Misch-Historie",
+    "savedPlans": "Gespeicherte Pläne",
+    "mixHistory": "Misch-Historie",
+    "noPlans": "Keine gespeicherten Pläne vorhanden.",
+    "noMixes": "Keine Misch-Ergebnisse vorhanden.",
+    "planLoaded": "Plan \"{{name}}\" geladen.",
+    "planDeleted": "Plan \"{{name}}\" gelöscht.",
+    "mixLoaded": "Mischergebnis von {{time}} geladen.",
+    "mixDeleted": "Mischergebnis gelöscht."
+  },
+  "classActions": {
+    "emptyState": {
+      "title": "Füge eine Klasse hinzu!",
+      "description": "Nachdem du eine Klasse hinzugefügt hast, stehen dir alle weiteren Aktionen zum Verwalten von Schülern zur Verfügung.",
+      "step1": "Starte mit <strong>„Neue Klasse\"</strong> und gib Name, Schuljahr oder Notizen ein.",
+      "step2": "Nach dem Speichern kannst du Schüler hinzufügen.",
+      "createButton": "Neue Klasse",
+      "hint": "Du kannst später beliebig viele Klassen anlegen und zwischen ihnen wechseln.",
+      "importButton": "Backup importieren",
+      "importHint": "Stelle zuvor gesicherte Klassen, Schüler und Sitzpläne wieder her."
+    },
+    "deleteDialog": {
+      "title": "Klasse löschen",
+      "message": "Soll {{className}} dauerhaft gelöscht werden? Alle Schüler, Sitzpläne und gespeicherten Daten dieser Klasse gehen verloren.",
+      "confirmLabel": "Klasse löschen",
+      "cancelLabel": "Abbrechen",
+      "fallbackName": "die aktuelle Klasse"
+    }
+  },
+  "mix": {
+    "title": "Mischkriterien",
+    "description": "Stelle die Wichtigkeit der verschiedenen Kriterien ein (0-10).",
+    "enableAll": "Alle Kriterien aktivieren",
+    "disableAll": "Alle Kriterien deaktivieren",
+    "toggleAll": "Alle Kriterien",
+    "on": "An",
+    "off": "Aus",
+    "weightTooltip": "Gewichtung: {{value}}/10 – Je höher der Wert, desto wichtiger ist dieses Kriterium bei der Sitzplatzverteilung.",
+    "randomWarning": "Alle Kriterien deaktiviert - Mischen ist komplett zufällig!",
+    "categories": {
+      "avoidance": "Vermeidung",
+      "promotion": "Förderung",
+      "needs": "Bedürfnisse",
+      "environment": "Raum"
+    },
+    "criteria": {
+      "avoidPreviousPairs": {
+        "label": "Wiederholung",
+        "desc": "Schüler, die zuletzt zusammen saßen, trennen"
+      },
+      "avoidRestlessTogether": {
+        "label": "Unruhe",
+        "desc": "Schüler mit Unruheverhalten trennen"
+      },
+      "avoidConcentrationTogether": {
+        "label": "Ablenkbarkeit",
+        "desc": "Schüler mit Konzentrationsschwierigkeiten trennen"
+      },
+      "avoidShyAlone": {
+        "label": "Schüchternheit",
+        "desc": "Schüler mit zurückhaltendem Verhalten nicht alleine sitzen lassen"
+      },
+      "preferGenderMix": {
+        "label": "Geschlechter",
+        "desc": "Geschlechter mischen für ausgewogene Tischbesetzung"
+      },
+      "considerWishPartners": {
+        "label": "Wunschpartner",
+        "desc": "Wunschpartner-Anfragen der Schüler"
+      },
+      "avoidConflictPartners": {
+        "label": "Distanzwünsche",
+        "desc": "Schüler mit Distanzwunsch trennen"
+      },
+      "peerTutoring": {
+        "label": "Fördern (heterogen)",
+        "desc": "Schüler mit unterschiedlichem Leistungsniveau zusammen"
+      },
+      "homogeneousPerformanceGroups": {
+        "label": "Fördern (homogen)",
+        "desc": "Schüler mit ähnlichem Förderstand zusammen"
+      },
+      "preferFrontForNeedsFrontSeat": {
+        "label": "Vordere Plätze",
+        "desc": "Schüler mit Platzbedarf vorne setzen"
+      },
+      "preferFrontForSmallerStudents": {
+        "label": "Körpergröße",
+        "desc": "kleinere Schüler vorne, größere hinten"
+      },
+      "preferWindowSeats": {
+        "label": "Fensterplätze",
+        "desc": "Schüler mit Fenster-Präferenz näher am Fenster platzieren"
+      },
+      "preferDoorSeats": {
+        "label": "Türnähe",
+        "desc": "Schüler mit Tür-Präferenz nahe am Eingang platzieren"
+      }
+    },
+    "criteriaDescriptions": {
+      "avoidPreviousPairs": "Schüler, die zuletzt zusammen saßen, trennen.",
+      "avoidRestlessTogether": "Schüler mit Unruheverhalten trennen.",
+      "avoidConcentrationTogether": "Schüler mit Konzentrationsschwierigkeiten trennen.",
+      "avoidShyAlone": "Schüler mit zurückhaltendem Verhalten nicht alleine sitzen lassen.",
+      "preferGenderMix": "Geschlechter mischen für ausgewogene Tischbesetzung.",
+      "considerWishPartners": "Wunschpartner-Anfragen der Schüler.",
+      "avoidConflictPartners": "Schüler mit Distanzwunsch trennen.",
+      "peerTutoring": "Schüler mit unterschiedlichem Leistungsniveau zusammen.",
+      "homogeneousPerformanceGroups": "Schüler mit ähnlichem Leistungsniveau zusammen.",
+      "preferFrontForNeedsFrontSeat": "Schüler mit Platzbedarf in den vorderen Reihen platzieren.",
+      "preferFrontForSmallerStudents": "Kleinere Schüler vorne, größere hinten.",
+      "preferWindowSeats": "Fensterpräferenzen berücksichtigen.",
+      "preferDoorSeats": "Türpräferenzen berücksichtigen."
+    },
+    "allOn": "Alle an",
+    "allOff": "Alle aus",
+    "sectionDescription": "Stelle die Wichtigkeit der verschiedenen Kriterien ein (0-10)",
+    "criterionNotAvailable": "Kriterium nicht verfügbar",
+    "active": "aktiv",
+    "inactive": "inaktiv"
+  },
+  "layout": {
+    "singleSeat": "Einzelplatz",
+    "doubleSeat": "Doppelplatz",
+    "group4": "4er-Gruppe",
+    "group6": "6er-Gruppe",
+    "tableTypes": "Tischtypen",
+    "tableTypesDescription": "Ziehe Tische in den Klassenraum.",
+    "roomElements": "Raumelemente",
+    "roomElementsDescription": "Ziehe Fenster, Türen, Pult oder Tafel in den Klassenraum.",
+    "setupClassroom": "Klassenraum einrichten",
+    "saveTemplate": "Aktuellen Klassenraum als Vorlage speichern",
+    "saveTemplateButton": "Vorlage speichern",
+    "saveTemplateShortcut": "Klassenraum-Vorlage speichern",
+    "place": "platzieren",
+    "statusBadge": "{{students}} Schüler, {{seats}} Plätze.",
+    "classroomTitle": "Klassenraum",
+    "planTitle": "Sitzplan",
+    "window": "Fenster",
+    "door": "Tür",
+    "board": "Tafel",
+    "podium": "Pult",
+    "quickSetupShortcut": "(Strg/Cmd+E)",
+    "overwriteTemplateMessage": "Die aktuelle Vorlage wurde verändert. Soll die vorhandene Vorlage überschrieben werden?",
+    "overwrite": "Überschreiben"
+  },
+  "export": {
+    "title": "Titel",
+    "titlePlaceholder": "Sitzplan-Titel eingeben",
+    "pageFormat": "Seitenformat",
+    "landscape": "Querformat",
+    "portrait": "Hochformat",
+    "printShortcut": "Drucken (Strg/Cmd+P)",
+    "tablePdfShortcut": "PDF exportieren (Strg/Cmd+E)",
+    "circlePdfShortcut": "Sitzkreis-PDF exportieren",
+    "tablePdfButton": "Sitzplan PDF",
+    "circlePdfButton": "Sitzkreis PDF",
+    "tableDefaultFilename": "Sitzplan",
+    "circleDefaultFilename": "Sitzkreis",
+    "editTitle": "Titel bearbeiten",
+    "pageFormatTable": "Seitenformat Sitzplan",
+    "pageFormatCircle": "Seitenformat Sitzkreis",
+    "dragDropHint": "Ziehe Elemente hierher",
+    "dragDropPlace": "Hier ablegen",
+    "backToSeating": "Zurück zum Sitzplan",
+    "backTitle": "Zurück (Alt/Option+←)",
+    "preview": "Vorschau",
+    "previewUpdating": "Vorschau wird aktualisiert...",
+    "roomElements": "Raumelemente",
+    "displayOptions": "Export-Anzeigeoptionen",
+    "switchPreviewHint": "Wechsle die Vorschau zwischen Sitzplan und Sitzkreis oben",
+    "showConnections": "Verbindungen anzeigen",
+    "showBoard": "Tafel anzeigen",
+    "showWindows": "Fenster anzeigen",
+    "showDoor": "Tür anzeigen",
+    "showPodium": "Pult anzeigen",
+    "showNeeds": "Bedürfnisse anzeigen",
+    "showFullNames": "Namen vollständig anzeigen",
+    "showClassInfo": "Zusätzliche Klasseninfos anzeigen",
+    "generatingCircle": "Sitzkreis wird erstellt...",
+    "cancelCircleGeneration": "Abbrechen",
+    "printDownloadedInfo": "Pop-up blockiert - PDF wurde heruntergeladen. Bitte öffne die Datei zum Drucken.",
+    "errors": {
+      "printPreviewUnavailable": "Die Druckvorschau ist noch nicht bereit. Bitte warten Sie einen Moment und versuchen Sie es erneut.",
+      "printPreparationFailed": "Drucken konnte nicht vorbereitet werden. Bitte versuchen Sie es erneut.",
+      "printStartFailed": "Drucken konnte nicht gestartet werden. Bitte versuchen Sie es erneut.",
+      "printFrameMissing": "Drucken konnte nicht vorbereitet werden (Frame fehlt).",
+      "printPopupBlocked": "Das Druckfenster wurde blockiert. Bitte erlaube Pop-ups für diese Seite.",
+      "tablePdfFailed": "Sitzplan PDF-Export fehlgeschlagen. Bitte versuchen Sie es erneut.",
+      "circlePdfFailed": "Sitzkreis PDF-Export fehlgeschlagen. Bitte versuchen Sie es erneut.",
+      "circleGenerationFailed": "Sitzkreis konnte nicht erstellt werden."
+    }
+  },
+  "wizard": {
+    "step": "Schritt",
+    "goToStep": "Zu Schritt {{step}}",
+    "progressLabel": "Wizard-Fortschritt",
+    "stepLabels": {
+      "students": "Schüler",
+      "layout": "Raum",
+      "plan": "Plan"
+    },
+    "backToStudents": "Zurück zur Klassenliste",
+    "forwardToPlan": "Weiter zum Sitzplan",
+    "backToStudentsShortcut": "Zurück zur Klassenliste (Alt/Option+←)",
+    "forwardToPlanShortcut": "Weiter zum Sitzplan (Alt/Option+→)"
+  },
+  "template": {
+    "saveTitle": "Klassenraum-Vorlage speichern",
+    "tables": "Tische",
+    "seats": "Plätze",
+    "nameLabel": "Vorlagenname",
+    "namePlaceholder": "z.B. Klassenraum 1",
+    "nameAriaLabel": "Vorlagenname eingeben",
+    "duplicateWarning": "Eine Vorlage mit diesem Namen existiert bereits.",
+    "overwriteLabel": "Oder bestehende Vorlage überschreiben",
+    "noSelection": "-- Keine Auswahl (neue Vorlage) --",
+    "overwrite": "Überschreiben",
+    "saveName": "Namen speichern",
+    "cancelEdit": "Bearbeitung abbrechen",
+    "editName": "Vorlagennamen bearbeiten: {{name}}",
+    "clickToEdit": "Klick oder Eingabetaste zum Bearbeiten"
+  },
+  "circle": {
+    "backToClassroom": "Zurück zum Klassenraum",
+    "planNamePlaceholder": "Name für diesen Sitzplan",
+    "planNameLabel": "Gib einen Namen für diesen Sitzplan ein",
+    "planNameError": "Bitte gib einen Namen ein.",
+    "date": "Datum"
+  },
+  "editor": {
+    "workspace": "Arbeitsfläche",
+    "showGrid": "Raster anzeigen",
+    "showBoard": "Tafel anzeigen",
+    "showWindows": "Fenster anzeigen",
+    "showDoor": "Tür anzeigen",
+    "showPodium": "Pult anzeigen",
+    "showStatistics": "Statistik anzeigen",
+    "statisticsLabel": "Statistik anzeigen – Gesamt-Score {{score}}%",
+    "autoMixRunning": "Automatisches Mischen läuft",
+    "autoMixWait": "Bitte warte einen Moment, bis der neue Sitzplan erstellt wurde.",
+    "autoMixFailed": "Automatisches Mischen fehlgeschlagen",
+    "classDataChanged": "Klassendaten wurden geändert",
+    "classDataChangedHint": "Deine Anpassungen sind sichtbar. Mische den Plan neu, damit der Algorithmus optimal reagieren kann.",
+    "hideNotice": "Hinweis ausblenden",
+    "viewOptions": "Ansichtsoptionen",
+    "viewSettings": "Ansichtseinstellungen",
+    "snapToGrid": "Am Raster ausrichten"
+  },
+  "quickSetup": {
+    "title": "Klassenraum einrichten",
+    "subtitle": "Wähle einen Tischtyp oder (falls verfügbar) eine gespeicherte Vorlage.",
+    "selectType": "Tischtyp wählen",
+    "hint": "Wähle einen Tischtyp um den Klassenraum automatisch zu erstellen oder ziehe einen Tischtyp aus der Sidebar in den Klassenraum.",
+    "overwriteHint": "Willst du dein aktuelles Layout überschreiben? Dann wähle einen Tischtyp oder eine Vorlage laden.",
+    "closeLabel": "Klassenraum einrichten schließen",
+    "loadButton": "Laden",
+    "overwriteTemplate": "Klassenraum-Vorlage überschreiben",
+    "deleteTemplate": "Klassenraum-Vorlage löschen",
+    "deleteDialogTitle": "Vorlage löschen",
+    "deleteConfirm": "Möchtest du die Klassenraum-Vorlage wirklich löschen?",
+    "deleteConfirmNamed": "Möchtest du die Klassenraum-Vorlage \"{{name}}\" wirklich löschen?"
+  },
+  "common": {
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "delete": "Löschen",
+    "copy": "Kopieren",
+    "cut": "Ausschneiden",
+    "close": "Schließen",
+    "seats": "Plätze",
+    "pl": "Pl.",
+    "defaultClassName": "Meine Klasse",
+    "newClassName": "Neue Klasse"
+  },
+  "planCard": {
+    "planAriaLabel": "Sitzplan {{name}}",
+    "loadPlan": "Sitzplan laden",
+    "loadPlanAriaLabel": "Sitzplan {{name}} laden",
+    "deletePlan": "Sitzplan löschen",
+    "deletePlanAriaLabel": "Sitzplan {{name}} löschen",
+    "deleteDialogTitle": "Sitzplan löschen",
+    "deleteDialogMessage": "Möchtest du den Sitzplan \"{{name}}\" wirklich löschen?",
+    "studentsBadge": "{{count}} Schüler",
+    "tablesBadge": "{{count}} Tische",
+    "seatsPerTableBadge": "{{count}} / Tisch",
+    "load": "Laden",
+    "editName": "Namen bearbeiten"
+  },
+  "mixHistory": {
+    "loadTitle": "Mischergebnis laden",
+    "loadAriaLabel": "Mischergebnis vom {{time}} laden",
+    "deleteTitle": "Mischergebnis löschen",
+    "deleteAriaLabel": "Mischergebnis vom {{time}} löschen",
+    "deleteDialogTitle": "Mischergebnis löschen",
+    "deleteDialogMessage": "Möchtest du das Mischergebnis vom {{time}} wirklich löschen?",
+    "emptyTitle": "Noch keine Mischungen erstellt",
+    "emptyHint": "Erstelle deinen ersten Sitzplan"
+  },
+  "planList": {
+    "editNameAriaLabel": "Sitzplan-Namen bearbeiten: {{name}}",
+    "editNameTitle": "Klick oder Eingabetaste zum Bearbeiten",
+    "loadTitle": "Sitzplan laden",
+    "loadAriaLabel": "Sitzplan {{name}} laden",
+    "deleteTitle": "Sitzplan löschen",
+    "deleteAriaLabel": "Sitzplan {{name}} löschen",
+    "deleteDialogTitle": "Sitzplan löschen",
+    "deleteDialogMessage": "Möchtest du den Sitzplan \"{{name}}\" wirklich löschen?",
+    "emptyTitle": "Noch keine Pläne gespeichert",
+    "emptyHint": "Speichere deinen ersten Plan im Schritt 3"
+  },
+  "statisticsBadge": {
+    "title": "Kriterien-Erfüllung",
+    "close": "Schließen",
+    "overallLabel": "Gesamt",
+    "hoverHint": "Wenn du über ein Kriterium hoverst, werden die betroffenen Plätze im Sitzplan hervorgehoben. Klicke, um die Hervorhebung zu fixieren.",
+    "hoverHintShort": "Hover für Markierung",
+    "overallScore": "Gesamt-Score:",
+    "weightLabel": "Gewichtung: {{weight}}/10",
+    "footerHint": "Tipp: Passe die Gewichtung in den Optionen an."
+  },
+  "shortcuts": {
+    "labels": {
+      "global": "Allgemein",
+      "students": "Schüler",
+      "layout": "Layout",
+      "plan": "Sitzplan",
+      "circle": "Sitzkreis",
+      "export": "Export"
+    },
+    "descriptions": {
+      "global_toggleHelp": "Tastenkürzel anzeigen",
+      "global_closeDialog": "Dialoge oder Hilfefenster schließen",
+      "global_toggleSidebar": "Optionen-Sidebar auf-/zuklappen",
+      "students_addStudent": "Schüler hinzufügen (im Namensfeld)",
+      "students_toClassroom": "Zum Klassenraum wechseln",
+      "layout_toStudentList": "Zur Klassenliste zurückkehren",
+      "layout_toSeatingPlan": "Zum Sitzplan wechseln",
+      "layout_toggleQuickSetup": "Quick-Setup „Klassenraum einrichten“ öffnen oder schließen",
+      "layout_multiSelect": "Mehrere Tische auswählen (oder Auswahl-Rechteck aufziehen)",
+      "layout_moveTables": "Ausgewählte Tische verschieben (Shift = größere Schritte)",
+      "layout_deleteTables": "Ausgewählte Tische löschen",
+      "layout_cutTables": "Ausgewählte Tische ausschneiden",
+      "layout_copyTables": "Ausgewählte Tische kopieren",
+      "layout_pasteTables": "Kopierte Tische einfügen",
+      "layout_rotateLeftRight": "Ausgewählte Tische drehen (Q = gegen den Uhrzeigersinn, E = im Uhrzeigersinn)",
+      "layout_rotate90": "Ausgewählte Tische in 90°-Schritten drehen",
+      "layout_undo": "Letzte Änderung rückgängig machen",
+      "plan_toClassroom": "Zum Klassenraum zurückkehren",
+      "plan_shuffle": "Sitzplan neu mischen",
+      "plan_savePlan": "Sitzplan speichern",
+      "plan_openExport": "Exportansicht öffnen",
+      "circle_toClassroom": "Zum Klassenraum zurückkehren",
+      "circle_toggleConnections": "Nachbarschafts-Verbindungen ein-/ausblenden",
+      "circle_moveStudent": "Schüler im Kreis verschieben",
+      "circle_saveCircle": "Sitzkreis speichern",
+      "circle_openExport": "Exportansicht öffnen",
+      "export_backToPlan": "Zurück zum Sitzplan",
+      "export_exportPdf": "Sitzplan als PDF herunterladen",
+      "export_exportCirclePdf": "Sitzkreis als PDF herunterladen",
+      "export_print": "Sitzplan drucken"
+    },
+    "keys": {
+      "global_toggleHelp": "?",
+      "global_closeDialog": "Esc",
+      "global_toggleSidebar": "Strg (Windows) / Cmd (Mac) + B",
+      "students_addStudent": "Enter",
+      "students_toClassroom": "Alt (Windows) / Option (Mac) + Pfeil rechts",
+      "layout_toStudentList": "Alt (Windows) / Option (Mac) + Pfeil links",
+      "layout_toSeatingPlan": "Alt (Windows) / Option (Mac) + Pfeil rechts",
+      "layout_toggleQuickSetup": "Strg (Windows) / Cmd (Mac) + E",
+      "layout_multiSelect": "Shift oder Strg (Windows) / Cmd (Mac) + Klick",
+      "layout_moveTables": "Pfeiltasten",
+      "layout_deleteTables": "Entf / Backspace",
+      "layout_cutTables": "Strg (Windows) / Cmd (Mac) + X",
+      "layout_copyTables": "Strg (Windows) / Cmd (Mac) + C",
+      "layout_pasteTables": "Strg (Windows) / Cmd (Mac) + V",
+      "layout_rotateLeftRight": "Q / E",
+      "layout_rotate90": "Shift + Q / Shift + E",
+      "layout_undo": "Strg (Windows) / Cmd (Mac) + Z",
+      "plan_toClassroom": "Alt (Windows) / Option (Mac) + Pfeil links",
+      "plan_shuffle": "Strg (Windows) / Cmd (Mac) + M",
+      "plan_savePlan": "Strg (Windows) / Cmd (Mac) + S",
+      "plan_openExport": "Strg (Windows) / Cmd (Mac) + E",
+      "circle_toClassroom": "Alt (Windows) / Option (Mac) + Pfeil links",
+      "circle_toggleConnections": "C",
+      "circle_moveStudent": "Drag & Drop",
+      "circle_saveCircle": "Strg (Windows) / Cmd (Mac) + S",
+      "circle_openExport": "Strg (Windows) / Cmd (Mac) + E",
+      "export_backToPlan": "Alt (Windows) / Option (Mac) + Pfeil links",
+      "export_exportPdf": "Strg (Windows) / Cmd (Mac) + Shift + T",
+      "export_exportCirclePdf": "Strg (Windows) / Cmd (Mac) + Shift + C",
+      "export_print": "Strg (Windows) / Cmd (Mac) + P"
+    }
+  }
+}
