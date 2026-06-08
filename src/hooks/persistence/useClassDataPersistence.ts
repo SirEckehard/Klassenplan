@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 /**
  * Hook for auto-persisting class data when state changes.
  * Extracted from useSeatingPersistence for better separation of concerns.

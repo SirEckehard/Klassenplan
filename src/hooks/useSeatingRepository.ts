@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import { useMemo } from 'react';
 import { IndexedDBRepository } from '@/repositories';
 import type { ISeatingPlanRepository } from '@/repositories';

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 /**
  * @internal
  * Internal hook used by useSeatingGenerator. Do not import directly.

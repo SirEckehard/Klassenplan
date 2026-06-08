@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import type { ClassroomTable } from '@/types';
 import { GRID_SNAP_SIZE, convertClientPointToSvgCoordinates } from '@/utils';
 import { normalizeRotation } from '@/utils/math/rotation';

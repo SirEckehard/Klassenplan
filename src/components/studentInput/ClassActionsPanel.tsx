@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
 import { PlusIcon, SparkleIcon, UploadSimpleIcon } from '@phosphor-icons/react';

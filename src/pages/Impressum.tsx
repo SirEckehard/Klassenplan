@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import { useTranslation } from 'react-i18next';
 import { IdentificationCardIcon } from '@phosphor-icons/react';
 import Seo from '@/components/Seo';
@@ -5,13 +7,18 @@ import { LocalizedLink } from '@/components/LocalizedLink';
 import { cardSurfaceClass } from '@/utils';
 import { KpLockup } from '@/components/KpLockup';
 import { usePageSeo } from '@/hooks/usePageSeo';
+import { GITHUB_REPO_URL } from '@/config/links';
 
 export default function Impressum() {
   const { i18n } = useTranslation();
   const isEnglish = i18n.language === 'en';
   const metadata = usePageSeo('/impressum');
   return (
-    <main id="main" tabIndex={-1} className="min-h-[80vh] bg-linear-to-b from-slate-50 via-white to-slate-100 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 px-4 py-12">
+    <main
+      id="main"
+      tabIndex={-1}
+      className="min-h-[80vh] bg-linear-to-b from-slate-50 via-white to-slate-100 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 px-4 py-12"
+    >
       <Seo
         {...metadata}
         structuredData={{
@@ -59,7 +66,10 @@ export default function Impressum() {
             )}
             <div className="flex items-center gap-3">
               <span className="flex h-12 w-12 items-center justify-center rounded-2xl border border-blue-100 bg-blue-50 text-blue-600 shadow-sm dark:border-blue-900/40 dark:bg-blue-500/20 dark:text-blue-200">
-                <IdentificationCardIcon aria-hidden="true" className="h-6 w-6" />
+                <IdentificationCardIcon
+                  aria-hidden="true"
+                  className="h-6 w-6"
+                />
               </span>
               <div>
                 <h2
@@ -143,11 +153,28 @@ export default function Impressum() {
                 Urheberrecht
               </h3>
               <p className="mt-3 text-gray-700 dark:text-gray-200 leading-relaxed">
-                Die durch die Seitenbetreiber erstellten Inhalte und Werke auf
-                diesen Seiten unterliegen dem deutschen Urheberrecht. Die
-                Vervielfältigung, Bearbeitung, Verbreitung und jede Art der
-                Verwertung außerhalb der Grenzen des Urheberrechts bedürfen der
-                schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers.
+                Die redaktionellen Inhalte dieser Website (Texte, Bilder,
+                Grafiken) sowie die Marke „Klassenplan“ (Wort- und Bildmarke)
+                unterliegen dem deutschen Urheberrecht. Ihre Vervielfältigung,
+                Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb
+                der Grenzen des Urheberrechts bedürfen der schriftlichen
+                Zustimmung des jeweiligen Autors bzw. Erstellers.
+              </p>
+              <p className="mt-3 text-gray-700 dark:text-gray-200 leading-relaxed">
+                Der <strong>Quellcode</strong> von Klassenplan ist hingegen
+                freie Software und steht unter der GNU Affero General Public
+                License v3.0 (AGPL-3.0-or-later). Er darf gemäß den Bedingungen
+                dieser Lizenz frei genutzt, verändert und weiterverbreitet
+                werden. Der vollständige Quelltext ist auf{' '}
+                <a
+                  className="font-semibold text-blue-600 hover:underline dark:text-blue-400"
+                  href={GITHUB_REPO_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  GitHub
+                </a>{' '}
+                verfügbar.
               </p>
             </div>
           </div>

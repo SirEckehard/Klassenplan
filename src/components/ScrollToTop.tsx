@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { SCROLL_TO_TOP_EVENT } from '@/utils/ui/scroll';

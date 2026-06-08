@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import type { LockedPositions, SeatingArrangement } from '@/types';
 import { resetStudentStore } from '@/stores/studentsStore';
 import { resetAlgorithmStore } from '@/stores/algorithmStore';

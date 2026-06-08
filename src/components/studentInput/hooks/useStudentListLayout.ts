@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAdaptiveViewportHeight } from '@/hooks/ui/useAdaptiveViewportHeight';
 import { useFloatingActionOffset } from '@/hooks/ui/useFloatingActionOffset';

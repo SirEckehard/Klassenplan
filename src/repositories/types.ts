@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 /**
  * Repository Pattern Types
  * Provides type-safe error handling with Result<T> pattern

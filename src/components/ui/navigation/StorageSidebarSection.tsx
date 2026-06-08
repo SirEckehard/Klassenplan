@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { HardDrivesIcon, CaretDownIcon, CaretUpIcon } from '@phosphor-icons/react';

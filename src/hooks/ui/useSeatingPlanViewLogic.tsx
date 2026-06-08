@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 /* eslint-disable react-hooks/refs -- refs are used as stable references to avoid re-renders in template/selection management */
 import React from 'react';
 import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';

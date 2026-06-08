@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import { useEffect, lazy, Suspense } from 'react';
 import SectionErrorBoundary from '@/components/errors/SectionErrorBoundary';
 import StudentListErrorFallback from '@/components/errors/StudentListErrorFallback';

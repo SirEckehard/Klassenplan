@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import React, { useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { MegaphoneIcon, ArrowRightIcon } from '@phosphor-icons/react';

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import type { Icon } from '@phosphor-icons/react';
 import type { PointerKind, MenuTrigger } from '@/hooks/useContextMenus';

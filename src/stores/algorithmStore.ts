@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import { createStore } from 'zustand/vanilla';
 import { useStoreWithEqualityFn } from 'zustand/traditional';
 import type { AlgorithmStoreSlice, StateUpdater } from './featureStores';

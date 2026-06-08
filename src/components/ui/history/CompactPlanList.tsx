@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { EyeIcon, TrashIcon, CheckIcon, XIcon, CalendarBlankIcon, UsersIcon, TableIcon } from '@phosphor-icons/react';

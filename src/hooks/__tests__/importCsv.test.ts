@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import * as csvUtils from '@/utils/data/csvUtils';
 import { importStudentsFromCsv } from '@/services/csvImportService';

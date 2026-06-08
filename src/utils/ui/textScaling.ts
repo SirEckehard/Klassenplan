@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 /**
  * Calculate a readable font size for seat labels inside circular or rectangular
  * containers. Keeps the base size responsive while shrinking long names so the

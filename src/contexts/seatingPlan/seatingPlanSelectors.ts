@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 /* eslint-disable react-hooks/refs -- refs used for store snapshots and subscriptions */
 import {
   createContext,

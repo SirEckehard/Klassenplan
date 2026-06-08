@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import { useTranslation } from 'react-i18next';
 import type { CircleLayout } from '@/types/Circle';
 import type { Student } from '@/types';

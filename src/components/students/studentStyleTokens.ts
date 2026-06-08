@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import { mutedIconButtonClass } from '@/utils';
 
 // Tokens for student-specific button styles used in gender and special needs selectors

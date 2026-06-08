@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 /**
  * Hook for handling persistence errors and navigation-aware error display.
  * Extracted from useSeatingPersistence for better separation of concerns.

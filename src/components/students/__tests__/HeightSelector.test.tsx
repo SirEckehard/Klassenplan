@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import '@testing-library/jest-dom/vitest';
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';

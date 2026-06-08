@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import { useEffect, useRef } from 'react';
 import { WarningIcon } from '@phosphor-icons/react';
 import Modal from '../modals/Modal';

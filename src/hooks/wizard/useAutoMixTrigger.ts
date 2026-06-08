@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import { useState, useEffect, useCallback } from 'react';
 import { DEFAULT_TRIES_PER_PASS, DEFAULT_PASSES, logError } from '@/utils';
 import type { ClassroomScene, MixSettings, SeatingArrangement } from '@/types';

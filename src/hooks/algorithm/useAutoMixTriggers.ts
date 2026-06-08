@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import type { MixSettings } from '@/types';
 import { SCALAR_MIX_SETTING_KEYS, logDebug, logInfo } from '@/utils';

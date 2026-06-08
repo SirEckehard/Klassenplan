@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import { useTranslation } from 'react-i18next';
 import { GridNineIcon, CircleDashedIcon } from '@phosphor-icons/react';
 import { primaryButtonClass, secondaryButtonClass } from '@/utils';

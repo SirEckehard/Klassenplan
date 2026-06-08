@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import { useRef, useState, useEffect, useCallback } from 'react';
 import { createRoot } from 'react-dom/client';
 import Modal from '@/components/ui/modals/Modal';

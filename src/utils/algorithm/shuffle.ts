@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 /**
  * Create a new array with elements in random order using Fisher-Yates shuffle.
  * @param input Array to shuffle

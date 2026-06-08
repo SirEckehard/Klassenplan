@@ -19,7 +19,17 @@
     "changelog": "Changelog",
     "support": "Support",
     "feedback": "Feedback",
-    "github": "GitHub"
+    "github": "GitHub",
+    "titles": {
+      "home": "Go to home page",
+      "impressum": "Legal notice & contact details",
+      "datenschutz": "Privacy policy",
+      "faq": "Frequently asked questions & help",
+      "changelog": "What changed in recent versions",
+      "support": "Support Klassenplan",
+      "feedback": "Give feedback or get in touch",
+      "github": "Source code · AGPL-3.0"
+    }
   },
   "buttons": {
     "save": "Save",

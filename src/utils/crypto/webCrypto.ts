@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 const WEB_CRYPTO_ERROR_MESSAGE =
   'Web Crypto API is not available in this environment.';
 const SUBTLE_CRYPTO_ERROR_MESSAGE =

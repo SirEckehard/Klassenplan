@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import Papa from 'papaparse';
 import type { Duplex } from 'stream';
 import { beforeEach, describe, expect, test, it, vi } from 'vitest';

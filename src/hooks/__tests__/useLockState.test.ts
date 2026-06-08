@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import { renderHook, act } from '@testing-library/react';
 import { expect, test } from 'vitest';
 import { useLockState } from '../state/useLockState';

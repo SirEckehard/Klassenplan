@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 /**
  * Lightweight manager for route prefetch hints.
  * Ensures we only inject each hint once and keeps logging centralized.

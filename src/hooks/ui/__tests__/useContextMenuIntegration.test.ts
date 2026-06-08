@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import { renderHook } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { useContextMenuIntegration } from '../useContextMenuIntegration';

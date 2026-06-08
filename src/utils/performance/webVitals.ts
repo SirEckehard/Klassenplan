@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import { onCLS, onFCP, onINP, onLCP, onTTFB, type Metric } from 'web-vitals';
 import {
   logInfo,

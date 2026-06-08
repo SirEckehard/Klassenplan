@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 /**
  * Utilities for guarding access to browser-only globals like `window` or `localStorage`.
  * These helpers make it easy to write code that can run in non-browser environments,

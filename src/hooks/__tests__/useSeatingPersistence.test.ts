@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import { describe, expect, test, beforeEach } from 'vitest';
 import { exportStudentsToCsv } from '../useSeatingPersistence';
 import { createMockStudent, setupCleanStorage } from '../../__tests__/utils';

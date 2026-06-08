@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { ProfessionalLogger } from '../professionalLogger';
 import { LogLevel } from '../../logger';

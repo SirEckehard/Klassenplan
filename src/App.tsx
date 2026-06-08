@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import React, { Suspense, useEffect } from 'react';
 import { Routes, Route, Outlet, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';

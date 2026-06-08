@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import { useRef } from 'react';
 import { promptDialog, confirmDialog } from '@/services/ui/dialogs';
 import { showToast, TOAST_MESSAGES } from '@/utils/ui/toast';

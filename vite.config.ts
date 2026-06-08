@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 /// <reference types="vitest" />
 /// <reference types="vite/client" />
 import { defineConfig } from 'vitest/config';

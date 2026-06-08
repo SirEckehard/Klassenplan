@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import type { ClassroomScene } from './ClassroomScene';
 import type { CircleLayout, CircleExportData } from './Circle';
 import type { Student, SeatingArrangement, ClassCollectionState } from './base';

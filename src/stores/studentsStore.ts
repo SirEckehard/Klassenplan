@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import deepEqual from 'fast-deep-equal';
 import { createStore } from 'zustand/vanilla';
 import { useStore } from 'zustand';

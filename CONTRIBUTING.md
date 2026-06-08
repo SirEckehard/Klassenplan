@@ -41,4 +41,4 @@ Please do **not** open public issues for security vulnerabilities. See
 ## License
 
 By contributing, you agree that your contributions will be licensed under the
-project's [Apache-2.0](LICENSE) license.
+project's [AGPL-3.0-or-later](LICENSE) license.

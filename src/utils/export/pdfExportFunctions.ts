@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import type { CircleLayout } from '@/types/Circle';
 import type { ClassroomScene, SeatingArrangement, Student } from '@/types';
 import {

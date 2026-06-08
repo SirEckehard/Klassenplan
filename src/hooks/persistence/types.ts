@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 /**
  * Shared types for persistence hooks.
  * These types define the structure of persist jobs, queues, and payloads.

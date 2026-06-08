@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 export { SeatingPlanGeneratorProvider } from '@/contexts/seatingPlan/SeatingPlanProviders';
 
 export {

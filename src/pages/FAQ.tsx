@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import React, { useMemo } from 'react';
 import {
   BookOpenIcon,
@@ -375,6 +377,26 @@ export default function FAQ() {
               </div>
             ),
           },
+          {
+            question: t('faq.projekt.license.q'),
+            answer: (
+              <div className="space-y-2">
+                <p>{t('faq.projekt.license.a')}</p>
+                <p>
+                  {t('faq.projekt.license.linkPrefix')}{' '}
+                  <a
+                    href={GITHUB_REPO_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-medium text-blue-600 underline hover:text-blue-700 dark:text-blue-300 dark:hover:text-blue-200"
+                  >
+                    {t('faq.projekt.license.githubLink')}
+                  </a>
+                  .
+                </p>
+              </div>
+            ),
+          },
         ],
       },
     ],
@@ -399,7 +421,11 @@ export default function FAQ() {
   );
 
   return (
-    <main id="main" tabIndex={-1} className="min-h-[80vh] bg-linear-to-b from-slate-50 via-white to-slate-100 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 px-4 py-12">
+    <main
+      id="main"
+      tabIndex={-1}
+      className="min-h-[80vh] bg-linear-to-b from-slate-50 via-white to-slate-100 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 px-4 py-12"
+    >
       <Seo {...metadata} structuredData={faqStructuredData} />
       <div className="mx-auto flex max-w-6xl flex-col gap-10">
         <header
@@ -522,7 +548,9 @@ export default function FAQ() {
                         className={`group ${cardSurfaceClass} border px-5 py-4 transition-all hover:border-blue-200 hover:shadow-md open:border-blue-300 open:shadow-md`}
                       >
                         <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-left text-lg font-medium text-gray-900 marker:hidden dark:text-white">
-                          <h3 className="text-lg font-medium">{item.question}</h3>
+                          <h3 className="text-lg font-medium">
+                            {item.question}
+                          </h3>
                           <span className="text-blue-600 transition group-open:rotate-45 dark:text-blue-200">
                             +
                           </span>

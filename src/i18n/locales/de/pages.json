@@ -342,6 +342,12 @@
         "a": "Über die Feedback-Seite kannst du jederzeit eine Nachricht schicken. Ich freue mich über Praxiserfahrungen, Fehlerberichte und Feature-Ideen.",
         "openSource": "Klassenplan ist Open Source: Du kannst den Quellcode einsehen, Fehler melden oder dich mit eigenen Beiträgen einbringen.",
         "githubLink": "Zum Projekt auf GitHub"
+      },
+      "license": {
+        "q": "Unter welcher Lizenz steht Klassenplan?",
+        "a": "Der Quellcode steht unter der GNU Affero General Public License v3.0 (AGPL-3.0-or-later). Du darfst Klassenplan frei nutzen, verändern und weiterverbreiten – auch eigene, angepasste Versionen –, solange du sie unter denselben Bedingungen veröffentlichst und den Quellcode offenlegst. Betreibst du eine veränderte Version auf einem Server, müssen deren Nutzer Zugang zum entsprechenden Quellcode erhalten.",
+        "linkPrefix": "Den vollständigen Quelltext findest du auf",
+        "githubLink": "GitHub"
       }
     },
     "footer": {

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import Modal from '@/components/ui/modals/Modal';

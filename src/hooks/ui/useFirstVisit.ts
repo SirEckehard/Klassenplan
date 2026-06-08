@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import { useEffect, useState } from 'react';
 import { LOCAL_STORAGE_KEYS } from '@/utils/data/storageKeys';
 import { logDebug } from '@/utils';

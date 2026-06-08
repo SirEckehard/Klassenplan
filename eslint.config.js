@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 // eslint.config.js (ESM, Flat Config)
 
 import { defineConfig, globalIgnores } from 'eslint/config';

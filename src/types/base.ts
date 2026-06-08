@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 /**
  * Base type definitions shared across the application.
  * This file contains primitive types with no circular dependencies.

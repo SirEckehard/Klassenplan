@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 /**
  * Haptic feedback utility for touch interactions
  * Provides tactile feedback for drag and drop operations when supported

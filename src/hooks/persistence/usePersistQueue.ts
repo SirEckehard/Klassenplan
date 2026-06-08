@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 /**
  * Hook for managing the persistence queue with debouncing and version control.
  * Extracted from useSeatingPersistence for better separation of concerns.

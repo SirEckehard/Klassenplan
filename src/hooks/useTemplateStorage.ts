@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import { useCallback } from 'react';
 import { get as idbGet, set as idbSet } from 'idb-keyval';
 import type { ClassroomScene, ClassroomTemplate } from '@/types';

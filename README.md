@@ -68,4 +68,6 @@ Contributions are welcome – please open issues and pull requests on GitHub. Be
 
 ## License
 
-Apache License 2.0 – see [LICENSE](LICENSE).
+GNU Affero General Public License v3.0 or later (AGPL-3.0-or-later) – see [LICENSE](LICENSE).
+
+Copyright (C) 2026 Eike Schäfer. Klassenplan is free software: you can redistribute it and/or modify it under the terms of the AGPL. Note that the AGPL's network clause (§13) applies – if you run a modified version on a server, you must make the corresponding source code available to its users.

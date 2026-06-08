@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import { useCallback, useEffect, useRef, useState } from 'react';
 import equal from 'fast-deep-equal';
 import type { LockedPositions, SeatingArrangement } from '@/types';

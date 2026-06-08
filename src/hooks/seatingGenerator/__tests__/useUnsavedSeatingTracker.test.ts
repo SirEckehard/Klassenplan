@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import { useUnsavedSeatingTracker } from '../useUnsavedSeatingTracker';

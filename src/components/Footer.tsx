@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import React, { useEffect, useRef, useState } from 'react';
 import {
   HandHeartIcon,
@@ -71,7 +73,11 @@ const Footer: React.FC = () => {
       <div className="flex flex-wrap items-center justify-center lg:justify-start gap-x-1 gap-y-0.5 sm:gap-2">
         {/* Brand */}
         <nav className={navGroupClass}>
-          <LocalizedLink to="/" className={linkClass}>
+          <LocalizedLink
+            to="/"
+            className={linkClass}
+            title={t('nav.titles.home')}
+          >
             <img
               src="/brand/master/klassenplan-mark.svg"
               className="h-4 w-4"
@@ -84,17 +90,29 @@ const Footer: React.FC = () => {
 
         {/* Hilfe & Kontakt */}
         <nav className={navGroupClass}>
-          <LocalizedLink to="/faq" className={linkClass}>
+          <LocalizedLink
+            to="/faq"
+            className={linkClass}
+            title={t('nav.titles.faq')}
+          >
             <QuestionIcon className="h-3.5 w-3.5" aria-hidden="true" />
             {t('nav.faq')}
           </LocalizedLink>
           <span className={separatorClass}>|</span>
-          <LocalizedLink to="/feedback" className={linkClass}>
+          <LocalizedLink
+            to="/feedback"
+            className={linkClass}
+            title={t('nav.titles.feedback')}
+          >
             <MailboxIcon className="h-3.5 w-3.5" aria-hidden="true" />
             {t('nav.feedback')}
           </LocalizedLink>
           <span className={separatorClass}>|</span>
-          <LocalizedLink to="/support" className={linkClass}>
+          <LocalizedLink
+            to="/support"
+            className={linkClass}
+            title={t('nav.titles.support')}
+          >
             <HandHeartIcon className="h-3.5 w-3.5" aria-hidden="true" />
             {t('nav.support')}
           </LocalizedLink>
@@ -102,12 +120,20 @@ const Footer: React.FC = () => {
 
         {/* Info & Rechtliches */}
         <nav className={navGroupClass}>
-          <LocalizedLink to="/changelog" className={linkClass}>
+          <LocalizedLink
+            to="/changelog"
+            className={linkClass}
+            title={t('nav.titles.changelog')}
+          >
             <GitDiffIcon className="h-3.5 w-3.5" aria-hidden="true" />
             {t('nav.changelog')}
           </LocalizedLink>
           <span className={separatorClass}>|</span>
-          <LocalizedLink to="/datenschutz" className={linkClass}>
+          <LocalizedLink
+            to="/datenschutz"
+            className={linkClass}
+            title={t('nav.titles.datenschutz')}
+          >
             <ShieldCheckIcon className="h-3.5 w-3.5" aria-hidden="true" />
             {t('nav.datenschutz')}
           </LocalizedLink>
@@ -117,13 +143,21 @@ const Footer: React.FC = () => {
             target="_blank"
             rel="noopener noreferrer"
             className={linkClass}
+            title={t('nav.titles.github')}
           >
             <GithubLogoIcon className="h-3.5 w-3.5" aria-hidden="true" />
             {t('nav.github')}
           </a>
           <span className={separatorClass}>|</span>
-          <LocalizedLink to="/impressum" className={linkClass}>
-            <IdentificationCardIcon className="h-3.5 w-3.5" aria-hidden="true" />
+          <LocalizedLink
+            to="/impressum"
+            className={linkClass}
+            title={t('nav.titles.impressum')}
+          >
+            <IdentificationCardIcon
+              className="h-3.5 w-3.5"
+              aria-hidden="true"
+            />
             {t('nav.impressum')}
           </LocalizedLink>
         </nav>

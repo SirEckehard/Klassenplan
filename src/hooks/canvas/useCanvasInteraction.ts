@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 /* eslint-disable react-hooks/refs -- refs are used for pointer state coordination */
 import React from 'react';
 import { useMachine } from '@xstate/react';

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import { describe, expect, test, beforeEach, vi, afterEach } from 'vitest';
 import { renderHook, waitFor, act } from '@testing-library/react';
 import { get as idbGet, set as idbSet } from 'idb-keyval';

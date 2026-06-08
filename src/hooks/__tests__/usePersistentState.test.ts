@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import * as utils from '@/utils';

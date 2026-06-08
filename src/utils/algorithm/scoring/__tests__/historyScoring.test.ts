@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import { describe, it, expect, beforeEach } from 'vitest';
 import { scorePreviousPairs, scoreHistory } from '../historyScoring';
 import type { ScoringContext } from '../scoringContext';

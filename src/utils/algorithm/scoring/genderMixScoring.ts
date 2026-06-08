@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import { calculateGenderImbalance } from '../genderBalance';
 import type { ScoringContext } from './scoringContext';
 import { tableStats } from './scoringHelpers';

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 /**
  * Base skeleton loading components with shimmer animation.
  * Used as loading placeholders during lazy-loaded component loading.

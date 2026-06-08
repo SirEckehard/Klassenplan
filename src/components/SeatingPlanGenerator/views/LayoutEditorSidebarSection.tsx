@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import SmartSidebar from '@/components/ui/panels/SmartSidebar';
 import SmartEditPanel from '@/components/ui/panels/SmartEditPanel';

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import { PROJECT_LOCAL_STORAGE_KEYS } from './storageKeys';
 import { logError, logWarn, logDebug } from '@/utils';
 

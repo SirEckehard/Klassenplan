@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 /**
  * Safe deep cloning utility with fallback for older browsers
  * Uses structuredClone when available, falls back to JSON method

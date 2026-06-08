@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import { useEffect, useState } from 'react';
 
 // Mirrors Tailwind's canonical `lg` breakpoint (min-width: 1024px).

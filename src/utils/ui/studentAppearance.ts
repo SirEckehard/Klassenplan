@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import type { Student, LanguageSkillLevel, SocialRole } from '@/types';
 import { STUDENT_FLAGS } from '@/utils';
 import {

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import { useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import type { NavigateOptions, To } from 'react-router-dom';

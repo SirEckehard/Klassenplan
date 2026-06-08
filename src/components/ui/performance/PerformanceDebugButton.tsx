@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { MonitorIcon } from '@phosphor-icons/react';
 import { usePerformanceDashboard } from '@/hooks/usePerformanceDashboard';

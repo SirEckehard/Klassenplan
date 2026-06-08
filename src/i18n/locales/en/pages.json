@@ -342,6 +342,12 @@
         "a": "You can send a message at any time via the feedback page. I look forward to practical experiences, bug reports, and feature ideas.",
         "openSource": "Klassenplan is open source: you can view the source code, report bugs, or contribute your own changes.",
         "githubLink": "View the project on GitHub"
+      },
+      "license": {
+        "q": "Under which license is Klassenplan released?",
+        "a": "The source code is licensed under the GNU Affero General Public License v3.0 (AGPL-3.0-or-later). You are free to use, modify, and redistribute Klassenplan – including your own customized versions – as long as you release them under the same terms and disclose the source code. If you run a modified version on a server, its users must be able to access the corresponding source code.",
+        "linkPrefix": "You can find the full source code on",
+        "githubLink": "GitHub"
       }
     },
     "footer": {

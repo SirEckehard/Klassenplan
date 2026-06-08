@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import type { Gender } from '@/types';
 
 export type GenderCounts = Record<Gender, number>;

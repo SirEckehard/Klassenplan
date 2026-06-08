@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 const TRUTHY_VALUES = new Set(['1', 'true', 'on', 'yes', 'enable', 'enabled']);
 const FALSY_VALUES = new Set([
   '0',

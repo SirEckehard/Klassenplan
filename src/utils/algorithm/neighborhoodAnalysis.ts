@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import type { Student, ClassroomScene, SeatingArrangement } from '@/types';
 import type { NeighborhoodAnalysis, NeighborhoodPair } from '@/types/Circle';
 import { getAdjacentSeats, seatPairsFor } from '@/utils/math/seatGeometry';

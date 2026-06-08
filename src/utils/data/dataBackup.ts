@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import { set as idbSet, del as idbDel } from 'idb-keyval';
 import type {
   Student,

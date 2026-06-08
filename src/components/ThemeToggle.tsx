@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import React, { useEffect, useMemo, useState } from 'react';
 import { MoonIcon, SunIcon } from '@phosphor-icons/react';
 import { LOCAL_STORAGE_KEYS } from '@/utils/data/storageKeys';

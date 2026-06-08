@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import type { Student, MixSettings, SeatingArrangement } from '@/types';
 import type { GenderCounts } from '../genderBalance';
 import { createGenderCounts } from '../genderBalance';

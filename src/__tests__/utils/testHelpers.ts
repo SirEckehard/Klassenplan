@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { render, type RenderOptions } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';

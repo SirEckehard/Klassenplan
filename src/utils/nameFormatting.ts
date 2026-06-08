@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 /**
  * Name formatting utilities for student display in various contexts
  * Provides intelligent truncation while maintaining readability

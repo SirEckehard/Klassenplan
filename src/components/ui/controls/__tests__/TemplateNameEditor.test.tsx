@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen, waitFor, cleanup, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';

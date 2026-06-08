@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
 /**
  * Generate a unique base-36 identifier.
  * @returns Unique string composed of timestamp and random segment
