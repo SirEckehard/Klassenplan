@@ -60,15 +60,15 @@ const Footer: React.FC = () => {
   };
 
   const linkClass =
-    'inline-flex min-h-11 items-center gap-1 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium transition px-2 py-2 text-xs sm:text-sm sm:px-3 rounded whitespace-nowrap';
-  const separatorClass = 'text-gray-300 dark:text-gray-600';
+    'inline-flex min-h-9 sm:min-h-11 items-center gap-1 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium transition px-1.5 py-1 sm:px-3 sm:py-2 text-xs sm:text-sm rounded whitespace-nowrap';
+  const separatorClass = 'hidden sm:inline text-gray-300 dark:text-gray-600';
   const navGroupClass =
-    'flex flex-wrap items-center gap-x-1 px-3 py-1.5 rounded-lg bg-white/50 dark:bg-gray-800/50 border border-gray-200/50 dark:border-gray-700/50 text-gray-600 dark:text-gray-300';
+    'flex flex-wrap items-center justify-center gap-x-1 px-1 text-gray-600 dark:text-gray-300';
 
   return (
     <footer className="px-4 py-2 flex flex-wrap items-stretch justify-center lg:justify-between gap-2 bg-linear-to-b from-slate-50 to-slate-100 dark:from-gray-900 dark:to-gray-800 text-sm">
       {/* Navigation */}
-      <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2">
+      <div className="flex flex-wrap items-center justify-center lg:justify-start gap-x-1 gap-y-0.5 sm:gap-2">
         {/* Brand */}
         <nav className={navGroupClass}>
           <LocalizedLink to="/" className={linkClass}>
@@ -89,14 +89,14 @@ const Footer: React.FC = () => {
             {t('nav.faq')}
           </LocalizedLink>
           <span className={separatorClass}>|</span>
-          <LocalizedLink to="/support" className={linkClass}>
-            <HandHeartIcon className="h-3.5 w-3.5" aria-hidden="true" />
-            {t('nav.support')}
-          </LocalizedLink>
-          <span className={separatorClass}>|</span>
           <LocalizedLink to="/feedback" className={linkClass}>
             <MailboxIcon className="h-3.5 w-3.5" aria-hidden="true" />
             {t('nav.feedback')}
+          </LocalizedLink>
+          <span className={separatorClass}>|</span>
+          <LocalizedLink to="/support" className={linkClass}>
+            <HandHeartIcon className="h-3.5 w-3.5" aria-hidden="true" />
+            {t('nav.support')}
           </LocalizedLink>
         </nav>
 
@@ -105,11 +105,6 @@ const Footer: React.FC = () => {
           <LocalizedLink to="/changelog" className={linkClass}>
             <GitDiffIcon className="h-3.5 w-3.5" aria-hidden="true" />
             {t('nav.changelog')}
-          </LocalizedLink>
-          <span className={separatorClass}>|</span>
-          <LocalizedLink to="/impressum" className={linkClass}>
-            <IdentificationCardIcon className="h-3.5 w-3.5" aria-hidden="true" />
-            {t('nav.impressum')}
           </LocalizedLink>
           <span className={separatorClass}>|</span>
           <LocalizedLink to="/datenschutz" className={linkClass}>
@@ -126,11 +121,16 @@ const Footer: React.FC = () => {
             <GithubLogoIcon className="h-3.5 w-3.5" aria-hidden="true" />
             {t('nav.github')}
           </a>
+          <span className={separatorClass}>|</span>
+          <LocalizedLink to="/impressum" className={linkClass}>
+            <IdentificationCardIcon className="h-3.5 w-3.5" aria-hidden="true" />
+            {t('nav.impressum')}
+          </LocalizedLink>
         </nav>
       </div>
 
       {/* Aktionen */}
-      <div className="flex justify-center items-center gap-2 px-3 py-1.5 rounded-lg bg-white/50 dark:bg-gray-800/50 border border-gray-200/50 dark:border-gray-700/50">
+      <div className="flex justify-center items-center gap-2 px-2">
         <ThemeToggle />
         <span className="text-gray-300 dark:text-gray-600">|</span>
         <LanguageSelector />

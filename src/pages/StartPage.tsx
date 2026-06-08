@@ -211,24 +211,24 @@ export default function StartPage() {
           <div className="flex items-start justify-center gap-0">
             {steps.map((step, index) => (
               <div key={step.titleKey} className="flex items-start">
-                <div className="flex flex-col items-center px-2 text-center sm:px-4">
+                <div className="flex flex-col items-center px-0.5 text-center sm:px-4">
                   <div className="landing-step-indicator pointer-events-none">
                     <step.icon
-                      className="h-6 w-6 sm:h-8 sm:w-8"
+                      className="h-5 w-5 sm:h-8 sm:w-8"
                       aria-hidden="true"
                     />
                   </div>
-                  <p className="mt-3 text-sm sm:text-base font-semibold text-gray-800 dark:text-gray-200">
+                  <p className="mt-2 text-xs sm:mt-3 sm:text-base font-semibold text-gray-800 dark:text-gray-200">
                     {t(step.titleKey)}
                   </p>
-                  <p className="mt-1 max-w-32 sm:max-w-44 text-xs leading-snug sm:text-sm text-gray-500 dark:text-gray-400">
+                  <p className="mt-1 max-w-16 sm:max-w-44 text-[10px] leading-tight sm:text-sm sm:leading-snug text-gray-500 dark:text-gray-400">
                     {t(step.textKey)}
                   </p>
                 </div>
 
                 {index < steps.length - 1 && (
                   <div
-                    className="landing-connector mt-6 mx-1 sm:mt-8 sm:mx-2"
+                    className="landing-connector mt-5 mx-0.5 sm:mt-8 sm:mx-2"
                     aria-hidden="true"
                   />
                 )}

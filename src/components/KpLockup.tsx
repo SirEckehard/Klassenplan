@@ -1,10 +1,13 @@
 interface KpLockupProps {
   size?: 'sm' | 'md';
+  /** Hide the "Klassenplan" wordmark on small screens, keeping only the mark. */
+  hideWordmarkOnMobile?: boolean;
 }
 
-export function KpLockup({ size = 'md' }: KpLockupProps) {
+export function KpLockup({ size = 'md', hideWordmarkOnMobile = false }: KpLockupProps) {
   const markClass = size === 'sm' ? 'kp-mark w-9 h-9' : 'kp-mark w-14 h-14';
-  const textClass = size === 'sm' ? 'kp-wordmark-text text-[1.45rem]' : 'kp-wordmark-text text-[2.25rem]';
+  const sizeTextClass = size === 'sm' ? 'text-[1.45rem]' : 'text-[2.25rem]';
+  const textClass = `kp-wordmark-text ${sizeTextClass}${hideWordmarkOnMobile ? ' hidden sm:inline' : ''}`;
 
   return (
     <>

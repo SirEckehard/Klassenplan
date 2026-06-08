@@ -869,7 +869,7 @@ export default function Export() {
               to="/"
               className="kp-lockup focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
             >
-              <KpLockup size="sm" />
+              <KpLockup size="sm" hideWordmarkOnMobile />
             </LocalizedLink>
           </h1>
 
