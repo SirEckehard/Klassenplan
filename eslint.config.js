@@ -66,7 +66,7 @@ export default defineConfig([
       'react/prop-types': 'off',
       'import-x/no-unresolved': 'off',
       'import-x/no-named-as-default-member': 'off',
-      quotes: ['error', 'single'],
+      quotes: ['error', 'single', { avoidEscape: true }],
       // react-hooks v7 introduced stricter rules that flag established React patterns
       // as errors. These patterns are widely used and documented in the React ecosystem:
       // - Sync-ref pattern: ref.current = value in hook body for stable callbacks

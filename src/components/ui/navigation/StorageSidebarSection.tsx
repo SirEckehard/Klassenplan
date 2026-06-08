@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { HardDrivesIcon, CaretDownIcon, CaretUpIcon } from '@phosphor-icons/react';
 import StorageQuickActions from './StorageQuickActions';
@@ -27,9 +27,23 @@ export default function StorageSidebarSection({
   const [isSectionCollapsed, setIsSectionCollapsed] =
     useState(defaultCollapsed);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
+  const sectionRef = useRef<HTMLDivElement>(null);
 
   const toggleSection = useCallback(() => {
-    setIsSectionCollapsed((prev) => !prev);
+    setIsSectionCollapsed((prev) => {
+      const next = !prev;
+      // When expanding, scroll the section into view so the menu is
+      // immediately visible without manual scrolling.
+      if (!next) {
+        requestAnimationFrame(() => {
+          sectionRef.current?.scrollIntoView({
+            behavior: 'smooth',
+            block: 'nearest',
+          });
+        });
+      }
+      return next;
+    });
   }, []);
 
   const openHistoryModal = useCallback(() => {
@@ -62,7 +76,7 @@ export default function StorageSidebarSection({
   // Expanded sidebar with collapsible section
   return (
     <>
-      <div className={`${cardSurfaceClass} mt-4 border px-3 py-3`}>
+      <div ref={sectionRef} className={`${cardSurfaceClass} mt-4 border px-3 py-3`}>
         <button
           type="button"
           onClick={toggleSection}

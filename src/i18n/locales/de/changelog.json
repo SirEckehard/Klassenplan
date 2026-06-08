@@ -1,4 +1,10 @@
 {
+  "v1_6_0": {
+    "0": "Klassenplan ist jetzt Open Source: Der vollständige Quellcode steht unter der AGPL-3.0 auf GitHub zur Verfügung",
+    "1": "Selbst hosten: Mit dem mitgelieferten Docker-Setup lässt sich Klassenplan auf einem eigenen Server betreiben – deine Daten bleiben zu 100 % lokal",
+    "2": "Umfangreiche UI/UX-Verbesserungen in der gesamten Anwendung",
+    "3": "Verbesserte Code-Qualität und Stabilität"
+  },
   "v1_5_0": {
     "0": "Neues Logo",
     "1": "Neue Schriftart: DM Sans – moderne und gut lesbare Schrift für alle Bildschirmgrößen",

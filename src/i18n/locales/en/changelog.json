@@ -1,4 +1,10 @@
 {
+  "v1_6_0": {
+    "0": "Klassenplan is now open source: the full source code is available on GitHub under the AGPL-3.0 license",
+    "1": "Self-hosting: the bundled Docker setup lets you run Klassenplan on your own server – your data stays 100 % local",
+    "2": "Extensive UI/UX improvements throughout the app",
+    "3": "Improved code quality and stability"
+  },
   "v1_5_0": {
     "0": "New logo",
     "1": "New font: DM Sans – modern and highly readable font for all screen sizes",

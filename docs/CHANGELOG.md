@@ -5,6 +5,18 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.6.0] - 2026-06-08
+
+### Added
+
+- **Open source release** – Klassenplan's full source code is now publicly available on GitHub under the GNU Affero General Public License v3.0 or later (AGPL-3.0-or-later)
+- **Self-hosting** – A production-ready Docker setup (multi-stage build with nginx) ships with the repository, so Klassenplan can be run on your own server; all data still stays 100 % local
+
+### Improved
+
+- Extensive UI/UX improvements throughout the app
+- Code quality and stability improvements
+
 ## [1.5.0] - 2026-05-10
 
 ### Added
