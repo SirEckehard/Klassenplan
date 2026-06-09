@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import { TrashIcon } from '@phosphor-icons/react';
 import { useTranslation } from 'react-i18next';
-import { cardSurfaceClass, dangerIconButtonClass } from '@/utils';
+import { cardSurfaceClass } from '@/utils';
 
 /**
  * Ordered column descriptors for the compact student row.
@@ -78,14 +77,14 @@ export default function StudentListHeader() {
             {t(column.label)}
           </span>
         ))}
-        {/* Invisible clone of the delete (trash) icon button: occupies the exact
-            same width as the real button in each row so the preceding labels stay
-            aligned over their icons (not over delete), without a magic number. */}
+        {/* Label for the delete (trash) column. Same fixed width as the other
+            column labels and as the row's delete button (min-w-11), so every
+            preceding label stays aligned over its icon. */}
         <span
-          aria-hidden="true"
-          className={`${dangerIconButtonClass} invisible shrink-0`}
+          title={t('studentList.removeStudent')}
+          className="w-11 shrink-0 truncate text-center text-[10px] font-medium leading-tight tracking-tight text-gray-500 dark:text-gray-400"
         >
-          <TrashIcon size={14} />
+          {t('studentList.delete')}
         </span>
       </div>
     </div>

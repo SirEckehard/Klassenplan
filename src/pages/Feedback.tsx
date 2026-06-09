@@ -47,7 +47,7 @@ export default function Feedback() {
         </header>
 
         <section
-          className={`${cardSurfaceClass} border px-8 py-8`}
+          className={`${cardSurfaceClass} border px-5 py-5 sm:px-8 sm:py-8`}
           aria-labelledby="feedback-title"
         >
           <div className="flex flex-col gap-6">
@@ -55,7 +55,10 @@ export default function Feedback() {
               <span className="flex h-12 w-12 items-center justify-center rounded-2xl border border-blue-100 bg-blue-50 text-blue-600 shadow-sm dark:border-blue-900/40 dark:bg-blue-500/20 dark:text-blue-200">
                 <MailboxIcon aria-hidden="true" className="h-6 w-6" />
               </span>
-              <h2 id="feedback-title" className="text-2xl font-semibold">
+              <h2
+                id="feedback-title"
+                className="text-xl font-semibold sm:text-2xl"
+              >
                 {t('feedback.title')}
               </h2>
             </div>

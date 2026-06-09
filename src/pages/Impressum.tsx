@@ -54,7 +54,7 @@ export default function Impressum() {
         </header>
 
         <section
-          className={`${cardSurfaceClass} border border-blue-100/60 p-8 dark:border-blue-900/40`}
+          className={`${cardSurfaceClass} border border-blue-100/60 p-5 sm:p-8 dark:border-blue-900/40`}
           aria-labelledby="impressum-title"
         >
           <div className="mb-8">
@@ -74,11 +74,11 @@ export default function Impressum() {
               <div>
                 <h2
                   id="impressum-title"
-                  className="text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-100"
+                  className="text-xl font-bold tracking-tight text-gray-900 sm:text-3xl dark:text-gray-100"
                 >
                   Impressum
                 </h2>
-                <p className="mt-1 text-gray-600 dark:text-gray-300">
+                <p className="mt-1 text-sm text-gray-600 sm:text-base dark:text-gray-300">
                   Rechtliche Angaben gemäß § 5 TMG
                 </p>
               </div>

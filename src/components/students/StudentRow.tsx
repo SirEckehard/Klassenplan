@@ -7,6 +7,7 @@ import type { Student } from '@/types';
 import { useStudentRowState } from '@/hooks/ui/useStudentRowState';
 import { useIsLgUp } from '@/hooks/ui/useIsLgUp';
 import { cardSurfaceClass, dangerIconButtonClass } from '@/utils';
+import IconWithLabel from './IconWithLabel';
 import StudentNameEditor from './StudentNameEditor';
 import PartnerSelector from './PartnerSelector';
 import AvoidPartnerSelector from './AvoidPartnerSelector';
@@ -194,24 +195,41 @@ function StudentRow({
             updateStudent={updateStudent}
             variant={variant}
           />
-          <button
-            type="button"
-            className={`${dangerIconButtonClass} h-11 w-11 lg:h-auto lg:w-auto`}
-            onClick={(e) => {
-              e.stopPropagation();
-              removeStudent(student.id);
-            }}
-            title={t('studentList.removeStudentTitle', {
-              name: student.name,
-              defaultValue: `${student.name} entfernen`,
-            })}
-            aria-label={t('studentList.removeStudentTitle', {
-              name: student.name,
-              defaultValue: `${student.name} entfernen`,
-            })}
-          >
-            <TrashIcon size={14} />
-          </button>
+          {variant === 'hybrid' ? (
+            <IconWithLabel
+              icon={<TrashIcon size={14} />}
+              label={t('studentList.delete', 'Löschen')}
+              onClick={() => removeStudent(student.id)}
+              tooltip={t('studentList.removeStudentTitle', {
+                name: student.name,
+                defaultValue: `${student.name} entfernen`,
+              })}
+              ariaLabel={t('studentList.removeStudentTitle', {
+                name: student.name,
+                defaultValue: `${student.name} entfernen`,
+              })}
+              colorClasses="border-rose-200! bg-rose-50! text-rose-600! hover:border-rose-300! hover:bg-rose-100! dark:border-rose-900/40! dark:bg-rose-900/20! dark:text-rose-300! dark:hover:bg-rose-900/30!"
+            />
+          ) : (
+            <button
+              type="button"
+              className={`${dangerIconButtonClass} min-h-11 min-w-11`}
+              onClick={(e) => {
+                e.stopPropagation();
+                removeStudent(student.id);
+              }}
+              title={t('studentList.removeStudentTitle', {
+                name: student.name,
+                defaultValue: `${student.name} entfernen`,
+              })}
+              aria-label={t('studentList.removeStudentTitle', {
+                name: student.name,
+                defaultValue: `${student.name} entfernen`,
+              })}
+            >
+              <TrashIcon size={14} />
+            </button>
+          )}
         </div>
       </div>
     </div>

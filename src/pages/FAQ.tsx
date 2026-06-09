@@ -443,7 +443,7 @@ export default function FAQ() {
         </header>
 
         <section
-          className={`${cardSurfaceClass} border px-8 py-8`}
+          className={`${cardSurfaceClass} border px-5 py-5 sm:px-8 sm:py-8`}
           aria-labelledby="faq-intro"
         >
           <div className="flex items-center gap-3">
@@ -451,10 +451,13 @@ export default function FAQ() {
               <QuestionIcon aria-hidden="true" className="h-6 w-6" />
             </span>
             <div>
-              <h1 id="faq-intro" className="text-3xl font-bold text-blue-600">
+              <h1
+                id="faq-intro"
+                className="text-xl font-bold text-gray-900 sm:text-3xl dark:text-gray-100"
+              >
                 {t('faq.header.title')}
               </h1>
-              <p className="mt-1 text-gray-700 dark:text-gray-300">
+              <p className="mt-1 text-sm text-gray-700 sm:text-base dark:text-gray-300">
                 {t('faq.header.subtitle')}
               </p>
             </div>
