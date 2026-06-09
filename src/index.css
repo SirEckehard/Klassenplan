@@ -216,6 +216,21 @@
     --canvas-border: rgba(30, 64, 175, 0.4);
     --canvas-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
   }
+
+  /*
+   * Prevent mobile browsers (notably iOS Safari) from auto-zooming when a
+   * text field is focused. The zoom is triggered whenever the field's font
+   * size is below 16px, so we enforce 16px on touch devices only. This keeps
+   * pinch-to-zoom intact (unlike a `maximum-scale=1` viewport lock), so
+   * accessibility is preserved.
+   */
+  @media (pointer: coarse) {
+    input:not([type='checkbox']):not([type='radio']):not([type='range']),
+    select,
+    textarea {
+      font-size: 16px;
+    }
+  }
 }
 
 @utility name-box {

@@ -196,7 +196,7 @@ function StudentRow({
           />
           <button
             type="button"
-            className={dangerIconButtonClass}
+            className={`${dangerIconButtonClass} h-11 w-11 lg:h-auto lg:w-auto`}
             onClick={(e) => {
               e.stopPropagation();
               removeStudent(student.id);
