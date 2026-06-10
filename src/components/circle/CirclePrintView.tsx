@@ -14,6 +14,7 @@ import {
   getAllStudentBadges,
   calculateBadgePillLayout,
 } from '@/utils/ui/studentAppearance';
+import { computeTokenPhotoLayout } from '@/utils/ui/studentTokenLayout';
 
 interface ClassMetadataInfo {
   name?: string | null;
@@ -29,6 +30,8 @@ interface CirclePrintViewProps {
   showConnections?: boolean;
   orientation?: 'landscape' | 'portrait';
   showFullNames?: boolean;
+  /** Pre-resolved studentId -> Data URL map for rendering photos in the export. */
+  photoDataUrls?: ReadonlyMap<string, string>;
 }
 
 const CONNECTION_STROKE = '#16a34a';
@@ -44,6 +47,7 @@ export default function CirclePrintView({
   showConnections = true,
   orientation = 'portrait',
   showFullNames = false,
+  photoDataUrls,
 }: CirclePrintViewProps) {
   const { t, i18n } = useTranslation('generator');
 
@@ -279,18 +283,18 @@ export default function CirclePrintView({
       >
         <g transform={`scale(${(isPortrait ? 8 : 16) / 240})`}>
           <g fill="#2563EB">
-            <rect x="8" y="8" width="40" height="40" rx="8"/>
-            <rect x="146" y="8" width="40" height="40" rx="8"/>
-            <rect x="8" y="54" width="40" height="40" rx="8"/>
-            <rect x="100" y="54" width="40" height="40" rx="8"/>
-            <rect x="8" y="100" width="40" height="40" rx="8"/>
-            <rect x="54" y="100" width="40" height="40" rx="8"/>
-            <rect x="8" y="146" width="40" height="40" rx="8"/>
-            <rect x="100" y="146" width="40" height="40" rx="8"/>
-            <rect x="8" y="192" width="40" height="40" rx="8"/>
-            <rect x="146" y="192" width="40" height="40" rx="8"/>
+            <rect x="8" y="8" width="40" height="40" rx="8" />
+            <rect x="146" y="8" width="40" height="40" rx="8" />
+            <rect x="8" y="54" width="40" height="40" rx="8" />
+            <rect x="100" y="54" width="40" height="40" rx="8" />
+            <rect x="8" y="100" width="40" height="40" rx="8" />
+            <rect x="54" y="100" width="40" height="40" rx="8" />
+            <rect x="8" y="146" width="40" height="40" rx="8" />
+            <rect x="100" y="146" width="40" height="40" rx="8" />
+            <rect x="8" y="192" width="40" height="40" rx="8" />
+            <rect x="146" y="192" width="40" height="40" rx="8" />
           </g>
-          <rect x="192" y="100" width="40" height="40" rx="8" fill="#F59E0B"/>
+          <rect x="192" y="100" width="40" height="40" rx="8" fill="#F59E0B" />
         </g>
         <text
           x={isPortrait ? 12 : 20}
@@ -436,6 +440,28 @@ export default function CirclePrintView({
             ? computeBadgeOffset(seatRadius, badgeLayout.height)
             : 0;
 
+        const photoUrl = student.hasPhoto
+          ? photoDataUrls?.get(student.id)
+          : undefined;
+        // Small circular avatar docked radially just outside the token, away
+        // from the circle centre — matches the live circle and keeps the photo
+        // visible even in the smaller print circles.
+        const { avatar: photoAvatar } = computeTokenPhotoLayout({
+          shape: 'circle',
+          centerX: x,
+          centerY: y,
+          width: seatDiameter,
+          height: seatDiameter,
+          hasPhoto: Boolean(photoUrl),
+          nameFontSize: seatFontSize,
+          outward: {
+            dirX: x - centerX,
+            dirY: y - centerY,
+            tokenRadius: seatRadius,
+          },
+        });
+        const photoClipId = `circle-print-photo-${student.id}`;
+
         // Uniform text alignment - all names horizontal like header elements
         return (
           <g key={student.id}>
@@ -447,6 +473,37 @@ export default function CirclePrintView({
               stroke={colors.stroke}
               strokeWidth="1.0"
             />
+
+            {photoUrl && photoAvatar && (
+              <g>
+                <defs>
+                  <clipPath id={photoClipId}>
+                    <circle
+                      cx={photoAvatar.cx}
+                      cy={photoAvatar.cy}
+                      r={photoAvatar.r}
+                    />
+                  </clipPath>
+                </defs>
+                <image
+                  href={photoUrl}
+                  x={photoAvatar.cx - photoAvatar.r}
+                  y={photoAvatar.cy - photoAvatar.r}
+                  width={photoAvatar.r * 2}
+                  height={photoAvatar.r * 2}
+                  preserveAspectRatio="xMidYMid slice"
+                  clipPath={`url(#${photoClipId})`}
+                />
+                <circle
+                  cx={photoAvatar.cx}
+                  cy={photoAvatar.cy}
+                  r={photoAvatar.r}
+                  fill="none"
+                  stroke={colors.stroke}
+                  strokeWidth="1.0"
+                />
+              </g>
+            )}
 
             <text
               x={x}

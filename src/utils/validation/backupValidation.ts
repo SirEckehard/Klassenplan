@@ -17,9 +17,11 @@ import { MAX_STUDENTS } from '../constants';
 import { SCALAR_MIX_SETTING_KEYS } from '../mixSettings';
 
 // Hard limits that incoming backups must respect to be accepted.
+// Raised for export version 2: backups may embed downscaled student photos as
+// base64 (~8–15 KB each), so the JSON/encrypted payloads are larger than v1.
 export const BACKUP_LIMITS = {
-  encryptedFileBytes: 2 * 1024 * 1024,
-  decryptedJsonBytes: 1 * 1024 * 1024,
+  encryptedFileBytes: 16 * 1024 * 1024,
+  decryptedJsonBytes: 12 * 1024 * 1024,
   maxStudents: MAX_STUDENTS,
   maxSeatingHistory: 200,
   maxMixHistory: 200,
@@ -37,6 +39,10 @@ export const BACKUP_LIMITS = {
   maxCircleLayouts: 50,
   maxCircleStudents: MAX_STUDENTS,
   maxAngleDegrees: 360,
+  // Student photos (export version ≥ 2): aggressively downscaled, so each Data
+  // URL stays small; cap generously to reject tampered/oversized payloads.
+  maxStudentPhotos: 2000,
+  maxPhotoDataUrlBytes: 96 * 1024,
 } as const;
 
 export const BACKUP_ERROR_MESSAGES = {
@@ -64,12 +70,15 @@ export const BACKUP_ERROR_MESSAGES = {
   tooManyCircleLayouts:
     'Import fehlgeschlagen. Limit für Sitzkreis-Layouts überschritten.',
   invalidCircleData: 'Import fehlgeschlagen. Sitzkreis-Daten sind ungültig.',
+  invalidPhotoData: 'Import fehlgeschlagen. Foto-Daten sind ungültig.',
+  tooManyPhotos: 'Import fehlgeschlagen. Limit für Schülerfotos überschritten.',
   processingFailed:
     'Import fehlgeschlagen. Backup konnte nicht verarbeitet werden.',
 } as const;
 
-export const CURRENT_EXPORT_VERSION = 1;
-const SUPPORTED_EXPORT_VERSIONS = new Set<number>([CURRENT_EXPORT_VERSION]);
+export const CURRENT_EXPORT_VERSION = 2;
+// v1 (without photos) stays importable for backward compatibility.
+const SUPPORTED_EXPORT_VERSIONS = new Set<number>([1, CURRENT_EXPORT_VERSION]);
 
 export class BackupValidationError extends Error {
   constructor(message: string) {
@@ -210,6 +219,10 @@ function validateStudent(value: unknown): asserts value is Student {
     throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
   }
   if ('prefersDoor' in value && typeof value.prefersDoor !== 'boolean') {
+    throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
+  }
+  // Optional: hasPhoto flag (export version ≥ 2, backwards compatible)
+  if ('hasPhoto' in value && typeof value.hasPhoto !== 'boolean') {
     throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
   }
   // Optional: languageSkill validation (new field, backwards compatible)
@@ -791,6 +804,35 @@ function validateClassCollection(
   value.classes.forEach(validateClassRecord);
 }
 
+function validateStudentPhotos(
+  value: unknown,
+): asserts value is Record<string, string> {
+  if (!isObject(value)) {
+    throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidPhotoData);
+  }
+  const entries = Object.entries(value);
+  if (entries.length > BACKUP_LIMITS.maxStudentPhotos) {
+    throw new BackupValidationError(BACKUP_ERROR_MESSAGES.tooManyPhotos);
+  }
+  for (const [key, dataUrl] of entries) {
+    if (
+      !assertString(key, {
+        allowEmpty: false,
+        maxLength: BACKUP_LIMITS.maxIdLength,
+      })
+    ) {
+      throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidPhotoData);
+    }
+    if (
+      typeof dataUrl !== 'string' ||
+      !dataUrl.startsWith('data:image/') ||
+      dataUrl.length > BACKUP_LIMITS.maxPhotoDataUrlBytes
+    ) {
+      throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidPhotoData);
+    }
+  }
+}
+
 function validateExportBundleStructure(
   value: unknown,
 ): asserts value is ExportBundle {
@@ -820,6 +862,9 @@ function validateExportBundleStructure(
   }
   if ('classCollection' in value && value.classCollection) {
     validateClassCollection(value.classCollection);
+  }
+  if ('studentPhotos' in value && value.studentPhotos) {
+    validateStudentPhotos(value.studentPhotos);
   }
 }
 

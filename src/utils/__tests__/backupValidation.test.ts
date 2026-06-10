@@ -52,9 +52,32 @@ describe('backupValidation', () => {
   });
 
   it('rejects unsupported backup versions', () => {
-    const invalid = { ...baseBundle, version: 2 };
+    const invalid = { ...baseBundle, version: 99 };
     expect(() => parseExportBundle(JSON.stringify(invalid))).toThrowError(
       new BackupValidationError(BACKUP_ERROR_MESSAGES.unsupportedVersion),
+    );
+  });
+
+  it('accepts version 2 bundles with embedded student photos', () => {
+    const v2 = {
+      ...baseBundle,
+      version: 2,
+      students: [{ ...baseBundle.students[0], hasPhoto: true }],
+      studentPhotos: { '1': 'data:image/jpeg;base64,/9j/AAAQSkZJRg==' },
+    } as ExportBundle;
+    const parsed = parseExportBundle(JSON.stringify(v2));
+    expect(parsed.studentPhotos).toEqual(v2.studentPhotos);
+    expect(parsed.students[0].hasPhoto).toBe(true);
+  });
+
+  it('rejects bundles with malformed photo data', () => {
+    const invalid = {
+      ...baseBundle,
+      version: 2,
+      studentPhotos: { '1': 'not-a-data-url' },
+    } as ExportBundle;
+    expect(() => parseExportBundle(JSON.stringify(invalid))).toThrowError(
+      new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidPhotoData),
     );
   });
 

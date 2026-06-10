@@ -58,6 +58,9 @@ interface TableSeatProps {
     seatIndex: number,
     locked: boolean,
   ) => void;
+  /** Pointer enter/leave on the seat, used to grow this seat's photo dot. */
+  onSeatPointerEnter?: (seatIndex: number) => void;
+  onSeatPointerLeave?: (seatIndex: number) => void;
 }
 
 /**
@@ -150,6 +153,8 @@ function TableSeat({
   toggleLock,
   onSeatPointerDown,
   onSeatPointerUp,
+  onSeatPointerEnter,
+  onSeatPointerLeave,
 }: TableSeatProps) {
   // Memoize appearance calculation - only recompute when dependencies change
   const appearance = React.useMemo(
@@ -318,6 +323,16 @@ function TableSeat({
               )
             }
             onPointerUp={(e) => onSeatPointerUp?.(e, seatIndex, locked)}
+            onPointerEnter={
+              onSeatPointerEnter
+                ? () => onSeatPointerEnter(seatIndex)
+                : undefined
+            }
+            onPointerLeave={
+              onSeatPointerLeave
+                ? () => onSeatPointerLeave(seatIndex)
+                : undefined
+            }
             style={{
               cursor: !locked && student ? 'grab' : 'default',
               touchAction: 'none',

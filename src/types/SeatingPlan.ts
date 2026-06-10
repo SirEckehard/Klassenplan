@@ -6,6 +6,15 @@ import type { Student, SeatingArrangement, ClassCollectionState } from './base';
 
 export type NeighborWeightDirection = 'direct' | 'side' | 'front' | 'back';
 
+/**
+ * Controls how student photos are shown on the seating plan's seat markers
+ * (the dots at the table edges grow into circular avatars):
+ * - `all`: every seat with a photo shows it permanently.
+ * - `hover`: only the hovered seat's dot grows to reveal its photo (editor only).
+ * - `off`: photos hidden, only the small default dots are drawn.
+ */
+export type PhotoDisplayMode = 'all' | 'hover' | 'off';
+
 export interface NeighborWeightConfig {
   direct: number;
   side: number;
@@ -80,6 +89,11 @@ export interface ExportBundleV1 {
   circleLayouts?: CircleExportData[]; // Optional circle layouts
   currentCircleLayout?: CircleLayout | null; // Current active circle layout
   classCollection?: ClassCollectionState | null;
+  /**
+   * Optional student photos embedded in the backup (export version ≥ 2).
+   * Maps `student.id` to a base64 image Data URL. Absent for v1 backups.
+   */
+  studentPhotos?: Record<string, string>;
 }
 
 export type ExportBundle = ExportBundleV1; // Alias for the current version

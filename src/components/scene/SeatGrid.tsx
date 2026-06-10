@@ -10,6 +10,7 @@ type SeatPointerDownHandler = NonNullable<
 type SeatPointerUpHandler = NonNullable<
   React.ComponentProps<typeof TableSeat>['onSeatPointerUp']
 >;
+type SeatHoverHandler = (seatIndex: number) => void;
 
 export interface SeatConfig {
   student: Student | null;
@@ -44,6 +45,8 @@ interface SeatGridProps {
   toggleLock?: (studentId: string, table: number, seat: number) => void;
   onSeatPointerDown?: SeatPointerDownHandler;
   onSeatPointerUp?: SeatPointerUpHandler;
+  onSeatPointerEnter?: SeatHoverHandler;
+  onSeatPointerLeave?: SeatHoverHandler;
 }
 
 function SeatGrid({
@@ -63,6 +66,8 @@ function SeatGrid({
   toggleLock,
   onSeatPointerDown,
   onSeatPointerUp,
+  onSeatPointerEnter,
+  onSeatPointerLeave,
 }: SeatGridProps) {
   return (
     <>
@@ -96,6 +101,8 @@ function SeatGrid({
             toggleLock={toggleLock}
             onSeatPointerDown={onSeatPointerDown}
             onSeatPointerUp={onSeatPointerUp}
+            onSeatPointerEnter={onSeatPointerEnter}
+            onSeatPointerLeave={onSeatPointerLeave}
           />
         ))}
       </g>

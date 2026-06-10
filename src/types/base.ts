@@ -76,6 +76,13 @@ interface StudentBase {
    * undefined = neutral (no special role constraints)
    */
   socialRole?: SocialRole;
+  /**
+   * True if a photo for this student is stored in the separate photo store
+   * (see {@link file://./../repositories/studentPhotoStore.ts}). The image data
+   * itself never lives on the Student object so that updating a student does not
+   * reserialize every photo in the class collection. Referenced by `student.id`.
+   */
+  hasPhoto?: boolean;
 }
 
 /**

@@ -1,4 +1,17 @@
 {
+  "photo": {
+    "add": "Foto hinzufügen",
+    "change": "Foto ändern",
+    "remove": "Foto entfernen",
+    "privacyHint": "Fotos werden ausschließlich lokal auf diesem Gerät gespeichert und nie übertragen.",
+    "cropTitle": "Foto zuschneiden",
+    "cropSubtitle": "Ziehen zum Verschieben, Zoomen und Drehen – dann übernehmen.",
+    "zoom": "Zoom",
+    "rotateLeft": "Nach links drehen",
+    "rotateRight": "Nach rechts drehen",
+    "apply": "Übernehmen",
+    "cancel": "Abbrechen"
+  },
   "classManagement": {
     "title": "Klassenverwaltung",
     "activeClass": "Aktive Klasse",

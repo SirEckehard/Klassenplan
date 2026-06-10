@@ -16,8 +16,10 @@ import {
   getAllStudentBadges,
   calculateBadgePillLayout,
 } from '@/utils/ui/studentAppearance';
+import { computeTokenPhotoLayout } from '@/utils/ui/studentTokenLayout';
 import { useCircleDragDrop } from '@/hooks/circle/useCircleDragDrop';
 import { useIsMobile } from '@/hooks/ui/useIsMobile';
+import { useStudentPhotoUrls } from '@/hooks/student/useStudentPhoto';
 
 // Connection display modes
 export type ConnectionDisplayMode = 'off' | 'subtle';
@@ -119,6 +121,37 @@ function SimpleCircleView({
     [layout.students],
   );
 
+  const photoUrls = useStudentPhotoUrls(allStudents);
+
+  // When any student has a photo, shrink the ring so the avatars docked just
+  // outside each token still fit inside the 900×600 viewBox (otherwise the
+  // top/bottom photos get clipped by the canvas edge). The clearance equals the
+  // photo's outer reach from the token centre (seatRadius + 2×photoRadius) plus
+  // a small padding. With no photos the layout is left untouched.
+  const renderRadius = React.useMemo(() => {
+    const anyPhoto = allStudents.some((s) => s.hasPhoto);
+    if (!anyPhoto) return layout.radius;
+    const VIEWBOX_WIDTH = 900;
+    const VIEWBOX_HEIGHT = 600;
+    const photoReach = seatRadius + 2 * 18 + 6; // max circle avatar r = 18
+    const maxH =
+      Math.min(layout.center.x, VIEWBOX_WIDTH - layout.center.x) - photoReach;
+    const maxV =
+      Math.min(layout.center.y, VIEWBOX_HEIGHT - layout.center.y) - photoReach;
+    const scale = Math.min(
+      layout.radius.horizontal > 0
+        ? Math.min(1, maxH / layout.radius.horizontal)
+        : 1,
+      layout.radius.vertical > 0
+        ? Math.min(1, maxV / layout.radius.vertical)
+        : 1,
+    );
+    return {
+      horizontal: layout.radius.horizontal * scale,
+      vertical: layout.radius.vertical * scale,
+    };
+  }, [allStudents, layout.radius, layout.center]);
+
   const getCircleAppearance = (student: Student | null) => {
     return {
       ...getStudentAppearance(student, isDark),
@@ -202,7 +235,7 @@ function SimpleCircleView({
     { length: layout.students.length },
     (_, index) => {
       const angle = (360 / layout.students.length) * index;
-      const position = angleToPosition(angle, layout.center, layout.radius);
+      const position = angleToPosition(angle, layout.center, renderRadius);
       return {
         position: index,
         angle,
@@ -441,6 +474,62 @@ function SimpleCircleView({
                           : 'fill 0.2s ease, stroke 0.2s ease, stroke-width 0.2s ease',
                       }}
                     />
+
+                    {/* Optional student photo: small circular avatar docked
+                        radially just outside the token, away from the circle
+                        centre, so it never overlaps the name. */}
+                    {(() => {
+                      const photoUrl = studentPosition.student.hasPhoto
+                        ? photoUrls.get(studentPosition.student.id)
+                        : undefined;
+                      if (!photoUrl) return null;
+                      const { avatar } = computeTokenPhotoLayout({
+                        shape: 'circle',
+                        centerX: slot.x,
+                        centerY: slot.y,
+                        width: seatDiameter,
+                        height: seatDiameter,
+                        hasPhoto: true,
+                        nameFontSize: seatFontSize,
+                        outward: {
+                          dirX: slot.x - layout.center.x,
+                          dirY: slot.y - layout.center.y,
+                          tokenRadius: seatRadius,
+                        },
+                      });
+                      if (!avatar) return null;
+                      const clipId = `circle-photo-${slot.position}`;
+                      return (
+                        <g pointerEvents="none">
+                          <defs>
+                            <clipPath id={clipId}>
+                              <circle
+                                cx={avatar.cx}
+                                cy={avatar.cy}
+                                r={avatar.r}
+                              />
+                            </clipPath>
+                          </defs>
+                          <image
+                            href={photoUrl}
+                            x={avatar.cx - avatar.r}
+                            y={avatar.cy - avatar.r}
+                            width={avatar.r * 2}
+                            height={avatar.r * 2}
+                            preserveAspectRatio="xMidYMid slice"
+                            clipPath={`url(#${clipId})`}
+                          />
+                          <circle
+                            cx={avatar.cx}
+                            cy={avatar.cy}
+                            r={avatar.r}
+                            fill="none"
+                            stroke={appearance.stroke}
+                            strokeWidth={1}
+                          />
+                        </g>
+                      );
+                    })()}
 
                     {/* Student name with improved readability */}
                     <text

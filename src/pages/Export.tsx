@@ -43,7 +43,8 @@ import {
   renderSceneSvg,
   preloadRenderer,
 } from '@/services/export/sceneRenderer';
-import type { SeatingArrangement } from '@/types';
+import { buildPhotoDataUrlMap } from '@/utils/export/pdfExportFunctions';
+import type { SeatingArrangement, Student } from '@/types';
 import usePersistentState from '@/hooks/usePersistentState';
 import type { CircleLayout } from '@/types/Circle';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
@@ -167,6 +168,10 @@ export default function Export() {
     'export.showFullNames',
     false,
   );
+  const [showPhotos, setShowPhotos] = usePersistentState<boolean>(
+    'export.showPhotos',
+    true,
+  );
   const [showClassInfo, setShowClassInfo] = usePersistentState<boolean>(
     'export.showClassInfo',
     true,
@@ -219,6 +224,10 @@ export default function Export() {
   const handleToggleFullNames = useCallback(
     (checked: boolean) => setShowFullNames(() => checked),
     [setShowFullNames],
+  );
+  const handleTogglePhotos = useCallback(
+    (checked: boolean) => setShowPhotos(() => checked),
+    [setShowPhotos],
   );
   const handleToggleClassInfo = useCallback(
     (checked: boolean) => setShowClassInfo(() => checked),
@@ -359,6 +368,16 @@ export default function Export() {
       },
     );
 
+    if (previewMode === 'table') {
+      displayOptions.push({
+        id: 'photos',
+        label: t('export.showPhotos', 'Fotos anzeigen'),
+        icon: <UserCircleIcon size={16} />,
+        checked: showPhotos,
+        onChange: handleTogglePhotos,
+      });
+    }
+
     const groups: CanvasSettingsGroup[] = [
       {
         id: 'preview-display',
@@ -388,6 +407,7 @@ export default function Export() {
     handleToggleDoor,
     handleToggleFullNames,
     handleToggleNeeds,
+    handleTogglePhotos,
     handleTogglePodium,
     handleToggleWindows,
     previewMode,
@@ -395,6 +415,7 @@ export default function Export() {
     showConnections,
     showFullNames,
     showNeeds,
+    showPhotos,
     t,
   ]);
 
@@ -583,12 +604,18 @@ export default function Export() {
 
       try {
         if (previewMode === 'circle' && circleLayout) {
+          const circlePhotoUrls = await buildPhotoDataUrlMap(
+            circleLayout.students
+              .map((entry) => entry.student)
+              .filter((student): student is Student => Boolean(student)),
+          );
           const svg = await renderCircleSvg(circleLayout, title, {
             showSpecialNeeds: showNeeds,
             showConnections,
             orientation: circleOrientation,
             showFullNames,
             classMetadata: classMetadataForExport,
+            photoDataUrls: circlePhotoUrls,
           });
           if (!isCancelled) {
             setPreviewSvg(svg);
@@ -597,8 +624,10 @@ export default function Export() {
           return;
         }
 
+        const photoDataUrls = await buildPhotoDataUrlMap(students);
         const svg = await renderSceneSvg(classroomScene, seating, title, {
           allStudents: students,
+          photoDataUrls,
           showSpecialNeeds: showNeeds,
           showBoard: effectiveShowBoard,
           showWindows: effectiveShowWindows,
@@ -607,6 +636,7 @@ export default function Export() {
           lockSeatLabelOrientation: true,
           orientation: tableOrientation,
           showFullNames,
+          photoDisplayMode: showPhotos ? 'all' : 'off',
           classMetadata: classMetadataForExport,
         });
         if (!isCancelled) {
@@ -648,6 +678,7 @@ export default function Export() {
     circleOrientation,
     tableOrientation,
     showFullNames,
+    showPhotos,
     classMetadataForExport,
   ]);
 
@@ -780,6 +811,7 @@ export default function Export() {
         showDoor: effectiveShowDoor,
         showPodium: effectiveShowPodium,
         showFullNames,
+        showPhotos,
         orientation: tableOrientation,
         classMetadata: classMetadataForExport,
       });
@@ -803,6 +835,7 @@ export default function Export() {
     effectiveShowPodium,
     effectiveShowWindows,
     showFullNames,
+    showPhotos,
     tableOrientation,
     classMetadataForExport,
     exportError,

@@ -3,7 +3,11 @@
 /* eslint-disable react-hooks/refs -- refs are used as stable references to avoid re-renders in template/selection management */
 import React from 'react';
 import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';
-import type { SeatingArrangement, ClassroomScene } from '@/types';
+import type {
+  SeatingArrangement,
+  ClassroomScene,
+  PhotoDisplayMode,
+} from '@/types';
 import {
   CLASSROOM_WIDTH,
   CLASSROOM_HEIGHT,
@@ -138,6 +142,11 @@ export function useSeatingPlanViewLogic({
     LOCAL_STORAGE_KEYS.showBoard,
     true,
   ); // Toggle to show board
+  const [photoDisplayMode, setPhotoDisplayMode] =
+    usePersistentState<PhotoDisplayMode>(
+      LOCAL_STORAGE_KEYS.photoDisplayMode,
+      'hover',
+    ); // How student photos grow on the seat dots (all / hover / off)
   const canvasRef = React.useRef<SVGSVGElement | null>(null);
 
   // Context Menu Integration
@@ -489,6 +498,8 @@ export function useSeatingPlanViewLogic({
           classroomHeight,
           showGrid,
           setShowGrid,
+          photoDisplayMode,
+          setPhotoDisplayMode,
           sceneTables,
           currentSeating,
           students,

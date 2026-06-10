@@ -7,6 +7,7 @@ import type {
   SeatingArrangement,
   Student,
   ClassroomFeature,
+  PhotoDisplayMode,
 } from '@/types';
 import type { SeatHighlightLookup } from '@/utils';
 import { GRID_SIZE, FEATURE_CORNER_RADIUS } from '@/utils';
@@ -20,6 +21,7 @@ import type {
   DragSeatConfig,
 } from '@/hooks/ui/useDragDropState';
 import TableIcon from '@/components/scene/SceneTable';
+import { useStudentPhotoUrls } from '@/hooks/student/useStudentPhoto';
 
 interface SeatingPlanCanvasProps {
   canvasWidth: number;
@@ -66,6 +68,8 @@ interface SeatingPlanCanvasProps {
   onTransformStart?: () => void;
   isDark?: boolean;
   seatHighlights?: SeatHighlightLookup | null;
+  /** How student photos grow on the seat dots (all / hover / off). */
+  photoDisplayMode?: PhotoDisplayMode;
 }
 
 const SeatingPlanCanvas = React.memo(
@@ -104,9 +108,11 @@ const SeatingPlanCanvas = React.memo(
     onTransformStart,
     isDark = false,
     seatHighlights = null,
+    photoDisplayMode = 'off',
   }: SeatingPlanCanvasProps) => {
     const { t } = useTranslation('generator');
     const canvasRef = React.useRef<SVGSVGElement | null>(null);
+    const photoUrls = useStudentPhotoUrls(allStudents ?? []);
 
     // Helper to get translated feature label based on type
     const getFeatureLabel = (feature: {
@@ -208,6 +214,12 @@ const SeatingPlanCanvas = React.memo(
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
       >
+        <style>{`
+          @keyframes seat-photo-pop {
+            from { opacity: 0; transform: scale(0.85); }
+            to   { opacity: 1; transform: scale(1); }
+          }
+        `}</style>
         {renderGrid()}
 
         {featureViewModels.map(({ feature, styles }) => {
@@ -307,6 +319,7 @@ const SeatingPlanCanvas = React.memo(
             index={index}
             students={currentSeating[index] || []}
             allStudents={allStudents}
+            photoUrls={photoUrls}
             selected={selectedTableIds.includes(index)}
             onPointerDown={(e) => handleTablePointerDown(index, e)}
             onUpdate={onTableUpdate}
@@ -326,6 +339,7 @@ const SeatingPlanCanvas = React.memo(
             draggable={true}
             isDark={isDark}
             seatHighlights={seatHighlights}
+            photoDisplayMode={photoDisplayMode}
           />
         ))}
 

@@ -16,6 +16,10 @@ import {
   ChalkboardSimpleIcon,
   FloppyDiskIcon,
   ExportIcon,
+  UserCircleIcon,
+  EyeIcon,
+  CursorIcon,
+  EyeSlashIcon,
 } from '@phosphor-icons/react';
 import SmartSidebar from '@/components/ui/panels/SmartSidebar';
 import SmartMixControls from '@/components/ui/controls/SmartMixControls';
@@ -50,6 +54,7 @@ import type {
   Student,
   SavedPlan,
   MixResult,
+  PhotoDisplayMode,
 } from '@/types';
 import {
   calculateCriteriaWeightedScore,
@@ -179,6 +184,8 @@ type Props = {
   classroomHeight: number;
   showGrid: boolean;
   setShowGrid: React.Dispatch<React.SetStateAction<boolean>>;
+  photoDisplayMode: PhotoDisplayMode;
+  setPhotoDisplayMode: React.Dispatch<React.SetStateAction<PhotoDisplayMode>>;
   sceneTables: ClassroomTable[];
   currentSeating: SeatingArrangement;
   students: Student[];
@@ -252,6 +259,8 @@ export default function SeatingPlanEditorView({
   classroomHeight,
   showGrid,
   setShowGrid,
+  photoDisplayMode,
+  setPhotoDisplayMode,
   sceneTables,
   currentSeating,
   students,
@@ -323,6 +332,10 @@ export default function SeatingPlanEditorView({
     (checked: boolean) => setShowGrid(() => checked),
     [setShowGrid],
   );
+  const handlePhotoDisplayModeChange = React.useCallback(
+    (next: string) => setPhotoDisplayMode(() => next as PhotoDisplayMode),
+    [setPhotoDisplayMode],
+  );
 
   const featureAvailability = React.useMemo(() => {
     const features = classroomScene.features ?? [];
@@ -353,6 +366,37 @@ export default function SeatingPlanEditorView({
             icon: <GridNine size={16} />,
             checked: showGrid,
             onChange: handleToggleGrid,
+          },
+        ],
+      },
+      {
+        id: 'editor-photos',
+        title: t('editor.studentPhotos', 'Schülerfotos'),
+        options: [
+          {
+            kind: 'segment' as const,
+            id: 'photo-display-mode',
+            label: t('editor.photoDisplayMode', 'Fotos an den Plätzen'),
+            icon: <UserCircleIcon size={16} />,
+            value: photoDisplayMode,
+            onChange: handlePhotoDisplayModeChange,
+            choices: [
+              {
+                value: 'all',
+                label: t('editor.photoModeAll', 'Alle'),
+                icon: <EyeIcon size={14} />,
+              },
+              {
+                value: 'hover',
+                label: t('editor.photoModeHover', 'Bei Hover'),
+                icon: <CursorIcon size={14} />,
+              },
+              {
+                value: 'off',
+                label: t('editor.photoModeOff', 'Aus'),
+                icon: <EyeSlashIcon size={14} />,
+              },
+            ],
           },
         ],
       },
@@ -406,6 +450,8 @@ export default function SeatingPlanEditorView({
       handleToggleGrid,
       handleTogglePodium,
       handleToggleWindows,
+      handlePhotoDisplayModeChange,
+      photoDisplayMode,
       showGrid,
       t,
     ],
@@ -970,6 +1016,7 @@ export default function SeatingPlanEditorView({
                   onTransformStart={snapshot}
                   isDark={isDark}
                   seatHighlights={seatHighlightLookup}
+                  photoDisplayMode={photoDisplayMode}
                 />
                 {autoMixing && (
                   <div className="pointer-events-auto absolute inset-0 z-20 flex items-center justify-center rounded-xl bg-white/70 backdrop-blur-sm dark:bg-gray-900/80">

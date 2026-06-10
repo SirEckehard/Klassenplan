@@ -20,6 +20,7 @@ import type {
   ExportBundleV1 as ExportBundleV1T,
   ExportBundle as ExportBundleT,
   ScalarMixSettingKey as ScalarMixSettingKeyT,
+  PhotoDisplayMode as PhotoDisplayModeT,
 } from './SeatingPlan';
 
 // Re-export base types for backward compatibility
@@ -51,6 +52,7 @@ export type ExportBundle = ExportBundleT;
 export type { ClassroomScene, ClassroomTable, TableTemplateType };
 export type { ClassroomFeature, ClassroomFeatureType, ClassroomFeatureAnchor };
 export type ScalarMixSettingKey = ScalarMixSettingKeyT;
+export type PhotoDisplayMode = PhotoDisplayModeT;
 export type {
   ClassRecord,
   ClassCollectionState,

@@ -1,8 +1,12 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import type { CircleLayout } from '@/types/Circle';
+import type { Student } from '@/types';
 import { logError } from '@/utils';
-import { exportCircleLayoutToPdf } from '@/utils/export/pdfExportFunctions';
+import {
+  exportCircleLayoutToPdf,
+  buildPhotoDataUrlMap,
+} from '@/utils/export/pdfExportFunctions';
 import { renderCircleSvg } from '@/services/export/sceneRenderer';
 
 /**
@@ -38,5 +42,10 @@ export async function generateCirclePreview(
     showFullNames?: boolean;
   },
 ): Promise<string> {
-  return renderCircleSvg(circleLayout, title, options);
+  const photoDataUrls = await buildPhotoDataUrlMap(
+    circleLayout.students
+      .map((entry) => entry.student)
+      .filter((student): student is Student => Boolean(student)),
+  );
+  return renderCircleSvg(circleLayout, title, { ...options, photoDataUrls });
 }

@@ -22,6 +22,8 @@ type SceneSvgProps = {
   scene: ClassroomScene;
   seating: SeatingArrangement;
   allStudents?: Student[];
+  /** Pre-resolved studentId -> Data URL map for rendering photos in the export. */
+  photoUrls?: ReadonlyMap<string, string>;
   title?: string;
   classMetadata?: ClassMetadataInfo;
   showSpecialNeeds?: boolean;
@@ -33,12 +35,15 @@ type SceneSvgProps = {
   seatLabelRotation?: number;
   orientation?: 'landscape' | 'portrait';
   showFullNames?: boolean;
+  /** Photo display on the seat dots for the export: 'all' shows them, 'off' hides. */
+  photoDisplayMode?: 'all' | 'off';
 };
 
 export default function SceneSvg({
   scene,
   seating,
   allStudents = [],
+  photoUrls,
   title,
   classMetadata,
   showSpecialNeeds = true,
@@ -50,6 +55,7 @@ export default function SceneSvg({
   seatLabelRotation = 0,
   orientation = 'portrait',
   showFullNames = false,
+  photoDisplayMode = 'all',
 }: SceneSvgProps) {
   const { t, i18n } = useTranslation('generator');
 
@@ -344,6 +350,7 @@ export default function SceneSvg({
             index={i}
             students={seating[i] || []}
             allStudents={allStudents}
+            photoUrls={photoUrls}
             selected={false}
             onUpdate={() => {}}
             editable={false}
@@ -356,6 +363,7 @@ export default function SceneSvg({
                 : seatLabelRotation
             }
             showFullNames={showFullNames}
+            photoDisplayMode={photoDisplayMode}
           />
         ))}
       </g>

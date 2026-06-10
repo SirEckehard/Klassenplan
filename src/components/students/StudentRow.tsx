@@ -9,6 +9,7 @@ import { useIsLgUp } from '@/hooks/ui/useIsLgUp';
 import { cardSurfaceClass, dangerIconButtonClass } from '@/utils';
 import IconWithLabel from './IconWithLabel';
 import StudentNameEditor from './StudentNameEditor';
+import StudentPhotoButton from './StudentPhotoButton';
 import PartnerSelector from './PartnerSelector';
 import AvoidPartnerSelector from './AvoidPartnerSelector';
 import GenderSelector from './GenderSelector';
@@ -107,6 +108,12 @@ function StudentRow({
           <span className="min-w-6 text-sm text-gray-500 dark:text-gray-400 font-medium">
             {index + 1}.
           </span>
+          <div data-disable-card-toggle>
+            <StudentPhotoButton
+              student={student}
+              updateStudent={updateStudent}
+            />
+          </div>
           <StudentNameEditor
             student={student}
             allStudents={allStudents}

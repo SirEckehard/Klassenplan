@@ -38,6 +38,7 @@ export async function renderSceneSvg(
   title?: string,
   options?: {
     allStudents?: Student[];
+    photoDataUrls?: ReadonlyMap<string, string>;
     showSpecialNeeds?: boolean;
     showBoard?: boolean;
     showWindows?: boolean;
@@ -47,6 +48,7 @@ export async function renderSceneSvg(
     seatLabelRotation?: number;
     orientation?: 'landscape' | 'portrait';
     showFullNames?: boolean;
+    photoDisplayMode?: 'all' | 'off';
     classMetadata?: ExportClassMetadata;
   },
 ): Promise<string> {
@@ -56,6 +58,7 @@ export async function renderSceneSvg(
         scene={scene}
         seating={seating}
         allStudents={options?.allStudents}
+        photoUrls={options?.photoDataUrls}
         title={title}
         classMetadata={options?.classMetadata}
         showSpecialNeeds={options?.showSpecialNeeds}
@@ -67,6 +70,7 @@ export async function renderSceneSvg(
         seatLabelRotation={options?.seatLabelRotation}
         orientation={options?.orientation}
         showFullNames={options?.showFullNames}
+        photoDisplayMode={options?.photoDisplayMode}
       />
     </div>,
   );
@@ -84,6 +88,7 @@ export async function renderCircleSvg(
     orientation?: 'landscape' | 'portrait';
     showFullNames?: boolean;
     classMetadata?: ExportClassMetadata;
+    photoDataUrls?: ReadonlyMap<string, string>;
   },
 ): Promise<string> {
   return renderMarkup(
@@ -96,6 +101,7 @@ export async function renderCircleSvg(
         showConnections={options?.showConnections ?? true}
         orientation={options?.orientation}
         showFullNames={options?.showFullNames}
+        photoDataUrls={options?.photoDataUrls}
       />
     </div>,
   );
