@@ -1,7 +1,12 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import type { ReactElement } from 'react';
-import type { ClassroomScene, SeatingArrangement, Student } from '@/types';
+import type {
+  ClassroomScene,
+  SeatingArrangement,
+  SeatPhotoDensity,
+  Student,
+} from '@/types';
 import type { CircleLayout } from '@/types/Circle';
 import SceneSvg from '@/components/scene/SceneSvg';
 import CirclePrintView from '@/components/circle/CirclePrintView';
@@ -49,6 +54,8 @@ export async function renderSceneSvg(
     orientation?: 'landscape' | 'portrait';
     showFullNames?: boolean;
     photoDisplayMode?: 'all' | 'off';
+    photoDensity?: SeatPhotoDensity;
+    showLegend?: boolean;
     classMetadata?: ExportClassMetadata;
   },
 ): Promise<string> {
@@ -71,6 +78,8 @@ export async function renderSceneSvg(
         orientation={options?.orientation}
         showFullNames={options?.showFullNames}
         photoDisplayMode={options?.photoDisplayMode}
+        photoDensity={options?.photoDensity}
+        showLegend={options?.showLegend}
       />
     </div>,
   );
@@ -89,6 +98,8 @@ export async function renderCircleSvg(
     showFullNames?: boolean;
     classMetadata?: ExportClassMetadata;
     photoDataUrls?: ReadonlyMap<string, string>;
+    photoDisplayMode?: 'all' | 'off';
+    showLegend?: boolean;
   },
 ): Promise<string> {
   return renderMarkup(
@@ -102,6 +113,8 @@ export async function renderCircleSvg(
         orientation={options?.orientation}
         showFullNames={options?.showFullNames}
         photoDataUrls={options?.photoDataUrls}
+        photoDisplayMode={options?.photoDisplayMode}
+        showLegend={options?.showLegend}
       />
     </div>,
   );

@@ -24,6 +24,7 @@ import {
   PrinterIcon,
   GridNineIcon,
   CircleDashedIcon,
+  IdentificationCardIcon,
 } from '@phosphor-icons/react';
 import {
   canvasFrameClass,
@@ -44,7 +45,12 @@ import {
   preloadRenderer,
 } from '@/services/export/sceneRenderer';
 import { buildPhotoDataUrlMap } from '@/utils/export/pdfExportFunctions';
-import type { SeatingArrangement, Student } from '@/types';
+import type {
+  PhotoDisplayMode,
+  SeatingArrangement,
+  SeatPhotoDensity,
+  Student,
+} from '@/types';
 import usePersistentState from '@/hooks/usePersistentState';
 import type { CircleLayout } from '@/types/Circle';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
@@ -70,6 +76,23 @@ import {
 } from '@/components/SeatingPlanGenerator/canvas/CanvasSettingsButton';
 
 type PageOrientation = 'landscape' | 'portrait';
+
+/**
+ * Read a value persisted by the editor (via {@link usePersistentState}) so the
+ * export page can seed its own defaults from the live editor settings (WYSIWYG).
+ * One-way seed: once the user changes an export control its own `export.*` key
+ * takes over.
+ */
+function readPersisted<T>(key: string, fallback: T): T {
+  if (typeof window === 'undefined' || !window.localStorage) return fallback;
+  try {
+    const raw = window.localStorage.getItem(key);
+    if (raw === null) return fallback;
+    return JSON.parse(raw) as T;
+  } catch {
+    return fallback;
+  }
+}
 
 const PORTRAIT_PAGE_RATIO = 817 / 1148;
 const LANDSCAPE_PAGE_RATIO = 1148 / 817;
@@ -168,13 +191,25 @@ export default function Export() {
     'export.showFullNames',
     false,
   );
+  // WYSIWYG: seed photo visibility/density defaults from the live editor state.
   const [showPhotos, setShowPhotos] = usePersistentState<boolean>(
     'export.showPhotos',
-    true,
+    readPersisted<PhotoDisplayMode>(
+      LOCAL_STORAGE_KEYS.photoDisplayMode,
+      'hover',
+    ) !== 'off',
+  );
+  const [photoDensity, setPhotoDensity] = usePersistentState<SeatPhotoDensity>(
+    'export.photoDensity',
+    readPersisted<SeatPhotoDensity>(LOCAL_STORAGE_KEYS.photoDensity, 'compact'),
   );
   const [showClassInfo, setShowClassInfo] = usePersistentState<boolean>(
     'export.showClassInfo',
     true,
+  );
+  const [showLegend, setShowLegend] = usePersistentState<boolean>(
+    'export.showLegend',
+    false,
   );
 
   const classMetadataForExport = useMemo(() => {
@@ -229,9 +264,17 @@ export default function Export() {
     (checked: boolean) => setShowPhotos(() => checked),
     [setShowPhotos],
   );
+  const handlePhotoDensityChange = useCallback(
+    (next: string) => setPhotoDensity(() => next as SeatPhotoDensity),
+    [setPhotoDensity],
+  );
   const handleToggleClassInfo = useCallback(
     (checked: boolean) => setShowClassInfo(() => checked),
     [setShowClassInfo],
+  );
+  const handleToggleLegend = useCallback(
+    (checked: boolean) => setShowLegend(() => checked),
+    [setShowLegend],
   );
 
   useEffect(() => {
@@ -366,15 +409,43 @@ export default function Export() {
         checked: showClassInfo,
         onChange: handleToggleClassInfo,
       },
+      {
+        id: 'legend',
+        label: t('export.showLegend', 'Legende anzeigen'),
+        icon: <InfoIcon size={16} />,
+        checked: showLegend,
+        onChange: handleToggleLegend,
+      },
     );
 
-    if (previewMode === 'table') {
+    displayOptions.push({
+      id: 'photos',
+      label: t('export.showPhotos', 'Fotos anzeigen'),
+      icon: <UserCircleIcon size={16} />,
+      checked: showPhotos,
+      onChange: handleTogglePhotos,
+    });
+    // The large photo-card density only applies to seat rectangles (table view).
+    if (previewMode === 'table' && showPhotos) {
       displayOptions.push({
-        id: 'photos',
-        label: t('export.showPhotos', 'Fotos anzeigen'),
-        icon: <UserCircleIcon size={16} />,
-        checked: showPhotos,
-        onChange: handleTogglePhotos,
+        kind: 'segment' as const,
+        id: 'photo-density',
+        label: t('editor.photoDensity', 'Foto-Größe'),
+        icon: <IdentificationCardIcon size={16} />,
+        value: photoDensity,
+        onChange: handlePhotoDensityChange,
+        choices: [
+          {
+            value: 'compact',
+            label: t('editor.photoDensityCompact', 'Kompakt'),
+            icon: <UserCircleIcon size={14} />,
+          },
+          {
+            value: 'card',
+            label: t('editor.photoDensityCard', 'Karte'),
+            icon: <IdentificationCardIcon size={14} />,
+          },
+        ],
       });
     }
 
@@ -408,12 +479,16 @@ export default function Export() {
     handleToggleFullNames,
     handleToggleNeeds,
     handleTogglePhotos,
+    handlePhotoDensityChange,
+    handleToggleLegend,
     handleTogglePodium,
     handleToggleWindows,
     previewMode,
+    photoDensity,
     showClassInfo,
     showConnections,
     showFullNames,
+    showLegend,
     showNeeds,
     showPhotos,
     t,
@@ -616,6 +691,8 @@ export default function Export() {
             showFullNames,
             classMetadata: classMetadataForExport,
             photoDataUrls: circlePhotoUrls,
+            photoDisplayMode: showPhotos ? 'all' : 'off',
+            showLegend,
           });
           if (!isCancelled) {
             setPreviewSvg(svg);
@@ -637,6 +714,8 @@ export default function Export() {
           orientation: tableOrientation,
           showFullNames,
           photoDisplayMode: showPhotos ? 'all' : 'off',
+          photoDensity,
+          showLegend,
           classMetadata: classMetadataForExport,
         });
         if (!isCancelled) {
@@ -679,6 +758,8 @@ export default function Export() {
     tableOrientation,
     showFullNames,
     showPhotos,
+    photoDensity,
+    showLegend,
     classMetadataForExport,
   ]);
 
@@ -812,6 +893,8 @@ export default function Export() {
         showPodium: effectiveShowPodium,
         showFullNames,
         showPhotos,
+        photoDensity,
+        showLegend,
         orientation: tableOrientation,
         classMetadata: classMetadataForExport,
       });
@@ -836,6 +919,8 @@ export default function Export() {
     effectiveShowWindows,
     showFullNames,
     showPhotos,
+    photoDensity,
+    showLegend,
     tableOrientation,
     classMetadataForExport,
     exportError,
@@ -853,6 +938,8 @@ export default function Export() {
         showConnections,
         orientation: circleOrientation,
         showFullNames,
+        showPhotos,
+        showLegend,
         classMetadata: classMetadataForExport,
       });
     } catch (error) {
@@ -871,6 +958,8 @@ export default function Export() {
     showConnections,
     circleOrientation,
     showFullNames,
+    showPhotos,
+    showLegend,
     classMetadataForExport,
     exportError,
     t,

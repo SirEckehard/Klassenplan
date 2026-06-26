@@ -29,6 +29,12 @@ export interface TokenPhotoLayout {
    * there is no photo or not enough room (caller then renders the name only).
    */
   avatar: { cx: number; cy: number; r: number } | null;
+  /**
+   * Card mode only: where the name label band sits beneath the large avatar.
+   * `null`/absent in compact and outward modes (the caller keeps the name at the
+   * token centre as before).
+   */
+  nameBand?: { x: number; y: number; width: number; height: number; fontSize: number } | null;
 }
 
 export interface TokenPhotoLayoutParams {
@@ -50,6 +56,13 @@ export interface TokenPhotoLayoutParams {
    * The avatar's inner edge touches the token edge.
    */
   outward?: { dirX: number; dirY: number; tokenRadius: number };
+  /**
+   * "Learn names" density: a large photo fills the upper part of the token and
+   * the name moves into a label band at the bottom (see returned `nameBand`).
+   * Ignored together with `outward`. Falls back to the compact layout when the
+   * token is too small for a worthwhile card avatar.
+   */
+  card?: boolean;
 }
 
 /** Smallest avatar radius worth drawing; below this we render the name only. */
@@ -59,6 +72,16 @@ const AVATAR_NAME_GAP = 2;
 /** Bounds for the radially-docked outside avatar (half the token radius). */
 const OUTSIDE_AVATAR_MIN_RADIUS = 8;
 const OUTSIDE_AVATAR_MAX_RADIUS = 18;
+/**
+ * Smallest card avatar worth drawing. Below this the token is too cramped for a
+ * meaningful photo card, so we fall back to the compact "avatar above name"
+ * layout instead (keeps tiny/rotated seats legible).
+ */
+const CARD_MIN_AVATAR_RADIUS = 12;
+/** Inner padding kept around the card avatar and name band. */
+const CARD_PADDING = 2;
+/** Gap between the card avatar's bottom and the name band's top. */
+const CARD_AVATAR_BAND_GAP = 2;
 
 /**
  * Compute the avatar placement for a student token. Pure / side-effect free so
@@ -76,10 +99,44 @@ export function computeTokenPhotoLayout(
     hasPhoto,
     nameFontSize,
     outward,
+    card,
   } = params;
 
   if (!hasPhoto) {
     return { avatar: null };
+  }
+
+  // "Learn names" card density: a large photo fills the upper part of the seat
+  // with the name in a label band at the bottom. Only meaningful for rect seats
+  // (the circle keeps its outward avatar); falls back to compact when too small.
+  if (card && !outward) {
+    const top = centerY - height / 2 + CARD_PADDING;
+    const bottom = centerY + height / 2 - CARD_PADDING;
+    const innerWidth = width - CARD_PADDING * 2;
+    // Reserve a name band at the bottom, sized to the name's font with padding.
+    const bandHeight = Math.min(
+      height * 0.34,
+      Math.max(nameFontSize + 3, height * 0.24),
+    );
+    const avatarSpace = bottom - top - bandHeight - CARD_AVATAR_BAND_GAP;
+    const radiusByHeight = avatarSpace / 2;
+    const radiusByWidth = innerWidth / 2;
+    const radius = Math.min(radiusByHeight, radiusByWidth);
+
+    if (radius >= CARD_MIN_AVATAR_RADIUS) {
+      const bandTop = bottom - bandHeight;
+      return {
+        avatar: { cx: centerX, cy: top + radius, r: radius },
+        nameBand: {
+          x: centerX - innerWidth / 2,
+          y: bandTop,
+          width: innerWidth,
+          height: bandHeight,
+          fontSize: Math.min(nameFontSize, bandHeight * 0.72),
+        },
+      };
+    }
+    // Too small for a card — fall through to the compact layout below.
   }
 
   // Radially-docked avatar just outside the token edge (Sitzkreis). The radius

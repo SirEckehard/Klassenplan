@@ -7,6 +7,7 @@ import type {
   SeatingArrangement,
   ClassroomScene,
   PhotoDisplayMode,
+  SeatPhotoDensity,
 } from '@/types';
 import {
   CLASSROOM_WIDTH,
@@ -147,6 +148,14 @@ export function useSeatingPlanViewLogic({
       LOCAL_STORAGE_KEYS.photoDisplayMode,
       'hover',
     ); // How student photos grow on the seat dots (all / hover / off)
+  const [photoDensity, setPhotoDensity] = usePersistentState<SeatPhotoDensity>(
+    LOCAL_STORAGE_KEYS.photoDensity,
+    'compact',
+  ); // Seat photo density: compact dot vs. large "learn names" card
+  const [studentMirror, setStudentMirror] = usePersistentState<boolean>(
+    LOCAL_STORAGE_KEYS.studentMirror,
+    false,
+  ); // Mirror the plan for projection from the students' perspective
   const canvasRef = React.useRef<SVGSVGElement | null>(null);
 
   // Context Menu Integration
@@ -500,6 +509,10 @@ export function useSeatingPlanViewLogic({
           setShowGrid,
           photoDisplayMode,
           setPhotoDisplayMode,
+          photoDensity,
+          setPhotoDensity,
+          studentMirror,
+          setStudentMirror,
           sceneTables,
           currentSeating,
           students,

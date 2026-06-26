@@ -2,7 +2,8 @@
 // Copyright (C) 2026 Eike Schäfer
 import React, { useState, useCallback } from 'react';
 import type { CircleLayout } from '@/types/Circle';
-import type { Student } from '@/types';
+import type { PhotoDisplayMode, Student } from '@/types';
+import { LOCAL_STORAGE_KEYS } from '@/utils/data/storageKeys';
 import { angleToPosition } from '@/utils/math/circleGeometry';
 import {
   GRID_SIZE,
@@ -34,6 +35,9 @@ type SimpleCircleViewProps = {
   onSyncCircle?: () => void;
   connectionMode?: ConnectionDisplayMode;
   onConnectionModeChange?: (mode: ConnectionDisplayMode) => void;
+  /** How student photos show on the circle tokens: all / hover / off. */
+  photoMode?: PhotoDisplayMode;
+  onPhotoModeChange?: (mode: PhotoDisplayMode) => void;
 };
 
 /**
@@ -48,6 +52,7 @@ function SimpleCircleView({
   onStudentMove,
   connectionMode: externalConnectionMode,
   onConnectionModeChange,
+  photoMode: externalPhotoMode,
 }: SimpleCircleViewProps) {
   const isMobile = useIsMobile();
   // Connection display mode - with localStorage persistence
@@ -85,6 +90,25 @@ function SimpleCircleView({
       }
     }
   }, [connectionMode, onConnectionModeChange]);
+
+  // Photo display mode — falls back to a persisted local value (parity with the
+  // seating plan's all/hover/off control). Default 'all' preserves prior behaviour.
+  const photoMode: PhotoDisplayMode = (() => {
+    if (externalPhotoMode) return externalPhotoMode;
+    try {
+      const stored = localStorage.getItem(LOCAL_STORAGE_KEYS.circlePhotoMode);
+      if (stored === 'all' || stored === 'hover' || stored === 'off') {
+        return stored;
+      }
+    } catch (error) {
+      logDebug('Failed to read circle photo mode from localStorage', { error });
+    }
+    return 'all';
+  })();
+  // Hover mode tracks the pointer-hovered token so only its photo is revealed.
+  const [hoveredPhotoPosition, setHoveredPhotoPosition] = useState<
+    number | null
+  >(null);
 
   // Drag and drop functionality
   const { dragState, handlePointerDown, svgRef } = useCircleDragDrop({
@@ -450,6 +474,19 @@ function SimpleCircleView({
                           studentPosition.student.id,
                         )
                       }
+                      onPointerEnter={
+                        photoMode === 'hover'
+                          ? () => setHoveredPhotoPosition(slot.position)
+                          : undefined
+                      }
+                      onPointerLeave={
+                        photoMode === 'hover'
+                          ? () =>
+                              setHoveredPhotoPosition((current) =>
+                                current === slot.position ? null : current,
+                              )
+                          : undefined
+                      }
                       style={{
                         cursor: editable ? 'grab' : 'default',
                         touchAction: 'none',
@@ -479,6 +516,11 @@ function SimpleCircleView({
                         radially just outside the token, away from the circle
                         centre, so it never overlaps the name. */}
                     {(() => {
+                      const photoVisible =
+                        photoMode === 'all' ||
+                        (photoMode === 'hover' &&
+                          hoveredPhotoPosition === slot.position);
+                      if (!photoVisible) return null;
                       const photoUrl = studentPosition.student.hasPhoto
                         ? photoUrls.get(studentPosition.student.id)
                         : undefined;

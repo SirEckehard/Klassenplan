@@ -1,7 +1,12 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import type { CircleLayout } from '@/types/Circle';
-import type { ClassroomScene, SeatingArrangement, Student } from '@/types';
+import type {
+  ClassroomScene,
+  SeatingArrangement,
+  SeatPhotoDensity,
+  Student,
+} from '@/types';
 import {
   renderCircleSvg,
   renderSceneSvg,
@@ -64,6 +69,10 @@ export type ExportOptions = {
   showFullNames?: boolean;
   /** Show student photos on the seat dots in the table export (default true). */
   showPhotos?: boolean;
+  /** Photo density for the table export: 'card' renders a large photo per seat. */
+  photoDensity?: SeatPhotoDensity;
+  /** Append a legend (badge icons + gender colours) to the exported page. */
+  showLegend?: boolean;
   orientation?: 'landscape' | 'portrait';
   classMetadata?: ExportClassMetadata;
 };
@@ -90,6 +99,8 @@ export async function exportTableLayoutToPdf(
     orientation: options?.orientation ?? 'portrait',
     showFullNames: options?.showFullNames ?? false,
     photoDisplayMode: (options?.showPhotos ?? true) ? 'all' : 'off',
+    photoDensity: options?.photoDensity ?? 'compact',
+    showLegend: options?.showLegend ?? false,
     classMetadata: options?.classMetadata,
   });
 
@@ -120,6 +131,8 @@ export async function exportCircleLayoutToPdf(
     showFullNames: options?.showFullNames ?? false,
     classMetadata: options?.classMetadata,
     photoDataUrls,
+    photoDisplayMode: (options?.showPhotos ?? true) ? 'all' : 'off',
+    showLegend: options?.showLegend ?? false,
   });
 
   await exportSvgToPdf(

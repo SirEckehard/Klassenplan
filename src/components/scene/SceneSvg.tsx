@@ -2,7 +2,12 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import type { ClassroomScene, SeatingArrangement, Student } from '@/types';
+import type {
+  ClassroomScene,
+  SeatingArrangement,
+  SeatPhotoDensity,
+  Student,
+} from '@/types';
 import TableIcon from './SceneTable';
 import {
   CLASSROOM_WIDTH,
@@ -11,6 +16,8 @@ import {
 } from '@/utils';
 import { getFeatureStyles } from '@/utils/ui';
 import type { FeatureVisibilityFlags } from '@/utils/ui';
+import { buildLegendLayout } from '@/utils/ui/classBadgeLegend';
+import ExportLegend from '@/components/scene/ExportLegend';
 
 type ClassMetadataInfo = {
   name?: string | null;
@@ -37,6 +44,10 @@ type SceneSvgProps = {
   showFullNames?: boolean;
   /** Photo display on the seat dots for the export: 'all' shows them, 'off' hides. */
   photoDisplayMode?: 'all' | 'off';
+  /** Photo density: 'card' renders a large photo per seat (name below). */
+  photoDensity?: SeatPhotoDensity;
+  /** When true, append a legend (badge icons + gender colours) in the footer. */
+  showLegend?: boolean;
 };
 
 export default function SceneSvg({
@@ -56,6 +67,8 @@ export default function SceneSvg({
   orientation = 'portrait',
   showFullNames = false,
   photoDisplayMode = 'all',
+  photoDensity = 'compact',
+  showLegend = false,
 }: SceneSvgProps) {
   const { t, i18n } = useTranslation('generator');
 
@@ -109,7 +122,31 @@ export default function SceneSvg({
   const metadataLineSpacing = isPortrait ? 8 : 14;
   const headerHeight =
     baseHeaderHeight + metadataGap + metadataLines.length * metadataLineSpacing;
-  const availableHeight = pageHeight - margin * 2 - headerHeight;
+
+  // Optional legend (badge icons + gender colours) drawn as an un-rotated footer
+  // band. Computed first so its height can be reserved out of availableHeight.
+  const legendFontSize = isPortrait ? 7 : 10;
+  const legendIconSize = isPortrait ? 10 : 13;
+  const legendLayout =
+    showLegend && allStudents.length > 0
+      ? buildLegendLayout({
+          students: allStudents,
+          width: pageWidth - margin * 2,
+          fontSize: legendFontSize,
+          iconSize: legendIconSize,
+          showSpecialNeeds,
+          genderLabels: {
+            girl: t('legend.genderGirl', 'Mädchen'),
+            boy: t('legend.genderBoy', 'Junge'),
+            diverse: t('legend.genderDiverse', 'Divers'),
+            neutral: t('legend.genderNeutral', 'Ohne Angabe'),
+          },
+        })
+      : null;
+  const legendGap = legendLayout && legendLayout.height > 0 ? 10 : 0;
+  const legendBandHeight = legendLayout ? legendLayout.height : 0;
+  const availableHeight =
+    pageHeight - margin * 2 - headerHeight - legendBandHeight - legendGap;
 
   // Portrait mode: account for 90° rotation (classroom dimensions swap)
   const scale = isPortrait
@@ -364,9 +401,20 @@ export default function SceneSvg({
             }
             showFullNames={showFullNames}
             photoDisplayMode={photoDisplayMode}
+            photoDensity={photoDensity}
           />
         ))}
       </g>
+      {legendLayout && legendLayout.height > 0 && (
+        <ExportLegend
+          layout={legendLayout}
+          x={isPortrait ? margin : 70}
+          y={pageHeight - margin - legendBandHeight}
+          title={t('legend.title', 'Legende')}
+          fontSize={legendFontSize}
+          iconSize={legendIconSize}
+        />
+      )}
     </svg>
   );
 }

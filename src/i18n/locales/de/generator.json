@@ -93,6 +93,13 @@
     "circle": "Sitzkreis",
     "circleView": "Sitzkreis anzeigen"
   },
+  "legend": {
+    "title": "Legende",
+    "genderGirl": "Mädchen",
+    "genderBoy": "Junge",
+    "genderDiverse": "Divers",
+    "genderNeutral": "Ohne Angabe"
+  },
   "circleView": {
     "step3": "Schritt 3: Sitzplan bearbeiten",
     "step3Desc": "Plätze mischen, per Drag and Drop anpassen.",
@@ -102,6 +109,8 @@
     "shuffleTitle": "Sitzkreis zufällig anordnen",
     "shuffleButton": "Zufällig mischen",
     "showConnections": "Verbindungen anzeigen",
+    "photoMode": "Fotos: {{mode}}",
+    "photoModeDescription": "Schülerfotos an den Plätzen anzeigen (Alle / Bei Hover / Aus).",
     "generatingTitle": "Sitzkreis wird generiert...",
     "generatingHint": "Der Sitzkreis wird automatisch basierend auf dem Tischplan erstellt.",
     "connectionDescription": "Nachbarschaftsverbindungen zwischen Schülern.",
@@ -337,6 +346,7 @@
     "showFullNames": "Namen vollständig anzeigen",
     "showPhotos": "Fotos anzeigen",
     "showClassInfo": "Zusätzliche Klasseninfos anzeigen",
+    "showLegend": "Legende anzeigen",
     "generatingCircle": "Sitzkreis wird erstellt...",
     "cancelCircleGeneration": "Abbrechen",
     "printDownloadedInfo": "Pop-up blockiert - PDF wurde heruntergeladen. Bitte öffne die Datei zum Drucken.",
@@ -400,6 +410,10 @@
     "photoModeAll": "Alle",
     "photoModeHover": "Bei Hover",
     "photoModeOff": "Aus",
+    "photoDensity": "Foto-Größe",
+    "photoDensityCompact": "Kompakt",
+    "photoDensityCard": "Karte",
+    "studentMirror": "Schüleransicht (gespiegelt)",
     "showStatistics": "Statistik anzeigen",
     "statisticsLabel": "Statistik anzeigen – Gesamt-Score {{score}}%",
     "autoMixRunning": "Automatisches Mischen läuft",

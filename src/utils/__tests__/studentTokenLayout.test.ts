@@ -131,6 +131,48 @@ describe('computeTokenPhotoLayout', () => {
     expect((avatar!.cx - 100) / (avatar!.cy - 100)).toBeCloseTo(3 / 4, 5);
   });
 
+  it('card mode: large centred avatar with a name band at the bottom', () => {
+    const centerX = 27.5;
+    const centerY = 32.5;
+    const height = 65;
+    const result = computeTokenPhotoLayout({
+      shape: 'rect',
+      centerX,
+      centerY,
+      width: 55,
+      height,
+      hasPhoto: true,
+      nameFontSize: 13,
+      card: true,
+    });
+    expect(result.avatar).not.toBeNull();
+    expect(result.nameBand).not.toBeNull();
+    // Avatar stays on the vertical axis (rotation-stable) and is large.
+    expect(result.avatar!.cx).toBe(centerX);
+    expect(result.avatar!.r).toBeGreaterThan(15);
+    // Name band sits in the lower part of the token, fully inside it.
+    const band = result.nameBand!;
+    expect(band.y).toBeGreaterThan(centerY);
+    expect(band.y + band.height).toBeLessThanOrEqual(centerY + height / 2);
+    // Avatar bottom clears the band top.
+    expect(result.avatar!.cy + result.avatar!.r).toBeLessThanOrEqual(band.y);
+  });
+
+  it('card mode: falls back to the compact layout when the token is too small', () => {
+    const result = computeTokenPhotoLayout({
+      shape: 'rect',
+      centerX: 15,
+      centerY: 15,
+      width: 30,
+      height: 30,
+      hasPhoto: true,
+      nameFontSize: 12,
+      card: true,
+    });
+    // No card band; compact avatar (above name) instead, or null if tiny.
+    expect(result.nameBand ?? null).toBeNull();
+  });
+
   it('keeps the outside-docked avatar visible even for small print circles', () => {
     // Small print circle where the "above the name" layout would have returned
     // null (no vertical room) — outside docking must still yield an avatar.

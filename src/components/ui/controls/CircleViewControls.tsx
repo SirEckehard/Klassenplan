@@ -2,8 +2,17 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { LinkSimpleIcon, ArrowCounterClockwiseIcon, ShuffleIcon, LinkBreakIcon } from '@phosphor-icons/react';
+import {
+  LinkSimpleIcon,
+  ArrowCounterClockwiseIcon,
+  ShuffleIcon,
+  LinkBreakIcon,
+  EyeIcon,
+  EyeSlashIcon,
+  CursorIcon,
+} from '@phosphor-icons/react';
 import type { ConnectionDisplayMode } from '@/components/circle/SimpleCircleView';
+import type { PhotoDisplayMode } from '@/types';
 import {
   getSidebarSurfaceClasses,
   getSidebarIconClasses,
@@ -14,11 +23,15 @@ import {
 interface CircleViewControlsProps {
   connectionMode?: ConnectionDisplayMode;
   onConnectionModeChange?: (mode: ConnectionDisplayMode) => void;
+  photoMode?: PhotoDisplayMode;
+  onPhotoModeChange?: (mode: PhotoDisplayMode) => void;
   onSyncCircle?: () => void;
   onShuffleCircle?: () => void;
   isExpanded?: boolean;
   className?: string;
 }
+
+const PHOTO_MODE_ORDER: PhotoDisplayMode[] = ['all', 'hover', 'off'];
 
 interface ControlButtonProps {
   icon: React.ReactNode;
@@ -87,6 +100,8 @@ function ControlButton({
 export default function CircleViewControls({
   connectionMode = 'subtle',
   onConnectionModeChange,
+  photoMode = 'all',
+  onPhotoModeChange,
   onSyncCircle,
   onShuffleCircle,
   isExpanded = false,
@@ -102,6 +117,29 @@ export default function CircleViewControls({
     }
   };
 
+  const handlePhotoModeCycle = () => {
+    if (!onPhotoModeChange) return;
+    const currentIndex = PHOTO_MODE_ORDER.indexOf(photoMode);
+    const nextMode =
+      PHOTO_MODE_ORDER[(currentIndex + 1) % PHOTO_MODE_ORDER.length];
+    onPhotoModeChange(nextMode);
+  };
+
+  const photoModeLabel =
+    photoMode === 'all'
+      ? t('editor.photoModeAll', 'Alle')
+      : photoMode === 'hover'
+        ? t('editor.photoModeHover', 'Bei Hover')
+        : t('editor.photoModeOff', 'Aus');
+  const photoModeIcon =
+    photoMode === 'all' ? (
+      <EyeIcon size={16} />
+    ) : photoMode === 'hover' ? (
+      <CursorIcon size={16} />
+    ) : (
+      <EyeSlashIcon size={16} />
+    );
+
   // Connection mode controls
   const connectionControls = [
     {
@@ -116,6 +154,19 @@ export default function CircleViewControls({
       ),
       onClick: handleConnectionToggle,
       isActive: connectionMode !== 'off',
+    },
+    {
+      id: 'photos',
+      icon: photoModeIcon,
+      label: t('circleView.photoMode', 'Fotos: {{mode}}', {
+        mode: photoModeLabel,
+      }),
+      description: t(
+        'circleView.photoModeDescription',
+        'Schülerfotos an den Plätzen anzeigen (Alle / Bei Hover / Aus).',
+      ),
+      onClick: onPhotoModeChange ? handlePhotoModeCycle : undefined,
+      isActive: photoMode !== 'off',
     },
   ];
 

@@ -20,6 +20,8 @@ import {
   EyeIcon,
   CursorIcon,
   EyeSlashIcon,
+  IdentificationCardIcon,
+  FlipHorizontalIcon,
 } from '@phosphor-icons/react';
 import SmartSidebar from '@/components/ui/panels/SmartSidebar';
 import SmartMixControls from '@/components/ui/controls/SmartMixControls';
@@ -55,6 +57,7 @@ import type {
   SavedPlan,
   MixResult,
   PhotoDisplayMode,
+  SeatPhotoDensity,
 } from '@/types';
 import {
   calculateCriteriaWeightedScore,
@@ -186,6 +189,10 @@ type Props = {
   setShowGrid: React.Dispatch<React.SetStateAction<boolean>>;
   photoDisplayMode: PhotoDisplayMode;
   setPhotoDisplayMode: React.Dispatch<React.SetStateAction<PhotoDisplayMode>>;
+  photoDensity: SeatPhotoDensity;
+  setPhotoDensity: React.Dispatch<React.SetStateAction<SeatPhotoDensity>>;
+  studentMirror: boolean;
+  setStudentMirror: React.Dispatch<React.SetStateAction<boolean>>;
   sceneTables: ClassroomTable[];
   currentSeating: SeatingArrangement;
   students: Student[];
@@ -261,6 +268,10 @@ export default function SeatingPlanEditorView({
   setShowGrid,
   photoDisplayMode,
   setPhotoDisplayMode,
+  photoDensity,
+  setPhotoDensity,
+  studentMirror,
+  setStudentMirror,
   sceneTables,
   currentSeating,
   students,
@@ -336,6 +347,18 @@ export default function SeatingPlanEditorView({
     (next: string) => setPhotoDisplayMode(() => next as PhotoDisplayMode),
     [setPhotoDisplayMode],
   );
+  const handlePhotoDensityChange = React.useCallback(
+    (next: string) => setPhotoDensity(() => next as SeatPhotoDensity),
+    [setPhotoDensity],
+  );
+  const handleToggleStudentMirror = React.useCallback(
+    (checked: boolean) => setStudentMirror(() => checked),
+    [setStudentMirror],
+  );
+  // In the mirrored "student perspective" view, photos are hidden so the class
+  // can't fixate on the photos while finding their seats (and seat dragging is
+  // disabled to avoid inverted-coordinate edits while projecting).
+  const effectivePhotoDisplayMode = studentMirror ? 'off' : photoDisplayMode;
 
   const featureAvailability = React.useMemo(() => {
     const features = classroomScene.features ?? [];
@@ -367,6 +390,13 @@ export default function SeatingPlanEditorView({
             checked: showGrid,
             onChange: handleToggleGrid,
           },
+          {
+            id: 'student-mirror',
+            label: t('editor.studentMirror', 'Schüleransicht (gespiegelt)'),
+            icon: <FlipHorizontalIcon size={16} />,
+            checked: studentMirror,
+            onChange: handleToggleStudentMirror,
+          },
         ],
       },
       {
@@ -395,6 +425,26 @@ export default function SeatingPlanEditorView({
                 value: 'off',
                 label: t('editor.photoModeOff', 'Aus'),
                 icon: <EyeSlashIcon size={14} />,
+              },
+            ],
+          },
+          {
+            kind: 'segment' as const,
+            id: 'photo-density',
+            label: t('editor.photoDensity', 'Foto-Größe'),
+            icon: <IdentificationCardIcon size={16} />,
+            value: photoDensity,
+            onChange: handlePhotoDensityChange,
+            choices: [
+              {
+                value: 'compact',
+                label: t('editor.photoDensityCompact', 'Kompakt'),
+                icon: <UserCircleIcon size={14} />,
+              },
+              {
+                value: 'card',
+                label: t('editor.photoDensityCard', 'Karte'),
+                icon: <IdentificationCardIcon size={14} />,
               },
             ],
           },
@@ -452,6 +502,10 @@ export default function SeatingPlanEditorView({
       handleToggleWindows,
       handlePhotoDisplayModeChange,
       photoDisplayMode,
+      handlePhotoDensityChange,
+      photoDensity,
+      handleToggleStudentMirror,
+      studentMirror,
       showGrid,
       t,
     ],
@@ -1016,7 +1070,9 @@ export default function SeatingPlanEditorView({
                   onTransformStart={snapshot}
                   isDark={isDark}
                   seatHighlights={seatHighlightLookup}
-                  photoDisplayMode={photoDisplayMode}
+                  photoDisplayMode={effectivePhotoDisplayMode}
+                  photoDensity={photoDensity}
+                  mirrored={studentMirror}
                 />
                 {autoMixing && (
                   <div className="pointer-events-auto absolute inset-0 z-20 flex items-center justify-center rounded-xl bg-white/70 backdrop-blur-sm dark:bg-gray-900/80">

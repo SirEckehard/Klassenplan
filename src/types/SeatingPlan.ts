@@ -15,6 +15,14 @@ export type NeighborWeightDirection = 'direct' | 'side' | 'front' | 'back';
  */
 export type PhotoDisplayMode = 'all' | 'hover' | 'off';
 
+/**
+ * Controls how prominently a student photo is rendered on a seat:
+ * - `compact`: small avatar docked next to the name tag (default, space-saving).
+ * - `card`: large photo filling the seat with the name as a label band below —
+ *   optimised for learning names (e.g. substitute teachers).
+ */
+export type SeatPhotoDensity = 'compact' | 'card';
+
 export interface NeighborWeightConfig {
   direct: number;
   side: number;

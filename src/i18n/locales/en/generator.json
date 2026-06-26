@@ -93,6 +93,13 @@
     "circle": "Seating Circle",
     "circleView": "Show Seating Circle"
   },
+  "legend": {
+    "title": "Legend",
+    "genderGirl": "Girl",
+    "genderBoy": "Boy",
+    "genderDiverse": "Diverse",
+    "genderNeutral": "Unspecified"
+  },
   "circleView": {
     "step3": "Step 3: Edit Seating Plan",
     "step3Desc": "Shuffle seats or adjust them via drag & drop.",
@@ -102,6 +109,8 @@
     "shuffleTitle": "Randomly shuffle circle",
     "shuffleButton": "Shuffle randomly",
     "showConnections": "Show connections",
+    "photoMode": "Photos: {{mode}}",
+    "photoModeDescription": "Show student photos on the tokens (All / On hover / Off).",
     "generatingTitle": "Generating seating circle...",
     "generatingHint": "The seating circle is automatically created based on the table plan.",
     "connectionDescription": "Neighborhood connections between students.",
@@ -337,6 +346,7 @@
     "showFullNames": "Show full names",
     "showPhotos": "Show photos",
     "showClassInfo": "Show additional class info",
+    "showLegend": "Show legend",
     "generatingCircle": "Creating seating circle...",
     "cancelCircleGeneration": "Cancel",
     "printDownloadedInfo": "Pop-up blocked - PDF was downloaded. Please open the file to print.",
@@ -400,6 +410,10 @@
     "photoModeAll": "All",
     "photoModeHover": "On hover",
     "photoModeOff": "Off",
+    "photoDensity": "Photo size",
+    "photoDensityCompact": "Compact",
+    "photoDensityCard": "Card",
+    "studentMirror": "Student view (mirrored)",
     "showStatistics": "Show statistics",
     "statisticsLabel": "Show statistics – Total score {{score}}%",
     "autoMixRunning": "Auto-shuffle in progress",

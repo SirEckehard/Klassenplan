@@ -15,6 +15,8 @@ import {
   calculateBadgePillLayout,
 } from '@/utils/ui/studentAppearance';
 import { computeTokenPhotoLayout } from '@/utils/ui/studentTokenLayout';
+import { buildLegendLayout } from '@/utils/ui/classBadgeLegend';
+import ExportLegend from '@/components/scene/ExportLegend';
 
 interface ClassMetadataInfo {
   name?: string | null;
@@ -32,6 +34,10 @@ interface CirclePrintViewProps {
   showFullNames?: boolean;
   /** Pre-resolved studentId -> Data URL map for rendering photos in the export. */
   photoDataUrls?: ReadonlyMap<string, string>;
+  /** 'off' hides student photos in the export; 'all' shows them (default). */
+  photoDisplayMode?: 'all' | 'off';
+  /** When true, append a legend (badge icons + gender colours) in the footer. */
+  showLegend?: boolean;
 }
 
 const CONNECTION_STROKE = '#16a34a';
@@ -48,6 +54,8 @@ export default function CirclePrintView({
   orientation = 'portrait',
   showFullNames = false,
   photoDataUrls,
+  photoDisplayMode = 'all',
+  showLegend = false,
 }: CirclePrintViewProps) {
   const { t, i18n } = useTranslation('generator');
 
@@ -99,8 +107,34 @@ export default function CirclePrintView({
 
   // Debug logging temporarily disabled to prevent render loops
 
+  // Optional legend (badge icons + gender colours) as an un-rotated footer band.
+  const legendStudents = layout.students
+    .map((sp) => sp.student)
+    .filter((s): s is Student => s !== null);
+  const legendFontSize = isPortrait ? 7 : 10;
+  const legendIconSize = isPortrait ? 10 : 13;
+  const legendLayout =
+    showLegend && legendStudents.length > 0
+      ? buildLegendLayout({
+          students: legendStudents,
+          width: pageWidth - margin * 2,
+          fontSize: legendFontSize,
+          iconSize: legendIconSize,
+          showSpecialNeeds,
+          genderLabels: {
+            girl: t('legend.genderGirl', 'Mädchen'),
+            boy: t('legend.genderBoy', 'Junge'),
+            diverse: t('legend.genderDiverse', 'Divers'),
+            neutral: t('legend.genderNeutral', 'Ohne Angabe'),
+          },
+        })
+      : null;
+  const legendGap = legendLayout && legendLayout.height > 0 ? 10 : 0;
+  const legendBandHeight = legendLayout ? legendLayout.height : 0;
+
   // Use same frame calculation approach as SceneSvg with proper centering
-  const availableHeight = pageHeight - margin * 2 - headerHeight;
+  const availableHeight =
+    pageHeight - margin * 2 - headerHeight - legendBandHeight - legendGap;
   const scale = Math.min(
     (pageWidth - margin * 2) / CLASSROOM_WIDTH,
     availableHeight / CLASSROOM_HEIGHT,
@@ -440,9 +474,10 @@ export default function CirclePrintView({
             ? computeBadgeOffset(seatRadius, badgeLayout.height)
             : 0;
 
-        const photoUrl = student.hasPhoto
-          ? photoDataUrls?.get(student.id)
-          : undefined;
+        const photoUrl =
+          photoDisplayMode !== 'off' && student.hasPhoto
+            ? photoDataUrls?.get(student.id)
+            : undefined;
         // Small circular avatar docked radially just outside the token, away
         // from the circle centre — matches the live circle and keeps the photo
         // visible even in the smaller print circles.
@@ -556,6 +591,17 @@ export default function CirclePrintView({
           </g>
         );
       })}
+
+      {legendLayout && legendLayout.height > 0 && (
+        <ExportLegend
+          layout={legendLayout}
+          x={isPortrait ? margin : 70}
+          y={pageHeight - margin - legendBandHeight}
+          title={t('legend.title', 'Legende')}
+          fontSize={legendFontSize}
+          iconSize={legendIconSize}
+        />
+      )}
     </svg>
   );
 }

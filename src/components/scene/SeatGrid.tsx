@@ -1,7 +1,12 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
-import type { StatisticHighlightMode, StatisticStatus, Student } from '@/types';
+import type {
+  SeatPhotoDensity,
+  StatisticHighlightMode,
+  StatisticStatus,
+  Student,
+} from '@/types';
 import TableSeat, { TableSeatBadgeOverlay } from '@/components/scene/TableSeat';
 
 type SeatPointerDownHandler = NonNullable<
@@ -39,6 +44,12 @@ interface SeatGridProps {
   showFullNames: boolean;
   /** When false, seat name labels and badges are hidden (colours/dividers stay). */
   showSeatLabels?: boolean;
+  /** Photo density: 'card' renders a large photo per seat (name below, no badges). */
+  photoDensity?: SeatPhotoDensity;
+  /** studentId -> photo URL map, used by the card density. */
+  photoUrls?: ReadonlyMap<string, string>;
+  /** Mirror counter-flip for the student-perspective view. */
+  mirrored?: boolean;
   lockSeatLabelOrientation: boolean;
   seatTextRotation: number;
   isDark: boolean;
@@ -60,6 +71,9 @@ function SeatGrid({
   showSpecialNeeds,
   showFullNames,
   showSeatLabels = true,
+  photoDensity = 'compact',
+  photoUrls,
+  mirrored = false,
   lockSeatLabelOrientation,
   seatTextRotation,
   isDark,
@@ -86,6 +100,13 @@ function SeatGrid({
             allStudents={allStudents}
             isDark={isDark}
             showSeatLabels={showSeatLabels}
+            photoDensity={photoDensity}
+            photoUrl={
+              config.student?.hasPhoto
+                ? photoUrls?.get(config.student.id)
+                : undefined
+            }
+            mirrored={mirrored}
             locked={config.locked}
             isOriginSeat={config.isOriginSeat}
             isHoverSeat={config.isHoverSeat}
@@ -108,6 +129,7 @@ function SeatGrid({
       </g>
       <g clipPath={`url(#${clipPathId})`}>
         {showSeatLabels &&
+          photoDensity !== 'card' &&
           seatConfigs.map((config) => (
             <TableSeatBadgeOverlay
               key={`badge-${config.seatIndex}`}
@@ -122,6 +144,7 @@ function SeatGrid({
               isOriginSeat={config.isOriginSeat}
               lockSeatLabelOrientation={lockSeatLabelOrientation}
               seatTextRotation={seatTextRotation}
+              mirrored={mirrored}
             />
           ))}
       </g>
