@@ -4,13 +4,18 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ArrowLeftIcon,
+  ImageIcon,
+  MagnifyingGlassIcon,
+  PaletteIcon,
   UserSquareIcon,
 } from '@phosphor-icons/react';
 import Seo from '@/components/Seo';
 import { usePageSeo } from '@/hooks/usePageSeo';
 import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';
 import { useIsDarkMode } from '@/hooks/useIsDarkMode';
+import usePersistentState from '@/hooks/usePersistentState';
 import { useSeatingPlanState } from '@/contexts/SeatingPlanContext';
+import { LOCAL_STORAGE_KEYS } from '@/utils/data/storageKeys';
 import { neutralButtonClass, primaryButtonClass, secondaryButtonClass } from '@/utils';
 import PresentationScene from '@/components/scene/PresentationScene';
 import PresentPerspectiveToggle from '@/components/SeatingPlanGenerator/PresentPerspectiveToggle';
@@ -27,9 +32,19 @@ export default function Present() {
   const [perspective, setPerspective] =
     useState<PresentationPerspective>('teacher');
   const [showBadges, setShowBadges] = useState(false);
+  const [showPhotos, setShowPhotos] = usePersistentState(
+    LOCAL_STORAGE_KEYS.presentShowPhotos,
+    true,
+  );
+  const [showGenderColors, setShowGenderColors] = usePersistentState(
+    LOCAL_STORAGE_KEYS.presentShowColors,
+    true,
+  );
+  const [zoom, setZoom] = usePersistentState(LOCAL_STORAGE_KEYS.presentZoom, 1);
 
   const hasPlan =
     classroomScene.tables.length > 0 && currentSeating.length > 0;
+  const isTeacher = perspective === 'teacher';
 
   return (
     <div className="fixed inset-0 flex flex-col bg-gray-50 dark:bg-gray-950">
@@ -59,7 +74,7 @@ export default function Present() {
       </div>
 
       {/* Scene fills the remaining space */}
-      <div className="min-h-0 flex-1 px-2">
+      <div className="min-h-0 flex-1 overflow-hidden px-2">
         {hasPlan ? (
           <PresentationScene
             scene={classroomScene}
@@ -67,6 +82,9 @@ export default function Present() {
             students={students}
             perspective={perspective}
             showBadges={showBadges}
+            showPhotos={showPhotos}
+            showGenderColors={showGenderColors}
+            zoom={zoom}
             isDark={isDark}
           />
         ) : (
@@ -88,22 +106,76 @@ export default function Present() {
         )}
       </div>
 
-      {/* Badge toggle sits centered below the classroom; teacher view only. */}
-      {hasPlan && perspective === 'teacher' ? (
-        <div className="flex justify-center px-4 py-4">
+      {/* Control row sits centered below the classroom. Teacher-only controls
+          (badges, photos) hide in the student view; colors and zoom stay. */}
+      {hasPlan ? (
+        <div className="flex flex-wrap items-center justify-center gap-3 px-4 py-4">
+          {isTeacher && (
+            <button
+              type="button"
+              onClick={() => setShowBadges((value) => !value)}
+              className={`${
+                showBadges ? primaryButtonClass : secondaryButtonClass
+              } h-10 gap-2 px-4`}
+              aria-pressed={showBadges}
+            >
+              <UserSquareIcon size={20} aria-hidden />
+              <span className="text-sm font-semibold">
+                {t('present.badges', 'Merkmale')}
+              </span>
+            </button>
+          )}
+
+          {isTeacher && (
+            <button
+              type="button"
+              onClick={() => setShowPhotos((value) => !value)}
+              className={`${
+                showPhotos ? primaryButtonClass : secondaryButtonClass
+              } h-10 gap-2 px-4`}
+              aria-pressed={showPhotos}
+            >
+              <ImageIcon size={20} aria-hidden />
+              <span className="text-sm font-semibold">
+                {t('present.photos', 'Fotos')}
+              </span>
+            </button>
+          )}
+
           <button
             type="button"
-            onClick={() => setShowBadges((value) => !value)}
+            onClick={() => setShowGenderColors((value) => !value)}
             className={`${
-              showBadges ? primaryButtonClass : secondaryButtonClass
+              showGenderColors ? primaryButtonClass : secondaryButtonClass
             } h-10 gap-2 px-4`}
-            aria-pressed={showBadges}
+            aria-pressed={showGenderColors}
           >
-            <UserSquareIcon size={20} aria-hidden />
+            <PaletteIcon size={20} aria-hidden />
             <span className="text-sm font-semibold">
-              {t('present.badges', 'Merkmale')}
+              {t('present.colors', 'Farben')}
             </span>
           </button>
+
+          <div className="flex h-10 items-center gap-2 rounded-full border border-blue-200 bg-white/80 px-4 shadow-inner dark:border-blue-900/40 dark:bg-gray-950/70">
+            <MagnifyingGlassIcon
+              size={20}
+              aria-hidden
+              className="text-gray-600 dark:text-gray-300"
+            />
+            <input
+              type="range"
+              min={0.5}
+              max={1.5}
+              step={0.05}
+              value={zoom}
+              onChange={(event) => setZoom(Number(event.target.value))}
+              aria-label={t('present.zoom', 'Zoom')}
+              className="w-40 cursor-pointer accent-blue-600"
+            />
+            <span className="w-12 text-right text-sm font-semibold tabular-nums text-gray-600 dark:text-gray-300">
+              {Math.round(zoom * 100)}%
+            </span>
+          </div>
         </div>
       ) : (
         <div className="h-4" aria-hidden />

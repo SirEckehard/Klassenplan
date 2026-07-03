@@ -31,6 +31,12 @@ type PresentationSceneProps = {
   perspective: PresentationPerspective;
   /** Teacher view only: show class/special-needs badges. */
   showBadges?: boolean;
+  /** Teacher view only: show student photos. */
+  showPhotos?: boolean;
+  /** When false, gender colors are dropped for a neutral (colorless) render. */
+  showGenderColors?: boolean;
+  /** Scale factor for the whole scene (1 = fit-to-container). */
+  zoom?: number;
   isDark?: boolean;
 };
 
@@ -43,6 +49,9 @@ export default function PresentationScene({
   students,
   perspective,
   showBadges = false,
+  showPhotos = true,
+  showGenderColors = true,
+  zoom = 1,
   isDark = false,
 }: PresentationSceneProps) {
   const { t } = useTranslation('generator');
@@ -61,8 +70,8 @@ export default function PresentationScene({
     `translate(${boxWidth / 2} ${boxHeight / 2}) rotate(${rotation}) ` +
     `translate(${-CLASSROOM_WIDTH / 2} ${-CLASSROOM_HEIGHT / 2})`;
 
-  const showPhotos = perspective === 'teacher';
-  const photoDisplayMode = showPhotos ? 'all' : 'off';
+  const photoDisplayMode =
+    perspective === 'teacher' && showPhotos ? 'all' : 'off';
   const showSpecialNeeds = perspective === 'teacher' && showBadges;
 
   const getFeatureLabel = (feature: {
@@ -105,7 +114,12 @@ export default function PresentationScene({
       viewBox={`0 0 ${boxWidth} ${boxHeight}`}
       preserveAspectRatio="xMidYMid meet"
       fontFamily="'DM Sans Variable', system-ui, sans-serif"
-      style={{ display: 'block' }}
+      style={{
+        display: 'block',
+        transform: `scale(${zoom})`,
+        transformOrigin: 'center',
+        transition: 'transform 120ms ease',
+      }}
     >
       <g transform={groupTransform}>
         <rect
@@ -175,6 +189,7 @@ export default function PresentationScene({
             onUpdate={() => {}}
             editable={false}
             showSpecialNeeds={showSpecialNeeds}
+            showGenderColors={showGenderColors}
             isDark={isDark}
             lockSeatLabelOrientation={true}
             seatLabelRotation={-rotation}

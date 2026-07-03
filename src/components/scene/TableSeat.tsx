@@ -39,6 +39,8 @@ interface TableSeatProps {
   isLockedFeedbackSeat: boolean;
   showSpecialNeeds: boolean;
   showFullNames: boolean;
+  /** When false, gender colors are dropped for a neutral (colorless) seat. */
+  showGenderColors?: boolean;
   /** When false, the seat name label and lock toggle are hidden (layout editor). */
   showSeatLabels?: boolean;
   lockSeatLabelOrientation: boolean;
@@ -148,6 +150,7 @@ function TableSeat({
   isLockedFeedbackSeat,
   showSpecialNeeds,
   showFullNames,
+  showGenderColors = true,
   showSeatLabels = true,
   lockSeatLabelOrientation,
   seatTextRotation,
@@ -162,8 +165,8 @@ function TableSeat({
 }: TableSeatProps) {
   // Memoize appearance calculation - only recompute when dependencies change
   const appearance = React.useMemo(
-    () => getStudentAppearance(student, isDark, locked),
-    [student, isDark, locked],
+    () => getStudentAppearance(student, isDark, locked, !showGenderColors),
+    [student, isDark, locked, showGenderColors],
   );
 
   // Memoize badge flags calculation
@@ -650,6 +653,7 @@ const MemoizedTableSeat = React.memo(TableSeat, (prevProps, nextProps) => {
   if (
     prevProps.isDark !== nextProps.isDark ||
     prevProps.showFullNames !== nextProps.showFullNames ||
+    prevProps.showGenderColors !== nextProps.showGenderColors ||
     prevProps.showSeatLabels !== nextProps.showSeatLabels ||
     prevProps.seatTextRotation !== nextProps.seatTextRotation ||
     prevProps.tableRotation !== nextProps.tableRotation

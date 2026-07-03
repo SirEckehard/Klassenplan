@@ -41,6 +41,8 @@ interface SeatGridProps {
   allStudents: Student[];
   showSpecialNeeds: boolean;
   showFullNames: boolean;
+  /** When false, gender colors are dropped for a neutral (colorless) render. */
+  showGenderColors?: boolean;
   /** When false, seat name labels and badges are hidden (colours/dividers stay). */
   showSeatLabels?: boolean;
   lockSeatLabelOrientation: boolean;
@@ -63,6 +65,7 @@ function SeatGrid({
   allStudents,
   showSpecialNeeds,
   showFullNames,
+  showGenderColors = true,
   showSeatLabels = true,
   lockSeatLabelOrientation,
   seatTextRotation,
@@ -89,6 +92,7 @@ function SeatGrid({
             tableRotation={tableRotation}
             allStudents={allStudents}
             isDark={isDark}
+            showGenderColors={showGenderColors}
             showSeatLabels={showSeatLabels}
             locked={config.locked}
             isOriginSeat={config.isOriginSeat}

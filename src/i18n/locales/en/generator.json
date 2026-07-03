@@ -93,6 +93,9 @@
     "teacherView": "Teacher view",
     "studentView": "Student view",
     "badges": "Markers",
+    "photos": "Photos",
+    "colors": "Colors",
+    "zoom": "Zoom",
     "back": "Back",
     "empty": "No seating chart to present yet."
   },

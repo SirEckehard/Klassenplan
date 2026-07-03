@@ -59,6 +59,8 @@ type TableProps = {
   onSeatHoverChange?: (hover: DragHover | null) => void;
   onSeatDropRejected?: (target: DragHover) => void;
   showSpecialNeeds?: boolean;
+  /** When false, gender colors are dropped for a neutral (colorless) render. */
+  showGenderColors?: boolean;
   isDark?: boolean;
   lockSeatLabelOrientation?: boolean;
   seatLabelRotation?: number;
@@ -104,6 +106,7 @@ function SceneTable({
   onSeatHoverChange,
   onSeatDropRejected,
   showSpecialNeeds = true,
+  showGenderColors = true,
   isDark = false,
   lockSeatLabelOrientation = true,
   seatLabelRotation = 0,
@@ -348,6 +351,7 @@ function SceneTable({
         allStudents={allStudents}
         showSpecialNeeds={showSpecialNeeds}
         showFullNames={showFullNames}
+        showGenderColors={showGenderColors}
         showSeatLabels={seatMarkerMode === 'full'}
         lockSeatLabelOrientation={lockSeatLabelOrientation}
         seatTextRotation={seatTextRotation}
@@ -405,7 +409,12 @@ function SceneTable({
         const uprightTransform = lockSeatLabelOrientation
           ? `rotate(${seatTextRotation} ${photoCx} ${photoCy})`
           : undefined;
-        const ringStroke = getStudentAppearance(seatStudent, isDark).stroke;
+        const ringStroke = getStudentAppearance(
+          seatStudent,
+          isDark,
+          false,
+          !showGenderColors,
+        ).stroke;
         const clipId = `chair-photo-${index}-${dot.key}`;
         return (
           <g
