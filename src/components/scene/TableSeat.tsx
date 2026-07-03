@@ -12,7 +12,6 @@ import {
   getStudentAppearance,
   getAllStudentBadges,
   SEAT_UI_COLORS,
-  STUDENT_COLORS,
   calculateBadgePillLayout,
 } from '@/utils/ui/studentAppearance';
 import {
@@ -262,28 +261,15 @@ function TableSeat({
   const dividerStroke = isDark
     ? 'rgba(226, 232, 240, 0.18)'
     : 'rgba(30, 41, 59, 0.12)';
-  // Empty (unoccupied, unlocked) seats get a clearer dashed outline so they
-  // stand out from occupied seats in step 3 and the PDF export.
-  const isEmptySeat = !student && !locked && !showInteractiveSeatStroke;
-  const emptySeatStroke = STUDENT_COLORS.empty.stroke[mode];
-  // Fill empty seats with a subtle dotted texture so they read as "empty" even
-  // when the dashed outline blends into the table edge (step 3 + PDF export).
-  const emptyDotsPatternId = `empty-dots-${tableIndex}-${seatIndex}`;
-  const emptyDotsFill = isDark ? '#6b7280' : '#cbd5e1';
-  const seatStrokeWidth = showInteractiveSeatStroke
-    ? 2
-    : locked
-      ? 1
-      : isEmptySeat
-        ? 1
-        : 0.75;
+  // Empty (unoccupied, unlocked) seats read as "empty" purely via their subtle
+  // neutral fill — no dashed outline or texture, so they stay visually calm and
+  // don't clash with the table frame in step 3, the PDF export and presentation.
+  const seatStrokeWidth = showInteractiveSeatStroke ? 2 : locked ? 1 : 0.75;
   const seatStrokeValue = showInteractiveSeatStroke
     ? seatStrokeColor
     : locked
       ? seatStroke
-      : isEmptySeat
-        ? emptySeatStroke
-        : dividerStroke;
+      : dividerStroke;
   const effectiveSeatStrokeWidth = seatStrokeWidth;
   const effectiveSeatStrokeValue = seatStrokeValue;
   const seatTextOpacity = isOriginSeat ? 0.35 : 1;
@@ -353,7 +339,6 @@ function TableSeat({
           fill={seatFillColor}
           stroke={effectiveSeatStrokeValue}
           strokeWidth={effectiveSeatStrokeWidth}
-          strokeDasharray={isEmptySeat ? '3 3' : undefined}
           rx={4}
           strokeLinejoin="round"
           strokeLinecap="round"
@@ -364,27 +349,6 @@ function TableSeat({
               'fill 150ms ease, stroke 150ms ease, stroke-width 150ms ease',
           }}
         />
-        {isEmptySeat && (
-          <>
-            <defs>
-              <pattern
-                id={emptyDotsPatternId}
-                width={5}
-                height={5}
-                patternUnits="userSpaceOnUse"
-              >
-                <circle cx={1} cy={1} r={0.85} fill={emptyDotsFill} />
-              </pattern>
-            </defs>
-            <rect
-              width={seatWidth}
-              height={seatHeight}
-              rx={4}
-              fill={`url(#${emptyDotsPatternId})`}
-              pointerEvents="none"
-            />
-          </>
-        )}
         {student && showSeatLabels && (
           <>
             <text
