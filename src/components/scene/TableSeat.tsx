@@ -16,10 +16,6 @@ import {
   calculateBadgePillLayout,
 } from '@/utils/ui/studentAppearance';
 import {
-  getMirrorCounterTransform,
-  composeTransforms,
-} from '@/utils/ui/mirrorTransform';
-import {
   getDisplayName,
   getTooltipName,
   calculateSeatLabelFontSize,
@@ -45,8 +41,6 @@ interface TableSeatProps {
   showFullNames: boolean;
   /** When false, the seat name label and lock toggle are hidden (layout editor). */
   showSeatLabels?: boolean;
-  /** Mirror counter-flip so the name stays legible in the student-perspective view. */
-  mirrored?: boolean;
   lockSeatLabelOrientation: boolean;
   seatTextRotation: number;
   toggleLock?: (studentId: string, table: number, seat: number) => void;
@@ -155,7 +149,6 @@ function TableSeat({
   showSpecialNeeds,
   showFullNames,
   showSeatLabels = true,
-  mirrored = false,
   lockSeatLabelOrientation,
   seatTextRotation,
   highlightStatus,
@@ -194,12 +187,9 @@ function TableSeat({
   const lockButtonBackground = SEAT_UI_COLORS.lockButtonBackground[mode];
   const lockButtonBorder = SEAT_UI_COLORS.lockButtonBorder[mode];
 
-  const seatLabelTransform = composeTransforms(
-    getMirrorCounterTransform(seatWidth / 2, mirrored),
-    lockSeatLabelOrientation
-      ? `rotate(${seatTextRotation} ${seatWidth / 2} ${seatHeight / 2})`
-      : undefined,
-  );
+  const seatLabelTransform = lockSeatLabelOrientation
+    ? `rotate(${seatTextRotation} ${seatWidth / 2} ${seatHeight / 2})`
+    : undefined;
   const lockButtonOffset = calculateLockIconPosition(seatWidth, seatHeight);
   const lockButtonTransform = `translate(${lockButtonOffset.x} ${lockButtonOffset.y})`;
   const normalizedTableRotation = ((tableRotation % 360) + 360) % 360;
@@ -519,7 +509,6 @@ interface TableSeatBadgeOverlayProps {
   isOriginSeat: boolean;
   lockSeatLabelOrientation: boolean;
   seatTextRotation: number;
-  mirrored?: boolean;
 }
 
 export const TableSeatBadgeOverlay = React.memo(function TableSeatBadgeOverlay({
@@ -534,7 +523,6 @@ export const TableSeatBadgeOverlay = React.memo(function TableSeatBadgeOverlay({
   isOriginSeat,
   lockSeatLabelOrientation,
   seatTextRotation,
-  mirrored = false,
 }: TableSeatBadgeOverlayProps) {
   const flags = React.useMemo(
     () =>
@@ -580,12 +568,9 @@ export const TableSeatBadgeOverlay = React.memo(function TableSeatBadgeOverlay({
   const badgePillStroke = isDark
     ? 'rgba(148, 163, 184, 0.45)'
     : 'rgba(148, 163, 184, 0.7)';
-  const seatLabelTransform = composeTransforms(
-    getMirrorCounterTransform(seatWidth / 2, mirrored),
-    lockSeatLabelOrientation
-      ? `rotate(${seatTextRotation} ${seatWidth / 2} ${seatHeight / 2})`
-      : undefined,
-  );
+  const seatLabelTransform = lockSeatLabelOrientation
+    ? `rotate(${seatTextRotation} ${seatWidth / 2} ${seatHeight / 2})`
+    : undefined;
   const seatTextOpacity = isOriginSeat ? 0.35 : 1;
 
   return (
@@ -667,8 +652,7 @@ const MemoizedTableSeat = React.memo(TableSeat, (prevProps, nextProps) => {
     prevProps.showFullNames !== nextProps.showFullNames ||
     prevProps.showSeatLabels !== nextProps.showSeatLabels ||
     prevProps.seatTextRotation !== nextProps.seatTextRotation ||
-    prevProps.tableRotation !== nextProps.tableRotation ||
-    prevProps.mirrored !== nextProps.mirrored
+    prevProps.tableRotation !== nextProps.tableRotation
   )
     return false;
 

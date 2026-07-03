@@ -87,6 +87,15 @@
     "retryMix": "Erneut mischen",
     "mixNow": "Jetzt neu mischen"
   },
+  "present": {
+    "button": "Präsentieren",
+    "buttonTitle": "Sitzplan am Smartboard präsentieren",
+    "teacherView": "Lehreransicht",
+    "studentView": "Schüleransicht",
+    "badges": "Merkmale",
+    "back": "Zurück",
+    "empty": "Noch kein Sitzplan zum Präsentieren."
+  },
   "mode": {
     "table": "Sitzplan",
     "tableView": "Sitzplan anzeigen",
@@ -409,7 +418,6 @@
     "photoModeAll": "An",
     "photoModeHover": "Hover",
     "photoModeOff": "Aus",
-    "studentMirror": "Schüleransicht (gespiegelt)",
     "showStatistics": "Statistik anzeigen",
     "statisticsLabel": "Statistik anzeigen – Gesamt-Score {{score}}%",
     "autoMixRunning": "Automatisches Mischen läuft",

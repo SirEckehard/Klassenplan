@@ -87,6 +87,15 @@
     "retryMix": "Try again",
     "mixNow": "Shuffle now"
   },
+  "present": {
+    "button": "Present",
+    "buttonTitle": "Present the seating chart on the smartboard",
+    "teacherView": "Teacher view",
+    "studentView": "Student view",
+    "badges": "Markers",
+    "back": "Back",
+    "empty": "No seating chart to present yet."
+  },
   "mode": {
     "table": "Seating Plan",
     "tableView": "Show Seating Plan",
@@ -409,7 +418,6 @@
     "photoModeAll": "On",
     "photoModeHover": "Hover",
     "photoModeOff": "Off",
-    "studentMirror": "Student view (mirrored)",
     "showStatistics": "Show statistics",
     "statisticsLabel": "Show statistics – Total score {{score}}%",
     "autoMixRunning": "Auto-shuffle in progress",

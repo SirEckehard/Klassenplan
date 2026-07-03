@@ -76,8 +76,6 @@ type TableProps = {
    * 'off' keeps the plain small dots. Hover is interactive (editor) only.
    */
   photoDisplayMode?: PhotoDisplayMode;
-  /** Mirror counter-flip for the student-perspective view (keeps glyphs legible). */
-  mirrored?: boolean;
 };
 
 function SceneTable({
@@ -113,7 +111,6 @@ function SceneTable({
   seatHighlights = null,
   seatMarkerMode = 'full',
   photoDisplayMode = 'off',
-  mirrored = false,
 }: TableProps) {
   const tableRef = useRef<SVGGElement>(null);
   const hoverPhotosEnabled = photoDisplayMode === 'hover';
@@ -352,7 +349,6 @@ function SceneTable({
         showSpecialNeeds={showSpecialNeeds}
         showFullNames={showFullNames}
         showSeatLabels={seatMarkerMode === 'full'}
-        mirrored={mirrored}
         lockSeatLabelOrientation={lockSeatLabelOrientation}
         seatTextRotation={seatTextRotation}
         isDark={isDark}

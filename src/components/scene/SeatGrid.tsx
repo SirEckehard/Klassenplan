@@ -43,8 +43,6 @@ interface SeatGridProps {
   showFullNames: boolean;
   /** When false, seat name labels and badges are hidden (colours/dividers stay). */
   showSeatLabels?: boolean;
-  /** Mirror counter-flip for the student-perspective view. */
-  mirrored?: boolean;
   lockSeatLabelOrientation: boolean;
   seatTextRotation: number;
   isDark: boolean;
@@ -66,7 +64,6 @@ function SeatGrid({
   showSpecialNeeds,
   showFullNames,
   showSeatLabels = true,
-  mirrored = false,
   lockSeatLabelOrientation,
   seatTextRotation,
   isDark,
@@ -93,7 +90,6 @@ function SeatGrid({
             allStudents={allStudents}
             isDark={isDark}
             showSeatLabels={showSeatLabels}
-            mirrored={mirrored}
             locked={config.locked}
             isOriginSeat={config.isOriginSeat}
             isHoverSeat={config.isHoverSeat}
@@ -130,7 +126,6 @@ function SeatGrid({
               isOriginSeat={config.isOriginSeat}
               lockSeatLabelOrientation={lockSeatLabelOrientation}
               seatTextRotation={seatTextRotation}
-              mirrored={mirrored}
             />
           ))}
       </g>

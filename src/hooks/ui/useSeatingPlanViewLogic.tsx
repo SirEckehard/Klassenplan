@@ -147,10 +147,6 @@ export function useSeatingPlanViewLogic({
       LOCAL_STORAGE_KEYS.photoDisplayMode,
       'hover',
     ); // How student photos grow on the seat dots (all / hover / off)
-  const [studentMirror, setStudentMirror] = usePersistentState<boolean>(
-    LOCAL_STORAGE_KEYS.studentMirror,
-    false,
-  ); // Mirror the plan for projection from the students' perspective
   const canvasRef = React.useRef<SVGSVGElement | null>(null);
 
   // Context Menu Integration
@@ -504,8 +500,6 @@ export function useSeatingPlanViewLogic({
           setShowGrid,
           photoDisplayMode,
           setPhotoDisplayMode,
-          studentMirror,
-          setStudentMirror,
           sceneTables,
           currentSeating,
           students,

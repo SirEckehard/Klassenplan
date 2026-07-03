@@ -16,10 +16,10 @@ import {
   ChalkboardSimpleIcon,
   FloppyDiskIcon,
   ExportIcon,
+  ChalkboardTeacherIcon,
   EyeIcon,
   CursorIcon,
   EyeSlashIcon,
-  FlipHorizontalIcon,
 } from '@phosphor-icons/react';
 import SmartSidebar from '@/components/ui/panels/SmartSidebar';
 import SmartMixControls from '@/components/ui/controls/SmartMixControls';
@@ -61,6 +61,7 @@ import {
   type CriterionFulfillment,
 } from '@/utils/algorithm/seatingStatistics';
 import { useIsDarkMode } from '@/hooks/useIsDarkMode';
+import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';
 import { useFirstVisit } from '@/hooks/ui/useFirstVisit';
 import { useIsMobile } from '@/hooks/ui/useIsMobile';
 import { buildCriterionHighlightEntries } from '@/utils/algorithm/criterionHighlights';
@@ -186,8 +187,6 @@ type Props = {
   setShowGrid: React.Dispatch<React.SetStateAction<boolean>>;
   photoDisplayMode: PhotoDisplayMode;
   setPhotoDisplayMode: React.Dispatch<React.SetStateAction<PhotoDisplayMode>>;
-  studentMirror: boolean;
-  setStudentMirror: React.Dispatch<React.SetStateAction<boolean>>;
   sceneTables: ClassroomTable[];
   currentSeating: SeatingArrangement;
   students: Student[];
@@ -263,8 +262,6 @@ export default function SeatingPlanEditorView({
   setShowGrid,
   photoDisplayMode,
   setPhotoDisplayMode,
-  studentMirror,
-  setStudentMirror,
   sceneTables,
   currentSeating,
   students,
@@ -311,6 +308,7 @@ export default function SeatingPlanEditorView({
 }: Props) {
   const isDark = useIsDarkMode();
   const { t } = useTranslation('generator');
+  const navigate = useLocalizedNavigate();
   const isFirstVisit = useFirstVisit();
   const isMobile = useIsMobile();
   const backgroundColor = isDark ? '#1f2937' : '#f9fafb';
@@ -340,15 +338,6 @@ export default function SeatingPlanEditorView({
     (next: string) => setPhotoDisplayMode(() => next as PhotoDisplayMode),
     [setPhotoDisplayMode],
   );
-  const handleToggleStudentMirror = React.useCallback(
-    (checked: boolean) => setStudentMirror(() => checked),
-    [setStudentMirror],
-  );
-  // In the mirrored "student perspective" view, photos are hidden so the class
-  // can't fixate on the photos while finding their seats (and seat dragging is
-  // disabled to avoid inverted-coordinate edits while projecting).
-  const effectivePhotoDisplayMode = studentMirror ? 'off' : photoDisplayMode;
-
   const featureAvailability = React.useMemo(() => {
     const features = classroomScene.features ?? [];
     return {
@@ -378,13 +367,6 @@ export default function SeatingPlanEditorView({
             icon: <GridNine size={16} />,
             checked: showGrid,
             onChange: handleToggleGrid,
-          },
-          {
-            id: 'student-mirror',
-            label: t('editor.studentMirror', 'Schüleransicht (gespiegelt)'),
-            icon: <FlipHorizontalIcon size={16} />,
-            checked: studentMirror,
-            onChange: handleToggleStudentMirror,
           },
         ],
       },
@@ -469,8 +451,6 @@ export default function SeatingPlanEditorView({
       handleToggleWindows,
       handlePhotoDisplayModeChange,
       photoDisplayMode,
-      handleToggleStudentMirror,
-      studentMirror,
       showGrid,
       t,
     ],
@@ -743,6 +723,14 @@ export default function SeatingPlanEditorView({
     }
     onExport();
   }, [hasUnsavedChanges, saveSeatingPlan, planName, classroomScene, onExport]);
+
+  // Open the smartboard presentation view, saving first if there are changes.
+  const handlePresentWithConditionalSave = React.useCallback(() => {
+    if (hasUnsavedChanges()) {
+      saveSeatingPlan(planName, classroomScene);
+    }
+    navigate('/present');
+  }, [hasUnsavedChanges, saveSeatingPlan, planName, classroomScene, navigate]);
 
   React.useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -1035,8 +1023,7 @@ export default function SeatingPlanEditorView({
                   onTransformStart={snapshot}
                   isDark={isDark}
                   seatHighlights={seatHighlightLookup}
-                  photoDisplayMode={effectivePhotoDisplayMode}
-                  mirrored={studentMirror}
+                  photoDisplayMode={photoDisplayMode}
                 />
                 {autoMixing && (
                   <div className="pointer-events-auto absolute inset-0 z-20 flex items-center justify-center rounded-xl bg-white/70 backdrop-blur-sm dark:bg-gray-900/80">
@@ -1146,6 +1133,18 @@ export default function SeatingPlanEditorView({
                 )}
               </div>
               <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                <button
+                  type="button"
+                  onClick={handlePresentWithConditionalSave}
+                  title={t(
+                    'present.buttonTitle',
+                    'Sitzplan am Smartboard präsentieren',
+                  )}
+                  className={`${neutralButtonClass} flex items-center gap-2`}
+                >
+                  <ChalkboardTeacherIcon className="w-4 h-4" size={16} />
+                  {t('present.button', 'Präsentieren')}
+                </button>
                 <button
                   type="button"
                   onClick={handleExportWithConditionalSave}

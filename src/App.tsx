@@ -24,6 +24,7 @@ const SeatingPlanGenerator = lazyWithRetry(
   () => import('@/components/SeatingPlanGenerator/SeatingPlanGenerator'),
 );
 const Export = lazyWithRetry(() => import('@/pages/Export'));
+const Present = lazyWithRetry(() => import('@/pages/Present'));
 const Impressum = lazyWithRetry(() => import('@/pages/Impressum'));
 const Datenschutz = lazyWithRetry(() => import('@/pages/Datenschutz'));
 const Feedback = lazyWithRetry(() => import('@/pages/Feedback'));
@@ -66,6 +67,7 @@ function AppRoutes() {
       <Route index element={<StartPage />} />
       <Route path="generator" element={<SeatingPlanGenerator />} />
       <Route path="export" element={<Export />} />
+      <Route path="present" element={<Present />} />
       <Route path="impressum" element={<Impressum />} />
       <Route path="datenschutz" element={<Datenschutz />} />
       <Route path="feedback" element={<Feedback />} />

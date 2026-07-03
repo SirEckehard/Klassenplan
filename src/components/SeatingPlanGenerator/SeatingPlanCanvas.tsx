@@ -13,11 +13,6 @@ import type { SeatHighlightLookup } from '@/utils';
 import { GRID_SIZE, FEATURE_CORNER_RADIUS } from '@/utils';
 import { getFeatureStyles } from '@/utils/ui';
 import type { FeatureVisibilityFlags } from '@/utils/ui';
-import {
-  getMirrorGroupTransform,
-  getMirrorCounterTransform,
-  composeTransforms,
-} from '@/utils/ui/mirrorTransform';
 import type { TemplateDragPreview } from '@/types/templateDrag';
 import type {
   DragOrigin,
@@ -75,8 +70,6 @@ interface SeatingPlanCanvasProps {
   seatHighlights?: SeatHighlightLookup | null;
   /** How student photos grow on the seat dots (all / hover / off). */
   photoDisplayMode?: PhotoDisplayMode;
-  /** Mirror the plan left↔right for projection from the students' perspective. */
-  mirrored?: boolean;
 }
 
 const SeatingPlanCanvas = React.memo(
@@ -116,7 +109,6 @@ const SeatingPlanCanvas = React.memo(
     isDark = false,
     seatHighlights = null,
     photoDisplayMode = 'off',
-    mirrored = false,
   }: SeatingPlanCanvasProps) => {
     const { t } = useTranslation('generator');
     const canvasRef = React.useRef<SVGSVGElement | null>(null);
@@ -230,10 +222,7 @@ const SeatingPlanCanvas = React.memo(
         `}</style>
         {renderGrid()}
 
-        {/* Mirror group: positions flip left↔right for the student perspective;
-            readable glyphs (labels/names/badges) re-flip locally so they stay
-            legible. The grid stays un-mirrored (it is symmetric). */}
-        <g transform={getMirrorGroupTransform(canvasWidth, mirrored)}>
+        <g>
         {featureViewModels.map(({ feature, styles }) => {
           const isFree = feature.anchor === 'free';
           const rotation = isFree ? (feature.rotation ?? 0) : 0;
@@ -274,14 +263,13 @@ const SeatingPlanCanvas = React.memo(
                     dominantBaseline="central"
                     fill={styles.text}
                     fontSize={12}
-                    transform={composeTransforms(
-                      getMirrorCounterTransform(feature.width / 2, mirrored),
+                    transform={
                       labelRotation !== 0
                         ? `rotate(${labelRotation}, ${feature.width / 2}, ${
                             feature.height / 2
                           })`
-                        : undefined,
-                    )}
+                        : undefined
+                    }
                   >
                     {getFeatureLabel(feature)}
                   </text>
@@ -292,12 +280,10 @@ const SeatingPlanCanvas = React.memo(
 
           const centerX = feature.x + feature.width / 2;
           const centerY = feature.y + feature.height / 2;
-          const textTransform = composeTransforms(
-            getMirrorCounterTransform(centerX, mirrored),
+          const textTransform =
             labelRotation !== 0
               ? `rotate(${labelRotation}, ${centerX}, ${centerY})`
-              : undefined,
-          );
+              : undefined;
 
           return (
             <g key={feature.id} style={{ pointerEvents: 'none' }}>
@@ -351,11 +337,10 @@ const SeatingPlanCanvas = React.memo(
             isSeatLocked={isSeatLocked}
             toggleLock={toggleLock}
             editable={false}
-            draggable={!mirrored}
+            draggable={true}
             isDark={isDark}
             seatHighlights={seatHighlights}
             photoDisplayMode={photoDisplayMode}
-            mirrored={mirrored}
           />
         ))}
         </g>
