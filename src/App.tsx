@@ -85,6 +85,11 @@ export default function App() {
   const [showPerformanceDashboard, setShowPerformanceDashboard] =
     React.useState(false);
 
+  // The present view is a fullscreen presentation surface; the global footer
+  // (and its "clear all data" action) is out of place there.
+  const isPresentRoute =
+    location.pathname === '/present' || location.pathname === '/en/present';
+
   // Route preloading for better perceived performance
   React.useEffect(() => {
     preloadLikelyRoutes(location.pathname);
@@ -150,7 +155,7 @@ export default function App() {
         />
       </Suspense>
 
-      <Footer />
+      {!isPresentRoute && <Footer />}
       <CookieConsent />
     </div>
   );

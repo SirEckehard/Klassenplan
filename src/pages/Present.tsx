@@ -36,45 +36,30 @@ export default function Present() {
       <Seo {...metadata} />
 
       {/* Minimal toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
-        <button
-          type="button"
-          onClick={() => navigate('/generator')}
-          className={`${neutralButtonClass} h-10 gap-2 px-4`}
-        >
-          <ArrowLeftIcon size={20} aria-hidden />
-          <span className="text-sm font-semibold">
-            {t('present.back', 'Zurück')}
-          </span>
-        </button>
+      <div className="flex items-center gap-3 px-4 py-3">
+        <div className="flex flex-1 justify-start">
+          <button
+            type="button"
+            onClick={() => navigate('/generator')}
+            className={`${neutralButtonClass} h-10 gap-2 px-4`}
+          >
+            <ArrowLeftIcon size={20} aria-hidden />
+            <span className="text-sm font-semibold">
+              {t('present.back', 'Zurück')}
+            </span>
+          </button>
+        </div>
 
         <PresentPerspectiveToggle
           perspective={perspective}
           onChange={setPerspective}
         />
 
-        {/* Badge toggle only makes sense in the teacher view. */}
-        {perspective === 'teacher' ? (
-          <button
-            type="button"
-            onClick={() => setShowBadges((value) => !value)}
-            className={`${
-              showBadges ? primaryButtonClass : secondaryButtonClass
-            } h-10 gap-2 px-4`}
-            aria-pressed={showBadges}
-          >
-            <UserSquareIcon size={20} aria-hidden />
-            <span className="text-sm font-semibold">
-              {t('present.badges', 'Merkmale')}
-            </span>
-          </button>
-        ) : (
-          <div className="h-10 w-px" aria-hidden />
-        )}
+        <div className="flex flex-1 justify-end" aria-hidden />
       </div>
 
       {/* Scene fills the remaining space */}
-      <div className="min-h-0 flex-1 px-2 pb-4">
+      <div className="min-h-0 flex-1 px-2">
         {hasPlan ? (
           <PresentationScene
             scene={classroomScene}
@@ -102,6 +87,27 @@ export default function Present() {
           </div>
         )}
       </div>
+
+      {/* Badge toggle sits centered below the classroom; teacher view only. */}
+      {hasPlan && perspective === 'teacher' ? (
+        <div className="flex justify-center px-4 py-4">
+          <button
+            type="button"
+            onClick={() => setShowBadges((value) => !value)}
+            className={`${
+              showBadges ? primaryButtonClass : secondaryButtonClass
+            } h-10 gap-2 px-4`}
+            aria-pressed={showBadges}
+          >
+            <UserSquareIcon size={20} aria-hidden />
+            <span className="text-sm font-semibold">
+              {t('present.badges', 'Merkmale')}
+            </span>
+          </button>
+        </div>
+      ) : (
+        <div className="h-4" aria-hidden />
+      )}
     </div>
   );
 }
