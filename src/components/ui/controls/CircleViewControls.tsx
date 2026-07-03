@@ -127,9 +127,9 @@ export default function CircleViewControls({
 
   const photoModeLabel =
     photoMode === 'all'
-      ? t('editor.photoModeAll', 'Alle')
+      ? t('editor.photoModeAll', 'An')
       : photoMode === 'hover'
-        ? t('editor.photoModeHover', 'Bei Hover')
+        ? t('editor.photoModeHover', 'Hover')
         : t('editor.photoModeOff', 'Aus');
   const photoModeIcon =
     photoMode === 'all' ? (
@@ -163,7 +163,7 @@ export default function CircleViewControls({
       }),
       description: t(
         'circleView.photoModeDescription',
-        'Schülerfotos an den Plätzen anzeigen (Alle / Bei Hover / Aus).',
+        'Schülerfotos an den Plätzen anzeigen (An / Hover / Aus).',
       ),
       onClick: onPhotoModeChange ? handlePhotoModeCycle : undefined,
       isActive: photoMode !== 'off',

@@ -8,7 +8,6 @@ import type {
   Student,
   ClassroomFeature,
   PhotoDisplayMode,
-  SeatPhotoDensity,
 } from '@/types';
 import type { SeatHighlightLookup } from '@/utils';
 import { GRID_SIZE, FEATURE_CORNER_RADIUS } from '@/utils';
@@ -76,8 +75,6 @@ interface SeatingPlanCanvasProps {
   seatHighlights?: SeatHighlightLookup | null;
   /** How student photos grow on the seat dots (all / hover / off). */
   photoDisplayMode?: PhotoDisplayMode;
-  /** Photo density: 'card' renders a large photo per seat (name below). */
-  photoDensity?: SeatPhotoDensity;
   /** Mirror the plan left↔right for projection from the students' perspective. */
   mirrored?: boolean;
 }
@@ -119,7 +116,6 @@ const SeatingPlanCanvas = React.memo(
     isDark = false,
     seatHighlights = null,
     photoDisplayMode = 'off',
-    photoDensity = 'compact',
     mirrored = false,
   }: SeatingPlanCanvasProps) => {
     const { t } = useTranslation('generator');
@@ -359,7 +355,6 @@ const SeatingPlanCanvas = React.memo(
             isDark={isDark}
             seatHighlights={seatHighlights}
             photoDisplayMode={photoDisplayMode}
-            photoDensity={photoDensity}
             mirrored={mirrored}
           />
         ))}

@@ -30,8 +30,9 @@ type CanvasSettingsSegmentChoice = {
 type CanvasSettingsSegmentOption = {
   kind: 'segment';
   id: string;
-  label: string;
-  icon: React.ReactNode;
+  /** Optional row heading above the segmented control; omitted → no heading. */
+  label?: string;
+  icon?: React.ReactNode;
   value: string;
   choices: CanvasSettingsSegmentChoice[];
   onChange: (next: string) => void;
@@ -237,10 +238,12 @@ export const CanvasSettingsButton = React.forwardRef<
 function SegmentSetting({ option }: { option: CanvasSettingsSegmentOption }) {
   return (
     <div className="space-y-2">
-      <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-100">
-        <span className="text-gray-500 dark:text-gray-300">{option.icon}</span>
-        <span className="font-medium">{option.label}</span>
-      </div>
+      {option.label && (
+        <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-100">
+          <span className="text-gray-500 dark:text-gray-300">{option.icon}</span>
+          <span className="font-medium">{option.label}</span>
+        </div>
+      )}
       <div
         role="group"
         aria-label={option.label}

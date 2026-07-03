@@ -5,7 +5,6 @@ import type {
   Student,
   ClassroomTable,
   PhotoDisplayMode,
-  SeatPhotoDensity,
 } from '@/types';
 import {
   TABLE_CORNER_RADIUS,
@@ -77,11 +76,6 @@ type TableProps = {
    * 'off' keeps the plain small dots. Hover is interactive (editor) only.
    */
   photoDisplayMode?: PhotoDisplayMode;
-  /**
-   * Photo density: 'card' renders a large photo inside each seat (name below)
-   * and suppresses the edge chair-dot photos; 'compact' keeps today's dots.
-   */
-  photoDensity?: SeatPhotoDensity;
   /** Mirror counter-flip for the student-perspective view (keeps glyphs legible). */
   mirrored?: boolean;
 };
@@ -119,7 +113,6 @@ function SceneTable({
   seatHighlights = null,
   seatMarkerMode = 'full',
   photoDisplayMode = 'off',
-  photoDensity = 'compact',
   mirrored = false,
 }: TableProps) {
   const tableRef = useRef<SVGGElement>(null);
@@ -359,8 +352,6 @@ function SceneTable({
         showSpecialNeeds={showSpecialNeeds}
         showFullNames={showFullNames}
         showSeatLabels={seatMarkerMode === 'full'}
-        photoDensity={seatMarkerMode === 'full' ? photoDensity : 'compact'}
-        photoUrls={photoDisplayMode === 'off' ? undefined : photoUrls}
         mirrored={mirrored}
         lockSeatLabelOrientation={lockSeatLabelOrientation}
         seatTextRotation={seatTextRotation}
@@ -388,10 +379,7 @@ function SceneTable({
           seatMarkerMode === 'full' && seatStudent?.hasPhoto
             ? photoUrls?.get(seatStudent.id)
             : undefined;
-        // Card density renders a large photo *inside* the seat, so the edge dots
-        // stay plain to avoid showing the same photo twice.
         const showPhoto =
-          photoDensity !== 'card' &&
           !!photoUrl &&
           (photoDisplayMode === 'all' ||
             (photoDisplayMode === 'hover' && hoveredSeatIndex === dot.key));

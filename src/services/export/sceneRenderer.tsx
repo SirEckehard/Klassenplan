@@ -4,7 +4,6 @@ import type { ReactElement } from 'react';
 import type {
   ClassroomScene,
   SeatingArrangement,
-  SeatPhotoDensity,
   Student,
 } from '@/types';
 import type { CircleLayout } from '@/types/Circle';
@@ -54,7 +53,6 @@ export async function renderSceneSvg(
     orientation?: 'landscape' | 'portrait';
     showFullNames?: boolean;
     photoDisplayMode?: 'all' | 'off';
-    photoDensity?: SeatPhotoDensity;
     showLegend?: boolean;
     classMetadata?: ExportClassMetadata;
   },
@@ -78,7 +76,6 @@ export async function renderSceneSvg(
         orientation={options?.orientation}
         showFullNames={options?.showFullNames}
         photoDisplayMode={options?.photoDisplayMode}
-        photoDensity={options?.photoDensity}
         showLegend={options?.showLegend}
       />
     </div>,

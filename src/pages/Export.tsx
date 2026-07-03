@@ -24,7 +24,6 @@ import {
   PrinterIcon,
   GridNineIcon,
   CircleDashedIcon,
-  IdentificationCardIcon,
 } from '@phosphor-icons/react';
 import {
   canvasFrameClass,
@@ -48,7 +47,6 @@ import { buildPhotoDataUrlMap } from '@/utils/export/pdfExportFunctions';
 import type {
   PhotoDisplayMode,
   SeatingArrangement,
-  SeatPhotoDensity,
   Student,
 } from '@/types';
 import usePersistentState from '@/hooks/usePersistentState';
@@ -199,10 +197,6 @@ export default function Export() {
       'hover',
     ) !== 'off',
   );
-  const [photoDensity, setPhotoDensity] = usePersistentState<SeatPhotoDensity>(
-    'export.photoDensity',
-    readPersisted<SeatPhotoDensity>(LOCAL_STORAGE_KEYS.photoDensity, 'compact'),
-  );
   const [showClassInfo, setShowClassInfo] = usePersistentState<boolean>(
     'export.showClassInfo',
     true,
@@ -263,10 +257,6 @@ export default function Export() {
   const handleTogglePhotos = useCallback(
     (checked: boolean) => setShowPhotos(() => checked),
     [setShowPhotos],
-  );
-  const handlePhotoDensityChange = useCallback(
-    (next: string) => setPhotoDensity(() => next as SeatPhotoDensity),
-    [setPhotoDensity],
   );
   const handleToggleClassInfo = useCallback(
     (checked: boolean) => setShowClassInfo(() => checked),
@@ -425,29 +415,6 @@ export default function Export() {
       checked: showPhotos,
       onChange: handleTogglePhotos,
     });
-    // The large photo-card density only applies to seat rectangles (table view).
-    if (previewMode === 'table' && showPhotos) {
-      displayOptions.push({
-        kind: 'segment' as const,
-        id: 'photo-density',
-        label: t('editor.photoDensity', 'Foto-Größe'),
-        icon: <IdentificationCardIcon size={16} />,
-        value: photoDensity,
-        onChange: handlePhotoDensityChange,
-        choices: [
-          {
-            value: 'compact',
-            label: t('editor.photoDensityCompact', 'Kompakt'),
-            icon: <UserCircleIcon size={14} />,
-          },
-          {
-            value: 'card',
-            label: t('editor.photoDensityCard', 'Karte'),
-            icon: <IdentificationCardIcon size={14} />,
-          },
-        ],
-      });
-    }
 
     const groups: CanvasSettingsGroup[] = [
       {
@@ -479,12 +446,10 @@ export default function Export() {
     handleToggleFullNames,
     handleToggleNeeds,
     handleTogglePhotos,
-    handlePhotoDensityChange,
     handleToggleLegend,
     handleTogglePodium,
     handleToggleWindows,
     previewMode,
-    photoDensity,
     showClassInfo,
     showConnections,
     showFullNames,
@@ -714,7 +679,6 @@ export default function Export() {
           orientation: tableOrientation,
           showFullNames,
           photoDisplayMode: showPhotos ? 'all' : 'off',
-          photoDensity,
           showLegend,
           classMetadata: classMetadataForExport,
         });
@@ -758,7 +722,6 @@ export default function Export() {
     tableOrientation,
     showFullNames,
     showPhotos,
-    photoDensity,
     showLegend,
     classMetadataForExport,
   ]);
@@ -893,7 +856,6 @@ export default function Export() {
         showPodium: effectiveShowPodium,
         showFullNames,
         showPhotos,
-        photoDensity,
         showLegend,
         orientation: tableOrientation,
         classMetadata: classMetadataForExport,
@@ -919,7 +881,6 @@ export default function Export() {
     effectiveShowWindows,
     showFullNames,
     showPhotos,
-    photoDensity,
     showLegend,
     tableOrientation,
     classMetadataForExport,

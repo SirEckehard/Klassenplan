@@ -4,7 +4,6 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { LockIcon, LockOpenIcon } from '@phosphor-icons/react';
 import type {
-  SeatPhotoDensity,
   StatisticHighlightMode,
   StatisticStatus,
   Student,
@@ -16,7 +15,6 @@ import {
   STUDENT_COLORS,
   calculateBadgePillLayout,
 } from '@/utils/ui/studentAppearance';
-import { computeTokenPhotoLayout } from '@/utils/ui/studentTokenLayout';
 import {
   getMirrorCounterTransform,
   composeTransforms,
@@ -47,10 +45,6 @@ interface TableSeatProps {
   showFullNames: boolean;
   /** When false, the seat name label and lock toggle are hidden (layout editor). */
   showSeatLabels?: boolean;
-  /** Photo density: 'card' renders a large photo filling the seat (name below). */
-  photoDensity?: SeatPhotoDensity;
-  /** Resolved photo URL for this seat's student (Object URL live / Data URL export). */
-  photoUrl?: string;
   /** Mirror counter-flip so the name stays legible in the student-perspective view. */
   mirrored?: boolean;
   lockSeatLabelOrientation: boolean;
@@ -161,8 +155,6 @@ function TableSeat({
   showSpecialNeeds,
   showFullNames,
   showSeatLabels = true,
-  photoDensity = 'compact',
-  photoUrl,
   mirrored = false,
   lockSeatLabelOrientation,
   seatTextRotation,
@@ -308,33 +300,6 @@ function TableSeat({
     : '';
   const seatFontSize = calculateSeatLabelFontSize(displayName, seatWidth);
 
-  // "Learn names" card density: a large photo fills the seat with the name in a
-  // label band below. Only when a photo is available and the seat is big enough
-  // (computeTokenPhotoLayout falls back to no nameBand otherwise → compact name).
-  const cardLayout =
-    photoDensity === 'card' && photoUrl && student
-      ? computeTokenPhotoLayout({
-          shape: 'rect',
-          centerX: seatWidth / 2,
-          centerY: seatHeight / 2,
-          width: seatWidth,
-          height: seatHeight,
-          hasPhoto: true,
-          nameFontSize: seatFontSize,
-          card: true,
-        })
-      : null;
-  const cardAvatar = cardLayout?.avatar ?? null;
-  const cardBand = cardLayout?.nameBand ?? null;
-  const showCard = !!(cardAvatar && cardBand);
-  const cardClipId = `seat-card-photo-${tableIndex}-${seatIndex}`;
-  const cardNameFontSize = cardBand
-    ? Math.min(
-        cardBand.fontSize,
-        calculateSeatLabelFontSize(displayName, cardBand.width),
-      )
-    : seatFontSize;
-
   return (
     <g transform={`translate(${col * seatWidth} ${row * seatHeight})`}>
       <g
@@ -427,58 +392,7 @@ function TableSeat({
             />
           </>
         )}
-        {student && showSeatLabels && showCard && cardAvatar && cardBand && (
-          <g
-            transform={seatLabelTransform}
-            style={{
-              pointerEvents: 'none',
-              opacity: seatTextOpacity,
-              transition: 'opacity 150ms ease',
-            }}
-          >
-            <title>{getTooltipName(student.name)}</title>
-            <defs>
-              <clipPath id={cardClipId}>
-                <circle cx={cardAvatar.cx} cy={cardAvatar.cy} r={cardAvatar.r} />
-              </clipPath>
-            </defs>
-            <circle
-              cx={cardAvatar.cx}
-              cy={cardAvatar.cy}
-              r={cardAvatar.r}
-              fill={isDark ? '#374151' : '#fff'}
-            />
-            <image
-              href={photoUrl}
-              x={cardAvatar.cx - cardAvatar.r}
-              y={cardAvatar.cy - cardAvatar.r}
-              width={cardAvatar.r * 2}
-              height={cardAvatar.r * 2}
-              preserveAspectRatio="xMidYMid slice"
-              clipPath={`url(#${cardClipId})`}
-            />
-            <circle
-              cx={cardAvatar.cx}
-              cy={cardAvatar.cy}
-              r={cardAvatar.r}
-              fill="none"
-              stroke={seatStroke}
-              strokeWidth={1.25}
-            />
-            <text
-              x={cardBand.x + cardBand.width / 2}
-              y={cardBand.y + cardBand.height / 2}
-              textAnchor="middle"
-              dominantBaseline="central"
-              fontSize={cardNameFontSize}
-              fontWeight="semibold"
-              fill={textColor}
-            >
-              {displayName}
-            </text>
-          </g>
-        )}
-        {student && showSeatLabels && !showCard && (
+        {student && showSeatLabels && (
           <>
             <text
               x={seatWidth / 2}
@@ -754,8 +668,6 @@ const MemoizedTableSeat = React.memo(TableSeat, (prevProps, nextProps) => {
     prevProps.showSeatLabels !== nextProps.showSeatLabels ||
     prevProps.seatTextRotation !== nextProps.seatTextRotation ||
     prevProps.tableRotation !== nextProps.tableRotation ||
-    prevProps.photoDensity !== nextProps.photoDensity ||
-    prevProps.photoUrl !== nextProps.photoUrl ||
     prevProps.mirrored !== nextProps.mirrored
   )
     return false;
