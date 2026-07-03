@@ -37,6 +37,9 @@ type PresentationSceneProps = {
   showGenderColors?: boolean;
   /** Scale factor for the whole scene (1 = fit-to-container). */
   zoom?: number;
+  /** Pan offset in screen pixels, applied after the zoom scale. */
+  panX?: number;
+  panY?: number;
   isDark?: boolean;
 };
 
@@ -52,6 +55,8 @@ export default function PresentationScene({
   showPhotos = true,
   showGenderColors = true,
   zoom = 1,
+  panX = 0,
+  panY = 0,
   isDark = false,
 }: PresentationSceneProps) {
   const { t } = useTranslation('generator');
@@ -104,8 +109,6 @@ export default function PresentationScene({
     [scene.features, featureVisibility],
   );
 
-  const roomStroke = isDark ? 'rgba(148,163,184,0.35)' : 'rgba(100,116,139,0.4)';
-
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -116,20 +119,11 @@ export default function PresentationScene({
       fontFamily="'DM Sans Variable', system-ui, sans-serif"
       style={{
         display: 'block',
-        transform: `scale(${zoom})`,
+        transform: `translate(${panX}px, ${panY}px) scale(${zoom})`,
         transformOrigin: 'center',
-        transition: 'transform 120ms ease',
       }}
     >
       <g transform={groupTransform}>
-        <rect
-          width={CLASSROOM_WIDTH}
-          height={CLASSROOM_HEIGHT}
-          fill="none"
-          stroke={roomStroke}
-          strokeWidth={1.5}
-          rx={8}
-        />
         {featureViewModels.map(({ feature, styles }) => {
           const isFree = feature.anchor === 'free';
           const ownRotation = isFree ? (feature.rotation ?? 0) : 0;

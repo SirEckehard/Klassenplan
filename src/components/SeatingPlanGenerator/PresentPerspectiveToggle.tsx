@@ -21,19 +21,6 @@ export default function PresentPerspectiveToggle({
     <div className="flex items-center gap-2 rounded-full border border-blue-200 bg-white/80 p-1 shadow-inner dark:border-blue-900/40 dark:bg-gray-950/70">
       <button
         type="button"
-        onClick={() => onChange('teacher')}
-        className={`${
-          teacherActive ? primaryButtonClass : secondaryButtonClass
-        } h-10 gap-2 px-4`}
-        aria-pressed={teacherActive}
-      >
-        <ChalkboardTeacherIcon size={20} aria-hidden />
-        <span className="text-sm font-semibold">
-          {t('present.teacherView', 'Lehreransicht')}
-        </span>
-      </button>
-      <button
-        type="button"
         onClick={() => onChange('student')}
         className={`${
           !teacherActive ? primaryButtonClass : secondaryButtonClass
@@ -43,6 +30,19 @@ export default function PresentPerspectiveToggle({
         <StudentIcon size={20} aria-hidden />
         <span className="text-sm font-semibold">
           {t('present.studentView', 'Schüleransicht')}
+        </span>
+      </button>
+      <button
+        type="button"
+        onClick={() => onChange('teacher')}
+        className={`${
+          teacherActive ? primaryButtonClass : secondaryButtonClass
+        } h-10 gap-2 px-4`}
+        aria-pressed={teacherActive}
+      >
+        <ChalkboardTeacherIcon size={20} aria-hidden />
+        <span className="text-sm font-semibold">
+          {t('present.teacherView', 'Lehreransicht')}
         </span>
       </button>
     </div>

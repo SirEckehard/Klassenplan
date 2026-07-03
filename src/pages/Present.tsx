@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ArrowLeftIcon,
+  ArrowsInIcon,
   ImageIcon,
   MagnifyingGlassIcon,
   PaletteIcon,
@@ -14,12 +15,21 @@ import { usePageSeo } from '@/hooks/usePageSeo';
 import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';
 import { useIsDarkMode } from '@/hooks/useIsDarkMode';
 import usePersistentState from '@/hooks/usePersistentState';
+import { usePanZoom } from '@/hooks/ui/usePanZoom';
 import { useSeatingPlanState } from '@/contexts/SeatingPlanContext';
 import { LOCAL_STORAGE_KEYS } from '@/utils/data/storageKeys';
-import { neutralButtonClass, primaryButtonClass, secondaryButtonClass } from '@/utils';
+import {
+  iconButtonClass,
+  neutralButtonClass,
+  primaryButtonClass,
+  secondaryButtonClass,
+} from '@/utils';
 import PresentationScene from '@/components/scene/PresentationScene';
 import PresentPerspectiveToggle from '@/components/SeatingPlanGenerator/PresentPerspectiveToggle';
 import type { PresentationPerspective } from '@/utils/ui/boardOrientation';
+
+const PRESENT_MIN_ZOOM = 0.5;
+const PRESENT_MAX_ZOOM = 3;
 
 export default function Present() {
   const { t } = useTranslation('generator');
@@ -30,7 +40,7 @@ export default function Present() {
   const { currentSeating, classroomScene, students } = useSeatingPlanState();
 
   const [perspective, setPerspective] =
-    useState<PresentationPerspective>('teacher');
+    useState<PresentationPerspective>('student');
   const [showBadges, setShowBadges] = useState(false);
   const [showPhotos, setShowPhotos] = usePersistentState(
     LOCAL_STORAGE_KEYS.presentShowPhotos,
@@ -41,6 +51,13 @@ export default function Present() {
     true,
   );
   const [zoom, setZoom] = usePersistentState(LOCAL_STORAGE_KEYS.presentZoom, 1);
+  const { pan, containerRef, pointerHandlers, canPan, setZoomLevel, reset } =
+    usePanZoom({
+      zoom,
+      setZoom,
+      minZoom: PRESENT_MIN_ZOOM,
+      maxZoom: PRESENT_MAX_ZOOM,
+    });
 
   const hasPlan =
     classroomScene.tables.length > 0 && currentSeating.length > 0;
@@ -74,7 +91,12 @@ export default function Present() {
       </div>
 
       {/* Scene fills the remaining space */}
-      <div className="min-h-0 flex-1 overflow-hidden px-2">
+      <div
+        ref={containerRef}
+        className="min-h-0 flex-1 touch-none overflow-hidden px-2"
+        style={{ cursor: canPan ? 'grab' : 'default' }}
+        {...pointerHandlers}
+      >
         {hasPlan ? (
           <PresentationScene
             scene={classroomScene}
@@ -85,6 +107,8 @@ export default function Present() {
             showPhotos={showPhotos}
             showGenderColors={showGenderColors}
             zoom={zoom}
+            panX={pan.x}
+            panY={pan.y}
             isDark={isDark}
           />
         ) : (
@@ -164,11 +188,11 @@ export default function Present() {
             />
             <input
               type="range"
-              min={0.5}
-              max={1.5}
+              min={PRESENT_MIN_ZOOM}
+              max={PRESENT_MAX_ZOOM}
               step={0.05}
               value={zoom}
-              onChange={(event) => setZoom(Number(event.target.value))}
+              onChange={(event) => setZoomLevel(Number(event.target.value))}
               aria-label={t('present.zoom', 'Zoom')}
               className="w-40 cursor-pointer accent-blue-600"
             />
@@ -176,6 +200,16 @@ export default function Present() {
               {Math.round(zoom * 100)}%
             </span>
           </div>
+
+          <button
+            type="button"
+            onClick={reset}
+            className={`${iconButtonClass} h-10 w-10`}
+            aria-label={t('present.resetView', 'Ansicht zentrieren und zurücksetzen')}
+            title={t('present.resetView', 'Ansicht zentrieren und zurücksetzen')}
+          >
+            <ArrowsInIcon size={20} aria-hidden />
+          </button>
         </div>
       ) : (
         <div className="h-4" aria-hidden />
