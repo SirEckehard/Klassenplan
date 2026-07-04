@@ -244,6 +244,7 @@ export {
   neutralButtonClass,
   dangerButtonClass,
   successButtonClass,
+  warningButtonClass,
   iconButtonClass,
   quietIconButtonClass,
   dangerIconButtonClass,

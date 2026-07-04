@@ -164,6 +164,15 @@ export default function EnhancedSeatingPlanView(
     navigate('/export');
   }, [hasUnsavedChanges, props, circleLayout, navigate]);
 
+  // Present handler that saves only if there are changes, then opens the
+  // smartboard view directly in circle mode.
+  const handlePresentWithConditionalSave = useCallback(() => {
+    if (hasUnsavedChanges()) {
+      props.saveSeatingPlan(props.planName, props.classroomScene, circleLayout);
+    }
+    navigate('/present', { state: { mode: 'circle' } });
+  }, [hasUnsavedChanges, props, circleLayout, navigate]);
+
   // Calculate actual neighborhood count (preserved neighbors from table seating)
   // For circle mode, we need different controls and view
   if (showModeToggle && seatingMode === 'circle') {
@@ -358,6 +367,7 @@ export default function EnhancedSeatingPlanView(
               circleLayout={circleLayout}
               classroomScene={props.classroomScene}
               onExport={handleExportWithConditionalSave}
+              onPresent={handlePresentWithConditionalSave}
               isSaveDisabled={props.currentSeating.length === 0}
             />
           </div>

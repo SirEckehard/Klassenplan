@@ -342,6 +342,39 @@
   opacity: 0.6;
 }
 
+@utility warning-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 600;
+  border-radius: var(--radius-pill);
+  background-color: var(--color-amber-600);
+  color: #fff;
+  transition:
+    background-color 150ms ease,
+    box-shadow 150ms ease,
+    color 150ms ease;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.warning-button:hover:not(:disabled) {
+  background-color: var(--color-amber-700);
+}
+
+.warning-button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--focus-ring-primary);
+}
+
+.warning-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 @utility secondary-button {
   display: inline-flex;
   align-items: center;

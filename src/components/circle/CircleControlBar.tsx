@@ -2,7 +2,12 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeftIcon, FloppyDiskIcon, ShareNetworkIcon } from '@phosphor-icons/react';
+import {
+  ArrowLeftIcon,
+  ChalkboardTeacherIcon,
+  FloppyDiskIcon,
+  ShareNetworkIcon,
+} from '@phosphor-icons/react';
 import type { ClassroomScene } from '@/types';
 import type { CircleLayout } from '@/types/Circle';
 import {
@@ -10,6 +15,7 @@ import {
   isFormElementFocused,
   neutralButtonClass,
   primaryButtonClass,
+  warningButtonClass,
 } from '@/utils';
 
 type Props = {
@@ -27,6 +33,7 @@ type Props = {
   circleLayout: CircleLayout | null;
   classroomScene: ClassroomScene;
   onExport: () => void;
+  onPresent: () => void;
   isSaveDisabled: boolean;
 };
 
@@ -44,6 +51,7 @@ export default function CircleControlBar({
   circleLayout,
   classroomScene,
   onExport,
+  onPresent,
   isSaveDisabled,
 }: Props) {
   const { t } = useTranslation('generator');
@@ -125,6 +133,15 @@ export default function CircleControlBar({
           </p>
         )}
       </div>
+      <button
+        type="button"
+        onClick={onPresent}
+        title={t('present.buttonTitle', 'Sitzplan am Smartboard präsentieren')}
+        className={`${warningButtonClass} w-full justify-center gap-2 px-4 sm:w-auto`}
+      >
+        <ChalkboardTeacherIcon className="w-4 h-4" size={16} />
+        {t('present.button', 'Präsentieren')}
+      </button>
       <button
         type="button"
         onClick={onExport}

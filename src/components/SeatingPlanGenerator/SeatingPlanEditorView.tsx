@@ -38,6 +38,7 @@ import {
   getViewportMetrics,
   primaryButtonClass,
   neutralButtonClass,
+  warningButtonClass,
   secondaryButtonClass,
   inputFieldClass,
   mutedIconButtonClass,
@@ -729,7 +730,7 @@ export default function SeatingPlanEditorView({
     if (hasUnsavedChanges()) {
       saveSeatingPlan(planName, classroomScene);
     }
-    navigate('/present');
+    navigate('/present', { state: { mode: 'table' } });
   }, [hasUnsavedChanges, saveSeatingPlan, planName, classroomScene, navigate]);
 
   React.useEffect(() => {
@@ -1140,7 +1141,7 @@ export default function SeatingPlanEditorView({
                     'present.buttonTitle',
                     'Sitzplan am Smartboard präsentieren',
                   )}
-                  className={`${neutralButtonClass} flex items-center gap-2`}
+                  className={`${warningButtonClass} flex items-center gap-2`}
                 >
                   <ChalkboardTeacherIcon className="w-4 h-4" size={16} />
                   {t('present.button', 'Präsentieren')}

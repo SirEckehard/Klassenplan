@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   ArrowLeftIcon,
@@ -16,6 +17,7 @@ import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';
 import { useIsDarkMode } from '@/hooks/useIsDarkMode';
 import usePersistentState from '@/hooks/usePersistentState';
 import { usePanZoom } from '@/hooks/ui/usePanZoom';
+import { useEnsureCircleLayout } from '@/hooks/circle/useEnsureCircleLayout';
 import { useSeatingPlanState } from '@/contexts/SeatingPlanContext';
 import { LOCAL_STORAGE_KEYS } from '@/utils/data/storageKeys';
 import {
@@ -25,7 +27,11 @@ import {
   secondaryButtonClass,
 } from '@/utils';
 import PresentationScene from '@/components/scene/PresentationScene';
+import SimpleCircleView from '@/components/circle/SimpleCircleView';
 import PresentPerspectiveToggle from '@/components/SeatingPlanGenerator/PresentPerspectiveToggle';
+import SeatingModeToggle, {
+  type SeatingMode,
+} from '@/components/SeatingPlanGenerator/SeatingModeToggle';
 import type { PresentationPerspective } from '@/utils/ui/boardOrientation';
 
 const PRESENT_MIN_ZOOM = 0.5;
@@ -36,8 +42,16 @@ export default function Present() {
   const metadata = usePageSeo('/present');
   const navigate = useLocalizedNavigate();
   const isDark = useIsDarkMode();
+  const location = useLocation();
 
-  const { currentSeating, classroomScene, students } = useSeatingPlanState();
+  const { currentSeating, classroomScene, students, circleLayout } =
+    useSeatingPlanState();
+
+  const initialMode =
+    (location.state as { mode?: SeatingMode } | null)?.mode ?? 'table';
+  const [mode, setMode] = useState<SeatingMode>(initialMode);
+  // Generate the circle layout on demand when switching to circle presentation.
+  useEnsureCircleLayout(mode, { enabled: mode === 'circle' });
 
   const [perspective, setPerspective] =
     useState<PresentationPerspective>('student');
@@ -61,7 +75,10 @@ export default function Present() {
 
   const hasPlan =
     classroomScene.tables.length > 0 && currentSeating.length > 0;
+  const hasCircle = !!circleLayout && circleLayout.students.length > 0;
+  const hasContent = mode === 'circle' ? hasCircle : hasPlan;
   const isTeacher = perspective === 'teacher';
+  const isCircle = mode === 'circle';
 
   return (
     <div className="fixed inset-0 flex flex-col bg-gray-50 dark:bg-gray-950">
@@ -87,6 +104,8 @@ export default function Present() {
           onChange={setPerspective}
         />
 
+        <SeatingModeToggle mode={mode} onModeChange={setMode} />
+
         <div className="flex flex-1 justify-end" aria-hidden />
       </div>
 
@@ -97,7 +116,28 @@ export default function Present() {
         style={{ cursor: canPan ? 'grab' : 'default' }}
         {...pointerHandlers}
       >
-        {hasPlan ? (
+        {hasContent && isCircle && circleLayout ? (
+          <div className="flex h-full items-center justify-center">
+            <div
+              className="w-full max-w-5xl"
+              style={{
+                transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+                transformOrigin: 'center',
+              }}
+            >
+              <SimpleCircleView
+                layout={circleLayout}
+                editable={false}
+                isDark={isDark}
+                showSpecialNeeds={isTeacher && showBadges}
+                showGenderColors={showGenderColors}
+                photoMode={isTeacher && showPhotos ? 'all' : 'off'}
+                connectionMode="off"
+                transparentBackground
+              />
+            </div>
+          </div>
+        ) : hasContent ? (
           <PresentationScene
             scene={classroomScene}
             seating={currentSeating}
@@ -132,7 +172,7 @@ export default function Present() {
 
       {/* Control row sits centered below the classroom. Teacher-only controls
           (badges, photos) hide in the student view; colors and zoom stay. */}
-      {hasPlan ? (
+      {hasContent ? (
         <div className="flex flex-wrap items-center justify-center gap-3 px-4 py-4">
           {isTeacher && (
             <button

@@ -29,7 +29,11 @@ type SimpleCircleViewProps = {
   layout: CircleLayout;
   isDark?: boolean;
   showSpecialNeeds?: boolean;
+  /** When false, gender colors are dropped for a neutral (colorless) render. */
+  showGenderColors?: boolean;
   showGrid?: boolean;
+  /** Drop the canvas background so the circle blends into the page (present mode). */
+  transparentBackground?: boolean;
   editable?: boolean;
   onStudentMove?: (studentId: string, targetPosition: number) => void;
   onSyncCircle?: () => void;
@@ -47,7 +51,9 @@ function SimpleCircleView({
   layout,
   isDark = false,
   showSpecialNeeds = true,
+  showGenderColors = true,
   showGrid = false,
+  transparentBackground = false,
   editable = false,
   onStudentMove,
   connectionMode: externalConnectionMode,
@@ -178,7 +184,7 @@ function SimpleCircleView({
 
   const getCircleAppearance = (student: Student | null) => {
     return {
-      ...getStudentAppearance(student, isDark),
+      ...getStudentAppearance(student, isDark, !showGenderColors),
       flags: getAllStudentBadges(student, allStudents, {
         showSpecialNeeds,
         showPartners: showSpecialNeeds,
@@ -325,7 +331,11 @@ function SimpleCircleView({
         className="block w-full h-auto rounded-lg"
         style={{
           aspectRatio: '3 / 2',
-          backgroundColor: isDark ? '#1f2937' : '#f9fafb',
+          backgroundColor: transparentBackground
+            ? 'transparent'
+            : isDark
+              ? '#1f2937'
+              : '#f9fafb',
           backgroundImage: showGrid
             ? `linear-gradient(to right, ${isDark ? '#374151' : '#e5e7eb'} 1px, transparent 1px), linear-gradient(to bottom, ${isDark ? '#374151' : '#e5e7eb'} 1px, transparent 1px)`
             : undefined,
