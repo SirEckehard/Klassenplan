@@ -1,14 +1,41 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import type { CircleLayout } from '@/types/Circle';
-import type { ClassroomScene, SeatingArrangement, Student } from '@/types';
+import type {
+  ClassroomScene,
+  SeatingArrangement,
+  Student,
+} from '@/types';
 import {
   renderCircleSvg,
   renderSceneSvg,
   type ExportClassMetadata,
 } from '@/services/export/sceneRenderer';
 import { logError } from '@/utils';
+import { getStudentPhotoDataUrl } from '@/hooks/student/studentPhotoCache';
 import dmSansWoff2Url from '@fontsource-variable/dm-sans/files/dm-sans-latin-wght-normal.woff2?url';
+
+/**
+ * Pre-resolve photos to base64 Data URLs for the export. Object URLs would
+ * taint the canvas during SVG → PNG rasterization, so the PDF path must embed
+ * the images inline as Data URLs.
+ */
+export async function buildPhotoDataUrlMap(
+  students: Iterable<Student> | undefined,
+): Promise<ReadonlyMap<string, string>> {
+  const map = new Map<string, string>();
+  if (!students) return map;
+  const withPhotos = [...students].filter((student) => student?.hasPhoto);
+  await Promise.all(
+    withPhotos.map(async (student) => {
+      const dataUrl = await getStudentPhotoDataUrl(student.id);
+      if (dataUrl) {
+        map.set(student.id, dataUrl);
+      }
+    }),
+  );
+  return map;
+}
 
 let cachedFontBase64: string | null = null;
 
@@ -39,6 +66,10 @@ export type ExportOptions = {
   showDoor?: boolean;
   showPodium?: boolean;
   showFullNames?: boolean;
+  /** Show student photos on the seat dots in the table export (default true). */
+  showPhotos?: boolean;
+  /** Append a legend (badge icons + gender colours) to the exported page. */
+  showLegend?: boolean;
   orientation?: 'landscape' | 'portrait';
   classMetadata?: ExportClassMetadata;
 };
@@ -52,8 +83,10 @@ export async function exportTableLayoutToPdf(
   title?: string,
   options?: ExportOptions,
 ): Promise<void> {
+  const photoDataUrls = await buildPhotoDataUrlMap(options?.allStudents);
   const svgString = await renderSceneSvg(scene, seating, title, {
     allStudents: options?.allStudents,
+    photoDataUrls,
     showSpecialNeeds: options?.showSpecialNeeds ?? true,
     showBoard: options?.showBoard ?? true,
     showWindows: options?.showWindows ?? true,
@@ -62,6 +95,8 @@ export async function exportTableLayoutToPdf(
     lockSeatLabelOrientation: true,
     orientation: options?.orientation ?? 'portrait',
     showFullNames: options?.showFullNames ?? false,
+    photoDisplayMode: (options?.showPhotos ?? true) ? 'all' : 'off',
+    showLegend: options?.showLegend ?? false,
     classMetadata: options?.classMetadata,
   });
 
@@ -80,12 +115,20 @@ export async function exportCircleLayoutToPdf(
   title?: string,
   options?: ExportOptions,
 ): Promise<void> {
+  const photoDataUrls = await buildPhotoDataUrlMap(
+    circleLayout.students
+      .map((entry) => entry.student)
+      .filter((student): student is Student => Boolean(student)),
+  );
   const svgString = await renderCircleSvg(circleLayout, title, {
     showSpecialNeeds: options?.showSpecialNeeds ?? true,
     showConnections: options?.showConnections ?? true,
     orientation: options?.orientation ?? 'portrait',
     showFullNames: options?.showFullNames ?? false,
     classMetadata: options?.classMetadata,
+    photoDataUrls,
+    photoDisplayMode: (options?.showPhotos ?? true) ? 'all' : 'off',
+    showLegend: options?.showLegend ?? false,
   });
 
   await exportSvgToPdf(

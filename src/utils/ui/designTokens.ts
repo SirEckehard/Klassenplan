@@ -18,6 +18,8 @@ export const dangerButtonClass = 'danger-button';
 
 export const successButtonClass = 'success-button';
 
+export const warningButtonClass = 'warning-button';
+
 export const iconButtonClass = 'icon-button';
 
 export const quietIconButtonClass = 'quiet-icon-button';

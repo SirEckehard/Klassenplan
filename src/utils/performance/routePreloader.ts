@@ -15,6 +15,7 @@ const routeLoaders: Record<string, () => Promise<unknown>> = {
   generator: () =>
     import('@/components/SeatingPlanGenerator/SeatingPlanGenerator'),
   export: () => import('@/pages/Export'),
+  present: () => import('@/pages/Present'),
   startpage: () => import('@/pages/StartPage'),
   impressum: () => import('@/pages/Impressum'),
   datenschutz: () => import('@/pages/Datenschutz'),
@@ -65,10 +66,12 @@ export function preloadLikelyRoutes(currentPath: string): void {
         preloadRoute('generator');
         break;
       case '/generator':
-        // From generator, users likely export or go back to start
+        // From generator, users likely export, present, or go back to start
         addPrefetchHint('/export', { as: 'document', importance: 'low' });
+        addPrefetchHint('/present', { as: 'document', importance: 'low' });
         addPrefetchHint('/', { as: 'document', importance: 'low' });
         preloadRoute('export');
+        preloadRoute('present');
         preloadRoute('startpage');
         break;
       case '/export':

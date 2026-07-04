@@ -12,6 +12,7 @@ import SimpleCircleView from '@/components/circle/SimpleCircleView';
 import CircleControlBar from '@/components/circle/CircleControlBar';
 import SeatingModeToggle, { type SeatingMode } from './SeatingModeToggle';
 import type { ConnectionDisplayMode } from '@/components/circle/SimpleCircleView';
+import type { PhotoDisplayMode } from '@/types';
 import {
   useSeatingPlanState,
   useSeatingPlanActions,
@@ -63,6 +64,11 @@ export default function EnhancedSeatingPlanView(
   // Connection mode state for circle view
   const [connectionMode, setConnectionMode] =
     useState<ConnectionDisplayMode>('subtle');
+  // Photo display mode for circle view (parity with the seating plan).
+  const [photoMode, setPhotoMode] = usePersistentState<PhotoDisplayMode>(
+    LOCAL_STORAGE_KEYS.circlePhotoMode,
+    'all',
+  );
   const isMobile = useIsMobile();
 
   // Use prop values if provided, otherwise use internal state and logic
@@ -158,6 +164,15 @@ export default function EnhancedSeatingPlanView(
     navigate('/export');
   }, [hasUnsavedChanges, props, circleLayout, navigate]);
 
+  // Present handler that saves only if there are changes, then opens the
+  // smartboard view directly in circle mode.
+  const handlePresentWithConditionalSave = useCallback(() => {
+    if (hasUnsavedChanges()) {
+      props.saveSeatingPlan(props.planName, props.classroomScene, circleLayout);
+    }
+    navigate('/present', { state: { mode: 'circle' } });
+  }, [hasUnsavedChanges, props, circleLayout, navigate]);
+
   // Calculate actual neighborhood count (preserved neighbors from table seating)
   // For circle mode, we need different controls and view
   if (showModeToggle && seatingMode === 'circle') {
@@ -172,6 +187,8 @@ export default function EnhancedSeatingPlanView(
                     <CircleViewControls
                       connectionMode={connectionMode}
                       onConnectionModeChange={setConnectionMode}
+                      photoMode={photoMode}
+                      onPhotoModeChange={setPhotoMode}
                       onSyncCircle={() =>
                         void generateCircleSeating({
                           mode: 'preserve-neighbors',
@@ -187,6 +204,8 @@ export default function EnhancedSeatingPlanView(
                     <CircleViewControls
                       connectionMode={connectionMode}
                       onConnectionModeChange={setConnectionMode}
+                      photoMode={photoMode}
+                      onPhotoModeChange={setPhotoMode}
                       onSyncCircle={() =>
                         void generateCircleSeating({
                           mode: 'preserve-neighbors',
@@ -226,6 +245,7 @@ export default function EnhancedSeatingPlanView(
                   isDark={isDark}
                   connectionMode={connectionMode}
                   onConnectionModeChange={setConnectionMode}
+                  photoMode={photoMode}
                   onSyncCircle={() =>
                     void generateCircleSeating({ mode: 'preserve-neighbors' })
                   }
@@ -347,6 +367,7 @@ export default function EnhancedSeatingPlanView(
               circleLayout={circleLayout}
               classroomScene={props.classroomScene}
               onExport={handleExportWithConditionalSave}
+              onPresent={handlePresentWithConditionalSave}
               isSaveDisabled={props.currentSeating.length === 0}
             />
           </div>

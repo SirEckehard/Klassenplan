@@ -132,6 +132,9 @@ export type StudentAppearance = {
  * @param student - The student to get appearance for (null for empty seat)
  * @param isDark - Whether dark mode is active
  * @param locked - Whether the seat is locked (optional, defaults to false)
+ * @param neutralColors - Force the neutral (colorless) appearance, ignoring
+ *   gender colors (optional, defaults to false). Empty/locked seats keep their
+ *   own overrides.
  * @returns Object with fill, stroke, and text colors
  *
  * @example
@@ -144,6 +147,7 @@ export function getStudentAppearance(
   student: Student | null,
   isDark: boolean,
   locked = false,
+  neutralColors = false,
 ): Omit<StudentAppearance, 'flags'> {
   const mode = isDark ? 'dark' : 'light';
 
@@ -165,7 +169,7 @@ export function getStudentAppearance(
     };
   }
 
-  if (!student.gender) {
+  if (neutralColors || !student.gender) {
     return {
       fill: STUDENT_COLORS.neutral.fill[mode],
       stroke: STUDENT_COLORS.neutral.stroke[mode],

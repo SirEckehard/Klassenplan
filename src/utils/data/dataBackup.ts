@@ -34,6 +34,13 @@ import {
 } from '@/utils/state/resetApplicationState';
 import { createClassCollection, createClassRecord } from './classCollection';
 import { normalizeSeatingHistory } from '@/utils/data/planNormalization';
+import {
+  getAllPhotos,
+  setStudentPhoto,
+  clearAllPhotos,
+} from '@/repositories/studentPhotoStore';
+import { clearPhotoCache, invalidatePhoto } from '@/hooks/student/studentPhotoCache';
+import { blobToDataUrl, dataUrlToBlob } from '@/utils/image/processStudentPhoto';
 
 const FALLBACK_CLASS_NAME = 'Importierte Klasse';
 const BACKUP_LOG_SOURCE = 'dataBackup';
@@ -101,6 +108,58 @@ function createLegacyClassCollection(
 }
 
 /**
+ * Read every stored student photo and convert to base64 Data URLs for embedding
+ * in a backup (export version 2). Returns undefined when there are no photos so
+ * v1-style backups stay free of the field. Failures are logged and treated as
+ * "no photos" rather than failing the whole export.
+ */
+async function collectStudentPhotosForExport(): Promise<
+  Record<string, string> | undefined
+> {
+  try {
+    const photos = await getAllPhotos();
+    if (photos.size === 0) {
+      return undefined;
+    }
+    const entries = await Promise.all(
+      [...photos].map(
+        async ([id, blob]) => [id, await blobToDataUrl(blob)] as const,
+      ),
+    );
+    return Object.fromEntries(entries);
+  } catch (error) {
+    logError('Failed to collect student photos for export', { error }, 'dataBackup');
+    return undefined;
+  }
+}
+
+/**
+ * Restore embedded student photos from a backup into the photo store.
+ *
+ * @param allowedIds When provided (merge import), only photos for these student
+ *   ids are restored; otherwise every embedded photo is restored.
+ */
+async function restoreStudentPhotos(
+  studentPhotos: Record<string, string> | undefined,
+  allowedIds?: Set<string>,
+): Promise<void> {
+  if (!studentPhotos) return;
+  const entries = Object.entries(studentPhotos).filter(
+    ([id]) => !allowedIds || allowedIds.has(id),
+  );
+  await Promise.all(
+    entries.map(async ([id, dataUrl]) => {
+      try {
+        await setStudentPhoto(id, dataUrlToBlob(dataUrl));
+        invalidatePhoto(id);
+      } catch (error) {
+        logError('Failed to restore student photo', { error, id }, 'dataBackup');
+      }
+    }),
+  );
+}
+
+/**
  * Export all stored data to a JSON string.
  */
 export async function exportAllAsJson(
@@ -121,6 +180,7 @@ export async function exportAllAsJson(
     const normalizedSeatingHistory = normalizeBackupSeatingHistory(
       data.seatingHistory,
     );
+    const studentPhotos = await collectStudentPhotosForExport();
     const bundle: ExportBundle = {
       version: CURRENT_EXPORT_VERSION,
       students: data.students,
@@ -133,6 +193,7 @@ export async function exportAllAsJson(
       circleLayouts: data.circleLayouts || [],
       currentCircleLayout: data.currentCircleLayout || null,
       classCollection: data.classCollection ?? null,
+      ...(studentPhotos ? { studentPhotos } : {}),
     };
     return JSON.stringify(bundle, null, 2);
   } catch (e) {
@@ -280,6 +341,19 @@ export async function importAllFromJson(
     if (setters.setCircleLayouts && data.circleLayouts) {
       await setters.setCircleLayouts(data.circleLayouts);
     }
+
+    // Student photos (export version ≥ 2). On a full import we replace the photo
+    // store entirely; on a merge we only add photos for the imported students.
+    if (merge) {
+      await restoreStudentPhotos(
+        data.studentPhotos,
+        new Set(data.students.map((student) => student.id)),
+      );
+    } else {
+      await clearAllPhotos();
+      clearPhotoCache();
+      await restoreStudentPhotos(data.studentPhotos);
+    }
   } catch (error) {
     logError('Import failed while applying backup', { error }, 'dataBackup');
     if (error instanceof BackupValidationError) {
@@ -299,7 +373,9 @@ export async function clearAllData(
   try {
     if (!options?.skipIndexedDBClear) {
       await Promise.all(Object.values(DB_KEYS).map((k) => idbDel(k)));
+      await clearAllPhotos();
     }
+    clearPhotoCache();
     clearProjectLocalStorage();
     resetApplicationState(handlers);
   } catch (e) {

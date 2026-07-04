@@ -87,11 +87,32 @@
     "retryMix": "Erneut mischen",
     "mixNow": "Jetzt neu mischen"
   },
+  "present": {
+    "button": "Präsentieren",
+    "buttonTitle": "Sitzplan am Smartboard präsentieren",
+    "teacherView": "Lehreransicht",
+    "studentView": "Schüleransicht",
+    "circleView": "Sitzkreis",
+    "badges": "Merkmale",
+    "photos": "Fotos",
+    "colors": "Farben",
+    "zoom": "Zoom",
+    "resetView": "Ansicht zentrieren und zurücksetzen",
+    "back": "Zurück",
+    "empty": "Noch kein Sitzplan zum Präsentieren."
+  },
   "mode": {
     "table": "Sitzplan",
     "tableView": "Sitzplan anzeigen",
     "circle": "Sitzkreis",
     "circleView": "Sitzkreis anzeigen"
+  },
+  "legend": {
+    "title": "Legende",
+    "genderGirl": "Mädchen",
+    "genderBoy": "Junge",
+    "genderDiverse": "Divers",
+    "genderNeutral": "Ohne Angabe"
   },
   "circleView": {
     "step3": "Schritt 3: Sitzplan bearbeiten",
@@ -102,6 +123,8 @@
     "shuffleTitle": "Sitzkreis zufällig anordnen",
     "shuffleButton": "Zufällig mischen",
     "showConnections": "Verbindungen anzeigen",
+    "photoMode": "Fotos: {{mode}}",
+    "photoModeDescription": "Schülerfotos an den Plätzen anzeigen (An / Hover / Aus).",
     "generatingTitle": "Sitzkreis wird generiert...",
     "generatingHint": "Der Sitzkreis wird automatisch basierend auf dem Tischplan erstellt.",
     "connectionDescription": "Nachbarschaftsverbindungen zwischen Schülern.",
@@ -335,7 +358,9 @@
     "showPodium": "Pult anzeigen",
     "showNeeds": "Bedürfnisse anzeigen",
     "showFullNames": "Namen vollständig anzeigen",
+    "showPhotos": "Fotos anzeigen",
     "showClassInfo": "Zusätzliche Klasseninfos anzeigen",
+    "showLegend": "Legende anzeigen",
     "generatingCircle": "Sitzkreis wird erstellt...",
     "cancelCircleGeneration": "Abbrechen",
     "printDownloadedInfo": "Pop-up blockiert - PDF wurde heruntergeladen. Bitte öffne die Datei zum Drucken.",
@@ -394,6 +419,10 @@
     "showWindows": "Fenster anzeigen",
     "showDoor": "Tür anzeigen",
     "showPodium": "Pult anzeigen",
+    "studentPhotos": "Schülerfotos",
+    "photoModeAll": "An",
+    "photoModeHover": "Hover",
+    "photoModeOff": "Aus",
     "showStatistics": "Statistik anzeigen",
     "statisticsLabel": "Statistik anzeigen – Gesamt-Score {{score}}%",
     "autoMixRunning": "Automatisches Mischen läuft",

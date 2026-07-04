@@ -24,6 +24,7 @@ const SeatingPlanGenerator = lazyWithRetry(
   () => import('@/components/SeatingPlanGenerator/SeatingPlanGenerator'),
 );
 const Export = lazyWithRetry(() => import('@/pages/Export'));
+const Present = lazyWithRetry(() => import('@/pages/Present'));
 const Impressum = lazyWithRetry(() => import('@/pages/Impressum'));
 const Datenschutz = lazyWithRetry(() => import('@/pages/Datenschutz'));
 const Feedback = lazyWithRetry(() => import('@/pages/Feedback'));
@@ -66,6 +67,7 @@ function AppRoutes() {
       <Route index element={<StartPage />} />
       <Route path="generator" element={<SeatingPlanGenerator />} />
       <Route path="export" element={<Export />} />
+      <Route path="present" element={<Present />} />
       <Route path="impressum" element={<Impressum />} />
       <Route path="datenschutz" element={<Datenschutz />} />
       <Route path="feedback" element={<Feedback />} />
@@ -82,6 +84,11 @@ export default function App() {
   const { t } = useTranslation('common');
   const [showPerformanceDashboard, setShowPerformanceDashboard] =
     React.useState(false);
+
+  // The present view is a fullscreen presentation surface; the global footer
+  // (and its "clear all data" action) is out of place there.
+  const isPresentRoute =
+    location.pathname === '/present' || location.pathname === '/en/present';
 
   // Route preloading for better perceived performance
   React.useEffect(() => {
@@ -148,7 +155,7 @@ export default function App() {
         />
       </Suspense>
 
-      <Footer />
+      {!isPresentRoute && <Footer />}
       <CookieConsent />
     </div>
   );

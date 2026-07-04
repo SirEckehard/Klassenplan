@@ -15,8 +15,13 @@ export const STORAGE_KEYS = {
     showDoor: 'showDoor',
     showPodium: 'showPodium',
     seatingMode: 'spg.seatingMode',
+    photoDisplayMode: 'spg.photoDisplayMode',
+    circlePhotoMode: 'circle-photo-mode',
     lockSeatLabelOrientation: 'lockSeatLabelOrientation',
     seatLabelRotation: 'seatLabelRotation',
+    presentShowPhotos: 'spg.present.showPhotos',
+    presentShowColors: 'spg.present.showColors',
+    presentZoom: 'spg.present.zoom',
     lastSeenVersion: 'spg.lastSeenVersion',
     mixSettings: 'spg.mixSettings',
     sidebarExpanded: 'spg.sidebarExpanded',
@@ -37,6 +42,20 @@ export const STORAGE_KEYS = {
     classCollection: 'spg.classCollection',
     version: 'spg.version',
   },
+} as const;
+
+/**
+ * Student photos live in their own IndexedDB database/object store (created via
+ * idb-keyval's `createStore`), NOT in the default `keyval` store used by the
+ * keys above. This keeps the (potentially larger) binary blobs out of every
+ * read/write of the class collection and lets us clear them independently.
+ *
+ * Keys inside this store are raw `student.id` strings; values are image Blobs.
+ * Managed by {@link file://./../../repositories/studentPhotoStore.ts}.
+ */
+export const STUDENT_PHOTO_STORE = {
+  dbName: 'spg-student-photos',
+  storeName: 'photos',
 } as const;
 
 // Legacy exports for backward compatibility
@@ -63,6 +82,8 @@ export const PROJECT_LOCAL_STORAGE_KEYS = [
   STORAGE_KEYS.localStorage.showDoor,
   STORAGE_KEYS.localStorage.showPodium,
   STORAGE_KEYS.localStorage.seatingMode,
+  STORAGE_KEYS.localStorage.photoDisplayMode,
+  STORAGE_KEYS.localStorage.circlePhotoMode,
   STORAGE_KEYS.localStorage.lockSeatLabelOrientation,
   STORAGE_KEYS.localStorage.seatLabelRotation,
   STORAGE_KEYS.localStorage.lastSeenVersion,

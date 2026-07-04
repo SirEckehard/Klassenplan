@@ -1,12 +1,17 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import React, { useMemo, useReducer, useRef } from 'react';
-import type { Student, ClassroomTable } from '@/types';
+import type {
+  Student,
+  ClassroomTable,
+  PhotoDisplayMode,
+} from '@/types';
 import {
   TABLE_CORNER_RADIUS,
   getSeatHighlight,
   type SeatHighlightLookup,
 } from '@/utils';
+import { getStudentAppearance } from '@/utils/ui/studentAppearance';
 import {
   calculateSeatLayout,
   determineSeatEdge,
@@ -27,6 +32,8 @@ type TableProps = {
   index: number;
   students: (Student | null)[];
   allStudents?: Student[];
+  /** Optional studentId -> photo URL map (Object URL live / Data URL export). */
+  photoUrls?: ReadonlyMap<string, string>;
   selected: boolean;
   onPointerDown?: (e: React.PointerEvent<SVGGElement>) => void;
   moveStudent?: (
@@ -52,6 +59,8 @@ type TableProps = {
   onSeatHoverChange?: (hover: DragHover | null) => void;
   onSeatDropRejected?: (target: DragHover) => void;
   showSpecialNeeds?: boolean;
+  /** When false, gender colors are dropped for a neutral (colorless) render. */
+  showGenderColors?: boolean;
   isDark?: boolean;
   lockSeatLabelOrientation?: boolean;
   seatLabelRotation?: number;
@@ -63,6 +72,12 @@ type TableProps = {
    * the table edge are drawn in both modes.
    */
   seatMarkerMode?: 'full' | 'dots';
+  /**
+   * How student photos are shown on the seat dots at the table edges:
+   * 'all' grows every dot with a photo, 'hover' only the hovered seat's dot,
+   * 'off' keeps the plain small dots. Hover is interactive (editor) only.
+   */
+  photoDisplayMode?: PhotoDisplayMode;
 };
 
 function SceneTable({
@@ -70,6 +85,7 @@ function SceneTable({
   index,
   students,
   allStudents = [],
+  photoUrls,
   selected,
   onPointerDown,
   moveStudent,
@@ -90,14 +106,20 @@ function SceneTable({
   onSeatHoverChange,
   onSeatDropRejected,
   showSpecialNeeds = true,
+  showGenderColors = true,
   isDark = false,
   lockSeatLabelOrientation = true,
   seatLabelRotation = 0,
   showFullNames = false,
   seatHighlights = null,
   seatMarkerMode = 'full',
+  photoDisplayMode = 'off',
 }: TableProps) {
   const tableRef = useRef<SVGGElement>(null);
+  const hoverPhotosEnabled = photoDisplayMode === 'hover';
+  const [hoveredSeatIndex, setHoveredSeatIndex] = React.useState<number | null>(
+    null,
+  );
   const inverseRotation = -table.rotation;
   const seatTextRotation = inverseRotation + seatLabelRotation;
   const clipPathId = useMemo(
@@ -142,13 +164,24 @@ function SceneTable({
   const tableFill = isDark ? '#374151' : '#fff';
   const tableStroke = selected ? '#3b82f6' : isDark ? '#d1d5db' : '#000';
 
-  // Chair dots: one small filled dot per seat, centered on the table edge the
-  // seat faces. The facing edge is derived per template via determineSeatEdge
-  // (the same logic the table-template previews use) so it is correct for every
-  // table type, not only the 4-seat group. Drawn outside the seat clip group so
-  // they overlap the table edge by half.
+  // Chair dots: one small filled dot per seat, docked just outside the table
+  // edge the seat faces. The facing edge is derived per template via
+  // determineSeatEdge (the same logic the table-template previews use) so it is
+  // correct for every table type, not only the 4-seat group. Drawn outside the
+  // seat clip group so they sit against the table border instead of inside it.
   const chairFill = isDark ? '#9ca3af' : '#94a3b8';
   const chairRadius = Math.max(2.5, Math.min(5, Math.min(seatWidth, seatHeight) * 0.12));
+  // Dock tangentially: the dot/photo sits fully outside the table and its inner
+  // edge just kisses the outer edge of the table border stroke (half of the 1px
+  // base border), so it touches the border without overlapping into the table.
+  const TABLE_BORDER_HALF = 0.5;
+  // When a dot "grows" into a photo avatar it scales with the seat but stays
+  // small enough that neighbouring dots (≈ one seat width/height apart) don't
+  // overlap (diameter ≈ 0.7 × the smaller seat dimension).
+  const photoRadius = Math.max(
+    9,
+    Math.min(18, Math.min(seatWidth, seatHeight) * 0.35),
+  );
   const chairDots = useMemo(() => {
     const fallback = Math.max(cols, 1);
     return students.map((_, seatIndex) => {
@@ -166,16 +199,24 @@ function SceneTable({
       const rowCenter = position.row * seatHeight + seatHeight / 2;
       let cx = colCenter;
       let cy = rowCenter;
+      // Outward normal of the facing edge — dots and photos are offset along it
+      // so they dock just *outside* the table border instead of straddling it.
+      let nx = 0;
+      let ny = 0;
       if (edge === 'left') {
         cx = 0;
+        nx = -1;
       } else if (edge === 'right') {
         cx = table.width;
+        nx = 1;
       } else if (edge === 'top') {
         cy = 0;
+        ny = -1;
       } else {
         cy = table.height;
+        ny = 1;
       }
-      return { key: seatIndex, cx, cy };
+      return { key: seatIndex, cx, cy, nx, ny };
     });
   }, [
     students,
@@ -310,6 +351,7 @@ function SceneTable({
         allStudents={allStudents}
         showSpecialNeeds={showSpecialNeeds}
         showFullNames={showFullNames}
+        showGenderColors={showGenderColors}
         showSeatLabels={seatMarkerMode === 'full'}
         lockSeatLabelOrientation={lockSeatLabelOrientation}
         seatTextRotation={seatTextRotation}
@@ -317,17 +359,122 @@ function SceneTable({
         toggleLock={toggleLock}
         onSeatPointerDown={draggable ? handleSeatPointerDown : undefined}
         onSeatPointerUp={draggable ? handleSeatPointerUp : undefined}
+        onSeatPointerEnter={
+          hoverPhotosEnabled
+            ? (seatIndex) => setHoveredSeatIndex(seatIndex)
+            : undefined
+        }
+        onSeatPointerLeave={
+          hoverPhotosEnabled
+            ? (seatIndex) =>
+                setHoveredSeatIndex((current) =>
+                  current === seatIndex ? null : current,
+                )
+            : undefined
+        }
       />
-      {chairDots.map((dot) => (
-        <circle
-          key={`chair-${dot.key}`}
-          cx={dot.cx}
-          cy={dot.cy}
-          r={chairRadius}
-          fill={chairFill}
-          pointerEvents="none"
-        />
-      ))}
+      {chairDots.map((dot) => {
+        const seatStudent = students[dot.key] ?? null;
+        const photoUrl =
+          seatMarkerMode === 'full' && seatStudent?.hasPhoto
+            ? photoUrls?.get(seatStudent.id)
+            : undefined;
+        const showPhoto =
+          !!photoUrl &&
+          (photoDisplayMode === 'all' ||
+            (photoDisplayMode === 'hover' && hoveredSeatIndex === dot.key));
+
+        if (!showPhoto || !photoUrl) {
+          // Dock the dot tangentially against the table border: fully outside,
+          // inner edge kissing the border's outer edge.
+          return (
+            <circle
+              key={`chair-${dot.key}`}
+              cx={dot.cx + dot.nx * (chairRadius + TABLE_BORDER_HALF)}
+              cy={dot.cy + dot.ny * (chairRadius + TABLE_BORDER_HALF)}
+              r={chairRadius}
+              fill={chairFill}
+              pointerEvents="none"
+            />
+          );
+        }
+
+        // Dock the photo tangentially against the table border: fully outside,
+        // inner edge kissing the border's outer edge (no protrusion into the
+        // seat/name tag).
+        const photoCx = dot.cx + dot.nx * (photoRadius + TABLE_BORDER_HALF);
+        const photoCy = dot.cy + dot.ny * (photoRadius + TABLE_BORDER_HALF);
+        // Counter-rotate the avatar about its own centre so the photo stays
+        // upright when the table is rotated — same rule the seat labels use.
+        const uprightTransform = lockSeatLabelOrientation
+          ? `rotate(${seatTextRotation} ${photoCx} ${photoCy})`
+          : undefined;
+        const ringStroke = getStudentAppearance(
+          seatStudent,
+          isDark,
+          false,
+          !showGenderColors,
+        ).stroke;
+        const clipId = `chair-photo-${index}-${dot.key}`;
+        return (
+          <g
+            key={`chair-${dot.key}`}
+            transform={uprightTransform}
+            pointerEvents="none"
+          >
+            {/* Inner group carries the entrance animation (hover mode only) so
+                the rotate attribute above and the CSS transform don't collide. */}
+            <g
+              style={
+                photoDisplayMode === 'hover'
+                  ? {
+                      animation: 'seat-photo-pop 130ms ease-out',
+                      transformBox: 'fill-box',
+                      transformOrigin: 'center',
+                    }
+                  : undefined
+              }
+            >
+              <defs>
+                <clipPath id={clipId}>
+                  <circle cx={photoCx} cy={photoCy} r={photoRadius} />
+                </clipPath>
+              </defs>
+              <circle
+                cx={photoCx}
+                cy={photoCy}
+                r={photoRadius}
+                fill={isDark ? '#374151' : '#fff'}
+              />
+              <image
+                href={photoUrl}
+                x={photoCx - photoRadius}
+                y={photoCy - photoRadius}
+                width={photoRadius * 2}
+                height={photoRadius * 2}
+                preserveAspectRatio="xMidYMid slice"
+                clipPath={`url(#${clipId})`}
+              />
+              <circle
+                cx={photoCx}
+                cy={photoCy}
+                r={photoRadius}
+                fill="none"
+                stroke={isDark ? '#1f2937' : '#fff'}
+                strokeWidth={2.5}
+              />
+              <circle
+                cx={photoCx}
+                cy={photoCy}
+                r={photoRadius}
+                fill="none"
+                stroke={ringStroke}
+                strokeWidth={1.25}
+              />
+            </g>
+          </g>
+        );
+      })}
       <rect
         width={table.width}
         height={table.height}

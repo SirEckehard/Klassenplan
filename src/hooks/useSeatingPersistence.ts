@@ -49,6 +49,7 @@ import {
 import { useSeatingRepository } from './useSeatingRepository';
 import { useDownloadFile } from './useDownloadFile';
 import { summarizeClass } from '@/utils/data/classCollection';
+import { sweepOrphanPhotos } from '@/repositories/studentPhotoStore';
 import {
   usePersistErrorHandling,
   usePersistQueue,
@@ -237,6 +238,16 @@ export function useSeatingPersistence(state: SeatingState) {
           (entry) => entry.id === collection.activeClassId,
         ) ?? collection.classes[0];
       setActiveClass(mapActiveClass(activeRecord));
+
+      // Remove photos whose student no longer exists in any class (e.g. after a
+      // class was deleted). Fire-and-forget; failures are handled internally.
+      const knownStudentIds = new Set<string>();
+      for (const entry of collection.classes) {
+        for (const student of entry.students ?? []) {
+          knownStudentIds.add(student.id);
+        }
+      }
+      void sweepOrphanPhotos(knownStudentIds);
     },
     [mapActiveClass, setActiveClass, setClassSummaries],
   );

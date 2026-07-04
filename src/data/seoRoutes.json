@@ -30,6 +30,16 @@
     "ogType": "article"
   },
   {
+    "path": "/present",
+    "title": "Sitzplan präsentieren | Klassenplan",
+    "description": "Zeige deinen Sitzplan am Smartboard – wahlweise als Lehrer- oder gespiegelte Schüleransicht.",
+    "titleEn": "Present Seating Chart | Klassenplan",
+    "descriptionEn": "Show your seating chart on the smartboard – as a teacher view or a mirrored student view.",
+    "changefreq": "monthly",
+    "priority": 0.5,
+    "ogType": "article"
+  },
+  {
     "path": "/impressum",
     "title": "Impressum | Klassenplan",
     "description": "Kontaktdaten, Verantwortliche und rechtliche Angaben zum Projekt Klassenplan.",

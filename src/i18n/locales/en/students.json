@@ -1,4 +1,17 @@
 {
+  "photo": {
+    "add": "Add photo",
+    "change": "Change photo",
+    "remove": "Remove photo",
+    "privacyHint": "Photos are stored only locally on this device and never uploaded.",
+    "cropTitle": "Crop photo",
+    "cropSubtitle": "Drag to move, zoom and rotate – then apply.",
+    "zoom": "Zoom",
+    "rotateLeft": "Rotate left",
+    "rotateRight": "Rotate right",
+    "apply": "Apply",
+    "cancel": "Cancel"
+  },
   "classManagement": {
     "title": "Class Management",
     "activeClass": "Active Class",

@@ -87,11 +87,32 @@
     "retryMix": "Try again",
     "mixNow": "Shuffle now"
   },
+  "present": {
+    "button": "Present",
+    "buttonTitle": "Present the seating chart on the smartboard",
+    "teacherView": "Teacher view",
+    "studentView": "Student view",
+    "circleView": "Circle",
+    "badges": "Markers",
+    "photos": "Photos",
+    "colors": "Colors",
+    "zoom": "Zoom",
+    "resetView": "Recentre and reset view",
+    "back": "Back",
+    "empty": "No seating chart to present yet."
+  },
   "mode": {
     "table": "Seating Plan",
     "tableView": "Show Seating Plan",
     "circle": "Seating Circle",
     "circleView": "Show Seating Circle"
+  },
+  "legend": {
+    "title": "Legend",
+    "genderGirl": "Girl",
+    "genderBoy": "Boy",
+    "genderDiverse": "Diverse",
+    "genderNeutral": "Unspecified"
   },
   "circleView": {
     "step3": "Step 3: Edit Seating Plan",
@@ -102,6 +123,8 @@
     "shuffleTitle": "Randomly shuffle circle",
     "shuffleButton": "Shuffle randomly",
     "showConnections": "Show connections",
+    "photoMode": "Photos: {{mode}}",
+    "photoModeDescription": "Show student photos on the tokens (On / Hover / Off).",
     "generatingTitle": "Generating seating circle...",
     "generatingHint": "The seating circle is automatically created based on the table plan.",
     "connectionDescription": "Neighborhood connections between students.",
@@ -335,7 +358,9 @@
     "showPodium": "Show podium",
     "showNeeds": "Show special needs",
     "showFullNames": "Show full names",
+    "showPhotos": "Show photos",
     "showClassInfo": "Show additional class info",
+    "showLegend": "Show legend",
     "generatingCircle": "Creating seating circle...",
     "cancelCircleGeneration": "Cancel",
     "printDownloadedInfo": "Pop-up blocked - PDF was downloaded. Please open the file to print.",
@@ -394,6 +419,10 @@
     "showWindows": "Show windows",
     "showDoor": "Show door",
     "showPodium": "Show teacher's desk",
+    "studentPhotos": "Student photos",
+    "photoModeAll": "On",
+    "photoModeHover": "Hover",
+    "photoModeOff": "Off",
     "showStatistics": "Show statistics",
     "statisticsLabel": "Show statistics – Total score {{score}}%",
     "autoMixRunning": "Auto-shuffle in progress",

@@ -195,6 +195,13 @@ export default function Datenschutz() {
                   wurde.
                 </p>
                 <p>
+                  Optional hinzugefügte <strong>Schülerfotos</strong> werden
+                  ebenfalls ausschließlich lokal auf diesem Gerät (in IndexedDB)
+                  gespeichert und niemals übertragen. Sie sind nur in einem
+                  Backup enthalten, wenn du selbst eines exportierst, und werden
+                  gemeinsam mit den übrigen Daten gelöscht.
+                </p>
+                <p>
                   Sämtliche Daten sind über den Button{' '}
                   <strong>Alle Daten löschen</strong> im Footer oder über die
                   Löschfunktion deines Browsers zu entfernen.

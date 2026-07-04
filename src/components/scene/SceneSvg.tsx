@@ -2,7 +2,11 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import type { ClassroomScene, SeatingArrangement, Student } from '@/types';
+import type {
+  ClassroomScene,
+  SeatingArrangement,
+  Student,
+} from '@/types';
 import TableIcon from './SceneTable';
 import {
   CLASSROOM_WIDTH,
@@ -11,6 +15,8 @@ import {
 } from '@/utils';
 import { getFeatureStyles } from '@/utils/ui';
 import type { FeatureVisibilityFlags } from '@/utils/ui';
+import { buildLegendLayout } from '@/utils/ui/classBadgeLegend';
+import ExportLegend from '@/components/scene/ExportLegend';
 
 type ClassMetadataInfo = {
   name?: string | null;
@@ -22,6 +28,8 @@ type SceneSvgProps = {
   scene: ClassroomScene;
   seating: SeatingArrangement;
   allStudents?: Student[];
+  /** Pre-resolved studentId -> Data URL map for rendering photos in the export. */
+  photoUrls?: ReadonlyMap<string, string>;
   title?: string;
   classMetadata?: ClassMetadataInfo;
   showSpecialNeeds?: boolean;
@@ -33,12 +41,17 @@ type SceneSvgProps = {
   seatLabelRotation?: number;
   orientation?: 'landscape' | 'portrait';
   showFullNames?: boolean;
+  /** Photo display on the seat dots for the export: 'all' shows them, 'off' hides. */
+  photoDisplayMode?: 'all' | 'off';
+  /** When true, append a legend (badge icons + gender colours) in the footer. */
+  showLegend?: boolean;
 };
 
 export default function SceneSvg({
   scene,
   seating,
   allStudents = [],
+  photoUrls,
   title,
   classMetadata,
   showSpecialNeeds = true,
@@ -50,6 +63,8 @@ export default function SceneSvg({
   seatLabelRotation = 0,
   orientation = 'portrait',
   showFullNames = false,
+  photoDisplayMode = 'all',
+  showLegend = false,
 }: SceneSvgProps) {
   const { t, i18n } = useTranslation('generator');
 
@@ -103,17 +118,50 @@ export default function SceneSvg({
   const metadataLineSpacing = isPortrait ? 8 : 14;
   const headerHeight =
     baseHeaderHeight + metadataGap + metadataLines.length * metadataLineSpacing;
-  const availableHeight = pageHeight - margin * 2 - headerHeight;
+
+  // Optional legend (badge icons + gender colours) drawn as an un-rotated footer
+  // band. Computed first so its height can be reserved out of availableHeight.
+  const legendFontSize = isPortrait ? 7 : 10;
+  const legendIconSize = isPortrait ? 10 : 13;
+  const legendLayout =
+    showLegend && allStudents.length > 0
+      ? buildLegendLayout({
+          students: allStudents,
+          width: pageWidth - margin * 2,
+          fontSize: legendFontSize,
+          iconSize: legendIconSize,
+          showSpecialNeeds,
+          genderLabels: {
+            girl: t('legend.genderGirl', 'Mädchen'),
+            boy: t('legend.genderBoy', 'Junge'),
+            diverse: t('legend.genderDiverse', 'Divers'),
+            neutral: t('legend.genderNeutral', 'Ohne Angabe'),
+          },
+        })
+      : null;
+  const legendGap = legendLayout && legendLayout.height > 0 ? 10 : 0;
+  const legendBandHeight = legendLayout ? legendLayout.height : 0;
+  const availableHeight =
+    pageHeight - margin * 2 - headerHeight - legendBandHeight - legendGap;
+
+  // Seats near the classroom edge dock their photo just *outside* the seat, so a
+  // table flush against the border pushes the photo past CLASSROOM_WIDTH/HEIGHT.
+  // Reserve a margin around the classroom when fitting it to the page so those
+  // photos stay visible instead of being clipped at the page edge. Worst case:
+  // a seat photo reaches ~2×max-photo-radius (18) + border past the seat edge.
+  const PHOTO_OVERFLOW = 40;
+  const paddedWidth = CLASSROOM_WIDTH + PHOTO_OVERFLOW * 2;
+  const paddedHeight = CLASSROOM_HEIGHT + PHOTO_OVERFLOW * 2;
 
   // Portrait mode: account for 90° rotation (classroom dimensions swap)
   const scale = isPortrait
     ? Math.min(
-        (pageWidth - margin * 2) / CLASSROOM_HEIGHT, // After rotation: height becomes width
-        availableHeight / CLASSROOM_WIDTH, // After rotation: width becomes height
+        (pageWidth - margin * 2) / paddedHeight, // After rotation: height becomes width
+        availableHeight / paddedWidth, // After rotation: width becomes height
       )
     : Math.min(
-        (pageWidth - margin * 2) / CLASSROOM_WIDTH,
-        availableHeight / CLASSROOM_HEIGHT,
+        (pageWidth - margin * 2) / paddedWidth,
+        availableHeight / paddedHeight,
       );
 
   // Calculate precise centering offsets - simplified approach for portrait
@@ -344,6 +392,7 @@ export default function SceneSvg({
             index={i}
             students={seating[i] || []}
             allStudents={allStudents}
+            photoUrls={photoUrls}
             selected={false}
             onUpdate={() => {}}
             editable={false}
@@ -356,9 +405,20 @@ export default function SceneSvg({
                 : seatLabelRotation
             }
             showFullNames={showFullNames}
+            photoDisplayMode={photoDisplayMode}
           />
         ))}
       </g>
+      {legendLayout && legendLayout.height > 0 && (
+        <ExportLegend
+          layout={legendLayout}
+          x={isPortrait ? margin : 70}
+          y={pageHeight - margin - legendBandHeight}
+          title={t('legend.title', 'Legende')}
+          fontSize={legendFontSize}
+          iconSize={legendIconSize}
+        />
+      )}
     </svg>
   );
 }

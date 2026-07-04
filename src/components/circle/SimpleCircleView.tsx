@@ -2,7 +2,8 @@
 // Copyright (C) 2026 Eike Schäfer
 import React, { useState, useCallback } from 'react';
 import type { CircleLayout } from '@/types/Circle';
-import type { Student } from '@/types';
+import type { PhotoDisplayMode, Student } from '@/types';
+import { LOCAL_STORAGE_KEYS } from '@/utils/data/storageKeys';
 import { angleToPosition } from '@/utils/math/circleGeometry';
 import {
   GRID_SIZE,
@@ -16,8 +17,10 @@ import {
   getAllStudentBadges,
   calculateBadgePillLayout,
 } from '@/utils/ui/studentAppearance';
+import { computeTokenPhotoLayout } from '@/utils/ui/studentTokenLayout';
 import { useCircleDragDrop } from '@/hooks/circle/useCircleDragDrop';
 import { useIsMobile } from '@/hooks/ui/useIsMobile';
+import { useStudentPhotoUrls } from '@/hooks/student/useStudentPhoto';
 
 // Connection display modes
 export type ConnectionDisplayMode = 'off' | 'subtle';
@@ -26,12 +29,19 @@ type SimpleCircleViewProps = {
   layout: CircleLayout;
   isDark?: boolean;
   showSpecialNeeds?: boolean;
+  /** When false, gender colors are dropped for a neutral (colorless) render. */
+  showGenderColors?: boolean;
   showGrid?: boolean;
+  /** Drop the canvas background so the circle blends into the page (present mode). */
+  transparentBackground?: boolean;
   editable?: boolean;
   onStudentMove?: (studentId: string, targetPosition: number) => void;
   onSyncCircle?: () => void;
   connectionMode?: ConnectionDisplayMode;
   onConnectionModeChange?: (mode: ConnectionDisplayMode) => void;
+  /** How student photos show on the circle tokens: all / hover / off. */
+  photoMode?: PhotoDisplayMode;
+  onPhotoModeChange?: (mode: PhotoDisplayMode) => void;
 };
 
 /**
@@ -41,11 +51,14 @@ function SimpleCircleView({
   layout,
   isDark = false,
   showSpecialNeeds = true,
+  showGenderColors = true,
   showGrid = false,
+  transparentBackground = false,
   editable = false,
   onStudentMove,
   connectionMode: externalConnectionMode,
   onConnectionModeChange,
+  photoMode: externalPhotoMode,
 }: SimpleCircleViewProps) {
   const isMobile = useIsMobile();
   // Connection display mode - with localStorage persistence
@@ -84,6 +97,25 @@ function SimpleCircleView({
     }
   }, [connectionMode, onConnectionModeChange]);
 
+  // Photo display mode — falls back to a persisted local value (parity with the
+  // seating plan's all/hover/off control). Default 'all' preserves prior behaviour.
+  const photoMode: PhotoDisplayMode = (() => {
+    if (externalPhotoMode) return externalPhotoMode;
+    try {
+      const stored = localStorage.getItem(LOCAL_STORAGE_KEYS.circlePhotoMode);
+      if (stored === 'all' || stored === 'hover' || stored === 'off') {
+        return stored;
+      }
+    } catch (error) {
+      logDebug('Failed to read circle photo mode from localStorage', { error });
+    }
+    return 'all';
+  })();
+  // Hover mode tracks the pointer-hovered token so only its photo is revealed.
+  const [hoveredPhotoPosition, setHoveredPhotoPosition] = useState<
+    number | null
+  >(null);
+
   // Drag and drop functionality
   const { dragState, handlePointerDown, svgRef } = useCircleDragDrop({
     layout,
@@ -119,9 +151,40 @@ function SimpleCircleView({
     [layout.students],
   );
 
+  const photoUrls = useStudentPhotoUrls(allStudents);
+
+  // When any student has a photo, shrink the ring so the avatars docked just
+  // outside each token still fit inside the 900×600 viewBox (otherwise the
+  // top/bottom photos get clipped by the canvas edge). The clearance equals the
+  // photo's outer reach from the token centre (seatRadius + 2×photoRadius) plus
+  // a small padding. With no photos the layout is left untouched.
+  const renderRadius = React.useMemo(() => {
+    const anyPhoto = allStudents.some((s) => s.hasPhoto);
+    if (!anyPhoto) return layout.radius;
+    const VIEWBOX_WIDTH = 900;
+    const VIEWBOX_HEIGHT = 600;
+    const photoReach = seatRadius + 2 * 18 + 6; // max circle avatar r = 18
+    const maxH =
+      Math.min(layout.center.x, VIEWBOX_WIDTH - layout.center.x) - photoReach;
+    const maxV =
+      Math.min(layout.center.y, VIEWBOX_HEIGHT - layout.center.y) - photoReach;
+    const scale = Math.min(
+      layout.radius.horizontal > 0
+        ? Math.min(1, maxH / layout.radius.horizontal)
+        : 1,
+      layout.radius.vertical > 0
+        ? Math.min(1, maxV / layout.radius.vertical)
+        : 1,
+    );
+    return {
+      horizontal: layout.radius.horizontal * scale,
+      vertical: layout.radius.vertical * scale,
+    };
+  }, [allStudents, layout.radius, layout.center]);
+
   const getCircleAppearance = (student: Student | null) => {
     return {
-      ...getStudentAppearance(student, isDark),
+      ...getStudentAppearance(student, isDark, !showGenderColors),
       flags: getAllStudentBadges(student, allStudents, {
         showSpecialNeeds,
         showPartners: showSpecialNeeds,
@@ -202,7 +265,7 @@ function SimpleCircleView({
     { length: layout.students.length },
     (_, index) => {
       const angle = (360 / layout.students.length) * index;
-      const position = angleToPosition(angle, layout.center, layout.radius);
+      const position = angleToPosition(angle, layout.center, renderRadius);
       return {
         position: index,
         angle,
@@ -268,7 +331,11 @@ function SimpleCircleView({
         className="block w-full h-auto rounded-lg"
         style={{
           aspectRatio: '3 / 2',
-          backgroundColor: isDark ? '#1f2937' : '#f9fafb',
+          backgroundColor: transparentBackground
+            ? 'transparent'
+            : isDark
+              ? '#1f2937'
+              : '#f9fafb',
           backgroundImage: showGrid
             ? `linear-gradient(to right, ${isDark ? '#374151' : '#e5e7eb'} 1px, transparent 1px), linear-gradient(to bottom, ${isDark ? '#374151' : '#e5e7eb'} 1px, transparent 1px)`
             : undefined,
@@ -417,6 +484,19 @@ function SimpleCircleView({
                           studentPosition.student.id,
                         )
                       }
+                      onPointerEnter={
+                        photoMode === 'hover'
+                          ? () => setHoveredPhotoPosition(slot.position)
+                          : undefined
+                      }
+                      onPointerLeave={
+                        photoMode === 'hover'
+                          ? () =>
+                              setHoveredPhotoPosition((current) =>
+                                current === slot.position ? null : current,
+                              )
+                          : undefined
+                      }
                       style={{
                         cursor: editable ? 'grab' : 'default',
                         touchAction: 'none',
@@ -441,6 +521,67 @@ function SimpleCircleView({
                           : 'fill 0.2s ease, stroke 0.2s ease, stroke-width 0.2s ease',
                       }}
                     />
+
+                    {/* Optional student photo: small circular avatar docked
+                        radially just outside the token, away from the circle
+                        centre, so it never overlaps the name. */}
+                    {(() => {
+                      const photoVisible =
+                        photoMode === 'all' ||
+                        (photoMode === 'hover' &&
+                          hoveredPhotoPosition === slot.position);
+                      if (!photoVisible) return null;
+                      const photoUrl = studentPosition.student.hasPhoto
+                        ? photoUrls.get(studentPosition.student.id)
+                        : undefined;
+                      if (!photoUrl) return null;
+                      const { avatar } = computeTokenPhotoLayout({
+                        shape: 'circle',
+                        centerX: slot.x,
+                        centerY: slot.y,
+                        width: seatDiameter,
+                        height: seatDiameter,
+                        hasPhoto: true,
+                        nameFontSize: seatFontSize,
+                        outward: {
+                          dirX: slot.x - layout.center.x,
+                          dirY: slot.y - layout.center.y,
+                          tokenRadius: seatRadius,
+                        },
+                      });
+                      if (!avatar) return null;
+                      const clipId = `circle-photo-${slot.position}`;
+                      return (
+                        <g pointerEvents="none">
+                          <defs>
+                            <clipPath id={clipId}>
+                              <circle
+                                cx={avatar.cx}
+                                cy={avatar.cy}
+                                r={avatar.r}
+                              />
+                            </clipPath>
+                          </defs>
+                          <image
+                            href={photoUrl}
+                            x={avatar.cx - avatar.r}
+                            y={avatar.cy - avatar.r}
+                            width={avatar.r * 2}
+                            height={avatar.r * 2}
+                            preserveAspectRatio="xMidYMid slice"
+                            clipPath={`url(#${clipId})`}
+                          />
+                          <circle
+                            cx={avatar.cx}
+                            cy={avatar.cy}
+                            r={avatar.r}
+                            fill="none"
+                            stroke={appearance.stroke}
+                            strokeWidth={1}
+                          />
+                        </g>
+                      );
+                    })()}
 
                     {/* Student name with improved readability */}
                     <text

@@ -16,6 +16,10 @@ import {
   ChalkboardSimpleIcon,
   FloppyDiskIcon,
   ExportIcon,
+  ChalkboardTeacherIcon,
+  EyeIcon,
+  CursorIcon,
+  EyeSlashIcon,
 } from '@phosphor-icons/react';
 import SmartSidebar from '@/components/ui/panels/SmartSidebar';
 import SmartMixControls from '@/components/ui/controls/SmartMixControls';
@@ -34,6 +38,7 @@ import {
   getViewportMetrics,
   primaryButtonClass,
   neutralButtonClass,
+  warningButtonClass,
   secondaryButtonClass,
   inputFieldClass,
   mutedIconButtonClass,
@@ -50,12 +55,14 @@ import type {
   Student,
   SavedPlan,
   MixResult,
+  PhotoDisplayMode,
 } from '@/types';
 import {
   calculateCriteriaWeightedScore,
   type CriterionFulfillment,
 } from '@/utils/algorithm/seatingStatistics';
 import { useIsDarkMode } from '@/hooks/useIsDarkMode';
+import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';
 import { useFirstVisit } from '@/hooks/ui/useFirstVisit';
 import { useIsMobile } from '@/hooks/ui/useIsMobile';
 import { buildCriterionHighlightEntries } from '@/utils/algorithm/criterionHighlights';
@@ -179,6 +186,8 @@ type Props = {
   classroomHeight: number;
   showGrid: boolean;
   setShowGrid: React.Dispatch<React.SetStateAction<boolean>>;
+  photoDisplayMode: PhotoDisplayMode;
+  setPhotoDisplayMode: React.Dispatch<React.SetStateAction<PhotoDisplayMode>>;
   sceneTables: ClassroomTable[];
   currentSeating: SeatingArrangement;
   students: Student[];
@@ -252,6 +261,8 @@ export default function SeatingPlanEditorView({
   classroomHeight,
   showGrid,
   setShowGrid,
+  photoDisplayMode,
+  setPhotoDisplayMode,
   sceneTables,
   currentSeating,
   students,
@@ -298,6 +309,7 @@ export default function SeatingPlanEditorView({
 }: Props) {
   const isDark = useIsDarkMode();
   const { t } = useTranslation('generator');
+  const navigate = useLocalizedNavigate();
   const isFirstVisit = useFirstVisit();
   const isMobile = useIsMobile();
   const backgroundColor = isDark ? '#1f2937' : '#f9fafb';
@@ -323,7 +335,10 @@ export default function SeatingPlanEditorView({
     (checked: boolean) => setShowGrid(() => checked),
     [setShowGrid],
   );
-
+  const handlePhotoDisplayModeChange = React.useCallback(
+    (next: string) => setPhotoDisplayMode(() => next as PhotoDisplayMode),
+    [setPhotoDisplayMode],
+  );
   const featureAvailability = React.useMemo(() => {
     const features = classroomScene.features ?? [];
     return {
@@ -353,6 +368,35 @@ export default function SeatingPlanEditorView({
             icon: <GridNine size={16} />,
             checked: showGrid,
             onChange: handleToggleGrid,
+          },
+        ],
+      },
+      {
+        id: 'editor-photos',
+        title: t('editor.studentPhotos', 'Schülerfotos'),
+        options: [
+          {
+            kind: 'segment' as const,
+            id: 'photo-display-mode',
+            value: photoDisplayMode,
+            onChange: handlePhotoDisplayModeChange,
+            choices: [
+              {
+                value: 'all',
+                label: t('editor.photoModeAll', 'An'),
+                icon: <EyeIcon size={14} />,
+              },
+              {
+                value: 'hover',
+                label: t('editor.photoModeHover', 'Hover'),
+                icon: <CursorIcon size={14} />,
+              },
+              {
+                value: 'off',
+                label: t('editor.photoModeOff', 'Aus'),
+                icon: <EyeSlashIcon size={14} />,
+              },
+            ],
           },
         ],
       },
@@ -406,6 +450,8 @@ export default function SeatingPlanEditorView({
       handleToggleGrid,
       handleTogglePodium,
       handleToggleWindows,
+      handlePhotoDisplayModeChange,
+      photoDisplayMode,
       showGrid,
       t,
     ],
@@ -678,6 +724,14 @@ export default function SeatingPlanEditorView({
     }
     onExport();
   }, [hasUnsavedChanges, saveSeatingPlan, planName, classroomScene, onExport]);
+
+  // Open the smartboard presentation view, saving first if there are changes.
+  const handlePresentWithConditionalSave = React.useCallback(() => {
+    if (hasUnsavedChanges()) {
+      saveSeatingPlan(planName, classroomScene);
+    }
+    navigate('/present', { state: { mode: 'table' } });
+  }, [hasUnsavedChanges, saveSeatingPlan, planName, classroomScene, navigate]);
 
   React.useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -970,6 +1024,7 @@ export default function SeatingPlanEditorView({
                   onTransformStart={snapshot}
                   isDark={isDark}
                   seatHighlights={seatHighlightLookup}
+                  photoDisplayMode={photoDisplayMode}
                 />
                 {autoMixing && (
                   <div className="pointer-events-auto absolute inset-0 z-20 flex items-center justify-center rounded-xl bg-white/70 backdrop-blur-sm dark:bg-gray-900/80">
@@ -1079,6 +1134,18 @@ export default function SeatingPlanEditorView({
                 )}
               </div>
               <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                <button
+                  type="button"
+                  onClick={handlePresentWithConditionalSave}
+                  title={t(
+                    'present.buttonTitle',
+                    'Sitzplan am Smartboard präsentieren',
+                  )}
+                  className={`${warningButtonClass} flex items-center gap-2`}
+                >
+                  <ChalkboardTeacherIcon className="w-4 h-4" size={16} />
+                  {t('present.button', 'Präsentieren')}
+                </button>
                 <button
                   type="button"
                   onClick={handleExportWithConditionalSave}

@@ -43,7 +43,12 @@ import {
   renderSceneSvg,
   preloadRenderer,
 } from '@/services/export/sceneRenderer';
-import type { SeatingArrangement } from '@/types';
+import { buildPhotoDataUrlMap } from '@/utils/export/pdfExportFunctions';
+import type {
+  PhotoDisplayMode,
+  SeatingArrangement,
+  Student,
+} from '@/types';
 import usePersistentState from '@/hooks/usePersistentState';
 import type { CircleLayout } from '@/types/Circle';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
@@ -69,6 +74,23 @@ import {
 } from '@/components/SeatingPlanGenerator/canvas/CanvasSettingsButton';
 
 type PageOrientation = 'landscape' | 'portrait';
+
+/**
+ * Read a value persisted by the editor (via {@link usePersistentState}) so the
+ * export page can seed its own defaults from the live editor settings (WYSIWYG).
+ * One-way seed: once the user changes an export control its own `export.*` key
+ * takes over.
+ */
+function readPersisted<T>(key: string, fallback: T): T {
+  if (typeof window === 'undefined' || !window.localStorage) return fallback;
+  try {
+    const raw = window.localStorage.getItem(key);
+    if (raw === null) return fallback;
+    return JSON.parse(raw) as T;
+  } catch {
+    return fallback;
+  }
+}
 
 const PORTRAIT_PAGE_RATIO = 817 / 1148;
 const LANDSCAPE_PAGE_RATIO = 1148 / 817;
@@ -167,9 +189,21 @@ export default function Export() {
     'export.showFullNames',
     false,
   );
+  // WYSIWYG: seed photo visibility/density defaults from the live editor state.
+  const [showPhotos, setShowPhotos] = usePersistentState<boolean>(
+    'export.showPhotos',
+    readPersisted<PhotoDisplayMode>(
+      LOCAL_STORAGE_KEYS.photoDisplayMode,
+      'hover',
+    ) !== 'off',
+  );
   const [showClassInfo, setShowClassInfo] = usePersistentState<boolean>(
     'export.showClassInfo',
     true,
+  );
+  const [showLegend, setShowLegend] = usePersistentState<boolean>(
+    'export.showLegend',
+    false,
   );
 
   const classMetadataForExport = useMemo(() => {
@@ -220,9 +254,17 @@ export default function Export() {
     (checked: boolean) => setShowFullNames(() => checked),
     [setShowFullNames],
   );
+  const handleTogglePhotos = useCallback(
+    (checked: boolean) => setShowPhotos(() => checked),
+    [setShowPhotos],
+  );
   const handleToggleClassInfo = useCallback(
     (checked: boolean) => setShowClassInfo(() => checked),
     [setShowClassInfo],
+  );
+  const handleToggleLegend = useCallback(
+    (checked: boolean) => setShowLegend(() => checked),
+    [setShowLegend],
   );
 
   useEffect(() => {
@@ -357,7 +399,22 @@ export default function Export() {
         checked: showClassInfo,
         onChange: handleToggleClassInfo,
       },
+      {
+        id: 'legend',
+        label: t('export.showLegend', 'Legende anzeigen'),
+        icon: <InfoIcon size={16} />,
+        checked: showLegend,
+        onChange: handleToggleLegend,
+      },
     );
+
+    displayOptions.push({
+      id: 'photos',
+      label: t('export.showPhotos', 'Fotos anzeigen'),
+      icon: <UserCircleIcon size={16} />,
+      checked: showPhotos,
+      onChange: handleTogglePhotos,
+    });
 
     const groups: CanvasSettingsGroup[] = [
       {
@@ -388,13 +445,17 @@ export default function Export() {
     handleToggleDoor,
     handleToggleFullNames,
     handleToggleNeeds,
+    handleTogglePhotos,
+    handleToggleLegend,
     handleTogglePodium,
     handleToggleWindows,
     previewMode,
     showClassInfo,
     showConnections,
     showFullNames,
+    showLegend,
     showNeeds,
+    showPhotos,
     t,
   ]);
 
@@ -583,12 +644,20 @@ export default function Export() {
 
       try {
         if (previewMode === 'circle' && circleLayout) {
+          const circlePhotoUrls = await buildPhotoDataUrlMap(
+            circleLayout.students
+              .map((entry) => entry.student)
+              .filter((student): student is Student => Boolean(student)),
+          );
           const svg = await renderCircleSvg(circleLayout, title, {
             showSpecialNeeds: showNeeds,
             showConnections,
             orientation: circleOrientation,
             showFullNames,
             classMetadata: classMetadataForExport,
+            photoDataUrls: circlePhotoUrls,
+            photoDisplayMode: showPhotos ? 'all' : 'off',
+            showLegend,
           });
           if (!isCancelled) {
             setPreviewSvg(svg);
@@ -597,8 +666,10 @@ export default function Export() {
           return;
         }
 
+        const photoDataUrls = await buildPhotoDataUrlMap(students);
         const svg = await renderSceneSvg(classroomScene, seating, title, {
           allStudents: students,
+          photoDataUrls,
           showSpecialNeeds: showNeeds,
           showBoard: effectiveShowBoard,
           showWindows: effectiveShowWindows,
@@ -607,6 +678,8 @@ export default function Export() {
           lockSeatLabelOrientation: true,
           orientation: tableOrientation,
           showFullNames,
+          photoDisplayMode: showPhotos ? 'all' : 'off',
+          showLegend,
           classMetadata: classMetadataForExport,
         });
         if (!isCancelled) {
@@ -648,6 +721,8 @@ export default function Export() {
     circleOrientation,
     tableOrientation,
     showFullNames,
+    showPhotos,
+    showLegend,
     classMetadataForExport,
   ]);
 
@@ -780,6 +855,8 @@ export default function Export() {
         showDoor: effectiveShowDoor,
         showPodium: effectiveShowPodium,
         showFullNames,
+        showPhotos,
+        showLegend,
         orientation: tableOrientation,
         classMetadata: classMetadataForExport,
       });
@@ -803,6 +880,8 @@ export default function Export() {
     effectiveShowPodium,
     effectiveShowWindows,
     showFullNames,
+    showPhotos,
+    showLegend,
     tableOrientation,
     classMetadataForExport,
     exportError,
@@ -820,6 +899,8 @@ export default function Export() {
         showConnections,
         orientation: circleOrientation,
         showFullNames,
+        showPhotos,
+        showLegend,
         classMetadata: classMetadataForExport,
       });
     } catch (error) {
@@ -838,6 +919,8 @@ export default function Export() {
     showConnections,
     circleOrientation,
     showFullNames,
+    showPhotos,
+    showLegend,
     classMetadataForExport,
     exportError,
     t,

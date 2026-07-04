@@ -1,7 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import type { ReactElement } from 'react';
-import type { ClassroomScene, SeatingArrangement, Student } from '@/types';
+import type {
+  ClassroomScene,
+  SeatingArrangement,
+  Student,
+} from '@/types';
 import type { CircleLayout } from '@/types/Circle';
 import SceneSvg from '@/components/scene/SceneSvg';
 import CirclePrintView from '@/components/circle/CirclePrintView';
@@ -38,6 +42,7 @@ export async function renderSceneSvg(
   title?: string,
   options?: {
     allStudents?: Student[];
+    photoDataUrls?: ReadonlyMap<string, string>;
     showSpecialNeeds?: boolean;
     showBoard?: boolean;
     showWindows?: boolean;
@@ -47,6 +52,8 @@ export async function renderSceneSvg(
     seatLabelRotation?: number;
     orientation?: 'landscape' | 'portrait';
     showFullNames?: boolean;
+    photoDisplayMode?: 'all' | 'off';
+    showLegend?: boolean;
     classMetadata?: ExportClassMetadata;
   },
 ): Promise<string> {
@@ -56,6 +63,7 @@ export async function renderSceneSvg(
         scene={scene}
         seating={seating}
         allStudents={options?.allStudents}
+        photoUrls={options?.photoDataUrls}
         title={title}
         classMetadata={options?.classMetadata}
         showSpecialNeeds={options?.showSpecialNeeds}
@@ -67,6 +75,8 @@ export async function renderSceneSvg(
         seatLabelRotation={options?.seatLabelRotation}
         orientation={options?.orientation}
         showFullNames={options?.showFullNames}
+        photoDisplayMode={options?.photoDisplayMode}
+        showLegend={options?.showLegend}
       />
     </div>,
   );
@@ -84,6 +94,9 @@ export async function renderCircleSvg(
     orientation?: 'landscape' | 'portrait';
     showFullNames?: boolean;
     classMetadata?: ExportClassMetadata;
+    photoDataUrls?: ReadonlyMap<string, string>;
+    photoDisplayMode?: 'all' | 'off';
+    showLegend?: boolean;
   },
 ): Promise<string> {
   return renderMarkup(
@@ -96,6 +109,9 @@ export async function renderCircleSvg(
         showConnections={options?.showConnections ?? true}
         orientation={options?.orientation}
         showFullNames={options?.showFullNames}
+        photoDataUrls={options?.photoDataUrls}
+        photoDisplayMode={options?.photoDisplayMode}
+        showLegend={options?.showLegend}
       />
     </div>,
   );

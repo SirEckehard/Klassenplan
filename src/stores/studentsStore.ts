@@ -16,6 +16,7 @@ import type {
 import { createFeatureStoreLogger } from './featureStores';
 import { evaluateStateUpdater } from './storeUtils';
 import { importStudentsFromCsv } from '@/services/csvImportService';
+import { removeStudentPhoto } from '@/hooks/student/studentPhotoCache';
 
 export const createStudentsStore = (
   initialState?: Partial<StudentStoreState>,
@@ -129,13 +130,21 @@ export const createStudentsStore = (
         return placeholders;
       },
       removeStudent: (id: string) => {
+        const target = get().students.find((student) => student.id === id);
         setStudentsInternal((prev) =>
           prev.filter((student) => student.id !== id),
         );
+        if (target?.hasPhoto) {
+          void removeStudentPhoto(id);
+        }
         logger.debug('Student removed', { studentId: id });
       },
       clearStudents: () => {
+        const withPhotos = get().students.filter((student) => student.hasPhoto);
         setStudentsInternal(() => []);
+        for (const student of withPhotos) {
+          void removeStudentPhoto(student.id);
+        }
         logger.debug('All students cleared');
       },
       updateStudent: (id: string, patch: Partial<Student>) => {
