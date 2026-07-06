@@ -141,7 +141,18 @@
   "seat": {
     "lockSeat": "Sitzplatz sperren",
     "unlockSeat": "Sitzplatz entsperren",
-    "fulfillmentTitle": "Erfüllung {{percentage}}%"
+    "fulfillmentTitle": "Erfüllung {{percentage}}%",
+    "ariaOccupied": "{{name}} – Tisch {{table}}, Platz {{seat}}",
+    "ariaEmpty": "Freier Platz – Tisch {{table}}, Platz {{seat}}",
+    "ariaLocked": "gesperrt",
+    "keyboard": {
+      "grabbed": "{{name}} aufgenommen. Mit Tab zum Zielplatz wechseln, Eingabetaste zum Absetzen, Escape zum Abbrechen.",
+      "moved": "{{name}} auf Tisch {{table}}, Platz {{seat}} abgesetzt.",
+      "cancelled": "Umsetzen abgebrochen.",
+      "lockedTarget": "Tisch {{table}}, Platz {{seat}} ist gesperrt. Bitte anderen Platz wählen.",
+      "sourceLocked": "Dieser Platz ist gesperrt und kann nicht aufgenommen werden.",
+      "moveFailed": "Umsetzen nicht möglich."
+    }
   },
   "mixButton": {
     "label": "Mischen",

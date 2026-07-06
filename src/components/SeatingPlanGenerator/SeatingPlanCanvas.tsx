@@ -22,6 +22,7 @@ import type {
 } from '@/hooks/ui/useDragDropState';
 import TableIcon from '@/components/scene/SceneTable';
 import { useStudentPhotoUrls } from '@/hooks/student/useStudentPhoto';
+import { useSeatKeyboardMove } from '@/hooks/scene/useSeatKeyboardMove';
 
 interface SeatingPlanCanvasProps {
   canvasWidth: number;
@@ -114,6 +115,31 @@ const SeatingPlanCanvas = React.memo(
     const canvasRef = React.useRef<SVGSVGElement | null>(null);
     const photoUrls = useStudentPhotoUrls(allStudents ?? []);
 
+    // Keyboard alternative to the pointer seat drag (P2.10): Enter/Space picks
+    // a student up, Tab moves to the target seat, Enter/Space drops, Escape
+    // cancels. Reuses the existing dragOrigin/dragHover visuals.
+    const {
+      keyboardMoveOrigin,
+      keyboardAnnouncement,
+      handleSeatKeyDown,
+      handleSeatFocus,
+      handleSeatBlur,
+      cancelKeyboardMove,
+    } = useSeatKeyboardMove({
+      moveStudent,
+      onHoverChange: onSeatHoverChange,
+      onDropRejected: onLockedSeatDrop,
+    });
+
+    // A pointer drag takes precedence: release any pending keyboard grab.
+    React.useEffect(() => {
+      if (dragOrigin) {
+        cancelKeyboardMove();
+      }
+    }, [dragOrigin, cancelKeyboardMove]);
+
+    const effectiveDragOrigin = dragOrigin ?? keyboardMoveOrigin;
+
     // Helper to get translated feature label based on type
     const getFeatureLabel = (feature: {
       type: string;
@@ -204,51 +230,97 @@ const SeatingPlanCanvas = React.memo(
     );
 
     return (
-      <svg
-        ref={canvasRef}
-        width="100%"
-        height="100%"
-        viewBox={`0 0 ${canvasWidth} ${classroomHeight}`}
-        className="touch-none select-none"
-        onPointerDown={beginSelection}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-      >
-        <style>{`
+      <>
+        {/* Screen-reader feedback for keyboard seat moves (grab/drop/cancel). */}
+        <span role="status" aria-live="polite" className="sr-only">
+          {keyboardAnnouncement}
+        </span>
+        <svg
+          ref={canvasRef}
+          width="100%"
+          height="100%"
+          viewBox={`0 0 ${canvasWidth} ${classroomHeight}`}
+          className="touch-none select-none"
+          onPointerDown={beginSelection}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+        >
+          <style>{`
           @keyframes seat-photo-pop {
             from { opacity: 0; transform: scale(0.85); }
             to   { opacity: 1; transform: scale(1); }
           }
         `}</style>
-        {renderGrid()}
+          {renderGrid()}
 
-        <g>
-          {featureViewModels.map(({ feature, styles }) => {
-            const isFree = feature.anchor === 'free';
-            const rotation = isFree ? (feature.rotation ?? 0) : 0;
-            const normalizedRotation = ((rotation % 360) + 360) % 360;
-            const isPodium = feature.type === 'podium';
-            const labelRotation = isPodium
-              ? -normalizedRotation
-              : feature.width >= feature.height
-                ? 0
-                : -90;
+          <g>
+            {featureViewModels.map(({ feature, styles }) => {
+              const isFree = feature.anchor === 'free';
+              const rotation = isFree ? (feature.rotation ?? 0) : 0;
+              const normalizedRotation = ((rotation % 360) + 360) % 360;
+              const isPodium = feature.type === 'podium';
+              const labelRotation = isPodium
+                ? -normalizedRotation
+                : feature.width >= feature.height
+                  ? 0
+                  : -90;
 
-            if (isFree) {
-              const transform = `translate(${feature.x + feature.width / 2} ${
-                feature.y + feature.height / 2
-              }) rotate(${rotation}) translate(${-feature.width / 2} ${
-                -feature.height / 2
-              })`;
+              if (isFree) {
+                const transform = `translate(${feature.x + feature.width / 2} ${
+                  feature.y + feature.height / 2
+                }) rotate(${rotation}) translate(${-feature.width / 2} ${
+                  -feature.height / 2
+                })`;
+                return (
+                  <g
+                    key={feature.id}
+                    style={{ pointerEvents: 'none' }}
+                    transform={transform}
+                  >
+                    <rect
+                      x={0}
+                      y={0}
+                      width={feature.width}
+                      height={feature.height}
+                      rx={FEATURE_CORNER_RADIUS}
+                      fill={styles.fill}
+                      stroke="none"
+                    />
+                    {feature.label && (
+                      <text
+                        x={feature.width / 2}
+                        y={feature.height / 2}
+                        textAnchor="middle"
+                        dominantBaseline="central"
+                        fill={styles.text}
+                        fontSize={12}
+                        transform={
+                          labelRotation !== 0
+                            ? `rotate(${labelRotation}, ${feature.width / 2}, ${
+                                feature.height / 2
+                              })`
+                            : undefined
+                        }
+                      >
+                        {getFeatureLabel(feature)}
+                      </text>
+                    )}
+                  </g>
+                );
+              }
+
+              const centerX = feature.x + feature.width / 2;
+              const centerY = feature.y + feature.height / 2;
+              const textTransform =
+                labelRotation !== 0
+                  ? `rotate(${labelRotation}, ${centerX}, ${centerY})`
+                  : undefined;
+
               return (
-                <g
-                  key={feature.id}
-                  style={{ pointerEvents: 'none' }}
-                  transform={transform}
-                >
+                <g key={feature.id} style={{ pointerEvents: 'none' }}>
                   <rect
-                    x={0}
-                    y={0}
+                    x={feature.x}
+                    y={feature.y}
                     width={feature.width}
                     height={feature.height}
                     rx={FEATURE_CORNER_RADIUS}
@@ -257,125 +329,88 @@ const SeatingPlanCanvas = React.memo(
                   />
                   {feature.label && (
                     <text
-                      x={feature.width / 2}
-                      y={feature.height / 2}
+                      x={centerX}
+                      y={centerY}
                       textAnchor="middle"
                       dominantBaseline="central"
                       fill={styles.text}
                       fontSize={12}
-                      transform={
-                        labelRotation !== 0
-                          ? `rotate(${labelRotation}, ${feature.width / 2}, ${
-                              feature.height / 2
-                            })`
-                          : undefined
-                      }
+                      transform={textTransform}
                     >
                       {getFeatureLabel(feature)}
                     </text>
                   )}
                 </g>
               );
-            }
+            })}
 
-            const centerX = feature.x + feature.width / 2;
-            const centerY = feature.y + feature.height / 2;
-            const textTransform =
-              labelRotation !== 0
-                ? `rotate(${labelRotation}, ${centerX}, ${centerY})`
-                : undefined;
-
-            return (
-              <g key={feature.id} style={{ pointerEvents: 'none' }}>
-                <rect
-                  x={feature.x}
-                  y={feature.y}
-                  width={feature.width}
-                  height={feature.height}
-                  rx={FEATURE_CORNER_RADIUS}
-                  fill={styles.fill}
-                  stroke="none"
-                />
-                {feature.label && (
-                  <text
-                    x={centerX}
-                    y={centerY}
-                    textAnchor="middle"
-                    dominantBaseline="central"
-                    fill={styles.text}
-                    fontSize={12}
-                    transform={textTransform}
-                  >
-                    {getFeatureLabel(feature)}
-                  </text>
-                )}
-              </g>
-            );
-          })}
-
-          {sceneTables.map((table, index) => (
-            <TableIcon
-              key={index}
-              table={table}
-              index={index}
-              students={currentSeating[index] || []}
-              allStudents={allStudents}
-              photoUrls={photoUrls}
-              selected={selectedTableIds.includes(index)}
-              onPointerDown={(e) => handleTablePointerDown(index, e)}
-              onUpdate={onTableUpdate}
-              onTransformStart={onTransformStart}
-              onSeatDragStart={handleSeatDragStart}
-              onSeatDrag={handleSeatDrag}
-              onSeatDragEnd={handleSeatDragEnd}
-              dragOrigin={dragOrigin}
-              dragHover={dragHover}
-              lockedDropTarget={lockedDropTarget}
-              onSeatHoverChange={onSeatHoverChange}
-              onSeatDropRejected={onLockedSeatDrop}
-              moveStudent={moveStudent}
-              isSeatLocked={isSeatLocked}
-              toggleLock={toggleLock}
-              editable={false}
-              draggable={true}
-              isDark={isDark}
-              seatHighlights={seatHighlights}
-              photoDisplayMode={photoDisplayMode}
-            />
-          ))}
-        </g>
-
-        {selectionBox && (
-          <rect
-            x={selectionBox.x}
-            y={selectionBox.y}
-            width={selectionBox.width}
-            height={selectionBox.height}
-            fill="rgba(59, 130, 246, 0.1)"
-            stroke="rgba(59, 130, 246, 0.5)"
-            strokeWidth="1"
-            strokeDasharray="4 4"
-          />
-        )}
-
-        {templateDragPreview && (
-          <g
-            transform={`translate(${
-              templateDragPreview.canvasX ?? templateDragPreview.clientX
-            }, ${templateDragPreview.canvasY ?? templateDragPreview.clientY})`}
-            opacity="0.7"
-          >
-            <rect
-              width={50}
-              height={50}
-              fill="#3b82f6"
-              stroke="#1d4ed8"
-              strokeWidth="2"
-              rx="4"
-            />
+            {sceneTables.map((table, index) => (
+              <TableIcon
+                key={index}
+                table={table}
+                index={index}
+                students={currentSeating[index] || []}
+                allStudents={allStudents}
+                photoUrls={photoUrls}
+                selected={selectedTableIds.includes(index)}
+                onPointerDown={(e) => handleTablePointerDown(index, e)}
+                onUpdate={onTableUpdate}
+                onTransformStart={onTransformStart}
+                onSeatDragStart={handleSeatDragStart}
+                onSeatDrag={handleSeatDrag}
+                onSeatDragEnd={handleSeatDragEnd}
+                dragOrigin={effectiveDragOrigin}
+                dragHover={dragHover}
+                lockedDropTarget={lockedDropTarget}
+                onSeatHoverChange={onSeatHoverChange}
+                onSeatDropRejected={onLockedSeatDrop}
+                onSeatKeyDown={handleSeatKeyDown}
+                onSeatFocus={handleSeatFocus}
+                onSeatBlur={handleSeatBlur}
+                moveStudent={moveStudent}
+                isSeatLocked={isSeatLocked}
+                toggleLock={toggleLock}
+                editable={false}
+                draggable={true}
+                isDark={isDark}
+                seatHighlights={seatHighlights}
+                photoDisplayMode={photoDisplayMode}
+              />
+            ))}
           </g>
-        )}
-      </svg>
+
+          {selectionBox && (
+            <rect
+              x={selectionBox.x}
+              y={selectionBox.y}
+              width={selectionBox.width}
+              height={selectionBox.height}
+              fill="rgba(59, 130, 246, 0.1)"
+              stroke="rgba(59, 130, 246, 0.5)"
+              strokeWidth="1"
+              strokeDasharray="4 4"
+            />
+          )}
+
+          {templateDragPreview && (
+            <g
+              transform={`translate(${
+                templateDragPreview.canvasX ?? templateDragPreview.clientX
+              }, ${templateDragPreview.canvasY ?? templateDragPreview.clientY})`}
+              opacity="0.7"
+            >
+              <rect
+                width={50}
+                height={50}
+                fill="#3b82f6"
+                stroke="#1d4ed8"
+                strokeWidth="2"
+                rx="4"
+              />
+            </g>
+          )}
+        </svg>
+      </>
     );
   },
 );

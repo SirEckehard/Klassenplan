@@ -404,6 +404,140 @@ describe('TableSeat component', () => {
     expect(onSeatPointerUp).toHaveBeenCalledWith(expect.anything(), 0, false);
   });
 
+  it('exposes a focusable button with ARIA metadata when keyboard moving is enabled', () => {
+    const onSeatKeyDown = vi.fn();
+    const { container } = render(
+      <svg>
+        <TableSeat
+          student={baseStudent}
+          seatIndex={2}
+          tableIndex={1}
+          col={0}
+          row={0}
+          seatWidth={55}
+          seatHeight={65}
+          isDark={false}
+          locked={false}
+          isOriginSeat={false}
+          isHoverSeat={false}
+          isHoverLockedSeat={false}
+          isLockedFeedbackSeat={false}
+          showSpecialNeeds={true}
+          showFullNames={false}
+          lockSeatLabelOrientation={true}
+          seatTextRotation={0}
+          onSeatKeyDown={onSeatKeyDown}
+        />
+      </svg>,
+    );
+
+    const touchTarget = container.querySelector(
+      'rect[data-seat-index="2"][fill="transparent"]',
+    );
+    expect(touchTarget).toBeInTheDocument();
+    expect(touchTarget).toHaveAttribute('tabindex', '0');
+    expect(touchTarget).toHaveAttribute('role', 'button');
+    expect(touchTarget?.getAttribute('aria-label')).toMatch(/Ada Lovelace/);
+    expect(touchTarget).toHaveAttribute('aria-pressed', 'false');
+
+    fireEvent.keyDown(touchTarget!, { key: 'Enter' });
+    expect(onSeatKeyDown).toHaveBeenCalledTimes(1);
+    expect(onSeatKeyDown.mock.calls[0][1]).toEqual({
+      tableIndex: 1,
+      seatIndex: 2,
+      locked: false,
+      hasStudent: true,
+      studentName: 'Ada Lovelace',
+    });
+  });
+
+  it('marks the grabbed origin seat with aria-pressed and reports focus changes', () => {
+    const onSeatKeyDown = vi.fn();
+    const onSeatFocus = vi.fn();
+    const onSeatBlur = vi.fn();
+    const { container } = render(
+      <svg>
+        <TableSeat
+          student={null}
+          seatIndex={0}
+          tableIndex={0}
+          col={0}
+          row={0}
+          seatWidth={55}
+          seatHeight={65}
+          isDark={false}
+          locked={true}
+          isOriginSeat={true}
+          isHoverSeat={false}
+          isHoverLockedSeat={false}
+          isLockedFeedbackSeat={false}
+          showSpecialNeeds={true}
+          showFullNames={false}
+          lockSeatLabelOrientation={true}
+          seatTextRotation={0}
+          onSeatKeyDown={onSeatKeyDown}
+          onSeatFocus={onSeatFocus}
+          onSeatBlur={onSeatBlur}
+        />
+      </svg>,
+    );
+
+    const touchTarget = container.querySelector(
+      'rect[data-seat-index="0"][fill="transparent"]',
+    );
+    expect(touchTarget).toHaveAttribute('aria-pressed', 'true');
+    // Empty locked seat: label mentions free seat and locked state
+    expect(touchTarget?.getAttribute('aria-label')).toMatch(
+      /freier platz|empty seat/i,
+    );
+    expect(touchTarget?.getAttribute('aria-label')).toMatch(/gesperrt|locked/i);
+
+    fireEvent.focus(touchTarget!);
+    expect(onSeatFocus).toHaveBeenCalledWith({
+      tableIndex: 0,
+      seatIndex: 0,
+      locked: true,
+      hasStudent: false,
+      studentName: null,
+    });
+
+    fireEvent.blur(touchTarget!);
+    expect(onSeatBlur).toHaveBeenCalledTimes(1);
+  });
+
+  it('is not focusable without keyboard handlers', () => {
+    const { container } = render(
+      <svg>
+        <TableSeat
+          student={baseStudent}
+          seatIndex={0}
+          tableIndex={0}
+          col={0}
+          row={0}
+          seatWidth={55}
+          seatHeight={65}
+          isDark={false}
+          locked={false}
+          isOriginSeat={false}
+          isHoverSeat={false}
+          isHoverLockedSeat={false}
+          isLockedFeedbackSeat={false}
+          showSpecialNeeds={true}
+          showFullNames={false}
+          lockSeatLabelOrientation={true}
+          seatTextRotation={0}
+          onSeatPointerDown={vi.fn()}
+        />
+      </svg>,
+    );
+
+    const touchTarget = container.querySelector(
+      'rect[data-seat-index="0"][fill="transparent"]',
+    );
+    expect(touchTarget).not.toHaveAttribute('tabindex');
+    expect(touchTarget).not.toHaveAttribute('role');
+  });
+
   it('applies dark mode styling', () => {
     const { container } = render(
       <svg>

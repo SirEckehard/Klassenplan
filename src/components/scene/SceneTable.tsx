@@ -54,6 +54,10 @@ type TableProps = {
   lockedDropTarget?: LockedDropTarget | null;
   onSeatHoverChange?: (hover: DragHover | null) => void;
   onSeatDropRejected?: (target: DragHover) => void;
+  /** Keyboard alternative to the pointer seat drag (grab/drop via Enter). */
+  onSeatKeyDown?: React.ComponentProps<typeof SeatGrid>['onSeatKeyDown'];
+  onSeatFocus?: React.ComponentProps<typeof SeatGrid>['onSeatFocus'];
+  onSeatBlur?: React.ComponentProps<typeof SeatGrid>['onSeatBlur'];
   showSpecialNeeds?: boolean;
   /** When false, gender colors are dropped for a neutral (colorless) render. */
   showGenderColors?: boolean;
@@ -101,6 +105,9 @@ function SceneTable({
   lockedDropTarget = null,
   onSeatHoverChange,
   onSeatDropRejected,
+  onSeatKeyDown,
+  onSeatFocus,
+  onSeatBlur,
   showSpecialNeeds = true,
   showGenderColors = true,
   isDark = false,
@@ -362,6 +369,9 @@ function SceneTable({
         toggleLock={toggleLock}
         onSeatPointerDown={draggable ? handleSeatPointerDown : undefined}
         onSeatPointerUp={draggable ? handleSeatPointerUp : undefined}
+        onSeatKeyDown={draggable ? onSeatKeyDown : undefined}
+        onSeatFocus={draggable ? onSeatFocus : undefined}
+        onSeatBlur={draggable ? onSeatBlur : undefined}
         onSeatPointerEnter={
           hoverPhotosEnabled
             ? (seatIndex) => setHoveredSeatIndex(seatIndex)

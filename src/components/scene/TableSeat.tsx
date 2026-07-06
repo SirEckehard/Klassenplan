@@ -15,6 +15,7 @@ import {
   getTooltipName,
   calculateSeatLabelFontSize,
 } from '@/utils';
+import type { SeatKeyboardEventInfo } from '@/hooks/scene/useSeatKeyboardMove';
 
 interface TableSeatProps {
   student: Student | null;
@@ -62,6 +63,13 @@ interface TableSeatProps {
   /** Pointer enter/leave on the seat, used to grow this seat's photo dot. */
   onSeatPointerEnter?: (seatIndex: number) => void;
   onSeatPointerLeave?: (seatIndex: number) => void;
+  /** Keyboard alternative to seat drag-and-drop; makes the seat focusable. */
+  onSeatKeyDown?: (
+    e: React.KeyboardEvent<SVGRectElement>,
+    info: SeatKeyboardEventInfo,
+  ) => void;
+  onSeatFocus?: (info: SeatKeyboardEventInfo) => void;
+  onSeatBlur?: () => void;
 }
 
 /**
@@ -94,6 +102,18 @@ const calculateLockIconPosition = (
     x: resolveCoordinate(seatWidth),
     y: resolveCoordinate(seatHeight),
   };
+};
+
+/**
+ * Show the manual focus ring only for keyboard focus (like :focus-visible).
+ * Falls back to true where the pseudo-class is unsupported (e.g. jsdom).
+ */
+const matchesFocusVisible = (element: Element): boolean => {
+  try {
+    return element.matches(':focus-visible');
+  } catch {
+    return true;
+  }
 };
 
 const HIGHLIGHT_STROKES: Record<StatisticStatus, string> = {
@@ -157,6 +177,9 @@ function TableSeat({
   onSeatPointerUp,
   onSeatPointerEnter,
   onSeatPointerLeave,
+  onSeatKeyDown,
+  onSeatFocus,
+  onSeatBlur,
 }: TableSeatProps) {
   // Memoize appearance calculation - only recompute when dependencies change
   const appearance = React.useMemo(
@@ -275,6 +298,38 @@ function TableSeat({
     : '';
   const seatFontSize = calculateSeatLabelFontSize(displayName, seatWidth);
 
+  // Keyboard move support: the touch target becomes a focusable button so the
+  // seat drag has a keyboard alternative (Enter/Space grab & drop, Escape).
+  const keyboardEnabled = Boolean(onSeatKeyDown);
+  const [hasVisibleFocus, setHasVisibleFocus] = React.useState(false);
+  const keyboardInfo = React.useMemo<SeatKeyboardEventInfo>(
+    () => ({
+      tableIndex,
+      seatIndex,
+      locked,
+      hasStudent: !!student,
+      studentName: student ? getTooltipName(student.name) : null,
+    }),
+    [tableIndex, seatIndex, locked, student],
+  );
+  const seatPosition = {
+    table: tableIndex + 1,
+    seat: seatIndex + 1,
+  };
+  let seatAriaLabel = student
+    ? t('seat.ariaOccupied', {
+        name: getTooltipName(student.name),
+        ...seatPosition,
+        defaultValue: `${getTooltipName(student.name)} – Tisch ${seatPosition.table}, Platz ${seatPosition.seat}`,
+      })
+    : t('seat.ariaEmpty', {
+        ...seatPosition,
+        defaultValue: `Freier Platz – Tisch ${seatPosition.table}, Platz ${seatPosition.seat}`,
+      });
+  if (locked) {
+    seatAriaLabel += `, ${t('seat.ariaLocked', 'gesperrt')}`;
+  }
+
   return (
     <g transform={`translate(${col * seatWidth} ${row * seatHeight})`}>
       <g
@@ -290,7 +345,7 @@ function TableSeat({
             Only rendered when seats are interactive (step 3 editor); in static
             contexts (layout editor, export) it would otherwise swallow table
             drag events from neighbouring tables. */}
-        {(onSeatPointerDown || onSeatPointerUp) && (
+        {(onSeatPointerDown || onSeatPointerUp || keyboardEnabled) && (
           <rect
             width={Math.max(seatWidth, 44)}
             height={Math.max(seatHeight, 44)}
@@ -299,6 +354,10 @@ function TableSeat({
             fill="transparent"
             data-seat-index={seatIndex}
             data-table-index={tableIndex}
+            tabIndex={keyboardEnabled ? 0 : undefined}
+            role={keyboardEnabled ? 'button' : undefined}
+            aria-label={keyboardEnabled ? seatAriaLabel : undefined}
+            aria-pressed={keyboardEnabled ? isOriginSeat : undefined}
             onPointerDown={(e) =>
               onSeatPointerDown?.(
                 e,
@@ -322,9 +381,29 @@ function TableSeat({
                 ? () => onSeatPointerLeave(seatIndex)
                 : undefined
             }
+            onKeyDown={
+              onSeatKeyDown ? (e) => onSeatKeyDown(e, keyboardInfo) : undefined
+            }
+            onFocus={
+              keyboardEnabled
+                ? (e) => {
+                    setHasVisibleFocus(matchesFocusVisible(e.currentTarget));
+                    onSeatFocus?.(keyboardInfo);
+                  }
+                : undefined
+            }
+            onBlur={
+              keyboardEnabled
+                ? () => {
+                    setHasVisibleFocus(false);
+                    onSeatBlur?.();
+                  }
+                : undefined
+            }
             style={{
               cursor: !locked && student ? 'grab' : 'default',
               touchAction: 'none',
+              outline: 'none',
             }}
           />
         )}
@@ -345,6 +424,39 @@ function TableSeat({
               'fill 150ms ease, stroke 150ms ease, stroke-width 150ms ease',
           }}
         />
+        {/* Keyboard focus ring - drawn manually because SVG outline rendering
+            is inconsistent across browsers. Inset so it stays visible inside
+            the table clip path and is not covered by the table border. Uses a
+            two-tone ring (white halo + blue ring, like ring + ring-offset) so
+            it stays visible on any seat color in light and dark mode. */}
+        {hasVisibleFocus && (
+          <>
+            <rect
+              x={2.5}
+              y={2.5}
+              width={Math.max(seatWidth - 5, 0)}
+              height={Math.max(seatHeight - 5, 0)}
+              rx={3}
+              fill="none"
+              stroke="#ffffff"
+              strokeWidth={4.5}
+              vectorEffect="non-scaling-stroke"
+              pointerEvents="none"
+            />
+            <rect
+              x={2.5}
+              y={2.5}
+              width={Math.max(seatWidth - 5, 0)}
+              height={Math.max(seatHeight - 5, 0)}
+              rx={3}
+              fill="none"
+              stroke={isDark ? '#60a5fa' : '#2563eb'}
+              strokeWidth={2}
+              vectorEffect="non-scaling-stroke"
+              pointerEvents="none"
+            />
+          </>
+        )}
         {student && showSeatLabels && (
           <>
             <text
@@ -607,6 +719,10 @@ const MemoizedTableSeat = React.memo(TableSeat, (prevProps, nextProps) => {
     prevProps.seatWidth !== nextProps.seatWidth ||
     prevProps.seatHeight !== nextProps.seatHeight
   )
+    return false;
+
+  // Keyboard interactivity toggles focusability and ARIA attributes
+  if (Boolean(prevProps.onSeatKeyDown) !== Boolean(nextProps.onSeatKeyDown))
     return false;
 
   // CheckIcon visual state changes

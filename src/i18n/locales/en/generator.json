@@ -141,7 +141,18 @@
   "seat": {
     "lockSeat": "Lock seat",
     "unlockSeat": "Unlock seat",
-    "fulfillmentTitle": "Fulfillment {{percentage}}%"
+    "fulfillmentTitle": "Fulfillment {{percentage}}%",
+    "ariaOccupied": "{{name}} – table {{table}}, seat {{seat}}",
+    "ariaEmpty": "Empty seat – table {{table}}, seat {{seat}}",
+    "ariaLocked": "locked",
+    "keyboard": {
+      "grabbed": "{{name}} picked up. Press Tab to choose a target seat, Enter to drop, Escape to cancel.",
+      "moved": "{{name}} dropped on table {{table}}, seat {{seat}}.",
+      "cancelled": "Move cancelled.",
+      "lockedTarget": "Table {{table}}, seat {{seat}} is locked. Please choose another seat.",
+      "sourceLocked": "This seat is locked and cannot be picked up.",
+      "moveFailed": "Move not possible."
+    }
   },
   "mixButton": {
     "label": "Shuffle",
