@@ -4,7 +4,7 @@
 /// <reference types="vite/client" />
 import { defineConfig } from 'vitest/config';
 import type { PreRenderedChunk, PreRenderedAsset } from 'rolldown';
-import react from '@vitejs/plugin-react-swc';
+import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 import viteCompression from 'vite-plugin-compression';
 import path from 'path';
