@@ -16,14 +16,37 @@ import {
   STUDENT_PHOTO_ERRORS,
 } from '@/utils/image/processStudentPhoto';
 import StudentPhotoCropModal from './StudentPhotoCropModal';
+import StudentPhotoConsentDialog from './StudentPhotoConsentDialog';
 import { getStudentAppearance } from '@/utils/ui/studentAppearance';
-import { logError } from '@/utils';
+import { logError, withBrowserLocalStorage } from '@/utils';
+import { LOCAL_STORAGE_KEYS } from '@/utils/data/storageKeys';
 import { showToast } from '@/utils/ui/toast';
 
 type Props = {
   student: Student;
   updateStudent: (id: string, patch: Partial<Student>) => void;
 };
+
+/**
+ * Whether the user permanently acknowledged the photo consent notice. Read
+ * from localStorage on every click (not component state) so ticking the
+ * checkbox in one row immediately applies to all other rows.
+ */
+function isPhotoConsentConfirmed(): boolean {
+  return (
+    withBrowserLocalStorage(
+      (storage) =>
+        storage.getItem(LOCAL_STORAGE_KEYS.photoConsentConfirmed) === 'true',
+      false,
+    ) ?? false
+  );
+}
+
+function persistPhotoConsent(): void {
+  withBrowserLocalStorage((storage) => {
+    storage.setItem(LOCAL_STORAGE_KEYS.photoConsentConfirmed, 'true');
+  });
+}
 
 /**
  * Round avatar + upload control for an optional student photo.
@@ -44,6 +67,7 @@ function StudentPhotoButton({ student, updateStudent }: Props) {
     bitmap: ImageBitmap;
     id: number;
   } | null>(null);
+  const [showConsentDialog, setShowConsentDialog] = useState(false);
 
   const { objectUrl } = useStudentPhoto(student.id, student.hasPhoto);
   const appearance = getStudentAppearance(student, isDark);
@@ -69,6 +93,25 @@ function StudentPhotoButton({ student, updateStudent }: Props) {
   const uploadLabel = student.hasPhoto
     ? t('photo.change', 'Foto ändern')
     : t('photo.add', 'Foto hinzufügen');
+
+  // The consent notice gates the file picker until it is permanently
+  // acknowledged; the "continue" click still counts as a user gesture, so
+  // opening the picker from the dialog is allowed by the browser.
+  const handleAvatarClick = () => {
+    if (isPhotoConsentConfirmed()) {
+      inputRef.current?.click();
+      return;
+    }
+    setShowConsentDialog(true);
+  };
+
+  const handleConsentConfirm = (dontShowAgain: boolean) => {
+    if (dontShowAgain) {
+      persistPhotoConsent();
+    }
+    setShowConsentDialog(false);
+    inputRef.current?.click();
+  };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -132,11 +175,11 @@ function StudentPhotoButton({ student, updateStudent }: Props) {
       <div className="relative shrink-0">
         <button
           type="button"
-          onClick={() => inputRef.current?.click()}
+          onClick={handleAvatarClick}
           disabled={busy}
           title={`${uploadLabel} – ${privacyHint}`}
           aria-label={`${uploadLabel} – ${student.name || ''}`.trim()}
-          className="group relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-gray-300 bg-white transition hover:border-blue-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-60 dark:border-gray-600 dark:bg-gray-800"
+          className="group relative flex h-10 w-10 cursor-pointer items-center justify-center overflow-hidden rounded-full border border-gray-300 bg-white transition hover:border-blue-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-60 dark:border-gray-600 dark:bg-gray-800"
           style={
             objectUrl
               ? undefined
@@ -175,7 +218,13 @@ function StudentPhotoButton({ student, updateStudent }: Props) {
               />
             </span>
           ) : (
-            <span className="absolute inset-x-0 bottom-0 hidden items-center justify-center bg-black/45 py-0.5 group-hover:flex">
+            /* Camera badge: permanently visible while no photo exists (upload
+               affordance), hover-only once a photo is set so it stays clear. */
+            <span
+              className={`absolute inset-x-0 bottom-0 items-center justify-center bg-black/45 py-0.5 ${
+                objectUrl ? 'hidden group-hover:flex' : 'flex'
+              }`}
+            >
               <CameraIcon size={11} className="text-white" />
             </span>
           )}
@@ -187,7 +236,7 @@ function StudentPhotoButton({ student, updateStudent }: Props) {
             onClick={handleRemove}
             title={t('photo.remove', 'Foto entfernen')}
             aria-label={t('photo.remove', 'Foto entfernen')}
-            className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full border border-white bg-rose-500 text-white shadow-sm transition hover:bg-rose-600 dark:border-gray-800"
+            className="absolute -right-1 -top-1 flex h-4 w-4 cursor-pointer items-center justify-center rounded-full border border-white bg-rose-500 text-white shadow-sm transition hover:bg-rose-600 dark:border-gray-800"
           >
             <XIcon size={9} weight="bold" />
           </button>
@@ -201,6 +250,12 @@ function StudentPhotoButton({ student, updateStudent }: Props) {
           className="hidden"
         />
       </div>
+
+      <StudentPhotoConsentDialog
+        open={showConsentDialog}
+        onConfirm={handleConsentConfirm}
+        onCancel={() => setShowConsentDialog(false)}
+      />
 
       <StudentPhotoCropModal
         key={editor?.id ?? 'idle'}

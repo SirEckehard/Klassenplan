@@ -13,6 +13,7 @@ import {
 } from '@phosphor-icons/react';
 import Seo from '@/components/Seo';
 import { usePageSeo } from '@/hooks/usePageSeo';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';
 import { useIsDarkMode } from '@/hooks/useIsDarkMode';
 import usePersistentState from '@/hooks/usePersistentState';
@@ -73,8 +74,12 @@ export default function Present() {
       maxZoom: PRESENT_MAX_ZOOM,
     });
 
-  const hasPlan =
-    classroomScene.tables.length > 0 && currentSeating.length > 0;
+  // Same back shortcut as the export page (Alt+←).
+  useKeyboardShortcuts({
+    'alt+arrowleft': () => navigate('/generator'),
+  });
+
+  const hasPlan = classroomScene.tables.length > 0 && currentSeating.length > 0;
   const hasCircle = !!circleLayout && circleLayout.students.length > 0;
   const hasContent = mode === 'circle' ? hasCircle : hasPlan;
   const isTeacher = perspective === 'teacher';
@@ -91,6 +96,7 @@ export default function Present() {
             type="button"
             onClick={() => navigate('/generator')}
             className={`${neutralButtonClass} h-10 gap-2 px-4`}
+            title={t('present.backTitle', 'Zurück zum Generator (Alt + ←)')}
           >
             <ArrowLeftIcon size={20} aria-hidden />
             <span className="text-sm font-semibold">
@@ -160,6 +166,7 @@ export default function Present() {
               type="button"
               onClick={() => navigate('/generator')}
               className={`${primaryButtonClass} h-10 gap-2 px-4`}
+              title={t('present.backTitle', 'Zurück zum Generator (Alt + ←)')}
             >
               <ArrowLeftIcon size={20} aria-hidden />
               <span className="text-sm font-semibold">
@@ -182,6 +189,10 @@ export default function Present() {
                 showBadges ? primaryButtonClass : secondaryButtonClass
               } h-10 gap-2 px-4`}
               aria-pressed={showBadges}
+              title={t(
+                'present.badgesTitle',
+                'Merkmal-Symbole der Schüler ein- oder ausblenden',
+              )}
             >
               <UserSquareIcon size={20} aria-hidden />
               <span className="text-sm font-semibold">
@@ -198,6 +209,10 @@ export default function Present() {
                 showPhotos ? primaryButtonClass : secondaryButtonClass
               } h-10 gap-2 px-4`}
               aria-pressed={showPhotos}
+              title={t(
+                'present.photosTitle',
+                'Schülerfotos ein- oder ausblenden',
+              )}
             >
               <ImageIcon size={20} aria-hidden />
               <span className="text-sm font-semibold">
@@ -213,6 +228,10 @@ export default function Present() {
               showGenderColors ? primaryButtonClass : secondaryButtonClass
             } h-10 gap-2 px-4`}
             aria-pressed={showGenderColors}
+            title={t(
+              'present.colorsTitle',
+              'Farbige Kennzeichnung (Geschlechterfarben) ein- oder ausblenden',
+            )}
           >
             <PaletteIcon size={20} aria-hidden />
             <span className="text-sm font-semibold">
@@ -234,6 +253,10 @@ export default function Present() {
               value={zoom}
               onChange={(event) => setZoomLevel(Number(event.target.value))}
               aria-label={t('present.zoom', 'Zoom')}
+              title={t(
+                'present.zoomTitle',
+                'Ansicht vergrößern oder verkleinern',
+              )}
               className="w-40 cursor-pointer accent-blue-600"
             />
             <span className="w-12 text-right text-sm font-semibold tabular-nums text-gray-600 dark:text-gray-300">
@@ -245,8 +268,14 @@ export default function Present() {
             type="button"
             onClick={reset}
             className={`${iconButtonClass} h-10 w-10`}
-            aria-label={t('present.resetView', 'Ansicht zentrieren und zurücksetzen')}
-            title={t('present.resetView', 'Ansicht zentrieren und zurücksetzen')}
+            aria-label={t(
+              'present.resetView',
+              'Ansicht zentrieren und zurücksetzen',
+            )}
+            title={t(
+              'present.resetView',
+              'Ansicht zentrieren und zurücksetzen',
+            )}
           >
             <ArrowsInIcon size={20} aria-hidden />
           </button>

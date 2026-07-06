@@ -67,25 +67,42 @@ export default function StudentListHeader() {
       className={`${cardSurfaceClass} sticky top-0 z-10 hidden bg-white! px-3 py-1.5 lg:block dark:bg-gray-950!`}
       aria-hidden="true"
     >
-      <div className="flex flex-wrap items-center justify-end gap-2">
-        {COLUMNS.map((column) => (
+      <div className="flex items-center gap-2">
+        {/* Left labels mirror the row's leading cells: index number (min-w-6),
+            photo avatar (w-10) and the name editor. */}
+        <span className="min-w-6 shrink-0" aria-hidden="true" />
+        <span
+          title={t('listHeader.photoFull')}
+          className="w-10 shrink-0 text-center text-[10px] font-medium leading-tight tracking-tight text-gray-500 dark:text-gray-400"
+        >
+          {t('listHeader.photo')}
+        </span>
+        <span
+          title={t('listHeader.nameFull')}
+          className="shrink-0 text-[10px] font-medium leading-tight tracking-tight text-gray-500 dark:text-gray-400"
+        >
+          {t('listHeader.name')}
+        </span>
+        <div className="flex flex-1 flex-wrap items-center justify-end gap-2">
+          {COLUMNS.map((column) => (
+            <span
+              key={column.key}
+              title={t(column.full)}
+              className="w-11 shrink-0 truncate text-center text-[10px] font-medium leading-tight tracking-tight text-gray-500 dark:text-gray-400"
+            >
+              {t(column.label)}
+            </span>
+          ))}
+          {/* Label for the delete (trash) column. Same fixed width as the other
+              column labels and as the row's delete button (min-w-11), so every
+              preceding label stays aligned over its icon. */}
           <span
-            key={column.key}
-            title={t(column.full)}
+            title={t('studentList.removeStudent')}
             className="w-11 shrink-0 truncate text-center text-[10px] font-medium leading-tight tracking-tight text-gray-500 dark:text-gray-400"
           >
-            {t(column.label)}
+            {t('studentList.delete')}
           </span>
-        ))}
-        {/* Label for the delete (trash) column. Same fixed width as the other
-            column labels and as the row's delete button (min-w-11), so every
-            preceding label stays aligned over its icon. */}
-        <span
-          title={t('studentList.removeStudent')}
-          className="w-11 shrink-0 truncate text-center text-[10px] font-medium leading-tight tracking-tight text-gray-500 dark:text-gray-400"
-        >
-          {t('studentList.delete')}
-        </span>
+        </div>
       </div>
     </div>
   );

@@ -26,6 +26,10 @@ export default function PresentPerspectiveToggle({
           !teacherActive ? primaryButtonClass : secondaryButtonClass
         } h-10 gap-2 px-4`}
         aria-pressed={!teacherActive}
+        title={t(
+          'present.studentViewTitle',
+          'Sitzplan aus Sicht der Klasse zeigen – ohne Merkmale und Fotos',
+        )}
       >
         <StudentIcon size={20} aria-hidden />
         <span className="text-sm font-semibold">
@@ -39,6 +43,10 @@ export default function PresentPerspectiveToggle({
           teacherActive ? primaryButtonClass : secondaryButtonClass
         } h-10 gap-2 px-4`}
         aria-pressed={teacherActive}
+        title={t(
+          'present.teacherViewTitle',
+          'Sitzplan aus Sicht der Lehrkraft zeigen',
+        )}
       >
         <ChalkboardTeacherIcon size={20} aria-hidden />
         <span className="text-sm font-semibold">

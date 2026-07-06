@@ -9,6 +9,7 @@ import ScrollToTop from '@/components/ScrollToTop';
 import PageSkeleton from '@/components/ui/feedback/PageSkeleton';
 import ReloadPrompt from '@/components/pwa/ReloadPrompt';
 import InstallPrompt from '@/components/pwa/InstallPrompt';
+import DownloadConfirmationHost from '@/components/ui/modals/DownloadConfirmationHost';
 import { preloadLikelyRoutes } from '@/utils/performance/routePreloader';
 import { lazyWithRetry } from '@/utils/performance/lazyWithRetry';
 import { ensureEnglishLoaded } from '@/i18n/i18n';
@@ -136,6 +137,7 @@ export default function App() {
       <ScrollToTop />
       <ReloadPrompt />
       <InstallPrompt />
+      <DownloadConfirmationHost />
       <Suspense fallback={<PageSkeleton />}>
         <Routes>
           {/* German routes (default, no prefix) */}

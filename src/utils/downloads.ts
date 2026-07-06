@@ -2,6 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import { logError } from './logger';
 import { getBrowserDocument, getBrowserWindow } from './browserEnvironment';
+import { confirmDownload } from './ui/downloadConfirmation';
 
 const DEFAULT_MIME_TYPE = 'application/octet-stream';
 const DEFAULT_LOG_CONTEXT = 'downloadBlob';
@@ -119,6 +120,12 @@ export async function downloadBlob(
   options?: DownloadBlobOptions,
 ): Promise<void> {
   const logContext = options?.logContext ?? DEFAULT_LOG_CONTEXT;
+
+  // Ask the user before any file leaves the app (silently declined = no-op).
+  const confirmed = await confirmDownload(filename);
+  if (!confirmed) {
+    return;
+  }
 
   try {
     const blob = ensureBlob(data, mimeType);

@@ -19,8 +19,8 @@ const SLIDES = [
 ];
 
 function useIsDark() {
-  const [dark, setDark] = useState(
-    () => document.documentElement.classList.contains('dark'),
+  const [dark, setDark] = useState(() =>
+    document.documentElement.classList.contains('dark'),
   );
   useEffect(() => {
     const el = document.documentElement;
@@ -118,27 +118,36 @@ export default function HeroMockup() {
             {/* Expand button — revealed on hover, but always visible on touch */}
             <button
               onClick={openLightbox}
-              className="absolute top-2 right-2 rounded-full bg-white/80 dark:bg-gray-800/80 p-1.5 shadow-md opacity-0 transition group-hover:opacity-100 pointer-coarse:opacity-100 hover:bg-white dark:hover:bg-gray-700"
+              className="absolute top-2 right-2 cursor-pointer rounded-full bg-white/80 dark:bg-gray-800/80 p-1.5 shadow-md opacity-0 transition group-hover:opacity-100 pointer-coarse:opacity-100 hover:bg-white dark:hover:bg-gray-700"
               title="Vergrößern"
               aria-label="Vergrößern"
             >
-              <ArrowsOutIcon size={14} className="text-gray-600 dark:text-gray-300" />
+              <ArrowsOutIcon
+                size={14}
+                className="text-gray-600 dark:text-gray-300"
+              />
             </button>
 
             {/* Prev button */}
             <button
               onClick={() => go(current - 1)}
-              className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-white/80 dark:bg-gray-800/80 p-1.5 shadow-md hover:bg-white dark:hover:bg-gray-700 transition"
+              className="absolute left-2 top-1/2 -translate-y-1/2 cursor-pointer rounded-full bg-white/80 dark:bg-gray-800/80 p-1.5 shadow-md hover:bg-white dark:hover:bg-gray-700 transition"
             >
-              <CaretLeftIcon size={14} className="text-gray-600 dark:text-gray-300" />
+              <CaretLeftIcon
+                size={14}
+                className="text-gray-600 dark:text-gray-300"
+              />
             </button>
 
             {/* Next button */}
             <button
               onClick={() => go(current + 1)}
-              className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-white/80 dark:bg-gray-800/80 p-1.5 shadow-md hover:bg-white dark:hover:bg-gray-700 transition"
+              className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer rounded-full bg-white/80 dark:bg-gray-800/80 p-1.5 shadow-md hover:bg-white dark:hover:bg-gray-700 transition"
             >
-              <CaretRightIcon size={14} className="text-gray-600 dark:text-gray-300" />
+              <CaretRightIcon
+                size={14}
+                className="text-gray-600 dark:text-gray-300"
+              />
             </button>
           </div>
 
@@ -148,7 +157,7 @@ export default function HeroMockup() {
               <button
                 key={i}
                 onClick={() => go(i)}
-                className={`h-1.5 rounded-full transition-all duration-300 ${
+                className={`h-1.5 cursor-pointer rounded-full transition-all duration-300 ${
                   i === current
                     ? 'w-4 bg-blue-500'
                     : 'w-1.5 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400'
@@ -172,8 +181,14 @@ export default function HeroMockup() {
             >
               {/* Lightbox image */}
               <picture>
-                <source srcSet={`${slideBase(SLIDES[current].base, isDark)}.avif`} type="image/avif" />
-                <source srcSet={`${slideBase(SLIDES[current].base, isDark)}.webp`} type="image/webp" />
+                <source
+                  srcSet={`${slideBase(SLIDES[current].base, isDark)}.avif`}
+                  type="image/avif"
+                />
+                <source
+                  srcSet={`${slideBase(SLIDES[current].base, isDark)}.webp`}
+                  type="image/webp"
+                />
                 <img
                   src={`${slideBase(SLIDES[current].base, isDark)}.png`}
                   alt={SLIDES[current].alt}
@@ -184,7 +199,8 @@ export default function HeroMockup() {
 
               {/* Caption */}
               <p className="mt-3 text-sm text-white/70">
-                {SLIDES[current].alt} &nbsp;·&nbsp; {current + 1} / {SLIDES.length}
+                {SLIDES[current].alt} &nbsp;·&nbsp; {current + 1} /{' '}
+                {SLIDES.length}
               </p>
 
               {/* Dot navigation */}
@@ -193,7 +209,7 @@ export default function HeroMockup() {
                   <button
                     key={i}
                     onClick={() => go(i)}
-                    className={`h-1.5 rounded-full transition-all duration-300 ${
+                    className={`h-1.5 cursor-pointer rounded-full transition-all duration-300 ${
                       i === current
                         ? 'w-5 bg-white'
                         : 'w-1.5 bg-white/40 hover:bg-white/70'
@@ -205,7 +221,7 @@ export default function HeroMockup() {
               {/* Prev */}
               <button
                 onClick={() => go(current - 1)}
-                className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 sm:-translate-x-12 rounded-full bg-white/10 hover:bg-white/20 p-2.5 transition"
+                className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 sm:-translate-x-12 cursor-pointer rounded-full bg-white/10 hover:bg-white/20 p-2.5 transition"
               >
                 <CaretLeftIcon size={20} className="text-white" />
               </button>
@@ -213,7 +229,7 @@ export default function HeroMockup() {
               {/* Next */}
               <button
                 onClick={() => go(current + 1)}
-                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 sm:translate-x-12 rounded-full bg-white/10 hover:bg-white/20 p-2.5 transition"
+                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 sm:translate-x-12 cursor-pointer rounded-full bg-white/10 hover:bg-white/20 p-2.5 transition"
               >
                 <CaretRightIcon size={20} className="text-white" />
               </button>
@@ -221,7 +237,7 @@ export default function HeroMockup() {
               {/* Close */}
               <button
                 onClick={closeLightbox}
-                className="absolute -top-3 -right-3 sm:-top-10 sm:-right-10 rounded-full bg-white/10 hover:bg-white/20 p-2 transition"
+                className="absolute -top-3 -right-3 sm:-top-10 sm:-right-10 cursor-pointer rounded-full bg-white/10 hover:bg-white/20 p-2 transition"
               >
                 <XIcon size={18} className="text-white" />
               </button>

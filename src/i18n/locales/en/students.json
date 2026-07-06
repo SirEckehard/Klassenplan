@@ -10,7 +10,15 @@
     "rotateLeft": "Rotate left",
     "rotateRight": "Rotate right",
     "apply": "Apply",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "consent": {
+      "title": "About student photos",
+      "local": "Photos are stored only locally on this device and never uploaded.",
+      "permission": "Before using student photos, make sure you have the consent of the school administration as well as the students concerned and their parents.",
+      "dontShowAgain": "Understood – don't show this notice again",
+      "confirm": "Continue",
+      "cancel": "Cancel"
+    }
   },
   "classManagement": {
     "title": "Class Management",
@@ -63,6 +71,10 @@
     }
   },
   "listHeader": {
+    "photo": "Photo",
+    "photoFull": "Student photo – stored only locally on this device",
+    "name": "Name",
+    "nameFull": "Student name",
     "gender": "Gender",
     "genderFull": "Gender",
     "height": "Height",

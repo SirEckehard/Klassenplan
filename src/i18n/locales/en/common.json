@@ -31,6 +31,12 @@
       "github": "Source code · AGPL-3.0"
     }
   },
+  "downloadConfirm": {
+    "title": "Download file?",
+    "message": "“{{filename}}” will be downloaded to this device.",
+    "confirm": "Download",
+    "cancel": "Cancel"
+  },
   "buttons": {
     "save": "Save",
     "cancel": "Cancel",

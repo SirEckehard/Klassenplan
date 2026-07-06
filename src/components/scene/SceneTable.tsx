@@ -1,11 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import React, { useMemo, useReducer, useRef } from 'react';
-import type {
-  Student,
-  ClassroomTable,
-  PhotoDisplayMode,
-} from '@/types';
+import type { Student, ClassroomTable, PhotoDisplayMode } from '@/types';
 import {
   TABLE_CORNER_RADIUS,
   getSeatHighlight,
@@ -170,7 +166,10 @@ function SceneTable({
   // correct for every table type, not only the 4-seat group. Drawn outside the
   // seat clip group so they sit against the table border instead of inside it.
   const chairFill = isDark ? '#9ca3af' : '#94a3b8';
-  const chairRadius = Math.max(2.5, Math.min(5, Math.min(seatWidth, seatHeight) * 0.12));
+  const chairRadius = Math.max(
+    2.5,
+    Math.min(5, Math.min(seatWidth, seatHeight) * 0.12),
+  );
   // Dock tangentially: the dot/photo sits fully outside the table and its inner
   // edge just kisses the outer edge of the table border stroke (half of the 1px
   // base border), so it touches the border without overlapping into the table.
@@ -313,13 +312,17 @@ function SceneTable({
       }) rotate(${table.rotation}) translate(${-table.width / 2} ${
         -table.height / 2
       })`}
-      onPointerDown={table.locked ? undefined : handleTablePointerDown}
+      onPointerDown={
+        table.locked || !onPointerDown ? undefined : handleTablePointerDown
+      }
       onContextMenu={(e) => {
         if (table.locked) return;
         e.preventDefault();
       }}
       style={{
-        cursor: table.locked ? 'default' : 'move',
+        // Move cursor only where the table is actually interactive; static
+        // renders (presentation view, PDF preview/export) keep the default.
+        cursor: !table.locked && onPointerDown ? 'move' : 'default',
         touchAction: 'none',
       }}
     >

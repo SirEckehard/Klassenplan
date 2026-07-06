@@ -8,6 +8,7 @@ import {
   type ExportClassMetadata,
 } from '@/services/export/sceneRenderer';
 import { logError } from '@/utils';
+import { confirmDownload } from '@/utils/ui/downloadConfirmation';
 import { getStudentPhotoDataUrl } from '@/hooks/student/studentPhotoCache';
 import dmSansWoff2Url from '@fontsource-variable/dm-sans/files/dm-sans-latin-wght-normal.woff2?url';
 
@@ -282,6 +283,14 @@ async function exportSvgToPdf(
   filename: string,
   orientation: 'landscape' | 'portrait',
 ): Promise<void> {
+  const pdfFilename = `${filename}_${new Date().toISOString().split('T')[0]}.pdf`;
+
+  // Ask the user before generating and saving the file (declined = no-op).
+  const confirmed = await confirmDownload(pdfFilename);
+  if (!confirmed) {
+    return;
+  }
+
   try {
     const { jsPDF } = await import('jspdf');
     const pdf = new jsPDF({
@@ -308,7 +317,7 @@ async function exportSvgToPdf(
 
     pdf.addImage(imageDataUrl, 'PNG', 0, 0, width, height, undefined, 'NONE');
 
-    pdf.save(`${filename}_${new Date().toISOString().split('T')[0]}.pdf`);
+    pdf.save(pdfFilename);
   } catch (error) {
     logError('PDF export failed', { error, filename }, 'pdfExportFunctions');
     throw new Error('PDF-Export fehlgeschlagen', { cause: error });

@@ -10,7 +10,15 @@
     "rotateLeft": "Nach links drehen",
     "rotateRight": "Nach rechts drehen",
     "apply": "Übernehmen",
-    "cancel": "Abbrechen"
+    "cancel": "Abbrechen",
+    "consent": {
+      "title": "Hinweis zu Schülerfotos",
+      "local": "Fotos werden ausschließlich lokal auf diesem Gerät gespeichert und niemals übertragen.",
+      "permission": "Für die Nutzung von Schülerfotos benötigst du das Einverständnis der Schulleitung sowie der betroffenen Schüler und ihrer Eltern.",
+      "dontShowAgain": "Verstanden – diesen Hinweis nicht mehr anzeigen",
+      "confirm": "Fortfahren",
+      "cancel": "Abbrechen"
+    }
   },
   "classManagement": {
     "title": "Klassenverwaltung",
@@ -63,6 +71,10 @@
     }
   },
   "listHeader": {
+    "photo": "Foto",
+    "photoFull": "Schülerfoto – wird nur lokal auf diesem Gerät gespeichert",
+    "name": "Name",
+    "nameFull": "Name des Schülers",
     "gender": "Geschl.",
     "genderFull": "Geschlecht",
     "height": "Größe",
