@@ -207,7 +207,8 @@ export const rotateFeatureForAnchor = (
   if (
     feature.type !== 'window' &&
     feature.type !== 'door' &&
-    feature.type !== 'board'
+    feature.type !== 'board' &&
+    feature.type !== 'whiteboard'
   ) {
     return feature;
   }

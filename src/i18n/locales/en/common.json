@@ -71,7 +71,10 @@
     "window": "Window",
     "door": "Door",
     "board": "Blackboard",
-    "podium": "Teacher's Desk"
+    "podium": "Teacher's Desk",
+    "whiteboard": "Whiteboard",
+    "cabinet": "Cabinet",
+    "divider": "Room Divider"
   },
   "gender": {
     "male": "male",
@@ -130,6 +133,9 @@
       "showWindows": "Show Windows",
       "showDoor": "Show Door",
       "showPodium": "Show Teacher's Desk",
+      "showWhiteboard": "Show Whiteboards",
+      "showCabinet": "Show Cabinets",
+      "showDivider": "Show Room Dividers",
       "showConnections": "Show Connections",
       "showNeeds": "Show Special Needs",
       "showFullNames": "Show Full Names"

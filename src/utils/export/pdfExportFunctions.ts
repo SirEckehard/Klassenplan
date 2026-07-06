@@ -9,6 +9,7 @@ import {
 } from '@/services/export/sceneRenderer';
 import { logError } from '@/utils';
 import { confirmDownload } from '@/utils/ui/downloadConfirmation';
+import type { FeatureVisibilityFlags } from '@/utils/ui/featureStyles';
 import { getStudentPhotoDataUrl } from '@/hooks/student/studentPhotoCache';
 import dmSansWoff2Url from '@fontsource-variable/dm-sans/files/dm-sans-latin-wght-normal.woff2?url';
 
@@ -58,10 +59,7 @@ export type ExportOptions = {
   allStudents?: Student[];
   showSpecialNeeds?: boolean;
   showConnections?: boolean;
-  showBoard?: boolean;
-  showWindows?: boolean;
-  showDoor?: boolean;
-  showPodium?: boolean;
+  featureVisibility?: FeatureVisibilityFlags;
   showFullNames?: boolean;
   /** Show student photos on the seat dots in the table export (default true). */
   showPhotos?: boolean;
@@ -85,10 +83,7 @@ export async function exportTableLayoutToPdf(
     allStudents: options?.allStudents,
     photoDataUrls,
     showSpecialNeeds: options?.showSpecialNeeds ?? true,
-    showBoard: options?.showBoard ?? true,
-    showWindows: options?.showWindows ?? true,
-    showDoor: options?.showDoor ?? true,
-    showPodium: options?.showPodium ?? true,
+    featureVisibility: options?.featureVisibility,
     lockSeatLabelOrientation: true,
     orientation: options?.orientation ?? 'portrait',
     showFullNames: options?.showFullNames ?? false,

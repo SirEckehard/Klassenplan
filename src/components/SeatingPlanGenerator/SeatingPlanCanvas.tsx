@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
-import { useTranslation } from 'react-i18next';
 import type {
   ClassroomTable,
   SeatingArrangement,
@@ -10,7 +9,7 @@ import type {
   PhotoDisplayMode,
 } from '@/types';
 import type { SeatHighlightLookup } from '@/utils';
-import { GRID_SIZE, FEATURE_CORNER_RADIUS } from '@/utils';
+import { GRID_SIZE } from '@/utils';
 import { getFeatureStyles } from '@/utils/ui';
 import type { FeatureVisibilityFlags } from '@/utils/ui';
 import type { TemplateDragPreview } from '@/types/templateDrag';
@@ -21,6 +20,7 @@ import type {
   DragSeatConfig,
 } from '@/hooks/ui/useDragDropState';
 import TableIcon from '@/components/scene/SceneTable';
+import FeatureShape from '@/components/scene/FeatureShape';
 import { useStudentPhotoUrls } from '@/hooks/student/useStudentPhoto';
 import { useSeatKeyboardMove } from '@/hooks/scene/useSeatKeyboardMove';
 
@@ -32,10 +32,7 @@ interface SeatingPlanCanvasProps {
   allStudents?: Student[];
   selectedTableIds: number[];
   showGrid: boolean;
-  showBoard: boolean;
-  showWindows: boolean;
-  showDoor: boolean;
-  showPodium: boolean;
+  featureVisibility?: FeatureVisibilityFlags;
   features?: ClassroomFeature[];
   selectionBox: {
     x: number;
@@ -82,10 +79,7 @@ const SeatingPlanCanvas = React.memo(
     allStudents,
     selectedTableIds,
     showGrid,
-    showBoard,
-    showWindows,
-    showDoor,
-    showPodium,
+    featureVisibility,
     features = [],
     selectionBox,
     handlePointerMove,
@@ -111,7 +105,6 @@ const SeatingPlanCanvas = React.memo(
     seatHighlights = null,
     photoDisplayMode = 'off',
   }: SeatingPlanCanvasProps) => {
-    const { t } = useTranslation('generator');
     const canvasRef = React.useRef<SVGSVGElement | null>(null);
     const photoUrls = useStudentPhotoUrls(allStudents ?? []);
 
@@ -139,22 +132,6 @@ const SeatingPlanCanvas = React.memo(
     }, [dragOrigin, cancelKeyboardMove]);
 
     const effectiveDragOrigin = dragOrigin ?? keyboardMoveOrigin;
-
-    // Helper to get translated feature label based on type
-    const getFeatureLabel = (feature: {
-      type: string;
-      label?: string;
-    }): string | undefined => {
-      if (!feature.label) return undefined;
-      const typeToKey: Record<string, string> = {
-        window: 'layout.window',
-        door: 'layout.door',
-        board: 'layout.board',
-        podium: 'layout.podium',
-      };
-      const key = typeToKey[feature.type];
-      return key ? t(key, feature.label) : feature.label;
-    };
 
     const applySelectionForTable = React.useCallback(
       (tableIndex: number, multi: boolean) => {
@@ -209,15 +186,6 @@ const SeatingPlanCanvas = React.memo(
       return <g className="grid">{lines}</g>;
     };
 
-    const featureVisibility = React.useMemo<FeatureVisibilityFlags>(
-      () => ({
-        board: showBoard,
-        window: showWindows,
-        door: showDoor,
-        podium: showPodium,
-      }),
-      [showBoard, showDoor, showPodium, showWindows],
-    );
     const featureViewModels = React.useMemo(
       () =>
         features
@@ -253,97 +221,18 @@ const SeatingPlanCanvas = React.memo(
         `}</style>
           {renderGrid()}
 
+          <g style={{ pointerEvents: 'none' }}>
+            {featureViewModels.map(({ feature, styles }) => (
+              <FeatureShape
+                key={feature.id}
+                feature={feature}
+                styles={styles}
+                strokeMode="none"
+              />
+            ))}
+          </g>
+
           <g>
-            {featureViewModels.map(({ feature, styles }) => {
-              const isFree = feature.anchor === 'free';
-              const rotation = isFree ? (feature.rotation ?? 0) : 0;
-              const normalizedRotation = ((rotation % 360) + 360) % 360;
-              const isPodium = feature.type === 'podium';
-              const labelRotation = isPodium
-                ? -normalizedRotation
-                : feature.width >= feature.height
-                  ? 0
-                  : -90;
-
-              if (isFree) {
-                const transform = `translate(${feature.x + feature.width / 2} ${
-                  feature.y + feature.height / 2
-                }) rotate(${rotation}) translate(${-feature.width / 2} ${
-                  -feature.height / 2
-                })`;
-                return (
-                  <g
-                    key={feature.id}
-                    style={{ pointerEvents: 'none' }}
-                    transform={transform}
-                  >
-                    <rect
-                      x={0}
-                      y={0}
-                      width={feature.width}
-                      height={feature.height}
-                      rx={FEATURE_CORNER_RADIUS}
-                      fill={styles.fill}
-                      stroke="none"
-                    />
-                    {feature.label && (
-                      <text
-                        x={feature.width / 2}
-                        y={feature.height / 2}
-                        textAnchor="middle"
-                        dominantBaseline="central"
-                        fill={styles.text}
-                        fontSize={12}
-                        transform={
-                          labelRotation !== 0
-                            ? `rotate(${labelRotation}, ${feature.width / 2}, ${
-                                feature.height / 2
-                              })`
-                            : undefined
-                        }
-                      >
-                        {getFeatureLabel(feature)}
-                      </text>
-                    )}
-                  </g>
-                );
-              }
-
-              const centerX = feature.x + feature.width / 2;
-              const centerY = feature.y + feature.height / 2;
-              const textTransform =
-                labelRotation !== 0
-                  ? `rotate(${labelRotation}, ${centerX}, ${centerY})`
-                  : undefined;
-
-              return (
-                <g key={feature.id} style={{ pointerEvents: 'none' }}>
-                  <rect
-                    x={feature.x}
-                    y={feature.y}
-                    width={feature.width}
-                    height={feature.height}
-                    rx={FEATURE_CORNER_RADIUS}
-                    fill={styles.fill}
-                    stroke="none"
-                  />
-                  {feature.label && (
-                    <text
-                      x={centerX}
-                      y={centerY}
-                      textAnchor="middle"
-                      dominantBaseline="central"
-                      fill={styles.text}
-                      fontSize={12}
-                      transform={textTransform}
-                    >
-                      {getFeatureLabel(feature)}
-                    </text>
-                  )}
-                </g>
-              );
-            })}
-
             {sceneTables.map((table, index) => (
               <TableIcon
                 key={index}

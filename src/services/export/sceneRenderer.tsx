@@ -3,6 +3,7 @@
 import type { ReactElement } from 'react';
 import type { ClassroomScene, SeatingArrangement, Student } from '@/types';
 import type { CircleLayout } from '@/types/Circle';
+import type { FeatureVisibilityFlags } from '@/utils/ui';
 import SceneSvg from '@/components/scene/SceneSvg';
 import CirclePrintView from '@/components/circle/CirclePrintView';
 
@@ -40,10 +41,7 @@ export async function renderSceneSvg(
     allStudents?: Student[];
     photoDataUrls?: ReadonlyMap<string, string>;
     showSpecialNeeds?: boolean;
-    showBoard?: boolean;
-    showWindows?: boolean;
-    showDoor?: boolean;
-    showPodium?: boolean;
+    featureVisibility?: FeatureVisibilityFlags;
     lockSeatLabelOrientation?: boolean;
     seatLabelRotation?: number;
     orientation?: 'landscape' | 'portrait';
@@ -63,10 +61,7 @@ export async function renderSceneSvg(
         title={title}
         classMetadata={options?.classMetadata}
         showSpecialNeeds={options?.showSpecialNeeds}
-        showBoard={options?.showBoard}
-        showWindows={options?.showWindows}
-        showDoor={options?.showDoor}
-        showPodium={options?.showPodium}
+        featureVisibility={options?.featureVisibility}
         lockSeatLabelOrientation={options?.lockSeatLabelOrientation}
         seatLabelRotation={options?.seatLabelRotation}
         orientation={options?.orientation}

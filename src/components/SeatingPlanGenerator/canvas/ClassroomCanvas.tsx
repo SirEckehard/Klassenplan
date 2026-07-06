@@ -4,9 +4,9 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { ArrowClockwiseIcon } from '@phosphor-icons/react';
 import TableIcon from '@/components/scene/SceneTable';
+import FeatureShape from '@/components/scene/FeatureShape';
 import {
   GRID_SIZE,
-  FEATURE_CORNER_RADIUS,
   calculateFeatureHandleAnchor,
   type FeatureHandleAnchor,
 } from '@/utils';
@@ -30,10 +30,7 @@ interface ClassroomCanvasProps {
   canvasWidth: number;
   classroomHeight: number;
   showGrid: boolean;
-  showBoard: boolean;
-  showWindows: boolean;
-  showDoor: boolean;
-  showPodium: boolean;
+  featureVisibility?: FeatureVisibilityFlags;
   activeFeatureId?: string | null;
   onFeatureRotateStart?: (
     feature: ClassroomFeature,
@@ -89,10 +86,7 @@ const ClassroomCanvas = React.memo<ClassroomCanvasProps>(
     canvasWidth,
     classroomHeight,
     showGrid,
-    showBoard,
-    showWindows,
-    showDoor,
-    showPodium,
+    featureVisibility,
     activeFeatureId = null,
     features = [],
     sceneTables,
@@ -127,33 +121,8 @@ const ClassroomCanvas = React.memo<ClassroomCanvasProps>(
       [t],
     );
 
-    // Helper to get translated feature label based on type
-    const getFeatureLabel = (feature: {
-      type: string;
-      label?: string;
-    }): string | undefined => {
-      if (!feature.label) return undefined;
-      const typeToKey: Record<string, string> = {
-        window: 'layout.window',
-        door: 'layout.door',
-        board: 'layout.board',
-        podium: 'layout.podium',
-      };
-      const key = typeToKey[feature.type];
-      return key ? t(key, feature.label) : feature.label;
-    };
-
     const backgroundColor = isDark ? '#1f2937' : '#f9fafb';
     const gridColor = isDark ? '#374151' : '#e5e7eb';
-    const featureVisibility = React.useMemo<FeatureVisibilityFlags>(
-      () => ({
-        board: showBoard,
-        window: showWindows,
-        door: showDoor,
-        podium: showPodium,
-      }),
-      [showBoard, showDoor, showPodium, showWindows],
-    );
     const featureViewModels = React.useMemo(
       () =>
         features
@@ -237,137 +206,51 @@ const ClassroomCanvas = React.memo<ClassroomCanvasProps>(
           {/* Structural features */}
           {featureViewModels.map(({ feature, styles }) => {
             const isActive = feature.id === activeFeatureId;
-            const isRotatable =
-              feature.anchor === 'free' && feature.type === 'podium';
+            const isRotatable = feature.anchor === 'free' && feature.movable;
             const rotation =
               feature.anchor === 'free' ? (feature.rotation ?? 0) : 0;
-            const normalizedRotation = ((rotation % 360) + 360) % 360;
-            const isPodium = feature.type === 'podium';
-
-            if (feature.anchor === 'free') {
-              const transform = `translate(${feature.x + feature.width / 2} ${
-                feature.y + feature.height / 2
-              }) rotate(${rotation}) translate(${-feature.width / 2} ${
-                -feature.height / 2
-              })`;
-              const inverseRotation = -rotation;
-              const labelRotation = isPodium
-                ? -normalizedRotation
-                : feature.width >= feature.height
-                  ? 0
-                  : -90;
-              const handleAnchor = featureHandleAnchors?.get(feature.id);
-              const resolvedAnchor = handleAnchor
-                ? handleAnchor
-                : calculateFeatureHandleAnchor(
-                    feature.width,
-                    feature.height,
-                    rotation,
-                  );
-
-              return (
-                <g
-                  key={feature.id}
-                  data-feature-id={feature.id}
-                  transform={transform}
-                >
-                  <rect
-                    x={0}
-                    y={0}
-                    width={feature.width}
-                    height={feature.height}
-                    rx={FEATURE_CORNER_RADIUS}
-                    fill={styles.fill}
-                    stroke={isActive ? styles.stroke : 'none'}
-                    strokeWidth={isActive ? 2 : 0}
-                    className="cursor-grab active:cursor-grabbing"
-                    style={{ touchAction: 'none' }}
-                    onPointerDown={(event) =>
-                      onFeaturePointerDown?.(feature, event)
-                    }
-                  />
-                  {feature.label && (
-                    <text
-                      x={feature.width / 2}
-                      y={feature.height / 2}
-                      textAnchor="middle"
-                      dominantBaseline="central"
-                      fill={styles.text}
-                      fontSize={12}
-                      pointerEvents="none"
-                      transform={
-                        labelRotation !== 0
-                          ? `rotate(${labelRotation}, ${feature.width / 2}, ${
-                              feature.height / 2
-                            })`
-                          : undefined
-                      }
-                    >
-                      {getFeatureLabel(feature)}
-                    </text>
-                  )}
-                  {isRotatable && onFeatureRotateStart && (
-                    <g
-                      transform={`translate(${resolvedAnchor.x} ${resolvedAnchor.y})`}
-                      onPointerDown={(event) => {
-                        event.stopPropagation();
-                        event.preventDefault();
-                        onFeatureRotateStart(feature, event);
-                      }}
-                      style={{ cursor: 'grab' }}
-                    >
-                      <g transform={`rotate(${inverseRotation})`}>
-                        <circle r={10} fill="#3b82f6" />
-                        <g transform="translate(-6 -6)">
-                          <ArrowClockwiseIcon size={12} color="#fff" />
-                        </g>
-                      </g>
-                    </g>
-                  )}
-                </g>
-              );
-            }
-
-            const centerX = feature.x + feature.width / 2;
-            const centerY = feature.y + feature.height / 2;
-            const labelRotation = feature.width >= feature.height ? 0 : -90;
-            const textTransform =
-              labelRotation !== 0
-                ? `rotate(${labelRotation}, ${centerX}, ${centerY})`
-                : undefined;
+            const handleAnchor = featureHandleAnchors?.get(feature.id);
+            const resolvedAnchor = handleAnchor
+              ? handleAnchor
+              : calculateFeatureHandleAnchor(
+                  feature.width,
+                  feature.height,
+                  rotation,
+                );
 
             return (
-              <g key={feature.id} data-feature-id={feature.id}>
-                <rect
-                  x={feature.x}
-                  y={feature.y}
-                  width={feature.width}
-                  height={feature.height}
-                  rx={FEATURE_CORNER_RADIUS}
-                  fill={styles.fill}
-                  stroke={isActive ? styles.stroke : 'none'}
-                  strokeWidth={isActive ? 2 : 0}
-                  className="cursor-grab active:cursor-grabbing"
-                  style={{ touchAction: 'none' }}
-                  onPointerDown={(event) =>
-                    onFeaturePointerDown?.(feature, event)
-                  }
-                />
-                {feature.label && (
-                  <text
-                    x={centerX}
-                    y={centerY}
-                    textAnchor="middle"
-                    dominantBaseline="central"
-                    fill={styles.text}
-                    fontSize={12}
-                    pointerEvents="none"
-                    transform={textTransform}
+              <FeatureShape
+                key={feature.id}
+                feature={feature}
+                styles={styles}
+                strokeMode="active"
+                isActive={isActive}
+                rectProps={{
+                  className: 'cursor-grab active:cursor-grabbing',
+                  style: { touchAction: 'none' },
+                  onPointerDown: (event) =>
+                    onFeaturePointerDown?.(feature, event),
+                }}
+              >
+                {isRotatable && onFeatureRotateStart && (
+                  <g
+                    transform={`translate(${resolvedAnchor.x} ${resolvedAnchor.y})`}
+                    onPointerDown={(event) => {
+                      event.stopPropagation();
+                      event.preventDefault();
+                      onFeatureRotateStart(feature, event);
+                    }}
+                    style={{ cursor: 'grab' }}
                   >
-                    {getFeatureLabel(feature)}
-                  </text>
+                    <g transform={`rotate(${-rotation})`}>
+                      <circle r={10} fill="#3b82f6" />
+                      <g transform="translate(-6 -6)">
+                        <ArrowClockwiseIcon size={12} color="#fff" />
+                      </g>
+                    </g>
+                  </g>
                 )}
-              </g>
+              </FeatureShape>
             );
           })}
 

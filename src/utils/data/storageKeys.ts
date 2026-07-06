@@ -10,10 +10,7 @@ export const STORAGE_KEYS = {
     theme: 'theme',
     cookieConsent: 'cookieConsent',
     showGrid: 'showGrid',
-    showBoard: 'showBoard',
-    showWindows: 'showWindows',
-    showDoor: 'showDoor',
-    showPodium: 'showPodium',
+    featureVisibility: 'spg.featureVisibility',
     seatingMode: 'spg.seatingMode',
     photoDisplayMode: 'spg.photoDisplayMode',
     circlePhotoMode: 'circle-photo-mode',
@@ -63,6 +60,18 @@ export const STUDENT_PHOTO_STORE = {
 export const LOCAL_STORAGE_KEYS = STORAGE_KEYS.localStorage;
 export const DB_KEYS = STORAGE_KEYS.indexedDB;
 
+/**
+ * Per-feature visibility flags that predate the `spg.featureVisibility`
+ * record. Read once for migration and kept in the cleanup list so a full
+ * data wipe removes them from existing installations.
+ */
+export const LEGACY_FEATURE_VISIBILITY_KEYS = [
+  'showBoard',
+  'showWindows',
+  'showDoor',
+  'showPodium',
+] as const;
+
 // Type definitions
 export type LocalStorageKey = keyof typeof STORAGE_KEYS.localStorage;
 export type LocalStorageValue =
@@ -78,10 +87,8 @@ export const PROJECT_LOCAL_STORAGE_KEYS = [
   STORAGE_KEYS.localStorage.theme,
   STORAGE_KEYS.localStorage.cookieConsent,
   STORAGE_KEYS.localStorage.showGrid,
-  STORAGE_KEYS.localStorage.showBoard,
-  STORAGE_KEYS.localStorage.showWindows,
-  STORAGE_KEYS.localStorage.showDoor,
-  STORAGE_KEYS.localStorage.showPodium,
+  STORAGE_KEYS.localStorage.featureVisibility,
+  ...LEGACY_FEATURE_VISIBILITY_KEYS,
   STORAGE_KEYS.localStorage.seatingMode,
   STORAGE_KEYS.localStorage.photoDisplayMode,
   STORAGE_KEYS.localStorage.circlePhotoMode,

@@ -12,15 +12,11 @@ import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import {
   ArrowLeftIcon,
-  ChalkboardSimpleIcon,
   LinkSimpleIcon,
   LinkBreakIcon,
   EyeIcon,
   UserCircleIcon,
-  PanoramaIcon,
-  DoorIcon,
   InfoIcon,
-  LecternIcon,
   PrinterIcon,
   GridNineIcon,
   CircleDashedIcon,
@@ -34,6 +30,13 @@ import {
   successButtonClass,
 } from '@/utils';
 import { showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
+import {
+  FEATURE_TYPES,
+  FEATURE_TYPE_ICONS,
+  FEATURE_VISIBILITY_TOGGLE_KEYS,
+  type FeatureVisibilityFlags,
+} from '@/utils/ui';
+import { useFeatureVisibility } from '@/hooks/ui/useFeatureVisibility';
 import {
   useSeatingPlanState,
   useSeatingPlanActions,
@@ -144,36 +147,23 @@ export default function Export() {
   const [previewMode, setPreviewMode] = useState<SeatingMode>('table');
   const [showNeeds, setShowNeeds] = useState(true);
   const [showConnections, setShowConnections] = useState(true);
-  const [showBoard, setShowBoard] = usePersistentState<boolean>(
-    LOCAL_STORAGE_KEYS.showBoard,
-    true,
-  );
-  const [showWindows, setShowWindows] = usePersistentState<boolean>(
-    LOCAL_STORAGE_KEYS.showWindows,
-    true,
-  );
-  const [showDoor, setShowDoor] = usePersistentState<boolean>(
-    LOCAL_STORAGE_KEYS.showDoor,
-    true,
-  );
-  const [showPodium, setShowPodium] = usePersistentState<boolean>(
-    LOCAL_STORAGE_KEYS.showPodium,
-    true,
-  );
+  const { featureVisibility, setFeatureVisible } = useFeatureVisibility();
   const featureAvailability = useMemo(() => {
     const features = classroomScene.features ?? [];
-    return {
-      board: features.some((feature) => feature.type === 'board'),
-      windows: features.some((feature) => feature.type === 'window'),
-      door: features.some((feature) => feature.type === 'door'),
-      podium: features.some((feature) => feature.type === 'podium'),
-    };
+    const availability: FeatureVisibilityFlags = {};
+    for (const type of FEATURE_TYPES) {
+      availability[type] = features.some((feature) => feature.type === type);
+    }
+    return availability;
   }, [classroomScene.features]);
-  const hasBoardFeature = featureAvailability.board;
-  const effectiveShowBoard = hasBoardFeature && showBoard;
-  const effectiveShowWindows = featureAvailability.windows && showWindows;
-  const effectiveShowDoor = featureAvailability.door && showDoor;
-  const effectiveShowPodium = featureAvailability.podium && showPodium;
+  const effectiveVisibility = useMemo(() => {
+    const effective: FeatureVisibilityFlags = {};
+    for (const type of FEATURE_TYPES) {
+      effective[type] =
+        featureAvailability[type] === true && featureVisibility[type] !== false;
+    }
+    return effective;
+  }, [featureAvailability, featureVisibility]);
   const [tableOrientation, setTableOrientation] =
     usePersistentState<PageOrientation>('export.tableOrientation', 'portrait');
   const [circleOrientation, setCircleOrientation] =
@@ -222,22 +212,6 @@ export default function Export() {
     };
   }, [activeClass.name, activeClass.label, activeClass.notes, showClassInfo]);
 
-  const handleToggleBoard = useCallback(
-    (checked: boolean) => setShowBoard(() => checked),
-    [setShowBoard],
-  );
-  const handleToggleWindows = useCallback(
-    (checked: boolean) => setShowWindows(() => checked),
-    [setShowWindows],
-  );
-  const handleToggleDoor = useCallback(
-    (checked: boolean) => setShowDoor(() => checked),
-    [setShowDoor],
-  );
-  const handleTogglePodium = useCallback(
-    (checked: boolean) => setShowPodium(() => checked),
-    [setShowPodium],
-  );
   const handleToggleConnections = useCallback(
     (checked: boolean) => setShowConnections(() => checked),
     [setShowConnections],
@@ -342,38 +316,17 @@ export default function Export() {
 
     if (previewMode === 'table') {
       featureOptions.push(
-        {
-          id: 'board',
-          label: t('export.showBoard', 'Tafel anzeigen'),
-          icon: <ChalkboardSimpleIcon size={16} />,
-          checked: effectiveShowBoard,
-          onChange: handleToggleBoard,
-          disabled: !featureAvailability.board,
-        },
-        {
-          id: 'windows',
-          label: t('export.showWindows', 'Fenster anzeigen'),
-          icon: <PanoramaIcon size={16} />,
-          checked: effectiveShowWindows,
-          onChange: handleToggleWindows,
-          disabled: !featureAvailability.windows,
-        },
-        {
-          id: 'door',
-          label: t('export.showDoor', 'Tür anzeigen'),
-          icon: <DoorIcon size={16} />,
-          checked: effectiveShowDoor,
-          onChange: handleToggleDoor,
-          disabled: !featureAvailability.door,
-        },
-        {
-          id: 'podium',
-          label: t('export.showPodium', 'Pult anzeigen'),
-          icon: <LecternIcon size={16} />,
-          checked: effectiveShowPodium,
-          onChange: handleTogglePodium,
-          disabled: !featureAvailability.podium,
-        },
+        ...FEATURE_TYPES.map((type) => {
+          const FeatureIcon = FEATURE_TYPE_ICONS[type];
+          return {
+            id: `feature-${type}`,
+            label: t(`export.${FEATURE_VISIBILITY_TOGGLE_KEYS[type]}`),
+            icon: <FeatureIcon size={16} />,
+            checked: effectiveVisibility[type] === true,
+            onChange: (checked: boolean) => setFeatureVisible(type, checked),
+            disabled: !featureAvailability[type],
+          };
+        }),
       );
     }
 
@@ -434,21 +387,15 @@ export default function Export() {
 
     return groups;
   }, [
-    effectiveShowBoard,
-    effectiveShowDoor,
-    effectiveShowPodium,
-    effectiveShowWindows,
+    effectiveVisibility,
     featureAvailability,
-    handleToggleBoard,
+    setFeatureVisible,
     handleToggleClassInfo,
     handleToggleConnections,
-    handleToggleDoor,
     handleToggleFullNames,
     handleToggleNeeds,
     handleTogglePhotos,
     handleToggleLegend,
-    handleTogglePodium,
-    handleToggleWindows,
     previewMode,
     showClassInfo,
     showConnections,
@@ -672,10 +619,7 @@ export default function Export() {
           allStudents: students,
           photoDataUrls,
           showSpecialNeeds: showNeeds,
-          showBoard: effectiveShowBoard,
-          showWindows: effectiveShowWindows,
-          showDoor: effectiveShowDoor,
-          showPodium: effectiveShowPodium,
+          featureVisibility: effectiveVisibility,
           lockSeatLabelOrientation: true,
           orientation: tableOrientation,
           showFullNames,
@@ -714,10 +658,7 @@ export default function Export() {
     title,
     students,
     showNeeds,
-    effectiveShowBoard,
-    effectiveShowDoor,
-    effectiveShowPodium,
-    effectiveShowWindows,
+    effectiveVisibility,
     showConnections,
     circleOrientation,
     tableOrientation,
@@ -851,10 +792,7 @@ export default function Export() {
       await exportTableLayoutToPdf(classroomScene, seating, title, {
         allStudents: students,
         showSpecialNeeds: showNeeds,
-        showBoard: effectiveShowBoard,
-        showWindows: effectiveShowWindows,
-        showDoor: effectiveShowDoor,
-        showPodium: effectiveShowPodium,
+        featureVisibility: effectiveVisibility,
         showFullNames,
         showPhotos,
         showLegend,
@@ -876,10 +814,7 @@ export default function Export() {
     title,
     students,
     showNeeds,
-    effectiveShowBoard,
-    effectiveShowDoor,
-    effectiveShowPodium,
-    effectiveShowWindows,
+    effectiveVisibility,
     showFullNames,
     showPhotos,
     showLegend,

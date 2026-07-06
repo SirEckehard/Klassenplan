@@ -33,6 +33,7 @@ import {
 import { useSceneHistory } from '@/hooks/scene/useSceneHistory';
 import { useSceneManager } from '@/hooks/scene/useSceneManager';
 import { useContextMenuIntegration } from '@/hooks/ui/useContextMenuIntegration';
+import { useFeatureVisibility } from '@/hooks/ui/useFeatureVisibility';
 import { useDragDropState } from '@/hooks/ui/useDragDropState';
 import { type LayoutEditorSectionProps } from '@/components/SeatingPlanGenerator/views/SeatingPlanViewContent';
 import type {
@@ -138,10 +139,7 @@ export function useSeatingPlanViewLogic({
     LOCAL_STORAGE_KEYS.showGrid,
     true,
   ); // Toggle to show grid lines
-  const [showBoard, setShowBoard] = usePersistentState<boolean>(
-    LOCAL_STORAGE_KEYS.showBoard,
-    true,
-  ); // Toggle to show board
+  const { featureVisibility, setFeatureVisible } = useFeatureVisibility();
   const [photoDisplayMode, setPhotoDisplayMode] =
     usePersistentState<PhotoDisplayMode>(
       LOCAL_STORAGE_KEYS.photoDisplayMode,
@@ -164,18 +162,6 @@ export function useSeatingPlanViewLogic({
   const classroomWidth = CLASSROOM_WIDTH;
   const classroomHeight = CLASSROOM_HEIGHT;
   const canvasWidth = Math.max(classroomWidth, BOARD_WIDTH); // Ensure the board fits horizontally
-  const [showWindows, setShowWindows] = usePersistentState<boolean>(
-    LOCAL_STORAGE_KEYS.showWindows,
-    true,
-  );
-  const [showDoor, setShowDoor] = usePersistentState<boolean>(
-    LOCAL_STORAGE_KEYS.showDoor,
-    true,
-  );
-  const [showPodium, setShowPodium] = usePersistentState<boolean>(
-    LOCAL_STORAGE_KEYS.showPodium,
-    true,
-  );
 
   const toSceneCoordinates = React.useMemo(
     () =>
@@ -424,14 +410,8 @@ export function useSeatingPlanViewLogic({
         setSnapToGrid={setSnapToGrid}
         showGrid={showGrid}
         setShowGrid={setShowGrid}
-        showBoard={showBoard}
-        setShowBoard={setShowBoard}
-        showWindows={showWindows}
-        setShowWindows={setShowWindows}
-        showDoor={showDoor}
-        setShowDoor={setShowDoor}
-        showPodium={showPodium}
-        setShowPodium={setShowPodium}
+        featureVisibility={featureVisibility}
+        setFeatureVisible={setFeatureVisible}
         undo={undo}
         historyLength={history.length}
         studentsCount={studentsCount}
@@ -486,14 +466,8 @@ export function useSeatingPlanViewLogic({
           isMixing,
           autoMixing,
           autoMixError,
-          showBoard,
-          setShowBoard,
-          showWindows,
-          setShowWindows,
-          showDoor,
-          setShowDoor,
-          showPodium,
-          setShowPodium,
+          featureVisibility,
+          setFeatureVisible,
           canvasWidth,
           classroomHeight,
           showGrid,

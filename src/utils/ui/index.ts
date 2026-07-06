@@ -6,3 +6,4 @@ export * from './downloadConfirmation';
 export * from './designTokens';
 export * from './textScaling';
 export * from './featureStyles';
+export * from './featureVisuals';

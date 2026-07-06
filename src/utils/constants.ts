@@ -79,6 +79,14 @@ const BOARD_HEIGHT_DEFAULT = BOARD_HEIGHT;
 export const PODIUM_WIDTH = 90;
 export const PODIUM_HEIGHT = 60;
 
+// Additional room furniture (pixels)
+export const WHITEBOARD_WIDTH = 24;
+export const WHITEBOARD_HEIGHT = 160;
+export const CABINET_WIDTH = 100;
+export const CABINET_HEIGHT = 40;
+export const DIVIDER_WIDTH = 160;
+export const DIVIDER_HEIGHT = 12;
+
 export const DEFAULT_WINDOW_FEATURES: ClassroomFeature[] = [
   {
     id: 'window-left-1',

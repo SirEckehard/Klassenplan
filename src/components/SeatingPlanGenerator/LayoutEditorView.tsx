@@ -13,9 +13,12 @@ import {
   Scissors,
   TrashIcon,
   LecternIcon,
+  LockersIcon,
   DoorIcon,
   PanoramaIcon,
+  PresentationIcon,
   ChalkboardSimpleIcon,
+  WallIcon,
 } from '@phosphor-icons/react';
 import ClassroomQuickSetup from '@/components/ui/panels/ClassroomQuickSetup';
 import ContextActionMenu, {
@@ -63,10 +66,22 @@ import {
   BOARD_HEIGHT,
   PODIUM_WIDTH,
   PODIUM_HEIGHT,
+  WHITEBOARD_WIDTH,
+  WHITEBOARD_HEIGHT,
+  CABINET_WIDTH,
+  CABINET_HEIGHT,
+  DIVIDER_WIDTH,
+  DIVIDER_HEIGHT,
   createClientToSceneConverter,
   calculateFeatureHandleAnchor,
   type FeatureHandleAnchor,
 } from '@/utils';
+import {
+  FEATURE_TYPES,
+  FEATURE_TYPE_ICONS,
+  FEATURE_VISIBILITY_TOGGLE_KEYS,
+  type FeatureVisibilityFlags,
+} from '@/utils/ui';
 import {
   useFeaturePaletteDrag,
   rotateFeatureForAnchor,
@@ -97,14 +112,8 @@ type Props = {
   setSnapToGrid: React.Dispatch<React.SetStateAction<boolean>>;
   showGrid: boolean;
   setShowGrid: React.Dispatch<React.SetStateAction<boolean>>;
-  showBoard: boolean;
-  setShowBoard: React.Dispatch<React.SetStateAction<boolean>>;
-  showWindows: boolean;
-  setShowWindows: React.Dispatch<React.SetStateAction<boolean>>;
-  showDoor: boolean;
-  setShowDoor: React.Dispatch<React.SetStateAction<boolean>>;
-  showPodium: boolean;
-  setShowPodium: React.Dispatch<React.SetStateAction<boolean>>;
+  featureVisibility: FeatureVisibilityFlags;
+  setFeatureVisible: (type: ClassroomFeatureType, visible: boolean) => void;
   undo: () => void;
   historyLength: number;
   studentsCount: number;
@@ -169,14 +178,8 @@ const LayoutEditorView = React.memo(
     setSnapToGrid,
     showGrid,
     setShowGrid,
-    showBoard,
-    setShowBoard,
-    showWindows,
-    setShowWindows,
-    showDoor,
-    setShowDoor,
-    showPodium,
-    setShowPodium,
+    featureVisibility,
+    setFeatureVisible,
     undo,
     historyLength,
     studentsCount,
@@ -261,6 +264,33 @@ const LayoutEditorView = React.memo(
           movable: true,
           allowMultiple: false,
         },
+        {
+          type: 'whiteboard',
+          label: t('layout.whiteboard', 'Whiteboard'),
+          icon: <PresentationIcon size={16} />,
+          width: WHITEBOARD_WIDTH,
+          height: WHITEBOARD_HEIGHT,
+          movable: false,
+          allowMultiple: true,
+        },
+        {
+          type: 'cabinet',
+          label: t('layout.cabinet', 'Schrank'),
+          icon: <LockersIcon size={16} />,
+          width: CABINET_WIDTH,
+          height: CABINET_HEIGHT,
+          movable: true,
+          allowMultiple: true,
+        },
+        {
+          type: 'divider',
+          label: t('layout.divider', 'Raumtrenner'),
+          icon: <WallIcon size={16} />,
+          width: DIVIDER_WIDTH,
+          height: DIVIDER_HEIGHT,
+          movable: true,
+          allowMultiple: true,
+        },
       ],
       [t],
     );
@@ -320,12 +350,11 @@ const LayoutEditorView = React.memo(
 
     const featureAvailability = React.useMemo(() => {
       const features = sceneFeatures ?? [];
-      return {
-        board: features.some((feature) => feature.type === 'board'),
-        windows: features.some((feature) => feature.type === 'window'),
-        door: features.some((feature) => feature.type === 'door'),
-        podium: features.some((feature) => feature.type === 'podium'),
-      };
+      const availability: FeatureVisibilityFlags = {};
+      for (const type of FEATURE_TYPES) {
+        availability[type] = features.some((feature) => feature.type === type);
+      }
+      return availability;
     }, [sceneFeatures]);
 
     React.useEffect(() => {
@@ -353,12 +382,6 @@ const LayoutEditorView = React.memo(
       }
     }, [sceneFeatures, setSceneFeatures]);
 
-    const effectiveShowBoard = featureAvailability.board ? showBoard : false;
-    const effectiveShowWindows = featureAvailability.windows
-      ? showWindows
-      : false;
-    const effectiveShowDoor = featureAvailability.door ? showDoor : false;
-    const effectiveShowPodium = featureAvailability.podium ? showPodium : false;
     const hasFeatureClipboard = Boolean(
       featureClipboard && featureClipboard.length > 0,
     );
@@ -387,11 +410,8 @@ const LayoutEditorView = React.memo(
     );
     const handleFeatureAdded = React.useCallback(
       (feature: ClassroomFeature) => {
-        if (feature.type === 'board') {
-          setShowBoard(true);
-        }
-        if (feature.type === 'podium') {
-          setShowPodium(true);
+        setFeatureVisible(feature.type, true);
+        if (feature.anchor === 'free' && feature.movable) {
           updateFeatureHandleAnchors((next) => {
             if (!next.has(feature.id)) {
               next.set(
@@ -405,22 +425,9 @@ const LayoutEditorView = React.memo(
             }
           });
         }
-        if (feature.type === 'window') {
-          setShowWindows(true);
-        }
-        if (feature.type === 'door') {
-          setShowDoor(true);
-        }
         setActiveFeatureId(feature.id);
       },
-      [
-        setActiveFeatureId,
-        setShowBoard,
-        setShowPodium,
-        setShowWindows,
-        setShowDoor,
-        updateFeatureHandleAnchors,
-      ],
+      [setActiveFeatureId, setFeatureVisible, updateFeatureHandleAnchors],
     );
     const handleCopyFeature = React.useCallback(
       (featureId: string) => {
@@ -459,7 +466,7 @@ const LayoutEditorView = React.memo(
           };
         });
         if (targetFeature.type === 'board') {
-          setShowBoard(false);
+          setFeatureVisible('board', false);
         }
         setActiveFeatureId((prev) => (prev === featureId ? null : prev));
         closeFeatureContextMenu();
@@ -469,7 +476,7 @@ const LayoutEditorView = React.memo(
         runSceneTransaction,
         sceneFeatures,
         setActiveFeatureId,
-        setShowBoard,
+        setFeatureVisible,
         snapshot,
         updateFeatureHandleAnchors,
       ],
@@ -497,7 +504,7 @@ const LayoutEditorView = React.memo(
           };
         });
         if (feature.type === 'board') {
-          setShowBoard(false);
+          setFeatureVisible('board', false);
         }
         setActiveFeatureId((prev) => (prev === featureId ? null : prev));
         closeFeatureContextMenu();
@@ -508,7 +515,7 @@ const LayoutEditorView = React.memo(
         sceneFeatures,
         setFeatureClipboard,
         setActiveFeatureId,
-        setShowBoard,
+        setFeatureVisible,
         snapshot,
         updateFeatureHandleAnchors,
       ],
@@ -985,34 +992,6 @@ const LayoutEditorView = React.memo(
       [setShowGrid],
     );
 
-    const handleToggleBoard = React.useCallback(
-      (checked: boolean) => {
-        setShowBoard(() => checked);
-      },
-      [setShowBoard],
-    );
-
-    const handleToggleWindows = React.useCallback(
-      (checked: boolean) => {
-        setShowWindows(() => checked);
-      },
-      [setShowWindows],
-    );
-
-    const handleToggleDoor = React.useCallback(
-      (checked: boolean) => {
-        setShowDoor(() => checked);
-      },
-      [setShowDoor],
-    );
-
-    const handleTogglePodium = React.useCallback(
-      (checked: boolean) => {
-        setShowPodium(() => checked);
-      },
-      [setShowPodium],
-    );
-
     const layoutSettingsGroups = React.useMemo(
       () => [
         {
@@ -1038,54 +1017,26 @@ const LayoutEditorView = React.memo(
         {
           id: 'layout-features',
           title: t('layout.roomElements', 'Raumelemente'),
-          options: [
-            {
-              id: 'board',
-              label: t('editor.showBoard', 'Tafel anzeigen'),
-              icon: <ChalkboardSimpleIcon size={16} />,
-              checked: effectiveShowBoard,
-              onChange: handleToggleBoard,
-              disabled: !featureAvailability.board,
-            },
-            {
-              id: 'windows',
-              label: t('editor.showWindows', 'Fenster anzeigen'),
-              icon: <PanoramaIcon size={16} />,
-              checked: effectiveShowWindows,
-              onChange: handleToggleWindows,
-              disabled: !featureAvailability.windows,
-            },
-            {
-              id: 'door',
-              label: t('editor.showDoor', 'Tür anzeigen'),
-              icon: <DoorIcon size={16} />,
-              checked: effectiveShowDoor,
-              onChange: handleToggleDoor,
-              disabled: !featureAvailability.door,
-            },
-            {
-              id: 'podium',
-              label: t('editor.showPodium', 'Pult anzeigen'),
-              icon: <LecternIcon size={16} />,
-              checked: effectiveShowPodium,
-              onChange: handleTogglePodium,
-              disabled: !featureAvailability.podium,
-            },
-          ],
+          options: FEATURE_TYPES.map((type) => {
+            const FeatureIcon = FEATURE_TYPE_ICONS[type];
+            const available = featureAvailability[type] === true;
+            return {
+              id: `feature-${type}`,
+              label: t(`editor.${FEATURE_VISIBILITY_TOGGLE_KEYS[type]}`),
+              icon: <FeatureIcon size={16} />,
+              checked: available && featureVisibility[type] !== false,
+              onChange: (checked: boolean) => setFeatureVisible(type, checked),
+              disabled: !available,
+            };
+          }),
         },
       ],
       [
         featureAvailability,
-        effectiveShowBoard,
-        effectiveShowDoor,
-        effectiveShowPodium,
-        effectiveShowWindows,
-        handleToggleBoard,
-        handleToggleDoor,
-        handleTogglePodium,
+        featureVisibility,
+        setFeatureVisible,
         handleToggleShowGrid,
         handleToggleSnapToGrid,
-        handleToggleWindows,
         showGrid,
         snapToGrid,
         t,
@@ -1194,10 +1145,7 @@ const LayoutEditorView = React.memo(
       canvasWidth,
       classroomHeight,
       showGrid,
-      showBoard,
-      showWindows,
-      showDoor,
-      showPodium,
+      featureVisibility,
       activeFeatureId,
       onFeatureRotateStart: handleFeatureRotateStart,
       features: sceneFeatures ?? [],
@@ -1309,10 +1257,7 @@ const LayoutEditorView = React.memo(
       prevProps.templates === nextProps.templates &&
       prevProps.snapToGrid === nextProps.snapToGrid &&
       prevProps.showGrid === nextProps.showGrid &&
-      prevProps.showBoard === nextProps.showBoard &&
-      prevProps.showWindows === nextProps.showWindows &&
-      prevProps.showDoor === nextProps.showDoor &&
-      prevProps.showPodium === nextProps.showPodium &&
+      prevProps.featureVisibility === nextProps.featureVisibility &&
       prevProps.historyLength === nextProps.historyLength &&
       prevProps.studentsCount === nextProps.studentsCount &&
       prevProps.seatCount === nextProps.seatCount &&
@@ -1323,10 +1268,7 @@ const LayoutEditorView = React.memo(
       // Function props are expected to be stable
       prevProps.setSnapToGrid === nextProps.setSnapToGrid &&
       prevProps.setShowGrid === nextProps.setShowGrid &&
-      prevProps.setShowBoard === nextProps.setShowBoard &&
-      prevProps.setShowWindows === nextProps.setShowWindows &&
-      prevProps.setShowDoor === nextProps.setShowDoor &&
-      prevProps.setShowPodium === nextProps.setShowPodium &&
+      prevProps.setFeatureVisible === nextProps.setFeatureVisible &&
       prevProps.setSelectedTableIds === nextProps.setSelectedTableIds &&
       prevProps.canvasHandlers === nextProps.canvasHandlers &&
       prevProps.undo === nextProps.undo &&

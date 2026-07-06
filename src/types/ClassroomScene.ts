@@ -9,7 +9,8 @@
  */
 export type TableTemplateType = 'double' | 'single' | 'group4' | 'group6';
 
-export type ClassroomFeatureType = 'window' | 'door' | 'board' | 'podium';
+export type ClassroomFeatureType =
+  'window' | 'door' | 'board' | 'podium' | 'whiteboard' | 'cabinet' | 'divider';
 
 export type ClassroomFeatureAnchor =
   'left' | 'right' | 'top' | 'bottom' | 'free';

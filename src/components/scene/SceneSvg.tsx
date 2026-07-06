@@ -4,11 +4,8 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import type { ClassroomScene, SeatingArrangement, Student } from '@/types';
 import TableIcon from './SceneTable';
-import {
-  CLASSROOM_WIDTH,
-  CLASSROOM_HEIGHT,
-  FEATURE_CORNER_RADIUS,
-} from '@/utils';
+import FeatureShape from './FeatureShape';
+import { CLASSROOM_WIDTH, CLASSROOM_HEIGHT } from '@/utils';
 import { getFeatureStyles } from '@/utils/ui';
 import type { FeatureVisibilityFlags } from '@/utils/ui';
 import { buildLegendLayout } from '@/utils/ui/classBadgeLegend';
@@ -29,10 +26,7 @@ type SceneSvgProps = {
   title?: string;
   classMetadata?: ClassMetadataInfo;
   showSpecialNeeds?: boolean;
-  showBoard?: boolean;
-  showWindows?: boolean;
-  showDoor?: boolean;
-  showPodium?: boolean;
+  featureVisibility?: FeatureVisibilityFlags;
   lockSeatLabelOrientation?: boolean;
   seatLabelRotation?: number;
   orientation?: 'landscape' | 'portrait';
@@ -51,10 +45,7 @@ export default function SceneSvg({
   title,
   classMetadata,
   showSpecialNeeds = true,
-  showBoard = true,
-  showWindows = true,
-  showDoor = true,
-  showPodium = true,
+  featureVisibility,
   lockSeatLabelOrientation = true,
   seatLabelRotation = 0,
   orientation = 'portrait',
@@ -63,23 +54,6 @@ export default function SceneSvg({
   showLegend = false,
 }: SceneSvgProps) {
   const { t, i18n } = useTranslation('generator');
-
-  // Helper to get translated feature label based on type
-  const getFeatureLabel = (feature: {
-    type: string;
-    label?: string;
-  }): string | undefined => {
-    if (!feature.label) return undefined;
-    // Translate dynamically based on feature type
-    const typeToKey: Record<string, string> = {
-      window: 'layout.window',
-      door: 'layout.door',
-      board: 'layout.board',
-      podium: 'layout.podium',
-    };
-    const key = typeToKey[feature.type];
-    return key ? t(key, feature.label) : feature.label;
-  };
 
   // Page dimensions - exact 72dpi A4 for PDF compatibility
   const isPortrait = orientation === 'portrait';
@@ -184,15 +158,6 @@ export default function SceneSvg({
   // Portrait mode: Rotate classroom +90 degrees (Tafel nach unten)
   const classroomRotation = isPortrait ? 90 : 0;
   const features = React.useMemo(() => scene.features ?? [], [scene.features]);
-  const featureVisibility = React.useMemo<FeatureVisibilityFlags>(
-    () => ({
-      board: showBoard,
-      window: showWindows,
-      door: showDoor,
-      podium: showPodium,
-    }),
-    [showBoard, showDoor, showPodium, showWindows],
-  );
   const featureViewModels = React.useMemo(
     () =>
       features
@@ -294,93 +259,15 @@ export default function SceneSvg({
           fill="none"
           stroke="#000"
         />
-        {featureViewModels.map(({ feature, styles }) => {
-          const isFree = feature.anchor === 'free';
-          const rotation = isFree ? (feature.rotation ?? 0) : 0;
-          const normalizedRotation = ((rotation % 360) + 360) % 360;
-          const isPodium = feature.type === 'podium';
-          const labelRotation = isPodium
-            ? -normalizedRotation - classroomRotation
-            : feature.width >= feature.height
-              ? 0
-              : -90;
-
-          if (isFree) {
-            const transform = `translate(${feature.x + feature.width / 2} ${
-              feature.y + feature.height / 2
-            }) rotate(${rotation}) translate(${-feature.width / 2} ${
-              -feature.height / 2
-            })`;
-            return (
-              <g key={feature.id} transform={transform}>
-                <rect
-                  x={0}
-                  y={0}
-                  width={feature.width}
-                  height={feature.height}
-                  rx={FEATURE_CORNER_RADIUS}
-                  fill={styles.fill}
-                  stroke={styles.stroke}
-                  strokeWidth={2}
-                />
-                {feature.label && (
-                  <text
-                    x={feature.width / 2}
-                    y={feature.height / 2}
-                    textAnchor="middle"
-                    dominantBaseline="central"
-                    fill={styles.text}
-                    fontSize={12}
-                    transform={
-                      labelRotation !== 0
-                        ? `rotate(${labelRotation}, ${feature.width / 2}, ${
-                            feature.height / 2
-                          })`
-                        : undefined
-                    }
-                  >
-                    {getFeatureLabel(feature)}
-                  </text>
-                )}
-              </g>
-            );
-          }
-
-          const centerX = feature.x + feature.width / 2;
-          const centerY = feature.y + feature.height / 2;
-          const textTransform =
-            labelRotation !== 0
-              ? `rotate(${labelRotation} ${centerX} ${centerY})`
-              : undefined;
-
-          return (
-            <g key={feature.id}>
-              <rect
-                x={feature.x}
-                y={feature.y}
-                width={feature.width}
-                height={feature.height}
-                rx={FEATURE_CORNER_RADIUS}
-                fill={styles.fill}
-                stroke={styles.stroke}
-                strokeWidth={2}
-              />
-              {feature.label && (
-                <text
-                  x={centerX}
-                  y={centerY}
-                  textAnchor="middle"
-                  dominantBaseline="central"
-                  fill={styles.text}
-                  fontSize={12}
-                  transform={textTransform}
-                >
-                  {getFeatureLabel(feature)}
-                </text>
-              )}
-            </g>
-          );
-        })}
+        {featureViewModels.map(({ feature, styles }) => (
+          <FeatureShape
+            key={feature.id}
+            feature={feature}
+            styles={styles}
+            strokeMode="always"
+            extraIconRotation={classroomRotation}
+          />
+        ))}
         {scene.tables.map((t, i) => (
           <TableIcon
             key={i}

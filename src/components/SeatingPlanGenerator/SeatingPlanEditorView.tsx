@@ -8,12 +8,8 @@ import {
   WarningIcon,
   ArrowLeftIcon,
   ChartBarIcon,
-  LecternIcon,
-  DoorIcon,
   GridNine,
   SpinnerGapIcon,
-  PanoramaIcon,
-  ChalkboardSimpleIcon,
   FloppyDiskIcon,
   ExportIcon,
   ChalkboardTeacherIcon,
@@ -47,11 +43,18 @@ import {
   buildSeatHighlightLookup,
 } from '@/utils';
 import { calculateBadgePillLayout } from '@/utils/ui/studentAppearance';
+import {
+  FEATURE_TYPES,
+  FEATURE_TYPE_ICONS,
+  FEATURE_VISIBILITY_TOGGLE_KEYS,
+  type FeatureVisibilityFlags,
+} from '@/utils/ui';
 import type {
   MixSettings,
   SeatingArrangement,
   ClassroomTable,
   ClassroomScene,
+  ClassroomFeatureType,
   Student,
   SavedPlan,
   MixResult,
@@ -174,14 +177,8 @@ type Props = {
   isMixing: boolean;
   autoMixing?: boolean;
   autoMixError?: string | null;
-  showBoard: boolean;
-  setShowBoard: React.Dispatch<React.SetStateAction<boolean>>;
-  showWindows: boolean;
-  setShowWindows: React.Dispatch<React.SetStateAction<boolean>>;
-  showDoor: boolean;
-  setShowDoor: React.Dispatch<React.SetStateAction<boolean>>;
-  showPodium: boolean;
-  setShowPodium: React.Dispatch<React.SetStateAction<boolean>>;
+  featureVisibility: FeatureVisibilityFlags;
+  setFeatureVisible: (type: ClassroomFeatureType, visible: boolean) => void;
   canvasWidth: number;
   classroomHeight: number;
   showGrid: boolean;
@@ -249,14 +246,8 @@ export default function SeatingPlanEditorView({
   isMixing,
   autoMixing = false,
   autoMixError = null,
-  showBoard,
-  setShowBoard,
-  showWindows,
-  setShowWindows,
-  showDoor,
-  setShowDoor,
-  showPodium,
-  setShowPodium,
+  featureVisibility,
+  setFeatureVisible,
   canvasWidth,
   classroomHeight,
   showGrid,
@@ -315,22 +306,6 @@ export default function SeatingPlanEditorView({
   const backgroundColor = isDark ? '#1f2937' : '#f9fafb';
   const gridColor = isDark ? '#374151' : '#e5e7eb';
 
-  const handleToggleBoard = React.useCallback(
-    (checked: boolean) => setShowBoard(() => checked),
-    [setShowBoard],
-  );
-  const handleToggleWindows = React.useCallback(
-    (checked: boolean) => setShowWindows(() => checked),
-    [setShowWindows],
-  );
-  const handleToggleDoor = React.useCallback(
-    (checked: boolean) => setShowDoor(() => checked),
-    [setShowDoor],
-  );
-  const handleTogglePodium = React.useCallback(
-    (checked: boolean) => setShowPodium(() => checked),
-    [setShowPodium],
-  );
   const handleToggleGrid = React.useCallback(
     (checked: boolean) => setShowGrid(() => checked),
     [setShowGrid],
@@ -341,20 +316,12 @@ export default function SeatingPlanEditorView({
   );
   const featureAvailability = React.useMemo(() => {
     const features = classroomScene.features ?? [];
-    return {
-      board: features.some((feature) => feature.type === 'board'),
-      windows: features.some((feature) => feature.type === 'window'),
-      door: features.some((feature) => feature.type === 'door'),
-      podium: features.some((feature) => feature.type === 'podium'),
-    };
+    const availability: FeatureVisibilityFlags = {};
+    for (const type of FEATURE_TYPES) {
+      availability[type] = features.some((feature) => feature.type === type);
+    }
+    return availability;
   }, [classroomScene.features]);
-
-  const effectiveShowBoard = featureAvailability.board ? showBoard : false;
-  const effectiveShowWindows = featureAvailability.windows
-    ? showWindows
-    : false;
-  const effectiveShowDoor = featureAvailability.door ? showDoor : false;
-  const effectiveShowPodium = featureAvailability.podium ? showPodium : false;
 
   const seatingSettingsGroups = React.useMemo(
     () => [
@@ -403,53 +370,25 @@ export default function SeatingPlanEditorView({
       {
         id: 'editor-features',
         title: t('layout.roomElements', 'Raumelemente'),
-        options: [
-          {
-            id: 'board',
-            label: t('editor.showBoard', 'Tafel anzeigen'),
-            icon: <ChalkboardSimpleIcon size={16} />,
-            checked: effectiveShowBoard,
-            onChange: handleToggleBoard,
-            disabled: !featureAvailability.board,
-          },
-          {
-            id: 'windows',
-            label: t('editor.showWindows', 'Fenster anzeigen'),
-            icon: <PanoramaIcon size={16} />,
-            checked: effectiveShowWindows,
-            onChange: handleToggleWindows,
-            disabled: !featureAvailability.windows,
-          },
-          {
-            id: 'door',
-            label: t('editor.showDoor', 'Tür anzeigen'),
-            icon: <DoorIcon size={16} />,
-            checked: effectiveShowDoor,
-            onChange: handleToggleDoor,
-            disabled: !featureAvailability.door,
-          },
-          {
-            id: 'podium',
-            label: t('editor.showPodium', 'Pult anzeigen'),
-            icon: <LecternIcon size={16} />,
-            checked: effectiveShowPodium,
-            onChange: handleTogglePodium,
-            disabled: !featureAvailability.podium,
-          },
-        ],
+        options: FEATURE_TYPES.map((type) => {
+          const FeatureIcon = FEATURE_TYPE_ICONS[type];
+          const available = featureAvailability[type] === true;
+          return {
+            id: `feature-${type}`,
+            label: t(`editor.${FEATURE_VISIBILITY_TOGGLE_KEYS[type]}`),
+            icon: <FeatureIcon size={16} />,
+            checked: available && featureVisibility[type] !== false,
+            onChange: (checked: boolean) => setFeatureVisible(type, checked),
+            disabled: !available,
+          };
+        }),
       },
     ],
     [
-      effectiveShowBoard,
-      effectiveShowDoor,
-      effectiveShowPodium,
-      effectiveShowWindows,
       featureAvailability,
-      handleToggleBoard,
-      handleToggleDoor,
+      featureVisibility,
+      setFeatureVisible,
       handleToggleGrid,
-      handleTogglePodium,
-      handleToggleWindows,
       handlePhotoDisplayModeChange,
       photoDisplayMode,
       showGrid,
@@ -1005,10 +944,7 @@ export default function SeatingPlanEditorView({
                   allStudents={students}
                   selectedTableIds={[]}
                   showGrid={false}
-                  showBoard={showBoard}
-                  showWindows={showWindows}
-                  showDoor={showDoor}
-                  showPodium={showPodium}
+                  featureVisibility={featureVisibility}
                   selectionBox={null}
                   handlePointerMove={() => {}}
                   handlePointerUp={() => {}}

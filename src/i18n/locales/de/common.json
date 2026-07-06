@@ -71,7 +71,10 @@
     "window": "Fenster",
     "door": "Tür",
     "board": "Tafel",
-    "podium": "Pult"
+    "podium": "Pult",
+    "whiteboard": "Whiteboard",
+    "cabinet": "Schrank",
+    "divider": "Raumtrenner"
   },
   "gender": {
     "male": "männlich",
@@ -130,6 +133,9 @@
       "showWindows": "Fenster anzeigen",
       "showDoor": "Tür anzeigen",
       "showPodium": "Pult anzeigen",
+      "showWhiteboard": "Whiteboards anzeigen",
+      "showCabinet": "Schränke anzeigen",
+      "showDivider": "Raumtrenner anzeigen",
       "showConnections": "Verbindungen anzeigen",
       "showNeeds": "Bedürfnisse anzeigen",
       "showFullNames": "Namen vollständig anzeigen"

@@ -42,6 +42,23 @@ describe('boardOrientation', () => {
     expect(getBoardEdge(sceneWithBoard())).toBe('bottom');
   });
 
+  it('ignores whiteboards when deriving the board edge', () => {
+    const scene = sceneWithBoard();
+    scene.features = [
+      {
+        id: 'whiteboard-1',
+        type: 'whiteboard',
+        x: 0,
+        y: 200,
+        width: 24,
+        height: 160,
+        anchor: 'left',
+        movable: false,
+      },
+    ];
+    expect(getBoardEdge(scene)).toBe('bottom');
+  });
+
   it('derives the nearest edge for a freely-placed board', () => {
     // Near the left edge.
     expect(

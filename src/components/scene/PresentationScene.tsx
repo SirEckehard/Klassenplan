@@ -1,17 +1,12 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
-import { useTranslation } from 'react-i18next';
 import type { ClassroomScene, SeatingArrangement, Student } from '@/types';
 import TableIcon from './SceneTable';
+import FeatureShape from './FeatureShape';
 import { useStudentPhotoUrls } from '@/hooks/student/useStudentPhoto';
-import {
-  CLASSROOM_WIDTH,
-  CLASSROOM_HEIGHT,
-  FEATURE_CORNER_RADIUS,
-} from '@/utils';
+import { CLASSROOM_WIDTH, CLASSROOM_HEIGHT } from '@/utils';
 import { getFeatureStyles } from '@/utils/ui';
-import type { FeatureVisibilityFlags } from '@/utils/ui';
 import {
   getPresentationRotation,
   type PresentationPerspective,
@@ -59,7 +54,6 @@ export default function PresentationScene({
   panY = 0,
   isDark = false,
 }: PresentationSceneProps) {
-  const { t } = useTranslation('generator');
   const photoUrls = useStudentPhotoUrls(students);
 
   const rotation = getPresentationRotation(scene, perspective);
@@ -79,34 +73,15 @@ export default function PresentationScene({
     perspective === 'teacher' && showPhotos ? 'all' : 'off';
   const showSpecialNeeds = perspective === 'teacher' && showBadges;
 
-  const getFeatureLabel = (feature: {
-    type: string;
-    label?: string;
-  }): string | undefined => {
-    if (!feature.label) return undefined;
-    const typeToKey: Record<string, string> = {
-      window: 'layout.window',
-      door: 'layout.door',
-      board: 'layout.board',
-      podium: 'layout.podium',
-    };
-    const key = typeToKey[feature.type];
-    return key ? t(key, feature.label) : feature.label;
-  };
-
-  const featureVisibility = React.useMemo<FeatureVisibilityFlags>(
-    () => ({ board: true, window: true, door: true, podium: true }),
-    [],
-  );
   const featureViewModels = React.useMemo(
     () =>
       (scene.features ?? [])
         .map((feature) => ({
           feature,
-          styles: getFeatureStyles(feature, false, featureVisibility),
+          styles: getFeatureStyles(feature, isDark),
         }))
         .filter(({ styles }) => styles.shouldRender),
-    [scene.features, featureVisibility],
+    [scene.features, isDark],
   );
 
   return (
@@ -124,53 +99,15 @@ export default function PresentationScene({
       }}
     >
       <g transform={groupTransform}>
-        {featureViewModels.map(({ feature, styles }) => {
-          const isFree = feature.anchor === 'free';
-          const ownRotation = isFree ? (feature.rotation ?? 0) : 0;
-          const centerX = feature.x + feature.width / 2;
-          const centerY = feature.y + feature.height / 2;
-          // Keep the label upright on screen: cancel the feature's own rotation
-          // and the whole-room rotation.
-          const labelRotation = -ownRotation - rotation;
-          const labelTransform =
-            labelRotation % 360 !== 0
-              ? `rotate(${labelRotation} ${feature.width / 2} ${
-                  feature.height / 2
-                })`
-              : undefined;
-
-          const groupTransformFeature = isFree
-            ? `translate(${centerX} ${centerY}) rotate(${ownRotation}) ` +
-              `translate(${-feature.width / 2} ${-feature.height / 2})`
-            : `translate(${feature.x} ${feature.y})`;
-
-          return (
-            <g key={feature.id} transform={groupTransformFeature}>
-              <rect
-                width={feature.width}
-                height={feature.height}
-                rx={FEATURE_CORNER_RADIUS}
-                fill={styles.fill}
-                stroke={styles.stroke}
-                strokeWidth={2}
-              />
-              {feature.label && (
-                <text
-                  x={feature.width / 2}
-                  y={feature.height / 2}
-                  textAnchor="middle"
-                  dominantBaseline="central"
-                  fill={styles.text}
-                  fontSize={14}
-                  fontWeight="600"
-                  transform={labelTransform}
-                >
-                  {getFeatureLabel(feature)}
-                </text>
-              )}
-            </g>
-          );
-        })}
+        {featureViewModels.map(({ feature, styles }) => (
+          <FeatureShape
+            key={feature.id}
+            feature={feature}
+            styles={styles}
+            strokeMode="always"
+            extraIconRotation={rotation}
+          />
+        ))}
         {scene.tables.map((table, index) => (
           <TableIcon
             key={index}

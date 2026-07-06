@@ -207,6 +207,48 @@ describe('determineFrontDirection', () => {
     expect(result.frontDirection).toBe('right');
     expect(result.frontIsHighX).toBe(true);
   });
+
+  it('ignores whiteboards when no board exists', () => {
+    const whiteboard: ClassroomFeature = {
+      id: 'whiteboard-1',
+      type: 'whiteboard',
+      x: 0,
+      y: CLASSROOM_HEIGHT / 2 - 80,
+      width: 24,
+      height: 160,
+      anchor: 'left',
+      movable: false,
+    };
+
+    const scene: ClassroomScene = {
+      tables: [],
+      totalStudents: 0,
+      features: [whiteboard],
+    };
+    const result = determineFrontDirection(scene);
+
+    // Whiteboards must not define the front — falls back to the default
+    expect(result.frontDirection).toBe('right');
+    expect(result.frontIsHighX).toBe(true);
+  });
+
+  it('keeps the board as front reference when whiteboards exist', () => {
+    const scene = createSceneWithBoard(0); // Board on the left edge
+    scene.features?.push({
+      id: 'whiteboard-1',
+      type: 'whiteboard',
+      x: CLASSROOM_WIDTH - 24,
+      y: CLASSROOM_HEIGHT / 2 - 80,
+      width: 24,
+      height: 160,
+      anchor: 'right',
+      movable: false,
+    });
+    const result = determineFrontDirection(scene);
+
+    expect(result.frontDirection).toBe('left');
+    expect(result.frontIsHighX).toBe(false);
+  });
 });
 
 describe('calculateFrontPositionX', () => {

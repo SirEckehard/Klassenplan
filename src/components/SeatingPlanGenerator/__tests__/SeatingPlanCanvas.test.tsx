@@ -38,10 +38,12 @@ const renderCanvas = (
       allStudents={[studentAda]}
       selectedTableIds={[]}
       showGrid={false}
-      showBoard={false}
-      showWindows={false}
-      showDoor={false}
-      showPodium={false}
+      featureVisibility={{
+        board: false,
+        window: false,
+        door: false,
+        podium: false,
+      }}
       selectionBox={null}
       handlePointerMove={() => {}}
       handlePointerUp={() => {}}
