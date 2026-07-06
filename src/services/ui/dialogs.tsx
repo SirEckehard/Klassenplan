@@ -6,6 +6,12 @@ import Modal from '@/components/ui/modals/Modal';
 import ConfirmDialog from '@/components/ui/modals/ConfirmDialog';
 import { PencilLineIcon, EyeIcon, EyeSlashIcon } from '@phosphor-icons/react';
 import i18n from '@/i18n';
+import {
+  inputFieldClass,
+  primaryButtonClass,
+  secondaryButtonClass,
+  quietIconButtonClass,
+} from '@/utils/ui/designTokens';
 
 interface ConfirmDialogOptions {
   confirmLabel?: string;
@@ -89,7 +95,7 @@ function PromptDialog({
           ref={inputRef}
           defaultValue={defaultValue}
           type={type === 'password' && !show ? 'password' : 'text'}
-          className="w-full rounded-xl border border-blue-200 bg-white/80 px-3 py-2 text-sm text-gray-900 shadow-inner transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 dark:border-blue-900/40 dark:bg-gray-950/70 dark:text-gray-100"
+          className={inputFieldClass}
           onKeyDown={(e) => {
             if (e.key === 'Enter') handleClose(inputRef.current?.value ?? '');
           }}
@@ -97,14 +103,18 @@ function PromptDialog({
         {type === 'password' && (
           <button
             type="button"
-            className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-white/70 p-1.5 text-blue-600 shadow-sm transition hover:bg-blue-100/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 dark:bg-gray-900/70 dark:text-blue-300 dark:hover:bg-blue-900/40"
+            className={`${quietIconButtonClass} absolute right-3 top-1/2 -translate-y-1/2 p-1.5`}
             onClick={() => setShow((v) => !v)}
-            aria-label={show ? 'Hide password' : 'Show password'}
+            aria-label={
+              show
+                ? i18n.t('password.hide', { ns: 'common' })
+                : i18n.t('password.show', { ns: 'common' })
+            }
           >
             {show ? (
-              <EyeSlashIcon className="w-4 h-4" />
+              <EyeSlashIcon className="w-4 h-4" aria-hidden="true" />
             ) : (
-              <EyeIcon className="w-4 h-4" />
+              <EyeIcon className="w-4 h-4" aria-hidden="true" />
             )}
           </button>
         )}
@@ -112,14 +122,14 @@ function PromptDialog({
       <div className="flex flex-wrap justify-end gap-2">
         <button
           type="button"
-          className="inline-flex items-center justify-center rounded-full border border-blue-200 bg-white/80 px-4 py-2 text-sm font-medium text-blue-600 transition hover:bg-blue-50 dark:border-blue-900/40 dark:bg-gray-950/70 dark:text-blue-300 dark:hover:bg-gray-900/80"
+          className={secondaryButtonClass}
           onClick={() => handleClose(null)}
         >
           {i18n.t('buttons.cancel', { ns: 'common' })}
         </button>
         <button
           type="button"
-          className="inline-flex items-center justify-center rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 dark:bg-blue-500 dark:hover:bg-blue-400"
+          className={primaryButtonClass}
           onClick={() => handleClose(inputRef.current?.value ?? '')}
         >
           OK

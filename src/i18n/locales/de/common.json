@@ -158,7 +158,16 @@
       "message": "Möchtest du wirklich alle Daten (inkl. Klassenliste, Vorlagen etc.) löschen?",
       "confirm": "Löschen",
       "cancel": "Abbrechen"
+    },
+    "backupPassword": {
+      "create": "Das Backup wird verschlüsselt. Wähle ein Passwort (mindestens 8 Zeichen):",
+      "confirm": "Passwort wiederholen:",
+      "import": "Passwort für Backup:"
     }
+  },
+  "password": {
+    "show": "Passwort anzeigen",
+    "hide": "Passwort verbergen"
   },
   "help": {
     "title": "Hilfe",

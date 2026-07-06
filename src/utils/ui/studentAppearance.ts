@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import type { Student, LanguageSkillLevel, SocialRole } from '@/types';
+import i18n from '@/i18n';
 import { STUDENT_FLAGS } from '@/utils';
 import {
   HeartIcon,
@@ -22,6 +23,12 @@ import {
   SparkleIcon,
   type Icon,
 } from '@phosphor-icons/react';
+
+// Badge labels/tooltips are user-facing and must follow the active language
+// (they end up in SVG <title> elements and exports). Fallbacks keep the badge
+// readable if a key is ever missing.
+const ts = (key: string, fallback: string) =>
+  i18n.t(key, { ns: 'students', defaultValue: fallback });
 
 /**
  * Centralized student appearance configuration
@@ -462,7 +469,11 @@ export function getStudentBadges(
     return [];
   }
 
-  return STUDENT_FLAGS.filter((flag) => student[flag.key]);
+  return STUDENT_FLAGS.filter((flag) => student[flag.key]).map((flag) => ({
+    ...flag,
+    label: ts(`studentFlags.${flag.key}.label`, flag.label),
+    tooltip: ts(`studentFlags.${flag.key}.tooltip`, flag.tooltip),
+  }));
 }
 
 /**
@@ -494,11 +505,12 @@ export function getPartnerBadges(
   if (student.wishPartnerId) {
     const partner = allStudents.find((s) => s.id === student.wishPartnerId);
     if (partner) {
+      const label = ts('partners.wishPartner', 'Wunschpartner');
       badges.push({
         key: 'wishPartner',
-        label: 'Wunschpartner',
+        label,
         icon: HeartIcon,
-        tooltip: `Wunschpartner: ${partner.name}`,
+        tooltip: `${label}: ${partner.name}`,
         color: '#22c55e', // green-500
       });
     }
@@ -508,11 +520,12 @@ export function getPartnerBadges(
   if (student.avoidPartnerId) {
     const partner = allStudents.find((s) => s.id === student.avoidPartnerId);
     if (partner) {
+      const label = ts('partners.distancePartner', 'Distanzwunsch');
       badges.push({
         key: 'avoidPartner',
-        label: 'Distanzwunsch',
+        label,
         icon: HeartBreakIcon,
-        tooltip: `Distanzwunsch: ${partner.name}`,
+        tooltip: `${label}: ${partner.name}`,
         color: '#f43f5e', // rose-500
       });
     }
@@ -538,22 +551,26 @@ export function getHeightBadge(student: Student | null): HeightBadge | null {
     return null; // Medium ist Neutralzustand
   }
 
+  const heightTitle = ts('height.title', 'Körpergröße');
+
   if (student.height === 'small') {
+    const label = ts('height.small', 'Klein');
     return {
       key: 'heightSmall',
-      label: 'Klein',
+      label,
       icon: ArrowDownIcon,
-      tooltip: 'Körpergröße: Klein',
+      tooltip: `${heightTitle}: ${label}`,
       color: '#60a5fa', // blue-400
     };
   }
 
   // student.height === 'tall'
+  const label = ts('height.tall', 'Groß');
   return {
     key: 'heightTall',
-    label: 'Groß',
+    label,
     icon: ArrowUpIcon,
-    tooltip: 'Körpergröße: Groß',
+    tooltip: `${heightTitle}: ${label}`,
     color: '#f97316', // orange-500
   };
 }
@@ -571,9 +588,9 @@ export function getEnvironmentBadges(
   if (student.prefersWindow) {
     badges.push({
       key: 'prefersWindow',
-      label: 'Fensterplatz',
+      label: ts('listHeader.windowFull', 'Fensterplatz'),
       icon: ImageIcon,
-      tooltip: 'Bevorzugt Plätze am Fenster',
+      tooltip: ts('environment.windowTooltip', 'Bevorzugt Plätze am Fenster'),
       color: '#38bdf8', // sky-400
     });
   }
@@ -581,9 +598,9 @@ export function getEnvironmentBadges(
   if (student.prefersDoor) {
     badges.push({
       key: 'prefersDoor',
-      label: 'Türnähe',
+      label: ts('listHeader.doorFull', 'Türnähe'),
       icon: DoorIcon,
-      tooltip: 'Bevorzugt Plätze in Türnähe',
+      tooltip: ts('environment.doorTooltip', 'Bevorzugt Plätze in Türnähe'),
       color: '#fb923c', // orange-400
     });
   }
@@ -600,7 +617,11 @@ const LANGUAGE_SKILL_CONFIG: Record<
 > = {
   native: { icon: ChatCircleIcon, label: 'Muttersprache', color: '#22c55e' }, // green-500
   fluent: { icon: ChatDotsIcon, label: 'Fließend', color: '#3b82f6' }, // blue-500
-  intermediate: { icon: BookOpenIcon, label: 'Fortgeschritten', color: '#8b5cf6' }, // purple-500
+  intermediate: {
+    icon: BookOpenIcon,
+    label: 'Fortgeschritten',
+    color: '#8b5cf6',
+  }, // purple-500
   beginner: { icon: StudentIcon, label: 'Anfänger', color: '#f59e0b' }, // amber-500
   daz: { icon: RocketIcon, label: 'DaZ-Förderung', color: '#ef4444' }, // red-500
 };
@@ -617,11 +638,12 @@ export function getLanguageSkillBadge(
   }
 
   const config = LANGUAGE_SKILL_CONFIG[student.languageSkill];
+  const label = ts(`languageSkill.${student.languageSkill}`, config.label);
   return {
     key: `languageSkill_${student.languageSkill}`,
-    label: config.label,
+    label,
     icon: config.icon,
-    tooltip: `Sprachniveau: ${config.label}`,
+    tooltip: `${ts('languageSkill.title', 'Sprachniveau')}: ${label}`,
     color: config.color,
   };
 }
@@ -651,11 +673,12 @@ export function getSocialRoleBadge(
   }
 
   const config = SOCIAL_ROLE_CONFIG[student.socialRole];
+  const label = ts(`socialRole.${student.socialRole}`, config.label);
   return {
     key: `socialRole_${student.socialRole}`,
-    label: config.label,
+    label,
     icon: config.icon,
-    tooltip: `Soziale Rolle: ${config.label}`,
+    tooltip: `${ts('socialRole.title', 'Soziale Rolle')}: ${label}`,
     color: config.color,
   };
 }

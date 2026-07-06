@@ -12,8 +12,11 @@ A web-based tool for creating seating plans and seating circles for teachers. Kl
 - **Classroom editor** with drag-and-drop, grid, multi-select, keyboard control, and touch optimization
 - **Constraint-based shuffle algorithm** with weighted criteria, locked seats, distance and preferred-partner logic
 - **Seating circle mode** with its own export view and synchronization from the table layout
-- **Backup & restore** in encrypted JSON format for moving between devices
-- **Accessible** with full keyboard control, screen-reader support, and responsive layout
+- **Presentation mode** for smartboards and projectors with teacher/student perspective, pan & zoom, and pinch gestures
+- **Optional student photos** — stored locally only, automatically downscaled with metadata (EXIF/GPS) stripped
+- **Backup & restore** in encrypted JSON format (AES-GCM, password-protected) for moving between devices
+- **Bilingual** (German/English) with full i18n coverage
+- **Accessible** with full keyboard control, screen-reader support, focus management, and responsive layout
 
 ## Prerequisites
 
@@ -31,16 +34,16 @@ Dev server: <http://localhost:5173>
 
 ## Key scripts
 
-| Script | Description |
-|---|---|
-| `npm run dev` | Vite dev server |
-| `npm run build` | Production bundle (incl. sitemap generation) |
-| `npm run preview` | Local preview of the build artifact |
-| `npm test` | Vitest in watch mode |
-| `npm run test:e2e` | Playwright end-to-end tests |
-| `npm run lint` · `typecheck` · `format` | ESLint, TypeScript strict mode, Prettier |
+| Script                                      | Description                                            |
+| ------------------------------------------- | ------------------------------------------------------ |
+| `npm run dev`                               | Vite dev server                                        |
+| `npm run build`                             | Production bundle (incl. sitemap generation)           |
+| `npm run preview`                           | Local preview of the build artifact                    |
+| `npm test`                                  | Vitest in watch mode                                   |
+| `npm run test:e2e`                          | Playwright end-to-end tests                            |
+| `npm run lint` · `typecheck:all` · `format` | ESLint, TypeScript strict mode (app + tests), Prettier |
 
-Recommended before commits: `npm test -- --run && npm run lint && npm run typecheck && npm run format`.
+Recommended before commits: `npm test -- --run && npm run lint && npm run typecheck:all && npm run format`.
 
 ## Deployment
 
@@ -55,12 +58,16 @@ The app follows a modular structure with clear separation between UI (`component
 Further details in the [`docs/`](docs/) folder:
 
 - [ALGORITHM.md](docs/ALGORITHM.md) – Shuffle algorithm & constraint system
+- [PEDAGOGY.md](docs/PEDAGOGY.md) – Pedagogical background of the criteria
 - [DESIGNSYSTEM.md](docs/DESIGNSYSTEM.md) – Design tokens & component guidelines
 - [MODULE_BOUNDARIES.md](docs/MODULE_BOUNDARIES.md) – Module API & import guidelines
+- [ERROR-HANDLING.md](docs/ERROR-HANDLING.md) – Error handling & result pattern
 - [LOGGING.md](docs/LOGGING.md) – Logging & debug mode
 - [PERFORMANCE.md](docs/PERFORMANCE.md) – Measurements & optimizations
-- [SECURITY.md](docs/SECURITY.md) – Security guidelines & CSP
-- [backup-format.md](docs/backup-format.md) – Backup file format
+- [SECURITY.md](docs/SECURITY.md) – Security guidelines, CSP & deployment headers
+- [backup-format.md](docs/backup-format.md) – Backup file format & encryption
+- [canvas-interactions.md](docs/canvas-interactions.md) – Canvas interaction state machines
+- [CHANGELOG.md](docs/CHANGELOG.md) – Release history
 
 ## Contributing
 

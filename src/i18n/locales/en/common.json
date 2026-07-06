@@ -158,7 +158,16 @@
       "message": "Do you really want to delete all data (including class list, templates, etc.)?",
       "confirm": "Delete",
       "cancel": "Cancel"
+    },
+    "backupPassword": {
+      "create": "The backup will be encrypted. Choose a password (at least 8 characters):",
+      "confirm": "Repeat the password:",
+      "import": "Password for backup:"
     }
+  },
+  "password": {
+    "show": "Show password",
+    "hide": "Hide password"
   },
   "help": {
     "title": "Help",

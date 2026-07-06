@@ -2,11 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  XIcon,
-  ChartBarIcon,
-  QuestionIcon,
-} from '@phosphor-icons/react';
+import { XIcon, ChartBarIcon, QuestionIcon } from '@phosphor-icons/react';
 import {
   cardSurfaceClass,
   getStatisticStatusMeta,
@@ -22,7 +18,11 @@ import type { ScalarMixSettingKey } from '@/types';
 function getCriterionIcon(key: string): React.ReactNode {
   const iconProps = { size: 14, className: 'shrink-0' };
   const IconComp = CRITERIA_ICON_MAP[key as ScalarMixSettingKey];
-  return IconComp ? <IconComp {...iconProps} /> : <QuestionIcon {...iconProps} />;
+  return IconComp ? (
+    <IconComp {...iconProps} />
+  ) : (
+    <QuestionIcon {...iconProps} />
+  );
 }
 
 interface SeatingStatisticsBadgeProps {
@@ -76,7 +76,9 @@ function SeatingStatisticsBadge({
 
   // Shared criteria list renderer
   const renderCriteriaList = (isFullscreen: boolean) => (
-    <div className={`${isFullscreen ? 'flex-1 overflow-y-auto p-4' : 'flex-1 min-h-0 overflow-y-auto p-0.5'} space-y-1`}>
+    <div
+      className={`${isFullscreen ? 'flex-1 overflow-y-auto p-4' : 'flex-1 min-h-0 overflow-y-auto p-0.5'} space-y-1`}
+    >
       {criteria.map((criterion) => {
         const statusMeta = getStatisticStatusMeta(criterion.percentage);
         const roundedPercentage = Math.round(criterion.percentage);
@@ -111,7 +113,7 @@ function SeatingStatisticsBadge({
                 <div
                   className={`w-2 h-2 rounded-full ${statusMeta.dotClass}`}
                   role="status"
-                  aria-label={statusMeta.ariaLabel}
+                  aria-label={t(`statisticsBadge.status.${statusMeta.status}`)}
                 />
               </span>
             </div>
@@ -145,7 +147,7 @@ function SeatingStatisticsBadge({
               <div
                 className={`w-1.5 h-1.5 rounded-full ${statusMeta.dotClass}`}
                 role="status"
-                aria-label={statusMeta.ariaLabel}
+                aria-label={t(`statisticsBadge.status.${statusMeta.status}`)}
               />
             </span>
           </button>
@@ -214,7 +216,8 @@ function SeatingStatisticsBadge({
               className="text-blue-600 dark:text-blue-400"
             />
             <span className="text-xs font-semibold text-gray-800 dark:text-gray-200">
-              {t('statisticsBadge.overallLabel', 'Gesamt')} {Math.round(weightedScore)}%
+              {t('statisticsBadge.overallLabel', 'Gesamt')}{' '}
+              {Math.round(weightedScore)}%
             </span>
             <div className="h-1.5 w-12 rounded-full bg-gray-200 dark:bg-gray-700">
               <div

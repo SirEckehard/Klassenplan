@@ -33,10 +33,10 @@ Klassenplan monitors performance from two angles: Core Web Vitals at runtime, an
 
 ## Current metrics & tests (as of 2026-05-24)
 
-| Measurement               | Result                                       | Source                                                                |
-| ------------------------- | -------------------------------------------- | --------------------------------------------------------------------- |
-| Core Web Vitals thresholds | see section above                            | `src/utils/performance/webVitals.ts` + Vitest coverage                |
-| Route transitions         | capped at 20 entries                         | Vitest `webVitals.test.ts` (`limits route transitions to 20 entries`) |
-| Bundle metrics            | capped at 50 entries                         | Vitest `webVitals.test.ts` (`limits bundle metrics to 50 entries`)    |
-| Overall-score weighting   | 2×"good" + 1×"needs-improvement" → score 88 | Vitest `webVitals.test.ts` (`calculates overall score correctly`)     |
-| Performance monitoring    | starts automatically in `initializeApp`      | `src/index.tsx`                                                       |
+| Measurement                | Result                                      | Source                                                                |
+| -------------------------- | ------------------------------------------- | --------------------------------------------------------------------- |
+| Core Web Vitals thresholds | see section above                           | `src/utils/performance/webVitals.ts` + Vitest coverage                |
+| Route transitions          | capped at 20 entries                        | Vitest `webVitals.test.ts` (`limits route transitions to 20 entries`) |
+| Bundle metrics             | capped at 50 entries                        | Vitest `webVitals.test.ts` (`limits bundle metrics to 50 entries`)    |
+| Overall-score weighting    | 2×"good" + 1×"needs-improvement" → score 88 | Vitest `webVitals.test.ts` (`calculates overall score correctly`)     |
+| Performance monitoring     | starts automatically in `initializeApp`     | `src/index.tsx`                                                       |

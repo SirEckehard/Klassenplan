@@ -37,6 +37,7 @@ COPY --from=builder /app/dist /usr/share/nginx/html
 # /etc/nginx/http.d/*.conf (server blocks) and /etc/nginx/modules/*.conf (the
 # Brotli load_module directive, dropped in by the apk package above).
 COPY nginx.conf /etc/nginx/http.d/default.conf
+COPY nginx-security-headers.conf /etc/nginx/snippets/security-headers.conf
 
 # Health check - verify nginx is responding
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \

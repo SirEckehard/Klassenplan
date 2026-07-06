@@ -14,33 +14,41 @@ This document describes the binding design tokens for Klassenplan. All values re
 
 > **Ground rule:** Components import the token constants and only add necessary layout classes (e.g. `flex`, `gap-*`, `w-full`). Raw utilities from `src/index.css` or base Tailwind classes are not used directly inside components.
 
+> **Tailwind conventions:** Prefer canonical scale classes over arbitrary values (`max-h-96` instead of `max-h-[24rem]`); arbitrary values are reserved for cases without a scale step (e.g. `max-h-[calc(100vh-3rem)]`). The important modifier is postfix in Tailwind 4: `p-0!`, not `!p-0`.
+
 ## 2. Surface and button tokens
 
-| Token                    | Underlying classes    | Typical use                                          |
-| ------------------------ | --------------------- | ---------------------------------------------------- |
-| `panelSurfaceClass`      | `panel-surface`       | Shells, wizard steps, quick menu                     |
-| `cardSurfaceClass`       | `card-surface`        | Cards, dialog content                                |
-| `listContainerClass`     | `list-container`      | History panels, template lists                       |
-| `badgeSurfaceClass`      | `badge-surface`       | Status badges, pills                                 |
-| `primaryButtonClass`     | `primary-button`      | Primary actions                                      |
-| `secondaryButtonClass`   | `secondary-button`    | Secondary actions                                    |
-| `dangerButtonClass`      | `danger-button`       | Destructive actions                                  |
-| `successButtonClass`     | `success-button`      | Confirmations                                        |
-| `iconButtonClass`        | `icon-button`         | Prominent icon actions                               |
-| `quietIconButtonClass`   | `quiet-icon-button`   | Toolbar / secondary actions                          |
-| `dangerIconButtonClass`  | `danger-icon-button`  | Warn / delete icons                                  |
-| `successIconButtonClass` | `success-icon-button` | Success icons                                        |
-| `loadingIconButtonClass` | `loading-icon-button` | Loading indicators                                   |
-| `mutedIconButtonClass`   | `muted-icon-button`   | Neutral icon actions, basis for student toggles      |
-| `inputFieldClass`        | `input-field`         | Inputs, selects, textareas                           |
-| `textareaFieldClass`     | `textarea-field`      | Multi-line fields                                    |
-| `pillTabBaseClass`       | `pill-tab-base`       | Step navigation, filters                             |
-| `pillTabActiveClass`     | `pill-tab-active`     | Active pill states                                   |
-| `pillTabInactiveClass`   | `pill-tab-inactive`   | Inactive pill states                                 |
-| `menuSurfaceClass`       | `menu-surface`        | Desktop menus                                        |
-| `touchMenuSurfaceClass`  | `touch-menu-surface`  | Touch-optimized menus                                |
-| `floatingStatusClass`    | `floating-status`     | Floating badges                                      |
-| `canvasFrameClass`       | `canvas-frame`        | Canvas frame                                         |
+| Token                    | Underlying classes    | Typical use                                     |
+| ------------------------ | --------------------- | ----------------------------------------------- |
+| `panelSurfaceClass`      | `panel-surface`       | Shells, wizard steps, quick menu                |
+| `cardSurfaceClass`       | `card-surface`        | Cards, dialog content                           |
+| `listContainerClass`     | `list-container`      | History panels, template lists                  |
+| `badgeSurfaceClass`      | `badge-surface`       | Status badges, pills                            |
+| `primaryButtonClass`     | `primary-button`      | Primary actions                                 |
+| `secondaryButtonClass`   | `secondary-button`    | Secondary actions                               |
+| `neutralButtonClass`     | `neutral-button`      | Neutral actions (e.g. back navigation)          |
+| `dangerButtonClass`      | `danger-button`       | Destructive actions                             |
+| `successButtonClass`     | `success-button`      | Confirmations                                   |
+| `warningButtonClass`     | `warning-button`      | Warning actions                                 |
+| `iconButtonClass`        | `icon-button`         | Prominent icon actions                          |
+| `quietIconButtonClass`   | `quiet-icon-button`   | Toolbar / secondary actions                     |
+| `dangerIconButtonClass`  | `danger-icon-button`  | Warn / delete icons                             |
+| `successIconButtonClass` | `success-icon-button` | Success icons                                   |
+| `loadingIconButtonClass` | `loading-icon-button` | Loading indicators                              |
+| `mutedIconButtonClass`   | `muted-icon-button`   | Neutral icon actions, basis for student toggles |
+| `inputFieldClass`        | `input-field`         | Inputs, selects, textareas                      |
+| `selectFieldClass`       | `input-field`         | Alias for select elements                       |
+| `textareaFieldClass`     | `textarea-field`      | Multi-line fields                               |
+| `pillTabBaseClass`       | `pill-tab-base`       | Step navigation, filters                        |
+| `pillTabActiveClass`     | `pill-tab-active`     | Active pill states                              |
+| `pillTabInactiveClass`   | `pill-tab-inactive`   | Inactive pill states                            |
+| `menuSurfaceClass`       | `menu-surface`        | Desktop menus                                   |
+| `touchMenuSurfaceClass`  | `touch-menu-surface`  | Touch-optimized menus                           |
+| `floatingStatusClass`    | `floating-status`     | Floating badges                                 |
+| `canvasFrameClass`       | `canvas-frame`        | Canvas frame                                    |
+| `toastSurfaceClass`      | `toast-surface`       | Toast container                                 |
+| `toastAccentClass`       | `toast-accent`        | Toast accent bar                                |
+| `toastIconClass`         | `toast-icon`          | Toast icon                                      |
 
 All classes in the table automatically read the variables defined in `@theme`. Dark-mode variants are embedded inside the utility definitions.
 
@@ -102,7 +110,7 @@ The palette in `SmartEditPanel` still relies on `cardSurfaceClass` and `panelSur
 
 1. New surface or button variants are first added as a utility in `src/index.css` and then exported from `designTokens.ts`.
 2. Changes to colors, radii, or shadows happen exclusively via `@theme`. Light and dark mode update together as a result.
-3. Components that combine multiple tokens use template literals (`` className={`${cardSurfaceClass} ${customLayout}`} ``) and keep the token unchanged as the base class.
+3. Components that combine multiple tokens use template literals (``className={`${cardSurfaceClass} ${customLayout}`}``) and keep the token unchanged as the base class.
 4. Student-specific token extensions follow the pattern in `studentStyleTokens.ts`. Color variants use `!` utilities to safely override the base values.
 
 ## 8. References

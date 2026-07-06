@@ -14,7 +14,11 @@ export default function Datenschutz() {
   const metadata = usePageSeo('/datenschutz');
 
   return (
-    <main id="main" tabIndex={-1} className="min-h-[80vh] bg-linear-to-b from-slate-50 via-white to-slate-100 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 px-4 py-12">
+    <main
+      id="main"
+      tabIndex={-1}
+      className="min-h-[80vh] bg-linear-to-b from-slate-50 via-white to-slate-100 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 px-4 py-12"
+    >
       <Seo
         {...metadata}
         structuredData={{
@@ -99,10 +103,10 @@ export default function Datenschutz() {
               <div className="mt-3 space-y-3 text-gray-700 dark:text-gray-200 leading-relaxed">
                 <p>
                   Die Website wird bei Hetzner Online GmbH, Industriestr. 25,
-                  91710 Gunzenhausen, Deutschland (&bdquo;Hetzner&ldquo;) gehostet. Hetzner
-                  stellt die Server-Infrastruktur bereit, über die die Website
-                  ausgeliefert wird. Die Auslieferung erfolgt aus dem
-                  Rechenzentrum in Nürnberg, Deutschland.
+                  91710 Gunzenhausen, Deutschland (&bdquo;Hetzner&ldquo;)
+                  gehostet. Hetzner stellt die Server-Infrastruktur bereit, über
+                  die die Website ausgeliefert wird. Die Auslieferung erfolgt
+                  aus dem Rechenzentrum in Nürnberg, Deutschland.
                 </p>
                 <p>
                   Beim Aufruf der Website werden automatisch durch den
@@ -197,9 +201,19 @@ export default function Datenschutz() {
                 <p>
                   Optional hinzugefügte <strong>Schülerfotos</strong> werden
                   ebenfalls ausschließlich lokal auf diesem Gerät (in IndexedDB)
-                  gespeichert und niemals übertragen. Sie sind nur in einem
-                  Backup enthalten, wenn du selbst eines exportierst, und werden
-                  gemeinsam mit den übrigen Daten gelöscht.
+                  gespeichert und niemals übertragen. Beim Import werden Fotos
+                  neu berechnet und verkleinert; dabei werden eingebettete
+                  Metadaten (z.&nbsp;B. EXIF-Daten inkl. GPS-Position) entfernt.
+                  Sie sind nur in einem Backup enthalten, wenn du selbst eines
+                  exportierst, und werden gemeinsam mit den übrigen Daten
+                  gelöscht.
+                </p>
+                <p>
+                  Die lokal gespeicherten Daten liegen{' '}
+                  <strong>unverschlüsselt</strong> im Browser-Profil dieses
+                  Geräts. Schütze das Gerät daher wie gewohnt (Benutzerkonto,
+                  Geräteverschlüsselung). Exportierte Backups werden dagegen
+                  immer mit einem von dir gewählten Passwort verschlüsselt.
                 </p>
                 <p>
                   Sämtliche Daten sind über den Button{' '}

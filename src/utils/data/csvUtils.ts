@@ -29,7 +29,8 @@ const CSV_WORKER_CONTEXT = 'csvWorker';
 const CSV_WORKER_TIMEOUT_MS = 12_000;
 const CSV_WORKER_FAILURE_DISABLE_THRESHOLD = 2;
 const CSV_PARSING_CONTEXT = 'csvUtils';
-const CSV_STUDENT_LIMIT_ERROR = `Import fehlgeschlagen. Maximal ${MAX_STUDENTS} Schülerinnen und Schüler erlaubt.`;
+// Internal error markers (only logged; user-facing toasts use their own keys).
+const CSV_STUDENT_LIMIT_ERROR = 'toast:student.maxReached';
 
 let cachedWorkerSupport: boolean | null = null;
 let workerFailureCount = 0;
@@ -830,9 +831,7 @@ export async function parseCsvFlexible(
     }
 
     if (!nameInfo) {
-      throw new Error(
-        'CSV muss eine Spalte mit Namen enthalten (z.B. "Name", "Vorname" oder "Nachname")',
-      );
+      throw new Error('toast:csv.nameColumnError');
     }
 
     // First pass: create all students without partner references

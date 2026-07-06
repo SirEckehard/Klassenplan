@@ -160,21 +160,21 @@ declarative state machines that drive these flows.
 3. Delete/Backspace produce `KEY_DELETE`; `Ctrl|Cmd + C/X/V` are translated to
    `KEY_COPY`, `KEY_CUT`, `KEY_PASTE`.
 4. Before each interaction, `SYNC_STATUS` is dispatched so the machine always
-  knows `selectionCount`, `hasClipboardContent`, and `focusInInput`.
+   knows `selectionCount`, `hasClipboardContent`, and `focusInInput`.
 
 ### Machine states (`keyboardInteractionMachine.ts`)
 
-| State | Events | Guards | Actions |
-| ----- | ------ | ------ | ------- |
-| `keyboardIdle` | `KEY_ARROW` | `hasSelection` | `moveSelection`, store direction → `movingSelection` |
-|  | `KEY_DELETE` | `hasSelection` | `deleteSelection` |
-|  | `KEY_COPY` / `KEY_CUT` | `hasSelection` | `copySelection` / `cutSelection`, then `clipboardOp` |
-|  | `KEY_PASTE` | `hasClipboardContent` | `closeCanvasMenu`, `pasteSelection`, then `clipboardOp` |
-|  | `KEY_RELEASE` | – | Reset direction |
-| `movingSelection` | `KEY_ARROW` | `hasSelection` | Repeated moves (auto-repeat) |
-|  | `KEY_ARROW` | `keyboardInputBlocked` | Immediately back to `keyboardIdle`, reset direction |
-|  | `KEY_RELEASE` | `isMatchingRelease` | Reset direction, back to `keyboardIdle` |
-| `clipboardOp` | – | – | Actions run on entry; the state immediately returns to `keyboardIdle` |
+| State             | Events                 | Guards                 | Actions                                                               |
+| ----------------- | ---------------------- | ---------------------- | --------------------------------------------------------------------- |
+| `keyboardIdle`    | `KEY_ARROW`            | `hasSelection`         | `moveSelection`, store direction → `movingSelection`                  |
+|                   | `KEY_DELETE`           | `hasSelection`         | `deleteSelection`                                                     |
+|                   | `KEY_COPY` / `KEY_CUT` | `hasSelection`         | `copySelection` / `cutSelection`, then `clipboardOp`                  |
+|                   | `KEY_PASTE`            | `hasClipboardContent`  | `closeCanvasMenu`, `pasteSelection`, then `clipboardOp`               |
+|                   | `KEY_RELEASE`          | –                      | Reset direction                                                       |
+| `movingSelection` | `KEY_ARROW`            | `hasSelection`         | Repeated moves (auto-repeat)                                          |
+|                   | `KEY_ARROW`            | `keyboardInputBlocked` | Immediately back to `keyboardIdle`, reset direction                   |
+|                   | `KEY_RELEASE`          | `isMatchingRelease`    | Reset direction, back to `keyboardIdle`                               |
+| `clipboardOp`     | –                      | –                      | Actions run on entry; the state immediately returns to `keyboardIdle` |
 
 All actions (`moveSelection`, `deleteSelection`, `pasteSelection`, …) are
 injected via `actionApiRef` from the hook and still use `snapshot()`,
@@ -182,41 +182,41 @@ injected via `actionApiRef` from the hook and still use `snapshot()`,
 
 ## Pointer state matrix (current state)
 
-| Mode / ref status | Event (source) | Guards | Next mode | Side effects |
-| ----------------- | -------------- | ------ | --------- | ------------ |
-| `idle` | `pointerdown` on table (`handleTablePointerDown`) | Table unlocked, no right-click | `tablePressPending` | Close menus, cancel timers, set pointer capture, prepare long-press |
-| `idle` | `pointerdown` on canvas (`beginSelectionWithLongPress`) | Target is the SVG, no template drag | `canvasPressPending` & `selectionBox` active | Pointer capture, clear selection, optionally schedule canvas long-press |
-| `idle` | `pointerdown` on template (`startTemplateDrag`) | – | `templateDragActive` | Pointer capture on template, activate preview |
-| `tablePressPending` | `pointermove` (distance ≥ threshold) | – | `draggingSelection` | Cancel timer, initialize drag |
-| `tablePressPending` | Long-press (`onTableLongPress`) | – | `contextMenuOpen` | Apply selection, open table menu, release capture |
-| `tablePressPending` | `pointerup` before long-press | `meta.selectionApplied === false` | `idle` | Apply selection, cancel timer |
-| `draggingSelection` | `pointermove` (`handleCanvasPointerMove`) | – | `draggingSelection` | Snapshot once, apply deltas, start haptics |
-| `draggingSelection` | `pointerup` / `pointercancel` | – | `idle` | Release capture, finalize drag, commit scene |
-| `canvasPressPending` | `pointermove` | – | `drawingSelectionBox` | Update selection rectangle & selection live |
-| `canvasPressPending` | Long-press (`onCanvasLongPress`) | Clipboard / feature clipboard available | `contextMenuOpen` | Cancel selection, open canvas menu, release capture |
-| `drawingSelectionBox` | `pointerup` | – | `idle` | Commit selection, clear rectangle |
-| `templateDragActive` | Global `pointermove` | – | `templateDragActive` | Position preview, set `overCanvas` |
-| `templateDragActive` | Global `pointerup` / `-cancel` | – | `idle` | Drop template (if over canvas), reset preview |
-| `contextMenuOpen` | Menu closed (`handleClose*Menu`) | – | `idle` | Clean up menu states |
+| Mode / ref status     | Event (source)                                          | Guards                                  | Next mode                                    | Side effects                                                            |
+| --------------------- | ------------------------------------------------------- | --------------------------------------- | -------------------------------------------- | ----------------------------------------------------------------------- |
+| `idle`                | `pointerdown` on table (`handleTablePointerDown`)       | Table unlocked, no right-click          | `tablePressPending`                          | Close menus, cancel timers, set pointer capture, prepare long-press     |
+| `idle`                | `pointerdown` on canvas (`beginSelectionWithLongPress`) | Target is the SVG, no template drag     | `canvasPressPending` & `selectionBox` active | Pointer capture, clear selection, optionally schedule canvas long-press |
+| `idle`                | `pointerdown` on template (`startTemplateDrag`)         | –                                       | `templateDragActive`                         | Pointer capture on template, activate preview                           |
+| `tablePressPending`   | `pointermove` (distance ≥ threshold)                    | –                                       | `draggingSelection`                          | Cancel timer, initialize drag                                           |
+| `tablePressPending`   | Long-press (`onTableLongPress`)                         | –                                       | `contextMenuOpen`                            | Apply selection, open table menu, release capture                       |
+| `tablePressPending`   | `pointerup` before long-press                           | `meta.selectionApplied === false`       | `idle`                                       | Apply selection, cancel timer                                           |
+| `draggingSelection`   | `pointermove` (`handleCanvasPointerMove`)               | –                                       | `draggingSelection`                          | Snapshot once, apply deltas, start haptics                              |
+| `draggingSelection`   | `pointerup` / `pointercancel`                           | –                                       | `idle`                                       | Release capture, finalize drag, commit scene                            |
+| `canvasPressPending`  | `pointermove`                                           | –                                       | `drawingSelectionBox`                        | Update selection rectangle & selection live                             |
+| `canvasPressPending`  | Long-press (`onCanvasLongPress`)                        | Clipboard / feature clipboard available | `contextMenuOpen`                            | Cancel selection, open canvas menu, release capture                     |
+| `drawingSelectionBox` | `pointerup`                                             | –                                       | `idle`                                       | Commit selection, clear rectangle                                       |
+| `templateDragActive`  | Global `pointermove`                                    | –                                       | `templateDragActive`                         | Position preview, set `overCanvas`                                      |
+| `templateDragActive`  | Global `pointerup` / `-cancel`                          | –                                       | `idle`                                       | Drop template (if over canvas), reset preview                           |
+| `contextMenuOpen`     | Menu closed (`handleClose*Menu`)                        | –                                       | `idle`                                       | Clean up menu states                                                    |
 
 ## Keyboard mode snapshot
 
-| Condition | Event | Side effects |
-| --------- | ----- | ------------ |
-| Selection present | `Arrow` keys | Prevent default, snapshot, move & clamp selected tables |
-| Selection present | `Delete` / `Backspace` | Prevent default, `deleteSelectedTables`, handle eviction/toast |
-| Selection present | `Ctrl/Cmd + C` | Copy tables to clipboard |
-| Selection present | `Ctrl/Cmd + X` | Copy, then delete |
-| Clipboard populated | `Ctrl/Cmd + V` | Paste tables relative to last copy or cursor, close canvas menu |
+| Condition           | Event                  | Side effects                                                    |
+| ------------------- | ---------------------- | --------------------------------------------------------------- |
+| Selection present   | `Arrow` keys           | Prevent default, snapshot, move & clamp selected tables         |
+| Selection present   | `Delete` / `Backspace` | Prevent default, `deleteSelectedTables`, handle eviction/toast  |
+| Selection present   | `Ctrl/Cmd + C`         | Copy tables to clipboard                                        |
+| Selection present   | `Ctrl/Cmd + X`         | Copy, then delete                                               |
+| Clipboard populated | `Ctrl/Cmd + V`         | Paste tables relative to last copy or cursor, close canvas menu |
 
 ### Planned keyboard machine (historical plan)
 
-| State | Description | Incoming events | Actions / transitions |
-| ----- | ----------- | --------------- | --------------------- |
-| `keyboardIdle` | Default mode without keypress | `KEY_DOWN` (Arrow/Delete/Ctrl+) | Switch into state-specific modes |
-| `movingSelection` | Continuous arrow-key movement (auto-repeat) | `KEY_REPEAT` / `KEY_UP` | Run `MOVE_SELECTION` or return to `keyboardIdle` |
-| `clipboardOp` | Copy/cut/paste | `KEY_DOWN` (Ctrl+C/X/V) | Call `copySelectedTables` / `cutSelectedTables` / `pasteTablesAt` |
-| `deletePending` | Delete/Backspace confirmed | `KEY_DOWN` Delete/Backspace | Trigger `deleteSelectedTables` |
+| State             | Description                                 | Incoming events                 | Actions / transitions                                             |
+| ----------------- | ------------------------------------------- | ------------------------------- | ----------------------------------------------------------------- |
+| `keyboardIdle`    | Default mode without keypress               | `KEY_DOWN` (Arrow/Delete/Ctrl+) | Switch into state-specific modes                                  |
+| `movingSelection` | Continuous arrow-key movement (auto-repeat) | `KEY_REPEAT` / `KEY_UP`         | Run `MOVE_SELECTION` or return to `keyboardIdle`                  |
+| `clipboardOp`     | Copy/cut/paste                              | `KEY_DOWN` (Ctrl+C/X/V)         | Call `copySelectedTables` / `cutSelectedTables` / `pasteTablesAt` |
+| `deletePending`   | Delete/Backspace confirmed                  | `KEY_DOWN` Delete/Backspace     | Trigger `deleteSelectedTables`                                    |
 
 **Events**
 

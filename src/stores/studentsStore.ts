@@ -135,7 +135,12 @@ export const createStudentsStore = (
           prev.filter((student) => student.id !== id),
         );
         if (target?.hasPhoto) {
-          void removeStudentPhoto(id);
+          removeStudentPhoto(id).catch((error) => {
+            logger.warn('Failed to delete student photo', {
+              studentId: id,
+              error,
+            });
+          });
         }
         logger.debug('Student removed', { studentId: id });
       },
@@ -143,7 +148,12 @@ export const createStudentsStore = (
         const withPhotos = get().students.filter((student) => student.hasPhoto);
         setStudentsInternal(() => []);
         for (const student of withPhotos) {
-          void removeStudentPhoto(student.id);
+          removeStudentPhoto(student.id).catch((error) => {
+            logger.warn('Failed to delete student photo', {
+              studentId: student.id,
+              error,
+            });
+          });
         }
         logger.debug('All students cleared');
       },

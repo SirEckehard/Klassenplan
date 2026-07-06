@@ -10,9 +10,9 @@ According to educational research, seating arrangements have a small but measura
 
 - Wannarka & Ruhl (2008): Row arrangements can reduce off-task behavior during individual work
 - Marx, Fuhrer & Hartig (1999): Seating layout influences question frequency (horseshoe > rows)
-- Hattie (2009, *Visible Learning*): Effect size of seating arrangement d ≈ 0.1–0.2 – well below feedback (d ≈ 0.73) or formative assessment
+- Hattie (2009, _Visible Learning_): Effect size of seating arrangement d ≈ 0.1–0.2 – well below feedback (d ≈ 0.73) or formative assessment
 
-Klassenplan's main value therefore lies not in the *optimal* seating plan, but in **relieving the teacher's cognitive preparation load** and **structuring reflection** about class composition. The algorithm's output is a suggestion, not a decision.
+Klassenplan's main value therefore lies not in the _optimal_ seating plan, but in **relieving the teacher's cognitive preparation load** and **structuring reflection** about class composition. The algorithm's output is a suggestion, not a decision.
 
 ---
 
@@ -26,6 +26,7 @@ Theoretical background:
 - **Pygmalion effect** (Rosenthal & Jacobson 1968): Teacher expectations influence student performance. A digital tool that codifies these expectations can amplify the effect.
 
 **Recommendations for teachers:**
+
 - Review and update attributes regularly (at least once per school term)
 - Use attributes as a tool for seating-plan optimization, not as character descriptions of children
 - Reflect on attributes in student conversations where pedagogically appropriate
@@ -38,7 +39,7 @@ reason (hearing/vision impairment, concentration, height, or simply teacher
 preference). The label was changed from "Hearing/vision impairment" to "Front
 seats" precisely to avoid encoding a health diagnosis in the data.
 
-If a teacher sets this flag *because of* a health condition, the **reason** (kept
+If a teacher sets this flag _because of_ a health condition, the **reason** (kept
 outside the tool) may still touch **Art. 9 GDPR** (special categories of personal
 data: health). The flag itself stores no such reason, but teachers should make
 sure there is an appropriate legal basis (e.g. consent from legal guardians, or a
@@ -52,23 +53,23 @@ Schule) may impose stricter requirements than the GDPR.
 
 The weights in [`src/utils/mixSettings.ts`](../src/utils/mixSettings.ts) are normative choices, made transparent here.
 
-| Criterion | Default | Rationale |
-|---|---|---|
-| `considerWishPartners` | 8 | Respecting preferred partners is the strongest student preference we can capture directly; high social legitimacy |
-| `avoidConflictPartners` | 7 | Conflict avoidance has an immediate effect on classroom climate; slightly below preferred partners |
-| `avoidPreviousPairs` | 6 | Prevents stagnation and encourages new social contacts; broadly accepted in pedagogy |
-| `avoidRestlessTogether` | 5 | Evidence for disruption reduction through spatial separation (Wannarka & Ruhl 2008) |
-| `avoidConcentrationTogether` | 5 | Analogous to `avoidRestlessTogether`; equal weight is deliberate |
-| `avoidConcentrationNearRestless` | 5 | Interaction between restless and distractible behavior |
-| `preferLanguageMixing` | 4 | Language support through proximity is pedagogically plausible, but not a direct language-support measure (Gogolin & Lange 2011) |
-| `peerTutoring` | 3 | Effective (Hattie d ≈ 0.55), but only with didactic framing; spatial proximity alone does not create peer tutoring |
-| `homogeneousPerformanceGroups` | 3 | Weak evidence (Hattie d ≈ 0.12); parity with `peerTutoring` is deliberate, as both approaches are legitimate |
-| `preferFrontForNeedsFrontSeat` | 5 | Important accessibility measure; higher weight is justified |
-| `preferFrontForSmallerStudents` | 3 | Visibility heuristic; pragmatic, but no research backing |
-| `preferGenderMix` | 2 | Deliberately low weight; gender categories are complex (Butler 1990); the default signals optionality |
-| `avoidShyAlone` | 2 | Social inclusion matters; low weight because it is hard to operationalize |
-| `preferWindowSeats` / `preferDoorSeats` | 3 / 2 | Individual spatial preferences; no pedagogical evidence, but high subjective relevance |
-| `distributeSocialRoles` | 3 | Balanced table composition as a general heuristic |
+| Criterion                               | Default | Rationale                                                                                                                       |
+| --------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `considerWishPartners`                  | 8       | Respecting preferred partners is the strongest student preference we can capture directly; high social legitimacy               |
+| `avoidConflictPartners`                 | 7       | Conflict avoidance has an immediate effect on classroom climate; slightly below preferred partners                              |
+| `avoidPreviousPairs`                    | 6       | Prevents stagnation and encourages new social contacts; broadly accepted in pedagogy                                            |
+| `avoidRestlessTogether`                 | 5       | Evidence for disruption reduction through spatial separation (Wannarka & Ruhl 2008)                                             |
+| `avoidConcentrationTogether`            | 5       | Analogous to `avoidRestlessTogether`; equal weight is deliberate                                                                |
+| `avoidConcentrationNearRestless`        | 5       | Interaction between restless and distractible behavior                                                                          |
+| `preferLanguageMixing`                  | 4       | Language support through proximity is pedagogically plausible, but not a direct language-support measure (Gogolin & Lange 2011) |
+| `peerTutoring`                          | 3       | Effective (Hattie d ≈ 0.55), but only with didactic framing; spatial proximity alone does not create peer tutoring              |
+| `homogeneousPerformanceGroups`          | 3       | Weak evidence (Hattie d ≈ 0.12); parity with `peerTutoring` is deliberate, as both approaches are legitimate                    |
+| `preferFrontForNeedsFrontSeat`          | 5       | Important accessibility measure; higher weight is justified                                                                     |
+| `preferFrontForSmallerStudents`         | 3       | Visibility heuristic; pragmatic, but no research backing                                                                        |
+| `preferGenderMix`                       | 2       | Deliberately low weight; gender categories are complex (Butler 1990); the default signals optionality                           |
+| `avoidShyAlone`                         | 2       | Social inclusion matters; low weight because it is hard to operationalize                                                       |
+| `preferWindowSeats` / `preferDoorSeats` | 3 / 2   | Individual spatial preferences; no pedagogical evidence, but high subjective relevance                                          |
+| `distributeSocialRoles`                 | 3       | Balanced table composition as a general heuristic                                                                               |
 
 ### Tension between `peerTutoring` and `homogeneousPerformanceGroups`
 
@@ -84,7 +85,7 @@ Peer tutoring is one of the most effective learning methods (Hattie d ≈ 0.55; 
 
 ## 5. Language mixing (DaZ)
 
-The `preferLanguageMixing` criterion pairs language-strong students with DaZ students (*Deutsch als Zweitsprache* – German as a second language). Pedagogically well-intentioned, but worth critical reflection:
+The `preferLanguageMixing` criterion pairs language-strong students with DaZ students (_Deutsch als Zweitsprache_ – German as a second language). Pedagogically well-intentioned, but worth critical reflection:
 
 - Language support has to happen **didactically and methodically**, not through spatial proximity alone (Gogolin & Lange 2011)
 - The language-strong child can be pushed into a translator role, which can strain the relationship (Dirim & Mecheril 2010)
@@ -102,17 +103,17 @@ The `loner` value in `SocialRole` describes introverted or independently working
 
 ## 7. Further reading
 
-- Becker, H. S. (1963). *Outsiders: Studies in the Sociology of Deviance*. Free Press.
-- Butler, J. (1990). *Gender Trouble*. Routledge.
-- Cain, S. (2012). *Quiet: The Power of Introverts in a World That Can't Stop Talking*. Crown.
-- Dirim, İ., & Mecheril, P. (2010). Die Sprache(n) der Migrationsgesellschaft. In P. Mecheril et al., *Migrationspädagogik*. Beltz.
-- García, O., & Wei, L. (2014). *Translanguaging: Language, Bilingualism and Education*. Palgrave Macmillan.
-- Gogolin, I., & Lange, I. (2011). *Bildungssprache und Durchgängige Sprachbildung*. Waxmann.
-- Hattie, J. (2009). *Visible Learning: A Synthesis of Over 800 Meta-Analyses Relating to Achievement*. Routledge.
-- O'Neil, C. (2016). *Weapons of Math Destruction*. Crown.
-- Reich, K. (2014). *Inklusive Didaktik: Bausteine für eine inklusive Schule*. Beltz.
-- Rist, R. C. (1970). Student Social Class and Teacher Expectations. *Harvard Educational Review*, 40(3).
-- Rosenthal, R., & Jacobson, L. (1968). *Pygmalion in the Classroom*. Holt, Rinehart and Winston.
-- Slavin, R. E. (1995). *Cooperative Learning: Theory, Research, and Practice* (2nd ed.). Allyn & Bacon.
-- Topping, K. J. (2005). Trends in peer learning. *Educational Psychology*, 25(6).
-- Wannarka, R., & Ruhl, K. (2008). Seating arrangements that promote positive academic and behavioural outcomes. *Support for Learning*, 23(2).
+- Becker, H. S. (1963). _Outsiders: Studies in the Sociology of Deviance_. Free Press.
+- Butler, J. (1990). _Gender Trouble_. Routledge.
+- Cain, S. (2012). _Quiet: The Power of Introverts in a World That Can't Stop Talking_. Crown.
+- Dirim, İ., & Mecheril, P. (2010). Die Sprache(n) der Migrationsgesellschaft. In P. Mecheril et al., _Migrationspädagogik_. Beltz.
+- García, O., & Wei, L. (2014). _Translanguaging: Language, Bilingualism and Education_. Palgrave Macmillan.
+- Gogolin, I., & Lange, I. (2011). _Bildungssprache und Durchgängige Sprachbildung_. Waxmann.
+- Hattie, J. (2009). _Visible Learning: A Synthesis of Over 800 Meta-Analyses Relating to Achievement_. Routledge.
+- O'Neil, C. (2016). _Weapons of Math Destruction_. Crown.
+- Reich, K. (2014). _Inklusive Didaktik: Bausteine für eine inklusive Schule_. Beltz.
+- Rist, R. C. (1970). Student Social Class and Teacher Expectations. _Harvard Educational Review_, 40(3).
+- Rosenthal, R., & Jacobson, L. (1968). _Pygmalion in the Classroom_. Holt, Rinehart and Winston.
+- Slavin, R. E. (1995). _Cooperative Learning: Theory, Research, and Practice_ (2nd ed.). Allyn & Bacon.
+- Topping, K. J. (2005). Trends in peer learning. _Educational Psychology_, 25(6).
+- Wannarka, R., & Ruhl, K. (2008). Seating arrangements that promote positive academic and behavioural outcomes. _Support for Learning_, 23(2).

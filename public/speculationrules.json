@@ -1,0 +1,9 @@
+{
+  "prefetch": [
+    {
+      "source": "list",
+      "eagerness": "moderate",
+      "urls": ["/generator", "/export", "/faq", "/en/generator", "/en/export"]
+    }
+  ]
+}

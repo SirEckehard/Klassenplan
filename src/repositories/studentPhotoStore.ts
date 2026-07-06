@@ -27,6 +27,12 @@ import { logError } from '@/utils';
 
 const LOG_SOURCE = 'studentPhotoStore';
 
+// Schema version of the photo store, kept under a reserved key inside the
+// store itself (mirrors CLASS_COLLECTION_VERSION for the class data). Bump it
+// when the stored format changes; readers can then branch on the old value.
+export const STUDENT_PHOTO_STORE_VERSION = 1;
+const VERSION_KEY = '__photoStoreVersion';
+
 // Lazily created so importing this module never touches IndexedDB (keeps SSR
 // and tests without a DB safe). idb-keyval's createStore only opens the DB on
 // the first actual operation.
@@ -64,14 +70,18 @@ export async function deleteStudentPhoto(id: string): Promise<void> {
 export async function getAllPhotoIds(): Promise<string[]> {
   if (!hasIndexedDB()) return [];
   const ids = await idbKeys(getStore());
-  return ids.map((id) => String(id));
+  return ids.map((id) => String(id)).filter((id) => id !== VERSION_KEY);
 }
 
 /** Every stored photo keyed by student id (used for export). */
 export async function getAllPhotos(): Promise<Map<string, Blob>> {
   if (!hasIndexedDB()) return new Map();
   const all = await idbEntries<string, Blob>(getStore());
-  return new Map(all.map(([id, blob]) => [String(id), blob]));
+  return new Map(
+    all
+      .filter(([id]) => String(id) !== VERSION_KEY)
+      .map(([id, blob]) => [String(id), blob]),
+  );
 }
 
 /** Wipe every stored photo (used by "delete all data" and full imports). */
@@ -89,6 +99,12 @@ export async function sweepOrphanPhotos(
 ): Promise<number> {
   if (!hasIndexedDB()) return 0;
   try {
+    // Piggyback the version stamp on the start-up sweep so every store that
+    // has ever been touched carries its schema version.
+    const version = await idbGet<number>(VERSION_KEY, getStore());
+    if (version === undefined) {
+      await idbSet(VERSION_KEY, STUDENT_PHOTO_STORE_VERSION, getStore());
+    }
     const known = new Set(knownStudentIds);
     const ids = await getAllPhotoIds();
     const orphans = ids.filter((id) => !known.has(id));

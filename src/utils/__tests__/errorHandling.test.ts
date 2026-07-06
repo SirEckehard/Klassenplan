@@ -52,9 +52,7 @@ describe('errorHandling', () => {
     it('uses default message when custom message missing', () => {
       const error = createAppError(ErrorCategory.STORAGE, ErrorSeverity.ERROR);
 
-      expect(error.message).toBe(
-        'Speicherfehler. Daten konnten nicht gespeichert werden.',
-      );
+      expect(error.message).toBe('toast:errors.storage');
     });
   });
 
@@ -65,7 +63,7 @@ describe('errorHandling', () => {
       handleError(testError, ErrorCategory.STORAGE, ErrorSeverity.ERROR);
 
       expect(logError).toHaveBeenCalledWith(
-        '[STORAGE] Speicherfehler. Daten konnten nicht gespeichert werden.',
+        '[STORAGE] toast:errors.storage',
         expect.objectContaining({
           category: ErrorCategory.STORAGE,
           severity: ErrorSeverity.ERROR,
@@ -80,7 +78,7 @@ describe('errorHandling', () => {
 
       expect(showToastSpy).toHaveBeenCalledWith(
         'error',
-        'Export fehlgeschlagen. Bitte versuchen Sie es erneut.',
+        'toast:errors.export',
         { duration: 5000 },
       );
     });
@@ -92,7 +90,7 @@ describe('errorHandling', () => {
 
       expect(showToastSpy).toHaveBeenCalledWith(
         'warning',
-        'Eingabefehler. Bitte überprüfen Sie Ihre Daten.',
+        'toast:errors.validation',
         { duration: 4000 },
       );
       expect(logWarn).toHaveBeenCalled();
@@ -107,7 +105,7 @@ describe('errorHandling', () => {
 
       expect(showToastSpy).toHaveBeenCalledWith(
         'critical',
-        'Berechnungsfehler. Bitte kontaktieren Sie den Support.',
+        'toast:errors.algorithm',
         { duration: 0 },
       );
     });
@@ -123,7 +121,7 @@ describe('errorHandling', () => {
 
       expect(showToastSpy).toHaveBeenCalledWith(
         'error',
-        'Netzwerkfehler. Bitte überprüfen Sie Ihre Verbindung.',
+        'toast:errors.network',
         { duration: 5000 },
       );
     });
@@ -158,7 +156,7 @@ describe('errorHandling', () => {
 
       expect(showToastSpy).toHaveBeenCalledWith(
         'error',
-        'Export fehlgeschlagen. Bitte versuchen Sie es erneut.',
+        'toast:errors.export',
         { duration: 5000 },
       );
     });
@@ -168,7 +166,7 @@ describe('errorHandling', () => {
 
       expect(showToastSpy).toHaveBeenCalledWith(
         'warning',
-        'Eingabefehler. Bitte überprüfen Sie Ihre Daten.',
+        'toast:errors.validation',
         { duration: 4000 },
       );
     });

@@ -277,6 +277,14 @@
       "preferDoorSeats": {
         "label": "Door Proximity",
         "desc": "Place students with door preference near the entrance"
+      },
+      "preferLanguageMixing": {
+        "label": "Language support",
+        "desc": "Seat students with strong language skills next to beginners/language learners"
+      },
+      "distributeSocialRoles": {
+        "label": "Social roles",
+        "desc": "Distribute mediators, leaders and loners"
       }
     },
     "criteriaDescriptions": {
@@ -298,6 +306,22 @@
     "allOff": "All off",
     "sectionDescription": "Set the importance of each criterion (0–10)",
     "criterionNotAvailable": "Criterion not available",
+    "unavailable": {
+      "considerWishPartners": "No student has a preferred partner",
+      "avoidConflictPartners": "No student has a distance request",
+      "avoidRestlessTogether": "Fewer than 2 students are marked as restless",
+      "avoidConcentrationTogether": "Fewer than 2 students have concentration issues",
+      "avoidConcentrationNearRestless": "Requires both restless and easily distracted students",
+      "preferGenderMix": "At least two gender entries are required to use this criterion",
+      "avoidShyAlone": "No student is marked as shy",
+      "performanceLevels": "No students with a performance level",
+      "preferFrontForNeedsFrontSeat": "No student needs a front seat",
+      "preferFrontForSmallerStudents": "No students with a height classification",
+      "preferWindowSeats": "No student prefers a window seat",
+      "preferDoorSeats": "No student prefers to sit near the door",
+      "preferLanguageMixing": "At least 2 different language levels are required",
+      "distributeSocialRoles": "No students with a social role"
+    },
     "active": "active",
     "inactive": "inactive"
   },
@@ -497,6 +521,10 @@
     "emptyTitle": "No plans saved yet",
     "emptyHint": "Save your first plan in step 3"
   },
+  "circleStatus": {
+    "preparing": "Preparing seating circle...",
+    "fromPlan": "Adopting seating circle from the seating plan..."
+  },
   "statisticsBadge": {
     "title": "Criteria Fulfillment",
     "close": "Close",
@@ -505,7 +533,12 @@
     "hoverHintShort": "Hover to highlight",
     "overallScore": "Overall Score:",
     "weightLabel": "Weight: {{weight}}/10",
-    "footerHint": "Tip: Adjust the weights in the options."
+    "footerHint": "Tip: Adjust the weights in the options.",
+    "status": {
+      "ok": "Fulfillment above 80% (good)",
+      "warn": "Fulfillment between 50% and 80% (partial)",
+      "alert": "Fulfillment below 50% (low)"
+    }
   },
   "shortcuts": {
     "labels": {

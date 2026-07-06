@@ -29,7 +29,9 @@ export function isCriterionAvailable(
       return {
         key,
         available,
-        reason: available ? undefined : 'Kein Schüler hat einen Wunschpartner',
+        reason: available
+          ? undefined
+          : 'generator:mix.unavailable.considerWishPartners',
       };
     }
 
@@ -38,7 +40,9 @@ export function isCriterionAvailable(
       return {
         key,
         available,
-        reason: available ? undefined : 'Kein Schüler hat einen Distanzwunsch',
+        reason: available
+          ? undefined
+          : 'generator:mix.unavailable.avoidConflictPartners',
       };
     }
 
@@ -58,7 +62,7 @@ export function isCriterionAvailable(
         available,
         reason: available
           ? undefined
-          : 'Weniger als 2 Schüler sind als unruhig markiert',
+          : 'generator:mix.unavailable.avoidRestlessTogether',
       };
     }
 
@@ -72,7 +76,7 @@ export function isCriterionAvailable(
         available,
         reason: available
           ? undefined
-          : 'Weniger als 2 Schüler haben Konzentrationsprobleme',
+          : 'generator:mix.unavailable.avoidConcentrationTogether',
       };
     }
 
@@ -84,7 +88,7 @@ export function isCriterionAvailable(
         available,
         reason: available
           ? undefined
-          : 'Mindestens zwei Geschlechtsangaben erforderlich, um dieses Kriterium zu nutzen',
+          : 'generator:mix.unavailable.preferGenderMix',
       };
     }
 
@@ -95,7 +99,7 @@ export function isCriterionAvailable(
         available,
         reason: available
           ? undefined
-          : 'Kein Schüler ist als schüchtern markiert',
+          : 'generator:mix.unavailable.avoidShyAlone',
       };
     }
 
@@ -108,7 +112,7 @@ export function isCriterionAvailable(
         available,
         reason: available
           ? undefined
-          : 'Keine Schüler mit Leistungseinstufung vorhanden',
+          : 'generator:mix.unavailable.performanceLevels',
       };
     }
 
@@ -121,7 +125,7 @@ export function isCriterionAvailable(
         available,
         reason: available
           ? undefined
-          : 'Keine Schüler mit Leistungseinstufung vorhanden',
+          : 'generator:mix.unavailable.performanceLevels',
       };
     }
 
@@ -132,7 +136,7 @@ export function isCriterionAvailable(
         available,
         reason: available
           ? undefined
-          : 'Kein Schüler benötigt einen vorderen Platz',
+          : 'generator:mix.unavailable.preferFrontForNeedsFrontSeat',
       };
     }
 
@@ -145,7 +149,7 @@ export function isCriterionAvailable(
         available,
         reason: available
           ? undefined
-          : 'Keine Schüler mit Größeneinstufung vorhanden',
+          : 'generator:mix.unavailable.preferFrontForSmallerStudents',
       };
     }
 
@@ -156,7 +160,7 @@ export function isCriterionAvailable(
         available,
         reason: available
           ? undefined
-          : 'Kein Schüler bevorzugt einen Fensterplatz',
+          : 'generator:mix.unavailable.preferWindowSeats',
       };
     }
 
@@ -165,7 +169,9 @@ export function isCriterionAvailable(
       return {
         key,
         available,
-        reason: available ? undefined : 'Kein Schüler bevorzugt Nähe zur Tür',
+        reason: available
+          ? undefined
+          : 'generator:mix.unavailable.preferDoorSeats',
       };
     }
 
@@ -179,7 +185,7 @@ export function isCriterionAvailable(
         available,
         reason: available
           ? undefined
-          : 'Mindestens 2 verschiedene Sprachniveaus erforderlich',
+          : 'generator:mix.unavailable.preferLanguageMixing',
       };
     }
 
@@ -190,7 +196,7 @@ export function isCriterionAvailable(
         available,
         reason: available
           ? undefined
-          : 'Keine Schüler mit sozialer Rolle vorhanden',
+          : 'generator:mix.unavailable.distributeSocialRoles',
       };
     }
 
@@ -204,7 +210,7 @@ export function isCriterionAvailable(
         available,
         reason: available
           ? undefined
-          : 'Benötigt unruhige und konzentrationsschwächere Schüler',
+          : 'generator:mix.unavailable.avoidConcentrationNearRestless',
       };
     }
 

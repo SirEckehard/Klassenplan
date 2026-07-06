@@ -277,6 +277,14 @@
       "preferDoorSeats": {
         "label": "Türnähe",
         "desc": "Schüler mit Tür-Präferenz nahe am Eingang platzieren"
+      },
+      "preferLanguageMixing": {
+        "label": "Sprachförderung",
+        "desc": "Sprachstarke Schüler neben Anfänger/DaZ setzen"
+      },
+      "distributeSocialRoles": {
+        "label": "Soziale Rollen",
+        "desc": "Mediatoren, Anführer und Einzelgänger verteilen"
       }
     },
     "criteriaDescriptions": {
@@ -298,6 +306,22 @@
     "allOff": "Alle aus",
     "sectionDescription": "Stelle die Wichtigkeit der verschiedenen Kriterien ein (0-10)",
     "criterionNotAvailable": "Kriterium nicht verfügbar",
+    "unavailable": {
+      "considerWishPartners": "Kein Schüler hat einen Wunschpartner",
+      "avoidConflictPartners": "Kein Schüler hat einen Distanzwunsch",
+      "avoidRestlessTogether": "Weniger als 2 Schüler sind als unruhig markiert",
+      "avoidConcentrationTogether": "Weniger als 2 Schüler haben Konzentrationsprobleme",
+      "avoidConcentrationNearRestless": "Benötigt unruhige und konzentrationsschwächere Schüler",
+      "preferGenderMix": "Mindestens zwei Geschlechtsangaben erforderlich, um dieses Kriterium zu nutzen",
+      "avoidShyAlone": "Kein Schüler ist als schüchtern markiert",
+      "performanceLevels": "Keine Schüler mit Leistungseinstufung vorhanden",
+      "preferFrontForNeedsFrontSeat": "Kein Schüler benötigt einen vorderen Platz",
+      "preferFrontForSmallerStudents": "Keine Schüler mit Größeneinstufung vorhanden",
+      "preferWindowSeats": "Kein Schüler bevorzugt einen Fensterplatz",
+      "preferDoorSeats": "Kein Schüler bevorzugt Nähe zur Tür",
+      "preferLanguageMixing": "Mindestens 2 verschiedene Sprachniveaus erforderlich",
+      "distributeSocialRoles": "Keine Schüler mit sozialer Rolle vorhanden"
+    },
     "active": "aktiv",
     "inactive": "inaktiv"
   },
@@ -497,6 +521,10 @@
     "emptyTitle": "Noch keine Pläne gespeichert",
     "emptyHint": "Speichere deinen ersten Plan im Schritt 3"
   },
+  "circleStatus": {
+    "preparing": "Sitzkreis wird vorbereitet...",
+    "fromPlan": "Sitzkreis wird aus dem Sitzplan übernommen..."
+  },
   "statisticsBadge": {
     "title": "Kriterien-Erfüllung",
     "close": "Schließen",
@@ -505,7 +533,12 @@
     "hoverHintShort": "Hover für Markierung",
     "overallScore": "Gesamt-Score:",
     "weightLabel": "Gewichtung: {{weight}}/10",
-    "footerHint": "Tipp: Passe die Gewichtung in den Optionen an."
+    "footerHint": "Tipp: Passe die Gewichtung in den Optionen an.",
+    "status": {
+      "ok": "Erfüllung über 80 % (gut)",
+      "warn": "Erfüllung zwischen 50 % und 80 % (teilweise)",
+      "alert": "Erfüllung unter 50 % (gering)"
+    }
   },
   "shortcuts": {
     "labels": {

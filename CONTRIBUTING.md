@@ -20,7 +20,7 @@ Please run the local checks and make sure they pass:
 ```bash
 npm test -- --run
 npm run lint
-npm run typecheck
+npm run typecheck:all
 npm run format
 ```
 
@@ -29,6 +29,9 @@ npm run format
 - Keep changes focused — one logical change per pull request.
 - Match the existing code style (TypeScript strict, ESLint, Prettier).
 - Update or add tests for behavioural changes.
+- The app is bilingual: every new or changed UI text needs keys in **both**
+  `src/i18n/locales/de/` and `src/i18n/locales/en/`. User-facing strings never
+  live in `src/utils` — use i18n keys there instead.
 - For architectural context, see the docs in `docs/` (start with
   [`docs/MODULE_BOUNDARIES.md`](docs/MODULE_BOUNDARIES.md) and
   [`docs/DESIGNSYSTEM.md`](docs/DESIGNSYSTEM.md)).

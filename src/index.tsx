@@ -5,6 +5,10 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { IconContext } from '@phosphor-icons/react';
 import '@/index.css';
+// Side-effect import: registers the module-level beforeinstallprompt listener
+// as part of the entry chunk. This replaces the former inline script in
+// index.html, which the production CSP (script-src 'self') blocked.
+import '@/hooks/useInstallPrompt';
 import { i18nReady } from '@/i18n';
 import RootErrorBoundary from '@/components/RootErrorBoundary';
 import { ToastProvider } from '@/components/ui/feedback/ToastProvider';

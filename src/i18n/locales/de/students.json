@@ -143,6 +143,10 @@
     "distanceWishes": "Distanzpartner",
     "selectDistance": "Distanzpartner auswählen"
   },
+  "environment": {
+    "windowTooltip": "Bevorzugt Plätze am Fenster",
+    "doorTooltip": "Bevorzugt Plätze in Türnähe"
+  },
   "height": {
     "title": "Körpergröße",
     "small": "Klein",

@@ -51,10 +51,11 @@ export class StudentPhotoError extends Error {
   }
 }
 
+// i18n keys resolved by showToast/getToastMessage at display time.
 export const STUDENT_PHOTO_ERRORS = {
-  notImage: 'Es können nur Bilddateien verwendet werden.',
-  tooLarge: 'Das Bild ist zu groß (max. 20 MB).',
-  decodeFailed: 'Das Bild konnte nicht verarbeitet werden.',
+  notImage: 'toast:studentPhoto.notImage',
+  tooLarge: 'toast:studentPhoto.tooLarge',
+  decodeFailed: 'toast:studentPhoto.decodeFailed',
 } as const;
 
 /**

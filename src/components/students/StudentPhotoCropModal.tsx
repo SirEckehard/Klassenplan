@@ -53,6 +53,21 @@ function StudentPhotoCropModal({ open, bitmap, onApply, onCancel }: Props) {
   const pointers = useRef(new Map<number, { x: number; y: number }>());
   const pinchStart = useRef<{ distance: number; scale: number } | null>(null);
 
+  // Latest transform for the native wheel listener, so it does not have to
+  // re-subscribe on every pan/zoom frame.
+  const transformRef = useRef(transform);
+  useEffect(() => {
+    transformRef.current = transform;
+  }, [transform]);
+
+  const mountedRef = useRef(true);
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
   const update = useCallback(
     (next: PhotoTransform) => {
       if (!bitmap) return;
@@ -91,18 +106,20 @@ function StudentPhotoCropModal({ open, bitmap, onApply, onCancel }: Props) {
     ctx.restore();
   }, [bitmap, transform]);
 
-  // Wheel zoom needs a non-passive listener to call preventDefault.
+  // Wheel zoom needs a non-passive listener to call preventDefault. Reads the
+  // transform through a ref so the listener is registered only once per image.
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas || !bitmap) return;
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
       const factor = e.deltaY < 0 ? 1.08 : 1 / 1.08;
-      update({ ...transform, scale: transform.scale * factor });
+      const current = transformRef.current;
+      update({ ...current, scale: current.scale * factor });
     };
     canvas.addEventListener('wheel', onWheel, { passive: false });
     return () => canvas.removeEventListener('wheel', onWheel);
-  }, [bitmap, transform, update]);
+  }, [bitmap, update]);
 
   const displayWidth = () =>
     canvasRef.current?.getBoundingClientRect().width || VIEWPORT;
@@ -167,7 +184,10 @@ function StudentPhotoCropModal({ open, bitmap, onApply, onCancel }: Props) {
       showToast('error', message);
       logError('Student photo crop failed', { error }, 'StudentPhotoCropModal');
     } finally {
-      setBusy(false);
+      // onApply may close (unmount) the modal while the render was in flight.
+      if (mountedRef.current) {
+        setBusy(false);
+      }
     }
   };
 

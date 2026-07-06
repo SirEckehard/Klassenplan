@@ -9,6 +9,7 @@ import {
   BACKUP_LIMITS,
   BackupValidationError,
   parseEncryptedBackupPayload,
+  type EncryptedBackupPayload,
 } from '@/utils/validation/backupValidation';
 import {
   logError,
@@ -23,6 +24,16 @@ const decoder = new TextDecoder();
 const aad = encoder.encode('klassenplan-backup-v1');
 const WEB_CRYPTO_EXPORT_ERROR_MESSAGE = 'toast:backup.webCryptoExportError';
 const WEB_CRYPTO_IMPORT_ERROR_MESSAGE = 'toast:backup.webCryptoImportError';
+
+const KDF_HASH = 'SHA-256';
+export const KDF_ITERATIONS = 600000;
+// Backups written before the KDF parameters were stored in the envelope
+// were derived with this fixed iteration count and must stay importable.
+export const LEGACY_KDF_ITERATIONS = 250000;
+export const MIN_BACKUP_PASSWORD_LENGTH = 8;
+// Upper bound on password/confirmation retries so a scripted or stuck input
+// cannot loop the dialog forever.
+const MAX_PASSWORD_ATTEMPTS = 5;
 
 function bufferToBase64(buffer: ArrayBuffer | Uint8Array) {
   // Convert buffer to Base64 string
@@ -56,7 +67,11 @@ function handleWebCryptoUnavailable(
   showToast('error', message);
 }
 
-async function deriveKey(password: string, salt: Uint8Array) {
+async function deriveKey(
+  password: string,
+  salt: Uint8Array,
+  iterations: number,
+) {
   const keyMaterial = await webCrypto.importKey(
     'raw',
     encoder.encode(password),
@@ -68,8 +83,8 @@ async function deriveKey(password: string, salt: Uint8Array) {
     {
       name: 'PBKDF2',
       salt: salt.buffer as ArrayBuffer,
-      iterations: 250000,
-      hash: 'SHA-256',
+      iterations,
+      hash: KDF_HASH,
     },
     keyMaterial,
     { name: 'AES-GCM', length: 256 },
@@ -81,7 +96,7 @@ async function deriveKey(password: string, salt: Uint8Array) {
 async function encryptJson(json: string, password: string) {
   const iv = webCrypto.getRandomValues(new Uint8Array(12));
   const salt = webCrypto.getRandomValues(new Uint8Array(16));
-  const key = await deriveKey(password, salt);
+  const key = await deriveKey(password, salt, KDF_ITERATIONS);
   const data = await webCrypto.encrypt(
     { name: 'AES-GCM', iv, additionalData: aad },
     key,
@@ -89,25 +104,52 @@ async function encryptJson(json: string, password: string) {
   );
   return JSON.stringify({
     encrypted: true,
+    kdf: { name: 'PBKDF2', hash: KDF_HASH, iterations: KDF_ITERATIONS },
     iv: bufferToBase64(iv),
     salt: bufferToBase64(salt),
     data: bufferToBase64(data),
   });
 }
 
-async function decryptJson(
-  payload: { iv: string; salt: string; data: string },
-  password: string,
-) {
+async function decryptJson(payload: EncryptedBackupPayload, password: string) {
   const iv = base64ToBuffer(payload.iv);
   const salt = base64ToBuffer(payload.salt);
-  const key = await deriveKey(password, salt);
+  const iterations = payload.kdf?.iterations ?? LEGACY_KDF_ITERATIONS;
+  const key = await deriveKey(password, salt, iterations);
   const decrypted = await webCrypto.decrypt(
     { name: 'AES-GCM', iv, additionalData: aad },
     key,
     base64ToBuffer(payload.data),
   );
   return decoder.decode(decrypted);
+}
+
+// Ask for a backup password with confirmation; resolves null when cancelled.
+async function promptBackupPassword(): Promise<string | null> {
+  for (let attempt = 0; attempt < MAX_PASSWORD_ATTEMPTS; attempt++) {
+    const password = await promptDialog(
+      i18n.t('dialogs.backupPassword.create', { ns: 'common' }),
+      '',
+      'password',
+    );
+    if (!password) return null;
+    if (password.length < MIN_BACKUP_PASSWORD_LENGTH) {
+      showToast('warning', TOAST_MESSAGES.BACKUP_PASSWORD_TOO_SHORT);
+      continue;
+    }
+    const confirmation = await promptDialog(
+      i18n.t('dialogs.backupPassword.confirm', { ns: 'common' }),
+      '',
+      'password',
+    );
+    if (confirmation === null) return null;
+    if (confirmation !== password) {
+      showToast('error', TOAST_MESSAGES.BACKUP_PASSWORD_MISMATCH);
+      continue;
+    }
+    return password;
+  }
+  return null;
 }
 
 interface Options {
@@ -140,11 +182,7 @@ export default function useDataBackup({
       const filename = `klassenplan-backup-${stamp}.json`;
 
       // Ask for password first (before file dialog)
-      const password = await promptDialog(
-        'Das Backup wird verschlüsselt. Wähle ein Passwort für das Backup:',
-        '',
-        'password',
-      );
+      const password = await promptBackupPassword();
       if (!password) return;
 
       // Encrypt data
@@ -195,7 +233,7 @@ export default function useDataBackup({
           return;
         }
         const password = await promptDialog(
-          'Passwort für Backup:',
+          i18n.t('dialogs.backupPassword.import', { ns: 'common' }),
           '',
           'password',
         );

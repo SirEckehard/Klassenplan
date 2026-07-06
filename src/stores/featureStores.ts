@@ -15,7 +15,7 @@ import type { CircleLayout, CircleGenerationStatus } from '@/types/Circle';
 import type { CriterionFulfillment } from '@/utils/algorithm/seatingStatistics';
 import type { LatestChangelogEntry } from '@/utils';
 import type { NameColumnMode } from '@/utils/data/csvUtils';
-import { logDebug } from '@/utils';
+import { logDebug, logWarn } from '@/utils';
 
 const FEATURE_STORE_LOG_SOURCE = 'featureStores';
 
@@ -33,6 +33,7 @@ export type FeatureStoreApi<TSlice extends object> = StoreApi<TSlice>;
 
 export interface FeatureStoreLogger {
   debug: (message: string, context?: Record<string, unknown>) => void;
+  warn: (message: string, context?: Record<string, unknown>) => void;
 }
 
 /**
@@ -46,6 +47,9 @@ export function createFeatureStoreLogger(scope: string): FeatureStoreLogger {
         { scope, ...(context ?? {}) },
         FEATURE_STORE_LOG_SOURCE,
       );
+    },
+    warn(message: string, context?: Record<string, unknown>) {
+      logWarn(message, { scope, ...(context ?? {}) }, FEATURE_STORE_LOG_SOURCE);
     },
   };
 }

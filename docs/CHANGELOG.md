@@ -5,6 +5,24 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+- **Optional student photos** – add, crop (pan/zoom/rotate) and display local student photos; stored only on the device, automatically downscaled with EXIF/GPS metadata stripped
+- **Presentation mode** (`/present`) – full-screen view for smartboards and projectors with teacher/student perspective, pan & zoom (mouse, wheel, pinch), photo and color toggles
+
+### Improved
+
+- **Backup encryption hardened** – PBKDF2 iterations raised to 600,000, KDF parameters stored in the backup file (older backups remain importable), password confirmation and minimum length on export
+- **Accessibility** – modals return focus to the triggering element on close; Enter no longer confirms destructive dialogs globally
+- **Internationalization** – all user-facing texts from utility layers (error messages, statistics labels, badge tooltips) now follow the active language
+- **Service worker updates** – a new version activates only after confirmation via the update prompt
+
+### Fixed
+
+- Security headers (CSP, HSTS) are now sent on all responses in the nginx deployment; the PWA install prompt works again under the strict CSP
+
 ## [1.6.0] - 2026-06-08
 
 ### Added

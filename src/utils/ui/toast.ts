@@ -56,6 +56,8 @@ export const TOAST_MESSAGES = {
   BACKUP_WEB_CRYPTO_IMPORT_ERROR: 'toast:backup.webCryptoImportError',
   BACKUP_DECRYPT_FAILED: 'toast:backup.decryptFailed',
   BACKUP_IMPORT_SUCCESS: 'toast:backup.importSuccess',
+  BACKUP_PASSWORD_TOO_SHORT: 'toast:backup.passwordTooShort',
+  BACKUP_PASSWORD_MISMATCH: 'toast:backup.passwordMismatch',
 
   // Generation operations
   GENERATION_SUCCESS: 'toast:generation.success',

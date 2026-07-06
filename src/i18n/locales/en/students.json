@@ -143,6 +143,10 @@
     "distanceWishes": "Distance Partners",
     "selectDistance": "Select distance partner"
   },
+  "environment": {
+    "windowTooltip": "Prefers seats by the window",
+    "doorTooltip": "Prefers seats near the door"
+  },
   "height": {
     "title": "Height",
     "small": "Short",

@@ -31,6 +31,10 @@ object-src 'none';
 
 > **Note:** If you deploy behind a different reverse proxy or static host, replicate the CSP and the security headers below in that environment's configuration.
 
+**No inline scripts:** `index.html` contains no inline `<script>` blocks. The PWA install-prompt capture lives in the entry module (`src/index.tsx` imports `src/hooks/useInstallPrompt.ts`), and speculation rules are delivered via the `Speculation-Rules` HTTP header pointing at [`public/speculationrules.json`](../public/speculationrules.json) (served with the `application/speculationrules+json` MIME type, see `nginx.conf`).
+
+**nginx `add_header` inheritance pitfall:** nginx does _not_ inherit server-level `add_header` directives into a `location` block that declares its own `add_header` (e.g. for `Cache-Control`). The security headers therefore live in [`nginx-security-headers.conf`](../nginx-security-headers.conf), which every such location `include`s again. When adding a new `location` with its own `add_header`, always re-include the snippet — otherwise those responses (including `index.html`) would be served without CSP/HSTS.
+
 ### Development CSP (vite.config.ts)
 
 Development mode uses **relaxed CSP** to support Hot Module Replacement (HMR):
@@ -197,6 +201,20 @@ Perform quarterly security audits:
 - ✅ No external analytics or tracking
 - ✅ No cookies used
 - ✅ No server-side data storage
+
+**Data at rest:** Student data (names, pedagogical attributes, photos) is stored
+**unencrypted** in the browser's IndexedDB. This is a deliberate offline-first
+trade-off: there is no server, no account, and no key that could protect the
+live database beyond the device's own protections (OS user account, disk
+encryption, browser profile). Anyone with access to the device profile can read
+the data — treat the device accordingly. Encryption applies to **exported
+backups** (AES-GCM 256, PBKDF2 with 600,000 iterations, user-chosen password of
+at least 8 characters with confirmation — see
+[backup-format.md](backup-format.md)).
+
+**Photo metadata:** Student photos are re-encoded through a canvas during
+import (center-crop, downscale to 160 px, JPEG). This guarantees that EXIF
+metadata — including GPS coordinates — is stripped before anything is stored.
 
 ### 2. Input Validation
 

@@ -858,10 +858,7 @@ export function useSeatingPersistence(state: SeatingState) {
         const csv = exportStudentsToCsv(students);
         await downloadCsvFile(csv, 'students.csv');
       } catch (e) {
-        errorHandlers.exportError(
-          e as Error,
-          'CSV-Export fehlgeschlagen. Bitte versuchen Sie es erneut.',
-        );
+        errorHandlers.exportError(e as Error, 'toast:csv.exportError');
       }
     })();
   }, [students, downloadCsvFile]);

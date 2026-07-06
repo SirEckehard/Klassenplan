@@ -7,25 +7,12 @@ export const STATISTIC_STATUS_THRESHOLDS = {
   warn: 50,
 } as const;
 
-const STATUS_META: Record<
-  StatisticStatus,
-  { ariaLabel: string; title: string; dotClass: string }
-> = {
-  ok: {
-    ariaLabel: 'Erfüllung über 80% (ok)',
-    title: 'Gut erfüllt (>80%)',
-    dotClass: 'bg-green-500',
-  },
-  warn: {
-    ariaLabel: 'Erfüllung zwischen 50% und 80% (warn)',
-    title: 'Teilweise erfüllt (50–80%)',
-    dotClass: 'bg-amber-500',
-  },
-  alert: {
-    ariaLabel: 'Erfüllung unter 50% (alert)',
-    title: 'Gering erfüllt (<50%)',
-    dotClass: 'bg-red-500',
-  },
+// User-facing texts live in i18n under `generator:statisticsBadge.status.*`,
+// keyed by the returned status — this module stays presentation-language-free.
+const STATUS_DOT_CLASSES: Record<StatisticStatus, string> = {
+  ok: 'bg-green-500',
+  warn: 'bg-amber-500',
+  alert: 'bg-red-500',
 };
 
 export function getStatisticStatus(percentage: number): StatisticStatus {
@@ -41,5 +28,5 @@ export function getStatisticStatus(percentage: number): StatisticStatus {
 
 export function getStatisticStatusMeta(percentage: number) {
   const status = getStatisticStatus(percentage);
-  return { status, ...STATUS_META[status] };
+  return { status, dotClass: STATUS_DOT_CLASSES[status] };
 }

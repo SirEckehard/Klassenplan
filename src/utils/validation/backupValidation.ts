@@ -43,37 +43,35 @@ export const BACKUP_LIMITS = {
   // URL stays small; cap generously to reject tampered/oversized payloads.
   maxStudentPhotos: 2000,
   maxPhotoDataUrlBytes: 96 * 1024,
+  // Bounds for KDF iteration counts declared in the encrypted envelope: the
+  // lower bound rejects deliberately weakened files, the upper bound prevents
+  // a tampered envelope from stalling the browser during key derivation.
+  minKdfIterations: 100000,
+  maxKdfIterations: 10000000,
 } as const;
 
+// i18n keys (namespace `toast:backupValidation.*`) resolved by
+// showToast/getToastMessage at display time — utils stay language-free.
 export const BACKUP_ERROR_MESSAGES = {
-  fileTooLarge: 'Import fehlgeschlagen. Datei ist zu groß.',
-  payloadTooLarge: 'Import fehlgeschlagen. Inhalt ist zu groß.',
-  unreadable: 'Import fehlgeschlagen. Backup konnte nicht gelesen werden.',
-  unsupportedVersion:
-    'Import fehlgeschlagen. Backup-Version wird nicht unterstützt.',
-  invalidEncryptedPayload:
-    'Import fehlgeschlagen. Backup-Datei ist beschädigt.',
-  invalidData: 'Import fehlgeschlagen. Backup enthält ungültige Daten.',
-  mergeStudentIdConflict:
-    'Import fehlgeschlagen. Merge nicht möglich: Schüler*innen sind bereits vorhanden.',
-  mergeInvalidLocks:
-    'Import fehlgeschlagen. Merge nicht möglich: Feste Plätze passen nicht zum importierten Raumplan.',
-  mergeStateUnavailable:
-    'Import fehlgeschlagen. Merge nicht möglich: Aktueller Datenstand ist nicht verfügbar.',
-  tooManyStudents: `Import fehlgeschlagen. Maximal ${MAX_STUDENTS} Schülerinnen und Schüler erlaubt.`,
-  tooManySeatingPlans:
-    'Import fehlgeschlagen. Limit für gespeicherte Sitzpläne überschritten.',
-  tooManyMixResults:
-    'Import fehlgeschlagen. Limit für Mix-Historie überschritten.',
-  tooManyTemplates: 'Import fehlgeschlagen. Limit für Vorlagen überschritten.',
-  tooManyLocks: 'Import fehlgeschlagen. Limit für feste Plätze überschritten.',
-  tooManyCircleLayouts:
-    'Import fehlgeschlagen. Limit für Sitzkreis-Layouts überschritten.',
-  invalidCircleData: 'Import fehlgeschlagen. Sitzkreis-Daten sind ungültig.',
-  invalidPhotoData: 'Import fehlgeschlagen. Foto-Daten sind ungültig.',
-  tooManyPhotos: 'Import fehlgeschlagen. Limit für Schülerfotos überschritten.',
-  processingFailed:
-    'Import fehlgeschlagen. Backup konnte nicht verarbeitet werden.',
+  fileTooLarge: 'toast:backupValidation.fileTooLarge',
+  payloadTooLarge: 'toast:backupValidation.payloadTooLarge',
+  unreadable: 'toast:backupValidation.unreadable',
+  unsupportedVersion: 'toast:backupValidation.unsupportedVersion',
+  invalidEncryptedPayload: 'toast:backupValidation.invalidEncryptedPayload',
+  invalidData: 'toast:backupValidation.invalidData',
+  mergeStudentIdConflict: 'toast:backupValidation.mergeStudentIdConflict',
+  mergeInvalidLocks: 'toast:backupValidation.mergeInvalidLocks',
+  mergeStateUnavailable: 'toast:backupValidation.mergeStateUnavailable',
+  tooManyStudents: 'toast:backupValidation.tooManyStudents',
+  tooManySeatingPlans: 'toast:backupValidation.tooManySeatingPlans',
+  tooManyMixResults: 'toast:backupValidation.tooManyMixResults',
+  tooManyTemplates: 'toast:backupValidation.tooManyTemplates',
+  tooManyLocks: 'toast:backupValidation.tooManyLocks',
+  tooManyCircleLayouts: 'toast:backupValidation.tooManyCircleLayouts',
+  invalidCircleData: 'toast:backupValidation.invalidCircleData',
+  invalidPhotoData: 'toast:backupValidation.invalidPhotoData',
+  tooManyPhotos: 'toast:backupValidation.tooManyPhotos',
+  processingFailed: 'toast:backupValidation.processingFailed',
 } as const;
 
 export const CURRENT_EXPORT_VERSION = 2;
@@ -87,11 +85,20 @@ export class BackupValidationError extends Error {
   }
 }
 
+export interface BackupKdfParams {
+  name: 'PBKDF2';
+  hash: 'SHA-256';
+  iterations: number;
+}
+
 export interface EncryptedBackupPayload {
   encrypted: true;
   iv: string;
   salt: string;
   data: string;
+  // Absent in backups created before the KDF parameters were stored in the
+  // envelope; those were derived with the legacy fixed iteration count.
+  kdf?: BackupKdfParams;
 }
 
 const encoder = new TextEncoder();
@@ -895,6 +902,23 @@ function assertEncryptedBackupPayload(
     throw new BackupValidationError(
       BACKUP_ERROR_MESSAGES.invalidEncryptedPayload,
     );
+  }
+  if ('kdf' in value && value.kdf !== undefined) {
+    const kdf = value.kdf;
+    if (
+      !isObject(kdf) ||
+      kdf.name !== 'PBKDF2' ||
+      kdf.hash !== 'SHA-256' ||
+      !ensureIntegerInRange(
+        kdf.iterations,
+        BACKUP_LIMITS.minKdfIterations,
+        BACKUP_LIMITS.maxKdfIterations,
+      )
+    ) {
+      throw new BackupValidationError(
+        BACKUP_ERROR_MESSAGES.invalidEncryptedPayload,
+      );
+    }
   }
 }
 

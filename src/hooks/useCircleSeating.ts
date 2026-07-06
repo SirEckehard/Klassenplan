@@ -17,6 +17,7 @@ import {
   createStudentSyncMap,
   syncStudentReference,
 } from '@/utils';
+import i18n from '@/i18n';
 import { showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
 import { algorithmWorkerClient } from '@/workers/algorithmWorkerClient';
 import type { WorkerProgressPayload } from '@/workers/algorithmWorker.types';
@@ -227,7 +228,8 @@ function useCircleSeatingInternal(
       setCircleGenerationStatus({
         progress: progressValue,
         stage: payload?.stage,
-        message: payload?.message ?? 'Sitzkreis wird erstellt...',
+        message:
+          payload?.message ?? i18n.t('generator:export.generatingCircle'),
         startedAt,
         updatedAt: Date.now(),
       });
@@ -293,7 +295,7 @@ function useCircleSeatingInternal(
         {
           progress: 0,
           stage: 'initializing',
-          message: 'Sitzkreis wird vorbereitet...',
+          message: i18n.t('generator:circleStatus.preparing'),
         },
         startedAt,
       );
@@ -472,7 +474,7 @@ function useCircleSeatingInternal(
     setCircleGenerationStatus({
       progress: 0,
       stage: 'sync',
-      message: 'Sitzkreis wird aus dem Sitzplan übernommen...',
+      message: i18n.t('generator:circleStatus.fromPlan'),
       startedAt,
       updatedAt: startedAt,
     });

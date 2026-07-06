@@ -8,7 +8,6 @@
   <meta name="description"
     content="Organisiere Sitzpläne effizient und datenschutzkonform mit dem digitalen Klassenplan-Tool." />
   <meta name="robots" content="index,follow" />
-  <meta name="fragment" content="!" />
   <meta property="og:title" content="Klassenplan – Intelligente Sitzpläne für Schulen" />
   <meta property="og:description"
     content="Organisiere Sitzpläne effizient und datenschutzkonform mit dem digitalen Klassenplan-Tool." />
@@ -45,29 +44,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="Klassenplan" />
-  <!-- Speculation Rules: prefetch the most likely next routes (complements the
-       JS routePreloader for full-page navigations from a cold start). Conservative
-       eagerness keeps this from prefetching on every hover. -->
-  <script type="speculationrules">
-    {
-      "prefetch": [
-        {
-          "source": "list",
-          "eagerness": "moderate",
-          "urls": ["/generator", "/export", "/faq", "/en/generator", "/en/export"]
-        }
-      ]
-    }
-  </script>
-  <script>
-    // Capture PWA install prompt immediately to avoid race conditions
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      window.deferredPrompt = e;
-      // Dispatch custom event for React to pick up
-      window.dispatchEvent(new Event('pwa-installable'));
-    });
-  </script>
+  <!-- No inline scripts: the production CSP is script-src 'self'. The PWA
+       install-prompt capture lives in src/index.tsx; speculation rules are
+       delivered via the Speculation-Rules HTTP header (see nginx.conf and
+       public/speculationrules.json). -->
 </head>
 
 <body>

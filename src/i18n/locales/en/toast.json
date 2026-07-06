@@ -46,7 +46,44 @@
     "webCryptoExportError": "Secure backup not possible: your browser does not support encryption.",
     "webCryptoImportError": "Decryption not possible: your browser does not support encryption.",
     "decryptFailed": "Decryption failed.",
-    "importSuccess": "Data imported successfully."
+    "importSuccess": "Data imported successfully.",
+    "passwordTooShort": "The password must be at least 8 characters long.",
+    "passwordMismatch": "The passwords do not match."
+  },
+  "backupValidation": {
+    "fileTooLarge": "Import failed. File is too large.",
+    "payloadTooLarge": "Import failed. Content is too large.",
+    "unreadable": "Import failed. Backup could not be read.",
+    "unsupportedVersion": "Import failed. Backup version is not supported.",
+    "invalidEncryptedPayload": "Import failed. Backup file is corrupted.",
+    "invalidData": "Import failed. Backup contains invalid data.",
+    "mergeStudentIdConflict": "Import failed. Merge not possible: students already exist.",
+    "mergeInvalidLocks": "Import failed. Merge not possible: locked seats do not match the imported room layout.",
+    "mergeStateUnavailable": "Import failed. Merge not possible: current data state is unavailable.",
+    "tooManyStudents": "Import failed. A maximum of 36 students is allowed.",
+    "tooManySeatingPlans": "Import failed. Limit for saved seating plans exceeded.",
+    "tooManyMixResults": "Import failed. Limit for mix history exceeded.",
+    "tooManyTemplates": "Import failed. Limit for templates exceeded.",
+    "tooManyLocks": "Import failed. Limit for locked seats exceeded.",
+    "tooManyCircleLayouts": "Import failed. Limit for circle layouts exceeded.",
+    "invalidCircleData": "Import failed. Circle data is invalid.",
+    "invalidPhotoData": "Import failed. Photo data is invalid.",
+    "tooManyPhotos": "Import failed. Limit for student photos exceeded.",
+    "processingFailed": "Import failed. Backup could not be processed."
+  },
+  "studentPhoto": {
+    "notImage": "Only image files can be used.",
+    "tooLarge": "The image is too large (max. 20 MB).",
+    "decodeFailed": "The image could not be processed."
+  },
+  "errors": {
+    "network": "Network error. Please check your connection.",
+    "storage": "Storage error. Data could not be saved.",
+    "validation": "Input error. Please check your data.",
+    "export": "Export failed. Please try again.",
+    "import": "Import failed. The file may be corrupted.",
+    "algorithm": "Calculation error. Please try again or report the problem.",
+    "ui": "Display error. Please reload the page."
   },
   "generation": {
     "success": "Seating plan generated successfully",
@@ -112,6 +149,7 @@
     "readError": "Error reading CSV file",
     "longNamesImported": "Names imported - some will be displayed shortened",
     "nameColumnError": "CSV must contain a name column (e.g. \"Name\", \"First Name\" or \"Last Name\")",
+    "exportError": "CSV export failed. Please try again.",
     "importedCount_one": "{{count}} student imported successfully",
     "importedCount_other": "{{count}} students imported successfully"
   },

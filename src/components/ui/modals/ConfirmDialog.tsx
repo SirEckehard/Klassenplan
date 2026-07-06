@@ -31,20 +31,9 @@ export default function ConfirmDialog({
 }: Props) {
   const confirmButtonRef = useRef<HTMLButtonElement>(null);
 
-  // Handle Enter key press
-  useEffect(() => {
-    if (!open) return;
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        onConfirm();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [open, onConfirm]);
+  // No global Enter handler on purpose: the auto-focused confirm button
+  // handles Enter natively, and a window-wide listener would confirm this
+  // (destructive) dialog even after the user moved focus elsewhere.
 
   // Auto-focus confirm button for better keyboard navigation
   useEffect(() => {

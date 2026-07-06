@@ -245,7 +245,7 @@ ${studentRows}
       const file = createCsvFile(csvContent, 'too-many.csv');
 
       await expect(parseCsvFlexible(file)).rejects.toThrow(
-        `Import fehlgeschlagen. Maximal ${MAX_STUDENTS} Schülerinnen und Schüler erlaubt.`,
+        'toast:student.maxReached',
       );
     });
 

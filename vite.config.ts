@@ -256,8 +256,12 @@ export default defineConfig({
       workbox: {
         // Use production mode for optimized bundles; fall back to dev mode locally
         mode: isProductionBuild ? 'production' : 'development',
-        skipWaiting: true,
-        clientsClaim: true,
+        // registerType is 'prompt': the new service worker must wait until the
+        // user confirms via ReloadPrompt (updateServiceWorker(true) sends
+        // SKIP_WAITING). skipWaiting/clientsClaim would activate it instantly
+        // and contradict that model.
+        skipWaiting: false,
+        clientsClaim: false,
         globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
         runtimeCaching: [
           {
@@ -320,17 +324,17 @@ export default defineConfig({
       'Content-Security-Policy': [
         'default-src ' + wrapInSingleQuotes('self'),
         'script-src ' +
-        wrapInSingleQuotes('self') +
-        ' ' +
-        wrapInSingleQuotes('unsafe-inline'),
+          wrapInSingleQuotes('self') +
+          ' ' +
+          wrapInSingleQuotes('unsafe-inline'),
         'style-src ' +
-        wrapInSingleQuotes('self') +
-        ' ' +
-        wrapInSingleQuotes('unsafe-inline'),
+          wrapInSingleQuotes('self') +
+          ' ' +
+          wrapInSingleQuotes('unsafe-inline'),
         'font-src ' + wrapInSingleQuotes('self') + ' data:',
         'img-src ' +
-        wrapInSingleQuotes('self') +
-        ' data: blob: https://pics.paypal.com https://www.paypal.com https://www.paypalobjects.com',
+          wrapInSingleQuotes('self') +
+          ' data: blob: https://pics.paypal.com https://www.paypal.com https://www.paypalobjects.com',
         'connect-src ' + wrapInSingleQuotes('self') + ' ws: wss:',
         'worker-src ' + wrapInSingleQuotes('self') + ' blob:',
         'frame-ancestors ' + wrapInSingleQuotes('none'),

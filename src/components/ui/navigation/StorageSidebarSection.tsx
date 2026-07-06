@@ -2,7 +2,11 @@
 // Copyright (C) 2026 Eike Schäfer
 import { useState, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { HardDrivesIcon, CaretDownIcon, CaretUpIcon } from '@phosphor-icons/react';
+import {
+  HardDrivesIcon,
+  CaretDownIcon,
+  CaretUpIcon,
+} from '@phosphor-icons/react';
 import StorageQuickActions from './StorageQuickActions';
 import StoragePopover from './StoragePopover';
 import StorageHistoryModal from './StorageHistoryModal';
@@ -76,7 +80,10 @@ export default function StorageSidebarSection({
   // Expanded sidebar with collapsible section
   return (
     <>
-      <div ref={sectionRef} className={`${cardSurfaceClass} mt-4 border px-3 py-3`}>
+      <div
+        ref={sectionRef}
+        className={`${cardSurfaceClass} mt-4 border px-3 py-3`}
+      >
         <button
           type="button"
           onClick={toggleSection}
@@ -94,9 +101,17 @@ export default function StorageSidebarSection({
             </span>
           </div>
           {isSectionCollapsed ? (
-            <CaretDownIcon size={16} className="text-gray-500" />
+            <CaretDownIcon
+              size={16}
+              className="text-gray-500"
+              aria-hidden="true"
+            />
           ) : (
-            <CaretUpIcon size={16} className="text-gray-500" />
+            <CaretUpIcon
+              size={16}
+              className="text-gray-500"
+              aria-hidden="true"
+            />
           )}
         </button>
 

@@ -41,7 +41,9 @@ describe('criteriaValidation', () => {
 
       const result = isCriterionAvailable('considerWishPartners', students);
       expect(result.available).toBe(false);
-      expect(result.reason).toBe('Kein Schüler hat einen Wunschpartner');
+      expect(result.reason).toBe(
+        'generator:mix.unavailable.considerWishPartners',
+      );
     });
 
     test('avoidConflictPartners is available when at least one student has avoidPartnerId', () => {
@@ -60,7 +62,9 @@ describe('criteriaValidation', () => {
 
       const result = isCriterionAvailable('avoidConflictPartners', students);
       expect(result.available).toBe(false);
-      expect(result.reason).toBe('Kein Schüler hat einen Distanzwunsch');
+      expect(result.reason).toBe(
+        'generator:mix.unavailable.avoidConflictPartners',
+      );
     });
 
     test('avoidPreviousPairs is always available', () => {
@@ -91,7 +95,7 @@ describe('criteriaValidation', () => {
       const result = isCriterionAvailable('avoidRestlessTogether', students);
       expect(result.available).toBe(false);
       expect(result.reason).toBe(
-        'Weniger als 2 Schüler sind als unruhig markiert',
+        'generator:mix.unavailable.avoidRestlessTogether',
       );
     });
 
@@ -121,7 +125,7 @@ describe('criteriaValidation', () => {
       );
       expect(result.available).toBe(false);
       expect(result.reason).toBe(
-        'Weniger als 2 Schüler haben Konzentrationsprobleme',
+        'generator:mix.unavailable.avoidConcentrationTogether',
       );
     });
 
@@ -141,9 +145,7 @@ describe('criteriaValidation', () => {
 
       const result = isCriterionAvailable('preferGenderMix', students);
       expect(result.available).toBe(false);
-      expect(result.reason).toBe(
-        'Mindestens zwei Geschlechtsangaben erforderlich, um dieses Kriterium zu nutzen',
-      );
+      expect(result.reason).toBe('generator:mix.unavailable.preferGenderMix');
     });
 
     test('avoidShyAlone is available when at least one student is shy', () => {
@@ -159,7 +161,7 @@ describe('criteriaValidation', () => {
 
       const result = isCriterionAvailable('avoidShyAlone', students);
       expect(result.available).toBe(false);
-      expect(result.reason).toBe('Kein Schüler ist als schüchtern markiert');
+      expect(result.reason).toBe('generator:mix.unavailable.avoidShyAlone');
     });
 
     test('peerTutoring is available when at least one student has performance rating', () => {
@@ -178,9 +180,7 @@ describe('criteriaValidation', () => {
 
       const result = isCriterionAvailable('peerTutoring', students);
       expect(result.available).toBe(false);
-      expect(result.reason).toBe(
-        'Keine Schüler mit Leistungseinstufung vorhanden',
-      );
+      expect(result.reason).toBe('generator:mix.unavailable.performanceLevels');
     });
 
     test('homogeneousPerformanceGroups is available when at least one student has performance rating', () => {
@@ -205,9 +205,7 @@ describe('criteriaValidation', () => {
         students,
       );
       expect(result.available).toBe(false);
-      expect(result.reason).toBe(
-        'Keine Schüler mit Leistungseinstufung vorhanden',
-      );
+      expect(result.reason).toBe('generator:mix.unavailable.performanceLevels');
     });
 
     test('preferFrontForNeedsFrontSeat is available when at least one student has front seat need', () => {
@@ -233,7 +231,7 @@ describe('criteriaValidation', () => {
       );
       expect(result.available).toBe(false);
       expect(result.reason).toBe(
-        'Kein Schüler benötigt einen vorderen Platz',
+        'generator:mix.unavailable.preferFrontForNeedsFrontSeat',
       );
     });
 
@@ -260,7 +258,7 @@ describe('criteriaValidation', () => {
       );
       expect(result.available).toBe(false);
       expect(result.reason).toBe(
-        'Keine Schüler mit Größeneinstufung vorhanden',
+        'generator:mix.unavailable.preferFrontForSmallerStudents',
       );
     });
 
@@ -319,9 +317,7 @@ describe('criteriaValidation', () => {
       expect(result.get('avoidShyAlone')?.available).toBe(true);
       expect(result.get('peerTutoring')?.available).toBe(true);
       expect(result.get('homogeneousPerformanceGroups')?.available).toBe(true);
-      expect(result.get('preferFrontForNeedsFrontSeat')?.available).toBe(
-        true,
-      );
+      expect(result.get('preferFrontForNeedsFrontSeat')?.available).toBe(true);
       expect(result.get('preferFrontForSmallerStudents')?.available).toBe(true);
       expect(result.get('preferWindowSeats')?.available).toBe(true);
       expect(result.get('preferDoorSeats')?.available).toBe(true);
@@ -341,9 +337,7 @@ describe('criteriaValidation', () => {
       expect(result.get('avoidShyAlone')?.available).toBe(false);
       expect(result.get('peerTutoring')?.available).toBe(false);
       expect(result.get('homogeneousPerformanceGroups')?.available).toBe(false);
-      expect(result.get('preferFrontForNeedsFrontSeat')?.available).toBe(
-        false,
-      );
+      expect(result.get('preferFrontForNeedsFrontSeat')?.available).toBe(false);
       expect(result.get('preferFrontForSmallerStudents')?.available).toBe(
         false,
       );
@@ -365,7 +359,7 @@ describe('criteriaValidation', () => {
       const genderMixAvailability = result.get('preferGenderMix');
       expect(genderMixAvailability?.available).toBe(false);
       expect(genderMixAvailability?.reason).toBe(
-        'Mindestens zwei Geschlechtsangaben erforderlich, um dieses Kriterium zu nutzen',
+        'generator:mix.unavailable.preferGenderMix',
       );
     });
   });

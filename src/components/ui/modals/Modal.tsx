@@ -45,6 +45,9 @@ export default function Modal({
 }: Props) {
   const { t } = useTranslation('common');
   const dialogRef = useRef<HTMLDivElement>(null);
+  // Element that had focus before the modal opened; focus returns to it on
+  // close (WCAG 2.4.3).
+  const restoreFocusRef = useRef<HTMLElement | null>(null);
   const titleId = useId();
   const descriptionId = useId();
   const hasHeaderContent = Boolean(
@@ -84,6 +87,10 @@ export default function Modal({
 
   useEffect(() => {
     if (open) {
+      restoreFocusRef.current =
+        document.activeElement instanceof HTMLElement
+          ? document.activeElement
+          : null;
       // Focus the dialog when it opens
       dialogRef.current?.focus();
       document.body.style.overflow = 'hidden';
@@ -95,6 +102,11 @@ export default function Modal({
     return () => {
       document.body.style.overflow = '';
       document.removeEventListener('keydown', handleFocusTrap);
+      const restoreTarget = restoreFocusRef.current;
+      restoreFocusRef.current = null;
+      if (restoreTarget && document.contains(restoreTarget)) {
+        restoreTarget.focus();
+      }
     };
   }, [open, handleFocusTrap]);
 

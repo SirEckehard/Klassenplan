@@ -41,8 +41,8 @@ describe('useDataBackup', () => {
     setupLocalStorageMock();
     showToastMock.mockClear();
 
-    // Default password mock
-    mockPromptDialog.mockResolvedValue('pw');
+    // Default password mock (export asks twice: password + confirmation)
+    mockPromptDialog.mockResolvedValue('backup-passwort');
     mockConfirmDialog.mockResolvedValue(true);
 
     isWebCryptoAvailableSpy = vi
@@ -114,10 +114,7 @@ describe('useDataBackup', () => {
       await result.current.handleExportAll();
     });
     expect(exportFn).toHaveBeenCalled();
-    expect(showToastMock).toHaveBeenCalledWith(
-      'error',
-      'toast:export.error',
-    );
+    expect(showToastMock).toHaveBeenCalledWith('error', 'toast:export.error');
   });
 
   it('does not call exportAllAsJson when password prompt is cancelled', async () => {
@@ -132,6 +129,114 @@ describe('useDataBackup', () => {
       await result.current.handleExportAll();
     });
     expect(exportFn).not.toHaveBeenCalled();
+  });
+
+  it('rejects passwords below the minimum length', async () => {
+    const exportFn = vi.fn().mockResolvedValue('{}');
+    const importFn = vi.fn();
+    // Too short first, then user cancels
+    mockPromptDialog.mockResolvedValueOnce('kurz').mockResolvedValueOnce(null);
+    const { result } = renderHook(() =>
+      useDataBackup({ exportAllAsJson: exportFn, importAllFromJson: importFn }),
+    );
+    await act(async () => {
+      await result.current.handleExportAll();
+    });
+    expect(exportFn).not.toHaveBeenCalled();
+    expect(showToastMock).toHaveBeenCalledWith(
+      'warning',
+      TOAST_MESSAGES.BACKUP_PASSWORD_TOO_SHORT,
+    );
+  });
+
+  it('does not export when the password confirmation does not match', async () => {
+    const exportFn = vi.fn().mockResolvedValue('{}');
+    const importFn = vi.fn();
+    mockPromptDialog
+      .mockResolvedValueOnce('backup-passwort')
+      .mockResolvedValueOnce('anderes-passwort')
+      .mockResolvedValueOnce(null);
+    const { result } = renderHook(() =>
+      useDataBackup({ exportAllAsJson: exportFn, importAllFromJson: importFn }),
+    );
+    await act(async () => {
+      await result.current.handleExportAll();
+    });
+    expect(exportFn).not.toHaveBeenCalled();
+    expect(showToastMock).toHaveBeenCalledWith(
+      'error',
+      TOAST_MESSAGES.BACKUP_PASSWORD_MISMATCH,
+    );
+  });
+
+  it('stores the KDF parameters in the encrypted envelope', async () => {
+    const exportFn = vi.fn().mockResolvedValue('{}');
+    const importFn = vi.fn();
+    const downloadSpy = vi
+      .spyOn(utilsModule, 'downloadBlob')
+      .mockResolvedValue(undefined);
+
+    const { result } = renderHook(() =>
+      useDataBackup({ exportAllAsJson: exportFn, importAllFromJson: importFn }),
+    );
+    await act(async () => {
+      await result.current.handleExportAll();
+    });
+
+    const [payload] = downloadSpy.mock.calls[0];
+    const envelope = JSON.parse(payload as string);
+    expect(envelope.kdf).toEqual({
+      name: 'PBKDF2',
+      hash: 'SHA-256',
+      iterations: 600000,
+    });
+    expect(deriveKeySpy).toHaveBeenCalledWith(
+      expect.objectContaining({ iterations: 600000 }),
+      expect.anything(),
+      expect.anything(),
+      expect.anything(),
+      expect.anything(),
+    );
+    downloadSpy.mockRestore();
+  });
+
+  it('falls back to the legacy iteration count for envelopes without kdf', async () => {
+    const exportFn = vi.fn();
+    const importFn = vi.fn().mockResolvedValue(undefined);
+    const { result } = renderHook(() =>
+      useDataBackup({ exportAllAsJson: exportFn, importAllFromJson: importFn }),
+    );
+    class FileReaderMock {
+      onload: null | (() => void) = null;
+      result = JSON.stringify({
+        encrypted: true,
+        iv: 'AA==',
+        salt: 'AA==',
+        data: 'AA==',
+      });
+      readAsText = vi.fn().mockImplementation(function (this: FileReaderMock) {
+        this.onload?.();
+      });
+    }
+    vi.stubGlobal('FileReader', FileReaderMock);
+    await act(async () => {
+      result.current.handleImportFile({
+        target: {
+          files: [
+            new File(['{}'], 'legacy.json', { type: 'application/json' }),
+          ],
+        },
+        currentTarget: { value: '' },
+      } as any);
+      await Promise.resolve();
+    });
+    expect(deriveKeySpy).toHaveBeenCalledWith(
+      expect.objectContaining({ iterations: 250000 }),
+      expect.anything(),
+      expect.anything(),
+      expect.anything(),
+      expect.anything(),
+    );
   });
 
   it('does not call exportAllAsJson when save dialog is cancelled', async () => {

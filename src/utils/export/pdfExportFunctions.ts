@@ -1,11 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import type { CircleLayout } from '@/types/Circle';
-import type {
-  ClassroomScene,
-  SeatingArrangement,
-  Student,
-} from '@/types';
+import type { ClassroomScene, SeatingArrangement, Student } from '@/types';
 import {
   renderCircleSvg,
   renderSceneSvg,
@@ -250,6 +246,10 @@ export async function generatePdfBlob(
  */
 export function openPdfForPrinting(blob: Blob): boolean {
   const url = URL.createObjectURL(blob);
+  // NOTE: no 'noopener' feature here on purpose — it would make window.open
+  // return null and break the popup-blocked detection below. The target is a
+  // same-origin blob URL we created ourselves, so reverse tabnabbing does not
+  // apply.
   const newTab = window.open(url, '_blank');
 
   if (newTab) {
@@ -314,4 +314,3 @@ async function exportSvgToPdf(
     throw new Error('PDF-Export fehlgeschlagen', { cause: error });
   }
 }
-

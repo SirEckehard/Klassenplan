@@ -36,21 +36,17 @@ enum ErrorCategory {
 }
 
 /**
- * Standard error messages for different categories
+ * Standard error messages: i18n keys resolved by showToast/getToastMessage,
+ * so default messages follow the active language.
  */
 const ERROR_MESSAGES = {
-  [ErrorCategory.NETWORK]:
-    'Netzwerkfehler. Bitte überprüfen Sie Ihre Verbindung.',
-  [ErrorCategory.STORAGE]:
-    'Speicherfehler. Daten konnten nicht gespeichert werden.',
-  [ErrorCategory.VALIDATION]: 'Eingabefehler. Bitte überprüfen Sie Ihre Daten.',
-  [ErrorCategory.EXPORT]:
-    'Export fehlgeschlagen. Bitte versuchen Sie es erneut.',
-  [ErrorCategory.IMPORT]:
-    'Import fehlgeschlagen. Datei könnte beschädigt sein.',
-  [ErrorCategory.ALGORITHM]:
-    'Berechnungsfehler. Bitte kontaktieren Sie den Support.',
-  [ErrorCategory.UI]: 'Anzeigefehler. Bitte laden Sie die Seite neu.',
+  [ErrorCategory.NETWORK]: 'toast:errors.network',
+  [ErrorCategory.STORAGE]: 'toast:errors.storage',
+  [ErrorCategory.VALIDATION]: 'toast:errors.validation',
+  [ErrorCategory.EXPORT]: 'toast:errors.export',
+  [ErrorCategory.IMPORT]: 'toast:errors.import',
+  [ErrorCategory.ALGORITHM]: 'toast:errors.algorithm',
+  [ErrorCategory.UI]: 'toast:errors.ui',
 } as const;
 
 /**
