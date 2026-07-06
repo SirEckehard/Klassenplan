@@ -22,19 +22,45 @@ import '@testing-library/jest-dom/vitest';
 describe('useCanvasInteraction', () => {
   let mockSceneTables: ClassroomTable[];
   let mockClipboard: ClassroomTable[] | null;
-  let mockToSceneCoordinates: Mock<UseCanvasInteractionParams['toSceneCoordinates']>;
-  let mockApplySelectionForTable: Mock<UseCanvasInteractionParams['applySelectionForTable']>;
-  let mockOpenTableContextMenu: Mock<UseCanvasInteractionParams['openTableContextMenu']>;
-  let mockOpenCanvasContextMenu: Mock<UseCanvasInteractionParams['openCanvasContextMenu']>;
-  let mockCloseTableContextMenu: Mock<UseCanvasInteractionParams['closeTableContextMenu']>;
-  let mockCloseCanvasContextMenu: Mock<UseCanvasInteractionParams['closeCanvasContextMenu']>;
-  let mockStartTablePointerDrag: Mock<UseCanvasInteractionParams['startTablePointerDrag']>;
-  let mockReleaseTablePointerCapture: Mock<UseCanvasInteractionParams['releaseTablePointerCapture']>;
-  let mockCancelSelectionInteraction: Mock<UseCanvasInteractionParams['cancelSelectionInteraction']>;
-  let mockInitializeDragFromSelection: Mock<UseCanvasInteractionParams['initializeDragFromSelection']>;
-  let mockUpdateDragSelection: Mock<UseCanvasInteractionParams['updateDragSelection']>;
-  let mockFinalizeDragInteraction: Mock<UseCanvasInteractionParams['finalizeDragInteraction']>;
-  let mockSetSelectedTableIds: Mock<UseCanvasInteractionParams['setSelectedTableIds']>;
+  let mockToSceneCoordinates: Mock<
+    UseCanvasInteractionParams['toSceneCoordinates']
+  >;
+  let mockApplySelectionForTable: Mock<
+    UseCanvasInteractionParams['applySelectionForTable']
+  >;
+  let mockOpenTableContextMenu: Mock<
+    UseCanvasInteractionParams['openTableContextMenu']
+  >;
+  let mockOpenCanvasContextMenu: Mock<
+    UseCanvasInteractionParams['openCanvasContextMenu']
+  >;
+  let mockCloseTableContextMenu: Mock<
+    UseCanvasInteractionParams['closeTableContextMenu']
+  >;
+  let mockCloseCanvasContextMenu: Mock<
+    UseCanvasInteractionParams['closeCanvasContextMenu']
+  >;
+  let mockStartTablePointerDrag: Mock<
+    UseCanvasInteractionParams['startTablePointerDrag']
+  >;
+  let mockReleaseTablePointerCapture: Mock<
+    UseCanvasInteractionParams['releaseTablePointerCapture']
+  >;
+  let mockCancelSelectionInteraction: Mock<
+    UseCanvasInteractionParams['cancelSelectionInteraction']
+  >;
+  let mockInitializeDragFromSelection: Mock<
+    UseCanvasInteractionParams['initializeDragFromSelection']
+  >;
+  let mockUpdateDragSelection: Mock<
+    UseCanvasInteractionParams['updateDragSelection']
+  >;
+  let mockFinalizeDragInteraction: Mock<
+    UseCanvasInteractionParams['finalizeDragInteraction']
+  >;
+  let mockSetSelectedTableIds: Mock<
+    UseCanvasInteractionParams['setSelectedTableIds']
+  >;
   let mockClearSelection: Mock<UseCanvasInteractionParams['clearSelection']>;
 
   const createMockTable = (index: number): ClassroomTable => ({

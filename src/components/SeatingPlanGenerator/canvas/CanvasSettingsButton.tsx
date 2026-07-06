@@ -41,8 +41,7 @@ type CanvasSettingsSegmentOption = {
 };
 
 type CanvasSettingsOption =
-  | CanvasSettingsToggleOption
-  | CanvasSettingsSegmentOption;
+  CanvasSettingsToggleOption | CanvasSettingsSegmentOption;
 
 type CanvasSettingsGroup = {
   id: string;
@@ -240,7 +239,9 @@ function SegmentSetting({ option }: { option: CanvasSettingsSegmentOption }) {
     <div className="space-y-2">
       {option.label && (
         <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-100">
-          <span className="text-gray-500 dark:text-gray-300">{option.icon}</span>
+          <span className="text-gray-500 dark:text-gray-300">
+            {option.icon}
+          </span>
           <span className="font-medium">{option.label}</span>
         </div>
       )}

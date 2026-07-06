@@ -52,8 +52,7 @@ async function checkMigrationNeeded(): Promise<boolean> {
 async function migrateMainClassroomScene(): Promise<MigrationStats | null> {
   try {
     const scene = (await idbGet(DB_KEYS.classroomScene)) as
-      | ClassroomScene
-      | undefined;
+      ClassroomScene | undefined;
 
     if (!scene || !needsMigration(scene)) {
       return null; // Keine Migration nötig
@@ -72,7 +71,9 @@ async function migrateMainClassroomScene(): Promise<MigrationStats | null> {
       { error },
       'migrationService',
     );
-    throw new Error('ClassroomScene Migration fehlgeschlagen', { cause: error });
+    throw new Error('ClassroomScene Migration fehlgeschlagen', {
+      cause: error,
+    });
   }
 }
 
@@ -82,8 +83,7 @@ async function migrateMainClassroomScene(): Promise<MigrationStats | null> {
 async function migrateClassroomTemplates(): Promise<number> {
   try {
     const templates = (await idbGet(DB_KEYS.classroomTemplates)) as
-      | ClassroomTemplate[]
-      | undefined;
+      ClassroomTemplate[] | undefined;
 
     if (!templates || templates.length === 0) {
       return 0; // Keine Templates vorhanden
@@ -125,8 +125,7 @@ async function migrateClassroomTemplates(): Promise<number> {
 async function migrateSeatingHistory(): Promise<number> {
   try {
     const seatingHistory = (await idbGet(DB_KEYS.seatingHistory)) as
-      | SavedPlan[]
-      | undefined;
+      SavedPlan[] | undefined;
 
     if (!seatingHistory || seatingHistory.length === 0) {
       return 0; // Keine gespeicherten Pläne
@@ -165,7 +164,9 @@ async function migrateSeatingHistory(): Promise<number> {
       { error },
       'migrationService',
     );
-    throw new Error('Seating History Migration fehlgeschlagen', { cause: error });
+    throw new Error('Seating History Migration fehlgeschlagen', {
+      cause: error,
+    });
   }
 }
 
@@ -181,7 +182,9 @@ async function markMigrationComplete(): Promise<void> {
       { error },
       'migrationService',
     );
-    throw new Error('Migrations-Version speichern fehlgeschlagen', { cause: error });
+    throw new Error('Migrations-Version speichern fehlgeschlagen', {
+      cause: error,
+    });
   }
 }
 

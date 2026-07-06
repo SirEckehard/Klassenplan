@@ -20,8 +20,7 @@ const RELOAD_FLAG = 'kp-chunk-reload';
  * - Firefox: "error loading dynamically imported module"
  */
 function isChunkLoadError(error: unknown): boolean {
-  const message =
-    error instanceof Error ? error.message : String(error ?? '');
+  const message = error instanceof Error ? error.message : String(error ?? '');
   return /dynamically imported module|module script failed|importing a module/i.test(
     message,
   );

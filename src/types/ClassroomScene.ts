@@ -12,11 +12,7 @@ export type TableTemplateType = 'double' | 'single' | 'group4' | 'group6';
 export type ClassroomFeatureType = 'window' | 'door' | 'board' | 'podium';
 
 export type ClassroomFeatureAnchor =
-  | 'left'
-  | 'right'
-  | 'top'
-  | 'bottom'
-  | 'free';
+  'left' | 'right' | 'top' | 'bottom' | 'free';
 
 export interface ClassroomFeature {
   /** Unique identifier for the feature */

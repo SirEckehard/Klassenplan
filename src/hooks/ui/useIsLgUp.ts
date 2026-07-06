@@ -6,7 +6,10 @@ import { useEffect, useState } from 'react';
 const LG_QUERY = '(min-width: 1024px)';
 
 const getInitialMatch = (): boolean => {
-  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+  if (
+    typeof window === 'undefined' ||
+    typeof window.matchMedia !== 'function'
+  ) {
     // Desktop-first default matches the dominant case and avoids a layout
     // flash for desktop users; touch/phone clients correct on mount.
     return true;
@@ -26,7 +29,10 @@ export function useIsLgUp(): boolean {
   const [isLgUp, setIsLgUp] = useState<boolean>(getInitialMatch);
 
   useEffect(() => {
-    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+    if (
+      typeof window === 'undefined' ||
+      typeof window.matchMedia !== 'function'
+    ) {
       return;
     }
 

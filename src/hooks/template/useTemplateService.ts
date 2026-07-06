@@ -10,10 +10,7 @@ import { useSeatingRepository } from '@/hooks/useSeatingRepository';
  * Error types for template operations
  */
 export type TemplateServiceError =
-  | 'empty-name'
-  | 'duplicate-name'
-  | 'template-not-found'
-  | 'storage-error';
+  'empty-name' | 'duplicate-name' | 'template-not-found' | 'storage-error';
 
 /**
  * Result type for template operations

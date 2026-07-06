@@ -2,7 +2,15 @@
 // Copyright (C) 2026 Eike Schäfer
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { EyeIcon, TrashIcon, CheckIcon, XIcon, CalendarBlankIcon, UsersIcon, TableIcon } from '@phosphor-icons/react';
+import {
+  EyeIcon,
+  TrashIcon,
+  CheckIcon,
+  XIcon,
+  CalendarBlankIcon,
+  UsersIcon,
+  TableIcon,
+} from '@phosphor-icons/react';
 import { showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
 import ConfirmDialog from '@/components/ui/modals/ConfirmDialog';
 import type { SavedPlan } from '@/types';

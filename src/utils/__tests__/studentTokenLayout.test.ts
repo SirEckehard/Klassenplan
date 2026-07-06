@@ -48,9 +48,9 @@ describe('computeTokenPhotoLayout', () => {
     const nameTop = centerY - nameFontSize * 0.6;
     expect(avatar).not.toBeNull();
     // Avatar bottom must clear the name's top edge.
-    expect((avatar as { cy: number; r: number }).cy + avatar!.r).toBeLessThanOrEqual(
-      nameTop,
-    );
+    expect(
+      (avatar as { cy: number; r: number }).cy + avatar!.r,
+    ).toBeLessThanOrEqual(nameTop);
     // Avatar top must stay inside the token.
     expect(avatar!.cy - avatar!.r).toBeGreaterThanOrEqual(centerY - 65 / 2);
   });

@@ -100,7 +100,9 @@ export function useClassManagement({
       await applyClassReload();
       showToast(
         'success',
-        t('toast:class.activatedName', { name: formatClassLabel(result.data.name) }),
+        t('toast:class.activatedName', {
+          name: formatClassLabel(result.data.name),
+        }),
       );
       if (pendingChanges) {
         showToast('info', TOAST_MESSAGES.CLASS_SWITCH_UNSAVED);
@@ -165,8 +167,12 @@ export function useClassManagement({
         );
       }
       const message = shouldActivate
-        ? t('toast:class.createdActivatedName', { name: formatClassLabel(result.data.name) })
-        : t('toast:class.createdName', { name: formatClassLabel(result.data.name) });
+        ? t('toast:class.createdActivatedName', {
+            name: formatClassLabel(result.data.name),
+          })
+        : t('toast:class.createdName', {
+            name: formatClassLabel(result.data.name),
+          });
       showToast('success', message);
       if (pendingChanges) {
         showToast('info', TOAST_MESSAGES.CLASS_SWITCH_UNSAVED);
@@ -206,7 +212,9 @@ export function useClassManagement({
       await applyClassReload();
       showToast(
         'success',
-        t('toast:class.updatedName', { name: formatClassLabel(result.data.name) }),
+        t('toast:class.updatedName', {
+          name: formatClassLabel(result.data.name),
+        }),
       );
       return true;
     },
@@ -242,7 +250,9 @@ export function useClassManagement({
       }
       showToast(
         'success',
-        t('toast:class.duplicatedName', { name: formatClassLabel(result.data.name) }),
+        t('toast:class.duplicatedName', {
+          name: formatClassLabel(result.data.name),
+        }),
       );
       return true;
     },
@@ -270,7 +280,9 @@ export function useClassManagement({
       showToast(
         'success',
         target
-          ? t('toast:class.deletedName', { name: formatClassLabel(target.name) })
+          ? t('toast:class.deletedName', {
+              name: formatClassLabel(target.name),
+            })
           : TOAST_MESSAGES.CLASS_DELETE_SUCCESS,
       );
       return true;

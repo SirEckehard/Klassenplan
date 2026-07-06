@@ -36,7 +36,11 @@ export default function SeatingPlanGenerator() {
           ],
         }}
       />
-      <main id="main" tabIndex={-1} className="min-h-[80vh] bg-linear-to-b from-slate-50 via-white to-slate-100 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 px-4 py-12">
+      <main
+        id="main"
+        tabIndex={-1}
+        className="min-h-[80vh] bg-linear-to-b from-slate-50 via-white to-slate-100 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 px-4 py-12"
+      >
         <div className="mx-auto max-w-7xl dark:text-gray-100">
           <PostUpdateNotice />
           <SeatingPlanGenerator.Header />

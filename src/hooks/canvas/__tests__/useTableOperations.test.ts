@@ -52,14 +52,20 @@ describe('useTableOperations', () => {
   let mockClassroomScene: ClassroomScene;
   let mockCurrentSeating: SeatingArrangement;
   let mockClipboard: ClassroomTable[] | null;
-  let mockSetSelectedTableIds: Mock<UseTableOperationsParams['setSelectedTableIds']>;
+  let mockSetSelectedTableIds: Mock<
+    UseTableOperationsParams['setSelectedTableIds']
+  >;
   let mockSetClipboard: Mock<UseTableOperationsParams['setClipboard']>;
-  let mockRunSceneTransaction: Mock<UseTableOperationsParams['runSceneTransaction']>;
+  let mockRunSceneTransaction: Mock<
+    UseTableOperationsParams['runSceneTransaction']
+  >;
   let mockRemoveTables: Mock<UseTableOperationsParams['removeTables']>;
   let mockSnapshot: Mock<UseTableOperationsParams['snapshot']>;
   let mockToggleSelect: Mock<UseTableOperationsParams['toggleSelect']>;
   let mockClearSelection: Mock<UseTableOperationsParams['clearSelection']>;
-  let mockCloseCanvasContextMenu: Mock<UseTableOperationsParams['closeCanvasContextMenu']>;
+  let mockCloseCanvasContextMenu: Mock<
+    UseTableOperationsParams['closeCanvasContextMenu']
+  >;
 
   const createMockTable = (index: number): ClassroomTable => ({
     x: 100 + index * 50,
@@ -93,34 +99,32 @@ describe('useTableOperations', () => {
 
     mockSetSelectedTableIds = vi.fn();
     mockSetClipboard = vi.fn();
-    mockRunSceneTransaction = vi.fn<SceneTransactionRunner>(
-      (mutator) => {
-        const baseState = {
-          scene: mockClassroomScene,
-          tables: mockSceneTables,
-          features: mockClassroomScene.features ?? [],
-          seating: mockCurrentSeating,
-        };
-        const result = mutator(baseState) ?? {};
-        const nextTables = result.tables ?? baseState.tables;
-        const nextFeatures = result.features ?? baseState.features;
-        const nextScene = result.scene ?? {
-          ...baseState.scene,
-          tables: nextTables,
-          features: nextFeatures,
-        };
-        const nextSeating = result.seating ?? baseState.seating;
-        mockSceneTables = nextTables;
-        mockClassroomScene = nextScene;
-        mockCurrentSeating = nextSeating;
-        return {
-          scene: nextScene,
-          tables: nextTables,
-          features: nextFeatures,
-          seating: nextSeating,
-        };
-      },
-    );
+    mockRunSceneTransaction = vi.fn<SceneTransactionRunner>((mutator) => {
+      const baseState = {
+        scene: mockClassroomScene,
+        tables: mockSceneTables,
+        features: mockClassroomScene.features ?? [],
+        seating: mockCurrentSeating,
+      };
+      const result = mutator(baseState) ?? {};
+      const nextTables = result.tables ?? baseState.tables;
+      const nextFeatures = result.features ?? baseState.features;
+      const nextScene = result.scene ?? {
+        ...baseState.scene,
+        tables: nextTables,
+        features: nextFeatures,
+      };
+      const nextSeating = result.seating ?? baseState.seating;
+      mockSceneTables = nextTables;
+      mockClassroomScene = nextScene;
+      mockCurrentSeating = nextSeating;
+      return {
+        scene: nextScene,
+        tables: nextTables,
+        features: nextFeatures,
+        seating: nextSeating,
+      };
+    });
     mockRemoveTables = vi.fn();
     mockSnapshot = vi.fn();
     mockToggleSelect = vi.fn().mockImplementation((index, multi) => {

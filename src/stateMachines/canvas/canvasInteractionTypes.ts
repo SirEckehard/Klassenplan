@@ -3,11 +3,7 @@
 import type { ClassroomTable } from '@/types';
 
 export type CanvasPointerType =
-  | 'mouse'
-  | 'touch'
-  | 'pen'
-  | 'keyboard'
-  | 'unknown';
+  'mouse' | 'touch' | 'pen' | 'keyboard' | 'unknown';
 
 export interface ClientPoint {
   x: number;

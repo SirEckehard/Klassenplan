@@ -2,7 +2,10 @@
 // Copyright (C) 2026 Eike Schäfer
 import { renderHook, act } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach, type Mock } from 'vitest';
-import { useSceneHistory, type UseSceneHistoryParams } from '../useSceneHistory';
+import {
+  useSceneHistory,
+  type UseSceneHistoryParams,
+} from '../useSceneHistory';
 import type {
   ClassroomScene,
   SeatingArrangement,
@@ -16,10 +19,14 @@ import '@testing-library/jest-dom/vitest';
 describe('useSceneHistory', () => {
   let mockClassroomScene: ClassroomScene;
   let mockCurrentSeating: SeatingArrangement;
-  let mockUpdateClassroomScene: Mock<UseSceneHistoryParams['updateClassroomScene']>;
+  let mockUpdateClassroomScene: Mock<
+    UseSceneHistoryParams['updateClassroomScene']
+  >;
   let mockSetSceneTables: Mock<UseSceneHistoryParams['setSceneTables']>;
   let mockSetSceneFeatures: Mock<UseSceneHistoryParams['setSceneFeatures']>;
-  let mockSetSelectedTableIds: Mock<UseSceneHistoryParams['setSelectedTableIds']>;
+  let mockSetSelectedTableIds: Mock<
+    UseSceneHistoryParams['setSelectedTableIds']
+  >;
   let mockSetCurrentSeating: Mock<UseSceneHistoryParams['setCurrentSeating']>;
 
   const createMockTable = (index: number): ClassroomTable => ({

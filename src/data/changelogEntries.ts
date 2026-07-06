@@ -1,10 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 export type ChangeCategory =
-  | 'feature'
-  | 'improvement'
-  | 'bugfix'
-  | 'knownissue';
+  'feature' | 'improvement' | 'bugfix' | 'knownissue';
 
 export interface ChangeItem {
   textKey?: string;
@@ -55,9 +52,7 @@ export const changelogVersions: ChangelogVersion[] = [
   {
     version: '1.4.1',
     date: '29. März 2026',
-    changes: [
-      { textKey: 'v1_4_1.0', type: 'improvement' },
-    ],
+    changes: [{ textKey: 'v1_4_1.0', type: 'improvement' }],
   },
   {
     version: '1.4.0',

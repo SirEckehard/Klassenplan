@@ -511,9 +511,14 @@ export function calculateSeatingStatistics(
         const pos = seatPositions.get(seatKey);
         if (pos) {
           // Check if seat is in front (respecting dominant axis)
-          const isFront = orientation.dominantAxis === 'x'
-            ? (orientation.frontIsHighX ? pos.x >= frontThresholdX : pos.x <= frontThresholdX)
-            : (orientation.frontIsHighY ? pos.y >= frontThresholdY : pos.y <= frontThresholdY);
+          const isFront =
+            orientation.dominantAxis === 'x'
+              ? orientation.frontIsHighX
+                ? pos.x >= frontThresholdX
+                : pos.x <= frontThresholdX
+              : orientation.frontIsHighY
+                ? pos.y >= frontThresholdY
+                : pos.y <= frontThresholdY;
           if (isFront) {
             frontSeatInFrontCount++;
           }

@@ -2,7 +2,11 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { FloppyDiskIcon, SquaresFourIcon, HammerIcon } from '@phosphor-icons/react';
+import {
+  FloppyDiskIcon,
+  SquaresFourIcon,
+  HammerIcon,
+} from '@phosphor-icons/react';
 import type { ClassroomFeatureType, TableTemplateType } from '@/types';
 import SectionHeader from '../layout/SectionHeader';
 import TablePreview from '@/components/TablePreview';

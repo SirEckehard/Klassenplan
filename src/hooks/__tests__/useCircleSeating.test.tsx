@@ -249,7 +249,9 @@ describe('useCircleSeating', () => {
       const { result } = renderHook(() => useCircleSeating(mockState));
 
       await act(async () => {
-        await result.current.generateCircleSeating({ mode: 'preserve-neighbors' });
+        await result.current.generateCircleSeating({
+          mode: 'preserve-neighbors',
+        });
       });
 
       expect(result.current.circleLayout).not.toBeNull();
@@ -599,7 +601,9 @@ describe('useCircleSeating', () => {
       // Cast away readonly for test setup; the production type intentionally
       // protects the runtime store, but the test fixture needs to swap the
       // scene to validate the sync-from-table branch.
-      (mockState as { classroomScene: typeof mockState.classroomScene }).classroomScene = scene;
+      (
+        mockState as { classroomScene: typeof mockState.classroomScene }
+      ).classroomScene = scene;
       mockState.currentSeating = createMockSeatingArrangement(
         mockState.students,
         scene,

@@ -40,9 +40,7 @@ describe('PartnerSelector', () => {
       />,
     );
 
-    const button = getButton(
-      /Kein Partner ausgewählt|No partner selected/i,
-    );
+    const button = getButton(/Kein Partner ausgewählt|No partner selected/i);
     expect(button).toBeInTheDocument();
   });
 
@@ -89,9 +87,7 @@ describe('PartnerSelector', () => {
       />,
     );
 
-    const button = getButton(
-      /Kein Partner ausgewählt|No partner selected/i,
-    );
+    const button = getButton(/Kein Partner ausgewählt|No partner selected/i);
     await user.click(button);
 
     expect(setShowDropdown).toHaveBeenCalledWith(true);

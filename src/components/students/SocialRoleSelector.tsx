@@ -2,7 +2,13 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { HandshakeIcon, CrownIcon, SignpostIcon, SparkleIcon, UsersThreeIcon } from '@phosphor-icons/react';
+import {
+  HandshakeIcon,
+  CrownIcon,
+  SignpostIcon,
+  SparkleIcon,
+  UsersThreeIcon,
+} from '@phosphor-icons/react';
 import type { Student, SocialRole } from '@/types';
 import { useClickOutside } from '@/hooks/ui/useClickOutside';
 import { menuSurfaceClass } from '@/utils';

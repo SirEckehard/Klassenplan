@@ -18,7 +18,9 @@ import '@testing-library/jest-dom/vitest';
 
 describe('useSceneManager', () => {
   let mockClassroomScene: ClassroomScene;
-  let mockUpdateClassroomScene: Mock<UseSceneManagerParams['updateClassroomScene']>;
+  let mockUpdateClassroomScene: Mock<
+    UseSceneManagerParams['updateClassroomScene']
+  >;
   let mockCurrentSeating: SeatingArrangement;
   let mockSetCurrentSeating: Mock<UseSceneManagerParams['setCurrentSeating']>;
   const createMockFeature = (

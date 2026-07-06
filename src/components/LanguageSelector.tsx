@@ -31,7 +31,8 @@ const LanguageSelector: React.FC = () => {
   };
 
   const targetLang = i18n.language === 'en' ? 'DE' : 'EN';
-  const label = i18n.language === 'en' ? 'Switch to German' : 'Zu Englisch wechseln';
+  const label =
+    i18n.language === 'en' ? 'Switch to German' : 'Zu Englisch wechseln';
 
   return (
     <button

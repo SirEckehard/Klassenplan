@@ -201,7 +201,9 @@ describe('StudentInput', () => {
 
     renderWithClassContext(<StudentInput {...props} />);
 
-    expect(getButton(/Schnell-Namenerfassung starten|Start quick name entry/i)).toBeInTheDocument();
+    expect(
+      getButton(/Schnell-Namenerfassung starten|Start quick name entry/i),
+    ).toBeInTheDocument();
     expect(
       screen.getByText(
         /Hinweis: Alle weiteren Schülerdetails pflegst du direkt in der Schülerliste|Note: Add all further student details directly in the class list/i,
@@ -246,7 +248,9 @@ describe('StudentInput', () => {
 
     renderWithClassContext(<Harness />);
 
-    fireEvent.click(getButton(/Schnell-Namenerfassung starten|Start quick name entry/i));
+    fireEvent.click(
+      getButton(/Schnell-Namenerfassung starten|Start quick name entry/i),
+    );
 
     const dialog = getDialog(/Schnell-Namenerfassung|Quick Name Entry/i);
     expect(dialog).toBeInTheDocument();

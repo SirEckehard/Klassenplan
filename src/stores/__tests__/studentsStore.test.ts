@@ -79,7 +79,9 @@ describe('studentsStore', () => {
 
     it('returns empty array when count is non-positive', () => {
       expect(studentStore.getState().addBulkPlaceholderStudents(0)).toEqual([]);
-      expect(studentStore.getState().addBulkPlaceholderStudents(-3)).toEqual([]);
+      expect(studentStore.getState().addBulkPlaceholderStudents(-3)).toEqual(
+        [],
+      );
       expect(studentStore.getState().students).toHaveLength(0);
     });
   });
@@ -119,12 +121,10 @@ describe('studentsStore', () => {
       // Setting performanceStrong=true must clear performanceWeak.
       // Cast bypasses the mutually-exclusive PerformanceFlags discriminated
       // union — the very behavior we're verifying here.
-      studentStore
-        .getState()
-        .updateStudent(s.id, {
-          performanceStrong: true,
-          performanceWeak: true,
-        } as unknown as Partial<Student>);
+      studentStore.getState().updateStudent(s.id, {
+        performanceStrong: true,
+        performanceWeak: true,
+      } as unknown as Partial<Student>);
       const after1 = studentStore.getState().students[0]! as Student & {
         performanceStrong?: boolean;
         performanceWeak?: boolean;
@@ -133,9 +133,7 @@ describe('studentsStore', () => {
       expect(after1.performanceWeak).toBe(false);
 
       // Switching to performanceWeak=true clears performanceStrong.
-      studentStore
-        .getState()
-        .updateStudent(s.id, { performanceWeak: true });
+      studentStore.getState().updateStudent(s.id, { performanceWeak: true });
       const after2 = studentStore.getState().students[0]! as Student & {
         performanceStrong?: boolean;
         performanceWeak?: boolean;
@@ -211,9 +209,7 @@ describe('studentsStore', () => {
 
   describe('importCsv', () => {
     it('appends imported rows on success (happy path)', async () => {
-      const accepted = [
-        { id: 'csv-1', name: 'Imported' } as Student,
-      ];
+      const accepted = [{ id: 'csv-1', name: 'Imported' } as Student];
       vi.mocked(importStudentsFromCsv).mockResolvedValueOnce(accepted);
 
       const file = new File(['name\nA'], 'roster.csv');

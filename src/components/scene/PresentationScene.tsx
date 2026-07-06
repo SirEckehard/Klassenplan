@@ -66,10 +66,10 @@ export default function PresentationScene({
   const isQuarterTurn = rotation === 90 || rotation === 270;
 
   // Bounding box of the rotated classroom (dimensions swap on a quarter turn).
-  const boxWidth = (isQuarterTurn ? CLASSROOM_HEIGHT : CLASSROOM_WIDTH) +
-    EDGE_PADDING * 2;
-  const boxHeight = (isQuarterTurn ? CLASSROOM_WIDTH : CLASSROOM_HEIGHT) +
-    EDGE_PADDING * 2;
+  const boxWidth =
+    (isQuarterTurn ? CLASSROOM_HEIGHT : CLASSROOM_WIDTH) + EDGE_PADDING * 2;
+  const boxHeight =
+    (isQuarterTurn ? CLASSROOM_WIDTH : CLASSROOM_HEIGHT) + EDGE_PADDING * 2;
 
   const groupTransform =
     `translate(${boxWidth / 2} ${boxHeight / 2}) rotate(${rotation}) ` +

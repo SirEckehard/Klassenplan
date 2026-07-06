@@ -146,7 +146,11 @@ export default function CircleViewControls({
       id: 'connections',
       // Show what will happen on click: LinkSimpleIcon icon when off (to turn on), LinkBreakIcon when on (to turn off)
       icon:
-        connectionMode === 'off' ? <LinkSimpleIcon size={16} /> : <LinkBreakIcon size={16} />,
+        connectionMode === 'off' ? (
+          <LinkSimpleIcon size={16} />
+        ) : (
+          <LinkBreakIcon size={16} />
+        ),
       label: t('circleView.showConnections', 'Verbindungen anzeigen'),
       description: t(
         'circleView.connectionDescription',

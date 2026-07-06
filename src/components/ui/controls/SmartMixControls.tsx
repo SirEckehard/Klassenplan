@@ -252,7 +252,10 @@ function SmartMixControls({
     const availability = isCriterionAvailable(key, students);
     if (!availability.available && value > 0) {
       // Show toast with reason and prevent change
-      showToast('info', availability.reason || 'generator:mix.criterionNotAvailable');
+      showToast(
+        'info',
+        availability.reason || 'generator:mix.criterionNotAvailable',
+      );
       return;
     }
 
@@ -352,7 +355,9 @@ function SmartMixControls({
               </span>
               <ToggleSwitch
                 checked={!isRandom}
-                onChange={(checked) => (checked ? handleAllOn() : handleAllOff())}
+                onChange={(checked) =>
+                  checked ? handleAllOn() : handleAllOff()
+                }
                 label={t('mix.toggleAll', 'Alle Kriterien')}
                 title={
                   isRandom

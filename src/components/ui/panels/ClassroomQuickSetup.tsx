@@ -2,7 +2,12 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { HammerIcon, XIcon, TrashIcon, FloppyDiskIcon } from '@phosphor-icons/react';
+import {
+  HammerIcon,
+  XIcon,
+  TrashIcon,
+  FloppyDiskIcon,
+} from '@phosphor-icons/react';
 import type {
   TableTemplateType,
   ClassroomTemplate,

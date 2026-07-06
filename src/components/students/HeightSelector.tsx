@@ -2,7 +2,11 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { ArrowDownIcon, ArrowsVerticalIcon, ArrowUpIcon } from '@phosphor-icons/react';
+import {
+  ArrowDownIcon,
+  ArrowsVerticalIcon,
+  ArrowUpIcon,
+} from '@phosphor-icons/react';
 import type { Student, HeightCategory } from '@/types';
 import { useClickOutside } from '@/hooks/ui/useClickOutside';
 import { cardSurfaceClass, menuSurfaceClass } from '@/utils';

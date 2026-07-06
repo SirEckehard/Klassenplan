@@ -202,10 +202,11 @@ export default function ExportSidebar({
                     <button
                       type="button"
                       onClick={() => onTableOrientationChange('landscape')}
-                      className={`${tableOrientation === 'landscape'
-                        ? primaryButtonClass
-                        : secondaryButtonClass
-                        } w-full justify-center gap-2 px-4 py-2`}
+                      className={`${
+                        tableOrientation === 'landscape'
+                          ? primaryButtonClass
+                          : secondaryButtonClass
+                      } w-full justify-center gap-2 px-4 py-2`}
                       aria-pressed={tableOrientation === 'landscape'}
                     >
                       <Rectangle className="h-4 w-4" />
@@ -214,10 +215,11 @@ export default function ExportSidebar({
                     <button
                       type="button"
                       onClick={() => onTableOrientationChange('portrait')}
-                      className={`${tableOrientation === 'portrait'
-                        ? primaryButtonClass
-                        : secondaryButtonClass
-                        } w-full justify-center gap-2 px-4 py-2`}
+                      className={`${
+                        tableOrientation === 'portrait'
+                          ? primaryButtonClass
+                          : secondaryButtonClass
+                      } w-full justify-center gap-2 px-4 py-2`}
                       aria-pressed={tableOrientation === 'portrait'}
                     >
                       <Rectangle className="h-4 w-4 rotate-90" />
@@ -234,10 +236,11 @@ export default function ExportSidebar({
                     <button
                       type="button"
                       onClick={() => onCircleOrientationChange('landscape')}
-                      className={`${circleOrientation === 'landscape'
-                        ? primaryButtonClass
-                        : secondaryButtonClass
-                        } w-full justify-center gap-2 px-4 py-2`}
+                      className={`${
+                        circleOrientation === 'landscape'
+                          ? primaryButtonClass
+                          : secondaryButtonClass
+                      } w-full justify-center gap-2 px-4 py-2`}
                       aria-pressed={circleOrientation === 'landscape'}
                     >
                       <Rectangle className="h-4 w-4" />
@@ -246,10 +249,11 @@ export default function ExportSidebar({
                     <button
                       type="button"
                       onClick={() => onCircleOrientationChange('portrait')}
-                      className={`${circleOrientation === 'portrait'
-                        ? primaryButtonClass
-                        : secondaryButtonClass
-                        } w-full justify-center gap-2 px-4 py-2`}
+                      className={`${
+                        circleOrientation === 'portrait'
+                          ? primaryButtonClass
+                          : secondaryButtonClass
+                      } w-full justify-center gap-2 px-4 py-2`}
                       aria-pressed={circleOrientation === 'portrait'}
                     >
                       <Rectangle className="h-4 w-4 rotate-90" />

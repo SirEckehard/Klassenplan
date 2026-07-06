@@ -157,8 +157,12 @@ describe('SpecialNeedsToggles', () => {
 
       // Check for some labels (these come from i18n translations)
       expect(screen.getByText(/unruhig|restless/i)).toBeInTheDocument();
-      expect(screen.getByText(/leistungsstark|high performer/i)).toBeInTheDocument();
-      expect(screen.getByText(/leistungsschwach|needs support/i)).toBeInTheDocument();
+      expect(
+        screen.getByText(/leistungsstark|high performer/i),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(/leistungsschwach|needs support/i),
+      ).toBeInTheDocument();
     });
 
     it('highlights active flags', () => {

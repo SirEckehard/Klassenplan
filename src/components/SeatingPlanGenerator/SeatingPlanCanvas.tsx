@@ -223,32 +223,73 @@ const SeatingPlanCanvas = React.memo(
         {renderGrid()}
 
         <g>
-        {featureViewModels.map(({ feature, styles }) => {
-          const isFree = feature.anchor === 'free';
-          const rotation = isFree ? (feature.rotation ?? 0) : 0;
-          const normalizedRotation = ((rotation % 360) + 360) % 360;
-          const isPodium = feature.type === 'podium';
-          const labelRotation = isPodium
-            ? -normalizedRotation
-            : feature.width >= feature.height
-              ? 0
-              : -90;
+          {featureViewModels.map(({ feature, styles }) => {
+            const isFree = feature.anchor === 'free';
+            const rotation = isFree ? (feature.rotation ?? 0) : 0;
+            const normalizedRotation = ((rotation % 360) + 360) % 360;
+            const isPodium = feature.type === 'podium';
+            const labelRotation = isPodium
+              ? -normalizedRotation
+              : feature.width >= feature.height
+                ? 0
+                : -90;
 
-          if (isFree) {
-            const transform = `translate(${feature.x + feature.width / 2} ${
-              feature.y + feature.height / 2
-            }) rotate(${rotation}) translate(${-feature.width / 2} ${
-              -feature.height / 2
-            })`;
+            if (isFree) {
+              const transform = `translate(${feature.x + feature.width / 2} ${
+                feature.y + feature.height / 2
+              }) rotate(${rotation}) translate(${-feature.width / 2} ${
+                -feature.height / 2
+              })`;
+              return (
+                <g
+                  key={feature.id}
+                  style={{ pointerEvents: 'none' }}
+                  transform={transform}
+                >
+                  <rect
+                    x={0}
+                    y={0}
+                    width={feature.width}
+                    height={feature.height}
+                    rx={FEATURE_CORNER_RADIUS}
+                    fill={styles.fill}
+                    stroke="none"
+                  />
+                  {feature.label && (
+                    <text
+                      x={feature.width / 2}
+                      y={feature.height / 2}
+                      textAnchor="middle"
+                      dominantBaseline="central"
+                      fill={styles.text}
+                      fontSize={12}
+                      transform={
+                        labelRotation !== 0
+                          ? `rotate(${labelRotation}, ${feature.width / 2}, ${
+                              feature.height / 2
+                            })`
+                          : undefined
+                      }
+                    >
+                      {getFeatureLabel(feature)}
+                    </text>
+                  )}
+                </g>
+              );
+            }
+
+            const centerX = feature.x + feature.width / 2;
+            const centerY = feature.y + feature.height / 2;
+            const textTransform =
+              labelRotation !== 0
+                ? `rotate(${labelRotation}, ${centerX}, ${centerY})`
+                : undefined;
+
             return (
-              <g
-                key={feature.id}
-                style={{ pointerEvents: 'none' }}
-                transform={transform}
-              >
+              <g key={feature.id} style={{ pointerEvents: 'none' }}>
                 <rect
-                  x={0}
-                  y={0}
+                  x={feature.x}
+                  y={feature.y}
                   width={feature.width}
                   height={feature.height}
                   rx={FEATURE_CORNER_RADIUS}
@@ -257,92 +298,51 @@ const SeatingPlanCanvas = React.memo(
                 />
                 {feature.label && (
                   <text
-                    x={feature.width / 2}
-                    y={feature.height / 2}
+                    x={centerX}
+                    y={centerY}
                     textAnchor="middle"
                     dominantBaseline="central"
                     fill={styles.text}
                     fontSize={12}
-                    transform={
-                      labelRotation !== 0
-                        ? `rotate(${labelRotation}, ${feature.width / 2}, ${
-                            feature.height / 2
-                          })`
-                        : undefined
-                    }
+                    transform={textTransform}
                   >
                     {getFeatureLabel(feature)}
                   </text>
                 )}
               </g>
             );
-          }
+          })}
 
-          const centerX = feature.x + feature.width / 2;
-          const centerY = feature.y + feature.height / 2;
-          const textTransform =
-            labelRotation !== 0
-              ? `rotate(${labelRotation}, ${centerX}, ${centerY})`
-              : undefined;
-
-          return (
-            <g key={feature.id} style={{ pointerEvents: 'none' }}>
-              <rect
-                x={feature.x}
-                y={feature.y}
-                width={feature.width}
-                height={feature.height}
-                rx={FEATURE_CORNER_RADIUS}
-                fill={styles.fill}
-                stroke="none"
-              />
-              {feature.label && (
-                <text
-                  x={centerX}
-                  y={centerY}
-                  textAnchor="middle"
-                  dominantBaseline="central"
-                  fill={styles.text}
-                  fontSize={12}
-                  transform={textTransform}
-                >
-                  {getFeatureLabel(feature)}
-                </text>
-              )}
-            </g>
-          );
-        })}
-
-        {sceneTables.map((table, index) => (
-          <TableIcon
-            key={index}
-            table={table}
-            index={index}
-            students={currentSeating[index] || []}
-            allStudents={allStudents}
-            photoUrls={photoUrls}
-            selected={selectedTableIds.includes(index)}
-            onPointerDown={(e) => handleTablePointerDown(index, e)}
-            onUpdate={onTableUpdate}
-            onTransformStart={onTransformStart}
-            onSeatDragStart={handleSeatDragStart}
-            onSeatDrag={handleSeatDrag}
-            onSeatDragEnd={handleSeatDragEnd}
-            dragOrigin={dragOrigin}
-            dragHover={dragHover}
-            lockedDropTarget={lockedDropTarget}
-            onSeatHoverChange={onSeatHoverChange}
-            onSeatDropRejected={onLockedSeatDrop}
-            moveStudent={moveStudent}
-            isSeatLocked={isSeatLocked}
-            toggleLock={toggleLock}
-            editable={false}
-            draggable={true}
-            isDark={isDark}
-            seatHighlights={seatHighlights}
-            photoDisplayMode={photoDisplayMode}
-          />
-        ))}
+          {sceneTables.map((table, index) => (
+            <TableIcon
+              key={index}
+              table={table}
+              index={index}
+              students={currentSeating[index] || []}
+              allStudents={allStudents}
+              photoUrls={photoUrls}
+              selected={selectedTableIds.includes(index)}
+              onPointerDown={(e) => handleTablePointerDown(index, e)}
+              onUpdate={onTableUpdate}
+              onTransformStart={onTransformStart}
+              onSeatDragStart={handleSeatDragStart}
+              onSeatDrag={handleSeatDrag}
+              onSeatDragEnd={handleSeatDragEnd}
+              dragOrigin={dragOrigin}
+              dragHover={dragHover}
+              lockedDropTarget={lockedDropTarget}
+              onSeatHoverChange={onSeatHoverChange}
+              onSeatDropRejected={onLockedSeatDrop}
+              moveStudent={moveStudent}
+              isSeatLocked={isSeatLocked}
+              toggleLock={toggleLock}
+              editable={false}
+              draggable={true}
+              isDark={isDark}
+              seatHighlights={seatHighlights}
+              photoDisplayMode={photoDisplayMode}
+            />
+          ))}
         </g>
 
         {selectionBox && (

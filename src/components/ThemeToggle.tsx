@@ -20,9 +20,7 @@ const ThemeToggle: React.FC = () => {
   const storedTheme = useMemo(() => {
     try {
       return localStorage.getItem(LOCAL_STORAGE_KEYS.theme) as
-        | 'light'
-        | 'dark'
-        | null;
+        'light' | 'dark' | null;
     } catch (error) {
       logDebug('Failed to read theme from localStorage', { error });
       return null;

@@ -39,8 +39,14 @@ import {
   setStudentPhoto,
   clearAllPhotos,
 } from '@/repositories/studentPhotoStore';
-import { clearPhotoCache, invalidatePhoto } from '@/hooks/student/studentPhotoCache';
-import { blobToDataUrl, dataUrlToBlob } from '@/utils/image/processStudentPhoto';
+import {
+  clearPhotoCache,
+  invalidatePhoto,
+} from '@/hooks/student/studentPhotoCache';
+import {
+  blobToDataUrl,
+  dataUrlToBlob,
+} from '@/utils/image/processStudentPhoto';
 
 const FALLBACK_CLASS_NAME = 'Importierte Klasse';
 const BACKUP_LOG_SOURCE = 'dataBackup';
@@ -128,7 +134,11 @@ async function collectStudentPhotosForExport(): Promise<
     );
     return Object.fromEntries(entries);
   } catch (error) {
-    logError('Failed to collect student photos for export', { error }, 'dataBackup');
+    logError(
+      'Failed to collect student photos for export',
+      { error },
+      'dataBackup',
+    );
     return undefined;
   }
 }
@@ -153,7 +163,11 @@ async function restoreStudentPhotos(
         await setStudentPhoto(id, dataUrlToBlob(dataUrl));
         invalidatePhoto(id);
       } catch (error) {
-        logError('Failed to restore student photo', { error, id }, 'dataBackup');
+        logError(
+          'Failed to restore student photo',
+          { error, id },
+          'dataBackup',
+        );
       }
     }),
   );

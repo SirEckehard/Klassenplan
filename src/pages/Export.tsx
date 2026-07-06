@@ -44,11 +44,7 @@ import {
   preloadRenderer,
 } from '@/services/export/sceneRenderer';
 import { buildPhotoDataUrlMap } from '@/utils/export/pdfExportFunctions';
-import type {
-  PhotoDisplayMode,
-  SeatingArrangement,
-  Student,
-} from '@/types';
+import type { PhotoDisplayMode, SeatingArrangement, Student } from '@/types';
 import usePersistentState from '@/hooks/usePersistentState';
 import type { CircleLayout } from '@/types/Circle';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
@@ -334,7 +330,11 @@ export default function Export() {
         id: 'connections',
         label: t('export.showConnections', 'Verbindungen anzeigen'),
         // Show what will happen on click: Link icon when off (to turn on), Unlink when on (to turn off)
-        icon: showConnections ? <LinkBreakIcon size={16} /> : <LinkSimpleIcon size={16} />,
+        icon: showConnections ? (
+          <LinkBreakIcon size={16} />
+        ) : (
+          <LinkSimpleIcon size={16} />
+        ),
         checked: showConnections,
         onChange: handleToggleConnections,
       });
@@ -468,7 +468,8 @@ export default function Export() {
     // Screen preview uses original working CSS
     // Print mode has aggressive Safari-specific overrides
     const fontUrl = new URL(dmSansWoff2Url, window.location.href).href;
-    const styles = `@font-face{font-family:'DM Sans Variable';src:url('${fontUrl}') format('woff2');font-weight:100 900;font-style:normal;}
+    const styles =
+      `@font-face{font-family:'DM Sans Variable';src:url('${fontUrl}') format('woff2');font-weight:100 900;font-style:normal;}
 
       :root { color-scheme: light; }
       @page {
@@ -937,7 +938,11 @@ export default function Export() {
   });
 
   return (
-    <main id="main" tabIndex={-1} className="min-h-[80vh] bg-linear-to-b from-slate-50 via-white to-slate-100 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 px-4 py-12">
+    <main
+      id="main"
+      tabIndex={-1}
+      className="min-h-[80vh] bg-linear-to-b from-slate-50 via-white to-slate-100 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 px-4 py-12"
+    >
       <Seo
         {...metadata}
         structuredData={{
@@ -1049,8 +1054,9 @@ export default function Export() {
               />
               <iframe
                 ref={iframeRef}
-                className={`h-full w-full rounded-[inherit] border-0 transition-opacity duration-300 ${isGenerating ? 'opacity-50' : 'opacity-100'
-                  }`}
+                className={`h-full w-full rounded-[inherit] border-0 transition-opacity duration-300 ${
+                  isGenerating ? 'opacity-50' : 'opacity-100'
+                }`}
                 title={t('export.preview', 'Vorschau')}
               />
               {isGenerating && (

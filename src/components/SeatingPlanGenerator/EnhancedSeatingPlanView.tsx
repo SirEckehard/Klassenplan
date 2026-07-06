@@ -3,7 +3,12 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import equal from 'fast-deep-equal';
 import { useTranslation } from 'react-i18next';
-import { LinkSimpleIcon, ArrowCounterClockwiseIcon, ShuffleIcon, LinkBreakIcon } from '@phosphor-icons/react';
+import {
+  LinkSimpleIcon,
+  ArrowCounterClockwiseIcon,
+  ShuffleIcon,
+  LinkBreakIcon,
+} from '@phosphor-icons/react';
 import { useNavigate } from 'react-router-dom';
 import SmartSidebar from '@/components/ui/panels/SmartSidebar';
 import CircleViewControls from '@/components/ui/controls/CircleViewControls';

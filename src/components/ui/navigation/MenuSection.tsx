@@ -79,7 +79,11 @@ export default function MenuSection({
         </div>
         {!disabled && (
           <div className="shrink-0 text-gray-400 transition dark:text-gray-500">
-            {isExpanded ? <CaretUpIcon size={18} /> : <CaretDownIcon size={18} />}
+            {isExpanded ? (
+              <CaretUpIcon size={18} />
+            ) : (
+              <CaretDownIcon size={18} />
+            )}
           </div>
         )}
       </button>

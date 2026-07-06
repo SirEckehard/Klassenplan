@@ -70,7 +70,10 @@ export default function ExportLegend({
         }
         const Icon = item.icon;
         return (
-          <g key={`b-${item.label}-${index}`} transform={`translate(${item.x} ${item.y})`}>
+          <g
+            key={`b-${item.label}-${index}`}
+            transform={`translate(${item.x} ${item.y})`}
+          >
             <g transform={`translate(0 ${-half})`}>
               <Icon size={iconSize} color={item.color} />
             </g>

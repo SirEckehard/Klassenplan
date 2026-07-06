@@ -405,9 +405,14 @@ export function buildCriterionHighlightEntries({
         const pos = seatPositions.get(buildSeatKey(tIdx, sIdx));
         if (!pos) return;
         // Check if seat is in front (respecting dominant axis)
-        const isFront = orientation.dominantAxis === 'x'
-          ? (orientation.frontIsHighX ? pos.x >= frontThresholdX : pos.x <= frontThresholdX)
-          : (orientation.frontIsHighY ? pos.y >= frontThresholdY : pos.y <= frontThresholdY);
+        const isFront =
+          orientation.dominantAxis === 'x'
+            ? orientation.frontIsHighX
+              ? pos.x >= frontThresholdX
+              : pos.x <= frontThresholdX
+            : orientation.frontIsHighY
+              ? pos.y >= frontThresholdY
+              : pos.y <= frontThresholdY;
         addEntry(entries, tIdx, sIdx, student.id, isFront ? 100 : 0);
       });
       break;

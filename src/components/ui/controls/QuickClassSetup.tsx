@@ -2,7 +2,11 @@
 // Copyright (C) 2026 Eike Schäfer
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CaretLeftIcon, CaretRightIcon, UsersIcon } from '@phosphor-icons/react';
+import {
+  CaretLeftIcon,
+  CaretRightIcon,
+  UsersIcon,
+} from '@phosphor-icons/react';
 import {
   iconButtonClass,
   inputFieldClass,

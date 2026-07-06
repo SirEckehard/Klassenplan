@@ -65,9 +65,15 @@ vi.mock('@phosphor-icons/react', () => ({
 
 describe('SimpleCircleView', () => {
   let mockLayout: CircleLayout;
-  let mockOnStudentMove: Mock<NonNullable<SimpleCircleViewProps['onStudentMove']>>;
-  let mockOnSyncCircle: Mock<NonNullable<SimpleCircleViewProps['onSyncCircle']>>;
-  let mockOnConnectionModeChange: Mock<NonNullable<SimpleCircleViewProps['onConnectionModeChange']>>;
+  let mockOnStudentMove: Mock<
+    NonNullable<SimpleCircleViewProps['onStudentMove']>
+  >;
+  let mockOnSyncCircle: Mock<
+    NonNullable<SimpleCircleViewProps['onSyncCircle']>
+  >;
+  let mockOnConnectionModeChange: Mock<
+    NonNullable<SimpleCircleViewProps['onConnectionModeChange']>
+  >;
 
   beforeEach(() => {
     // Clear any global drag state

@@ -2,7 +2,12 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { CaretLeftIcon, CaretRightIcon, GearIcon, XIcon } from '@phosphor-icons/react';
+import {
+  CaretLeftIcon,
+  CaretRightIcon,
+  GearIcon,
+  XIcon,
+} from '@phosphor-icons/react';
 import {
   iconButtonClass,
   primaryButtonClass,
@@ -19,12 +24,12 @@ import { useAdaptiveViewportHeight } from '@/hooks/ui/useAdaptiveViewportHeight'
 interface SmartSidebarProps extends UseCollapsibleSidebarOptions {
   className?: string;
   children?:
-  | React.ReactNode
-  | ((props: {
-    isExpanded: boolean;
-    expand: () => void;
-    close?: () => void;
-  }) => React.ReactNode);
+    | React.ReactNode
+    | ((props: {
+        isExpanded: boolean;
+        expand: () => void;
+        close?: () => void;
+      }) => React.ReactNode);
 }
 
 // Main sidebar component
@@ -178,28 +183,28 @@ export default function SmartSidebar({
         <div className="shrink-0 border-b border-blue-100/70 px-2 py-2 dark:border-blue-900/50">
           {isExpanded ? (
             // Expanded header with title and collapse button
-              <button
-                ref={collapseButtonRef}
-                type="button"
-                onClick={collapse}
-                onMouseUp={(event) => event.currentTarget.blur()}
-                className={`${secondaryButtonClass} w-full justify-between gap-2 px-3 py-2 text-sm`}
-                title={t(
-                  'sidebar.collapseShortcut',
-                  'Sidebar minimieren (Strg/Cmd+B)',
-                )}
-                aria-label={t('sidebar.collapseLabel', 'Sidebar minimieren')}
-              >
-                <span className="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-gray-100">
-                  <GearIcon
-                    size={18}
-                    className="text-blue-600 dark:text-blue-300"
-                    aria-hidden="true"
-                  />
-                  {t('sidebar.options', 'Optionen')}
-                </span>
-                <CaretLeftIcon size={22} />
-              </button>
+            <button
+              ref={collapseButtonRef}
+              type="button"
+              onClick={collapse}
+              onMouseUp={(event) => event.currentTarget.blur()}
+              className={`${secondaryButtonClass} w-full justify-between gap-2 px-3 py-2 text-sm`}
+              title={t(
+                'sidebar.collapseShortcut',
+                'Sidebar minimieren (Strg/Cmd+B)',
+              )}
+              aria-label={t('sidebar.collapseLabel', 'Sidebar minimieren')}
+            >
+              <span className="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-gray-100">
+                <GearIcon
+                  size={18}
+                  className="text-blue-600 dark:text-blue-300"
+                  aria-hidden="true"
+                />
+                {t('sidebar.options', 'Optionen')}
+              </span>
+              <CaretLeftIcon size={22} />
+            </button>
           ) : (
             // Collapsed header with expand button only
             <button
@@ -220,10 +225,11 @@ export default function SmartSidebar({
 
         {/* Content Area */}
         <div
-          className={`overflow-x-visible ${isExpanded
-            ? 'flex-1 min-h-0 overflow-y-auto'
-            : 'flex-1 min-h-0 overflow-y-auto'
-            }`}
+          className={`overflow-x-visible ${
+            isExpanded
+              ? 'flex-1 min-h-0 overflow-y-auto'
+              : 'flex-1 min-h-0 overflow-y-auto'
+          }`}
         >
           {isExpanded ? (
             <div className="p-3 sm:p-4">{renderedChildren}</div>

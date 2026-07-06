@@ -10,7 +10,10 @@ import IconWithLabel from '../IconWithLabel';
 describe('IconWithLabel', () => {
   it('renders icon and label correctly', () => {
     render(
-      <IconWithLabel icon={<HeartIcon data-testid="heart-icon" />} label="Test" />,
+      <IconWithLabel
+        icon={<HeartIcon data-testid="heart-icon" />}
+        label="Test"
+      />,
     );
 
     expect(screen.getByTestId('heart-icon')).toBeInTheDocument();
@@ -59,7 +62,11 @@ describe('IconWithLabel', () => {
 
   it('shows active state correctly', () => {
     render(
-      <IconWithLabel icon={<HeartIcon />} label="Active Button" active={true} />,
+      <IconWithLabel
+        icon={<HeartIcon />}
+        label="Active Button"
+        active={true}
+      />,
     );
 
     const button = screen.getByRole('button', { name: 'Active Button' });
@@ -69,7 +76,11 @@ describe('IconWithLabel', () => {
 
   it('shows inactive state correctly', () => {
     render(
-      <IconWithLabel icon={<HeartIcon />} label="Inactive Button" active={false} />,
+      <IconWithLabel
+        icon={<HeartIcon />}
+        label="Inactive Button"
+        active={false}
+      />,
     );
 
     const button = screen.getByRole('button', { name: 'Inactive Button' });

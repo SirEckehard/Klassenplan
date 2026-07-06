@@ -4,7 +4,13 @@
  * Hook for managing the persistence queue with debouncing and version control.
  * Extracted from useSeatingPersistence for better separation of concerns.
  */
-import { useCallback, useLayoutEffect, useMemo, useRef, type MutableRefObject } from 'react';
+import {
+  useCallback,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  type MutableRefObject,
+} from 'react';
 import { logError } from '@/utils';
 import { scheduleIdleTask } from '@/utils/performance/idleTasks';
 import type { ISeatingPlanRepository } from '@/repositories';
@@ -189,7 +195,7 @@ export function usePersistQueue(
       }
     } catch (error) {
       logError('Persist snapshot threw', { error }, 'usePersistQueue');
-          errorHandling.refs.pendingPersistErrorRef.current = true; // eslint-disable-line react-hooks/immutability -- writing to a ref, not state
+      errorHandling.refs.pendingPersistErrorRef.current = true; // eslint-disable-line react-hooks/immutability -- writing to a ref, not state
       tryDisplayPersistError();
     } finally {
       isFlushingRef.current = false;

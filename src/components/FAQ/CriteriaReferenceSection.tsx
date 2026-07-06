@@ -99,8 +99,7 @@ export default function CriteriaReferenceSection() {
           key: 'needsFrontSeat',
           icon: MapPinAreaIcon,
           labelKey: 'faq.eigenschaften.props.needsFrontSeat.label',
-          descriptionKey:
-            'faq.eigenschaften.props.needsFrontSeat.description',
+          descriptionKey: 'faq.eigenschaften.props.needsFrontSeat.description',
           algorithmKey: 'faq.eigenschaften.props.needsFrontSeat.algorithm',
         },
       ],

@@ -9,14 +9,10 @@ import { errorHandlers, logError } from '@/utils';
 import { TOAST_MESSAGES } from '@/utils/ui/toast';
 
 export type SaveTemplateError =
-  | 'empty'
-  | 'duplicate'
-  | 'storage'
-  | 'no-indexeddb';
+  'empty' | 'duplicate' | 'storage' | 'no-indexeddb';
 
 export type SaveTemplateResult =
-  | { success: true }
-  | { success: false; error: SaveTemplateError };
+  { success: true } | { success: false; error: SaveTemplateError };
 
 /**
  * @deprecated This hook is deprecated. Use the template hooks from hooks/template/ instead:
@@ -56,7 +52,10 @@ export function useTemplateStorage() {
         await idbSet(DB_KEYS.classroomTemplates, [...existing, template]);
         return { success: true };
       } catch (e) {
-        errorHandlers.storageError(e as Error, TOAST_MESSAGES.SAVE_TEMPLATE_ERROR);
+        errorHandlers.storageError(
+          e as Error,
+          TOAST_MESSAGES.SAVE_TEMPLATE_ERROR,
+        );
         return { success: false, error: 'storage' };
       }
     },
@@ -77,7 +76,10 @@ export function useTemplateStorage() {
         await idbSet(DB_KEYS.classroomTemplates, next);
         return true;
       } catch (e) {
-        errorHandlers.storageError(e as Error, TOAST_MESSAGES.TEMPLATE_UPDATE_ERROR);
+        errorHandlers.storageError(
+          e as Error,
+          TOAST_MESSAGES.TEMPLATE_UPDATE_ERROR,
+        );
         return false;
       }
     },
@@ -110,7 +112,10 @@ export function useTemplateStorage() {
         existing.filter((t) => t.id !== id),
       );
     } catch (e) {
-      errorHandlers.storageError(e as Error, TOAST_MESSAGES.DELETE_TEMPLATE_ERROR);
+      errorHandlers.storageError(
+        e as Error,
+        TOAST_MESSAGES.DELETE_TEMPLATE_ERROR,
+      );
     }
   }, []);
 
@@ -139,7 +144,10 @@ export function useTemplateStorage() {
         await idbSet(DB_KEYS.classroomTemplates, next);
         return { success: true };
       } catch (e) {
-        errorHandlers.storageError(e as Error, TOAST_MESSAGES.TEMPLATE_RENAME_ERROR);
+        errorHandlers.storageError(
+          e as Error,
+          TOAST_MESSAGES.TEMPLATE_RENAME_ERROR,
+        );
         return { success: false, error: 'storage' };
       }
     },

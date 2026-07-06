@@ -293,9 +293,7 @@ describe('SeatingPlanContext', () => {
       <SeatingPlanGeneratorProvider>{children}</SeatingPlanGeneratorProvider>
     );
 
-    const selectStudentsAndPlan = ({
-      state,
-    }: SeatingPlanSnapshot) => ({
+    const selectStudentsAndPlan = ({ state }: SeatingPlanSnapshot) => ({
       students: state.students,
       planName: state.planName,
     });

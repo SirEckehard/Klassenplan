@@ -2,11 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  EyeIcon,
-  TrashIcon,
-  Clock,
-} from '@phosphor-icons/react';
+import { EyeIcon, TrashIcon, Clock } from '@phosphor-icons/react';
 import type { MixResult, ScalarMixSettingKey } from '@/types';
 import ConfirmDialog from '@/components/ui/modals/ConfirmDialog';
 import {

@@ -75,7 +75,11 @@ export default function StartPage() {
   const metadata = usePageSeo('/');
 
   return (
-    <main id="main" tabIndex={-1} className="min-h-[80vh] px-4 py-12 bg-linear-to-b from-slate-50 to-slate-100 dark:from-gray-900 dark:to-gray-800 dark:text-white">
+    <main
+      id="main"
+      tabIndex={-1}
+      className="min-h-[80vh] px-4 py-12 bg-linear-to-b from-slate-50 to-slate-100 dark:from-gray-900 dark:to-gray-800 dark:text-white"
+    >
       <Seo
         {...metadata}
         structuredData={[

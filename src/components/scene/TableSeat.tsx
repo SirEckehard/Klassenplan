@@ -3,11 +3,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { LockIcon, LockOpenIcon } from '@phosphor-icons/react';
-import type {
-  StatisticHighlightMode,
-  StatisticStatus,
-  Student,
-} from '@/types';
+import type { StatisticHighlightMode, StatisticStatus, Student } from '@/types';
 import {
   getStudentAppearance,
   getAllStudentBadges,

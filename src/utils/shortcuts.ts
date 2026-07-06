@@ -6,12 +6,7 @@ export type Shortcut = {
 };
 
 export type ShortcutContext =
-  | 'students'
-  | 'layout'
-  | 'plan'
-  | 'circle'
-  | 'export'
-  | 'global';
+  'students' | 'layout' | 'plan' | 'circle' | 'export' | 'global';
 
 export const shortcutContextLabels: Record<ShortcutContext, string> = {
   global: 'shortcuts.labels.global',

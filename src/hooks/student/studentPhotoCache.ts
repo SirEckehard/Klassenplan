@@ -61,7 +61,11 @@ export function getCachedDataUrl(id: string): string | undefined {
   return cache.get(id)?.dataUrl;
 }
 
-function storeEntry(id: string, objectUrl: string, dataUrl: string): PhotoEntry {
+function storeEntry(
+  id: string,
+  objectUrl: string,
+  dataUrl: string,
+): PhotoEntry {
   const previous = cache.get(id);
   if (previous) {
     URL.revokeObjectURL(previous.objectUrl);

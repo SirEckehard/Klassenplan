@@ -9,7 +9,10 @@ type WindowWithSavePicker = Omit<Window, 'showSaveFilePicker'> & {
   showSaveFilePicker?: Window['showSaveFilePicker'];
 };
 
-type UrlWithBlobApi = Omit<typeof URL, 'createObjectURL' | 'revokeObjectURL'> & {
+type UrlWithBlobApi = Omit<
+  typeof URL,
+  'createObjectURL' | 'revokeObjectURL'
+> & {
   createObjectURL?: (blob: Blob | MediaSource) => string;
   revokeObjectURL?: (url: string) => void;
 };
@@ -61,7 +64,9 @@ describe('downloads utilities', () => {
       const createWritable = vi.fn().mockResolvedValue(writable);
       const pickerSpy = vi
         .fn<NonNullable<WindowWithSavePicker['showSaveFilePicker']>>()
-        .mockResolvedValue({ createWritable } as unknown as FileSystemFileHandle);
+        .mockResolvedValue({
+          createWritable,
+        } as unknown as FileSystemFileHandle);
       browserWindow.showSaveFilePicker = pickerSpy;
 
       await downloads.downloadBlob('payload', 'data.txt', 'text/plain');
@@ -153,7 +158,9 @@ describe('downloads utilities', () => {
       const createWritable = vi.fn().mockResolvedValue(writable);
       browserWindow.showSaveFilePicker = vi
         .fn<NonNullable<WindowWithSavePicker['showSaveFilePicker']>>()
-        .mockResolvedValue({ createWritable } as unknown as FileSystemFileHandle);
+        .mockResolvedValue({
+          createWritable,
+        } as unknown as FileSystemFileHandle);
 
       await downloads.downloadJson({ foo: 'bar' }, 'data.json');
 

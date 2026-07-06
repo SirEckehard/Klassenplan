@@ -252,11 +252,7 @@ export default function PartnerSelector({
             : t('partners.noPartnerSelected', 'Kein Wunschpartner ausgewählt')
         }
       >
-        <HeartIcon
-          size={14}
-          className={partnerIconClass}
-          aria-hidden="true"
-        />
+        <HeartIcon size={14} className={partnerIconClass} aria-hidden="true" />
         {variant === 'compact' ? (
           <>
             {hasPartners && wishPartnerIds.length >= 2 && (

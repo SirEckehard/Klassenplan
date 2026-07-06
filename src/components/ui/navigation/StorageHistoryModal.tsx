@@ -2,7 +2,11 @@
 // Copyright (C) 2026 Eike Schäfer
 import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { HardDriveIcon, ClockCounterClockwiseIcon, ShuffleIcon } from '@phosphor-icons/react';
+import {
+  HardDriveIcon,
+  ClockCounterClockwiseIcon,
+  ShuffleIcon,
+} from '@phosphor-icons/react';
 import Modal from '@/components/ui/modals/Modal';
 import CompactPlanList from '@/components/ui/history/CompactPlanList';
 import CompactMixHistory from '@/components/ui/history/CompactMixHistory';

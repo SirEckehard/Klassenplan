@@ -2,7 +2,12 @@
 // Copyright (C) 2026 Eike Schäfer
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DownloadIcon, UploadIcon, ClockCounterClockwiseIcon, HardDrivesIcon } from '@phosphor-icons/react';
+import {
+  DownloadIcon,
+  UploadIcon,
+  ClockCounterClockwiseIcon,
+  HardDrivesIcon,
+} from '@phosphor-icons/react';
 import { useSeatingPlanActions } from '@/contexts/SeatingPlanContext';
 import { secondaryButtonClass } from '@/utils';
 import { showToast } from '@/utils/ui/toast';

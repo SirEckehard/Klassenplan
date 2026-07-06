@@ -62,7 +62,11 @@ export default function Changelog() {
   };
 
   return (
-    <main id="main" tabIndex={-1} className="min-h-[80vh] bg-linear-to-b from-slate-50 via-white to-slate-100 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 px-4 py-12">
+    <main
+      id="main"
+      tabIndex={-1}
+      className="min-h-[80vh] bg-linear-to-b from-slate-50 via-white to-slate-100 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 px-4 py-12"
+    >
       <Seo {...metadata} />
       <div className="mx-auto flex max-w-4xl flex-col gap-10">
         <header

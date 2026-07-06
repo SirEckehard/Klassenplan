@@ -1146,48 +1146,92 @@ html.theme-switching *::after {
 
 /* ── Animiertes Klassenplan-Logo ─────────────────────────────────────────── */
 .kp-lockup {
-  display: inline-flex; align-items: center; gap: 14px;
-  text-decoration: none; outline: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  text-decoration: none;
+  outline: none;
 }
-.kp-mark { display: block; }
-.kp-mark rect { transform-box: fill-box; transform-origin: center; }
+.kp-mark {
+  display: block;
+}
+.kp-mark rect {
+  transform-box: fill-box;
+  transform-origin: center;
+}
 
-.kp-ghost rect { fill: #2563eb; opacity: 0.10; }
-.kp-k     rect { fill: #2563eb; }
-.kp-accent     { fill: #f59e0b; }
+.kp-ghost rect {
+  fill: #2563eb;
+  opacity: 0.1;
+}
+.kp-k rect {
+  fill: #2563eb;
+}
+.kp-accent {
+  fill: #f59e0b;
+}
 
 .kp-lockup:hover .kp-k rect,
 .kp-lockup:focus-visible .kp-k rect {
-  animation: kp-pop 380ms cubic-bezier(.22,.61,.36,1) both;
+  animation: kp-pop 380ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
 }
 .kp-lockup:hover .kp-accent,
 .kp-lockup:focus-visible .kp-accent {
-  animation: kp-popAmber 520ms cubic-bezier(.22,.85,.36,1) both;
+  animation: kp-popAmber 520ms cubic-bezier(0.22, 0.85, 0.36, 1) both;
 }
 
-.kp-lockup:hover .kp-k rect[data-i="0"],
-.kp-lockup:focus-visible .kp-k rect[data-i="0"] { animation-delay:   0ms; }
-.kp-lockup:hover .kp-k rect[data-i="1"],
-.kp-lockup:focus-visible .kp-k rect[data-i="1"] { animation-delay: 110ms; }
-.kp-lockup:hover .kp-k rect[data-i="2"],
-.kp-lockup:focus-visible .kp-k rect[data-i="2"] { animation-delay: 220ms; }
-.kp-lockup:hover .kp-k rect[data-i="3"],
-.kp-lockup:focus-visible .kp-k rect[data-i="3"] { animation-delay: 330ms; }
-.kp-lockup:hover .kp-k rect[data-i="4"],
-.kp-lockup:focus-visible .kp-k rect[data-i="4"] { animation-delay: 440ms; }
-.kp-lockup:hover .kp-k rect[data-i="5"],
-.kp-lockup:focus-visible .kp-k rect[data-i="5"] { animation-delay: 550ms; }
+.kp-lockup:hover .kp-k rect[data-i='0'],
+.kp-lockup:focus-visible .kp-k rect[data-i='0'] {
+  animation-delay: 0ms;
+}
+.kp-lockup:hover .kp-k rect[data-i='1'],
+.kp-lockup:focus-visible .kp-k rect[data-i='1'] {
+  animation-delay: 110ms;
+}
+.kp-lockup:hover .kp-k rect[data-i='2'],
+.kp-lockup:focus-visible .kp-k rect[data-i='2'] {
+  animation-delay: 220ms;
+}
+.kp-lockup:hover .kp-k rect[data-i='3'],
+.kp-lockup:focus-visible .kp-k rect[data-i='3'] {
+  animation-delay: 330ms;
+}
+.kp-lockup:hover .kp-k rect[data-i='4'],
+.kp-lockup:focus-visible .kp-k rect[data-i='4'] {
+  animation-delay: 440ms;
+}
+.kp-lockup:hover .kp-k rect[data-i='5'],
+.kp-lockup:focus-visible .kp-k rect[data-i='5'] {
+  animation-delay: 550ms;
+}
 .kp-lockup:hover .kp-accent,
-.kp-lockup:focus-visible .kp-accent              { animation-delay: 760ms; }
+.kp-lockup:focus-visible .kp-accent {
+  animation-delay: 760ms;
+}
 
 @keyframes kp-pop {
-  from { opacity: 0; transform: scale(.85); }
-  to   { opacity: 1; transform: scale(1);   }
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 @keyframes kp-popAmber {
-  0%   { opacity: 0; transform: scale(1.18); }
-  55%  { opacity: 1; transform: scale(1.04); }
-  100% { opacity: 1; transform: scale(1);    }
+  0% {
+    opacity: 0;
+    transform: scale(1.18);
+  }
+  55% {
+    opacity: 1;
+    transform: scale(1.04);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .kp-wordmark-text {
@@ -1196,24 +1240,40 @@ html.theme-switching *::after {
   line-height: 1;
   letter-spacing: -0.01em;
   transform-origin: left center;
-  transition: transform 280ms cubic-bezier(.22,.61,.36,1);
+  transition: transform 280ms cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 .kp-lockup:hover .kp-wordmark-text,
-.kp-lockup:focus-visible .kp-wordmark-text { transform: scale(1.04); }
+.kp-lockup:focus-visible .kp-wordmark-text {
+  transform: scale(1.04);
+}
 
 @media (prefers-color-scheme: dark) {
-  .kp-ghost rect { fill: #60a5fa; opacity: 0.16; }
-  .kp-accent     { fill: #fbbf24; }
+  .kp-ghost rect {
+    fill: #60a5fa;
+    opacity: 0.16;
+  }
+  .kp-accent {
+    fill: #fbbf24;
+  }
 }
-.dark .kp-ghost rect { fill: #60a5fa; opacity: 0.16; }
-.dark .kp-accent     { fill: #fbbf24; }
+.dark .kp-ghost rect {
+  fill: #60a5fa;
+  opacity: 0.16;
+}
+.dark .kp-accent {
+  fill: #fbbf24;
+}
 
 @media (prefers-reduced-motion: reduce) {
   .kp-lockup:hover .kp-k rect,
   .kp-lockup:focus-visible .kp-k rect,
   .kp-lockup:hover .kp-accent,
-  .kp-lockup:focus-visible .kp-accent { animation: none; }
-  .kp-wordmark-text { transition: none; }
+  .kp-lockup:focus-visible .kp-accent {
+    animation: none;
+  }
+  .kp-wordmark-text {
+    transition: none;
+  }
 
   /* Globally neutralise motion for users who prefer reduced motion.
      Keeps functionality intact while removing animation/transition movement. */

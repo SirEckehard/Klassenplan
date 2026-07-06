@@ -9,8 +9,22 @@ import type { CircleLayout } from '@/types/Circle';
 describe('useUnsavedSeatingTracker', () => {
   const mockSeating: SeatingArrangement = [
     [
-      { id: '1', name: 'Alice', restless: false, shy: false, concentrationIssues: false, needsFrontSeat: false },
-      { id: '2', name: 'Bob', restless: false, shy: false, concentrationIssues: false, needsFrontSeat: false },
+      {
+        id: '1',
+        name: 'Alice',
+        restless: false,
+        shy: false,
+        concentrationIssues: false,
+        needsFrontSeat: false,
+      },
+      {
+        id: '2',
+        name: 'Bob',
+        restless: false,
+        shy: false,
+        concentrationIssues: false,
+        needsFrontSeat: false,
+      },
     ],
   ];
 
@@ -84,8 +98,22 @@ describe('useUnsavedSeatingTracker', () => {
       // Change seating
       const newSeating: SeatingArrangement = [
         [
-          { id: '2', name: 'Bob', restless: false, shy: false, concentrationIssues: false, needsFrontSeat: false },
-          { id: '1', name: 'Alice', restless: false, shy: false, concentrationIssues: false, needsFrontSeat: false },
+          {
+            id: '2',
+            name: 'Bob',
+            restless: false,
+            shy: false,
+            concentrationIssues: false,
+            needsFrontSeat: false,
+          },
+          {
+            id: '1',
+            name: 'Alice',
+            restless: false,
+            shy: false,
+            concentrationIssues: false,
+            needsFrontSeat: false,
+          },
         ],
       ];
 
@@ -220,7 +248,16 @@ describe('useUnsavedSeatingTracker', () => {
       );
 
       const customSeating: SeatingArrangement = [
-        [{ id: '3', name: 'Charlie', restless: false, shy: false, concentrationIssues: false, needsFrontSeat: false }],
+        [
+          {
+            id: '3',
+            name: 'Charlie',
+            restless: false,
+            shy: false,
+            concentrationIssues: false,
+            needsFrontSeat: false,
+          },
+        ],
       ];
 
       act(() => {

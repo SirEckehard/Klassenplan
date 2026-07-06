@@ -52,8 +52,15 @@ const MissingNameNotice = ({
 
   const label =
     missingNameCount === 1
-      ? t('quickEntry.noticeTitleSingular', 'Ein Schüler hat noch keinen Namen.')
-      : t('quickEntry.noticeTitlePlural', '{{count}} Schüler haben noch keinen Namen.', { count: missingNameCount });
+      ? t(
+          'quickEntry.noticeTitleSingular',
+          'Ein Schüler hat noch keinen Namen.',
+        )
+      : t(
+          'quickEntry.noticeTitlePlural',
+          '{{count}} Schüler haben noch keinen Namen.',
+          { count: missingNameCount },
+        );
 
   return (
     <>
@@ -67,19 +74,28 @@ const MissingNameNotice = ({
           <div className="space-y-1">
             <p className="text-sm font-semibold">{label}</p>
             <p className="text-sm leading-relaxed text-blue-900/90 dark:text-blue-100/80">
-              {t('quickEntry.noticeDescription', 'Starte die Schnell-Namenerfassung, um alle fehlenden Namen zu ergänzen.')}
+              {t(
+                'quickEntry.noticeDescription',
+                'Starte die Schnell-Namenerfassung, um alle fehlenden Namen zu ergänzen.',
+              )}
             </p>
           </div>
         </div>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-xs text-blue-900/80 dark:text-blue-100/70">
-            {t('quickEntry.noticeHint', 'Hinweis: Alle weiteren Schülerdetails pflegst du direkt in der Schülerliste hinzu.')}
+            {t(
+              'quickEntry.noticeHint',
+              'Hinweis: Alle weiteren Schülerdetails pflegst du direkt in der Schülerliste hinzu.',
+            )}
           </p>
           <button
             type="button"
             onClick={handleQuickEntryOpen}
             className={`${primaryButtonClass} w-full justify-center gap-2 sm:w-auto`}
-            title={t('quickEntry.startButtonTitle', 'Fehlende Namen schnell hinzufügen')}
+            title={t(
+              'quickEntry.startButtonTitle',
+              'Fehlende Namen schnell hinzufügen',
+            )}
           >
             <SparkleIcon className="h-4 w-4" aria-hidden="true" />
             {t('quickEntry.startButton', 'Schnell-Namenerfassung starten')}

@@ -313,7 +313,7 @@ const LayoutEditorView = React.memo(
       featureMenuRef,
       onCloseTableContextMenu,
       onCloseCanvasContextMenu,
-      onCloseFeatureContextMenu: onCloseFeatureContextMenu ?? (() => { }),
+      onCloseFeatureContextMenu: onCloseFeatureContextMenu ?? (() => {}),
       canPasteTables,
       canPasteFeatures,
     });
@@ -1341,11 +1341,11 @@ const LayoutEditorView = React.memo(
       prevProps.onProceedToPlan === nextProps.onProceedToPlan &&
       prevProps.onCloseTableContextMenu === nextProps.onCloseTableContextMenu &&
       prevProps.onTableContextMenuSetterChange ===
-      nextProps.onTableContextMenuSetterChange &&
+        nextProps.onTableContextMenuSetterChange &&
       prevProps.onCloseCanvasContextMenu ===
-      nextProps.onCloseCanvasContextMenu &&
+        nextProps.onCloseCanvasContextMenu &&
       prevProps.onCanvasContextMenuSetterChange ===
-      nextProps.onCanvasContextMenuSetterChange &&
+        nextProps.onCanvasContextMenuSetterChange &&
       prevProps.currentTableType === nextProps.currentTableType &&
       prevProps.onTableTypeChange === nextProps.onTableTypeChange &&
       prevProps.onTemplateChange === nextProps.onTemplateChange
@@ -1444,10 +1444,10 @@ const LayoutEditorMainSection = React.memo(function LayoutEditorMainSection({
           maxWidth: '100vw',
           ...(isQuickSetupOpen
             ? {
-              borderColor: 'transparent',
-              boxShadow: 'none',
-              background: 'transparent',
-            }
+                borderColor: 'transparent',
+                boxShadow: 'none',
+                background: 'transparent',
+              }
             : undefined),
         }}
         ref={containerRef}
@@ -1542,10 +1542,11 @@ const LayoutEditorMainSection = React.memo(function LayoutEditorMainSection({
           type="button"
           onClick={footerProps.onProceedToPlan}
           disabled={footerProps.seatCount < footerProps.studentsCount}
-          className={`${primaryButtonClass} flex items-center gap-2 ${footerProps.seatCount < footerProps.studentsCount
-            ? 'cursor-not-allowed opacity-60'
-            : ''
-            }`}
+          className={`${primaryButtonClass} flex items-center gap-2 ${
+            footerProps.seatCount < footerProps.studentsCount
+              ? 'cursor-not-allowed opacity-60'
+              : ''
+          }`}
           title={t(
             'wizard.forwardToPlanShortcut',
             'Weiter zum Sitzplan (Alt/Option+→)',

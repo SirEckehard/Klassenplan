@@ -2,11 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import type {
-  ClassroomScene,
-  SeatingArrangement,
-  Student,
-} from '@/types';
+import type { ClassroomScene, SeatingArrangement, Student } from '@/types';
 import TableIcon from './SceneTable';
 import {
   CLASSROOM_WIDTH,
@@ -228,18 +224,18 @@ export default function SceneSvg({
       >
         <g transform={`scale(${(isPortrait ? 8 : 16) / 240})`}>
           <g fill="#2563EB">
-            <rect x="8" y="8" width="40" height="40" rx="8"/>
-            <rect x="146" y="8" width="40" height="40" rx="8"/>
-            <rect x="8" y="54" width="40" height="40" rx="8"/>
-            <rect x="100" y="54" width="40" height="40" rx="8"/>
-            <rect x="8" y="100" width="40" height="40" rx="8"/>
-            <rect x="54" y="100" width="40" height="40" rx="8"/>
-            <rect x="8" y="146" width="40" height="40" rx="8"/>
-            <rect x="100" y="146" width="40" height="40" rx="8"/>
-            <rect x="8" y="192" width="40" height="40" rx="8"/>
-            <rect x="146" y="192" width="40" height="40" rx="8"/>
+            <rect x="8" y="8" width="40" height="40" rx="8" />
+            <rect x="146" y="8" width="40" height="40" rx="8" />
+            <rect x="8" y="54" width="40" height="40" rx="8" />
+            <rect x="100" y="54" width="40" height="40" rx="8" />
+            <rect x="8" y="100" width="40" height="40" rx="8" />
+            <rect x="54" y="100" width="40" height="40" rx="8" />
+            <rect x="8" y="146" width="40" height="40" rx="8" />
+            <rect x="100" y="146" width="40" height="40" rx="8" />
+            <rect x="8" y="192" width="40" height="40" rx="8" />
+            <rect x="146" y="192" width="40" height="40" rx="8" />
           </g>
-          <rect x="192" y="100" width="40" height="40" rx="8" fill="#F59E0B"/>
+          <rect x="192" y="100" width="40" height="40" rx="8" fill="#F59E0B" />
         </g>
         <text
           x={isPortrait ? 12 : 20}

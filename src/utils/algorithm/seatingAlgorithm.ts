@@ -334,9 +334,7 @@ export function reorderByWishPartners(
     }
   }
 
-  const totalWishes = reordered.filter(
-    (s) => getWishIds(s).length > 0,
-  ).length;
+  const totalWishes = reordered.filter((s) => getWishIds(s).length > 0).length;
   logDebug(
     'Wish partner processing completed',
     {
@@ -634,7 +632,11 @@ export function runPass(ctx: AssignmentContext): AssignmentContext {
       outer: for (let t = 0; t < ctx.tableCount; t++) {
         const { seated } = tableStats(t);
         if (seated >= ctx.targets[t]!) continue;
-        for (let s = 0; s < Math.min(ctx.seatCounts[t]!, ctx.targets[t]!); s++) {
+        for (
+          let s = 0;
+          s < Math.min(ctx.seatCounts[t]!, ctx.targets[t]!);
+          s++
+        ) {
           if (ctx.arrangement[t]![s] === null) {
             ctx.arrangement[t]![s] = stu;
             if (stu.gender) {

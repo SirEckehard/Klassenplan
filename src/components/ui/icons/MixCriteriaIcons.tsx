@@ -2,10 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  LightningIcon,
-  XIcon,
-} from '@phosphor-icons/react';
+import { LightningIcon, XIcon } from '@phosphor-icons/react';
 import { CRITERIA_ICON_MAP } from '@/utils/ui/criteriaIcons';
 import type { MixSettings, ScalarMixSettingKey, Student } from '@/types';
 import {
@@ -74,7 +71,10 @@ function CriteriaIcon({
 
   const handleClick = () => {
     if (!isAvailable) {
-      showToast('info', disabledReason || 'generator:mix.criterionNotAvailable');
+      showToast(
+        'info',
+        disabledReason || 'generator:mix.criterionNotAvailable',
+      );
       return;
     }
     if (onToggle) {

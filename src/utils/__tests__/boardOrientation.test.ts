@@ -46,7 +46,13 @@ describe('boardOrientation', () => {
     // Near the left edge.
     expect(
       getBoardEdge(
-        sceneWithBoard({ anchor: 'free', x: 0, y: 250, width: 20, height: 100 }),
+        sceneWithBoard({
+          anchor: 'free',
+          x: 0,
+          y: 250,
+          width: 20,
+          height: 100,
+        }),
       ),
     ).toBe('left');
     // Near the top edge.

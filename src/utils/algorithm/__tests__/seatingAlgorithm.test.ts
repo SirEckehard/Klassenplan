@@ -789,8 +789,7 @@ describe('seatingAlgorithm', () => {
       );
 
       const returnedPairs = pairSpy.mock.results.at(-1)?.value as
-        | Map<string, number>
-        | undefined;
+        Map<string, number> | undefined;
       expect(returnedPairs).toBeDefined();
       const pairKey = [students[0]!.id, students[1]!.id].sort().join('::');
       expect(returnedPairs?.has(pairKey)).toBe(true);
@@ -830,8 +829,7 @@ describe('seatingAlgorithm', () => {
       );
 
       const returnedPairs = pairSpy.mock.results.at(-1)?.value as
-        | Set<string>
-        | undefined;
+        Set<string> | undefined;
       expect(returnedPairs).toBeDefined();
       const pairKey = [students[0]!.id, students[1]!.id].sort().join('::');
       expect(returnedPairs?.has(pairKey)).toBe(true);
@@ -1145,14 +1143,7 @@ describe('seatingAlgorithm', () => {
     it('places a single student without throwing and leaves other seats null', () => {
       const single = [createMockStudent({ id: 'only', name: 'Solo' })];
 
-      const arrangement = generateSeatingPlan(
-        single,
-        [],
-        [],
-        {},
-        {},
-        scene,
-      );
+      const arrangement = generateSeatingPlan(single, [], [], {}, {}, scene);
 
       const placed = arrangement.flat().filter(Boolean);
       expect(placed).toHaveLength(1);

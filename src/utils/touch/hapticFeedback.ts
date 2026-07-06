@@ -7,11 +7,7 @@
 
 export type HapticPattern = 'light' | 'medium' | 'heavy';
 export type HapticEvent =
-  | 'dragStart'
-  | 'dragEnd'
-  | 'drop'
-  | 'error'
-  | 'success';
+  'dragStart' | 'dragEnd' | 'drop' | 'error' | 'success';
 
 /**
  * Haptic feedback patterns for different interaction types

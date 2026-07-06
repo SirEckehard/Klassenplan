@@ -52,12 +52,12 @@ describe('exportStudentsToCsv', () => {
       createMockStudent({ id: '6', name: '  =danger' }),
     ]);
     expect(collectNameCells(csv)).toEqual([
-      '\'=SUM(A1:A2)',
-      '\'+100',
-      '\'-42',
-      '\'@cmd',
+      "'=SUM(A1:A2)",
+      "'+100",
+      "'-42",
+      "'@cmd",
       '\'\t=HYPERLINK("http://example.com")',
-      '\'  =danger',
+      "'  =danger",
     ]);
   });
 

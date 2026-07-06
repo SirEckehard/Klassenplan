@@ -2,7 +2,10 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { ArrowCounterClockwiseIcon, SpinnerGapIcon } from '@phosphor-icons/react';
+import {
+  ArrowCounterClockwiseIcon,
+  SpinnerGapIcon,
+} from '@phosphor-icons/react';
 import { primaryButtonClass } from '@/utils';
 
 interface FloatingMixButtonProps {

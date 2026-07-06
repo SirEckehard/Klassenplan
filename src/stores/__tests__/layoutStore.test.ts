@@ -46,9 +46,7 @@ describe('layoutStore', () => {
     it('is a no-op when the scene is deeply equal (does not toggle classroomEdited)', () => {
       // Reset baseline already has classroomEdited = false; pass an equal scene.
       const before = layoutStore.getState();
-      layoutStore
-        .getState()
-        .setClassroomScene({ ...DEFAULT_CLASSROOM_SCENE });
+      layoutStore.getState().setClassroomScene({ ...DEFAULT_CLASSROOM_SCENE });
 
       // Reference of state may differ but classroomEdited stays false (no-op short-circuit).
       expect(layoutStore.getState().classroomEdited).toBe(false);

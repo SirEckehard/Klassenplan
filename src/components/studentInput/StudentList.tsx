@@ -39,7 +39,8 @@ const StudentList = ({
   // Virtualize only large lists, and only at `lg+` where rows are single-line
   // and roughly uniform in height. Below `lg` the list flows in the page scroll
   // as labelled-chip rows of variable height (no inner scroll, no virtualizer).
-  const shouldVirtualize = students.length >= VIRTUALIZATION_THRESHOLD && isLgUp;
+  const shouldVirtualize =
+    students.length >= VIRTUALIZATION_THRESHOLD && isLgUp;
 
   // Rough seed only; the virtualizer measures real element heights below.
   const estimateSize = useCallback(() => (isLgUp ? 64 : 140), [isLgUp]);

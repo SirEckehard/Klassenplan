@@ -91,15 +91,15 @@ function SeatPreviewCard({ preview, viewportScale }: SeatPreviewCardProps) {
   const badgeLayout =
     preview.flags.length > 0
       ? calculateBadgePillLayout({
-        availableWidth: Math.max(width - 14, 30),
-        iconCount: preview.flags.length,
-        baseIconSize: Math.max(7, Math.min(10, width * 0.18)),
-        minIconSize: 6,
-        horizontalPadding: 6,
-        verticalPadding: 1,
-        rowGap: 2,
-        minIconsForWrap: 5,
-      })
+          availableWidth: Math.max(width - 14, 30),
+          iconCount: preview.flags.length,
+          baseIconSize: Math.max(7, Math.min(10, width * 0.18)),
+          minIconSize: 6,
+          horizontalPadding: 6,
+          verticalPadding: 1,
+          rowGap: 2,
+          minIconsForWrap: 5,
+        })
       : null;
 
   return (
@@ -788,7 +788,10 @@ export default function SeatingPlanEditorView({
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
               <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500/20 text-blue-600 dark:bg-blue-400/20 dark:text-blue-200">
-                <SpinnerGapIcon aria-hidden="true" className="h-5 w-5 animate-spin" />
+                <SpinnerGapIcon
+                  aria-hidden="true"
+                  className="h-5 w-5 animate-spin"
+                />
               </span>
               <div className="space-y-0.5">
                 <p className="text-sm font-semibold text-blue-900 dark:text-blue-100">
@@ -834,8 +837,9 @@ export default function SeatingPlanEditorView({
                 type="button"
                 onClick={() => void handleMix()}
                 disabled={mixingLocked}
-                className={`${primaryButtonClass} h-10 px-4 ${mixingLocked ? 'cursor-not-allowed opacity-60' : ''
-                  }`}
+                className={`${primaryButtonClass} h-10 px-4 ${
+                  mixingLocked ? 'cursor-not-allowed opacity-60' : ''
+                }`}
               >
                 {t('actions.retryMix', 'Erneut mischen')}
               </button>
@@ -872,8 +876,9 @@ export default function SeatingPlanEditorView({
                 type="button"
                 onClick={() => void handleMix()}
                 disabled={mixingLocked}
-                className={`${primaryButtonClass} h-10 px-4 ${mixingLocked ? 'cursor-not-allowed opacity-60' : ''
-                  }`}
+                className={`${primaryButtonClass} h-10 px-4 ${
+                  mixingLocked ? 'cursor-not-allowed opacity-60' : ''
+                }`}
               >
                 {t('actions.mixNow', 'Jetzt neu mischen')}
               </button>
@@ -950,19 +955,21 @@ export default function SeatingPlanEditorView({
               )}
 
               {/* Statistics Badge - absolute positioned above button for <xl viewports */}
-              {canShowStatisticsBadge && lastStatistics && onCloseStatistics && (
-                <div className="xl:hidden">
-                  <SeatingStatisticsBadge
-                    criteria={lastStatistics}
-                    onClose={onCloseStatistics}
-                    onHighlightHover={handleCriterionHover}
-                    onHighlightLeave={handleCriterionHoverEnd}
-                    onHighlightToggle={handleCriterionToggle}
-                    activeHighlightKey={activeHighlightKey}
-                    activeHighlightMode={activeHighlightMode}
-                  />
-                </div>
-              )}
+              {canShowStatisticsBadge &&
+                lastStatistics &&
+                onCloseStatistics && (
+                  <div className="xl:hidden">
+                    <SeatingStatisticsBadge
+                      criteria={lastStatistics}
+                      onClose={onCloseStatistics}
+                      onHighlightHover={handleCriterionHover}
+                      onHighlightLeave={handleCriterionHoverEnd}
+                      onHighlightToggle={handleCriterionToggle}
+                      activeHighlightKey={activeHighlightKey}
+                      activeHighlightMode={activeHighlightMode}
+                    />
+                  </div>
+                )}
 
               {showModeToggle && seatingMode && onModeChange && (
                 <div className="absolute top-3 right-3 z-10 opacity-80">
@@ -1003,10 +1010,10 @@ export default function SeatingPlanEditorView({
                   showDoor={showDoor}
                   showPodium={showPodium}
                   selectionBox={null}
-                  handlePointerMove={() => { }}
-                  handlePointerUp={() => { }}
-                  beginSelection={() => { }}
-                  startTablePointerDrag={() => { }}
+                  handlePointerMove={() => {}}
+                  handlePointerUp={() => {}}
+                  beginSelection={() => {}}
+                  startTablePointerDrag={() => {}}
                   templateDragPreview={templateDragPreview}
                   onTableUpdate={onTableUpdate}
                   toggleSelect={() => []}
@@ -1118,10 +1125,11 @@ export default function SeatingPlanEditorView({
                       'actions.saveShortcut',
                       'Plan speichern (Strg/Cmd+S)',
                     )}
-                    className={`absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg transition-colors ${currentSeating.length === 0
-                      ? 'cursor-not-allowed text-gray-400 dark:text-gray-600'
-                      : 'cursor-pointer text-green-600 hover:bg-green-50 hover:text-green-700 dark:text-green-400 dark:hover:bg-green-900/30 dark:hover:text-green-300'
-                      }`}
+                    className={`absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg transition-colors ${
+                      currentSeating.length === 0
+                        ? 'cursor-not-allowed text-gray-400 dark:text-gray-600'
+                        : 'cursor-pointer text-green-600 hover:bg-green-50 hover:text-green-700 dark:text-green-400 dark:hover:bg-green-900/30 dark:hover:text-green-300'
+                    }`}
                     aria-label={t('actions.savePlan', 'Plan speichern')}
                   >
                     <FloppyDiskIcon className="w-5 h-5" />

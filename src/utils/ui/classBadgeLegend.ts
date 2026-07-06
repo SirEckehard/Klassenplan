@@ -60,7 +60,9 @@ export function getPresentBadgeLegend(
  * swatches, since exports always render in light mode). Students without a
  * gender contribute the `neutral` swatch.
  */
-export function getPresentGenderLegend(students: Student[]): LegendGenderEntry[] {
+export function getPresentGenderLegend(
+  students: Student[],
+): LegendGenderEntry[] {
   const present = new Set<LegendGenderEntry['key']>();
   for (const student of students) {
     const key: LegendGenderEntry['key'] =
@@ -135,8 +137,14 @@ function estimateTextWidth(label: string, fontSize: number): number {
  * can both reserve the right vertical space *and* render the same positions.
  */
 export function buildLegendLayout(params: LegendLayoutParams): LegendLayout {
-  const { students, width, fontSize, iconSize, showSpecialNeeds, genderLabels } =
-    params;
+  const {
+    students,
+    width,
+    fontSize,
+    iconSize,
+    showSpecialNeeds,
+    genderLabels,
+  } = params;
 
   const genders = getPresentGenderLegend(students);
   const badges = getPresentBadgeLegend(students, {
