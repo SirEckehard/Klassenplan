@@ -192,7 +192,7 @@ function StudentPhotoCropModal({ open, bitmap, onApply, onCancel }: Props) {
   };
 
   const iconButtonClass =
-    'flex h-10 w-10 items-center justify-center rounded-full border border-gray-300 bg-white text-gray-700 transition hover:border-blue-400 hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200';
+    'flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-gray-300 bg-white text-gray-700 transition hover:border-blue-400 hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200';
 
   return (
     <Modal
@@ -264,7 +264,7 @@ function StudentPhotoCropModal({ open, bitmap, onApply, onCancel }: Props) {
             type="button"
             onClick={onCancel}
             disabled={busy}
-            className="rounded-full border border-gray-300 bg-white px-5 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:opacity-60 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+            className="cursor-pointer rounded-full border border-gray-300 bg-white px-5 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
           >
             {t('photo.cancel', 'Abbrechen')}
           </button>
@@ -272,7 +272,7 @@ function StudentPhotoCropModal({ open, bitmap, onApply, onCancel }: Props) {
             type="button"
             onClick={handleApply}
             disabled={busy}
-            className="flex items-center gap-2 rounded-full bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:opacity-60"
+            className="flex cursor-pointer items-center gap-2 rounded-full bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {busy && (
               <SpinnerGapIcon

@@ -79,7 +79,7 @@ export default function StudentListHeader() {
         </span>
         <span
           title={t('listHeader.nameFull')}
-          className="shrink-0 text-[10px] font-medium leading-tight tracking-tight text-gray-500 dark:text-gray-400"
+          className="shrink-0 pl-5 text-[10px] font-medium leading-tight tracking-tight text-gray-500 dark:text-gray-400"
         >
           {t('listHeader.name')}
         </span>

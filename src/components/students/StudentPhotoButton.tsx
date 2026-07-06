@@ -17,6 +17,7 @@ import {
 } from '@/utils/image/processStudentPhoto';
 import StudentPhotoCropModal from './StudentPhotoCropModal';
 import StudentPhotoConsentDialog from './StudentPhotoConsentDialog';
+import { confirmDialog } from '@/services/ui/dialogs';
 import { getStudentAppearance } from '@/utils/ui/studentAppearance';
 import { logError, withBrowserLocalStorage } from '@/utils';
 import { LOCAL_STORAGE_KEYS } from '@/utils/data/storageKeys';
@@ -156,6 +157,20 @@ function StudentPhotoButton({ student, updateStudent }: Props) {
 
   const handleRemove = async (e: React.MouseEvent) => {
     e.stopPropagation();
+    const name = student.name.trim();
+    const confirmed = await confirmDialog(
+      name
+        ? t(
+            'photo.removeConfirmNamed',
+            'Foto von {{name}} wirklich entfernen?',
+            {
+              name,
+            },
+          )
+        : t('photo.removeConfirm', 'Dieses Foto wirklich entfernen?'),
+      { confirmLabel: t('photo.remove', 'Foto entfernen') },
+    );
+    if (!confirmed) return;
     try {
       await removeStudentPhoto(student.id);
       updateStudent(student.id, { hasPhoto: false });

@@ -27,6 +27,7 @@ import {
   primaryButtonClass,
   secondaryButtonClass,
 } from '@/utils';
+import HelpButton from '@/components/ui/buttons/HelpButton';
 import PresentationScene from '@/components/scene/PresentationScene';
 import SimpleCircleView from '@/components/circle/SimpleCircleView';
 import PresentPerspectiveToggle from '@/components/SeatingPlanGenerator/PresentPerspectiveToggle';
@@ -112,7 +113,45 @@ export default function Present() {
 
         <SeatingModeToggle mode={mode} onModeChange={setMode} />
 
-        <div className="flex flex-1 justify-end" aria-hidden />
+        <div className="flex flex-1 justify-end">
+          <HelpButton
+            title={t('help.present.title', 'Präsentiermodus')}
+            instructions={
+              <ul className="list-disc space-y-1 pl-4">
+                <li>
+                  {t(
+                    'help.present.item1',
+                    'Wechsle oben zwischen Lehrer- und Schüleransicht sowie zwischen Sitzplan und Sitzkreis.',
+                  )}
+                </li>
+                <li>
+                  {t(
+                    'help.present.item2',
+                    'Die Schüleransicht zeigt den Plan aus Sicht der Klasse – ohne Merkmale und Fotos.',
+                  )}
+                </li>
+                <li>
+                  {t(
+                    'help.present.item3',
+                    'Blende über die Leiste unten Merkmale, Fotos und Farben ein oder aus.',
+                  )}
+                </li>
+                <li>
+                  {t(
+                    'help.present.item4',
+                    'Zoome per Regler oder Mausrad und verschiebe die Ansicht durch Ziehen; das Zentrieren-Symbol setzt die Ansicht zurück.',
+                  )}
+                </li>
+                <li>
+                  {t(
+                    'help.present.item5',
+                    'Mit Alt + ← kehrst du zum Generator zurück.',
+                  )}
+                </li>
+              </ul>
+            }
+          />
+        </div>
       </div>
 
       {/* Scene fills the remaining space */}

@@ -3,6 +3,8 @@
     "add": "Add photo",
     "change": "Change photo",
     "remove": "Remove photo",
+    "removeConfirm": "Really remove this photo?",
+    "removeConfirmNamed": "Really remove {{name}}'s photo?",
     "privacyHint": "Photos are stored only locally on this device and never uploaded.",
     "cropTitle": "Crop photo",
     "cropSubtitle": "Drag to move, zoom and rotate – then apply.",

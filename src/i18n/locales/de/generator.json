@@ -40,6 +40,14 @@
       "item2": "Wechsel zwischen Hochformat und Querformat für den PDF-Export.",
       "item3": "Wähle zwischen den verschiedenen Ansichtsoptionen: Tafel, Bedürfnisse und Namen vollständig anzeigen.",
       "item4": "Wechsle die Vorschau zwischen Sitzplan und Sitzkreis oben rechts."
+    },
+    "present": {
+      "title": "Präsentiermodus",
+      "item1": "Wechsle oben zwischen Lehrer- und Schüleransicht sowie zwischen Sitzplan und Sitzkreis.",
+      "item2": "Die Schüleransicht zeigt den Plan aus Sicht der Klasse – ohne Merkmale und Fotos.",
+      "item3": "Blende über die Leiste unten Merkmale, Fotos und Farben ein oder aus.",
+      "item4": "Zoome per Regler oder Mausrad und verschiebe die Ansicht durch Ziehen; das Zentrieren-Symbol setzt die Ansicht zurück.",
+      "item5": "Mit Alt + ← kehrst du zum Generator zurück."
     }
   },
   "sidebar": {

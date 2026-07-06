@@ -3,6 +3,8 @@
     "add": "Foto hinzufügen",
     "change": "Foto ändern",
     "remove": "Foto entfernen",
+    "removeConfirm": "Dieses Foto wirklich entfernen?",
+    "removeConfirmNamed": "Foto von {{name}} wirklich entfernen?",
     "privacyHint": "Fotos werden ausschließlich lokal auf diesem Gerät gespeichert und nie übertragen.",
     "cropTitle": "Foto zuschneiden",
     "cropSubtitle": "Ziehen zum Verschieben, Zoomen und Drehen – dann übernehmen.",

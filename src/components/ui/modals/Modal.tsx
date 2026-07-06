@@ -139,7 +139,7 @@ export default function Modal({
                     <div className="flex items-start justify-between gap-4 sm:gap-6">
                       <div className="flex flex-1 items-start gap-4">
                         {icon ? (
-                          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600 text-white shadow-md dark:bg-blue-500">
+                          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white shadow-md dark:bg-blue-500">
                             {icon}
                           </div>
                         ) : null}

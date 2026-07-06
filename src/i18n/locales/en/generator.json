@@ -40,6 +40,14 @@
       "item2": "Switch between portrait and landscape format for PDF export.",
       "item3": "Choose between different display options like blackboard or full names.",
       "item4": "Toggle preview between Seating Plan and Seating Circle (top right)."
+    },
+    "present": {
+      "title": "Presentation mode",
+      "item1": "Switch between teacher and student view as well as between seating plan and circle at the top.",
+      "item2": "The student view shows the plan from the class's perspective – without markers and photos.",
+      "item3": "Show or hide markers, photos and colors using the bar at the bottom.",
+      "item4": "Zoom with the slider or mouse wheel and drag to pan; the centre icon resets the view.",
+      "item5": "Press Alt + ← to return to the generator."
     }
   },
   "sidebar": {
