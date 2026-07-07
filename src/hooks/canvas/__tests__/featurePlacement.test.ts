@@ -4,10 +4,13 @@ import { describe, expect, it } from 'vitest';
 import {
   rotateFeatureForAnchor,
   placeFixedFeatureBase,
+  placeMovableFeatureBase,
   type FeaturePaletteItem,
 } from '@/hooks/canvas/useFeaturePaletteDrag';
 import type { ClassroomFeature } from '@/types';
 import {
+  CABINET_WIDTH,
+  CABINET_HEIGHT,
   CLASSROOM_WIDTH,
   CLASSROOM_HEIGHT,
   WHITEBOARD_WIDTH,
@@ -52,6 +55,62 @@ describe('rotateFeatureForAnchor', () => {
       movable: true,
     });
     expect(rotateFeatureForAnchor(divider, 'left')).toBe(divider);
+  });
+});
+
+describe('placeMovableFeatureBase', () => {
+  const cabinetTemplate: FeaturePaletteItem = {
+    type: 'cabinet',
+    label: 'Schrank',
+    icon: null,
+    width: CABINET_WIDTH, // 100
+    height: CABINET_HEIGHT, // 40
+    movable: true,
+    allowMultiple: true,
+  };
+
+  const place = (desiredX: number, desiredY: number, rotation?: number) =>
+    placeMovableFeatureBase(
+      cabinetTemplate,
+      desiredX,
+      desiredY,
+      false,
+      CLASSROOM_WIDTH,
+      CLASSROOM_HEIGHT,
+      rotation,
+    );
+
+  it('clamps an unrotated cabinet to the classroom bounds', () => {
+    expect(place(-500, -500)).toMatchObject({ x: 0, y: 0 });
+    expect(place(5000, 5000)).toMatchObject({
+      x: CLASSROOM_WIDTH - CABINET_WIDTH,
+      y: CLASSROOM_HEIGHT - CABINET_HEIGHT,
+    });
+  });
+
+  it('lets a 90°-rotated cabinet sit flush against all four walls', () => {
+    // Rotated footprint is 40 wide × 100 tall around the center, so the
+    // stored (unrotated) top-left is offset by ±30 from the visual edge.
+    expect(place(-500, 300, 90).x).toBe(-30);
+    expect(place(5000, 300, 90).x).toBe(CLASSROOM_WIDTH - CABINET_WIDTH + 30);
+    expect(place(300, -500, 90).y).toBe(30);
+    expect(place(300, 5000, 90).y).toBe(CLASSROOM_HEIGHT - CABINET_HEIGHT - 30);
+  });
+
+  it('uses the rotated bounding box for diagonal rotations', () => {
+    const halfExtent = ((CABINET_WIDTH + CABINET_HEIGHT) * Math.SQRT2) / 4;
+    const flushLeft = place(-500, 300, 45);
+    expect(flushLeft.x + CABINET_WIDTH / 2).toBeCloseTo(halfExtent, 5);
+    const flushBottom = place(300, 5000, 45);
+    expect(flushBottom.y + CABINET_HEIGHT / 2).toBeCloseTo(
+      CLASSROOM_HEIGHT - halfExtent,
+      5,
+    );
+  });
+
+  it('treats 180°/270° like 0°/90°', () => {
+    expect(place(-500, -500, 180)).toMatchObject(place(-500, -500, 0));
+    expect(place(-500, 300, 270).x).toBe(place(-500, 300, 90).x);
   });
 });
 

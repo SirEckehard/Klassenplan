@@ -30,6 +30,12 @@ type PresentationSceneProps = {
   showPhotos?: boolean;
   /** When false, gender colors are dropped for a neutral (colorless) render. */
   showGenderColors?: boolean;
+  /**
+   * When false, room elements (board, windows, doors, furniture) are hidden.
+   * Deliberately independent of the editor's per-type visibility flags
+   * (`spg.featureVisibility`) — this is a presentation-only master switch.
+   */
+  showFeatures?: boolean;
   /** Scale factor for the whole scene (1 = fit-to-container). */
   zoom?: number;
   /** Pan offset in screen pixels, applied after the zoom scale. */
@@ -49,6 +55,7 @@ export default function PresentationScene({
   showBadges = false,
   showPhotos = true,
   showGenderColors = true,
+  showFeatures = true,
   zoom = 1,
   panX = 0,
   panY = 0,
@@ -75,13 +82,20 @@ export default function PresentationScene({
 
   const featureViewModels = React.useMemo(
     () =>
-      (scene.features ?? [])
-        .map((feature) => ({
-          feature,
-          styles: getFeatureStyles(feature, isDark),
-        }))
-        .filter(({ styles }) => styles.shouldRender),
-    [scene.features, isDark],
+      showFeatures
+        ? (scene.features ?? [])
+            .map((feature) => ({
+              feature,
+              styles: getFeatureStyles(
+                feature,
+                isDark,
+                undefined,
+                !showGenderColors,
+              ),
+            }))
+            .filter(({ styles }) => styles.shouldRender)
+        : [],
+    [scene.features, isDark, showFeatures, showGenderColors],
   );
 
   return (

@@ -164,6 +164,7 @@ export { angleToPosition } from './math/circleGeometry';
 export {
   normalizeRotation,
   snapRotationAngle,
+  getRotatedAabbHalfExtents,
   DEFAULT_ROTATION_SNAP_STEP,
   DEFAULT_ROTATION_SNAP_TOLERANCE,
 } from './math/rotation';

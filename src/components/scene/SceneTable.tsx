@@ -22,6 +22,7 @@ import SeatGrid, { type SeatConfig } from '@/components/scene/SeatGrid';
 import RotationHandle from '@/components/scene/RotationHandle';
 import { useSeatDrag } from '@/hooks/scene/useSeatDrag';
 import { useTableRotation } from '@/hooks/scene/useTableRotation';
+import { useHasHoverPointer } from '@/hooks/ui/useHasHoverPointer';
 
 type TableProps = {
   table: ClassroomTable;
@@ -122,9 +123,14 @@ function SceneTable({
   // The rotate handle only appears while the table is selected or hovered.
   const [isHovered, setIsHovered] = React.useState(false);
   const hoverPhotosEnabled = photoDisplayMode === 'hover';
+  // Hover tracking feeds the photo hover mode and the lock hover-reveal;
+  // on touch devices (no hover) the lock stays always visible.
+  const hasHoverPointer = useHasHoverPointer();
   const [hoveredSeatIndex, setHoveredSeatIndex] = React.useState<number | null>(
     null,
   );
+  const seatHoverTrackingEnabled =
+    hoverPhotosEnabled || (Boolean(toggleLock) && hasHoverPointer);
   const inverseRotation = -table.rotation;
   const seatTextRotation = inverseRotation + seatLabelRotation;
   const clipPathId = useMemo(
@@ -371,18 +377,20 @@ function SceneTable({
         seatTextRotation={seatTextRotation}
         isDark={isDark}
         toggleLock={toggleLock}
+        lockRevealOnHover={hasHoverPointer}
+        hoveredSeatIndex={hoveredSeatIndex}
         onSeatPointerDown={draggable ? handleSeatPointerDown : undefined}
         onSeatPointerUp={draggable ? handleSeatPointerUp : undefined}
         onSeatKeyDown={draggable ? onSeatKeyDown : undefined}
         onSeatFocus={draggable ? onSeatFocus : undefined}
         onSeatBlur={draggable ? onSeatBlur : undefined}
         onSeatPointerEnter={
-          hoverPhotosEnabled
+          seatHoverTrackingEnabled
             ? (seatIndex) => setHoveredSeatIndex(seatIndex)
             : undefined
         }
         onSeatPointerLeave={
-          hoverPhotosEnabled
+          seatHoverTrackingEnabled
             ? (seatIndex) =>
                 setHoveredSeatIndex((current) =>
                   current === seatIndex ? null : current,

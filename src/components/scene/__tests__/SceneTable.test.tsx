@@ -3,7 +3,7 @@
 import '@testing-library/jest-dom/vitest';
 import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import TableIcon from '../SceneTable';
 import type { ClassroomTable, Student } from '../../../types';
 
@@ -89,6 +89,89 @@ describe('SceneTable seat locking', () => {
 
     expect(toggleLock).toHaveBeenNthCalledWith(1, 's1', 0, 0);
     expect(toggleLock).toHaveBeenNthCalledWith(2, 's1', 0, 0);
+  });
+});
+
+describe('SceneTable seat lock hover reveal', () => {
+  const stubHoverPointer = () => {
+    vi.stubGlobal(
+      'matchMedia',
+      vi.fn().mockImplementation((query: string) => ({
+        matches: query === '(hover: hover) and (pointer: fine)',
+        media: query,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+      })),
+    );
+  };
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  const renderTable = (locked: boolean) => {
+    const toggleLock = vi.fn();
+    const utils = render(
+      <svg>
+        <TableIcon
+          table={baseTable}
+          index={0}
+          students={[student]}
+          selected={false}
+          draggable
+          isSeatLocked={vi.fn().mockReturnValue(locked)}
+          toggleLock={toggleLock}
+          onUpdate={() => {}}
+          editable={false}
+        />
+      </svg>,
+    );
+    const lockButton = utils.getByRole('button', {
+      name: locked
+        ? /sitzplatz entsperren|unlock seat/i
+        : /sitzplatz sperren|lock seat/i,
+    });
+    return { ...utils, lockButton, toggleLock };
+  };
+
+  it('hides the open lock until the seat is hovered on hover pointers', () => {
+    stubHoverPointer();
+    const { container, lockButton } = renderTable(false);
+
+    expect(lockButton.style.opacity).toBe('0');
+    expect(lockButton.style.pointerEvents).toBe('none');
+
+    const seatTarget = container.querySelector('rect[data-seat-index="0"]');
+    expect(seatTarget).toBeTruthy();
+    fireEvent.pointerEnter(seatTarget as Element);
+    expect(lockButton.style.opacity).toBe('1');
+    expect(lockButton.style.pointerEvents).toBe('auto');
+
+    fireEvent.pointerLeave(seatTarget as Element);
+    expect(lockButton.style.opacity).toBe('0');
+  });
+
+  it('keeps the closed lock always visible', () => {
+    stubHoverPointer();
+    const { lockButton } = renderTable(true);
+    expect(lockButton.style.opacity).toBe('1');
+    expect(lockButton.style.pointerEvents).toBe('auto');
+  });
+
+  it('reveals the lock on keyboard focus', () => {
+    stubHoverPointer();
+    const { lockButton } = renderTable(false);
+    fireEvent.focus(lockButton);
+    expect(lockButton.style.opacity).toBe('1');
+    fireEvent.blur(lockButton);
+    expect(lockButton.style.opacity).toBe('0');
+  });
+
+  it('stays always visible without hover capability (touch fallback)', () => {
+    // No matchMedia stub → jsdom fallback = no hover pointer
+    const { lockButton } = renderTable(false);
+    expect(lockButton.style.opacity).toBe('1');
+    expect(lockButton.style.pointerEvents).toBe('auto');
   });
 });
 

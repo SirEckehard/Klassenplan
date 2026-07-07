@@ -17,7 +17,8 @@ import {
 } from '@phosphor-icons/react';
 
 export const TABLE_CORNER_RADIUS = 8;
-export const FEATURE_CORNER_RADIUS = TABLE_CORNER_RADIUS;
+// Features render with sharp corners so they stand apart from the rounded tables.
+export const FEATURE_CORNER_RADIUS = 0;
 
 // Shared base dimensions - double is the fundamental unit
 const DOUBLE_WIDTH = 55;

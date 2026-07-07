@@ -45,7 +45,7 @@
       "title": "Presentation mode",
       "item1": "Switch between teacher and student view as well as between seating plan and circle at the top.",
       "item2": "The student view shows the plan from the class's perspective – without markers and photos.",
-      "item3": "Show or hide markers, photos and colors using the bar at the bottom.",
+      "item3": "Show or hide markers, photos, colors and room elements using the bar at the bottom.",
       "item4": "Zoom with the slider or mouse wheel and drag to pan; the centre icon resets the view.",
       "item5": "Press Alt + ← to return to the generator."
     }
@@ -109,6 +109,8 @@
     "photosTitle": "Show or hide student photos",
     "colors": "Colors",
     "colorsTitle": "Show or hide color coding (gender colors)",
+    "features": "Room",
+    "featuresTitle": "Show or hide room elements (board, windows, doors, furniture)",
     "zoom": "Zoom",
     "zoomTitle": "Zoom the view in or out",
     "resetView": "Recentre and reset view",

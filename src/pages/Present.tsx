@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import {
   ArrowLeftIcon,
   ArrowsInIcon,
+  DoorOpenIcon,
   ImageIcon,
   MagnifyingGlassIcon,
   PaletteIcon,
@@ -64,6 +65,10 @@ export default function Present() {
   );
   const [showGenderColors, setShowGenderColors] = usePersistentState(
     LOCAL_STORAGE_KEYS.presentShowColors,
+    true,
+  );
+  const [showFeatures, setShowFeatures] = usePersistentState(
+    LOCAL_STORAGE_KEYS.presentShowFeatures,
     true,
   );
   const [zoom, setZoom] = usePersistentState(LOCAL_STORAGE_KEYS.presentZoom, 1);
@@ -191,6 +196,7 @@ export default function Present() {
             showBadges={showBadges}
             showPhotos={showPhotos}
             showGenderColors={showGenderColors}
+            showFeatures={showFeatures}
             zoom={zoom}
             panX={pan.x}
             panY={pan.y}
@@ -277,6 +283,26 @@ export default function Present() {
               {t('present.colors', 'Farben')}
             </span>
           </button>
+
+          {!isCircle && (
+            <button
+              type="button"
+              onClick={() => setShowFeatures((value) => !value)}
+              className={`${
+                showFeatures ? primaryButtonClass : secondaryButtonClass
+              } h-10 gap-2 px-4`}
+              aria-pressed={showFeatures}
+              title={t(
+                'present.featuresTitle',
+                'Raumelemente (Tafel, Fenster, Türen, Möbel) ein- oder ausblenden',
+              )}
+            >
+              <DoorOpenIcon size={20} aria-hidden />
+              <span className="text-sm font-semibold">
+                {t('present.features', 'Raum')}
+              </span>
+            </button>
+          )}
 
           <div className="flex h-10 items-center gap-2 rounded-full border border-blue-200 bg-white/80 px-4 shadow-inner dark:border-blue-900/40 dark:bg-gray-950/70">
             <MagnifyingGlassIcon

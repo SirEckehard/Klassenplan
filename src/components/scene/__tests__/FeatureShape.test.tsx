@@ -109,6 +109,30 @@ describe('FeatureShape', () => {
     ).toBe('#3b82f6');
   });
 
+  it('renders sharp corners with an inside-clipped border', () => {
+    const feature = makeFeature();
+    const { container } = renderShape(feature);
+    const rect = getGroup(container).querySelector('rect');
+    // Sharp corners distinguish features from the rounded tables
+    expect(rect?.getAttribute('rx')).toBe('0');
+    // Doubled stroke clipped to the footprint keeps the border visible
+    // when a feature sits flush against the classroom edge
+    expect(rect?.getAttribute('stroke-width')).toBe('3');
+    expect(rect?.getAttribute('clip-path')).toBe(
+      'url(#feature-clip-feature-1)',
+    );
+    expect(
+      container.querySelector('clipPath#feature-clip-feature-1 rect'),
+    ).toBeTruthy();
+
+    const active = renderShape(feature, { isActive: true });
+    expect(
+      getGroup(active.container)
+        .querySelector('rect')
+        ?.getAttribute('stroke-width'),
+    ).toBe('4.8');
+  });
+
   it('renders children inside the rotated feature frame', () => {
     const { container } = renderShape(makeFeature({ rotation: 45 }), {
       children: <circle data-testid="handle" r={10} />,

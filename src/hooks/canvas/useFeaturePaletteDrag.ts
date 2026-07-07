@@ -7,7 +7,12 @@ import type {
   ClassroomFeatureAnchor,
 } from '@/types';
 import { useCanvasBoundingRect } from '@/hooks/canvas/useCanvasBoundingRect';
-import { generateId, GRID_SNAP_SIZE, snapRotationAngle } from '@/utils';
+import {
+  generateId,
+  getRotatedAabbHalfExtents,
+  GRID_SNAP_SIZE,
+  snapRotationAngle,
+} from '@/utils';
 import type { SceneTransactionRunner } from '@/hooks/scene/useSceneManager';
 import type { FeatureContextMenuState } from '@/hooks/useContextMenus';
 
@@ -47,6 +52,15 @@ type FeatureDragUpdatePayload = FeaturePlacement & {
 
 const clamp = (value: number, min: number, max: number) =>
   Math.min(Math.max(value, min), max);
+
+/**
+ * Clamps a feature center so its rotated footprint stays inside the room.
+ * Falls back to centering when the footprint is larger than the room.
+ */
+const clampCenterToRoom = (value: number, halfExtent: number, size: number) =>
+  halfExtent * 2 > size
+    ? size / 2
+    : clamp(value, halfExtent, size - halfExtent);
 
 const snapToGridValue = (value: number, shouldSnap: boolean) =>
   shouldSnap ? Math.round(value / GRID_SNAP_SIZE) * GRID_SNAP_SIZE : value;
@@ -109,20 +123,30 @@ export const placeMovableFeatureBase = (
   snapToGrid: boolean,
   classroomWidth: number,
   classroomHeight: number,
+  rotation = 0,
 ): FeaturePlacement => {
-  const x = clamp(
-    snapToGridValue(desiredX, snapToGrid),
-    0,
-    classroomWidth - template.width,
+  // Rotation happens around the feature center, so the clamp works on the
+  // center against the rotated footprint (AABB). This lets e.g. a
+  // 90°-rotated cabinet sit flush against the side walls; the returned
+  // top-left of the unrotated rect may legitimately be negative.
+  const { halfWidth, halfHeight } = getRotatedAabbHalfExtents(
+    template.width,
+    template.height,
+    rotation,
   );
-  const y = clamp(
-    snapToGridValue(desiredY, snapToGrid),
-    0,
-    classroomHeight - template.height,
+  const centerX = clampCenterToRoom(
+    snapToGridValue(desiredX, snapToGrid) + template.width / 2,
+    halfWidth,
+    classroomWidth,
+  );
+  const centerY = clampCenterToRoom(
+    snapToGridValue(desiredY, snapToGrid) + template.height / 2,
+    halfHeight,
+    classroomHeight,
   );
   return {
-    x,
-    y,
+    x: centerX - template.width / 2,
+    y: centerY - template.height / 2,
     anchor: 'free',
     width: template.width,
     height: template.height,
@@ -454,6 +478,7 @@ export function useFeaturePaletteDrag({
         return;
       }
 
+      const initialRotation = type === 'podium' ? 90 : 0;
       const placement = template.movable
         ? placeMovableFeatureBase(
             template,
@@ -462,6 +487,7 @@ export function useFeaturePaletteDrag({
             snapToGrid,
             classroomWidth,
             classroomHeight,
+            initialRotation,
           )
         : placeFixedFeatureBase(
             template,
@@ -486,7 +512,7 @@ export function useFeaturePaletteDrag({
         movable: template.movable,
         anchor: placement.anchor,
         label: template.label,
-        rotation: type === 'podium' ? 90 : 0,
+        rotation: initialRotation,
       };
 
       if (!template.movable) {
@@ -587,6 +613,12 @@ export function useFeaturePaletteDrag({
       if (template.movable) {
         const desiredX = pointerX - drag.offsetX;
         const desiredY = pointerY - drag.offsetY;
+        // The drag only knows the palette template; the live feature carries
+        // the user-applied rotation needed for footprint-aware clamping.
+        const liveRotation =
+          latestFeaturesRef.current.find(
+            (feature) => feature.id === drag.featureId,
+          )?.rotation ?? 0;
         placement = placeMovableFeatureBase(
           template,
           desiredX,
@@ -594,6 +626,7 @@ export function useFeaturePaletteDrag({
           snapToGrid,
           classroomWidth,
           classroomHeight,
+          liveRotation,
         );
       } else {
         placement = placeFixedFeatureBase(
@@ -716,14 +749,37 @@ export function useFeaturePaletteDrag({
       const nextRotation = snapped.normalized;
 
       setSceneFeatures((prev) =>
-        prev.map((feature) =>
-          feature.id === rotationState.featureId
-            ? { ...feature, rotation: nextRotation }
-            : feature,
-        ),
+        prev.map((feature) => {
+          if (feature.id !== rotationState.featureId) {
+            return feature;
+          }
+          // Re-clamp around the fixed center so a feature rotated while
+          // flush against a wall doesn't end up sticking out of the room.
+          const { halfWidth, halfHeight } = getRotatedAabbHalfExtents(
+            feature.width,
+            feature.height,
+            nextRotation,
+          );
+          const centerX = clampCenterToRoom(
+            feature.x + feature.width / 2,
+            halfWidth,
+            classroomWidth,
+          );
+          const centerY = clampCenterToRoom(
+            feature.y + feature.height / 2,
+            halfHeight,
+            classroomHeight,
+          );
+          return {
+            ...feature,
+            rotation: nextRotation,
+            x: centerX - feature.width / 2,
+            y: centerY - feature.height / 2,
+          };
+        }),
       );
     },
-    [setSceneFeatures],
+    [setSceneFeatures, classroomWidth, classroomHeight],
   );
 
   const handleFeatureRotateEnd = React.useCallback(

@@ -54,6 +54,10 @@ interface SeatGridProps {
   seatTextRotation: number;
   isDark: boolean;
   toggleLock?: (studentId: string, table: number, seat: number) => void;
+  /** Reveal the open-lock toggle only on seat hover (hover-capable pointers). */
+  lockRevealOnHover?: boolean;
+  /** Currently hovered seat index (tracked by the parent table). */
+  hoveredSeatIndex?: number | null;
   onSeatPointerDown?: SeatPointerDownHandler;
   onSeatPointerUp?: SeatPointerUpHandler;
   onSeatPointerEnter?: SeatHoverHandler;
@@ -79,6 +83,8 @@ function SeatGrid({
   seatTextRotation,
   isDark,
   toggleLock,
+  lockRevealOnHover = false,
+  hoveredSeatIndex = null,
   onSeatPointerDown,
   onSeatPointerUp,
   onSeatPointerEnter,
@@ -118,6 +124,8 @@ function SeatGrid({
             lockSeatLabelOrientation={lockSeatLabelOrientation}
             seatTextRotation={seatTextRotation}
             toggleLock={toggleLock}
+            lockRevealOnHover={lockRevealOnHover}
+            isSeatHovered={hoveredSeatIndex === config.seatIndex}
             onSeatPointerDown={onSeatPointerDown}
             onSeatPointerUp={onSeatPointerUp}
             onSeatPointerEnter={onSeatPointerEnter}

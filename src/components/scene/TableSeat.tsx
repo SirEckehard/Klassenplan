@@ -42,6 +42,14 @@ interface TableSeatProps {
   lockSeatLabelOrientation: boolean;
   seatTextRotation: number;
   toggleLock?: (studentId: string, table: number, seat: number) => void;
+  /**
+   * When true, the open-lock toggle is revealed only while the seat is
+   * hovered or the toggle has keyboard focus (hover-capable pointers only).
+   * The closed lock stays always visible — locked is important state info.
+   */
+  lockRevealOnHover?: boolean;
+  /** Whether this seat is currently hovered (tracked at grid level). */
+  isSeatHovered?: boolean;
   highlightStatus?: StatisticStatus;
   highlightMode?: StatisticHighlightMode;
   highlightPercentage?: number;
@@ -173,6 +181,8 @@ function TableSeat({
   highlightMode,
   highlightPercentage,
   toggleLock,
+  lockRevealOnHover = false,
+  isSeatHovered = false,
   onSeatPointerDown,
   onSeatPointerUp,
   onSeatPointerEnter,
@@ -298,6 +308,13 @@ function TableSeat({
     : '';
   const seatFontSize = calculateSeatLabelFontSize(displayName, seatWidth);
 
+  // The open lock is hover-revealed on hover-capable pointers; the closed
+  // lock always stays visible. Keyboard focus reveals it too, so the toggle
+  // remains reachable via Tab. The element stays in the DOM (a11y tree).
+  const [lockHasFocus, setLockHasFocus] = React.useState(false);
+  const lockVisible =
+    !lockRevealOnHover || locked || isSeatHovered || lockHasFocus;
+
   // Keyboard move support: the touch target becomes a focusable button so the
   // seat drag has a keyboard alternative (Enter/Space grab & drop, Escape).
   const keyboardEnabled = Boolean(onSeatKeyDown);
@@ -332,7 +349,17 @@ function TableSeat({
 
   return (
     <g transform={`translate(${col * seatWidth} ${row * seatHeight})`}>
+      {/* Hover is tracked on the group (not the touch-target rect): the group
+          boundary covers the rect AND the lock toggle, so moving the pointer
+          onto the hover-revealed lock doesn't fire a leave that would hide it
+          again — which caused an enter/leave flicker loop on unlocked seats. */}
       <g
+        onPointerEnter={
+          onSeatPointerEnter ? () => onSeatPointerEnter(seatIndex) : undefined
+        }
+        onPointerLeave={
+          onSeatPointerLeave ? () => onSeatPointerLeave(seatIndex) : undefined
+        }
         style={{
           transform: `scale(${seatScale})`,
           transformOrigin: 'center',
@@ -371,16 +398,6 @@ function TableSeat({
               )
             }
             onPointerUp={(e) => onSeatPointerUp?.(e, seatIndex, locked)}
-            onPointerEnter={
-              onSeatPointerEnter
-                ? () => onSeatPointerEnter(seatIndex)
-                : undefined
-            }
-            onPointerLeave={
-              onSeatPointerLeave
-                ? () => onSeatPointerLeave(seatIndex)
-                : undefined
-            }
             onKeyDown={
               onSeatKeyDown ? (e) => onSeatKeyDown(e, keyboardInfo) : undefined
             }
@@ -486,12 +503,15 @@ function TableSeat({
                 transform={lockButtonTransform}
                 style={{
                   cursor: 'pointer',
-                  opacity: seatTextOpacity,
+                  opacity: lockVisible ? seatTextOpacity : 0,
                   transition: 'opacity 150ms ease',
-                  pointerEvents: 'auto',
+                  // No invisible click target while hidden (focus still works)
+                  pointerEvents: lockVisible ? 'auto' : 'none',
                 }}
                 role="button"
                 tabIndex={0}
+                onFocus={() => setLockHasFocus(true)}
+                onBlur={() => setLockHasFocus(false)}
                 aria-label={
                   locked
                     ? t('seat.unlockSeat', 'Sitzplatz entsperren')
@@ -516,6 +536,11 @@ function TableSeat({
                     ? t('seat.unlockSeat', 'Sitzplatz entsperren')
                     : t('seat.lockSeat', 'Sitzplatz sperren')}
                 </title>
+                {/* Invisible 24px hit area (touchTargetSize) around the 20px
+                    circle so the pointer cursor and click target cover the
+                    whole button, not just the painted circle — otherwise the
+                    seat's grab-cursor touch target wins right at the edge. */}
+                <rect x={-2} y={-2} width={24} height={24} fill="transparent" />
                 {/* Circular lock toggle surface using muted icon button design token colors */}
                 <circle
                   cx={10}
@@ -711,6 +736,10 @@ const MemoizedTableSeat = React.memo(TableSeat, (prevProps, nextProps) => {
   if (prevProps.highlightMode !== nextProps.highlightMode) return false;
   if (prevProps.highlightPercentage !== nextProps.highlightPercentage)
     return false;
+
+  // Lock hover-reveal state
+  if (prevProps.isSeatHovered !== nextProps.isSeatHovered) return false;
+  if (prevProps.lockRevealOnHover !== nextProps.lockRevealOnHover) return false;
 
   // CheckIcon position changes
   if (

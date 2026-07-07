@@ -30,12 +30,8 @@ import {
   successButtonClass,
 } from '@/utils';
 import { showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
-import {
-  FEATURE_TYPES,
-  FEATURE_TYPE_ICONS,
-  FEATURE_VISIBILITY_TOGGLE_KEYS,
-  type FeatureVisibilityFlags,
-} from '@/utils/ui';
+import { FEATURE_TYPES, type FeatureVisibilityFlags } from '@/utils/ui';
+import { buildFeatureVisibilityGroup } from '@/components/SeatingPlanGenerator/canvas/featureVisibilityGroup';
 import { useFeatureVisibility } from '@/hooks/ui/useFeatureVisibility';
 import {
   useSeatingPlanState,
@@ -297,7 +293,6 @@ export default function Export() {
 
   const exportSettingsGroups = useMemo<CanvasSettingsGroup[]>(() => {
     const displayOptions: CanvasSettingsOption[] = [];
-    const featureOptions: CanvasSettingsOption[] = [];
 
     if (previewMode === 'circle') {
       displayOptions.push({
@@ -312,22 +307,6 @@ export default function Export() {
         checked: showConnections,
         onChange: handleToggleConnections,
       });
-    }
-
-    if (previewMode === 'table') {
-      featureOptions.push(
-        ...FEATURE_TYPES.map((type) => {
-          const FeatureIcon = FEATURE_TYPE_ICONS[type];
-          return {
-            id: `feature-${type}`,
-            label: t(`export.${FEATURE_VISIBILITY_TOGGLE_KEYS[type]}`),
-            icon: <FeatureIcon size={16} />,
-            checked: effectiveVisibility[type] === true,
-            onChange: (checked: boolean) => setFeatureVisible(type, checked),
-            disabled: !featureAvailability[type],
-          };
-        }),
-      );
     }
 
     displayOptions.push(
@@ -377,12 +356,17 @@ export default function Export() {
       },
     ];
 
-    if (featureOptions.length > 0) {
-      groups.push({
-        id: 'preview-features',
-        title: t('export.roomElements', 'Raumelemente'),
-        options: featureOptions,
-      });
+    if (previewMode === 'table') {
+      groups.push(
+        buildFeatureVisibilityGroup({
+          id: 'preview-features',
+          title: t('export.roomElements', 'Raumelemente'),
+          t,
+          isChecked: (type) => effectiveVisibility[type] === true,
+          isDisabled: (type) => !featureAvailability[type],
+          onToggle: setFeatureVisible,
+        }),
+      );
     }
 
     return groups;

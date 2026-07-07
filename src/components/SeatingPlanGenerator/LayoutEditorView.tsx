@@ -28,7 +28,10 @@ import ClassroomCanvas from '@/components/SeatingPlanGenerator/canvas/ClassroomC
 import type { CanvasInteractionHandlers } from '@/components/SeatingPlanGenerator/canvas/CanvasInteractionLayer';
 import CanvasToolbar from '@/components/SeatingPlanGenerator/canvas/CanvasToolbar';
 import MobileTableTemplates from '@/components/SeatingPlanGenerator/mobile/MobileTableTemplates';
-import { CanvasSettingsButton } from '@/components/SeatingPlanGenerator/canvas/CanvasSettingsButton';
+import {
+  CanvasSettingsButton,
+  type CanvasSettingsGroup,
+} from '@/components/SeatingPlanGenerator/canvas/CanvasSettingsButton';
 import LayoutEditorSidebarSection from '@/components/SeatingPlanGenerator/views/LayoutEditorSidebarSection';
 import LayoutEditorQuickSetupOverlay from '@/components/SeatingPlanGenerator/views/LayoutEditorQuickSetupOverlay';
 import LayoutEditorStatusBadge from '@/components/SeatingPlanGenerator/views/LayoutEditorStatusBadge';
@@ -74,12 +77,8 @@ import {
   DIVIDER_HEIGHT,
   createClientToSceneConverter,
 } from '@/utils';
-import {
-  FEATURE_TYPES,
-  FEATURE_TYPE_ICONS,
-  FEATURE_VISIBILITY_TOGGLE_KEYS,
-  type FeatureVisibilityFlags,
-} from '@/utils/ui';
+import { FEATURE_TYPES, type FeatureVisibilityFlags } from '@/utils/ui';
+import { buildFeatureVisibilityGroup } from '@/components/SeatingPlanGenerator/canvas/featureVisibilityGroup';
 import {
   useFeaturePaletteDrag,
   rotateFeatureForAnchor,
@@ -89,21 +88,6 @@ import {
   type FeaturePlacement,
 } from '@/hooks/canvas/useFeaturePaletteDrag';
 import type { SceneTransactionRunner } from '@/hooks/scene/useSceneManager';
-
-type LayoutSettingOption = {
-  id: string;
-  label: string;
-  icon: React.ReactNode;
-  checked: boolean;
-  onChange: (checked: boolean) => void;
-  disabled?: boolean;
-};
-
-type LayoutSettingsGroup = {
-  id: string;
-  title: string;
-  options: LayoutSettingOption[];
-};
 
 type Props = {
   snapToGrid: boolean;
@@ -547,6 +531,7 @@ const LayoutEditorView = React.memo(
                 snapToGrid,
                 canvasWidth,
                 classroomHeight,
+                feature.rotation ?? 0,
               );
             } else {
               placement = placeFixedFeatureBase(
@@ -977,22 +962,16 @@ const LayoutEditorView = React.memo(
             },
           ],
         },
-        {
+        buildFeatureVisibilityGroup({
           id: 'layout-features',
           title: t('layout.roomElements', 'Raumelemente'),
-          options: FEATURE_TYPES.map((type) => {
-            const FeatureIcon = FEATURE_TYPE_ICONS[type];
-            const available = featureAvailability[type] === true;
-            return {
-              id: `feature-${type}`,
-              label: t(`editor.${FEATURE_VISIBILITY_TOGGLE_KEYS[type]}`),
-              icon: <FeatureIcon size={16} />,
-              checked: available && featureVisibility[type] !== false,
-              onChange: (checked: boolean) => setFeatureVisible(type, checked),
-              disabled: !available,
-            };
-          }),
-        },
+          t,
+          isChecked: (type) =>
+            featureAvailability[type] === true &&
+            featureVisibility[type] !== false,
+          isDisabled: (type) => featureAvailability[type] !== true,
+          onToggle: setFeatureVisible,
+        }),
       ],
       [
         featureAvailability,
@@ -1271,7 +1250,7 @@ type LayoutEditorMainSectionProps = {
   isQuickSetupOpen: boolean;
   undo: () => void;
   historyLength: number;
-  layoutSettingsGroups: LayoutSettingsGroup[];
+  layoutSettingsGroups: CanvasSettingsGroup[];
   canvasProps: React.ComponentProps<typeof ClassroomCanvas>;
   studentsCount: number;
   seatCount: number;

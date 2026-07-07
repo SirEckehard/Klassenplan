@@ -45,6 +45,16 @@ const FEATURE_COLOR_SCHEMES: Record<
   },
 };
 
+/**
+ * Neutral gray palette used when the presentation's color toggle is off,
+ * mirroring the neutral student appearance (`STUDENT_COLORS.neutral`).
+ * Matches the podium palette, which already is the app's gray ramp.
+ */
+const NEUTRAL_FEATURE_PALETTE: Record<FeatureColorMode, FeaturePalette> = {
+  light: { fill: '#e5e7eb', stroke: '#6b7280', text: '#374151' },
+  dark: { fill: '#4b5563', stroke: '#9ca3af', text: '#f3f4f6' },
+};
+
 export type FeatureVisibilityFlags = Partial<
   Record<ClassroomFeatureType, boolean>
 >;
@@ -67,9 +77,12 @@ export const getFeatureStyles = (
   feature: ClassroomFeature,
   isDark: boolean,
   visibilityFlags?: FeatureVisibilityFlags,
+  neutralColors = false,
 ): FeatureStyles => {
-  const palette =
-    FEATURE_COLOR_SCHEMES[feature.type][isDark ? 'dark' : 'light'];
+  const mode: FeatureColorMode = isDark ? 'dark' : 'light';
+  const palette = neutralColors
+    ? NEUTRAL_FEATURE_PALETTE[mode]
+    : FEATURE_COLOR_SCHEMES[feature.type][mode];
   const resolvedVisibility = {
     ...DEFAULT_FEATURE_VISIBILITY,
     ...(visibilityFlags ?? {}),

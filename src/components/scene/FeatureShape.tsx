@@ -81,6 +81,15 @@ export default function FeatureShape({
       {...groupProps}
     >
       <title>{name}</title>
+      {/*
+       * The stroke is clipped to the feature footprint so the border stays
+       * fully visible when a feature sits flush against the classroom edge
+       * (the outer stroke half would otherwise fall outside the 900x600
+       * viewBox and get cut off — `overflow: visible` is defeated by the
+       * canvas frame's `overflow: hidden`, and a viewBox inset would skew
+       * the pointer-to-scene coordinate conversion). The stroke width is
+       * doubled so the remaining inner half matches the previous look.
+       */}
       <rect
         x={0}
         y={0}
@@ -89,9 +98,17 @@ export default function FeatureShape({
         rx={FEATURE_CORNER_RADIUS}
         fill={styles.fill}
         stroke={isActive ? ACTIVE_STROKE : styles.stroke}
-        strokeWidth={isActive ? 2.4 : 1.5}
+        strokeWidth={isActive ? 4.8 : 3}
+        clipPath={`url(#feature-clip-${feature.id})`}
         {...rectProps}
       />
+      {/* defs placed after the main rect so querySelector('rect') keeps
+          resolving to the visible shape (relied on by tests). */}
+      <defs>
+        <clipPath id={`feature-clip-${feature.id}`}>
+          <rect x={0} y={0} width={width} height={height} />
+        </clipPath>
+      </defs>
       {minEdge >= MIN_ICON_EDGE && (
         <g
           pointerEvents="none"

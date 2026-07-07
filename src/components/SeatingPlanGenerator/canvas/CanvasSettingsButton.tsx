@@ -40,8 +40,32 @@ type CanvasSettingsSegmentOption = {
   disabled?: boolean;
 };
 
+type CanvasSettingsIconGridItem = {
+  id: string;
+  icon: React.ReactNode;
+  /** Accessible name and tooltip of the chip. */
+  label: string;
+  checked: boolean;
+  onChange: (next: boolean) => void;
+  disabled?: boolean;
+};
+
+/**
+ * A compact grid of icon-only toggle chips, e.g. the per-type room-element
+ * visibility. Saves vertical space compared to one toggle row per item.
+ */
+type CanvasSettingsIconGridOption = {
+  kind: 'iconGrid';
+  id: string;
+  /** Accessible name of the chip group. */
+  label?: string;
+  items: CanvasSettingsIconGridItem[];
+};
+
 type CanvasSettingsOption =
-  CanvasSettingsToggleOption | CanvasSettingsSegmentOption;
+  | CanvasSettingsToggleOption
+  | CanvasSettingsSegmentOption
+  | CanvasSettingsIconGridOption;
 
 type CanvasSettingsGroup = {
   id: string;
@@ -204,7 +228,9 @@ export const CanvasSettingsButton = React.forwardRef<
                     )}
                     <div className="space-y-2">
                       {group.options.map((option) =>
-                        option.kind === 'segment' ? (
+                        option.kind === 'iconGrid' ? (
+                          <IconGridSetting key={option.id} option={option} />
+                        ) : option.kind === 'segment' ? (
                           <SegmentSetting key={option.id} option={option} />
                         ) : (
                           <SettingToggle
@@ -275,8 +301,44 @@ function SegmentSetting({ option }: { option: CanvasSettingsSegmentOption }) {
   );
 }
 
+/**
+ * Renders icon-only toggle chips in a wrapping row. Active chips are colored,
+ * inactive chips grayed out; each chip carries its label as tooltip and
+ * accessible name.
+ */
+function IconGridSetting({ option }: { option: CanvasSettingsIconGridOption }) {
+  return (
+    <div
+      role="group"
+      aria-label={option.label}
+      className="flex flex-wrap gap-1.5"
+    >
+      {option.items.map((item) => (
+        <button
+          key={item.id}
+          type="button"
+          disabled={item.disabled}
+          aria-pressed={item.checked}
+          aria-label={item.label}
+          title={item.label}
+          onClick={() => item.onChange(!item.checked)}
+          className={`flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-40 ${
+            item.checked
+              ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-200'
+              : 'bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600 dark:bg-gray-800 dark:text-gray-500 dark:hover:bg-gray-700 dark:hover:text-gray-300'
+          }`}
+        >
+          {item.icon}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export type {
   CanvasSettingsGroup,
   CanvasSettingsOption,
   CanvasSettingsSegmentOption,
+  CanvasSettingsIconGridOption,
+  CanvasSettingsIconGridItem,
 };

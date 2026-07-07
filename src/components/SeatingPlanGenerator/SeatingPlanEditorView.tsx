@@ -43,12 +43,8 @@ import {
   buildSeatHighlightLookup,
 } from '@/utils';
 import { calculateBadgePillLayout } from '@/utils/ui/studentAppearance';
-import {
-  FEATURE_TYPES,
-  FEATURE_TYPE_ICONS,
-  FEATURE_VISIBILITY_TOGGLE_KEYS,
-  type FeatureVisibilityFlags,
-} from '@/utils/ui';
+import { FEATURE_TYPES, type FeatureVisibilityFlags } from '@/utils/ui';
+import { buildFeatureVisibilityGroup } from '@/components/SeatingPlanGenerator/canvas/featureVisibilityGroup';
 import type {
   MixSettings,
   SeatingArrangement,
@@ -367,22 +363,16 @@ export default function SeatingPlanEditorView({
           },
         ],
       },
-      {
+      buildFeatureVisibilityGroup({
         id: 'editor-features',
         title: t('layout.roomElements', 'Raumelemente'),
-        options: FEATURE_TYPES.map((type) => {
-          const FeatureIcon = FEATURE_TYPE_ICONS[type];
-          const available = featureAvailability[type] === true;
-          return {
-            id: `feature-${type}`,
-            label: t(`editor.${FEATURE_VISIBILITY_TOGGLE_KEYS[type]}`),
-            icon: <FeatureIcon size={16} />,
-            checked: available && featureVisibility[type] !== false,
-            onChange: (checked: boolean) => setFeatureVisible(type, checked),
-            disabled: !available,
-          };
-        }),
-      },
+        t,
+        isChecked: (type) =>
+          featureAvailability[type] === true &&
+          featureVisibility[type] !== false,
+        isDisabled: (type) => featureAvailability[type] !== true,
+        onToggle: setFeatureVisible,
+      }),
     ],
     [
       featureAvailability,

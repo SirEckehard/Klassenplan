@@ -45,7 +45,7 @@
       "title": "Präsentiermodus",
       "item1": "Wechsle oben zwischen Lehrer- und Schüleransicht sowie zwischen Sitzplan und Sitzkreis.",
       "item2": "Die Schüleransicht zeigt den Plan aus Sicht der Klasse – ohne Merkmale und Fotos.",
-      "item3": "Blende über die Leiste unten Merkmale, Fotos und Farben ein oder aus.",
+      "item3": "Blende über die Leiste unten Merkmale, Fotos, Farben und Raumelemente ein oder aus.",
       "item4": "Zoome per Regler oder Mausrad und verschiebe die Ansicht durch Ziehen; das Zentrieren-Symbol setzt die Ansicht zurück.",
       "item5": "Mit Alt + ← kehrst du zum Generator zurück."
     }
@@ -109,6 +109,8 @@
     "photosTitle": "Schülerfotos ein- oder ausblenden",
     "colors": "Farben",
     "colorsTitle": "Farbige Kennzeichnung (Geschlechterfarben) ein- oder ausblenden",
+    "features": "Raum",
+    "featuresTitle": "Raumelemente (Tafel, Fenster, Türen, Möbel) ein- oder ausblenden",
     "zoom": "Zoom",
     "zoomTitle": "Ansicht vergrößern oder verkleinern",
     "resetView": "Ansicht zentrieren und zurücksetzen",
