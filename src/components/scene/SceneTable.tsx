@@ -119,6 +119,8 @@ function SceneTable({
   photoDisplayMode = 'off',
 }: TableProps) {
   const tableRef = useRef<SVGGElement>(null);
+  // The rotate handle only appears while the table is selected or hovered.
+  const [isHovered, setIsHovered] = React.useState(false);
   const hoverPhotosEnabled = photoDisplayMode === 'hover';
   const [hoveredSeatIndex, setHoveredSeatIndex] = React.useState<number | null>(
     null,
@@ -322,6 +324,8 @@ function SceneTable({
       onPointerDown={
         table.locked || !onPointerDown ? undefined : handleTablePointerDown
       }
+      onPointerEnter={editable ? () => setIsHovered(true) : undefined}
+      onPointerLeave={editable ? () => setIsHovered(false) : undefined}
       onContextMenu={(e) => {
         if (table.locked) return;
         e.preventDefault();
@@ -517,7 +521,7 @@ function SceneTable({
           }}
         />
       )}
-      {!table.locked && editable && (
+      {!table.locked && editable && (selected || isHovered) && (
         <RotationHandle
           width={table.width}
           height={table.height}

@@ -104,7 +104,6 @@ export default function PresentationScene({
             key={feature.id}
             feature={feature}
             styles={styles}
-            strokeMode="always"
             extraIconRotation={rotation}
           />
         ))}

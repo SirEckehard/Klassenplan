@@ -227,7 +227,6 @@ const SeatingPlanCanvas = React.memo(
                 key={feature.id}
                 feature={feature}
                 styles={styles}
-                strokeMode="none"
               />
             ))}
           </g>

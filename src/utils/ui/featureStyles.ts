@@ -35,8 +35,9 @@ const FEATURE_COLOR_SCHEMES: Record<
     dark: { fill: '#475569', stroke: '#cbd5e1', text: '#f1f5f9' },
   },
   cabinet: {
-    light: { fill: '#ede9fe', stroke: '#6d28d9', text: '#5b21b6' },
-    dark: { fill: '#4c1d95', stroke: '#a78bfa', text: '#ede9fe' },
+    // Muted wood-brown so the cabinet reads as wooden furniture
+    light: { fill: '#ede0d1', stroke: '#8a6543', text: '#6b4b2f' },
+    dark: { fill: '#5a4634', stroke: '#c8a682', text: '#ecdcc8' },
   },
   divider: {
     light: { fill: '#e7e5e4', stroke: '#57534e', text: '#44403c' },

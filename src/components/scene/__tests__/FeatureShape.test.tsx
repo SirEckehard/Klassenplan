@@ -53,10 +53,10 @@ describe('FeatureShape', () => {
     // Phosphor icon renders as a nested <svg>
     const icon = group.querySelector('svg');
     expect(icon).toBeTruthy();
-    // 60 * 0.6 = 36px icon, centered at (45, 30)
-    expect(icon?.getAttribute('width')).toBe('36');
-    expect(icon?.getAttribute('x')).toBe(String(90 / 2 - 18));
-    expect(icon?.getAttribute('y')).toBe(String(60 / 2 - 18));
+    // Uniform 16px icon, centered at (45, 30)
+    expect(icon?.getAttribute('width')).toBe('16');
+    expect(icon?.getAttribute('x')).toBe(String(90 / 2 - 8));
+    expect(icon?.getAttribute('y')).toBe(String(60 / 2 - 8));
   });
 
   it('skips the icon for very thin features like the room divider', () => {
@@ -94,22 +94,19 @@ describe('FeatureShape', () => {
     expect(rect?.getAttribute('fill')).toBe('#4b5563');
   });
 
-  it('draws the stroke only while active in active stroke mode', () => {
+  it('always draws the palette frame and switches to the selection color when active', () => {
     const feature = makeFeature();
-    const inactive = renderShape(feature, { strokeMode: 'active' });
+    const inactive = renderShape(feature);
     expect(
       getGroup(inactive.container)
         .querySelector('rect')
         ?.getAttribute('stroke'),
-    ).toBe('none');
+    ).toBe('#6b7280');
 
-    const active = renderShape(feature, {
-      strokeMode: 'active',
-      isActive: true,
-    });
+    const active = renderShape(feature, { isActive: true });
     expect(
       getGroup(active.container).querySelector('rect')?.getAttribute('stroke'),
-    ).toBe('#6b7280');
+    ).toBe('#3b82f6');
   });
 
   it('renders children inside the rotated feature frame', () => {

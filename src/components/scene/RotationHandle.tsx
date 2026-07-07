@@ -22,6 +22,11 @@ function RotationHandle({
       onPointerDown={(e) => {
         e.stopPropagation();
         e.preventDefault();
+        // Capture the pointer so no pointerleave fires on the parent while
+        // rotating — otherwise the hover-gated handle unmounts mid-gesture.
+        if (typeof e.currentTarget.setPointerCapture === 'function') {
+          e.currentTarget.setPointerCapture(e.pointerId);
+        }
         onRotateStart(e);
       }}
       style={{ cursor: 'grab' }}

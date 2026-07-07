@@ -259,7 +259,7 @@ function SegmentSetting({ option }: { option: CanvasSettingsSegmentOption }) {
               disabled={option.disabled}
               aria-pressed={active}
               onClick={() => option.onChange(choice.value)}
-              className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50 ${
+              className={`flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50 ${
                 active
                   ? 'bg-white text-blue-700 shadow-sm dark:bg-gray-900 dark:text-blue-200'
                   : 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white'

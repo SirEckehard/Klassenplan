@@ -162,6 +162,34 @@ describe('SceneTable seat label rotation', () => {
   });
 });
 
+describe('SceneTable rotate handle visibility', () => {
+  it('shows the rotate handle only while selected or hovered', () => {
+    const { container } = render(
+      <svg>
+        <TableIcon
+          table={baseTable}
+          index={0}
+          students={[student]}
+          selected={false}
+          onUpdate={() => {}}
+          editable={true}
+        />
+      </svg>,
+    );
+
+    expect(container.querySelector('circle[r="10"]')).toBeNull();
+
+    const tableGroup = container.querySelector(
+      'g[data-table-index="0"]',
+    ) as Element;
+    fireEvent.pointerEnter(tableGroup);
+    expect(container.querySelector('circle[r="10"]')).toBeTruthy();
+
+    fireEvent.pointerLeave(tableGroup);
+    expect(container.querySelector('circle[r="10"]')).toBeNull();
+  });
+});
+
 describe('SceneTable rotation with parent updates', () => {
   const getBoundingBox = () => ({
     left: 100,
@@ -195,7 +223,7 @@ describe('SceneTable rotation with parent updates', () => {
           table={tables[0]}
           index={0}
           students={[student]}
-          selected={false}
+          selected
           editable={true}
           sceneTables={tables}
           selectedTableIds={[0]}
@@ -376,7 +404,8 @@ describe('SceneTable drag cleanup', () => {
           table={baseTable}
           index={0}
           students={[student]}
-          selected={false}
+          // The rotate handle only renders while selected or hovered
+          selected
           onUpdate={onUpdate}
           onTransformStart={onTransformStart}
           editable={true}
@@ -448,7 +477,8 @@ describe('SceneTable rotation snapping', () => {
           table={table}
           index={0}
           students={[student]}
-          selected={false}
+          // The rotate handle only renders while selected or hovered
+          selected
           onUpdate={onUpdate}
           editable={true}
         />

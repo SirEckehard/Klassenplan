@@ -264,7 +264,6 @@ export default function SceneSvg({
             key={feature.id}
             feature={feature}
             styles={styles}
-            strokeMode="always"
             extraIconRotation={classroomRotation}
           />
         ))}

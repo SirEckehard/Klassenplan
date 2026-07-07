@@ -2,14 +2,10 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { ArrowClockwiseIcon } from '@phosphor-icons/react';
 import TableIcon from '@/components/scene/SceneTable';
 import FeatureShape from '@/components/scene/FeatureShape';
-import {
-  GRID_SIZE,
-  calculateFeatureHandleAnchor,
-  type FeatureHandleAnchor,
-} from '@/utils';
+import RotationHandle from '@/components/scene/RotationHandle';
+import { GRID_SIZE } from '@/utils';
 import { getFeatureStyles } from '@/utils/ui';
 import type { FeatureVisibilityFlags } from '@/utils/ui';
 import type {
@@ -67,7 +63,6 @@ interface ClassroomCanvasProps {
     feature: ClassroomFeature,
     event: React.PointerEvent<SVGRectElement>,
   ) => void;
-  featureHandleAnchors?: Map<string, FeatureHandleAnchor> | null;
 }
 
 /**
@@ -105,10 +100,13 @@ const ClassroomCanvas = React.memo<ClassroomCanvasProps>(
     onTransformStart,
     onFeaturePointerDown,
     onFeatureRotateStart,
-    featureHandleAnchors = null,
   }) => {
     const { t } = useTranslation('generator');
     const isDark = useIsDarkMode();
+    // Rotate handles only appear on the selected or hovered element.
+    const [hoveredFeatureId, setHoveredFeatureId] = React.useState<
+      string | null
+    >(null);
 
     // Translated template labels
     const TEMPLATE_LABELS: Record<TableTemplateType, string> = React.useMemo(
@@ -209,21 +207,16 @@ const ClassroomCanvas = React.memo<ClassroomCanvasProps>(
             const isRotatable = feature.anchor === 'free' && feature.movable;
             const rotation =
               feature.anchor === 'free' ? (feature.rotation ?? 0) : 0;
-            const handleAnchor = featureHandleAnchors?.get(feature.id);
-            const resolvedAnchor = handleAnchor
-              ? handleAnchor
-              : calculateFeatureHandleAnchor(
-                  feature.width,
-                  feature.height,
-                  rotation,
-                );
+            const showRotationHandle =
+              isRotatable &&
+              !!onFeatureRotateStart &&
+              (isActive || feature.id === hoveredFeatureId);
 
             return (
               <FeatureShape
                 key={feature.id}
                 feature={feature}
                 styles={styles}
-                strokeMode="active"
                 isActive={isActive}
                 rectProps={{
                   className: 'cursor-grab active:cursor-grabbing',
@@ -231,24 +224,23 @@ const ClassroomCanvas = React.memo<ClassroomCanvasProps>(
                   onPointerDown: (event) =>
                     onFeaturePointerDown?.(feature, event),
                 }}
+                groupProps={{
+                  onPointerEnter: () => setHoveredFeatureId(feature.id),
+                  onPointerLeave: () =>
+                    setHoveredFeatureId((current) =>
+                      current === feature.id ? null : current,
+                    ),
+                }}
               >
-                {isRotatable && onFeatureRotateStart && (
-                  <g
-                    transform={`translate(${resolvedAnchor.x} ${resolvedAnchor.y})`}
-                    onPointerDown={(event) => {
-                      event.stopPropagation();
-                      event.preventDefault();
-                      onFeatureRotateStart(feature, event);
-                    }}
-                    style={{ cursor: 'grab' }}
-                  >
-                    <g transform={`rotate(${-rotation})`}>
-                      <circle r={10} fill="#3b82f6" />
-                      <g transform="translate(-6 -6)">
-                        <ArrowClockwiseIcon size={12} color="#fff" />
-                      </g>
-                    </g>
-                  </g>
+                {showRotationHandle && (
+                  <RotationHandle
+                    width={feature.width}
+                    height={feature.height}
+                    inverseRotation={-rotation}
+                    onRotateStart={(event) =>
+                      onFeatureRotateStart(feature, event)
+                    }
+                  />
                 )}
               </FeatureShape>
             );

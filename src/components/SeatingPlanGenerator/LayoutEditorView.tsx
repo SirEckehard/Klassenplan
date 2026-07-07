@@ -73,8 +73,6 @@ import {
   DIVIDER_WIDTH,
   DIVIDER_HEIGHT,
   createClientToSceneConverter,
-  calculateFeatureHandleAnchor,
-  type FeatureHandleAnchor,
 } from '@/utils';
 import {
   FEATURE_TYPES,
@@ -386,19 +384,6 @@ const LayoutEditorView = React.memo(
       featureClipboard && featureClipboard.length > 0,
     );
 
-    const [featureHandleAnchors, setFeatureHandleAnchors] = React.useState<
-      Map<string, FeatureHandleAnchor>
-    >(() => new Map());
-    const updateFeatureHandleAnchors = React.useCallback(
-      (updater: (next: Map<string, FeatureHandleAnchor>) => void) => {
-        setFeatureHandleAnchors((prev) => {
-          const next = new Map(prev);
-          updater(next);
-          return next;
-        });
-      },
-      [],
-    );
     React.useEffect(
       () => () => {
         setFeatureClipboard(null);
@@ -411,23 +396,9 @@ const LayoutEditorView = React.memo(
     const handleFeatureAdded = React.useCallback(
       (feature: ClassroomFeature) => {
         setFeatureVisible(feature.type, true);
-        if (feature.anchor === 'free' && feature.movable) {
-          updateFeatureHandleAnchors((next) => {
-            if (!next.has(feature.id)) {
-              next.set(
-                feature.id,
-                calculateFeatureHandleAnchor(
-                  feature.width,
-                  feature.height,
-                  feature.rotation ?? 0,
-                ),
-              );
-            }
-          });
-        }
         setActiveFeatureId(feature.id);
       },
-      [setActiveFeatureId, setFeatureVisible, updateFeatureHandleAnchors],
+      [setActiveFeatureId, setFeatureVisible],
     );
     const handleCopyFeature = React.useCallback(
       (featureId: string) => {
@@ -449,9 +420,6 @@ const LayoutEditorView = React.memo(
         if (!targetFeature) {
           return;
         }
-        updateFeatureHandleAnchors((next) => {
-          next.delete(featureId);
-        });
         snapshot();
         runSceneTransaction(({ features, scene, tables, seating }) => {
           const existing = features ?? scene.features ?? [];
@@ -478,7 +446,6 @@ const LayoutEditorView = React.memo(
         setActiveFeatureId,
         setFeatureVisible,
         snapshot,
-        updateFeatureHandleAnchors,
       ],
     );
 
@@ -490,9 +457,6 @@ const LayoutEditorView = React.memo(
         }
         setFeatureClipboard([deepClone(feature)]);
         snapshot();
-        updateFeatureHandleAnchors((next) => {
-          next.delete(featureId);
-        });
         runSceneTransaction(({ features, scene, tables, seating }) => {
           const existing = features ?? scene.features ?? [];
           const nextFeatures = existing.filter((item) => item.id !== featureId);
@@ -517,7 +481,6 @@ const LayoutEditorView = React.memo(
         setActiveFeatureId,
         setFeatureVisible,
         snapshot,
-        updateFeatureHandleAnchors,
       ],
     );
 
@@ -1164,7 +1127,6 @@ const LayoutEditorView = React.memo(
       onTableUpdate,
       onTransformStart: snapshot,
       onFeaturePointerDown: handleFeaturePointerDown,
-      featureHandleAnchors,
     };
 
     const tableMenuConfig = {

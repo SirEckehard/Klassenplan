@@ -9,8 +9,10 @@ import { FEATURE_TYPE_ICONS, FEATURE_TYPE_LABEL_KEYS } from '@/utils/ui';
 
 /** Features thinner than this render as a plain colored rect without icon. */
 const MIN_ICON_EDGE = 20;
-const ICON_MIN_SIZE = 14;
-const ICON_MAX_SIZE = 40;
+/** Uniform glyph size so podium/cabinet icons match the thin wall elements. */
+const ICON_SIZE = 16;
+/** Selection stroke matching the table selection color. */
+const ACTIVE_STROKE = '#3b82f6';
 
 type FeatureShapeProps = {
   feature: ClassroomFeature;
@@ -22,11 +24,16 @@ type FeatureShapeProps = {
    * plus this value so it stays upright on the final page/screen.
    */
   extraIconRotation?: number;
-  /** 'active' draws the stroke only while `isActive` (editor selection). */
-  strokeMode?: 'none' | 'always' | 'active';
+  /** Editor selection: switches the always-on frame to the selection color. */
   isActive?: boolean;
   /** Extra props for the rect, e.g. pointer handlers in the editor. */
   rectProps?: React.SVGProps<SVGRectElement>;
+  /**
+   * Extra props for the outer group, e.g. hover tracking in the editor
+   * (covers the rect and the rotate handle, so the hover state doesn't
+   * flicker when the pointer moves onto the handle).
+   */
+  groupProps?: React.SVGProps<SVGGElement>;
   /**
    * Rendered inside the rotated feature frame (local coordinates), e.g. the
    * editor's rotate handle. Must stay inside the frame so handle anchor math
@@ -46,9 +53,9 @@ export default function FeatureShape({
   feature,
   styles,
   extraIconRotation = 0,
-  strokeMode = 'always',
   isActive = false,
   rectProps,
+  groupProps,
   children,
 }: FeatureShapeProps) {
   const { t } = useTranslation('generator');
@@ -62,14 +69,8 @@ export default function FeatureShape({
   const name = t(FEATURE_TYPE_LABEL_KEYS[feature.type], feature.label ?? '');
   const IconGlyph = FEATURE_TYPE_ICONS[feature.type];
   const minEdge = Math.min(width, height);
-  const iconSize = Math.min(
-    Math.max(Math.round(minEdge * 0.6), ICON_MIN_SIZE),
-    ICON_MAX_SIZE,
-  );
+  const iconSize = ICON_SIZE;
   const iconRotation = ((-(rotation + extraIconRotation) % 360) + 360) % 360;
-
-  const showStroke =
-    strokeMode === 'always' || (strokeMode === 'active' && isActive);
 
   return (
     <g
@@ -77,6 +78,7 @@ export default function FeatureShape({
       transform={transform}
       role="img"
       aria-label={name}
+      {...groupProps}
     >
       <title>{name}</title>
       <rect
@@ -86,8 +88,8 @@ export default function FeatureShape({
         height={height}
         rx={FEATURE_CORNER_RADIUS}
         fill={styles.fill}
-        stroke={showStroke ? styles.stroke : 'none'}
-        strokeWidth={showStroke ? 2 : 0}
+        stroke={isActive ? ACTIVE_STROKE : styles.stroke}
+        strokeWidth={isActive ? 2.4 : 1.5}
         {...rectProps}
       />
       {minEdge >= MIN_ICON_EDGE && (

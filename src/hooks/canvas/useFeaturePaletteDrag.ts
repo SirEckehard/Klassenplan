@@ -747,7 +747,9 @@ export function useFeaturePaletteDrag({
       feature: ClassroomFeature,
       event: React.PointerEvent<SVGElement>,
     ): void => {
-      if (feature.type !== 'podium') {
+      // Every freely placed, movable feature (podium, cabinet, divider, …)
+      // can be rotated — matching the rotate handle shown on the canvas.
+      if (feature.anchor !== 'free' || !feature.movable) {
         return;
       }
       const centerScene = {

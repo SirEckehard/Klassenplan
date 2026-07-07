@@ -178,11 +178,6 @@ export {
   convertClientPointToSvgCoordinates,
   createClientToSceneConverter,
 } from './canvas/coordinates';
-export {
-  calculateFeatureHandleAnchor,
-  DEFAULT_HANDLE_MARGIN,
-  type FeatureHandleAnchor,
-} from './canvas/featureHandle';
 
 // ===== SEO =====
 export { getRouteMetadata } from './seo/routeMetadata';
