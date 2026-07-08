@@ -27,6 +27,9 @@ describe('useSceneHistory', () => {
   let mockSetSelectedTableIds: Mock<
     UseSceneHistoryParams['setSelectedTableIds']
   >;
+  let mockSetSelectedFeatureIds: Mock<
+    UseSceneHistoryParams['setSelectedFeatureIds']
+  >;
   let mockSetCurrentSeating: Mock<UseSceneHistoryParams['setCurrentSeating']>;
 
   const createMockTable = (index: number): ClassroomTable => ({
@@ -46,6 +49,7 @@ describe('useSceneHistory', () => {
     mockSetSceneTables = vi.fn();
     mockSetSceneFeatures = vi.fn();
     mockSetSelectedTableIds = vi.fn();
+    mockSetSelectedFeatureIds = vi.fn();
     mockSetCurrentSeating = vi.fn();
 
     mockClassroomScene = {
@@ -70,6 +74,7 @@ describe('useSceneHistory', () => {
         setSceneTables: mockSetSceneTables,
         setSceneFeatures: mockSetSceneFeatures,
         setSelectedTableIds: mockSetSelectedTableIds,
+        setSelectedFeatureIds: mockSetSelectedFeatureIds,
       }),
     );
 
@@ -87,6 +92,7 @@ describe('useSceneHistory', () => {
         setSceneTables: mockSetSceneTables,
         setSceneFeatures: mockSetSceneFeatures,
         setSelectedTableIds: mockSetSelectedTableIds,
+        setSelectedFeatureIds: mockSetSelectedFeatureIds,
       }),
     );
 
@@ -113,6 +119,7 @@ describe('useSceneHistory', () => {
         setSceneTables: mockSetSceneTables,
         setSceneFeatures: mockSetSceneFeatures,
         setSelectedTableIds: mockSetSelectedTableIds,
+        setSelectedFeatureIds: mockSetSelectedFeatureIds,
       }),
     );
 
@@ -141,6 +148,7 @@ describe('useSceneHistory', () => {
         setSceneTables: mockSetSceneTables,
         setSceneFeatures: mockSetSceneFeatures,
         setSelectedTableIds: mockSetSelectedTableIds,
+        setSelectedFeatureIds: mockSetSelectedFeatureIds,
       },
     });
 
@@ -159,6 +167,7 @@ describe('useSceneHistory', () => {
         setSceneTables: mockSetSceneTables,
         setSceneFeatures: mockSetSceneFeatures,
         setSelectedTableIds: mockSetSelectedTableIds,
+        setSelectedFeatureIds: mockSetSelectedFeatureIds,
       });
 
       act(() => {
@@ -183,6 +192,7 @@ describe('useSceneHistory', () => {
         setSceneTables: mockSetSceneTables,
         setSceneFeatures: mockSetSceneFeatures,
         setSelectedTableIds: mockSetSelectedTableIds,
+        setSelectedFeatureIds: mockSetSelectedFeatureIds,
       }),
     );
 
@@ -227,6 +237,7 @@ describe('useSceneHistory', () => {
         setSceneTables: mockSetSceneTables,
         setSceneFeatures: mockSetSceneFeatures,
         setSelectedTableIds: mockSetSelectedTableIds,
+        setSelectedFeatureIds: mockSetSelectedFeatureIds,
       },
     });
 
@@ -245,6 +256,7 @@ describe('useSceneHistory', () => {
         setSceneTables: mockSetSceneTables,
         setSceneFeatures: mockSetSceneFeatures,
         setSelectedTableIds: mockSetSelectedTableIds,
+        setSelectedFeatureIds: mockSetSelectedFeatureIds,
       });
 
       act(() => {
@@ -292,6 +304,7 @@ describe('useSceneHistory', () => {
         setSceneTables: mockSetSceneTables,
         setSceneFeatures: mockSetSceneFeatures,
         setSelectedTableIds: mockSetSelectedTableIds,
+        setSelectedFeatureIds: mockSetSelectedFeatureIds,
       }),
     );
 
@@ -320,6 +333,7 @@ describe('useSceneHistory', () => {
         setSceneTables: mockSetSceneTables,
         setSceneFeatures: mockSetSceneFeatures,
         setSelectedTableIds: mockSetSelectedTableIds,
+        setSelectedFeatureIds: mockSetSelectedFeatureIds,
       }),
     );
 
@@ -371,6 +385,7 @@ describe('useSceneHistory', () => {
         setSceneTables: mockSetSceneTables,
         setSceneFeatures: mockSetSceneFeatures,
         setSelectedTableIds: mockSetSelectedTableIds,
+        setSelectedFeatureIds: mockSetSelectedFeatureIds,
       }),
     );
 

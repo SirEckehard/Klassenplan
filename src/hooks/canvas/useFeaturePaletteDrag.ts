@@ -5,6 +5,7 @@ import type {
   ClassroomFeature,
   ClassroomFeatureType,
   ClassroomFeatureAnchor,
+  ClassroomTable,
 } from '@/types';
 import { useCanvasBoundingRect } from '@/hooks/canvas/useCanvasBoundingRect';
 import {
@@ -12,18 +13,16 @@ import {
   getRotatedAabbHalfExtents,
   GRID_SNAP_SIZE,
   snapRotationAngle,
+  calculateDragDelta,
+  applyDragMovement,
 } from '@/utils';
 import type { SceneTransactionRunner } from '@/hooks/scene/useSceneManager';
 import type { FeatureContextMenuState } from '@/hooks/useContextMenus';
+import type { FeatureTemplate } from '@/hooks/canvas/featureTemplates';
+import { applyFeatureGroupDelta } from '@/hooks/useTableInteraction';
 
-export type FeaturePaletteItem = {
-  type: ClassroomFeatureType;
-  label: string;
+export type FeaturePaletteItem = FeatureTemplate & {
   icon: React.ReactNode;
-  width: number;
-  height: number;
-  movable: boolean;
-  allowMultiple: boolean;
 };
 
 export type FeatureDragPreview = {
@@ -92,7 +91,7 @@ const determineAnchorForPoint = (
 };
 
 const getOrientedDimensions = (
-  template: FeaturePaletteItem,
+  template: FeatureTemplate,
   anchor: ClassroomFeatureAnchor,
 ) => {
   const isHorizontalWall = anchor === 'top' || anchor === 'bottom';
@@ -117,7 +116,7 @@ const getOrientedDimensions = (
 };
 
 export const placeMovableFeatureBase = (
-  template: FeaturePaletteItem,
+  template: FeatureTemplate,
   desiredX: number,
   desiredY: number,
   snapToGrid: boolean,
@@ -154,7 +153,7 @@ export const placeMovableFeatureBase = (
 };
 
 export const placeFixedFeatureBase = (
-  template: FeaturePaletteItem,
+  template: FeatureTemplate,
   pointerX: number,
   pointerY: number,
   snapToGrid: boolean,
@@ -261,7 +260,7 @@ export const rotateFeatureForAnchor = (
 };
 
 type UseFeaturePaletteDragOptions = {
-  featureTemplateMap: Map<ClassroomFeatureType, FeaturePaletteItem>;
+  featureTemplateMap: Map<ClassroomFeatureType, FeatureTemplate>;
   sceneFeatures: ClassroomFeature[];
   runSceneTransaction: SceneTransactionRunner;
   setSceneFeatures: React.Dispatch<React.SetStateAction<ClassroomFeature[]>>;
@@ -269,6 +268,15 @@ type UseFeaturePaletteDragOptions = {
   snapToGrid: boolean;
   classroomWidth: number;
   classroomHeight: number;
+  // Unified selection context, used to move a mixed group when a co-selected
+  // feature is grabbed.
+  selectedFeatureIds: string[];
+  selectedTableIds: number[];
+  sceneTables: ClassroomTable[];
+  updateSceneTables: (
+    updateFn: (tables: ClassroomTable[]) => ClassroomTable[],
+  ) => void;
+  commitScene: () => void;
   toSceneCoordinates: (
     svg: SVGSVGElement,
     clientX: number,
@@ -285,7 +293,12 @@ type UseFeaturePaletteDragOptions = {
     position?: { left: number; top: number },
   ) => void;
   closeFeatureContextMenu?: () => void;
-  setActiveFeatureId: React.Dispatch<React.SetStateAction<string | null>>;
+  /**
+   * Selects a feature as part of the unified selection. `additive` (Shift/Ctrl)
+   * toggles the feature within the current selection; otherwise a plain click
+   * selects only this feature and clears the rest of the selection.
+   */
+  selectFeature: (featureId: string, additive: boolean) => void;
 };
 
 export function useFeaturePaletteDrag({
@@ -297,13 +310,18 @@ export function useFeaturePaletteDrag({
   snapToGrid,
   classroomWidth,
   classroomHeight,
+  selectedFeatureIds,
+  selectedTableIds,
+  sceneTables,
+  updateSceneTables,
+  commitScene,
   toSceneCoordinates,
   sceneToClient,
   canvasRef,
   onFeatureAdded,
   openFeatureContextMenu,
   closeFeatureContextMenu,
-  setActiveFeatureId,
+  selectFeature,
 }: UseFeaturePaletteDragOptions) {
   const LONG_PRESS_DURATION = 500;
   const DRAG_DISTANCE_THRESHOLD = 6;
@@ -321,7 +339,7 @@ export function useFeaturePaletteDrag({
   } | null>(null);
   const pendingFeatureRef = React.useRef<{
     feature: ClassroomFeature;
-    template: FeaturePaletteItem;
+    template: FeatureTemplate;
     pointerId: number;
     startClientX: number;
     startClientY: number;
@@ -353,9 +371,33 @@ export function useFeaturePaletteDrag({
     new Map(),
   );
 
+  // Live refs for the unified selection, read inside stable pointer listeners.
+  const selectedFeatureIdsRef = React.useRef(selectedFeatureIds);
+  const selectedTableIdsRef = React.useRef(selectedTableIds);
+  const sceneTablesRef = React.useRef(sceneTables);
+  const groupDragRef = React.useRef<{
+    pointerId: number;
+    startScene: { x: number; y: number };
+    capturedFeatures: Map<string, { x: number; y: number }>;
+    capturedTables: { index: number; startX: number; startY: number }[];
+    moved: boolean;
+  } | null>(null);
+
   React.useEffect(() => {
     latestFeaturesRef.current = sceneFeatures;
   }, [sceneFeatures]);
+
+  React.useEffect(() => {
+    selectedFeatureIdsRef.current = selectedFeatureIds;
+  }, [selectedFeatureIds]);
+
+  React.useEffect(() => {
+    selectedTableIdsRef.current = selectedTableIds;
+  }, [selectedTableIds]);
+
+  React.useEffect(() => {
+    sceneTablesRef.current = sceneTables;
+  }, [sceneTables]);
 
   const getCanvasPointerMetrics = React.useCallback(
     (pointerId: number, clientX: number, clientY: number) => {
@@ -818,7 +860,7 @@ export function useFeaturePaletteDrag({
       }
 
       cancelPendingFeatureInteraction();
-      setActiveFeatureId(feature.id);
+      selectFeature(feature.id, false);
 
       featureRotationRef.current = {
         featureId: feature.id,
@@ -846,14 +888,139 @@ export function useFeaturePaletteDrag({
       handleFeatureRotateEnd,
       handleFeatureRotateMove,
       sceneToClient,
-      setActiveFeatureId,
+      selectFeature,
     ],
   );
+
+  // --- Unified group drag (moving a mixed table + feature selection by
+  // grabbing one of the selected features) ---
+  const handleGroupDragMove = React.useCallback(
+    (event: PointerEvent) => {
+      const state = groupDragRef.current;
+      if (!state || event.pointerId !== state.pointerId) {
+        return;
+      }
+      const canvas = canvasRef.current;
+      if (!canvas) {
+        return;
+      }
+      const point = toSceneCoordinates(canvas, event.clientX, event.clientY);
+      const delta = calculateDragDelta(state.startScene, point, snapToGrid);
+      state.moved = true;
+
+      setSceneFeatures((features) => {
+        const next = applyFeatureGroupDelta(
+          features,
+          state.capturedFeatures,
+          delta,
+          { width: classroomWidth, height: classroomHeight },
+        );
+        latestFeaturesRef.current = next;
+        return next;
+      });
+
+      if (state.capturedTables.length > 0) {
+        const indices = state.capturedTables.map((entry) => entry.index);
+        const starts = state.capturedTables.map((entry) => ({
+          x: entry.startX,
+          y: entry.startY,
+        }));
+        updateSceneTables((tables) =>
+          applyDragMovement(tables || [], indices, starts, delta, {
+            width: classroomWidth,
+            height: classroomHeight,
+          }),
+        );
+      }
+    },
+    [
+      canvasRef,
+      classroomHeight,
+      classroomWidth,
+      setSceneFeatures,
+      snapToGrid,
+      toSceneCoordinates,
+      updateSceneTables,
+    ],
+  );
+
+  const endGroupDrag = React.useCallback(
+    function endGroupDrag(event: PointerEvent) {
+      const state = groupDragRef.current;
+      if (!state || event.pointerId !== state.pointerId) {
+        return;
+      }
+      window.removeEventListener('pointermove', handleGroupDragMove);
+      window.removeEventListener('pointerup', endGroupDrag);
+      groupDragRef.current = null;
+      if (state.moved) {
+        snapshot();
+        commitScene();
+      }
+    },
+    [commitScene, handleGroupDragMove, snapshot],
+  );
+
+  const startGroupFeatureDrag = React.useCallback(
+    (pointerId: number, clientX: number, clientY: number) => {
+      const canvas = canvasRef.current;
+      if (!canvas) {
+        return;
+      }
+      cancelPendingFeatureInteraction();
+
+      const capturedFeatures = new Map<string, { x: number; y: number }>();
+      latestFeaturesRef.current.forEach((feature) => {
+        if (
+          selectedFeatureIdsRef.current.includes(feature.id) &&
+          feature.anchor === 'free' &&
+          feature.movable
+        ) {
+          capturedFeatures.set(feature.id, { x: feature.x, y: feature.y });
+        }
+      });
+      const capturedTables = selectedTableIdsRef.current
+        .filter((index) => !sceneTablesRef.current[index]?.locked)
+        .map((index) => ({
+          index,
+          startX: sceneTablesRef.current[index].x,
+          startY: sceneTablesRef.current[index].y,
+        }));
+
+      groupDragRef.current = {
+        pointerId,
+        startScene: toSceneCoordinates(canvas, clientX, clientY),
+        capturedFeatures,
+        capturedTables,
+        moved: false,
+      };
+
+      window.addEventListener('pointermove', handleGroupDragMove);
+      window.addEventListener('pointerup', endGroupDrag);
+    },
+    [
+      canvasRef,
+      cancelPendingFeatureInteraction,
+      endGroupDrag,
+      handleGroupDragMove,
+      toSceneCoordinates,
+    ],
+  );
+
+  // Whether grabbing `featureId` should move the whole unified selection
+  // instead of just that single feature.
+  const shouldGroupDrag = React.useCallback((featureId: string) => {
+    const selectedFeatures = selectedFeatureIdsRef.current;
+    if (!selectedFeatures.includes(featureId)) {
+      return false;
+    }
+    return selectedFeatures.length + selectedTableIdsRef.current.length > 1;
+  }, []);
 
   const startFeatureDrag = React.useCallback(
     (
       feature: ClassroomFeature,
-      template: FeaturePaletteItem,
+      template: FeatureTemplate,
       pointerId: number,
       clientX: number,
       clientY: number,
@@ -909,7 +1076,8 @@ export function useFeaturePaletteDrag({
     (feature: ClassroomFeature, event: React.PointerEvent<SVGRectElement>) => {
       event.stopPropagation();
       event.preventDefault();
-      setActiveFeatureId(feature.id);
+      const additive = event.shiftKey || event.ctrlKey || event.metaKey;
+      selectFeature(feature.id, additive);
 
       const template = featureTemplateMap.get(feature.type);
       if (!template) {
@@ -957,14 +1125,25 @@ export function useFeaturePaletteDrag({
           deltaX > DRAG_DISTANCE_THRESHOLD ||
           deltaY > DRAG_DISTANCE_THRESHOLD
         ) {
-          startFeatureDrag(
-            pending.feature,
-            pending.template,
-            moveEvent.pointerId,
-            moveEvent.clientX,
-            moveEvent.clientY,
-          );
-          handleFeatureDragMove(moveEvent);
+          if (shouldGroupDrag(pending.feature.id)) {
+            // Grabbing a feature that is part of a mixed selection moves the
+            // whole unified group (tables + movable features) together.
+            startGroupFeatureDrag(
+              moveEvent.pointerId,
+              moveEvent.clientX,
+              moveEvent.clientY,
+            );
+            handleGroupDragMove(moveEvent);
+          } else {
+            startFeatureDrag(
+              pending.feature,
+              pending.template,
+              moveEvent.pointerId,
+              moveEvent.clientX,
+              moveEvent.clientY,
+            );
+            handleFeatureDragMove(moveEvent);
+          }
         }
       };
 
@@ -986,9 +1165,12 @@ export function useFeaturePaletteDrag({
       cancelPendingFeatureInteraction,
       featureTemplateMap,
       handleFeatureDragMove,
+      handleGroupDragMove,
       openFeatureContextMenu,
-      setActiveFeatureId,
+      selectFeature,
+      shouldGroupDrag,
       startFeatureDrag,
+      startGroupFeatureDrag,
     ],
   );
 
@@ -1043,13 +1225,18 @@ export function useFeaturePaletteDrag({
       cancelPendingFeatureInteraction();
       window.removeEventListener('pointermove', handleFeatureRotateMove);
       window.removeEventListener('pointerup', handleFeatureRotateEnd);
+      window.removeEventListener('pointermove', handleGroupDragMove);
+      window.removeEventListener('pointerup', endGroupDrag);
       featureRotationRef.current = null;
+      groupDragRef.current = null;
     };
   }, [
     cancelPendingFeatureInteraction,
     clearPaletteDrag,
+    endGroupDrag,
     handleFeatureRotateEnd,
     handleFeatureRotateMove,
+    handleGroupDragMove,
     resetActiveDrag,
   ]);
 

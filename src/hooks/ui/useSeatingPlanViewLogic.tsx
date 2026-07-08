@@ -2,7 +2,9 @@
 // Copyright (C) 2026 Eike Schäfer
 /* eslint-disable react-hooks/refs -- refs are used as stable references to avoid re-renders in template/selection management */
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';
+import { buildFeatureTemplateMap } from '@/hooks/canvas/featureTemplates';
 import type {
   SeatingArrangement,
   ClassroomScene,
@@ -16,6 +18,7 @@ import {
   createClientToSceneConverter,
 } from '@/utils';
 import useTableSelection from '@/hooks/useTableSelection';
+import useFeatureSelection from '@/hooks/useFeatureSelection';
 import usePersistentState from '@/hooks/usePersistentState';
 import useTableInteraction from '@/hooks/useTableInteraction';
 import { countSeats } from '@/utils/math/scene';
@@ -88,6 +91,7 @@ export function useSeatingPlanViewLogic({
   autoMixError = null,
 }: SeatingPlanViewProps) {
   const navigate = useLocalizedNavigate();
+  const { t } = useTranslation('generator');
 
   const seatingPlanState = useOptionalSeatingPlanState();
   const seatingPlanActions = useOptionalSeatingPlanActions();
@@ -120,8 +124,23 @@ export function useSeatingPlanViewLogic({
     selectedTables: selectedTableIds,
     setSelectedTables: setSelectedTableIds,
     toggleSelect,
-    clearSelection,
+    clearSelection: clearTableSelection,
   } = useTableSelection(sceneTables);
+
+  const {
+    selectedFeatureIds,
+    setSelectedFeatureIds,
+    toggleFeatureSelect,
+    clearFeatureSelection,
+  } = useFeatureSelection();
+
+  // Unified selection covers both tables and features simultaneously, so
+  // clearing (e.g. clicking empty canvas or starting a box selection) resets
+  // both id-spaces at once.
+  const clearSelection = React.useCallback(() => {
+    clearTableSelection();
+    clearFeatureSelection();
+  }, [clearTableSelection, clearFeatureSelection]);
 
   // Scene History Management
   const { history, snapshot, undo } = useSceneHistory({
@@ -132,6 +151,7 @@ export function useSeatingPlanViewLogic({
     setSceneTables,
     setSceneFeatures,
     setSelectedTableIds,
+    setSelectedFeatureIds,
   });
 
   const [snapToGrid, setSnapToGrid] = React.useState(true); // Toggle to snap table positions to the grid
@@ -162,6 +182,13 @@ export function useSeatingPlanViewLogic({
   const classroomWidth = CLASSROOM_WIDTH;
   const classroomHeight = CLASSROOM_HEIGHT;
   const canvasWidth = Math.max(classroomWidth, BOARD_WIDTH); // Ensure the board fits horizontally
+
+  // Shared feature template map (geometry/labels) reused by the sidebar palette
+  // and the unified copy/paste feature operations.
+  const featureTemplateMap = React.useMemo(
+    () => buildFeatureTemplateMap(t),
+    [t],
+  );
 
   const toSceneCoordinates = React.useMemo(
     () =>
@@ -238,6 +265,9 @@ export function useSeatingPlanViewLogic({
     cancelSelectionInteraction,
   } = useTableInteraction({
     sceneTables,
+    sceneFeatures,
+    selectedFeatureIds,
+    setSceneFeatures,
     updateSceneTables,
     runSceneTransaction,
     snapshot,
@@ -376,12 +406,18 @@ export function useSeatingPlanViewLogic({
     const canvasProps: Omit<CanvasInteractionLayerProps, 'children'> = {
       classroomHeight,
       classroomWidth,
+      canvasWidth,
       sceneTables,
+      sceneFeatures,
       selectedTableIds,
+      selectedFeatureIds,
       classroomScene,
       snapToGrid,
       studentsCount,
+      featureTemplateMap,
+      setFeatureVisible,
       setSelectedTableIds,
+      setSelectedFeatureIds,
       updateClassroomScene,
       removeTables,
       runSceneTransaction,
@@ -428,9 +464,15 @@ export function useSeatingPlanViewLogic({
         sceneTables={sceneTables}
         sceneFeatures={sceneFeatures}
         setSceneFeatures={setSceneFeatures}
+        updateSceneTables={updateSceneTables}
         runSceneTransaction={runSceneTransaction}
         selectedTableIds={selectedTableIds}
         setSelectedTableIds={setSelectedTableIds}
+        selectedFeatureIds={selectedFeatureIds}
+        setSelectedFeatureIds={setSelectedFeatureIds}
+        toggleFeatureSelect={toggleFeatureSelect}
+        clearFeatureSelection={clearFeatureSelection}
+        featureTemplateMap={featureTemplateMap}
         onTemplatePointerDown={startTemplateDrag}
         canvasRef={canvasRef}
         templateDragPreview={templateDragPreview}

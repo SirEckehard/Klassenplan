@@ -152,11 +152,13 @@ describe('useCanvasInteraction', () => {
     renderHook(() =>
       useCanvasInteraction({
         sceneTables: mockSceneTables,
+        sceneFeatures: [],
         clipboard: mockClipboard,
         classroomWidth: 900,
         classroomHeight: 600,
         toSceneCoordinates: mockToSceneCoordinates,
         setSelectedTableIds: mockSetSelectedTableIds,
+        setSelectedFeatureIds: vi.fn(),
         clearSelection: mockClearSelection,
         applySelectionForTable: mockApplySelectionForTable,
         openTableContextMenu: mockOpenTableContextMenu,

@@ -47,13 +47,9 @@ interface UseCanvasContextMenusOptions {
    */
   focusCanvasContainer?: () => void;
   /**
-   * Whether paste is currently available
+   * Whether paste is currently available (tables or features)
    */
-  canPasteTables: boolean;
-  /**
-   * Whether feature paste is available
-   */
-  canPasteFeatures: boolean;
+  canPaste: boolean;
 }
 
 interface UseCanvasContextMenusReturn {
@@ -106,8 +102,7 @@ export function useCanvasContextMenus(
     onCloseCanvasContextMenu,
     onCloseFeatureContextMenu,
     focusCanvasContainer,
-    canPasteTables,
-    canPasteFeatures,
+    canPaste,
   } = options;
 
   const {
@@ -244,15 +239,10 @@ export function useCanvasContextMenus(
 
   // Auto-close canvas menu when paste becomes unavailable
   useEffect(() => {
-    if (!canPasteTables && !canPasteFeatures && canvasContextMenu) {
+    if (!canPaste && canvasContextMenu) {
       handleCloseCanvasMenu();
     }
-  }, [
-    canPasteTables,
-    canPasteFeatures,
-    canvasContextMenu,
-    handleCloseCanvasMenu,
-  ]);
+  }, [canPaste, canvasContextMenu, handleCloseCanvasMenu]);
 
   // ESC key handler
   const handleEscapeKey = useCallback(() => {

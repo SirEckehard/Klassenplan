@@ -59,34 +59,18 @@ import {
   primaryButtonClass,
   neutralButtonClass,
   secondaryButtonClass,
-  generateId,
-  deepClone,
-  WINDOW_WIDTH,
-  WINDOW_HEIGHT,
-  DOOR_WIDTH,
-  DOOR_HEIGHT,
-  BOARD_WIDTH,
-  BOARD_HEIGHT,
-  PODIUM_WIDTH,
-  PODIUM_HEIGHT,
-  WHITEBOARD_WIDTH,
-  WHITEBOARD_HEIGHT,
-  CABINET_WIDTH,
-  CABINET_HEIGHT,
-  DIVIDER_WIDTH,
-  DIVIDER_HEIGHT,
   createClientToSceneConverter,
 } from '@/utils';
 import { FEATURE_TYPES, type FeatureVisibilityFlags } from '@/utils/ui';
 import { buildFeatureVisibilityGroup } from '@/components/SeatingPlanGenerator/canvas/featureVisibilityGroup';
 import {
   useFeaturePaletteDrag,
-  rotateFeatureForAnchor,
-  placeMovableFeatureBase,
-  placeFixedFeatureBase,
   type FeaturePaletteItem,
-  type FeaturePlacement,
 } from '@/hooks/canvas/useFeaturePaletteDrag';
+import {
+  buildFeatureTemplates,
+  type FeatureTemplate,
+} from '@/hooks/canvas/featureTemplates';
 import type { SceneTransactionRunner } from '@/hooks/scene/useSceneManager';
 
 type Props = {
@@ -115,9 +99,17 @@ type Props = {
   sceneTables: ClassroomTable[];
   sceneFeatures: ClassroomFeature[];
   setSceneFeatures: React.Dispatch<React.SetStateAction<ClassroomFeature[]>>;
+  updateSceneTables: (
+    updateFn: (tables: ClassroomTable[]) => ClassroomTable[],
+  ) => void;
   runSceneTransaction: SceneTransactionRunner;
   selectedTableIds: number[];
   setSelectedTableIds: React.Dispatch<React.SetStateAction<number[]>>;
+  selectedFeatureIds: string[];
+  setSelectedFeatureIds: React.Dispatch<React.SetStateAction<string[]>>;
+  toggleFeatureSelect: (id: string, multi?: boolean) => string[];
+  clearFeatureSelection: () => void;
+  featureTemplateMap: Map<ClassroomFeatureType, FeatureTemplate>;
   canvasHandlers: CanvasInteractionHandlers;
   onTemplatePointerDown: (
     type: TableTemplateType,
@@ -178,9 +170,15 @@ const LayoutEditorView = React.memo(
     sceneTables,
     sceneFeatures,
     setSceneFeatures,
+    updateSceneTables,
     runSceneTransaction,
     selectedTableIds,
     setSelectedTableIds,
+    selectedFeatureIds,
+    setSelectedFeatureIds,
+    toggleFeatureSelect,
+    clearFeatureSelection,
+    featureTemplateMap,
     canvasHandlers,
     onTemplatePointerDown,
     canvasRef,
@@ -208,94 +206,42 @@ const LayoutEditorView = React.memo(
     const canvasMenuRef = React.useRef<HTMLDivElement | null>(null);
     const featureMenuRef = React.useRef<HTMLDivElement | null>(null);
 
-    const FEATURE_PALETTE = React.useMemo<FeaturePaletteItem[]>(
-      () => [
-        {
-          type: 'window',
-          label: t('layout.window', 'Fenster'),
-          icon: <PanoramaIcon size={16} />,
-          width: WINDOW_WIDTH,
-          height: WINDOW_HEIGHT,
-          movable: false,
-          allowMultiple: true,
-        },
-        {
-          type: 'door',
-          label: t('layout.door', 'Tür'),
-          icon: <DoorIcon size={16} />,
-          width: DOOR_WIDTH,
-          height: DOOR_HEIGHT,
-          movable: false,
-          allowMultiple: true,
-        },
-        {
-          type: 'board',
-          label: t('layout.board', 'Tafel'),
-          icon: <ChalkboardSimpleIcon size={16} />,
-          width: BOARD_WIDTH,
-          height: BOARD_HEIGHT,
-          movable: false,
-          allowMultiple: false,
-        },
-        {
-          type: 'podium',
-          label: t('layout.podium', 'Pult'),
-          icon: <LecternIcon size={16} />,
-          width: PODIUM_WIDTH,
-          height: PODIUM_HEIGHT,
-          movable: true,
-          allowMultiple: false,
-        },
-        {
-          type: 'whiteboard',
-          label: t('layout.whiteboard', 'Whiteboard'),
-          icon: <PresentationIcon size={16} />,
-          width: WHITEBOARD_WIDTH,
-          height: WHITEBOARD_HEIGHT,
-          movable: false,
-          allowMultiple: true,
-        },
-        {
-          type: 'cabinet',
-          label: t('layout.cabinet', 'Schrank'),
-          icon: <LockersIcon size={16} />,
-          width: CABINET_WIDTH,
-          height: CABINET_HEIGHT,
-          movable: true,
-          allowMultiple: true,
-        },
-        {
-          type: 'divider',
-          label: t('layout.divider', 'Raumtrenner'),
-          icon: <WallIcon size={16} />,
-          width: DIVIDER_WIDTH,
-          height: DIVIDER_HEIGHT,
-          movable: true,
-          allowMultiple: true,
-        },
-      ],
-      [t],
+    // Palette icons keyed by feature type; combined with the shared geometry
+    // templates to build the sidebar palette entries.
+    const FEATURE_ICONS = React.useMemo<
+      Record<ClassroomFeatureType, React.ReactNode>
+    >(
+      () => ({
+        window: <PanoramaIcon size={16} />,
+        door: <DoorIcon size={16} />,
+        board: <ChalkboardSimpleIcon size={16} />,
+        podium: <LecternIcon size={16} />,
+        whiteboard: <PresentationIcon size={16} />,
+        cabinet: <LockersIcon size={16} />,
+        divider: <WallIcon size={16} />,
+      }),
+      [],
     );
 
-    const featureTemplateMap = React.useMemo(() => {
-      const map = new Map<ClassroomFeatureType, FeaturePaletteItem>();
-      FEATURE_PALETTE.forEach((item) => map.set(item.type, item));
-      return map;
-    }, [FEATURE_PALETTE]);
+    const FEATURE_PALETTE = React.useMemo<FeaturePaletteItem[]>(
+      () =>
+        buildFeatureTemplates(t).map((template) => ({
+          ...template,
+          icon: FEATURE_ICONS[template.type],
+        })),
+      [t, FEATURE_ICONS],
+    );
 
     const {
       handleCanvasPointerMove,
       handleCanvasPointerUp,
       beginSelectionWithLongPress,
       handleTablePointerDown,
-      copySelectedTables,
-      cutSelectedTables,
-      deleteSelectedTables,
+      copySelection,
+      cutSelection,
+      deleteSelection,
       handleCanvasMenuPaste,
-      canPasteTables,
-      canPasteFeatures,
-      featureClipboard,
-      setFeatureClipboard,
+      canPaste,
       selectionBox,
     } = canvasHandlers;
 
@@ -326,8 +272,7 @@ const LayoutEditorView = React.memo(
       onCloseTableContextMenu,
       onCloseCanvasContextMenu,
       onCloseFeatureContextMenu: onCloseFeatureContextMenu ?? (() => {}),
-      canPasteTables,
-      canPasteFeatures,
+      canPaste,
     });
 
     const featureAvailability = React.useMemo(() => {
@@ -364,241 +309,38 @@ const LayoutEditorView = React.memo(
       }
     }, [sceneFeatures, setSceneFeatures]);
 
-    const hasFeatureClipboard = Boolean(
-      featureClipboard && featureClipboard.length > 0,
+    // Selects a feature as part of the unified selection. A plain click selects
+    // only this feature (clearing tables + other features); Shift/Ctrl toggles
+    // it additively while keeping the rest of the selection. Clicking a feature
+    // that is already selected keeps the whole selection so a group drag works.
+    const selectFeature = React.useCallback(
+      (featureId: string, additive: boolean) => {
+        if (additive) {
+          toggleFeatureSelect(featureId, true);
+          return;
+        }
+        if (!selectedFeatureIds.includes(featureId)) {
+          setSelectedTableIds([]);
+          setSelectedFeatureIds([featureId]);
+        }
+      },
+      [
+        selectedFeatureIds,
+        toggleFeatureSelect,
+        setSelectedTableIds,
+        setSelectedFeatureIds,
+      ],
     );
 
-    React.useEffect(
-      () => () => {
-        setFeatureClipboard(null);
-      },
-      [setFeatureClipboard],
-    );
-    const [activeFeatureId, setActiveFeatureId] = React.useState<string | null>(
-      null,
-    );
     const handleFeatureAdded = React.useCallback(
       (feature: ClassroomFeature) => {
         setFeatureVisible(feature.type, true);
-        setActiveFeatureId(feature.id);
+        setSelectedTableIds([]);
+        setSelectedFeatureIds([feature.id]);
       },
-      [setActiveFeatureId, setFeatureVisible],
-    );
-    const handleCopyFeature = React.useCallback(
-      (featureId: string) => {
-        const feature = sceneFeatures.find((item) => item.id === featureId);
-        if (!feature) {
-          return;
-        }
-        setFeatureClipboard([deepClone(feature)]);
-        closeFeatureContextMenu();
-      },
-      [closeFeatureContextMenu, sceneFeatures, setFeatureClipboard],
+      [setFeatureVisible, setSelectedTableIds, setSelectedFeatureIds],
     );
 
-    const handleDeleteFeature = React.useCallback(
-      (featureId: string) => {
-        const targetFeature = sceneFeatures.find(
-          (item) => item.id === featureId,
-        );
-        if (!targetFeature) {
-          return;
-        }
-        snapshot();
-        runSceneTransaction(({ features, scene, tables, seating }) => {
-          const existing = features ?? scene.features ?? [];
-          const nextFeatures = existing.filter(
-            (feature) => feature.id !== featureId,
-          );
-          return {
-            features: nextFeatures,
-            scene: { ...scene, features: nextFeatures },
-            tables,
-            seating,
-          };
-        });
-        if (targetFeature.type === 'board') {
-          setFeatureVisible('board', false);
-        }
-        setActiveFeatureId((prev) => (prev === featureId ? null : prev));
-        closeFeatureContextMenu();
-      },
-      [
-        closeFeatureContextMenu,
-        runSceneTransaction,
-        sceneFeatures,
-        setActiveFeatureId,
-        setFeatureVisible,
-        snapshot,
-      ],
-    );
-
-    const handleCutFeature = React.useCallback(
-      (featureId: string) => {
-        const feature = sceneFeatures.find((item) => item.id === featureId);
-        if (!feature) {
-          return;
-        }
-        setFeatureClipboard([deepClone(feature)]);
-        snapshot();
-        runSceneTransaction(({ features, scene, tables, seating }) => {
-          const existing = features ?? scene.features ?? [];
-          const nextFeatures = existing.filter((item) => item.id !== featureId);
-          return {
-            features: nextFeatures,
-            scene: { ...scene, features: nextFeatures },
-            tables,
-            seating,
-          };
-        });
-        if (feature.type === 'board') {
-          setFeatureVisible('board', false);
-        }
-        setActiveFeatureId((prev) => (prev === featureId ? null : prev));
-        closeFeatureContextMenu();
-      },
-      [
-        closeFeatureContextMenu,
-        runSceneTransaction,
-        sceneFeatures,
-        setFeatureClipboard,
-        setActiveFeatureId,
-        setFeatureVisible,
-        snapshot,
-      ],
-    );
-
-    React.useEffect(() => {
-      const handleFeatureDeleteKey = (event: KeyboardEvent) => {
-        if (event.key !== 'Delete' && event.key !== 'Backspace') {
-          return;
-        }
-
-        if (!activeFeatureId) {
-          return;
-        }
-
-        const activeElement = document.activeElement;
-        if (
-          activeElement &&
-          (activeElement instanceof HTMLInputElement ||
-            activeElement instanceof HTMLTextAreaElement ||
-            activeElement instanceof HTMLSelectElement ||
-            (activeElement instanceof HTMLElement &&
-              activeElement.isContentEditable))
-        ) {
-          return;
-        }
-
-        if (selectedTableIds.length > 0) {
-          return;
-        }
-
-        event.preventDefault();
-        handleDeleteFeature(activeFeatureId);
-      };
-
-      window.addEventListener('keydown', handleFeatureDeleteKey);
-      return () => {
-        window.removeEventListener('keydown', handleFeatureDeleteKey);
-      };
-    }, [activeFeatureId, handleDeleteFeature, selectedTableIds]);
-
-    const performFeaturePaste = React.useCallback(
-      (state: CanvasContextMenuState) => {
-        const clipboardFeatures = featureClipboard;
-        if (!clipboardFeatures || clipboardFeatures.length === 0) {
-          return;
-        }
-
-        const sceneX = state.sceneX ?? canvasWidth / 2;
-        const sceneY = state.sceneY ?? classroomHeight / 2;
-
-        const pastedFeatures = clipboardFeatures
-          .map((feature, index) => {
-            const template = featureTemplateMap.get(feature.type);
-            if (!template) {
-              return null;
-            }
-
-            let placement: FeaturePlacement;
-            if (template.movable) {
-              const offset = index * 20;
-              placement = placeMovableFeatureBase(
-                template,
-                sceneX - template.width / 2 + offset,
-                sceneY - template.height / 2 + offset,
-                snapToGrid,
-                canvasWidth,
-                classroomHeight,
-                feature.rotation ?? 0,
-              );
-            } else {
-              placement = placeFixedFeatureBase(
-                template,
-                sceneX,
-                sceneY,
-                snapToGrid,
-                canvasWidth,
-                classroomHeight,
-              );
-            }
-
-            let nextFeature: ClassroomFeature = {
-              ...feature,
-              id: generateId(),
-              x: placement.x,
-              y: placement.y,
-              width: placement.width ?? template.width,
-              height: placement.height ?? template.height,
-              movable: template.movable,
-              anchor: placement.anchor,
-              label: template.label,
-              rotation: feature.rotation ?? 0,
-            };
-
-            if (!template.movable) {
-              nextFeature = rotateFeatureForAnchor(
-                nextFeature,
-                placement.anchor,
-              );
-            }
-
-            return nextFeature;
-          })
-          .filter((item): item is ClassroomFeature => item !== null);
-
-        if (pastedFeatures.length === 0) {
-          return;
-        }
-
-        pastedFeatures.forEach((createdFeature) => {
-          handleFeatureAdded(createdFeature);
-        });
-
-        snapshot();
-        runSceneTransaction(({ features, scene, tables, seating }) => {
-          const existing = features ?? scene.features ?? [];
-          const nextFeatures = [...existing, ...pastedFeatures];
-          return {
-            features: nextFeatures,
-            scene: { ...scene, features: nextFeatures },
-            tables,
-            seating,
-          };
-        });
-      },
-      [
-        canvasWidth,
-        classroomHeight,
-        featureClipboard,
-        snapToGrid,
-        runSceneTransaction,
-        handleFeatureAdded,
-        snapshot,
-        featureTemplateMap,
-      ],
-    );
     const toSceneCoordinates = React.useMemo(
       () =>
         createClientToSceneConverter({
@@ -700,13 +442,18 @@ const LayoutEditorView = React.memo(
       snapToGrid,
       classroomWidth: canvasWidth,
       classroomHeight,
+      selectedFeatureIds,
+      selectedTableIds,
+      sceneTables,
+      updateSceneTables,
+      commitScene: onTableUpdate,
       toSceneCoordinates,
       sceneToClient,
       canvasRef,
       onFeatureAdded: handleFeatureAdded,
       openFeatureContextMenu,
       closeFeatureContextMenu,
-      setActiveFeatureId,
+      selectFeature,
     });
 
     const handleEscapeKeyWithQuickSetup = React.useCallback(() => {
@@ -802,7 +549,7 @@ const LayoutEditorView = React.memo(
           }
           return;
         }
-        setActiveFeatureId(null);
+        clearFeatureSelection();
         beginSelectionWithLongPress(e);
       },
       [
@@ -812,7 +559,7 @@ const LayoutEditorView = React.memo(
         handleCloseFeatureMenu,
         handleCloseTableMenu,
         featureContextMenu,
-        setActiveFeatureId,
+        clearFeatureSelection,
         tableContextMenu,
       ],
     );
@@ -837,11 +584,12 @@ const LayoutEditorView = React.memo(
             // Close canvas menu first
             closeCanvasContextMenu();
 
-            // Select the table if not already selected
+            // Select the table if not already selected. A fresh single-table
+            // selection also clears any feature selection.
             if (!selectedTableIds.includes(tableIndex)) {
               setSelectedTableIds([tableIndex]);
+              clearFeatureSelection();
             }
-            setActiveFeatureId(null);
 
             setTableContextMenu({
               tableIndex,
@@ -868,7 +616,9 @@ const LayoutEditorView = React.memo(
 
           closeTableContextMenu();
           closeCanvasContextMenu();
-          setActiveFeatureId(featureId);
+          // Ensure the right-clicked feature is part of the selection; if it
+          // already is, the whole (possibly mixed) selection is kept.
+          selectFeature(featureId, false);
 
           openFeatureContextMenu({
             featureId,
@@ -887,9 +637,9 @@ const LayoutEditorView = React.memo(
         }
 
         // Right-click on empty canvas - show paste menu
-        if (!canPasteTables && !hasFeatureClipboard) return;
+        if (!canPaste) return;
 
-        setActiveFeatureId(null);
+        clearFeatureSelection();
 
         closeFeatureContextMenu();
 
@@ -912,17 +662,17 @@ const LayoutEditorView = React.memo(
         });
       },
       [
-        canPasteTables,
+        canPaste,
         closeTableContextMenu,
         closeCanvasContextMenu,
         closeFeatureContextMenu,
-        hasFeatureClipboard,
         openFeatureContextMenu,
         setCanvasContextMenu,
         setTableContextMenu,
         sceneTables,
         selectedTableIds,
-        setActiveFeatureId,
+        clearFeatureSelection,
+        selectFeature,
         setSelectedTableIds,
       ],
     );
@@ -985,68 +735,38 @@ const LayoutEditorView = React.memo(
       ],
     );
 
-    const tableMenuActions = React.useMemo(
+    // Copy/cut/delete always act on the whole unified selection (tables +
+    // features), so the table and feature context menus share the same actions.
+    const withMenuClose = React.useCallback(
+      (action: () => void) => () => {
+        action();
+        closeTableContextMenu();
+        closeFeatureContextMenu();
+      },
+      [closeTableContextMenu, closeFeatureContextMenu],
+    );
+
+    const selectionMenuActions = React.useMemo(
       () => [
         {
           label: t('common.copy', 'Kopieren'),
           icon: Copy,
-          onSelect: copySelectedTables,
+          onSelect: withMenuClose(copySelection),
         },
         {
           label: t('common.cut', 'Ausschneiden'),
           icon: Scissors,
-          onSelect: cutSelectedTables,
+          onSelect: withMenuClose(cutSelection),
         },
         {
           label: t('common.delete', 'Entfernen'),
           icon: TrashIcon,
-          onSelect: deleteSelectedTables,
+          onSelect: withMenuClose(deleteSelection),
         },
       ],
-      [copySelectedTables, cutSelectedTables, deleteSelectedTables, t],
+      [copySelection, cutSelection, deleteSelection, withMenuClose, t],
     );
-    const canvasMenuActions = React.useMemo(() => {
-      if (!canvasContextMenu) return [];
-
-      const menuState = canvasContextMenu;
-      const actions: {
-        label: string;
-        icon: typeof ClipboardText;
-        onSelect: () => void;
-        disabled?: boolean;
-      }[] = [];
-
-      if (canPasteTables) {
-        actions.push({
-          label: t('canvas.pasteTables', 'Tische einfügen'),
-          icon: ClipboardText,
-          onSelect: () => handleCanvasMenuPaste(menuState),
-          disabled: !canPasteTables,
-        });
-      }
-
-      if (hasFeatureClipboard) {
-        actions.push({
-          label: t('canvas.pasteFeature', 'Raumelement einfügen'),
-          icon: ClipboardText,
-          onSelect: () => {
-            performFeaturePaste(menuState);
-            closeCanvasContextMenu();
-          },
-        });
-      }
-
-      return actions;
-    }, [
-      canvasContextMenu,
-      canPasteTables,
-      closeCanvasContextMenu,
-      handleCanvasMenuPaste,
-      hasFeatureClipboard,
-      performFeaturePaste,
-      t,
-    ]);
-
+    const tableMenuActions = selectionMenuActions;
     const featureMenuActions = React.useMemo(() => {
       if (!featureContextMenu) {
         return [];
@@ -1057,38 +777,28 @@ const LayoutEditorView = React.memo(
       if (!feature) {
         return [];
       }
+      return selectionMenuActions;
+    }, [featureContextMenu, sceneFeatures, selectionMenuActions]);
+
+    const canvasMenuActions = React.useMemo(() => {
+      if (!canvasContextMenu || !canPaste) return [];
+
+      const menuState = canvasContextMenu;
       return [
         {
-          label: t('common.copy', 'Kopieren'),
-          icon: Copy,
-          onSelect: () => handleCopyFeature(feature.id),
-        },
-        {
-          label: t('common.cut', 'Ausschneiden'),
-          icon: Scissors,
-          onSelect: () => handleCutFeature(feature.id),
-        },
-        {
-          label: t('common.delete', 'Entfernen'),
-          icon: TrashIcon,
-          onSelect: () => handleDeleteFeature(feature.id),
+          label: t('canvas.paste', 'Einfügen'),
+          icon: ClipboardText,
+          onSelect: () => handleCanvasMenuPaste(menuState),
         },
       ];
-    }, [
-      featureContextMenu,
-      sceneFeatures,
-      handleCopyFeature,
-      handleCutFeature,
-      handleDeleteFeature,
-      t,
-    ]);
+    }, [canvasContextMenu, canPaste, handleCanvasMenuPaste, t]);
     const canvasProps: React.ComponentProps<typeof ClassroomCanvas> = {
       canvasRef,
       canvasWidth,
       classroomHeight,
       showGrid,
       featureVisibility,
-      activeFeatureId,
+      selectedFeatureIds,
       onFeatureRotateStart: handleFeatureRotateStart,
       features: sceneFeatures ?? [],
       sceneTables,

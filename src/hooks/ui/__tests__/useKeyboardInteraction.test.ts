@@ -42,12 +42,13 @@ describe('useKeyboardInteraction', () => {
       classroomWidth: 800,
       classroomHeight: 600,
       snapshot: vi.fn(),
-      deleteSelectedTables: vi.fn(),
-      copySelectedTables: vi.fn(),
-      cutSelectedTables: vi.fn(),
-      pasteTablesAt: vi.fn(),
+      hasSelection: true,
+      deleteSelection: vi.fn(),
+      copySelection: vi.fn(),
+      cutSelection: vi.fn(),
+      pasteSelectionAt: vi.fn(),
       closeCanvasContextMenu: vi.fn(),
-      clipboard: null,
+      canPaste: false,
       ...overrides,
     };
   };
@@ -95,7 +96,7 @@ describe('useKeyboardInteraction', () => {
     const user = userEvent.setup();
     await user.keyboard('{Delete}');
 
-    expect(params.deleteSelectedTables).toHaveBeenCalled();
+    expect(params.deleteSelection).toHaveBeenCalled();
 
     unmount();
   });
@@ -107,19 +108,19 @@ describe('useKeyboardInteraction', () => {
     const user = userEvent.setup();
     await user.keyboard('{Control>}c{/Control}');
 
-    expect(params.copySelectedTables).toHaveBeenCalled();
+    expect(params.copySelection).toHaveBeenCalled();
 
     unmount();
   });
 
   it('handles paste shortcut when clipboard has content', async () => {
-    const params = createParams({ clipboard: [createMockTable(0)] });
+    const params = createParams({ canPaste: true });
     const { unmount } = renderHook(() => useKeyboardInteraction(params));
 
     const user = userEvent.setup();
     await user.keyboard('{Control>}v{/Control}');
 
-    expect(params.pasteTablesAt).toHaveBeenCalled();
+    expect(params.pasteSelectionAt).toHaveBeenCalled();
     expect(params.closeCanvasContextMenu).toHaveBeenCalled();
 
     unmount();
@@ -135,7 +136,7 @@ describe('useKeyboardInteraction', () => {
     const user = userEvent.setup();
     await user.keyboard('{Control>}c{/Control}');
 
-    expect(params.copySelectedTables).not.toHaveBeenCalled();
+    expect(params.copySelection).not.toHaveBeenCalled();
 
     unmount();
   });

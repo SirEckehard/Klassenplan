@@ -3,7 +3,7 @@
 /* eslint-disable react-hooks/refs -- refs are used for pointer state coordination */
 import React from 'react';
 import { useMachine } from '@xstate/react';
-import type { ClassroomTable } from '@/types';
+import type { ClassroomTable, ClassroomFeature } from '@/types';
 import type {
   CanvasContextMenuState,
   PointerKind,
@@ -21,6 +21,7 @@ import {
 import {
   getRotationAdjustedDimensions,
   getRotationAdjustedPosition,
+  getRotatedAabbHalfExtents,
   logDebug,
 } from '@/utils';
 import type { SelectionBox } from '@/types/canvas';
@@ -94,6 +95,7 @@ export interface CanvasInteractionHook {
 
 export interface UseCanvasInteractionParams {
   sceneTables: ClassroomTable[];
+  sceneFeatures: ClassroomFeature[];
   clipboard: ClassroomTable[] | null;
   hasFeatureClipboard?: boolean;
   toSceneCoordinates: (
@@ -104,6 +106,7 @@ export interface UseCanvasInteractionParams {
   classroomWidth: number;
   classroomHeight: number;
   setSelectedTableIds: React.Dispatch<React.SetStateAction<number[]>>;
+  setSelectedFeatureIds: React.Dispatch<React.SetStateAction<string[]>>;
   clearSelection: () => void;
 
   // Selection operations
@@ -135,12 +138,14 @@ export interface UseCanvasInteractionParams {
  */
 export function useCanvasInteraction({
   sceneTables,
+  sceneFeatures,
   clipboard,
   hasFeatureClipboard = false,
   toSceneCoordinates,
   classroomWidth,
   classroomHeight,
   setSelectedTableIds,
+  setSelectedFeatureIds,
   clearSelection,
   applySelectionForTable,
   openTableContextMenu,
@@ -187,25 +192,42 @@ export function useCanvasInteraction({
         height: Math.abs(clampedPoint.y - start.y),
       };
       setSelectionBox(box);
-      const liveSelection = (sceneTables || [])
-        .map((table, index) => {
-          const bounds = getTableBounds(table);
-          const boxRight = box.x + box.width;
-          const boxBottom = box.y + box.height;
-          return bounds.x < boxRight &&
-            bounds.right > box.x &&
-            bounds.y < boxBottom &&
-            bounds.bottom > box.y
-            ? index
-            : null;
-        })
+      const boxRight = box.x + box.width;
+      const boxBottom = box.y + box.height;
+      const intersectsBox = (bounds: {
+        x: number;
+        y: number;
+        right: number;
+        bottom: number;
+      }) =>
+        bounds.x < boxRight &&
+        bounds.right > box.x &&
+        bounds.y < boxBottom &&
+        bounds.bottom > box.y;
+
+      const liveTableSelection = (sceneTables || [])
+        .map((table, index) =>
+          intersectsBox(getTableBounds(table)) ? index : null,
+        )
         .filter(
           (value): value is number =>
             value !== null && !sceneTables[value].locked,
         );
-      setSelectedTableIds(liveSelection);
+      setSelectedTableIds(liveTableSelection);
+
+      // Unified selection: the same box also picks up room features.
+      const liveFeatureSelection = (sceneFeatures || [])
+        .filter((feature) => intersectsBox(getFeatureBounds(feature)))
+        .map((feature) => feature.id);
+      setSelectedFeatureIds(liveFeatureSelection);
     },
-    [clampScenePoint, sceneTables, setSelectedTableIds],
+    [
+      clampScenePoint,
+      sceneTables,
+      sceneFeatures,
+      setSelectedTableIds,
+      setSelectedFeatureIds,
+    ],
   );
 
   const resetSelectionState = React.useCallback(() => {
@@ -675,5 +697,23 @@ const getTableBounds = (table: ClassroomTable) => {
     y: adjustedPosition.y,
     right: adjustedPosition.x + adjustedSize.width,
     bottom: adjustedPosition.y + adjustedSize.height,
+  };
+};
+
+// Rotation-aware axis-aligned bounding box for a room feature, computed around
+// its center so rotated features are hit-tested by their real footprint.
+const getFeatureBounds = (feature: ClassroomFeature) => {
+  const centerX = feature.x + feature.width / 2;
+  const centerY = feature.y + feature.height / 2;
+  const { halfWidth, halfHeight } = getRotatedAabbHalfExtents(
+    feature.width,
+    feature.height,
+    feature.rotation ?? 0,
+  );
+  return {
+    x: centerX - halfWidth,
+    y: centerY - halfHeight,
+    right: centerX + halfWidth,
+    bottom: centerY + halfHeight,
   };
 };

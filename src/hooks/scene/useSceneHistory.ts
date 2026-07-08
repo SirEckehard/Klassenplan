@@ -32,6 +32,7 @@ export interface UseSceneHistoryParams {
   setSceneTables: React.Dispatch<React.SetStateAction<ClassroomTable[]>>;
   setSceneFeatures: React.Dispatch<React.SetStateAction<ClassroomFeature[]>>;
   setSelectedTableIds: React.Dispatch<React.SetStateAction<number[]>>;
+  setSelectedFeatureIds: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
 const FNV_OFFSET_BASIS = 0x811c9dc5;
@@ -162,6 +163,7 @@ export function useSceneHistory({
   setSceneTables,
   setSceneFeatures,
   setSelectedTableIds,
+  setSelectedFeatureIds,
 }: UseSceneHistoryParams): SceneHistoryHook {
   const [history, setHistory] = React.useState<HistorySnapshot[]>([]);
   const historyRef = React.useRef<HistorySnapshot[]>(history);
@@ -208,6 +210,7 @@ export function useSceneHistory({
       setSceneFeatures(newFeatures);
       setCurrentSeating(newSeating);
       setSelectedTableIds([]);
+      setSelectedFeatureIds([]);
       updateClassroomScene(() => ({
         ...snap.scene,
         tables: newTables,
@@ -219,6 +222,7 @@ export function useSceneHistory({
       setSceneFeatures,
       setCurrentSeating,
       setSelectedTableIds,
+      setSelectedFeatureIds,
       updateClassroomScene,
     ],
   );

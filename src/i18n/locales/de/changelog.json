@@ -1,4 +1,18 @@
 {
+  "v1_7_0": {
+    "0": "Optionale Schülerfotos: Fotos lokal hinzufügen, zuschneiden (verschieben, zoomen, drehen) und anzeigen – gespeichert nur auf deinem Gerät, automatisch verkleinert und ohne EXIF-/GPS-Daten",
+    "1": "Präsentationsmodus (/present): Vollbild-Ansicht für Smartboards und Beamer mit Lehrer-/Schülerperspektive, Zoomen und Verschieben (Maus, Mausrad, Pinch) sowie Foto- und Farb-Optionen",
+    "2": "Neue Raumelemente: Zusätzliche Elemente mit überarbeiteten Formen lassen sich im Klassenraum platzieren und drehen",
+    "3": "Tastatursteuerung: Schülerinnen und Schüler lassen sich in Schritt 3 jetzt auch per Tastatur umsetzen – Drag-and-Drop ganz ohne Maus",
+    "4": "Stärkere Backup-Verschlüsselung: PBKDF2-Iterationen auf 600.000 erhöht, Passwortbestätigung und Mindestlänge beim Export (ältere Backups bleiben importierbar)",
+    "5": "Verbesserte Barrierefreiheit: Der Fokus kehrt beim Schließen von Dialogen zum auslösenden Element zurück; Enter bestätigt keine kritischen Dialoge mehr versehentlich",
+    "6": "Durchgängige Zweisprachigkeit: Auch Meldungen und Statistik-Texte folgen jetzt konsequent der gewählten Sprache",
+    "7": "Service-Worker-Updates werden erst nach Bestätigung aktiv",
+    "8": "Zahlreiche UI/UX-Verbesserungen sowie mehr Stabilität und Code-Qualität",
+    "9": "Sicherheits-Header (CSP, HSTS) werden nun bei allen Antworten gesendet; die 'Als App installieren'-Funktion arbeitet wieder unter der strengen CSP",
+    "10": "Diverse Fehler auf Mobilgeräten behoben (Kopfzeilen, Löschen-Buttons)",
+    "11": "Caching-/Chunk-Ladefehler behoben"
+  },
   "v1_6_0": {
     "0": "Klassenplan ist jetzt Open Source: Der vollständige Quellcode steht unter der AGPL-3.0 auf GitHub zur Verfügung",
     "1": "Selbst hosten: Mit dem mitgelieferten Docker-Setup lässt sich Klassenplan auf einem eigenen Server betreiben – deine Daten bleiben zu 100 % lokal",

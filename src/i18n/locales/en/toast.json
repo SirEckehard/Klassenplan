@@ -172,5 +172,8 @@
     "deleted": "All data has been deleted",
     "deleteError": "Could not delete data. Use your browser's delete function.",
     "preferencesReset": "Your preferences have been reset because saved data was corrupted."
+  },
+  "feature": {
+    "notCopyable": "The board and lectern can't be copied."
   }
 }

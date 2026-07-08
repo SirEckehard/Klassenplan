@@ -1,4 +1,18 @@
 {
+  "v1_7_0": {
+    "0": "Optional student photos: add, crop (pan, zoom, rotate) and display photos locally – stored only on your device, automatically downscaled and stripped of EXIF/GPS data",
+    "1": "Presentation mode (/present): full-screen view for smartboards and projectors with teacher/student perspective, pan & zoom (mouse, wheel, pinch), and photo and color options",
+    "2": "New room elements: additional elements with reworked shapes can be placed and rotated in the classroom",
+    "3": "Keyboard control: students can now also be rearranged in step 3 via the keyboard – drag-and-drop entirely without a mouse",
+    "4": "Hardened backup encryption: PBKDF2 iterations raised to 600,000, with password confirmation and minimum length on export (older backups remain importable)",
+    "5": "Improved accessibility: focus returns to the triggering element when dialogs close; Enter no longer accidentally confirms destructive dialogs",
+    "6": "Consistent bilingualism: messages and statistics labels now consistently follow the selected language",
+    "7": "Service worker updates only activate after confirmation",
+    "8": "Numerous UI/UX improvements plus greater stability and code quality",
+    "9": "Security headers (CSP, HSTS) are now sent on all responses; the 'Install as app' feature works again under the strict CSP",
+    "10": "Fixed various issues on mobile devices (headers, delete buttons)",
+    "11": "Fixed a caching/chunk-loading bug"
+  },
   "v1_6_0": {
     "0": "Klassenplan is now open source: the full source code is available on GitHub under the AGPL-3.0 license",
     "1": "Self-hosting: the bundled Docker setup lets you run Klassenplan on your own server – your data stays 100 % local",

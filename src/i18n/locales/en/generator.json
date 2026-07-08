@@ -73,6 +73,7 @@
   "canvas": {
     "addTable": "Add Table",
     "addFeature": "Add room element",
+    "paste": "Paste",
     "pasteTables": "Paste tables",
     "pasteFeature": "Paste room element",
     "deleteTable": "Delete Table",

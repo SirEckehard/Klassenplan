@@ -1,26 +1,39 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
-import type { ClassroomTable, ClassroomScene, ClassroomFeature } from '@/types';
+import type {
+  ClassroomTable,
+  ClassroomScene,
+  ClassroomFeature,
+  ClassroomFeatureType,
+} from '@/types';
 import type {
   TableContextMenuState,
   CanvasContextMenuState,
 } from '@/hooks/useContextMenus';
 import { useCanvasInteraction } from '@/hooks/canvas/useCanvasInteraction';
 import { useTableOperations } from '@/hooks/canvas/useTableOperations';
+import { useFeatureOperations } from '@/hooks/canvas/useFeatureOperations';
 import { useKeyboardInteraction } from '@/hooks/ui/useKeyboardInteraction';
 import type { SceneTransactionRunner } from '@/hooks/scene/useSceneManager';
+import type { FeatureTemplate } from '@/hooks/canvas/featureTemplates';
 import type { SelectionBox } from '@/types/canvas';
 
 export interface CanvasInteractionLayerProps {
   // Canvas Properties
   classroomHeight: number;
   classroomWidth: number;
+  canvasWidth: number;
 
   // TableIcon State
   sceneTables: ClassroomTable[];
   selectedTableIds: number[];
   classroomScene: ClassroomScene;
+
+  // Feature State (unified selection covers tables and features together)
+  sceneFeatures: ClassroomFeature[];
+  selectedFeatureIds: string[];
+  featureTemplateMap: Map<ClassroomFeatureType, FeatureTemplate>;
 
   // Interaction State
   snapToGrid: boolean;
@@ -28,6 +41,8 @@ export interface CanvasInteractionLayerProps {
 
   // State setters
   setSelectedTableIds: React.Dispatch<React.SetStateAction<number[]>>;
+  setSelectedFeatureIds: React.Dispatch<React.SetStateAction<string[]>>;
+  setFeatureVisible: (type: ClassroomFeatureType, visible: boolean) => void;
 
   // Callbacks
   updateClassroomScene: (next: React.SetStateAction<ClassroomScene>) => void;
@@ -74,18 +89,13 @@ export interface CanvasInteractionLayerProps {
       e: React.PointerEvent<SVGGElement>,
       index: number,
     ) => void;
-    deleteSelectedTables: () => void;
-    copySelectedTables: () => void;
-    cutSelectedTables: () => void;
-    pasteTablesAt: (coords?: { sceneX?: number; sceneY?: number }) => void;
+    // Unified selection operations acting on both tables and features.
+    deleteSelection: () => void;
+    copySelection: () => void;
+    cutSelection: () => void;
+    pasteSelectionAt: (coords?: { sceneX?: number; sceneY?: number }) => void;
     handleCanvasMenuPaste: (state: CanvasContextMenuState) => void;
-    clipboard: ClassroomTable[] | null;
-    featureClipboard: ClassroomFeature[] | null;
-    setFeatureClipboard: React.Dispatch<
-      React.SetStateAction<ClassroomFeature[] | null>
-    >;
-    canPasteTables: boolean;
-    canPasteFeatures: boolean;
+    canPaste: boolean;
     selectionBox: SelectionBox | null;
   }) => React.ReactNode;
 }
@@ -101,12 +111,18 @@ export type CanvasInteractionHandlers = Parameters<
 export default function CanvasInteractionLayer({
   classroomHeight,
   classroomWidth,
+  canvasWidth,
   sceneTables,
   selectedTableIds,
   classroomScene,
+  sceneFeatures,
+  selectedFeatureIds,
+  featureTemplateMap,
   snapToGrid,
   studentsCount,
   setSelectedTableIds,
+  setSelectedFeatureIds,
+  setFeatureVisible,
   updateClassroomScene,
   removeTables,
   runSceneTransaction,
@@ -153,9 +169,98 @@ export default function CanvasInteractionLayer({
     closeCanvasContextMenu,
   });
 
+  // Feature operations hook (copy/cut/paste/delete for room features)
+  const featureOperations = useFeatureOperations({
+    sceneFeatures,
+    selectedFeatureIds,
+    featureClipboard,
+    snapToGrid,
+    canvasWidth,
+    classroomHeight,
+    featureTemplateMap,
+    setSelectedFeatureIds,
+    setFeatureClipboard,
+    runSceneTransaction,
+    snapshot,
+    setFeatureVisible,
+  });
+
+  // Unified clipboard operations acting on both tables and features. Copying
+  // captures whatever is selected and clears the opposite clipboard slot, so a
+  // subsequent paste reproduces exactly the last copied selection.
+  const hasTableSelection = selectedTableIds.length > 0;
+  const hasFeatureSelection = selectedFeatureIds.length > 0;
+
+  const copySelection = React.useCallback(() => {
+    const hasTables = selectedTableIds.length > 0;
+    const hasFeatures = selectedFeatureIds.length > 0;
+    if (!hasTables && !hasFeatures) return;
+    if (hasTables) {
+      tableOperations.copySelectedTables();
+    } else {
+      setClipboard(null);
+    }
+    if (hasFeatures) {
+      featureOperations.copySelectedFeatures();
+    } else {
+      setFeatureClipboard(null);
+    }
+  }, [
+    selectedTableIds,
+    selectedFeatureIds,
+    tableOperations,
+    featureOperations,
+  ]);
+
+  const deleteSelection = React.useCallback(() => {
+    tableOperations.deleteSelectedTables();
+    featureOperations.deleteSelectedFeatures();
+  }, [tableOperations, featureOperations]);
+
+  const cutSelection = React.useCallback(() => {
+    const hasTables = selectedTableIds.length > 0;
+    const hasFeatures = selectedFeatureIds.length > 0;
+    if (!hasTables && !hasFeatures) return;
+    // Per-domain cut: the feature side keeps singleton elements (board /
+    // lectern) in place since they can't be pasted back.
+    if (hasTables) {
+      tableOperations.cutSelectedTables();
+    } else {
+      setClipboard(null);
+    }
+    if (hasFeatures) {
+      featureOperations.cutSelectedFeatures();
+    } else {
+      setFeatureClipboard(null);
+    }
+  }, [selectedTableIds, selectedFeatureIds, tableOperations, featureOperations]);
+
+  const pasteSelectionAt = React.useCallback(
+    (coords?: { sceneX?: number; sceneY?: number }) => {
+      tableOperations.pasteTablesAt(coords);
+      featureOperations.pasteFeaturesAt(coords);
+    },
+    [tableOperations, featureOperations],
+  );
+
+  const handleCanvasMenuPaste = React.useCallback(
+    (state: CanvasContextMenuState) => {
+      pasteSelectionAt({ sceneX: state.sceneX, sceneY: state.sceneY });
+      closeCanvasContextMenu();
+      cancelSelectionInteraction();
+    },
+    [pasteSelectionAt, closeCanvasContextMenu, cancelSelectionInteraction],
+  );
+
+  const canPaste =
+    (!!clipboard && clipboard.length > 0) ||
+    (!!featureClipboard && featureClipboard.length > 0);
+
   // Canvas interaction hook
   const canvasInteraction = useCanvasInteraction({
     sceneTables,
+    sceneFeatures,
+    setSelectedFeatureIds,
     clipboard,
     hasFeatureClipboard: !!featureClipboard && featureClipboard.length > 0,
     toSceneCoordinates,
@@ -186,22 +291,21 @@ export default function CanvasInteractionLayer({
     classroomWidth,
     classroomHeight,
     snapshot,
-    deleteSelectedTables: tableOperations.deleteSelectedTables,
-    copySelectedTables: tableOperations.copySelectedTables,
-    cutSelectedTables: tableOperations.cutSelectedTables,
-    pasteTablesAt: tableOperations.pasteTablesAt,
+    hasSelection: hasTableSelection || hasFeatureSelection,
+    deleteSelection,
+    copySelection,
+    cutSelection,
+    pasteSelectionAt,
     closeCanvasContextMenu,
-    clipboard,
+    canPaste,
   });
 
   // Cleanup clipboard effect
   React.useEffect(() => {
-    const hasTables = !!clipboard && clipboard.length > 0;
-    const hasFeatures = !!featureClipboard && featureClipboard.length > 0;
-    if (!hasTables && !hasFeatures) {
+    if (!canPaste) {
       closeCanvasContextMenu();
     }
-  }, [clipboard, featureClipboard, closeCanvasContextMenu]);
+  }, [canPaste, closeCanvasContextMenu]);
 
   return (
     <>
@@ -211,16 +315,12 @@ export default function CanvasInteractionLayer({
         beginSelectionWithLongPress:
           canvasInteraction.beginSelectionWithLongPress,
         handleTablePointerDown: canvasInteraction.handleTablePointerDown,
-        deleteSelectedTables: tableOperations.deleteSelectedTables,
-        copySelectedTables: tableOperations.copySelectedTables,
-        cutSelectedTables: tableOperations.cutSelectedTables,
-        pasteTablesAt: tableOperations.pasteTablesAt,
-        handleCanvasMenuPaste: tableOperations.handleCanvasMenuPaste,
-        clipboard,
-        featureClipboard,
-        setFeatureClipboard,
-        canPasteTables: !!clipboard && clipboard.length > 0,
-        canPasteFeatures: !!featureClipboard && featureClipboard.length > 0,
+        deleteSelection,
+        copySelection,
+        cutSelection,
+        pasteSelectionAt,
+        handleCanvasMenuPaste,
+        canPaste,
         selectionBox: canvasInteraction.selectionBox,
       })}
     </>

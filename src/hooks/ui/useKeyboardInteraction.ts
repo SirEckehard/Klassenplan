@@ -24,12 +24,14 @@ export interface UseKeyboardInteractionParams {
   classroomWidth: number;
   classroomHeight: number;
   snapshot: () => void;
-  deleteSelectedTables: () => void;
-  copySelectedTables: () => void;
-  cutSelectedTables: () => void;
-  pasteTablesAt: () => void;
+  // Unified selection operations (tables + features)
+  hasSelection: boolean;
+  deleteSelection: () => void;
+  copySelection: () => void;
+  cutSelection: () => void;
+  pasteSelectionAt: (coords?: { sceneX?: number; sceneY?: number }) => void;
   closeCanvasContextMenu: () => void;
-  clipboard: ClassroomTable[] | null;
+  canPaste: boolean;
 }
 
 // Hook manages keyboard interactions internally through event listeners
@@ -65,12 +67,13 @@ export function useKeyboardInteraction({
   classroomWidth,
   classroomHeight,
   snapshot,
-  deleteSelectedTables,
-  copySelectedTables,
-  cutSelectedTables,
-  pasteTablesAt,
+  hasSelection,
+  deleteSelection,
+  copySelection,
+  cutSelection,
+  pasteSelectionAt,
   closeCanvasContextMenu,
-  clipboard,
+  canPaste,
 }: UseKeyboardInteractionParams): KeyboardInteractionHook {
   const actionApiRef = React.useRef<KeyboardActionApi>({
     moveSelection: () => {},
@@ -195,19 +198,19 @@ export function useKeyboardInteraction({
     actionApiRef.current = {
       moveSelection,
       rotateSelection,
-      deleteSelection: deleteSelectedTables,
-      copySelection: copySelectedTables,
-      cutSelection: cutSelectedTables,
-      pasteSelection: pasteTablesAt,
+      deleteSelection,
+      copySelection,
+      cutSelection,
+      pasteSelection: () => pasteSelectionAt(),
       closeCanvasMenu: closeCanvasContextMenu,
     };
   }, [
     closeCanvasContextMenu,
-    copySelectedTables,
-    cutSelectedTables,
-    deleteSelectedTables,
+    copySelection,
+    cutSelection,
+    deleteSelection,
     moveSelection,
-    pasteTablesAt,
+    pasteSelectionAt,
     rotateSelection,
   ]);
 
@@ -250,8 +253,8 @@ export function useKeyboardInteraction({
 
   const [, send] = useMachine(machine);
 
-  const selectionCount = selectedTableIds.length;
-  const hasClipboardContent = Boolean(clipboard && clipboard.length > 0);
+  const selectionCount = hasSelection ? 1 : 0;
+  const hasClipboardContent = canPaste;
 
   const syncStatus = React.useCallback(
     (focusInInput: boolean) => {

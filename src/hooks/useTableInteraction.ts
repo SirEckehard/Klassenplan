@@ -6,16 +6,66 @@ import {
   getTablePresets,
   calculateDragDelta,
   applyDragMovement,
+  getRotatedAabbHalfExtents,
 } from '@/utils';
 import { triggerHapticFeedback } from '@/utils/touch/hapticFeedback';
 import { addSeatingForTables } from '@/utils/seating/seatingOperations';
-import type { ClassroomTable, TableTemplateType } from '@/types';
+import type {
+  ClassroomTable,
+  ClassroomFeature,
+  TableTemplateType,
+} from '@/types';
 import type { SceneTransactionRunner } from '@/hooks/scene/useSceneManager';
 import { useTemplateDrag } from '@/hooks/canvas/useTemplateDrag';
+
+// Moves the selected free (movable) features by a shared delta, clamping each
+// feature's rotated footprint to the room. Wall-anchored features are left in
+// place so a group drag never rips them off their wall.
+export const applyFeatureGroupDelta = (
+  features: ClassroomFeature[],
+  captured: Map<string, { x: number; y: number }>,
+  delta: { x: number; y: number },
+  bounds: { width: number; height: number },
+): ClassroomFeature[] => {
+  if (captured.size === 0) {
+    return features;
+  }
+  return features.map((feature) => {
+    const start = captured.get(feature.id);
+    if (!start || feature.anchor !== 'free' || !feature.movable) {
+      return feature;
+    }
+    const { halfWidth, halfHeight } = getRotatedAabbHalfExtents(
+      feature.width,
+      feature.height,
+      feature.rotation ?? 0,
+    );
+    const clampCenter = (value: number, half: number, size: number) =>
+      half * 2 > size ? size / 2 : Math.min(Math.max(value, half), size - half);
+    const centerX = clampCenter(
+      start.x + feature.width / 2 + delta.x,
+      halfWidth,
+      bounds.width,
+    );
+    const centerY = clampCenter(
+      start.y + feature.height / 2 + delta.y,
+      halfHeight,
+      bounds.height,
+    );
+    return {
+      ...feature,
+      x: centerX - feature.width / 2,
+      y: centerY - feature.height / 2,
+    };
+  });
+};
 
 // Hook handling table interactions such as selection, dragging and template drops
 export default function useTableInteraction({
   sceneTables,
+  sceneFeatures,
+  selectedFeatureIds,
+  setSceneFeatures,
   updateSceneTables,
   runSceneTransaction,
   snapshot,
@@ -28,6 +78,9 @@ export default function useTableInteraction({
   canvasRef,
 }: {
   sceneTables: ClassroomTable[];
+  sceneFeatures: ClassroomFeature[];
+  selectedFeatureIds: string[];
+  setSceneFeatures: React.Dispatch<React.SetStateAction<ClassroomFeature[]>>;
   updateSceneTables: (
     updateFn: (tables: ClassroomTable[]) => ClassroomTable[],
   ) => void;
@@ -64,13 +117,15 @@ export default function useTableInteraction({
 
   const dragInfo = React.useRef<{
     tables: { index: number; startX: number; startY: number }[];
+    features: Map<string, { x: number; y: number }>;
     startMouseX: number;
     startMouseY: number;
-  }>({ tables: [], startMouseX: 0, startMouseY: 0 });
+  }>({ tables: [], features: new Map(), startMouseX: 0, startMouseY: 0 });
   const hasDragged = React.useRef(false); // Tracks whether tables have been dragged
 
   const resetDragState = React.useCallback(() => {
     dragInfo.current.tables = [];
+    dragInfo.current.features = new Map();
     dragInfo.current.startMouseX = 0;
     dragInfo.current.startMouseY = 0;
     hasDragged.current = false;
@@ -172,14 +227,30 @@ export default function useTableInteraction({
           startX: sceneTables[index].x,
           startY: sceneTables[index].y,
         }));
+      // Capture start positions of the co-selected movable features so a table
+      // group drag moves the whole unified selection together.
+      const capturedFeatures = new Map<string, { x: number; y: number }>();
+      sceneFeatures.forEach((feature) => {
+        if (
+          selectedFeatureIds.includes(feature.id) &&
+          feature.anchor === 'free' &&
+          feature.movable
+        ) {
+          capturedFeatures.set(feature.id, { x: feature.x, y: feature.y });
+        }
+      });
+      dragInfo.current.features = capturedFeatures;
       hasDragged.current = false;
     },
-    [sceneTables],
+    [sceneTables, sceneFeatures, selectedFeatureIds],
   );
 
   const updateDragSelection = React.useCallback(
     (scenePoint: { x: number; y: number }) => {
-      if (dragInfo.current.tables.length === 0) {
+      if (
+        dragInfo.current.tables.length === 0 &&
+        dragInfo.current.features.size === 0
+      ) {
         return;
       }
       if (!hasDragged.current) {
@@ -204,8 +275,28 @@ export default function useTableInteraction({
           height: classroomHeight,
         }),
       );
+
+      // Move any co-selected movable features by the same delta. Features can
+      // extend into the wider board area, so they clamp against canvasWidth.
+      if (dragInfo.current.features.size > 0) {
+        const capturedFeatures = dragInfo.current.features;
+        setSceneFeatures((features) =>
+          applyFeatureGroupDelta(features, capturedFeatures, delta, {
+            width: canvasWidth,
+            height: classroomHeight,
+          }),
+        );
+      }
     },
-    [classroomHeight, classroomWidth, snapToGrid, snapshot, updateSceneTables],
+    [
+      canvasWidth,
+      classroomHeight,
+      classroomWidth,
+      snapToGrid,
+      snapshot,
+      setSceneFeatures,
+      updateSceneTables,
+    ],
   );
 
   const finalizeDragInteraction = React.useCallback(() => {

@@ -27,7 +27,7 @@ interface ClassroomCanvasProps {
   classroomHeight: number;
   showGrid: boolean;
   featureVisibility?: FeatureVisibilityFlags;
-  activeFeatureId?: string | null;
+  selectedFeatureIds?: string[];
   onFeatureRotateStart?: (
     feature: ClassroomFeature,
     event: React.PointerEvent<SVGElement>,
@@ -82,7 +82,7 @@ const ClassroomCanvas = React.memo<ClassroomCanvasProps>(
     classroomHeight,
     showGrid,
     featureVisibility,
-    activeFeatureId = null,
+    selectedFeatureIds = [],
     features = [],
     sceneTables,
     selectedTableIds,
@@ -203,14 +203,16 @@ const ClassroomCanvas = React.memo<ClassroomCanvasProps>(
         >
           {/* Structural features */}
           {featureViewModels.map(({ feature, styles }) => {
-            const isActive = feature.id === activeFeatureId;
+            const isActive = selectedFeatureIds.includes(feature.id);
+            // The rotate handle only makes sense for a single active feature.
+            const isSoleSelection = selectedFeatureIds.length === 1 && isActive;
             const isRotatable = feature.anchor === 'free' && feature.movable;
             const rotation =
               feature.anchor === 'free' ? (feature.rotation ?? 0) : 0;
             const showRotationHandle =
               isRotatable &&
               !!onFeatureRotateStart &&
-              (isActive || feature.id === hoveredFeatureId);
+              (isSoleSelection || feature.id === hoveredFeatureId);
 
             return (
               <FeatureShape

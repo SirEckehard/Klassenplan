@@ -336,10 +336,15 @@ function SceneTable({
         if (table.locked) return;
         e.preventDefault();
       }}
+      // Grab hand only where the table is actually interactive; static renders
+      // (presentation view, PDF preview/export) keep the default cursor. Matches
+      // the room-element cursor behaviour.
+      className={
+        !table.locked && onPointerDown
+          ? 'cursor-grab active:cursor-grabbing'
+          : undefined
+      }
       style={{
-        // Move cursor only where the table is actually interactive; static
-        // renders (presentation view, PDF preview/export) keep the default.
-        cursor: !table.locked && onPointerDown ? 'move' : 'default',
         touchAction: 'none',
       }}
     >

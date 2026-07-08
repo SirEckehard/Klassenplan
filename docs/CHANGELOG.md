@@ -7,10 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.7.0] - 2026-07-09
+
 ### Added
 
 - **Optional student photos** – add, crop (pan/zoom/rotate) and display local student photos; stored only on the device, automatically downscaled with EXIF/GPS metadata stripped
 - **Presentation mode** (`/present`) – full-screen view for smartboards and projectors with teacher/student perspective, pan & zoom (mouse, wheel, pinch), photo and color toggles
+- **New room elements** – additional classroom elements with reworked shapes can be placed and rotated
+- **Keyboard drag-and-drop** – students can now be rearranged in step 3 via the keyboard alone
 
 ### Improved
 
@@ -18,10 +22,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - **Accessibility** – modals return focus to the triggering element on close; Enter no longer confirms destructive dialogs globally
 - **Internationalization** – all user-facing texts from utility layers (error messages, statistics labels, badge tooltips) now follow the active language
 - **Service worker updates** – a new version activates only after confirmation via the update prompt
+- Numerous UI/UX improvements plus greater stability and code quality
 
 ### Fixed
 
 - Security headers (CSP, HSTS) are now sent on all responses in the nginx deployment; the PWA install prompt works again under the strict CSP
+- Various issues on mobile devices (headers, delete buttons)
+- A caching/chunk-loading bug
 
 ## [1.6.0] - 2026-06-08
 

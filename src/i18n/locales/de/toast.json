@@ -172,5 +172,8 @@
     "deleted": "Alle Daten wurden gelöscht",
     "deleteError": "Daten konnten nicht gelöscht werden. Nutze die Löschen-Funktion deines Browsers.",
     "preferencesReset": "Deine Einstellungen wurden zurückgesetzt, da gespeicherte Daten beschädigt waren."
+  },
+  "feature": {
+    "notCopyable": "Tafel und Pult lassen sich nicht kopieren."
   }
 }
