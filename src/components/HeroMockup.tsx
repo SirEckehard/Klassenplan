@@ -2,6 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import { useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslation } from 'react-i18next';
 import {
   CaretLeftIcon,
   CaretRightIcon,
@@ -9,13 +10,22 @@ import {
   XIcon,
 } from '@phosphor-icons/react';
 
+// Slide slugs map to the preview assets in `public/preview/`, which are
+// provided per language (de/en) and theme (light/dark), e.g.
+// `03_sitzplan_de_dark.avif`. `labelKey` resolves the localized caption.
 const SLIDES = [
-  { base: '/preview/01_Klassenliste', alt: 'Klassenliste' },
-  { base: '/preview/02_Editor', alt: 'Klassenraum-Editor' },
-  { base: '/preview/03_Sitzplan', alt: 'Sitzplan' },
-  { base: '/preview/04_Sitzkreis', alt: 'Sitzkreis' },
-  { base: '/preview/05_Export_Sitzplan', alt: 'Export Sitzplan' },
-  { base: '/preview/06_Export_Sitzkreis', alt: 'Export Sitzkreis' },
+  {
+    slug: '01_schuelerliste',
+    labelKey: 'startPage.previewSlides.schuelerliste',
+  },
+  { slug: '02_editor', labelKey: 'startPage.previewSlides.editor' },
+  { slug: '03_sitzplan', labelKey: 'startPage.previewSlides.sitzplan' },
+  { slug: '04_sitzkreis', labelKey: 'startPage.previewSlides.sitzkreis' },
+  {
+    slug: '05_praesentation',
+    labelKey: 'startPage.previewSlides.praesentation',
+  },
+  { slug: '06_export', labelKey: 'startPage.previewSlides.export' },
 ];
 
 function useIsDark() {
@@ -33,8 +43,8 @@ function useIsDark() {
   return dark;
 }
 
-function slideBase(base: string, dark: boolean) {
-  return `${base}${dark ? '_dark' : ''}`;
+function slideBase(slug: string, lang: 'de' | 'en', dark: boolean) {
+  return `/preview/${slug}_${lang}_${dark ? 'dark' : 'light'}`;
 }
 
 export default function HeroMockup() {
@@ -42,6 +52,8 @@ export default function HeroMockup() {
   const [tick, setTick] = useState(0);
   const [lightbox, setLightbox] = useState(false);
   const isDark = useIsDark();
+  const { t, i18n } = useTranslation('pages');
+  const lang = i18n.language.startsWith('de') ? 'de' : 'en';
 
   useEffect(() => {
     const id = setInterval(
@@ -95,15 +107,15 @@ export default function HeroMockup() {
           {/* Slides */}
           <div className="group relative aspect-3/2 bg-gray-100 dark:bg-gray-900">
             {SLIDES.map((slide, i) => {
-              const b = slideBase(slide.base, isDark);
+              const b = slideBase(slide.slug, lang, isDark);
               const isActive = i === current;
               return (
-                <picture key={slide.base}>
+                <picture key={slide.slug}>
                   <source srcSet={`${b}.avif`} type="image/avif" />
                   <source srcSet={`${b}.webp`} type="image/webp" />
                   <img
                     src={`${b}.png`}
-                    alt={slide.alt}
+                    alt={t(slide.labelKey)}
                     loading={isActive ? 'eager' : 'lazy'}
                     decoding="async"
                     fetchPriority={isActive ? 'high' : 'low'}
@@ -182,16 +194,16 @@ export default function HeroMockup() {
               {/* Lightbox image */}
               <picture>
                 <source
-                  srcSet={`${slideBase(SLIDES[current].base, isDark)}.avif`}
+                  srcSet={`${slideBase(SLIDES[current].slug, lang, isDark)}.avif`}
                   type="image/avif"
                 />
                 <source
-                  srcSet={`${slideBase(SLIDES[current].base, isDark)}.webp`}
+                  srcSet={`${slideBase(SLIDES[current].slug, lang, isDark)}.webp`}
                   type="image/webp"
                 />
                 <img
-                  src={`${slideBase(SLIDES[current].base, isDark)}.png`}
-                  alt={SLIDES[current].alt}
+                  src={`${slideBase(SLIDES[current].slug, lang, isDark)}.png`}
+                  alt={t(SLIDES[current].labelKey)}
                   decoding="async"
                   className="max-h-[80vh] w-full object-contain rounded-xl shadow-2xl"
                 />
@@ -199,7 +211,7 @@ export default function HeroMockup() {
 
               {/* Caption */}
               <p className="mt-3 text-sm text-white/70">
-                {SLIDES[current].alt} &nbsp;·&nbsp; {current + 1} /{' '}
+                {t(SLIDES[current].labelKey)} &nbsp;·&nbsp; {current + 1} /{' '}
                 {SLIDES.length}
               </p>
 

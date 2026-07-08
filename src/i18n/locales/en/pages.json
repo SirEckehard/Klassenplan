@@ -26,7 +26,15 @@
     },
     "ctaButton": "Plan your class now!",
     "faqLink": "Learn more in the FAQ!",
-    "contactLink": "Send a message!"
+    "contactLink": "Send a message!",
+    "previewSlides": {
+      "schuelerliste": "Class list",
+      "editor": "Classroom editor",
+      "sitzplan": "Seating plan",
+      "sitzkreis": "Seating circle",
+      "praesentation": "Presentation",
+      "export": "Export"
+    }
   },
   "support": {
     "title": "Support Klassenplan",

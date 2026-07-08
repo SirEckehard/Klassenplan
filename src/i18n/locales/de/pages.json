@@ -26,7 +26,15 @@
     },
     "ctaButton": "Plane jetzt deine Klasse!",
     "faqLink": "Erfahre mehr im FAQ!",
-    "contactLink": "Schreib eine Nachricht!"
+    "contactLink": "Schreib eine Nachricht!",
+    "previewSlides": {
+      "schuelerliste": "Schülerliste",
+      "editor": "Klassenraum-Editor",
+      "sitzplan": "Sitzplan",
+      "sitzkreis": "Sitzkreis",
+      "praesentation": "Präsentation",
+      "export": "Export"
+    }
   },
   "support": {
     "title": "Klassenplan unterstützen",
