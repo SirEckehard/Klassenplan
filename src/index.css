@@ -9,7 +9,6 @@
   --font-sans: 'DM Sans Variable', sans-serif;
   --surface-page: #f9fafb;
   --text-page: #111827;
-  --scrollbar-thumb: #9ca3af;
   --surface-panel: linear-gradient(
     135deg,
     #eff6ff 0%,
@@ -123,7 +122,6 @@
   .dark {
     --surface-page: #111827;
     --text-page: #f9fafb;
-    --scrollbar-thumb: #4b5563;
     --surface-panel: linear-gradient(
       135deg,
       #0f172a 0%,
@@ -959,24 +957,6 @@ html.dark {
   .print\:block {
     display: block !important;
   }
-}
-
-* {
-  scrollbar-width: thin;
-  scrollbar-color: var(--scrollbar-thumb) transparent;
-}
-
-*::-webkit-scrollbar {
-  width: 0.5rem;
-}
-
-*::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-*::-webkit-scrollbar-thumb {
-  background-color: var(--scrollbar-thumb);
-  border-radius: 9999px;
 }
 
 /* Skeleton Loading Utilities */
