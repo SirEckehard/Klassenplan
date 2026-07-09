@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import { get as idbGet, set as idbSet } from 'idb-keyval';
-import { DB_KEYS } from '@/utils/data/storageKeys';
+import { DB_KEYS, LOCAL_STORAGE_KEYS } from '@/utils/data/storageKeys';
 import { hasIndexedDB } from '@/utils/data/indexedDb';
 import {
   migrateClassroomScene,
@@ -16,6 +16,33 @@ import { logWarn, logInfo, logError } from '@/utils';
 
 const MIGRATION_VERSION_KEY = 'spg.migrationVersion';
 const CURRENT_MIGRATION_VERSION = 1;
+
+/**
+ * localStorage mirror of the migration version. Reading it is synchronous,
+ * whereas the IndexedDB lookup below has to open the database first — a cost
+ * paid on every boot, before the first paint. The mirror lets the common case
+ * (already migrated) skip IndexedDB entirely. It is only ever a cache: if it is
+ * missing or unreadable we fall back to the authoritative IndexedDB value.
+ */
+function readMirroredMigrationVersion(): number | null {
+  try {
+    const raw = localStorage.getItem(LOCAL_STORAGE_KEYS.migrationVersion);
+    if (raw === null) return null;
+
+    const parsed = Number.parseInt(raw, 10);
+    return Number.isNaN(parsed) ? null : parsed;
+  } catch {
+    return null;
+  }
+}
+
+function writeMirroredMigrationVersion(version: number): void {
+  try {
+    localStorage.setItem(LOCAL_STORAGE_KEYS.migrationVersion, String(version));
+  } catch {
+    // Private mode or a full quota: the IndexedDB value stays authoritative.
+  }
+}
 
 export interface MigrationResult {
   success: boolean;
@@ -33,9 +60,24 @@ export interface MigrationResult {
 async function checkMigrationNeeded(): Promise<boolean> {
   if (!hasIndexedDB()) return false;
 
+  const mirroredVersion = readMirroredMigrationVersion();
+  if (
+    mirroredVersion !== null &&
+    mirroredVersion >= CURRENT_MIGRATION_VERSION
+  ) {
+    return false;
+  }
+
   try {
     const currentVersion = (await idbGet(MIGRATION_VERSION_KEY)) || 0;
-    return currentVersion < CURRENT_MIGRATION_VERSION;
+
+    if (currentVersion >= CURRENT_MIGRATION_VERSION) {
+      // Already migrated by an earlier app version that had no mirror yet.
+      writeMirroredMigrationVersion(currentVersion);
+      return false;
+    }
+
+    return true;
   } catch (error) {
     logWarn(
       'Konnte Migrations-Version nicht prüfen',
@@ -176,6 +218,7 @@ async function migrateSeatingHistory(): Promise<number> {
 async function markMigrationComplete(): Promise<void> {
   try {
     await idbSet(MIGRATION_VERSION_KEY, CURRENT_MIGRATION_VERSION);
+    writeMirroredMigrationVersion(CURRENT_MIGRATION_VERSION);
   } catch (error) {
     logError(
       'Konnte Migrations-Version nicht setzen',
@@ -270,6 +313,7 @@ export async function resetMigrationVersion(): Promise<void> {
 
   try {
     await idbSet(MIGRATION_VERSION_KEY, 0);
+    writeMirroredMigrationVersion(0);
     logInfo('Migration Version zurückgesetzt');
   } catch (error) {
     logError(

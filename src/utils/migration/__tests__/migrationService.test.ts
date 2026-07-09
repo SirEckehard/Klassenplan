@@ -26,6 +26,10 @@ const mockIdbSet = vi.mocked(idbSet);
 describe('migrationService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // The service mirrors the migration version into localStorage so later
+    // boots can skip the IndexedDB lookup. jsdom shares localStorage across
+    // tests, so the mirror has to be dropped or it short-circuits every run.
+    localStorage.clear();
     // Default: Migration noch nicht ausgeführt
     mockIdbGet.mockImplementation((key) => {
       if (key === 'spg.migrationVersion') return Promise.resolve(0);
@@ -54,6 +58,35 @@ describe('migrationService', () => {
 
       // Keine Set-Aufrufe außer der Versions-Prüfung
       expect(mockIdbSet).not.toHaveBeenCalled();
+    });
+
+    it('spiegelt die Migrations-Version nach localStorage, wenn IndexedDB bereits aktuell ist', async () => {
+      mockIdbGet.mockImplementation((key) => {
+        if (key === 'spg.migrationVersion') return Promise.resolve(1);
+        return Promise.resolve(undefined);
+      });
+
+      await runMigration();
+
+      expect(localStorage.getItem('spg.migrationVersion')).toBe('1');
+    });
+
+    it('überspringt den IndexedDB-Zugriff, wenn der localStorage-Spiegel aktuell ist', async () => {
+      localStorage.setItem('spg.migrationVersion', '1');
+
+      const result = await runMigration();
+
+      expect(result.success).toBe(true);
+      expect(mockIdbGet).not.toHaveBeenCalled();
+      expect(mockIdbSet).not.toHaveBeenCalled();
+    });
+
+    it('liest IndexedDB, wenn der localStorage-Spiegel veraltet ist', async () => {
+      localStorage.setItem('spg.migrationVersion', '0');
+
+      await runMigration();
+
+      expect(mockIdbGet).toHaveBeenCalledWith('spg.migrationVersion');
     });
 
     it('migriert ClassroomScene mit 90° Tischen', async () => {

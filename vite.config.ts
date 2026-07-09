@@ -11,83 +11,7 @@ import path from 'path';
 import { fileURLToPath } from 'node:url';
 import type { PluginOption } from 'vite';
 
-// Enhanced manual chunking strategy for optimal loading
 const rootDir = fileURLToPath(new URL('.', import.meta.url));
-
-function createManualChunks(id: string) {
-  // Node modules vendor chunking
-  if (id.includes('node_modules')) {
-    // UI libraries
-    if (id.includes('lucide-react') || id.includes('@dnd-kit')) {
-      return 'ui-vendor';
-    }
-
-    // Data processing
-    if (
-      id.includes('papaparse') ||
-      id.includes('idb-keyval') ||
-      id.includes('fast-deep-equal')
-    ) {
-      return 'data-vendor';
-    }
-
-    // PDF libraries (large, separate chunk)
-    if (id.includes('jspdf')) {
-      return 'pdf-vendor';
-    }
-
-    // Web Vitals (separate small chunk)
-    if (id.includes('web-vitals')) {
-      return 'web-vitals-vendor';
-    }
-
-    // Other vendor libraries
-    return 'vendor';
-  }
-
-  // Source code chunking
-  if (id.includes('/src/')) {
-    // Performance monitoring (separate chunk for optional loading)
-    if (
-      id.includes('/performance/') ||
-      id.includes('usePerformanceMonitoring') ||
-      id.includes('PerformanceDashboard') ||
-      id.includes('PerformanceDebugButton')
-    ) {
-      return 'performance';
-    }
-
-    // Algorithm utilities (computational heavy)
-    if (id.includes('/algorithm/') || id.includes('/math/')) {
-      return 'algorithm';
-    }
-
-    // Validation schemas (already optimized)
-    if (id.includes('/validation/schemas')) {
-      return 'schemas';
-    }
-
-    // PDF export utilities
-    if (id.includes('/circle/circlePdfExport') || id.includes('/export/')) {
-      return 'pdf-utils';
-    }
-
-    // Logging system
-    if (id.includes('/logging/')) {
-      return 'logging';
-    }
-
-    // Migration utilities (rarely loaded)
-    if (id.includes('/migration/')) {
-      return 'migration';
-    }
-
-    // Scene components (large, heavy rendering)
-    if (id.includes('/scene/') && (id.includes('.tsx') || id.includes('.ts'))) {
-      return 'scene';
-    }
-  }
-}
 
 const SINGLE_QUOTE = String.fromCharCode(39);
 const wrapInSingleQuotes = (value: string) =>
@@ -371,7 +295,10 @@ export default defineConfig({
     emptyOutDir: true,
     rolldownOptions: {
       output: {
-        manualChunks: createManualChunks,
+        // No manualChunks: forcing group names made Rolldown merge the shared
+        // app core into a "pdf-utils" chunk and created a vendor -> pdf-vendor
+        // edge that pulled jspdf into every page load. Automatic splitting
+        // keeps the lazily imported code (jspdf, routes) out of the entry graph.
         chunkFileNames: (chunkInfo: PreRenderedChunk) => {
           if (chunkInfo.facadeModuleId?.includes('node_modules')) {
             return 'vendor/[name]-[hash].js';

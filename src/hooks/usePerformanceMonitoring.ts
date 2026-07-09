@@ -11,13 +11,10 @@ import React, {
   useContext,
 } from 'react';
 import { useLocation } from 'react-router-dom';
-import {
-  webVitalsService,
-  trackRouteTransition,
-  getPerformanceSummary,
-  type PerformanceMetric,
-  type RouteTransitionMetric,
-  type BundleLoadingMetric,
+import type {
+  PerformanceMetric,
+  RouteTransitionMetric,
+  BundleLoadingMetric,
 } from '@/utils/performance/webVitals';
 import {
   logInfo,
@@ -25,6 +22,27 @@ import {
   isFeatureEnabled,
   getFeatureFlagSnapshot,
 } from '@/utils';
+
+type WebVitalsModule = typeof import('@/utils/performance/webVitals');
+
+// The provider mounts on every page, but monitoring only starts behind the
+// performanceDashboard flag. A static import would anchor web-vitals in the
+// entry chunk for all users, so the module is pulled in on demand instead.
+// web-vitals registers its PerformanceObservers with `buffered: true`, so
+// metrics emitted before this resolves (FCP, LCP) are still reported.
+let webVitalsModule: WebVitalsModule | null = null;
+let webVitalsPromise: Promise<WebVitalsModule> | null = null;
+
+const loadWebVitals = (): Promise<WebVitalsModule> => {
+  webVitalsPromise ??= import('@/utils/performance/webVitals').then(
+    (module) => {
+      webVitalsModule = module;
+      return module;
+    },
+  );
+
+  return webVitalsPromise;
+};
 
 export interface PerformanceState {
   coreWebVitals: PerformanceMetric[];
@@ -204,7 +222,9 @@ function usePerformanceMonitoringInternal(): PerformanceMonitoringContextValue {
    * Update performance state from webVitalsService
    */
   const updatePerformanceState = useCallback(() => {
-    const summary = getPerformanceSummary();
+    if (!webVitalsModule) return;
+
+    const summary = webVitalsModule.getPerformanceSummary();
     setPerformanceState((prev) => ({
       ...summary,
       isTracking: prev.isTracking,
@@ -228,30 +248,32 @@ function usePerformanceMonitoringInternal(): PerformanceMonitoringContextValue {
       return;
     }
 
-    try {
-      webVitalsService.initialize();
-      setPerformanceState((prev) => ({ ...prev, isTracking: true }));
-      logInfo(
-        'Performance monitoring started',
-        {
-          featureFlags: mapFeatureFlags(),
-        },
-        'usePerformanceMonitoring',
-      );
-    } catch (error) {
-      logWarn(
-        'Failed to start performance monitoring',
-        { error },
-        'usePerformanceMonitoring',
-      );
-    }
+    loadWebVitals()
+      .then((module) => {
+        module.webVitalsService.initialize();
+        setPerformanceState((prev) => ({ ...prev, isTracking: true }));
+        logInfo(
+          'Performance monitoring started',
+          {
+            featureFlags: mapFeatureFlags(),
+          },
+          'usePerformanceMonitoring',
+        );
+      })
+      .catch((error: unknown) => {
+        logWarn(
+          'Failed to start performance monitoring',
+          { error },
+          'usePerformanceMonitoring',
+        );
+      });
   }, []);
 
   /**
    * Stop performance monitoring
    */
   const stopMonitoring = useCallback(() => {
-    webVitalsService.stop();
+    webVitalsModule?.webVitalsService.stop();
     setPerformanceState((prev) => ({ ...prev, isTracking: false }));
     logInfo(
       'Performance monitoring stopped',
@@ -434,7 +456,7 @@ function usePerformanceMonitoringInternal(): PerformanceMonitoringContextValue {
    * Clear all performance data
    */
   const clearPerformanceData = useCallback(() => {
-    webVitalsService.clearMetrics();
+    webVitalsModule?.webVitalsService.clearMetrics();
     setRenderMetrics(new Map());
     setMemoryMetrics([]);
     updatePerformanceState();
@@ -454,7 +476,7 @@ function usePerformanceMonitoringInternal(): PerformanceMonitoringContextValue {
       previousLocationRef.current !== location.pathname;
 
     if (hasLocationChanged && routeTransitionStartRef.current > 0) {
-      trackRouteTransition(
+      webVitalsModule?.trackRouteTransition(
         transitionFromRef.current,
         location.pathname,
         routeTransitionStartRef.current,
