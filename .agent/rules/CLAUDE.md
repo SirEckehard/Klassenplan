@@ -101,6 +101,7 @@ import { generateId, logError, errorHandlers } from '@/utils';
 - `npm run dev` - Start Vite dev server (default port 5173)
 - `npm run preview` - Serve the production bundle locally
 - `npm run build` - Build production bundle (runs `generate:sitemap` first)
+- `npm run build:static` - Build, prerender every route, verify the output (Docker/CI path; needs `npx playwright install chromium`)
 - `npm test` - Run Vitest in watch mode (append `-- --run` for single run)
 - `npm run test:e2e` - Run Playwright end-to-end tests
 - `npm run lint` - Check code with ESLint
@@ -157,6 +158,14 @@ Consumers import dedicated hooks (e.g. `useClassroomLayoutContext`) to minimize 
 - `@/utils/ui/designTokens` exports surface/button bundles (`primaryButtonClass`, `inputFieldClass`, …); student toggles rely on `@/components/students/studentStyleTokens` for consistent sizing and coloring.
 - Components should only add layout classes on top of tokens — no ad-hoc color utilities.
 - Immutable styling patterns ensure Dark/Light parity via CSS variables and prevent component-level drift.
+
+## SEO & Prerendering
+
+- The app is a CSR SPA; `npm run build:static` prerenders all routes × languages into `dist/<path>/index.html` so crawlers see real content and per-route canonical/hreflang/JSON-LD. See `docs/SEO.md`.
+- `src/data/seoRoutes.json` is the single source of truth for route metadata (titles, descriptions, `noindex`). Shared script helpers live in `scripts/utils/seoRoutes.mjs`.
+- Canonical URLs come from the build-time `SITE_URL` (`define` in `vite.config.ts`), **never** from `window.location.origin`.
+- **Never let `vite-plugin-compression` precompress HTML** — nginx's `brotli_static on` would serve the stale pre-prerender shell.
+- Route components live in `src/pages/lazyPages.ts` and are shared by the router and `routePreloader`, so `preload()` warms the instance the router renders. Do not re-declare them with `lazyWithRetry` in `App.tsx`.
 
 ## Security & Deployment
 

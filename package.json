@@ -32,6 +32,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:static": "vite build && npm run prerender && npm run verify:prerender",
+    "prerender": "node scripts/prerender.mjs",
+    "verify:prerender": "node scripts/verify-prerender.mjs",
     "preview": "vite preview",
     "generate:sitemap": "node --experimental-strip-types --experimental-specifier-resolution=node scripts/generate-sitemap.mjs",
     "indexnow:ping": "node --experimental-strip-types --experimental-specifier-resolution=node scripts/indexnow-ping.mjs",

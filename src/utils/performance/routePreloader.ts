@@ -7,39 +7,47 @@ import { logWarn, logDebug, logError } from '@/utils';
 import { addPrefetchHint } from '@/utils/performance/prefetchHints';
 import { scheduleIdleTask } from '@/utils/performance/idleTasks';
 import { prefetchOrchestrator } from '@/utils/performance/prefetchOrchestrator';
+import { routeComponents, type RouteName } from '@/pages/lazyPages';
 
 // Cache for preloaded routes to avoid duplicate loads
 const preloadedRoutes = new Set<string>();
 
-const routeLoaders: Record<string, () => Promise<unknown>> = {
-  generator: () =>
-    import('@/components/SeatingPlanGenerator/SeatingPlanGenerator'),
-  export: () => import('@/pages/Export'),
-  present: () => import('@/pages/Present'),
-  startpage: () => import('@/pages/StartPage'),
-  impressum: () => import('@/pages/Impressum'),
-  datenschutz: () => import('@/pages/Datenschutz'),
-  feedback: () => import('@/pages/Feedback'),
-};
+function isRouteName(name: string): name is RouteName {
+  return name in routeComponents;
+}
 
 /**
- * Preload a route component for faster navigation
+ * Map a location pathname to its route name, ignoring the `/en` language
+ * prefix. Unknown paths fall back to the start page.
+ */
+export function routeNameForPath(pathname: string): RouteName {
+  const withoutLang = pathname.replace(/^\/en(?=\/|$)/, '');
+  const segment = withoutLang.split('/')[1] ?? '';
+  return isRouteName(segment) ? segment : 'startpage';
+}
+
+/**
+ * Preload a route component for faster navigation.
+ *
+ * Resolves the component's chunk so a later render skips Suspense entirely.
+ * Never rejects: a failed preload leaves the lazy fallback path in charge.
  */
 export async function preloadRoute(routeName: string): Promise<void> {
   if (preloadedRoutes.has(routeName)) {
     return; // Already preloaded
   }
 
-  const loader = routeLoaders[routeName];
-  if (!loader) {
+  if (!isRouteName(routeName)) {
     logWarn(`Unknown route for preloading: ${routeName}`, {}, 'routePreloader');
     return;
   }
 
+  const component = routeComponents[routeName];
+
   try {
     await prefetchOrchestrator.trackJob(
       { type: 'route', target: routeName, trigger: 'auto' },
-      loader,
+      () => component.preload(),
     );
 
     preloadedRoutes.add(routeName);

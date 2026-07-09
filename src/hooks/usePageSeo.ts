@@ -12,6 +12,7 @@ export interface PageSeoProps {
   path: string;
   ogType?: string;
   lang: SupportedLang;
+  noindex?: boolean;
 }
 
 /**
@@ -35,5 +36,6 @@ export function usePageSeo(basePath: string): PageSeoProps {
     ogType: metadata.ogType,
     path,
     lang,
+    noindex: metadata.noindex,
   };
 }

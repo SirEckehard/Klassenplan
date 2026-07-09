@@ -27,11 +27,17 @@ const STRUCTURED_DATA_ELEMENT_ID = 'page-structured-data';
 const SUPPORTED_LANGUAGES = ['de', 'en'] as const;
 const DEFAULT_LANG = 'de';
 
+/**
+ * Canonical origin. Baked in at build time rather than read from
+ * window.location.origin: the prerender step renders against localhost and
+ * preview deploys run on staging hosts, both of which would otherwise be
+ * emitted into canonical, hreflang and og:url.
+ */
 function resolveSiteUrl() {
-  if (typeof window !== 'undefined' && window.location.origin) {
-    return window.location.origin;
-  }
-  return FALLBACK_SITE_URL;
+  const configured = import.meta.env.VITE_SITE_URL;
+  return typeof configured === 'string' && configured
+    ? configured
+    : FALLBACK_SITE_URL;
 }
 
 function resolveUrl(path: string, siteUrl: string) {
@@ -129,8 +135,10 @@ function setHreflangLinks(basePath: string, siteUrl: string): () => void {
     element.setAttribute('href', href);
   }
 
-  // Add x-default pointing to German version
-  const xDefaultHref = resolveUrl(basePath, siteUrl);
+  // x-default only applies to visitors whose language matches no hreflang
+  // entry; German speakers are already served by hreflang="de". English is the
+  // more useful landing page for everyone else.
+  const xDefaultHref = resolveUrl(getLocalizedPath(basePath, 'en'), siteUrl);
   const xDefaultSelector = 'link[rel="alternate"][hreflang="x-default"]';
   let xDefaultElement = document.head.querySelector(
     xDefaultSelector,
@@ -190,6 +198,11 @@ export default function Seo({
     setMetaTag('property', 'og:url', canonicalUrl);
     setMetaTag('property', 'og:site_name', DEFAULT_SITE_NAME);
     setMetaTag('property', 'og:locale', lang === 'de' ? 'de_DE' : 'en_US');
+    setMetaTag(
+      'property',
+      'og:locale:alternate',
+      lang === 'de' ? 'en_US' : 'de_DE',
+    );
     setMetaTag('property', 'og:image', imageUrl);
     setMetaTag('property', 'og:image:width', DEFAULT_IMAGE_WIDTH);
     setMetaTag('property', 'og:image:height', DEFAULT_IMAGE_HEIGHT);

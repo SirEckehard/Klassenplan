@@ -9,12 +9,16 @@ import '@/index.css';
 // as part of the entry chunk. This replaces the former inline script in
 // index.html, which the production CSP (script-src 'self') blocked.
 import '@/hooks/useInstallPrompt';
-import { i18nReady } from '@/i18n';
+import i18next, { i18nReady, ensureEnglishLoaded } from '@/i18n';
 import RootErrorBoundary from '@/components/RootErrorBoundary';
 import { ToastProvider } from '@/components/ui/feedback/ToastProvider';
 import { SeatingPlanGeneratorProvider } from '@/contexts/SeatingPlanContext';
 import { PerformanceMonitoringProvider } from '@/hooks/usePerformanceMonitoring';
 import { LOCAL_STORAGE_KEYS } from '@/utils/data/storageKeys';
+import {
+  preloadRoute,
+  routeNameForPath,
+} from '@/utils/performance/routePreloader';
 import { runMigration } from '@/utils/migration/migrationService';
 import { logInfo, logWarn, logError } from '@/utils';
 import App from './App';
@@ -30,6 +34,26 @@ async function initializeApp() {
   // Wait for the active language bundle before first render to prevent a flash
   // of German fallback content for non-German users.
   await i18nReady;
+
+  const { pathname } = window.location;
+
+  // On /en routes the URL wins over the stored preference. Switching before the
+  // first render also spares real users the German flash that LanguageWrapper's
+  // post-render effect would otherwise produce.
+  if (/^\/en(\/|$)/.test(pathname)) {
+    try {
+      await ensureEnglishLoaded();
+      await i18next.changeLanguage('en');
+    } catch (error) {
+      logWarn('Failed to preload English bundle', { error }, 'index');
+    }
+  }
+
+  // Resolve the current route's lazy chunk up front so React.lazy settles
+  // synchronously on the first render. Without this the prerendered markup
+  // would be replaced by the Suspense skeleton before the page reappears.
+  // preloadRoute swallows its own errors, so a failed chunk cannot block boot.
+  await preloadRoute(routeNameForPath(pathname));
 
   try {
     const migrationResult = await runMigration();

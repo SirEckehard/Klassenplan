@@ -13,26 +13,24 @@ import DownloadConfirmationHost from '@/components/ui/modals/DownloadConfirmatio
 import { preloadLikelyRoutes } from '@/utils/performance/routePreloader';
 import { lazyWithRetry } from '@/utils/performance/lazyWithRetry';
 import { ensureEnglishLoaded } from '@/i18n/i18n';
+import {
+  Changelog,
+  Datenschutz,
+  Export,
+  FAQ,
+  Feedback,
+  Impressum,
+  NotFound,
+  Present,
+  SeatingPlanGenerator,
+  StartPage,
+  Support,
+} from '@/pages/lazyPages';
 
 // Performance monitoring components (lazy loaded)
 const LazyPerformanceTools = lazyWithRetry(
   () => import('@/components/ui/performance/LazyPerformanceTools'),
 );
-
-// Lazy load route components for better performance
-const StartPage = lazyWithRetry(() => import('@/pages/StartPage'));
-const SeatingPlanGenerator = lazyWithRetry(
-  () => import('@/components/SeatingPlanGenerator/SeatingPlanGenerator'),
-);
-const Export = lazyWithRetry(() => import('@/pages/Export'));
-const Present = lazyWithRetry(() => import('@/pages/Present'));
-const Impressum = lazyWithRetry(() => import('@/pages/Impressum'));
-const Datenschutz = lazyWithRetry(() => import('@/pages/Datenschutz'));
-const Feedback = lazyWithRetry(() => import('@/pages/Feedback'));
-const FAQ = lazyWithRetry(() => import('@/pages/FAQ'));
-const Changelog = lazyWithRetry(() => import('@/pages/Changelog'));
-const Support = lazyWithRetry(() => import('@/pages/Support'));
-const NotFound = lazyWithRetry(() => import('@/pages/NotFound'));
 
 /**
  * Wrapper component that syncs the URL language parameter with i18n.

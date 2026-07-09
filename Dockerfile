@@ -1,5 +1,8 @@
 # Stage 1: Build
-FROM node:24-alpine AS builder
+# Debian rather than Alpine: the build prerenders every route in a real
+# Chromium (scripts/prerender.mjs) and Playwright does not support Alpine.
+# Only this stage grows — stage 2 copies nothing but /app/dist.
+FROM node:24-bookworm-slim AS builder
 
 WORKDIR /app
 
@@ -9,11 +12,18 @@ COPY package.json package-lock.json .npmrc ./
 # Install dependencies
 RUN npm ci
 
+# Chromium for the prerender step; the version is pinned by @playwright/test in
+# the lockfile. Kept above `COPY . .` so it survives source-only changes.
+RUN npx playwright install --with-deps chromium
+
 # Copy source code
 COPY . .
 
-# Build production bundle
-RUN npm run build
+# Build production bundle, prerender every route, then verify the output.
+# SITE_URL is baked into canonical/hreflang/og:url at build time.
+ARG SITE_URL=https://klassenplan.de
+ENV SITE_URL=${SITE_URL}
+RUN npm run build:static
 
 # Stage 2: Production
 # Use a plain Alpine base and install nginx + the Brotli module from the SAME

@@ -13,6 +13,7 @@ interface RawRouteMetadata {
   changefreq: string;
   priority: number;
   ogType?: string;
+  noindex?: boolean;
 }
 
 export interface RouteMetadata {
@@ -22,6 +23,7 @@ export interface RouteMetadata {
   changefreq: string;
   priority: number;
   ogType?: string;
+  noindex?: boolean;
 }
 
 /**
@@ -51,6 +53,7 @@ export function getRouteMetadata(
     changefreq: metadata.changefreq,
     priority: metadata.priority,
     ogType: metadata.ogType,
+    noindex: metadata.noindex,
   };
 }
 
@@ -62,5 +65,6 @@ export function getAllRouteMetadata(): RouteMetadata[] {
     changefreq: route.changefreq,
     priority: route.priority,
     ogType: route.ogType,
+    noindex: route.noindex,
   }));
 }

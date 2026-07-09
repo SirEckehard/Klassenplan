@@ -307,6 +307,11 @@ export default defineConfig({
       algorithm: 'brotliCompress',
       ext: '.br',
       threshold: 1024,
+      // HTML is deliberately excluded: scripts/prerender.mjs rewrites every
+      // HTML file after the build, so a precompressed copy made here would go
+      // stale and nginx (brotli_static on) would serve the pre-prerender shell
+      // instead. nginx compresses HTML on the fly via `brotli on`.
+      filter: /\.(js|mjs|json|css|svg)$/i,
     }),
   ],
   resolve: {
@@ -316,6 +321,13 @@ export default defineConfig({
   },
   define: {
     __APP_VERSION__: JSON.stringify(process.env.npm_package_version ?? '0.0.0'),
+    // Canonical origin, baked in at build time. Deriving it from
+    // window.location.origin emits localhost URLs while prerendering and
+    // staging-host URLs on preview deploys. The same SITE_URL variable drives
+    // the sitemap and IndexNow scripts.
+    'import.meta.env.VITE_SITE_URL': JSON.stringify(
+      (process.env.SITE_URL ?? 'https://klassenplan.de').replace(/\/$/, ''),
+    ),
   },
   server: {
     port: 3000,

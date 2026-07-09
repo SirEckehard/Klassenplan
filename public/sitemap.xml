@@ -3,182 +3,164 @@
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
     <url>
       <loc>https://klassenplan.de/</loc>
-      <lastmod>2026-07-08T22:55:19.267Z</lastmod>
+      <lastmod>2026-07-06T11:53:05+02:00</lastmod>
       <changefreq>weekly</changefreq>
       <priority>1.0</priority>
       <xhtml:link rel="alternate" hreflang="de" href="https://klassenplan.de/"/>
       <xhtml:link rel="alternate" hreflang="en" href="https://klassenplan.de/en"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://klassenplan.de/"/>
+      <xhtml:link rel="alternate" hreflang="x-default" href="https://klassenplan.de/en"/>
     </url>
     <url>
       <loc>https://klassenplan.de/en</loc>
-      <lastmod>2026-07-08T22:55:19.267Z</lastmod>
+      <lastmod>2026-07-06T11:53:05+02:00</lastmod>
       <changefreq>weekly</changefreq>
       <priority>1.0</priority>
       <xhtml:link rel="alternate" hreflang="de" href="https://klassenplan.de/"/>
       <xhtml:link rel="alternate" hreflang="en" href="https://klassenplan.de/en"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://klassenplan.de/"/>
+      <xhtml:link rel="alternate" hreflang="x-default" href="https://klassenplan.de/en"/>
     </url>
     <url>
       <loc>https://klassenplan.de/generator</loc>
-      <lastmod>2026-07-08T22:55:19.267Z</lastmod>
+      <lastmod>2026-07-06T11:53:05+02:00</lastmod>
       <changefreq>weekly</changefreq>
       <priority>0.9</priority>
       <xhtml:link rel="alternate" hreflang="de" href="https://klassenplan.de/generator"/>
       <xhtml:link rel="alternate" hreflang="en" href="https://klassenplan.de/en/generator"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://klassenplan.de/generator"/>
+      <xhtml:link rel="alternate" hreflang="x-default" href="https://klassenplan.de/en/generator"/>
     </url>
     <url>
       <loc>https://klassenplan.de/en/generator</loc>
-      <lastmod>2026-07-08T22:55:19.267Z</lastmod>
+      <lastmod>2026-07-06T11:53:05+02:00</lastmod>
       <changefreq>weekly</changefreq>
       <priority>0.9</priority>
       <xhtml:link rel="alternate" hreflang="de" href="https://klassenplan.de/generator"/>
       <xhtml:link rel="alternate" hreflang="en" href="https://klassenplan.de/en/generator"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://klassenplan.de/generator"/>
+      <xhtml:link rel="alternate" hreflang="x-default" href="https://klassenplan.de/en/generator"/>
     </url>
     <url>
       <loc>https://klassenplan.de/export</loc>
-      <lastmod>2026-07-08T22:55:19.267Z</lastmod>
+      <lastmod>2026-07-07T19:40:04+02:00</lastmod>
       <changefreq>monthly</changefreq>
       <priority>0.7</priority>
       <xhtml:link rel="alternate" hreflang="de" href="https://klassenplan.de/export"/>
       <xhtml:link rel="alternate" hreflang="en" href="https://klassenplan.de/en/export"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://klassenplan.de/export"/>
+      <xhtml:link rel="alternate" hreflang="x-default" href="https://klassenplan.de/en/export"/>
     </url>
     <url>
       <loc>https://klassenplan.de/en/export</loc>
-      <lastmod>2026-07-08T22:55:19.267Z</lastmod>
+      <lastmod>2026-07-07T19:40:04+02:00</lastmod>
       <changefreq>monthly</changefreq>
       <priority>0.7</priority>
       <xhtml:link rel="alternate" hreflang="de" href="https://klassenplan.de/export"/>
       <xhtml:link rel="alternate" hreflang="en" href="https://klassenplan.de/en/export"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://klassenplan.de/export"/>
-    </url>
-    <url>
-      <loc>https://klassenplan.de/present</loc>
-      <lastmod>2026-07-08T22:55:19.267Z</lastmod>
-      <changefreq>monthly</changefreq>
-      <priority>0.5</priority>
-      <xhtml:link rel="alternate" hreflang="de" href="https://klassenplan.de/present"/>
-      <xhtml:link rel="alternate" hreflang="en" href="https://klassenplan.de/en/present"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://klassenplan.de/present"/>
-    </url>
-    <url>
-      <loc>https://klassenplan.de/en/present</loc>
-      <lastmod>2026-07-08T22:55:19.267Z</lastmod>
-      <changefreq>monthly</changefreq>
-      <priority>0.5</priority>
-      <xhtml:link rel="alternate" hreflang="de" href="https://klassenplan.de/present"/>
-      <xhtml:link rel="alternate" hreflang="en" href="https://klassenplan.de/en/present"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://klassenplan.de/present"/>
+      <xhtml:link rel="alternate" hreflang="x-default" href="https://klassenplan.de/en/export"/>
     </url>
     <url>
       <loc>https://klassenplan.de/impressum</loc>
-      <lastmod>2026-07-08T22:55:19.267Z</lastmod>
+      <lastmod>2026-07-03T19:20:43+02:00</lastmod>
       <changefreq>yearly</changefreq>
       <priority>0.4</priority>
       <xhtml:link rel="alternate" hreflang="de" href="https://klassenplan.de/impressum"/>
       <xhtml:link rel="alternate" hreflang="en" href="https://klassenplan.de/en/impressum"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://klassenplan.de/impressum"/>
+      <xhtml:link rel="alternate" hreflang="x-default" href="https://klassenplan.de/en/impressum"/>
     </url>
     <url>
       <loc>https://klassenplan.de/en/impressum</loc>
-      <lastmod>2026-07-08T22:55:19.267Z</lastmod>
+      <lastmod>2026-07-03T19:20:43+02:00</lastmod>
       <changefreq>yearly</changefreq>
       <priority>0.4</priority>
       <xhtml:link rel="alternate" hreflang="de" href="https://klassenplan.de/impressum"/>
       <xhtml:link rel="alternate" hreflang="en" href="https://klassenplan.de/en/impressum"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://klassenplan.de/impressum"/>
+      <xhtml:link rel="alternate" hreflang="x-default" href="https://klassenplan.de/en/impressum"/>
     </url>
     <url>
       <loc>https://klassenplan.de/datenschutz</loc>
-      <lastmod>2026-07-08T22:55:19.267Z</lastmod>
+      <lastmod>2026-07-06T10:54:48+02:00</lastmod>
       <changefreq>yearly</changefreq>
       <priority>0.5</priority>
       <xhtml:link rel="alternate" hreflang="de" href="https://klassenplan.de/datenschutz"/>
       <xhtml:link rel="alternate" hreflang="en" href="https://klassenplan.de/en/datenschutz"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://klassenplan.de/datenschutz"/>
+      <xhtml:link rel="alternate" hreflang="x-default" href="https://klassenplan.de/en/datenschutz"/>
     </url>
     <url>
       <loc>https://klassenplan.de/en/datenschutz</loc>
-      <lastmod>2026-07-08T22:55:19.267Z</lastmod>
+      <lastmod>2026-07-06T10:54:48+02:00</lastmod>
       <changefreq>yearly</changefreq>
       <priority>0.5</priority>
       <xhtml:link rel="alternate" hreflang="de" href="https://klassenplan.de/datenschutz"/>
       <xhtml:link rel="alternate" hreflang="en" href="https://klassenplan.de/en/datenschutz"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://klassenplan.de/datenschutz"/>
+      <xhtml:link rel="alternate" hreflang="x-default" href="https://klassenplan.de/en/datenschutz"/>
     </url>
     <url>
       <loc>https://klassenplan.de/feedback</loc>
-      <lastmod>2026-07-08T22:55:19.267Z</lastmod>
+      <lastmod>2026-07-06T11:53:05+02:00</lastmod>
       <changefreq>quarterly</changefreq>
       <priority>0.6</priority>
       <xhtml:link rel="alternate" hreflang="de" href="https://klassenplan.de/feedback"/>
       <xhtml:link rel="alternate" hreflang="en" href="https://klassenplan.de/en/feedback"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://klassenplan.de/feedback"/>
+      <xhtml:link rel="alternate" hreflang="x-default" href="https://klassenplan.de/en/feedback"/>
     </url>
     <url>
       <loc>https://klassenplan.de/en/feedback</loc>
-      <lastmod>2026-07-08T22:55:19.267Z</lastmod>
+      <lastmod>2026-07-06T11:53:05+02:00</lastmod>
       <changefreq>quarterly</changefreq>
       <priority>0.6</priority>
       <xhtml:link rel="alternate" hreflang="de" href="https://klassenplan.de/feedback"/>
       <xhtml:link rel="alternate" hreflang="en" href="https://klassenplan.de/en/feedback"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://klassenplan.de/feedback"/>
+      <xhtml:link rel="alternate" hreflang="x-default" href="https://klassenplan.de/en/feedback"/>
     </url>
     <url>
       <loc>https://klassenplan.de/faq</loc>
-      <lastmod>2026-07-08T22:55:19.267Z</lastmod>
+      <lastmod>2026-07-03T19:20:43+02:00</lastmod>
       <changefreq>monthly</changefreq>
       <priority>0.7</priority>
       <xhtml:link rel="alternate" hreflang="de" href="https://klassenplan.de/faq"/>
       <xhtml:link rel="alternate" hreflang="en" href="https://klassenplan.de/en/faq"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://klassenplan.de/faq"/>
+      <xhtml:link rel="alternate" hreflang="x-default" href="https://klassenplan.de/en/faq"/>
     </url>
     <url>
       <loc>https://klassenplan.de/en/faq</loc>
-      <lastmod>2026-07-08T22:55:19.267Z</lastmod>
+      <lastmod>2026-07-03T19:20:43+02:00</lastmod>
       <changefreq>monthly</changefreq>
       <priority>0.7</priority>
       <xhtml:link rel="alternate" hreflang="de" href="https://klassenplan.de/faq"/>
       <xhtml:link rel="alternate" hreflang="en" href="https://klassenplan.de/en/faq"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://klassenplan.de/faq"/>
+      <xhtml:link rel="alternate" hreflang="x-default" href="https://klassenplan.de/en/faq"/>
     </url>
     <url>
       <loc>https://klassenplan.de/changelog</loc>
-      <lastmod>2026-07-08T22:55:19.267Z</lastmod>
+      <lastmod>2026-07-09T01:19:03+02:00</lastmod>
       <changefreq>monthly</changefreq>
       <priority>0.6</priority>
       <xhtml:link rel="alternate" hreflang="de" href="https://klassenplan.de/changelog"/>
       <xhtml:link rel="alternate" hreflang="en" href="https://klassenplan.de/en/changelog"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://klassenplan.de/changelog"/>
+      <xhtml:link rel="alternate" hreflang="x-default" href="https://klassenplan.de/en/changelog"/>
     </url>
     <url>
       <loc>https://klassenplan.de/en/changelog</loc>
-      <lastmod>2026-07-08T22:55:19.267Z</lastmod>
+      <lastmod>2026-07-09T01:19:03+02:00</lastmod>
       <changefreq>monthly</changefreq>
       <priority>0.6</priority>
       <xhtml:link rel="alternate" hreflang="de" href="https://klassenplan.de/changelog"/>
       <xhtml:link rel="alternate" hreflang="en" href="https://klassenplan.de/en/changelog"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://klassenplan.de/changelog"/>
+      <xhtml:link rel="alternate" hreflang="x-default" href="https://klassenplan.de/en/changelog"/>
     </url>
     <url>
       <loc>https://klassenplan.de/support</loc>
-      <lastmod>2026-07-08T22:55:19.267Z</lastmod>
+      <lastmod>2026-07-06T11:53:05+02:00</lastmod>
       <changefreq>quarterly</changefreq>
       <priority>0.5</priority>
       <xhtml:link rel="alternate" hreflang="de" href="https://klassenplan.de/support"/>
       <xhtml:link rel="alternate" hreflang="en" href="https://klassenplan.de/en/support"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://klassenplan.de/support"/>
+      <xhtml:link rel="alternate" hreflang="x-default" href="https://klassenplan.de/en/support"/>
     </url>
     <url>
       <loc>https://klassenplan.de/en/support</loc>
-      <lastmod>2026-07-08T22:55:19.267Z</lastmod>
+      <lastmod>2026-07-06T11:53:05+02:00</lastmod>
       <changefreq>quarterly</changefreq>
       <priority>0.5</priority>
       <xhtml:link rel="alternate" hreflang="de" href="https://klassenplan.de/support"/>
       <xhtml:link rel="alternate" hreflang="en" href="https://klassenplan.de/en/support"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://klassenplan.de/support"/>
+      <xhtml:link rel="alternate" hreflang="x-default" href="https://klassenplan.de/en/support"/>
     </url>
 </urlset>

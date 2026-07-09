@@ -3,8 +3,8 @@
     "path": "/",
     "title": "Klassenplan – Intelligente Sitzpläne für Schulen",
     "description": "Klassenplan ist ein kostenloser Sitzplan-Generator für die Schule. Erstelle individuelle Sitzpläne in flexibel einrichtbaren Klassenräume und mische den Plan nach pädagogischen Attributen in nur wenigen Schritten.",
-    "titleEn": "Klassenplan – Smart Seating Charts for Schools",
-    "descriptionEn": "Klassenplan is a free seating-chart generator for schools. Create individual seating plans in flexibly arranged classrooms and shuffle them by pedagogical attributes in just a few steps.",
+    "titleEn": "Free Seating Chart Generator for Teachers | Klassenplan",
+    "descriptionEn": "Free seating chart generator for teachers. Build a classroom seating chart, arrange desks however your room looks, and shuffle students randomly or by pedagogical criteria in a few clicks.",
     "changefreq": "weekly",
     "priority": 1.0,
     "ogType": "website"
@@ -13,8 +13,8 @@
     "path": "/generator",
     "title": "Sitzplan-Generator | Klassenplan",
     "description": "Klassenplan ist ein kostenloser Sitzplan-Generator für die Schule. Erstelle individuelle Sitzpläne in flexibel einrichtbaren Klassenräume und mische den Plan nach pädagogischen Attributen in nur wenigen Schritten.",
-    "titleEn": "Seating Chart Generator | Klassenplan",
-    "descriptionEn": "Klassenplan is a free seating-chart generator for schools. Create individual seating plans in flexibly arranged classrooms and shuffle them by pedagogical attributes in just a few steps.",
+    "titleEn": "Classroom Seating Chart Maker | Klassenplan",
+    "descriptionEn": "Make a classroom seating chart online: add your students, lay out desks to match your room, then generate a random seating chart or optimise it by pedagogical criteria.",
     "changefreq": "weekly",
     "priority": 0.9,
     "ogType": "website"
@@ -37,7 +37,8 @@
     "descriptionEn": "Show your seating chart on the smartboard – as a teacher view or a mirrored student view.",
     "changefreq": "monthly",
     "priority": 0.5,
-    "ogType": "article"
+    "ogType": "article",
+    "noindex": true
   },
   {
     "path": "/impressum",
