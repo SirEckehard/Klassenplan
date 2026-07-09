@@ -17,9 +17,7 @@
     "jsx": "react-jsx",
 
     "paths": {
-      "@/*": ["./src/*"],
-      "@vitejs/plugin-react-swc": ["./src/types/vite-plugin-react-swc.d.ts"],
-      "rollup/parseAst": ["./src/types/rollup-parseAst.d.ts"]
+      "@/*": ["./src/*"]
     },
 
     "types": ["vite/client", "node"]
