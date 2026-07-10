@@ -98,5 +98,11 @@
     "vite-plugin-pwa": "^1.2.0",
     "vitest": "^4.0.15",
     "workbox-build": "^7.3.0"
+  },
+  "allowScripts": {
+    "unrs-resolver@1.12.2": true,
+    "core-js@3.49.0": true,
+    "fsevents@2.3.2": true,
+    "fsevents@2.3.3": true
   }
 }
