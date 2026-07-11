@@ -1,7 +1,18 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
+const MARK_CLASS: Record<'xs' | 'sm' | 'md', string> = {
+  xs: 'kp-mark w-6 h-6',
+  sm: 'kp-mark w-9 h-9',
+  md: 'kp-mark w-14 h-14',
+};
+const TEXT_SIZE_CLASS: Record<'xs' | 'sm' | 'md', string> = {
+  xs: 'text-[0.6rem]',
+  sm: 'text-[1.45rem]',
+  md: 'text-[2.25rem]',
+};
+
 interface KpLockupProps {
-  size?: 'sm' | 'md';
+  size?: 'xs' | 'sm' | 'md';
   /** Hide the "Klassenplan" wordmark on small screens, keeping only the mark. */
   hideWordmarkOnMobile?: boolean;
 }
@@ -10,8 +21,8 @@ export function KpLockup({
   size = 'md',
   hideWordmarkOnMobile = false,
 }: KpLockupProps) {
-  const markClass = size === 'sm' ? 'kp-mark w-9 h-9' : 'kp-mark w-14 h-14';
-  const sizeTextClass = size === 'sm' ? 'text-[1.45rem]' : 'text-[2.25rem]';
+  const markClass = MARK_CLASS[size];
+  const sizeTextClass = TEXT_SIZE_CLASS[size];
   const textClass = `kp-wordmark-text ${sizeTextClass}${hideWordmarkOnMobile ? ' hidden sm:inline' : ''}`;
 
   return (

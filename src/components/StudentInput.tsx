@@ -16,7 +16,7 @@ import { showToast } from '@/utils/ui/toast';
 import {
   cardSurfaceClass,
   primaryButtonClass,
-  secondaryButtonClass,
+  warningButtonClass,
   MAX_STUDENTS,
 } from '@/utils';
 import type { NameColumnMode } from '@/utils/data/csvUtils';
@@ -267,7 +267,7 @@ function StudentInput({
                 'studentInput.nameGameTitle',
                 'Namen deiner Schüler spielerisch lernen (mindestens 4 Fotos nötig)',
               )}
-              className={`${secondaryButtonClass} justify-center gap-2`}
+              className={`${warningButtonClass} justify-center gap-2 mr-auto`}
             >
               <GameControllerIcon size={16} aria-hidden />
               {t('studentInput.nameGameButton', 'Namensspiel')}

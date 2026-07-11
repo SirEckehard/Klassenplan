@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import { useTranslation } from 'react-i18next';
-import { QuestionIcon } from '@phosphor-icons/react';
 import PhotoCard from '@/components/nameGame/PhotoCard';
+import { KpLockup } from '@/components/KpLockup';
 import type { MemoryCard as MemoryCardSpec } from './memoryEngine';
 import type { Student } from '@/types';
 
@@ -18,7 +18,7 @@ type MemoryCardProps = {
   onFlip: (cardKey: string) => void;
 };
 
-/** One flip card: face-down question mark, face-up photo or name. */
+/** One flip card: face-down Klassenplan branding, face-up photo or name. */
 export default function MemoryCard({
   card,
   student,
@@ -58,7 +58,7 @@ export default function MemoryCard({
       disabled={disabled || matched || faceUp}
       aria-label={label}
       aria-pressed={faceUp}
-      className={`aspect-square overflow-hidden rounded-xl border-2 bg-white transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 motion-reduce:transition-none dark:bg-gray-900 ${surface}`}
+      className={`aspect-square cursor-pointer overflow-hidden rounded-xl border-2 bg-white transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 motion-reduce:transition-none disabled:cursor-not-allowed dark:bg-gray-900 ${surface}`}
     >
       {faceUp ? (
         card.face === 'photo' ? (
@@ -69,12 +69,11 @@ export default function MemoryCard({
           </span>
         )
       ) : (
-        <span className="flex h-full w-full items-center justify-center">
-          <QuestionIcon
-            size={32}
-            aria-hidden
-            className="text-blue-400 dark:text-blue-500"
-          />
+        <span
+          className="flex h-full w-full flex-col items-center justify-center gap-1 opacity-50"
+          aria-hidden
+        >
+          <KpLockup size="xs" />
         </span>
       )}
     </button>

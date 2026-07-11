@@ -72,7 +72,7 @@ export default function QuizQuestion({
                 type="button"
                 disabled={picked !== null}
                 onClick={() => onPick(optionId)}
-                className={`rounded-xl border-2 px-4 py-3 text-lg font-semibold text-gray-900 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 motion-reduce:transition-none dark:text-white ${optionStateClass(optionId, picked, question.targetId)}`}
+                className={`cursor-pointer rounded-xl border-2 px-4 py-3 text-lg font-semibold text-gray-900 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 motion-reduce:transition-none disabled:cursor-not-allowed dark:text-white ${optionStateClass(optionId, picked, question.targetId)}`}
               >
                 {option.name}
               </button>
@@ -106,7 +106,7 @@ export default function QuizQuestion({
                 letter: OPTION_LETTERS[index] ?? String(index + 1),
                 defaultValue: 'Foto {{letter}}',
               })}
-              className={`aspect-square overflow-hidden rounded-xl border-2 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 motion-reduce:transition-none ${optionStateClass(optionId, picked, question.targetId)}`}
+              className={`aspect-square cursor-pointer overflow-hidden rounded-xl border-2 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 motion-reduce:transition-none disabled:cursor-not-allowed ${optionStateClass(optionId, picked, question.targetId)}`}
             >
               <PhotoCard
                 student={option}

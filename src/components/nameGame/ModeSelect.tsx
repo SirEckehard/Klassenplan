@@ -21,7 +21,7 @@ export default function ModeSelect({
 }: ModeSelectProps) {
   const { t } = useTranslation('pages');
 
-  const modeCardClass = `${cardSurfaceClass} group flex w-full max-w-sm flex-col items-center gap-3 p-8 text-center transition hover:-translate-y-1 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 motion-reduce:transition-none motion-reduce:hover:translate-y-0`;
+  const modeCardClass = `${cardSurfaceClass} group flex w-full max-w-sm cursor-pointer flex-col items-center gap-3 p-8 text-center transition hover:-translate-y-1 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 motion-reduce:transition-none motion-reduce:hover:translate-y-0`;
 
   return (
     <div className="flex h-full flex-col items-center justify-center gap-8 overflow-y-auto px-4 py-8">
