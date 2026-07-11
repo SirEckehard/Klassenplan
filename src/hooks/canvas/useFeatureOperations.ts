@@ -78,7 +78,9 @@ export function useFeatureOperations({
     const { selected, copyable } = collectCopyableSelection();
     if (selected.length === 0) return;
     setFeatureClipboard(
-      copyable.length > 0 ? copyable.map((feature) => deepClone(feature)) : null,
+      copyable.length > 0
+        ? copyable.map((feature) => deepClone(feature))
+        : null,
     );
   }, [selectedFeatureIds, collectCopyableSelection, setFeatureClipboard]);
 
@@ -121,7 +123,9 @@ export function useFeatureOperations({
     if (selected.length === 0) return;
 
     setFeatureClipboard(
-      copyable.length > 0 ? copyable.map((feature) => deepClone(feature)) : null,
+      copyable.length > 0
+        ? copyable.map((feature) => deepClone(feature))
+        : null,
     );
 
     // Only remove what can actually be pasted again. Singleton elements
@@ -174,7 +178,8 @@ export function useFeatureOperations({
       const maxY = Math.max(
         ...clipboardFeatures.map((feature) => feature.y + feature.height),
       );
-      const hasTarget = typeof sceneX === 'number' && typeof sceneY === 'number';
+      const hasTarget =
+        typeof sceneX === 'number' && typeof sceneY === 'number';
       const delta = hasTarget
         ? {
             x: sceneX - (minX + maxX) / 2 + PASTE_OFFSET,

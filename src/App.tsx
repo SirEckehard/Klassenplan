@@ -20,6 +20,7 @@ import {
   FAQ,
   Feedback,
   Impressum,
+  NameGame,
   NotFound,
   Present,
   SeatingPlanGenerator,
@@ -67,6 +68,7 @@ function AppRoutes() {
       <Route path="generator" element={<SeatingPlanGenerator />} />
       <Route path="export" element={<Export />} />
       <Route path="present" element={<Present />} />
+      <Route path="namensspiel" element={<NameGame />} />
       <Route path="impressum" element={<Impressum />} />
       <Route path="datenschutz" element={<Datenschutz />} />
       <Route path="feedback" element={<Feedback />} />
@@ -84,10 +86,14 @@ export default function App() {
   const [showPerformanceDashboard, setShowPerformanceDashboard] =
     React.useState(false);
 
-  // The present view is a fullscreen presentation surface; the global footer
-  // (and its "clear all data" action) is out of place there.
-  const isPresentRoute =
-    location.pathname === '/present' || location.pathname === '/en/present';
+  // Fullscreen surfaces (presentation, name game); the global footer (and its
+  // "clear all data" action) is out of place there.
+  const isFullscreenRoute = [
+    '/present',
+    '/en/present',
+    '/namensspiel',
+    '/en/namensspiel',
+  ].includes(location.pathname);
 
   // Route preloading for better perceived performance
   React.useEffect(() => {
@@ -155,7 +161,7 @@ export default function App() {
         />
       </Suspense>
 
-      {!isPresentRoute && <Footer />}
+      {!isFullscreenRoute && <Footer />}
       <CookieConsent />
     </div>
   );

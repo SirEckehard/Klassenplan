@@ -364,5 +364,70 @@
       "contactBtn": "Contact me",
       "generatorBtn": "Go to Generator"
     }
+  },
+  "nameGame": {
+    "title": "Name Game",
+    "back": "Back",
+    "backTitle": "Back to the generator (Alt + ←)",
+    "backToMenuTitle": "Back to the game menu",
+    "loading": "Loading photos…",
+    "empty": {
+      "title": "Not enough photos yet",
+      "description": "The name game needs at least {{min}} students with a photo. Currently: {{count}}.",
+      "hint": "Add photos in the class list via the portrait icon next to each student.",
+      "cta": "Go to class list"
+    },
+    "menu": {
+      "subtitle": "Learn your students' names – with their photos.",
+      "progress": "{{known}} of {{total}} names mastered",
+      "quizTitle": "Photo Quiz",
+      "quizDescription": "See a photo and pick the right name – or find the matching photo for a name.",
+      "memoryTitle": "Memory",
+      "memoryDescription": "Find the photo and name pairs.",
+      "studentsWithPhoto_one": "{{count}} student with a photo",
+      "studentsWithPhoto_other": "{{count}} students with a photo"
+    },
+    "quiz": {
+      "progress": "Question {{current}} of {{total}}",
+      "score": "{{score}} correct",
+      "photoToName": "What is this student's name?",
+      "nameToPhoto": "Which photo belongs to {{name}}?",
+      "photoAlt": "Student photo",
+      "photoOption": "Photo {{letter}}",
+      "correct": "Correct: {{name}}",
+      "wrong": "Not quite – this is {{name}}",
+      "noQuestions": "No quiz questions can be created from this class.",
+      "result": {
+        "title": "Round finished!",
+        "score": "{{correct}} of {{total}} correct",
+        "knew": "Correct",
+        "missed": "Wrong",
+        "again": "Another round",
+        "menu": "Back to menu"
+      }
+    },
+    "memory": {
+      "round": "Round {{current}} of {{total}}",
+      "moves_one": "Moves: {{count}}",
+      "moves_other": "Moves: {{count}}",
+      "time": "Time: {{time}}",
+      "hiddenCard": "Hidden card {{number}}",
+      "photoOf": "Photo of {{name}}",
+      "roundDone": "Round finished!",
+      "result": "{{moves}} moves in {{time}}",
+      "best": "Best: {{moves}} moves · {{time}}",
+      "newBest": "New best score!",
+      "nextRound": "Next round",
+      "again": "Play again",
+      "menu": "Back to menu"
+    },
+    "help": {
+      "title": "Name Game",
+      "item1": "Only students with a photo are used.",
+      "item2": "Photo quiz: pick the matching name for a photo or vice versa. Uncertain names come up more often.",
+      "item3": "Memory: reveal photo and name pairs – large classes play in several rounds.",
+      "item4": "Your learning progress is stored locally on this device only.",
+      "item5": "Press Alt + ← to return to the generator."
+    }
   }
 }

@@ -41,6 +41,17 @@
     "noindex": true
   },
   {
+    "path": "/namensspiel",
+    "title": "Namensspiel – Schülernamen lernen | Klassenplan",
+    "description": "Lerne die Namen deiner Schüler spielerisch: Foto-Quiz und Memory mit den hochgeladenen Schülerfotos.",
+    "titleEn": "Name Game – Learn Your Students' Names | Klassenplan",
+    "descriptionEn": "Learn your students' names playfully: photo quiz and memory using the uploaded student photos.",
+    "changefreq": "monthly",
+    "priority": 0.5,
+    "ogType": "article",
+    "noindex": true
+  },
+  {
     "path": "/impressum",
     "title": "Impressum | Klassenplan",
     "description": "Kontaktdaten, Verantwortliche und rechtliche Angaben zum Projekt Klassenplan.",

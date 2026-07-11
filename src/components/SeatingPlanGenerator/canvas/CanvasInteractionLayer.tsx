@@ -233,7 +233,12 @@ export default function CanvasInteractionLayer({
     } else {
       setFeatureClipboard(null);
     }
-  }, [selectedTableIds, selectedFeatureIds, tableOperations, featureOperations]);
+  }, [
+    selectedTableIds,
+    selectedFeatureIds,
+    tableOperations,
+    featureOperations,
+  ]);
 
   const pasteSelectionAt = React.useCallback(
     (coords?: { sceneX?: number; sceneY?: number }) => {

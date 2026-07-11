@@ -364,5 +364,70 @@
       "contactBtn": "Kontakt aufnehmen",
       "generatorBtn": "Direkt zum Generator"
     }
+  },
+  "nameGame": {
+    "title": "Namensspiel",
+    "back": "Zurück",
+    "backTitle": "Zurück zum Generator (Alt + ←)",
+    "backToMenuTitle": "Zurück zum Spielmenü",
+    "loading": "Fotos werden geladen…",
+    "empty": {
+      "title": "Noch nicht genug Fotos",
+      "description": "Für das Namensspiel brauchst du mindestens {{min}} Schüler mit Foto. Aktuell: {{count}}.",
+      "hint": "Fotos fügst du in der Klassenliste über das Porträt-Symbol neben jedem Schüler hinzu.",
+      "cta": "Zur Klassenliste"
+    },
+    "menu": {
+      "subtitle": "Lerne die Namen deiner Schüler – mit ihren Fotos.",
+      "progress": "{{known}} von {{total}} Namen sicher",
+      "quizTitle": "Foto-Quiz",
+      "quizDescription": "Sieh ein Foto und wähle den richtigen Namen – oder finde das passende Foto zum Namen.",
+      "memoryTitle": "Memory",
+      "memoryDescription": "Finde die Paare aus Foto und Name.",
+      "studentsWithPhoto_one": "{{count}} Schüler mit Foto",
+      "studentsWithPhoto_other": "{{count}} Schüler mit Foto"
+    },
+    "quiz": {
+      "progress": "Frage {{current}} von {{total}}",
+      "score": "{{score}} richtig",
+      "photoToName": "Wie heißt dieser Schüler?",
+      "nameToPhoto": "Welches Foto gehört zu {{name}}?",
+      "photoAlt": "Schülerfoto",
+      "photoOption": "Foto {{letter}}",
+      "correct": "Richtig: {{name}}",
+      "wrong": "Leider falsch – das ist {{name}}",
+      "noQuestions": "Aus dieser Klasse lassen sich keine Quizfragen erstellen.",
+      "result": {
+        "title": "Runde geschafft!",
+        "score": "{{correct}} von {{total}} richtig",
+        "knew": "Richtig",
+        "missed": "Falsch",
+        "again": "Noch eine Runde",
+        "menu": "Zurück zum Menü"
+      }
+    },
+    "memory": {
+      "round": "Runde {{current}} von {{total}}",
+      "moves_one": "Züge: {{count}}",
+      "moves_other": "Züge: {{count}}",
+      "time": "Zeit: {{time}}",
+      "hiddenCard": "Verdeckte Karte {{number}}",
+      "photoOf": "Foto von {{name}}",
+      "roundDone": "Runde geschafft!",
+      "result": "{{moves}} Züge in {{time}}",
+      "best": "Bestwert: {{moves}} Züge · {{time}}",
+      "newBest": "Neuer Bestwert!",
+      "nextRound": "Nächste Runde",
+      "again": "Nochmal spielen",
+      "menu": "Zurück zum Menü"
+    },
+    "help": {
+      "title": "Namensspiel",
+      "item1": "Es werden nur Schüler mit Foto verwendet.",
+      "item2": "Foto-Quiz: Wähle den passenden Namen zum Foto oder umgekehrt. Unsichere Namen kommen häufiger dran.",
+      "item3": "Memory: Decke Paare aus Foto und Name auf – große Klassen spielen in mehreren Runden.",
+      "item4": "Dein Lernfortschritt wird nur lokal auf diesem Gerät gespeichert.",
+      "item5": "Mit Alt + ← kehrst du zum Generator zurück."
+    }
   }
 }

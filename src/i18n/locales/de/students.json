@@ -298,6 +298,8 @@
     "title": "Klassenliste",
     "proceedShortcut": "Weiter (Alt/Option+→)",
     "proceedButton": "Weiter zum Klassenraum",
+    "nameGameButton": "Namensspiel",
+    "nameGameTitle": "Namen deiner Schüler spielerisch lernen (mindestens 4 Fotos nötig)",
     "emptyClassTitle": "{{className}} ist noch leer.",
     "emptyClassHint": "Lege Schüler an, indem du Platzhalter anlegst, sie einzeln hinzufügst oder eine bestehende CSV importierst. Alle Eingaben gelten nur für diese Klasse.",
     "emptyClassCsvHint": "Du kannst auch diese CSV-Vorlage nutzen und sie mit den Namen deiner Schüler befüllen. Klicke dann auf Klassenliste und lade die CSV-Datei hoch.",

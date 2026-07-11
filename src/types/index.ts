@@ -69,3 +69,9 @@ export type {
   StatisticHighlightTarget,
 } from './StatisticsHighlight';
 export type { StatisticStatus } from '@/utils/ui/statisticsStatus';
+export type {
+  NameGameStudentStat,
+  NameGameStatsMap,
+  MemoryBestScore,
+  NameGameData,
+} from './NameGame';

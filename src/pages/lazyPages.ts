@@ -14,6 +14,7 @@ export const SeatingPlanGenerator = lazyWithRetry(
 );
 export const Export = lazyWithRetry(() => import('@/pages/Export'));
 export const Present = lazyWithRetry(() => import('@/pages/Present'));
+export const NameGame = lazyWithRetry(() => import('@/pages/NameGame'));
 export const Impressum = lazyWithRetry(() => import('@/pages/Impressum'));
 export const Datenschutz = lazyWithRetry(() => import('@/pages/Datenschutz'));
 export const Feedback = lazyWithRetry(() => import('@/pages/Feedback'));
@@ -31,6 +32,7 @@ export const routeComponents = {
   generator: SeatingPlanGenerator,
   export: Export,
   present: Present,
+  namensspiel: NameGame,
   impressum: Impressum,
   datenschutz: Datenschutz,
   feedback: Feedback,

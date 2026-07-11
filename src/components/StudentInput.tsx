@@ -2,13 +2,23 @@
 // Copyright (C) 2026 Eike Schäfer
 import React, { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ArrowRightIcon, InfoIcon } from '@phosphor-icons/react';
+import {
+  ArrowRightIcon,
+  GameControllerIcon,
+  InfoIcon,
+} from '@phosphor-icons/react';
 
 import { useStudentManagement } from '@/hooks/student/useStudentManagement';
+import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';
 import { downloadCsvTemplate } from '@/utils/csv/csvTemplateDownload';
 import ConfirmDialog from '@/components/ui/modals/ConfirmDialog';
 import { showToast } from '@/utils/ui/toast';
-import { cardSurfaceClass, primaryButtonClass, MAX_STUDENTS } from '@/utils';
+import {
+  cardSurfaceClass,
+  primaryButtonClass,
+  secondaryButtonClass,
+  MAX_STUDENTS,
+} from '@/utils';
 import type { NameColumnMode } from '@/utils/data/csvUtils';
 import { useClassManagementContext } from '@/contexts/seatingPlan/ClassManagementContext';
 import { useSeatingPlanActions } from '@/contexts/seatingPlan/store';
@@ -31,6 +41,7 @@ function StudentInput({
   onProceedToLayout,
 }: StudentInputProps) {
   const { t } = useTranslation('students');
+  const navigate = useLocalizedNavigate();
   const [clearConfirmOpen, setClearConfirmOpen] = useState(false);
   const [pendingRemoval, setPendingRemoval] = useState<{
     id: string;
@@ -247,7 +258,21 @@ function StudentInput({
       {/* Classroom setup moved to Step 2 - LayoutEditorView */}
 
       {students.length > 0 && (
-        <div className="mt-4 flex justify-end">
+        <div className="mt-4 flex flex-wrap items-center justify-end gap-3">
+          {students.some((student) => student.hasPhoto) && (
+            <button
+              type="button"
+              onClick={() => navigate('/namensspiel')}
+              title={t(
+                'studentInput.nameGameTitle',
+                'Namen deiner Schüler spielerisch lernen (mindestens 4 Fotos nötig)',
+              )}
+              className={`${secondaryButtonClass} justify-center gap-2`}
+            >
+              <GameControllerIcon size={16} aria-hidden />
+              {t('studentInput.nameGameButton', 'Namensspiel')}
+            </button>
+          )}
           {/* Proceed Button */}
           <button
             ref={proceedButtonRef}

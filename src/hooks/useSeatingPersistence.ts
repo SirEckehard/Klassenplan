@@ -50,6 +50,7 @@ import { useSeatingRepository } from './useSeatingRepository';
 import { useDownloadFile } from './useDownloadFile';
 import { summarizeClass } from '@/utils/data/classCollection';
 import { sweepOrphanPhotos } from '@/repositories/studentPhotoStore';
+import { sweepOrphanNameGameStats } from '@/repositories/nameGameStatsStore';
 import {
   usePersistErrorHandling,
   usePersistQueue,
@@ -239,8 +240,9 @@ export function useSeatingPersistence(state: SeatingState) {
         ) ?? collection.classes[0];
       setActiveClass(mapActiveClass(activeRecord));
 
-      // Remove photos whose student no longer exists in any class (e.g. after a
-      // class was deleted). Fire-and-forget; failures are handled internally.
+      // Remove photos and name-game stats whose student no longer exists in any
+      // class (e.g. after a class was deleted). Fire-and-forget; failures are
+      // handled internally.
       const knownStudentIds = new Set<string>();
       for (const entry of collection.classes) {
         for (const student of entry.students ?? []) {
@@ -248,6 +250,7 @@ export function useSeatingPersistence(state: SeatingState) {
         }
       }
       void sweepOrphanPhotos(knownStudentIds);
+      void sweepOrphanNameGameStats(knownStudentIds);
     },
     [mapActiveClass, setActiveClass, setClassSummaries],
   );
