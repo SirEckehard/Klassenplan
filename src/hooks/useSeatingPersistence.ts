@@ -58,6 +58,11 @@ import {
   type LoadedSnapshot,
 } from './persistence';
 
+const buildStudentsCsvFilename = (className: string): string => {
+  const sanitized = className.trim().replace(/[\\/:*?"<>|]/g, '_');
+  return sanitized ? `${sanitized}.csv` : 'students.csv';
+};
+
 export const exportStudentsToCsv = (students: Student[]): string => {
   const header =
     'Name,Geschlecht,Körpergröße,Unruhig,Schüchtern,Ablenkbarkeit,Vordere Plätze,Fensterplatz,Türnähe,Wunschpartner,Distanzwunsch,Leistungsstark,Leistungsschwach\n';
@@ -859,12 +864,12 @@ export function useSeatingPersistence(state: SeatingState) {
     void (async () => {
       try {
         const csv = exportStudentsToCsv(students);
-        await downloadCsvFile(csv, 'students.csv');
+        await downloadCsvFile(csv, buildStudentsCsvFilename(activeClass.name));
       } catch (e) {
         errorHandlers.exportError(e as Error, 'toast:csv.exportError');
       }
     })();
-  }, [students, downloadCsvFile]);
+  }, [students, downloadCsvFile, activeClass.name]);
 
   // Template operations using repository (compatibility wrappers)
   const saveTemplate = useCallback(
