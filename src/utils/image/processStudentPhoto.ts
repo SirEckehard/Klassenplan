@@ -59,6 +59,28 @@ export const STUDENT_PHOTO_ERRORS = {
 } as const;
 
 /**
+ * Decode an image blob into an ImageBitmap. Used to re-edit an already stored
+ * photo. The caller is responsible for `bitmap.close()` once done.
+ *
+ * @throws {StudentPhotoError} for decode errors.
+ */
+export async function loadImageBitmapFromBlob(
+  blob: Blob,
+): Promise<ImageBitmap> {
+  try {
+    const bitmap = await createImageBitmap(blob);
+    if (bitmap.width <= 0 || bitmap.height <= 0) {
+      bitmap.close();
+      throw new StudentPhotoError(STUDENT_PHOTO_ERRORS.decodeFailed);
+    }
+    return bitmap;
+  } catch (error) {
+    if (error instanceof StudentPhotoError) throw error;
+    throw new StudentPhotoError(STUDENT_PHOTO_ERRORS.decodeFailed);
+  }
+}
+
+/**
  * Validate and decode a user-selected image into an ImageBitmap. The caller is
  * responsible for `bitmap.close()` once done.
  *
@@ -73,17 +95,7 @@ export async function loadImageBitmapFromFile(
   if (file.size > MAX_INPUT_PHOTO_BYTES) {
     throw new StudentPhotoError(STUDENT_PHOTO_ERRORS.tooLarge);
   }
-  try {
-    const bitmap = await createImageBitmap(file);
-    if (bitmap.width <= 0 || bitmap.height <= 0) {
-      bitmap.close();
-      throw new StudentPhotoError(STUDENT_PHOTO_ERRORS.decodeFailed);
-    }
-    return bitmap;
-  } catch (error) {
-    if (error instanceof StudentPhotoError) throw error;
-    throw new StudentPhotoError(STUDENT_PHOTO_ERRORS.decodeFailed);
-  }
+  return loadImageBitmapFromBlob(file);
 }
 
 const clamp = (value: number, min: number, max: number): number =>

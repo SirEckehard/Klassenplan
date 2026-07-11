@@ -3,6 +3,7 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import {
   processStudentPhoto,
+  loadImageBitmapFromBlob,
   clampPhotoTransform,
   defaultPhotoTransform,
   blobToDataUrl,
@@ -33,6 +34,44 @@ describe('processStudentPhoto validation', () => {
     await expect(processStudentPhoto(file)).rejects.toThrowError(
       new StudentPhotoError(STUDENT_PHOTO_ERRORS.tooLarge),
     );
+  });
+});
+
+describe('loadImageBitmapFromBlob', () => {
+  it('decodes a blob into an ImageBitmap', async () => {
+    const bitmap = { width: 160, height: 160, close: vi.fn() };
+    vi.stubGlobal(
+      'createImageBitmap',
+      vi.fn(async () => bitmap),
+    );
+    const blob = new Blob([new Uint8Array([1])], { type: 'image/jpeg' });
+    await expect(loadImageBitmapFromBlob(blob)).resolves.toBe(bitmap);
+  });
+
+  it('wraps decode failures in a StudentPhotoError', async () => {
+    vi.stubGlobal(
+      'createImageBitmap',
+      vi.fn(async () => {
+        throw new Error('decode boom');
+      }),
+    );
+    const blob = new Blob([new Uint8Array([1])], { type: 'image/jpeg' });
+    await expect(loadImageBitmapFromBlob(blob)).rejects.toThrowError(
+      new StudentPhotoError(STUDENT_PHOTO_ERRORS.decodeFailed),
+    );
+  });
+
+  it('rejects zero-dimension bitmaps and closes them', async () => {
+    const close = vi.fn();
+    vi.stubGlobal(
+      'createImageBitmap',
+      vi.fn(async () => ({ width: 0, height: 0, close })),
+    );
+    const blob = new Blob([new Uint8Array([1])], { type: 'image/jpeg' });
+    await expect(loadImageBitmapFromBlob(blob)).rejects.toThrowError(
+      new StudentPhotoError(STUDENT_PHOTO_ERRORS.decodeFailed),
+    );
+    expect(close).toHaveBeenCalledOnce();
   });
 });
 

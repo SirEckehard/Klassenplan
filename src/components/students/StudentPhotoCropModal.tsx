@@ -8,6 +8,7 @@ import {
   CropIcon,
   MagnifyingGlassIcon,
   SpinnerGapIcon,
+  UploadSimpleIcon,
 } from '@phosphor-icons/react';
 import Modal from '@/components/ui/modals/Modal';
 import { logError } from '@/utils';
@@ -31,6 +32,8 @@ type Props = {
   bitmap: ImageBitmap | null;
   onApply: (blob: Blob) => void;
   onCancel: () => void;
+  /** Opens the parent's file picker to swap in a different source image. */
+  onReplace?: () => void;
 };
 
 /**
@@ -41,7 +44,13 @@ type Props = {
  * final 160px JPEG share the same draw math ({@link drawPhoto}), so the result
  * matches what is shown.
  */
-function StudentPhotoCropModal({ open, bitmap, onApply, onCancel }: Props) {
+function StudentPhotoCropModal({
+  open,
+  bitmap,
+  onApply,
+  onCancel,
+  onReplace,
+}: Props) {
   const { t } = useTranslation('students');
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [transform, setTransform] = useState<PhotoTransform>(
@@ -257,6 +266,17 @@ function StudentPhotoCropModal({ open, bitmap, onApply, onCancel }: Props) {
           >
             <ArrowClockwiseIcon size={18} aria-hidden="true" />
           </button>
+          {onReplace && (
+            <button
+              type="button"
+              onClick={onReplace}
+              disabled={busy}
+              className="flex h-10 cursor-pointer items-center gap-2 rounded-full border border-gray-300 bg-white px-4 text-sm font-medium text-gray-700 transition hover:border-blue-400 hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200"
+            >
+              <UploadSimpleIcon size={18} aria-hidden="true" />
+              {t('photo.replaceImage', 'Bild ersetzen')}
+            </button>
+          )}
         </div>
 
         <div className="flex w-full items-center justify-end gap-3 pt-1">

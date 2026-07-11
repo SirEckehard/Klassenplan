@@ -14,6 +14,7 @@ import {
 } from './studentPhotoCache';
 
 export {
+  getStudentPhoto,
   getStudentPhotoDataUrl,
   saveStudentPhoto,
   removeStudentPhoto,

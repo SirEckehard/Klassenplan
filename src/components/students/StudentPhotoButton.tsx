@@ -7,10 +7,12 @@ import type { Student } from '@/types';
 import { useIsDarkMode } from '@/hooks/useIsDarkMode';
 import {
   useStudentPhoto,
+  getStudentPhoto,
   saveStudentPhoto,
   removeStudentPhoto,
 } from '@/hooks/student/useStudentPhoto';
 import {
+  loadImageBitmapFromBlob,
   loadImageBitmapFromFile,
   StudentPhotoError,
   STUDENT_PHOTO_ERRORS,
@@ -95,15 +97,57 @@ function StudentPhotoButton({ student, updateStudent }: Props) {
     ? t('photo.change', 'Foto ändern')
     : t('photo.add', 'Foto hinzufügen');
 
+  // Swap the decoded image into the editor, releasing a previously open one
+  // (e.g. when "replace image" picks a new file while the editor is open).
+  const openEditor = useCallback((bitmap: ImageBitmap) => {
+    const id = nextEditorId.current++;
+    setEditor((current) => {
+      current?.bitmap.close();
+      return { bitmap, id };
+    });
+  }, []);
+
   // The consent notice gates the file picker until it is permanently
   // acknowledged; the "continue" click still counts as a user gesture, so
   // opening the picker from the dialog is allowed by the browser.
-  const handleAvatarClick = () => {
+  const openFilePicker = () => {
     if (isPhotoConsentConfirmed()) {
       inputRef.current?.click();
       return;
     }
     setShowConsentDialog(true);
+  };
+
+  // Re-open the crop editor for the stored photo. Falls back to the file
+  // picker when the blob is missing (stale `hasPhoto`) or cannot be decoded.
+  const openEditorForStoredPhoto = async () => {
+    setBusy(true);
+    try {
+      const blob = await getStudentPhoto(student.id);
+      if (!blob) {
+        openFilePicker();
+        return;
+      }
+      openEditor(await loadImageBitmapFromBlob(blob));
+    } catch (error) {
+      showToast('error', STUDENT_PHOTO_ERRORS.decodeFailed);
+      logError(
+        'Student photo edit failed',
+        { error, studentId: student.id },
+        'StudentPhotoButton',
+      );
+      openFilePicker();
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleAvatarClick = () => {
+    if (student.hasPhoto) {
+      void openEditorForStoredPhoto();
+      return;
+    }
+    openFilePicker();
   };
 
   const handleConsentConfirm = (dontShowAgain: boolean) => {
@@ -122,8 +166,7 @@ function StudentPhotoButton({ student, updateStudent }: Props) {
     setBusy(true);
     try {
       // Decode then hand off to the crop editor; saving happens on "apply".
-      const bitmap = await loadImageBitmapFromFile(file);
-      setEditor({ bitmap, id: nextEditorId.current++ });
+      openEditor(await loadImageBitmapFromFile(file));
     } catch (error) {
       const message =
         error instanceof StudentPhotoError
@@ -278,6 +321,7 @@ function StudentPhotoButton({ student, updateStudent }: Props) {
         bitmap={editor?.bitmap ?? null}
         onApply={handleEditorApply}
         onCancel={closeEditor}
+        onReplace={() => inputRef.current?.click()}
       />
     </>
   );

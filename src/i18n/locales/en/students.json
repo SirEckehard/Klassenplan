@@ -13,6 +13,7 @@
     "rotateRight": "Rotate right",
     "apply": "Apply",
     "cancel": "Cancel",
+    "replaceImage": "Replace image",
     "consent": {
       "title": "About student photos",
       "local": "Photos are stored only locally on this device and never uploaded.",

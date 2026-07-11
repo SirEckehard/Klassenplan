@@ -17,6 +17,10 @@ import {
   setStudentPhoto,
   deleteStudentPhoto,
 } from '@/repositories/studentPhotoStore';
+
+// Re-exported so components can read the stored blob (e.g. to re-edit a
+// photo) without importing the repository directly.
+export { getStudentPhoto } from '@/repositories/studentPhotoStore';
 import { blobToDataUrl } from '@/utils/image/processStudentPhoto';
 import { logError } from '@/utils';
 
