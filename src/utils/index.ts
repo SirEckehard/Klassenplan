@@ -104,6 +104,8 @@ export {
   CABINET_HEIGHT,
   DIVIDER_WIDTH,
   DIVIDER_HEIGHT,
+  MIN_FEATURE_SIZE,
+  WALL_FEATURE_THICKNESS,
   MIX_HISTORY_LIMIT,
   getTablePresets,
   TABLE_PRESETS,
@@ -179,6 +181,14 @@ export {
   convertClientPointToSvgCoordinates,
   createClientToSceneConverter,
 } from './canvas/coordinates';
+export {
+  clampCenterToRoom,
+  getFeatureResizeHandles,
+  getResizeCursor,
+  resizeFeature,
+  type FeatureFrame,
+  type FeatureResizeHandle,
+} from './canvas/featureResize';
 
 // ===== SEO =====
 export { getRouteMetadata } from './seo/routeMetadata';

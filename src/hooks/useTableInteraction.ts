@@ -7,6 +7,7 @@ import {
   calculateDragDelta,
   applyDragMovement,
   getRotatedAabbHalfExtents,
+  clampCenterToRoom,
 } from '@/utils';
 import { triggerHapticFeedback } from '@/utils/touch/hapticFeedback';
 import { addSeatingForTables } from '@/utils/seating/seatingOperations';
@@ -40,14 +41,12 @@ export const applyFeatureGroupDelta = (
       feature.height,
       feature.rotation ?? 0,
     );
-    const clampCenter = (value: number, half: number, size: number) =>
-      half * 2 > size ? size / 2 : Math.min(Math.max(value, half), size - half);
-    const centerX = clampCenter(
+    const centerX = clampCenterToRoom(
       start.x + feature.width / 2 + delta.x,
       halfWidth,
       bounds.width,
     );
-    const centerY = clampCenter(
+    const centerY = clampCenterToRoom(
       start.y + feature.height / 2 + delta.y,
       halfHeight,
       bounds.height,
@@ -58,6 +57,48 @@ export const applyFeatureGroupDelta = (
       y: centerY - feature.height / 2,
     };
   });
+};
+
+export type TemplateDropPlacement = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  seatCount: number;
+};
+
+// Placement math shared by the palette drag preview and the actual drop so
+// the live ghost sits exactly where the table will land.
+export const computeTemplateDropPlacement = (
+  templateType: TableTemplateType,
+  dropX: number,
+  dropY: number,
+  snapToGrid: boolean,
+  classroomWidth: number,
+  classroomHeight: number,
+): TemplateDropPlacement => {
+  const preset = getTablePresets()[templateType];
+  // Align by front edge (right side toward blackboard):
+  // the table's right edge aligns with the drop point.
+  const frontAlignedX = dropX - preset.width;
+  const centeredY = dropY - preset.height / 2;
+  const snapValue = (value: number) =>
+    snapToGrid ? Math.round(value / GRID_SNAP_SIZE) * GRID_SNAP_SIZE : value;
+  const x = Math.min(
+    Math.max(0, snapValue(frontAlignedX)),
+    classroomWidth - preset.width,
+  );
+  const y = Math.min(
+    Math.max(0, snapValue(centeredY)),
+    classroomHeight - preset.height,
+  );
+  return {
+    x,
+    y,
+    width: preset.width,
+    height: preset.height,
+    seatCount: preset.seatCount,
+  };
 };
 
 // Hook handling table interactions such as selection, dragging and template drops
@@ -108,13 +149,6 @@ export default function useTableInteraction({
     [canvasWidth, classroomHeight],
   );
 
-  // Helper to optionally snap positions to the grid
-  const snap = React.useCallback(
-    (v: number) =>
-      snapToGrid ? Math.round(v / GRID_SNAP_SIZE) * GRID_SNAP_SIZE : v,
-    [snapToGrid],
-  );
-
   const dragInfo = React.useRef<{
     tables: { index: number; startX: number; startY: number }[];
     features: Map<string, { x: number; y: number }>;
@@ -148,32 +182,23 @@ export default function useTableInteraction({
         return false;
       }
       const type = templateType;
-      const preset = getTablePresets()[type];
       snapshot();
       const { x: dropX, y: dropY } = getPointerPosition(svg, clientX, clientY);
-      // Align by front edge (right side toward blackboard)
-      // x position: right edge of table aligns with drop point
-      const frontAlignedX = dropX - preset.width;
-      const centeredY = dropY - preset.height / 2;
-      const snappedPosition = snapToGrid
-        ? { x: snap(frontAlignedX), y: snap(centeredY) }
-        : { x: frontAlignedX, y: centeredY };
-
-      const x = Math.min(
-        Math.max(0, snappedPosition.x),
-        classroomWidth - preset.width,
-      );
-      const y = Math.min(
-        Math.max(0, snappedPosition.y),
-        classroomHeight - preset.height,
+      const placement = computeTemplateDropPlacement(
+        type,
+        dropX,
+        dropY,
+        snapToGrid,
+        classroomWidth,
+        classroomHeight,
       );
       const newTable = {
-        x,
-        y,
-        width: preset.width,
-        height: preset.height,
+        x: placement.x,
+        y: placement.y,
+        width: placement.width,
+        height: placement.height,
         rotation: 0, // All templates use 0° (dimensions are optimized)
-        seatCount: preset.seatCount,
+        seatCount: placement.seatCount,
         locked: false,
         zIndex: 0,
         templateType: type,
@@ -210,9 +235,39 @@ export default function useTableInteraction({
       getPointerPosition,
       runSceneTransaction,
       setSelectedTableIds,
-      snap,
       snapToGrid,
       snapshot,
+    ],
+  );
+
+  // Client-coordinate resolver for the drag preview, so the ghost uses the
+  // exact placement math of the drop.
+  const getTemplateDropPlacement = React.useCallback(
+    (
+      templateType: TableTemplateType,
+      clientX: number,
+      clientY: number,
+    ): TemplateDropPlacement | null => {
+      const svg = canvasRef.current;
+      if (!svg) {
+        return null;
+      }
+      const { x, y } = getPointerPosition(svg, clientX, clientY);
+      return computeTemplateDropPlacement(
+        templateType,
+        x,
+        y,
+        snapToGrid,
+        classroomWidth,
+        classroomHeight,
+      );
+    },
+    [
+      canvasRef,
+      classroomHeight,
+      classroomWidth,
+      getPointerPosition,
+      snapToGrid,
     ],
   );
 
@@ -315,6 +370,7 @@ export default function useTableInteraction({
   } = useTemplateDrag({
     canvasRef,
     dropTemplateAt,
+    getTemplateDropPlacement,
   });
 
   const resetCapturedPointer = React.useCallback(() => {

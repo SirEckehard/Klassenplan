@@ -378,6 +378,9 @@
     "whiteboard": "Whiteboard",
     "cabinet": "Schrank",
     "divider": "Raumtrenner",
+    "resize": "Größe anpassen",
+    "resizeWidth": "Breite anpassen",
+    "resizeHeight": "Höhe anpassen",
     "quickSetupShortcut": "(Strg/Cmd+E)",
     "overwriteTemplateMessage": "Die aktuelle Vorlage wurde verändert. Soll die vorhandene Vorlage überschrieben werden?",
     "overwrite": "Überschreiben"

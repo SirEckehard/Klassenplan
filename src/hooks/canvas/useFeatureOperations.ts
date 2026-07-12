@@ -195,9 +195,11 @@ export function useFeatureOperations({
           }
 
           let placement: FeaturePlacement;
+          // Pass the feature itself as size source so resized copies keep
+          // their per-instance dimensions instead of the template defaults.
           if (template.movable) {
             placement = placeMovableFeatureBase(
-              template,
+              feature,
               feature.x + delta.x,
               feature.y + delta.y,
               snapToGrid,
@@ -209,7 +211,7 @@ export function useFeatureOperations({
             // Fixed elements re-anchor to the nearest wall around their
             // shifted center.
             placement = placeFixedFeatureBase(
-              template,
+              feature,
               feature.x + feature.width / 2 + delta.x,
               feature.y + feature.height / 2 + delta.y,
               snapToGrid,
@@ -223,8 +225,8 @@ export function useFeatureOperations({
             id: generateId(),
             x: placement.x,
             y: placement.y,
-            width: placement.width ?? template.width,
-            height: placement.height ?? template.height,
+            width: placement.width ?? feature.width,
+            height: placement.height ?? feature.height,
             movable: template.movable,
             anchor: placement.anchor,
             label: template.label,

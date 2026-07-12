@@ -2,19 +2,26 @@
 // Copyright (C) 2026 Eike Schäfer
 import { describe, expect, it } from 'vitest';
 import {
+  computeFeatureDropPlacement,
   rotateFeatureForAnchor,
   placeFixedFeatureBase,
   placeMovableFeatureBase,
   type FeaturePaletteItem,
 } from '@/hooks/canvas/useFeaturePaletteDrag';
+import { computeTemplateDropPlacement } from '@/hooks/useTableInteraction';
 import type { ClassroomFeature } from '@/types';
 import {
   CABINET_WIDTH,
   CABINET_HEIGHT,
   CLASSROOM_WIDTH,
   CLASSROOM_HEIGHT,
+  TABLE_PRESETS,
   WHITEBOARD_WIDTH,
   WHITEBOARD_HEIGHT,
+  WINDOW_WIDTH,
+  WINDOW_HEIGHT,
+  PODIUM_WIDTH,
+  PODIUM_HEIGHT,
 } from '@/utils';
 
 const makeFeature = (
@@ -153,5 +160,166 @@ describe('placeFixedFeatureBase', () => {
     expect(placement.width).toBe(WHITEBOARD_WIDTH);
     expect(placement.height).toBe(WHITEBOARD_HEIGHT);
     expect(placement.x).toBe(0);
+  });
+});
+
+describe('per-instance sizes (resized features)', () => {
+  it('preserves a custom size when moving a movable feature', () => {
+    const resizedSize = { width: 150, height: 80 };
+    const placement = placeMovableFeatureBase(
+      resizedSize,
+      300,
+      200,
+      false,
+      CLASSROOM_WIDTH,
+      CLASSROOM_HEIGHT,
+    );
+    expect(placement.width).toBe(150);
+    expect(placement.height).toBe(80);
+    expect(placement).toMatchObject({ x: 300, y: 200 });
+  });
+
+  it('preserves a custom length when re-anchoring a wall feature', () => {
+    // A window stretched to 400px length on a vertical wall …
+    const stretched = { width: 12, height: 400 };
+    const left = placeFixedFeatureBase(
+      stretched,
+      2,
+      CLASSROOM_HEIGHT / 2,
+      false,
+      CLASSROOM_WIDTH,
+      CLASSROOM_HEIGHT,
+    );
+    expect(left.width).toBe(12);
+    expect(left.height).toBe(400);
+
+    // … keeps its length (oriented) when dropped on a horizontal wall.
+    const top = placeFixedFeatureBase(
+      stretched,
+      CLASSROOM_WIDTH / 2,
+      2,
+      false,
+      CLASSROOM_WIDTH,
+      CLASSROOM_HEIGHT,
+    );
+    expect(top.width).toBe(400);
+    expect(top.height).toBe(12);
+  });
+});
+
+describe('computeFeatureDropPlacement', () => {
+  const windowTemplate: FeaturePaletteItem = {
+    type: 'window',
+    label: 'Fenster',
+    icon: null,
+    width: WINDOW_WIDTH,
+    height: WINDOW_HEIGHT,
+    movable: false,
+    allowMultiple: true,
+  };
+
+  const podiumTemplate: FeaturePaletteItem = {
+    type: 'podium',
+    label: 'Pult',
+    icon: null,
+    width: PODIUM_WIDTH,
+    height: PODIUM_HEIGHT,
+    movable: true,
+    allowMultiple: false,
+  };
+
+  it('snaps a window to the nearest wall with the anchor rotation', () => {
+    const placement = computeFeatureDropPlacement(
+      windowTemplate,
+      2,
+      CLASSROOM_HEIGHT / 2,
+      false,
+      CLASSROOM_WIDTH,
+      CLASSROOM_HEIGHT,
+    );
+    expect(placement).toMatchObject({
+      x: 0,
+      anchor: 'left',
+      rotation: 0,
+      movable: false,
+    });
+
+    const topPlacement = computeFeatureDropPlacement(
+      windowTemplate,
+      CLASSROOM_WIDTH / 2,
+      2,
+      false,
+      CLASSROOM_WIDTH,
+      CLASSROOM_HEIGHT,
+    );
+    expect(topPlacement).toMatchObject({
+      y: 0,
+      anchor: 'top',
+      rotation: -90,
+      width: WINDOW_HEIGHT,
+      height: WINDOW_WIDTH,
+    });
+  });
+
+  it('centers the podium on the pointer with its default rotation', () => {
+    const placement = computeFeatureDropPlacement(
+      podiumTemplate,
+      450,
+      300,
+      false,
+      CLASSROOM_WIDTH,
+      CLASSROOM_HEIGHT,
+    );
+    expect(placement).toMatchObject({
+      x: 450 - PODIUM_WIDTH / 2,
+      y: 300 - PODIUM_HEIGHT / 2,
+      anchor: 'free',
+      rotation: 90,
+      movable: true,
+    });
+  });
+});
+
+describe('computeTemplateDropPlacement', () => {
+  it('aligns the table front edge with the drop point', () => {
+    const preset = TABLE_PRESETS.double;
+    const placement = computeTemplateDropPlacement(
+      'double',
+      300,
+      300,
+      false,
+      CLASSROOM_WIDTH,
+      CLASSROOM_HEIGHT,
+    );
+    expect(placement).toEqual({
+      x: 300 - preset.width,
+      y: 300 - preset.height / 2,
+      width: preset.width,
+      height: preset.height,
+      seatCount: preset.seatCount,
+    });
+  });
+
+  it('snaps to the grid and clamps to the room', () => {
+    const snapped = computeTemplateDropPlacement(
+      'double',
+      303,
+      301,
+      true,
+      CLASSROOM_WIDTH,
+      CLASSROOM_HEIGHT,
+    );
+    expect(snapped.x % 5).toBe(0);
+    expect(snapped.y % 5).toBe(0);
+
+    const clamped = computeTemplateDropPlacement(
+      'double',
+      10,
+      10,
+      false,
+      CLASSROOM_WIDTH,
+      CLASSROOM_HEIGHT,
+    );
+    expect(clamped).toMatchObject({ x: 0, y: 0 });
   });
 });

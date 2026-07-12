@@ -378,6 +378,9 @@
     "whiteboard": "Whiteboard",
     "cabinet": "Cabinet",
     "divider": "Room Divider",
+    "resize": "Adjust size",
+    "resizeWidth": "Adjust width",
+    "resizeHeight": "Adjust height",
     "quickSetupShortcut": "(Ctrl/Cmd+E)",
     "overwriteTemplateMessage": "The current template has been modified. Do you want to overwrite the existing template?",
     "overwrite": "Overwrite"

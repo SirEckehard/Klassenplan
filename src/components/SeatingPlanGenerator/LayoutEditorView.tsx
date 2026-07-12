@@ -67,6 +67,7 @@ import {
   useFeaturePaletteDrag,
   type FeaturePaletteItem,
 } from '@/hooks/canvas/useFeaturePaletteDrag';
+import { useFeatureResize } from '@/hooks/canvas/useFeatureResize';
 import {
   buildFeatureTemplates,
   type FeatureTemplate,
@@ -456,6 +457,19 @@ const LayoutEditorView = React.memo(
       selectFeature,
     });
 
+    const { handleFeatureResizeStart } = useFeatureResize({
+      sceneFeatures,
+      setSceneFeatures,
+      runSceneTransaction,
+      snapshot,
+      snapToGrid,
+      classroomWidth: canvasWidth,
+      classroomHeight,
+      canvasRef,
+      toSceneCoordinates,
+      selectFeature,
+    });
+
     const handleEscapeKeyWithQuickSetup = React.useCallback(() => {
       // CheckIcon if a modal/dialog is currently open
       const hasOpenModal = document.querySelector('[role="dialog"]');
@@ -800,6 +814,7 @@ const LayoutEditorView = React.memo(
       featureVisibility,
       selectedFeatureIds,
       onFeatureRotateStart: handleFeatureRotateStart,
+      onFeatureResizeStart: handleFeatureResizeStart,
       features: sceneFeatures ?? [],
       sceneTables,
       selectedTableIds,

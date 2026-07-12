@@ -5,7 +5,12 @@ import { useTranslation } from 'react-i18next';
 import TableIcon from '@/components/scene/SceneTable';
 import FeatureShape from '@/components/scene/FeatureShape';
 import RotationHandle from '@/components/scene/RotationHandle';
-import { GRID_SIZE } from '@/utils';
+import ResizeHandle from '@/components/scene/ResizeHandle';
+import {
+  GRID_SIZE,
+  getFeatureResizeHandles,
+  type FeatureResizeHandle,
+} from '@/utils';
 import { getFeatureStyles } from '@/utils/ui';
 import type { FeatureVisibilityFlags } from '@/utils/ui';
 import type {
@@ -16,10 +21,13 @@ import type {
   ClassroomFeature,
 } from '@/types';
 import type { TemplateDragPreview } from '@/types/templateDrag';
+import type { FeatureDragPreview } from '@/hooks/canvas/useFeaturePaletteDrag';
 import { useIsDarkMode } from '@/hooks/useIsDarkMode';
 import type { SelectionBox } from '@/types/canvas';
 
 // Template labels will be translated in component using useTranslation
+
+const noop = () => {};
 
 interface ClassroomCanvasProps {
   canvasRef: React.RefObject<SVGSVGElement | null>;
@@ -32,6 +40,11 @@ interface ClassroomCanvasProps {
     feature: ClassroomFeature,
     event: React.PointerEvent<SVGElement>,
   ) => void;
+  onFeatureResizeStart?: (
+    feature: ClassroomFeature,
+    handle: FeatureResizeHandle,
+    event: React.PointerEvent<SVGGElement>,
+  ) => void;
   features?: ClassroomFeature[];
   sceneTables: ClassroomTable[];
   selectedTableIds: number[];
@@ -39,16 +52,7 @@ interface ClassroomCanvasProps {
   allStudents?: Student[];
   selectionBox: SelectionBox | null;
   templateDragPreview: TemplateDragPreview | null;
-  featureDragPreview?: {
-    label: string;
-    width: number;
-    height: number;
-    clientX: number;
-    clientY: number;
-    overCanvas: boolean;
-    canvasX: number | null;
-    canvasY: number | null;
-  } | null;
+  featureDragPreview?: FeatureDragPreview | null;
   onPointerMove: (e: React.PointerEvent<SVGSVGElement>) => void;
   onPointerUp: (e: React.PointerEvent<SVGSVGElement>) => void;
   onPointerDown: (e: React.PointerEvent<SVGSVGElement>) => void;
@@ -100,6 +104,7 @@ const ClassroomCanvas = React.memo<ClassroomCanvasProps>(
     onTransformStart,
     onFeaturePointerDown,
     onFeatureRotateStart,
+    onFeatureResizeStart,
   }) => {
     const { t } = useTranslation('generator');
     const isDark = useIsDarkMode();
@@ -132,16 +137,17 @@ const ClassroomCanvas = React.memo<ClassroomCanvasProps>(
       [features, featureVisibility, isDark],
     );
 
-    // Template drag preview indicator
+    // Template drag preview indicator — shown only while the pointer is
+    // outside the canvas (over the canvas the live ghost takes over).
     let templateIndicator: React.ReactNode = null;
     if (
       templateDragPreview &&
+      !templateDragPreview.overCanvas &&
       templateDragPreview.canvasX !== null &&
       templateDragPreview.canvasY !== null
     ) {
-      const indicatorClass = templateDragPreview.overCanvas
-        ? 'bg-blue-600 text-white dark:bg-blue-500'
-        : 'bg-gray-300 text-gray-700 dark:bg-gray-600 dark:text-gray-100';
+      const indicatorClass =
+        'bg-gray-300 text-gray-700 dark:bg-gray-600 dark:text-gray-100';
       templateIndicator = (
         <div
           className={`pointer-events-none absolute z-10 px-2 py-1 rounded-lg text-xs font-semibold shadow whitespace-nowrap ${indicatorClass}`}
@@ -159,12 +165,12 @@ const ClassroomCanvas = React.memo<ClassroomCanvasProps>(
     let featureIndicator: React.ReactNode = null;
     if (
       featureDragPreview &&
+      !featureDragPreview.overCanvas &&
       featureDragPreview.canvasX !== null &&
       featureDragPreview.canvasY !== null
     ) {
-      const indicatorClass = featureDragPreview.overCanvas
-        ? 'bg-amber-500 text-white dark:bg-amber-400'
-        : 'bg-gray-300 text-gray-700 dark:bg-gray-600 dark:text-gray-100';
+      const indicatorClass =
+        'bg-gray-300 text-gray-700 dark:bg-gray-600 dark:text-gray-100';
       featureIndicator = (
         <div
           className={`pointer-events-none absolute z-10 px-2 py-1 rounded-lg text-xs font-semibold shadow whitespace-nowrap ${indicatorClass}`}
@@ -213,6 +219,11 @@ const ClassroomCanvas = React.memo<ClassroomCanvasProps>(
               isRotatable &&
               !!onFeatureRotateStart &&
               (isSoleSelection || feature.id === hoveredFeatureId);
+            // Unlike rotation, every feature is resizable — including the
+            // wall-anchored ones (window, door, board, whiteboard).
+            const showResizeHandles =
+              !!onFeatureResizeStart &&
+              (isSoleSelection || feature.id === hoveredFeatureId);
 
             return (
               <FeatureShape
@@ -244,6 +255,32 @@ const ClassroomCanvas = React.memo<ClassroomCanvasProps>(
                     }
                   />
                 )}
+                {showResizeHandles &&
+                  getFeatureResizeHandles(feature)
+                    // The rotate handle sits at the south-east corner, so
+                    // that resize grip is skipped when both are visible.
+                    .filter(
+                      (handle) => !(showRotationHandle && handle === 'se'),
+                    )
+                    .map((handle) => (
+                      <ResizeHandle
+                        key={handle}
+                        width={feature.width}
+                        height={feature.height}
+                        handle={handle}
+                        rotation={rotation}
+                        ariaLabel={
+                          handle === 'e' || handle === 'w'
+                            ? t('layout.resizeWidth', 'Breite anpassen')
+                            : handle === 'n' || handle === 's'
+                              ? t('layout.resizeHeight', 'Höhe anpassen')
+                              : t('layout.resize', 'Größe anpassen')
+                        }
+                        onResizeStart={(resizeHandle, event) =>
+                          onFeatureResizeStart(feature, resizeHandle, event)
+                        }
+                      />
+                    ))}
               </FeatureShape>
             );
           })}
@@ -280,6 +317,51 @@ const ClassroomCanvas = React.memo<ClassroomCanvasProps>(
               strokeWidth={2}
               pointerEvents="none"
             />
+          )}
+
+          {/* Live drag ghosts: translucent previews at the exact drop position */}
+          {templateDragPreview?.placement && (
+            <g opacity={0.5} pointerEvents="none" aria-hidden="true">
+              <TableIcon
+                table={{
+                  ...templateDragPreview.placement,
+                  rotation: 0,
+                  locked: false,
+                  zIndex: 0,
+                  templateType: templateDragPreview.type,
+                }}
+                index={-1}
+                students={Array.from(
+                  { length: templateDragPreview.placement.seatCount },
+                  () => null,
+                )}
+                selected={false}
+                editable={false}
+                onUpdate={noop}
+                isDark={isDark}
+                seatMarkerMode="dots"
+              />
+            </g>
+          )}
+          {featureDragPreview?.placement && (
+            <g opacity={0.5} pointerEvents="none" aria-hidden="true">
+              {(() => {
+                // Reserved id keeps FeatureShape's clipPath unique against
+                // real features.
+                const ghost: ClassroomFeature = {
+                  id: '__drag-preview__',
+                  type: featureDragPreview.type,
+                  visible: true,
+                  ...featureDragPreview.placement,
+                };
+                return (
+                  <FeatureShape
+                    feature={ghost}
+                    styles={getFeatureStyles(ghost, isDark)}
+                  />
+                );
+              })()}
+            </g>
           )}
         </svg>
 

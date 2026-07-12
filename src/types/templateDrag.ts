@@ -9,4 +9,15 @@ export type TemplateDragPreview = {
   overCanvas: boolean;
   canvasX: number | null;
   canvasY: number | null;
+  /**
+   * Scene frame where the table would land right now (drop placement math),
+   * or null while the pointer is outside the canvas.
+   */
+  placement: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    seatCount: number;
+  } | null;
 };

@@ -9,6 +9,7 @@ import type {
 } from '@/types';
 import { useCanvasBoundingRect } from '@/hooks/canvas/useCanvasBoundingRect';
 import {
+  clampCenterToRoom,
   generateId,
   getRotatedAabbHalfExtents,
   GRID_SNAP_SIZE,
@@ -35,6 +36,11 @@ export type FeatureDragPreview = {
   label: string;
   canvasX: number | null;
   canvasY: number | null;
+  /**
+   * Scene frame where the feature would land right now (drop placement math,
+   * including wall snapping), or null while the pointer is off-canvas.
+   */
+  placement: FeatureDropPlacement | null;
 };
 
 export type FeaturePlacement = {
@@ -45,21 +51,22 @@ export type FeaturePlacement = {
   height: number;
 };
 
+/**
+ * Structural size input for the placement helpers. Both palette templates and
+ * live features satisfy this, so moving/pasting a resized feature keeps its
+ * per-instance dimensions instead of resetting to the template defaults.
+ */
+export type FeatureSize = {
+  width: number;
+  height: number;
+};
+
 type FeatureDragUpdatePayload = FeaturePlacement & {
   featureId: string;
 };
 
 const clamp = (value: number, min: number, max: number) =>
   Math.min(Math.max(value, min), max);
-
-/**
- * Clamps a feature center so its rotated footprint stays inside the room.
- * Falls back to centering when the footprint is larger than the room.
- */
-const clampCenterToRoom = (value: number, halfExtent: number, size: number) =>
-  halfExtent * 2 > size
-    ? size / 2
-    : clamp(value, halfExtent, size - halfExtent);
 
 const snapToGridValue = (value: number, shouldSnap: boolean) =>
   shouldSnap ? Math.round(value / GRID_SNAP_SIZE) * GRID_SNAP_SIZE : value;
@@ -91,24 +98,24 @@ const determineAnchorForPoint = (
 };
 
 const getOrientedDimensions = (
-  template: FeatureTemplate,
+  size: FeatureSize,
   anchor: ClassroomFeatureAnchor,
 ) => {
   const isHorizontalWall = anchor === 'top' || anchor === 'bottom';
   const isVerticalWall = anchor === 'left' || anchor === 'right';
 
-  let width = template.width;
-  let height = template.height;
+  let width = size.width;
+  let height = size.height;
 
   if (isHorizontalWall) {
     if (height > width) {
-      width = template.height;
-      height = template.width;
+      width = size.height;
+      height = size.width;
     }
   } else if (isVerticalWall) {
     if (width > height) {
-      width = template.height;
-      height = template.width;
+      width = size.height;
+      height = size.width;
     }
   }
 
@@ -116,7 +123,7 @@ const getOrientedDimensions = (
 };
 
 export const placeMovableFeatureBase = (
-  template: FeatureTemplate,
+  size: FeatureSize,
   desiredX: number,
   desiredY: number,
   snapToGrid: boolean,
@@ -129,31 +136,31 @@ export const placeMovableFeatureBase = (
   // 90°-rotated cabinet sit flush against the side walls; the returned
   // top-left of the unrotated rect may legitimately be negative.
   const { halfWidth, halfHeight } = getRotatedAabbHalfExtents(
-    template.width,
-    template.height,
+    size.width,
+    size.height,
     rotation,
   );
   const centerX = clampCenterToRoom(
-    snapToGridValue(desiredX, snapToGrid) + template.width / 2,
+    snapToGridValue(desiredX, snapToGrid) + size.width / 2,
     halfWidth,
     classroomWidth,
   );
   const centerY = clampCenterToRoom(
-    snapToGridValue(desiredY, snapToGrid) + template.height / 2,
+    snapToGridValue(desiredY, snapToGrid) + size.height / 2,
     halfHeight,
     classroomHeight,
   );
   return {
-    x: centerX - template.width / 2,
-    y: centerY - template.height / 2,
+    x: centerX - size.width / 2,
+    y: centerY - size.height / 2,
     anchor: 'free',
-    width: template.width,
-    height: template.height,
+    width: size.width,
+    height: size.height,
   };
 };
 
 export const placeFixedFeatureBase = (
-  template: FeatureTemplate,
+  size: FeatureSize,
   pointerX: number,
   pointerY: number,
   snapToGrid: boolean,
@@ -168,7 +175,7 @@ export const placeFixedFeatureBase = (
   );
 
   const { width: orientedWidth, height: orientedHeight } =
-    getOrientedDimensions(template, anchor);
+    getOrientedDimensions(size, anchor);
 
   switch (anchor) {
     case 'left':
@@ -223,40 +230,103 @@ export const placeFixedFeatureBase = (
   }
 };
 
+/**
+ * Rotation a wall-mounted feature type gets for the given anchor; other types
+ * (and the free anchor) keep the provided fallback rotation.
+ */
+const getFeatureAnchorRotation = (
+  type: ClassroomFeatureType,
+  anchor: ClassroomFeatureAnchor,
+  fallback: number,
+): number => {
+  if (
+    type !== 'window' &&
+    type !== 'door' &&
+    type !== 'board' &&
+    type !== 'whiteboard'
+  ) {
+    return fallback;
+  }
+
+  switch (anchor) {
+    case 'left':
+      return 0;
+    case 'right':
+      return 180;
+    case 'top':
+      return -90;
+    case 'bottom':
+      return 90;
+    case 'free':
+    default:
+      return fallback;
+  }
+};
+
 export const rotateFeatureForAnchor = (
   feature: ClassroomFeature,
   anchor: ClassroomFeatureAnchor,
 ): ClassroomFeature => {
-  if (
-    feature.type !== 'window' &&
-    feature.type !== 'door' &&
-    feature.type !== 'board' &&
-    feature.type !== 'whiteboard'
-  ) {
-    return feature;
+  const rotation = getFeatureAnchorRotation(
+    feature.type,
+    anchor,
+    feature.rotation ?? 0,
+  );
+  return rotation === (feature.rotation ?? 0)
+    ? feature
+    : { ...feature, rotation };
+};
+
+export type FeatureDropPlacement = FeaturePlacement & {
+  rotation: number;
+  movable: boolean;
+};
+
+/**
+ * Placement math shared by the palette drag preview and the actual drop so
+ * the live ghost sits exactly where the feature will land (including wall
+ * snapping and the anchor rotation).
+ */
+export const computeFeatureDropPlacement = (
+  template: FeatureTemplate,
+  sceneX: number,
+  sceneY: number,
+  snapToGrid: boolean,
+  classroomWidth: number,
+  classroomHeight: number,
+): FeatureDropPlacement => {
+  const initialRotation = template.type === 'podium' ? 90 : 0;
+
+  if (template.movable) {
+    const placement = placeMovableFeatureBase(
+      template,
+      sceneX - template.width / 2,
+      sceneY - template.height / 2,
+      snapToGrid,
+      classroomWidth,
+      classroomHeight,
+      initialRotation,
+    );
+    return { ...placement, rotation: initialRotation, movable: true };
   }
 
-  let rotation: number;
-  switch (anchor) {
-    case 'left':
-      rotation = 0;
-      break;
-    case 'right':
-      rotation = 180;
-      break;
-    case 'top':
-      rotation = -90;
-      break;
-    case 'bottom':
-      rotation = 90;
-      break;
-    case 'free':
-    default:
-      rotation = feature.rotation ?? 0;
-      break;
-  }
-
-  return { ...feature, rotation };
+  const placement = placeFixedFeatureBase(
+    template,
+    sceneX,
+    sceneY,
+    snapToGrid,
+    classroomWidth,
+    classroomHeight,
+  );
+  return {
+    ...placement,
+    rotation: getFeatureAnchorRotation(
+      template.type,
+      placement.anchor,
+      initialRotation,
+    ),
+    movable: false,
+  };
 };
 
 type UseFeaturePaletteDragOptions = {
@@ -520,46 +590,28 @@ export function useFeaturePaletteDrag({
         return;
       }
 
-      const initialRotation = type === 'podium' ? 90 : 0;
-      const placement = template.movable
-        ? placeMovableFeatureBase(
-            template,
-            sceneX - template.width / 2,
-            sceneY - template.height / 2,
-            snapToGrid,
-            classroomWidth,
-            classroomHeight,
-            initialRotation,
-          )
-        : placeFixedFeatureBase(
-            template,
-            sceneX,
-            sceneY,
-            snapToGrid,
-            classroomWidth,
-            classroomHeight,
-          );
+      const placement = computeFeatureDropPlacement(
+        template,
+        sceneX,
+        sceneY,
+        snapToGrid,
+        classroomWidth,
+        classroomHeight,
+      );
 
-      const featureWidth = placement.width ?? template.width;
-      const featureHeight = placement.height ?? template.height;
-
-      let feature: ClassroomFeature = {
+      const feature: ClassroomFeature = {
         id: generateId(),
         type,
         visible: true,
         x: placement.x,
         y: placement.y,
-        width: featureWidth,
-        height: featureHeight,
-        movable: template.movable,
+        width: placement.width,
+        height: placement.height,
+        movable: placement.movable,
         anchor: placement.anchor,
         label: template.label,
-        rotation: initialRotation,
+        rotation: placement.rotation,
       };
-
-      if (!template.movable) {
-        feature = rotateFeatureForAnchor(feature, placement.anchor);
-      }
 
       snapshot();
       runSceneTransaction(({ features, scene, tables, seating }) => {
@@ -607,6 +659,24 @@ export function useFeaturePaletteDrag({
         event.clientY,
       );
 
+      const canvas = canvasRef.current;
+      let placement: FeatureDropPlacement | null = null;
+      if (metrics.overCanvas && canvas) {
+        const { x, y } = toSceneCoordinates(
+          canvas,
+          event.clientX,
+          event.clientY,
+        );
+        placement = computeFeatureDropPlacement(
+          template,
+          x,
+          y,
+          snapToGrid,
+          classroomWidth,
+          classroomHeight,
+        );
+      }
+
       setFeatureDragPreview({
         type: drag.type,
         width: template.width,
@@ -617,9 +687,18 @@ export function useFeaturePaletteDrag({
         canvasX: metrics.canvasX,
         canvasY: metrics.canvasY,
         label: template.label,
+        placement,
       });
     },
-    [featureTemplateMap, getCanvasPointerMetrics],
+    [
+      canvasRef,
+      classroomHeight,
+      classroomWidth,
+      featureTemplateMap,
+      getCanvasPointerMetrics,
+      snapToGrid,
+      toSceneCoordinates,
+    ],
   );
 
   const commitFeatureState = React.useCallback(
@@ -651,28 +730,30 @@ export function useFeaturePaletteDrag({
         event.clientY,
       );
 
+      // The drag only knows the palette template; the live feature carries
+      // the user-applied rotation and size (resized features must keep their
+      // dimensions while being moved).
+      const liveFeature = latestFeaturesRef.current.find(
+        (feature) => feature.id === drag.featureId,
+      );
+      const size: FeatureSize = liveFeature ?? template;
+
       let placement: FeaturePlacement;
       if (template.movable) {
         const desiredX = pointerX - drag.offsetX;
         const desiredY = pointerY - drag.offsetY;
-        // The drag only knows the palette template; the live feature carries
-        // the user-applied rotation needed for footprint-aware clamping.
-        const liveRotation =
-          latestFeaturesRef.current.find(
-            (feature) => feature.id === drag.featureId,
-          )?.rotation ?? 0;
         placement = placeMovableFeatureBase(
-          template,
+          size,
           desiredX,
           desiredY,
           snapToGrid,
           classroomWidth,
           classroomHeight,
-          liveRotation,
+          liveFeature?.rotation ?? 0,
         );
       } else {
         placement = placeFixedFeatureBase(
-          template,
+          size,
           pointerX,
           pointerY,
           snapToGrid,
@@ -686,8 +767,8 @@ export function useFeaturePaletteDrag({
         x: placement.x,
         y: placement.y,
         anchor: placement.anchor,
-        width: placement.width ?? template.width,
-        height: placement.height ?? template.height,
+        width: placement.width ?? size.width,
+        height: placement.height ?? size.height,
       };
       scheduleFeatureDragUpdate();
     },
@@ -1195,16 +1276,25 @@ export function useFeaturePaletteDrag({
         pointerId,
       };
 
+      // The drag starts on the palette item, so the pointer is not over the
+      // canvas yet — compute the metrics honestly instead of assuming it is.
+      const metrics = getCanvasPointerMetrics(
+        pointerId,
+        event.clientX,
+        event.clientY,
+      );
+
       setFeatureDragPreview({
         type,
         width: template.width,
         height: template.height,
         clientX: event.clientX,
         clientY: event.clientY,
-        overCanvas: true,
+        overCanvas: metrics.overCanvas,
         label: template.label,
-        canvasX: event.clientX - rect.left,
-        canvasY: event.clientY - rect.top,
+        canvasX: metrics.canvasX,
+        canvasY: metrics.canvasY,
+        placement: null,
       });
 
       window.addEventListener('pointermove', handlePalettePointerMove);
@@ -1213,6 +1303,7 @@ export function useFeaturePaletteDrag({
     [
       cachePalettePointerRect,
       featureTemplateMap,
+      getCanvasPointerMetrics,
       handlePalettePointerMove,
       handlePalettePointerUp,
     ],

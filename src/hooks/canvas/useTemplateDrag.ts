@@ -13,11 +13,18 @@ interface UseTemplateDragParams {
     clientY: number,
     svg: SVGSVGElement,
   ) => boolean;
+  /** Resolves the scene placement for the live drag ghost (null off-canvas). */
+  getTemplateDropPlacement: (
+    templateType: TableTemplateType,
+    clientX: number,
+    clientY: number,
+  ) => TemplateDragPreview['placement'];
 }
 
 export function useTemplateDrag({
   canvasRef,
   dropTemplateAt,
+  getTemplateDropPlacement,
 }: UseTemplateDragParams) {
   const [preview, setPreview] = React.useState<TemplateDragPreview | null>(
     null,
@@ -96,9 +103,16 @@ export function useTemplateDrag({
         overCanvas: metrics.overCanvas,
         canvasX: metrics.canvasX,
         canvasY: metrics.canvasY,
+        placement: metrics.overCanvas
+          ? getTemplateDropPlacement(
+              dragState.templateType,
+              event.clientX,
+              event.clientY,
+            )
+          : null,
       });
     },
-    [resolvePointerMetrics],
+    [getTemplateDropPlacement, resolvePointerMetrics],
   );
 
   const handlePointerUp = React.useCallback(
@@ -164,6 +178,9 @@ export function useTemplateDrag({
         overCanvas: metrics.overCanvas,
         canvasX: metrics.canvasX,
         canvasY: metrics.canvasY,
+        placement: metrics.overCanvas
+          ? getTemplateDropPlacement(type, event.clientX, event.clientY)
+          : null,
       });
       window.addEventListener('pointermove', handlePointerMove);
       window.addEventListener('pointerup', handlePointerUp);
@@ -171,6 +188,7 @@ export function useTemplateDrag({
     },
     [
       cachePointerRect,
+      getTemplateDropPlacement,
       handlePointerMove,
       handlePointerUp,
       resolvePointerMetrics,
