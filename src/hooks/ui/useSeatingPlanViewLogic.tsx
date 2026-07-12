@@ -106,10 +106,10 @@ export function useSeatingPlanViewLogic({
   // Scene Management
   const {
     sceneTables,
-    setSceneTables,
     sceneFeatures,
     setSceneFeatures,
     commitScene,
+    getCommittedSceneState,
     updateSceneTables,
     runSceneTransaction,
   } = useSceneManager({
@@ -142,14 +142,19 @@ export function useSeatingPlanViewLogic({
     clearFeatureSelection();
   }, [clearTableSelection, clearFeatureSelection]);
 
+  const {
+    featureVisibility,
+    setFeatureVisible,
+    setAllFeatureVisibility,
+    getFeatureVisibility,
+  } = useFeatureVisibility();
+
   // Scene History Management
-  const { history, snapshot, undo } = useSceneHistory({
-    classroomScene,
-    currentSeating,
-    updateClassroomScene,
-    setCurrentSeating: setCurrentSeatingDispatch,
-    setSceneTables,
-    setSceneFeatures,
+  const { history, snapshot, undo, redo, canRedo } = useSceneHistory({
+    getCommittedSceneState,
+    runSceneTransaction,
+    getFeatureVisibility,
+    setAllFeatureVisibility,
     setSelectedTableIds,
     setSelectedFeatureIds,
   });
@@ -159,7 +164,6 @@ export function useSeatingPlanViewLogic({
     LOCAL_STORAGE_KEYS.showGrid,
     true,
   ); // Toggle to show grid lines
-  const { featureVisibility, setFeatureVisible } = useFeatureVisibility();
   const [photoDisplayMode, setPhotoDisplayMode] =
     usePersistentState<PhotoDisplayMode>(
       LOCAL_STORAGE_KEYS.photoDisplayMode,
@@ -449,6 +453,8 @@ export function useSeatingPlanViewLogic({
         featureVisibility={featureVisibility}
         setFeatureVisible={setFeatureVisible}
         undo={undo}
+        redo={redo}
+        canRedo={canRedo}
         historyLength={history.length}
         studentsCount={studentsCount}
         students={students}

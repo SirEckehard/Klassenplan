@@ -80,8 +80,10 @@
     "rotateTable": "Rotate Table",
     "lockSeat": "Lock Seat",
     "unlockSeat": "Unlock Seat",
-    "undo": "Undo",
-    "undoLabel": "Undo last action"
+    "undo": "Undo (Ctrl/Cmd+Z)",
+    "undoLabel": "Undo last action",
+    "redo": "Redo (Ctrl/Cmd+Y)",
+    "redoLabel": "Redo last action"
   },
   "actions": {
     "shuffle": "Shuffle",

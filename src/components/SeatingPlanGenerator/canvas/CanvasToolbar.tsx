@@ -2,7 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { ArrowUUpLeftIcon } from '@phosphor-icons/react';
+import { ArrowUUpLeftIcon, ArrowUUpRightIcon } from '@phosphor-icons/react';
 import { mutedIconButtonClass } from '@/utils';
 
 interface CanvasToolbarProps {
@@ -14,20 +14,33 @@ interface CanvasToolbarProps {
    * Whether undo is available (history length > 0)
    */
   canUndo: boolean;
+  /**
+   * Redo callback
+   */
+  onRedo: () => void;
+  /**
+   * Whether redo is available (redo stack not empty)
+   */
+  canRedo: boolean;
 }
 
 /**
  * CanvasToolbar - Overlay toolbar for canvas operations
  *
  * Positioned in top-left corner with:
- * - Undo button with keyboard shortcut hint
+ * - Undo/redo buttons with keyboard shortcut hints
  * - Semi-transparent background
  * - Touch-optimized sizing (min 44x44px)
  */
-const CanvasToolbar: React.FC<CanvasToolbarProps> = ({ onUndo, canUndo }) => {
+const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
+  onUndo,
+  canUndo,
+  onRedo,
+  canRedo,
+}) => {
   const { t } = useTranslation('generator');
   return (
-    <div className="absolute top-3 left-3 z-20">
+    <div className="absolute top-3 left-3 z-20 flex gap-1">
       <button
         type="button"
         onClick={onUndo}
@@ -37,6 +50,16 @@ const CanvasToolbar: React.FC<CanvasToolbarProps> = ({ onUndo, canUndo }) => {
         aria-label={t('canvas.undoLabel', 'Letzte Aktion rückgängig machen')}
       >
         <ArrowUUpLeftIcon size={16} />
+      </button>
+      <button
+        type="button"
+        onClick={onRedo}
+        disabled={!canRedo}
+        className={`${mutedIconButtonClass} h-12 w-12 text-gray-700 transition disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-100`}
+        title={t('canvas.redo', 'Wiederherstellen (Strg/Cmd+Y)')}
+        aria-label={t('canvas.redoLabel', 'Letzte Aktion wiederherstellen')}
+      >
+        <ArrowUUpRightIcon size={16} />
       </button>
     </div>
   );

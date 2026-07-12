@@ -1,18 +1,18 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
-import type {
-  ClassroomScene,
-  SeatingArrangement,
-  ClassroomTable,
-  ClassroomFeature,
-  Student,
-} from '@/types';
+import type { ClassroomScene, SeatingArrangement, Student } from '@/types';
 import { deepClone } from '@/utils';
+import { FEATURE_TYPES, type FeatureVisibilityFlags } from '@/utils/ui';
+import type {
+  CommittedSceneState,
+  SceneTransactionRunner,
+} from '@/hooks/scene/useSceneManager';
 
 export interface HistorySnapshot {
   scene: ClassroomScene;
   seating: SeatingArrangement;
+  featureVisibility: FeatureVisibilityFlags;
   signature: string;
 }
 
@@ -21,16 +21,16 @@ export interface SceneHistoryHook {
   snapshot: () => void;
   undo: () => void;
   canUndo: boolean;
+  redo: () => void;
+  canRedo: boolean;
   restoreFromSnapshot: (snap: HistorySnapshot) => void;
 }
 
 export interface UseSceneHistoryParams {
-  classroomScene: ClassroomScene;
-  currentSeating: SeatingArrangement;
-  setCurrentSeating: React.Dispatch<React.SetStateAction<SeatingArrangement>>;
-  updateClassroomScene: (next: React.SetStateAction<ClassroomScene>) => void;
-  setSceneTables: React.Dispatch<React.SetStateAction<ClassroomTable[]>>;
-  setSceneFeatures: React.Dispatch<React.SetStateAction<ClassroomFeature[]>>;
+  getCommittedSceneState: () => CommittedSceneState;
+  runSceneTransaction: SceneTransactionRunner;
+  getFeatureVisibility: () => FeatureVisibilityFlags;
+  setAllFeatureVisibility: (flags: FeatureVisibilityFlags) => void;
   setSelectedTableIds: React.Dispatch<React.SetStateAction<number[]>>;
   setSelectedFeatureIds: React.Dispatch<React.SetStateAction<string[]>>;
 }
@@ -142,57 +142,89 @@ const hashSeating = (seating: SeatingArrangement): number => {
   return hash >>> 0;
 };
 
+const hashFeatureVisibility = (flags: FeatureVisibilityFlags): number => {
+  let hash = FNV_OFFSET_BASIS;
+  for (const type of FEATURE_TYPES) {
+    // Missing entries default to visible (see DEFAULT_FEATURE_VISIBILITY)
+    hash = mixBoolean(hash, flags[type] ?? true);
+  }
+  return hash >>> 0;
+};
+
 const createSnapshotSignature = (
   scene: ClassroomScene,
   seating: SeatingArrangement,
+  featureVisibility: FeatureVisibilityFlags,
 ): string => {
   const sceneHash = hashScene(scene).toString(16);
   const seatingHash = hashSeating(seating).toString(16);
-  return `${sceneHash}:${seatingHash}`;
+  const visibilityHash = hashFeatureVisibility(featureVisibility).toString(16);
+  return `${sceneHash}:${seatingHash}:${visibilityHash}`;
 };
 
+const HISTORY_LIMIT = 50;
+
 /**
- * Custom hook for managing scene history with undo functionality
- * Extracted from SeatingPlanView for better separation of concerns
+ * Custom hook for managing scene history with undo/redo functionality.
+ *
+ * The stacks live in refs and are mutated synchronously inside event
+ * handlers, so back-to-back gestures within a single render cycle each
+ * record their own entry (state mirrors exist only for rendering).
+ * Snapshots read the committed scene through synchronous getters instead
+ * of render-scoped closures — a snapshot taken right after a commit always
+ * captures that commit, never a stale pre-render scene.
  */
 export function useSceneHistory({
-  classroomScene,
-  currentSeating,
-  setCurrentSeating,
-  updateClassroomScene,
-  setSceneTables,
-  setSceneFeatures,
+  getCommittedSceneState,
+  runSceneTransaction,
+  getFeatureVisibility,
+  setAllFeatureVisibility,
   setSelectedTableIds,
   setSelectedFeatureIds,
 }: UseSceneHistoryParams): SceneHistoryHook {
+  const undoStackRef = React.useRef<HistorySnapshot[]>([]);
+  const redoStackRef = React.useRef<HistorySnapshot[]>([]);
   const [history, setHistory] = React.useState<HistorySnapshot[]>([]);
-  const historyRef = React.useRef<HistorySnapshot[]>(history);
-  const undoInProgress = React.useRef(false);
+  const [redoLength, setRedoLength] = React.useState(0);
 
-  React.useEffect(() => {
-    historyRef.current = history;
-  }, [history]);
+  const syncMirrors = React.useCallback(() => {
+    setHistory([...undoStackRef.current]);
+    setRedoLength(redoStackRef.current.length);
+  }, []);
+
+  const captureCurrent = React.useCallback((): HistorySnapshot => {
+    const { scene, seating } = getCommittedSceneState();
+    const featureVisibility = getFeatureVisibility();
+    return {
+      scene: deepClone(scene),
+      seating: deepClone(seating),
+      featureVisibility: { ...featureVisibility },
+      signature: createSnapshotSignature(scene, seating, featureVisibility),
+    };
+  }, [getCommittedSceneState, getFeatureVisibility]);
 
   const snapshot = React.useCallback(() => {
-    const signature = createSnapshotSignature(classroomScene, currentSeating);
+    const snap = captureCurrent();
+    const stack = undoStackRef.current;
 
-    setHistory((h) => {
-      // Prevent redundant snapshots via lightweight hash comparison
-      if (h.length > 0 && h[h.length - 1].signature === signature) {
-        return h; // No change, skip creating a new snapshot
-      }
+    // Prevent redundant snapshots via lightweight hash comparison; a deduped
+    // no-op must not clear the redo stack.
+    if (
+      stack.length > 0 &&
+      stack[stack.length - 1].signature === snap.signature
+    ) {
+      return;
+    }
 
-      const newSnapshot: HistorySnapshot = {
-        scene: deepClone(classroomScene),
-        seating: deepClone(currentSeating),
-        signature,
-      };
-
-      // Limit history to 50 entries to avoid memory leaks
-      const newHistory = [...h, newSnapshot];
-      return newHistory.length > 50 ? newHistory.slice(-50) : newHistory;
-    });
-  }, [classroomScene, currentSeating]);
+    stack.push(snap);
+    // Limit history to avoid memory leaks
+    if (stack.length > HISTORY_LIMIT) {
+      undoStackRef.current = stack.slice(-HISTORY_LIMIT);
+    }
+    // A new mutation invalidates the redo branch
+    redoStackRef.current = [];
+    syncMirrors();
+  }, [captureCurrent, syncMirrors]);
 
   const restoreFromSnapshot = React.useCallback(
     (snap: HistorySnapshot) => {
@@ -205,56 +237,72 @@ export function useSceneHistory({
       }));
       const newSeating = snap.seating.map((arr) => [...arr]);
 
-      // Update state atomically to avoid direct array mutations
-      setSceneTables(newTables);
-      setSceneFeatures(newFeatures);
-      setCurrentSeating(newSeating);
-      setSelectedTableIds([]);
-      setSelectedFeatureIds([]);
-      updateClassroomScene(() => ({
-        ...snap.scene,
+      // One transaction updates local scene state, committed refs and the
+      // layout store synchronously, so a snapshot taken right after an undo
+      // already sees the restored state.
+      runSceneTransaction(() => ({
+        scene: { ...snap.scene, tables: newTables, features: newFeatures },
         tables: newTables,
         features: newFeatures,
+        seating: newSeating,
       }));
+      setSelectedTableIds([]);
+      setSelectedFeatureIds([]);
+      setAllFeatureVisibility(snap.featureVisibility);
     },
     [
-      setSceneTables,
-      setSceneFeatures,
-      setCurrentSeating,
+      runSceneTransaction,
       setSelectedTableIds,
       setSelectedFeatureIds,
-      updateClassroomScene,
+      setAllFeatureVisibility,
     ],
   );
 
   const undo = React.useCallback(() => {
-    // Prevent concurrent undo calls
-    if (undoInProgress.current) return;
-
-    const currentHistory = historyRef.current;
-    if (currentHistory.length === 0) {
+    const stack = undoStackRef.current;
+    if (stack.length === 0) {
       return;
     }
 
-    const last = currentHistory[currentHistory.length - 1];
-    undoInProgress.current = true;
-    restoreFromSnapshot(last);
+    const target = stack[stack.length - 1];
+    undoStackRef.current = stack.slice(0, -1);
 
-    setHistory((h) => h.slice(0, -1));
+    // Preserve the live state so redo can return to it
+    redoStackRef.current = [...redoStackRef.current, captureCurrent()].slice(
+      -HISTORY_LIMIT,
+    );
 
-    // Reset after a short delay
-    setTimeout(() => {
-      undoInProgress.current = false;
-    }, 100);
-  }, [restoreFromSnapshot]);
+    restoreFromSnapshot(target);
+    syncMirrors();
+  }, [captureCurrent, restoreFromSnapshot, syncMirrors]);
+
+  const redo = React.useCallback(() => {
+    const stack = redoStackRef.current;
+    if (stack.length === 0) {
+      return;
+    }
+
+    const target = stack[stack.length - 1];
+    redoStackRef.current = stack.slice(0, -1);
+
+    undoStackRef.current = [...undoStackRef.current, captureCurrent()].slice(
+      -HISTORY_LIMIT,
+    );
+
+    restoreFromSnapshot(target);
+    syncMirrors();
+  }, [captureCurrent, restoreFromSnapshot, syncMirrors]);
 
   const canUndo = history.length > 0;
+  const canRedo = redoLength > 0;
 
   return {
     history,
     snapshot,
     undo,
     canUndo,
+    redo,
+    canRedo,
     restoreFromSnapshot,
   };
 }

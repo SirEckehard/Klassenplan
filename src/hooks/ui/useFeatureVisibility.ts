@@ -48,12 +48,37 @@ export function useFeatureVisibility() {
       initialVisibility,
     );
 
+  // Ref mirrors the flags synchronously so history snapshots taken in the
+  // same event handler as a visibility change read the up-to-date record.
+  const featureVisibilityRef = React.useRef(featureVisibility);
+
   const setFeatureVisible = React.useCallback(
     (type: ClassroomFeatureType, visible: boolean) => {
-      setFeatureVisibility((prev) => ({ ...prev, [type]: visible }));
+      const next = { ...featureVisibilityRef.current, [type]: visible };
+      featureVisibilityRef.current = next;
+      setFeatureVisibility(next);
     },
     [setFeatureVisibility],
   );
 
-  return { featureVisibility, setFeatureVisible };
+  const setAllFeatureVisibility = React.useCallback(
+    (flags: FeatureVisibilityFlags) => {
+      const next = { ...flags };
+      featureVisibilityRef.current = next;
+      setFeatureVisibility(next);
+    },
+    [setFeatureVisibility],
+  );
+
+  const getFeatureVisibility = React.useCallback(
+    (): FeatureVisibilityFlags => featureVisibilityRef.current,
+    [],
+  );
+
+  return {
+    featureVisibility,
+    setFeatureVisible,
+    setAllFeatureVisibility,
+    getFeatureVisibility,
+  };
 }

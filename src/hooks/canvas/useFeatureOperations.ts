@@ -243,11 +243,13 @@ export function useFeatureOperations({
 
       if (pastedFeatures.length === 0) return;
 
+      // Snapshot before touching visibility so undo restores the pre-paste
+      // visibility flags along with the scene
+      snapshot();
       pastedFeatures.forEach((feature) => {
         setFeatureVisible(feature.type, true);
       });
 
-      snapshot();
       runSceneTransaction(({ features, scene, tables, seating }) => {
         const existing = features ?? scene.features ?? [];
         const nextFeatures = [...existing, ...pastedFeatures];

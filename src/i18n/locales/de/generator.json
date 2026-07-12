@@ -80,8 +80,10 @@
     "rotateTable": "Tisch drehen",
     "lockSeat": "Platz sperren",
     "unlockSeat": "Platz entsperren",
-    "undo": "Rückgängig",
-    "undoLabel": "Letzte Aktion rückgängig machen"
+    "undo": "Rückgängig (Strg/Cmd+Z)",
+    "undoLabel": "Letzte Aktion rückgängig machen",
+    "redo": "Wiederherstellen (Strg/Cmd+Y)",
+    "redoLabel": "Letzte Aktion wiederherstellen"
   },
   "actions": {
     "shuffle": "Mischen",

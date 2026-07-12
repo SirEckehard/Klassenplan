@@ -82,6 +82,8 @@ type Props = {
   featureVisibility: FeatureVisibilityFlags;
   setFeatureVisible: (type: ClassroomFeatureType, visible: boolean) => void;
   undo: () => void;
+  redo: () => void;
+  canRedo: boolean;
   historyLength: number;
   studentsCount: number;
   students: Student[];
@@ -156,6 +158,8 @@ const LayoutEditorView = React.memo(
     featureVisibility,
     setFeatureVisible,
     undo,
+    redo,
+    canRedo,
     historyLength,
     studentsCount,
     students,
@@ -518,6 +522,10 @@ const LayoutEditorView = React.memo(
       escape: handleEscapeKeyWithQuickSetup,
       'ctrl+z': undo,
       'cmd+z': undo,
+      'ctrl+y': redo,
+      'cmd+y': redo,
+      'ctrl+shift+z': redo,
+      'cmd+shift+z': redo,
       'ctrl+e': handleToggleQuickSetupShortcut,
       'cmd+e': handleToggleQuickSetupShortcut,
     });
@@ -887,6 +895,8 @@ const LayoutEditorView = React.memo(
             containerRef={containerRef}
             isQuickSetupOpen={isQuickSetupOpen}
             undo={undo}
+            redo={redo}
+            canRedo={canRedo}
             historyLength={historyLength}
             layoutSettingsGroups={layoutSettingsGroups}
             canvasProps={canvasProps}
@@ -934,6 +944,8 @@ const LayoutEditorView = React.memo(
       prevProps.setSelectedTableIds === nextProps.setSelectedTableIds &&
       prevProps.canvasHandlers === nextProps.canvasHandlers &&
       prevProps.undo === nextProps.undo &&
+      prevProps.redo === nextProps.redo &&
+      prevProps.canRedo === nextProps.canRedo &&
       prevProps.handleSaveTemplate === nextProps.handleSaveTemplate &&
       prevProps.handleDeleteTemplate === nextProps.handleDeleteTemplate &&
       prevProps.handleRenameTemplate === nextProps.handleRenameTemplate &&
@@ -970,6 +982,8 @@ type LayoutEditorMainSectionProps = {
   containerRef: React.RefObject<HTMLDivElement | null>;
   isQuickSetupOpen: boolean;
   undo: () => void;
+  redo: () => void;
+  canRedo: boolean;
   historyLength: number;
   layoutSettingsGroups: CanvasSettingsGroup[];
   canvasProps: React.ComponentProps<typeof ClassroomCanvas>;
@@ -1009,6 +1023,8 @@ const LayoutEditorMainSection = React.memo(function LayoutEditorMainSection({
   containerRef,
   isQuickSetupOpen,
   undo,
+  redo,
+  canRedo,
   historyLength,
   layoutSettingsGroups,
   canvasProps,
@@ -1056,7 +1072,12 @@ const LayoutEditorMainSection = React.memo(function LayoutEditorMainSection({
         }}
         ref={containerRef}
       >
-        <CanvasToolbar onUndo={undo} canUndo={historyLength > 0} />
+        <CanvasToolbar
+          onUndo={undo}
+          canUndo={historyLength > 0}
+          onRedo={redo}
+          canRedo={canRedo}
+        />
         <CanvasSettingsButton
           groups={layoutSettingsGroups}
           buttonTitle={t('editor.viewSettings', 'Ansichtseinstellungen')}

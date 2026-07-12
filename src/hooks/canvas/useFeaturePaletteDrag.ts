@@ -407,6 +407,7 @@ export function useFeaturePaletteDrag({
     offsetY: number;
     anchor: ClassroomFeatureAnchor;
     type: ClassroomFeatureType;
+    moved: boolean;
   } | null>(null);
   const pendingFeatureRef = React.useRef<{
     feature: ClassroomFeature;
@@ -429,6 +430,7 @@ export function useFeaturePaletteDrag({
     centerClient: { x: number; y: number };
     initialRotation: number;
     startAngle: number;
+    moved: boolean;
   } | null>(null);
   const [featureDragPreview, setFeatureDragPreview] =
     React.useState<FeatureDragPreview | null>(null);
@@ -768,6 +770,7 @@ export function useFeaturePaletteDrag({
         );
       }
 
+      drag.moved = true;
       featureDragPlacementRef.current = {
         featureId: drag.featureId,
         x: placement.x,
@@ -795,8 +798,9 @@ export function useFeaturePaletteDrag({
       window.removeEventListener('pointerup', resetActiveDrag);
       cancelFeatureDragUpdate();
 
-      // Only commit if we actually had an active drag
-      if (activeFeatureDragRef.current) {
+      // Only commit if the drag actually moved the feature; a bare click on
+      // a feature must not create an undo entry
+      if (activeFeatureDragRef.current?.moved) {
         snapshot();
         commitFeatureState(latestFeaturesRef.current);
       }
@@ -877,6 +881,7 @@ export function useFeaturePaletteDrag({
       const snapped = snapRotationAngle(rawRotation);
       const nextRotation = snapped.normalized;
 
+      rotationState.moved = true;
       setSceneFeatures((prev) =>
         prev.map((feature) => {
           if (feature.id !== rotationState.featureId) {
@@ -921,8 +926,11 @@ export function useFeaturePaletteDrag({
       window.removeEventListener('pointermove', handleFeatureRotateMove);
       window.removeEventListener('pointerup', handleFeatureRotateEnd);
       featureRotationRef.current = null;
-      snapshot();
-      commitFeatureState(latestFeaturesRef.current);
+      // A bare click on the rotate handle must not create an undo entry
+      if (rotationState.moved) {
+        snapshot();
+        commitFeatureState(latestFeaturesRef.current);
+      }
     },
     [commitFeatureState, handleFeatureRotateMove, snapshot],
   );
@@ -958,6 +966,7 @@ export function useFeaturePaletteDrag({
           event.clientY - centerClient.y,
           event.clientX - centerClient.x,
         ),
+        moved: false,
       };
 
       if (typeof event.currentTarget.setPointerCapture === 'function') {
@@ -1133,6 +1142,7 @@ export function useFeaturePaletteDrag({
         offsetY,
         anchor: feature.anchor ?? 'free',
         type: template.type,
+        moved: false,
       };
 
       featureDragPlacementRef.current = {

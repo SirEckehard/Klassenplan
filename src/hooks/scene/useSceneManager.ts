@@ -14,6 +14,7 @@ export interface SceneManagerHook {
   sceneFeatures: ClassroomFeature[];
   setSceneFeatures: React.Dispatch<React.SetStateAction<ClassroomFeature[]>>;
   commitScene: () => void;
+  getCommittedSceneState: () => CommittedSceneState;
   updateSceneTables: (
     updateFn: (tables: ClassroomTable[]) => ClassroomTable[],
   ) => void;
@@ -21,6 +22,11 @@ export interface SceneManagerHook {
     mutator: (state: SceneTransactionState) => SceneTransactionResult | void,
     options?: SceneTransactionOptions,
   ) => SceneTransactionResult;
+}
+
+export interface CommittedSceneState {
+  scene: ClassroomScene;
+  seating: SeatingArrangement;
 }
 
 export interface SceneTransactionState {
@@ -110,6 +116,17 @@ export function useSceneManager({
     updateClassroomScene(nextScene);
   }, [updateClassroomScene]);
 
+  // Synchronous read of the last committed scene/seating; refs are updated
+  // synchronously by commitScene/runSceneTransaction, so this never lags a
+  // pending React re-render (unlike closure-based reads).
+  const getCommittedSceneState = React.useCallback(
+    (): CommittedSceneState => ({
+      scene: classroomSceneRef.current,
+      seating: seatingRef.current,
+    }),
+    [],
+  );
+
   const updateSceneTables = React.useCallback(
     (updateFn: (tables: ClassroomTable[]) => ClassroomTable[]) => {
       setSceneTables((prev) => {
@@ -180,6 +197,7 @@ export function useSceneManager({
     sceneFeatures,
     setSceneFeatures,
     commitScene,
+    getCommittedSceneState,
     updateSceneTables,
     runSceneTransaction,
   };
