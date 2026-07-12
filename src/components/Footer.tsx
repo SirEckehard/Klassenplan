@@ -11,6 +11,10 @@ import {
   IdentificationCardIcon,
   ShieldCheckIcon,
   GithubLogoIcon,
+  HardDrivesIcon,
+  DownloadIcon,
+  UploadIcon,
+  ClockCounterClockwiseIcon,
 } from '@phosphor-icons/react';
 import { useTranslation } from 'react-i18next';
 import ThemeToggle from './ThemeToggle';
@@ -20,13 +24,16 @@ import { useSeatingPlanActions } from '@/contexts/SeatingPlanContext';
 import { showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
 import { menuSurfaceClass } from '@/utils';
 import ConfirmDialog from '@/components/ui/modals/ConfirmDialog';
+import StorageHistoryModal from '@/components/ui/navigation/StorageHistoryModal';
 import { GITHUB_REPO_URL } from '@/config/links';
 
 const Footer: React.FC = () => {
   const { t } = useTranslation('common');
-  const { clearAllData } = useSeatingPlanActions();
+  const { clearAllData, handleExportAll, triggerImport } =
+    useSeatingPlanActions();
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [historyModalOpen, setHistoryModalOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -59,6 +66,22 @@ const Footer: React.FC = () => {
     } catch {
       showToast('error', TOAST_MESSAGES.DATA_DELETE_ERROR);
     }
+  };
+
+  const handleShowAllPlans = () => {
+    setMenuOpen(false);
+    setHistoryModalOpen(true);
+  };
+
+  const handleExportBackup = () => {
+    setMenuOpen(false);
+    handleExportAll();
+    showToast('success', 'generator:storage.backupExported');
+  };
+
+  const handleImportBackup = () => {
+    setMenuOpen(false);
+    triggerImport();
   };
 
   const linkClass =
@@ -184,8 +207,40 @@ const Footer: React.FC = () => {
           {menuOpen && (
             <div
               role="menu"
-              className={`${menuSurfaceClass} absolute right-0 bottom-full mb-2 min-w-48 p-1`}
+              className={`${menuSurfaceClass} absolute right-0 bottom-full mb-2 min-w-52 p-1`}
             >
+              <div className="flex items-center gap-2 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-300">
+                <HardDrivesIcon className="h-4 w-4" aria-hidden="true" />
+                {t('generator:storage.sectionTitle')}
+              </div>
+              <button
+                type="button"
+                role="menuitem"
+                onClick={handleShowAllPlans}
+                className={storageMenuItemClass}
+              >
+                <ClockCounterClockwiseIcon className="h-4 w-4 text-purple-600" />
+                {t('generator:storage.showAllPlans')}
+              </button>
+              <button
+                type="button"
+                role="menuitem"
+                onClick={handleExportBackup}
+                className={storageMenuItemClass}
+              >
+                <DownloadIcon className="h-4 w-4 text-green-600" />
+                {t('generator:storage.exportBackup')}
+              </button>
+              <button
+                type="button"
+                role="menuitem"
+                onClick={handleImportBackup}
+                className={storageMenuItemClass}
+              >
+                <UploadIcon className="h-4 w-4 text-blue-600" />
+                {t('generator:storage.importBackup')}
+              </button>
+              <div className="my-1 h-px bg-gray-200 dark:bg-gray-700" />
               <button
                 type="button"
                 role="menuitem"
@@ -202,6 +257,10 @@ const Footer: React.FC = () => {
           )}
         </div>
       </div>
+      <StorageHistoryModal
+        open={historyModalOpen}
+        onClose={() => setHistoryModalOpen(false)}
+      />
       <ConfirmDialog
         open={confirmOpen}
         title={t('dialogs.clearAllData.title')}
@@ -214,5 +273,9 @@ const Footer: React.FC = () => {
     </footer>
   );
 };
+
+// Storage menu item style (blue hover variant of the footer menu items)
+const storageMenuItemClass =
+  'group flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-gray-700 hover:bg-blue-50 dark:text-gray-200 dark:hover:bg-blue-950/40 transition-colors cursor-pointer';
 
 export default Footer;

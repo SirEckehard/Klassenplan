@@ -13,10 +13,11 @@ import { useLocation } from 'react-router-dom';
 import {
   ArrowLeftIcon,
   LinkSimpleIcon,
-  LinkBreakIcon,
   EyeIcon,
   UserCircleIcon,
   InfoIcon,
+  ListBulletsIcon,
+  CameraIcon,
   PrinterIcon,
   GridNineIcon,
   CircleDashedIcon,
@@ -64,7 +65,7 @@ import ExportSidebar from '@/components/SeatingPlanGenerator/ExportSidebar';
 import {
   CanvasSettingsButton,
   type CanvasSettingsGroup,
-  type CanvasSettingsOption,
+  type CanvasSettingsIconGridItem,
   type CanvasSettingsButtonHandle,
 } from '@/components/SeatingPlanGenerator/canvas/CanvasSettingsButton';
 
@@ -292,67 +293,68 @@ export default function Export() {
   }, [activeOrientation]);
 
   const exportSettingsGroups = useMemo<CanvasSettingsGroup[]>(() => {
-    const displayOptions: CanvasSettingsOption[] = [];
+    const displayItems: CanvasSettingsIconGridItem[] = [];
 
     if (previewMode === 'circle') {
-      displayOptions.push({
+      displayItems.push({
         id: 'connections',
         label: t('export.showConnections', 'Verbindungen anzeigen'),
-        // Show what will happen on click: Link icon when off (to turn on), Unlink when on (to turn off)
-        icon: showConnections ? (
-          <LinkBreakIcon size={16} />
-        ) : (
-          <LinkSimpleIcon size={16} />
-        ),
+        icon: <LinkSimpleIcon size={18} />,
         checked: showConnections,
         onChange: handleToggleConnections,
       });
     }
 
-    displayOptions.push(
+    displayItems.push(
       {
         id: 'needs',
         label: t('export.showNeeds', 'Bedürfnisse anzeigen'),
-        icon: <EyeIcon size={16} />,
+        icon: <EyeIcon size={18} />,
         checked: showNeeds,
         onChange: handleToggleNeeds,
       },
       {
         id: 'names',
         label: t('export.showFullNames', 'Namen vollständig anzeigen'),
-        icon: <UserCircleIcon size={16} />,
+        icon: <UserCircleIcon size={18} />,
         checked: showFullNames,
         onChange: handleToggleFullNames,
       },
       {
         id: 'class-info',
         label: t('export.showClassInfo', 'Zusätzliche Klasseninfos anzeigen'),
-        icon: <InfoIcon size={16} />,
+        icon: <InfoIcon size={18} />,
         checked: showClassInfo,
         onChange: handleToggleClassInfo,
       },
       {
         id: 'legend',
         label: t('export.showLegend', 'Legende anzeigen'),
-        icon: <InfoIcon size={16} />,
+        icon: <ListBulletsIcon size={18} />,
         checked: showLegend,
         onChange: handleToggleLegend,
       },
+      {
+        id: 'photos',
+        label: t('export.showPhotos', 'Fotos anzeigen'),
+        icon: <CameraIcon size={18} />,
+        checked: showPhotos,
+        onChange: handleTogglePhotos,
+      },
     );
-
-    displayOptions.push({
-      id: 'photos',
-      label: t('export.showPhotos', 'Fotos anzeigen'),
-      icon: <UserCircleIcon size={16} />,
-      checked: showPhotos,
-      onChange: handleTogglePhotos,
-    });
 
     const groups: CanvasSettingsGroup[] = [
       {
         id: 'preview-display',
         title: t('export.preview', 'Vorschau'),
-        options: displayOptions,
+        options: [
+          {
+            kind: 'iconGrid',
+            id: 'preview-display-grid',
+            label: t('export.preview', 'Vorschau'),
+            items: displayItems,
+          },
+        ],
       },
     ];
 

@@ -4,7 +4,6 @@ import React from 'react';
 import SmartSidebar from '@/components/ui/panels/SmartSidebar';
 import SmartEditPanel from '@/components/ui/panels/SmartEditPanel';
 import TableTemplateIcons from '@/components/ui/icons/TableTemplateIcons';
-import StorageSidebarSection from '@/components/ui/navigation/StorageSidebarSection';
 import type { ClassroomFeatureType, TableTemplateType } from '@/types';
 
 type SidebarFeaturePaletteItem = {
@@ -64,7 +63,6 @@ const LayoutEditorSidebarSection = React.memo(
                 featurePalette={featurePalette}
                 onFeaturePointerDown={onFeaturePointerDown}
               />
-              <StorageSidebarSection isExpanded />
             </>
           ) : (
             <>
@@ -77,7 +75,6 @@ const LayoutEditorSidebarSection = React.memo(
                 featurePalette={featurePalette}
                 onFeaturePointerDown={onFeaturePointerDown}
               />
-              <StorageSidebarSection isExpanded={false} />
             </>
           )
         }

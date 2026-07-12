@@ -24,7 +24,6 @@ import FloatingMixButton from '@/components/ui/buttons/FloatingMixButton';
 import SeatingModeToggle from '@/components/SeatingPlanGenerator/SeatingModeToggle';
 import SeatingPlanCanvas from '@/components/SeatingPlanGenerator/SeatingPlanCanvas';
 import SeatingStatisticsBadge from '@/components/ui/feedback/SeatingStatisticsBadge';
-import StorageSidebarSection from '@/components/ui/navigation/StorageSidebarSection';
 import { CanvasSettingsButton } from '@/components/SeatingPlanGenerator/canvas/CanvasSettingsButton';
 import {
   GRID_SIZE,
@@ -326,11 +325,18 @@ export default function SeatingPlanEditorView({
         title: t('editor.workspace', 'Arbeitsfläche'),
         options: [
           {
-            id: 'show-grid',
-            label: t('editor.showGrid', 'Raster anzeigen'),
-            icon: <GridNine size={16} />,
-            checked: showGrid,
-            onChange: handleToggleGrid,
+            kind: 'iconGrid' as const,
+            id: 'editor-canvas-grid',
+            label: t('editor.workspace', 'Arbeitsfläche'),
+            items: [
+              {
+                id: 'show-grid',
+                label: t('editor.showGrid', 'Raster anzeigen'),
+                icon: <GridNine size={18} />,
+                checked: showGrid,
+                onChange: handleToggleGrid,
+              },
+            ],
           },
         ],
       },
@@ -835,7 +841,6 @@ export default function SeatingPlanEditorView({
                   setMixSettings={setMixSettings}
                   students={students}
                 />
-                <StorageSidebarSection isExpanded />
               </>
             ) : (
               <>
@@ -845,7 +850,6 @@ export default function SeatingPlanEditorView({
                   onSettingChange={handleMixSettingChange}
                   isExpanded={isExpanded}
                 />
-                <StorageSidebarSection isExpanded={false} />
               </>
             )
           }

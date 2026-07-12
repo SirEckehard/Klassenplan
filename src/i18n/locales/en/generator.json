@@ -364,6 +364,7 @@
     "tableTypes": "Table Types",
     "tableTypesDescription": "Drag tables into the classroom.",
     "roomElements": "Room Elements",
+    "roomElementsToggleAll": "Show or hide all room elements",
     "roomElementsDescription": "Drag windows, doors, teacher's desk, boards or furniture into the classroom.",
     "setupClassroom": "Set Up Classroom",
     "saveTemplate": "Save current classroom as template",

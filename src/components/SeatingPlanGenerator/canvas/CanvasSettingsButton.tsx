@@ -3,6 +3,7 @@
 import React from 'react';
 import { SlidersHorizontalIcon } from '@phosphor-icons/react';
 import SettingToggle from '@/components/ui/controls/SettingToggle';
+import ToggleSwitch from '@/components/ui/controls/ToggleSwitch';
 import { cardSurfaceClass, mutedIconButtonClass } from '@/utils';
 import { useClickOutside } from '@/hooks/ui/useClickOutside';
 
@@ -67,9 +68,18 @@ type CanvasSettingsOption =
   | CanvasSettingsSegmentOption
   | CanvasSettingsIconGridOption;
 
+/** Small switch rendered next to the group title, e.g. to toggle a whole group on/off. */
+type CanvasSettingsHeaderToggle = {
+  label: string;
+  checked: boolean;
+  onChange: (next: boolean) => void;
+  disabled?: boolean;
+};
+
 type CanvasSettingsGroup = {
   id: string;
   title?: string;
+  headerToggle?: CanvasSettingsHeaderToggle;
   options: CanvasSettingsOption[];
 };
 
@@ -222,9 +232,21 @@ export const CanvasSettingsButton = React.forwardRef<
                 .map((group) => (
                   <div key={group.id} className="space-y-2">
                     {group.title && (
-                      <p className="text-xs font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-300">
-                        {group.title}
-                      </p>
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-300">
+                          {group.title}
+                        </p>
+                        {group.headerToggle && (
+                          <ToggleSwitch
+                            size="sm"
+                            checked={group.headerToggle.checked}
+                            onChange={group.headerToggle.onChange}
+                            label={group.headerToggle.label}
+                            title={group.headerToggle.label}
+                            disabled={group.headerToggle.disabled}
+                          />
+                        )}
+                      </div>
                     )}
                     <div className="space-y-2">
                       {group.options.map((option) =>

@@ -364,6 +364,7 @@
     "tableTypes": "Tischtypen",
     "tableTypesDescription": "Ziehe Tische in den Klassenraum.",
     "roomElements": "Raumelemente",
+    "roomElementsToggleAll": "Alle Raumelemente ein- oder ausblenden",
     "roomElementsDescription": "Ziehe Fenster, Türen, Pult, Tafel oder Möbel in den Klassenraum.",
     "setupClassroom": "Klassenraum einrichten",
     "saveTemplate": "Aktuellen Klassenraum als Vorlage speichern",

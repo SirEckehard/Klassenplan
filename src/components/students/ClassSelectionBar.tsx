@@ -22,7 +22,6 @@ import {
 } from '@/utils';
 import FloatingDropdown from './FloatingDropdown';
 import { useClickOutside } from '@/hooks/ui/useClickOutside';
-import StoragePopover from '@/components/ui/navigation/StoragePopover';
 
 type Props = {
   classSummaries: ClassSummary[];
@@ -439,14 +438,6 @@ export default function ClassSelectionBar({
               </span>
             </div>
           )}
-
-          {/* Separator before Storage & Help */}
-          {hasActiveClass && (
-            <div className="hidden h-11 w-px self-start bg-blue-100/80 lg:block dark:bg-blue-900/50" />
-          )}
-
-          {/* Storage & Backup Popover */}
-          {hasActiveClass && <StoragePopover viewMode="detail" />}
         </div>
       </div>
 

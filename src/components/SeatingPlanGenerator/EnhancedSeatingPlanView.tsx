@@ -30,7 +30,6 @@ import { useIsMobile } from '@/hooks/ui/useIsMobile';
 import type { Props as SeatingPlanViewProps } from './SeatingPlanView';
 import { canvasFrameClass, secondaryButtonClass } from '@/utils';
 import { useEnsureCircleLayout } from '@/hooks/circle/useEnsureCircleLayout';
-import StorageSidebarSection from '@/components/ui/navigation/StorageSidebarSection';
 
 type EnhancedSeatingPlanViewProps = SeatingPlanViewProps & {
   seatingMode?: 'table' | 'circle';
@@ -202,7 +201,6 @@ export default function EnhancedSeatingPlanView(
                       onShuffleCircle={handleShuffleCircle}
                       isExpanded={isExpanded}
                     />
-                    <StorageSidebarSection isExpanded />
                   </>
                 ) : (
                   <>
@@ -219,7 +217,6 @@ export default function EnhancedSeatingPlanView(
                       onShuffleCircle={handleShuffleCircle}
                       isExpanded={isExpanded}
                     />
-                    <StorageSidebarSection isExpanded={false} />
                   </>
                 )
               }

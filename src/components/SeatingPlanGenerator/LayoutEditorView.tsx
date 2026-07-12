@@ -715,18 +715,25 @@ const LayoutEditorView = React.memo(
           title: t('editor.workspace', 'Arbeitsfläche'),
           options: [
             {
-              id: 'snap-to-grid',
-              label: t('editor.snapToGrid', 'Am Raster ausrichten'),
-              icon: <Magnet size={16} />,
-              checked: snapToGrid,
-              onChange: handleToggleSnapToGrid,
-            },
-            {
-              id: 'show-grid',
-              label: t('editor.showGrid', 'Raster anzeigen'),
-              icon: <GridNine size={16} />,
-              checked: showGrid,
-              onChange: handleToggleShowGrid,
+              kind: 'iconGrid' as const,
+              id: 'layout-base-grid',
+              label: t('editor.workspace', 'Arbeitsfläche'),
+              items: [
+                {
+                  id: 'snap-to-grid',
+                  label: t('editor.snapToGrid', 'Am Raster ausrichten'),
+                  icon: <Magnet size={18} />,
+                  checked: snapToGrid,
+                  onChange: handleToggleSnapToGrid,
+                },
+                {
+                  id: 'show-grid',
+                  label: t('editor.showGrid', 'Raster anzeigen'),
+                  icon: <GridNine size={18} />,
+                  checked: showGrid,
+                  onChange: handleToggleShowGrid,
+                },
+              ],
             },
           ],
         },

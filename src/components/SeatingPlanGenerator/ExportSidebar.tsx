@@ -12,7 +12,6 @@ import {
 } from '@phosphor-icons/react';
 import SmartSidebar from '@/components/ui/panels/SmartSidebar';
 import SectionHeader from '@/components/ui/layout/SectionHeader';
-import StorageSidebarSection from '@/components/ui/navigation/StorageSidebarSection';
 import {
   cardSurfaceClass,
   inputFieldClass,
@@ -307,9 +306,6 @@ export default function ExportSidebar({
                 </button>
               )}
             </div>
-
-            {/* Storage & Backup Section */}
-            <StorageSidebarSection isExpanded />
           </div>
         ) : (
           // Collapsed Mode - Icon-only
@@ -410,9 +406,6 @@ export default function ExportSidebar({
                 </span>
               </button>
             )}
-
-            {/* Storage & Backup */}
-            <StorageSidebarSection isExpanded={false} />
           </div>
         )
       }
