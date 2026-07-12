@@ -58,8 +58,8 @@ export function useFeatureOperations({
   setFeatureVisible,
 }: UseFeatureOperationsParams): FeatureOperationsHook {
   // Splits the current selection into elements that can be duplicated and the
-  // singleton elements (board / lectern) that cannot, warning once if any of
-  // the latter are present.
+  // singleton elements (board) that cannot, warning once if any of the latter
+  // are present.
   const collectCopyableSelection = React.useCallback(() => {
     const selected = sceneFeatures.filter((feature) =>
       selectedFeatureIds.includes(feature.id),
@@ -129,7 +129,7 @@ export function useFeatureOperations({
     );
 
     // Only remove what can actually be pasted again. Singleton elements
-    // (board / lectern) stay in place so a cut never destroys them.
+    // (the board) stay in place so a cut never destroys them.
     if (copyable.length === 0) return;
     const copyableIds = new Set(copyable.map((feature) => feature.id));
     snapshot();

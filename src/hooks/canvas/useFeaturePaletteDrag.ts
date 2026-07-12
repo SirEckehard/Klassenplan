@@ -16,6 +16,7 @@ import {
   snapRotationAngle,
   calculateDragDelta,
   applyDragMovement,
+  showToast,
 } from '@/utils';
 import type { SceneTransactionRunner } from '@/hooks/scene/useSceneManager';
 import type { FeatureContextMenuState } from '@/hooks/useContextMenus';
@@ -619,6 +620,11 @@ export function useFeaturePaletteDrag({
         const filtered = template.allowMultiple
           ? existing
           : existing.filter((existingFeature) => existingFeature.type !== type);
+        // The board is a singleton because its position defines the front of
+        // the room for the seating algorithm — explain the swap to the user.
+        if (filtered.length < existing.length) {
+          showToast('info', 'toast:feature.boardReplaced');
+        }
         const nextFeatures = [...filtered, feature];
         return {
           features: nextFeatures,

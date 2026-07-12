@@ -70,7 +70,7 @@ export const buildFeatureTemplates = (
     width: PODIUM_WIDTH,
     height: PODIUM_HEIGHT,
     movable: true,
-    allowMultiple: false,
+    allowMultiple: true,
   },
   {
     type: 'whiteboard',

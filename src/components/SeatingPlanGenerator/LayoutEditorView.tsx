@@ -289,19 +289,15 @@ const LayoutEditorView = React.memo(
       if (!sceneFeatures) {
         return;
       }
+      // The board stays a singleton because its position defines the front of
+      // the room for the seating algorithm.
       let boardSeen = false;
-      let podiumSeen = false;
       const filtered = sceneFeatures.filter((feature) => {
         if (feature.type === 'board') {
           if (boardSeen) {
             return false;
           }
           boardSeen = true;
-        } else if (feature.type === 'podium') {
-          if (podiumSeen) {
-            return false;
-          }
-          podiumSeen = true;
         }
         return true;
       });

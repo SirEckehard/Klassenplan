@@ -68,9 +68,10 @@ export const CLASSROOM_WIDTH = 900;
 export const CLASSROOM_HEIGHT = 600;
 
 // Wall-mounted features (window, door, board, whiteboard) have no real depth
-// in the room, so they all share the slimmest thickness and only resize in
-// length along their wall.
-export const WALL_FEATURE_THICKNESS = 12;
+// in the room, so they all share the same thickness and only resize in
+// length along their wall. Must stay >= MIN_ICON_EDGE in FeatureShape so the
+// feature icons render.
+export const WALL_FEATURE_THICKNESS = 20;
 
 // Dimensions of the classroom board (pixels)
 export const BOARD_WIDTH = WALL_FEATURE_THICKNESS;
@@ -85,9 +86,8 @@ const BOARD_HEIGHT_DEFAULT = BOARD_HEIGHT;
 export const PODIUM_WIDTH = 90;
 export const PODIUM_HEIGHT = 60;
 
-// Smallest edge a feature can be resized to (wall features start thinner and
-// keep their thickness). Matches MIN_ICON_EDGE in FeatureShape so a minimally
-// sized free feature still renders its icon.
+// Smallest edge a feature can be resized to. Matches MIN_ICON_EDGE in
+// FeatureShape so a minimally sized feature still renders its icon.
 export const MIN_FEATURE_SIZE = 20;
 
 // Additional room furniture (pixels)
@@ -96,7 +96,7 @@ export const WHITEBOARD_HEIGHT = 160;
 export const CABINET_WIDTH = 100;
 export const CABINET_HEIGHT = 40;
 export const DIVIDER_WIDTH = 160;
-export const DIVIDER_HEIGHT = 12;
+export const DIVIDER_HEIGHT = WALL_FEATURE_THICKNESS;
 
 export const DEFAULT_WINDOW_FEATURES: ClassroomFeature[] = [
   {

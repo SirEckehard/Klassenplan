@@ -113,7 +113,6 @@
   --canvas-bg: rgba(255, 255, 255, 0.7);
   --canvas-border: #bfdbfe;
   --canvas-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.35);
-  --radius-canvas: 1.5rem;
   --backdrop-blur-soft: blur(4px);
   --backdrop-blur-medium: blur(12px);
 }
@@ -921,7 +920,6 @@
   margin-left: auto;
   margin-right: auto;
   overflow: hidden;
-  border-radius: var(--radius-canvas);
   border: 2px solid var(--canvas-border);
   background: var(--canvas-bg);
   box-shadow: var(--canvas-shadow);

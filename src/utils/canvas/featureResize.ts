@@ -271,9 +271,9 @@ const resizeAxis = (
  * start. Corner handles resize both axes; either way the opposite edge(s)
  * stay visually fixed. The result is clamped so the (rotated) footprint stays
  * inside the room and never shrinks below MIN_FEATURE_SIZE (or the start
- * dimension, when that is already smaller — e.g. the 12px wall-feature
- * thickness). Wall-anchored features stay flush against their wall; they
- * render unrotated, so their delta maps straight onto the scene axes.
+ * dimension, when that is already smaller). Wall-anchored features stay flush
+ * against their wall; they render unrotated, so their delta maps straight
+ * onto the scene axes.
  */
 export function resizeFeature(
   feature: ClassroomFeature,
