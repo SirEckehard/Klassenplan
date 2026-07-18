@@ -20,28 +20,30 @@ import {
 
 const SOURCE = 'verify-prerender';
 
+// The value patterns match up to the closing quote via a backreference, so a
+// double-quoted value may contain apostrophes (e.g. "students' names").
 function metaContent(html, attribute, key) {
   const pattern = new RegExp(
-    `<meta[^>]*${attribute}=["']${key}["'][^>]*content=["']([^"']*)["']`,
+    `<meta[^>]*${attribute}=["']${key}["'][^>]*content=(["'])(.*?)\\1`,
     'i',
   );
-  return html.match(pattern)?.[1] ?? null;
+  return html.match(pattern)?.[2] ?? null;
 }
 
 function linkHref(html, rel) {
   const pattern = new RegExp(
-    `<link[^>]*rel=["']${rel}["'][^>]*href=["']([^"']*)["']`,
+    `<link[^>]*rel=["']${rel}["'][^>]*href=(["'])(.*?)\\1`,
     'i',
   );
-  return html.match(pattern)?.[1] ?? null;
+  return html.match(pattern)?.[2] ?? null;
 }
 
 function hreflangHref(html, hreflang) {
   const pattern = new RegExp(
-    `<link[^>]*hreflang=["']${hreflang}["'][^>]*href=["']([^"']*)["']`,
+    `<link[^>]*hreflang=["']${hreflang}["'][^>]*href=(["'])(.*?)\\1`,
     'i',
   );
-  return html.match(pattern)?.[1] ?? null;
+  return html.match(pattern)?.[2] ?? null;
 }
 
 function decodeEntities(value) {
