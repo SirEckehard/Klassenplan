@@ -1,0 +1,15 @@
+# `docker compose up -d` uses the published image (or a previously built one);
+# `docker compose up -d --build` builds from this repository instead.
+services:
+  klassenplan:
+    image: ghcr.io/sireckehard/klassenplan:latest
+    build:
+      context: .
+      args:
+        # Baked into canonical/hreflang/og:url at build time (see .env.example).
+        # Set SITE_URL when building for a host other than klassenplan.de.
+        SITE_URL: ${SITE_URL:-https://klassenplan.de}
+    ports:
+      # TLS terminates upstream (see nginx.conf) — put a reverse proxy in front.
+      - '8080:80'
+    restart: unless-stopped

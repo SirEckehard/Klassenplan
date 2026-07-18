@@ -47,7 +47,22 @@ Recommended before commits: `npm test -- --run && npm run lint && npm run typech
 
 ## Deployment
 
-A production-ready [`Dockerfile`](Dockerfile) (multi-stage build with nginx) ships with the repository. The static bundle produced by `npm run build` can alternatively be served on any static host (Vercel, Netlify, GitHub Pages, your own web server).
+A production-ready [`Dockerfile`](Dockerfile) (multi-stage build with nginx) ships with the repository. Release tags publish a multi-arch image (amd64/arm64) to GitHub Container Registry:
+
+```bash
+docker pull ghcr.io/sireckehard/klassenplan:latest
+```
+
+The easiest way to run it is via [`docker-compose.yml`](docker-compose.yml):
+
+```bash
+docker compose up -d           # uses the published image, serves on port 8080
+docker compose up -d --build   # builds from this repository instead
+```
+
+TLS terminates upstream — put a reverse proxy in front. When building for a host other than klassenplan.de, set `SITE_URL` (baked into canonical/hreflang/og:url at build time): `SITE_URL=https://example.org docker compose up -d --build`.
+
+The static bundle produced by `npm run build` can alternatively be served on any static host (Vercel, Netlify, GitHub Pages, your own web server).
 
 ## Project structure
 
