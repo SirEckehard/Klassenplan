@@ -18,6 +18,7 @@ import {
   primaryButtonClass,
   warningButtonClass,
   MAX_STUDENTS,
+  NAME_GAME_MIN_PHOTOS,
 } from '@/utils';
 import type { NameColumnMode } from '@/utils/data/csvUtils';
 import { useClassManagementContext } from '@/contexts/seatingPlan/ClassManagementContext';
@@ -161,6 +162,25 @@ function StudentInput({
     setPlaceholderCount('10');
   }, [handleQuickClassSetup, placeholderCount, t]);
 
+  const photoCount = students.filter((student) => student.hasPhoto).length;
+  const canPlayNameGame = photoCount >= NAME_GAME_MIN_PHOTOS;
+
+  // The button stays clickable while inactive so it can explain the reason.
+  const handleNameGameClick = useCallback(() => {
+    if (!canPlayNameGame) {
+      showToast(
+        'info',
+        t('studentInput.nameGameLockedToast', {
+          min: NAME_GAME_MIN_PHOTOS,
+          count: photoCount,
+          defaultValue: `Für das Namensspiel brauchst du mindestens ${NAME_GAME_MIN_PHOTOS} Schüler mit Foto (aktuell: ${photoCount}). Fotos fügst du über das Porträt-Symbol neben jedem Schüler hinzu.`,
+        }),
+      );
+      return;
+    }
+    navigate('/namensspiel');
+  }, [canPlayNameGame, navigate, photoCount, t]);
+
   return (
     <div className="space-y-6">
       <ClassActionsPanel
@@ -259,20 +279,19 @@ function StudentInput({
 
       {students.length > 0 && (
         <div className="mt-4 flex flex-wrap items-center justify-end gap-3">
-          {students.some((student) => student.hasPhoto) && (
-            <button
-              type="button"
-              onClick={() => navigate('/namensspiel')}
-              title={t(
-                'studentInput.nameGameTitle',
-                'Namen deiner Schüler spielerisch lernen (mindestens 4 Fotos nötig)',
-              )}
-              className={`${warningButtonClass} justify-center gap-2 mr-auto`}
-            >
-              <GameControllerIcon size={16} aria-hidden />
-              {t('studentInput.nameGameButton', 'Namensspiel')}
-            </button>
-          )}
+          <button
+            type="button"
+            aria-disabled={!canPlayNameGame}
+            onClick={handleNameGameClick}
+            title={t(
+              'studentInput.nameGameTitle',
+              'Namen deiner Schüler spielerisch lernen',
+            )}
+            className={`${warningButtonClass} justify-center gap-2 mr-auto`}
+          >
+            <GameControllerIcon size={16} aria-hidden />
+            {t('studentInput.nameGameButton', 'Namensspiel')}
+          </button>
           {/* Proceed Button */}
           <button
             ref={proceedButtonRef}

@@ -60,6 +60,9 @@ export const MAX_STUDENTS = 36;
 // Maximum number of wish/avoid partners per student
 export const MAX_PARTNER_WISHES = 3;
 
+// The name-game quiz needs 4 answer options, so 4 students with photos is the minimum
+export const NAME_GAME_MIN_PHOTOS = 4;
+
 // Maximum length for student names to avoid oversized payloads or UI glitches
 export const MAX_STUDENT_NAME_LENGTH = 120;
 

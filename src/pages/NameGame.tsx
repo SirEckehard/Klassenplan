@@ -24,11 +24,9 @@ import {
   logError,
   neutralButtonClass,
   primaryButtonClass,
+  NAME_GAME_MIN_PHOTOS,
 } from '@/utils';
 import type { NameGameData, NameGameStudentStat } from '@/types';
-
-/** The quiz needs 4 answer options, so 4 students with photos is the minimum. */
-const MIN_PLAYABLE = 4;
 
 /** A name counts as "known" after a couple of mostly-correct answers. */
 function isKnown(stat: NameGameStudentStat | undefined): boolean {
@@ -127,7 +125,7 @@ export default function NameGame() {
   const photosPending =
     students.some((student) => student.hasPhoto) && photoUrls.size === 0;
   const loading = gameData === null || photosPending;
-  const hasEnoughPhotos = playable.length >= MIN_PLAYABLE;
+  const hasEnoughPhotos = playable.length >= NAME_GAME_MIN_PHOTOS;
 
   return (
     <div className="fixed inset-0 flex flex-col bg-gray-50 dark:bg-gray-950">
@@ -224,7 +222,7 @@ export default function NameGame() {
               </h2>
               <p className="text-gray-600 dark:text-gray-300">
                 {t('nameGame.empty.description', {
-                  min: MIN_PLAYABLE,
+                  min: NAME_GAME_MIN_PHOTOS,
                   count: playable.length,
                   defaultValue:
                     'Für das Namensspiel brauchst du mindestens {{min}} Schüler mit Foto. Aktuell: {{count}}.',

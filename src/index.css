@@ -358,7 +358,7 @@
   cursor: pointer;
 }
 
-.warning-button:hover:not(:disabled) {
+.warning-button:hover:not(:disabled, [aria-disabled='true']) {
   background-color: var(--color-amber-700);
 }
 
@@ -367,7 +367,9 @@
   box-shadow: 0 0 0 2px var(--focus-ring-primary);
 }
 
-.warning-button:disabled {
+/* [aria-disabled] keeps the button clickable so it can explain why it is inactive */
+.warning-button:disabled,
+.warning-button[aria-disabled='true'] {
   cursor: not-allowed;
   opacity: 0.6;
 }
