@@ -1,4 +1,17 @@
 {
+  "v1_8_0": {
+    "0": "Namensspiel: Lerne die Namen deiner Schülerinnen und Schüler spielerisch – mit Foto-Quiz und Memory auf Basis der hinterlegten Schülerfotos, inklusive Lernfortschritt",
+    "1": "Schülerfotos bearbeiten: Vorhandene Fotos lassen sich jetzt nachträglich ändern und neu zuschneiden",
+    "2": "Raumelemente in der Größe anpassen: Fenster, Türen & Co. lassen sich jetzt skalieren – mit verbessertem Drag-and-Drop beim Platzieren",
+    "3": "Wiederherstellen-Funktion im Klassenraum-Editor: Rückgängig und Wiederherstellen funktionieren jetzt zuverlässig auch mit Raumelementen",
+    "4": "Raumelemente lassen sich schnell ein- und ausblenden; neue kompakte Ansichts-Einstellungen direkt im Klassenraum",
+    "5": "Speicher- und Backup-Verwaltung ist jetzt über das neue Einstellungs-Symbol erreichbar",
+    "6": "CSV-Export verwendet jetzt den Klassennamen als Dateinamen",
+    "7": "Überarbeitete Klassenraum-Darstellung: klarere Kanten und kompaktere Standardgrößen für Raumelemente",
+    "8": "Performance- und SEO-Verbesserungen sowie aktualisierte Abhängigkeiten",
+    "9": "Scrollbalken-Darstellungsfehler behoben",
+    "10": "Kleinere Fehler im Server-Setup (nginx, Docker-Build) behoben"
+  },
   "v1_7_0": {
     "0": "Optionale Schülerfotos: Fotos lokal hinzufügen, zuschneiden (verschieben, zoomen, drehen) und anzeigen – gespeichert nur auf deinem Gerät, automatisch verkleinert und ohne EXIF-/GPS-Daten",
     "1": "Präsentationsmodus (/present): Vollbild-Ansicht für Smartboards und Beamer mit Lehrer-/Schülerperspektive, Zoomen und Verschieben (Maus, Mausrad, Pinch) sowie Foto- und Farb-Optionen",

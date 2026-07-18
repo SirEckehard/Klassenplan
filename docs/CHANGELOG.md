@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.8.0] - 2026-07-18
+
+### Added
+
+- **Name game** – learn your students' names playfully with a photo quiz and a memory game based on the stored student photos, including learning progress per class
+- **Edit student photos** – existing photos can now be changed and re-cropped afterwards
+- **Resizable room elements** – windows, doors and other classroom elements can now be scaled, with improved drag-and-drop when placing them
+- **Redo function in the classroom editor** – undo and redo now work reliably with room elements too
+
+### Improved
+
+- Room elements can be quickly shown and hidden; new compact view settings directly in the classroom canvas
+- Storage and backup management is now available via the new settings icon in the footer
+- CSV export now uses the class name as the file name
+- Reworked classroom canvas – crisper edges and more compact default sizes for room elements
+- Performance and SEO improvements plus updated dependencies (including TypeScript 7.0)
+
+### Fixed
+
+- A scrollbar display issue
+- Minor issues in the server setup (nginx configuration, Docker build, prerender verification)
+
 ## [1.7.0] - 2026-07-09
 
 ### Added

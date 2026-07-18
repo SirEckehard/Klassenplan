@@ -1,4 +1,17 @@
 {
+  "v1_8_0": {
+    "0": "Name game: learn your students' names playfully – with a photo quiz and memory game based on the stored student photos, including learning progress",
+    "1": "Edit student photos: existing photos can now be changed and re-cropped afterwards",
+    "2": "Resizable room elements: windows, doors & co. can now be scaled – with improved drag-and-drop when placing them",
+    "3": "Redo function in the classroom editor: undo and redo now work reliably with room elements too",
+    "4": "Room elements can be quickly shown and hidden; new compact view settings directly in the classroom",
+    "5": "Storage and backup management is now available via the new settings icon",
+    "6": "CSV export now uses the class name as the file name",
+    "7": "Reworked classroom canvas: crisper edges and more compact default sizes for room elements",
+    "8": "Performance and SEO improvements plus updated dependencies",
+    "9": "Fixed a scrollbar display issue",
+    "10": "Fixed minor issues in the server setup (nginx, Docker build)"
+  },
   "v1_7_0": {
     "0": "Optional student photos: add, crop (pan, zoom, rotate) and display photos locally – stored only on your device, automatically downscaled and stripped of EXIF/GPS data",
     "1": "Presentation mode (/present): full-screen view for smartboards and projectors with teacher/student perspective, pan & zoom (mouse, wheel, pinch), and photo and color options",
