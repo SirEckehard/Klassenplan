@@ -9,6 +9,7 @@ import ResizeHandle from '@/components/scene/ResizeHandle';
 import {
   GRID_SIZE,
   getFeatureResizeHandles,
+  type AlignmentGuide,
   type FeatureResizeHandle,
 } from '@/utils';
 import { getFeatureStyles } from '@/utils/ui';
@@ -53,6 +54,8 @@ interface ClassroomCanvasProps {
   selectionBox: SelectionBox | null;
   templateDragPreview: TemplateDragPreview | null;
   featureDragPreview?: FeatureDragPreview | null;
+  /** Keynote-style alignment guides of the drag in progress. */
+  alignmentGuides?: AlignmentGuide[] | null;
   onPointerMove: (e: React.PointerEvent<SVGSVGElement>) => void;
   onPointerUp: (e: React.PointerEvent<SVGSVGElement>) => void;
   onPointerDown: (e: React.PointerEvent<SVGSVGElement>) => void;
@@ -95,6 +98,7 @@ const ClassroomCanvas = React.memo<ClassroomCanvasProps>(
     selectionBox,
     templateDragPreview,
     featureDragPreview,
+    alignmentGuides,
     onPointerMove,
     onPointerUp,
     onPointerDown,
@@ -126,6 +130,8 @@ const ClassroomCanvas = React.memo<ClassroomCanvasProps>(
 
     const backgroundColor = isDark ? '#1f2937' : '#f9fafb';
     const gridColor = isDark ? '#374151' : '#e5e7eb';
+    // Amber keeps the guides distinct from the blue selection overlay.
+    const guideColor = isDark ? '#fbbf24' : '#f59e0b';
     const featureViewModels = React.useMemo(
       () =>
         features
@@ -361,6 +367,38 @@ const ClassroomCanvas = React.memo<ClassroomCanvasProps>(
                   />
                 );
               })()}
+            </g>
+          )}
+
+          {/* Alignment guides: full-length lines, canvas centers dashed */}
+          {alignmentGuides && alignmentGuides.length > 0 && (
+            <g
+              pointerEvents="none"
+              aria-hidden="true"
+              data-testid="alignment-guides"
+            >
+              {alignmentGuides.map((guide) => (
+                <line
+                  key={`${guide.orientation}-${guide.position}-${guide.kind}`}
+                  x1={guide.orientation === 'vertical' ? guide.position : 0}
+                  x2={
+                    guide.orientation === 'vertical'
+                      ? guide.position
+                      : canvasWidth
+                  }
+                  y1={guide.orientation === 'horizontal' ? guide.position : 0}
+                  y2={
+                    guide.orientation === 'horizontal'
+                      ? guide.position
+                      : classroomHeight
+                  }
+                  stroke={guideColor}
+                  strokeWidth={1.5}
+                  strokeDasharray={
+                    guide.kind === 'canvasCenter' ? '6 4' : undefined
+                  }
+                />
+              ))}
             </g>
           )}
         </svg>

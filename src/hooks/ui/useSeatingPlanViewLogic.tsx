@@ -16,6 +16,7 @@ import {
   BOARD_WIDTH,
   hasShapeMismatch,
   createClientToSceneConverter,
+  type AlignmentGuide,
 } from '@/utils';
 import useTableSelection from '@/hooks/useTableSelection';
 import useFeatureSelection from '@/hooks/useFeatureSelection';
@@ -164,6 +165,12 @@ export function useSeatingPlanViewLogic({
     LOCAL_STORAGE_KEYS.showGrid,
     true,
   ); // Toggle to show grid lines
+  const [showAlignmentGuides, setShowAlignmentGuides] =
+    usePersistentState<boolean>(LOCAL_STORAGE_KEYS.alignmentGuides, true); // Toggle Keynote-style alignment guides
+  // Guides of the drag currently in progress; null while nothing is dragged.
+  const [activeAlignmentGuides, setActiveAlignmentGuides] = React.useState<
+    AlignmentGuide[] | null
+  >(null);
   const [photoDisplayMode, setPhotoDisplayMode] =
     usePersistentState<PhotoDisplayMode>(
       LOCAL_STORAGE_KEYS.photoDisplayMode,
@@ -282,6 +289,9 @@ export function useSeatingPlanViewLogic({
     classroomHeight,
     canvasWidth,
     canvasRef,
+    alignmentGuidesEnabled: showAlignmentGuides,
+    setActiveAlignmentGuides,
+    featureVisibility,
   });
 
   // Generate placeholder seating and empty seating arrays for rendering
@@ -450,6 +460,10 @@ export function useSeatingPlanViewLogic({
         setSnapToGrid={setSnapToGrid}
         showGrid={showGrid}
         setShowGrid={setShowGrid}
+        showAlignmentGuides={showAlignmentGuides}
+        setShowAlignmentGuides={setShowAlignmentGuides}
+        alignmentGuides={activeAlignmentGuides}
+        setActiveAlignmentGuides={setActiveAlignmentGuides}
         featureVisibility={featureVisibility}
         setFeatureVisible={setFeatureVisible}
         undo={undo}

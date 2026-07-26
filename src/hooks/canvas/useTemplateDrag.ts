@@ -19,12 +19,15 @@ interface UseTemplateDragParams {
     clientX: number,
     clientY: number,
   ) => TemplateDragPreview['placement'];
+  /** Clears alignment guides the placement resolver may have published. */
+  clearAlignmentGuides?: () => void;
 }
 
 export function useTemplateDrag({
   canvasRef,
   dropTemplateAt,
   getTemplateDropPlacement,
+  clearAlignmentGuides,
 }: UseTemplateDragParams) {
   const [preview, setPreview] = React.useState<TemplateDragPreview | null>(
     null,
@@ -96,6 +99,9 @@ export function useTemplateDrag({
         event.clientX,
         event.clientY,
       );
+      if (!metrics.overCanvas) {
+        clearAlignmentGuides?.();
+      }
       setPreview({
         type: dragState.templateType,
         clientX: event.clientX,
@@ -112,7 +118,7 @@ export function useTemplateDrag({
           : null,
       });
     },
-    [getTemplateDropPlacement, resolvePointerMetrics],
+    [clearAlignmentGuides, getTemplateDropPlacement, resolvePointerMetrics],
   );
 
   const handlePointerUp = React.useCallback(
@@ -143,6 +149,7 @@ export function useTemplateDrag({
       setPreview(null);
       releasePointerRect(event.pointerId);
       cleanupDrag();
+      clearAlignmentGuides?.();
       window.removeEventListener('pointermove', handlePointerMove);
       window.removeEventListener('pointerup', handlePointerUp);
       window.removeEventListener('pointercancel', handlePointerUp);
@@ -150,6 +157,7 @@ export function useTemplateDrag({
     [
       canvasRef,
       cleanupDrag,
+      clearAlignmentGuides,
       dropTemplateAt,
       handlePointerMove,
       releasePointerRect,
@@ -204,10 +212,16 @@ export function useTemplateDrag({
     dragStateRef.current = null;
     setPreview(null);
     setIsDragging(false);
+    clearAlignmentGuides?.();
     window.removeEventListener('pointermove', handlePointerMove);
     window.removeEventListener('pointerup', handlePointerUp);
     window.removeEventListener('pointercancel', handlePointerUp);
-  }, [handlePointerMove, handlePointerUp, releasePointerRect]);
+  }, [
+    clearAlignmentGuides,
+    handlePointerMove,
+    handlePointerUp,
+    releasePointerRect,
+  ]);
 
   React.useEffect(() => cancelTemplateDrag, [cancelTemplateDrag]);
 

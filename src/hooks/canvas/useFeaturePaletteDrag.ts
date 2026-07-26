@@ -17,7 +17,16 @@ import {
   calculateDragDelta,
   applyDragMovement,
   showToast,
+  ALIGNMENT_GUIDE_EPSILON,
+  applyAlignmentToDelta,
+  computeAlignmentSnap,
+  getGroupAabb,
+  getRotatedAabb,
+  selectAlignmentTargets,
+  type AlignmentGuide,
+  type AlignmentRect,
 } from '@/utils';
+import type { FeatureVisibilityFlags } from '@/utils/ui';
 import type { SceneTransactionRunner } from '@/hooks/scene/useSceneManager';
 import type { FeatureContextMenuState } from '@/hooks/useContextMenus';
 import type { FeatureTemplate } from '@/hooks/canvas/featureTemplates';
@@ -68,6 +77,67 @@ type FeatureDragUpdatePayload = FeaturePlacement & {
 
 const clamp = (value: number, min: number, max: number) =>
   Math.min(Math.max(value, min), max);
+
+/**
+ * Applies the magnetic guide snap to a movable feature placement and returns
+ * the exactly-hit guides for the final (re-clamped) position. Shared by the
+ * live feature drag, the palette ghost and the palette drop so all three land
+ * on identical coordinates.
+ */
+const snapMovablePlacementToGuides = <P extends FeaturePlacement>(
+  placement: P,
+  size: FeatureSize,
+  rotation: number,
+  targets: AlignmentRect[],
+  classroomWidth: number,
+  classroomHeight: number,
+): { placement: P; guides: AlignmentGuide[] } => {
+  const canvasDims = { width: classroomWidth, height: classroomHeight };
+  const aabbOf = (frame: { x: number; y: number }) =>
+    getRotatedAabb({
+      x: frame.x,
+      y: frame.y,
+      width: size.width,
+      height: size.height,
+      rotation,
+    });
+  const { offset } = computeAlignmentSnap(
+    aabbOf(placement),
+    targets,
+    canvasDims,
+  );
+  let next = placement;
+  if (offset.x !== 0 || offset.y !== 0) {
+    // Guide snap wins over grid snap, but the room bounds stay the last word.
+    const { halfWidth, halfHeight } = getRotatedAabbHalfExtents(
+      size.width,
+      size.height,
+      rotation,
+    );
+    const centerX = clampCenterToRoom(
+      placement.x + size.width / 2 + offset.x,
+      halfWidth,
+      classroomWidth,
+    );
+    const centerY = clampCenterToRoom(
+      placement.y + size.height / 2 + offset.y,
+      halfHeight,
+      classroomHeight,
+    );
+    next = {
+      ...placement,
+      x: centerX - size.width / 2,
+      y: centerY - size.height / 2,
+    };
+  }
+  const { guides } = computeAlignmentSnap(
+    aabbOf(next),
+    targets,
+    canvasDims,
+    ALIGNMENT_GUIDE_EPSILON,
+  );
+  return { placement: next, guides };
+};
 
 const snapToGridValue = (value: number, shouldSnap: boolean) =>
   shouldSnap ? Math.round(value / GRID_SNAP_SIZE) * GRID_SNAP_SIZE : value;
@@ -370,6 +440,9 @@ type UseFeaturePaletteDragOptions = {
    * selects only this feature and clears the rest of the selection.
    */
   selectFeature: (featureId: string, additive: boolean) => void;
+  alignmentGuidesEnabled: boolean;
+  setActiveAlignmentGuides: (guides: AlignmentGuide[] | null) => void;
+  featureVisibility?: FeatureVisibilityFlags;
 };
 
 export function useFeaturePaletteDrag({
@@ -393,6 +466,9 @@ export function useFeaturePaletteDrag({
   openFeatureContextMenu,
   closeFeatureContextMenu,
   selectFeature,
+  alignmentGuidesEnabled,
+  setActiveAlignmentGuides,
+  featureVisibility,
 }: UseFeaturePaletteDragOptions) {
   const LONG_PRESS_DURATION = 500;
   const DRAG_DISTANCE_THRESHOLD = 6;
@@ -454,6 +530,10 @@ export function useFeaturePaletteDrag({
     capturedFeatures: Map<string, { x: number; y: number }>;
     capturedTables: { index: number; startX: number; startY: number }[];
     moved: boolean;
+    // Alignment context captured once at drag start (scene is static during
+    // the drag): static targets and the union AABB of the dragged group.
+    alignmentTargets: AlignmentRect[];
+    startGroupAabb: AlignmentRect | null;
   } | null>(null);
 
   React.useEffect(() => {
@@ -593,7 +673,7 @@ export function useFeaturePaletteDrag({
         return;
       }
 
-      const placement = computeFeatureDropPlacement(
+      let placement = computeFeatureDropPlacement(
         template,
         sceneX,
         sceneY,
@@ -601,6 +681,24 @@ export function useFeaturePaletteDrag({
         classroomWidth,
         classroomHeight,
       );
+      // Apply the identical guide snap as the ghost preview so the dropped
+      // feature lands exactly where the ghost was shown.
+      if (alignmentGuidesEnabled && placement.movable) {
+        placement = snapMovablePlacementToGuides(
+          placement,
+          placement,
+          placement.rotation,
+          selectAlignmentTargets(
+            sceneTablesRef.current,
+            [],
+            latestFeaturesRef.current,
+            [],
+            featureVisibility,
+          ),
+          classroomWidth,
+          classroomHeight,
+        ).placement;
+      }
 
       const feature: ClassroomFeature = {
         id: generateId(),
@@ -640,7 +738,9 @@ export function useFeaturePaletteDrag({
       closeFeatureContextMenu?.();
     },
     [
+      alignmentGuidesEnabled,
       featureTemplateMap,
+      featureVisibility,
       snapshot,
       runSceneTransaction,
       onFeatureAdded,
@@ -685,6 +785,32 @@ export function useFeaturePaletteDrag({
         );
       }
 
+      if (alignmentGuidesEnabled) {
+        if (placement?.movable) {
+          const snapped = snapMovablePlacementToGuides(
+            placement,
+            placement,
+            placement.rotation,
+            selectAlignmentTargets(
+              sceneTablesRef.current,
+              [],
+              latestFeaturesRef.current,
+              [],
+              featureVisibility,
+            ),
+            classroomWidth,
+            classroomHeight,
+          );
+          placement = snapped.placement;
+          setActiveAlignmentGuides(
+            snapped.guides.length > 0 ? snapped.guides : null,
+          );
+        } else {
+          // Off-canvas or wall-anchored template: no guides.
+          setActiveAlignmentGuides(null);
+        }
+      }
+
       setFeatureDragPreview({
         type: drag.type,
         width: template.width,
@@ -699,11 +825,14 @@ export function useFeaturePaletteDrag({
       });
     },
     [
+      alignmentGuidesEnabled,
       canvasRef,
       classroomHeight,
       classroomWidth,
       featureTemplateMap,
+      featureVisibility,
       getCanvasPointerMetrics,
+      setActiveAlignmentGuides,
       snapToGrid,
       toSceneCoordinates,
     ],
@@ -750,6 +879,7 @@ export function useFeaturePaletteDrag({
       if (template.movable) {
         const desiredX = pointerX - drag.offsetX;
         const desiredY = pointerY - drag.offsetY;
+        const rotation = liveFeature?.rotation ?? 0;
         placement = placeMovableFeatureBase(
           size,
           desiredX,
@@ -757,8 +887,28 @@ export function useFeaturePaletteDrag({
           snapToGrid,
           classroomWidth,
           classroomHeight,
-          liveFeature?.rotation ?? 0,
+          rotation,
         );
+        if (alignmentGuidesEnabled) {
+          const snapped = snapMovablePlacementToGuides(
+            placement,
+            size,
+            rotation,
+            selectAlignmentTargets(
+              sceneTablesRef.current,
+              [],
+              latestFeaturesRef.current,
+              [drag.featureId],
+              featureVisibility,
+            ),
+            classroomWidth,
+            classroomHeight,
+          );
+          placement = snapped.placement;
+          setActiveAlignmentGuides(
+            snapped.guides.length > 0 ? snapped.guides : null,
+          );
+        }
       } else {
         placement = placeFixedFeatureBase(
           size,
@@ -768,6 +918,10 @@ export function useFeaturePaletteDrag({
           classroomWidth,
           classroomHeight,
         );
+        // Wall-anchored features are never guide-snap subjects.
+        if (alignmentGuidesEnabled) {
+          setActiveAlignmentGuides(null);
+        }
       }
 
       drag.moved = true;
@@ -782,11 +936,14 @@ export function useFeaturePaletteDrag({
       scheduleFeatureDragUpdate();
     },
     [
+      alignmentGuidesEnabled,
       canvasRef,
       classroomHeight,
       classroomWidth,
       featureTemplateMap,
+      featureVisibility,
       scheduleFeatureDragUpdate,
+      setActiveAlignmentGuides,
       snapToGrid,
       toSceneCoordinates,
     ],
@@ -797,6 +954,7 @@ export function useFeaturePaletteDrag({
       window.removeEventListener('pointermove', handleFeatureDragMove);
       window.removeEventListener('pointerup', resetActiveDrag);
       cancelFeatureDragUpdate();
+      setActiveAlignmentGuides(null);
 
       // Only commit if the drag actually moved the feature; a bare click on
       // a feature must not create an undo entry
@@ -811,6 +969,7 @@ export function useFeaturePaletteDrag({
       cancelFeatureDragUpdate,
       commitFeatureState,
       handleFeatureDragMove,
+      setActiveAlignmentGuides,
       snapshot,
     ],
   );
@@ -825,8 +984,13 @@ export function useFeaturePaletteDrag({
         releasePalettePointerRect(activePointerId);
       }
       setFeatureDragPreview(null);
+      setActiveAlignmentGuides(null);
     },
-    [handlePalettePointerMove, releasePalettePointerRect],
+    [
+      handlePalettePointerMove,
+      releasePalettePointerRect,
+      setActiveAlignmentGuides,
+    ],
   );
 
   const handlePalettePointerUp = React.useCallback(
@@ -1001,7 +1165,16 @@ export function useFeaturePaletteDrag({
         return;
       }
       const point = toSceneCoordinates(canvas, event.clientX, event.clientY);
-      const delta = calculateDragDelta(state.startScene, point, snapToGrid);
+      let delta = calculateDragDelta(state.startScene, point, snapToGrid);
+      const guideCanvas = { width: classroomWidth, height: classroomHeight };
+      if (alignmentGuidesEnabled && state.startGroupAabb) {
+        delta = applyAlignmentToDelta(
+          delta,
+          state.startGroupAabb,
+          state.alignmentTargets,
+          guideCanvas,
+        ).delta;
+      }
       state.moved = true;
 
       setSceneFeatures((features) => {
@@ -1028,11 +1201,28 @@ export function useFeaturePaletteDrag({
           }),
         );
       }
+
+      if (alignmentGuidesEnabled && state.startGroupAabb) {
+        // Render pass: only guides the shifted group actually coincides with.
+        const { guides } = computeAlignmentSnap(
+          {
+            ...state.startGroupAabb,
+            x: state.startGroupAabb.x + delta.x,
+            y: state.startGroupAabb.y + delta.y,
+          },
+          state.alignmentTargets,
+          guideCanvas,
+          ALIGNMENT_GUIDE_EPSILON,
+        );
+        setActiveAlignmentGuides(guides.length > 0 ? guides : null);
+      }
     },
     [
+      alignmentGuidesEnabled,
       canvasRef,
       classroomHeight,
       classroomWidth,
+      setActiveAlignmentGuides,
       setSceneFeatures,
       snapToGrid,
       toSceneCoordinates,
@@ -1049,12 +1239,13 @@ export function useFeaturePaletteDrag({
       window.removeEventListener('pointermove', handleGroupDragMove);
       window.removeEventListener('pointerup', endGroupDrag);
       groupDragRef.current = null;
+      setActiveAlignmentGuides(null);
       if (state.moved) {
         snapshot();
         commitScene();
       }
     },
-    [commitScene, handleGroupDragMove, snapshot],
+    [commitScene, handleGroupDragMove, setActiveAlignmentGuides, snapshot],
   );
 
   const startGroupFeatureDrag = React.useCallback(
@@ -1083,21 +1274,41 @@ export function useFeaturePaletteDrag({
           startY: sceneTablesRef.current[index].y,
         }));
 
+      const capturedIndices = capturedTables.map((entry) => entry.index);
       groupDragRef.current = {
         pointerId,
         startScene: toSceneCoordinates(canvas, clientX, clientY),
         capturedFeatures,
         capturedTables,
         moved: false,
+        alignmentTargets: alignmentGuidesEnabled
+          ? selectAlignmentTargets(
+              sceneTablesRef.current,
+              capturedIndices,
+              latestFeaturesRef.current,
+              [...capturedFeatures.keys()],
+              featureVisibility,
+            )
+          : [],
+        startGroupAabb: alignmentGuidesEnabled
+          ? getGroupAabb([
+              ...capturedIndices.map((index) => sceneTablesRef.current[index]),
+              ...latestFeaturesRef.current.filter((feature) =>
+                capturedFeatures.has(feature.id),
+              ),
+            ])
+          : null,
       };
 
       window.addEventListener('pointermove', handleGroupDragMove);
       window.addEventListener('pointerup', endGroupDrag);
     },
     [
+      alignmentGuidesEnabled,
       canvasRef,
       cancelPendingFeatureInteraction,
       endGroupDrag,
+      featureVisibility,
       handleGroupDragMove,
       toSceneCoordinates,
     ],

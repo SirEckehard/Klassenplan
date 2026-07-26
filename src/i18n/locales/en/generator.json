@@ -501,7 +501,8 @@
     "hideNotice": "Hide notice",
     "viewOptions": "View Options",
     "viewSettings": "View Settings",
-    "snapToGrid": "Snap to grid"
+    "snapToGrid": "Snap to grid",
+    "alignmentGuides": "Alignment guides"
   },
   "quickSetup": {
     "title": "Set Up Classroom",

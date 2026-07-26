@@ -322,4 +322,39 @@ describe('computeTemplateDropPlacement', () => {
     );
     expect(clamped).toMatchObject({ x: 0, y: 0 });
   });
+
+  it('lets the guide snap override the grid snap per axis', () => {
+    const alignment = {
+      targets: [{ x: 252, y: 500, width: 55, height: 130 }],
+      canvas: { width: CLASSROOM_WIDTH, height: CLASSROOM_HEIGHT },
+    };
+    const aligned = computeTemplateDropPlacement(
+      'double',
+      303,
+      301,
+      true,
+      CLASSROOM_WIDTH,
+      CLASSROOM_HEIGHT,
+      alignment,
+    );
+    // Grid snap alone would land at x = 250; the target edge at 252 wins.
+    expect(aligned.x).toBe(252);
+    expect(aligned.y).toBe(235);
+  });
+
+  it('still clamps to the room when an alignment context is given', () => {
+    const clamped = computeTemplateDropPlacement(
+      'double',
+      10,
+      10,
+      false,
+      CLASSROOM_WIDTH,
+      CLASSROOM_HEIGHT,
+      {
+        targets: [{ x: 252, y: 500, width: 55, height: 130 }],
+        canvas: { width: CLASSROOM_WIDTH, height: CLASSROOM_HEIGHT },
+      },
+    );
+    expect(clamped).toMatchObject({ x: 0, y: 0 });
+  });
 });

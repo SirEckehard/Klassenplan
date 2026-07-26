@@ -8,7 +8,15 @@ import {
   applyDragMovement,
   getRotatedAabbHalfExtents,
   clampCenterToRoom,
+  ALIGNMENT_GUIDE_EPSILON,
+  applyAlignmentToDelta,
+  computeAlignmentSnap,
+  getGroupAabb,
+  selectAlignmentTargets,
+  type AlignmentGuide,
+  type AlignmentRect,
 } from '@/utils';
+import type { FeatureVisibilityFlags } from '@/utils/ui';
 import { triggerHapticFeedback } from '@/utils/touch/hapticFeedback';
 import { addSeatingForTables } from '@/utils/seating/seatingOperations';
 import type {
@@ -69,6 +77,12 @@ export type TemplateDropPlacement = {
 
 // Placement math shared by the palette drag preview and the actual drop so
 // the live ghost sits exactly where the table will land.
+export type TemplateDropAlignment = {
+  targets: AlignmentRect[];
+  canvas: { width: number; height: number };
+  tolerance?: number;
+};
+
 export const computeTemplateDropPlacement = (
   templateType: TableTemplateType,
   dropX: number,
@@ -76,6 +90,7 @@ export const computeTemplateDropPlacement = (
   snapToGrid: boolean,
   classroomWidth: number,
   classroomHeight: number,
+  alignment?: TemplateDropAlignment,
 ): TemplateDropPlacement => {
   const preset = getTablePresets()[templateType];
   // Align by front edge (right side toward blackboard):
@@ -84,14 +99,21 @@ export const computeTemplateDropPlacement = (
   const centeredY = dropY - preset.height / 2;
   const snapValue = (value: number) =>
     snapToGrid ? Math.round(value / GRID_SNAP_SIZE) * GRID_SNAP_SIZE : value;
-  const x = Math.min(
-    Math.max(0, snapValue(frontAlignedX)),
-    classroomWidth - preset.width,
-  );
-  const y = Math.min(
-    Math.max(0, snapValue(centeredY)),
-    classroomHeight - preset.height,
-  );
+  let x = snapValue(frontAlignedX);
+  let y = snapValue(centeredY);
+  // Guide snap wins over grid snap per axis; clamping stays the last word.
+  if (alignment) {
+    const { offset } = computeAlignmentSnap(
+      { x, y, width: preset.width, height: preset.height },
+      alignment.targets,
+      alignment.canvas,
+      alignment.tolerance,
+    );
+    x += offset.x;
+    y += offset.y;
+  }
+  x = Math.min(Math.max(0, x), classroomWidth - preset.width);
+  y = Math.min(Math.max(0, y), classroomHeight - preset.height);
   return {
     x,
     y,
@@ -117,6 +139,9 @@ export default function useTableInteraction({
   classroomHeight,
   canvasWidth,
   canvasRef,
+  alignmentGuidesEnabled,
+  setActiveAlignmentGuides,
+  featureVisibility,
 }: {
   sceneTables: ClassroomTable[];
   sceneFeatures: ClassroomFeature[];
@@ -134,6 +159,9 @@ export default function useTableInteraction({
   classroomHeight: number;
   canvasWidth: number;
   canvasRef: React.RefObject<SVGSVGElement | null>;
+  alignmentGuidesEnabled: boolean;
+  setActiveAlignmentGuides: (guides: AlignmentGuide[] | null) => void;
+  featureVisibility?: FeatureVisibilityFlags;
 }) {
   const capturedPointerId = React.useRef<number | null>(null);
   const getPointerPosition = React.useCallback(
@@ -154,7 +182,18 @@ export default function useTableInteraction({
     features: Map<string, { x: number; y: number }>;
     startMouseX: number;
     startMouseY: number;
-  }>({ tables: [], features: new Map(), startMouseX: 0, startMouseY: 0 });
+    // Static alignment targets and the union AABB of the dragged group,
+    // captured once at drag start (the scene is static during a drag).
+    alignmentTargets: AlignmentRect[];
+    startGroupAabb: AlignmentRect | null;
+  }>({
+    tables: [],
+    features: new Map(),
+    startMouseX: 0,
+    startMouseY: 0,
+    alignmentTargets: [],
+    startGroupAabb: null,
+  });
   const hasDragged = React.useRef(false); // Tracks whether tables have been dragged
 
   const resetDragState = React.useCallback(() => {
@@ -162,8 +201,37 @@ export default function useTableInteraction({
     dragInfo.current.features = new Map();
     dragInfo.current.startMouseX = 0;
     dragInfo.current.startMouseY = 0;
+    dragInfo.current.alignmentTargets = [];
+    dragInfo.current.startGroupAabb = null;
     hasDragged.current = false;
-  }, []);
+    setActiveAlignmentGuides(null);
+  }, [setActiveAlignmentGuides]);
+
+  // Alignment context for palette drops: the whole scene is a target because
+  // the new table is not part of it yet.
+  const getTemplateDropAlignment = React.useCallback(
+    (): TemplateDropAlignment | undefined =>
+      alignmentGuidesEnabled
+        ? {
+            targets: selectAlignmentTargets(
+              sceneTables,
+              [],
+              sceneFeatures,
+              [],
+              featureVisibility,
+            ),
+            canvas: { width: canvasWidth, height: classroomHeight },
+          }
+        : undefined,
+    [
+      alignmentGuidesEnabled,
+      canvasWidth,
+      classroomHeight,
+      featureVisibility,
+      sceneFeatures,
+      sceneTables,
+    ],
+  );
 
   const dropTemplateAt = React.useCallback(
     (
@@ -191,6 +259,7 @@ export default function useTableInteraction({
         snapToGrid,
         classroomWidth,
         classroomHeight,
+        getTemplateDropAlignment(),
       );
       const newTable = {
         x: placement.x,
@@ -227,13 +296,16 @@ export default function useTableInteraction({
       if (nextTables.length > 0) {
         setSelectedTableIds([nextTables.length - 1]);
       }
+      setActiveAlignmentGuides(null);
       return true;
     },
     [
       classroomHeight,
       classroomWidth,
       getPointerPosition,
+      getTemplateDropAlignment,
       runSceneTransaction,
+      setActiveAlignmentGuides,
       setSelectedTableIds,
       snapToGrid,
       snapshot,
@@ -253,20 +325,40 @@ export default function useTableInteraction({
         return null;
       }
       const { x, y } = getPointerPosition(svg, clientX, clientY);
-      return computeTemplateDropPlacement(
+      const alignment = getTemplateDropAlignment();
+      const placement = computeTemplateDropPlacement(
         templateType,
         x,
         y,
         snapToGrid,
         classroomWidth,
         classroomHeight,
+        alignment,
       );
+      if (alignment) {
+        // Render pass on the final clamped ghost position.
+        const { guides } = computeAlignmentSnap(
+          {
+            x: placement.x,
+            y: placement.y,
+            width: placement.width,
+            height: placement.height,
+          },
+          alignment.targets,
+          alignment.canvas,
+          ALIGNMENT_GUIDE_EPSILON,
+        );
+        setActiveAlignmentGuides(guides.length > 0 ? guides : null);
+      }
+      return placement;
     },
     [
       canvasRef,
       classroomHeight,
       classroomWidth,
       getPointerPosition,
+      getTemplateDropAlignment,
+      setActiveAlignmentGuides,
       snapToGrid,
     ],
   );
@@ -295,9 +387,36 @@ export default function useTableInteraction({
         }
       });
       dragInfo.current.features = capturedFeatures;
+      if (alignmentGuidesEnabled) {
+        const draggedIndices = dragInfo.current.tables.map(
+          (table) => table.index,
+        );
+        dragInfo.current.alignmentTargets = selectAlignmentTargets(
+          sceneTables,
+          draggedIndices,
+          sceneFeatures,
+          [...capturedFeatures.keys()],
+          featureVisibility,
+        );
+        dragInfo.current.startGroupAabb = getGroupAabb([
+          ...draggedIndices.map((index) => sceneTables[index]),
+          ...sceneFeatures.filter((feature) =>
+            capturedFeatures.has(feature.id),
+          ),
+        ]);
+      } else {
+        dragInfo.current.alignmentTargets = [];
+        dragInfo.current.startGroupAabb = null;
+      }
       hasDragged.current = false;
     },
-    [sceneTables, sceneFeatures, selectedFeatureIds],
+    [
+      sceneTables,
+      sceneFeatures,
+      selectedFeatureIds,
+      alignmentGuidesEnabled,
+      featureVisibility,
+    ],
   );
 
   const updateDragSelection = React.useCallback(
@@ -318,7 +437,17 @@ export default function useTableInteraction({
         x: dragInfo.current.startMouseX,
         y: dragInfo.current.startMouseY,
       };
-      const delta = calculateDragDelta(startMouse, scenePoint, snapToGrid);
+      let delta = calculateDragDelta(startMouse, scenePoint, snapToGrid);
+      const { alignmentTargets, startGroupAabb } = dragInfo.current;
+      const guideCanvas = { width: canvasWidth, height: classroomHeight };
+      if (alignmentGuidesEnabled && startGroupAabb) {
+        delta = applyAlignmentToDelta(
+          delta,
+          startGroupAabb,
+          alignmentTargets,
+          guideCanvas,
+        ).delta;
+      }
       const tableIndices = dragInfo.current.tables.map((t) => t.index);
       const startPositions = dragInfo.current.tables.map((t) => ({
         x: t.startX,
@@ -342,6 +471,21 @@ export default function useTableInteraction({
           }),
         );
       }
+
+      if (alignmentGuidesEnabled && startGroupAabb) {
+        // Render pass: only guides the shifted group actually coincides with.
+        const { guides } = computeAlignmentSnap(
+          {
+            ...startGroupAabb,
+            x: startGroupAabb.x + delta.x,
+            y: startGroupAabb.y + delta.y,
+          },
+          alignmentTargets,
+          guideCanvas,
+          ALIGNMENT_GUIDE_EPSILON,
+        );
+        setActiveAlignmentGuides(guides.length > 0 ? guides : null);
+      }
     },
     [
       canvasWidth,
@@ -351,7 +495,14 @@ export default function useTableInteraction({
       snapshot,
       setSceneFeatures,
       updateSceneTables,
+      alignmentGuidesEnabled,
+      setActiveAlignmentGuides,
     ],
+  );
+
+  const clearAlignmentGuides = React.useCallback(
+    () => setActiveAlignmentGuides(null),
+    [setActiveAlignmentGuides],
   );
 
   const finalizeDragInteraction = React.useCallback(() => {
@@ -371,6 +522,7 @@ export default function useTableInteraction({
     canvasRef,
     dropTemplateAt,
     getTemplateDropPlacement,
+    clearAlignmentGuides,
   });
 
   const resetCapturedPointer = React.useCallback(() => {

@@ -3,6 +3,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
+  AlignCenterVerticalSimple,
   ArrowLeftIcon,
   ArrowRightIcon,
   ClipboardText,
@@ -60,6 +61,7 @@ import {
   neutralButtonClass,
   secondaryButtonClass,
   createClientToSceneConverter,
+  type AlignmentGuide,
 } from '@/utils';
 import { FEATURE_TYPES, type FeatureVisibilityFlags } from '@/utils/ui';
 import { buildFeatureVisibilityGroup } from '@/components/SeatingPlanGenerator/canvas/featureVisibilityGroup';
@@ -79,6 +81,10 @@ type Props = {
   setSnapToGrid: React.Dispatch<React.SetStateAction<boolean>>;
   showGrid: boolean;
   setShowGrid: React.Dispatch<React.SetStateAction<boolean>>;
+  showAlignmentGuides: boolean;
+  setShowAlignmentGuides: React.Dispatch<React.SetStateAction<boolean>>;
+  alignmentGuides: AlignmentGuide[] | null;
+  setActiveAlignmentGuides: (guides: AlignmentGuide[] | null) => void;
   featureVisibility: FeatureVisibilityFlags;
   setFeatureVisible: (type: ClassroomFeatureType, visible: boolean) => void;
   undo: () => void;
@@ -155,6 +161,10 @@ const LayoutEditorView = React.memo(
     setSnapToGrid,
     showGrid,
     setShowGrid,
+    showAlignmentGuides,
+    setShowAlignmentGuides,
+    alignmentGuides,
+    setActiveAlignmentGuides,
     featureVisibility,
     setFeatureVisible,
     undo,
@@ -455,6 +465,9 @@ const LayoutEditorView = React.memo(
       openFeatureContextMenu,
       closeFeatureContextMenu,
       selectFeature,
+      alignmentGuidesEnabled: showAlignmentGuides,
+      setActiveAlignmentGuides,
+      featureVisibility,
     });
 
     const { handleFeatureResizeStart } = useFeatureResize({
@@ -708,6 +721,13 @@ const LayoutEditorView = React.memo(
       [setShowGrid],
     );
 
+    const handleToggleAlignmentGuides = React.useCallback(
+      (checked: boolean) => {
+        setShowAlignmentGuides(() => checked);
+      },
+      [setShowAlignmentGuides],
+    );
+
     const layoutSettingsGroups = React.useMemo(
       () => [
         {
@@ -733,6 +753,13 @@ const LayoutEditorView = React.memo(
                   checked: showGrid,
                   onChange: handleToggleShowGrid,
                 },
+                {
+                  id: 'alignment-guides',
+                  label: t('editor.alignmentGuides', 'Ausrichtungshilfen'),
+                  icon: <AlignCenterVerticalSimple size={18} />,
+                  checked: showAlignmentGuides,
+                  onChange: handleToggleAlignmentGuides,
+                },
               ],
             },
           ],
@@ -752,8 +779,10 @@ const LayoutEditorView = React.memo(
         featureAvailability,
         featureVisibility,
         setFeatureVisible,
+        handleToggleAlignmentGuides,
         handleToggleShowGrid,
         handleToggleSnapToGrid,
+        showAlignmentGuides,
         showGrid,
         snapToGrid,
         t,
@@ -834,6 +863,7 @@ const LayoutEditorView = React.memo(
       selectionBox,
       templateDragPreview,
       featureDragPreview,
+      alignmentGuides,
       onPointerMove: handleSvgPointerMove,
       onPointerUp: handleSvgPointerUp,
       onPointerDown: handleSvgPointerDown,
@@ -936,6 +966,8 @@ const LayoutEditorView = React.memo(
       prevProps.templates === nextProps.templates &&
       prevProps.snapToGrid === nextProps.snapToGrid &&
       prevProps.showGrid === nextProps.showGrid &&
+      prevProps.showAlignmentGuides === nextProps.showAlignmentGuides &&
+      prevProps.alignmentGuides === nextProps.alignmentGuides &&
       prevProps.featureVisibility === nextProps.featureVisibility &&
       prevProps.historyLength === nextProps.historyLength &&
       prevProps.studentsCount === nextProps.studentsCount &&
@@ -947,6 +979,9 @@ const LayoutEditorView = React.memo(
       // Function props are expected to be stable
       prevProps.setSnapToGrid === nextProps.setSnapToGrid &&
       prevProps.setShowGrid === nextProps.setShowGrid &&
+      prevProps.setShowAlignmentGuides === nextProps.setShowAlignmentGuides &&
+      prevProps.setActiveAlignmentGuides ===
+        nextProps.setActiveAlignmentGuides &&
       prevProps.setFeatureVisible === nextProps.setFeatureVisible &&
       prevProps.setSelectedTableIds === nextProps.setSelectedTableIds &&
       prevProps.canvasHandlers === nextProps.canvasHandlers &&

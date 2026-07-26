@@ -116,6 +116,8 @@ describe('useFeaturePaletteDrag snapshot guards', () => {
         sceneToClient,
         canvasRef,
         selectFeature,
+        alignmentGuidesEnabled: false,
+        setActiveAlignmentGuides: vi.fn(),
       }),
     );
 

@@ -190,6 +190,19 @@ export {
   type FeatureFrame,
   type FeatureResizeHandle,
 } from './canvas/featureResize';
+export {
+  ALIGNMENT_GUIDE_EPSILON,
+  ALIGNMENT_GUIDE_TOLERANCE,
+  applyAlignmentToDelta,
+  computeAlignmentSnap,
+  getGroupAabb,
+  getRotatedAabb,
+  selectAlignmentTargets,
+  type AlignmentGuide,
+  type AlignmentGuideKind,
+  type AlignmentRect,
+  type AlignmentSnapResult,
+} from './canvas/alignmentGuides';
 
 // ===== SEO =====
 export { getRouteMetadata } from './seo/routeMetadata';

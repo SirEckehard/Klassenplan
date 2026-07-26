@@ -209,3 +209,53 @@ describe('ClassroomCanvas drag previews', () => {
     expect(container.textContent).not.toMatch(/Fenster \(/);
   });
 });
+
+describe('ClassroomCanvas alignment guides', () => {
+  it('renders full-length guide lines, canvas centers dashed', () => {
+    const { container } = render(
+      <ClassroomCanvas
+        {...baseProps}
+        alignmentGuides={[
+          { orientation: 'vertical', position: 100, kind: 'edge' },
+          { orientation: 'horizontal', position: 300, kind: 'canvasCenter' },
+        ]}
+      />,
+    );
+    const group = container.querySelector(
+      '[data-testid="alignment-guides"]',
+    ) as SVGGElement;
+    expect(group).toBeTruthy();
+    expect(group.getAttribute('pointer-events')).toBe('none');
+
+    const lines = Array.from(group.querySelectorAll('line'));
+    expect(lines).toHaveLength(2);
+
+    const vertical = lines[0];
+    expect(vertical.getAttribute('x1')).toBe('100');
+    expect(vertical.getAttribute('x2')).toBe('100');
+    expect(vertical.getAttribute('y1')).toBe('0');
+    expect(vertical.getAttribute('y2')).toBe(String(CLASSROOM_HEIGHT));
+    expect(vertical.getAttribute('stroke-dasharray')).toBeNull();
+
+    const horizontal = lines[1];
+    expect(horizontal.getAttribute('y1')).toBe('300');
+    expect(horizontal.getAttribute('y2')).toBe('300');
+    expect(horizontal.getAttribute('x1')).toBe('0');
+    expect(horizontal.getAttribute('x2')).toBe(String(CLASSROOM_WIDTH));
+    expect(horizontal.getAttribute('stroke-dasharray')).toBe('6 4');
+  });
+
+  it('renders nothing for null or empty guides', () => {
+    const { container, rerender } = render(
+      <ClassroomCanvas {...baseProps} alignmentGuides={null} />,
+    );
+    expect(
+      container.querySelector('[data-testid="alignment-guides"]'),
+    ).toBeNull();
+
+    rerender(<ClassroomCanvas {...baseProps} alignmentGuides={[]} />);
+    expect(
+      container.querySelector('[data-testid="alignment-guides"]'),
+    ).toBeNull();
+  });
+});
