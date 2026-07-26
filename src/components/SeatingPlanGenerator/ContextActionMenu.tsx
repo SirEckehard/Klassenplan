@@ -117,12 +117,12 @@ export default function ContextActionMenu({
   }
 
   const menuContainerClass = isTouchLike
-    ? `${touchMenuSurfaceClass} flex items-center gap-3`
-    : `${menuSurfaceClass} flex min-w-[220px] flex-col gap-1`;
+    ? `${touchMenuSurfaceClass} flex w-max min-w-44 flex-col gap-1`
+    : `${menuSurfaceClass} flex items-center gap-1`;
 
   const buttonClass = isTouchLike
-    ? `${mutedIconButtonClass} flex h-auto min-w-[80px] flex-col items-center gap-1 rounded-2xl px-4 py-3 text-xs font-semibold text-gray-700 transition disabled:opacity-40 disabled:hover:bg-transparent dark:text-gray-100`
-    : `${mutedIconButtonClass} flex w-full items-center justify-start gap-3 px-4 py-2 text-sm font-medium text-gray-700 transition disabled:opacity-40 disabled:hover:bg-transparent dark:text-gray-100`;
+    ? `${mutedIconButtonClass} flex w-full items-center justify-start gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-gray-700 transition disabled:opacity-40 disabled:hover:bg-transparent dark:text-gray-100`
+    : `${mutedIconButtonClass} flex h-9 w-9 items-center justify-center rounded-lg text-gray-700 transition disabled:opacity-40 disabled:hover:bg-transparent dark:text-gray-100`;
 
   return (
     <div
@@ -141,16 +141,14 @@ export default function ContextActionMenu({
               onClick={() => handleAction(action)}
               disabled={action.disabled}
               className={buttonClass}
-              aria-label={isTouchLike ? action.label : undefined}
+              aria-label={action.label}
               title={action.label}
             >
               <Icon
                 className={isTouchLike ? 'h-5 w-5' : 'h-4 w-4'}
                 aria-hidden="true"
               />
-              {isTouchLike ? (
-                <span className="text-center">{action.label}</span>
-              ) : (
+              {isTouchLike && (
                 <span className="flex-1 text-left">{action.label}</span>
               )}
             </button>

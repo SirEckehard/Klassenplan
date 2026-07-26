@@ -1401,23 +1401,29 @@ export function useFeaturePaletteDrag({
         pointerType: event.pointerType,
       };
 
-      featureLongPressTimerRef.current = window.setTimeout(() => {
-        const pending = pendingFeatureRef.current;
-        if (!pending) {
-          return;
-        }
-        cancelPendingFeatureInteraction();
-        const normalizedPointer =
-          pending.pointerType === 'pen' ? 'pen' : 'touch';
-        const menuState: FeatureContextMenuState = {
-          featureId: pending.feature.id,
-          clientX: pending.startClientX,
-          clientY: pending.startClientY,
-          pointerType: normalizedPointer,
-          trigger: 'longpress',
-        };
-        openFeatureContextMenu?.(menuState);
-      }, LONG_PRESS_DURATION);
+      // Long-press opens the context menu only for touch/pen pointers;
+      // desktop mice use the native contextmenu event instead.
+      const allowsLongPress =
+        event.pointerType === 'touch' || event.pointerType === 'pen';
+      if (allowsLongPress) {
+        featureLongPressTimerRef.current = window.setTimeout(() => {
+          const pending = pendingFeatureRef.current;
+          if (!pending) {
+            return;
+          }
+          cancelPendingFeatureInteraction();
+          const normalizedPointer =
+            pending.pointerType === 'pen' ? 'pen' : 'touch';
+          const menuState: FeatureContextMenuState = {
+            featureId: pending.feature.id,
+            clientX: pending.startClientX,
+            clientY: pending.startClientY,
+            pointerType: normalizedPointer,
+            trigger: 'longpress',
+          };
+          openFeatureContextMenu?.(menuState);
+        }, LONG_PRESS_DURATION);
+      }
 
       const handlePendingMove = (moveEvent: PointerEvent) => {
         if (moveEvent.pointerId !== event.pointerId) {
