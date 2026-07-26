@@ -12,6 +12,10 @@ type UseStudentListLayoutOptions = {
   recalcKey?: number;
 };
 
+// Space kept free below the list so the action row (name game / proceed
+// buttons) stays visible: list margin + button row + breathing room.
+const ACTION_ROW_RESERVED_PX = 120;
+
 export const useStudentListLayout = ({
   isMobile,
   studentCount,
@@ -23,11 +27,8 @@ export const useStudentListLayout = ({
   const { containerRef: listContainerRef, maxHeight: listMaxHeight } =
     useAdaptiveViewportHeight<HTMLDivElement>({
       disabled: isMobile,
-      reservedTop: 280,
-      reservedBottom: cookieBannerOffset,
+      reservedBottom: ACTION_ROW_RESERVED_PX + cookieBannerOffset,
       minHeight: 280,
-      maxHeight: 640,
-      maxViewportRatio: 0.6,
       fallbackHeight: 384,
       includeViewportOffset: true,
       changeThreshold: 50,
