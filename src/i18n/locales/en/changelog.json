@@ -1,4 +1,12 @@
 {
+  "v1_9_0": {
+    "0": "Alignment guides in the classroom editor: smart guide lines appear when moving tables and room elements, letting them snap neatly into alignment – can be disabled in the view settings",
+    "1": "Photo collision warning: the classroom editor now indicates when student photos would overlap or extend beyond the room – also toggleable in the view settings",
+    "2": "Consistent navigation: the back buttons in presentation mode, export and the name game are now placed and styled consistently",
+    "3": "The class list makes better use of the available screen height – the action buttons always stay visible",
+    "4": "Updated dependencies",
+    "5": "The context menu in the classroom now works reliably with both touch and mouse input"
+  },
   "v1_8_0": {
     "0": "Name game: learn your students' names playfully – with a photo quiz and memory game based on the stored student photos, including learning progress",
     "1": "Edit student photos: existing photos can now be changed and re-cropped afterwards",

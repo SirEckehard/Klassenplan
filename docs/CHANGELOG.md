@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.9.0] - 2026-07-29
+
+### Added
+
+- **Alignment guides in the classroom editor** – smart guide lines appear while moving tables and room elements so they snap neatly into alignment with each other; can be toggled in the view settings
+- **Photo collision warning** – the classroom editor now indicates when student photos would overlap or extend beyond the room; toggleable in the view settings
+
+### Improved
+
+- Consistent navigation – the back buttons in presentation mode, export and the name game are now placed and styled consistently
+- The class list makes better use of the available screen height while keeping the action buttons visible
+- Updated dependencies
+
+### Fixed
+
+- The context menu in the classroom now works reliably with both touch and mouse input
+
 ## [1.8.0] - 2026-07-18
 
 ### Added

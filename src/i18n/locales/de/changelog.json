@@ -1,4 +1,12 @@
 {
+  "v1_9_0": {
+    "0": "Ausrichtungshilfen im Klassenraum-Editor: Beim Verschieben von Tischen und Raumelementen erscheinen intelligente Hilfslinien, an denen Elemente sauber einrasten – abschaltbar in den Ansichtseinstellungen",
+    "1": "Warnung bei Fotokollisionen: Der Klassenraum-Editor zeigt jetzt an, wenn sich Schülerfotos überlappen oder über den Raum hinausragen würden – ebenfalls in den Ansichtseinstellungen abschaltbar",
+    "2": "Einheitliche Navigation: Die Zurück-Buttons in Präsentationsmodus, Export und Namensspiel sind jetzt konsistent platziert und gestaltet",
+    "3": "Die Klassenliste nutzt die verfügbare Bildschirmhöhe besser aus – die Aktions-Buttons bleiben dabei immer sichtbar",
+    "4": "Aktualisierte Abhängigkeiten",
+    "5": "Kontextmenü im Klassenraum funktioniert jetzt zuverlässig – bei Touch- und Mausbedienung gleichermaßen"
+  },
   "v1_8_0": {
     "0": "Namensspiel: Lerne die Namen deiner Schülerinnen und Schüler spielerisch – mit Foto-Quiz und Memory auf Basis der hinterlegten Schülerfotos, inklusive Lernfortschritt",
     "1": "Schülerfotos bearbeiten: Vorhandene Fotos lassen sich jetzt nachträglich ändern und neu zuschneiden",
