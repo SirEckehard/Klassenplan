@@ -34,6 +34,7 @@ import { showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
 import { FEATURE_TYPES, type FeatureVisibilityFlags } from '@/utils/ui';
 import { buildFeatureVisibilityGroup } from '@/components/SeatingPlanGenerator/canvas/featureVisibilityGroup';
 import { useFeatureVisibility } from '@/hooks/ui/useFeatureVisibility';
+import { useAdaptiveViewportHeight } from '@/hooks/ui/useAdaptiveViewportHeight';
 import {
   useSeatingPlanState,
   useSeatingPlanActions,
@@ -90,6 +91,11 @@ function readPersisted<T>(key: string, fallback: T): T {
 
 const PORTRAIT_PAGE_RATIO = 817 / 1148;
 const LANDSCAPE_PAGE_RATIO = 1148 / 817;
+
+// Space kept free below the preview frame so the back button stays visible
+// and shares the wizard steps' action-row baseline: column gap (16px) +
+// button row (~36px) + bottom margin (16px).
+const PREVIEW_ACTION_RESERVED_PX = 68;
 
 export default function Export() {
   const { t } = useTranslation('generator');
@@ -277,20 +283,33 @@ export default function Export() {
   const activeOrientation =
     previewMode === 'circle' ? circleOrientation : tableOrientation;
 
+  // Measure the frame's real viewport position (instead of estimating header
+  // heights via CSS calc) so the back button below the preview ends exactly
+  // 16px above the viewport bottom, like the other steps' action rows.
+  const { containerRef: previewFrameRef, maxHeight: previewFrameHeight } =
+    useAdaptiveViewportHeight<HTMLDivElement>({
+      reservedBottom: PREVIEW_ACTION_RESERVED_PX,
+      minHeight: 280,
+      maxHeight: 960,
+      fallbackHeight: 720,
+      includeViewportOffset: true,
+      changeThreshold: 8,
+    });
+
   const previewFrameStyles = useMemo<CSSProperties>(() => {
-    const viewportExpression = '100vh - 10rem';
     const ratio =
       activeOrientation === 'portrait'
         ? PORTRAIT_PAGE_RATIO
         : LANDSCAPE_PAGE_RATIO;
+    const frameHeight = Math.round(previewFrameHeight ?? 720);
 
     return {
-      maxHeight: `min(960px, calc(${viewportExpression}))`,
-      maxWidth: `min(90vw, calc((${viewportExpression}) * ${ratio.toFixed(4)}))`,
+      maxHeight: `${frameHeight}px`,
+      maxWidth: `min(90vw, ${Math.round(frameHeight * ratio)}px)`,
       aspectRatio:
         activeOrientation === 'portrait' ? '817 / 1148' : '1148 / 817',
     };
-  }, [activeOrientation]);
+  }, [activeOrientation, previewFrameHeight]);
 
   const exportSettingsGroups = useMemo<CanvasSettingsGroup[]>(() => {
     const displayItems: CanvasSettingsIconGridItem[] = [];
@@ -956,6 +975,7 @@ export default function Export() {
           {/* Canvas Bereich */}
           <div className="flex-1 space-y-4">
             <div
+              ref={previewFrameRef}
               className={`${canvasFrameClass} relative w-full`}
               style={previewFrameStyles}
             >

@@ -13,8 +13,10 @@ type UseStudentListLayoutOptions = {
 };
 
 // Space kept free below the list so the action row (name game / proceed
-// buttons) stays visible: list margin + button row + breathing room.
-const ACTION_ROW_RESERVED_PX = 120;
+// buttons) stays visible: collapsed list/action-row margin (24px), the button
+// row itself (~36px) and a small bottom margin matching the step-2 footer
+// buttons, so the action row shares their baseline on desktop viewports.
+const ACTION_ROW_RESERVED_PX = 76;
 
 export const useStudentListLayout = ({
   isMobile,
@@ -29,7 +31,7 @@ export const useStudentListLayout = ({
       disabled: isMobile,
       reservedBottom: ACTION_ROW_RESERVED_PX + cookieBannerOffset,
       minHeight: 280,
-      fallbackHeight: 384,
+      fallbackHeight: 448,
       includeViewportOffset: true,
       changeThreshold: 50,
       debounceMs: 300,

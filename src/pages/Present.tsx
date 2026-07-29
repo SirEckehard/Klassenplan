@@ -13,6 +13,8 @@ import {
   UserSquareIcon,
 } from '@phosphor-icons/react';
 import Seo from '@/components/Seo';
+import { KpLockup } from '@/components/KpLockup';
+import { LocalizedLink } from '@/components/LocalizedLink';
 import { usePageSeo } from '@/hooks/usePageSeo';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';
@@ -98,17 +100,14 @@ export default function Present() {
       {/* Minimal toolbar */}
       <div className="flex items-center gap-3 px-4 py-3">
         <div className="flex flex-1 justify-start">
-          <button
-            type="button"
-            onClick={() => navigate('/generator')}
-            className={`${neutralButtonClass} h-10 gap-2 px-4`}
-            title={t('present.backTitle', 'Zurück zum Generator (Alt + ←)')}
-          >
-            <ArrowLeftIcon size={20} aria-hidden />
-            <span className="text-sm font-semibold">
-              {t('present.back', 'Zurück')}
-            </span>
-          </button>
+          <h1 className="flex items-center shrink-0">
+            <LocalizedLink
+              to="/"
+              className="kp-lockup focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
+            >
+              <KpLockup size="sm" hideWordmarkOnMobile />
+            </LocalizedLink>
+          </h1>
         </div>
 
         <PresentPerspectiveToggle
@@ -222,128 +221,147 @@ export default function Present() {
         )}
       </div>
 
-      {/* Control row sits centered below the classroom. Teacher-only controls
-          (badges, photos) hide in the student view; colors and zoom stay. */}
+      {/* Bottom bar: back button pinned left, view controls centered below the
+          classroom. Teacher-only controls (badges, photos) hide in the student
+          view; colors and zoom stay. */}
       {hasContent ? (
-        <div className="flex flex-wrap items-center justify-center gap-3 px-4 py-4">
-          {isTeacher && (
+        <div className="flex items-center gap-3 px-4 py-4">
+          <div className="flex flex-1 justify-start">
             <button
               type="button"
-              onClick={() => setShowBadges((value) => !value)}
-              className={`${
-                showBadges ? primaryButtonClass : secondaryButtonClass
-              } h-10 gap-2 px-4`}
-              aria-pressed={showBadges}
-              title={t(
-                'present.badgesTitle',
-                'Merkmal-Symbole der Schüler ein- oder ausblenden',
-              )}
+              onClick={() => navigate('/generator')}
+              className={`${neutralButtonClass} h-10 shrink-0 gap-2 px-4`}
+              title={t('present.backTitle', 'Zurück zum Generator (Alt + ←)')}
             >
-              <UserSquareIcon size={20} aria-hidden />
+              <ArrowLeftIcon size={20} aria-hidden />
               <span className="text-sm font-semibold">
-                {t('present.badges', 'Merkmale')}
+                {t('present.back', 'Zurück')}
               </span>
             </button>
-          )}
-
-          {isTeacher && (
-            <button
-              type="button"
-              onClick={() => setShowPhotos((value) => !value)}
-              className={`${
-                showPhotos ? primaryButtonClass : secondaryButtonClass
-              } h-10 gap-2 px-4`}
-              aria-pressed={showPhotos}
-              title={t(
-                'present.photosTitle',
-                'Schülerfotos ein- oder ausblenden',
-              )}
-            >
-              <ImageIcon size={20} aria-hidden />
-              <span className="text-sm font-semibold">
-                {t('present.photos', 'Fotos')}
-              </span>
-            </button>
-          )}
-
-          <button
-            type="button"
-            onClick={() => setShowGenderColors((value) => !value)}
-            className={`${
-              showGenderColors ? primaryButtonClass : secondaryButtonClass
-            } h-10 gap-2 px-4`}
-            aria-pressed={showGenderColors}
-            title={t(
-              'present.colorsTitle',
-              'Farbige Kennzeichnung (Geschlechterfarben) ein- oder ausblenden',
-            )}
-          >
-            <PaletteIcon size={20} aria-hidden />
-            <span className="text-sm font-semibold">
-              {t('present.colors', 'Farben')}
-            </span>
-          </button>
-
-          {!isCircle && (
-            <button
-              type="button"
-              onClick={() => setShowFeatures((value) => !value)}
-              className={`${
-                showFeatures ? primaryButtonClass : secondaryButtonClass
-              } h-10 gap-2 px-4`}
-              aria-pressed={showFeatures}
-              title={t(
-                'present.featuresTitle',
-                'Raumelemente (Tafel, Fenster, Türen, Möbel) ein- oder ausblenden',
-              )}
-            >
-              <DoorOpenIcon size={20} aria-hidden />
-              <span className="text-sm font-semibold">
-                {t('present.features', 'Raum')}
-              </span>
-            </button>
-          )}
-
-          <div className="flex h-10 items-center gap-2 rounded-full border border-blue-200 bg-white/80 px-4 shadow-inner dark:border-blue-900/40 dark:bg-gray-950/70">
-            <MagnifyingGlassIcon
-              size={20}
-              aria-hidden
-              className="text-gray-600 dark:text-gray-300"
-            />
-            <input
-              type="range"
-              min={PRESENT_MIN_ZOOM}
-              max={PRESENT_MAX_ZOOM}
-              step={0.05}
-              value={zoom}
-              onChange={(event) => setZoomLevel(Number(event.target.value))}
-              aria-label={t('present.zoom', 'Zoom')}
-              title={t(
-                'present.zoomTitle',
-                'Ansicht vergrößern oder verkleinern',
-              )}
-              className="w-40 cursor-pointer accent-blue-600"
-            />
-            <span className="w-12 text-right text-sm font-semibold tabular-nums text-gray-600 dark:text-gray-300">
-              {Math.round(zoom * 100)}%
-            </span>
           </div>
 
-          <button
-            type="button"
-            onClick={reset}
-            className={`${iconButtonClass} h-10 w-10`}
-            aria-label={t(
-              'present.resetView',
-              'Ansicht zentrieren und zurücksetzen',
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            {isTeacher && (
+              <button
+                type="button"
+                onClick={() => setShowBadges((value) => !value)}
+                className={`${
+                  showBadges ? primaryButtonClass : secondaryButtonClass
+                } h-10 gap-2 px-4`}
+                aria-pressed={showBadges}
+                title={t(
+                  'present.badgesTitle',
+                  'Merkmal-Symbole der Schüler ein- oder ausblenden',
+                )}
+              >
+                <UserSquareIcon size={20} aria-hidden />
+                <span className="text-sm font-semibold">
+                  {t('present.badges', 'Merkmale')}
+                </span>
+              </button>
             )}
-            title={t(
-              'present.resetView',
-              'Ansicht zentrieren und zurücksetzen',
+
+            {isTeacher && (
+              <button
+                type="button"
+                onClick={() => setShowPhotos((value) => !value)}
+                className={`${
+                  showPhotos ? primaryButtonClass : secondaryButtonClass
+                } h-10 gap-2 px-4`}
+                aria-pressed={showPhotos}
+                title={t(
+                  'present.photosTitle',
+                  'Schülerfotos ein- oder ausblenden',
+                )}
+              >
+                <ImageIcon size={20} aria-hidden />
+                <span className="text-sm font-semibold">
+                  {t('present.photos', 'Fotos')}
+                </span>
+              </button>
             )}
-          >
-            <ArrowsInIcon size={20} aria-hidden />
-          </button>
+
+            <button
+              type="button"
+              onClick={() => setShowGenderColors((value) => !value)}
+              className={`${
+                showGenderColors ? primaryButtonClass : secondaryButtonClass
+              } h-10 gap-2 px-4`}
+              aria-pressed={showGenderColors}
+              title={t(
+                'present.colorsTitle',
+                'Farbige Kennzeichnung (Geschlechterfarben) ein- oder ausblenden',
+              )}
+            >
+              <PaletteIcon size={20} aria-hidden />
+              <span className="text-sm font-semibold">
+                {t('present.colors', 'Farben')}
+              </span>
+            </button>
+
+            {!isCircle && (
+              <button
+                type="button"
+                onClick={() => setShowFeatures((value) => !value)}
+                className={`${
+                  showFeatures ? primaryButtonClass : secondaryButtonClass
+                } h-10 gap-2 px-4`}
+                aria-pressed={showFeatures}
+                title={t(
+                  'present.featuresTitle',
+                  'Raumelemente (Tafel, Fenster, Türen, Möbel) ein- oder ausblenden',
+                )}
+              >
+                <DoorOpenIcon size={20} aria-hidden />
+                <span className="text-sm font-semibold">
+                  {t('present.features', 'Raum')}
+                </span>
+              </button>
+            )}
+
+            <div className="flex h-10 items-center gap-2 rounded-full border border-blue-200 bg-white/80 px-4 shadow-inner dark:border-blue-900/40 dark:bg-gray-950/70">
+              <MagnifyingGlassIcon
+                size={20}
+                aria-hidden
+                className="text-gray-600 dark:text-gray-300"
+              />
+              <input
+                type="range"
+                min={PRESENT_MIN_ZOOM}
+                max={PRESENT_MAX_ZOOM}
+                step={0.05}
+                value={zoom}
+                onChange={(event) => setZoomLevel(Number(event.target.value))}
+                aria-label={t('present.zoom', 'Zoom')}
+                title={t(
+                  'present.zoomTitle',
+                  'Ansicht vergrößern oder verkleinern',
+                )}
+                className="w-40 cursor-pointer accent-blue-600"
+              />
+              <span className="w-12 text-right text-sm font-semibold tabular-nums text-gray-600 dark:text-gray-300">
+                {Math.round(zoom * 100)}%
+              </span>
+            </div>
+
+            <button
+              type="button"
+              onClick={reset}
+              className={`${iconButtonClass} h-10 w-10`}
+              aria-label={t(
+                'present.resetView',
+                'Ansicht zentrieren und zurücksetzen',
+              )}
+              title={t(
+                'present.resetView',
+                'Ansicht zentrieren und zurücksetzen',
+              )}
+            >
+              <ArrowsInIcon size={20} aria-hidden />
+            </button>
+          </div>
+
+          <div className="flex-1" aria-hidden />
         </div>
       ) : (
         <div className="h-4" aria-hidden />

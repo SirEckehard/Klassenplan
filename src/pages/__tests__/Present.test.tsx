@@ -64,6 +64,10 @@ describe('Present', () => {
     expect(screen.queryByTestId('presentation-scene')).not.toBeInTheDocument();
     // No zoom/photo controls without content
     expect(screen.queryByRole('slider')).not.toBeInTheDocument();
+    // The centered back button remains as the way back to the generator
+    expect(
+      screen.getByRole('button', { name: /^(Zurück|Back)$/i }),
+    ).toBeInTheDocument();
   });
 
   it('renders the presentation scene and controls when a plan exists', () => {
@@ -80,6 +84,11 @@ describe('Present', () => {
     renderPresent();
 
     expect(screen.getByTestId('presentation-scene')).toBeInTheDocument();
+    // Logo link sits top-left, the back button moved into the bottom bar
+    expect(screen.getByRole('link')).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /^(Zurück|Back)$/i }),
+    ).toBeInTheDocument();
     // Zoom slider + reset control are always available with content
     expect(screen.getByRole('slider')).toBeInTheDocument();
     expect(

@@ -34,7 +34,7 @@ const PerformanceDebugButton: React.FC = () => {
   return (
     <button
       onClick={toggleDashboard}
-      className="fixed bottom-4 left-4 z-40 bg-blue-600 hover:bg-blue-700 text-white
+      className="fixed bottom-20 left-4 z-40 bg-blue-600 hover:bg-blue-700 text-white
                 rounded-full p-3 shadow-lg transition-all duration-200 group"
       title="Performance Dashboard öffnen (Ctrl/Cmd + Shift + P)"
     >
