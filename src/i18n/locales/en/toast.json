@@ -156,7 +156,8 @@
   "seating": {
     "seatsInsufficient": "Not enough seats for all students",
     "seatLockedDrop": "This seat is locked.",
-    "classroomNotSetup": "Please set up the classroom first."
+    "classroomNotSetup": "Please set up the classroom first.",
+    "photoOverlap": "Student photos would overlap or extend beyond the room."
   },
   "plan": {
     "nameChangeError": "Could not change name",

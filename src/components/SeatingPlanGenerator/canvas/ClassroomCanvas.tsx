@@ -9,11 +9,13 @@ import ResizeHandle from '@/components/scene/ResizeHandle';
 import {
   GRID_SIZE,
   getFeatureResizeHandles,
+  showToast,
   type AlignmentGuide,
   type FeatureResizeHandle,
 } from '@/utils';
 import { getFeatureStyles } from '@/utils/ui';
 import type { FeatureVisibilityFlags } from '@/utils/ui';
+import { getPhotoCollisions } from '@/utils/math/photoOverlap';
 import type {
   SeatingArrangement,
   ClassroomTable,
@@ -56,6 +58,8 @@ interface ClassroomCanvasProps {
   featureDragPreview?: FeatureDragPreview | null;
   /** Keynote-style alignment guides of the drag in progress. */
   alignmentGuides?: AlignmentGuide[] | null;
+  /** Highlight seats whose photos would overlap each other or the walls. */
+  showPhotoOverlapWarning?: boolean;
   onPointerMove: (e: React.PointerEvent<SVGSVGElement>) => void;
   onPointerUp: (e: React.PointerEvent<SVGSVGElement>) => void;
   onPointerDown: (e: React.PointerEvent<SVGSVGElement>) => void;
@@ -99,6 +103,7 @@ const ClassroomCanvas = React.memo<ClassroomCanvasProps>(
     templateDragPreview,
     featureDragPreview,
     alignmentGuides,
+    showPhotoOverlapWarning = false,
     onPointerMove,
     onPointerUp,
     onPointerDown,
@@ -132,6 +137,34 @@ const ClassroomCanvas = React.memo<ClassroomCanvasProps>(
     const gridColor = isDark ? '#374151' : '#e5e7eb';
     // Amber keeps the guides distinct from the blue selection overlay.
     const guideColor = isDark ? '#fbbf24' : '#f59e0b';
+    // Red marks predicted photo collisions (red-400 / red-500).
+    const collisionColor = isDark ? '#f87171' : '#ef4444';
+    // The prediction only matters once at least one student photo exists.
+    const hasStudentPhotos = React.useMemo(
+      () => (allStudents ?? []).some((student) => student.hasPhoto),
+      [allStudents],
+    );
+    // sceneTables is replaced on every drag frame, so the prediction follows
+    // the drag live.
+    const collidingPhotos = React.useMemo(
+      () =>
+        showPhotoOverlapWarning && hasStudentPhotos
+          ? getPhotoCollisions(sceneTables)
+          : [],
+      [showPhotoOverlapWarning, hasStudentPhotos, sceneTables],
+    );
+    // Announce new collisions once per occurrence; the fixed toast id replaces
+    // an already visible toast instead of stacking during a drag.
+    const hasCollisions = collidingPhotos.length > 0;
+    const hadCollisionsRef = React.useRef(false);
+    React.useEffect(() => {
+      if (hasCollisions && !hadCollisionsRef.current) {
+        showToast('warning', 'toast:seating.photoOverlap', {
+          id: 'photo-overlap-warning',
+        });
+      }
+      hadCollisionsRef.current = hasCollisions;
+    }, [hasCollisions]);
     const featureViewModels = React.useMemo(
       () =>
         features
@@ -398,6 +431,34 @@ const ClassroomCanvas = React.memo<ClassroomCanvasProps>(
                     guide.kind === 'canvasCenter' ? '6 4' : undefined
                   }
                 />
+              ))}
+            </g>
+          )}
+
+          {/* Predicted photo collisions: dashed rings where photo avatars
+              would overlap each other or cross the classroom walls */}
+          {collidingPhotos.length > 0 && (
+            <g
+              pointerEvents="none"
+              aria-hidden="true"
+              data-testid="photo-overlap-warnings"
+            >
+              {collidingPhotos.map((circle) => (
+                <circle
+                  key={`${circle.tableIndex}-${circle.seatIndex}`}
+                  cx={circle.x}
+                  cy={circle.y}
+                  r={circle.radius + 2}
+                  fill="rgba(239,68,68,0.12)"
+                  stroke={collisionColor}
+                  strokeWidth={2}
+                  strokeDasharray="4 3"
+                  // Only the dashed ring is hoverable for the tooltip, so the
+                  // marked area itself stays click-through.
+                  pointerEvents="stroke"
+                >
+                  <title>{t('editor.photoCollision', 'Fotokollision')}</title>
+                </circle>
               ))}
             </g>
           )}

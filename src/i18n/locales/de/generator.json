@@ -502,7 +502,9 @@
     "viewOptions": "Ansichtsoptionen",
     "viewSettings": "Ansichtseinstellungen",
     "snapToGrid": "Am Raster ausrichten",
-    "alignmentGuides": "Ausrichtungshilfen"
+    "alignmentGuides": "Ausrichtungshilfen",
+    "photoOverlapWarning": "Fotokollisionen anzeigen",
+    "photoCollision": "Fotokollision"
   },
   "quickSetup": {
     "title": "Klassenraum einrichten",

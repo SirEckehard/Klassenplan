@@ -12,6 +12,7 @@ import {
   calculateSeatLayout,
   determineSeatEdge,
 } from '@/utils/math/positionCalculations';
+import { getPhotoRadius } from '@/utils/math/photoOverlap';
 import type {
   DragHover,
   DragOrigin,
@@ -189,13 +190,9 @@ function SceneTable({
   // edge just kisses the outer edge of the table border stroke (half of the 1px
   // base border), so it touches the border without overlapping into the table.
   const TABLE_BORDER_HALF = 0.5;
-  // When a dot "grows" into a photo avatar it scales with the seat but stays
-  // small enough that neighbouring dots (≈ one seat width/height apart) don't
-  // overlap (diameter ≈ 0.7 × the smaller seat dimension).
-  const photoRadius = Math.max(
-    9,
-    Math.min(18, Math.min(seatWidth, seatHeight) * 0.35),
-  );
+  // Shared with the layout editor's photo-collision prediction so both always
+  // agree on the rendered avatar size.
+  const photoRadius = getPhotoRadius(seatWidth, seatHeight);
   const chairDots = useMemo(() => {
     const fallback = Math.max(cols, 1);
     return students.map((_, seatIndex) => {

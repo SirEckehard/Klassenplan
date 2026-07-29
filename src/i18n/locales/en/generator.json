@@ -502,7 +502,9 @@
     "viewOptions": "View Options",
     "viewSettings": "View Settings",
     "snapToGrid": "Snap to grid",
-    "alignmentGuides": "Alignment guides"
+    "alignmentGuides": "Alignment guides",
+    "photoOverlapWarning": "Show photo collisions",
+    "photoCollision": "Photo collision"
   },
   "quickSetup": {
     "title": "Set Up Classroom",

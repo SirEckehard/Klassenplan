@@ -6,8 +6,10 @@ import React from 'react';
 import { render } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import ClassroomCanvas from '../ClassroomCanvas';
-import type { ClassroomFeature } from '@/types';
+import type { ClassroomFeature, ClassroomTable } from '@/types';
 import { CLASSROOM_WIDTH, CLASSROOM_HEIGHT } from '@/utils';
+import { subscribeToToasts, type ToastEvent } from '@/utils/ui/toast';
+import { createMockStudent } from '@/__tests__/utils';
 
 const makeFeature = (
   overrides: Partial<ClassroomFeature> = {},
@@ -256,6 +258,160 @@ describe('ClassroomCanvas alignment guides', () => {
     rerender(<ClassroomCanvas {...baseProps} alignmentGuides={[]} />);
     expect(
       container.querySelector('[data-testid="alignment-guides"]'),
+    ).toBeNull();
+  });
+});
+
+describe('ClassroomCanvas photo overlap warnings', () => {
+  const makeTable = (overrides: Partial<ClassroomTable>): ClassroomTable => ({
+    x: 300,
+    y: 200,
+    width: 60,
+    height: 40,
+    rotation: 0,
+    seatCount: 1,
+    locked: false,
+    zIndex: 0,
+    templateType: 'single',
+    ...overrides,
+  });
+
+  // Left-docked photo circles of these two singles overlap by 8 units.
+  const collidingTables = [makeTable({}), makeTable({ x: 320 })];
+  const collidingSeating = [[null], [null]];
+  const studentsWithPhoto = [createMockStudent({ hasPhoto: true })];
+
+  it('marks colliding photo positions with warning rings', () => {
+    const { container } = render(
+      <ClassroomCanvas
+        {...baseProps}
+        sceneTables={collidingTables}
+        placeholderSeating={collidingSeating}
+        allStudents={studentsWithPhoto}
+        showPhotoOverlapWarning
+      />,
+    );
+    const group = container.querySelector(
+      '[data-testid="photo-overlap-warnings"]',
+    ) as SVGGElement;
+    expect(group).toBeTruthy();
+    expect(group.getAttribute('pointer-events')).toBe('none');
+    expect(group.querySelectorAll('circle')).toHaveLength(2);
+  });
+
+  it('labels each warning ring with a hover tooltip', () => {
+    const { container } = render(
+      <ClassroomCanvas
+        {...baseProps}
+        sceneTables={collidingTables}
+        placeholderSeating={collidingSeating}
+        allStudents={studentsWithPhoto}
+        showPhotoOverlapWarning
+      />,
+    );
+    const titles = Array.from(
+      container.querySelectorAll(
+        '[data-testid="photo-overlap-warnings"] circle title',
+      ),
+    );
+    expect(titles).toHaveLength(2);
+    titles.forEach((title) => {
+      expect(title.textContent).toMatch(/Fotokollision|Photo collision/i);
+    });
+  });
+
+  it('announces a new collision with a warning toast', () => {
+    const events: ToastEvent[] = [];
+    const unsubscribe = subscribeToToasts((event) => {
+      events.push(event);
+    });
+    try {
+      render(
+        <ClassroomCanvas
+          {...baseProps}
+          sceneTables={collidingTables}
+          placeholderSeating={collidingSeating}
+          allStudents={studentsWithPhoto}
+          showPhotoOverlapWarning
+        />,
+      );
+      const added = events.filter((event) => event.action === 'add');
+      expect(added).toHaveLength(1);
+      expect(added[0]!.toast.type).toBe('warning');
+      expect(added[0]!.toast.message).toMatch(/Fotokollision|Photo collision/i);
+    } finally {
+      unsubscribe();
+    }
+  });
+
+  it('renders nothing while no student photo exists', () => {
+    const { container, rerender } = render(
+      <ClassroomCanvas
+        {...baseProps}
+        sceneTables={collidingTables}
+        placeholderSeating={collidingSeating}
+        allStudents={[createMockStudent({ hasPhoto: false })]}
+        showPhotoOverlapWarning
+      />,
+    );
+    expect(
+      container.querySelector('[data-testid="photo-overlap-warnings"]'),
+    ).toBeNull();
+
+    // Omitted student list counts as "no photos" as well.
+    rerender(
+      <ClassroomCanvas
+        {...baseProps}
+        sceneTables={collidingTables}
+        placeholderSeating={collidingSeating}
+        showPhotoOverlapWarning
+      />,
+    );
+    expect(
+      container.querySelector('[data-testid="photo-overlap-warnings"]'),
+    ).toBeNull();
+  });
+
+  it('renders nothing while the warning is disabled', () => {
+    const { container, rerender } = render(
+      <ClassroomCanvas
+        {...baseProps}
+        sceneTables={collidingTables}
+        placeholderSeating={collidingSeating}
+        allStudents={studentsWithPhoto}
+        showPhotoOverlapWarning={false}
+      />,
+    );
+    expect(
+      container.querySelector('[data-testid="photo-overlap-warnings"]'),
+    ).toBeNull();
+
+    // Omitted prop defaults to off as well.
+    rerender(
+      <ClassroomCanvas
+        {...baseProps}
+        sceneTables={collidingTables}
+        placeholderSeating={collidingSeating}
+        allStudents={studentsWithPhoto}
+      />,
+    );
+    expect(
+      container.querySelector('[data-testid="photo-overlap-warnings"]'),
+    ).toBeNull();
+  });
+
+  it('renders nothing when no photos collide', () => {
+    const { container } = render(
+      <ClassroomCanvas
+        {...baseProps}
+        sceneTables={[makeTable({}), makeTable({ x: 600, y: 400 })]}
+        placeholderSeating={collidingSeating}
+        allStudents={studentsWithPhoto}
+        showPhotoOverlapWarning
+      />,
+    );
+    expect(
+      container.querySelector('[data-testid="photo-overlap-warnings"]'),
     ).toBeNull();
   });
 });

@@ -10,6 +10,7 @@ import {
   Copy,
   GridNine,
   HammerIcon,
+  Intersect,
   Magnet,
   Scissors,
   TrashIcon,
@@ -83,6 +84,8 @@ type Props = {
   setShowGrid: React.Dispatch<React.SetStateAction<boolean>>;
   showAlignmentGuides: boolean;
   setShowAlignmentGuides: React.Dispatch<React.SetStateAction<boolean>>;
+  showPhotoOverlapWarning: boolean;
+  setShowPhotoOverlapWarning: React.Dispatch<React.SetStateAction<boolean>>;
   alignmentGuides: AlignmentGuide[] | null;
   setActiveAlignmentGuides: (guides: AlignmentGuide[] | null) => void;
   featureVisibility: FeatureVisibilityFlags;
@@ -163,6 +166,8 @@ const LayoutEditorView = React.memo(
     setShowGrid,
     showAlignmentGuides,
     setShowAlignmentGuides,
+    showPhotoOverlapWarning,
+    setShowPhotoOverlapWarning,
     alignmentGuides,
     setActiveAlignmentGuides,
     featureVisibility,
@@ -728,6 +733,13 @@ const LayoutEditorView = React.memo(
       [setShowAlignmentGuides],
     );
 
+    const handleTogglePhotoOverlapWarning = React.useCallback(
+      (checked: boolean) => {
+        setShowPhotoOverlapWarning(() => checked);
+      },
+      [setShowPhotoOverlapWarning],
+    );
+
     const layoutSettingsGroups = React.useMemo(
       () => [
         {
@@ -760,6 +772,16 @@ const LayoutEditorView = React.memo(
                   checked: showAlignmentGuides,
                   onChange: handleToggleAlignmentGuides,
                 },
+                {
+                  id: 'photo-overlap-warning',
+                  label: t(
+                    'editor.photoOverlapWarning',
+                    'Foto-Kollisionen anzeigen',
+                  ),
+                  icon: <Intersect size={18} />,
+                  checked: showPhotoOverlapWarning,
+                  onChange: handleTogglePhotoOverlapWarning,
+                },
               ],
             },
           ],
@@ -780,9 +802,11 @@ const LayoutEditorView = React.memo(
         featureVisibility,
         setFeatureVisible,
         handleToggleAlignmentGuides,
+        handleTogglePhotoOverlapWarning,
         handleToggleShowGrid,
         handleToggleSnapToGrid,
         showAlignmentGuides,
+        showPhotoOverlapWarning,
         showGrid,
         snapToGrid,
         t,
@@ -864,6 +888,7 @@ const LayoutEditorView = React.memo(
       templateDragPreview,
       featureDragPreview,
       alignmentGuides,
+      showPhotoOverlapWarning,
       onPointerMove: handleSvgPointerMove,
       onPointerUp: handleSvgPointerUp,
       onPointerDown: handleSvgPointerDown,
@@ -967,10 +992,14 @@ const LayoutEditorView = React.memo(
       prevProps.snapToGrid === nextProps.snapToGrid &&
       prevProps.showGrid === nextProps.showGrid &&
       prevProps.showAlignmentGuides === nextProps.showAlignmentGuides &&
+      prevProps.showPhotoOverlapWarning === nextProps.showPhotoOverlapWarning &&
       prevProps.alignmentGuides === nextProps.alignmentGuides &&
       prevProps.featureVisibility === nextProps.featureVisibility &&
       prevProps.historyLength === nextProps.historyLength &&
       prevProps.studentsCount === nextProps.studentsCount &&
+      // Photo uploads swap the students array; the collision warning gate
+      // depends on it.
+      prevProps.students === nextProps.students &&
       prevProps.seatCount === nextProps.seatCount &&
       prevProps.selectedTemplateId === nextProps.selectedTemplateId &&
       prevProps.canvasWidth === nextProps.canvasWidth &&
@@ -980,6 +1009,8 @@ const LayoutEditorView = React.memo(
       prevProps.setSnapToGrid === nextProps.setSnapToGrid &&
       prevProps.setShowGrid === nextProps.setShowGrid &&
       prevProps.setShowAlignmentGuides === nextProps.setShowAlignmentGuides &&
+      prevProps.setShowPhotoOverlapWarning ===
+        nextProps.setShowPhotoOverlapWarning &&
       prevProps.setActiveAlignmentGuides ===
         nextProps.setActiveAlignmentGuides &&
       prevProps.setFeatureVisible === nextProps.setFeatureVisible &&

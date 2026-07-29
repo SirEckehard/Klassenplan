@@ -167,6 +167,8 @@ export function useSeatingPlanViewLogic({
   ); // Toggle to show grid lines
   const [showAlignmentGuides, setShowAlignmentGuides] =
     usePersistentState<boolean>(LOCAL_STORAGE_KEYS.alignmentGuides, true); // Toggle Keynote-style alignment guides
+  const [showPhotoOverlapWarning, setShowPhotoOverlapWarning] =
+    usePersistentState<boolean>(LOCAL_STORAGE_KEYS.photoOverlapWarning, true); // Warn where photo avatars would collide
   // Guides of the drag currently in progress; null while nothing is dragged.
   const [activeAlignmentGuides, setActiveAlignmentGuides] = React.useState<
     AlignmentGuide[] | null
@@ -462,6 +464,8 @@ export function useSeatingPlanViewLogic({
         setShowGrid={setShowGrid}
         showAlignmentGuides={showAlignmentGuides}
         setShowAlignmentGuides={setShowAlignmentGuides}
+        showPhotoOverlapWarning={showPhotoOverlapWarning}
+        setShowPhotoOverlapWarning={setShowPhotoOverlapWarning}
         alignmentGuides={activeAlignmentGuides}
         setActiveAlignmentGuides={setActiveAlignmentGuides}
         featureVisibility={featureVisibility}
