@@ -99,6 +99,11 @@ describe('NameGame', () => {
       await screen.findByRole('button', { name: /Foto-Quiz|Photo Quiz/i }),
     ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Memory/i })).toBeInTheDocument();
+    // Logo link sits top-left, the back button moved into the bottom bar
+    expect(screen.getByRole('link')).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /^(Zurück|Back)$/i }),
+    ).toBeInTheDocument();
     // Students without photos are excluded from the playable count.
     expect(
       screen.getByText(/4 Schüler mit Foto|4 students with a photo/i),

@@ -4,6 +4,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeftIcon, CameraIcon } from '@phosphor-icons/react';
 import Seo from '@/components/Seo';
+import { KpLockup } from '@/components/KpLockup';
+import { LocalizedLink } from '@/components/LocalizedLink';
 import { usePageSeo } from '@/hooks/usePageSeo';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';
@@ -134,25 +136,14 @@ export default function NameGame() {
       {/* Minimal toolbar */}
       <div className="flex items-center gap-3 px-4 py-3">
         <div className="flex flex-1 justify-start">
-          <button
-            type="button"
-            // Inside a game the back button returns to the mode select first;
-            // only the menu leaves the page (Alt+← always exits).
-            onClick={() =>
-              screen === 'menu' ? navigate('/generator') : setScreen('menu')
-            }
-            className={`${neutralButtonClass} h-10 gap-2 px-4`}
-            title={
-              screen === 'menu'
-                ? t('nameGame.backTitle', 'Zurück zum Generator (Alt + ←)')
-                : t('nameGame.backToMenuTitle', 'Zurück zum Spielmenü')
-            }
-          >
-            <ArrowLeftIcon size={20} aria-hidden />
-            <span className="text-sm font-semibold">
-              {t('nameGame.back', 'Zurück')}
-            </span>
-          </button>
+          <div className="flex items-center shrink-0">
+            <LocalizedLink
+              to="/"
+              className="kp-lockup focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
+            >
+              <KpLockup size="sm" hideWordmarkOnMobile />
+            </LocalizedLink>
+          </div>
         </div>
 
         <h1 className="text-lg font-bold text-gray-900 dark:text-white">
@@ -269,6 +260,29 @@ export default function NameGame() {
             onExitToMenu={() => setScreen('menu')}
           />
         )}
+      </div>
+
+      {/* Bottom bar mirrors the presentation mode: back button pinned left. */}
+      <div className="flex items-center px-4 py-4">
+        <button
+          type="button"
+          // Inside a game the back button returns to the mode select first;
+          // only the menu leaves the page (Alt+← always exits).
+          onClick={() =>
+            screen === 'menu' ? navigate('/generator') : setScreen('menu')
+          }
+          className={`${neutralButtonClass} h-10 shrink-0 gap-2 px-4`}
+          title={
+            screen === 'menu'
+              ? t('nameGame.backTitle', 'Zurück zum Generator (Alt + ←)')
+              : t('nameGame.backToMenuTitle', 'Zurück zum Spielmenü')
+          }
+        >
+          <ArrowLeftIcon size={20} aria-hidden />
+          <span className="text-sm font-semibold">
+            {t('nameGame.back', 'Zurück')}
+          </span>
+        </button>
       </div>
     </div>
   );
