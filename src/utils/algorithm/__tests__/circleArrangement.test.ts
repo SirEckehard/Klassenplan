@@ -3,10 +3,7 @@
 import { describe, it, expect } from 'vitest';
 import { generateCircleLayout } from '../circleArrangement';
 import type { Student, ClassroomScene } from '../../../types';
-import type {
-  CircleGenerationOptions,
-  CircleStudentPosition,
-} from '../../../types/Circle';
+import type { CircleStudentPosition } from '../../../types/Circle';
 
 describe('circleArrangement', () => {
   const mockStudents: Student[] = [
@@ -113,15 +110,8 @@ describe('circleArrangement', () => {
       expect(layout.radius.vertical).toBeGreaterThan(0);
     });
 
-    it('respects different arrangement modes', () => {
-      const options: Partial<CircleGenerationOptions> = {
-        mode: 'preserve-neighbors',
-      };
-      const layout = generateCircleLayout(
-        mockStudents,
-        mockClassroomScene,
-        options,
-      );
+    it('always records the neighbourhood-preserving arrangement', () => {
+      const layout = generateCircleLayout(mockStudents, mockClassroomScene);
 
       expect(layout.mode).toBe('preserve-neighbors');
       expect(layout.students).toHaveLength(mockStudents.length);

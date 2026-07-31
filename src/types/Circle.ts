@@ -3,11 +3,6 @@
 import type { Student, SeatingArrangement } from './base';
 
 /**
- * Available circle arrangement algorithms
- */
-export type CircleArrangementMode = 'preserve-neighbors'; // Only neighborhood preservation mode
-
-/**
  * Individual student position in the circle
  */
 export type CircleStudentPosition = {
@@ -50,19 +45,17 @@ export type CircleLayout = {
   newNeighborhoods: number; // Count of neighborhoods created in the circle layout
   preservationRate: number; // Preservation rate between 0-1
 
-  // Configuration used
-  mode: CircleArrangementMode;
+  /**
+   * Arrangement that produced this layout. There has only ever been one, but
+   * the field stays in the persisted shape: backups written by older versions
+   * carry it and `backupValidation` requires it, so dropping it would break
+   * import/export compatibility in both directions.
+   */
+  mode: 'preserve-neighbors';
   timestamp: number;
 
   // Detailed neighborhood analysis
   neighborhoodPairs: NeighborhoodPair[];
-};
-
-/**
- * Configuration for circle generation algorithms
- */
-export type CircleGenerationOptions = {
-  mode: CircleArrangementMode;
 };
 
 /**

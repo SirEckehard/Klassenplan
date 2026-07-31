@@ -16,7 +16,6 @@ import type {
   SavedPlan,
 } from '../../../types';
 import type {
-  CircleGenerationOptions,
   CircleLayout,
   CircleStudentPosition,
 } from '../../../types/Circle';
@@ -148,16 +147,11 @@ describe('CircleSeatingAlgorithm', () => {
 
   describe('Layout Generation Strategies', () => {
     it('should generate neighborhood-preserving layout', () => {
-      const options: Partial<CircleGenerationOptions> = {
-        mode: 'preserve-neighbors',
-      };
-
       const layout: CircleLayout = generateOptimizedCircleLayout(
         students,
         scene,
         mixSettings,
         seatingHistory,
-        options,
       );
 
       expect(layout.students).toHaveLength(students.length);
@@ -167,16 +161,11 @@ describe('CircleSeatingAlgorithm', () => {
     });
 
     it('should handle wish partner relationships', () => {
-      const options: Partial<CircleGenerationOptions> = {
-        mode: 'preserve-neighbors',
-      };
-
       const layout: CircleLayout = generateOptimizedCircleLayout(
         students,
         scene,
         mixSettings,
         seatingHistory,
-        options,
       );
 
       expect(layout.students).toHaveLength(students.length);
@@ -195,16 +184,11 @@ describe('CircleSeatingAlgorithm', () => {
     });
 
     it('should handle special needs students', () => {
-      const options: Partial<CircleGenerationOptions> = {
-        mode: 'preserve-neighbors',
-      };
-
       const layout: CircleLayout = generateOptimizedCircleLayout(
         students,
         scene,
         mixSettings,
         seatingHistory,
-        options,
       );
 
       expect(layout.students).toHaveLength(students.length);
@@ -223,16 +207,11 @@ describe('CircleSeatingAlgorithm', () => {
     });
 
     it('should include all genders in layout', () => {
-      const options: Partial<CircleGenerationOptions> = {
-        mode: 'preserve-neighbors',
-      };
-
       const layout: CircleLayout = generateOptimizedCircleLayout(
         students,
         scene,
         mixSettings,
         seatingHistory,
-        options,
       );
 
       expect(layout.students).toHaveLength(students.length);
@@ -267,23 +246,17 @@ describe('CircleSeatingAlgorithm', () => {
     });
 
     it('should generate consistent layouts', () => {
-      const options: Partial<CircleGenerationOptions> = {
-        mode: 'preserve-neighbors',
-      };
-
       const layout1: CircleLayout = generateOptimizedCircleLayout(
         students,
         scene,
         mixSettings,
         seatingHistory,
-        options,
       );
       const layout2: CircleLayout = generateOptimizedCircleLayout(
         students,
         scene,
         mixSettings,
         seatingHistory,
-        options,
       );
 
       expect(layout1.students).toHaveLength(students.length);
@@ -296,16 +269,11 @@ describe('CircleSeatingAlgorithm', () => {
 
   describe('Constraint Satisfaction', () => {
     it('should avoid placing restless students together', () => {
-      const options: Partial<CircleGenerationOptions> = {
-        mode: 'preserve-neighbors',
-      };
-
       const layout: CircleLayout = generateOptimizedCircleLayout(
         students,
         scene,
         mixSettings,
         seatingHistory,
-        options,
       );
 
       // Find restless students
@@ -348,9 +316,6 @@ describe('CircleSeatingAlgorithm', () => {
         scene,
         mixSettings,
         seatingHistory,
-        {
-          mode: 'preserve-neighbors',
-        },
       );
 
       const evePosition = layout.students.find(

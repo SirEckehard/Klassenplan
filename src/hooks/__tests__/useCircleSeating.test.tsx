@@ -9,11 +9,7 @@ import {
   createMockSeatingArrangement,
 } from '../../__tests__/utils/testHelpers';
 import type { CircleStateRequirements } from '../circle/useCircleStateAdapter';
-import type {
-  CircleLayout,
-  CircleGenerationOptions,
-  CircleStudentPosition,
-} from '../../types/Circle';
+import type { CircleLayout, CircleStudentPosition } from '../../types/Circle';
 import * as utils from '../../utils';
 import { neutralSettings, normalizeMixSettings } from '../../utils';
 import { showToast, TOAST_MESSAGES } from '../../utils/ui/toast';
@@ -174,14 +170,8 @@ describe('useCircleSeating', () => {
     it('should generate circle seating with custom options', async () => {
       const { result } = renderHook(() => useCircleSeating(mockState));
 
-      const options = {
-        mode: 'preserve-neighbors',
-        wishPartnerWeight: 1.0,
-        genderMixingWeight: 0.3,
-      } as unknown as Partial<CircleGenerationOptions>;
-
       await act(async () => {
-        await result.current.generateCircleSeating(options);
+        await result.current.generateCircleSeating();
       });
 
       expect(result.current.circleLayout).not.toBeNull();
@@ -236,9 +226,7 @@ describe('useCircleSeating', () => {
       const { result } = renderHook(() => useCircleSeating(mockState));
 
       await act(async () => {
-        await result.current.generateCircleSeating({
-          mode: 'preserve-neighbors',
-        });
+        await result.current.generateCircleSeating();
       });
 
       expect(result.current.circleLayout).not.toBeNull();
@@ -249,9 +237,7 @@ describe('useCircleSeating', () => {
       const { result } = renderHook(() => useCircleSeating(mockState));
 
       await act(async () => {
-        await result.current.generateCircleSeating({
-          mode: 'preserve-neighbors',
-        });
+        await result.current.generateCircleSeating();
       });
 
       expect(result.current.circleLayout).not.toBeNull();
@@ -296,16 +282,14 @@ describe('useCircleSeating', () => {
 
       // Generate initial layout
       await act(async () => {
-        await result.current.generateCircleSeating({
-          mode: 'preserve-neighbors',
-        });
+        await result.current.generateCircleSeating();
       });
 
       const firstLayout = result.current.circleLayout;
 
       // Regenerate with different options
       await act(async () => {
-        await result.current.regenerateCircle({ mode: 'preserve-neighbors' });
+        await result.current.regenerateCircle();
       });
 
       const secondLayout = result.current.circleLayout;
@@ -577,13 +561,11 @@ describe('useCircleSeating', () => {
 
       // Multiple operations should work correctly
       await act(async () => {
-        await result.current.generateCircleSeating({
-          mode: 'preserve-neighbors',
-        });
+        await result.current.generateCircleSeating();
       });
 
       await act(async () => {
-        await result.current.regenerateCircle({ mode: 'preserve-neighbors' });
+        await result.current.regenerateCircle();
       });
 
       act(() => {

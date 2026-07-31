@@ -337,5 +337,69 @@
     "clearAllMessage": "Do you really want to remove all students from {{className}}? This action cannot be undone.",
     "yourClass": "your class",
     "placeholdersCreated": "{{count}} student placeholders created. Now fill in the names and details."
+  },
+  "listToolbar": {
+    "searchLabel": "Search students",
+    "searchPlaceholder": "Search name…",
+    "filterLabel": "Filter by marker",
+    "filters": {
+      "all": "All students",
+      "restless": "Restless only",
+      "shy": "Shy only",
+      "concentrationIssues": "Easily distracted only",
+      "needsFrontSeat": "Front seat only",
+      "performanceStrong": "High performers only",
+      "performanceWeak": "Needs support only",
+      "missingName": "Missing name only",
+      "withoutPhoto": "Without photo only"
+    },
+    "sortLabel": "Sorting",
+    "sort": {
+      "manual": "Own order",
+      "nameAsc": "Name A–Z",
+      "nameDesc": "Name Z–A"
+    },
+    "selectAll": "Select all",
+    "countNarrowed": "{{visible}} of {{total}}",
+    "clear": "Reset search and filter",
+    "noMatches": "No students match the search and filter.",
+    "selectStudent": "Select {{name}}"
+  },
+  "bulkEdit": {
+    "regionLabel": "Bulk editing",
+    "selectedCount_one": "{{count}} selected",
+    "selectedCount_other": "{{count}} selected",
+    "setGender": "Set gender",
+    "setHeight": "Set height",
+    "setLanguage": "Set language level",
+    "setRole": "Set social role",
+    "setFlag": "Set marker",
+    "flagState": {
+      "on": "on for all",
+      "off": "off for all",
+      "mixed": "mixed"
+    },
+    "flagSetHint": "Click to set it for everyone selected",
+    "flagClearHint": "Click to clear it for everyone selected",
+    "clearValue": "— clear —",
+    "flags": {
+      "performanceStrong": "High performer",
+      "performanceWeak": "Needs support",
+      "needsFrontSeat": "Front seat",
+      "restless": "Restless",
+      "shy": "Shy",
+      "concentrationIssues": "Easily distracted",
+      "prefersWindow": "Window seat",
+      "prefersDoor": "Door seat"
+    },
+    "deleteSelected": "Remove",
+    "clearSelection": "Clear selection",
+    "applied_one": "{{count}} student updated.",
+    "applied_other": "{{count}} students updated.",
+    "deleteTitle": "Remove selected students",
+    "deleteMessage_one": "Do you really want to remove {{count}} selected student? This action cannot be undone.",
+    "deleteMessage_other": "Do you really want to remove {{count}} selected students? This action cannot be undone.",
+    "deleted_one": "{{count}} student removed.",
+    "deleted_other": "{{count}} students removed."
   }
 }

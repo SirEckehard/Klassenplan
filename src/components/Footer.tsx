@@ -15,13 +15,15 @@ import {
   DownloadIcon,
   UploadIcon,
   ClockCounterClockwiseIcon,
+  DeviceMobileIcon,
 } from '@phosphor-icons/react';
 import { useTranslation } from 'react-i18next';
 import AppearanceControls from '@/components/ui/navigation/AppearanceControls';
+import { useInstallPrompt } from '@/hooks/useInstallPrompt';
 import { LocalizedLink } from './LocalizedLink';
 import { useSeatingPlanActions } from '@/contexts/SeatingPlanContext';
 import { showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
-import { menuSurfaceClass } from '@/utils';
+import { logError, menuSurfaceClass } from '@/utils';
 import ConfirmDialog from '@/components/ui/modals/ConfirmDialog';
 import StorageHistoryModal from '@/components/ui/navigation/StorageHistoryModal';
 import { GITHUB_REPO_URL } from '@/config/links';
@@ -35,6 +37,9 @@ const Footer: React.FC = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [historyModalOpen, setHistoryModalOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  // Dismissing the install toast is permanent; this menu entry stays as the
+  // way back in for as long as the browser reports the app as installable.
+  const { isInstallable, triggerInstall } = useInstallPrompt();
 
   useEffect(() => {
     if (!menuOpen) {
@@ -82,6 +87,13 @@ const Footer: React.FC = () => {
   const handleImportBackup = () => {
     setMenuOpen(false);
     triggerImport();
+  };
+
+  const handleInstallApp = () => {
+    setMenuOpen(false);
+    triggerInstall().catch((error: unknown) => {
+      logError('PWA install prompt failed', { error }, 'Footer');
+    });
   };
 
   const linkClass =
@@ -243,6 +255,20 @@ const Footer: React.FC = () => {
                 <UploadIcon className="h-4 w-4 text-blue-600" />
                 {t('generator:storage.importBackup')}
               </button>
+              {isInstallable && (
+                <>
+                  <div className="my-1 h-px bg-gray-200 dark:bg-gray-700" />
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={handleInstallApp}
+                    className={storageMenuItemClass}
+                  >
+                    <DeviceMobileIcon className="h-4 w-4 text-blue-600" />
+                    {t('pwa.install')}
+                  </button>
+                </>
+              )}
               <div className="my-1 h-px bg-gray-200 dark:bg-gray-700" />
               <button
                 type="button"

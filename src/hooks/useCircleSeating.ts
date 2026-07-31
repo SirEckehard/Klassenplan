@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useRef } from 'react';
 import type {
   CircleLayout,
-  CircleGenerationOptions,
   CircleStudentPosition,
   NeighborhoodAnalysis,
   CircleGenerationStatus,
@@ -28,6 +27,7 @@ import {
 } from '@/services/circleLayoutService';
 import { useLayoutStore } from '@/stores/layoutStore';
 import {
+  CIRCLE_ARRANGEMENT_MODE,
   calculateCircleDimensions,
   distributeStudentsInCircle,
   calculateCircleNeighbors,
@@ -47,12 +47,8 @@ import {
 interface CircleSeatingHook {
   circleLayout: CircleLayout | null;
   setCircleLayout: React.Dispatch<React.SetStateAction<CircleLayout | null>>;
-  generateCircleSeating: (
-    options?: Partial<CircleGenerationOptions>,
-  ) => Promise<CircleLayout | null>;
-  regenerateCircle: (
-    options?: Partial<CircleGenerationOptions>,
-  ) => Promise<CircleLayout | null>;
+  generateCircleSeating: () => Promise<CircleLayout | null>;
+  regenerateCircle: () => Promise<CircleLayout | null>;
   updateStudentPosition: (studentId: string, newAngle: number) => void;
   swapStudentPositions: (studentId: string, targetPosition: number) => void;
   batchSwapStudentPositions: (
@@ -281,98 +277,77 @@ function useCircleSeatingInternal(
     });
   }, [circleLayout, setCircleLayout, state.students]);
 
-  const generateCircleSeating = useCallback(
-    async (options: Partial<CircleGenerationOptions> = {}) => {
-      if (generationAbortRef.current) {
-        generationAbortRef.current.abort();
-      }
+  const generateCircleSeating = useCallback(async () => {
+    if (generationAbortRef.current) {
+      generationAbortRef.current.abort();
+    }
 
-      const startedAt = Date.now();
-      const abortController = new AbortController();
-      generationAbortRef.current = abortController;
-      setCircleGenerationInProgress(true);
-      updateGenerationStatus(
+    const startedAt = Date.now();
+    const abortController = new AbortController();
+    generationAbortRef.current = abortController;
+    setCircleGenerationInProgress(true);
+    updateGenerationStatus(
+      {
+        progress: 0,
+        stage: 'initializing',
+        message: i18n.t('generator:circleStatus.preparing'),
+      },
+      startedAt,
+    );
+
+    try {
+      // There is one arrangement (neighbourhood-preserving); the plain
+      // `circle:generate` path stays available to the worker API but is not
+      // reachable from the UI.
+      const { layout } = await algorithmWorkerClient.callOperation(
+        'circle:optimized',
         {
-          progress: 0,
-          stage: 'initializing',
-          message: i18n.t('generator:circleStatus.preparing'),
+          students: state.students,
+          classroomScene: state.classroomScene,
+          mixSettings: state.mixSettings,
+          seatingHistory: state.seatingHistory,
+          currentSeating,
         },
-        startedAt,
+        {
+          signal: abortController.signal,
+          onProgress: (payload) => updateGenerationStatus(payload, startedAt),
+        },
       );
 
-      try {
-        const useOptimized =
-          options.mode === 'preserve-neighbors' || !options.mode;
-
-        const { layout } = await (useOptimized
-          ? algorithmWorkerClient.callOperation(
-              'circle:optimized',
-              {
-                students: state.students,
-                classroomScene: state.classroomScene,
-                mixSettings: state.mixSettings,
-                seatingHistory: state.seatingHistory,
-                options,
-                currentSeating,
-              },
-              {
-                signal: abortController.signal,
-                onProgress: (payload) =>
-                  updateGenerationStatus(payload, startedAt),
-              },
-            )
-          : algorithmWorkerClient.callOperation(
-              'circle:generate',
-              {
-                students: state.students,
-                classroomScene: state.classroomScene,
-                options,
-                currentSeating,
-              },
-              {
-                signal: abortController.signal,
-                onProgress: (payload) =>
-                  updateGenerationStatus(payload, startedAt),
-              },
-            ));
-
-        setCircleLayout(layout);
-        return layout;
-      } catch (error) {
-        if (error instanceof DOMException && error.name === 'AbortError') {
-          return null;
-        }
-        logError(
-          'Circle seating generation failed',
-          { error, options },
-          'useCircleSeating',
-        );
-        showToast('error', TOAST_MESSAGES.GENERATION_ERROR);
+      setCircleLayout(layout);
+      return layout;
+    } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError') {
         return null;
-      } finally {
-        if (generationAbortRef.current === abortController) {
-          generationAbortRef.current = null;
-        }
-        setCircleGenerationInProgress(false);
-        setCircleGenerationStatus(null);
       }
-    },
-    [
-      currentSeating,
-      setCircleGenerationInProgress,
-      setCircleGenerationStatus,
-      setCircleLayout,
-      state.classroomScene,
-      state.mixSettings,
-      state.seatingHistory,
-      state.students,
-      updateGenerationStatus,
-    ],
-  );
+      logError(
+        'Circle seating generation failed',
+        { error },
+        'useCircleSeating',
+      );
+      showToast('error', TOAST_MESSAGES.GENERATION_ERROR);
+      return null;
+    } finally {
+      if (generationAbortRef.current === abortController) {
+        generationAbortRef.current = null;
+      }
+      setCircleGenerationInProgress(false);
+      setCircleGenerationStatus(null);
+    }
+  }, [
+    currentSeating,
+    setCircleGenerationInProgress,
+    setCircleGenerationStatus,
+    setCircleLayout,
+    state.classroomScene,
+    state.mixSettings,
+    state.seatingHistory,
+    state.students,
+    updateGenerationStatus,
+  ]);
 
   const regenerateCircle = useCallback(
-    (options: Partial<CircleGenerationOptions> = {}) =>
-      generateCircleSeating(options),
+    () => generateCircleSeating(),
     [generateCircleSeating],
   );
 
@@ -444,7 +419,7 @@ function useCircleSeatingInternal(
         : null);
 
     if (!arrangement) {
-      return generateCircleSeating({ mode: 'preserve-neighbors' });
+      return generateCircleSeating();
     }
 
     const { orderedStudents, startAngle } = getOrderedStudentsFromSeating(
@@ -453,7 +428,7 @@ function useCircleSeatingInternal(
     );
 
     if (!orderedStudents.length) {
-      return generateCircleSeating({ mode: 'preserve-neighbors' });
+      return generateCircleSeating();
     }
 
     const orderedList = [...orderedStudents];
@@ -523,7 +498,7 @@ function useCircleSeatingInternal(
           neighborhoodAnalysis.neighborhoodPairs.length,
         newNeighborhoods: newNeighborhoods.length,
         preservationRate,
-        mode: 'preserve-neighbors',
+        mode: CIRCLE_ARRANGEMENT_MODE,
         timestamp: Date.now(),
         neighborhoodPairs: updatedAnalysis.neighborhoodPairs,
       };

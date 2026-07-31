@@ -1,9 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import type {
-  CircleStudentPosition,
-  CircleGenerationOptions,
-} from '@/types/Circle';
+import type { CircleStudentPosition, CircleLayout } from '@/types/Circle';
 import type { Student } from '@/types';
 import { calculateSeatPosition } from '@/utils/math/positionCalculations';
 
@@ -17,11 +14,11 @@ export const CLASSROOM_BOUNDS = {
 };
 
 /**
- * Default circle generation settings
+ * The one arrangement the circle generator implements: keep table neighbours
+ * next to each other. Written into every layout for backup compatibility.
  */
-export const DEFAULT_CIRCLE_OPTIONS: CircleGenerationOptions = {
-  mode: 'preserve-neighbors',
-};
+export const CIRCLE_ARRANGEMENT_MODE: CircleLayout['mode'] =
+  'preserve-neighbors';
 
 /**
  * Calculates optimal circle dimensions for given number of students

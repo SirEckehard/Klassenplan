@@ -9,7 +9,7 @@ import type {
   SeatingArrangement,
   Student,
 } from '@/types';
-import type { CircleGenerationOptions, CircleLayout } from '@/types/Circle';
+import type { CircleLayout } from '@/types/Circle';
 
 export type AlgorithmWorkerOperation =
   | 'mix:generate'
@@ -67,7 +67,6 @@ export type AlgorithmWorkerRequestMap = {
     payload: {
       students: Student[];
       classroomScene: ClassroomScene;
-      options?: Partial<CircleGenerationOptions>;
       currentSeating?: SeatingArrangement;
     };
     result: {
@@ -80,7 +79,6 @@ export type AlgorithmWorkerRequestMap = {
       classroomScene: ClassroomScene;
       mixSettings: Partial<MixSettings>;
       seatingHistory: SavedPlan[];
-      options?: Partial<CircleGenerationOptions>;
       currentSeating?: SeatingArrangement;
     };
     result: {

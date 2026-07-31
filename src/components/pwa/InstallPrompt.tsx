@@ -2,7 +2,11 @@
 // Copyright (C) 2026 Eike Schäfer
 import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useInstallPrompt } from '@/hooks/useInstallPrompt';
+import {
+  useInstallPrompt,
+  isInstallPromptDismissed,
+  dismissInstallPrompt,
+} from '@/hooks/useInstallPrompt';
 import { showToast } from '@/utils/ui/toast';
 import { logInfo } from '@/utils';
 
@@ -15,10 +19,9 @@ export default function InstallPrompt() {
   const hasShown = React.useRef(false);
 
   useEffect(() => {
-    // CheckIcon if user previously dismissed the prompt completely
-    const isDismissed = localStorage.getItem('pwa-install-dismissed');
-
-    if (isInstallable && !isDismissed && !hasShown.current) {
+    // The toast is offered once. After a dismissal the footer settings menu
+    // stays as the way back in, so nothing becomes unreachable.
+    if (isInstallable && !isInstallPromptDismissed() && !hasShown.current) {
       logInfo('Showing install prompt toast', {}, 'PWA');
       hasShown.current = true;
 
@@ -30,8 +33,8 @@ export default function InstallPrompt() {
           onClick: triggerInstall,
         },
         onDismiss: () => {
-          logInfo('User dismissed install prompt permanently', {}, 'PWA');
-          localStorage.setItem('pwa-install-dismissed', 'true');
+          logInfo('User dismissed the install toast', {}, 'PWA');
+          dismissInstallPrompt();
         },
       });
     }

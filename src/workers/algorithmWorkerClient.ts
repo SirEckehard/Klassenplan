@@ -462,12 +462,11 @@ class AlgorithmWorkerClient {
       case 'circle:generate': {
         const { generateCircleLayout } =
           await import('@/utils/algorithm/circleArrangement');
-        const { students, classroomScene, options, currentSeating } =
+        const { students, classroomScene, currentSeating } =
           payload as AlgorithmWorkerRequestMap['circle:generate']['payload'];
         const layout = generateCircleLayout(
           students,
           classroomScene,
-          options ?? {},
           currentSeating ?? undefined,
         );
         return { layout } as WorkerResult<T>;
@@ -480,7 +479,6 @@ class AlgorithmWorkerClient {
           classroomScene,
           mixSettings,
           seatingHistory,
-          options,
           currentSeating,
         } = payload as AlgorithmWorkerRequestMap['circle:optimized']['payload'];
         const layout = generateOptimizedCircleLayout(
@@ -488,7 +486,6 @@ class AlgorithmWorkerClient {
           classroomScene,
           mixSettings,
           seatingHistory,
-          options ?? {},
           currentSeating ?? undefined,
         );
         return { layout } as WorkerResult<T>;

@@ -9,6 +9,7 @@ import ScrollToTop from '@/components/ScrollToTop';
 import PageSkeleton from '@/components/ui/feedback/PageSkeleton';
 import ReloadPrompt from '@/components/pwa/ReloadPrompt';
 import InstallPrompt from '@/components/pwa/InstallPrompt';
+import OfflineIndicator from '@/components/ui/feedback/OfflineIndicator';
 import DownloadConfirmationHost from '@/components/ui/modals/DownloadConfirmationHost';
 import { preloadLikelyRoutes } from '@/utils/performance/routePreloader';
 import { lazyWithRetry } from '@/utils/performance/lazyWithRetry';
@@ -141,6 +142,7 @@ export default function App() {
       <ScrollToTop />
       <ReloadPrompt />
       <InstallPrompt />
+      <OfflineIndicator />
       <DownloadConfirmationHost />
       <Suspense fallback={<PageSkeleton />}>
         <Routes>

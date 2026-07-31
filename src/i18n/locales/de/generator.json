@@ -39,7 +39,8 @@
       "item1": "Passe den Namen deines Sitzplans an.",
       "item2": "Wechsel zwischen Hochformat und Querformat für den PDF-Export.",
       "item3": "Wähle zwischen den verschiedenen Ansichtsoptionen: Tafel, Bedürfnisse und Namen vollständig anzeigen.",
-      "item4": "Wechsle die Vorschau zwischen Sitzplan und Sitzkreis oben rechts."
+      "item4": "Wechsle die Vorschau zwischen Sitzplan und Sitzkreis oben rechts.",
+      "item5": "Neben PDF und Druck kannst du die Ansicht auch als PNG-Bild oder SVG-Vektorgrafik speichern – praktisch für Elternbriefe oder das Schulportal."
     },
     "present": {
       "title": "Präsentiermodus",
@@ -47,7 +48,9 @@
       "item2": "Die Schüleransicht zeigt den Plan aus Sicht der Klasse – ohne Merkmale und Fotos.",
       "item3": "Blende über die Leiste unten Merkmale, Fotos, Farben und Raumelemente ein oder aus.",
       "item4": "Zoome per Regler oder Mausrad und verschiebe die Ansicht durch Ziehen; das Zentrieren-Symbol setzt die Ansicht zurück.",
-      "item5": "Mit Alt + ← kehrst du zum Generator zurück."
+      "item5": "Mit Alt + ← kehrst du zum Generator zurück.",
+      "item6": "„Wer kommt dran?\" zieht einen zufälligen Schüler und hebt seinen Platz hervor – jeder kommt einmal dran, bevor sich jemand wiederholt.",
+      "item7": "Tastatur: F Vollbild, Leertaste zieht einen Schüler, Esc setzt die Auswahl zurück, + / − zoomen, 0 zentriert."
     }
   },
   "sidebar": {
@@ -119,7 +122,15 @@
     "resetView": "Ansicht zentrieren und zurücksetzen",
     "back": "Zurück",
     "backTitle": "Zurück zum Generator (Alt + ←)",
-    "empty": "Noch kein Sitzplan zum Präsentieren."
+    "empty": "Noch kein Sitzplan zum Präsentieren.",
+    "pick": "Wer kommt dran?",
+    "pickTitle": "Zufälligen Schüler auswählen – jeder kommt einmal dran (Leertaste)",
+    "pickRemaining_one": "noch {{count}} übrig",
+    "pickRemaining_other": "noch {{count}} übrig",
+    "pickReset": "Auswahl zurücksetzen (Esc)",
+    "fullscreen": "Vollbild",
+    "fullscreenTitle": "Vollbild starten (F)",
+    "fullscreenExitTitle": "Vollbild beenden (F)"
   },
   "mode": {
     "table": "Sitzplan",
@@ -147,12 +158,12 @@
     "photoModeDescription": "Schülerfotos an den Plätzen anzeigen (An / Hover / Aus).",
     "generatingTitle": "Sitzkreis wird generiert...",
     "generatingHint": "Der Sitzkreis wird automatisch basierend auf dem Tischplan erstellt.",
-    "connectionDescription": "Nachbarschaftsverbindungen zwischen Schülern.",
     "syncDescription": "Sitzkreis an Änderungen im Sitzplan anpassen.",
     "shuffleDescription": "Nur Sitzkreis ändern (Sitzplan bleibt unverändert).",
     "canvasLabel_one": "Sitzkreis mit {{count}} Schüler",
     "canvasLabel_other": "Sitzkreis mit {{count}} Schülern",
-    "orderLabel": "Sitzreihenfolge im Sitzkreis"
+    "orderLabel": "Sitzreihenfolge im Sitzkreis",
+    "connectionsTitle": "Verbindungen"
   },
   "seat": {
     "lockSeat": "Sitzplatz sperren",
@@ -441,9 +452,16 @@
       "printPopupBlocked": "Das Druckfenster wurde blockiert. Bitte erlaube Pop-ups für diese Seite.",
       "tablePdfFailed": "Sitzplan PDF-Export fehlgeschlagen. Bitte versuchen Sie es erneut.",
       "circlePdfFailed": "Sitzkreis PDF-Export fehlgeschlagen. Bitte versuchen Sie es erneut.",
-      "circleGenerationFailed": "Sitzkreis konnte nicht erstellt werden."
+      "circleGenerationFailed": "Sitzkreis konnte nicht erstellt werden.",
+      "imagePreviewUnavailable": "Die Vorschau ist noch nicht bereit. Bitte warte einen Moment und versuche es erneut.",
+      "pngFailed": "PNG-Export fehlgeschlagen. Bitte versuche es erneut.",
+      "svgFailed": "SVG-Export fehlgeschlagen. Bitte versuche es erneut."
     },
-    "empty": "Noch kein Sitzplan zum Exportieren."
+    "empty": "Noch kein Sitzplan zum Exportieren.",
+    "pngButton": "PNG",
+    "pngShortcut": "Aktuelle Ansicht als PNG-Bild speichern (Strg/Cmd+Shift+I)",
+    "svgButton": "SVG",
+    "svgTitle": "Aktuelle Ansicht als SVG-Vektorgrafik speichern"
   },
   "wizard": {
     "step": "Schritt",
@@ -515,7 +533,11 @@
     "photoOverlapWarning": "Fotokollisionen anzeigen",
     "photoCollision": "Fotokollision",
     "rotateTable": "Tisch drehen",
-    "canvasLabel": "Sitzplan: {{occupied}} von {{total}} Plätzen belegt"
+    "canvasLabel": "Sitzplan: {{occupied}} von {{total}} Plätzen belegt",
+    "refineButton": "Optimieren",
+    "refineLabel": "Sitzplan weiter optimieren",
+    "refineTitle": "Aktuellen Sitzplan weiter verbessern, ohne neu zu mischen",
+    "refineNoCriteria": "Aktiviere zuerst mindestens ein Mischkriterium in der Seitenleiste."
   },
   "quickSetup": {
     "title": "Klassenraum einrichten",
@@ -638,7 +660,10 @@
       "export_backToPlan": "Zurück zum Sitzplan",
       "export_exportPdf": "Sitzplan als PDF herunterladen",
       "export_exportCirclePdf": "Sitzkreis als PDF herunterladen",
-      "export_print": "Sitzplan drucken"
+      "export_exportPng": "Aktuelle Ansicht als PNG-Bild speichern",
+      "export_print": "Sitzplan drucken",
+      "plan_undo": "Sitzplan-Aktion rückgängig machen",
+      "plan_redo": "Sitzplan-Aktion wiederherstellen"
     },
     "keys": {
       "global_toggleHelp": "?",
@@ -670,7 +695,10 @@
       "export_backToPlan": "Alt (Windows) / Option (Mac) + Pfeil links",
       "export_exportPdf": "Strg (Windows) / Cmd (Mac) + Shift + T",
       "export_exportCirclePdf": "Strg (Windows) / Cmd (Mac) + Shift + C",
-      "export_print": "Strg (Windows) / Cmd (Mac) + P"
+      "export_exportPng": "Strg (Windows) / Cmd (Mac) + Shift + I",
+      "export_print": "Strg (Windows) / Cmd (Mac) + P",
+      "plan_undo": "Strg (Windows) / Cmd (Mac) + Z",
+      "plan_redo": "Strg / Cmd + Shift + Z"
     }
   }
 }

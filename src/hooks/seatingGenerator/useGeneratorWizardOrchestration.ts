@@ -12,7 +12,7 @@ import type {
   SeatingArrangement,
   Student,
 } from '@/types';
-import type { CircleLayout, CircleGenerationOptions } from '@/types/Circle';
+import type { CircleLayout } from '@/types/Circle';
 import type { SyncSnapshotOptions } from './useUnsavedSeatingTracker';
 
 /**
@@ -46,9 +46,7 @@ interface WizardOrchestrationParams {
     scene: ClassroomScene,
     options: { triesPerPass: number; passes: number },
   ) => Promise<SeatingArrangement>;
-  regenerateCircle: (
-    options?: Partial<CircleGenerationOptions>,
-  ) => Promise<CircleLayout | null>;
+  regenerateCircle: () => Promise<CircleLayout | null>;
 
   // Setters
   setPlanName: React.Dispatch<React.SetStateAction<string>>;

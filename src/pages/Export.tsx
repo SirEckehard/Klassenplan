@@ -528,9 +528,7 @@ export default function Export() {
 
     const promise: Promise<CircleLayout | null> = (async () => {
       try {
-        const layout = await generateCircleSeating({
-          mode: 'preserve-neighbors',
-        });
+        const layout = await generateCircleSeating();
         return layout;
       } catch (error) {
         logError(
@@ -868,12 +866,80 @@ export default function Export() {
     t,
   ]);
 
+  // Image exports reuse the rendered preview markup (WYSIWYG) instead of
+  // re-rendering, so they always match what the user is looking at.
+  const imageExportBaseName =
+    title.trim() ||
+    (previewMode === 'circle'
+      ? t('mode.circle', 'Sitzkreis')
+      : t('mode.table', 'Sitzplan'));
+  const imageOrientation =
+    previewMode === 'circle' ? circleOrientation : tableOrientation;
+
+  const requirePreviewSvg = useCallback((): string | null => {
+    if (previewSvg) {
+      return previewSvg;
+    }
+    exportError(
+      new Error('image-preview-unavailable'),
+      t(
+        'export.errors.imagePreviewUnavailable',
+        'Die Vorschau ist noch nicht bereit. Bitte warte einen Moment und versuche es erneut.',
+      ),
+    );
+    return null;
+  }, [previewSvg, exportError, t]);
+
+  const handlePngExport = useCallback(async () => {
+    const svg = requirePreviewSvg();
+    if (!svg) return;
+    try {
+      const { exportSvgAsPng } =
+        await import('@/utils/export/imageExportFunctions');
+      await exportSvgAsPng(svg, imageExportBaseName, imageOrientation);
+    } catch (error) {
+      exportError(
+        error as Error,
+        t(
+          'export.errors.pngFailed',
+          'PNG-Export fehlgeschlagen. Bitte versuche es erneut.',
+        ),
+      );
+    }
+  }, [
+    requirePreviewSvg,
+    imageExportBaseName,
+    imageOrientation,
+    exportError,
+    t,
+  ]);
+
+  const handleSvgExport = useCallback(async () => {
+    const svg = requirePreviewSvg();
+    if (!svg) return;
+    try {
+      const { exportSvgAsFile } =
+        await import('@/utils/export/imageExportFunctions');
+      await exportSvgAsFile(svg, imageExportBaseName);
+    } catch (error) {
+      exportError(
+        error as Error,
+        t(
+          'export.errors.svgFailed',
+          'SVG-Export fehlgeschlagen. Bitte versuche es erneut.',
+        ),
+      );
+    }
+  }, [requirePreviewSvg, imageExportBaseName, exportError, t]);
+
   useKeyboardShortcuts({
     'alt+arrowleft': () => navigate('/generator', { state: { step: 3 } }),
     'ctrl+shift+t': () => void handleTablePdf(),
     'cmd+shift+t': () => void handleTablePdf(),
     'ctrl+shift+c': () => void handleCirclePdf(),
     'cmd+shift+c': () => void handleCirclePdf(),
+    'ctrl+shift+i': () => void handlePngExport(),
+    'cmd+shift+i': () => void handlePngExport(),
     'ctrl+p': handlePrint,
     'cmd+p': handlePrint,
   });
@@ -948,6 +1014,12 @@ export default function Export() {
                         'Wechsle die Vorschau zwischen Sitzplan und Sitzkreis oben rechts.',
                       )}
                     </li>
+                    <li>
+                      {t(
+                        'help.export.item5',
+                        'Neben PDF und Druck kannst du die Ansicht auch als PNG-Bild oder SVG-Vektorgrafik speichern – praktisch für Elternbriefe oder das Schulportal.',
+                      )}
+                    </li>
                   </ul>
                 </div>
               }
@@ -988,6 +1060,8 @@ export default function Export() {
               onPrint={handlePrint}
               onTablePdf={handleTablePdf}
               onCirclePdf={handleCirclePdf}
+              onPngExport={handlePngExport}
+              onSvgExport={handleSvgExport}
               hasCircleLayout={hasCircleLayoutAvailable}
               isFirstVisit={isFirstVisit}
             />

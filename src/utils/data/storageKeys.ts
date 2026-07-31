@@ -28,6 +28,9 @@ export const STORAGE_KEYS = {
     sidebarExpanded: 'spg.sidebarExpanded',
     sidebarActiveTab: 'spg.sidebarActiveTab',
     hasVisitedApp: 'spg.hasVisitedApp',
+    // Set when the user dismisses the PWA install toast. The footer menu keeps
+    // offering the install as long as the browser reports the app installable.
+    pwaInstallDismissed: 'pwa-install-dismissed',
     // Mirrors the migration version held in IndexedDB so the boot path can skip
     // opening the database when no migration can possibly be pending.
     migrationVersion: 'spg.migrationVersion',
@@ -113,6 +116,7 @@ export const PROJECT_LOCAL_STORAGE_KEYS = [
   STORAGE_KEYS.localStorage.sidebarExpanded,
   STORAGE_KEYS.localStorage.sidebarActiveTab,
   STORAGE_KEYS.localStorage.hasVisitedApp,
+  STORAGE_KEYS.localStorage.pwaInstallDismissed,
   STORAGE_KEYS.localStorage.migrationVersion,
 ] as const;
 

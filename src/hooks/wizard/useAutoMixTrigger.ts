@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { DEFAULT_TRIES_PER_PASS, DEFAULT_PASSES, logError } from '@/utils';
 import type { ClassroomScene, MixSettings, SeatingArrangement } from '@/types';
-import type { CircleLayout, CircleGenerationOptions } from '@/types/Circle';
+import type { CircleLayout } from '@/types/Circle';
 import {
   useAutoMixTriggerController,
   type AutoMixTriggerHandler,
@@ -22,9 +22,7 @@ export interface AutoMixConfig {
     scene: ClassroomScene,
     options: { triesPerPass: number; passes: number },
   ) => Promise<SeatingArrangement>;
-  regenerateCircle: (
-    options?: Partial<CircleGenerationOptions>,
-  ) => Promise<CircleLayout | null>;
+  regenerateCircle: () => Promise<CircleLayout | null>;
 }
 
 export interface AutoMixState {
@@ -129,7 +127,7 @@ export function useAutoMixTrigger(
     ) {
       // Small delay to ensure all state updates are complete
       const timeoutId = setTimeout(() => {
-        void regenerateCircle({ mode: 'preserve-neighbors' });
+        void regenerateCircle();
         setShouldRegenerateCircle(false);
       }, 100);
 

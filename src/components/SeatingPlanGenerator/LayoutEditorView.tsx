@@ -1168,12 +1168,14 @@ const LayoutEditorMainSection = React.memo(function LayoutEditorMainSection({
         }}
         ref={containerRef}
       >
-        <CanvasToolbar
-          onUndo={undo}
-          canUndo={historyLength > 0}
-          onRedo={redo}
-          canRedo={canRedo}
-        />
+        <div className="absolute top-3 left-3 z-20">
+          <CanvasToolbar
+            onUndo={undo}
+            canUndo={historyLength > 0}
+            onRedo={redo}
+            canRedo={canRedo}
+          />
+        </div>
         <CanvasSettingsButton
           groups={layoutSettingsGroups}
           buttonTitle={t('editor.viewSettings', 'Ansichtseinstellungen')}

@@ -145,9 +145,7 @@ describe('useAutoMixTrigger', () => {
       });
 
       // regenerateCircle should have been called
-      expect(mockRegenerateCircle).toHaveBeenCalledWith({
-        mode: 'preserve-neighbors',
-      });
+      expect(mockRegenerateCircle).toHaveBeenCalledWith();
       expect(mockRegenerateCircle).toHaveBeenCalledTimes(1);
     });
 

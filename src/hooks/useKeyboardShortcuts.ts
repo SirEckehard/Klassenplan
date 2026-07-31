@@ -11,6 +11,14 @@ export interface KeyboardShortcutOptions {
   target?: 'window' | 'document';
   condition?: () => boolean;
   ignoreWhileTyping?: boolean;
+  /**
+   * Listen during the capture phase, so the handler runs before any bubble
+   * listener of the same event. Needed when `condition` inspects state that
+   * another handler tears down — React can commit that update between two
+   * bubble listeners, which would make the order of mounting decide the
+   * outcome.
+   */
+  capture?: boolean;
 }
 
 function parseShortcut(shortcut: string) {
@@ -51,6 +59,7 @@ export function useKeyboardShortcuts(
     target = 'window',
     condition,
     ignoreWhileTyping = true,
+    capture = false,
   } = options;
 
   const shortcutsRef = React.useRef(shortcuts);
@@ -88,10 +97,10 @@ export function useKeyboardShortcuts(
     };
 
     const targetElement = target === 'window' ? window : document;
-    targetElement.addEventListener('keydown', handleKeyDown);
+    targetElement.addEventListener('keydown', handleKeyDown, capture);
 
     return () => {
-      targetElement.removeEventListener('keydown', handleKeyDown);
+      targetElement.removeEventListener('keydown', handleKeyDown, capture);
     };
-  }, [preventDefault, target, ignoreWhileTyping]);
+  }, [preventDefault, target, ignoreWhileTyping, capture]);
 }

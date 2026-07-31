@@ -501,16 +501,26 @@ const mapNeeds = (
   const parts = String(value ?? '')
     .split(',')
     .map((p) => p.trim().toLowerCase());
+  const includesAny = (candidates: string[]): boolean =>
+    candidates.some((candidate) => parts.includes(candidate));
   return {
-    restless: parts.includes('unruhig'),
-    shy: parts.includes('schüchtern'),
-    concentrationIssues:
-      parts.includes('konzentration') || parts.includes('ablenkbarkeit'),
+    restless: includesAny(['unruhig', 'restless']),
+    shy: includesAny(['schüchtern', 'shy']),
+    concentrationIssues: includesAny([
+      'konzentration',
+      'ablenkbarkeit',
+      'distracted',
+      'distractible',
+    ]),
     needsFrontSeat: parts.some(
-      (p) => p.includes('hör') || p.includes('seh') || p.includes('brille'),
+      (p) =>
+        p.includes('hör') ||
+        p.includes('seh') ||
+        p.includes('brille') ||
+        p.includes('front'),
     ),
-    performanceStrong: parts.includes('leistungsstark'),
-    performanceWeak: parts.includes('leistungsschwach'),
+    performanceStrong: includesAny(['leistungsstark', 'high performer']),
+    performanceWeak: includesAny(['leistungsschwach', 'low performer']),
   };
 };
 
@@ -523,6 +533,83 @@ const parseBooleanCell = (value: unknown): boolean => {
     .trim()
     .toLowerCase();
   return v === 'ja' || v === 'yes' || v === '1';
+};
+
+/**
+ * Accepted header spellings per attribute column, in lookup order.
+ *
+ * Headers arrive trimmed and lower-cased (see {@link normalizeCsvHeader}), so
+ * the entries are written that way. Both template languages must resolve here
+ * (`csvTemplateDownload.ts`), plus the spellings teachers commonly use.
+ */
+const COLUMN_ALIASES = {
+  restless: ['unruhig', 'restless'],
+  shy: ['schüchtern', 'shy'],
+  concentrationIssues: [
+    'ablenkbarkeit',
+    'konzentration',
+    'distracted',
+    'distractible',
+  ],
+  needsFrontSeat: [
+    'vordere plätze',
+    'hör- und sehschwäche',
+    'hörschwäche',
+    'sehschwäche',
+    'front row',
+    'front seat',
+  ],
+  prefersWindow: [
+    'fensterplatz',
+    'am fenster',
+    'fenster',
+    'window seat',
+    'window',
+  ],
+  prefersDoor: [
+    'türplatz',
+    'tuerplatz',
+    'an der tür',
+    'tür',
+    'tuer',
+    'door seat',
+    'door',
+  ],
+  performanceStrong: ['leistungsstark', 'high performer', 'strong'],
+  performanceWeak: ['leistungsschwach', 'low performer', 'weak'],
+  gender: ['geschlecht', 'gender'],
+  specialNeeds: ['besondere bedürfnisse', 'besonderheiten', 'special needs'],
+  wishPartner: [
+    'wunschpartner',
+    'wunsch partner',
+    'wish partner',
+    'preferred partner',
+  ],
+  avoidPartner: [
+    'distanzwunsch',
+    'distanzpartner',
+    'distanz partner',
+    'avoid partner',
+  ],
+} as const satisfies Record<string, readonly string[]>;
+
+/**
+ * Read the first non-empty cell whose header matches one of the column's
+ * aliases. Empty cells are skipped rather than returned, so a sheet carrying
+ * several accepted spellings (e.g. "Ablenkbarkeit" and "Konzentration") still
+ * resolves to whichever column the teacher actually filled in.
+ */
+const readAliasCell = (
+  row: Record<string, unknown>,
+  column: keyof typeof COLUMN_ALIASES,
+): unknown => {
+  for (const alias of COLUMN_ALIASES[column]) {
+    const value = row[alias];
+    if (value !== undefined && value !== null && String(value).trim() !== '') {
+      return value;
+    }
+  }
+  return undefined;
 };
 
 /**
@@ -846,16 +933,14 @@ export async function parseCsvFlexible(
       const name = extractName(row, nameInfo, nameMode);
       if (!name) continue;
 
-      const gender = mapToGender(row['geschlecht'] ?? row['gender']);
-      const needs = mapNeeds(
-        row['besondere bedürfnisse'] ??
-          row['besonderheiten'] ??
-          row['special needs'],
-      );
+      const gender = mapToGender(readAliasCell(row, 'gender'));
+      const needs = mapNeeds(readAliasCell(row, 'specialNeeds'));
       const strong =
-        parseBooleanCell(row['leistungsstark']) || needs.performanceStrong;
+        parseBooleanCell(readAliasCell(row, 'performanceStrong')) ||
+        needs.performanceStrong;
       const weak =
-        parseBooleanCell(row['leistungsschwach']) || needs.performanceWeak;
+        parseBooleanCell(readAliasCell(row, 'performanceWeak')) ||
+        needs.performanceWeak;
       const heightValue = findHeightCellValue(row);
       const height = parseHeightCell(heightValue);
 
@@ -869,45 +954,28 @@ export async function parseCsvFlexible(
       };
 
       const wishPartnerNames = parsePartnerNames(
-        row['wunschpartner'] ?? row['wunsch partner'] ?? row['wish partner'],
+        readAliasCell(row, 'wishPartner'),
       );
       const avoidPartnerNames = parsePartnerNames(
-        row['distanzwunsch'] ??
-          row['distanzpartner'] ??
-          row['distanz partner'] ??
-          row['avoid partner'],
+        readAliasCell(row, 'avoidPartner'),
       );
 
       // Create base student without performance flags
       const baseStudent = {
         id: generateId(),
         name,
-        restless: parseBooleanCell(row['unruhig']) || needs.restless,
-        shy: parseBooleanCell(row['schüchtern']) || needs.shy,
+        restless:
+          parseBooleanCell(readAliasCell(row, 'restless')) || needs.restless,
+        shy: parseBooleanCell(readAliasCell(row, 'shy')) || needs.shy,
         concentrationIssues:
-          parseBooleanCell(row['ablenkbarkeit']) ||
-          parseBooleanCell(row['konzentration']) ||
+          parseBooleanCell(readAliasCell(row, 'concentrationIssues')) ||
           needs.concentrationIssues,
         needsFrontSeat:
-          parseBooleanCell(
-            row['vordere plätze'] ??
-              row['hör- und sehschwäche'] ??
-              row['hörschwäche'] ??
-              row['sehschwäche'],
-          ) || needs.needsFrontSeat,
+          parseBooleanCell(readAliasCell(row, 'needsFrontSeat')) ||
+          needs.needsFrontSeat,
         height,
-        prefersWindow:
-          parseBooleanCell(
-            row['fensterplatz'] ?? row['am fenster'] ?? row['fenster'],
-          ) || false,
-        prefersDoor:
-          parseBooleanCell(
-            row['türplatz'] ??
-              row['tuerplatz'] ??
-              row['an der tür'] ??
-              row['tür'] ??
-              row['tuer'],
-          ) || false,
+        prefersWindow: parseBooleanCell(readAliasCell(row, 'prefersWindow')),
+        prefersDoor: parseBooleanCell(readAliasCell(row, 'prefersDoor')),
         languageSkill: parseLanguageSkillCell(findLanguageSkillCellValue(row)),
         socialRole: parseSocialRoleCell(findSocialRoleCellValue(row)),
         wishPartnerIds: [] as string[],

@@ -150,7 +150,7 @@ const handleCircleGenerate = async (
   request: AlgorithmWorkerRequest<'circle:generate'>,
 ) => {
   const { generateCircleLayout } = await loadCircleArrangementModule();
-  const { students, classroomScene, options, currentSeating } = request.payload;
+  const { students, classroomScene, currentSeating } = request.payload;
   reportProgress(
     request,
     0.15,
@@ -161,7 +161,6 @@ const handleCircleGenerate = async (
   const layout = generateCircleLayout(
     students,
     classroomScene,
-    options ?? {},
     currentSeating ?? undefined,
   );
 
@@ -189,7 +188,6 @@ const handleCircleOptimized = async (
     classroomScene,
     mixSettings,
     seatingHistory,
-    options,
     currentSeating,
   } = request.payload;
   reportProgress(request, 0.1, 'initializing', 'Sitzkreis wird vorbereitet...');
@@ -199,7 +197,6 @@ const handleCircleOptimized = async (
     classroomScene,
     mixSettings,
     seatingHistory,
-    options ?? {},
     currentSeating ?? undefined,
   );
 

@@ -21,6 +21,11 @@ import { useGeneratorWizardOrchestration } from './seatingGenerator/useGenerator
 import { useGeneratorCircleOrchestration } from './seatingGenerator/useGeneratorCircleOrchestration';
 import { useGeneratorBackupOrchestration } from './seatingGenerator/useGeneratorBackupOrchestration';
 import { useClassManagement } from './domains/useClassManagement';
+import {
+  useSeatingHistory,
+  type SeatingSnapshot,
+} from './plan/useSeatingHistory';
+import { DEFAULT_PASSES, DEFAULT_TRIES_PER_PASS } from '@/utils';
 import type { ClassroomScene as ClassroomSceneT } from '@/types';
 
 /**
@@ -79,6 +84,7 @@ export function useSeatingGenerator() {
       isSeatLocked,
       toggleLock,
       lockedPositions,
+      setLockedPositions,
     },
     sceneState: {
       classroomScene,
@@ -125,6 +131,34 @@ export function useSeatingGenerator() {
     [setSeatingMode],
   );
 
+  // Undo/redo for seating actions. Every action below that rewrites who sits
+  // where records a snapshot first; the layout editor has its own history
+  // (useSceneHistory) for the room itself.
+  const applySeatingSnapshot = useCallback(
+    (snapshot: SeatingSnapshot) => {
+      setCurrentSeating(snapshot.seating);
+      setLockedPositions(snapshot.lockedPositions);
+      setCircleLayout(snapshot.circleLayout);
+    },
+    [setCurrentSeating, setLockedPositions, setCircleLayout],
+  );
+
+  const {
+    recordSnapshot: recordSeatingSnapshot,
+    captureSnapshot: captureSeatingSnapshot,
+    pushSnapshot: pushSeatingSnapshot,
+    undo: undoSeating,
+    redo: redoSeating,
+    canUndo: canUndoSeating,
+    canRedo: canRedoSeating,
+    resetHistory: resetSeatingHistory,
+  } = useSeatingHistory({
+    seating: currentSeating,
+    lockedPositions,
+    circleLayout,
+    applySnapshot: applySeatingSnapshot,
+  });
+
   // Wrap generateSeatingPlan to acknowledge student updates
   const generateSeatingPlan = useCallback(
     async (
@@ -132,6 +166,7 @@ export function useSeatingGenerator() {
       scene: Parameters<typeof generateSeatingPlanBase>[1],
       forceNew: Parameters<typeof generateSeatingPlanBase>[2] = true,
     ) => {
+      recordSeatingSnapshot();
       const arrangement = await generateSeatingPlanBase(
         settings,
         scene,
@@ -140,7 +175,40 @@ export function useSeatingGenerator() {
       acknowledgeStudentUpdates();
       return arrangement;
     },
-    [generateSeatingPlanBase, acknowledgeStudentUpdates],
+    [generateSeatingPlanBase, acknowledgeStudentUpdates, recordSeatingSnapshot],
+  );
+
+  // Manual "optimise further": refines the arrangement already on screen
+  // instead of drawing a new one, so a good plan can be nudged rather than
+  // rerolled. Undoable like every other seating action.
+  const refineCurrentSeating = useCallback(
+    async (options?: { triesPerPass?: number; passes?: number }) => {
+      recordSeatingSnapshot();
+      return refineSeatingLocal(
+        mixSettings,
+        classroomScene,
+        {
+          triesPerPass: options?.triesPerPass ?? DEFAULT_TRIES_PER_PASS,
+          passes: options?.passes ?? DEFAULT_PASSES,
+        },
+        currentSeating,
+      );
+    },
+    [
+      refineSeatingLocal,
+      mixSettings,
+      classroomScene,
+      currentSeating,
+      recordSeatingSnapshot,
+    ],
+  );
+
+  const toggleLockWithHistory = useCallback(
+    (studentId: string, table: number, seat: number) => {
+      recordSeatingSnapshot();
+      toggleLock(studentId, table, seat);
+    },
+    [toggleLock, recordSeatingSnapshot],
   );
 
   // Unsaved changes tracking
@@ -159,6 +227,9 @@ export function useSeatingGenerator() {
     setIsClassReloading(true);
     try {
       const snapshot = await reloadCurrentClassData();
+      // The undo stack belongs to the class that was open — undoing into
+      // another class's seating would write its students into this plan.
+      resetSeatingHistory();
       syncSeatingSnapshot({
         seating: snapshot.currentSeating,
         circleLayout: snapshot.circleLayout,
@@ -168,7 +239,7 @@ export function useSeatingGenerator() {
     } finally {
       setIsClassReloading(false);
     }
-  }, [reloadCurrentClassData, syncSeatingSnapshot]);
+  }, [reloadCurrentClassData, syncSeatingSnapshot, resetSeatingHistory]);
 
   // Class management
   const {
@@ -210,13 +281,49 @@ export function useSeatingGenerator() {
   const {
     generateCircleSeating,
     regenerateCircle,
-    updateStudentPosition,
-    swapStudentPositions,
-    batchSwapStudentPositions,
-    clearCircleLayout,
+    updateStudentPosition: updateStudentPositionBase,
+    swapStudentPositions: swapStudentPositionsBase,
+    batchSwapStudentPositions: batchSwapStudentPositionsBase,
+    clearCircleLayout: clearCircleLayoutBase,
     syncCircleFromTable,
     cancelCircleGeneration,
   } = circleOrchestration;
+
+  // Circle rearrangements are seating changes too — the same undo covers both
+  // views, so a teacher can revert a mis-drop in the circle just like on the
+  // table plan. `generateCircleSeating`/`syncCircleFromTable` stay unwrapped:
+  // they only derive the circle from a table plan that was itself recorded.
+  const updateStudentPosition = useCallback(
+    (...args: Parameters<typeof updateStudentPositionBase>) => {
+      recordSeatingSnapshot();
+      return updateStudentPositionBase(...args);
+    },
+    [updateStudentPositionBase, recordSeatingSnapshot],
+  );
+
+  const swapStudentPositions = useCallback(
+    (...args: Parameters<typeof swapStudentPositionsBase>) => {
+      recordSeatingSnapshot();
+      return swapStudentPositionsBase(...args);
+    },
+    [swapStudentPositionsBase, recordSeatingSnapshot],
+  );
+
+  const batchSwapStudentPositions = useCallback(
+    (...args: Parameters<typeof batchSwapStudentPositionsBase>) => {
+      recordSeatingSnapshot();
+      return batchSwapStudentPositionsBase(...args);
+    },
+    [batchSwapStudentPositionsBase, recordSeatingSnapshot],
+  );
+
+  const clearCircleLayout = useCallback(
+    (...args: Parameters<typeof clearCircleLayoutBase>) => {
+      recordSeatingSnapshot();
+      return clearCircleLayoutBase(...args);
+    },
+    [clearCircleLayoutBase, recordSeatingSnapshot],
+  );
 
   // Wizard orchestration (step navigation, auto-mix)
   const wizardOrchestration = useGeneratorWizardOrchestration({
@@ -257,13 +364,26 @@ export function useSeatingGenerator() {
   // Enhanced student move handler that triggers circle regeneration
   const handleStudentMove = useCallback(
     (fromTable: number, fromSeat: number, toTable: number, toSeat: number) => {
+      // A drop onto a locked seat is rejected — capture first, but only turn
+      // it into an undo step once the swap actually happened.
+      const before = captureSeatingSnapshot();
       const moved = moveStudent(fromTable, fromSeat, toTable, toSeat);
-      if (moved && circleLayout) {
+      if (!moved) {
+        return false;
+      }
+      pushSeatingSnapshot(before);
+      if (circleLayout) {
         setShouldRegenerateCircle(true);
       }
       return moved;
     },
-    [moveStudent, circleLayout, setShouldRegenerateCircle],
+    [
+      moveStudent,
+      circleLayout,
+      setShouldRegenerateCircle,
+      captureSeatingSnapshot,
+      pushSeatingSnapshot,
+    ],
   );
 
   // Backup orchestration (import/export with auto-mix trigger)
@@ -319,6 +439,7 @@ export function useSeatingGenerator() {
       setMixSettings,
       markClassroomSynced: markClassroomSceneSynced,
       syncSeatingSnapshot,
+      recordSeatingSnapshot,
     });
 
   // Home navigation handler
@@ -364,6 +485,8 @@ export function useSeatingGenerator() {
       currentAppVersion,
       classSummaries,
       activeClass,
+      canUndoSeating,
+      canRedoSeating,
     }),
     [
       students,
@@ -394,6 +517,8 @@ export function useSeatingGenerator() {
       currentAppVersion,
       classSummaries,
       activeClass,
+      canUndoSeating,
+      canRedoSeating,
     ],
   );
 
@@ -414,12 +539,15 @@ export function useSeatingGenerator() {
       generateSeatingPlan,
       moveStudent: handleStudentMove,
       refineSeatingLocal,
+      refineCurrentSeating,
       onMix: handleMixWithAutoRefine,
+      undoSeating,
+      redoSeating,
       setPlanName,
       setPlanNameError,
       handleSaveSeatingPlan,
       isSeatLocked,
-      toggleLock,
+      toggleLock: toggleLockWithHistory,
       saveTemplate,
       updateTemplate,
       loadTemplate,
@@ -476,12 +604,15 @@ export function useSeatingGenerator() {
       generateSeatingPlan,
       handleStudentMove,
       refineSeatingLocal,
+      refineCurrentSeating,
       handleMixWithAutoRefine,
+      undoSeating,
+      redoSeating,
       setPlanName,
       setPlanNameError,
       handleSaveSeatingPlan,
       isSeatLocked,
-      toggleLock,
+      toggleLockWithHistory,
       saveTemplate,
       updateTemplate,
       loadTemplate,

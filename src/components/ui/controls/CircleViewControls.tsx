@@ -2,17 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  LinkSimpleIcon,
-  ArrowCounterClockwiseIcon,
-  ShuffleIcon,
-  LinkBreakIcon,
-  EyeIcon,
-  EyeSlashIcon,
-  CursorIcon,
-} from '@phosphor-icons/react';
-import type { ConnectionDisplayMode } from '@/components/circle/SimpleCircleView';
-import type { PhotoDisplayMode } from '@/types';
+import { ArrowCounterClockwiseIcon, ShuffleIcon } from '@phosphor-icons/react';
 import {
   getSidebarSurfaceClasses,
   getSidebarIconClasses,
@@ -20,18 +10,19 @@ import {
   type SidebarTone,
 } from '@/utils';
 
+/**
+ * Sidebar actions for the circle view.
+ *
+ * Display options (connections, photo mode) live in the canvas' settings
+ * button instead — same place as the seating plan's, next to the view they
+ * change. What stays here are the actions that alter the circle itself.
+ */
 interface CircleViewControlsProps {
-  connectionMode?: ConnectionDisplayMode;
-  onConnectionModeChange?: (mode: ConnectionDisplayMode) => void;
-  photoMode?: PhotoDisplayMode;
-  onPhotoModeChange?: (mode: PhotoDisplayMode) => void;
   onSyncCircle?: () => void;
   onShuffleCircle?: () => void;
   isExpanded?: boolean;
   className?: string;
 }
-
-const PHOTO_MODE_ORDER: PhotoDisplayMode[] = ['all', 'hover', 'off'];
 
 interface ControlButtonProps {
   icon: React.ReactNode;
@@ -98,81 +89,12 @@ function ControlButton({
 }
 
 export default function CircleViewControls({
-  connectionMode = 'subtle',
-  onConnectionModeChange,
-  photoMode = 'all',
-  onPhotoModeChange,
   onSyncCircle,
   onShuffleCircle,
   isExpanded = false,
   className = '',
 }: CircleViewControlsProps) {
   const { t } = useTranslation('generator');
-
-  const handleConnectionToggle = () => {
-    if (onConnectionModeChange) {
-      const nextMode: ConnectionDisplayMode =
-        connectionMode === 'off' ? 'subtle' : 'off';
-      onConnectionModeChange(nextMode);
-    }
-  };
-
-  const handlePhotoModeCycle = () => {
-    if (!onPhotoModeChange) return;
-    const currentIndex = PHOTO_MODE_ORDER.indexOf(photoMode);
-    const nextMode =
-      PHOTO_MODE_ORDER[(currentIndex + 1) % PHOTO_MODE_ORDER.length];
-    onPhotoModeChange(nextMode);
-  };
-
-  const photoModeLabel =
-    photoMode === 'all'
-      ? t('editor.photoModeAll', 'An')
-      : photoMode === 'hover'
-        ? t('editor.photoModeHover', 'Hover')
-        : t('editor.photoModeOff', 'Aus');
-  const photoModeIcon =
-    photoMode === 'all' ? (
-      <EyeIcon size={16} />
-    ) : photoMode === 'hover' ? (
-      <CursorIcon size={16} />
-    ) : (
-      <EyeSlashIcon size={16} />
-    );
-
-  // Connection mode controls
-  const connectionControls = [
-    {
-      id: 'connections',
-      // Show what will happen on click: LinkSimpleIcon icon when off (to turn on), LinkBreakIcon when on (to turn off)
-      icon:
-        connectionMode === 'off' ? (
-          <LinkSimpleIcon size={16} />
-        ) : (
-          <LinkBreakIcon size={16} />
-        ),
-      label: t('circleView.showConnections', 'Verbindungen anzeigen'),
-      description: t(
-        'circleView.connectionDescription',
-        'Nachbarschaftsverbindungen zwischen Schülern.',
-      ),
-      onClick: handleConnectionToggle,
-      isActive: connectionMode !== 'off',
-    },
-    {
-      id: 'photos',
-      icon: photoModeIcon,
-      label: t('circleView.photoMode', 'Fotos: {{mode}}', {
-        mode: photoModeLabel,
-      }),
-      description: t(
-        'circleView.photoModeDescription',
-        'Schülerfotos an den Plätzen anzeigen (An / Hover / Aus).',
-      ),
-      onClick: onPhotoModeChange ? handlePhotoModeCycle : undefined,
-      isActive: photoMode !== 'off',
-    },
-  ];
 
   // Action controls
   const actionControls = [
@@ -206,53 +128,25 @@ export default function CircleViewControls({
 
   return (
     <div className={`space-y-2 ${className}`}>
-      {isExpanded ? (
-        <div className="space-y-4">
-          <div className="space-y-2 px-2 pt-2">
-            {actionControls.map((control) => (
-              <ControlButton
-                key={control.id}
-                icon={control.icon}
-                label={control.label}
-                description={control.description}
-                isExpanded={isExpanded}
-                onClick={control.onClick}
-                isActive={control.isActive}
-              />
-            ))}
-          </div>
-
-          <div className="py-1" />
-          <div className="space-y-2 px-2 pt-2">
-            {connectionControls.map((control) => (
-              <ControlButton
-                key={control.id}
-                icon={control.icon}
-                label={control.label}
-                description={control.description}
-                isExpanded={isExpanded}
-                onClick={control.onClick}
-                isActive={control.isActive}
-              />
-            ))}
-          </div>
-        </div>
-      ) : (
-        /* Collapsed Mode - Show all controls without categories */
-        <div className="flex flex-col items-center space-y-2 px-2">
-          {[...actionControls, ...connectionControls].map((control) => (
-            <ControlButton
-              key={control.id}
-              icon={control.icon}
-              label={control.label}
-              description={control.description}
-              isExpanded={isExpanded}
-              onClick={control.onClick}
-              isActive={control.isActive}
-            />
-          ))}
-        </div>
-      )}
+      <div
+        className={
+          isExpanded
+            ? 'space-y-2 px-2 pt-2'
+            : 'flex flex-col items-center space-y-2 px-2'
+        }
+      >
+        {actionControls.map((control) => (
+          <ControlButton
+            key={control.id}
+            icon={control.icon}
+            label={control.label}
+            description={control.description}
+            isExpanded={isExpanded}
+            onClick={control.onClick}
+            isActive={control.isActive}
+          />
+        ))}
+      </div>
     </div>
   );
 }

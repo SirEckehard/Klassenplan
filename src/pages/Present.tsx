@@ -1,12 +1,15 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import { useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   ArrowLeftIcon,
   ArrowsInIcon,
+  ArrowsOutIcon,
+  CornersInIcon,
   DoorOpenIcon,
+  HandPointingIcon,
   ImageIcon,
   MagnifyingGlassIcon,
   PaletteIcon,
@@ -21,6 +24,8 @@ import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';
 import { useIsDarkMode } from '@/hooks/useIsDarkMode';
 import usePersistentState from '@/hooks/usePersistentState';
 import { usePanZoom } from '@/hooks/ui/usePanZoom';
+import { useFullscreen } from '@/hooks/ui/useFullscreen';
+import { useRandomStudentPicker } from '@/hooks/ui/useRandomStudentPicker';
 import { useEnsureCircleLayout } from '@/hooks/circle/useEnsureCircleLayout';
 import { useSeatingPlanState } from '@/contexts/SeatingPlanContext';
 import { LOCAL_STORAGE_KEYS } from '@/utils/data/storageKeys';
@@ -83,9 +88,37 @@ export default function Present() {
       maxZoom: PRESENT_MAX_ZOOM,
     });
 
-  // Same back shortcut as the export page (Alt+←).
+  const surfaceRef = useRef<HTMLElement>(null);
+  const {
+    isFullscreen,
+    isSupported: fullscreenSupported,
+    toggle: toggleFullscreen,
+  } = useFullscreen(surfaceRef);
+
+  // "Who's next?" draws without replacement, so every student gets a turn
+  // before anyone repeats.
+  const picker = useRandomStudentPicker(currentSeating);
+
+  const zoomBy = useCallback(
+    (delta: number) =>
+      setZoomLevel(
+        Math.min(
+          PRESENT_MAX_ZOOM,
+          Math.max(PRESENT_MIN_ZOOM, Number((zoom + delta).toFixed(2))),
+        ),
+      ),
+    [setZoomLevel, zoom],
+  );
+
   useKeyboardShortcuts({
+    // Same back shortcut as the export page.
     'alt+arrowleft': () => navigate('/generator'),
+    f: toggleFullscreen,
+    ' ': () => picker.pick(),
+    escape: () => picker.reset(),
+    '+': () => zoomBy(0.1),
+    '-': () => zoomBy(-0.1),
+    '0': reset,
   });
 
   const hasPlan = classroomScene.tables.length > 0 && currentSeating.length > 0;
@@ -97,6 +130,7 @@ export default function Present() {
   return (
     <main
       id="main"
+      ref={surfaceRef}
       tabIndex={-1}
       className="fixed inset-0 flex flex-col bg-gray-50 dark:bg-gray-950"
     >
@@ -156,6 +190,18 @@ export default function Present() {
                 </li>
                 <li>
                   {t(
+                    'help.present.item6',
+                    '„Wer kommt dran?" zieht einen zufälligen Schüler und hebt seinen Platz hervor – jeder kommt einmal dran, bevor sich jemand wiederholt.',
+                  )}
+                </li>
+                <li>
+                  {t(
+                    'help.present.item7',
+                    'Tastatur: F Vollbild, Leertaste zieht einen Schüler, Esc setzt die Auswahl zurück, + / − zoomen, 0 zentriert.',
+                  )}
+                </li>
+                <li>
+                  {t(
                     'help.present.item5',
                     'Mit Alt + ← kehrst du zum Generator zurück.',
                   )}
@@ -165,6 +211,37 @@ export default function Present() {
           />
         </div>
       </div>
+
+      {/* The drawn student is named in text as well: on a projection the
+          spotlight alone is not readable from the back row, and the announcement
+          also reaches screen readers. */}
+      {picker.picked && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="flex items-center justify-center gap-3 px-4 pb-1"
+        >
+          <span className="inline-flex items-center gap-2 rounded-full border border-amber-300 bg-amber-50 px-4 py-1.5 text-lg font-semibold text-amber-900 shadow-sm dark:border-amber-500/40 dark:bg-amber-900/30 dark:text-amber-100">
+            <HandPointingIcon size={20} aria-hidden />
+            {picker.picked.student.name}
+          </span>
+          <span className="text-sm text-gray-500 dark:text-gray-400">
+            {t('present.pickRemaining', {
+              count: picker.remaining,
+              defaultValue: 'noch {{count}} übrig',
+            })}
+          </span>
+          <button
+            type="button"
+            onClick={picker.reset}
+            className={`${iconButtonClass} h-9 w-9`}
+            aria-label={t('present.pickReset', 'Auswahl zurücksetzen (Esc)')}
+            title={t('present.pickReset', 'Auswahl zurücksetzen (Esc)')}
+          >
+            <ArrowsInIcon size={18} aria-hidden />
+          </button>
+        </div>
+      )}
 
       {/* Scene fills the remaining space */}
       <div
@@ -208,6 +285,14 @@ export default function Present() {
             panX={pan.x}
             panY={pan.y}
             isDark={isDark}
+            spotlight={
+              picker.picked
+                ? {
+                    tableIndex: picker.picked.tableIndex,
+                    seatIndex: picker.picked.seatIndex,
+                  }
+                : null
+            }
           />
         ) : (
           <div className="flex h-full flex-col items-center justify-center gap-4 text-center text-gray-600 dark:text-gray-300">
@@ -323,6 +408,46 @@ export default function Present() {
                 <DoorOpenIcon size={20} aria-hidden />
                 <span className="text-sm font-semibold">
                   {t('present.features', 'Raum')}
+                </span>
+              </button>
+            )}
+
+            {!isCircle && picker.total > 0 && (
+              <button
+                type="button"
+                onClick={picker.pick}
+                className={`${primaryButtonClass} h-10 gap-2 px-4`}
+                title={t(
+                  'present.pickTitle',
+                  'Zufälligen Schüler auswählen – jeder kommt einmal dran (Leertaste)',
+                )}
+              >
+                <HandPointingIcon size={20} aria-hidden />
+                <span className="text-sm font-semibold">
+                  {t('present.pick', 'Wer kommt dran?')}
+                </span>
+              </button>
+            )}
+
+            {fullscreenSupported && (
+              <button
+                type="button"
+                onClick={toggleFullscreen}
+                className={`${secondaryButtonClass} h-10 gap-2 px-4`}
+                aria-pressed={isFullscreen}
+                title={
+                  isFullscreen
+                    ? t('present.fullscreenExitTitle', 'Vollbild beenden (F)')
+                    : t('present.fullscreenTitle', 'Vollbild starten (F)')
+                }
+              >
+                {isFullscreen ? (
+                  <CornersInIcon size={20} aria-hidden />
+                ) : (
+                  <ArrowsOutIcon size={20} aria-hidden />
+                )}
+                <span className="text-sm font-semibold">
+                  {t('present.fullscreen', 'Vollbild')}
                 </span>
               </button>
             )}

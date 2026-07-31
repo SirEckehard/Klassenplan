@@ -9,6 +9,8 @@ import {
   Rectangle,
   CircleDashed,
   GridNineIcon,
+  ImageIcon,
+  VectorTwoIcon,
 } from '@phosphor-icons/react';
 import SmartSidebar from '@/components/ui/panels/SmartSidebar';
 import SectionHeader from '@/components/ui/layout/SectionHeader';
@@ -41,6 +43,8 @@ interface ExportSidebarProps {
   onPrint: () => void;
   onTablePdf: () => void;
   onCirclePdf: () => void;
+  onPngExport: () => void;
+  onSvgExport: () => void;
   hasCircleLayout: boolean;
 
   // First visit flag
@@ -57,6 +61,8 @@ export default function ExportSidebar({
   onPrint,
   onTablePdf,
   onCirclePdf,
+  onPngExport,
+  onSvgExport,
   hasCircleLayout,
   isFirstVisit,
 }: ExportSidebarProps) {
@@ -145,6 +151,8 @@ export default function ExportSidebar({
   const exportButtonStyles = buildCollapsedStyles({
     emphasis: 'accent',
   });
+  // Image exports are secondary next to print/PDF, so they stay unaccented.
+  const imageExportButtonStyles = buildCollapsedStyles();
 
   // Handle icon click from SmartSidebar
   const handleIconClick = React.useCallback(
@@ -305,6 +313,34 @@ export default function ExportSidebar({
                   {t('export.circlePdfButton', 'Sitzkreis-PDF')}
                 </button>
               )}
+              {/* Image exports of the current preview — for embedding into
+                  parent letters or an LMS, where a PDF is unwieldy. */}
+              <div className="grid gap-2 sm:grid-cols-2">
+                <button
+                  type="button"
+                  onClick={onPngExport}
+                  className={`${secondaryButtonClass} w-full justify-center gap-2`}
+                  title={t(
+                    'export.pngShortcut',
+                    'Aktuelle Ansicht als PNG-Bild speichern (Strg/Cmd+Shift+I)',
+                  )}
+                >
+                  <ImageIcon size={16} />
+                  {t('export.pngButton', 'PNG')}
+                </button>
+                <button
+                  type="button"
+                  onClick={onSvgExport}
+                  className={`${secondaryButtonClass} w-full justify-center gap-2`}
+                  title={t(
+                    'export.svgTitle',
+                    'Aktuelle Ansicht als SVG-Vektorgrafik speichern',
+                  )}
+                >
+                  <VectorTwoIcon size={16} />
+                  {t('export.svgButton', 'SVG')}
+                </button>
+              </div>
             </div>
           </div>
         ) : (
@@ -406,6 +442,34 @@ export default function ExportSidebar({
                 </span>
               </button>
             )}
+
+            {/* Position 8/9: Bildexport der aktuellen Vorschau */}
+            <button
+              type="button"
+              onClick={onPngExport}
+              className={imageExportButtonStyles.button}
+              title={t(
+                'export.pngShortcut',
+                'Aktuelle Ansicht als PNG-Bild speichern (Strg/Cmd+Shift+I)',
+              )}
+            >
+              <span className={imageExportButtonStyles.icon}>
+                <ImageIcon size={18} />
+              </span>
+            </button>
+            <button
+              type="button"
+              onClick={onSvgExport}
+              className={imageExportButtonStyles.button}
+              title={t(
+                'export.svgTitle',
+                'Aktuelle Ansicht als SVG-Vektorgrafik speichern',
+              )}
+            >
+              <span className={imageExportButtonStyles.icon}>
+                <VectorTwoIcon size={18} />
+              </span>
+            </button>
           </div>
         )
       }

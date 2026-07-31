@@ -109,6 +109,14 @@ export const shortcutMap: Record<ShortcutContext, Shortcut[]> = {
       keysKey: 'shortcuts.keys.plan_openExport',
       descriptionKey: 'shortcuts.descriptions.plan_openExport',
     },
+    {
+      keysKey: 'shortcuts.keys.plan_undo',
+      descriptionKey: 'shortcuts.descriptions.plan_undo',
+    },
+    {
+      keysKey: 'shortcuts.keys.plan_redo',
+      descriptionKey: 'shortcuts.descriptions.plan_redo',
+    },
   ],
   circle: [
     {
@@ -131,6 +139,14 @@ export const shortcutMap: Record<ShortcutContext, Shortcut[]> = {
       keysKey: 'shortcuts.keys.circle_openExport',
       descriptionKey: 'shortcuts.descriptions.circle_openExport',
     },
+    {
+      keysKey: 'shortcuts.keys.plan_undo',
+      descriptionKey: 'shortcuts.descriptions.plan_undo',
+    },
+    {
+      keysKey: 'shortcuts.keys.plan_redo',
+      descriptionKey: 'shortcuts.descriptions.plan_redo',
+    },
   ],
   export: [
     {
@@ -144,6 +160,10 @@ export const shortcutMap: Record<ShortcutContext, Shortcut[]> = {
     {
       keysKey: 'shortcuts.keys.export_exportCirclePdf',
       descriptionKey: 'shortcuts.descriptions.export_exportCirclePdf',
+    },
+    {
+      keysKey: 'shortcuts.keys.export_exportPng',
+      descriptionKey: 'shortcuts.descriptions.export_exportPng',
     },
     {
       keysKey: 'shortcuts.keys.export_print',

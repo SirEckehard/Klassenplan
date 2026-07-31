@@ -17,11 +17,7 @@ import type {
   ActiveClassState,
   SaveTemplateResult,
 } from '@/types';
-import type {
-  CircleLayout,
-  CircleGenerationOptions,
-  CircleGenerationStatus,
-} from '@/types/Circle';
+import type { CircleLayout, CircleGenerationStatus } from '@/types/Circle';
 import type { CriterionFulfillment } from '@/utils/algorithm/seatingStatistics';
 import type { LatestChangelogEntry } from '@/utils';
 import type { SeatingPlanStore } from '@/hooks/useSeatingState';
@@ -56,6 +52,9 @@ export interface SeatingPlanState {
   classSummaries: ClassSummary[];
   activeClass: ActiveClassState;
   statisticsHighlight: StatisticHighlightState | null;
+  /** Seating-plan undo/redo availability (mixing, drag swaps, locks, circle). */
+  canUndoSeating: boolean;
+  canRedoSeating: boolean;
 }
 
 export interface SeatingPlanActions {
@@ -96,7 +95,17 @@ export interface SeatingPlanActions {
     options?: { triesPerPass?: number; passes?: number },
     start?: SeatingArrangement,
   ) => Promise<SeatingArrangement>;
+  /**
+   * Refine the arrangement currently on screen instead of drawing a new one.
+   * Exposes the local-search pass that so far only ran implicitly after a mix.
+   */
+  refineCurrentSeating: (options?: {
+    triesPerPass?: number;
+    passes?: number;
+  }) => Promise<SeatingArrangement>;
   onMix: () => void;
+  undoSeating: () => void;
+  redoSeating: () => void;
   setPlanName: (v: string) => void;
   setPlanNameError: (v: boolean) => void;
   handleSaveSeatingPlan: (name: string, scene: ClassroomScene) => void;
@@ -125,12 +134,8 @@ export interface SeatingPlanActions {
   handleExportAll: () => void;
   handleImportFile: React.ChangeEventHandler<HTMLInputElement>;
   clearAllData: () => Promise<void>;
-  generateCircleSeating: (
-    options?: Partial<CircleGenerationOptions>,
-  ) => Promise<CircleLayout | null>;
-  regenerateCircle: (
-    options?: Partial<CircleGenerationOptions>,
-  ) => Promise<CircleLayout | null>;
+  generateCircleSeating: () => Promise<CircleLayout | null>;
+  regenerateCircle: () => Promise<CircleLayout | null>;
   updateStudentPosition: (studentId: string, newAngle: number) => void;
   swapStudentPositions: (studentId: string, targetPosition: number) => void;
   batchSwapStudentPositions: (

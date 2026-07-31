@@ -25,12 +25,13 @@ interface CanvasToolbarProps {
 }
 
 /**
- * CanvasToolbar - Overlay toolbar for canvas operations
+ * CanvasToolbar - undo/redo pair for a canvas overlay.
  *
- * Positioned in top-left corner with:
- * - Undo/redo buttons with keyboard shortcut hints
- * - Semi-transparent background
- * - Touch-optimized sizing (min 44x44px)
+ * Renders as a plain flex group; the caller positions it. Both the layout
+ * editor and the seating editor place it in the canvas' top-left corner, but
+ * the seating editor lines further actions up next to it in the same row.
+ *
+ * Touch-optimized sizing (min 44x44px).
  */
 const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
   onUndo,
@@ -40,7 +41,7 @@ const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
 }) => {
   const { t } = useTranslation('generator');
   return (
-    <div className="absolute top-3 left-3 z-20 flex gap-1">
+    <div className="flex gap-1">
       <button
         type="button"
         onClick={onUndo}

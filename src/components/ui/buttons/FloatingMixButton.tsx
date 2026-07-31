@@ -8,6 +8,12 @@ import {
 } from '@phosphor-icons/react';
 import { primaryButtonClass } from '@/utils';
 
+/**
+ * Mix trigger for the seating canvas.
+ *
+ * Renders unpositioned — the seating editor lines it up with the undo/redo
+ * pair in a single canvas overlay row.
+ */
 interface FloatingMixButtonProps {
   onMix: () => Promise<void>;
   isLoading?: boolean;
@@ -37,15 +43,12 @@ export default function FloatingMixButton({
       type="button"
       onClick={handleClick}
       disabled={isButtonDisabled}
-      className={`absolute top-3 left-3 ${primaryButtonClass} group flex h-9 items-center justify-center gap-2 px-3 ${
+      className={`${primaryButtonClass} group flex h-9 items-center justify-center gap-2 px-3 ${
         isButtonDisabled
           ? 'cursor-not-allowed opacity-60'
           : 'hover:scale-105 active:scale-95'
       } ${className}`}
-      style={{
-        zIndex: 10,
-        ...style,
-      }}
+      style={style}
       title={
         isLoading
           ? t('mixButton.loadingTitle', 'Mischvorgang läuft...')

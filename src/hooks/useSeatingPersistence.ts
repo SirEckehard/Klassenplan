@@ -46,6 +46,16 @@ import {
   clearAllData as clearAllDataUtil,
 } from '@/utils/data/dataBackup';
 import { resolvePlanSlot, upsertPlan } from '@/utils/data/planNormalization';
+import {
+  CSV_COLUMN_HEADERS,
+  CSV_GENDER_LABELS,
+  CSV_HEIGHT_LABELS,
+  CSV_LANGUAGE_SKILL_LABELS,
+  CSV_SOCIAL_ROLE_LABELS,
+  CSV_TRUE_VALUE,
+  resolveCsvLanguage,
+  type CsvLanguage,
+} from '@/utils/csv/csvSchema';
 import { useSeatingRepository } from './useSeatingRepository';
 import { useDownloadFile } from './useDownloadFile';
 import { summarizeClass } from '@/utils/data/classCollection';
@@ -63,32 +73,14 @@ const buildStudentsCsvFilename = (className: string): string => {
   return sanitized ? `${sanitized}.csv` : 'students.csv';
 };
 
-const LANGUAGE_SKILL_CSV_LABELS: Record<
-  NonNullable<Student['languageSkill']>,
-  string
-> = {
-  native: 'Muttersprache',
-  fluent: 'Fließend',
-  intermediate: 'Fortgeschritten',
-  beginner: 'Anfänger',
-  daz: 'DaZ-Förderung',
-};
-
-const SOCIAL_ROLE_CSV_LABELS: Record<
-  NonNullable<Student['socialRole']>,
-  string
-> = {
-  mediator: 'Mediator',
-  leader: 'Anführer',
-  loner: 'Einzelgänger',
-  socialHub: 'Mittelpunkt',
-};
-
-export const exportStudentsToCsv = (students: Student[]): string => {
-  // Header must mirror the import template (csvTemplateDownload.ts) so an
-  // export → import round-trip preserves every column.
-  const header =
-    'Name,Geschlecht,Körpergröße,Sprachniveau,Soziale Rolle,Unruhig,Schüchtern,Ablenkbarkeit,Vordere Plätze,Fensterplatz,Türplatz,Leistungsstark,Leistungsschwach,Wunschpartner,Distanzwunsch\n';
+export const exportStudentsToCsv = (
+  students: Student[],
+  language: CsvLanguage = resolveCsvLanguage(),
+): string => {
+  // Columns and labels come from csvSchema so an export → import round trip
+  // preserves every column, in either language.
+  const header = `${CSV_COLUMN_HEADERS[language].join(',')}\n`;
+  const yes = CSV_TRUE_VALUE[language];
   const escapeCsvCell = (value: unknown) => {
     const str = String(value ?? '');
     const trimmed = str.trimStart();
@@ -105,11 +97,6 @@ export const exportStudentsToCsv = (students: Student[]): string => {
       ? `"${sanitized.replace(/"/g, '""')}"`
       : sanitized;
   };
-  const heightLabels = {
-    small: 'Klein',
-    medium: 'Mittel',
-    tall: 'Groß',
-  } as const;
   const studentNameMap = students.reduce<Record<string, string>>((acc, s) => {
     acc[s.id] = s.name;
     return acc;
@@ -125,29 +112,22 @@ export const exportStudentsToCsv = (students: Student[]): string => {
       .join(', ');
   };
   const rows = students.map((s) => {
-    const gender =
-      s.gender === 'boy'
-        ? 'Junge'
-        : s.gender === 'girl'
-          ? 'Mädchen'
-          : s.gender === 'diverse'
-            ? 'Divers'
-            : '';
-    const heightLabel = s.height ? (heightLabels[s.height] ?? '') : '';
     const cells = [
       s.name,
-      gender,
-      heightLabel,
-      s.languageSkill ? LANGUAGE_SKILL_CSV_LABELS[s.languageSkill] : '',
-      s.socialRole ? SOCIAL_ROLE_CSV_LABELS[s.socialRole] : '',
-      s.restless ? 'ja' : '',
-      s.shy ? 'ja' : '',
-      s.concentrationIssues ? 'ja' : '',
-      s.needsFrontSeat ? 'ja' : '',
-      s.prefersWindow ? 'ja' : '',
-      s.prefersDoor ? 'ja' : '',
-      s.performanceStrong ? 'ja' : '',
-      s.performanceWeak ? 'ja' : '',
+      s.gender ? (CSV_GENDER_LABELS[language][s.gender] ?? '') : '',
+      s.height ? (CSV_HEIGHT_LABELS[language][s.height] ?? '') : '',
+      s.languageSkill
+        ? CSV_LANGUAGE_SKILL_LABELS[language][s.languageSkill]
+        : '',
+      s.socialRole ? CSV_SOCIAL_ROLE_LABELS[language][s.socialRole] : '',
+      s.restless ? yes : '',
+      s.shy ? yes : '',
+      s.concentrationIssues ? yes : '',
+      s.needsFrontSeat ? yes : '',
+      s.prefersWindow ? yes : '',
+      s.prefersDoor ? yes : '',
+      s.performanceStrong ? yes : '',
+      s.performanceWeak ? yes : '',
       partnerNames(s.wishPartnerIds, s.wishPartnerId),
       partnerNames(s.avoidPartnerIds, s.avoidPartnerId),
     ];

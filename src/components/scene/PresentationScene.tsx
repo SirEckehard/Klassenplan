@@ -11,6 +11,9 @@ import {
   getPresentationRotation,
   type PresentationPerspective,
 } from '@/utils/ui/boardOrientation';
+import PresentationSpotlight, {
+  type SpotlightTarget,
+} from '@/components/scene/PresentationSpotlight';
 
 /**
  * Read-only, chrome-free classroom render for the smartboard projection view.
@@ -42,6 +45,8 @@ type PresentationSceneProps = {
   panX?: number;
   panY?: number;
   isDark?: boolean;
+  /** Seat to spotlight; the rest of the classroom is dimmed. */
+  spotlight?: SpotlightTarget | null;
 };
 
 /** Padding around the classroom so seat photos docking outside seats aren't clipped. */
@@ -60,6 +65,7 @@ export default function PresentationScene({
   panX = 0,
   panY = 0,
   isDark = false,
+  spotlight = null,
 }: PresentationSceneProps) {
   const photoUrls = useStudentPhotoUrls(students);
 
@@ -141,6 +147,14 @@ export default function PresentationScene({
           />
         ))}
       </g>
+      <PresentationSpotlight
+        scene={scene}
+        seating={seating}
+        target={spotlight}
+        boxWidth={boxWidth}
+        boxHeight={boxHeight}
+        groupTransform={groupTransform}
+      />
     </svg>
   );
 }

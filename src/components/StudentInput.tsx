@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ArrowRightIcon,
@@ -9,19 +9,23 @@ import {
 } from '@phosphor-icons/react';
 
 import { useStudentManagement } from '@/hooks/student/useStudentManagement';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';
 import { downloadCsvTemplate } from '@/utils/csv/csvTemplateDownload';
 import ConfirmDialog from '@/components/ui/modals/ConfirmDialog';
 import { showToast } from '@/utils/ui/toast';
 import {
   cardSurfaceClass,
+  isFormElementFocused,
   primaryButtonClass,
   warningButtonClass,
   MAX_STUDENTS,
   NAME_GAME_MIN_PHOTOS,
+  STUDENT_LIST_TOOLS_THRESHOLD,
 } from '@/utils';
 import { validateStudentsComplete } from '@/utils/validation';
 import type { NameColumnMode } from '@/utils/data/csvUtils';
+import type { Student } from '@/types';
 import { useClassManagementContext } from '@/contexts/seatingPlan/ClassManagementContext';
 import { useSeatingPlanActions } from '@/contexts/seatingPlan/store';
 import type { StudentInputProps } from '@/components/studentInput/types';
@@ -31,8 +35,29 @@ import HintTooltip from '@/components/ui/feedback/HintTooltip';
 import StudentList from '@/components/studentInput/StudentList';
 import NameColumnSelectionDialog from '@/components/students/NameColumnSelectionDialog';
 import { useStudentListLayout } from '@/components/studentInput/hooks/useStudentListLayout';
+import { useStudentListView } from '@/components/studentInput/hooks/useStudentListView';
+import { useStudentSelection } from '@/components/studentInput/hooks/useStudentSelection';
+import StudentListToolbar from '@/components/studentInput/StudentListToolbar';
+import StudentBulkEditBar from '@/components/studentInput/StudentBulkEditBar';
 import { useIsLgUp } from '@/hooks/ui/useIsLgUp';
 import { useCsvImportWithDialog } from '@/hooks/csv/useCsvImportWithDialog';
+
+/**
+ * Whether Escape is free for the selection shortcut.
+ *
+ * The selection checkboxes are inputs, so the usual "not while typing" guard
+ * would kill the shortcut in the one spot focus actually sits after picking
+ * students. Only text entry and native selects keep Escape to themselves —
+ * there it already means "revert this field" or "close this dropdown".
+ */
+const escapeIsUnclaimed = (): boolean => {
+  const active = document.activeElement;
+  const onCheckbox =
+    active instanceof HTMLInputElement &&
+    (active.type === 'checkbox' || active.type === 'radio');
+
+  return onCheckbox || !isFormElementFocused();
+};
 
 function StudentInput({
   students,
@@ -189,6 +214,71 @@ function StudentInput({
     setPlaceholderCount('10');
   }, [handleQuickClassSetup, placeholderCount, t]);
 
+  // Search / filter / sort and multi-select only appear once a class is big
+  // enough for them to help; below that they would just be chrome.
+  const listView = useStudentListView(students);
+  const selection = useStudentSelection(students, listView.visibleStudents);
+  const showListTools = students.length >= STUDENT_LIST_TOOLS_THRESHOLD;
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+
+  // The bulk bar needs the students themselves, not just the count: its flag
+  // chips show whether a flag holds for all, none or only some of them.
+  const selectedStudents = useMemo(
+    () => students.filter((student) => selection.selectedIds.has(student.id)),
+    [students, selection.selectedIds],
+  );
+
+  // Escape drops the selection, the way it dismisses any other transient state.
+  // An open dialog owns the key though (Modal closes on Escape as well), so the
+  // shortcut stands down instead of quietly clearing the selection behind it —
+  // cancelling a dialog must leave the selection intact.
+  //
+  // This has to listen during the capture phase: a dialog's own Escape handler
+  // is a bubble listener, and React commits its close between two listeners of
+  // the same event, so a bubble listener here would find the dialog already
+  // gone whenever it happened to be registered second.
+  useKeyboardShortcuts(
+    { escape: selection.clear },
+    {
+      capture: true,
+      preventDefault: false,
+      ignoreWhileTyping: false,
+      condition: () =>
+        selection.selectedCount > 0 &&
+        escapeIsUnclaimed() &&
+        document.querySelector('[role="dialog"]') === null,
+    },
+  );
+
+  const handleBulkApply = useCallback(
+    (patch: Partial<Student>) => {
+      const ids = [...selection.selectedIds];
+      ids.forEach((id) => updateStudent(id, patch));
+      showToast(
+        'success',
+        t('bulkEdit.applied', {
+          count: ids.length,
+          defaultValue: '{{count}} Schüler aktualisiert.',
+        }),
+      );
+    },
+    [selection.selectedIds, updateStudent, t],
+  );
+
+  const handleBulkDelete = useCallback(() => {
+    const ids = [...selection.selectedIds];
+    ids.forEach((id) => removeStudent(id));
+    selection.clear();
+    setBulkDeleteOpen(false);
+    showToast(
+      'success',
+      t('bulkEdit.deleted', {
+        count: ids.length,
+        defaultValue: '{{count}} Schüler entfernt.',
+      }),
+    );
+  }, [selection, removeStudent, setBulkDeleteOpen, t]);
+
   const photoCount = students.filter((student) => student.hasPhoto).length;
   const canPlayNameGame = photoCount >= NAME_GAME_MIN_PHOTOS;
 
@@ -289,16 +379,54 @@ function StudentInput({
             updateStudent={updateStudent}
           />
 
-          <StudentList
-            students={students}
-            lastAddedId={lastAddedId}
-            expandedCardId={expandedCardId}
-            updateStudent={updateStudent}
-            requestStudentRemoval={requestStudentRemoval}
-            listContainerRef={listContainerRef}
-            maxHeight={listMaxHeight}
-            onScrollCollapse={handleListScrollCollapse}
-          />
+          {showListTools && (
+            <StudentListToolbar
+              query={listView.query}
+              onQueryChange={listView.setQuery}
+              sortMode={listView.sortMode}
+              onSortModeChange={listView.setSortMode}
+              filterMode={listView.filterMode}
+              onFilterModeChange={listView.setFilterMode}
+              visibleCount={listView.visibleStudents.length}
+              totalCount={students.length}
+              isNarrowed={listView.isNarrowed}
+              onClear={listView.clear}
+              allVisibleSelected={selection.allVisibleSelected}
+              onToggleAllVisible={selection.toggleAllVisible}
+            />
+          )}
+
+          {showListTools && selection.selectedCount > 0 && (
+            <StudentBulkEditBar
+              selectedStudents={selectedStudents}
+              onApply={handleBulkApply}
+              onDeleteSelected={() => setBulkDeleteOpen(true)}
+              onClearSelection={selection.clear}
+            />
+          )}
+
+          {showListTools && listView.visibleStudents.length === 0 ? (
+            <p className="px-1 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
+              {t(
+                'listToolbar.noMatches',
+                'Keine Schüler passen zu Suche und Filter.',
+              )}
+            </p>
+          ) : (
+            <StudentList
+              students={listView.visibleStudents}
+              allStudents={students}
+              lastAddedId={lastAddedId}
+              expandedCardId={expandedCardId}
+              updateStudent={updateStudent}
+              requestStudentRemoval={requestStudentRemoval}
+              listContainerRef={listContainerRef}
+              maxHeight={listMaxHeight}
+              onScrollCollapse={handleListScrollCollapse}
+              isSelected={showListTools ? selection.isSelected : undefined}
+              onToggleSelected={showListTools ? selection.toggle : undefined}
+            />
+          )}
         </>
       )}
 
@@ -367,6 +495,19 @@ function StudentInput({
           setPendingRemoval(null);
         }}
         onCancel={() => setPendingRemoval(null)}
+      />
+      <ConfirmDialog
+        open={bulkDeleteOpen}
+        title={t('bulkEdit.deleteTitle', 'Ausgewählte Schüler entfernen')}
+        message={t('bulkEdit.deleteMessage', {
+          count: selection.selectedCount,
+          defaultValue:
+            'Möchtest du {{count}} ausgewählte Schüler wirklich entfernen? Diese Aktion kann nicht rückgängig gemacht werden.',
+        })}
+        confirmLabel={t('bulkEdit.deleteSelected', 'Entfernen')}
+        cancelLabel={t('common.cancel', 'Abbrechen')}
+        onConfirm={handleBulkDelete}
+        onCancel={() => setBulkDeleteOpen(false)}
       />
       <ConfirmDialog
         open={clearConfirmOpen}

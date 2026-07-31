@@ -14,7 +14,13 @@ const GRID_GAP_PX = 2;
 const VIRTUALIZATION_THRESHOLD = 40; // Enable virtualization only for large lists (max 36 students currently)
 
 type StudentListProps = {
+  /** Students to render — already searched, filtered and sorted. */
   students: Student[];
+  /**
+   * The complete class. Partner dropdowns must offer every classmate, not just
+   * the ones a search happens to be showing.
+   */
+  allStudents?: Student[];
   lastAddedId: string | null;
   expandedCardId: string | null;
   updateStudent: (id: string, patch: Partial<Student>) => void;
@@ -22,10 +28,14 @@ type StudentListProps = {
   listContainerRef: MutableRefObject<HTMLDivElement | null>;
   maxHeight: number | null;
   onScrollCollapse?: () => void;
+  /** Multi-select for bulk edits; omitted hides the row checkboxes. */
+  isSelected?: (studentId: string) => boolean;
+  onToggleSelected?: (studentId: string) => void;
 };
 
 const StudentList = ({
   students,
+  allStudents,
   lastAddedId,
   expandedCardId,
   updateStudent,
@@ -33,8 +43,11 @@ const StudentList = ({
   listContainerRef,
   maxHeight,
   onScrollCollapse,
+  isSelected,
+  onToggleSelected,
 }: StudentListProps) => {
   const parentRef = useRef<HTMLDivElement>(null);
+  const classRoster = allStudents ?? students;
   const isLgUp = useIsLgUp();
   // Virtualize only large lists, and only at `lg+` where rows are single-line
   // and roughly uniform in height. Below `lg` the list flows in the page scroll
@@ -89,7 +102,7 @@ const StudentList = ({
           style={maxHeight ? { maxHeight: `${maxHeight}px` } : undefined}
           onScroll={onScrollCollapse}
         >
-          <StudentListHeader />
+          <StudentListHeader showSelection={Boolean(onToggleSelected)} />
           {students.map((student, index) => (
             <StudentRow
               key={student.id}
@@ -98,8 +111,10 @@ const StudentList = ({
               highlight={student.id === lastAddedId}
               updateStudent={updateStudent}
               removeStudent={requestStudentRemoval}
-              allStudents={students}
+              allStudents={classRoster}
               scrollContainerRef={listContainerRef}
+              selected={isSelected?.(student.id)}
+              onToggleSelected={onToggleSelected}
             />
           ))}
         </div>
@@ -120,7 +135,7 @@ const StudentList = ({
         }}
         onScroll={onScrollCollapse}
       >
-        <StudentListHeader />
+        <StudentListHeader showSelection={Boolean(onToggleSelected)} />
         <div
           style={{
             height: `${virtualizer.getTotalSize()}px`,
@@ -148,8 +163,10 @@ const StudentList = ({
                   highlight={student.id === lastAddedId}
                   updateStudent={updateStudent}
                   removeStudent={requestStudentRemoval}
-                  allStudents={students}
+                  allStudents={classRoster}
                   scrollContainerRef={listContainerRef}
+                  selected={isSelected?.(student.id)}
+                  onToggleSelected={onToggleSelected}
                 />
               </div>
             );

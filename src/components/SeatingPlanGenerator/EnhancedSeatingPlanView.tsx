@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import equal from 'fast-deep-equal';
 import { useTranslation } from 'react-i18next';
 import {
@@ -8,6 +8,9 @@ import {
   ArrowCounterClockwiseIcon,
   ShuffleIcon,
   LinkBreakIcon,
+  EyeIcon,
+  EyeSlashIcon,
+  CursorIcon,
 } from '@phosphor-icons/react';
 import { useNavigate } from 'react-router-dom';
 import SmartSidebar from '@/components/ui/panels/SmartSidebar';
@@ -29,6 +32,8 @@ import { useFirstVisit } from '@/hooks/ui/useFirstVisit';
 import { useIsMobile } from '@/hooks/ui/useIsMobile';
 import type { Props as SeatingPlanViewProps } from './SeatingPlanView';
 import { canvasFrameClass, secondaryButtonClass } from '@/utils';
+import SeatingHistoryToolbar from '@/components/SeatingPlanGenerator/canvas/SeatingHistoryToolbar';
+import { CanvasSettingsButton } from '@/components/SeatingPlanGenerator/canvas/CanvasSettingsButton';
 import { useEnsureCircleLayout } from '@/hooks/circle/useEnsureCircleLayout';
 
 type EnhancedSeatingPlanViewProps = SeatingPlanViewProps & {
@@ -177,6 +182,67 @@ export default function EnhancedSeatingPlanView(
     navigate('/present', { state: { mode: 'circle' } });
   }, [hasUnsavedChanges, props, circleLayout, navigate]);
 
+  // Circle view settings live in the canvas' settings button, exactly like the
+  // table plan's — display options belong to the canvas they affect, while the
+  // sidebar keeps the actions (sync, shuffle).
+  const circleSettingsGroups = useMemo(
+    () => [
+      {
+        id: 'circle-connections',
+        title: t('circleView.connectionsTitle', 'Verbindungen'),
+        options: [
+          {
+            // Icon chip like the seating plan's workspace toggles — same size,
+            // label as tooltip and accessible name.
+            kind: 'iconGrid' as const,
+            id: 'circle-connections-grid',
+            label: t('circleView.connectionsTitle', 'Verbindungen'),
+            items: [
+              {
+                id: 'circle-show-connections',
+                label: t('circleView.showConnections', 'Verbindungen anzeigen'),
+                icon: <LinkSimpleIcon size={18} />,
+                checked: connectionMode !== 'off',
+                onChange: (next: boolean) =>
+                  setConnectionMode(next ? 'subtle' : 'off'),
+              },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'circle-photos',
+        title: t('editor.studentPhotos', 'Schülerfotos'),
+        options: [
+          {
+            kind: 'segment' as const,
+            id: 'circle-photo-mode',
+            value: photoMode,
+            onChange: (next: string) => setPhotoMode(next as PhotoDisplayMode),
+            choices: [
+              {
+                value: 'all',
+                label: t('editor.photoModeAll', 'An'),
+                icon: <EyeIcon size={14} />,
+              },
+              {
+                value: 'hover',
+                label: t('editor.photoModeHover', 'Hover'),
+                icon: <CursorIcon size={14} />,
+              },
+              {
+                value: 'off',
+                label: t('editor.photoModeOff', 'Aus'),
+                icon: <EyeSlashIcon size={14} />,
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    [connectionMode, photoMode, setPhotoMode, t],
+  );
+
   // Calculate actual neighborhood count (preserved neighbors from table seating)
   // For circle mode, we need different controls and view
   if (showModeToggle && seatingMode === 'circle') {
@@ -185,41 +251,13 @@ export default function EnhancedSeatingPlanView(
         <div className="flex flex-col gap-4 md:flex-row md:items-start">
           {!isMobile && (
             <SmartSidebar isFirstVisit={isFirstVisit}>
-              {({ isExpanded }) =>
-                isExpanded ? (
-                  <>
-                    <CircleViewControls
-                      connectionMode={connectionMode}
-                      onConnectionModeChange={setConnectionMode}
-                      photoMode={photoMode}
-                      onPhotoModeChange={setPhotoMode}
-                      onSyncCircle={() =>
-                        void generateCircleSeating({
-                          mode: 'preserve-neighbors',
-                        })
-                      }
-                      onShuffleCircle={handleShuffleCircle}
-                      isExpanded={isExpanded}
-                    />
-                  </>
-                ) : (
-                  <>
-                    <CircleViewControls
-                      connectionMode={connectionMode}
-                      onConnectionModeChange={setConnectionMode}
-                      photoMode={photoMode}
-                      onPhotoModeChange={setPhotoMode}
-                      onSyncCircle={() =>
-                        void generateCircleSeating({
-                          mode: 'preserve-neighbors',
-                        })
-                      }
-                      onShuffleCircle={handleShuffleCircle}
-                      isExpanded={isExpanded}
-                    />
-                  </>
-                )
-              }
+              {({ isExpanded }) => (
+                <CircleViewControls
+                  onSyncCircle={() => void generateCircleSeating()}
+                  onShuffleCircle={handleShuffleCircle}
+                  isExpanded={isExpanded}
+                />
+              )}
             </SmartSidebar>
           )}
 
@@ -228,6 +266,12 @@ export default function EnhancedSeatingPlanView(
               className={`${canvasFrameClass} select-none`}
               style={{ width: '100%', maxWidth: '100vw' }}
             >
+              {/* Undo/redo — the circle shares the seating history, so a
+                  mis-drop here is taken back the same way as on the plan. */}
+              <div className="absolute top-3 left-3 z-20">
+                <SeatingHistoryToolbar />
+              </div>
+
               {/* SeatingModeToggle - fixed top-right */}
               <div className="absolute top-3 right-3 z-10 opacity-80">
                 <SeatingModeToggle
@@ -236,6 +280,11 @@ export default function EnhancedSeatingPlanView(
                   disabled={circleGenerationInProgress}
                 />
               </div>
+
+              <CanvasSettingsButton
+                groups={circleSettingsGroups}
+                buttonTitle={t('editor.viewSettings', 'Ansichtseinstellungen')}
+              />
 
               {circleLayout ? (
                 <SimpleCircleView
@@ -248,12 +297,10 @@ export default function EnhancedSeatingPlanView(
                   connectionMode={connectionMode}
                   onConnectionModeChange={setConnectionMode}
                   photoMode={photoMode}
-                  onSyncCircle={() =>
-                    void generateCircleSeating({ mode: 'preserve-neighbors' })
-                  }
+                  onSyncCircle={() => void generateCircleSeating()}
                 />
               ) : (
-                <div className="flex min-h-[400px] items-center justify-center bg-gray-50 dark:bg-gray-800">
+                <div className="flex min-h-100 items-center justify-center bg-gray-50 dark:bg-gray-800">
                   <div className="text-center space-y-4">
                     <div className="text-gray-500 dark:text-gray-400">
                       <svg
@@ -298,10 +345,8 @@ export default function EnhancedSeatingPlanView(
                 <div className="mt-4 flex flex-wrap items-center gap-2">
                   <button
                     type="button"
-                    onClick={() =>
-                      void generateCircleSeating({ mode: 'preserve-neighbors' })
-                    }
-                    className={`${secondaryButtonClass} flex-1 min-w-[140px] justify-center gap-2`}
+                    onClick={() => void generateCircleSeating()}
+                    className={`${secondaryButtonClass} flex-1 min-w-35 justify-center gap-2`}
                     title={t(
                       'circleView.syncTitle',
                       'Sitzkreis an Sitzplan anpassen',
@@ -315,7 +360,7 @@ export default function EnhancedSeatingPlanView(
                   <button
                     type="button"
                     onClick={handleShuffleCircle}
-                    className={`${secondaryButtonClass} flex-1 min-w-[140px] justify-center gap-2`}
+                    className={`${secondaryButtonClass} flex-1 min-w-35 justify-center gap-2`}
                     title={t(
                       'circleView.shuffleTitle',
                       'Sitzkreis zufällig anordnen',
@@ -333,7 +378,7 @@ export default function EnhancedSeatingPlanView(
                         previous === 'off' ? 'subtle' : 'off',
                       )
                     }
-                    className={`${secondaryButtonClass} flex-1 min-w-[140px] justify-center gap-2 ${
+                    className={`${secondaryButtonClass} flex-1 min-w-35 justify-center gap-2 ${
                       connectionMode === 'off'
                         ? 'text-gray-700 dark:text-gray-200'
                         : 'text-blue-600 dark:text-blue-300'

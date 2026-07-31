@@ -39,7 +39,8 @@
       "item1": "Customize the name of your seating plan.",
       "item2": "Switch between portrait and landscape format for PDF export.",
       "item3": "Choose between different display options like blackboard or full names.",
-      "item4": "Toggle preview between Seating Plan and Seating Circle (top right)."
+      "item4": "Toggle preview between Seating Plan and Seating Circle (top right).",
+      "item5": "Besides PDF and print you can save the view as a PNG image or an SVG vector graphic — handy for parent letters or the school portal."
     },
     "present": {
       "title": "Presentation mode",
@@ -47,7 +48,9 @@
       "item2": "The student view shows the plan from the class's perspective – without markers and photos.",
       "item3": "Show or hide markers, photos, colors and room elements using the bar at the bottom.",
       "item4": "Zoom with the slider or mouse wheel and drag to pan; the centre icon resets the view.",
-      "item5": "Press Alt + ← to return to the generator."
+      "item5": "Press Alt + ← to return to the generator.",
+      "item6": "\"Who's next?\" draws a random student and spotlights their seat – everyone gets a turn before anyone repeats.",
+      "item7": "Keyboard: F fullscreen, Space draws a student, Esc resets the draw, + / − zoom, 0 recenters."
     }
   },
   "sidebar": {
@@ -119,7 +122,15 @@
     "resetView": "Recentre and reset view",
     "back": "Back",
     "backTitle": "Back to the generator (Alt + ←)",
-    "empty": "No seating chart to present yet."
+    "empty": "No seating chart to present yet.",
+    "pick": "Who's next?",
+    "pickTitle": "Draw a random student – everyone gets one turn (Space)",
+    "pickRemaining_one": "{{count}} left",
+    "pickRemaining_other": "{{count}} left",
+    "pickReset": "Reset the draw (Esc)",
+    "fullscreen": "Fullscreen",
+    "fullscreenTitle": "Enter fullscreen (F)",
+    "fullscreenExitTitle": "Exit fullscreen (F)"
   },
   "mode": {
     "table": "Seating Plan",
@@ -147,12 +158,12 @@
     "photoModeDescription": "Show student photos on the tokens (On / Hover / Off).",
     "generatingTitle": "Generating seating circle...",
     "generatingHint": "The seating circle is automatically created based on the table plan.",
-    "connectionDescription": "Neighborhood connections between students.",
     "syncDescription": "Sync the circle with changes in the seating plan.",
     "shuffleDescription": "Only change the circle (seating plan stays unchanged).",
     "canvasLabel_one": "Seating circle with {{count}} student",
     "canvasLabel_other": "Seating circle with {{count}} students",
-    "orderLabel": "Seating order in the circle"
+    "orderLabel": "Seating order in the circle",
+    "connectionsTitle": "Connections"
   },
   "seat": {
     "lockSeat": "Lock seat",
@@ -441,9 +452,16 @@
       "printPopupBlocked": "The print window was blocked. Please allow pop-ups for this page.",
       "tablePdfFailed": "Seating plan PDF export failed. Please try again.",
       "circlePdfFailed": "Seating circle PDF export failed. Please try again.",
-      "circleGenerationFailed": "Could not generate seating circle."
+      "circleGenerationFailed": "Could not generate seating circle.",
+      "imagePreviewUnavailable": "The preview is not ready yet. Please wait a moment and try again.",
+      "pngFailed": "PNG export failed. Please try again.",
+      "svgFailed": "SVG export failed. Please try again."
     },
-    "empty": "No seating plan to export yet."
+    "empty": "No seating plan to export yet.",
+    "pngButton": "PNG",
+    "pngShortcut": "Save the current view as a PNG image (Ctrl/Cmd+Shift+I)",
+    "svgButton": "SVG",
+    "svgTitle": "Save the current view as an SVG vector graphic"
   },
   "wizard": {
     "step": "Step",
@@ -515,7 +533,11 @@
     "photoOverlapWarning": "Show photo collisions",
     "photoCollision": "Photo collision",
     "rotateTable": "Rotate table",
-    "canvasLabel": "Seating plan: {{occupied}} of {{total}} seats taken"
+    "canvasLabel": "Seating plan: {{occupied}} of {{total}} seats taken",
+    "refineButton": "Optimise",
+    "refineLabel": "Optimise the seating plan further",
+    "refineTitle": "Improve the current seating plan without shuffling again",
+    "refineNoCriteria": "Activate at least one mix criterion in the sidebar first."
   },
   "quickSetup": {
     "title": "Set Up Classroom",
@@ -638,7 +660,10 @@
       "export_backToPlan": "Back to Seating Plan",
       "export_exportPdf": "Download Seating Plan as PDF",
       "export_exportCirclePdf": "Download Seating Circle as PDF",
-      "export_print": "Print Seating Plan"
+      "export_exportPng": "Save the current view as a PNG image",
+      "export_print": "Print Seating Plan",
+      "plan_undo": "Undo the last seating action",
+      "plan_redo": "Redo the last seating action"
     },
     "keys": {
       "global_toggleHelp": "?",
@@ -670,7 +695,10 @@
       "export_backToPlan": "Alt/Option + Left Arrow",
       "export_exportPdf": "Ctrl/Cmd + Shift + T",
       "export_exportCirclePdf": "Ctrl/Cmd + Shift + C",
-      "export_print": "Ctrl/Cmd + P"
+      "export_exportPng": "Ctrl/Cmd + Shift + I",
+      "export_print": "Ctrl/Cmd + P",
+      "plan_undo": "Ctrl/Cmd + Z",
+      "plan_redo": "Ctrl/Cmd + Shift + Z"
     }
   }
 }

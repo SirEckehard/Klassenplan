@@ -31,7 +31,7 @@ export function useEnsureCircleLayout(
         return false;
       }
 
-      void generateCircleSeating({ mode: 'preserve-neighbors' });
+      void generateCircleSeating();
       return true;
     },
     [

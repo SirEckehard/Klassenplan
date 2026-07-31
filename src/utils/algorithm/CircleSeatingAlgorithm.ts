@@ -9,7 +9,6 @@ import type {
 } from '@/types';
 import type {
   CircleLayout,
-  CircleGenerationOptions,
   CircleStudentPosition,
   NeighborhoodAnalysis,
 } from '@/types/Circle';
@@ -22,7 +21,7 @@ import {
 import {
   calculateCircleDimensions,
   calculateCircleNeighbors,
-  DEFAULT_CIRCLE_OPTIONS,
+  CIRCLE_ARRANGEMENT_MODE,
   angleToPosition,
 } from '@/utils/math/circleGeometry';
 import { shuffleArray } from './shuffle';
@@ -35,7 +34,6 @@ import { logDebug } from '@/utils';
 export class CircleSeatingAlgorithm {
   private students: Student[];
   private scene: ClassroomScene;
-  private options: CircleGenerationOptions;
   private neighborhoodAnalysis: NeighborhoodAnalysis;
   private circleDimensions: ReturnType<typeof calculateCircleDimensions>;
 
@@ -44,13 +42,10 @@ export class CircleSeatingAlgorithm {
     scene: ClassroomScene,
     _mixSettings?: Partial<MixSettings>,
     _seatingHistory?: SavedPlan[],
-    options: Partial<CircleGenerationOptions> = {},
     currentSeating?: SeatingArrangement,
   ) {
     this.students = students;
     this.scene = scene;
-    this.options = { ...DEFAULT_CIRCLE_OPTIONS, ...options };
-
     // Initialize analysis
     this.neighborhoodAnalysis = analyzeNeighborhoods(
       scene,
@@ -325,7 +320,7 @@ export class CircleSeatingAlgorithm {
         this.neighborhoodAnalysis.neighborhoodPairs.length,
       newNeighborhoods: newNeighborhoods.length,
       preservationRate,
-      mode: this.options.mode,
+      mode: CIRCLE_ARRANGEMENT_MODE,
       timestamp: Date.now(),
       neighborhoodPairs: updatedAnalysis.neighborhoodPairs,
     };
@@ -340,7 +335,6 @@ export function generateOptimizedCircleLayout(
   scene: ClassroomScene,
   mixSettings: Partial<MixSettings> = {},
   seatingHistory: SavedPlan[] = [],
-  options: Partial<CircleGenerationOptions> = {},
   currentSeating?: SeatingArrangement,
 ): CircleLayout {
   const algorithm = new CircleSeatingAlgorithm(
@@ -348,7 +342,6 @@ export function generateOptimizedCircleLayout(
     scene,
     mixSettings,
     seatingHistory,
-    options,
     currentSeating,
   );
   return algorithm.generateOptimizedLayout();

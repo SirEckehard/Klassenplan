@@ -337,5 +337,69 @@
     "clearAllMessage": "Möchtest du wirklich alle Schüler aus {{className}} entfernen? Diese Aktion kann nicht rückgängig gemacht werden.",
     "yourClass": "deine Klasse",
     "placeholdersCreated": "{{count}} Schüler-Platzhalter erstellt. Fülle jetzt die Namen und Details aus."
+  },
+  "listToolbar": {
+    "searchLabel": "Schüler suchen",
+    "searchPlaceholder": "Name suchen…",
+    "filterLabel": "Nach Merkmal filtern",
+    "filters": {
+      "all": "Alle Schüler",
+      "restless": "Nur unruhige",
+      "shy": "Nur schüchterne",
+      "concentrationIssues": "Nur ablenkbare",
+      "needsFrontSeat": "Nur vordere Plätze",
+      "performanceStrong": "Nur leistungsstarke",
+      "performanceWeak": "Nur leistungsschwache",
+      "missingName": "Nur ohne Namen",
+      "withoutPhoto": "Nur ohne Foto"
+    },
+    "sortLabel": "Sortierung",
+    "sort": {
+      "manual": "Eigene Reihenfolge",
+      "nameAsc": "Name A–Z",
+      "nameDesc": "Name Z–A"
+    },
+    "selectAll": "Alle auswählen",
+    "countNarrowed": "{{visible}} von {{total}}",
+    "clear": "Suche und Filter zurücksetzen",
+    "noMatches": "Keine Schüler passen zu Suche und Filter.",
+    "selectStudent": "{{name}} auswählen"
+  },
+  "bulkEdit": {
+    "regionLabel": "Mehrfachbearbeitung",
+    "selectedCount_one": "{{count}} ausgewählt",
+    "selectedCount_other": "{{count}} ausgewählt",
+    "setGender": "Geschlecht setzen",
+    "setHeight": "Körpergröße setzen",
+    "setLanguage": "Sprachniveau setzen",
+    "setRole": "Soziale Rolle setzen",
+    "setFlag": "Merkmal setzen",
+    "flagState": {
+      "on": "bei allen",
+      "off": "bei keinem",
+      "mixed": "gemischt"
+    },
+    "flagSetHint": "Klicken, um es bei allen Ausgewählten zu setzen",
+    "flagClearHint": "Klicken, um es bei allen Ausgewählten zu entfernen",
+    "clearValue": "— entfernen —",
+    "flags": {
+      "performanceStrong": "Leistungsstark",
+      "performanceWeak": "Leistungsschwach",
+      "needsFrontSeat": "Vordere Plätze",
+      "restless": "Unruhig",
+      "shy": "Schüchtern",
+      "concentrationIssues": "Ablenkbar",
+      "prefersWindow": "Fensterplatz",
+      "prefersDoor": "Türplatz"
+    },
+    "deleteSelected": "Entfernen",
+    "clearSelection": "Auswahl aufheben",
+    "applied_one": "{{count}} Schüler aktualisiert.",
+    "applied_other": "{{count}} Schüler aktualisiert.",
+    "deleteTitle": "Ausgewählte Schüler entfernen",
+    "deleteMessage_one": "Möchtest du {{count}} ausgewählten Schüler wirklich entfernen? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "deleteMessage_other": "Möchtest du {{count}} ausgewählte Schüler wirklich entfernen? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "deleted_one": "{{count}} Schüler entfernt.",
+    "deleted_other": "{{count}} Schüler entfernt."
   }
 }

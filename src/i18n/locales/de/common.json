@@ -216,6 +216,9 @@
     "install": "Als App installieren",
     "installDesc": "Klassenplan als App installieren und offline nutzen!"
   },
+  "offline": {
+    "badge": "Offline – alles funktioniert weiter"
+  },
   "loading": {
     "page": "Seite wird geladen",
     "studentList": "Klassenliste wird geladen",

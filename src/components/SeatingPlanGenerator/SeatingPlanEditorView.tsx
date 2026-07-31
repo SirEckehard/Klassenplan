@@ -20,7 +20,7 @@ import {
 import SmartSidebar from '@/components/ui/panels/SmartSidebar';
 import SmartMixControls from '@/components/ui/controls/SmartMixControls';
 import MixCriteriaIcons from '@/components/ui/icons/MixCriteriaIcons';
-import FloatingMixButton from '@/components/ui/buttons/FloatingMixButton';
+import SeatingCanvasToolbar from '@/components/SeatingPlanGenerator/canvas/SeatingCanvasToolbar';
 import SeatingModeToggle from '@/components/SeatingPlanGenerator/SeatingModeToggle';
 import SeatingPlanCanvas from '@/components/SeatingPlanGenerator/SeatingPlanCanvas';
 import SeatingStatisticsBadge from '@/components/ui/feedback/SeatingStatisticsBadge';
@@ -863,12 +863,8 @@ export default function SeatingPlanEditorView({
               className={`${canvasFrameClass} relative select-none`}
               style={{ width: '100%', maxWidth: '100vw' }}
             >
-              {/* Floating Mix Button - positioned at top right */}
-              <FloatingMixButton
-                onMix={handleMix}
-                isLoading={mixingLocked}
-                disabled={mixingLocked}
-              />
+              {/* Canvas overlay row: undo/redo, mix, optimise */}
+              <SeatingCanvasToolbar onMix={handleMix} isMixing={mixingLocked} />
 
               {hasStatistics && (onOpenStatistics || onCloseStatistics) && (
                 <button

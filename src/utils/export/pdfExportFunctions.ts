@@ -11,7 +11,10 @@ import { logError } from '@/utils';
 import { confirmDownload } from '@/utils/ui/downloadConfirmation';
 import type { FeatureVisibilityFlags } from '@/utils/ui/featureStyles';
 import { getStudentPhotoDataUrl } from '@/hooks/student/studentPhotoCache';
-import dmSansWoff2Url from '@fontsource-variable/dm-sans/files/dm-sans-latin-wght-normal.woff2?url';
+import {
+  extractSvgElement,
+  renderSvgToPngDataUrl,
+} from '@/utils/export/svgRasterizer';
 
 /**
  * Pre-resolve photos to base64 Data URLs for the export. Object URLs would
@@ -33,26 +36,6 @@ export async function buildPhotoDataUrlMap(
     }),
   );
   return map;
-}
-
-let cachedFontBase64: string | null = null;
-
-async function getDmSansBase64(): Promise<string> {
-  if (cachedFontBase64) return cachedFontBase64;
-  const res = await fetch(dmSansWoff2Url);
-  const buf = await res.arrayBuffer();
-  const bytes = new Uint8Array(buf);
-  let binary = '';
-  for (let i = 0; i < bytes.byteLength; i++) {
-    binary += String.fromCharCode(bytes[i]);
-  }
-  cachedFontBase64 = btoa(binary);
-  return cachedFontBase64;
-}
-
-function injectFontIntoSvg(svg: string, base64: string): string {
-  const style = `<defs><style>@font-face{font-family:'DM Sans Variable';src:url('data:font/woff2;base64,${base64}');font-weight:100 900;font-style:normal;}</style></defs>`;
-  return svg.replace(/(<svg[^>]*>)/, `$1${style}`);
 }
 
 export type ExportOptions = {
@@ -141,70 +124,6 @@ const PDF_PAGE_DIMENSIONS: Record<
 const EXPORT_DPI = 300;
 const PIXELS_PER_MM = EXPORT_DPI / 25.4;
 
-function extractSvgElement(svgMarkup: string): SVGSVGElement {
-  if (typeof document === 'undefined') {
-    throw new Error('PDF-Export ist nur im Browser verfügbar.');
-  }
-
-  const container = document.createElement('div');
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(svgMarkup, 'image/svg+xml');
-  const parseError = doc.querySelector('parsererror');
-  if (parseError) {
-    throw new Error('SVG-Inhalt konnte nicht geparst werden.');
-  }
-  container.appendChild(doc.documentElement);
-  const svg = container.querySelector('svg');
-  if (!svg) {
-    throw new Error('SVG-Inhalt konnte nicht gefunden werden.');
-  }
-  return svg.cloneNode(true) as SVGSVGElement;
-}
-
-async function renderSvgToImage(
-  svgMarkup: string,
-  widthPx: number,
-  heightPx: number,
-): Promise<string> {
-  const fontBase64 = await getDmSansBase64();
-  const svgWithFont = injectFontIntoSvg(svgMarkup, fontBase64);
-
-  return new Promise((resolve, reject) => {
-    const blob = new Blob([svgWithFont], {
-      type: 'image/svg+xml;charset=utf-8',
-    });
-    const url = URL.createObjectURL(blob);
-    const image = new Image();
-
-    image.onload = () => {
-      try {
-        const canvas = document.createElement('canvas');
-        canvas.width = widthPx;
-        canvas.height = heightPx;
-        const context = canvas.getContext('2d');
-        if (!context) {
-          reject(new Error('Canvas-Kontext konnte nicht erstellt werden.'));
-          return;
-        }
-        context.imageSmoothingEnabled = true;
-        context.imageSmoothingQuality = 'high';
-        context.clearRect(0, 0, widthPx, heightPx);
-        context.drawImage(image, 0, 0, widthPx, heightPx);
-        resolve(canvas.toDataURL('image/png', 1));
-      } finally {
-        URL.revokeObjectURL(url);
-      }
-    };
-
-    image.onerror = () => {
-      URL.revokeObjectURL(url);
-      reject(new Error('SVG konnte nicht geladen werden.'));
-    };
-
-    image.src = url;
-  });
-}
-
 /**
  * Generate a PDF blob from SVG markup (for printing or preview)
  */
@@ -229,7 +148,11 @@ export async function generatePdfBlob(
   svgElement.setAttribute('preserveAspectRatio', 'xMidYMid meet');
 
   const serializedSvg = new XMLSerializer().serializeToString(svgElement);
-  const imageDataUrl = await renderSvgToImage(serializedSvg, widthPx, heightPx);
+  const imageDataUrl = await renderSvgToPngDataUrl(
+    serializedSvg,
+    widthPx,
+    heightPx,
+  );
 
   pdf.addImage(imageDataUrl, 'PNG', 0, 0, width, height, undefined, 'NONE');
 
@@ -304,7 +227,7 @@ async function exportSvgToPdf(
     svgElement.setAttribute('preserveAspectRatio', 'xMidYMid meet');
 
     const serializedSvg = new XMLSerializer().serializeToString(svgElement);
-    const imageDataUrl = await renderSvgToImage(
+    const imageDataUrl = await renderSvgToPngDataUrl(
       serializedSvg,
       widthPx,
       heightPx,

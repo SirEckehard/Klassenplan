@@ -34,6 +34,10 @@ export const specialNeedsButtonTokens = {
   activeStateClass:
     'border-amber-600! bg-amber-300! text-amber-600! dark:border-amber-300! dark:bg-amber-300/20! dark:text-amber-300!',
   inactiveStateClass: 'text-gray-700! dark:text-gray-200!',
+  // Bulk editing only: some of the selected students carry the flag, others do
+  // not. Dashed and washed out so it never reads as a plain active toggle.
+  mixedStateClass:
+    'border-dashed! border-amber-600! bg-amber-100! text-amber-600! dark:border-amber-300! dark:bg-amber-300/10! dark:text-amber-300!',
 } as const;
 
 export const heightButtonTokens = {

@@ -3,7 +3,6 @@
 import type { Student, ClassroomScene, SeatingArrangement } from '@/types';
 import type {
   CircleLayout,
-  CircleGenerationOptions,
   CircleStudentPosition,
   NeighborhoodAnalysis,
 } from '@/types/Circle';
@@ -17,7 +16,7 @@ import {
   calculateCircleDimensions,
   distributeStudentsInCircle,
   calculateCircleNeighbors,
-  DEFAULT_CIRCLE_OPTIONS,
+  CIRCLE_ARRANGEMENT_MODE,
 } from '@/utils/math/circleGeometry';
 
 /**
@@ -26,11 +25,8 @@ import {
 export function generateCircleLayout(
   students: Student[],
   classroomScene: ClassroomScene,
-  options: Partial<CircleGenerationOptions> = {},
   currentSeating?: SeatingArrangement,
 ): CircleLayout {
-  const opts = { ...DEFAULT_CIRCLE_OPTIONS, ...options };
-
   // Analyze current neighborhoods from table layout
   const neighborhoodAnalysis = analyzeNeighborhoods(
     classroomScene,
@@ -41,16 +37,13 @@ export function generateCircleLayout(
   // Calculate circle dimensions
   const { center, radius } = calculateCircleDimensions(students.length);
 
-  // Generate arrangement based on selected mode
-  let studentPositions: CircleStudentPosition[];
-
-  // Only preserve-neighbors mode in simplified version
-  studentPositions = preserveNeighborhoodsArrangement(
-    students,
-    neighborhoodAnalysis,
-    center,
-    radius,
-  );
+  let studentPositions: CircleStudentPosition[] =
+    preserveNeighborhoodsArrangement(
+      students,
+      neighborhoodAnalysis,
+      center,
+      radius,
+    );
 
   // Calculate actual neighbor relationships in circle
   const circleNeighborMap = calculateCircleNeighbors(studentPositions);
@@ -87,7 +80,7 @@ export function generateCircleLayout(
     totalOriginalNeighborhoods: neighborhoodAnalysis.neighborhoodPairs.length,
     newNeighborhoods: newNeighborhoods.length,
     preservationRate,
-    mode: opts.mode,
+    mode: CIRCLE_ARRANGEMENT_MODE,
     timestamp: Date.now(),
     neighborhoodPairs: updatedAnalysis.neighborhoodPairs,
   };

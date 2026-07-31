@@ -41,6 +41,8 @@ type UsePlanPersistenceHandlersParams = {
   setMixSettings: React.Dispatch<React.SetStateAction<MixSettings>>;
   markClassroomSynced: (scene: ClassroomScene) => void;
   syncSeatingSnapshot: (options?: SyncSnapshotOptions) => void;
+  /** Record the pre-load state so loading a plan or mix stays undoable. */
+  recordSeatingSnapshot: () => void;
 };
 
 export function usePlanPersistenceHandlers({
@@ -58,6 +60,7 @@ export function usePlanPersistenceHandlers({
   setMixSettings,
   markClassroomSynced,
   syncSeatingSnapshot,
+  recordSeatingSnapshot,
 }: UsePlanPersistenceHandlersParams) {
   const handleSaveSeatingPlan = useCallback(
     (name: string, scene: ClassroomScene) => {
@@ -96,6 +99,7 @@ export function usePlanPersistenceHandlers({
 
   const handleHistoryLoad = useCallback(
     (plan: SavedPlan) => {
+      recordSeatingSnapshot();
       loadSeatingPlan(plan, { replaceStudents: false });
       updateClassroomScene(plan.scene);
       if (plan.circleLayout) {
@@ -120,18 +124,20 @@ export function usePlanPersistenceHandlers({
       updateClassroomScene,
       markClassroomSynced,
       syncSeatingSnapshot,
+      recordSeatingSnapshot,
     ],
   );
 
   const handleMixLoad = useCallback(
     (result: MixResult) => {
+      recordSeatingSnapshot();
       setCurrentSeating(result.seating);
       setMixSettings(result.mixSettings);
       if (step !== 3) {
         setStep(3);
       }
     },
-    [setCurrentSeating, setMixSettings, setStep, step],
+    [setCurrentSeating, setMixSettings, setStep, step, recordSeatingSnapshot],
   );
 
   return { handleSaveSeatingPlan, handleHistoryLoad, handleMixLoad } as const;

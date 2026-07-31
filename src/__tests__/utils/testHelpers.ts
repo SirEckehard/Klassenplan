@@ -19,7 +19,7 @@ import type {
   UpdateClassMetadataPayload,
   ActiveClassState,
 } from '../../types';
-import type { CircleLayout, CircleGenerationOptions } from '../../types/Circle';
+import type { CircleLayout } from '../../types/Circle';
 import type { CriterionFulfillment } from '../../utils/algorithm/seatingStatistics';
 import type { Props as SeatingPlanViewProps } from '../../components/SeatingPlanGenerator/SeatingPlanView';
 import type { StudentInputProps } from '../../components/StudentInput';
@@ -121,12 +121,8 @@ interface MockSeatingGeneratorActions {
   triggerImport: () => void;
   handleExportAll: () => void;
   handleImportFile: React.ChangeEventHandler<HTMLInputElement>;
-  generateCircleSeating: (
-    options?: Partial<CircleGenerationOptions>,
-  ) => Promise<CircleLayout | null>;
-  regenerateCircle: (
-    options?: Partial<CircleGenerationOptions>,
-  ) => Promise<CircleLayout | null>;
+  generateCircleSeating: () => Promise<CircleLayout | null>;
+  regenerateCircle: () => Promise<CircleLayout | null>;
   updateStudentPosition: (studentId: string, newAngle: number) => void;
   swapStudentPositions: (studentId: string, targetPosition: number) => void;
   batchSwapStudentPositions: (

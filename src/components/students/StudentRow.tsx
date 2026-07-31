@@ -27,6 +27,12 @@ type Props = {
   removeStudent: (id: string) => void;
   allStudents: Student[];
   scrollContainerRef?: React.RefObject<HTMLDivElement | null>;
+  /**
+   * Multi-select for bulk edits. Omitted while the class is too small for the
+   * list toolbar to appear, in which case no checkbox is rendered at all.
+   */
+  selected?: boolean;
+  onToggleSelected?: (studentId: string) => void;
 };
 
 /**
@@ -53,6 +59,8 @@ function StudentRow({
   removeStudent,
   allStudents,
   scrollContainerRef,
+  selected,
+  onToggleSelected,
 }: Props) {
   // Centralized state management for dropdowns
   const rowState = useStudentRowState();
@@ -94,7 +102,9 @@ function StudentRow({
   const baseCardClass = `${cardSurfaceClass} cursor-default transition-shadow hover:shadow-lg`;
   const highlightClass = highlight
     ? 'border-green-500 bg-green-50/90 shadow-md dark:border-green-400 dark:bg-green-900/30'
-    : '';
+    : selected
+      ? 'border-blue-400 bg-blue-50/70 dark:border-blue-500 dark:bg-blue-950/40'
+      : '';
   const genderHintId = `gender-hint-${student.id}`;
 
   return (
@@ -105,6 +115,19 @@ function StudentRow({
       <div className="flex flex-col gap-2 lg:flex-row lg:flex-wrap lg:items-center lg:justify-between">
         {/* Left: Index + Name */}
         <div className="flex flex-1 items-center gap-2 min-w-fit">
+          {onToggleSelected && (
+            <input
+              type="checkbox"
+              checked={Boolean(selected)}
+              onChange={() => onToggleSelected(student.id)}
+              data-disable-card-toggle
+              className="h-4 w-4 shrink-0 cursor-pointer accent-blue-600"
+              aria-label={t('listToolbar.selectStudent', {
+                name: student.name || t('studentList.newStudent', 'Schüler'),
+                defaultValue: '{{name}} auswählen',
+              })}
+            />
+          )}
           <span className="min-w-6 text-sm text-gray-500 dark:text-gray-400 font-medium">
             {index + 1}.
           </span>

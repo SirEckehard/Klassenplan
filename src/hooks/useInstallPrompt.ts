@@ -2,6 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import { useState, useEffect, useCallback } from 'react';
 import { logInfo } from '@/utils';
+import { LOCAL_STORAGE_KEYS } from '@/utils/data/storageKeys';
 
 interface BeforeInstallPromptEvent extends Event {
   readonly platforms: string[];
@@ -21,6 +22,30 @@ declare global {
 // Global state to capture the event irrespective of component lifecycle
 let deferredPrompt: BeforeInstallPromptEvent | null = null;
 const listeners = new Set<(isInstallable: boolean) => void>();
+
+/**
+ * Whether the user closed the install toast. Only the one-shot toast honours
+ * this — an explicit install request (footer menu) always goes through.
+ */
+export function isInstallPromptDismissed(): boolean {
+  try {
+    return (
+      localStorage.getItem(LOCAL_STORAGE_KEYS.pwaInstallDismissed) === 'true'
+    );
+  } catch {
+    // Private mode / storage disabled: treat as "not dismissed".
+    return false;
+  }
+}
+
+/** Remember that the install toast was dismissed. */
+export function dismissInstallPrompt(): void {
+  try {
+    localStorage.setItem(LOCAL_STORAGE_KEYS.pwaInstallDismissed, 'true');
+  } catch {
+    // Nothing to persist to — the toast simply reappears next session.
+  }
+}
 
 if (typeof window !== 'undefined') {
   // Check if event already fired (captured by index.html script)

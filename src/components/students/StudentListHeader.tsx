@@ -59,7 +59,15 @@ const COLUMNS: { key: string; label: string; full: string }[] = [
  * scrolling. Marked aria-hidden: every control below already carries its own
  * accessible name.
  */
-export default function StudentListHeader() {
+type Props = {
+  /**
+   * Mirrors the row's leading multi-select checkbox. Without the matching
+   * spacer the whole header would sit one checkbox (w-4 + gap-2) too far left.
+   */
+  showSelection?: boolean;
+};
+
+export default function StudentListHeader({ showSelection = false }: Props) {
   const { t } = useTranslation('students');
 
   return (
@@ -68,8 +76,10 @@ export default function StudentListHeader() {
       aria-hidden="true"
     >
       <div className="flex items-center gap-2">
-        {/* Left labels mirror the row's leading cells: index number (min-w-6),
-            photo avatar (w-10) and the name editor. */}
+        {/* Left labels mirror the row's leading cells: selection checkbox
+            (w-4), index number (min-w-6), photo avatar (w-10) and the name
+            editor, whose pill adds px-3 of its own. */}
+        {showSelection && <span className="w-4 shrink-0" aria-hidden="true" />}
         <span className="min-w-6 shrink-0" aria-hidden="true" />
         <span
           title={t('listHeader.photoFull')}
@@ -79,7 +89,7 @@ export default function StudentListHeader() {
         </span>
         <span
           title={t('listHeader.nameFull')}
-          className="shrink-0 pl-5 text-[10px] font-medium leading-tight tracking-tight text-gray-500 dark:text-gray-400"
+          className="shrink-0 pl-3 text-[10px] font-medium leading-tight tracking-tight text-gray-500 dark:text-gray-400"
         >
           {t('listHeader.name')}
         </span>
