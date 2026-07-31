@@ -118,22 +118,24 @@ function CompactPlanItem({
                 type="button"
                 className={`${successIconButtonClass} h-8 w-8`}
                 title={t('common.save', 'Speichern')}
+                aria-label={t('common.save', 'Speichern')}
                 onPointerDown={(e) => e.preventDefault()}
                 onClick={saveName}
               >
-                <CheckIcon size={14} />
+                <CheckIcon size={14} aria-hidden="true" />
               </button>
               <button
                 type="button"
                 className={`${dangerIconButtonClass} h-8 w-8`}
                 title={t('common.cancel', 'Abbrechen')}
+                aria-label={t('common.cancel', 'Abbrechen')}
                 onPointerDown={(e) => e.preventDefault()}
                 onClick={() => {
                   setIsEditing(false);
                   setDraftName('');
                 }}
               >
-                <XIcon size={14} />
+                <XIcon size={14} aria-hidden="true" />
               </button>
             </div>
           ) : (
@@ -219,7 +221,7 @@ function CompactPlanItem({
                 defaultValue: `Sitzplan ${plan.name} laden`,
               })}
             >
-              <EyeIcon size={14} />
+              <EyeIcon size={14} aria-hidden="true" />
             </button>
             <button
               onClick={() => setConfirmOpen(true)}
@@ -230,7 +232,7 @@ function CompactPlanItem({
                 defaultValue: `Sitzplan ${plan.name} löschen`,
               })}
             >
-              <TrashIcon size={14} />
+              <TrashIcon size={14} aria-hidden="true" />
             </button>
           </div>
         )}

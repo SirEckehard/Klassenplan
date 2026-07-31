@@ -19,6 +19,7 @@ import {
   type SaveTemplateError,
   type SaveTemplateResult,
   type SavedPlan,
+  type SaveSeatingPlanOptions,
   type Student,
 } from '@/types';
 import type { CircleLayout, CircleExportData } from '@/types/Circle';
@@ -44,6 +45,7 @@ import {
   importAllFromJson as importAllFromJsonUtil,
   clearAllData as clearAllDataUtil,
 } from '@/utils/data/dataBackup';
+import { resolvePlanSlot, upsertPlan } from '@/utils/data/planNormalization';
 import { useSeatingRepository } from './useSeatingRepository';
 import { useDownloadFile } from './useDownloadFile';
 import { summarizeClass } from '@/utils/data/classCollection';
@@ -157,17 +159,6 @@ export const exportStudentsToCsv = (students: Student[]): string => {
 export type LoadOptions = {
   replaceStudents?: boolean;
 };
-
-function generateUniquePlanId(history: SavedPlan[]): string {
-  const existingIds = new Set(history.map((plan) => plan.id));
-  let candidate = generateId();
-
-  while (existingIds.has(candidate)) {
-    candidate = generateId();
-  }
-
-  return candidate;
-}
 
 /**
  * Persist seating data to IndexedDB and provide load/save utilities.
@@ -549,41 +540,36 @@ export function useSeatingPersistence(state: SeatingState) {
       name: string,
       scene: ClassroomScene,
       circleLayoutArg?: CircleLayout | null,
+      options?: SaveSeatingPlanOptions,
     ): boolean => {
       const trimmed = name.trim();
       if (!trimmed || currentSeating.length === 0) return false;
 
-      const exists = seatingHistory.some(
-        (p) => p.name === trimmed && p.id !== activePlanId,
-      );
-      if (exists) return false;
-
-      const active =
-        activePlanId !== null
-          ? seatingHistory.find((p) => p.id === activePlanId)
-          : null;
-      const isUpdate = active?.name === trimmed;
-      const planId =
-        isUpdate && activePlanId !== null
-          ? activePlanId
-          : generateUniquePlanId(seatingHistory);
+      // A silent auto-save recycles the previous one so leaving step 3
+      // repeatedly cannot bury the real plans under timestamped entries.
+      const autoSave = options?.autoSave === true;
+      const slot = resolvePlanSlot({
+        history: seatingHistory,
+        activePlanId,
+        name: trimmed,
+        autoSave,
+      });
+      if (!slot) return false;
 
       const base: SavedPlan = {
-        id: planId,
+        id: slot.planId,
         name: trimmed,
         date: new Date().toLocaleDateString('de-DE'),
         seating: currentSeating,
         scene,
         locks: lockedPositions,
         ...(circleLayoutArg && { circleLayout: circleLayoutArg }),
+        // Omitted on explicit saves, which promotes an auto-save entry to a
+        // regular plan.
+        ...(autoSave && { autoSaved: true as const }),
       };
 
-      setSeatingHistory((prev) => {
-        if (isUpdate && activePlanId !== null) {
-          return prev.map((p) => (p.id === activePlanId ? { ...base } : p));
-        }
-        return [...prev, base];
-      });
+      setSeatingHistory((prev) => upsertPlan(prev, base));
 
       setActivePlanId(base.id);
       setPlanName(trimmed);

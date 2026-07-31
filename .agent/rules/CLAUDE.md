@@ -25,7 +25,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - ✅ ESLint: 0 errors, 0 warnings
 - ✅ TypeScript: 0 compilation errors (strict mode)
-- ✅ Tests: 1486 unit tests (144 test files) + 3 Playwright smoke specs, 100% passing
+- ✅ Tests: 1521 unit tests (149 test files) + 3 Playwright smoke specs, 100% passing
 - ⚠️ Unused Exports: ~108 modules with unused exports (mostly type exports, Props interfaces and shared test helpers - acceptable for a TypeScript project)
 - ✅ Test Infrastructure: Centralized accessibility helpers and toast matchers for robust testing
 - ✅ Architecture: Repository Pattern implemented, UI components reorganized into logical subdirectories

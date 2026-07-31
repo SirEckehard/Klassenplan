@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import type {
   ClassroomTable,
   SeatingArrangement,
@@ -105,6 +106,7 @@ const SeatingPlanCanvas = React.memo(
     seatHighlights = null,
     photoDisplayMode = 'off',
   }: SeatingPlanCanvasProps) => {
+    const { t } = useTranslation('generator');
     const canvasRef = React.useRef<SVGSVGElement | null>(null);
     const photoUrls = useStudentPhotoUrls(allStudents ?? []);
 
@@ -197,6 +199,20 @@ const SeatingPlanCanvas = React.memo(
       [features, featureVisibility, isDark],
     );
 
+    // The seats inside carry their own labels and focus; the SVG only needs a
+    // group name so screen readers announce what the seat list belongs to.
+    const { occupiedSeats, totalSeats } = React.useMemo(() => {
+      let occupied = 0;
+      let total = 0;
+      for (const table of currentSeating) {
+        total += table.length;
+        for (const seat of table) {
+          if (seat) occupied += 1;
+        }
+      }
+      return { occupiedSeats: occupied, totalSeats: total };
+    }, [currentSeating]);
+
     return (
       <>
         {/* Screen-reader feedback for keyboard seat moves (grab/drop/cancel). */}
@@ -209,6 +225,12 @@ const SeatingPlanCanvas = React.memo(
           height="100%"
           viewBox={`0 0 ${canvasWidth} ${classroomHeight}`}
           className="touch-none select-none"
+          role="group"
+          aria-label={t('editor.canvasLabel', {
+            occupied: occupiedSeats,
+            total: totalSeats,
+            defaultValue: 'Sitzplan: {{occupied}} von {{total}} Plätzen belegt',
+          })}
           onPointerDown={beginSelection}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}

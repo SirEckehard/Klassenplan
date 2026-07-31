@@ -187,6 +187,7 @@ describe('useSeatingWizard', () => {
         'Test Plan',
         mockConfig.classroomScene,
         circleLayout,
+        { autoSave: false },
       );
       expect(markClassroomSyncedMock).toHaveBeenCalledWith(
         mockConfig.classroomScene,
@@ -212,13 +213,15 @@ describe('useSeatingWizard', () => {
       });
 
       expect(mockSaveSeatingPlanWithCircle).toHaveBeenCalledTimes(1);
-      const [planName, scene, layout] =
+      const [planName, scene, layout, options] =
         mockSaveSeatingPlanWithCircle.mock.calls[0];
       expect(planName).toMatch(
         /^Plan \d{1,2}\.\d{1,2}\.\d{4}, \d{2}:\d{2}:\d{2}$/,
       );
       expect(scene).toBe(mockConfig.classroomScene);
       expect(layout).toBe(circleLayout);
+      // Generated name ⇒ throwaway auto-save that replaces the previous one.
+      expect(options).toEqual({ autoSave: true });
       expect(markClassroomSyncedMock).toHaveBeenCalledWith(scene);
       expect(syncSeatingSnapshotMock).toHaveBeenCalled();
     });
@@ -242,6 +245,7 @@ describe('useSeatingWizard', () => {
         'Test Plan',
         mockConfig.classroomScene,
         null,
+        { autoSave: false },
       );
       expect(markClassroomSyncedMock).toHaveBeenCalledWith(
         mockConfig.classroomScene,
@@ -288,6 +292,7 @@ describe('useSeatingWizard', () => {
         'Test Plan',
         mockConfig.classroomScene,
         circleLayout,
+        { autoSave: false },
       );
       expect(confirmDialog).toHaveBeenCalledWith(
         i18n.t('dialogs.savePlanFailedConfirm', { ns: 'common' }),

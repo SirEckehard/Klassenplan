@@ -27,7 +27,9 @@ export function useCsvImportWithDialog(
   });
 
   /**
-   * Import CSV file with specified name column mode
+   * Import CSV file with specified name column mode.
+   * Errors are logged here and surfaced as toasts by the import service, so
+   * callers (change handlers, dialog buttons) never have to handle them.
    */
   const importWithMode = useCallback(
     async (file: File, mode?: NameColumnMode): Promise<void> => {
@@ -35,7 +37,6 @@ export function useCsvImportWithDialog(
         await importHandler(file, mode);
       } catch (error) {
         logError('CSV import failed', { error }, 'useCsvImportWithDialog');
-        throw error;
       }
     },
     [importHandler],
@@ -46,24 +47,25 @@ export function useCsvImportWithDialog(
    */
   const analyzeCsvFile = useCallback(
     async (file: File): Promise<void> => {
+      let analysis: Awaited<ReturnType<typeof analyzeCsvFileService>>;
       try {
-        const analysis = await analyzeCsvFileService(file);
-
-        if (analysis.requiresNameSelection) {
-          setImportState({
-            showDialog: true,
-            nameInfo: analysis.nameInfo,
-            previewData: analysis.previewData,
-            currentFile: file,
-          });
-          return;
-        }
-
-        await importWithMode(file);
+        analysis = await analyzeCsvFileService(file);
       } catch (error) {
         logError('CSV analysis failed', { error }, 'useCsvImportWithDialog');
-        throw error;
+        return;
       }
+
+      if (analysis.requiresNameSelection) {
+        setImportState({
+          showDialog: true,
+          nameInfo: analysis.nameInfo,
+          previewData: analysis.previewData,
+          currentFile: file,
+        });
+        return;
+      }
+
+      await importWithMode(file);
     },
     [importWithMode],
   );
@@ -72,8 +74,9 @@ export function useCsvImportWithDialog(
    * Handle dialog confirmation
    */
   const handleDialogConfirm = useCallback(
-    async (mode: NameColumnMode) => {
-      if (!importState.currentFile) return;
+    (mode: NameColumnMode) => {
+      const file = importState.currentFile;
+      if (!file) return;
 
       setImportState({
         showDialog: false,
@@ -82,7 +85,7 @@ export function useCsvImportWithDialog(
         currentFile: null,
       });
 
-      await importWithMode(importState.currentFile, mode);
+      void importWithMode(file, mode);
     },
     [importState.currentFile, importWithMode],
   );

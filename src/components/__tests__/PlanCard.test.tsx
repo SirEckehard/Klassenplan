@@ -84,7 +84,9 @@ describe('PlanCard', () => {
     await user.click(loadButton);
     expect(onLoad).toHaveBeenCalledWith(basePlan);
 
-    const renameButton = getButton(/Namen bearbeiten|Edit name/i);
+    const renameButton = getButton(
+      /Namen von Plan A bearbeiten|Rename Plan A/i,
+    );
     await user.click(renameButton);
 
     const nameInput = screen.getByDisplayValue('Plan A');
@@ -110,7 +112,9 @@ describe('PlanCard', () => {
     const onRename = vi.fn().mockReturnValue(false);
     renderPlanCard({ onRename });
 
-    const renameButton = getButton(/Namen bearbeiten|Edit name/i);
+    const renameButton = getButton(
+      /Namen von Plan A bearbeiten|Rename Plan A/i,
+    );
     await user.click(renameButton);
 
     const nameInput = screen.getByDisplayValue('Plan A');

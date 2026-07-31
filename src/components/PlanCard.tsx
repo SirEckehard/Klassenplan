@@ -89,22 +89,24 @@ function PlanCard({ plan, onLoad, onDelete, onRename }: Props) {
                   type="button"
                   className={`${successIconButtonClass} min-w-11 h-11`}
                   title={t('common.save', 'Speichern')}
+                  aria-label={t('common.save', 'Speichern')}
                   onPointerDown={(e) => e.preventDefault()}
                   onClick={saveName}
                 >
-                  <CheckIcon size={16} />
+                  <CheckIcon size={16} aria-hidden="true" />
                 </button>
                 <button
                   type="button"
                   className={`${secondaryButtonClass} min-w-11 h-11 px-0`}
                   title={t('common.cancel', 'Abbrechen')}
+                  aria-label={t('common.cancel', 'Abbrechen')}
                   onPointerDown={(e) => e.preventDefault()}
                   onClick={() => {
                     setIsEditing(false);
                     setDraftName('');
                   }}
                 >
-                  <XIcon size={16} />
+                  <XIcon size={16} aria-hidden="true" />
                 </button>
               </div>
             ) : (
@@ -121,12 +123,16 @@ function PlanCard({ plan, onLoad, onDelete, onRename }: Props) {
                     type="button"
                     className={`${secondaryButtonClass} min-w-11 h-11 px-0`}
                     title={t('planCard.editName', 'Namen bearbeiten')}
+                    aria-label={t('planCard.editNameAriaLabel', {
+                      name: plan.name,
+                      defaultValue: `Namen von ${plan.name} bearbeiten`,
+                    })}
                     onClick={() => {
                       setIsEditing(true);
                       setDraftName(plan.name);
                     }}
                   >
-                    <PencilIcon size={16} />
+                    <PencilIcon size={16} aria-hidden="true" />
                   </button>
                 )}
               </div>

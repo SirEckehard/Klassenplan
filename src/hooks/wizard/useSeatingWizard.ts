@@ -21,6 +21,7 @@ import type {
   Student,
   ClassroomScene,
   MixSettings,
+  SaveSeatingPlanOptions,
   SeatingArrangement,
 } from '@/types';
 import type { CircleLayout } from '@/types/Circle';
@@ -48,6 +49,7 @@ export interface WizardConfig {
     name: string,
     scene: ClassroomScene,
     circleLayout?: CircleLayout | null,
+    options?: SaveSeatingPlanOptions,
   ) => boolean;
   circleLayout: CircleLayout | null;
   setPlanName: (name: string) => void;
@@ -163,7 +165,11 @@ export function useSeatingWizard(
           setPlanName(finalName);
         }
 
-        const ok = saveSeatingPlan(finalName, classroomScene, circleLayout);
+        const ok = saveSeatingPlan(finalName, classroomScene, circleLayout, {
+          // Only a generated name marks this as a throwaway auto-save; a name
+          // the user typed makes it a real plan.
+          autoSave: !hasCustomName,
+        });
 
         if (ok) {
           announcePlanSaved(finalName);

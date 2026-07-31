@@ -27,6 +27,11 @@
   --border-list: #dbeafe;
   --shadow-list: 0 20px 45px -20px rgba(15, 23, 42, 0.3);
   --radius-list: 1rem;
+  --border-option-hover: #93c5fd;
+  --surface-option-selected: rgba(219, 234, 254, 0.65);
+  --border-option-selected: #2563eb;
+  --accent-option: #2563eb;
+  --text-muted: #4b5563;
   --surface-badge: rgba(255, 255, 255, 0.8);
   --border-badge: #bfdbfe;
   --shadow-badge: 0 8px 16px -12px rgba(15, 23, 42, 0.45);
@@ -136,6 +141,11 @@
     --surface-list: rgba(3, 7, 18, 0.72);
     --border-list: rgba(30, 64, 175, 0.4);
     --shadow-list: 0 20px 45px -25px rgba(0, 0, 0, 0.7);
+    --border-option-hover: rgba(59, 130, 246, 0.6);
+    --surface-option-selected: rgba(30, 58, 138, 0.32);
+    --border-option-selected: #3b82f6;
+    --accent-option: #3b82f6;
+    --text-muted: #9ca3af;
     --surface-badge: rgba(3, 7, 18, 0.7);
     --border-badge: rgba(30, 64, 175, 0.4);
     --shadow-badge: 0 8px 16px -12px rgba(0, 0, 0, 0.65);
@@ -282,6 +292,63 @@
     background-color 150ms ease,
     border-color 150ms ease,
     box-shadow 150ms ease;
+}
+
+/* Selectable radio card (backup restore mode, CSV name columns). Owns its own
+   padding — `card-surface` deliberately ships none, which left these dialogs
+   looking cramped. */
+@utility option-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+  padding: 1rem 1.125rem;
+  cursor: pointer;
+  border-radius: var(--radius-card);
+  border: 1px solid var(--border-card);
+  background: var(--surface-card);
+  box-shadow: var(--shadow-card);
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+
+  &:hover {
+    border-color: var(--border-option-hover);
+  }
+
+  /* The card, not just the radio, reflects the selection. */
+  &:has(input:checked) {
+    border-color: var(--border-option-selected);
+    background: var(--surface-option-selected);
+  }
+
+  /* The radio itself is visually small; surface its focus on the whole card. */
+  &:has(input:focus-visible) {
+    outline: 2px solid var(--focus-ring-primary);
+    outline-offset: 2px;
+  }
+}
+
+@utility option-radio {
+  margin-top: 0.125rem;
+  height: 1.125rem;
+  width: 1.125rem;
+  flex-shrink: 0;
+  accent-color: var(--accent-option);
+}
+
+@utility option-card-title {
+  font-size: 0.9375rem;
+  line-height: 1.375rem;
+  font-weight: 600;
+  color: var(--text-page);
+}
+
+@utility option-card-hint {
+  margin-top: 0.25rem;
+  font-size: 0.8125rem;
+  line-height: 1.375;
+  color: var(--text-muted);
 }
 
 @utility badge-surface {

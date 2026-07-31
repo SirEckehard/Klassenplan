@@ -16,6 +16,7 @@ import type {
   MixResult as MixResultT,
   LockedPositions as LockedPositionsT,
   SavedPlan as SavedPlanT,
+  SaveSeatingPlanOptions as SaveSeatingPlanOptionsT,
   ClassroomTemplate as ClassroomTemplateT,
   SaveTemplateError as SaveTemplateErrorT,
   SaveTemplateResult as SaveTemplateResultT,
@@ -48,6 +49,7 @@ export type MixSettings = MixSettingsT;
 export type MixResult = MixResultT;
 export type LockedPositions = LockedPositionsT;
 export type SavedPlan = SavedPlanT;
+export type SaveSeatingPlanOptions = SaveSeatingPlanOptionsT;
 export type ClassroomTemplate = ClassroomTemplateT;
 export type SaveTemplateError = SaveTemplateErrorT;
 export type SaveTemplateResult = SaveTemplateResultT;

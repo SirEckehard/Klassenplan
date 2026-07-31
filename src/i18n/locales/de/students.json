@@ -131,6 +131,22 @@
     "externalModernCsv": "Externer Link zu Modern CSV",
     "softwareRecommendation": "Software-Empfehlung für die Verwaltung von CSV-Dateien:"
   },
+  "csvDialog": {
+    "selectColumns": "Namens-Spalten auswählen",
+    "description": "Die CSV-Datei enthält mehrere Namens-Spalten. Bitte wähle, welche Kombination importiert werden soll:",
+    "firstNameOnly": "Nur Vorname",
+    "lastNameOnly": "Nur Nachname",
+    "fullName": "Vorname + Nachname",
+    "column": "Spalte",
+    "combineColumns": "Spalten kombinieren",
+    "preview": "Vorschau",
+    "firstRows_one": "erste {{count}} Zeile",
+    "firstRows_other": "erste {{count}} Zeilen",
+    "empty": "leer",
+    "privacy": "Datenschutz",
+    "privacyNote": "Klassenplan speichert nur Name, Geschlecht und Lernbedürfnisse. Alle anderen Spalten werden ignoriert.",
+    "import": "Importieren"
+  },
   "viewMode": {
     "showLabels": "Beschriftung anzeigen",
     "hideLabels": "Beschriftung ausblenden",

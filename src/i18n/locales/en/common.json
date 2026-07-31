@@ -166,18 +166,40 @@
   "dialogs": {
     "confirmTitle": "Confirmation",
     "savePlanFailedConfirm": "Seating plan could not be saved. Return anyway?",
-    "importOverwriteConfirm": "Warning: The import will overwrite all existing data (students, seating plans, circle layouts, etc.). This action cannot be undone. Do you want to continue?",
     "clearAllData": {
       "title": "Clear all data",
       "message": "Do you really want to delete all data (including class list, templates, etc.)?",
       "confirm": "Delete",
       "cancel": "Cancel"
-    },
-    "backupPassword": {
-      "create": "The backup will be encrypted. Choose a password (at least 8 characters):",
-      "confirm": "Repeat the password:",
-      "import": "Password for backup:"
     }
+  },
+  "backupPassword": {
+    "createTitle": "Encrypt backup",
+    "createSubtitle": "The backup is encrypted with your password (at least {{min}} characters). Without this password the file cannot be restored.",
+    "unlockTitle": "Decrypt backup",
+    "unlockSubtitle": "Enter the password this backup was encrypted with.",
+    "passwordLabel": "Password",
+    "confirmLabel": "Repeat password",
+    "strengthHint": "At least {{min}} characters; length and mixed character types increase the strength.",
+    "strength": {
+      "weak": "Weak password",
+      "medium": "Medium password",
+      "strong": "Strong password"
+    },
+    "errorEmpty": "Please enter the password.",
+    "errorTooShort": "The password must be at least {{min}} characters long.",
+    "errorMismatch": "The passwords do not match.",
+    "submitCreate": "Create backup",
+    "submitUnlock": "Decrypt"
+  },
+  "backupRestore": {
+    "title": "Restore backup",
+    "subtitle": "How should the data from the backup be applied?",
+    "replaceLabel": "Replace everything",
+    "replaceHint": "Existing students, seating plans and templates are replaced by the backup. This action cannot be undone.",
+    "mergeLabel": "Merge",
+    "mergeHint": "Students and seating plans from the backup are added to the existing ones. Classroom and settings come from the backup.",
+    "submit": "Restore"
   },
   "password": {
     "show": "Show password",

@@ -29,8 +29,10 @@ import ClassActionsPanel from '@/components/studentInput/ClassActionsPanel';
 import MissingNameNotice from '@/components/studentInput/MissingNameNotice';
 import HintTooltip from '@/components/ui/feedback/HintTooltip';
 import StudentList from '@/components/studentInput/StudentList';
+import NameColumnSelectionDialog from '@/components/students/NameColumnSelectionDialog';
 import { useStudentListLayout } from '@/components/studentInput/hooks/useStudentListLayout';
 import { useIsLgUp } from '@/hooks/ui/useIsLgUp';
+import { useCsvImportWithDialog } from '@/hooks/csv/useCsvImportWithDialog';
 
 function StudentInput({
   students,
@@ -115,6 +117,15 @@ function StudentInput({
     },
     [importCsv],
   );
+
+  // CSVs with both a first-name and a last-name column are ambiguous; ask
+  // instead of silently defaulting to the first name.
+  const {
+    importState,
+    analyzeCsvFile,
+    handleDialogConfirm,
+    handleDialogCancel,
+  } = useCsvImportWithDialog(handleCsvImport);
 
   // Quick class setup handler
   const handleQuickClassSetup = useCallback(
@@ -215,7 +226,7 @@ function StudentInput({
         onNewStudentNameChange={setNewStudentName}
         onAddStudent={handleAddStudent}
         isAddStudentDisabled={isAddDisabled}
-        onImportCsv={handleCsvImport}
+        onImportCsv={analyzeCsvFile}
         onExportCsv={downloadStudentsCsv}
         onImportBackup={triggerImport}
       />
@@ -375,6 +386,15 @@ function StudentInput({
         }}
         onCancel={() => setClearConfirmOpen(false)}
       />
+      {importState.nameInfo && (
+        <NameColumnSelectionDialog
+          open={importState.showDialog}
+          nameInfo={importState.nameInfo}
+          previewData={importState.previewData}
+          onConfirm={handleDialogConfirm}
+          onCancel={handleDialogCancel}
+        />
+      )}
     </div>
   );
 }

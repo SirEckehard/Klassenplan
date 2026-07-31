@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import React, { useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { CircleLayout } from '@/types/Circle';
 import type { PhotoDisplayMode, Student } from '@/types';
 import { LOCAL_STORAGE_KEYS } from '@/utils/data/storageKeys';
@@ -60,6 +61,7 @@ function SimpleCircleView({
   onConnectionModeChange,
   photoMode: externalPhotoMode,
 }: SimpleCircleViewProps) {
+  const { t } = useTranslation('generator');
   const isMobile = useIsMobile();
   // Connection display mode - with localStorage persistence
   const [localConnectionMode, setLocalConnectionMode] =
@@ -324,11 +326,28 @@ function SimpleCircleView({
         }
       `}</style>
 
+      {/* Text equivalent of the circle: nothing inside the SVG is focusable,
+          so screen readers would otherwise get no seating order at all. */}
+      <ol
+        className="sr-only"
+        aria-label={t('circleView.orderLabel', 'Sitzreihenfolge im Sitzkreis')}
+      >
+        {layout.students.map((studentPosition) => (
+          <li key={studentPosition.student.id}>
+            {studentPosition.student.name}
+          </li>
+        ))}
+      </ol>
+
       <svg
         ref={svgRef}
         width="100%"
         viewBox="0 0 900 600"
         className="block w-full h-auto rounded-lg"
+        role="img"
+        aria-label={t('circleView.canvasLabel', {
+          count: layout.students.length,
+        })}
         style={{
           aspectRatio: '3 / 2',
           backgroundColor: transparentBackground

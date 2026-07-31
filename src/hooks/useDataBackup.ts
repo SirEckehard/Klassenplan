@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import { useRef } from 'react';
-import { promptDialog, confirmDialog } from '@/services/ui/dialogs';
+import {
+  promptBackupPassword,
+  promptBackupRestoreMode,
+} from '@/services/ui/backupDialogs';
 import { showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
-import i18n from '@/i18n';
 import {
   BACKUP_ERROR_MESSAGES,
   BACKUP_LIMITS,
@@ -30,10 +32,6 @@ export const KDF_ITERATIONS = 600000;
 // Backups written before the KDF parameters were stored in the envelope
 // were derived with this fixed iteration count and must stay importable.
 export const LEGACY_KDF_ITERATIONS = 250000;
-export const MIN_BACKUP_PASSWORD_LENGTH = 8;
-// Upper bound on password/confirmation retries so a scripted or stuck input
-// cannot loop the dialog forever.
-const MAX_PASSWORD_ATTEMPTS = 5;
 
 function bufferToBase64(buffer: ArrayBuffer | Uint8Array) {
   // Convert buffer to Base64 string
@@ -124,34 +122,6 @@ async function decryptJson(payload: EncryptedBackupPayload, password: string) {
   return decoder.decode(decrypted);
 }
 
-// Ask for a backup password with confirmation; resolves null when cancelled.
-async function promptBackupPassword(): Promise<string | null> {
-  for (let attempt = 0; attempt < MAX_PASSWORD_ATTEMPTS; attempt++) {
-    const password = await promptDialog(
-      i18n.t('dialogs.backupPassword.create', { ns: 'common' }),
-      '',
-      'password',
-    );
-    if (!password) return null;
-    if (password.length < MIN_BACKUP_PASSWORD_LENGTH) {
-      showToast('warning', TOAST_MESSAGES.BACKUP_PASSWORD_TOO_SHORT);
-      continue;
-    }
-    const confirmation = await promptDialog(
-      i18n.t('dialogs.backupPassword.confirm', { ns: 'common' }),
-      '',
-      'password',
-    );
-    if (confirmation === null) return null;
-    if (confirmation !== password) {
-      showToast('error', TOAST_MESSAGES.BACKUP_PASSWORD_MISMATCH);
-      continue;
-    }
-    return password;
-  }
-  return null;
-}
-
 interface Options {
   exportAllAsJson: () => Promise<string>;
   importAllFromJson: (
@@ -181,8 +151,9 @@ export default function useDataBackup({
       const stamp = new Date().toISOString().replace(/[:.]/g, '-');
       const filename = `klassenplan-backup-${stamp}.json`;
 
-      // Ask for password first (before file dialog)
-      const password = await promptBackupPassword();
+      // Ask for password first (before file dialog). The dialog enforces the
+      // minimum length and the confirmation match itself.
+      const password = await promptBackupPassword('create');
       if (!password) return;
 
       // Encrypt data
@@ -232,11 +203,7 @@ export default function useDataBackup({
           handleWebCryptoUnavailable('import');
           return;
         }
-        const password = await promptDialog(
-          i18n.t('dialogs.backupPassword.import', { ns: 'common' }),
-          '',
-          'password',
-        );
+        const password = await promptBackupPassword('unlock');
         if (password === null) return;
         let decrypted;
         try {
@@ -251,13 +218,14 @@ export default function useDataBackup({
           return;
         }
 
-        // Warn user about data overwrite
-        const confirmed = await confirmDialog(
-          i18n.t('dialogs.importOverwriteConfirm', { ns: 'common' }),
-        );
-        if (!confirmed) return;
+        // Let the user choose between replacing everything and merging the
+        // backup into the existing data.
+        const restoreMode = await promptBackupRestoreMode();
+        if (!restoreMode) return;
 
-        await importAllFromJson(decrypted, { merge: false });
+        await importAllFromJson(decrypted, {
+          merge: restoreMode === 'merge',
+        });
         showToast('success', TOAST_MESSAGES.BACKUP_IMPORT_SUCCESS);
       } catch (err) {
         if (err instanceof WebCryptoUnavailableError) {

@@ -10,7 +10,7 @@ import {
   type Mock,
 } from 'vitest';
 import type { ComponentProps } from 'react';
-import { render, screen, cleanup } from '@testing-library/react';
+import { render, screen, cleanup, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import SimpleCircleView from '../SimpleCircleView';
 import type { CircleLayout } from '../../../types/Circle';
@@ -152,9 +152,29 @@ describe('SimpleCircleView', () => {
     expect(document.querySelector('svg')).toBeInTheDocument();
 
     // CheckIcon if student names are rendered (they're in text elements)
-    expect(screen.getAllByText('Alice')).toHaveLength(2); // text and title
-    expect(screen.getAllByText('Bob')).toHaveLength(2); // text and title
-    expect(screen.getAllByText('Charlie')).toHaveLength(2); // text and title
+    expect(screen.getAllByText('Alice')).toHaveLength(3); // token text, SVG title, screen-reader list
+    expect(screen.getAllByText('Bob')).toHaveLength(3); // token text, SVG title, screen-reader list
+    expect(screen.getAllByText('Charlie')).toHaveLength(3); // token text, SVG title, screen-reader list
+  });
+
+  it('exposes the circle to assistive tech', () => {
+    render(<SimpleCircleView layout={mockLayout} />);
+
+    // The SVG itself carries an accessible name…
+    expect(
+      screen.getByRole('img', { name: /Sitzkreis|Seating circle/i }),
+    ).toBeInTheDocument();
+
+    // …and the seating order is available as a text equivalent, because
+    // nothing inside the SVG is focusable.
+    const order = screen.getByRole('list', {
+      name: /Sitzreihenfolge|Seating order/i,
+    });
+    expect(
+      within(order)
+        .getAllByRole('listitem')
+        .map((item) => item.textContent),
+    ).toEqual(['Alice', 'Bob', 'Charlie']);
   });
 
   it('renders circle layout with students', () => {
@@ -265,7 +285,7 @@ describe('SimpleCircleView', () => {
 
     // In editable mode, student circles should have grab cursor
     // This is tested through the component rendering without errors
-    expect(screen.getAllByText('Alice')).toHaveLength(2); // text and title
+    expect(screen.getAllByText('Alice')).toHaveLength(3); // token text, SVG title, screen-reader list
   });
 
   it('handles non-editable mode correctly', () => {
@@ -273,7 +293,7 @@ describe('SimpleCircleView', () => {
 
     // In non-editable mode, interactions should be disabled
     // This is tested through the component rendering without errors
-    expect(screen.getAllByText('Alice')).toHaveLength(2); // text and title
+    expect(screen.getAllByText('Alice')).toHaveLength(3); // token text, SVG title, screen-reader list
   });
 
   it('displays special needs indicators when enabled', () => {
@@ -306,7 +326,7 @@ describe('SimpleCircleView', () => {
       />,
     );
 
-    expect(screen.getAllByText('Dave')).toHaveLength(2); // text and title
+    expect(screen.getAllByText('Dave')).toHaveLength(3); // token text, SVG title, screen-reader list
     // Special needs indicators are rendered as SVG icons, hard to test directly
     // but the component should render without errors
   });
@@ -320,7 +340,7 @@ describe('SimpleCircleView', () => {
     render(<SimpleCircleView layout={emptyLayout} />);
 
     // Should find exactly one Alice
-    expect(screen.getAllByText('Alice')).toHaveLength(2); // text and title
+    expect(screen.getAllByText('Alice')).toHaveLength(3); // token text, SVG title, screen-reader list
     // Should render without errors even with fewer students
   });
 

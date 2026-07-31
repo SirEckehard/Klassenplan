@@ -14,6 +14,9 @@ import {
 } from '@/utils/algorithm/seatingStatistics';
 import { CRITERIA_ICON_MAP } from '@/utils/ui/criteriaIcons';
 import type { ScalarMixSettingKey } from '@/types';
+import { useBreakpointDown } from '@/hooks/ui/useBreakpoint';
+import { useDialogA11y } from '@/hooks/ui/useDialogA11y';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 
 function getCriterionIcon(key: string): React.ReactNode {
   const iconProps = { size: 14, className: 'shrink-0' };
@@ -52,6 +55,19 @@ function SeatingStatisticsBadge({
   activeHighlightMode = null,
 }: SeatingStatisticsBadgeProps) {
   const { t } = useTranslation('generator');
+  // Below `sm` the badge takes over the whole screen and therefore has to
+  // behave like a modal dialog; above it, it is an inline panel.
+  const isSheet = useBreakpointDown('sm');
+  const hasCriteria = criteria.length > 0;
+  const sheetRef = useDialogA11y<HTMLDivElement>({
+    open: isSheet && hasCriteria,
+  });
+  const sheetTitleId = React.useId();
+
+  useKeyboardShortcuts(
+    { escape: onClose },
+    { condition: () => isSheet && hasCriteria },
+  );
 
   // Helper function to get translated criterion label
   const translateCriterionLabel = (
@@ -61,7 +77,7 @@ function SeatingStatisticsBadge({
     return t(`mix.criteria.${key}.label`, fallbackLabel);
   };
 
-  if (criteria.length === 0) return null;
+  if (!hasCriteria) return null;
 
   // Calculate overall score (weighted average)
   // IMPORTANT: Use ALL criteria for score calculation, not just visible ones
@@ -156,27 +172,39 @@ function SeatingStatisticsBadge({
     </div>
   );
 
-  return (
-    <>
-      {/* Fullscreen overlay for <sm viewports (mobile) */}
-      <div className="fixed inset-0 z-50 overflow-y-auto bg-white dark:bg-gray-900 sm:hidden">
+  // Fullscreen sheet for <sm viewports (mobile)
+  if (isSheet) {
+    return (
+      <div
+        ref={sheetRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={sheetTitleId}
+        tabIndex={-1}
+        className="fixed inset-0 z-50 overflow-y-auto bg-white focus:outline-none dark:bg-gray-900"
+      >
         {/* Header with close button */}
         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-blue-100/70 bg-white px-4 py-3 shadow-sm dark:border-blue-900/40 dark:bg-gray-900">
           <div className="flex items-center gap-2">
             <ChartBarIcon
               size={18}
               className="text-blue-600 dark:text-blue-400"
+              aria-hidden="true"
             />
-            <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100">
+            <h2
+              id={sheetTitleId}
+              className="text-base font-semibold text-gray-900 dark:text-gray-100"
+            >
               {t('statisticsBadge.title', 'Kriterien-Erfüllung')}
             </h2>
           </div>
           <button
+            type="button"
             onClick={onClose}
             className={`${iconButtonClass} h-10 w-10 border-none bg-transparent text-gray-500 shadow-none transition hover:text-blue-600 dark:text-gray-300`}
             aria-label={t('statisticsBadge.close', 'Schließen')}
           >
-            <XIcon size={24} />
+            <XIcon size={24} aria-hidden="true" />
           </button>
         </div>
 
@@ -203,42 +231,47 @@ function SeatingStatisticsBadge({
         {/* Criteria List */}
         {renderCriteriaList(true)}
       </div>
+    );
+  }
 
-      {/* Normal compact badge for sm+ viewports */}
-      <div
-        className={`${cardSurfaceClass} ${positionClasses} hidden sm:flex max-h-[calc(100vh-6rem)] xl:max-h-none flex-col gap-2 overflow-hidden border-2 border-blue-200/80 p-3 transition-[opacity,transform] duration-100 ease-out dark:border-blue-900/50 ${className}`}
-      >
-        {/* Compact Header with Score */}
-        <div className="flex items-center justify-between gap-2 border-b border-blue-100/70 pb-2 dark:border-blue-900/40">
-          <div className="flex items-center gap-1.5">
-            <ChartBarIcon
-              size={14}
-              className="text-blue-600 dark:text-blue-400"
+  // Normal compact badge for sm+ viewports
+  return (
+    <section
+      aria-label={t('statisticsBadge.title', 'Kriterien-Erfüllung')}
+      className={`${cardSurfaceClass} ${positionClasses} flex max-h-[calc(100vh-6rem)] xl:max-h-none flex-col gap-2 overflow-hidden border-2 border-blue-200/80 p-3 transition-[opacity,transform] duration-100 ease-out dark:border-blue-900/50 ${className}`}
+    >
+      {/* Compact Header with Score */}
+      <div className="flex items-center justify-between gap-2 border-b border-blue-100/70 pb-2 dark:border-blue-900/40">
+        <div className="flex items-center gap-1.5">
+          <ChartBarIcon
+            size={14}
+            className="text-blue-600 dark:text-blue-400"
+            aria-hidden="true"
+          />
+          <span className="text-xs font-semibold text-gray-800 dark:text-gray-200">
+            {t('statisticsBadge.overallLabel', 'Gesamt')}{' '}
+            {Math.round(weightedScore)}%
+          </span>
+          <div className="h-1.5 w-12 rounded-full bg-gray-200 dark:bg-gray-700">
+            <div
+              className="h-full rounded-full bg-blue-500 transition-all duration-500"
+              style={{ width: `${Math.round(weightedScore)}%` }}
             />
-            <span className="text-xs font-semibold text-gray-800 dark:text-gray-200">
-              {t('statisticsBadge.overallLabel', 'Gesamt')}{' '}
-              {Math.round(weightedScore)}%
-            </span>
-            <div className="h-1.5 w-12 rounded-full bg-gray-200 dark:bg-gray-700">
-              <div
-                className="h-full rounded-full bg-blue-500 transition-all duration-500"
-                style={{ width: `${Math.round(weightedScore)}%` }}
-              />
-            </div>
           </div>
-          <button
-            onClick={onClose}
-            className={`${iconButtonClass} h-7 w-7 border-none bg-transparent text-gray-400 shadow-none transition hover:text-blue-600 dark:text-gray-500`}
-            title={t('statisticsBadge.close', 'Schließen')}
-          >
-            <XIcon size={16} />
-          </button>
         </div>
-
-        {/* Criteria List */}
-        {renderCriteriaList(false)}
+        <button
+          type="button"
+          onClick={onClose}
+          className={`${iconButtonClass} h-7 w-7 border-none bg-transparent text-gray-400 shadow-none transition hover:text-blue-600 dark:text-gray-500`}
+          aria-label={t('statisticsBadge.close', 'Schließen')}
+        >
+          <XIcon size={16} aria-hidden="true" />
+        </button>
       </div>
-    </>
+
+      {/* Criteria List */}
+      {renderCriteriaList(false)}
+    </section>
   );
 }
 

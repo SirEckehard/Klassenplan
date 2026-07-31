@@ -1,19 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import React, { useEffect, useRef, useId, useCallback } from 'react';
+import React, { useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import { XIcon } from '@phosphor-icons/react';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
-
-const FOCUSABLE_SELECTORS = [
-  'a[href]',
-  'button:not([disabled])',
-  'input:not([disabled])',
-  'select:not([disabled])',
-  'textarea:not([disabled])',
-  '[tabindex]:not([tabindex="-1"])',
-].join(', ');
+import { useDialogA11y } from '@/hooks/ui/useDialogA11y';
 
 type Props = {
   open: boolean;
@@ -44,10 +36,7 @@ export default function Modal({
   children,
 }: Props) {
   const { t } = useTranslation('common');
-  const dialogRef = useRef<HTMLDivElement>(null);
-  // Element that had focus before the modal opened; focus returns to it on
-  // close (WCAG 2.4.3).
-  const restoreFocusRef = useRef<HTMLElement | null>(null);
+  const dialogRef = useDialogA11y<HTMLDivElement>({ open });
   const titleId = useId();
   const descriptionId = useId();
   const hasHeaderContent = Boolean(
@@ -62,53 +51,6 @@ export default function Modal({
       condition: () => open,
     },
   );
-
-  // Trap focus inside the modal when open
-  const handleFocusTrap = useCallback((e: KeyboardEvent) => {
-    if (e.key !== 'Tab' || !dialogRef.current) return;
-    const focusable = Array.from(
-      dialogRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTORS),
-    );
-    if (focusable.length === 0) return;
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
-    if (e.shiftKey) {
-      if (document.activeElement === first) {
-        e.preventDefault();
-        last.focus();
-      }
-    } else {
-      if (document.activeElement === last) {
-        e.preventDefault();
-        first.focus();
-      }
-    }
-  }, []);
-
-  useEffect(() => {
-    if (open) {
-      restoreFocusRef.current =
-        document.activeElement instanceof HTMLElement
-          ? document.activeElement
-          : null;
-      // Focus the dialog when it opens
-      dialogRef.current?.focus();
-      document.body.style.overflow = 'hidden';
-      document.addEventListener('keydown', handleFocusTrap);
-    } else {
-      document.body.style.overflow = '';
-    }
-
-    return () => {
-      document.body.style.overflow = '';
-      document.removeEventListener('keydown', handleFocusTrap);
-      const restoreTarget = restoreFocusRef.current;
-      restoreFocusRef.current = null;
-      if (restoreTarget && document.contains(restoreTarget)) {
-        restoreTarget.focus();
-      }
-    };
-  }, [open, handleFocusTrap]);
 
   if (!open) return null;
 

@@ -47,6 +47,7 @@ export default function TableTypeSelector({
               key={tableType}
               type="button"
               onClick={() => onTypeChange(tableType)}
+              aria-pressed={isActive}
               className={`
                 ${cardSurfaceClass}
                 relative flex cursor-pointer flex-col items-center gap-3 border-2 p-4 transition-all duration-200

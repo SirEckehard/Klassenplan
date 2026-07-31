@@ -67,6 +67,23 @@ export interface SavedPlan {
   scene: ClassroomScene;
   locks?: LockedPositions; // Optional persisted locks
   circleLayout?: CircleLayout; // Optional circle layout
+  /**
+   * Set when the plan was written by a silent auto-save (leaving step 3
+   * without naming it). At most one such entry exists: the next auto-save
+   * overwrites it instead of filling the history with timestamps.
+   * Cleared as soon as the user saves the plan explicitly.
+   */
+  autoSaved?: boolean;
+}
+
+/** Options for `saveSeatingPlan`. */
+export interface SaveSeatingPlanOptions {
+  /**
+   * Mark the write as a silent auto-save, which recycles the previous
+   * auto-saved entry instead of appending a new one. Only pass this when the
+   * plan name was generated rather than chosen by the user.
+   */
+  autoSave?: boolean;
 }
 
 export interface ClassroomTemplate {

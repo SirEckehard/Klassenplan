@@ -1,30 +1,17 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import { useState, useEffect } from 'react';
+import { useBreakpointDown } from '@/hooks/ui/useBreakpoint';
 
 /**
- * Hook to detect mobile devices based on screen width
- * Uses 995px breakpoint for mobile-responsive UI layouts
- * @returns boolean indicating if the current viewport is mobile size
+ * Hook to detect narrow viewports that need the mobile UI (floating triggers
+ * and full-screen sheets instead of sidebars).
+ *
+ * Shares the `lg` breakpoint with `useIsLgUp` so JS and CSS switch layouts at
+ * the same width; it used to sit at a bespoke 996px, leaving a 28px band where
+ * the two disagreed.
+ *
+ * @returns boolean indicating if the current viewport is below `lg` (1024px)
  */
 export function useIsMobile(): boolean {
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const checkIsMobile = () => {
-      setIsMobile(window.innerWidth < 996); // Mobile breakpoint
-    };
-
-    // Initial check
-    checkIsMobile();
-
-    // Listen for window resize
-    window.addEventListener('resize', checkIsMobile);
-
-    return () => {
-      window.removeEventListener('resize', checkIsMobile);
-    };
-  }, []);
-
-  return isMobile;
+  return useBreakpointDown('lg');
 }

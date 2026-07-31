@@ -18,6 +18,79 @@ export function normalizePlanId(value: unknown): NormalizePlanIdResult {
   return { id: generateId(), regenerated: true };
 }
 
+function generateUniquePlanId(history: SavedPlan[]): string {
+  const existingIds = new Set(history.map((plan) => plan.id));
+  let candidate = generateId();
+
+  while (existingIds.has(candidate)) {
+    candidate = generateId();
+  }
+
+  return candidate;
+}
+
+export type ResolvePlanSlotParams = {
+  history: SavedPlan[];
+  activePlanId: string | null;
+  /** Trimmed plan name. */
+  name: string;
+  /** Silent auto-save; recycles the previous auto-saved entry. */
+  autoSave: boolean;
+};
+
+/**
+ * Decides which history entry a save writes to.
+ *
+ * Three outcomes: update the active plan when the name is unchanged, recycle
+ * the single auto-save slot, or append a new entry. Returns `null` when another
+ * plan already carries the name — the caller then rejects the save.
+ */
+export function resolvePlanSlot({
+  history,
+  activePlanId,
+  name,
+  autoSave,
+}: ResolvePlanSlotParams): { planId: string } | null {
+  const previousAutoSave = autoSave
+    ? history.find((plan) => plan.autoSaved)
+    : undefined;
+
+  const nameTaken = history.some(
+    (plan) =>
+      plan.name === name &&
+      plan.id !== activePlanId &&
+      plan.id !== previousAutoSave?.id,
+  );
+  if (nameTaken) {
+    return null;
+  }
+
+  const active =
+    activePlanId !== null
+      ? history.find((plan) => plan.id === activePlanId)
+      : undefined;
+
+  if (active?.name === name && activePlanId !== null) {
+    return { planId: activePlanId };
+  }
+
+  return { planId: previousAutoSave?.id ?? generateUniquePlanId(history) };
+}
+
+/**
+ * Writes a plan into the history, replacing an entry with the same id when one
+ * exists and appending otherwise.
+ */
+export function upsertPlan(history: SavedPlan[], plan: SavedPlan): SavedPlan[] {
+  const index = history.findIndex((entry) => entry.id === plan.id);
+  if (index === -1) {
+    return [...history, plan];
+  }
+  const next = [...history];
+  next[index] = plan;
+  return next;
+}
+
 export function normalizeSeatingHistory(
   plans: SavedPlan[],
   options?: { logMessage?: string; logSource?: string },

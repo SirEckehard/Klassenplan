@@ -149,7 +149,10 @@
     "generatingHint": "Der Sitzkreis wird automatisch basierend auf dem Tischplan erstellt.",
     "connectionDescription": "Nachbarschaftsverbindungen zwischen Schülern.",
     "syncDescription": "Sitzkreis an Änderungen im Sitzplan anpassen.",
-    "shuffleDescription": "Nur Sitzkreis ändern (Sitzplan bleibt unverändert)."
+    "shuffleDescription": "Nur Sitzkreis ändern (Sitzplan bleibt unverändert).",
+    "canvasLabel_one": "Sitzkreis mit {{count}} Schüler",
+    "canvasLabel_other": "Sitzkreis mit {{count}} Schülern",
+    "orderLabel": "Sitzreihenfolge im Sitzkreis"
   },
   "seat": {
     "lockSeat": "Sitzplatz sperren",
@@ -511,7 +514,8 @@
     "alignmentGuides": "Ausrichtungshilfen",
     "photoOverlapWarning": "Fotokollisionen anzeigen",
     "photoCollision": "Fotokollision",
-    "rotateTable": "Tisch drehen"
+    "rotateTable": "Tisch drehen",
+    "canvasLabel": "Sitzplan: {{occupied}} von {{total}} Plätzen belegt"
   },
   "quickSetup": {
     "title": "Klassenraum einrichten",
@@ -551,7 +555,8 @@
     "tablesBadge": "{{count}} Tische",
     "seatsPerTableBadge": "{{count}} / Tisch",
     "load": "Laden",
-    "editName": "Namen bearbeiten"
+    "editName": "Namen bearbeiten",
+    "editNameAriaLabel": "Namen von {{name}} bearbeiten"
   },
   "mixHistory": {
     "loadTitle": "Mischergebnis laden",

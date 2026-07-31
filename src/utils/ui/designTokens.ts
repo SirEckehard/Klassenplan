@@ -6,6 +6,15 @@ export const cardSurfaceClass = 'card-surface';
 
 export const listContainerClass = 'list-container';
 
+/** Selectable radio card — wrap a native radio plus title/hint. */
+export const optionCardClass = 'option-card';
+
+export const optionRadioClass = 'option-radio';
+
+export const optionCardTitleClass = 'option-card-title';
+
+export const optionCardHintClass = 'option-card-hint';
+
 export const badgeSurfaceClass = 'badge-surface';
 
 export const primaryButtonClass = 'primary-button';

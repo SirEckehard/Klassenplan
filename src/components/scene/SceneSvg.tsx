@@ -178,7 +178,11 @@ export default function SceneSvg({
       preserveAspectRatio="xMidYMid meet"
       fontFamily="'DM Sans Variable', system-ui, sans-serif"
       style={{ display: 'block' }}
+      role="img"
+      aria-label={displayTitle}
     >
+      {/* Names the exported SVG for assistive tech and SVG viewers. */}
+      <title>{displayTitle}</title>
       {/* Header elements - responsive sizing for portrait mode */}
       <g
         transform={

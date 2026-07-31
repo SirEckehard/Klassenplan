@@ -5,7 +5,10 @@ import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import type { MockInstance } from 'vitest';
 import useDataBackup from '../useDataBackup';
-import { promptDialog, confirmDialog } from '../../services/ui/dialogs';
+import {
+  promptBackupPassword,
+  promptBackupRestoreMode,
+} from '../../services/ui/backupDialogs';
 import {
   BACKUP_ERROR_MESSAGES,
   BACKUP_LIMITS,
@@ -15,15 +18,15 @@ import * as toastModule from '../../utils/ui/toast';
 import { TOAST_MESSAGES } from '../../utils/ui/toast';
 import * as utilsModule from '@/utils';
 
-vi.mock('../../services/ui/dialogs', () => ({
-  promptDialog: vi.fn(),
-  confirmDialog: vi.fn(),
+vi.mock('../../services/ui/backupDialogs', () => ({
+  promptBackupPassword: vi.fn(),
+  promptBackupRestoreMode: vi.fn(),
 }));
 
 const showToastMock = vi.spyOn(toastModule, 'showToast');
 
-const mockPromptDialog = vi.mocked(promptDialog);
-const mockConfirmDialog = vi.mocked(confirmDialog);
+const mockPromptPassword = vi.mocked(promptBackupPassword);
+const mockPromptRestoreMode = vi.mocked(promptBackupRestoreMode);
 
 const { webCrypto, WebCryptoUnavailableError } = utilsModule;
 
@@ -41,9 +44,10 @@ describe('useDataBackup', () => {
     setupLocalStorageMock();
     showToastMock.mockClear();
 
-    // Default password mock (export asks twice: password + confirmation)
-    mockPromptDialog.mockResolvedValue('backup-passwort');
-    mockConfirmDialog.mockResolvedValue(true);
+    // The password dialog validates length and confirmation itself, so the
+    // hook only ever sees a usable password or `null`.
+    mockPromptPassword.mockResolvedValue('backup-passwort');
+    mockPromptRestoreMode.mockResolvedValue('replace');
 
     isWebCryptoAvailableSpy = vi
       .spyOn(utilsModule, 'isWebCryptoAvailable')
@@ -121,7 +125,7 @@ describe('useDataBackup', () => {
     const exportFn = vi.fn().mockResolvedValue('{}');
     const importFn = vi.fn();
     // Simulate user cancelling password prompt
-    mockPromptDialog.mockResolvedValue(null);
+    mockPromptPassword.mockResolvedValue(null);
     const { result } = renderHook(() =>
       useDataBackup({ exportAllAsJson: exportFn, importAllFromJson: importFn }),
     );
@@ -129,44 +133,6 @@ describe('useDataBackup', () => {
       await result.current.handleExportAll();
     });
     expect(exportFn).not.toHaveBeenCalled();
-  });
-
-  it('rejects passwords below the minimum length', async () => {
-    const exportFn = vi.fn().mockResolvedValue('{}');
-    const importFn = vi.fn();
-    // Too short first, then user cancels
-    mockPromptDialog.mockResolvedValueOnce('kurz').mockResolvedValueOnce(null);
-    const { result } = renderHook(() =>
-      useDataBackup({ exportAllAsJson: exportFn, importAllFromJson: importFn }),
-    );
-    await act(async () => {
-      await result.current.handleExportAll();
-    });
-    expect(exportFn).not.toHaveBeenCalled();
-    expect(showToastMock).toHaveBeenCalledWith(
-      'warning',
-      TOAST_MESSAGES.BACKUP_PASSWORD_TOO_SHORT,
-    );
-  });
-
-  it('does not export when the password confirmation does not match', async () => {
-    const exportFn = vi.fn().mockResolvedValue('{}');
-    const importFn = vi.fn();
-    mockPromptDialog
-      .mockResolvedValueOnce('backup-passwort')
-      .mockResolvedValueOnce('anderes-passwort')
-      .mockResolvedValueOnce(null);
-    const { result } = renderHook(() =>
-      useDataBackup({ exportAllAsJson: exportFn, importAllFromJson: importFn }),
-    );
-    await act(async () => {
-      await result.current.handleExportAll();
-    });
-    expect(exportFn).not.toHaveBeenCalled();
-    expect(showToastMock).toHaveBeenCalledWith(
-      'error',
-      TOAST_MESSAGES.BACKUP_PASSWORD_MISMATCH,
-    );
   });
 
   it('stores the KDF parameters in the encrypted envelope', async () => {
@@ -239,6 +205,71 @@ describe('useDataBackup', () => {
     );
   });
 
+  type ImportFn = (text: string, opts?: { merge?: boolean }) => Promise<void>;
+
+  const runImport = async (importFn: ImportFn): Promise<void> => {
+    const { result } = renderHook(() =>
+      useDataBackup({
+        exportAllAsJson: vi.fn(),
+        importAllFromJson: importFn,
+      }),
+    );
+    class FileReaderMock {
+      onload: null | (() => void) = null;
+      result = JSON.stringify({
+        encrypted: true,
+        kdf: { name: 'PBKDF2', hash: 'SHA-256', iterations: 600000 },
+        iv: 'AA==',
+        salt: 'AA==',
+        data: 'AA==',
+      });
+      readAsText = vi.fn().mockImplementation(function (this: FileReaderMock) {
+        this.onload?.();
+      });
+    }
+    vi.stubGlobal('FileReader', FileReaderMock);
+    await act(async () => {
+      result.current.handleImportFile({
+        target: {
+          files: [
+            new File(['{}'], 'backup.json', { type: 'application/json' }),
+          ],
+        },
+        currentTarget: { value: '' },
+      } as any);
+      await Promise.resolve();
+    });
+  };
+
+  it('replaces existing data when the restore dialog returns "replace"', async () => {
+    const importFn = vi.fn().mockResolvedValue(undefined);
+    mockPromptRestoreMode.mockResolvedValue('replace');
+
+    await runImport(importFn);
+
+    expect(importFn).toHaveBeenCalledWith(expect.any(String), {
+      merge: false,
+    });
+  });
+
+  it('merges into existing data when the restore dialog returns "merge"', async () => {
+    const importFn = vi.fn().mockResolvedValue(undefined);
+    mockPromptRestoreMode.mockResolvedValue('merge');
+
+    await runImport(importFn);
+
+    expect(importFn).toHaveBeenCalledWith(expect.any(String), { merge: true });
+  });
+
+  it('does not import when the restore dialog is cancelled', async () => {
+    const importFn = vi.fn().mockResolvedValue(undefined);
+    mockPromptRestoreMode.mockResolvedValue(null);
+
+    await runImport(importFn);
+
+    expect(importFn).not.toHaveBeenCalled();
+  });
+
   it('does not call exportAllAsJson when save dialog is cancelled', async () => {
     const exportFn = vi.fn().mockResolvedValue('{}');
     const importFn = vi.fn();
@@ -254,7 +285,7 @@ describe('useDataBackup', () => {
     });
     // Password is now asked first, so exportFn IS called
     expect(exportFn).toHaveBeenCalled();
-    expect(promptDialog).toHaveBeenCalled();
+    expect(promptBackupPassword).toHaveBeenCalledWith('create');
   });
 
   it('passes encrypted backup to download helper', async () => {
@@ -390,7 +421,7 @@ describe('useDataBackup', () => {
     });
 
     expect(exportFn).not.toHaveBeenCalled();
-    expect(promptDialog).not.toHaveBeenCalled();
+    expect(promptBackupPassword).not.toHaveBeenCalled();
     expect(showToastMock).toHaveBeenCalledWith(
       'error',
       'toast:backup.webCryptoExportError',

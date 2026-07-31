@@ -368,4 +368,43 @@ describe('StudentInput', () => {
       expect(importCsvMock).toHaveBeenCalledWith(file, undefined);
     });
   });
+
+  it('fragt bei mehrdeutigen Namensspalten nach der Spaltenwahl', async () => {
+    const importCsvMock = vi.fn().mockResolvedValue([]);
+    const props = createMockStudentInputProps({
+      students: [],
+      importCsv: importCsvMock,
+    });
+
+    const { container } = renderWithClassContext(<StudentInput {...props} />);
+
+    const input = container.querySelector(
+      'input[type="file"]',
+    ) as HTMLInputElement;
+
+    // Both a first-name and a last-name column: the import must not silently
+    // pick one.
+    const file = createMockCsvFile('Vorname,Nachname\nMax,Muster\n');
+    await fireEvent.change(input, { target: { files: [file] } });
+
+    const dialog = await screen.findByRole('dialog', {
+      name: /Namens-Spalten auswählen|Select name columns/i,
+    });
+    expect(importCsvMock).not.toHaveBeenCalled();
+
+    await fireEvent.click(
+      within(dialog).getByRole('radio', {
+        name: /Vorname \+ Nachname|First name \+ last name/i,
+      }),
+    );
+    await fireEvent.click(
+      within(dialog).getByRole('button', {
+        name: /^(Importieren|Import)$/i,
+      }),
+    );
+
+    await waitFor(() => {
+      expect(importCsvMock).toHaveBeenCalledWith(file, 'fullName');
+    });
+  });
 });

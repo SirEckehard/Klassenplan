@@ -2,7 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import { useCallback } from 'react';
 import type React from 'react';
-import type { ClassroomScene } from '@/types';
+import type { ClassroomScene, SaveSeatingPlanOptions } from '@/types';
 import type { CircleLayout } from '@/types/Circle';
 import type { SyncSnapshotOptions } from './useUnsavedSeatingTracker';
 import {
@@ -21,6 +21,7 @@ type UseHomeNavigationParams = {
     name: string,
     scene: ClassroomScene,
     circleLayout?: CircleLayout | null,
+    options?: SaveSeatingPlanOptions,
   ) => boolean;
   classroomScene: ClassroomScene;
   navigate: (path: string) => void;
@@ -45,11 +46,15 @@ export function useHomeNavigationHandler({
         step === 3 && currentSeatingLength > 0 && hasUnsavedSeatingChanges;
       if (shouldAutosave) {
         const trimmed = planName.trim();
-        const finalName =
-          trimmed.length > 0 ? trimmed : createTimestampPlanName();
+        const hasCustomName = trimmed.length > 0;
+        const finalName = hasCustomName ? trimmed : createTimestampPlanName();
         setTimeout(() => {
           try {
-            const ok = saveSeatingPlan(finalName, classroomScene);
+            // A generated name means this is a throwaway auto-save that
+            // replaces the previous one instead of piling up in the history.
+            const ok = saveSeatingPlan(finalName, classroomScene, undefined, {
+              autoSave: !hasCustomName,
+            });
             if (ok) {
               announcePlanSaved(finalName);
               syncSeatingSnapshot?.({ planName: finalName });

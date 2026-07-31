@@ -8,6 +8,7 @@ import { neutralSettings, SCALAR_MIX_SETTING_KEYS } from '@/utils';
 import type {
   ClassroomScene,
   MixSettings,
+  SaveSeatingPlanOptions,
   SeatingArrangement,
   Student,
 } from '@/types';
@@ -33,6 +34,7 @@ interface WizardOrchestrationParams {
     name: string,
     scene: ClassroomScene,
     circleLayout?: CircleLayout | null,
+    options?: SaveSeatingPlanOptions,
   ) => boolean;
   generateSeatingPlan: (
     settings: MixSettings,

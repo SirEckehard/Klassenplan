@@ -20,6 +20,7 @@ import {
 import { useIsMobile } from '@/hooks/ui/useIsMobile';
 import { useFloatingActionOffset } from '@/hooks/ui/useFloatingActionOffset';
 import { useAdaptiveViewportHeight } from '@/hooks/ui/useAdaptiveViewportHeight';
+import { useDialogA11y } from '@/hooks/ui/useDialogA11y';
 
 interface SmartSidebarProps extends UseCollapsibleSidebarOptions {
   className?: string;
@@ -52,6 +53,10 @@ export default function SmartSidebar({
   );
   const containerRef = React.useRef<HTMLElement | null>(null);
   const collapseButtonRef = React.useRef<HTMLButtonElement | null>(null);
+  const mobileSheetRef = useDialogA11y<HTMLDivElement>({
+    open: isMobile && mobileOpen,
+  });
+  const mobileSheetTitleId = React.useId();
 
   const { isExpanded, collapse, toggle, expand } = sidebar;
   const { maxHeight } = useAdaptiveViewportHeight<HTMLElement>({
@@ -137,10 +142,20 @@ export default function SmartSidebar({
 
         {/* Full-screen overlay */}
         {mobileOpen && (
-          <div className="fixed inset-0 z-50 overflow-y-auto bg-white dark:bg-gray-900">
+          <div
+            ref={mobileSheetRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={mobileSheetTitleId}
+            tabIndex={-1}
+            className="fixed inset-0 z-50 overflow-y-auto bg-white focus:outline-none dark:bg-gray-900"
+          >
             {/* Header with close button */}
             <div className="sticky top-0 z-10 flex items-center justify-between border-b border-blue-100/70 bg-white px-4 py-3 shadow-sm dark:border-blue-900/40 dark:bg-gray-900">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+              <h2
+                id={mobileSheetTitleId}
+                className="text-lg font-semibold text-gray-900 dark:text-gray-100"
+              >
                 {t('sidebar.options', 'Optionen')}
               </h2>
               <button

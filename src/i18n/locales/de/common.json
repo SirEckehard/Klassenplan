@@ -166,18 +166,40 @@
   "dialogs": {
     "confirmTitle": "Bestätigung",
     "savePlanFailedConfirm": "Sitzplan konnte nicht gespeichert werden. Trotzdem zurückkehren?",
-    "importOverwriteConfirm": "Achtung: Der Import überschreibt alle vorhandenen Daten (Schüler, Sitzpläne, Sitzkreis-Layouts etc.). Diese Aktion kann nicht rückgängig gemacht werden. Möchtest du fortfahren?",
     "clearAllData": {
       "title": "Alle Daten löschen",
       "message": "Möchtest du wirklich alle Daten (inkl. Klassenliste, Vorlagen etc.) löschen?",
       "confirm": "Löschen",
       "cancel": "Abbrechen"
-    },
-    "backupPassword": {
-      "create": "Das Backup wird verschlüsselt. Wähle ein Passwort (mindestens 8 Zeichen):",
-      "confirm": "Passwort wiederholen:",
-      "import": "Passwort für Backup:"
     }
+  },
+  "backupPassword": {
+    "createTitle": "Backup verschlüsseln",
+    "createSubtitle": "Das Backup wird mit deinem Passwort verschlüsselt (mindestens {{min}} Zeichen). Ohne dieses Passwort lässt sich die Datei nicht wiederherstellen.",
+    "unlockTitle": "Backup entschlüsseln",
+    "unlockSubtitle": "Gib das Passwort ein, mit dem dieses Backup verschlüsselt wurde.",
+    "passwordLabel": "Passwort",
+    "confirmLabel": "Passwort wiederholen",
+    "strengthHint": "Mindestens {{min}} Zeichen; Länge und gemischte Zeichenarten erhöhen die Stärke.",
+    "strength": {
+      "weak": "Schwaches Passwort",
+      "medium": "Mittleres Passwort",
+      "strong": "Starkes Passwort"
+    },
+    "errorEmpty": "Bitte gib das Passwort ein.",
+    "errorTooShort": "Das Passwort muss mindestens {{min}} Zeichen lang sein.",
+    "errorMismatch": "Die Passwörter stimmen nicht überein.",
+    "submitCreate": "Backup erstellen",
+    "submitUnlock": "Entschlüsseln"
+  },
+  "backupRestore": {
+    "title": "Backup wiederherstellen",
+    "subtitle": "Wie sollen die Daten aus dem Backup übernommen werden?",
+    "replaceLabel": "Alles ersetzen",
+    "replaceHint": "Vorhandene Schüler, Sitzpläne und Vorlagen werden durch das Backup ersetzt. Diese Aktion kann nicht rückgängig gemacht werden.",
+    "mergeLabel": "Zusammenführen",
+    "mergeHint": "Schüler und Sitzpläne aus dem Backup werden zu den vorhandenen hinzugefügt. Klassenraum und Einstellungen kommen aus dem Backup.",
+    "submit": "Wiederherstellen"
   },
   "password": {
     "show": "Passwort anzeigen",

@@ -149,7 +149,10 @@
     "generatingHint": "The seating circle is automatically created based on the table plan.",
     "connectionDescription": "Neighborhood connections between students.",
     "syncDescription": "Sync the circle with changes in the seating plan.",
-    "shuffleDescription": "Only change the circle (seating plan stays unchanged)."
+    "shuffleDescription": "Only change the circle (seating plan stays unchanged).",
+    "canvasLabel_one": "Seating circle with {{count}} student",
+    "canvasLabel_other": "Seating circle with {{count}} students",
+    "orderLabel": "Seating order in the circle"
   },
   "seat": {
     "lockSeat": "Lock seat",
@@ -511,7 +514,8 @@
     "alignmentGuides": "Alignment guides",
     "photoOverlapWarning": "Show photo collisions",
     "photoCollision": "Photo collision",
-    "rotateTable": "Rotate table"
+    "rotateTable": "Rotate table",
+    "canvasLabel": "Seating plan: {{occupied}} of {{total}} seats taken"
   },
   "quickSetup": {
     "title": "Set Up Classroom",
@@ -551,7 +555,8 @@
     "tablesBadge": "{{count}} tables",
     "seatsPerTableBadge": "{{count}} / table",
     "load": "Load",
-    "editName": "Edit name"
+    "editName": "Edit name",
+    "editNameAriaLabel": "Rename {{name}}"
   },
   "mixHistory": {
     "loadTitle": "Load mix result",

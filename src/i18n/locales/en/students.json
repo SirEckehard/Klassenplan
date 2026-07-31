@@ -131,6 +131,22 @@
     "externalModernCsv": "External link to Modern CSV",
     "softwareRecommendation": "Software recommendation for managing CSV files:"
   },
+  "csvDialog": {
+    "selectColumns": "Select name columns",
+    "description": "The CSV file contains several name columns. Please choose which combination should be imported:",
+    "firstNameOnly": "First name only",
+    "lastNameOnly": "Last name only",
+    "fullName": "First name + last name",
+    "column": "Column",
+    "combineColumns": "Combine columns",
+    "preview": "Preview",
+    "firstRows_one": "first {{count}} row",
+    "firstRows_other": "first {{count}} rows",
+    "empty": "empty",
+    "privacy": "Privacy",
+    "privacyNote": "Klassenplan only stores name, gender and learning needs. All other columns are ignored.",
+    "import": "Import"
+  },
   "viewMode": {
     "showLabels": "Show labels",
     "hideLabels": "Hide labels",

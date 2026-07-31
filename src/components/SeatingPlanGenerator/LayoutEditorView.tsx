@@ -490,8 +490,12 @@ const LayoutEditorView = React.memo(
     });
 
     const handleEscapeKeyWithQuickSetup = React.useCallback(() => {
-      // CheckIcon if a modal/dialog is currently open
-      const hasOpenModal = document.querySelector('[role="dialog"]');
+      // Check if a foreign modal/dialog is currently open. The Quick Setup
+      // overlay carries `role="dialog"` itself, so it must be excluded here —
+      // otherwise it would always defer to itself and never close.
+      const hasOpenModal = document.querySelector(
+        '[role="dialog"]:not([data-quick-setup])',
+      );
       if (hasOpenModal) {
         // Let the modal handle ESC, don't close Quick Setup
         return;
