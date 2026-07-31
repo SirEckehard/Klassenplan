@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
+import i18n from '@/i18n';
 import type { Student } from '@/types';
 
 /**
@@ -43,6 +44,9 @@ export function validateStudentsComplete(
 
 /**
  * Get a user-friendly error message for missing student names.
+ *
+ * Returns a translated sentence rather than a key: the toast pipeline does not
+ * interpolate, and the count has to be part of the message.
  * @param result Validation result from validateStudentsComplete
  * @returns Error message string (empty string when no blocking issue exists)
  */
@@ -51,11 +55,10 @@ export function getStudentValidationMessage(
 ): string {
   if (!result.hasEmptyNames) return '';
 
-  if (result.emptyNameCount === 1) {
-    return 'Bitte ergänze den fehlenden Namen. Geschlechtsangaben sind optional.';
-  }
-
-  return `Bitte ergänze die ${result.emptyNameCount} fehlenden Namen. Geschlechtsangaben sind optional.`;
+  const missingNames = i18n.t('students:validation.missingNames', {
+    count: result.emptyNameCount,
+  });
+  return `${missingNames} ${i18n.t('students:validation.genderOptional')}`;
 }
 
 /**
@@ -68,9 +71,7 @@ export function getStudentGenderHintMessage(
 ): string {
   if (!result.hasMissingGender) return '';
 
-  if (result.missingGenderCount === 1) {
-    return 'Hinweis: Für eine Person wurde keine Geschlechtsangabe hinterlegt. Diese Angabe ist optional und kann jederzeit ergänzt werden.';
-  }
-
-  return `Hinweis: Für ${result.missingGenderCount} Personen wurden keine Geschlechtsangaben hinterlegt. Diese Angaben sind optional und können jederzeit ergänzt werden.`;
+  return i18n.t('students:validation.genderHint', {
+    count: result.missingGenderCount,
+  });
 }

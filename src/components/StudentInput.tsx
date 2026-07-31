@@ -20,12 +20,14 @@ import {
   MAX_STUDENTS,
   NAME_GAME_MIN_PHOTOS,
 } from '@/utils';
+import { validateStudentsComplete } from '@/utils/validation';
 import type { NameColumnMode } from '@/utils/data/csvUtils';
 import { useClassManagementContext } from '@/contexts/seatingPlan/ClassManagementContext';
 import { useSeatingPlanActions } from '@/contexts/seatingPlan/store';
 import type { StudentInputProps } from '@/components/studentInput/types';
 import ClassActionsPanel from '@/components/studentInput/ClassActionsPanel';
 import MissingNameNotice from '@/components/studentInput/MissingNameNotice';
+import HintTooltip from '@/components/ui/feedback/HintTooltip';
 import StudentList from '@/components/studentInput/StudentList';
 import { useStudentListLayout } from '@/components/studentInput/hooks/useStudentListLayout';
 import { useIsLgUp } from '@/hooks/ui/useIsLgUp';
@@ -62,6 +64,20 @@ function StudentInput({
 
   // Track which student card was just expanded (e.g. after bulk creation)
   const [expandedCardId, setExpandedCardId] = useState<string | null>(null);
+
+  // Same rule the wizard uses to block the step change (empty names only).
+  const missingNameHintId = React.useId();
+  const missingNameCount = React.useMemo(
+    () => validateStudentsComplete(students).emptyNameCount,
+    [students],
+  );
+  const missingNameHint =
+    missingNameCount > 0
+      ? t('validation.missingNames', {
+          count: missingNameCount,
+          defaultValue: 'Bitte ergänze die {{count}} fehlenden Namen.',
+        })
+      : '';
 
   // Student management hook
   const {
@@ -292,17 +308,25 @@ function StudentInput({
             <GameControllerIcon size={16} aria-hidden />
             {t('studentInput.nameGameButton', 'Namensspiel')}
           </button>
-          {/* Proceed Button */}
-          <button
-            ref={proceedButtonRef}
-            type="button"
-            onClick={onProceedToLayout}
-            title={t('studentInput.proceedShortcut', 'Weiter (Alt/Option+→)')}
-            className={`${primaryButtonClass} justify-center gap-2`}
-          >
-            {t('studentInput.proceedButton', 'Weiter zum Klassenraum')}
-            <ArrowRightIcon className="w-4 h-4" />
-          </button>
+          {/* Proceed Button — blocked by missing names; the reason shows on
+              hover/focus, the click still raises the toast. */}
+          <div className="group relative">
+            <button
+              ref={proceedButtonRef}
+              type="button"
+              onClick={onProceedToLayout}
+              aria-disabled={missingNameHint ? true : undefined}
+              aria-describedby={missingNameHint ? missingNameHintId : undefined}
+              title={t('studentInput.proceedShortcut', 'Weiter (Alt/Option+→)')}
+              className={`${primaryButtonClass} justify-center gap-2`}
+            >
+              {t('studentInput.proceedButton', 'Weiter zum Klassenraum')}
+              <ArrowRightIcon className="w-4 h-4" />
+            </button>
+            {missingNameHint && (
+              <HintTooltip id={missingNameHintId} hint={missingNameHint} />
+            )}
+          </div>
         </div>
       )}
 

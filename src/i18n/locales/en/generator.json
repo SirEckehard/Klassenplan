@@ -454,7 +454,10 @@
     "backToStudents": "Back to Class List",
     "forwardToPlan": "Proceed to Seating Plan",
     "backToStudentsShortcut": "Back to Class List (Alt/Option+←)",
-    "forwardToPlanShortcut": "Proceed to Seating Plan (Alt/Option+→)"
+    "forwardToPlanShortcut": "Proceed to Seating Plan (Alt/Option+→)",
+    "noTablesYet": "Add tables for your {{students}} students first.",
+    "seatsMissing_one": "1 seat is still missing for {{students}} students.",
+    "seatsMissing_other": "{{count}} seats are still missing for {{students}} students."
   },
   "template": {
     "saveTitle": "Save Classroom Template",

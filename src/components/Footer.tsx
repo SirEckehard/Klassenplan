@@ -17,8 +17,7 @@ import {
   ClockCounterClockwiseIcon,
 } from '@phosphor-icons/react';
 import { useTranslation } from 'react-i18next';
-import ThemeToggle from './ThemeToggle';
-import LanguageSelector from './LanguageSelector';
+import AppearanceControls from '@/components/ui/navigation/AppearanceControls';
 import { LocalizedLink } from './LocalizedLink';
 import { useSeatingPlanActions } from '@/contexts/SeatingPlanContext';
 import { showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
@@ -192,10 +191,10 @@ const Footer: React.FC = () => {
 
       {/* Aktionen */}
       <div className="flex justify-center items-center gap-2 px-2">
-        <ThemeToggle />
-        <span className="text-gray-300 dark:text-gray-600">|</span>
-        <LanguageSelector />
-        <span className="text-gray-300 dark:text-gray-600">|</span>
+        <AppearanceControls />
+        <span className="text-gray-300 dark:text-gray-600" aria-hidden="true">
+          |
+        </span>
         <div className="relative" ref={menuRef}>
           <button
             type="button"

@@ -24,6 +24,7 @@ import FloatingMixButton from '@/components/ui/buttons/FloatingMixButton';
 import SeatingModeToggle from '@/components/SeatingPlanGenerator/SeatingModeToggle';
 import SeatingPlanCanvas from '@/components/SeatingPlanGenerator/SeatingPlanCanvas';
 import SeatingStatisticsBadge from '@/components/ui/feedback/SeatingStatisticsBadge';
+import PlanHistoryButton from '@/components/ui/navigation/PlanHistoryButton';
 import { CanvasSettingsButton } from '@/components/SeatingPlanGenerator/canvas/CanvasSettingsButton';
 import {
   GRID_SIZE,
@@ -1026,6 +1027,7 @@ export default function SeatingPlanEditorView({
                 <ArrowLeftIcon className="w-4 h-4" />
                 {t('circle.backToClassroom', 'Zurück zum Klassenraum')}
               </button>
+              <PlanHistoryButton />
               <div className="w-full sm:w-auto flex-1">
                 <div className="relative">
                   <input

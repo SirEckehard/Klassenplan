@@ -22,11 +22,15 @@ const LanguageSelector: React.FC = () => {
     const pathWithoutLang = location.pathname.replace(/^\/(en|de)/, '') || '/';
     const searchAndHash = location.search + location.hash;
 
+    // Carry the router state over: switching language remounts the route, and
+    // pages like /present read their initial mode from it.
+    const navigateOptions = { replace: true, state: location.state as unknown };
+
     if (newLanguage === 'en') {
       const newPath = pathWithoutLang === '/' ? '/en' : `/en${pathWithoutLang}`;
-      navigate(newPath + searchAndHash, { replace: true });
+      navigate(newPath + searchAndHash, navigateOptions);
     } else {
-      navigate(pathWithoutLang + searchAndHash, { replace: true });
+      navigate(pathWithoutLang + searchAndHash, navigateOptions);
     }
   };
 

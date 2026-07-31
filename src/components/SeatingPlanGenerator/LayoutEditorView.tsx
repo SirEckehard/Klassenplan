@@ -22,6 +22,7 @@ import {
   ChalkboardSimpleIcon,
   WallIcon,
 } from '@phosphor-icons/react';
+import HintTooltip from '@/components/ui/feedback/HintTooltip';
 import ClassroomQuickSetup from '@/components/ui/panels/ClassroomQuickSetup';
 import ContextActionMenu, {
   type ContextAction,
@@ -1113,6 +1114,24 @@ const LayoutEditorMainSection = React.memo(function LayoutEditorMainSection({
   footerProps,
 }: LayoutEditorMainSectionProps) {
   const { t } = useTranslation('generator');
+  const seatHintId = React.useId();
+  const missingSeats = footerProps.studentsCount - footerProps.seatCount;
+  // Empty string when the step is not blocked, so the JSX can test it directly.
+  const seatShortfallHint =
+    missingSeats <= 0
+      ? ''
+      : footerProps.seatCount === 0
+        ? t('wizard.noTablesYet', {
+            students: footerProps.studentsCount,
+            defaultValue:
+              'Füge zuerst Tische für deine {{students}} Schüler ein.',
+          })
+        : t('wizard.seatsMissing', {
+            count: missingSeats,
+            students: footerProps.studentsCount,
+            defaultValue:
+              'Es fehlen noch {{count}} Sitzplätze für {{students}} Schüler.',
+          });
   return (
     <div className="flex-1 flex flex-col gap-4 md:min-w-0">
       {/* Mobile: Quick Setup Button above canvas for easy access */}
@@ -1236,23 +1255,30 @@ const LayoutEditorMainSection = React.memo(function LayoutEditorMainSection({
           <ArrowLeftIcon className="w-4 h-4" />
           {t('wizard.backToStudents', 'Zurück zur Klassenliste')}
         </button>
-        <button
-          type="button"
-          onClick={footerProps.onProceedToPlan}
-          disabled={footerProps.seatCount < footerProps.studentsCount}
-          className={`${primaryButtonClass} flex items-center gap-2 ${
-            footerProps.seatCount < footerProps.studentsCount
-              ? 'cursor-not-allowed opacity-60'
-              : ''
-          }`}
-          title={t(
-            'wizard.forwardToPlanShortcut',
-            'Weiter zum Sitzplan (Alt/Option+→)',
+        {/* Blocked state stays aria-disabled rather than disabled: the button
+            keeps focus and pointer events, so the hint shows on hover/focus and
+            the click still surfaces the toast explaining the shortfall. */}
+        <div className="group relative w-full sm:w-auto">
+          <button
+            type="button"
+            onClick={footerProps.onProceedToPlan}
+            aria-disabled={seatShortfallHint ? true : undefined}
+            aria-describedby={seatShortfallHint ? seatHintId : undefined}
+            className={`${primaryButtonClass} flex w-full items-center justify-center gap-2 sm:w-auto ${
+              seatShortfallHint ? 'cursor-not-allowed opacity-60' : ''
+            }`}
+            title={t(
+              'wizard.forwardToPlanShortcut',
+              'Weiter zum Sitzplan (Alt/Option+→)',
+            )}
+          >
+            {t('wizard.forwardToPlan', 'Weiter zum Sitzplan')}
+            <ArrowRightIcon className="w-4 h-4" />
+          </button>
+          {seatShortfallHint && (
+            <HintTooltip id={seatHintId} hint={seatShortfallHint} />
           )}
-        >
-          {t('wizard.forwardToPlan', 'Weiter zum Sitzplan')}
-          <ArrowRightIcon className="w-4 h-4" />
-        </button>
+        </div>
       </div>
     </div>
   );

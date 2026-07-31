@@ -390,9 +390,10 @@ describe('useSeatingWizard', () => {
       });
 
       expect(result.current.step).toBe(1);
+      // The message comes from i18n, so match either locale.
       expect(showToastMock).toHaveBeenCalledWith(
         'error',
-        'Bitte ergänze den fehlenden Namen. Geschlechtsangaben sind optional.',
+        expect.stringMatching(/fehlenden Namen|missing name/i),
       );
     });
 

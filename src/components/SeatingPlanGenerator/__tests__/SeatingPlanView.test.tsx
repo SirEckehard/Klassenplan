@@ -8,6 +8,7 @@ import SeatingPlanView from '../SeatingPlanView';
 import { BOARD_WIDTH, CLASSROOM_HEIGHT } from '../../../utils/constants';
 import {
   renderWithProvidersAndRouter,
+  createMockClassroomScene,
   createMockSeatingPlanViewProps,
   setupCleanStorage,
   neutralSettings,
@@ -110,5 +111,53 @@ describe('SeatingPlanView board visibility', () => {
     });
     expect(retryButton).toBeInTheDocument();
     expect(retryButton).not.toBeDisabled();
+  });
+
+  it('explains why the proceed button is blocked in step 2', async () => {
+    await act(async () => {
+      renderWithProvidersAndRouter(
+        <SeatingPlanView
+          {...createMockSeatingPlanViewProps({
+            step: 2,
+            studentsCount: 12,
+            classroomScene: createMockClassroomScene(2), // 2 double tables = 4 seats
+          })}
+        />,
+      );
+    });
+
+    const proceedButton = screen.getByRole('button', {
+      name: /Weiter zum Sitzplan|Proceed to Seating Plan/i,
+    });
+    expect(proceedButton).toHaveAttribute('aria-disabled', 'true');
+
+    // 12 students, 4 seats -> 8 missing; the tooltip describes the button so
+    // screen readers get the reason without hovering.
+    const tooltip = screen.getByRole('tooltip');
+    expect(tooltip).toHaveTextContent(
+      /8 Sitzplätze für 12 Schüler|8 seats.*for 12 students/i,
+    );
+    expect(proceedButton).toHaveAttribute('aria-describedby', tooltip.id);
+  });
+
+  it('drops the seat shortfall hint once there are enough seats', async () => {
+    await act(async () => {
+      renderWithProvidersAndRouter(
+        <SeatingPlanView
+          {...createMockSeatingPlanViewProps({
+            step: 2,
+            studentsCount: 2,
+            classroomScene: createMockClassroomScene(2),
+          })}
+        />,
+      );
+    });
+
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('button', {
+        name: /Weiter zum Sitzplan|Proceed to Seating Plan/i,
+      }),
+    ).not.toHaveAttribute('aria-disabled');
   });
 });

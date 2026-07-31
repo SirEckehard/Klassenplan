@@ -31,6 +31,7 @@ import {
   secondaryButtonClass,
 } from '@/utils';
 import HelpButton from '@/components/ui/buttons/HelpButton';
+import AppearanceControls from '@/components/ui/navigation/AppearanceControls';
 import PresentationScene from '@/components/scene/PresentationScene';
 import SimpleCircleView from '@/components/circle/SimpleCircleView';
 import PresentPerspectiveToggle from '@/components/SeatingPlanGenerator/PresentPerspectiveToggle';
@@ -121,7 +122,10 @@ export default function Present() {
 
         <SeatingModeToggle mode={mode} onModeChange={setMode} />
 
-        <div className="flex flex-1 justify-end">
+        {/* The footer is hidden on fullscreen surfaces, so theme and language
+            live in the toolbar instead. */}
+        <div className="flex flex-1 items-center justify-end gap-2">
+          <AppearanceControls />
           <HelpButton
             title={t('help.present.title', 'Präsentiermodus')}
             instructions={

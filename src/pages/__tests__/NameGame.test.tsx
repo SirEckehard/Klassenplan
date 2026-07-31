@@ -110,6 +110,22 @@ describe('NameGame', () => {
     ).toBeInTheDocument();
   });
 
+  it('offers theme and language controls (the footer is hidden here)', async () => {
+    setStudents(4);
+    renderNameGame();
+
+    expect(
+      await screen.findByRole('button', {
+        name: /Design wechseln|Toggle theme/i,
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', {
+        name: /^(Zu (English|Deutsch) wechseln|Switch to (English|Deutsch))$/i,
+      }),
+    ).toBeInTheDocument();
+  });
+
   it('ignores students whose photo URL has not loaded', async () => {
     setStudents(4);
     // One photo is flagged but its blob never arrived in the cache.

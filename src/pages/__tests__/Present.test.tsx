@@ -105,6 +105,19 @@ describe('Present', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('offers theme and language controls (the footer is hidden here)', () => {
+    renderPresent();
+
+    expect(
+      screen.getByRole('button', { name: /Design wechseln|Toggle theme/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', {
+        name: /^(Zu (English|Deutsch) wechseln|Switch to (English|Deutsch))$/i,
+      }),
+    ).toBeInTheDocument();
+  });
+
   it('starts in circle mode when navigated with state.mode = circle', () => {
     seatingState.current = {
       currentSeating: [[student]],

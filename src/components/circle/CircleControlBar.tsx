@@ -8,6 +8,7 @@ import {
   FloppyDiskIcon,
   ShareNetworkIcon,
 } from '@phosphor-icons/react';
+import PlanHistoryButton from '@/components/ui/navigation/PlanHistoryButton';
 import type { ClassroomScene } from '@/types';
 import type { CircleLayout } from '@/types/Circle';
 import {
@@ -93,6 +94,7 @@ export default function CircleControlBar({
         <ArrowLeftIcon className="w-4 h-4" />
         {t('circle.backToClassroom', 'Zurück zum Klassenraum')}
       </button>
+      <PlanHistoryButton />
       <div className="w-full sm:w-auto flex-1">
         <div className="relative">
           <input

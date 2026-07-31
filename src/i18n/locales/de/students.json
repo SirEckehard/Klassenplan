@@ -296,6 +296,13 @@
     "active": "aktiv",
     "inactive": "inaktiv"
   },
+  "validation": {
+    "missingNames_one": "Bitte ergänze den fehlenden Namen.",
+    "missingNames_other": "Bitte ergänze die {{count}} fehlenden Namen.",
+    "genderOptional": "Geschlechtsangaben sind optional.",
+    "genderHint_one": "Für eine Person wurde keine Geschlechtsangabe hinterlegt. Diese Angabe ist optional und kann jederzeit ergänzt werden.",
+    "genderHint_other": "Für {{count}} Personen wurden keine Geschlechtsangaben hinterlegt. Diese Angaben sind optional und können jederzeit ergänzt werden."
+  },
   "studentInput": {
     "title": "Klassenliste",
     "proceedShortcut": "Weiter (Alt/Option+→)",

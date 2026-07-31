@@ -454,7 +454,10 @@
     "backToStudents": "Zurück zur Klassenliste",
     "forwardToPlan": "Weiter zum Sitzplan",
     "backToStudentsShortcut": "Zurück zur Klassenliste (Alt/Option+←)",
-    "forwardToPlanShortcut": "Weiter zum Sitzplan (Alt/Option+→)"
+    "forwardToPlanShortcut": "Weiter zum Sitzplan (Alt/Option+→)",
+    "noTablesYet": "Füge zuerst Tische für deine {{students}} Schüler ein.",
+    "seatsMissing_one": "Es fehlt noch 1 Sitzplatz für {{students}} Schüler.",
+    "seatsMissing_other": "Es fehlen noch {{count}} Sitzplätze für {{students}} Schüler."
   },
   "template": {
     "saveTitle": "Klassenraum-Vorlage speichern",

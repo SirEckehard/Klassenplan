@@ -12,6 +12,7 @@ import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';
 import { useSeatingPlanState } from '@/contexts/SeatingPlanContext';
 import { useStudentPhotoUrls } from '@/hooks/student/useStudentPhoto';
 import HelpButton from '@/components/ui/buttons/HelpButton';
+import AppearanceControls from '@/components/ui/navigation/AppearanceControls';
 import ModeSelect from '@/components/nameGame/ModeSelect';
 import QuizGame from '@/components/nameGame/quiz/QuizGame';
 import MemoryGame from '@/components/nameGame/memory/MemoryGame';
@@ -154,7 +155,10 @@ export default function NameGame() {
           {t('nameGame.title', 'Namensspiel')}
         </h1>
 
-        <div className="flex flex-1 justify-end">
+        {/* The footer is hidden on fullscreen surfaces, so theme and language
+            live in the toolbar instead. */}
+        <div className="flex flex-1 items-center justify-end gap-2">
+          <AppearanceControls />
           <HelpButton
             title={t('nameGame.help.title', 'Namensspiel')}
             instructions={
