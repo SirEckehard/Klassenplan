@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { ArrowClockwiseIcon } from '@phosphor-icons/react';
 
 interface RotationHandleProps {
@@ -16,6 +17,8 @@ function RotationHandle({
   inverseRotation,
   onRotateStart,
 }: RotationHandleProps) {
+  const { t } = useTranslation('generator');
+
   return (
     <g
       transform={`translate(${width - 5} ${height - 5}) rotate(${inverseRotation})`}
@@ -30,7 +33,7 @@ function RotationHandle({
         onRotateStart(e);
       }}
       style={{ cursor: 'grab' }}
-      aria-label="rotate table"
+      aria-label={t('editor.rotateTable')}
       role="button"
     >
       <circle r={10} fill="#3b82f6" />

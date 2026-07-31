@@ -16,6 +16,8 @@ import {
   type ClassRecord,
   type LockedPositions,
   type MixSettings,
+  type SaveTemplateError,
+  type SaveTemplateResult,
   type SavedPlan,
   type Student,
 } from '@/types';
@@ -37,10 +39,6 @@ import { RepositoryErrorType, type ActiveClassSnapshot } from '@/repositories';
 import type { SeatingState } from './useSeatingState';
 import { DB_KEYS } from '@/utils/data/storageKeys';
 import { APP_DATA_VERSION } from '@/utils/data/indexedDb';
-import type {
-  SaveTemplateResult,
-  SaveTemplateError,
-} from './useTemplateStorage';
 import {
   exportAllAsJson as exportAllAsJsonUtil,
   importAllFromJson as importAllFromJsonUtil,
@@ -63,9 +61,32 @@ const buildStudentsCsvFilename = (className: string): string => {
   return sanitized ? `${sanitized}.csv` : 'students.csv';
 };
 
+const LANGUAGE_SKILL_CSV_LABELS: Record<
+  NonNullable<Student['languageSkill']>,
+  string
+> = {
+  native: 'Muttersprache',
+  fluent: 'Fließend',
+  intermediate: 'Fortgeschritten',
+  beginner: 'Anfänger',
+  daz: 'DaZ-Förderung',
+};
+
+const SOCIAL_ROLE_CSV_LABELS: Record<
+  NonNullable<Student['socialRole']>,
+  string
+> = {
+  mediator: 'Mediator',
+  leader: 'Anführer',
+  loner: 'Einzelgänger',
+  socialHub: 'Mittelpunkt',
+};
+
 export const exportStudentsToCsv = (students: Student[]): string => {
+  // Header must mirror the import template (csvTemplateDownload.ts) so an
+  // export → import round-trip preserves every column.
   const header =
-    'Name,Geschlecht,Körpergröße,Unruhig,Schüchtern,Ablenkbarkeit,Vordere Plätze,Fensterplatz,Türnähe,Wunschpartner,Distanzwunsch,Leistungsstark,Leistungsschwach\n';
+    'Name,Geschlecht,Körpergröße,Sprachniveau,Soziale Rolle,Unruhig,Schüchtern,Ablenkbarkeit,Vordere Plätze,Fensterplatz,Türplatz,Leistungsstark,Leistungsschwach,Wunschpartner,Distanzwunsch\n';
   const escapeCsvCell = (value: unknown) => {
     const str = String(value ?? '');
     const trimmed = str.trimStart();
@@ -91,6 +112,16 @@ export const exportStudentsToCsv = (students: Student[]): string => {
     acc[s.id] = s.name;
     return acc;
   }, {});
+  const partnerNames = (
+    ids: string[] | undefined,
+    legacyId: string | null | undefined,
+  ): string => {
+    const resolved = ids?.length ? ids : legacyId ? [legacyId] : [];
+    return resolved
+      .map((id) => studentNameMap[id])
+      .filter((name): name is string => Boolean(name))
+      .join(', ');
+  };
   const rows = students.map((s) => {
     const gender =
       s.gender === 'boy'
@@ -101,28 +132,22 @@ export const exportStudentsToCsv = (students: Student[]): string => {
             ? 'Divers'
             : '';
     const heightLabel = s.height ? (heightLabels[s.height] ?? '') : '';
-    const wishPartnerName =
-      s.wishPartnerId && studentNameMap[s.wishPartnerId]
-        ? studentNameMap[s.wishPartnerId]
-        : '';
-    const avoidPartnerName =
-      s.avoidPartnerId && studentNameMap[s.avoidPartnerId]
-        ? studentNameMap[s.avoidPartnerId]
-        : '';
     const cells = [
       s.name,
       gender,
       heightLabel,
+      s.languageSkill ? LANGUAGE_SKILL_CSV_LABELS[s.languageSkill] : '',
+      s.socialRole ? SOCIAL_ROLE_CSV_LABELS[s.socialRole] : '',
       s.restless ? 'ja' : '',
       s.shy ? 'ja' : '',
       s.concentrationIssues ? 'ja' : '',
       s.needsFrontSeat ? 'ja' : '',
       s.prefersWindow ? 'ja' : '',
       s.prefersDoor ? 'ja' : '',
-      wishPartnerName,
-      avoidPartnerName,
       s.performanceStrong ? 'ja' : '',
       s.performanceWeak ? 'ja' : '',
+      partnerNames(s.wishPartnerIds, s.wishPartnerId),
+      partnerNames(s.avoidPartnerIds, s.avoidPartnerId),
     ];
     return cells.map((value) => escapeCsvCell(value)).join(',');
   });

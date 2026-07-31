@@ -2,6 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import { describe, expect, test, beforeEach } from 'vitest';
 import { exportStudentsToCsv } from '../useSeatingPersistence';
+import { parseCsvFlexible } from '@/utils/data/csvUtils';
 import { createMockStudent, setupCleanStorage } from '../../__tests__/utils';
 
 beforeEach(() => {
@@ -121,9 +122,9 @@ describe('exportStudentsToCsv', () => {
     const csv = exportStudentsToCsv(students);
     const lines = csv.split('\n');
 
-    // Check header includes all columns
+    // Check header includes all columns (must match the import template)
     expect(lines[0]).toBe(
-      'Name,Geschlecht,Körpergröße,Unruhig,Schüchtern,Ablenkbarkeit,Vordere Plätze,Fensterplatz,Türnähe,Wunschpartner,Distanzwunsch,Leistungsstark,Leistungsschwach',
+      'Name,Geschlecht,Körpergröße,Sprachniveau,Soziale Rolle,Unruhig,Schüchtern,Ablenkbarkeit,Vordere Plätze,Fensterplatz,Türplatz,Leistungsstark,Leistungsschwach,Wunschpartner,Distanzwunsch',
     );
 
     // Check Max Strong - performanceStrong=true
@@ -138,9 +139,11 @@ describe('exportStudentsToCsv', () => {
         '',
         '',
         '',
-        'Anna Weak',
+        '',
         '',
         'ja',
+        '',
+        'Anna Weak',
         '',
       ].join(','),
     );
@@ -151,16 +154,18 @@ describe('exportStudentsToCsv', () => {
         'Anna Weak',
         'Mädchen',
         'Klein',
+        '',
+        '',
         'ja',
         '',
         '',
         '',
         '',
         '',
+        '',
+        'ja',
         '',
         'Max Strong',
-        '',
-        'ja',
       ].join(','),
     );
 
@@ -170,6 +175,8 @@ describe('exportStudentsToCsv', () => {
         'Tom Neutral',
         'Junge',
         'Mittel',
+        '',
+        '',
         '',
         'ja',
         'ja',
@@ -208,15 +215,17 @@ describe('exportStudentsToCsv', () => {
         'Test Student',
         'Divers',
         '',
+        '',
+        '',
         'ja',
         'ja',
         'ja',
         'ja',
         '',
         '',
-        '',
-        '',
         'ja',
+        '',
+        '',
         '',
       ].join(','),
     );
@@ -235,7 +244,117 @@ describe('exportStudentsToCsv', () => {
     const [, line] = csv.split('\n');
     const cells = line?.split(',') ?? [];
 
-    expect(cells[7]).toBe('ja');
-    expect(cells[8]).toBe('ja');
+    expect(cells[9]).toBe('ja');
+    expect(cells[10]).toBe('ja');
+  });
+
+  test('exports language skill and social role labels', () => {
+    const csv = exportStudentsToCsv([
+      createMockStudent({
+        id: 'lang',
+        name: 'Kim Fischer',
+        languageSkill: 'daz',
+        socialRole: 'leader',
+      }),
+    ]);
+
+    const [, line] = csv.split('\n');
+    const cells = line?.split(',') ?? [];
+
+    expect(cells[3]).toBe('DaZ-Förderung');
+    expect(cells[4]).toBe('Anführer');
+  });
+
+  test('exports all wish and avoid partners from the plural id arrays', () => {
+    const csv = exportStudentsToCsv([
+      createMockStudent({
+        id: '1',
+        name: 'Anna',
+        wishPartnerIds: ['2', '3', '4'],
+        avoidPartnerIds: ['3'],
+      }),
+      createMockStudent({ id: '2', name: 'Ben' }),
+      createMockStudent({ id: '3', name: 'Cem' }),
+      createMockStudent({ id: '4', name: 'Dana' }),
+    ]);
+
+    const [, line] = csv.split('\n');
+    expect(line).toContain('"Ben, Cem, Dana"');
+    expect(line?.endsWith(',Cem')).toBe(true);
+  });
+
+  test('round-trip export → import preserves all attributes and partners', async () => {
+    const original = [
+      createMockStudent({
+        id: '1',
+        name: 'Anna',
+        gender: 'girl',
+        height: 'small',
+        languageSkill: 'fluent',
+        socialRole: 'mediator',
+        restless: true,
+        prefersDoor: true,
+        wishPartnerIds: ['2', '3'],
+        avoidPartnerIds: [],
+      }),
+      createMockStudent({
+        id: '2',
+        name: 'Ben',
+        gender: 'boy',
+        height: 'tall',
+        languageSkill: 'native',
+        performanceStrong: true,
+        performanceWeak: false,
+        prefersWindow: true,
+        avoidPartnerIds: ['3'],
+      }),
+      createMockStudent({
+        id: '3',
+        name: 'Cem',
+        socialRole: 'loner',
+        shy: true,
+        concentrationIssues: true,
+        needsFrontSeat: true,
+        performanceStrong: false,
+        performanceWeak: true,
+      }),
+    ];
+
+    const csv = exportStudentsToCsv(original);
+    const file = new File([csv], 'roundtrip.csv', { type: 'text/csv' });
+    const imported = await parseCsvFlexible(file, undefined, {
+      useWorker: false,
+    });
+
+    expect(imported).toHaveLength(3);
+    const byName = new Map(imported.map((s) => [s.name, s]));
+    const anna = byName.get('Anna');
+    const ben = byName.get('Ben');
+    const cem = byName.get('Cem');
+
+    expect(anna).toMatchObject({
+      gender: 'girl',
+      height: 'small',
+      languageSkill: 'fluent',
+      socialRole: 'mediator',
+      restless: true,
+      prefersDoor: true,
+    });
+    expect(anna?.wishPartnerIds).toEqual([ben?.id, cem?.id]);
+    expect(ben).toMatchObject({
+      gender: 'boy',
+      height: 'tall',
+      languageSkill: 'native',
+      performanceStrong: true,
+      prefersWindow: true,
+    });
+    expect(ben?.avoidPartnerIds).toEqual([cem?.id]);
+    expect(cem).toMatchObject({
+      socialRole: 'loner',
+      shy: true,
+      concentrationIssues: true,
+      needsFrontSeat: true,
+      performanceWeak: true,
+    });
   });
 });

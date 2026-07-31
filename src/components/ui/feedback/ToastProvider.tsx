@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   WarningCircleIcon,
   CheckCircleIcon,
@@ -37,11 +38,15 @@ interface ToastProviderProps {
 }
 
 function ToastItem({ toast }: { toast: ToastInstance }): React.JSX.Element {
+  const { t } = useTranslation('common');
   const Icon = iconMap[toast.type] ?? InfoIcon;
+  // Errors interrupt the screen reader (role="alert" implies assertive);
+  // everything else is announced politely via role="status".
+  const isUrgent = toast.type === 'error' || toast.type === 'critical';
 
   return (
     <div
-      role="status"
+      role={isUrgent ? 'alert' : 'status'}
       className={`${toastSurfaceClass} pointer-events-auto`}
       data-testid="toast-item"
       data-tone={toast.type}
@@ -68,7 +73,7 @@ function ToastItem({ toast }: { toast: ToastInstance }): React.JSX.Element {
       </div>
       <button
         type="button"
-        aria-label="Toast schließen"
+        aria-label={t('common.dismissToast')}
         className={`${quietIconButtonClass} -mr-1 shrink-0`}
         onClick={() => {
           toast.onDismiss?.();

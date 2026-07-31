@@ -8,7 +8,9 @@
     "src/**/*.test.tsx",
     "src/**/__tests__/**/*",
     "src/types/**/*.d.ts",
-    "src/vite-env.d.ts"
+    "src/vite-env.d.ts",
+    "e2e/**/*.spec.ts",
+    "playwright.config.ts"
   ],
   "exclude": []
 }

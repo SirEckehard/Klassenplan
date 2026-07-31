@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import React, { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { MoonIcon, SunIcon } from '@phosphor-icons/react';
 import { LOCAL_STORAGE_KEYS } from '@/utils/data/storageKeys';
 import { logDebug } from '@/utils';
@@ -17,6 +18,7 @@ const detectSystemTheme = (): 'light' | 'dark' => {
 
 // Toggle between light and dark theme
 const ThemeToggle: React.FC = () => {
+  const { t } = useTranslation('common');
   const storedTheme = useMemo(() => {
     try {
       return localStorage.getItem(LOCAL_STORAGE_KEYS.theme) as
@@ -82,7 +84,8 @@ const ThemeToggle: React.FC = () => {
       type="button"
       onClick={toggleTheme}
       className="group p-1.5 rounded hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors cursor-pointer"
-      aria-label="Toggle dark mode"
+      aria-label={t('theme.toggle')}
+      title={t('theme.toggle')}
     >
       {isDark ? (
         <SunIcon className="h-4 w-4 text-blue-600 dark:text-blue-400 group-hover:text-amber-500 dark:group-hover:text-amber-400 transition-colors" />

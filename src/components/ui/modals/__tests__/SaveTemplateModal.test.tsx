@@ -283,7 +283,7 @@ describe('SaveTemplateModal', () => {
 
     // Select template to overwrite from dropdown
     const select = screen.getByRole('combobox', {
-      name: /vorlage zum überschreiben auswählen/i,
+      name: /vorlage zum überschreiben auswählen|select a template to overwrite/i,
     });
     await user.selectOptions(select, '1');
 

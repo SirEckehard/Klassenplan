@@ -15,6 +15,7 @@ import type {
   StatisticHighlightMode,
   StatisticHighlightState,
   ActiveClassState,
+  SaveTemplateResult,
 } from '@/types';
 import type {
   CircleLayout,
@@ -23,7 +24,6 @@ import type {
 } from '@/types/Circle';
 import type { CriterionFulfillment } from '@/utils/algorithm/seatingStatistics';
 import type { LatestChangelogEntry } from '@/utils';
-import type { SaveTemplateResult } from '@/hooks/useTemplateStorage';
 import type { SeatingPlanStore } from '@/hooks/useSeatingState';
 import type { NameColumnMode } from '@/utils/data/csvUtils';
 

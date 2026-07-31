@@ -219,7 +219,8 @@
     "planLoaded": "Plan \"{{name}}\" loaded.",
     "planDeleted": "Plan \"{{name}}\" deleted.",
     "mixLoaded": "Shuffle result from {{time}} loaded.",
-    "mixDeleted": "Shuffle result deleted."
+    "mixDeleted": "Shuffle result deleted.",
+    "historyTabs": "History"
   },
   "classActions": {
     "emptyState": {
@@ -438,7 +439,8 @@
       "tablePdfFailed": "Seating plan PDF export failed. Please try again.",
       "circlePdfFailed": "Seating circle PDF export failed. Please try again.",
       "circleGenerationFailed": "Could not generate seating circle."
-    }
+    },
+    "empty": "No seating plan to export yet."
   },
   "wizard": {
     "step": "Step",
@@ -468,7 +470,8 @@
     "saveName": "Save name",
     "cancelEdit": "Cancel editing",
     "editName": "Edit template name: {{name}}",
-    "clickToEdit": "Click or press Enter to edit"
+    "clickToEdit": "Click or press Enter to edit",
+    "overwriteSelect": "Select a template to overwrite"
   },
   "circle": {
     "backToClassroom": "Back to Classroom",
@@ -504,7 +507,8 @@
     "snapToGrid": "Snap to grid",
     "alignmentGuides": "Alignment guides",
     "photoOverlapWarning": "Show photo collisions",
-    "photoCollision": "Photo collision"
+    "photoCollision": "Photo collision",
+    "rotateTable": "Rotate table"
   },
   "quickSetup": {
     "title": "Set Up Classroom",

@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
+import { useTranslation } from 'react-i18next';
 import { SkeletonLine, SkeletonCircle } from './SkeletonLoader';
 
 /**
@@ -7,10 +8,12 @@ import { SkeletonLine, SkeletonCircle } from './SkeletonLoader';
  * Mimics the classroom canvas layout during loading.
  */
 export default function CanvasSkeleton() {
+  const { t } = useTranslation('common');
+
   return (
     <div
       className="flex flex-col gap-6 lg:flex-row"
-      aria-label="Loading canvas"
+      aria-label={t('loading.canvas')}
     >
       {/* Sidebar skeleton */}
       <div className="card-surface w-full p-4 lg:w-72">

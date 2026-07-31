@@ -7,7 +7,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { ensureEnglishLoaded } from '../i18n/i18n';
 
 const LanguageSelector: React.FC = () => {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation('common');
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -31,8 +31,9 @@ const LanguageSelector: React.FC = () => {
   };
 
   const targetLang = i18n.language === 'en' ? 'DE' : 'EN';
-  const label =
-    i18n.language === 'en' ? 'Switch to German' : 'Zu Englisch wechseln';
+  const label = t('language.switchTo', {
+    language: t(i18n.language === 'en' ? 'language.de' : 'language.en'),
+  });
 
   return (
     <button

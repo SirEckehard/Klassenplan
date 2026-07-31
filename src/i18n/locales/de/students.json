@@ -119,7 +119,8 @@
     "placeholders": "Platzhalter",
     "createPlaceholders": "Platzhalter erstellen",
     "delete": "Löschen",
-    "removeStudentTitle": "{{name}} entfernen"
+    "removeStudentTitle": "{{name}} entfernen",
+    "placeholderCountPlaceholder": "Anzahl"
   },
   "csv": {
     "import": "Klassenliste importieren",

@@ -3,7 +3,7 @@
 import '@testing-library/jest-dom/vitest';
 import '@/i18n'; // Initialize i18n for tests
 import React from 'react';
-import { render } from '@testing-library/react';
+import { render, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import ClassroomCanvas from '../ClassroomCanvas';
 import type { ClassroomFeature, ClassroomTable } from '@/types';
@@ -116,7 +116,11 @@ describe('ClassroomCanvas resize handles', () => {
       />,
     );
     expect(getResizeHandles(container)).toHaveLength(7);
-    expect(container.querySelector('[aria-label="rotate table"]')).toBeTruthy();
+    expect(
+      within(container).getByRole('button', {
+        name: /Tisch drehen|Rotate table/i,
+      }),
+    ).toBeTruthy();
   });
 
   it('hides handles when the feature is not selected', () => {
@@ -338,7 +342,9 @@ describe('ClassroomCanvas photo overlap warnings', () => {
       const added = events.filter((event) => event.action === 'add');
       expect(added).toHaveLength(1);
       expect(added[0]!.toast.type).toBe('warning');
-      expect(added[0]!.toast.message).toMatch(/Fotokollision|Photo collision/i);
+      expect(added[0]!.toast.message).toMatch(
+        /Schülerfotos würden sich überlappen|Student photos would overlap/i,
+      );
     } finally {
       unsubscribe();
     }

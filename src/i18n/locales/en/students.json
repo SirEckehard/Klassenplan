@@ -119,7 +119,8 @@
     "placeholders": "Placeholders",
     "createPlaceholders": "Create placeholders",
     "delete": "Delete",
-    "removeStudentTitle": "Remove {{name}}"
+    "removeStudentTitle": "Remove {{name}}",
+    "placeholderCountPlaceholder": "Count"
   },
   "csv": {
     "import": "Import class list",

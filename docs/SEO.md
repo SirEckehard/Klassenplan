@@ -8,7 +8,7 @@ build prerenders every route into a static HTML file.
 ## Why prerendering exists
 
 `nginx` resolves unknown paths with `try_files $uri $uri/ /index.html`. Before
-prerendering, that meant **all 20 URLs served the same `index.html`**, which
+prerendering, that meant **all 22 URLs served the same `index.html`**, which
 hardcodes `<html lang="de">`, the German title, and
 `<link rel="canonical" href="https://klassenplan.de/">`.
 

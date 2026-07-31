@@ -15,6 +15,7 @@ in the browser as a Progressive Web App; student data never leaves the device.
 - Sitzplan automatisch nach pädagogischen Attributen mischen (Algorithmus)
 - Export als PDF oder direkter Druck (Sitzplan und Sitzkreis)
 - Mehrsprachig: Deutsch (Standard) und Englisch (/en)
+- Namensspiel: Schülernamen mit Foto-Quiz und Memory lernen
 - Offline nutzbar (PWA, Service Worker), installierbar
 
 ## Wichtige Seiten / Key pages
@@ -24,9 +25,11 @@ in the browser as a Progressive Web App; student data never leaves the device.
 - [Export](https://klassenplan.de/export): Sitzpläne als PDF exportieren/drucken
 - [FAQ](https://klassenplan.de/faq): Häufige Fragen zu Algorithmus und Bedienung
 - [Datenschutz](https://klassenplan.de/datenschutz): Datenschutzhinweise (lokal-first)
+- [Namensspiel](https://klassenplan.de/namensspiel): Schülernamen spielerisch lernen (Foto-Quiz, Memory)
 - [Changelog](https://klassenplan.de/changelog): Änderungen und neue Funktionen
 - [Impressum](https://klassenplan.de/impressum): Rechtliche Angaben
 - [Kontakt](https://klassenplan.de/feedback): Kontakt zum Team
+- [Unterstützen](https://klassenplan.de/support): Das Projekt unterstützen
 
 ## Englische Varianten / English versions
 

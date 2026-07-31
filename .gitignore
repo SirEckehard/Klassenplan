@@ -6,6 +6,12 @@ dist/
 dev-dist/
 dev-dist/sw.js
 
+# Playwright
+test-results/
+playwright-report/
+blob-report/
+.playwright/
+
 # Environment files
 .env
 .env.*

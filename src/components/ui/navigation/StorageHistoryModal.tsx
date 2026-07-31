@@ -127,7 +127,11 @@ export default function StorageHistoryModal({
     >
       <div className="mt-2 flex flex-col gap-4">
         {/* Tab Switcher */}
-        <div role="tablist" aria-label="Historie" className={tabContainerClass}>
+        <div
+          role="tablist"
+          aria-label={t('storage.historyTabs')}
+          className={tabContainerClass}
+        >
           <button
             role="tab"
             id="storage-tab-plans"

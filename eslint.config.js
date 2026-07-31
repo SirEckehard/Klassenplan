@@ -144,6 +144,7 @@ export default defineConfig([
   {
     files: [
       'vite.config.ts',
+      'playwright.config.ts',
       'tailwind.config.ts',
       'tailwind.config.js',
       'postcss.config.js',
@@ -179,6 +180,7 @@ export default defineConfig([
       'src/**/*.test.tsx',
       'src/**/__tests__/**/*',
       'src/setupTests.ts',
+      'e2e/**/*.spec.ts',
     ],
     languageOptions: {
       parserOptions: {

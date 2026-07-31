@@ -225,7 +225,7 @@ metadata — including GPS coordinates — is stripped before anything is stored
 ### 3. Dependency Security
 
 - ✅ Regular `npm audit` checks
-- ✅ Automated Dependabot updates enabled (GitHub)
+- ✅ Automated Dependabot updates configured in [`.github/dependabot.yml`](../.github/dependabot.yml) (weekly npm, monthly GitHub Actions)
 - ✅ Critical dependencies pinned to specific versions
 
 ## Security Contact

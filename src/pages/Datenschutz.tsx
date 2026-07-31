@@ -9,7 +9,7 @@ import { KpLockup } from '@/components/KpLockup';
 import { usePageSeo } from '@/hooks/usePageSeo';
 
 export default function Datenschutz() {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation('pages');
   const isEnglish = i18n.language === 'en';
   const metadata = usePageSeo('/datenschutz');
 
@@ -32,12 +32,12 @@ export default function Datenschutz() {
         <header
           className="text-center"
           role="banner"
-          aria-label="Datenschutz Überblick"
+          aria-label={t('header.banner.datenschutz')}
         >
           <LocalizedLink
             to="/"
             className="kp-lockup focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
-            aria-label="Zur Startseite"
+            aria-label={t('header.homeLink')}
           >
             <KpLockup size="md" />
           </LocalizedLink>

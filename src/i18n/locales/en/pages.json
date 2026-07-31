@@ -34,6 +34,16 @@
       "sitzkreis": "Seating circle",
       "praesentation": "Presentation",
       "export": "Export"
+    },
+    "carousel": {
+      "label": "App preview",
+      "previous": "Previous slide",
+      "next": "Next slide",
+      "goToSlide": "Show slide {{number}} of {{total}}",
+      "expand": "Enlarge preview",
+      "close": "Close preview",
+      "pause": "Pause automatic slideshow",
+      "play": "Resume automatic slideshow"
     }
   },
   "support": {
@@ -429,5 +439,16 @@
       "item4": "Your learning progress is stored locally on this device only.",
       "item5": "Press Alt + ← to return to the generator."
     }
+  },
+  "header": {
+    "homeLink": "Back to Home",
+    "banner": {
+      "start": "Klassenplan introduction",
+      "support": "Support overview",
+      "datenschutz": "Privacy overview",
+      "feedback": "Feedback overview",
+      "impressum": "Legal notice overview"
+    },
+    "donateLink": "Support Klassenplan with a donation"
   }
 }

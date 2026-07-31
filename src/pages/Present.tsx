@@ -94,7 +94,11 @@ export default function Present() {
   const isCircle = mode === 'circle';
 
   return (
-    <div className="fixed inset-0 flex flex-col bg-gray-50 dark:bg-gray-950">
+    <main
+      id="main"
+      tabIndex={-1}
+      className="fixed inset-0 flex flex-col bg-gray-50 dark:bg-gray-950"
+    >
       <Seo {...metadata} />
 
       {/* Minimal toolbar */}
@@ -366,6 +370,6 @@ export default function Present() {
       ) : (
         <div className="h-4" aria-hidden />
       )}
-    </div>
+    </main>
   );
 }

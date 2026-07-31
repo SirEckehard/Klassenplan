@@ -206,7 +206,7 @@ export default function SaveTemplateModal({
                 )
               }
               className="w-full rounded-xl border border-blue-200 bg-white/80 px-3 py-2 text-sm text-gray-900 shadow-inner transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 dark:border-blue-900/40 dark:bg-gray-950/70 dark:text-gray-100"
-              aria-label="Vorlage zum Überschreiben auswählen"
+              aria-label={t('template.overwriteSelect')}
             >
               <option value="">
                 {t(

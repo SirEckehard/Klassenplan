@@ -10,7 +10,7 @@ import { usePageSeo } from '@/hooks/usePageSeo';
 import { GITHUB_REPO_URL } from '@/config/links';
 
 export default function Impressum() {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation('pages');
   const isEnglish = i18n.language === 'en';
   const metadata = usePageSeo('/impressum');
   return (
@@ -42,12 +42,12 @@ export default function Impressum() {
         <header
           className="text-center"
           role="banner"
-          aria-label="Impressum Überblick"
+          aria-label={t('header.banner.impressum')}
         >
           <LocalizedLink
             to="/"
             className="kp-lockup focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
-            aria-label="Zur Startseite"
+            aria-label={t('header.homeLink')}
           >
             <KpLockup size="md" />
           </LocalizedLink>

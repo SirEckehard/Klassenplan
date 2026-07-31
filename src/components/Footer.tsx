@@ -26,6 +26,7 @@ import { menuSurfaceClass } from '@/utils';
 import ConfirmDialog from '@/components/ui/modals/ConfirmDialog';
 import StorageHistoryModal from '@/components/ui/navigation/StorageHistoryModal';
 import { GITHUB_REPO_URL } from '@/config/links';
+import { getAppVersion } from '@/utils/version';
 
 const Footer: React.FC = () => {
   const { t } = useTranslation('common');
@@ -150,6 +151,9 @@ const Footer: React.FC = () => {
           >
             <GitDiffIcon className="h-3.5 w-3.5" aria-hidden="true" />
             {t('nav.changelog')}
+            <span className="text-gray-400 dark:text-gray-500">
+              v{getAppVersion()}
+            </span>
           </LocalizedLink>
           <span className={separatorClass}>|</span>
           <LocalizedLink

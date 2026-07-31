@@ -76,6 +76,12 @@ export interface ClassroomTemplate {
   scene: ClassroomScene;
 }
 
+export type SaveTemplateError =
+  'empty' | 'duplicate' | 'storage' | 'no-indexeddb';
+
+export type SaveTemplateResult =
+  { success: true } | { success: false; error: SaveTemplateError };
+
 // Bundle used for full export/import of app state (versioned)
 export interface ExportBundleV1 {
   version: number;

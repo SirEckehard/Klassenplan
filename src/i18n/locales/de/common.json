@@ -9,7 +9,8 @@
   "language": {
     "de": "Deutsch",
     "en": "English",
-    "select": "Sprache wählen"
+    "select": "Sprache wählen",
+    "switchTo": "Zu {{language}} wechseln"
   },
   "nav": {
     "home": "Home",
@@ -155,7 +156,8 @@
     "retry": "Erneut versuchen",
     "reloadPage": "Seite neu laden",
     "errorDetails": "Fehlerdetails",
-    "closeDialog": "Dialog schließen"
+    "closeDialog": "Dialog schließen",
+    "dismissToast": "Meldung schließen"
   },
   "footer": {
     "settings": "Einstellungen",
@@ -191,5 +193,10 @@
     "reload": "Aktualisieren",
     "install": "Als App installieren",
     "installDesc": "Klassenplan als App installieren und offline nutzen!"
+  },
+  "loading": {
+    "page": "Seite wird geladen",
+    "studentList": "Klassenliste wird geladen",
+    "canvas": "Klassenraum wird geladen"
   }
 }

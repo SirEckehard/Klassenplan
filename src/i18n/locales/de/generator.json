@@ -219,7 +219,8 @@
     "planLoaded": "Plan \"{{name}}\" geladen.",
     "planDeleted": "Plan \"{{name}}\" gelöscht.",
     "mixLoaded": "Mischergebnis von {{time}} geladen.",
-    "mixDeleted": "Mischergebnis gelöscht."
+    "mixDeleted": "Mischergebnis gelöscht.",
+    "historyTabs": "Verlauf"
   },
   "classActions": {
     "emptyState": {
@@ -438,7 +439,8 @@
       "tablePdfFailed": "Sitzplan PDF-Export fehlgeschlagen. Bitte versuchen Sie es erneut.",
       "circlePdfFailed": "Sitzkreis PDF-Export fehlgeschlagen. Bitte versuchen Sie es erneut.",
       "circleGenerationFailed": "Sitzkreis konnte nicht erstellt werden."
-    }
+    },
+    "empty": "Noch kein Sitzplan zum Exportieren."
   },
   "wizard": {
     "step": "Schritt",
@@ -468,7 +470,8 @@
     "saveName": "Namen speichern",
     "cancelEdit": "Bearbeitung abbrechen",
     "editName": "Vorlagennamen bearbeiten: {{name}}",
-    "clickToEdit": "Klick oder Eingabetaste zum Bearbeiten"
+    "clickToEdit": "Klick oder Eingabetaste zum Bearbeiten",
+    "overwriteSelect": "Vorlage zum Überschreiben auswählen"
   },
   "circle": {
     "backToClassroom": "Zurück zum Klassenraum",
@@ -504,7 +507,8 @@
     "snapToGrid": "Am Raster ausrichten",
     "alignmentGuides": "Ausrichtungshilfen",
     "photoOverlapWarning": "Fotokollisionen anzeigen",
-    "photoCollision": "Fotokollision"
+    "photoCollision": "Fotokollision",
+    "rotateTable": "Tisch drehen"
   },
   "quickSetup": {
     "title": "Klassenraum einrichten",

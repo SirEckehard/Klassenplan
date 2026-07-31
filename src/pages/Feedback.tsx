@@ -39,12 +39,12 @@ export default function Feedback() {
         <header
           className="text-center"
           role="banner"
-          aria-label="Feedback Überblick"
+          aria-label={t('header.banner.feedback')}
         >
           <LocalizedLink
             to="/"
             className="kp-lockup focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
-            aria-label="Zur Startseite"
+            aria-label={t('header.homeLink')}
           >
             <KpLockup size="md" />
           </LocalizedLink>

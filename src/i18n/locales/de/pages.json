@@ -34,6 +34,16 @@
       "sitzkreis": "Sitzkreis",
       "praesentation": "Präsentation",
       "export": "Export"
+    },
+    "carousel": {
+      "label": "App-Vorschau",
+      "previous": "Vorheriges Bild",
+      "next": "Nächstes Bild",
+      "goToSlide": "Bild {{number}} von {{total}} anzeigen",
+      "expand": "Vorschau vergrößern",
+      "close": "Vorschau schließen",
+      "pause": "Automatischen Bildwechsel pausieren",
+      "play": "Automatischen Bildwechsel fortsetzen"
     }
   },
   "support": {
@@ -429,5 +439,16 @@
       "item4": "Dein Lernfortschritt wird nur lokal auf diesem Gerät gespeichert.",
       "item5": "Mit Alt + ← kehrst du zum Generator zurück."
     }
+  },
+  "header": {
+    "homeLink": "Zur Startseite",
+    "banner": {
+      "start": "Klassenplan Einleitung",
+      "support": "Support Überblick",
+      "datenschutz": "Datenschutz Überblick",
+      "feedback": "Feedback Überblick",
+      "impressum": "Impressum Überblick"
+    },
+    "donateLink": "Klassenplan mit einer Spende unterstützen"
   }
 }

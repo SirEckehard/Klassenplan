@@ -340,7 +340,7 @@ export default function ClassSelectionBar({
                         onCreatePlaceholders();
                       }
                     }}
-                    placeholder="Platzhalter"
+                    placeholder={t('studentList.placeholderCountPlaceholder')}
                     className="h-full w-10 bg-transparent text-sm text-gray-800 outline-none placeholder:text-gray-400 dark:text-gray-100 dark:placeholder:text-gray-500"
                   />
                   <button

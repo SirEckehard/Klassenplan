@@ -130,7 +130,11 @@ export default function NameGame() {
   const hasEnoughPhotos = playable.length >= NAME_GAME_MIN_PHOTOS;
 
   return (
-    <div className="fixed inset-0 flex flex-col bg-gray-50 dark:bg-gray-950">
+    <main
+      id="main"
+      tabIndex={-1}
+      className="fixed inset-0 flex flex-col bg-gray-50 dark:bg-gray-950"
+    >
       <Seo {...metadata} />
 
       {/* Minimal toolbar */}
@@ -284,6 +288,6 @@ export default function NameGame() {
           </span>
         </button>
       </div>
-    </div>
+    </main>
   );
 }

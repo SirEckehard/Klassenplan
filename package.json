@@ -9,11 +9,9 @@
     "npm": ">=10.9"
   },
   "dependencies": {
-    "@dnd-kit/core": "^6.3.1",
     "@fontsource-variable/dm-sans": "^5.2.8",
     "@phosphor-icons/react": "^2.1.10",
     "@tanstack/react-virtual": "^3.13.12",
-    "@vitejs/plugin-react": "^6.0.3",
     "@xstate/react": "^6.0.0",
     "fast-deep-equal": "^3.1.3",
     "i18next": "^26.0.1",
@@ -45,7 +43,7 @@
     "typecheck:test": "node node_modules/@typescript/native/bin/tsc --noEmit -p tsconfig.test.json",
     "typecheck:all": "npm run typecheck && npm run typecheck:test",
     "typecheck:ts6": "tsc6 --noEmit && tsc6 --noEmit -p tsconfig.test.json",
-    "lint": "eslint 'src/**/*.{ts,tsx}'",
+    "lint": "eslint 'src/**/*.{ts,tsx}' 'e2e/**/*.ts'",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,css,md,json}\""
   },
   "overrides": {
@@ -81,6 +79,7 @@
     "@typescript-eslint/eslint-plugin": "^8.59.1",
     "@typescript-eslint/parser": "^8.59.1",
     "@typescript/native": "npm:typescript@^7.0.2",
+    "@vitejs/plugin-react": "^6.0.5",
     "@vitest/ui": "^4.0.15",
     "eslint": "^10.4.0",
     "eslint-import-resolver-typescript": "^4.4.4",

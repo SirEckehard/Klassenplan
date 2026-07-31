@@ -17,6 +17,8 @@ import type {
   LockedPositions as LockedPositionsT,
   SavedPlan as SavedPlanT,
   ClassroomTemplate as ClassroomTemplateT,
+  SaveTemplateError as SaveTemplateErrorT,
+  SaveTemplateResult as SaveTemplateResultT,
   ExportBundleV1 as ExportBundleV1T,
   ExportBundle as ExportBundleT,
   ScalarMixSettingKey as ScalarMixSettingKeyT,
@@ -47,6 +49,8 @@ export type MixResult = MixResultT;
 export type LockedPositions = LockedPositionsT;
 export type SavedPlan = SavedPlanT;
 export type ClassroomTemplate = ClassroomTemplateT;
+export type SaveTemplateError = SaveTemplateErrorT;
+export type SaveTemplateResult = SaveTemplateResultT;
 export type ExportBundleV1 = ExportBundleV1T;
 export type ExportBundle = ExportBundleT;
 export type { ClassroomScene, ClassroomTable, TableTemplateType };

@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
+import { useTranslation } from 'react-i18next';
 import { SkeletonLine, SkeletonCircle } from './SkeletonLoader';
 
 /**
@@ -7,8 +8,10 @@ import { SkeletonLine, SkeletonCircle } from './SkeletonLoader';
  * Mimics the layout of StudentList component during loading.
  */
 export default function StudentListSkeleton() {
+  const { t } = useTranslation('common');
+
   return (
-    <div className="card-surface p-6" aria-label="Loading student list">
+    <div className="card-surface p-6" aria-label={t('loading.studentList')}>
       {/* Header skeleton */}
       <div className="mb-6 flex items-center justify-between">
         <SkeletonLine width="10rem" />

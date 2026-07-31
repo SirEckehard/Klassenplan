@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
+import { useTranslation } from 'react-i18next';
 import { SkeletonLine, SkeletonCard } from './SkeletonLoader';
 
 /**
@@ -7,10 +8,12 @@ import { SkeletonLine, SkeletonCard } from './SkeletonLoader';
  * Provides a minimal loading placeholder during page transitions.
  */
 export default function PageSkeleton() {
+  const { t } = useTranslation('common');
+
   return (
     <div
       className="min-h-[80vh] px-4 py-12"
-      aria-label="Loading page"
+      aria-label={t('loading.page')}
       role="status"
     >
       <div className="mx-auto max-w-5xl space-y-8">

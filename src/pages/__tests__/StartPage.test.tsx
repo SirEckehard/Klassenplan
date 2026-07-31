@@ -17,15 +17,12 @@ describe('StartPage', () => {
     );
 
     expect(
-      screen.getByRole('link', { name: /^Zur Startseite$/i }),
+      screen.getByRole('link', { name: /^Zur Startseite$|^Back to Home$/i }),
     ).toBeInTheDocument();
     // CTA button - match either German or English text
     const link = screen.getByRole('link', {
-      name: /Zum Generator wechseln und Klasse planen/i,
+      name: /Plane jetzt deine Klasse|Plan your class now/i,
     });
-    expect(
-      screen.getByText(/Plane jetzt deine Klasse|Plan your class now/i),
-    ).toBeInTheDocument();
     expect(link).toHaveAttribute('href', '/generator');
   });
 });

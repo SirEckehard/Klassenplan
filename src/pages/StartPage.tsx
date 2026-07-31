@@ -107,14 +107,14 @@ export default function StartPage() {
       />
       <div className="mx-auto max-w-5xl space-y-8">
         {/* Hero – Split layout */}
-        <header role="banner" aria-label="Klassenplan Einleitung">
+        <header role="banner" aria-label={t('header.banner.start')}>
           <div className="lg:grid lg:grid-cols-2 lg:gap-12 lg:items-start">
             {/* Text side */}
             <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
               <LocalizedLink
                 to="/"
                 className="kp-lockup focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
-                aria-label="Zur Startseite"
+                aria-label={t('header.homeLink')}
               >
                 <KpLockup size="md" />
               </LocalizedLink>
@@ -142,7 +142,6 @@ export default function StartPage() {
               <LocalizedLink
                 to="/generator"
                 className={`mt-5 w-full sm:w-auto ${primaryButtonClass} px-6 py-3 text-base font-semibold shadow-lg text-center`}
-                aria-label="Zum Generator wechseln und Klasse planen"
               >
                 {t('startPage.ctaButton')}
               </LocalizedLink>

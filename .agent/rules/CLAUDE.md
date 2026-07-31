@@ -19,13 +19,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Check modified files with `npx eslint <files>`
 - TypeScript compilation check: `npm run typecheck` (app) and `npm run typecheck:test` (tests); both via `npm run typecheck:all`
 - Check for unused exports: `npx ts-unused-exports tsconfig.ts-unused.json --ignoreFiles='vite-env.d.ts|index.tsx|App.tsx'`
-- E2E: Playwright is configured (`npm run test:e2e`), but no specs exist yet
+- E2E: Playwright smoke specs live in `e2e/` (`npm run test:e2e`; needs `npx playwright install chromium`)
 
-**Current Code Quality Status (2026-07-06):**
+**Current Code Quality Status (2026-07-31):**
 
 - ✅ ESLint: 0 errors, 0 warnings
 - ✅ TypeScript: 0 compilation errors (strict mode)
-- ✅ Tests: 1315 tests (127 test files), 100% passing
+- ✅ Tests: 1486 unit tests (144 test files) + 3 Playwright smoke specs, 100% passing
 - ⚠️ Unused Exports: ~108 modules with unused exports (mostly type exports, Props interfaces and shared test helpers - acceptable for a TypeScript project)
 - ✅ Test Infrastructure: Centralized accessibility helpers and toast matchers for robust testing
 - ✅ Architecture: Repository Pattern implemented, UI components reorganized into logical subdirectories

@@ -126,6 +126,7 @@ export default function Export() {
   const { exportError } = errorHandlers;
   // Get circle layout from navigation state if available, or auto-generate one
   const seating = navigationState.seating || currentSeating;
+  const hasPlan = classroomScene.tables.length > 0 && seating.length > 0;
   const stateCircleLayout = navigationState.circleLayout || null;
   const circleLayoutPromiseRef = useRef<Promise<CircleLayout | null> | null>(
     null,
@@ -955,184 +956,207 @@ export default function Export() {
           </div>
         </header>
 
-        {/* Main content area with Sidebar and Canvas */}
-        <div className="flex gap-4 h-full">
-          {/* Sidebar Links */}
-          <ExportSidebar
-            title={title}
-            onTitleChange={setTitle}
-            tableOrientation={tableOrientation}
-            onTableOrientationChange={setTableOrientation}
-            circleOrientation={circleOrientation}
-            onCircleOrientationChange={setCircleOrientation}
-            onPrint={handlePrint}
-            onTablePdf={handleTablePdf}
-            onCirclePdf={handleCirclePdf}
-            hasCircleLayout={hasCircleLayoutAvailable}
-            isFirstVisit={isFirstVisit}
-          />
-
-          {/* Canvas Bereich */}
-          <div className="flex-1 space-y-4">
-            <div
-              ref={previewFrameRef}
-              className={`${canvasFrameClass} relative w-full`}
-              style={previewFrameStyles}
-            >
-              <div className="pointer-events-none absolute left-3 top-3 sm:left-4 sm:top-4">
-                <span className="inline-flex items-center rounded-full border border-white/50 bg-gray-900/70 px-2.5 py-1 text-xs font-medium uppercase tracking-wide text-white shadow-sm backdrop-blur-sm">
-                  {t('export.preview', 'Vorschau')}
-                </span>
-              </div>
-              <CanvasSettingsButton
-                ref={canvasSettingsButtonRef}
-                groups={exportSettingsGroups}
-                buttonAriaLabel={t(
-                  'export.displayOptions',
-                  'Export-Anzeigeoptionen',
-                )}
-                buttonTitle={t('editor.viewSettings', 'Ansichtseinstellungen')}
-              />
-              <iframe
-                ref={iframeRef}
-                className={`h-full w-full rounded-[inherit] border-0 transition-opacity duration-300 ${
-                  isGenerating ? 'opacity-50' : 'opacity-100'
-                }`}
-                title={t('export.preview', 'Vorschau')}
-              />
-              {isGenerating && (
-                <div className="absolute inset-0 flex items-center justify-center rounded-[inherit] bg-white/50 backdrop-blur-sm dark:bg-gray-900/50">
-                  <div className="flex flex-col items-center gap-3 rounded-xl bg-white/90 p-5 shadow-lg dark:bg-gray-800/90">
-                    <div className="flex gap-1.5">
-                      <div
-                        className="h-3 w-3 rounded-full bg-blue-600 animate-pulse"
-                        style={{ animationDelay: '0ms' }}
-                      />
-                      <div
-                        className="h-3 w-3 rounded-full bg-blue-600 animate-pulse"
-                        style={{ animationDelay: '150ms' }}
-                      />
-                      <div
-                        className="h-3 w-3 rounded-full bg-blue-600 animate-pulse"
-                        style={{ animationDelay: '300ms' }}
-                      />
-                    </div>
-                    <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                      {t(
-                        'export.previewUpdating',
-                        'Vorschau wird aktualisiert...',
-                      )}
-                    </span>
-                  </div>
-                </div>
-              )}
-              <div className="absolute right-3 top-3 flex flex-col items-end gap-2">
-                <div className="opacity-90">
-                  <SeatingModeToggle
-                    mode={previewMode}
-                    onModeChange={handleModeChange}
-                    disabled={circleGenerationInProgress}
-                  />
-                </div>
-                {circleGenerationInProgress && (
-                  <div className="flex w-full flex-col gap-1 rounded-2xl bg-gray-900/80 px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-white shadow-lg backdrop-blur-sm dark:bg-gray-100/90 dark:text-gray-900">
-                    <div className="flex items-center gap-2">
-                      <span className="inline-flex h-3.5 w-3.5 items-center justify-center">
-                        <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-white border-t-transparent dark:border-gray-900 dark:border-t-transparent" />
-                      </span>
-                      <div className="min-w-0 flex-1 text-left">
-                        <span className="block truncate normal-case">
-                          {generationMessage}
-                        </span>
-                        {generationProgress !== null && (
-                          <span className="text-[10px] font-normal normal-case text-white/75 dark:text-gray-800/75">
-                            {generationProgress}%
-                          </span>
-                        )}
-                      </div>
-                      <button
-                        type="button"
-                        onClick={handleCancelCircleGeneration}
-                        className="text-amber-200 underline-offset-2 hover:text-white hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 dark:text-amber-600 dark:hover:text-gray-900"
-                      >
-                        {t('export.cancelCircleGeneration', 'Abbrechen')}
-                      </button>
-                    </div>
-                    {generationProgress !== null && (
-                      <div className="h-1.5 w-full rounded-full bg-white/20 dark:bg-gray-300/50">
-                        <span
-                          className="block h-full rounded-full bg-white/90 transition-[width] duration-200 dark:bg-gray-900"
-                          style={{
-                            width: `${Math.max(6, generationProgress)}%`,
-                          }}
-                        />
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="sm:hidden space-y-2">
-              {/* Drucken-Button alleinstehend */}
-              <button
-                type="button"
-                onClick={handlePrint}
-                className={`${successButtonClass} w-full justify-center gap-2`}
-                title={t('export.printShortcut', 'Drucken (Strg/Cmd+P)')}
-              >
-                <PrinterIcon className="h-4 w-4" />
-                <span className="text-sm font-semibold">
-                  {t('actions.print', 'Drucken')}
-                </span>
-              </button>
-              {/* PDF-Buttons nebeneinander */}
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={handleTablePdf}
-                  className={`${primaryButtonClass} flex-1 min-w-0 justify-center gap-2`}
-                  title={t(
-                    'export.tablePdfShortcut',
-                    'Sitzplan als PDF exportieren (Strg/Cmd+Shift+T)',
-                  )}
-                >
-                  <GridNineIcon className="h-4 w-4" />
-                  <span className="text-sm font-semibold">
-                    {t('export.tablePdfButton', 'Sitzplan PDF')}
-                  </span>
-                </button>
-                {hasCircleLayoutAvailable && (
-                  <button
-                    type="button"
-                    onClick={handleCirclePdf}
-                    className={`${primaryButtonClass} flex-1 min-w-0 justify-center gap-2`}
-                    title={t(
-                      'export.circlePdfShortcut',
-                      'Sitzkreis als PDF exportieren (Strg/Cmd+Shift+C)',
-                    )}
-                  >
-                    <CircleDashedIcon className="h-4 w-4" />
-                    <span className="text-sm font-semibold">
-                      {t('export.circlePdfButton', 'Sitzkreis PDF')}
-                    </span>
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* Zurück-Button unter Canvas */}
+        {/* Main content area with Sidebar and Canvas; empty state when no
+            seating plan exists yet */}
+        {!hasPlan ? (
+          <div className="flex min-h-96 flex-col items-center justify-center gap-4 text-center text-gray-600 dark:text-gray-300">
+            <p className="text-lg font-medium">
+              {t('export.empty', 'Noch kein Sitzplan zum Exportieren.')}
+            </p>
             <button
               type="button"
               onClick={() => navigate('/generator', { state: { step: 3 } })}
-              className={`${neutralButtonClass} w-full justify-center gap-2 sm:w-auto`}
+              className={`${primaryButtonClass} h-10 gap-2 px-4`}
               title={t('export.backTitle', 'Zurück (Alt/Option+←)')}
             >
-              <ArrowLeftIcon className="w-4 h-4" />
-              {t('export.backToSeating', 'Zurück zum Sitzplan')}
+              <ArrowLeftIcon size={20} aria-hidden />
+              <span className="text-sm font-semibold">
+                {t('export.backToSeating', 'Zurück zum Sitzplan')}
+              </span>
             </button>
           </div>
-        </div>
+        ) : (
+          <div className="flex gap-4 h-full">
+            {/* Sidebar Links */}
+            <ExportSidebar
+              title={title}
+              onTitleChange={setTitle}
+              tableOrientation={tableOrientation}
+              onTableOrientationChange={setTableOrientation}
+              circleOrientation={circleOrientation}
+              onCircleOrientationChange={setCircleOrientation}
+              onPrint={handlePrint}
+              onTablePdf={handleTablePdf}
+              onCirclePdf={handleCirclePdf}
+              hasCircleLayout={hasCircleLayoutAvailable}
+              isFirstVisit={isFirstVisit}
+            />
+
+            {/* Canvas Bereich */}
+            <div className="flex-1 space-y-4">
+              <div
+                ref={previewFrameRef}
+                className={`${canvasFrameClass} relative w-full`}
+                style={previewFrameStyles}
+              >
+                <div className="pointer-events-none absolute left-3 top-3 sm:left-4 sm:top-4">
+                  <span className="inline-flex items-center rounded-full border border-white/50 bg-gray-900/70 px-2.5 py-1 text-xs font-medium uppercase tracking-wide text-white shadow-sm backdrop-blur-sm">
+                    {t('export.preview', 'Vorschau')}
+                  </span>
+                </div>
+                <CanvasSettingsButton
+                  ref={canvasSettingsButtonRef}
+                  groups={exportSettingsGroups}
+                  buttonAriaLabel={t(
+                    'export.displayOptions',
+                    'Export-Anzeigeoptionen',
+                  )}
+                  buttonTitle={t(
+                    'editor.viewSettings',
+                    'Ansichtseinstellungen',
+                  )}
+                />
+                <iframe
+                  ref={iframeRef}
+                  className={`h-full w-full rounded-[inherit] border-0 transition-opacity duration-300 ${
+                    isGenerating ? 'opacity-50' : 'opacity-100'
+                  }`}
+                  title={t('export.preview', 'Vorschau')}
+                />
+                {isGenerating && (
+                  <div className="absolute inset-0 flex items-center justify-center rounded-[inherit] bg-white/50 backdrop-blur-sm dark:bg-gray-900/50">
+                    <div className="flex flex-col items-center gap-3 rounded-xl bg-white/90 p-5 shadow-lg dark:bg-gray-800/90">
+                      <div className="flex gap-1.5">
+                        <div
+                          className="h-3 w-3 rounded-full bg-blue-600 animate-pulse"
+                          style={{ animationDelay: '0ms' }}
+                        />
+                        <div
+                          className="h-3 w-3 rounded-full bg-blue-600 animate-pulse"
+                          style={{ animationDelay: '150ms' }}
+                        />
+                        <div
+                          className="h-3 w-3 rounded-full bg-blue-600 animate-pulse"
+                          style={{ animationDelay: '300ms' }}
+                        />
+                      </div>
+                      <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                        {t(
+                          'export.previewUpdating',
+                          'Vorschau wird aktualisiert...',
+                        )}
+                      </span>
+                    </div>
+                  </div>
+                )}
+                <div className="absolute right-3 top-3 flex flex-col items-end gap-2">
+                  <div className="opacity-90">
+                    <SeatingModeToggle
+                      mode={previewMode}
+                      onModeChange={handleModeChange}
+                      disabled={circleGenerationInProgress}
+                    />
+                  </div>
+                  {circleGenerationInProgress && (
+                    <div className="flex w-full flex-col gap-1 rounded-2xl bg-gray-900/80 px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-white shadow-lg backdrop-blur-sm dark:bg-gray-100/90 dark:text-gray-900">
+                      <div className="flex items-center gap-2">
+                        <span className="inline-flex h-3.5 w-3.5 items-center justify-center">
+                          <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-white border-t-transparent dark:border-gray-900 dark:border-t-transparent" />
+                        </span>
+                        <div className="min-w-0 flex-1 text-left">
+                          <span className="block truncate normal-case">
+                            {generationMessage}
+                          </span>
+                          {generationProgress !== null && (
+                            <span className="text-[10px] font-normal normal-case text-white/75 dark:text-gray-800/75">
+                              {generationProgress}%
+                            </span>
+                          )}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleCancelCircleGeneration}
+                          className="text-amber-200 underline-offset-2 hover:text-white hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 dark:text-amber-600 dark:hover:text-gray-900"
+                        >
+                          {t('export.cancelCircleGeneration', 'Abbrechen')}
+                        </button>
+                      </div>
+                      {generationProgress !== null && (
+                        <div className="h-1.5 w-full rounded-full bg-white/20 dark:bg-gray-300/50">
+                          <span
+                            className="block h-full rounded-full bg-white/90 transition-[width] duration-200 dark:bg-gray-900"
+                            style={{
+                              width: `${Math.max(6, generationProgress)}%`,
+                            }}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="sm:hidden space-y-2">
+                {/* Drucken-Button alleinstehend */}
+                <button
+                  type="button"
+                  onClick={handlePrint}
+                  className={`${successButtonClass} w-full justify-center gap-2`}
+                  title={t('export.printShortcut', 'Drucken (Strg/Cmd+P)')}
+                >
+                  <PrinterIcon className="h-4 w-4" />
+                  <span className="text-sm font-semibold">
+                    {t('actions.print', 'Drucken')}
+                  </span>
+                </button>
+                {/* PDF-Buttons nebeneinander */}
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={handleTablePdf}
+                    className={`${primaryButtonClass} flex-1 min-w-0 justify-center gap-2`}
+                    title={t(
+                      'export.tablePdfShortcut',
+                      'Sitzplan als PDF exportieren (Strg/Cmd+Shift+T)',
+                    )}
+                  >
+                    <GridNineIcon className="h-4 w-4" />
+                    <span className="text-sm font-semibold">
+                      {t('export.tablePdfButton', 'Sitzplan PDF')}
+                    </span>
+                  </button>
+                  {hasCircleLayoutAvailable && (
+                    <button
+                      type="button"
+                      onClick={handleCirclePdf}
+                      className={`${primaryButtonClass} flex-1 min-w-0 justify-center gap-2`}
+                      title={t(
+                        'export.circlePdfShortcut',
+                        'Sitzkreis als PDF exportieren (Strg/Cmd+Shift+C)',
+                      )}
+                    >
+                      <CircleDashedIcon className="h-4 w-4" />
+                      <span className="text-sm font-semibold">
+                        {t('export.circlePdfButton', 'Sitzkreis PDF')}
+                      </span>
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Zurück-Button unter Canvas */}
+              <button
+                type="button"
+                onClick={() => navigate('/generator', { state: { step: 3 } })}
+                className={`${neutralButtonClass} w-full justify-center gap-2 sm:w-auto`}
+                title={t('export.backTitle', 'Zurück (Alt/Option+←)')}
+              >
+                <ArrowLeftIcon className="w-4 h-4" />
+                {t('export.backToSeating', 'Zurück zum Sitzplan')}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </main>
   );

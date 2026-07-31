@@ -23,12 +23,12 @@ export default function Support() {
         <header
           className="text-center"
           role="banner"
-          aria-label="Support Überblick"
+          aria-label={t('header.banner.support')}
         >
           <LocalizedLink
             to="/"
             className="kp-lockup focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
-            aria-label="Zur Startseite"
+            aria-label={t('header.homeLink')}
           >
             <KpLockup size="md" />
           </LocalizedLink>
@@ -60,7 +60,7 @@ export default function Support() {
               href="https://www.paypal.com/donate/?hosted_button_id=995GP57S2EA9G"
               target="_top"
               rel="noopener noreferrer"
-              aria-label="Support Klassenplan with a donation"
+              aria-label={t('header.donateLink')}
               className="group flex w-full items-center gap-4 rounded-lg bg-blue-600 p-4 text-white transition-colors hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
             >
               <span
