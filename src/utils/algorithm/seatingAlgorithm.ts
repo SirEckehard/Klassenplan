@@ -8,7 +8,6 @@ import type {
   SavedPlan,
   MixResult,
   NeighborWeightSettings,
-  ClassroomFeature,
 } from '@/types';
 import { evenTargetsFor } from '@/utils/distribution';
 import { shuffleArray } from './shuffle';
@@ -17,17 +16,22 @@ import {
   DEFAULT_TRIES_PER_PASS,
   DEFAULT_PASSES,
   DEFAULT_NEIGHBOR_WEIGHTS,
+  REFINEMENT_TABLE_SELECTION,
   logDebug,
-  CLASSROOM_WIDTH,
-  CLASSROOM_HEIGHT,
 } from '@/utils';
 import {
-  seatPairsFor,
   getSeatPositions,
   getSeatNeighborhoods,
   type SeatNeighborDirection,
 } from '../math/seatGeometry';
-import { calculateGenderImbalance } from './genderBalance';
+import { getFeatureDistanceMaps } from './featureDistances';
+import { randomInt, type RandomSource } from './rng';
+import {
+  scoreTable,
+  scoreTablePair,
+  globalGenderDiff as globalArrangementGenderDiff,
+  type ArrangementScoringContext,
+} from './scoring/arrangementScoring';
 import {
   runSimulatedAnnealing,
   type AnnealingConfig,
@@ -45,17 +49,10 @@ import {
   scoreEnvironment,
   scoreLanguageMixing,
   scoreSocialRoles,
-  scoreTableComposition,
-  HEIGHT_PLACEMENT_AMPLIFICATION,
   isRestless,
   isShy,
-  isHighPerf,
-  isLowPerf,
-  isConcentration,
-  hasNeedsFrontSeat,
   requiresFront,
   countSpecialFlags,
-  specialWeight,
   emptyCounts,
   isSeatAvailable,
   isTableFull,
@@ -84,134 +81,6 @@ const buildDirectionalWeights = (
     DEFAULT_NEIGHBOR_WEIGHTS[category].back ??
     1,
 });
-
-type FeatureDistanceMaps = {
-  window: Map<string, number>;
-  door: Map<string, number>;
-  maxWindowDistance: number;
-  maxDoorDistance: number;
-};
-
-const buildSceneSignature = (scene: ClassroomScene): string => {
-  const tableSignature = scene.tables
-    .map((table, index) =>
-      [
-        index,
-        table.x,
-        table.y,
-        table.width,
-        table.height,
-        table.rotation,
-        table.seatCount,
-      ].join(':'),
-    )
-    .join('|');
-
-  const featureSignature = (scene.features ?? [])
-    .slice()
-    .sort((a, b) => a.id.localeCompare(b.id))
-    .map((feature) =>
-      [
-        feature.id,
-        feature.type,
-        feature.x,
-        feature.y,
-        feature.width,
-        feature.height,
-        feature.rotation ?? 0,
-      ].join(':'),
-    )
-    .join('|');
-
-  return `${tableSignature}#${featureSignature}`;
-};
-
-const MAX_FEATURE_DISTANCE_CACHE_SIZE = 100;
-const featureDistanceCache = new Map<string, FeatureDistanceMaps>();
-
-const getFeatureDistanceMaps = (
-  scene: ClassroomScene,
-  seatPositions: Map<string, { x: number; y: number }>,
-): FeatureDistanceMaps => {
-  const signature = buildSceneSignature(scene);
-  const cached = featureDistanceCache.get(signature);
-  if (cached) return cached;
-  const distances = computeFeatureDistanceMaps(scene, seatPositions);
-  featureDistanceCache.set(signature, distances);
-  if (featureDistanceCache.size > MAX_FEATURE_DISTANCE_CACHE_SIZE) {
-    const firstKey = featureDistanceCache.keys().next().value;
-    if (firstKey) {
-      featureDistanceCache.delete(firstKey);
-    }
-  }
-  return distances;
-};
-
-const distanceToFeature = (x: number, y: number, feature: ClassroomFeature) => {
-  const dx = Math.max(feature.x - x, 0, x - (feature.x + feature.width));
-  const dy = Math.max(feature.y - y, 0, y - (feature.y + feature.height));
-  return Math.hypot(dx, dy);
-};
-
-const computeFeatureDistanceMaps = (
-  scene: ClassroomScene,
-  seatPositions: Map<string, { x: number; y: number }>,
-): FeatureDistanceMaps => {
-  const features = scene.features ?? [];
-  const windowFeatures = features.filter(
-    (feature) => feature.type === 'window',
-  );
-  const doorFeatures = features.filter((feature) => feature.type === 'door');
-  const windowDistances = new Map<string, number>();
-  const doorDistances = new Map<string, number>();
-  let maxWindowDistance = 0;
-  let maxDoorDistance = 0;
-
-  const defaultFallbackDistance = Math.hypot(CLASSROOM_WIDTH, CLASSROOM_HEIGHT);
-
-  for (const [seatKey, position] of seatPositions.entries()) {
-    if (windowFeatures.length > 0) {
-      let minDistance = Number.POSITIVE_INFINITY;
-      for (const feature of windowFeatures) {
-        const distance = distanceToFeature(position.x, position.y, feature);
-        if (distance < minDistance) {
-          minDistance = distance;
-        }
-      }
-      windowDistances.set(seatKey, minDistance);
-      if (Number.isFinite(minDistance)) {
-        maxWindowDistance = Math.max(maxWindowDistance, minDistance);
-      }
-    } else {
-      windowDistances.set(seatKey, Number.POSITIVE_INFINITY);
-    }
-
-    if (doorFeatures.length > 0) {
-      let minDistance = Number.POSITIVE_INFINITY;
-      for (const feature of doorFeatures) {
-        const distance = distanceToFeature(position.x, position.y, feature);
-        if (distance < minDistance) {
-          minDistance = distance;
-        }
-      }
-      doorDistances.set(seatKey, minDistance);
-      if (Number.isFinite(minDistance)) {
-        maxDoorDistance = Math.max(maxDoorDistance, minDistance);
-      }
-    } else {
-      doorDistances.set(seatKey, Number.POSITIVE_INFINITY);
-    }
-  }
-
-  return {
-    window: windowDistances,
-    door: doorDistances,
-    maxWindowDistance:
-      maxWindowDistance > 0 ? maxWindowDistance : defaultFallbackDistance,
-    maxDoorDistance:
-      maxDoorDistance > 0 ? maxDoorDistance : defaultFallbackDistance,
-  };
-};
 
 /**
  * Carries shared state across the four phases of `generateSeatingPlan`
@@ -245,6 +114,8 @@ export type AssignmentContext = {
   previousPairs: Map<string, number>;
   targets: number[];
   globalCounts: ReturnType<typeof emptyCounts>;
+  /** Random source of this run; seeded in tests, `Math.random` in production */
+  rng: RandomSource;
 };
 
 /**
@@ -371,6 +242,7 @@ export function initializeAssignment(
   settings: Partial<MixSettings>,
   scene: ClassroomScene,
   currentSeating?: SeatingArrangement,
+  rng: RandomSource = Math.random,
 ): AssignmentContext {
   const previousPairs = settings.avoidPreviousPairs
     ? buildPreviousPairs(seatingHistory, {
@@ -453,7 +325,7 @@ export function initializeAssignment(
       } else {
         diff = orientation.frontIsHighY ? b[1].y - a[1].y : a[1].y - b[1].y;
       }
-      return diff !== 0 ? diff : Math.random() - 0.5;
+      return diff !== 0 ? diff : rng() - 0.5;
     });
     let idx = 0;
     for (const fs of frontStudents) {
@@ -472,13 +344,13 @@ export function initializeAssignment(
   }
 
   const total = students.length;
-  const targets = evenTargetsFor(total, seatCounts);
+  const targets = evenTargetsFor(total, seatCounts, rng);
 
   const orderedAll: Student[] = [
-    ...shuffleArray(frontRow),
-    ...shuffleArray(restless),
-    ...shuffleArray(shy),
-    ...shuffleArray(rest),
+    ...shuffleArray(frontRow, rng),
+    ...shuffleArray(restless, rng),
+    ...shuffleArray(shy, rng),
+    ...shuffleArray(rest, rng),
   ];
   const orderedFiltered = orderedAll.filter((s) => !validLockedIds.has(s.id));
   const ordered = reorderByWishPartners(orderedFiltered, settings);
@@ -521,6 +393,7 @@ export function initializeAssignment(
     previousPairs,
     targets,
     globalCounts,
+    rng,
   };
 }
 
@@ -616,7 +489,7 @@ export function runPass(ctx: AssignmentContext): AssignmentContext {
         if (
           best === null ||
           sc < best.score ||
-          (sc === best.score && Math.random() < 0.5)
+          (sc === best.score && ctx.rng() < 0.5)
         ) {
           best = { t, s, score: sc };
         }
@@ -673,6 +546,7 @@ export function finalize(arrangement: SeatingArrangement): SeatingArrangement {
  * @param settings - Mix settings controlling weights for every constraint
  * @param scene - Classroom layout including tables, seats, and geometry helpers
  * @param currentSeating - Optional reference arrangement to warm-start the algorithm
+ * @param options - Optional overrides; `rng` seeds the run for reproducible output
  * @returns Optimized seating arrangement with per-table assignments
  *
  * @complexity O(n^2 * passes * tries) with n = students.length
@@ -697,6 +571,7 @@ export function generateSeatingPlan(
   settings: Partial<MixSettings>,
   scene: ClassroomScene,
   currentSeating?: SeatingArrangement,
+  options?: { rng?: RandomSource },
 ): SeatingArrangement {
   const startTime = performance.now();
   logDebug(
@@ -716,6 +591,7 @@ export function generateSeatingPlan(
     settings,
     scene,
     currentSeating,
+    options?.rng,
   );
   runPass(ctx);
 
@@ -776,6 +652,8 @@ export function refineSeatingLocal(
     useAnnealing?: boolean;
     /** Custom Simulated Annealing configuration */
     annealingConfig?: Partial<AnnealingConfig>;
+    /** Random source; pass a seeded one for reproducible refinement */
+    rng?: RandomSource;
   },
   start?: SeatingArrangement,
 ): SeatingArrangement {
@@ -787,6 +665,7 @@ export function refineSeatingLocal(
   );
   const triesPerPass = options?.triesPerPass ?? DEFAULT_TRIES_PER_PASS;
   const passes = options?.passes ?? DEFAULT_PASSES;
+  const rng = options?.rng ?? Math.random;
 
   const base = start ?? currentSeating;
   if (!base || base.length === 0) return base;
@@ -794,7 +673,7 @@ export function refineSeatingLocal(
   const seatCounts = scene.tables.map((t) => t.seatCount);
   const tableCount = seatCounts.length;
   const total = students.length;
-  const targets = evenTargetsFor(total, seatCounts);
+  const targets = evenTargetsFor(total, seatCounts, rng);
   const referenceSeating = start ?? currentSeating;
   const previousPairs = settings.avoidPreviousPairs
     ? buildPreviousPairs(seatingHistory, {
@@ -811,12 +690,7 @@ export function refineSeatingLocal(
   );
   const genderNeighborWeights = buildDirectionalWeights(settings, 'gender');
   const seatPositions = getSeatPositions(scene);
-  const {
-    window: windowSeatDistances,
-    door: doorSeatDistances,
-    maxWindowDistance,
-    maxDoorDistance,
-  } = getFeatureDistanceMaps(scene, seatPositions);
+  const featureDistances = getFeatureDistanceMaps(scene, seatPositions);
   const xs = Array.from(seatPositions.values()).map((p) => p.x);
   const ys = Array.from(seatPositions.values()).map((p) => p.y);
   const minX = Math.min(...xs);
@@ -827,379 +701,33 @@ export function refineSeatingLocal(
   // Determine front direction based on board position
   const orientation = determineFrontDirection(scene);
 
-  const preferWindowWeight = settings.preferWindowSeats ?? 0;
-  const preferDoorWeight = settings.preferDoorSeats ?? 0;
-
-  const buildSeatKey = (tableIndex: number, seatIndex: number): string =>
-    `${tableIndex}-${seatIndex}`;
-
-  const normalizeFeatureDistance = (
-    distance: number,
-    maxDistance: number,
-  ): number => {
-    if (!Number.isFinite(distance) || maxDistance <= 0) {
-      return 1;
-    }
-    return Math.min(distance / maxDistance, 1);
+  // Table scoring lives in `scoring/arrangementScoring`. The context holds
+  // `arr` by reference, so a candidate swap is evaluated by mutating the
+  // arrangement and re-reading the two affected tables — no rebuild per try.
+  const scoringContext: ArrangementScoringContext = {
+    arrangement: arr,
+    settings,
+    seatCounts,
+    targets,
+    seatNeighborhoods,
+    seatPositions,
+    minX,
+    maxX,
+    minY,
+    maxY,
+    orientation,
+    previousPairs,
+    featureDistances,
+    behavioralNeighborWeights,
+    genderNeighborWeights,
   };
 
-  const tableScore = (tIndex: number): number => {
-    const t = arr[tIndex] ?? [];
-    const members = t.filter(Boolean) as Student[];
-    const seatCount = seatCounts[tIndex]!;
-    let score = 0;
-
-    const seated = members.length;
-    const target = targets[tIndex]!;
-    if (seated > target) score += (seated - target) * 0.5;
-
-    const pairs = seatPairsFor(seatCount);
-    for (const [a, b] of pairs) {
-      const A = t[a];
-      const B = t[b];
-      if (
-        settings.avoidRestlessTogether &&
-        A &&
-        B &&
-        isRestless(A) &&
-        isRestless(B)
-      ) {
-        score +=
-          settings.avoidRestlessTogether *
-          Math.max(specialWeight(A), specialWeight(B));
-      }
-      if (settings.avoidShyAlone) {
-        if (A && isShy(A) && !B)
-          score += settings.avoidShyAlone * specialWeight(A);
-        if (B && isShy(B) && !A)
-          score += settings.avoidShyAlone * specialWeight(B);
-      }
-      // Avoid partner logic (higher priority) - now supports arrays
-      if (settings.avoidConflictPartners) {
-        const getAvoidIds = (s: Student): string[] =>
-          s.avoidPartnerIds?.length
-            ? s.avoidPartnerIds
-            : s.avoidPartnerId
-              ? [s.avoidPartnerId]
-              : [];
-
-        const avoidIdsA = A ? getAvoidIds(A) : [];
-        const avoidIdsB = B ? getAvoidIds(B) : [];
-        const avoidA = A && B && avoidIdsA.includes(B.id);
-        const avoidB = B && A && avoidIdsB.includes(A.id);
-        if (avoidA || avoidB) {
-          // High penalty for sitting together
-          score += settings.avoidConflictPartners * 2;
-        }
-      }
-      if (settings.considerWishPartners) {
-        const getWishIds = (s: Student): string[] =>
-          s.wishPartnerIds?.length
-            ? s.wishPartnerIds
-            : s.wishPartnerId
-              ? [s.wishPartnerId]
-              : [];
-        const getAvoidIds = (s: Student): string[] =>
-          s.avoidPartnerIds?.length
-            ? s.avoidPartnerIds
-            : s.avoidPartnerId
-              ? [s.avoidPartnerId]
-              : [];
-
-        const wishIdsA = A ? getWishIds(A) : [];
-        const wishIdsB = B ? getWishIds(B) : [];
-        const avoidIdsA = A ? getAvoidIds(A) : [];
-        const avoidIdsB = B ? getAvoidIds(B) : [];
-
-        const wishA = A && B && wishIdsA.includes(B.id);
-        const wishB = B && A && wishIdsB.includes(A.id);
-        // Check for conflicts (A wishes B, but B avoids A)
-        const conflictA =
-          A && B && wishIdsA.includes(B.id) && avoidIdsB.includes(A.id);
-        const conflictB =
-          B && A && wishIdsB.includes(A.id) && avoidIdsA.includes(B.id);
-        if ((conflictA || conflictB) && settings.avoidConflictPartners) {
-          // Conflict: avoid wins over wish
-          score += settings.avoidConflictPartners;
-        } else if (wishA || wishB) {
-          score -= settings.considerWishPartners;
-        } else if (wishIdsA.length > 0 || wishIdsB.length > 0) {
-          score += settings.considerWishPartners;
-        }
-      }
-      // Performance-based pairing logic (mutually exclusive options)
-      const peerTutoringWeight = settings.peerTutoring ?? 0;
-      const homogeneousWeight = settings.homogeneousPerformanceGroups ?? 0;
-      const usePeerTutoring = peerTutoringWeight > homogeneousWeight;
-
-      if (usePeerTutoring && peerTutoringWeight > 0) {
-        // Heterogeneous performance pairing (peer tutoring)
-        const highA = A && isHighPerf(A);
-        const highB = B && isHighPerf(B);
-        const lowA = A && isLowPerf(A);
-        const lowB = B && isLowPerf(B);
-        if ((highA && lowB) || (lowA && highB)) {
-          score -= peerTutoringWeight;
-        } else if (highA || highB || lowA || lowB) {
-          score += peerTutoringWeight;
-        }
-      } else if (homogeneousWeight > 0) {
-        // Homogeneous performance grouping
-        const highA = A && isHighPerf(A);
-        const highB = B && isHighPerf(B);
-        const lowA = A && isLowPerf(A);
-        const lowB = B && isLowPerf(B);
-        const bothHigh = highA && highB;
-        const bothLow = lowA && lowB;
-        if (bothHigh || bothLow) {
-          score -= homogeneousWeight;
-        } else if ((highA && lowB) || (lowA && highB)) {
-          score += homogeneousWeight;
-        }
-      }
-    }
-
-    if (settings.avoidConcentrationTogether) {
-      for (let i = 0; i < members.length; i++) {
-        const A = members[i]!;
-        if (!isConcentration(A)) continue;
-        for (let j = i + 1; j < members.length; j++) {
-          const B = members[j]!;
-          if (isConcentration(B)) {
-            score +=
-              settings.avoidConcentrationTogether *
-              Math.max(specialWeight(A), specialWeight(B));
-          }
-        }
-      }
-    }
-
-    if (settings.preferGenderMix && members.length > 1 && seatCount > 1) {
-      const counts = emptyCounts();
-      for (const m of members) {
-        if (m.gender) {
-          counts[m.gender]++;
-        }
-      }
-      score += calculateGenderImbalance(counts) * settings.preferGenderMix;
-    }
-
-    if (settings.avoidConcentrationNearRestless || settings.preferGenderMix) {
-      for (let sIdx = 0; sIdx < t.length; sIdx++) {
-        const seatKey = buildSeatKey(tIndex, sIdx);
-        const neighbors = seatNeighborhoods.get(seatKey) ?? [];
-        if (neighbors.length === 0) continue;
-
-        const current = t[sIdx];
-        if (!current) continue;
-
-        for (const neighbor of neighbors) {
-          const {
-            tableIndex: nt,
-            seatIndex: ns,
-            strengthFactor,
-            direction,
-          } = neighbor;
-          if (nt < tIndex || (nt === tIndex && ns <= sIdx)) continue;
-
-          const other = arr[nt]?.[ns];
-          if (!other) continue;
-
-          if (
-            settings.avoidConcentrationNearRestless &&
-            isConcentration(current) &&
-            isRestless(other)
-          ) {
-            score +=
-              settings.avoidConcentrationNearRestless *
-              Math.max(specialWeight(current), specialWeight(other)) *
-              strengthFactor *
-              behavioralNeighborWeights[direction];
-          }
-
-          if (
-            settings.preferGenderMix &&
-            current.gender &&
-            other.gender &&
-            current.gender === other.gender
-          ) {
-            score +=
-              settings.preferGenderMix *
-              strengthFactor *
-              genderNeighborWeights[direction];
-          }
-        }
-      }
-    }
-
-    if (settings.avoidPreviousPairs && previousPairs.size > 0) {
-      for (let i = 0; i < members.length; i++) {
-        const mi = members[i]!;
-        for (let j = i + 1; j < members.length; j++) {
-          const mj = members[j]!;
-          const pairKey = [mi.id, mj.id].sort().join('::');
-          const wishPair =
-            settings.considerWishPartners && mi.wishPartnerId === mj.id;
-          if (!wishPair && previousPairs.has(pairKey))
-            score += settings.avoidPreviousPairs;
-        }
-      }
-    }
-
-    for (let sIdx = 0; sIdx < t.length; sIdx++) {
-      const stu = t[sIdx];
-      if (!stu) continue;
-      const seatKey = buildSeatKey(tIndex, sIdx);
-      const pos = seatPositions.get(seatKey);
-
-      if (pos) {
-        // Calculate relative front position (0 = back, 1 = front), respecting dominant axis
-        let rel = 0.5;
-        if (orientation.dominantAxis === 'x' && maxX > minX) {
-          const rawRel = (pos.x - minX) / (maxX - minX);
-          rel = orientation.frontIsHighX ? rawRel : 1 - rawRel;
-        } else if (orientation.dominantAxis === 'y' && maxY > minY) {
-          const rawRel = (pos.y - minY) / (maxY - minY);
-          rel = orientation.frontIsHighY ? rawRel : 1 - rawRel;
-        }
-
-        if (settings.preferFrontForNeedsFrontSeat && hasNeedsFrontSeat(stu)) {
-          score -=
-            rel * settings.preferFrontForNeedsFrontSeat * specialWeight(stu);
-        }
-        const heightWeight = settings.preferFrontForSmallerStudents ?? 0;
-        if (heightWeight > 0 && stu.height && stu.height !== 'medium') {
-          if (stu.height === 'small') {
-            score -= rel * heightWeight * HEIGHT_PLACEMENT_AMPLIFICATION;
-          } else if (stu.height === 'tall') {
-            score -= (1 - rel) * heightWeight * HEIGHT_PLACEMENT_AMPLIFICATION;
-          }
-        }
-      }
-
-      if (preferWindowWeight > 0 && stu.prefersWindow) {
-        const distance = windowSeatDistances.get(seatKey);
-        if (distance !== undefined) {
-          const normalized = normalizeFeatureDistance(
-            distance,
-            maxWindowDistance,
-          );
-          score += normalized * preferWindowWeight;
-        }
-      }
-
-      if (preferDoorWeight > 0 && stu.prefersDoor) {
-        const distance = doorSeatDistances.get(seatKey);
-        if (distance !== undefined) {
-          const normalized = normalizeFeatureDistance(
-            distance,
-            maxDoorDistance,
-          );
-          score += normalized * preferDoorWeight;
-        }
-      }
-    }
-
-    // Language skill mixing scoring
-    const languageWeight = settings.preferLanguageMixing ?? 0;
-    if (languageWeight > 0) {
-      const languageLevels = members
-        .map((m) => m.languageSkill)
-        .filter(Boolean);
-      if (languageLevels.length >= 2) {
-        // Check for heterogeneous mixing (good) vs homogeneous (less ideal)
-        const hasStrong = languageLevels.some(
-          (l) => l === 'native' || l === 'fluent',
-        );
-        const hasWeak = languageLevels.some(
-          (l) => l === 'beginner' || l === 'daz',
-        );
-        if (hasStrong && hasWeak) {
-          score -= languageWeight * 0.5; // Reward heterogeneous mixing
-        }
-        // Penalize multiple students needing support together without strong speaker
-        const weakCount = languageLevels.filter(
-          (l) => l === 'beginner' || l === 'daz',
-        ).length;
-        if (weakCount > 1 && !hasStrong) {
-          score += languageWeight * 0.4 * (weakCount - 1);
-        }
-      }
-    }
-
-    // Social role distribution scoring
-    const socialRoleWeight = settings.distributeSocialRoles ?? 0;
-    if (socialRoleWeight > 0) {
-      const roles = members.map((m) => m.socialRole).filter(Boolean);
-      if (roles.length > 0) {
-        const roleCounts = new Map<string, number>();
-        for (const role of roles) {
-          roleCounts.set(role!, (roleCounts.get(role!) ?? 0) + 1);
-        }
-        // Penalize clustering of same roles (except mediators)
-        for (const [role, count] of roleCounts) {
-          if (count > 1 && role !== 'mediator') {
-            score += socialRoleWeight * 0.5 * (count - 1);
-          }
-        }
-        // Penalize multiple loners together
-        const lonerCount = roleCounts.get('loner') ?? 0;
-        if (lonerCount > 1) {
-          score += socialRoleWeight * 0.6 * (lonerCount - 1);
-        }
-        // Reward loner with mediator/socialHub
-        if (lonerCount > 0) {
-          const hasSupport =
-            roleCounts.has('mediator') || roleCounts.has('socialHub');
-          if (hasSupport) {
-            score -= socialRoleWeight * 0.4;
-          }
-        }
-      }
-    }
-
-    // Table-level composition scoring for large tables (4+ students)
-    // This catches issues that pair-based scoring misses
-    if (members.length >= 4) {
-      score += scoreTableComposition({
-        members,
-        tableIndex: tIndex,
-        settings,
-      });
-    }
-
-    return score;
-  };
-
-  const tableGenderDiff = (tIndex: number): number => {
-    const t = arr[tIndex] ?? [];
-    const counts = emptyCounts();
-    let occupied = 0;
-    for (const stu of t) {
-      if (!stu) continue;
-      if (stu.gender) {
-        counts[stu.gender]++;
-      }
-      occupied++;
-    }
-    if (occupied <= 1) return 0;
-    return calculateGenderImbalance(counts);
-  };
-
-  const globalGenderDiff = (): number => {
-    let total = 0;
-    for (let i = 0; i < tableCount; i++) {
-      total += tableGenderDiff(i);
-    }
-    return total;
-  };
-
-  const tablesScore = (a: number, b: number): number => {
-    let sc = tableScore(a) + (a === b ? 0 : tableScore(b));
-    if (settings.preferGenderMix)
-      sc += globalGenderDiff() * settings.preferGenderMix;
-    return sc;
-  };
+  const tableScore = (tableIndex: number): number =>
+    scoreTable(scoringContext, tableIndex);
+  const globalGenderDiff = (): number =>
+    globalArrangementGenderDiff(scoringContext);
+  const tablesScore = (a: number, b: number): number =>
+    scoreTablePair(scoringContext, a, b);
 
   const frontRequired = students.filter((s) => requiresFront(s, settings));
   const sortedSeatEntries = Array.from(seatPositions.entries()).sort(
@@ -1220,7 +748,7 @@ export function refineSeatingLocal(
     if (!stu) return false;
     const lp = lockedPositions[stu.id];
     if (lp && lp.table === t && lp.seat === s) return true;
-    return requiresFront(stu, settings) && frontSeatSet.has(buildSeatKey(t, s));
+    return requiresFront(stu, settings) && frontSeatSet.has(`${t}-${s}`);
   };
 
   // MT-1: Simulated Annealing mode (optional)
@@ -1232,6 +760,7 @@ export function refineSeatingLocal(
     };
 
     const annealingContext: AnnealingContext = {
+      rng,
       arrangement: arr,
       seatCounts,
       tableCount,
@@ -1271,32 +800,36 @@ export function refineSeatingLocal(
     // Sort by score descending (worst/highest score first)
     tableScores.sort((a, b) => b.score - a.score);
 
-    // Helper: Pick a table with bias towards problem tables
-    // 70% chance to pick from top 3 worst tables, 30% random
+    // Pick a table, biased towards the worst-scoring ones — a uniform pick
+    // would spend most tries on tables that are already fine.
     const pickProblemBiasedTable = (): number => {
-      if (Math.random() < 0.7 && tableScores.length > 0) {
-        // Weighted selection from top 3 worst tables
-        // Weight: 1st = 50%, 2nd = 30%, 3rd = 20%
-        const r = Math.random();
-        const worstCount = Math.min(3, tableScores.length);
-        if (r < 0.5 || worstCount === 1) {
+      const {
+        problemTableBias,
+        candidateCount,
+        firstChoiceThreshold,
+        secondChoiceThreshold,
+      } = REFINEMENT_TABLE_SELECTION;
+      if (rng() < problemTableBias && tableScores.length > 0) {
+        const r = rng();
+        const worstCount = Math.min(candidateCount, tableScores.length);
+        if (r < firstChoiceThreshold || worstCount === 1) {
           return tableScores[0]!.index;
-        } else if (r < 0.8 || worstCount === 2) {
+        } else if (r < secondChoiceThreshold || worstCount === 2) {
           return tableScores[1]!.index;
         } else {
           return tableScores[2]!.index;
         }
       }
-      return Math.floor(Math.random() * tableCount);
+      return randomInt(rng, tableCount);
     };
 
     for (let k = 0; k < triesPerPass; k++) {
       // Use heuristic: first table from problem bias, second table random
       // This targets improvements for the worst tables
       const t1 = pickProblemBiasedTable();
-      const s1 = Math.floor(Math.random() * seatCounts[t1]!);
-      const t2 = Math.floor(Math.random() * tableCount);
-      const s2 = Math.floor(Math.random() * seatCounts[t2]!);
+      const s1 = randomInt(rng, seatCounts[t1]!);
+      const t2 = randomInt(rng, tableCount);
+      const s2 = randomInt(rng, seatCounts[t2]!);
 
       if (t1 === t2 && s1 === s2) continue;
       const A = arr[t1]?.[s1] as Student | null | undefined;

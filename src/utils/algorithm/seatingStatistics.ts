@@ -14,16 +14,9 @@ import {
   getSeatPositions,
   getSeatNeighborhoods,
 } from '@/utils/math/seatGeometry';
-import { CLASSROOM_HEIGHT, CLASSROOM_WIDTH } from '@/utils';
+import { getFeatureDistanceMaps } from './featureDistances';
 import { createGenderCounts, calculateGenderImbalance } from './genderBalance';
 import { determineFrontDirection } from './orientationUtils';
-
-type FeatureDistanceMaps = {
-  window: Map<string, number>;
-  door: Map<string, number>;
-  maxWindowDistance: number;
-  maxDoorDistance: number;
-};
 
 // Seat is considered "fulfilled" for environmental preference if it is within
 // the closest 40% of all available distances relative to the farthest seat.
@@ -31,83 +24,6 @@ const PROXIMITY_SATISFIED_THRESHOLD = 0.6;
 
 const buildSeatKey = (tableIndex: number, seatIndex: number) =>
   `${tableIndex}-${seatIndex}`;
-
-const distanceToFeature = (
-  x: number,
-  y: number,
-  feature: {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-  },
-) => {
-  const dx = Math.max(feature.x - x, 0, x - (feature.x + feature.width));
-  const dy = Math.max(feature.y - y, 0, y - (feature.y + feature.height));
-  return Math.hypot(dx, dy);
-};
-
-const computeFeatureDistanceMaps = (
-  scene: ClassroomScene,
-  seatPositions: Map<string, { x: number; y: number }>,
-): FeatureDistanceMaps => {
-  const features = scene.features ?? [];
-  const windowFeatures = features.filter(
-    (feature) => feature.type === 'window',
-  );
-  const doorFeatures = features.filter((feature) => feature.type === 'door');
-
-  const windowDistances = new Map<string, number>();
-  const doorDistances = new Map<string, number>();
-
-  let maxWindowDistance = 0;
-  let maxDoorDistance = 0;
-
-  const defaultFallbackDistance = Math.hypot(CLASSROOM_WIDTH, CLASSROOM_HEIGHT);
-
-  for (const [seatKey, position] of seatPositions.entries()) {
-    if (windowFeatures.length > 0) {
-      let minDistance = Number.POSITIVE_INFINITY;
-      for (const feature of windowFeatures) {
-        const distance = distanceToFeature(position.x, position.y, feature);
-        if (distance < minDistance) {
-          minDistance = distance;
-        }
-      }
-      windowDistances.set(seatKey, minDistance);
-      if (Number.isFinite(minDistance)) {
-        maxWindowDistance = Math.max(maxWindowDistance, minDistance);
-      }
-    } else {
-      windowDistances.set(seatKey, Number.POSITIVE_INFINITY);
-    }
-
-    if (doorFeatures.length > 0) {
-      let minDistance = Number.POSITIVE_INFINITY;
-      for (const feature of doorFeatures) {
-        const distance = distanceToFeature(position.x, position.y, feature);
-        if (distance < minDistance) {
-          minDistance = distance;
-        }
-      }
-      doorDistances.set(seatKey, minDistance);
-      if (Number.isFinite(minDistance)) {
-        maxDoorDistance = Math.max(maxDoorDistance, minDistance);
-      }
-    } else {
-      doorDistances.set(seatKey, Number.POSITIVE_INFINITY);
-    }
-  }
-
-  return {
-    window: windowDistances,
-    door: doorDistances,
-    maxWindowDistance:
-      maxWindowDistance > 0 ? maxWindowDistance : defaultFallbackDistance,
-    maxDoorDistance:
-      maxDoorDistance > 0 ? maxDoorDistance : defaultFallbackDistance,
-  };
-};
 
 const calculateProximityScore = (distance: number, maxDistance: number) => {
   if (!Number.isFinite(distance) || maxDistance <= 0) {
@@ -314,7 +230,7 @@ export function calculateSeatingStatistics(
     door: doorSeatDistances,
     maxWindowDistance,
     maxDoorDistance,
-  } = computeFeatureDistanceMaps(scene, seatPositions);
+  } = getFeatureDistanceMaps(scene, seatPositions);
 
   const countedRestlessPairs = new Set<string>();
   const countedConcentrationPairs = new Set<string>();

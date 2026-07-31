@@ -6,7 +6,7 @@
  * Use SeatingPlanGeneratorProvider context hooks instead.
  */
 import { startTransition, useCallback, useEffect, useRef } from 'react';
-import { set as idbSet } from 'idb-keyval';
+import { writeValue as idbSet } from '@/repositories/idbClient';
 import {
   DEFAULT_ACTIVE_CLASS,
   type ActiveClassState,

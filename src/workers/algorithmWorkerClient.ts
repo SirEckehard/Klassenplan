@@ -7,6 +7,7 @@ import type {
   AlgorithmWorkerSuccessResponse,
   WorkerProgressPayload,
 } from '@/workers/algorithmWorker.types';
+import { executeAlgorithmOperation } from '@/workers/algorithmOperations';
 import { logDebug, logError, logWarn } from '@/utils';
 
 type WorkerResult<T extends AlgorithmWorkerOperation> =
@@ -36,6 +37,23 @@ const INITIAL_WARMUP_TIMEOUT_MS = 2_000;
 const RETRY_WARMUP_TIMEOUT_MS = 8_000;
 const MAX_INIT_RETRIES = 2;
 const WORKER_CONTEXT = 'algorithmWorkerClient';
+
+/**
+ * Raised when the worker does not answer within the request timeout.
+ *
+ * Deliberately *not* retried on the main thread: a worker that went silent for
+ * two minutes is stuck, and re-running the same job inline would freeze the UI
+ * for just as long instead of failing visibly.
+ */
+export class AlgorithmWorkerTimeoutError extends Error {
+  constructor(operation: AlgorithmWorkerOperation, timeoutMs: number) {
+    super(`Worker request "${operation}" timed out after ${timeoutMs} ms`);
+    this.name = 'AlgorithmWorkerTimeoutError';
+  }
+}
+
+const isAbortError = (error: unknown): boolean =>
+  error instanceof DOMException && error.name === 'AbortError';
 
 const createRequestId = (): string => {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
@@ -179,6 +197,11 @@ class AlgorithmWorkerClient {
     try {
       return await this.dispatch(operation, payload, options);
     } catch (error) {
+      // An aborted request was cancelled on purpose and a timed-out worker is
+      // presumed stuck — neither should silently re-run on the main thread.
+      if (isAbortError(error) || error instanceof AlgorithmWorkerTimeoutError) {
+        throw error;
+      }
       logError(
         'Worker request failed, using inline fallback',
         { error, operation },
@@ -300,7 +323,16 @@ class AlgorithmWorkerClient {
 
       const timeoutId = setTimeout(() => {
         this.pending.delete(requestId);
-        reject(new Error('Worker request timed out'));
+        logWarn(
+          'Worker request timed out',
+          { operation, timeoutMs },
+          WORKER_CONTEXT,
+        );
+        // Drop the stuck worker so the next request starts from a fresh one
+        // instead of queueing behind a job that never finishes.
+        this.disposeWorker();
+        this.initPromise = null;
+        reject(new AlgorithmWorkerTimeoutError(operation, timeoutMs));
       }, timeoutMs);
 
       const abortHandler = () => {
@@ -403,98 +435,15 @@ class AlgorithmWorkerClient {
     this.disposeWorker();
   }
 
-  private async executeFallback<T extends AlgorithmWorkerOperation>(
+  /**
+   * Runs the operation on the main thread. Shares its implementation with the
+   * worker via `executeAlgorithmOperation`, so both paths behave identically.
+   */
+  private executeFallback<T extends AlgorithmWorkerOperation>(
     operation: T,
     payload: AlgorithmWorkerRequestMap[T]['payload'],
   ): Promise<WorkerResult<T>> {
-    switch (operation) {
-      case 'mix:generate': {
-        const { generateSeatingPlan } =
-          await import('@/utils/algorithm/seatingAlgorithm');
-        const {
-          students,
-          seatingHistory,
-          mixHistory,
-          lockedPositions,
-          classroomScene,
-          mixSettings,
-          lastSeating,
-        } = payload as AlgorithmWorkerRequestMap['mix:generate']['payload'];
-        const seating = generateSeatingPlan(
-          students,
-          seatingHistory,
-          mixHistory,
-          lockedPositions,
-          mixSettings,
-          classroomScene,
-          lastSeating ?? undefined,
-        );
-        return { seating } as WorkerResult<T>;
-      }
-      case 'mix:refine': {
-        const { refineSeatingLocal } =
-          await import('@/utils/algorithm/seatingAlgorithm');
-        const {
-          students,
-          seatingHistory,
-          mixHistory,
-          lockedPositions,
-          classroomScene,
-          currentSeating,
-          mixSettings,
-          options,
-          start,
-        } = payload as AlgorithmWorkerRequestMap['mix:refine']['payload'];
-        const seating = refineSeatingLocal(
-          students,
-          seatingHistory,
-          mixHistory,
-          lockedPositions,
-          currentSeating,
-          mixSettings,
-          classroomScene,
-          // MT-1: Enable Simulated Annealing by default for better optimization
-          { useAnnealing: true, ...options },
-          start ?? undefined,
-        );
-        return { seating } as WorkerResult<T>;
-      }
-      case 'circle:generate': {
-        const { generateCircleLayout } =
-          await import('@/utils/algorithm/circleArrangement');
-        const { students, classroomScene, currentSeating } =
-          payload as AlgorithmWorkerRequestMap['circle:generate']['payload'];
-        const layout = generateCircleLayout(
-          students,
-          classroomScene,
-          currentSeating ?? undefined,
-        );
-        return { layout } as WorkerResult<T>;
-      }
-      case 'circle:optimized': {
-        const { generateOptimizedCircleLayout } =
-          await import('@/utils/algorithm/CircleSeatingAlgorithm');
-        const {
-          students,
-          classroomScene,
-          mixSettings,
-          seatingHistory,
-          currentSeating,
-        } = payload as AlgorithmWorkerRequestMap['circle:optimized']['payload'];
-        const layout = generateOptimizedCircleLayout(
-          students,
-          classroomScene,
-          mixSettings,
-          seatingHistory,
-          currentSeating ?? undefined,
-        );
-        return { layout } as WorkerResult<T>;
-      }
-      case 'worker:warmup':
-        return { ready: true } as WorkerResult<T>;
-      default:
-        throw new Error(`Unsupported operation ${operation}`);
-    }
+    return executeAlgorithmOperation(operation, payload);
   }
 }
 

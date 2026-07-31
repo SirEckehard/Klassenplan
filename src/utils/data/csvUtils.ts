@@ -193,7 +193,6 @@ const parseWithWorker = (
       );
 
       const timeoutId = setTimeout(() => {
-        worker.postMessage({ type: 'cancel' });
         worker.terminate();
         reject(getTimeoutError());
       }, options.timeoutMs ?? CSV_WORKER_TIMEOUT_MS);
@@ -231,7 +230,8 @@ const parseWithWorker = (
       };
 
       const handleAbort = (): void => {
-        worker.postMessage({ type: 'cancel' });
+        // `cleanup` terminates the worker, which stops the parse immediately —
+        // a cancel message would never be processed before termination.
         cleanup();
         reject(getAbortError());
       };

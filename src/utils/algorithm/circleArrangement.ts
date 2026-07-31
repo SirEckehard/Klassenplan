@@ -18,6 +18,7 @@ import {
   calculateCircleNeighbors,
   CIRCLE_ARRANGEMENT_MODE,
 } from '@/utils/math/circleGeometry';
+import { randomInt, type RandomSource } from './rng';
 
 /**
  * Main function to generate circle layouts with different algorithms
@@ -26,6 +27,7 @@ export function generateCircleLayout(
   students: Student[],
   classroomScene: ClassroomScene,
   currentSeating?: SeatingArrangement,
+  rng: RandomSource = Math.random,
 ): CircleLayout {
   // Analyze current neighborhoods from table layout
   const neighborhoodAnalysis = analyzeNeighborhoods(
@@ -43,6 +45,7 @@ export function generateCircleLayout(
       neighborhoodAnalysis,
       center,
       radius,
+      rng,
     );
 
   // Calculate actual neighbor relationships in circle
@@ -95,6 +98,7 @@ function preserveNeighborhoodsArrangement(
   neighborhoodAnalysis: NeighborhoodAnalysis,
   center: { x: number; y: number },
   radius: { horizontal: number; vertical: number },
+  rng: RandomSource,
 ): CircleStudentPosition[] {
   // Start with basic distribution
   let positions = distributeStudentsInCircle(students, center, radius);
@@ -103,6 +107,7 @@ function preserveNeighborhoodsArrangement(
   positions = optimizeForNeighborhoodPreservation(
     positions,
     neighborhoodAnalysis,
+    rng,
   );
 
   return positions;
@@ -114,6 +119,7 @@ function preserveNeighborhoodsArrangement(
 function optimizeForNeighborhoodPreservation(
   positions: CircleStudentPosition[],
   neighborhoodAnalysis: NeighborhoodAnalysis,
+  rng: RandomSource,
   maxIterations: number = 100,
 ): CircleStudentPosition[] {
   let bestPositions = [...positions];
@@ -122,8 +128,8 @@ function optimizeForNeighborhoodPreservation(
   for (let iteration = 0; iteration < maxIterations; iteration++) {
     // Perform a lightweight random search to improve preservation without heavy computation
     const newPositions = [...positions];
-    const i = Math.floor(Math.random() * newPositions.length);
-    const j = Math.floor(Math.random() * newPositions.length);
+    const i = randomInt(rng, newPositions.length);
+    const j = randomInt(rng, newPositions.length);
 
     if (i !== j) {
       // Swap students but keep their circle positions

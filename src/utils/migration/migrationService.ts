@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import { get as idbGet, set as idbSet } from 'idb-keyval';
+import {
+  readValue as idbGet,
+  writeValue as idbSet,
+} from '@/repositories/idbClient';
 import { DB_KEYS, LOCAL_STORAGE_KEYS } from '@/utils/data/storageKeys';
 import { hasIndexedDB } from '@/utils/data/indexedDb';
 import {
@@ -69,7 +72,7 @@ async function checkMigrationNeeded(): Promise<boolean> {
   }
 
   try {
-    const currentVersion = (await idbGet(MIGRATION_VERSION_KEY)) || 0;
+    const currentVersion = (await idbGet<number>(MIGRATION_VERSION_KEY)) || 0;
 
     if (currentVersion >= CURRENT_MIGRATION_VERSION) {
       // Already migrated by an earlier app version that had no mirror yet.
@@ -331,7 +334,7 @@ export async function getCurrentMigrationVersion(): Promise<number> {
   if (!hasIndexedDB()) return 0;
 
   try {
-    return (await idbGet(MIGRATION_VERSION_KEY)) || 0;
+    return (await idbGet<number>(MIGRATION_VERSION_KEY)) || 0;
   } catch (error) {
     logError(
       'Konnte Migration Version nicht abrufen',

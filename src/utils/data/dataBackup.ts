@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import { set as idbSet, del as idbDel } from 'idb-keyval';
+import {
+  writeValue as idbSet,
+  deleteValues as idbDeleteAll,
+} from '@/repositories/idbClient';
 import type {
   Student,
   SavedPlan,
@@ -123,12 +126,20 @@ async function collectStudentPhotosForExport(): Promise<
   Record<string, string> | undefined
 > {
   try {
-    const photos = await getAllPhotos();
-    if (photos.size === 0) {
+    const stored = await getAllPhotos();
+    if (!stored.success) {
+      logError(
+        'Failed to collect student photos for export',
+        { error: stored.error },
+        'dataBackup',
+      );
+      return undefined;
+    }
+    if (stored.data.size === 0) {
       return undefined;
     }
     const entries = await Promise.all(
-      [...photos].map(
+      [...stored.data].map(
         async ([id, blob]) => [id, await blobToDataUrl(blob)] as const,
       ),
     );
@@ -386,7 +397,7 @@ export async function clearAllData(
 ): Promise<void> {
   try {
     if (!options?.skipIndexedDBClear) {
-      await Promise.all(Object.values(DB_KEYS).map((k) => idbDel(k)));
+      await idbDeleteAll(Object.values(DB_KEYS));
       await clearAllPhotos();
     }
     clearPhotoCache();

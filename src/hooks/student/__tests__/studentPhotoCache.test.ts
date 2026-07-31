@@ -25,6 +25,13 @@ const originalRevokeObjectURL = URL.revokeObjectURL;
 
 const blob = () => new Blob(['x'], { type: 'image/jpeg' });
 
+// The photo store speaks the repository Result pattern.
+const ok = <T>(data: T) => ({ success: true as const, data });
+const storageFailure = {
+  success: false as const,
+  error: { type: 'STORAGE_ERROR', message: 'idb down' },
+};
+
 beforeEach(async () => {
   vi.resetModules();
   vi.clearAllMocks();
@@ -48,7 +55,7 @@ afterEach(() => {
 
 describe('studentPhotoCache', () => {
   it('loads a photo from the store and caches both representations', async () => {
-    storeMocks.getStudentPhoto.mockResolvedValue(blob());
+    storeMocks.getStudentPhoto.mockResolvedValue(ok(blob()));
 
     const entry = await cache.ensurePhotoLoaded('s1');
 
@@ -62,7 +69,7 @@ describe('studentPhotoCache', () => {
   });
 
   it('returns undefined without caching when no photo is stored', async () => {
-    storeMocks.getStudentPhoto.mockResolvedValue(undefined);
+    storeMocks.getStudentPhoto.mockResolvedValue(ok(undefined));
 
     await expect(cache.ensurePhotoLoaded('missing')).resolves.toBeUndefined();
     expect(cache.getCachedObjectUrl('missing')).toBeUndefined();
@@ -72,8 +79,8 @@ describe('studentPhotoCache', () => {
   it('de-duplicates concurrent loads for the same id', async () => {
     let resolveBlob!: (b: Blob) => void;
     storeMocks.getStudentPhoto.mockReturnValue(
-      new Promise<Blob>((resolve) => {
-        resolveBlob = resolve;
+      new Promise<{ success: true; data: Blob }>((resolve) => {
+        resolveBlob = (b: Blob) => resolve(ok(b));
       }),
     );
 
@@ -87,7 +94,7 @@ describe('studentPhotoCache', () => {
   });
 
   it('revokes the previous Object URL when a photo is replaced', async () => {
-    storeMocks.setStudentPhoto.mockResolvedValue(undefined);
+    storeMocks.setStudentPhoto.mockResolvedValue(ok(undefined));
 
     await cache.saveStudentPhoto('s1', blob());
     await cache.saveStudentPhoto('s1', blob());
@@ -97,8 +104,8 @@ describe('studentPhotoCache', () => {
   });
 
   it('removeStudentPhoto invalidates the cache and deletes from the store', async () => {
-    storeMocks.setStudentPhoto.mockResolvedValue(undefined);
-    storeMocks.deleteStudentPhoto.mockResolvedValue(undefined);
+    storeMocks.setStudentPhoto.mockResolvedValue(ok(undefined));
+    storeMocks.deleteStudentPhoto.mockResolvedValue(ok(undefined));
 
     await cache.saveStudentPhoto('s1', blob());
     await cache.removeStudentPhoto('s1');
@@ -109,7 +116,7 @@ describe('studentPhotoCache', () => {
   });
 
   it('clearPhotoCache revokes every Object URL and notifies subscribers', async () => {
-    storeMocks.setStudentPhoto.mockResolvedValue(undefined);
+    storeMocks.setStudentPhoto.mockResolvedValue(ok(undefined));
     await cache.saveStudentPhoto('s1', blob());
     await cache.saveStudentPhoto('s2', blob());
 
@@ -127,11 +134,11 @@ describe('studentPhotoCache', () => {
   });
 
   it('swallows load errors and resolves undefined', async () => {
-    storeMocks.getStudentPhoto.mockRejectedValue(new Error('idb down'));
+    storeMocks.getStudentPhoto.mockResolvedValue(storageFailure);
 
     await expect(cache.ensurePhotoLoaded('s1')).resolves.toBeUndefined();
     // A later call retries instead of returning a stale in-flight promise.
-    storeMocks.getStudentPhoto.mockResolvedValue(blob());
+    storeMocks.getStudentPhoto.mockResolvedValue(ok(blob()));
     await expect(cache.ensurePhotoLoaded('s1')).resolves.toBeDefined();
   });
 });

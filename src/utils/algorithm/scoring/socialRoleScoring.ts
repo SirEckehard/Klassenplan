@@ -2,6 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import type { ScoringContext } from './scoringContext';
 import type { SocialRole } from '@/types';
+import { PLACEMENT_SCORE_WEIGHTS } from '@/utils';
 
 /**
  * Social role configurations for balanced distribution.
@@ -48,7 +49,10 @@ export function scoreSocialRoles(context: ScoringContext): number {
   // Avoid clustering same roles (except mediators who help balance)
   const sameRoleCount = existingRoles.get(studentRole) ?? 0;
   if (sameRoleCount > 0 && studentRole !== 'mediator') {
-    score += weight * 0.5 * sameRoleCount; // Penalty for clustering
+    score +=
+      weight *
+      PLACEMENT_SCORE_WEIGHTS.socialRole.sameRoleCluster *
+      sameRoleCount; // Penalty for clustering
   }
 
   // Loners benefit from having mediators or social hubs nearby
@@ -56,12 +60,12 @@ export function scoreSocialRoles(context: ScoringContext): number {
     const hasMediator = existingRoles.has('mediator');
     const hasSocialHub = existingRoles.has('socialHub');
     if (hasMediator || hasSocialHub) {
-      score -= weight * 0.4; // Reward: supportive environment
+      score -= weight * PLACEMENT_SCORE_WEIGHTS.socialRole.lonerSupport; // Reward: supportive environment
     }
     // Avoid pairing multiple loners
     const lonerCount = existingRoles.get('loner') ?? 0;
     if (lonerCount > 0) {
-      score += weight * 0.6; // Strong penalty
+      score += weight * PLACEMENT_SCORE_WEIGHTS.socialRole.lonerCluster; // Strong penalty
     }
   }
 
@@ -70,10 +74,10 @@ export function scoreSocialRoles(context: ScoringContext): number {
     const hasMediator = existingRoles.has('mediator');
     const leaderCount = existingRoles.get('leader') ?? 0;
     if (hasMediator) {
-      score -= weight * 0.3; // Good combination
+      score -= weight * PLACEMENT_SCORE_WEIGHTS.socialRole.leaderWithMediator; // Good combination
     }
     if (leaderCount > 0) {
-      score += weight * 0.5; // Potential conflict
+      score += weight * PLACEMENT_SCORE_WEIGHTS.socialRole.leaderConflict; // Potential conflict
     }
   }
 
@@ -81,13 +85,13 @@ export function scoreSocialRoles(context: ScoringContext): number {
   if (studentRole === 'mediator') {
     const mediatorCount = existingRoles.get('mediator') ?? 0;
     if (mediatorCount > 0) {
-      score += weight * 0.3; // Spread them out
+      score += weight * PLACEMENT_SCORE_WEIGHTS.socialRole.mediatorSpread; // Spread them out
     }
     // Mediators work well near leaders and loners who benefit from calm support
     const hasLoner = existingRoles.has('loner');
     const hasLeader = existingRoles.has('leader');
     if (hasLoner || hasLeader) {
-      score -= weight * 0.4; // Reward: mediators complement independent or assertive roles
+      score -= weight * PLACEMENT_SCORE_WEIGHTS.socialRole.mediatorComplement; // Reward: mediators complement independent or assertive roles
     }
   }
 

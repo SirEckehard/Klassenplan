@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import { get as idbGet, set as idbSet, del as idbDel } from 'idb-keyval';
+import {
+  readValue as idbGet,
+  writeValue as idbSet,
+  deleteValue as idbDel,
+} from './idbClient';
 import type {
   Student,
   SavedPlan,

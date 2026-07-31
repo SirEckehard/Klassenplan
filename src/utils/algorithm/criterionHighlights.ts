@@ -9,13 +9,14 @@ import type {
   Student,
 } from '@/types';
 import type { StatisticHighlightEntry } from '@/types/StatisticsHighlight';
-import { CLASSROOM_HEIGHT, CLASSROOM_WIDTH, getStatisticStatus } from '@/utils';
+import { getStatisticStatus } from '@/utils';
 import { buildPreviousPairs } from '@/utils/pairs';
 import {
   getSeatNeighborhoods,
   getSeatPositions,
   partnerSeat,
 } from '@/utils/math/seatGeometry';
+import { getFeatureDistanceMaps } from './featureDistances';
 import { createGenderCounts, calculateGenderImbalance } from './genderBalance';
 import { determineFrontDirection } from './orientationUtils';
 
@@ -28,78 +29,6 @@ type HighlightParams = {
   scene: ClassroomScene;
   seatingHistory?: SavedPlan[];
   mixHistory?: MixResult[];
-};
-
-const calculateFeatureDistances = (
-  scene: ClassroomScene,
-  seatPositions: Map<string, { x: number; y: number }>,
-) => {
-  const features = scene.features ?? [];
-  const windowFeatures = features.filter(
-    (feature) => feature.type === 'window',
-  );
-  const doorFeatures = features.filter((feature) => feature.type === 'door');
-
-  const windowDistances = new Map<string, number>();
-  const doorDistances = new Map<string, number>();
-
-  let maxWindowDistance = 0;
-  let maxDoorDistance = 0;
-
-  const distanceToFeature = (
-    x: number,
-    y: number,
-    feature: { x: number; y: number; width: number; height: number },
-  ) => {
-    const dx = Math.max(feature.x - x, 0, x - (feature.x + feature.width));
-    const dy = Math.max(feature.y - y, 0, y - (feature.y + feature.height));
-    return Math.hypot(dx, dy);
-  };
-
-  const defaultFallbackDistance = Math.hypot(CLASSROOM_WIDTH, CLASSROOM_HEIGHT);
-
-  for (const [seatKey, position] of seatPositions.entries()) {
-    if (windowFeatures.length > 0) {
-      let minDistance = Number.POSITIVE_INFINITY;
-      for (const feature of windowFeatures) {
-        const distance = distanceToFeature(position.x, position.y, feature);
-        if (distance < minDistance) {
-          minDistance = distance;
-        }
-      }
-      windowDistances.set(seatKey, minDistance);
-      if (Number.isFinite(minDistance)) {
-        maxWindowDistance = Math.max(maxWindowDistance, minDistance);
-      }
-    } else {
-      windowDistances.set(seatKey, Number.POSITIVE_INFINITY);
-    }
-
-    if (doorFeatures.length > 0) {
-      let minDistance = Number.POSITIVE_INFINITY;
-      for (const feature of doorFeatures) {
-        const distance = distanceToFeature(position.x, position.y, feature);
-        if (distance < minDistance) {
-          minDistance = distance;
-        }
-      }
-      doorDistances.set(seatKey, minDistance);
-      if (Number.isFinite(minDistance)) {
-        maxDoorDistance = Math.max(maxDoorDistance, minDistance);
-      }
-    } else {
-      doorDistances.set(seatKey, Number.POSITIVE_INFINITY);
-    }
-  }
-
-  return {
-    windowDistances,
-    doorDistances,
-    maxWindowDistance:
-      maxWindowDistance > 0 ? maxWindowDistance : defaultFallbackDistance,
-    maxDoorDistance:
-      maxDoorDistance > 0 ? maxDoorDistance : defaultFallbackDistance,
-  };
 };
 
 const calculateProximityScore = (distance: number, maxDistance: number) => {
@@ -167,8 +96,12 @@ export function buildCriterionHighlightEntries({
     ? maxY - (maxY - minY) * 0.3
     : minY + (maxY - minY) * 0.3;
 
-  const { windowDistances, doorDistances, maxWindowDistance, maxDoorDistance } =
-    calculateFeatureDistances(scene, seatPositions);
+  const {
+    window: windowDistances,
+    door: doorDistances,
+    maxWindowDistance,
+    maxDoorDistance,
+  } = getFeatureDistanceMaps(scene, seatPositions);
   const seatedCount = arrangement.reduce(
     (count, table) => count + table.filter(Boolean).length,
     0,

@@ -221,11 +221,17 @@ function useCircleSeatingInternal(
         typeof payload?.progress === 'number'
           ? Math.min(Math.max(payload.progress, 0), 1)
           : 0;
+      // The worker reports a stage, never a phrase — it cannot know the UI
+      // language. Unknown stages fall back to the generic message.
+      const stageMessage = payload?.stage
+        ? i18n.t(`generator:export.circleStage.${payload.stage}`, {
+            defaultValue: '',
+          })
+        : '';
       setCircleGenerationStatus({
         progress: progressValue,
         stage: payload?.stage,
-        message:
-          payload?.message ?? i18n.t('generator:export.generatingCircle'),
+        message: stageMessage || i18n.t('generator:export.generatingCircle'),
         startedAt,
         updatedAt: Date.now(),
       });

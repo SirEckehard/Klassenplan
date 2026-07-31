@@ -3,9 +3,15 @@
 import Papa from 'papaparse';
 import { normalizeCsvHeader } from '@/utils/data/csvNormalization';
 
-type CsvWorkerRequest =
-  | { type: 'parse'; payload: { file: File; previewRows?: number } }
-  | { type: 'cancel' };
+/**
+ * One worker instance handles exactly one parse and closes afterwards, so no
+ * request ids are needed. Cancellation is done by terminating the worker from
+ * the client — see `parseWithWorker` in `utils/data/csvUtils`.
+ */
+type CsvWorkerRequest = {
+  type: 'parse';
+  payload: { file: File; previewRows?: number };
+};
 
 type CsvWorkerResponse =
   | { type: 'complete'; payload: Papa.ParseResult<Record<string, unknown>> }
@@ -54,14 +60,7 @@ const handleParse = (file: File, previewRows?: number): void => {
 
 addEventListener('message', (event: MessageEvent<CsvWorkerRequest>) => {
   const data = event.data;
-  if (!data) return;
+  if (data?.type !== 'parse') return;
 
-  if (data.type === 'cancel') {
-    close();
-    return;
-  }
-
-  if (data.type === 'parse') {
-    handleParse(data.payload.file, data.payload.previewRows);
-  }
+  handleParse(data.payload.file, data.payload.previewRows);
 });

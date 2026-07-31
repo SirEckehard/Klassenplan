@@ -38,9 +38,11 @@ beforeEach(() => {
   vi.clearAllMocks();
   // Skip the one-time consent dialog so clicks reach the picker directly.
   localStorage.setItem(LOCAL_STORAGE_KEYS.photoConsentConfirmed, 'true');
-  getStudentPhotoMock.mockResolvedValue(
-    new Blob([new Uint8Array([1])], { type: 'image/jpeg' }),
-  );
+  // The photo store returns a repository Result.
+  getStudentPhotoMock.mockResolvedValue({
+    success: true,
+    data: new Blob([new Uint8Array([1])], { type: 'image/jpeg' }),
+  });
   loadImageBitmapFromBlobMock.mockImplementation(async () => mockBitmap());
 });
 
@@ -93,7 +95,7 @@ test('the "replace image" button in the editor opens the file picker', async () 
 });
 
 test('falls back to the file picker when the stored photo is missing', async () => {
-  getStudentPhotoMock.mockResolvedValue(undefined);
+  getStudentPhotoMock.mockResolvedValue({ success: true, data: undefined });
   const inputClick = vi
     .spyOn(HTMLInputElement.prototype, 'click')
     .mockImplementation(() => {});

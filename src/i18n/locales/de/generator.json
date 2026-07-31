@@ -442,6 +442,11 @@
     "showClassInfo": "Zusätzliche Klasseninfos anzeigen",
     "showLegend": "Legende anzeigen",
     "generatingCircle": "Sitzkreis wird erstellt...",
+    "circleStage": {
+      "initializing": "Sitzkreis wird vorbereitet...",
+      "analyzing": "Sitzplan wird analysiert...",
+      "arranging": "Schüler:innen werden angeordnet..."
+    },
     "cancelCircleGeneration": "Abbrechen",
     "printDownloadedInfo": "Pop-up blockiert - PDF wurde heruntergeladen. Bitte öffne die Datei zum Drucken.",
     "errors": {

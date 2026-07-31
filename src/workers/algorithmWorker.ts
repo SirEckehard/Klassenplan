@@ -6,15 +6,18 @@ import {
   isAlgorithmWorkerRequest,
   type AlgorithmWorkerRequest,
   type AlgorithmWorkerResponse,
-  type AlgorithmWorkerOperation,
 } from './algorithmWorker.types';
+import {
+  executeAlgorithmOperation,
+  type AlgorithmProgressStage,
+} from './algorithmOperations';
 import { logDebug, logError, logWarn } from '@/utils';
 
 declare const self: DedicatedWorkerGlobalScope;
 
-type ResponseMessage = AlgorithmWorkerResponse;
+const WORKER_CONTEXT = 'algorithmWorker';
 
-const postWorkerMessage = (message: ResponseMessage) => {
+const postWorkerMessage = (message: AlgorithmWorkerResponse) => {
   self.postMessage(message);
 };
 
@@ -26,7 +29,7 @@ const respondWithError = (
   logError(
     'Algorithm worker request failed',
     { error: payload, operation: request.operation },
-    'algorithmWorker',
+    WORKER_CONTEXT,
   );
   postWorkerMessage({
     requestId: request.requestId,
@@ -36,234 +39,52 @@ const respondWithError = (
   });
 };
 
-const reportProgress = (
-  request: AlgorithmWorkerRequest,
-  progress: number,
-  stage: string,
-  message: string,
-) => {
-  postWorkerMessage({
-    requestId: request.requestId,
-    operation: request.operation,
-    status: 'progress',
-    progress: {
-      progress,
-      stage,
-      message,
-    },
-  });
-};
+const createProgressReporter =
+  (request: AlgorithmWorkerRequest) =>
+  (progress: number, stage: AlgorithmProgressStage) => {
+    postWorkerMessage({
+      requestId: request.requestId,
+      operation: request.operation,
+      status: 'progress',
+      progress: { progress, stage },
+    });
+  };
 
-const handleWarmup = (request: AlgorithmWorkerRequest<'worker:warmup'>) => {
-  logDebug(
-    'Worker warmup acknowledged',
-    { requestId: request.requestId },
-    'algorithmWorker',
-  );
-  postWorkerMessage({
-    requestId: request.requestId,
-    operation: request.operation,
-    status: 'success',
-    result: { ready: true },
-  });
-};
-
-const loadSeatingAlgorithmModule = () =>
-  import('@/utils/algorithm/seatingAlgorithm');
-
-const loadCircleArrangementModule = () =>
-  import('@/utils/algorithm/circleArrangement');
-
-const loadCircleOptimizedModule = () =>
-  import('@/utils/algorithm/CircleSeatingAlgorithm');
-
-const handleMixGenerate = async (
-  request: AlgorithmWorkerRequest<'mix:generate'>,
-) => {
-  const { generateSeatingPlan } = await loadSeatingAlgorithmModule();
-  const {
-    students,
-    seatingHistory,
-    mixHistory,
-    lockedPositions,
-    classroomScene,
-    mixSettings,
-    lastSeating,
-  } = request.payload;
-
-  const seating = generateSeatingPlan(
-    students,
-    seatingHistory,
-    mixHistory,
-    lockedPositions,
-    mixSettings,
-    classroomScene,
-    lastSeating ?? undefined,
-  );
-
-  postWorkerMessage({
-    requestId: request.requestId,
-    operation: request.operation,
-    status: 'success',
-    result: { seating },
-  });
-};
-
-const handleMixRefine = async (
-  request: AlgorithmWorkerRequest<'mix:refine'>,
-) => {
-  const { refineSeatingLocal } = await loadSeatingAlgorithmModule();
-  const {
-    students,
-    seatingHistory,
-    mixHistory,
-    lockedPositions,
-    classroomScene,
-    currentSeating,
-    mixSettings,
-    options,
-    start,
-  } = request.payload;
-
-  const seating = refineSeatingLocal(
-    students,
-    seatingHistory,
-    mixHistory,
-    lockedPositions,
-    currentSeating,
-    mixSettings,
-    classroomScene,
-    // MT-1: Enable Simulated Annealing by default for better optimization
-    { useAnnealing: true, ...options },
-    start ?? undefined,
-  );
-
-  postWorkerMessage({
-    requestId: request.requestId,
-    operation: request.operation,
-    status: 'success',
-    result: { seating },
-  });
-};
-
-const handleCircleGenerate = async (
-  request: AlgorithmWorkerRequest<'circle:generate'>,
-) => {
-  const { generateCircleLayout } = await loadCircleArrangementModule();
-  const { students, classroomScene, currentSeating } = request.payload;
-  reportProgress(
-    request,
-    0.15,
-    'initializing',
-    'Sitzkreis wird vorbereitet...',
-  );
-
-  const layout = generateCircleLayout(
-    students,
-    classroomScene,
-    currentSeating ?? undefined,
-  );
-
-  reportProgress(
-    request,
-    0.65,
-    'arranging',
-    'Schüler:innen werden angeordnet...',
-  );
-
-  postWorkerMessage({
-    requestId: request.requestId,
-    operation: request.operation,
-    status: 'success',
-    result: { layout },
-  });
-};
-
-const handleCircleOptimized = async (
-  request: AlgorithmWorkerRequest<'circle:optimized'>,
-) => {
-  const { generateOptimizedCircleLayout } = await loadCircleOptimizedModule();
-  const {
-    students,
-    classroomScene,
-    mixSettings,
-    seatingHistory,
-    currentSeating,
-  } = request.payload;
-  reportProgress(request, 0.1, 'initializing', 'Sitzkreis wird vorbereitet...');
-
-  const layout = generateOptimizedCircleLayout(
-    students,
-    classroomScene,
-    mixSettings,
-    seatingHistory,
-    currentSeating ?? undefined,
-  );
-
-  reportProgress(
-    request,
-    0.45,
-    'analyzing',
-    'Originaler Sitzplan wird analysiert...',
-  );
-  reportProgress(
-    request,
-    0.8,
-    'arranging',
-    'Schüler:innen werden angeordnet...',
-  );
-
-  postWorkerMessage({
-    requestId: request.requestId,
-    operation: request.operation,
-    status: 'success',
-    result: { layout },
-  });
-};
-
-type OperationHandler<T extends AlgorithmWorkerOperation> = (
-  request: AlgorithmWorkerRequest<T>,
-) => void | Promise<void>;
-
-const operationHandlers: {
-  [K in AlgorithmWorkerOperation]: OperationHandler<K>;
-} = {
-  'worker:warmup': handleWarmup,
-  'mix:generate': handleMixGenerate,
-  'mix:refine': handleMixRefine,
-  'circle:generate': handleCircleGenerate,
-  'circle:optimized': handleCircleOptimized,
-};
-
+/**
+ * Message loop of the algorithm worker.
+ *
+ * The worker owns only the messaging protocol — request validation, progress
+ * relaying and error shaping. The algorithms themselves live in
+ * `algorithmOperations`, shared with the main-thread fallback.
+ */
 self.addEventListener('message', (event: MessageEvent) => {
   const data = event.data;
 
   if (!isAlgorithmWorkerRequest(data)) {
-    logWarn('Ignored unknown message payload', { data }, 'algorithmWorker');
+    logWarn('Ignored unknown message payload', { data }, WORKER_CONTEXT);
     return;
   }
 
-  const handler = operationHandlers[data.operation] as OperationHandler<
-    typeof data.operation
-  >;
-  if (!handler) {
-    logWarn(
-      'No handler registered for worker operation',
-      { operation: data.operation },
-      'algorithmWorker',
+  if (data.operation === 'worker:warmup') {
+    logDebug(
+      'Worker warmup acknowledged',
+      { requestId: data.requestId },
+      WORKER_CONTEXT,
     );
-    respondWithError(data, new Error('Unsupported worker operation'));
-    return;
   }
 
-  try {
-    const result = handler(
-      data as AlgorithmWorkerRequest<typeof data.operation>,
-    );
-    if (result instanceof Promise) {
-      result.catch((error) => respondWithError(data, error));
-    }
-  } catch (error) {
-    respondWithError(data, error);
-  }
+  executeAlgorithmOperation(
+    data.operation,
+    data.payload,
+    createProgressReporter(data),
+  )
+    .then((result) => {
+      postWorkerMessage({
+        requestId: data.requestId,
+        operation: data.operation,
+        status: 'success',
+        result,
+      });
+    })
+    .catch((error: unknown) => respondWithError(data, error));
 });

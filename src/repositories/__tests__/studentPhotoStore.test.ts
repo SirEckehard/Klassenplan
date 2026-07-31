@@ -29,6 +29,7 @@ import {
   clearAllPhotos,
   sweepOrphanPhotos,
 } from '../studentPhotoStore';
+import type { Result } from '../types';
 
 beforeEach(() => {
   memory.clear();
@@ -42,35 +43,46 @@ afterEach(() => {
 
 const blob = (tag: string) => new Blob([tag], { type: 'image/jpeg' });
 
+/** Unwraps a successful Result, failing the test when it is a Failure. */
+const expectData = <T>(result: Result<T>): T => {
+  expect(result.success).toBe(true);
+  if (!result.success) throw new Error(result.error.message);
+  return result.data;
+};
+
 describe('studentPhotoStore CRUD', () => {
   it('stores, reads and deletes a photo', async () => {
-    await setStudentPhoto('a', blob('a'));
-    expect(await getStudentPhoto('a')).toBeInstanceOf(Blob);
+    expectData(await setStudentPhoto('a', blob('a')));
+    expect(expectData(await getStudentPhoto('a'))).toBeInstanceOf(Blob);
 
-    await deleteStudentPhoto('a');
-    expect(await getStudentPhoto('a')).toBeUndefined();
+    expectData(await deleteStudentPhoto('a'));
+    expect(expectData(await getStudentPhoto('a'))).toBeUndefined();
   });
 
   it('lists all ids and entries', async () => {
     await setStudentPhoto('a', blob('a'));
     await setStudentPhoto('b', blob('b'));
 
-    expect((await getAllPhotoIds()).sort()).toEqual(['a', 'b']);
-    const all = await getAllPhotos();
+    expect(expectData(await getAllPhotoIds()).sort()).toEqual(['a', 'b']);
+    const all = expectData(await getAllPhotos());
     expect(all.size).toBe(2);
     expect(all.get('a')).toBeInstanceOf(Blob);
   });
 
   it('clears every photo', async () => {
     await setStudentPhoto('a', blob('a'));
-    await clearAllPhotos();
-    expect(await getAllPhotoIds()).toEqual([]);
+    expectData(await clearAllPhotos());
+    expect(expectData(await getAllPhotoIds())).toEqual([]);
   });
 
-  it('is a no-op when IndexedDB is unavailable', async () => {
+  it('reports a storage failure when IndexedDB is unavailable', async () => {
     vi.stubGlobal('indexedDB', undefined);
-    await setStudentPhoto('a', blob('a'));
-    expect(await getAllPhotoIds()).toEqual([]);
+
+    const written = await setStudentPhoto('a', blob('a'));
+    expect(written.success).toBe(false);
+
+    const ids = await getAllPhotoIds();
+    expect(ids.success).toBe(false);
   });
 });
 
@@ -83,13 +95,13 @@ describe('sweepOrphanPhotos', () => {
     const removed = await sweepOrphanPhotos(new Set(['keep', 'other']));
 
     expect(removed).toBe(2);
-    expect((await getAllPhotoIds()).sort()).toEqual(['keep']);
+    expect(expectData(await getAllPhotoIds()).sort()).toEqual(['keep']);
   });
 
   it('keeps everything when all ids are known', async () => {
     await setStudentPhoto('a', blob('a'));
     const removed = await sweepOrphanPhotos(['a']);
     expect(removed).toBe(0);
-    expect(await getAllPhotoIds()).toEqual(['a']);
+    expect(expectData(await getAllPhotoIds())).toEqual(['a']);
   });
 });

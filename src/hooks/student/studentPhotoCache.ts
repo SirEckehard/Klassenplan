@@ -21,6 +21,7 @@ import {
 // Re-exported so components can read the stored blob (e.g. to re-edit a
 // photo) without importing the repository directly.
 export { getStudentPhoto } from '@/repositories/studentPhotoStore';
+import type { RepositoryError } from '@/repositories/types';
 import { blobToDataUrl } from '@/utils/image/processStudentPhoto';
 import { logError } from '@/utils';
 
@@ -29,6 +30,23 @@ const LOG_SOURCE = 'studentPhotoCache';
 interface PhotoEntry {
   objectUrl: string;
   dataUrl: string;
+}
+
+/**
+ * Raised when the photo store could not save or delete a photo.
+ *
+ * The cache turns the storage `Result` into an exception here because its
+ * callers are UI handlers that already show a toast on rejection — a silently
+ * ignored failure would leave a photo visible that is not actually stored.
+ */
+export class StudentPhotoStorageError extends Error {
+  readonly cause: RepositoryError;
+
+  constructor(cause: RepositoryError) {
+    super(cause.message);
+    this.name = 'StudentPhotoStorageError';
+    this.cause = cause;
+  }
 }
 
 const cache = new Map<string, PhotoEntry>();
@@ -95,7 +113,16 @@ export function ensurePhotoLoaded(id: string): Promise<PhotoEntry | undefined> {
 
   const promise = (async () => {
     try {
-      const blob = await getStudentPhoto(id);
+      const stored = await getStudentPhoto(id);
+      if (!stored.success) {
+        logError(
+          'Failed to load student photo',
+          { error: stored.error, id },
+          LOG_SOURCE,
+        );
+        return undefined;
+      }
+      const blob = stored.data;
       if (!blob) {
         return undefined;
       }
@@ -121,7 +148,10 @@ export function ensurePhotoLoaded(id: string): Promise<PhotoEntry | undefined> {
  * the UI reflects it without a round-trip to IndexedDB.
  */
 export async function saveStudentPhoto(id: string, blob: Blob): Promise<void> {
-  await setStudentPhoto(id, blob);
+  const stored = await setStudentPhoto(id, blob);
+  if (!stored.success) {
+    throw new StudentPhotoStorageError(stored.error);
+  }
   const dataUrl = await blobToDataUrl(blob);
   const objectUrl = URL.createObjectURL(blob);
   storeEntry(id, objectUrl, dataUrl);
@@ -131,7 +161,10 @@ export async function saveStudentPhoto(id: string, blob: Blob): Promise<void> {
 /** Remove a photo from storage and invalidate the cached representations. */
 export async function removeStudentPhoto(id: string): Promise<void> {
   invalidatePhoto(id);
-  await deleteStudentPhoto(id);
+  const removed = await deleteStudentPhoto(id);
+  if (!removed.success) {
+    throw new StudentPhotoStorageError(removed.error);
+  }
 }
 
 /** Drop every cached photo (revokes all Object URLs). Used after a full import. */

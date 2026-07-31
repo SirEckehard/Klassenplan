@@ -9,6 +9,7 @@
  *
  * @param total - Total number of students to distribute
  * @param seatCounts - Array of seat capacities for each table
+ * @param rng - Random source for the starting table; injectable for deterministic tests
  * @returns Array of target seat counts per table
  *
  * @example
@@ -17,7 +18,11 @@
  * evenTargetsFor(14, [4,4,4,4]) // Returns [4,4,3,3]
  * ```
  */
-export function evenTargetsFor(total: number, seatCounts: number[]): number[] {
+export function evenTargetsFor(
+  total: number,
+  seatCounts: number[],
+  rng: () => number = Math.random,
+): number[] {
   const counts = seatCounts.map((c) => Math.max(0, c));
   if (counts.length === 0) return [];
   const capacity = counts.reduce((sum, c) => sum + c, 0);
@@ -25,7 +30,7 @@ export function evenTargetsFor(total: number, seatCounts: number[]): number[] {
   const out = counts.map(() => 0);
 
   // Randomize starting point to avoid systematic bias toward first tables
-  let idx = Math.floor(Math.random() * counts.length);
+  let idx = Math.floor(rng() * counts.length);
   while (remaining > 0) {
     if (out[idx] < counts[idx]) {
       out[idx]++;

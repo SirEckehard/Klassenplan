@@ -267,3 +267,82 @@ export const DEFAULT_PASSES = 2;
  */
 export const MANUAL_REFINE_TRIES_PER_PASS = 1800;
 export const MANUAL_REFINE_PASSES = 4;
+
+/**
+ * Scoring multipliers of the seating algorithm.
+ *
+ * Two scorers exist by design and both are needed:
+ * - `PLACEMENT_SCORE_WEIGHTS` drives `scoring/*`, which rates a *candidate
+ *   placement* ("what does it cost to seat this student here?") while the plan
+ *   is being built up seat by seat.
+ * - `TABLE_SCORE_WEIGHTS` drives `scoring/arrangementScoring`, which rates a
+ *   *finished table* while an existing plan is refined by swapping seats.
+ *
+ * They express the same pedagogy on different units, which is why several
+ * multipliers differ between them. Listing both here side by side is the point:
+ * a change to one should never be made without seeing the other.
+ */
+export const PLACEMENT_SCORE_WEIGHTS = {
+  language: {
+    /** Reward when a student needing support joins a table with a strong speaker */
+    strongSpeakerNearby: 0.5,
+    /** Penalty per further student needing support at a table without a strong speaker */
+    needsSupportCluster: 0.3,
+    /** Reward when a strong speaker joins a table with students needing support */
+    peerTutoringOpportunity: 0.5,
+  },
+  socialRole: {
+    /** Penalty per student that already carries the same role (mediators exempt) */
+    sameRoleCluster: 0.5,
+    /** Reward when a loner joins a table with a mediator or social hub */
+    lonerSupport: 0.4,
+    /** Penalty when loners would sit together */
+    lonerCluster: 0.6,
+    /** Reward when a leader joins a table with a mediator */
+    leaderWithMediator: 0.3,
+    /** Penalty when leaders would sit together */
+    leaderConflict: 0.5,
+    /** Penalty for stacking mediators instead of spreading them */
+    mediatorSpread: 0.3,
+    /** Reward when a mediator joins loners or leaders */
+    mediatorComplement: 0.4,
+  },
+} as const;
+
+export const TABLE_SCORE_WEIGHTS = {
+  /** Penalty per student seated beyond the table's even-distribution target */
+  seatOverflow: 0.5,
+  /** Multiplier on `avoidConflictPartners` when two avoid-partners share a seat pair */
+  avoidPartnerTogether: 2,
+  language: {
+    /** Reward when strong speakers and students needing support share a table */
+    heterogeneousMix: 0.5,
+    /** Penalty per extra student needing support without a strong speaker present */
+    needsSupportCluster: 0.4,
+  },
+  socialRole: {
+    /** Penalty per duplicate of the same role at a table (mediators exempt) */
+    sameRoleCluster: 0.5,
+    /** Penalty per extra loner at the same table */
+    lonerCluster: 0.6,
+    /** Reward when a loner shares the table with a mediator or social hub */
+    lonerSupport: 0.4,
+  },
+} as const;
+
+/**
+ * Table selection heuristic of the greedy refinement pass.
+ *
+ * Swaps are biased towards the tables that currently score worst, because a
+ * purely uniform pick wastes most tries on tables that are already fine.
+ */
+export const REFINEMENT_TABLE_SELECTION = {
+  /** Probability of picking from the worst tables at all (otherwise uniform) */
+  problemTableBias: 0.7,
+  /** Number of worst-scoring tables considered as candidates */
+  candidateCount: 3,
+  /** Cumulative probability boundary for the worst table */
+  firstChoiceThreshold: 0.5,
+  /** Cumulative probability boundary for the second-worst table */
+  secondChoiceThreshold: 0.8,
+} as const;

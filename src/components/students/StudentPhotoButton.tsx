@@ -123,12 +123,12 @@ function StudentPhotoButton({ student, updateStudent }: Props) {
   const openEditorForStoredPhoto = async () => {
     setBusy(true);
     try {
-      const blob = await getStudentPhoto(student.id);
-      if (!blob) {
+      const stored = await getStudentPhoto(student.id);
+      if (!stored.success || !stored.data) {
         openFilePicker();
         return;
       }
-      openEditor(await loadImageBitmapFromBlob(blob));
+      openEditor(await loadImageBitmapFromBlob(stored.data));
     } catch (error) {
       showToast('error', STUDENT_PHOTO_ERRORS.decodeFailed);
       logError(

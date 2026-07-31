@@ -442,6 +442,11 @@
     "showClassInfo": "Show additional class info",
     "showLegend": "Show legend",
     "generatingCircle": "Creating seating circle...",
+    "circleStage": {
+      "initializing": "Preparing seating circle...",
+      "analyzing": "Analysing seating plan...",
+      "arranging": "Arranging students..."
+    },
     "cancelCircleGeneration": "Cancel",
     "printDownloadedInfo": "Pop-up blocked - PDF was downloaded. Please open the file to print.",
     "errors": {

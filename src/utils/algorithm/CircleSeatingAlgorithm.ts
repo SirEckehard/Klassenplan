@@ -18,6 +18,7 @@ import {
   updateNeighborhoodPreservation,
   calculateNewNeighborhoods,
 } from './neighborhoodAnalysis';
+import { randomInt, type RandomSource } from './rng';
 import {
   calculateCircleDimensions,
   calculateCircleNeighbors,
@@ -36,6 +37,7 @@ export class CircleSeatingAlgorithm {
   private scene: ClassroomScene;
   private neighborhoodAnalysis: NeighborhoodAnalysis;
   private circleDimensions: ReturnType<typeof calculateCircleDimensions>;
+  private rng: RandomSource;
 
   constructor(
     students: Student[],
@@ -43,9 +45,11 @@ export class CircleSeatingAlgorithm {
     _mixSettings?: Partial<MixSettings>,
     _seatingHistory?: SavedPlan[],
     currentSeating?: SeatingArrangement,
+    rng: RandomSource = Math.random,
   ) {
     this.students = students;
     this.scene = scene;
+    this.rng = rng;
     // Initialize analysis
     this.neighborhoodAnalysis = analyzeNeighborhoods(
       scene,
@@ -206,8 +210,8 @@ export class CircleSeatingAlgorithm {
     const newPositions = [...layout.students];
 
     // Pick two random positions to swap students
-    const pos1 = Math.floor(Math.random() * newPositions.length);
-    const pos2 = Math.floor(Math.random() * newPositions.length);
+    const pos1 = randomInt(this.rng, newPositions.length);
+    const pos2 = randomInt(this.rng, newPositions.length);
 
     if (pos1 !== pos2) {
       // Swap the students but keep their circle positions
@@ -336,6 +340,7 @@ export function generateOptimizedCircleLayout(
   mixSettings: Partial<MixSettings> = {},
   seatingHistory: SavedPlan[] = [],
   currentSeating?: SeatingArrangement,
+  rng: RandomSource = Math.random,
 ): CircleLayout {
   const algorithm = new CircleSeatingAlgorithm(
     students,
@@ -343,6 +348,7 @@ export function generateOptimizedCircleLayout(
     mixSettings,
     seatingHistory,
     currentSeating,
+    rng,
   );
   return algorithm.generateOptimizedLayout();
 }

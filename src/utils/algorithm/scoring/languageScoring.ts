@@ -2,6 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import type { ScoringContext } from './scoringContext';
 import type { LanguageSkillLevel } from '@/types';
+import { PLACEMENT_SCORE_WEIGHTS } from '@/utils';
 
 /**
  * Language skill level hierarchy for scoring.
@@ -53,14 +54,17 @@ export function scoreLanguageMixing(context: ScoringContext): number {
       isLanguageStrong(s?.languageSkill),
     );
     if (hasStrongSpeaker) {
-      score -= weight * 0.5; // Reward: lower score is better
+      score -= weight * PLACEMENT_SCORE_WEIGHTS.language.strongSpeakerNearby; // Reward: lower score is better
     } else {
       // Penalize grouping multiple students needing support
       const needsSupportCount = neighbors.filter((s) =>
         isLanguageNeedsSupport(s?.languageSkill),
       ).length;
       if (needsSupportCount > 0) {
-        score += weight * 0.3 * needsSupportCount;
+        score +=
+          weight *
+          PLACEMENT_SCORE_WEIGHTS.language.needsSupportCluster *
+          needsSupportCount;
       }
     }
   }
@@ -71,7 +75,8 @@ export function scoreLanguageMixing(context: ScoringContext): number {
       isLanguageNeedsSupport(s?.languageSkill),
     );
     if (hasNeedsSupport) {
-      score -= weight * 0.5; // Reward peer tutoring opportunity
+      score -=
+        weight * PLACEMENT_SCORE_WEIGHTS.language.peerTutoringOpportunity; // Reward peer tutoring opportunity
     }
   }
 

@@ -350,5 +350,28 @@ export default defineConfig({
     setupFiles: './src/setupTests.ts',
     // e2e/ holds Playwright specs, which must not run under Vitest.
     include: ['src/**/*.{test,spec}.{ts,tsx}'],
+    coverage: {
+      provider: 'v8',
+      // Opt-in via `npm run test:coverage` — measuring on every run would slow
+      // the normal feedback loop down for no benefit.
+      reporter: ['text-summary', 'html', 'lcov'],
+      reportsDirectory: './coverage',
+      // Listing every source file (not just the ones a test imports) makes
+      // untested modules show up as 0 % instead of disappearing from the report.
+      include: ['src/**/*.{ts,tsx}'],
+      exclude: [
+        'src/**/__tests__/**',
+        'src/**/*.d.ts',
+        'src/setupTests.ts',
+        'src/main.tsx',
+        'src/vite-env.d.ts',
+        // Pure re-export barrels have no logic to cover.
+        'src/**/index.ts',
+        // Translation resources.
+        'src/i18n/locales/**',
+      ],
+      // No thresholds yet: the first job is to make coverage visible, not to
+      // gate CI on a number nobody has calibrated.
+    },
   },
 });

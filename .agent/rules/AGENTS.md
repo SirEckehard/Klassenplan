@@ -12,20 +12,22 @@
 ## Tests & Quality Checks
 
 - Run unit tests with `npm test -- --run` (or `npx vitest run`)
+- Coverage report: `npm run test:coverage` (v8 provider, HTML report in `coverage/`)
 - Check modified files with `npx eslint <files>`
 - TypeScript compilation check: `npm run typecheck` (app) and `npm run typecheck:test` (tests); both via `npm run typecheck:all`
 - Check for unused exports: `npx ts-unused-exports tsconfig.ts-unused.json --ignoreFiles='vite-env.d.ts|index.tsx|App.tsx'`
 - E2E: Playwright smoke specs live in `e2e/` (`npm run test:e2e`; needs `npx playwright install chromium`)
 
-**Current Code Quality Status (2026-07-31):**
+**Current Code Quality Status (2026-08-01):**
 
 - ✅ ESLint: 0 errors, 0 warnings
 - ✅ TypeScript: 0 compilation errors (strict mode)
-- ✅ Tests: 1584 unit tests (158 test files) + 3 Playwright smoke specs, 100% passing
-- ⚠️ Unused Exports: ~108 modules with unused exports (mostly type exports, Props interfaces and shared test helpers - acceptable for a TypeScript project)
+- ✅ Tests: 1681 unit tests (167 test files) + 3 Playwright smoke specs, 100% passing
+- 📊 Coverage: 63 % lines / 63 % statements (`npm run test:coverage`, v8 provider, no thresholds enforced)
+- ⚠️ Unused Exports: ~114 modules with unused exports (mostly type exports, Props interfaces and shared test helpers - acceptable for a TypeScript project)
 - ✅ Test Infrastructure: Centralized accessibility helpers and toast matchers for robust testing
 - ✅ Architecture: Repository Pattern implemented, UI components reorganized into logical subdirectories
-- ✅ i18n: Bilingual support (German/English) fully implemented, DE/EN key parity 1:1 (1612 keys per language)
+- ✅ i18n: Bilingual support (German/English) fully implemented, DE/EN key parity 1:1 (1619 keys per language)
 
 ## Logging
 
@@ -98,6 +100,7 @@ import { generateId, logError, errorHandlers } from '@/utils';
 - `npm run preview` - Serve the production bundle locally
 - `npm run build` - Build production bundle (runs `generate:sitemap` first)
 - `npm test` - Run Vitest in watch mode (append `-- --run` for single run)
+- `npm run test:coverage` - Single run with a v8 coverage report (`coverage/index.html`)
 - `npm run test:e2e` - Run Playwright end-to-end tests
 - `npm run lint` - Check code with ESLint
 - `npm run typecheck` / `npm run typecheck:all` - TypeScript strict checks
@@ -129,14 +132,19 @@ Consumers import dedicated hooks (e.g. `useClassroomLayoutContext`) to minimize 
 
 - **localStorage** – UI preferences only (theme, grid visibility, layout options, consent, presentation toggles); no personal data
 - **IndexedDB repositories** (`src/repositories/`) – students, seating plans, templates, mix history, circle layouts and `ClassroomFeature` data (windows, doors, podium, board)
-- **Student photos** – separate IndexedDB store (`src/repositories/studentPhotoStore.ts`, blobs keyed by student id, schema-versioned) with an in-memory cache (`src/hooks/student/studentPhotoCache.ts`)
+- **`src/repositories/idbClient.ts` is the only module that imports `idb-keyval`.** Never reach past it — it offers rejecting primitives (`readValue`, `writeValue`, …) for callers with their own error handling and `try…` variants that return a `Result`.
+- **Student photos** – separate IndexedDB store (`src/repositories/studentPhotoStore.ts`, blobs keyed by student id, schema-versioned) with an in-memory cache (`src/hooks/student/studentPhotoCache.ts`). Every photo-store call returns a `Result`; the cache turns write failures into `StudentPhotoStorageError` so a UI handler can toast them.
 - Result-pattern (`Success`/`Failure`) provides typed error handling and enables repository swapping.
 - Live data is stored unencrypted (offline-first, documented in `docs/SECURITY.md`); only exported backups are encrypted.
 
 ### Algorithm & Layout Engine
 
 - Constraint engine weights criteria for restlessness, shyness, distraction, partners, distance wishes, height categories, language levels, social roles, door/window preferences and locked seats.
-- Runs in a web worker (`src/workers/algorithmWorkerClient.ts` — timeouts, abort support, main-thread fallback); CSV parsing has its own worker.
+- Scoring exists in two shapes on purpose: `scoring/*` rates a _candidate placement_ while a plan is built, `scoring/arrangementScoring.ts` rates _finished tables_ during refinement. Their multipliers live side by side in `constants.ts` (`PLACEMENT_SCORE_WEIGHTS` / `TABLE_SCORE_WEIGHTS`) so neither can drift unnoticed.
+- Window/door distances come from `algorithm/featureDistances.ts` (memoized per scene geometry) — the algorithm, the statistics and the criterion highlights share that one implementation.
+- Randomness is injectable: every entry point accepts an `rng` (`algorithm/rng.ts`), defaulting to `Math.random`. Production behaviour is unchanged; tests pass `createRng(seed)` for exact assertions.
+- Runs in a web worker; `src/workers/algorithmOperations.ts` holds the single implementation that both the worker and the main-thread fallback call, so defaults (e.g. simulated annealing) cannot diverge. `algorithmWorkerClient.ts` owns transport: aborted and timed-out requests reject instead of silently re-running inline. The worker reports progress **stages**, never text — it cannot know the UI language.
+- CSV parsing has its own worker (one dedicated instance per parse, cancelled by terminating it).
 - Multi-pass refinement via `refineSeatingLocal` supports configurable tries/passes and reuses immutable scene snapshots.
 - Circle mode stays in sync through `generateCircleSeating`, `regenerateCircle`, and `syncCircleFromTable` actions.
 - Template system (`single`, `double`, `group4`, `group6`) defaults to 0° rotation and feeds drag-and-drop operations.
@@ -167,12 +175,19 @@ Consumers import dedicated hooks (e.g. `useClassroomLayoutContext`) to minimize 
 - **@testing-library/react** for component interaction testing
 - Test files follow `*.test.ts` or `*.test.tsx` pattern in `__tests__` directories
 - Shared test utilities in `src/__tests__/utils/` provide mock data factories
+- Coverage via the v8 provider (`npm run test:coverage`); no thresholds are enforced, the report exists to make gaps visible
 
 Key testing utilities:
 
 - `createMockStudent()` - Generate test student data
 - `createMockClassroomScene()` - Generate test classroom layouts
 - `setupCleanStorage()` - Reset storage between tests
+
+**Algorithm tests: prefer a seed over statistics.** Every randomised step takes an
+injectable `rng` (`createRng(seed)` from `@/utils/algorithm/rng`, default
+`Math.random`). Pass a seeded source and assert the exact arrangement instead of
+looping 20 times over a probabilistic expectation — see
+`src/utils/algorithm/__tests__/seatingDeterminism.test.ts`.
 
 ### Modern Test Patterns (Preferred)
 

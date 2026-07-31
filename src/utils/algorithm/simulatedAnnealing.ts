@@ -15,6 +15,7 @@
 
 import type { SeatingArrangement, MixSettings, ClassroomScene } from '@/types';
 import { logDebug } from '@/utils';
+import { randomInt, type RandomSource } from './rng';
 
 /**
  * Configuration for Simulated Annealing algorithm.
@@ -87,6 +88,8 @@ export interface AnnealingContext {
   scoreTable: (tableIndex: number) => number;
   /** Function to check if a seat is locked */
   isLocked: (table: number, seat: number) => boolean;
+  /** Random source of the run; defaults to `Math.random` when omitted */
+  rng?: RandomSource;
 }
 
 /**
@@ -99,13 +102,14 @@ export const generateRandomSwap = (
   ctx: AnnealingContext,
 ): [number, number, number, number] | null => {
   const { tableCount, seatCounts, arrangement, targets, isLocked } = ctx;
+  const rng = ctx.rng ?? Math.random;
 
   // Try up to 10 times to find a valid swap
   for (let attempt = 0; attempt < 10; attempt++) {
-    const t1 = Math.floor(Math.random() * tableCount);
-    const s1 = Math.floor(Math.random() * seatCounts[t1]!);
-    const t2 = Math.floor(Math.random() * tableCount);
-    const s2 = Math.floor(Math.random() * seatCounts[t2]!);
+    const t1 = randomInt(rng, tableCount);
+    const s1 = randomInt(rng, seatCounts[t1]!);
+    const t2 = randomInt(rng, tableCount);
+    const s2 = randomInt(rng, seatCounts[t2]!);
 
     // Skip same seat
     if (t1 === t2 && s1 === s2) continue;
@@ -256,7 +260,7 @@ export const runSimulatedAnnealing = (
 
       // Decide whether to accept
       const acceptProb = acceptanceProbability(scoreBefore, scoreAfter, temp);
-      const accept = Math.random() < acceptProb;
+      const accept = (ctx.rng ?? Math.random)() < acceptProb;
 
       if (accept) {
         acceptedSwaps++;

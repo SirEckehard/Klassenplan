@@ -496,15 +496,9 @@ ${studentRows}
 
       try {
         await rejection;
-        expect(
-          postedMessages.some(
-            (message) =>
-              typeof message === 'object' &&
-              message !== null &&
-              'type' in message &&
-              (message as { type?: string }).type === 'cancel',
-          ),
-        ).toBe(true);
+        // Aborting terminates the worker; no cancel message is sent, since a
+        // terminated worker would never get to process one.
+        expect(postedMessages).toHaveLength(1);
         expect(terminated).toBe(true);
       } finally {
         (globalThis as typeof globalThis & { Worker?: typeof Worker }).Worker =
@@ -561,15 +555,9 @@ ${studentRows}
           type: 'parse',
           payload: expect.objectContaining({ previewRows: 2 }),
         });
-        expect(
-          postedMessages.some(
-            (message) =>
-              typeof message === 'object' &&
-              message !== null &&
-              'type' in message &&
-              (message as { type?: string }).type === 'cancel',
-          ),
-        ).toBe(true);
+        // A timeout terminates the worker; no cancel message is sent, since a
+        // terminated worker would never get to process one.
+        expect(postedMessages).toHaveLength(1);
         expect(terminated).toBe(true);
       } finally {
         vi.useRealTimers();

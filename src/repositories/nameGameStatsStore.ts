@@ -7,10 +7,13 @@
  * single record in the default keyval store under `DB_KEYS.nameGameStats`,
  * so "delete all data" wipes it together with the rest of the app data.
  *
- * Every function is a safe no-op when IndexedDB is unavailable and never
- * throws into the UI — the game keeps working without persistence.
+ * Storage access goes through `idbClient`, which reports failures as a
+ * `Result`. The public API deliberately does *not* pass those on: a lost quiz
+ * statistic is nothing the player can act on, and the game keeps working
+ * without persistence. Failures are logged and swallowed here, at the one place
+ * that knows they are harmless.
  */
-import { get as idbGet, set as idbSet, del as idbDel } from 'idb-keyval';
+import { tryReadValue, tryWriteValue, tryDeleteValue } from './idbClient';
 import { DB_KEYS } from '@/utils/data/storageKeys';
 import { hasIndexedDB } from '@/utils/data/indexedDb';
 import { logError } from '@/utils';
@@ -34,23 +37,36 @@ function emptyData(): NameGameData {
 /** Load the stored game data, falling back to an empty record. */
 export async function loadNameGameData(): Promise<NameGameData> {
   if (!hasIndexedDB()) return emptyData();
-  try {
-    const stored = await idbGet<NameGameData>(DB_KEYS.nameGameStats);
-    if (!stored || stored.version !== 1) return emptyData();
-    return {
-      version: 1,
-      stats: stored.stats ?? {},
-      memoryBest: stored.memoryBest ?? {},
-    };
-  } catch (error) {
-    logError('Failed to load name game data', { error }, LOG_SOURCE);
+
+  const result = await tryReadValue<NameGameData>(DB_KEYS.nameGameStats);
+  if (!result.success) {
+    logError(
+      'Failed to load name game data',
+      { error: result.error },
+      LOG_SOURCE,
+    );
     return emptyData();
   }
+
+  const stored = result.data;
+  if (!stored || stored.version !== 1) return emptyData();
+  return {
+    version: 1,
+    stats: stored.stats ?? {},
+    memoryBest: stored.memoryBest ?? {},
+  };
 }
 
 async function saveNameGameData(data: NameGameData): Promise<void> {
   if (!hasIndexedDB()) return;
-  await idbSet(DB_KEYS.nameGameStats, data);
+  const result = await tryWriteValue(DB_KEYS.nameGameStats, data);
+  if (!result.success) {
+    logError(
+      'Failed to save name game data',
+      { error: result.error },
+      LOG_SOURCE,
+    );
+  }
 }
 
 /**
@@ -116,10 +132,13 @@ export async function recordMemoryResult(
 /** Wipe all stored game data (quiz stats and memory best scores). */
 export async function clearNameGameData(): Promise<void> {
   if (!hasIndexedDB()) return;
-  try {
-    await idbDel(DB_KEYS.nameGameStats);
-  } catch (error) {
-    logError('Failed to clear name game data', { error }, LOG_SOURCE);
+  const result = await tryDeleteValue(DB_KEYS.nameGameStats);
+  if (!result.success) {
+    logError(
+      'Failed to clear name game data',
+      { error: result.error },
+      LOG_SOURCE,
+    );
   }
 }
 
