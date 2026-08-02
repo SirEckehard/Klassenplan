@@ -8,7 +8,7 @@ Klassenplan monitors performance from two angles: Core Web Vitals at runtime, an
 
 - **Metrics:** LCP, INP, CLS, FCP, and TTFB are registered through `web-vitals` and stored as structured records.
 - **Thresholds:** Good values are ≤ 2.5 s (LCP), ≤ 200 ms (INP), ≤ 0.1 (CLS), ≤ 1.8 s (FCP), and ≤ 800 ms (TTFB). Values in between flag optimization potential; anything above is marked "poor".
-- **Persistence & logging:** Measurements land in an internal map store, which the logger differentiates by threshold (`logInfo` for "good", `logWarn` for "poor"). In production they are forwarded to `ProfessionalLogger`.
+- **Persistence & logging:** Measurements land in an internal map store, which the logger differentiates by threshold (`logInfo` for "good", `logWarn` for "poor"). `sendToAnalytics` is still a placeholder — it logs the metric and nothing leaves the browser.
 - **Additional streams:** Navigations (max. 20 entries), bundle loads (max. 50 entries), and memory usage (heap monitoring > 80 %) round out the monitoring.
 - **Scoring:** An overall score (0–100) is computed from the threshold buckets (`good` = 100, `needs-improvement` = 65, `poor` = 25).
 

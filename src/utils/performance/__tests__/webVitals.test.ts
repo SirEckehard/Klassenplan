@@ -20,16 +20,6 @@ vi.mock('@/utils/logger', () => ({
   logError: vi.fn(),
 }));
 
-// Mock ProfessionalLogger - Vitest 4.x requires proper class mocking
-vi.mock('@/utils/logging/professionalLogger', () => {
-  const MockProfessionalLogger = vi.fn(function (this: any) {
-    this.info = vi.fn();
-    this.warn = vi.fn();
-    this.error = vi.fn();
-  });
-  return { ProfessionalLogger: MockProfessionalLogger };
-});
-
 describe('webVitals', () => {
   beforeEach(() => {
     vi.clearAllMocks();

@@ -55,8 +55,8 @@
     "path": "/impressum",
     "title": "Impressum | Klassenplan",
     "description": "Kontaktdaten, Verantwortliche und rechtliche Angaben zum Projekt Klassenplan.",
-    "titleEn": "Legal Notice | Klassenplan",
-    "descriptionEn": "Contact details, responsible parties and legal information about the Klassenplan project.",
+    "titleEn": "Legal Notice (German) | Klassenplan",
+    "descriptionEn": "Contact details, responsible parties and legal information about the Klassenplan project. Published in German only, as required by German law.",
     "changefreq": "yearly",
     "priority": 0.4,
     "ogType": "article"
@@ -65,8 +65,8 @@
     "path": "/datenschutz",
     "title": "Datenschutz | Klassenplan",
     "description": "Erfahre, wie Klassenplan deine Daten schützt und welche Informationen lokal gespeichert werden.",
-    "titleEn": "Privacy | Klassenplan",
-    "descriptionEn": "Learn how Klassenplan protects your data and which information is stored locally.",
+    "titleEn": "Privacy Policy (German) | Klassenplan",
+    "descriptionEn": "How Klassenplan protects your data and which information stays on your device. Published in German only, as required by German law.",
     "changefreq": "yearly",
     "priority": 0.5,
     "ogType": "article"

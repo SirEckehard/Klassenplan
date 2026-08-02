@@ -8,15 +8,10 @@ import {
   angleToPosition,
   calculateDistance,
   getAngleBetweenPoints,
-  findOptimalStartAngle,
-  calculateOptimalCurvature,
-  calculateAcousticOptimization,
   calculateDynamicSpacing,
-  validateCircleGeometry,
   CLASSROOM_BOUNDS,
 } from '../circleGeometry';
 import { createMockStudent } from '../../../__tests__/utils/testHelpers';
-import type { CircleStudentPosition } from '../../../types/Circle';
 
 describe('Circle Geometry Calculations', () => {
   describe('Basic Geometry Functions', () => {
@@ -230,47 +225,6 @@ describe('Circle Geometry Calculations', () => {
   });
 
   describe('Advanced Geometry Calculations', () => {
-    it('should calculate optimal curvature', () => {
-      const result = calculateOptimalCurvature(12, 0.7);
-
-      expect(result.horizontal).toBeGreaterThan(0);
-      expect(result.vertical).toBeGreaterThan(0);
-      expect(result.curvatureScore).toBeGreaterThanOrEqual(0);
-      expect(result.curvatureScore).toBeLessThanOrEqual(1);
-    });
-
-    it('should handle different conversation intensities', () => {
-      const lowIntensity = calculateOptimalCurvature(12, 0.2);
-      const highIntensity = calculateOptimalCurvature(12, 0.9);
-
-      expect(lowIntensity.curvatureScore).toBeLessThan(
-        highIntensity.curvatureScore,
-      );
-    });
-
-    it('should calculate acoustic optimization', () => {
-      const students = [
-        createMockStudent({
-          name: 'Alice',
-          gender: 'girl',
-          needsFrontSeat: true,
-        }),
-        createMockStudent({ name: 'Bob', gender: 'boy' }),
-        createMockStudent({ name: 'Charlie', gender: 'boy' }),
-      ];
-
-      const center = { x: 450, y: 300 };
-      const radius = { horizontal: 150, vertical: 100 };
-
-      const positions = distributeStudentsInCircle(students, center, radius);
-
-      const result = calculateAcousticOptimization(positions);
-
-      expect(result.acousticScore).toBeGreaterThanOrEqual(0);
-      expect(result.acousticScore).toBeLessThanOrEqual(1);
-      expect(Array.isArray(result.conversationZones)).toBe(true);
-    });
-
     it('should calculate dynamic spacing', () => {
       const students = Array.from({ length: 4 }, (_, i) =>
         createMockStudent({ name: `Student${i}`, gender: 'girl' }),
@@ -299,60 +253,6 @@ describe('Circle Geometry Calculations', () => {
         expect(position.y).toBeLessThan(600);
       }
     });
-
-    it('should validate circle geometry', () => {
-      const students = Array.from({ length: 6 }, (_, i) =>
-        createMockStudent({ name: `Student${i}`, gender: 'girl' }),
-      );
-
-      const center = { x: 450, y: 300 };
-      const radius = { horizontal: 150, vertical: 100 };
-
-      const positions = distributeStudentsInCircle(students, center, radius);
-
-      const validation = validateCircleGeometry(positions);
-
-      expect(validation.isValid).toBe(true);
-      expect(validation.issues).toHaveLength(0);
-      expect(validation.minDistance).toBeGreaterThan(0);
-      expect(validation.maxDistance).toBeGreaterThan(validation.minDistance);
-      expect(validation.avgDistance).toBeGreaterThan(0);
-    });
-
-    it('should detect geometry issues', () => {
-      // Create invalid positions (students too close)
-      const students = [
-        createMockStudent({ name: 'Alice', gender: 'girl' }),
-        createMockStudent({ name: 'Bob', gender: 'boy' }),
-      ];
-
-      const positions: CircleStudentPosition[] = [
-        {
-          student: students[0]!,
-          angle: 0,
-          x: 450,
-          y: 300,
-          preservedNeighbors: [],
-          lostNeighbors: [],
-          newNeighbors: [],
-        },
-        {
-          student: students[1]!,
-          angle: 5,
-          x: 455, // Too close (only 5 pixels apart)
-          y: 300,
-          preservedNeighbors: [],
-          lostNeighbors: [],
-          newNeighbors: [],
-        },
-      ];
-
-      const validation = validateCircleGeometry(positions);
-
-      expect(validation.isValid).toBe(false);
-      expect(validation.issues.length).toBeGreaterThan(0);
-      expect(validation.minDistance).toBeLessThan(30);
-    });
   });
 
   describe('Edge Cases and Error Handling', () => {
@@ -363,17 +263,6 @@ describe('Circle Geometry Calculations', () => {
       expect(result.center.y).toBe(CLASSROOM_BOUNDS.height / 2);
       expect(result.radius.horizontal).toBeGreaterThan(0);
       expect(result.radius.vertical).toBeGreaterThan(0);
-    });
-
-    it('should find optimal start angle', () => {
-      const students = Array.from({ length: 4 }, (_, i) =>
-        createMockStudent({ name: `Student${i}`, gender: 'girl' }),
-      );
-
-      const studentIds = students.map((s) => s.id);
-      const angle = findOptimalStartAngle(studentIds);
-      expect(angle).toBeGreaterThanOrEqual(0);
-      expect(angle).toBeLessThan(360);
     });
 
     it('should handle extreme classroom dimensions', () => {

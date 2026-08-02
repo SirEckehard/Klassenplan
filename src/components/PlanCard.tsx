@@ -13,6 +13,7 @@ import { showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
 import ConfirmDialog from '@/components/ui/modals/ConfirmDialog';
 import type { SavedPlan } from '@/types';
 import { countStudents, tableCount, seatsPerTable } from '../utils/plan';
+import { formatStoredDate } from '@/utils';
 
 type Props = {
   plan: SavedPlan;
@@ -139,7 +140,7 @@ function PlanCard({ plan, onLoad, onDelete, onRename }: Props) {
             )}
             {plan.date && (
               <span className="shrink-0 inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 text-gray-700 text-xs border dark:bg-gray-700 dark:text-gray-200">
-                {plan.date}
+                {formatStoredDate(plan.date)}
               </span>
             )}
           </div>

@@ -336,7 +336,9 @@
     "clearAllTitle": "Alle Schüler entfernen",
     "clearAllMessage": "Möchtest du wirklich alle Schüler aus {{className}} entfernen? Diese Aktion kann nicht rückgängig gemacht werden.",
     "yourClass": "deine Klasse",
-    "placeholdersCreated": "{{count}} Schüler-Platzhalter erstellt. Fülle jetzt die Namen und Details aus."
+    "placeholdersCreated": "{{count}} Schüler-Platzhalter erstellt. Fülle jetzt die Namen und Details aus.",
+    "emptyClassCsvHintPrefix": "Du kannst auch diese ",
+    "emptyClassCsvHintSuffix": " nutzen und sie mit den Namen deiner Schüler befüllen. Klicke dann auf Import und lade die CSV-Datei hoch."
   },
   "listToolbar": {
     "searchLabel": "Schüler suchen",

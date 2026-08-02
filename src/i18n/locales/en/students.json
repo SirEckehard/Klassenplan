@@ -336,7 +336,9 @@
     "clearAllTitle": "Remove All Students",
     "clearAllMessage": "Do you really want to remove all students from {{className}}? This action cannot be undone.",
     "yourClass": "your class",
-    "placeholdersCreated": "{{count}} student placeholders created. Now fill in the names and details."
+    "placeholdersCreated": "{{count}} student placeholders created. Now fill in the names and details.",
+    "emptyClassCsvHintPrefix": "You can also use this ",
+    "emptyClassCsvHintSuffix": " and fill it with your students' names. Then click Import and upload the CSV file."
   },
   "listToolbar": {
     "searchLabel": "Search students",

@@ -8,6 +8,7 @@ import {
   CLASSROOM_HEIGHT,
   getDisplayName,
   calculateSeatLabelFontSize,
+  formatDate,
 } from '@/utils';
 import {
   getStudentAppearance,
@@ -165,9 +166,7 @@ export default function CirclePrintView({
 
   // Calculations completed
 
-  const currentDate = new Date().toLocaleDateString(
-    i18n.language === 'de' ? 'de-DE' : 'en-US',
-  );
+  const currentDate = formatDate(new Date(), i18n.language);
   const displayTitle = title || t('mode.circle', 'Sitzkreis');
   const headerTitleY = isPortrait ? margin + 6 : 60;
   const headerGroupY = isPortrait ? headerTitleY - 6 : 47;

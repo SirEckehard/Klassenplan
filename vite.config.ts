@@ -17,17 +17,35 @@ const SINGLE_QUOTE = String.fromCharCode(39);
 const wrapInSingleQuotes = (value: string) =>
   SINGLE_QUOTE + value + SINGLE_QUOTE;
 
+/**
+ * Loads the Tailwind plugin. A missing or broken plugin used to be swallowed
+ * into an inert stub, which produces a *successful* build of a completely
+ * unstyled app — the kind of failure that is only noticed after deployment.
+ * Now it fails the build and says why.
+ */
 const resolveTailwindcssPlugin = async (): Promise<PluginOption> => {
-  const module = await import('@tailwindcss/vite').catch(() => null);
-  const pluginFactory = module?.default;
+  let module: typeof import('@tailwindcss/vite');
 
-  if (typeof pluginFactory === 'function') {
-    return pluginFactory();
+  try {
+    module = await import('@tailwindcss/vite');
+  } catch (error) {
+    throw new Error(
+      'Failed to load @tailwindcss/vite. Without it the build emits no ' +
+        'stylesheet at all. Run `npm install` and retry.',
+      { cause: error },
+    );
   }
 
-  return {
-    name: 'tailwindcss-missing-plugin',
-  };
+  const pluginFactory = module?.default;
+
+  if (typeof pluginFactory !== 'function') {
+    throw new Error(
+      '@tailwindcss/vite resolved but has no default export — the installed ' +
+        'version is incompatible. Check the dependency in package.json.',
+    );
+  }
+
+  return pluginFactory();
 };
 const tailwindcss = await resolveTailwindcssPlugin();
 const isProductionBuild = process.env.NODE_ENV === 'production';
@@ -325,6 +343,19 @@ export default defineConfig({
         },
         entryFileNames: 'entry/[name]-[hash].js',
       },
+      // These are aggressive. `moduleSideEffects: false` in particular tells
+      // Rolldown that no module does anything on import, which is not true for
+      // this app: `src/index.tsx` imports `@/hooks/useInstallPrompt` purely for
+      // its `beforeinstallprompt` listener, and the i18n entry initialises
+      // i18next at module scope. Both survive today only because other named
+      // imports from the same modules keep them in the graph.
+      //
+      // Consequence for future work: a module whose *only* purpose is a
+      // top-level side effect can be dropped silently — the build stays green
+      // and the feature disappears. When adding one, either export something
+      // the importer actually uses, or move the side effect into a function
+      // that gets called. `npm run check:bundle` catches the size half of this;
+      // it cannot catch a missing listener.
       treeshake: {
         moduleSideEffects: false,
         propertyReadSideEffects: false,

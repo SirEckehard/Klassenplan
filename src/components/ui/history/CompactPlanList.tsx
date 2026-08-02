@@ -23,6 +23,7 @@ import {
   inputFieldClass,
   seatsPerTable,
   tableCount,
+  formatStoredDate,
 } from '@/utils';
 
 interface CompactPlanListProps {
@@ -188,7 +189,7 @@ function CompactPlanItem({
                 {plan.date && (
                   <span className="flex items-center gap-1">
                     <CalendarBlankIcon size={12} />
-                    {plan.date}
+                    {formatStoredDate(plan.date)}
                   </span>
                 )}
                 {typeof studentCount === 'number' && (

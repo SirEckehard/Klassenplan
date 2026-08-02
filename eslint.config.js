@@ -115,11 +115,15 @@ export default defineConfig([
               message: 'Bitte importiere stattdessen aus "@/utils".',
             },
             {
-              name: '@/utils/positioning',
+              name: '@/utils/math/tablePositioning',
               message: 'Bitte importiere stattdessen aus "@/utils".',
             },
             {
               name: '@/utils/shortcuts',
+              message: 'Bitte importiere stattdessen aus "@/utils".',
+            },
+            {
+              name: '@/utils/dateTimeFormat',
               message: 'Bitte importiere stattdessen aus "@/utils".',
             },
           ],
@@ -190,7 +194,10 @@ export default defineConfig([
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-non-null-assertion': 'off',
-      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        { argsIgnorePattern: '^_' },
+      ],
       'no-console': 'off',
       'import-x/no-extraneous-dependencies': 'off',
     },

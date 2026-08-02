@@ -62,7 +62,11 @@ export type LockedPositions = Record<string, { table: number; seat: number }>;
 export interface SavedPlan {
   id: string;
   name: string;
-  date: string; // Date formatted with de-DE locale
+  /**
+   * ISO 8601 date (`YYYY-MM-DD`). Older entries hold a pre-formatted German
+   * string; render both through `formatStoredDate` from `@/utils`.
+   */
+  date: string;
   seating: SeatingArrangement;
   scene: ClassroomScene;
   locks?: LockedPositions; // Optional persisted locks

@@ -8,7 +8,6 @@ import {
   isFeatureEnabled,
   getFeatureFlagSnapshot,
 } from '@/utils';
-import { ProfessionalLogger } from '@/utils/logging/professionalLogger';
 
 // Performance thresholds based on Core Web Vitals recommendations
 export const PERFORMANCE_THRESHOLDS = {
@@ -66,7 +65,6 @@ export interface BundleLoadingMetric {
 }
 
 class WebVitalsService {
-  private logger: ProfessionalLogger;
   private isProduction: boolean;
   private metrics: Map<string, PerformanceMetric> = new Map();
   private routeTransitions: RouteTransitionMetric[] = [];
@@ -77,7 +75,6 @@ class WebVitalsService {
   private resourceObserver: PerformanceObserver | null = null;
 
   constructor() {
-    this.logger = new ProfessionalLogger();
     this.isProduction = import.meta.env.PROD;
   }
 
@@ -520,14 +517,18 @@ class WebVitalsService {
    * Send metrics to analytics service (placeholder)
    */
   private sendToAnalytics(metric: PerformanceMetric): void {
-    // In production, send to your analytics service
-    // For now, we just use the professional logger
-    this.logger.info('Performance metric collected', {
-      metric: metric.name,
-      value: metric.value,
-      threshold: metric.threshold,
-      url: metric.url,
-    });
+    // In production, send to your analytics service. For now the metric only
+    // reaches the console, at the same level as every other log in this file.
+    logInfo(
+      'Performance metric collected',
+      {
+        metric: metric.name,
+        value: metric.value,
+        threshold: metric.threshold,
+        url: metric.url,
+      },
+      'webVitals',
+    );
   }
 
   /**

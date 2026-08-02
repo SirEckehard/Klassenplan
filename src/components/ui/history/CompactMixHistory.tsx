@@ -10,6 +10,8 @@ import {
   dangerIconButtonClass,
   loadingIconButtonClass,
   SCALAR_MIX_SETTING_KEYS,
+  formatDayMonth,
+  formatTimeWithSeconds,
 } from '@/utils';
 import { CRITERIA_ICON_MAP } from '@/utils/ui/criteriaIcons';
 
@@ -48,16 +50,8 @@ function CompactMixItem({ result, onLoad, onDelete }: MixItemProps) {
   const { t } = useTranslation('generator');
   const [confirmOpen, setConfirmOpen] = useState(false);
 
-  const ts = new Date(result.timestamp);
-  const timeString = ts.toLocaleTimeString('de-DE', {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-  });
-  const dateString = ts.toLocaleDateString('de-DE', {
-    day: '2-digit',
-    month: '2-digit',
-  });
+  const timeString = formatTimeWithSeconds(result.timestamp);
+  const dateString = formatDayMonth(result.timestamp);
 
   // Get active settings (value > 0) excluding the combined constraint
   const activeSettings = SCALAR_MIX_SETTING_KEYS.filter(

@@ -54,6 +54,15 @@ description, `changefreq`, `priority`, `ogType` and optional `noindex`. It feeds
 Shared route/language helpers live in `scripts/utils/seoRoutes.mjs` so the
 sitemap and the prerendered files cannot drift apart.
 
+### German-only routes
+
+`/impressum` and `/datenschutz` are published in German only, as German law
+requires. Their `titleEn`/`descriptionEn` therefore say so explicitly
+("Legal Notice (German)"), rather than promising an English translation that
+the page does not deliver — the pages themselves already show a banner to that
+effect. They stay indexed and keep their hreflang pair: the content is relevant
+to English-speaking visitors, it is simply not in their language.
+
 ## Canonical origin
 
 `SITE_URL` (default `https://klassenplan.de`) is injected into the bundle at

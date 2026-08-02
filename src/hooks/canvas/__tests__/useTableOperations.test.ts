@@ -22,7 +22,7 @@ vi.mock('../../../utils/deepClone', () => ({
 }));
 
 // Mock positioning utilities
-vi.mock('../../../utils/positioning', () => ({
+vi.mock('../../../utils/math/tablePositioning', () => ({
   positionTablesRelative: vi.fn(
     (tables: ClassroomTable[], center: { x: number; y: number }) =>
       tables.map((table, index) => ({

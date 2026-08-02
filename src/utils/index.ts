@@ -166,6 +166,19 @@ export {
 // ===== Plan Names =====
 export { createTimestampPlanName } from './planNames';
 
+// ===== Date & Time Formatting =====
+export {
+  formatDate,
+  formatDateAndTime,
+  formatDateTime,
+  formatDayMonth,
+  formatStoredDate,
+  formatTime,
+  formatTimeWithSeconds,
+  resolveLocale,
+  toIsoDate,
+} from './dateTimeFormat';
+
 // ===== Math Utilities =====
 export { countSeats } from './math/scene';
 export { hasShapeMismatch } from './math/scene';
@@ -227,10 +240,8 @@ export {
   type CriterionAvailability,
 } from './criteriaValidation';
 
-// ===== Positioning =====
+// ===== Table positioning (geometry, see utils/math) =====
 export {
-  preciseSnap,
-  snapPosition,
   calculateTableGroupBounds,
   positionTablesRelative,
   calculateDragDelta,
@@ -238,9 +249,7 @@ export {
   getRotationAdjustedDimensions,
   getRotationAdjustedPosition,
   clampTablePositionWithinBounds,
-  screenToSVGCoordinates,
-  validateTablePositioning,
-} from './positioning';
+} from './math/tablePositioning';
 
 // ===== Shortcuts =====
 export {

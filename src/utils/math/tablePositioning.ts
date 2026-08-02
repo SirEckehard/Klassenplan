@@ -1,12 +1,17 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import type { ClassroomTable } from '@/types';
-import { GRID_SNAP_SIZE, convertClientPointToSvgCoordinates } from '@/utils';
-import { normalizeRotation } from '@/utils/math/rotation';
+// Relative imports, matching the rest of src/utils: pulling these from the
+// `@/utils` barrel would make this module import its own re-exporter.
+import { GRID_SNAP_SIZE } from '../constants';
+import { normalizeRotation } from './rotation';
 
 /**
- * Precise positioning utilities for table placement and grid snapping
- * Addresses floating-point precision issues in copy/paste and drag operations
+ * Precise positioning utilities for table placement and grid snapping.
+ * Addresses floating-point precision issues in copy/paste and drag operations.
+ *
+ * Seat-level geometry (where a seat sits *inside* a table) lives in
+ * `positionCalculations.ts`; this module only moves whole tables around.
  */
 
 export interface Position {
@@ -125,9 +130,11 @@ export function preciseSnap(
 }
 
 /**
- * Snap a position to the grid with precision
+ * Snap a position to the grid with precision.
+ * Module-private: callers snap through `positionTablesRelative` or
+ * `calculateDragDelta`, which also apply the bounds clamp.
  */
-export function snapPosition(
+function snapPosition(
   position: Position,
   gridSize: number = GRID_SNAP_SIZE,
   tolerance: number = 0.1,
@@ -300,56 +307,4 @@ export function applyDragMovement(
       y: newY,
     };
   });
-}
-
-/**
- * Convert screen coordinates to SVG coordinates with precision
- */
-export function screenToSVGCoordinates(
-  screenX: number,
-  screenY: number,
-  svgElement: SVGSVGElement,
-): Position {
-  return convertClientPointToSvgCoordinates({
-    svg: svgElement,
-    clientX: screenX,
-    clientY: screenY,
-  });
-}
-
-/**
- * Validate that tables don't overlap after positioning
- * Used for debugging and quality assurance
- */
-export function validateTablePositioning(tables: ClassroomTable[]): {
-  isValid: boolean;
-  overlaps: Array<{ table1: number; table2: number }>;
-} {
-  const overlaps: Array<{ table1: number; table2: number }> = [];
-
-  for (let i = 0; i < tables.length; i++) {
-    for (let j = i + 1; j < tables.length; j++) {
-      const table1 = tables[i];
-      const table2 = tables[j];
-
-      if (!table1 || !table2) continue;
-
-      // Check for overlap
-      const overlap = !(
-        table1.x + table1.width <= table2.x ||
-        table2.x + table2.width <= table1.x ||
-        table1.y + table1.height <= table2.y ||
-        table2.y + table2.height <= table1.y
-      );
-
-      if (overlap) {
-        overlaps.push({ table1: i, table2: j });
-      }
-    }
-  }
-
-  return {
-    isValid: overlaps.length === 0,
-    overlaps,
-  };
 }

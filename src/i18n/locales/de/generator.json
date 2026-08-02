@@ -269,7 +269,11 @@
       "avoidance": "Vermeidung",
       "promotion": "Förderung",
       "needs": "Bedürfnisse",
-      "environment": "Raum"
+      "environment": "Raum",
+      "identity": "Identität",
+      "abilities": "Fähigkeiten",
+      "behavior": "Verhalten",
+      "social": "Soziales"
     },
     "criteria": {
       "avoidPreviousPairs": {
@@ -346,7 +350,9 @@
       "preferFrontForNeedsFrontSeat": "Schüler mit Platzbedarf in den vorderen Reihen platzieren.",
       "preferFrontForSmallerStudents": "Kleinere Schüler vorne, größere hinten.",
       "preferWindowSeats": "Fensterpräferenzen berücksichtigen.",
-      "preferDoorSeats": "Türpräferenzen berücksichtigen."
+      "preferDoorSeats": "Türpräferenzen berücksichtigen.",
+      "preferLanguageMixing": "Sprachstarke neben Anfänger/DaZ setzen.",
+      "distributeSocialRoles": "Mediatoren, Anführer und Einzelgänger verteilen."
     },
     "allOn": "Alle an",
     "allOff": "Alle aus",
@@ -401,7 +407,9 @@
     "resizeHeight": "Höhe anpassen",
     "quickSetupShortcut": "(Strg/Cmd+E)",
     "overwriteTemplateMessage": "Die aktuelle Vorlage wurde verändert. Soll die vorhandene Vorlage überschrieben werden?",
-    "overwrite": "Überschreiben"
+    "overwrite": "Überschreiben",
+    "dragDropHint": "Per Drag & Drop hinzufügen",
+    "dragDropPlace": "per Drag & Drop platzieren"
   },
   "export": {
     "title": "Titel",
@@ -705,5 +713,11 @@
       "plan_undo": "Strg (Windows) / Cmd (Mac) + Z",
       "plan_redo": "Strg / Cmd + Shift + Z"
     }
+  },
+  "tableType": {
+    "single": "Einzelplatz",
+    "double": "Doppelplatz",
+    "group4": "4er-Gruppe",
+    "group6": "6er-Gruppe"
   }
 }

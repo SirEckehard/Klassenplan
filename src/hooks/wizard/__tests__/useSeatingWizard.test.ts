@@ -215,8 +215,11 @@ describe('useSeatingWizard', () => {
       expect(mockSaveSeatingPlanWithCircle).toHaveBeenCalledTimes(1);
       const [planName, scene, layout, options] =
         mockSaveSeatingPlanWithCircle.mock.calls[0];
+      // The timestamp follows the active UI language, so both the German
+      // (31.07.2026, 14:05:03) and the English (07/31/2026, 02:05:03 PM)
+      // spelling are valid — which one appears depends on the test environment.
       expect(planName).toMatch(
-        /^Plan \d{1,2}\.\d{1,2}\.\d{4}, \d{2}:\d{2}:\d{2}$/,
+        /^Plan \d{1,2}[./]\d{1,2}[./]\d{4}, \d{1,2}:\d{2}:\d{2}(?:\s[AP]M)?$/,
       );
       expect(scene).toBe(mockConfig.classroomScene);
       expect(layout).toBe(circleLayout);

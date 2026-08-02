@@ -30,7 +30,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "build:static": "vite build && npm run prerender && npm run verify:prerender",
+    "build:static": "vite build && npm run prerender && npm run verify:prerender && npm run check:bundle",
     "prerender": "node scripts/prerender.mjs",
     "verify:prerender": "node scripts/verify-prerender.mjs",
     "preview": "vite preview",
@@ -45,7 +45,9 @@
     "typecheck:all": "npm run typecheck && npm run typecheck:test",
     "typecheck:ts6": "tsc6 --noEmit && tsc6 --noEmit -p tsconfig.test.json",
     "lint": "eslint 'src/**/*.{ts,tsx}' 'e2e/**/*.ts'",
-    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,css,md,json}\""
+    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,css,md,json}\"",
+    "check:bundle": "node scripts/check-bundle.mjs",
+    "check:i18n": "node scripts/check-i18n.mjs"
   },
   "overrides": {
     "serialize-javascript": "^7.0.5"

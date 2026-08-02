@@ -35,6 +35,7 @@ import {
   stableStringify,
   neutralSettings,
   normalizeMixSettings,
+  toIsoDate,
 } from '@/utils';
 import { RepositoryErrorType, type ActiveClassSnapshot } from '@/repositories';
 import type { SeatingState } from './useSeatingState';
@@ -539,7 +540,10 @@ export function useSeatingPersistence(state: SeatingState) {
       const base: SavedPlan = {
         id: slot.planId,
         name: trimmed,
-        date: new Date().toLocaleDateString('de-DE'),
+        // ISO 8601, formatted for display via `formatStoredDate`. Plans saved
+        // before this change hold a German display string and keep rendering
+        // as-is — see the legacy branch in `formatStoredDate`.
+        date: toIsoDate(),
         seating: currentSeating,
         scene,
         locks: lockedPositions,

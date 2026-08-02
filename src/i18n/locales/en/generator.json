@@ -269,7 +269,11 @@
       "avoidance": "Avoidance",
       "promotion": "Support",
       "needs": "Needs",
-      "environment": "Room"
+      "environment": "Room",
+      "identity": "Identity",
+      "abilities": "Abilities",
+      "behavior": "Behavior",
+      "social": "Social"
     },
     "criteria": {
       "avoidPreviousPairs": {
@@ -346,7 +350,9 @@
       "preferFrontForNeedsFrontSeat": "Place students needing front seats in the front rows.",
       "preferFrontForSmallerStudents": "Shorter students in front, taller students in back.",
       "preferWindowSeats": "Honor window seat preferences.",
-      "preferDoorSeats": "Honor door proximity preferences."
+      "preferDoorSeats": "Honor door proximity preferences.",
+      "preferLanguageMixing": "Seat confident speakers next to beginners/EAL students.",
+      "distributeSocialRoles": "Spread mediators, leaders and loners across tables."
     },
     "allOn": "All on",
     "allOff": "All off",
@@ -401,7 +407,9 @@
     "resizeHeight": "Adjust height",
     "quickSetupShortcut": "(Ctrl/Cmd+E)",
     "overwriteTemplateMessage": "The current template has been modified. Do you want to overwrite the existing template?",
-    "overwrite": "Overwrite"
+    "overwrite": "Overwrite",
+    "dragDropHint": "Add via drag and drop",
+    "dragDropPlace": "place via drag and drop"
   },
   "export": {
     "title": "Title",
@@ -705,5 +713,11 @@
       "plan_undo": "Ctrl/Cmd + Z",
       "plan_redo": "Ctrl/Cmd + Shift + Z"
     }
+  },
+  "tableType": {
+    "single": "Single seat",
+    "double": "Double seat",
+    "group4": "Group of 4",
+    "group6": "Group of 6"
   }
 }

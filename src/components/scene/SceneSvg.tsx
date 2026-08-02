@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import type { ClassroomScene, SeatingArrangement, Student } from '@/types';
 import TableIcon from './SceneTable';
 import FeatureShape from './FeatureShape';
-import { CLASSROOM_WIDTH, CLASSROOM_HEIGHT } from '@/utils';
+import { CLASSROOM_WIDTH, CLASSROOM_HEIGHT, formatDate } from '@/utils';
 import { getFeatureStyles } from '@/utils/ui';
 import type { FeatureVisibilityFlags } from '@/utils/ui';
 import { buildLegendLayout } from '@/utils/ui/classBadgeLegend';
@@ -141,9 +141,7 @@ export default function SceneSvg({
   const offsetY = isPortrait
     ? margin + headerHeight + availableHeight / 2 // Center in available space
     : margin + headerHeight + (availableHeight - CLASSROOM_HEIGHT * scale) / 2;
-  const currentDate = new Date().toLocaleDateString(
-    i18n.language === 'de' ? 'de-DE' : 'en-US',
-  );
+  const currentDate = formatDate(new Date(), i18n.language);
   const displayTitle = title || t('mode.table', 'Sitzplan');
   const headerTitleY = isPortrait ? margin + 6 : 60;
   const headerGroupY = isPortrait ? headerTitleY - 6 : 47;

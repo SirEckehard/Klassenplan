@@ -7,11 +7,10 @@ import {
   positionTablesRelative,
   calculateDragDelta,
   applyDragMovement,
-  validateTablePositioning,
   getRotationAdjustedPosition,
   getRotationAdjustedDimensions,
-} from '../positioning';
-import type { ClassroomTable } from '../../types';
+} from '../tablePositioning';
+import type { ClassroomTable } from '@/types';
 
 describe('positioning utilities', () => {
   describe('preciseSnap', () => {
@@ -264,73 +263,6 @@ describe('positioning utilities', () => {
       expect(adjustedPosition.y).toBe(0);
       expect(adjustedDimensions.width).toBe(130);
       expect(adjustedDimensions.height).toBe(55);
-    });
-  });
-
-  describe('validateTablePositioning', () => {
-    it('should detect overlapping tables', () => {
-      const tables: ClassroomTable[] = [
-        {
-          x: 10,
-          y: 10,
-          width: 50,
-          height: 60,
-          rotation: 0,
-          seatCount: 1,
-          locked: false,
-          zIndex: 0,
-          templateType: 'single',
-        },
-        {
-          x: 30,
-          y: 30,
-          width: 50,
-          height: 60,
-          rotation: 0,
-          seatCount: 1,
-          locked: false,
-          zIndex: 1,
-          templateType: 'single',
-        },
-      ];
-
-      const result = validateTablePositioning(tables);
-
-      expect(result.isValid).toBe(false);
-      expect(result.overlaps).toHaveLength(1);
-      expect(result.overlaps[0]).toEqual({ table1: 0, table2: 1 });
-    });
-
-    it('should validate non-overlapping tables', () => {
-      const tables: ClassroomTable[] = [
-        {
-          x: 10,
-          y: 10,
-          width: 50,
-          height: 60,
-          rotation: 0,
-          seatCount: 1,
-          locked: false,
-          zIndex: 0,
-          templateType: 'single',
-        },
-        {
-          x: 100,
-          y: 100,
-          width: 50,
-          height: 60,
-          rotation: 0,
-          seatCount: 1,
-          locked: false,
-          zIndex: 1,
-          templateType: 'single',
-        },
-      ];
-
-      const result = validateTablePositioning(tables);
-
-      expect(result.isValid).toBe(true);
-      expect(result.overlaps).toHaveLength(0);
     });
   });
 });

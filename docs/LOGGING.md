@@ -4,7 +4,14 @@ This document describes the logging system implemented in the classroom seating 
 
 ## Overview
 
-The application uses a centralized logging system with environment-based configuration. All console statements have been replaced with structured logging that respects log levels and provides context. The central API is `EnhancedLogger` (default instance `enhancedLogger`, exported from `@/utils/logging`); the familiar helpers (`logInfo`, `logWarn`, etc.) re-export through it. The browser-facing `clientLogger` handles dev-time console output, while the internal `ProfessionalLogger` engine provides buffering, sampling and remote-transport plumbing used by `EnhancedLogger`.
+The application uses a centralized logging system with environment-based configuration. All console statements have been replaced with structured logging that respects log levels and provides context.
+
+The system is two modules:
+
+- `utils/logging/loggerCore.ts` — level filtering, entry shape, formatter and sink. Environment-agnostic, so a non-console sink can be added without a second logger.
+- `utils/logging/logger.client.ts` — the browser instance (`clientLogger`) wired to a console sink, plus the `logDebug`/`logInfo`/`logWarn`/`logError` helpers.
+
+Import the helpers from the central utils API (`@/utils`); `@/utils/logger` re-exports them together with `logger` (the `clientLogger` singleton) and `LogLevel`.
 
 ## Log Levels
 
@@ -26,7 +33,7 @@ The application uses a centralized logging system with environment-based configu
 ### Production Mode (`npm run build`)
 
 - **Default Level**: WARN
-- **Debug Mode**: Toggle programmatically via `enhancedLogger.updateConfig({ level: LogLevel.DEBUG, debug: true })` or `logger.enableDebug()` hooks (no global `window.logger` in production builds)
+- **Debug Mode**: Toggle programmatically via `logger.enableDebug()` from `@/utils/logger` (no global `window.logger` in production builds)
 - **Console Output**: Only warnings and errors are logged
 - **Performance**: Minimal overhead as debug/info logs are filtered out
 
@@ -120,17 +127,20 @@ window.logger.setLevel(4); // SILENT
 console.log(window.logger.getLevel());
 ```
 
-## Professional Logger API
+## Logger API
 
-The advanced logging service is available as the default export `enhancedLogger` from `@/utils/logging`:
+`logger` (the `clientLogger` singleton, exported from `@/utils/logger`) offers:
 
-- `updateConfig({ level, debug, sampleRate, bufferSize })` – adjust thresholds at runtime
-- `flush()` – write buffered log entries immediately (e.g. before `beforeunload`)
-- `getMetrics()` / `getHistory(count?)` – inspect aggregated metrics and log history
-- `time(label)` / `timeEnd(label)` – lightweight performance timing with log output
-- `clear()` – reset buffer and metrics (useful between test runs)
+- `setLevel(level)` / `getLevel()` – read and adjust the threshold at runtime
+- `enableDebug()` / `disableDebug()` – switch to DEBUG; in dev builds the choice persists in `localStorage`
+- `debug/info/warn/error(message, context?, source?, timestamp?)` – the same calls the helpers wrap
 
-Use these helpers for diagnostics tooling or telemetry integrations.
+There is deliberately no buffering, sampling or remote-transport layer. An
+earlier `ProfessionalLogger`/`EnhancedLogger` pair provided all three, but
+nothing consumed them: the buffer only ever drained back into the console, the
+remote endpoint was never configured, and production sampling silently dropped
+90 % of logs. If remote logging becomes a requirement, add a second sink to
+`LoggerCore` rather than a second logger.
 
 ## Performance Impact
 
@@ -178,18 +188,15 @@ The logger automatically detects the environment via `import.meta.env.DEV` and c
 For production troubleshooting, expose a temporary hook that calls the logger APIs directly (no `window.logger` is available):
 
 ```typescript
-import enhancedLogger, { LogLevel } from '@/utils/logging';
 import { logger } from '@/utils/logger';
 
 // Elevate log level to DEBUG
-enhancedLogger.updateConfig({ level: LogLevel.DEBUG, debug: true });
 logger.enableDebug();
 ```
 
 Remember to revert the configuration after debugging:
 
 ```typescript
-enhancedLogger.updateConfig({ level: LogLevel.WARN, debug: false });
 logger.disableDebug();
 ```
 
@@ -226,7 +233,7 @@ logger.error = (message, context, source) => {
 
 ### Logs Not Appearing
 
-1. Check log level (dev builds): `window.logger.getLevel()` – in production, inspect `enhancedLogger.getMetrics()`
+1. Check log level (dev builds): `window.logger.getLevel()` – in production, read it from the temporary instrumentation via `logger.getLevel()`
 2. Ensure you're using the correct log function
 3. Verify environment detection: `import.meta.env.DEV`
 
@@ -239,5 +246,5 @@ logger.error = (message, context, source) => {
 ### Debug Mode Not Working
 
 1. Check localStorage (dev builds): `localStorage.getItem('debug')`
-2. Ensure the temporary instrumentation calls `logger.enableDebug()` / `enhancedLogger.updateConfig(...)`
+2. Ensure the temporary instrumentation calls `logger.enableDebug()`
 3. Clear localStorage and retry (dev) or revert instrumentation changes (production)

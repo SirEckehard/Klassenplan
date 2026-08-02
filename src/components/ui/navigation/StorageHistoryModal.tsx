@@ -16,6 +16,7 @@ import {
   pillTabActiveClass,
   pillTabBaseClass,
   pillTabInactiveClass,
+  formatTime,
 } from '@/utils';
 import { showToast } from '@/utils/ui/toast';
 import type { SavedPlan, MixResult } from '@/types';
@@ -88,10 +89,7 @@ export default function StorageHistoryModal({
   const handleMixLoadAction = useCallback(
     (result: MixResult) => {
       handleMixLoad(result);
-      const date = new Date(result.timestamp).toLocaleTimeString('de-DE', {
-        hour: '2-digit',
-        minute: '2-digit',
-      });
+      const date = formatTime(result.timestamp);
       showToast(
         'success',
         t('storage.mixLoaded', 'Mischergebnis von {{time}} geladen.', {
