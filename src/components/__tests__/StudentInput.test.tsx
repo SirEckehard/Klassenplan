@@ -140,31 +140,35 @@ describe('StudentInput', () => {
     expect(proceedButton).toBeInTheDocument();
   });
 
-  it('clears all students when clear button is clicked', () => {
+  it('deletes the class picked in the switcher dropdown', async () => {
     const students = [
       createMockStudent({ id: '1', name: 'Max', gender: 'boy' }),
     ];
+    const deleteClass = vi.fn().mockResolvedValue(true);
 
-    const props = createMockStudentInputProps({ students });
-
-    expect(students[0].restless).toBe(false);
-    renderWithClassContext(<StudentInput {...props} />);
-
-    // Use semantic helpers
-    const clearButton = getButton(
-      /Alle Schüler entfernen|Remove all students/i,
+    renderWithClassContext(
+      <StudentInput {...createMockStudentInputProps({ students })} />,
+      { deleteClass },
     );
-    fireEvent.click(clearButton);
 
-    const confirmDialog = getDialog(
-      /Alle Schüler entfernen|Remove All Students/i,
+    // Deleting a class sits next to the class it acts on, inside the switcher
+    // dropdown. That dropdown is a portal which stays `visibility: hidden` —
+    // and thus out of the a11y tree — until it has measured its position.
+    fireEvent.click(getButton(/Klasse wechseln|Switch class/i));
+    fireEvent.click(
+      await screen.findByRole('button', {
+        name: /Klasse löschen Testklasse|Delete class Testklasse/i,
+      }),
     );
-    const confirmButton = within(confirmDialog).getByRole('button', {
-      name: /Alle Schüler entfernen|Remove all students/i,
-    });
-    fireEvent.click(confirmButton);
 
-    expect(props.clearStudents).toHaveBeenCalled();
+    const confirmDialog = getDialog(/Klasse löschen|Delete class/i);
+    fireEvent.click(
+      within(confirmDialog).getByRole('button', {
+        name: /Löschen|Delete/i,
+      }),
+    );
+
+    expect(deleteClass).toHaveBeenCalledWith('class-1');
   });
 
   it('requires confirmation before removing a single student', async () => {

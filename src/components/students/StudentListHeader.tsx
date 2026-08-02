@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { cardSurfaceClass } from '@/utils';
 
@@ -56,64 +57,134 @@ const COLUMNS: { key: string; label: string; full: string }[] = [
  *
  * Rendered as the first, sticky child inside the scroll container so it shares
  * the rows' content width (no scrollbar offset) and stays visible while
- * scrolling. Marked aria-hidden: every control below already carries its own
- * accessible name.
+ * scrolling.
+ *
+ * The select-all checkbox lives here, directly above the row checkboxes it
+ * controls. It is the one interactive element in this row, so the aria-hidden
+ * that silences the redundant column labels sits on those labels rather than
+ * on the row. Below `lg` the labels are dropped (the rows render as labelled
+ * chips there, so column headings would describe nothing) but the row itself
+ * stays, carrying just the checkbox.
  */
 type Props = {
   /**
-   * Mirrors the row's leading multi-select checkbox. Without the matching
-   * spacer the whole header would sit one checkbox (w-4 + gap-2) too far left.
+   * Multi-select state for the visible students. Omitting `onToggleAllVisible`
+   * hides the checkbox and its column, matching the rows.
    */
-  showSelection?: boolean;
+  allVisibleSelected?: boolean;
+  /** True while only part of the visible students are selected. */
+  someVisibleSelected?: boolean;
+  onToggleAllVisible?: () => void;
 };
 
-export default function StudentListHeader({ showSelection = false }: Props) {
+export default function StudentListHeader({
+  allVisibleSelected = false,
+  someVisibleSelected = false,
+  onToggleAllVisible,
+}: Props) {
   const { t } = useTranslation('students');
+  const showSelection = Boolean(onToggleAllVisible);
+  const selectAllRef = React.useRef<HTMLInputElement | null>(null);
+
+  React.useEffect(() => {
+    if (selectAllRef.current) {
+      selectAllRef.current.indeterminate =
+        !allVisibleSelected && someVisibleSelected;
+    }
+  }, [allVisibleSelected, someVisibleSelected]);
+
+  if (!showSelection) {
+    return <ColumnLabels />;
+  }
+
+  return (
+    <div
+      className={`${cardSurfaceClass} sticky top-0 z-10 flex items-center gap-2 bg-white! px-3 py-1.5 dark:bg-gray-950!`}
+    >
+      <input
+        ref={selectAllRef}
+        type="checkbox"
+        checked={allVisibleSelected}
+        onChange={onToggleAllVisible}
+        className="h-4 w-4 shrink-0 cursor-pointer accent-blue-600"
+        aria-label={t('listToolbar.selectAll', 'Alle auswählen')}
+      />
+      {/* Below `lg` the checkbox is the whole row: the chip-style rows there
+          have no columns for these labels to sit above. */}
+      <span className="text-xs text-gray-600 lg:hidden dark:text-gray-300">
+        {t('listToolbar.selectAll', 'Alle auswählen')}
+      </span>
+      <ColumnLabels inline />
+    </div>
+  );
+}
+
+/**
+ * The column captions themselves — aria-hidden throughout, since every control
+ * they sit above carries its own accessible name.
+ */
+function ColumnLabels({ inline = false }: { inline?: boolean }) {
+  const { t } = useTranslation('students');
+
+  const labels = (
+    <>
+      {/* Left labels mirror the row's leading cells: index number (min-w-6),
+          photo avatar (w-10) and the name editor, whose pill adds px-3. */}
+      <span className="min-w-6 shrink-0" aria-hidden="true" />
+      <span
+        title={t('listHeader.photoFull')}
+        className="w-10 shrink-0 text-center text-[10px] font-medium leading-tight tracking-tight text-gray-500 dark:text-gray-400"
+      >
+        {t('listHeader.photo')}
+      </span>
+      <span
+        title={t('listHeader.nameFull')}
+        className="shrink-0 pl-3 text-[10px] font-medium leading-tight tracking-tight text-gray-500 dark:text-gray-400"
+      >
+        {t('listHeader.name')}
+      </span>
+      <div className="flex flex-1 flex-wrap items-center justify-end gap-2">
+        {COLUMNS.map((column) => (
+          <span
+            key={column.key}
+            title={t(column.full)}
+            className="w-11 shrink-0 truncate text-center text-[10px] font-medium leading-tight tracking-tight text-gray-500 dark:text-gray-400"
+          >
+            {t(column.label)}
+          </span>
+        ))}
+        {/* Label for the delete (trash) column. Same fixed width as the other
+              column labels and as the row's delete button (min-w-11), so every
+              preceding label stays aligned over its icon. */}
+        <span
+          title={t('studentList.removeStudent')}
+          className="w-11 shrink-0 truncate text-center text-[10px] font-medium leading-tight tracking-tight text-gray-500 dark:text-gray-400"
+        >
+          {t('studentList.delete')}
+        </span>
+      </div>
+    </>
+  );
+
+  // Inline: the labels join the selection row that already provides the sticky
+  // surface. Standalone: they bring their own.
+  if (inline) {
+    return (
+      <div
+        className="hidden flex-1 items-center gap-2 lg:flex"
+        aria-hidden="true"
+      >
+        {labels}
+      </div>
+    );
+  }
 
   return (
     <div
       className={`${cardSurfaceClass} sticky top-0 z-10 hidden bg-white! px-3 py-1.5 lg:block dark:bg-gray-950!`}
       aria-hidden="true"
     >
-      <div className="flex items-center gap-2">
-        {/* Left labels mirror the row's leading cells: selection checkbox
-            (w-4), index number (min-w-6), photo avatar (w-10) and the name
-            editor, whose pill adds px-3 of its own. */}
-        {showSelection && <span className="w-4 shrink-0" aria-hidden="true" />}
-        <span className="min-w-6 shrink-0" aria-hidden="true" />
-        <span
-          title={t('listHeader.photoFull')}
-          className="w-10 shrink-0 text-center text-[10px] font-medium leading-tight tracking-tight text-gray-500 dark:text-gray-400"
-        >
-          {t('listHeader.photo')}
-        </span>
-        <span
-          title={t('listHeader.nameFull')}
-          className="shrink-0 pl-3 text-[10px] font-medium leading-tight tracking-tight text-gray-500 dark:text-gray-400"
-        >
-          {t('listHeader.name')}
-        </span>
-        <div className="flex flex-1 flex-wrap items-center justify-end gap-2">
-          {COLUMNS.map((column) => (
-            <span
-              key={column.key}
-              title={t(column.full)}
-              className="w-11 shrink-0 truncate text-center text-[10px] font-medium leading-tight tracking-tight text-gray-500 dark:text-gray-400"
-            >
-              {t(column.label)}
-            </span>
-          ))}
-          {/* Label for the delete (trash) column. Same fixed width as the other
-              column labels and as the row's delete button (min-w-11), so every
-              preceding label stays aligned over its icon. */}
-          <span
-            title={t('studentList.removeStudent')}
-            className="w-11 shrink-0 truncate text-center text-[10px] font-medium leading-tight tracking-tight text-gray-500 dark:text-gray-400"
-          >
-            {t('studentList.delete')}
-          </span>
-        </div>
-      </div>
+      <div className="flex items-center gap-2">{labels}</div>
     </div>
   );
 }

@@ -15,7 +15,6 @@ export type StudentInputProps = {
   ) => Student;
   addBulkPlaceholderStudents: (count: number) => Student[];
   removeStudent: (id: string) => void;
-  clearStudents: () => void;
   updateStudent: (id: string, patch: Partial<Student>) => void;
   importCsv: (file: File, mode?: NameColumnMode) => Promise<Student[]>;
   downloadStudentsCsv: () => void;

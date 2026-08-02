@@ -37,8 +37,7 @@ import NameColumnSelectionDialog from '@/components/students/NameColumnSelection
 import { useStudentListLayout } from '@/components/studentInput/hooks/useStudentListLayout';
 import { useStudentListView } from '@/components/studentInput/hooks/useStudentListView';
 import { useStudentSelection } from '@/components/studentInput/hooks/useStudentSelection';
-import StudentListToolbar from '@/components/studentInput/StudentListToolbar';
-import StudentBulkEditBar from '@/components/studentInput/StudentBulkEditBar';
+import StudentListToolsRow from '@/components/studentInput/StudentListToolsRow';
 import { useIsLgUp } from '@/hooks/ui/useIsLgUp';
 import { useCsvImportWithDialog } from '@/hooks/csv/useCsvImportWithDialog';
 
@@ -64,7 +63,6 @@ function StudentInput({
   addStudent,
   addBulkPlaceholderStudents,
   removeStudent,
-  clearStudents,
   updateStudent,
   importCsv,
   downloadStudentsCsv,
@@ -72,7 +70,6 @@ function StudentInput({
 }: StudentInputProps) {
   const { t } = useTranslation('students');
   const navigate = useLocalizedNavigate();
-  const [clearConfirmOpen, setClearConfirmOpen] = useState(false);
   const [pendingRemoval, setPendingRemoval] = useState<{
     id: string;
     name: string;
@@ -132,7 +129,6 @@ function StudentInput({
     name && name.trim().length > 0
       ? `„${name.trim()}"`
       : t('studentInput.yourClass', 'deine Klasse');
-  const classDisplayName = formatClassName(activeClass.name);
 
   // CSV import handler
   const handleCsvImport = useCallback(
@@ -307,7 +303,6 @@ function StudentInput({
         createClass={createClass}
         updateClassMetadata={updateClassMetadata}
         deleteClass={deleteClass}
-        onClearStudents={() => setClearConfirmOpen(true)}
         studentCount={students.length}
         placeholderCount={placeholderCount}
         onPlaceholderCountChange={setPlaceholderCount}
@@ -319,7 +314,18 @@ function StudentInput({
         onImportCsv={analyzeCsvFile}
         onExportCsv={downloadStudentsCsv}
         onImportBackup={triggerImport}
-      />
+      >
+        {showListTools && (
+          <StudentListToolsRow
+            listView={listView}
+            selection={selection}
+            selectedStudents={selectedStudents}
+            totalCount={students.length}
+            onBulkApply={handleBulkApply}
+            onDeleteSelected={() => setBulkDeleteOpen(true)}
+          />
+        )}
+      </ClassActionsPanel>
       {!hasActiveClass ? null : (
         <>
           {students.length === 0 && (
@@ -379,32 +385,6 @@ function StudentInput({
             updateStudent={updateStudent}
           />
 
-          {showListTools && (
-            <StudentListToolbar
-              query={listView.query}
-              onQueryChange={listView.setQuery}
-              sortMode={listView.sortMode}
-              onSortModeChange={listView.setSortMode}
-              filterMode={listView.filterMode}
-              onFilterModeChange={listView.setFilterMode}
-              visibleCount={listView.visibleStudents.length}
-              totalCount={students.length}
-              isNarrowed={listView.isNarrowed}
-              onClear={listView.clear}
-              allVisibleSelected={selection.allVisibleSelected}
-              onToggleAllVisible={selection.toggleAllVisible}
-            />
-          )}
-
-          {showListTools && selection.selectedCount > 0 && (
-            <StudentBulkEditBar
-              selectedStudents={selectedStudents}
-              onApply={handleBulkApply}
-              onDeleteSelected={() => setBulkDeleteOpen(true)}
-              onClearSelection={selection.clear}
-            />
-          )}
-
           {showListTools && listView.visibleStudents.length === 0 ? (
             <p className="px-1 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
               {t(
@@ -425,6 +405,9 @@ function StudentInput({
               onScrollCollapse={handleListScrollCollapse}
               isSelected={showListTools ? selection.isSelected : undefined}
               onToggleSelected={showListTools ? selection.toggle : undefined}
+              allVisibleSelected={selection.allVisibleSelected}
+              someVisibleSelected={selection.selectedCount > 0}
+              onToggleAllVisible={selection.toggleAllVisible}
             />
           )}
         </>
@@ -508,24 +491,6 @@ function StudentInput({
         cancelLabel={t('common.cancel', 'Abbrechen')}
         onConfirm={handleBulkDelete}
         onCancel={() => setBulkDeleteOpen(false)}
-      />
-      <ConfirmDialog
-        open={clearConfirmOpen}
-        title={t('studentInput.clearAllTitle', 'Alle Schüler entfernen')}
-        message={t('studentInput.clearAllMessage', {
-          className: classDisplayName,
-          defaultValue: `Möchtest du wirklich alle Schüler aus ${classDisplayName} entfernen? Diese Aktion kann nicht rückgängig gemacht werden.`,
-        })}
-        confirmLabel={t(
-          'classManagement.clearStudents',
-          'Alle Schüler entfernen',
-        )}
-        cancelLabel={t('common.cancel', 'Abbrechen')}
-        onConfirm={() => {
-          clearStudents();
-          setClearConfirmOpen(false);
-        }}
-        onCancel={() => setClearConfirmOpen(false)}
       />
       {importState.nameInfo && (
         <NameColumnSelectionDialog

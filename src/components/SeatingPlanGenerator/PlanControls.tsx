@@ -45,7 +45,6 @@ export default function PlanControls() {
     addStudent,
     addBulkPlaceholderStudents,
     removeStudent,
-    clearStudents,
     updateStudent,
     importCsv,
     downloadStudentsCsv,
@@ -173,7 +172,6 @@ export default function PlanControls() {
               addStudent={addStudent}
               addBulkPlaceholderStudents={addBulkPlaceholderStudents}
               removeStudent={removeStudent}
-              clearStudents={clearStudents}
               updateStudent={updateStudent}
               importCsv={importCsv}
               downloadStudentsCsv={downloadStudentsCsv}

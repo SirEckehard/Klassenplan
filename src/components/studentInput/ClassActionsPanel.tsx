@@ -21,7 +21,6 @@ type ClassActionsPanelProps = {
   createClass: ClassManagementContextValue['createClass'];
   updateClassMetadata: ClassManagementContextValue['updateClassMetadata'];
   deleteClass: ClassManagementContextValue['deleteClass'];
-  onClearStudents: () => void;
   onImportBackup?: () => void;
   children?: React.ReactNode;
   studentCount: number;
@@ -50,7 +49,6 @@ const ClassActionsPanel = ({
   createClass,
   updateClassMetadata,
   deleteClass,
-  onClearStudents,
   onImportBackup,
   children,
   studentCount,
@@ -72,7 +70,11 @@ const ClassActionsPanel = ({
     classId?: string | null;
     initialValues: ClassMetadataFormValues;
   } | null>(null);
-  const [classDeleteConfirmOpen, setClassDeleteConfirmOpen] = useState(false);
+  // The dropdown offers delete per class row, so the pending target is an id —
+  // not implicitly "the active one".
+  const [classDeleteTarget, setClassDeleteTarget] = useState<string | null>(
+    null,
+  );
 
   const runClassAction = useCallback(
     async (action: ClassAction, handler: () => Promise<boolean>) => {
@@ -154,27 +156,30 @@ const ClassActionsPanel = ({
   );
 
   const handleDeleteClassConfirmed = useCallback(async () => {
-    if (!activeClass.id) {
-      setClassDeleteConfirmOpen(false);
+    if (!classDeleteTarget) {
+      setClassDeleteTarget(null);
       return;
     }
     const success = await runClassAction('delete', () =>
-      deleteClass(activeClass.id as string),
+      deleteClass(classDeleteTarget),
     );
     if (success) {
-      setClassDeleteConfirmOpen(false);
+      setClassDeleteTarget(null);
     }
-  }, [activeClass.id, deleteClass, runClassAction]);
+  }, [classDeleteTarget, deleteClass, runClassAction]);
 
   const classMetadataInitialValues: ClassMetadataFormValues =
     classDialogState?.initialValues ?? defaultMetadataValues;
 
   const classDeleteLabel = useMemo(() => {
-    const className = activeClass.name?.trim();
+    const target =
+      classSummaries.find((entry) => entry.id === classDeleteTarget) ??
+      (classDeleteTarget === activeClass.id ? activeClass : null);
+    const className = target?.name?.trim();
     return className
       ? `„${className}"`
       : t('classActions.deleteDialog.fallbackName');
-  }, [activeClass.name, t]);
+  }, [classDeleteTarget, classSummaries, activeClass, t]);
 
   return (
     <>
@@ -186,8 +191,7 @@ const ClassActionsPanel = ({
           onSelectClass={handleClassSelect}
           onCreateClass={openCreateDialog}
           onEditClass={openEditDialog}
-          onClearStudents={onClearStudents}
-          onDeleteClass={() => setClassDeleteConfirmOpen(true)}
+          onDeleteClass={setClassDeleteTarget}
           studentCount={studentCount}
           placeholderCount={placeholderCount}
           onPlaceholderCountChange={onPlaceholderCountChange}
@@ -281,7 +285,7 @@ const ClassActionsPanel = ({
         onSubmit={handleMetadataSubmit}
       />
       <ConfirmDialog
-        open={classDeleteConfirmOpen}
+        open={classDeleteTarget !== null}
         title={t('classActions.deleteDialog.title')}
         message={t('classActions.deleteDialog.message', {
           className: classDeleteLabel,
@@ -289,7 +293,7 @@ const ClassActionsPanel = ({
         confirmLabel={t('classActions.deleteDialog.confirmLabel')}
         cancelLabel={t('classActions.deleteDialog.cancelLabel')}
         onConfirm={handleDeleteClassConfirmed}
-        onCancel={() => setClassDeleteConfirmOpen(false)}
+        onCancel={() => setClassDeleteTarget(null)}
       />
     </>
   );

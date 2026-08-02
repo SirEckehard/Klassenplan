@@ -31,6 +31,10 @@ type StudentListProps = {
   /** Multi-select for bulk edits; omitted hides the row checkboxes. */
   isSelected?: (studentId: string) => boolean;
   onToggleSelected?: (studentId: string) => void;
+  /** Select-all for the sticky header, above the row checkboxes it controls. */
+  allVisibleSelected?: boolean;
+  someVisibleSelected?: boolean;
+  onToggleAllVisible?: () => void;
 };
 
 const StudentList = ({
@@ -45,6 +49,9 @@ const StudentList = ({
   onScrollCollapse,
   isSelected,
   onToggleSelected,
+  allVisibleSelected,
+  someVisibleSelected,
+  onToggleAllVisible,
 }: StudentListProps) => {
   const parentRef = useRef<HTMLDivElement>(null);
   const classRoster = allStudents ?? students;
@@ -102,7 +109,13 @@ const StudentList = ({
           style={maxHeight ? { maxHeight: `${maxHeight}px` } : undefined}
           onScroll={onScrollCollapse}
         >
-          <StudentListHeader showSelection={Boolean(onToggleSelected)} />
+          <StudentListHeader
+            allVisibleSelected={allVisibleSelected}
+            someVisibleSelected={someVisibleSelected}
+            onToggleAllVisible={
+              onToggleSelected ? onToggleAllVisible : undefined
+            }
+          />
           {students.map((student, index) => (
             <StudentRow
               key={student.id}
@@ -135,7 +148,11 @@ const StudentList = ({
         }}
         onScroll={onScrollCollapse}
       >
-        <StudentListHeader showSelection={Boolean(onToggleSelected)} />
+        <StudentListHeader
+          allVisibleSelected={allVisibleSelected}
+          someVisibleSelected={someVisibleSelected}
+          onToggleAllVisible={onToggleSelected ? onToggleAllVisible : undefined}
+        />
         <div
           style={{
             height: `${virtualizer.getTotalSize()}px`,

@@ -23,7 +23,6 @@ import type {
   Student,
 } from '@/types';
 import {
-  cardSurfaceClass,
   dangerButtonClass,
   quietIconButtonClass,
   selectFieldClass,
@@ -91,6 +90,11 @@ interface StudentBulkEditBarProps {
   onApply: (patch: Partial<Student>) => void;
   onDeleteSelected: () => void;
   onClearSelection: () => void;
+  /**
+   * Search/filter/sort, collapsed into a popover trigger by the workbench —
+   * this row takes over the line they would otherwise occupy.
+   */
+  filterSlot?: React.ReactNode;
 }
 
 /**
@@ -100,12 +104,17 @@ interface StudentBulkEditBarProps {
  * time is the single most tedious part of preparing a class — this applies it
  * to the whole selection in one step. `__clear__` writes `undefined`, so a
  * mistakenly set attribute can be taken back the same way it was applied.
+ *
+ * Renders bare: the surrounding card, tint and landmark belong to
+ * `StudentListToolsRow`, which swaps this row in for the browse toolbar so
+ * selecting students costs no extra height.
  */
 export default function StudentBulkEditBar({
   selectedStudents,
   onApply,
   onDeleteSelected,
   onClearSelection,
+  filterSlot,
 }: StudentBulkEditBarProps) {
   const { t } = useTranslation('students');
   const CLEAR_VALUE = '__clear__';
@@ -176,11 +185,7 @@ export default function StudentBulkEditBar({
   );
 
   return (
-    <div
-      role="region"
-      aria-label={t('bulkEdit.regionLabel', 'Mehrfachbearbeitung')}
-      className={`${cardSurfaceClass} flex flex-wrap items-center gap-2 border border-blue-200 bg-blue-50/80 px-3 py-2 dark:border-blue-900/50 dark:bg-blue-950/40`}
-    >
+    <div className="flex w-full flex-wrap items-center gap-2">
       <span className="text-sm font-semibold text-blue-900 dark:text-blue-100">
         {t('bulkEdit.selectedCount', {
           count: selectedCount,
@@ -198,6 +203,14 @@ export default function StudentBulkEditBar({
       >
         <XIcon size={16} aria-hidden />
       </button>
+
+      {filterSlot && (
+        <>
+          <div className="h-6 w-px bg-blue-200 dark:bg-blue-900/60" />
+          {filterSlot}
+          <div className="h-6 w-px bg-blue-200 dark:bg-blue-900/60" />
+        </>
+      )}
 
       {renderSelect(
         'gender',
@@ -235,7 +248,7 @@ export default function StudentBulkEditBar({
       <div
         role="group"
         aria-label={t('bulkEdit.setFlag', 'Merkmal setzen')}
-        className="flex flex-wrap items-center gap-1"
+        className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-1"
       >
         {BULK_FLAGS.map((flag: BulkFlag) => {
           const state = flagStates[flag];
@@ -280,11 +293,16 @@ export default function StudentBulkEditBar({
         Icon-only: the German labels ("Entfernen", "Auswahl aufheben") pushed
         the bar onto a second line on a 14" screen. Both actions are reversible
         or confirmed, and carry their wording in the tooltip and accessible name.
+
+        No `ml-auto` here: with a wrapping row that pushes this button onto a
+        line of its own as soon as the chips fill the first one. The chip group
+        above claims the free space instead, so this stays beside them and the
+        chips wrap among themselves when it gets tight.
       */}
       <button
         type="button"
         onClick={onDeleteSelected}
-        className={`${dangerButtonClass} ml-auto h-9 w-9 p-0!`}
+        className={`${dangerButtonClass} h-9 w-9 p-0!`}
         aria-label={t('bulkEdit.deleteSelected', 'Entfernen')}
         title={t('bulkEdit.deleteSelected', 'Entfernen')}
       >

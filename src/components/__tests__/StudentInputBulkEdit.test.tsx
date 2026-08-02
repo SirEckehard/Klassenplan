@@ -23,7 +23,8 @@ import { STUDENT_LIST_TOOLS_THRESHOLD } from '@/utils';
 /**
  * The list itself is replaced by a checkbox-per-student stand-in: what is under
  * test here is the wiring in StudentInput (search → visible rows → selection →
- * bulk edit), not how a row renders.
+ * bulk edit), not how a row renders. The leading select-all mirrors the real
+ * list's sticky header, which owns it.
  */
 vi.mock('@/components/studentInput/StudentList', () => ({
   __esModule: true,
@@ -31,29 +32,45 @@ vi.mock('@/components/studentInput/StudentList', () => ({
     students,
     isSelected,
     onToggleSelected,
+    allVisibleSelected,
+    onToggleAllVisible,
   }: {
     students: Array<{ id: string; name: string }>;
     isSelected?: (id: string) => boolean;
     onToggleSelected?: (id: string) => void;
+    allVisibleSelected?: boolean;
+    onToggleAllVisible?: () => void;
   }) => (
-    <ul data-testid="mock-student-list">
-      {students.map((student) => (
-        <li key={student.id}>
-          {onToggleSelected ? (
-            <label>
-              <input
-                type="checkbox"
-                checked={Boolean(isSelected?.(student.id))}
-                onChange={() => onToggleSelected(student.id)}
-              />
-              {student.name}
-            </label>
-          ) : (
-            student.name
-          )}
-        </li>
-      ))}
-    </ul>
+    <div>
+      {onToggleSelected && onToggleAllVisible && (
+        <label>
+          <input
+            type="checkbox"
+            checked={Boolean(allVisibleSelected)}
+            onChange={onToggleAllVisible}
+          />
+          Alle auswählen
+        </label>
+      )}
+      <ul data-testid="mock-student-list">
+        {students.map((student) => (
+          <li key={student.id}>
+            {onToggleSelected ? (
+              <label>
+                <input
+                  type="checkbox"
+                  checked={Boolean(isSelected?.(student.id))}
+                  onChange={() => onToggleSelected(student.id)}
+                />
+                {student.name}
+              </label>
+            ) : (
+              student.name
+            )}
+          </li>
+        ))}
+      </ul>
+    </div>
   ),
 }));
 
@@ -156,7 +173,7 @@ describe('StudentInput list tools', () => {
     const user = userEvent.setup();
 
     const checkboxes = screen.getAllByRole('checkbox');
-    // First checkbox is the toolbar's select-all.
+    // First checkbox is the list header's select-all.
     await user.click(checkboxes[1]);
     await user.click(checkboxes[2]);
 
@@ -271,15 +288,31 @@ describe('StudentInput list tools', () => {
     expect(bulkBar()).not.toBeInTheDocument();
   });
 
-  it('leaves Escape to the search field while it has focus', async () => {
+  it('leaves Escape to the filter popover instead of dropping the selection', async () => {
     renderInput();
     const user = userEvent.setup();
 
     await user.click(screen.getAllByRole('checkbox')[1]);
-    await user.click(screen.getByRole('searchbox', { name: /suchen|search/i }));
+    // While students are selected, search/filter/sort sit behind the popover
+    // the bulk row collapses them into.
+    await user.click(
+      screen.getByRole('button', {
+        name: /Suche und Filter|Search and filter/i,
+      }),
+    );
+    // The popover is a portal that stays `visibility: hidden` until it has
+    // measured itself, so it only enters the a11y tree a frame later.
+    await user.click(
+      await screen.findByRole('searchbox', { name: /suchen|search/i }),
+    );
 
     await user.keyboard('{Escape}');
 
+    expect(
+      screen.queryByRole('dialog', {
+        name: /Suche und Filter|Search and filter/i,
+      }),
+    ).not.toBeInTheDocument();
     expect(bulkBar()).toBeInTheDocument();
   });
 
