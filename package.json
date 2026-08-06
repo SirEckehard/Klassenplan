@@ -22,7 +22,7 @@
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-i18next": "^17.0.1",
-    "react-router-dom": "^7.8.0",
+    "react-router-dom": "^7.18.2",
     "web-vitals": "^6.0.0",
     "xstate": "^5.24.0",
     "zustand": "^5.0.8"
@@ -104,8 +104,8 @@
   },
   "allowScripts": {
     "unrs-resolver@1.12.2": true,
-    "core-js@3.49.0": true,
     "fsevents@2.3.2": true,
-    "fsevents@2.3.3": true
+    "fsevents@2.3.3": true,
+    "core-js@3.50.0": true
   }
 }
