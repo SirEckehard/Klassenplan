@@ -30,6 +30,11 @@ export const genderButtonTokens = {
 
 export const specialNeedsButtonTokens = {
   compactBaseClass: `${mutedIconButtonClass} flex min-h-11 min-w-11 shrink-0 items-center justify-center px-3 text-xs font-semibold`,
+  // Bulk bar only: eight of these sit in a single row that has to fit a 1280px
+  // layout, so they drop to 36px where a mouse points at them and keep the
+  // 44px touch target where a finger does. No `px-3` — with an icon-only chip
+  // the padding, not `min-w`, would decide the width.
+  bulkBaseClass: `${mutedIconButtonClass} flex min-h-9 min-w-9 shrink-0 items-center justify-center text-xs font-semibold pointer-coarse:min-h-11 pointer-coarse:min-w-11`,
   detailedBaseClass: `${mutedIconButtonClass} flex min-h-11 w-full items-center justify-start gap-2 px-3 pr-9 py-2 text-xs font-semibold leading-4`,
   activeStateClass:
     'border-amber-600! bg-amber-300! text-amber-600! dark:border-amber-300! dark:bg-amber-300/20! dark:text-amber-300!',

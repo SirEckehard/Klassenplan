@@ -22,12 +22,9 @@ import type {
   SocialRole,
   Student,
 } from '@/types';
-import {
-  dangerButtonClass,
-  quietIconButtonClass,
-  selectFieldClass,
-} from '@/utils';
+import { dangerButtonClass, quietIconButtonClass } from '@/utils';
 import { specialNeedsButtonTokens } from '@/components/students/studentStyleTokens';
+import BulkAttributeMenu from '@/components/studentInput/BulkAttributeMenu';
 
 /**
  * Attribute flags that can be set or cleared for a whole selection, in the
@@ -117,15 +114,11 @@ export default function StudentBulkEditBar({
   filterSlot,
 }: StudentBulkEditBarProps) {
   const { t } = useTranslation('students');
-  const CLEAR_VALUE = '__clear__';
   const selectedCount = selectedStudents.length;
 
-  const applyChoice = React.useCallback(
-    <K extends keyof Student>(field: K, raw: string) => {
-      if (!raw) return;
-      onApply({
-        [field]: raw === CLEAR_VALUE ? undefined : raw,
-      } as Partial<Student>);
+  const applyValue = React.useCallback(
+    (field: keyof Student, value: string | null) => {
+      onApply({ [field]: value ?? undefined } as Partial<Student>);
     },
     [onApply],
   );
@@ -149,39 +142,24 @@ export default function StudentBulkEditBar({
     return states;
   }, [selectedStudents]);
 
-  // The closed select shows the bare attribute ("Geschlecht"); the accessible
+  // The closed trigger shows the bare attribute ("Geschlecht"); the accessible
   // name keeps the verb ("Geschlecht setzen"). Spelling out "setzen" four times
   // pushed the bar onto a second line without telling anyone anything new.
-  const renderSelect = <T extends string>(
+  const renderMenu = <T extends string>(
     id: string,
     label: string,
-    placeholder: string,
+    triggerLabel: string,
     values: T[],
     translate: (value: T) => string,
     field: keyof Student,
   ) => (
-    <label key={id} className="flex items-center gap-2">
-      <span className="sr-only">{label}</span>
-      <select
-        value=""
-        onChange={(event) => {
-          applyChoice(field, event.target.value);
-          event.target.value = '';
-        }}
-        className={`${selectFieldClass} w-auto`}
-        title={label}
-      >
-        <option value="">{placeholder}</option>
-        {values.map((value) => (
-          <option key={value} value={value}>
-            {translate(value)}
-          </option>
-        ))}
-        <option value={CLEAR_VALUE}>
-          {t('bulkEdit.clearValue', '— entfernen —')}
-        </option>
-      </select>
-    </label>
+    <BulkAttributeMenu
+      key={id}
+      label={triggerLabel}
+      actionLabel={label}
+      options={values.map((value) => ({ value, label: translate(value) }))}
+      onSelect={(value) => applyValue(field, value)}
+    />
   );
 
   return (
@@ -212,7 +190,7 @@ export default function StudentBulkEditBar({
         </>
       )}
 
-      {renderSelect(
+      {renderMenu(
         'gender',
         t('bulkEdit.setGender', 'Geschlecht setzen'),
         t('gender.title', 'Geschlecht'),
@@ -220,7 +198,7 @@ export default function StudentBulkEditBar({
         (value) => t(`gender.${value}`),
         'gender',
       )}
-      {renderSelect(
+      {renderMenu(
         'height',
         t('bulkEdit.setHeight', 'Körpergröße setzen'),
         t('height.title', 'Körpergröße'),
@@ -228,7 +206,7 @@ export default function StudentBulkEditBar({
         (value) => t(`height.${value}`),
         'height',
       )}
-      {renderSelect(
+      {renderMenu(
         'language',
         t('bulkEdit.setLanguage', 'Sprachniveau setzen'),
         t('languageSkill.title', 'Sprachniveau'),
@@ -236,7 +214,7 @@ export default function StudentBulkEditBar({
         (value) => t(`languageSkill.${value}`),
         'languageSkill',
       )}
-      {renderSelect(
+      {renderMenu(
         'role',
         t('bulkEdit.setRole', 'Soziale Rolle setzen'),
         t('socialRole.title', 'Soziale Rolle'),
@@ -245,10 +223,16 @@ export default function StudentBulkEditBar({
         'socialRole',
       )}
 
+      {/*
+        `min-w-max` + `flex-nowrap` + `shrink-0`: the eight chips are one visual
+        unit and must never break 7/1 across two lines. If the row is too narrow
+        the whole group moves down instead — `grow` keeps it claiming the free
+        space so the delete button stays beside it.
+      */}
       <div
         role="group"
         aria-label={t('bulkEdit.setFlag', 'Merkmal setzen')}
-        className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-1"
+        className="flex min-w-max shrink-0 grow flex-nowrap items-center justify-end gap-1"
       >
         {BULK_FLAGS.map((flag: BulkFlag) => {
           const state = flagStates[flag];
@@ -263,7 +247,7 @@ export default function StudentBulkEditBar({
             <button
               key={flag}
               type="button"
-              className={`${specialNeedsButtonTokens.compactBaseClass} ${
+              className={`${specialNeedsButtonTokens.bulkBaseClass} ${
                 state === 'on'
                   ? specialNeedsButtonTokens.activeStateClass
                   : state === 'mixed'
@@ -296,8 +280,8 @@ export default function StudentBulkEditBar({
 
         No `ml-auto` here: with a wrapping row that pushes this button onto a
         line of its own as soon as the chips fill the first one. The chip group
-        above claims the free space instead, so this stays beside them and the
-        chips wrap among themselves when it gets tight.
+        above claims the free space instead, so this stays beside them — and if
+        the row ever does run out, the two travel to the next line together.
       */}
       <button
         type="button"

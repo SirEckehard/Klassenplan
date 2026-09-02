@@ -177,11 +177,14 @@ describe('StudentInput list tools', () => {
     await user.click(checkboxes[1]);
     await user.click(checkboxes[2]);
 
-    await user.selectOptions(
-      screen.getByRole('combobox', {
+    await user.click(
+      screen.getByRole('button', {
         name: /Sprachniveau setzen|Set language level/i,
       }),
-      'fluent',
+    );
+    // The menu is a portal that only enters the a11y tree once positioned.
+    await user.click(
+      await screen.findByRole('menuitem', { name: /Fließend|Fluent/i }),
     );
 
     expect(updateStudent).toHaveBeenCalledTimes(2);
@@ -191,6 +194,59 @@ describe('StudentInput list tools', () => {
     expect(updateStudent).toHaveBeenCalledWith('2', {
       languageSkill: 'fluent',
     });
+  });
+
+  it('clears an attribute for the whole selection', async () => {
+    const updateStudent = vi.fn();
+    renderInput({ updateStudent });
+    const user = userEvent.setup();
+
+    await user.click(screen.getAllByRole('checkbox')[1]);
+    await user.click(
+      screen.getByRole('button', { name: /Geschlecht setzen|Set gender/i }),
+    );
+    await user.click(
+      await screen.findByRole('menuitem', { name: /entfernen|clear/i }),
+    );
+
+    expect(updateStudent).toHaveBeenCalledWith('1', { gender: undefined });
+  });
+
+  it('opens an attribute menu from the keyboard and lands on its first entry', async () => {
+    renderInput();
+    const user = userEvent.setup();
+
+    await user.click(screen.getAllByRole('checkbox')[1]);
+    screen
+      .getByRole('button', { name: /Geschlecht setzen|Set gender/i })
+      .focus();
+    await user.keyboard('{ArrowDown}');
+
+    const items = await screen.findAllByRole('menuitem');
+    expect(items[0]).toHaveFocus();
+
+    await user.keyboard('{ArrowDown}');
+    expect(items[1]).toHaveFocus();
+  });
+
+  it('leaves Escape to an open attribute menu instead of dropping the selection', async () => {
+    renderInput();
+    const user = userEvent.setup();
+
+    await user.click(screen.getAllByRole('checkbox')[1]);
+    const trigger = screen.getByRole('button', {
+      name: /Geschlecht setzen|Set gender/i,
+    });
+    await user.click(trigger);
+    await screen.findByRole('menu', {
+      name: /Geschlecht setzen|Set gender/i,
+    });
+
+    await user.keyboard('{Escape}');
+
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+    expect(bulkBar()).toBeInTheDocument();
+    expect(trigger).toHaveFocus();
   });
 
   it('select-all only covers the students the search left visible', async () => {

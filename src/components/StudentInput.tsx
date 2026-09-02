@@ -225,9 +225,10 @@ function StudentInput({
   );
 
   // Escape drops the selection, the way it dismisses any other transient state.
-  // An open dialog owns the key though (Modal closes on Escape as well), so the
-  // shortcut stands down instead of quietly clearing the selection behind it —
-  // cancelling a dialog must leave the selection intact.
+  // An open dialog or menu owns the key though (Modal closes on Escape as well,
+  // and so do the bulk bar's attribute menus), so the shortcut stands down
+  // instead of quietly clearing the selection behind it — cancelling an overlay
+  // must leave the selection intact.
   //
   // This has to listen during the capture phase: a dialog's own Escape handler
   // is a bubble listener, and React commits its close between two listeners of
@@ -242,7 +243,7 @@ function StudentInput({
       condition: () =>
         selection.selectedCount > 0 &&
         escapeIsUnclaimed() &&
-        document.querySelector('[role="dialog"]') === null,
+        document.querySelector('[role="dialog"], [role="menu"]') === null,
     },
   );
 
