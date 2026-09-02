@@ -195,6 +195,13 @@ export default function Export() {
     'export.showLegend',
     false,
   );
+  // Table export only: rotates the classroom 180° with upright names, for a
+  // sheet that is read from the opposite side of the room (e.g. a teacher's
+  // desk at the back) without turning the page and its header upside down.
+  const [flipView, setFlipView] = usePersistentState<boolean>(
+    'export.flipView',
+    false,
+  );
 
   const classMetadataForExport = useMemo(() => {
     if (!showClassInfo) {
@@ -239,6 +246,10 @@ export default function Export() {
   const handleToggleLegend = useCallback(
     (checked: boolean) => setShowLegend(() => checked),
     [setShowLegend],
+  );
+  const handleToggleFlipView = useCallback(
+    (checked: boolean) => setFlipView(() => checked),
+    [setFlipView],
   );
 
   useEffect(() => {
@@ -626,6 +637,7 @@ export default function Export() {
           featureVisibility: effectiveVisibility,
           lockSeatLabelOrientation: true,
           orientation: tableOrientation,
+          flipped: flipView,
           showFullNames,
           photoDisplayMode: showPhotos ? 'all' : 'off',
           showLegend,
@@ -666,6 +678,7 @@ export default function Export() {
     showConnections,
     circleOrientation,
     tableOrientation,
+    flipView,
     showFullNames,
     showPhotos,
     showLegend,
@@ -801,6 +814,7 @@ export default function Export() {
         showPhotos,
         showLegend,
         orientation: tableOrientation,
+        flipped: flipView,
         classMetadata: classMetadataForExport,
       });
     } catch (error) {
@@ -823,6 +837,7 @@ export default function Export() {
     showPhotos,
     showLegend,
     tableOrientation,
+    flipView,
     classMetadataForExport,
     exportError,
     t,
@@ -1003,6 +1018,10 @@ export default function Export() {
                       )}
                     </li>
                     <li>
+                      {/* New keys carry no inline default (see CLAUDE.md). */}
+                      {t('help.export.itemFlip')}
+                    </li>
+                    <li>
                       {t(
                         'help.export.item3',
                         'Wähle zwischen den verschiedenen Ansichtsoptionen: Tafel, Bedürfnisse und Namen vollständig anzeigen.',
@@ -1055,6 +1074,9 @@ export default function Export() {
               onTitleChange={setTitle}
               tableOrientation={tableOrientation}
               onTableOrientationChange={setTableOrientation}
+              showViewDirection={previewMode === 'table'}
+              flipView={flipView}
+              onFlipViewChange={handleToggleFlipView}
               circleOrientation={circleOrientation}
               onCircleOrientationChange={setCircleOrientation}
               onPrint={handlePrint}

@@ -30,6 +30,13 @@ type SceneSvgProps = {
   lockSeatLabelOrientation?: boolean;
   seatLabelRotation?: number;
   orientation?: 'landscape' | 'portrait';
+  /**
+   * Rotates the classroom a further 180° while seat labels, photos and badges
+   * counter-rotate and stay upright. For plans read from the opposite side of
+   * the room (e.g. a teacher's desk at the back), so the sheet can be laid down
+   * in the real viewing direction without turning the page — and its header.
+   */
+  flipped?: boolean;
   showFullNames?: boolean;
   /** Photo display on the seat dots for the export: 'all' shows them, 'off' hides. */
   photoDisplayMode?: 'all' | 'off';
@@ -49,6 +56,7 @@ export default function SceneSvg({
   lockSeatLabelOrientation = true,
   seatLabelRotation = 0,
   orientation = 'portrait',
+  flipped = false,
   showFullNames = false,
   photoDisplayMode = 'all',
   showLegend = false,
@@ -153,8 +161,21 @@ export default function SceneSvg({
   const metadataStartY = headerTitleY + (isPortrait ? 8 : 20);
   const metadataFontSize = isPortrait ? 6 : 12;
 
-  // Portrait mode: Rotate classroom +90 degrees (Tafel nach unten)
-  const classroomRotation = isPortrait ? 90 : 0;
+  // Portrait mode: Rotate classroom +90 degrees (Tafel nach unten). The flip
+  // adds a further 180°, which never swaps the bounding box, so scale and
+  // offsets above stay valid for every one of the four rotations.
+  const classroomRotation = ((isPortrait ? 90 : 0) + (flipped ? 180 : 0)) % 360;
+
+  // Rotation pivot: the centre of the placed classroom. In portrait the offsets
+  // already are that centre; in landscape they address its top-left corner.
+  const pivotX = isPortrait ? offsetX : offsetX + (CLASSROOM_WIDTH * scale) / 2;
+  const pivotY = isPortrait
+    ? offsetY
+    : offsetY + (CLASSROOM_HEIGHT * scale) / 2;
+  const classroomTransform =
+    `translate(${pivotX} ${pivotY}) rotate(${classroomRotation}) ` +
+    `translate(${(-CLASSROOM_WIDTH * scale) / 2} ${(-CLASSROOM_HEIGHT * scale) / 2}) ` +
+    `scale(${scale})`;
   const features = React.useMemo(() => scene.features ?? [], [scene.features]);
   const featureViewModels = React.useMemo(
     () =>
@@ -248,13 +269,7 @@ export default function SceneSvg({
             {line}
           </text>
         ))}
-      <g
-        transform={
-          isPortrait
-            ? `translate(${offsetX} ${offsetY}) rotate(${classroomRotation}) translate(${(-CLASSROOM_WIDTH * scale) / 2} ${(-CLASSROOM_HEIGHT * scale) / 2}) scale(${scale})`
-            : `translate(${offsetX} ${offsetY}) scale(${scale})`
-        }
-      >
+      <g transform={classroomTransform}>
         <rect
           width={CLASSROOM_WIDTH}
           height={CLASSROOM_HEIGHT}
@@ -283,11 +298,7 @@ export default function SceneSvg({
             showSpecialNeeds={showSpecialNeeds}
             isDark={false}
             lockSeatLabelOrientation={lockSeatLabelOrientation}
-            seatLabelRotation={
-              isPortrait
-                ? seatLabelRotation - classroomRotation
-                : seatLabelRotation
-            }
+            seatLabelRotation={seatLabelRotation - classroomRotation}
             showFullNames={showFullNames}
             photoDisplayMode={photoDisplayMode}
           />

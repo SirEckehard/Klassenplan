@@ -2,7 +2,8 @@
 // Copyright (C) 2026 Eike Schäfer
 import { describe, expect, it } from 'vitest';
 import { renderSceneSvg } from '@/services/export/sceneRenderer';
-import type { ClassroomScene } from '@/types';
+import { createMockStudent } from '@/__tests__/utils';
+import type { ClassroomScene, SeatingArrangement } from '@/types';
 
 const scene: ClassroomScene = {
   tables: [
@@ -52,5 +53,52 @@ describe('renderSceneSvg', () => {
       featureVisibility: { podium: false },
     });
     expect(svg).not.toContain('data-feature-id="podium-1"');
+  });
+
+  describe('flipped viewing direction', () => {
+    it('leaves the landscape export unrotated by default', async () => {
+      const svg = await renderSceneSvg(scene, [], 'Test', {
+        orientation: 'landscape',
+      });
+
+      expect(svg).toContain('rotate(0)');
+      expect(svg).not.toContain('rotate(180)');
+    });
+
+    it('rotates the landscape classroom by 180 degrees when flipped', async () => {
+      const svg = await renderSceneSvg(scene, [], 'Test', {
+        orientation: 'landscape',
+        flipped: true,
+      });
+
+      expect(svg).toContain('rotate(180)');
+    });
+
+    it('turns the portrait rotation from 90 into 270 degrees when flipped', async () => {
+      const upright = await renderSceneSvg(scene, [], 'Test', {
+        orientation: 'portrait',
+      });
+      const flipped = await renderSceneSvg(scene, [], 'Test', {
+        orientation: 'portrait',
+        flipped: true,
+      });
+
+      expect(upright).toContain('rotate(90)');
+      expect(flipped).toContain('rotate(270)');
+      expect(flipped).not.toContain('rotate(90)');
+    });
+
+    it('counter-rotates the seat labels so names stay upright', async () => {
+      const seating: SeatingArrangement = [
+        [createMockStudent({ id: 's1', name: 'Anna' }), null],
+      ];
+      const svg = await renderSceneSvg(scene, seating, 'Test', {
+        orientation: 'landscape',
+        flipped: true,
+      });
+
+      // Classroom at 180° → every seat label rotates back by the same amount.
+      expect(svg).toContain('rotate(-180');
+    });
   });
 });

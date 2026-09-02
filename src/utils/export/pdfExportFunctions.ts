@@ -49,6 +49,11 @@ export type ExportOptions = {
   /** Append a legend (badge icons + gender colours) to the exported page. */
   showLegend?: boolean;
   orientation?: 'landscape' | 'portrait';
+  /**
+   * Table export only: rotate the classroom 180° while names stay upright, for
+   * plans read from the opposite side of the room.
+   */
+  flipped?: boolean;
   classMetadata?: ExportClassMetadata;
 };
 
@@ -69,6 +74,7 @@ export async function exportTableLayoutToPdf(
     featureVisibility: options?.featureVisibility,
     lockSeatLabelOrientation: true,
     orientation: options?.orientation ?? 'portrait',
+    flipped: options?.flipped ?? false,
     showFullNames: options?.showFullNames ?? false,
     photoDisplayMode: (options?.showPhotos ?? true) ? 'all' : 'off',
     showLegend: options?.showLegend ?? false,

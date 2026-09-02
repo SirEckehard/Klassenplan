@@ -11,6 +11,9 @@ import {
   GridNineIcon,
   ImageIcon,
   VectorTwoIcon,
+  ArrowUpIcon,
+  ArrowDownIcon,
+  FlipVerticalIcon,
 } from '@phosphor-icons/react';
 import SmartSidebar from '@/components/ui/panels/SmartSidebar';
 import SectionHeader from '@/components/ui/layout/SectionHeader';
@@ -39,6 +42,15 @@ interface ExportSidebarProps {
   circleOrientation: PageOrientation;
   onCircleOrientationChange: (orientation: PageOrientation) => void;
 
+  /**
+   * Seating-plan export only: read the sheet from the back of the room. Rotates
+   * the classroom 180° while names and photos stay upright. Hidden while the
+   * circle is previewed, where the setting has no effect.
+   */
+  showViewDirection: boolean;
+  flipView: boolean;
+  onFlipViewChange: (flipped: boolean) => void;
+
   // Export-Aktionen
   onPrint: () => void;
   onTablePdf: () => void;
@@ -58,6 +70,9 @@ export default function ExportSidebar({
   onTableOrientationChange,
   circleOrientation,
   onCircleOrientationChange,
+  showViewDirection,
+  flipView,
+  onFlipViewChange,
   onPrint,
   onTablePdf,
   onCirclePdf,
@@ -144,6 +159,10 @@ export default function ExportSidebar({
     emphasis: 'accent',
     isActive: circleOrientation === 'landscape',
   });
+  const flipViewButtonStyles = buildCollapsedStyles({
+    emphasis: 'accent',
+    isActive: flipView,
+  });
   const printButtonStyles = buildCollapsedStyles({
     tone: 'green',
     emphasis: 'accent',
@@ -153,6 +172,10 @@ export default function ExportSidebar({
   });
   // Image exports are secondary next to print/PDF, so they stay unaccented.
   const imageExportButtonStyles = buildCollapsedStyles();
+
+  const flipViewCollapsedLabel = `${t('export.viewDirection')}: ${
+    flipView ? t('export.viewFromBack') : t('export.viewFromFront')
+  }`;
 
   // Handle icon click from SmartSidebar
   const handleIconClick = React.useCallback(
@@ -233,6 +256,41 @@ export default function ExportSidebar({
                       {t('export.portrait', 'Hochformat')}
                     </button>
                   </div>
+                  {/* Sits inside the seating-plan block on purpose: the flip
+                      has no meaning for the circle export. */}
+                  {showViewDirection && (
+                    <>
+                      <p className="mt-3 text-xs font-medium text-gray-500 dark:text-gray-400">
+                        {t('export.viewDirection')}
+                      </p>
+                      <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                        <button
+                          type="button"
+                          onClick={() => onFlipViewChange(false)}
+                          className={`${
+                            flipView ? secondaryButtonClass : primaryButtonClass
+                          } w-full justify-center gap-2 px-4 py-2`}
+                          aria-pressed={!flipView}
+                          title={t('export.viewFromFrontTitle')}
+                        >
+                          <ArrowUpIcon className="h-4 w-4" />
+                          {t('export.viewFromFront')}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => onFlipViewChange(true)}
+                          className={`${
+                            flipView ? primaryButtonClass : secondaryButtonClass
+                          } w-full justify-center gap-2 px-4 py-2`}
+                          aria-pressed={flipView}
+                          title={t('export.viewFromBackTitle')}
+                        >
+                          <ArrowDownIcon className="h-4 w-4" />
+                          {t('export.viewFromBack')}
+                        </button>
+                      </div>
+                    </>
+                  )}
                 </div>
                 <div>
                   <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-300">
@@ -377,7 +435,24 @@ export default function ExportSidebar({
               </span>
             </button>
 
-            {/* Position 3: Orientierung Sitzkreis */}
+            {/* Position 3: Blickrichtung Sitzplan — grouped with the seating
+                plan controls, exactly as in the expanded sidebar. */}
+            {showViewDirection && (
+              <button
+                type="button"
+                onClick={() => onFlipViewChange(!flipView)}
+                className={flipViewButtonStyles.button}
+                title={flipViewCollapsedLabel}
+                aria-label={flipViewCollapsedLabel}
+                aria-pressed={flipView}
+              >
+                <span className={flipViewButtonStyles.icon}>
+                  <FlipVerticalIcon size={18} />
+                </span>
+              </button>
+            )}
+
+            {/* Position 4: Orientierung Sitzkreis */}
             <button
               type="button"
               onClick={() =>

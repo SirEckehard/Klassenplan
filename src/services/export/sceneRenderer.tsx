@@ -45,6 +45,8 @@ export async function renderSceneSvg(
     lockSeatLabelOrientation?: boolean;
     seatLabelRotation?: number;
     orientation?: 'landscape' | 'portrait';
+    /** Rotate the classroom 180° while names stay upright (see `SceneSvg`). */
+    flipped?: boolean;
     showFullNames?: boolean;
     photoDisplayMode?: 'all' | 'off';
     showLegend?: boolean;
@@ -65,6 +67,7 @@ export async function renderSceneSvg(
         lockSeatLabelOrientation={options?.lockSeatLabelOrientation}
         seatLabelRotation={options?.seatLabelRotation}
         orientation={options?.orientation}
+        flipped={options?.flipped}
         showFullNames={options?.showFullNames}
         photoDisplayMode={options?.photoDisplayMode}
         showLegend={options?.showLegend}
