@@ -168,8 +168,8 @@ describe('StudentInput list tools', () => {
   });
 
   it('applies a bulk attribute to every selected student', async () => {
-    const updateStudent = vi.fn();
-    renderInput({ updateStudent });
+    const updateStudents = vi.fn();
+    renderInput({ updateStudents });
     const user = userEvent.setup();
 
     const checkboxes = screen.getAllByRole('checkbox');
@@ -187,18 +187,15 @@ describe('StudentInput list tools', () => {
       await screen.findByRole('menuitem', { name: /Fließend|Fluent/i }),
     );
 
-    expect(updateStudent).toHaveBeenCalledTimes(2);
-    expect(updateStudent).toHaveBeenCalledWith('1', {
-      languageSkill: 'fluent',
-    });
-    expect(updateStudent).toHaveBeenCalledWith('2', {
+    // One batched write, so the whole selection is a single undo step.
+    expect(updateStudents).toHaveBeenCalledExactlyOnceWith(['1', '2'], {
       languageSkill: 'fluent',
     });
   });
 
   it('clears an attribute for the whole selection', async () => {
-    const updateStudent = vi.fn();
-    renderInput({ updateStudent });
+    const updateStudents = vi.fn();
+    renderInput({ updateStudents });
     const user = userEvent.setup();
 
     await user.click(screen.getAllByRole('checkbox')[1]);
@@ -209,7 +206,7 @@ describe('StudentInput list tools', () => {
       await screen.findByRole('menuitem', { name: /entfernen|clear/i }),
     );
 
-    expect(updateStudent).toHaveBeenCalledWith('1', { gender: undefined });
+    expect(updateStudents).toHaveBeenCalledWith(['1'], { gender: undefined });
   });
 
   it('opens an attribute menu from the keyboard and lands on its first entry', async () => {
@@ -250,8 +247,8 @@ describe('StudentInput list tools', () => {
   });
 
   it('select-all only covers the students the search left visible', async () => {
-    const updateStudent = vi.fn();
-    renderInput({ updateStudent });
+    const updateStudents = vi.fn();
+    renderInput({ updateStudents });
     const user = userEvent.setup();
 
     await user.type(
@@ -264,19 +261,19 @@ describe('StudentInput list tools', () => {
 
     await user.click(screen.getByRole('button', { name: /Unruhig|Restless/i }));
 
-    expect(updateStudent).toHaveBeenCalledTimes(2);
-    expect(updateStudent).toHaveBeenCalledWith('1', { restless: true });
-    expect(updateStudent).toHaveBeenCalledWith('4', { restless: true });
+    expect(updateStudents).toHaveBeenCalledExactlyOnceWith(['1', '4'], {
+      restless: true,
+    });
   });
 
   it('clears a flag that every selected student already carries', async () => {
-    const updateStudent = vi.fn();
+    const updateStudents = vi.fn();
     renderInput({
       students: makeStudents().map((student) => ({
         ...student,
         restless: true,
       })),
-      updateStudent,
+      updateStudents,
     });
     const user = userEvent.setup();
 
@@ -289,14 +286,14 @@ describe('StudentInput list tools', () => {
 
     await user.click(chip);
 
-    expect(updateStudent).toHaveBeenCalledTimes(2);
-    expect(updateStudent).toHaveBeenCalledWith('1', { restless: false });
-    expect(updateStudent).toHaveBeenCalledWith('2', { restless: false });
+    expect(updateStudents).toHaveBeenCalledExactlyOnceWith(['1', '2'], {
+      restless: false,
+    });
   });
 
   it('clears the opposite performance flag when setting one', async () => {
-    const updateStudent = vi.fn();
-    renderInput({ updateStudent });
+    const updateStudents = vi.fn();
+    renderInput({ updateStudents });
     const user = userEvent.setup();
 
     const checkboxes = screen.getAllByRole('checkbox');
@@ -306,7 +303,7 @@ describe('StudentInput list tools', () => {
       screen.getByRole('button', { name: /Leistungsstark|High performer/i }),
     );
 
-    expect(updateStudent).toHaveBeenCalledWith('1', {
+    expect(updateStudents).toHaveBeenCalledWith(['1'], {
       performanceStrong: true,
       performanceWeak: false,
     });
@@ -433,8 +430,8 @@ describe('StudentInput list tools', () => {
   });
 
   it('asks before removing the selected students', async () => {
-    const removeStudent = vi.fn();
-    renderInput({ removeStudent });
+    const removeStudents = vi.fn();
+    renderInput({ removeStudents });
     const user = userEvent.setup();
 
     await user.click(
@@ -445,12 +442,15 @@ describe('StudentInput list tools', () => {
     );
 
     const dialog = screen.getByRole('dialog');
-    expect(removeStudent).not.toHaveBeenCalled();
+    expect(removeStudents).not.toHaveBeenCalled();
 
     await user.click(
       within(dialog).getByRole('button', { name: /Entfernen|Remove/i }),
     );
 
-    expect(removeStudent).toHaveBeenCalledTimes(NAMES.length);
+    // The whole selection goes in one write, undoable in one step.
+    expect(removeStudents).toHaveBeenCalledExactlyOnceWith(
+      NAMES.map((_, index) => String(index + 1)),
+    );
   });
 });

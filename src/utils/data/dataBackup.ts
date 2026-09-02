@@ -46,6 +46,7 @@ import {
   clearPhotoCache,
   invalidatePhoto,
 } from '@/hooks/student/studentPhotoCache';
+import { clearPhotoTrash } from '@/hooks/student/studentPhotoTrash';
 import {
   blobToDataUrl,
   dataUrlToBlob,
@@ -377,6 +378,7 @@ export async function importAllFromJson(
     } else {
       await clearAllPhotos();
       clearPhotoCache();
+      clearPhotoTrash();
       await restoreStudentPhotos(data.studentPhotos);
     }
   } catch (error) {
@@ -401,6 +403,7 @@ export async function clearAllData(
       await clearAllPhotos();
     }
     clearPhotoCache();
+    clearPhotoTrash();
     clearProjectLocalStorage();
     resetApplicationState(handlers);
   } catch (e) {

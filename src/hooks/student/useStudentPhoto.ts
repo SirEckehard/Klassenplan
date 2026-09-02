@@ -17,7 +17,6 @@ export {
   getStudentPhoto,
   getStudentPhotoDataUrl,
   saveStudentPhoto,
-  removeStudentPhoto,
 } from './studentPhotoCache';
 
 /**

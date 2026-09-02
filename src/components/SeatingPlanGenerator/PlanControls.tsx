@@ -45,7 +45,9 @@ export default function PlanControls() {
     addStudent,
     addBulkPlaceholderStudents,
     removeStudent,
+    removeStudents,
     updateStudent,
+    updateStudents,
     importCsv,
     downloadStudentsCsv,
     updateClassroomScene,
@@ -172,7 +174,9 @@ export default function PlanControls() {
               addStudent={addStudent}
               addBulkPlaceholderStudents={addBulkPlaceholderStudents}
               removeStudent={removeStudent}
+              removeStudents={removeStudents}
               updateStudent={updateStudent}
+              updateStudents={updateStudents}
               importCsv={importCsv}
               downloadStudentsCsv={downloadStudentsCsv}
               onProceedToLayout={() => void handleStepChange(2)}

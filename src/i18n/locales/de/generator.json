@@ -682,7 +682,9 @@
       "export_exportPng": "Aktuelle Ansicht als PNG-Bild speichern",
       "export_print": "Sitzplan drucken",
       "plan_undo": "Sitzplan-Aktion rückgängig machen",
-      "plan_redo": "Sitzplan-Aktion wiederherstellen"
+      "plan_redo": "Sitzplan-Aktion wiederherstellen",
+      "students_undo": "Änderung an der Klassenliste rückgängig machen",
+      "students_redo": "Änderung an der Klassenliste wiederherstellen"
     },
     "keys": {
       "global_toggleHelp": "?",
@@ -717,7 +719,9 @@
       "export_exportPng": "Strg (Windows) / Cmd (Mac) + Shift + I",
       "export_print": "Strg (Windows) / Cmd (Mac) + P",
       "plan_undo": "Strg (Windows) / Cmd (Mac) + Z",
-      "plan_redo": "Strg / Cmd + Shift + Z"
+      "plan_redo": "Strg / Cmd + Shift + Z",
+      "students_undo": "Strg (Windows) / Cmd (Mac) + Z",
+      "students_redo": "Strg / Cmd + Umschalt + Z"
     }
   },
   "tableType": {

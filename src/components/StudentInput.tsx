@@ -63,7 +63,9 @@ function StudentInput({
   addStudent,
   addBulkPlaceholderStudents,
   removeStudent,
+  removeStudents,
   updateStudent,
+  updateStudents,
   importCsv,
   downloadStudentsCsv,
   onProceedToLayout,
@@ -247,10 +249,12 @@ function StudentInput({
     },
   );
 
+  // Both bulk paths go through the batch actions rather than a loop over the
+  // single-student ones: one store write, one persist job, one undo step.
   const handleBulkApply = useCallback(
     (patch: Partial<Student>) => {
       const ids = [...selection.selectedIds];
-      ids.forEach((id) => updateStudent(id, patch));
+      updateStudents(ids, patch);
       showToast(
         'success',
         t('bulkEdit.applied', {
@@ -259,12 +263,12 @@ function StudentInput({
         }),
       );
     },
-    [selection.selectedIds, updateStudent, t],
+    [selection.selectedIds, updateStudents, t],
   );
 
   const handleBulkDelete = useCallback(() => {
     const ids = [...selection.selectedIds];
-    ids.forEach((id) => removeStudent(id));
+    removeStudents(ids);
     selection.clear();
     setBulkDeleteOpen(false);
     showToast(
@@ -274,7 +278,7 @@ function StudentInput({
         defaultValue: '{{count}} Schüler entfernt.',
       }),
     );
-  }, [selection, removeStudent, setBulkDeleteOpen, t]);
+  }, [selection, removeStudents, setBulkDeleteOpen, t]);
 
   const photoCount = students.filter((student) => student.hasPhoto).length;
   const canPlayNameGame = photoCount >= NAME_GAME_MIN_PHOTOS;
@@ -458,7 +462,7 @@ function StudentInput({
         title={t('studentInput.removeStudentTitle', 'Schüler entfernen')}
         message={t('studentInput.removeStudentMessage', {
           studentName: removalTargetLabel,
-          defaultValue: `Möchtest du ${removalTargetLabel} wirklich entfernen? Diese Aktion kann nicht rückgängig gemacht werden.`,
+          defaultValue: `Möchtest du ${removalTargetLabel} wirklich entfernen? Du kannst das mit Strg/Cmd+Z rückgängig machen.`,
         })}
         confirmLabel={t('classManagement.delete', 'Entfernen')}
         cancelLabel={t('common.cancel', 'Abbrechen')}
@@ -486,7 +490,7 @@ function StudentInput({
         message={t('bulkEdit.deleteMessage', {
           count: selection.selectedCount,
           defaultValue:
-            'Möchtest du {{count}} ausgewählte Schüler wirklich entfernen? Diese Aktion kann nicht rückgängig gemacht werden.',
+            'Möchtest du {{count}} ausgewählte Schüler wirklich entfernen? Du kannst das mit Strg/Cmd+Z rückgängig machen.',
         })}
         confirmLabel={t('bulkEdit.deleteSelected', 'Entfernen')}
         cancelLabel={t('common.cancel', 'Abbrechen')}

@@ -73,8 +73,16 @@ export interface StudentStoreActions {
   ) => Student;
   addBulkPlaceholderStudents: (count: number) => Student[];
   removeStudent: (id: string) => void;
+  /**
+   * Remove several students in one write. The bulk bar deletes a whole
+   * selection at once; looping over {@link StudentStoreActions.removeStudent}
+   * would cost a render, a persist job and an undo step per student.
+   */
+  removeStudents: (ids: string[]) => void;
   clearStudents: () => void;
   updateStudent: (id: string, patch: Partial<Student>) => void;
+  /** Apply one patch to several students in a single write. */
+  updateStudents: (ids: string[], patch: Partial<Student>) => void;
   setStudents: (next: StateUpdater<Student[]>) => void;
   importCsv: (file: File, mode?: NameColumnMode) => Promise<Student[]>;
   acknowledgeStudentUpdates: () => void;

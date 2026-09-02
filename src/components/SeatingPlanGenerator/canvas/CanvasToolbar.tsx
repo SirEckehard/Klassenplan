@@ -2,8 +2,8 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { ArrowUUpLeftIcon, ArrowUUpRightIcon } from '@phosphor-icons/react';
 import { mutedIconButtonClass } from '@/utils';
+import UndoRedoButtons from '@/components/ui/buttons/UndoRedoButtons';
 
 interface CanvasToolbarProps {
   /**
@@ -24,6 +24,8 @@ interface CanvasToolbarProps {
   canRedo: boolean;
 }
 
+const canvasButtonClass = `${mutedIconButtonClass} h-12 w-12 text-gray-700 transition disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-100`;
+
 /**
  * CanvasToolbar - undo/redo pair for a canvas overlay.
  *
@@ -41,28 +43,17 @@ const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
 }) => {
   const { t } = useTranslation('generator');
   return (
-    <div className="flex gap-1">
-      <button
-        type="button"
-        onClick={onUndo}
-        disabled={!canUndo}
-        className={`${mutedIconButtonClass} h-12 w-12 text-gray-700 transition disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-100`}
-        title={t('canvas.undo', 'Rückgängig (Strg/Cmd+Z)')}
-        aria-label={t('canvas.undoLabel', 'Letzte Aktion rückgängig machen')}
-      >
-        <ArrowUUpLeftIcon size={16} />
-      </button>
-      <button
-        type="button"
-        onClick={onRedo}
-        disabled={!canRedo}
-        className={`${mutedIconButtonClass} h-12 w-12 text-gray-700 transition disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-100`}
-        title={t('canvas.redo', 'Wiederherstellen (Strg/Cmd+Y)')}
-        aria-label={t('canvas.redoLabel', 'Letzte Aktion wiederherstellen')}
-      >
-        <ArrowUUpRightIcon size={16} />
-      </button>
-    </div>
+    <UndoRedoButtons
+      onUndo={onUndo}
+      canUndo={canUndo}
+      onRedo={onRedo}
+      canRedo={canRedo}
+      undoTitle={t('canvas.undo', 'Rückgängig (Strg/Cmd+Z)')}
+      redoTitle={t('canvas.redo', 'Wiederherstellen (Strg/Cmd+Y)')}
+      undoLabel={t('canvas.undoLabel', 'Letzte Aktion rückgängig machen')}
+      redoLabel={t('canvas.redoLabel', 'Letzte Aktion wiederherstellen')}
+      buttonClass={canvasButtonClass}
+    />
   );
 };
 

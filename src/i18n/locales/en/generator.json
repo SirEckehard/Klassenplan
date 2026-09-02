@@ -682,7 +682,9 @@
       "export_exportPng": "Save the current view as a PNG image",
       "export_print": "Print Seating Plan",
       "plan_undo": "Undo the last seating action",
-      "plan_redo": "Redo the last seating action"
+      "plan_redo": "Redo the last seating action",
+      "students_undo": "Undo a change to the class list",
+      "students_redo": "Redo a change to the class list"
     },
     "keys": {
       "global_toggleHelp": "?",
@@ -717,7 +719,9 @@
       "export_exportPng": "Ctrl/Cmd + Shift + I",
       "export_print": "Ctrl/Cmd + P",
       "plan_undo": "Ctrl/Cmd + Z",
-      "plan_redo": "Ctrl/Cmd + Shift + Z"
+      "plan_redo": "Ctrl/Cmd + Shift + Z",
+      "students_undo": "Ctrl (Windows) / Cmd (Mac) + Z",
+      "students_redo": "Ctrl / Cmd + Shift + Z"
     }
   },
   "tableType": {

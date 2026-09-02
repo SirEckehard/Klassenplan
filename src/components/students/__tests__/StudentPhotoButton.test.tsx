@@ -11,9 +11,16 @@ import { LOCAL_STORAGE_KEYS } from '@/utils/data/storageKeys';
 const mockBitmap = () =>
   ({ width: 160, height: 160, close: vi.fn() }) as unknown as ImageBitmap;
 
-const { getStudentPhotoMock, loadImageBitmapFromBlobMock } = vi.hoisted(() => ({
+const {
+  getStudentPhotoMock,
+  loadImageBitmapFromBlobMock,
+  schedulePhotoDeletionMock,
+  confirmDialogMock,
+} = vi.hoisted(() => ({
   getStudentPhotoMock: vi.fn(),
   loadImageBitmapFromBlobMock: vi.fn(),
+  schedulePhotoDeletionMock: vi.fn(),
+  confirmDialogMock: vi.fn(),
 }));
 
 vi.mock('@/hooks/student/useStudentPhoto', () => ({
@@ -23,7 +30,14 @@ vi.mock('@/hooks/student/useStudentPhoto', () => ({
       : { objectUrl: undefined, dataUrl: undefined, loading: false },
   getStudentPhoto: getStudentPhotoMock,
   saveStudentPhoto: vi.fn(),
-  removeStudentPhoto: vi.fn(),
+}));
+
+vi.mock('@/hooks/student/studentPhotoTrash', () => ({
+  schedulePhotoDeletion: schedulePhotoDeletionMock,
+}));
+
+vi.mock('@/services/ui/dialogs', () => ({
+  confirmDialog: confirmDialogMock,
 }));
 
 vi.mock('@/utils/image/processStudentPhoto', async (importOriginal) => ({
@@ -46,10 +60,10 @@ beforeEach(() => {
   loadImageBitmapFromBlobMock.mockImplementation(async () => mockBitmap());
 });
 
-const renderButton = (hasPhoto: boolean) => {
+const renderButton = (hasPhoto: boolean, updateStudent = vi.fn()) => {
   const student = createMockStudent({ name: 'Alice', hasPhoto });
   return render(
-    <StudentPhotoButton student={student} updateStudent={vi.fn()} />,
+    <StudentPhotoButton student={student} updateStudent={updateStudent} />,
   );
 };
 
@@ -105,4 +119,31 @@ test('falls back to the file picker when the stored photo is missing', async () 
 
   await waitFor(() => expect(inputClick).toHaveBeenCalledOnce());
   expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+});
+
+test('removing a photo only schedules the deletion', async () => {
+  confirmDialogMock.mockResolvedValue(true);
+  const updateStudent = vi.fn();
+  renderButton(true, updateStudent);
+
+  fireEvent.click(getButton(/Foto entfernen|Remove photo/i));
+
+  // `hasPhoto: false` is an undoable student edit, so the blob has to stay
+  // until no undo step can reach it (see studentPhotoTrash).
+  await waitFor(() => expect(schedulePhotoDeletionMock).toHaveBeenCalledOnce());
+  expect(updateStudent).toHaveBeenCalledWith(expect.any(String), {
+    hasPhoto: false,
+  });
+});
+
+test('keeps the photo when the removal is cancelled', async () => {
+  confirmDialogMock.mockResolvedValue(false);
+  const updateStudent = vi.fn();
+  renderButton(true, updateStudent);
+
+  fireEvent.click(getButton(/Foto entfernen|Remove photo/i));
+
+  await waitFor(() => expect(confirmDialogMock).toHaveBeenCalled());
+  expect(schedulePhotoDeletionMock).not.toHaveBeenCalled();
+  expect(updateStudent).not.toHaveBeenCalled();
 });

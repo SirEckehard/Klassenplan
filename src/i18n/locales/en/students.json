@@ -330,7 +330,7 @@
     "emptyClassHint": "Add students by creating placeholders, adding them individually, or importing an existing CSV. All entries apply only to this class.",
     "emptyClassCsvHint": "You can also use this CSV template and fill it with your students' names. Then click on Class List and upload the CSV file.",
     "removeStudentTitle": "Remove Student",
-    "removeStudentMessage": "Do you really want to remove {{studentName}}? This action cannot be undone.",
+    "removeStudentMessage": "Do you really want to remove {{studentName}}? You can undo this with Ctrl/Cmd+Z.",
     "thisStudent": "this student",
     "studentRemoved": "{{studentName}} has been removed.",
     "yourClass": "your class",
@@ -400,9 +400,15 @@
     "applied_one": "{{count}} student updated.",
     "applied_other": "{{count}} students updated.",
     "deleteTitle": "Remove selected students",
-    "deleteMessage_one": "Do you really want to remove {{count}} selected student? This action cannot be undone.",
-    "deleteMessage_other": "Do you really want to remove {{count}} selected students? This action cannot be undone.",
+    "deleteMessage_one": "Do you really want to remove {{count}} selected student? You can undo this with Ctrl/Cmd+Z.",
+    "deleteMessage_other": "Do you really want to remove {{count}} selected students? You can undo this with Ctrl/Cmd+Z.",
     "deleted_one": "{{count}} student removed.",
     "deleted_other": "{{count}} students removed."
+  },
+  "history": {
+    "undo": "Undo (Ctrl/Cmd+Z)",
+    "redo": "Redo (Ctrl/Cmd+Shift+Z)",
+    "undoLabel": "Undo the last change to the class list",
+    "redoLabel": "Redo the last change to the class list"
   }
 }

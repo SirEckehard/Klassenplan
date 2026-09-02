@@ -9,8 +9,8 @@ import {
   useStudentPhoto,
   getStudentPhoto,
   saveStudentPhoto,
-  removeStudentPhoto,
 } from '@/hooks/student/useStudentPhoto';
+import { schedulePhotoDeletion } from '@/hooks/student/studentPhotoTrash';
 import {
   loadImageBitmapFromBlob,
   loadImageBitmapFromFile,
@@ -214,16 +214,10 @@ function StudentPhotoButton({ student, updateStudent }: Props) {
       { confirmLabel: t('photo.remove', 'Foto entfernen') },
     );
     if (!confirmed) return;
-    try {
-      await removeStudentPhoto(student.id);
-      updateStudent(student.id, { hasPhoto: false });
-    } catch (error) {
-      logError(
-        'Student photo removal failed',
-        { error, studentId: student.id },
-        'StudentPhotoButton',
-      );
-    }
+    // Scheduled, not deleted: `hasPhoto: false` is an undoable student edit,
+    // so the blob has to survive until no undo step can bring it back.
+    schedulePhotoDeletion(student.id);
+    updateStudent(student.id, { hasPhoto: false });
   };
 
   const initial = student.name.trim().charAt(0).toUpperCase();

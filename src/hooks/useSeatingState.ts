@@ -41,6 +41,7 @@ export type SeatingPlanEqualityFn<TValue> = (a: TValue, b: TValue) => boolean;
 export type SeatingState = {
   studentState: {
     students: Student[];
+    getStudents: () => Student[];
     setStudents: React.Dispatch<React.SetStateAction<Student[]>>;
     addStudent: (
       name: string,
@@ -52,8 +53,10 @@ export type SeatingState = {
     ) => Student;
     addBulkPlaceholderStudents: (count: number) => Student[];
     removeStudent: (id: string) => void;
+    removeStudents: (ids: string[]) => void;
     clearStudents: () => void;
     updateStudent: (id: string, patch: Partial<Student>) => void;
+    updateStudents: (ids: string[], patch: Partial<Student>) => void;
     importCsv: (file: File, mode?: NameColumnMode) => Promise<Student[]>;
     moveStudent: (
       fromTable: number,
@@ -192,14 +195,17 @@ export function useSeatingState(): SeatingState {
     useState<ActiveClassState>(DEFAULT_ACTIVE_CLASS);
   const {
     students,
+    getStudents,
     setStudents,
     hasPendingStudentUpdates,
     acknowledgeStudentUpdates,
     addStudent,
     addBulkPlaceholderStudents,
     removeStudent: removeStudentInternal,
+    removeStudents: removeStudentsInternal,
     clearStudents: clearStudentsInternal,
     updateStudent,
+    updateStudents,
     importCsv,
   } = useStudentsState();
 
@@ -292,6 +298,18 @@ export function useSeatingState(): SeatingState {
   );
 
   /**
+   * Remove a whole selection and its locks in one store write.
+   * @param ids Student identifiers
+   */
+  const removeStudents = useCallback(
+    (ids: string[]) => {
+      removeStudentsInternal(ids);
+      ids.forEach((id) => removeLock(id));
+    },
+    [removeStudentsInternal, removeLock],
+  );
+
+  /**
    * Clear all students and reset dependent state.
    */
   const clearStudents = useCallback(() => {
@@ -374,12 +392,15 @@ export function useSeatingState(): SeatingState {
     () => ({
       studentState: {
         students,
+        getStudents,
         setStudents,
         addStudent,
         addBulkPlaceholderStudents,
         removeStudent,
+        removeStudents,
         clearStudents,
         updateStudent,
+        updateStudents,
         importCsv,
         moveStudent,
         hasPendingStudentUpdates,
@@ -445,12 +466,15 @@ export function useSeatingState(): SeatingState {
     }),
     [
       students,
+      getStudents,
       setStudents,
       addStudent,
       addBulkPlaceholderStudents,
       removeStudent,
+      removeStudents,
       clearStudents,
       updateStudent,
+      updateStudents,
       importCsv,
       moveStudent,
       hasPendingStudentUpdates,

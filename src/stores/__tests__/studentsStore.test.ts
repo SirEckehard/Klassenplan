@@ -9,6 +9,10 @@ vi.mock('@/services/csvImportService', () => ({
   importStudentsFromCsv: vi.fn(),
 }));
 
+vi.mock('@/hooks/student/studentPhotoTrash', () => ({
+  schedulePhotoDeletion: vi.fn(),
+}));
+
 vi.mock('@/utils/ui/toast', () => ({
   showToast: vi.fn(),
   TOAST_MESSAGES: {
@@ -18,6 +22,7 @@ vi.mock('@/utils/ui/toast', () => ({
 
 import { importStudentsFromCsv } from '@/services/csvImportService';
 import { showToast } from '@/utils/ui/toast';
+import { schedulePhotoDeletion } from '@/hooks/student/studentPhotoTrash';
 
 describe('studentsStore', () => {
   beforeEach(() => {
@@ -103,6 +108,80 @@ describe('studentsStore', () => {
 
       expect(studentStore.getState().students).toHaveLength(1);
       expect(studentStore.getState().students[0]!.id).toBe(a.id);
+    });
+  });
+
+  describe('removeStudents', () => {
+    it('removes a whole selection in one write', () => {
+      const a = studentStore.getState().addStudent('A');
+      const b = studentStore.getState().addStudent('B');
+      const c = studentStore.getState().addStudent('C');
+
+      const before = studentStore.getState().students;
+      studentStore.getState().removeStudents([a.id, c.id]);
+
+      expect(studentStore.getState().students.map((s) => s.id)).toEqual([b.id]);
+      // One new array, not one per removed student.
+      expect(studentStore.getState().students).not.toBe(before);
+    });
+
+    it('ignores unknown ids and an empty selection', () => {
+      const a = studentStore.getState().addStudent('A');
+
+      studentStore.getState().removeStudents([]);
+      studentStore.getState().removeStudents(['nope']);
+
+      expect(studentStore.getState().students.map((s) => s.id)).toEqual([a.id]);
+    });
+
+    it('schedules the photos of removed students instead of deleting them', () => {
+      const a = studentStore.getState().addStudent('A');
+      const b = studentStore.getState().addStudent('B');
+      studentStore.getState().updateStudent(a.id, { hasPhoto: true });
+
+      studentStore.getState().removeStudents([a.id, b.id]);
+
+      expect(schedulePhotoDeletion).toHaveBeenCalledTimes(1);
+      expect(schedulePhotoDeletion).toHaveBeenCalledWith(a.id);
+    });
+  });
+
+  describe('updateStudents', () => {
+    it('applies one patch to a whole selection', () => {
+      const a = studentStore.getState().addStudent('A');
+      const b = studentStore.getState().addStudent('B');
+      const c = studentStore.getState().addStudent('C');
+
+      studentStore.getState().updateStudents([a.id, c.id], { shy: true });
+
+      const byId = new Map(
+        studentStore.getState().students.map((s) => [s.id, s]),
+      );
+      expect(byId.get(a.id)!.shy).toBe(true);
+      expect(byId.get(b.id)!.shy).toBe(false);
+      expect(byId.get(c.id)!.shy).toBe(true);
+    });
+
+    it('keeps the performance flags mutually exclusive', () => {
+      const a = studentStore.getState().addStudent('A');
+      studentStore.getState().updateStudent(a.id, { performanceWeak: true });
+
+      studentStore
+        .getState()
+        .updateStudents([a.id], { performanceStrong: true });
+
+      const updated = studentStore.getState().students[0]!;
+      expect(updated.performanceStrong).toBe(true);
+      expect(updated.performanceWeak).toBe(false);
+    });
+
+    it('is a no-op for an empty selection', () => {
+      studentStore.getState().addStudent('A');
+      const before = studentStore.getState().students;
+
+      studentStore.getState().updateStudents([], { shy: true });
+
+      expect(studentStore.getState().students).toBe(before);
     });
   });
 

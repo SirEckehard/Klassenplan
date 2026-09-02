@@ -16,7 +16,38 @@ import type {
 import { createFeatureStoreLogger } from './featureStores';
 import { evaluateStateUpdater } from './storeUtils';
 import { importStudentsFromCsv } from '@/services/csvImportService';
-import { removeStudentPhoto } from '@/hooks/student/studentPhotoCache';
+import { schedulePhotoDeletion } from '@/hooks/student/studentPhotoTrash';
+
+/**
+ * Apply a patch to a single student, keeping the two performance flags
+ * mutually exclusive the way the row toggles present them.
+ */
+const applyStudentPatch = (student: Student, patch: Partial<Student>) => {
+  const updated = { ...student, ...patch };
+  if (patch.performanceStrong === true) {
+    return {
+      ...updated,
+      performanceStrong: true,
+      performanceWeak: false,
+    } as Student;
+  }
+  if (patch.performanceWeak === true) {
+    return {
+      ...updated,
+      performanceStrong: false,
+      performanceWeak: true,
+    } as Student;
+  }
+  if (patch.performanceStrong === false || patch.performanceWeak === false) {
+    return {
+      ...updated,
+      performanceStrong: false,
+      performanceWeak: false,
+    } as Student;
+  }
+
+  return updated as Student;
+};
 
 export const createStudentsStore = (
   initialState?: Partial<StudentStoreState>,
@@ -134,66 +165,60 @@ export const createStudentsStore = (
         setStudentsInternal((prev) =>
           prev.filter((student) => student.id !== id),
         );
+        // The removal is undoable, so the blob only goes once no undo step can
+        // bring the student back (see studentPhotoTrash).
         if (target?.hasPhoto) {
-          removeStudentPhoto(id).catch((error) => {
-            logger.warn('Failed to delete student photo', {
-              studentId: id,
-              error,
-            });
-          });
+          schedulePhotoDeletion(id);
         }
         logger.debug('Student removed', { studentId: id });
+      },
+      removeStudents: (ids: string[]) => {
+        if (ids.length === 0) {
+          return;
+        }
+
+        const doomed = new Set(ids);
+        const withPhotos = get().students.filter(
+          (student) => doomed.has(student.id) && student.hasPhoto,
+        );
+        setStudentsInternal((prev) =>
+          prev.filter((student) => !doomed.has(student.id)),
+        );
+        for (const student of withPhotos) {
+          schedulePhotoDeletion(student.id);
+        }
+        logger.debug('Students removed', { count: ids.length });
       },
       clearStudents: () => {
         const withPhotos = get().students.filter((student) => student.hasPhoto);
         setStudentsInternal(() => []);
         for (const student of withPhotos) {
-          removeStudentPhoto(student.id).catch((error) => {
-            logger.warn('Failed to delete student photo', {
-              studentId: student.id,
-              error,
-            });
-          });
+          schedulePhotoDeletion(student.id);
         }
         logger.debug('All students cleared');
       },
       updateStudent: (id: string, patch: Partial<Student>) => {
         setStudentsInternal((prev) =>
-          prev.map((student) => {
-            if (student.id !== id) {
-              return student;
-            }
-
-            const updated = { ...student, ...patch };
-            if (patch.performanceStrong === true) {
-              return {
-                ...updated,
-                performanceStrong: true,
-                performanceWeak: false,
-              } as Student;
-            }
-            if (patch.performanceWeak === true) {
-              return {
-                ...updated,
-                performanceStrong: false,
-                performanceWeak: true,
-              } as Student;
-            }
-            if (
-              patch.performanceStrong === false ||
-              patch.performanceWeak === false
-            ) {
-              return {
-                ...updated,
-                performanceStrong: false,
-                performanceWeak: false,
-              } as Student;
-            }
-
-            return updated as Student;
-          }),
+          prev.map((student) =>
+            student.id === id ? applyStudentPatch(student, patch) : student,
+          ),
         );
         logger.debug('Student updated', { studentId: id });
+      },
+      updateStudents: (ids: string[], patch: Partial<Student>) => {
+        if (ids.length === 0) {
+          return;
+        }
+
+        const targets = new Set(ids);
+        setStudentsInternal((prev) =>
+          prev.map((student) =>
+            targets.has(student.id)
+              ? applyStudentPatch(student, patch)
+              : student,
+          ),
+        );
+        logger.debug('Students updated', { count: ids.length });
       },
       importCsv: async (file: File, mode?: NameColumnMode) => {
         const currentCount = get().students.length;

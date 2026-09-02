@@ -728,7 +728,9 @@ export const createMockStudentInputProps = (
     addBulkPlaceholderStudents:
       createMockFn<StudentInputProps['addBulkPlaceholderStudents']>(),
     removeStudent: createMockFn<StudentInputProps['removeStudent']>(),
+    removeStudents: createMockFn<StudentInputProps['removeStudents']>(),
     updateStudent: createMockFn<StudentInputProps['updateStudent']>(),
+    updateStudents: createMockFn<StudentInputProps['updateStudents']>(),
     importCsv: createMockFn<StudentInputProps['importCsv']>(),
     downloadStudentsCsv:
       createMockFn<StudentInputProps['downloadStudentsCsv']>(),

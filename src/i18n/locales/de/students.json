@@ -330,7 +330,7 @@
     "emptyClassHint": "Lege Schüler an, indem du Platzhalter anlegst, sie einzeln hinzufügst oder eine bestehende CSV importierst. Alle Eingaben gelten nur für diese Klasse.",
     "emptyClassCsvHint": "Du kannst auch diese CSV-Vorlage nutzen und sie mit den Namen deiner Schüler befüllen. Klicke dann auf Klassenliste und lade die CSV-Datei hoch.",
     "removeStudentTitle": "Schüler entfernen",
-    "removeStudentMessage": "Möchtest du {{studentName}} wirklich entfernen? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "removeStudentMessage": "Möchtest du {{studentName}} wirklich entfernen? Du kannst das mit Strg/Cmd+Z rückgängig machen.",
     "thisStudent": "diesen Schüler",
     "studentRemoved": "{{studentName}} wurde entfernt.",
     "yourClass": "deine Klasse",
@@ -400,9 +400,15 @@
     "applied_one": "{{count}} Schüler aktualisiert.",
     "applied_other": "{{count}} Schüler aktualisiert.",
     "deleteTitle": "Ausgewählte Schüler entfernen",
-    "deleteMessage_one": "Möchtest du {{count}} ausgewählten Schüler wirklich entfernen? Diese Aktion kann nicht rückgängig gemacht werden.",
-    "deleteMessage_other": "Möchtest du {{count}} ausgewählte Schüler wirklich entfernen? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "deleteMessage_one": "Möchtest du {{count}} ausgewählten Schüler wirklich entfernen? Du kannst das mit Strg/Cmd+Z rückgängig machen.",
+    "deleteMessage_other": "Möchtest du {{count}} ausgewählte Schüler wirklich entfernen? Du kannst das mit Strg/Cmd+Z rückgängig machen.",
     "deleted_one": "{{count}} Schüler entfernt.",
     "deleted_other": "{{count}} Schüler entfernt."
+  },
+  "history": {
+    "undo": "Rückgängig (Strg/Cmd+Z)",
+    "redo": "Wiederherstellen (Strg/Cmd+Umschalt+Z)",
+    "undoLabel": "Letzte Änderung an der Klassenliste rückgängig machen",
+    "redoLabel": "Letzte Änderung an der Klassenliste wiederherstellen"
   }
 }

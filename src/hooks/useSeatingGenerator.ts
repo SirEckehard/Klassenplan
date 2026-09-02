@@ -25,8 +25,9 @@ import {
   useSeatingHistory,
   type SeatingSnapshot,
 } from './plan/useSeatingHistory';
+import { useStudentHistory } from './student/useStudentHistory';
 import { DEFAULT_PASSES, DEFAULT_TRIES_PER_PASS } from '@/utils';
-import type { ClassroomScene as ClassroomSceneT } from '@/types';
+import type { ClassroomScene as ClassroomSceneT, Student } from '@/types';
 
 /**
  * Composes seating state, persistence, algorithm utilities, and UI orchestration into a single generator hook.
@@ -57,15 +58,18 @@ export function useSeatingGenerator() {
   const {
     studentState: {
       students,
+      getStudents,
       setStudents,
       hasPendingStudentUpdates,
       acknowledgeStudentUpdates,
-      addStudent,
-      addBulkPlaceholderStudents,
-      removeStudent,
+      addStudent: addStudentBase,
+      addBulkPlaceholderStudents: addBulkPlaceholderStudentsBase,
+      removeStudent: removeStudentBase,
+      removeStudents: removeStudentsBase,
       clearStudents,
-      updateStudent,
-      importCsv,
+      updateStudent: updateStudentBase,
+      updateStudents: updateStudentsBase,
+      importCsv: importCsvBase,
       moveStudent,
     },
     historyState: { seatingHistory, mixHistory, deleteMixResult },
@@ -159,6 +163,68 @@ export function useSeatingGenerator() {
     applySnapshot: applySeatingSnapshot,
   });
 
+  // Undo/redo for the class list (step 1). Separate from the seating history
+  // on purpose — the two are edited in different steps, and a student edit
+  // must never take a seating edit down with it.
+  const applyStudentSnapshot = useCallback(
+    (restored: Student[]) => {
+      setStudents(restored);
+    },
+    [setStudents],
+  );
+
+  const {
+    record: recordStudentChange,
+    recordAsync: recordStudentChangeAsync,
+    undo: undoStudents,
+    redo: redoStudents,
+    canUndo: canUndoStudents,
+    canRedo: canRedoStudents,
+    resetHistory: resetStudentHistory,
+  } = useStudentHistory({
+    getStudents,
+    applySnapshot: applyStudentSnapshot,
+  });
+
+  // Every write to the class list runs as one undo step. The history drops the
+  // step again if the write turned out to change nothing.
+  const addStudent = useCallback<typeof addStudentBase>(
+    (...args) => recordStudentChange(() => addStudentBase(...args)),
+    [addStudentBase, recordStudentChange],
+  );
+
+  const addBulkPlaceholderStudents = useCallback<
+    typeof addBulkPlaceholderStudentsBase
+  >(
+    (count) => recordStudentChange(() => addBulkPlaceholderStudentsBase(count)),
+    [addBulkPlaceholderStudentsBase, recordStudentChange],
+  );
+
+  const removeStudent = useCallback(
+    (id: string) => recordStudentChange(() => removeStudentBase(id)),
+    [removeStudentBase, recordStudentChange],
+  );
+
+  const removeStudents = useCallback(
+    (ids: string[]) => recordStudentChange(() => removeStudentsBase(ids)),
+    [removeStudentsBase, recordStudentChange],
+  );
+
+  const updateStudent = useCallback<typeof updateStudentBase>(
+    (id, patch) => recordStudentChange(() => updateStudentBase(id, patch)),
+    [updateStudentBase, recordStudentChange],
+  );
+
+  const updateStudents = useCallback<typeof updateStudentsBase>(
+    (ids, patch) => recordStudentChange(() => updateStudentsBase(ids, patch)),
+    [updateStudentsBase, recordStudentChange],
+  );
+
+  const importCsv = useCallback<typeof importCsvBase>(
+    (file, mode) => recordStudentChangeAsync(() => importCsvBase(file, mode)),
+    [importCsvBase, recordStudentChangeAsync],
+  );
+
   // Wrap generateSeatingPlan to acknowledge student updates
   const generateSeatingPlan = useCallback(
     async (
@@ -227,9 +293,10 @@ export function useSeatingGenerator() {
     setIsClassReloading(true);
     try {
       const snapshot = await reloadCurrentClassData();
-      // The undo stack belongs to the class that was open — undoing into
+      // The undo stacks belong to the class that was open — undoing into
       // another class's seating would write its students into this plan.
       resetSeatingHistory();
+      resetStudentHistory();
       syncSeatingSnapshot({
         seating: snapshot.currentSeating,
         circleLayout: snapshot.circleLayout,
@@ -239,7 +306,12 @@ export function useSeatingGenerator() {
     } finally {
       setIsClassReloading(false);
     }
-  }, [reloadCurrentClassData, syncSeatingSnapshot, resetSeatingHistory]);
+  }, [
+    reloadCurrentClassData,
+    syncSeatingSnapshot,
+    resetSeatingHistory,
+    resetStudentHistory,
+  ]);
 
   // Class management
   const {
@@ -487,6 +559,8 @@ export function useSeatingGenerator() {
       activeClass,
       canUndoSeating,
       canRedoSeating,
+      canUndoStudents,
+      canRedoStudents,
     }),
     [
       students,
@@ -519,6 +593,8 @@ export function useSeatingGenerator() {
       activeClass,
       canUndoSeating,
       canRedoSeating,
+      canUndoStudents,
+      canRedoStudents,
     ],
   );
 
@@ -529,10 +605,14 @@ export function useSeatingGenerator() {
       addStudent,
       addBulkPlaceholderStudents,
       removeStudent,
+      removeStudents,
       clearStudents,
       updateStudent,
+      updateStudents,
       setStudents,
       importCsv,
+      undoStudents,
+      redoStudents,
       downloadStudentsCsv,
       updateClassroomScene,
       removeTables,
@@ -594,10 +674,14 @@ export function useSeatingGenerator() {
       addStudent,
       addBulkPlaceholderStudents,
       removeStudent,
+      removeStudents,
       clearStudents,
       updateStudent,
+      updateStudents,
       setStudents,
       importCsv,
+      undoStudents,
+      redoStudents,
       downloadStudentsCsv,
       updateClassroomScene,
       removeTables,

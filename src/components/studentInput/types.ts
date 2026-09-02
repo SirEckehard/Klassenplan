@@ -15,7 +15,11 @@ export type StudentInputProps = {
   ) => Student;
   addBulkPlaceholderStudents: (count: number) => Student[];
   removeStudent: (id: string) => void;
+  /** Remove a whole selection as one undo step and one store write. */
+  removeStudents: (ids: string[]) => void;
   updateStudent: (id: string, patch: Partial<Student>) => void;
+  /** Apply one patch to a whole selection as one undo step and one store write. */
+  updateStudents: (ids: string[], patch: Partial<Student>) => void;
   importCsv: (file: File, mode?: NameColumnMode) => Promise<Student[]>;
   downloadStudentsCsv: () => void;
   onProceedToLayout: () => void;

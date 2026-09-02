@@ -20,6 +20,7 @@ import {
   successIconButtonClass,
 } from '@/utils';
 import FloatingDropdown from './FloatingDropdown';
+import StudentHistoryToolbar from '@/components/studentInput/StudentHistoryToolbar';
 import { useClickOutside } from '@/hooks/ui/useClickOutside';
 
 type Props = {
@@ -367,6 +368,11 @@ export default function ClassSelectionBar({
 
         {/* Everything that is not a daily action sits on the right */}
         <div className="flex items-center gap-2 sm:ml-auto">
+          {/* Undo/redo lead the group: they take back the very actions this
+              row triggers, so they belong next to them rather than above the
+              list they happen to change. */}
+          {hasActiveClass && <StudentHistoryToolbar />}
+
           {hasActiveClass && onImportCsv && (
             <label className={importButtonClass} title={t('csv.import')}>
               <FileArrowUpIcon size={16} aria-hidden="true" />

@@ -12,14 +12,20 @@ export interface StudentManagementContextValue {
   addStudent: SeatingPlanSnapshot['actions']['addStudent'];
   addBulkPlaceholderStudents: SeatingPlanSnapshot['actions']['addBulkPlaceholderStudents'];
   removeStudent: SeatingPlanSnapshot['actions']['removeStudent'];
+  removeStudents: SeatingPlanSnapshot['actions']['removeStudents'];
   clearStudents: SeatingPlanSnapshot['actions']['clearStudents'];
   updateStudent: SeatingPlanSnapshot['actions']['updateStudent'];
+  updateStudents: SeatingPlanSnapshot['actions']['updateStudents'];
   setStudents: SeatingPlanSnapshot['actions']['setStudents'];
   importCsv: SeatingPlanSnapshot['actions']['importCsv'];
   downloadStudentsCsv: SeatingPlanSnapshot['actions']['downloadStudentsCsv'];
+  undoStudents: SeatingPlanSnapshot['actions']['undoStudents'];
+  redoStudents: SeatingPlanSnapshot['actions']['redoStudents'];
+  canUndoStudents: SeatingPlanSnapshot['state']['canUndoStudents'];
+  canRedoStudents: SeatingPlanSnapshot['state']['canRedoStudents'];
 }
 
-const StudentManagementContext =
+export const StudentManagementContext =
   React.createContext<StudentManagementContextValue | null>(null);
 
 /**
@@ -34,11 +40,17 @@ export const selectStudentManagementContext = ({
   addStudent: actions.addStudent,
   addBulkPlaceholderStudents: actions.addBulkPlaceholderStudents,
   removeStudent: actions.removeStudent,
+  removeStudents: actions.removeStudents,
   clearStudents: actions.clearStudents,
   updateStudent: actions.updateStudent,
+  updateStudents: actions.updateStudents,
   setStudents: actions.setStudents,
   importCsv: actions.importCsv,
   downloadStudentsCsv: actions.downloadStudentsCsv,
+  undoStudents: actions.undoStudents,
+  redoStudents: actions.redoStudents,
+  canUndoStudents: state.canUndoStudents,
+  canRedoStudents: state.canRedoStudents,
 });
 
 export function StudentManagementProvider({

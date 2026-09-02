@@ -135,16 +135,23 @@ describe('useSeatingGenerator', () => {
 
   type SeatingStateSlice = ReturnType<typeof useSeatingState>;
 
+  const mockStudents = [student('1', 'Alice'), student('2', 'Bob')];
+
   const createSeatingStateMock = (overrides: any = {}): SeatingStateSlice => {
     const baseState = {
       studentState: {
-        students: [student('1', 'Alice'), student('2', 'Bob')],
+        students: mockStudents,
+        // The undo history reads the committed list synchronously; the mocked
+        // actions never write, so this always returns the initial two.
+        getStudents: () => mockStudents,
         setStudents: vi.fn(),
         addStudent: vi.fn(),
         addBulkPlaceholderStudents: vi.fn(),
         removeStudent: vi.fn(),
+        removeStudents: vi.fn(),
         clearStudents: vi.fn(),
         updateStudent: vi.fn(),
+        updateStudents: vi.fn(),
         importCsv: vi.fn(),
         moveStudent: mockMoveStudent,
         hasPendingStudentUpdates: false,
