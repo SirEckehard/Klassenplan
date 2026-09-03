@@ -29,7 +29,8 @@ import { CanvasSettingsButton } from '@/components/SeatingPlanGenerator/canvas/C
 import {
   GRID_SIZE,
   isFormElementFocused,
-  getDisplayName,
+  getDisplayNameForMode,
+  type NameDisplayMode,
   canvasFrameClass,
   getViewportMetrics,
   primaryButtonClass,
@@ -45,6 +46,7 @@ import {
 import { calculateBadgePillLayout } from '@/utils/ui/studentAppearance';
 import { FEATURE_TYPES, type FeatureVisibilityFlags } from '@/utils/ui';
 import { buildFeatureVisibilityGroup } from '@/components/SeatingPlanGenerator/canvas/featureVisibilityGroup';
+import { buildNameDisplayGroup } from '@/components/SeatingPlanGenerator/canvas/nameDisplayGroup';
 import type {
   MixSettings,
   SeatingArrangement,
@@ -119,9 +121,10 @@ function SeatPreviewCard({ preview, viewportScale }: SeatPreviewCardProps) {
           className="text-xs font-semibold"
           style={{ color: preview.appearance.text }}
         >
-          {getDisplayName(
+          {getDisplayNameForMode(
             preview.student.name,
-            preview.showFullName ? 'full' : 'table',
+            'table',
+            preview.nameDisplay,
           )}
         </span>
         {preview.flags.length > 0 && badgeLayout && (
@@ -181,6 +184,8 @@ type Props = {
   setShowGrid: React.Dispatch<React.SetStateAction<boolean>>;
   photoDisplayMode: PhotoDisplayMode;
   setPhotoDisplayMode: React.Dispatch<React.SetStateAction<PhotoDisplayMode>>;
+  nameDisplay: NameDisplayMode;
+  setNameDisplay: React.Dispatch<React.SetStateAction<NameDisplayMode>>;
   sceneTables: ClassroomTable[];
   currentSeating: SeatingArrangement;
   students: Student[];
@@ -250,6 +255,8 @@ export default function SeatingPlanEditorView({
   setShowGrid,
   photoDisplayMode,
   setPhotoDisplayMode,
+  nameDisplay,
+  setNameDisplay,
   sceneTables,
   currentSeating,
   students,
@@ -309,6 +316,10 @@ export default function SeatingPlanEditorView({
   const handlePhotoDisplayModeChange = React.useCallback(
     (next: string) => setPhotoDisplayMode(() => next as PhotoDisplayMode),
     [setPhotoDisplayMode],
+  );
+  const studentNames = React.useMemo(
+    () => students.map((student) => student.name),
+    [students],
   );
   const featureAvailability = React.useMemo(() => {
     const features = classroomScene.features ?? [];
@@ -370,6 +381,13 @@ export default function SeatingPlanEditorView({
           },
         ],
       },
+      buildNameDisplayGroup({
+        id: 'editor-names',
+        value: nameDisplay,
+        onChange: setNameDisplay,
+        names: studentNames,
+        t,
+      }),
       buildFeatureVisibilityGroup({
         id: 'editor-features',
         title: t('layout.roomElements', 'Raumelemente'),
@@ -387,6 +405,9 @@ export default function SeatingPlanEditorView({
       setFeatureVisible,
       handleToggleGrid,
       handlePhotoDisplayModeChange,
+      nameDisplay,
+      setNameDisplay,
+      studentNames,
       photoDisplayMode,
       showGrid,
       t,
@@ -959,6 +980,7 @@ export default function SeatingPlanEditorView({
                   isDark={isDark}
                   seatHighlights={seatHighlightLookup}
                   photoDisplayMode={photoDisplayMode}
+                  nameDisplay={nameDisplay}
                 />
                 {autoMixing && (
                   <div className="pointer-events-auto absolute inset-0 z-20 flex items-center justify-center rounded-xl bg-white/70 backdrop-blur-sm dark:bg-gray-900/80">

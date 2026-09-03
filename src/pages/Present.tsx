@@ -34,7 +34,13 @@ import {
   neutralButtonClass,
   primaryButtonClass,
   secondaryButtonClass,
+  type NameDisplayMode,
 } from '@/utils';
+import {
+  NAME_DISPLAY_ICONS,
+  NAME_DISPLAY_MODES,
+  nameDisplayLabelKey,
+} from '@/components/SeatingPlanGenerator/canvas/nameDisplayGroup';
 import HelpButton from '@/components/ui/buttons/HelpButton';
 import AppearanceControls from '@/components/ui/navigation/AppearanceControls';
 import PresentationScene from '@/components/scene/PresentationScene';
@@ -80,6 +86,21 @@ export default function Present() {
     true,
   );
   const [zoom, setZoom] = usePersistentState(LOCAL_STORAGE_KEYS.presentZoom, 1);
+  // Shared with step 3 and the circle view: one class, one name rule.
+  const [nameDisplay, setNameDisplay] = usePersistentState<NameDisplayMode>(
+    LOCAL_STORAGE_KEYS.nameDisplay,
+    'firstNameInitial',
+  );
+  // The projector toolbar has no room for a segmented control, so one button
+  // cycles through the modes and names the current one in its tooltip.
+  const nameDisplayIndex = Math.max(0, NAME_DISPLAY_MODES.indexOf(nameDisplay));
+  const currentNameDisplay = NAME_DISPLAY_MODES[nameDisplayIndex];
+  const NameDisplayIcon = NAME_DISPLAY_ICONS[currentNameDisplay];
+  const cycleNameDisplay = () =>
+    setNameDisplay(
+      () =>
+        NAME_DISPLAY_MODES[(nameDisplayIndex + 1) % NAME_DISPLAY_MODES.length],
+    );
   const { pan, containerRef, pointerHandlers, canPan, setZoomLevel, reset } =
     usePanZoom({
       zoom,
@@ -266,6 +287,7 @@ export default function Present() {
                 showSpecialNeeds={isTeacher && showBadges}
                 showGenderColors={showGenderColors}
                 photoMode={isTeacher && showPhotos ? 'all' : 'off'}
+                nameDisplay={currentNameDisplay}
                 connectionMode="off"
                 transparentBackground
               />
@@ -281,6 +303,7 @@ export default function Present() {
             showPhotos={showPhotos}
             showGenderColors={showGenderColors}
             showFeatures={showFeatures}
+            nameDisplay={currentNameDisplay}
             zoom={zoom}
             panX={pan.x}
             panY={pan.y}
@@ -389,6 +412,20 @@ export default function Present() {
               <PaletteIcon size={20} aria-hidden />
               <span className="text-sm font-semibold">
                 {t('present.colors', 'Farben')}
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={cycleNameDisplay}
+              className={`${secondaryButtonClass} h-10 gap-2 px-4`}
+              title={`${t('present.names')}: ${t(
+                nameDisplayLabelKey(currentNameDisplay),
+              )}`}
+            >
+              <NameDisplayIcon size={20} aria-hidden />
+              <span className="text-sm font-semibold">
+                {t('present.names')}
               </span>
             </button>
 

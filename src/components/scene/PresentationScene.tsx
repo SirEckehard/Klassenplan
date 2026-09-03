@@ -5,7 +5,11 @@ import type { ClassroomScene, SeatingArrangement, Student } from '@/types';
 import TableIcon from './SceneTable';
 import FeatureShape from './FeatureShape';
 import { useStudentPhotoUrls } from '@/hooks/student/useStudentPhoto';
-import { CLASSROOM_WIDTH, CLASSROOM_HEIGHT } from '@/utils';
+import {
+  CLASSROOM_WIDTH,
+  CLASSROOM_HEIGHT,
+  type NameDisplayMode,
+} from '@/utils';
 import { getFeatureStyles } from '@/utils/ui';
 import {
   getPresentationRotation,
@@ -39,6 +43,8 @@ type PresentationSceneProps = {
    * (`spg.featureVisibility`) — this is a presentation-only master switch.
    */
   showFeatures?: boolean;
+  /** Uniform name rule for the seat labels (see {@link NameDisplayMode}). */
+  nameDisplay?: NameDisplayMode;
   /** Scale factor for the whole scene (1 = fit-to-container). */
   zoom?: number;
   /** Pan offset in screen pixels, applied after the zoom scale. */
@@ -61,6 +67,7 @@ export default function PresentationScene({
   showPhotos = true,
   showGenderColors = true,
   showFeatures = true,
+  nameDisplay,
   zoom = 1,
   panX = 0,
   panY = 0,
@@ -144,6 +151,7 @@ export default function PresentationScene({
             lockSeatLabelOrientation={true}
             seatLabelRotation={-rotation}
             photoDisplayMode={photoDisplayMode}
+            nameDisplay={nameDisplay}
           />
         ))}
       </g>

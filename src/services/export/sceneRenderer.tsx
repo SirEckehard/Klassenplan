@@ -4,6 +4,7 @@ import type { ReactElement } from 'react';
 import type { ClassroomScene, SeatingArrangement, Student } from '@/types';
 import type { CircleLayout } from '@/types/Circle';
 import type { FeatureVisibilityFlags } from '@/utils/ui';
+import type { NameDisplayMode } from '@/utils';
 import SceneSvg from '@/components/scene/SceneSvg';
 import CirclePrintView from '@/components/circle/CirclePrintView';
 
@@ -47,7 +48,7 @@ export async function renderSceneSvg(
     orientation?: 'landscape' | 'portrait';
     /** Rotate the classroom 180° while names stay upright (see `SceneSvg`). */
     flipped?: boolean;
-    showFullNames?: boolean;
+    nameDisplay?: NameDisplayMode;
     photoDisplayMode?: 'all' | 'off';
     showLegend?: boolean;
     classMetadata?: ExportClassMetadata;
@@ -68,7 +69,7 @@ export async function renderSceneSvg(
         seatLabelRotation={options?.seatLabelRotation}
         orientation={options?.orientation}
         flipped={options?.flipped}
-        showFullNames={options?.showFullNames}
+        nameDisplay={options?.nameDisplay}
         photoDisplayMode={options?.photoDisplayMode}
         showLegend={options?.showLegend}
       />
@@ -86,7 +87,7 @@ export async function renderCircleSvg(
     showSpecialNeeds?: boolean;
     showConnections?: boolean;
     orientation?: 'landscape' | 'portrait';
-    showFullNames?: boolean;
+    nameDisplay?: NameDisplayMode;
     classMetadata?: ExportClassMetadata;
     photoDataUrls?: ReadonlyMap<string, string>;
     photoDisplayMode?: 'all' | 'off';
@@ -102,7 +103,7 @@ export async function renderCircleSvg(
         showSpecialNeeds={options?.showSpecialNeeds ?? true}
         showConnections={options?.showConnections ?? true}
         orientation={options?.orientation}
-        showFullNames={options?.showFullNames}
+        nameDisplay={options?.nameDisplay}
         photoDataUrls={options?.photoDataUrls}
         photoDisplayMode={options?.photoDisplayMode}
         showLegend={options?.showLegend}

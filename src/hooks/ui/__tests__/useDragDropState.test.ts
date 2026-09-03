@@ -22,7 +22,7 @@ const createBaseConfig = (
     text: '#111827',
   },
   flags: [],
-  showFullName: false,
+  nameDisplay: 'firstNameInitial',
   ...overrides,
 });
 

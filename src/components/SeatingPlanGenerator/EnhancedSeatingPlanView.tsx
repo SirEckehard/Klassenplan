@@ -31,7 +31,12 @@ import { useIsDarkMode } from '@/hooks/useIsDarkMode';
 import { useFirstVisit } from '@/hooks/ui/useFirstVisit';
 import { useIsMobile } from '@/hooks/ui/useIsMobile';
 import type { Props as SeatingPlanViewProps } from './SeatingPlanView';
-import { canvasFrameClass, secondaryButtonClass } from '@/utils';
+import {
+  canvasFrameClass,
+  secondaryButtonClass,
+  type NameDisplayMode,
+} from '@/utils';
+import { buildNameDisplayGroup } from '@/components/SeatingPlanGenerator/canvas/nameDisplayGroup';
 import SeatingHistoryToolbar from '@/components/SeatingPlanGenerator/canvas/SeatingHistoryToolbar';
 import { CanvasSettingsButton } from '@/components/SeatingPlanGenerator/canvas/CanvasSettingsButton';
 import { useEnsureCircleLayout } from '@/hooks/circle/useEnsureCircleLayout';
@@ -77,6 +82,11 @@ export default function EnhancedSeatingPlanView(
   const [photoMode, setPhotoMode] = usePersistentState<PhotoDisplayMode>(
     LOCAL_STORAGE_KEYS.circlePhotoMode,
     'all',
+  );
+  // Shared with the table plan and the presentation: one class, one name rule.
+  const [nameDisplay, setNameDisplay] = usePersistentState<NameDisplayMode>(
+    LOCAL_STORAGE_KEYS.nameDisplay,
+    'firstNameInitial',
   );
   const isMobile = useIsMobile();
 
@@ -182,6 +192,14 @@ export default function EnhancedSeatingPlanView(
     navigate('/present', { state: { mode: 'circle' } });
   }, [hasUnsavedChanges, props, circleLayout, navigate]);
 
+  const circleStudentNames = useMemo(
+    () =>
+      (circleLayout?.students ?? [])
+        .map((entry) => entry.student?.name)
+        .filter((name): name is string => Boolean(name)),
+    [circleLayout],
+  );
+
   // Circle view settings live in the canvas' settings button, exactly like the
   // table plan's — display options belong to the canvas they affect, while the
   // sidebar keeps the actions (sync, shuffle).
@@ -239,8 +257,23 @@ export default function EnhancedSeatingPlanView(
           },
         ],
       },
+      buildNameDisplayGroup({
+        id: 'circle-names',
+        value: nameDisplay,
+        onChange: setNameDisplay,
+        names: circleStudentNames,
+        t,
+      }),
     ],
-    [connectionMode, photoMode, setPhotoMode, t],
+    [
+      circleStudentNames,
+      connectionMode,
+      nameDisplay,
+      setNameDisplay,
+      photoMode,
+      setPhotoMode,
+      t,
+    ],
   );
 
   // Calculate actual neighborhood count (preserved neighbors from table seating)
@@ -297,6 +330,7 @@ export default function EnhancedSeatingPlanView(
                   connectionMode={connectionMode}
                   onConnectionModeChange={setConnectionMode}
                   photoMode={photoMode}
+                  nameDisplay={nameDisplay}
                   onSyncCircle={() => void generateCircleSeating()}
                 />
               ) : (

@@ -158,10 +158,14 @@ export {
 // ===== Name Formatting =====
 export {
   getDisplayName,
+  getDisplayNameForMode,
+  applyNameDisplayMode,
+  countAmbiguousFirstNames,
   getTooltipName,
   isNameTruncated,
   getNamePreview,
 } from './nameFormatting';
+export type { NameDisplayMode } from './nameFormatting';
 
 // ===== Plan Names =====
 export { createTimestampPlanName } from './planNames';

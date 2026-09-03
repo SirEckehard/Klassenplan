@@ -17,6 +17,7 @@ import {
   hasShapeMismatch,
   createClientToSceneConverter,
   type AlignmentGuide,
+  type NameDisplayMode,
 } from '@/utils';
 import useTableSelection from '@/hooks/useTableSelection';
 import useFeatureSelection from '@/hooks/useFeatureSelection';
@@ -178,6 +179,10 @@ export function useSeatingPlanViewLogic({
       LOCAL_STORAGE_KEYS.photoDisplayMode,
       'hover',
     ); // How student photos grow on the seat dots (all / hover / off)
+  const [nameDisplay, setNameDisplay] = usePersistentState<NameDisplayMode>(
+    LOCAL_STORAGE_KEYS.nameDisplay,
+    'firstNameInitial',
+  ); // Uniform seat label rule (first name / first name + initial / full)
   const canvasRef = React.useRef<SVGSVGElement | null>(null);
 
   // Context Menu Integration
@@ -540,6 +545,8 @@ export function useSeatingPlanViewLogic({
           setShowGrid,
           photoDisplayMode,
           setPhotoDisplayMode,
+          nameDisplay,
+          setNameDisplay,
           sceneTables,
           currentSeating,
           students,

@@ -6,6 +6,7 @@ import type { ClassroomScene, SeatingArrangement, Student } from '@/types';
 import TableIcon from './SceneTable';
 import FeatureShape from './FeatureShape';
 import { CLASSROOM_WIDTH, CLASSROOM_HEIGHT, formatDate } from '@/utils';
+import type { NameDisplayMode } from '@/utils';
 import { getFeatureStyles } from '@/utils/ui';
 import type { FeatureVisibilityFlags } from '@/utils/ui';
 import { buildLegendLayout } from '@/utils/ui/classBadgeLegend';
@@ -37,7 +38,8 @@ type SceneSvgProps = {
    * in the real viewing direction without turning the page — and its header.
    */
   flipped?: boolean;
-  showFullNames?: boolean;
+  /** Uniform name rule for the seat labels (see {@link NameDisplayMode}). */
+  nameDisplay?: NameDisplayMode;
   /** Photo display on the seat dots for the export: 'all' shows them, 'off' hides. */
   photoDisplayMode?: 'all' | 'off';
   /** When true, append a legend (badge icons + gender colours) in the footer. */
@@ -57,7 +59,7 @@ export default function SceneSvg({
   seatLabelRotation = 0,
   orientation = 'portrait',
   flipped = false,
-  showFullNames = false,
+  nameDisplay,
   photoDisplayMode = 'all',
   showLegend = false,
 }: SceneSvgProps) {
@@ -299,7 +301,7 @@ export default function SceneSvg({
             isDark={false}
             lockSeatLabelOrientation={lockSeatLabelOrientation}
             seatLabelRotation={seatLabelRotation - classroomRotation}
-            showFullNames={showFullNames}
+            nameDisplay={nameDisplay}
             photoDisplayMode={photoDisplayMode}
           />
         ))}

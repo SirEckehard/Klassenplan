@@ -8,10 +8,11 @@ import { LOCAL_STORAGE_KEYS } from '@/utils/data/storageKeys';
 import { angleToPosition } from '@/utils/math/circleGeometry';
 import {
   GRID_SIZE,
-  getDisplayName,
+  getDisplayNameForMode,
   getTooltipName,
   calculateSeatLabelFontSize,
   logDebug,
+  type NameDisplayMode,
 } from '@/utils';
 import {
   getStudentAppearance,
@@ -42,6 +43,8 @@ type SimpleCircleViewProps = {
   onConnectionModeChange?: (mode: ConnectionDisplayMode) => void;
   /** How student photos show on the circle tokens: all / hover / off. */
   photoMode?: PhotoDisplayMode;
+  /** Uniform name rule for the tokens (see {@link NameDisplayMode}). */
+  nameDisplay?: NameDisplayMode;
   onPhotoModeChange?: (mode: PhotoDisplayMode) => void;
 };
 
@@ -60,6 +63,7 @@ function SimpleCircleView({
   connectionMode: externalConnectionMode,
   onConnectionModeChange,
   photoMode: externalPhotoMode,
+  nameDisplay,
 }: SimpleCircleViewProps) {
   const { t } = useTranslation('generator');
   const isMobile = useIsMobile();
@@ -308,7 +312,11 @@ function SimpleCircleView({
       ? computeBadgeOffset(previewRadius, previewBadgeLayout.height)
       : 0;
   const previewDisplayName = dragState.dragPreview?.student
-    ? getDisplayName(dragState.dragPreview.student.name, 'circle')
+    ? getDisplayNameForMode(
+        dragState.dragPreview.student.name,
+        'circle',
+        nameDisplay,
+      )
     : '';
   const previewFontSize = calculateSeatLabelFontSize(
     previewDisplayName,
@@ -412,7 +420,11 @@ function SimpleCircleView({
             studentPosition?.student ?? null,
           );
           const studentDisplayName = studentPosition?.student
-            ? getDisplayName(studentPosition.student.name, 'circle')
+            ? getDisplayNameForMode(
+                studentPosition.student.name,
+                'circle',
+                nameDisplay,
+              )
             : '';
           const studentTooltip = studentPosition?.student
             ? getTooltipName(studentPosition.student.name)

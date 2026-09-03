@@ -1,6 +1,12 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import { getDisplayName, getTooltipName } from '../nameFormatting';
+import {
+  applyNameDisplayMode,
+  countAmbiguousFirstNames,
+  getDisplayName,
+  getDisplayNameForMode,
+  getTooltipName,
+} from '../nameFormatting';
 import { describe, it, expect } from 'vitest';
 
 describe('nameFormatting utilities', () => {
@@ -171,6 +177,135 @@ describe('nameFormatting utilities', () => {
         expect(tableResult.toLowerCase()).toContain(firstChar);
         expect(circleResult.toLowerCase()).toContain(firstChar);
         expect(pdfResult.toLowerCase()).toContain(firstChar);
+      });
+    });
+  });
+
+  describe('name display modes', () => {
+    describe('applyNameDisplayMode', () => {
+      it('reduces a name to its first name', () => {
+        expect(applyNameDisplayMode('Anna Meier', 'firstName')).toBe('Anna');
+        expect(applyNameDisplayMode('Jan-Patrick Schmidt', 'firstName')).toBe(
+          'Jan-Patrick',
+        );
+      });
+
+      it('appends the last initial', () => {
+        expect(applyNameDisplayMode('Anna Meier', 'firstNameInitial')).toBe(
+          'Anna M.',
+        );
+        expect(
+          applyNameDisplayMode('Jan-Patrick Schmidt', 'firstNameInitial'),
+        ).toBe('Jan-Patrick S.');
+      });
+
+      it('drops middle names, since the model stores one free-text name', () => {
+        expect(applyNameDisplayMode('Anna Maria Meier', 'firstName')).toBe(
+          'Anna',
+        );
+        expect(
+          applyNameDisplayMode('Anna Maria Meier', 'firstNameInitial'),
+        ).toBe('Anna M.');
+      });
+
+      it('reads the initial past name particles', () => {
+        expect(applyNameDisplayMode('Anna von Berg', 'firstNameInitial')).toBe(
+          'Anna B.',
+        );
+        expect(
+          applyNameDisplayMode('Anna van der Berg', 'firstNameInitial'),
+        ).toBe('Anna B.');
+      });
+
+      it('keeps single-token names untouched in every mode', () => {
+        expect(applyNameDisplayMode('Ronaldo', 'firstName')).toBe('Ronaldo');
+        expect(applyNameDisplayMode('Ronaldo', 'firstNameInitial')).toBe(
+          'Ronaldo',
+        );
+        expect(applyNameDisplayMode('Ronaldo', 'full')).toBe('Ronaldo');
+      });
+
+      it('does not double the period of an abbreviated last name', () => {
+        expect(applyNameDisplayMode('Lena M.', 'firstNameInitial')).toBe(
+          'Lena M.',
+        );
+        expect(applyNameDisplayMode('Lena M.', 'firstName')).toBe('Lena');
+      });
+
+      it('uppercases the initial and tolerates extra whitespace', () => {
+        expect(
+          applyNameDisplayMode('  anna   meier  ', 'firstNameInitial'),
+        ).toBe('anna M.');
+      });
+
+      it('leaves the full mode untouched apart from trimming', () => {
+        expect(applyNameDisplayMode('  Anna Maria Meier ', 'full')).toBe(
+          'Anna Maria Meier',
+        );
+      });
+    });
+
+    describe('countAmbiguousFirstNames', () => {
+      it('counts every student sharing a first name', () => {
+        expect(
+          countAmbiguousFirstNames([
+            'Lukas Meier',
+            'Lukas Schneider',
+            'Anna Weber',
+          ]),
+        ).toBe(2);
+      });
+
+      it('ignores case and returns zero when all first names are unique', () => {
+        expect(countAmbiguousFirstNames(['Anna Weber', 'anna Meier'])).toBe(2);
+        expect(countAmbiguousFirstNames(['Anna Weber', 'Lena Meier'])).toBe(0);
+        expect(countAmbiguousFirstNames([])).toBe(0);
+      });
+    });
+
+    describe('getDisplayNameForMode', () => {
+      it('falls back to the plain context behaviour without a mode', () => {
+        expect(getDisplayNameForMode('Anna Meier', 'table')).toBe(
+          getDisplayName('Anna Meier', 'table'),
+        );
+      });
+
+      it('applies the same rule to every name, not just the long ones', () => {
+        // The context default keeps the short name and shortens only the long
+        // one - the mixture this mode exists to avoid.
+        expect(getDisplayName('Anna Meier', 'table')).toBe('Anna Meier');
+        expect(
+          getDisplayNameForMode('Anna Meier', 'table', 'firstNameInitial'),
+        ).toBe('Anna M.');
+        expect(
+          getDisplayNameForMode('Lena Weber', 'table', 'firstNameInitial'),
+        ).toBe('Lena W.');
+      });
+
+      it('drops the period before cutting into a first name', () => {
+        // "Konstantin S." is 13 characters, one over the seat limit.
+        expect(
+          getDisplayNameForMode(
+            'Konstantin Schneider',
+            'table',
+            'firstNameInitial',
+          ),
+        ).toBe('Konstantin S');
+      });
+
+      it('still truncates names that do not fit the seat', () => {
+        const result = getDisplayNameForMode(
+          'Maximiliane-Charlotte Schneider',
+          'table',
+          'firstName',
+        );
+        expect(result.length).toBeLessThanOrEqual(12);
+      });
+
+      it('never truncates in the full mode', () => {
+        expect(
+          getDisplayNameForMode('Maximilian Schneider', 'table', 'full'),
+        ).toBe('Maximilian Schneider');
       });
     });
   });

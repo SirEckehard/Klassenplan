@@ -189,3 +189,147 @@ export function getNamePreview(
     isTruncated: truncated !== full,
   };
 }
+
+/**
+ * Uniform name display modes for the seating plan export.
+ *
+ * Unlike the context-based truncation above — which only shortens names that do
+ * not fit and therefore mixes full names and abbreviations on one sheet — these
+ * modes apply the same rule to every student, which is what makes a printed
+ * plan readable at a glance. `undefined` keeps the context default (used by the
+ * editor, where names are only shortened on overflow).
+ *
+ * - `firstName`: first name only ("Anna Meier" -> "Anna")
+ * - `firstNameInitial`: first name plus last initial ("Anna Meier" -> "Anna M.")
+ * - `full`: complete name, never shortened
+ */
+export type NameDisplayMode = 'firstName' | 'firstNameInitial' | 'full';
+
+/**
+ * Splits a name into its first name and the initial of its last name.
+ *
+ * The student model stores one free-text `name`, so the split is a heuristic:
+ * the first whitespace-separated token is the first name, the last one the last
+ * name. Middle names therefore drop out ("Anna Maria Meier" -> "Anna M."), and
+ * name particles are skipped implicitly because only the final token is read
+ * ("Anna von Berg" -> "Anna B.").
+ */
+function splitStudentName(name: string): {
+  firstName: string;
+  lastInitial: string | null;
+} {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) {
+    return { firstName: '', lastInitial: null };
+  }
+
+  const [firstName, ...rest] = parts;
+  const lastPart = rest[rest.length - 1];
+  if (!lastPart) {
+    return { firstName, lastInitial: null };
+  }
+
+  // Array.from keeps surrogate pairs intact, so a name starting with an
+  // astral-plane character does not turn into half a code point.
+  const initial = Array.from(lastPart)[0];
+  if (!initial) {
+    return { firstName, lastInitial: null };
+  }
+
+  return { firstName, lastInitial: `${initial.toLocaleUpperCase()}.` };
+}
+
+/**
+ * Applies a display mode to a name, without any length-based truncation.
+ *
+ * @param name - Full student name
+ * @param mode - Display mode to apply
+ * @returns The name rewritten for the mode (may still exceed a seat's width)
+ */
+export function applyNameDisplayMode(
+  name: string,
+  mode: NameDisplayMode,
+): string {
+  const trimmedName = name.trim();
+  if (mode === 'full') {
+    return trimmedName;
+  }
+
+  const { firstName, lastInitial } = splitStudentName(trimmedName);
+  if (!firstName) {
+    return trimmedName;
+  }
+  if (mode === 'firstName' || !lastInitial) {
+    return firstName;
+  }
+
+  return `${firstName} ${lastInitial}`;
+}
+
+/**
+ * Gets the display name for a context, honouring an explicit display mode.
+ *
+ * The context truncation still runs after the mode has been applied, so an
+ * unusually long first name cannot overflow its seat. `full` keeps the whole
+ * name (the seat label font scales down instead), and an undefined mode falls
+ * back to the plain context behaviour.
+ *
+ * @param name - Full student name
+ * @param context - Display context (table, circle, pdf, or full)
+ * @param mode - Uniform display mode, or undefined for the context default
+ * @returns Formatted name ready for rendering
+ */
+export function getDisplayNameForMode(
+  name: string,
+  context: DisplayContext,
+  mode?: NameDisplayMode,
+): string {
+  if (!mode) {
+    return getDisplayName(name, context);
+  }
+  if (mode === 'full') {
+    return getDisplayName(name, 'full');
+  }
+
+  const shortened = applyNameDisplayMode(name, mode);
+  if (!isNameTruncated(shortened, context)) {
+    return shortened;
+  }
+
+  // One character over the limit: dropping the initial's period keeps the first
+  // name whole ("Konstantin S" instead of "Konstanti S."), which reads better
+  // than cutting into the name the label is meant to identify.
+  if (mode === 'firstNameInitial' && shortened.endsWith('.')) {
+    const withoutPeriod = shortened.slice(0, -1);
+    if (!isNameTruncated(withoutPeriod, context)) {
+      return withoutPeriod;
+    }
+  }
+
+  return getDisplayName(shortened, context);
+}
+
+/**
+ * Counts the names whose first name is shared with at least one other name in
+ * the list — those students would carry the same label in `firstName` mode.
+ *
+ * @param names - Full student names
+ * @returns Number of names affected by a collision (0 when all are unique)
+ */
+export function countAmbiguousFirstNames(names: string[]): number {
+  const occurrences = new Map<string, number>();
+  for (const name of names) {
+    const firstName = applyNameDisplayMode(
+      name,
+      'firstName',
+    ).toLocaleLowerCase();
+    if (!firstName) continue;
+    occurrences.set(firstName, (occurrences.get(firstName) ?? 0) + 1);
+  }
+
+  let ambiguous = 0;
+  for (const count of occurrences.values()) {
+    if (count > 1) ambiguous += count;
+  }
+  return ambiguous;
+}

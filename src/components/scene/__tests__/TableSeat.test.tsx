@@ -39,7 +39,6 @@ describe('TableSeat component', () => {
           isHoverLockedSeat={false}
           isLockedFeedbackSeat={false}
           showSpecialNeeds={true}
-          showFullNames={false}
           lockSeatLabelOrientation={true}
           seatTextRotation={0}
         />
@@ -69,7 +68,6 @@ describe('TableSeat component', () => {
           isHoverLockedSeat={false}
           isLockedFeedbackSeat={false}
           showSpecialNeeds={true}
-          showFullNames={false}
           lockSeatLabelOrientation={true}
           seatTextRotation={0}
         />
@@ -81,7 +79,7 @@ describe('TableSeat component', () => {
     expect(text?.textContent).toMatch(/Ada/i);
   });
 
-  it('renders full name when showFullNames is true', () => {
+  it('renders the full name in the full name display mode', () => {
     const { container } = render(
       <svg>
         <TableSeat
@@ -99,7 +97,7 @@ describe('TableSeat component', () => {
           isHoverLockedSeat={false}
           isLockedFeedbackSeat={false}
           showSpecialNeeds={true}
-          showFullNames={true}
+          nameDisplay="full"
           lockSeatLabelOrientation={true}
           seatTextRotation={0}
         />
@@ -131,7 +129,6 @@ describe('TableSeat component', () => {
           isHoverLockedSeat={false}
           isLockedFeedbackSeat={false}
           showSpecialNeeds={true}
-          showFullNames={false}
           lockSeatLabelOrientation={true}
           seatTextRotation={0}
           toggleLock={toggleLock}
@@ -164,7 +161,6 @@ describe('TableSeat component', () => {
           isHoverLockedSeat={false}
           isLockedFeedbackSeat={false}
           showSpecialNeeds={true}
-          showFullNames={false}
           lockSeatLabelOrientation={true}
           seatTextRotation={0}
           toggleLock={toggleLock}
@@ -199,7 +195,6 @@ describe('TableSeat component', () => {
           isHoverLockedSeat={false}
           isLockedFeedbackSeat={false}
           showSpecialNeeds={true}
-          showFullNames={false}
           lockSeatLabelOrientation={true}
           seatTextRotation={0}
           toggleLock={toggleLock}
@@ -236,7 +231,6 @@ describe('TableSeat component', () => {
           isHoverLockedSeat={false}
           isLockedFeedbackSeat={false}
           showSpecialNeeds={true}
-          showFullNames={false}
           lockSeatLabelOrientation={true}
           seatTextRotation={0}
         />
@@ -266,7 +260,6 @@ describe('TableSeat component', () => {
           isHoverLockedSeat={false}
           isLockedFeedbackSeat={false}
           showSpecialNeeds={true}
-          showFullNames={false}
           lockSeatLabelOrientation={true}
           seatTextRotation={0}
         />
@@ -301,7 +294,6 @@ describe('TableSeat component', () => {
           isHoverLockedSeat={false}
           isLockedFeedbackSeat={false}
           showSpecialNeeds={true}
-          showFullNames={false}
           lockSeatLabelOrientation={true}
           seatTextRotation={0}
         />
@@ -344,7 +336,6 @@ describe('TableSeat component', () => {
           isHoverLockedSeat={false}
           isLockedFeedbackSeat={false}
           showSpecialNeeds={true}
-          showFullNames={false}
           lockSeatLabelOrientation={true}
           seatTextRotation={0}
           onSeatPointerDown={onSeatPointerDown}
@@ -387,7 +378,6 @@ describe('TableSeat component', () => {
           isHoverLockedSeat={false}
           isLockedFeedbackSeat={false}
           showSpecialNeeds={true}
-          showFullNames={false}
           lockSeatLabelOrientation={true}
           seatTextRotation={0}
           onSeatPointerUp={onSeatPointerUp}
@@ -423,7 +413,6 @@ describe('TableSeat component', () => {
           isHoverLockedSeat={false}
           isLockedFeedbackSeat={false}
           showSpecialNeeds={true}
-          showFullNames={false}
           lockSeatLabelOrientation={true}
           seatTextRotation={0}
           onSeatKeyDown={onSeatKeyDown}
@@ -472,7 +461,6 @@ describe('TableSeat component', () => {
           isHoverLockedSeat={false}
           isLockedFeedbackSeat={false}
           showSpecialNeeds={true}
-          showFullNames={false}
           lockSeatLabelOrientation={true}
           seatTextRotation={0}
           onSeatKeyDown={onSeatKeyDown}
@@ -523,7 +511,6 @@ describe('TableSeat component', () => {
           isHoverLockedSeat={false}
           isLockedFeedbackSeat={false}
           showSpecialNeeds={true}
-          showFullNames={false}
           lockSeatLabelOrientation={true}
           seatTextRotation={0}
           onSeatPointerDown={vi.fn()}
@@ -556,7 +543,6 @@ describe('TableSeat component', () => {
           isHoverLockedSeat={false}
           isLockedFeedbackSeat={false}
           showSpecialNeeds={true}
-          showFullNames={false}
           lockSeatLabelOrientation={true}
           seatTextRotation={0}
         />
@@ -586,7 +572,6 @@ describe('TableSeat component', () => {
           isHoverLockedSeat={false}
           isLockedFeedbackSeat={true}
           showSpecialNeeds={true}
-          showFullNames={false}
           lockSeatLabelOrientation={true}
           seatTextRotation={0}
         />
@@ -626,7 +611,6 @@ describe('TableSeat memoization', () => {
             isHoverLockedSeat={false}
             isLockedFeedbackSeat={false}
             showSpecialNeeds={true}
-            showFullNames={false}
             lockSeatLabelOrientation={true}
             seatTextRotation={0}
           />

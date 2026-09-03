@@ -55,6 +55,62 @@ describe('renderSceneSvg', () => {
     expect(svg).not.toContain('data-feature-id="podium-1"');
   });
 
+  describe('name display mode', () => {
+    const seating: SeatingArrangement = [
+      [
+        createMockStudent({ id: 's1', name: 'Anna Meier' }),
+        createMockStudent({ id: 's2', name: 'Maximilian Schneider' }),
+      ],
+    ];
+
+    // Seat labels render as `<title>full name</title>shown label`, so the
+    // assertions anchor on the text node rather than the tooltip.
+    const label = (name: string) => `</title>${name}<`;
+
+    it('shortens only the overlong name without a mode', async () => {
+      const svg = await renderSceneSvg(scene, seating, 'Test');
+
+      expect(svg).toContain(label('Anna Meier'));
+      expect(svg).toContain(label('Maximilian S'));
+    });
+
+    it('renders first names only', async () => {
+      const svg = await renderSceneSvg(scene, seating, 'Test', {
+        nameDisplay: 'firstName',
+      });
+
+      expect(svg).toContain(label('Anna'));
+      expect(svg).toContain(label('Maximilian'));
+    });
+
+    it('renders every name as first name plus last initial', async () => {
+      const svg = await renderSceneSvg(scene, seating, 'Test', {
+        nameDisplay: 'firstNameInitial',
+      });
+
+      expect(svg).toContain(label('Anna M.'));
+      // One character over the seat limit, so the period is dropped instead of
+      // cutting into the first name.
+      expect(svg).toContain(label('Maximilian S'));
+    });
+
+    it('keeps long names intact in the full mode', async () => {
+      const svg = await renderSceneSvg(scene, seating, 'Test', {
+        nameDisplay: 'full',
+      });
+
+      expect(svg).toContain(label('Maximilian Schneider'));
+    });
+
+    it('keeps the complete name in the seat tooltip', async () => {
+      const svg = await renderSceneSvg(scene, seating, 'Test', {
+        nameDisplay: 'firstName',
+      });
+
+      expect(svg).toContain('<title>Maximilian Schneider</title>');
+    });
+  });
+
   describe('flipped viewing direction', () => {
     it('leaves the landscape export unrotated by default', async () => {
       const svg = await renderSceneSvg(scene, [], 'Test', {

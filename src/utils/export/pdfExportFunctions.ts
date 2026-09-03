@@ -8,6 +8,7 @@ import {
   type ExportClassMetadata,
 } from '@/services/export/sceneRenderer';
 import { logError } from '@/utils';
+import type { NameDisplayMode } from '@/utils';
 import { confirmDownload } from '@/utils/ui/downloadConfirmation';
 import type { FeatureVisibilityFlags } from '@/utils/ui/featureStyles';
 import { getStudentPhotoDataUrl } from '@/hooks/student/studentPhotoCache';
@@ -43,7 +44,8 @@ export type ExportOptions = {
   showSpecialNeeds?: boolean;
   showConnections?: boolean;
   featureVisibility?: FeatureVisibilityFlags;
-  showFullNames?: boolean;
+  /** Uniform name rule for the seat labels (see {@link NameDisplayMode}). */
+  nameDisplay?: NameDisplayMode;
   /** Show student photos on the seat dots in the table export (default true). */
   showPhotos?: boolean;
   /** Append a legend (badge icons + gender colours) to the exported page. */
@@ -75,7 +77,7 @@ export async function exportTableLayoutToPdf(
     lockSeatLabelOrientation: true,
     orientation: options?.orientation ?? 'portrait',
     flipped: options?.flipped ?? false,
-    showFullNames: options?.showFullNames ?? false,
+    nameDisplay: options?.nameDisplay,
     photoDisplayMode: (options?.showPhotos ?? true) ? 'all' : 'off',
     showLegend: options?.showLegend ?? false,
     classMetadata: options?.classMetadata,
@@ -105,7 +107,7 @@ export async function exportCircleLayoutToPdf(
     showSpecialNeeds: options?.showSpecialNeeds ?? true,
     showConnections: options?.showConnections ?? true,
     orientation: options?.orientation ?? 'portrait',
-    showFullNames: options?.showFullNames ?? false,
+    nameDisplay: options?.nameDisplay,
     classMetadata: options?.classMetadata,
     photoDataUrls,
     photoDisplayMode: (options?.showPhotos ?? true) ? 'all' : 'off',

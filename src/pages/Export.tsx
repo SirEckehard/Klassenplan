@@ -14,7 +14,6 @@ import {
   ArrowLeftIcon,
   LinkSimpleIcon,
   EyeIcon,
-  UserCircleIcon,
   InfoIcon,
   ListBulletsIcon,
   CameraIcon,
@@ -30,9 +29,14 @@ import {
   primaryButtonClass,
   successButtonClass,
 } from '@/utils';
+import type { NameDisplayMode } from '@/utils';
 import { showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
 import { FEATURE_TYPES, type FeatureVisibilityFlags } from '@/utils/ui';
 import { buildFeatureVisibilityGroup } from '@/components/SeatingPlanGenerator/canvas/featureVisibilityGroup';
+import {
+  buildNameDisplayGroup,
+  NAME_DISPLAY_MODES,
+} from '@/components/SeatingPlanGenerator/canvas/nameDisplayGroup';
 import { useFeatureVisibility } from '@/hooks/ui/useFeatureVisibility';
 import { useAdaptiveViewportHeight } from '@/hooks/ui/useAdaptiveViewportHeight';
 import {
@@ -175,10 +179,24 @@ export default function Export() {
       'export.circleOrientation',
       'landscape',
     );
-  const [showFullNames, setShowFullNames] = usePersistentState<boolean>(
-    'export.showFullNames',
-    false,
+  // Uniform name rule for the whole sheet. Replaces the former on/off "full
+  // names" switch: the default truncation shortens only the names that do not
+  // fit, so one plan mixed full names and abbreviations. Seeded from the old
+  // boolean key so an existing preference is not silently dropped.
+  const [nameDisplay, setNameDisplay] = usePersistentState<NameDisplayMode>(
+    'export.nameDisplay',
+    readPersisted<boolean>('export.showFullNames', false)
+      ? 'full'
+      : readPersisted<NameDisplayMode>(
+          LOCAL_STORAGE_KEYS.nameDisplay,
+          'firstNameInitial',
+        ),
   );
+  const effectiveNameDisplay: NameDisplayMode = NAME_DISPLAY_MODES.includes(
+    nameDisplay,
+  )
+    ? nameDisplay
+    : 'firstNameInitial';
   // WYSIWYG: seed photo visibility/density defaults from the live editor state.
   const [showPhotos, setShowPhotos] = usePersistentState<boolean>(
     'export.showPhotos',
@@ -201,6 +219,11 @@ export default function Export() {
   const [flipView, setFlipView] = usePersistentState<boolean>(
     'export.flipView',
     false,
+  );
+
+  const studentNames = useMemo(
+    () => students.map((student) => student.name),
+    [students],
   );
 
   const classMetadataForExport = useMemo(() => {
@@ -230,10 +253,6 @@ export default function Export() {
   const handleToggleNeeds = useCallback(
     (checked: boolean) => setShowNeeds(() => checked),
     [setShowNeeds],
-  );
-  const handleToggleFullNames = useCallback(
-    (checked: boolean) => setShowFullNames(() => checked),
-    [setShowFullNames],
   );
   const handleTogglePhotos = useCallback(
     (checked: boolean) => setShowPhotos(() => checked),
@@ -345,13 +364,6 @@ export default function Export() {
         onChange: handleToggleNeeds,
       },
       {
-        id: 'names',
-        label: t('export.showFullNames', 'Namen vollständig anzeigen'),
-        icon: <UserCircleIcon size={18} />,
-        checked: showFullNames,
-        onChange: handleToggleFullNames,
-      },
-      {
         id: 'class-info',
         label: t('export.showClassInfo', 'Zusätzliche Klasseninfos anzeigen'),
         icon: <InfoIcon size={18} />,
@@ -387,6 +399,13 @@ export default function Export() {
           },
         ],
       },
+      buildNameDisplayGroup({
+        id: 'preview-names',
+        value: effectiveNameDisplay,
+        onChange: setNameDisplay,
+        names: studentNames,
+        t,
+      }),
     ];
 
     if (previewMode === 'table') {
@@ -409,14 +428,15 @@ export default function Export() {
     setFeatureVisible,
     handleToggleClassInfo,
     handleToggleConnections,
-    handleToggleFullNames,
     handleToggleNeeds,
     handleTogglePhotos,
     handleToggleLegend,
+    effectiveNameDisplay,
+    setNameDisplay,
+    studentNames,
     previewMode,
     showClassInfo,
     showConnections,
-    showFullNames,
     showLegend,
     showNeeds,
     showPhotos,
@@ -616,7 +636,7 @@ export default function Export() {
             showSpecialNeeds: showNeeds,
             showConnections,
             orientation: circleOrientation,
-            showFullNames,
+            nameDisplay: effectiveNameDisplay,
             classMetadata: classMetadataForExport,
             photoDataUrls: circlePhotoUrls,
             photoDisplayMode: showPhotos ? 'all' : 'off',
@@ -638,7 +658,7 @@ export default function Export() {
           lockSeatLabelOrientation: true,
           orientation: tableOrientation,
           flipped: flipView,
-          showFullNames,
+          nameDisplay: effectiveNameDisplay,
           photoDisplayMode: showPhotos ? 'all' : 'off',
           showLegend,
           classMetadata: classMetadataForExport,
@@ -679,7 +699,7 @@ export default function Export() {
     circleOrientation,
     tableOrientation,
     flipView,
-    showFullNames,
+    effectiveNameDisplay,
     showPhotos,
     showLegend,
     classMetadataForExport,
@@ -810,7 +830,7 @@ export default function Export() {
         allStudents: students,
         showSpecialNeeds: showNeeds,
         featureVisibility: effectiveVisibility,
-        showFullNames,
+        nameDisplay: effectiveNameDisplay,
         showPhotos,
         showLegend,
         orientation: tableOrientation,
@@ -833,7 +853,7 @@ export default function Export() {
     students,
     showNeeds,
     effectiveVisibility,
-    showFullNames,
+    effectiveNameDisplay,
     showPhotos,
     showLegend,
     tableOrientation,
@@ -853,7 +873,7 @@ export default function Export() {
         showSpecialNeeds: showNeeds,
         showConnections,
         orientation: circleOrientation,
-        showFullNames,
+        nameDisplay: effectiveNameDisplay,
         showPhotos,
         showLegend,
         classMetadata: classMetadataForExport,
@@ -873,7 +893,7 @@ export default function Export() {
     showNeeds,
     showConnections,
     circleOrientation,
-    showFullNames,
+    effectiveNameDisplay,
     showPhotos,
     showLegend,
     classMetadataForExport,

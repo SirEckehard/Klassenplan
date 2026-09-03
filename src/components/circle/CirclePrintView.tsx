@@ -3,10 +3,11 @@
 import { useTranslation } from 'react-i18next';
 import type { CircleLayout } from '@/types/Circle';
 import type { Student } from '@/types';
+import type { NameDisplayMode } from '@/utils';
 import {
   CLASSROOM_WIDTH,
   CLASSROOM_HEIGHT,
-  getDisplayName,
+  getDisplayNameForMode,
   calculateSeatLabelFontSize,
   formatDate,
 } from '@/utils';
@@ -32,7 +33,8 @@ interface CirclePrintViewProps {
   showSpecialNeeds?: boolean;
   showConnections?: boolean;
   orientation?: 'landscape' | 'portrait';
-  showFullNames?: boolean;
+  /** Uniform name rule for the seat labels (see {@link NameDisplayMode}). */
+  nameDisplay?: NameDisplayMode;
   /** Pre-resolved studentId -> Data URL map for rendering photos in the export. */
   photoDataUrls?: ReadonlyMap<string, string>;
   /** 'off' hides student photos in the export; 'all' shows them (default). */
@@ -53,7 +55,7 @@ export default function CirclePrintView({
   showSpecialNeeds = true,
   showConnections = true,
   orientation = 'portrait',
-  showFullNames = false,
+  nameDisplay,
   photoDataUrls,
   photoDisplayMode = 'all',
   showLegend = false,
@@ -435,9 +437,10 @@ export default function CirclePrintView({
 
         const { x, y } = coordinates;
         const student = studentPosition.student;
-        const displayName = getDisplayName(
+        const displayName = getDisplayNameForMode(
           student.name,
-          showFullNames ? 'full' : 'pdf',
+          'pdf',
+          nameDisplay,
         );
         const seatFontSize = calculateSeatLabelFontSize(
           displayName,

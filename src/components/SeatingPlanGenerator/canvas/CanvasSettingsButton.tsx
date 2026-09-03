@@ -33,12 +33,19 @@ type CanvasSettingsSegmentOption = {
   id: string;
   /** Optional row heading above the segmented control; omitted → no heading. */
   label?: string;
+  /** Accessible name of the control when no visible heading is rendered. */
+  ariaLabel?: string;
   icon?: React.ReactNode;
   value: string;
   choices: CanvasSettingsSegmentChoice[];
   onChange: (next: string) => void;
   description?: string;
   disabled?: boolean;
+  /**
+   * Renders the choices as icon-only buttons carrying their label as tooltip
+   * and accessible name. For labels too long to fit three across the panel.
+   */
+  iconOnly?: boolean;
 };
 
 type CanvasSettingsIconGridItem = {
@@ -295,7 +302,7 @@ function SegmentSetting({ option }: { option: CanvasSettingsSegmentOption }) {
       )}
       <div
         role="group"
-        aria-label={option.label}
+        aria-label={option.label ?? option.ariaLabel}
         className="flex gap-1 rounded-xl bg-gray-100 p-1 dark:bg-gray-800"
       >
         {option.choices.map((choice) => {
@@ -306,19 +313,26 @@ function SegmentSetting({ option }: { option: CanvasSettingsSegmentOption }) {
               type="button"
               disabled={option.disabled}
               aria-pressed={active}
+              aria-label={option.iconOnly ? choice.label : undefined}
+              title={option.iconOnly ? choice.label : undefined}
               onClick={() => option.onChange(choice.value)}
-              className={`flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50 ${
+              className={`flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-center text-xs font-medium leading-tight transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50 ${
                 active
                   ? 'bg-white text-blue-700 shadow-sm dark:bg-gray-900 dark:text-blue-200'
                   : 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white'
               }`}
             >
               {choice.icon}
-              <span>{choice.label}</span>
+              {!option.iconOnly && <span>{choice.label}</span>}
             </button>
           );
         })}
       </div>
+      {option.description && (
+        <p className="text-xs text-gray-500 dark:text-gray-400">
+          {option.description}
+        </p>
+      )}
     </div>
   );
 }

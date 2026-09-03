@@ -11,10 +11,11 @@ import {
   calculateBadgePillLayout,
 } from '@/utils/ui/studentAppearance';
 import {
-  getDisplayName,
+  getDisplayNameForMode,
   getTooltipName,
   calculateSeatLabelFontSize,
 } from '@/utils';
+import type { NameDisplayMode } from '@/utils';
 import type { SeatKeyboardEventInfo } from '@/hooks/scene/useSeatKeyboardMove';
 
 interface TableSeatProps {
@@ -34,7 +35,11 @@ interface TableSeatProps {
   isHoverLockedSeat: boolean;
   isLockedFeedbackSeat: boolean;
   showSpecialNeeds: boolean;
-  showFullNames: boolean;
+  /**
+   * Uniform name rule for the seat label; undefined shortens only names that do
+   * not fit (the editor default). See {@link NameDisplayMode}.
+   */
+  nameDisplay?: NameDisplayMode;
   /** When false, gender colors are dropped for a neutral (colorless) seat. */
   showGenderColors?: boolean;
   /** When false, the seat name label and lock toggle are hidden (layout editor). */
@@ -172,7 +177,7 @@ function TableSeat({
   isHoverLockedSeat,
   isLockedFeedbackSeat,
   showSpecialNeeds,
-  showFullNames,
+  nameDisplay,
   showGenderColors = true,
   showSeatLabels = true,
   lockSeatLabelOrientation,
@@ -302,9 +307,8 @@ function TableSeat({
   const effectiveSeatStrokeWidth = seatStrokeWidth;
   const effectiveSeatStrokeValue = seatStrokeValue;
   const seatTextOpacity = isOriginSeat ? 0.35 : 1;
-  const displayContext = showFullNames ? 'full' : 'table';
   const displayName = student
-    ? getDisplayName(student.name, displayContext)
+    ? getDisplayNameForMode(student.name, 'table', nameDisplay)
     : '';
   const seatFontSize = calculateSeatLabelFontSize(displayName, seatWidth);
 
@@ -757,7 +761,7 @@ const MemoizedTableSeat = React.memo(TableSeat, (prevProps, nextProps) => {
   // CheckIcon visual state changes
   if (
     prevProps.isDark !== nextProps.isDark ||
-    prevProps.showFullNames !== nextProps.showFullNames ||
+    prevProps.nameDisplay !== nextProps.nameDisplay ||
     prevProps.showGenderColors !== nextProps.showGenderColors ||
     prevProps.showSeatLabels !== nextProps.showSeatLabels ||
     prevProps.seatTextRotation !== nextProps.seatTextRotation ||

@@ -9,7 +9,7 @@ import type {
   ClassroomFeature,
   PhotoDisplayMode,
 } from '@/types';
-import type { SeatHighlightLookup } from '@/utils';
+import type { NameDisplayMode, SeatHighlightLookup } from '@/utils';
 import { GRID_SIZE } from '@/utils';
 import { getFeatureStyles } from '@/utils/ui';
 import type { FeatureVisibilityFlags } from '@/utils/ui';
@@ -69,6 +69,8 @@ interface SeatingPlanCanvasProps {
   seatHighlights?: SeatHighlightLookup | null;
   /** How student photos grow on the seat dots (all / hover / off). */
   photoDisplayMode?: PhotoDisplayMode;
+  /** Uniform name rule for the seat labels (see {@link NameDisplayMode}). */
+  nameDisplay?: NameDisplayMode;
 }
 
 const SeatingPlanCanvas = React.memo(
@@ -105,6 +107,7 @@ const SeatingPlanCanvas = React.memo(
     isDark = false,
     seatHighlights = null,
     photoDisplayMode = 'off',
+    nameDisplay,
   }: SeatingPlanCanvasProps) => {
     const { t } = useTranslation('generator');
     const canvasRef = React.useRef<SVGSVGElement | null>(null);
@@ -285,6 +288,7 @@ const SeatingPlanCanvas = React.memo(
                 isDark={isDark}
                 seatHighlights={seatHighlights}
                 photoDisplayMode={photoDisplayMode}
+                nameDisplay={nameDisplay}
               />
             ))}
           </g>
