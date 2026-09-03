@@ -27,7 +27,9 @@ function getSiteUrl() {
  */
 async function readSitemapUrls() {
   const xml = await fs.readFile(sitemapPath, 'utf-8');
-  const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1].trim());
+  const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) =>
+    m[1].trim(),
+  );
   return [...new Set(locs)];
 }
 
