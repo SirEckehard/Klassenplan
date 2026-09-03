@@ -205,6 +205,10 @@ export default function Present() {
                   )}
                 </li>
                 <li>
+                  {/* New keys carry no inline default (see CLAUDE.md). */}
+                  {t('help.present.itemNames')}
+                </li>
+                <li>
                   {t(
                     'help.present.item4',
                     'Zoome per Regler oder Mausrad und verschiebe die Ansicht durch Ziehen; das Zentrieren-Symbol setzt die Ansicht zurück.',

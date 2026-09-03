@@ -7,6 +7,7 @@ import {
   HandshakeIcon,
   QuestionIcon,
   GridNineIcon,
+  UsersThreeIcon,
   LifebuoyIcon,
   DesktopIcon,
   GearIcon,
@@ -104,6 +105,34 @@ export default function FAQ() {
           {
             question: t('faq.allgemein.gender_mixing.q'),
             answer: <p>{t('faq.allgemein.gender_mixing.a')}</p>,
+          },
+        ],
+      },
+      {
+        id: 'klassenliste',
+        title: t('faq.klassenliste.title'),
+        description: t('faq.klassenliste.description'),
+        icon: UsersThreeIcon,
+        items: [
+          {
+            question: t('faq.klassenliste.classes.q'),
+            answer: <p>{t('faq.klassenliste.classes.a')}</p>,
+          },
+          {
+            question: t('faq.klassenliste.csv.q'),
+            answer: <p>{t('faq.klassenliste.csv.a')}</p>,
+          },
+          {
+            question: t('faq.klassenliste.photos.q'),
+            answer: <p>{t('faq.klassenliste.photos.a')}</p>,
+          },
+          {
+            question: t('faq.klassenliste.bulk.q'),
+            answer: <p>{t('faq.klassenliste.bulk.a')}</p>,
+          },
+          {
+            question: t('faq.klassenliste.undo.q'),
+            answer: <p>{t('faq.klassenliste.undo.a')}</p>,
           },
         ],
       },
@@ -286,6 +315,10 @@ export default function FAQ() {
             answer: <p>{t('faq.backups.how.a')}</p>,
           },
           {
+            question: t('faq.backups.restore.q'),
+            answer: <p>{t('faq.backups.restore.a')}</p>,
+          },
+          {
             question: t('faq.backups.update.q'),
             answer: <p>{t('faq.backups.update.a')}</p>,
           },
@@ -306,6 +339,8 @@ export default function FAQ() {
                   <li>{t('faq.tipps.improve.li1')}</li>
                   <li>{t('faq.tipps.improve.li2')}</li>
                   <li>{t('faq.tipps.improve.li3')}</li>
+                  <li>{t('faq.tipps.improve.li4')}</li>
+                  <li>{t('faq.tipps.improve.li5')}</li>
                 </ul>
               </div>
             ),
@@ -333,6 +368,22 @@ export default function FAQ() {
           {
             question: t('faq.oberflaeche.circle.q'),
             answer: <p>{t('faq.oberflaeche.circle.a')}</p>,
+          },
+          {
+            question: t('faq.oberflaeche.present.q'),
+            answer: <p>{t('faq.oberflaeche.present.a')}</p>,
+          },
+          {
+            question: t('faq.oberflaeche.nameGame.q'),
+            answer: <p>{t('faq.oberflaeche.nameGame.a')}</p>,
+          },
+          {
+            question: t('faq.oberflaeche.exportFormats.q'),
+            answer: <p>{t('faq.oberflaeche.exportFormats.a')}</p>,
+          },
+          {
+            question: t('faq.oberflaeche.names.q'),
+            answer: <p>{t('faq.oberflaeche.names.a')}</p>,
           },
           {
             question: t('faq.oberflaeche.tablet.q'),

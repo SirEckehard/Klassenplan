@@ -9,9 +9,13 @@
   "help": {
     "students": {
       "title": "Class List",
-      "item1": "Add students: manually, via \"Create Class\" or CSV import.",
-      "item2": "Select up to 3 preferred and distance partners per student – the order determines priority.",
-      "item3": "Toggle the labels under the buttons in the student list."
+      "item1": "Create as many classes as you like in the class manager and switch between them – each class keeps its own students, seating plans and classrooms.",
+      "item2": "Add students one by one, create placeholders for a whole class, or import a CSV file – \"What the file has to look like\" shows the required structure.",
+      "item3": "Select up to 3 preferred and distance partners per student – the order determines priority.",
+      "item4": "Search, filter and sorting help you find individual students; the checkboxes let you edit several students at once.",
+      "item5": "Add photos via the portrait icon – they stay on this device only and unlock the name game.",
+      "item6": "Take back changes to the class list with the arrow buttons or Ctrl/Cmd+Z; Ctrl/Cmd+Shift+Z restores them.",
+      "item7": "Toggle the labels under the buttons in the student list."
     },
     "layout": {
       "title": "Classroom",
@@ -19,27 +23,34 @@
       "item2": "Move and rotate tables via drag & drop.",
       "item3": "Multi-select: Shift or Ctrl/Cmd + click, or draw a selection rectangle.",
       "item4": "Right-click (desktop) or long press (touch) opens the context menu.",
-      "item5": "Save custom classroom templates via the sidebar."
+      "item5": "Save custom classroom templates via the sidebar.",
+      "item6": "Drag room elements such as windows, door, desk, blackboard, whiteboard, cabinet or divider from the sidebar into the room.",
+      "item7": "Ctrl/Cmd+Z undoes steps in the classroom, Ctrl/Cmd+Shift+Z redoes them."
     },
     "plan": {
       "title": "Seating Plan",
       "item1": "Adjust the weighting of criteria (0-10) in the sidebar.",
       "item2": "Drag students to other seats via drag & drop.",
       "item3": "Click the lock icon to lock a seat for the next shuffle.",
-      "item4": "Statistics badges show how well criteria are met."
+      "item4": "Statistics badges show how well criteria are met.",
+      "item5": "\"Optimize\" improves the current plan further without shuffling it from scratch.",
+      "item6": "The view settings control how names appear (first name only, first name + initial, or full name) and whether photos are shown.",
+      "item7": "Ctrl/Cmd+Z takes back shuffles and moves, Ctrl/Cmd+Shift+Z restores them."
     },
     "circle": {
       "title": "Seating Circle",
       "item1": "Drag students to new positions via drag & drop.",
       "item2": "Green lines show connections to table neighbors in the seating plan.",
-      "item3": "Toggle connections in the sidebar or with key C."
+      "item3": "Toggle connections in the sidebar or with key C.",
+      "item4": "The circle stays linked to the seating plan but can be saved and exported separately."
     },
     "export": {
       "title": "Export",
       "item1": "Customize the name of your seating plan.",
       "item2": "Switch between portrait and landscape format for PDF export.",
       "itemFlip": "Set the viewing direction under page format: \"From the back\" rotates the room by 180° for a desk at the back, while names and photos stay readable.",
-      "item3": "Choose between different display options like blackboard or full names.",
+      "item3": "Use the sidebar to decide what is shown: room elements, needs, photos, legend and additional class info.",
+      "itemNames": "Choose how names appear: first name only, first name + last name initial, or the full name.",
       "item4": "Toggle preview between Seating Plan and Seating Circle (top right).",
       "item5": "Besides PDF and print you can save the view as a PNG image or an SVG vector graphic — handy for parent letters or the school portal."
     },
@@ -48,6 +59,7 @@
       "item1": "Switch between teacher and student view as well as between seating plan and circle at the top.",
       "item2": "The student view shows the plan from the class's perspective – without markers and photos.",
       "item3": "Show or hide markers, photos, colors and room elements using the bar at the bottom.",
+      "itemNames": "\"Names\" cycles between first name, first name + last name initial, and the full name.",
       "item4": "Zoom with the slider or mouse wheel and drag to pan; the centre icon resets the view.",
       "item5": "Press Alt + ← to return to the generator.",
       "item6": "\"Who's next?\" draws a random student and spotlights their seat – everyone gets a turn before anyone repeats.",
@@ -693,7 +705,8 @@
       "plan_undo": "Undo the last seating action",
       "plan_redo": "Redo the last seating action",
       "students_undo": "Undo a change to the class list",
-      "students_redo": "Redo a change to the class list"
+      "students_redo": "Redo a change to the class list",
+      "layout_redo": "Redo the last change"
     },
     "keys": {
       "global_toggleHelp": "?",
@@ -730,7 +743,8 @@
       "plan_undo": "Ctrl/Cmd + Z",
       "plan_redo": "Ctrl/Cmd + Shift + Z",
       "students_undo": "Ctrl (Windows) / Cmd (Mac) + Z",
-      "students_redo": "Ctrl / Cmd + Shift + Z"
+      "students_redo": "Ctrl / Cmd + Shift + Z",
+      "layout_redo": "Ctrl / Cmd + Shift + Z"
     }
   },
   "tableType": {

@@ -99,6 +99,10 @@ export const shortcutMap: Record<ShortcutContext, Shortcut[]> = {
       keysKey: 'shortcuts.keys.layout_undo',
       descriptionKey: 'shortcuts.descriptions.layout_undo',
     },
+    {
+      keysKey: 'shortcuts.keys.layout_redo',
+      descriptionKey: 'shortcuts.descriptions.layout_redo',
+    },
   ],
   plan: [
     {

@@ -1041,12 +1041,8 @@ export default function Export() {
                       {/* New keys carry no inline default (see CLAUDE.md). */}
                       {t('help.export.itemFlip')}
                     </li>
-                    <li>
-                      {t(
-                        'help.export.item3',
-                        'Wähle zwischen den verschiedenen Ansichtsoptionen: Tafel, Bedürfnisse und Namen vollständig anzeigen.',
-                      )}
-                    </li>
+                    <li>{t('help.export.item3')}</li>
+                    <li>{t('help.export.itemNames')}</li>
                     <li>
                       {t(
                         'help.export.item4',

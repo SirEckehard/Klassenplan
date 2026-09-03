@@ -9,9 +9,13 @@
   "help": {
     "students": {
       "title": "Klassenliste",
-      "item1": "Füge Schüler hinzu: manuell, per \"Klasse anlegen\" oder über CSV-Import.",
-      "item2": "Wähle bis zu 3 Wunsch- und Distanzpartner pro Schüler – die Reihenfolge bestimmt die Priorität.",
-      "item3": "Blende die Beschriftung unter den Buttons in der Schülerliste ein bzw. aus."
+      "item1": "Lege in der Klassenverwaltung beliebig viele Klassen an und wechsle zwischen ihnen – jede Klasse hat eigene Schüler, Sitzpläne und Klassenräume.",
+      "item2": "Füge Schüler einzeln hinzu, erzeuge Platzhalter für eine ganze Klasse oder importiere eine CSV-Datei – „So muss die Datei aussehen“ zeigt dir den nötigen Aufbau.",
+      "item3": "Wähle bis zu 3 Wunsch- und Distanzpartner pro Schüler – die Reihenfolge bestimmt die Priorität.",
+      "item4": "Mit Suche, Filter und Sortierung findest du einzelne Schüler; über die Auswahlkästchen bearbeitest du mehrere Schüler gleichzeitig.",
+      "item5": "Fotos fügst du über das Porträt-Symbol hinzu – sie bleiben nur auf diesem Gerät und schalten das Namensspiel frei.",
+      "item6": "Änderungen an der Klassenliste nimmst du über die Pfeil-Buttons oder mit Strg/Cmd+Z zurück; Strg/Cmd+Umschalt+Z stellt sie wieder her.",
+      "item7": "Blende die Beschriftung unter den Buttons in der Schülerliste ein bzw. aus."
     },
     "layout": {
       "title": "Klassenraum",
@@ -19,27 +23,34 @@
       "item2": "Verschiebe und drehe Tische per Drag & Drop.",
       "item3": "Mehrfachauswahl: Shift oder Strg/Cmd + Klick oder Auswahl-Rechteck aufziehen.",
       "item4": "Rechtsklick (Desktop) oder langes Drücken (Touch) öffnet das Kontextmenü.",
-      "item5": "Speichere eigene Klassenraum-Vorlagen über die Sidebar."
+      "item5": "Speichere eigene Klassenraum-Vorlagen über die Sidebar.",
+      "item6": "Ziehe Raumelemente wie Fenster, Tür, Pult, Tafel, Whiteboard, Schrank oder Raumtrenner aus der Sidebar in den Raum.",
+      "item7": "Strg/Cmd+Z macht Schritte im Klassenraum rückgängig, Strg/Cmd+Umschalt+Z stellt sie wieder her."
     },
     "plan": {
       "title": "Sitzplan",
       "item1": "Passe die Gewichtung der Kriterien (0-10) in der Sidebar an.",
       "item2": "Ziehe Schüler per Drag & Drop auf andere Plätze.",
       "item3": "Klicke auf das Schloss-Symbol, um einen Platz beim nächsten Mischen zu sperren.",
-      "item4": "Statistik-Badges zeigen, wie gut die Kriterien erfüllt sind."
+      "item4": "Statistik-Badges zeigen, wie gut die Kriterien erfüllt sind.",
+      "item5": "„Optimieren“ verbessert den aktuellen Plan weiter, ohne ihn komplett neu zu mischen.",
+      "item6": "In den Ansichtseinstellungen legst du fest, wie Namen erscheinen (nur Vorname, Vorname + Initial oder vollständig) und ob Fotos angezeigt werden.",
+      "item7": "Strg/Cmd+Z nimmt Mischungen und Verschiebungen zurück, Strg/Cmd+Umschalt+Z stellt sie wieder her."
     },
     "circle": {
       "title": "Sitzkreis",
       "item1": "Ziehe Schüler per Drag & Drop auf neue Positionen.",
       "item2": "Grüne Linien zeigen Verbindungen zu Tischnachbarn im Sitzplan.",
-      "item3": "Blende Verbindungen in der Sidebar oder mit Taste C ein/aus."
+      "item3": "Blende Verbindungen in der Sidebar oder mit Taste C ein/aus.",
+      "item4": "Der Sitzkreis bleibt an den Sitzplan gekoppelt, lässt sich aber separat speichern und exportieren."
     },
     "export": {
       "title": "Export",
       "item1": "Passe den Namen deines Sitzplans an.",
       "item2": "Wechsel zwischen Hochformat und Querformat für den PDF-Export.",
-      "itemFlip": "Lege im Seitenformat die Blickrichtung fest: „Von hinten\" dreht den Raum um 180° für ein Pult hinten im Raum, Namen und Fotos bleiben lesbar.",
-      "item3": "Wähle zwischen den verschiedenen Ansichtsoptionen: Tafel, Bedürfnisse und Namen vollständig anzeigen.",
+      "itemFlip": "Lege im Seitenformat die Blickrichtung fest: „Von hinten“ dreht den Raum um 180° für ein Pult hinten im Raum, Namen und Fotos bleiben lesbar.",
+      "item3": "Lege in der Seitenleiste fest, was zu sehen ist: Raumelemente, Bedürfnisse, Fotos, Legende und zusätzliche Klasseninfos.",
+      "itemNames": "Wähle, wie Namen erscheinen: nur Vorname, Vorname + Initial des Nachnamens oder vollständiger Name.",
       "item4": "Wechsle die Vorschau zwischen Sitzplan und Sitzkreis oben rechts.",
       "item5": "Neben PDF und Druck kannst du die Ansicht auch als PNG-Bild oder SVG-Vektorgrafik speichern – praktisch für Elternbriefe oder das Schulportal."
     },
@@ -48,9 +59,10 @@
       "item1": "Wechsle oben zwischen Lehrer- und Schüleransicht sowie zwischen Sitzplan und Sitzkreis.",
       "item2": "Die Schüleransicht zeigt den Plan aus Sicht der Klasse – ohne Merkmale und Fotos.",
       "item3": "Blende über die Leiste unten Merkmale, Fotos, Farben und Raumelemente ein oder aus.",
+      "itemNames": "„Namen“ schaltet zwischen Vorname, Vorname + Initial des Nachnamens und vollständigem Namen um.",
       "item4": "Zoome per Regler oder Mausrad und verschiebe die Ansicht durch Ziehen; das Zentrieren-Symbol setzt die Ansicht zurück.",
       "item5": "Mit Alt + ← kehrst du zum Generator zurück.",
-      "item6": "„Wer kommt dran?\" zieht einen zufälligen Schüler und hebt seinen Platz hervor – jeder kommt einmal dran, bevor sich jemand wiederholt.",
+      "item6": "„Wer kommt dran?“ zieht einen zufälligen Schüler und hebt seinen Platz hervor – jeder kommt einmal dran, bevor sich jemand wiederholt.",
       "item7": "Tastatur: F Vollbild, Leertaste zieht einen Schüler, Esc setzt die Auswahl zurück, + / − zoomen, 0 zentriert."
     }
   },
@@ -693,7 +705,8 @@
       "plan_undo": "Sitzplan-Aktion rückgängig machen",
       "plan_redo": "Sitzplan-Aktion wiederherstellen",
       "students_undo": "Änderung an der Klassenliste rückgängig machen",
-      "students_redo": "Änderung an der Klassenliste wiederherstellen"
+      "students_redo": "Änderung an der Klassenliste wiederherstellen",
+      "layout_redo": "Letzte Änderung wiederherstellen"
     },
     "keys": {
       "global_toggleHelp": "?",
@@ -730,7 +743,8 @@
       "plan_undo": "Strg (Windows) / Cmd (Mac) + Z",
       "plan_redo": "Strg / Cmd + Shift + Z",
       "students_undo": "Strg (Windows) / Cmd (Mac) + Z",
-      "students_redo": "Strg / Cmd + Umschalt + Z"
+      "students_redo": "Strg / Cmd + Umschalt + Z",
+      "layout_redo": "Strg / Cmd + Umschalt + Z"
     }
   },
   "tableType": {

@@ -22,7 +22,7 @@
       "step3Title": "Sitzplan & Sitzkreis",
       "step3Text": "Mischen & optimieren – automatisch angepasster Sitzkreis.",
       "step4Title": "Export",
-      "step4Text": "Als PDF exportieren & drucken."
+      "step4Text": "Als PDF, PNG oder SVG exportieren & drucken."
     },
     "ctaButton": "Plane jetzt deine Klasse!",
     "faqLink": "Erfahre mehr im FAQ!",
@@ -104,6 +104,30 @@
       "gender_mixing": {
         "q": "Warum sind die Geschlechter nicht alle abwechselnd verteilt?",
         "a": "Der Algorithmus bewertet Tischgruppen im Kontext des gesamten Raums. Ein Tausch kann an einer Stelle helfen, an anderer Stelle aber größere Konflikte erzeugen. Höhere Gewichte für das Kriterium \"Geschlechter mischen\" erzwingen strengere Platzierungen, ziehen dann aber andere Regeln (z. B. Wunschpartner) seltener vor. Die Geschlechtsangabe ist optional und wird neutral behandelt, wenn nicht angegeben."
+      }
+    },
+    "klassenliste": {
+      "title": "Klassenliste & Klassenverwaltung",
+      "description": "Mehrere Klassen, CSV-Import, Fotos und Mehrfachbearbeitung.",
+      "classes": {
+        "q": "Kann ich mehrere Klassen verwalten?",
+        "a": "Ja. Über die Klassenverwaltung in Schritt 1 legst du beliebig viele Klassen an, benennst sie um und wechselst zwischen ihnen. Jede Klasse hat ihre eigenen Schüler, Klassenraum-Layouts, Sitzpläne und Misch-Historien. Löschst du eine Klasse, werden auch deren Sitzpläne entfernt – ein Backup vorher lohnt sich."
+      },
+      "csv": {
+        "q": "Wie importiere ich eine bestehende Klassenliste?",
+        "a": "Über „Klassenliste importieren“ lädst du eine CSV-Datei hoch, wie du sie aus Excel, LibreOffice, Numbers oder Google Tabellen speichern kannst. Pflicht ist nur die Spalte „Name“; alle weiteren Spalten wie Geschlecht, Unruhig, Fensterplatz oder Wunschpartner sind freiwillig, unbekannte Spalten werden ignoriert. Der Button „So muss die Datei aussehen“ zeigt ein Beispiel, und über die CSV-Vorlage bekommst du eine fertige Datei zum Ausfüllen. Enthält deine Datei mehrere Namensspalten, fragt Klassenplan vor dem Import, welche Kombination übernommen werden soll."
+      },
+      "photos": {
+        "q": "Kann ich Fotos meiner Schüler hinterlegen?",
+        "a": "Ja, über das Porträt-Symbol neben jedem Schüler. Die Bilder werden verkleinert und ausschließlich lokal auf diesem Gerät gespeichert – sie werden nie übertragen. Für den Einsatz von Schülerfotos brauchst du das Einverständnis von Schulleitung, Schülern und Eltern. Fotos lassen sich im Sitzplan, im Präsentiermodus und im Export ein- und ausblenden und schalten das Namensspiel frei."
+      },
+      "bulk": {
+        "q": "Wie bearbeite ich mehrere Schüler auf einmal?",
+        "a": "Über die Auswahlkästchen in der Liste wählst du mehrere Schüler aus und setzt Geschlecht, Körpergröße, Sprachniveau, soziale Rolle oder einzelne Merkmale für alle gemeinsam. Suche, Filter (z. B. „Nur ohne Foto“ oder „Nur unruhige“) und Sortierung helfen dir, genau die passende Gruppe zusammenzustellen."
+      },
+      "undo": {
+        "q": "Kann ich Änderungen rückgängig machen?",
+        "a": "Ja. In der Klassenliste nimmst du Änderungen über die Pfeil-Buttons oder mit Strg/Cmd+Z zurück und stellst sie mit Strg/Cmd+Umschalt+Z wieder her – auch ein versehentlich gelöschter Schüler kommt samt Foto zurück. Im Sitzplan (Schritt 3) und im Klassenraum-Editor gelten dieselben Kürzel für Mischungen, verschobene Schüler und Layout-Schritte. In Textfeldern bleibt Strg/Cmd+Z der Texteingabe vorbehalten – nutze dort die Pfeil-Buttons."
       }
     },
     "eigenschaften": {
@@ -298,11 +322,15 @@
       },
       "how": {
         "q": "Wie funktioniert das Backup?",
-        "a": "Der Export erstellt eine verschlüsselte JSON-Datei mit Schülern, Sitzplänen, Misch-Historie, Sitzkreis, Klassenzimmer-Features, Vorlagen und Einstellungen."
+        "a": "Der Export erstellt eine mit deinem Passwort verschlüsselte Datei (mindestens 8 Zeichen) mit allen Klassen, Schülern samt Fotos, Sitzplänen, Misch-Historie, Sitzkreis, Klassenzimmer-Features, Vorlagen und Einstellungen. Ohne dieses Passwort lässt sich die Datei nicht wiederherstellen – bewahre es also sicher auf."
       },
       "update": {
         "q": "Was passiert nach einem Update von Klassenplan mit meinem Backup?",
         "a": "Backups sind aufwärtskompatibel. Neue Versionen migrieren ältere Sicherungen automatisch. Nach größeren Änderungen lohnt sich ein frischer Export, damit du die neueste Struktur gesichert hast."
+      },
+      "restore": {
+        "q": "Was passiert beim Import eines Backups?",
+        "a": "Du wählst zwischen „Alles ersetzen“ und „Zusammenführen“. Beim Ersetzen werden vorhandene Schüler, Sitzpläne und Vorlagen durch das Backup überschrieben – das lässt sich nicht rückgängig machen. Beim Zusammenführen kommen Schüler und Sitzpläne aus dem Backup zu den vorhandenen hinzu; Klassenraum und Einstellungen stammen dann aus dem Backup."
       }
     },
     "tipps": {
@@ -313,15 +341,17 @@
         "intro": "Nutze eine Kombination aus folgenden Strategien:",
         "li1": "Gewichte für relevante Kriterien erhöhen",
         "li2": "Mehrfach mischen, um unterschiedliche Zufallsstarts zu nutzen",
-        "li3": "Einzelne Plätze manuell via Drag & Drop anpassen und bei Bedarf sperren, sodass der Algorithmus diese nicht mehr verändert."
+        "li3": "Einzelne Plätze manuell via Drag & Drop anpassen und bei Bedarf sperren, sodass der Algorithmus diese nicht mehr verändert.",
+        "li4": "„Optimieren“ nutzen: Es verbessert den bestehenden Plan weiter, statt komplett neu zu mischen",
+        "li5": "Eine misslungene Mischung mit Strg/Cmd+Z zurücknehmen oder ein früheres Ergebnis aus der Misch-Historie laden"
       }
     },
     "oberflaeche": {
       "title": "Bedienung & Benutzeroberfläche",
-      "description": "Fragen rund um Dark Mode, Tastaturkürzel, Touch und alternative Ansichten.",
+      "description": "Präsentiermodus, Namensspiel, Export-Formate, Dark Mode, Tastaturkürzel und Touch.",
       "print": {
         "q": "Ich möchte den Sitzplan ausdrucken und die Tafel als Orientierungshilfe unten angezeigt haben. Geht das?",
-        "a": "Ja. Wechsle im Exportbereich in die Hochformat-Ansicht und aktiviere \"Tafel anzeigen\". So behältst du auch auf dem Ausdruck die Orientierung im Klassenraum."
+        "a": "Ja. Wechsle im Exportbereich in die Hochformat-Ansicht und aktiviere „Tafel anzeigen“. Sitzt dein Pult hinten im Raum, stellst du zusätzlich die Blickrichtung auf „Von hinten“: Der Raum dreht sich um 180°, Namen und Fotos bleiben dabei lesbar. So behältst du auch auf dem Ausdruck die Orientierung im Klassenraum."
       },
       "dark": {
         "q": "Gibt es einen Dark Mode?",
@@ -342,6 +372,22 @@
       "pwa": {
         "q": "Kann ich Klassenplan wie eine App installieren?",
         "a": "Ja! Klassenplan ist eine Progressive Web App (PWA) und kann direkt auf deinem Gerät installiert werden. In Chrome, Edge oder Safari findest du im Browser-Menü die Option \"Zum Startbildschirm hinzufügen\" oder \"App installieren\". Danach startet Klassenplan wie eine eigenständige App aus dem Dock oder dem Startmenü – schneller, mit eigenem Icon und ohne Browserleiste."
+      },
+      "present": {
+        "q": "Wie funktioniert der Präsentiermodus?",
+        "a": "Der Präsentiermodus zeigt den Sitzplan oder Sitzkreis groß am Beamer oder Smartboard. Du wechselst zwischen Lehrer- und Schüleransicht – letztere dreht den Plan aus Sicht der Klasse und blendet Merkmale und Fotos aus. Über die Leiste unten schaltest du Merkmale, Fotos, Farben, Namensform und Raumelemente um, zoomst und verschiebst die Ansicht. Mit „Wer kommt dran?“ (oder der Leertaste) ziehst du einen zufälligen Schüler, wobei jeder einmal an die Reihe kommt, bevor sich jemand wiederholt. Die Taste F startet das Vollbild."
+      },
+      "nameGame": {
+        "q": "Was ist das Namensspiel?",
+        "a": "Das Namensspiel hilft dir, die Namen einer neuen Klasse zu lernen. Es nutzt nur Schüler mit Foto und bietet ein Foto-Quiz (Name zum Foto finden oder umgekehrt, unsichere Namen kommen häufiger dran) sowie ein Memory aus Foto- und Namenskarten. Der Lernfortschritt bleibt lokal auf deinem Gerät. Du startest es in Schritt 1 über den Button „Namensspiel“."
+      },
+      "exportFormats": {
+        "q": "In welchen Formaten kann ich den Sitzplan exportieren?",
+        "a": "Neben PDF und Direktdruck kannst du die aktuelle Ansicht als PNG-Bild oder als SVG-Vektorgrafik speichern – praktisch für Elternbriefe, Vertretungsmappen oder das Schulportal. Sitzplan und Sitzkreis werden getrennt exportiert, jeweils in Hoch- oder Querformat."
+      },
+      "names": {
+        "q": "Die Namen sind auf dem Plan zu lang – was kann ich tun?",
+        "a": "In Schritt 3, im Präsentiermodus und im Export legst du fest, wie Namen erscheinen: nur Vorname, Vorname + Initial des Nachnamens oder vollständiger Name. Kommt ein Vorname in der Klasse mehrfach vor, weist dich ein Hinweis darauf hin, damit du zur eindeutigen Variante wechseln kannst."
       }
     },
     "projekt": {

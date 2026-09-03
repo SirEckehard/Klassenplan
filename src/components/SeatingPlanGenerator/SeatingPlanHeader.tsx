@@ -28,110 +28,70 @@ export default function SeatingPlanHeader() {
     }
   };
 
-  // Step-specific help content
+  // Step-specific help content. The list items are pure i18n keys: the German
+  // texts live in `generator.json` and would only drift if repeated here.
   const getHelpContent = () => {
+    const list = (keys: string[]) => (
+      <ul className="list-disc space-y-1 pl-4">
+        {keys.map((key) => (
+          <li key={key}>{t(key)}</li>
+        ))}
+      </ul>
+    );
+
     switch (step) {
       case 1:
         return {
-          title: t('help.students.title', 'Klassenliste'),
-          instructions: (
-            <ul className="list-disc space-y-1 pl-4">
-              <li>
-                {t(
-                  'help.students.item1',
-                  'Füge Schüler hinzu: manuell, per "Klasse anlegen" oder über CSV-Import.',
-                )}
-              </li>
-              <li>
-                {t(
-                  'help.students.item2',
-                  'Wähle bis zu 3 Wunsch- und Distanzpartner pro Schüler.',
-                )}
-              </li>
-              <li>
-                {t(
-                  'help.students.item3',
-                  'Speichere und lade Backups über das Backup-Menü.',
-                )}
-              </li>
-            </ul>
-          ),
+          title: t('help.students.title'),
+          instructions: list([
+            'help.students.item1',
+            'help.students.item2',
+            'help.students.item3',
+            'help.students.item4',
+            'help.students.item5',
+            'help.students.item6',
+            'help.students.item7',
+          ]),
           contexts: ['students'] as ShortcutContext[],
         };
       case 2:
         return {
-          title: t('help.layout.title', 'Klassenraum'),
-          instructions: (
-            <ul className="list-disc space-y-1 pl-4">
-              <li>
-                {t(
-                  'help.layout.item1',
-                  'Wähle eine Vorlage oder füge Tische per Klick hinzu.',
-                )}
-              </li>
-              <li>
-                {t(
-                  'help.layout.item2',
-                  'Verschiebe und drehe Tische per Drag & Drop.',
-                )}
-              </li>
-              <li>
-                {t(
-                  'help.layout.item3',
-                  'Mehrfachauswahl: Strg/Cmd + Klick oder Auswahl-Rechteck aufziehen.',
-                )}
-              </li>
-            </ul>
-          ),
+          title: t('help.layout.title'),
+          instructions: list([
+            'help.layout.item1',
+            'help.layout.item2',
+            'help.layout.item3',
+            'help.layout.item4',
+            'help.layout.item5',
+            'help.layout.item6',
+            'help.layout.item7',
+          ]),
           contexts: ['layout'] as ShortcutContext[],
         };
       case 3:
         if (seatingMode === 'circle') {
           return {
-            title: t('help.circle.title', 'Sitzkreis'),
-            instructions: (
-              <ul className="list-disc space-y-1 pl-4">
-                <li>
-                  {t(
-                    'help.circle.item1',
-                    'Ziehe Schüler per Drag & Drop auf neue Positionen.',
-                  )}
-                </li>
-                <li>
-                  {t(
-                    'help.circle.item2',
-                    'Grüne Linien zeigen Verbindungen zu Tischnachbarn.',
-                  )}
-                </li>
-              </ul>
-            ),
+            title: t('help.circle.title'),
+            instructions: list([
+              'help.circle.item1',
+              'help.circle.item2',
+              'help.circle.item3',
+              'help.circle.item4',
+            ]),
             contexts: ['circle'] as ShortcutContext[],
           };
         }
         return {
-          title: t('help.plan.title', 'Sitzplan'),
-          instructions: (
-            <ul className="list-disc space-y-1 pl-4">
-              <li>
-                {t(
-                  'help.plan.item1',
-                  'Passe die Gewichtung der Kriterien in der Sidebar an.',
-                )}
-              </li>
-              <li>
-                {t(
-                  'help.plan.item2',
-                  'Ziehe Schüler per Drag & Drop auf andere Plätze.',
-                )}
-              </li>
-              <li>
-                {t(
-                  'help.plan.item3',
-                  'Klicke auf das Schloss, um einen Platz zu sperren.',
-                )}
-              </li>
-            </ul>
-          ),
+          title: t('help.plan.title'),
+          instructions: list([
+            'help.plan.item1',
+            'help.plan.item2',
+            'help.plan.item3',
+            'help.plan.item4',
+            'help.plan.item5',
+            'help.plan.item6',
+            'help.plan.item7',
+          ]),
           contexts: ['plan'] as ShortcutContext[],
         };
       default:

@@ -22,7 +22,7 @@
       "step3Title": "Seating Plan & Circle",
       "step3Text": "Mix & adjust – automatically generated seating circle.",
       "step4Title": "Export",
-      "step4Text": "Export as PDF & print."
+      "step4Text": "Export as PDF, PNG or SVG & print."
     },
     "ctaButton": "Plan your class now!",
     "faqLink": "Learn more in the FAQ!",
@@ -104,6 +104,30 @@
       "gender_mixing": {
         "q": "Why aren't genders distributed perfectly alternately?",
         "a": "The algorithm evaluates table groups in the context of the entire room. A swap might help in one place but create larger conflicts elsewhere. Higher weights for the \"Mix genders\" criterion force stricter placements but may override other rules (e.g. preferred partners) less often. Gender information is optional and treated neutrally if not provided."
+      }
+    },
+    "klassenliste": {
+      "title": "Class list & class management",
+      "description": "Multiple classes, CSV import, photos and bulk editing.",
+      "classes": {
+        "q": "Can I manage several classes?",
+        "a": "Yes. The class manager in step 1 lets you create as many classes as you like, rename them and switch between them. Each class keeps its own students, classroom layouts, seating plans and shuffle history. Deleting a class also removes its seating plans – so a backup beforehand is worth it."
+      },
+      "csv": {
+        "q": "How do I import an existing class list?",
+        "a": "Use \"Import class list\" to upload a CSV file, the kind you can save from Excel, LibreOffice, Numbers or Google Sheets. Only the \"Name\" column is required; every other column such as gender, restless, window seat or preferred partner is optional, and unknown columns are simply ignored. The \"What the file has to look like\" button shows an example, and the CSV template gives you a ready-made file to fill in. If your file contains several name columns, Klassenplan asks which combination to import."
+      },
+      "photos": {
+        "q": "Can I store photos of my students?",
+        "a": "Yes, via the portrait icon next to each student. The images are downscaled and stored exclusively on this device – they are never transmitted. Using student photos requires the consent of your school management, the students and their parents. Photos can be shown or hidden in the seating plan, in presentation mode and in the export, and they unlock the name game."
+      },
+      "bulk": {
+        "q": "How do I edit several students at once?",
+        "a": "Use the checkboxes in the list to select several students and set gender, height, language level, social role or individual markers for all of them together. Search, filters (e.g. \"Without photo\" or \"Restless only\") and sorting help you assemble exactly the group you need."
+      },
+      "undo": {
+        "q": "Can I undo changes?",
+        "a": "Yes. In the class list you can take back changes with the arrow buttons or Ctrl/Cmd+Z and restore them with Ctrl/Cmd+Shift+Z – an accidentally deleted student comes back together with their photo. The same shortcuts apply in the seating plan (step 3) and the classroom editor, for shuffles, moved students and layout steps. Inside text fields Ctrl/Cmd+Z stays reserved for your typing – use the arrow buttons there."
       }
     },
     "eigenschaften": {
@@ -298,11 +322,15 @@
       },
       "how": {
         "q": "How does the backup work?",
-        "a": "The export creates an encrypted JSON file with students, seating plans, mix history, seating circle, classroom features, templates, and settings."
+        "a": "The export creates a file encrypted with your password (at least 8 characters) containing all classes, students including their photos, seating plans, shuffle history, seating circle, classroom features, templates and settings. Without that password the file cannot be restored – so keep it safe."
       },
       "update": {
         "q": "What happens to my backup after a Klassenplan update?",
         "a": "Backups are backward compatible. New versions automatically migrate older backups. After major changes, it is worth creating a fresh export so that you have secured the latest structure."
+      },
+      "restore": {
+        "q": "What happens when I import a backup?",
+        "a": "You choose between \"Replace everything\" and \"Merge\". Replacing overwrites existing students, seating plans and templates with the backup – this cannot be undone. Merging adds students and seating plans from the backup to the existing ones; the classroom and settings then come from the backup."
       }
     },
     "tipps": {
@@ -313,15 +341,17 @@
         "intro": "Use a combination of the following strategies:",
         "li1": "Increase weights for relevant criteria",
         "li2": "Mix multiple times to use different random starts",
-        "li3": "Adjust individual seats manually via drag & drop and lock them if necessary so that the algorithm no longer changes them."
+        "li3": "Adjust individual seats manually via drag & drop and lock them if necessary so that the algorithm no longer changes them.",
+        "li4": "Use \"Optimize\": it improves the existing plan further instead of shuffling from scratch",
+        "li5": "Take back a poor shuffle with Ctrl/Cmd+Z or load an earlier result from the shuffle history"
       }
     },
     "oberflaeche": {
       "title": "Operation & User Interface",
-      "description": "Questions about Dark Mode, keyboard shortcuts, touch, and alternative views.",
+      "description": "Presentation mode, name game, export formats, dark mode, shortcuts and touch.",
       "print": {
         "q": "I want to print the seating plan and have the blackboard shown at the bottom as orientation. Is that possible?",
-        "a": "Yes. Switch to portrait view in the export area and activate \"Show blackboard\". This way you keep orientation in the classroom even on the printout."
+        "a": "Yes. Switch to portrait view in the export area and enable \"Show blackboard\". If your desk is at the back of the room, also set the viewing direction to \"From the back\": the room rotates by 180° while names and photos stay readable. That way the printout keeps the same orientation as the classroom."
       },
       "dark": {
         "q": "Is there a Dark Mode?",
@@ -342,6 +372,22 @@
       "pwa": {
         "q": "Can I install Klassenplan like an app?",
         "a": "Yes! Klassenplan is a Progressive Web App (PWA) and can be installed directly on your device. In Chrome, Edge, or Safari, look for \"Add to Home Screen\" or \"Install App\" in the browser menu. After that, Klassenplan launches like a standalone app from the dock or start menu – faster, with its own icon, and without the browser bar."
+      },
+      "present": {
+        "q": "How does presentation mode work?",
+        "a": "Presentation mode shows the seating plan or circle large on a projector or smartboard. You can switch between teacher and student view – the latter turns the plan around to the class's perspective and hides markers and photos. The bar at the bottom toggles markers, photos, colors, the name format and room elements, and lets you zoom and pan. \"Who's next?\" (or the space bar) draws a random student, and everyone gets a turn before anyone repeats. Press F for fullscreen."
+      },
+      "nameGame": {
+        "q": "What is the name game?",
+        "a": "The name game helps you learn the names of a new class. It only uses students with a photo and offers a photo quiz (match the name to the photo or the other way round, with shaky names coming up more often) and a memory game of photo and name cards. Your progress stays local on your device. Start it in step 1 via the \"Name game\" button."
+      },
+      "exportFormats": {
+        "q": "Which formats can I export the seating plan in?",
+        "a": "Besides PDF and direct printing you can save the current view as a PNG image or an SVG vector graphic – handy for parent letters, substitute folders or the school portal. Seating plan and circle are exported separately, each in portrait or landscape format."
+      },
+      "names": {
+        "q": "The names are too long on the plan – what can I do?",
+        "a": "In step 3, in presentation mode and in the export you decide how names appear: first name only, first name + last name initial, or the full name. If a first name occurs more than once in the class, a hint points that out so you can switch to the unambiguous variant."
       }
     },
     "projekt": {
