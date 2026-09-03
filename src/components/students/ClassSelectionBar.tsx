@@ -216,13 +216,21 @@ export default function ClassSelectionBar({
                 <div key={entry.id} className="flex items-center gap-1">
                   <button
                     type="button"
-                    className={`${isSelected ? dropdownActiveOptionClass : dropdownOptionClass} min-w-0 flex-1`}
+                    className={`${isSelected ? dropdownActiveOptionClass : dropdownOptionClass} group min-w-0 flex-1`}
                     onClick={() => handleSelectClass(entry.id)}
                     disabled={isOptionDisabled}
                     role="option"
                     aria-selected={isSelected}
+                    title={entry.name}
                   >
-                    <span className="truncate">{entry.name}</span>
+                    {/* The name is clipped at the button edge so it can never
+                        run under the edit/delete buttons; hovering or focusing
+                        the row scrolls the full name into view. */}
+                    <span className="@container block min-w-0 flex-1 truncate">
+                      <span className="inline-block whitespace-nowrap group-hover:animate-marquee-label group-focus-visible:animate-marquee-label">
+                        {entry.name}
+                      </span>
+                    </span>
                   </button>
                   <button
                     type="button"
@@ -420,9 +428,9 @@ export default function ClassSelectionBar({
 const classSwitcherClass =
   'inline-flex h-11 max-w-full items-center gap-2 rounded-full border border-blue-200/70 bg-white px-4 text-sm text-blue-900 shadow-sm transition hover:border-blue-300 hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-blue-900/40 dark:bg-gray-900 dark:text-blue-100 dark:hover:border-blue-700 dark:hover:bg-gray-800 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60';
 const dropdownOptionClass =
-  'w-full rounded-lg px-3 py-2 text-left text-sm text-gray-700 transition hover:bg-blue-50 dark:text-gray-100 dark:hover:bg-gray-800 cursor-pointer disabled:cursor-not-allowed';
+  'flex w-full items-center overflow-hidden rounded-lg px-3 py-2 text-left text-sm text-gray-700 transition hover:bg-blue-50 dark:text-gray-100 dark:hover:bg-gray-800 cursor-pointer disabled:cursor-not-allowed';
 const dropdownActiveOptionClass =
-  'w-full rounded-lg px-3 py-2 text-left text-sm font-semibold text-blue-700 bg-blue-50 dark:bg-blue-950/40 dark:text-blue-200 cursor-pointer disabled:cursor-not-allowed';
+  'flex w-full items-center overflow-hidden rounded-lg px-3 py-2 text-left text-sm font-semibold text-blue-700 bg-blue-50 dark:bg-blue-950/40 dark:text-blue-200 cursor-pointer disabled:cursor-not-allowed';
 const dropdownCreateOptionClass =
   'flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium text-blue-700 transition hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 disabled:opacity-40 dark:text-blue-200 dark:hover:bg-gray-800 cursor-pointer disabled:cursor-not-allowed';
 const dropdownOptionDeleteButtonClass =

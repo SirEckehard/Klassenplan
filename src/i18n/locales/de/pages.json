@@ -342,7 +342,7 @@
         "li1": "Gewichte für relevante Kriterien erhöhen",
         "li2": "Mehrfach mischen, um unterschiedliche Zufallsstarts zu nutzen",
         "li3": "Einzelne Plätze manuell via Drag & Drop anpassen und bei Bedarf sperren, sodass der Algorithmus diese nicht mehr verändert.",
-        "li4": "„Optimieren“ nutzen: Es verbessert den bestehenden Plan weiter, statt komplett neu zu mischen",
+        "li4": "„Verfeinern“ nutzen: Es passt den bestehenden Plan in kleinen Schritten an, statt komplett neu zu mischen",
         "li5": "Eine misslungene Mischung mit Strg/Cmd+Z zurücknehmen oder ein früheres Ergebnis aus der Misch-Historie laden"
       }
     },

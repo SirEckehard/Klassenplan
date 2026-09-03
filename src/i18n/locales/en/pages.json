@@ -342,7 +342,7 @@
         "li1": "Increase weights for relevant criteria",
         "li2": "Mix multiple times to use different random starts",
         "li3": "Adjust individual seats manually via drag & drop and lock them if necessary so that the algorithm no longer changes them.",
-        "li4": "Use \"Optimize\": it improves the existing plan further instead of shuffling from scratch",
+        "li4": "Use \"Refine\": it adjusts the existing plan in small steps instead of shuffling from scratch",
         "li5": "Take back a poor shuffle with Ctrl/Cmd+Z or load an earlier result from the shuffle history"
       }
     },

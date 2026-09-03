@@ -8,7 +8,7 @@
     "5": "Export as PNG and SVG: besides PDF and printing, you can now save the current view as an image or a vector graphic – handy for parent letters, substitute folders or the school portal",
     "6": "Viewing direction in the export: if your desk is at the back of the room, 'From the back' rotates the plan by 180° – names and photos stay readable",
     "7": "'Who's next?' in presentation mode: one keypress draws a random student and highlights their seat with a spotlight – everyone gets a turn before anyone repeats. The F key starts full screen",
-    "8": "'Optimize' in the seating plan: improves the existing plan step by step instead of shuffling it from scratch",
+    "8": "'Refine' in the seating plan: adjusts the existing plan in small steps instead of shuffling it from scratch",
     "9": "Understandable CSV import: 'What the file has to look like' shows an example class list, and if a file does not fit, the message explains exactly why",
     "10": "Seating plans are saved automatically when you leave step 3 – without cluttering the shuffle history with intermediate states",
     "11": "Reworked backups: on export a new dialog shows the strength of your password, and on restore you choose between 'Replace everything' and 'Merge'",

@@ -239,7 +239,7 @@ export const CanvasSettingsButton = React.forwardRef<
                 .map((group) => (
                   <div key={group.id} className="space-y-2">
                     {group.title && (
-                      <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
                         <p className="text-xs font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-300">
                           {group.title}
                         </p>
@@ -338,16 +338,17 @@ function SegmentSetting({ option }: { option: CanvasSettingsSegmentOption }) {
 }
 
 /**
- * Renders icon-only toggle chips in a wrapping row. Active chips are colored,
- * inactive chips grayed out; each chip carries its label as tooltip and
- * accessible name.
+ * Renders icon-only toggle chips in a four-column grid. Every group shares that
+ * raster and the chips stretch to fill it, so the rows end flush with the panel
+ * edges instead of leaving a ragged gap. Active chips are colored, inactive
+ * chips grayed out; each chip carries its label as tooltip and accessible name.
  */
 function IconGridSetting({ option }: { option: CanvasSettingsIconGridOption }) {
   return (
     <div
       role="group"
       aria-label={option.label}
-      className="flex flex-wrap gap-1.5"
+      className="grid grid-cols-4 gap-1.5"
     >
       {option.items.map((item) => (
         <button
@@ -358,7 +359,7 @@ function IconGridSetting({ option }: { option: CanvasSettingsIconGridOption }) {
           aria-label={item.label}
           title={item.label}
           onClick={() => item.onChange(!item.checked)}
-          className={`flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-40 ${
+          className={`flex h-9 w-full cursor-pointer items-center justify-center rounded-lg transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-40 ${
             item.checked
               ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-200'
               : 'bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600 dark:bg-gray-800 dark:text-gray-500 dark:hover:bg-gray-700 dark:hover:text-gray-300'

@@ -216,7 +216,7 @@
     "installDesc": "Install Klassenplan as App and use it offline!"
   },
   "offline": {
-    "badge": "Offline – everything keeps working"
+    "badge": "Offline"
   },
   "loading": {
     "page": "Loading page",

@@ -68,7 +68,7 @@ export default function SeatingCanvasToolbar({
   const refineTitle = hasCriteria
     ? t(
         'editor.refineTitle',
-        'Aktuellen Sitzplan weiter verbessern, ohne neu zu mischen',
+        'Aktuellen Sitzplan in kleinen Schritten verfeinern',
       )
     : t(
         'editor.refineNoCriteria',
@@ -89,7 +89,7 @@ export default function SeatingCanvasToolbar({
         disabled={!canRefine}
         className={`${secondaryButtonClass} h-9 gap-2 px-3 disabled:cursor-not-allowed disabled:opacity-60`}
         title={refineTitle}
-        aria-label={t('editor.refineLabel', 'Sitzplan weiter optimieren')}
+        aria-label={t('editor.refineLabel', 'Sitzplan verfeinern')}
       >
         {isRefining ? (
           <SpinnerGapIcon size={18} className="animate-spin" aria-hidden />
@@ -97,7 +97,7 @@ export default function SeatingCanvasToolbar({
           <MagicWandIcon size={18} aria-hidden />
         )}
         <span className="hidden text-sm sm:inline">
-          {t('editor.refineButton', 'Optimieren')}
+          {t('editor.refineButton', 'Verfeinern')}
         </span>
       </button>
     </div>

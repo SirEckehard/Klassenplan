@@ -46,7 +46,7 @@ const getUndo = () =>
     name: /rückgängig|undo/i,
   });
 const getRefine = () =>
-  screen.getByRole('button', { name: /optimier|optimise/i });
+  screen.getByRole('button', { name: /verfeiner|refine/i });
 
 describe('SeatingCanvasToolbar', () => {
   it('disables undo and redo while the history is empty', () => {

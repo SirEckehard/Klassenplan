@@ -33,7 +33,7 @@
       "item2": "Drag students to other seats via drag & drop.",
       "item3": "Click the lock icon to lock a seat for the next shuffle.",
       "item4": "Statistics badges show how well criteria are met.",
-      "item5": "\"Optimize\" improves the current plan further without shuffling it from scratch.",
+      "item5": "\"Refine\" adjusts the current plan in small steps.",
       "item6": "The view settings control how names appear (first name only, first name + initial, or full name) and whether photos are shown.",
       "item7": "Ctrl/Cmd+Z takes back shuffles and moves, Ctrl/Cmd+Shift+Z restores them."
     },
@@ -574,9 +574,9 @@
     "photoCollision": "Photo collision",
     "rotateTable": "Rotate table",
     "canvasLabel": "Seating plan: {{occupied}} of {{total}} seats taken",
-    "refineButton": "Optimise",
-    "refineLabel": "Optimise the seating plan further",
-    "refineTitle": "Improve the current seating plan without shuffling again",
+    "refineButton": "Refine",
+    "refineLabel": "Refine the seating plan",
+    "refineTitle": "Refine the current seating plan in small steps",
     "refineNoCriteria": "Activate at least one mix criterion in the sidebar first."
   },
   "quickSetup": {

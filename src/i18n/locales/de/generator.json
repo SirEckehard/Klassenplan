@@ -33,7 +33,7 @@
       "item2": "Ziehe Schüler per Drag & Drop auf andere Plätze.",
       "item3": "Klicke auf das Schloss-Symbol, um einen Platz beim nächsten Mischen zu sperren.",
       "item4": "Statistik-Badges zeigen, wie gut die Kriterien erfüllt sind.",
-      "item5": "„Optimieren“ verbessert den aktuellen Plan weiter, ohne ihn komplett neu zu mischen.",
+      "item5": "„Verfeinern“ passt den aktuellen Plan in kleinen Schritten an.",
       "item6": "In den Ansichtseinstellungen legst du fest, wie Namen erscheinen (nur Vorname, Vorname + Initial oder vollständig) und ob Fotos angezeigt werden.",
       "item7": "Strg/Cmd+Z nimmt Mischungen und Verschiebungen zurück, Strg/Cmd+Umschalt+Z stellt sie wieder her."
     },
@@ -574,9 +574,9 @@
     "photoCollision": "Fotokollision",
     "rotateTable": "Tisch drehen",
     "canvasLabel": "Sitzplan: {{occupied}} von {{total}} Plätzen belegt",
-    "refineButton": "Optimieren",
-    "refineLabel": "Sitzplan weiter optimieren",
-    "refineTitle": "Aktuellen Sitzplan weiter verbessern, ohne neu zu mischen",
+    "refineButton": "Verfeinern",
+    "refineLabel": "Sitzplan verfeinern",
+    "refineTitle": "Aktuellen Sitzplan in kleinen Schritten verfeinern",
     "refineNoCriteria": "Aktiviere zuerst mindestens ein Mischkriterium in der Seitenleiste."
   },
   "quickSetup": {
