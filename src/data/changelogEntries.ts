@@ -11,6 +11,7 @@ export interface ChangeItem {
 
 export interface ChangelogVersion {
   version: string;
+  /** Release date in ISO 8601 (`YYYY-MM-DD`); rendered via `formatLongDate`. */
   date: string;
   changes: ChangeItem[];
 }
@@ -18,7 +19,7 @@ export interface ChangelogVersion {
 export const changelogVersions: ChangelogVersion[] = [
   {
     version: '2.0.0',
-    date: '3. September 2026',
+    date: '2026-09-03',
     changes: [
       { textKey: 'v2_0_0.0', type: 'feature' },
       { textKey: 'v2_0_0.1', type: 'feature' },
@@ -47,7 +48,7 @@ export const changelogVersions: ChangelogVersion[] = [
   },
   {
     version: '1.9.0',
-    date: '29. Juli 2026',
+    date: '2026-07-29',
     changes: [
       { textKey: 'v1_9_0.0', type: 'feature' },
       { textKey: 'v1_9_0.1', type: 'feature' },
@@ -59,7 +60,7 @@ export const changelogVersions: ChangelogVersion[] = [
   },
   {
     version: '1.8.0',
-    date: '18. Juli 2026',
+    date: '2026-07-18',
     changes: [
       { textKey: 'v1_8_0.0', type: 'feature' },
       { textKey: 'v1_8_0.1', type: 'feature' },
@@ -76,7 +77,7 @@ export const changelogVersions: ChangelogVersion[] = [
   },
   {
     version: '1.7.0',
-    date: '9. Juli 2026',
+    date: '2026-07-09',
     changes: [
       { textKey: 'v1_7_0.0', type: 'feature' },
       { textKey: 'v1_7_0.1', type: 'feature' },
@@ -94,7 +95,7 @@ export const changelogVersions: ChangelogVersion[] = [
   },
   {
     version: '1.6.0',
-    date: '8. Juni 2026',
+    date: '2026-06-08',
     changes: [
       { textKey: 'v1_6_0.0', type: 'feature' },
       { textKey: 'v1_6_0.1', type: 'feature' },
@@ -104,7 +105,7 @@ export const changelogVersions: ChangelogVersion[] = [
   },
   {
     version: '1.5.0',
-    date: '10. Mai 2026',
+    date: '2026-05-10',
     changes: [
       { textKey: 'v1_5_0.0', type: 'feature' },
       { textKey: 'v1_5_0.1', type: 'feature' },
@@ -118,7 +119,7 @@ export const changelogVersions: ChangelogVersion[] = [
   },
   {
     version: '1.4.2',
-    date: '2. Mai 2026',
+    date: '2026-05-02',
     changes: [
       { textKey: 'v1_4_2.0', type: 'improvement' },
       { textKey: 'v1_4_2.1', type: 'improvement' },
@@ -127,12 +128,12 @@ export const changelogVersions: ChangelogVersion[] = [
   },
   {
     version: '1.4.1',
-    date: '29. März 2026',
+    date: '2026-03-29',
     changes: [{ textKey: 'v1_4_1.0', type: 'improvement' }],
   },
   {
     version: '1.4.0',
-    date: '23. Januar 2026',
+    date: '2026-01-23',
     changes: [
       { textKey: 'v1_4_0.0', type: 'feature' },
       { textKey: 'v1_4_0.1', type: 'feature' },
@@ -144,7 +145,7 @@ export const changelogVersions: ChangelogVersion[] = [
   },
   {
     version: '1.3.0',
-    date: '4. Januar 2026',
+    date: '2026-01-04',
     changes: [
       { textKey: 'v1_3_0.0', type: 'feature' },
       { textKey: 'v1_3_0.1', type: 'feature' },
@@ -159,7 +160,7 @@ export const changelogVersions: ChangelogVersion[] = [
   },
   {
     version: '1.2.1',
-    date: '31. Dezember 2025',
+    date: '2025-12-31',
     changes: [
       {
         textKey: 'v1_2_1.0',
@@ -173,7 +174,7 @@ export const changelogVersions: ChangelogVersion[] = [
   },
   {
     version: '1.2.0',
-    date: '13. Dezember 2025',
+    date: '2025-12-13',
     changes: [
       { textKey: 'v1_2_0.0', type: 'feature' },
       { textKey: 'v1_2_0.1', type: 'feature' },
@@ -185,7 +186,7 @@ export const changelogVersions: ChangelogVersion[] = [
   },
   {
     version: '1.1.3',
-    date: '08. November 2025',
+    date: '2025-11-08',
     changes: [
       { textKey: 'v1_1_3.0', type: 'improvement' },
       { textKey: 'v1_1_3.1', type: 'improvement' },
@@ -197,7 +198,7 @@ export const changelogVersions: ChangelogVersion[] = [
   },
   {
     version: '1.1.2',
-    date: '31. Oktober 2025',
+    date: '2025-10-31',
     changes: [
       { textKey: 'v1_1_2.0', type: 'feature' },
       { textKey: 'v1_1_2.1', type: 'feature' },
@@ -208,7 +209,7 @@ export const changelogVersions: ChangelogVersion[] = [
   },
   {
     version: '1.1.1',
-    date: '25. Oktober 2025',
+    date: '2025-10-25',
     changes: [
       { textKey: 'v1_1_1.0', type: 'feature' },
       { textKey: 'v1_1_1.1', type: 'improvement' },
@@ -219,7 +220,7 @@ export const changelogVersions: ChangelogVersion[] = [
   },
   {
     version: '1.1.0',
-    date: '22. Oktober 2025',
+    date: '2025-10-22',
     changes: [
       { textKey: 'v1_1_0.0', type: 'feature' },
       { textKey: 'v1_1_0.1', type: 'feature' },
@@ -234,7 +235,7 @@ export const changelogVersions: ChangelogVersion[] = [
   },
   {
     version: '1.0.3',
-    date: '16. Oktober 2025',
+    date: '2025-10-16',
     changes: [
       { textKey: 'v1_0_3.0', type: 'feature' },
       { textKey: 'v1_0_3.1', type: 'feature' },
@@ -249,7 +250,7 @@ export const changelogVersions: ChangelogVersion[] = [
   },
   {
     version: '1.0.2',
-    date: '5. Oktober 2025',
+    date: '2025-10-05',
     changes: [
       { textKey: 'v1_0_2.0', type: 'feature' },
       { textKey: 'v1_0_2.1', type: 'feature' },
@@ -260,7 +261,7 @@ export const changelogVersions: ChangelogVersion[] = [
   },
   {
     version: '1.0.1',
-    date: '28. September 2025',
+    date: '2025-09-28',
     changes: [
       { textKey: 'v1_0_1.0', type: 'feature' },
       { textKey: 'v1_0_1.1', type: 'feature' },
@@ -270,7 +271,7 @@ export const changelogVersions: ChangelogVersion[] = [
   },
   {
     version: '1.0.0',
-    date: '30. August 2025',
+    date: '2025-08-30',
     changes: [
       { textKey: 'v1_0_0.0', type: 'feature' },
       { textKey: 'v1_0_0.1', type: 'feature' },

@@ -47,7 +47,25 @@ function getFormatter(
   return formatter;
 }
 
+/** `YYYY-MM-DD` with no time part, as written by `toIsoDate`. */
+const DATE_ONLY_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
+
 function toDate(value: Date | number | string): Date | null {
+  if (typeof value === 'string') {
+    // `new Date('2026-09-03')` is UTC midnight per spec, so anyone west of UTC
+    // would see the previous day. `toIsoDate` writes *local* dates, so read
+    // them back as local midnight — otherwise the round-trip loses a day.
+    const dateOnly = DATE_ONLY_PATTERN.exec(value);
+    if (dateOnly) {
+      const local = new Date(
+        Number(dateOnly[1]),
+        Number(dateOnly[2]) - 1,
+        Number(dateOnly[3]),
+      );
+      return Number.isNaN(local.getTime()) ? null : local;
+    }
+  }
+
   const date = value instanceof Date ? value : new Date(value);
   return Number.isNaN(date.getTime()) ? null : date;
 }
@@ -77,6 +95,21 @@ export function formatDate(
   return formatDateTime(
     value,
     { year: 'numeric', month: '2-digit', day: '2-digit' },
+    language,
+  );
+}
+
+/**
+ * Spelled-out date, e.g. `3. September 2026` (de) / `September 3, 2026` (en).
+ * Used for release dates, which read as prose rather than as a timestamp.
+ */
+export function formatLongDate(
+  value: Date | number | string,
+  language?: string,
+): string {
+  return formatDateTime(
+    value,
+    { year: 'numeric', month: 'long', day: 'numeric' },
     language,
   );
 }

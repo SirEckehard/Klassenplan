@@ -176,6 +176,7 @@ export {
   formatDateAndTime,
   formatDateTime,
   formatDayMonth,
+  formatLongDate,
   formatStoredDate,
   formatTime,
   formatTimeWithSeconds,

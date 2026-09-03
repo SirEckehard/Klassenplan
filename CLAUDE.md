@@ -24,17 +24,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - i18n consistency: `npm run check:i18n` (DE/EN key parity + every `t(key, 'default')` resolves to a real key)
 - Bundle budgets: `npm run check:bundle` (after a build; part of `npm run build:static`)
 
-**Current Code Quality Status (2026-08-02):**
+**Current Code Quality Status (2026-09-03):**
 
 - ✅ ESLint: 0 errors, 0 warnings
 - ✅ TypeScript: 0 compilation errors (strict mode)
-- ✅ Tests: 1676 unit tests (167 test files) + 3 Playwright smoke specs, 100% passing
-- 📊 Coverage: 63 % lines / 63 % statements (`npm run test:coverage`, v8 provider, no thresholds enforced)
+- ✅ Tests: 1799 unit tests (176 test files) + 3 Playwright smoke specs, 100% passing
+- 📊 Coverage: 64 % lines / 64 % statements (`npm run test:coverage`, v8 provider, no thresholds enforced)
 - ⚠️ Unused Exports: ~114 modules with unused exports (mostly type exports, Props interfaces and shared test helpers - acceptable for a TypeScript project)
 - ✅ Test Infrastructure: Centralized accessibility helpers and toast matchers for robust testing
 - ✅ Architecture: Repository Pattern implemented, UI components reorganized into logical subdirectories
-- ✅ i18n: Bilingual support (German/English) fully implemented, DE/EN key parity 1:1 (1633 keys per language)
-- 📦 Bundle: initial payload 224 KB brotli / 804 KB raw, largest chunk 65 KB brotli, CSS 19 KB brotli
+- ✅ i18n: Bilingual support (German/English) fully implemented, DE/EN key parity 1:1 (1742 keys per language)
+- 📦 Bundle: initial payload 206 KB brotli / 814 KB raw, largest chunk 64 KB brotli, CSS 19 KB brotli
 
 ## Logging
 
@@ -86,12 +86,17 @@ alone deliberately (removing 750 of them would be pure churn).
 ### Dates and times
 
 Never format a date with a hardcoded locale (`toLocaleDateString('de-DE')`).
-Use the helpers from `@/utils` (`formatDate`, `formatTime`,
+Use the helpers from `@/utils` (`formatDate`, `formatLongDate`, `formatTime`,
 `formatTimeWithSeconds`, `formatDayMonth`, `formatDateAndTime`), which resolve
 the locale from the active i18n language via `Intl.DateTimeFormat`.
+`formatLongDate` spells the month out (`3. September 2026` / `September 3,
+2026`) and is what release dates render with.
 
 Dates that get **stored** are ISO 8601 (`toIsoDate`) and formatted on render
 with `formatStoredDate`, which passes pre-ISO legacy strings through untouched.
+Date-only strings (`YYYY-MM-DD`) are parsed as **local** midnight, not UTC —
+`new Date('2026-09-03')` would otherwise render as 2 September west of UTC and
+break the `toIsoDate` round-trip.
 
 ## Modern Import Patterns
 

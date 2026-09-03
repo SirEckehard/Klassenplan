@@ -5,6 +5,7 @@ import {
   formatDate,
   formatDateAndTime,
   formatDayMonth,
+  formatLongDate,
   formatStoredDate,
   formatTime,
   formatTimeWithSeconds,
@@ -59,6 +60,43 @@ describe('dateTimeFormat', () => {
     it('returns an empty string instead of "Invalid Date"', () => {
       expect(formatDate('not a date', 'de')).toBe('');
       expect(formatDate(Number.NaN, 'en')).toBe('');
+    });
+  });
+
+  describe('formatLongDate', () => {
+    it('spells the month out in both languages', () => {
+      expect(formatLongDate(REFERENCE, 'de')).toBe('31. Juli 2026');
+      expect(formatLongDate(REFERENCE, 'en')).toBe('July 31, 2026');
+    });
+
+    it('renders the ISO release dates the changelog stores', () => {
+      expect(formatLongDate('2026-09-03', 'de')).toBe('3. September 2026');
+      expect(formatLongDate('2026-09-03', 'en')).toBe('September 3, 2026');
+    });
+
+    it('returns an empty string instead of "Invalid Date"', () => {
+      expect(formatLongDate('not a date', 'de')).toBe('');
+    });
+  });
+
+  describe('date-only ISO strings', () => {
+    // `new Date('2026-09-03')` is UTC midnight, which renders as 2 September
+    // west of UTC. These assertions therefore only bite outside UTC+x — run
+    // the suite with TZ=America/New_York to exercise them.
+    it('reads them as local midnight, not UTC', () => {
+      expect(formatLongDate('2026-09-03', 'de')).toBe('3. September 2026');
+      expect(formatDate('2026-09-03', 'de')).toBe('03.09.2026');
+      expect(formatStoredDate('2026-01-01', 'de')).toBe('01.01.2026');
+    });
+
+    it('round-trips whatever toIsoDate wrote', () => {
+      expect(formatDate(toIsoDate(REFERENCE), 'de')).toBe('31.07.2026');
+    });
+
+    it('still treats strings carrying a time as absolute instants', () => {
+      expect(formatDate('2026-07-31T12:00:00Z', 'de')).toMatch(
+        /^\d{2}\.\d{2}\.2026$/,
+      );
     });
   });
 

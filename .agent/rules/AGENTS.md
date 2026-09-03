@@ -18,16 +18,16 @@
 - Check for unused exports: `npx ts-unused-exports tsconfig.ts-unused.json --ignoreFiles='vite-env.d.ts|index.tsx|App.tsx'`
 - E2E: Playwright smoke specs live in `e2e/` (`npm run test:e2e`; needs `npx playwright install chromium`)
 
-**Current Code Quality Status (2026-08-01):**
+**Current Code Quality Status (2026-09-03):**
 
 - ✅ ESLint: 0 errors, 0 warnings
 - ✅ TypeScript: 0 compilation errors (strict mode)
-- ✅ Tests: 1681 unit tests (167 test files) + 3 Playwright smoke specs, 100% passing
-- 📊 Coverage: 63 % lines / 63 % statements (`npm run test:coverage`, v8 provider, no thresholds enforced)
+- ✅ Tests: 1799 unit tests (176 test files) + 3 Playwright smoke specs, 100% passing
+- 📊 Coverage: 64 % lines / 64 % statements (`npm run test:coverage`, v8 provider, no thresholds enforced)
 - ⚠️ Unused Exports: ~114 modules with unused exports (mostly type exports, Props interfaces and shared test helpers - acceptable for a TypeScript project)
 - ✅ Test Infrastructure: Centralized accessibility helpers and toast matchers for robust testing
 - ✅ Architecture: Repository Pattern implemented, UI components reorganized into logical subdirectories
-- ✅ i18n: Bilingual support (German/English) fully implemented, DE/EN key parity 1:1 (1619 keys per language)
+- ✅ i18n: Bilingual support (German/English) fully implemented, DE/EN key parity 1:1 (1742 keys per language)
 
 ## Logging
 

@@ -7,7 +7,7 @@ import {
   useSeatingPlanActions,
   useSeatingPlanState,
 } from '@/contexts/SeatingPlanContext';
-import { CHANGELOG_ROUTE, logInfo } from '@/utils';
+import { CHANGELOG_ROUTE, formatLongDate, logInfo } from '@/utils';
 import { useTranslation } from 'react-i18next';
 
 const MAX_HIGHLIGHTS = 3;
@@ -63,9 +63,12 @@ export default function PostUpdateNotice() {
               })}
             </p>
             {latestChangelogEntry.date ? (
-              <p className="text-xs text-blue-500/80 dark:text-blue-200/80">
-                {latestChangelogEntry.date}
-              </p>
+              <time
+                className="block text-xs text-blue-500/80 dark:text-blue-200/80"
+                dateTime={latestChangelogEntry.date}
+              >
+                {formatLongDate(latestChangelogEntry.date)}
+              </time>
             ) : null}
             <p className="mt-2 text-sm text-blue-900/90 dark:text-blue-100/90">
               {t('updateNotice.intro')}

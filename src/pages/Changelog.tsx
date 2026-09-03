@@ -10,7 +10,11 @@ import {
 } from '@phosphor-icons/react';
 import Seo from '@/components/Seo';
 import { LocalizedLink } from '@/components/LocalizedLink';
-import { cardSurfaceClass, secondaryButtonClass } from '@/utils';
+import {
+  cardSurfaceClass,
+  formatLongDate,
+  secondaryButtonClass,
+} from '@/utils';
 import { KpLockup } from '@/components/KpLockup';
 import { usePageSeo } from '@/hooks/usePageSeo';
 import { changelogVersions, type ChangeItem } from '@/data/changelogEntries';
@@ -125,8 +129,11 @@ export default function Changelog() {
                   >
                     Version {version.version}
                   </h2>
-                  <time className="text-sm text-gray-600 dark:text-gray-400">
-                    {version.date}
+                  <time
+                    className="text-sm text-gray-600 dark:text-gray-400"
+                    dateTime={version.date}
+                  >
+                    {formatLongDate(version.date)}
                   </time>
                 </div>
 
