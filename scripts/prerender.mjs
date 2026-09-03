@@ -58,7 +58,45 @@ async function waitForRender(page, expectedCanonical, expectedLang) {
   );
 }
 
-async function capture(browser, baseUrl, siteUrl, entry) {
+/**
+ * Collects the module preloads Vite wrote into the built shell.
+ *
+ * Everything else with `rel="modulepreload"` in a captured DOM was injected at
+ * runtime — by Vite's dynamic-import helper or by `addPrefetchHint()` — while
+ * the page was rendering, so the set depends on how many idle tasks happened
+ * to finish before `page.content()` ran. Capturing those made the build
+ * non-reproducible (the same commit produced 21 to 31 links across runs) and
+ * baked idle-time hints into the markup as blocking head preloads.
+ */
+async function readShellPreloads() {
+  const shell = await fs.readFile(path.join(distDir, 'index.html'), 'utf-8');
+  const hrefs = new Set();
+  for (const match of shell.matchAll(
+    /<link\b[^>]*\brel="modulepreload"[^>]*\bhref="([^"]+)"/gi,
+  )) {
+    hrefs.add(match[1]);
+  }
+  return hrefs;
+}
+
+/**
+ * Drops runtime-injected module hints, keeping the build-time ones.
+ *
+ * Deliberately narrow: `rel="alternate"` (hreflang), `canonical` and the JSON-LD
+ * block are injected by <Seo> at runtime too, and those are the whole point of
+ * prerendering — only module hints are filtered.
+ */
+function stripRuntimeModuleHints(html, shellPreloads) {
+  return html.replace(
+    /<link\b[^>]*\brel="(?:modulepreload|prefetch)"[^>]*>/gi,
+    (tag) => {
+      const href = tag.match(/\bhref="([^"]+)"/i)?.[1];
+      return href && shellPreloads.has(href) ? tag : '';
+    },
+  );
+}
+
+async function capture(browser, baseUrl, siteUrl, entry, shellPreloads) {
   const context = await browser.newContext({ serviceWorkers: 'block' });
   const page = await context.newPage();
 
@@ -75,7 +113,7 @@ async function capture(browser, baseUrl, siteUrl, entry) {
     // failed requests and CSP violations on every page. Root-relative paths
     // resolve correctly on any host.
     const html = await page.content();
-    return html.replaceAll(baseUrl, '');
+    return stripRuntimeModuleHints(html.replaceAll(baseUrl, ''), shellPreloads);
   } finally {
     await context.close();
   }
@@ -101,11 +139,19 @@ async function run() {
   });
   const baseUrl = server.resolvedUrls.local[0].replace(/\/$/, '');
   const browser = await chromium.launch();
+  // Read before writeCaptures() overwrites dist/index.html below.
+  const shellPreloads = await readShellPreloads();
 
   const captures = [];
   try {
     for (const entry of entries) {
-      const html = await capture(browser, baseUrl, siteUrl, entry);
+      const html = await capture(
+        browser,
+        baseUrl,
+        siteUrl,
+        entry,
+        shellPreloads,
+      );
       captures.push({ file: outputFileFor(entry.localizedPath), html });
       logInfo(
         'Rendered route',
