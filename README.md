@@ -53,14 +53,23 @@ A production-ready [`Dockerfile`](Dockerfile) (multi-stage build with nginx) shi
 docker pull ghcr.io/sireckehard/klassenplan:latest
 ```
 
-The easiest way to run it is via [`docker-compose.yml`](docker-compose.yml):
+Tags follow the release: `2.0.0` and `2.0` pin a version, `latest` always tracks the newest release. The easiest way to run it is via [`docker-compose.yml`](docker-compose.yml):
 
 ```bash
 docker compose up -d           # uses the published image, serves on port 8080
 docker compose up -d --build   # builds from this repository instead
+docker compose pull && docker compose up -d   # update to the current image
 ```
 
-TLS terminates upstream — put a reverse proxy in front. When building for a host other than klassenplan.de, set `SITE_URL` (baked into canonical/hreflang/og:url at build time): `SITE_URL=https://example.org docker compose up -d --build`.
+The compose file reads three optional variables from a `.env` file next to it (see [`.env.example`](.env.example)):
+
+| Variable              | Default                  | Effect                                                        |
+| --------------------- | ------------------------ | ------------------------------------------------------------- |
+| `KLASSENPLAN_VERSION` | `latest`                 | Pins the image tag, e.g. `2.0.0`                              |
+| `KLASSENPLAN_PORT`    | `8080`                   | Host port the container is published on                       |
+| `SITE_URL`            | `https://klassenplan.de` | Baked into canonical/hreflang/og:url — only used by `--build` |
+
+TLS terminates upstream — put a reverse proxy in front. When building for a host other than klassenplan.de, set `SITE_URL`: `SITE_URL=https://example.org docker compose up -d --build`.
 
 The static bundle produced by `npm run build` can alternatively be served on any static host (Vercel, Netlify, GitHub Pages, your own web server).
 

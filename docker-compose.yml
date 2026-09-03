@@ -2,7 +2,9 @@
 # `docker compose up -d --build` builds from this repository instead.
 services:
   klassenplan:
-    image: ghcr.io/sireckehard/klassenplan:latest
+    # Pin a release instead of tracking `latest` by setting KLASSENPLAN_VERSION
+    # (e.g. KLASSENPLAN_VERSION=2.0.0) in a .env file next to this one.
+    image: ghcr.io/sireckehard/klassenplan:${KLASSENPLAN_VERSION:-latest}
     build:
       context: .
       args:
@@ -11,5 +13,5 @@ services:
         SITE_URL: ${SITE_URL:-https://klassenplan.de}
     ports:
       # TLS terminates upstream (see nginx.conf) — put a reverse proxy in front.
-      - '8080:80'
+      - '${KLASSENPLAN_PORT:-8080}:80'
     restart: unless-stopped

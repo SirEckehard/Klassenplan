@@ -7,6 +7,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-09-03
+
+### Added
+
+- **Search, filter and sort in the class list** – find individual students via the search or narrow the list down to a group (e.g. "restless only", "without photo only"), with a free sort order or alphabetical sorting
+- **Bulk editing** – select several students via checkboxes and set gender, height, language level, social role or individual traits for the whole selection at once
+- **Undo and redo throughout the app** – the class list, the seating plan and the classroom editor now respond consistently to `Ctrl/Cmd+Z` and `Ctrl/Cmd+Shift+Z`; an accidentally deleted student is restored together with their photo
+- **Reworked class management** – classes are switched via a tidied-up bar showing the student count and offering direct access to import, export and the name game
+- **Configurable name display** – step 3, presentation mode and the export let you pick between first name only, first name + last-name initial, and the full name; duplicate first names are pointed out
+- **PNG and SVG export** – besides PDF and printing, the current view can be saved as an image or a vector graphic
+- **Viewing direction in the export** – "From the back" rotates the plan by 180° for a desk at the back of the room while keeping names and photos readable
+- **"Who's next?" in presentation mode** – draws a random student and highlights their seat with a spotlight; everyone gets a turn before anyone repeats. `F` toggles full screen, `Space` draws, `Esc` resets
+- **"Optimize" in the seating plan** – improves the existing plan step by step instead of shuffling it from scratch
+- **CSV import help and diagnostics** – "What the file has to look like" shows an example class list, and unsuitable files produce a message explaining exactly what is wrong (wrong file type, missing header row, missing name column, wrong delimiter, too many rows)
+
+### Improved
+
+- Seating plans are auto-saved when leaving step 3, recycling the previous auto-save so the shuffle history is not buried under intermediate states
+- Reworked backup flow – the export dialog shows password strength, and restoring offers "Replace everything" or "Merge"
+- Offline indicator confirming that everything keeps working without an internet connection
+- Seating circle – connection lines toggle with `C`, and the circle can be shuffled without changing the seating plan
+- Shuffle criteria are grouped by room, identity, abilities, behavior and social aspects, and are explained inline
+- Reworked start-page preview – the images can be browsed, paused and enlarged
+- Theme and language can now also be switched in presentation mode and in the name game
+- Tidied-up toolbars, consistent loading indicators and clearer hints when tables or seats are still missing
+- Destructive dialogs now start focused on "Cancel" so an accidental Enter deletes nothing
+- Extended FAQ and help texts, leaner bundles, shorter loading times, i18n and bundle-size checks in CI, and updated dependencies
+
+### Fixed
+
+- PDF exports are now around 1 MB instead of more than 30 MB
+- The icons in the class management bar no longer slip out of place
+- The backup message now appears only once the file has actually been exported
+
 ## [1.9.0] - 2026-07-29
 
 ### Added

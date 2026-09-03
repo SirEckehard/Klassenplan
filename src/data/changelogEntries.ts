@@ -17,6 +17,35 @@ export interface ChangelogVersion {
 
 export const changelogVersions: ChangelogVersion[] = [
   {
+    version: '2.0.0',
+    date: '3. September 2026',
+    changes: [
+      { textKey: 'v2_0_0.0', type: 'feature' },
+      { textKey: 'v2_0_0.1', type: 'feature' },
+      { textKey: 'v2_0_0.2', type: 'feature' },
+      { textKey: 'v2_0_0.3', type: 'feature' },
+      { textKey: 'v2_0_0.4', type: 'feature' },
+      { textKey: 'v2_0_0.5', type: 'feature' },
+      { textKey: 'v2_0_0.6', type: 'feature' },
+      { textKey: 'v2_0_0.7', type: 'feature' },
+      { textKey: 'v2_0_0.8', type: 'feature' },
+      { textKey: 'v2_0_0.9', type: 'feature' },
+      { textKey: 'v2_0_0.10', type: 'improvement' },
+      { textKey: 'v2_0_0.11', type: 'improvement' },
+      { textKey: 'v2_0_0.12', type: 'improvement' },
+      { textKey: 'v2_0_0.13', type: 'improvement' },
+      { textKey: 'v2_0_0.14', type: 'improvement' },
+      { textKey: 'v2_0_0.15', type: 'improvement' },
+      { textKey: 'v2_0_0.16', type: 'improvement' },
+      { textKey: 'v2_0_0.17', type: 'improvement' },
+      { textKey: 'v2_0_0.18', type: 'improvement' },
+      { textKey: 'v2_0_0.19', type: 'improvement' },
+      { textKey: 'v2_0_0.20', type: 'bugfix' },
+      { textKey: 'v2_0_0.21', type: 'bugfix' },
+      { textKey: 'v2_0_0.22', type: 'bugfix' },
+    ],
+  },
+  {
     version: '1.9.0',
     date: '29. Juli 2026',
     changes: [
