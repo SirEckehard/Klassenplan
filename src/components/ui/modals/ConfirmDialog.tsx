@@ -29,16 +29,18 @@ export default function ConfirmDialog({
   onConfirm,
   onCancel,
 }: Props) {
-  const confirmButtonRef = useRef<HTMLButtonElement>(null);
+  const cancelButtonRef = useRef<HTMLButtonElement>(null);
 
-  // No global Enter handler on purpose: the auto-focused confirm button
-  // handles Enter natively, and a window-wide listener would confirm this
-  // (destructive) dialog even after the user moved focus elsewhere.
+  // No global Enter handler on purpose: the focused button handles Enter
+  // natively, and a window-wide listener would confirm this (destructive)
+  // dialog even after the user moved focus elsewhere.
 
-  // Auto-focus confirm button for better keyboard navigation
+  // Auto-focus the *cancel* button: this dialog always guards a destructive
+  // action, so a reflexive Enter must abort it, never carry it out. The
+  // confirm button stays one Tab (or a click) away.
   useEffect(() => {
-    if (open && confirmButtonRef.current) {
-      confirmButtonRef.current.focus();
+    if (open && cancelButtonRef.current) {
+      cancelButtonRef.current.focus();
     }
   }, [open]);
 
@@ -57,18 +59,14 @@ export default function ConfirmDialog({
       </div>
       <div className="flex flex-wrap justify-end gap-2">
         <button
+          ref={cancelButtonRef}
           type="button"
           onClick={onCancel}
           className={secondaryButtonClass}
         >
           {cancelLabel}
         </button>
-        <button
-          ref={confirmButtonRef}
-          type="button"
-          onClick={onConfirm}
-          className={dangerButtonClass}
-        >
+        <button type="button" onClick={onConfirm} className={dangerButtonClass}>
           {confirmLabel}
         </button>
       </div>

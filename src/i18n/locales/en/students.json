@@ -129,7 +129,23 @@
     "templateLink": "CSV template",
     "downloadTemplate": "Download CSV template",
     "externalModernCsv": "External link to Modern CSV",
-    "softwareRecommendation": "Software recommendation for managing CSV files:"
+    "softwareRecommendation": "Software recommendation for managing CSV files:",
+    "formatHelp": "What the file must look like"
+  },
+  "csvHelp": {
+    "title": "What your class list must look like",
+    "subtitle": "A CSV is nothing more than a simple table. You can create it in Excel, LibreOffice, Numbers or Google Sheets and save it as CSV there.",
+    "tableCaption": "Example of a class list. The first row holds the column headers, after that each row is one student.",
+    "requiredBadge": "Required",
+    "moreColumns": "more columns",
+    "rules": {
+      "headerRow": "<strong>Row 1</strong> holds the column headers. Only the “Name” column is required.",
+      "oneRow": "<strong>From row 2 on</strong> each row is one student.",
+      "optional": "Every other column is <strong>optional</strong>, for example Restless, Window seat or Wish partner. Columns Klassenplan does not know are simply ignored.",
+      "saveAs": "When saving, pick <strong>“CSV” as the file type</strong>. In Excel that is “File > Save as”."
+    },
+    "rawTitle": "Opened in a text editor, the same table looks like this:",
+    "close": "Got it"
   },
   "csvDialog": {
     "selectColumns": "Select name columns",
@@ -336,7 +352,8 @@
     "yourClass": "your class",
     "placeholdersCreated": "{{count}} student placeholders created. Now fill in the names and details.",
     "emptyClassCsvHintPrefix": "You can also use this ",
-    "emptyClassCsvHintSuffix": " and fill it with your students' names. Then click Import and upload the CSV file."
+    "emptyClassCsvHintSuffix": " and fill it with your students' names. Then click Import and upload the CSV file.",
+    "emptyClassCsvNoDownload": "You do not have to download anything for that: just look at what a finished class list has to look like."
   },
   "listToolbar": {
     "searchLabel": "Search students",

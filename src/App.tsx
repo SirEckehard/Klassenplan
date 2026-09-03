@@ -11,6 +11,7 @@ import ReloadPrompt from '@/components/pwa/ReloadPrompt';
 import InstallPrompt from '@/components/pwa/InstallPrompt';
 import OfflineIndicator from '@/components/ui/feedback/OfflineIndicator';
 import DownloadConfirmationHost from '@/components/ui/modals/DownloadConfirmationHost';
+import CsvFormatHelpHost from '@/components/ui/modals/CsvFormatHelpHost';
 import { preloadLikelyRoutes } from '@/utils/performance/routePreloader';
 import { lazyWithRetry } from '@/utils/performance/lazyWithRetry';
 import { ensureEnglishLoaded } from '@/i18n/i18n';
@@ -144,6 +145,7 @@ export default function App() {
       <InstallPrompt />
       <OfflineIndicator />
       <DownloadConfirmationHost />
+      <CsvFormatHelpHost />
       <Suspense fallback={<PageSkeleton />}>
         <Routes>
           {/* German routes (default, no prefix) */}

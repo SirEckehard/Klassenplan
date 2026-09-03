@@ -160,7 +160,7 @@ export default function useDataBackup({
       const json = await exportAllAsJson();
       const output = await encryptJson(json, password);
 
-      await downloadBlob(output, filename, 'application/json', {
+      const saved = await downloadBlob(output, filename, 'application/json', {
         logContext: 'useDataBackup',
         filePickerTypes: [
           {
@@ -169,6 +169,11 @@ export default function useDataBackup({
           },
         ],
       });
+      // Confirm only once the file was actually written — the password prompt
+      // and the save dialog both come after the click.
+      if (saved) {
+        showToast('success', 'generator:storage.backupExported');
+      }
     } catch (e) {
       if (e instanceof WebCryptoUnavailableError) {
         handleWebCryptoUnavailable('export', e);

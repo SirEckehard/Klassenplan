@@ -4,6 +4,7 @@ import '@testing-library/jest-dom/vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
+import { getButton } from '@/__tests__/utils';
 import ConfirmDialog from '../modals/ConfirmDialog';
 
 describe('ConfirmDialog', () => {
@@ -94,19 +95,26 @@ describe('ConfirmDialog', () => {
     expect(onCancel).toHaveBeenCalledTimes(1);
   });
 
-  it('confirms on Enter key', async () => {
+  it('cancels instead of confirming on Enter key', async () => {
     const onConfirm = vi.fn();
+    const onCancel = vi.fn();
     render(
       <ConfirmDialog
         open
         title="Title"
         message="Message"
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
         onConfirm={onConfirm}
-        onCancel={vi.fn()}
+        onCancel={onCancel}
       />,
     );
+    // The cancel button holds the initial focus, so a reflexive Enter aborts
+    // the destructive action instead of carrying it out.
+    expect(getButton(/Cancel/i)).toHaveFocus();
     await userEvent.keyboard('{Enter}');
-    expect(onConfirm).toHaveBeenCalledTimes(1);
+    expect(onConfirm).not.toHaveBeenCalled();
+    expect(onCancel).toHaveBeenCalledTimes(1);
   });
 
   it('does not confirm on Enter when closed', async () => {

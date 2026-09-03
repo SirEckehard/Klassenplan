@@ -110,7 +110,6 @@ export const TOAST_MESSAGES = {
   STUDENT_MISSING_NAMES_AND_GENDER: 'toast:student.missingNamesAndGender',
 
   // CSV operations
-  CSV_INVALID_FILE: 'toast:csv.invalidFile',
   CSV_PARSE_ERROR: 'toast:csv.parseError',
   CSV_READ_ERROR: 'toast:csv.readError',
   CSV_LONG_NAMES_IMPORTED: 'toast:csv.longNamesImported',
@@ -140,15 +139,20 @@ export type ToastMessageKey =
 
 /**
  * Resolves a toast message key to its translated string.
- * If the message is not a translation key (doesn't contain ':'), it's returned as-is.
- * This allows backward compatibility with direct string messages.
+ * Already-translated text is returned unchanged.
+ *
+ * A key looks like `namespace:some.key` — no whitespace. That second condition
+ * matters: German sentences use colons too ("Gefundene Spalten: Name, Klasse"),
+ * and i18next would otherwise read everything before the colon as a namespace
+ * and return only the remainder of the sentence.
  */
+const TRANSLATION_KEY_PATTERN = /^[^\s:]+:[^\s]+$/;
+
 export function getToastMessage(
   messageOrKey: string,
   interpolation?: Record<string, string | number>,
 ): string {
-  // Check if it's a translation key (contains namespace separator)
-  if (messageOrKey.includes(':')) {
+  if (TRANSLATION_KEY_PATTERN.test(messageOrKey)) {
     return i18n.t(messageOrKey, interpolation);
   }
   // Return as-is for backward compatibility with direct strings

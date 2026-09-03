@@ -11,9 +11,7 @@ describe('useDownloadFile', () => {
   });
 
   it('delegates to downloadBlob with default options', async () => {
-    const spy = vi
-      .spyOn(downloads, 'downloadBlob')
-      .mockResolvedValue(undefined);
+    const spy = vi.spyOn(downloads, 'downloadBlob').mockResolvedValue(true);
     const { result } = renderHook(() =>
       useDownloadFile({
         defaultMimeType: 'text/plain',

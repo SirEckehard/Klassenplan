@@ -113,18 +113,26 @@ function anchorDownload(blob: Blob, filename: string): void {
   }
 }
 
+/**
+ * Writes `data` to a file the user picks.
+ *
+ * Resolves to `false` when nothing was written because the user backed out —
+ * either at the download confirmation or in the native save dialog — so
+ * callers can skip their success feedback. Callers that don't care may ignore
+ * the result.
+ */
 export async function downloadBlob(
   data: DownloadBlobSource,
   filename: string,
   mimeType: string = DEFAULT_MIME_TYPE,
   options?: DownloadBlobOptions,
-): Promise<void> {
+): Promise<boolean> {
   const logContext = options?.logContext ?? DEFAULT_LOG_CONTEXT;
 
   // Ask the user before any file leaves the app (silently declined = no-op).
   const confirmed = await confirmDownload(filename);
   if (!confirmed) {
-    return;
+    return false;
   }
 
   try {
@@ -134,11 +142,15 @@ export async function downloadBlob(
       logContext,
     });
 
-    if (pickerResult === 'handled' || pickerResult === 'cancelled') {
-      return;
+    if (pickerResult === 'handled') {
+      return true;
+    }
+    if (pickerResult === 'cancelled') {
+      return false;
     }
 
     anchorDownload(blob, filename);
+    return true;
   } catch (error) {
     logError('downloadBlob failed', { error, filename }, logContext);
     throw error;
@@ -153,7 +165,7 @@ export async function downloadJson<T>(
   data: T,
   filename: string,
   options?: DownloadJsonOptions,
-): Promise<void> {
+): Promise<boolean> {
   const logContext = options?.logContext ?? 'downloadJson';
   const spacing = options?.pretty ? 2 : undefined;
   let payload: string;
@@ -168,7 +180,7 @@ export async function downloadJson<T>(
     throw error;
   }
 
-  await downloadBlob(payload, filename, 'application/json', {
+  return downloadBlob(payload, filename, 'application/json', {
     ...options,
     logContext,
     filePickerTypes:

@@ -140,7 +140,7 @@ describe('useDataBackup', () => {
     const importFn = vi.fn();
     const downloadSpy = vi
       .spyOn(utilsModule, 'downloadBlob')
-      .mockResolvedValue(undefined);
+      .mockResolvedValue(true);
 
     const { result } = renderHook(() =>
       useDataBackup({ exportAllAsJson: exportFn, importAllFromJson: importFn }),
@@ -293,7 +293,7 @@ describe('useDataBackup', () => {
     const importFn = vi.fn();
     const downloadSpy = vi
       .spyOn(utilsModule, 'downloadBlob')
-      .mockResolvedValue(undefined);
+      .mockResolvedValue(true);
 
     const { result } = renderHook(() =>
       useDataBackup({ exportAllAsJson: exportFn, importAllFromJson: importFn }),

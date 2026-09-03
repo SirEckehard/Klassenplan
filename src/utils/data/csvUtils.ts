@@ -16,6 +16,11 @@ import {
   MAX_STUDENTS,
 } from '@/utils';
 import { normalizeCsvHeader } from '@/utils/data/csvNormalization';
+import {
+  CsvImportError,
+  diagnoseTooManyRows,
+  formatColumnList,
+} from '@/utils/csv/csvImportDiagnostics';
 
 export type CsvParseResult = Papa.ParseResult<Record<string, unknown>>;
 type NavigatorWithUAData = Navigator & {
@@ -29,8 +34,6 @@ const CSV_WORKER_CONTEXT = 'csvWorker';
 const CSV_WORKER_TIMEOUT_MS = 12_000;
 const CSV_WORKER_FAILURE_DISABLE_THRESHOLD = 2;
 const CSV_PARSING_CONTEXT = 'csvUtils';
-// Internal error markers (only logged; user-facing toasts use their own keys).
-const CSV_STUDENT_LIMIT_ERROR = 'toast:student.maxReached';
 
 let cachedWorkerSupport: boolean | null = null;
 let workerFailureCount = 0;
@@ -431,19 +434,29 @@ const sanitizeStudentName = (value: unknown): string => {
   return normalized.slice(0, MAX_STUDENT_NAME_LENGTH);
 };
 
+const FIRST_NAME_VARIANTS: readonly string[] = [
+  'vorname',
+  'vornamen',
+  'first name',
+  'firstname',
+];
+const LAST_NAME_VARIANTS: readonly string[] = [
+  'nachname',
+  'nachnamen',
+  'last name',
+  'lastname',
+];
+const FULL_NAME_VARIANTS: readonly string[] = ['name', 'full name', 'fullname'];
+
 /**
  * Detect available name columns in CSV headers
  * @param headers Normalized CSV headers (lowercase)
  * @returns Information about detected name columns
  */
 export function detectNameColumns(headers: string[]): NameColumnInfo | null {
-  const firstNameVariants = ['vorname', 'vornamen', 'first name', 'firstname'];
-  const lastNameVariants = ['nachname', 'nachnamen', 'last name', 'lastname'];
-  const fullNameVariants = ['name', 'full name', 'fullname'];
-
-  const firstNameKey = headers.find((h) => firstNameVariants.includes(h));
-  const lastNameKey = headers.find((h) => lastNameVariants.includes(h));
-  const fullNameKey = headers.find((h) => fullNameVariants.includes(h));
+  const firstNameKey = headers.find((h) => FIRST_NAME_VARIANTS.includes(h));
+  const lastNameKey = headers.find((h) => LAST_NAME_VARIANTS.includes(h));
+  const fullNameKey = headers.find((h) => FULL_NAME_VARIANTS.includes(h));
 
   // No name columns found at all
   if (!firstNameKey && !lastNameKey && !fullNameKey) {
@@ -592,6 +605,32 @@ const COLUMN_ALIASES = {
     'avoid partner',
   ],
 } as const satisfies Record<string, readonly string[]>;
+
+/**
+ * True when at least one header names a column Klassenplan understands.
+ *
+ * The import uses this to tell two very different mistakes apart: a sheet with
+ * headers but no name column ("rename a column") versus a sheet that starts
+ * straight with student data ("add a header row").
+ */
+export function hasRecognizedCsvHeaders(headers: readonly string[]): boolean {
+  const known = new Set<string>([
+    ...FIRST_NAME_VARIANTS,
+    ...LAST_NAME_VARIANTS,
+    ...FULL_NAME_VARIANTS,
+    ...Object.values(COLUMN_ALIASES).flat(),
+  ]);
+  return headers.some((header) => {
+    const normalized = normalizeCsvHeader(header);
+    if (known.has(normalized)) return true;
+    const compact = normalizeHeaderKey(normalized);
+    return [
+      ...HEIGHT_KEY_PATTERNS,
+      ...LANGUAGE_SKILL_KEY_PATTERNS,
+      ...SOCIAL_ROLE_KEY_PATTERNS,
+    ].some((pattern) => compact.includes(pattern));
+  });
+}
 
 /**
  * Read the first non-empty cell whose header matches one of the column's
@@ -914,11 +953,18 @@ export async function parseCsvFlexible(
     const nameInfo = detectNameColumns(headers);
 
     if (rows.length > MAX_STUDENTS) {
-      throw new Error(CSV_STUDENT_LIMIT_ERROR);
+      throw new CsvImportError(diagnoseTooManyRows(rows.length, MAX_STUDENTS));
     }
 
     if (!nameInfo) {
-      throw new Error('toast:csv.nameColumnError');
+      throw new CsvImportError({
+        messageKey: 'toast:csv.noNameColumn',
+        values: {
+          fileName: file.name,
+          columns: formatColumnList(parseResult.meta?.fields ?? []),
+        },
+        offerFormatHelp: true,
+      });
     }
 
     // First pass: create all students without partner references

@@ -129,7 +129,23 @@
     "templateLink": "CSV-Vorlage",
     "downloadTemplate": "CSV-Vorlage herunterladen",
     "externalModernCsv": "Externer Link zu Modern CSV",
-    "softwareRecommendation": "Software-Empfehlung für die Verwaltung von CSV-Dateien:"
+    "softwareRecommendation": "Software-Empfehlung für die Verwaltung von CSV-Dateien:",
+    "formatHelp": "So muss die Datei aussehen"
+  },
+  "csvHelp": {
+    "title": "So muss deine Klassenliste aussehen",
+    "subtitle": "Eine CSV ist nichts weiter als eine einfache Tabelle. Du kannst sie in Excel, LibreOffice, Numbers oder Google Tabellen anlegen und dort als CSV speichern.",
+    "tableCaption": "Beispiel für eine Klassenliste. Die erste Zeile enthält die Spaltenüberschriften, danach steht pro Zeile ein Schüler.",
+    "requiredBadge": "Pflicht",
+    "moreColumns": "weitere Spalten",
+    "rules": {
+      "headerRow": "<strong>Zeile 1</strong> enthält die Spaltenüberschriften. Nur die Spalte „Name“ ist Pflicht.",
+      "oneRow": "<strong>Ab Zeile 2</strong> steht ein Schüler pro Zeile.",
+      "optional": "Alle weiteren Spalten sind <strong>freiwillig</strong>, zum Beispiel Unruhig, Fensterplatz oder Wunschpartner. Spalten, die Klassenplan nicht kennt, werden einfach ignoriert.",
+      "saveAs": "Beim Speichern <strong>„CSV“ als Dateityp</strong> wählen. In Excel geht das über „Datei > Speichern unter“."
+    },
+    "rawTitle": "Im Texteditor geöffnet sieht dieselbe Tabelle so aus:",
+    "close": "Alles klar"
   },
   "csvDialog": {
     "selectColumns": "Namens-Spalten auswählen",
@@ -336,7 +352,8 @@
     "yourClass": "deine Klasse",
     "placeholdersCreated": "{{count}} Schüler-Platzhalter erstellt. Fülle jetzt die Namen und Details aus.",
     "emptyClassCsvHintPrefix": "Du kannst auch diese ",
-    "emptyClassCsvHintSuffix": " nutzen und sie mit den Namen deiner Schüler befüllen. Klicke dann auf Import und lade die CSV-Datei hoch."
+    "emptyClassCsvHintSuffix": " nutzen und sie mit den Namen deiner Schüler befüllen. Klicke dann auf Import und lade die CSV-Datei hoch.",
+    "emptyClassCsvNoDownload": "Du musst dafür nichts herunterladen: Sieh dir einfach an, wie eine fertige Klassenliste aussehen muss."
   },
   "listToolbar": {
     "searchLabel": "Schüler suchen",

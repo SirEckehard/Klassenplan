@@ -32,6 +32,16 @@ const EXAMPLE_ROWS: Record<CsvLanguage, readonly string[]> = {
   ],
 };
 
+/**
+ * Names from the template's example rows, in order.
+ *
+ * The in-app format example (`CsvFormatHelpDialog`) shows the same people as
+ * the downloadable template, so a teacher comparing the two sees one example,
+ * not two. The first field of a row is never quoted, hence the plain split.
+ */
+export const getCsvExampleNames = (language: CsvLanguage): string[] =>
+  EXAMPLE_ROWS[language].map((row) => row.split(',')[0] ?? '');
+
 const TEMPLATE_FILENAMES: Record<CsvLanguage, string> = {
   de: 'klassenliste_vorlage.csv',
   en: 'class_list_template.csv',

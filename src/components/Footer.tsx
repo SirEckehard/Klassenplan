@@ -80,8 +80,9 @@ const Footer: React.FC = () => {
 
   const handleExportBackup = () => {
     setMenuOpen(false);
+    // The success toast is fired by the export itself, once the password has
+    // been confirmed and the file has been written.
     handleExportAll();
-    showToast('success', 'generator:storage.backupExported');
   };
 
   const handleImportBackup = () => {

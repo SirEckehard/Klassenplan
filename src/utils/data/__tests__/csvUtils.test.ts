@@ -244,9 +244,13 @@ ${studentRows}
 `;
       const file = createCsvFile(csvContent, 'too-many.csv');
 
-      await expect(parseCsvFlexible(file)).rejects.toThrow(
-        'toast:student.maxReached',
-      );
+      // The rejection carries a diagnosis so the toast can name both numbers.
+      await expect(parseCsvFlexible(file)).rejects.toMatchObject({
+        diagnosis: {
+          messageKey: 'toast:csv.tooManyRows',
+          values: { rows: MAX_STUDENTS + 1, max: MAX_STUDENTS },
+        },
+      });
     });
 
     it('passes parsing options through to inline parser', async () => {

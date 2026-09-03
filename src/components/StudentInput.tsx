@@ -6,18 +6,21 @@ import {
   ArrowRightIcon,
   GameControllerIcon,
   InfoIcon,
+  TableIcon,
 } from '@phosphor-icons/react';
 
 import { useStudentManagement } from '@/hooks/student/useStudentManagement';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';
 import { downloadCsvTemplate } from '@/utils/csv/csvTemplateDownload';
+import { openCsvFormatHelp } from '@/utils/ui/csvFormatHelp';
 import ConfirmDialog from '@/components/ui/modals/ConfirmDialog';
 import { showToast } from '@/utils/ui/toast';
 import {
   cardSurfaceClass,
   isFormElementFocused,
   primaryButtonClass,
+  secondaryButtonClass,
   warningButtonClass,
   MAX_STUDENTS,
   NAME_GAME_MIN_PHOTOS,
@@ -381,6 +384,17 @@ function StudentInput({
                     ' nutzen und sie mit den Namen deiner Schüler befüllen. Klicke dann auf Import und lade die CSV-Datei hoch.',
                   )}
                 </p>
+                <p className="leading-relaxed">
+                  {t('studentInput.emptyClassCsvNoDownload')}
+                </p>
+                <button
+                  type="button"
+                  onClick={openCsvFormatHelp}
+                  className={`${secondaryButtonClass} gap-2`}
+                >
+                  <TableIcon size={18} aria-hidden="true" />
+                  {t('csv.formatHelp')}
+                </button>
               </div>
             </div>
           )}

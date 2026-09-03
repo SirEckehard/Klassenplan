@@ -4,6 +4,7 @@ import { useCallback, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
+  ArrowCounterClockwiseIcon,
   ArrowLeftIcon,
   ArrowsInIcon,
   ArrowsOutIcon,
@@ -259,7 +260,7 @@ export default function Present() {
             aria-label={t('present.pickReset', 'Auswahl zurücksetzen (Esc)')}
             title={t('present.pickReset', 'Auswahl zurücksetzen (Esc)')}
           >
-            <ArrowsInIcon size={18} aria-hidden />
+            <ArrowCounterClockwiseIcon size={18} aria-hidden />
           </button>
         </div>
       )}

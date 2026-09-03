@@ -69,7 +69,9 @@ describe('downloads utilities', () => {
         } as unknown as FileSystemFileHandle);
       browserWindow.showSaveFilePicker = pickerSpy;
 
-      await downloads.downloadBlob('payload', 'data.txt', 'text/plain');
+      await expect(
+        downloads.downloadBlob('payload', 'data.txt', 'text/plain'),
+      ).resolves.toBe(true);
 
       expect(pickerSpy).toHaveBeenCalledWith({
         suggestedName: 'data.txt',
@@ -100,7 +102,9 @@ describe('downloads utilities', () => {
           return element;
         });
 
-      await downloads.downloadBlob('payload', 'fallback.txt', 'text/plain');
+      await expect(
+        downloads.downloadBlob('payload', 'fallback.txt', 'text/plain'),
+      ).resolves.toBe(true);
 
       expect(createElementSpy).toHaveBeenCalled();
       expect(clickSpy).toHaveBeenCalledTimes(1);
@@ -110,7 +114,7 @@ describe('downloads utilities', () => {
       createElementSpy.mockRestore();
     });
 
-    it('resolves when the picker is cancelled by the user', async () => {
+    it('resolves to false when the picker is cancelled by the user', async () => {
       const pickerSpy = vi
         .fn<NonNullable<WindowWithSavePicker['showSaveFilePicker']>>()
         .mockRejectedValue(new DOMException('Aborted', 'AbortError'));
@@ -119,7 +123,7 @@ describe('downloads utilities', () => {
 
       await expect(
         downloads.downloadBlob('payload', 'cancel.txt', 'text/plain'),
-      ).resolves.toBeUndefined();
+      ).resolves.toBe(false);
 
       expect(createElementSpy).not.toHaveBeenCalledWith('a');
       createElementSpy.mockRestore();
