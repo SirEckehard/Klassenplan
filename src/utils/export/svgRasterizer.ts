@@ -64,11 +64,16 @@ export function extractSvgElement(svgMarkup: string): SVGSVGElement {
  * Photos have to be embedded as Data URLs beforehand (see
  * `buildPhotoDataUrlMap`) — an object URL would taint the canvas and make
  * every read below throw a security error.
+ *
+ * `background` paints an opaque backdrop first. Without it the canvas keeps its
+ * alpha channel, which every consumer then has to carry along (the PDF export
+ * would need a full-page soft mask for it).
  */
 async function drawSvgToCanvas(
   svgMarkup: string,
   widthPx: number,
   heightPx: number,
+  background?: string,
 ): Promise<HTMLCanvasElement> {
   const fontBase64 = await getDmSansBase64();
   const svgWithFont = injectFontIntoSvg(svgMarkup, fontBase64);
@@ -85,14 +90,23 @@ async function drawSvgToCanvas(
         const canvas = document.createElement('canvas');
         canvas.width = widthPx;
         canvas.height = heightPx;
-        const context = canvas.getContext('2d');
+        // An opaque context lets the browser encode the PNG without an alpha
+        // channel at all, which keeps the PDF free of a soft mask.
+        const context = canvas.getContext('2d', {
+          alpha: background === undefined,
+        });
         if (!context) {
           reject(new Error('Canvas context could not be created.'));
           return;
         }
         context.imageSmoothingEnabled = true;
         context.imageSmoothingQuality = 'high';
-        context.clearRect(0, 0, widthPx, heightPx);
+        if (background === undefined) {
+          context.clearRect(0, 0, widthPx, heightPx);
+        } else {
+          context.fillStyle = background;
+          context.fillRect(0, 0, widthPx, heightPx);
+        }
         context.drawImage(image, 0, 0, widthPx, heightPx);
         resolve(canvas);
       } catch (error) {
@@ -111,13 +125,23 @@ async function drawSvgToCanvas(
   });
 }
 
-/** Rasterize SVG markup into a PNG Data URL (used by the PDF export). */
+/**
+ * Rasterize SVG markup into a lossless PNG Data URL (used by the PDF export).
+ *
+ * @param background Optional opaque backdrop, e.g. `'#ffffff'` for print.
+ */
 export async function renderSvgToPngDataUrl(
   svgMarkup: string,
   widthPx: number,
   heightPx: number,
+  background?: string,
 ): Promise<string> {
-  const canvas = await drawSvgToCanvas(svgMarkup, widthPx, heightPx);
+  const canvas = await drawSvgToCanvas(
+    svgMarkup,
+    widthPx,
+    heightPx,
+    background,
+  );
   return canvas.toDataURL('image/png', 1);
 }
 

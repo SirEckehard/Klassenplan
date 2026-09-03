@@ -133,12 +133,25 @@ const EXPORT_DPI = 300;
 const PIXELS_PER_MM = EXPORT_DPI / 25.4;
 
 /**
- * Generate a PDF blob from SVG markup (for printing or preview)
+ * Deflate level jsPDF applies to the embedded page bitmap.
+ *
+ * Lossless — the pixels are identical to `'NONE'`, only the stream is packed
+ * (`MEDIUM` = zlib level 6 with the PNG "average" predictor). Without it jsPDF
+ * writes the raw samples, which is ~25 MB for an A4 page at 300 dpi, plus
+ * another ~8 MB of soft mask; large flat areas shrink that to a couple of MB.
  */
-export async function generatePdfBlob(
+const PDF_IMAGE_COMPRESSION = 'MEDIUM' as const;
+
+/** Page backdrop for the rasterized bitmap — opaque, so no soft mask is needed. */
+const PDF_PAGE_BACKGROUND = '#ffffff';
+
+/**
+ * Rasterize the export markup and place it on a fresh A4 page.
+ */
+async function renderPdfPage(
   svgMarkup: string,
   orientation: 'landscape' | 'portrait',
-): Promise<Blob> {
+): Promise<import('jspdf').jsPDF> {
   const { jsPDF } = await import('jspdf');
   const pdf = new jsPDF({
     orientation,
@@ -160,10 +173,31 @@ export async function generatePdfBlob(
     serializedSvg,
     widthPx,
     heightPx,
+    PDF_PAGE_BACKGROUND,
   );
 
-  pdf.addImage(imageDataUrl, 'PNG', 0, 0, width, height, undefined, 'NONE');
+  pdf.addImage(
+    imageDataUrl,
+    'PNG',
+    0,
+    0,
+    width,
+    height,
+    undefined,
+    PDF_IMAGE_COMPRESSION,
+  );
 
+  return pdf;
+}
+
+/**
+ * Generate a PDF blob from SVG markup (for printing or preview)
+ */
+export async function generatePdfBlob(
+  svgMarkup: string,
+  orientation: 'landscape' | 'portrait',
+): Promise<Blob> {
+  const pdf = await renderPdfPage(svgMarkup, orientation);
   return pdf.output('blob');
 }
 
@@ -218,31 +252,7 @@ async function exportSvgToPdf(
   }
 
   try {
-    const { jsPDF } = await import('jspdf');
-    const pdf = new jsPDF({
-      orientation,
-      unit: 'mm',
-      format: 'a4',
-      compress: true,
-    });
-
-    const svgElement = extractSvgElement(svgMarkup);
-    const { width, height } = PDF_PAGE_DIMENSIONS[orientation];
-    const widthPx = Math.round(width * PIXELS_PER_MM);
-    const heightPx = Math.round(height * PIXELS_PER_MM);
-    svgElement.setAttribute('width', `${widthPx}px`);
-    svgElement.setAttribute('height', `${heightPx}px`);
-    svgElement.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-
-    const serializedSvg = new XMLSerializer().serializeToString(svgElement);
-    const imageDataUrl = await renderSvgToPngDataUrl(
-      serializedSvg,
-      widthPx,
-      heightPx,
-    );
-
-    pdf.addImage(imageDataUrl, 'PNG', 0, 0, width, height, undefined, 'NONE');
-
+    const pdf = await renderPdfPage(svgMarkup, orientation);
     pdf.save(pdfFilename);
   } catch (error) {
     logError('PDF export failed', { error, filename }, 'pdfExportFunctions');
