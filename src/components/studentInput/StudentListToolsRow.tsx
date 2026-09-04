@@ -23,12 +23,13 @@ interface StudentListToolsRowProps {
 }
 
 /**
- * Second row of the class workbench.
+ * The list tools of the class workbench, rendered inline in the card's single
+ * row (see `ClassSelectionBar`).
  *
- * Selecting students switches the row's mode instead of adding a fourth bar
- * below it: the browse controls collapse into a popover and the bulk controls
- * take the line. That keeps the chrome above the list at a constant height, so
- * the list never jumps while the teacher ticks boxes.
+ * Selecting students switches the row's mode instead of adding a bar below it:
+ * the browse controls collapse into a popover and the bulk controls take the
+ * whole line. That keeps the chrome above the list at a constant height, so the
+ * list never jumps while the teacher ticks boxes.
  */
 export default function StudentListToolsRow({
   listView,
@@ -41,36 +42,32 @@ export default function StudentListToolsRow({
   const { t } = useTranslation('students');
   const selectionActive = selection.selectedCount > 0;
 
-  // Both modes share the same minimum height (the flag chips' 44px), so
-  // entering and leaving the selection cannot shift the list below.
-  const rowClass = `flex min-h-11 flex-wrap items-center gap-2 rounded-xl px-3 py-2 ${
-    selectionActive ? 'bg-blue-50/80 dark:bg-blue-950/40' : 'bg-transparent'
-  }`;
-
   if (!selectionActive) {
+    // Bare: the workbench row is the flex container these controls live in, so
+    // wrapping them in one of their own would move all three at once.
     return (
-      <div className={rowClass}>
-        <StudentListToolbar
-          query={listView.query}
-          onQueryChange={listView.setQuery}
-          sortMode={listView.sortMode}
-          onSortModeChange={listView.setSortMode}
-          filterMode={listView.filterMode}
-          onFilterModeChange={listView.setFilterMode}
-          visibleCount={listView.visibleStudents.length}
-          totalCount={totalCount}
-          isNarrowed={listView.isNarrowed}
-          onClear={listView.clear}
-        />
-      </div>
+      <StudentListToolbar
+        query={listView.query}
+        onQueryChange={listView.setQuery}
+        sortMode={listView.sortMode}
+        onSortModeChange={listView.setSortMode}
+        filterMode={listView.filterMode}
+        onFilterModeChange={listView.setFilterMode}
+        visibleCount={listView.visibleStudents.length}
+        totalCount={totalCount}
+        isNarrowed={listView.isNarrowed}
+        onClear={listView.clear}
+      />
     );
   }
 
+  // The tint marks the mode; `min-h-11` matches the browse row's pills so the
+  // card keeps its height across the switch.
   return (
     <div
       role="region"
       aria-label={t('bulkEdit.regionLabel', 'Mehrfachbearbeitung')}
-      className={rowClass}
+      className="flex min-h-11 w-full flex-wrap items-center gap-2 rounded-xl bg-blue-50/80 px-3 py-2 dark:bg-blue-950/40"
     >
       <StudentBulkEditBar
         selectedStudents={selectedStudents}

@@ -54,6 +54,19 @@ vi.mock('@/components/studentInput/StudentList', () => ({
 }));
 
 describe('StudentInput', () => {
+  /**
+   * Single names, placeholder rows and CSV import all live behind the add
+   * trigger, so a test that wants any of them has to open it first.
+   */
+  const openAddMenu = async () => {
+    fireEvent.click(
+      screen.getByRole('button', { name: /^(Hinzufügen|Add)$/i }),
+    );
+    return await screen.findByRole('dialog', {
+      name: /Schüler hinzufügen|Add student/i,
+    });
+  };
+
   const createMockClassContext = (
     overrides: Partial<ClassManagementContextValue> = {},
   ): ClassManagementContextValue => ({
@@ -119,7 +132,7 @@ describe('StudentInput', () => {
     });
   });
 
-  it('renders CSV controls and table preview', () => {
+  it('renders CSV controls and table preview', async () => {
     const students = [
       createMockStudent({ id: '1', name: 'Max', gender: 'boy' }),
     ];
@@ -129,9 +142,12 @@ describe('StudentInput', () => {
     expect(students[0].restless).toBe(false);
     renderWithClassContext(<StudentInput {...props} />);
 
-    // Wizard progress bar shows step label
-    const stepLabels = screen.getAllByText(/Klassenliste|Class List/i);
-    expect(stepLabels.length).toBeGreaterThan(0);
+    // CSV import sits with the other ways of filling a class, not next to
+    // Export.
+    const addMenu = await openAddMenu();
+    expect(
+      within(addMenu).getByText(/Klassenliste importieren|Import class list/i),
+    ).toBeInTheDocument();
 
     // Button check is already semantic
     const proceedButton = getButton(
@@ -356,9 +372,10 @@ describe('StudentInput', () => {
       importCsv: importCsvMock,
     });
 
-    const { container } = renderWithClassContext(<StudentInput {...props} />);
+    renderWithClassContext(<StudentInput {...props} />);
 
-    const input = container.querySelector(
+    const addMenu = await openAddMenu();
+    const input = addMenu.querySelector(
       'input[type="file"]',
     ) as HTMLInputElement | null;
     expect(input).toBeTruthy();
@@ -380,9 +397,10 @@ describe('StudentInput', () => {
       importCsv: importCsvMock,
     });
 
-    const { container } = renderWithClassContext(<StudentInput {...props} />);
+    renderWithClassContext(<StudentInput {...props} />);
 
-    const input = container.querySelector(
+    const addMenu = await openAddMenu();
+    const input = addMenu.querySelector(
       'input[type="file"]',
     ) as HTMLInputElement;
 

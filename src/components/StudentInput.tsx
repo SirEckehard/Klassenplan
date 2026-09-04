@@ -322,6 +322,7 @@ function StudentInput({
         onImportCsv={analyzeCsvFile}
         onExportCsv={downloadStudentsCsv}
         onImportBackup={triggerImport}
+        selectionActive={selection.selectedCount > 0}
       >
         {showListTools && (
           <StudentListToolsRow

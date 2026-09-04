@@ -110,6 +110,12 @@
   "studentList": {
     "title": "Class List",
     "addStudent": "Add student",
+    "addMenu": {
+      "trigger": "Add",
+      "singleLabel": "Student",
+      "namePlaceholder": "Name",
+      "placeholderHint": "You fill in the names directly in the list afterwards."
+    },
     "newStudent": "New Student",
     "studentName": "Student name",
     "noStudents": "No students added yet",

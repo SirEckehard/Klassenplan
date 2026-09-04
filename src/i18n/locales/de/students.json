@@ -110,6 +110,12 @@
   "studentList": {
     "title": "Klassenliste",
     "addStudent": "Schüler hinzufügen",
+    "addMenu": {
+      "trigger": "Hinzufügen",
+      "singleLabel": "Neuer Schüler",
+      "namePlaceholder": "Name",
+      "placeholderHint": "Die Namen trägst du danach direkt in der Liste ein."
+    },
     "newStudent": "Neuer Schüler",
     "studentName": "Name des Schülers",
     "noStudents": "Noch keine Schüler hinzugefügt",

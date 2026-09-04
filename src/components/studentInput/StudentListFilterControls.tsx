@@ -2,12 +2,22 @@
 // Copyright (C) 2026 Eike Schäfer
 import { useTranslation } from 'react-i18next';
 import { MagnifyingGlassIcon, SortAscendingIcon } from '@phosphor-icons/react';
-import { inputFieldClass, selectFieldClass } from '@/utils';
+import { inputFieldClass } from '@/utils';
+import { workbenchPillClass } from '@/components/students/classWorkbenchTokens';
+import WorkbenchSelect from '@/components/students/WorkbenchSelect';
 import {
   STUDENT_FILTER_MODES,
   type StudentFilterMode,
   type StudentSortMode,
 } from '@/components/studentInput/hooks/useStudentListView';
+
+const SORT_MODES: StudentSortMode[] = ['manual', 'name-asc', 'name-desc'];
+
+const SORT_LABEL_KEYS: Record<StudentSortMode, string> = {
+  manual: 'listToolbar.sort.manual',
+  'name-asc': 'listToolbar.sort.nameAsc',
+  'name-desc': 'listToolbar.sort.nameDesc',
+};
 
 interface StudentListFilterControlsProps {
   query: string;
@@ -17,9 +27,10 @@ interface StudentListFilterControlsProps {
   sortMode: StudentSortMode;
   onSortModeChange: (mode: StudentSortMode) => void;
   /**
-   * `inline` renders the three controls side by side in the parent's flex row
-   * (labels stay screen-reader only); `stacked` fills a popover column and
-   * spells the labels out, where there is room for them.
+   * `inline` renders the three controls side by side in the workbench row,
+   * shaped like the pills they share it with (labels stay screen-reader only);
+   * `stacked` fills a popover column as ordinary form fields and spells the
+   * labels out, where there is room for them.
    */
   layout?: 'inline' | 'stacked';
 }
@@ -29,6 +40,9 @@ interface StudentListFilterControlsProps {
  *
  * Shared by the browse toolbar and the popover the selection mode collapses
  * them into, so both offer the exact same controls instead of drifting apart.
+ *
+ * The two choices are the row's own dropdown inline and a native `<select>` in
+ * the popover — see `WorkbenchSelect` for why the popover keeps the native one.
  */
 export default function StudentListFilterControls({
   query,
@@ -48,31 +62,73 @@ export default function StudentListFilterControls({
   const captionClass = stacked
     ? 'text-xs font-medium text-gray-600 dark:text-gray-300'
     : 'sr-only';
-  const fieldWidthClass = stacked ? 'w-full' : 'w-auto';
 
   const searchLabel = t('listToolbar.searchLabel', 'Schüler suchen');
   const filterLabel = t('listToolbar.filterLabel', 'Nach Merkmal filtern');
   const sortLabel = t('listToolbar.sortLabel', 'Sortierung');
 
-  const controls = (
-    <>
-      <label className={labelClass}>
-        <span className={captionClass}>{searchLabel}</span>
-        <span className={stacked ? 'relative block' : 'relative'}>
-          <MagnifyingGlassIcon
-            size={16}
-            aria-hidden
-            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-          />
-          <input
-            type="search"
-            value={query}
-            onChange={(event) => onQueryChange(event.target.value)}
-            placeholder={t('listToolbar.searchPlaceholder', 'Name suchen…')}
-            className={`${inputFieldClass} ${stacked ? 'w-full' : 'w-48'} pl-9`}
-          />
-        </span>
-      </label>
+  const filterOptions = STUDENT_FILTER_MODES.map((mode) => ({
+    value: mode,
+    label: t(`listToolbar.filters.${mode}`),
+  }));
+  const sortOptions = SORT_MODES.map((mode) => ({
+    value: mode,
+    label: t(SORT_LABEL_KEYS[mode]),
+  }));
+
+  const searchField = (
+    <label className={labelClass}>
+      <span className={captionClass}>{searchLabel}</span>
+      <span className={stacked ? 'relative block' : 'relative'}>
+        {/* The pill's `px-4` sits the icon a touch further in than the stacked
+            field's `px-3` does. */}
+        <MagnifyingGlassIcon
+          size={16}
+          aria-hidden
+          className={`pointer-events-none absolute top-1/2 -translate-y-1/2 text-gray-400 ${
+            stacked ? 'left-3' : 'left-3.5'
+          }`}
+        />
+        <input
+          type="search"
+          value={query}
+          onChange={(event) => onQueryChange(event.target.value)}
+          placeholder={t('listToolbar.searchPlaceholder', 'Name suchen…')}
+          className={
+            stacked
+              ? `${inputFieldClass} w-full pl-9`
+              : `${workbenchPillClass} w-48 pl-10`
+          }
+        />
+      </span>
+    </label>
+  );
+
+  if (!stacked) {
+    return (
+      <>
+        {searchField}
+        <WorkbenchSelect
+          label={filterLabel}
+          value={filterMode}
+          options={filterOptions}
+          onChange={(value) => onFilterModeChange(value as StudentFilterMode)}
+          widthClass="w-36"
+        />
+        <WorkbenchSelect
+          label={sortLabel}
+          value={sortMode}
+          options={sortOptions}
+          onChange={(value) => onSortModeChange(value as StudentSortMode)}
+          widthClass="w-44"
+        />
+      </>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-3">
+      {searchField}
 
       <label className={labelClass}>
         <span className={captionClass}>{filterLabel}</span>
@@ -81,12 +137,12 @@ export default function StudentListFilterControls({
           onChange={(event) =>
             onFilterModeChange(event.target.value as StudentFilterMode)
           }
-          className={`${selectFieldClass} ${fieldWidthClass}`}
+          className={`${inputFieldClass} w-full`}
           title={filterLabel}
         >
-          {STUDENT_FILTER_MODES.map((mode) => (
-            <option key={mode} value={mode}>
-              {t(`listToolbar.filters.${mode}`)}
+          {filterOptions.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
             </option>
           ))}
         </select>
@@ -94,7 +150,7 @@ export default function StudentListFilterControls({
 
       <label className={labelClass}>
         <span className={captionClass}>{sortLabel}</span>
-        <span className={stacked ? 'relative block' : 'relative'}>
+        <span className="relative block">
           <SortAscendingIcon
             size={16}
             aria-hidden
@@ -105,29 +161,17 @@ export default function StudentListFilterControls({
             onChange={(event) =>
               onSortModeChange(event.target.value as StudentSortMode)
             }
-            className={`${selectFieldClass} ${fieldWidthClass} pl-9`}
+            className={`${inputFieldClass} w-full pl-9`}
             title={sortLabel}
           >
-            <option value="manual">
-              {t('listToolbar.sort.manual', 'Eigene Reihenfolge')}
-            </option>
-            <option value="name-asc">
-              {t('listToolbar.sort.nameAsc', 'Name A–Z')}
-            </option>
-            <option value="name-desc">
-              {t('listToolbar.sort.nameDesc', 'Name Z–A')}
-            </option>
+            {sortOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
           </select>
         </span>
       </label>
-    </>
-  );
-
-  // Inline stays a fragment so the toolbar's own flex row wraps each control
-  // individually instead of moving all three at once.
-  return stacked ? (
-    <div className="flex flex-col gap-3">{controls}</div>
-  ) : (
-    controls
+    </div>
   );
 }

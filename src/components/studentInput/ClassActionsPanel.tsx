@@ -23,6 +23,8 @@ type ClassActionsPanelProps = {
   deleteClass: ClassManagementContextValue['deleteClass'];
   onImportBackup?: () => void;
   children?: React.ReactNode;
+  /** Students ticked in the list: the workbench row switches to bulk mode. */
+  selectionActive?: boolean;
   studentCount: number;
   // Student management controls
   placeholderCount?: string;
@@ -51,6 +53,7 @@ const ClassActionsPanel = ({
   deleteClass,
   onImportBackup,
   children,
+  selectionActive,
   studentCount,
   placeholderCount,
   onPlaceholderCountChange,
@@ -192,6 +195,7 @@ const ClassActionsPanel = ({
           onCreateClass={openCreateDialog}
           onEditClass={openEditDialog}
           onDeleteClass={setClassDeleteTarget}
+          selectionActive={selectionActive}
           studentCount={studentCount}
           placeholderCount={placeholderCount}
           onPlaceholderCountChange={onPlaceholderCountChange}

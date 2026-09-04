@@ -3,22 +3,17 @@
 import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  ArrowRightIcon,
   CaretDownIcon,
   FileArrowDownIcon,
   PencilLineIcon,
   PlusIcon,
   TrashIcon,
-  FileArrowUpIcon,
   AddressBookTabsIcon,
 } from '@phosphor-icons/react';
 import type { ClassSummary, ActiveClassState } from '@/types';
-import {
-  cardSurfaceClass,
-  menuSurfaceClass,
-  primaryButtonClass,
-  successIconButtonClass,
-} from '@/utils';
+import { cardSurfaceClass, menuSurfaceClass } from '@/utils';
+import AddStudentsMenu from './AddStudentsMenu';
+import { workbenchPillClass } from './classWorkbenchTokens';
 import FloatingDropdown from './FloatingDropdown';
 import StudentHistoryToolbar from '@/components/studentInput/StudentHistoryToolbar';
 import { useClickOutside } from '@/hooks/ui/useClickOutside';
@@ -32,6 +27,11 @@ type Props = {
   onEditClass: (classId?: string) => void;
   onDeleteClass: (classId: string) => void;
   children?: React.ReactNode;
+  /**
+   * True while students are ticked in the list below. The bulk controls then
+   * take the whole row (see the component doc).
+   */
+  selectionActive?: boolean;
   // Student management controls
   studentCount: number;
   placeholderCount?: string;
@@ -57,8 +57,14 @@ type Props = {
  * (create, rename, delete) lives in that switcher's dropdown, next to the class
  * it acts on, so no separate overflow menu is needed.
  *
- * `children` carries the list tools row, so search, filter and bulk editing
- * share this card instead of stacking their own below it.
+ * `children` carries the list tools — search, filter and sort — inline in the
+ * same row, so the card stays one line tall no matter how many controls apply.
+ *
+ * Selecting students switches that row's mode instead of adding a second line:
+ * the bulk controls take the whole width and the class switcher, the add menu
+ * and the file actions step aside for as long as the selection lasts. Nothing
+ * below the card moves while the teacher ticks boxes, and the bulk bar gets the
+ * room its chips need.
  */
 export default function ClassSelectionBar({
   classSummaries,
@@ -69,6 +75,7 @@ export default function ClassSelectionBar({
   onEditClass,
   onDeleteClass,
   children,
+  selectionActive = false,
   studentCount,
   placeholderCount = '10',
   onPlaceholderCountChange,
@@ -269,164 +276,106 @@ export default function ClassSelectionBar({
       {/* The switcher button below carries the same information visually. */}
       <h2 className="sr-only">{t('classManagement.title')}</h2>
 
-      <div className="flex flex-wrap items-center gap-2">
-        {/* Class switcher — doubles as the heading of this card */}
-        <div className="relative" ref={dropdownContainerRef}>
-          <button
-            type="button"
-            ref={dropdownAnchorRef}
-            className={classSwitcherClass}
-            onClick={() => {
-              if (!hasActiveClass || isBusy) {
-                return;
-              }
-              setShowDropdown((prev) => !prev);
-            }}
-            disabled={!hasActiveClass || isBusy}
-            aria-haspopup="listbox"
-            aria-expanded={showDropdown}
-            title={switcherLabel}
-            aria-label={switcherLabel}
-          >
-            <AddressBookTabsIcon className="h-4 w-4 shrink-0" aria-hidden />
-            <span className="max-w-40 truncate font-semibold">
-              {dropdownLabel}
-            </span>
-            {hasActiveClass && studentCount > 0 && (
-              <span className="whitespace-nowrap text-xs font-normal text-blue-900/60 dark:text-blue-100/60">
-                ·{' '}
-                {t('classManagement.studentCount', {
-                  count: studentCount,
-                  defaultValue: '{{count}} Schüler',
-                })}
-              </span>
-            )}
-            <CaretDownIcon className="h-3.5 w-3.5 shrink-0" aria-hidden />
-          </button>
-          {renderDropdownMenu()}
-        </div>
-
-        {/* Platzhalter Input (only when class is empty) */}
-        {hasActiveClass &&
-          studentCount === 0 &&
-          onCreatePlaceholders &&
-          onPlaceholderCountChange && (
-            <div className="flex h-11 items-center gap-2 rounded-full border border-blue-200/70 bg-white px-3 shadow-sm dark:border-blue-900/40 dark:bg-gray-900">
-              {/* Labelled inline: a bare number box next to the add-student
-                  field says nothing about what the number counts. There is room
-                  for the word — this pill only shows for an empty class. */}
-              <span className="whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
-                {t('studentList.placeholders')}
-              </span>
-              <input
-                type="number"
-                min={1}
-                max={40}
-                value={placeholderCount}
-                onChange={(e) => onPlaceholderCountChange(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    onCreatePlaceholders();
-                  }
-                }}
-                placeholder={t('studentList.placeholderCountPlaceholder')}
-                aria-label={t('studentList.placeholders')}
-                className="h-full w-10 bg-transparent text-sm text-gray-800 outline-none placeholder:text-gray-400 dark:text-gray-100 dark:placeholder:text-gray-500"
-              />
+      <div className="flex min-h-11 flex-wrap items-center gap-2">
+        {selectionActive ? (
+          /* The bulk controls take the line; the class switcher, the add menu
+             and the file actions come back once the selection is cleared. */
+          children
+        ) : (
+          <>
+            {/* Class switcher — doubles as the heading of this card */}
+            <div className="relative" ref={dropdownContainerRef}>
               <button
                 type="button"
-                onClick={onCreatePlaceholders}
-                className={`${primaryButtonClass} h-9 w-9 rounded-full p-0!`}
-                title={t('studentList.createPlaceholders')}
-                aria-label={t('studentList.createPlaceholders')}
-              >
-                <ArrowRightIcon className="h-4 w-4" aria-hidden="true" />
-              </button>
-            </div>
-          )}
-
-        {/* Add Student Input */}
-        {hasActiveClass && onAddStudent && onNewStudentNameChange && (
-          <div className="flex h-11 w-full items-center gap-2 rounded-full border border-blue-200/70 bg-white px-3 shadow-sm sm:w-auto dark:border-blue-900/40 dark:bg-gray-900">
-            <input
-              type="text"
-              value={newStudentName}
-              onChange={(e) => onNewStudentNameChange(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  onAddStudent();
-                }
-              }}
-              placeholder={t('studentList.addStudent')}
-              aria-label={t('studentList.addStudent')}
-              className="h-full w-full bg-transparent text-sm text-gray-800 outline-none sm:w-40 placeholder:text-gray-400 dark:text-gray-100 dark:placeholder:text-gray-500"
-            />
-            <button
-              type="button"
-              onClick={onAddStudent}
-              disabled={isAddStudentDisabled}
-              className={`${successIconButtonClass} h-9 w-9 rounded-full p-0!`}
-              title={t('studentList.addStudent')}
-              aria-label={t('studentList.addStudent')}
-            >
-              <ArrowRightIcon className="h-4 w-4" aria-hidden="true" />
-            </button>
-          </div>
-        )}
-
-        {/* Everything that is not a daily action sits on the right */}
-        <div className="flex items-center gap-2 sm:ml-auto">
-          {/* Undo/redo lead the group: they take back the very actions this
-              row triggers, so they belong next to them rather than above the
-              list they happen to change. */}
-          {hasActiveClass && <StudentHistoryToolbar />}
-
-          {hasActiveClass && onImportCsv && (
-            <label className={importButtonClass} title={t('csv.import')}>
-              <FileArrowUpIcon size={16} aria-hidden="true" />
-              <span className="sr-only">{t('csv.import')}</span>
-              <input
-                type="file"
-                accept=".csv"
-                onChange={async (e) => {
-                  const file = e.target.files?.[0];
-                  if (file && onImportCsv) {
-                    await onImportCsv(file);
+                ref={dropdownAnchorRef}
+                className={classSwitcherClass}
+                onClick={() => {
+                  if (!hasActiveClass || isBusy) {
+                    return;
                   }
-                  e.target.value = '';
+                  setShowDropdown((prev) => !prev);
                 }}
-                className="hidden"
+                disabled={!hasActiveClass || isBusy}
+                aria-haspopup="listbox"
+                aria-expanded={showDropdown}
+                title={switcherLabel}
+                aria-label={switcherLabel}
+              >
+                <AddressBookTabsIcon className="h-4 w-4 shrink-0" aria-hidden />
+                <span className="max-w-40 truncate font-semibold">
+                  {dropdownLabel}
+                </span>
+                {hasActiveClass && studentCount > 0 && (
+                  <span className="whitespace-nowrap text-xs font-normal text-blue-900/60 dark:text-blue-100/60">
+                    ·{' '}
+                    {t('classManagement.studentCount', {
+                      count: studentCount,
+                      defaultValue: '{{count}} Schüler',
+                    })}
+                  </span>
+                )}
+                <CaretDownIcon className="h-3.5 w-3.5 shrink-0" aria-hidden />
+              </button>
+              {renderDropdownMenu()}
+            </div>
+
+            {/* Single names, placeholders and CSV import share one trigger.
+                The inline field it replaces cost the width this row now spends
+                on search, filter and sort. */}
+            {hasActiveClass && onAddStudent && onNewStudentNameChange && (
+              <AddStudentsMenu
+                studentCount={studentCount}
+                newStudentName={newStudentName}
+                onNewStudentNameChange={onNewStudentNameChange}
+                onAddStudent={onAddStudent}
+                isAddStudentDisabled={isAddStudentDisabled}
+                placeholderCount={placeholderCount}
+                onPlaceholderCountChange={onPlaceholderCountChange}
+                onCreatePlaceholders={onCreatePlaceholders}
+                onImportCsv={onImportCsv}
               />
-            </label>
-          )}
+            )}
 
-          {hasActiveClass && onExportCsv && (
-            <button
-              type="button"
-              onClick={onExportCsv}
-              className={exportButtonClass}
-              title={t('csv.export')}
-              aria-label={t('csv.export')}
-            >
-              <FileArrowDownIcon size={16} aria-hidden="true" />
-            </button>
-          )}
-        </div>
+            {/* Search, filter and sort. Only present once the class is big
+                enough for them to help — see `STUDENT_LIST_TOOLS_THRESHOLD`. */}
+            {children && (
+              <>
+                <div
+                  className="hidden h-6 w-px bg-blue-200 lg:block dark:bg-blue-900/60"
+                  aria-hidden="true"
+                />
+                {children}
+              </>
+            )}
+
+            {/* Everything that is not a daily action sits on the right */}
+            <div className="flex items-center gap-2 sm:ml-auto">
+              {/* Undo/redo lead the group: they take back the very actions this
+                  row triggers, so they belong next to them rather than above
+                  the list they happen to change. */}
+              {hasActiveClass && <StudentHistoryToolbar />}
+
+              {hasActiveClass && onExportCsv && (
+                <button
+                  type="button"
+                  onClick={onExportCsv}
+                  className={exportButtonClass}
+                  title={t('csv.export')}
+                  aria-label={t('csv.export')}
+                >
+                  <FileArrowDownIcon size={16} aria-hidden="true" />
+                </button>
+              )}
+            </div>
+          </>
+        )}
       </div>
-
-      {/* Children (Student Toolbar) */}
-      {children && (
-        <div className="border-t border-blue-100 pt-3 dark:border-blue-900/40">
-          {children}
-        </div>
-      )}
     </section>
   );
 }
 
 // Style classes
-const classSwitcherClass =
-  'inline-flex h-11 max-w-full items-center gap-2 rounded-full border border-blue-200/70 bg-white px-4 text-sm text-blue-900 shadow-sm transition hover:border-blue-300 hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-blue-900/40 dark:bg-gray-900 dark:text-blue-100 dark:hover:border-blue-700 dark:hover:bg-gray-800 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60';
+const classSwitcherClass = `${workbenchPillClass} inline-flex max-w-full cursor-pointer items-center gap-2 disabled:cursor-not-allowed disabled:opacity-60`;
 const dropdownOptionClass =
   'flex w-full items-center overflow-hidden rounded-lg px-3 py-2 text-left text-sm text-gray-700 transition hover:bg-blue-50 dark:text-gray-100 dark:hover:bg-gray-800 cursor-pointer disabled:cursor-not-allowed';
 const dropdownActiveOptionClass =
@@ -437,7 +386,5 @@ const dropdownOptionDeleteButtonClass =
   'inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-transparent bg-transparent text-red-600 transition hover:border-red-200 hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 disabled:opacity-40 dark:text-red-400 dark:hover:border-red-800 dark:hover:bg-red-950/40 cursor-pointer disabled:cursor-not-allowed';
 const dropdownOptionActionButtonClass =
   'inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-transparent bg-transparent text-blue-700 transition hover:border-blue-200 hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 disabled:opacity-40 dark:text-blue-100 dark:hover:border-blue-700 dark:hover:bg-gray-800 cursor-pointer disabled:cursor-not-allowed';
-const importButtonClass =
-  'inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border border-blue-200/70 bg-white text-blue-700 shadow-sm transition hover:border-blue-300 hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-blue-900/40 dark:bg-gray-900 dark:text-blue-100 dark:hover:border-blue-700 dark:hover:bg-gray-800';
 const exportButtonClass =
   'inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border border-green-200/70 bg-white text-green-700 shadow-sm transition hover:border-green-300 hover:bg-green-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 dark:border-green-900/40 dark:bg-gray-900 dark:text-green-200 dark:hover:border-green-700 dark:hover:bg-gray-800';
