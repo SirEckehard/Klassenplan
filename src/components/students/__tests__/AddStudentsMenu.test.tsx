@@ -20,9 +20,8 @@ const baseProps = {
 const trigger = () =>
   screen.getByRole('button', { name: /^(Hinzufügen|Add)$/i });
 
-// `FloatingDropdown` keeps the portal `visibility: hidden` until it has
-// measured the anchor a frame later, so the dialog only enters the
-// accessibility tree asynchronously.
+// `FloatingDropdown` renders nothing until it has measured the anchor, so
+// the dialog only reaches the accessibility tree once that pass has run.
 const menu = () =>
   screen.findByRole('dialog', { name: /Schüler hinzufügen|Add student/i });
 

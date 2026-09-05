@@ -26,9 +26,8 @@ const renderSelect = (props: Partial<Parameters<typeof WorkbenchSelect>[0]>) =>
 
 const trigger = () => screen.getByRole('button', { name: /Nach Merkmal/i });
 
-// `FloatingDropdown` keeps the portal `visibility: hidden` until it has
-// measured the anchor a frame later, so the list only enters the accessibility
-// tree asynchronously.
+// `FloatingDropdown` renders nothing until it has measured the anchor, so the
+// list only reaches the accessibility tree once that pass has run.
 const list = () => screen.findByRole('listbox');
 
 describe('WorkbenchSelect', () => {

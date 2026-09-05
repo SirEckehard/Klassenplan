@@ -46,6 +46,9 @@ export default function FloatingDropdown({
   const fallbackPortalRef = React.useRef<HTMLDivElement | null>(null);
   const resolvedPortalRef = portalRef ?? fallbackPortalRef;
   const measuredWidthRef = React.useRef<number>(DEFAULT_DROPDOWN_WIDTH);
+  // Whether the dropdown has been on screen once. Guards the one-off
+  // measure-then-show pass so later repositions cannot hide it again.
+  const hasMeasuredRef = React.useRef(false);
 
   const updatePosition = React.useCallback(() => {
     const anchor = anchorRef.current;
@@ -54,7 +57,8 @@ export default function FloatingDropdown({
     }
 
     const rect = anchor.getBoundingClientRect();
-    const dropdownRect = resolvedPortalRef.current?.getBoundingClientRect();
+    const dropdownElement = resolvedPortalRef.current;
+    const dropdownRect = dropdownElement?.getBoundingClientRect();
     const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 0;
     const safePadding = VIEWPORT_PADDING;
     const maxAvailableWidth =
@@ -102,41 +106,63 @@ export default function FloatingDropdown({
       left = Math.min(Math.max(left, safePadding), maxLeft);
     }
 
-    setPosition({
-      top: rect.bottom + offset,
+    const horizontal = {
       left,
       width: rect.width,
       dropdownWidth: constrainedWidth,
       maxWidth: maxAvailableWidth || undefined,
+    };
+
+    /** Below the anchor unless the dropdown would run past the viewport. */
+    const placeVertically = (
+      height: number,
+    ): Pick<DropdownPosition, 'top' | 'openAbove'> => {
+      const viewportHeight =
+        typeof window !== 'undefined' ? window.innerHeight : 0;
+      const spaceBelow = viewportHeight - rect.bottom - offset;
+      const spaceAbove = rect.top - offset;
+      if (height > spaceBelow && spaceAbove > spaceBelow) {
+        return { top: rect.top - height - offset, openAbove: true };
+      }
+      return { top: rect.bottom + offset, openAbove: false };
+    };
+
+    // A dropdown that is already on screen never goes back through the
+    // unfinalized state: that state blanks it for a frame, and a blanked
+    // container drops the focus it holds. On a phone that is fatal — opening
+    // the on-screen keyboard is itself what resizes the viewport (Android) or
+    // scrolls the field into view (iOS), so the reposition it triggers would
+    // blur the field and close the keyboard again the instant it appeared.
+    // The height is measurable at this point, so the final placement is known
+    // synchronously anyway.
+    if (hasMeasuredRef.current) {
+      setPosition({
+        ...horizontal,
+        ...placeVertically(dropdownElement?.offsetHeight ?? 0),
+        isFinalized: true,
+      });
+      return;
+    }
+
+    // First pass: there is nothing to measure yet, so place the dropdown below
+    // the anchor, keep it unpainted, and finalize once it has a height.
+    setPosition({
+      ...horizontal,
+      top: rect.bottom + offset,
       openAbove: false,
       isFinalized: false,
     });
 
-    // Check if dropdown would overflow viewport bottom and flip to top if needed
     requestAnimationFrame(() => {
-      const dropdownEl = resolvedPortalRef.current;
-      if (!dropdownEl) return;
+      const element = resolvedPortalRef.current;
+      if (!element) return;
 
-      const dropdownHeight = dropdownEl.offsetHeight;
-      const viewportHeight = window.innerHeight;
-      const spaceBelow = viewportHeight - rect.bottom - offset;
-      const spaceAbove = rect.top - offset;
-
-      // If not enough space below but enough above, flip to top
-      if (dropdownHeight > spaceBelow && spaceAbove > spaceBelow) {
-        setPosition({
-          top: rect.top - dropdownHeight - offset,
-          left,
-          width: rect.width,
-          dropdownWidth: constrainedWidth,
-          maxWidth: maxAvailableWidth || undefined,
-          openAbove: true,
-          isFinalized: true,
-        });
-      } else {
-        // Position is correct, just mark as finalized
-        setPosition((prev) => (prev ? { ...prev, isFinalized: true } : null));
-      }
+      hasMeasuredRef.current = true;
+      setPosition({
+        ...horizontal,
+        ...placeVertically(element.offsetHeight),
+        isFinalized: true,
+      });
     });
   }, [anchorRef, align, offset, matchAnchorWidth, resolvedPortalRef]);
 
@@ -203,14 +229,13 @@ export default function FloatingDropdown({
   return createPortal(
     <div
       ref={resolvedPortalRef}
-      className={`fixed z-40 transition-opacity duration-75 ${position.isFinalized ? 'opacity-100' : 'opacity-0'} ${className ?? ''}`.trim()}
+      className={`fixed z-40 transition-opacity duration-75 ${position.isFinalized ? 'opacity-100' : 'pointer-events-none opacity-0'} ${className ?? ''}`.trim()}
       style={{
         top: position.top,
         left: position.left,
         minWidth: matchAnchorWidth ? position.width : undefined,
         width: matchAnchorWidth ? undefined : position.dropdownWidth,
         maxWidth: position.maxWidth,
-        visibility: position.isFinalized ? 'visible' : 'hidden',
       }}
     >
       {children}

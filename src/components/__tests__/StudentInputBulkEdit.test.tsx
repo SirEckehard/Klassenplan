@@ -2,7 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import '@testing-library/jest-dom/vitest';
 import React from 'react';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
@@ -219,8 +219,10 @@ describe('StudentInput list tools', () => {
       .focus();
     await user.keyboard('{ArrowDown}');
 
+    // The menu enters the tree as soon as it is positioned; moving focus into
+    // it is a frame later.
     const items = await screen.findAllByRole('menuitem');
-    expect(items[0]).toHaveFocus();
+    await waitFor(() => expect(items[0]).toHaveFocus());
 
     await user.keyboard('{ArrowDown}');
     expect(items[1]).toHaveFocus();
@@ -353,7 +355,7 @@ describe('StudentInput list tools', () => {
         name: /Suche und Filter|Search and filter/i,
       }),
     );
-    // The popover is a portal that stays `visibility: hidden` until it has
+    // The popover is a portal that is not rendered until it has
     // measured itself, so it only enters the a11y tree a frame later.
     await user.click(
       await screen.findByRole('searchbox', { name: /suchen|search/i }),

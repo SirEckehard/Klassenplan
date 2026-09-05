@@ -168,8 +168,8 @@ describe('StudentInput', () => {
     );
 
     // Deleting a class sits next to the class it acts on, inside the switcher
-    // dropdown. That dropdown is a portal which stays `visibility: hidden` —
-    // and thus out of the a11y tree — until it has measured its position.
+    // dropdown. That dropdown is a portal that renders nothing — and so stays
+    // out of the a11y tree — until it has measured its position.
     fireEvent.click(getButton(/Klasse wechseln|Switch class/i));
     fireEvent.click(
       await screen.findByRole('button', {
