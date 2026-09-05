@@ -102,12 +102,10 @@ export const TOAST_MESSAGES = {
   STUDENT_NAME_INVALID: 'toast:student.nameInvalid',
   STUDENT_NAME_EXISTS: 'toast:student.nameExists',
   STUDENT_MAX_REACHED: 'toast:student.maxReached',
-  STUDENT_GENDER_REQUIRED: 'toast:student.genderRequired',
   STUDENT_ADD_FIRST: 'toast:student.addFirst',
   STUDENT_INCOMPLETE_DATA: 'toast:student.incompleteData',
   STUDENT_MISSING_NAMES: 'toast:student.missingNames',
   STUDENT_MISSING_GENDER: 'toast:student.missingGender',
-  STUDENT_MISSING_NAMES_AND_GENDER: 'toast:student.missingNamesAndGender',
 
   // CSV operations
   CSV_PARSE_ERROR: 'toast:csv.parseError',
@@ -127,7 +125,6 @@ export const TOAST_MESSAGES = {
   // Mix operations
   MIX_DELETED: 'toast:mix.deleted',
   MIX_NONE_AVAILABLE: 'toast:mix.noneAvailable',
-  MIX_CANCELLED: 'toast:mix.cancelled',
 
   // Data operations
   DATA_DELETED: 'toast:data.deleted',

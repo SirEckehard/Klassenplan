@@ -38,6 +38,19 @@ describe('csvUtils', () => {
       expect(students[1].needsFrontSeat).toBe(false);
     });
 
+    test('maps the exported German labels back (round-trip)', async () => {
+      // CSV_GENDER_LABELS writes "Männlich"/"Weiblich"; the legacy
+      // "Junge"/"Mädchen" spellings above must keep importing as well.
+      const csv = 'Name,Geschlecht\nAlice,Weiblich\nBob,Männlich\n';
+      const file = createCsvFile(csv, 'gender-roundtrip.csv');
+      const students = await parseCsvFlexible(file);
+
+      expect(students.map((student) => student.gender)).toEqual([
+        'girl',
+        'boy',
+      ]);
+    });
+
     test('maps English male/female and diverse labels', async () => {
       const csv =
         'name,gender\nCharlie,female\nDave,male\nSam,divers\nTaylor,nonbinary\n';

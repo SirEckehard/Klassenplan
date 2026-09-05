@@ -112,8 +112,8 @@ export default function SceneSvg({
           iconSize: legendIconSize,
           showSpecialNeeds,
           genderLabels: {
-            girl: t('legend.genderGirl', 'Mädchen'),
-            boy: t('legend.genderBoy', 'Junge'),
+            girl: t('legend.genderGirl', 'Weiblich'),
+            boy: t('legend.genderBoy', 'Männlich'),
             diverse: t('legend.genderDiverse', 'Divers'),
             neutral: t('legend.genderNeutral', 'Ohne Angabe'),
           },

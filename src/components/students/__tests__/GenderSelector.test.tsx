@@ -94,7 +94,7 @@ describe('GenderSelector', () => {
       );
 
       const button = screen.getByRole('button', {
-        name: /geschlecht: junge|gender: boy/i,
+        name: /^(geschlecht: männlich|gender: male)$/i,
       });
       expect(button).toHaveClass('border-emerald-400!');
     });
@@ -137,9 +137,9 @@ describe('GenderSelector', () => {
         />,
       );
 
-      expect(screen.getByText(/Junge|Boy/i)).toBeInTheDocument();
-      expect(screen.getByText(/Mädchen|Girl/i)).toBeInTheDocument();
-      expect(screen.getByText(/Divers|Diverse/i)).toBeInTheDocument();
+      expect(screen.getByText(/^(Männlich|Male)$/i)).toBeInTheDocument();
+      expect(screen.getByText(/^(Weiblich|Female)$/i)).toBeInTheDocument();
+      expect(screen.getByText(/^(Divers|Diverse)$/i)).toBeInTheDocument();
     });
 
     it('updates student when gender is selected from dropdown', async () => {
@@ -161,7 +161,7 @@ describe('GenderSelector', () => {
       );
 
       // Dropdown options contain icon+text, use getByText to find the option
-      const girlOption = screen.getByText(/^Mädchen$|^Girl$/i);
+      const girlOption = screen.getByText(/^(Weiblich|Female)$/i);
       await user.click(girlOption);
 
       expect(updateStudent).toHaveBeenCalledWith('1', { gender: 'girl' });
@@ -187,7 +187,7 @@ describe('GenderSelector', () => {
       );
 
       // Dropdown options contain icon+text, use getByText to find the option
-      const boyOption = screen.getByText(/^Junge$|^Boy$/i);
+      const boyOption = screen.getByText(/^(Männlich|Male)$/i);
       await user.click(boyOption);
 
       expect(updateStudent).toHaveBeenCalledWith('1', { gender: 'boy' });
@@ -213,7 +213,7 @@ describe('GenderSelector', () => {
       );
 
       // Dropdown options contain icon+text, use getByText to find the option
-      const boyOption = screen.getByText(/^Junge$|^Boy$/i);
+      const boyOption = screen.getByText(/^(Männlich|Male)$/i);
       await user.click(boyOption);
 
       expect(updateStudent).toHaveBeenCalledWith('1', { gender: undefined });
@@ -255,13 +255,19 @@ describe('GenderSelector', () => {
       );
 
       expect(
-        screen.getByRole('button', { name: /junge|boy/i }),
+        screen.getByRole('button', {
+          name: /^(geschlecht: männlich|gender: male)$/i,
+        }),
       ).toBeInTheDocument();
       expect(
-        screen.getByRole('button', { name: /mädchen|girl/i }),
+        screen.getByRole('button', {
+          name: /^(geschlecht: weiblich|gender: female)$/i,
+        }),
       ).toBeInTheDocument();
       expect(
-        screen.getByRole('button', { name: /divers|diverse/i }),
+        screen.getByRole('button', {
+          name: /^(geschlecht: divers|gender: diverse)$/i,
+        }),
       ).toBeInTheDocument();
     });
 
@@ -276,7 +282,9 @@ describe('GenderSelector', () => {
         />,
       );
 
-      const girlButton = screen.getByRole('button', { name: /mädchen|girl/i });
+      const girlButton = screen.getByRole('button', {
+        name: /^(geschlecht: weiblich|gender: female)$/i,
+      });
       expect(girlButton).toHaveClass('border-purple-500!');
       expect(girlButton).toHaveClass('bg-purple-200!');
     });
@@ -317,7 +325,9 @@ describe('GenderSelector', () => {
         />,
       );
 
-      const girlButton = screen.getByRole('button', { name: /mädchen|girl/i });
+      const girlButton = screen.getByRole('button', {
+        name: /^(geschlecht: weiblich|gender: female)$/i,
+      });
       await user.click(girlButton);
 
       expect(updateStudent).toHaveBeenCalledWith('1', { gender: undefined });

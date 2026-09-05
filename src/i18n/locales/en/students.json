@@ -39,8 +39,8 @@
   },
   "gender": {
     "title": "Gender",
-    "boy": "Boy",
-    "girl": "Girl",
+    "boy": "Male",
+    "girl": "Female",
     "diverse": "Diverse",
     "noSelection": "Gender: not specified (optional)",
     "noValue": "Not specified",
@@ -337,7 +337,6 @@
   "validation": {
     "missingNames_one": "Please add the missing name.",
     "missingNames_other": "Please add the {{count}} missing names.",
-    "genderOptional": "Gender information is optional.",
     "genderHint_one": "One person has no gender information. This detail is optional and can be added at any time.",
     "genderHint_other": "{{count}} people have no gender information. These details are optional and can be added at any time."
   },

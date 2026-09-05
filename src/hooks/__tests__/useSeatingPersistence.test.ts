@@ -131,7 +131,7 @@ describe('exportStudentsToCsv', () => {
     expect(lines[1]).toBe(
       [
         'Max Strong',
-        'Junge',
+        'Männlich',
         'Groß',
         '',
         '',
@@ -152,7 +152,7 @@ describe('exportStudentsToCsv', () => {
     expect(lines[2]).toBe(
       [
         'Anna Weak',
-        'Mädchen',
+        'Weiblich',
         'Klein',
         '',
         '',
@@ -173,7 +173,7 @@ describe('exportStudentsToCsv', () => {
     expect(lines[3]).toBe(
       [
         'Tom Neutral',
-        'Junge',
+        'Männlich',
         'Mittel',
         '',
         '',

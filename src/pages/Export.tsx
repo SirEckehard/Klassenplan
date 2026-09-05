@@ -813,7 +813,7 @@ export default function Export() {
           'info',
           t(
             'export.printDownloadedInfo',
-            'Pop-up blockiert - PDF wurde heruntergeladen. Bitte öffnen Sie die Datei zum Drucken.',
+            'Pop-up blockiert - PDF wurde heruntergeladen. Bitte öffne die Datei zum Drucken.',
           ),
         );
       }
@@ -1067,7 +1067,7 @@ export default function Export() {
                     <li>
                       {t(
                         'help.export.item5',
-                        'Neben PDF und Druck kannst du die Ansicht auch als PNG-Bild oder SVG-Vektorgrafik speichern – praktisch für Elternbriefe oder das Schulportal.',
+                        'Neben PDF und Druck kannst du die Ansicht auch als PNG-Bild oder SVG-Vektorgrafik speichern.',
                       )}
                     </li>
                   </ul>

@@ -173,7 +173,7 @@ export default function SmartEditPanel(props: SmartEditPanelProps) {
                 title={t('layout.roomElements', 'Raumelemente')}
                 description={t(
                   'layout.roomElementsDescription',
-                  'Ziehe Fenster, Türen, Pult oder Tafel in den Klassenraum.',
+                  'Ziehe Fenster, Türen, Pult, Tafel oder Möbel in den Klassenraum.',
                 )}
               />
 

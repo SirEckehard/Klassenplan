@@ -245,7 +245,8 @@ describe('getStudentValidationMessage', () => {
 
     // Messages come from i18n, so match both locales instead of a fixed string.
     expect(message).toMatch(/fehlenden Namen|missing name/i);
-    expect(message).toMatch(/optional/i);
+    // The optional-gender sentence was dropped: the toast only asks for names.
+    expect(message).not.toMatch(/optional/i);
   });
 
   test('returns message for multiple students with empty names', () => {

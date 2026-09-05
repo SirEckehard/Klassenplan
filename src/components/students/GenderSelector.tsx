@@ -413,7 +413,7 @@ export default function GenderSelector({
           <span className="text-emerald-700 dark:text-emerald-200">
             <GenderMaleIcon size={14} aria-hidden="true" />
           </span>
-          Junge
+          {t('gender.boy')}
         </button>
         <button
           type="button"
@@ -433,7 +433,7 @@ export default function GenderSelector({
           <span className="text-purple-700 dark:text-purple-200">
             <GenderFemaleIcon size={14} aria-hidden="true" />
           </span>
-          Mädchen
+          {t('gender.girl')}
         </button>
         <button
           type="button"
@@ -453,7 +453,7 @@ export default function GenderSelector({
           <span className="text-sky-700 dark:text-sky-200">
             <GenderNonbinaryIcon size={14} aria-hidden="true" />
           </span>
-          Divers
+          {t('gender.diverse')}
         </button>
       </div>
     </section>

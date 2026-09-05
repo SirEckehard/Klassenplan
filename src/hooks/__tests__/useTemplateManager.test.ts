@@ -170,7 +170,7 @@ describe('useTemplateManager', () => {
     });
 
     expect(confirmDialogMock).toHaveBeenCalledWith(
-      'Die aktuelle Vorlage wurde verändert. Soll die vorhandene Vorlage überschrieben werden?',
+      'Die aktuelle Vorlage wurde verändert. Soll sie überschrieben werden?',
       {
         confirmLabel: 'Überschreiben',
         cancelLabel: 'Abbrechen',
@@ -238,7 +238,7 @@ describe('useTemplateManager', () => {
     });
 
     expect(confirmDialogMock).toHaveBeenCalledWith(
-      'Die aktuelle Vorlage wurde verändert. Soll die vorhandene Vorlage überschrieben werden?',
+      'Die aktuelle Vorlage wurde verändert. Soll sie überschrieben werden?',
       {
         confirmLabel: 'Überschreiben',
         cancelLabel: 'Abbrechen',

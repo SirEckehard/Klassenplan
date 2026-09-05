@@ -68,7 +68,7 @@ export default function BackupRestoreModeModal({
         <legend className="sr-only">
           {t(
             'backupRestore.subtitle',
-            'Wie sollen die Daten übernommen werden?',
+            'Wie sollen die Daten aus dem Backup übernommen werden?',
           )}
         </legend>
         {options.map((option) => (

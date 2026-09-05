@@ -50,7 +50,6 @@ export default function SeatingPlanHeader() {
             'help.students.item4',
             'help.students.item5',
             'help.students.item6',
-            'help.students.item7',
           ]),
           contexts: ['students'] as ShortcutContext[],
         };

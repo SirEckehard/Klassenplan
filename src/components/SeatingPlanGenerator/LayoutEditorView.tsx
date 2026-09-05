@@ -392,7 +392,7 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
     },
     [canvasRef, canvasWidth, classroomHeight],
   );
-  const quickSetupShortcutHint = t('layout.quickSetupShortcut', 'Strg/⌘+E');
+  const quickSetupShortcutHint = t('layout.quickSetupShortcut', '(Strg/Cmd+E)');
   const [isQuickSetupOpen, setIsQuickSetupOpen] = React.useState(
     sceneTables.length === 0,
   );
@@ -790,7 +790,7 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
                 id: 'photo-overlap-warning',
                 label: t(
                   'editor.photoOverlapWarning',
-                  'Foto-Kollisionen anzeigen',
+                  'Fotokollisionen anzeigen',
                 ),
                 icon: <Intersect size={18} />,
                 checked: showPhotoOverlapWarning,
@@ -851,7 +851,7 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
         onSelect: withMenuClose(cutSelection),
       },
       {
-        label: t('common.delete', 'Entfernen'),
+        label: t('common.delete', 'Löschen'),
         icon: TrashIcon,
         onSelect: withMenuClose(deleteSelection),
       },

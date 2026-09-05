@@ -237,7 +237,7 @@ export default function SmartSidebar({
               className={`${secondaryButtonClass} w-full justify-between gap-2 px-3 py-2 text-sm`}
               title={t(
                 'sidebar.collapseShortcut',
-                'Sidebar minimieren (Strg/Cmd+B)',
+                'Sidebar minimieren (⌘/Strg+B)',
               )}
               aria-label={t('sidebar.collapseLabel', 'Sidebar minimieren')}
             >
@@ -260,7 +260,7 @@ export default function SmartSidebar({
               className={`${secondaryButtonClass} h-12 w-full justify-center px-0 text-gray-600 hover:text-blue-600 dark:text-gray-300`}
               title={t(
                 'sidebar.expandShortcut',
-                'Sidebar erweitern (Strg/Cmd+B)',
+                'Sidebar erweitern (⌘/Strg+B)',
               )}
               aria-label={t('sidebar.expandLabel', 'Sidebar erweitern')}
             >

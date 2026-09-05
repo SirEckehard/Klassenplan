@@ -318,7 +318,7 @@ export function useSeatingPlanViewLogic({
     [sceneTables],
   );
 
-  const { handleMix, isMixing, mixStatus, cancelMix } = useSeatingMixHandler({
+  const { handleMix, isMixing } = useSeatingMixHandler({
     settings,
     students,
     classroomScene,
@@ -522,8 +522,6 @@ export function useSeatingPlanViewLogic({
           setMixSettings,
           handleMix,
           isMixing,
-          mixStatus,
-          cancelMix,
           autoMixing,
           autoMixError,
           featureVisibility,

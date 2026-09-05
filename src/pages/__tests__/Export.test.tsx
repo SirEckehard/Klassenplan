@@ -144,17 +144,16 @@ describe('Export page', () => {
 
       const srcdoc = await previewSrcdoc();
       expect(srcdoc).toContain('<html lang="en">');
-      // The title reaches the browser's print dialog, so it follows the
-      // language too rather than staying hardcoded German.
-      expect(srcdoc).toContain('<title>Klassenplan Print</title>');
+      // The title reaches the browser's print dialog. It resolves through i18n
+      // rather than being hardcoded, and both languages settle on the product
+      // name so the suggested file name does not carry a translated suffix.
+      expect(srcdoc).toContain('<title>Klassenplan</title>');
     });
 
-    it('uses the German document title on the default route', async () => {
+    it('uses the product name as the document title on the default route', async () => {
       renderExport();
 
-      expect(await previewSrcdoc()).toContain(
-        '<title>Klassenplan Druck</title>',
-      );
+      expect(await previewSrcdoc()).toContain('<title>Klassenplan</title>');
     });
   });
 

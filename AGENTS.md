@@ -24,7 +24,7 @@
 
 - ✅ ESLint: 0 errors, 0 warnings
 - ✅ TypeScript: 0 compilation errors (strict mode)
-- ✅ Tests: 1927 unit tests (186 test files) + 5 Playwright specs (3 smoke + the wizard core flow), 100% passing
+- ✅ Tests: 1921 unit tests (186 test files) + 5 Playwright specs (3 smoke + the wizard core flow), 100% passing
 - 📊 Coverage: 68.1 % lines / 67.5 % statements / 57.1 % branches (`npm run test:coverage`, v8 provider, no thresholds enforced)
 - ⚠️ Unused Exports: 54 modules ignoring type-only exports, held by a ratchet (`npm run check:unused`); the remainder are re-export barrels, `lazyWithRetry` default exports and shared test helpers
 - ✅ Test Infrastructure: Centralized accessibility helpers and toast matchers for robust testing

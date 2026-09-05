@@ -55,10 +55,9 @@ export function getStudentValidationMessage(
 ): string {
   if (!result.hasEmptyNames) return '';
 
-  const missingNames = i18n.t('students:validation.missingNames', {
+  return i18n.t('students:validation.missingNames', {
     count: result.emptyNameCount,
   });
-  return `${missingNames} ${i18n.t('students:validation.genderOptional')}`;
 }
 
 /**

@@ -1,7 +1,7 @@
 {
   "startPage": {
     "heroTitle": "Sitzplan erstellen leicht gemacht",
-    "heroDescription": "Direkt aus dem Schulalltag & gemeinsam mit dem Feedback von Lehrkräften entwickelt.",
+    "heroDescription": "Aus dem Schulalltag & gemeinsam mit dem Feedback von Lehrkräften entwickelt.",
     "heroBadge": "Kostenlos, keine Werbung & Open Source.",
     "heroBadgeTooltip": "Gehe zu Unterstützen",
     "whyKlassenplanTitle": "Warum Klassenplan?",
@@ -20,7 +20,7 @@
       "step2Title": "Klassenraum",
       "step2Text": "Speichere deinen Klassenraum als Vorlage.",
       "step3Title": "Sitzplan & Sitzkreis",
-      "step3Text": "Mischen & optimieren – automatisch angepasster Sitzkreis.",
+      "step3Text": "Mischen & verfeinern – automatisch angepasster Sitzkreis.",
       "step4Title": "Export",
       "step4Text": "Als PDF, PNG oder SVG exportieren & drucken."
     },
@@ -44,6 +44,16 @@
       "close": "Vorschau schließen",
       "pause": "Automatischen Bildwechsel pausieren",
       "play": "Automatischen Bildwechsel fortsetzen"
+    }
+  },
+  "generator": {
+    "schema": {
+      "name": "Klassenplan – Sitzplan-Generator",
+      "featureAlgorithm": "Intelligenter Mischalgorithmus",
+      "featureCriteria": "Pädagogische Kriterien (Konzentration, Unruhe, Wunschpartner)",
+      "featurePdfExport": "PDF-Export",
+      "featureCsvImport": "CSV-Import",
+      "featurePrivacy": "Datenschutzkonform – alle Daten lokal im Browser"
     }
   },
   "support": {
@@ -87,7 +97,7 @@
         "li1": "direkte Sitznachbarn (höchstes Gewicht)",
         "li2": "seitliche Nachbartische (mittlere Gewichtung)",
         "li3": "gegenüberliegende Nachbarn (geringere Gewichtung)",
-        "outro": "Diese Abstufungen helfen, freie Layouts realistisch abzubilden und Konflikte gezielt zu vermeiden."
+        "outro": "Diese Abstufungen helfen, freie Layouts möglichst realistisch abzubilden und Konflikte gezielt zu vermeiden."
       },
       "no_account": {
         "q": "Brauche ich ein Konto oder Internet?",
@@ -95,15 +105,11 @@
       },
       "imperfect": {
         "q": "Warum arbeitet der Algorithmus nicht \"perfekt\"?",
-        "a": "Eine perfekte Lösung müsste alle Kombinationen prüfen und wäre bei größeren Klassen nicht praktikabel. Mit dem heuristischen Ansatz erzielt Klassenplan schnelle, nachvollziehbare Ergebnisse, die du per Drag & Drop weiter verfeinern kannst."
+        "a": "Der Algorithmus bewertet Tischgruppen im Kontext des gesamten Raums. Ein Tausch kann an einer Stelle helfen, an anderer Stelle aber größere Konflikte erzeugen. Eine perfekte Lösung müsste alle Kombinationen prüfen und wäre nicht praktikabel. Mit dem heuristischen Ansatz erzielt Klassenplan schnelle, nachvollziehbare Ergebnisse, die du per Drag & Drop weiter verfeinern kannst."
       },
       "gender_language": {
         "q": "Warum wird das generische Maskulinum verwendet?",
         "a": "Aus Gründen der Lesbarkeit und Barrierefreiheit wird das generische Maskulinum verwendet. Alle Geschlechter sind gleichermaßen angesprochen."
-      },
-      "gender_mixing": {
-        "q": "Warum sind die Geschlechter nicht alle abwechselnd verteilt?",
-        "a": "Der Algorithmus bewertet Tischgruppen im Kontext des gesamten Raums. Ein Tausch kann an einer Stelle helfen, an anderer Stelle aber größere Konflikte erzeugen. Höhere Gewichte für das Kriterium \"Geschlechter mischen\" erzwingen strengere Platzierungen, ziehen dann aber andere Regeln (z. B. Wunschpartner) seltener vor. Die Geschlechtsangabe ist optional und wird neutral behandelt, wenn nicht angegeben."
       }
     },
     "klassenliste": {
@@ -115,19 +121,19 @@
       },
       "csv": {
         "q": "Wie importiere ich eine bestehende Klassenliste?",
-        "a": "Über „Klassenliste importieren“ lädst du eine CSV-Datei hoch, wie du sie aus Excel, LibreOffice, Numbers oder Google Tabellen speichern kannst. Pflicht ist nur die Spalte „Name“; alle weiteren Spalten wie Geschlecht, Unruhig, Fensterplatz oder Wunschpartner sind freiwillig, unbekannte Spalten werden ignoriert. Der Button „So muss die Datei aussehen“ zeigt ein Beispiel, und über die CSV-Vorlage bekommst du eine fertige Datei zum Ausfüllen. Enthält deine Datei mehrere Namensspalten, fragt Klassenplan vor dem Import, welche Kombination übernommen werden soll."
+        "a": "Über „Klassenliste importieren“ lädst du eine CSV-Datei hoch, wie du sie aus Excel, LibreOffice, Numbers oder Google Tabellen speichern kannst. Pflicht ist nur die Spalte „Name“; alle weiteren Spalten wie Geschlecht, Unruhig, Fensterplatz oder Wunschpartner sind freiwillig, unbekannte Spalten werden ignoriert. Klicke auf „So muss die Datei aussehen“, um ein Beispiel zu sehen, oder lade die CSV-Vorlage herunter, die du zum Ausfüllen nutzen kannst. Enthält deine Datei mehrere Namensspalten, fragt Klassenplan vor dem Import, welche Kombination übernommen werden soll."
       },
       "photos": {
         "q": "Kann ich Fotos meiner Schüler hinterlegen?",
-        "a": "Ja, über das Porträt-Symbol neben jedem Schüler. Die Bilder werden verkleinert und ausschließlich lokal auf diesem Gerät gespeichert – sie werden nie übertragen. Für den Einsatz von Schülerfotos brauchst du das Einverständnis von Schulleitung, Schülern und Eltern. Fotos lassen sich im Sitzplan, im Präsentiermodus und im Export ein- und ausblenden und schalten das Namensspiel frei."
+        "a": "Ja, über das Porträt-Symbol neben jedem Schüler. Die Bilder werden verkleinert und ausschließlich lokal auf diesem Gerät gespeichert – sie werden nie übertragen. Für den Einsatz von Schülerfotos brauchst du das Einverständnis von Schulleitung, Schülern und Eltern. Fotos lassen sich im Sitzplan, im Präsentiermodus und im Export ein- und ausblenden und schalten das Namensspiel zum einfachen Lernen der Namen frei."
       },
       "bulk": {
         "q": "Wie bearbeite ich mehrere Schüler auf einmal?",
-        "a": "Über die Auswahlkästchen in der Liste wählst du mehrere Schüler aus und setzt Geschlecht, Körpergröße, Sprachniveau, soziale Rolle oder einzelne Merkmale für alle gemeinsam. Suche, Filter (z. B. „Nur ohne Foto“ oder „Nur unruhige“) und Sortierung helfen dir, genau die passende Gruppe zusammenzustellen."
+        "a": "Über die Auswahlkästchen in der Liste wählst du mehrere Schüler aus und setzt Geschlecht, Körpergröße, Sprachniveau, soziale Rolle oder einzelne Merkmale für alle gemeinsam. Suche, Filter (z. B. „Nur ohne Foto“ oder „Nur unruhige“) und Sortierung helfen dir, schnell die entsprechenden Schüler zu bearbeiten."
       },
       "undo": {
         "q": "Kann ich Änderungen rückgängig machen?",
-        "a": "Ja. In der Klassenliste nimmst du Änderungen über die Pfeil-Buttons oder mit Strg/Cmd+Z zurück und stellst sie mit Strg/Cmd+Umschalt+Z wieder her – auch ein versehentlich gelöschter Schüler kommt samt Foto zurück. Im Sitzplan (Schritt 3) und im Klassenraum-Editor gelten dieselben Kürzel für Mischungen, verschobene Schüler und Layout-Schritte. In Textfeldern bleibt Strg/Cmd+Z der Texteingabe vorbehalten – nutze dort die Pfeil-Buttons."
+        "a": "Ja, Klassenplan unterstützt jetzt endlich überall die Undo-/Redo-Funktion. Sowohl in der Klassenliste als auch im Klassenraum-Editor und im Sitzplan-/Sitzkreis-Editor kannst du Änderungen zurücknehmen und wiederherstellen – so kommt z.B. ein versehentlich gelöschter Schüler samt Foto zurück. Tipp: Nutze die Tastenkürzel Strg / Cmd + Z bzw. Strg / Cmd + Shift + Z, um Änderungen rückgängig zu machen oder wiederherzustellen."
       }
     },
     "eigenschaften": {
@@ -150,7 +156,7 @@
       "props": {
         "gender": {
           "label": "Geschlecht",
-          "description": "Junge, Mädchen oder Divers – optionale Angabe.",
+          "description": "Männlich, Weiblich oder Divers – optionale Angabe.",
           "algorithm": "Sorgt für geschlechtergemischte Tischgruppen, wenn aktiviert."
         },
         "height": {
@@ -237,7 +243,7 @@
       },
       "height": {
         "q": "Wie berücksichtigt Klassenplan Körpergrößen und Raumpräferenzen?",
-        "a": "Körpergrößen fließen in die Platzwahl ein, damit Sichtachsen frei bleiben. Fenster- und Türpräferenzen werden pro Schüler gespeichert und zusammen mit den Raum-Features aus Schritt 2 gewichtet."
+        "a": "Körpergrößen fließen in die Platzwahl ein, damit kleinere Schüler möglichst weit vorne platziert werden. Fenster- und Türpräferenzen werden pro Schüler gespeichert und zusammen mit den in Schritt 2 positionierten Raumelementen gewichtet."
       }
     },
     "layout": {
@@ -245,7 +251,7 @@
       "description": "Hinweise zu Tischlayouts, Raumelementen, Sitzabständen und Limits.",
       "best": {
         "q": "Welche Layouts funktionieren am besten?",
-        "a": "Freie Layouts sind erlaubt: Du kannst Tische, Fenster, Türen, Pult und Tafel per Drag & Drop platzieren oder Klassenraum-Vorlagen nutzen. Der Sitzkreis bleibt mit dem Tischlayout synchron und lässt sich separat anpassen."
+        "a": "Lass deiner Kreativität freien Lauf: Du kannst Tische, Fenster, Türen, Pult und Tafel per Drag & Drop frei platzieren. Der Sitzkreis bleibt mit dem Tischlayout synchron und lässt sich separat anpassen."
       },
       "measure": {
         "q": "Wie werden Abstände gemessen?",
@@ -258,24 +264,24 @@
     },
     "settings": {
       "title": "Einstellungen & Gewichtung",
-      "description": "So interpretierst du die Gewichtungen und die Statistik-Badges.",
+      "description": "So interpretierst du die Gewichtungen und die Statistikanzeige.",
       "weights": {
         "q": "Was bedeuten die Gewichte (0–10)?",
         "a": "Die Gewichte definieren, wie stark eine Regel ins Ergebnis einfließt. Je höher der Wert, desto stärker werden passende Sitznachbarn belohnt oder Konflikte bestraft. Ein Wert von 8 setzt sich deutlich öfter durch als ein Wert von 2."
       },
       "check": {
         "q": "Wie erkenne ich, dass eine Mischung den Kriterien entspricht?",
-        "a": "Die Statistik-Badges in Schritt 3 zeigen Geschlechterverteilung, Raumpräferenzen (Fenster/Tür), Distanzwünsche und weitere Kriterien. Änderungen durch Locks oder Drag & Drop werden sofort in den Kennzahlen und im Sitzkreis gespiegelt."
+        "a": "Die Statistikanzeige in Schritt 3 zeigt z.B. Geschlechterverteilung, Raumpräferenzen (Fenster/Tür), Distanzwünsche und weitere Kriterien."
       },
       "colors": {
-        "q": "Was bedeuten die Farben in den Statistik-Badges?",
+        "q": "Was bedeuten die Farben in der Statistikanzeige?",
         "intro": "Die Ampelfarben zeigen den Erfüllungsgrad:",
         "green": "Grün",
-        "green_desc": "– gut erfüllt (über 70%)",
+        "green_desc": "– gut erfüllt (über 80%)",
         "yellow": "Gelb",
-        "yellow_desc": "– teilweise erfüllt (40–70%)",
+        "yellow_desc": "– teilweise erfüllt (50–80%)",
         "red": "Rot",
-        "red_desc": "– verbesserbar (unter 40%)"
+        "red_desc": "– verbesserbar (unter 50%)"
       },
       "percent": {
         "q": "Wie werden Prozentwerte bei mehreren Wunschpartnern berechnet?",
@@ -286,8 +292,8 @@
         "example": "Beispiel: 3 Wunschpartner, davon 1 daneben (100%) + 1 am Tisch (50%) + 1 woanders (0%) = (100+50+0) / 3 = 50%"
       },
       "interact": {
-        "q": "Was passiert bei Klick oder Hover auf die Statistik-Badges?",
-        "a": "Du kannst Badges anklicken, um die zugehörigen Schüler dauerhaft im Sitzplan hervorzuheben. Beim Hovern siehst du eine temporäre Vorschau. So erkennst du schnell, welche Platzierungen zur Verbesserung des Mischergebnisses beitragen könnten."
+        "q": "Was passiert bei Klick oder Hover auf die Statistikanzeige?",
+        "a": "Du kannst die jeweilige Kategorie anklicken, um die davon betroffenen Schüler dauerhaft im Sitzplan hervorzuheben. Beim Hovern siehst du davon eine temporäre Vorschau. So erkennst du schnell, welche Platzierungen zur Verbesserung des Mischergebnisses beitragen könnten."
       },
       "repeat": {
         "q": "Wie funktioniert die Wiederholungsvermeidung?",
@@ -296,7 +302,7 @@
         "li1": "Paare aus älteren Plänen erhalten abnehmende Gewichtung (neuere zählen stärker)",
         "li2_b": "Aktuelle Session:",
         "li2": "Die letzten Mischungen werden stärker gewichtet, damit sich Paare nicht sofort wiederholen",
-        "outro": "So wird vermieden, dass dieselben Schüler ständig nebeneinander sitzen – auch wenn du mehrfach hintereinander mischst."
+        "outro": "So wird vermieden, dass dieselben Schüler ständig nebeneinander sitzen, wenn du mehrfach hintereinander mischst. Natürlich ist nicht jede Mischung ein Sitzplan, der dann auch in der Realität umgesetzt wird. Da stößt die Wiederholungsvermeidung derzeit noch an ihre Grenzen. Ich arbeite aber an einer Lösung. Wenn du dazu eine Idee hast, melde dich gern!"
       },
       "values": {
         "q": "Was zeigen die einzelnen Statistik-Werte an?",
@@ -315,18 +321,39 @@
     },
     "backups": {
       "title": "Backups & Persistenz",
-      "description": "Wie Daten lokal gespeichert werden und was mit Backups passiert.",
+      "description": "Wie Daten lokal gespeichert werden, wie Backups funktionieren und wie du auf ein neues Gerät wechselst.",
       "where": {
         "q": "Wo liegen meine Daten?",
         "a": "Alle Daten werden im Browser gespeichert (IndexedDB für Kerndaten, localStorage für Einstellungen). Es gibt keine Cloud, kein Konto und keine Server-Synchronisation. Deine Daten bleiben auf deinem Gerät und sind nicht von außen zugänglich."
       },
+      "loss": {
+        "q": "Können meine Daten einfach verschwinden?",
+        "intro": "Ja, das ist der Preis dafür, dass nichts das Gerät verlässt. Alles liegt im Speicher deines Browsers, und den räumt der Browser unter bestimmten Umständen auf:",
+        "li1": "Safari löscht zum Beispiel die Daten von Websites, die du sieben Tage lang nicht besucht hast.",
+        "li2": "„Browserdaten löschen“, „Website-Daten entfernen“ oder ein Zurücksetzen des Browsers löschen sie ebenfalls.",
+        "li3": "Im privaten Modus bzw. Inkognito-Fenster sind sie schon beim Schließen des Fensters weg.",
+        "outro": "Klassenplan bittet den Browser beim ersten Anlegen einer Klasse um dauerhaften Speicher, was das Risiko deutlich senkt – eine Garantie gibt der Browser aber nicht. Ein Backup ist die einzige Kopie, die davon unabhängig ist. Am sichersten liegt sie außerhalb des Rechners, etwa auf einem USB-Stick oder in deinem dienstlichen Cloud-Speicher."
+      },
       "how": {
         "q": "Wie funktioniert das Backup?",
-        "a": "Der Export erstellt eine mit deinem Passwort verschlüsselte Datei (mindestens 8 Zeichen) mit allen Klassen, Schülern samt Fotos, Sitzplänen, Misch-Historie, Sitzkreis, Klassenzimmer-Features, Vorlagen und Einstellungen. Ohne dieses Passwort lässt sich die Datei nicht wiederherstellen – bewahre es also sicher auf."
+        "a": "Der Export erstellt eine mit deinem Passwort verschlüsselte Datei (mindestens 8 Zeichen) mit allen Klassen, Schülern samt Fotos, Sitzplänen, Misch-Historie, Sitzkreis, Klassenzimmer-Features, Vorlagen und Einstellungen. Ohne dieses Passwort lässt sich die Datei nicht wiederherstellen – bewahre es also sicher auf, um Datenverlust zu vermeiden."
+      },
+      "deviceChange": {
+        "q": "Wie nehme ich meine Daten auf einen neuen Rechner mit?",
+        "intro": "Über die Backup-Datei – eine Synchronisation zwischen Geräten gibt es nicht, weil es keinen Server gibt.",
+        "li1": "Auf dem alten Gerät unten in der Fußzeile auf das Einstellungsrädchen klicken, „Backup exportieren“ wählen und ein Passwort vergeben.",
+        "li2": "Die Datei auf das neue Gerät bringen, etwa per USB-Stick, Cloud-Ordner oder E-Mail an dich selbst.",
+        "li3": "Auf dem neuen Gerät Klassenplan öffnen, in der Fußzeile auf das Einstellungsrädchen klicken und „Backup importieren“ wählen.",
+        "li4": "Die Datei auswählen, das Passwort eingeben und „Alles ersetzen“ bestätigen.",
+        "outro": "Danach sind Klassen, Schüler samt Fotos, Sitzpläne und Vorlagen auf dem neuen Gerät. Die Datei funktioniert auf jedem Betriebssystem und in jedem Browser. Ohne das Passwort lässt sie sich jedoch nicht öffnen."
+      },
+      "frequency": {
+        "q": "Wie oft sollte ich ein Backup machen?",
+        "a": "Zum Beispiel nach dem Anlegen einer Klasse oder nach dem Einrichten & Speichern eines Klassenraums. Klassenplan erinnert dich von selbst, wenn dein letztes Backup älter als 30 Tage ist. Diese Erinnerung kannst du vertagen oder über „Nicht mehr erinnern“ dauerhaft abschalten."
       },
       "update": {
         "q": "Was passiert nach einem Update von Klassenplan mit meinem Backup?",
-        "a": "Backups sind aufwärtskompatibel. Neue Versionen migrieren ältere Sicherungen automatisch. Nach größeren Änderungen lohnt sich ein frischer Export, damit du die neueste Struktur gesichert hast."
+        "a": "Backups sind aufwärtskompatibel & sollen es auch bleiben – falls sich das ändert, werde ich ein erweitertes Migrationstool bereitstellen. Neue Versionen migrieren ältere Sicherungen automatisch. Nach größeren Änderungen lohnt sich ein frischer Export, damit du die neueste Struktur gesichert hast."
       },
       "restore": {
         "q": "Was passiert beim Import eines Backups?",
@@ -351,7 +378,7 @@
       "description": "Präsentiermodus, Namensspiel, Export-Formate, Dark Mode, Tastaturkürzel und Touch.",
       "print": {
         "q": "Ich möchte den Sitzplan ausdrucken und die Tafel als Orientierungshilfe unten angezeigt haben. Geht das?",
-        "a": "Ja. Wechsle im Exportbereich in die Hochformat-Ansicht und aktiviere „Tafel anzeigen“. Sitzt dein Pult hinten im Raum, stellst du zusätzlich die Blickrichtung auf „Von hinten“: Der Raum dreht sich um 180°, Namen und Fotos bleiben dabei lesbar. So behältst du auch auf dem Ausdruck die Orientierung im Klassenraum."
+        "a": "Ja. Wechsle im Exportbereich in die Hochformat-Ansicht und aktiviere „Tafel anzeigen“. Sitzt dein Pult z.B. hinten im Raum, stellst du zusätzlich die Blickrichtung auf „Von hinten“: Die Anzeige dreht sich um 180° und die Namen bleiben dabei lesbar. So behältst du auch auf dem Ausdruck die Orientierung im Klassenraum."
       },
       "dark": {
         "q": "Gibt es einen Dark Mode?",
@@ -367,7 +394,7 @@
       },
       "tablet": {
         "q": "Kann ich Klassenplan am Tablet oder Whiteboard nutzen?",
-        "a": "Ja. Die Oberfläche ist touch-optimiert, inklusive Long-Press für Kontextmenüs. Auf Tablets und Whiteboards funktioniert alles flüssig. Die Nutzung auf einem Smartphone ist möglich, aber nicht empfohlen."
+        "a": "Ja. Die Oberfläche ist touch-optimiert, inklusive Long-Press für Kontextmenüs. Auf Tablets und Whiteboards funktioniert alles flüssig. Die Nutzung auf einem Smartphone ist nicht empfohlen und wird aktuell nicht unterstützt."
       },
       "pwa": {
         "q": "Kann ich Klassenplan wie eine App installieren?",
@@ -387,7 +414,7 @@
       },
       "names": {
         "q": "Die Namen sind auf dem Plan zu lang – was kann ich tun?",
-        "a": "In Schritt 3, im Präsentiermodus und im Export legst du fest, wie Namen erscheinen: nur Vorname, Vorname + Initial des Nachnamens oder vollständiger Name. Kommt ein Vorname in der Klasse mehrfach vor, weist dich ein Hinweis darauf hin, damit du zur eindeutigen Variante wechseln kannst."
+        "a": "In Schritt 3, im Präsentiermodus und im Export legst du fest, wie Namen erscheinen sollen: nur Vorname, Vorname + Initial des Nachnamens oder Vor- und Nachname. Kommt ein Vorname in der Klasse mehrfach vor, weist dich ein Hinweis darauf hin, damit du zur eindeutigen Variante wechseln kannst."
       }
     },
     "projekt": {
@@ -395,7 +422,7 @@
       "description": "Informationen zu Kosten, Updates und wie du dich einbringen kannst.",
       "cost": {
         "q": "Kostet Klassenplan etwas?",
-        "a": "Nein, Klassenplan ist ein kostenloses Tool an dem ich in meiner freien Zeit arbeite. Ich habe Klassenplan ursprünglich für meinen eigenen Bedarf (mit der Hilfe von Claude Code) entwickelt und freue mich, wenn es dir ebenfalls hilft und du es gern nutzt. Wenn du Klassenplan magst und dessen Hostingkosten sowie die weitere Weiterentwicklung unterstützen möchtest, freue ich mich über eine Spende via PayPal. Alle Infos findest du unter \"Unterstüzen\" . Vielen Dank!"
+        "a": "Nein, Klassenplan ist ein kostenloses Tool, an dem ich in meiner freien Zeit arbeite. Ich habe Klassenplan ursprünglich für meinen eigenen Bedarf (mit der Hilfe von Claude Code) entwickelt und freue mich, wenn es dir hilft und du es gern nutzt. Wenn du Klassenplan magst und dessen Hostingkosten sowie die Weiterentwicklung unterstützen möchtest, freue ich mich über eine Spende via PayPal. Alle Infos findest du unter „Unterstützen“. Vielen Dank!"
       },
       "update": {
         "q": "Wie erhalte ich Updates?",
@@ -418,7 +445,7 @@
       "title": "Noch etwas unklar?",
       "text": "Wenn deine Frage hier nicht beantwortet wurde, schreibe mir gern über die Kontaktseite.",
       "contactBtn": "Kontakt aufnehmen",
-      "generatorBtn": "Direkt zum Generator"
+      "generatorBtn": "Direkt zum Sitzplan-Generator"
     }
   },
   "nameGame": {

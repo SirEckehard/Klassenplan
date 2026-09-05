@@ -114,9 +114,7 @@ describe('SmartMixControls', () => {
     render(<Wrapper />);
 
     expect(
-      screen.getByText(
-        /Mischen ist komplett zufällig!|Shuffling is completely random!/i,
-      ),
+      screen.getByText(/Mischen ist zufällig!|Shuffling is random!/i),
     ).toBeInTheDocument();
   });
 

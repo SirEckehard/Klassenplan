@@ -13,9 +13,8 @@
       "item2": "Add students one by one, create placeholders for a whole class, or import a CSV file – \"What the file has to look like\" shows the required structure.",
       "item3": "Select up to 3 preferred and distance partners per student – the order determines priority.",
       "item4": "Search, filter and sorting help you find individual students; the checkboxes let you edit several students at once.",
-      "item5": "Add photos via the portrait icon – they stay on this device only and unlock the name game.",
-      "item6": "Take back changes to the class list with the arrow buttons or Ctrl/Cmd+Z; Ctrl/Cmd+Shift+Z restores them.",
-      "item7": "Toggle the labels under the buttons in the student list."
+      "item5": "Add photos via the portrait icon – they stay on this device only.",
+      "item6": "Undo and redo changes in the class list with the corresponding icons."
     },
     "layout": {
       "title": "Classroom",
@@ -24,42 +23,42 @@
       "item3": "Multi-select: Shift or Ctrl/Cmd + click, or draw a selection rectangle.",
       "item4": "Right-click (desktop) or long press (touch) opens the context menu.",
       "item5": "Save custom classroom templates via the sidebar.",
-      "item6": "Drag room elements such as windows, door, desk, blackboard, whiteboard, cabinet or divider from the sidebar into the room.",
-      "item7": "Ctrl/Cmd+Z undoes steps in the classroom, Ctrl/Cmd+Shift+Z redoes them."
+      "item6": "Drag room elements such as windows, door, desk, blackboard, whiteboard, cabinet or divider from the sidebar into the room and resize them if needed.",
+      "item7": "Undo and redo changes in the classroom with the corresponding icons."
     },
     "plan": {
       "title": "Seating Plan",
       "item1": "Adjust the weighting of criteria (0-10) in the sidebar.",
       "item2": "Drag students to other seats via drag & drop.",
       "item3": "Click the lock icon to lock a seat for the next shuffle.",
-      "item4": "Statistics badges show how well criteria are met.",
-      "item5": "\"Refine\" adjusts the current plan in small steps.",
-      "item6": "The view settings control how names appear (first name only, first name + initial, or full name) and whether photos are shown.",
-      "item7": "Ctrl/Cmd+Z takes back shuffles and moves, Ctrl/Cmd+Shift+Z restores them."
+      "item4": "The statistics panel shows how well the criteria are met.",
+      "item5": "The \"Refine\" function adjusts the current plan in small steps and tries to raise the statistics score.",
+      "item6": "The view settings control how names appear (first name only, first name + initial, or first and last name) and whether photos are shown.",
+      "item7": "Undo and redo changes to the seating plan with the corresponding icons."
     },
     "circle": {
       "title": "Seating Circle",
       "item1": "Drag students to new positions via drag & drop.",
       "item2": "Green lines show connections to table neighbors in the seating plan.",
-      "item3": "Toggle connections in the sidebar or with key C.",
-      "item4": "The circle stays linked to the seating plan but can be saved and exported separately."
+      "item3": "Show or hide connections in the sidebar.",
+      "item4": "The circle starts out linked to the seating plan, but you can change it and save and export it separately."
     },
     "export": {
       "title": "Export",
       "item1": "Customize the name of your seating plan.",
       "item2": "Switch between portrait and landscape format for PDF export.",
-      "itemFlip": "Set the viewing direction under page format: \"From the back\" rotates the room by 180° for a desk at the back, while names and photos stay readable.",
+      "itemFlip": "Set the viewing direction under page format: \"From the back\" rotates the room by 180° for a desk at the back, so names stay readable.",
       "item3": "Use the sidebar to decide what is shown: room elements, needs, photos, legend and additional class info.",
-      "itemNames": "Choose how names appear: first name only, first name + last name initial, or the full name.",
+      "itemNames": "Choose how names appear: first name only, first name + last name initial, or first and last name.",
       "item4": "Toggle preview between Seating Plan and Seating Circle (top right).",
-      "item5": "Besides PDF and print you can save the view as a PNG image or an SVG vector graphic — handy for parent letters or the school portal."
+      "item5": "Besides PDF and print you can save the view as a PNG image or an SVG vector graphic."
     },
     "present": {
       "title": "Presentation mode",
       "item1": "Switch between teacher and student view as well as between seating plan and circle at the top.",
       "item2": "The student view shows the plan from the class's perspective – without markers and photos.",
       "item3": "Show or hide markers, photos, colors and room elements using the bar at the bottom.",
-      "itemNames": "\"Names\" cycles between first name, first name + last name initial, and the full name.",
+      "itemNames": "The \"Names\" button switches the display between first name, first name + last name initial, and first and last name.",
       "item4": "Zoom with the slider or mouse wheel and drag to pan; the centre icon resets the view.",
       "item5": "Press Alt + ← to return to the generator.",
       "item6": "\"Who's next?\" draws a random student and spotlights their seat – everyone gets a turn before anyone repeats.",
@@ -83,8 +82,8 @@
     "expandLabel": "Expand sidebar"
   },
   "tooltip": {
-    "compactModeHint": "Tip: Click here or press ⌘/Ctrl+B to switch to compact view",
-    "sidebarHint": "Tip: Click here or press ⌘/Ctrl+B to collapse the sidebar"
+    "compactModeHint": "Click here or press ⌘/Ctrl+B for the compact view",
+    "sidebarHint": "Click here or press ⌘/Ctrl+B to collapse the sidebar"
   },
   "canvas": {
     "addTable": "Add Table",
@@ -116,7 +115,7 @@
   },
   "present": {
     "button": "Present",
-    "buttonTitle": "Present the seating chart on the smartboard",
+    "buttonTitle": "Present the seating chart",
     "teacherView": "Teacher view",
     "teacherViewTitle": "Show the seating chart from the teacher's view",
     "studentView": "Student view",
@@ -127,7 +126,7 @@
     "photos": "Photos",
     "photosTitle": "Show or hide student photos",
     "colors": "Colors",
-    "colorsTitle": "Show or hide color coding (gender colors)",
+    "colorsTitle": "Show or hide colors",
     "names": "Names",
     "features": "Room",
     "featuresTitle": "Show or hide room elements (board, windows, doors, furniture)",
@@ -154,8 +153,8 @@
   },
   "legend": {
     "title": "Legend",
-    "genderGirl": "Girl",
-    "genderBoy": "Boy",
+    "genderGirl": "Female",
+    "genderBoy": "Male",
     "genderDiverse": "Diverse",
     "genderNeutral": "Unspecified"
   },
@@ -195,12 +194,6 @@
       "moveFailed": "Move not possible."
     }
   },
-  "mixStage": {
-    "initializing": "Preparing the shuffle...",
-    "analyzing": "Analysing the seating plan...",
-    "arranging": "Arranging students...",
-    "done": "Seating plan ready"
-  },
   "backupReminder": {
     "eyebrow": "Data backup",
     "aged_one": "Your last backup is {{count}} day old.",
@@ -213,8 +206,6 @@
     "faqLink": "Moving your data to a new device"
   },
   "mixButton": {
-    "progressLabel": "Progress",
-    "cancelTitle": "Cancel the shuffle",
     "label": "Shuffle",
     "title": "Shuffle seating plan",
     "loadingTitle": "Shuffling in progress...",
@@ -297,7 +288,7 @@
     "on": "On",
     "off": "Off",
     "weightTooltip": "Weight: {{value}}/10 – The higher the value, the more important this criterion is for seating assignment.",
-    "randomWarning": "All criteria disabled - Shuffling is completely random!",
+    "randomWarning": "All criteria disabled - Shuffling is random!",
     "categories": {
       "avoidance": "Avoidance",
       "promotion": "Support",
@@ -311,7 +302,7 @@
     "criteria": {
       "avoidPreviousPairs": {
         "label": "Repetition",
-        "desc": "Separate students who sat together last time"
+        "desc": "Separate students who were shuffled next to each other last time"
       },
       "avoidRestlessTogether": {
         "label": "Restlessness",
@@ -347,7 +338,7 @@
       },
       "preferFrontForNeedsFrontSeat": {
         "label": "Front seats",
-        "desc": "Place students needing front seats at the front"
+        "desc": "Students who should sit at the front"
       },
       "preferFrontForSmallerStudents": {
         "label": "Height",
@@ -371,11 +362,11 @@
       }
     },
     "criteriaDescriptions": {
-      "avoidPreviousPairs": "Separate students who sat together last time.",
+      "avoidPreviousPairs": "Separate students who were shuffled next to each other last time.",
       "avoidRestlessTogether": "Separate students showing restless behavior.",
       "avoidConcentrationTogether": "Separate students with concentration difficulties.",
       "avoidShyAlone": "Don't let students with withdrawn behavior sit alone.",
-      "preferGenderMix": "Mix genders for balanced table composition.",
+      "preferGenderMix": "Gender-mixed distribution.",
       "considerWishPartners": "Consider students' partner preferences.",
       "avoidConflictPartners": "Separate students with distance requests.",
       "peerTutoring": "Pair students with different performance levels together.",
@@ -401,7 +392,7 @@
       "avoidShyAlone": "No student is marked as shy",
       "performanceLevels": "No students with a performance level",
       "preferFrontForNeedsFrontSeat": "No student needs a front seat",
-      "preferFrontForSmallerStudents": "No students with a height classification",
+      "preferFrontForSmallerStudents": "No students with height information",
       "preferWindowSeats": "No student prefers a window seat",
       "preferDoorSeats": "No student prefers to sit near the door",
       "preferLanguageMixing": "At least 2 different language levels are required",
@@ -439,7 +430,7 @@
     "resizeWidth": "Adjust width",
     "resizeHeight": "Adjust height",
     "quickSetupShortcut": "(Ctrl/Cmd+E)",
-    "overwriteTemplateMessage": "The current template has been modified. Do you want to overwrite the existing template?",
+    "overwriteTemplateMessage": "The current template has been modified. Do you want to overwrite it?",
     "overwrite": "Overwrite",
     "dragDropHint": "Add via drag and drop",
     "dragDropPlace": "place via drag and drop"
@@ -452,13 +443,13 @@
     "portrait": "Portrait",
     "viewDirection": "Viewing direction",
     "viewFromFront": "From the front",
-    "viewFromFrontTitle": "Default: the plan is read from the front, facing the class.",
+    "viewFromFrontTitle": "The plan is read from the front, facing the class.",
     "viewFromBack": "From the back",
-    "viewFromBackTitle": "For a desk at the back of the room: the room rotates by 180° while names and photos stay readable.",
-    "printDocumentTitle": "Klassenplan Print",
+    "viewFromBackTitle": "The room is rotated by 180° so names stay readable.",
+    "printDocumentTitle": "Klassenplan",
     "printShortcut": "Print (Ctrl/Cmd+P)",
-    "tablePdfShortcut": "Export PDF (Ctrl/Cmd+E)",
-    "circlePdfShortcut": "Export circle PDF",
+    "tablePdfShortcut": "Export the seating plan as PDF (Ctrl/Cmd+Shift+T)",
+    "circlePdfShortcut": "Export the seating circle as PDF (Ctrl/Cmd+Shift+C)",
     "tablePdfButton": "Seating Plan PDF",
     "circlePdfButton": "Circle Plan PDF",
     "tableDefaultFilename": "Seating Plan",
@@ -536,7 +527,7 @@
     "tables": "Tables",
     "seats": "Seats",
     "nameLabel": "Template Name",
-    "namePlaceholder": "e.g. Classroom 1",
+    "namePlaceholder": "e.g. Classroom 1a",
     "nameAriaLabel": "Enter template name",
     "duplicateWarning": "A template with this name already exists.",
     "overwriteLabel": "Or overwrite existing template",
@@ -571,9 +562,9 @@
     "photoModeOff": "Off",
     "nameDisplay": {
       "label": "Names",
-      "firstName": "First name only",
+      "firstName": "First name",
       "firstNameInitial": "First name + last initial",
-      "full": "Full name",
+      "full": "First and last name",
       "example": "Shown as: {{name}}",
       "duplicateHint_one": "{{count}} first name appears twice",
       "duplicateHint_other": "{{count}} first names are not unique"

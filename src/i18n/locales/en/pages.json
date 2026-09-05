@@ -1,7 +1,7 @@
 {
   "startPage": {
     "heroTitle": "Seating plans made easy",
-    "heroDescription": "Built straight from the classroom & developed together with teachers.",
+    "heroDescription": "Built from everyday school life & developed together with feedback from teachers.",
     "heroBadge": "Free, no ads & open source.",
     "heroBadgeTooltip": "Go to Support",
     "whyKlassenplanTitle": "Why Klassenplan?",
@@ -20,7 +20,7 @@
       "step2Title": "Classroom",
       "step2Text": "Save your classroom as a template.",
       "step3Title": "Seating Plan & Circle",
-      "step3Text": "Mix & adjust – automatically generated seating circle.",
+      "step3Text": "Shuffle & refine – automatically adjusted seating circle.",
       "step4Title": "Export",
       "step4Text": "Export as PDF, PNG or SVG & print."
     },
@@ -97,7 +97,7 @@
         "li1": "direct neighbors (highest weight)",
         "li2": "side neighbors (medium weight)",
         "li3": "neighbors across/opposite (lower weight)",
-        "outro": "These gradations help to realistically represent free layouts and specifically avoid conflicts."
+        "outro": "These gradations help to represent free layouts as realistically as possible and to avoid conflicts in a targeted way."
       },
       "no_account": {
         "q": "Do I need an account or internet?",
@@ -105,15 +105,11 @@
       },
       "imperfect": {
         "q": "Why doesn't the algorithm work \"perfectly\"?",
-        "a": "A perfect solution would have to check all combinations and would not be practical for larger classes. With the heuristic approach, Klassenplan achieves fast, comprehensible results that you can further refine via drag & drop."
+        "a": "The algorithm evaluates table groups in the context of the entire room. A swap can help in one place but create bigger conflicts elsewhere. A perfect solution would have to check every combination and would not be practical. With its heuristic approach, Klassenplan achieves fast, comprehensible results that you can further refine via drag & drop."
       },
       "gender_language": {
         "q": "Why is the generic masculine form used?",
         "a": "For reasons of readability and accessibility, the generic masculine is used. All genders are equally addressed."
-      },
-      "gender_mixing": {
-        "q": "Why aren't genders distributed perfectly alternately?",
-        "a": "The algorithm evaluates table groups in the context of the entire room. A swap might help in one place but create larger conflicts elsewhere. Higher weights for the \"Mix genders\" criterion force stricter placements but may override other rules (e.g. preferred partners) less often. Gender information is optional and treated neutrally if not provided."
       }
     },
     "klassenliste": {
@@ -125,19 +121,19 @@
       },
       "csv": {
         "q": "How do I import an existing class list?",
-        "a": "Use \"Import class list\" to upload a CSV file, the kind you can save from Excel, LibreOffice, Numbers or Google Sheets. Only the \"Name\" column is required; every other column such as gender, restless, window seat or preferred partner is optional, and unknown columns are simply ignored. The \"What the file has to look like\" button shows an example, and the CSV template gives you a ready-made file to fill in. If your file contains several name columns, Klassenplan asks which combination to import."
+        "a": "Use \"Import class list\" to upload a CSV file, the kind you can save from Excel, LibreOffice, Numbers or Google Sheets. Only the \"Name\" column is required; every other column such as gender, restless, window seat or preferred partner is optional, and unknown columns are simply ignored. Click \"What the file has to look like\" to see an example, or download the CSV template and fill it in. If your file contains several name columns, Klassenplan asks which combination to import."
       },
       "photos": {
         "q": "Can I store photos of my students?",
-        "a": "Yes, via the portrait icon next to each student. The images are downscaled and stored exclusively on this device – they are never transmitted. Using student photos requires the consent of your school management, the students and their parents. Photos can be shown or hidden in the seating plan, in presentation mode and in the export, and they unlock the name game."
+        "a": "Yes, via the portrait icon next to each student. The images are downscaled and stored exclusively on this device – they are never transmitted. Using student photos requires the consent of your school management, the students and their parents. Photos can be shown or hidden in the seating plan, in presentation mode and in the export, and they unlock the name game, an easy way to learn the names."
       },
       "bulk": {
         "q": "How do I edit several students at once?",
-        "a": "Use the checkboxes in the list to select several students and set gender, height, language level, social role or individual markers for all of them together. Search, filters (e.g. \"Without photo\" or \"Restless only\") and sorting help you assemble exactly the group you need."
+        "a": "Use the checkboxes in the list to select several students and set gender, height, language level, social role or individual markers for all of them together. Search, filters (e.g. \"Without photo\" or \"Restless only\") and sorting help you get to the students you want to edit quickly."
       },
       "undo": {
         "q": "Can I undo changes?",
-        "a": "Yes. In the class list you can take back changes with the arrow buttons or Ctrl/Cmd+Z and restore them with Ctrl/Cmd+Shift+Z – an accidentally deleted student comes back together with their photo. The same shortcuts apply in the seating plan (step 3) and the classroom editor, for shuffles, moved students and layout steps. Inside text fields Ctrl/Cmd+Z stays reserved for your typing – use the arrow buttons there."
+        "a": "Yes, Klassenplan finally supports undo and redo everywhere. In the class list, the classroom editor and the seating plan/seating circle editor alike you can take changes back and restore them – so an accidentally deleted student comes back together with their photo, for example. Tip: use the shortcuts Ctrl / Cmd + Z and Ctrl / Cmd + Shift + Z to undo or redo changes."
       }
     },
     "eigenschaften": {
@@ -160,7 +156,7 @@
       "props": {
         "gender": {
           "label": "Gender",
-          "description": "Boy, Girl, or Diverse – optional information.",
+          "description": "Male, female or diverse – optional information.",
           "algorithm": "Creates gender-mixed table groups when enabled."
         },
         "height": {
@@ -247,7 +243,7 @@
       },
       "height": {
         "q": "How does Klassenplan consider body heights and room preferences?",
-        "a": "Body heights are included in the seat selection so that lines of sight remain clear. Window and door preferences are saved per student and weighted together with the room features from Step 2."
+        "a": "Body heights feed into the seat selection so that smaller students are placed as far forward as possible. Window and door preferences are saved per student and weighted together with the room elements you positioned in step 2."
       }
     },
     "layout": {
@@ -255,7 +251,7 @@
       "description": "Notes on table layouts, room elements, seat distances, and limits.",
       "best": {
         "q": "Which layouts work best?",
-        "a": "Free layouts are allowed: You can place tables, windows, doors, desk, and blackboard via drag & drop or use classroom templates. The seating circle remains synchronized with the table layout and can be adjusted separately."
+        "a": "Let your creativity run free: you can place tables, windows, doors, desk and blackboard anywhere via drag & drop. The seating circle remains synchronized with the table layout and can be adjusted separately."
       },
       "measure": {
         "q": "How are distances measured?",
@@ -268,24 +264,24 @@
     },
     "settings": {
       "title": "Settings & Weighting",
-      "description": "How to interpret the weights and statistics badges.",
+      "description": "How to interpret the weights and the statistics panel.",
       "weights": {
         "q": "What do the weights (0–10) mean?",
         "a": "The weights define how strongly a rule influences the result. The higher the value, the more strongly suitable neighbors are rewarded or conflicts punished. A value of 8 prevails significantly more often than a value of 2."
       },
       "check": {
         "q": "How do I recognize that a mix meets the criteria?",
-        "a": "The statistics badges in Step 3 show gender distribution, room preferences (window/door), distance wishes, and other criteria. Changes via locks or drag & drop are immediately reflected in the key figures and the seating circle."
+        "a": "The statistics panel in step 3 shows gender distribution, room preferences (window/door), distance wishes and other criteria, for example."
       },
       "colors": {
-        "q": "What do the colors in the statistics badges mean?",
+        "q": "What do the colors in the statistics panel mean?",
         "intro": "The traffic light colors show the degree of fulfillment:",
         "green": "Green",
-        "green_desc": "– well fulfilled (over 70%)",
+        "green_desc": "– well fulfilled (over 80%)",
         "yellow": "Yellow",
-        "yellow_desc": "– partially fulfilled (40–70%)",
+        "yellow_desc": "– partially fulfilled (50–80%)",
         "red": "Red",
-        "red_desc": "– improveable (under 40%)"
+        "red_desc": "– improvable (under 50%)"
       },
       "percent": {
         "q": "How are percentages calculated for multiple preferred partners?",
@@ -296,8 +292,8 @@
         "example": "Example: 3 partners, 1 adjacent (100%) + 1 at table (50%) + 1 elsewhere (0%) = (100+50+0) / 3 = 50%"
       },
       "interact": {
-        "q": "What happens when clicking or hovering over statistics badges?",
-        "a": "You can click badges to permanently highlight the associated students in the seating plan. When hovering, you see a temporary preview. This allows you to quickly recognize which placements could contribute to improving the mix result."
+        "q": "What happens when clicking or hovering over the statistics panel?",
+        "a": "You can click a category to permanently highlight the students it affects in the seating plan. Hovering shows a temporary preview of that highlight. This lets you quickly recognize which placements could contribute to improving the mix result."
       },
       "repeat": {
         "q": "How does repeat avoidance work?",
@@ -306,7 +302,7 @@
         "li1": "Pairs from older plans receive decreasing weight (newer ones count more)",
         "li2_b": "Current Session:",
         "li2": "The last mixes are weighted more heavily so that pairs do not repeat immediately",
-        "outro": "This avoids the same students sitting next to each other constantly – even if you mix multiple times in a row."
+        "outro": "This avoids the same students sitting next to each other constantly when you shuffle several times in a row. Of course not every shuffle becomes a seating plan that is actually used in the classroom, and that is where repetition avoidance still reaches its limits. I am working on a solution – if you have an idea, do get in touch!"
       },
       "values": {
         "q": "What do the individual statistics values indicate?",
@@ -333,31 +329,31 @@
       "loss": {
         "q": "Can my data simply disappear?",
         "intro": "Yes, and that is the price of nothing ever leaving your device. Everything sits in your browser's storage, and browsers clear that out under certain conditions:",
-        "li1": "Safari deletes the data of sites you have not visited for seven days — a summer holiday is long enough.",
+        "li1": "Safari, for example, deletes the data of sites you have not visited for seven days.",
         "li2": "“Clear browsing data”, “remove website data” or resetting the browser wipe it too.",
         "li3": "In a private or incognito window it is gone as soon as you close the window.",
         "outro": "Klassenplan asks the browser for persistent storage the first time you create a class, which lowers the risk considerably — but no browser guarantees it. A backup is the only copy that does not depend on any of this. It is safest kept off the machine, on a USB stick or in your school's cloud storage."
       },
       "how": {
         "q": "How does the backup work?",
-        "a": "The export creates a file encrypted with your password (at least 8 characters) containing all classes, students including their photos, seating plans, shuffle history, seating circle, classroom features, templates and settings. Without that password the file cannot be restored – so keep it safe."
+        "a": "The export creates a file encrypted with your password (at least 8 characters) containing all classes, students including their photos, seating plans, shuffle history, seating circle, classroom features, templates and settings. Without that password the file cannot be restored – so keep it safe to avoid losing your data."
       },
       "deviceChange": {
         "q": "How do I move my classes to a new computer?",
         "intro": "Through the backup file — there is no sync between devices, because there is no server.",
-        "li1": "On the old device, choose “Export backup” in the footer and set a password.",
+        "li1": "On the old device, click the gear icon in the footer, choose “Export backup” and set a password.",
         "li2": "Get the file onto the new device, for example via USB stick, a cloud folder or an email to yourself.",
-        "li3": "On the new device, open Klassenplan and choose “Import backup” in the footer.",
+        "li3": "On the new device, open Klassenplan, click the gear icon in the footer and choose “Import backup”.",
         "li4": "Pick the file, enter the password and confirm “Replace everything”.",
-        "outro": "Your classes, students including photos, seating plans and templates are then on the new device. The file works on any operating system and in any browser. Without the password it cannot be opened — not by us either."
+        "outro": "Your classes, students including photos, seating plans and templates are then on the new device. The file works on any operating system and in any browser. Without the password, however, it cannot be opened."
       },
       "frequency": {
         "q": "How often should I make a backup?",
-        "a": "Whenever you would lose work you could not redo in ten minutes — typically after setting up a class and at the end of a term. Klassenplan reminds you on its own once your last backup is more than 30 days old. You can postpone that reminder or switch it off for good via “Stop reminding me”."
+        "a": "For example after creating a class or after setting up and saving a classroom. Klassenplan reminds you on its own once your last backup is more than 30 days old. You can postpone that reminder or switch it off for good via “Stop reminding me”."
       },
       "update": {
         "q": "What happens to my backup after a Klassenplan update?",
-        "a": "Backups are backward compatible. New versions automatically migrate older backups. After major changes, it is worth creating a fresh export so that you have secured the latest structure."
+        "a": "Backups are backward compatible and are meant to stay that way – should that ever change, I will provide an extended migration tool. New versions automatically migrate older backups. After major changes, it is worth creating a fresh export so that you have secured the latest structure."
       },
       "restore": {
         "q": "What happens when I import a backup?",
@@ -382,7 +378,7 @@
       "description": "Presentation mode, name game, export formats, dark mode, shortcuts and touch.",
       "print": {
         "q": "I want to print the seating plan and have the blackboard shown at the bottom as orientation. Is that possible?",
-        "a": "Yes. Switch to portrait view in the export area and enable \"Show blackboard\". If your desk is at the back of the room, also set the viewing direction to \"From the back\": the room rotates by 180° while names and photos stay readable. That way the printout keeps the same orientation as the classroom."
+        "a": "Yes. Switch to portrait view in the export area and enable \"Show blackboard\". If your desk is at the back of the room, for example, also set the viewing direction to \"From the back\": the display rotates by 180° and the names stay readable. That way the printout keeps the same orientation as the classroom."
       },
       "dark": {
         "q": "Is there a Dark Mode?",
@@ -398,7 +394,7 @@
       },
       "tablet": {
         "q": "Can I use Klassenplan on a tablet or whiteboard?",
-        "a": "Yes. The interface is touch-optimized, including long-press for context menus. Everything works smoothly on tablets and whiteboards. Using it on a smartphone is possible, but not recommended."
+        "a": "Yes. The interface is touch-optimized, including long-press for context menus. Everything works smoothly on tablets and whiteboards. Using it on a smartphone is not recommended and is currently not supported."
       },
       "pwa": {
         "q": "Can I install Klassenplan like an app?",
@@ -418,7 +414,7 @@
       },
       "names": {
         "q": "The names are too long on the plan – what can I do?",
-        "a": "In step 3, in presentation mode and in the export you decide how names appear: first name only, first name + last name initial, or the full name. If a first name occurs more than once in the class, a hint points that out so you can switch to the unambiguous variant."
+        "a": "In step 3, in presentation mode and in the export you decide how names should appear: first name only, first name + last name initial, or first and last name. If a first name occurs more than once in the class, a hint points that out so you can switch to the unambiguous variant."
       }
     },
     "projekt": {
@@ -426,7 +422,7 @@
       "description": "Information on costs, updates, and how you can contribute.",
       "cost": {
         "q": "Does Klassenplan cost anything?",
-        "a": "No, Klassenplan is a free tool that I work on in my free time. I originally developed Klassenplan for my own needs (with the help of Claude Code) and I am happy if it helps you too and you like using it. If you like Klassenplan and would like to support its hosting costs as well as further development, I would be happy about a donation via PayPal. You can find all info under \"Support\". Thank you!"
+        "a": "No, Klassenplan is a free tool that I work on in my free time. I originally developed Klassenplan for my own needs (with the help of Claude Code) and I am happy if it helps you and you like using it. If you like Klassenplan and would like to support its hosting costs as well as further development, I would be happy about a donation via PayPal. You can find all info under \"Support\". Thank you!"
       },
       "update": {
         "q": "How do I get updates?",
@@ -449,7 +445,7 @@
       "title": "Still unclear?",
       "text": "If your question was not answered here, please write to me via the contact page.",
       "contactBtn": "Contact me",
-      "generatorBtn": "Go to Generator"
+      "generatorBtn": "Go to the seating chart generator"
     }
   },
   "nameGame": {

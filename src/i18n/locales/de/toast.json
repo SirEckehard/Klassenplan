@@ -57,10 +57,10 @@
     "unsupportedVersion": "Import fehlgeschlagen. Backup-Version wird nicht unterstützt.",
     "invalidEncryptedPayload": "Import fehlgeschlagen. Backup-Datei ist beschädigt.",
     "invalidData": "Import fehlgeschlagen. Backup enthält ungültige Daten.",
-    "mergeStudentIdConflict": "Import fehlgeschlagen. Merge nicht möglich: Schüler*innen sind bereits vorhanden.",
+    "mergeStudentIdConflict": "Import fehlgeschlagen. Merge nicht möglich: Schüler sind bereits vorhanden.",
     "mergeInvalidLocks": "Import fehlgeschlagen. Merge nicht möglich: Feste Plätze passen nicht zum importierten Raumplan.",
     "mergeStateUnavailable": "Import fehlgeschlagen. Merge nicht möglich: Aktueller Datenstand ist nicht verfügbar.",
-    "tooManyStudents": "Import fehlgeschlagen. Maximal 36 Schülerinnen und Schüler erlaubt.",
+    "tooManyStudents": "Import fehlgeschlagen. Maximal 36 Schüler pro Klasse erlaubt.",
     "tooManySeatingPlans": "Import fehlgeschlagen. Limit für gespeicherte Sitzpläne überschritten.",
     "tooManyMixResults": "Import fehlgeschlagen. Limit für Mix-Historie überschritten.",
     "tooManyTemplates": "Import fehlgeschlagen. Limit für Vorlagen überschritten.",
@@ -136,12 +136,10 @@
     "nameInvalid": "Ungültiger Name",
     "nameExists": "Schüler mit diesem Namen existiert bereits",
     "maxReached": "Maximale Schüleranzahl erreicht",
-    "genderRequired": "Geschlechtsangaben sind optional. Ergänze sie nur, wenn du damit arbeiten möchtest.",
     "addFirst": "Bitte zuerst Schüler hinzufügen",
-    "incompleteData": "Bitte ergänze die fehlenden Namen. Geschlechtsangaben kannst du optional später hinzufügen.",
-    "missingNames": "Bitte ergänze die fehlenden Namen. Geschlechtsangaben sind optional.",
-    "missingGender": "Hinweis: Einige Geschlechtsangaben fehlen. Diese Information ist optional.",
-    "missingNamesAndGender": "Es fehlen Namen. Geschlechtsangaben können optional ergänzt werden."
+    "incompleteData": "Bitte ergänze die fehlenden Namen.",
+    "missingNames": "Bitte ergänze die fehlenden Namen.",
+    "missingGender": "Hinweis: Einige Geschlechtsangaben fehlen. Diese Information ist optional."
   },
   "csv": {
     "parseError": "„{{fileName}}“ konnte nicht gelesen werden. Prüfe, ob die Datei wirklich eine Tabelle mit Kommas als Trennzeichen ist.",
@@ -149,7 +147,7 @@
     "longNamesImported": "Namen importiert - einige werden gekürzt dargestellt",
     "fileTypeExcel": "„{{fileName}}“ ist eine Excel-Datei. Öffne sie in Excel und speichere sie über „Datei > Speichern unter“ als CSV.",
     "fileTypeSpreadsheet": "„{{fileName}}“ ist eine Tabelle, aber keine CSV. Exportiere sie in deinem Tabellenprogramm als CSV und lade sie erneut hoch.",
-    "fileTypeBackup": "„{{fileName}}“ sieht nach einem Klassenplan-Backup aus. Dafür gibt es den Backup-Import, nicht den Klassenlisten-Import.",
+    "fileTypeBackup": "„{{fileName}}“ sieht nach einem Klassenplan-Backup aus. Dafür gibt es den Backup-Import in der Fußzeile.",
     "fileTypeText": "„{{fileName}}“ ist eine Textdatei. Sind die Namen darin durch Kommas getrennt, benenne sie in .csv um. Sonst speichere sie neu als CSV.",
     "fileTypeDocument": "„{{fileName}}“ ist ein Dokument, keine Tabelle. Klassenplan braucht eine CSV-Datei, kein Word oder PDF.",
     "fileTypeImage": "„{{fileName}}“ ist ein Bild. Namen darauf kann Klassenplan nicht lesen, es braucht eine CSV-Datei.",
@@ -181,15 +179,18 @@
   },
   "mix": {
     "deleted": "Misch-Ergebnis gelöscht",
-    "noneAvailable": "Keine Misch-Ergebnisse vorhanden"
+    "noneAvailable": "Kein Misch-Ergebnis vorhanden"
   },
   "data": {
     "deleted": "Alle Daten wurden gelöscht",
     "deleteError": "Daten konnten nicht gelöscht werden. Nutze die Löschen-Funktion deines Browsers.",
     "preferencesReset": "Deine Einstellungen wurden zurückgesetzt, da gespeicherte Daten beschädigt waren."
   },
+  "storage": {
+    "quotaLow": "Der Browser-Speicher ist fast voll. Erstelle ein Backup und lösche Klassen, die du nicht mehr brauchst."
+  },
   "feature": {
     "notCopyable": "Die Tafel lässt sich nicht kopieren.",
-    "boardReplaced": "Es kann nur eine Tafel geben, da sie die Vorderseite des Raums für den Sitzplan-Algorithmus bestimmt. Die vorhandene Tafel wurde ersetzt."
+    "boardReplaced": "Es kann nur eine Tafel geben, da sie die Vorderseite des Raums für den Sitzplan-Algorithmus bestimmt. Die vorhandene Tafel wurde ersetzt – für eine zweite Fläche nutze das Whiteboard."
   }
 }

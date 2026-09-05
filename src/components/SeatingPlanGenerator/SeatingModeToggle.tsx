@@ -33,8 +33,8 @@ export default function SeatingModeToggle({
         className={`${
           tableActive ? primaryButtonClass : secondaryButtonClass
         } group relative h-9 gap-2 px-3 ${sharedButtonState}`}
-        title={t('mode.tableView', 'Sitzplan-Ansicht')}
-        aria-label={t('mode.tableView', 'Sitzplan-Ansicht')}
+        title={t('mode.tableView', 'Sitzplan anzeigen')}
+        aria-label={t('mode.tableView', 'Sitzplan anzeigen')}
       >
         <GridNineIcon size={18} aria-hidden />
         <span className={hoverLabelClass}>{t('mode.table', 'Sitzplan')}</span>
@@ -46,8 +46,8 @@ export default function SeatingModeToggle({
         className={`${
           circleActive ? primaryButtonClass : secondaryButtonClass
         } group relative h-9 gap-2 px-3 ${sharedButtonState}`}
-        title={t('mode.circleView', 'Sitzkreis-Ansicht')}
-        aria-label={t('mode.circleView', 'Sitzkreis-Ansicht')}
+        title={t('mode.circleView', 'Sitzkreis anzeigen')}
+        aria-label={t('mode.circleView', 'Sitzkreis anzeigen')}
       >
         <CircleDashedIcon size={18} aria-hidden />
         <span className={hoverLabelClass}>{t('mode.circle', 'Sitzkreis')}</span>

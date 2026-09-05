@@ -201,7 +201,7 @@ export default function Present() {
                 <li>
                   {t(
                     'help.present.item3',
-                    'Blende über die Leiste unten Merkmale, Fotos und Farben ein oder aus.',
+                    'Blende über die Leiste unten Merkmale, Fotos, Farben und Raumelemente ein oder aus.',
                   )}
                 </li>
                 <li>
@@ -217,7 +217,7 @@ export default function Present() {
                 <li>
                   {t(
                     'help.present.item6',
-                    '„Wer kommt dran?" zieht einen zufälligen Schüler und hebt seinen Platz hervor – jeder kommt einmal dran, bevor sich jemand wiederholt.',
+                    '„Wer kommt dran?“ zieht einen zufälligen Schüler und hebt seinen Platz hervor – jeder kommt einmal dran, bevor sich jemand wiederholt.',
                   )}
                 </li>
                 <li>
@@ -409,10 +409,7 @@ export default function Present() {
                 showGenderColors ? primaryButtonClass : secondaryButtonClass
               } h-10 gap-2 px-4`}
               aria-pressed={showGenderColors}
-              title={t(
-                'present.colorsTitle',
-                'Farbige Kennzeichnung (Geschlechterfarben) ein- oder ausblenden',
-              )}
+              title={t('present.colorsTitle', 'Farben ein- oder ausblenden')}
             >
               <PaletteIcon size={20} aria-hidden />
               <span className="text-sm font-semibold">

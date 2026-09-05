@@ -480,7 +480,7 @@ function StudentInput({
           studentName: removalTargetLabel,
           defaultValue: `Möchtest du ${removalTargetLabel} wirklich entfernen? Du kannst das mit Strg/Cmd+Z rückgängig machen.`,
         })}
-        confirmLabel={t('classManagement.delete', 'Entfernen')}
+        confirmLabel={t('classManagement.delete', 'Löschen')}
         cancelLabel={t('common.cancel', 'Abbrechen')}
         onConfirm={() => {
           if (!pendingRemoval) {
@@ -492,7 +492,7 @@ function StudentInput({
             'success',
             t('studentInput.studentRemoved', {
               studentName:
-                studentName || t('studentList.newStudent', 'Schüler'),
+                studentName || t('studentList.newStudent', 'Neuer Schüler'),
               defaultValue: `${studentName || 'Schüler'} wurde entfernt.`,
             }),
           );

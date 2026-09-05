@@ -65,8 +65,8 @@ export const CSV_GENDER_LABELS: Record<
   CsvLanguage,
   Record<NonNullable<Student['gender']>, string>
 > = {
-  de: { boy: 'Junge', girl: 'Mädchen', diverse: 'Divers' },
-  en: { boy: 'Boy', girl: 'Girl', diverse: 'Diverse' },
+  de: { boy: 'Männlich', girl: 'Weiblich', diverse: 'Divers' },
+  en: { boy: 'Male', girl: 'Female', diverse: 'Diverse' },
 };
 
 export const CSV_HEIGHT_LABELS: Record<

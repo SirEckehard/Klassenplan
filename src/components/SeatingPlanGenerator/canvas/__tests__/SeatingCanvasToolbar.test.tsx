@@ -53,15 +53,7 @@ const getRefine = () =>
 const renderToolbar = (
   props: Partial<React.ComponentProps<typeof SeatingCanvasToolbar>> = {},
 ) =>
-  render(
-    <SeatingCanvasToolbar
-      onMix={vi.fn()}
-      isMixing={false}
-      mixStatus={null}
-      onCancelMix={vi.fn()}
-      {...props}
-    />,
-  );
+  render(<SeatingCanvasToolbar onMix={vi.fn()} isMixing={false} {...props} />);
 
 describe('SeatingCanvasToolbar', () => {
   it('disables undo and redo while the history is empty', () => {
@@ -116,56 +108,5 @@ describe('SeatingCanvasToolbar', () => {
     renderToolbar({ isMixing: true });
 
     expect(getRefine()).toBeDisabled();
-  });
-});
-
-describe('mix progress', () => {
-  it('shows nothing while no mix is running', () => {
-    renderToolbar();
-
-    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
-  });
-
-  it('reports the running stage and its percentage', () => {
-    renderToolbar({
-      isMixing: true,
-      mixStatus: { progress: 0.42, stage: 'arranging', message: 'Läuft…' },
-    });
-
-    const bar = screen.getByRole('progressbar');
-    expect(bar).toHaveAttribute('aria-valuenow', '42');
-    expect(screen.getByText('Läuft…')).toBeInTheDocument();
-    expect(screen.getByText('42%')).toBeInTheDocument();
-  });
-
-  it('lets the user abandon a run that takes too long', async () => {
-    const onCancelMix = vi.fn();
-    renderToolbar({
-      isMixing: true,
-      mixStatus: { progress: 0.1, stage: 'arranging', message: 'Läuft…' },
-      onCancelMix,
-    });
-
-    await userEvent.click(
-      screen.getByRole('button', { name: /abbrechen|cancel/i }),
-    );
-
-    expect(onCancelMix).toHaveBeenCalledTimes(1);
-  });
-
-  it('shows the finished bar without a cancel button', () => {
-    renderToolbar({
-      mixStatus: { progress: 1, stage: 'done', message: 'Sitzplan fertig' },
-    });
-
-    // The finished bar lingers for a moment so the user actually sees it
-    // complete; offering to cancel a mix that is already done would be a lie.
-    expect(screen.getByRole('progressbar')).toHaveAttribute(
-      'aria-valuenow',
-      '100',
-    );
-    expect(
-      screen.queryByRole('button', { name: /abbrechen|cancel/i }),
-    ).not.toBeInTheDocument();
   });
 });

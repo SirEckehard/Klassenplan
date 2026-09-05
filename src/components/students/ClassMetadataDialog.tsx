@@ -124,7 +124,7 @@ export default function ClassMetadataDialog({
                 onChange={handleChange('name')}
                 placeholder={t(
                   'classDialog.classNamePlaceholder',
-                  'z. B. Klasse 7b',
+                  'z. B. Klasse 7b',
                 )}
                 required
                 autoFocus
@@ -135,7 +135,7 @@ export default function ClassMetadataDialog({
                 htmlFor="class-label"
                 className="text-sm font-semibold text-gray-800 dark:text-gray-100"
               >
-                {t('classDialog.schoolYear', 'Schuljahr / Label')}
+                {t('classDialog.schoolYear', 'Schuljahr')}
                 <span className="ml-1 text-xs font-normal text-gray-500 dark:text-gray-400">
                   ({t('common.optional', 'optional')})
                 </span>
@@ -147,7 +147,7 @@ export default function ClassMetadataDialog({
                 onChange={handleChange('label')}
                 placeholder={t(
                   'classDialog.schoolYearPlaceholder',
-                  'z. B. 2025/26',
+                  'z. B. 2025/26',
                 )}
               />
             </div>

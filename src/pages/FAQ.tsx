@@ -101,11 +101,6 @@ export default function FAQ() {
                 },
               ]
             : []),
-          // Gender mixing question (moved from geschlechter section)
-          {
-            question: t('faq.allgemein.gender_mixing.q'),
-            answer: <p>{t('faq.allgemein.gender_mixing.a')}</p>,
-          },
         ],
       },
       {

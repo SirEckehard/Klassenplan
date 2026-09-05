@@ -174,7 +174,7 @@ export default function useTemplateManager(
       const overwrite = await confirmDialog(
         t(
           'layout.overwriteTemplateMessage',
-          'Die aktuelle Vorlage wurde verändert. Soll die vorhandene Vorlage überschrieben werden?',
+          'Die aktuelle Vorlage wurde verändert. Soll sie überschrieben werden?',
         ),
         {
           confirmLabel: t('layout.overwrite', 'Überschreiben'),

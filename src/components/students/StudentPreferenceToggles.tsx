@@ -154,12 +154,12 @@ export default function StudentPreferenceToggles({
   return (
     <section className="space-y-2">
       <h4 className="text-xs font-medium uppercase tracking-wide text-gray-600 dark:text-gray-400">
-        {t('roomPreference.title', 'Raumpräferenzen')}
+        {t('roomPreference.title', 'Raumpräferenz')}
       </h4>
       <div
         className={`${cardSurfaceClass} grid grid-cols-1 gap-2 p-3 sm:grid-cols-2`}
         role="group"
-        aria-label={t('roomPreference.title', 'Raumpräferenzen')}
+        aria-label={t('roomPreference.title', 'Raumpräferenz')}
       >
         {preferenceOptions.map((option) => (
           <PreferenceButton

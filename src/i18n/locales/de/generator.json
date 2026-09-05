@@ -13,9 +13,8 @@
       "item2": "Füge Schüler einzeln hinzu, erzeuge Platzhalter für eine ganze Klasse oder importiere eine CSV-Datei – „So muss die Datei aussehen“ zeigt dir den nötigen Aufbau.",
       "item3": "Wähle bis zu 3 Wunsch- und Distanzpartner pro Schüler – die Reihenfolge bestimmt die Priorität.",
       "item4": "Mit Suche, Filter und Sortierung findest du einzelne Schüler; über die Auswahlkästchen bearbeitest du mehrere Schüler gleichzeitig.",
-      "item5": "Fotos fügst du über das Porträt-Symbol hinzu – sie bleiben nur auf diesem Gerät und schalten das Namensspiel frei.",
-      "item6": "Änderungen an der Klassenliste nimmst du über die Pfeil-Buttons oder mit Strg/Cmd+Z zurück; Strg/Cmd+Umschalt+Z stellt sie wieder her.",
-      "item7": "Blende die Beschriftung unter den Buttons in der Schülerliste ein bzw. aus."
+      "item5": "Fotos fügst du über das Porträt-Symbol hinzu – sie bleiben nur auf diesem Gerät.",
+      "item6": "Änderungen in der Klassenliste kannst du über die jeweiligen Icons rückgängig machen und wiederherstellen."
     },
     "layout": {
       "title": "Klassenraum",
@@ -24,42 +23,42 @@
       "item3": "Mehrfachauswahl: Shift oder Strg/Cmd + Klick oder Auswahl-Rechteck aufziehen.",
       "item4": "Rechtsklick (Desktop) oder langes Drücken (Touch) öffnet das Kontextmenü.",
       "item5": "Speichere eigene Klassenraum-Vorlagen über die Sidebar.",
-      "item6": "Ziehe Raumelemente wie Fenster, Tür, Pult, Tafel, Whiteboard, Schrank oder Raumtrenner aus der Sidebar in den Raum.",
-      "item7": "Strg/Cmd+Z macht Schritte im Klassenraum rückgängig, Strg/Cmd+Umschalt+Z stellt sie wieder her."
+      "item6": "Ziehe Raumelemente wie Fenster, Tür, Pult, Tafel, Whiteboard, Schrank oder Raumtrenner aus der Sidebar in den Raum und vergrößere bzw. verkleinere sie bei Bedarf.",
+      "item7": "Änderungen im Klassenraum kannst du über die jeweiligen Icons rückgängig machen und wiederherstellen."
     },
     "plan": {
       "title": "Sitzplan",
       "item1": "Passe die Gewichtung der Kriterien (0-10) in der Sidebar an.",
       "item2": "Ziehe Schüler per Drag & Drop auf andere Plätze.",
       "item3": "Klicke auf das Schloss-Symbol, um einen Platz beim nächsten Mischen zu sperren.",
-      "item4": "Statistik-Badges zeigen, wie gut die Kriterien erfüllt sind.",
-      "item5": "„Verfeinern“ passt den aktuellen Plan in kleinen Schritten an.",
-      "item6": "In den Ansichtseinstellungen legst du fest, wie Namen erscheinen (nur Vorname, Vorname + Initial oder vollständig) und ob Fotos angezeigt werden.",
-      "item7": "Strg/Cmd+Z nimmt Mischungen und Verschiebungen zurück, Strg/Cmd+Umschalt+Z stellt sie wieder her."
+      "item4": "Über die Statistikanzeige kannst du sehen, wie gut die Kriterien erfüllt sind.",
+      "item5": "Die Funktion „Verfeinern“ passt den aktuellen Plan in kleinen Schritten an und versucht, den statistischen Wert zu erhöhen.",
+      "item6": "In den Ansichtseinstellungen legst du fest, wie Namen erscheinen sollen (nur Vorname, Vorname + Initial oder Vor- und Nachname) und ob Fotos angezeigt werden.",
+      "item7": "Änderungen am Sitzplan kannst du über die jeweiligen Icons rückgängig machen und wiederherstellen."
     },
     "circle": {
       "title": "Sitzkreis",
       "item1": "Ziehe Schüler per Drag & Drop auf neue Positionen.",
       "item2": "Grüne Linien zeigen Verbindungen zu Tischnachbarn im Sitzplan.",
-      "item3": "Blende Verbindungen in der Sidebar oder mit Taste C ein/aus.",
-      "item4": "Der Sitzkreis bleibt an den Sitzplan gekoppelt, lässt sich aber separat speichern und exportieren."
+      "item3": "Blende Verbindungen in der Sidebar ein oder aus.",
+      "item4": "Der Sitzkreis ist zu Beginn an den Sitzplan gekoppelt, lässt sich aber verändern, separat speichern und exportieren."
     },
     "export": {
       "title": "Export",
       "item1": "Passe den Namen deines Sitzplans an.",
       "item2": "Wechsel zwischen Hochformat und Querformat für den PDF-Export.",
-      "itemFlip": "Lege im Seitenformat die Blickrichtung fest: „Von hinten“ dreht den Raum um 180° für ein Pult hinten im Raum, Namen und Fotos bleiben lesbar.",
+      "itemFlip": "Lege im Seitenformat die Blickrichtung fest: „Von hinten“ dreht den Raum um 180° für ein Pult hinten im Raum, sodass Namen lesbar bleiben.",
       "item3": "Lege in der Seitenleiste fest, was zu sehen ist: Raumelemente, Bedürfnisse, Fotos, Legende und zusätzliche Klasseninfos.",
-      "itemNames": "Wähle, wie Namen erscheinen: nur Vorname, Vorname + Initial des Nachnamens oder vollständiger Name.",
+      "itemNames": "Wähle, wie Namen erscheinen: nur Vorname, Vorname + Initial des Nachnamens oder Vor- und Nachname.",
       "item4": "Wechsle die Vorschau zwischen Sitzplan und Sitzkreis oben rechts.",
-      "item5": "Neben PDF und Druck kannst du die Ansicht auch als PNG-Bild oder SVG-Vektorgrafik speichern – praktisch für Elternbriefe oder das Schulportal."
+      "item5": "Neben PDF und Druck kannst du die Ansicht auch als PNG-Bild oder SVG-Vektorgrafik speichern."
     },
     "present": {
       "title": "Präsentiermodus",
       "item1": "Wechsle oben zwischen Lehrer- und Schüleransicht sowie zwischen Sitzplan und Sitzkreis.",
       "item2": "Die Schüleransicht zeigt den Plan aus Sicht der Klasse – ohne Merkmale und Fotos.",
       "item3": "Blende über die Leiste unten Merkmale, Fotos, Farben und Raumelemente ein oder aus.",
-      "itemNames": "„Namen“ schaltet zwischen Vorname, Vorname + Initial des Nachnamens und vollständigem Namen um.",
+      "itemNames": "Der Button „Namen“ schaltet die Anzeige zwischen Vorname, Vorname + Initial des Nachnamens sowie Vor- und Nachname um.",
       "item4": "Zoome per Regler oder Mausrad und verschiebe die Ansicht durch Ziehen; das Zentrieren-Symbol setzt die Ansicht zurück.",
       "item5": "Mit Alt + ← kehrst du zum Generator zurück.",
       "item6": "„Wer kommt dran?“ zieht einen zufälligen Schüler und hebt seinen Platz hervor – jeder kommt einmal dran, bevor sich jemand wiederholt.",
@@ -83,8 +82,8 @@
     "expandLabel": "Sidebar erweitern"
   },
   "tooltip": {
-    "compactModeHint": "Tipp: Klicke hier oder drücke ⌘/Strg+B für die kompakte Ansicht",
-    "sidebarHint": "Tipp: Klicke hier oder drücke ⌘/Strg+B um die Sidebar zu minimieren"
+    "compactModeHint": "Klicke hier oder drücke ⌘/Strg+B für die kompakte Ansicht",
+    "sidebarHint": "Klicke hier oder drücke ⌘/Strg+B, um die Sidebar zu minimieren"
   },
   "canvas": {
     "addFeature": "Raumelement hinzufügen",
@@ -116,7 +115,7 @@
   },
   "present": {
     "button": "Präsentieren",
-    "buttonTitle": "Sitzplan am Smartboard präsentieren",
+    "buttonTitle": "Sitzplan präsentieren",
     "teacherView": "Lehreransicht",
     "teacherViewTitle": "Sitzplan aus Sicht der Lehrkraft zeigen",
     "studentView": "Schüleransicht",
@@ -127,7 +126,7 @@
     "photos": "Fotos",
     "photosTitle": "Schülerfotos ein- oder ausblenden",
     "colors": "Farben",
-    "colorsTitle": "Farbige Kennzeichnung (Geschlechterfarben) ein- oder ausblenden",
+    "colorsTitle": "Farben ein- oder ausblenden",
     "names": "Namen",
     "features": "Raum",
     "featuresTitle": "Raumelemente (Tafel, Fenster, Türen, Möbel) ein- oder ausblenden",
@@ -154,8 +153,8 @@
   },
   "legend": {
     "title": "Legende",
-    "genderGirl": "Mädchen",
-    "genderBoy": "Junge",
+    "genderGirl": "Weiblich",
+    "genderBoy": "Männlich",
     "genderDiverse": "Divers",
     "genderNeutral": "Ohne Angabe"
   },
@@ -195,6 +194,17 @@
       "moveFailed": "Umsetzen nicht möglich."
     }
   },
+  "backupReminder": {
+    "eyebrow": "Datensicherung",
+    "aged_one": "Dein letztes Backup ist {{count}} Tag alt.",
+    "aged_other": "Dein letztes Backup ist {{count}} Tage alt.",
+    "never": "Du hast noch kein Backup erstellt.",
+    "why": "Klassenplan speichert alles nur in diesem Browser. Wenn du den Browser-Speicher leerst, das Gerät wechselst oder die Seite mehrere Wochen nicht besuchst, können die Daten verloren gehen. Ein Backup ist die einzige Kopie.",
+    "create": "Backup erstellen",
+    "later": "Später erinnern",
+    "neverAgain": "Nicht mehr erinnern",
+    "faqLink": "Daten auf ein neues Gerät mitnehmen"
+  },
   "mixButton": {
     "label": "Mischen",
     "title": "Sitzplan mischen",
@@ -207,7 +217,7 @@
     "notEnoughSeats": "Nicht genügend Sitzplätze für alle Schüler"
   },
   "cookieConsent": {
-    "message": "Diese Website speichert notwendige Informationen lokal in deinem Browser. Es werden keine Cookies verwendet und keine Daten an Server übertragen. Weitere Informationen findest du in unserer",
+    "message": "Diese Website speichert notwendige Informationen lokal in deinem Browser. Es werden keine Cookies verwendet und keine Daten an Server übertragen. Weitere Informationen findest du in der",
     "privacyLink": "Datenschutzerklärung",
     "accept": "Verstanden"
   },
@@ -278,7 +288,7 @@
     "on": "An",
     "off": "Aus",
     "weightTooltip": "Gewichtung: {{value}}/10 – Je höher der Wert, desto wichtiger ist dieses Kriterium bei der Sitzplatzverteilung.",
-    "randomWarning": "Alle Kriterien deaktiviert - Mischen ist komplett zufällig!",
+    "randomWarning": "Alle Kriterien deaktiviert - Mischen ist zufällig!",
     "categories": {
       "avoidance": "Vermeidung",
       "promotion": "Förderung",
@@ -292,7 +302,7 @@
     "criteria": {
       "avoidPreviousPairs": {
         "label": "Wiederholung",
-        "desc": "Schüler, die zuletzt zusammen saßen, trennen"
+        "desc": "Schüler, die zuletzt nebeneinander gemischt wurden, trennen"
       },
       "avoidRestlessTogether": {
         "label": "Unruhe",
@@ -328,7 +338,7 @@
       },
       "preferFrontForNeedsFrontSeat": {
         "label": "Vordere Plätze",
-        "desc": "Schüler mit Platzbedarf vorne setzen"
+        "desc": "Schüler, die vorne sitzen sollen"
       },
       "preferFrontForSmallerStudents": {
         "label": "Körpergröße",
@@ -352,11 +362,11 @@
       }
     },
     "criteriaDescriptions": {
-      "avoidPreviousPairs": "Schüler, die zuletzt zusammen saßen, trennen.",
+      "avoidPreviousPairs": "Schüler, die zuletzt nebeneinander gemischt wurden, trennen.",
       "avoidRestlessTogether": "Schüler mit Unruheverhalten trennen.",
       "avoidConcentrationTogether": "Schüler mit Konzentrationsschwierigkeiten trennen.",
       "avoidShyAlone": "Schüler mit zurückhaltendem Verhalten nicht alleine sitzen lassen.",
-      "preferGenderMix": "Geschlechter mischen für ausgewogene Tischbesetzung.",
+      "preferGenderMix": "Geschlechtergemischte Verteilung.",
       "considerWishPartners": "Wunschpartner-Anfragen der Schüler.",
       "avoidConflictPartners": "Schüler mit Distanzwunsch trennen.",
       "peerTutoring": "Schüler mit unterschiedlichem Leistungsniveau zusammen.",
@@ -382,7 +392,7 @@
       "avoidShyAlone": "Kein Schüler ist als schüchtern markiert",
       "performanceLevels": "Keine Schüler mit Leistungseinstufung vorhanden",
       "preferFrontForNeedsFrontSeat": "Kein Schüler benötigt einen vorderen Platz",
-      "preferFrontForSmallerStudents": "Keine Schüler mit Größeneinstufung vorhanden",
+      "preferFrontForSmallerStudents": "Keine Schüler mit Angaben zur Körpergröße vorhanden",
       "preferWindowSeats": "Kein Schüler bevorzugt einen Fensterplatz",
       "preferDoorSeats": "Kein Schüler bevorzugt Nähe zur Tür",
       "preferLanguageMixing": "Mindestens 2 verschiedene Sprachniveaus erforderlich",
@@ -420,7 +430,7 @@
     "resizeWidth": "Breite anpassen",
     "resizeHeight": "Höhe anpassen",
     "quickSetupShortcut": "(Strg/Cmd+E)",
-    "overwriteTemplateMessage": "Die aktuelle Vorlage wurde verändert. Soll die vorhandene Vorlage überschrieben werden?",
+    "overwriteTemplateMessage": "Die aktuelle Vorlage wurde verändert. Soll sie überschrieben werden?",
     "overwrite": "Überschreiben",
     "dragDropHint": "Per Drag & Drop hinzufügen",
     "dragDropPlace": "per Drag & Drop platzieren"
@@ -433,12 +443,13 @@
     "portrait": "Hochformat",
     "viewDirection": "Blickrichtung",
     "viewFromFront": "Von vorn",
-    "viewFromFrontTitle": "Standard: Der Plan wird von vorn gelesen, also mit Blick auf die Klasse.",
+    "viewFromFrontTitle": "Der Plan wird von vorn gelesen, also mit Blick auf die Klasse.",
     "viewFromBack": "Von hinten",
-    "viewFromBackTitle": "Für ein Pult hinten im Raum: Der Raum dreht sich um 180°, Namen und Fotos bleiben lesbar.",
+    "viewFromBackTitle": "Der Raum wird um 180° gedreht, sodass Namen lesbar bleiben.",
+    "printDocumentTitle": "Klassenplan",
     "printShortcut": "Drucken (Strg/Cmd+P)",
-    "tablePdfShortcut": "PDF exportieren (Strg/Cmd+E)",
-    "circlePdfShortcut": "Sitzkreis-PDF exportieren",
+    "tablePdfShortcut": "Sitzplan als PDF exportieren (Strg/Cmd+Shift+T)",
+    "circlePdfShortcut": "Sitzkreis als PDF exportieren (Strg/Cmd+Shift+C)",
     "tablePdfButton": "Sitzplan PDF",
     "circlePdfButton": "Sitzkreis PDF",
     "tableDefaultFilename": "Sitzplan",
@@ -471,7 +482,7 @@
     "circleStage": {
       "initializing": "Sitzkreis wird vorbereitet...",
       "analyzing": "Sitzplan wird analysiert...",
-      "arranging": "Schüler:innen werden angeordnet..."
+      "arranging": "Schüler werden angeordnet..."
     },
     "cancelCircleGeneration": "Abbrechen",
     "printDownloadedInfo": "Pop-up blockiert - PDF wurde heruntergeladen. Bitte öffne die Datei zum Drucken.",
@@ -516,7 +527,7 @@
     "tables": "Tische",
     "seats": "Plätze",
     "nameLabel": "Vorlagenname",
-    "namePlaceholder": "z.B. Klassenraum 1",
+    "namePlaceholder": "z.B. Klassenraum 1a",
     "nameAriaLabel": "Vorlagenname eingeben",
     "duplicateWarning": "Eine Vorlage mit diesem Namen existiert bereits.",
     "overwriteLabel": "Oder bestehende Vorlage überschreiben",
@@ -551,9 +562,9 @@
     "photoModeOff": "Aus",
     "nameDisplay": {
       "label": "Namen",
-      "firstName": "Nur Vorname",
+      "firstName": "Vorname",
       "firstNameInitial": "Vorname + Initial des Nachnamens",
-      "full": "Vollständiger Name",
+      "full": "Vor- und Nachname",
       "example": "Anzeige: {{name}}",
       "duplicateHint_one": "{{count}} Vorname kommt doppelt vor",
       "duplicateHint_other": "{{count}} Vornamen kommen doppelt vor"
@@ -743,8 +754,8 @@
       "plan_undo": "Strg (Windows) / Cmd (Mac) + Z",
       "plan_redo": "Strg / Cmd + Shift + Z",
       "students_undo": "Strg (Windows) / Cmd (Mac) + Z",
-      "students_redo": "Strg / Cmd + Umschalt + Z",
-      "layout_redo": "Strg / Cmd + Umschalt + Z"
+      "students_redo": "Strg / Cmd + Shift + Z",
+      "layout_redo": "Strg / Cmd + Shift + Z"
     }
   },
   "tableType": {

@@ -55,7 +55,7 @@ export default function StorageHistoryModal({
       handleHistoryLoad(plan);
       showToast(
         'success',
-        t('storage.planLoaded', 'Plan „{{name}}" geladen.', {
+        t('storage.planLoaded', 'Plan "{{name}}" geladen.', {
           name: plan.name,
         }),
       );
@@ -69,7 +69,7 @@ export default function StorageHistoryModal({
       deleteSeatingPlan(plan.id);
       showToast(
         'success',
-        t('storage.planDeleted', 'Plan „{{name}}" gelöscht.', {
+        t('storage.planDeleted', 'Plan "{{name}}" gelöscht.', {
           name: plan.name,
         }),
       );

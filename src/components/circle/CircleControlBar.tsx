@@ -138,7 +138,7 @@ export default function CircleControlBar({
       <button
         type="button"
         onClick={onPresent}
-        title={t('present.buttonTitle', 'Sitzplan am Smartboard präsentieren')}
+        title={t('present.buttonTitle', 'Sitzplan präsentieren')}
         className={`${warningButtonClass} w-full justify-center gap-2 px-4 sm:w-auto`}
       >
         <ChalkboardTeacherIcon className="w-4 h-4" size={16} />

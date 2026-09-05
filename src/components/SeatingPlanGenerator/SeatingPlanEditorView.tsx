@@ -21,7 +21,6 @@ import SmartSidebar from '@/components/ui/panels/SmartSidebar';
 import SmartMixControls from '@/components/ui/controls/SmartMixControls';
 import MixCriteriaIcons from '@/components/ui/icons/MixCriteriaIcons';
 import SeatingCanvasToolbar from '@/components/SeatingPlanGenerator/canvas/SeatingCanvasToolbar';
-import type { MixStatus } from '@/hooks/useSeatingMixHandler';
 import { useCanvasPreferences } from '@/contexts/seatingPlan/CanvasPreferencesContext';
 import SeatingModeToggle from '@/components/SeatingPlanGenerator/SeatingModeToggle';
 import SeatingPlanCanvas from '@/components/SeatingPlanGenerator/SeatingPlanCanvas';
@@ -176,8 +175,6 @@ type Props = {
   setMixSettings: React.Dispatch<React.SetStateAction<MixSettings>>;
   handleMix: () => Promise<void>;
   isMixing: boolean;
-  mixStatus: MixStatus | null;
-  cancelMix: () => void;
   autoMixing?: boolean;
   autoMixError?: string | null;
   featureVisibility: FeatureVisibilityFlags;
@@ -247,8 +244,6 @@ export default function SeatingPlanEditorView({
   setMixSettings,
   handleMix,
   isMixing,
-  mixStatus,
-  cancelMix,
   autoMixing = false,
   autoMixError = null,
   featureVisibility,
@@ -888,12 +883,7 @@ export default function SeatingPlanEditorView({
               style={{ width: '100%', maxWidth: '100vw' }}
             >
               {/* Canvas overlay row: undo/redo, mix, optimise */}
-              <SeatingCanvasToolbar
-                onMix={handleMix}
-                isMixing={mixingLocked}
-                mixStatus={mixStatus}
-                onCancelMix={cancelMix}
-              />
+              <SeatingCanvasToolbar onMix={handleMix} isMixing={mixingLocked} />
 
               {hasStatistics && (onOpenStatistics || onCloseStatistics) && (
                 <button
@@ -1103,10 +1093,7 @@ export default function SeatingPlanEditorView({
                 <button
                   type="button"
                   onClick={handlePresentWithConditionalSave}
-                  title={t(
-                    'present.buttonTitle',
-                    'Sitzplan am Smartboard präsentieren',
-                  )}
+                  title={t('present.buttonTitle', 'Sitzplan präsentieren')}
                   className={`${warningButtonClass} flex items-center gap-2`}
                 >
                   <ChalkboardTeacherIcon className="w-4 h-4" size={16} />

@@ -206,10 +206,10 @@ export default function MixCriteriaIcons({
       criteria: [
         {
           key: 'avoidPreviousPairs',
-          label: t('mix.criteria.avoidPreviousPairs.label', 'Wiederholungen'),
+          label: t('mix.criteria.avoidPreviousPairs.label', 'Wiederholung'),
           description: t(
             'mix.criteriaDescriptions.avoidPreviousPairs',
-            'Schüler, die zuletzt zusammen saßen, trennen.',
+            'Schüler, die zuletzt nebeneinander gemischt wurden, trennen.',
           ),
         },
       ],
@@ -223,7 +223,7 @@ export default function MixCriteriaIcons({
           label: t('mix.criteria.preferGenderMix.label', 'Geschlechter'),
           description: t(
             'mix.criteriaDescriptions.preferGenderMix',
-            'Geschlechter mischen für ausgewogene Tischbesetzung.',
+            'Geschlechtergemischte Verteilung.',
           ),
         },
         {
@@ -259,7 +259,7 @@ export default function MixCriteriaIcons({
           label: t('mix.criteria.peerTutoring.label', 'Fördern (heterogen)'),
           description: t(
             'mix.criteriaDescriptions.peerTutoring',
-            'Stärkere und schwächere Schüler zusammen.',
+            'Schüler mit unterschiedlichem Leistungsniveau zusammen.',
           ),
         },
         {
@@ -270,7 +270,7 @@ export default function MixCriteriaIcons({
           ),
           description: t(
             'mix.criteriaDescriptions.homogeneousPerformanceGroups',
-            'Leistungsstarke und -schwache jeweils zusammen.',
+            'Schüler mit ähnlichem Leistungsniveau zusammen.',
           ),
         },
         {
@@ -295,18 +295,15 @@ export default function MixCriteriaIcons({
           label: t('mix.criteria.avoidRestlessTogether.label', 'Unruhe'),
           description: t(
             'mix.criteriaDescriptions.avoidRestlessTogether',
-            'Unruhige Schüler trennen.',
+            'Schüler mit Unruheverhalten trennen.',
           ),
         },
         {
           key: 'avoidShyAlone',
-          label: t(
-            'mix.criteria.avoidShyAlone.label',
-            'Schüchterne nicht alleine',
-          ),
+          label: t('mix.criteria.avoidShyAlone.label', 'Schüchternheit'),
           description: t(
             'mix.criteriaDescriptions.avoidShyAlone',
-            'Schüchterne Schüler nicht alleine sitzen lassen.',
+            'Schüler mit zurückhaltendem Verhalten nicht alleine sitzen lassen.',
           ),
         },
         {
@@ -317,7 +314,7 @@ export default function MixCriteriaIcons({
           ),
           description: t(
             'mix.criteriaDescriptions.avoidConcentrationTogether',
-            'Schüler mit hoher Ablenkbarkeit trennen.',
+            'Schüler mit Konzentrationsschwierigkeiten trennen.',
           ),
         },
       ],
@@ -458,7 +455,7 @@ export default function MixCriteriaIcons({
         <>
           {/* Header with description */}
           <SectionHeader
-            title={t('mix.title', 'Mix-Kriterien')}
+            title={t('mix.title', 'Mischkriterien')}
             description={t(
               'mix.sectionDescription',
               'Stelle die Wichtigkeit der verschiedenen Kriterien ein (0-10)',

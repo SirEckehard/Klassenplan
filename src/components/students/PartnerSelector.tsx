@@ -212,7 +212,7 @@ export default function PartnerSelector({
           ariaLabel={
             hasPartners
               ? getTooltip()
-              : t('partners.noPartnerSelected', 'Kein Wunschpartner ausgewählt')
+              : t('partners.noPartnerSelected', 'Kein Partner ausgewählt')
           }
           ariaPressed={hasPartners}
           colorClasses={colorClasses}
@@ -249,7 +249,7 @@ export default function PartnerSelector({
         aria-label={
           hasPartners
             ? getTooltip()
-            : t('partners.noPartnerSelected', 'Kein Wunschpartner ausgewählt')
+            : t('partners.noPartnerSelected', 'Kein Partner ausgewählt')
         }
       >
         <HeartIcon size={14} className={partnerIconClass} aria-hidden="true" />

@@ -213,7 +213,10 @@ export default function ExportSidebar({
                 value={title}
                 onChange={(e) => onTitleChange(e.target.value)}
                 className={`${inputFieldClass} mt-3`}
-                placeholder={t('export.titlePlaceholder', 'Titel eingeben')}
+                placeholder={t(
+                  'export.titlePlaceholder',
+                  'Sitzplan-Titel eingeben',
+                )}
               />
             </div>
 
@@ -334,7 +337,7 @@ export default function ExportSidebar({
             >
               <SectionHeader
                 icon={<Printer size={16} />}
-                title={t('actions.export', 'Export')}
+                title={t('actions.export', 'Exportieren')}
               />
               <button
                 type="button"
@@ -355,7 +358,7 @@ export default function ExportSidebar({
                 )}
               >
                 <GridNineIcon size={16} />
-                {t('export.tablePdfButton', 'Sitzplan-PDF')}
+                {t('export.tablePdfButton', 'Sitzplan PDF')}
               </button>
               {hasCircleLayout && (
                 <button
@@ -368,7 +371,7 @@ export default function ExportSidebar({
                   )}
                 >
                   <CircleDashed size={16} />
-                  {t('export.circlePdfButton', 'Sitzkreis-PDF')}
+                  {t('export.circlePdfButton', 'Sitzkreis PDF')}
                 </button>
               )}
               {/* Image exports of the current preview — for embedding into
@@ -493,7 +496,7 @@ export default function ExportSidebar({
               className={exportButtonStyles.button}
               title={t(
                 'export.tablePdfShortcut',
-                'Sitzplan-PDF exportieren (Strg/Cmd+Shift+T)',
+                'Sitzplan als PDF exportieren (Strg/Cmd+Shift+T)',
               )}
             >
               <span className={exportButtonStyles.icon}>
@@ -509,7 +512,7 @@ export default function ExportSidebar({
                 className={exportButtonStyles.button}
                 title={t(
                   'export.circlePdfShortcut',
-                  'Sitzkreis-PDF exportieren (Strg/Cmd+Shift+C)',
+                  'Sitzkreis als PDF exportieren (Strg/Cmd+Shift+C)',
                 )}
               >
                 <span className={exportButtonStyles.icon}>

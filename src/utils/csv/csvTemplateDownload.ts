@@ -17,10 +17,10 @@ import {
  */
 const EXAMPLE_ROWS: Record<CsvLanguage, readonly string[]> = {
   de: [
-    'Max Mustermann,Junge,Mittel,Muttersprache,,ja,,ja,,ja,,,ja,"Tom Weber, Lisa Müller",Kim Fischer',
-    'Anna Beispiel,Mädchen,Klein,Fließend,Mediator,,ja,,,ja,,ja,,Lisa Müller,',
-    'Tom Weber,Junge,Groß,Anfänger,Einzelgänger,,,ja,ja,,,,,Max Mustermann,"Anna Beispiel, Kim Fischer"',
-    'Lisa Müller,Mädchen,,Fortgeschritten,Mittelpunkt,,,,,,ja,,,"Anna Beispiel, Max Mustermann, Tom Weber",',
+    'Max Mustermann,Männlich,Mittel,Muttersprache,,ja,,ja,,ja,,,ja,"Tom Weber, Lisa Müller",Kim Fischer',
+    'Anna Beispiel,Weiblich,Klein,Fließend,Mediator,,ja,,,ja,,ja,,Lisa Müller,',
+    'Tom Weber,Männlich,Groß,Anfänger,Einzelgänger,,,ja,ja,,,,,Max Mustermann,"Anna Beispiel, Kim Fischer"',
+    'Lisa Müller,Weiblich,,Fortgeschritten,Mittelpunkt,,,,,,ja,,,"Anna Beispiel, Max Mustermann, Tom Weber",',
     'Kim Fischer,Divers,Groß,DaZ-Förderung,Anführer,,ja,,ja,,,ja,,,Tom Weber',
   ],
   en: [

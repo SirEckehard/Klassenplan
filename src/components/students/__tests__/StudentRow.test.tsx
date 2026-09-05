@@ -41,9 +41,9 @@ test('shows optional gender hint and updates gender', () => {
     ),
   ).not.toBeInTheDocument();
 
-  // Select "Junge" from dropdown - use getByText since buttons contain icon+text
-  const jungeOption = screen.getByText(/^Junge$|^Boy$/i);
-  fireEvent.click(jungeOption);
+  // Select "Männlich" from dropdown - use getByText since buttons contain icon+text
+  const maleOption = screen.getByText(/^(Männlich|Male)$/i);
+  fireEvent.click(maleOption);
 
   expect(updateStudent).toHaveBeenCalledWith('1', { gender: 'boy' });
 });

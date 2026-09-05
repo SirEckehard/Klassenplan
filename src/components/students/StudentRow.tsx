@@ -123,7 +123,8 @@ function StudentRow({
               data-disable-card-toggle
               className="h-4 w-4 shrink-0 cursor-pointer accent-blue-600"
               aria-label={t('listToolbar.selectStudent', {
-                name: student.name || t('studentList.newStudent', 'Schüler'),
+                name:
+                  student.name || t('studentList.newStudent', 'Neuer Schüler'),
                 defaultValue: '{{name}} auswählen',
               })}
             />

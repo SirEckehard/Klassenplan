@@ -77,7 +77,7 @@ function SmartMixControls({
           label: t('mix.criteria.avoidPreviousPairs.label', 'Wiederholung'),
           description: t(
             'mix.criteria.avoidPreviousPairs.desc',
-            'Schüler, die zuletzt zusammen saßen, trennen',
+            'Schüler, die zuletzt nebeneinander gemischt wurden, trennen',
           ),
         },
       ],
@@ -127,7 +127,7 @@ function SmartMixControls({
           label: t('mix.criteria.peerTutoring.label', 'Fördern (heterogen)'),
           description: t(
             'mix.criteria.peerTutoring.desc',
-            'stärkere und schwächere Schüler zusammen',
+            'Schüler mit unterschiedlichem Leistungsniveau zusammen',
           ),
         },
         {
@@ -138,7 +138,7 @@ function SmartMixControls({
           ),
           description: t(
             'mix.criteria.homogeneousPerformanceGroups.desc',
-            'stärkere und schwächere Schüler jeweils zusammen',
+            'Schüler mit ähnlichem Förderstand zusammen',
           ),
         },
         {
@@ -149,7 +149,7 @@ function SmartMixControls({
           ),
           description: t(
             'mix.criteria.preferFrontForNeedsFrontSeat.desc',
-            'Schüler mit Platzbedarf vorne setzen',
+            'Schüler, die vorne sitzen sollen',
           ),
         },
       ],
@@ -163,7 +163,7 @@ function SmartMixControls({
           label: t('mix.criteria.avoidRestlessTogether.label', 'Unruhe'),
           description: t(
             'mix.criteria.avoidRestlessTogether.desc',
-            'unruhige Schüler trennen',
+            'Schüler mit Unruheverhalten trennen',
           ),
         },
         {
@@ -171,7 +171,7 @@ function SmartMixControls({
           label: t('mix.criteria.avoidShyAlone.label', 'Schüchternheit'),
           description: t(
             'mix.criteria.avoidShyAlone.desc',
-            'schüchterne Schüler nicht alleine sitzen lassen',
+            'Schüler mit zurückhaltendem Verhalten nicht alleine sitzen lassen',
           ),
         },
         {
@@ -182,7 +182,7 @@ function SmartMixControls({
           ),
           description: t(
             'mix.criteria.avoidConcentrationTogether.desc',
-            'Schüler mit hoher Ablenkbarkeit trennen',
+            'Schüler mit Konzentrationsschwierigkeiten trennen',
           ),
         },
       ],
@@ -508,7 +508,7 @@ function SmartMixControls({
                   ⚠️{' '}
                   {t(
                     'mix.randomWarning',
-                    'Alle Kriterien deaktiviert - Mischen ist komplett zufällig!',
+                    'Alle Kriterien deaktiviert - Mischen ist zufällig!',
                   )}
                 </p>
               </div>
