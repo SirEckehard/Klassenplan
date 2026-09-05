@@ -1,4 +1,21 @@
 {
+  "v2_0_1": {
+    "0": "Seating plans that were really in use are recognised: Klassenplan quietly notes which plans were actually used – from presenting, printing or exporting, saving under your own name and rearranging seats by hand. That improves the repetition avoidance, and you do not have to tick anything",
+    "1": "New 'Neighbourhoods' tab under 'Plans, shuffles & neighbourhoods': it shows who has already sat next to whom and how often – with the date and the underlying data, from which you can exclude individual plans",
+    "2": "Backup reminder: if your last backup is more than 30 days old, Klassenplan says so – you can postpone it or switch it off for good",
+    "3": "Persistent browser storage: when you create your first class, Klassenplan asks the browser to exempt your data from its automatic clean-up; if storage runs low, a notice points it out",
+    "4": "More compact work in the class list: a tidied-up class bar, a new menu for adding students and space-saving controls for search, filter and sorting",
+    "5": "Tablets in portrait now show the sidebar and the classroom at the same time; drag areas follow the input method instead of the window width",
+    "6": "'Optimize' is now called 'Refine' – the name describes better what the function does",
+    "7": "The export remembers whether needs and connection lines are printed; new shortcuts for the PDFs (Ctrl/Cmd+Shift+T for the seating plan, Ctrl/Cmd+Shift+C for the seating circle)",
+    "8": "Extended FAQ: how data can be lost, how to take it to a new device, how often a backup makes sense and how the repetition avoidance works",
+    "9": "Linguistically reworked texts throughout the app – more consistent terms and clearer hints",
+    "10": "The offline notice shrinks to an icon after a moment",
+    "11": "The traffic-light colors of the statistics display are stricter: green from 80 %, yellow from 50 %",
+    "12": "Updated dependencies",
+    "13": "Escape now closes only the topmost dialog and no longer the view underneath",
+    "14": "The grid setting takes effect in all views immediately"
+  },
   "v2_0_0": {
     "0": "Search, filter and sort in the class list: find individual students via the search, or narrow the list down to a group – for example 'restless only' or 'without photo only'",
     "1": "Edit several students at once: the checkboxes let you set gender, height, language level, social role or individual traits for the whole selection in one go",

@@ -53,7 +53,7 @@ A production-ready [`Dockerfile`](Dockerfile) (multi-stage build with nginx) shi
 docker pull ghcr.io/sireckehard/klassenplan:latest
 ```
 
-Tags follow the release: `2.0.0` and `2.0` pin a version, `latest` always tracks the newest release. The easiest way to run it is via [`docker-compose.yml`](docker-compose.yml):
+Tags follow the release: `2.0.1` and `2.0` pin a version, `latest` always tracks the newest release. The easiest way to run it is via [`docker-compose.yml`](docker-compose.yml):
 
 ```bash
 docker compose up -d           # uses the published image, serves on port 8080
@@ -65,7 +65,7 @@ The compose file reads three optional variables from a `.env` file next to it (s
 
 | Variable              | Default                  | Effect                                                        |
 | --------------------- | ------------------------ | ------------------------------------------------------------- |
-| `KLASSENPLAN_VERSION` | `latest`                 | Pins the image tag, e.g. `2.0.0`                              |
+| `KLASSENPLAN_VERSION` | `latest`                 | Pins the image tag, e.g. `2.0.1`                              |
 | `KLASSENPLAN_PORT`    | `8080`                   | Host port the container is published on                       |
 | `SITE_URL`            | `https://klassenplan.de` | Baked into canonical/hreflang/og:url — only used by `--build` |
 

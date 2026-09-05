@@ -3,7 +3,7 @@
 services:
   klassenplan:
     # Pin a release instead of tracking `latest` by setting KLASSENPLAN_VERSION
-    # (e.g. KLASSENPLAN_VERSION=2.0.0) in a .env file next to this one.
+    # (e.g. KLASSENPLAN_VERSION=2.0.1) in a .env file next to this one.
     image: ghcr.io/sireckehard/klassenplan:${KLASSENPLAN_VERSION:-latest}
     build:
       context: .

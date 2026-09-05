@@ -9,15 +9,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 
-- **Plan usage record** – Klassenplan now notes which seating plans were really in use, derived from presenting, printing/exporting, saving under a chosen name and rearranging seats by hand. Nothing has to be ticked, only seating neighbourhoods and timestamps are stored, and everything stays on the device.
-- **"Who has sat next to whom"** – a third tab in the plan history ranks the pairs that have shared a table, with the date they last did and the plans the evaluation rests on; individual plans can be excluded
-
 ### Fixed
-
 
 ### Improved
 
+## [2.0.1] - 2026-09-05
 
+### Added
+
+- **Plan usage record** – Klassenplan quietly notes which seating plans were really in use, derived from presenting, printing/exporting, saving under a chosen name and rearranging seats by hand. Nothing has to be ticked, only seating neighbourhoods and timestamps are stored, and everything stays on the device
+- **"Who has sat next to whom"** – a third tab in the plan history ranks the pairs that have shared a table, with the date they last did and the plans the evaluation rests on; individual plans can be excluded
+- **Backup reminder** – a notice when the last backup is more than 30 days old; it can be postponed or switched off for good
+- **Persistent browser storage** – creating the first class asks the browser to exempt the data from its automatic clean-up, and a warning appears when storage runs low
+
+### Improved
+
+- More compact work in the class list – a tidied-up class bar, a new menu for adding students, and space-saving controls for search, filter and sorting
+- Tablets in portrait now show the sidebar and the classroom at the same time; drag areas follow the input method instead of the window width
+- "Optimize" is now called "Refine" – the name describes better what the function does
+- The export remembers whether needs and connection lines are printed, and the PDFs have their own shortcuts (`Ctrl/Cmd+Shift+T` for the seating plan, `Ctrl/Cmd+Shift+C` for the seating circle)
+- Extended FAQ – how data can be lost, how to take it to a new device, how often a backup makes sense, and how the repetition avoidance works
+- Linguistically reworked texts throughout the app, more consistent terms and clearer hints
+- The offline notice shrinks to an icon after a moment
+- The traffic-light colors of the statistics display are stricter: green from 80 %, yellow from 50 %
+- Updated dependencies
+
+### Fixed
+
+- Escape now closes only the topmost dialog and no longer the view underneath
+- The grid setting takes effect in all views immediately
 
 ## [2.0.0] - 2026-09-03
 
