@@ -46,6 +46,35 @@ export const DEFAULT_ANNEALING_CONFIG: AnnealingConfig = {
 };
 
 /**
+ * Reports how far a refinement has progressed, as a fraction between 0 and 1.
+ * Called from inside the worker, never on the main thread.
+ */
+export type RefinementProgressReporter = (fraction: number) => void;
+
+/**
+ * How many temperature steps the cooling loop will take for a given config.
+ *
+ * `temp` is multiplied by `coolingRate` until it drops below `minTemp`, so the
+ * count follows from the logarithms rather than needing a dry run.
+ */
+export const countCoolingSteps = (config: AnnealingConfig): number => {
+  if (
+    config.initialTemp <= config.minTemp ||
+    config.coolingRate <= 0 ||
+    config.coolingRate >= 1
+  ) {
+    return 1;
+  }
+  return Math.max(
+    1,
+    Math.ceil(
+      Math.log(config.minTemp / config.initialTemp) /
+        Math.log(config.coolingRate),
+    ),
+  );
+};
+
+/**
  * Calculate acceptance probability for a potentially worse solution.
  *
  * Uses the Metropolis criterion:
@@ -214,10 +243,15 @@ export interface AnnealingResult {
 export const runSimulatedAnnealing = (
   ctx: AnnealingContext,
   config: AnnealingConfig = DEFAULT_ANNEALING_CONFIG,
+  onProgress?: RefinementProgressReporter,
 ): AnnealingResult => {
   const startTime = performance.now();
 
   let temp = config.initialTemp;
+  // The cooling schedule is deterministic, so the number of temperature steps
+  // is known up front — which is what makes a truthful percentage possible.
+  const totalCoolingSteps = countCoolingSteps(config);
+  let completedCoolingSteps = 0;
   let currentScore = calculateTotalScore(ctx);
   let bestArrangement = cloneArrangement(ctx.arrangement);
   let bestScore = currentScore;
@@ -284,6 +318,8 @@ export const runSimulatedAnnealing = (
 
     // Cool down
     temp *= config.coolingRate;
+    completedCoolingSteps++;
+    onProgress?.(Math.min(completedCoolingSteps / totalCoolingSteps, 1));
   }
 
   // Restore best arrangement to context

@@ -25,6 +25,10 @@ export const STORAGE_KEYS = {
     presentZoom: 'spg.present.zoom',
     photoConsentConfirmed: 'spg.photoConsentConfirmed',
     lastSeenVersion: 'spg.lastSeenVersion',
+    lastBackupAt: 'spg.lastBackupAt',
+    backupDataSince: 'spg.backupDataSince',
+    backupReminderSnoozedUntil: 'spg.backupReminderSnoozedUntil',
+    backupReminderDisabled: 'spg.backupReminderDisabled',
     mixSettings: 'spg.mixSettings',
     sidebarExpanded: 'spg.sidebarExpanded',
     sidebarActiveTab: 'spg.sidebarActiveTab',
@@ -35,6 +39,17 @@ export const STORAGE_KEYS = {
     // Mirrors the migration version held in IndexedDB so the boot path can skip
     // opening the database when no migration can possibly be pending.
     migrationVersion: 'spg.migrationVersion',
+    // Display options of the export page. They predate the `spg.` prefix; the
+    // literal values must stay as they are so existing preferences survive.
+    exportTableOrientation: 'export.tableOrientation',
+    exportCircleOrientation: 'export.circleOrientation',
+    exportNameDisplay: 'export.nameDisplay',
+    exportShowPhotos: 'export.showPhotos',
+    exportShowClassInfo: 'export.showClassInfo',
+    exportShowLegend: 'export.showLegend',
+    exportShowNeeds: 'export.showNeeds',
+    exportShowConnections: 'export.showConnections',
+    exportFlipView: 'export.flipView',
   },
   indexedDB: {
     students: 'spg.students',
@@ -83,6 +98,18 @@ export const LEGACY_FEATURE_VISIBILITY_KEYS = [
   'showPodium',
 ] as const;
 
+/**
+ * Export preferences that were replaced by the keys above:
+ * `export.showFullNames` (a boolean) became `export.nameDisplay` (a mode), and
+ * `export.pageOrientation` was split into a separate key per seating mode. Both
+ * are still read once to seed the replacement, and stay in the cleanup list so
+ * a full data wipe removes them from existing installations.
+ */
+export const LEGACY_EXPORT_KEYS = {
+  showFullNames: 'export.showFullNames',
+  pageOrientation: 'export.pageOrientation',
+} as const;
+
 // Type definitions
 export type LocalStorageKey = keyof typeof STORAGE_KEYS.localStorage;
 export type LocalStorageValue =
@@ -114,12 +141,27 @@ export const PROJECT_LOCAL_STORAGE_KEYS = [
   STORAGE_KEYS.localStorage.presentZoom,
   STORAGE_KEYS.localStorage.photoConsentConfirmed,
   STORAGE_KEYS.localStorage.lastSeenVersion,
+  STORAGE_KEYS.localStorage.lastBackupAt,
+  STORAGE_KEYS.localStorage.backupDataSince,
+  STORAGE_KEYS.localStorage.backupReminderSnoozedUntil,
+  STORAGE_KEYS.localStorage.backupReminderDisabled,
   STORAGE_KEYS.localStorage.mixSettings,
   STORAGE_KEYS.localStorage.sidebarExpanded,
   STORAGE_KEYS.localStorage.sidebarActiveTab,
   STORAGE_KEYS.localStorage.hasVisitedApp,
   STORAGE_KEYS.localStorage.pwaInstallDismissed,
   STORAGE_KEYS.localStorage.migrationVersion,
+  STORAGE_KEYS.localStorage.exportTableOrientation,
+  STORAGE_KEYS.localStorage.exportCircleOrientation,
+  STORAGE_KEYS.localStorage.exportNameDisplay,
+  STORAGE_KEYS.localStorage.exportShowPhotos,
+  STORAGE_KEYS.localStorage.exportShowClassInfo,
+  STORAGE_KEYS.localStorage.exportShowLegend,
+  STORAGE_KEYS.localStorage.exportShowNeeds,
+  STORAGE_KEYS.localStorage.exportShowConnections,
+  STORAGE_KEYS.localStorage.exportFlipView,
+  LEGACY_EXPORT_KEYS.showFullNames,
+  LEGACY_EXPORT_KEYS.pageOrientation,
 ] as const;
 
 export type ProjectLocalStorageKey =

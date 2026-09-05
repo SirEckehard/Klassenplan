@@ -46,6 +46,16 @@
       "play": "Resume automatic slideshow"
     }
   },
+  "generator": {
+    "schema": {
+      "name": "Klassenplan – Seating Chart Generator",
+      "featureAlgorithm": "Smart shuffling algorithm",
+      "featureCriteria": "Pedagogical criteria (concentration, restlessness, preferred partners)",
+      "featurePdfExport": "PDF export",
+      "featureCsvImport": "CSV import",
+      "featurePrivacy": "Privacy-friendly – all data stays local in the browser"
+    }
+  },
   "support": {
     "title": "Support Klassenplan",
     "description1": "Klassenplan is a free tool that I develop in my spare time. I originally created Klassenplan for my own needs and I'm happy if it helps you too and you enjoy using it.",
@@ -315,14 +325,35 @@
     },
     "backups": {
       "title": "Backups & Persistence",
-      "description": "How data is stored locally and what happens with backups.",
+      "description": "How data is stored locally, how backups work and how to move to a new device.",
       "where": {
         "q": "Where is my data stored?",
         "a": "All data is stored in the browser (IndexedDB for core data, localStorage for settings). There is no cloud, no account, and no server synchronization. Your data stays on your device and is not accessible from outside."
       },
+      "loss": {
+        "q": "Can my data simply disappear?",
+        "intro": "Yes, and that is the price of nothing ever leaving your device. Everything sits in your browser's storage, and browsers clear that out under certain conditions:",
+        "li1": "Safari deletes the data of sites you have not visited for seven days — a summer holiday is long enough.",
+        "li2": "“Clear browsing data”, “remove website data” or resetting the browser wipe it too.",
+        "li3": "In a private or incognito window it is gone as soon as you close the window.",
+        "outro": "Klassenplan asks the browser for persistent storage the first time you create a class, which lowers the risk considerably — but no browser guarantees it. A backup is the only copy that does not depend on any of this. It is safest kept off the machine, on a USB stick or in your school's cloud storage."
+      },
       "how": {
         "q": "How does the backup work?",
         "a": "The export creates a file encrypted with your password (at least 8 characters) containing all classes, students including their photos, seating plans, shuffle history, seating circle, classroom features, templates and settings. Without that password the file cannot be restored – so keep it safe."
+      },
+      "deviceChange": {
+        "q": "How do I move my classes to a new computer?",
+        "intro": "Through the backup file — there is no sync between devices, because there is no server.",
+        "li1": "On the old device, choose “Export backup” in the footer and set a password.",
+        "li2": "Get the file onto the new device, for example via USB stick, a cloud folder or an email to yourself.",
+        "li3": "On the new device, open Klassenplan and choose “Import backup” in the footer.",
+        "li4": "Pick the file, enter the password and confirm “Replace everything”.",
+        "outro": "Your classes, students including photos, seating plans and templates are then on the new device. The file works on any operating system and in any browser. Without the password it cannot be opened — not by us either."
+      },
+      "frequency": {
+        "q": "How often should I make a backup?",
+        "a": "Whenever you would lose work you could not redo in ten minutes — typically after setting up a class and at the end of a term. Klassenplan reminds you on its own once your last backup is more than 30 days old. You can postpone that reminder or switch it off for good via “Stop reminding me”."
       },
       "update": {
         "q": "What happens to my backup after a Klassenplan update?",

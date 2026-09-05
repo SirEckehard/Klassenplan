@@ -181,12 +181,16 @@
   },
   "mix": {
     "deleted": "Mix result deleted",
-    "noneAvailable": "No mix results available"
+    "noneAvailable": "No mix results available",
+    "cancelled": "Shuffle cancelled"
   },
   "data": {
     "deleted": "All data has been deleted",
     "deleteError": "Could not delete data. Use your browser's delete function.",
     "preferencesReset": "Your preferences have been reset because saved data was corrupted."
+  },
+  "storage": {
+    "quotaLow": "Browser storage is almost full. Create a backup and delete classes you no longer need."
   },
   "feature": {
     "notCopyable": "The board can't be copied.",

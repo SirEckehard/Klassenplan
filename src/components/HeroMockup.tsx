@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
+import { useDialogA11y } from '@/hooks/ui/useDialogA11y';
+import { useDialogLayer } from '@/hooks/ui/useDialogLayer';
 import {
   CaretLeftIcon,
   CaretRightIcon,
@@ -29,8 +31,6 @@ const SLIDES = [
   },
   { slug: '06_export', labelKey: 'startPage.previewSlides.export' },
 ];
-
-const FOCUSABLE_SELECTORS = 'button:not([disabled]), a[href]';
 
 function useIsDark() {
   const [dark, setDark] = useState(() =>
@@ -77,10 +77,12 @@ export default function HeroMockup() {
   const [lightbox, setLightbox] = useState(false);
   const isDark = useIsDark();
   const prefersReducedMotion = usePrefersReducedMotion();
-  const lightboxRef = useRef<HTMLDivElement>(null);
-  // Element that had focus before the lightbox opened; focus returns to it on
-  // close (WCAG 2.4.3).
-  const restoreFocusRef = useRef<HTMLElement | null>(null);
+  // Focus trap, focus restore (WCAG 2.4.3) and scroll lock come from the shared
+  // hook. The hand-rolled version this replaces released the scroll lock only
+  // in its close handler, so leaving the page with the lightbox open — the
+  // browser's back button does exactly that — left the body scroll-locked.
+  const lightboxRef = useDialogA11y<HTMLDivElement>({ open: lightbox });
+  useDialogLayer(lightbox);
   const { t, i18n } = useTranslation('pages');
   const lang = i18n.language.startsWith('de') ? 'de' : 'en';
 
@@ -100,50 +102,17 @@ export default function HeroMockup() {
     setTick((t) => t + 1);
   };
 
-  const openLightbox = () => {
-    restoreFocusRef.current =
-      document.activeElement instanceof HTMLElement
-        ? document.activeElement
-        : null;
-    setLightbox(true);
-    document.body.style.overflow = 'hidden';
-  };
+  const openLightbox = () => setLightbox(true);
+  const closeLightbox = useCallback(() => setLightbox(false), []);
 
-  const closeLightbox = useCallback(() => {
-    setLightbox(false);
-    document.body.style.overflow = '';
-    const restoreTarget = restoreFocusRef.current;
-    restoreFocusRef.current = null;
-    if (restoreTarget && document.contains(restoreTarget)) {
-      restoreTarget.focus();
-    }
-  }, []);
-
+  // Escape and the arrow keys stay here: `useDialogA11y` leaves dismissal to
+  // the caller because not every dialog in this app can be dismissed.
   useEffect(() => {
     if (!lightbox) return;
-    lightboxRef.current?.focus();
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') closeLightbox();
       if (e.key === 'ArrowLeft') go(current - 1);
       if (e.key === 'ArrowRight') go(current + 1);
-      // Trap focus inside the lightbox dialog
-      if (e.key === 'Tab' && lightboxRef.current) {
-        const focusable = Array.from(
-          lightboxRef.current.querySelectorAll<HTMLElement>(
-            FOCUSABLE_SELECTORS,
-          ),
-        );
-        if (focusable.length === 0) return;
-        const first = focusable[0];
-        const last = focusable[focusable.length - 1];
-        if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault();
-          last.focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault();
-          first.focus();
-        }
-      }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);

@@ -21,6 +21,8 @@ import SmartSidebar from '@/components/ui/panels/SmartSidebar';
 import SmartMixControls from '@/components/ui/controls/SmartMixControls';
 import MixCriteriaIcons from '@/components/ui/icons/MixCriteriaIcons';
 import SeatingCanvasToolbar from '@/components/SeatingPlanGenerator/canvas/SeatingCanvasToolbar';
+import type { MixStatus } from '@/hooks/useSeatingMixHandler';
+import { useCanvasPreferences } from '@/contexts/seatingPlan/CanvasPreferencesContext';
 import SeatingModeToggle from '@/components/SeatingPlanGenerator/SeatingModeToggle';
 import SeatingPlanCanvas from '@/components/SeatingPlanGenerator/SeatingPlanCanvas';
 import SeatingStatisticsBadge from '@/components/ui/feedback/SeatingStatisticsBadge';
@@ -65,7 +67,7 @@ import {
 import { useIsDarkMode } from '@/hooks/useIsDarkMode';
 import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';
 import { useFirstVisit } from '@/hooks/ui/useFirstVisit';
-import { useIsMobile } from '@/hooks/ui/useIsMobile';
+import { useIsPhone } from '@/hooks/ui/useLayoutMode';
 import { buildCriterionHighlightEntries } from '@/utils/algorithm/criterionHighlights';
 import type {
   DragPreview,
@@ -174,14 +176,14 @@ type Props = {
   setMixSettings: React.Dispatch<React.SetStateAction<MixSettings>>;
   handleMix: () => Promise<void>;
   isMixing: boolean;
+  mixStatus: MixStatus | null;
+  cancelMix: () => void;
   autoMixing?: boolean;
   autoMixError?: string | null;
   featureVisibility: FeatureVisibilityFlags;
   setFeatureVisible: (type: ClassroomFeatureType, visible: boolean) => void;
   canvasWidth: number;
   classroomHeight: number;
-  showGrid: boolean;
-  setShowGrid: React.Dispatch<React.SetStateAction<boolean>>;
   photoDisplayMode: PhotoDisplayMode;
   setPhotoDisplayMode: React.Dispatch<React.SetStateAction<PhotoDisplayMode>>;
   nameDisplay: NameDisplayMode;
@@ -245,14 +247,14 @@ export default function SeatingPlanEditorView({
   setMixSettings,
   handleMix,
   isMixing,
+  mixStatus,
+  cancelMix,
   autoMixing = false,
   autoMixError = null,
   featureVisibility,
   setFeatureVisible,
   canvasWidth,
   classroomHeight,
-  showGrid,
-  setShowGrid,
   photoDisplayMode,
   setPhotoDisplayMode,
   nameDisplay,
@@ -303,9 +305,10 @@ export default function SeatingPlanEditorView({
 }: Props) {
   const isDark = useIsDarkMode();
   const { t } = useTranslation('generator');
+  const { showGrid, setShowGrid } = useCanvasPreferences();
   const navigate = useLocalizedNavigate();
   const isFirstVisit = useFirstVisit();
-  const isMobile = useIsMobile();
+  const isPhone = useIsPhone();
   const backgroundColor = isDark ? '#1f2937' : '#f9fafb';
   const gridColor = isDark ? '#374151' : '#e5e7eb';
 
@@ -885,7 +888,12 @@ export default function SeatingPlanEditorView({
               style={{ width: '100%', maxWidth: '100vw' }}
             >
               {/* Canvas overlay row: undo/redo, mix, optimise */}
-              <SeatingCanvasToolbar onMix={handleMix} isMixing={mixingLocked} />
+              <SeatingCanvasToolbar
+                onMix={handleMix}
+                isMixing={mixingLocked}
+                mixStatus={mixStatus}
+                onCancelMix={cancelMix}
+              />
 
               {hasStatistics && (onOpenStatistics || onCloseStatistics) && (
                 <button
@@ -1017,7 +1025,7 @@ export default function SeatingPlanEditorView({
                 )}
             </div>
 
-            {isMobile && (
+            {isPhone && (
               <div className="mt-4 sm:hidden">
                 <MixCriteriaIcons
                   settings={settings}

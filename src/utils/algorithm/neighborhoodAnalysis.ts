@@ -233,31 +233,6 @@ function hasSpecialNeeds(student: Student): boolean {
 }
 
 /**
- * Finds the best neighbors for a student based on current table layout
- */
-export function getBestNeighborsForStudent(
-  studentId: string,
-  analysis: NeighborhoodAnalysis,
-): { studentId: string; strength: number }[] {
-  const neighborIds = analysis.studentNeighborMap.get(studentId) || [];
-
-  return neighborIds
-    .map((neighborId) => {
-      const pair = analysis.neighborhoodPairs.find(
-        (p) =>
-          (p.student1Id === studentId && p.student2Id === neighborId) ||
-          (p.student1Id === neighborId && p.student2Id === studentId),
-      );
-
-      return {
-        studentId: neighborId,
-        strength: pair?.strength || 0.5,
-      };
-    })
-    .sort((a, b) => b.strength - a.strength);
-}
-
-/**
  * Calculates how many neighborhoods would be preserved with a given circle arrangement
  */
 export function calculatePreservationRate(
@@ -309,26 +284,6 @@ export function updateNeighborhoodPreservation(
     ...analysis,
     neighborhoodPairs: updatedPairs,
   };
-}
-
-/**
- * Generates a human-readable summary of neighborhood analysis
- */
-export function generateNeighborhoodSummary(
-  analysis: NeighborhoodAnalysis,
-): string {
-  const totalPairs = analysis.neighborhoodPairs.length;
-  const avgNeighbors = analysis.averageNeighbors.toFixed(1);
-  const isolated = analysis.isolatedStudents.length;
-
-  let summary = `${totalPairs} Nachbarschaftspaare gefunden. `;
-  summary += `Durchschnittlich ${avgNeighbors} Nachbarn pro Schüler.`;
-
-  if (isolated > 0) {
-    summary += ` ${isolated} Schüler ohne direkte Nachbarn.`;
-  }
-
-  return summary;
 }
 
 /**

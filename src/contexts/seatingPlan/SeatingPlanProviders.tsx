@@ -9,6 +9,7 @@ import { StudentManagementProvider } from '@/contexts/seatingPlan/StudentManagem
 import { ClassroomLayoutProvider } from '@/contexts/seatingPlan/ClassroomLayoutContext';
 import { SeatingAlgorithmProvider } from '@/contexts/seatingPlan/SeatingAlgorithmContext';
 import { ClassManagementProvider } from '@/contexts/seatingPlan/ClassManagementContext';
+import { CanvasPreferencesProvider } from '@/contexts/seatingPlan/CanvasPreferencesContext';
 
 /**
  * Hidden file input for backup import.
@@ -39,8 +40,10 @@ export function SeatingPlanGeneratorProvider({
         <StudentManagementProvider>
           <ClassroomLayoutProvider>
             <SeatingAlgorithmProvider>
-              {children}
-              <BackupFileInput />
+              <CanvasPreferencesProvider>
+                {children}
+                <BackupFileInput />
+              </CanvasPreferencesProvider>
             </SeatingAlgorithmProvider>
           </ClassroomLayoutProvider>
         </StudentManagementProvider>

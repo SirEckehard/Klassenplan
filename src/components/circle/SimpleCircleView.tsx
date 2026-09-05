@@ -21,7 +21,8 @@ import {
 } from '@/utils/ui/studentAppearance';
 import { computeTokenPhotoLayout } from '@/utils/ui/studentTokenLayout';
 import { useCircleDragDrop } from '@/hooks/circle/useCircleDragDrop';
-import { useIsMobile } from '@/hooks/ui/useIsMobile';
+import { useLayoutMode } from '@/hooks/ui/useLayoutMode';
+import { useIsCoarsePointer } from '@/hooks/ui/useCoarsePointer';
 import { useStudentPhotoUrls } from '@/hooks/student/useStudentPhoto';
 
 // Connection display modes
@@ -66,7 +67,8 @@ function SimpleCircleView({
   nameDisplay,
 }: SimpleCircleViewProps) {
   const { t } = useTranslation('generator');
-  const isMobile = useIsMobile();
+  const layoutMode = useLayoutMode();
+  const isCoarsePointer = useIsCoarsePointer();
   // Connection display mode - with localStorage persistence
   const [localConnectionMode, setLocalConnectionMode] =
     useState<ConnectionDisplayMode>(() => {
@@ -131,7 +133,10 @@ function SimpleCircleView({
 
   const seatRadius = 30;
   const seatDiameter = seatRadius * 2;
-  const badgeBaseIconSize = isMobile ? 9 : 10;
+  // A fit constant, not a touch target: the badge rows have to stay inside the
+  // seat wherever the whole circle is scaled down. Keyed on the layout tier the
+  // width used to decide, so nothing about the drawing changes here.
+  const badgeBaseIconSize = layoutMode === 'desktop' ? 10 : 9;
   const badgeMinNameSpacing = 4;
   const badgeMinBottomSpacing = 4;
   // Allow 4px more vertical space for the badge so 3 rows fit in the circle.
@@ -502,11 +507,13 @@ function SimpleCircleView({
                         : 'transform 140ms ease, opacity 160ms ease',
                     }}
                   >
-                    {/* Draggable area - larger on mobile for better touch interaction */}
+                    {/* Drag target: sized for the pointer, not the viewport. A
+                        tablet in landscape is 1180px wide and used to get the
+                        mouse-sized circle although every drag is a fingertip. */}
                     <circle
                       cx={slot.x}
                       cy={slot.y}
-                      r={isMobile ? '48' : '35'}
+                      r={isCoarsePointer ? '48' : '35'}
                       fill="transparent"
                       onPointerDown={(e) =>
                         handlePointerDown(

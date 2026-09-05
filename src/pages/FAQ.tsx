@@ -311,8 +311,41 @@ export default function FAQ() {
             answer: <p>{t('faq.backups.where.a')}</p>,
           },
           {
+            question: t('faq.backups.loss.q'),
+            answer: (
+              <div className="space-y-2">
+                <p>{t('faq.backups.loss.intro')}</p>
+                <ul className="list-disc pl-5 space-y-1 text-gray-700 dark:text-gray-300">
+                  <li>{t('faq.backups.loss.li1')}</li>
+                  <li>{t('faq.backups.loss.li2')}</li>
+                  <li>{t('faq.backups.loss.li3')}</li>
+                </ul>
+                <p>{t('faq.backups.loss.outro')}</p>
+              </div>
+            ),
+          },
+          {
             question: t('faq.backups.how.q'),
             answer: <p>{t('faq.backups.how.a')}</p>,
+          },
+          {
+            question: t('faq.backups.deviceChange.q'),
+            answer: (
+              <div className="space-y-2">
+                <p>{t('faq.backups.deviceChange.intro')}</p>
+                <ol className="list-decimal pl-5 space-y-1 text-gray-700 dark:text-gray-300">
+                  <li>{t('faq.backups.deviceChange.li1')}</li>
+                  <li>{t('faq.backups.deviceChange.li2')}</li>
+                  <li>{t('faq.backups.deviceChange.li3')}</li>
+                  <li>{t('faq.backups.deviceChange.li4')}</li>
+                </ol>
+                <p>{t('faq.backups.deviceChange.outro')}</p>
+              </div>
+            ),
+          },
+          {
+            question: t('faq.backups.frequency.q'),
+            answer: <p>{t('faq.backups.frequency.a')}</p>,
           },
           {
             question: t('faq.backups.restore.q'),

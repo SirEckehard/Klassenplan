@@ -18,6 +18,16 @@ jobs:
       - run: npm run lint # Run linting
       - run: npm run typecheck:all # Type-check production and test sources
       - run: npm run check:i18n # DE/EN key parity + orphaned inline defaults
+      - run: npm run check:unused # Ratchet: unused exports must not grow
       - run: npm test # Execute tests
+      - run: npm run test:e2e # Playwright: smoke specs + the wizard core flow
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
       - run: npm run build:static # Build, prerender all routes, verify the output (incl. bundle budgets)
 

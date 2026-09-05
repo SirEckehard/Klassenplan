@@ -3,6 +3,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   acceptanceProbability,
+  countCoolingSteps,
   runSimulatedAnnealing,
   DEFAULT_ANNEALING_CONFIG,
   type AnnealingContext,
@@ -11,6 +12,30 @@ import {
 import { createMockStudent, createMockClassroomScene } from '@/__tests__/utils';
 
 describe('simulatedAnnealing', () => {
+  const createMockContext = (): AnnealingContext => {
+    const scene = createMockClassroomScene(4, { totalStudents: 4 });
+    const students = [
+      createMockStudent({ id: '1', name: 'Alice' }),
+      createMockStudent({ id: '2', name: 'Bob' }),
+      createMockStudent({ id: '3', name: 'Charlie' }),
+      createMockStudent({ id: '4', name: 'Diana' }),
+    ];
+
+    const arrangement = scene.tables.map((_, idx) => [students[idx] ?? null]);
+
+    return {
+      arrangement,
+      seatCounts: scene.tables.map((t) => t.seatCount),
+      tableCount: scene.tables.length,
+      targets: [1, 1, 1, 1],
+      settings: {},
+      scene,
+      lockedPositions: {},
+      scoreTable: () => Math.random() * 10, // Random scores for testing
+      isLocked: () => false,
+    };
+  };
+
   describe('acceptanceProbability', () => {
     it('always accepts better (lower) scores', () => {
       expect(acceptanceProbability(10, 5, 1.0)).toBe(1.0);
@@ -43,30 +68,6 @@ describe('simulatedAnnealing', () => {
   });
 
   describe('runSimulatedAnnealing', () => {
-    const createMockContext = (): AnnealingContext => {
-      const scene = createMockClassroomScene(4, { totalStudents: 4 });
-      const students = [
-        createMockStudent({ id: '1', name: 'Alice' }),
-        createMockStudent({ id: '2', name: 'Bob' }),
-        createMockStudent({ id: '3', name: 'Charlie' }),
-        createMockStudent({ id: '4', name: 'Diana' }),
-      ];
-
-      const arrangement = scene.tables.map((_, idx) => [students[idx] ?? null]);
-
-      return {
-        arrangement,
-        seatCounts: scene.tables.map((t) => t.seatCount),
-        tableCount: scene.tables.length,
-        targets: [1, 1, 1, 1],
-        settings: {},
-        scene,
-        lockedPositions: {},
-        scoreTable: () => Math.random() * 10, // Random scores for testing
-        isLocked: () => false,
-      };
-    };
-
     it('returns a valid arrangement', () => {
       const ctx = createMockContext();
       const result = runSimulatedAnnealing(ctx);
@@ -145,6 +146,61 @@ describe('simulatedAnnealing', () => {
 
       expect(result).toBeDefined();
       expect(result.length).toBe(scene.tables.length);
+    });
+  });
+
+  describe('progress reporting', () => {
+    it('counts the cooling steps the schedule will take', () => {
+      // temp *= 0.9 from 1.0 stops below 0.5 after ceil(log(0.5)/log(0.9)) = 7.
+      expect(
+        countCoolingSteps({
+          initialTemp: 1,
+          coolingRate: 0.9,
+          minTemp: 0.5,
+          iterationsPerTemp: 1,
+        }),
+      ).toBe(7);
+    });
+
+    it('never reports zero steps for a degenerate config', () => {
+      // A config that cannot cool would otherwise divide the progress by zero.
+      expect(
+        countCoolingSteps({
+          initialTemp: 0.01,
+          coolingRate: 0.9,
+          minTemp: 1,
+          iterationsPerTemp: 1,
+        }),
+      ).toBe(1);
+    });
+
+    it('advances monotonically and finishes at 1', () => {
+      const ctx = createMockContext();
+      const config: AnnealingConfig = {
+        initialTemp: 2,
+        coolingRate: 0.8,
+        minTemp: 0.5,
+        iterationsPerTemp: 2,
+      };
+      const fractions: number[] = [];
+
+      runSimulatedAnnealing(ctx, config, (fraction) =>
+        fractions.push(fraction),
+      );
+
+      expect(fractions.length).toBe(countCoolingSteps(config));
+      expect(fractions).toEqual([...fractions].sort((a, b) => a - b));
+      expect(fractions.at(-1)).toBe(1);
+      fractions.forEach((fraction) => {
+        expect(fraction).toBeGreaterThan(0);
+        expect(fraction).toBeLessThanOrEqual(1);
+      });
+    });
+
+    it('runs unchanged without a reporter', () => {
+      const ctx = createMockContext();
+
+      expect(() => runSimulatedAnnealing(ctx)).not.toThrow();
     });
   });
 });

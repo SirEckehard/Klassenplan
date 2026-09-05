@@ -13,13 +13,13 @@ import i18next, { i18nReady, ensureEnglishLoaded } from '@/i18n';
 import RootErrorBoundary from '@/components/RootErrorBoundary';
 import { ToastProvider } from '@/components/ui/feedback/ToastProvider';
 import { SeatingPlanGeneratorProvider } from '@/contexts/SeatingPlanContext';
-import { PerformanceMonitoringProvider } from '@/hooks/usePerformanceMonitoring';
 import { LOCAL_STORAGE_KEYS } from '@/utils/data/storageKeys';
 import {
   preloadRoute,
   routeNameForPath,
 } from '@/utils/performance/routePreloader';
 import { runMigration } from '@/utils/migration/migrationService';
+import { scheduleIdleTask } from '@/utils/performance/idleTasks';
 // Imported from the logger module directly rather than the '@/utils' barrel:
 // the barrel re-exports the algorithm, schema and design-token modules, which
 // would anchor them all in the entry chunk and delay the first paint.
@@ -32,7 +32,22 @@ if (storedTheme === 'dark') {
   document.documentElement.classList.add('dark');
 }
 
-// Run migration and initialize performance monitoring before app startup
+// Registers the Core Web Vitals listeners once the app has rendered.
+//
+// Deferred and dynamically imported so `web-vitals` neither joins the entry
+// chunk nor competes with the first paint. The listeners use buffered
+// PerformanceObservers, so metrics from before this point are still reported.
+function startWebVitals(): void {
+  scheduleIdleTask(() => {
+    import('@/utils/performance/webVitals')
+      .then(({ initializeWebVitals }) => initializeWebVitals())
+      .catch((error: unknown) => {
+        logWarn('Failed to load Web Vitals', { error }, 'index');
+      });
+  });
+}
+
+// Run migration and start the app
 async function initializeApp() {
   const { pathname } = window.location;
 
@@ -102,17 +117,17 @@ async function initializeApp() {
         <BrowserRouter>
           <RootErrorBoundary>
             <SeatingPlanGeneratorProvider>
-              <PerformanceMonitoringProvider>
-                <ToastProvider>
-                  <App />
-                </ToastProvider>
-              </PerformanceMonitoringProvider>
+              <ToastProvider>
+                <App />
+              </ToastProvider>
             </SeatingPlanGeneratorProvider>
           </RootErrorBoundary>
         </BrowserRouter>
       </IconContext.Provider>
     </React.StrictMode>,
   );
+
+  startWebVitals();
 }
 
 // Initialize the app

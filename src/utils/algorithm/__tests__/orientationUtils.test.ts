@@ -1,10 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import { describe, it, expect } from 'vitest';
-import {
-  determineFrontDirection,
-  calculateFrontPositionX,
-} from '../orientationUtils';
+import { determineFrontDirection } from '../orientationUtils';
 import type { ClassroomScene, ClassroomFeature } from '@/types';
 import { CLASSROOM_WIDTH, CLASSROOM_HEIGHT } from '@/utils';
 
@@ -248,43 +245,5 @@ describe('determineFrontDirection', () => {
 
     expect(result.frontDirection).toBe('left');
     expect(result.frontIsHighX).toBe(false);
-  });
-});
-
-describe('calculateFrontPositionX', () => {
-  const minX = 0;
-  const maxX = 900;
-
-  describe('when frontIsHighX is true (default - right = front)', () => {
-    it('returns 1 for position at maxX (front)', () => {
-      expect(calculateFrontPositionX(900, minX, maxX, true)).toBeCloseTo(1);
-    });
-
-    it('returns 0 for position at minX (back)', () => {
-      expect(calculateFrontPositionX(0, minX, maxX, true)).toBeCloseTo(0);
-    });
-
-    it('returns 0.5 for position in the middle', () => {
-      expect(calculateFrontPositionX(450, minX, maxX, true)).toBeCloseTo(0.5);
-    });
-  });
-
-  describe('when frontIsHighX is false (left = front)', () => {
-    it('returns 1 for position at minX (front)', () => {
-      expect(calculateFrontPositionX(0, minX, maxX, false)).toBeCloseTo(1);
-    });
-
-    it('returns 0 for position at maxX (back)', () => {
-      expect(calculateFrontPositionX(900, minX, maxX, false)).toBeCloseTo(0);
-    });
-
-    it('returns 0.5 for position in the middle', () => {
-      expect(calculateFrontPositionX(450, minX, maxX, false)).toBeCloseTo(0.5);
-    });
-  });
-
-  it('returns 0.5 when minX equals maxX (avoid division by zero)', () => {
-    expect(calculateFrontPositionX(100, 100, 100, true)).toBeCloseTo(0.5);
-    expect(calculateFrontPositionX(100, 100, 100, false)).toBeCloseTo(0.5);
   });
 });

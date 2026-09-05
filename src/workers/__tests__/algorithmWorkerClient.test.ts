@@ -224,6 +224,71 @@ describe('cancellation and timeouts', () => {
     expect(operationMocks.executeAlgorithmOperation).not.toHaveBeenCalled();
   });
 
+  it('still rejects an abort that arrives after a progress update', async () => {
+    const { algorithmWorkerClient } = await loadClient();
+    const controller = new AbortController();
+
+    const pending = algorithmWorkerClient.callOperation(
+      'mix:refine',
+      { ...mixPayload, currentSeating: [], options: {}, start: null },
+      { signal: controller.signal },
+    );
+    await flush();
+
+    const worker = FakeWorker.instances[0]!;
+    // Refinement reports progress for the whole run, so the cancel button is
+    // only ever pressed *after* the first update. The listener has to survive
+    // it — this used to be torn down on the first progress message, leaving
+    // "Abbrechen" silently inert.
+    worker.emit('message', {
+      requestId: worker.lastRequestId,
+      operation: 'mix:refine',
+      status: 'progress',
+      progress: { progress: 0.4, stage: 'arranging' },
+    });
+
+    controller.abort();
+
+    await expect(pending).rejects.toMatchObject({ name: 'AbortError' });
+    expect(operationMocks.executeAlgorithmOperation).not.toHaveBeenCalled();
+  });
+
+  it('restarts the silence budget on every progress update', async () => {
+    vi.useFakeTimers();
+    const { algorithmWorkerClient, AlgorithmWorkerTimeoutError } =
+      await loadClient();
+
+    const pending = algorithmWorkerClient.callOperation(
+      'mix:refine',
+      { ...mixPayload, currentSeating: [], options: {}, start: null },
+      { timeoutMs: 50 },
+    );
+    const rejection = expect(pending).rejects.toBeInstanceOf(
+      AlgorithmWorkerTimeoutError,
+    );
+
+    await vi.advanceTimersByTimeAsync(0);
+    const worker = FakeWorker.instances[0]!;
+
+    // A long anneal that keeps reporting is healthy, however long it runs: the
+    // budget measures silence, not total runtime.
+    for (let elapsed = 0; elapsed < 200; elapsed += 40) {
+      await vi.advanceTimersByTimeAsync(40);
+      worker.emit('message', {
+        requestId: worker.lastRequestId,
+        operation: 'mix:refine',
+        status: 'progress',
+        progress: { progress: 0.5, stage: 'arranging' },
+      });
+    }
+    expect(worker.terminated).toBe(false);
+
+    // Once it goes quiet, the budget runs out as before.
+    await vi.advanceTimersByTimeAsync(60);
+    await rejection;
+    expect(worker.terminated).toBe(true);
+  });
+
   it('rejects a timed-out request and drops the stuck worker', async () => {
     vi.useFakeTimers();
     const { algorithmWorkerClient, AlgorithmWorkerTimeoutError } =

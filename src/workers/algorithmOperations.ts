@@ -18,6 +18,28 @@ export type ProgressReporter = (
 
 const noopProgress: ProgressReporter = () => {};
 
+/** Smallest advance that is worth a message across the worker boundary. */
+const PROGRESS_REPORT_STEP = 0.02;
+
+/**
+ * Wrap a reporter so it only fires on a meaningful advance.
+ *
+ * Simulated Annealing cools in a couple of hundred steps; posting every one of
+ * them would put more traffic on the message channel than the UI can use.
+ */
+const throttleFraction = (
+  report: (fraction: number) => void,
+): ((fraction: number) => void) => {
+  let lastReported = 0;
+  return (fraction) => {
+    if (fraction < 1 && fraction - lastReported < PROGRESS_REPORT_STEP) {
+      return;
+    }
+    lastReported = fraction;
+    report(fraction);
+  };
+};
+
 /**
  * Refinement defaults applied when the caller does not specify otherwise.
  *
@@ -59,6 +81,7 @@ export async function executeAlgorithmOperation<
 
   switch (operation) {
     case 'mix:generate': {
+      reportProgress(0.05, 'initializing');
       const { generateSeatingPlan } = await loadSeatingAlgorithmModule();
       const {
         students,
@@ -70,6 +93,9 @@ export async function executeAlgorithmOperation<
         lastSeating,
       } = payload as AlgorithmWorkerRequestMap['mix:generate']['payload'];
 
+      // Construction is a single greedy pass with no inner loop to sample, so
+      // this stays a stage marker rather than a fabricated percentage.
+      reportProgress(0.3, 'arranging');
       const seating = generateSeatingPlan(
         students,
         seatingHistory,
@@ -79,10 +105,12 @@ export async function executeAlgorithmOperation<
         classroomScene,
         lastSeating ?? undefined,
       );
+      reportProgress(1, 'arranging');
       return { seating } as Result;
     }
 
     case 'mix:refine': {
+      reportProgress(0.05, 'initializing');
       const { refineSeatingLocal } = await loadSeatingAlgorithmModule();
       const {
         students,
@@ -104,9 +132,18 @@ export async function executeAlgorithmOperation<
         currentSeating,
         mixSettings,
         classroomScene,
-        { ...DEFAULT_REFINE_OPTIONS, ...options },
+        {
+          ...DEFAULT_REFINE_OPTIONS,
+          ...options,
+          // Injected here, not carried in the payload: a callback cannot be
+          // structured-cloned into the worker.
+          onProgress: throttleFraction((fraction) =>
+            reportProgress(fraction, 'arranging'),
+          ),
+        },
         start ?? undefined,
       );
+      reportProgress(1, 'arranging');
       return { seating } as Result;
     }
 

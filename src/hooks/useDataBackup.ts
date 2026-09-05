@@ -6,6 +6,7 @@ import {
   promptBackupRestoreMode,
 } from '@/services/ui/backupDialogs';
 import { showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
+import { recordBackupCreated } from '@/utils/data/backupReminder';
 import {
   BACKUP_ERROR_MESSAGES,
   BACKUP_LIMITS,
@@ -172,6 +173,7 @@ export default function useDataBackup({
       // Confirm only once the file was actually written — the password prompt
       // and the save dialog both come after the click.
       if (saved) {
+        recordBackupCreated();
         showToast('success', 'generator:storage.backupExported');
       }
     } catch (e) {

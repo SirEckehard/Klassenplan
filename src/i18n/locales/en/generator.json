@@ -195,7 +195,26 @@
       "moveFailed": "Move not possible."
     }
   },
+  "mixStage": {
+    "initializing": "Preparing the shuffle...",
+    "analyzing": "Analysing the seating plan...",
+    "arranging": "Arranging students...",
+    "done": "Seating plan ready"
+  },
+  "backupReminder": {
+    "eyebrow": "Data backup",
+    "aged_one": "Your last backup is {{count}} day old.",
+    "aged_other": "Your last backup is {{count}} days old.",
+    "never": "You have not created a backup yet.",
+    "why": "Klassenplan stores everything in this browser only. Clearing the browser storage, switching devices or not visiting the site for a few weeks can take the data with it. A backup is the only copy.",
+    "create": "Create backup",
+    "later": "Remind me later",
+    "neverAgain": "Stop reminding me",
+    "faqLink": "Moving your data to a new device"
+  },
   "mixButton": {
+    "progressLabel": "Progress",
+    "cancelTitle": "Cancel the shuffle",
     "label": "Shuffle",
     "title": "Shuffle seating plan",
     "loadingTitle": "Shuffling in progress...",
@@ -436,6 +455,7 @@
     "viewFromFrontTitle": "Default: the plan is read from the front, facing the class.",
     "viewFromBack": "From the back",
     "viewFromBackTitle": "For a desk at the back of the room: the room rotates by 180° while names and photos stay readable.",
+    "printDocumentTitle": "Klassenplan Print",
     "printShortcut": "Print (Ctrl/Cmd+P)",
     "tablePdfShortcut": "Export PDF (Ctrl/Cmd+E)",
     "circlePdfShortcut": "Export circle PDF",

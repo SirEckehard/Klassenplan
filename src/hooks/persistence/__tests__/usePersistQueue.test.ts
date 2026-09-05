@@ -6,7 +6,7 @@
  * discards jobs belonging to a class the user has already switched away from.
  * That last rule is what keeps one class's students from landing in another.
  */
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useRef } from 'react';
 import type { MutableRefObject } from 'react';
@@ -15,10 +15,16 @@ import type { PersistErrorHandlingReturn } from '../usePersistErrorHandling';
 import type { ISeatingPlanRepository } from '@/repositories';
 import { createMockStudent } from '@/__tests__/utils';
 
-// Run queued idle work immediately so a test can await the flush.
+// Queued idle work runs immediately so a test can await the flush. The page
+// lifecycle tests flip `immediate` off, because their whole point is a queue
+// whose idle callback never arrives.
+const idleTasks = vi.hoisted(() => ({ immediate: true }));
+
 vi.mock('@/utils/performance/idleTasks', () => ({
   scheduleIdleTask: (task: () => void) => {
-    task();
+    if (idleTasks.immediate) {
+      task();
+    }
   },
 }));
 
@@ -69,6 +75,7 @@ const renderQueue = (activeClassId: string | null = 'class-1') => {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  idleTasks.immediate = true;
 });
 
 describe('queuePersist', () => {
@@ -227,6 +234,103 @@ describe('error handling', () => {
     expect(harness.errorHandling.refs.pendingPersistErrorRef.current).toBe(
       true,
     );
+  });
+});
+
+describe('page lifecycle flush', () => {
+  const setVisibilityState = (state: DocumentVisibilityState) => {
+    Object.defineProperty(document, 'visibilityState', {
+      configurable: true,
+      get: () => state,
+    });
+  };
+
+  afterEach(() => {
+    Reflect.deleteProperty(document, 'visibilityState');
+  });
+
+  it('writes a pending job when the tab is hidden', async () => {
+    idleTasks.immediate = false;
+    const { result, harness } = renderQueue();
+    const students = [createMockStudent({ name: 'Ada' })];
+
+    act(() => {
+      result.current.queuePersist('students', students);
+    });
+    // The idle callback never fired, so nothing has reached the database yet —
+    // this is the window in which closing the tab used to lose the edit.
+    expect(harness.repository.saveClassSnapshot).not.toHaveBeenCalled();
+
+    await act(async () => {
+      setVisibilityState('hidden');
+      document.dispatchEvent(new Event('visibilitychange'));
+    });
+
+    expect(harness.repository.saveClassSnapshot).toHaveBeenCalledWith(
+      'class-1',
+      { students },
+    );
+  });
+
+  it('writes a pending job on pagehide', async () => {
+    idleTasks.immediate = false;
+    const { result, harness } = renderQueue();
+    const students = [createMockStudent({ name: 'Grace' })];
+
+    act(() => {
+      result.current.queuePersist('students', students);
+    });
+
+    await act(async () => {
+      window.dispatchEvent(new Event('pagehide'));
+    });
+
+    expect(harness.repository.saveClassSnapshot).toHaveBeenCalledWith(
+      'class-1',
+      { students },
+    );
+  });
+
+  it('ignores a tab that merely becomes visible again', async () => {
+    idleTasks.immediate = false;
+    const { result, harness } = renderQueue();
+
+    act(() => {
+      result.current.queuePersist('students', []);
+    });
+
+    await act(async () => {
+      setVisibilityState('visible');
+      document.dispatchEvent(new Event('visibilitychange'));
+    });
+
+    expect(harness.repository.saveClassSnapshot).not.toHaveBeenCalled();
+  });
+
+  it('does not write when the queue is empty', async () => {
+    const { harness } = renderQueue();
+
+    await act(async () => {
+      window.dispatchEvent(new Event('pagehide'));
+    });
+
+    expect(harness.repository.saveClassSnapshot).not.toHaveBeenCalled();
+  });
+
+  it('stops listening once the hook unmounts', async () => {
+    idleTasks.immediate = false;
+    const { result, harness, unmount } = renderQueue();
+
+    act(() => {
+      result.current.queuePersist('students', []);
+    });
+    unmount();
+
+    await act(async () => {
+      window.dispatchEvent(new Event('pagehide'));
+    });
+
+    expect(harness.repository.saveClassSnapshot).not.toHaveBeenCalled();
   });
 });
 

@@ -21,6 +21,8 @@ import type {
   Student,
 } from '@/types';
 import type { CircleLayout } from '@/types/Circle';
+import { logError } from '@/utils';
+import { ensureStoragePersistence } from '@/utils/data';
 import type { PersistQueueReturn } from './usePersistQueue';
 import type { PersistKey, PersistPayloadMap } from './types';
 
@@ -110,6 +112,21 @@ export function useClassDataPersistence(
     // to prevent old class data from being written to new class
     clearQueue();
   }, [activeClassId, clearQueue]);
+
+  // An active class means the user owns data that must survive the browser's
+  // eviction sweep — this is the first moment where asking for a persistence
+  // grant is justified (and, in Firefox, worth a permission prompt). The call
+  // is idempotent per page load, so the repeated renders here cost nothing.
+  useEffect(() => {
+    if (!hasActiveClass) return;
+    ensureStoragePersistence().catch((error: unknown) => {
+      logError(
+        'Failed to ensure storage persistence',
+        { error },
+        'useClassDataPersistence',
+      );
+    });
+  }, [hasActiveClass]);
 
   // Create a memoized snapshot of all persistable data for efficient comparison
   const persistableData = useMemo(

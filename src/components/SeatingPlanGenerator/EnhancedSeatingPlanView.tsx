@@ -29,7 +29,8 @@ import usePersistentState from '@/hooks/usePersistentState';
 import { LOCAL_STORAGE_KEYS } from '@/utils/data/storageKeys';
 import { useIsDarkMode } from '@/hooks/useIsDarkMode';
 import { useFirstVisit } from '@/hooks/ui/useFirstVisit';
-import { useIsMobile } from '@/hooks/ui/useIsMobile';
+import { useCanvasPreferences } from '@/contexts/seatingPlan/CanvasPreferencesContext';
+import { useIsPhone } from '@/hooks/ui/useLayoutMode';
 import type { Props as SeatingPlanViewProps } from './SeatingPlanView';
 import {
   canvasFrameClass,
@@ -65,10 +66,10 @@ export default function EnhancedSeatingPlanView(
     swapStudentPositions,
     batchSwapStudentPositions,
   } = useSeatingPlanActions();
-  const [showGrid] = usePersistentState<boolean>(
-    LOCAL_STORAGE_KEYS.showGrid,
-    true,
-  );
+  // Read from the shared context rather than a second `usePersistentState` on
+  // the same key: two instances only agreed because nothing toggled the grid
+  // while both were mounted.
+  const { showGrid } = useCanvasPreferences();
   const isDark = useIsDarkMode();
   const isFirstVisit = useFirstVisit();
 
@@ -88,7 +89,7 @@ export default function EnhancedSeatingPlanView(
     LOCAL_STORAGE_KEYS.nameDisplay,
     'firstNameInitial',
   );
-  const isMobile = useIsMobile();
+  const isPhone = useIsPhone();
 
   // Use prop values if provided, otherwise use internal state and logic
   const requestedSeatingMode = propSeatingMode ?? internalSeatingMode;
@@ -282,7 +283,7 @@ export default function EnhancedSeatingPlanView(
     return (
       <div className="space-y-6">
         <div className="flex flex-col gap-4 md:flex-row md:items-start">
-          {!isMobile && (
+          {!isPhone && (
             <SmartSidebar isFirstVisit={isFirstVisit}>
               {({ isExpanded }) => (
                 <CircleViewControls
@@ -374,7 +375,7 @@ export default function EnhancedSeatingPlanView(
               )}
             </div>
 
-            {isMobile && (
+            {isPhone && (
               <div className="sm:hidden">
                 <div className="mt-4 flex flex-wrap items-center gap-2">
                   <button

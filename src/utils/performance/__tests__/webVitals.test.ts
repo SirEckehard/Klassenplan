@@ -1,11 +1,14 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
-import { PERFORMANCE_THRESHOLDS, webVitalsService } from '../webVitals';
+/**
+ * What is left of the Web Vitals layer after the dashboard was removed: the
+ * five listeners and the rating that decides whether a measurement is worth a
+ * warning. The thresholds are the published Core Web Vitals boundaries, so a
+ * changed number here is a claim about the spec, not a tuning decision.
+ */
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-// Mock web-vitals
-vi.mock('web-vitals', () => ({
+const webVitalsMocks = vi.hoisted(() => ({
   onLCP: vi.fn(),
   onINP: vi.fn(),
   onCLS: vi.fn(),
@@ -13,229 +16,121 @@ vi.mock('web-vitals', () => ({
   onTTFB: vi.fn(),
 }));
 
-// Mock logger
-vi.mock('@/utils/logger', () => ({
+vi.mock('web-vitals', () => webVitalsMocks);
+
+const loggerMocks = vi.hoisted(() => ({
   logInfo: vi.fn(),
   logWarn: vi.fn(),
   logError: vi.fn(),
+  logDebug: vi.fn(),
 }));
 
-describe('webVitals', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
+vi.mock('@/utils', () => loggerMocks);
 
-    (webVitalsService as any).isInitialized = false;
+const loadModule = async () => {
+  const module = await import('../webVitals');
+  module.resetWebVitalsForTests();
+  return module;
+};
 
-    // Mock window object
-    Object.defineProperty(global, 'window', {
-      value: {
-        location: { href: 'http://localhost:3000/' },
-        navigator: { userAgent: 'test-agent' },
-        localStorage: {
-          getItem: vi.fn(),
-          setItem: vi.fn(),
-        },
-        addEventListener: vi.fn(),
-        removeEventListener: vi.fn(),
-        performance: {
-          now: vi.fn(() => 1000),
-        },
-      },
-      writable: true,
-    });
+beforeEach(() => {
+  vi.clearAllMocks();
+});
 
-    // Mock import.meta.env
-    Object.defineProperty(globalThis, 'import', {
-      value: {
-        meta: {
-          env: {
-            PROD: false,
-          },
-        },
-      },
-      configurable: true,
-    });
+afterEach(async () => {
+  const { resetWebVitalsForTests } = await import('../webVitals');
+  resetWebVitalsForTests();
+});
+
+describe('rateMetric', () => {
+  it.each([
+    ['LCP', 2500, 'good'],
+    ['LCP', 2501, 'needs-improvement'],
+    ['LCP', 4001, 'poor'],
+    ['INP', 200, 'good'],
+    ['INP', 501, 'poor'],
+    ['CLS', 0.1, 'good'],
+    ['CLS', 0.2, 'needs-improvement'],
+    ['CLS', 0.3, 'poor'],
+    ['FCP', 1800, 'good'],
+    ['TTFB', 800, 'good'],
+    ['TTFB', 1801, 'poor'],
+  ] as const)('rates %s at %s as %s', async (name, value, expected) => {
+    const { rateMetric } = await loadModule();
+
+    expect(rateMetric(name, value)).toBe(expected);
   });
 
-  describe('PERFORMANCE_THRESHOLDS', () => {
-    it('has correct LCP thresholds', () => {
-      expect(PERFORMANCE_THRESHOLDS.LCP).toEqual({
-        good: 2500,
-        needsImprovement: 4000,
-      });
-    });
+  it('treats the boundary itself as the better bucket', async () => {
+    const { rateMetric, PERFORMANCE_THRESHOLDS } = await loadModule();
 
-    it('has correct INP thresholds', () => {
-      expect(PERFORMANCE_THRESHOLDS.INP).toEqual({
-        good: 200,
-        needsImprovement: 500,
-      });
-    });
+    // "≤ 2.5 s is good" — an LCP of exactly 2500 ms must not be reported as a
+    // problem.
+    expect(rateMetric('LCP', PERFORMANCE_THRESHOLDS.LCP.good)).toBe('good');
+    expect(rateMetric('LCP', PERFORMANCE_THRESHOLDS.LCP.needsImprovement)).toBe(
+      'needs-improvement',
+    );
+  });
+});
 
-    it('has correct CLS thresholds', () => {
-      expect(PERFORMANCE_THRESHOLDS.CLS).toEqual({
-        good: 0.1,
-        needsImprovement: 0.25,
-      });
-    });
+describe('initializeWebVitals', () => {
+  it('registers all five metrics', async () => {
+    const { initializeWebVitals } = await loadModule();
 
-    it('has correct FCP thresholds', () => {
-      expect(PERFORMANCE_THRESHOLDS.FCP).toEqual({
-        good: 1800,
-        needsImprovement: 3000,
-      });
-    });
+    initializeWebVitals();
 
-    it('has correct TTFB thresholds', () => {
-      expect(PERFORMANCE_THRESHOLDS.TTFB).toEqual({
-        good: 800,
-        needsImprovement: 1800,
-      });
-    });
+    expect(webVitalsMocks.onLCP).toHaveBeenCalledTimes(1);
+    expect(webVitalsMocks.onINP).toHaveBeenCalledTimes(1);
+    expect(webVitalsMocks.onCLS).toHaveBeenCalledTimes(1);
+    expect(webVitalsMocks.onFCP).toHaveBeenCalledTimes(1);
+    expect(webVitalsMocks.onTTFB).toHaveBeenCalledTimes(1);
   });
 
-  describe('webVitalsService', () => {
-    it('initializes without errors', () => {
-      expect(() => webVitalsService.initialize()).not.toThrow();
-    });
+  it('registers only once', async () => {
+    const { initializeWebVitals } = await loadModule();
 
-    it('only registers listeners once when initialized multiple times', () => {
-      webVitalsService.initialize();
-      webVitalsService.initialize();
+    initializeWebVitals();
+    initializeWebVitals();
 
-      expect(onLCP).toHaveBeenCalledTimes(1);
-      expect(onINP).toHaveBeenCalledTimes(1);
-      expect(onCLS).toHaveBeenCalledTimes(1);
-      expect(onFCP).toHaveBeenCalledTimes(1);
-      expect(onTTFB).toHaveBeenCalledTimes(1);
-    });
-
-    it('tracks route transitions', () => {
-      const startTime = 1000;
-      webVitalsService.trackRouteTransition('/home', '/about', startTime);
-
-      const summary = webVitalsService.getPerformanceSummary();
-      expect(summary.routeTransitions).toHaveLength(1);
-      expect(summary.routeTransitions[0]).toMatchObject({
-        from: '/home',
-        to: '/about',
-      });
-    });
-
-    it('tracks bundle loading performance', () => {
-      webVitalsService.trackBundleLoading('main', 150, 1024, false);
-
-      const summary = webVitalsService.getPerformanceSummary();
-      expect(summary.bundleMetrics).toHaveLength(1);
-      expect(summary.bundleMetrics[0]).toMatchObject({
-        chunkName: 'main',
-        loadTime: 150,
-        size: 1024,
-        cached: false,
-      });
-    });
-
-    it('limits route transitions to 20 entries', () => {
-      // Add 25 route transitions
-      for (let i = 0; i < 25; i++) {
-        webVitalsService.trackRouteTransition(
-          `/route${i}`,
-          `/route${i + 1}`,
-          1000,
-        );
-      }
-
-      const summary = webVitalsService.getPerformanceSummary();
-      expect(summary.routeTransitions).toHaveLength(20);
-    });
-
-    it('limits bundle metrics to 50 entries', () => {
-      // Add 55 bundle metrics
-      for (let i = 0; i < 55; i++) {
-        webVitalsService.trackBundleLoading(`chunk${i}`, 100, 1024, false);
-      }
-
-      const summary = webVitalsService.getPerformanceSummary();
-      expect(summary.bundleMetrics).toHaveLength(50);
-    });
-
-    it('clears metrics correctly', () => {
-      // Add some data
-      webVitalsService.trackRouteTransition('/home', '/about', 1000);
-      webVitalsService.trackBundleLoading('main', 150, 1024, false);
-
-      // Clear metrics
-      webVitalsService.clearMetrics();
-
-      const summary = webVitalsService.getPerformanceSummary();
-      expect(summary.routeTransitions).toHaveLength(0);
-      expect(summary.bundleMetrics).toHaveLength(0);
-      expect(summary.coreWebVitals).toHaveLength(0);
-    });
-
-    it('calculates overall score correctly', () => {
-      // Mock some metrics with known thresholds
-      const mockMetrics = [
-        { name: 'LCP', value: 2000, threshold: 'good' as const },
-        { name: 'FID', value: 50, threshold: 'good' as const },
-        { name: 'CLS', value: 0.15, threshold: 'needs-improvement' as const },
-      ];
-
-      // Replace the internal metrics map
-      (webVitalsService as any).metrics = new Map(
-        mockMetrics.map((m) => [
-          m.name,
-          { ...m, timestamp: Date.now(), url: '/', userAgent: 'test' },
-        ]),
-      );
-
-      const summary = webVitalsService.getPerformanceSummary();
-      // Two 'good' scores (100 each) + one 'needs-improvement' (65) = average of 88.33, rounded to 88
-      expect(summary.overallScore).toBe(88);
-    });
+    // Double registration would report every metric twice.
+    expect(webVitalsMocks.onLCP).toHaveBeenCalledTimes(1);
   });
 
-  describe('threshold classification', () => {
-    it('classifies LCP correctly', () => {
-      const service = webVitalsService as any;
+  it('warns about a poor measurement and stays quiet otherwise', async () => {
+    const { initializeWebVitals } = await loadModule();
+    initializeWebVitals();
 
-      expect(service.getThreshold('LCP', 2000)).toBe('good');
-      expect(service.getThreshold('LCP', 3000)).toBe('needs-improvement');
-      expect(service.getThreshold('LCP', 5000)).toBe('poor');
-    });
+    const report = webVitalsMocks.onLCP.mock.calls[0]![0] as (metric: {
+      value: number;
+      rating: string;
+    }) => void;
 
-    it('classifies INP correctly', () => {
-      const service = webVitalsService as any;
+    report({ value: 5000, rating: 'poor' });
+    expect(loggerMocks.logWarn).toHaveBeenCalledWith(
+      'Poor LCP',
+      expect.objectContaining({ metric: 'LCP', rating: 'poor' }),
+      'webVitals',
+    );
 
-      expect(service.getThreshold('INP', 150)).toBe('good');
-      expect(service.getThreshold('INP', 350)).toBe('needs-improvement');
-      expect(service.getThreshold('INP', 600)).toBe('poor');
-    });
+    loggerMocks.logWarn.mockClear();
+    report({ value: 1000, rating: 'good' });
 
-    it('classifies CLS correctly', () => {
-      const service = webVitalsService as any;
-
-      expect(service.getThreshold('CLS', 0.05)).toBe('good');
-      expect(service.getThreshold('CLS', 0.15)).toBe('needs-improvement');
-      expect(service.getThreshold('CLS', 0.35)).toBe('poor');
-    });
-
-    it('defaults to good for unknown metrics', () => {
-      const service = webVitalsService as any;
-
-      expect(service.getThreshold('UNKNOWN', 1000)).toBe('good');
-    });
+    // A healthy page must not fill a production console with warnings.
+    expect(loggerMocks.logWarn).not.toHaveBeenCalled();
+    expect(loggerMocks.logInfo).toHaveBeenCalledWith(
+      'LCP good',
+      expect.objectContaining({ rating: 'good' }),
+      'webVitals',
+    );
   });
 
-  describe('chunk name extraction', () => {
-    it('extracts chunk names correctly', () => {
-      const service = webVitalsService as any;
-
-      expect(service.extractChunkName('/assets/main-abc123.js')).toBe('main');
-      expect(service.extractChunkName('/assets/vendor-xyz789.js')).toBe(
-        'vendor',
-      );
-      expect(service.extractChunkName('/assets/unknown.js')).toBe('unknown.js');
+  it('survives a registration that throws', async () => {
+    webVitalsMocks.onLCP.mockImplementationOnce(() => {
+      throw new Error('no PerformanceObserver');
     });
+    const { initializeWebVitals } = await loadModule();
+
+    expect(() => initializeWebVitals()).not.toThrow();
+    expect(loggerMocks.logError).toHaveBeenCalled();
   });
 });

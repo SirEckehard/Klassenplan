@@ -31,6 +31,7 @@ import LayoutEditorView from '@/components/SeatingPlanGenerator/LayoutEditorView
 import SeatingPlanEditorView from '@/components/SeatingPlanGenerator/SeatingPlanEditorView';
 import SaveTemplateModal from '@/components/ui/modals/SaveTemplateModal';
 import { LOCAL_STORAGE_KEYS } from '@/utils/data/storageKeys';
+import { useCanvasPreferences } from '@/contexts/seatingPlan/CanvasPreferencesContext';
 import {
   useOptionalSeatingPlanActions,
   useOptionalSeatingPlanState,
@@ -161,15 +162,9 @@ export function useSeatingPlanViewLogic({
     setSelectedFeatureIds,
   });
 
-  const [snapToGrid, setSnapToGrid] = React.useState(true); // Toggle to snap table positions to the grid
-  const [showGrid, setShowGrid] = usePersistentState<boolean>(
-    LOCAL_STORAGE_KEYS.showGrid,
-    true,
-  ); // Toggle to show grid lines
-  const [showAlignmentGuides, setShowAlignmentGuides] =
-    usePersistentState<boolean>(LOCAL_STORAGE_KEYS.alignmentGuides, true); // Toggle Keynote-style alignment guides
-  const [showPhotoOverlapWarning, setShowPhotoOverlapWarning] =
-    usePersistentState<boolean>(LOCAL_STORAGE_KEYS.photoOverlapWarning, true); // Warn where photo avatars would collide
+  // The canvas view toggles live in their own context, so the editor views read
+  // them where they use them instead of taking eight props for four booleans.
+  const { snapToGrid, showAlignmentGuides } = useCanvasPreferences();
   // Guides of the drag currently in progress; null while nothing is dragged.
   const [activeAlignmentGuides, setActiveAlignmentGuides] = React.useState<
     AlignmentGuide[] | null
@@ -323,7 +318,7 @@ export function useSeatingPlanViewLogic({
     [sceneTables],
   );
 
-  const { handleMix, isMixing } = useSeatingMixHandler({
+  const { handleMix, isMixing, mixStatus, cancelMix } = useSeatingMixHandler({
     settings,
     students,
     classroomScene,
@@ -463,14 +458,6 @@ export function useSeatingPlanViewLogic({
     ): React.ReactNode => (
       <LayoutEditorView
         canvasHandlers={handlers}
-        snapToGrid={snapToGrid}
-        setSnapToGrid={setSnapToGrid}
-        showGrid={showGrid}
-        setShowGrid={setShowGrid}
-        showAlignmentGuides={showAlignmentGuides}
-        setShowAlignmentGuides={setShowAlignmentGuides}
-        showPhotoOverlapWarning={showPhotoOverlapWarning}
-        setShowPhotoOverlapWarning={setShowPhotoOverlapWarning}
         alignmentGuides={activeAlignmentGuides}
         setActiveAlignmentGuides={setActiveAlignmentGuides}
         featureVisibility={featureVisibility}
@@ -535,14 +522,14 @@ export function useSeatingPlanViewLogic({
           setMixSettings,
           handleMix,
           isMixing,
+          mixStatus,
+          cancelMix,
           autoMixing,
           autoMixError,
           featureVisibility,
           setFeatureVisible,
           canvasWidth,
           classroomHeight,
-          showGrid,
-          setShowGrid,
           photoDisplayMode,
           setPhotoDisplayMode,
           nameDisplay,

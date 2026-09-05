@@ -20,20 +20,6 @@ export { generateId } from './id';
 export { deepClone } from './deepClone';
 export { stableStringify } from './jsonUtils';
 
-// ===== Feature Flags =====
-export {
-  featureFlags,
-  featureFlagDetails,
-  isFeatureEnabled,
-  getFeatureFlagSnapshot,
-  getRuntimeEnvironment,
-} from '@/config/featureFlags';
-export type {
-  FeatureFlagName,
-  FeatureFlagResolution,
-  DeploymentEnvironment,
-} from '@/config/featureFlags';
-
 // ===== Logging =====
 export { logInfo, logWarn, logError, logDebug } from './logger';
 

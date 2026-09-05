@@ -12,6 +12,7 @@ import StudentBulkEditBar from '@/components/studentInput/StudentBulkEditBar';
 import StudentListFilterControls from '@/components/studentInput/StudentListFilterControls';
 import type { StudentListView } from '@/components/studentInput/hooks/useStudentListView';
 import type { StudentSelection } from '@/components/studentInput/hooks/useStudentSelection';
+import { useDialogLayer } from '@/hooks/ui/useDialogLayer';
 
 interface StudentListToolsRowProps {
   listView: StudentListView;
@@ -99,6 +100,7 @@ function FilterPopoverButton({
   const containerRef = React.useRef<HTMLDivElement | null>(null);
   const contentRef = React.useRef<HTMLDivElement | null>(null);
   const [open, setOpen] = React.useState(false);
+  useDialogLayer(open);
 
   // Sort is left out on purpose: it reorders, it does not hide, and
   // `listView.clear` does not reset it either.
@@ -107,9 +109,9 @@ function FilterPopoverButton({
 
   useClickOutside([containerRef, contentRef], () => setOpen(false), open);
 
-  // The popover carries `role="dialog"`, which parks the global Escape
-  // shortcut in StudentInput (it would otherwise drop the whole selection).
-  // Closing on Escape is therefore this component's job.
+  // Registering as a dialog layer stands the global Escape shortcut in
+  // StudentInput down (it would otherwise drop the whole selection), so closing
+  // on Escape is this component's job.
   React.useEffect(() => {
     if (!open) {
       return;

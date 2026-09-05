@@ -13,7 +13,7 @@ type SidebarFeaturePaletteItem = {
 };
 
 type LayoutEditorSidebarSectionProps = {
-  isMobile: boolean;
+  isPhone: boolean;
   isFirstVisit: boolean;
   studentsCount: number;
   seatCount: number;
@@ -33,7 +33,7 @@ type LayoutEditorSidebarSectionProps = {
 
 const LayoutEditorSidebarSection = React.memo(
   function LayoutEditorSidebarSection({
-    isMobile,
+    isPhone,
     isFirstVisit,
     studentsCount,
     seatCount,
@@ -44,7 +44,7 @@ const LayoutEditorSidebarSection = React.memo(
     featurePalette,
     onFeaturePointerDown,
   }: LayoutEditorSidebarSectionProps) {
-    if (isMobile) {
+    if (isPhone) {
       return null;
     }
 

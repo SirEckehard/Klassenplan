@@ -16,6 +16,7 @@ import { CRITERIA_ICON_MAP } from '@/utils/ui/criteriaIcons';
 import type { ScalarMixSettingKey } from '@/types';
 import { useBreakpointDown } from '@/hooks/ui/useBreakpoint';
 import { useDialogA11y } from '@/hooks/ui/useDialogA11y';
+import { useDialogLayer } from '@/hooks/ui/useDialogLayer';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 
 function getCriterionIcon(key: string): React.ReactNode {
@@ -62,6 +63,8 @@ function SeatingStatisticsBadge({
   const sheetRef = useDialogA11y<HTMLDivElement>({
     open: isSheet && hasCriteria,
   });
+  // The statistics sheet covers the screen below `sm`; Escape belongs to it.
+  useDialogLayer(isSheet && hasCriteria);
   const sheetTitleId = React.useId();
 
   useKeyboardShortcuts(

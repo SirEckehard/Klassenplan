@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import '@testing-library/jest-dom/vitest';
+import type React from 'react';
 import { render, screen, cleanup, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
@@ -48,9 +49,23 @@ const getUndo = () =>
 const getRefine = () =>
   screen.getByRole('button', { name: /verfeiner|refine/i });
 
+/** Renders with idle-mix defaults; each case overrides only what it asserts on. */
+const renderToolbar = (
+  props: Partial<React.ComponentProps<typeof SeatingCanvasToolbar>> = {},
+) =>
+  render(
+    <SeatingCanvasToolbar
+      onMix={vi.fn()}
+      isMixing={false}
+      mixStatus={null}
+      onCancelMix={vi.fn()}
+      {...props}
+    />,
+  );
+
 describe('SeatingCanvasToolbar', () => {
   it('disables undo and redo while the history is empty', () => {
-    render(<SeatingCanvasToolbar onMix={vi.fn()} isMixing={false} />);
+    renderToolbar();
 
     expect(getUndo()).toBeDisabled();
     expect(
@@ -60,7 +75,7 @@ describe('SeatingCanvasToolbar', () => {
 
   it('undoes through the context when history is available', async () => {
     contextValue.canUndoSeating = true;
-    render(<SeatingCanvasToolbar onMix={vi.fn()} isMixing={false} />);
+    renderToolbar();
 
     await userEvent.click(getUndo());
 
@@ -68,7 +83,7 @@ describe('SeatingCanvasToolbar', () => {
   });
 
   it('refines the plan on screen with the manual settings', async () => {
-    render(<SeatingCanvasToolbar onMix={vi.fn()} isMixing={false} />);
+    renderToolbar();
 
     await userEvent.click(getRefine());
 
@@ -85,21 +100,72 @@ describe('SeatingCanvasToolbar', () => {
       string,
       number
     >;
-    render(<SeatingCanvasToolbar onMix={vi.fn()} isMixing={false} />);
+    renderToolbar();
 
     expect(getRefine()).toBeDisabled();
   });
 
   it('blocks refining without a seating plan', () => {
     contextValue.currentSeating = [];
-    render(<SeatingCanvasToolbar onMix={vi.fn()} isMixing={false} />);
+    renderToolbar();
 
     expect(getRefine()).toBeDisabled();
   });
 
   it('blocks refining while a mix is running', () => {
-    render(<SeatingCanvasToolbar onMix={vi.fn()} isMixing />);
+    renderToolbar({ isMixing: true });
 
     expect(getRefine()).toBeDisabled();
+  });
+});
+
+describe('mix progress', () => {
+  it('shows nothing while no mix is running', () => {
+    renderToolbar();
+
+    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+  });
+
+  it('reports the running stage and its percentage', () => {
+    renderToolbar({
+      isMixing: true,
+      mixStatus: { progress: 0.42, stage: 'arranging', message: 'Läuft…' },
+    });
+
+    const bar = screen.getByRole('progressbar');
+    expect(bar).toHaveAttribute('aria-valuenow', '42');
+    expect(screen.getByText('Läuft…')).toBeInTheDocument();
+    expect(screen.getByText('42%')).toBeInTheDocument();
+  });
+
+  it('lets the user abandon a run that takes too long', async () => {
+    const onCancelMix = vi.fn();
+    renderToolbar({
+      isMixing: true,
+      mixStatus: { progress: 0.1, stage: 'arranging', message: 'Läuft…' },
+      onCancelMix,
+    });
+
+    await userEvent.click(
+      screen.getByRole('button', { name: /abbrechen|cancel/i }),
+    );
+
+    expect(onCancelMix).toHaveBeenCalledTimes(1);
+  });
+
+  it('shows the finished bar without a cancel button', () => {
+    renderToolbar({
+      mixStatus: { progress: 1, stage: 'done', message: 'Sitzplan fertig' },
+    });
+
+    // The finished bar lingers for a moment so the user actually sees it
+    // complete; offering to cancel a mix that is already done would be a lie.
+    expect(screen.getByRole('progressbar')).toHaveAttribute(
+      'aria-valuenow',
+      '100',
+    );
+    expect(
+      screen.queryByRole('button', { name: /abbrechen|cancel/i }),
+    ).not.toBeInTheDocument();
   });
 });

@@ -11,7 +11,7 @@ import BackupRestoreModeModal, {
 
 /**
  * Mounts a one-shot dialog outside the React tree and resolves once it closes —
- * same pattern as `confirmDialog`/`promptDialog`, so the backup flow can stay a
+ * same pattern as `confirmDialog`, so the backup flow can stay a
  * linear async function inside `useDataBackup`.
  */
 function mountDialog<T>(

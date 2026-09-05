@@ -17,6 +17,7 @@ import {
 import { workbenchPillClass } from './classWorkbenchTokens';
 import FloatingDropdown from './FloatingDropdown';
 import { useClickOutside } from '@/hooks/ui/useClickOutside';
+import { useDialogLayer } from '@/hooks/ui/useDialogLayer';
 
 type Props = {
   /** Drives the trigger's emphasis: an empty class needs to be filled first. */
@@ -46,9 +47,9 @@ type Props = {
  * The popover stays open after an add so a whole class can be typed in one go;
  * the name field keeps focus for the next name.
  *
- * It carries `role="dialog"`, which parks the global Escape shortcut in
- * `StudentInput` (that one would otherwise drop the list selection), so
- * closing on Escape is this component's job.
+ * While open it registers as a dialog layer, so the global Escape shortcut in
+ * `StudentInput` (which would otherwise drop the list selection) stands down
+ * and closing on Escape is this component's job.
  */
 export default function AddStudentsMenu({
   studentCount,
@@ -67,6 +68,7 @@ export default function AddStudentsMenu({
   const contentRef = React.useRef<HTMLDivElement | null>(null);
   const nameInputRef = React.useRef<HTMLInputElement | null>(null);
   const [open, setOpen] = React.useState(false);
+  useDialogLayer(open);
 
   useClickOutside([containerRef, contentRef], () => setOpen(false), open);
 

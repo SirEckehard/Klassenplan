@@ -15,21 +15,21 @@
 - Coverage report: `npm run test:coverage` (v8 provider, HTML report in `coverage/`)
 - Check modified files with `npx eslint <files>`
 - TypeScript compilation check: `npm run typecheck` (app) and `npm run typecheck:test` (tests); both via `npm run typecheck:all`
-- Check for unused exports: `npx ts-unused-exports tsconfig.ts-unused.json --ignoreFiles='vite-env.d.ts|index.tsx|App.tsx'`
+- Check for unused exports: `npm run check:unused` — a ratchet against the baseline in `scripts/check-unused-exports.mjs`; the count may fall, never rise. For the full list run `npx ts-unused-exports tsconfig.ts-unused.json --allowUnusedTypes --ignoreFiles='vite-env.d.ts|index.tsx|App.tsx'`
 - E2E: Playwright smoke specs live in `e2e/` (`npm run test:e2e`; needs `npx playwright install chromium`)
 - i18n consistency: `npm run check:i18n` (DE/EN key parity + every `t(key, 'default')` resolves to a real key)
 - Bundle budgets: `npm run check:bundle` (after a build; part of `npm run build:static`)
 
-**Current Code Quality Status (2026-09-03):**
+**Current Code Quality Status (2026-09-05):**
 
 - ✅ ESLint: 0 errors, 0 warnings
 - ✅ TypeScript: 0 compilation errors (strict mode)
-- ✅ Tests: 1799 unit tests (176 test files) + 3 Playwright smoke specs, 100% passing
-- 📊 Coverage: 64 % lines / 64 % statements (`npm run test:coverage`, v8 provider, no thresholds enforced)
-- ⚠️ Unused Exports: ~114 modules with unused exports (mostly type exports, Props interfaces and shared test helpers - acceptable for a TypeScript project)
+- ✅ Tests: 1927 unit tests (186 test files) + 5 Playwright specs (3 smoke + the wizard core flow), 100% passing
+- 📊 Coverage: 68.1 % lines / 67.5 % statements / 57.1 % branches (`npm run test:coverage`, v8 provider, no thresholds enforced)
+- ⚠️ Unused Exports: 54 modules ignoring type-only exports, held by a ratchet (`npm run check:unused`); the remainder are re-export barrels, `lazyWithRetry` default exports and shared test helpers
 - ✅ Test Infrastructure: Centralized accessibility helpers and toast matchers for robust testing
 - ✅ Architecture: Repository Pattern implemented, UI components reorganized into logical subdirectories
-- ✅ i18n: Bilingual support (German/English) fully implemented, DE/EN key parity 1:1 (1742 keys per language)
+- ✅ i18n: Bilingual support (German/English) fully implemented, DE/EN key parity 1:1 (1785 keys per language)
 - 📦 Bundle: initial payload 206 KB brotli / 814 KB raw, largest chunk 64 KB brotli, CSS 19 KB brotli
 
 ## Logging
@@ -124,9 +124,10 @@ import { generateId, logError, errorHandlers } from '@/utils';
 
 ## Development Commands
 
-- `npm run dev` - Start Vite dev server (default port 5173)
+- `npm run dev` - Start Vite dev server (port 3000, set in `vite.config.ts`; Playwright starts its own on 5173)
 - `npm run preview` - Serve the production bundle locally
 - `npm run build` - Build production bundle (runs `generate:sitemap` first)
+- `npm run build:static` - Build, prerender every route, verify the output (Docker/CI path; needs `npx playwright install chromium`)
 - `npm test` - Run Vitest in watch mode (append `-- --run` for single run)
 - `npm run test:coverage` - Single run with a v8 coverage report (`coverage/index.html`)
 - `npm run test:e2e` - Run Playwright end-to-end tests
@@ -136,6 +137,7 @@ import { generateId, logError, errorHandlers } from '@/utils';
 - `npm run generate:sitemap` - Generate sitemap (auto-run before builds)
 - `npm run check:i18n` - DE/EN key parity + orphaned inline defaults
 - `npm run check:bundle` - Enforce bundle size budgets against `dist/` (run after a build)
+- `npm run check:unused` - Unused-export ratchet (baseline in `scripts/check-unused-exports.mjs`)
 - `vitest run --reporter=verbose` - Run tests with detailed output
 - `vitest run src/path/to/test.test.ts` - Run single test file
 
@@ -191,6 +193,14 @@ Consumers import dedicated hooks (e.g. `useClassroomLayoutContext`) to minimize 
 - `@/utils/ui/designTokens` exports surface/button bundles (`primaryButtonClass`, `inputFieldClass`, …); student toggles rely on `@/components/students/studentStyleTokens` for consistent sizing and coloring.
 - Components should only add layout classes on top of tokens — no ad-hoc color utilities.
 - Immutable styling patterns ensure Dark/Light parity via CSS variables and prevent component-level drift.
+
+## SEO & Prerendering
+
+- The app is a CSR SPA; `npm run build:static` prerenders all routes × languages into `dist/<path>/index.html` so crawlers see real content and per-route canonical/hreflang/JSON-LD. See `docs/SEO.md`.
+- `src/data/seoRoutes.json` is the single source of truth for route metadata (titles, descriptions, `noindex`). Shared script helpers live in `scripts/utils/seoRoutes.mjs`.
+- Canonical URLs come from the build-time `SITE_URL` (`define` in `vite.config.ts`), **never** from `window.location.origin`.
+- **Never let `vite-plugin-compression` precompress HTML** — nginx's `brotli_static on` would serve the stale pre-prerender shell.
+- Route components live in `src/pages/lazyPages.ts` and are shared by the router and `routePreloader`, so `preload()` warms the instance the router renders. Do not re-declare them with `lazyWithRetry` in `App.tsx`.
 
 ## Security & Deployment
 

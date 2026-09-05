@@ -13,7 +13,6 @@ import OfflineIndicator from '@/components/ui/feedback/OfflineIndicator';
 import DownloadConfirmationHost from '@/components/ui/modals/DownloadConfirmationHost';
 import CsvFormatHelpHost from '@/components/ui/modals/CsvFormatHelpHost';
 import { preloadLikelyRoutes } from '@/utils/performance/routePreloader';
-import { lazyWithRetry } from '@/utils/performance/lazyWithRetry';
 import { ensureEnglishLoaded } from '@/i18n/i18n';
 import {
   Changelog,
@@ -29,11 +28,6 @@ import {
   StartPage,
   Support,
 } from '@/pages/lazyPages';
-
-// Performance monitoring components (lazy loaded)
-const LazyPerformanceTools = lazyWithRetry(
-  () => import('@/components/ui/performance/LazyPerformanceTools'),
-);
 
 /**
  * Wrapper component that syncs the URL language parameter with i18n.
@@ -85,8 +79,6 @@ function AppRoutes() {
 export default function App() {
   const location = useLocation();
   const { t } = useTranslation('common');
-  const [showPerformanceDashboard, setShowPerformanceDashboard] =
-    React.useState(false);
 
   // Fullscreen surfaces (presentation, name game); the global footer (and its
   // "clear all data" action) is out of place there.
@@ -101,36 +93,6 @@ export default function App() {
   React.useEffect(() => {
     preloadLikelyRoutes(location.pathname);
   }, [location.pathname]);
-
-  // Global event listeners for performance dashboard
-  React.useEffect(() => {
-    const handleOpenDashboard = () => setShowPerformanceDashboard(true);
-    const handleCloseDashboard = () => setShowPerformanceDashboard(false);
-    const handleToggleDashboard = () =>
-      setShowPerformanceDashboard((prev) => !prev);
-
-    window.addEventListener('openPerformanceDashboard', handleOpenDashboard);
-    window.addEventListener('closePerformanceDashboard', handleCloseDashboard);
-    window.addEventListener(
-      'togglePerformanceDashboard',
-      handleToggleDashboard,
-    );
-
-    return () => {
-      window.removeEventListener(
-        'openPerformanceDashboard',
-        handleOpenDashboard,
-      );
-      window.removeEventListener(
-        'closePerformanceDashboard',
-        handleCloseDashboard,
-      );
-      window.removeEventListener(
-        'togglePerformanceDashboard',
-        handleToggleDashboard,
-      );
-    };
-  }, []);
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 dark:text-white">
@@ -155,14 +117,6 @@ export default function App() {
             {AppRoutes()}
           </Route>
         </Routes>
-      </Suspense>
-
-      {/* Performance monitoring components (development only) */}
-      <Suspense fallback={null}>
-        <LazyPerformanceTools
-          showDashboard={showPerformanceDashboard}
-          onCloseDashboard={() => setShowPerformanceDashboard(false)}
-        />
       </Suspense>
 
       {!isFullscreenRoute && <Footer />}

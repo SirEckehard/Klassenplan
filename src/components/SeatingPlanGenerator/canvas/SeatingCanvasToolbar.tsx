@@ -2,21 +2,27 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { MagicWandIcon, SpinnerGapIcon } from '@phosphor-icons/react';
+import { MagicWandIcon, SpinnerGapIcon, XIcon } from '@phosphor-icons/react';
 import SeatingHistoryToolbar from '@/components/SeatingPlanGenerator/canvas/SeatingHistoryToolbar';
 import FloatingMixButton from '@/components/ui/buttons/FloatingMixButton';
 import { useSeatingAlgorithmContext } from '@/contexts/SeatingPlanContext';
 import {
   MANUAL_REFINE_PASSES,
   MANUAL_REFINE_TRIES_PER_PASS,
+  floatingStatusClass,
   logError,
+  neutralButtonClass,
   secondaryButtonClass,
 } from '@/utils';
+import type { MixStatus } from '@/hooks/useSeatingMixHandler';
 import { showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
 
 interface SeatingCanvasToolbarProps {
   onMix: () => Promise<void>;
   isMixing: boolean;
+  /** Progress of the running mix; `null` while idle. */
+  mixStatus: MixStatus | null;
+  onCancelMix: () => void;
 }
 
 /**
@@ -32,6 +38,8 @@ interface SeatingCanvasToolbarProps {
 export default function SeatingCanvasToolbar({
   onMix,
   isMixing,
+  mixStatus,
+  onCancelMix,
 }: SeatingCanvasToolbarProps) {
   const { t } = useTranslation('generator');
   const { refineCurrentSeating, currentSeating, mixSettings } =
@@ -64,6 +72,8 @@ export default function SeatingCanvasToolbar({
       setIsRefining(false);
     }
   }, [canRefine, refineCurrentSeating]);
+
+  const progressPercent = Math.round((mixStatus?.progress ?? 0) * 100);
 
   const refineTitle = hasCriteria
     ? t(
@@ -100,6 +110,42 @@ export default function SeatingCanvasToolbar({
           {t('editor.refineButton', 'Verfeinern')}
         </span>
       </button>
+      {mixStatus ? (
+        <div
+          className={`${floatingStatusClass} flex h-9 items-center gap-2 px-3`}
+          role="status"
+          aria-live="polite"
+        >
+          <span className="text-xs whitespace-nowrap">{mixStatus.message}</span>
+          <span
+            className="h-1.5 w-16 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700"
+            role="progressbar"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={progressPercent}
+            aria-label={t('mixButton.progressLabel')}
+          >
+            <span
+              className="block h-full rounded-full bg-blue-600 transition-[width] duration-200 dark:bg-blue-500"
+              style={{ width: `${Math.max(progressPercent, 4)}%` }}
+            />
+          </span>
+          <span className="text-xs tabular-nums">{progressPercent}%</span>
+          {/* The full bar lingers for a moment after the mix is done; there is
+              nothing left to cancel at that point. */}
+          {mixStatus.progress < 1 ? (
+            <button
+              type="button"
+              onClick={onCancelMix}
+              className={`${neutralButtonClass} h-6 gap-1 px-2 text-xs`}
+              title={t('mixButton.cancelTitle')}
+            >
+              <XIcon size={12} aria-hidden />
+              {t('common.cancel')}
+            </button>
+          ) : null}
+        </div>
+      ) : null}
     </div>
   );
 }

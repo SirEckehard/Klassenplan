@@ -53,7 +53,10 @@ import type { PhotoDisplayMode, SeatingArrangement, Student } from '@/types';
 import usePersistentState from '@/hooks/usePersistentState';
 import type { CircleLayout } from '@/types/Circle';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
-import { LOCAL_STORAGE_KEYS } from '@/utils/data/storageKeys';
+import {
+  LEGACY_EXPORT_KEYS,
+  LOCAL_STORAGE_KEYS,
+} from '@/utils/data/storageKeys';
 import { useFirstVisit } from '@/hooks/ui/useFirstVisit';
 import Seo from '@/components/Seo';
 import { LocalizedLink } from '@/components/LocalizedLink';
@@ -91,6 +94,24 @@ function readPersisted<T>(key: string, fallback: T): T {
   } catch {
     return fallback;
   }
+}
+
+/**
+ * Read the pre-split page orientation, if one is still stored.
+ *
+ * `export.pageOrientation` held a single value for both seating modes before it
+ * became one key per mode. It is read as a *default* for the new keys rather
+ * than copied over in an effect: `usePersistentState` writes its own default to
+ * localStorage on mount, so by the time any effect runs the new keys always
+ * exist and a migration could no longer tell a stored preference from a
+ * default.
+ */
+function readLegacyOrientation(): PageOrientation | null {
+  const stored = readPersisted<PageOrientation | null>(
+    LEGACY_EXPORT_KEYS.pageOrientation,
+    null,
+  );
+  return stored === 'portrait' || stored === 'landscape' ? stored : null;
 }
 
 const PORTRAIT_PAGE_RATIO = 817 / 1148;
@@ -153,8 +174,17 @@ export default function Export() {
     null,
   );
   const [previewMode, setPreviewMode] = useState<SeatingMode>('table');
-  const [showNeeds, setShowNeeds] = useState(true);
-  const [showConnections, setShowConnections] = useState(true);
+  // Persisted like every other display option on this page: a teacher who
+  // never wants needs or connection lines on the printout should not have to
+  // switch them off again on each visit.
+  const [showNeeds, setShowNeeds] = usePersistentState<boolean>(
+    LOCAL_STORAGE_KEYS.exportShowNeeds,
+    true,
+  );
+  const [showConnections, setShowConnections] = usePersistentState<boolean>(
+    LOCAL_STORAGE_KEYS.exportShowConnections,
+    true,
+  );
   const { featureVisibility, setFeatureVisible } = useFeatureVisibility();
   const featureAvailability = useMemo(() => {
     const features = classroomScene.features ?? [];
@@ -173,19 +203,22 @@ export default function Export() {
     return effective;
   }, [featureAvailability, featureVisibility]);
   const [tableOrientation, setTableOrientation] =
-    usePersistentState<PageOrientation>('export.tableOrientation', 'portrait');
+    usePersistentState<PageOrientation>(
+      LOCAL_STORAGE_KEYS.exportTableOrientation,
+      readLegacyOrientation() ?? 'portrait',
+    );
   const [circleOrientation, setCircleOrientation] =
     usePersistentState<PageOrientation>(
-      'export.circleOrientation',
-      'landscape',
+      LOCAL_STORAGE_KEYS.exportCircleOrientation,
+      readLegacyOrientation() ?? 'landscape',
     );
   // Uniform name rule for the whole sheet. Replaces the former on/off "full
   // names" switch: the default truncation shortens only the names that do not
   // fit, so one plan mixed full names and abbreviations. Seeded from the old
   // boolean key so an existing preference is not silently dropped.
   const [nameDisplay, setNameDisplay] = usePersistentState<NameDisplayMode>(
-    'export.nameDisplay',
-    readPersisted<boolean>('export.showFullNames', false)
+    LOCAL_STORAGE_KEYS.exportNameDisplay,
+    readPersisted<boolean>(LEGACY_EXPORT_KEYS.showFullNames, false)
       ? 'full'
       : readPersisted<NameDisplayMode>(
           LOCAL_STORAGE_KEYS.nameDisplay,
@@ -199,25 +232,25 @@ export default function Export() {
     : 'firstNameInitial';
   // WYSIWYG: seed photo visibility/density defaults from the live editor state.
   const [showPhotos, setShowPhotos] = usePersistentState<boolean>(
-    'export.showPhotos',
+    LOCAL_STORAGE_KEYS.exportShowPhotos,
     readPersisted<PhotoDisplayMode>(
       LOCAL_STORAGE_KEYS.photoDisplayMode,
       'hover',
     ) !== 'off',
   );
   const [showClassInfo, setShowClassInfo] = usePersistentState<boolean>(
-    'export.showClassInfo',
+    LOCAL_STORAGE_KEYS.exportShowClassInfo,
     true,
   );
   const [showLegend, setShowLegend] = usePersistentState<boolean>(
-    'export.showLegend',
+    LOCAL_STORAGE_KEYS.exportShowLegend,
     false,
   );
   // Table export only: rotates the classroom 180° with upright names, for a
   // sheet that is read from the opposite side of the room (e.g. a teacher's
   // desk at the back) without turning the page and its header upside down.
   const [flipView, setFlipView] = usePersistentState<boolean>(
-    'export.flipView',
+    LOCAL_STORAGE_KEYS.exportFlipView,
     false,
   );
 
@@ -275,42 +308,18 @@ export default function Export() {
     void preloadRenderer();
   }, []);
 
+  // The seeding above has already consumed the value, so the only thing left is
+  // to retire the key.
   useEffect(() => {
     if (typeof window === 'undefined' || !window.localStorage) {
       return;
     }
-
     try {
-      const legacyOrientation = window.localStorage.getItem(
-        'export.pageOrientation',
-      );
-      if (!legacyOrientation) {
-        return;
-      }
-
-      const parsedOrientation = JSON.parse(
-        legacyOrientation,
-      ) as PageOrientation | null;
-      if (
-        parsedOrientation !== 'portrait' &&
-        parsedOrientation !== 'landscape'
-      ) {
-        window.localStorage.removeItem('export.pageOrientation');
-        return;
-      }
-
-      if (!window.localStorage.getItem('export.tableOrientation')) {
-        setTableOrientation(parsedOrientation);
-      }
-      if (!window.localStorage.getItem('export.circleOrientation')) {
-        setCircleOrientation(parsedOrientation);
-      }
-
-      window.localStorage.removeItem('export.pageOrientation');
+      window.localStorage.removeItem(LEGACY_EXPORT_KEYS.pageOrientation);
     } catch {
-      // Ignore migration issues silently.
+      // A storage that refuses writes is not worth failing the page over.
     }
-  }, [setTableOrientation, setCircleOrientation]);
+  }, []);
   const activeOrientation =
     previewMode === 'circle' ? circleOrientation : tableOrientation;
 
@@ -534,8 +543,14 @@ export default function Export() {
       }
     `.trim();
 
-    return `<!DOCTYPE html><html lang="de"><head><meta charset="utf-8" /><title>Klassenplan Druck</title><style>${styles}</style></head><body><div id="print-root">${previewSvg}</div></body></html>`;
-  }, [activeOrientation, previewSvg]);
+    // Preview-only document (the print button goes through generatePdfBlob),
+    // but it is still a real document with its own root element: `lang` is what
+    // a screen reader announces the iframe content in, so it has to follow the
+    // active language rather than sitting on a hardcoded "de".
+    const documentTitle = t('export.printDocumentTitle');
+
+    return `<!DOCTYPE html><html lang="${metadata.lang}"><head><meta charset="utf-8" /><title>${documentTitle}</title><style>${styles}</style></head><body><div id="print-root">${previewSvg}</div></body></html>`;
+  }, [activeOrientation, previewSvg, metadata.lang, t]);
 
   useEffect(() => {
     if (stateCircleLayout && circleLayout !== stateCircleLayout) {

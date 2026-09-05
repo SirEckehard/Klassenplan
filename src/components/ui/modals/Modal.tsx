@@ -6,6 +6,7 @@ import { createPortal } from 'react-dom';
 import { XIcon } from '@phosphor-icons/react';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useDialogA11y } from '@/hooks/ui/useDialogA11y';
+import { useDialogLayer } from '@/hooks/ui/useDialogLayer';
 
 type Props = {
   open: boolean;
@@ -37,6 +38,9 @@ export default function Modal({
 }: Props) {
   const { t } = useTranslation('common');
   const dialogRef = useDialogA11y<HTMLDivElement>({ open });
+  // Claims the Escape key for as long as this modal is up, so views underneath
+  // (the student list, the Quick Setup overlay) leave it alone.
+  useDialogLayer(open);
   const titleId = useId();
   const descriptionId = useId();
   const hasHeaderContent = Boolean(

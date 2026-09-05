@@ -11,6 +11,7 @@ import type {
 import type { StatisticHighlightEntry } from '@/types/StatisticsHighlight';
 import { getStatisticStatus } from '@/utils';
 import { buildPreviousPairs } from '@/utils/pairs';
+import { getAvoidPartnerIds, getWishPartnerIds } from '@/utils/student';
 import {
   getSeatNeighborhoods,
   getSeatPositions,
@@ -142,11 +143,16 @@ export function buildCriterionHighlightEntries({
   switch (criterionKey) {
     case 'considerWishPartners': {
       forEachSeat((student, tIdx, sIdx, seatCount, table) => {
-        if (!student || !student.wishPartnerId) return;
+        if (!student) return;
+        // Every wish counts, not just the first: the scoring in
+        // `arrangementScoring` reads the whole list, and a highlight that
+        // disagreed with the score it explains would be worse than none.
+        const wishIds = getWishPartnerIds(student);
+        if (wishIds.length === 0) return;
         const partnerIdx = partnerSeat(seatCount, sIdx);
         const partner =
           partnerIdx !== null ? (table[partnerIdx] ?? null) : null;
-        if (partner && partner.id === student.wishPartnerId) {
+        if (partner && wishIds.includes(partner.id)) {
           addEntry(entries, tIdx, sIdx, student.id, 100);
           if (partnerIdx !== null) {
             addEntry(entries, tIdx, partnerIdx, partner.id, 100);
@@ -162,11 +168,13 @@ export function buildCriterionHighlightEntries({
     }
     case 'avoidConflictPartners': {
       forEachSeat((student, tIdx, sIdx, seatCount, table) => {
-        if (!student || !student.avoidPartnerId) return;
+        if (!student) return;
+        const avoidIds = getAvoidPartnerIds(student);
+        if (avoidIds.length === 0) return;
         const partnerIdx = partnerSeat(seatCount, sIdx);
         const partner =
           partnerIdx !== null ? (table[partnerIdx] ?? null) : null;
-        if (partner && partner.id === student.avoidPartnerId) {
+        if (partner && avoidIds.includes(partner.id)) {
           addEntry(entries, tIdx, sIdx, student.id, 0);
           addEntry(entries, tIdx, partnerIdx ?? sIdx, partner.id, 0);
         } else {

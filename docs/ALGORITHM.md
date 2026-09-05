@@ -7,7 +7,16 @@ This document describes the algorithms used in the Klassenplan seating generator
 The seating plan generation is a two-phased process:
 
 1.  **Construction (Greedy)**: A valid initial arrangement is built by placing students one-by-one into the best available seats.
-2.  **Refinement (Iterative)**: The initial arrangement is improved by swapping students to reduce constraint violations (score).
+2.  **Refinement (Iterative)**: An existing arrangement is improved by swapping students to reduce constraint violations (score).
+
+The two phases are **separate user actions**, not one pipeline:
+
+| UI action             | Worker operation | Runs                                                             |
+| :-------------------- | :--------------- | :--------------------------------------------------------------- |
+| "Mischen" / shuffle   | `mix:generate`   | `generateSeatingPlan()` — construction only, **no refinement**   |
+| "Verfeinern" / refine | `mix:refine`     | `refineSeatingLocal()` — refinement of the arrangement on screen |
+
+`generateSeatingPlan()` is `initializeAssignment` → `runPass` → `finalize`; it never calls `refineSeatingLocal()`. A plain shuffle therefore never pays for a local search.
 
 ---
 
@@ -15,7 +24,12 @@ The seating plan generation is a two-phased process:
 
 We provide two distinct strategies for the refinement phase. The choice of strategy depends on the complexity of the constraints and the desired balance between speed and quality.
 
-> **Default:** Greedy Refinement runs by default. Simulated Annealing is opt-in via `useAnnealing: true` in the options passed to `refineSeatingLocal()` (see `src/utils/algorithm/seatingAlgorithm.ts`).
+> **Default:** The two layers disagree on purpose, so read both:
+>
+> - `refineSeatingLocal()` on its own falls back to **Greedy** — Simulated Annealing needs `useAnnealing: true` in its options (see `src/utils/algorithm/seatingAlgorithm.ts`). This is what a direct caller (a test, say) gets.
+> - Every call **the app** makes goes through `executeAlgorithmOperation('mix:refine', …)`, which merges in `DEFAULT_REFINE_OPTIONS = { useAnnealing: true }` (see `src/workers/algorithmOperations.ts`). **The "Verfeinern" button therefore runs Simulated Annealing**, unless a caller explicitly passes `useAnnealing: false`.
+>
+> That constant lives in `algorithmOperations.ts` and nowhere else, so the worker and the main-thread fallback cannot drift apart on it.
 
 ### Strategy A: Greedy Refinement (Local Search)
 

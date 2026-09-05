@@ -7,7 +7,7 @@ import { useDialogA11y } from '@/hooks/ui/useDialogA11y';
 
 type LayoutEditorQuickSetupOverlayProps = {
   isOpen: boolean;
-  isMobile: boolean;
+  isPhone: boolean;
   panel: React.ReactNode;
   canDismiss: boolean;
   onClose: () => void;
@@ -16,7 +16,7 @@ type LayoutEditorQuickSetupOverlayProps = {
 const LayoutEditorQuickSetupOverlay = React.memo(
   function LayoutEditorQuickSetupOverlay({
     isOpen,
-    isMobile,
+    isPhone,
     panel,
     canDismiss,
     onClose,
@@ -26,24 +26,24 @@ const LayoutEditorQuickSetupOverlay = React.memo(
       open: isOpen,
       // The mobile variant is a portalled full-screen sheet; the desktop
       // variant only covers the canvas, so the page must stay scrollable.
-      lockScroll: isMobile,
+      lockScroll: isPhone,
     });
 
     if (!isOpen) {
       return null;
     }
 
-    // Escape is owned by LayoutEditorView, which skips foreign dialogs. The
-    // marker lets it recognise this overlay as its own.
+    // Escape is owned by LayoutEditorView, which registers this overlay as a
+    // dialog layer. The `data-quick-setup` marker that used to identify it in a
+    // DOM query is gone with the query.
     const dialogProps = {
       role: 'dialog',
       'aria-modal': true,
       'aria-label': t('quickSetup.title', 'Klassenraum einrichten'),
-      'data-quick-setup': 'true',
       tabIndex: -1,
     } as const;
 
-    if (isMobile) {
+    if (isPhone) {
       // Use Portal to render outside the canvas container for reliable touch interactions
       return ReactDOM.createPortal(
         <div

@@ -6,6 +6,7 @@
  */
 import {
   useCallback,
+  useEffect,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -225,6 +226,48 @@ export function usePersistQueue(
   useLayoutEffect(() => {
     flushPersistQueueRef.current = flushPersistQueue;
   });
+
+  // Queued writes wait for an idle callback that never arrives once the tab is
+  // hidden or torn down, so the last edit before closing would be lost. Both
+  // lifecycle events start the write immediately instead.
+  //
+  // `visibilitychange` is the one that reliably fires on mobile, and the page
+  // usually stays alive long enough for the write to finish; `pagehide` covers
+  // desktop tab closes and bfcache entry. Neither can be awaited, but starting
+  // the transaction is what matters — the browser lets an open IndexedDB write
+  // run to completion in the common cases.
+  useEffect(() => {
+    if (typeof window === 'undefined' || typeof document === 'undefined') {
+      return;
+    }
+
+    const flushNow = () => {
+      if (Object.keys(persistQueueRef.current).length === 0) {
+        return;
+      }
+      flushPersistQueueRef.current().catch((error: unknown) => {
+        logError(
+          'Flush on page lifecycle event failed',
+          { error },
+          'usePersistQueue',
+        );
+      });
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        flushNow();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('pagehide', flushNow);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('pagehide', flushNow);
+    };
+  }, []);
 
   const queuePersist = useCallback(
     <K extends PersistKey>(key: K, payload: PersistPayloadMap[K]) => {

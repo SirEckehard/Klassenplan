@@ -84,7 +84,9 @@ describe('executeAlgorithmOperation', () => {
       [],
       {},
       scene,
-      DEFAULT_REFINE_OPTIONS,
+      // `onProgress` is injected here rather than carried in the payload, so it
+      // rides along with the defaults.
+      { ...DEFAULT_REFINE_OPTIONS, onProgress: expect.any(Function) },
       undefined,
     );
   });
@@ -109,7 +111,52 @@ describe('executeAlgorithmOperation', () => {
       useAnnealing: true,
       triesPerPass: 42,
       passes: 7,
+      onProgress: expect.any(Function),
     });
+  });
+
+  it('reports progress stages for a mix', async () => {
+    const stages: AlgorithmProgressStage[] = [];
+
+    await executeAlgorithmOperation(
+      'mix:generate',
+      {
+        students,
+        seatingHistory: [],
+        mixHistory: [],
+        lockedPositions: {},
+        classroomScene: scene,
+        mixSettings: {},
+        lastSeating: null,
+        forceNew: true,
+      },
+      (_progress, stage) => stages.push(stage),
+    );
+
+    expect(stages).toEqual(['initializing', 'arranging', 'arranging']);
+  });
+
+  it('reports progress stages for a refinement', async () => {
+    const stages: AlgorithmProgressStage[] = [];
+
+    await executeAlgorithmOperation(
+      'mix:refine',
+      {
+        students,
+        seatingHistory: [],
+        mixHistory: [],
+        lockedPositions: {},
+        classroomScene: scene,
+        currentSeating: [],
+        mixSettings: {},
+        start: null,
+      },
+      (_progress, stage) => stages.push(stage),
+    );
+
+    // The mocked refine never calls its own reporter, so this pins the stages
+    // the operation layer itself emits around the call.
+    expect(stages).toEqual(['initializing', 'arranging']);
   });
 
   it('reports progress stages for circle generation', async () => {

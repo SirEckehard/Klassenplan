@@ -23,6 +23,20 @@ import {
   normalizeMixSettings,
 } from '@/utils';
 import { algorithmWorkerClient } from '@/workers/algorithmWorkerClient';
+import type { WorkerProgressPayload } from '@/workers/algorithmWorker.types';
+
+/**
+ * Cross-cutting controls for one algorithm run.
+ *
+ * Kept out of the algorithm settings on purpose: these say how the caller wants
+ * to observe and interrupt the run, not what the result should look like.
+ */
+export interface AlgorithmRunOptions {
+  /** Aborts the worker request; the promise rejects with an `AbortError`. */
+  signal?: AbortSignal;
+  /** Coarse stage plus a 0..1 fraction, forwarded from the worker. */
+  onProgress?: (payload: WorkerProgressPayload) => void;
+}
 
 /**
  * Provide algorithms to generate and refine seating arrangements.
@@ -114,6 +128,7 @@ export function useSeatingAlgorithm(state: SeatingState) {
       settings: Partial<MixSettings>,
       scene: ClassroomScene,
       forceNew = true, // Default to force new for actual generation
+      run?: AlgorithmRunOptions,
     ): Promise<SeatingArrangement> => {
       const normalizedSettings: Partial<MixSettings> = {
         ...settings,
@@ -152,16 +167,20 @@ export function useSeatingAlgorithm(state: SeatingState) {
       }
 
       return algorithmWorkerClient
-        .callOperation('mix:generate', {
-          students,
-          seatingHistory,
-          mixHistory: historyForPairs,
-          lockedPositions,
-          classroomScene: scene,
-          mixSettings: normalizedSettings,
-          lastSeating: lastSeating ?? null,
-          forceNew,
-        })
+        .callOperation(
+          'mix:generate',
+          {
+            students,
+            seatingHistory,
+            mixHistory: historyForPairs,
+            lockedPositions,
+            classroomScene: scene,
+            mixSettings: normalizedSettings,
+            lastSeating: lastSeating ?? null,
+            forceNew,
+          },
+          { signal: run?.signal, onProgress: run?.onProgress },
+        )
         .then(({ seating: arrangement }) => {
           // Cache the result only for non-forced generations
           if (!forceNew) {
@@ -227,6 +246,7 @@ export function useSeatingAlgorithm(state: SeatingState) {
       scene: ClassroomScene,
       options?: { triesPerPass?: number; passes?: number },
       start?: SeatingArrangement,
+      run?: AlgorithmRunOptions,
     ): Promise<SeatingArrangement> => {
       const normalizedSettings: Partial<MixSettings> = {
         ...settings,
@@ -237,17 +257,21 @@ export function useSeatingAlgorithm(state: SeatingState) {
       };
 
       return algorithmWorkerClient
-        .callOperation('mix:refine', {
-          students,
-          seatingHistory,
-          mixHistory: mixHistoryRef.current,
-          lockedPositions,
-          classroomScene: scene,
-          currentSeating,
-          mixSettings: normalizedSettings,
-          options,
-          start: start ?? null,
-        })
+        .callOperation(
+          'mix:refine',
+          {
+            students,
+            seatingHistory,
+            mixHistory: mixHistoryRef.current,
+            lockedPositions,
+            classroomScene: scene,
+            currentSeating,
+            mixSettings: normalizedSettings,
+            options,
+            start: start ?? null,
+          },
+          { signal: run?.signal, onProgress: run?.onProgress },
+        )
         .then(({ seating: arrangement }) => {
           recentSeatingRef.current =
             arrangement.length > 0 ? arrangement : null;

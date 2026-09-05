@@ -140,7 +140,7 @@ export interface SeatingPlanActions {
   handleHomeClick: React.MouseEventHandler<HTMLAnchorElement>;
   importInputRef: React.RefObject<HTMLInputElement | null>;
   triggerImport: () => void;
-  handleExportAll: () => void;
+  handleExportAll: () => Promise<void>;
   handleImportFile: React.ChangeEventHandler<HTMLInputElement>;
   clearAllData: () => Promise<void>;
   generateCircleSeating: () => Promise<CircleLayout | null>;

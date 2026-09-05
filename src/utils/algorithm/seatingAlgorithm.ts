@@ -36,6 +36,7 @@ import {
   runSimulatedAnnealing,
   type AnnealingConfig,
   type AnnealingContext,
+  type RefinementProgressReporter,
   DEFAULT_ANNEALING_CONFIG,
 } from './simulatedAnnealing';
 import {
@@ -654,6 +655,12 @@ export function refineSeatingLocal(
     annealingConfig?: Partial<AnnealingConfig>;
     /** Random source; pass a seeded one for reproducible refinement */
     rng?: RandomSource;
+    /**
+     * Called with a 0..1 fraction as the refinement advances. Injected by the
+     * worker layer, never sent through the request payload — a function does
+     * not survive structured cloning.
+     */
+    onProgress?: RefinementProgressReporter;
   },
   start?: SeatingArrangement,
 ): SeatingArrangement {
@@ -772,7 +779,11 @@ export function refineSeatingLocal(
       isLocked: seatHasLocked,
     };
 
-    const result = runSimulatedAnnealing(annealingContext, annealingConfig);
+    const result = runSimulatedAnnealing(
+      annealingContext,
+      annealingConfig,
+      options.onProgress,
+    );
 
     const refineEndTime = performance.now();
     logDebug(
@@ -789,6 +800,7 @@ export function refineSeatingLocal(
   }
 
   // Greedy refinement (default)
+  const reportPassProgress = options?.onProgress;
   for (let p = 0; p < passes; p++) {
     // QW-2: Calculate table scores and identify problem tables
     // This allows us to prioritize swaps from tables with worst scores
@@ -855,6 +867,8 @@ export function refineSeatingLocal(
         arr[t2]![s2] = B ?? null;
       }
     }
+
+    reportPassProgress?.((p + 1) / passes);
   }
 
   const refineEndTime = performance.now();

@@ -43,6 +43,7 @@ import { useStudentSelection } from '@/components/studentInput/hooks/useStudentS
 import StudentListToolsRow from '@/components/studentInput/StudentListToolsRow';
 import { useIsLgUp } from '@/hooks/ui/useIsLgUp';
 import { useCsvImportWithDialog } from '@/hooks/csv/useCsvImportWithDialog';
+import { isAnyDialogOpen } from '@/hooks/ui/useDialogLayer';
 
 /**
  * Whether Escape is free for the selection shortcut.
@@ -248,7 +249,7 @@ function StudentInput({
       condition: () =>
         selection.selectedCount > 0 &&
         escapeIsUnclaimed() &&
-        document.querySelector('[role="dialog"], [role="menu"]') === null,
+        !isAnyDialogOpen(),
     },
   );
 

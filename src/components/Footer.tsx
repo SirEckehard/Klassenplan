@@ -28,6 +28,7 @@ import ConfirmDialog from '@/components/ui/modals/ConfirmDialog';
 import StorageHistoryModal from '@/components/ui/navigation/StorageHistoryModal';
 import { GITHUB_REPO_URL } from '@/config/links';
 import { getAppVersion } from '@/utils/version';
+import { useDialogLayer } from '@/hooks/ui/useDialogLayer';
 
 const Footer: React.FC = () => {
   const { t } = useTranslation('common');
@@ -35,6 +36,9 @@ const Footer: React.FC = () => {
     useSeatingPlanActions();
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  // The settings menu owns Escape while it is open; the views underneath check
+  // the layer registry before acting on it.
+  useDialogLayer(menuOpen);
   const [historyModalOpen, setHistoryModalOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   // Dismissing the install toast is permanent; this menu entry stays as the
@@ -82,7 +86,9 @@ const Footer: React.FC = () => {
     setMenuOpen(false);
     // The success toast is fired by the export itself, once the password has
     // been confirmed and the file has been written.
-    handleExportAll();
+    handleExportAll().catch((error: unknown) => {
+      logError('Backup export failed', { error }, 'Footer');
+    });
   };
 
   const handleImportBackup = () => {

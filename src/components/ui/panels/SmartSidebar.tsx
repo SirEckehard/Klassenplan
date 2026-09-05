@@ -17,10 +17,11 @@ import {
   useCollapsibleSidebar,
   type UseCollapsibleSidebarOptions,
 } from '@/hooks/ui/useCollapsibleSidebar';
-import { useIsMobile } from '@/hooks/ui/useIsMobile';
+import { useLayoutMode } from '@/hooks/ui/useLayoutMode';
 import { useFloatingActionOffset } from '@/hooks/ui/useFloatingActionOffset';
 import { useAdaptiveViewportHeight } from '@/hooks/ui/useAdaptiveViewportHeight';
 import { useDialogA11y } from '@/hooks/ui/useDialogA11y';
+import { useDialogLayer } from '@/hooks/ui/useDialogLayer';
 
 interface SmartSidebarProps extends UseCollapsibleSidebarOptions {
   className?: string;
@@ -41,8 +42,15 @@ export default function SmartSidebar({
 }: SmartSidebarProps) {
   const { t } = useTranslation('generator');
   const sidebar = useCollapsibleSidebar(sidebarOptions);
-  const isMobile = useIsMobile();
+  const layoutMode = useLayoutMode();
+  const isPhone = layoutMode === 'phone';
+  const isTablet = layoutMode === 'tablet';
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  // On a tablet the rail starts collapsed and its expansion lives for the
+  // session only: 288px of sidebar would leave a 900px scene barely 500px of
+  // width, and the stored preference belongs to the desktop layout it was made
+  // in — a laptop choice must not decide how the iPad opens.
+  const [tabletExpanded, setTabletExpanded] = React.useState(false);
   const openMobileOverlay = React.useCallback(
     () => setMobileOpen(true),
     [setMobileOpen],
@@ -54,11 +62,34 @@ export default function SmartSidebar({
   const containerRef = React.useRef<HTMLElement | null>(null);
   const collapseButtonRef = React.useRef<HTMLButtonElement | null>(null);
   const mobileSheetRef = useDialogA11y<HTMLDivElement>({
-    open: isMobile && mobileOpen,
+    open: isPhone && mobileOpen,
   });
+  // The phone sheet owns Escape while it is up.
+  useDialogLayer(isPhone && mobileOpen);
   const mobileSheetTitleId = React.useId();
 
-  const { isExpanded, collapse, toggle, expand } = sidebar;
+  const isExpanded = isTablet ? tabletExpanded : sidebar.isExpanded;
+  const expand = React.useCallback(() => {
+    if (isTablet) {
+      setTabletExpanded(true);
+      return;
+    }
+    sidebar.expand();
+  }, [isTablet, sidebar]);
+  const collapse = React.useCallback(() => {
+    if (isTablet) {
+      setTabletExpanded(false);
+      return;
+    }
+    sidebar.collapse();
+  }, [isTablet, sidebar]);
+  const toggle = React.useCallback(() => {
+    if (isTablet) {
+      setTabletExpanded((previous) => !previous);
+      return;
+    }
+    sidebar.toggle();
+  }, [isTablet, sidebar]);
   const { maxHeight } = useAdaptiveViewportHeight<HTMLElement>({
     containerRef,
     disabled: false,
@@ -69,15 +100,15 @@ export default function SmartSidebar({
   });
   const renderProps = React.useMemo(
     () => ({
-      isExpanded: isMobile ? mobileOpen : isExpanded,
-      expand: isMobile ? openMobileOverlay : expand,
-      close: isMobile ? closeMobileOverlay : undefined,
+      isExpanded: isPhone ? mobileOpen : isExpanded,
+      expand: isPhone ? openMobileOverlay : expand,
+      close: isPhone ? closeMobileOverlay : undefined,
     }),
     [
       closeMobileOverlay,
       expand,
       isExpanded,
-      isMobile,
+      isPhone,
       mobileOpen,
       openMobileOverlay,
     ],
@@ -122,8 +153,8 @@ export default function SmartSidebar({
     return { maxHeight };
   }, [maxHeight]);
 
-  // On mobile, render floating button + full-screen overlay
-  if (isMobile) {
+  // Only a phone has no room for a column: floating button + full-screen sheet.
+  if (isPhone) {
     return (
       <>
         {/* Floating trigger button */}

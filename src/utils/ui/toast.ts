@@ -127,6 +127,7 @@ export const TOAST_MESSAGES = {
   // Mix operations
   MIX_DELETED: 'toast:mix.deleted',
   MIX_NONE_AVAILABLE: 'toast:mix.noneAvailable',
+  MIX_CANCELLED: 'toast:mix.cancelled',
 
   // Data operations
   DATA_DELETED: 'toast:data.deleted',

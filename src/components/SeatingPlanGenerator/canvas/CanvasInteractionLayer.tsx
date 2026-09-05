@@ -312,22 +312,38 @@ export default function CanvasInteractionLayer({
     }
   }, [canPaste, closeCanvasContextMenu]);
 
-  return (
-    <>
-      {children({
-        handleCanvasPointerMove: canvasInteraction.handleCanvasPointerMove,
-        handleCanvasPointerUp: canvasInteraction.handleCanvasPointerUp,
-        beginSelectionWithLongPress:
-          canvasInteraction.beginSelectionWithLongPress,
-        handleTablePointerDown: canvasInteraction.handleTablePointerDown,
-        deleteSelection,
-        copySelection,
-        cutSelection,
-        pasteSelectionAt,
-        handleCanvasMenuPaste,
-        canPaste,
-        selectionBox: canvasInteraction.selectionBox,
-      })}
-    </>
+  // Memoised because it is a prop of the memoised `LayoutEditorView`: rebuilding
+  // it every render made that memo compare unequal every time, so the whole
+  // layout editor re-rendered on any parent update.
+  const handlers = React.useMemo<CanvasInteractionHandlers>(
+    () => ({
+      handleCanvasPointerMove: canvasInteraction.handleCanvasPointerMove,
+      handleCanvasPointerUp: canvasInteraction.handleCanvasPointerUp,
+      beginSelectionWithLongPress:
+        canvasInteraction.beginSelectionWithLongPress,
+      handleTablePointerDown: canvasInteraction.handleTablePointerDown,
+      deleteSelection,
+      copySelection,
+      cutSelection,
+      pasteSelectionAt,
+      handleCanvasMenuPaste,
+      canPaste,
+      selectionBox: canvasInteraction.selectionBox,
+    }),
+    [
+      canvasInteraction.handleCanvasPointerMove,
+      canvasInteraction.handleCanvasPointerUp,
+      canvasInteraction.beginSelectionWithLongPress,
+      canvasInteraction.handleTablePointerDown,
+      canvasInteraction.selectionBox,
+      deleteSelection,
+      copySelection,
+      cutSelection,
+      pasteSelectionAt,
+      handleCanvasMenuPaste,
+      canPaste,
+    ],
   );
+
+  return <>{children(handlers)}</>;
 }

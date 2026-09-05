@@ -6,6 +6,7 @@ import { CaretDownIcon } from '@phosphor-icons/react';
 import { menuSurfaceClass, secondaryButtonClass } from '@/utils';
 import FloatingDropdown from '@/components/students/FloatingDropdown';
 import { useClickOutside } from '@/hooks/ui/useClickOutside';
+import { useDialogLayer } from '@/hooks/ui/useDialogLayer';
 
 export interface BulkAttributeOption<TValue extends string> {
   value: TValue;
@@ -31,9 +32,9 @@ interface BulkAttributeMenuProps<TValue extends string> {
  * it keeps its 14px type on touch devices where `index.css` bumps form controls
  * to 16px.
  *
- * The menu carries `role="menu"`, which parks the global Escape shortcut in
- * `StudentInput` (it would otherwise drop the whole selection); closing on
- * Escape is therefore this component's job.
+ * While open it registers as a dialog layer, which stands down the global
+ * Escape shortcut in `StudentInput` (that one would otherwise drop the whole
+ * selection); closing on Escape is therefore this component's job.
  */
 export default function BulkAttributeMenu<TValue extends string>({
   label,
@@ -46,6 +47,7 @@ export default function BulkAttributeMenu<TValue extends string>({
   const containerRef = React.useRef<HTMLDivElement | null>(null);
   const contentRef = React.useRef<HTMLDivElement | null>(null);
   const [open, setOpen] = React.useState(false);
+  useDialogLayer(open);
   // Set when the menu was opened from the keyboard: the portal only mounts a
   // frame later, so the item to focus has to be remembered until it exists.
   const [pendingFocus, setPendingFocus] = React.useState<

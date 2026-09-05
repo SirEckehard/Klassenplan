@@ -299,6 +299,34 @@ class AlgorithmWorkerClient {
     });
   }
 
+  /**
+   * Arms the timer that fails a request the worker stopped answering.
+   *
+   * The budget measures *silence*, not total runtime: a refinement that keeps
+   * reporting progress is healthy however long it takes, while a worker that
+   * goes quiet still has to fail visibly instead of hanging forever.
+   */
+  private armTimeout(
+    requestId: string,
+    operation: AlgorithmWorkerOperation,
+    timeoutMs: number,
+    reject: (reason: unknown) => void,
+  ): ReturnType<typeof setTimeout> {
+    return setTimeout(() => {
+      this.pending.delete(requestId);
+      logWarn(
+        'Worker request timed out',
+        { operation, timeoutMs },
+        WORKER_CONTEXT,
+      );
+      // Drop the stuck worker so the next request starts from a fresh one
+      // instead of queueing behind a job that never finishes.
+      this.disposeWorker();
+      this.initPromise = null;
+      reject(new AlgorithmWorkerTimeoutError(operation, timeoutMs));
+    }, timeoutMs);
+  }
+
   private async dispatch<T extends AlgorithmWorkerOperation>(
     operation: T,
     payload: AlgorithmWorkerRequestMap[T]['payload'],
@@ -321,25 +349,20 @@ class AlgorithmWorkerClient {
         return;
       }
 
-      const timeoutId = setTimeout(() => {
-        this.pending.delete(requestId);
-        logWarn(
-          'Worker request timed out',
-          { operation, timeoutMs },
-          WORKER_CONTEXT,
-        );
-        // Drop the stuck worker so the next request starts from a fresh one
-        // instead of queueing behind a job that never finishes.
-        this.disposeWorker();
-        this.initPromise = null;
-        reject(new AlgorithmWorkerTimeoutError(operation, timeoutMs));
-      }, timeoutMs);
+      const timeoutId = this.armTimeout(
+        requestId,
+        operation,
+        timeoutMs,
+        reject,
+      );
 
       const abortHandler = () => {
         if (options.signal) {
           options.signal.removeEventListener('abort', abortHandler);
         }
-        clearTimeout(timeoutId);
+        // Read the timer off the entry rather than closing over the first one:
+        // every progress message replaces it.
+        clearTimeout(this.pending.get(requestId)?.timeoutId ?? timeoutId);
         this.pending.delete(requestId);
         reject(new DOMException('The request was aborted', 'AbortError'));
       };
@@ -383,19 +406,30 @@ class AlgorithmWorkerClient {
     if (pending.timeoutId) {
       clearTimeout(pending.timeoutId);
     }
-    if (pending.abortHandler && pending.options.signal) {
-      pending.options.signal.removeEventListener('abort', pending.abortHandler);
-    }
 
     if (response.status === 'progress') {
       if (pending.options.onProgress) {
         pending.options.onProgress(response.progress);
       }
-      // Keep request pending for future updates
-      this.pending.set(response.requestId, pending);
+      // A progress message is proof of life, not the end of the request. The
+      // abort listener has to stay attached — cancelling a refinement mid-run
+      // is exactly the case that arrives after the first progress message —
+      // and the silence budget starts over.
+      this.pending.set(response.requestId, {
+        ...pending,
+        timeoutId: this.armTimeout(
+          response.requestId,
+          pending.operation,
+          pending.options.timeoutMs ?? DEFAULT_TIMEOUT_MS,
+          pending.reject,
+        ),
+      });
       return;
     }
 
+    if (pending.abortHandler && pending.options.signal) {
+      pending.options.signal.removeEventListener('abort', pending.abortHandler);
+    }
     this.pending.delete(response.requestId);
 
     if (response.status === 'success') {
