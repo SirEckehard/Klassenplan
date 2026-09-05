@@ -1,4 +1,8 @@
 {
+  "v2_0_2": {
+    "0": "On phones and tablets, menus with an input field could not be typed into: the on-screen keyboard opened and closed again straight away. Affects 'Add' in the class list as well as search and filter",
+    "1": "Opening a menu puts the cursor back in its first field or on its first entry reliably"
+  },
   "v2_0_1": {
     "0": "Seating plans that were really in use are recognised: Klassenplan quietly notes which plans were actually used – from presenting, printing or exporting, saving under your own name and rearranging seats by hand. That improves the repetition avoidance, and you do not have to tick anything",
     "1": "New 'Neighbourhoods' tab under 'Plans, shuffles & neighbourhoods': it shows who has already sat next to whom and how often – with the date and the underlying data, from which you can exclude individual plans",

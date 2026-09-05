@@ -1,4 +1,8 @@
 {
+  "v2_0_2": {
+    "0": "Auf Handy und Tablet ließ sich in Menüs mit Eingabefeld nichts eintippen: Die Bildschirmtastatur klappte auf und sofort wieder zu. Betrifft „Hinzufügen“ in der Klassenliste ebenso wie Suche und Filter",
+    "1": "Beim Öffnen eines Menüs sitzt der Cursor wieder zuverlässig im ersten Feld bzw. auf dem ersten Eintrag"
+  },
   "v2_0_1": {
     "0": "Genutzte Sitzpläne werden erkannt: Klassenplan merkt sich im Hintergrund, welche Pläne wirklich im Einsatz waren – am Präsentieren, Drucken bzw. Exportieren, Speichern unter eigenem Namen und Umsetzen von Hand. Das verbessert die Wiederholungsvermeidung, markieren musst du dafür nichts",
     "1": "Neuer Reiter „Nachbarschaften“ unter „Pläne, Mischungen & Nachbarschaften“: Er zeigt, wer schon wie oft nebeneinander saß – samt Datum und Datengrundlage, aus der du einzelne Pläne herausnehmen kannst",

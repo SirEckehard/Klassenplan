@@ -13,6 +13,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Improved
 
+## [2.0.2] - 2026-09-05
+
+### Fixed
+
+- Menus with an input field could not be typed into on phones and tablets: opening the on-screen keyboard is what repositions the menu, and repositioning took the focus off the field, closing the keyboard again. Affects "Add" in the class list as well as search and filter
+- Opening a menu reliably puts the cursor in its first field or on its first entry
+
 ## [2.0.1] - 2026-09-05
 
 ### Added
