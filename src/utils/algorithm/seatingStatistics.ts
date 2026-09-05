@@ -7,6 +7,7 @@ import type {
   SavedPlan,
   ClassroomScene,
   MixResult,
+  PlanUsage,
 } from '@/types';
 import { buildPreviousPairs } from '@/utils/pairs';
 import {
@@ -144,7 +145,7 @@ export function calculateSeatingStatistics(
   settings: Partial<MixSettings>,
   seatingHistory: SavedPlan[],
   scene: ClassroomScene,
-  options?: { mixHistory?: MixResult[] },
+  options?: { mixHistory?: MixResult[]; planUsage?: PlanUsage[] },
 ): SeatingStatistics {
   const totalStudents = students.length;
   const totalSeats = arrangement.reduce((sum, table) => sum + table.length, 0);
@@ -157,6 +158,7 @@ export function calculateSeatingStatistics(
   const previousPairs = settings.avoidPreviousPairs
     ? buildPreviousPairs(seatingHistory, {
         mixHistory: mixHistoryExcludingCurrent,
+        planUsage: options?.planUsage,
         studentCount: students.length,
       })
     : new Map<string, number>();

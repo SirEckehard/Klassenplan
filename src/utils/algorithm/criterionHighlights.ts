@@ -3,6 +3,7 @@
 import type {
   ClassroomScene,
   MixResult,
+  PlanUsage,
   MixSettings,
   SavedPlan,
   SeatingArrangement,
@@ -30,6 +31,8 @@ type HighlightParams = {
   scene: ClassroomScene;
   seatingHistory?: SavedPlan[];
   mixHistory?: MixResult[];
+  /** Records of plans that were really in use; see `buildPreviousPairs`. */
+  planUsage?: PlanUsage[];
 };
 
 const calculateProximityScore = (distance: number, maxDistance: number) => {
@@ -65,6 +68,7 @@ export function buildCriterionHighlightEntries({
   scene,
   seatingHistory,
   mixHistory,
+  planUsage,
 }: HighlightParams): StatisticHighlightEntry[] {
   const entries: StatisticHighlightEntry[] = [];
   const seatPositions = getSeatPositions(scene);
@@ -112,6 +116,7 @@ export function buildCriterionHighlightEntries({
     criterionKey === 'avoidPreviousPairs' && seatingHistory
       ? buildPreviousPairs(seatingHistory, {
           mixHistory,
+          planUsage,
           studentCount: seatedCount,
         })
       : null;

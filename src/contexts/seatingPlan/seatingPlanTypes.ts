@@ -16,6 +16,7 @@ import type {
   StatisticHighlightState,
   ActiveClassState,
   SaveTemplateResult,
+  PlanUsage,
 } from '@/types';
 import type { CircleLayout, CircleGenerationStatus } from '@/types/Circle';
 import type { CriterionFulfillment } from '@/utils/algorithm/seatingStatistics';
@@ -51,6 +52,8 @@ export interface SeatingPlanState {
   currentAppVersion: string;
   classSummaries: ClassSummary[];
   activeClass: ActiveClassState;
+  /** Records of plans that were really in use; see `buildPreviousPairs`. */
+  planUsage: PlanUsage[];
   statisticsHighlight: StatisticHighlightState | null;
   /** Seating-plan undo/redo availability (mixing, drag swaps, locks, circle). */
   canUndoSeating: boolean;

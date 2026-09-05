@@ -5,6 +5,7 @@ import type {
   LockedPositions,
   MixResult,
   MixSettings,
+  PlanUsage,
   SavedPlan,
   SeatingArrangement,
   Student,
@@ -37,6 +38,8 @@ export type AlgorithmWorkerRequestMap = {
       students: Student[];
       seatingHistory: SavedPlan[];
       mixHistory: MixResult[];
+      /** Records of plans that were really in use; see `buildPreviousPairs`. */
+      planUsage?: PlanUsage[];
       lockedPositions: LockedPositions;
       classroomScene: ClassroomScene;
       mixSettings: Partial<MixSettings>;
@@ -55,6 +58,8 @@ export type AlgorithmWorkerRequestMap = {
       mixSettings: Partial<MixSettings>;
       mixHistory: MixResult[];
       seatingHistory: SavedPlan[];
+      /** Records of plans that were really in use; see `buildPreviousPairs`. */
+      planUsage?: PlanUsage[];
       lockedPositions: LockedPositions;
       options?: { triesPerPass?: number; passes?: number };
       start?: SeatingArrangement | null;

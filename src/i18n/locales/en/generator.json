@@ -249,7 +249,7 @@
     "importBackup": "Import backup",
     "showAllPlans": "Show all plans",
     "backupExported": "Backup exported.",
-    "historyTitle": "Saved Plans & Shuffle History",
+    "historyTitle": "Plans, mixes & neighbourhoods",
     "savedPlans": "Saved Plans",
     "mixHistory": "Shuffle History",
     "noPlans": "No saved plans available.",
@@ -258,7 +258,33 @@
     "planDeleted": "Plan \"{{name}}\" deleted.",
     "mixLoaded": "Shuffle result from {{time}} loaded.",
     "mixDeleted": "Shuffle result deleted.",
-    "historyTabs": "History"
+    "historyTabs": "History",
+    "neighbors": {
+      "tab": "Neighbourhoods",
+      "empty": "Nothing to evaluate yet.",
+      "emptyHint": "As soon as you present, print, export or name-save a seating chart, it is counted here. Shuffling alone does not count.",
+      "basis_one": "Based on {{count}} counted seating chart",
+      "basis_other": "Based on {{count}} counted seating charts",
+      "basisSince": "since {{date}}.",
+      "searchLabel": "Filter by student",
+      "searchPlaceholder": "Enter a name …",
+      "noMatches": "No neighbourhood matches this search.",
+      "times_one": "{{count}}×",
+      "times_other": "{{count}}×",
+      "lastSeen": "last {{date}}",
+      "showBasis": "Show the data behind this",
+      "hideBasis": "Hide the data behind this",
+      "recordLabel": "Seating chart of {{date}}",
+      "exclude": "Don't count",
+      "include": "Count again",
+      "unknownStudent": "Unknown",
+      "sources": {
+        "presented": "presented",
+        "exported": "exported",
+        "saved": "saved",
+        "edited": "rearranged by hand"
+      }
+    }
   },
   "classActions": {
     "emptyState": {

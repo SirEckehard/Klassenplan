@@ -43,6 +43,12 @@ export const BACKUP_LIMITS = {
   // URL stays small; cap generously to reject tampered/oversized payloads.
   maxStudentPhotos: 2000,
   maxPhotoDataUrlBytes: 96 * 1024,
+  // Plan usage records (export version ≥ 2): a handful per class and school
+  // year, each holding only pair keys and timestamps. Capped generously so a
+  // long-running installation still imports while a tampered file does not.
+  maxPlanUsageClasses: 200,
+  maxPlanUsageRecords: 200,
+  maxPlanUsagePairs: 1000,
   // Bounds for KDF iteration counts declared in the encrypted envelope: the
   // lower bound rejects deliberately weakened files, the upper bound prevents
   // a tampered envelope from stalling the browser during key derivation.
@@ -840,6 +846,81 @@ function validateStudentPhotos(
   }
 }
 
+const PLAN_USAGE_SOURCES = new Set<string>([
+  'presented',
+  'exported',
+  'saved',
+  'edited',
+]);
+
+function validatePlanUsageRecord(value: unknown): void {
+  if (!isObject(value)) {
+    throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
+  }
+  if (
+    !assertString(value.id, { maxLength: BACKUP_LIMITS.maxIdLength }) ||
+    !assertString(value.fingerprint, { maxLength: BACKUP_LIMITS.maxIdLength })
+  ) {
+    throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
+  }
+  if (
+    !assertString(value.firstSeenAt, {
+      maxLength: BACKUP_LIMITS.maxTimestampLength,
+    }) ||
+    !assertString(value.lastSeenAt, {
+      maxLength: BACKUP_LIMITS.maxTimestampLength,
+    })
+  ) {
+    throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
+  }
+  if (!ensureNumberInRange(value.confidence, 0, 1)) {
+    throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
+  }
+  if (value.confirmed !== undefined && typeof value.confirmed !== 'boolean') {
+    throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
+  }
+  if (
+    !Array.isArray(value.sources) ||
+    value.sources.length === 0 ||
+    !value.sources.every(
+      (source) => typeof source === 'string' && PLAN_USAGE_SOURCES.has(source),
+    )
+  ) {
+    throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
+  }
+  if (
+    !Array.isArray(value.pairs) ||
+    value.pairs.length > BACKUP_LIMITS.maxPlanUsagePairs ||
+    !value.pairs.every((pair) =>
+      assertString(pair, { maxLength: BACKUP_LIMITS.maxIdLength * 2 + 2 }),
+    )
+  ) {
+    throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
+  }
+}
+
+function validatePlanUsage(value: unknown): void {
+  if (!isObject(value)) {
+    throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
+  }
+  const entries = Object.entries(value);
+  if (entries.length > BACKUP_LIMITS.maxPlanUsageClasses) {
+    throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
+  }
+  for (const [classId, records] of entries) {
+    if (!assertString(classId, { maxLength: BACKUP_LIMITS.maxIdLength })) {
+      throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
+    }
+    if (
+      !Array.isArray(records) ||
+      records.length > BACKUP_LIMITS.maxPlanUsageRecords
+    ) {
+      throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
+    }
+    records.forEach(validatePlanUsageRecord);
+  }
+}
+
 function validateExportBundleStructure(
   value: unknown,
 ): asserts value is ExportBundle {
@@ -872,6 +953,9 @@ function validateExportBundleStructure(
   }
   if ('studentPhotos' in value && value.studentPhotos) {
     validateStudentPhotos(value.studentPhotos);
+  }
+  if ('planUsage' in value && value.planUsage) {
+    validatePlanUsage(value.planUsage);
   }
 }
 

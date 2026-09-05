@@ -61,6 +61,7 @@ describe('executeAlgorithmOperation', () => {
       { preferGenderMix: 3 },
       scene,
       undefined,
+      { planUsage: undefined },
     );
   });
 

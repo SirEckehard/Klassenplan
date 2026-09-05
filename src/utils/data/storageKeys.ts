@@ -64,6 +64,7 @@ export const STORAGE_KEYS = {
     currentCircleLayout: 'spg.currentCircleLayout',
     classCollection: 'spg.classCollection',
     nameGameStats: 'spg.nameGameStats',
+    planUsage: 'spg.planUsage',
     version: 'spg.version',
   },
 } as const;

@@ -14,6 +14,7 @@ const seatingState = vi.hoisted(() => ({
     classroomScene: { tables: [] as unknown[], totalStudents: 0 },
     students: [] as unknown[],
     circleLayout: null as unknown,
+    activeClass: { id: 'class-1', name: '5a' },
   },
 }));
 
@@ -50,6 +51,7 @@ describe('Present', () => {
       classroomScene: { tables: [], totalStudents: 0 },
       students: [],
       circleLayout: null,
+      activeClass: { id: 'class-1', name: '5a' },
     };
   });
 
@@ -79,6 +81,7 @@ describe('Present', () => {
       },
       students: [student],
       circleLayout: null,
+      activeClass: { id: 'class-1', name: '5a' },
     };
 
     renderPresent();
@@ -132,6 +135,7 @@ describe('Present', () => {
         mode: 'preserve-neighbors',
         timestamp: 1,
       },
+      activeClass: { id: 'class-1', name: '5a' },
     };
 
     renderPresent({ mode: 'circle' });

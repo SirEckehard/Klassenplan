@@ -192,5 +192,10 @@
   "feature": {
     "notCopyable": "The board can't be copied.",
     "boardReplaced": "There can only be one board because it defines the front of the room for the seating algorithm. The existing board was replaced – use the whiteboard for a second surface."
+  },
+  "planUsage": {
+    "recorded": "Noted as a seating chart in use – this improves repeat avoidance.",
+    "recordedAction": "Just a test",
+    "dismissed": "This seating chart will not be counted."
   }
 }

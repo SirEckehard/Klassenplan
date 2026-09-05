@@ -209,6 +209,18 @@ export default function Datenschutz() {
                   gelöscht.
                 </p>
                 <p>
+                  Damit die Wiederholungsvermeidung echte Sitzpläne von bloßem
+                  Ausprobieren unterscheiden kann, hält Klassenplan fest, welche
+                  Sitzpläne tatsächlich im Einsatz waren – erkennbar daran, dass
+                  du sie präsentierst, druckst bzw. exportierst, unter einem
+                  eigenen Namen speicherst oder von Hand anpasst. Festgehalten
+                  werden dabei ausschließlich die Sitznachbarschaften (als
+                  Schüler-IDs) und ein Zeitstempel, nicht der Sitzplan selbst.
+                  Auch diese Aufzeichnung verbleibt lokal auf deinem Gerät, wird
+                  weder übertragen noch ausgewertet und gemeinsam mit den
+                  übrigen Daten gelöscht.
+                </p>
+                <p>
                   Die lokal gespeicherten Daten liegen{' '}
                   <strong>unverschlüsselt</strong> im Browser-Profil dieses
                   Geräts. Schütze das Gerät daher wie gewohnt (Benutzerkonto,

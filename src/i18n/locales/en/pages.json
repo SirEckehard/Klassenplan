@@ -302,7 +302,15 @@
         "li1": "Pairs from older plans receive decreasing weight (newer ones count more)",
         "li2_b": "Current Session:",
         "li2": "The last mixes are weighted more heavily so that pairs do not repeat immediately",
-        "outro": "This avoids the same students sitting next to each other constantly when you shuffle several times in a row. Of course not every shuffle becomes a seating plan that is actually used in the classroom, and that is where repetition avoidance still reaches its limits. I am working on a solution – if you have an idea, do get in touch!"
+        "outro": "This avoids the same students sitting next to each other constantly when you shuffle several times in a row. Not every shuffle is actually put into practice, though – and that is exactly where the mix history on its own reaches its limits.",
+        "usageIntro": "Klassenplan therefore keeps track of which seating charts were really in use. There is nothing to tick – what counts is what you do anyway:",
+        "usage1": "Showing a seating chart in presentation mode",
+        "usage2": "Printing a seating chart or exporting it as PDF, PNG or SVG",
+        "usage3": "Saving a seating chart under a name you chose yourself",
+        "usage4": "Swapping seats by hand",
+        "usageOutro": "Only the seating neighbourhoods and a timestamp are stored, entirely on your own device – no cloud, no analytics service. On the first strong signal a short notice asks: if it really was just a test, one click takes the chart back out of the count.",
+        "weightNote": "For repeat avoidance these real seating charts are read first; mixes from the running session now weigh only half as much. A long session of trying things out can no longer drown out the result.",
+        "viewNote": "Under \"Plans, mixes & neighbourhoods\" (footer or step 3) the \"Neighbourhoods\" tab shows who has sat next to whom and how often – including the data it rests on, from which you can remove individual charts."
       },
       "values": {
         "q": "What do the individual statistics values indicate?",
@@ -336,7 +344,7 @@
       },
       "how": {
         "q": "How does the backup work?",
-        "a": "The export creates a file encrypted with your password (at least 8 characters) containing all classes, students including their photos, seating plans, shuffle history, seating circle, classroom features, templates and settings. Without that password the file cannot be restored – so keep it safe to avoid losing your data."
+        "a": "The export creates a file encrypted with your password (at least 8 characters) containing all classes, students including their photos, seating plans, shuffle and usage history, seating circle, classroom features, templates and settings. Without that password the file cannot be restored – so keep it safe to avoid losing your data."
       },
       "deviceChange": {
         "q": "How do I move my classes to a new computer?",

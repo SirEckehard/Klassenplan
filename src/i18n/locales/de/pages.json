@@ -302,7 +302,15 @@
         "li1": "Paare aus älteren Plänen erhalten abnehmende Gewichtung (neuere zählen stärker)",
         "li2_b": "Aktuelle Session:",
         "li2": "Die letzten Mischungen werden stärker gewichtet, damit sich Paare nicht sofort wiederholen",
-        "outro": "So wird vermieden, dass dieselben Schüler ständig nebeneinander sitzen, wenn du mehrfach hintereinander mischst. Natürlich ist nicht jede Mischung ein Sitzplan, der dann auch in der Realität umgesetzt wird. Da stößt die Wiederholungsvermeidung derzeit noch an ihre Grenzen. Ich arbeite aber an einer Lösung. Wenn du dazu eine Idee hast, melde dich gern!"
+        "outro": "So wird vermieden, dass dieselben Schüler ständig nebeneinander sitzen, wenn du mehrfach hintereinander mischst. Nicht jede Mischung wird aber auch wirklich umgesetzt – und genau da stößt die reine Misch-Historie an ihre Grenzen.",
+        "usageIntro": "Klassenplan merkt sich deshalb im Hintergrund, welche Sitzpläne tatsächlich im Einsatz waren. Markieren musst du dafür nichts – gewertet wird, was du ohnehin tust:",
+        "usage1": "Einen Sitzplan im Präsentationsmodus zeigen",
+        "usage2": "Einen Sitzplan drucken oder als PDF, PNG oder SVG exportieren",
+        "usage3": "Einen Sitzplan unter einem selbst gewählten Namen speichern",
+        "usage4": "Plätze im Sitzplan von Hand tauschen",
+        "usageOutro": "Gespeichert werden dabei nur die Sitznachbarschaften und ein Zeitstempel, ausschließlich lokal auf deinem Gerät – ohne Cloud, ohne Statistik-Dienst. Beim ersten starken Signal fragt ein kurzer Hinweis nach: Wenn es doch nur ein Test war, nimmst du den Plan mit einem Klick wieder aus der Wertung.",
+        "weightNote": "Für die Wiederholungsvermeidung zählen diese echten Sitzpläne zuerst; reine Mischungen aus der laufenden Sitzung gehen nur noch halb so stark ein. So kann eine lange Probier-Runde das Ergebnis nicht mehr überlagern.",
+        "viewNote": "Unter „Pläne, Mischungen & Nachbarschaften“ (Fußzeile oder Schritt 3) zeigt der Reiter „Nachbarschaften“, wer schon wie oft nebeneinander saß – samt Datengrundlage, aus der du einzelne Pläne herausnehmen kannst."
       },
       "values": {
         "q": "Was zeigen die einzelnen Statistik-Werte an?",
@@ -336,7 +344,7 @@
       },
       "how": {
         "q": "Wie funktioniert das Backup?",
-        "a": "Der Export erstellt eine mit deinem Passwort verschlüsselte Datei (mindestens 8 Zeichen) mit allen Klassen, Schülern samt Fotos, Sitzplänen, Misch-Historie, Sitzkreis, Klassenzimmer-Features, Vorlagen und Einstellungen. Ohne dieses Passwort lässt sich die Datei nicht wiederherstellen – bewahre es also sicher auf, um Datenverlust zu vermeiden."
+        "a": "Der Export erstellt eine mit deinem Passwort verschlüsselte Datei (mindestens 8 Zeichen) mit allen Klassen, Schülern samt Fotos, Sitzplänen, Misch- und Nutzungs-Historie, Sitzkreis, Klassenzimmer-Features, Vorlagen und Einstellungen. Ohne dieses Passwort lässt sich die Datei nicht wiederherstellen – bewahre es also sicher auf, um Datenverlust zu vermeiden."
       },
       "deviceChange": {
         "q": "Wie nehme ich meine Daten auf einen neuen Rechner mit?",

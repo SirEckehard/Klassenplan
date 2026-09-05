@@ -10,6 +10,7 @@ import type {
   StatisticHighlightMode,
   SavedPlan,
   MixResult,
+  PlanUsage,
 } from '@/types';
 import type { CircleLayout } from '@/types/Circle';
 import type { CriterionFulfillment } from '@/utils/algorithm/seatingStatistics';
@@ -76,6 +77,8 @@ export type SeatingPlanViewProps = {
   clearStatisticsHighlight?: () => void;
   seatingHistory?: SavedPlan[];
   mixHistory?: MixResult[];
+  /** Records of plans that were really in use; see `buildPreviousPairs`. */
+  planUsage?: PlanUsage[];
   autoMixing?: boolean;
   autoMixError?: string | null;
 };

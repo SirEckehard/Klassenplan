@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
@@ -37,6 +37,7 @@ import {
   secondaryButtonClass,
   type NameDisplayMode,
 } from '@/utils';
+import { usePlanUsagePrompt } from '@/hooks/plan/usePlanUsagePrompt';
 import {
   NAME_DISPLAY_ICONS,
   NAME_DISPLAY_MODES,
@@ -55,6 +56,13 @@ import type { PresentationPerspective } from '@/utils/ui/boardOrientation';
 const PRESENT_MIN_ZOOM = 0.5;
 const PRESENT_MAX_ZOOM = 3;
 
+/**
+ * How long a plan has to stay on screen before it counts as presented. Long
+ * enough that opening the view and navigating straight back out is not mistaken
+ * for a lesson, short enough that any real use is caught.
+ */
+const PRESENT_USAGE_DWELL_MS = 30_000;
+
 export default function Present() {
   const { t } = useTranslation('generator');
   const metadata = usePageSeo('/present');
@@ -62,14 +70,34 @@ export default function Present() {
   const isDark = useIsDarkMode();
   const location = useLocation();
 
-  const { currentSeating, classroomScene, students, circleLayout } =
-    useSeatingPlanState();
+  const {
+    currentSeating,
+    classroomScene,
+    students,
+    circleLayout,
+    activeClass,
+  } = useSeatingPlanState();
 
   const initialMode =
     (location.state as { mode?: SeatingMode } | null)?.mode ?? 'table';
   const [mode, setMode] = useState<SeatingMode>(initialMode);
   // Generate the circle layout on demand when switching to circle presentation.
   useEnsureCircleLayout(mode, { enabled: mode === 'circle' });
+
+  const recordUsage = usePlanUsagePrompt(activeClass.id);
+
+  // Showing a plan on the projector is the clearest evidence that it is the
+  // arrangement actually in use, unlike the dozens of mixes tried beforehand.
+  // Circle mode is left out: the usage record tracks table neighbourhoods.
+  useEffect(() => {
+    if (mode !== 'table' || currentSeating.length === 0) return;
+
+    const timer = window.setTimeout(() => {
+      recordUsage(currentSeating, 'presented');
+    }, PRESENT_USAGE_DWELL_MS);
+
+    return () => window.clearTimeout(timer);
+  }, [mode, currentSeating, recordUsage]);
 
   const [perspective, setPerspective] =
     useState<PresentationPerspective>('student');

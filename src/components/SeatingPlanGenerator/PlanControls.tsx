@@ -33,6 +33,7 @@ export default function PlanControls() {
     autoMixError,
     seatingHistory,
     mixHistory,
+    planUsage,
     lastStatistics,
     showStatisticsBadge,
     seatingMode,
@@ -145,6 +146,7 @@ export default function PlanControls() {
     clearStatisticsHighlight,
     seatingHistory,
     mixHistory,
+    planUsage,
   };
   const studentBoundaryResetKeys: ReadonlyArray<number> = [students.length];
   const layoutBoundaryResetKeys: ReadonlyArray<number> = [

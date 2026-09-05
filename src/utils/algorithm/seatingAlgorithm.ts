@@ -8,6 +8,7 @@ import type {
   SavedPlan,
   MixResult,
   NeighborWeightSettings,
+  PlanUsage,
 } from '@/types';
 import { evenTargetsFor } from '@/utils/distribution';
 import { shuffleArray } from './shuffle';
@@ -244,11 +245,13 @@ export function initializeAssignment(
   scene: ClassroomScene,
   currentSeating?: SeatingArrangement,
   rng: RandomSource = Math.random,
+  planUsage?: PlanUsage[],
 ): AssignmentContext {
   const previousPairs = settings.avoidPreviousPairs
     ? buildPreviousPairs(seatingHistory, {
         mixHistory,
         currentSeating,
+        planUsage,
         studentCount: students.length,
       })
     : new Map<string, number>();
@@ -572,7 +575,11 @@ export function generateSeatingPlan(
   settings: Partial<MixSettings>,
   scene: ClassroomScene,
   currentSeating?: SeatingArrangement,
-  options?: { rng?: RandomSource },
+  options?: {
+    rng?: RandomSource;
+    /** Records of plans that were really in use; see `buildPreviousPairs`. */
+    planUsage?: PlanUsage[];
+  },
 ): SeatingArrangement {
   const startTime = performance.now();
   logDebug(
@@ -593,6 +600,7 @@ export function generateSeatingPlan(
     scene,
     currentSeating,
     options?.rng,
+    options?.planUsage,
   );
   runPass(ctx);
 
@@ -655,6 +663,8 @@ export function refineSeatingLocal(
     annealingConfig?: Partial<AnnealingConfig>;
     /** Random source; pass a seeded one for reproducible refinement */
     rng?: RandomSource;
+    /** Records of plans that were really in use; see `buildPreviousPairs`. */
+    planUsage?: PlanUsage[];
     /**
      * Called with a 0..1 fraction as the refinement advances. Injected by the
      * worker layer, never sent through the request payload — a function does
@@ -686,6 +696,7 @@ export function refineSeatingLocal(
     ? buildPreviousPairs(seatingHistory, {
         mixHistory,
         currentSeating: referenceSeating,
+        planUsage: options?.planUsage,
         studentCount: students.length,
       })
     : new Map<string, number>();

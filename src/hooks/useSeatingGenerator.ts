@@ -25,6 +25,8 @@ import {
   useSeatingHistory,
   type SeatingSnapshot,
 } from './plan/useSeatingHistory';
+import { usePlanUsageTracking } from './plan/usePlanUsageTracking';
+import { usePlanUsageRecords } from './plan/usePlanUsageRecords';
 import { useStudentHistory } from './student/useStudentHistory';
 import { DEFAULT_PASSES, DEFAULT_TRIES_PER_PASS } from '@/utils';
 import type { ClassroomScene as ClassroomSceneT, Student } from '@/types';
@@ -52,7 +54,13 @@ export function useSeatingGenerator() {
   const seatingState = useSeatingState();
   const repository = useSeatingRepository();
   const persistence = useSeatingPersistence(seatingState);
-  const algorithm = useSeatingAlgorithm(seatingState);
+  // Records of the plans that were really in use. They feed the repetition
+  // scoring, so they are loaded once here and handed to everything that needs
+  // them rather than being read per consumer.
+  const { planUsage } = usePlanUsageRecords(
+    seatingState.classState.activeClass.id,
+  );
+  const algorithm = useSeatingAlgorithm(seatingState, planUsage);
 
   // Destructure all needed values from the composed hooks
   const {
@@ -433,6 +441,13 @@ export function useSeatingGenerator() {
     setShouldRegenerateCircle,
   } = wizardOrchestration;
 
+  // Rearranging seats by hand is the step teachers take on the plan they mean
+  // to use, so it feeds the usage record — see `usePlanUsageTracking`.
+  const { noteSeatingEdited } = usePlanUsageTracking({
+    classId: activeClass.id,
+    currentSeating,
+  });
+
   // Enhanced student move handler that triggers circle regeneration
   const handleStudentMove = useCallback(
     (fromTable: number, fromSeat: number, toTable: number, toSeat: number) => {
@@ -444,6 +459,7 @@ export function useSeatingGenerator() {
         return false;
       }
       pushSeatingSnapshot(before);
+      noteSeatingEdited();
       if (circleLayout) {
         setShouldRegenerateCircle(true);
       }
@@ -452,6 +468,7 @@ export function useSeatingGenerator() {
     [
       moveStudent,
       circleLayout,
+      noteSeatingEdited,
       setShouldRegenerateCircle,
       captureSeatingSnapshot,
       pushSeatingSnapshot,
@@ -475,6 +492,7 @@ export function useSeatingGenerator() {
     mixSettings,
     seatingHistory,
     mixHistory,
+    planUsage,
     classroomScene,
     setLastStatistics,
     enabled: step === 3 && currentSeating.length > 0,
@@ -557,6 +575,7 @@ export function useSeatingGenerator() {
       currentAppVersion,
       classSummaries,
       activeClass,
+      planUsage,
       canUndoSeating,
       canRedoSeating,
       canUndoStudents,
@@ -591,6 +610,7 @@ export function useSeatingGenerator() {
       currentAppVersion,
       classSummaries,
       activeClass,
+      planUsage,
       canUndoSeating,
       canRedoSeating,
       canUndoStudents,

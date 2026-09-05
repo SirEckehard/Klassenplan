@@ -24,10 +24,16 @@ Optional fields (version ≥ 2):
   Data URL (each at most 96 KB, at most 2,000 entries).
 - `classCollection`, `circleLayouts`, `currentCircleLayout` – multi-class and
   seating-circle state.
+- `planUsage` – map of class id → `PlanUsage[]`, the record of which seating
+  plans were actually in use (pair keys and timestamps only, never a full
+  arrangement). Absent when nothing has been recorded yet. A full import
+  replaces the stored record; a merge only adds classes that have none yet.
+  See [ALGORITHM.md](ALGORITHM.md#plan-usage-record).
 
 Inside the nested objects, the same structures apply as in the application's
 TypeScript types (`Student`, `SavedPlan`, `MixResult`,
-`ClassroomScene`, `MixSettings`, `LockedPositions`, `ClassroomTemplate`).
+`ClassroomScene`, `MixSettings`, `LockedPositions`, `ClassroomTemplate`,
+`PlanUsage`).
 
 ## Size limits
 
@@ -43,6 +49,8 @@ import (see `BACKUP_LIMITS` in
 - At most **500** entries in `lockedPositions`.
 - At most **150** tables per `classroomScene` with at most **12** seats each.
 - At most **2,000** entries in `studentPhotos`, each Data URL at most **96 KB**.
+- At most **200** classes in `planUsage`, **200** records each, with at most
+  **1,000** pair keys per record.
 
 ## Encryption
 

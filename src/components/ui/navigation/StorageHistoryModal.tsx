@@ -6,11 +6,18 @@ import {
   HardDriveIcon,
   ClockCounterClockwiseIcon,
   ShuffleIcon,
+  UsersThreeIcon,
 } from '@phosphor-icons/react';
 import Modal from '@/components/ui/modals/Modal';
 import CompactPlanList from '@/components/ui/history/CompactPlanList';
 import CompactMixHistory from '@/components/ui/history/CompactMixHistory';
-import { useSeatingAlgorithmContext } from '@/contexts/SeatingPlanContext';
+import NeighborhoodMatrix from '@/components/ui/history/NeighborhoodMatrix';
+import {
+  useSeatingAlgorithmContext,
+  useStudentManagementContext,
+} from '@/contexts/SeatingPlanContext';
+import { useClassManagementContext } from '@/contexts/seatingPlan/ClassManagementContext';
+import { usePlanUsageRecords } from '@/hooks/plan/usePlanUsageRecords';
 import {
   cardSurfaceClass,
   pillTabActiveClass,
@@ -21,7 +28,7 @@ import {
 import { showToast } from '@/utils/ui/toast';
 import type { SavedPlan, MixResult } from '@/types';
 
-type TabId = 'plans' | 'mixes';
+type TabId = 'plans' | 'mixes' | 'neighbors';
 
 interface StorageHistoryModalProps {
   open: boolean;
@@ -48,6 +55,9 @@ export default function StorageHistoryModal({
     handleMixLoad,
     deleteMixResult,
   } = useSeatingAlgorithmContext();
+  const { students } = useStudentManagementContext();
+  const { activeClass } = useClassManagementContext();
+  const { planUsage, setUsageConfirmed } = usePlanUsageRecords(activeClass.id);
 
   // Plan handlers
   const handlePlanLoad = useCallback(
@@ -111,6 +121,7 @@ export default function StorageHistoryModal({
 
   const hasPlans = seatingHistory.length > 0;
   const hasMixes = mixHistory.length > 0;
+  const usageCount = planUsage.length;
 
   const tabContainerClass =
     'flex gap-2 rounded-full border border-blue-200 bg-white/80 p-1 shadow-inner dark:border-blue-900/50 dark:bg-gray-950/60';
@@ -170,6 +181,28 @@ export default function StorageHistoryModal({
               </span>
             )}
           </button>
+          <button
+            role="tab"
+            id="storage-tab-neighbors"
+            aria-selected={activeTab === 'neighbors'}
+            aria-controls="storage-panel-neighbors"
+            className={[
+              pillTabBaseClass,
+              activeTab === 'neighbors'
+                ? pillTabActiveClass
+                : pillTabInactiveClass,
+            ].join(' ')}
+            onClick={() => setActiveTab('neighbors')}
+            type="button"
+          >
+            <UsersThreeIcon size={14} className="mr-1.5" />
+            {t('storage.neighbors.tab')}
+            {usageCount > 0 && (
+              <span className="ml-1.5 rounded-full bg-blue-100 px-2 py-0.5 text-xs font-semibold text-blue-700 dark:bg-blue-900/40 dark:text-blue-200">
+                {usageCount}
+              </span>
+            )}
+          </button>
         </div>
 
         {/* Plans Panel */}
@@ -213,6 +246,21 @@ export default function StorageHistoryModal({
               {t('storage.noMixes', 'Keine Misch-Ergebnisse vorhanden.')}
             </p>
           )}
+        </div>
+
+        {/* Neighbourhoods Panel */}
+        <div
+          id="storage-panel-neighbors"
+          role="tabpanel"
+          aria-labelledby="storage-tab-neighbors"
+          hidden={activeTab !== 'neighbors'}
+          className={`${cardSurfaceClass} border px-4 py-4`}
+        >
+          <NeighborhoodMatrix
+            planUsage={planUsage}
+            students={students}
+            onSetConfirmed={setUsageConfirmed}
+          />
         </div>
       </div>
     </Modal>

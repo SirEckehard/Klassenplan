@@ -81,3 +81,4 @@ export type {
   MemoryBestScore,
   NameGameData,
 } from './NameGame';
+export type { PlanUsage, PlanUsageSource, PlanUsageData } from './PlanUsage';

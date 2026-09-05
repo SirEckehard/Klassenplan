@@ -260,6 +260,16 @@ export default function FAQ() {
                   </li>
                 </ul>
                 <p>{t('faq.settings.repeat.outro')}</p>
+                <p>{t('faq.settings.repeat.usageIntro')}</p>
+                <ul className="list-disc pl-5 space-y-1 text-gray-700 dark:text-gray-300">
+                  <li>{t('faq.settings.repeat.usage1')}</li>
+                  <li>{t('faq.settings.repeat.usage2')}</li>
+                  <li>{t('faq.settings.repeat.usage3')}</li>
+                  <li>{t('faq.settings.repeat.usage4')}</li>
+                </ul>
+                <p>{t('faq.settings.repeat.usageOutro')}</p>
+                <p>{t('faq.settings.repeat.weightNote')}</p>
+                <p>{t('faq.settings.repeat.viewNote')}</p>
               </div>
             ),
           },

@@ -192,5 +192,10 @@
   "feature": {
     "notCopyable": "Die Tafel lässt sich nicht kopieren.",
     "boardReplaced": "Es kann nur eine Tafel geben, da sie die Vorderseite des Raums für den Sitzplan-Algorithmus bestimmt. Die vorhandene Tafel wurde ersetzt – für eine zweite Fläche nutze das Whiteboard."
+  },
+  "planUsage": {
+    "recorded": "Als genutzter Sitzplan vermerkt – das verbessert die Wiederholungsvermeidung.",
+    "recordedAction": "War nur ein Test",
+    "dismissed": "Dieser Sitzplan wird nicht gewertet."
   }
 }

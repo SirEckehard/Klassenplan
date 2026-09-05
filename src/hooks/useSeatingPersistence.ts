@@ -63,6 +63,11 @@ import { summarizeClass } from '@/utils/data/classCollection';
 import { sweepOrphanPhotos } from '@/repositories/studentPhotoStore';
 import { sweepOrphanNameGameStats } from '@/repositories/nameGameStatsStore';
 import {
+  backfillPlanUsage,
+  recordPlanUsage,
+  sweepOrphanPlanUsage,
+} from '@/repositories/planUsageStore';
+import {
   usePersistErrorHandling,
   usePersistQueue,
   useClassDataPersistence,
@@ -242,17 +247,25 @@ export function useSeatingPersistence(state: SeatingState) {
         ) ?? collection.classes[0];
       setActiveClass(mapActiveClass(activeRecord));
 
-      // Remove photos and name-game stats whose student no longer exists in any
-      // class (e.g. after a class was deleted). Fire-and-forget; failures are
-      // handled internally.
+      // Remove photos, name-game stats and plan usage records whose student or
+      // class no longer exists (e.g. after a class was deleted).
+      // Fire-and-forget; failures are handled internally.
       const knownStudentIds = new Set<string>();
+      // Per class, ids and names alike: pair keys written before students
+      // carried ids fall back to the name.
+      const studentIdsByClass = new Map<string, Set<string>>();
       for (const entry of collection.classes) {
+        const perClass = new Set<string>();
         for (const student of entry.students ?? []) {
           knownStudentIds.add(student.id);
+          perClass.add(student.id);
+          if (student.name) perClass.add(student.name);
         }
+        studentIdsByClass.set(entry.id, perClass);
       }
       void sweepOrphanPhotos(knownStudentIds);
       void sweepOrphanNameGameStats(knownStudentIds);
+      void sweepOrphanPlanUsage(studentIdsByClass);
     },
     [mapActiveClass, setActiveClass, setClassSummaries],
   );
@@ -290,6 +303,25 @@ export function useSeatingPersistence(state: SeatingState) {
       isRestoringRef.current = true;
       if (nextActiveClassId) {
         activeClassIdRef.current = nextActiveClassId;
+      }
+
+      // Seed the plan usage record from plans saved before the signals existed.
+      // It happens here rather than in an effect because `activeClass` is set
+      // optimistically on a class switch: an effect would see the new class id
+      // next to the previous class's plans and seed the wrong bucket.
+      if (nextActiveClassId && activeClassSnapshotResult.success) {
+        const snapshotPlans =
+          (activeClassSnapshotResult.data as ActiveClassSnapshot)
+            .seatingHistory ?? [];
+        if (snapshotPlans.length > 0) {
+          backfillPlanUsage(nextActiveClassId, snapshotPlans).catch((error) => {
+            logError(
+              'Failed to backfill plan usage',
+              { error },
+              'useSeatingPersistence',
+            );
+          });
+        }
       }
 
       if (!classCollectionResult.success) {
@@ -555,6 +587,20 @@ export function useSeatingPersistence(state: SeatingState) {
 
       setSeatingHistory((prev) => upsertPlan(prev, base));
 
+      // Naming a plan is a deliberate act — unlike the silent auto-save that
+      // fires whenever step 3 is left — so it counts as a usage signal.
+      if (!autoSave) {
+        recordPlanUsage(activeClass.id, currentSeating, 'saved').catch(
+          (error) => {
+            logError(
+              'Failed to record plan usage signal',
+              { error, source: 'saved' },
+              'useSeatingPersistence',
+            );
+          },
+        );
+      }
+
       setActivePlanId(base.id);
       setPlanName(trimmed);
       return true;
@@ -564,6 +610,7 @@ export function useSeatingPersistence(state: SeatingState) {
       lockedPositions,
       seatingHistory,
       activePlanId,
+      activeClass.id,
       setSeatingHistory,
       setActivePlanId,
       setPlanName,

@@ -245,9 +245,11 @@ describe('seatingStatistics', () => {
           { mixHistory },
         );
 
-        expect(stats.previousPairsTotal).toBe(2);
-        expect(stats.previousPairsAvoided).toBe(0);
-        expect(stats.previousPairsPercentage).toBe(0);
+        // Both pairs repeat, but a mix from the running session weighs half of
+        // a plan that was really in use (MIX_HISTORY_CONTRIBUTION): 2 × 0.5.
+        expect(stats.previousPairsTotal).toBe(1);
+        expect(stats.previousPairsAvoided).toBe(1);
+        expect(stats.previousPairsPercentage).toBe(50);
       });
 
       it('should calculate 0% when all pairs are repeated', () => {
@@ -333,9 +335,11 @@ describe('seatingStatistics', () => {
           { mixHistory },
         );
 
-        expect(stats.previousPairsTotal).toBeCloseTo(0.25, 5);
-        expect(stats.previousPairsAvoided).toBeCloseTo(0.75, 5);
-        expect(Math.round(stats.previousPairsPercentage)).toBe(75);
+        // Decayed to 0.25 by age, then halved because it is a mix rather than
+        // a plan that was in use.
+        expect(stats.previousPairsTotal).toBeCloseTo(0.125, 5);
+        expect(stats.previousPairsAvoided).toBeCloseTo(0.875, 5);
+        expect(Math.round(stats.previousPairsPercentage)).toBe(88);
       });
     });
 

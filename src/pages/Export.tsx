@@ -58,6 +58,7 @@ import {
   LOCAL_STORAGE_KEYS,
 } from '@/utils/data/storageKeys';
 import { useFirstVisit } from '@/hooks/ui/useFirstVisit';
+import { usePlanUsagePrompt } from '@/hooks/plan/usePlanUsagePrompt';
 import Seo from '@/components/Seo';
 import { LocalizedLink } from '@/components/LocalizedLink';
 import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';
@@ -775,6 +776,21 @@ export default function Export() {
       }
     };
   }, []);
+  const recordUsage = usePlanUsagePrompt(activeClass.id);
+
+  // A plan that gets printed or exported leaves the app for real classroom use,
+  // which is the strongest signal that it is not just another experiment.
+  const recordTablePlanExport = useCallback(() => {
+    recordUsage(seating, 'exported');
+  }, [recordUsage, seating]);
+
+  // Circle exports are deliberately not recorded: the usage record tracks who
+  // sat next to whom at the tables, which a circle says nothing about.
+  const recordPreviewExport = useCallback(() => {
+    if (previewMode === 'circle') return;
+    recordTablePlanExport();
+  }, [previewMode, recordTablePlanExport]);
+
   // Print via PDF - opens generated PDF in new tab for consistent cross-browser printing
   // Falls back to PDF download if popup is blocked
   const handlePrint = useCallback(async () => {
@@ -801,6 +817,7 @@ export default function Export() {
 
       // Try to open in new tab - if blocked, download as fallback
       const opened = openPdfForPrinting(pdfBlob);
+      recordPreviewExport();
       if (!opened) {
         // Popup was blocked - download the PDF instead
         const filename =
@@ -827,6 +844,7 @@ export default function Export() {
       );
     }
   }, [
+    recordPreviewExport,
     previewSvg,
     previewMode,
     circleOrientation,
@@ -852,6 +870,7 @@ export default function Export() {
         flipped: flipView,
         classMetadata: classMetadataForExport,
       });
+      recordTablePlanExport();
     } catch (error) {
       exportError(
         error as Error,
@@ -874,6 +893,7 @@ export default function Export() {
     tableOrientation,
     flipView,
     classMetadataForExport,
+    recordTablePlanExport,
     exportError,
     t,
   ]);
@@ -947,6 +967,7 @@ export default function Export() {
       const { exportSvgAsPng } =
         await import('@/utils/export/imageExportFunctions');
       await exportSvgAsPng(svg, imageExportBaseName, imageOrientation);
+      recordPreviewExport();
     } catch (error) {
       exportError(
         error as Error,
@@ -960,6 +981,7 @@ export default function Export() {
     requirePreviewSvg,
     imageExportBaseName,
     imageOrientation,
+    recordPreviewExport,
     exportError,
     t,
   ]);
@@ -971,6 +993,7 @@ export default function Export() {
       const { exportSvgAsFile } =
         await import('@/utils/export/imageExportFunctions');
       await exportSvgAsFile(svg, imageExportBaseName);
+      recordPreviewExport();
     } catch (error) {
       exportError(
         error as Error,
@@ -980,7 +1003,13 @@ export default function Export() {
         ),
       );
     }
-  }, [requirePreviewSvg, imageExportBaseName, exportError, t]);
+  }, [
+    requirePreviewSvg,
+    imageExportBaseName,
+    recordPreviewExport,
+    exportError,
+    t,
+  ]);
 
   useKeyboardShortcuts({
     'alt+arrowleft': () => navigate('/generator', { state: { step: 3 } }),

@@ -90,6 +90,7 @@ export function useSeatingPlanViewLogic({
   clearStatisticsHighlight,
   seatingHistory,
   mixHistory,
+  planUsage,
   autoMixing = false,
   autoMixError = null,
 }: SeatingPlanViewProps) {
@@ -575,6 +576,7 @@ export function useSeatingPlanViewLogic({
           clearStatisticsHighlight,
           seatingHistory,
           mixHistory,
+          planUsage,
         } satisfies React.ComponentProps<typeof SeatingPlanEditorView>)
       : null;
 

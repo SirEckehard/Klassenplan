@@ -249,7 +249,7 @@
     "importBackup": "Backup importieren",
     "showAllPlans": "Alle Pläne anzeigen",
     "backupExported": "Backup exportiert.",
-    "historyTitle": "Gespeicherte Pläne & Misch-Historie",
+    "historyTitle": "Pläne, Mischungen & Nachbarschaften",
     "savedPlans": "Gespeicherte Pläne",
     "mixHistory": "Misch-Historie",
     "noPlans": "Keine gespeicherten Pläne vorhanden.",
@@ -258,7 +258,33 @@
     "planDeleted": "Plan \"{{name}}\" gelöscht.",
     "mixLoaded": "Mischergebnis von {{time}} geladen.",
     "mixDeleted": "Mischergebnis gelöscht.",
-    "historyTabs": "Verlauf"
+    "historyTabs": "Verlauf",
+    "neighbors": {
+      "tab": "Nachbarschaften",
+      "empty": "Noch keine Auswertung möglich.",
+      "emptyHint": "Sobald du einen Sitzplan präsentierst, druckst, exportierst oder unter eigenem Namen speicherst, wird er hier gewertet. Reines Mischen zählt nicht.",
+      "basis_one": "Beruht auf {{count}} gewertetem Sitzplan",
+      "basis_other": "Beruht auf {{count}} gewerteten Sitzplänen",
+      "basisSince": "seit {{date}}.",
+      "searchLabel": "Nach Schüler filtern",
+      "searchPlaceholder": "Name eingeben …",
+      "noMatches": "Keine Nachbarschaft passt zu dieser Suche.",
+      "times_one": "{{count}}×",
+      "times_other": "{{count}}×",
+      "lastSeen": "zuletzt {{date}}",
+      "showBasis": "Datengrundlage anzeigen",
+      "hideBasis": "Datengrundlage ausblenden",
+      "recordLabel": "Sitzplan vom {{date}}",
+      "exclude": "Nicht werten",
+      "include": "Wieder werten",
+      "unknownStudent": "Unbekannt",
+      "sources": {
+        "presented": "präsentiert",
+        "exported": "exportiert",
+        "saved": "gespeichert",
+        "edited": "von Hand angepasst"
+      }
+    }
   },
   "classActions": {
     "emptyState": {

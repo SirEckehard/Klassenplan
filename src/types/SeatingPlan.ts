@@ -3,6 +3,7 @@
 import type { ClassroomScene } from './ClassroomScene';
 import type { CircleLayout, CircleExportData } from './Circle';
 import type { Student, SeatingArrangement, ClassCollectionState } from './base';
+import type { PlanUsage } from './PlanUsage';
 
 export type NeighborWeightDirection = 'direct' | 'side' | 'front' | 'back';
 
@@ -121,6 +122,12 @@ export interface ExportBundleV1 {
    * Maps `student.id` to a base64 image Data URL. Absent for v1 backups.
    */
   studentPhotos?: Record<string, string>;
+  /**
+   * Optional plan usage records per class id (export version ≥ 2) — which
+   * seating plans were really in use. Absent when nothing has been recorded
+   * yet, and for backups written before the record existed.
+   */
+  planUsage?: Record<string, PlanUsage[]>;
 }
 
 export type ExportBundle = ExportBundleV1; // Alias for the current version

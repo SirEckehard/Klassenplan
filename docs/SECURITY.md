@@ -212,6 +212,14 @@ backups** (AES-GCM 256, PBKDF2 with 600,000 iterations, user-chosen password of
 at least 8 characters with confirmation — see
 [backup-format.md](backup-format.md)).
 
+**Plan usage record:** Klassenplan notes which seating plans were actually in
+use (presented, exported, saved under a chosen name, rearranged by hand) so the
+repetition scoring can tell real plans from experiments. Only the seating
+neighbourhoods — pairs of student ids already stored elsewhere — and timestamps
+are kept, never a full arrangement. It lives in the same local IndexedDB, is
+never transmitted, is included in an encrypted backup, and is wiped along with
+everything else. See [ALGORITHM.md](ALGORITHM.md#plan-usage-record).
+
 **Photo metadata:** Student photos are re-encoded through a canvas during
 import (center-crop, downscale to 160 px, JPEG). This guarantees that EXIF
 metadata — including GPS coordinates — is stripped before anything is stored.

@@ -36,6 +36,10 @@ import {
   type ApplicationStateResetHandlers,
 } from '@/utils/state/resetApplicationState';
 import { createClassCollection, createClassRecord } from './classCollection';
+import {
+  getAllPlanUsage,
+  restorePlanUsage,
+} from '@/repositories/planUsageStore';
 import { normalizeSeatingHistory } from '@/utils/data/planNormalization';
 import {
   getAllPhotos,
@@ -207,6 +211,10 @@ export async function exportAllAsJson(
       data.seatingHistory,
     );
     const studentPhotos = await collectStudentPhotosForExport();
+    // Records of which plans were really in use. They accumulate over a school
+    // year and cannot be rebuilt from anything else, so a backup that skipped
+    // them would silently lose the history on a device change.
+    const planUsage = await getAllPlanUsage();
     const bundle: ExportBundle = {
       version: CURRENT_EXPORT_VERSION,
       students: data.students,
@@ -220,6 +228,7 @@ export async function exportAllAsJson(
       currentCircleLayout: data.currentCircleLayout || null,
       classCollection: data.classCollection ?? null,
       ...(studentPhotos ? { studentPhotos } : {}),
+      ...(planUsage ? { planUsage } : {}),
     };
     return JSON.stringify(bundle, null, 2);
   } catch (e) {
@@ -381,6 +390,10 @@ export async function importAllFromJson(
       clearPhotoTrash();
       await restoreStudentPhotos(data.studentPhotos);
     }
+
+    // Plan usage records (export version ≥ 2). Absent in older backups, which
+    // simply leaves the store as it is.
+    await restorePlanUsage(data.planUsage, { merge });
   } catch (error) {
     logError('Import failed while applying backup', { error }, 'dataBackup');
     if (error instanceof BackupValidationError) {

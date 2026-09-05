@@ -57,6 +57,7 @@ import type {
   Student,
   SavedPlan,
   MixResult,
+  PlanUsage,
   PhotoDisplayMode,
 } from '@/types';
 import {
@@ -237,6 +238,8 @@ type Props = {
   clearStatisticsHighlight?: () => void;
   seatingHistory?: SavedPlan[];
   mixHistory?: MixResult[];
+  /** Records of plans that were really in use; see `buildPreviousPairs`. */
+  planUsage?: PlanUsage[];
 };
 
 export default function SeatingPlanEditorView({
@@ -297,6 +300,7 @@ export default function SeatingPlanEditorView({
   clearStatisticsHighlight,
   seatingHistory = [],
   mixHistory = [],
+  planUsage = [],
 }: Props) {
   const isDark = useIsDarkMode();
   const { t } = useTranslation('generator');
@@ -462,8 +466,9 @@ export default function SeatingPlanEditorView({
         scene: classroomScene,
         seatingHistory,
         mixHistory,
+        planUsage,
       }),
-    [classroomScene, effectiveSeating, mixHistory, seatingHistory],
+    [classroomScene, effectiveSeating, mixHistory, planUsage, seatingHistory],
   );
 
   const handleCriterionHover = React.useCallback(

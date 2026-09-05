@@ -8,6 +8,7 @@ import type {
   Student,
   SavedPlan,
   MixResult,
+  PlanUsage,
 } from '@/types';
 import type { CriterionFulfillment } from '@/utils/algorithm/seatingStatistics';
 import {
@@ -26,7 +27,7 @@ export function calculateCurrentStatistics(
   seatingHistory: SavedPlan[],
   scene: ClassroomScene,
   mixHistory: MixResult[],
-  topN?: number,
+  options?: { topN?: number; planUsage?: PlanUsage[] },
 ): CriterionFulfillment[] {
   const stats = calculateSeatingStatistics(
     arrangement,
@@ -34,9 +35,9 @@ export function calculateCurrentStatistics(
     settings,
     seatingHistory,
     scene,
-    { mixHistory },
+    { mixHistory, planUsage: options?.planUsage },
   );
-  return getTopFulfilledCriteria(stats, settings, topN);
+  return getTopFulfilledCriteria(stats, settings, options?.topN);
 }
 
 interface UseSeatingStatisticsUpdaterParams {
@@ -45,6 +46,8 @@ interface UseSeatingStatisticsUpdaterParams {
   mixSettings: Partial<MixSettings>;
   seatingHistory: SavedPlan[];
   mixHistory: MixResult[];
+  /** Records of plans that were really in use; see `buildPreviousPairs`. */
+  planUsage: PlanUsage[];
   classroomScene: ClassroomScene;
   setLastStatistics: (stats: CriterionFulfillment[] | null) => void;
   enabled?: boolean;
@@ -61,6 +64,7 @@ export function useSeatingStatisticsUpdater({
   mixSettings,
   seatingHistory,
   mixHistory,
+  planUsage,
   classroomScene,
   setLastStatistics,
   enabled = true,
@@ -79,6 +83,7 @@ export function useSeatingStatisticsUpdater({
       seatingHistory,
       classroomScene,
       mixHistory,
+      { planUsage },
     );
   }, [
     enabled,
@@ -87,6 +92,7 @@ export function useSeatingStatisticsUpdater({
     mixSettings,
     seatingHistory,
     mixHistory,
+    planUsage,
     classroomScene,
   ]);
 

@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- **Plan usage record** – Klassenplan now notes which seating plans were really in use, derived from presenting, printing/exporting, saving under a chosen name and rearranging seats by hand. Nothing has to be ticked, only seating neighbourhoods and timestamps are stored, and everything stays on the device.
+- **"Who has sat next to whom"** – a third tab in the plan history ranks the pairs that have shared a table, with the date they last did and the plans the evaluation rests on; individual plans can be excluded
+
+### Fixed
+
+
+### Improved
+
+
+
 ## [2.0.0] - 2026-09-03
 
 ### Added
