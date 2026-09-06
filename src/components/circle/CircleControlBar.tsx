@@ -79,7 +79,7 @@ export default function CircleControlBar({
 
   return (
     <form
-      className="mt-4 flex flex-col items-stretch gap-2 sm:flex-row sm:items-start"
+      className="mt-4 flex flex-col items-stretch gap-2 sm:flex-row sm:flex-wrap sm:items-start"
       onSubmit={(e) => {
         e.preventDefault();
         saveSeatingPlan(planName, classroomScene, circleLayout);
@@ -89,13 +89,13 @@ export default function CircleControlBar({
         type="button"
         onClick={onEditLayout}
         title={t('actions.backShortcut', 'Zurück (Alt/Option+←)')}
-        className={`${neutralButtonClass} w-full justify-center gap-2 sm:w-auto`}
+        className={`${neutralButtonClass} w-full shrink-0 justify-center gap-2 whitespace-nowrap sm:w-auto`}
       >
         <ArrowLeftIcon className="w-4 h-4" />
         {t('circle.backToClassroom', 'Zurück zum Klassenraum')}
       </button>
-      <PlanHistoryButton />
-      <div className="w-full sm:w-auto flex-1">
+      <PlanHistoryButton className="shrink-0" />
+      <div className="w-full flex-1 sm:w-auto sm:min-w-64">
         <div className="relative">
           <input
             ref={planNameInputRef}
@@ -135,24 +135,26 @@ export default function CircleControlBar({
           </p>
         )}
       </div>
-      <button
-        type="button"
-        onClick={onPresent}
-        title={t('present.buttonTitle', 'Sitzplan präsentieren')}
-        className={`${warningButtonClass} w-full justify-center gap-2 px-4 sm:w-auto`}
-      >
-        <ChalkboardTeacherIcon className="w-4 h-4" size={16} />
-        {t('present.button', 'Präsentieren')}
-      </button>
-      <button
-        type="button"
-        onClick={onExport}
-        title={t('actions.exportShortcut', 'Exportieren (Strg/Cmd+E)')}
-        className={`${primaryButtonClass} w-full justify-center gap-2 px-4 sm:w-auto`}
-      >
-        <ShareNetworkIcon className="w-4 h-4" size={16} />
-        {t('actions.export', 'Exportieren')}
-      </button>
+      <div className="flex w-full shrink-0 flex-col gap-2 sm:ml-auto sm:w-auto sm:flex-row">
+        <button
+          type="button"
+          onClick={onPresent}
+          title={t('present.buttonTitle', 'Sitzplan präsentieren')}
+          className={`${warningButtonClass} w-full justify-center gap-2 px-4 whitespace-nowrap sm:w-auto`}
+        >
+          <ChalkboardTeacherIcon className="w-4 h-4" size={16} />
+          {t('present.button', 'Präsentieren')}
+        </button>
+        <button
+          type="button"
+          onClick={onExport}
+          title={t('actions.exportShortcut', 'Exportieren (Strg/Cmd+E)')}
+          className={`${primaryButtonClass} w-full justify-center gap-2 px-4 whitespace-nowrap sm:w-auto`}
+        >
+          <ShareNetworkIcon className="w-4 h-4" size={16} />
+          {t('actions.export', 'Exportieren')}
+        </button>
+      </div>
     </form>
   );
 }

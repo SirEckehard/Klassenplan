@@ -952,7 +952,12 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 md:flex-row md:gap-2 md:items-start">
+      {/* The direction comes from the same hook that decides whether the
+          sidebar is a rail or a phone sheet — a `md:` variant here could
+          disagree with it and stack the rail on top of the canvas. */}
+      <div
+        className={`flex ${isPhone ? 'flex-col gap-4' : 'flex-row items-start gap-2'}`}
+      >
         <LayoutEditorSidebarSection
           isPhone={isPhone}
           isFirstVisit={isFirstVisit}
@@ -1086,7 +1091,7 @@ const LayoutEditorMainSection = React.memo(function LayoutEditorMainSection({
               'Es fehlen noch {{count}} Sitzplätze für {{students}} Schüler.',
           });
   return (
-    <div className="flex-1 flex flex-col gap-4 md:min-w-0">
+    <div className="flex min-w-0 flex-1 flex-col gap-4">
       {/* Mobile: Quick Setup Button above canvas for easy access */}
       {isPhone && (
         <button

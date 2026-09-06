@@ -344,6 +344,8 @@
     "title": "Class List",
     "proceedShortcut": "Continue (Alt/Option+→)",
     "proceedButton": "Proceed to Classroom",
+    "scrollToActions": "Jump to end of list",
+    "scrollToListTop": "Jump to top of list",
     "nameGameButton": "Name Game",
     "nameGameTitle": "Learn your students' names playfully",
     "nameGameLockedToast": "The name game needs at least {{min}} students with a photo (currently: {{count}}). Add photos via the portrait icon next to each student.",

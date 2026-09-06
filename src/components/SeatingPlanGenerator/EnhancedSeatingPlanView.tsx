@@ -282,7 +282,11 @@ export default function EnhancedSeatingPlanView(
   if (showModeToggle && seatingMode === 'circle') {
     return (
       <div className="space-y-6">
-        <div className="flex flex-col gap-4 md:flex-row md:items-start">
+        {/* Same source as the sidebar's own phone/rail decision, so the two
+            cannot disagree and stack the rail on top of the canvas. */}
+        <div
+          className={`flex gap-4 ${isPhone ? 'flex-col' : 'flex-row items-start'}`}
+        >
           {!isPhone && (
             <SmartSidebar isFirstVisit={isFirstVisit}>
               {({ isExpanded }) => (
@@ -295,7 +299,7 @@ export default function EnhancedSeatingPlanView(
             </SmartSidebar>
           )}
 
-          <div className="flex-1 flex flex-col gap-4 md:min-w-0">
+          <div className="flex min-w-0 flex-1 flex-col gap-4">
             <div
               className={`${canvasFrameClass} select-none`}
               style={{ width: '100%', maxWidth: '100vw' }}

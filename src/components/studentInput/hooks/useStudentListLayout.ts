@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAdaptiveViewportHeight } from '@/hooks/ui/useAdaptiveViewportHeight';
 import { useFloatingActionOffset } from '@/hooks/ui/useFloatingActionOffset';
 import { useCookieBannerOffset } from '@/hooks/ui/useCookieBannerOffset';
+import { usePrefersReducedMotion } from '@/hooks/ui/usePrefersReducedMotion';
 import { getViewportMetrics, onVisualViewport } from '@/utils';
 
 type UseStudentListLayoutOptions = {
@@ -17,6 +18,21 @@ type UseStudentListLayoutOptions = {
 // row itself (~36px) and a small bottom margin matching the step-2 footer
 // buttons, so the action row shares their baseline on desktop viewports.
 const ACTION_ROW_RESERVED_PX = 76;
+
+/**
+ * Which way the floating scroll button points, or `null` while both ends of the
+ * list are within reach.
+ */
+export type ListScrollHint = 'down' | 'up' | null;
+
+// The proceed button counts as reached once it clears the bottom edge by this
+// much — the same margin the earlier scroll affordance used.
+const PROCEED_REACHED_MARGIN_PX = 100;
+
+// How far the top of the step has to be scrolled past before offering the way
+// back. Roughly one student row, so the button does not flicker in at the very
+// first flick of a short list.
+const TOP_SCROLLED_PAST_PX = 120;
 
 export const useStudentListLayout = ({
   isMobile,
@@ -37,12 +53,14 @@ export const useStudentListLayout = ({
       debounceMs: 300,
       dependencies: [studentCount, cookieBannerOffset, recalcKey],
     });
-  const [showScrollButton, setShowScrollButton] = useState(false);
+  const listTopRef = useRef<HTMLDivElement | null>(null);
+  const prefersReducedMotion = usePrefersReducedMotion();
+  const [scrollHint, setScrollHint] = useState<ListScrollHint>(null);
 
   useEffect(() => {
     if (!isMobile || studentCount === 0) {
       queueMicrotask(() => {
-        setShowScrollButton(false);
+        setScrollHint(null);
       });
       return;
     }
@@ -51,16 +69,29 @@ export const useStudentListLayout = ({
       return;
     }
 
+    // The direction follows from the scroll position, so one button can serve
+    // both ways: down while the action row is still out of reach, up once it
+    // has been reached and the toolbar at the top is what is far away.
     const checkScrollPosition = () => {
-      if (!proceedButtonRef.current) {
+      const proceedButton = proceedButtonRef.current;
+      if (!proceedButton) {
+        setScrollHint(null);
         return;
       }
 
-      const rect = proceedButtonRef.current.getBoundingClientRect();
       const { height } = getViewportMetrics();
       const viewportHeight = height || window.innerHeight || 0;
+      const proceedRect = proceedButton.getBoundingClientRect();
 
-      setShowScrollButton(rect.top > viewportHeight - 100);
+      if (proceedRect.top > viewportHeight - PROCEED_REACHED_MARGIN_PX) {
+        setScrollHint('down');
+        return;
+      }
+
+      const topRect = listTopRef.current?.getBoundingClientRect();
+      setScrollHint(
+        topRect && topRect.top < -TOP_SCROLLED_PAST_PX ? 'up' : null,
+      );
     };
 
     checkScrollPosition();
@@ -90,19 +121,24 @@ export const useStudentListLayout = ({
     };
   }, [isMobile, studentCount]);
 
-  const handleScrollToBottom = useCallback(() => {
-    proceedButtonRef.current?.scrollIntoView({
-      behavior: 'smooth',
-      block: 'center',
-    });
-  }, []);
+  const handleScrollHint = useCallback(() => {
+    const behavior = prefersReducedMotion ? 'auto' : 'smooth';
+
+    if (scrollHint === 'up') {
+      listTopRef.current?.scrollIntoView({ behavior, block: 'start' });
+      return;
+    }
+
+    proceedButtonRef.current?.scrollIntoView({ behavior, block: 'center' });
+  }, [prefersReducedMotion, scrollHint]);
 
   return {
     listContainerRef,
     listMaxHeight,
+    listTopRef,
     proceedButtonRef,
-    showScrollButton,
-    handleScrollToBottom,
+    scrollHint,
+    handleScrollHint,
     floatingActionOffsets,
   };
 };

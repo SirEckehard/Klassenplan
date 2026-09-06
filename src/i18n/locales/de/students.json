@@ -344,6 +344,8 @@
     "title": "Klassenliste",
     "proceedShortcut": "Weiter (Alt/Option+→)",
     "proceedButton": "Weiter zum Klassenraum",
+    "scrollToActions": "Zum Ende der Liste",
+    "scrollToListTop": "Zum Listenanfang",
     "nameGameButton": "Namensspiel",
     "nameGameTitle": "Namen deiner Schüler spielerisch lernen",
     "nameGameLockedToast": "Für das Namensspiel brauchst du mindestens {{min}} Schüler mit Foto (aktuell: {{count}}). Fotos fügst du über das Porträt-Symbol neben jedem Schüler hinzu.",

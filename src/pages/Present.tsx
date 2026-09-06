@@ -186,8 +186,10 @@ export default function Present() {
     >
       <Seo {...metadata} />
 
-      {/* Minimal toolbar */}
-      <div className="flex items-center gap-3 px-4 py-3">
+      {/* Minimal toolbar. It wraps rather than overflowing: on a phone the two
+          toggles drop to a row of their own below the logo and the appearance
+          controls. */}
+      <div className="flex flex-wrap items-center gap-3 px-3 py-2 sm:flex-nowrap sm:px-4 sm:py-3">
         <div className="flex flex-1 justify-start">
           <h1 className="flex items-center shrink-0">
             <LocalizedLink
@@ -199,12 +201,14 @@ export default function Present() {
           </h1>
         </div>
 
-        <PresentPerspectiveToggle
-          perspective={perspective}
-          onChange={setPerspective}
-        />
+        <div className="order-last flex w-full flex-wrap items-center justify-center gap-3 sm:order-none sm:w-auto sm:flex-nowrap">
+          <PresentPerspectiveToggle
+            perspective={perspective}
+            onChange={setPerspective}
+          />
 
-        <SeatingModeToggle mode={mode} onModeChange={setMode} />
+          <SeatingModeToggle mode={mode} onModeChange={setMode} />
+        </div>
 
         {/* The footer is hidden on fullscreen surfaces, so theme and language
             live in the toolbar instead. */}
@@ -273,7 +277,7 @@ export default function Present() {
         <div
           role="status"
           aria-live="polite"
-          className="flex items-center justify-center gap-3 px-4 pb-1"
+          className="flex flex-wrap items-center justify-center gap-3 px-4 pb-1"
         >
           <span className="inline-flex items-center gap-2 rounded-full border border-amber-300 bg-amber-50 px-4 py-1.5 text-lg font-semibold text-amber-900 shadow-sm dark:border-amber-500/40 dark:bg-amber-900/30 dark:text-amber-100">
             <HandPointingIcon size={20} aria-hidden />
@@ -374,8 +378,11 @@ export default function Present() {
           classroom. Teacher-only controls (badges, photos) hide in the student
           view; colors and zoom stay. */}
       {hasContent ? (
-        <div className="flex items-center gap-3 px-4 py-4">
-          <div className="flex flex-1 justify-start">
+        <div className="flex flex-wrap items-center justify-center gap-3 px-4 py-4 sm:flex-nowrap">
+          {/* Narrow screens put the back button on its own row below the view
+              controls; from `sm` up it is pinned left again and the controls
+              stay centred under the classroom. */}
+          <div className="order-last flex w-full justify-center sm:order-none sm:w-auto sm:flex-1 sm:justify-start">
             <button
               type="button"
               onClick={() => navigate('/generator')}
@@ -537,7 +544,7 @@ export default function Present() {
                   'present.zoomTitle',
                   'Ansicht vergrößern oder verkleinern',
                 )}
-                className="w-40 cursor-pointer accent-blue-600"
+                className="w-28 cursor-pointer accent-blue-600 sm:w-40"
               />
               <span className="w-12 text-right text-sm font-semibold tabular-nums text-gray-600 dark:text-gray-300">
                 {Math.round(zoom * 100)}%
@@ -561,7 +568,7 @@ export default function Present() {
             </button>
           </div>
 
-          <div className="flex-1" aria-hidden />
+          <div className="hidden flex-1 sm:block" aria-hidden />
         </div>
       ) : (
         <div className="h-4" aria-hidden />

@@ -856,7 +856,12 @@ export default function SeatingPlanEditorView({
         </section>
       ) : null}
 
-      <div className="flex flex-col gap-4 md:flex-row md:gap-2 md:items-start">
+      {/* The direction comes from the same hook that decides whether the
+          sidebar is a rail or a phone sheet — a `md:` variant here could
+          disagree with it and stack the rail on top of the canvas. */}
+      <div
+        className={`flex ${isPhone ? 'flex-col gap-4' : 'flex-row items-start gap-2'}`}
+      >
         <SmartSidebar isFirstVisit={isFirstVisit}>
           {({ isExpanded }) =>
             isExpanded ? (
@@ -881,7 +886,7 @@ export default function SeatingPlanEditorView({
         </SmartSidebar>
 
         <div className="relative flex-1">
-          <div className="flex flex-col gap-4 md:min-w-0">
+          <div className="flex min-w-0 flex-col gap-4">
             <div
               data-testid="classroom-canvas"
               className={`${canvasFrameClass} relative select-none`}
@@ -1032,7 +1037,7 @@ export default function SeatingPlanEditorView({
             )}
 
             <form
-              className="mt-4 flex flex-col items-start gap-2 sm:flex-row"
+              className="mt-4 flex flex-col items-start gap-2 sm:flex-row sm:flex-wrap"
               onSubmit={(e) => {
                 e.preventDefault();
                 saveSeatingPlan(planName, classroomScene);
@@ -1043,13 +1048,13 @@ export default function SeatingPlanEditorView({
                 type="button"
                 onClick={onEditLayout}
                 title={t('actions.backShortcut', 'Zurück (Alt/Option+←)')}
-                className={`${neutralButtonClass} hidden justify-center gap-2 sm:flex sm:w-auto`}
+                className={`${neutralButtonClass} hidden shrink-0 justify-center gap-2 whitespace-nowrap sm:flex sm:w-auto`}
               >
                 <ArrowLeftIcon className="w-4 h-4" />
                 {t('circle.backToClassroom', 'Zurück zum Klassenraum')}
               </button>
-              <PlanHistoryButton />
-              <div className="w-full sm:w-auto flex-1">
+              <PlanHistoryButton className="shrink-0" />
+              <div className="w-full flex-1 sm:w-auto sm:min-w-64">
                 <div className="relative">
                   <input
                     ref={planNameInputRef}
@@ -1094,12 +1099,12 @@ export default function SeatingPlanEditorView({
                   </p>
                 )}
               </div>
-              <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+              <div className="flex w-full shrink-0 flex-col gap-2 sm:ml-auto sm:w-auto sm:flex-row">
                 <button
                   type="button"
                   onClick={handlePresentWithConditionalSave}
                   title={t('present.buttonTitle', 'Sitzplan präsentieren')}
-                  className={`${warningButtonClass} flex items-center gap-2`}
+                  className={`${warningButtonClass} flex items-center gap-2 whitespace-nowrap`}
                 >
                   <ChalkboardTeacherIcon className="w-4 h-4" size={16} />
                   {t('present.button', 'Präsentieren')}
@@ -1111,7 +1116,7 @@ export default function SeatingPlanEditorView({
                     'actions.exportShortcut',
                     'Exportieren (Strg/Cmd+E)',
                   )}
-                  className={`${primaryButtonClass} flex items-center gap-2`}
+                  className={`${primaryButtonClass} flex items-center gap-2 whitespace-nowrap`}
                 >
                   <ExportIcon className="w-4 h-4" size={16} />
                   {t('actions.export', 'Exportieren')}

@@ -123,8 +123,12 @@ export default function StorageHistoryModal({
   const hasMixes = mixHistory.length > 0;
   const usageCount = planUsage.length;
 
+  // The three German labels need more than a phone's width in one row, and a
+  // pill tab cannot shrink below its own text — so the row wraps instead of
+  // pushing the modal past the viewport. The fully round pill shape only fits
+  // a single row, hence the softer radius until the tabs sit side by side.
   const tabContainerClass =
-    'flex gap-2 rounded-full border border-blue-200 bg-white/80 p-1 shadow-inner dark:border-blue-900/50 dark:bg-gray-950/60';
+    'flex flex-wrap gap-2 rounded-3xl border border-blue-200 bg-white/80 p-1 shadow-inner sm:rounded-full dark:border-blue-900/50 dark:bg-gray-950/60';
 
   return (
     <Modal

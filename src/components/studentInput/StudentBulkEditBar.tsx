@@ -224,15 +224,19 @@ export default function StudentBulkEditBar({
       )}
 
       {/*
-        `min-w-max` + `flex-nowrap` + `shrink-0`: the eight chips are one visual
-        unit and must never break 7/1 across two lines. If the row is too narrow
-        the whole group moves down instead — `grow` keeps it claiming the free
-        space so the delete button stays beside it.
+        From `sm` up, `min-w-max` + `flex-nowrap` + `shrink-0` keep the eight
+        chips as one visual unit that never breaks 7/1 across two lines: if the
+        row is too narrow the whole group moves down instead, and `grow` keeps
+        it claiming the free space so the delete button stays beside it.
+
+        Below `sm` that would overflow the card — eight 44px touch targets do
+        not fit a phone — so the group wraps there and reads left-aligned like
+        the rest of the bar.
       */}
       <div
         role="group"
         aria-label={t('bulkEdit.setFlag', 'Merkmal setzen')}
-        className="flex min-w-max shrink-0 grow flex-nowrap items-center justify-end gap-1"
+        className="flex flex-wrap items-center justify-start gap-1 sm:min-w-max sm:shrink-0 sm:grow sm:flex-nowrap sm:justify-end"
       >
         {BULK_FLAGS.map((flag: BulkFlag) => {
           const state = flagStates[flag];

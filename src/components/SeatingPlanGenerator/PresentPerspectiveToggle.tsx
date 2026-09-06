@@ -24,15 +24,18 @@ export default function PresentPerspectiveToggle({
         onClick={() => onChange('student')}
         className={`${
           !teacherActive ? primaryButtonClass : secondaryButtonClass
-        } h-10 gap-2 px-4`}
+        } h-10 gap-2 px-3 sm:px-4`}
         aria-pressed={!teacherActive}
+        aria-label={t('present.studentView', 'Schüleransicht')}
         title={t(
           'present.studentViewTitle',
           'Sitzplan aus Sicht der Klasse zeigen – ohne Merkmale und Fotos',
         )}
       >
         <StudentIcon size={20} aria-hidden />
-        <span className="text-sm font-semibold">
+        {/* Both labels together outgrow a phone toolbar; the icons and the
+            accessible names carry the meaning once they are gone. */}
+        <span className="hidden text-sm font-semibold sm:inline">
           {t('present.studentView', 'Schüleransicht')}
         </span>
       </button>
@@ -41,15 +44,16 @@ export default function PresentPerspectiveToggle({
         onClick={() => onChange('teacher')}
         className={`${
           teacherActive ? primaryButtonClass : secondaryButtonClass
-        } h-10 gap-2 px-4`}
+        } h-10 gap-2 px-3 sm:px-4`}
         aria-pressed={teacherActive}
+        aria-label={t('present.teacherView', 'Lehreransicht')}
         title={t(
           'present.teacherViewTitle',
           'Sitzplan aus Sicht der Lehrkraft zeigen',
         )}
       >
         <ChalkboardTeacherIcon size={20} aria-hidden />
-        <span className="text-sm font-semibold">
+        <span className="hidden text-sm font-semibold sm:inline">
           {t('present.teacherView', 'Lehreransicht')}
         </span>
       </button>

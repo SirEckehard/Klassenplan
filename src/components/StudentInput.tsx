@@ -41,6 +41,7 @@ import { useStudentListLayout } from '@/components/studentInput/hooks/useStudent
 import { useStudentListView } from '@/components/studentInput/hooks/useStudentListView';
 import { useStudentSelection } from '@/components/studentInput/hooks/useStudentSelection';
 import StudentListToolsRow from '@/components/studentInput/StudentListToolsRow';
+import ListScrollFab from '@/components/studentInput/ListScrollFab';
 import { useIsLgUp } from '@/hooks/ui/useIsLgUp';
 import { useCsvImportWithDialog } from '@/hooks/csv/useCsvImportWithDialog';
 import { isAnyDialogOpen } from '@/hooks/ui/useDialogLayer';
@@ -85,12 +86,19 @@ function StudentInput({
   // Below `lg` the list flows in the page scroll (no inner scroll container);
   // at `lg+` the adaptive-viewport hook caps the inner scroll height.
   const isLgUp = useIsLgUp();
-  const { listContainerRef, listMaxHeight, proceedButtonRef } =
-    useStudentListLayout({
-      isMobile: !isLgUp,
-      studentCount: students.length,
-      recalcKey: 0, // No longer need dynamic recalc
-    });
+  const {
+    listContainerRef,
+    listMaxHeight,
+    listTopRef,
+    proceedButtonRef,
+    scrollHint,
+    handleScrollHint,
+    floatingActionOffsets,
+  } = useStudentListLayout({
+    isMobile: !isLgUp,
+    studentCount: students.length,
+    recalcKey: 0, // No longer need dynamic recalc
+  });
 
   // Track which student card was just expanded (e.g. after bulk creation)
   const [expandedCardId, setExpandedCardId] = useState<string | null>(null);
@@ -304,7 +312,10 @@ function StudentInput({
   }, [canPlayNameGame, navigate, photoCount, t]);
 
   return (
-    <div className="space-y-6">
+    // The scroll anchor sits on the step root, not on the list toolbar: the
+    // toolbar only appears from `STUDENT_LIST_TOOLS_THRESHOLD` students up, and
+    // the way back should show the class panel with it either way.
+    <div ref={listTopRef} className="space-y-6">
       <ClassActionsPanel
         classSummaries={classSummaries}
         activeClass={activeClass}
@@ -437,7 +448,7 @@ function StudentInput({
       {/* Classroom setup moved to Step 2 - LayoutEditorView */}
 
       {students.length > 0 && (
-        <div className="mt-4 flex flex-wrap items-center justify-end gap-3">
+        <div className="mt-4 flex flex-col justify-between gap-2 sm:flex-row">
           <button
             type="button"
             aria-disabled={!canPlayNameGame}
@@ -446,14 +457,14 @@ function StudentInput({
               'studentInput.nameGameTitle',
               'Namen deiner Schüler spielerisch lernen',
             )}
-            className={`${warningButtonClass} justify-center gap-2 mr-auto`}
+            className={`${warningButtonClass} w-full justify-center gap-2 sm:w-auto`}
           >
             <GameControllerIcon size={16} aria-hidden />
             {t('studentInput.nameGameButton', 'Namensspiel')}
           </button>
           {/* Proceed Button — blocked by missing names; the reason shows on
               hover/focus, the click still raises the toast. */}
-          <div className="group relative">
+          <div className="group relative w-full sm:w-auto">
             <button
               ref={proceedButtonRef}
               type="button"
@@ -461,7 +472,7 @@ function StudentInput({
               aria-disabled={missingNameHint ? true : undefined}
               aria-describedby={missingNameHint ? missingNameHintId : undefined}
               title={t('studentInput.proceedShortcut', 'Weiter (Alt/Option+→)')}
-              className={`${primaryButtonClass} justify-center gap-2`}
+              className={`${primaryButtonClass} flex w-full items-center justify-center gap-2 sm:w-auto`}
             >
               {t('studentInput.proceedButton', 'Weiter zum Klassenraum')}
               <ArrowRightIcon className="w-4 h-4" />
@@ -471,6 +482,14 @@ function StudentInput({
             )}
           </div>
         </div>
+      )}
+
+      {students.length > 0 && (
+        <ListScrollFab
+          hint={scrollHint}
+          onScroll={handleScrollHint}
+          offsets={floatingActionOffsets}
+        />
       )}
 
       <ConfirmDialog

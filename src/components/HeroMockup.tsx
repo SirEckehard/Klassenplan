@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { useDialogA11y } from '@/hooks/ui/useDialogA11y';
 import { useDialogLayer } from '@/hooks/ui/useDialogLayer';
+import { usePrefersReducedMotion } from '@/hooks/ui/usePrefersReducedMotion';
 import {
   CaretLeftIcon,
   CaretRightIcon,
@@ -45,25 +46,6 @@ function useIsDark() {
     return () => observer.disconnect();
   }, []);
   return dark;
-}
-
-const reducedMotionQuery = (): MediaQueryList | null =>
-  typeof window !== 'undefined' && typeof window.matchMedia === 'function'
-    ? window.matchMedia('(prefers-reduced-motion: reduce)')
-    : null;
-
-function usePrefersReducedMotion() {
-  const [reduced, setReduced] = useState(
-    () => reducedMotionQuery()?.matches ?? false,
-  );
-  useEffect(() => {
-    const query = reducedMotionQuery();
-    if (!query) return;
-    const onChange = () => setReduced(query.matches);
-    query.addEventListener('change', onChange);
-    return () => query.removeEventListener('change', onChange);
-  }, []);
-  return reduced;
 }
 
 function slideBase(slug: string, lang: 'de' | 'en', dark: boolean) {
