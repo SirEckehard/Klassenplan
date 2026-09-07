@@ -13,6 +13,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Improved
 
+## [2.0.3] - 2026-09-08
+
+### Improved
+
+- On phones, a jump button in the class list takes you down to the "Continue" button at the end and back up to the top again – it only went down before. The system setting for reduced motion is honoured
+
+### Fixed
+
+- Presentation mode now frames only the furnished part of the room instead of always the whole 900×600 one: the names get as large as the device allows – most noticeably on tablets held in portrait
+- "Who's next?": the spotlight radius follows the seat instead of being a constant, so it highlights a single student at group tables again instead of three at once
+- The toolbars in presentation mode wrap on narrow screens instead of running past the edge: the student and teacher views show as icons there, and the back button moves to a row of its own
+- In the class list's bulk selection, the eight trait switches wrap on phones instead of overflowing the card; so do the tabs under "Plans, shuffles & neighbourhoods"
+- The bars for saving, presenting and exporting – in the seating plan as well as the seating circle – wrap cleanly on narrow screens, and button labels are no longer broken mid-word
+- Sidebar and canvas in steps 2 and 3 take their direction from the same source that decides rail vs. phone sheet, so a tablet no longer stacks the rail on top of the canvas
+- The sort order of the class list survives leaving step 1 and coming back. Search and filter still reset on purpose – they hide students, and a hidden class on return would read as data loss
+
 ## [2.0.2] - 2026-09-05
 
 ### Fixed

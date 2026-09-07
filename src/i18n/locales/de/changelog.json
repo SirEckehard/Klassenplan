@@ -1,4 +1,14 @@
 {
+  "v2_0_3": {
+    "0": "Auf dem Handy führt dich ein Sprungknopf in der Klassenliste ans Listenende zum „Weiter“-Button und von dort wieder an den Anfang – bisher ging es nur nach unten. Die Systemeinstellung für reduzierte Bewegung wird dabei beachtet",
+    "1": "Der Präsentationsmodus zeigt nur noch den tatsächlich möblierten Teil des Raums statt immer den ganzen: Die Namen werden dadurch so groß, wie das Gerät es zulässt – am deutlichsten auf hochkant gehaltenen Tablets",
+    "2": "„Wer ist dran?“: Der Lichtkegel richtet sich nach der Größe des Sitzplatzes und hebt an Gruppentischen wieder eindeutig einen Schüler hervor statt drei auf einmal",
+    "3": "Die Leisten im Präsentationsmodus brechen auf schmalen Bildschirmen um, statt über den Rand hinauszulaufen: Schüler- und Lehreransicht stehen dort als Symbole, der Zurück-Button rückt in eine eigene Zeile",
+    "4": "In der Mehrfachauswahl der Klassenliste brechen die acht Merkmal-Schalter auf dem Handy um, statt aus der Karte zu laufen; ebenso die Reiter unter „Pläne, Mischungen & Nachbarschaften“",
+    "5": "Die Leisten zum Speichern, Präsentieren und Exportieren – im Sitzplan wie im Sitzkreis – brechen auf schmalen Bildschirmen sauber um; die Beschriftungen der Buttons werden nicht mehr mitten im Wort getrennt",
+    "6": "Auf dem Tablet stehen Seitenleiste und Klassenraum in Schritt 2 und 3 wieder verlässlich nebeneinander, statt sich je nach Fensterbreite übereinanderzustapeln",
+    "7": "Die Sortierung der Klassenliste bleibt erhalten, wenn du Schritt 1 verlässt und zurückkommst. Suche und Filter setzen sich weiterhin absichtlich zurück, damit keine Schüler unbemerkt ausgeblendet bleiben"
+  },
   "v2_0_2": {
     "0": "Auf Handy und Tablet ließ sich in Menüs mit Eingabefeld nichts eintippen: Die Bildschirmtastatur klappte auf und sofort wieder zu. Betrifft „Hinzufügen“ in der Klassenliste ebenso wie Suche und Filter",
     "1": "Beim Öffnen eines Menüs sitzt der Cursor wieder zuverlässig im ersten Feld bzw. auf dem ersten Eintrag"

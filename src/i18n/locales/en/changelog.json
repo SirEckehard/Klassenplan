@@ -1,4 +1,14 @@
 {
+  "v2_0_3": {
+    "0": "On phones, a jump button in the class list takes you down to the 'Continue' button at the end and back up to the top again – it only went down before. The system setting for reduced motion is honoured",
+    "1": "Presentation mode now shows only the furnished part of the room instead of always the whole one: the names get as large as the device allows – most noticeably on tablets held in portrait",
+    "2": "'Who's next?': the spotlight follows the size of the seat and highlights a single student at group tables again instead of three at once",
+    "3": "The toolbars in presentation mode wrap on narrow screens instead of running past the edge: the student and teacher views show as icons there, and the back button moves to a row of its own",
+    "4": "In the class list's bulk selection, the eight trait switches wrap on phones instead of overflowing the card; so do the tabs under 'Plans, shuffles & neighbourhoods'",
+    "5": "The bars for saving, presenting and exporting – in the seating plan as well as the seating circle – wrap cleanly on narrow screens, and button labels are no longer broken mid-word",
+    "6": "On tablets, the sidebar and the classroom sit side by side reliably again in steps 2 and 3 instead of stacking depending on the window width",
+    "7": "The sort order of the class list is kept when you leave step 1 and come back. Search and filter still reset on purpose, so no students stay hidden unnoticed"
+  },
   "v2_0_2": {
     "0": "On phones and tablets, menus with an input field could not be typed into: the on-screen keyboard opened and closed again straight away. Affects 'Add' in the class list as well as search and filter",
     "1": "Opening a menu puts the cursor back in its first field or on its first entry reliably"
