@@ -50,6 +50,40 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - Do not create new branches
 - Follow existing commit message patterns
+- Work happens on `update`; `main` only ever receives it as a fast-forward (`git merge --ff-only update`), never a merge commit
+
+### Release workflow
+
+A release is not finished when `main` is pushed — nothing is published until
+the tag is. `.github/workflows/docker.yml` runs on `push: tags: ['v*']`, builds
+the image for both architectures, pushes the multi-arch manifest to GHCR as
+`X.Y.Z`, `X.Y` and `latest`, and only then creates the GitHub release. A push to
+`main` alone triggers `ci.yml` and nothing else.
+
+1. Run the gates on `update`: `npm test -- --run`, `npm run lint`,
+   `npm run typecheck:all`, `npm run check:i18n`, `npm run check:unused`,
+   `npm run build` followed by `npm run check:bundle`
+2. Commit the bump as `update: vX.Y.Z changelog and version bump`, touching all
+   eight files: `package.json` and `package-lock.json` (the two project entries
+   at the top only — dependencies share the version string), `README.md` (image
+   tag + `KLASSENPLAN_VERSION` example), `docker-compose.yml` (the example in
+   the comment), `docs/CHANGELOG.md`, `src/data/changelogEntries.ts` and
+   `src/i18n/locales/{de,en}/changelog.json`
+3. `git checkout main && git merge --ff-only update`
+4. `git push origin main` and `git push origin update`
+5. `git tag -a vX.Y.Z -m vX.Y.Z <bump-commit>` — annotated, on the bump commit,
+   matching the existing tags
+6. `git push origin vX.Y.Z`
+
+The release notes are cut out of `docs/CHANGELOG.md` by `awk`, from the
+`## [X.Y.Z]` heading to the next one, so that section has to exist before the
+tag is pushed — the `release` job fails outright when it finds nothing. A
+hyphen in the tag (`v2.1.0-rc.1`) marks a pre-release and keeps it off
+`latest`.
+
+Build artefacts are not part of a release commit: `npm run build` rewrites the
+`lastmod` stamps in `public/sitemap.xml` from file mtimes — discard that unless
+the sitemap itself is the change.
 
 ## Special Instructions
 
