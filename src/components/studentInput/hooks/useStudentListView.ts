@@ -2,9 +2,17 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import type { Student } from '@/types';
+import usePersistentState from '@/hooks/usePersistentState';
+import { LOCAL_STORAGE_KEYS } from '@/utils/data/storageKeys';
 
 /** Sort orders offered above the list. `manual` keeps the insertion order. */
 export type StudentSortMode = 'manual' | 'name-asc' | 'name-desc';
+
+const STUDENT_SORT_MODES: StudentSortMode[] = [
+  'manual',
+  'name-asc',
+  'name-desc',
+];
 
 /**
  * Attribute filters. Each maps to one predicate; `all` disables filtering.
@@ -74,10 +82,21 @@ export interface StudentListView {
  * Derives the visible list instead of reordering the stored class: sorting is
  * a way of looking at the list, not an edit, and the seating algorithm depends
  * on the stored order staying put.
+ *
+ * The sort order is persisted, so stepping to step 2 and back keeps it. Search
+ * and filter stay component state on purpose: they hide students, and a hidden
+ * class on return would read as data loss.
  */
 export function useStudentListView(students: Student[]): StudentListView {
   const [query, setQuery] = React.useState('');
-  const [sortMode, setSortMode] = React.useState<StudentSortMode>('manual');
+  const [storedSortMode, setSortMode] = usePersistentState<StudentSortMode>(
+    LOCAL_STORAGE_KEYS.studentSortMode,
+    'manual',
+  );
+  // A hand-edited or outdated entry must not leave the select without a match.
+  const sortMode = STUDENT_SORT_MODES.includes(storedSortMode)
+    ? storedSortMode
+    : 'manual';
   const [filterMode, setFilterMode] = React.useState<StudentFilterMode>('all');
 
   const visibleStudents = React.useMemo(() => {

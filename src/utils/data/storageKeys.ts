@@ -30,6 +30,10 @@ export const STORAGE_KEYS = {
     backupReminderSnoozedUntil: 'spg.backupReminderSnoozedUntil',
     backupReminderDisabled: 'spg.backupReminderDisabled',
     mixSettings: 'spg.mixSettings',
+    // Sort order of the class list in step 1. A way of looking at the list,
+    // so it survives leaving and re-entering the step (search and filter do
+    // not — they hide students and must not do so silently on return).
+    studentSortMode: 'spg.studentSortMode',
     sidebarExpanded: 'spg.sidebarExpanded',
     sidebarActiveTab: 'spg.sidebarActiveTab',
     hasVisitedApp: 'spg.hasVisitedApp',
@@ -147,6 +151,7 @@ export const PROJECT_LOCAL_STORAGE_KEYS = [
   STORAGE_KEYS.localStorage.backupReminderSnoozedUntil,
   STORAGE_KEYS.localStorage.backupReminderDisabled,
   STORAGE_KEYS.localStorage.mixSettings,
+  STORAGE_KEYS.localStorage.studentSortMode,
   STORAGE_KEYS.localStorage.sidebarExpanded,
   STORAGE_KEYS.localStorage.sidebarActiveTab,
   STORAGE_KEYS.localStorage.hasVisitedApp,

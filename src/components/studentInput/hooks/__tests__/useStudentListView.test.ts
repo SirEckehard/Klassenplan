@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useStudentListView } from '@/components/studentInput/hooks/useStudentListView';
 import { createMockStudent } from '@/__tests__/utils';
@@ -15,6 +15,9 @@ const students = [
 const names = (list: { name: string }[]) => list.map((entry) => entry.name);
 
 describe('useStudentListView', () => {
+  // The sort order is persisted, so it must not leak between cases.
+  beforeEach(() => localStorage.clear());
+
   it('shows the whole class by default', () => {
     const { result } = renderHook(() => useStudentListView(students));
 
@@ -103,5 +106,25 @@ describe('useStudentListView', () => {
     expect(result.current.visibleStudents).toHaveLength(4);
     expect(result.current.sortMode).toBe('name-asc');
     expect(result.current.isNarrowed).toBe(false);
+  });
+
+  it('keeps the sorting when the list is mounted again', () => {
+    const first = renderHook(() => useStudentListView(students));
+    act(() => first.result.current.setSortMode('name-asc'));
+    first.unmount();
+
+    const second = renderHook(() => useStudentListView(students));
+
+    expect(second.result.current.sortMode).toBe('name-asc');
+    expect(names(second.result.current.visibleStudents)[0]).toBe('');
+  });
+
+  it('falls back to the manual order when the stored value is unknown', () => {
+    localStorage.setItem('spg.studentSortMode', '"name-descending"');
+
+    const { result } = renderHook(() => useStudentListView(students));
+
+    expect(result.current.sortMode).toBe('manual');
+    expect(names(result.current.visibleStudents)).toEqual(names(students));
   });
 });
