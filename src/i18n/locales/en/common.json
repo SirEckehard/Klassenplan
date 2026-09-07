@@ -213,7 +213,11 @@
     "updateAvailable": "New version available",
     "reload": "Update",
     "install": "Install as App",
-    "installDesc": "Install Klassenplan as App and use it offline!"
+    "installDesc": "Install Klassenplan as App and use it offline!",
+    "checkForUpdates": "Check for updates",
+    "checking": "Checking for updates …",
+    "upToDate": "You already have the latest version (v{{version}})",
+    "updateCheckFailed": "Update check failed. Are you online?"
   },
   "offline": {
     "badge": "Offline"

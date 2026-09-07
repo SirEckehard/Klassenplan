@@ -1,10 +1,18 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { useRegisterSW } from 'virtual:pwa-register/react';
 import { useTranslation } from 'react-i18next';
 import { showToast } from '@/utils/ui/toast';
 import { logInfo } from '@/utils';
+import {
+  getUpdateController,
+  setUpdateController,
+} from '@/hooks/pwa/swUpdateController';
+import { UPDATE_TOAST_ID } from '@/hooks/pwa/useUpdateCheck';
+
+/** How often an open session re-checks for a new deployment. */
+const UPDATE_CHECK_INTERVAL_MS = 60 * 60 * 1000;
 
 /**
  * Component to handle PWA updates
@@ -12,7 +20,6 @@ import { logInfo } from '@/utils';
  */
 export default function ReloadPrompt() {
   const { t } = useTranslation('common');
-  const registrationRef = useRef<ServiceWorkerRegistration | null>(null);
 
   const {
     needRefresh: [needRefresh, setNeedRefresh],
@@ -20,28 +27,53 @@ export default function ReloadPrompt() {
   } = useRegisterSW({
     onRegistered(r) {
       logInfo('SW Registered: ' + r, {}, 'PWA');
-      registrationRef.current = r ?? null;
+      // Publish the registration so the footer's update button can reach it —
+      // calling useRegisterSW a second time would register a second worker.
+      setUpdateController(
+        r
+          ? { registration: r, applyUpdate: () => updateServiceWorker(true) }
+          : null,
+      );
     },
     onRegisterError(error) {
       logInfo('SW registration error', { error }, 'PWA');
     },
   });
 
-  // A session that started offline never got to check for a new version.
-  // Re-check once the connection returns, so the update toast can still appear.
+  useEffect(() => () => setUpdateController(null), []);
+
+  // Without this the check only ever runs on page load. A session that started
+  // offline never got to check at all, and a tab left open on the projector for
+  // a whole school day would never notice a deployment.
   useEffect(() => {
-    const handleOnline = () => {
-      const registration = registrationRef.current;
+    const runCheck = (trigger: string) => {
+      const registration = getUpdateController()?.registration;
       if (!registration) {
         return;
       }
       registration.update().catch((error: unknown) => {
-        logInfo('SW update check after reconnect failed', { error }, 'PWA');
+        logInfo('SW update check failed', { error, trigger }, 'PWA');
       });
     };
 
+    const handleOnline = () => runCheck('online');
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        runCheck('visible');
+      }
+    };
+    const intervalId = window.setInterval(
+      () => runCheck('interval'),
+      UPDATE_CHECK_INTERVAL_MS,
+    );
+
     window.addEventListener('online', handleOnline);
-    return () => window.removeEventListener('online', handleOnline);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      window.clearInterval(intervalId);
+      window.removeEventListener('online', handleOnline);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, []);
 
   useEffect(() => {
@@ -49,7 +81,11 @@ export default function ReloadPrompt() {
       logInfo('New content available, showing update toast', {}, 'PWA');
 
       showToast('info', t('pwa.updateAvailable'), {
-        duration: Infinity, // Keep open until clicked
+        // Shared with the manual check so both cannot stack the same toast.
+        id: UPDATE_TOAST_ID,
+        // 0 keeps the toast open until clicked. `Infinity` does not: the
+        // timeout is clamped to a 32-bit int, so it fires after ~1 ms.
+        duration: 0,
         action: {
           label: t('pwa.reload'),
           onClick: () => {

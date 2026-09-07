@@ -213,7 +213,11 @@
     "updateAvailable": "Neue Version verfügbar",
     "reload": "Aktualisieren",
     "install": "Als App installieren",
-    "installDesc": "Klassenplan als App installieren und offline nutzen!"
+    "installDesc": "Klassenplan als App installieren und offline nutzen!",
+    "checkForUpdates": "Auf Updates prüfen",
+    "checking": "Suche nach Updates …",
+    "upToDate": "Du hast bereits die neueste Version (v{{version}})",
+    "updateCheckFailed": "Update-Prüfung fehlgeschlagen. Bist du online?"
   },
   "offline": {
     "badge": "Offline"

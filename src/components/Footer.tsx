@@ -19,6 +19,7 @@ import {
 } from '@phosphor-icons/react';
 import { useTranslation } from 'react-i18next';
 import AppearanceControls from '@/components/ui/navigation/AppearanceControls';
+import UpdateCheckButton from '@/components/pwa/UpdateCheckButton';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
 import { LocalizedLink } from './LocalizedLink';
 import { useSeatingPlanActions } from '@/contexts/SeatingPlanContext';
@@ -214,6 +215,7 @@ const Footer: React.FC = () => {
         <span className="text-gray-300 dark:text-gray-600" aria-hidden="true">
           |
         </span>
+        <UpdateCheckButton />
         <div className="relative" ref={menuRef}>
           <button
             type="button"

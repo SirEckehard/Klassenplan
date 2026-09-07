@@ -103,7 +103,9 @@ function handleAddEvent(
     timers.current.delete(event.toast.id);
   }
 
-  if (event.toast.duration > 0) {
+  // A non-finite duration reads as "never auto-dismiss", but setTimeout clamps
+  // it to a 32-bit int and would fire after roughly a millisecond instead.
+  if (Number.isFinite(event.toast.duration) && event.toast.duration > 0) {
     const timeoutId = window.setTimeout(() => {
       timers.current.delete(event.toast.id);
       dismissToast(event.toast.id);
