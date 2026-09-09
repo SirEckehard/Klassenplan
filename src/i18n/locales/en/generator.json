@@ -10,7 +10,7 @@
     "students": {
       "title": "Class List",
       "item1": "Create as many classes as you like in the class manager and switch between them – each class keeps its own students, seating plans and classrooms.",
-      "item2": "Add students one by one, create placeholders for a whole class, or import a CSV file – \"What the file has to look like\" shows the required structure.",
+      "item2": "Add students one by one, create placeholders for a whole class, or import a CSV file – \"What the file looks like\" shows the required structure.",
       "item3": "Select up to 3 preferred and distance partners per student – the order determines priority.",
       "item4": "Search, filter and sorting help you find individual students; the checkboxes let you edit several students at once.",
       "item5": "Add photos via the portrait icon – they stay on this device only.",

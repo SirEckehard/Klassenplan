@@ -9,9 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- Class lists exported from WebUntis, Schulmanager Online and SchILD-NRW are recognised on import. The dialog names the format it found, preselects the sensible name column and can import the file without the preset if the recognition is wrong
+- An export holding several classes now asks which class to import, instead of stopping at the 36-student limit
+
 ### Fixed
 
+- CSV files saved on Windows are read with the right encoding – umlauts no longer arrive as replacement characters
+- A column named "Name" next to a "Vorname" is read as the surname, the way WebUntis and most German school exports label it. "First name + last name" was impossible to pick for those files before
+- A title line above the header row ("Schülerliste 5a – Stand …") no longer breaks the import
+- Names written as "Müller, Anna" in a single column are imported as "Anna Müller" – only when every row of the file follows that pattern
+
 ### Improved
+
+- Column headings are matched regardless of how umlauts are spelled ("Vordere Plätze" and "Vordere Plaetze" both work), and the export spellings "Langname", "Familienname", "Zuname", "Rufname" and "Schüler" are understood
+- The hint shown for an empty class, the format example and the FAQ now say that a list from WebUntis, Schulmanager or SchILD can usually be uploaded unchanged, instead of only pointing at the template to fill in by hand
 
 ## [2.0.3] - 2026-09-08
 

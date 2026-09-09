@@ -15,14 +15,46 @@ import {
   MAX_STUDENT_NAME_LENGTH,
   MAX_STUDENTS,
 } from '@/utils';
-import { normalizeCsvHeader } from '@/utils/data/csvNormalization';
+import {
+  normalizeCsvHeader,
+  normalizeHeaderKey,
+} from '@/utils/data/csvNormalization';
 import {
   CsvImportError,
   diagnoseTooManyRows,
   formatColumnList,
 } from '@/utils/csv/csvImportDiagnostics';
+import {
+  CLASS_VARIANTS,
+  COLUMN_ALIASES,
+  FIRST_NAME_VARIANTS,
+  FULL_NAME_VARIANTS,
+  HEIGHT_KEY_PATTERNS,
+  LANGUAGE_SKILL_KEY_PATTERNS,
+  LAST_NAME_VARIANTS,
+  SOCIAL_ROLE_KEY_PATTERNS,
+  type CsvAliasColumn,
+} from '@/utils/csv/csvColumnVocabulary';
+import { sniffCsvEncoding, type CsvEncoding } from '@/utils/csv/csvEncoding';
+import { stripCsvPreamble } from '@/utils/csv/csvPreamble';
+import {
+  applyCsvPreset,
+  detectCsvPreset,
+} from '@/utils/csv/csvPresetDetection';
+import type { CsvPreset } from '@/utils/csv/csvPresets';
+import type {
+  CsvParseResult,
+  NameColumnInfo,
+  NameColumnMode,
+} from '@/utils/csv/csvTypes';
 
-export type CsvParseResult = Papa.ParseResult<Record<string, unknown>>;
+export { hasRecognizedCsvHeaders } from '@/utils/csv/csvColumnVocabulary';
+export type {
+  CsvImportSelection,
+  CsvParseResult,
+  NameColumnInfo,
+  NameColumnMode,
+} from '@/utils/csv/csvTypes';
 type NavigatorWithUAData = Navigator & {
   userAgentData?: { brands?: Array<{ brand: string; version: string }> };
 };
@@ -183,7 +215,12 @@ export const shouldUseCsvWorker = (file?: File): boolean => {
 
 const parseWithWorker = (
   file: File,
-  options: { previewRows?: number; signal?: AbortSignal; timeoutMs?: number },
+  options: {
+    previewRows?: number;
+    signal?: AbortSignal;
+    timeoutMs?: number;
+    encoding?: CsvEncoding;
+  },
 ): Promise<CsvParseResult> =>
   new Promise((resolve, reject) => {
     try {
@@ -251,7 +288,11 @@ const parseWithWorker = (
 
       worker.postMessage({
         type: 'parse',
-        payload: { file, previewRows: options.previewRows },
+        payload: {
+          file,
+          previewRows: options.previewRows,
+          encoding: options.encoding,
+        },
       });
     } catch (error) {
       reject(
@@ -264,7 +305,11 @@ const parseWithWorker = (
 
 const parseInline = (
   file: File,
-  options: { previewRows?: number; signal?: AbortSignal },
+  options: {
+    previewRows?: number;
+    signal?: AbortSignal;
+    encoding?: CsvEncoding;
+  },
 ): Promise<CsvParseResult> =>
   new Promise((resolve, reject) => {
     let aborted = false;
@@ -289,12 +334,14 @@ const parseInline = (
       reject(getAbortError());
     };
 
-    Papa.parse<Record<string, unknown>>(file, {
+    Papa.parse<Record<string, unknown>, File>(file, {
       worker: false,
       header: true,
       skipEmptyLines: true,
       preview: options.previewRows,
+      encoding: options.encoding,
       transformHeader: normalizeCsvHeader,
+      beforeFirstChunk: stripCsvPreamble,
       complete: (result) => {
         cleanup();
         if (!aborted) {
@@ -321,6 +368,8 @@ type ParseCsvOptions = {
   previewRows?: number;
   signal?: AbortSignal;
   timeoutMs?: number;
+  /** Skips the sniffing step when the caller already determined the encoding. */
+  encoding?: CsvEncoding;
 };
 
 export const parseCsvRecords = async (
@@ -328,6 +377,7 @@ export const parseCsvRecords = async (
   options: ParseCsvOptions = {},
 ): Promise<CsvParseResult> => {
   const requestedWorker = options.useWorker ?? shouldUseCsvWorker(file);
+  const encoding = options.encoding ?? (await sniffCsvEncoding(file));
   const preferWorker = requestedWorker && isCsvWorkerEnabled();
 
   if (preferWorker) {
@@ -343,6 +393,7 @@ export const parseCsvRecords = async (
           previewRows: options.previewRows,
           signal: options.signal,
           timeoutMs: options.timeoutMs,
+          encoding,
         });
         resetWorkerFailureState();
         return result;
@@ -363,24 +414,8 @@ export const parseCsvRecords = async (
   return parseInline(file, {
     previewRows: options.previewRows,
     signal: options.signal,
+    encoding,
   });
-};
-
-/**
- * Name column selection mode when multiple name columns are found
- */
-export type NameColumnMode = 'firstName' | 'lastName' | 'fullName';
-
-/**
- * Information about detected name columns in CSV
- */
-export type NameColumnInfo = {
-  hasFirstName: boolean;
-  hasLastName: boolean;
-  hasFullName: boolean;
-  firstNameKey?: string;
-  lastNameKey?: string;
-  fullNameKey?: string;
 };
 
 /**
@@ -434,19 +469,12 @@ const sanitizeStudentName = (value: unknown): string => {
   return normalized.slice(0, MAX_STUDENT_NAME_LENGTH);
 };
 
-const FIRST_NAME_VARIANTS: readonly string[] = [
-  'vorname',
-  'vornamen',
-  'first name',
-  'firstname',
-];
-const LAST_NAME_VARIANTS: readonly string[] = [
-  'nachname',
-  'nachnamen',
-  'last name',
-  'lastname',
-];
-const FULL_NAME_VARIANTS: readonly string[] = ['name', 'full name', 'fullname'];
+/** First header matching one of the variants, compared accent-insensitively. */
+const findHeader = (
+  headers: readonly string[],
+  variants: readonly string[],
+): string | undefined =>
+  headers.find((header) => variants.includes(normalizeHeaderKey(header)));
 
 /**
  * Detect available name columns in CSV headers
@@ -454,9 +482,18 @@ const FULL_NAME_VARIANTS: readonly string[] = ['name', 'full name', 'fullname'];
  * @returns Information about detected name columns
  */
 export function detectNameColumns(headers: string[]): NameColumnInfo | null {
-  const firstNameKey = headers.find((h) => FIRST_NAME_VARIANTS.includes(h));
-  const lastNameKey = headers.find((h) => LAST_NAME_VARIANTS.includes(h));
-  const fullNameKey = headers.find((h) => FULL_NAME_VARIANTS.includes(h));
+  const firstNameKey = findHeader(headers, FIRST_NAME_VARIANTS);
+  let lastNameKey = findHeader(headers, LAST_NAME_VARIANTS);
+  let fullNameKey = findHeader(headers, FULL_NAME_VARIANTS);
+
+  // A bare "Name" sitting next to a "Vorname" is the surname, not the whole
+  // name — that is how WebUntis and most German school exports label their
+  // columns. Reading it as a full name imported the class as a list of
+  // surnames, and left "Vorname + Nachname" unreachable in the dialog.
+  if (fullNameKey && firstNameKey && !lastNameKey) {
+    lastNameKey = fullNameKey;
+    fullNameKey = undefined;
+  }
 
   // No name columns found at all
   if (!firstNameKey && !lastNameKey && !fullNameKey) {
@@ -549,88 +586,30 @@ const parseBooleanCell = (value: unknown): boolean => {
 };
 
 /**
- * Accepted header spellings per attribute column, in lookup order.
+ * Index of the file's headings by their normalized form.
  *
- * Headers arrive trimmed and lower-cased (see {@link normalizeCsvHeader}), so
- * the entries are written that way. Both template languages must resolve here
- * (`csvTemplateDownload.ts`), plus the spellings teachers commonly use.
+ * Row keys arrive trimmed and lower-cased (see {@link normalizeCsvHeader}) but
+ * keep their umlauts, spaces and punctuation, while the shared vocabulary is
+ * written in {@link normalizeHeaderKey} form. This index bridges the two, so
+ * "Vordere Plätze", "vordere plaetze" and "Vordere-Plaetze" all reach the same
+ * column. Several headings can normalize to the same key, hence the array.
  */
-const COLUMN_ALIASES = {
-  restless: ['unruhig', 'restless'],
-  shy: ['schüchtern', 'shy'],
-  concentrationIssues: [
-    'ablenkbarkeit',
-    'konzentration',
-    'distracted',
-    'distractible',
-  ],
-  needsFrontSeat: [
-    'vordere plätze',
-    'hör- und sehschwäche',
-    'hörschwäche',
-    'sehschwäche',
-    'front row',
-    'front seat',
-  ],
-  prefersWindow: [
-    'fensterplatz',
-    'am fenster',
-    'fenster',
-    'window seat',
-    'window',
-  ],
-  prefersDoor: [
-    'türplatz',
-    'tuerplatz',
-    'an der tür',
-    'tür',
-    'tuer',
-    'door seat',
-    'door',
-  ],
-  performanceStrong: ['leistungsstark', 'high performer', 'strong'],
-  performanceWeak: ['leistungsschwach', 'low performer', 'weak'],
-  gender: ['geschlecht', 'gender'],
-  specialNeeds: ['besondere bedürfnisse', 'besonderheiten', 'special needs'],
-  wishPartner: [
-    'wunschpartner',
-    'wunsch partner',
-    'wish partner',
-    'preferred partner',
-  ],
-  avoidPartner: [
-    'distanzwunsch',
-    'distanzpartner',
-    'distanz partner',
-    'avoid partner',
-  ],
-} as const satisfies Record<string, readonly string[]>;
+type CsvHeaderIndex = ReadonlyMap<string, readonly string[]>;
 
-/**
- * True when at least one header names a column Klassenplan understands.
- *
- * The import uses this to tell two very different mistakes apart: a sheet with
- * headers but no name column ("rename a column") versus a sheet that starts
- * straight with student data ("add a header row").
- */
-export function hasRecognizedCsvHeaders(headers: readonly string[]): boolean {
-  const known = new Set<string>([
-    ...FIRST_NAME_VARIANTS,
-    ...LAST_NAME_VARIANTS,
-    ...FULL_NAME_VARIANTS,
-    ...Object.values(COLUMN_ALIASES).flat(),
-  ]);
-  return headers.some((header) => {
-    const normalized = normalizeCsvHeader(header);
-    if (known.has(normalized)) return true;
-    const compact = normalizeHeaderKey(normalized);
-    return [
-      ...HEIGHT_KEY_PATTERNS,
-      ...LANGUAGE_SKILL_KEY_PATTERNS,
-      ...SOCIAL_ROLE_KEY_PATTERNS,
-    ].some((pattern) => compact.includes(pattern));
-  });
-}
+const buildHeaderIndex = (fields: readonly string[]): CsvHeaderIndex => {
+  const index = new Map<string, string[]>();
+  for (const field of fields) {
+    const key = normalizeHeaderKey(field);
+    if (!key) continue;
+    const existing = index.get(key);
+    if (existing) {
+      existing.push(field);
+    } else {
+      index.set(key, [field]);
+    }
+  }
+  return index;
+};
 
 /**
  * Read the first non-empty cell whose header matches one of the column's
@@ -640,35 +619,23 @@ export function hasRecognizedCsvHeaders(headers: readonly string[]): boolean {
  */
 const readAliasCell = (
   row: Record<string, unknown>,
-  column: keyof typeof COLUMN_ALIASES,
+  headers: CsvHeaderIndex,
+  column: CsvAliasColumn,
 ): unknown => {
   for (const alias of COLUMN_ALIASES[column]) {
-    const value = row[alias];
-    if (value !== undefined && value !== null && String(value).trim() !== '') {
-      return value;
+    for (const field of headers.get(alias) ?? []) {
+      const value = row[field];
+      if (
+        value !== undefined &&
+        value !== null &&
+        String(value).trim() !== ''
+      ) {
+        return value;
+      }
     }
   }
   return undefined;
 };
-
-/**
- * Normalize CSV header keys to compare them independent of accents and punctuation.
- */
-const normalizeHeaderKey = (key: string): string =>
-  key
-    .toLowerCase()
-    .normalize('NFKD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/ß/g, 'ss')
-    .replace(/[^a-z0-9]/g, '');
-
-const HEIGHT_KEY_PATTERNS = [
-  'height',
-  'bodyheight',
-  'groesse',
-  'grosse',
-  'korpergroesse',
-];
 
 const findHeightCellValue = (
   row: Record<string, unknown>,
@@ -778,15 +745,6 @@ const parseLanguageSkillCell = (
   return undefined;
 };
 
-const LANGUAGE_SKILL_KEY_PATTERNS = [
-  'sprachniveau',
-  'sprache',
-  'language',
-  'languageskill',
-  'languagelevel',
-  'deutschkenntnisse',
-];
-
 const findLanguageSkillCellValue = (
   row: Record<string, unknown>,
 ): unknown | undefined => {
@@ -842,14 +800,6 @@ const parseSocialRoleCell = (value: unknown): SocialRole | undefined => {
   return undefined;
 };
 
-const SOCIAL_ROLE_KEY_PATTERNS = [
-  'sozialerolle',
-  'rolle',
-  'role',
-  'socialrole',
-  'social',
-];
-
 const findSocialRoleCellValue = (
   row: Record<string, unknown>,
 ): unknown | undefined => {
@@ -900,11 +850,21 @@ function extractName(
   // Multiple name columns exist - use mode or default to firstName
   const actualMode = mode || 'firstName';
 
+  // An export carrying "Name" next to "Vorname" and "Nachname": take the
+  // ready-made column rather than rebuilding the name from its parts.
+  if (actualMode === 'nameColumn' && nameInfo.fullNameKey) {
+    return sanitizeStudentName(readCell(nameInfo.fullNameKey));
+  }
+
   if (actualMode === 'fullName') {
     // Combine first and last name
     const firstName = readCell(nameInfo.firstNameKey);
     const lastName = readCell(nameInfo.lastNameKey);
-    return sanitizeStudentName(`${firstName} ${lastName}`.trim());
+    const combined = `${firstName} ${lastName}`.trim();
+    // Neither part present: fall back to the full-name column instead of
+    // dropping the name, which is what "combine" used to do on a file whose
+    // only name column is a combined one.
+    return sanitizeStudentName(combined || readCell(nameInfo.fullNameKey));
   }
 
   if (actualMode === 'firstName' && nameInfo.firstNameKey) {
@@ -926,6 +886,72 @@ function extractName(
   return '';
 }
 
+/** "Nachname, Vorname" — exactly one comma, something on either side. */
+const SURNAME_FIRST_PATTERN = /^\s*([^,]+?)\s*,\s*([^,]+?)\s*$/;
+
+/**
+ * True when *every* filled name reads "Nachname, Vorname".
+ *
+ * Demanding all of them is the point: a list where a single cell happens to
+ * carry a comma must stay untouched, because reordering it would invent a name
+ * the teacher never wrote.
+ */
+const usesSurnameFirst = (names: readonly string[]): boolean => {
+  const filled = names.filter((name) => name.trim().length > 0);
+  return (
+    filled.length > 0 &&
+    filled.every((name) => SURNAME_FIRST_PATTERN.test(name))
+  );
+};
+
+const reorderSurnameFirst = (name: string): string => {
+  const match = SURNAME_FIRST_PATTERN.exec(name);
+  return match ? `${match[2]} ${match[1]}` : name;
+};
+
+/** Header of the class column, if the file carries one. */
+export const findCsvClassKey = (
+  headers: readonly string[],
+): string | undefined => findHeader(headers, CLASS_VARIANTS);
+
+/**
+ * Distinct class names in a parsed file, in the order they first appear.
+ *
+ * Exports from school administration systems regularly hold several classes —
+ * sometimes a whole school. Empty cells are ignored, so a single-class file
+ * with a few blanks still counts as one class.
+ */
+export const collectCsvClassNames = (result: CsvParseResult): string[] => {
+  const headers = (result.meta?.fields ?? []).map((field) =>
+    normalizeCsvHeader(field),
+  );
+  const classKey = findCsvClassKey(headers);
+  if (!classKey) return [];
+
+  const names: string[] = [];
+  const seen = new Set<string>();
+  for (const row of Array.isArray(result.data) ? result.data : []) {
+    if (row == null || typeof row !== 'object') continue;
+    const value = String(row[classKey] ?? '').trim();
+    if (!value || seen.has(value)) continue;
+    seen.add(value);
+    names.push(value);
+  }
+  return names;
+};
+
+type ParseStudentsOptions = ParseCsvOptions & {
+  /**
+   * Import only the rows of this class. Ignored when the file has no class
+   * column, or when no row carries that name.
+   */
+  className?: string;
+  /** Set to false to import a recognised export without its preset. */
+  usePreset?: boolean;
+  /** Reports the preset that was applied, so a caller can name it in a toast. */
+  onPresetApplied?: (preset: CsvPreset) => void;
+};
+
 /**
  * Parse a CSV file with flexible header names into student objects.
  * @param file CSV file uploaded by the user
@@ -935,22 +961,50 @@ function extractName(
 export async function parseCsvFlexible(
   file: File,
   nameMode?: NameColumnMode,
-  options?: ParseCsvOptions,
+  options?: ParseStudentsOptions,
 ): Promise<Student[]> {
-  const parseResult = await parseCsvRecords(file, {
+  const rawResult = await parseCsvRecords(file, {
     useWorker: options?.useWorker,
     previewRows: options?.previewRows,
     signal: options?.signal,
     timeoutMs: options?.timeoutMs,
+    encoding: options?.encoding,
   });
 
   try {
-    const rows = Array.isArray(parseResult.data) ? parseResult.data : [];
+    // A recognised export is translated into Klassenplan's own column
+    // vocabulary first; everything below is the unchanged import path.
+    const match =
+      options?.usePreset === false
+        ? null
+        : detectCsvPreset(rawResult.meta?.fields ?? []);
+    const parseResult = match
+      ? applyCsvPreset(rawResult, match.preset)
+      : rawResult;
+    if (match) {
+      options?.onPresetApplied?.(match.preset);
+    }
 
     // Detect name columns from headers
     const headers =
       parseResult.meta?.fields?.map((field) => normalizeCsvHeader(field)) || [];
     const nameInfo = detectNameColumns(headers);
+    const headerIndex = buildHeaderIndex(headers);
+
+    const allRows = Array.isArray(parseResult.data) ? parseResult.data : [];
+    // Narrowing to one class has to happen before the size check — otherwise a
+    // whole-school export is rejected for being too large instead of asking
+    // which class was meant.
+    const classKey = options?.className ? findCsvClassKey(headers) : undefined;
+    const rows =
+      classKey && options?.className
+        ? allRows.filter(
+            (row) =>
+              row != null &&
+              typeof row === 'object' &&
+              String(row[classKey] ?? '').trim() === options.className,
+          )
+        : allRows;
 
     if (rows.length > MAX_STUDENTS) {
       throw new CsvImportError(diagnoseTooManyRows(rows.length, MAX_STUDENTS));
@@ -974,18 +1028,29 @@ export async function parseCsvFlexible(
       avoidPartnerNames: string[];
     }> = [];
 
-    for (const row of rows) {
+    // Names are extracted up front: whether a column reads "Nachname, Vorname"
+    // can only be judged across the whole list, never row by row.
+    const extractedNames = rows.map((row) =>
+      row != null && typeof row === 'object'
+        ? extractName(row, nameInfo, nameMode)
+        : '',
+    );
+    const surnameFirst = usesSurnameFirst(extractedNames);
+
+    for (const [index, row] of rows.entries()) {
       if (row == null || typeof row !== 'object') continue;
-      const name = extractName(row, nameInfo, nameMode);
+      const extracted = extractedNames[index];
+      const name = surnameFirst ? reorderSurnameFirst(extracted) : extracted;
       if (!name) continue;
 
-      const gender = mapToGender(readAliasCell(row, 'gender'));
-      const needs = mapNeeds(readAliasCell(row, 'specialNeeds'));
+      const gender = mapToGender(readAliasCell(row, headerIndex, 'gender'));
+      const needs = mapNeeds(readAliasCell(row, headerIndex, 'specialNeeds'));
       const strong =
-        parseBooleanCell(readAliasCell(row, 'performanceStrong')) ||
-        needs.performanceStrong;
+        parseBooleanCell(
+          readAliasCell(row, headerIndex, 'performanceStrong'),
+        ) || needs.performanceStrong;
       const weak =
-        parseBooleanCell(readAliasCell(row, 'performanceWeak')) ||
+        parseBooleanCell(readAliasCell(row, headerIndex, 'performanceWeak')) ||
         needs.performanceWeak;
       const heightValue = findHeightCellValue(row);
       const height = parseHeightCell(heightValue);
@@ -1000,10 +1065,10 @@ export async function parseCsvFlexible(
       };
 
       const wishPartnerNames = parsePartnerNames(
-        readAliasCell(row, 'wishPartner'),
+        readAliasCell(row, headerIndex, 'wishPartner'),
       );
       const avoidPartnerNames = parsePartnerNames(
-        readAliasCell(row, 'avoidPartner'),
+        readAliasCell(row, headerIndex, 'avoidPartner'),
       );
 
       // Create base student without performance flags
@@ -1011,17 +1076,24 @@ export async function parseCsvFlexible(
         id: generateId(),
         name,
         restless:
-          parseBooleanCell(readAliasCell(row, 'restless')) || needs.restless,
-        shy: parseBooleanCell(readAliasCell(row, 'shy')) || needs.shy,
+          parseBooleanCell(readAliasCell(row, headerIndex, 'restless')) ||
+          needs.restless,
+        shy:
+          parseBooleanCell(readAliasCell(row, headerIndex, 'shy')) || needs.shy,
         concentrationIssues:
-          parseBooleanCell(readAliasCell(row, 'concentrationIssues')) ||
-          needs.concentrationIssues,
+          parseBooleanCell(
+            readAliasCell(row, headerIndex, 'concentrationIssues'),
+          ) || needs.concentrationIssues,
         needsFrontSeat:
-          parseBooleanCell(readAliasCell(row, 'needsFrontSeat')) ||
+          parseBooleanCell(readAliasCell(row, headerIndex, 'needsFrontSeat')) ||
           needs.needsFrontSeat,
         height,
-        prefersWindow: parseBooleanCell(readAliasCell(row, 'prefersWindow')),
-        prefersDoor: parseBooleanCell(readAliasCell(row, 'prefersDoor')),
+        prefersWindow: parseBooleanCell(
+          readAliasCell(row, headerIndex, 'prefersWindow'),
+        ),
+        prefersDoor: parseBooleanCell(
+          readAliasCell(row, headerIndex, 'prefersDoor'),
+        ),
         languageSkill: parseLanguageSkillCell(findLanguageSkillCellValue(row)),
         socialRole: parseSocialRoleCell(findSocialRoleCellValue(row)),
         wishPartnerIds: [] as string[],

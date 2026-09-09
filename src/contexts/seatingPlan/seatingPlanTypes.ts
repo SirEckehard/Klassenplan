@@ -22,7 +22,7 @@ import type { CircleLayout, CircleGenerationStatus } from '@/types/Circle';
 import type { CriterionFulfillment } from '@/utils/algorithm/seatingStatistics';
 import type { LatestChangelogEntry } from '@/utils';
 import type { SeatingPlanStore } from '@/hooks/useSeatingState';
-import type { NameColumnMode } from '@/utils/data/csvUtils';
+import type { CsvImportSelection } from '@/utils/data/csvUtils';
 
 export interface SeatingPlanState {
   students: Student[];
@@ -82,7 +82,7 @@ export interface SeatingPlanActions {
   /** Apply one patch to a whole selection as one undo step and one store write. */
   updateStudents: (ids: string[], patch: Partial<Student>) => void;
   setStudents: React.Dispatch<React.SetStateAction<Student[]>>;
-  importCsv: (file: File, mode?: NameColumnMode) => Promise<Student[]>;
+  importCsv: (file: File, selection?: CsvImportSelection) => Promise<Student[]>;
   undoStudents: () => void;
   redoStudents: () => void;
   downloadStudentsCsv: () => void;

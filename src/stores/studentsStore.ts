@@ -4,7 +4,7 @@ import deepEqual from 'fast-deep-equal';
 import { createStore } from 'zustand/vanilla';
 import { useStore } from 'zustand';
 import type { Student } from '@/types';
-import type { NameColumnMode } from '@/utils/data/csvUtils';
+import type { CsvImportSelection } from '@/utils/data/csvUtils';
 import { showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
 import { generateId, MAX_STUDENTS, numberValidation } from '@/utils';
 import type {
@@ -220,11 +220,13 @@ export const createStudentsStore = (
         );
         logger.debug('Students updated', { count: ids.length });
       },
-      importCsv: async (file: File, mode?: NameColumnMode) => {
+      importCsv: async (file: File, selection?: CsvImportSelection) => {
         const currentCount = get().students.length;
         const acceptedRows = await importStudentsFromCsv({
           file,
-          mode,
+          mode: selection?.mode,
+          className: selection?.className,
+          usePreset: selection?.usePreset,
           currentStudentCount: currentCount,
         });
 

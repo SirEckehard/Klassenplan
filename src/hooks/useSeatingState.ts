@@ -29,7 +29,7 @@ import type {
 import { DEFAULT_ACTIVE_CLASS } from '@/types';
 import type { CircleLayout, CircleGenerationStatus } from '@/types/Circle';
 import type { CriterionFulfillment } from '@/utils/algorithm/seatingStatistics';
-import type { NameColumnMode } from '@/utils/data/csvUtils';
+import type { CsvImportSelection } from '@/utils/data/csvUtils';
 
 export type SeatingPlanStore<TSnapshot> = {
   getSnapshot: () => TSnapshot;
@@ -57,7 +57,10 @@ export type SeatingState = {
     clearStudents: () => void;
     updateStudent: (id: string, patch: Partial<Student>) => void;
     updateStudents: (ids: string[], patch: Partial<Student>) => void;
-    importCsv: (file: File, mode?: NameColumnMode) => Promise<Student[]>;
+    importCsv: (
+      file: File,
+      selection?: CsvImportSelection,
+    ) => Promise<Student[]>;
     moveStudent: (
       fromTable: number,
       fromSeat: number,

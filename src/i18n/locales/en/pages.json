@@ -121,7 +121,7 @@
       },
       "csv": {
         "q": "How do I import an existing class list?",
-        "a": "Use \"Import class list\" to upload a CSV file, the kind you can save from Excel, LibreOffice, Numbers or Google Sheets. Only the \"Name\" column is required; every other column such as gender, restless, window seat or preferred partner is optional, and unknown columns are simply ignored. Click \"What the file has to look like\" to see an example, or download the CSV template and fill it in. If your file contains several name columns, Klassenplan asks which combination to import."
+        "a": "Use \"Import class list\" to upload a CSV file, the kind you can save from Excel, LibreOffice, Numbers or Google Sheets. A list from your school administration software – WebUntis, Schulmanager or SchILD, say – can usually be uploaded as it is: Klassenplan recognises the usual column names, reads accented characters correctly even when the file was saved on Windows, and skips a title line above the headers. The only requirement is a name column – \"Name\", \"First name\" or \"Last name\"; every other column such as gender, restless, window seat or preferred partner is optional, and unknown columns are simply ignored. Click \"What the file looks like\" to see an example, or download the CSV template and fill it in. If your file contains several name columns or several classes, Klassenplan asks what to import."
       },
       "photos": {
         "q": "Can I store photos of my students?",

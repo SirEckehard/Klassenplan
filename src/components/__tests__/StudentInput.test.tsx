@@ -426,7 +426,10 @@ describe('StudentInput', () => {
     );
 
     await waitFor(() => {
-      expect(importCsvMock).toHaveBeenCalledWith(file, 'fullName');
+      expect(importCsvMock).toHaveBeenCalledWith(
+        file,
+        expect.objectContaining({ mode: 'fullName' }),
+      );
     });
   });
 });

@@ -2,6 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import Papa from 'papaparse';
 import { normalizeCsvHeader } from '@/utils/data/csvNormalization';
+import { stripCsvPreamble } from '@/utils/csv/csvPreamble';
 
 /**
  * One worker instance handles exactly one parse and closes afterwards, so no
@@ -10,7 +11,7 @@ import { normalizeCsvHeader } from '@/utils/data/csvNormalization';
  */
 type CsvWorkerRequest = {
   type: 'parse';
-  payload: { file: File; previewRows?: number };
+  payload: { file: File; previewRows?: number; encoding?: string };
 };
 
 type CsvWorkerResponse =
@@ -24,14 +25,20 @@ const postError = (message: string): void => {
   } satisfies CsvWorkerResponse);
 };
 
-const handleParse = (file: File, previewRows?: number): void => {
+const handleParse = (
+  file: File,
+  previewRows?: number,
+  encoding?: string,
+): void => {
   try {
-    Papa.parse<Record<string, unknown>>(file, {
+    Papa.parse<Record<string, unknown>, File>(file, {
       worker: false,
       header: true,
       skipEmptyLines: true,
       preview: previewRows,
+      encoding,
       transformHeader: normalizeCsvHeader,
+      beforeFirstChunk: stripCsvPreamble,
       complete: (results) => {
         postMessage({
           type: 'complete',
@@ -62,5 +69,9 @@ addEventListener('message', (event: MessageEvent<CsvWorkerRequest>) => {
   const data = event.data;
   if (data?.type !== 'parse') return;
 
-  handleParse(data.payload.file, data.payload.previewRows);
+  handleParse(
+    data.payload.file,
+    data.payload.previewRows,
+    data.payload.encoding,
+  );
 });

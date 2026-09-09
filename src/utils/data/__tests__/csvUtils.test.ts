@@ -5,6 +5,7 @@ import type { Duplex } from 'stream';
 import { beforeEach, describe, expect, test, it, vi } from 'vitest';
 import type { Student } from '@/types';
 import {
+  collectCsvClassNames,
   detectNameColumns,
   needsNameColumnSelection,
   parseCsvFlexible,
@@ -476,6 +477,18 @@ ${studentRows}
       }
     });
 
+    it('rejects without starting a worker when the signal is already aborted', async () => {
+      const controller = new AbortController();
+      controller.abort();
+
+      await expect(
+        parseCsvRecords(createCsvFile('Name\nAbort\n', 'aborted.csv'), {
+          useWorker: true,
+          signal: controller.signal,
+        }),
+      ).rejects.toMatchObject({ name: 'AbortError' });
+    });
+
     it('aborts worker parsing when signal is triggered', async () => {
       const originalWorker = globalThis.Worker;
       const originalCreateObjectUrl = URL.createObjectURL;
@@ -485,12 +498,14 @@ ${studentRows}
 
       const postedMessages: Array<unknown> = [];
       let terminated = false;
+      let abortOnPost: (() => void) | undefined;
 
       class AbortableWorker {
         addEventListener(): void {}
         removeEventListener(): void {}
         postMessage(data: unknown): void {
           postedMessages.push(data);
+          abortOnPost?.();
         }
         terminate(): void {
           terminated = true;
@@ -501,6 +516,10 @@ ${studentRows}
         AbortableWorker as unknown as typeof Worker;
 
       const controller = new AbortController();
+      // Aborted from inside postMessage, so the signal fires while the worker is
+      // genuinely running rather than before it was ever handed the file.
+      abortOnPost = () => controller.abort();
+
       const parsePromise = parseCsvRecords(
         createCsvFile('Name\nAbort\n', 'abort.csv'),
         { useWorker: true, signal: controller.signal },
@@ -509,8 +528,6 @@ ${studentRows}
         name: 'AbortError',
       });
 
-      controller.abort();
-
       try {
         await rejection;
         // Aborting terminates the worker; no cancel message is sent, since a
@@ -518,6 +535,7 @@ ${studentRows}
         expect(postedMessages).toHaveLength(1);
         expect(terminated).toBe(true);
       } finally {
+        abortOnPost = undefined;
         (globalThis as typeof globalThis & { Worker?: typeof Worker }).Worker =
           originalWorker;
         URL.createObjectURL = originalCreateObjectUrl;
@@ -775,6 +793,229 @@ ${studentRows}
           fullNameKey: 'name',
         }),
       ).toBe(true);
+    });
+  });
+});
+
+describe('csvUtils import presets', () => {
+  beforeEach(() => {
+    resetCsvWorkerStateForTests();
+  });
+
+  const bytesFile = (bytes: Uint8Array, filename = 'cp1252.csv'): File =>
+    new File([bytes as BlobPart], filename, { type: 'text/csv' });
+
+  describe('name column semantics', () => {
+    test('reads a bare "Name" next to "Vorname" as the surname', () => {
+      const info = detectNameColumns(['name', 'vorname', 'klasse']);
+
+      expect(info).toMatchObject({
+        hasFirstName: true,
+        hasLastName: true,
+        hasFullName: false,
+        firstNameKey: 'vorname',
+        lastNameKey: 'name',
+      });
+      // With both halves present the dialog can finally offer all three
+      // combinations instead of a single option.
+      expect(needsNameColumnSelection(info)).toBe(true);
+    });
+
+    test('keeps "Name" as a full name when it stands alone', () => {
+      expect(detectNameColumns(['name', 'klasse'])).toMatchObject({
+        hasFullName: true,
+        fullNameKey: 'name',
+      });
+    });
+
+    test('accepts the German export spellings for the surname', () => {
+      for (const heading of ['langname', 'familienname', 'zuname']) {
+        expect(detectNameColumns([heading, 'vorname'])).toMatchObject({
+          hasLastName: true,
+          lastNameKey: heading,
+        });
+      }
+    });
+
+    test('combines "Name" and "Vorname" into a full name', async () => {
+      const csv = 'Name;Vorname;Klasse\nMüller;Anna;5a\nSchmidt;Ben;5a\n';
+      const students = await parseCsvFlexible(
+        createCsvFile(csv, 'webuntis.csv'),
+        'fullName',
+      );
+
+      expect(students.map((student) => student.name)).toEqual([
+        'Anna Müller',
+        'Ben Schmidt',
+      ]);
+    });
+
+    test('defaults to the first name rather than the surname', async () => {
+      const csv = 'Name;Vorname\nMüller;Anna\n';
+      const students = await parseCsvFlexible(
+        createCsvFile(csv, 'webuntis.csv'),
+      );
+
+      expect(students[0].name).toBe('Anna');
+    });
+
+    test('reads the dedicated name column in nameColumn mode', async () => {
+      const csv = 'Name,Vorname,Nachname\nA. Müller,Anna,Müller\n';
+      const students = await parseCsvFlexible(
+        createCsvFile(csv, 'three.csv'),
+        'nameColumn',
+      );
+
+      expect(students[0].name).toBe('A. Müller');
+    });
+
+    test('falls back to the full-name column when combining finds nothing', async () => {
+      const students = await parseCsvFlexible(
+        createCsvFile('Name\nAnna Müller\n', 'single.csv'),
+        'fullName',
+      );
+
+      expect(students[0].name).toBe('Anna Müller');
+    });
+  });
+
+  describe('encoding', () => {
+    test('imports a windows-1252 export with intact umlauts', async () => {
+      // "Name,Geschlecht\nMüller,w\n" — 0xFC is "ü" in cp1252.
+      const bytes = Uint8Array.from([
+        0x4e, 0x61, 0x6d, 0x65, 0x2c, 0x47, 0x65, 0x73, 0x63, 0x68, 0x6c, 0x65,
+        0x63, 0x68, 0x74, 0x0a, 0x4d, 0xfc, 0x6c, 0x6c, 0x65, 0x72, 0x2c, 0x77,
+        0x0a,
+      ]);
+
+      const students = await parseCsvFlexible(bytesFile(bytes));
+
+      expect(students[0].name).toBe('Müller');
+      expect(students[0].gender).toBe('girl');
+    });
+  });
+
+  describe('preamble', () => {
+    test('imports a file that starts with a title line', async () => {
+      const csv =
+        'Schülerliste 5a — Stand 01.09.2026\nVorname,Nachname\nAnna,Müller\n';
+      const students = await parseCsvFlexible(
+        createCsvFile(csv, 'preamble.csv'),
+      );
+
+      expect(students.map((student) => student.name)).toEqual(['Anna']);
+    });
+  });
+
+  describe('class filter', () => {
+    const multiClassCsv =
+      'Vorname,Nachname,Klasse\nAnna,Müller,5a\nBen,Schmidt,8b\nCem,Yilmaz,5a\n';
+
+    test('collects the distinct class names', async () => {
+      const result = await parseCsvRecords(
+        createCsvFile(multiClassCsv, 'school.csv'),
+      );
+
+      expect(collectCsvClassNames(result)).toEqual(['5a', '8b']);
+    });
+
+    test('imports only the requested class', async () => {
+      const students = await parseCsvFlexible(
+        createCsvFile(multiClassCsv, 'school.csv'),
+        'firstName',
+        { className: '5a' },
+      );
+
+      expect(students.map((student) => student.name)).toEqual(['Anna', 'Cem']);
+    });
+
+    test('keeps a whole-school export importable instead of rejecting it', async () => {
+      // Without the class filter this would exceed MAX_STUDENTS and throw.
+      const rows = Array.from(
+        { length: MAX_STUDENTS + 10 },
+        (_, index) =>
+          `Schüler${index},Nachname${index},${index < 5 ? '5a' : '8b'}`,
+      ).join('\n');
+      const csv = `Vorname,Nachname,Klasse\n${rows}\n`;
+
+      const students = await parseCsvFlexible(
+        createCsvFile(csv, 'school.csv'),
+        'firstName',
+        { className: '5a' },
+      );
+
+      expect(students).toHaveLength(5);
+    });
+  });
+
+  describe('combined name cells', () => {
+    test('reorders "Nachname, Vorname" when every row follows the pattern', async () => {
+      const csv = 'Name\n"Müller, Anna"\n"Schmidt, Ben"\n';
+      const students = await parseCsvFlexible(createCsvFile(csv, 'combi.csv'));
+
+      expect(students.map((student) => student.name)).toEqual([
+        'Anna Müller',
+        'Ben Schmidt',
+      ]);
+    });
+
+    test('leaves the list alone when only one cell carries a comma', async () => {
+      const csv = 'Name\n"Müller, Anna"\nBen Schmidt\n';
+      const students = await parseCsvFlexible(createCsvFile(csv, 'mixed.csv'));
+
+      expect(students.map((student) => student.name)).toEqual([
+        'Müller, Anna',
+        'Ben Schmidt',
+      ]);
+    });
+  });
+
+  describe('preset application', () => {
+    test('decodes the SchILD gender codes and reports the preset', async () => {
+      const csv =
+        'Nachname,Vorname,Geschlecht,Jahrgang\nMüller,Anna,4,5\nSchmidt,Ben,3,5\n';
+      const applied: string[] = [];
+
+      const students = await parseCsvFlexible(
+        createCsvFile(csv, 'schild.csv'),
+        'firstName',
+        { onPresetApplied: (preset) => applied.push(preset.id) },
+      );
+
+      expect(applied).toEqual(['schild']);
+      expect(students.map((student) => student.gender)).toEqual([
+        'girl',
+        'boy',
+      ]);
+    });
+
+    test('skips the preset when the caller opts out', async () => {
+      const csv = 'Nachname,Vorname,Geschlecht,Jahrgang\nMüller,Anna,4,5\n';
+      const applied: string[] = [];
+
+      const students = await parseCsvFlexible(
+        createCsvFile(csv, 'schild.csv'),
+        'firstName',
+        {
+          usePreset: false,
+          onPresetApplied: (preset) => applied.push(preset.id),
+        },
+      );
+
+      expect(applied).toEqual([]);
+      expect(students[0].gender).toBeUndefined();
+    });
+  });
+
+  describe('column aliases', () => {
+    test('matches attribute headings independent of umlauts and spacing', async () => {
+      const csv = 'Vorname,Vordere-Plaetze,Schuechtern\nAnna,ja,ja\n';
+      const students = await parseCsvFlexible(createCsvFile(csv, 'alias.csv'));
+
+      expect(students[0]).toMatchObject({
+        needsFrontSeat: true,
+        shy: true,
+      });
     });
   });
 });

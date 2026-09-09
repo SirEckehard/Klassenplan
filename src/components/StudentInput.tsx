@@ -27,7 +27,7 @@ import {
   STUDENT_LIST_TOOLS_THRESHOLD,
 } from '@/utils';
 import { validateStudentsComplete } from '@/utils/validation';
-import type { NameColumnMode } from '@/utils/data/csvUtils';
+import type { CsvImportSelection } from '@/utils/data/csvUtils';
 import type { Student } from '@/types';
 import { useClassManagementContext } from '@/contexts/seatingPlan/ClassManagementContext';
 import { useSeatingPlanActions } from '@/contexts/seatingPlan/store';
@@ -146,15 +146,15 @@ function StudentInput({
 
   // CSV import handler
   const handleCsvImport = useCallback(
-    async (file: File, mode?: NameColumnMode) => {
-      const importedStudents = await importCsv(file, mode);
+    async (file: File, selection?: CsvImportSelection) => {
+      const importedStudents = await importCsv(file, selection);
       return importedStudents;
     },
     [importCsv],
   );
 
-  // CSVs with both a first-name and a last-name column are ambiguous; ask
-  // instead of silently defaulting to the first name.
+  // Ambiguous files get asked about instead of guessed at: several usable name
+  // columns, or an export holding more than one class.
   const {
     importState,
     analyzeCsvFile,
@@ -370,9 +370,12 @@ function StudentInput({
                   )}
                 </p>
                 <p className="leading-relaxed">
+                  {t('studentInput.emptyClassImportHint')}
+                </p>
+                <p className="leading-relaxed">
                   {t(
                     'studentInput.emptyClassCsvHintPrefix',
-                    'Du kannst auch diese ',
+                    'Wenn du bei null anfängst, nimm diese ',
                   )}
                   <a
                     href="#"
@@ -394,7 +397,7 @@ function StudentInput({
                   </a>
                   {t(
                     'studentInput.emptyClassCsvHintSuffix',
-                    ' nutzen und sie mit den Namen deiner Schüler befüllen. Klicke dann auf Import und lade die CSV-Datei hoch.',
+                    ' und trage die Namen deiner Schüler ein. Klicke dann auf Import und lade die Datei hoch.',
                   )}
                 </p>
                 <p className="leading-relaxed">
@@ -537,6 +540,9 @@ function StudentInput({
           open={importState.showDialog}
           nameInfo={importState.nameInfo}
           previewData={importState.previewData}
+          preset={importState.preset}
+          classOptions={importState.classOptions}
+          classKey={importState.classKey}
           onConfirm={handleDialogConfirm}
           onCancel={handleDialogCancel}
         />

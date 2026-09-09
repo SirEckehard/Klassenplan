@@ -23,7 +23,7 @@ import type { CircleLayout } from '../../types/Circle';
 import type { CriterionFulfillment } from '../../utils/algorithm/seatingStatistics';
 import type { Props as SeatingPlanViewProps } from '../../components/SeatingPlanGenerator/SeatingPlanView';
 import type { StudentInputProps } from '../../components/StudentInput';
-import type { NameColumnMode } from '../../utils/data/csvUtils';
+import type { CsvImportSelection } from '../../utils/data/csvUtils';
 import { SeatingPlanGeneratorProvider } from '../../contexts/SeatingPlanContext';
 
 const createMockFn = <T extends (...args: any[]) => any>() => vi.fn<T>();
@@ -75,7 +75,7 @@ interface MockSeatingGeneratorActions {
   clearStudents: () => void;
   updateStudent: (id: string, patch: Partial<Student>) => void;
   setStudents: React.Dispatch<React.SetStateAction<Student[]>>;
-  importCsv: (file: File, mode?: NameColumnMode) => Promise<Student[]>;
+  importCsv: (file: File, selection?: CsvImportSelection) => Promise<Student[]>;
   downloadStudentsCsv: () => void;
   updateClassroomScene: (next: React.SetStateAction<ClassroomScene>) => void;
   removeTables: (

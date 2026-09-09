@@ -136,16 +136,16 @@
     "downloadTemplate": "Download CSV template",
     "externalModernCsv": "External link to Modern CSV",
     "softwareRecommendation": "Software recommendation for managing CSV files:",
-    "formatHelp": "What the file must look like"
+    "formatHelp": "What the file looks like"
   },
   "csvHelp": {
-    "title": "What your class list must look like",
+    "title": "What a class list looks like",
     "subtitle": "A CSV is nothing more than a simple table. You can create it in Excel, LibreOffice, Numbers or Google Sheets and save it as CSV there.",
     "tableCaption": "Example of a class list. The first row holds the column headers, after that each row is one student.",
     "requiredBadge": "Required",
     "moreColumns": "more columns",
     "rules": {
-      "headerRow": "<strong>Row 1</strong> holds the column headers. Only the “Name” column is required.",
+      "headerRow": "<strong>Row 1</strong> holds the column headers. The only requirement is a name column – “Name”, “First name” or “Last name”.",
       "oneRow": "<strong>From row 2 on</strong> each row is one student.",
       "optional": "Every other column is <strong>optional</strong>, for example Restless, Window seat or Wish partner. Columns Klassenplan does not know are simply ignored.",
       "saveAs": "When saving, pick <strong>“CSV” as the file type</strong>. In Excel that is “File > Save as”."
@@ -167,7 +167,16 @@
     "empty": "empty",
     "privacy": "Privacy",
     "privacyNote": "Klassenplan only stores name, gender and learning needs. All other columns are ignored.",
-    "import": "Import"
+    "import": "Import",
+    "nameColumnOnly": "Whole name",
+    "selectClass": "Select class",
+    "classDescription": "The file contains several classes. Please choose which one should be imported:",
+    "classLabel": "Class",
+    "classHint_one": "Found {{count}} class in the file",
+    "classHint_other": "Found {{count}} classes in the file",
+    "presetDetected": "{{vendor}} export recognised",
+    "presetNote": "The column names and values of this format are mapped automatically.",
+    "presetIgnore": "Import without the preset"
   },
   "viewMode": {
     "showLabels": "Show labels",
@@ -351,16 +360,16 @@
     "nameGameLockedToast": "The name game needs at least {{min}} students with a photo (currently: {{count}}). Add photos via the portrait icon next to each student.",
     "emptyClassTitle": "{{className}} is still empty.",
     "emptyClassHint": "Add students by creating placeholders, adding them individually, or importing an existing CSV. All entries apply only to this class.",
-    "emptyClassCsvHint": "You can also use this CSV template and fill it with your students' names. Then click on Class List and upload the CSV file.",
+    "emptyClassImportHint": "Already have a list from your school administration software – WebUntis, Schulmanager or SchILD, say? You can usually upload it as it is: Klassenplan recognises the usual column names and accented characters on its own, so there is nothing to rename.",
     "removeStudentTitle": "Remove Student",
     "removeStudentMessage": "Do you really want to remove {{studentName}}? You can undo this with Ctrl/Cmd+Z.",
     "thisStudent": "this student",
     "studentRemoved": "{{studentName}} has been removed.",
     "yourClass": "your class",
     "placeholdersCreated": "{{count}} student placeholders created. Now fill in the names and details.",
-    "emptyClassCsvHintPrefix": "You can also use this ",
-    "emptyClassCsvHintSuffix": " and fill it with your students' names. Then click Import and upload the CSV file.",
-    "emptyClassCsvNoDownload": "You do not have to download anything for that: just look at what a finished class list has to look like."
+    "emptyClassCsvHintPrefix": "If you are starting from scratch, use this ",
+    "emptyClassCsvHintSuffix": " and enter your students' names. Then click Import and upload the file.",
+    "emptyClassCsvNoDownload": "Or just look at what a finished class list can look like."
   },
   "listToolbar": {
     "searchLabel": "Search students",

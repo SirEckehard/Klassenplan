@@ -163,7 +163,10 @@
     "showExample": "Show example",
     "exportError": "CSV export failed. Please try again.",
     "importedCount_one": "{{count}} student imported successfully",
-    "importedCount_other": "{{count}} students imported successfully"
+    "importedCount_other": "{{count}} students imported successfully",
+    "importedWithPreset_one": "Imported {{count}} student from {{vendor}} export",
+    "importedWithPreset_other": "Imported {{count}} students from {{vendor}} export",
+    "encodingFallback": "“{{fileName}}” was read as a Windows file. Please check the accented characters in the list."
   },
   "seating": {
     "seatsInsufficient": "Not enough seats for all students",

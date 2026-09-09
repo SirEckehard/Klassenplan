@@ -121,7 +121,7 @@
       },
       "csv": {
         "q": "Wie importiere ich eine bestehende Klassenliste?",
-        "a": "Über „Klassenliste importieren“ lädst du eine CSV-Datei hoch, wie du sie aus Excel, LibreOffice, Numbers oder Google Tabellen speichern kannst. Pflicht ist nur die Spalte „Name“; alle weiteren Spalten wie Geschlecht, Unruhig, Fensterplatz oder Wunschpartner sind freiwillig, unbekannte Spalten werden ignoriert. Klicke auf „So muss die Datei aussehen“, um ein Beispiel zu sehen, oder lade die CSV-Vorlage herunter, die du zum Ausfüllen nutzen kannst. Enthält deine Datei mehrere Namensspalten, fragt Klassenplan vor dem Import, welche Kombination übernommen werden soll."
+        "a": "Über „Klassenliste importieren“ lädst du eine CSV-Datei hoch, wie du sie aus Excel, LibreOffice, Numbers oder Google Tabellen speichern kannst. Eine Liste aus deinem Schulverwaltungsprogramm – etwa WebUntis, Schulmanager oder SchILD – kannst du meist unverändert hochladen: Klassenplan erkennt die üblichen Spaltennamen, liest auch unter Windows gespeicherte Umlaute richtig und überspringt eine Titelzeile über den Überschriften. Pflicht ist nur eine Namensspalte – „Name“, „Vorname“ oder „Nachname“; alle weiteren Spalten wie Geschlecht, Unruhig, Fensterplatz oder Wunschpartner sind freiwillig, unbekannte Spalten werden ignoriert. Klicke auf „So sieht die Datei aus“, um ein Beispiel zu sehen, oder lade die CSV-Vorlage herunter, die du zum Ausfüllen nutzen kannst. Enthält deine Datei mehrere Namensspalten oder mehrere Klassen, fragt Klassenplan vor dem Import, was übernommen werden soll."
       },
       "photos": {
         "q": "Kann ich Fotos meiner Schüler hinterlegen?",

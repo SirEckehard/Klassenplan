@@ -14,7 +14,7 @@ import type {
 import type { CircleLayout, CircleGenerationStatus } from '@/types/Circle';
 import type { CriterionFulfillment } from '@/utils/algorithm/seatingStatistics';
 import type { LatestChangelogEntry } from '@/utils';
-import type { NameColumnMode } from '@/utils/data/csvUtils';
+import type { CsvImportSelection } from '@/utils/data/csvUtils';
 import { logDebug, logWarn } from '@/utils';
 
 const FEATURE_STORE_LOG_SOURCE = 'featureStores';
@@ -84,7 +84,7 @@ export interface StudentStoreActions {
   /** Apply one patch to several students in a single write. */
   updateStudents: (ids: string[], patch: Partial<Student>) => void;
   setStudents: (next: StateUpdater<Student[]>) => void;
-  importCsv: (file: File, mode?: NameColumnMode) => Promise<Student[]>;
+  importCsv: (file: File, selection?: CsvImportSelection) => Promise<Student[]>;
   acknowledgeStudentUpdates: () => void;
 }
 

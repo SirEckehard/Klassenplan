@@ -136,16 +136,16 @@
     "downloadTemplate": "CSV-Vorlage herunterladen",
     "externalModernCsv": "Externer Link zu Modern CSV",
     "softwareRecommendation": "Software-Empfehlung für die Verwaltung von CSV-Dateien:",
-    "formatHelp": "So muss die Datei aussehen"
+    "formatHelp": "So sieht die Datei aus"
   },
   "csvHelp": {
-    "title": "So muss deine Klassenliste aussehen",
+    "title": "So sieht eine Klassenliste aus",
     "subtitle": "Eine CSV ist nichts weiter als eine einfache Tabelle. Du kannst sie in Excel, LibreOffice, Numbers oder Google Tabellen anlegen und dort als CSV speichern.",
     "tableCaption": "Beispiel für eine Klassenliste. Die erste Zeile enthält die Spaltenüberschriften, danach steht pro Zeile ein Schüler.",
     "requiredBadge": "Pflicht",
     "moreColumns": "weitere Spalten",
     "rules": {
-      "headerRow": "<strong>Zeile 1</strong> enthält die Spaltenüberschriften. Nur die Spalte „Name“ ist Pflicht.",
+      "headerRow": "<strong>Zeile 1</strong> enthält die Spaltenüberschriften. Pflicht ist nur eine Namensspalte – „Name“, „Vorname“ oder „Nachname“.",
       "oneRow": "<strong>Ab Zeile 2</strong> steht ein Schüler pro Zeile.",
       "optional": "Alle weiteren Spalten sind <strong>freiwillig</strong>, zum Beispiel Unruhig, Fensterplatz oder Wunschpartner. Spalten, die Klassenplan nicht kennt, werden einfach ignoriert.",
       "saveAs": "Beim Speichern <strong>„CSV“ als Dateityp</strong> wählen. In Excel geht das über „Datei > Speichern unter“."
@@ -167,7 +167,16 @@
     "empty": "leer",
     "privacy": "Datenschutz",
     "privacyNote": "Klassenplan speichert nur Name, Geschlecht und Lernbedürfnisse. Alle anderen Spalten werden ignoriert.",
-    "import": "Importieren"
+    "import": "Importieren",
+    "nameColumnOnly": "Ganzer Name",
+    "selectClass": "Klasse auswählen",
+    "classDescription": "Die Datei enthält mehrere Klassen. Bitte wähle, welche davon importiert werden soll:",
+    "classLabel": "Klasse",
+    "classHint_one": "{{count}} Klasse in der Datei gefunden",
+    "classHint_other": "{{count}} Klassen in der Datei gefunden",
+    "presetDetected": "{{vendor}}-Export erkannt",
+    "presetNote": "Die Spaltennamen und Werte dieses Formats werden automatisch zugeordnet.",
+    "presetIgnore": "Ohne Vorlage importieren"
   },
   "viewMode": {
     "showLabels": "Beschriftung anzeigen",
@@ -351,16 +360,16 @@
     "nameGameLockedToast": "Für das Namensspiel brauchst du mindestens {{min}} Schüler mit Foto (aktuell: {{count}}). Fotos fügst du über das Porträt-Symbol neben jedem Schüler hinzu.",
     "emptyClassTitle": "{{className}} ist noch leer.",
     "emptyClassHint": "Lege Schüler an, indem du Platzhalter anlegst, sie einzeln hinzufügst oder eine bestehende CSV importierst. Alle Eingaben gelten nur für diese Klasse.",
-    "emptyClassCsvHint": "Du kannst auch diese CSV-Vorlage nutzen und sie mit den Namen deiner Schüler befüllen. Klicke dann auf Klassenliste und lade die CSV-Datei hoch.",
+    "emptyClassImportHint": "Hast du schon eine Liste aus deinem Schulverwaltungsprogramm – etwa WebUntis, Schulmanager oder SchILD? Die kannst du meist direkt hochladen: Klassenplan erkennt die üblichen Spaltennamen und Umlaute von selbst, umbenennen musst du nichts.",
     "removeStudentTitle": "Schüler entfernen",
     "removeStudentMessage": "Möchtest du {{studentName}} wirklich entfernen? Du kannst das mit Strg/Cmd+Z rückgängig machen.",
     "thisStudent": "diesen Schüler",
     "studentRemoved": "{{studentName}} wurde entfernt.",
     "yourClass": "deine Klasse",
     "placeholdersCreated": "{{count}} Schüler-Platzhalter erstellt. Fülle jetzt die Namen und Details aus.",
-    "emptyClassCsvHintPrefix": "Du kannst auch diese ",
-    "emptyClassCsvHintSuffix": " nutzen und sie mit den Namen deiner Schüler befüllen. Klicke dann auf Import und lade die CSV-Datei hoch.",
-    "emptyClassCsvNoDownload": "Du musst dafür nichts herunterladen: Sieh dir einfach an, wie eine fertige Klassenliste aussehen muss."
+    "emptyClassCsvHintPrefix": "Wenn du bei null anfängst, nimm diese ",
+    "emptyClassCsvHintSuffix": " und trage die Namen deiner Schüler ein. Klicke dann auf Import und lade die Datei hoch.",
+    "emptyClassCsvNoDownload": "Oder sieh dir einfach an, wie eine fertige Klassenliste aussehen kann."
   },
   "listToolbar": {
     "searchLabel": "Schüler suchen",

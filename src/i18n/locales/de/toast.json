@@ -163,7 +163,10 @@
     "showExample": "Beispiel ansehen",
     "exportError": "CSV-Export fehlgeschlagen. Bitte versuche es erneut.",
     "importedCount_one": "{{count}} Schüler erfolgreich importiert",
-    "importedCount_other": "{{count}} Schüler erfolgreich importiert"
+    "importedCount_other": "{{count}} Schüler erfolgreich importiert",
+    "importedWithPreset_one": "{{count}} Schüler aus {{vendor}}-Export importiert",
+    "importedWithPreset_other": "{{count}} Schüler aus {{vendor}}-Export importiert",
+    "encodingFallback": "„{{fileName}}“ wurde als Windows-Datei gelesen. Prüfe bitte kurz die Umlaute in der Liste."
   },
   "seating": {
     "seatsInsufficient": "Zu wenig Sitzplätze für alle Schüler",

@@ -2,7 +2,9 @@
 // Copyright (C) 2026 Eike Schäfer
 import type { Student } from '@/types';
 import {
+  collectCsvClassNames,
   detectNameColumns,
+  findCsvClassKey,
   hasRecognizedCsvHeaders,
   needsNameColumnSelection,
   parseCsvFlexible,
@@ -11,6 +13,9 @@ import {
   type NameColumnInfo,
   type NameColumnMode,
 } from '@/utils/data/csvUtils';
+import { sniffCsvEncoding } from '@/utils/csv/csvEncoding';
+import { detectCsvPreset } from '@/utils/csv/csvPresetDetection';
+import type { CsvPreset } from '@/utils/csv/csvPresets';
 import { logError, MAX_STUDENTS } from '@/utils';
 import {
   CsvImportError,
@@ -23,7 +28,11 @@ import { openCsvFormatHelp } from '@/utils/ui/csvFormatHelp';
 import { showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
 import i18n from '@/i18n';
 
-const CSV_PREVIEW_ROWS = 5;
+/**
+ * Rows handed to the dialog. More than it shows at once, so it can still find
+ * three examples after narrowing them down to one class.
+ */
+const CSV_PREVIEW_ROWS = 50;
 /**
  * Import errors explain what to change and carry an action button, so they need
  * noticeably longer on screen than the 5s an error toast gets by default.
@@ -32,16 +41,29 @@ const CSV_PROBLEM_TOAST_MS = 12_000;
 /** Enough of the file to hold its header line in every realistic class list. */
 const RAW_HEADER_BYTES = 8_192;
 
-type CsvAnalysisResult = {
+export type CsvAnalysisResult = {
   nameInfo: NameColumnInfo;
   previewData: Array<Record<string, unknown>>;
   requiresNameSelection: boolean;
+  /** The recognised export format, when the headings identify one. */
+  preset: CsvPreset | null;
+  /**
+   * Class names found in the file, listed only when there is more than one —
+   * that is the case where the teacher has to say which class is meant.
+   */
+  classOptions: string[];
+  /** Header of the class column, so the dialog can preview one class at a time. */
+  classKey?: string;
 };
 
 type CsvImportParams = {
   file: File;
   currentStudentCount: number;
   mode?: NameColumnMode;
+  /** Import only this class; set when the file holds several. */
+  className?: string;
+  /** False imports a recognised export without applying its preset. */
+  usePreset?: boolean;
 };
 
 const isCsvFile = (file: File): boolean => {
@@ -86,8 +108,13 @@ const readOriginalHeaders = async (
   }
 };
 
-const buildSuccessMessage = (count: number): string =>
-  i18n.t('toast:csv.importedCount', { count });
+const buildSuccessMessage = (
+  count: number,
+  preset: CsvPreset | null,
+): string =>
+  preset
+    ? i18n.t('toast:csv.importedWithPreset', { count, vendor: preset.vendor })
+    : i18n.t('toast:csv.importedCount', { count });
 
 /**
  * Show a classified import problem. The action button opens the format example
@@ -117,11 +144,15 @@ export async function analyzeCsvFile(file: File): Promise<CsvAnalysisResult> {
     rejectWith(diagnoseUnsupportedFile(file));
   }
 
+  const encoding = await sniffCsvEncoding(file);
+
   let parseResult: Awaited<ReturnType<typeof parseCsvRecords>>;
   try {
+    // Parsed in full rather than previewed: the class column can only be
+    // surveyed across every row, and class lists are small.
     parseResult = await parseCsvRecords(file, {
-      previewRows: CSV_PREVIEW_ROWS,
       useWorker: shouldUseCsvWorker(file),
+      encoding,
     });
   } catch (error) {
     // Only real read failures land here — structural problems below get their
@@ -155,10 +186,31 @@ export async function analyzeCsvFile(file: File): Promise<CsvAnalysisResult> {
     rejectWith(structuralProblem ?? diagnoseMissingNames(file.name));
   }
 
+  if (encoding === 'windows-1252') {
+    // Worth saying out loud: the file was readable, but only because it was
+    // decoded as a Windows export. If that guess is wrong the umlauts are the
+    // place it shows.
+    showToast(
+      'info',
+      i18n.t('toast:csv.encodingFallback', { fileName: file.name }),
+      {
+        duration: CSV_PROBLEM_TOAST_MS,
+      },
+    );
+  }
+
+  const classNames = collectCsvClassNames(parseResult);
+  const multipleClasses = classNames.length > 1;
+
   return {
     nameInfo,
     previewData: rows.slice(0, CSV_PREVIEW_ROWS),
     requiresNameSelection: needsNameColumnSelection(nameInfo),
+    preset: detectCsvPreset(parseResult.meta?.fields ?? [])?.preset ?? null,
+    classOptions: multipleClasses ? classNames : [],
+    classKey: multipleClasses
+      ? findCsvClassKey(parseResult.meta?.fields ?? [])
+      : undefined,
   };
 }
 
@@ -166,15 +218,24 @@ export async function importStudentsFromCsv({
   file,
   currentStudentCount,
   mode,
+  className,
+  usePreset,
 }: CsvImportParams): Promise<Student[]> {
   if (!isCsvFile(file)) {
     showCsvProblem(diagnoseUnsupportedFile(file));
     return [];
   }
 
+  let appliedPreset: CsvPreset | null = null;
+
   try {
     const parsedStudents = await parseCsvFlexible(file, mode, {
       useWorker: shouldUseCsvWorker(file),
+      className,
+      usePreset,
+      onPresetApplied: (preset) => {
+        appliedPreset = preset;
+      },
     });
 
     if (parsedStudents.length === 0) {
@@ -203,7 +264,10 @@ export async function importStudentsFromCsv({
       return acceptedStudents;
     }
 
-    showToast('success', buildSuccessMessage(acceptedStudents.length));
+    showToast(
+      'success',
+      buildSuccessMessage(acceptedStudents.length, appliedPreset),
+    );
     return acceptedStudents;
   } catch (error) {
     if (error instanceof CsvImportError) {
