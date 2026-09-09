@@ -21,9 +21,9 @@ For profiling, use the browser's own tooling. If field telemetry ever becomes a 
 
 ## Build & bundle optimizations
 
-- **Manual chunking:** `vite.config.ts` splits vendor code into logical blocks and separates app-specific areas (algorithm, schemas, pdf-utils, logging, migration, scene).
+- **Automatic chunking:** `vite.config.ts` deliberately sets no `manualChunks`. Forcing group names made Rolldown merge the shared app core into a `pdf-utils` chunk and pulled `jspdf` into every page load; automatic splitting keeps the lazily imported code out of the entry graph. Only the output file names are steered (`vendor/`, `chunks/`, `entry/`).
 - **Budgets:** `npm run check:bundle` enforces size limits against `dist/` and runs as part of `npm run build:static`.
-- **Compression & PWA:** Brotli compression from 1 KB upward (`vite-plugin-compression`) plus a PWA precache strategy for fonts.
+- **Compression & PWA:** Brotli compression from 1 KB upward (`vite-plugin-compression`) for JS/JSON/CSS/SVG plus a PWA precache strategy for fonts. HTML is deliberately excluded – see [SEO.md](SEO.md) for why precompressing it would serve a stale shell.
 - **Strict CSP on the dev server:** despite relaxed inline scripts for HMR, the remaining directives stay restrictive so misconfigurations surface early.
 
 ## Prefetch & navigation

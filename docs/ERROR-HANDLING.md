@@ -34,10 +34,13 @@ Repositories use the helpers from [src/repositories/types.ts](../src/repositorie
 
 ```ts
 import { ResultHelpers, RepositoryErrorType } from '@/repositories/types';
+import { readValue } from '@/repositories/idbClient';
+import { DB_KEYS } from '@/utils/data';
 
 async function loadStudents(): Promise<Result<Student[]>> {
   try {
-    const students = await idbKeyval.get('spg.students');
+    // `idbClient` is the only module that may import `idb-keyval`.
+    const students = await readValue<Student[]>(DB_KEYS.students);
     return ResultHelpers.success(students ?? []);
   } catch (error) {
     return ResultHelpers.failure({

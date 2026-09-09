@@ -2,7 +2,7 @@
 
 ## Goal & background
 
-Klassenplan's utility landscape is centralized so that components, hooks, and services share consistent helpers via a single public API. The entry point is [`src/utils/index.ts`](../src/utils/index.ts), which bundles all approved functions into logically grouped export blocks (ID generation, logging, constants, seating helpers, toasts, design tokens, and more). This keeps tree-shaking, bundle splitting, and type definitions stable, while specialized namespaces (`algorithm`, `data`, `ui`) can be versioned independently.
+Klassenplan's utility landscape is centralized so that components, hooks, and services share consistent helpers via a single public API. The entry point is [`src/utils/index.ts`](../src/utils/index.ts), which bundles all approved functions into logically grouped export blocks (ID generation, logging, constants, seating helpers, toasts, design tokens, and more). This keeps tree-shaking, bundle splitting, and type definitions stable, while specialized namespaces (`algorithm`, `data`, `csv`, `ui`) can be versioned independently.
 
 ## Public utils API (`@/utils`)
 
@@ -19,10 +19,11 @@ Klassenplan's utility landscape is centralized so that components, hooks, and se
 
 ## Specialized namespaces
 
-A few areas intentionally stay outside the central API to optimize bundle size and avoid side effects. The build configuration (`vite.config.ts`) mirrors these boundaries in its manual-chunks setup.
+A few areas intentionally stay outside the central API to optimize bundle size and avoid side effects. The build no longer pins these boundaries with `manualChunks` – Rolldown splits automatically (see the comment in `vite.config.ts`), so what keeps a namespace out of the entry graph is the import boundary itself, not a chunk name.
 
 - `@/utils/algorithm`: Houses compute-heavy seating and circle algorithms. Only the algorithm service or specialized hooks should consume it. Components may only use prepared results.
 - `@/utils/data`: Manages persistence (IndexedDB, backup, storage keys) and may only be used by repositories, contexts, or service layers.
+- `@/utils/csv`: The CSV import vocabulary and its detection steps (column synonyms, school-software presets, encoding sniffing, preamble stripping, diagnostics). Consumed by `@/utils/data/csvUtils.ts`, the CSV worker and the import dialogs. Only `downloadCsvTemplate` is surfaced through the central index; everything else is imported from the namespace.
 - `@/utils/ui`: UI-adjacent helpers (toasts, scroll, design tokens, feature styles) with no component imports. Stays optionally loadable and is re-exported through the central index when needed.
 - `@/services/export`: Modules that render React components to SVG/PDF (e.g. `sceneRenderer`). Anything that instantiates components at runtime belongs here – which is why it cannot live in `utils/`.
 - `@/services/ui`: Imperative UI wrappers (e.g. `dialogs` for `confirmDialog` / `promptDialog`) that render components dynamically via `createRoot`. Consumers are hooks and pages, not other utils.

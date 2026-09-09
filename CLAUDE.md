@@ -24,17 +24,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - i18n consistency: `npm run check:i18n` (DE/EN key parity + every `t(key, 'default')` resolves to a real key)
 - Bundle budgets: `npm run check:bundle` (after a build; part of `npm run build:static`)
 
-**Current Code Quality Status (2026-09-05):**
+**Current Code Quality Status (2026-09-09):**
 
 - ✅ ESLint: 0 errors, 0 warnings
 - ✅ TypeScript: 0 compilation errors (strict mode)
-- ✅ Tests: 2009 unit tests (191 test files) + 5 Playwright specs (3 smoke + the wizard core flow), 100% passing
-- 📊 Coverage: 68.1 % lines / 67.5 % statements / 57.1 % branches (`npm run test:coverage`, v8 provider, no thresholds enforced)
+- ✅ Tests: 2098 unit tests (201 test files) + 5 Playwright tests (3 smoke + 2 wizard core flow), 100% passing
+- 📊 Coverage: 69.0 % lines / 68.4 % statements / 58.1 % branches (`npm run test:coverage`, v8 provider, no thresholds enforced)
 - ⚠️ Unused Exports: 54 modules ignoring type-only exports, held by a ratchet (`npm run check:unused`); the remainder are re-export barrels, `lazyWithRetry` default exports and shared test helpers
 - ✅ Test Infrastructure: Centralized accessibility helpers and toast matchers for robust testing
 - ✅ Architecture: Repository Pattern implemented, UI components reorganized into logical subdirectories
-- ✅ i18n: Bilingual support (German/English) fully implemented, DE/EN key parity 1:1 (1805 keys per language)
-- 📦 Bundle: initial payload 206 KB brotli / 814 KB raw, largest chunk 64 KB brotli, CSS 19 KB brotli
+- ✅ i18n: Bilingual support (German/English) fully implemented, DE/EN key parity 1:1 (1860 keys per language)
+- 📦 Bundle: initial payload 222 KB brotli / 878 KB raw, largest chunk 64 KB brotli, CSS 19 KB brotli
 
 ## Logging
 
@@ -110,12 +110,12 @@ the sitemap itself is the change.
 
 ### Inline defaults
 
-`t('some.key', 'Deutscher Text')` is widespread in this codebase (~750 call
+`t('some.key', 'Deutscher Text')` is widespread in this codebase (~735 call
 sites). The second argument is a _fallback_, not a translation: when the key is
 missing from the JSON, i18next renders that German string — on `/en` too. Do not
 add new inline defaults; `npm run check:i18n` fails as soon as one becomes the
 actual source of a string. Existing ones are verified unreachable and are left
-alone deliberately (removing 750 of them would be pure churn).
+alone deliberately (removing 735 of them would be pure churn).
 
 ### Dates and times
 
@@ -245,7 +245,7 @@ Consumers import dedicated hooks (e.g. `useClassroomLayoutContext`) to minimize 
 
 - **No inline scripts in `index.html`** — the production CSP is `script-src 'self'` (no nonce/hash). The PWA install-prompt capture lives in the entry module; speculation rules are delivered via the `Speculation-Rules` HTTP header (`public/speculationrules.json`).
 - Security headers live in `nginx-security-headers.conf` and must be re-`include`d in every nginx `location` that sets its own `add_header` (nginx does not inherit them otherwise). See `docs/SECURITY.md`.
-- Service worker uses the **prompt update model** (`registerType: 'prompt'`, `skipWaiting`/`clientsClaim` disabled) — a new SW activates only after the user confirms via `ReloadPrompt`.
+- Service worker uses the **prompt update model** (`registerType: 'prompt'`, `skipWaiting`/`clientsClaim` disabled) — a new SW activates only after the user confirms via `ReloadPrompt`. Only `ReloadPrompt` may call `useRegisterSW`; everyone else reads the registration from the `swUpdateController` singleton (`src/hooks/pwa/`), which the footer's `UpdateCheckButton` uses for an on-demand check. `ReloadPrompt` additionally re-checks hourly, on `visibilitychange` and on `online`. A toast that must stay open takes `duration: 0` — `Infinity` is clamped to a 32-bit int by `setTimeout` and fires after ~1 ms.
 - Backups are encrypted with AES-GCM 256; PBKDF2-SHA256 with 600,000 iterations, KDF parameters stored in the envelope (legacy files without them decrypt with 250,000). Export enforces a min-8-char password with confirmation. See `docs/backup-format.md`.
 
 ## Testing Strategy

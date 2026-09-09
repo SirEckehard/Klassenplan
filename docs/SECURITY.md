@@ -4,9 +4,9 @@ This document outlines the security measures implemented in Klassenplan and best
 
 ## Content Security Policy (CSP)
 
-### Production CSP (nginx.conf)
+### Production CSP (nginx-security-headers.conf)
 
-The production CSP is configured in [`nginx.conf`](../nginx.conf) as part of the Docker image. **Strict CSP without `unsafe-inline` / `unsafe-eval` for scripts, with explicit exceptions for inline styles and PayPal:**
+The production CSP is configured in [`nginx-security-headers.conf`](../nginx-security-headers.conf), which [`nginx.conf`](../nginx.conf) includes into every `location` (see the inheritance pitfall below). **Strict CSP without `unsafe-inline` / `unsafe-eval` for scripts, with explicit exceptions for inline styles and PayPal:**
 
 ```
 default-src 'self';

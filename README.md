@@ -9,6 +9,7 @@ A web-based tool for creating seating plans and seating circles for teachers. Kl
 ## Features
 
 - **Class management** for any number of classes, each with its own seating plans and shuffle history
+- **CSV import** for class lists, including the exports of WebUntis, Schulmanager Online and SchILD-NRW
 - **Classroom editor** with drag-and-drop, grid, multi-select, keyboard control, and touch optimization
 - **Constraint-based shuffle algorithm** with weighted criteria, locked seats, distance and preferred-partner logic
 - **Seating circle mode** with its own export view and synchronization from the table layout
@@ -30,7 +31,7 @@ npm install
 npm run dev
 ```
 
-Dev server: <http://localhost:5173>
+Dev server: <http://localhost:3000> (the port is set in `vite.config.ts`; Playwright starts its own on 5173).
 
 ## Key scripts
 

@@ -228,7 +228,10 @@ injected via `actionApiRef` from the hook and still use `snapshot()`,
 
 **Actions**
 
-- `moveSelection` – snapshot + delta via `applySelectionDelta()`.
+- `moveSelection` – takes a history snapshot, then maps the selected tables
+  by the arrow delta in `useKeyboardInteraction` (step 1, or 10 with Shift,
+  multiplied by `GRID_SNAP_SIZE` while snapping is on). Locked tables are
+  skipped.
 - `deleteSelection` – wrapper around `deleteSelectedTables()`.
 - `copySelection`, `cutSelection`, `pasteClipboard` – use the existing table
   operations.
