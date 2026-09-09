@@ -5,12 +5,13 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [2.0.4] - 2026-09-09
 
 ### Added
 
 - Class lists exported from WebUntis, Schulmanager Online and SchILD-NRW are recognised on import. The dialog names the format it found, preselects the sensible name column and can import the file without the preset if the recognition is wrong
 - An export holding several classes now asks which class to import, instead of stopping at the 36-student limit
+- "Check for updates" in the footer asks the server for a new version on the spot and offers the reload right away, instead of leaving it to the next visit
 
 ### Fixed
 
@@ -18,11 +19,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - A column named "Name" next to a "Vorname" is read as the surname, the way WebUntis and most German school exports label it. "First name + last name" was impossible to pick for those files before
 - A title line above the header row ("Schülerliste 5a – Stand …") no longer breaks the import
 - Names written as "Müller, Anna" in a single column are imported as "Anna Müller" – only when every row of the file follows that pattern
+- The "New version available" notice vanished after about a millisecond instead of waiting to be clicked: a toast meant to stay open was handed a duration `setTimeout` cannot represent
 
 ### Improved
 
 - Column headings are matched regardless of how umlauts are spelled ("Vordere Plätze" and "Vordere Plaetze" both work), and the export spellings "Langname", "Familienname", "Zuname", "Rufname" and "Schüler" are understood
 - The hint shown for an empty class, the format example and the FAQ now say that a list from WebUntis, Schulmanager or SchILD can usually be uploaded unchanged, instead of only pointing at the template to fill in by hand
+- A tab left open – on the projector for a whole school day, say – checks for a new version once an hour, when it becomes visible again and after the connection returns. Before, that only happened on page load
+- Updated dependencies
 
 ## [2.0.3] - 2026-09-08
 

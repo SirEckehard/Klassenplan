@@ -1,4 +1,18 @@
 {
+  "v2_0_4": {
+    "0": "Class lists from WebUntis, Schulmanager Online and SchILD-NRW are recognised on import: the dialog names the format it found, preselects the matching name column – and imports the file without the preset if the recognition is wrong",
+    "1": "If a file holds several classes, Klassenplan asks which one to import instead of stopping at the limit of 36 students",
+    "2": "'Check for updates' in the footer: one click asks the server for a new version and offers the reload right away, instead of leaving it to your next visit",
+    "3": "CSV files saved on Windows are read with the right character encoding – umlauts no longer arrive as replacement characters",
+    "4": "A column named 'Name' next to a 'Vorname' column is read as the surname, the way WebUntis and most school exports label it. 'First name + last name' could not be picked for such files before",
+    "5": "A title line above the header row ('Schülerliste 5a – Stand …') no longer throws the import off",
+    "6": "Names written as 'Müller, Anna' in a single column are imported as 'Anna Müller' – only when every row of the file follows that pattern",
+    "7": "The 'New version available' notice disappeared after a fraction of a second instead of waiting for a click",
+    "8": "Column headings are recognised regardless of how umlauts are spelled ('Vordere Plätze' and 'Vordere Plaetze' both work); the export labels 'Langname', 'Familienname', 'Zuname', 'Rufname' and 'Schüler' are understood as well",
+    "9": "The hint for an empty class, the format example and the FAQ now say that a list from WebUntis, Schulmanager or SchILD can usually be uploaded unchanged – instead of only pointing at the template you fill in by hand",
+    "10": "A tab left open for a while – on the projector for a whole school day, say – checks for a new version once an hour, when you switch back to it and after the connection has returned. Before, that only happened when the page was loaded",
+    "11": "Updated dependencies"
+  },
   "v2_0_3": {
     "0": "On phones, a jump button in the class list takes you down to the 'Continue' button at the end and back up to the top again – it only went down before. The system setting for reduced motion is honoured",
     "1": "Presentation mode now shows only the furnished part of the room instead of always the whole one: the names get as large as the device allows – most noticeably on tablets held in portrait",

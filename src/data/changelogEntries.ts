@@ -18,6 +18,24 @@ export interface ChangelogVersion {
 
 export const changelogVersions: ChangelogVersion[] = [
   {
+    version: '2.0.4',
+    date: '2026-09-09',
+    changes: [
+      { textKey: 'v2_0_4.0', type: 'feature' },
+      { textKey: 'v2_0_4.1', type: 'feature' },
+      { textKey: 'v2_0_4.2', type: 'feature' },
+      { textKey: 'v2_0_4.3', type: 'bugfix' },
+      { textKey: 'v2_0_4.4', type: 'bugfix' },
+      { textKey: 'v2_0_4.5', type: 'bugfix' },
+      { textKey: 'v2_0_4.6', type: 'bugfix' },
+      { textKey: 'v2_0_4.7', type: 'bugfix' },
+      { textKey: 'v2_0_4.8', type: 'improvement' },
+      { textKey: 'v2_0_4.9', type: 'improvement' },
+      { textKey: 'v2_0_4.10', type: 'improvement' },
+      { textKey: 'v2_0_4.11', type: 'improvement' },
+    ],
+  },
+  {
     version: '2.0.3',
     date: '2026-09-08',
     changes: [

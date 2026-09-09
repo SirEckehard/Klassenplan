@@ -1,4 +1,18 @@
 {
+  "v2_0_4": {
+    "0": "Klassenlisten aus WebUntis, Schulmanager Online und SchILD-NRW werden beim Import erkannt: Der Dialog nennt das gefundene Format, wählt die passende Namensspalte vor – und importiert die Datei auf Wunsch auch ohne Vorlage, falls die Erkennung danebenliegt",
+    "1": "Enthält eine Datei mehrere Klassen, fragt Klassenplan, welche davon importiert werden soll, statt an der Grenze von 36 Schülern abzubrechen",
+    "2": "„Auf Updates prüfen“ in der Fußzeile: Ein Klick fragt beim Server nach einer neuen Version und bietet das Aktualisieren sofort an, statt es dem nächsten Besuch zu überlassen",
+    "3": "Unter Windows gespeicherte CSV-Dateien werden mit der richtigen Zeichenkodierung gelesen – Umlaute kommen nicht mehr als Fragezeichen an",
+    "4": "Eine Spalte „Name“ neben einer Spalte „Vorname“ wird als Nachname gelesen, so wie WebUntis und die meisten Schulexporte sie beschriften. „Vorname + Nachname“ war für solche Dateien bisher nicht wählbar",
+    "5": "Eine Titelzeile über der Kopfzeile („Schülerliste 5a – Stand …“) bringt den Import nicht mehr durcheinander",
+    "6": "Namen, die als „Müller, Anna“ in einer einzigen Spalte stehen, werden als „Anna Müller“ importiert – nur dann, wenn jede Zeile der Datei diesem Muster folgt",
+    "7": "Der Hinweis „Neue Version verfügbar“ verschwand nach einem Sekundenbruchteil, statt auf einen Klick zu warten",
+    "8": "Spaltenüberschriften werden unabhängig von der Umlautschreibung erkannt („Vordere Plätze“ und „Vordere Plaetze“ funktionieren beide); zusätzlich verstanden werden die Exportbezeichnungen „Langname“, „Familienname“, „Zuname“, „Rufname“ und „Schüler“",
+    "9": "Der Hinweis bei leerer Klasse, das Formatbeispiel und die FAQ sagen jetzt, dass eine Liste aus WebUntis, Schulmanager oder SchILD meist unverändert hochgeladen werden kann – statt nur auf die selbst auszufüllende Vorlage zu verweisen",
+    "10": "Ein länger geöffneter Tab – etwa am Beamer über einen ganzen Schultag – prüft stündlich auf eine neue Version, außerdem beim Zurückwechseln zum Tab und nach einer wiederhergestellten Verbindung. Bisher geschah das nur beim Laden der Seite",
+    "11": "Aktualisierte Abhängigkeiten"
+  },
   "v2_0_3": {
     "0": "Auf dem Handy führt dich ein Sprungknopf in der Klassenliste ans Listenende zum „Weiter“-Button und von dort wieder an den Anfang – bisher ging es nur nach unten. Die Systemeinstellung für reduzierte Bewegung wird dabei beachtet",
     "1": "Der Präsentationsmodus zeigt nur noch den tatsächlich möblierten Teil des Raums statt immer den ganzen: Die Namen werden dadurch so groß, wie das Gerät es zulässt – am deutlichsten auf hochkant gehaltenen Tablets",
