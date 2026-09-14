@@ -1082,7 +1082,7 @@ export default function Export() {
                       )}
                     </li>
                     <li>
-                      {/* New keys carry no inline default (see CLAUDE.md). */}
+                      {/* New keys carry no inline default (see AGENTS.md). */}
                       {t('help.export.itemFlip')}
                     </li>
                     <li>{t('help.export.item3')}</li>

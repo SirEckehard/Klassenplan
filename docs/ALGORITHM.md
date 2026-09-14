@@ -9,14 +9,20 @@ The seating plan generation is a two-phased process:
 1.  **Construction (Greedy)**: A valid initial arrangement is built by placing students one-by-one into the best available seats.
 2.  **Refinement (Iterative)**: An existing arrangement is improved by swapping students to reduce constraint violations (score).
 
-The two phases are **separate user actions**, not one pipeline:
+Which phases run depends on the UI action:
 
-| UI action             | Worker operation | Runs                                                             |
-| :-------------------- | :--------------- | :--------------------------------------------------------------- |
-| "Mischen" / shuffle   | `mix:generate`   | `generateSeatingPlan()` — construction only, **no refinement**   |
-| "Verfeinern" / refine | `mix:refine`     | `refineSeatingLocal()` — refinement of the arrangement on screen |
+| UI action                                   | Worker operations             | Runs                                                                    |
+| :------------------------------------------ | :---------------------------- | :---------------------------------------------------------------------- |
+| "Mischen" / shuffle, at least one criterion | `mix:generate` → `mix:refine` | construction, then refinement of the result (`useSeatingMixHandler`)    |
+| "Mischen" / shuffle, all weights at 0       | `mix:generate`                | construction only, with `neutralSettings` — a purely random arrangement |
+| Automatic plan in the wizard                | `mix:generate`                | construction only (`useSeatingWizard`)                                  |
+| "Verfeinern" / refine                       | `mix:refine`                  | `refineSeatingLocal()` — refinement of the arrangement on screen        |
 
-`generateSeatingPlan()` is `initializeAssignment` → `runPass` → `finalize`; it never calls `refineSeatingLocal()`. A plain shuffle therefore never pays for a local search.
+The auto-mix in step 3 goes through the same handler as the button.
+`generateSeatingPlan()` itself is `initializeAssignment` → `runPass` →
+`finalize` and never calls `refineSeatingLocal()`; the chaining happens in the
+hook. The mix history records the constructed arrangement — the refinement
+that follows only replaces what is on screen.
 
 ---
 

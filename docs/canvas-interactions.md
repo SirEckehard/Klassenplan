@@ -136,8 +136,7 @@ here.
 
 ### 7. Template drag from the toolbar
 
-This flow does not use a state machine. `templateDragMachine` exists in
-`src/stateMachines/canvas/` but is not wired up.
+This flow does not use a state machine.
 
 1. `pointerdown` on a template (`onTemplatePointerDown`) calls
    `useTemplateDrag.startTemplateDrag(type, event)`. It keeps pointer id and
@@ -276,7 +275,3 @@ stable across renders:
   vs. right-click) but end up in the same states.
 - Keyboard listeners are attached globally to `window`; they are covered by
   `src/hooks/ui/__tests__/useKeyboardInteraction.test.ts`.
-- Any `POINTER_MOVE` from the active pointer leaves `tablePressPending`, and
-  with it the long-press timer. `DRAG_DISTANCE_THRESHOLD` only applies to the
-  pending ref, so on touch a finger that moves slightly within the 500 ms
-  starts a drag instead of opening the table menu.

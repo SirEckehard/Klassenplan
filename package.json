@@ -48,9 +48,7 @@
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,css,md,json}\"",
     "check:bundle": "node scripts/check-bundle.mjs",
     "check:i18n": "node scripts/check-i18n.mjs",
-    "check:unused": "node scripts/check-unused-exports.mjs",
-    "check:agent-rules": "node scripts/sync-agent-rules.mjs --check",
-    "sync:agent-rules": "node scripts/sync-agent-rules.mjs"
+    "check:unused": "node scripts/check-unused-exports.mjs"
   },
   "overrides": {
     "serialize-javascript": "^7.0.5"

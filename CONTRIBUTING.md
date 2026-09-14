@@ -33,6 +33,7 @@ npm run format
   `src/i18n/locales/de/` and `src/i18n/locales/en/`. User-facing strings never
   live in `src/utils` — use i18n keys there instead.
 - For architectural context, see the docs in `docs/` (start with
+  [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), then
   [`docs/MODULE_BOUNDARIES.md`](docs/MODULE_BOUNDARIES.md) and
   [`docs/DESIGNSYSTEM.md`](docs/DESIGNSYSTEM.md)).
 

@@ -201,7 +201,7 @@ export default function Present() {
           </h1>
         </div>
 
-        <div className="order-last flex w-full flex-wrap items-center justify-center gap-3 sm:order-none sm:w-auto sm:flex-nowrap">
+        <div className="order-last flex w-full flex-wrap items-center justify-center gap-3 sm:order-0 sm:w-auto sm:flex-nowrap">
           <PresentPerspectiveToggle
             perspective={perspective}
             onChange={setPerspective}
@@ -237,7 +237,7 @@ export default function Present() {
                   )}
                 </li>
                 <li>
-                  {/* New keys carry no inline default (see CLAUDE.md). */}
+                  {/* New keys carry no inline default (see AGENTS.md). */}
                   {t('help.present.itemNames')}
                 </li>
                 <li>
@@ -382,7 +382,7 @@ export default function Present() {
           {/* Narrow screens put the back button on its own row below the view
               controls; from `sm` up it is pinned left again and the controls
               stay centred under the classroom. */}
-          <div className="order-last flex w-full justify-center sm:order-none sm:w-auto sm:flex-1 sm:justify-start">
+          <div className="order-last flex w-full justify-center sm:order-0 sm:w-auto sm:flex-1 sm:justify-start">
             <button
               type="button"
               onClick={() => navigate('/generator')}

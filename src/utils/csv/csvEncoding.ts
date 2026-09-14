@@ -77,7 +77,7 @@ export const sniffCsvEncoding = async (file: File): Promise<CsvEncoding> => {
     if (error instanceof TypeError) {
       logDebug(
         'CSV file is not valid UTF-8, reading it as windows-1252',
-        { fileName: file.name },
+        { size: file.size },
         CSV_ENCODING_CONTEXT,
       );
       return 'windows-1252';
@@ -85,7 +85,7 @@ export const sniffCsvEncoding = async (file: File): Promise<CsvEncoding> => {
 
     logDebug(
       'CSV encoding sniffing failed, assuming UTF-8',
-      { fileName: file.name, error },
+      { size: file.size, error },
       CSV_ENCODING_CONTEXT,
     );
     return 'utf-8';

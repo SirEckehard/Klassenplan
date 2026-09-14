@@ -82,6 +82,7 @@ The app follows a modular structure with clear separation between UI (`component
 
 Further details in the [`docs/`](docs/) folder:
 
+- [ARCHITECTURE.md](docs/ARCHITECTURE.md) – Goals, non-goals, scenarios and how the parts fit together (start here)
 - [ALGORITHM.md](docs/ALGORITHM.md) – Shuffle algorithm & constraint system
 - [PEDAGOGY.md](docs/PEDAGOGY.md) – Pedagogical background of the criteria
 - [DESIGNSYSTEM.md](docs/DESIGNSYSTEM.md) – Design tokens & component guidelines

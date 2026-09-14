@@ -139,7 +139,7 @@ async function migrateClassroomTemplates(): Promise<number> {
       if (templateNeedsMigration(template)) {
         migratedCount++;
         logInfo(
-          `Template '${template.name}' wird migriert`,
+          'Template wird migriert',
           { templateId: template.id },
           'migrationService',
         );
@@ -181,7 +181,7 @@ async function migrateSeatingHistory(): Promise<number> {
       if (needsMigration(plan.scene)) {
         migratedCount++;
         logInfo(
-          `Gespeicherter Plan '${plan.name}' wird migriert`,
+          'Gespeicherter Plan wird migriert',
           { planId: plan.id },
           'migrationService',
         );

@@ -1,3 +1,9 @@
+# AGENTS.md
+
+Guidance for coding agents working in this repository. This is the only copy:
+`CLAUDE.md` imports it (`@AGENTS.md`) and `.agents/rules/agents.md` references
+it for Antigravity — edit this file, never those two.
+
 ## Code Style & Formatting
 
 - Use TypeScript and React with ES Modules
@@ -19,7 +25,6 @@
 - E2E: Playwright smoke specs live in `e2e/` (`npm run test:e2e`; needs `npx playwright install chromium`)
 - i18n consistency: `npm run check:i18n` (DE/EN key parity + every `t(key, 'default')` resolves to a real key)
 - Bundle budgets: `npm run check:bundle` (after a build; part of `npm run build:static`)
-- Agent rules: `AGENTS.md` and `.agent/rules/*.md` are generated from this file — edit only `CLAUDE.md`, then run `npm run sync:agent-rules`; `npm run check:agent-rules` fails CI on drift
 
 **Current Code Quality Status (2026-09-09):**
 
@@ -173,13 +178,12 @@ import { generateId, logError, errorHandlers } from '@/utils';
 - `npm run check:i18n` - DE/EN key parity + orphaned inline defaults
 - `npm run check:bundle` - Enforce bundle size budgets against `dist/` (run after a build)
 - `npm run check:unused` - Unused-export ratchet (baseline in `scripts/check-unused-exports.mjs`)
-- `npm run sync:agent-rules` - Rewrite `AGENTS.md` and `.agent/rules/*.md` from `CLAUDE.md` (`check:agent-rules` verifies)
 - `vitest run --reporter=verbose` - Run tests with detailed output
 - `vitest run src/path/to/test.test.ts` - Run single test file
 
 ## Core Architecture
 
-This is a React-based classroom seating plan generator with a multi-step wizard interface. The application combines layered contexts, Zustand stores, XState machines for canvas interaction, repository-backed persistence and a constraint-driven algorithm pipeline running in a web worker.
+This is a React-based classroom seating plan generator with a multi-step wizard interface. The application combines layered contexts, Zustand stores, XState machines for canvas interaction, repository-backed persistence and a constraint-driven algorithm pipeline running in a web worker. Goals, non-goals, scenarios and data-flow diagrams: `docs/ARCHITECTURE.md`.
 
 ### State Management Architecture
 
@@ -191,7 +195,7 @@ This is a React-based classroom seating plan generator with a multi-step wizard 
    - `ClassroomLayoutContext` – scene editing, feature palette (windows/doors/podium/board), template CRUD, circle sync & seating mode switching
    - `SeatingAlgorithmContext` – mix settings, refinement, locking, statistics badges, history actions
 3. **Zustand vanilla stores** (`src/stores/`): `studentsStore`, `algorithmStore`, `layoutStore` (factories in `featureStores.ts`); persistence runs externally via `hooks/persistence/usePersistQueue.ts` and the repositories.
-4. **XState 5 machines** (`src/stateMachines/canvas/`): `canvasPointerMachine` and `keyboardInteractionMachine` own pointer/keyboard interaction on the canvas; stores own domain data. Template drag from the toolbar runs in `useTemplateDrag` without a machine — `templateDragMachine` is exported but not wired up.
+4. **XState 5 machines** (`src/stateMachines/canvas/`): `canvasPointerMachine` and `keyboardInteractionMachine` own pointer/keyboard interaction on the canvas; stores own domain data. Template drag from the toolbar runs in `useTemplateDrag` without a machine.
 5. **useSeatingGenerator** orchestrates repositories, undo/redo stacks, worker-based algorithm calls and UI signals (post-update notice, changelog badge).
 
 Consumers import dedicated hooks (e.g. `useClassroomLayoutContext`) to minimize re-renders and keep side effects localized.
