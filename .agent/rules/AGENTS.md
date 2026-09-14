@@ -15,26 +15,30 @@
 - Coverage report: `npm run test:coverage` (v8 provider, HTML report in `coverage/`)
 - Check modified files with `npx eslint <files>`
 - TypeScript compilation check: `npm run typecheck` (app) and `npm run typecheck:test` (tests); both via `npm run typecheck:all`
-- Check for unused exports: `npx ts-unused-exports tsconfig.ts-unused.json --ignoreFiles='vite-env.d.ts|index.tsx|App.tsx'`
+- Check for unused exports: `npm run check:unused` — a ratchet against the baseline in `scripts/check-unused-exports.mjs`; the count may fall, never rise. For the full list run `npx ts-unused-exports tsconfig.ts-unused.json --allowUnusedTypes --ignoreFiles='vite-env.d.ts|index.tsx|App.tsx'`
 - E2E: Playwright smoke specs live in `e2e/` (`npm run test:e2e`; needs `npx playwright install chromium`)
+- i18n consistency: `npm run check:i18n` (DE/EN key parity + every `t(key, 'default')` resolves to a real key)
+- Bundle budgets: `npm run check:bundle` (after a build; part of `npm run build:static`)
+- Agent rules: `AGENTS.md` and `.agent/rules/*.md` are generated from this file — edit only `CLAUDE.md`, then run `npm run sync:agent-rules`; `npm run check:agent-rules` fails CI on drift
 
-**Current Code Quality Status (2026-09-03):**
+**Current Code Quality Status (2026-09-09):**
 
 - ✅ ESLint: 0 errors, 0 warnings
 - ✅ TypeScript: 0 compilation errors (strict mode)
-- ✅ Tests: 1799 unit tests (176 test files) + 3 Playwright smoke specs, 100% passing
-- 📊 Coverage: 64 % lines / 64 % statements (`npm run test:coverage`, v8 provider, no thresholds enforced)
-- ⚠️ Unused Exports: ~114 modules with unused exports (mostly type exports, Props interfaces and shared test helpers - acceptable for a TypeScript project)
+- ✅ Tests: 2098 unit tests (201 test files) + 5 Playwright tests (3 smoke + 2 wizard core flow), 100% passing
+- 📊 Coverage: 69.0 % lines / 68.4 % statements / 58.1 % branches (`npm run test:coverage`, v8 provider, no thresholds enforced)
+- ⚠️ Unused Exports: 54 modules ignoring type-only exports, held by a ratchet (`npm run check:unused`); the remainder are re-export barrels, `lazyWithRetry` default exports and shared test helpers
 - ✅ Test Infrastructure: Centralized accessibility helpers and toast matchers for robust testing
 - ✅ Architecture: Repository Pattern implemented, UI components reorganized into logical subdirectories
-- ✅ i18n: Bilingual support (German/English) fully implemented, DE/EN key parity 1:1 (1742 keys per language)
+- ✅ i18n: Bilingual support (German/English) fully implemented, DE/EN key parity 1:1 (1860 keys per language)
+- 📦 Bundle: initial payload 222 KB brotli / 878 KB raw, largest chunk 64 KB brotli, CSS 19 KB brotli
 
 ## Logging
 
-- Project uses centralized logging system (`src/utils/logger.ts`)
+- Project uses centralized logging system (`src/utils/logger.ts`), backed by two modules: `utils/logging/loggerCore.ts` (levels, formatting, sink) and `utils/logging/logger.client.ts` (console sink + helpers). There is no buffering/sampling/remote layer — add a sink to `LoggerCore` if that ever becomes a requirement.
 - All `console.*` statements replaced with structured logging (except in logger implementations)
 - Development: INFO level and higher, Production: WARN level and higher
-- Debug mode (dev builds only): `window.logger.enableDebug()` in browser; production toggles via `enhancedLogger` (`@/utils/logging`)
+- Debug mode (dev builds only): `window.logger.enableDebug()` in browser; production toggles via `logger.enableDebug()` (`@/utils/logger`)
 - **IMPORTANT**: Never use `console.log/warn/error` directly - always use `logInfo/logWarn/logError/logDebug` from `@/utils`
 - Exception: `console.*` is allowed ONLY in logger implementation files and test files
 - See `docs/LOGGING.md` for details
@@ -43,6 +47,40 @@
 
 - Do not create new branches
 - Follow existing commit message patterns
+- Work happens on `update`; `main` only ever receives it as a fast-forward (`git merge --ff-only update`), never a merge commit
+
+### Release workflow
+
+A release is not finished when `main` is pushed — nothing is published until
+the tag is. `.github/workflows/docker.yml` runs on `push: tags: ['v*']`, builds
+the image for both architectures, pushes the multi-arch manifest to GHCR as
+`X.Y.Z`, `X.Y` and `latest`, and only then creates the GitHub release. A push to
+`main` alone triggers `ci.yml` and nothing else.
+
+1. Run the gates on `update`: `npm test -- --run`, `npm run lint`,
+   `npm run typecheck:all`, `npm run check:i18n`, `npm run check:unused`,
+   `npm run build` followed by `npm run check:bundle`
+2. Commit the bump as `update: vX.Y.Z changelog and version bump`, touching all
+   eight files: `package.json` and `package-lock.json` (the two project entries
+   at the top only — dependencies share the version string), `README.md` (image
+   tag + `KLASSENPLAN_VERSION` example), `docker-compose.yml` (the example in
+   the comment), `docs/CHANGELOG.md`, `src/data/changelogEntries.ts` and
+   `src/i18n/locales/{de,en}/changelog.json`
+3. `git checkout main && git merge --ff-only update`
+4. `git push origin main` and `git push origin update`
+5. `git tag -a vX.Y.Z -m vX.Y.Z <bump-commit>` — annotated, on the bump commit,
+   matching the existing tags
+6. `git push origin vX.Y.Z`
+
+The release notes are cut out of `docs/CHANGELOG.md` by `awk`, from the
+`## [X.Y.Z]` heading to the next one, so that section has to exist before the
+tag is pushed — the `release` job fails outright when it finds nothing. A
+hyphen in the tag (`v2.1.0-rc.1`) marks a pre-release and keeps it off
+`latest`.
+
+Build artefacts are not part of a release commit: `npm run build` rewrites the
+`lastmod` stamps in `public/sitemap.xml` from file mtimes — discard that unless
+the sitemap itself is the change.
 
 ## Special Instructions
 
@@ -65,6 +103,31 @@
 2. If not: Add key to the German file (`de/*.json`)
 3. Add corresponding key to the English file (`en/*.json`)
 4. Use `t('namespace:key')` or `t('key')` in the component
+5. Run `npm run check:i18n` — it fails on key drift between DE and EN
+
+### Inline defaults
+
+`t('some.key', 'Deutscher Text')` is widespread in this codebase (~735 call
+sites). The second argument is a _fallback_, not a translation: when the key is
+missing from the JSON, i18next renders that German string — on `/en` too. Do not
+add new inline defaults; `npm run check:i18n` fails as soon as one becomes the
+actual source of a string. Existing ones are verified unreachable and are left
+alone deliberately (removing 735 of them would be pure churn).
+
+### Dates and times
+
+Never format a date with a hardcoded locale (`toLocaleDateString('de-DE')`).
+Use the helpers from `@/utils` (`formatDate`, `formatLongDate`, `formatTime`,
+`formatTimeWithSeconds`, `formatDayMonth`, `formatDateAndTime`), which resolve
+the locale from the active i18n language via `Intl.DateTimeFormat`.
+`formatLongDate` spells the month out (`3. September 2026` / `September 3,
+2026`) and is what release dates render with.
+
+Dates that get **stored** are ISO 8601 (`toIsoDate`) and formatted on render
+with `formatStoredDate`, which passes pre-ISO legacy strings through untouched.
+Date-only strings (`YYYY-MM-DD`) are parsed as **local** midnight, not UTC —
+`new Date('2026-09-03')` would otherwise render as 2 September west of UTC and
+break the `toIsoDate` round-trip.
 
 ## Modern Import Patterns
 
@@ -96,9 +159,10 @@ import { generateId, logError, errorHandlers } from '@/utils';
 
 ## Development Commands
 
-- `npm run dev` - Start Vite dev server (default port 5173)
+- `npm run dev` - Start Vite dev server (port 3000, set in `vite.config.ts`; Playwright starts its own on 5173)
 - `npm run preview` - Serve the production bundle locally
 - `npm run build` - Build production bundle (runs `generate:sitemap` first)
+- `npm run build:static` - Build, prerender every route, verify the output (Docker/CI path; needs `npx playwright install chromium`)
 - `npm test` - Run Vitest in watch mode (append `-- --run` for single run)
 - `npm run test:coverage` - Single run with a v8 coverage report (`coverage/index.html`)
 - `npm run test:e2e` - Run Playwright end-to-end tests
@@ -106,6 +170,10 @@ import { generateId, logError, errorHandlers } from '@/utils';
 - `npm run typecheck` / `npm run typecheck:all` - TypeScript strict checks
 - `npm run format` - Format code with Prettier
 - `npm run generate:sitemap` - Generate sitemap (auto-run before builds)
+- `npm run check:i18n` - DE/EN key parity + orphaned inline defaults
+- `npm run check:bundle` - Enforce bundle size budgets against `dist/` (run after a build)
+- `npm run check:unused` - Unused-export ratchet (baseline in `scripts/check-unused-exports.mjs`)
+- `npm run sync:agent-rules` - Rewrite `AGENTS.md` and `.agent/rules/*.md` from `CLAUDE.md` (`check:agent-rules` verifies)
 - `vitest run --reporter=verbose` - Run tests with detailed output
 - `vitest run src/path/to/test.test.ts` - Run single test file
 
@@ -123,7 +191,7 @@ This is a React-based classroom seating plan generator with a multi-step wizard 
    - `ClassroomLayoutContext` – scene editing, feature palette (windows/doors/podium/board), template CRUD, circle sync & seating mode switching
    - `SeatingAlgorithmContext` – mix settings, refinement, locking, statistics badges, history actions
 3. **Zustand vanilla stores** (`src/stores/`): `studentsStore`, `algorithmStore`, `layoutStore` (factories in `featureStores.ts`); persistence runs externally via `hooks/persistence/usePersistQueue.ts` and the repositories.
-4. **XState 5 machines** (`src/stateMachines/canvas/`): `canvasPointerMachine`, `keyboardInteractionMachine`, `templateDragMachine` own pointer/keyboard interaction on the canvas; stores own domain data.
+4. **XState 5 machines** (`src/stateMachines/canvas/`): `canvasPointerMachine` and `keyboardInteractionMachine` own pointer/keyboard interaction on the canvas; stores own domain data. Template drag from the toolbar runs in `useTemplateDrag` without a machine — `templateDragMachine` is exported but not wired up.
 5. **useSeatingGenerator** orchestrates repositories, undo/redo stacks, worker-based algorithm calls and UI signals (post-update notice, changelog badge).
 
 Consumers import dedicated hooks (e.g. `useClassroomLayoutContext`) to minimize re-renders and keep side effects localized.
@@ -134,6 +202,7 @@ Consumers import dedicated hooks (e.g. `useClassroomLayoutContext`) to minimize 
 - **IndexedDB repositories** (`src/repositories/`) – students, seating plans, templates, mix history, circle layouts and `ClassroomFeature` data (windows, doors, podium, board)
 - **`src/repositories/idbClient.ts` is the only module that imports `idb-keyval`.** Never reach past it — it offers rejecting primitives (`readValue`, `writeValue`, …) for callers with their own error handling and `try…` variants that return a `Result`.
 - **Student photos** – separate IndexedDB store (`src/repositories/studentPhotoStore.ts`, blobs keyed by student id, schema-versioned) with an in-memory cache (`src/hooks/student/studentPhotoCache.ts`). Every photo-store call returns a `Result`; the cache turns write failures into `StudentPhotoStorageError` so a UI handler can toast them.
+- **Plan usage record** – standalone store (`src/repositories/planUsageStore.ts`, one bucket per class under `DB_KEYS.planUsage`) noting which seating plans were really in use. Signals are raised where the action happens (present, export, save, hand-edit); merge rules are pure in `src/utils/data/planUsage.ts`; `subscribeToPlanUsage` pushes changes to `usePlanUsageRecords` so every consumer reads the same set. Feeds `buildPreviousPairs` and the neighbourhood view. Failures are logged and swallowed — a lost signal is nothing the teacher can act on. See `docs/ALGORITHM.md`.
 - Result-pattern (`Success`/`Failure`) provides typed error handling and enables repository swapping.
 - Live data is stored unencrypted (offline-first, documented in `docs/SECURITY.md`); only exported backups are encrypted.
 
@@ -162,11 +231,19 @@ Consumers import dedicated hooks (e.g. `useClassroomLayoutContext`) to minimize 
 - Components should only add layout classes on top of tokens — no ad-hoc color utilities.
 - Immutable styling patterns ensure Dark/Light parity via CSS variables and prevent component-level drift.
 
+## SEO & Prerendering
+
+- The app is a CSR SPA; `npm run build:static` prerenders all routes × languages into `dist/<path>/index.html` so crawlers see real content and per-route canonical/hreflang/JSON-LD. See `docs/SEO.md`.
+- `src/data/seoRoutes.json` is the single source of truth for route metadata (titles, descriptions, `noindex`). Shared script helpers live in `scripts/utils/seoRoutes.mjs`.
+- Canonical URLs come from the build-time `SITE_URL` (`define` in `vite.config.ts`), **never** from `window.location.origin`.
+- **Never let `vite-plugin-compression` precompress HTML** — nginx's `brotli_static on` would serve the stale pre-prerender shell.
+- Route components live in `src/pages/lazyPages.ts` and are shared by the router and `routePreloader`, so `preload()` warms the instance the router renders. Do not re-declare them with `lazyWithRetry` in `App.tsx`.
+
 ## Security & Deployment
 
 - **No inline scripts in `index.html`** — the production CSP is `script-src 'self'` (no nonce/hash). The PWA install-prompt capture lives in the entry module; speculation rules are delivered via the `Speculation-Rules` HTTP header (`public/speculationrules.json`).
 - Security headers live in `nginx-security-headers.conf` and must be re-`include`d in every nginx `location` that sets its own `add_header` (nginx does not inherit them otherwise). See `docs/SECURITY.md`.
-- Service worker uses the **prompt update model** (`registerType: 'prompt'`, `skipWaiting`/`clientsClaim` disabled) — a new SW activates only after the user confirms via `ReloadPrompt`.
+- Service worker uses the **prompt update model** (`registerType: 'prompt'`, `skipWaiting`/`clientsClaim` disabled) — a new SW activates only after the user confirms via `ReloadPrompt`. Only `ReloadPrompt` may call `useRegisterSW`; everyone else reads the registration from the `swUpdateController` singleton (`src/hooks/pwa/`), which the footer's `UpdateCheckButton` uses for an on-demand check. `ReloadPrompt` additionally re-checks hourly, on `visibilitychange` and on `online`. A toast that must stay open takes `duration: 0` — `Infinity` is clamped to a 32-bit int by `setTimeout` and fires after ~1 ms.
 - Backups are encrypted with AES-GCM 256; PBKDF2-SHA256 with 600,000 iterations, KDF parameters stored in the envelope (legacy files without them decrypt with 250,000). Export enforces a min-8-char password with confirmation. See `docs/backup-format.md`.
 
 ## Testing Strategy

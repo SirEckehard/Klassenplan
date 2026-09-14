@@ -59,8 +59,6 @@ export interface LongPressDurations {
   canvas: number;
 }
 
-export type LongPressMode = 'legacy' | 'machine';
-
 export interface CanvasPointerMachineContext {
   activePointer: PointerMeta | null;
   canvasPress: CanvasPressPayload | null;
@@ -68,7 +66,6 @@ export interface CanvasPointerMachineContext {
   dragSnapshot: DragSelectionSnapshot | null;
   clipboard: ClipboardSnapshot;
   longPressDurations: LongPressDurations;
-  longPressMode: LongPressMode;
 }
 
 export type CanvasPointerMachineEvent =

@@ -73,7 +73,7 @@ The weights in [`src/utils/mixSettings.ts`](../src/utils/mixSettings.ts) are nor
 
 ### Tension between `peerTutoring` and `homogeneousPerformanceGroups`
 
-Both criteria are active and equally weighted. This is intentional: teachers should be able to choose. When both are active simultaneously, their effects partially neutralize each other. A future version of the tool could turn these into an either/or option (P1, review section C.2).
+Both criteria are active and equally weighted. This is intentional: teachers should be able to choose. When both are active simultaneously, their effects partially neutralize each other. Turning them into an either/or option is an open design question: it would change the plans teachers get for the same class, so it needs a deliberate decision rather than a silent change of defaults.
 
 ---
 

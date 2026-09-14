@@ -200,32 +200,20 @@ Remember to revert the configuration after debugging:
 logger.disableDebug();
 ```
 
-### Log Monitoring
+### Nothing leaves the browser
 
-In production, you may want to capture ERROR level logs for monitoring:
-
-```typescript
-// Add to production monitoring
-const originalError = logger.error;
-logger.error = (message, context, source) => {
-  originalError(message, context, source);
-  // Send to monitoring service
-  if (window.analyticsService) {
-    window.analyticsService.track('app_error', {
-      message,
-      source,
-      context,
-    });
-  }
-};
-```
+Logs go to the browser console and nowhere else: nothing is stored, buffered or
+transmitted, and the production CSP (`connect-src 'self'`) blocks any
+third-party endpoint. [PERFORMANCE.md](PERFORMANCE.md) records the same decision
+for Web Vitals. Sending logs anywhere would need a CSP change and a privacy
+review first, and then a second sink on `LoggerCore` (see "Logger API" above).
 
 ## Best Practices
 
 1. **Use Appropriate Levels**: Choose the right log level for each message
 2. **Provide Context**: Include relevant data in the context object
 3. **Tag Sources**: Always provide a source identifier
-4. **Avoid Sensitive Data**: Don't log user passwords or personal information
+4. **No Personal Data**: Identify students by id, never by name, and never log attributes, photos or backup passwords. Names a teacher typed (classes, plans, templates) and imported file names can contain student names too — prefer ids or counts for those as well
 5. **Performance**: Use debug level for detailed performance information
 6. **Error Context**: Include error objects in the context for stack traces
 

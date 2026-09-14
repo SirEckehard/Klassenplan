@@ -135,34 +135,35 @@ element.setAttribute('data-value', userInput); // Safe attributes
 
 ### Check for CSP Compliance
 
-Run these commands before deployment:
+The production CSP has no `'unsafe-inline'` for scripts, so an executable inline
+`<script>` in the served HTML would be blocked. After a static build, list every
+`<script>` tag without a `src`:
 
 ```bash
-# 1. Build production bundle
-npm run build
-
-# 2. Check for inline scripts/styles in dist/index.html
-grep -E '<script[^>]*>(?!</script>)' dist/index.html
-grep -E '<style[^>]*>(?!</style>)' dist/index.html
-
-# 3. Should return NO matches (exit code 1)
-# If matches found, investigate immediately!
+npm run build:static
+find dist -name index.html -exec grep -oE '<script[^>]*>' {} + \
+  | grep -v 'src=' | grep -v 'application/ld+json'
 ```
+
+No output means no inline scripts. JSON-LD blocks (`type="application/ld+json"`)
+are data that the browser never executes, so `script-src` does not apply to
+them. `build:static` matters here: the prerendered pages are what nginx serves,
+not just `dist/index.html`.
 
 ### Local CSP Testing
 
-Test the production CSP locally:
+`npm run preview` is **not** a CSP test: `vite.config.ts` sets headers only for
+the dev server, and `vite preview` reuses them — including `'unsafe-inline'` for
+scripts. The production headers come from nginx, so test against the Docker
+image:
 
 ```bash
-# 1. Build production bundle
-npm run build
+# 1. Build and start the image with the real nginx configuration
+docker compose up -d --build
 
-# 2. Serve with production headers
-npm run preview
-
-# 3. Open browser DevTools → Console
-# 4. Look for CSP violation warnings
-# 5. All resources should load without CSP errors
+# 2. Open http://localhost:8080 → DevTools → Console
+# 3. Look for CSP violation warnings
+# 4. All resources should load without CSP errors
 ```
 
 **Expected Console Output:**
@@ -224,6 +225,10 @@ everything else. See [ALGORITHM.md](ALGORITHM.md#plan-usage-record).
 import (center-crop, downscale to 160 px, JPEG). This guarantees that EXIF
 metadata — including GPS coordinates — is stripped before anything is stored.
 
+**Logs:** Log calls identify students by id and never carry names, attributes,
+photos or backup passwords (see [LOGGING.md](LOGGING.md#best-practices)). Logs
+only reach the browser console — nothing is stored or transmitted.
+
 ### 2. Input Validation
 
 - ✅ All student names validated via `stringValidation.validateStudentName()`
@@ -232,9 +237,9 @@ metadata — including GPS coordinates — is stripped before anything is stored
 
 ### 3. Dependency Security
 
-- ✅ Regular `npm audit` checks
-- ✅ Automated Dependabot updates configured in [`.github/dependabot.yml`](../.github/dependabot.yml) (weekly npm, monthly GitHub Actions)
-- ✅ Critical dependencies pinned to specific versions
+- ✅ `npm audit` as part of the quarterly checklist above
+- ✅ Automated Dependabot updates configured in [`.github/dependabot.yml`](../.github/dependabot.yml) (weekly npm with minor/patch bumps grouped, monthly GitHub Actions)
+- ✅ Exact versions are locked in `package-lock.json`, and CI and the Docker build install with `npm ci`, so a build never resolves anything newer than the lockfile. `package.json` itself uses caret ranges — upgrades arrive as reviewable Dependabot PRs
 
 ## Security Contact
 

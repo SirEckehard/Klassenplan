@@ -20,7 +20,6 @@ export const createCanvasPointerContext = (): CanvasPointerMachineContext => ({
     table: 500,
     canvas: 500,
   },
-  longPressMode: 'machine',
 });
 
 const pointerSetup = setup({
@@ -38,9 +37,8 @@ const pointerSetup = setup({
   },
   guards: {
     isMachineLongPressEnabled: ({ context }) =>
-      context.longPressMode === 'machine' &&
-      (context.activePointer?.pointerType === 'touch' ||
-        context.activePointer?.pointerType === 'pen'),
+      context.activePointer?.pointerType === 'touch' ||
+      context.activePointer?.pointerType === 'pen',
   },
   delays: {
     TABLE_LONG_PRESS_DELAY: ({ context }) => context.longPressDurations.table,
