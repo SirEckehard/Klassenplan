@@ -5,6 +5,16 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.0.5] - 2026-09-14
+
+### Removed
+
+- The "Verfeinern" (refine) button in the seating plan. Measurements showed that refining a shuffled plan a second time does not reliably make it better – a point or two for 24 students, at times even worse for 36. "Mischen" still refines the plan automatically as soon as a criterion is active
+
+### Improved
+
+- Various adjustments: "Clear all data" also removes the student photos right away, "Deutsch als Zweitsprache" is recognised as a language level on CSV import, the shuffle history keeps the refined plan, the two performance criteria can no longer apply at the same time, and self-hosted instances can link their own legal notice and privacy policy – plus internal clean-up and revised documentation
+
 ## [2.0.4] - 2026-09-09
 
 ### Added

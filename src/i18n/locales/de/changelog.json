@@ -1,4 +1,8 @@
 {
+  "v2_0_5": {
+    "0": "Der Knopf „Verfeinern“ im Sitzplan entfällt: Messungen haben gezeigt, dass ein zweites Verfeinern einen gemischten Plan nicht verlässlich besser macht – bei 24 Schülern ein, zwei Punkte, bei 36 teils sogar schlechter. „Mischen“ verfeinert den Plan weiterhin automatisch, sobald ein Kriterium aktiv ist",
+    "1": "Verschiedene Anpassungen: „Alle Daten löschen“ entfernt auch die Schülerfotos sofort, „Deutsch als Zweitsprache“ wird beim CSV-Import als Sprachniveau erkannt, der Mischverlauf speichert den verfeinerten Plan, die beiden Leistungskriterien können nicht mehr gleichzeitig wirken und eigene Instanzen können auf ihr eigenes Impressum und ihre Datenschutzerklärung verweisen – dazu interne Aufräumarbeiten und eine überarbeitete Dokumentation"
+  },
   "v2_0_4": {
     "0": "Klassenlisten aus WebUntis, Schulmanager Online und SchILD-NRW werden beim Import erkannt: Der Dialog nennt das gefundene Format, wählt die passende Namensspalte vor – und importiert die Datei auf Wunsch auch ohne Vorlage, falls die Erkennung danebenliegt",
     "1": "Enthält eine Datei mehrere Klassen, fragt Klassenplan, welche davon importiert werden soll, statt an der Grenze von 36 Schülern abzubrechen",
