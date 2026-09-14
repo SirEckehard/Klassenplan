@@ -26,14 +26,16 @@ The inputs are sensitive: names, optional photos and short descriptions of
 current behaviour, mostly of minors. Depending on the reason behind it, a flag
 such as `needsFrontSeat` can even touch Art. 9 GDPR. Klassenplan therefore runs
 completely in the browser. The server only delivers static files; there is no
-account, no server-side storage and no telemetry. Most of the architecture
-follows from that one decision: the algorithm runs in a web worker, data lives
-in IndexedDB, the app works offline as a PWA, moving between devices happens
-through an encrypted backup file, and search engines get prerendered HTML
-instead of a server-rendered page.
+account, no server-side storage and no telemetry
+([decision 0001](decisions/0001-offline-first-no-server.md)). Most of the
+architecture follows from that one decision: the algorithm runs in a web worker,
+data lives in IndexedDB, the app works offline as a PWA, moving between devices
+happens through an encrypted backup file, and search engines get prerendered
+HTML instead of a server-rendered page.
 
-Klassenplan has been public since v1.5.0 (June 2026);
-[CHANGELOG.md](CHANGELOG.md) shows how it grew from there.
+Klassenplan has been released since v1.0.0 (August 2025), works offline since
+v1.2.0 and has been open source since v1.6.0 (June 2026);
+[CHANGELOG.md](CHANGELOG.md) shows how it grew.
 
 ## Goals
 
@@ -258,7 +260,9 @@ inside `applyPersistedState`.
 | Backups                                                                                           | A file wherever the teacher saves it                  | AES-GCM encrypted ([backup-format.md](backup-format.md))                       |
 
 All IndexedDB access goes through `src/repositories/idbClient.ts`. Live data is
-not encrypted ([SECURITY.md](SECURITY.md)).
+not encrypted ([SECURITY.md](SECURITY.md)). Record shapes, versions, retention
+and what "delete all data" removes are described in
+[data-model.md](data-model.md).
 
 ### Build and delivery
 
@@ -353,7 +357,11 @@ imports in `src/utils`.
 - [ERROR-HANDLING.md](ERROR-HANDLING.md) – Result pattern, toasts, logging levels
 - [LOGGING.md](LOGGING.md) – logger configuration
 - [SECURITY.md](SECURITY.md) – CSP, headers, data at rest
+- [decisions/](decisions/README.md) – recorded design decisions and their reasons
+- [data-model.md](data-model.md) – stored keys, record shapes, versions, retention
 - [backup-format.md](backup-format.md) – backup file format and encryption
+- [csv-import.md](csv-import.md) – class list import format
+- [worker-protocol.md](worker-protocol.md) – messages to and from the web workers
 - [canvas-interactions.md](canvas-interactions.md) – pointer and keyboard state machines
 - [SEO.md](SEO.md) – prerendering, canonical URLs, languages
 - [PERFORMANCE.md](PERFORMANCE.md) – Web Vitals, bundle budgets
