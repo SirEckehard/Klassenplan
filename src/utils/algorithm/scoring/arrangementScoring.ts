@@ -25,6 +25,7 @@ import {
 } from './scoringHelpers';
 import { HEIGHT_PLACEMENT_AMPLIFICATION } from './heightScoring';
 import { scoreTableComposition } from './tableScoring';
+import { resolvePerformanceCriterion } from '../../mixSettings';
 
 /**
  * Everything {@link scoreTable} needs to rate a table of an existing plan.
@@ -149,24 +150,25 @@ const scoreSeatPairs = (
       }
     }
 
-    // Performance-based pairing (the two options are mutually exclusive)
+    // Performance-based pairing: only one of the two criteria applies, picked
+    // the same way as during construction (decision 0013)
     const peerTutoringWeight = settings.peerTutoring ?? 0;
     const homogeneousWeight = settings.homogeneousPerformanceGroups ?? 0;
-    const usePeerTutoring = peerTutoringWeight > homogeneousWeight;
+    const performanceCriterion = resolvePerformanceCriterion(settings);
 
     const highA = A && isHighPerf(A);
     const highB = B && isHighPerf(B);
     const lowA = A && isLowPerf(A);
     const lowB = B && isLowPerf(B);
 
-    if (usePeerTutoring && peerTutoringWeight > 0) {
+    if (performanceCriterion === 'peerTutoring') {
       // Heterogeneous performance pairing (peer tutoring)
       if ((highA && lowB) || (lowA && highB)) {
         score -= peerTutoringWeight;
       } else if (highA || highB || lowA || lowB) {
         score += peerTutoringWeight;
       }
-    } else if (homogeneousWeight > 0) {
+    } else if (performanceCriterion === 'homogeneousPerformanceGroups') {
       // Homogeneous performance grouping
       const bothHigh = highA && highB;
       const bothLow = lowA && lowB;

@@ -32,9 +32,8 @@
       "item2": "Drag students to other seats via drag & drop.",
       "item3": "Click the lock icon to lock a seat for the next shuffle.",
       "item4": "The statistics panel shows how well the criteria are met.",
-      "item5": "The \"Refine\" function adjusts the current plan in small steps and tries to raise the statistics score.",
-      "item6": "The view settings control how names appear (first name only, first name + initial, or first and last name) and whether photos are shown.",
-      "item7": "Undo and redo changes to the seating plan with the corresponding icons."
+      "item5": "The view settings control how names appear (first name only, first name + initial, or first and last name) and whether photos are shown.",
+      "item6": "Undo and redo changes to the seating plan with the corresponding icons."
     },
     "circle": {
       "title": "Seating Circle",
@@ -102,7 +101,6 @@
   },
   "actions": {
     "shuffle": "Shuffle",
-    "refine": "Refine",
     "reset": "Reset",
     "export": "Export",
     "print": "Print",
@@ -610,11 +608,7 @@
     "photoOverlapWarning": "Show photo collisions",
     "photoCollision": "Photo collision",
     "rotateTable": "Rotate table",
-    "canvasLabel": "Seating plan: {{occupied}} of {{total}} seats taken",
-    "refineButton": "Refine",
-    "refineLabel": "Refine the seating plan",
-    "refineTitle": "Refine the current seating plan in small steps",
-    "refineNoCriteria": "Activate at least one mix criterion in the sidebar first."
+    "canvasLabel": "Seating plan: {{occupied}} of {{total}} seats taken"
   },
   "quickSetup": {
     "title": "Set Up Classroom",

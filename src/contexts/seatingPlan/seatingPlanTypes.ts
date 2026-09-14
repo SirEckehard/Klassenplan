@@ -107,14 +107,6 @@ export interface SeatingPlanActions {
     options?: { triesPerPass?: number; passes?: number },
     start?: SeatingArrangement,
   ) => Promise<SeatingArrangement>;
-  /**
-   * Refine the arrangement currently on screen instead of drawing a new one.
-   * Exposes the local-search pass that so far only ran implicitly after a mix.
-   */
-  refineCurrentSeating: (options?: {
-    triesPerPass?: number;
-    passes?: number;
-  }) => Promise<SeatingArrangement>;
   onMix: () => void;
   undoSeating: () => void;
   redoSeating: () => void;

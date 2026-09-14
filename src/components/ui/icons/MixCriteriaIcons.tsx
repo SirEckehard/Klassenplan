@@ -420,13 +420,14 @@ export default function MixCriteriaIcons({
       onSettingChange('avoidConcentrationTogether', newValue);
       onSettingChange('avoidConcentrationNearRestless', newValue);
     }
-    // Mutual exclusivity: peerTutoring vs homogeneousPerformanceGroups
+    // Mutual exclusivity: clear the other criterion first. Settings hold only
+    // one of the two, and on a tie normalisation keeps peerTutoring.
     else if (key === 'peerTutoring' && newValue > 0) {
-      onSettingChange('peerTutoring', newValue);
       onSettingChange('homogeneousPerformanceGroups', 0);
+      onSettingChange('peerTutoring', newValue);
     } else if (key === 'homogeneousPerformanceGroups' && newValue > 0) {
-      onSettingChange('homogeneousPerformanceGroups', newValue);
       onSettingChange('peerTutoring', 0);
+      onSettingChange('homogeneousPerformanceGroups', newValue);
     } else {
       onSettingChange(key, newValue);
     }

@@ -25,6 +25,8 @@ it says so instead of reconstructing one.
 | [0010](0010-plan-usage-from-actions.md)            | Plan usage is derived from actions, not asked for          |
 | [0011](0011-english-under-en-on-de-domain.md)      | English under `/en` on the `.de` domain                    |
 | [0012](0012-legal-pages-for-self-hosted-builds.md) | Operators link their own legal pages at build time         |
+| [0013](0013-one-performance-criterion.md)          | One performance criterion at a time                        |
+| [0014](0014-mix-history-records-refined-plan.md)   | The mix history records the refined plan                   |
 
 ## Reasons still to be recorded
 

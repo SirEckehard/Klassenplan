@@ -10,6 +10,7 @@ import type {
   PlanUsage,
 } from '@/types';
 import { buildPreviousPairs } from '@/utils/pairs';
+import { resolvePerformanceCriterion } from '../mixSettings';
 import {
   partnerSeat,
   getSeatPositions,
@@ -855,14 +856,16 @@ export function getTopFulfilledCriteria(
       label: 'Fördern (heterogen)',
       percentage: stats.peerTutoringPercentage,
       weight: settings.peerTutoring ?? 0,
-      active: (settings.peerTutoring ?? 0) > 0,
+      active: resolvePerformanceCriterion(settings) === 'peerTutoring',
     },
     {
       key: 'homogeneousPerformanceGroups',
       label: 'Fördern (homogen)',
       percentage: stats.homogeneousPerformancePercentage,
       weight: settings.homogeneousPerformanceGroups ?? 0,
-      active: (settings.homogeneousPerformanceGroups ?? 0) > 0,
+      active:
+        resolvePerformanceCriterion(settings) ===
+        'homogeneousPerformanceGroups',
     },
     {
       key: 'preferFrontForNeedsFrontSeat',

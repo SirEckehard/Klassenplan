@@ -89,8 +89,8 @@ hyphen in the tag (`v2.1.0-rc.1`) marks a pre-release and keeps it off
 `latest`.
 
 Build artefacts are not part of a release commit: `npm run build` rewrites the
-`lastmod` stamps in `public/sitemap.xml` from file mtimes — discard that unless
-the sitemap itself is the change.
+`lastmod` stamps in `public/sitemap.xml` from the last commit touching each
+route — discard that unless the sitemap itself is the change.
 
 ## Special Instructions
 
@@ -253,6 +253,7 @@ Consumers import dedicated hooks (e.g. `useClassroomLayoutContext`) to minimize 
 - **Never let `vite-plugin-compression` precompress HTML** — nginx's `brotli_static on` would serve the stale pre-prerender shell.
 - Route components live in `src/pages/lazyPages.ts` and are shared by the router and `routePreloader`, so `preload()` warms the instance the router renders. Do not re-declare them with `lazyWithRetry` in `App.tsx`.
 - Legal pages: `IMPRINT_URL` / `PRIVACY_URL` at build time replace `/impressum` and `/datenschutz` with forwarding pages (alias in `vite.config.ts`, validation in `src/config/legalPageUrls.ts`). Link to the legal pages only through `LegalPageLink`, never a plain `LocalizedLink`.
+- `build:static` regenerates `sitemap.xml` and `robots.txt` only for a build that serves another site (`SITE_URL`, `IMPRINT_URL`, `PRIVACY_URL`); klassenplan.de's own image ships the committed files.
 
 ## Security & Deployment
 

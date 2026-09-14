@@ -28,7 +28,6 @@ import {
 import { usePlanUsageTracking } from './plan/usePlanUsageTracking';
 import { usePlanUsageRecords } from './plan/usePlanUsageRecords';
 import { useStudentHistory } from './student/useStudentHistory';
-import { DEFAULT_PASSES, DEFAULT_TRIES_PER_PASS } from '@/utils';
 import type { ClassroomScene as ClassroomSceneT, Student } from '@/types';
 
 /**
@@ -249,31 +248,6 @@ export function useSeatingGenerator() {
       return arrangement;
     },
     [generateSeatingPlanBase, acknowledgeStudentUpdates, recordSeatingSnapshot],
-  );
-
-  // Manual "optimise further": refines the arrangement already on screen
-  // instead of drawing a new one, so a good plan can be nudged rather than
-  // rerolled. Undoable like every other seating action.
-  const refineCurrentSeating = useCallback(
-    async (options?: { triesPerPass?: number; passes?: number }) => {
-      recordSeatingSnapshot();
-      return refineSeatingLocal(
-        mixSettings,
-        classroomScene,
-        {
-          triesPerPass: options?.triesPerPass ?? DEFAULT_TRIES_PER_PASS,
-          passes: options?.passes ?? DEFAULT_PASSES,
-        },
-        currentSeating,
-      );
-    },
-    [
-      refineSeatingLocal,
-      mixSettings,
-      classroomScene,
-      currentSeating,
-      recordSeatingSnapshot,
-    ],
   );
 
   const toggleLockWithHistory = useCallback(
@@ -636,7 +610,6 @@ export function useSeatingGenerator() {
       generateSeatingPlan,
       moveStudent: handleStudentMove,
       refineSeatingLocal,
-      refineCurrentSeating,
       onMix: handleMixWithAutoRefine,
       undoSeating,
       redoSeating,
@@ -705,7 +678,6 @@ export function useSeatingGenerator() {
       generateSeatingPlan,
       handleStudentMove,
       refineSeatingLocal,
-      refineCurrentSeating,
       handleMixWithAutoRefine,
       undoSeating,
       redoSeating,

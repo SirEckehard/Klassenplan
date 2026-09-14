@@ -13,6 +13,7 @@
 import type { Student, MixSettings } from '@/types';
 import { isRestless, isConcentration } from './scoringHelpers';
 import { calculateGenderImbalance, createGenderCounts } from '../genderBalance';
+import { resolvePerformanceCriterion } from '../../mixSettings';
 
 /**
  * Context for table-level scoring.
@@ -111,8 +112,10 @@ export const scoreTableComposition = (ctx: TableScoringContext): number => {
 
   // 5. Performance level clustering
   // Having all low-performers or all high-performers at one table is suboptimal
+  // Only while peer tutoring is the performance criterion that applies
+  // (decision 0013); homogeneous groups have no table-level term.
   const peerTutoringWeight = settings.peerTutoring ?? 0;
-  if (peerTutoringWeight > 0) {
+  if (resolvePerformanceCriterion(settings) === 'peerTutoring') {
     const highPerfCount = members.filter((m) => m.performanceStrong).length;
     const lowPerfCount = members.filter((m) => m.performanceWeak).length;
 

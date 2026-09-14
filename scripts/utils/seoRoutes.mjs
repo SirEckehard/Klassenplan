@@ -27,9 +27,11 @@ export async function readRoutes() {
   return JSON.parse(await fs.readFile(routesPath, 'utf-8'));
 }
 
+const DEFAULT_SITE_URL = 'https://klassenplan.de';
+
 export function getSiteUrl() {
   const fromEnv = process.env.SITE_URL;
-  return fromEnv ? fromEnv.replace(/\/$/, '') : 'https://klassenplan.de';
+  return fromEnv ? fromEnv.replace(/\/$/, '') : DEFAULT_SITE_URL;
 }
 
 /**
@@ -50,6 +52,16 @@ export function isIndexableRoute(
   forwardedLegalRoutes = getForwardedLegalRoutes(),
 ) {
   return route.noindex !== true && !forwardedLegalRoutes.has(route.path);
+}
+
+/**
+ * True for klassenplan.de's own build: the default `SITE_URL` and its own legal
+ * pages. Every other build serves a different site and needs its own sitemap.
+ */
+export function isDefaultSiteBuild(env = process.env) {
+  return (
+    getSiteUrl() === DEFAULT_SITE_URL && getForwardedLegalRoutes(env).size === 0
+  );
 }
 
 /**

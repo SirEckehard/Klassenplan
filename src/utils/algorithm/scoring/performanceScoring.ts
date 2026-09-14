@@ -2,6 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import type { ScoringContext } from './scoringContext';
 import { isHighPerf, isLowPerf, getPartner } from './scoringHelpers';
+import { resolvePerformanceCriterion } from '../../mixSettings';
 
 /**
  * Score peer tutoring (heterogeneous performance pairing).
@@ -80,26 +81,19 @@ export const scoreHomogeneousGroups = (context: ScoringContext): number => {
 
 /**
  * Combined performance-based scoring.
- * Uses the strategy with higher weight (mutually exclusive).
- * Peer tutoring takes precedence when both are enabled.
+ * Only one strategy applies — the one `resolvePerformanceCriterion` picks
+ * (higher weight, peer tutoring on a tie), exactly as during refinement.
  *
  * @param context - Scoring context with student and position information
  * @returns Total performance score (lower is better)
  */
 export const scorePerformance = (context: ScoringContext): number => {
-  const { settings } = context;
-  const peerTutoringWeight = settings.peerTutoring ?? 0;
-  const homogeneousWeight = settings.homogeneousPerformanceGroups ?? 0;
-
-  // Determine which strategy to use (mutually exclusive)
-  // Peer tutoring takes precedence when weights are equal
-  const usePeerTutoring = peerTutoringWeight >= homogeneousWeight;
-
-  if (usePeerTutoring && peerTutoringWeight > 0) {
-    return scorePeerTutoring(context);
-  } else if (homogeneousWeight > 0) {
-    return scoreHomogeneousGroups(context);
+  switch (resolvePerformanceCriterion(context.settings)) {
+    case 'peerTutoring':
+      return scorePeerTutoring(context);
+    case 'homogeneousPerformanceGroups':
+      return scoreHomogeneousGroups(context);
+    default:
+      return 0;
   }
-
-  return 0;
 };

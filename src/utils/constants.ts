@@ -257,18 +257,6 @@ export const DEFAULT_TRIES_PER_PASS = 600;
 export const DEFAULT_PASSES = 2;
 
 /**
- * Settings for the manual "optimise further" action.
- *
- * Deliberately more thorough than the pass that runs automatically after a
- * mix: the user asked for it and is waiting for it, so spending a few hundred
- * milliseconds more is the right trade. Each click refines the arrangement
- * already on screen, so repeated clicks keep improving it — that repetition is
- * the intensity control, no slider needed.
- */
-export const MANUAL_REFINE_TRIES_PER_PASS = 1800;
-export const MANUAL_REFINE_PASSES = 4;
-
-/**
  * Scoring multipliers of the seating algorithm.
  *
  * Two scorers exist by design and both are needed:

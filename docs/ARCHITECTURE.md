@@ -207,14 +207,16 @@ sequenceDiagram
     algo->>client: callOperation mix:refine
     client->>worker: postMessage
     worker-->>client: refined seating
-    algo->>state: set current seating
+    algo->>state: set current seating, replace seating of the mix result
   end
   Note over state: queued write to IndexedDB
 ```
 
 With every weight at 0 the handler uses neutral settings and skips the
-refinement — the result is a purely random plan. _Verfeinern_ runs only the
-second half. Details in [ALGORITHM.md](ALGORITHM.md).
+refinement — the result is a purely random plan. After a refinement the mix
+history holds the refined arrangement
+([decision 0014](decisions/0014-mix-history-records-refined-plan.md)). Details
+in [ALGORITHM.md](ALGORITHM.md).
 
 ### Switching classes
 
@@ -351,7 +353,6 @@ translate one to one.
 | Raumelement: Fenster, Tür, Tafel, Pult    | `ClassroomFeature` (`window`, `door`, `board`, `podium`)     | Fixed parts of the room that criteria can refer to                                         |
 | Sitzplan (step 3)                         | `SeatingArrangement`, `currentSeating`                       | Tables × seats → student or empty                                                          |
 | Mischen                                   | mix, shuffle, `mix:generate`                                 | Build a new arrangement (and refine it when criteria are active)                           |
-| Verfeinern                                | refine, `refineSeatingLocal`, `mix:refine`                   | Improve the arrangement on screen by swapping students                                     |
 | Kriterium, Gewichtung                     | `MixSettings`                                                | Weights 0–10 per criterion; defaults explained in [PEDAGOGY.md](PEDAGOGY.md)               |
 | Gesperrter Platz                          | `lockedPositions`, `isSeatLocked`                            | A seat the algorithm must not change                                                       |
 | Gespeicherter Plan                        | `SavedPlan` in `seatingHistory`                              | A plan saved under a name. Despite its name, `seatingHistory` holds saved plans, not a log |
@@ -374,45 +375,44 @@ a decision record once taken.
    ([PERFORMANCE.md](PERFORMANCE.md#algorithm-runtime)). Larger classes were not
    measured, and the 900 × 600 room is sized for 36. _Next step:_ record the
    actual reason next to the constant.
-2. **The mix history keeps the constructed arrangement, not the refined one.**
-   With criteria active, _Mischen_ refines after the result was added to the
-   history, so the repetition criterion sees the pairs from before refinement.
-   Options: update the history entry after refinement, or keep it as it is.
-   Either way it changes which pairs count as recent, so it needs a deliberate
-   decision. _Next step:_ decide, then document it in
-   [ALGORITHM.md](ALGORITHM.md).
-3. **Retention is bounded by count, not time.** Mix history and plan usage
-   records are capped by number of entries; nothing expires at the end of a
-   school year. _Next step:_ product decision.
-4. **Is _Verfeinern_ needed?** The button passes 1,800 tries in 4 passes, but
-   annealing ignores both and runs the same schedule as _Mischen_. An experiment
-   on 2026-09-14 found that a longer schedule does not produce better plans, and
-   that refining a mixed plan again gains one to two points of criteria
-   fulfilment for 24 students but loses up to one point for 36
-   ([PERFORMANCE.md](PERFORMANCE.md#does-a-longer-refinement-help)). The
-   schedule stays unchanged. Options: remove the button, keep it as "try again
-   from here", or give it a different job. _Next step:_ product decision; the
-   unused `MANUAL_REFINE_*` constants go with whatever is decided.
-5. **Docker builds ship the committed sitemap and robots.txt.** `npm run build`
-   regenerates both from `SITE_URL` in its `prebuild` step, but `build:static`
-   — the path the Docker image takes — calls `vite build` directly. An image
-   built with another `SITE_URL`, or with `IMPRINT_URL` / `PRIVACY_URL`, still
-   lists klassenplan.de URLs and the legal pages it forwards. Options: run
-   `generate:sitemap` in `build:static` (the `lastmod` stamps would then come
-   from the file times of the build context), or generate only when `SITE_URL`
-   differs from the default. _Next step:_ decide how `lastmod` should behave in
-   the image, then change the script.
-6. **The two performance criteria are either/or in the UI, not in the data.**
-   The controls set the other one to 0, but settings can still carry both
-   ([PEDAGOGY.md](PEDAGOGY.md#tension-between-peertutoring-and-homogeneousperformancegroups)).
-   Then construction and refinement break a tie in opposite directions, and the
-   table score follows `peerTutoring` regardless. Options: one tie-break rule
-   and a table score that follows the chosen criterion; settings that can only
-   hold one of the two; or a single three-way control (mixed / similar / off).
-   _Next step:_ product decision — each option changes plans only where both
-   are above 0.
 
 ## Resolved questions
+
+**The mix history kept the constructed arrangement** (resolved 2026-09-14).
+With criteria active, _Mischen_ refined after the result was added to the
+history, so "avoid previous pairs" counted pairs the teacher never saw, and
+loading an entry brought back the plan from before refinement. _Decision:_ the
+refinement that follows a mix replaces the entry's seating
+([decision 0014](decisions/0014-mix-history-records-refined-plan.md)).
+
+**The two performance criteria were either/or in the UI, not in the data**
+(resolved 2026-09-14). Settings could carry both weights; construction and
+refinement then broke a tie in opposite directions, and the table score followed
+`peerTutoring` regardless. _Decision:_ one rule picks the criterion in every
+phase, and settings hold only one of the two
+([decision 0013](decisions/0013-one-performance-criterion.md)).
+
+**_Verfeinern_ did the same work as _Mischen_** (resolved 2026-09-14). The
+button passed 1,800 tries in 4 passes, which annealing ignores, and refining a
+mixed plan again gained one to two points of criteria fulfilment for 24 students
+but lost up to one point for 36
+([PERFORMANCE.md](PERFORMANCE.md#does-a-longer-refinement-help)). _Decision:_
+the button, its texts and the `MANUAL_REFINE_*` constants are removed; the
+refinement inside _Mischen_ stays.
+
+**Docker builds shipped the committed sitemap and robots.txt** (resolved
+2026-09-14). `build:static` called `vite build` directly, so an image built with
+another `SITE_URL`, `IMPRINT_URL` or `PRIVACY_URL` still listed klassenplan.de
+and the pages it forwards. _Decision:_ `build:static` rewrites both files for a
+build that serves another site — without `<lastmod>` when git is missing, as in
+Docker — while klassenplan.de's own build keeps the committed files, so their
+dates only move with a commit ([SEO.md](SEO.md#build-pipeline)).
+
+**Retention is bounded by count, not time** (resolved 2026-09-14). Mix history
+and plan usage records are capped by number of entries, and nothing expires at
+the end of a school year. _Decision:_ it stays that way — 20 shuffles and 40
+plan usage records per class — so nothing disappears without the teacher doing
+something ([data-model.md](data-model.md#retention-and-deletion)).
 
 **The class switch relied on ordering** (resolved 2026-09-14). The class id was
 set from the class summary before the class data had loaded, so effects could

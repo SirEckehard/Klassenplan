@@ -16,13 +16,14 @@ Which phases run depends on the UI action:
 | "Mischen" / shuffle, at least one criterion | `mix:generate` → `mix:refine` | construction, then refinement of the result (`useSeatingMixHandler`)    |
 | "Mischen" / shuffle, all weights at 0       | `mix:generate`                | construction only, with `neutralSettings` — a purely random arrangement |
 | Automatic plan in the wizard                | `mix:generate`                | construction only (`useSeatingWizard`)                                  |
-| "Verfeinern" / refine                       | `mix:refine`                  | `refineSeatingLocal()` — refinement of the arrangement on screen        |
 
 The auto-mix in step 3 goes through the same handler as the button.
 `generateSeatingPlan()` itself is `initializeAssignment` → `runPass` →
 `finalize` and never calls `refineSeatingLocal()`; the chaining happens in the
-hook. The mix history records the constructed arrangement — the refinement
-that follows only replaces what is on screen.
+hook. The mix history first records the constructed arrangement; once the
+refinement that follows has finished, the entry holds the refined one, so the
+history keeps the plans the teacher actually got
+([decision 0014](decisions/0014-mix-history-records-refined-plan.md)).
 
 ---
 

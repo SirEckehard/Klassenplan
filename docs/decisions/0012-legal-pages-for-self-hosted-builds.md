@@ -54,3 +54,6 @@ klassenplan.de.
   access logs.
 - Links to the legal pages must go through `LegalPageLink`, never a plain
   `LocalizedLink`.
+- `build:static` rewrites `sitemap.xml` and `robots.txt` for such a build, so
+  neither lists klassenplan.de or a forwarded page
+  ([SEO.md](../SEO.md#build-pipeline)).

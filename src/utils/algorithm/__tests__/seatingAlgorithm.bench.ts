@@ -9,8 +9,8 @@
  *
  * All inputs derive from fixed seeds, so every run measures the same work. The
  * calls mirror what the app sends to the worker: "Mischen" with criteria
- * constructs and then refines with the default tries and passes, "Verfeinern"
- * refines with the manual ones, and the app always refines with annealing.
+ * constructs and then refines with the default tries and passes, and the app
+ * always refines with annealing.
  */
 import { bench, describe } from 'vitest';
 import type {
@@ -26,8 +26,6 @@ import {
   DEFAULT_MIX_WEIGHTS,
   DEFAULT_PASSES,
   DEFAULT_TRIES_PER_PASS,
-  MANUAL_REFINE_PASSES,
-  MANUAL_REFINE_TRIES_PER_PASS,
   MIX_HISTORY_LIMIT,
 } from '@/utils';
 import { createRng } from '../rng';
@@ -230,20 +228,6 @@ for (const size of CLASS_SIZES) {
       () => {
         refine(
           { triesPerPass: DEFAULT_TRIES_PER_PASS, passes: DEFAULT_PASSES },
-          true,
-        );
-      },
-      BENCH_OPTIONS,
-    );
-
-    bench(
-      'refine, annealing, "Verfeinern" tries/passes',
-      () => {
-        refine(
-          {
-            triesPerPass: MANUAL_REFINE_TRIES_PER_PASS,
-            passes: MANUAL_REFINE_PASSES,
-          },
           true,
         );
       },

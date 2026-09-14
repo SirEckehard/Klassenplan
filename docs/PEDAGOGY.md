@@ -73,9 +73,7 @@ The weights in [`src/utils/mixSettings.ts`](../src/utils/mixSettings.ts) are nor
 
 ### Tension between `peerTutoring` and `homogeneousPerformanceGroups`
 
-Both criteria carry the same recommended weight. This is intentional: both approaches are legitimate and teachers should choose. The controls already treat them as either/or — raising one, switching it on or choosing "all on" sets the other to 0 — and the algorithm only ever applies the one with the higher weight.
-
-Both can still end up above 0: `normalizeMixSettings` fills settings that lack the two fields with both recommended weights, and the automatic activation of `peerTutoring` when performance data first appear does not look at `homogeneousPerformanceGroups`. With equal weights, construction then applies `peerTutoring` (`scorePerformance`) while refinement applies `homogeneousPerformanceGroups` (`arrangementScoring.ts`), and the table score (`tableScoring.ts`) rewards mixed tables whenever `peerTutoring` is above 0. Closing these gaps changes plans in exactly those cases, so it is an open question in [ARCHITECTURE.md](ARCHITECTURE.md#open-questions) rather than a silent fix.
+Both criteria carry the same recommended weight. This is intentional: both approaches are legitimate and teachers should choose. They are either/or: the controls set the other one to 0, settings hold only one of the two, and construction, refinement and the table score all apply the same one — the higher weight, `peerTutoring` on a tie ([decision 0013](decisions/0013-one-performance-criterion.md)).
 
 ---
 

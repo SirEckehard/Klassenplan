@@ -97,6 +97,30 @@ export const mergeNeighborWeights = (
   },
 });
 
+export type PerformanceCriterion = Extract<
+  ScalarMixSettingKey,
+  'peerTutoring' | 'homogeneousPerformanceGroups'
+>;
+
+/**
+ * The one performance criterion that applies: the higher weight, and
+ * `peerTutoring` on a tie; null while both are 0. Construction, refinement, the
+ * table score and the statistics all ask this, and `normalizeMixSettings` zeroes
+ * the other weight, so they cannot disagree (decision 0013).
+ */
+export const resolvePerformanceCriterion = (
+  settings: Partial<Pick<MixSettings, PerformanceCriterion>>,
+): PerformanceCriterion | null => {
+  const peerTutoring = settings.peerTutoring ?? 0;
+  const homogeneous = settings.homogeneousPerformanceGroups ?? 0;
+  if (peerTutoring <= 0 && homogeneous <= 0) {
+    return null;
+  }
+  return peerTutoring >= homogeneous
+    ? 'peerTutoring'
+    : 'homogeneousPerformanceGroups';
+};
+
 export const normalizeMixSettings = (
   overrides: Partial<MixSettings> | undefined,
   base: Readonly<MixSettings> = DEFAULT_MIX_WEIGHTS,
@@ -109,6 +133,15 @@ export const normalizeMixSettings = (
     },
     {} as Record<ScalarMixSettingKey, number>,
   );
+
+  // Settings hold only one performance criterion — also those stored before
+  // the rule existed, and the recommended weights, where both are 3.
+  const performanceCriterion = resolvePerformanceCriterion(mergedScalars);
+  if (performanceCriterion === 'peerTutoring') {
+    mergedScalars.homogeneousPerformanceGroups = 0;
+  } else if (performanceCriterion === 'homogeneousPerformanceGroups') {
+    mergedScalars.peerTutoring = 0;
+  }
 
   const neighborWeights = mergeNeighborWeights(
     overrides?.neighborWeights,

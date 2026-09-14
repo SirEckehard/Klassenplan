@@ -32,9 +32,8 @@
       "item2": "Ziehe Schüler per Drag & Drop auf andere Plätze.",
       "item3": "Klicke auf das Schloss-Symbol, um einen Platz beim nächsten Mischen zu sperren.",
       "item4": "Über die Statistikanzeige kannst du sehen, wie gut die Kriterien erfüllt sind.",
-      "item5": "Die Funktion „Verfeinern“ passt den aktuellen Plan in kleinen Schritten an und versucht, den statistischen Wert zu erhöhen.",
-      "item6": "In den Ansichtseinstellungen legst du fest, wie Namen erscheinen sollen (nur Vorname, Vorname + Initial oder Vor- und Nachname) und ob Fotos angezeigt werden.",
-      "item7": "Änderungen am Sitzplan kannst du über die jeweiligen Icons rückgängig machen und wiederherstellen."
+      "item5": "In den Ansichtseinstellungen legst du fest, wie Namen erscheinen sollen (nur Vorname, Vorname + Initial oder Vor- und Nachname) und ob Fotos angezeigt werden.",
+      "item6": "Änderungen am Sitzplan kannst du über die jeweiligen Icons rückgängig machen und wiederherstellen."
     },
     "circle": {
       "title": "Sitzkreis",
@@ -102,7 +101,6 @@
   },
   "actions": {
     "shuffle": "Mischen",
-    "refine": "Verfeinern",
     "reset": "Zurücksetzen",
     "export": "Exportieren",
     "print": "Drucken",
@@ -610,11 +608,7 @@
     "photoOverlapWarning": "Fotokollisionen anzeigen",
     "photoCollision": "Fotokollision",
     "rotateTable": "Tisch drehen",
-    "canvasLabel": "Sitzplan: {{occupied}} von {{total}} Plätzen belegt",
-    "refineButton": "Verfeinern",
-    "refineLabel": "Sitzplan verfeinern",
-    "refineTitle": "Aktuellen Sitzplan in kleinen Schritten verfeinern",
-    "refineNoCriteria": "Aktiviere zuerst mindestens ein Mischkriterium in der Seitenleiste."
+    "canvasLabel": "Sitzplan: {{occupied}} von {{total}} Plätzen belegt"
   },
   "quickSetup": {
     "title": "Klassenraum einrichten",

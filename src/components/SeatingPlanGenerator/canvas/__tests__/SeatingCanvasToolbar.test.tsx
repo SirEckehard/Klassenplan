@@ -2,39 +2,26 @@
 // Copyright (C) 2026 Eike Schäfer
 import '@testing-library/jest-dom/vitest';
 import type React from 'react';
-import { render, screen, cleanup, waitFor } from '@testing-library/react';
+import { render, screen, cleanup } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
 import '@/i18n';
 import SeatingCanvasToolbar from '../SeatingCanvasToolbar';
-import {
-  MANUAL_REFINE_PASSES,
-  MANUAL_REFINE_TRIES_PER_PASS,
-  neutralSettings,
-} from '@/utils';
-import { createMockStudent } from '@/__tests__/utils';
 
 const contextValue = vi.hoisted(() => ({
   undoSeating: vi.fn(),
   redoSeating: vi.fn(),
   canUndoSeating: false,
   canRedoSeating: false,
-  refineCurrentSeating: vi.fn(async () => []),
-  currentSeating: [] as unknown[],
-  mixSettings: {} as Record<string, number>,
 }));
 
 vi.mock('@/contexts/SeatingPlanContext', () => ({
   useSeatingAlgorithmContext: () => contextValue,
 }));
 
-const withCriteria = { ...neutralSettings, avoidRestlessTogether: 5 };
-
 beforeEach(() => {
   contextValue.canUndoSeating = false;
   contextValue.canRedoSeating = false;
-  contextValue.currentSeating = [[createMockStudent({ id: 'a' })]];
-  contextValue.mixSettings = withCriteria as unknown as Record<string, number>;
 });
 
 afterEach(() => {
@@ -46,8 +33,6 @@ const getUndo = () =>
   screen.getByRole('button', {
     name: /rückgängig|undo/i,
   });
-const getRefine = () =>
-  screen.getByRole('button', { name: /verfeiner|refine/i });
 
 /** Renders with idle-mix defaults; each case overrides only what it asserts on. */
 const renderToolbar = (
@@ -74,39 +59,13 @@ describe('SeatingCanvasToolbar', () => {
     expect(contextValue.undoSeating).toHaveBeenCalledTimes(1);
   });
 
-  it('refines the plan on screen with the manual settings', async () => {
+  // "Verfeinern" was removed on 2026-09-14: a second refinement gained nothing
+  // measurable (docs/PERFORMANCE.md#does-a-longer-refinement-help).
+  it('offers no separate refine action', () => {
     renderToolbar();
 
-    await userEvent.click(getRefine());
-
-    await waitFor(() =>
-      expect(contextValue.refineCurrentSeating).toHaveBeenCalledWith({
-        triesPerPass: MANUAL_REFINE_TRIES_PER_PASS,
-        passes: MANUAL_REFINE_PASSES,
-      }),
-    );
-  });
-
-  it('blocks refining while no criterion is active', () => {
-    contextValue.mixSettings = neutralSettings as unknown as Record<
-      string,
-      number
-    >;
-    renderToolbar();
-
-    expect(getRefine()).toBeDisabled();
-  });
-
-  it('blocks refining without a seating plan', () => {
-    contextValue.currentSeating = [];
-    renderToolbar();
-
-    expect(getRefine()).toBeDisabled();
-  });
-
-  it('blocks refining while a mix is running', () => {
-    renderToolbar({ isMixing: true });
-
-    expect(getRefine()).toBeDisabled();
+    expect(
+      screen.queryByRole('button', { name: /verfeiner|refine/i }),
+    ).not.toBeInTheDocument();
   });
 });

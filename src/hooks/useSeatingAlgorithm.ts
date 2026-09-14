@@ -51,7 +51,7 @@ export function useSeatingAlgorithm(
 ) {
   const {
     studentState: { students },
-    historyState: { seatingHistory, mixHistory, addMixResult },
+    historyState: { seatingHistory, mixHistory, addMixResult, setMixHistory },
     algorithmState: { lockedPositions, setLastStatistics },
     planState: { currentSeating, setCurrentSeating },
   } = state;
@@ -63,6 +63,14 @@ export function useSeatingAlgorithm(
   const recentSeatingRef = useRef<SeatingArrangement | null>(
     currentSeating.length > 0 ? currentSeating : null,
   );
+  // The entry `generateSeatingPlan` recorded last, with the arrangement it
+  // holds. When the refinement after a mix starts from exactly that
+  // arrangement, its result replaces the entry, so the history keeps the plan
+  // the teacher got (decision 0014).
+  const pendingMixResultRef = useRef<{
+    id: number;
+    seating: SeatingArrangement;
+  } | null>(null);
 
   // Update refs in effect to avoid writing during render
   useEffect(() => {
@@ -174,6 +182,8 @@ export function useSeatingAlgorithm(
             'useSeatingAlgorithm',
           );
           setCurrentSeating(cached);
+          // A cached plan records no entry, so there is nothing to replace.
+          pendingMixResultRef.current = null;
           return Promise.resolve(cached);
         }
       }
@@ -226,6 +236,7 @@ export function useSeatingAlgorithm(
               ? updatedMixHistory.slice(-MIX_HISTORY_LIMIT)
               : updatedMixHistory;
           addMixResult(result);
+          pendingMixResultRef.current = { id: result.id, seating: arrangement };
 
           // Calculate statistics using shared utility
           const topCriteria = calculateCurrentStatistics(
@@ -291,6 +302,19 @@ export function useSeatingAlgorithm(
           recentSeatingRef.current =
             arrangement.length > 0 ? arrangement : null;
           setCurrentSeating(arrangement);
+
+          const pending = pendingMixResultRef.current;
+          if (pending && start && start === pending.seating) {
+            pendingMixResultRef.current = null;
+            const withRefinedSeating = (entries: MixResult[]) =>
+              entries.map((entry) =>
+                entry.id === pending.id
+                  ? { ...entry, seating: arrangement }
+                  : entry,
+              );
+            mixHistoryRef.current = withRefinedSeating(mixHistoryRef.current);
+            setMixHistory(withRefinedSeating);
+          }
           return arrangement;
         });
     },
@@ -300,6 +324,7 @@ export function useSeatingAlgorithm(
       lockedPositions,
       currentSeating,
       setCurrentSeating,
+      setMixHistory,
     ],
   );
 

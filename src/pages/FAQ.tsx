@@ -378,8 +378,7 @@ export default function FAQ() {
                   <li>{t('faq.tipps.improve.li2')}</li>
                   <li>{t('faq.tipps.improve.li3')}</li>
                   <li>{t('faq.tipps.improve.li4')}</li>
-                  <li>{t('faq.tipps.improve.li5')}</li>
-                </ul>
+w                </ul>
               </div>
             ),
           },

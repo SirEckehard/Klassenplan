@@ -30,8 +30,11 @@ branch of `try_files`; no server configuration change was needed.
 | `npm run verify:prerender` | Asserts the output really carries per-route metadata.        |
 | `npm run build:static`     | All three, in order. **This is what Docker and CI run.**     |
 
-`prebuild` still regenerates `public/sitemap.xml` and `public/robots.txt` before
-the Vite build.
+`npm run build` regenerates `public/sitemap.xml` and `public/robots.txt` in its
+`prebuild` step. `build:static` first runs the same script with
+`--only-for-other-sites`: klassenplan.de's own build keeps the committed files,
+while a build with another `SITE_URL`, or with `IMPRINT_URL` / `PRIVACY_URL`,
+rewrites both for its own site.
 
 Prerendering is deliberately _not_ a `postbuild` hook: `npm run build` must stay
 usable on a machine without Chromium.
@@ -145,9 +148,11 @@ index.
 Google discounts `lastmod` once it looks unreliable, and one identical timestamp
 across every URL is exactly that.
 
-When git is unavailable the committed `public/sitemap.xml` is kept as-is rather
-than regenerated without dates. This is the normal case inside Docker, where
-`.dockerignore` excludes `.git`.
+When git is unavailable — the normal case inside Docker, where `.dockerignore`
+excludes `.git` — klassenplan.de's own build keeps the committed
+`public/sitemap.xml` rather than regenerating it without dates. A build for
+another site regenerates it anyway and leaves `<lastmod>` out: a sitemap without
+dates is better than one that lists klassenplan.de.
 
 ## Known limitation: the `.de` ccTLD
 

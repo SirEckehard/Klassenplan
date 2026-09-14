@@ -161,7 +161,9 @@ export function useAutoMixSettings(
     if (
       nextNeeds.hasPerformance &&
       !prevNeeds.hasPerformance &&
-      mixSettings.peerTutoring === 0
+      mixSettings.peerTutoring === 0 &&
+      // Homogeneous groups the teacher already chose stay (decision 0013).
+      mixSettings.homogeneousPerformanceGroups === 0
     ) {
       updates.peerTutoring = DEFAULT_MIX_WEIGHTS.peerTutoring;
     }

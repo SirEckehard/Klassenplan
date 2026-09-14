@@ -9,6 +9,7 @@ import {
   LANGUAGES,
   getLocalizedPath,
   getSiteUrl,
+  isDefaultSiteBuild,
   isIndexableRoute,
   projectRoot,
   publicDir,
@@ -18,6 +19,11 @@ import {
 const execFileAsync = promisify(execFile);
 const SOURCE = 'generate-sitemap';
 const sitemapPath = path.resolve(publicDir, 'sitemap.xml');
+
+// `build:static` passes this flag: klassenplan.de's own build keeps the
+// committed sitemap.xml and robots.txt, so their <lastmod> dates only move with
+// a commit. A build for any other site rewrites both for its SITE_URL.
+const onlyForOtherSites = process.argv.includes('--only-for-other-sites');
 
 // Source files whose last commit determines a route's <lastmod>. seoRoutes.json
 // is added to every route so metadata edits move the date too.
@@ -186,12 +192,23 @@ async function generate() {
   const routes = await readRoutes();
   const siteUrl = getSiteUrl();
   const indexable = routes.filter((route) => isIndexableRoute(route));
+  const defaultSite = isDefaultSiteBuild();
 
-  // Without git we cannot date the routes. Rather than regenerate a sitemap
-  // whose every <lastmod> is missing, keep the committed one — it was produced
-  // by a checkout that did have git. This is the normal case inside Docker,
-  // where .dockerignore excludes .git.
-  if (!(await isGitAvailable()) && (await sitemapExists())) {
+  if (onlyForOtherSites && defaultSite) {
+    logInfo(
+      'Build for the default site — keeping the committed sitemap.xml and robots.txt',
+      { siteUrl },
+      SOURCE,
+    );
+    return;
+  }
+
+  // Without git we cannot date the routes. For the default site, rather than
+  // regenerate a sitemap whose every <lastmod> is missing, keep the committed
+  // one — it was produced by a checkout that did have git. This is the normal
+  // case inside Docker, where .dockerignore excludes .git. Another site gets a
+  // sitemap without dates: one listing klassenplan.de would be worse.
+  if (!(await isGitAvailable()) && defaultSite && (await sitemapExists())) {
     await updateRobots(siteUrl);
     logWarn(
       'git unavailable — keeping the committed sitemap.xml',

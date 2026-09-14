@@ -236,7 +236,11 @@ export function useSeatingWizard(
     const autoSettings: MixSettings = {
       ...mixSettings,
       preferFrontForNeedsFrontSeat: hasNeedsFrontSeatImpairment ? 5 : 0,
-      peerTutoring: hasPeerTutoring ? 3 : 0,
+      // Homogeneous groups the teacher already chose stay (decision 0013).
+      peerTutoring:
+        hasPeerTutoring && mixSettings.homogeneousPerformanceGroups === 0
+          ? 3
+          : 0,
     };
 
     setMixSettings(autoSettings);

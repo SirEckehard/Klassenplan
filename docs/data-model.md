@@ -81,7 +81,9 @@ interface ClassRecord {
   `autoSaved: true`; the next silent auto-save overwrites it.
 - **`SavedPlan.date`** is an ISO date (`YYYY-MM-DD`). Older entries hold a
   pre-formatted German string; render both through `formatStoredDate`.
-- **`mixHistory`** keeps the last `MIX_HISTORY_LIMIT` (20) shuffle results.
+- **`mixHistory`** keeps the last `MIX_HISTORY_LIMIT` (20) shuffle results, each
+  as the arrangement after refinement
+  ([decision 0014](decisions/0014-mix-history-records-refined-plan.md)).
 - **`lockedPositions`** maps a student id to `{ table, seat }`.
 - **Partner wishes** are stored as `wishPartnerIds` / `avoidPartnerIds`. The
   single-value fields `wishPartnerId` / `avoidPartnerId` predate them;

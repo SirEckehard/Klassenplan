@@ -25,17 +25,17 @@ The runtime budget is deliberately not a CI check: timings on a shared runner va
 
 Mean time per call in milliseconds, Apple M1 Pro, Node 24, `vitest bench`, 2026-09-14:
 
-| Students | Construction | Refinement, annealing ("Mischen" 600 × 2) | Refinement, annealing ("Verfeinern" 1800 × 4) | Refinement, greedy (600 × 2) |
-| -------: | -----------: | ----------------------------------------: | --------------------------------------------: | ---------------------------: |
-|       12 |          0.1 |                                        56 |                                            56 |                            5 |
-|       24 |          0.4 |                                        59 |                                            59 |                            9 |
-|       36 |          0.9 |                                        62 |                                            62 |                           13 |
+| Students | Construction | Refinement, annealing ("Mischen" 600 × 2) | Refinement, greedy (600 × 2) |
+| -------: | -----------: | ----------------------------------------: | ---------------------------: |
+|       12 |          0.1 |                                        56 |                            5 |
+|       24 |          0.4 |                                        59 |                            9 |
+|       36 |          0.9 |                                        62 |                           13 |
 
 What the numbers show:
 
 - **Refinement dominates.** "Mischen" with criteria is construction plus annealing, about 63 ms for a full class.
 - **Annealing hardly depends on class size.** It runs a fixed cooling schedule (see [ALGORITHM.md](ALGORITHM.md#configuration)).
-- **`triesPerPass` and `passes` do not reach annealing.** The larger values the "Verfeinern" button passes only apply to the greedy search, which the app does not use — both buttons currently do the same refinement work.
+- **`triesPerPass` and `passes` do not reach annealing.** They only apply to the greedy search, which the app does not use. The "Verfeinern" button, which passed 1,800 × 4, therefore did the same refinement work as "Mischen"; it measured 56 / 59 / 62 ms as well and was removed on 2026-09-14.
 - **Class size is not what limits the algorithm up to 36 students.** Larger classes were not measured.
 
 ### Does a longer refinement help?
@@ -56,6 +56,7 @@ Checked on 2026-09-14 with a temporary experiment on the same fixture: 20 seeds 
 - **A second refinement is a coin toss.** It gains one to two points for 24 students and loses up to one point for 36, where more runs got worse than better.
 - **Longer schedules do not pay off.** They take three to nine times as long without a consistent gain, so the app's schedule stays as it is.
 - **Annealing optimises the internal table score, not the badge's percentage.** The two do not always move together, which is how a refinement can lower the value a teacher sees.
+- **Consequence:** the "Verfeinern" button was removed on 2026-09-14. The rows above keep its name for the record.
 
 The fixture is one synthetic class in one room; differences of one or two points are small.
 

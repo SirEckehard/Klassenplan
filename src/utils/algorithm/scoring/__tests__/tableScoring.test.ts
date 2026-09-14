@@ -189,6 +189,23 @@ describe('tableScoring', () => {
       expect(scoreMixed).toBeLessThan(scoreAllHigh);
     });
 
+    it('adds no peer tutoring term while homogeneous groups apply', () => {
+      const mixedPerformance = [
+        createMockStudent({ id: '1', performanceStrong: true }),
+        createMockStudent({ id: '2', performanceWeak: true }),
+        createMockStudent({ id: '3', performanceStrong: true }),
+        createMockStudent({ id: '4', performanceStrong: true }),
+      ];
+
+      const score = scoreTableComposition({
+        members: mixedPerformance,
+        tableIndex: 0,
+        settings: { peerTutoring: 3, homogeneousPerformanceGroups: 5 },
+      });
+
+      expect(score).toBe(0);
+    });
+
     it('returns 0 when all settings are disabled', () => {
       const members = [
         createMockStudent({ id: '1', restless: true }),
