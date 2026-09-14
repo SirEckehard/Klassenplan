@@ -125,12 +125,12 @@ instead.
 `src/repositories/planUsageStore.ts` (storage, one bucket per class),
 `src/hooks/plan/usePlanUsageTracking.ts` (the `edited` signal).
 
-**One bucket per class, and it has to stay that way.** `activeClass` is set
-optimistically on a class switch, before the new class's data is loaded, so any
-effect reading a class id next to class data can briefly see one class's id
-beside the previous class's plans — the same hazard `applyPersistedState`
-already warns about for the persist queue. The one-time backfill from older
-saved plans therefore runs inside `applyPersistedState`
+**One bucket per class, and it has to stay that way.** Until 2026-09-14
+`activeClass` was set optimistically on a class switch, before the new class's
+data had loaded, and an effect could see one class's id beside the previous
+class's plans. Class id and class data now change in the same update
+([ARCHITECTURE.md](ARCHITECTURE.md#switching-classes)); the one-time backfill
+from older saved plans still runs inside `applyPersistedState`
 (`src/hooks/useSeatingPersistence.ts`), where the id and the plans come from the
 same load, and a pending `edited` signal is dropped when the class changes.
 `sweepOrphanPlanUsage` is the backstop: on every load it drops records that name

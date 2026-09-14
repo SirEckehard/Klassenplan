@@ -17,26 +17,29 @@ import type {
   ClassCollectionState,
 } from '@/types';
 import type { CircleLayout, CircleExportData } from '@/types/Circle';
-import { DB_KEYS } from './storageKeys';
-import { hasIndexedDB } from './indexedDb';
+import { DB_KEYS } from '@/utils/data/storageKeys';
+import { hasIndexedDB } from '@/utils/data/indexedDb';
 import {
   logError,
   MAX_STUDENTS,
   neutralSettings,
   normalizeMixSettings,
 } from '@/utils';
-import { clearProjectLocalStorage } from './storage';
+import { clearProjectLocalStorage } from '@/utils/data/storage';
 import {
   BackupValidationError,
   BACKUP_ERROR_MESSAGES,
   CURRENT_EXPORT_VERSION,
   parseExportBundle,
-} from '../validation/backupValidation';
+} from '@/utils/validation/backupValidation';
 import {
   resetApplicationState,
   type ApplicationStateResetHandlers,
-} from '@/utils/state/resetApplicationState';
-import { createClassCollection, createClassRecord } from './classCollection';
+} from '@/stores/resetApplicationState';
+import {
+  createClassCollection,
+  createClassRecord,
+} from '@/utils/data/classCollection';
 import {
   getAllPlanUsage,
   restorePlanUsage,

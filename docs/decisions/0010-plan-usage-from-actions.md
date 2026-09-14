@@ -35,8 +35,8 @@ under a name, rearranging seats by hand — with no extra step in the UI.
 ## Consequences
 
 - Signals can be wrong, hence the confirmation toast and the withdraw option.
-- Records live in one bucket per class. Because the active class id is set
-  optimistically on a class switch, work that reads a class id next to class data
-  has to run where both come from the same load
+- Records live in one bucket per class, so work that reads a class id next to
+  class data runs where both come from the same load. Until 2026-09-14 the class
+  id changed ahead of the data on a class switch; now both change in one update
   ([ARCHITECTURE.md](../ARCHITECTURE.md#switching-classes)).
 - Backups since format version 2 carry the record.

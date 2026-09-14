@@ -9,6 +9,7 @@ import {
   LANGUAGES,
   getLocalizedPath,
   getSiteUrl,
+  isIndexableRoute,
   projectRoot,
   publicDir,
   readRoutes,
@@ -97,9 +98,10 @@ async function toXml(routes, siteUrl) {
   const urlEntries = [];
 
   for (const route of routes) {
-    // Routes marked noindex carry a noindex meta tag; listing them in the
-    // sitemap would send Google contradictory signals.
-    if (route.noindex === true) {
+    // Routes marked noindex — and legal pages this build forwards elsewhere —
+    // carry a noindex meta tag; listing them in the sitemap would send Google
+    // contradictory signals.
+    if (!isIndexableRoute(route)) {
       continue;
     }
 
@@ -183,7 +185,7 @@ async function generate() {
   await fs.mkdir(publicDir, { recursive: true });
   const routes = await readRoutes();
   const siteUrl = getSiteUrl();
-  const indexable = routes.filter((route) => route.noindex !== true);
+  const indexable = routes.filter((route) => isIndexableRoute(route));
 
   // Without git we cannot date the routes. Rather than regenerate a sitemap
   // whose every <lastmod> is missing, keep the committed one — it was produced

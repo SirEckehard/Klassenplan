@@ -29,10 +29,11 @@ A namespace module is surfaced through the index only when it has no dependencie
 A few areas intentionally stay outside the central API to optimize bundle size and avoid side effects. The build does not pin these boundaries with `manualChunks` – Rolldown splits automatically (see the comment in `vite.config.ts`), so what keeps a namespace out of the entry graph is the import boundary itself, not a chunk name.
 
 - `@/utils/algorithm`: Compute-heavy seating and circle algorithms, scoring and statistics. Consumed by hooks, stores, contexts and the algorithm worker. UI code only uses type imports and the display derivations listed below.
-- `@/utils/data`: Persistence helpers – IndexedDB access, backup, storage keys, CSV parsing, plan usage merge rules. Consumed by repositories, hooks, stores, contexts, services and workers. UI code only uses type imports and `planUsage`; storage keys come from `@/utils`.
+- `@/utils/data`: Persistence helpers – IndexedDB access, storage keys, CSV parsing, plan usage merge rules. Consumed by repositories, hooks, stores, contexts, services and workers. UI code only uses type imports and `planUsage`; storage keys come from `@/utils`.
 - `@/utils/csv`: The CSV import vocabulary and its detection steps (column synonyms, school-software presets, encoding sniffing, preamble stripping, diagnostics). Consumed by `@/utils/data/csvUtils.ts`, the CSV worker and the import dialogs. Only `downloadCsvTemplate` is surfaced through the central index; everything else is imported from the namespace.
 - `@/utils/ui`: UI-adjacent helpers (toasts, scroll, design tokens, feature styles) with no component imports. Stays optionally loadable and is re-exported through the central index when needed.
-- `@/services/export`: Modules that render React components to SVG/PDF (e.g. `sceneRenderer`). Anything that instantiates components at runtime belongs here – which is why it cannot live in `utils/`.
+- `@/services/export`: Modules that render React components to SVG/PDF (`sceneRenderer`, `pdfExportFunctions`). Anything that instantiates components at runtime belongs here – which is why it cannot live in `utils/`.
+- `@/services/backup`, `@/services/migration`: Backup export and import, "delete all data", and the start-up migration. They work through repositories and the photo cache, which utils may not reach.
 - `@/services/ui`: Imperative UI wrappers (e.g. `dialogs` for `confirmDialog` / `promptDialog`) that render components dynamically via `createRoot`. Consumers are hooks and pages, not other utils.
 
 ## Who may import what
@@ -42,6 +43,7 @@ A few areas intentionally stay outside the central API to optimize bundle size a
 | `src/components`, `src/pages` (enforced)   | yes       | type imports, `seatingStatistics`, `criterionHighlights` | type imports, `planUsage` |
 | hooks, contexts, stores, services, workers | yes       | yes                                                      | yes                       |
 | repositories                               | yes       | not used                                                 | yes                       |
+| `src/utils` (enforced)                     | yes       | yes                                                      | yes – but no layer above  |
 | tests                                      | yes       | yes – to build fixtures                                  | yes                       |
 
 ### Why the UI exceptions
@@ -57,22 +59,20 @@ Adding an exception means extending the allow-list in `eslint.config.js` and the
 
 - **Deep paths into the central API** (`@/utils/constants`, `@/utils/logger`, …) are rejected everywhere; import from `@/utils`.
 - **`src/components` and `src/pages`** use `@typescript-eslint/no-restricted-imports`: `@/utils/algorithm` and `@/utils/data` are blocked, including their index modules and nested paths, except for type imports and the three modules above.
-- **`src/utils`** may not import `@/components`.
+- **`src/utils`** is the bottom layer: it imports no components, pages, hooks, contexts, stores, state machines, services, repositories or workers. Code that needs one of them belongs in that layer.
 - **Test files** are exempt from the layer rules.
 
-### Known crossings in the other direction
+### Former crossings
 
-Some utils modules depend on layers above them. They are documented here, not enforced yet:
+Until 2026-09-14 five utils modules imported layers above them. Each moved to the layer it depends on; the pure pieces they use (`tableMigration`, `backupValidation`, the storage helpers) stayed in utils.
 
-| Module                                 | Imports                                                                                 |
-| -------------------------------------- | --------------------------------------------------------------------------------------- |
-| `utils/data/dataBackup.ts`             | `@/repositories/idbClient`, `planUsageStore`, `studentPhotoStore`, `@/hooks/student/*`  |
-| `utils/migration/migrationService.ts`  | `@/repositories/idbClient`                                                              |
-| `utils/export/pdfExportFunctions.ts`   | `@/services/export/sceneRenderer`, `@/hooks/student/studentPhotoCache`                  |
-| `utils/state/resetApplicationState.ts` | `@/stores/*`                                                                            |
-| `utils/performance/routePreloader.ts`  | `@/pages/lazyPages` – deliberate: router and preloader share one set of lazy components |
-
-Whether each of these belongs in `services/` or `repositories/` instead is an open question in [ARCHITECTURE.md](ARCHITECTURE.md#open-questions).
+| Was in utils                           | Now                                          | Why there                                                          |
+| -------------------------------------- | -------------------------------------------- | ------------------------------------------------------------------ |
+| `utils/data/dataBackup.ts`             | `src/services/backup/dataBackup.ts`          | Reads and wipes through repositories, the photo store and cache    |
+| `utils/migration/migrationService.ts`  | `src/services/migration/migrationService.ts` | Reads and writes through `@/repositories/idbClient`                |
+| `utils/export/pdfExportFunctions.ts`   | `src/services/export/pdfExportFunctions.ts`  | Renders the scene with `sceneRenderer` and reads the photo cache   |
+| `utils/state/resetApplicationState.ts` | `src/stores/resetApplicationState.ts`        | Resets the stores                                                  |
+| `utils/performance/routePreloader.ts`  | `src/pages/routePreloader.ts`                | Shares the lazy components of `pages/lazyPages.ts` with the router |
 
 ## Import guidelines
 

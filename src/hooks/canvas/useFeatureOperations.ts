@@ -11,7 +11,7 @@ import {
   placeFixedFeatureBase,
   rotateFeatureForAnchor,
   type FeaturePlacement,
-} from '@/hooks/canvas/useFeaturePaletteDrag';
+} from '@/utils/canvas/featurePlacement';
 
 export interface FeatureOperationsHook {
   copySelectedFeatures: () => void;

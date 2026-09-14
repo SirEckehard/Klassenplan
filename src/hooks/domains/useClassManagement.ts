@@ -14,42 +14,29 @@ import {
   type ISeatingPlanRepository,
 } from '@/repositories';
 
-const toActiveClass = (
-  record: Partial<{
-    id: string | null;
-    name?: string | null;
-    label?: string | null;
-    notes?: string | null;
-    lastUsedAt?: string | null;
-  }> | null,
-): ActiveClassState => ({
-  id: record?.id ?? null,
-  name: record?.name ?? '',
-  label: record?.label ?? undefined,
-  notes: record?.notes ?? undefined,
-  lastUsedAt: record?.lastUsedAt ?? undefined,
-});
-
 type UseClassManagementProps = {
   repository: ISeatingPlanRepository;
   classSummaries: ClassSummary[];
   activeClass: ActiveClassState;
-  setActiveClass: (next: ActiveClassState) => void;
   hasPendingStudentUpdates: boolean;
   hasUnsavedSeatingChanges: boolean;
+  /**
+   * Reloads the class the repository marks as active. It first writes what is
+   * still queued for the class that was open, then sets the new class's data
+   * and its id in one state update. Nothing here sets the active class on its
+   * own, so the id never runs ahead of the data (docs/ARCHITECTURE.md,
+   * "Switching classes").
+   */
   applyClassReload: () => Promise<void>;
-  prepareClassSwitch: (targetClassId: string) => void;
 };
 
 export function useClassManagement({
   repository,
   classSummaries,
   activeClass,
-  setActiveClass,
   hasPendingStudentUpdates,
   hasUnsavedSeatingChanges,
   applyClassReload,
-  prepareClassSwitch,
 }: UseClassManagementProps) {
   const { t } = useTranslation();
   const formatClassLabel = useCallback((name?: string) => {
@@ -76,27 +63,6 @@ export function useClassManagement({
         return false;
       }
 
-      prepareClassSwitch(classId);
-      const optimisticTarget =
-        classSummaries.find((entry) => entry.id === classId) ?? null;
-      setActiveClass(
-        toActiveClass(
-          optimisticTarget
-            ? {
-                id: optimisticTarget.id,
-                name: optimisticTarget.name,
-                label: optimisticTarget.label,
-                notes: optimisticTarget.notes,
-                lastUsedAt: optimisticTarget.lastUsedAt,
-              }
-            : {
-                id: classId,
-                name: undefined,
-                label: undefined,
-                notes: undefined,
-              },
-        ),
-      );
       await applyClassReload();
       showToast(
         'success',
@@ -112,13 +78,10 @@ export function useClassManagement({
     [
       activeClass.id,
       applyClassReload,
-      classSummaries,
-      prepareClassSwitch,
       formatClassLabel,
       hasPendingStudentUpdates,
       hasUnsavedSeatingChanges,
       repository,
-      setActiveClass,
       t,
     ],
   );
@@ -134,6 +97,8 @@ export function useClassManagement({
       const pendingChanges =
         shouldActivate &&
         (hasPendingStudentUpdates || hasUnsavedSeatingChanges);
+      // With `activate`, the repository marks the new class as active, so the
+      // reload below is what switches to it.
       const result = await repository.createClass(
         { ...payload, name: trimmedName },
         { activate: shouldActivate },
@@ -154,18 +119,6 @@ export function useClassManagement({
         return false;
       }
       await applyClassReload();
-      if (shouldActivate && result.data.id) {
-        prepareClassSwitch(result.data.id);
-        setActiveClass(
-          toActiveClass({
-            id: result.data.id,
-            name: result.data.name,
-            label: result.data.label,
-            notes: result.data.notes,
-            lastUsedAt: result.data.lastUsedAt,
-          }),
-        );
-      }
       const message = shouldActivate
         ? t('toast:class.createdActivatedName', {
             name: formatClassLabel(result.data.name),
@@ -181,12 +134,10 @@ export function useClassManagement({
     },
     [
       applyClassReload,
-      prepareClassSwitch,
       formatClassLabel,
       hasPendingStudentUpdates,
       hasUnsavedSeatingChanges,
       repository,
-      setActiveClass,
       t,
     ],
   );
@@ -236,18 +187,8 @@ export function useClassManagement({
         showToast('error', TOAST_MESSAGES.CLASS_DUPLICATE_ERROR);
         return false;
       }
+      // The copy joins the class list; the class that was open stays active.
       await applyClassReload();
-      if (result.data.id) {
-        setActiveClass(
-          toActiveClass({
-            id: result.data.id,
-            name: result.data.name,
-            label: result.data.label,
-            notes: result.data.notes,
-            lastUsedAt: result.data.lastUsedAt,
-          }),
-        );
-      }
       showToast(
         'success',
         t('toast:class.duplicatedName', {
@@ -256,7 +197,7 @@ export function useClassManagement({
       );
       return true;
     },
-    [applyClassReload, formatClassLabel, repository, setActiveClass, t],
+    [applyClassReload, formatClassLabel, repository, t],
   );
 
   const deleteClass = useCallback(

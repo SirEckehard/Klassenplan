@@ -62,15 +62,18 @@ docker compose up -d --build   # builds from this repository instead
 docker compose pull && docker compose up -d   # update to the current image
 ```
 
-The compose file reads three optional variables from a `.env` file next to it (see [`.env.example`](.env.example)):
+The compose file reads these optional variables from a `.env` file next to it (see [`.env.example`](.env.example)):
 
-| Variable              | Default                  | Effect                                                        |
-| --------------------- | ------------------------ | ------------------------------------------------------------- |
-| `KLASSENPLAN_VERSION` | `latest`                 | Pins the image tag, e.g. `2.0.4`                              |
-| `KLASSENPLAN_PORT`    | `8080`                   | Host port the container is published on                       |
-| `SITE_URL`            | `https://klassenplan.de` | Baked into canonical/hreflang/og:url — only used by `--build` |
+| Variable                     | Default                  | Effect                                                                                           |
+| ---------------------------- | ------------------------ | ------------------------------------------------------------------------------------------------ |
+| `KLASSENPLAN_VERSION`        | `latest`                 | Pins the image tag, e.g. `2.0.4`                                                                 |
+| `KLASSENPLAN_PORT`           | `8080`                   | Host port the container is published on                                                          |
+| `SITE_URL`                   | `https://klassenplan.de` | Baked into canonical/hreflang/og:url — only used by `--build`                                    |
+| `IMPRINT_URL`, `PRIVACY_URL` | empty                    | Your own Impressum and Datenschutzerklärung instead of klassenplan.de's — only used by `--build` |
 
 TLS terminates upstream — put a reverse proxy in front. When building for a host other than klassenplan.de, set `SITE_URL`: `SITE_URL=https://example.org docker compose up -d --build`.
+
+**Publishing your own instance?** Set `IMPRINT_URL` and `PRIVACY_URL` as well. Without them the build ships the legal pages of klassenplan.de, including the maintainer's address — see [PRIVACY.md](docs/PRIVACY.md#running-your-own-instance).
 
 The static bundle produced by `npm run build` can alternatively be served on any static host (Vercel, Netlify, GitHub Pages, your own web server).
 

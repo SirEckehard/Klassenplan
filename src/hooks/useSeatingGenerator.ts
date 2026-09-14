@@ -112,7 +112,7 @@ export function useSeatingGenerator() {
       setClassroomScene,
       removeTables,
     },
-    classState: { classSummaries, activeClass, setActiveClass },
+    classState: { classSummaries, activeClass },
   } = seatingState;
 
   const {
@@ -130,7 +130,6 @@ export function useSeatingGenerator() {
     importAllFromJson,
     clearAllData,
     reloadCurrentClassData,
-    prepareClassSwitch,
   } = persistence;
 
   const { generateSeatingPlan: generateSeatingPlanBase, refineSeatingLocal } =
@@ -332,11 +331,9 @@ export function useSeatingGenerator() {
     repository,
     classSummaries,
     activeClass,
-    setActiveClass,
     hasPendingStudentUpdates,
     hasUnsavedSeatingChanges,
     applyClassReload,
-    prepareClassSwitch,
   });
 
   // Ref for scene sync callback

@@ -105,8 +105,9 @@ ones that changed. `usePersistQueue` then:
    skips values identical to the last successful write, and writes the rest
    with `repository.saveClassSnapshot(classId, changes)`.
 
-On a class switch, `prepareClassSwitch` drops the queue and bumps every version
-before the new class is loaded; see
+On a class switch, the reload first writes what is still queued for the class
+that was open, then loads the new class and bumps every version, so a job queued
+before the load is discarded; see
 [ARCHITECTURE.md](ARCHITECTURE.md#switching-classes). Write failures reach the
 teacher as a toast through `usePersistErrorHandling`.
 
@@ -216,7 +217,7 @@ class collection. Nothing expires by age.
 
 The footer action (`useSeatingPersistence.clearAllData`) deletes every key of
 the key-value store listed in `DB_KEYS` through the repository, then calls the
-shared `clearAllData` helper in `utils/data/dataBackup.ts`. That helper wipes
+shared `clearAllData` helper in `src/services/backup/dataBackup.ts`. That helper wipes
 the photo database, the in-memory photo cache, pending photo deletions and every
 project localStorage key, and resets the application state. If the photos
 cannot be wiped, the action fails and the teacher sees an error instead of a

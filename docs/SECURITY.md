@@ -272,7 +272,7 @@ only reach the browser console — nothing is stored or transmitted.
 ### 2. Input Validation
 
 - ✅ All student names validated via `stringValidation.validateStudentName()`
-- ✅ CSV imports sanitized against CSV injection (see `exportStudentsToCsv()`)
+- ✅ CSV exports guarded against formula injection (see `exportStudentsToCsv()` in `src/utils/csv/csvExport.ts`)
 - ✅ Maximum students limited to 36 (prevents DoS via large datasets)
 
 ### 3. Dependency Security

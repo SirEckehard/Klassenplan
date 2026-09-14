@@ -69,7 +69,13 @@
     "githubLink": "github.com/SirEckehard/Klassenplan"
   },
   "legal": {
-    "germanOnlyNote": "Dieser Inhalt ist nur auf Deutsch verfügbar, da es sich um rechtlich verbindliche Informationen handelt."
+    "germanOnlyNote": "Dieser Inhalt ist nur auf Deutsch verfügbar, da es sich um rechtlich verbindliche Informationen handelt.",
+    "forward": {
+      "imprintTitle": "Impressum",
+      "privacyTitle": "Datenschutzerklärung",
+      "text": "Die rechtlichen Angaben zu diesem Angebot stellt sein Betreiber auf einer eigenen Seite bereit.",
+      "link": "Zur Seite des Betreibers"
+    }
   },
   "faq": {
     "header": {

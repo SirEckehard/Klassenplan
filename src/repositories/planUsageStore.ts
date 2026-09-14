@@ -298,8 +298,8 @@ export async function backfillPlanUsage(
  * Drop records of classes that no longer exist, and records that name nobody
  * from the class they sit under. Safe to call on app start.
  *
- * The second part repairs cross-class contamination: because `activeClass` is
- * set optimistically on a class switch, an earlier version could seed one
+ * The second part repairs cross-class contamination: earlier versions set
+ * `activeClass` ahead of the class data on a class switch and could seed one
  * class's bucket from another class's plans, which surfaced as pairs of unknown
  * students in the neighbourhood view.
  *

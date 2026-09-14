@@ -11,6 +11,10 @@ services:
         # Baked into canonical/hreflang/og:url at build time (see .env.example).
         # Set SITE_URL when building for a host other than klassenplan.de.
         SITE_URL: ${SITE_URL:-https://klassenplan.de}
+        # Your own Impressum and Datenschutzerklärung — set both when you publish
+        # an instance; empty keeps the pages of klassenplan.de.
+        IMPRINT_URL: ${IMPRINT_URL:-}
+        PRIVACY_URL: ${PRIVACY_URL:-}
     ports:
       # TLS terminates upstream (see nginx.conf) — put a reverse proxy in front.
       - '${KLASSENPLAN_PORT:-8080}:80'

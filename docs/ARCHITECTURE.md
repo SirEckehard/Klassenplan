@@ -223,29 +223,30 @@ sequenceDiagram
   actor teacher as Teacher
   participant classes as useClassManagement
   participant repo as Repository
-  participant queue as Persist queue
   participant gen as useSeatingGenerator
   participant pers as useSeatingPersistence
+  participant queue as Persist queue
 
   teacher->>classes: select class
   classes->>repo: setActiveClass(classId)
-  classes->>queue: prepareClassSwitch(classId)
-  Note right of queue: drops queued jobs, bumps persist versions
-  classes->>classes: set active class from summary
   classes->>gen: applyClassReload()
   gen->>pers: reloadCurrentClassData()
+  pers->>queue: flushPersistQueue()
+  Note right of queue: writes what is still queued for the class that was open
   pers->>repo: loadClassCollection, loadActiveClassSnapshot
-  pers->>pers: applyPersistedState: class data first, then active class
+  pers->>pers: applyPersistedState: bump versions, then class data and class id in one transition
   gen->>gen: reset undo stacks, sync snapshot
 ```
 
-The order matters. The active class id is set optimistically, before the new
-class's data has arrived, so anything that reads the id next to class data can
-briefly see the new id beside the old class's plans. Two guards keep writes
-from landing in the wrong class: the persist versions are bumped so stale jobs
-are discarded, and `applyPersistedState` sets the class data before the class
-id. Work that needs both together — such as the plan usage backfill — runs
-inside `applyPersistedState`.
+The class id never changes ahead of the class data. `useClassManagement` only
+records the choice in the repository and reloads; `applyPersistedState` then
+sets the class's data and its id inside one `startTransition`. Edits still
+queued for the class that was open are written before the load, while the queue
+still points at that class. Two guards remain as a backstop: loading bumps the
+persist versions, so a job from before the load is discarded, and the restore
+gate keeps the freshly loaded data from being queued again. Work that needs the
+class id and its data together — such as the plan usage backfill — runs inside
+`applyPersistedState`.
 
 ### Where data lives
 
@@ -263,6 +264,26 @@ All IndexedDB access goes through `src/repositories/idbClient.ts`. Live data is
 not encrypted ([SECURITY.md](SECURITY.md)). Record shapes, versions, retention
 and what "delete all data" removes are described in
 [data-model.md](data-model.md).
+
+### Large modules
+
+A handful of files have grown past a thousand lines. What each one owns is
+listed here, so a change knows where to look and what else it touches. Pure
+logic moves out once it can be tested on its own; React state and wiring stay
+where they are, because splitting a hook with shared refs and closures changes
+behaviour more easily than it looks.
+
+| File (lines on 2026-09-14)                                       | Owns                                                                                                       | Moved out                                                                                         | Candidates, not done                                                                                                                        |
+| ---------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/pages/Export.tsx` (1,317)                                   | Export page: settings seeded from the editor, the preview document, print, PDF, PNG and SVG                | —                                                                                                 | The four output handlers into one hook; they share preview state, so it needs tests first                                                   |
+| `src/hooks/canvas/useFeaturePaletteDrag.ts` (1,238)              | Room elements on the canvas: palette drag and drop, dragging, rotating, group drag with tables, long press | Placement math → `src/utils/canvas/featurePlacement.ts`                                           | Splitting the interaction paths needs the shared drag model missing from [canvas-interactions.md](canvas-interactions.md#known-pain-points) |
+| `src/hooks/useSeatingPersistence.ts` (1,005)                     | Loading and applying a class, saved plans, backups, "delete all data", room templates                      | CSV export → `src/utils/csv/csvExport.ts`                                                         | Backup and template operations as hooks of their own                                                                                        |
+| `src/components/SeatingPlanGenerator/LayoutEditorView.tsx` (986) | Step 2: state and wiring of canvas, palette, context menus, shortcuts and quick setup                      | Canvas column rendering → `src/components/SeatingPlanGenerator/views/LayoutEditorMainSection.tsx` | —                                                                                                                                           |
+
+`src/utils/data/csvUtils.ts`, `SeatingPlanEditorView.tsx`,
+`src/utils/validation/backupValidation.ts` and
+`src/utils/algorithm/seatingStatistics.ts` are of similar size and not
+described yet.
 
 ### Build and delivery
 
@@ -360,20 +381,10 @@ a decision record once taken.
    Either way it changes which pairs count as recent, so it needs a deliberate
    decision. _Next step:_ decide, then document it in
    [ALGORITHM.md](ALGORITHM.md).
-3. **Some utils modules depend on layers above them.** Backup, migration, PDF
-   export, state reset and the route preloader import repositories, hooks,
-   stores, services or the page registry
-   ([MODULE_BOUNDARIES.md](MODULE_BOUNDARIES.md#known-crossings-in-the-other-direction)).
-   Options: move each module into `services/` or `repositories/`, or record it
-   as intended. _Next step:_ decide file by file; the route preloader is
-   already intended.
-4. **The class switch relies on ordering.** Setting the class id and the class
-   data in one transition would remove the hazard described above, but reaches
-   deep into persistence. _Next step:_ weigh it as its own decision.
-5. **Retention is bounded by count, not time.** Mix history and plan usage
+3. **Retention is bounded by count, not time.** Mix history and plan usage
    records are capped by number of entries; nothing expires at the end of a
    school year. _Next step:_ product decision.
-6. **Is _Verfeinern_ needed?** The button passes 1,800 tries in 4 passes, but
+4. **Is _Verfeinern_ needed?** The button passes 1,800 tries in 4 passes, but
    annealing ignores both and runs the same schedule as _Mischen_. An experiment
    on 2026-09-14 found that a longer schedule does not produce better plans, and
    that refining a mixed plan again gains one to two points of criteria
@@ -382,8 +393,43 @@ a decision record once taken.
    schedule stays unchanged. Options: remove the button, keep it as "try again
    from here", or give it a different job. _Next step:_ product decision; the
    unused `MANUAL_REFINE_*` constants go with whatever is decided.
+5. **Docker builds ship the committed sitemap and robots.txt.** `npm run build`
+   regenerates both from `SITE_URL` in its `prebuild` step, but `build:static`
+   — the path the Docker image takes — calls `vite build` directly. An image
+   built with another `SITE_URL`, or with `IMPRINT_URL` / `PRIVACY_URL`, still
+   lists klassenplan.de URLs and the legal pages it forwards. Options: run
+   `generate:sitemap` in `build:static` (the `lastmod` stamps would then come
+   from the file times of the build context), or generate only when `SITE_URL`
+   differs from the default. _Next step:_ decide how `lastmod` should behave in
+   the image, then change the script.
+6. **The two performance criteria are either/or in the UI, not in the data.**
+   The controls set the other one to 0, but settings can still carry both
+   ([PEDAGOGY.md](PEDAGOGY.md#tension-between-peertutoring-and-homogeneousperformancegroups)).
+   Then construction and refinement break a tie in opposite directions, and the
+   table score follows `peerTutoring` regardless. Options: one tie-break rule
+   and a table score that follows the chosen criterion; settings that can only
+   hold one of the two; or a single three-way control (mixed / similar / off).
+   _Next step:_ product decision — each option changes plans only where both
+   are above 0.
 
 ## Resolved questions
+
+**The class switch relied on ordering** (resolved 2026-09-14). The class id was
+set from the class summary before the class data had loaded, so effects could
+briefly see the new id beside the previous class's plans, and preparing the
+switch emptied the persist queue, dropping edits made just before the switch.
+Duplicating a class marked the copy as active while the original stayed loaded.
+_Decision:_ `useClassManagement` no longer sets the class itself; the reload
+writes the queue first and then sets data and id together
+([Switching classes](#switching-classes)).
+
+**Some utils modules depended on layers above them** (resolved 2026-09-14).
+Backup, migration, PDF export, state reset and the route preloader imported
+repositories, hooks, stores, services or the page registry. _Decision:_ each
+moved to the layer it depends on — `services/backup`, `services/migration`,
+`services/export`, `stores/` and `pages/`
+([MODULE_BOUNDARIES.md](MODULE_BOUNDARIES.md#former-crossings)); ESLint now
+keeps every layer above out of `src/utils`.
 
 **The CSP allowed PayPal sources nothing used** (resolved 2026-09-14).
 `img-src` and `form-action` listed PayPal for donation graphics and a checkout

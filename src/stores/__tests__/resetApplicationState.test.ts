@@ -2,11 +2,10 @@
 // Copyright (C) 2026 Eike Schäfer
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { resetApplicationState } from '../resetApplicationState';
-import { studentStore } from '../../../stores/studentsStore';
-import { layoutStore } from '../../../stores/layoutStore';
-import { createMockStudent } from '../../../__tests__/utils';
-import { DEFAULT_CLASSROOM_SCENE } from '../../../utils';
-import { LOCAL_STORAGE_KEYS } from '../../../utils/data/storageKeys';
+import { studentStore } from '../studentsStore';
+import { layoutStore } from '../layoutStore';
+import { createMockStudent } from '@/__tests__/utils';
+import { DEFAULT_CLASSROOM_SCENE, LOCAL_STORAGE_KEYS } from '@/utils';
 
 describe('resetApplicationState', () => {
   beforeEach(() => {

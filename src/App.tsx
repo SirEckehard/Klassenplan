@@ -12,7 +12,7 @@ import InstallPrompt from '@/components/pwa/InstallPrompt';
 import OfflineIndicator from '@/components/ui/feedback/OfflineIndicator';
 import DownloadConfirmationHost from '@/components/ui/modals/DownloadConfirmationHost';
 import CsvFormatHelpHost from '@/components/ui/modals/CsvFormatHelpHost';
-import { preloadLikelyRoutes } from '@/utils/performance/routePreloader';
+import { preloadLikelyRoutes } from '@/pages/routePreloader';
 import { ensureEnglishLoaded } from '@/i18n/i18n';
 import {
   Changelog,

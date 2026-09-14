@@ -22,6 +22,7 @@ import AppearanceControls from '@/components/ui/navigation/AppearanceControls';
 import UpdateCheckButton from '@/components/pwa/UpdateCheckButton';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
 import { LocalizedLink } from './LocalizedLink';
+import { LegalPageLink } from './LegalPageLink';
 import { useSeatingPlanActions } from '@/contexts/SeatingPlanContext';
 import { showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
 import { logError, menuSurfaceClass } from '@/utils';
@@ -175,14 +176,14 @@ const Footer: React.FC = () => {
             </span>
           </LocalizedLink>
           <span className={separatorClass}>|</span>
-          <LocalizedLink
+          <LegalPageLink
             to="/datenschutz"
             className={linkClass}
             title={t('nav.titles.datenschutz')}
           >
             <ShieldCheckIcon className="h-3.5 w-3.5" aria-hidden="true" />
             {t('nav.datenschutz')}
-          </LocalizedLink>
+          </LegalPageLink>
           <span className={separatorClass}>|</span>
           <a
             href={GITHUB_REPO_URL}
@@ -195,7 +196,7 @@ const Footer: React.FC = () => {
             {t('nav.github')}
           </a>
           <span className={separatorClass}>|</span>
-          <LocalizedLink
+          <LegalPageLink
             to="/impressum"
             className={linkClass}
             title={t('nav.titles.impressum')}
@@ -205,7 +206,7 @@ const Footer: React.FC = () => {
               aria-hidden="true"
             />
             {t('nav.impressum')}
-          </LocalizedLink>
+          </LegalPageLink>
         </nav>
       </div>
 

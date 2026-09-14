@@ -69,7 +69,13 @@
     "githubLink": "github.com/SirEckehard/Klassenplan"
   },
   "legal": {
-    "germanOnlyNote": "This content is only available in German as it contains legally binding information."
+    "germanOnlyNote": "This content is only available in German as it contains legally binding information.",
+    "forward": {
+      "imprintTitle": "Legal notice",
+      "privacyTitle": "Privacy policy",
+      "text": "The operator of this site provides the legal information on a page of their own.",
+      "link": "Go to the operator's page"
+    }
   },
   "faq": {
     "header": {

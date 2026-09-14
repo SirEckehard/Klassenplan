@@ -2,15 +2,14 @@
 // Copyright (C) 2026 Eike Schäfer
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { set as idbSet } from 'idb-keyval';
-import type { ExportBundle, Student, LockedPositions } from '../../types';
-import { clearAllData, importAllFromJson } from '../data/dataBackup';
+import type { ExportBundle, Student, LockedPositions } from '@/types';
+import { clearAllData, importAllFromJson } from '../dataBackup';
 import {
   BACKUP_ERROR_MESSAGES,
   BackupValidationError,
-} from '../validation/backupValidation';
-import { DB_KEYS, PROJECT_LOCAL_STORAGE_KEYS } from '../data/storageKeys';
-import { MAX_STUDENTS } from '../constants';
-import { neutralSettings, normalizeMixSettings } from '../mixSettings';
+} from '@/utils/validation/backupValidation';
+import { DB_KEYS, PROJECT_LOCAL_STORAGE_KEYS } from '@/utils/data/storageKeys';
+import { MAX_STUDENTS, neutralSettings, normalizeMixSettings } from '@/utils';
 
 const { delMock, setMock } = vi.hoisted(() => ({
   delMock: vi.fn().mockResolvedValue(undefined),
@@ -28,7 +27,7 @@ vi.mock('idb-keyval', () => ({
   set: setMock,
   __esModule: true,
 }));
-vi.mock('@/utils/state/resetApplicationState', () => ({
+vi.mock('@/stores/resetApplicationState', () => ({
   resetApplicationState: resetApplicationStateMock,
 }));
 vi.mock('@/repositories/studentPhotoStore', async (importOriginal) => ({

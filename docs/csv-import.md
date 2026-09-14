@@ -170,7 +170,7 @@ confirms the headings is a data change in `csvPresets.ts`, not a code change.
 
 `csvSchema.ts` is the shared column contract: the downloadable template
 (`klassenliste_vorlage.csv` / `class_list_template.csv`, headings in the UI
-language, comma-separated, five example rows) and the student export both use
-it. Its values are plain strings, not translation keys, because they are part
+language, comma-separated, five example rows) and the student export
+(`src/utils/csv/csvExport.ts`) both use it. Its values are plain strings, not translation keys, because they are part
 of the file format. Tests round-trip the template through the parser, so a
 heading or value that the import cannot read fails the build.

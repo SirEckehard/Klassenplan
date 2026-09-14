@@ -162,21 +162,7 @@ describe('version invalidation', () => {
   });
 });
 
-describe('prepareClassSwitch', () => {
-  it('clears the queue and blocks further writes until the restore finishes', async () => {
-    const { result, harness } = renderQueue();
-
-    act(() => {
-      result.current.queuePersist('students', []);
-      result.current.prepareClassSwitch('class-2');
-    });
-
-    expect(result.current.refs.persistQueueRef.current).toEqual({});
-    expect(harness.activeClassIdRef.current).toBe('class-2');
-    expect(harness.isRestoringRef.current).toBe(true);
-    expect(harness.errorHandling.markNavigationIntent).toHaveBeenCalled();
-  });
-
+describe('class switch', () => {
   it('never writes a job of the previous class into the new one', async () => {
     const { result, harness } = renderQueue();
 

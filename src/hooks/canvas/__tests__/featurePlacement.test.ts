@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import { describe, expect, it } from 'vitest';
+import type { FeaturePaletteItem } from '@/hooks/canvas/useFeaturePaletteDrag';
 import {
   computeFeatureDropPlacement,
   rotateFeatureForAnchor,
   placeFixedFeatureBase,
   placeMovableFeatureBase,
-  type FeaturePaletteItem,
-} from '@/hooks/canvas/useFeaturePaletteDrag';
+} from '@/utils/canvas/featurePlacement';
 import { computeTemplateDropPlacement } from '@/hooks/useTableInteraction';
 import type { ClassroomFeature } from '@/types';
 import {

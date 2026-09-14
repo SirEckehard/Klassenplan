@@ -15,6 +15,8 @@ export const SeatingPlanGenerator = lazyWithRetry(
 export const Export = lazyWithRetry(() => import('@/pages/Export'));
 export const Present = lazyWithRetry(() => import('@/pages/Present'));
 export const NameGame = lazyWithRetry(() => import('@/pages/NameGame'));
+// A build with IMPRINT_URL / PRIVACY_URL aliases these two modules to forwarding
+// pages (vite.config.ts), which keeps klassenplan.de's texts out of that build.
 export const Impressum = lazyWithRetry(() => import('@/pages/Impressum'));
 export const Datenschutz = lazyWithRetry(() => import('@/pages/Datenschutz'));
 export const Feedback = lazyWithRetry(() => import('@/pages/Feedback'));

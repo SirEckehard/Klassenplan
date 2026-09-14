@@ -14,11 +14,8 @@ import RootErrorBoundary from '@/components/RootErrorBoundary';
 import { ToastProvider } from '@/components/ui/feedback/ToastProvider';
 import { SeatingPlanGeneratorProvider } from '@/contexts/SeatingPlanContext';
 import { LOCAL_STORAGE_KEYS } from '@/utils/data/storageKeys';
-import {
-  preloadRoute,
-  routeNameForPath,
-} from '@/utils/performance/routePreloader';
-import { runMigration } from '@/utils/migration/migrationService';
+import { preloadRoute, routeNameForPath } from '@/pages/routePreloader';
+import { runMigration } from '@/services/migration/migrationService';
 import { scheduleIdleTask } from '@/utils/performance/idleTasks';
 // Imported from the logger module directly rather than the '@/utils' barrel:
 // the barrel re-exports the algorithm, schema and design-token modules, which

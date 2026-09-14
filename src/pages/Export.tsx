@@ -50,7 +50,7 @@ import {
   renderSceneSvg,
   preloadRenderer,
 } from '@/services/export/sceneRenderer';
-import { buildPhotoDataUrlMap } from '@/utils/export/pdfExportFunctions';
+import { buildPhotoDataUrlMap } from '@/services/export/pdfExportFunctions';
 import type { PhotoDisplayMode, SeatingArrangement, Student } from '@/types';
 import usePersistentState from '@/hooks/usePersistentState';
 import type { CircleLayout } from '@/types/Circle';
@@ -805,7 +805,7 @@ export default function Export() {
 
     try {
       const { generatePdfBlob, openPdfForPrinting, downloadPdfBlob } =
-        await import('@/utils/export/pdfExportFunctions');
+        await import('@/services/export/pdfExportFunctions');
 
       // Use the correct orientation based on preview mode
       const orientation =
@@ -856,7 +856,7 @@ export default function Export() {
   const handleTablePdf = useCallback(async () => {
     try {
       const { exportTableLayoutToPdf } =
-        await import('@/utils/export/pdfExportFunctions');
+        await import('@/services/export/pdfExportFunctions');
       await exportTableLayoutToPdf(classroomScene, seating, title, {
         allStudents: students,
         showSpecialNeeds: showNeeds,
@@ -901,7 +901,7 @@ export default function Export() {
     if (!layout) return;
     try {
       const { exportCircleLayoutToPdf } =
-        await import('@/utils/export/pdfExportFunctions');
+        await import('@/services/export/pdfExportFunctions');
       await exportCircleLayoutToPdf(layout, title, {
         showSpecialNeeds: showNeeds,
         showConnections,

@@ -91,4 +91,4 @@ tampered envelope can neither weaken the derivation nor stall the browser.
 
 - The full type definitions live in [`src/types/index.ts`](../src/types/index.ts) (`ExportBundleV1`, `Student`, `ClassroomScene`, …).
 - Runtime validation happens in [`src/utils/validation/backupValidation.ts`](../src/utils/validation/backupValidation.ts). The export `parseExportBundle(json: string)` checks size limits, structure, and field types and then returns an `ExportBundle`.
-- `src/utils/data/dataBackup.ts` uses the parser both for exports (writing) and for imports (reading and merging backups). Tests in `src/utils/__tests__/backupValidation.test.ts` cover all edge cases.
+- `src/services/backup/dataBackup.ts` uses the parser both for exports (writing) and for imports (reading and merging backups). Tests in `src/utils/__tests__/backupValidation.test.ts` cover all edge cases.

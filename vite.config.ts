@@ -9,9 +9,45 @@ import { VitePWA } from 'vite-plugin-pwa';
 import viteCompression from 'vite-plugin-compression';
 import path from 'path';
 import { fileURLToPath } from 'node:url';
-import type { PluginOption } from 'vite';
+import type { Alias, PluginOption } from 'vite';
+import { readLegalPageUrls } from './src/config/legalPageUrls';
 
 const rootDir = fileURLToPath(new URL('.', import.meta.url));
+
+// The operator's own legal pages (IMPRINT_URL / PRIVACY_URL, decision 0012).
+// Validated here, so a typo fails the build instead of shipping the pages of
+// klassenplan.de on somebody else's instance.
+const legalPageUrls = readLegalPageUrls(process.env);
+
+/**
+ * In a build with its own legal pages, the klassenplan.de page modules are
+ * swapped for forwarding pages. Aliasing the modules — rather than branching at
+ * runtime — keeps their texts out of the bundle entirely.
+ */
+const legalPageAliases: Alias[] = [
+  ...(legalPageUrls['/impressum']
+    ? [
+        {
+          find: /^@\/pages\/Impressum$/,
+          replacement: path.resolve(
+            rootDir,
+            'src/pages/legal/ImprintForward.tsx',
+          ),
+        },
+      ]
+    : []),
+  ...(legalPageUrls['/datenschutz']
+    ? [
+        {
+          find: /^@\/pages\/Datenschutz$/,
+          replacement: path.resolve(
+            rootDir,
+            'src/pages/legal/PrivacyForward.tsx',
+          ),
+        },
+      ]
+    : []),
+];
 
 const SINGLE_QUOTE = String.fromCharCode(39);
 const wrapInSingleQuotes = (value: string) =>
@@ -264,9 +300,11 @@ export default defineConfig({
     }),
   ],
   resolve: {
-    alias: {
-      '@': path.resolve(rootDir, './src'),
-    },
+    // Order matters: the exact legal page aliases must win over the `@` prefix.
+    alias: [
+      ...legalPageAliases,
+      { find: '@', replacement: path.resolve(rootDir, './src') },
+    ],
   },
   define: {
     __APP_VERSION__: JSON.stringify(process.env.npm_package_version ?? '0.0.0'),
@@ -276,6 +314,13 @@ export default defineConfig({
     // the sitemap and IndexNow scripts.
     'import.meta.env.VITE_SITE_URL': JSON.stringify(
       (process.env.SITE_URL ?? 'https://klassenplan.de').replace(/\/$/, ''),
+    ),
+    // Read by src/config/legalPages.ts; empty keeps the bundled pages.
+    'import.meta.env.VITE_IMPRINT_URL': JSON.stringify(
+      legalPageUrls['/impressum'] ?? '',
+    ),
+    'import.meta.env.VITE_PRIVACY_URL': JSON.stringify(
+      legalPageUrls['/datenschutz'] ?? '',
     ),
   },
   server: {

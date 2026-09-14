@@ -171,7 +171,8 @@ export default defineConfig([
     },
   },
 
-  // Utils never import components; whatever renders them lives in services.
+  // Utils are the bottom layer: no UI, hooks, state, services, repositories or
+  // workers. Code that needs them belongs in one of those layers instead.
   {
     files: ['src/utils/**/*.{ts,tsx}'],
     ignores: testFiles,
@@ -182,9 +183,19 @@ export default defineConfig([
           paths: utilsBarrelPaths,
           patterns: [
             {
-              group: ['@/components', '@/components/*'],
+              group: [
+                'components',
+                'pages',
+                'hooks',
+                'contexts',
+                'stores',
+                'stateMachines',
+                'services',
+                'repositories',
+                'workers',
+              ].flatMap((layer) => [`@/${layer}`, `@/${layer}/*`]),
               message:
-                'Utils importieren keine Komponenten; was Komponenten rendert, gehört nach "@/services" (siehe docs/MODULE_BOUNDARIES.md).',
+                'Utils sind die unterste Schicht und importieren weder UI noch Hooks, Contexts, Stores, State-Machines, Services, Repositories oder Worker (siehe docs/MODULE_BOUNDARIES.md).',
             },
           ],
         },

@@ -2,7 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LocalizedLink } from '@/components/LocalizedLink';
+import { LegalPageLink } from '@/components/LegalPageLink';
 import { COOKIE_BANNER_OFFSET_EVENT } from '@/hooks/ui/useCookieBannerOffset';
 import { LOCAL_STORAGE_KEYS, logDebug } from '@/utils';
 
@@ -160,12 +160,12 @@ const CookieConsent: React.FC = () => {
       <div className="max-w-6xl mx-auto flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm">
           {t('cookieConsent.message')}{' '}
-          <LocalizedLink
+          <LegalPageLink
             to="/datenschutz"
             className="underline hover:text-blue-600"
           >
             {t('cookieConsent.privacyLink')}
-          </LocalizedLink>
+          </LegalPageLink>
           .
         </p>
         <div className="flex shrink-0">

@@ -6,6 +6,9 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+// Loaded through Node's type stripping, so the build scripts and vite.config.ts
+// validate IMPRINT_URL / PRIVACY_URL with the same code.
+import { readLegalPageUrls } from '../../src/config/legalPageUrls.ts';
 
 export const LANGUAGES = ['de', 'en'];
 export const DEFAULT_LANG = 'de';
@@ -27,6 +30,26 @@ export async function readRoutes() {
 export function getSiteUrl() {
   const fromEnv = process.env.SITE_URL;
   return fromEnv ? fromEnv.replace(/\/$/, '') : 'https://klassenplan.de';
+}
+
+/**
+ * Legal routes this build replaces with a forward to the operator's own page
+ * (IMPRINT_URL / PRIVACY_URL, decision 0012).
+ */
+export function getForwardedLegalRoutes(env = process.env) {
+  const urls = readLegalPageUrls(env);
+  return new Set(Object.keys(urls).filter((route) => urls[route] !== null));
+}
+
+/**
+ * True for routes that belong in the sitemap and carry `index,follow`. A
+ * forwarded legal page is `noindex`: the operator's own page is the one to find.
+ */
+export function isIndexableRoute(
+  route,
+  forwardedLegalRoutes = getForwardedLegalRoutes(),
+) {
+  return route.noindex !== true && !forwardedLegalRoutes.has(route.path);
 }
 
 /**
@@ -57,6 +80,7 @@ export function getLocalizedMeta(route, lang) {
  * Expand the route table into one entry per route × language.
  */
 export function expandRoutes(routes) {
+  const forwardedLegalRoutes = getForwardedLegalRoutes();
   const expanded = [];
   for (const route of routes) {
     for (const lang of LANGUAGES) {
@@ -65,7 +89,7 @@ export function expandRoutes(routes) {
         lang,
         basePath: route.path,
         localizedPath: getLocalizedPath(route.path, lang),
-        noindex: route.noindex === true,
+        noindex: !isIndexableRoute(route, forwardedLegalRoutes),
         ...getLocalizedMeta(route, lang),
       });
     }

@@ -13,7 +13,7 @@ import {
   templateNeedsMigration,
   getMigrationStats,
   type MigrationStats,
-} from './tableMigration';
+} from '@/utils/migration/tableMigration';
 import type { ClassroomScene, ClassroomTemplate, SavedPlan } from '@/types';
 import { logWarn, logInfo, logError } from '@/utils';
 

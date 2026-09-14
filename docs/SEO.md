@@ -63,6 +63,11 @@ the page does not deliver — the pages themselves already show a banner to that
 effect. They stay indexed and keep their hreflang pair: the content is relevant
 to English-speaking visitors, it is simply not in their language.
 
+A build with `IMPRINT_URL` or `PRIVACY_URL` replaces the page in question with a
+short page that links to the operator's own one. That stand-in is `noindex` and
+left out of the sitemap, and `verify:prerender` expects it that way
+([decision 0012](decisions/0012-legal-pages-for-self-hosted-builds.md)).
+
 ## Canonical origin
 
 `SITE_URL` (default `https://klassenplan.de`) is injected into the bundle at

@@ -42,7 +42,7 @@ vi.mock('@/services/export/sceneRenderer', () => ({
   preloadRenderer: vi.fn(),
 }));
 
-vi.mock('@/utils/export/pdfExportFunctions', () => ({
+vi.mock('@/services/export/pdfExportFunctions', () => ({
   buildPhotoDataUrlMap: vi.fn(async () => new Map()),
   generatePdfBlob: vi.fn(async () => new Blob()),
   openPdfForPrinting: vi.fn(() => true),

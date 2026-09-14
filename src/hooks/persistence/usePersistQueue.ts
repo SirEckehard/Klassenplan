@@ -34,8 +34,6 @@ export interface PersistQueueReturn {
   ) => void;
   /** Flush all pending jobs to storage */
   flushPersistQueue: () => Promise<void>;
-  /** Prepare queue for class switch (clears queue, increments versions) */
-  prepareClassSwitch: (targetClassId: string) => void;
   /** Clear queue and snapshot refs */
   clearQueue: () => void;
   /** Increment all persist versions to invalidate queued jobs */
@@ -59,11 +57,7 @@ export function usePersistQueue(
   activeClassIdRef: MutableRefObject<string | null>,
   isRestoringRef: MutableRefObject<boolean>,
 ): PersistQueueReturn {
-  const {
-    markNavigationIntent,
-    persistSnapshotResult,
-    tryDisplayPersistError,
-  } = errorHandling;
+  const { persistSnapshotResult, tryDisplayPersistError } = errorHandling;
 
   // Queue state refs
   const persistVersionsRef = useRef<Record<PersistKey, number>>({
@@ -306,23 +300,6 @@ export function usePersistQueue(
     [activeClassIdRef, isRestoringRef],
   );
 
-  const prepareClassSwitch = useCallback(
-    (targetClassId: string) => {
-      markNavigationIntent();
-      isRestoringRef.current = true;
-      activeClassIdRef.current = targetClassId ?? '';
-      clearQueue();
-      incrementAllVersions();
-    },
-    [
-      activeClassIdRef,
-      clearQueue,
-      incrementAllVersions,
-      isRestoringRef,
-      markNavigationIntent,
-    ],
-  );
-
   const refs = useMemo(
     () => ({
       persistVersionsRef,
@@ -344,18 +321,10 @@ export function usePersistQueue(
     () => ({
       queuePersist,
       flushPersistQueue,
-      prepareClassSwitch,
       clearQueue,
       incrementAllVersions,
       refs,
     }),
-    [
-      queuePersist,
-      flushPersistQueue,
-      prepareClassSwitch,
-      clearQueue,
-      incrementAllVersions,
-      refs,
-    ],
+    [queuePersist, flushPersistQueue, clearQueue, incrementAllVersions, refs],
   );
 }

@@ -74,11 +74,14 @@ including GPS coordinates.
 
 ## Running your own instance
 
-- **Replace the legal pages.** The image ships the Impressum and the
-  Datenschutzerklärung of klassenplan.de — the maintainer's name and address and
-  the Hetzner hosting. An operator who publishes an instance needs their own
-  versions of `src/pages/Impressum.tsx` and `src/pages/Datenschutz.tsx` and has to
-  build the image (`docker compose up -d --build`).
+- **Set your own legal pages.** Without configuration a build ships the
+  Impressum and the Datenschutzerklärung of klassenplan.de — the maintainer's
+  name and address and the Hetzner hosting. Set `IMPRINT_URL` and `PRIVACY_URL`
+  to your own pages and build the image (`docker compose up -d --build`): the
+  footer then links there, `/impressum` and `/datenschutz` only point there, and
+  klassenplan.de's texts are not part of the build
+  ([decision 0012](decisions/0012-legal-pages-for-self-hosted-builds.md)). Your
+  privacy policy has to describe your instance, including its access logs.
 - **Access logs.** nginx writes access logs in Debian's default format (client IP,
   time, request, status, referrer, user agent) to the container's stdout.
   Retention is up to the operator's log driver. Behind a reverse proxy the

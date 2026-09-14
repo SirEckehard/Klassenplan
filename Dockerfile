@@ -23,6 +23,11 @@ COPY . .
 # SITE_URL is baked into canonical/hreflang/og:url at build time.
 ARG SITE_URL=https://klassenplan.de
 ENV SITE_URL=${SITE_URL}
+# The operator's own Impressum and Datenschutzerklärung (see .env.example).
+# Left empty, the build keeps the legal pages of klassenplan.de.
+ARG IMPRINT_URL=
+ARG PRIVACY_URL=
+ENV IMPRINT_URL=${IMPRINT_URL} PRIVACY_URL=${PRIVACY_URL}
 RUN npm run build:static
 
 # Stage 2: Production
