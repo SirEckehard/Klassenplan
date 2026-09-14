@@ -48,6 +48,7 @@
     "lint": "eslint 'src/**/*.{ts,tsx}' 'e2e/**/*.ts'",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,css,md,json}\"",
     "check:bundle": "node scripts/check-bundle.mjs",
+    "check:docs": "node scripts/check-docs.mjs",
     "check:i18n": "node scripts/check-i18n.mjs",
     "check:unused": "node scripts/check-unused-exports.mjs"
   },

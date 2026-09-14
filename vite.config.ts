@@ -293,14 +293,12 @@ export default defineConfig({
           ' ' +
           wrapInSingleQuotes('unsafe-inline'),
         'font-src ' + wrapInSingleQuotes('self') + ' data:',
-        'img-src ' +
-          wrapInSingleQuotes('self') +
-          ' data: blob: https://pics.paypal.com https://www.paypal.com https://www.paypalobjects.com',
+        'img-src ' + wrapInSingleQuotes('self') + ' data: blob:',
         'connect-src ' + wrapInSingleQuotes('self') + ' ws: wss:',
         'worker-src ' + wrapInSingleQuotes('self') + ' blob:',
         'frame-ancestors ' + wrapInSingleQuotes('none'),
         'base-uri ' + wrapInSingleQuotes('self'),
-        'form-action ' + wrapInSingleQuotes('self') + ' https://www.paypal.com',
+        'form-action ' + wrapInSingleQuotes('self'),
         'object-src ' + wrapInSingleQuotes('none'),
       ].join('; '),
       'X-Content-Type-Options': 'nosniff',

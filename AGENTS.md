@@ -25,6 +25,8 @@ it for Antigravity — edit this file, never those two.
 - E2E: Playwright smoke specs live in `e2e/` (`npm run test:e2e`; needs `npx playwright install chromium`)
 - i18n consistency: `npm run check:i18n` (DE/EN key parity + every `t(key, 'default')` resolves to a real key)
 - Bundle budgets: `npm run check:bundle` (after a build; part of `npm run build:static`)
+- Docs consistency: `npm run check:docs` (relative links, heading anchors and `src/…`-style paths in Markdown resolve; `docs/CHANGELOG.md` is skipped)
+- Algorithm runtime: `npm run bench` (by hand, not in CI; figures in `docs/PERFORMANCE.md`)
 
 **Current Code Quality Status (2026-09-09):**
 
@@ -64,7 +66,10 @@ the image for both architectures, pushes the multi-arch manifest to GHCR as
 
 1. Run the gates on `update`: `npm test -- --run`, `npm run lint`,
    `npm run typecheck:all`, `npm run check:i18n`, `npm run check:unused`,
-   `npm run build` followed by `npm run check:bundle`
+   `npm run check:docs`, `npm run build` followed by `npm run check:bundle`.
+   Bring the docs up to date for what the release changed — the affected
+   `docs/` pages with their **Last reviewed** date, and a decision record in
+   `docs/decisions/` where one is needed (see its README)
 2. Commit the bump as `update: vX.Y.Z changelog and version bump`, touching all
    eight files: `package.json` and `package-lock.json` (the two project entries
    at the top only — dependencies share the version string), `README.md` (image
@@ -180,6 +185,8 @@ import { generateId, logError, errorHandlers } from '@/utils';
 - `npm run check:i18n` - DE/EN key parity + orphaned inline defaults
 - `npm run check:bundle` - Enforce bundle size budgets against `dist/` (run after a build)
 - `npm run check:unused` - Unused-export ratchet (baseline in `scripts/check-unused-exports.mjs`)
+- `npm run check:docs` - Links, heading anchors and repository paths in the Markdown docs resolve
+- `npm run bench` - Seating algorithm runtime benchmark (by hand)
 - `vitest run --reporter=verbose` - Run tests with detailed output
 - `vitest run src/path/to/test.test.ts` - Run single test file
 

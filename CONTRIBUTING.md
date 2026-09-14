@@ -21,6 +21,7 @@ Please run the local checks and make sure they pass:
 npm test -- --run
 npm run lint
 npm run typecheck:all
+npm run check:docs
 npm run format
 ```
 
@@ -36,6 +37,10 @@ npm run format
   [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), then
   [`docs/MODULE_BOUNDARIES.md`](docs/MODULE_BOUNDARIES.md) and
   [`docs/DESIGNSYSTEM.md`](docs/DESIGNSYSTEM.md)).
+- Some changes need a short decision record before the code: a new stored
+  format, new personal data, different seating results for the same input, a
+  changed route, a looser CSP or a hard-to-replace dependency. The list and the
+  template are in [`docs/decisions/`](docs/decisions/README.md).
 
 ## Reporting security issues
 

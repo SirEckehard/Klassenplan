@@ -284,14 +284,14 @@ Without a server there are no service level objectives to promise. These
 budgets take their place; measurements and details are in
 [PERFORMANCE.md](PERFORMANCE.md#budgets).
 
-| Quality                         | Budget                                                                  | Status                                                                |
-| ------------------------------- | ----------------------------------------------------------------------- | --------------------------------------------------------------------- |
-| Load size                       | Initial payload ≤ 250 KB brotli                                         | 221 KB; enforced in CI and the Docker build                           |
-| Response to _Mischen_           | ≤ 500 ms for 36 students on the slowest supported device — **proposed** | About 63 ms on an Apple M1 Pro; measured by hand with `npm run bench` |
-| Page experience                 | Core Web Vitals "good"                                                  | Logged in the browser only; no field data                             |
-| Offline use                     | The generator works without a connection after the first load           | In place since v1.2.0; not tested automatically                       |
-| No lost edits when a tab closes | Pending writes start on `visibilitychange` and `pagehide`               | Implemented in `usePersistQueue`                                      |
-| No silent hang of the algorithm | A worker that stays silent for 120 s fails visibly                      | Enforced in `algorithmWorkerClient`                                   |
+| Quality                         | Budget                                                        | Status                                                                |
+| ------------------------------- | ------------------------------------------------------------- | --------------------------------------------------------------------- |
+| Load size                       | Initial payload ≤ 250 KB brotli                               | 221 KB; enforced in CI and the Docker build                           |
+| Response to _Mischen_           | ≤ 500 ms for 36 students on the slowest supported device      | About 63 ms on an Apple M1 Pro; measured by hand with `npm run bench` |
+| Page experience                 | Core Web Vitals "good"                                        | Logged in the browser only; no field data                             |
+| Offline use                     | The generator works without a connection after the first load | In place since v1.2.0; not tested automatically                       |
+| No lost edits when a tab closes | Pending writes start on `visibilitychange` and `pagehide`     | Implemented in `usePersistQueue`                                      |
+| No silent hang of the algorithm | A worker that stays silent for 120 s fails visibly            | Enforced in `algorithmWorkerClient`                                   |
 
 ## Monitoring without telemetry
 
@@ -373,20 +373,23 @@ a decision record once taken.
 5. **Retention is bounded by count, not time.** Mix history and plan usage
    records are capped by number of entries; nothing expires at the end of a
    school year. _Next step:_ product decision.
-6. **_Verfeinern_ does the same work as the refinement inside _Mischen_.** The
-   button passes 1,800 tries in 4 passes instead of 600 in 2, but annealing
-   ignores both and runs its fixed cooling schedule
-   ([PERFORMANCE.md](PERFORMANCE.md#algorithm-runtime)). Options: give the button
-   a longer annealing schedule, drop the unused constants, or keep it as it is.
-   A longer schedule changes the plans teachers get. _Next step:_ decide whether
-   a manual refinement should search longer.
-7. **The CSP allows PayPal sources nothing uses.** `img-src` and `form-action`
-   list PayPal, but the support page only links there
-   ([SECURITY.md](SECURITY.md)). Options: remove them from
-   `nginx-security-headers.conf` and `vite.config.ts`, or keep them for a future
-   donation form. _Next step:_ remove them unless such a form is planned.
+6. **Is _Verfeinern_ needed?** The button passes 1,800 tries in 4 passes, but
+   annealing ignores both and runs the same schedule as _Mischen_. An experiment
+   on 2026-09-14 found that a longer schedule does not produce better plans, and
+   that refining a mixed plan again gains one to two points of criteria
+   fulfilment for 24 students but loses up to one point for 36
+   ([PERFORMANCE.md](PERFORMANCE.md#does-a-longer-refinement-help)). The
+   schedule stays unchanged. Options: remove the button, keep it as "try again
+   from here", or give it a different job. _Next step:_ product decision; the
+   unused `MANUAL_REFINE_*` constants go with whatever is decided.
 
 ## Resolved questions
+
+**The CSP allowed PayPal sources nothing used** (resolved 2026-09-14).
+`img-src` and `form-action` listed PayPal for donation graphics and a checkout
+form, but the support page only links there. _Decision:_ removed from
+`nginx-security-headers.conf` and from the dev server CSP in `vite.config.ts`;
+an embedded donation form would need them back ([SECURITY.md](SECURITY.md)).
 
 **Module boundaries were written down but not enforced** (resolved
 2026-09-14). [MODULE_BOUNDARIES.md](MODULE_BOUNDARIES.md) kept UI code out of

@@ -36,8 +36,30 @@ repository:
 - **The limit of 36 students per class** — see open question 1 in
   [ARCHITECTURE.md](../ARCHITECTURE.md#open-questions).
 
+## When a record is needed
+
+The test is the cost of being wrong. Write a record — or update the existing
+one — **before** implementing a change that
+
+- changes a stored shape: the class collection, another IndexedDB store, a
+  localStorage key or the backup format;
+- stores, shows or exports personal data that was not handled before, or shows
+  existing data in a new place (projector, export);
+- changes which seating plans the algorithm produces for the same input —
+  weights, scoring, refinement defaults;
+- adds, removes or renames a route, or changes what a URL serves;
+- adds an external connection or loosens the Content Security Policy;
+- introduces a dependency that would be hard to replace later — storage, state
+  management, rendering, build.
+
+A new button, a refactoring that keeps behaviour or a dependency update needs no
+record. When a change answers one of the open questions in
+[ARCHITECTURE.md](../ARCHITECTURE.md#open-questions), move that question to
+"Resolved questions" there as well.
+
 ## Adding a record
 
-Number it after the last one, keep it to a page, and link it from the document
-that describes the affected part. A decision that replaces an earlier one sets
-the old record's status to "superseded by NNNN" instead of deleting it.
+Copy [TEMPLATE.md](TEMPLATE.md), number it after the last record, keep it to a
+page, and link it from the document that describes the affected part. A
+decision that replaces an earlier one sets the old record's status to
+"superseded by NNNN" instead of deleting it.

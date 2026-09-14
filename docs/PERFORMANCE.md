@@ -14,7 +14,7 @@ Klassenplan has no server, so there are no service level objectives in the usual
 | Largest chunk                        | ≤ 78 KB brotli, ≤ 330 KB raw                                  | 64.2 KB brotli, 276.3 KB raw                                              | same                                                        |
 | CSS                                  | ≤ 24 KB brotli, ≤ 200 KB raw                                  | 19.1 KB brotli, 171.4 KB raw                                              | same                                                        |
 | Core Web Vitals                      | "good": LCP ≤ 2.5 s, INP ≤ 200 ms, CLS ≤ 0.1                  | Start page CLS 0.067 after prerendering ([SEO.md](SEO.md)); no field data | Logged in the browser only (`webVitals.ts`)                 |
-| "Mischen" with criteria, 36 students | ≤ 500 ms on the slowest supported device — **proposed**       | ≈ 63 ms on an Apple M1 Pro                                                | `npm run bench`, by hand                                    |
+| "Mischen" with criteria, 36 students | ≤ 500 ms on the slowest supported device                      | ≈ 63 ms on an Apple M1 Pro                                                | `npm run bench`, by hand                                    |
 | Offline use                          | The generator works without a connection after the first load | Since v1.2.0                                                              | Not tested automatically                                    |
 
 The runtime budget is deliberately not a CI check: timings on a shared runner vary too much for a fixed ceiling. It is re-measured with `npm run bench` when the algorithm changes.
@@ -37,6 +37,27 @@ What the numbers show:
 - **Annealing hardly depends on class size.** It runs a fixed cooling schedule (see [ALGORITHM.md](ALGORITHM.md#configuration)).
 - **`triesPerPass` and `passes` do not reach annealing.** The larger values the "Verfeinern" button passes only apply to the greedy search, which the app does not use — both buttons currently do the same refinement work.
 - **Class size is not what limits the algorithm up to 36 students.** Larger classes were not measured.
+
+### Does a longer refinement help?
+
+Checked on 2026-09-14 with a temporary experiment on the same fixture: 20 seeds per class size, scored by the weighted criteria fulfilment the statistics badge shows (higher is better).
+
+| Variant                                               | 24 students | 36 students | Time, 36 students |
+| ----------------------------------------------------- | ----------: | ----------: | ----------------: |
+| Construction only                                     |      54.5 % |      53.7 % |              1 ms |
+| "Mischen": construction and annealing                 |      59.7 % |      60.7 % |             60 ms |
+| "Verfeinern" afterwards, as today                     |      61.6 % |      59.9 % |             59 ms |
+| "Verfeinern" with three times the swaps per step      |      61.2 % |      59.8 % |            178 ms |
+| "Verfeinern" with slower cooling (0.99)               |      60.9 % |      60.2 % |            180 ms |
+| "Verfeinern" with both                                |      61.9 % |      59.9 % |            539 ms |
+| "Verfeinern" as greedy search, 1,800 tries × 4 passes |      61.1 % |      60.4 % |             71 ms |
+
+- **The refinement inside "Mischen" is what matters:** five to seven points over construction alone.
+- **A second refinement is a coin toss.** It gains one to two points for 24 students and loses up to one point for 36, where more runs got worse than better.
+- **Longer schedules do not pay off.** They take three to nine times as long without a consistent gain, so the app's schedule stays as it is.
+- **Annealing optimises the internal table score, not the badge's percentage.** The two do not always move together, which is how a refinement can lower the value a teacher sees.
+
+The fixture is one synthetic class in one room; differences of one or two points are small.
 
 ## Core Web Vitals monitoring
 

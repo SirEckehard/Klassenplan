@@ -49,27 +49,27 @@ take care of is described in [PRIVACY.md](PRIVACY.md).
 
 ### Production CSP (nginx-security-headers.conf)
 
-The production CSP is configured in [`nginx-security-headers.conf`](../nginx-security-headers.conf), which [`nginx.conf`](../nginx.conf) includes into every `location` (see the inheritance pitfall below). **Strict CSP without `unsafe-inline` / `unsafe-eval` for scripts, with explicit exceptions for inline styles and PayPal:**
+The production CSP is configured in [`nginx-security-headers.conf`](../nginx-security-headers.conf), which [`nginx.conf`](../nginx.conf) includes into every `location` (see the inheritance pitfall below). **Strict CSP without `unsafe-inline` / `unsafe-eval` for scripts, with one explicit exception for inline styles:**
 
 ```
 default-src 'self';
 script-src 'self';
 style-src 'self' 'unsafe-inline';
 font-src 'self' data:;
-img-src 'self' data: blob: https://pics.paypal.com https://www.paypal.com https://www.paypalobjects.com;
+img-src 'self' data: blob:;
 connect-src 'self';
 worker-src 'self' blob:;
 frame-ancestors 'none';
 base-uri 'self';
-form-action 'self' https://www.paypal.com;
+form-action 'self';
 object-src 'none';
 ```
 
 **Exceptions explained:**
 
 - `style-src 'unsafe-inline'` is needed for runtime style tooling (Tailwind utility insertions, dynamic component styles). No `unsafe-inline` for scripts.
-- `https://pics.paypal.com` / `https://www.paypal.com` / `https://www.paypalobjects.com` in `img-src` and `https://www.paypal.com` in `form-action` were added for donation graphics and a checkout form. The support page now links to PayPal with a plain link and loads neither, so these exceptions are currently unused.
-- All other resources remain strictly first-party. There is no third-party analytics, telemetry, or CDN.
+- Everything else is first-party. There is no third-party analytics, telemetry, or CDN.
+- The support page links to PayPal with a plain link, which the CSP does not restrict. `img-src` and `form-action` used to allow PayPal for donation graphics and a checkout form; those sources were removed on 2026-09-14 because nothing loaded them any more.
 
 > **Note:** If you deploy behind a different reverse proxy or static host, replicate the CSP and the security headers below in that environment's configuration.
 
