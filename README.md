@@ -90,7 +90,8 @@ Further details in the [`docs/`](docs/) folder:
 - [ERROR-HANDLING.md](docs/ERROR-HANDLING.md) – Error handling & result pattern
 - [LOGGING.md](docs/LOGGING.md) – Logging & debug mode
 - [PERFORMANCE.md](docs/PERFORMANCE.md) – Measurements & optimizations
-- [SECURITY.md](docs/SECURITY.md) – Security guidelines, CSP & deployment headers
+- [SECURITY.md](docs/SECURITY.md) – Threat model, CSP & deployment headers
+- [PRIVACY.md](docs/PRIVACY.md) – Personal data: inventory, visibility, self-hosting obligations
 - [data-model.md](docs/data-model.md) – Stored data: keys, shapes, versions, retention
 - [backup-format.md](docs/backup-format.md) – Backup file format & encryption
 - [csv-import.md](docs/csv-import.md) – Class list import: columns, values, school software exports

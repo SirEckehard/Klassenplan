@@ -878,7 +878,9 @@ export function useSeatingPersistence(state: SeatingState) {
 
     await clearAllDataUtil(
       { setCurrentSeating, setActivePlanId, setLockedPositions },
-      { skipIndexedDBClear: true }, // repository.clearAll() already handled storage
+      // repository.clearAll() already removed the DB_KEYS; the helper still
+      // wipes the separate photo database.
+      { skipIndexedDBClear: true },
     );
     setClassSummaries([]);
     setActiveClass(DEFAULT_ACTIVE_CLASS);

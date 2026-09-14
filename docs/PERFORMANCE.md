@@ -4,6 +4,40 @@
 
 Klassenplan approaches performance from two angles: Core Web Vitals at runtime, and build/bundle optimizations that keep the initial load small. The runtime half is deliberately thin — see "What was removed" below.
 
+## Budgets
+
+Klassenplan has no server, so there are no service level objectives in the usual sense. These budgets take their place. Figures from 2026-09-14.
+
+| Area                                 | Budget                                                        | Current                                                                   | Checked by                                                  |
+| ------------------------------------ | ------------------------------------------------------------- | ------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| Initial payload                      | ≤ 250 KB brotli, ≤ 900 KB raw                                 | 221.4 KB brotli, 878.2 KB raw                                             | `npm run check:bundle`, part of `build:static` (CI, Docker) |
+| Largest chunk                        | ≤ 78 KB brotli, ≤ 330 KB raw                                  | 64.2 KB brotli, 276.3 KB raw                                              | same                                                        |
+| CSS                                  | ≤ 24 KB brotli, ≤ 200 KB raw                                  | 19.1 KB brotli, 171.4 KB raw                                              | same                                                        |
+| Core Web Vitals                      | "good": LCP ≤ 2.5 s, INP ≤ 200 ms, CLS ≤ 0.1                  | Start page CLS 0.067 after prerendering ([SEO.md](SEO.md)); no field data | Logged in the browser only (`webVitals.ts`)                 |
+| "Mischen" with criteria, 36 students | ≤ 500 ms on the slowest supported device — **proposed**       | ≈ 63 ms on an Apple M1 Pro                                                | `npm run bench`, by hand                                    |
+| Offline use                          | The generator works without a connection after the first load | Since v1.2.0                                                              | Not tested automatically                                    |
+
+The runtime budget is deliberately not a CI check: timings on a shared runner vary too much for a fixed ceiling. It is re-measured with `npm run bench` when the algorithm changes.
+
+## Algorithm runtime
+
+`src/utils/algorithm/__tests__/seatingAlgorithm.bench.ts` measures the calls the app sends to the worker, for a class with every attribute set, a full mix history, two saved plans and two locked seats, on double tables. All inputs come from fixed seeds.
+
+Mean time per call in milliseconds, Apple M1 Pro, Node 24, `vitest bench`, 2026-09-14:
+
+| Students | Construction | Refinement, annealing ("Mischen" 600 × 2) | Refinement, annealing ("Verfeinern" 1800 × 4) | Refinement, greedy (600 × 2) |
+| -------: | -----------: | ----------------------------------------: | --------------------------------------------: | ---------------------------: |
+|       12 |          0.1 |                                        56 |                                            56 |                            5 |
+|       24 |          0.4 |                                        59 |                                            59 |                            9 |
+|       36 |          0.9 |                                        62 |                                            62 |                           13 |
+
+What the numbers show:
+
+- **Refinement dominates.** "Mischen" with criteria is construction plus annealing, about 63 ms for a full class.
+- **Annealing hardly depends on class size.** It runs a fixed cooling schedule (see [ALGORITHM.md](ALGORITHM.md#configuration)).
+- **`triesPerPass` and `passes` do not reach annealing.** The larger values the "Verfeinern" button passes only apply to the greedy search, which the app does not use — both buttons currently do the same refinement work.
+- **Class size is not what limits the algorithm up to 36 students.** Larger classes were not measured.
+
 ## Core Web Vitals monitoring
 
 - **Metrics:** LCP, INP, CLS, FCP and TTFB are registered through `web-vitals` in `src/utils/performance/webVitals.ts`.

@@ -719,11 +719,28 @@ const LANGUAGE_SKILL_PATTERNS: Record<LanguageSkillLevel, string[]> = {
     'daz',
     'daf',
     'zweitsprache',
+    'fremdsprache',
     'forderung',
     'förderung',
     'language support',
   ],
 };
+
+/**
+ * Order in which the levels are tried; the first match wins.
+ *
+ * Language support comes first because its markers are more specific than the
+ * bare `deutsch` that identifies a native speaker: "Deutsch als Zweitsprache"
+ * and "Deutsch als Fremdsprache" describe a student who needs support, and were
+ * read as native while `native` was checked first.
+ */
+const LANGUAGE_SKILL_MATCH_ORDER: readonly LanguageSkillLevel[] = [
+  'daz',
+  'native',
+  'fluent',
+  'intermediate',
+  'beginner',
+];
 
 const parseLanguageSkillCell = (
   value: unknown,
@@ -737,12 +754,11 @@ const parseLanguageSkillCell = (
     .replace(/[\u0300-\u036f]/g, '')
     .replace(/ß/g, 'ss');
 
-  for (const [level, patterns] of Object.entries(LANGUAGE_SKILL_PATTERNS)) {
-    if (patterns.some((p) => normalized.includes(p))) {
-      return level as LanguageSkillLevel;
-    }
-  }
-  return undefined;
+  return LANGUAGE_SKILL_MATCH_ORDER.find((level) =>
+    LANGUAGE_SKILL_PATTERNS[level].some((pattern) =>
+      normalized.includes(pattern),
+    ),
+  );
 };
 
 const findLanguageSkillCellValue = (

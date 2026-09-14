@@ -42,7 +42,7 @@ We provide two distinct strategies for the refinement phase. The choice of strat
 **Concept**: A "Hill Climbing" approach. The algorithm looks for swaps that _immediately_ improve the total score (lower is better). It never accepts a swap that makes the arrangement worse.
 
 - **Pros**:
-  - **Fast**: Very efficient, typically runs in under 100ms.
+  - **Fast**: 5–13 ms for 12–36 students with the default tries and passes on an Apple M1 Pro ([PERFORMANCE.md](PERFORMANCE.md#algorithm-runtime)).
   - **Deterministic**: Running it twice on the same input usually yields similar results.
 - **Cons**:
   - **Local Optima**: Can get "stuck". For example, if swapping Student A and Student B makes things worse temporarily but allows for a perfect arrangement 2 moves later, Greedy will never find it.
@@ -65,7 +65,7 @@ We provide two distinct strategies for the refinement phase. The choice of strat
   - **Global Optima**: Can escape local traps by temporarily accepting worse states to find a better global configuration.
   - **Robustness**: Handles complex, conflicting constraints (e.g., "A needs front", "B avoids C", "C needs double table") much better than Greedy.
 - **Cons**:
-  - **Slower**: Requires thousands of iterations to be effective (200ms - 1s).
+  - **Slower**: Runs a fixed cooling schedule (see [Configuration](#configuration)) — about 60 ms for 12–36 students on an Apple M1 Pro, almost independent of class size ([PERFORMANCE.md](PERFORMANCE.md#algorithm-runtime)). `triesPerPass` and `passes` do not apply to it.
   - **Non-deterministic**: Different runs can produce different layouts.
 - **Best for**:
   - Complex scenarios with many constraints.

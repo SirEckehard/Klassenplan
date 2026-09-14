@@ -113,12 +113,14 @@ error.
   `kurz`, `short`, `small`, `s`, `xs` → small; `mittel`, `medium`, `average`,
   `normal`, `m` → medium; `groß`, `tall`, `lang`, `hoch`, `l`, `xl` → tall.
 - **Language level:** matched by substring, checking the levels in this order:
-  native (`muttersprache`, `native`, `deutsch`), fluent (`fliessend`, `fluent`,
-  `c1`, `c2`), intermediate (`fortgeschritten`, `intermediate`, `b1`, `b2`),
-  beginner (`anfanger`, `beginner`, `a1`, `a2`), DaZ support (`daz`, `daf`,
-  `zweitsprache`, `forderung`, `language support`). The first match wins — so
-  a cell reading "Deutsch als Zweitsprache" currently counts as native, because
-  `deutsch` is checked before `zweitsprache`.
+  DaZ support (`daz`, `daf`, `zweitsprache`, `fremdsprache`, `forderung`,
+  `language support`), native (`muttersprache`, `native`, `deutsch`), fluent
+  (`fliessend`, `fluent`, `c1`, `c2`), intermediate (`fortgeschritten`,
+  `intermediate`, `b1`, `b2`), beginner (`anfanger`, `beginner`, `a1`, `a2`).
+  The first match wins. Support comes first because its markers are more
+  specific than `deutsch`: "Deutsch als Zweitsprache" is a DaZ student, plain
+  "Deutsch" a native speaker. (Until 2026-09-14 native was checked first, and
+  such cells were read as native.)
 - **Social role:** `mediator`, `vermittler`, `schlichtend`, `beruhigend` →
   mediator; `anführer`, `leader` → leader; `einzelgänger`, `loner`,
   `introvertiert` → loner; `mittelpunkt`, `social hub`, `beliebt`, `popular` →

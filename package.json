@@ -39,6 +39,7 @@
     "prebuild": "npm run generate:sitemap",
     "test": "vitest",
     "test:coverage": "vitest run --coverage",
+    "bench": "vitest bench --run",
     "test:e2e": "playwright test",
     "typecheck": "node node_modules/@typescript/native/bin/tsc --noEmit",
     "typecheck:test": "node node_modules/@typescript/native/bin/tsc --noEmit -p tsconfig.test.json",

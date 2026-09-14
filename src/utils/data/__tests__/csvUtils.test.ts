@@ -25,6 +25,32 @@ describe('csvUtils', () => {
   });
 
   describe('parseCsvFlexible', () => {
+    test('reads language support markers before the native "deutsch"', async () => {
+      const csv = [
+        'Name,Sprachniveau',
+        'Ada,Deutsch als Zweitsprache',
+        'Ben,Deutsch als Fremdsprache',
+        'Cem,DaZ-Förderung',
+        'Dora,Deutsch',
+        'Emil,Muttersprache',
+        'Finn,B1',
+      ].join('\n');
+      const students = await parseCsvFlexible(
+        createCsvFile(csv, 'language.csv'),
+      );
+
+      expect(
+        students.map((student) => [student.name, student.languageSkill]),
+      ).toEqual([
+        ['Ada', 'daz'],
+        ['Ben', 'daz'],
+        ['Cem', 'daz'],
+        ['Dora', 'native'],
+        ['Emil', 'native'],
+        ['Finn', 'intermediate'],
+      ]);
+    });
+
     test('maps gender labels to normalized values', async () => {
       const csv =
         'Name,Geschlecht,Besondere Bedürfnisse\nAlice,Mädchen,Brille\nBob,Junge,\n';

@@ -278,6 +278,42 @@ and what "delete all data" removes are described in
   visit. It uses the prompt update model: a new version waits until the teacher
   confirms the reload.
 
+## Quality budgets
+
+Without a server there are no service level objectives to promise. These
+budgets take their place; measurements and details are in
+[PERFORMANCE.md](PERFORMANCE.md#budgets).
+
+| Quality                         | Budget                                                                  | Status                                                                |
+| ------------------------------- | ----------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| Load size                       | Initial payload ≤ 250 KB brotli                                         | 221 KB; enforced in CI and the Docker build                           |
+| Response to _Mischen_           | ≤ 500 ms for 36 students on the slowest supported device — **proposed** | About 63 ms on an Apple M1 Pro; measured by hand with `npm run bench` |
+| Page experience                 | Core Web Vitals "good"                                                  | Logged in the browser only; no field data                             |
+| Offline use                     | The generator works without a connection after the first load           | In place since v1.2.0; not tested automatically                       |
+| No lost edits when a tab closes | Pending writes start on `visibilitychange` and `pagehide`               | Implemented in `usePersistQueue`                                      |
+| No silent hang of the algorithm | A worker that stays silent for 120 s fails visibly                      | Enforced in `algorithmWorkerClient`                                   |
+
+## Monitoring without telemetry
+
+Klassenplan collects nothing from teachers' browsers
+([decision 0008](decisions/0008-no-telemetry.md)), so nobody is alerted when
+something breaks there. These signals take the place of monitoring:
+
+| Signal                                                                                                                                                                    | Catches                                              | Where it shows                |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- | ----------------------------- |
+| CI on every push: lint, type checks, i18n parity, unused exports, unit tests, Playwright smoke and core flow, static build with prerender verification and bundle budgets | Regressions before a release                         | GitHub Actions (`ci.yml`)     |
+| Release workflow on a version tag                                                                                                                                         | A failing image build or a missing changelog section | GitHub Actions (`docker.yml`) |
+| Dependabot                                                                                                                                                                | Outdated and vulnerable dependencies                 | Pull requests                 |
+| Quarterly security audit (by hand)                                                                                                                                        | Header and CSP drift, `npm audit` findings           | [SECURITY.md](SECURITY.md)    |
+| Search Console and IndexNow after a deploy (by hand)                                                                                                                      | Indexing and canonical problems                      | [SEO.md](SEO.md)              |
+| Feedback e-mail, GitHub issues, security contact                                                                                                                          | Problems teachers actually run into                  | Inbox, issue tracker          |
+| Browser console: logger and Web Vitals                                                                                                                                    | Errors and slow pages — on a developer's machine     | DevTools                      |
+
+**Known gaps:** errors that only happen in a teacher's browser surface only when
+someone reports them; offline use has no automated test; the algorithm runtime
+is not re-measured automatically. CSP violation reports are not collected,
+because a report endpoint is a server receiving data from visitors' browsers.
+
 ## Glossary
 
 The UI speaks German, the code English. These are the terms that do not
@@ -311,9 +347,12 @@ Each entry names the problem, the options and the next step. Decisions move to
 a decision record once taken.
 
 1. **Why 36 students?** The limit is explained as algorithm cost in one place
-   and as an import cap in another. _Next step:_ measure generation and
-   refinement time against class size with a seeded benchmark, then record the
-   reason next to the constant.
+   and as an import cap in another. The benchmark rules out runtime as the
+   reason up to 36: _Mischen_ with criteria takes about 63 ms for a full class
+   on an Apple M1 Pro, and annealing barely depends on class size
+   ([PERFORMANCE.md](PERFORMANCE.md#algorithm-runtime)). Larger classes were not
+   measured, and the 900 × 600 room is sized for 36. _Next step:_ record the
+   actual reason next to the constant.
 2. **The mix history keeps the constructed arrangement, not the refined one.**
    With criteria active, _Mischen_ refines after the result was added to the
    history, so the repetition criterion sees the pairs from before refinement.
@@ -334,6 +373,18 @@ a decision record once taken.
 5. **Retention is bounded by count, not time.** Mix history and plan usage
    records are capped by number of entries; nothing expires at the end of a
    school year. _Next step:_ product decision.
+6. **_Verfeinern_ does the same work as the refinement inside _Mischen_.** The
+   button passes 1,800 tries in 4 passes instead of 600 in 2, but annealing
+   ignores both and runs its fixed cooling schedule
+   ([PERFORMANCE.md](PERFORMANCE.md#algorithm-runtime)). Options: give the button
+   a longer annealing schedule, drop the unused constants, or keep it as it is.
+   A longer schedule changes the plans teachers get. _Next step:_ decide whether
+   a manual refinement should search longer.
+7. **The CSP allows PayPal sources nothing uses.** `img-src` and `form-action`
+   list PayPal, but the support page only links there
+   ([SECURITY.md](SECURITY.md)). Options: remove them from
+   `nginx-security-headers.conf` and `vite.config.ts`, or keep them for a future
+   donation form. _Next step:_ remove them unless such a form is planned.
 
 ## Resolved questions
 

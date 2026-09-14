@@ -18,6 +18,7 @@ import type {
 } from '@/types';
 import type { CircleLayout, CircleExportData } from '@/types/Circle';
 import { DB_KEYS } from './storageKeys';
+import { hasIndexedDB } from './indexedDb';
 import {
   logError,
   MAX_STUDENTS,
@@ -408,12 +409,26 @@ export async function importAllFromJson(
  */
 export async function clearAllData(
   handlers: ApplicationStateResetHandlers = {},
-  options?: { skipIndexedDBClear?: boolean },
+  options?: {
+    /**
+     * Skip deleting the `DB_KEYS` from the key-value store, for callers whose
+     * repository has already done that. The photo database is wiped either
+     * way: it is a separate database that no repository reaches.
+     */
+    skipIndexedDBClear?: boolean;
+  },
 ): Promise<void> {
   try {
     if (!options?.skipIndexedDBClear) {
       await idbDeleteAll(Object.values(DB_KEYS));
-      await clearAllPhotos();
+    }
+    if (hasIndexedDB()) {
+      const photosCleared = await clearAllPhotos();
+      if (!photosCleared.success) {
+        // Reporting "all data deleted" while the photos stay on the device
+        // would be worse than reporting the failure.
+        throw new Error(photosCleared.error.message);
+      }
     }
     clearPhotoCache();
     clearPhotoTrash();

@@ -17,6 +17,11 @@ const { delMock, setMock } = vi.hoisted(() => ({
   setMock: vi.fn().mockResolvedValue(undefined),
 }));
 const resetApplicationStateMock = vi.hoisted(() => vi.fn());
+// jsdom has no IndexedDB, so the photo wipe is only reached with both mocked.
+const { clearAllPhotosMock, hasIndexedDBMock } = vi.hoisted(() => ({
+  clearAllPhotosMock: vi.fn(),
+  hasIndexedDBMock: vi.fn(() => false),
+}));
 
 vi.mock('idb-keyval', () => ({
   del: delMock,
@@ -25,6 +30,16 @@ vi.mock('idb-keyval', () => ({
 }));
 vi.mock('@/utils/state/resetApplicationState', () => ({
   resetApplicationState: resetApplicationStateMock,
+}));
+vi.mock('@/repositories/studentPhotoStore', async (importOriginal) => ({
+  ...(await importOriginal<
+    typeof import('@/repositories/studentPhotoStore')
+  >()),
+  clearAllPhotos: clearAllPhotosMock,
+}));
+vi.mock('@/utils/data/indexedDb', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/utils/data/indexedDb')>()),
+  hasIndexedDB: hasIndexedDBMock,
 }));
 
 const bundle: ExportBundle = {
@@ -176,6 +191,35 @@ describe('clearAllData', () => {
     delMock.mockRejectedValueOnce(error);
 
     await expect(clearAllData(setters)).rejects.toThrow('Quota exceeded');
+    expect(resetApplicationStateMock).not.toHaveBeenCalled();
+  });
+
+  it('wipes the photo database even when the caller already cleared the keys', async () => {
+    // The footer's "delete all data" path: the repository removed the DB_KEYS,
+    // but the photos live in a database of their own.
+    hasIndexedDBMock.mockReturnValueOnce(true);
+    clearAllPhotosMock.mockResolvedValueOnce({
+      success: true,
+      data: undefined,
+    });
+
+    await clearAllData({}, { skipIndexedDBClear: true });
+
+    expect(delMock).not.toHaveBeenCalled();
+    expect(clearAllPhotosMock).toHaveBeenCalledTimes(1);
+    expect(resetApplicationStateMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('fails instead of reporting success when the photos cannot be wiped', async () => {
+    hasIndexedDBMock.mockReturnValueOnce(true);
+    clearAllPhotosMock.mockResolvedValueOnce({
+      success: false,
+      error: { type: 'STORAGE_ERROR', message: 'Photo store locked' },
+    });
+
+    await expect(
+      clearAllData({}, { skipIndexedDBClear: true }),
+    ).rejects.toThrow('Photo store locked');
     expect(resetApplicationStateMock).not.toHaveBeenCalled();
   });
 });

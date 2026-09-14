@@ -2,6 +2,49 @@
 
 This document outlines the security measures implemented in Klassenplan and best practices for maintaining secure code.
 
+## Threat model
+
+Klassenplan has no server-side data, no accounts and no API
+([decision 0001](decisions/0001-offline-first-no-server.md)), so the usual
+targets of an attack on a web application do not exist. What is left to
+protect:
+
+- **Student data at rest** in the browser profile — the class collection and
+  the photo database, both unencrypted.
+- **Exported files** — the encrypted backup, and unencrypted PDF, PNG, SVG,
+  print and CSV exports.
+- **The integrity of the code the browser runs**, because that code has full
+  access to both.
+
+### Trust boundaries
+
+1. **Server → browser.** Static files, TLS terminated upstream, protected by the
+   CSP and security headers below. New code only activates after the teacher
+   confirms the update ([decision 0009](decisions/0009-prompt-update-model.md)).
+2. **Files → app.** Every imported file — CSV, backup, photo — is untrusted
+   input, including a backup that decrypts with the right password.
+3. **Device → people.** Whoever uses the browser profile, and whoever sees the
+   projector.
+
+### Threats and mitigations
+
+| Threat                                                      | Entry point                 | Mitigation                                                                                                                                                                                                                                                                | What remains                                                                                        |
+| ----------------------------------------------------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| Script injection through imported or typed text             | CSV, backup, form fields    | React escapes all output; no `dangerouslySetInnerHTML`, `innerHTML` or `eval` in `src/`; `script-src 'self'` without `'unsafe-inline'`; imported names lose HTML tags and control characters and are cut to 120 characters                                                | `style-src 'unsafe-inline'` would allow injected inline styles                                      |
+| Formula injection when an export is opened in a spreadsheet | CSV export                  | Cells starting with `=`, `+`, `-`, `@`, a tab or a line break get a leading `'` (`exportStudentsToCsv`)                                                                                                                                                                   | —                                                                                                   |
+| A file that stalls or crashes the tab                       | CSV, backup, photo          | CSV: type check, 36-row limit, parsing in a worker with a 12 s timeout from 40 KB. Backup: 16 MB file and 12 MB decrypted limits, per-field caps and structure validation, KDF iterations bounded to 100,000–10,000,000. Photo: 20 MB input limit, decoded and re-encoded | —                                                                                                   |
+| Tampered backup                                             | Backup import               | AES-GCM with associated data rejects any modified ciphertext; content is validated after decryption ([backup-format.md](backup-format.md))                                                                                                                                | A backup made by someone else with a known password is trusted content within the validation limits |
+| Location or device data in photos                           | Photo import                | Canvas re-encode to a 160 px JPEG strips EXIF, including GPS                                                                                                                                                                                                              | —                                                                                                   |
+| Access to the device or browser profile                     | Local                       | None beyond the device's own protection (OS account, disk encryption); "delete all data" removes everything                                                                                                                                                               | Full read access to all live data                                                                   |
+| Onlookers                                                   | Projector                   | Attributes appear only in the teacher perspective and only when switched on                                                                                                                                                                                               | Names always, photos and gender colours by default                                                  |
+| Exported files passed on                                    | Exports                     | Backups are encrypted with a password of at least 8 characters (PBKDF2-SHA256, 600,000 iterations)                                                                                                                                                                        | PDF, PNG, SVG, print and CSV are readable by anyone who holds them                                  |
+| Compromised or manipulated app code                         | Server, build, dependencies | No third-party scripts or CDNs; strict CSP; `npm ci` against the lockfile; Dependabot; the quarterly audit below                                                                                                                                                          | A compromised dependency or build runs with full access to the data                                 |
+| Clickjacking                                                | Framing                     | `frame-ancestors 'none'`, `X-Frame-Options: DENY`                                                                                                                                                                                                                         | —                                                                                                   |
+| A modified self-hosted instance                             | Operator                    | AGPL §13 makes the source of a modified network deployment available                                                                                                                                                                                                      | Teachers have to trust whoever serves the code                                                      |
+
+Which personal data exists, who sees it and what a self-hosting operator has to
+take care of is described in [PRIVACY.md](PRIVACY.md).
+
 ## Content Security Policy (CSP)
 
 ### Production CSP (nginx-security-headers.conf)
@@ -25,8 +68,7 @@ object-src 'none';
 **Exceptions explained:**
 
 - `style-src 'unsafe-inline'` is needed for runtime style tooling (Tailwind utility insertions, dynamic component styles). No `unsafe-inline` for scripts.
-- `https://pics.paypal.com` / `https://www.paypal.com` / `https://www.paypalobjects.com` cover donation graphics and checkout forms.
-- `form-action https://www.paypal.com` allows PayPal as the only external form target.
+- `https://pics.paypal.com` / `https://www.paypal.com` / `https://www.paypalobjects.com` in `img-src` and `https://www.paypal.com` in `form-action` were added for donation graphics and a checkout form. The support page now links to PayPal with a plain link and loads neither, so these exceptions are currently unused.
 - All other resources remain strictly first-party. There is no third-party analytics, telemetry, or CDN.
 
 > **Note:** If you deploy behind a different reverse proxy or static host, replicate the CSP and the security headers below in that environment's configuration.
@@ -174,15 +216,13 @@ docker compose up -d --build
 
 ## Monitoring & Incident Response
 
-### CSP Violation Reporting (Future Enhancement)
+### CSP violation reporting
 
-Consider adding `report-uri` or `report-to` directives:
-
-```
-Content-Security-Policy: ...; report-uri https://klassenplan.de/csp-report
-```
-
-This sends CSP violation reports to a logging endpoint for monitoring.
+Not used. A `report-uri` or `report-to` endpoint is a server that receives data
+from visitors' browsers, which [decision 0001](decisions/0001-offline-first-no-server.md)
+and [decision 0008](decisions/0008-no-telemetry.md) rule out. Violations show up
+in the browser console — during development and in the Docker-based check under
+"Local CSP Testing".
 
 ### Security Audit Checklist
 

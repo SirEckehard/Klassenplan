@@ -215,15 +215,17 @@ class collection. Nothing expires by age.
 ### "Delete all data"
 
 The footer action (`useSeatingPersistence.clearAllData`) deletes every key of
-the key-value store listed in `DB_KEYS`, every project localStorage key, the
-in-memory photo cache and pending photo deletions, and resets the application
-state.
+the key-value store listed in `DB_KEYS` through the repository, then calls the
+shared `clearAllData` helper in `utils/data/dataBackup.ts`. That helper wipes
+the photo database, the in-memory photo cache, pending photo deletions and every
+project localStorage key, and resets the application state. If the photos
+cannot be wiped, the action fails and the teacher sees an error instead of a
+success message.
 
-It does **not** clear the photo database: it calls the shared `clearAllData`
-helper with `skipIndexedDBClear`, and that flag skips `clearAllPhotos()` as well.
-The photo blobs stay in `spg-student-photos` until the next start of the app,
-when the orphan sweep finds no students and removes them. The migration marker
-`spg.migrationVersion` in IndexedDB is not part of `DB_KEYS` and stays too.
+Until 2026-09-14 the `skipIndexedDBClear` flag skipped the photo wipe as well,
+so photos stayed on the device until the next app start. The migration marker
+`spg.migrationVersion` in IndexedDB is not part of `DB_KEYS` and stays; it holds
+no personal data.
 
 ### Without IndexedDB
 
