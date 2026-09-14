@@ -5,8 +5,11 @@ import { useTranslation } from 'react-i18next';
 import { HeartIcon } from '@phosphor-icons/react';
 import type { Student } from '@/types';
 import { useClickOutside } from '@/hooks/ui/useClickOutside';
-import { menuSurfaceClass, MAX_PARTNER_WISHES } from '@/utils';
-import { getWishPartnerIds } from '@/utils/data/studentMigration';
+import {
+  getWishPartnerIds,
+  menuSurfaceClass,
+  MAX_PARTNER_WISHES,
+} from '@/utils';
 import { partnerButtonTokens } from './studentStyleTokens';
 import FloatingDropdown from './FloatingDropdown';
 import IconWithLabel from './IconWithLabel';

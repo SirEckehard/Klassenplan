@@ -4,7 +4,7 @@
  * Pure question-generation logic for the name quiz. No React, no I/O —
  * fully deterministic with an injected rng for tests.
  */
-import { shuffleArray } from '@/utils/algorithm/shuffle';
+import { shuffleArray } from '@/utils';
 import type { NameGameStatsMap, Student } from '@/types';
 
 export type QuizQuestionType = 'photoToName' | 'nameToPhoto';

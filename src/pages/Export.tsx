@@ -24,6 +24,8 @@ import {
 import {
   canvasFrameClass,
   errorHandlers,
+  LEGACY_EXPORT_KEYS,
+  LOCAL_STORAGE_KEYS,
   logError,
   neutralButtonClass,
   primaryButtonClass,
@@ -53,10 +55,6 @@ import type { PhotoDisplayMode, SeatingArrangement, Student } from '@/types';
 import usePersistentState from '@/hooks/usePersistentState';
 import type { CircleLayout } from '@/types/Circle';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
-import {
-  LEGACY_EXPORT_KEYS,
-  LOCAL_STORAGE_KEYS,
-} from '@/utils/data/storageKeys';
 import { useFirstVisit } from '@/hooks/ui/useFirstVisit';
 import { usePlanUsagePrompt } from '@/hooks/plan/usePlanUsagePrompt';
 import Seo from '@/components/Seo';

@@ -19,6 +19,14 @@
 export { generateId } from './id';
 export { deepClone } from './deepClone';
 export { stableStringify } from './jsonUtils';
+// Lives next to the algorithm that uses it most, but has no dependencies, so
+// UI code (e.g. the name game) takes it from here instead of the namespace.
+export { shuffleArray } from './algorithm/shuffle';
+
+// ===== Storage Keys =====
+// Dependency-free constants. UI code reads its localStorage preferences
+// through these; the rest of '@/utils/data' stays out of the UI layer.
+export { LOCAL_STORAGE_KEYS, LEGACY_EXPORT_KEYS } from './data/storageKeys';
 
 // ===== Logging =====
 export { logInfo, logWarn, logError, logDebug } from './logger';

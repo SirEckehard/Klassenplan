@@ -3,8 +3,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MoonIcon, SunIcon } from '@phosphor-icons/react';
-import { LOCAL_STORAGE_KEYS } from '@/utils/data/storageKeys';
-import { logDebug } from '@/utils';
+import { LOCAL_STORAGE_KEYS, logDebug } from '@/utils';
 
 // Detect user's system theme preference
 const detectSystemTheme = (): 'light' | 'dark' => {

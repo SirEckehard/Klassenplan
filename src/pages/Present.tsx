@@ -29,9 +29,9 @@ import { useFullscreen } from '@/hooks/ui/useFullscreen';
 import { useRandomStudentPicker } from '@/hooks/ui/useRandomStudentPicker';
 import { useEnsureCircleLayout } from '@/hooks/circle/useEnsureCircleLayout';
 import { useSeatingPlanState } from '@/contexts/SeatingPlanContext';
-import { LOCAL_STORAGE_KEYS } from '@/utils/data/storageKeys';
 import {
   iconButtonClass,
+  LOCAL_STORAGE_KEYS,
   neutralButtonClass,
   primaryButtonClass,
   secondaryButtonClass,

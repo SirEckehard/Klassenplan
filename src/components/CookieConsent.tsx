@@ -3,9 +3,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LocalizedLink } from '@/components/LocalizedLink';
-import { LOCAL_STORAGE_KEYS } from '@/utils/data/storageKeys';
 import { COOKIE_BANNER_OFFSET_EVENT } from '@/hooks/ui/useCookieBannerOffset';
-import { logDebug } from '@/utils';
+import { LOCAL_STORAGE_KEYS, logDebug } from '@/utils';
 
 /**
  * Detect the Global Privacy Control signal. The app is local-first and never

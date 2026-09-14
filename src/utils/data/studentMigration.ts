@@ -47,37 +47,3 @@ export function migrateStudentPartnerFields(student: Student): Student {
 export function migrateStudentsPartnerFields(students: Student[]): Student[] {
   return students.map(migrateStudentPartnerFields);
 }
-
-/**
- * Gets all wish partner IDs for a student, handling both legacy and new fields.
- * Prioritizes new array field, falls back to legacy single field.
- *
- * @param student - Student object
- * @returns Array of wish partner IDs (may be empty)
- */
-export function getWishPartnerIds(student: Student): string[] {
-  if (student.wishPartnerIds && student.wishPartnerIds.length > 0) {
-    return student.wishPartnerIds;
-  }
-  if (student.wishPartnerId) {
-    return [student.wishPartnerId];
-  }
-  return [];
-}
-
-/**
- * Gets all avoid partner IDs for a student, handling both legacy and new fields.
- * Prioritizes new array field, falls back to legacy single field.
- *
- * @param student - Student object
- * @returns Array of avoid partner IDs (may be empty)
- */
-export function getAvoidPartnerIds(student: Student): string[] {
-  if (student.avoidPartnerIds && student.avoidPartnerIds.length > 0) {
-    return student.avoidPartnerIds;
-  }
-  if (student.avoidPartnerId) {
-    return [student.avoidPartnerId];
-  }
-  return [];
-}

@@ -317,18 +317,33 @@ a decision record once taken.
    Either way it changes which pairs count as recent, so it needs a deliberate
    decision. _Next step:_ decide, then document it in
    [ALGORITHM.md](ALGORITHM.md).
-3. **Module boundaries are written down but not enforced.**
-   [MODULE_BOUNDARIES.md](MODULE_BOUNDARIES.md) keeps UI code out of
-   `@/utils/algorithm` and `@/utils/data`; 19 files in `components/` and
-   `pages/` import from there anyway. Options: move the generic helpers and
-   enforce the rule with ESLint, or relax the rule. _Next step:_ go through the
-   19 imports.
+3. **Some utils modules depend on layers above them.** Backup, migration, PDF
+   export, state reset and the route preloader import repositories, hooks,
+   stores, services or the page registry
+   ([MODULE_BOUNDARIES.md](MODULE_BOUNDARIES.md#known-crossings-in-the-other-direction)).
+   Options: move each module into `services/` or `repositories/`, or record it
+   as intended. _Next step:_ decide file by file; the route preloader is
+   already intended.
 4. **The class switch relies on ordering.** Setting the class id and the class
    data in one transition would remove the hazard described above, but reaches
    deep into persistence. _Next step:_ weigh it as its own decision.
 5. **Retention is bounded by count, not time.** Mix history and plan usage
    records are capped by number of entries; nothing expires at the end of a
    school year. _Next step:_ product decision.
+
+## Resolved questions
+
+**Module boundaries were written down but not enforced** (resolved
+2026-09-14). [MODULE_BOUNDARIES.md](MODULE_BOUNDARIES.md) kept UI code out of
+`@/utils/algorithm` and `@/utils/data`, yet 19 files in `components/` and
+`pages/` imported from there, and the document named the wrong consumers for
+the other layers. _Decision:_ dependency-free helpers (`shuffleArray`, the
+storage keys) are surfaced through `@/utils`; the duplicate partner getters in
+`utils/data/studentMigration.ts` were removed in favour of the identical ones
+in `utils/student`; type imports and three pure display derivations stay
+allowed because they must show exactly what the algorithm scores. ESLint
+enforces the rest for `src/components` and `src/pages` and blocks component
+imports in `src/utils`.
 
 ## Related documents
 

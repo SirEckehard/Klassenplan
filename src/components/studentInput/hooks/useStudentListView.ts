@@ -3,7 +3,7 @@
 import React from 'react';
 import type { Student } from '@/types';
 import usePersistentState from '@/hooks/usePersistentState';
-import { LOCAL_STORAGE_KEYS } from '@/utils/data/storageKeys';
+import { LOCAL_STORAGE_KEYS } from '@/utils';
 
 /** Sort orders offered above the list. `manual` keeps the insertion order. */
 export type StudentSortMode = 'manual' | 'name-asc' | 'name-desc';

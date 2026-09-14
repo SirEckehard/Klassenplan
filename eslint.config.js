@@ -21,6 +21,35 @@ const compat = new FlatCompat({
   allConfig: js.configs.all,
 });
 
+// Deep paths into modules the central utils API already exposes.
+const utilsBarrelPaths = [
+  '@/utils/constants',
+  '@/utils/nameFormatting',
+  '@/utils/logger',
+  '@/utils/mixSettings',
+  '@/utils/plan',
+  '@/utils/errorHandling',
+  '@/utils/deepClone',
+  '@/utils/id',
+  '@/utils/math/tablePositioning',
+  '@/utils/shortcuts',
+  '@/utils/dateTimeFormat',
+].map((name) => ({
+  name,
+  message: 'Bitte importiere stattdessen aus "@/utils".',
+}));
+
+const testFiles = [
+  'src/**/__tests__/**',
+  'src/**/*.test.ts',
+  'src/**/*.test.tsx',
+];
+
+const UI_ALGORITHM_MESSAGE =
+  'UI-Code erreicht "@/utils/algorithm" über Hooks und Contexts. Erlaubt sind Typ-Importe sowie seatingStatistics und criterionHighlights (siehe docs/MODULE_BOUNDARIES.md).';
+const UI_DATA_MESSAGE =
+  'UI-Code erreicht "@/utils/data" über Hooks und Repositories. Erlaubt sind Typ-Importe sowie planUsage; Storage-Keys kommen aus "@/utils" (siehe docs/MODULE_BOUNDARIES.md).';
+
 export default defineConfig([
   // TypeScript, React, React-Hooks via FlatCompat (kein natives Flat Config)
   ...fixupConfigRules(
@@ -78,57 +107,7 @@ export default defineConfig([
       'react-hooks/set-state-in-effect': 'warn',
       'react-hooks/unsupported-syntax': 'warn',
       'react-hooks/immutability': 'warn',
-      'no-restricted-imports': [
-        'error',
-        {
-          paths: [
-            {
-              name: '@/utils/constants',
-              message: 'Bitte importiere stattdessen aus "@/utils".',
-            },
-            {
-              name: '@/utils/nameFormatting',
-              message: 'Bitte importiere stattdessen aus "@/utils".',
-            },
-            {
-              name: '@/utils/logger',
-              message: 'Bitte importiere stattdessen aus "@/utils".',
-            },
-            {
-              name: '@/utils/mixSettings',
-              message: 'Bitte importiere stattdessen aus "@/utils".',
-            },
-            {
-              name: '@/utils/plan',
-              message: 'Bitte importiere stattdessen aus "@/utils".',
-            },
-            {
-              name: '@/utils/errorHandling',
-              message: 'Bitte importiere stattdessen aus "@/utils".',
-            },
-            {
-              name: '@/utils/deepClone',
-              message: 'Bitte importiere stattdessen aus "@/utils".',
-            },
-            {
-              name: '@/utils/id',
-              message: 'Bitte importiere stattdessen aus "@/utils".',
-            },
-            {
-              name: '@/utils/math/tablePositioning',
-              message: 'Bitte importiere stattdessen aus "@/utils".',
-            },
-            {
-              name: '@/utils/shortcuts',
-              message: 'Bitte importiere stattdessen aus "@/utils".',
-            },
-            {
-              name: '@/utils/dateTimeFormat',
-              message: 'Bitte importiere stattdessen aus "@/utils".',
-            },
-          ],
-        },
-      ],
+      'no-restricted-imports': ['error', { paths: utilsBarrelPaths }],
     },
   },
 
@@ -141,6 +120,75 @@ export default defineConfig([
         project: ['./tsconfig.json'],
         tsconfigRootDir: __dirname,
       },
+    },
+  },
+
+  // UI layer: the algorithm and data namespaces are reached through hooks and
+  // contexts (docs/MODULE_BOUNDARIES.md). The typescript-eslint variant is
+  // needed for allowTypeImports; it replaces the core rule for these files, so
+  // the barrel paths are repeated here.
+  {
+    files: ['src/components/**/*.{ts,tsx}', 'src/pages/**/*.{ts,tsx}'],
+    ignores: testFiles,
+    rules: {
+      'no-restricted-imports': 'off',
+      '@typescript-eslint/no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            ...utilsBarrelPaths,
+            {
+              name: '@/utils/algorithm',
+              allowTypeImports: true,
+              message: UI_ALGORITHM_MESSAGE,
+            },
+            {
+              name: '@/utils/data',
+              allowTypeImports: true,
+              message: UI_DATA_MESSAGE,
+            },
+          ],
+          patterns: [
+            {
+              // Pure derivations that have to show exactly what the
+              // algorithm scores stay importable.
+              group: [
+                '@/utils/algorithm/*',
+                '!@/utils/algorithm/seatingStatistics',
+                '!@/utils/algorithm/criterionHighlights',
+              ],
+              allowTypeImports: true,
+              message: UI_ALGORITHM_MESSAGE,
+            },
+            {
+              group: ['@/utils/data/*', '!@/utils/data/planUsage'],
+              allowTypeImports: true,
+              message: UI_DATA_MESSAGE,
+            },
+          ],
+        },
+      ],
+    },
+  },
+
+  // Utils never import components; whatever renders them lives in services.
+  {
+    files: ['src/utils/**/*.{ts,tsx}'],
+    ignores: testFiles,
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: utilsBarrelPaths,
+          patterns: [
+            {
+              group: ['@/components', '@/components/*'],
+              message:
+                'Utils importieren keine Komponenten; was Komponenten rendert, gehört nach "@/services" (siehe docs/MODULE_BOUNDARIES.md).',
+            },
+          ],
+        },
+      ],
     },
   },
 

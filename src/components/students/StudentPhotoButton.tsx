@@ -21,8 +21,7 @@ import StudentPhotoCropModal from './StudentPhotoCropModal';
 import StudentPhotoConsentDialog from './StudentPhotoConsentDialog';
 import { confirmDialog } from '@/services/ui/dialogs';
 import { getStudentAppearance } from '@/utils/ui/studentAppearance';
-import { logError, withBrowserLocalStorage } from '@/utils';
-import { LOCAL_STORAGE_KEYS } from '@/utils/data/storageKeys';
+import { LOCAL_STORAGE_KEYS, logError, withBrowserLocalStorage } from '@/utils';
 import { showToast } from '@/utils/ui/toast';
 
 type Props = {

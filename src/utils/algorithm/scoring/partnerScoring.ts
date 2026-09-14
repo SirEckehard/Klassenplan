@@ -3,10 +3,7 @@
 import type { ScoringContext } from './scoringContext';
 import type { SeatNeighborDirection } from '@/utils/math/seatGeometry';
 import { getPartner } from './scoringHelpers';
-import {
-  getWishPartnerIds,
-  getAvoidPartnerIds,
-} from '@/utils/data/studentMigration';
+import { getWishPartnerIds, getAvoidPartnerIds } from '@/utils/student';
 
 /**
  * Direction-based reduction factors for neighbor scoring.

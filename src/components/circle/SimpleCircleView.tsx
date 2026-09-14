@@ -4,10 +4,10 @@ import React, { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { CircleLayout } from '@/types/Circle';
 import type { PhotoDisplayMode, Student } from '@/types';
-import { LOCAL_STORAGE_KEYS } from '@/utils/data/storageKeys';
 import { angleToPosition } from '@/utils/math/circleGeometry';
 import {
   GRID_SIZE,
+  LOCAL_STORAGE_KEYS,
   getDisplayNameForMode,
   getTooltipName,
   calculateSeatLabelFontSize,

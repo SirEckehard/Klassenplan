@@ -26,7 +26,6 @@ import {
   useSeatingPlanActions,
 } from '@/contexts/SeatingPlanContext';
 import usePersistentState from '@/hooks/usePersistentState';
-import { LOCAL_STORAGE_KEYS } from '@/utils/data/storageKeys';
 import { useIsDarkMode } from '@/hooks/useIsDarkMode';
 import { useFirstVisit } from '@/hooks/ui/useFirstVisit';
 import { useCanvasPreferences } from '@/contexts/seatingPlan/CanvasPreferencesContext';
@@ -34,6 +33,7 @@ import { useIsPhone } from '@/hooks/ui/useLayoutMode';
 import type { Props as SeatingPlanViewProps } from './SeatingPlanView';
 import {
   canvasFrameClass,
+  LOCAL_STORAGE_KEYS,
   secondaryButtonClass,
   type NameDisplayMode,
 } from '@/utils';

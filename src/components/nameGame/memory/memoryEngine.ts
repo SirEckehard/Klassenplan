@@ -4,7 +4,7 @@
  * Pure pairing and board-state logic for the memory mode. No React, no I/O —
  * fully deterministic with an injected rng for tests.
  */
-import { shuffleArray } from '@/utils/algorithm/shuffle';
+import { shuffleArray } from '@/utils';
 import type { Student } from '@/types';
 
 export const MEMORY_PAIRS_PER_ROUND = 8;
