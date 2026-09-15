@@ -5,16 +5,17 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
-## [2.0.5] - 2026-09-14
+## [2.1.0] - 2026-09-16
 
 ### Added
 
-- Klassenplan can be tried without data of your own: "Beispielklasse laden" – in the empty class list and in the "Hinzufügen" menu – creates a class with 24 invented students, drawn pictures and a furnished classroom. It is an ordinary class and can be deleted like any other
-- On the first visit, a short tour points out the most important controls of the class list, the classroom and the seating plan – from the backup behind the settings gear in the footer to the sidebar, the statistics and the seating circle. It can be switched off and started again from the help dialog at any time. The sidebar now starts collapsed on a first visit – the tour and the help dialog show how to expand it
+- Klassenplan can be tried without data of your own: "Beispielklasse laden" – in the empty class list and in the "Hinzufügen" menu – creates a class with 24 invented students, drawn pictures and a furnished classroom. It is an ordinary class and can be deleted like any other. Once it exists, the button switches to it instead of creating a second one
+- On the first visit, a short tour points out the most important controls of the class list, the classroom and the seating plan – from the backup behind the settings gear in the footer to the sidebar, the view settings, the statistics and the seating circle. It can be switched off and started again from the help dialog at any time. The sidebar now starts collapsed on a first visit – the tour and the help dialog show how to expand it
 
 ### Removed
 
 - The "Verfeinern" (refine) button in the seating plan. Measurements showed that refining a shuffled plan a second time does not reliably make it better – a point or two for 24 students, at times even worse for 36. "Mischen" still refines the plan automatically as soon as a criterion is active
+- The shortened name shown next to long names in the class list. How names appear on the tables – first name only, first name + last-name initial, or first and last name – is chosen in the view settings instead
 
 ### Improved
 
