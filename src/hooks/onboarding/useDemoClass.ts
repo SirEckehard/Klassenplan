@@ -6,7 +6,8 @@ import { logError, logWarn, showToast, TOAST_MESSAGES } from '@/utils';
 import {
   buildDemoClassroomScene,
   buildDemoStudents,
-  pickDemoClassName,
+  findDemoClass,
+  type DemoClassLanguage,
 } from '@/utils/demo/demoClass';
 import { renderDemoAvatarBlob } from '@/utils/image/demoAvatar';
 import {
@@ -16,6 +17,8 @@ import {
 import { useClassManagementContext } from '@/contexts/seatingPlan/ClassManagementContext';
 
 const LOG_SOURCE = 'useDemoClass';
+
+const DEMO_CLASS_LANGUAGES: readonly DemoClassLanguage[] = ['de', 'en'];
 
 /**
  * The load in progress. Several entry points on screen or a double click must
@@ -33,19 +36,39 @@ function discardPhotos(ids: Iterable<string>): void {
 }
 
 /**
- * Creates the sample class (`utils/demo/demoClass.ts`) as a new, active class.
+ * Creates the sample class (`utils/demo/demoClass.ts`) as a new, active class,
+ * or switches to it when it already exists.
  *
  * Nothing is overwritten: the sample is an ordinary class next to the teacher's
- * own ones, named "Beispielklasse" (or "Beispielklasse 2", …) and deleted the
- * way any class is.
+ * own ones, named "Beispielklasse" and deleted the way any class is. There is
+ * only ever one — a second copy of invented data helps nobody, so asking again
+ * opens the existing one.
  */
 export function useDemoClass() {
   const { t, i18n } = useTranslation('generator');
-  const { classSummaries, createClass } = useClassManagementContext();
+  const { classSummaries, activeClass, createClass, selectClass } =
+    useClassManagementContext();
   const [isLoadingDemoClass, setIsLoadingDemoClass] = useState(false);
+
+  // Every language's name: a sample class created on /de is still found on /en.
+  // Until the English bundle is loaded its lookup falls back to the German name.
+  const demoClass = findDemoClass(
+    classSummaries,
+    DEMO_CLASS_LANGUAGES.map((language) =>
+      i18n.getFixedT(language, 'generator')('demoClass.className'),
+    ),
+  );
+  const demoClassId = demoClass?.id ?? null;
 
   const loadDemoClass = useCallback((): Promise<boolean> => {
     if (pendingLoad) {
+      return pendingLoad;
+    }
+
+    if (demoClassId) {
+      pendingLoad = selectClass(demoClassId).finally(() => {
+        pendingLoad = null;
+      });
       return pendingLoad;
     }
 
@@ -84,10 +107,7 @@ export function useDemoClass() {
 
         const created = await createClass(
           {
-            name: pickDemoClassName(
-              t('demoClass.className'),
-              classSummaries.map((entry) => entry.name),
-            ),
+            name: t('demoClass.className'),
             label: t('demoClass.label'),
             notes: t('demoClass.notes'),
             students: students.map((student) =>
@@ -117,7 +137,14 @@ export function useDemoClass() {
     });
 
     return pendingLoad;
-  }, [classSummaries, createClass, i18n, t]);
+  }, [createClass, demoClassId, i18n, selectClass, t]);
 
-  return { loadDemoClass, isLoadingDemoClass };
+  return {
+    loadDemoClass,
+    isLoadingDemoClass,
+    /** Loading would switch to the existing sample class instead. */
+    hasDemoClass: demoClassId !== null,
+    /** The open class is the sample class: offering it again means nothing. */
+    isDemoClassActive: demoClassId !== null && demoClassId === activeClass.id,
+  };
 }

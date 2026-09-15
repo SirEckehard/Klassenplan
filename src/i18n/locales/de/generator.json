@@ -789,10 +789,13 @@
     "label": "Zum Ausprobieren",
     "notes": "Erfundene Schüler mit Fotos – zum Ausprobieren. Du kannst die Klasse jederzeit über die Klassenauswahl löschen.",
     "button": "Beispielklasse laden",
+    "switchButton": "Zur Beispielklasse wechseln",
     "loading": "Beispielklasse wird angelegt …",
     "hint": "24 erfundene Schüler mit Fotos und ein eingerichteter Klassenraum zum Ausprobieren.",
     "emptyClassPrompt": "Lieber erst ausprobieren? Die Beispielklasse kommt als eigene Klasse dazu.",
-    "addMenuHint": "Legt eine eigene Klasse mit 24 erfundenen Schülern an – diese Klasse bleibt, wie sie ist."
+    "emptyClassSwitchPrompt": "Lieber erst ausprobieren? Die Beispielklasse ist schon angelegt.",
+    "addMenuHint": "Legt eine eigene Klasse mit 24 erfundenen Schülern an – diese Klasse bleibt, wie sie ist.",
+    "addMenuSwitchHint": "Öffnet die schon angelegte Beispielklasse – diese Klasse bleibt, wie sie ist."
   },
   "tour": {
     "stepCounter": "{{current}} von {{total}}",

@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import {
   buildDemoClassroomScene,
   buildDemoStudents,
-  pickDemoClassName,
+  findDemoClass,
 } from '../demoClass';
 import {
   getAvoidPartnerIds,
@@ -19,7 +19,7 @@ import {
   MAX_PARTNER_WISHES,
   MAX_STUDENTS,
 } from '@/utils';
-import type { Student } from '@/types';
+import type { ClassSummary, Student } from '@/types';
 
 const sequentialIds = () => {
   let next = 0;
@@ -148,20 +148,36 @@ describe('buildDemoClassroomScene', () => {
   });
 });
 
-describe('pickDemoClassName', () => {
-  it('keeps the name while it is free', () => {
-    expect(pickDemoClassName('Beispielklasse', ['7b', '8c'])).toBe(
-      'Beispielklasse',
-    );
+describe('findDemoClass', () => {
+  const summary = (id: string, name: string): ClassSummary => ({
+    id,
+    name,
+    createdAt: '2026-09-15T00:00:00.000Z',
+    updatedAt: '2026-09-15T00:00:00.000Z',
+    studentCount: 0,
+  });
+  const names = ['Beispielklasse', 'Sample class'];
+
+  it('finds nothing among the teacher’s own classes', () => {
+    expect(
+      findDemoClass([summary('a', '7b'), summary('b', '8c')], names),
+    ).toBeNull();
   });
 
-  it('counts past taken names, ignoring case and surrounding spaces', () => {
+  it('matches ignoring case and surrounding spaces', () => {
     expect(
-      pickDemoClassName('Beispielklasse', [
-        ' beispielklasse ',
-        'Beispielklasse 2',
-        '7b',
-      ]),
-    ).toBe('Beispielklasse 3');
+      findDemoClass(
+        [summary('a', '7b'), summary('b', ' beispielklasse ')],
+        names,
+      )?.id,
+    ).toBe('b');
+  });
+
+  it('matches the name of every language', () => {
+    expect(findDemoClass([summary('a', 'Sample class')], names)?.id).toBe('a');
+  });
+
+  it('treats a renamed sample class as the teacher’s own', () => {
+    expect(findDemoClass([summary('a', 'Beispielklasse 2')], names)).toBeNull();
   });
 });

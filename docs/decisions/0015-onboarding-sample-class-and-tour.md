@@ -18,13 +18,17 @@ recognised a first visit but only used it to expand the sidebar.
 
 **Sample class.** "Beispielklasse laden" in step 1 — next to "Neue Klasse" while
 no class exists, as a link in an empty class and in the "Hinzufügen" menu —
-creates an ordinary class named "Beispielklasse" ("Beispielklasse 2", … when
-taken): 24 invented students whose attributes give every criterion something to
-work with, a furnished room and a picture per student (`useDemoClass`). The class
-goes through `createClass` like any other and carries no marker. The pictures
-are drawn on a canvas in the browser and stored as the same small JPEG an
-uploaded photo becomes (`renderDemoAvatarBlob`), before the class that refers to
-them.
+creates an ordinary class named "Beispielklasse": 24 invented students whose
+attributes give every criterion something to work with, a furnished room and a
+picture per student (`useDemoClass`). The class goes through `createClass` like
+any other and carries no marker. The pictures are drawn on a canvas in the
+browser and stored as the same small JPEG an uploaded photo becomes
+(`renderDemoAvatarBlob`), before the class that refers to them.
+
+There is only ever one. Once a class of that name exists — in either UI
+language, ignoring case (`findDemoClass`) — the same entries read "Zur
+Beispielklasse wechseln" and switch to it through `selectClass`. While the
+sample class is open, the add menu and the empty-class link do not offer it.
 
 **Coach marks.** One tour per wizard context (`components/onboarding/tours.ts`)
 points at elements tagged `data-tour`; marks whose element is not on screen are
@@ -55,6 +59,9 @@ steps aside while any other overlay is open (`useOtherDialogLayerOpen`).
   generator as router state — and removed again the same day at the
   maintainer's request, who preferred removing it to making it smaller. No
   further reason is recorded.
+- **A new copy on every click ("Beispielklasse 2", …).** Built first and
+  replaced the same day at the maintainer's request: a second copy of invented
+  data helps nobody, and the class switcher filled up with them.
 - **Image files in the bundle or an avatar service.** Files add weight and
   licensing questions; a service is an external connection
   ([0001](0001-offline-first-no-server.md), CSP `connect-src 'self'`).
@@ -68,8 +75,11 @@ steps aside while any other overlay is open (`useOtherDialogLayerOpen`).
 ## Consequences
 
 - The sample class holds no personal data. It is saved, backed up, exported and
-  deleted like any class; loading it twice creates two classes, and nothing is
-  ever overwritten.
+  deleted like any class, and nothing is ever overwritten.
+- The sample class is recognised by its name alone. A renamed one counts as the
+  teacher's own class, so the next click creates a fresh sample; a class of
+  their own named "Beispielklasse" is opened instead. Starting afresh means
+  deleting the sample class and loading it again.
 - The students' names are taken from the UI language when the class is created
   and stay when the language changes later.
 - The sidebar no longer opens expanded on a first visit; the tour's

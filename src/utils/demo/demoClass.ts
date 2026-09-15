@@ -24,6 +24,7 @@ import {
 } from '@/utils';
 import type {
   ClassroomScene,
+  ClassSummary,
   Gender,
   HeightCategory,
   LanguageSkillLevel,
@@ -293,25 +294,24 @@ export function buildDemoClassroomScene(studentCount: number): ClassroomScene {
 }
 
 /**
- * The first free name among "Beispielklasse", "Beispielklasse 2", …
+ * The sample class among the teacher's classes, if one exists.
  *
- * The repository refuses a second class with the same name (ignoring case),
- * and loading the sample class twice is a legitimate thing to do.
+ * The record carries no marker, so the name is what identifies it — compared
+ * the way the repository compares names (ignoring case and surrounding
+ * spaces). A renamed sample class counts as the teacher's own class from then
+ * on.
+ *
+ * @param classes - The classes to search
+ * @param demoClassNames - The sample class name in every UI language
  */
-export function pickDemoClassName(
-  baseName: string,
-  existingNames: readonly string[],
-): string {
-  const taken = new Set(existingNames.map((name) => name.trim().toLowerCase()));
-  const base = baseName.trim();
-  if (!taken.has(base.toLowerCase())) {
-    return base;
-  }
-
-  for (let suffix = 2; ; suffix += 1) {
-    const candidate = `${base} ${suffix}`;
-    if (!taken.has(candidate.toLowerCase())) {
-      return candidate;
-    }
-  }
+export function findDemoClass(
+  classes: readonly ClassSummary[],
+  demoClassNames: readonly string[],
+): ClassSummary | null {
+  const names = new Set(
+    demoClassNames.map((name) => name.trim().toLowerCase()),
+  );
+  return (
+    classes.find((entry) => names.has(entry.name.trim().toLowerCase())) ?? null
+  );
 }

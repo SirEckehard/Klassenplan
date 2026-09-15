@@ -2,12 +2,14 @@
 // Copyright (C) 2026 Eike Schäfer
 import { act, renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import i18n from '@/i18n';
+import i18n, { ensureEnglishLoaded } from '@/i18n';
 import type { CreateClassPayload, Student } from '@/types';
 
 const mocks = vi.hoisted(() => ({
   createClass: vi.fn(),
+  selectClass: vi.fn(),
   classSummaries: [] as Array<{ id: string; name: string }>,
+  activeClass: { id: null as string | null },
   saveStudentPhoto: vi.fn(),
   removeStudentPhoto: vi.fn(),
   renderDemoAvatarBlob: vi.fn(),
@@ -16,7 +18,9 @@ const mocks = vi.hoisted(() => ({
 vi.mock('@/contexts/seatingPlan/ClassManagementContext', () => ({
   useClassManagementContext: () => ({
     classSummaries: mocks.classSummaries,
+    activeClass: mocks.activeClass,
     createClass: mocks.createClass,
+    selectClass: mocks.selectClass,
   }),
 }));
 vi.mock('@/hooks/student/studentPhotoCache', () => ({
@@ -43,7 +47,9 @@ const load = async (result: { current: ReturnType<typeof useDemoClass> }) => {
 beforeEach(() => {
   vi.clearAllMocks();
   mocks.classSummaries.length = 0;
+  mocks.activeClass.id = null;
   mocks.createClass.mockResolvedValue(true);
+  mocks.selectClass.mockResolvedValue(true);
   mocks.saveStudentPhoto.mockResolvedValue(undefined);
   mocks.removeStudentPhoto.mockResolvedValue(undefined);
   mocks.renderDemoAvatarBlob.mockResolvedValue(
@@ -83,14 +89,52 @@ describe('useDemoClass', () => {
     );
   });
 
-  it('picks a free name when a sample class already exists', async () => {
-    const baseName = i18n.t('generator:demoClass.className');
-    mocks.classSummaries.push({ id: 'class-1', name: baseName });
+  it('switches to the existing sample class instead of creating another', async () => {
+    mocks.classSummaries.push(
+      { id: 'class-1', name: '7b' },
+      { id: 'class-2', name: i18n.t('generator:demoClass.className') },
+    );
+    mocks.activeClass.id = 'class-1';
+    const { result } = renderHook(() => useDemoClass());
+
+    expect(result.current.hasDemoClass).toBe(true);
+    expect(result.current.isDemoClassActive).toBe(false);
+    await expect(load(result)).resolves.toBe(true);
+
+    expect(mocks.selectClass).toHaveBeenCalledWith('class-2');
+    expect(mocks.createClass).not.toHaveBeenCalled();
+    expect(mocks.saveStudentPhoto).not.toHaveBeenCalled();
+  });
+
+  it('finds a sample class created in the other language', async () => {
+    await ensureEnglishLoaded();
+    mocks.classSummaries.push({ id: 'class-1', name: 'Sample class' });
     const { result } = renderHook(() => useDemoClass());
 
     await load(result);
 
-    expect(createdPayload().name).toBe(`${baseName} 2`);
+    expect(mocks.selectClass).toHaveBeenCalledWith('class-1');
+    expect(mocks.createClass).not.toHaveBeenCalled();
+  });
+
+  it('reports the open class as the sample class', () => {
+    mocks.classSummaries.push({
+      id: 'class-1',
+      name: i18n.t('generator:demoClass.className'),
+    });
+    mocks.activeClass.id = 'class-1';
+    const { result } = renderHook(() => useDemoClass());
+
+    expect(result.current.isDemoClassActive).toBe(true);
+  });
+
+  it('reports no sample class among the teacher’s own classes', () => {
+    mocks.classSummaries.push({ id: 'class-1', name: '7b' });
+    mocks.activeClass.id = 'class-1';
+    const { result } = renderHook(() => useDemoClass());
+
+    expect(result.current.hasDemoClass).toBe(false);
+    expect(result.current.isDemoClassActive).toBe(false);
   });
 
   it('marks only the students whose picture was stored', async () => {

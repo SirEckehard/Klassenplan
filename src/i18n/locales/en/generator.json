@@ -789,10 +789,13 @@
     "label": "For trying out",
     "notes": "Invented students with photos – for trying things out. You can delete this class at any time from the class switcher.",
     "button": "Load sample class",
+    "switchButton": "Switch to sample class",
     "loading": "Creating sample class …",
     "hint": "24 invented students with photos and a furnished classroom for trying things out.",
     "emptyClassPrompt": "Rather try it out first? The sample class is added as a separate class.",
-    "addMenuHint": "Creates a separate class with 24 invented students – this class stays as it is."
+    "emptyClassSwitchPrompt": "Rather try it out first? The sample class is already there.",
+    "addMenuHint": "Creates a separate class with 24 invented students – this class stays as it is.",
+    "addMenuSwitchHint": "Opens the sample class you already created – this class stays as it is."
   },
   "tour": {
     "stepCounter": "{{current}} of {{total}}",

@@ -150,6 +150,27 @@ describe('AddStudentsMenu', () => {
     );
   });
 
+  it('offers to switch once the sample class exists', async () => {
+    const onLoadDemoClass = vi.fn();
+    render(
+      <AddStudentsMenu
+        {...baseProps}
+        onLoadDemoClass={onLoadDemoClass}
+        hasDemoClass
+      />,
+    );
+    const user = userEvent.setup();
+
+    await user.click(trigger());
+    await user.click(
+      within(await menu()).getByRole('button', {
+        name: /Zur Beispielklasse wechseln|Switch to sample class/i,
+      }),
+    );
+
+    expect(onLoadDemoClass).toHaveBeenCalledTimes(1);
+  });
+
   it('offers no sample class when the host does not wire it up', async () => {
     render(<AddStudentsMenu {...baseProps} />);
     const user = userEvent.setup();

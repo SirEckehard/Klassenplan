@@ -46,6 +46,7 @@ type Props = {
   onExportCsv?: () => void;
   onLoadDemoClass?: () => void;
   isDemoClassLoading?: boolean;
+  hasDemoClass?: boolean;
 };
 
 /**
@@ -91,6 +92,7 @@ export default function ClassSelectionBar({
   onExportCsv,
   onLoadDemoClass,
   isDemoClassLoading,
+  hasDemoClass,
 }: Props) {
   const { t } = useTranslation('students');
   const hasActiveClass = Boolean(activeClass.id);
@@ -344,6 +346,7 @@ export default function ClassSelectionBar({
                 onImportCsv={onImportCsv}
                 onLoadDemoClass={onLoadDemoClass}
                 isDemoClassLoading={isDemoClassLoading}
+                hasDemoClass={hasDemoClass}
               />
             )}
 

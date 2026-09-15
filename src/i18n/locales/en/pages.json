@@ -143,7 +143,7 @@
       },
       "demo": {
         "q": "Can I try Klassenplan without real student data?",
-        "a": "Yes. Choose “Load sample class” in step 1 – right below “New Class” as long as you have no class yet, otherwise in the “Add” menu. Klassenplan then creates a separate class with 24 invented students, drawn portraits and a furnished classroom; your other classes stay as they are. You can try every step without risk and simply delete the sample class afterwards from the class switcher."
+        "a": "Yes. Choose “Load sample class” in step 1 – right below “New Class” as long as you have no class yet, otherwise in the “Add” menu. Klassenplan then creates a separate class with 24 invented students, drawn portraits and a furnished classroom; your other classes stay as they are. If the sample class already exists, the same button takes you to it – to start afresh, delete it and load it again. You can try every step without risk and simply delete the sample class afterwards from the class switcher."
       }
     },
     "eigenschaften": {

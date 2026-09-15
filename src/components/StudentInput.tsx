@@ -141,7 +141,8 @@ function StudentInput({
     deleteClass,
   } = useClassManagementContext();
   const { triggerImport } = useSeatingPlanActions();
-  const { loadDemoClass, isLoadingDemoClass } = useDemoClass();
+  const { loadDemoClass, isLoadingDemoClass, hasDemoClass, isDemoClassActive } =
+    useDemoClass();
   const handleLoadDemoClass = useCallback(() => {
     loadDemoClass().catch((error: unknown) => {
       logError('Failed to load the sample class', { error }, 'StudentInput');
@@ -343,8 +344,9 @@ function StudentInput({
         onImportCsv={analyzeCsvFile}
         onExportCsv={downloadStudentsCsv}
         onImportBackup={triggerImport}
-        onLoadDemoClass={handleLoadDemoClass}
+        onLoadDemoClass={isDemoClassActive ? undefined : handleLoadDemoClass}
         isDemoClassLoading={isLoadingDemoClass}
+        hasDemoClass={hasDemoClass}
         selectionActive={selection.selectedCount > 0}
       >
         {showListTools && (
@@ -423,20 +425,27 @@ function StudentInput({
                   {t('csv.formatHelp')}
                 </button>
                 {/* The sample class never lands in this class: it is created
-                    as a class of its own, which the prompt says. */}
-                <p className="leading-relaxed">
-                  {t('generator:demoClass.emptyClassPrompt')}{' '}
-                  <button
-                    type="button"
-                    onClick={handleLoadDemoClass}
-                    disabled={isLoadingDemoClass}
-                    className="cursor-pointer font-semibold text-blue-700 underline transition hover:text-blue-900 disabled:cursor-wait disabled:opacity-70 dark:text-blue-300 dark:hover:text-blue-100"
-                  >
-                    {isLoadingDemoClass
-                      ? t('generator:demoClass.loading')
-                      : t('generator:demoClass.button')}
-                  </button>
-                </p>
+                    as a class of its own, which the prompt says. An emptied
+                    sample class gets no offer to open itself. */}
+                {!isDemoClassActive && (
+                  <p className="leading-relaxed">
+                    {hasDemoClass
+                      ? t('generator:demoClass.emptyClassSwitchPrompt')
+                      : t('generator:demoClass.emptyClassPrompt')}{' '}
+                    <button
+                      type="button"
+                      onClick={handleLoadDemoClass}
+                      disabled={isLoadingDemoClass}
+                      className="cursor-pointer font-semibold text-blue-700 underline transition hover:text-blue-900 disabled:cursor-wait disabled:opacity-70 dark:text-blue-300 dark:hover:text-blue-100"
+                    >
+                      {isLoadingDemoClass
+                        ? t('generator:demoClass.loading')
+                        : hasDemoClass
+                          ? t('generator:demoClass.switchButton')
+                          : t('generator:demoClass.button')}
+                    </button>
+                  </p>
+                )}
               </div>
             </div>
           )}

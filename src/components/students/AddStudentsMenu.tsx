@@ -36,6 +36,8 @@ type Props = {
   /** Creates the sample class — a class of its own, not rows in this one. */
   onLoadDemoClass?: () => void;
   isDemoClassLoading?: boolean;
+  /** The sample class exists already: the entry switches to it instead. */
+  hasDemoClass?: boolean;
 };
 
 /**
@@ -68,6 +70,7 @@ export default function AddStudentsMenu({
   onImportCsv,
   onLoadDemoClass,
   isDemoClassLoading = false,
+  hasDemoClass = false,
 }: Props) {
   const { t } = useTranslation('students');
   const anchorRef = React.useRef<HTMLButtonElement | null>(null);
@@ -280,10 +283,14 @@ export default function AddStudentsMenu({
                     <UsersThreeIcon size={16} aria-hidden="true" />
                     {isDemoClassLoading
                       ? t('generator:demoClass.loading')
-                      : t('generator:demoClass.button')}
+                      : hasDemoClass
+                        ? t('generator:demoClass.switchButton')
+                        : t('generator:demoClass.button')}
                   </button>
                   <span className="px-3 text-xs text-gray-500 dark:text-gray-400">
-                    {t('generator:demoClass.addMenuHint')}
+                    {hasDemoClass
+                      ? t('generator:demoClass.addMenuSwitchHint')
+                      : t('generator:demoClass.addMenuHint')}
                   </span>
                 </div>
               </>

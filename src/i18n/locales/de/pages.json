@@ -143,7 +143,7 @@
       },
       "demo": {
         "q": "Kann ich Klassenplan ohne echte Schülerdaten ausprobieren?",
-        "a": "Ja. Wähle in Schritt 1 „Beispielklasse laden“ – solange du noch keine Klasse angelegt hast, direkt unter „Neue Klasse“, sonst im Menü „Hinzufügen“. Klassenplan legt dann eine eigene Klasse mit 24 erfundenen Schülern, gezeichneten Porträts und einem eingerichteten Klassenraum an; deine anderen Klassen bleiben unverändert. So probierst du alle Schritte gefahrlos aus und löschst die Beispielklasse danach einfach über die Klassenauswahl."
+        "a": "Ja. Wähle in Schritt 1 „Beispielklasse laden“ – solange du noch keine Klasse angelegt hast, direkt unter „Neue Klasse“, sonst im Menü „Hinzufügen“. Klassenplan legt dann eine eigene Klasse mit 24 erfundenen Schülern, gezeichneten Porträts und einem eingerichteten Klassenraum an; deine anderen Klassen bleiben unverändert. Gibt es die Beispielklasse schon, bringt dich derselbe Button zu ihr – für einen frischen Stand löschst du sie und lädst sie neu. So probierst du alle Schritte gefahrlos aus und löschst die Beispielklasse danach einfach über die Klassenauswahl."
       }
     },
     "eigenschaften": {

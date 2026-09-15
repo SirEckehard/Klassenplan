@@ -43,9 +43,11 @@ type ClassActionsPanelProps = {
   isAddStudentDisabled?: boolean;
   onImportCsv?: (file: File) => Promise<unknown>;
   onExportCsv?: () => void;
-  /** Offered while there is no class yet: creates the sample class. */
+  /** Creates the sample class, or switches to it once it exists. */
   onLoadDemoClass?: () => void;
   isDemoClassLoading?: boolean;
+  /** The sample class exists already: its entries read "switch to". */
+  hasDemoClass?: boolean;
 };
 
 const defaultMetadataValues: ClassMetadataFormValues = {
@@ -76,6 +78,7 @@ const ClassActionsPanel = ({
   onExportCsv,
   onLoadDemoClass,
   isDemoClassLoading = false,
+  hasDemoClass = false,
 }: ClassActionsPanelProps) => {
   const { t } = useTranslation('generator');
   const hasActiveClass = Boolean(activeClass.id);
@@ -220,6 +223,7 @@ const ClassActionsPanel = ({
           onExportCsv={onExportCsv}
           onLoadDemoClass={onLoadDemoClass}
           isDemoClassLoading={isDemoClassLoading}
+          hasDemoClass={hasDemoClass}
         >
           {children}
         </ClassSelectionBar>
@@ -297,7 +301,9 @@ const ClassActionsPanel = ({
                     )}
                     {isDemoClassLoading
                       ? t('demoClass.loading')
-                      : t('demoClass.button')}
+                      : hasDemoClass
+                        ? t('demoClass.switchButton')
+                        : t('demoClass.button')}
                   </button>
                   <p className="text-center text-xs text-blue-900/60 dark:text-blue-100/60">
                     {t('demoClass.hint')}
