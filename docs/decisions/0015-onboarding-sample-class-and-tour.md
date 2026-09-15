@@ -1,7 +1,7 @@
 # 0015 – A sample class and coach marks for the first visit
 
 - **Status:** accepted
-- **In place since:** unreleased (2026-09-15)
+- **In place since:** v2.1.0 (2026-09-16)
 - **Sources:** maintainer requests of 2026-09-15, `src/utils/demo/demoClass.ts`,
   `src/utils/image/demoAvatar.ts`, `src/hooks/onboarding/`,
   `src/components/onboarding/`

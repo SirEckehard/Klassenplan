@@ -1,7 +1,7 @@
 # 0014 – The mix history records the refined plan
 
 - **Status:** accepted
-- **In place since:** unreleased (2026-09-14)
+- **In place since:** v2.1.0 (2026-09-16)
 - **Sources:** [ALGORITHM.md](../ALGORITHM.md), maintainer decision of
   2026-09-14, `src/hooks/useSeatingAlgorithm.ts`, `src/utils/pairs.ts`
 

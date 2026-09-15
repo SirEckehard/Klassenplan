@@ -1,7 +1,7 @@
 # 0012 – Operators link their own legal pages at build time
 
 - **Status:** accepted
-- **In place since:** unreleased (2026-09-14)
+- **In place since:** v2.1.0 (2026-09-16)
 - **Sources:** [PRIVACY.md](../PRIVACY.md#running-your-own-instance), proposal
   agreed with the maintainer on 2026-09-14, `src/config/legalPageUrls.ts`
 
