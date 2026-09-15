@@ -31,6 +31,7 @@ import StorageHistoryModal from '@/components/ui/navigation/StorageHistoryModal'
 import { GITHUB_REPO_URL } from '@/config/links';
 import { getAppVersion } from '@/utils/version';
 import { useDialogLayer } from '@/hooks/ui/useDialogLayer';
+import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 
 const Footer: React.FC = () => {
   const { t } = useTranslation('common');
@@ -226,6 +227,7 @@ const Footer: React.FC = () => {
             title={t('footer.settings')}
             aria-haspopup="menu"
             aria-expanded={menuOpen}
+            data-tour={TOUR_ANCHORS.footerSettings}
           >
             <GearIcon className="h-4 w-4 text-blue-600 dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors" />
           </button>

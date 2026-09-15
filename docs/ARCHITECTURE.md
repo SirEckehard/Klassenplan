@@ -1,6 +1,6 @@
 # Architecture
 
-> **Status:** current · **Last reviewed:** 2026-09-14 · **Maintainer:** Eike
+> **Status:** current · **Last reviewed:** 2026-09-15 · **Maintainer:** Eike
 > Schäfer · **Describes:** Klassenplan 2.0.4
 
 This is the entry point for anyone who wants to understand _why_ Klassenplan is
@@ -109,6 +109,17 @@ headers.
 browser profile, so anyone using the same profile can read it. This is a known
 trade-off of having no server and no account ([SECURITY.md](SECURITY.md)); the
 mitigation today is organisational — one browser profile per person.
+
+**7. Trying it out before committing a class list.** A teacher hears about
+Klassenplan from a colleague, opens the generator and chooses _Beispielklasse
+laden_ in the empty class list. Klassenplan creates an ordinary class with 24
+invented students, drawn pictures and a furnished room. A short tour points out
+the class switcher, the add menu, the attributes and the backup behind the
+settings gear in the footer; the room and the seating plan get a tour of their
+own when they first open, including the sidebar, the statistics and the seating
+circle. Convinced, the teacher imports the real list into a new class and
+deletes the sample class
+([decision 0015](decisions/0015-onboarding-sample-class-and-tour.md)).
 
 ## Constraints
 
@@ -236,13 +247,17 @@ sequenceDiagram
   pers->>queue: flushPersistQueue()
   Note right of queue: writes what is still queued for the class that was open
   pers->>repo: loadClassCollection, loadActiveClassSnapshot
-  pers->>pers: applyPersistedState: bump versions, then class data and class id in one transition
+  pers->>pers: applyPersistedState: bump versions, then class data and class id in one flushSync
   gen->>gen: reset undo stacks, sync snapshot
 ```
 
 The class id never changes ahead of the class data. `useClassManagement` only
 records the choice in the repository and reloads; `applyPersistedState` then
-sets the class's data and its id inside one `startTransition`. Edits still
+sets the class's data and its id inside one `flushSync`, so both arrive in a
+single render. A transition is not enough: students, plans and room live in
+Zustand stores, which render at once even inside it, while seating and class id
+are React state and would wait — the seating sync then looped and froze the
+tab. Edits still
 queued for the class that was open are written before the load, while the queue
 still points at that class. Two guards remain as a backstop: loading bumps the
 persist versions, so a job from before the load is discarded, and the restore

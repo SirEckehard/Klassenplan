@@ -19,6 +19,7 @@ import { showToast } from '@/utils/ui/toast';
 import {
   cardSurfaceClass,
   isFormElementFocused,
+  logError,
   primaryButtonClass,
   secondaryButtonClass,
   warningButtonClass,
@@ -45,6 +46,8 @@ import ListScrollFab from '@/components/studentInput/ListScrollFab';
 import { useIsLgUp } from '@/hooks/ui/useIsLgUp';
 import { useCsvImportWithDialog } from '@/hooks/csv/useCsvImportWithDialog';
 import { isAnyDialogOpen } from '@/hooks/ui/useDialogLayer';
+import { useDemoClass } from '@/hooks/onboarding/useDemoClass';
+import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 
 /**
  * Whether Escape is free for the selection shortcut.
@@ -138,6 +141,12 @@ function StudentInput({
     deleteClass,
   } = useClassManagementContext();
   const { triggerImport } = useSeatingPlanActions();
+  const { loadDemoClass, isLoadingDemoClass } = useDemoClass();
+  const handleLoadDemoClass = useCallback(() => {
+    loadDemoClass().catch((error: unknown) => {
+      logError('Failed to load the sample class', { error }, 'StudentInput');
+    });
+  }, [loadDemoClass]);
   const hasActiveClass = Boolean(activeClass.id);
   const formatClassName = (name?: string | null) =>
     name && name.trim().length > 0
@@ -334,6 +343,8 @@ function StudentInput({
         onImportCsv={analyzeCsvFile}
         onExportCsv={downloadStudentsCsv}
         onImportBackup={triggerImport}
+        onLoadDemoClass={handleLoadDemoClass}
+        isDemoClassLoading={isLoadingDemoClass}
         selectionActive={selection.selectedCount > 0}
       >
         {showListTools && (
@@ -411,6 +422,21 @@ function StudentInput({
                   <TableIcon size={18} aria-hidden="true" />
                   {t('csv.formatHelp')}
                 </button>
+                {/* The sample class never lands in this class: it is created
+                    as a class of its own, which the prompt says. */}
+                <p className="leading-relaxed">
+                  {t('generator:demoClass.emptyClassPrompt')}{' '}
+                  <button
+                    type="button"
+                    onClick={handleLoadDemoClass}
+                    disabled={isLoadingDemoClass}
+                    className="cursor-pointer font-semibold text-blue-700 underline transition hover:text-blue-900 disabled:cursor-wait disabled:opacity-70 dark:text-blue-300 dark:hover:text-blue-100"
+                  >
+                    {isLoadingDemoClass
+                      ? t('generator:demoClass.loading')
+                      : t('generator:demoClass.button')}
+                  </button>
+                </p>
               </div>
             </div>
           )}
@@ -467,7 +493,10 @@ function StudentInput({
           </button>
           {/* Proceed Button — blocked by missing names; the reason shows on
               hover/focus, the click still raises the toast. */}
-          <div className="group relative w-full sm:w-auto">
+          <div
+            className="group relative w-full sm:w-auto"
+            data-tour={TOUR_ANCHORS.proceedToLayout}
+          >
             <button
               ref={proceedButtonRef}
               type="button"

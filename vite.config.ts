@@ -10,7 +10,7 @@ import viteCompression from 'vite-plugin-compression';
 import path from 'path';
 import { fileURLToPath } from 'node:url';
 import type { Alias, PluginOption } from 'vite';
-import { readLegalPageUrls } from './src/config/legalPageUrls';
+import { readLegalPageUrls } from './src/config/legalPageUrls.ts';
 
 const rootDir = fileURLToPath(new URL('.', import.meta.url));
 

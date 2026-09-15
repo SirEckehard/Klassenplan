@@ -27,6 +27,7 @@ it says so instead of reconstructing one.
 | [0012](0012-legal-pages-for-self-hosted-builds.md) | Operators link their own legal pages at build time         |
 | [0013](0013-one-performance-criterion.md)          | One performance criterion at a time                        |
 | [0014](0014-mix-history-records-refined-plan.md)   | The mix history records the refined plan                   |
+| [0015](0015-onboarding-sample-class-and-tour.md)   | A sample class and coach marks for the first visit         |
 
 ## Reasons still to be recorded
 

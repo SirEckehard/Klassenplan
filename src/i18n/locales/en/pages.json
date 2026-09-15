@@ -140,6 +140,10 @@
       "undo": {
         "q": "Can I undo changes?",
         "a": "Yes, Klassenplan finally supports undo and redo everywhere. In the class list, the classroom editor and the seating plan/seating circle editor alike you can take changes back and restore them – so an accidentally deleted student comes back together with their photo, for example. Tip: use the shortcuts Ctrl / Cmd + Z and Ctrl / Cmd + Shift + Z to undo or redo changes."
+      },
+      "demo": {
+        "q": "Can I try Klassenplan without real student data?",
+        "a": "Yes. Choose “Load sample class” in step 1 – right below “New Class” as long as you have no class yet, otherwise in the “Add” menu. Klassenplan then creates a separate class with 24 invented students, drawn portraits and a furnished classroom; your other classes stay as they are. You can try every step without risk and simply delete the sample class afterwards from the class switcher."
       }
     },
     "eigenschaften": {
@@ -400,6 +404,10 @@
       "shortcuts": {
         "q": "Which keyboard shortcuts does the editor support?",
         "a": "In the classroom editor, Ctrl/Cmd + C, Ctrl/Cmd + V, and Ctrl/Cmd + X are available for copying, pasting, and cutting tables. You can find a complete overview of available shortcuts in the help area at the top right."
+      },
+      "tour": {
+        "q": "Is there an introduction to using Klassenplan?",
+        "a": "Yes. On your first visit, a short tour shows you the most important places in every step – from the class switcher and the backup behind the gear icon in the footer to the statistics and the seating circle. The tour never blocks anything: you can keep working, close it with Escape or switch it off for good with “Don’t show again”. The question mark at the top right starts the tour of the current step again at any time."
       },
       "circle": {
         "q": "How does the Seating Circle mode work?",

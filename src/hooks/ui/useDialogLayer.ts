@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import { useEffect, useId } from 'react';
+import { useEffect, useId, useSyncExternalStore } from 'react';
 
 /**
  * Which overlay owns the Escape key.
@@ -18,21 +18,39 @@ import { useEffect, useId } from 'react';
  * they are open; the innermost registered layer owns Escape. Roles go back to
  * describing the markup.
  *
- * The readers are deliberately plain functions rather than hooks: both call
- * sites ask inside a keydown handler and none of them need to re-render when
- * the stack changes.
+ * The Escape readers are deliberately plain functions rather than hooks: both
+ * call sites ask inside a keydown handler and none of them need to re-render
+ * when the stack changes. The onboarding tour is different — it steps aside
+ * while any other overlay is open and comes back when that one closes — so
+ * {@link useOtherDialogLayerOpen} subscribes to the registry.
  */
 /** Open overlays, outermost first. */
 const stack: string[] = [];
+const listeners = new Set<() => void>();
+
+function notify(): void {
+  for (const listener of listeners) {
+    listener();
+  }
+}
+
+function subscribe(listener: () => void): () => void {
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
+}
 
 function pushLayer(id: string): void {
   stack.push(id);
+  notify();
 }
 
 function removeLayer(id: string): void {
   const index = stack.lastIndexOf(id);
   if (index !== -1) {
     stack.splice(index, 1);
+    notify();
   }
 }
 
@@ -52,18 +70,22 @@ export function isTopDialogLayer(id: string): boolean {
 /** Test seam: the registry outlives a single render tree. */
 export function resetDialogLayersForTests(): void {
   stack.length = 0;
+  notify();
 }
 
 /**
  * Registers an overlay for as long as `open` is true.
  *
  * @param open - Whether the overlay is currently rendered
+ * @param layerId - An id the caller already needs before this call (to ask
+ *   {@link useOtherDialogLayerOpen} whether it may open); generated otherwise
  * @returns This overlay's stable layer id, for {@link isTopDialogLayer}
  */
-export function useDialogLayer(open: boolean): string {
+export function useDialogLayer(open: boolean, layerId?: string): string {
   // `useId` rather than a counter: stable per component instance, unique across
   // the tree, and it needs no mutable module state to hand out.
-  const id = useId();
+  const generatedId = useId();
+  const id = layerId ?? generatedId;
 
   useEffect(() => {
     if (!open) {
@@ -74,4 +96,17 @@ export function useDialogLayer(open: boolean): string {
   }, [open, id]);
 
   return id;
+}
+
+/**
+ * Whether an overlay other than `ownId` is open, re-rendering when that
+ * changes. For a layer that must get out of the way of every other overlay
+ * rather than handle Escape on top of it.
+ */
+export function useOtherDialogLayerOpen(ownId: string): boolean {
+  return useSyncExternalStore(
+    subscribe,
+    () => stack.some((id) => id !== ownId),
+    () => false,
+  );
 }

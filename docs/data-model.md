@@ -168,8 +168,10 @@ list is `PROJECT_LOCAL_STORAGE_KEYS` in `storageKeys.ts`. Groups:
   `spg.featureVisibility`, `spg.nameDisplay`, `spg.photoDisplayMode`, …
 - **Presentation and export:** `spg.present.*`, `export.*` — the export keys
   predate the `spg.` prefix and keep their names so existing preferences survive.
-- **Workflow:** sidebar state, class list sort order, first visit, last seen
-  version, PWA install prompt dismissal.
+- **Workflow:** sidebar state, class list sort order, first visit, onboarding
+  tours seen or switched off (`spg.onboardingTour`,
+  [decision 0015](decisions/0015-onboarding-sample-class-and-tour.md)), last
+  seen version, PWA install prompt dismissal.
 - **Backup reminder:** `spg.lastBackupAt`, `spg.backupDataSince`,
   `spg.backupReminderSnoozedUntil`, `spg.backupReminderDisabled`.
 - **Consent:** `cookieConsent`, `spg.photoConsentConfirmed`.

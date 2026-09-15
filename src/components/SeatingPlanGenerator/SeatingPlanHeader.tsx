@@ -4,22 +4,39 @@ import { useTranslation } from 'react-i18next';
 import { LocalizedLink } from '@/components/LocalizedLink';
 import WizardProgressBar from '@/components/ui/navigation/WizardProgressBar';
 import HelpButton from '@/components/ui/buttons/HelpButton';
+import OnboardingTour from '@/components/onboarding/OnboardingTour';
+import { resolveTourId } from '@/components/onboarding/tours';
 import {
   useSeatingAlgorithmContext,
   useClassroomLayoutContext,
   useSeatingPlanActions,
 } from '@/contexts/SeatingPlanContext';
+import { useClassManagementContext } from '@/contexts/seatingPlan/ClassManagementContext';
+import { useSeatingPlanSelector } from '@/contexts/seatingPlan/seatingPlanSelectors';
+import { useOnboardingTour } from '@/hooks/onboarding/onboardingTourStore';
 import { type ShortcutContext } from '@/utils';
 import { KpLockup } from '@/components/KpLockup';
 
 /**
  * Header with Klassenplan branding, centered wizard progress bar, and Help button.
+ *
+ * It also hosts the onboarding tour: the header knows the step and class that
+ * decide which tour applies, and the Help button that restarts it lives here.
  */
 export default function SeatingPlanHeader() {
   const { t } = useTranslation('generator');
   const { step } = useSeatingAlgorithmContext();
   const { seatingMode } = useClassroomLayoutContext();
   const { handleStepChange } = useSeatingPlanActions();
+  const { activeClass } = useClassManagementContext();
+  const { requestTour } = useOnboardingTour();
+  const autoMixing = useSeatingPlanSelector(({ state }) => state.autoMixing);
+  const tourId = resolveTourId(
+    step,
+    Boolean(activeClass.id),
+    seatingMode,
+    autoMixing,
+  );
 
   // Handle wizard step changes
   const onStepChange = (targetStep: number) => {
@@ -129,9 +146,12 @@ export default function SeatingPlanHeader() {
             title={helpContent.title}
             instructions={helpContent.instructions}
             shortcutContexts={helpContent.contexts}
+            onStartTour={tourId ? () => requestTour(tourId) : undefined}
           />
         )}
       </div>
+
+      <OnboardingTour tourId={tourId} />
     </div>
   );
 }

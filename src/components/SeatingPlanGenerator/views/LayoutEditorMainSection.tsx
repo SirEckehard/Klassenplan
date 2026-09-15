@@ -20,6 +20,7 @@ import {
 } from '@/components/SeatingPlanGenerator/canvas/CanvasSettingsButton';
 import LayoutEditorQuickSetupOverlay from '@/components/SeatingPlanGenerator/views/LayoutEditorQuickSetupOverlay';
 import LayoutEditorStatusBadge from '@/components/SeatingPlanGenerator/views/LayoutEditorStatusBadge';
+import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 import type { ClassroomFeatureType, TableTemplateType } from '@/types';
 import type {
   TableContextMenuState,
@@ -146,6 +147,7 @@ const LayoutEditorMainSection = React.memo(function LayoutEditorMainSection({
       )}
       <div
         data-testid="classroom-canvas"
+        data-tour={TOUR_ANCHORS.layoutCanvas}
         className={`${canvasFrameClass} relative select-none`}
         style={{
           width: '100%',
@@ -175,7 +177,10 @@ const LayoutEditorMainSection = React.memo(function LayoutEditorMainSection({
         <ClassroomCanvas {...canvasProps} />
 
         {!isQuickSetupOpen && (
-          <div className="absolute bottom-3 right-3 z-20">
+          <div
+            className="absolute bottom-3 right-3 z-20"
+            data-tour={TOUR_ANCHORS.layoutStatus}
+          >
             <LayoutEditorStatusBadge
               studentsCount={studentsCount}
               seatCount={seatCount}
@@ -256,7 +261,10 @@ const LayoutEditorMainSection = React.memo(function LayoutEditorMainSection({
         {/* Blocked state stays aria-disabled rather than disabled: the button
             keeps focus and pointer events, so the hint shows on hover/focus and
             the click still surfaces the toast explaining the shortfall. */}
-        <div className="group relative w-full sm:w-auto">
+        <div
+          className="group relative w-full sm:w-auto"
+          data-tour={TOUR_ANCHORS.proceedToPlan}
+        >
           <button
             type="button"
             onClick={footerProps.onProceedToPlan}

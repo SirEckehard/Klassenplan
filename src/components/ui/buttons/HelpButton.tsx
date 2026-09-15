@@ -2,7 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { QuestionIcon } from '@phosphor-icons/react';
+import { PathIcon, QuestionIcon } from '@phosphor-icons/react';
 import {
   cardSurfaceClass,
   pillTabActiveClass,
@@ -15,6 +15,7 @@ import {
 } from '@/utils';
 import Modal from '../modals/Modal';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
+import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 
 type TabId = 'instructions' | 'shortcuts';
 
@@ -22,12 +23,15 @@ type Props = {
   title: string;
   instructions?: React.ReactNode;
   shortcutContexts?: ShortcutContext[];
+  /** Offers "Tour starten" in the dialog; the dialog closes before the tour opens. */
+  onStartTour?: () => void;
 };
 
 export default function HelpButton({
   title,
   instructions,
   shortcutContexts,
+  onStartTour,
 }: Props) {
   const { t } = useTranslation(['common', 'generator']);
   const [open, setOpen] = React.useState(false);
@@ -109,6 +113,7 @@ export default function HelpButton({
         className={triggerClassName}
         disabled={triggerDisabled}
         title={t('help.title', 'Hilfe')}
+        data-tour={TOUR_ANCHORS.help}
       >
         <QuestionIcon className="h-5 w-5" />
       </button>
@@ -220,6 +225,26 @@ export default function HelpButton({
             ))}
           </div>
         ) : null}
+        {onStartTour && (
+          <div className="flex flex-col gap-3 border-t border-blue-100 pt-4 sm:flex-row sm:items-center sm:justify-between dark:border-blue-900/40">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              {t('generator:tour.startHint')}
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                // The tour waits for the dialog to close anyway; closing first
+                // keeps focus handling in the right order.
+                setOpen(false);
+                onStartTour();
+              }}
+              className={`${secondaryButtonClass} shrink-0 gap-2`}
+            >
+              <PathIcon size={18} aria-hidden="true" />
+              {t('generator:tour.startButton')}
+            </button>
+          </div>
+        )}
       </Modal>
     </>
   );

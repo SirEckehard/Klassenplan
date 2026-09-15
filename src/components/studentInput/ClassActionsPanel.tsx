@@ -2,12 +2,19 @@
 // Copyright (C) 2026 Eike Schäfer
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
-import { PlusIcon, SparkleIcon, UploadSimpleIcon } from '@phosphor-icons/react';
+import {
+  PlusIcon,
+  SparkleIcon,
+  SpinnerGapIcon,
+  UploadSimpleIcon,
+  UsersThreeIcon,
+} from '@phosphor-icons/react';
 import ClassSelectionBar from '@/components/students/ClassSelectionBar';
 import ClassMetadataDialog, {
   type ClassMetadataFormValues,
 } from '@/components/students/ClassMetadataDialog';
 import ConfirmDialog from '@/components/ui/modals/ConfirmDialog';
+import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 import { cardSurfaceClass, primaryButtonClass } from '@/utils';
 import type { ClassSummary } from '@/types';
 import type { ClassManagementContextValue } from '@/contexts/seatingPlan/ClassManagementContext';
@@ -36,6 +43,9 @@ type ClassActionsPanelProps = {
   isAddStudentDisabled?: boolean;
   onImportCsv?: (file: File) => Promise<unknown>;
   onExportCsv?: () => void;
+  /** Offered while there is no class yet: creates the sample class. */
+  onLoadDemoClass?: () => void;
+  isDemoClassLoading?: boolean;
 };
 
 const defaultMetadataValues: ClassMetadataFormValues = {
@@ -64,6 +74,8 @@ const ClassActionsPanel = ({
   isAddStudentDisabled,
   onImportCsv,
   onExportCsv,
+  onLoadDemoClass,
+  isDemoClassLoading = false,
 }: ClassActionsPanelProps) => {
   const { t } = useTranslation('generator');
   const hasActiveClass = Boolean(activeClass.id);
@@ -206,6 +218,8 @@ const ClassActionsPanel = ({
           isAddStudentDisabled={isAddStudentDisabled}
           onImportCsv={onImportCsv}
           onExportCsv={onExportCsv}
+          onLoadDemoClass={onLoadDemoClass}
+          isDemoClassLoading={isDemoClassLoading}
         >
           {children}
         </ClassSelectionBar>
@@ -213,6 +227,7 @@ const ClassActionsPanel = ({
       {!hasActiveClass && (
         <div
           className={`${cardSurfaceClass} border border-dashed border-blue-300/70 bg-linear-to-br from-blue-50/80 via-white to-cyan-50/70 p-6 text-blue-900 shadow-lg dark:border-blue-900/40 dark:from-blue-950/50 dark:via-gray-900/70 dark:to-cyan-950/30 dark:text-blue-100`}
+          data-tour={TOUR_ANCHORS.classEmptyState}
         >
           <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
             <div className="flex items-start gap-4">
@@ -260,13 +275,42 @@ const ClassActionsPanel = ({
               <p className="text-center text-xs text-blue-900/70 dark:text-blue-100/70">
                 {t('classActions.emptyState.hint')}
               </p>
+              {/* Below the real start on purpose: the sample class is for
+                  looking around, a class of one's own stays the main path. */}
+              {onLoadDemoClass && (
+                <>
+                  <div className="my-1 h-px bg-blue-200/50 dark:bg-blue-800/50" />
+                  <button
+                    type="button"
+                    onClick={onLoadDemoClass}
+                    disabled={isDemoClassLoading}
+                    aria-busy={isDemoClassLoading || undefined}
+                    className={`${emptyStateOptionClass} disabled:cursor-wait disabled:opacity-70`}
+                  >
+                    {isDemoClassLoading ? (
+                      <SpinnerGapIcon
+                        className="h-4 w-4 animate-spin"
+                        aria-hidden="true"
+                      />
+                    ) : (
+                      <UsersThreeIcon className="h-4 w-4" aria-hidden="true" />
+                    )}
+                    {isDemoClassLoading
+                      ? t('demoClass.loading')
+                      : t('demoClass.button')}
+                  </button>
+                  <p className="text-center text-xs text-blue-900/60 dark:text-blue-100/60">
+                    {t('demoClass.hint')}
+                  </p>
+                </>
+              )}
               {onImportBackup && (
                 <>
                   <div className="my-1 h-px bg-blue-200/50 dark:bg-blue-800/50" />
                   <button
                     type="button"
                     onClick={onImportBackup}
-                    className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-blue-200/70 bg-white/60 px-4 py-2.5 text-sm font-medium text-blue-700 shadow-sm transition hover:border-blue-300 hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-blue-800/50 dark:bg-blue-950/40 dark:text-blue-200 dark:hover:border-blue-700 dark:hover:bg-blue-900/50"
+                    className={emptyStateOptionClass}
                   >
                     <UploadSimpleIcon className="h-4 w-4" aria-hidden="true" />
                     {t('classActions.emptyState.importButton')}
@@ -302,5 +346,9 @@ const ClassActionsPanel = ({
     </>
   );
 };
+
+/** The secondary ways out of the empty state: sample class and backup import. */
+const emptyStateOptionClass =
+  'flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-blue-200/70 bg-white/60 px-4 py-2.5 text-sm font-medium text-blue-700 shadow-sm transition hover:border-blue-300 hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-blue-800/50 dark:bg-blue-950/40 dark:text-blue-200 dark:hover:border-blue-700 dark:hover:bg-blue-900/50';
 
 export default ClassActionsPanel;

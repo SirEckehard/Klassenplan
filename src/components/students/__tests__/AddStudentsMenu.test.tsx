@@ -125,4 +125,41 @@ describe('AddStudentsMenu', () => {
     );
     expect(trigger()).toHaveFocus();
   });
+
+  it('loads the sample class from the menu and closes it', async () => {
+    const onLoadDemoClass = vi.fn();
+    render(
+      <AddStudentsMenu {...baseProps} onLoadDemoClass={onLoadDemoClass} />,
+    );
+    const user = userEvent.setup();
+
+    await user.click(trigger());
+    await user.click(
+      within(await menu()).getByRole('button', {
+        name: /Beispielklasse laden|Load sample class/i,
+      }),
+    );
+
+    expect(onLoadDemoClass).toHaveBeenCalledTimes(1);
+    await waitFor(() =>
+      expect(
+        screen.queryByRole('dialog', {
+          name: /Schüler hinzufügen|Add student/i,
+        }),
+      ).not.toBeInTheDocument(),
+    );
+  });
+
+  it('offers no sample class when the host does not wire it up', async () => {
+    render(<AddStudentsMenu {...baseProps} />);
+    const user = userEvent.setup();
+
+    await user.click(trigger());
+
+    expect(
+      within(await menu()).queryByRole('button', {
+        name: /Beispielklasse laden|Load sample class/i,
+      }),
+    ).not.toBeInTheDocument();
+  });
 });

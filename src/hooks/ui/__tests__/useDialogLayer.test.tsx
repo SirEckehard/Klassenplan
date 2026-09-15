@@ -14,6 +14,7 @@ import {
   isTopDialogLayer,
   resetDialogLayersForTests,
   useDialogLayer,
+  useOtherDialogLayerOpen,
 } from '../useDialogLayer';
 
 beforeEach(() => {
@@ -64,6 +65,28 @@ describe('useDialogLayer', () => {
     const b = renderHook(() => useDialogLayer(true));
 
     expect(a.result.current).not.toBe(b.result.current);
+  });
+
+  it('registers under an id the caller supplies', () => {
+    const { result } = renderHook(() => useDialogLayer(true, 'tour-layer'));
+
+    expect(result.current).toBe('tour-layer');
+    expect(isTopDialogLayer('tour-layer')).toBe(true);
+  });
+
+  it('tells a layer whether any other overlay is open', () => {
+    const own = renderHook(() => useDialogLayer(true));
+    const probe = renderHook(() => useOtherDialogLayerOpen(own.result.current));
+
+    // Its own registration does not count.
+    expect(probe.result.current).toBe(false);
+
+    const other = renderHook(() => useDialogLayer(true));
+    expect(probe.result.current).toBe(true);
+
+    // And it notices the other one closing again.
+    other.unmount();
+    expect(probe.result.current).toBe(false);
   });
 
   it('keeps an id stable across re-renders', () => {

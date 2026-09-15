@@ -5,7 +5,8 @@
  * Internal hook used by useSeatingGenerator. Do not import directly.
  * Use SeatingPlanGeneratorProvider context hooks instead.
  */
-import { startTransition, useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
+import { flushSync } from 'react-dom';
 import { writeValue as idbSet } from '@/repositories/idbClient';
 import {
   DEFAULT_ACTIVE_CLASS,
@@ -278,7 +279,15 @@ export function useSeatingPersistence(state: SeatingState) {
       // This prevents old jobs from overwriting the new data we're about to load
       queue.incrementAllVersions();
 
-      startTransition(() => {
+      // One synchronous render for the whole class. Students, plans and room
+      // live in Zustand stores, which React renders right away even inside a
+      // transition, while seating, locks and the class id are React state. A
+      // transition split the two: the effect that syncs the seating to the new
+      // students dispatched behind the pending update, React rebased it into a
+      // fresh array on every render, and effects watching the seating kept the
+      // loop going — the tab froze and the class id never arrived.
+      // Only ever called after an await, so never during a render or an effect.
+      flushSync(() => {
         const applyMixSettings = (next: MixSettings | null) => {
           const resolved = next ?? DEFAULT_CLASS_MIX_SETTINGS;
           setMixSettings((prev) => {

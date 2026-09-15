@@ -22,9 +22,12 @@ import { useFloatingActionOffset } from '@/hooks/ui/useFloatingActionOffset';
 import { useAdaptiveViewportHeight } from '@/hooks/ui/useAdaptiveViewportHeight';
 import { useDialogA11y } from '@/hooks/ui/useDialogA11y';
 import { useDialogLayer } from '@/hooks/ui/useDialogLayer';
+import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 
 interface SmartSidebarProps extends UseCollapsibleSidebarOptions {
   className?: string;
+  /** `data-tour` anchor for the onboarding tour, set on the rail (not the phone sheet). */
+  tourAnchor?: string;
   children?:
     | React.ReactNode
     | ((props: {
@@ -37,6 +40,7 @@ interface SmartSidebarProps extends UseCollapsibleSidebarOptions {
 // Main sidebar component
 export default function SmartSidebar({
   className = '',
+  tourAnchor,
   children,
   ...sidebarOptions
 }: SmartSidebarProps) {
@@ -222,6 +226,7 @@ export default function SmartSidebar({
       role="complementary"
       aria-label={t('sidebar.ariaLabel', 'Optionen-Sidebar')}
       aria-expanded={isExpanded}
+      data-tour={tourAnchor}
     >
       {/* Sidebar Header and Content */}
       <div className="flex flex-col h-full min-h-0">
@@ -233,6 +238,7 @@ export default function SmartSidebar({
               ref={collapseButtonRef}
               type="button"
               onClick={collapse}
+              data-tour={TOUR_ANCHORS.sidebarToggle}
               onMouseUp={(event) => event.currentTarget.blur()}
               className={`${secondaryButtonClass} w-full justify-between gap-2 px-3 py-2 text-sm`}
               title={t(
@@ -256,6 +262,7 @@ export default function SmartSidebar({
             <button
               type="button"
               onClick={toggle}
+              data-tour={TOUR_ANCHORS.sidebarToggle}
               onMouseUp={(event) => event.currentTarget.blur()}
               className={`${secondaryButtonClass} h-12 w-full justify-center px-0 text-gray-600 hover:text-blue-600 dark:text-gray-300`}
               title={t(

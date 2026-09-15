@@ -21,8 +21,10 @@ export const changelogVersions: ChangelogVersion[] = [
     version: '2.0.5',
     date: '2026-09-14',
     changes: [
-      { textKey: 'v2_0_5.0', type: 'improvement' },
-      { textKey: 'v2_0_5.1', type: 'improvement' },
+      { textKey: 'v2_0_5.0', type: 'feature' },
+      { textKey: 'v2_0_5.1', type: 'feature' },
+      { textKey: 'v2_0_5.2', type: 'improvement' },
+      { textKey: 'v2_0_5.3', type: 'improvement' },
     ],
   },
   {

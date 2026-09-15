@@ -112,6 +112,7 @@ The palette in `SmartEditPanel` still relies on `cardSurfaceClass` and `panelSur
 2. Changes to colors, radii, or shadows happen exclusively via `@theme`. Light and dark mode update together as a result.
 3. Components that combine multiple tokens use template literals (``className={`${cardSurfaceClass} ${customLayout}`}``) and keep the token unchanged as the base class.
 4. Student-specific token extensions follow the pattern in `studentStyleTokens.ts`. Color variants use `!` utilities to safely override the base values.
+5. The onboarding tour (`components/onboarding/OnboardingTour.tsx`) draws its ring and dimmed backdrop with the `tour-spotlight` utility and its popover on `menuSurfaceClass`. It adds no colours of its own apart from the orange step counter, the accent reserved for step labels.
 
 ## 8. References
 

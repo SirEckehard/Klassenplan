@@ -27,6 +27,7 @@ import SeatingPlanCanvas from '@/components/SeatingPlanGenerator/SeatingPlanCanv
 import SeatingStatisticsBadge from '@/components/ui/feedback/SeatingStatisticsBadge';
 import PlanHistoryButton from '@/components/ui/navigation/PlanHistoryButton';
 import { CanvasSettingsButton } from '@/components/SeatingPlanGenerator/canvas/CanvasSettingsButton';
+import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 import {
   GRID_SIZE,
   isFormElementFocused,
@@ -862,7 +863,10 @@ export default function SeatingPlanEditorView({
       <div
         className={`flex ${isPhone ? 'flex-col gap-4' : 'flex-row items-start gap-2'}`}
       >
-        <SmartSidebar isFirstVisit={isFirstVisit}>
+        <SmartSidebar
+          isFirstVisit={isFirstVisit}
+          tourAnchor={TOUR_ANCHORS.planSidebar}
+        >
           {({ isExpanded }) =>
             isExpanded ? (
               <>
@@ -889,6 +893,7 @@ export default function SeatingPlanEditorView({
           <div className="flex min-w-0 flex-col gap-4">
             <div
               data-testid="classroom-canvas"
+              data-tour={TOUR_ANCHORS.planCanvas}
               className={`${canvasFrameClass} relative select-none`}
               style={{ width: '100%', maxWidth: '100vw' }}
             >
@@ -899,6 +904,7 @@ export default function SeatingPlanEditorView({
                 <button
                   type="button"
                   onClick={handleStatisticsToggle}
+                  data-tour={TOUR_ANCHORS.statistics}
                   className={statisticsButtonClasses}
                   title={statisticsButtonTitle}
                   aria-label={statisticsButtonLabel}
@@ -931,7 +937,10 @@ export default function SeatingPlanEditorView({
                 )}
 
               {showModeToggle && seatingMode && onModeChange && (
-                <div className="absolute top-3 right-3 z-10 opacity-80">
+                <div
+                  className="absolute top-3 right-3 z-10 opacity-80"
+                  data-tour={TOUR_ANCHORS.seatingModeToggle}
+                >
                   <SeatingModeToggle
                     mode={seatingMode}
                     onModeChange={onModeChange}
@@ -1037,6 +1046,7 @@ export default function SeatingPlanEditorView({
             )}
 
             <form
+              data-tour={TOUR_ANCHORS.planActions}
               className="mt-4 flex flex-col items-start gap-2 sm:flex-row sm:flex-wrap"
               onSubmit={(e) => {
                 e.preventDefault();

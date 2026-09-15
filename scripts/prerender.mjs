@@ -102,6 +102,16 @@ async function capture(browser, baseUrl, siteUrl, entry, shellPreloads) {
 
   try {
     const expectedCanonical = new URL(entry.localizedPath, siteUrl).toString();
+    // The captured HTML is what every visitor of the route receives first, and
+    // React never takes over markup outside #root. A fresh browser profile is a
+    // first visit, so without this the onboarding tour could end up baked into
+    // /generator as dead markup.
+    await context.addInitScript(() => {
+      window.localStorage.setItem(
+        'spg.onboardingTour',
+        JSON.stringify({ version: 1, seen: [], skipped: true }),
+      );
+    });
     await page.goto(`${baseUrl}${entry.localizedPath}`, {
       waitUntil: 'commit',
     });

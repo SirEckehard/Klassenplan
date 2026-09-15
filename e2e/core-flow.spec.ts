@@ -21,6 +21,17 @@ test.use({ locale: 'de-DE' });
 // needs considerably more than the 30s default.
 test.setTimeout(120_000);
 
+// A fresh browser is a first visit, which brings up the onboarding tour. This
+// journey is about the wizard itself, so the tour is switched off up front.
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => {
+    window.localStorage.setItem(
+      'spg.onboardingTour',
+      JSON.stringify({ version: 1, seen: [], skipped: true }),
+    );
+  });
+});
+
 const STUDENTS = [
   'Ada Lovelace',
   'Grace Hopper',

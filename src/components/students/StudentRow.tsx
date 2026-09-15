@@ -18,6 +18,7 @@ import LanguageSkillSelector from './LanguageSkillSelector';
 import SocialRoleSelector from './SocialRoleSelector';
 import SpecialNeedsToggles from './SpecialNeedsToggles';
 import StudentPreferenceToggles from './StudentPreferenceToggles';
+import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 
 type Props = {
   student: Student;
@@ -111,6 +112,7 @@ function StudentRow({
     <div
       id={`student-${student.id}`}
       className={`${baseCardClass} px-3 py-2 ${highlightClass}`}
+      data-tour={TOUR_ANCHORS.studentRow}
     >
       <div className="flex flex-col gap-2 lg:flex-row lg:flex-wrap lg:items-center lg:justify-between">
         {/* Left: Index + Name */}

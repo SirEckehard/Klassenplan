@@ -33,7 +33,7 @@ const rootDir = path.resolve(
  * Lower it whenever a cleanup drops the real count — that is what makes the
  * ratchet tighten. Raising it needs a reason in the same commit.
  */
-const BASELINE = 54;
+const BASELINE = 53;
 
 const IGNORE_FILES = 'vite-env.d.ts|index.tsx|App.tsx';
 

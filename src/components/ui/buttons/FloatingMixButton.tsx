@@ -7,6 +7,7 @@ import {
   SpinnerGapIcon,
 } from '@phosphor-icons/react';
 import { primaryButtonClass } from '@/utils';
+import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 
 /**
  * Mix trigger for the seating canvas.
@@ -43,6 +44,7 @@ export default function FloatingMixButton({
       type="button"
       onClick={handleClick}
       disabled={isButtonDisabled}
+      data-tour={TOUR_ANCHORS.mixButton}
       className={`${primaryButtonClass} group flex h-9 items-center justify-center gap-2 px-3 ${
         isButtonDisabled
           ? 'cursor-not-allowed opacity-60'

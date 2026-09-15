@@ -140,6 +140,10 @@
       "undo": {
         "q": "Kann ich Änderungen rückgängig machen?",
         "a": "Ja, Klassenplan unterstützt jetzt endlich überall die Undo-/Redo-Funktion. Sowohl in der Klassenliste als auch im Klassenraum-Editor und im Sitzplan-/Sitzkreis-Editor kannst du Änderungen zurücknehmen und wiederherstellen – so kommt z.B. ein versehentlich gelöschter Schüler samt Foto zurück. Tipp: Nutze die Tastenkürzel Strg / Cmd + Z bzw. Strg / Cmd + Shift + Z, um Änderungen rückgängig zu machen oder wiederherzustellen."
+      },
+      "demo": {
+        "q": "Kann ich Klassenplan ohne echte Schülerdaten ausprobieren?",
+        "a": "Ja. Wähle in Schritt 1 „Beispielklasse laden“ – solange du noch keine Klasse angelegt hast, direkt unter „Neue Klasse“, sonst im Menü „Hinzufügen“. Klassenplan legt dann eine eigene Klasse mit 24 erfundenen Schülern, gezeichneten Porträts und einem eingerichteten Klassenraum an; deine anderen Klassen bleiben unverändert. So probierst du alle Schritte gefahrlos aus und löschst die Beispielklasse danach einfach über die Klassenauswahl."
       }
     },
     "eigenschaften": {
@@ -400,6 +404,10 @@
       "shortcuts": {
         "q": "Welche Tastaturkürzel unterstützt der Editor?",
         "a": "Im Klassenraum-Editor stehen dir u. a. Strg/Cmd + C, Strg/Cmd + V und Strg/Cmd + X zum Kopieren, Einfügen und Ausschneiden von Tischen zur Verfügung. Oben rechts im Hilfebereich findest du eine vollständige Übersicht der verfügbaren Kürzel."
+      },
+      "tour": {
+        "q": "Gibt es eine Einführung in die Bedienung?",
+        "a": "Ja. Beim ersten Besuch zeigt dir eine kurze Tour in jedem Schritt die wichtigsten Stellen – von der Klassenauswahl über das Backup hinter dem Einstellungsrädchen in der Fußzeile bis zur Statistikanzeige und zum Sitzkreis. Die Tour blockiert nichts: Du kannst jederzeit weiterarbeiten, sie mit Escape schließen oder mit „Nicht mehr zeigen“ ganz abschalten. Über das Fragezeichen oben rechts startest du die Tour des aktuellen Schritts jederzeit neu."
       },
       "circle": {
         "q": "Wie funktioniert der Sitzkreis-Modus?",

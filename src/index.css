@@ -1194,6 +1194,31 @@ html.dark {
   border-radius: 9999px;
 }
 
+/* Onboarding tour: a ring around the element a coach mark explains, the rest of
+   the page dimmed. The shadow does the dimming, so the element stays clickable
+   and the backdrop never catches a click (the element carries
+   pointer-events: none). */
+@utility tour-spotlight {
+  border-radius: var(--radius-card);
+  outline: 3px solid var(--button-primary-bg);
+  box-shadow: 0 0 0 9999px rgb(15 23 42 / 0.45);
+  transition:
+    top 200ms ease,
+    left 200ms ease,
+    width 200ms ease,
+    height 200ms ease;
+}
+
+.dark .tour-spotlight {
+  box-shadow: 0 0 0 9999px rgb(0 0 0 / 0.6);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tour-spotlight {
+    transition: none;
+  }
+}
+
 @media (min-width: 640px) {
   .landing-connector {
     height: 5px;

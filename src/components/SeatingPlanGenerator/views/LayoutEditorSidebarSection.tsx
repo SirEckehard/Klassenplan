@@ -4,6 +4,7 @@ import React from 'react';
 import SmartSidebar from '@/components/ui/panels/SmartSidebar';
 import SmartEditPanel from '@/components/ui/panels/SmartEditPanel';
 import TableTemplateIcons from '@/components/ui/icons/TableTemplateIcons';
+import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 import type { ClassroomFeatureType, TableTemplateType } from '@/types';
 
 type SidebarFeaturePaletteItem = {
@@ -49,7 +50,10 @@ const LayoutEditorSidebarSection = React.memo(
     }
 
     return (
-      <SmartSidebar isFirstVisit={isFirstVisit}>
+      <SmartSidebar
+        isFirstVisit={isFirstVisit}
+        tourAnchor={TOUR_ANCHORS.layoutSidebar}
+      >
         {({ isExpanded }) =>
           isExpanded ? (
             <>

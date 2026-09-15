@@ -129,6 +129,10 @@ export default function FAQ() {
             question: t('faq.klassenliste.undo.q'),
             answer: <p>{t('faq.klassenliste.undo.a')}</p>,
           },
+          {
+            question: t('faq.klassenliste.demo.q'),
+            answer: <p>{t('faq.klassenliste.demo.a')}</p>,
+          },
         ],
       },
       {
@@ -377,8 +381,8 @@ export default function FAQ() {
                   <li>{t('faq.tipps.improve.li1')}</li>
                   <li>{t('faq.tipps.improve.li2')}</li>
                   <li>{t('faq.tipps.improve.li3')}</li>
-                  <li>{t('faq.tipps.improve.li4')}</li>
-w                </ul>
+                  <li>{t('faq.tipps.improve.li4')}</li>w{' '}
+                </ul>
               </div>
             ),
           },
@@ -401,6 +405,10 @@ w                </ul>
           {
             question: t('faq.oberflaeche.shortcuts.q'),
             answer: <p>{t('faq.oberflaeche.shortcuts.a')}</p>,
+          },
+          {
+            question: t('faq.oberflaeche.tour.q'),
+            answer: <p>{t('faq.oberflaeche.tour.a')}</p>,
           },
           {
             question: t('faq.oberflaeche.circle.q'),

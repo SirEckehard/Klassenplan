@@ -17,6 +17,7 @@ import { workbenchPillClass } from './classWorkbenchTokens';
 import FloatingDropdown from './FloatingDropdown';
 import StudentHistoryToolbar from '@/components/studentInput/StudentHistoryToolbar';
 import { useClickOutside } from '@/hooks/ui/useClickOutside';
+import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 
 type Props = {
   classSummaries: ClassSummary[];
@@ -43,6 +44,8 @@ type Props = {
   isAddStudentDisabled?: boolean;
   onImportCsv?: (file: File) => Promise<unknown>;
   onExportCsv?: () => void;
+  onLoadDemoClass?: () => void;
+  isDemoClassLoading?: boolean;
 };
 
 /**
@@ -86,6 +89,8 @@ export default function ClassSelectionBar({
   isAddStudentDisabled = false,
   onImportCsv,
   onExportCsv,
+  onLoadDemoClass,
+  isDemoClassLoading,
 }: Props) {
   const { t } = useTranslation('students');
   const hasActiveClass = Boolean(activeClass.id);
@@ -284,7 +289,11 @@ export default function ClassSelectionBar({
         ) : (
           <>
             {/* Class switcher — doubles as the heading of this card */}
-            <div className="relative" ref={dropdownContainerRef}>
+            <div
+              className="relative"
+              ref={dropdownContainerRef}
+              data-tour={TOUR_ANCHORS.classSwitcher}
+            >
               <button
                 type="button"
                 ref={dropdownAnchorRef}
@@ -333,6 +342,8 @@ export default function ClassSelectionBar({
                 onPlaceholderCountChange={onPlaceholderCountChange}
                 onCreatePlaceholders={onCreatePlaceholders}
                 onImportCsv={onImportCsv}
+                onLoadDemoClass={onLoadDemoClass}
+                isDemoClassLoading={isDemoClassLoading}
               />
             )}
 

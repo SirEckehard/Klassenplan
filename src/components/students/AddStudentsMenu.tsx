@@ -7,6 +7,7 @@ import {
   CaretDownIcon,
   FileArrowUpIcon,
   PlusIcon,
+  UsersThreeIcon,
 } from '@phosphor-icons/react';
 import {
   inputFieldClass,
@@ -18,6 +19,7 @@ import { workbenchPillClass } from './classWorkbenchTokens';
 import FloatingDropdown from './FloatingDropdown';
 import { useClickOutside } from '@/hooks/ui/useClickOutside';
 import { useDialogLayer } from '@/hooks/ui/useDialogLayer';
+import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 
 type Props = {
   /** Drives the trigger's emphasis: an empty class needs to be filled first. */
@@ -31,6 +33,9 @@ type Props = {
   onPlaceholderCountChange?: (value: string) => void;
   onCreatePlaceholders?: () => void;
   onImportCsv?: (file: File) => Promise<unknown>;
+  /** Creates the sample class — a class of its own, not rows in this one. */
+  onLoadDemoClass?: () => void;
+  isDemoClassLoading?: boolean;
 };
 
 /**
@@ -61,6 +66,8 @@ export default function AddStudentsMenu({
   onPlaceholderCountChange,
   onCreatePlaceholders,
   onImportCsv,
+  onLoadDemoClass,
+  isDemoClassLoading = false,
 }: Props) {
   const { t } = useTranslation('students');
   const anchorRef = React.useRef<HTMLButtonElement | null>(null);
@@ -110,7 +117,11 @@ export default function AddStudentsMenu({
   const isEmptyClass = studentCount === 0;
 
   return (
-    <div className="relative" ref={containerRef}>
+    <div
+      className="relative"
+      ref={containerRef}
+      data-tour={TOUR_ANCHORS.addStudents}
+    >
       <button
         type="button"
         ref={anchorRef}
@@ -244,6 +255,37 @@ export default function AddStudentsMenu({
                     className="hidden"
                   />
                 </label>
+              </>
+            )}
+
+            {/* Last on purpose: every other option fills this class, the
+                sample class is created as a class of its own. */}
+            {onLoadDemoClass && (
+              <>
+                <div
+                  className="h-px bg-gray-200 dark:bg-gray-700"
+                  role="separator"
+                />
+                <div className="flex flex-col gap-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      close(false);
+                      onLoadDemoClass();
+                    }}
+                    disabled={isDemoClassLoading}
+                    aria-busy={isDemoClassLoading || undefined}
+                    className={`${importOptionClass} w-full text-left disabled:cursor-wait disabled:opacity-70`}
+                  >
+                    <UsersThreeIcon size={16} aria-hidden="true" />
+                    {isDemoClassLoading
+                      ? t('generator:demoClass.loading')
+                      : t('generator:demoClass.button')}
+                  </button>
+                  <span className="px-3 text-xs text-gray-500 dark:text-gray-400">
+                    {t('generator:demoClass.addMenuHint')}
+                  </span>
+                </div>
               </>
             )}
           </div>

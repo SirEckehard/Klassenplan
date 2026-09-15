@@ -783,5 +783,105 @@
     "double": "Doppelplatz",
     "group4": "4er-Gruppe",
     "group6": "6er-Gruppe"
+  },
+  "demoClass": {
+    "className": "Beispielklasse",
+    "label": "Zum Ausprobieren",
+    "notes": "Erfundene Schüler mit Fotos – zum Ausprobieren. Du kannst die Klasse jederzeit über die Klassenauswahl löschen.",
+    "button": "Beispielklasse laden",
+    "loading": "Beispielklasse wird angelegt …",
+    "hint": "24 erfundene Schüler mit Fotos und ein eingerichteter Klassenraum zum Ausprobieren.",
+    "emptyClassPrompt": "Lieber erst ausprobieren? Die Beispielklasse kommt als eigene Klasse dazu.",
+    "addMenuHint": "Legt eine eigene Klasse mit 24 erfundenen Schülern an – diese Klasse bleibt, wie sie ist."
+  },
+  "tour": {
+    "stepCounter": "{{current}} von {{total}}",
+    "next": "Weiter",
+    "back": "Zurück",
+    "finish": "Fertig",
+    "skip": "Nicht mehr zeigen",
+    "close": "Tour schließen",
+    "startButton": "Tour starten",
+    "startHint": "Die Tour zeigt dir die wichtigsten Stellen dieses Schritts.",
+    "help": {
+      "title": "Hilfe und Tour",
+      "body": "Hier findest du zu jedem Schritt eine Anleitung und die Tastenkürzel – und startest diese Tour jederzeit neu."
+    },
+    "welcome": {
+      "emptyState": {
+        "title": "Willkommen bei Klassenplan!",
+        "body": "Lege deine erste Klasse an – oder lade die Beispielklasse und probiere erst einmal alles mit erfundenen Schülern aus."
+      }
+    },
+    "students": {
+      "classSwitcher": {
+        "title": "Deine Klassen",
+        "body": "Hier wechselst du zwischen deinen Klassen, legst neue an oder benennst sie um. Jede Klasse hat eigene Schüler, Räume und Sitzpläne."
+      },
+      "addStudents": {
+        "title": "Schüler hinzufügen",
+        "body": "Füge Schüler einzeln, als Platzhalter oder per CSV-Import hinzu. Hier kannst du auch die Beispielklasse laden."
+      },
+      "studentRow": {
+        "title": "Schüler bearbeiten",
+        "body": "Füge Merkmale wie unruhig, schüchtern, Sprachniveau, soziale Rolle oder Wunsch- und Distanzpartner hinzu. Über das Porträt-Symbol kannst du sogar Fotos hochladen."
+      },
+      "proceed": {
+        "title": "Weiter zum Klassenraum",
+        "body": "Steht die Liste, richtest du im nächsten Schritt den Klassenraum ein."
+      },
+      "footerSettings": {
+        "title": "Einstellungen und Backup",
+        "body": "Deine Daten liegen nur in diesem Browser. Über das Einstellungsrädchen in der Fußzeile exportierst du ein verschlüsseltes Backup und stellst es wieder her – auch auf einem anderen Gerät. Dort findest du außerdem alle gespeicherten Pläne."
+      }
+    },
+    "layout": {
+      "canvas": {
+        "title": "Dein Klassenraum",
+        "body": "Verschiebe und drehe Tische per Drag & Drop. Mit einem Rechtsklick oder langem Drücken kannst du Tische kopieren, ausschneiden oder löschen."
+      },
+      "sidebar": {
+        "title": "Tische und Raumelemente",
+        "body": "Ziehe u. a. Tische, Fenster, Türen oder die Tafel in den Raum. Über „Klassenraum einrichten“ ordnest du Tische automatisch an oder lädst eine gespeicherte Vorlage und bearbeitest sie weiter. Eigene Räume speicherst du als Vorlage."
+      },
+      "status": {
+        "title": "Plätze im Blick",
+        "body": "Hier siehst du, ob die Plätze für alle Schüler reichen."
+      },
+      "proceed": {
+        "title": "Weiter zum Sitzplan",
+        "body": "Beim ersten Öffnen mischt Klassenplan automatisch einen Sitzplan für dich."
+      }
+    },
+    "plan": {
+      "mix": {
+        "title": "Mischen",
+        "body": "Mischt die Klasse neu und berücksichtigt dabei alle ausgewählten Kriterien."
+      },
+      "sidebar": {
+        "title": "Kriterien wählen",
+        "body": "Lege fest, welche Kriterien beim Mischen beachtet werden sollen. In der erweiterten Sidebar wählst du aus, wie wichtig dir z. B. Wunschpartner oder die Geschlechtermischung sind."
+      },
+      "sidebarToggle": {
+        "title": "Sidebar erweitern und minimieren",
+        "body": "Mit diesem Knopf erweiterst oder minimierst du die Sidebar (⌘/Strg+B). Minimiert zeigt sie ihre Funktionen als Symbole und lässt dem Plan mehr Platz. In Schritt 2 und beim Export funktioniert die Sidebar genauso."
+      },
+      "canvas": {
+        "title": "Von Hand anpassen",
+        "body": "Ziehe Schüler auf andere Plätze. Mit einem Klick auf das Schloss-Symbol bleibt ein Schüler beim Mischen auf seinem Platz."
+      },
+      "statistics": {
+        "title": "Statistikanzeige",
+        "body": "Zeigt in Prozent, wie gut der Plan deine Kriterien erfüllt. Ein Klick blendet die Auswertung je Kriterium ein oder aus – fährst du dort über ein Kriterium, werden die betroffenen Plätze markiert."
+      },
+      "circle": {
+        "title": "Sitzkreis",
+        "body": "Hier wechselst du zwischen Sitzplan und Sitzkreis. Der Sitzkreis entsteht aus dem aktuellen Sitzplan und zeigt Tischnachbarn als Verbindungen. Du kannst ihn verändern, separat speichern und exportieren."
+      },
+      "actions": {
+        "title": "Speichern, präsentieren, exportieren",
+        "body": "Speichere den Plan unter einem Namen, zeige ihn auf der Tafel oder exportiere ihn als PDF."
+      }
+    }
   }
 }

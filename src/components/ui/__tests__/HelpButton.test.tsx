@@ -49,4 +49,35 @@ describe('HelpButton', () => {
     await userEvent.keyboard('?');
     expect(screen.getByText('Help Content')).toBeInTheDocument();
   });
+
+  it('closes itself before starting the tour', async () => {
+    let tourStarts = 0;
+    render(
+      <HelpButton
+        title="Test"
+        instructions={<div>Help Content</div>}
+        onStartTour={() => {
+          tourStarts += 1;
+        }}
+      />,
+    );
+
+    await userEvent.click(screen.getByRole('button', { name: /hilfe|help/i }));
+    await userEvent.click(
+      screen.getByRole('button', { name: /Tour starten|Start tour/i }),
+    );
+
+    expect(tourStarts).toBe(1);
+    expect(screen.queryByText('Help Content')).not.toBeInTheDocument();
+  });
+
+  it('offers no tour without a handler', async () => {
+    render(<HelpButton title="Test" instructions={<div>Help Content</div>} />);
+
+    await userEvent.click(screen.getByRole('button', { name: /hilfe|help/i }));
+
+    expect(
+      screen.queryByRole('button', { name: /Tour starten|Start tour/i }),
+    ).not.toBeInTheDocument();
+  });
 });

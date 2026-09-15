@@ -45,6 +45,11 @@ and what that means for Art. 9 GDPR.
 and every photo is re-encoded to a small JPEG, which strips EXIF metadata
 including GPS coordinates.
 
+**The sample class** ("Beispielklasse") holds invented names and pictures drawn
+in the browser; nothing is downloaded. It is stored, exported and deleted like
+any other class
+([decision 0015](decisions/0015-onboarding-sample-class-and-tour.md)).
+
 ## Who can see the data
 
 - **Anyone using the same browser profile.** Live data is not encrypted; the

@@ -783,5 +783,105 @@
     "double": "Double seat",
     "group4": "Group of 4",
     "group6": "Group of 6"
+  },
+  "demoClass": {
+    "className": "Sample class",
+    "label": "For trying out",
+    "notes": "Invented students with photos – for trying things out. You can delete this class at any time from the class switcher.",
+    "button": "Load sample class",
+    "loading": "Creating sample class …",
+    "hint": "24 invented students with photos and a furnished classroom for trying things out.",
+    "emptyClassPrompt": "Rather try it out first? The sample class is added as a separate class.",
+    "addMenuHint": "Creates a separate class with 24 invented students – this class stays as it is."
+  },
+  "tour": {
+    "stepCounter": "{{current}} of {{total}}",
+    "next": "Next",
+    "back": "Back",
+    "finish": "Done",
+    "skip": "Don't show again",
+    "close": "Close tour",
+    "startButton": "Start tour",
+    "startHint": "The tour shows you the most important places in this step.",
+    "help": {
+      "title": "Help and tour",
+      "body": "Instructions and keyboard shortcuts for every step are here – and this is where you start the tour again at any time."
+    },
+    "welcome": {
+      "emptyState": {
+        "title": "Welcome to Klassenplan!",
+        "body": "Create your first class – or load the sample class and try everything with invented students first."
+      }
+    },
+    "students": {
+      "classSwitcher": {
+        "title": "Your classes",
+        "body": "Switch between your classes, create new ones or rename them. Each class keeps its own students, rooms and seating plans."
+      },
+      "addStudents": {
+        "title": "Add students",
+        "body": "Add students one by one, as placeholders or by CSV import. You can also load the sample class here."
+      },
+      "studentRow": {
+        "title": "Edit students",
+        "body": "Add attributes such as restless, shy, language level, social role or preferred and distance partners. The portrait icon even lets you upload photos."
+      },
+      "proceed": {
+        "title": "On to the classroom",
+        "body": "Once the list is complete, set up the classroom in the next step."
+      },
+      "footerSettings": {
+        "title": "Settings and backup",
+        "body": "Your data lives only in this browser. The gear icon in the footer exports an encrypted backup and restores it – on another device, too. It also lists all saved plans."
+      }
+    },
+    "layout": {
+      "canvas": {
+        "title": "Your classroom",
+        "body": "Move and rotate tables by drag and drop. Right-click or long-press to copy, cut or delete tables."
+      },
+      "sidebar": {
+        "title": "Tables and room elements",
+        "body": "Drag tables, windows, doors or the board into the room, among other things. 'Set Up Classroom' arranges tables automatically or loads a saved template for you to keep editing. Your own rooms are saved as templates."
+      },
+      "status": {
+        "title": "Seats at a glance",
+        "body": "Shows whether there are enough seats for all students."
+      },
+      "proceed": {
+        "title": "On to the seating plan",
+        "body": "The first time it opens, Klassenplan shuffles a seating plan for you."
+      }
+    },
+    "plan": {
+      "mix": {
+        "title": "Shuffle",
+        "body": "Reshuffles the class, taking all selected criteria into account."
+      },
+      "sidebar": {
+        "title": "Choose criteria",
+        "body": "Decide which criteria to consider when shuffling. In the expanded sidebar you choose how much, for example, preferred partners or the gender mix matter to you."
+      },
+      "sidebarToggle": {
+        "title": "Expand and collapse the sidebar",
+        "body": "This button expands or collapses the sidebar (⌘/Ctrl+B). Collapsed, it shows its functions as icons and leaves more room for the plan. The sidebar in step 2 and on the export page works the same way."
+      },
+      "canvas": {
+        "title": "Adjust by hand",
+        "body": "Drag students to other seats. A click on the lock icon keeps a student in their seat when shuffling."
+      },
+      "statistics": {
+        "title": "Statistics",
+        "body": "Shows as a percentage how well the plan meets your criteria. A click shows or hides the breakdown per criterion – hover over a criterion there to highlight the affected seats."
+      },
+      "circle": {
+        "title": "Seating circle",
+        "body": "Switch between seating plan and seating circle here. The circle is built from the current seating plan and shows table neighbors as connections. You can change it and save and export it separately."
+      },
+      "actions": {
+        "title": "Save, present, export",
+        "body": "Save the plan under a name, show it on the board or export it as a PDF."
+      }
+    }
   }
 }

@@ -1,7 +1,9 @@
 {
   "v2_0_5": {
-    "0": "The 'Refine' button in the seating plan is gone: measurements showed that refining a shuffled plan a second time does not reliably make it better – a point or two for 24 students, at times even worse for 36. 'Shuffle' still refines the plan automatically as soon as a criterion is active",
-    "1": "Various adjustments: 'Clear all data' also removes the student photos right away, 'Deutsch als Zweitsprache' is recognised as a language level on CSV import, the shuffle history keeps the refined plan, the two performance criteria can no longer apply at the same time, and self-hosted instances can link their own legal notice and privacy policy – plus internal clean-up and revised documentation"
+    "0": "Klassenplan can now be tried without data of your own: 'Load sample class' – in the empty class list and in the 'Add' menu – creates a class with 24 invented students, drawn pictures and a furnished classroom. It is an ordinary class and can be deleted like any other",
+    "1": "On the first visit, a short tour points out the most important places in the class list, the classroom and the seating plan – from the backup behind the gear icon in the footer to the sidebar, the statistics and the seating circle. It can be switched off and restarted from the help dialog at any time",
+    "2": "The 'Refine' button in the seating plan is gone: measurements showed that refining a shuffled plan a second time does not reliably make it better – a point or two for 24 students, at times even worse for 36. 'Shuffle' still refines the plan automatically as soon as a criterion is active",
+    "3": "Various adjustments: 'Clear all data' also removes the student photos right away, 'Deutsch als Zweitsprache' is recognised as a language level on CSV import, the shuffle history keeps the refined plan, the two performance criteria can no longer apply at the same time, and self-hosted instances can link their own legal notice and privacy policy – plus internal clean-up and revised documentation"
   },
   "v2_0_4": {
     "0": "Class lists from WebUntis, Schulmanager Online and SchILD-NRW are recognised on import: the dialog names the format it found, preselects the matching name column – and imports the file without the preset if the recognition is wrong",
