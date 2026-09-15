@@ -142,8 +142,13 @@ test('a teacher can go from an empty app to an exportable seating plan', async (
     await page.getByRole('button', { name: 'Exportieren' }).click();
 
     await expect(page).toHaveURL(/\/export$/);
+    // The sidebar starts collapsed, where the button is an icon named by its
+    // tooltip; expanded it reads "Sitzplan PDF". Either state proves the export
+    // is ready, and which one a first visit gets is not this journey's business.
     await expect(
-      page.getByRole('button', { name: 'Sitzplan PDF' }),
+      page.getByRole('button', {
+        name: /^Sitzplan (PDF$|als PDF exportieren)/,
+      }),
     ).toBeEnabled();
 
     // The preview is an iframe with the rendered plan inside; reaching into it

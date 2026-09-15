@@ -10,6 +10,10 @@
  * Views can change without breaking a tour; at worst they shorten it.
  *
  * Texts live under `generator:tour.<textKey>.{title,body}`.
+ *
+ * `e2e/onboarding.spec.ts` asserts the German titles word for word and in the
+ * order below. Renaming a title or adding, removing or reordering a mark means
+ * updating the title lists in that spec as well.
  */
 import type { TourId } from '@/hooks/onboarding/onboardingTourStore';
 
@@ -22,6 +26,7 @@ export const TOUR_ANCHORS = {
   footerSettings: 'footer-settings',
   help: 'help',
   layoutCanvas: 'layout-canvas',
+  canvasSettings: 'canvas-settings',
   layoutSidebar: 'layout-sidebar',
   layoutStatus: 'layout-status',
   proceedToPlan: 'proceed-plan',
@@ -67,6 +72,12 @@ export const TOURS: Record<TourId, readonly TourMark[]> = {
   ],
   layout: [
     { anchor: TOUR_ANCHORS.layoutCanvas, textKey: 'tour.layout.canvas' },
+    // Every canvas has this button with options of its own; step 2 is where it
+    // first appears, so the text explains what the later steps offer as well.
+    {
+      anchor: TOUR_ANCHORS.canvasSettings,
+      textKey: 'tour.layout.canvasSettings',
+    },
     { anchor: TOUR_ANCHORS.layoutSidebar, textKey: 'tour.layout.sidebar' },
     { anchor: TOUR_ANCHORS.layoutStatus, textKey: 'tour.layout.status' },
     { anchor: TOUR_ANCHORS.proceedToPlan, textKey: 'tour.layout.proceed' },

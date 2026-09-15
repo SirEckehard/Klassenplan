@@ -843,6 +843,10 @@
         "title": "Dein Klassenraum",
         "body": "Verschiebe und drehe Tische per Drag & Drop. Mit einem Rechtsklick oder langem Drücken kannst du Tische kopieren, ausschneiden oder löschen."
       },
+      "canvasSettings": {
+        "title": "Ansichtseinstellungen",
+        "body": "Über das Regler-Symbol unten links passt du die Ansicht an – in jedem Schritt mit eigenen Optionen. Hier schaltest du Einrasten am Raster, Raster, Ausrichtungshilfen, Fotokollisionen und Raumelemente ein oder aus. Im Sitzplan wählst du, ob Fotos erscheinen und wie Namen abgekürzt werden, im Sitzkreis außerdem, ob Verbindungen sichtbar sind. Beim Export legst du fest, was die Vorschau zeigt – z. B. Bedürfnisse, Legende oder Klasseninfos."
+      },
       "sidebar": {
         "title": "Tische und Raumelemente",
         "body": "Ziehe u. a. Tische, Fenster, Türen oder die Tafel in den Raum. Über „Klassenraum einrichten“ ordnest du Tische automatisch an oder lädst eine gespeicherte Vorlage und bearbeitest sie weiter. Eigene Räume speicherst du als Vorlage."

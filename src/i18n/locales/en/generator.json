@@ -843,6 +843,10 @@
         "title": "Your classroom",
         "body": "Move and rotate tables by drag and drop. Right-click or long-press to copy, cut or delete tables."
       },
+      "canvasSettings": {
+        "title": "View settings",
+        "body": "The slider icon at the bottom left adjusts the view – with options of its own in every step. Here you switch snap to grid, the grid, alignment guides, photo collisions and room elements on or off. On the seating plan you choose whether photos appear and how names are shortened, in the seating circle also whether connections are shown. On export you decide what the preview shows – such as special needs, the legend or class info."
+      },
       "sidebar": {
         "title": "Tables and room elements",
         "body": "Drag tables, windows, doors or the board into the room, among other things. 'Set Up Classroom' arranges tables automatically or loads a saved template for you to keep editing. Your own rooms are saved as templates."

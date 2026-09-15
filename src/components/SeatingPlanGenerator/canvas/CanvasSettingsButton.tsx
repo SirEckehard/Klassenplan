@@ -2,6 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { SlidersHorizontalIcon } from '@phosphor-icons/react';
+import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 import SettingToggle from '@/components/ui/controls/SettingToggle';
 import ToggleSwitch from '@/components/ui/controls/ToggleSwitch';
 import { cardSurfaceClass, mutedIconButtonClass } from '@/utils';
@@ -220,6 +221,7 @@ export const CanvasSettingsButton = React.forwardRef<
           title={effectiveTitle}
           aria-haspopup="true"
           aria-expanded={open}
+          data-tour={TOUR_ANCHORS.canvasSettings}
         >
           <SlidersHorizontalIcon size={16} />
         </button>

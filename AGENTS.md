@@ -22,7 +22,7 @@ it for Antigravity — edit this file, never those two.
 - Check modified files with `npx eslint <files>`
 - TypeScript compilation check: `npm run typecheck` (app) and `npm run typecheck:test` (tests); both via `npm run typecheck:all`
 - Check for unused exports: `npm run check:unused` — a ratchet against the baseline in `scripts/check-unused-exports.mjs`; the count may fall, never rise. For the full list run `npx ts-unused-exports tsconfig.ts-unused.json --allowUnusedTypes --ignoreFiles='vite-env.d.ts|index.tsx|App.tsx'`
-- E2E: Playwright smoke specs live in `e2e/` (`npm run test:e2e`; needs `npx playwright install chromium`)
+- E2E: Playwright specs live in `e2e/` — smoke, the wizard core flow and the first-visit onboarding (sample class and tours) (`npm run test:e2e`; needs `npx playwright install chromium`)
 - i18n consistency: `npm run check:i18n` (DE/EN key parity + every `t(key, 'default')` resolves to a real key)
 - Bundle budgets: `npm run check:bundle` (after a build; part of `npm run build:static`)
 - Docs consistency: `npm run check:docs` (relative links, heading anchors and `src/…`-style paths in Markdown resolve; `docs/CHANGELOG.md` is skipped)
@@ -114,6 +114,18 @@ route — discard that unless the sitemap itself is the change.
 3. Add corresponding key to the English file (`en/*.json`)
 4. Use `t('namespace:key')` or `t('key')` in the component
 5. Run `npm run check:i18n` — it fails on key drift between DE and EN
+
+### Onboarding tour texts
+
+The coach-mark texts under `generator:tour.*` are looked up with computed keys
+(`src/components/onboarding/tours.ts`), which `npm run check:i18n` cannot see;
+`src/components/onboarding/__tests__/tours.test.ts` checks instead that every
+mark has a title and a body in both languages.
+
+`e2e/onboarding.spec.ts` asserts the German tour titles word for word and in
+tour order. When you rename a title in `de/generator.json`, add, remove or
+reorder a mark in `tours.ts`, or change a view so that a mark's element is no
+longer on screen, update the title lists in that spec as well.
 
 ### Inline defaults
 

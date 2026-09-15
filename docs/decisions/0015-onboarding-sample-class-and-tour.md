@@ -37,7 +37,8 @@ skipped:
 - welcome (no class yet): the empty state;
 - class list: class switcher, add menu, student row, "Weiter", the settings gear
   in the footer (backup), the Help button;
-- room: canvas, sidebar, seat status, "Weiter";
+- room: canvas, view settings button (its text names the options of step 3,
+  the seating circle and the export as well), sidebar, seat status, "Weiter";
 - seating plan: shuffle, criteria sidebar, sidebar toggle (explained once for
   step 2 and the export page as well), canvas, statistics, seating circle
   toggle, save/present/export. This tour waits until the automatic first
@@ -92,7 +93,13 @@ steps aside while any other overlay is open (`useOtherDialogLayerOpen`).
   `spg.hasVisitedApp` — counts as returning and gets no automatic tour; the Help
   dialog still offers it.
 - A view that renames or removes an anchor shortens a tour rather than breaking
-  it; nothing fails loudly, so a changed view should be checked against
-  `tours.ts`.
-- Prerendering (`scripts/prerender.mjs`) and the Playwright journey switch the
+  it; nothing fails loudly in the app, so a changed view should be checked
+  against `tours.ts`. `e2e/onboarding.spec.ts` asserts the German tour titles
+  word for word and in order: a renamed title, or a mark that is added, removed,
+  moved or no longer on screen, needs the title lists there updated as well.
+- Prerendering (`scripts/prerender.mjs`) and the Playwright core flow switch the
   tours off, because a fresh browser profile is a first visit.
+  `e2e/onboarding.spec.ts` covers the sample class and the tours in a real
+  browser instead: the anchors on screen in the finished views, the plan tour
+  waiting for the first shuffle, "Nicht mehr zeigen", the restart from the Help
+  dialog and the returning teacher.
