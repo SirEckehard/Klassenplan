@@ -58,9 +58,6 @@ interface ExportSidebarProps {
   onPngExport: () => void;
   onSvgExport: () => void;
   hasCircleLayout: boolean;
-
-  // First visit flag
-  isFirstVisit?: boolean;
 }
 
 export default function ExportSidebar({
@@ -79,7 +76,6 @@ export default function ExportSidebar({
   onPngExport,
   onSvgExport,
   hasCircleLayout,
-  isFirstVisit,
 }: ExportSidebarProps) {
   const { t } = useTranslation('generator');
   const titleInputRef = React.useRef<HTMLInputElement>(null);
@@ -197,7 +193,7 @@ export default function ExportSidebar({
   }, [autoFocusTitle]);
 
   return (
-    <SmartSidebar isFirstVisit={isFirstVisit}>
+    <SmartSidebar>
       {({ isExpanded, expand }) =>
         isExpanded ? (
           // Expanded Mode - Full UI

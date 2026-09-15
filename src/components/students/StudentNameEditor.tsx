@@ -6,8 +6,6 @@ import { CheckIcon, XIcon, PencilIcon } from '@phosphor-icons/react';
 import type { Student } from '@/types';
 import {
   stringValidation,
-  isNameTruncated,
-  getDisplayName,
   showToast,
   TOAST_MESSAGES,
   inputFieldClass,
@@ -32,8 +30,7 @@ type Props = {
 /**
  * StudentNameEditor Component
  *
- * Handles inline name editing with validation and truncation warnings.
- * Shows a badge when the name will be truncated in table view.
+ * Handles inline name editing with validation.
  *
  * @param student - Current student object
  * @param allStudents - All students for duplicate check
@@ -59,11 +56,6 @@ export default function StudentNameEditor({
   onEditEnd,
 }: Props) {
   const { t } = useTranslation('students');
-  // Check if name will be truncated in table view
-  const nameTruncated = isNameTruncated(student.name, 'table');
-  const truncatedPreview = nameTruncated
-    ? getDisplayName(student.name, 'table')
-    : null;
 
   const saveName = () => {
     const trimmedName = draftName.trim();
@@ -108,19 +100,6 @@ export default function StudentNameEditor({
     setDraftName('');
     onEditEnd?.(); // Notify that editing ended
   };
-
-  const truncatedNameBadge =
-    nameTruncated && truncatedPreview ? (
-      <span
-        className="ml-2 inline-flex shrink-0 items-center rounded-full border border-amber-200 bg-amber-100/90 px-2 py-0.5 text-xs font-semibold text-amber-800 shadow-sm dark:border-amber-500 dark:bg-amber-900/40 dark:text-amber-200"
-        title={t('nameEditor.truncatedTitle', { preview: truncatedPreview })}
-        aria-label={t('nameEditor.truncatedLabel', {
-          preview: truncatedPreview,
-        })}
-      >
-        {truncatedPreview}
-      </span>
-    ) : null;
 
   return (
     <div className="flex items-center gap-1">
@@ -181,28 +160,17 @@ export default function StudentNameEditor({
                 startEditing();
               }
             }}
-            className={`student-name-editable cursor-text select-text rounded-xl border px-3 py-1 text-sm font-medium text-gray-800 shadow-sm transition-colors hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-blue-400 dark:text-gray-100 dark:hover:bg-gray-800/70 ${
-              nameTruncated
-                ? 'border-dashed border-amber-300 bg-amber-50/30 dark:border-amber-500 dark:bg-amber-900/30'
-                : 'border-blue-100 bg-white/70 dark:border-blue-900/40 dark:bg-gray-950/70'
-            }`}
+            className="student-name-editable cursor-text select-text rounded-xl border border-blue-100 bg-white/70 px-3 py-1 text-sm font-medium text-gray-800 shadow-sm transition-colors hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-blue-400 dark:border-blue-900/40 dark:bg-gray-950/70 dark:text-gray-100 dark:hover:bg-gray-800/70"
             tabIndex={0}
             role="button"
             aria-label={t('nameEditor.editName', { name: student.name })}
-            title={
-              nameTruncated
-                ? t('nameEditor.truncatedEditTitle', {
-                    preview: truncatedPreview,
-                  })
-                : t(
-                    'nameEditor.editTitle',
-                    'Klick oder Eingabetaste zum Bearbeiten',
-                  )
-            }
+            title={t(
+              'nameEditor.editTitle',
+              'Klick oder Eingabetaste zum Bearbeiten',
+            )}
           >
             {student.name}
           </span>
-          {truncatedNameBadge}
         </div>
       )}
 

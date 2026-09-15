@@ -15,7 +15,6 @@ type SidebarFeaturePaletteItem = {
 
 type LayoutEditorSidebarSectionProps = {
   isPhone: boolean;
-  isFirstVisit: boolean;
   studentsCount: number;
   seatCount: number;
   handleSaveTemplate: () => void;
@@ -35,7 +34,6 @@ type LayoutEditorSidebarSectionProps = {
 const LayoutEditorSidebarSection = React.memo(
   function LayoutEditorSidebarSection({
     isPhone,
-    isFirstVisit,
     studentsCount,
     seatCount,
     handleSaveTemplate,
@@ -50,10 +48,7 @@ const LayoutEditorSidebarSection = React.memo(
     }
 
     return (
-      <SmartSidebar
-        isFirstVisit={isFirstVisit}
-        tourAnchor={TOUR_ANCHORS.layoutSidebar}
-      >
+      <SmartSidebar tourAnchor={TOUR_ANCHORS.layoutSidebar}>
         {({ isExpanded }) =>
           isExpanded ? (
             <>

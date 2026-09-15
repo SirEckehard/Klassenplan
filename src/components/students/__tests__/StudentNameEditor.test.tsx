@@ -302,7 +302,7 @@ describe('StudentNameEditor', () => {
     expect(mockUpdateStudent).toHaveBeenCalledWith('1', { name: 'Charlie' });
   });
 
-  it('shows truncation badge for long names', () => {
+  it('shows long names in full without a truncation preview', () => {
     const longNameStudent: Student = {
       ...baseStudent,
       name: 'Alexander Christopher Johnson',
@@ -318,9 +318,12 @@ describe('StudentNameEditor', () => {
       setDraftName: mockSetDraftName,
     });
 
-    // Check for truncation badge using aria-label
-    const badge = screen.getByLabelText(/Gekürzter Name|Truncated name/i);
-    expect(badge).toBeInTheDocument();
+    // The seat name display mode decides how names are shortened, so the
+    // list shows the full name only
+    expect(screen.getByText(longNameStudent.name)).toBeInTheDocument();
+    expect(
+      screen.queryByLabelText(/Gekürzter Name|Truncated name/i),
+    ).not.toBeInTheDocument();
   });
 
   it('triggers edit mode on click of name', () => {

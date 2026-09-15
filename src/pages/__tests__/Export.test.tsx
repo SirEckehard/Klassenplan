@@ -207,6 +207,11 @@ describe('Export page', () => {
   describe('page orientation', () => {
     it('persists the choice for the table plan', async () => {
       renderExport();
+      // The sidebar starts collapsed, and the orientation choice lives in its
+      // expanded form.
+      await userEvent.click(
+        screen.getByRole('button', { name: 'Sidebar erweitern' }),
+      );
 
       // Two sections offer the same choice (table plan and circle); the first
       // one belongs to the table plan.

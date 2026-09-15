@@ -307,7 +307,8 @@ export default function SeatingPlanEditorView({
   const { t } = useTranslation('generator');
   const { showGrid, setShowGrid } = useCanvasPreferences();
   const navigate = useLocalizedNavigate();
-  const isFirstVisit = useFirstVisit();
+  // Marks the visit (`spg.hasVisitedApp`) for the onboarding tour record.
+  useFirstVisit();
   const isPhone = useIsPhone();
   const backgroundColor = isDark ? '#1f2937' : '#f9fafb';
   const gridColor = isDark ? '#374151' : '#e5e7eb';
@@ -863,10 +864,7 @@ export default function SeatingPlanEditorView({
       <div
         className={`flex ${isPhone ? 'flex-col gap-4' : 'flex-row items-start gap-2'}`}
       >
-        <SmartSidebar
-          isFirstVisit={isFirstVisit}
-          tourAnchor={TOUR_ANCHORS.planSidebar}
-        >
+        <SmartSidebar tourAnchor={TOUR_ANCHORS.planSidebar}>
           {({ isExpanded }) =>
             isExpanded ? (
               <>

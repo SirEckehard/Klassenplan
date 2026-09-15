@@ -210,7 +210,8 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
     setShowPhotoOverlapWarning,
   } = useCanvasPreferences();
   const isPhone = useIsPhone();
-  const isFirstVisit = useFirstVisit();
+  // Marks the visit (`spg.hasVisitedApp`) for the onboarding tour record.
+  useFirstVisit();
   const containerRef = React.useRef<HTMLDivElement | null>(null);
   const tableMenuRef = React.useRef<HTMLDivElement | null>(null);
   const canvasMenuRef = React.useRef<HTMLDivElement | null>(null);
@@ -939,7 +940,6 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
       >
         <LayoutEditorSidebarSection
           isPhone={isPhone}
-          isFirstVisit={isFirstVisit}
           studentsCount={studentsCount}
           seatCount={seatCount}
           handleSaveTemplate={handleSaveTemplate}

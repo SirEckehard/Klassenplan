@@ -310,10 +310,7 @@
     "cancelEdit": "Cancel editing",
     "editName": "Edit name: {{name}}",
     "editButton": "Edit name",
-    "editTitle": "Click or press Enter to edit",
-    "truncatedTitle": "Will be truncated in table view: \"{{preview}}\"",
-    "truncatedLabel": "Truncated name: {{preview}}",
-    "truncatedEditTitle": "Will be truncated in table view: \"{{preview}}\" (Click or press Enter to edit)"
+    "editTitle": "Click or press Enter to edit"
   },
   "classDialog": {
     "createTitle": "Create New Class",

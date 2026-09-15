@@ -16,27 +16,24 @@ interface CollapsibleSidebarActions {
 
 export interface UseCollapsibleSidebarOptions {
   defaultExpanded?: boolean;
-  isFirstVisit?: boolean;
 }
 
 /**
  * Hook for managing collapsible sidebar state
  *
+ * A first visit starts collapsed like any other: the onboarding tour and the
+ * Help dialog point out the toggle instead.
+ *
  * @param defaultExpanded - Default expanded state if no user preference exists
- * @param isFirstVisit - If true, sidebar will be expanded on first visit regardless of defaultExpanded
  */
 export function useCollapsibleSidebar({
   defaultExpanded = false,
-  isFirstVisit = false,
 }: UseCollapsibleSidebarOptions = {}): CollapsibleSidebarState &
   CollapsibleSidebarActions {
-  // On first visit, override default to expanded
-  const effectiveDefault = isFirstVisit ? true : defaultExpanded;
-
   // Persistent state for user preferences
   const [isExpanded, setIsExpanded] = usePersistentState(
     LOCAL_STORAGE_KEYS.sidebarExpanded,
-    effectiveDefault,
+    defaultExpanded,
   );
 
   // Actions

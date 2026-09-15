@@ -71,7 +71,8 @@ export default function EnhancedSeatingPlanView(
   // while both were mounted.
   const { showGrid } = useCanvasPreferences();
   const isDark = useIsDarkMode();
-  const isFirstVisit = useFirstVisit();
+  // Marks the visit (`spg.hasVisitedApp`) for the onboarding tour record.
+  useFirstVisit();
 
   const [internalSeatingMode, setInternalSeatingMode] =
     useState<SeatingMode>('table');
@@ -288,7 +289,7 @@ export default function EnhancedSeatingPlanView(
           className={`flex gap-4 ${isPhone ? 'flex-col' : 'flex-row items-start'}`}
         >
           {!isPhone && (
-            <SmartSidebar isFirstVisit={isFirstVisit}>
+            <SmartSidebar>
               {({ isExpanded }) => (
                 <CircleViewControls
                   onSyncCircle={() => void generateCircleSeating()}

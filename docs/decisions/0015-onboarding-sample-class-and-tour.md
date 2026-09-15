@@ -72,6 +72,10 @@ steps aside while any other overlay is open (`useOtherDialogLayerOpen`).
   ever overwritten.
 - The students' names are taken from the UI language when the class is created
   and stay when the language changes later.
+- The sidebar no longer opens expanded on a first visit; the tour's
+  sidebar-toggle mark and the Help dialog explain it instead. `useFirstVisit`
+  now only sets `spg.hasVisitedApp`, and a sidebar preference already stored
+  stays as it is.
 - `spg.onboardingTour` is a new localStorage key. "Delete all data" removes it,
   so a teacher who wipes the app sees the tours again.
 - A teacher whose first visit was the export page — the other place that sets

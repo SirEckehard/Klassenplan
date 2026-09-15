@@ -20,8 +20,6 @@ describe('SeatingPlanView board visibility', () => {
     ['useViewportSize', 'classroomWidth', 'classroomHeight'].forEach((key) => {
       localStorage.removeItem(key);
     });
-    // Set hasVisitedApp to true to prevent first-visit expanded behavior in tests
-    localStorage.setItem('spg.hasVisitedApp', 'true');
   });
 
   it('keeps the board visible in auto mode', async () => {

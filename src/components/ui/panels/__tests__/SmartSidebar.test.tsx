@@ -87,6 +87,16 @@ describe('SmartSidebar layout tiers', () => {
     expect(sidebarColumn()).toHaveAttribute('aria-expanded', 'false');
   });
 
+  it('starts the desktop column collapsed on a first visit', () => {
+    setWidth(1440);
+
+    renderSidebar();
+
+    // No stored preference yet: the tour and the Help dialog point out the
+    // toggle, so the sidebar does not open expanded on its own.
+    expect(sidebarColumn()).toHaveAttribute('aria-expanded', 'false');
+  });
+
   it('still honours the stored preference on a desktop', () => {
     localStorage.setItem(LOCAL_STORAGE_KEYS.sidebarExpanded, 'true');
     setWidth(1440);

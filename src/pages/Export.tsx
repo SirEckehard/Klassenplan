@@ -126,7 +126,8 @@ export default function Export() {
   const metadata = usePageSeo('/export');
   const location = useLocation();
   const navigate = useLocalizedNavigate();
-  const isFirstVisit = useFirstVisit();
+  // Marks the visit (`spg.hasVisitedApp`) for the onboarding tour record.
+  useFirstVisit();
   const navigationState = (location.state || {}) as {
     seating?: SeatingArrangement;
     planName?: string;
@@ -1143,7 +1144,6 @@ export default function Export() {
               onPngExport={handlePngExport}
               onSvgExport={handleSvgExport}
               hasCircleLayout={hasCircleLayoutAvailable}
-              isFirstVisit={isFirstVisit}
             />
 
             {/* Canvas Bereich */}

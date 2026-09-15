@@ -310,10 +310,7 @@
     "cancelEdit": "Bearbeitung abbrechen",
     "editName": "Namen bearbeiten: {{name}}",
     "editButton": "Namen bearbeiten",
-    "editTitle": "Klick oder Eingabetaste zum Bearbeiten",
-    "truncatedTitle": "Wird in Tischansicht gekürzt: \"{{preview}}\"",
-    "truncatedLabel": "Gekürzter Name: {{preview}}",
-    "truncatedEditTitle": "Wird in Tischansicht gekürzt: \"{{preview}}\" (Klick oder Eingabetaste zum Bearbeiten)"
+    "editTitle": "Klick oder Eingabetaste zum Bearbeiten"
   },
   "classDialog": {
     "createTitle": "Neue Klasse erstellen",
