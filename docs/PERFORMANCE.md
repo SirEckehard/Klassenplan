@@ -6,11 +6,11 @@ Klassenplan approaches performance from two angles: Core Web Vitals at runtime, 
 
 ## Budgets
 
-Klassenplan has no server, so there are no service level objectives in the usual sense. These budgets take their place. Figures from 2026-09-14.
+Klassenplan has no server, so there are no service level objectives in the usual sense. These budgets take their place. Figures from 2026-09-14; initial payload from 2026-09-16.
 
 | Area                                 | Budget                                                        | Current                                                                   | Checked by                                                  |
 | ------------------------------------ | ------------------------------------------------------------- | ------------------------------------------------------------------------- | ----------------------------------------------------------- |
-| Initial payload                      | ≤ 250 KB brotli, ≤ 900 KB raw                                 | 221.4 KB brotli, 878.2 KB raw                                             | `npm run check:bundle`, part of `build:static` (CI, Docker) |
+| Initial payload                      | ≤ 220 KB brotli, ≤ 840 KB raw                                 | 195.4 KB brotli, 749.6 KB raw                                             | `npm run check:bundle`, part of `build:static` (CI, Docker) |
 | Largest chunk                        | ≤ 78 KB brotli, ≤ 330 KB raw                                  | 64.2 KB brotli, 276.3 KB raw                                              | same                                                        |
 | CSS                                  | ≤ 24 KB brotli, ≤ 200 KB raw                                  | 19.1 KB brotli, 171.4 KB raw                                              | same                                                        |
 | Core Web Vitals                      | "good": LCP ≤ 2.5 s, INP ≤ 200 ms, CLS ≤ 0.1                  | Start page CLS 0.067 after prerendering ([SEO.md](SEO.md)); no field data | Logged in the browser only (`webVitals.ts`)                 |
@@ -74,6 +74,24 @@ The runtime layer used to be ≈1,700 lines: a `PerformanceDashboard` overlay, a
 None of it reached a backend, all of it was visible only to a developer running the app locally, and Lighthouse or the DevTools performance panel answer the same questions without any code. Coverage reflected that: the dashboard and its hook sat at 0 %.
 
 For profiling, use the browser's own tooling. If field telemetry ever becomes a requirement, the place to add a sink is `handleMetric` in `webVitals.ts`.
+
+## Start page load
+
+A PageSpeed Insights review of the start page on 2026-09-16 (Lighthouse 13.4, desktop and mobile) led to these changes:
+
+- **Language from the URL.** i18next-browser-languagedetector cached `de-DE` before `src/i18n/i18n.ts` compared the stored value with `'de'`, so every first visit loaded the English bundle, rendered the German start page in English and switched back — six extra chunks, six extra screenshots and a layout shift of 0.12. The language now follows the path alone (`languageForPath`).
+- **Carousel screenshots.** The slot is at most 488 CSS px wide but received the 2990 px originals, all six at once, since stacked slides are all inside the viewport and `loading="lazy"` holds none of them back. `HeroMockup` now serves `srcset` variants of 480, 960 and 1440 px (`npm run generate:preview-images`, widths in `src/data/previewImages.json`) with `sizes` that account for portrait shots, and mounts only the visible slide and the next one.
+- **Service worker precache.** Globbing `png` precached all 24 screenshot PNGs — 11 MB on every first visit. `preview/**` is now excluded from the glob; `includeAssets` lists the German 480 and 960 px AVIFs for offline use. The precache went from 15.7 MB to about 4 MB.
+- **Font.** The Latin DM Sans file is preloaded (`preloadPrimaryFont` in `vite.config.ts`), and `DM Sans Fallback` in `src/index.css` gives Arial the metrics of DM Sans so the swap does not move text.
+- **Entry chunk.** The storage history modal, the backup flow (dialogs, validators, `dataBackup`) and the CSV import pipeline with papaparse load on first use. The entry chunk shrank from 677 to 537 KB raw (162 to 133 KB brotli), and the Phosphor icons in it from 49 to 25.
+- **Accessibility.** Carousel dots have 24 × 24 px targets, and the logo link's accessible name starts with its visible text.
+
+Not done, deliberately:
+
+- **Inlining critical CSS.** The usual swap from `media="print"` relies on an inline `onload` handler, which `script-src 'self'` blocks. Worth it only if a new measurement still shows the stylesheet as the render-blocking cost.
+- **Trimming icon weights.** Each Phosphor definition carries all six weights; the 25 icons left in the entry chunk take about 84 KB raw. A subset with only `regular` and `fill` would mean replacing every icon import.
+
+**Measuring:** lab runs of the same build vary widely. In some runs a freshly started headless Chrome painted its first frame one to two seconds late while the main thread sat idle (28–36 ms of work), which moved the mobile score between 81 and 91 without any code change. Compare the median of three to five runs.
 
 ## Build & bundle optimizations
 

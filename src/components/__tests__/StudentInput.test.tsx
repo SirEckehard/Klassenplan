@@ -204,7 +204,7 @@ describe('StudentInput', () => {
     expect(props.removeStudent).not.toHaveBeenCalled();
 
     const confirmButton = within(dialog).getByRole('button', {
-      name: /Entfernen|Delete/i,
+      name: /Löschen|Delete/i,
     });
     fireEvent.click(confirmButton);
 

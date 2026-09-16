@@ -1,19 +1,14 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import { useRef } from 'react';
-import {
-  promptBackupPassword,
-  promptBackupRestoreMode,
-} from '@/services/ui/backupDialogs';
 import { showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
 import { recordBackupCreated } from '@/utils/data/backupReminder';
 import {
   BACKUP_ERROR_MESSAGES,
   BACKUP_LIMITS,
   BackupValidationError,
-  parseEncryptedBackupPayload,
-  type EncryptedBackupPayload,
-} from '@/utils/validation/backupValidation';
+} from '@/utils/validation/backupLimits';
+import type { EncryptedBackupPayload } from '@/utils/validation/backupValidation';
 import {
   logError,
   webCrypto,
@@ -27,6 +22,13 @@ const decoder = new TextDecoder();
 const aad = encoder.encode('klassenplan-backup-v1');
 const WEB_CRYPTO_EXPORT_ERROR_MESSAGE = 'toast:backup.webCryptoExportError';
 const WEB_CRYPTO_IMPORT_ERROR_MESSAGE = 'toast:backup.webCryptoImportError';
+
+// The password and restore dialogs and the payload validators are needed only
+// once a backup is exported or imported, so they load then instead of with the
+// app. A failed load ends up in the same error toast as any other failure.
+const loadBackupDialogs = () => import('@/services/ui/backupDialogs');
+const loadBackupValidation = () =>
+  import('@/utils/validation/backupValidation');
 
 const KDF_HASH = 'SHA-256';
 export const KDF_ITERATIONS = 600000;
@@ -154,6 +156,7 @@ export default function useDataBackup({
 
       // Ask for password first (before file dialog). The dialog enforces the
       // minimum length and the confirmation match itself.
+      const { promptBackupPassword } = await loadBackupDialogs();
       const password = await promptBackupPassword('create');
       if (!password) return;
 
@@ -198,6 +201,10 @@ export default function useDataBackup({
     const reader = new FileReader();
     reader.onload = async () => {
       try {
+        const [{ parseEncryptedBackupPayload }, dialogs] = await Promise.all([
+          loadBackupValidation(),
+          loadBackupDialogs(),
+        ]);
         const text = String(reader.result || '');
         let parsed: unknown;
         try {
@@ -210,7 +217,7 @@ export default function useDataBackup({
           handleWebCryptoUnavailable('import');
           return;
         }
-        const password = await promptBackupPassword('unlock');
+        const password = await dialogs.promptBackupPassword('unlock');
         if (password === null) return;
         let decrypted;
         try {
@@ -227,7 +234,7 @@ export default function useDataBackup({
 
         // Let the user choose between replacing everything and merging the
         // backup into the existing data.
-        const restoreMode = await promptBackupRestoreMode();
+        const restoreMode = await dialogs.promptBackupRestoreMode();
         if (!restoreMode) return;
 
         await importAllFromJson(decrypted, {

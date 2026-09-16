@@ -31,20 +31,22 @@ const KB = 1024;
 
 /**
  * Headroom is deliberately tight (roughly +12 % over the measured size at the
- * time of writing, 2026-08-01). A budget nobody ever hits is a budget nobody
- * maintains — when one of these fails, either the growth is justified and the
- * number moves in the same commit, or it isn't and the import gets fixed.
+ * time of writing; the initial payload was last tightened on 2026-09-16). A
+ * budget nobody ever hits is a budget nobody maintains — when one of these
+ * fails, either the growth is justified and the number moves in the same
+ * commit, or it isn't and the import gets fixed.
  *
- * For context on the initial payload (223 KB brotli over 64 files): about
+ * For context on the initial payload (195 KB brotli over 17 files): about
  * 86 KB of that is react-dom plus the German i18n bundle, neither of which can
  * be deferred — react-dom renders the first frame and German is the fallback
- * language. Roughly 33 KB is generator-only code (class management, seating
- * statistics, storage history) that the start page pulls in through the
- * footer's data-management menu; deferring it means untangling the provider
- * import graph, which belongs to the R1/R2 state-architecture work.
+ * language. The storage history, the backup flow and the CSV import load on
+ * demand since 2026-09-16 (223 KB before). What generator-only code remains —
+ * repositories, stores, seating statistics — comes in with the app-wide
+ * provider; deferring it means untangling the provider import graph, which
+ * belongs to the R1/R2 state-architecture work.
  */
 const BUDGETS = {
-  initial: { raw: 900 * KB, brotli: 250 * KB },
+  initial: { raw: 840 * KB, brotli: 220 * KB },
   largestChunk: { raw: 330 * KB, brotli: 78 * KB },
   css: { raw: 200 * KB, brotli: 24 * KB },
 };

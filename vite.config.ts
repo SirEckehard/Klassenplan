@@ -84,12 +84,52 @@ const resolveTailwindcssPlugin = async (): Promise<PluginOption> => {
   return pluginFactory();
 };
 const tailwindcss = await resolveTailwindcssPlugin();
+
+/**
+ * Preloads the Latin subset of DM Sans, the only font file a German or English
+ * page needs. The stylesheet reveals it only once the CSS has been downloaded
+ * and parsed, which queued the font behind the stylesheet (PageSpeed Insights:
+ * network dependency tree) and let the swap land after the first paint. The
+ * filename carries a content hash, so the link is written after bundling.
+ */
+const preloadPrimaryFont = (): PluginOption => ({
+  name: 'klassenplan:preload-primary-font',
+  apply: 'build',
+  transformIndexHtml: {
+    order: 'post',
+    handler(_html, ctx) {
+      const font = Object.keys(ctx.bundle ?? {}).find((fileName) =>
+        /^assets\/dm-sans-latin-wght-normal-[^/]+\.woff2$/.test(fileName),
+      );
+      if (!font) {
+        throw new Error(
+          'The DM Sans Latin font is missing from the bundle; update ' +
+            'preloadPrimaryFont in vite.config.ts to the new file name.',
+        );
+      }
+      return [
+        {
+          tag: 'link',
+          attrs: {
+            rel: 'preload',
+            href: `/${font}`,
+            as: 'font',
+            type: 'font/woff2',
+            crossorigin: true,
+          },
+          injectTo: 'head',
+        },
+      ];
+    },
+  },
+});
 const isProductionBuild = process.env.NODE_ENV === 'production';
 
 export default defineConfig({
   plugins: [
     tailwindcss,
     react(),
+    preloadPrimaryFont(),
     VitePWA({
       registerType: 'prompt',
       includeAssets: [
@@ -108,18 +148,10 @@ export default defineConfig({
         'brand/android/android-chrome-maskable-192-dark.png',
         'brand/android/android-chrome-maskable-512-dark.png',
         'brand/app-store/app-store-1024-dark.png',
-        'preview/01_schuelerliste_de_light.avif',
-        'preview/01_schuelerliste_de_dark.avif',
-        'preview/02_editor_de_light.avif',
-        'preview/02_editor_de_dark.avif',
-        'preview/03_sitzplan_de_light.avif',
-        'preview/03_sitzplan_de_dark.avif',
-        'preview/04_sitzkreis_de_light.avif',
-        'preview/04_sitzkreis_de_dark.avif',
-        'preview/05_praesentation_de_light.avif',
-        'preview/05_praesentation_de_dark.avif',
-        'preview/06_export_de_light.avif',
-        'preview/06_export_de_dark.avif',
+        // German start page screenshots for offline use, in the two sizes the
+        // carousel picks on phones and desktops. Everything else under
+        // /preview/ is cached at runtime once it has been shown.
+        'preview/*_de_*-{480,960}.avif',
       ],
       manifest: {
         id: '/',
@@ -248,6 +280,11 @@ export default defineConfig({
         skipWaiting: false,
         clientsClaim: false,
         globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
+        // The start page screenshots are left to the runtime cache below; the
+        // ones meant for offline use are listed in `includeAssets`. Globbing
+        // them here precached every PNG master — 24 files, 11 MB — on each
+        // first visit, although the app never requests one.
+        globIgnores: ['**/node_modules/**/*', 'preview/**'],
         runtimeCaching: [
           {
             urlPattern: ({ request, url }) =>

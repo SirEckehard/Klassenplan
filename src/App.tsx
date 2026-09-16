@@ -13,7 +13,7 @@ import OfflineIndicator from '@/components/ui/feedback/OfflineIndicator';
 import DownloadConfirmationHost from '@/components/ui/modals/DownloadConfirmationHost';
 import CsvFormatHelpHost from '@/components/ui/modals/CsvFormatHelpHost';
 import { preloadLikelyRoutes } from '@/pages/routePreloader';
-import { ensureEnglishLoaded } from '@/i18n/i18n';
+import { ensureEnglishLoaded, languageForPath } from '@/i18n/i18n';
 import {
   Changelog,
   Datenschutz,
@@ -37,9 +37,8 @@ function LanguageWrapper() {
   const location = useLocation();
   const { i18n } = useTranslation();
 
-  // Detect if URL starts with /en
-  const isEnglishPath =
-    location.pathname === '/en' || location.pathname.startsWith('/en/');
+  // Same rule the i18n module applies before the first render
+  const isEnglishPath = languageForPath(location.pathname) === 'en';
 
   useEffect(() => {
     // Only switch to English if /en prefix is present

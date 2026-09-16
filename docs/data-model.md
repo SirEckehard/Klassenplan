@@ -1,6 +1,6 @@
 # Data Model
 
-> **Status:** current · **Last reviewed:** 2026-09-14 · **Source of truth:**
+> **Status:** current · **Last reviewed:** 2026-09-16 · **Source of truth:**
 > `src/utils/data/storageKeys.ts`, `src/types/`, `src/repositories/`
 
 Everything Klassenplan stores lives in the teacher's browser. This document
@@ -178,6 +178,9 @@ list is `PROJECT_LOCAL_STORAGE_KEYS` in `storageKeys.ts`. Groups:
 - **Migration mirror:** `spg.migrationVersion`, a synchronous copy of the
   IndexedDB value so start-up can skip opening the database when nothing is
   pending.
+- **No longer written:** `klassenplan-language`, the language detector's cache.
+  The language follows the URL alone (`/en` or not); the key is only removed by
+  a data wipe.
 
 ## Versions and migrations
 

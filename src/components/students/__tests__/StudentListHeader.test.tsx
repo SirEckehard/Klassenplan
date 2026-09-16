@@ -61,7 +61,9 @@ describe('StudentListHeader', () => {
     render(<StudentListHeader onToggleAllVisible={vi.fn()} />);
 
     // Every control the captions sit above carries its own accessible name;
-    // reading "Geschl." before each row would only add noise.
-    expect(screen.queryByText(/Geschl\./)).not.toBeInTheDocument();
+    // reading "Geschl." before each row would only add noise. `getByText` does
+    // not honour aria-hidden, so the caption is found and its container checked.
+    const caption = screen.getByText(/^(Geschl\.|Gender)$/);
+    expect(caption.closest('[aria-hidden="true"]')).not.toBeNull();
   });
 });

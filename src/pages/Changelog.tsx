@@ -81,7 +81,7 @@ export default function Changelog() {
           <LocalizedLink
             to="/"
             className="kp-lockup focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
-            aria-label={t('header.homeLink', 'Zur Startseite')}
+            aria-label={t('header.homeLink')}
           >
             <KpLockup size="md" />
           </LocalizedLink>

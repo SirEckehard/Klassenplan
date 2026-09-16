@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import React, { useEffect, useRef, useState } from 'react';
+import React, { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import {
   HandHeartIcon,
   TrashIcon,
@@ -27,11 +27,16 @@ import { useSeatingPlanActions } from '@/contexts/SeatingPlanContext';
 import { showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
 import { logError, menuSurfaceClass } from '@/utils';
 import ConfirmDialog from '@/components/ui/modals/ConfirmDialog';
-import StorageHistoryModal from '@/components/ui/navigation/StorageHistoryModal';
 import { GITHUB_REPO_URL } from '@/config/links';
 import { getAppVersion } from '@/utils/version';
 import { useDialogLayer } from '@/hooks/ui/useDialogLayer';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
+
+// Reached only through the settings menu, so the plan and mix history, the
+// neighbourhood matrix and their icons stay out of the initial bundle.
+const StorageHistoryModal = lazy(
+  () => import('@/components/ui/navigation/StorageHistoryModal'),
+);
 
 const Footer: React.FC = () => {
   const { t } = useTranslation('common');
@@ -43,6 +48,9 @@ const Footer: React.FC = () => {
   // the layer registry before acting on it.
   useDialogLayer(menuOpen);
   const [historyModalOpen, setHistoryModalOpen] = useState(false);
+  // Mounted on first open and kept afterwards, so the selected tab survives
+  // closing the modal just as it did while the modal was imported eagerly.
+  const [historyModalMounted, setHistoryModalMounted] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   // Dismissing the install toast is permanent; this menu entry stays as the
   // way back in for as long as the browser reports the app as installable.
@@ -82,6 +90,7 @@ const Footer: React.FC = () => {
 
   const handleShowAllPlans = () => {
     setMenuOpen(false);
+    setHistoryModalMounted(true);
     setHistoryModalOpen(true);
   };
 
@@ -298,10 +307,14 @@ const Footer: React.FC = () => {
           )}
         </div>
       </div>
-      <StorageHistoryModal
-        open={historyModalOpen}
-        onClose={() => setHistoryModalOpen(false)}
-      />
+      {historyModalMounted && (
+        <Suspense fallback={null}>
+          <StorageHistoryModal
+            open={historyModalOpen}
+            onClose={() => setHistoryModalOpen(false)}
+          />
+        </Suspense>
+      )}
       <ConfirmDialog
         open={confirmOpen}
         title={t('dialogs.clearAllData.title')}

@@ -23,7 +23,9 @@ describe('Datenschutz page', () => {
     );
 
     expect(
-      screen.getByRole('link', { name: /^Zur Startseite$|^Back to Home$/i }),
+      screen.getByRole('link', {
+        name: /^Klassenplan – (Zur Startseite|Back to Home)$/i,
+      }),
     ).toHaveAttribute('href', '/');
     expect(
       screen.getByRole('heading', {

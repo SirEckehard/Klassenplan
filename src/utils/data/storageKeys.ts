@@ -118,6 +118,14 @@ export const LEGACY_EXPORT_KEYS = {
   pageOrientation: 'export.pageOrientation',
 } as const;
 
+/**
+ * Language preference written by i18next-browser-languagedetector. The language
+ * now follows the URL alone, so nothing reads or writes the key any more; it
+ * stays in the cleanup list so a full data wipe removes it from existing
+ * installations.
+ */
+export const LEGACY_LANGUAGE_KEY = 'klassenplan-language';
+
 // Type definitions
 export type LocalStorageKey = keyof typeof STORAGE_KEYS.localStorage;
 export type LocalStorageValue =
@@ -172,6 +180,7 @@ export const PROJECT_LOCAL_STORAGE_KEYS = [
   STORAGE_KEYS.localStorage.exportFlipView,
   LEGACY_EXPORT_KEYS.showFullNames,
   LEGACY_EXPORT_KEYS.pageOrientation,
+  LEGACY_LANGUAGE_KEY,
 ] as const;
 
 export type ProjectLocalStorageKey =

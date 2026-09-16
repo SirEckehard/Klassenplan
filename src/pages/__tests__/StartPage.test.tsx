@@ -17,7 +17,9 @@ describe('StartPage', () => {
     );
 
     expect(
-      screen.getByRole('link', { name: /^Zur Startseite$|^Back to Home$/i }),
+      screen.getByRole('link', {
+        name: /^Klassenplan – (Zur Startseite|Back to Home)$/i,
+      }),
     ).toBeInTheDocument();
     // CTA button - match either German or English text
     const link = screen.getByRole('link', {

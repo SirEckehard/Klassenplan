@@ -94,7 +94,8 @@ describe('SmartMixControls', () => {
     // Note: Categories are only rendered if students have relevant criteria
     expect(screen.getByText(/Identität|Identity/)).toBeInTheDocument();
     expect(screen.getByText(/Fähigkeiten|Abilities/)).toBeInTheDocument();
-    expect(screen.getByText(/Verhalten|Behavior/)).toBeInTheDocument();
+    // Anchored: "Verhalten" also occurs inside a criterion description.
+    expect(screen.getByText(/^(Verhalten|Behavior)$/)).toBeInTheDocument();
     expect(screen.getByText(/Soziales|Social/)).toBeInTheDocument();
     // 'Raum' category depends on complex availability checks - skip assertion
   });

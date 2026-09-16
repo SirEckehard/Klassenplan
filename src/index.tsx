@@ -9,7 +9,7 @@ import '@/index.css';
 // as part of the entry chunk. This replaces the former inline script in
 // index.html, which the production CSP (script-src 'self') blocked.
 import '@/hooks/useInstallPrompt';
-import i18next, { i18nReady, ensureEnglishLoaded } from '@/i18n';
+import { i18nReady } from '@/i18n';
 import RootErrorBoundary from '@/components/RootErrorBoundary';
 import { ToastProvider } from '@/components/ui/feedback/ToastProvider';
 import { SeatingPlanGeneratorProvider } from '@/contexts/SeatingPlanContext';
@@ -48,29 +48,18 @@ function startWebVitals(): void {
 async function initializeApp() {
   const { pathname } = window.location;
 
-  // Wait for the active language bundle before first render to prevent a flash
-  // of German fallback content for non-German users. On /en routes the URL wins
-  // over the stored preference; switching before the first render also spares
-  // real users the German flash that LanguageWrapper's post-render effect would
-  // otherwise produce.
-  const languageReady = i18nReady.then(async () => {
-    if (!/^\/en(\/|$)/.test(pathname)) return;
-
-    try {
-      await ensureEnglishLoaded();
-      await i18next.changeLanguage('en');
-    } catch (error) {
-      logWarn('Failed to preload English bundle', { error }, 'index');
-    }
-  });
-
+  // Wait for the active language bundle before first render. The i18n module
+  // derives the language from the URL and, on /en routes, loads and switches to
+  // English itself — so the first render is already in the right language and
+  // LanguageWrapper's post-render effect has nothing left to change.
+  //
   // Resolve the current route's lazy chunk up front so React.lazy settles
   // synchronously on the first render. Without this the prerendered markup
   // would be replaced by the Suspense skeleton before the page reappears.
   // preloadRoute swallows its own errors, so a failed chunk cannot block boot.
   // The route chunk does not depend on the language bundle, so both load in
   // parallel and the first paint waits only for the slower of the two.
-  await Promise.all([languageReady, preloadRoute(routeNameForPath(pathname))]);
+  await Promise.all([i18nReady, preloadRoute(routeNameForPath(pathname))]);
 
   try {
     const migrationResult = await runMigration();

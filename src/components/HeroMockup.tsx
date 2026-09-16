@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { useDialogA11y } from '@/hooks/ui/useDialogA11y';
 import { useDialogLayer } from '@/hooks/ui/useDialogLayer';
 import { usePrefersReducedMotion } from '@/hooks/ui/usePrefersReducedMotion';
+import previewImages from '@/data/previewImages.json';
 import {
   CaretLeftIcon,
   CaretRightIcon,
@@ -17,21 +18,53 @@ import {
 
 // Slide slugs map to the preview assets in `public/preview/`, which are
 // provided per language (de/en) and theme (light/dark), e.g.
-// `03_sitzplan_de_dark.avif`. `labelKey` resolves the localized caption.
+// `03_sitzplan_de_dark.avif`, plus downscaled copies such as
+// `03_sitzplan_de_dark-960.avif` (`npm run generate:preview-images`).
+// `labelKey` resolves the localized caption; `width` and `height` are the
+// nominal size of the full-size files (a few masters differ by some pixels).
 const SLIDES = [
   {
     slug: '01_schuelerliste',
     labelKey: 'startPage.previewSlides.schuelerliste',
+    width: 2990,
+    height: 1796,
   },
-  { slug: '02_editor', labelKey: 'startPage.previewSlides.editor' },
-  { slug: '03_sitzplan', labelKey: 'startPage.previewSlides.sitzplan' },
-  { slug: '04_sitzkreis', labelKey: 'startPage.previewSlides.sitzkreis' },
+  {
+    slug: '02_editor',
+    labelKey: 'startPage.previewSlides.editor',
+    width: 2990,
+    height: 1796,
+  },
+  {
+    slug: '03_sitzplan',
+    labelKey: 'startPage.previewSlides.sitzplan',
+    width: 2990,
+    height: 1796,
+  },
+  {
+    slug: '04_sitzkreis',
+    labelKey: 'startPage.previewSlides.sitzkreis',
+    width: 2990,
+    height: 1796,
+  },
   {
     slug: '05_praesentation',
     labelKey: 'startPage.previewSlides.praesentation',
+    width: 1424,
+    height: 2236,
   },
-  { slug: '06_export', labelKey: 'startPage.previewSlides.export' },
+  {
+    slug: '06_export',
+    labelKey: 'startPage.previewSlides.export',
+    width: 1350,
+    height: 1840,
+  },
 ];
+
+/** The slide area is `aspect-3/2`. */
+const SLOT_ASPECT = 3 / 2;
+/** Slot width from `lg` up: half of `max-w-5xl` minus the `gap-12` column gap. */
+const SLOT_WIDTH_LG = 488;
 
 function useIsDark() {
   const [dark, setDark] = useState(() =>
@@ -52,6 +85,29 @@ function slideBase(slug: string, lang: 'de' | 'en', dark: boolean) {
   return `/preview/${slug}_${lang}_${dark ? 'dark' : 'light'}`;
 }
 
+/** Downscaled copies plus the full-size file as the largest candidate. */
+function slideSrcSet(base: string, width: number, ext: 'avif' | 'webp') {
+  return [
+    ...previewImages.variantWidths
+      .filter((w) => w < width)
+      .map((w) => `${base}-${w}.${ext} ${w}w`),
+    `${base}.${ext} ${width}w`,
+  ].join(', ');
+}
+
+/**
+ * The rendered width of a slide. `object-contain` fits portrait screenshots to
+ * the slot's height, so they cover only part of its width — without this the
+ * browser would pick a candidate for the full slot width.
+ */
+function slideSizes(width: number, height: number) {
+  const share = Math.min(1, width / height / SLOT_ASPECT);
+  if (share === 1) {
+    return `(min-width: 1024px) ${SLOT_WIDTH_LG}px, calc(100vw - 2rem)`;
+  }
+  return `(min-width: 1024px) ${Math.ceil(SLOT_WIDTH_LG * share)}px, calc((100vw - 2rem) * ${share.toFixed(3)})`;
+}
+
 export default function HeroMockup() {
   const [current, setCurrent] = useState(2);
   const [tick, setTick] = useState(0);
@@ -67,6 +123,21 @@ export default function HeroMockup() {
   useDialogLayer(lightbox);
   const { t, i18n } = useTranslation('pages');
   const lang = i18n.language.startsWith('de') ? 'de' : 'en';
+
+  // All slides are stacked inside the viewport, so `loading="lazy"` cannot
+  // hold any of them back. Rendering only the visible slide and the next one
+  // keeps a first visit at two screenshots instead of six; the next slide is
+  // mounted ahead so it has loaded by the time auto-advance fades it in, and a
+  // slide once mounted stays so fading back is instant. The set is updated
+  // during render (React's "adjusting state on a prop change" pattern) so a
+  // newly current slide is never painted without its image.
+  const upcoming = (current + 1) % SLIDES.length;
+  const [mounted, setMounted] = useState<ReadonlySet<number>>(
+    () => new Set([current, upcoming]),
+  );
+  if (!mounted.has(current) || !mounted.has(upcoming)) {
+    setMounted(new Set(mounted).add(current).add(upcoming));
+  }
 
   // Auto-advance pauses on user request, for reduced-motion users
   // (WCAG 2.2.2) and while the lightbox is open.
@@ -123,14 +194,24 @@ export default function HeroMockup() {
           {/* Slides */}
           <div className="group relative aspect-3/2 bg-gray-100 dark:bg-gray-900">
             {SLIDES.map((slide, i) => {
+              if (!mounted.has(i)) return null;
               const b = slideBase(slide.slug, lang, isDark);
               const isActive = i === current;
+              const sizes = slideSizes(slide.width, slide.height);
               return (
                 <picture key={slide.slug}>
-                  <source srcSet={`${b}.avif`} type="image/avif" />
-                  <source srcSet={`${b}.webp`} type="image/webp" />
+                  <source
+                    srcSet={slideSrcSet(b, slide.width, 'avif')}
+                    sizes={sizes}
+                    type="image/avif"
+                  />
+                  <source
+                    srcSet={slideSrcSet(b, slide.width, 'webp')}
+                    sizes={sizes}
+                    type="image/webp"
+                  />
                   <img
-                    src={`${b}.png`}
+                    src={`${b}.webp`}
                     alt={t(slide.labelKey)}
                     aria-hidden={!isActive}
                     loading={isActive ? 'eager' : 'lazy'}
@@ -185,8 +266,9 @@ export default function HeroMockup() {
             </button>
           </div>
 
-          {/* Dot navigation + autoplay toggle */}
-          <div className="relative flex justify-center items-center gap-1.5 py-2.5">
+          {/* Dot navigation + autoplay toggle. Each dot sits in a 24 × 24 px
+              button: the visible dot stays small, the target meets WCAG 2.5.8. */}
+          <div className="relative flex justify-center items-center py-0.5">
             {SLIDES.map((slide, i) => (
               <button
                 key={i}
@@ -196,12 +278,17 @@ export default function HeroMockup() {
                   total: SLIDES.length,
                 })}
                 aria-current={i === current ? 'true' : undefined}
-                className={`h-1.5 cursor-pointer rounded-full transition-all duration-300 ${
-                  i === current
-                    ? 'w-4 bg-blue-500'
-                    : 'w-1.5 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400'
-                }`}
-              />
+                className="group flex h-6 min-w-6 cursor-pointer items-center justify-center rounded-full"
+              >
+                <span
+                  aria-hidden="true"
+                  className={`h-1.5 rounded-full transition-all duration-300 ${
+                    i === current
+                      ? 'w-4 bg-blue-500'
+                      : 'w-1.5 bg-gray-300 dark:bg-gray-600 group-hover:bg-gray-400'
+                  }`}
+                />
+              </button>
             ))}
             <button
               onClick={() => setPaused((p) => !p)}
@@ -211,7 +298,7 @@ export default function HeroMockup() {
                   ? t('startPage.carousel.play')
                   : t('startPage.carousel.pause')
               }
-              className="absolute right-2 cursor-pointer rounded-full p-1 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition"
+              className="absolute right-2 cursor-pointer rounded-full p-1.5 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition"
             >
               {paused ? (
                 <PlayIcon size={12} aria-hidden="true" />
@@ -250,7 +337,7 @@ export default function HeroMockup() {
                   type="image/webp"
                 />
                 <img
-                  src={`${slideBase(SLIDES[current].slug, lang, isDark)}.png`}
+                  src={`${slideBase(SLIDES[current].slug, lang, isDark)}.webp`}
                   alt={t(SLIDES[current].labelKey)}
                   decoding="async"
                   className="max-h-[80vh] w-full object-contain rounded-xl shadow-2xl"
@@ -264,7 +351,7 @@ export default function HeroMockup() {
               </p>
 
               {/* Dot navigation */}
-              <div className="mt-3 flex items-center gap-2">
+              <div className="mt-2 flex items-center">
                 {SLIDES.map((_, i) => (
                   <button
                     key={i}
@@ -274,12 +361,17 @@ export default function HeroMockup() {
                       total: SLIDES.length,
                     })}
                     aria-current={i === current ? 'true' : undefined}
-                    className={`h-1.5 cursor-pointer rounded-full transition-all duration-300 ${
-                      i === current
-                        ? 'w-5 bg-white'
-                        : 'w-1.5 bg-white/40 hover:bg-white/70'
-                    }`}
-                  />
+                    className="group flex h-6 min-w-6 cursor-pointer items-center justify-center rounded-full"
+                  >
+                    <span
+                      aria-hidden="true"
+                      className={`h-1.5 rounded-full transition-all duration-300 ${
+                        i === current
+                          ? 'w-5 bg-white'
+                          : 'w-1.5 bg-white/40 group-hover:bg-white/70'
+                      }`}
+                    />
+                  </button>
                 ))}
               </div>
 

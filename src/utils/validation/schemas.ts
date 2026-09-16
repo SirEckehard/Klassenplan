@@ -5,8 +5,8 @@
  * Ersetzt duplizierten Validierungscode in Components
  */
 
-// Re-export validation constants from backupValidation
-export { BACKUP_LIMITS } from './backupValidation';
+// Re-export validation constants from backupLimits
+export { BACKUP_LIMITS } from './backupLimits';
 
 /**
  * Common validation result type

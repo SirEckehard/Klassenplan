@@ -15,7 +15,6 @@ import type {
 } from './featureStores';
 import { createFeatureStoreLogger } from './featureStores';
 import { evaluateStateUpdater } from './storeUtils';
-import { importStudentsFromCsv } from '@/services/csvImportService';
 import { schedulePhotoDeletion } from '@/hooks/student/studentPhotoTrash';
 
 /**
@@ -221,6 +220,10 @@ export const createStudentsStore = (
         logger.debug('Students updated', { count: ids.length });
       },
       importCsv: async (file: File, selection?: CsvImportSelection) => {
+        // The CSV pipeline (parser, presets, diagnostics, papaparse) is needed
+        // only once a file is imported, so it loads then instead of with the app.
+        const { importStudentsFromCsv } =
+          await import('@/services/csvImportService');
         const currentCount = get().students.length;
         const acceptedRows = await importStudentsFromCsv({
           file,

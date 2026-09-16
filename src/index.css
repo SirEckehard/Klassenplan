@@ -5,8 +5,24 @@
 @custom-variant dark (&:where(.dark &));
 @import 'tailwindcss';
 
+/*
+ * Metric-matched stand-in for DM Sans while the web font loads. The overrides
+ * come from @capsizecss/metrics (DM Sans against Arial), calculated the way
+ * next/font does: text set in the fallback takes up the room DM Sans will, so
+ * the swap no longer shifts the layout. Where Arial is missing the stack falls
+ * through to the plain `sans-serif` as before.
+ */
+@font-face {
+  font-family: 'DM Sans Fallback';
+  src: local('Arial');
+  size-adjust: 104.53%;
+  ascent-override: 94.9%;
+  descent-override: 29.66%;
+  line-gap-override: 0%;
+}
+
 @theme {
-  --font-sans: 'DM Sans Variable', sans-serif;
+  --font-sans: 'DM Sans Variable', 'DM Sans Fallback', sans-serif;
   --surface-page: #f9fafb;
   --text-page: #111827;
   --surface-panel: linear-gradient(

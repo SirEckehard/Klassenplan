@@ -2,7 +2,9 @@
 // Copyright (C) 2026 Eike Schäfer
 import i18next from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import LanguageDetector from 'i18next-browser-languagedetector';
+// Imported from the logger module directly: the '@/utils' barrel would anchor
+// the algorithm and schema modules in the initial load (see src/index.tsx).
+import { logWarn } from '@/utils/logging/logger.client';
 
 // DE is the fallback language — always bundled statically
 import commonDe from './locales/de/common.json';
@@ -21,6 +23,26 @@ const NAMESPACES = [
   'changelog',
 ] as const;
 
+/**
+ * The URL decides the language: `/en` and everything below it is English, every
+ * other path German (decision 0011). `LanguageWrapper` enforces the same rule
+ * after navigation.
+ *
+ * This used to come from i18next-browser-languagedetector (stored preference,
+ * then browser language). The detector cached its result — `de-DE` — before the
+ * `=== 'de'` check below ran, so every first visit loaded the English bundle,
+ * rendered the German start page in English and switched back a frame later:
+ * a visible flash, a layout shift and six wasted requests.
+ */
+export function languageForPath(pathname: string): 'de' | 'en' {
+  return /^\/en(\/|$)/.test(pathname) ? 'en' : 'de';
+}
+
+const initialLanguage =
+  typeof window !== 'undefined'
+    ? languageForPath(window.location.pathname)
+    : 'de';
+
 // Exported promise that resolves once the active-language bundle is ready.
 // Await this before rendering to avoid a flash of the fallback (German) language.
 let resolveReady!: () => void;
@@ -29,12 +51,13 @@ export const i18nReady = new Promise<void>((resolve) => {
 });
 
 i18next
-  // Detect user language from browser/localStorage
-  .use(LanguageDetector)
   // Pass i18n instance to react-i18next
   .use(initReactI18next)
   // Initialize i18next
   .init({
+    // German is bundled, so i18next starts on it; English switches in below
+    // once its bundle has loaded.
+    lng: 'de',
     resources: {
       de: {
         common: commonDe,
@@ -48,14 +71,6 @@ i18next
     fallbackLng: 'de',
     defaultNS: 'common',
     ns: NAMESPACES,
-
-    // Language detection options
-    detection: {
-      // localStorage first, then browser - LanguageWrapper handles URL-based detection
-      order: ['localStorage', 'navigator'],
-      caches: ['localStorage'],
-      lookupLocalStorage: 'klassenplan-language',
-    },
 
     interpolation: {
       // React already escapes values
@@ -91,28 +106,15 @@ export function ensureEnglishLoaded(): Promise<void> {
   return enLoadPromise;
 }
 
-const storedLang = (() => {
-  try {
-    return typeof window !== 'undefined'
-      ? localStorage.getItem('klassenplan-language')
-      : null;
-  } catch {
-    return null;
-  }
-})();
-const browserLang =
-  typeof navigator !== 'undefined'
-    ? (navigator.language?.slice(0, 2) ?? null)
-    : null;
-const detectedLang = storedLang ?? browserLang ?? 'de';
-
-if (detectedLang !== 'de') {
+if (initialLanguage === 'en') {
   void ensureEnglishLoaded()
-    // Use exact 'en' key (matching the bundle) to guarantee a language-changed
-    // event fires even when i18next already reports language as 'en-US' etc.
     .then(() => i18next.changeLanguage('en'))
     .then(resolveReady)
-    .catch(resolveReady);
+    .catch((error: unknown) => {
+      // Rendering in German beats not rendering at all.
+      logWarn('Failed to preload English bundle', { error }, 'i18n');
+      resolveReady();
+    });
 } else {
   // German bundle is already loaded — signal ready immediately.
   resolveReady();

@@ -194,6 +194,7 @@ import { generateId, logError, errorHandlers } from '@/utils';
 - `npm run typecheck` / `npm run typecheck:all` - TypeScript strict checks
 - `npm run format` - Format code with Prettier
 - `npm run generate:sitemap` - Generate sitemap (auto-run before builds)
+- `npm run generate:preview-images` - Downscaled start page screenshots (`-480/-960/-1440`) from the PNG masters in `public/preview/`; run after replacing a screenshot (needs libwebp and libavif)
 - `npm run check:i18n` - DE/EN key parity + orphaned inline defaults
 - `npm run check:bundle` - Enforce bundle size budgets against `dist/` (run after a build)
 - `npm run check:unused` - Unused-export ratchet (baseline in `scripts/check-unused-exports.mjs`)
@@ -335,7 +336,7 @@ expectErrorToast(); // Just check toast exists
 - ✅ Always prefer semantic queries for new tests
 - ✅ Migrate when fixing or modifying existing tests
 - ✅ Use `getByRole()` over `getByText()` for interactive elements
-- ✅ Match UI texts bilingually (`/Merkmale|Markers/i`) — the active test language depends on the environment
+- ✅ Match UI texts bilingually (`/Merkmale|Markers/i`) — tests render German because the language follows the URL and jsdom's has no `/en` prefix, but a spec should survive a switch; mind that `getByText` ignores `aria-hidden` and unanchored patterns also hit longer German sentences
 
 ## Performance Considerations
 

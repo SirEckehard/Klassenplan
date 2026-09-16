@@ -42,11 +42,6 @@ import { RepositoryErrorType, type ActiveClassSnapshot } from '@/repositories';
 import type { SeatingState } from './useSeatingState';
 import { DB_KEYS } from '@/utils/data/storageKeys';
 import { APP_DATA_VERSION } from '@/utils/data/indexedDb';
-import {
-  exportAllAsJson as exportAllAsJsonUtil,
-  importAllFromJson as importAllFromJsonUtil,
-  clearAllData as clearAllDataUtil,
-} from '@/services/backup/dataBackup';
 import { resolvePlanSlot, upsertPlan } from '@/utils/data/planNormalization';
 import {
   buildStudentsCsvFilename,
@@ -68,6 +63,12 @@ import {
   useClassDataPersistence,
   type LoadedSnapshot,
 } from './persistence';
+
+// Backup export and import and the full data wipe run only on request. Loading
+// their module then keeps it — and the backup validators it imports — out of
+// the initial bundle. Each caller loads it before touching any data, so a
+// failed load cannot leave a wipe or an import half done.
+const loadDataBackup = () => import('@/services/backup/dataBackup');
 
 export type LoadOptions = {
   replaceStudents?: boolean;
@@ -623,6 +624,7 @@ export function useSeatingPersistence(state: SeatingState) {
   );
 
   const exportAllAsJson = useCallback(async () => {
+    const { exportAllAsJson: exportAllAsJsonUtil } = await loadDataBackup();
     // Load circle data and templates from storage using repository
     let currentCircleLayout: CircleLayout | null = null;
     let circleLayouts: CircleExportData[] = [];
@@ -710,6 +712,9 @@ export function useSeatingPersistence(state: SeatingState) {
 
   const importAllFromJson = useCallback(
     async (json: string, opts?: { merge?: boolean }) => {
+      const { importAllFromJson: importAllFromJsonUtil } =
+        await loadDataBackup();
+
       // Create setter for circle layout using repository
       const persistCircleLayout = async (layout: CircleLayout | null) => {
         const result = await repository.saveCurrentCircleLayout(layout);
@@ -800,6 +805,7 @@ export function useSeatingPersistence(state: SeatingState) {
   );
 
   const clearAllData = useCallback(async () => {
+    const { clearAllData: clearAllDataUtil } = await loadDataBackup();
     const clearResult = await repository.clearAll();
     if (!clearResult.success) {
       logError(
