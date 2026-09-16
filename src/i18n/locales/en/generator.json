@@ -28,7 +28,7 @@
     },
     "plan": {
       "title": "Seating Plan",
-      "item1": "Adjust the weighting of criteria (0-10) in the sidebar.",
+      "item1": "Adjust the weighting of criteria (0-10) in the sidebar – in the collapsed sidebar with a right click or a long press on the icon.",
       "item2": "Drag students to other seats via drag & drop.",
       "item3": "Click the lock icon to lock a seat for the next shuffle.",
       "item4": "The statistics panel shows how well the criteria are met.",
@@ -309,9 +309,18 @@
     "enableAll": "Enable all criteria",
     "disableAll": "Disable all criteria",
     "toggleAll": "All criteria",
+    "resetDefaults": "Default weights",
+    "resetDefaultsTitle": "Restore default weights",
     "on": "On",
     "off": "Off",
     "weightTooltip": "Weight: {{value}}/10 – The higher the value, the more important this criterion is for seating assignment.",
+    "weightSliderLabel": "Importance: {{label}}",
+    "flyoutHint": "A long press or a right click opens this setting again.",
+    "railAllTitle": "{{action}} – right click: default weights",
+    "railCriterionTitle": "{{label}}: {{value}}/10 – right click: set importance",
+    "railCriterionActiveLabel": "{{label}}, importance {{value}} of 10",
+    "railWeightHint": "Right click, long press, Shift+F10 or right arrow: set importance",
+    "railDefaultsHint": "Right click, long press, Shift+F10 or right arrow: default weights",
     "randomWarning": "All criteria disabled - Shuffling is random!",
     "categories": {
       "avoidance": "Avoidance",
@@ -385,26 +394,6 @@
         "desc": "Distribute mediators, leaders and loners"
       }
     },
-    "criteriaDescriptions": {
-      "avoidPreviousPairs": "Separate students who were shuffled next to each other last time.",
-      "avoidRestlessTogether": "Separate students showing restless behavior.",
-      "avoidConcentrationTogether": "Separate students with concentration difficulties.",
-      "avoidShyAlone": "Don't let students with withdrawn behavior sit alone.",
-      "preferGenderMix": "Gender-mixed distribution.",
-      "considerWishPartners": "Consider students' partner preferences.",
-      "avoidConflictPartners": "Separate students with distance requests.",
-      "peerTutoring": "Pair students with different performance levels together.",
-      "homogeneousPerformanceGroups": "Group students with similar performance levels together.",
-      "preferFrontForNeedsFrontSeat": "Place students needing front seats in the front rows.",
-      "preferFrontForSmallerStudents": "Shorter students in front, taller students in back.",
-      "preferWindowSeats": "Honor window seat preferences.",
-      "preferDoorSeats": "Honor door proximity preferences.",
-      "preferLanguageMixing": "Seat confident speakers next to beginners/EAL students.",
-      "distributeSocialRoles": "Spread mediators, leaders and loners across tables."
-    },
-    "allOn": "All on",
-    "allOff": "All off",
-    "sectionDescription": "Set the importance of each criterion (0–10)",
     "criterionNotAvailable": "Criterion not available",
     "unavailable": {
       "considerWishPartners": "No student has a preferred partner",
@@ -421,9 +410,7 @@
       "preferDoorSeats": "No student prefers to sit near the door",
       "preferLanguageMixing": "At least 2 different language levels are required",
       "distributeSocialRoles": "No students with a social role"
-    },
-    "active": "active",
-    "inactive": "inactive"
+    }
   },
   "layout": {
     "singleSeat": "Single Seat",
@@ -869,7 +856,7 @@
       },
       "sidebar": {
         "title": "Choose criteria",
-        "body": "Decide which criteria to consider when shuffling. In the expanded sidebar you choose how much, for example, preferred partners or the gender mix matter to you."
+        "body": "Decide which criteria to consider when shuffling. How much, for example, preferred partners or the gender mix matter to you is set with a right click or a long press on the icon – or in the expanded sidebar."
       },
       "sidebarToggle": {
         "title": "Expand and collapse the sidebar",

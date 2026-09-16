@@ -260,6 +260,37 @@ describe('SmartMixControls', () => {
     expect(screen.getByTestId('homogeneous-value')).toHaveTextContent('0');
   });
 
+  test('master switch brings back the weights it switched off', () => {
+    renderPresetWrapper({ peerTutoring: 7 });
+
+    fireEvent.click(
+      screen.getByTitle(/Alle Kriterien deaktivieren|Disable all criteria/),
+    );
+    expect(screen.getByTestId('peerTutoring-value')).toHaveTextContent('0');
+
+    fireEvent.click(
+      screen.getByTitle(/Alle Kriterien aktivieren|Enable all criteria/),
+    );
+    // The teacher's 7, not the recommended 3.
+    expect(screen.getByTestId('peerTutoring-value')).toHaveTextContent('7');
+  });
+
+  test('restore button sets the recommended weights', () => {
+    renderPresetWrapper({ homogeneousPerformanceGroups: 9 });
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: /Standardwerte wiederherstellen|Restore default weights/,
+      }),
+    );
+
+    // The recommended weight, still on the criterion that was chosen.
+    expect(screen.getByTestId('homogeneous-value')).toHaveTextContent(
+      String(DEFAULT_MIX_WEIGHTS.homogeneousPerformanceGroups),
+    );
+    expect(screen.getByTestId('peerTutoring-value')).toHaveTextContent('0');
+  });
+
   test('preset buttons work correctly', () => {
     const mockSetMixSettings = vi.fn();
     const Wrapper = () => {

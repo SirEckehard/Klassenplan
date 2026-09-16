@@ -118,9 +118,14 @@ export {
   DEFAULT_MIX_WEIGHTS,
   DEFAULT_NEIGHBOR_WEIGHTS,
   SCALAR_MIX_SETTING_KEYS,
+  hasActiveWeights,
   mergeNeighborWeights,
   normalizeMixSettings,
   neutralSettings,
+  withCriterionWeight,
+  withDefaultWeights,
+  withWeightsFrom,
+  withoutWeights,
 } from './mixSettings';
 
 // ===== Seating Utilities =====

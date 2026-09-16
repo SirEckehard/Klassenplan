@@ -28,7 +28,7 @@
     },
     "plan": {
       "title": "Sitzplan",
-      "item1": "Passe die Gewichtung der Kriterien (0-10) in der Sidebar an.",
+      "item1": "Passe die Gewichtung der Kriterien (0-10) in der Sidebar an – in der minimierten Sidebar mit einem Rechtsklick oder langem Drücken auf das Symbol.",
       "item2": "Ziehe Schüler per Drag & Drop auf andere Plätze.",
       "item3": "Klicke auf das Schloss-Symbol, um einen Platz beim nächsten Mischen zu sperren.",
       "item4": "Über die Statistikanzeige kannst du sehen, wie gut die Kriterien erfüllt sind.",
@@ -309,9 +309,18 @@
     "enableAll": "Alle Kriterien aktivieren",
     "disableAll": "Alle Kriterien deaktivieren",
     "toggleAll": "Alle Kriterien",
+    "resetDefaults": "Standardwerte",
+    "resetDefaultsTitle": "Standardwerte wiederherstellen",
     "on": "An",
     "off": "Aus",
     "weightTooltip": "Gewichtung: {{value}}/10 – Je höher der Wert, desto wichtiger ist dieses Kriterium bei der Sitzplatzverteilung.",
+    "weightSliderLabel": "Wichtigkeit: {{label}}",
+    "flyoutHint": "Lange drücken oder Rechtsklick öffnet diese Einstellung wieder.",
+    "railAllTitle": "{{action}} – Rechtsklick: Standardwerte",
+    "railCriterionTitle": "{{label}}: {{value}}/10 – Rechtsklick: Wichtigkeit einstellen",
+    "railCriterionActiveLabel": "{{label}}, Wichtigkeit {{value}} von 10",
+    "railWeightHint": "Rechtsklick, lange drücken, Umschalt+F10 oder Pfeil nach rechts: Wichtigkeit einstellen",
+    "railDefaultsHint": "Rechtsklick, lange drücken, Umschalt+F10 oder Pfeil nach rechts: Standardwerte",
     "randomWarning": "Alle Kriterien deaktiviert - Mischen ist zufällig!",
     "categories": {
       "avoidance": "Vermeidung",
@@ -385,26 +394,6 @@
         "desc": "Mediatoren, Anführer und Einzelgänger verteilen"
       }
     },
-    "criteriaDescriptions": {
-      "avoidPreviousPairs": "Schüler, die zuletzt nebeneinander gemischt wurden, trennen.",
-      "avoidRestlessTogether": "Schüler mit Unruheverhalten trennen.",
-      "avoidConcentrationTogether": "Schüler mit Konzentrationsschwierigkeiten trennen.",
-      "avoidShyAlone": "Schüler mit zurückhaltendem Verhalten nicht alleine sitzen lassen.",
-      "preferGenderMix": "Geschlechtergemischte Verteilung.",
-      "considerWishPartners": "Wunschpartner-Anfragen der Schüler.",
-      "avoidConflictPartners": "Schüler mit Distanzwunsch trennen.",
-      "peerTutoring": "Schüler mit unterschiedlichem Leistungsniveau zusammen.",
-      "homogeneousPerformanceGroups": "Schüler mit ähnlichem Leistungsniveau zusammen.",
-      "preferFrontForNeedsFrontSeat": "Schüler mit Platzbedarf in den vorderen Reihen platzieren.",
-      "preferFrontForSmallerStudents": "Kleinere Schüler vorne, größere hinten.",
-      "preferWindowSeats": "Fensterpräferenzen berücksichtigen.",
-      "preferDoorSeats": "Türpräferenzen berücksichtigen.",
-      "preferLanguageMixing": "Sprachstarke neben Anfänger/DaZ setzen.",
-      "distributeSocialRoles": "Mediatoren, Anführer und Einzelgänger verteilen."
-    },
-    "allOn": "Alle an",
-    "allOff": "Alle aus",
-    "sectionDescription": "Stelle die Wichtigkeit der verschiedenen Kriterien ein (0-10)",
     "criterionNotAvailable": "Kriterium nicht verfügbar",
     "unavailable": {
       "considerWishPartners": "Kein Schüler hat einen Wunschpartner",
@@ -421,9 +410,7 @@
       "preferDoorSeats": "Kein Schüler bevorzugt Nähe zur Tür",
       "preferLanguageMixing": "Mindestens 2 verschiedene Sprachniveaus erforderlich",
       "distributeSocialRoles": "Keine Schüler mit sozialer Rolle vorhanden"
-    },
-    "active": "aktiv",
-    "inactive": "inaktiv"
+    }
   },
   "layout": {
     "singleSeat": "Einzelplatz",
@@ -869,7 +856,7 @@
       },
       "sidebar": {
         "title": "Kriterien wählen",
-        "body": "Lege fest, welche Kriterien beim Mischen beachtet werden sollen. In der erweiterten Sidebar wählst du aus, wie wichtig dir z. B. Wunschpartner oder die Geschlechtermischung sind."
+        "body": "Lege fest, welche Kriterien beim Mischen beachtet werden sollen. Wie wichtig dir z. B. Wunschpartner oder die Geschlechtermischung sind, stellst du mit einem Rechtsklick oder langem Drücken auf das Symbol ein – oder in der erweiterten Sidebar."
       },
       "sidebarToggle": {
         "title": "Sidebar erweitern und minimieren",

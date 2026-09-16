@@ -69,6 +69,7 @@ import { useIsDarkMode } from '@/hooks/useIsDarkMode';
 import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';
 import { useFirstVisit } from '@/hooks/ui/useFirstVisit';
 import { useIsPhone } from '@/hooks/ui/useLayoutMode';
+import { createSuspendedWeights } from '@/hooks/ui/useMixCriteria';
 import { buildCriterionHighlightEntries } from '@/utils/algorithm/criterionHighlights';
 import type {
   DragPreview,
@@ -730,15 +731,11 @@ export default function SeatingPlanEditorView({
     mixingLocked,
   ]);
 
-  const handleMixSettingChange = React.useCallback(
-    (key: keyof MixSettings, value: number) => {
-      setMixSettings((prev) => ({
-        ...prev,
-        [key]: value,
-      }));
-    },
-    [setMixSettings],
-  );
+  // What "all criteria off" cleared, for "all on" to bring back — shared by the
+  // expanded panel, the rail and the phone row, so each can undo the others.
+  // Kept for this visit of the step only: classes are switched in step 1, so
+  // one class's weights can never come back in another.
+  const [suspendedWeights] = React.useState(createSuspendedWeights);
 
   return (
     <div className="space-y-6">
@@ -873,15 +870,16 @@ export default function SeatingPlanEditorView({
                   settings={settings}
                   setMixSettings={setMixSettings}
                   students={students}
+                  suspendedWeights={suspendedWeights}
                 />
               </>
             ) : (
               <>
                 <MixCriteriaIcons
                   settings={settings}
+                  setMixSettings={setMixSettings}
                   students={students}
-                  onSettingChange={handleMixSettingChange}
-                  isExpanded={isExpanded}
+                  suspendedWeights={suspendedWeights}
                 />
               </>
             )
@@ -1037,8 +1035,9 @@ export default function SeatingPlanEditorView({
               <div className="mt-4 sm:hidden">
                 <MixCriteriaIcons
                   settings={settings}
+                  setMixSettings={setMixSettings}
                   students={students}
-                  onSettingChange={handleMixSettingChange}
+                  suspendedWeights={suspendedWeights}
                   compactLayout={true}
                 />
               </div>

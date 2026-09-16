@@ -154,3 +154,90 @@ export const normalizeMixSettings = (
     neighborWeights,
   };
 };
+
+/** Whether any criterion carries weight — with none, shuffling is random. */
+export const hasActiveWeights = (settings: Readonly<MixSettings>): boolean =>
+  SCALAR_MIX_SETTING_KEYS.some((key) => settings[key] > 0);
+
+/**
+ * One criterion's weight together with the weights tied to it: both
+ * distractibility weights move as one, and switching on one performance
+ * criterion switches the other off.
+ */
+export const withCriterionWeight = (
+  settings: MixSettings,
+  key: ScalarMixSettingKey,
+  value: number,
+): MixSettings => {
+  if (key === 'avoidConcentrationTogether') {
+    return {
+      ...settings,
+      avoidConcentrationTogether: value,
+      avoidConcentrationNearRestless: value,
+    };
+  }
+  if (key === 'peerTutoring' && value > 0) {
+    return {
+      ...settings,
+      peerTutoring: value,
+      homogeneousPerformanceGroups: 0,
+    };
+  }
+  if (key === 'homogeneousPerformanceGroups' && value > 0) {
+    return {
+      ...settings,
+      homogeneousPerformanceGroups: value,
+      peerTutoring: 0,
+    };
+  }
+  return { ...settings, [key]: value };
+};
+
+/**
+ * The recommended weight for every criterion. Both performance criteria default
+ * to 3, so only one of them keeps it: the one weighted higher before, and
+ * `peerTutoring` on a tie.
+ */
+export const withDefaultWeights = (settings: MixSettings): MixSettings => {
+  const next = { ...settings };
+  SCALAR_MIX_SETTING_KEYS.forEach((key) => {
+    next[key] = DEFAULT_MIX_WEIGHTS[key];
+  });
+
+  if (next.peerTutoring > 0 && next.homogeneousPerformanceGroups > 0) {
+    const preferPeerTutoring =
+      settings.peerTutoring > settings.homogeneousPerformanceGroups ||
+      (settings.peerTutoring === settings.homogeneousPerformanceGroups &&
+        DEFAULT_MIX_WEIGHTS.peerTutoring >=
+          DEFAULT_MIX_WEIGHTS.homogeneousPerformanceGroups);
+
+    if (preferPeerTutoring) {
+      next.homogeneousPerformanceGroups = 0;
+    } else {
+      next.peerTutoring = 0;
+    }
+  }
+
+  return next;
+};
+
+/** Every criterion at 0; the neighbour weights stay as they are. */
+export const withoutWeights = (settings: MixSettings): MixSettings => {
+  const next = { ...settings };
+  SCALAR_MIX_SETTING_KEYS.forEach((key) => {
+    next[key] = 0;
+  });
+  return next;
+};
+
+/** The criterion weights of `source`; the neighbour weights stay as they are. */
+export const withWeightsFrom = (
+  settings: MixSettings,
+  source: Readonly<MixSettings>,
+): MixSettings => {
+  const next = { ...settings };
+  SCALAR_MIX_SETTING_KEYS.forEach((key) => {
+    next[key] = source[key];
+  });
+  return next;
+};

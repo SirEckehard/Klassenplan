@@ -36,6 +36,9 @@ export const STORAGE_KEYS = {
     studentSortMode: 'spg.studentSortMode',
     sidebarExpanded: 'spg.sidebarExpanded',
     sidebarActiveTab: 'spg.sidebarActiveTab',
+    // Whether the collapsed sidebar has already shown, once, that a criterion's
+    // weight opens with a right click or a long press.
+    mixWeightHintSeen: 'spg.mixWeightHintSeen',
     hasVisitedApp: 'spg.hasVisitedApp',
     // Which onboarding tours have been shown and whether they are switched off
     // (`hooks/onboarding/onboardingTourStore.ts`).
@@ -165,6 +168,7 @@ export const PROJECT_LOCAL_STORAGE_KEYS = [
   STORAGE_KEYS.localStorage.studentSortMode,
   STORAGE_KEYS.localStorage.sidebarExpanded,
   STORAGE_KEYS.localStorage.sidebarActiveTab,
+  STORAGE_KEYS.localStorage.mixWeightHintSeen,
   STORAGE_KEYS.localStorage.hasVisitedApp,
   STORAGE_KEYS.localStorage.onboardingTour,
   STORAGE_KEYS.localStorage.pwaInstallDismissed,

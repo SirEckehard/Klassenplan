@@ -170,8 +170,9 @@ list is `PROJECT_LOCAL_STORAGE_KEYS` in `storageKeys.ts`. Groups:
   predate the `spg.` prefix and keep their names so existing preferences survive.
 - **Workflow:** sidebar state, class list sort order, first visit, onboarding
   tours seen or switched off (`spg.onboardingTour`,
-  [decision 0015](decisions/0015-onboarding-sample-class-and-tour.md)), last
-  seen version, PWA install prompt dismissal.
+  [decision 0015](decisions/0015-onboarding-sample-class-and-tour.md)), whether
+  the collapsed sidebar has shown its one-time hint on criterion weights
+  (`spg.mixWeightHintSeen`), last seen version, PWA install prompt dismissal.
 - **Backup reminder:** `spg.lastBackupAt`, `spg.backupDataSince`,
   `spg.backupReminderSnoozedUntil`, `spg.backupReminderDisabled`.
 - **Consent:** `cookieConsent`, `spg.photoConsentConfirmed`.

@@ -2,576 +2,431 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { LightningIcon, XIcon } from '@phosphor-icons/react';
+import {
+  ArrowCounterClockwiseIcon,
+  DiceFiveIcon,
+  SlidersHorizontalIcon,
+} from '@phosphor-icons/react';
 import { CRITERIA_ICON_MAP } from '@/utils/ui/criteriaIcons';
 import type { MixSettings, ScalarMixSettingKey, Student } from '@/types';
 import {
-  DEFAULT_MIX_WEIGHTS,
-  SCALAR_MIX_SETTING_KEYS,
-  getSidebarSurfaceClasses,
+  LOCAL_STORAGE_KEYS,
   getSidebarIconClasses,
-  getSidebarIndicatorClasses,
+  getSidebarSurfaceClasses,
+  secondaryButtonClass,
 } from '@/utils';
-import { isCriterionAvailable } from '@/utils/criteriaValidation';
-import { showToast } from '@/utils/ui/toast';
-import SectionHeader from '../layout/SectionHeader';
-import SectionSeparator from '../feedback/SectionSeparator';
+import usePersistentState from '@/hooks/usePersistentState';
+import { useLongPress } from '@/hooks/ui/useLongPress';
+import {
+  useMixCriteria,
+  type MixCriterion,
+  type SuspendedWeights,
+} from '@/hooks/ui/useMixCriteria';
+import SidebarFlyout from '@/components/ui/panels/SidebarFlyout';
 
 interface MixCriteriaIconsProps {
   settings: MixSettings;
+  setMixSettings: React.Dispatch<React.SetStateAction<MixSettings>>;
   students: Student[];
-  onSettingChange?: (key: keyof MixSettings, value: number) => void;
-  isExpanded?: boolean;
-  className?: string;
+  suspendedWeights?: SuspendedWeights;
+  /** Wrapping row under the canvas on a phone instead of the sidebar column. */
   compactLayout?: boolean;
 }
 
-interface CriteriaIconProps {
-  icon: React.ReactNode;
-  label: string;
-  description: string;
-  value: number;
-  isExpanded: boolean;
-  isAvailable: boolean;
-  disabledReason?: string;
-  activeLabel: string;
-  inactiveLabel: string;
-  onChange?: (value: number) => void;
-  onToggle?: () => void;
+type FlyoutTarget = ScalarMixSettingKey | 'all';
+
+type FlyoutState = {
+  target: FlyoutTarget;
+  anchor: HTMLElement;
+  autoFocus: boolean;
+  /** Opened by itself on a first switch-on, to teach how to open it again. */
+  showHint: boolean;
+};
+
+const railButtonClass =
+  'group relative inline-flex h-12 w-12 select-none items-center justify-center rounded-full p-0 [-webkit-touch-callout:none]';
+
+/**
+ * The weight drawn on the button's own border: a 5 fills half of it. `pathLength`
+ * turns the dash pattern into weight units, so no circumference is computed.
+ */
+function WeightRing({ value }: { value: number }) {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 48 48"
+      className="pointer-events-none absolute -top-0.5 -left-0.5 size-12 -rotate-90 text-blue-500 dark:text-blue-400"
+    >
+      <circle
+        cx="24"
+        cy="24"
+        r="23"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        pathLength={10}
+        strokeDasharray="10 10"
+        strokeDashoffset={10 - value}
+        className="transition-[stroke-dashoffset] duration-300 motion-reduce:transition-none"
+      />
+    </svg>
+  );
 }
 
-interface CriteriaCategory {
-  id: string;
+type RailButtonProps = {
   label: string;
-  criteria: Array<{
-    key: ScalarMixSettingKey;
-    label: string;
-    description: string;
-  }>;
-}
+  title: string;
+  pressed: boolean;
+  className: string;
+  describedBy: string;
+  onPress: (button: HTMLButtonElement) => void;
+  onOpenFlyout: (button: HTMLButtonElement) => void;
+  children: React.ReactNode;
+};
 
-function CriteriaIcon({
-  icon,
+/**
+ * A round sidebar button with two actions: a press runs the primary one, a
+ * right click, a long press, Shift+F10 or → opens its flyout.
+ */
+function RailButton({
   label,
-  description,
-  value,
-  isExpanded,
-  isAvailable,
-  disabledReason,
-  activeLabel,
-  inactiveLabel,
-  onChange,
-  onToggle,
-}: CriteriaIconProps) {
-  const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (onChange) {
-      onChange(parseInt(e.target.value, 10));
-    }
-  };
-
-  const handleClick = () => {
-    if (!isAvailable) {
-      showToast(
-        'info',
-        disabledReason || 'generator:mix.criterionNotAvailable',
-      );
-      return;
-    }
-    if (onToggle) {
-      onToggle();
-    }
-  };
-
-  const isActive = value > 0;
-  const iconStyleOptions = {
-    isActive: isActive && isAvailable,
-    disabled: !isAvailable,
-  } as const;
-
-  if (!isExpanded) {
-    const buttonClasses = [
-      'group relative inline-flex h-12 w-12 items-center justify-center rounded-full p-0',
-      getSidebarSurfaceClasses({
-        variant: 'collapsed',
-        isActive: iconStyleOptions.isActive,
-        disabled: iconStyleOptions.disabled,
-        interactive: isAvailable,
-      }),
-    ].join(' ');
-    const indicatorClasses = getSidebarIndicatorClasses();
-    return (
-      <button
-        type="button"
-        onClick={handleClick}
-        className={buttonClasses}
-        title={!isAvailable ? disabledReason : `${label}: ${value}/10`}
-        aria-pressed={isActive}
-        aria-disabled={!isAvailable}
-        tabIndex={isAvailable ? 0 : -1}
-        aria-label={`${label} ${isActive ? activeLabel : inactiveLabel}`}
-      >
-        <span className={getSidebarIconClasses(iconStyleOptions)}>{icon}</span>
-
-        {/* Active indicator for collapsed mode */}
-        {isActive && <div className={indicatorClasses} />}
-      </button>
-    );
-  }
-
-  const containerClasses = [
-    'group relative flex w-full flex-col gap-2 rounded-2xl p-3 shadow-sm',
-    getSidebarSurfaceClasses({
-      variant: 'expanded',
-      isActive: iconStyleOptions.isActive,
-      disabled: iconStyleOptions.disabled,
-      interactive: isAvailable,
-    }),
-  ].join(' ');
+  title,
+  pressed,
+  className,
+  describedBy,
+  onPress,
+  onOpenFlyout,
+  children,
+}: RailButtonProps) {
+  const longPress = useLongPress<HTMLButtonElement>(onOpenFlyout);
 
   return (
-    <div
-      className={containerClasses}
-      title={!isAvailable ? disabledReason : `${label}: ${value}/10`}
+    <button
+      type="button"
+      {...longPress.handlers}
+      onClick={(event) => {
+        if (!longPress.isClickAfterLongPress()) {
+          onPress(event.currentTarget);
+        }
+      }}
+      // Also the keyboard path: Shift+F10 and the context menu key fire it.
+      onContextMenu={(event) => {
+        event.preventDefault();
+        onOpenFlyout(event.currentTarget);
+      }}
+      onKeyDown={(event) => {
+        if (event.key === 'ArrowRight') {
+          event.preventDefault();
+          onOpenFlyout(event.currentTarget);
+        }
+      }}
+      className={`${railButtonClass} ${className}`}
+      title={title}
+      aria-label={label}
+      aria-pressed={pressed}
+      aria-describedby={describedBy}
+      aria-keyshortcuts="Shift+F10 ArrowRight"
     >
-      <span className={getSidebarIconClasses(iconStyleOptions)}>{icon}</span>
+      {children}
+    </button>
+  );
+}
 
-      {isExpanded && (
-        <div className="flex-1">
-          <div className="flex items-center justify-between mb-1">
-            <div className="text-sm font-medium text-gray-800 dark:text-gray-200">
-              {label}
-            </div>
-            <div
-              className={`
-              text-xs px-3 py-1 rounded-full shadow-sm
-              ${
-                isActive && isAvailable
-                  ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-200'
-                  : 'bg-gray-100 text-gray-600 dark:bg-gray-900/60 dark:text-gray-300'
-              }
-            `}
-            >
-              {value}/10
-            </div>
-          </div>
-          <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">
-            {description}
-          </div>
-          <input
-            type="range"
-            min="0"
-            max="10"
-            value={value}
-            disabled={!isAvailable}
-            onChange={handleSliderChange}
-            className={`
-              w-full h-1 rounded-lg appearance-none cursor-pointer
-              ${
-                isActive
-                  ? 'bg-blue-200 dark:bg-blue-800'
-                  : 'bg-gray-200 dark:bg-gray-600'
-              }
-              [&::-webkit-slider-thumb]:appearance-none
-              [&::-webkit-slider-thumb]:h-3
-              [&::-webkit-slider-thumb]:w-3
-              [&::-webkit-slider-thumb]:rounded-full
-              [&::-webkit-slider-thumb]:cursor-pointer
-              ${
-                isActive
-                  ? '[&::-webkit-slider-thumb]:bg-blue-600'
-                  : '[&::-webkit-slider-thumb]:bg-gray-400'
-              }
-            `}
-          />
-        </div>
+function WeightFlyoutContent({
+  criterion,
+  value,
+  showHint,
+  onChange,
+}: {
+  criterion: MixCriterion;
+  value: number;
+  showHint: boolean;
+  onChange: (value: number) => void;
+}) {
+  const { t } = useTranslation('generator');
+  const isActive = value > 0;
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
+          {criterion.label}
+        </span>
+        <span
+          className={`rounded-full px-2 py-0.5 text-xs tabular-nums ${
+            isActive
+              ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-200'
+              : 'bg-gray-100 text-gray-600 dark:bg-gray-900/60 dark:text-gray-300'
+          }`}
+        >
+          {value}/10
+        </span>
+      </div>
+      {/* The input is a tall transparent hit area with a thin track drawn
+          inside, so a finger on a tablet finds the thumb. */}
+      <input
+        type="range"
+        min="0"
+        max="10"
+        step="1"
+        value={value}
+        onChange={(event) => onChange(parseInt(event.target.value, 10))}
+        aria-label={t('mix.weightSliderLabel', { label: criterion.label })}
+        className={`h-6 w-full cursor-pointer appearance-none rounded-full bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400
+          [&::-moz-range-thumb]:size-3 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0
+          [&::-moz-range-track]:h-1 [&::-moz-range-track]:rounded-full
+          [&::-webkit-slider-runnable-track]:h-1 [&::-webkit-slider-runnable-track]:rounded-full
+          [&::-webkit-slider-thumb]:-mt-1 [&::-webkit-slider-thumb]:size-3 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full
+          pointer-coarse:[&::-moz-range-thumb]:size-5
+          pointer-coarse:[&::-webkit-slider-thumb]:-mt-2 pointer-coarse:[&::-webkit-slider-thumb]:size-5
+          ${
+            isActive
+              ? '[&::-moz-range-thumb]:bg-blue-600 [&::-moz-range-track]:bg-blue-200 dark:[&::-moz-range-track]:bg-blue-800 [&::-webkit-slider-runnable-track]:bg-blue-200 dark:[&::-webkit-slider-runnable-track]:bg-blue-800 [&::-webkit-slider-thumb]:bg-blue-600'
+              : '[&::-moz-range-thumb]:bg-gray-400 [&::-moz-range-track]:bg-gray-200 dark:[&::-moz-range-track]:bg-gray-600 [&::-webkit-slider-runnable-track]:bg-gray-200 dark:[&::-webkit-slider-runnable-track]:bg-gray-600 [&::-webkit-slider-thumb]:bg-gray-400'
+          }`}
+      />
+      <p className="text-xs text-gray-500 dark:text-gray-400">
+        {criterion.description}
+      </p>
+      {showHint && (
+        <p className="border-t border-blue-100 pt-2 text-xs text-blue-700 dark:border-blue-900/50 dark:text-blue-300">
+          {t('mix.flyoutHint')}
+        </p>
       )}
     </div>
   );
 }
 
+function AllCriteriaFlyoutContent({
+  isRandom,
+  onResetToDefaults,
+}: {
+  isRandom: boolean;
+  onResetToDefaults: () => void;
+}) {
+  const { t } = useTranslation('generator');
+
+  return (
+    <div className="space-y-2">
+      <p className="text-sm font-medium text-gray-800 dark:text-gray-200">
+        {t('mix.toggleAll')}
+      </p>
+      {isRandom && (
+        <p className="text-xs text-amber-700 dark:text-amber-400">
+          {t('mix.randomWarning')}
+        </p>
+      )}
+      <button
+        type="button"
+        onClick={onResetToDefaults}
+        className={`${secondaryButtonClass} w-full justify-center gap-2 px-3 py-2 text-sm`}
+      >
+        <ArrowCounterClockwiseIcon size={16} aria-hidden="true" />
+        {t('mix.resetDefaults')}
+      </button>
+    </div>
+  );
+}
+
+/**
+ * The mixing criteria as round buttons: in the collapsed sidebar and, on a
+ * phone, in a row under the canvas. A press switches a criterion on or off, a
+ * ring on its border shows the weight, and the flyout sets it — so nothing the
+ * expanded panel offers is out of reach here.
+ */
 export default function MixCriteriaIcons({
   settings,
+  setMixSettings,
   students,
-  onSettingChange,
-  isExpanded = false,
-  className = '',
+  suspendedWeights,
   compactLayout = false,
 }: MixCriteriaIconsProps) {
   const { t } = useTranslation('generator');
-
-  const categories: CriteriaCategory[] = [
-    {
-      id: 'repetition',
-      label: '',
-      criteria: [
-        {
-          key: 'avoidPreviousPairs',
-          label: t('mix.criteria.avoidPreviousPairs.label', 'Wiederholung'),
-          description: t(
-            'mix.criteriaDescriptions.avoidPreviousPairs',
-            'Schüler, die zuletzt nebeneinander gemischt wurden, trennen.',
-          ),
-        },
-      ],
-    },
-    {
-      id: 'identity',
-      label: t('mix.categories.identity', 'Identität'),
-      criteria: [
-        {
-          key: 'preferGenderMix',
-          label: t('mix.criteria.preferGenderMix.label', 'Geschlechter'),
-          description: t(
-            'mix.criteriaDescriptions.preferGenderMix',
-            'Geschlechtergemischte Verteilung.',
-          ),
-        },
-        {
-          key: 'preferFrontForSmallerStudents',
-          label: t(
-            'mix.criteria.preferFrontForSmallerStudents.label',
-            'Körpergröße',
-          ),
-          description: t(
-            'mix.criteriaDescriptions.preferFrontForSmallerStudents',
-            'Kleinere Schüler vorne, größere hinten.',
-          ),
-        },
-      ],
-    },
-    {
-      id: 'abilities',
-      label: t('mix.categories.abilities', 'Fähigkeiten'),
-      criteria: [
-        {
-          key: 'preferLanguageMixing',
-          label: t(
-            'mix.criteria.preferLanguageMixing.label',
-            'Sprachförderung',
-          ),
-          description: t(
-            'mix.criteriaDescriptions.preferLanguageMixing',
-            'Sprachstarke neben Anfänger/DaZ setzen.',
-          ),
-        },
-        {
-          key: 'peerTutoring',
-          label: t('mix.criteria.peerTutoring.label', 'Fördern (heterogen)'),
-          description: t(
-            'mix.criteriaDescriptions.peerTutoring',
-            'Schüler mit unterschiedlichem Leistungsniveau zusammen.',
-          ),
-        },
-        {
-          key: 'homogeneousPerformanceGroups',
-          label: t(
-            'mix.criteria.homogeneousPerformanceGroups.label',
-            'Fördern (homogen)',
-          ),
-          description: t(
-            'mix.criteriaDescriptions.homogeneousPerformanceGroups',
-            'Schüler mit ähnlichem Leistungsniveau zusammen.',
-          ),
-        },
-        {
-          key: 'preferFrontForNeedsFrontSeat',
-          label: t(
-            'mix.criteria.preferFrontForNeedsFrontSeat.label',
-            'Vordere Plätze',
-          ),
-          description: t(
-            'mix.criteriaDescriptions.preferFrontForNeedsFrontSeat',
-            'Schüler mit Platzbedarf in den vorderen Reihen platzieren.',
-          ),
-        },
-      ],
-    },
-    {
-      id: 'behavior',
-      label: t('mix.categories.behavior', 'Verhalten'),
-      criteria: [
-        {
-          key: 'avoidRestlessTogether',
-          label: t('mix.criteria.avoidRestlessTogether.label', 'Unruhe'),
-          description: t(
-            'mix.criteriaDescriptions.avoidRestlessTogether',
-            'Schüler mit Unruheverhalten trennen.',
-          ),
-        },
-        {
-          key: 'avoidShyAlone',
-          label: t('mix.criteria.avoidShyAlone.label', 'Schüchternheit'),
-          description: t(
-            'mix.criteriaDescriptions.avoidShyAlone',
-            'Schüler mit zurückhaltendem Verhalten nicht alleine sitzen lassen.',
-          ),
-        },
-        {
-          key: 'avoidConcentrationTogether',
-          label: t(
-            'mix.criteria.avoidConcentrationTogether.label',
-            'Ablenkbarkeit',
-          ),
-          description: t(
-            'mix.criteriaDescriptions.avoidConcentrationTogether',
-            'Schüler mit Konzentrationsschwierigkeiten trennen.',
-          ),
-        },
-      ],
-    },
-    {
-      id: 'social',
-      label: t('mix.categories.social', 'Soziales'),
-      criteria: [
-        {
-          key: 'distributeSocialRoles',
-          label: t(
-            'mix.criteria.distributeSocialRoles.label',
-            'Soziale Rollen',
-          ),
-          description: t(
-            'mix.criteriaDescriptions.distributeSocialRoles',
-            'Mediatoren, Anführer und Einzelgänger verteilen.',
-          ),
-        },
-        {
-          key: 'considerWishPartners',
-          label: t('mix.criteria.considerWishPartners.label', 'Wunschpartner'),
-          description: t(
-            'mix.criteriaDescriptions.considerWishPartners',
-            'Wunschpartner-Anfragen der Schüler.',
-          ),
-        },
-        {
-          key: 'avoidConflictPartners',
-          label: t(
-            'mix.criteria.avoidConflictPartners.label',
-            'Distanzwünsche',
-          ),
-          description: t(
-            'mix.criteriaDescriptions.avoidConflictPartners',
-            'Schüler mit Distanzwunsch trennen.',
-          ),
-        },
-      ],
-    },
-    {
-      id: 'environment',
-      label: t('mix.categories.environment', 'Raum'),
-      criteria: [
-        {
-          key: 'preferWindowSeats',
-          label: t('mix.criteria.preferWindowSeats.label', 'Fensterplätze'),
-          description: t(
-            'mix.criteriaDescriptions.preferWindowSeats',
-            'Fensterpräferenzen berücksichtigen.',
-          ),
-        },
-        {
-          key: 'preferDoorSeats',
-          label: t('mix.criteria.preferDoorSeats.label', 'Türnähe'),
-          description: t(
-            'mix.criteriaDescriptions.preferDoorSeats',
-            'Türpräferenzen berücksichtigen.',
-          ),
-        },
-      ],
-    },
-  ];
-
-  const criterionNotAvailableMsg = t(
-    'mix.criterionNotAvailable',
-    'Kriterium nicht verfügbar',
+  const mix = useMixCriteria({
+    settings,
+    setMixSettings,
+    students,
+    suspendedWeights,
+  });
+  const [flyout, setFlyout] = React.useState<FlyoutState | null>(null);
+  const [hintSeen, setHintSeen] = usePersistentState(
+    LOCAL_STORAGE_KEYS.mixWeightHintSeen,
+    false,
   );
-  const activeLabel = t('mix.active', 'aktiv');
-  const inactiveLabel = t('mix.inactive', 'inaktiv');
+  const weightHintId = React.useId();
+  const defaultsHintId = React.useId();
 
-  const handleSettingChange = (key: ScalarMixSettingKey, value: number) => {
-    if (!onSettingChange) return;
+  const criteria = React.useMemo(
+    () => mix.categories.flatMap((category) => category.criteria),
+    [mix.categories],
+  );
+  const flyoutCriterion =
+    flyout && flyout.target !== 'all'
+      ? criteria.find((criterion) => criterion.key === flyout.target)
+      : undefined;
 
-    // Check if criterion is available
-    const availability = isCriterionAvailable(key, students);
-    if (!availability.available && value > 0) {
-      // Show toast with reason and prevent change
-      showToast('info', availability.reason || criterionNotAvailableMsg);
-      return;
-    }
+  const openFlyout = React.useCallback(
+    (
+      target: FlyoutTarget,
+      anchor: HTMLElement,
+      { autoFocus = true, showHint = false } = {},
+    ) => {
+      setFlyout({ target, anchor, autoFocus, showHint });
+      setHintSeen(true);
+    },
+    [setHintSeen],
+  );
 
-    onSettingChange(key, value);
-  };
-
-  const handleToggle = (key: ScalarMixSettingKey) => {
-    if (!onSettingChange) return;
-
-    const currentValue = settings[key];
-    const newValue = currentValue > 0 ? 0 : DEFAULT_MIX_WEIGHTS[key];
-
-    // Check availability before increasing value
-    if (newValue > 0) {
-      const availability = isCriterionAvailable(key, students);
-      if (!availability.available) {
-        showToast('info', availability.reason || criterionNotAvailableMsg);
-        return;
+  const closeFlyout = React.useCallback(
+    ({ restoreFocus }: { restoreFocus: boolean }) => {
+      if (restoreFocus) {
+        flyout?.anchor.focus();
       }
-    }
+      setFlyout(null);
+    },
+    [flyout],
+  );
 
-    // Special handling for avoidConcentrationTogether - also update avoidConcentrationNearRestless
-    if (key === 'avoidConcentrationTogether') {
-      onSettingChange('avoidConcentrationTogether', newValue);
-      onSettingChange('avoidConcentrationNearRestless', newValue);
+  const handleCriterionPress = (
+    key: ScalarMixSettingKey,
+    button: HTMLButtonElement,
+  ) => {
+    const switchingOn = settings[key] === 0;
+    mix.toggle(key);
+    // Teaches the flyout the first time it would be useful, then never again.
+    if (switchingOn && !hintSeen) {
+      openFlyout(key, button, { autoFocus: false, showHint: true });
     }
-    // Mutual exclusivity: clear the other criterion first. Settings hold only
-    // one of the two, and on a tie normalisation keeps peerTutoring.
-    else if (key === 'peerTutoring' && newValue > 0) {
-      onSettingChange('homogeneousPerformanceGroups', 0);
-      onSettingChange('peerTutoring', newValue);
-    } else if (key === 'homogeneousPerformanceGroups' && newValue > 0) {
-      onSettingChange('peerTutoring', 0);
-      onSettingChange('homogeneousPerformanceGroups', newValue);
+  };
+
+  const handleAllPress = () => {
+    if (mix.isRandom) {
+      mix.enableAll();
     } else {
-      onSettingChange(key, newValue);
+      mix.disableAll();
     }
   };
 
-  // Quick preset handlers
-  const handleAllOn = () => {
-    if (onSettingChange) {
-      SCALAR_MIX_SETTING_KEYS.forEach((key) => {
-        onSettingChange(key, DEFAULT_MIX_WEIGHTS[key]);
-      });
-    }
-  };
-
-  const handleAllOff = () => {
-    if (onSettingChange) {
-      SCALAR_MIX_SETTING_KEYS.forEach((key) => {
-        onSettingChange(key, 0);
-      });
-    }
-  };
+  const allSurfaceClass = getSidebarSurfaceClasses({
+    variant: 'collapsed',
+    tone: 'amber',
+    isActive: mix.isRandom,
+  });
+  const AllIcon = mix.isRandom ? DiceFiveIcon : SlidersHorizontalIcon;
+  const allActionLabel = mix.isRandom
+    ? t('mix.enableAll')
+    : t('mix.disableAll');
 
   return (
-    <div className={`space-y-2 ${className}`}>
-      {isExpanded ? (
-        <>
-          {/* Header with description */}
-          <SectionHeader
-            title={t('mix.title', 'Mischkriterien')}
-            description={t(
-              'mix.sectionDescription',
-              'Stelle die Wichtigkeit der verschiedenen Kriterien ein (0-10)',
-            )}
-          />
+    <div
+      className={
+        compactLayout
+          ? 'flex flex-wrap items-center justify-center gap-2 px-1'
+          : 'flex flex-col items-center gap-1 px-1'
+      }
+    >
+      <span id={weightHintId} className="sr-only">
+        {t('mix.railWeightHint')}
+      </span>
+      <span id={defaultsHintId} className="sr-only">
+        {t('mix.railDefaultsHint')}
+      </span>
 
-          {/* Quick Preset Buttons */}
-          <div className="px-3">
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={handleAllOn}
-                className="flex-1 flex items-center justify-center gap-1 px-2 py-1.5 text-xs rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 transition-colors"
-                title={t('mix.enableAll', 'Alle Kriterien aktivieren')}
-              >
-                <LightningIcon size={12} />
-                {t('mix.allOn', 'Alle an')}
-              </button>
-              <button
-                type="button"
-                onClick={handleAllOff}
-                className="flex-1 flex items-center justify-center gap-1 px-2 py-1.5 text-xs rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 transition-colors"
-                title={t('mix.disableAll', 'Alle Kriterien deaktivieren')}
-              >
-                <XIcon size={12} />
-                {t('mix.allOff', 'Alle aus')}
-              </button>
-            </div>
-          </div>
-
-          {/* Categorized Criteria - only show available criteria */}
-          {categories.map((category, categoryIndex) => {
-            // Filter to only include available criteria
-            const availableCriteria = category.criteria.filter(
-              (criterion) =>
-                isCriterionAvailable(criterion.key, students).available,
-            );
-
-            // Skip empty categories entirely
-            if (availableCriteria.length === 0) {
-              return null;
-            }
-
-            return (
-              <div key={category.id}>
-                {/* Category Separator - only show if category has a label */}
-                {category.label && categoryIndex > 0 && (
-                  <div className="py-1" />
-                )}
-                {category.label && <SectionSeparator label={category.label} />}
-
-                {/* Category Criteria */}
-                <div className="space-y-2 px-3 pt-2">
-                  {availableCriteria.map((criterion) => {
-                    const IconComp = CRITERIA_ICON_MAP[criterion.key];
-                    return (
-                      <CriteriaIcon
-                        key={criterion.key}
-                        icon={<IconComp size={16} />}
-                        label={criterion.label}
-                        description={criterion.description}
-                        value={settings[criterion.key]}
-                        isExpanded={isExpanded}
-                        isAvailable={true}
-                        activeLabel={activeLabel}
-                        inactiveLabel={inactiveLabel}
-                        onChange={(value) =>
-                          handleSettingChange(criterion.key, value)
-                        }
-                        onToggle={() => handleToggle(criterion.key)}
-                      />
-                    );
-                  })}
-                </div>
-              </div>
-            );
+      <RailButton
+        label={t('mix.toggleAll')}
+        title={t('mix.railAllTitle', { action: allActionLabel })}
+        pressed={!mix.isRandom}
+        className={allSurfaceClass}
+        describedBy={defaultsHintId}
+        onPress={handleAllPress}
+        onOpenFlyout={(button) => openFlyout('all', button)}
+      >
+        <span
+          className={getSidebarIconClasses({
+            tone: 'amber',
+            isActive: mix.isRandom,
           })}
-        </>
-      ) : (
-        /* Collapsed Mode - Show all criteria without categories */
-        <div
-          className={
-            compactLayout
-              ? 'flex flex-wrap items-center justify-center gap-2 px-1'
-              : 'flex flex-col items-center space-y-1 px-1'
-          }
         >
-          {categories.flatMap((category) =>
-            category.criteria
-              .filter(
-                (criterion) =>
-                  isCriterionAvailable(criterion.key, students).available,
-              )
-              .map((criterion) => {
-                const IconComp = CRITERIA_ICON_MAP[criterion.key];
-                return (
-                  <CriteriaIcon
-                    key={criterion.key}
-                    icon={<IconComp size={16} />}
-                    label={criterion.label}
-                    description={criterion.description}
-                    value={settings[criterion.key]}
-                    isExpanded={isExpanded}
-                    isAvailable={true}
-                    activeLabel={activeLabel}
-                    inactiveLabel={inactiveLabel}
-                    onChange={(value) =>
-                      handleSettingChange(criterion.key, value)
-                    }
-                    onToggle={() => handleToggle(criterion.key)}
-                  />
-                );
-              }),
-          )}
-        </div>
+          <AllIcon size={16} />
+        </span>
+      </RailButton>
+      {!compactLayout && (
+        <div
+          aria-hidden="true"
+          className="my-1 h-px w-8 bg-blue-100 dark:bg-blue-900/50"
+        />
+      )}
+
+      {criteria.map((criterion) => {
+        const value = settings[criterion.key];
+        const isActive = value > 0;
+        const Icon = CRITERIA_ICON_MAP[criterion.key];
+        return (
+          <RailButton
+            key={criterion.key}
+            label={
+              isActive
+                ? t('mix.railCriterionActiveLabel', {
+                    label: criterion.label,
+                    value,
+                  })
+                : criterion.label
+            }
+            title={t('mix.railCriterionTitle', {
+              label: criterion.label,
+              value,
+            })}
+            pressed={isActive}
+            className={getSidebarSurfaceClasses({
+              variant: 'collapsed',
+              isActive,
+            })}
+            describedBy={weightHintId}
+            onPress={(button) => handleCriterionPress(criterion.key, button)}
+            onOpenFlyout={(button) => openFlyout(criterion.key, button)}
+          >
+            <span className={getSidebarIconClasses({ isActive })}>
+              <Icon size={16} />
+            </span>
+            <WeightRing value={value} />
+          </RailButton>
+        );
+      })}
+
+      {/* Keyed by target: moving from one button's flyout straight to
+          another's starts afresh, with its own placement and focus. */}
+      {flyout && flyout.target === 'all' && (
+        <SidebarFlyout
+          key="all"
+          anchor={flyout.anchor}
+          label={t('mix.toggleAll')}
+          autoFocus={flyout.autoFocus}
+          onClose={closeFlyout}
+        >
+          <AllCriteriaFlyoutContent
+            isRandom={mix.isRandom}
+            onResetToDefaults={() => {
+              mix.resetToDefaults();
+              closeFlyout({ restoreFocus: true });
+            }}
+          />
+        </SidebarFlyout>
+      )}
+      {flyout && flyoutCriterion && (
+        <SidebarFlyout
+          key={flyoutCriterion.key}
+          anchor={flyout.anchor}
+          label={flyoutCriterion.label}
+          autoFocus={flyout.autoFocus}
+          onClose={closeFlyout}
+        >
+          <WeightFlyoutContent
+            criterion={flyoutCriterion}
+            value={settings[flyoutCriterion.key]}
+            showHint={flyout.showHint}
+            onChange={(value) => mix.setWeight(flyoutCriterion.key, value)}
+          />
+        </SidebarFlyout>
       )}
     </div>
   );
