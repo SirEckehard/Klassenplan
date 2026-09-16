@@ -11,8 +11,13 @@
  * calls mirror what the app sends to the worker: "Mischen" with criteria
  * constructs and then refines with the default tries and passes, and the app
  * always refines with annealing.
+ *
+ * Vitest runs this through Vite's module runner, which turns every imported
+ * binding into a getter. The algorithm calls its helpers often enough that the
+ * figures come out about 60 % above Vitest 4's for the same code (Vitest warns
+ * about it). Compare runs under the same Vitest major only.
  */
-import { bench, describe } from 'vitest';
+import { test } from 'vitest';
 import type {
   ClassroomFeature,
   ClassroomScene,
@@ -205,10 +210,9 @@ for (const size of CLASS_SIZES) {
       fixture.start,
     );
 
-  describe(`${size} students`, () => {
-    bench(
-      'construct (mix:generate)',
-      () => {
+  test(`${size} students`, async ({ bench }) => {
+    await bench.compare(
+      bench('construct (mix:generate)', () => {
         generateSeatingPlan(
           fixture.students,
           fixture.seatingHistory,
@@ -219,29 +223,19 @@ for (const size of CLASS_SIZES) {
           undefined,
           { rng: nextRng() },
         );
-      },
-      BENCH_OPTIONS,
-    );
-
-    bench(
-      'refine, annealing, "Mischen" tries/passes',
-      () => {
+      }),
+      bench('refine, annealing, "Mischen" tries/passes', () => {
         refine(
           { triesPerPass: DEFAULT_TRIES_PER_PASS, passes: DEFAULT_PASSES },
           true,
         );
-      },
-      BENCH_OPTIONS,
-    );
-
-    bench(
-      'refine, greedy, "Mischen" tries/passes',
-      () => {
+      }),
+      bench('refine, greedy, "Mischen" tries/passes', () => {
         refine(
           { triesPerPass: DEFAULT_TRIES_PER_PASS, passes: DEFAULT_PASSES },
           false,
         );
-      },
+      }),
       BENCH_OPTIONS,
     );
   });

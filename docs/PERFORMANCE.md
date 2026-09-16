@@ -6,7 +6,7 @@ Klassenplan approaches performance from two angles: Core Web Vitals at runtime, 
 
 ## Budgets
 
-Klassenplan has no server, so there are no service level objectives in the usual sense. These budgets take their place. Figures from 2026-09-14; initial payload from 2026-09-16.
+Klassenplan has no server, so there are no service level objectives in the usual sense. These budgets take their place. Figures from 2026-09-14; initial payload and algorithm runtime from 2026-09-16.
 
 | Area                                 | Budget                                                        | Current                                                                   | Checked by                                                  |
 | ------------------------------------ | ------------------------------------------------------------- | ------------------------------------------------------------------------- | ----------------------------------------------------------- |
@@ -14,7 +14,7 @@ Klassenplan has no server, so there are no service level objectives in the usual
 | Largest chunk                        | ≤ 78 KB brotli, ≤ 330 KB raw                                  | 64.2 KB brotli, 276.3 KB raw                                              | same                                                        |
 | CSS                                  | ≤ 24 KB brotli, ≤ 200 KB raw                                  | 19.1 KB brotli, 171.4 KB raw                                              | same                                                        |
 | Core Web Vitals                      | "good": LCP ≤ 2.5 s, INP ≤ 200 ms, CLS ≤ 0.1                  | Start page CLS 0.067 after prerendering ([SEO.md](SEO.md)); no field data | Logged in the browser only (`webVitals.ts`)                 |
-| "Mischen" with criteria, 36 students | ≤ 500 ms on the slowest supported device                      | ≈ 63 ms on an Apple M1 Pro                                                | `npm run bench`, by hand                                    |
+| "Mischen" with criteria, 36 students | ≤ 500 ms on the slowest supported device                      | ≈ 109 ms under Vitest 5 (≈ 66 ms under Vitest 4), Apple M1 Pro            | `npm run bench`, by hand                                    |
 | Offline use                          | The generator works without a connection after the first load | Since v1.2.0                                                              | Not tested automatically                                    |
 
 The runtime budget is deliberately not a CI check: timings on a shared runner vary too much for a fixed ceiling. It is re-measured with `npm run bench` when the algorithm changes.
@@ -23,24 +23,28 @@ The runtime budget is deliberately not a CI check: timings on a shared runner va
 
 `src/utils/algorithm/__tests__/seatingAlgorithm.bench.ts` measures the calls the app sends to the worker, for a class with every attribute set, a full mix history, two saved plans and two locked seats, on double tables. All inputs come from fixed seeds.
 
-Mean time per call in milliseconds, Apple M1 Pro, Node 24, `vitest bench`, 2026-09-14:
+Mean time per call in milliseconds, Apple M1 Pro, Node 24, Vitest 5.0.1, median of three runs, 2026-09-16:
 
 | Students | Construction | Refinement, annealing ("Mischen" 600 × 2) | Refinement, greedy (600 × 2) |
 | -------: | -----------: | ----------------------------------------: | ---------------------------: |
-|       12 |          0.1 |                                        56 |                            5 |
-|       24 |          0.4 |                                        59 |                            9 |
-|       36 |          0.9 |                                        62 |                           13 |
+|       12 |         0.15 |                                        94 |                            9 |
+|       24 |         0.66 |                                       102 |                           16 |
+|       36 |         1.45 |                                       107 |                           21 |
+
+`npm run bench` passes `--reporter=verbose`: Vitest 5's default reporter prints no result table.
+
+**Vitest 5 measures about 60 % more than Vitest 4 for the same code.** On the same machine and day, Vitest 4.1.11 measured 0.10 / 0.41 / 0.90 ms for construction, 59 / 61 / 65 ms for annealing and 5 / 10 / 13 ms for the greedy search — in line with its figures from 2026-09-14. Vite's module runner turns every imported binding into a getter, and the algorithm calls helpers such as `isRestless` often enough for that to show; Vitest warns about it on every run. The bundled app has no such getters, so the Vitest 4 figures are the closer estimate of what a teacher waits for. Switching the runner off (`experimental.viteModuleRunner: false`) would avoid the overhead but leaves the `@/` alias unresolved. Compare runs under the same Vitest major only.
 
 What the numbers show:
 
-- **Refinement dominates.** "Mischen" with criteria is construction plus annealing, about 63 ms for a full class.
+- **Refinement dominates.** "Mischen" with criteria is construction plus annealing, about 109 ms for a full class under Vitest 5 (66 ms under Vitest 4).
 - **Annealing hardly depends on class size.** It runs a fixed cooling schedule (see [ALGORITHM.md](ALGORITHM.md#configuration)).
-- **`triesPerPass` and `passes` do not reach annealing.** They only apply to the greedy search, which the app does not use. The "Verfeinern" button, which passed 1,800 × 4, therefore did the same refinement work as "Mischen"; it measured 56 / 59 / 62 ms as well and was removed on 2026-09-14.
+- **`triesPerPass` and `passes` do not reach annealing.** They only apply to the greedy search, which the app does not use. The "Verfeinern" button, which passed 1,800 × 4, therefore did the same refinement work as "Mischen"; it measured 56 / 59 / 62 ms under Vitest 4 as well and was removed on 2026-09-14.
 - **Class size is not what limits the algorithm up to 36 students.** Larger classes were not measured.
 
 ### Does a longer refinement help?
 
-Checked on 2026-09-14 with a temporary experiment on the same fixture: 20 seeds per class size, scored by the weighted criteria fulfilment the statistics badge shows (higher is better).
+Checked on 2026-09-14 with a temporary experiment on the same fixture, timed under Vitest 4: 20 seeds per class size, scored by the weighted criteria fulfilment the statistics badge shows (higher is better).
 
 | Variant                                               | 24 students | 36 students | Time, 36 students |
 | ----------------------------------------------------- | ----------: | ----------: | ----------------: |
