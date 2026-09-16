@@ -1,4 +1,12 @@
 {
+  "v2_1_1": {
+    "0": "Die Startseite lädt schneller und mit deutlich weniger Daten: Die Vorschaubilder kommen in der Größe, in der sie angezeigt werden, statt als fast 3.000 Pixel breite Originale, und geladen werden nur das sichtbare und das nächste Bild statt aller sechs auf einmal. Die Schrift wird früher angefordert, und der Text verrutscht nicht mehr, sobald sie da ist",
+    "1": "Für die Offline-Nutzung speichert der erste Besuch im Hintergrund rund 4 MB statt knapp 16 MB – die Originale der Vorschaubilder, die die App nie anzeigt, gehören nicht mehr dazu",
+    "2": "Backup, CSV-Import und „Alle Pläne anzeigen“ werden erst geladen, wenn du sie zum ersten Mal nutzt – jede Seite startet dadurch mit gut einem Zehntel weniger Download",
+    "3": "Barrierefreiheit: Die Punkte unter der Vorschau auf der Startseite sind leichter zu treffen, und Screenreader und Sprachsteuerung kennen den Logo-Link unter dem Wort, das er zeigt – „Klassenplan – Zur Startseite“ statt „Zur Startseite“",
+    "4": "Aktualisierte Abhängigkeiten",
+    "5": "Beim ersten Besuch erschienen deutsche Seiten für einen Moment auf Englisch, bevor sie auf Deutsch umsprangen. Die Sprache richtet sich jetzt allein nach der Adresse: Englisch unter /en, sonst Deutsch"
+  },
   "v2_1_0": {
     "0": "Klassenplan lässt sich jetzt ohne eigene Daten ausprobieren: „Beispielklasse laden“ – in der leeren Klassenliste und im Menü „Hinzufügen“ – legt eine Klasse mit 24 erfundenen Schülern, gezeichneten Bildern und einem eingerichteten Klassenraum an. Sie ist eine ganz normale Klasse und lässt sich wie jede andere löschen. Gibt es sie schon, wechselt der Button zu ihr, statt eine zweite anzulegen",
     "1": "Beim ersten Besuch zeigt eine kurze Tour die wichtigsten Stellen in Klassenliste, Klassenraum und Sitzplan – vom Backup hinter dem Einstellungsrädchen in der Fußzeile über Sidebar und Ansichtseinstellungen bis zu Statistikanzeige und Sitzkreis. Sie lässt sich abschalten und über die Hilfe jederzeit neu starten. Die Sidebar startet beim ersten Besuch nun minimiert – wie sie sich erweitern lässt, zeigen Tour und Hilfe",

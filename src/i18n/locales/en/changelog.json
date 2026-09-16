@@ -1,4 +1,12 @@
 {
+  "v2_1_1": {
+    "0": "The start page loads faster and with far less data: the preview screenshots come in the size they are shown at instead of as originals almost 3,000 pixels wide, and only the visible screenshot and the next one load instead of all six at once. The font is requested earlier, and text no longer shifts once it has arrived",
+    "1": "For offline use, a first visit stores about 4 MB in the background instead of almost 16 MB – the screenshot originals, which the app never shows, are no longer part of it",
+    "2": "Backup, CSV import and 'Show all plans' load the first time you use them, so every page starts with over a tenth less to download",
+    "3": "Accessibility: the dots under the start page preview are easier to hit, and screen readers and voice control know the logo link by the word it shows – 'Klassenplan – Back to Home' instead of 'Back to Home'",
+    "4": "Updated dependencies",
+    "5": "On the first visit, German pages showed up in English for a moment before switching to German. The language now follows the address alone: English under /en, German everywhere else"
+  },
   "v2_1_0": {
     "0": "Klassenplan can now be tried without data of your own: 'Load sample class' – in the empty class list and in the 'Add' menu – creates a class with 24 invented students, drawn pictures and a furnished classroom. It is an ordinary class and can be deleted like any other. Once it exists, the button switches to it instead of creating a second one",
     "1": "On the first visit, a short tour points out the most important places in the class list, the classroom and the seating plan – from the backup behind the gear icon in the footer to the sidebar, the view settings, the statistics and the seating circle. It can be switched off and restarted from the help dialog at any time. The sidebar now starts collapsed on the first visit – the tour and the help show how to expand it",

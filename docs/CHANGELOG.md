@@ -5,6 +5,20 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.1.1] - 2026-09-16
+
+### Improved
+
+- The start page loads faster and with far less data: the preview screenshots come in the size they are shown at instead of as originals almost 3,000 pixels wide, and only the visible screenshot and the next one load instead of all six at once. The font is requested earlier, and text no longer shifts once it has arrived
+- For offline use, a first visit stores about 4 MB in the background instead of almost 16 MB – the screenshot originals, which the app never shows, are no longer part of it
+- The backup, the CSV import and "Alle Pläne anzeigen" load the first time they are used, so every page starts with over a tenth less to download
+- Accessibility: the dots under the start page preview are easier to hit, and screen readers and voice control know the logo link by the word it shows – "Klassenplan – Zur Startseite" instead of "Zur Startseite"
+- Updated dependencies
+
+### Fixed
+
+- On a first visit, German pages showed up in English for a moment before switching to German. The language now follows the address alone: English under `/en`, German everywhere else
+
 ## [2.1.0] - 2026-09-16
 
 ### Added
