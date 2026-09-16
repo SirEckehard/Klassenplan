@@ -1,7 +1,7 @@
 # Architecture
 
 > **Status:** current · **Last reviewed:** 2026-09-15 · **Maintainer:** Eike
-> Schäfer · **Describes:** Klassenplan 2.1.0
+> Schäfer · **Describes:** Klassenplan 2.1.1
 
 This is the entry point for anyone who wants to understand _why_ Klassenplan is
 built the way it is. The documents linked at the end explain the individual
