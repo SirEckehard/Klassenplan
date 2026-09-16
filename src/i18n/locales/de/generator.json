@@ -590,8 +590,10 @@
       "firstNameInitial": "Vorname + Initial des Nachnamens",
       "full": "Vor- und Nachname",
       "example": "Anzeige: {{name}}",
-      "duplicateHint_one": "{{count}} Vorname kommt doppelt vor",
-      "duplicateHint_other": "{{count}} Vornamen kommen doppelt vor"
+      "lengthenedHint_one": "{{count}} Name zur Unterscheidung verlängert",
+      "lengthenedHint_other": "{{count}} Namen zur Unterscheidung verlängert",
+      "identicalHint_one": "{{count}} Name kommt mehrfach vor",
+      "identicalHint_other": "{{count}} Namen sind identisch und nicht unterscheidbar"
     },
     "showStatistics": "Statistik anzeigen",
     "statisticsLabel": "Statistik anzeigen – Gesamt-Score {{score}}%",

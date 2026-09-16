@@ -15,7 +15,7 @@ import {
   getTooltipName,
   calculateSeatLabelFontSize,
 } from '@/utils';
-import type { NameDisplayMode } from '@/utils';
+import type { NameDisplayMode, NameLabels } from '@/utils';
 import type { SeatKeyboardEventInfo } from '@/hooks/scene/useSeatKeyboardMove';
 
 interface TableSeatProps {
@@ -40,6 +40,8 @@ interface TableSeatProps {
    * not fit (the editor default). See {@link NameDisplayMode}.
    */
   nameDisplay?: NameDisplayMode;
+  /** Disambiguated labels of the class (see `buildNameLabels`). */
+  nameLabels?: NameLabels;
   /** When false, gender colors are dropped for a neutral (colorless) seat. */
   showGenderColors?: boolean;
   /** When false, the seat name label and lock toggle are hidden (layout editor). */
@@ -178,6 +180,7 @@ function TableSeat({
   isLockedFeedbackSeat,
   showSpecialNeeds,
   nameDisplay,
+  nameLabels,
   showGenderColors = true,
   showSeatLabels = true,
   lockSeatLabelOrientation,
@@ -308,7 +311,7 @@ function TableSeat({
   const effectiveSeatStrokeValue = seatStrokeValue;
   const seatTextOpacity = isOriginSeat ? 0.35 : 1;
   const displayName = student
-    ? getDisplayNameForMode(student.name, 'table', nameDisplay)
+    ? getDisplayNameForMode(student.name, 'table', nameDisplay, nameLabels)
     : '';
   const seatFontSize = calculateSeatLabelFontSize(displayName, seatWidth);
 
@@ -762,6 +765,7 @@ const MemoizedTableSeat = React.memo(TableSeat, (prevProps, nextProps) => {
   if (
     prevProps.isDark !== nextProps.isDark ||
     prevProps.nameDisplay !== nextProps.nameDisplay ||
+    prevProps.nameLabels !== nextProps.nameLabels ||
     prevProps.showGenderColors !== nextProps.showGenderColors ||
     prevProps.showSeatLabels !== nextProps.showSeatLabels ||
     prevProps.seatTextRotation !== nextProps.seatTextRotation ||

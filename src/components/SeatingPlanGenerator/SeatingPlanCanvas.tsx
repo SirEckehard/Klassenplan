@@ -23,6 +23,7 @@ import type {
 import TableIcon from '@/components/scene/SceneTable';
 import FeatureShape from '@/components/scene/FeatureShape';
 import { useStudentPhotoUrls } from '@/hooks/student/useStudentPhoto';
+import { useNameLabels } from '@/hooks/student/useNameLabels';
 import { useSeatKeyboardMove } from '@/hooks/scene/useSeatKeyboardMove';
 
 interface SeatingPlanCanvasProps {
@@ -112,6 +113,7 @@ const SeatingPlanCanvas = React.memo(
     const { t } = useTranslation('generator');
     const canvasRef = React.useRef<SVGSVGElement | null>(null);
     const photoUrls = useStudentPhotoUrls(allStudents ?? []);
+    const nameLabels = useNameLabels(allStudents ?? [], nameDisplay);
 
     // Keyboard alternative to the pointer seat drag (P2.10): Enter/Space picks
     // a student up, Tab moves to the target seat, Enter/Space drops, Escape
@@ -289,6 +291,7 @@ const SeatingPlanCanvas = React.memo(
                 seatHighlights={seatHighlights}
                 photoDisplayMode={photoDisplayMode}
                 nameDisplay={nameDisplay}
+                nameLabels={nameLabels}
               />
             ))}
           </g>

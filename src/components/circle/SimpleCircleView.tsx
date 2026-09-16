@@ -24,6 +24,7 @@ import { useCircleDragDrop } from '@/hooks/circle/useCircleDragDrop';
 import { useLayoutMode } from '@/hooks/ui/useLayoutMode';
 import { useIsCoarsePointer } from '@/hooks/ui/useCoarsePointer';
 import { useStudentPhotoUrls } from '@/hooks/student/useStudentPhoto';
+import { useNameLabels } from '@/hooks/student/useNameLabels';
 
 // Connection display modes
 export type ConnectionDisplayMode = 'off' | 'subtle';
@@ -163,6 +164,7 @@ function SimpleCircleView({
   );
 
   const photoUrls = useStudentPhotoUrls(allStudents);
+  const nameLabels = useNameLabels(allStudents, nameDisplay);
 
   // When any student has a photo, shrink the ring so the avatars docked just
   // outside each token still fit inside the 900×600 viewBox (otherwise the
@@ -321,6 +323,7 @@ function SimpleCircleView({
         dragState.dragPreview.student.name,
         'circle',
         nameDisplay,
+        nameLabels,
       )
     : '';
   const previewFontSize = calculateSeatLabelFontSize(
@@ -429,6 +432,7 @@ function SimpleCircleView({
                 studentPosition.student.name,
                 'circle',
                 nameDisplay,
+                nameLabels,
               )
             : '';
           const studentTooltip = studentPosition?.student

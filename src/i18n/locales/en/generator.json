@@ -590,8 +590,10 @@
       "firstNameInitial": "First name + last initial",
       "full": "First and last name",
       "example": "Shown as: {{name}}",
-      "duplicateHint_one": "{{count}} first name appears twice",
-      "duplicateHint_other": "{{count}} first names are not unique"
+      "lengthenedHint_one": "{{count}} name lengthened to tell it apart",
+      "lengthenedHint_other": "{{count}} names lengthened to tell them apart",
+      "identicalHint_one": "{{count}} name appears more than once",
+      "identicalHint_other": "{{count}} names are identical and cannot be told apart"
     },
     "showStatistics": "Show statistics",
     "statisticsLabel": "Show statistics – Total score {{score}}%",

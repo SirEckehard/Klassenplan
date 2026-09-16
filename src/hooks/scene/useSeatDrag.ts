@@ -2,7 +2,11 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import type { Student } from '@/types';
-import { triggerHapticFeedback, type NameDisplayMode } from '@/utils';
+import {
+  triggerHapticFeedback,
+  type NameDisplayMode,
+  type NameLabels,
+} from '@/utils';
 import { showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
 import type { DragHover, DragSeatConfig } from '@/hooks/ui/useDragDropState';
 
@@ -42,6 +46,7 @@ interface UseSeatDragOptions {
   onSeatHoverChange?: (hover: DragHover | null) => void;
   onSeatDropRejected?: (target: DragHover) => void;
   nameDisplay?: NameDisplayMode;
+  nameLabels?: NameLabels;
 }
 
 interface UseSeatDragResult {
@@ -61,6 +66,7 @@ export function useSeatDrag({
   onSeatHoverChange,
   onSeatDropRejected,
   nameDisplay,
+  nameLabels,
 }: UseSeatDragOptions): UseSeatDragResult {
   const dragInfoRef = React.useRef<{ table: number; seat: number } | null>(
     null,
@@ -172,6 +178,7 @@ export function useSeatDrag({
           appearance: appearanceValue,
           flags: flagsValue,
           nameDisplay,
+          nameLabels,
         });
       }
 
@@ -237,6 +244,7 @@ export function useSeatDrag({
       students,
       onSeatDragStart,
       nameDisplay,
+      nameLabels,
       onSeatHoverChange,
       onSeatDrag,
       onSeatDragEnd,

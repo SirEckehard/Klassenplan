@@ -11,6 +11,7 @@ import { getFeatureStyles } from '@/utils/ui';
 import type { FeatureVisibilityFlags } from '@/utils/ui';
 import { buildLegendLayout } from '@/utils/ui/classBadgeLegend';
 import ExportLegend from '@/components/scene/ExportLegend';
+import { useNameLabels } from '@/hooks/student/useNameLabels';
 
 type ClassMetadataInfo = {
   name?: string | null;
@@ -64,6 +65,7 @@ export default function SceneSvg({
   showLegend = false,
 }: SceneSvgProps) {
   const { t, i18n } = useTranslation('generator');
+  const nameLabels = useNameLabels(allStudents, nameDisplay);
 
   // Page dimensions - exact 72dpi A4 for PDF compatibility
   const isPortrait = orientation === 'portrait';
@@ -302,6 +304,7 @@ export default function SceneSvg({
             lockSeatLabelOrientation={lockSeatLabelOrientation}
             seatLabelRotation={seatLabelRotation - classroomRotation}
             nameDisplay={nameDisplay}
+            nameLabels={nameLabels}
             photoDisplayMode={photoDisplayMode}
           />
         ))}

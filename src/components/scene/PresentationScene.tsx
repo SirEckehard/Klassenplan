@@ -10,6 +10,7 @@ import type {
 import TableIcon from './SceneTable';
 import FeatureShape from './FeatureShape';
 import { useStudentPhotoUrls } from '@/hooks/student/useStudentPhoto';
+import { useNameLabels } from '@/hooks/student/useNameLabels';
 import {
   CLASSROOM_WIDTH,
   CLASSROOM_HEIGHT,
@@ -133,6 +134,7 @@ export default function PresentationScene({
   spotlight = null,
 }: PresentationSceneProps) {
   const photoUrls = useStudentPhotoUrls(students);
+  const nameLabels = useNameLabels(students, nameDisplay);
 
   const rotation = getPresentationRotation(scene, perspective);
   const isQuarterTurn = rotation === 90 || rotation === 270;
@@ -250,6 +252,7 @@ export default function PresentationScene({
             seatLabelRotation={-rotation}
             photoDisplayMode={photoDisplayMode}
             nameDisplay={nameDisplay}
+            nameLabels={nameLabels}
           />
         ))}
       </g>

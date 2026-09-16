@@ -1,9 +1,13 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import { describe, expect, it } from 'vitest';
-import { renderSceneSvg } from '@/services/export/sceneRenderer';
+import {
+  renderCircleSvg,
+  renderSceneSvg,
+} from '@/services/export/sceneRenderer';
 import { createMockStudent } from '@/__tests__/utils';
-import type { ClassroomScene, SeatingArrangement } from '@/types';
+import type { ClassroomScene, SeatingArrangement, Student } from '@/types';
+import type { CircleLayout } from '@/types/Circle';
 
 const scene: ClassroomScene = {
   tables: [
@@ -108,6 +112,62 @@ describe('renderSceneSvg', () => {
       });
 
       expect(svg).toContain('<title>Maximilian Schneider</title>');
+    });
+
+    describe('students who would read the same', () => {
+      const frida = createMockStudent({ id: 'f1', name: 'Frida Ehrmann' });
+      const eike = createMockStudent({ id: 'e1', name: 'Eike Schäfer' });
+      const allStudents = [
+        frida,
+        createMockStudent({ id: 'f2', name: 'Frida Emmerich' }),
+        eike,
+        createMockStudent({ id: 'e2', name: 'Eike Schwuchow' }),
+      ];
+
+      it('lengthens their labels against the whole class, not the table', async () => {
+        const svg = await renderSceneSvg(scene, [[frida, eike]], 'Test', {
+          allStudents,
+          nameDisplay: 'firstNameInitial',
+        });
+
+        expect(svg).toContain(label('Frida Eh.'));
+        expect(svg).toContain(label('Eike Schä.'));
+      });
+
+      it('lengthens the circle labels the same way', async () => {
+        const position = (student: Student, angle: number) => ({
+          student,
+          angle,
+          x: 0,
+          y: 0,
+          preservedNeighbors: [],
+          lostNeighbors: [],
+          newNeighbors: [],
+        });
+        const layout: CircleLayout = {
+          students: allStudents.map((student, index) =>
+            position(student, index * 90),
+          ),
+          radius: { horizontal: 200, vertical: 150 },
+          center: { x: 450, y: 300 },
+          preservedNeighborhoods: 0,
+          totalOriginalNeighborhoods: 0,
+          newNeighborhoods: 0,
+          preservationRate: 0,
+          mode: 'preserve-neighbors',
+          timestamp: 0,
+          neighborhoodPairs: [],
+        };
+
+        const svg = await renderCircleSvg(layout, 'Test', {
+          nameDisplay: 'firstName',
+        });
+
+        expect(svg).toContain(label('Frida Eh.'));
+        expect(svg).toContain(label('Frida Em.'));
+        expect(svg).toContain(label('Eike Schä.'));
+        expect(svg).toContain(label('Eike Schw.'));
+      });
     });
   });
 

@@ -19,6 +19,7 @@ import {
 import { computeTokenPhotoLayout } from '@/utils/ui/studentTokenLayout';
 import { buildLegendLayout } from '@/utils/ui/classBadgeLegend';
 import ExportLegend from '@/components/scene/ExportLegend';
+import { useNameLabels } from '@/hooks/student/useNameLabels';
 
 interface ClassMetadataInfo {
   name?: string | null;
@@ -61,6 +62,12 @@ export default function CirclePrintView({
   showLegend = false,
 }: CirclePrintViewProps) {
   const { t, i18n } = useTranslation('generator');
+  const nameLabels = useNameLabels(
+    layout.students
+      .map((entry) => entry?.student)
+      .filter((student): student is Student => Boolean(student)),
+    nameDisplay,
+  );
 
   // Page dimensions - exact 72dpi A4 for PDF compatibility
   const isPortrait = orientation === 'portrait';
@@ -441,6 +448,7 @@ export default function CirclePrintView({
           student.name,
           'pdf',
           nameDisplay,
+          nameLabels,
         );
         const seatFontSize = calculateSeatLabelFontSize(
           displayName,

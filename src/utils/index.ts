@@ -152,12 +152,13 @@ export {
   getDisplayName,
   getDisplayNameForMode,
   applyNameDisplayMode,
-  countAmbiguousFirstNames,
+  buildNameLabels,
+  summarizeNameLabels,
   getTooltipName,
   isNameTruncated,
   getNamePreview,
 } from './nameFormatting';
-export type { NameDisplayMode } from './nameFormatting';
+export type { NameDisplayMode, NameLabels } from './nameFormatting';
 
 // ===== Plan Names =====
 export { createTimestampPlanName } from './planNames';

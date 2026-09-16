@@ -267,6 +267,17 @@ export function applyNameDisplayMode(
 }
 
 /**
+ * Seat labels that deviate from the plain mode rule so that students who would
+ * otherwise read the same stay apart, keyed by the trimmed full name. Built once
+ * per class with {@link buildNameLabels}; a name missing from the map uses the
+ * mode rule as usual.
+ */
+export type NameLabels = ReadonlyMap<string, string>;
+
+/** Shared empty result, so a class without collisions keeps a stable identity. */
+const NO_NAME_LABELS: NameLabels = new Map();
+
+/**
  * Gets the display name for a context, honouring an explicit display mode.
  *
  * The context truncation still runs after the mode has been applied, so an
@@ -274,16 +285,26 @@ export function applyNameDisplayMode(
  * name (the seat label font scales down instead), and an undefined mode falls
  * back to the plain context behaviour.
  *
+ * A label from `labels` wins over the rule and is never shortened: cutting
+ * "Konstantin Sch." back to "Konstantin S" would bring the collision back it
+ * was built to resolve, so the seat label font scales down instead.
+ *
  * @param name - Full student name
  * @param context - Display context (table, circle, pdf, or full)
  * @param mode - Uniform display mode, or undefined for the context default
+ * @param labels - Disambiguated labels of the class (see {@link buildNameLabels})
  * @returns Formatted name ready for rendering
  */
 export function getDisplayNameForMode(
   name: string,
   context: DisplayContext,
   mode?: NameDisplayMode,
+  labels?: NameLabels,
 ): string {
+  const label = labels?.get(name.trim());
+  if (label !== undefined) {
+    return label;
+  }
   if (!mode) {
     return getDisplayName(name, context);
   }
@@ -310,26 +331,162 @@ export function getDisplayNameForMode(
 }
 
 /**
- * Counts the names whose first name is shared with at least one other name in
- * the list — those students would carry the same label in `firstName` mode.
- *
- * @param names - Full student names
- * @returns Number of names affected by a collision (0 when all are unique)
+ * Comparison key for labels and names: case, repeated whitespace and a trailing
+ * period do not tell two labels apart for a reader ("Anna Ott." vs "Anna Ott").
  */
-export function countAmbiguousFirstNames(names: string[]): number {
-  const occurrences = new Map<string, number>();
-  for (const name of names) {
-    const firstName = applyNameDisplayMode(
-      name,
-      'firstName',
-    ).toLocaleLowerCase();
-    if (!firstName) continue;
-    occurrences.set(firstName, (occurrences.get(firstName) ?? 0) + 1);
+function labelKey(label: string): string {
+  return label
+    .trim()
+    .replace(/\s+/g, ' ')
+    .replace(/\.$/, '')
+    .toLocaleLowerCase();
+}
+
+/**
+ * Labels a name can take, shortest first: the first name (only in `firstName`
+ * mode), the first name with a growing piece of the last name ("Frida E.",
+ * "Frida Eh.", …, "Frida Ehrmann") and finally the full name, which is the only
+ * one that also tells middle names apart ("Anna Maria Meier").
+ */
+function nameLabelCandidates(
+  name: string,
+  mode: 'firstName' | 'firstNameInitial',
+): string[] {
+  const [firstName, ...rest] = name.split(/\s+/);
+  const candidates = mode === 'firstName' ? [firstName] : [];
+
+  const lastName = rest[rest.length - 1];
+  if (lastName) {
+    // Array.from keeps surrogate pairs intact (see splitStudentName).
+    const letters = Array.from(lastName);
+    const initial = letters[0].toLocaleUpperCase();
+    for (let length = 1; length <= letters.length; length += 1) {
+      const piece = initial + letters.slice(1, length).join('');
+      candidates.push(
+        length === letters.length
+          ? `${firstName} ${piece}`
+          : `${firstName} ${piece}.`,
+      );
+    }
   }
 
-  let ambiguous = 0;
-  for (const count of occurrences.values()) {
-    if (count > 1) ambiguous += count;
+  candidates.push(name);
+  return candidates;
+}
+
+/**
+ * Resolves names that would carry the same seat label under a display mode.
+ *
+ * Names are grouped by their label on the narrowest seat, so a collision that
+ * only truncation causes ("Konstantinos P." / "Konstantina P." -> "Konstanti
+ * P.") is caught as well. Within a group every name takes its shortest
+ * candidate (see {@link nameLabelCandidates}) that is no candidate of another
+ * name in the group: "Frida Ehrmann" / "Frida Emmerich" become "Frida Eh." /
+ * "Frida Em.", while a "Frida Schulz" in the same group gets "Frida S.". Names
+ * outside a collision keep the plain rule, so the plan still reads uniformly.
+ *
+ * Identical full names cannot be told apart and share their label. `full` mode
+ * and the context default never collide on anything else and return an empty
+ * map.
+ *
+ * @param names - Full names of every student in the class
+ * @param mode - Display mode the labels are built for
+ * @returns Deviating labels keyed by trimmed full name
+ */
+export function buildNameLabels(
+  names: readonly string[],
+  mode?: NameDisplayMode,
+): NameLabels {
+  if (mode !== 'firstName' && mode !== 'firstNameInitial') {
+    return NO_NAME_LABELS;
   }
-  return ambiguous;
+
+  // label key -> full-name key -> spellings of that name
+  const groups = new Map<string, Map<string, Set<string>>>();
+  for (const name of names) {
+    const trimmedName = name.trim();
+    if (!trimmedName) continue;
+
+    const groupKey = labelKey(
+      getDisplayNameForMode(trimmedName, 'table', mode),
+    );
+    const group = groups.get(groupKey) ?? new Map<string, Set<string>>();
+    groups.set(groupKey, group);
+
+    const fullKey = labelKey(trimmedName);
+    const spellings = group.get(fullKey) ?? new Set<string>();
+    group.set(fullKey, spellings);
+    spellings.add(trimmedName);
+  }
+
+  const labels = new Map<string, string>();
+  for (const group of groups.values()) {
+    if (group.size < 2) continue;
+
+    const members = [...group.values()].map((spellings) => {
+      const [representative] = spellings;
+      return {
+        spellings,
+        candidateKeys: new Set(
+          nameLabelCandidates(representative, mode).map(labelKey),
+        ),
+      };
+    });
+
+    for (const member of members) {
+      const others = members.filter((other) => other !== member);
+      for (const spelling of member.spellings) {
+        const label =
+          nameLabelCandidates(spelling, mode).find((candidate) => {
+            const key = labelKey(candidate);
+            return others.every((other) => !other.candidateKeys.has(key));
+          }) ?? spelling;
+        labels.set(spelling, label);
+      }
+    }
+  }
+
+  return labels.size > 0 ? labels : NO_NAME_LABELS;
+}
+
+/**
+ * Describes how a display mode treats a class, for the hint below the name
+ * control. Both counts are per student.
+ *
+ * @param names - Full names of every student in the class
+ * @param mode - Display mode to describe
+ * @returns `lengthened`: labels grown by {@link buildNameLabels} to tell students
+ *   apart; `identical`: students whose full name repeats, which no label can
+ *   separate
+ */
+export function summarizeNameLabels(
+  names: readonly string[],
+  mode: NameDisplayMode,
+): { lengthened: number; identical: number } {
+  const labels = buildNameLabels(names, mode);
+  const occurrences = new Map<string, number>();
+  let lengthened = 0;
+
+  for (const name of names) {
+    const trimmedName = name.trim();
+    if (!trimmedName) continue;
+
+    const fullKey = labelKey(trimmedName);
+    occurrences.set(fullKey, (occurrences.get(fullKey) ?? 0) + 1);
+
+    const label = labels.get(trimmedName);
+    if (
+      label !== undefined &&
+      label !== getDisplayNameForMode(trimmedName, 'table', mode)
+    ) {
+      lengthened += 1;
+    }
+  }
+
+  let identical = 0;
+  for (const count of occurrences.values()) {
+    if (count > 1) identical += count;
+  }
+
+  return { lengthened, identical };
 }

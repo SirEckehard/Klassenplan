@@ -6,6 +6,7 @@ import {
   TABLE_CORNER_RADIUS,
   getSeatHighlight,
   type NameDisplayMode,
+  type NameLabels,
   type SeatHighlightLookup,
 } from '@/utils';
 import { getStudentAppearance } from '@/utils/ui/studentAppearance';
@@ -69,6 +70,8 @@ type TableProps = {
   seatLabelRotation?: number;
   /** Uniform name rule for the seat labels (see {@link NameDisplayMode}). */
   nameDisplay?: NameDisplayMode;
+  /** Disambiguated labels of the class (see `buildNameLabels`). */
+  nameLabels?: NameLabels;
   seatHighlights?: SeatHighlightLookup | null;
   /**
    * Controls the seat *content*: 'full' renders the seat rectangles, names and
@@ -118,6 +121,7 @@ function SceneTable({
   lockSeatLabelOrientation = true,
   seatLabelRotation = 0,
   nameDisplay,
+  nameLabels,
   seatHighlights = null,
   seatMarkerMode = 'full',
   photoDisplayMode = 'off',
@@ -166,6 +170,7 @@ function SceneTable({
     onSeatHoverChange,
     onSeatDropRejected,
     nameDisplay,
+    nameLabels,
   });
 
   const { templateType, seatCount, width, height } = table;
@@ -375,6 +380,7 @@ function SceneTable({
         allStudents={allStudents}
         showSpecialNeeds={showSpecialNeeds}
         nameDisplay={nameDisplay}
+        nameLabels={nameLabels}
         showGenderColors={showGenderColors}
         showSeatLabels={seatMarkerMode === 'full'}
         lockSeatLabelOrientation={lockSeatLabelOrientation}

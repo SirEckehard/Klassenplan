@@ -3,7 +3,7 @@
 import React from 'react';
 import type { StatisticHighlightMode, StatisticStatus, Student } from '@/types';
 import TableSeat, { TableSeatBadgeOverlay } from '@/components/scene/TableSeat';
-import type { NameDisplayMode } from '@/utils';
+import type { NameDisplayMode, NameLabels } from '@/utils';
 
 type SeatPointerDownHandler = NonNullable<
   React.ComponentProps<typeof TableSeat>['onSeatPointerDown']
@@ -48,6 +48,8 @@ interface SeatGridProps {
   showSpecialNeeds: boolean;
   /** Uniform name rule for the seat labels (see {@link NameDisplayMode}). */
   nameDisplay?: NameDisplayMode;
+  /** Disambiguated labels of the class (see `buildNameLabels`). */
+  nameLabels?: NameLabels;
   /** When false, gender colors are dropped for a neutral (colorless) render. */
   showGenderColors?: boolean;
   /** When false, seat name labels and badges are hidden (colours/dividers stay). */
@@ -79,6 +81,7 @@ function SeatGrid({
   allStudents,
   showSpecialNeeds,
   nameDisplay,
+  nameLabels,
   showGenderColors = true,
   showSeatLabels = true,
   lockSeatLabelOrientation,
@@ -123,6 +126,7 @@ function SeatGrid({
             highlightPercentage={config.highlightPercentage}
             showSpecialNeeds={showSpecialNeeds}
             nameDisplay={nameDisplay}
+            nameLabels={nameLabels}
             lockSeatLabelOrientation={lockSeatLabelOrientation}
             seatTextRotation={seatTextRotation}
             toggleLock={toggleLock}

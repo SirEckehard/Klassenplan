@@ -6,7 +6,7 @@ import {
   IdentificationCardIcon,
   UserIcon,
 } from '@phosphor-icons/react';
-import { applyNameDisplayMode, countAmbiguousFirstNames } from '@/utils';
+import { applyNameDisplayMode, summarizeNameLabels } from '@/utils';
 import type { NameDisplayMode } from '@/utils';
 import type { CanvasSettingsGroup } from './CanvasSettingsButton';
 
@@ -38,8 +38,9 @@ export function nameDisplayLabelKey(mode: NameDisplayMode): string {
 }
 
 /**
- * Line below the control: warns when first names alone would repeat on the
- * plan, otherwise previews the rule on a real name from the class. The buttons
+ * Line below the control: warns about students whose full names repeat (no
+ * label can separate them), then reports labels lengthened to tell students
+ * apart, otherwise previews the rule on a real name from the class. The buttons
  * are icon-only, so this line carries the concrete meaning.
  */
 function buildHint(
@@ -47,11 +48,12 @@ function buildHint(
   names: string[],
   t: TFunction,
 ): string | undefined {
-  if (value === 'firstName') {
-    const ambiguous = countAmbiguousFirstNames(names);
-    if (ambiguous > 0) {
-      return t('editor.nameDisplay.duplicateHint', { count: ambiguous });
-    }
+  const { lengthened, identical } = summarizeNameLabels(names, value);
+  if (identical > 0) {
+    return t('editor.nameDisplay.identicalHint', { count: identical });
+  }
+  if (lengthened > 0) {
+    return t('editor.nameDisplay.lengthenedHint', { count: lengthened });
   }
 
   const sample = names.find((name) => /\s/.test(name.trim())) ?? names[0];

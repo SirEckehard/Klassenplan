@@ -2,7 +2,8 @@
 // Copyright (C) 2026 Eike Schäfer
 import {
   applyNameDisplayMode,
-  countAmbiguousFirstNames,
+  buildNameLabels,
+  summarizeNameLabels,
   getDisplayName,
   getDisplayNameForMode,
   getTooltipName,
@@ -245,21 +246,144 @@ describe('nameFormatting utilities', () => {
       });
     });
 
-    describe('countAmbiguousFirstNames', () => {
-      it('counts every student sharing a first name', () => {
+    describe('buildNameLabels', () => {
+      const labelsOf = (
+        names: string[],
+        mode: Parameters<typeof buildNameLabels>[1],
+      ) =>
+        names.map((name) =>
+          getDisplayNameForMode(
+            name,
+            'table',
+            mode,
+            buildNameLabels(names, mode),
+          ),
+        );
+
+      it('lengthens the last name until shared initials read apart', () => {
         expect(
-          countAmbiguousFirstNames([
-            'Lukas Meier',
-            'Lukas Schneider',
-            'Anna Weber',
-          ]),
-        ).toBe(2);
+          labelsOf(
+            [
+              'Frida Ehrmann',
+              'Frida Emmerich',
+              'Eike Schäfer',
+              'Eike Schwuchow',
+            ],
+            'firstNameInitial',
+          ),
+        ).toEqual(['Frida Eh.', 'Frida Em.', 'Eike Schä.', 'Eike Schw.']);
       });
 
-      it('ignores case and returns zero when all first names are unique', () => {
-        expect(countAmbiguousFirstNames(['Anna Weber', 'anna Meier'])).toBe(2);
-        expect(countAmbiguousFirstNames(['Anna Weber', 'Lena Meier'])).toBe(0);
-        expect(countAmbiguousFirstNames([])).toBe(0);
+      it('adds only as much of the last name as each student needs', () => {
+        expect(
+          labelsOf(
+            ['Frida Ehrmann', 'Frida Emmerich', 'Frida Schulz', 'Lena Weber'],
+            'firstName',
+          ),
+        ).toEqual(['Frida Eh.', 'Frida Em.', 'Frida S.', 'Lena']);
+      });
+
+      it('leaves names outside a collision on the plain rule', () => {
+        const names = ['Frida Ehrmann', 'Frida Schulz', 'Anna Meier'];
+        const labels = buildNameLabels(names, 'firstNameInitial');
+        expect(labels.size).toBe(0);
+        expect(labelsOf(names, 'firstNameInitial')).toEqual([
+          'Frida E.',
+          'Frida S.',
+          'Anna M.',
+        ]);
+      });
+
+      it('spells out a last name that is the start of another one', () => {
+        expect(
+          labelsOf(
+            ['Anna Ott', 'Anna Otte', 'Anna Ottensen'],
+            'firstNameInitial',
+          ),
+        ).toEqual(['Anna Ott', 'Anna Otte', 'Anna Otten.']);
+      });
+
+      it('falls back to the full name when only middle names differ', () => {
+        expect(
+          labelsOf(
+            ['Anna Maria Meier', 'Anna Sophie Meier'],
+            'firstNameInitial',
+          ),
+        ).toEqual(['Anna Maria Meier', 'Anna Sophie Meier']);
+      });
+
+      it('keeps a lone first name apart from a first name with a last name', () => {
+        expect(labelsOf(['Frida', 'Frida Ehrmann'], 'firstName')).toEqual([
+          'Frida',
+          'Frida E.',
+        ]);
+      });
+
+      it('never truncates a label it built, so the difference stays visible', () => {
+        const names = ['Konstantin Schneider', 'Konstantin Schulz'];
+        expect(labelsOf(names, 'firstNameInitial')).toEqual([
+          'Konstantin Schn.',
+          'Konstantin Schu.',
+        ]);
+        expect(
+          getDisplayNameForMode(names[0], 'table', 'firstNameInitial'),
+        ).toBe('Konstantin S');
+      });
+
+      it('resolves collisions that only truncation causes', () => {
+        expect(
+          labelsOf(
+            ['Konstantinos Papadopoulos', 'Konstantina Papadaki'],
+            'firstNameInitial',
+          ),
+        ).toEqual(['Konstantinos P.', 'Konstantina P.']);
+      });
+
+      it('ignores case and leaves identical names on one shared label', () => {
+        expect(labelsOf(['Leon Müller', 'leon müller'], 'firstName')).toEqual([
+          'Leon',
+          'leon',
+        ]);
+        expect(
+          labelsOf(['Leon Müller', 'Leon Müller', 'Leon Meyer'], 'firstName'),
+        ).toEqual(['Leon Mü.', 'Leon Mü.', 'Leon Me.']);
+      });
+
+      it('returns an empty map for the full mode and the context default', () => {
+        const names = ['Frida Ehrmann', 'Frida Emmerich'];
+        expect(buildNameLabels(names, 'full').size).toBe(0);
+        expect(buildNameLabels(names).size).toBe(0);
+        expect(buildNameLabels([], 'firstName').size).toBe(0);
+      });
+    });
+
+    describe('summarizeNameLabels', () => {
+      it('counts every student whose label was lengthened', () => {
+        expect(
+          summarizeNameLabels(
+            ['Lukas Meier', 'Lukas Schneider', 'Anna Weber'],
+            'firstName',
+          ),
+        ).toEqual({ lengthened: 2, identical: 0 });
+        expect(
+          summarizeNameLabels(
+            ['Lukas Meier', 'Lukas Schneider', 'Anna Weber'],
+            'firstNameInitial',
+          ),
+        ).toEqual({ lengthened: 0, identical: 0 });
+      });
+
+      it('counts students whose full names repeat, in every mode', () => {
+        const names = ['Leon Müller', 'leon  Müller', 'Anna Weber'];
+        expect(summarizeNameLabels(names, 'full')).toEqual({
+          lengthened: 0,
+          identical: 2,
+        });
+        expect(summarizeNameLabels(names, 'firstName').identical).toBe(2);
+        expect(summarizeNameLabels([], 'firstName')).toEqual({
+          lengthened: 0,
+          identical: 0,
+        });
       });
     });
 

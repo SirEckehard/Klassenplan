@@ -4,7 +4,7 @@ import React from 'react';
 import type { Icon } from '@phosphor-icons/react';
 import type { Student } from '@/types';
 import { triggerHapticFeedback } from '@/utils/touch/hapticFeedback';
-import type { NameDisplayMode } from '@/utils';
+import type { NameDisplayMode, NameLabels } from '@/utils';
 
 export interface DragPreview {
   student: Student;
@@ -19,6 +19,7 @@ export interface DragPreview {
   };
   flags: SeatBadge[];
   nameDisplay?: NameDisplayMode;
+  nameLabels?: NameLabels;
 }
 
 interface SeatBadge {
@@ -69,6 +70,7 @@ export interface DragSeatConfig {
   };
   flags: SeatBadge[];
   nameDisplay?: NameDisplayMode;
+  nameLabels?: NameLabels;
 }
 
 /**
@@ -97,6 +99,7 @@ export function useDragDropState(): DragDropStateHook {
         appearance: config.appearance,
         flags: config.flags,
         nameDisplay: config.nameDisplay,
+        nameLabels: config.nameLabels,
       });
       setDragOrigin({
         tableIndex: config.tableIndex,

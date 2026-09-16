@@ -128,6 +128,7 @@ function SeatPreviewCard({ preview, viewportScale }: SeatPreviewCardProps) {
             preview.student.name,
             'table',
             preview.nameDisplay,
+            preview.nameLabels,
           )}
         </span>
         {preview.flags.length > 0 && badgeLayout && (
