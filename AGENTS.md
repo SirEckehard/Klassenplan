@@ -194,7 +194,8 @@ import { generateId, logError, errorHandlers } from '@/utils';
 - `npm run typecheck` / `npm run typecheck:all` - TypeScript strict checks
 - `npm run format` - Format code with Prettier
 - `npm run generate:sitemap` - Generate sitemap (auto-run before builds)
-- `npm run generate:preview-images` - Downscaled start page screenshots (`-480/-960/-1440`) from the PNG masters in `public/preview/`; run after replacing a screenshot (needs libwebp and libavif)
+- `npm run capture:preview-screenshots` - Re-shoots all start page screenshots (6 slides × DE/EN × light/dark) as PNG masters in `public/preview/` from the sample class in a varied room, then runs `generate:preview-images`; starts its own dev server (needs `npx playwright install chromium`, libwebp and libavif). Run after UI changes that show on the slides
+- `npm run generate:preview-images` - Full-size and downscaled (`-480/-960/-1440`) AVIF/WebP start page screenshots from the PNG masters in `public/preview/`; run after replacing a screenshot (needs libwebp and libavif)
 - `npm run check:i18n` - DE/EN key parity + orphaned inline defaults
 - `npm run check:bundle` - Enforce bundle size budgets against `dist/` (run after a build)
 - `npm run check:unused` - Unused-export ratchet (baseline in `scripts/check-unused-exports.mjs`)

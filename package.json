@@ -35,6 +35,7 @@
     "preview": "vite preview",
     "generate:sitemap": "node --experimental-strip-types --experimental-specifier-resolution=node scripts/generate-sitemap.mjs",
     "generate:preview-images": "node scripts/generate-preview-images.mjs",
+    "capture:preview-screenshots": "node scripts/capture-preview-screenshots.mjs",
     "indexnow:ping": "node --experimental-strip-types --experimental-specifier-resolution=node scripts/indexnow-ping.mjs",
     "prebuild": "npm run generate:sitemap",
     "test": "vitest",

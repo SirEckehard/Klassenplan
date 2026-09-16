@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 //
-// Generates the downscaled start page screenshots that HeroMockup serves
-// through `srcset`.
+// Encodes the start page screenshots that HeroMockup serves through `srcset`
+// and shows in its lightbox.
 //
-// The PNGs in public/preview/ are the lossless masters. For each master this
-// writes `<name>-<width>.avif` and `<name>-<width>.webp` for every width in
-// src/data/previewImages.json that is smaller than the master itself. The
-// full-size .avif/.webp files next to them are left alone: the lightbox and the
-// web app manifest use those.
+// The PNGs in public/preview/ are the lossless masters, usually written by
+// capture-preview-screenshots.mjs. For each master this writes the full-size
+// `<name>.avif` and `<name>.webp`, which the lightbox and the web app manifest
+// use, and `<name>-<width>.avif` / `<name>-<width>.webp` for every width in
+// src/data/previewImages.json that is smaller than the master itself.
 //
 // Why: the carousel slot is at most 488 CSS px wide, but every visitor
 // downloaded the 2990 px originals — PageSpeed Insights counted 357 KiB of it
@@ -18,10 +18,11 @@
 //   macOS:          brew install webp libavif
 //   Debian/Ubuntu:  apt install webp libavif-bin
 // avifenc cannot resize, so each master is first scaled losslessly by cwebp and
-// decoded back to PNG by dwebp.
+// decoded back to PNG by dwebp. The full-size files take the same detour: an
+// opaque RGBA master comes back as RGB, so the AVIF carries no alpha plane.
 //
 // Usage: npm run generate:preview-images [-- --force]
-// Without --force, variants newer than their master are skipped.
+// Without --force, files newer than their master are skipped.
 import { spawnSync } from 'node:child_process';
 import { promises as fs } from 'node:fs';
 import os from 'node:os';
@@ -37,11 +38,11 @@ const projectRoot = path.resolve(
 const previewDir = path.join(projectRoot, 'public', 'preview');
 const configPath = path.join(projectRoot, 'src', 'data', 'previewImages.json');
 
-// Picked against the existing full-size files (≈ AVIF q55 / WebP q80) and
-// raised slightly: downscaled screenshots carry small text that blurs first.
-const AVIF_QUALITY = '60';
+// The full-size files use the qualities the original ones were encoded with.
+// The downscaled copies are raised slightly: their small text blurs first.
+const FULL_SIZE_QUALITY = { avif: '55', webp: '80' };
+const VARIANT_QUALITY = { avif: '60', webp: '82' };
 const AVIF_SPEED = '6';
-const WEBP_QUALITY = '82';
 
 const force = process.argv.includes('--force');
 
@@ -102,9 +103,22 @@ async function main() {
       const { width } = await readPngSize(masterPath);
       const { mtimeMs } = await fs.stat(masterPath);
 
-      for (const target of variantWidths.filter((w) => w < width)) {
-        const avif = path.join(previewDir, `${base}-${target}.avif`);
-        const webp = path.join(previewDir, `${base}-${target}.webp`);
+      // The full-size pair first (no suffix, no resize), then one per width.
+      const outputs = [
+        { suffix: '', resize: [], quality: FULL_SIZE_QUALITY },
+        ...variantWidths
+          .filter((w) => w < width)
+          .map((w) => ({
+            suffix: `-${w}`,
+            // Height 0 keeps the aspect ratio.
+            resize: ['-resize', String(w), '0'],
+            quality: VARIANT_QUALITY,
+          })),
+      ];
+
+      for (const { suffix, resize, quality } of outputs) {
+        const avif = path.join(previewDir, `${base}${suffix}.avif`);
+        const webp = path.join(previewDir, `${base}${suffix}.webp`);
 
         if (
           !force &&
@@ -115,18 +129,15 @@ async function main() {
           continue;
         }
 
-        const scaledWebp = path.join(tmpDir, `${base}-${target}.webp`);
-        const scaledPng = path.join(tmpDir, `${base}-${target}.png`);
+        const scaledWebp = path.join(tmpDir, `${base}${suffix}.webp`);
+        const scaledPng = path.join(tmpDir, `${base}${suffix}.png`);
 
-        // Height 0 keeps the aspect ratio.
         run('cwebp', [
           '-quiet',
           '-lossless',
           '-z',
           '0',
-          '-resize',
-          String(target),
-          '0',
+          ...resize,
           masterPath,
           '-o',
           scaledWebp,
@@ -134,7 +145,7 @@ async function main() {
         run('dwebp', ['-quiet', scaledWebp, '-o', scaledPng]);
         run('avifenc', [
           '-q',
-          AVIF_QUALITY,
+          quality.avif,
           '-s',
           AVIF_SPEED,
           '--jobs',
@@ -145,12 +156,10 @@ async function main() {
         run('cwebp', [
           '-quiet',
           '-q',
-          WEBP_QUALITY,
+          quality.webp,
           '-m',
           '6',
-          '-resize',
-          String(target),
-          '0',
+          ...resize,
           masterPath,
           '-o',
           webp,

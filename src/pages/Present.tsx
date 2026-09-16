@@ -186,10 +186,11 @@ export default function Present() {
     >
       <Seo {...metadata} />
 
-      {/* Minimal toolbar. It wraps rather than overflowing: on a phone the two
+      {/* Minimal toolbar. It wraps rather than overflowing: below `lg` the two
           toggles drop to a row of their own below the logo and the appearance
-          controls. */}
-      <div className="flex flex-wrap items-center gap-3 px-3 py-2 sm:flex-nowrap sm:px-4 sm:py-3">
+          controls. One row needs about 850 px in German, so a portrait tablet
+          wraps too — from `sm` up it cut off the help button. */}
+      <div className="flex flex-wrap items-center gap-3 px-3 py-2 sm:px-4 sm:py-3 lg:flex-nowrap">
         <div className="flex flex-1 justify-start">
           <h1 className="flex items-center shrink-0">
             <LocalizedLink
@@ -201,7 +202,7 @@ export default function Present() {
           </h1>
         </div>
 
-        <div className="order-last flex w-full flex-wrap items-center justify-center gap-3 sm:order-0 sm:w-auto sm:flex-nowrap">
+        <div className="order-last flex w-full flex-wrap items-center justify-center gap-3 sm:flex-nowrap lg:order-0 lg:w-auto">
           <PresentPerspectiveToggle
             perspective={perspective}
             onChange={setPerspective}
