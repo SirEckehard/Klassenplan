@@ -17,6 +17,9 @@ blob-report/
 .env.*
 !.env.example
 
+# macOS / editor cruft
+.DS_Store
+
 # Log files
 npm-debug.log*
 /npm-debug.log

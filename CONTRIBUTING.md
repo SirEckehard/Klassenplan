@@ -21,9 +21,14 @@ Please run the local checks and make sure they pass:
 npm test -- --run
 npm run lint
 npm run typecheck:all
+npm run check:i18n
+npm run check:unused
 npm run check:docs
 npm run format
 ```
+
+CI runs the same checks plus the Playwright specs and a full static build, so a
+green local run is a good predictor.
 
 ## Guidelines
 

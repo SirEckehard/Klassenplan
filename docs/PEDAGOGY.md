@@ -71,6 +71,10 @@ The weights in [`src/utils/mixSettings.ts`](../src/utils/mixSettings.ts) are nor
 | `preferWindowSeats` / `preferDoorSeats` | 3 / 2   | Individual spatial preferences; no pedagogical evidence, but high subjective relevance                                          |
 | `distributeSocialRoles`                 | 3       | Balanced table composition as a general heuristic                                                                               |
 
+### A weight only acts where the class has the data
+
+A criterion is offered only when the class carries the data it needs – no preferred partner, no `considerWishPartners`. Weights for criteria the sidebar does not show are set to 0 rather than left in place, so a plan is never built on a criterion the teacher cannot see or change ([decision 0016](decisions/0016-hidden-criteria-carry-no-weight.md)). Distractibility is available for two distractible students **or** for one distractible student and at least one restless classmate, because it governs both distances; its two weights (`avoidConcentrationTogether`, `avoidConcentrationNearRestless`) move as one.
+
 ### Tension between `peerTutoring` and `homogeneousPerformanceGroups`
 
 Both criteria carry the same recommended weight. This is intentional: both approaches are legitimate and teachers should choose. They are either/or: the controls set the other one to 0, settings hold only one of the two, and construction, refinement and the table score all apply the same one — the higher weight, `peerTutoring` on a tie ([decision 0013](decisions/0013-one-performance-criterion.md)).
