@@ -5,6 +5,26 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.2.0] - 2026-09-17
+
+### Added
+
+- The collapsed sidebar can now do everything the expanded one can: a ring around the icon shows how important a criterion is, and a right click, a long press, `Shift+F10` or the right arrow key opens its slider – with the name, the explanation and the value, just like in the expanded view. A button at the top of the bar switches all criteria on or off. A one-time hint points this out the first time
+- "Restore defaults" sets every criterion back to its recommended importance – next to the "All criteria" switch. The switch itself remembers your values when you turn it off and restores exactly those when you turn it back on, instead of filling in the same number everywhere
+
+### Improved
+
+- The classroom (step 2) and the export bar follow the same pattern as the seating plan when collapsed: the same icons, the same actions – and what only the expanded view used to show, the export title for instance, now sits behind a right click or a long press. Expanded and collapsed are the same controls at two densities
+- Criteria your class has no data for no longer act unnoticed: their importance drops to 0 as soon as the sidebar hides them – even when "All criteria" or the defaults had set them before
+- "Distractibility" can be used as soon as there is one student with concentration issues and at least one restless student in the class – it took two students with concentration issues before, although the criterion also governs the distance to restless classmates. The sidebar and the shuffle history show the higher of its two weights for it
+- New preview screenshots on the start page – they show the reworked state of the app
+
+### Fixed
+
+- Names that would look the same on the tables are now told apart everywhere: "Frida Ehrmann" and "Frida Emmerich" become "Frida Eh." and "Frida Em." – in the seating plan, in presentation mode, in the seating circle, in print and in every export. A name is only lengthened as far as telling it apart requires; all other names stay the way you set them
+- The hint below the name display in the view settings now says how many names were lengthened to tell them apart – and, separately, how many students carry the same full name and therefore cannot be told apart. Before, it only counted duplicate first names
+- In the shuffle history under "Plans, shuffles & neighbourhoods", the names of the criteria were always in German, in the English interface as well
+
 ## [2.1.1] - 2026-09-16
 
 ### Improved
