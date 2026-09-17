@@ -4,8 +4,8 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ArrowCounterClockwiseIcon,
-  DiceFiveIcon,
-  SlidersHorizontalIcon,
+  ToggleLeftIcon,
+  ToggleRightIcon,
 } from '@phosphor-icons/react';
 import { CRITERIA_ICON_MAP } from '@/utils/ui/criteriaIcons';
 import type { MixSettings, ScalarMixSettingKey, Student } from '@/types';
@@ -325,7 +325,8 @@ function AllCriteriaRailButton({
   onOpenFlyout: (button: HTMLButtonElement) => void;
 }) {
   const { t } = useTranslation('generator');
-  const Icon = isRandom ? DiceFiveIcon : SlidersHorizontalIcon;
+  // A switch, like the one in the comfortable density.
+  const Icon = isRandom ? ToggleLeftIcon : ToggleRightIcon;
 
   return (
     <RailButton
