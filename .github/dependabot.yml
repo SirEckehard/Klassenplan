@@ -23,3 +23,16 @@ updates:
     directory: /
     schedule:
       interval: monthly
+    groups:
+      # Majors are grouped in here, unlike npm above: an action's major is
+      # usually a runner runtime bump that lands across all of them at once
+      # (Node 20 -> 24 in September 2026), so they are assessed together
+      # anyway. Reviewing them one at a time is what let them drift four
+      # majors behind — a closed PR is never offered again.
+      actions:
+        patterns:
+          - '*'
+        update-types:
+          - major
+          - minor
+          - patch
