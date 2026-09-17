@@ -65,7 +65,7 @@ type SidebarFlyoutProps = {
 /**
  * A small non-modal panel next to a button of the collapsed sidebar, for the
  * settings behind the button's primary action (the weight behind a criterion's
- * on/off). Pressing the anchor again leaves it open, so the switch and its
+ * on/off) or a setting too large for a button (the export title). Pressing the anchor again leaves it open, so the switch and its
  * detail can be used together; a press anywhere else, Escape or Tab closes it.
  */
 export default function SidebarFlyout({

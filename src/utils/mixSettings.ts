@@ -4,7 +4,9 @@ import type {
   MixSettings,
   NeighborWeightSettings,
   ScalarMixSettingKey,
+  Student,
 } from '@/types';
+import { isCriterionAvailable } from './criteriaValidation';
 
 export const DEFAULT_NEIGHBOR_WEIGHTS: Readonly<NeighborWeightSettings> =
   Object.freeze({
@@ -155,6 +157,20 @@ export const normalizeMixSettings = (
   };
 };
 
+/** Whether two settings hold the same weights, neighbour weights included. */
+export const areMixSettingsEqual = (
+  a: Readonly<MixSettings>,
+  b: Readonly<MixSettings>,
+): boolean =>
+  SCALAR_MIX_SETTING_KEYS.every((key) => a[key] === b[key]) &&
+  (['behavioral', 'gender'] as const).every((group) =>
+    (['direct', 'side', 'front', 'back'] as const).every(
+      (direction) =>
+        a.neighborWeights[group][direction] ===
+        b.neighborWeights[group][direction],
+    ),
+  );
+
 /** Whether any criterion carries weight — with none, shuffling is random. */
 export const hasActiveWeights = (settings: Readonly<MixSettings>): boolean =>
   SCALAR_MIX_SETTING_KEYS.some((key) => settings[key] > 0);
@@ -215,6 +231,51 @@ export const withDefaultWeights = (settings: MixSettings): MixSettings => {
       next.homogeneousPerformanceGroups = 0;
     } else {
       next.peerTutoring = 0;
+    }
+  }
+
+  return next;
+};
+
+/**
+ * The weight a criterion shows. Distractibility carries two weights, which the
+ * class's data can set apart (`useAutoMixSettings` clears the one without
+ * data), and shows the higher one, as the statistics do.
+ */
+export const criterionWeight = (
+  settings: Readonly<MixSettings>,
+  key: ScalarMixSettingKey,
+): number =>
+  key === 'avoidConcentrationTogether'
+    ? Math.max(
+        settings.avoidConcentrationTogether,
+        settings.avoidConcentrationNearRestless,
+      )
+    : settings[key];
+
+/**
+ * The weights of criteria the class has no data for at 0, so no weight acts
+ * that the sidebar does not show. Distractibility takes both of its weights
+ * along. The same object when there is nothing to clear.
+ */
+export const withoutUnavailableWeights = (
+  settings: MixSettings,
+  students: Student[],
+): MixSettings => {
+  let next = settings;
+
+  for (const key of SCALAR_MIX_SETTING_KEYS) {
+    if (settings[key] === 0 || isCriterionAvailable(key, students).available) {
+      continue;
+    }
+    if (next === settings) {
+      next = { ...settings };
+    }
+    if (key === 'avoidConcentrationTogether') {
+      next.avoidConcentrationTogether = 0;
+      next.avoidConcentrationNearRestless = 0;
+    } else {
+      next[key] = 0;
     }
   }
 

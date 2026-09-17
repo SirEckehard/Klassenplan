@@ -19,7 +19,6 @@ import {
 } from '@phosphor-icons/react';
 import SmartSidebar from '@/components/ui/panels/SmartSidebar';
 import SmartMixControls from '@/components/ui/controls/SmartMixControls';
-import MixCriteriaIcons from '@/components/ui/icons/MixCriteriaIcons';
 import SeatingCanvasToolbar from '@/components/SeatingPlanGenerator/canvas/SeatingCanvasToolbar';
 import { useCanvasPreferences } from '@/contexts/seatingPlan/CanvasPreferencesContext';
 import SeatingModeToggle from '@/components/SeatingPlanGenerator/SeatingModeToggle';
@@ -44,6 +43,7 @@ import {
   cardSurfaceClass,
   onVisualViewport,
   buildSeatHighlightLookup,
+  withoutUnavailableWeights,
 } from '@/utils';
 import { calculateBadgePillLayout } from '@/utils/ui/studentAppearance';
 import { FEATURE_TYPES, type FeatureVisibilityFlags } from '@/utils/ui';
@@ -737,6 +737,19 @@ export default function SeatingPlanEditorView({
   // one class's weights can never come back in another.
   const [suspendedWeights] = React.useState(createSuspendedWeights);
 
+  // Criteria the class has no data for are hidden in every sidebar density, so
+  // their weights are cleared whichever density is on screen. `settings` is a
+  // dependency because "all on" and the default weights set hidden ones too —
+  // hence the check first: an update that clears nothing must not be sent, or
+  // a setter that returns a new object each time would restart this effect
+  // forever.
+  React.useEffect(() => {
+    if (withoutUnavailableWeights(settings, students) === settings) {
+      return;
+    }
+    setMixSettings((prev) => withoutUnavailableWeights(prev, students));
+  }, [students, settings, setMixSettings]);
+
   return (
     <div className="space-y-6">
       {autoMixing ? (
@@ -863,27 +876,15 @@ export default function SeatingPlanEditorView({
         className={`flex ${isPhone ? 'flex-col gap-4' : 'flex-row items-start gap-2'}`}
       >
         <SmartSidebar tourAnchor={TOUR_ANCHORS.planSidebar}>
-          {({ isExpanded }) =>
-            isExpanded ? (
-              <>
-                <SmartMixControls
-                  settings={settings}
-                  setMixSettings={setMixSettings}
-                  students={students}
-                  suspendedWeights={suspendedWeights}
-                />
-              </>
-            ) : (
-              <>
-                <MixCriteriaIcons
-                  settings={settings}
-                  setMixSettings={setMixSettings}
-                  students={students}
-                  suspendedWeights={suspendedWeights}
-                />
-              </>
-            )
-          }
+          {({ isExpanded }) => (
+            <SmartMixControls
+              settings={settings}
+              setMixSettings={setMixSettings}
+              students={students}
+              suspendedWeights={suspendedWeights}
+              density={isExpanded ? 'comfortable' : 'compact'}
+            />
+          )}
         </SmartSidebar>
 
         <div className="relative flex-1">
@@ -1033,12 +1034,13 @@ export default function SeatingPlanEditorView({
 
             {isPhone && (
               <div className="mt-4 sm:hidden">
-                <MixCriteriaIcons
+                <SmartMixControls
                   settings={settings}
                   setMixSettings={setMixSettings}
                   students={students}
                   suspendedWeights={suspendedWeights}
-                  compactLayout={true}
+                  density="compact"
+                  direction="row"
                 />
               </div>
             )}

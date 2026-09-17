@@ -3,7 +3,6 @@
 import React from 'react';
 import SmartSidebar from '@/components/ui/panels/SmartSidebar';
 import SmartEditPanel from '@/components/ui/panels/SmartEditPanel';
-import TableTemplateIcons from '@/components/ui/icons/TableTemplateIcons';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 import type { ClassroomFeatureType, TableTemplateType } from '@/types';
 
@@ -15,8 +14,6 @@ type SidebarFeaturePaletteItem = {
 
 type LayoutEditorSidebarSectionProps = {
   isPhone: boolean;
-  studentsCount: number;
-  seatCount: number;
   handleSaveTemplate: () => void;
   onTemplatePointerDown: (
     type: TableTemplateType,
@@ -34,8 +31,6 @@ type LayoutEditorSidebarSectionProps = {
 const LayoutEditorSidebarSection = React.memo(
   function LayoutEditorSidebarSection({
     isPhone,
-    studentsCount,
-    seatCount,
     handleSaveTemplate,
     onTemplatePointerDown,
     onOpenQuickSetup,
@@ -49,34 +44,17 @@ const LayoutEditorSidebarSection = React.memo(
 
     return (
       <SmartSidebar tourAnchor={TOUR_ANCHORS.layoutSidebar}>
-        {({ isExpanded }) =>
-          isExpanded ? (
-            <>
-              <SmartEditPanel
-                studentsCount={studentsCount}
-                seatCount={seatCount}
-                handleSaveTemplate={handleSaveTemplate}
-                onTemplatePointerDown={onTemplatePointerDown}
-                onOpenQuickSetup={onOpenQuickSetup}
-                quickSetupShortcutHint={quickSetupShortcutHint}
-                featurePalette={featurePalette}
-                onFeaturePointerDown={onFeaturePointerDown}
-              />
-            </>
-          ) : (
-            <>
-              <TableTemplateIcons
-                onTemplatePointerDown={onTemplatePointerDown}
-                isExpanded={isExpanded}
-                onOpenQuickSetup={onOpenQuickSetup}
-                quickSetupShortcutHint={quickSetupShortcutHint}
-                onSaveTemplate={handleSaveTemplate}
-                featurePalette={featurePalette}
-                onFeaturePointerDown={onFeaturePointerDown}
-              />
-            </>
-          )
-        }
+        {({ isExpanded }) => (
+          <SmartEditPanel
+            density={isExpanded ? 'comfortable' : 'compact'}
+            handleSaveTemplate={handleSaveTemplate}
+            onTemplatePointerDown={onTemplatePointerDown}
+            onOpenQuickSetup={onOpenQuickSetup}
+            quickSetupShortcutHint={quickSetupShortcutHint}
+            featurePalette={featurePalette}
+            onFeaturePointerDown={onFeaturePointerDown}
+          />
+        )}
       </SmartSidebar>
     );
   },

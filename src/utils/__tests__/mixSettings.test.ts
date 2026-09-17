@@ -3,15 +3,19 @@
 import {
   DEFAULT_MIX_WEIGHTS,
   DEFAULT_NEIGHBOR_WEIGHTS,
+  areMixSettingsEqual,
+  criterionWeight,
   hasActiveWeights,
   neutralSettings,
   normalizeMixSettings,
   withCriterionWeight,
   withDefaultWeights,
   withWeightsFrom,
+  withoutUnavailableWeights,
   withoutWeights,
 } from '../mixSettings';
-import type { MixSettings } from '../../types';
+import type { MixSettings, Student } from '../../types';
+import { createMockStudent } from '@/__tests__/utils';
 import { expect, test } from 'vitest';
 
 test('DEFAULT_MIX_WEIGHTS should use numeric defaults', () => {
@@ -122,4 +126,81 @@ test('withoutWeights and withWeightsFrom change only the criterion weights', () 
   expect(restored.avoidShyAlone).toBe(9);
   expect(hasActiveWeights(restored)).toBe(true);
   expect(restored.neighborWeights).toBe(neighborWeights);
+});
+
+test('withoutUnavailableWeights clears the weights of criteria without data', () => {
+  const students: Student[] = [
+    createMockStudent({ restless: true, languageSkill: 'daz' }),
+    createMockStudent({ restless: true, languageSkill: 'daz' }),
+  ];
+
+  const cleared = withoutUnavailableWeights(DEFAULT_MIX_WEIGHTS, students);
+
+  // Data in the class: kept, and the history criterion always is.
+  expect(cleared.avoidRestlessTogether).toBe(
+    DEFAULT_MIX_WEIGHTS.avoidRestlessTogether,
+  );
+  expect(cleared.avoidPreviousPairs).toBe(
+    DEFAULT_MIX_WEIGHTS.avoidPreviousPairs,
+  );
+  // No data, or a single language level: cleared.
+  expect(cleared.considerWishPartners).toBe(0);
+  expect(cleared.preferLanguageMixing).toBe(0);
+  expect(cleared.neighborWeights).toBe(DEFAULT_MIX_WEIGHTS.neighborWeights);
+});
+
+test('withoutUnavailableWeights keeps distractibility for one student next to restless classmates', () => {
+  const alone = [createMockStudent({ concentrationIssues: true })];
+  const withRestless = [...alone, createMockStudent({ restless: true })];
+
+  const cleared = withoutUnavailableWeights(DEFAULT_MIX_WEIGHTS, alone);
+  expect(cleared.avoidConcentrationTogether).toBe(0);
+  expect(cleared.avoidConcentrationNearRestless).toBe(0);
+
+  const kept = withoutUnavailableWeights(DEFAULT_MIX_WEIGHTS, withRestless);
+  expect(kept.avoidConcentrationNearRestless).toBe(
+    DEFAULT_MIX_WEIGHTS.avoidConcentrationNearRestless,
+  );
+});
+
+test('criterionWeight shows the higher of the two distractibility weights', () => {
+  const settings: MixSettings = {
+    ...neutralSettings,
+    avoidConcentrationTogether: 0,
+    avoidConcentrationNearRestless: 6,
+    avoidShyAlone: 2,
+  };
+
+  expect(criterionWeight(settings, 'avoidConcentrationTogether')).toBe(6);
+  expect(criterionWeight(settings, 'avoidShyAlone')).toBe(2);
+});
+
+test('withoutUnavailableWeights returns the same settings when nothing is hidden', () => {
+  const settings: MixSettings = {
+    ...neutralSettings,
+    avoidPreviousPairs: 4,
+  };
+
+  expect(withoutUnavailableWeights(settings, [])).toBe(settings);
+});
+
+test('areMixSettingsEqual compares the weights, not the objects', () => {
+  const copy: MixSettings = {
+    ...DEFAULT_MIX_WEIGHTS,
+    neighborWeights: normalizeMixSettings(DEFAULT_MIX_WEIGHTS).neighborWeights,
+  };
+  expect(areMixSettingsEqual(DEFAULT_MIX_WEIGHTS, copy)).toBe(true);
+
+  expect(
+    areMixSettingsEqual(DEFAULT_MIX_WEIGHTS, { ...copy, avoidShyAlone: 9 }),
+  ).toBe(false);
+  expect(
+    areMixSettingsEqual(DEFAULT_MIX_WEIGHTS, {
+      ...copy,
+      neighborWeights: {
+        ...copy.neighborWeights,
+        gender: { ...copy.neighborWeights.gender, back: 0.1 },
+      },
+    }),
+  ).toBe(false);
 });

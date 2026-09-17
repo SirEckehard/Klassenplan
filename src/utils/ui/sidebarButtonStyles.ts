@@ -27,7 +27,17 @@ interface SidebarButtonOptions {
 
 interface SidebarSurfaceOptions extends SidebarButtonOptions {
   variant: 'collapsed' | 'expanded';
+  /** Pressed to start a drag: a grab cursor instead of the pointer. */
+  draggable?: boolean;
 }
+
+/**
+ * The shape of a round button in the collapsed sidebar, the same in every step;
+ * `getSidebarSurfaceClasses({ variant: 'collapsed' })` adds its colours. A long
+ * press opens no system callout, so it stays free for the button's own use.
+ */
+export const sidebarRailButtonClass =
+  'group relative inline-flex h-12 w-12 shrink-0 select-none items-center justify-center rounded-full p-0 [-webkit-touch-callout:none]';
 
 const toneStyles: Record<SidebarTone, SidebarToneStyles> = {
   blue: {
@@ -75,6 +85,7 @@ export function getSidebarSurfaceClasses({
   disabled = false,
   interactive = true,
   emphasis = 'default',
+  draggable = false,
 }: SidebarSurfaceOptions): string {
   const styles = toneStyles[tone];
   const base =
@@ -98,9 +109,11 @@ export function getSidebarSurfaceClasses({
   const ringClass = isActive ? styles.ring : '';
   const cursorClass = disabled
     ? 'cursor-not-allowed opacity-50'
-    : interactive
-      ? 'cursor-pointer'
-      : '';
+    : !interactive
+      ? ''
+      : draggable
+        ? 'cursor-grab active:cursor-grabbing'
+        : 'cursor-pointer';
 
   return [base, surfaceState, ringClass, hoverClasses, cursorClass]
     .filter(Boolean)

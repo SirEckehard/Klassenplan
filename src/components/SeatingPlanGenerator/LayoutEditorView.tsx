@@ -940,8 +940,6 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
       >
         <LayoutEditorSidebarSection
           isPhone={isPhone}
-          studentsCount={studentsCount}
-          seatCount={seatCount}
           handleSaveTemplate={handleSaveTemplate}
           onTemplatePointerDown={onTemplatePointerDown}
           onOpenQuickSetup={handleOpenQuickSetup}

@@ -16,6 +16,8 @@ import {
   FlipVerticalIcon,
 } from '@phosphor-icons/react';
 import SmartSidebar from '@/components/ui/panels/SmartSidebar';
+import SidebarFlyout from '@/components/ui/panels/SidebarFlyout';
+import RailButton from '@/components/ui/controls/RailButton';
 import SectionHeader from '@/components/ui/layout/SectionHeader';
 import {
   cardSurfaceClass,
@@ -25,18 +27,23 @@ import {
   successButtonClass,
   getSidebarSurfaceClasses,
   getSidebarIconClasses,
-  getSidebarIndicatorClasses,
+  sidebarRailButtonClass,
   type SidebarTone,
 } from '@/utils';
 
 type PageOrientation = 'landscape' | 'portrait';
 
+/**
+ * - `comfortable`: the expanded sidebar, grouped under headings.
+ * - `compact`: the collapsed sidebar, one round button per setting or export;
+ *   the title is edited in a flyout.
+ */
+type Density = 'comfortable' | 'compact';
+
 interface ExportSidebarProps {
-  // Titel
   title: string;
   onTitleChange: (title: string) => void;
 
-  // Seitenformat
   tableOrientation: PageOrientation;
   onTableOrientationChange: (orientation: PageOrientation) => void;
   circleOrientation: PageOrientation;
@@ -51,7 +58,6 @@ interface ExportSidebarProps {
   flipView: boolean;
   onFlipViewChange: (flipped: boolean) => void;
 
-  // Export-Aktionen
   onPrint: () => void;
   onTablePdf: () => void;
   onCirclePdf: () => void;
@@ -60,7 +66,344 @@ interface ExportSidebarProps {
   hasCircleLayout: boolean;
 }
 
-export default function ExportSidebar({
+type RailStyle = { tone?: SidebarTone; accent?: boolean; isActive?: boolean };
+
+const railStyles = ({
+  tone = 'blue',
+  accent = false,
+  isActive = false,
+}: RailStyle = {}) => {
+  const emphasis = accent ? 'accent' : 'default';
+  return {
+    button: `${sidebarRailButtonClass} ${getSidebarSurfaceClasses({
+      variant: 'collapsed',
+      tone,
+      isActive,
+      emphasis,
+    })}`,
+    icon: getSidebarIconClasses({ tone, isActive, emphasis }),
+  };
+};
+
+function RailDivider() {
+  return (
+    <div
+      aria-hidden="true"
+      className="my-1 h-px w-8 bg-blue-100 dark:bg-blue-900/40"
+    />
+  );
+}
+
+/** A card with a heading, or on the rail just its buttons. */
+function Section({
+  density,
+  icon,
+  title,
+  className = '',
+  bodyClassName = '',
+  dividerBefore = false,
+  children,
+}: {
+  density: Density;
+  icon: React.ReactNode;
+  title: string;
+  className?: string;
+  bodyClassName?: string;
+  /** Compact only: a divider before the buttons. */
+  dividerBefore?: boolean;
+  children: React.ReactNode;
+}) {
+  if (density === 'compact') {
+    return (
+      <>
+        {dividerBefore && <RailDivider />}
+        {children}
+      </>
+    );
+  }
+
+  return (
+    <div className={`${cardSurfaceClass} border px-3 py-4 ${className}`}>
+      <SectionHeader icon={icon} title={title} />
+      <div className={`mt-3 ${bodyClassName}`}>{children}</div>
+    </div>
+  );
+}
+
+function TitleInput({
+  title,
+  onTitleChange,
+  onEnter,
+}: {
+  title: string;
+  onTitleChange: (title: string) => void;
+  onEnter?: () => void;
+}) {
+  const { t } = useTranslation('generator');
+
+  return (
+    <input
+      type="text"
+      value={title}
+      onChange={(event) => onTitleChange(event.target.value)}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' && onEnter) {
+          event.preventDefault();
+          onEnter();
+        }
+      }}
+      className={inputFieldClass}
+      placeholder={t('export.titlePlaceholder')}
+      aria-label={t('export.title')}
+    />
+  );
+}
+
+/** One of two options side by side, in the comfortable density. */
+function ChoiceButton({
+  selected,
+  onClick,
+  icon,
+  label,
+  title,
+}: {
+  selected: boolean;
+  onClick: () => void;
+  icon: React.ReactNode;
+  label: string;
+  title?: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`${selected ? primaryButtonClass : secondaryButtonClass} w-full justify-center gap-2 px-4 py-2`}
+      aria-pressed={selected}
+      title={title}
+    >
+      {icon}
+      {label}
+    </button>
+  );
+}
+
+/**
+ * The page orientation of one export: two options, or on the rail one button
+ * that switches between them.
+ */
+function OrientationControl({
+  density,
+  railLabel,
+  modeIcon,
+  orientation,
+  onChange,
+}: {
+  density: Density;
+  /** Names which export the orientation belongs to. */
+  railLabel: string;
+  modeIcon: React.ReactNode;
+  orientation: PageOrientation;
+  onChange: (orientation: PageOrientation) => void;
+}) {
+  const { t } = useTranslation('generator');
+  const isLandscape = orientation === 'landscape';
+
+  if (density === 'compact') {
+    const styles = railStyles({ accent: true, isActive: isLandscape });
+    const label = `${railLabel}: ${
+      isLandscape ? t('export.landscape') : t('export.portrait')
+    }`;
+    return (
+      <button
+        type="button"
+        onClick={() => onChange(isLandscape ? 'portrait' : 'landscape')}
+        className={styles.button}
+        title={label}
+        aria-label={label}
+      >
+        <span className={`${styles.icon} flex items-center gap-1`}>
+          <Rectangle size={18} className={isLandscape ? '' : 'rotate-90'} />
+          {modeIcon}
+        </span>
+      </button>
+    );
+  }
+
+  return (
+    <div className="mt-2 grid gap-2 sm:grid-cols-2">
+      <ChoiceButton
+        selected={isLandscape}
+        onClick={() => onChange('landscape')}
+        icon={<Rectangle className="h-4 w-4" />}
+        label={t('export.landscape')}
+      />
+      <ChoiceButton
+        selected={!isLandscape}
+        onClick={() => onChange('portrait')}
+        icon={<Rectangle className="h-4 w-4 rotate-90" />}
+        label={t('export.portrait')}
+      />
+    </div>
+  );
+}
+
+function ViewDirectionControl({
+  density,
+  flipView,
+  onChange,
+}: {
+  density: Density;
+  flipView: boolean;
+  onChange: (flipped: boolean) => void;
+}) {
+  const { t } = useTranslation('generator');
+
+  if (density === 'compact') {
+    const styles = railStyles({ accent: true, isActive: flipView });
+    const label = `${t('export.viewDirection')}: ${
+      flipView ? t('export.viewFromBack') : t('export.viewFromFront')
+    }`;
+    return (
+      <button
+        type="button"
+        onClick={() => onChange(!flipView)}
+        className={styles.button}
+        title={label}
+        aria-label={label}
+        aria-pressed={flipView}
+      >
+        <span className={styles.icon}>
+          <FlipVerticalIcon size={18} />
+        </span>
+      </button>
+    );
+  }
+
+  return (
+    <>
+      <p className="mt-3 text-xs font-medium text-gray-500 dark:text-gray-400">
+        {t('export.viewDirection')}
+      </p>
+      <div className="mt-2 grid gap-2 sm:grid-cols-2">
+        <ChoiceButton
+          selected={!flipView}
+          onClick={() => onChange(false)}
+          icon={<ArrowUpIcon className="h-4 w-4" />}
+          label={t('export.viewFromFront')}
+          title={t('export.viewFromFrontTitle')}
+        />
+        <ChoiceButton
+          selected={flipView}
+          onClick={() => onChange(true)}
+          icon={<ArrowDownIcon className="h-4 w-4" />}
+          label={t('export.viewFromBack')}
+          title={t('export.viewFromBackTitle')}
+        />
+      </div>
+    </>
+  );
+}
+
+/** The settings of one export (seating plan or circle), under its name. */
+function FormatGroup({
+  density,
+  icon,
+  label,
+  children,
+}: {
+  density: Density;
+  icon: React.ReactNode;
+  label: string;
+  children: React.ReactNode;
+}) {
+  if (density === 'compact') {
+    return <>{children}</>;
+  }
+
+  return (
+    <div>
+      <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-300">
+        {icon}
+        {label}
+      </p>
+      {children}
+    </div>
+  );
+}
+
+const exportActionStyles = {
+  print: { comfortable: successButtonClass, tone: 'green', accent: true },
+  pdf: { comfortable: primaryButtonClass, tone: 'blue', accent: true },
+  // Image exports are secondary next to print and PDF, so they stay plain.
+  image: { comfortable: secondaryButtonClass, tone: 'blue', accent: false },
+} as const;
+
+function ExportAction({
+  density,
+  kind,
+  icon: Icon,
+  label,
+  title,
+  onClick,
+}: {
+  density: Density;
+  kind: keyof typeof exportActionStyles;
+  icon: React.ComponentType<{ size?: number }>;
+  label: string;
+  title: string;
+  onClick: () => void;
+}) {
+  const style = exportActionStyles[kind];
+
+  if (density === 'compact') {
+    const styles = railStyles({ tone: style.tone, accent: style.accent });
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        className={styles.button}
+        title={title}
+        aria-label={label}
+      >
+        <span className={styles.icon}>
+          <Icon size={18} />
+        </span>
+      </button>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`${style.comfortable} w-full justify-center gap-2`}
+      title={title}
+    >
+      <Icon size={16} />
+      {label}
+    </button>
+  );
+}
+
+/**
+ * The export page's sidebar: title, page format and the exports. Both
+ * densities are built from the same parts, so each offers what the other does.
+ */
+export default function ExportSidebar(props: ExportSidebarProps) {
+  return (
+    <SmartSidebar>
+      {({ isExpanded }) => (
+        <ExportSidebarContent
+          {...props}
+          density={isExpanded ? 'comfortable' : 'compact'}
+        />
+      )}
+    </SmartSidebar>
+  );
+}
+
+function ExportSidebarContent({
+  density,
   title,
   onTitleChange,
   tableOrientation,
@@ -76,477 +419,172 @@ export default function ExportSidebar({
   onPngExport,
   onSvgExport,
   hasCircleLayout,
-}: ExportSidebarProps) {
+}: ExportSidebarProps & { density: Density }) {
   const { t } = useTranslation('generator');
-  const titleInputRef = React.useRef<HTMLInputElement>(null);
-  const [autoFocusTitle, setAutoFocusTitle] = React.useState(false);
-  // Dynamic icons based on state
-  const tableOrientationIcon =
-    tableOrientation === 'landscape' ? (
-      <Rectangle size={18} />
-    ) : (
-      <Rectangle size={18} style={{ transform: 'rotate(90deg)' }} />
-    );
-
-  const circleOrientationIcon =
-    circleOrientation === 'landscape' ? (
-      <Rectangle size={18} />
-    ) : (
-      <Rectangle size={18} style={{ transform: 'rotate(90deg)' }} />
-    );
-
-  const tableOrientationCollapsedIcon = (
-    <>
-      {tableOrientationIcon}
-      <GridNineIcon size={14} />
-    </>
+  const isCompact = density === 'compact';
+  const [titleAnchor, setTitleAnchor] = React.useState<HTMLElement | null>(
+    null,
   );
 
-  const circleOrientationCollapsedIcon = (
-    <>
-      {circleOrientationIcon}
-      <CircleDashed size={14} />
-    </>
-  );
-
-  type CollapsedStyleOptions = {
-    tone?: SidebarTone;
-    isActive?: boolean;
-    disabled?: boolean;
-    emphasis?: 'default' | 'accent';
-    interactive?: boolean;
-  };
-
-  const buildCollapsedStyles = ({
-    tone = 'blue',
-    isActive = false,
-    disabled = false,
-    emphasis = 'default',
-    interactive = !disabled,
-  }: CollapsedStyleOptions = {}) => {
-    return {
-      button: [
-        'group relative inline-flex h-12 w-12 items-center justify-center rounded-full p-0',
-        getSidebarSurfaceClasses({
-          variant: 'collapsed',
-          tone,
-          isActive,
-          disabled,
-          interactive,
-          emphasis,
-        }),
-      ].join(' '),
-      icon: getSidebarIconClasses({
-        tone,
-        isActive,
-        disabled,
-        emphasis,
-      }),
-      indicator: getSidebarIndicatorClasses(tone),
-    };
-  };
-
-  const titleButtonStyles = buildCollapsedStyles();
-  const tableOrientationButtonStyles = buildCollapsedStyles({
-    emphasis: 'accent',
-    isActive: tableOrientation === 'landscape',
-  });
-  const circleOrientationButtonStyles = buildCollapsedStyles({
-    emphasis: 'accent',
-    isActive: circleOrientation === 'landscape',
-  });
-  const flipViewButtonStyles = buildCollapsedStyles({
-    emphasis: 'accent',
-    isActive: flipView,
-  });
-  const printButtonStyles = buildCollapsedStyles({
-    tone: 'green',
-    emphasis: 'accent',
-  });
-  const exportButtonStyles = buildCollapsedStyles({
-    emphasis: 'accent',
-  });
-  // Image exports are secondary next to print/PDF, so they stay unaccented.
-  const imageExportButtonStyles = buildCollapsedStyles();
-
-  const flipViewCollapsedLabel = `${t('export.viewDirection')}: ${
-    flipView ? t('export.viewFromBack') : t('export.viewFromFront')
-  }`;
-
-  // Handle icon click from SmartSidebar
-  const handleIconClick = React.useCallback(
-    (iconId: string, expand: () => void) => {
-      if (iconId === 'title') {
-        expand();
-        setAutoFocusTitle(true);
+  const closeTitleFlyout = React.useCallback(
+    ({ restoreFocus }: { restoreFocus: boolean }) => {
+      if (restoreFocus) {
+        titleAnchor?.focus();
       }
+      setTitleAnchor(null);
     },
-    [],
+    [titleAnchor],
   );
 
-  // Auto-focus title input when expanded after icon click
-  React.useEffect(() => {
-    if (autoFocusTitle && titleInputRef.current) {
-      titleInputRef.current.focus();
-      setAutoFocusTitle(false);
-    }
-  }, [autoFocusTitle]);
+  const titleStyles = railStyles();
+  const editTitleLabel = t('export.editTitle');
 
   return (
-    <SmartSidebar>
-      {({ isExpanded, expand }) =>
-        isExpanded ? (
-          // Expanded Mode - Full UI
-          <div className="space-y-5">
-            <div className={`${cardSurfaceClass} border px-3 py-4`}>
-              <SectionHeader
-                icon={<TextAa size={16} />}
-                title={t('export.title', 'Titel')}
-              />
-              <input
-                ref={titleInputRef}
-                type="text"
-                value={title}
-                onChange={(e) => onTitleChange(e.target.value)}
-                className={`${inputFieldClass} mt-3`}
-                placeholder={t(
-                  'export.titlePlaceholder',
-                  'Sitzplan-Titel eingeben',
-                )}
-              />
-            </div>
-
-            <div className={`${cardSurfaceClass} border px-3 py-4`}>
-              <SectionHeader
-                icon={<ArrowCounterClockwise size={16} />}
-                title={t('export.pageFormat', 'Seitenformat')}
-              />
-              <div className="mt-3 space-y-4">
-                <div>
-                  <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-300">
-                    <GridNineIcon size={12} />
-                    {t('mode.table', 'Sitzplan')}
-                  </p>
-                  <div className="mt-2 grid gap-2 sm:grid-cols-2">
-                    <button
-                      type="button"
-                      onClick={() => onTableOrientationChange('landscape')}
-                      className={`${
-                        tableOrientation === 'landscape'
-                          ? primaryButtonClass
-                          : secondaryButtonClass
-                      } w-full justify-center gap-2 px-4 py-2`}
-                      aria-pressed={tableOrientation === 'landscape'}
-                    >
-                      <Rectangle className="h-4 w-4" />
-                      {t('export.landscape', 'Querformat')}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => onTableOrientationChange('portrait')}
-                      className={`${
-                        tableOrientation === 'portrait'
-                          ? primaryButtonClass
-                          : secondaryButtonClass
-                      } w-full justify-center gap-2 px-4 py-2`}
-                      aria-pressed={tableOrientation === 'portrait'}
-                    >
-                      <Rectangle className="h-4 w-4 rotate-90" />
-                      {t('export.portrait', 'Hochformat')}
-                    </button>
-                  </div>
-                  {/* Sits inside the seating-plan block on purpose: the flip
-                      has no meaning for the circle export. */}
-                  {showViewDirection && (
-                    <>
-                      <p className="mt-3 text-xs font-medium text-gray-500 dark:text-gray-400">
-                        {t('export.viewDirection')}
-                      </p>
-                      <div className="mt-2 grid gap-2 sm:grid-cols-2">
-                        <button
-                          type="button"
-                          onClick={() => onFlipViewChange(false)}
-                          className={`${
-                            flipView ? secondaryButtonClass : primaryButtonClass
-                          } w-full justify-center gap-2 px-4 py-2`}
-                          aria-pressed={!flipView}
-                          title={t('export.viewFromFrontTitle')}
-                        >
-                          <ArrowUpIcon className="h-4 w-4" />
-                          {t('export.viewFromFront')}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => onFlipViewChange(true)}
-                          className={`${
-                            flipView ? primaryButtonClass : secondaryButtonClass
-                          } w-full justify-center gap-2 px-4 py-2`}
-                          aria-pressed={flipView}
-                          title={t('export.viewFromBackTitle')}
-                        >
-                          <ArrowDownIcon className="h-4 w-4" />
-                          {t('export.viewFromBack')}
-                        </button>
-                      </div>
-                    </>
-                  )}
-                </div>
-                <div>
-                  <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-300">
-                    <CircleDashed size={12} />
-                    {t('mode.circle', 'Sitzkreis')}
-                  </p>
-                  <div className="mt-2 grid gap-2 sm:grid-cols-2">
-                    <button
-                      type="button"
-                      onClick={() => onCircleOrientationChange('landscape')}
-                      className={`${
-                        circleOrientation === 'landscape'
-                          ? primaryButtonClass
-                          : secondaryButtonClass
-                      } w-full justify-center gap-2 px-4 py-2`}
-                      aria-pressed={circleOrientation === 'landscape'}
-                    >
-                      <Rectangle className="h-4 w-4" />
-                      {t('export.landscape', 'Querformat')}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => onCircleOrientationChange('portrait')}
-                      className={`${
-                        circleOrientation === 'portrait'
-                          ? primaryButtonClass
-                          : secondaryButtonClass
-                      } w-full justify-center gap-2 px-4 py-2`}
-                      aria-pressed={circleOrientation === 'portrait'}
-                    >
-                      <Rectangle className="h-4 w-4 rotate-90" />
-                      {t('export.portrait', 'Hochformat')}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div
-              className={`${cardSurfaceClass} border px-3 py-4 space-y-3 hidden sm:block`}
-            >
-              <SectionHeader
-                icon={<Printer size={16} />}
-                title={t('actions.export', 'Exportieren')}
-              />
-              <button
-                type="button"
-                onClick={onPrint}
-                className={`${successButtonClass} w-full justify-center gap-2`}
-                title={t('export.printShortcut', 'Drucken (Strg/Cmd+P)')}
-              >
-                <Printer size={16} />
-                {t('actions.print', 'Drucken')}
-              </button>
-              <button
-                type="button"
-                onClick={onTablePdf}
-                className={`${primaryButtonClass} w-full justify-center gap-2`}
-                title={t(
-                  'export.tablePdfShortcut',
-                  'Sitzplan als PDF exportieren (Strg/Cmd+Shift+T)',
-                )}
-              >
-                <GridNineIcon size={16} />
-                {t('export.tablePdfButton', 'Sitzplan PDF')}
-              </button>
-              {hasCircleLayout && (
-                <button
-                  type="button"
-                  onClick={onCirclePdf}
-                  className={`${primaryButtonClass} w-full justify-center gap-2`}
-                  title={t(
-                    'export.circlePdfShortcut',
-                    'Sitzkreis als PDF exportieren (Strg/Cmd+Shift+C)',
-                  )}
-                >
-                  <CircleDashed size={16} />
-                  {t('export.circlePdfButton', 'Sitzkreis PDF')}
-                </button>
-              )}
-              {/* Image exports of the current preview — for embedding into
-                  parent letters or an LMS, where a PDF is unwieldy. */}
-              <div className="grid gap-2 sm:grid-cols-2">
-                <button
-                  type="button"
-                  onClick={onPngExport}
-                  className={`${secondaryButtonClass} w-full justify-center gap-2`}
-                  title={t(
-                    'export.pngShortcut',
-                    'Aktuelle Ansicht als PNG-Bild speichern (Strg/Cmd+Shift+I)',
-                  )}
-                >
-                  <ImageIcon size={16} />
-                  {t('export.pngButton', 'PNG')}
-                </button>
-                <button
-                  type="button"
-                  onClick={onSvgExport}
-                  className={`${secondaryButtonClass} w-full justify-center gap-2`}
-                  title={t(
-                    'export.svgTitle',
-                    'Aktuelle Ansicht als SVG-Vektorgrafik speichern',
-                  )}
-                >
-                  <VectorTwoIcon size={16} />
-                  {t('export.svgButton', 'SVG')}
-                </button>
-              </div>
-            </div>
-          </div>
-        ) : (
-          // Collapsed Mode - Icon-only
-          <div className="flex flex-col items-center gap-3 py-3">
-            {/* Position 1: Titel (clickable to expand and focus input) */}
-            <button
-              type="button"
-              onClick={() => handleIconClick('title', expand)}
-              className={titleButtonStyles.button}
-              title={t('export.editTitle', 'Titel bearbeiten')}
-            >
-              <span className={titleButtonStyles.icon}>
-                <TextAa size={18} />
-              </span>
-            </button>
-
-            {/* Position 2: Orientierung Sitzplan */}
-            <button
-              type="button"
-              onClick={() =>
-                onTableOrientationChange(
-                  tableOrientation === 'landscape' ? 'portrait' : 'landscape',
-                )
-              }
-              className={tableOrientationButtonStyles.button}
-              title={`${t('export.pageFormatTable', 'Seitenformat Sitzplan')}: ${tableOrientation === 'landscape' ? t('export.landscape') : t('export.portrait')}`}
-              aria-label={`${t('export.pageFormatTable', 'Seitenformat Sitzplan')}: ${tableOrientation === 'landscape' ? t('export.landscape') : t('export.portrait')}`}
-            >
-              <span
-                className={`${tableOrientationButtonStyles.icon} flex items-center gap-1`}
-              >
-                {tableOrientationCollapsedIcon}
-              </span>
-            </button>
-
-            {/* Position 3: Blickrichtung Sitzplan — grouped with the seating
-                plan controls, exactly as in the expanded sidebar. */}
-            {showViewDirection && (
-              <button
-                type="button"
-                onClick={() => onFlipViewChange(!flipView)}
-                className={flipViewButtonStyles.button}
-                title={flipViewCollapsedLabel}
-                aria-label={flipViewCollapsedLabel}
-                aria-pressed={flipView}
-              >
-                <span className={flipViewButtonStyles.icon}>
-                  <FlipVerticalIcon size={18} />
-                </span>
-              </button>
-            )}
-
-            {/* Position 4: Orientierung Sitzkreis */}
-            <button
-              type="button"
-              onClick={() =>
-                onCircleOrientationChange(
-                  circleOrientation === 'landscape' ? 'portrait' : 'landscape',
-                )
-              }
-              className={circleOrientationButtonStyles.button}
-              title={`${t('export.pageFormatCircle', 'Seitenformat Sitzkreis')}: ${circleOrientation === 'landscape' ? t('export.landscape') : t('export.portrait')}`}
-              aria-label={`${t('export.pageFormatCircle', 'Seitenformat Sitzkreis')}: ${circleOrientation === 'landscape' ? t('export.landscape') : t('export.portrait')}`}
-            >
-              <span
-                className={`${circleOrientationButtonStyles.icon} flex items-center gap-1`}
-              >
-                {circleOrientationCollapsedIcon}
-              </span>
-            </button>
-
-            {/* Divider */}
-            <div className="my-1 h-px w-8 bg-blue-100 dark:bg-blue-900/40" />
-
-            {/* Position 5: Drucken */}
-            <button
-              type="button"
-              onClick={onPrint}
-              className={printButtonStyles.button}
-              title={t('export.printShortcut', 'Drucken (Strg/Cmd+P)')}
-            >
-              <span className={printButtonStyles.icon}>
-                <Printer size={18} />
-              </span>
-            </button>
-
-            {/* Position 6: Sitzplan PDF Export */}
-            <button
-              type="button"
-              onClick={onTablePdf}
-              className={exportButtonStyles.button}
-              title={t(
-                'export.tablePdfShortcut',
-                'Sitzplan als PDF exportieren (Strg/Cmd+Shift+T)',
-              )}
-            >
-              <span className={exportButtonStyles.icon}>
-                <GridNineIcon size={18} />
-              </span>
-            </button>
-
-            {/* Position 7: Sitzkreis PDF Export (only if circle layout exists) */}
-            {hasCircleLayout && (
-              <button
-                type="button"
-                onClick={onCirclePdf}
-                className={exportButtonStyles.button}
-                title={t(
-                  'export.circlePdfShortcut',
-                  'Sitzkreis als PDF exportieren (Strg/Cmd+Shift+C)',
-                )}
-              >
-                <span className={exportButtonStyles.icon}>
-                  <CircleDashed size={18} />
-                </span>
-              </button>
-            )}
-
-            {/* Position 8/9: Bildexport der aktuellen Vorschau */}
-            <button
-              type="button"
-              onClick={onPngExport}
-              className={imageExportButtonStyles.button}
-              title={t(
-                'export.pngShortcut',
-                'Aktuelle Ansicht als PNG-Bild speichern (Strg/Cmd+Shift+I)',
-              )}
-            >
-              <span className={imageExportButtonStyles.icon}>
-                <ImageIcon size={18} />
-              </span>
-            </button>
-            <button
-              type="button"
-              onClick={onSvgExport}
-              className={imageExportButtonStyles.button}
-              title={t(
-                'export.svgTitle',
-                'Aktuelle Ansicht als SVG-Vektorgrafik speichern',
-              )}
-            >
-              <span className={imageExportButtonStyles.icon}>
-                <VectorTwoIcon size={18} />
-              </span>
-            </button>
-          </div>
-        )
+    <div
+      className={
+        isCompact ? 'flex flex-col items-center gap-3 py-3' : 'space-y-5'
       }
-    </SmartSidebar>
+    >
+      <Section
+        density={density}
+        icon={<TextAa size={16} />}
+        title={t('export.title')}
+      >
+        {isCompact ? (
+          <RailButton
+            label={editTitleLabel}
+            title={title ? `${editTitleLabel}: ${title}` : editTitleLabel}
+            flyoutOpen={titleAnchor !== null}
+            className={titleStyles.button}
+            onPress={setTitleAnchor}
+            onOpenFlyout={setTitleAnchor}
+          >
+            <span className={titleStyles.icon}>
+              <TextAa size={18} />
+            </span>
+          </RailButton>
+        ) : (
+          <TitleInput title={title} onTitleChange={onTitleChange} />
+        )}
+      </Section>
+
+      <Section
+        density={density}
+        icon={<ArrowCounterClockwise size={16} />}
+        title={t('export.pageFormat')}
+        bodyClassName="space-y-4"
+      >
+        <FormatGroup
+          density={density}
+          icon={<GridNineIcon size={12} />}
+          label={t('mode.table')}
+        >
+          <OrientationControl
+            density={density}
+            railLabel={t('export.pageFormatTable')}
+            modeIcon={<GridNineIcon size={14} />}
+            orientation={tableOrientation}
+            onChange={onTableOrientationChange}
+          />
+          {/* Grouped with the seating plan on purpose: the flip has no
+              meaning for the circle export. */}
+          {showViewDirection && (
+            <ViewDirectionControl
+              density={density}
+              flipView={flipView}
+              onChange={onFlipViewChange}
+            />
+          )}
+        </FormatGroup>
+        <FormatGroup
+          density={density}
+          icon={<CircleDashed size={12} />}
+          label={t('mode.circle')}
+        >
+          <OrientationControl
+            density={density}
+            railLabel={t('export.pageFormatCircle')}
+            modeIcon={<CircleDashed size={14} />}
+            orientation={circleOrientation}
+            onChange={onCircleOrientationChange}
+          />
+        </FormatGroup>
+      </Section>
+
+      {/* Below `sm` the page shows these buttons under the preview instead. */}
+      <Section
+        density={density}
+        icon={<Printer size={16} />}
+        title={t('actions.export')}
+        className="hidden sm:block"
+        bodyClassName="space-y-3"
+        dividerBefore
+      >
+        <ExportAction
+          density={density}
+          kind="print"
+          icon={Printer}
+          label={t('actions.print')}
+          title={t('export.printShortcut')}
+          onClick={onPrint}
+        />
+        <ExportAction
+          density={density}
+          kind="pdf"
+          icon={GridNineIcon}
+          label={t('export.tablePdfButton')}
+          title={t('export.tablePdfShortcut')}
+          onClick={onTablePdf}
+        />
+        {hasCircleLayout && (
+          <ExportAction
+            density={density}
+            kind="pdf"
+            icon={CircleDashed}
+            label={t('export.circlePdfButton')}
+            title={t('export.circlePdfShortcut')}
+            onClick={onCirclePdf}
+          />
+        )}
+        {/* Image exports of the current preview — for embedding into parent
+            letters or an LMS, where a PDF is unwieldy. */}
+        <div className={isCompact ? 'contents' : 'grid gap-2 sm:grid-cols-2'}>
+          <ExportAction
+            density={density}
+            kind="image"
+            icon={ImageIcon}
+            label={t('export.pngButton')}
+            title={t('export.pngShortcut')}
+            onClick={onPngExport}
+          />
+          <ExportAction
+            density={density}
+            kind="image"
+            icon={VectorTwoIcon}
+            label={t('export.svgButton')}
+            title={t('export.svgTitle')}
+            onClick={onSvgExport}
+          />
+        </div>
+      </Section>
+
+      {titleAnchor && (
+        <SidebarFlyout
+          anchor={titleAnchor}
+          label={t('export.title')}
+          autoFocus
+          onClose={closeTitleFlyout}
+        >
+          <p className="mb-2 text-sm font-medium text-gray-800 dark:text-gray-200">
+            {t('export.title')}
+          </p>
+          <TitleInput
+            title={title}
+            onTitleChange={onTitleChange}
+            onEnter={() => closeTitleFlyout({ restoreFocus: true })}
+          />
+        </SidebarFlyout>
+      )}
+    </div>
   );
 }

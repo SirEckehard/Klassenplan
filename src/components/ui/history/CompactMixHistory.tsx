@@ -3,13 +3,14 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { EyeIcon, TrashIcon, Clock } from '@phosphor-icons/react';
-import type { MixResult, ScalarMixSettingKey } from '@/types';
+import type { MixResult } from '@/types';
 import ConfirmDialog from '@/components/ui/modals/ConfirmDialog';
 import {
   cardSurfaceClass,
   dangerIconButtonClass,
   loadingIconButtonClass,
   SCALAR_MIX_SETTING_KEYS,
+  criterionWeight,
   formatDayMonth,
   formatTimeWithSeconds,
 } from '@/utils';
@@ -27,25 +28,6 @@ interface MixItemProps {
   onDelete: (id: number) => void;
 }
 
-const settingLabels: Record<ScalarMixSettingKey, string> = {
-  avoidPreviousPairs: 'Wiederholung vermeiden',
-  avoidRestlessTogether: 'Unruhe vermeiden',
-  avoidConcentrationTogether: 'Ablenkbarkeit trennen',
-  avoidConcentrationNearRestless: 'Keine Unruhe neben Ablenkbarkeit',
-  avoidShyAlone: 'Schüchterne nicht alleine',
-  preferGenderMix: 'Geschlechter mischen',
-  considerWishPartners: 'Wunschpartner berücksichtigen',
-  avoidConflictPartners: 'Distanzwünsche respektieren',
-  peerTutoring: 'Gegenseitiges Fördern',
-  homogeneousPerformanceGroups: 'Homogene Leistungsgruppen',
-  preferFrontForNeedsFrontSeat: 'Vordere Plätze berücksichtigen',
-  preferFrontForSmallerStudents: 'Körpergröße berücksichtigen',
-  preferWindowSeats: 'Fensterplätze bevorzugen',
-  preferDoorSeats: 'Türnähe berücksichtigen',
-  preferLanguageMixing: 'Sprachpartner optimieren',
-  distributeSocialRoles: 'Soziale Rollen verteilen',
-};
-
 function CompactMixItem({ result, onLoad, onDelete }: MixItemProps) {
   const { t } = useTranslation('generator');
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -53,11 +35,12 @@ function CompactMixItem({ result, onLoad, onDelete }: MixItemProps) {
   const timeString = formatTimeWithSeconds(result.timestamp);
   const dateString = formatDayMonth(result.timestamp);
 
-  // Get active settings (value > 0) excluding the combined constraint
+  // Active criteria as the sidebar names them; the second distractibility
+  // weight is part of "distractibility", not a criterion of its own.
   const activeSettings = SCALAR_MIX_SETTING_KEYS.filter(
     (key) => key !== 'avoidConcentrationNearRestless',
   )
-    .map((key) => [key, result.mixSettings[key]] as const)
+    .map((key) => [key, criterionWeight(result.mixSettings, key)] as const)
     .filter(([, value]) => value > 0);
 
   return (
@@ -84,7 +67,7 @@ function CompactMixItem({ result, onLoad, onDelete }: MixItemProps) {
           <div className="mt-1 flex flex-wrap items-center gap-1">
             {activeSettings.map(([key, value]) => {
               const Icon = CRITERIA_ICON_MAP[key];
-              const label = settingLabels[key];
+              const label = t(`mix.criteria.${key}.label`);
 
               return (
                 <span

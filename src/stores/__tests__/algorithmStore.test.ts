@@ -54,6 +54,23 @@ describe('algorithmStore', () => {
       expect(JSON.parse(persisted![1] as string).preferGenderMix).toBe(7);
     });
 
+    it('keeps the state when an update changes nothing (idempotent)', () => {
+      const setItemSpy = vi.spyOn(window.localStorage, 'setItem');
+      const before = algorithmStore.getState();
+
+      before.setMixSettings((prev) => prev);
+      before.setMixSettings({ ...before.mixSettings });
+
+      // A new state here re-runs every effect that depends on the settings;
+      // one of them sends a no-op update in turn, and step 3 never settles.
+      expect(algorithmStore.getState()).toBe(before);
+      expect(
+        setItemSpy.mock.calls.some(
+          ([key]) => key === LOCAL_STORAGE_KEYS.mixSettings,
+        ),
+      ).toBe(false);
+    });
+
     it('falls back to defaults when localStorage holds invalid JSON (failure path)', () => {
       // Corrupt the persisted JSON; resetAlgorithmStore re-runs loadMixSettings,
       // which must catch the parse error and return defaults instead of throwing.

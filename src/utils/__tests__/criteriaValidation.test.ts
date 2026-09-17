@@ -113,7 +113,32 @@ describe('criteriaValidation', () => {
       expect(result.reason).toBeUndefined();
     });
 
-    test('avoidConcentrationTogether is unavailable when less than 2 students have concentration issues', () => {
+    test('avoidConcentrationTogether is available for one student with concentration issues and a restless classmate', () => {
+      const students = [
+        createStudent('1', { concentrationIssues: true }),
+        createStudent('2', { restless: true }),
+      ];
+
+      const result = isCriterionAvailable(
+        'avoidConcentrationTogether',
+        students,
+      );
+      expect(result.available).toBe(true);
+      expect(result.reason).toBeUndefined();
+    });
+
+    test('avoidConcentrationTogether is unavailable when the only restless student is the distractible one', () => {
+      const students = [
+        createStudent('1', { concentrationIssues: true, restless: true }),
+        createStudent('2'),
+      ];
+
+      expect(
+        isCriterionAvailable('avoidConcentrationTogether', students).available,
+      ).toBe(false);
+    });
+
+    test('avoidConcentrationTogether is unavailable for one student with concentration issues and no restless classmate', () => {
       const students = [
         createStudent('1', { concentrationIssues: true }),
         createStudent('2'),

@@ -66,11 +66,16 @@ export function isCriterionAvailable(
       };
     }
 
+    // Distractibility carries two weights: apart from each other takes two
+    // such students, away from restless neighbours one and a restless classmate.
     case 'avoidConcentrationTogether': {
       const concentrationCount = students.filter(
         (s) => s.concentrationIssues,
       ).length;
-      const available = concentrationCount >= 2;
+      const available =
+        concentrationCount >= 2 ||
+        (concentrationCount === 1 &&
+          students.some((s) => s.restless && !s.concentrationIssues));
       return {
         key,
         available,

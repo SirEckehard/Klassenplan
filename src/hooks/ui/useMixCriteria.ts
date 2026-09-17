@@ -6,6 +6,7 @@ import type { TFunction } from 'i18next';
 import type { MixSettings, ScalarMixSettingKey, Student } from '@/types';
 import {
   DEFAULT_MIX_WEIGHTS,
+  criterionWeight,
   hasActiveWeights,
   withCriterionWeight,
   withDefaultWeights,
@@ -266,6 +267,12 @@ export function useMixCriteria({
 
   const isRandom = !hasActiveWeights(settings);
 
+  /** The weight a criterion's control shows; see {@link criterionWeight}. */
+  const weightOf = React.useCallback(
+    (key: ScalarMixSettingKey) => criterionWeight(settings, key),
+    [settings],
+  );
+
   const setWeight = React.useCallback(
     (key: ScalarMixSettingKey, value: number) => {
       const availability = isCriterionAvailable(key, students);
@@ -284,9 +291,9 @@ export function useMixCriteria({
   /** Off, or on at the recommended weight. */
   const toggle = React.useCallback(
     (key: ScalarMixSettingKey) => {
-      setWeight(key, settings[key] > 0 ? 0 : DEFAULT_MIX_WEIGHTS[key]);
+      setWeight(key, weightOf(key) > 0 ? 0 : DEFAULT_MIX_WEIGHTS[key]);
     },
-    [setWeight, settings],
+    [setWeight, weightOf],
   );
 
   /** Every criterion off; the weights are kept for {@link enableAll}. */
@@ -315,6 +322,7 @@ export function useMixCriteria({
   return {
     categories,
     isRandom,
+    weightOf,
     setWeight,
     toggle,
     disableAll,

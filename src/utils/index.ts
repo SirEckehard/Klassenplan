@@ -118,6 +118,8 @@ export {
   DEFAULT_MIX_WEIGHTS,
   DEFAULT_NEIGHBOR_WEIGHTS,
   SCALAR_MIX_SETTING_KEYS,
+  areMixSettingsEqual,
+  criterionWeight,
   hasActiveWeights,
   mergeNeighborWeights,
   normalizeMixSettings,
@@ -125,6 +127,7 @@ export {
   withCriterionWeight,
   withDefaultWeights,
   withWeightsFrom,
+  withoutUnavailableWeights,
   withoutWeights,
 } from './mixSettings';
 
@@ -318,6 +321,7 @@ export {
   getSidebarSurfaceClasses,
   getSidebarIconClasses,
   getSidebarIndicatorClasses,
+  sidebarRailButtonClass,
   type SidebarTone,
 } from './ui/sidebarButtonStyles';
 export {

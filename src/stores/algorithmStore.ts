@@ -16,6 +16,7 @@ import type { LatestChangelogEntry } from '@/utils';
 import { LOCAL_STORAGE_KEYS } from '@/utils/data/storageKeys';
 import {
   DEFAULT_MIX_WEIGHTS,
+  areMixSettingsEqual,
   neutralSettings,
   normalizeMixSettings,
   MIX_HISTORY_LIMIT,
@@ -121,7 +122,10 @@ export const algorithmStore = createStore<AlgorithmStoreSlice>()((set) => ({
     set((state) => {
       const resolved = evaluateStateUpdater(state.mixSettings, next);
       const normalized = normalizeMixSettings(resolved, neutralSettings);
-      if (normalized === state.mixSettings) {
+      // Normalising always builds a new object; compared by reference, an
+      // update that changes nothing would still re-render every subscriber and
+      // re-run every effect that depends on the settings.
+      if (areMixSettingsEqual(normalized, state.mixSettings)) {
         return state;
       }
       persistMixSettings(normalized);
