@@ -35,3 +35,11 @@ only.
 
 There is no field data on errors or performance. Problems surface through the CI
 gates, the bundle budgets, the feedback page and issue reports.
+
+The error screens make that last channel usable: they show a reference code and
+prepare a mail with the technical details (`src/utils/errorReport.ts`,
+`src/components/errors/ErrorReportLink.tsx`). The report is composed in the
+browser and sent by the user from their own mail program — still nothing that
+leaves the device on its own. `CONTACT_EMAIL` decides where it goes, so a
+self-hosted instance collects its own reports
+([0012](0012-legal-pages-for-self-hosted-builds.md)).

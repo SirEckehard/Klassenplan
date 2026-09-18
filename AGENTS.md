@@ -28,17 +28,17 @@ it for Antigravity — edit this file, never those two.
 - Docs consistency: `npm run check:docs` (relative links, heading anchors and `src/…`-style paths in Markdown resolve; `docs/CHANGELOG.md` is skipped)
 - Algorithm runtime: `npm run bench` (by hand, not in CI; figures in `docs/PERFORMANCE.md`)
 
-**Current Code Quality Status (2026-09-17):**
+**Current Code Quality Status (2026-09-19):**
 
 - ✅ ESLint: 0 errors, 0 warnings
 - ✅ TypeScript: 0 compilation errors (strict mode)
-- ✅ Tests: 2239 unit tests (219 test files) + 9 Playwright tests (3 smoke + 2 wizard core flow + 4 onboarding), 100% passing
-- 📊 Coverage: 72.2 % lines / 71.5 % statements / 61.5 % branches (`npm run test:coverage`, v8 provider, no thresholds enforced)
+- ✅ Tests: 2251 unit tests (222 test files) + 9 Playwright tests (3 smoke + 2 wizard core flow + 4 onboarding), 100% passing
+- 📊 Coverage: 72.3 % lines / 71.6 % statements / 61.6 % branches (`npm run test:coverage`, v8 provider, no thresholds enforced)
 - ⚠️ Unused Exports: 54 modules ignoring type-only exports, held by a ratchet (`npm run check:unused`); the remainder are re-export barrels, `lazyWithRetry` default exports and shared test helpers
 - ✅ Test Infrastructure: Centralized accessibility helpers and toast matchers for robust testing
 - ✅ Architecture: Repository Pattern implemented, UI components reorganized into logical subdirectories
-- ✅ i18n: Bilingual support (German/English) fully implemented, DE/EN key parity 1:1 (1925 keys per language)
-- 📦 Bundle: initial payload 197 KB brotli / 758 KB raw, largest chunk 62 KB brotli, CSS 20 KB brotli
+- ✅ i18n: Bilingual support (German/English) fully implemented, DE/EN key parity 1:1 (1938 keys per language)
+- 📦 Bundle: initial payload 199 KB brotli / 767 KB raw, largest chunk 62 KB brotli, CSS 20 KB brotli
 
 ## Logging
 
@@ -267,6 +267,7 @@ Consumers import dedicated hooks (e.g. `useClassroomLayoutContext`) to minimize 
 - **Never let `vite-plugin-compression` precompress HTML** — nginx's `brotli_static on` would serve the stale pre-prerender shell.
 - Route components live in `src/pages/lazyPages.ts` and are shared by the router and `routePreloader`, so `preload()` warms the instance the router renders. Do not re-declare them with `lazyWithRetry` in `App.tsx`.
 - Legal pages: `IMPRINT_URL` / `PRIVACY_URL` at build time replace `/impressum` and `/datenschutz` with forwarding pages (alias in `vite.config.ts`, validation in `src/config/legalPageUrls.ts`). Link to the legal pages only through `LegalPageLink`, never a plain `LocalizedLink`.
+- Contact address: `CONTACT_EMAIL` at build time (validation in `src/config/contactEmail.ts`, `define` in `vite.config.ts`, read via `CONTACT_EMAIL` from `src/config/links.ts`); unset keeps the maintainer's address.
 - `build:static` regenerates `sitemap.xml` and `robots.txt` only for a build that serves another site (`SITE_URL`, `IMPRINT_URL`, `PRIVACY_URL`); klassenplan.de's own image ships the committed files.
 
 ## Security & Deployment
@@ -357,6 +358,7 @@ expectErrorToast(); // Just check toast exists
 - Validation at data boundaries (imports, user input, backup files)
 - Centralized error logging via logger utility
 - Fire-and-forget promises must attach a `.catch` with logging (no bare `void somePromise()` for I/O)
+- Every error boundary fallback renders `components/errors/ErrorReportLink`: a reference code (`utils/errorReport.ts`) plus a prepared mail to `CONTACT_EMAIL` (`src/config/links.ts`, build variable) and a clipboard copy of the same lines. Nothing is sent automatically — decision 0008 still holds
 
 ## Accessibility Features
 

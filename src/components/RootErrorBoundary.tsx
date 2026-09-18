@@ -3,6 +3,7 @@
 import React from 'react';
 import { logError } from '@/utils';
 import i18n from '@/i18n';
+import ErrorReportLink from '@/components/errors/ErrorReportLink';
 
 function RootErrorFallback({ error }: { error: Error }) {
   const t = (key: string, fallback: string) =>
@@ -26,6 +27,7 @@ function RootErrorFallback({ error }: { error: Error }) {
             {t('common.reloadPage', 'Seite neu laden')}
           </button>
         </div>
+        <ErrorReportLink error={error} area="App" tone="red" />
         <details className="mt-6 text-xs text-red-600 dark:text-red-400">
           <summary className="cursor-pointer font-medium select-none">
             {t('common.errorDetails', 'Fehlerdetails')}

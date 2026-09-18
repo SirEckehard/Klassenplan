@@ -28,6 +28,10 @@ ENV SITE_URL=${SITE_URL}
 ARG IMPRINT_URL=
 ARG PRIVACY_URL=
 ENV IMPRINT_URL=${IMPRINT_URL} PRIVACY_URL=${PRIVACY_URL}
+# The operator's contact address for the contact page and the error reports.
+# Left empty, both write to the maintainer of klassenplan.de.
+ARG CONTACT_EMAIL=
+ENV CONTACT_EMAIL=${CONTACT_EMAIL}
 RUN npm run build:static
 
 # Stage 2: Production

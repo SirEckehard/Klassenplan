@@ -15,6 +15,9 @@ services:
         # an instance; empty keeps the pages of klassenplan.de.
         IMPRINT_URL: ${IMPRINT_URL:-}
         PRIVACY_URL: ${PRIVACY_URL:-}
+        # Where the contact page and the error reports write to; empty keeps
+        # the address of klassenplan.de's maintainer.
+        CONTACT_EMAIL: ${CONTACT_EMAIL:-}
     ports:
       # TLS terminates upstream (see nginx.conf) — put a reverse proxy in front.
       - '${KLASSENPLAN_PORT:-8080}:80'

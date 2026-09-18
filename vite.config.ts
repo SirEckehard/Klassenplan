@@ -11,6 +11,7 @@ import path from 'path';
 import { fileURLToPath } from 'node:url';
 import type { Alias, PluginOption } from 'vite';
 import { readLegalPageUrls } from './src/config/legalPageUrls.ts';
+import { readContactEmail } from './src/config/contactEmail.ts';
 
 const rootDir = fileURLToPath(new URL('.', import.meta.url));
 
@@ -18,6 +19,7 @@ const rootDir = fileURLToPath(new URL('.', import.meta.url));
 // Validated here, so a typo fails the build instead of shipping the pages of
 // klassenplan.de on somebody else's instance.
 const legalPageUrls = readLegalPageUrls(process.env);
+const contactEmail = readContactEmail(process.env);
 
 /**
  * In a build with its own legal pages, the klassenplan.de page modules are
@@ -359,6 +361,8 @@ export default defineConfig({
     'import.meta.env.VITE_PRIVACY_URL': JSON.stringify(
       legalPageUrls['/datenschutz'] ?? '',
     ),
+    // Read by src/config/links.ts; empty keeps the maintainer's address.
+    'import.meta.env.VITE_CONTACT_EMAIL': JSON.stringify(contactEmail),
   },
   server: {
     port: 3000,

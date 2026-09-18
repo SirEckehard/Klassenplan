@@ -30,5 +30,14 @@ test('renders fallback UI on error', () => {
   ).toBeInTheDocument();
   // Error details section contains the original error message
   expect(screen.getByText('boom')).toBeInTheDocument();
+  // The report mail is prepared with the error code from the fallback
+  const code = screen.getByText(/^KP-/).textContent ?? '';
+  const reportLink = screen.getByRole('link', {
+    name: i18n.t('errors.report.mailLink', { ns: 'common' }),
+  });
+  expect(reportLink.getAttribute('href')).toContain('mailto:');
+  expect(reportLink.getAttribute('href')).toContain(
+    encodeURIComponent(`Code: ${code}`),
+  );
   errorSpy.mockRestore();
 });

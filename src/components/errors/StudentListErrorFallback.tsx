@@ -2,6 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import ErrorReportLink from '@/components/errors/ErrorReportLink';
 
 type StudentListErrorFallbackProps = {
   error: Error;
@@ -44,6 +45,7 @@ export default function StudentListErrorFallback({
           {t('common.reloadPage', 'Seite neu laden')}
         </button>
       </div>
+      <ErrorReportLink error={error} area="StudentList" tone="red" />
       <details className="mt-4 text-xs text-red-700 dark:text-red-200">
         <summary className="cursor-pointer font-medium">
           {t('common.errorDetails', 'Fehlerdetails')}

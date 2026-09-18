@@ -149,7 +149,22 @@
     "planUnavailable": "Sitzplan-Ansicht konnte nicht angezeigt werden",
     "planDescription": "Beim Rendern des Sitzplans ist ein Fehler aufgetreten. Bitte versuche es erneut oder lade die Seite neu.",
     "studentListUnavailable": "Klassenliste konnte nicht geladen werden",
-    "studentListDescription": "Beim Rendern des Klassenlisten-Schritts ist ein Fehler aufgetreten. Du kannst es erneut versuchen oder die Seite neu laden."
+    "studentListDescription": "Beim Rendern des Klassenlisten-Schritts ist ein Fehler aufgetreten. Du kannst es erneut versuchen oder die Seite neu laden.",
+    "report": {
+      "title": "Diesen Fehler melden",
+      "hint": "Die E-Mail öffnet sich in deinem Mail-Programm – mit Fehlercode und technischen Angaben. Schreib kurz dazu, was du gerade gemacht hast, und schick sie ab.",
+      "mailLink": "Fehler per E-Mail melden",
+      "copy": "Details kopieren",
+      "copied": "Kopiert",
+      "copyFailed": "Kopieren nicht möglich",
+      "code": "Fehlercode",
+      "mailSubject": "Klassenplan-Fehler {{code}}",
+      "mailGreeting": "Hallo,",
+      "mailIntro": "in Klassenplan ist ein Fehler aufgetreten.",
+      "mailPrompt": "Das habe ich gemacht, als der Fehler auftrat:",
+      "mailPlaceholder": "(bitte hier beschreiben)",
+      "mailDetails": "Technische Angaben (bitte unverändert lassen):"
+    }
   },
   "common": {
     "retry": "Erneut versuchen",

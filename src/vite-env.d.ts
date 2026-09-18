@@ -9,4 +9,6 @@ interface ImportMetaEnv {
   readonly VITE_IMPRINT_URL?: string;
   /** The operator's own Datenschutzerklärung (`PRIVACY_URL`), or empty. */
   readonly VITE_PRIVACY_URL?: string;
+  /** The operator's contact address (`CONTACT_EMAIL`), or empty; see vite.config.ts. */
+  readonly VITE_CONTACT_EMAIL?: string;
 }

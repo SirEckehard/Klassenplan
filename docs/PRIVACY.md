@@ -1,6 +1,6 @@
 # Privacy
 
-> **Status:** current · **Last reviewed:** 2026-09-14 · **For:** developers,
+> **Status:** current · **Last reviewed:** 2026-09-19 · **For:** developers,
 > self-hosting operators and schools evaluating Klassenplan
 
 This document describes what personal data Klassenplan handles, where it goes and
@@ -74,6 +74,13 @@ any other class
 - **No cookies, no analytics, no external fonts or CDNs.** The local storage
   notice only informs; with the Global Privacy Control signal it is skipped.
 - **Feedback** is an e-mail link; only what someone writes arrives.
+- **Error reports** are the same thing: an error screen prepares a mail with a
+  reference code, the app version, the route, the error message, the first stack
+  frames, the UI language, the time and the browser's user agent — no student
+  data. The mail is composed in the browser and opens in the user's own mail
+  program: nothing is sent unless they send it
+  ([decision 0008](decisions/0008-no-telemetry.md)). Where no mail program is
+  set up, a button copies the same lines to the clipboard.
 - **Donations** are a plain link to PayPal; PayPal is contacted only when someone
   follows it.
 
@@ -87,6 +94,9 @@ any other class
   klassenplan.de's texts are not part of the build
   ([decision 0012](decisions/0012-legal-pages-for-self-hosted-builds.md)). Your
   privacy policy has to describe your instance, including its access logs.
+- **Set your own contact address.** `CONTACT_EMAIL` decides where the contact
+  page and the error reports write to. Without it your users' bug reports —
+  about your build, your changes — reach the maintainer of klassenplan.de.
 - **Access logs.** nginx writes access logs in Debian's default format (client IP,
   time, request, status, referrer, user agent) to the container's stdout.
   Retention is up to the operator's log driver. Behind a reverse proxy the

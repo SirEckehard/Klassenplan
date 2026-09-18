@@ -7,13 +7,13 @@ import { LocalizedLink } from '@/components/LocalizedLink';
 import { cardSurfaceClass, primaryButtonClass } from '@/utils';
 import { KpLockup } from '@/components/KpLockup';
 import { usePageSeo } from '@/hooks/usePageSeo';
-import { GITHUB_REPO_URL } from '@/config/links';
+import { CONTACT_EMAIL, GITHUB_REPO_URL } from '@/config/links';
 
 // Contact page that points users to email instead of a form
 export default function Feedback() {
   const { t } = useTranslation('pages');
   const metadata = usePageSeo('/feedback');
-  const contactEmail = 'webmaster@klassenplan.de';
+  const contactEmail = CONTACT_EMAIL;
 
   return (
     <main

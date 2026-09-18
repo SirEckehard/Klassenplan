@@ -67,6 +67,7 @@ export {
 
 // ===== Error Handling =====
 export { errorHandlers } from './errorHandling';
+export { buildErrorReport, buildErrorReportMailto } from './errorReport';
 
 // ===== Constants =====
 export {

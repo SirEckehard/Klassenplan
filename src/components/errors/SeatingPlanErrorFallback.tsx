@@ -2,6 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import ErrorReportLink from '@/components/errors/ErrorReportLink';
 
 type SeatingPlanErrorFallbackProps = {
   error: Error;
@@ -62,6 +63,11 @@ export default function SeatingPlanErrorFallback({
           {t('common.reloadPage', 'Seite neu laden')}
         </button>
       </div>
+      <ErrorReportLink
+        error={error}
+        area={variant === 'layout' ? 'LayoutEditor' : 'SeatingPlanView'}
+        tone="amber"
+      />
       <details className="mt-4 text-xs text-amber-700 dark:text-amber-100">
         <summary className="cursor-pointer font-medium">
           {t('common.errorDetails', 'Fehlerdetails')}

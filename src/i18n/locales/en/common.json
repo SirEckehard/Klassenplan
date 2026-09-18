@@ -149,7 +149,22 @@
     "planUnavailable": "Seating Plan view could not be displayed",
     "planDescription": "An error occurred while rendering the seating plan. Please try again or reload the page.",
     "studentListUnavailable": "Class list could not be loaded",
-    "studentListDescription": "An error occurred while rendering the class list step. You can try again or reload the page."
+    "studentListDescription": "An error occurred while rendering the class list step. You can try again or reload the page.",
+    "report": {
+      "title": "Report this error",
+      "hint": "The email opens in your mail app – with the error code and technical details. Add a line about what you were doing and send it.",
+      "mailLink": "Report this error by email",
+      "copy": "Copy details",
+      "copied": "Copied",
+      "copyFailed": "Copying not possible",
+      "code": "Error code",
+      "mailSubject": "Klassenplan error {{code}}",
+      "mailGreeting": "Hello,",
+      "mailIntro": "an error occurred in Klassenplan.",
+      "mailPrompt": "This is what I was doing when the error occurred:",
+      "mailPlaceholder": "(please describe here)",
+      "mailDetails": "Technical details (please leave unchanged):"
+    }
   },
   "common": {
     "retry": "Try Again",
