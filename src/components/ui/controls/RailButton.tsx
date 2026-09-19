@@ -15,6 +15,13 @@ type RailButtonProps = {
   describedBy?: string;
   onPress: (button: HTMLButtonElement) => void;
   onOpenFlyout: (button: HTMLButtonElement) => void;
+  /**
+   * Pointer or keyboard focus resting on the button, for a preview it shows
+   * elsewhere — the rail is too narrow to show one itself. Focus counts as
+   * hover so the preview is reachable without a mouse.
+   */
+  onHoverStart?: () => void;
+  onHoverEnd?: () => void;
   children: React.ReactNode;
 };
 
@@ -32,6 +39,8 @@ export default function RailButton({
   describedBy,
   onPress,
   onOpenFlyout,
+  onHoverStart,
+  onHoverEnd,
   children,
 }: RailButtonProps) {
   const longPress = useLongPress<HTMLButtonElement>(onOpenFlyout);
@@ -50,6 +59,10 @@ export default function RailButton({
         event.preventDefault();
         onOpenFlyout(event.currentTarget);
       }}
+      onMouseEnter={onHoverStart}
+      onMouseLeave={onHoverEnd}
+      onFocus={onHoverStart}
+      onBlur={onHoverEnd}
       onKeyDown={(event) => {
         if (event.key === 'ArrowRight') {
           event.preventDefault();

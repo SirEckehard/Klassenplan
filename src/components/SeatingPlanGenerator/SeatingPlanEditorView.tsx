@@ -449,11 +449,15 @@ export default function SeatingPlanEditorView({
     { score: statisticsScore },
   );
   const statisticsButtonClasses = `${mutedIconButtonClass} absolute bottom-3 right-3 z-20 flex min-h-10 items-center justify-center gap-2 rounded-full bg-white/90 px-3 py-2 text-blue-700 shadow-md transition hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:bg-gray-900/70 dark:text-blue-200 sm:min-h-12 sm:gap-3 sm:px-4`;
+  // The pill on the canvas switches the statistics on and off; what it switches
+  // is the fulfilment beside each criterion in the options sidebar. Only a
+  // phone, whose sidebar is a sheet over the plan, still gets a panel of its
+  // own — see `SeatingStatisticsBadge`.
+  const statisticsVisible = Boolean(
+    showStatisticsBadge && lastStatistics && lastStatistics.length > 0,
+  );
   const canShowStatisticsBadge = Boolean(
-    showStatisticsBadge &&
-    lastStatistics &&
-    lastStatistics.length > 0 &&
-    onCloseStatistics,
+    statisticsVisible && onCloseStatistics,
   );
   const seatHighlightLookup = React.useMemo(
     () => buildSeatHighlightLookup(statisticsHighlight),
@@ -533,6 +537,32 @@ export default function SeatingPlanEditorView({
       buildHighlightEntriesForCriterion,
       setStatisticsHighlight,
       setStatisticsHighlightMode,
+    ],
+  );
+
+  const sidebarFulfillment = statisticsVisible
+    ? (lastStatistics ?? undefined)
+    : undefined;
+  const fulfillmentProps = React.useMemo(
+    () => ({
+      fulfillment: sidebarFulfillment,
+      // A phone shows the criteria in a sheet that covers the plan, so marking
+      // seats from there would point at something nobody can see. The values
+      // themselves still show.
+      onHighlightHover: isPhone ? undefined : handleCriterionHover,
+      onHighlightLeave: isPhone ? undefined : handleCriterionHoverEnd,
+      onHighlightToggle: isPhone ? undefined : handleCriterionToggle,
+      activeHighlightKey,
+      activeHighlightMode,
+    }),
+    [
+      activeHighlightKey,
+      activeHighlightMode,
+      handleCriterionHover,
+      handleCriterionHoverEnd,
+      handleCriterionToggle,
+      isPhone,
+      sidebarFulfillment,
     ],
   );
 
@@ -883,6 +913,7 @@ export default function SeatingPlanEditorView({
               students={students}
               suspendedWeights={suspendedWeights}
               density={isExpanded ? 'comfortable' : 'compact'}
+              {...fulfillmentProps}
             />
           )}
         </SmartSidebar>
@@ -917,21 +948,21 @@ export default function SeatingPlanEditorView({
                 </button>
               )}
 
-              {/* Statistics Badge - absolute positioned above button for <xl viewports */}
-              {canShowStatisticsBadge &&
+              {/* Phone only: everywhere the options rail fits, the values sit
+                  beside the criteria instead. */}
+              {isPhone &&
+                canShowStatisticsBadge &&
                 lastStatistics &&
                 onCloseStatistics && (
-                  <div className="xl:hidden">
-                    <SeatingStatisticsBadge
-                      criteria={lastStatistics}
-                      onClose={onCloseStatistics}
-                      onHighlightHover={handleCriterionHover}
-                      onHighlightLeave={handleCriterionHoverEnd}
-                      onHighlightToggle={handleCriterionToggle}
-                      activeHighlightKey={activeHighlightKey}
-                      activeHighlightMode={activeHighlightMode}
-                    />
-                  </div>
+                  <SeatingStatisticsBadge
+                    criteria={lastStatistics}
+                    onClose={onCloseStatistics}
+                    onHighlightHover={handleCriterionHover}
+                    onHighlightLeave={handleCriterionHoverEnd}
+                    onHighlightToggle={handleCriterionToggle}
+                    activeHighlightKey={activeHighlightKey}
+                    activeHighlightMode={activeHighlightMode}
+                  />
                 )}
 
               {showModeToggle && seatingMode && onModeChange && (
@@ -1041,6 +1072,7 @@ export default function SeatingPlanEditorView({
                   suspendedWeights={suspendedWeights}
                   density="compact"
                   direction="row"
+                  {...fulfillmentProps}
                 />
               </div>
             )}
@@ -1145,21 +1177,6 @@ export default function SeatingPlanEditorView({
             </form>
           </div>
         </div>
-
-        {/* Statistics Sidebar - flex child on xl+ only */}
-        {canShowStatisticsBadge && lastStatistics && onCloseStatistics ? (
-          <div className="hidden xl:block">
-            <SeatingStatisticsBadge
-              criteria={lastStatistics}
-              onClose={onCloseStatistics}
-              onHighlightHover={handleCriterionHover}
-              onHighlightLeave={handleCriterionHoverEnd}
-              onHighlightToggle={handleCriterionToggle}
-              activeHighlightKey={activeHighlightKey}
-              activeHighlightMode={activeHighlightMode}
-            />
-          </div>
-        ) : null}
       </div>
     </div>
   );

@@ -11,6 +11,7 @@ import { useAutoMixSettings } from '@/hooks/domains/useAutoMixSettings';
 import { createMockStudent } from '@/__tests__/utils';
 import { resetDialogLayersForTests } from '@/hooks/ui/useDialogLayer';
 import type { MixSettings, ScalarMixSettingKey, Student } from '@/types';
+import type { CriterionFulfillment } from '@/utils/algorithm/seatingStatistics';
 import {
   DEFAULT_MIX_WEIGHTS,
   LOCAL_STORAGE_KEYS,
@@ -61,15 +62,28 @@ const students: Student[] = [
   },
 ];
 
+/** What the editor hands down once the plan has been mixed. */
+type HighlightProps = Partial<{
+  onHighlightHover: (criterion: CriterionFulfillment) => void;
+  onHighlightLeave: () => void;
+  onHighlightToggle: (criterion: CriterionFulfillment) => void;
+  activeHighlightKey: CriterionFulfillment['key'] | null;
+  activeHighlightMode: 'hover' | 'persistent' | null;
+}>;
+
 function Harness({
   initial = {},
   density,
   withCompactRow = false,
+  fulfillment,
+  highlight,
 }: {
   initial?: Partial<MixSettings>;
   density?: Density;
   /** A second control in the compact density, as under the canvas on a phone. */
   withCompactRow?: boolean;
+  fulfillment?: CriterionFulfillment[];
+  highlight?: HighlightProps;
 }) {
   const [settings, setSettings] = React.useState(() =>
     normalizeMixSettings(initial, neutralSettings),
@@ -80,6 +94,8 @@ function Harness({
     setMixSettings: setSettings,
     students,
     suspendedWeights,
+    fulfillment,
+    ...highlight,
   };
 
   return (
@@ -509,5 +525,155 @@ describe('SmartMixControls — switching densities', () => {
     // Narrowing again does not bring it back.
     rerender(<Harness density="compact" />);
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+});
+
+describe('SmartMixControls — criteria fulfilment', () => {
+  const fulfillmentFor = (percentage: number): CriterionFulfillment[] => [
+    {
+      key: 'avoidRestlessTogether',
+      // The algorithm's own German label; the badge has to translate it itself.
+      label: 'Unruhe',
+      percentage,
+      weight: 5,
+      active: true,
+    },
+  ];
+
+  const pinButton = () =>
+    screen.getByRole('button', {
+      name: /^(Erfüllung|Fulfilment) (Unruhe|Restlessness): 78\s?%/,
+    });
+
+  it('shows the value beside the weight and the overall score', () => {
+    render(
+      <Harness
+        initial={{ avoidRestlessTogether: 5 }}
+        fulfillment={fulfillmentFor(78)}
+        highlight={{ onHighlightToggle: vi.fn() }}
+      />,
+    );
+
+    expect(pinButton()).toHaveTextContent(/78\s?%/);
+    expect(
+      screen.getByText(/Erfüllung gesamt: 78\s?%|Overall fulfilment: 78%/),
+    ).toBeInTheDocument();
+    // The card keeps its own press: switching the criterion off, not marking.
+    fireEvent.click(restlessButton());
+    expect(weightOf('avoidRestlessTogether')).toBe(0);
+  });
+
+  it('marks the seats while the pointer rests on the card and pins them on a press', () => {
+    const onHighlightHover = vi.fn();
+    const onHighlightLeave = vi.fn();
+    const onHighlightToggle = vi.fn();
+    render(
+      <Harness
+        initial={{ avoidRestlessTogether: 5 }}
+        fulfillment={fulfillmentFor(78)}
+        highlight={{ onHighlightHover, onHighlightLeave, onHighlightToggle }}
+      />,
+    );
+
+    fireEvent.mouseOver(restlessButton());
+    expect(onHighlightHover).toHaveBeenCalledWith(
+      expect.objectContaining({ key: 'avoidRestlessTogether' }),
+    );
+
+    fireEvent.mouseOut(restlessButton());
+    expect(onHighlightLeave).toHaveBeenCalled();
+
+    // A button inside the card's button would fold its text into the card's
+    // name and swallow the press meant for the badge.
+    expect(restlessButton()).not.toContainElement(pinButton());
+
+    fireEvent.click(pinButton());
+    expect(onHighlightToggle).toHaveBeenCalledWith(
+      expect.objectContaining({ key: 'avoidRestlessTogether' }),
+    );
+    // Marking is the badge's job — the weight stays where it was.
+    expect(weightOf('avoidRestlessTogether')).toBe(5);
+  });
+
+  it('names the badge as pressed while its marking is the pinned one', () => {
+    render(
+      <Harness
+        initial={{ avoidRestlessTogether: 5 }}
+        fulfillment={fulfillmentFor(78)}
+        highlight={{
+          onHighlightToggle: vi.fn(),
+          activeHighlightKey: 'avoidRestlessTogether',
+          activeHighlightMode: 'persistent',
+        }}
+      />,
+    );
+
+    const badge = screen.getByRole('button', {
+      name: /^(Erfüllung|Fulfilment) (Unruhe|Restlessness): 78\s?%/,
+    });
+    expect(badge).toHaveAttribute('aria-pressed', 'true');
+    expect(badge).toHaveAccessibleName(/Markierung aufheben|clear the marking/);
+  });
+
+  it('is plain text without a handler, as in the phone sheet', () => {
+    render(
+      <Harness
+        initial={{ avoidRestlessTogether: 5 }}
+        fulfillment={fulfillmentFor(78)}
+      />,
+    );
+
+    expect(
+      screen.queryByRole('button', { name: /markieren|mark the seats/ }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByText(
+        /^(Erfüllung|Fulfilment) (Unruhe|Restlessness): 78\s?%$/,
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it('marks from the rail on focus and pins from the flyout', () => {
+    const onHighlightHover = vi.fn();
+    const onHighlightToggle = vi.fn();
+    render(
+      <Harness
+        density="compact"
+        initial={{ avoidRestlessTogether: 5 }}
+        fulfillment={fulfillmentFor(78)}
+        highlight={{ onHighlightHover, onHighlightToggle }}
+      />,
+    );
+
+    // The rail has no room for the number, so the button's name carries it.
+    expect(restlessButton()).toHaveAccessibleName(
+      /zu 78 % erfüllt|78% fulfilled/,
+    );
+
+    restlessButton().focus();
+    expect(onHighlightHover).toHaveBeenCalledWith(
+      expect.objectContaining({ key: 'avoidRestlessTogether' }),
+    );
+
+    fireEvent.contextMenu(restlessButton());
+    const dialog = screen.getByRole('dialog', { name: /Unruhe|Restlessness/ });
+    const badge = screen.getByRole('button', {
+      name: /^(Erfüllung|Fulfilment) (Unruhe|Restlessness): 78\s?%/,
+    });
+    expect(dialog).toContainElement(badge);
+
+    fireEvent.click(badge);
+    expect(onHighlightToggle).toHaveBeenCalledWith(
+      expect.objectContaining({ key: 'avoidRestlessTogether' }),
+    );
+  });
+
+  it('leaves the criteria untouched before the plan has been mixed', () => {
+    render(<Harness initial={{ avoidRestlessTogether: 5 }} />);
+
+    expect(
+      screen.queryByText(/Erfüllung gesamt|Overall fulfilment/),
+    ).not.toBeInTheDocument();
+    expect(restlessButton()).toBeInTheDocument();
   });
 });

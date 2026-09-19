@@ -41,9 +41,11 @@ interface SeatingStatisticsBadgeProps {
 }
 
 /**
- * Compact badge showing top fulfilled criteria after seating generation.
- * - On xl+ viewports: renders as a flex-based sidebar (relative positioning)
- * - On smaller viewports: renders as a fixed overlay at bottom-right
+ * The criteria fulfilment on a phone, whose options sidebar is a sheet over the
+ * plan — everywhere the rail fits, the values sit beside the criteria in
+ * `SmartMixControls` instead, and the plan keeps the width.
+ * - Below `sm`: a full-screen sheet, opened from the pill on the canvas
+ * - `sm` up to the rail: an overlay in the canvas' bottom right corner
  */
 function SeatingStatisticsBadge({
   criteria,
@@ -86,12 +88,8 @@ function SeatingStatisticsBadge({
   // IMPORTANT: Use ALL criteria for score calculation, not just visible ones
   const weightedScore = calculateCriteriaWeightedScore(criteria);
 
-  // Responsive positioning for normal badge (sm+):
-  // - xl+ (≥1280px): relative positioning for flex layout integration
-  // - sm to xl: absolute positioning above the statistics toggle button
-  const positionClasses =
-    'xl:relative xl:w-56 xl:shadow-lg xl:z-auto xl:bottom-auto xl:right-auto ' +
-    'absolute bottom-16 right-3 w-52 shadow-xl z-30';
+  // Above the statistics toggle button in the canvas' bottom right corner.
+  const positionClasses = 'absolute bottom-16 right-3 w-52 shadow-xl z-30';
 
   // Shared criteria list renderer
   const renderCriteriaList = (isFullscreen: boolean) => (
@@ -241,7 +239,7 @@ function SeatingStatisticsBadge({
   return (
     <section
       aria-label={t('statisticsBadge.title', 'Kriterien-Erfüllung')}
-      className={`${cardSurfaceClass} ${positionClasses} flex max-h-[calc(100vh-6rem)] xl:max-h-none flex-col gap-2 overflow-hidden border-2 border-blue-200/80 p-3 transition-[opacity,transform] duration-100 ease-out dark:border-blue-900/50 ${className}`}
+      className={`${cardSurfaceClass} ${positionClasses} flex max-h-[calc(100vh-6rem)] flex-col gap-2 overflow-hidden border-2 border-blue-200/80 p-3 transition-[opacity,transform] duration-100 ease-out dark:border-blue-900/50 ${className}`}
     >
       {/* Compact Header with Score */}
       <div className="flex items-center justify-between gap-2 border-b border-blue-100/70 pb-2 dark:border-blue-900/40">

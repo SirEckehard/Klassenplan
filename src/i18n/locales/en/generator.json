@@ -31,7 +31,7 @@
       "item1": "Adjust the weighting of criteria (0-10) in the sidebar – in the collapsed sidebar with a right click or a long press on the icon.",
       "item2": "Drag students to other seats via drag & drop.",
       "item3": "Click the lock icon to lock a seat for the next shuffle.",
-      "item4": "The statistics panel shows how well the criteria are met.",
+      "item4": "The statistics display shows how well the criteria are met – the values then sit beside the criteria in the options.",
       "item5": "The view settings control how names appear (first name only, first name + initial, or first and last name) and whether photos are shown.",
       "item6": "Undo and redo changes to the seating plan with the corresponding icons."
     },
@@ -321,6 +321,15 @@
     "railCriterionActiveLabel": "{{label}}, importance {{value}} of 10",
     "railWeightHint": "Right click, long press, Shift+F10 or right arrow: set importance",
     "railDefaultsHint": "Right click, long press, Shift+F10 or right arrow: default weights",
+    "fulfillment": {
+      "label": "Fulfilment",
+      "value": "{{percentage}}%",
+      "overall": "Overall fulfilment: {{percentage}}%",
+      "suffix": ", {{percentage}}% fulfilled",
+      "plainLabel": "Fulfilment {{label}}: {{percentage}}%",
+      "pinLabel": "Fulfilment {{label}}: {{percentage}}% – mark the seats concerned",
+      "unpinLabel": "Fulfilment {{label}}: {{percentage}}% – clear the marking"
+    },
     "randomWarning": "All criteria disabled - Shuffling is random!",
     "categories": {
       "avoidance": "Avoidance",
@@ -867,7 +876,7 @@
       },
       "statistics": {
         "title": "Statistics",
-        "body": "Shows as a percentage how well the plan meets your criteria. A click shows or hides the breakdown per criterion – hover over a criterion there to highlight the affected seats."
+        "body": "Shows as a percentage how well the plan meets your criteria. A click shows or hides the values beside the criteria in the options – hover one there and the seats concerned are marked."
       },
       "circle": {
         "title": "Seating circle",

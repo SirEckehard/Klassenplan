@@ -32,13 +32,13 @@ it for Antigravity — edit this file, never those two.
 
 - ✅ ESLint: 0 errors, 0 warnings
 - ✅ TypeScript: 0 compilation errors (strict mode)
-- ✅ Tests: 2251 unit tests (222 test files) + 9 Playwright tests (3 smoke + 2 wizard core flow + 4 onboarding), 100% passing
-- 📊 Coverage: 72.3 % lines / 71.6 % statements / 61.6 % branches (`npm run test:coverage`, v8 provider, no thresholds enforced)
-- ⚠️ Unused Exports: 54 modules ignoring type-only exports, held by a ratchet (`npm run check:unused`); the remainder are re-export barrels, `lazyWithRetry` default exports and shared test helpers
+- ✅ Tests: 2290 unit tests (223 test files) + 9 Playwright tests (3 smoke + 2 wizard core flow + 4 onboarding), 100% passing
+- 📊 Coverage: 72.5 % lines / 71.8 % statements / 61.9 % branches (`npm run test:coverage`, v8 provider, no thresholds enforced)
+- ⚠️ Unused Exports: 53 modules ignoring type-only exports, held by a ratchet (`npm run check:unused`); the remainder are re-export barrels, `lazyWithRetry` default exports and shared test helpers
 - ✅ Test Infrastructure: Centralized accessibility helpers and toast matchers for robust testing
 - ✅ Architecture: Repository Pattern implemented, UI components reorganized into logical subdirectories
-- ✅ i18n: Bilingual support (German/English) fully implemented, DE/EN key parity 1:1 (1938 keys per language)
-- 📦 Bundle: initial payload 199 KB brotli / 767 KB raw, largest chunk 62 KB brotli, CSS 20 KB brotli
+- ✅ i18n: Bilingual support (German/English) fully implemented, DE/EN key parity 1:1 (1947 keys per language)
+- 📦 Bundle: initial payload 199 KB brotli / 768 KB raw, largest chunk 62 KB brotli, CSS 20 KB brotli
 
 ## Logging
 

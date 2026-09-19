@@ -14,9 +14,14 @@ import {
   SCALAR_MIX_SETTING_KEYS,
   getSidebarIconClasses,
   getSidebarSurfaceClasses,
+  getStatisticStatusMeta,
   quietIconButtonClass,
   secondaryButtonClass,
 } from '@/utils';
+import {
+  calculateCriteriaWeightedScore,
+  type CriterionFulfillment,
+} from '@/utils/algorithm/seatingStatistics';
 import usePersistentState from '@/hooks/usePersistentState';
 import {
   useMixCriteria,
@@ -38,7 +43,24 @@ import ToggleSwitch from './ToggleSwitch';
  */
 type Density = 'comfortable' | 'compact';
 
-type SmartMixControlsProps = {
+/**
+ * How well the last mix met the criteria, shown beside the weights that caused
+ * it. Setting and result read as one line, and the plan keeps the width a
+ * second panel would have taken.
+ */
+type FulfillmentProps = {
+  /** Only what the mix actually scored; see `getTopFulfilledCriteria`. */
+  fulfillment?: CriterionFulfillment[];
+  /** Marks the criterion's seats while pointer or focus rests on it. */
+  onHighlightHover?: (criterion: CriterionFulfillment) => void;
+  onHighlightLeave?: () => void;
+  /** Pins the marking so it survives the way over to the canvas. */
+  onHighlightToggle?: (criterion: CriterionFulfillment) => void;
+  activeHighlightKey?: CriterionFulfillment['key'] | null;
+  activeHighlightMode?: 'hover' | 'persistent' | null;
+};
+
+type SmartMixControlsProps = FulfillmentProps & {
   settings: MixSettings;
   setMixSettings: React.Dispatch<React.SetStateAction<MixSettings>>;
   students: Student[];
@@ -46,6 +68,17 @@ type SmartMixControlsProps = {
   density?: Density;
   /** Compact only: a wrapping row, as under the canvas on a phone. */
   direction?: 'column' | 'row';
+};
+
+/** What one criterion's control needs of {@link FulfillmentProps}. */
+type CriterionFulfillmentProps = Omit<
+  FulfillmentProps,
+  'fulfillment' | 'activeHighlightKey' | 'activeHighlightMode'
+> & {
+  /** Absent until the plan has been mixed with this criterion switched on. */
+  fulfillment?: CriterionFulfillment;
+  /** Its marking is the pinned one. */
+  pinned: boolean;
 };
 
 type FlyoutTarget = ScalarMixSettingKey | 'all';
@@ -146,6 +179,107 @@ function WeightRing({ value }: { value: number }) {
 }
 
 /**
+ * How well the last mix met one criterion — the counterpart of the weight set
+ * right above it. The dot repeats the number as a colour, so the three states
+ * read without reading the value.
+ *
+ * Without `onToggle` it is plain text: on a phone the marking it would pin sits
+ * behind the sheet this badge is shown in.
+ */
+function FulfillmentBadge({
+  criterion,
+  label,
+  pinned,
+  onToggle,
+  onHoverStart,
+  onHoverEnd,
+  className = '',
+}: {
+  criterion: CriterionFulfillment;
+  /**
+   * The criterion's translated name. `CriterionFulfillment.label` is the
+   * algorithm's own German string and would reach an English reader untouched.
+   */
+  label: string;
+  pinned: boolean;
+  onToggle?: (criterion: CriterionFulfillment) => void;
+  onHoverStart?: () => void;
+  onHoverEnd?: () => void;
+  className?: string;
+}) {
+  const { t } = useTranslation('generator');
+  const percentage = Math.round(criterion.percentage);
+  const { status, dotClass } = getStatisticStatusMeta(criterion.percentage);
+  const statusLabel = t(`statisticsBadge.status.${status}`);
+  const shapeClass = `inline-flex shrink-0 items-center gap-1.5 rounded-full px-2 py-1 text-xs tabular-nums shadow-sm ${
+    pinned
+      ? 'bg-blue-100 text-blue-800 ring-1 ring-blue-400 dark:bg-blue-900/40 dark:text-blue-200'
+      : 'bg-gray-100 text-gray-600 dark:bg-gray-900/60 dark:text-gray-300'
+  } ${className}`;
+  // Hidden from the accessible name, which the label below spells out in full:
+  // read out on their own the two would be "green, 78%".
+  const body = (
+    <>
+      <span
+        aria-hidden="true"
+        className={`size-1.5 rounded-full ${dotClass}`}
+      />
+      <span aria-hidden="true">
+        {t('mix.fulfillment.value', { percentage })}
+      </span>
+    </>
+  );
+
+  if (!onToggle) {
+    return (
+      <span className={`${shapeClass} pointer-events-none`} title={statusLabel}>
+        <span className="sr-only">
+          {t('mix.fulfillment.plainLabel', { label, percentage })}
+        </span>
+        {body}
+      </span>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={() => onToggle(criterion)}
+      onMouseEnter={onHoverStart}
+      onMouseLeave={onHoverEnd}
+      onFocus={onHoverStart}
+      onBlur={onHoverEnd}
+      aria-pressed={pinned}
+      aria-label={t(
+        pinned ? 'mix.fulfillment.unpinLabel' : 'mix.fulfillment.pinLabel',
+        { label, percentage },
+      )}
+      title={statusLabel}
+      className={`${shapeClass} cursor-pointer transition hover:ring-1 hover:ring-blue-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500`}
+    >
+      {body}
+    </button>
+  );
+}
+
+/**
+ * The same value on a rail button, which has no room for the number. It sits on
+ * the button's edge, not off its corner like `getSidebarIndicatorClasses`: the
+ * rail leaves 4px between buttons, which a corner dot would reach into, and the
+ * weight ring — drawn up and to the left of the button's own circle — passes
+ * just inside the dot here.
+ */
+function FulfillmentDot({ percentage }: { percentage: number }) {
+  const { dotClass } = getStatisticStatusMeta(percentage);
+  return (
+    <span
+      aria-hidden="true"
+      className={`pointer-events-none absolute -right-0.5 -bottom-0.5 size-3 rounded-full border-2 border-white dark:border-gray-800 ${dotClass}`}
+    />
+  );
+}
+
+/**
  * Name, weight, explanation and slider of one criterion: the body of its card,
  * and of its flyout in the compact density.
  */
@@ -153,22 +287,26 @@ function CriterionWeight({
   criterion,
   value,
   onChange,
+  reserveTrailingSpace = false,
 }: {
   criterion: MixCriterion;
   value: number;
   onChange: (value: number) => void;
+  /** Keeps the label clear of the fulfilment badge laid over the card's corner. */
+  reserveTrailingSpace?: boolean;
 }) {
   const { t } = useTranslation('generator');
 
   return (
     <div>
-      <div className="mb-1 flex items-center justify-between gap-2">
-        {/* A block, so the card's accessible name reads "Restlessness 5/10",
-            not "Restlessness5/10". */}
-        <div className="text-sm font-medium text-gray-800 dark:text-gray-200">
-          {criterion.label}
-        </div>
-        <WeightBadge value={value} />
+      {/* A block, so the card's accessible name reads "Restlessness Separate
+          students…", not one run-on word. */}
+      <div
+        className={`mb-1 text-sm font-medium text-gray-800 dark:text-gray-200${
+          reserveTrailingSpace ? ' pr-16' : ''
+        }`}
+      >
+        {criterion.label}
       </div>
       <div
         className="mb-2 text-xs text-gray-500 dark:text-gray-400"
@@ -176,12 +314,17 @@ function CriterionWeight({
       >
         {criterion.description}
       </div>
-      <div className="rounded-xl border border-blue-200 bg-white/80 px-3 dark:border-blue-900/40 dark:bg-gray-950/70">
-        <WeightSlider
-          label={criterion.label}
-          value={value}
-          onChange={onChange}
-        />
+      {/* The weight reads next to the slider that sets it — the card's top
+          right corner belongs to the fulfilment badge. */}
+      <div className="flex items-center gap-2">
+        <WeightBadge value={value} />
+        <div className="flex-1 rounded-xl border border-blue-200 bg-white/80 px-3 dark:border-blue-900/40 dark:bg-gray-950/70">
+          <WeightSlider
+            label={criterion.label}
+            value={value}
+            onChange={onChange}
+          />
+        </div>
       </div>
     </div>
   );
@@ -198,37 +341,68 @@ function CriterionCard({
   value,
   onPress,
   onWeightChange,
-}: CriterionControlProps & { onWeightChange: (value: number) => void }) {
+  fulfillment,
+  pinned,
+  onHighlightHover,
+  onHighlightLeave,
+  onHighlightToggle,
+}: CriterionControlProps &
+  CriterionFulfillmentProps & { onWeightChange: (value: number) => void }) {
   const isActive = value > 0;
   const Icon = CRITERIA_ICON_MAP[criterion.key];
   const surfaceClass = getSidebarSurfaceClasses({
     variant: 'expanded',
     isActive,
   });
+  // One region over card and badge: moving between the two must not flicker
+  // the marking off and straight back on.
+  const preview =
+    fulfillment && onHighlightHover
+      ? {
+          onMouseEnter: () => onHighlightHover(fulfillment),
+          onMouseLeave: onHighlightLeave,
+          onFocus: () => onHighlightHover(fulfillment),
+          onBlur: onHighlightLeave,
+        }
+      : undefined;
 
   return (
-    <button
-      type="button"
-      onClick={(event) => onPress(event.currentTarget)}
-      className={`group relative w-full rounded-2xl p-3 text-left shadow-sm ${surfaceClass}`}
-      title={`${criterion.label}: ${value}/10`}
-    >
-      <div className="flex items-start gap-3">
-        <span
-          className={`${getSidebarIconClasses({ isActive })} mt-1 inline-flex items-center justify-center`}
-          aria-hidden="true"
-        >
-          <Icon size={16} />
-        </span>
-        <div className="flex-1 cursor-pointer">
-          <CriterionWeight
-            criterion={criterion}
-            value={value}
-            onChange={onWeightChange}
-          />
+    <div className="relative" {...preview}>
+      <button
+        type="button"
+        onClick={(event) => onPress(event.currentTarget)}
+        className={`group relative w-full rounded-2xl p-3 text-left shadow-sm ${surfaceClass}`}
+        title={`${criterion.label}: ${value}/10`}
+      >
+        <div className="flex items-start gap-3">
+          <span
+            className={`${getSidebarIconClasses({ isActive })} mt-1 inline-flex items-center justify-center`}
+            aria-hidden="true"
+          >
+            <Icon size={16} />
+          </span>
+          <div className="flex-1 cursor-pointer">
+            <CriterionWeight
+              criterion={criterion}
+              value={value}
+              onChange={onWeightChange}
+              reserveTrailingSpace={Boolean(fulfillment)}
+            />
+          </div>
         </div>
-      </div>
-    </button>
+      </button>
+      {/* A sibling of the card, not a child: a button inside the card's button
+          would fold its text into the card's name and eat the press. */}
+      {fulfillment && (
+        <FulfillmentBadge
+          criterion={fulfillment}
+          label={criterion.label}
+          pinned={pinned}
+          onToggle={onHighlightToggle}
+          className="absolute top-3 right-3 z-10"
+        />
+      )}
+    </div>
   );
 }
 
@@ -238,32 +412,53 @@ function CriterionRailButton({
   onPress,
   describedBy,
   onOpenFlyout,
-}: CriterionControlProps & {
-  describedBy: string;
-  onOpenFlyout: (button: HTMLButtonElement) => void;
-}) {
+  fulfillment,
+  onHighlightHover,
+  onHighlightLeave,
+}: CriterionControlProps &
+  CriterionFulfillmentProps & {
+    describedBy: string;
+    onOpenFlyout: (button: HTMLButtonElement) => void;
+  }) {
   const { t } = useTranslation('generator');
   const isActive = value > 0;
   const Icon = CRITERIA_ICON_MAP[criterion.key];
+  // `aria-label` replaces the button's content, so the dot's meaning has to be
+  // spelled into it rather than left to the markup.
+  const fulfillmentSuffix = fulfillment
+    ? t('mix.fulfillment.suffix', {
+        percentage: Math.round(fulfillment.percentage),
+      })
+    : '';
+  const preview =
+    fulfillment && onHighlightHover
+      ? { start: () => onHighlightHover(fulfillment), end: onHighlightLeave }
+      : undefined;
 
   return (
     <RailButton
       label={
-        isActive
+        (isActive
           ? t('mix.railCriterionActiveLabel', { label: criterion.label, value })
-          : criterion.label
+          : criterion.label) + fulfillmentSuffix
       }
-      title={t('mix.railCriterionTitle', { label: criterion.label, value })}
+      title={
+        t('mix.railCriterionTitle', { label: criterion.label, value }) +
+        fulfillmentSuffix
+      }
       pressed={isActive}
       className={getSidebarSurfaceClasses({ variant: 'collapsed', isActive })}
       describedBy={describedBy}
       onPress={onPress}
       onOpenFlyout={onOpenFlyout}
+      onHoverStart={preview?.start}
+      onHoverEnd={preview?.end}
     >
       <span className={getSidebarIconClasses({ isActive })}>
         <Icon size={16} />
       </span>
       <WeightRing value={value} />
+      {fulfillment && <FulfillmentDot percentage={fulfillment.percentage} />}
     </RailButton>
   );
 }
@@ -420,6 +615,12 @@ function SmartMixControls({
   suspendedWeights,
   density = 'comfortable',
   direction = 'column',
+  fulfillment,
+  onHighlightHover,
+  onHighlightLeave,
+  onHighlightToggle,
+  activeHighlightKey = null,
+  activeHighlightMode = null,
 }: SmartMixControlsProps) {
   const { t } = useTranslation('generator');
   const mix = useMixCriteria({
@@ -445,6 +646,25 @@ function SmartMixControls({
     flyout && flyout.target !== 'all'
       ? criteria.find((criterion) => criterion.key === flyout.target)
       : undefined;
+
+  // The statistics carry only the criteria the mix scored, in the order of the
+  // categories above — a lookup keeps the two lists from having to line up.
+  const fulfillmentByKey = React.useMemo(() => {
+    const byKey = new Map<string, CriterionFulfillment>();
+    for (const criterion of fulfillment ?? []) {
+      byKey.set(criterion.key, criterion);
+    }
+    return byKey;
+  }, [fulfillment]);
+  const overallScore =
+    fulfillment && fulfillment.length > 0
+      ? Math.round(calculateCriteriaWeightedScore(fulfillment))
+      : null;
+  const flyoutFulfillment = flyoutCriterion
+    ? fulfillmentByKey.get(flyoutCriterion.key)
+    : undefined;
+  const pinnedKey =
+    activeHighlightMode === 'persistent' ? activeHighlightKey : null;
 
   const openFlyout = React.useCallback(
     (
@@ -507,10 +727,17 @@ function SmartMixControls({
           </span>
         </>
       ) : (
-        <SectionHeader
-          title={t('mix.title')}
-          description={t('mix.description')}
-        />
+        <div>
+          <SectionHeader
+            title={t('mix.title')}
+            description={t('mix.description')}
+          />
+          {overallScore !== null && (
+            <p className="px-3 pb-1 text-xs font-medium text-blue-700 dark:text-blue-300">
+              {t('mix.fulfillment.overall', { percentage: overallScore })}
+            </p>
+          )}
+        </div>
       )}
 
       {isCompact ? (
@@ -547,6 +774,11 @@ function SmartMixControls({
               value: mix.weightOf(criterion.key),
               onPress: (button: HTMLButtonElement) =>
                 handleCriterionPress(criterion.key, button),
+              fulfillment: fulfillmentByKey.get(criterion.key),
+              pinned: pinnedKey === criterion.key,
+              onHighlightHover,
+              onHighlightLeave,
+              onHighlightToggle,
             };
             return isCompact ? (
               <CriterionRailButton
@@ -611,6 +843,27 @@ function SmartMixControls({
             value={mix.weightOf(flyoutCriterion.key)}
             onChange={(value) => mix.setWeight(flyoutCriterion.key, value)}
           />
+          {/* On the rail the button itself only previews while the pointer
+              rests on it; pinning the marking lives here, next to the value. */}
+          {flyoutFulfillment && (
+            <div className="mt-2 flex items-center justify-between gap-2 border-t border-blue-100 pt-2 dark:border-blue-900/50">
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                {t('mix.fulfillment.label')}
+              </span>
+              <FulfillmentBadge
+                criterion={flyoutFulfillment}
+                label={flyoutCriterion.label}
+                pinned={pinnedKey === flyoutFulfillment.key}
+                onToggle={onHighlightToggle}
+                onHoverStart={
+                  onHighlightHover
+                    ? () => onHighlightHover(flyoutFulfillment)
+                    : undefined
+                }
+                onHoverEnd={onHighlightLeave}
+              />
+            </div>
+          )}
           {flyout.showHint && (
             <p className="mt-2 border-t border-blue-100 pt-2 text-xs text-blue-700 dark:border-blue-900/50 dark:text-blue-300">
               {t('mix.flyoutHint')}
@@ -626,6 +879,26 @@ const areSettingsEqual = (prev: MixSettings, next: MixSettings) => {
   return SCALAR_MIX_SETTING_KEYS.every((key) => prev[key] === next[key]);
 };
 
+const areFulfillmentsEqual = (
+  prev: CriterionFulfillment[] | undefined,
+  next: CriterionFulfillment[] | undefined,
+) => {
+  if (prev === next) {
+    return true;
+  }
+  if (!prev || !next || prev.length !== next.length) {
+    return false;
+  }
+  return prev.every((criterion, index) => {
+    const other = next[index];
+    return (
+      criterion.key === other.key &&
+      criterion.percentage === other.percentage &&
+      criterion.weight === other.weight
+    );
+  });
+};
+
 const arePropsEqual = (
   prev: SmartMixControlsProps,
   next: SmartMixControlsProps,
@@ -636,6 +909,12 @@ const arePropsEqual = (
     prev.suspendedWeights === next.suspendedWeights &&
     prev.density === next.density &&
     prev.direction === next.direction &&
+    prev.onHighlightHover === next.onHighlightHover &&
+    prev.onHighlightLeave === next.onHighlightLeave &&
+    prev.onHighlightToggle === next.onHighlightToggle &&
+    prev.activeHighlightKey === next.activeHighlightKey &&
+    prev.activeHighlightMode === next.activeHighlightMode &&
+    areFulfillmentsEqual(prev.fulfillment, next.fulfillment) &&
     areSettingsEqual(prev.settings, next.settings)
   );
 };
