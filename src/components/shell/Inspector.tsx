@@ -17,15 +17,19 @@ import StudentInspector from '@/components/students/StudentInspector';
 /**
  * The properties of whatever is selected, in one place on the right.
  *
- * Only the class layer fills it so far; the room and plan layers keep their
- * own panels until their inspectors land, and the panel renders nothing there
- * rather than taking 320px away from the canvas for an empty column.
+ * Two layers fill it, in the two ways that make sense for them. The class
+ * layer's selection is a student id, which this component can resolve from the
+ * seating-plan context on its own. The room layer's selection lives inside the
+ * canvas state together with its mutators, so that layer renders its own panel
+ * through `InspectorPortal` into the slot below. The plan layer has no
+ * inspector yet and gets its full width back instead of an empty column.
  */
 export default function Inspector() {
-  const { t } = useTranslation('students');
+  const { t } = useTranslation(['students', 'generator']);
   const { step, students } = useSeatingPlanState();
   const { updateStudent } = useSeatingPlanActions();
-  const { selection, selectStudent, clear, suspended } = useInspector();
+  const { selection, selectStudent, clear, suspended, setSlotNode } =
+    useInspector();
   const isPhone = useIsPhone();
 
   const index = React.useMemo(
@@ -48,7 +52,25 @@ export default function Inspector() {
   const sheetRef = useDialogA11y<HTMLDivElement>({ open: isPhone && isOpen });
   useDialogLayer(isPhone && isOpen);
 
-  if (step !== 1 || suspended) return null;
+  if (suspended) return null;
+
+  // The room layer fills the panel itself. Editing furniture is a pointer job
+  // on a canvas the phone barely fits already, so the slot is desktop-only.
+  if (step === 2) {
+    return (
+      <aside
+        aria-label={t('generator:sceneInspector.title')}
+        className="sticky top-[4.5rem] hidden w-80 shrink-0 self-start rounded-xl border border-(--border-card) bg-(--surface-card) p-4 lg:block"
+      >
+        <h2 className="mb-3 text-sm font-semibold">
+          {t('generator:sceneInspector.title')}
+        </h2>
+        <div ref={setSlotNode} />
+      </aside>
+    );
+  }
+
+  if (step !== 1) return null;
 
   const body = student ? (
     <StudentInspector
@@ -72,9 +94,11 @@ export default function Inspector() {
         className="text-(--text-muted)"
         aria-hidden="true"
       />
-      <p className="text-sm font-semibold">{t('inspector.empty.title')}</p>
+      <p className="text-sm font-semibold">
+        {t('students:inspector.empty.title')}
+      </p>
       <p className="max-w-56 text-xs leading-relaxed text-(--text-muted)">
-        {t('inspector.empty.body')}
+        {t('students:inspector.empty.body')}
       </p>
     </div>
   );
@@ -83,14 +107,20 @@ export default function Inspector() {
     if (!isOpen) return null;
     return (
       <div className="fixed inset-x-0 bottom-0 z-40 max-h-[80vh] overflow-y-auto rounded-t-xl border-t border-(--border-card) bg-(--surface-card) p-4 shadow-[0_-8px_24px_-12px_rgba(23,24,26,0.3)]">
-        <div ref={sheetRef} role="dialog" aria-label={t('inspector.title')}>
+        <div
+          ref={sheetRef}
+          role="dialog"
+          aria-label={t('students:inspector.title')}
+        >
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-sm font-semibold">{t('inspector.title')}</h2>
+            <h2 className="text-sm font-semibold">
+              {t('students:inspector.title')}
+            </h2>
             <button
               type="button"
               onClick={clear}
               className={`${quietIconButtonClass} h-9 w-9`}
-              aria-label={t('inspector.close')}
+              aria-label={t('students:inspector.close')}
             >
               <XIcon size={18} aria-hidden="true" />
             </button>
@@ -103,17 +133,19 @@ export default function Inspector() {
 
   return (
     <aside
-      aria-label={t('inspector.title')}
+      aria-label={t('students:inspector.title')}
       className="sticky top-[4.5rem] hidden w-80 shrink-0 self-start rounded-xl border border-(--border-card) bg-(--surface-card) p-4 lg:block"
     >
       <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-sm font-semibold">{t('inspector.title')}</h2>
+        <h2 className="text-sm font-semibold">
+          {t('students:inspector.title')}
+        </h2>
         {student && (
           <button
             type="button"
             onClick={clear}
             className={`${quietIconButtonClass} h-8 w-8`}
-            aria-label={t('inspector.close')}
+            aria-label={t('students:inspector.close')}
           >
             <XIcon size={16} aria-hidden="true" />
           </button>

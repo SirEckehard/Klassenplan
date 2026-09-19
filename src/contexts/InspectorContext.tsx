@@ -26,6 +26,14 @@ type InspectorContextValue = {
    */
   suspended: boolean;
   setSuspended: (suspended: boolean) => void;
+  /**
+   * Where `InspectorPortal` renders. A layer that owns its own selection —
+   * the room layer holds table and feature ids deep inside its canvas state —
+   * fills the shell's panel from where that state already is, instead of
+   * threading a dozen mutators up through context.
+   */
+  slotNode: HTMLElement | null;
+  setSlotNode: (node: HTMLElement | null) => void;
 };
 
 const InspectorContext = React.createContext<InspectorContextValue | null>(
@@ -50,6 +58,7 @@ export function InspectorProvider({ children }: { children: React.ReactNode }) {
   const clear = React.useCallback(() => setSelection(null), []);
 
   const [suspended, setSuspended] = React.useState(false);
+  const [slotNode, setSlotNode] = React.useState<HTMLElement | null>(null);
 
   const value = React.useMemo(
     () => ({
@@ -59,8 +68,10 @@ export function InspectorProvider({ children }: { children: React.ReactNode }) {
       clear,
       suspended,
       setSuspended,
+      slotNode,
+      setSlotNode,
     }),
-    [clear, selectStudent, selection, suspended, toggleStudent],
+    [clear, selectStudent, selection, slotNode, suspended, toggleStudent],
   );
 
   return (
@@ -89,4 +100,6 @@ const FALLBACK: InspectorContextValue = {
   clear: noop,
   suspended: false,
   setSuspended: noop,
+  slotNode: null,
+  setSlotNode: noop,
 };

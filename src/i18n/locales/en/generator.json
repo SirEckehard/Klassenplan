@@ -919,5 +919,32 @@
       "noPlan": "No seating plan yet",
       "occupied": "{{filled}} of {{seats}} seats taken"
     }
+  },
+  "sceneInspector": {
+    "title": "Properties",
+    "room": "Room",
+    "selection": "Selection",
+    "table": "Table",
+    "tableCount": "Tables",
+    "seatCount": "Seats",
+    "studentCount": "Students",
+    "empty": "Pick a table or a room feature on the plan to see and change its values.",
+    "tablePosition": "Table {{index}} of {{total}}",
+    "seats_one": "{{count}} seat",
+    "seats_other": "{{count}} seats",
+    "selectedSeats_one": "{{count}} seat selected",
+    "selectedSeats_other": "{{count}} seats selected",
+    "multiSelection": "{{tables}} tables and {{features}} room features selected",
+    "rotation": "Rotation",
+    "rotateLeft": "Rotate counter-clockwise",
+    "rotateRight": "Rotate clockwise",
+    "x": "X",
+    "y": "Y",
+    "width": "Width",
+    "height": "Height",
+    "visible": "Visible",
+    "deleteTable": "Remove table",
+    "deleteFeature": "Remove room feature",
+    "deleteSelection": "Remove selection"
   }
 }

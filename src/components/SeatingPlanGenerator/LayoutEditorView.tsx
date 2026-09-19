@@ -23,6 +23,8 @@ import ClassroomQuickSetup from '@/components/ui/panels/ClassroomQuickSetup';
 import ClassroomCanvas from '@/components/SeatingPlanGenerator/canvas/ClassroomCanvas';
 import type { CanvasInteractionHandlers } from '@/components/SeatingPlanGenerator/canvas/CanvasInteractionLayer';
 import LayoutEditorSidebarSection from '@/components/SeatingPlanGenerator/views/LayoutEditorSidebarSection';
+import SceneInspector from '@/components/SeatingPlanGenerator/views/SceneInspector';
+import InspectorPortal from '@/components/shell/InspectorPortal';
 import LayoutEditorMainSection from '@/components/SeatingPlanGenerator/views/LayoutEditorMainSection';
 import type {
   SeatingArrangement,
@@ -917,6 +919,22 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
 
   return (
     <div className="space-y-6">
+      {/* The shell owns the panel; the selection and its mutators live here,
+          so this is where its content is rendered from. */}
+      <InspectorPortal>
+        <SceneInspector
+          tables={sceneTables}
+          features={sceneFeatures}
+          selectedTableIds={selectedTableIds}
+          selectedFeatureIds={selectedFeatureIds}
+          featurePalette={FEATURE_PALETTE}
+          studentsCount={students.length}
+          snapshot={snapshot}
+          updateSceneTables={updateSceneTables}
+          setSceneFeatures={setSceneFeatures}
+          onDeleteSelection={deleteSelection}
+        />
+      </InspectorPortal>
       {/* The direction comes from the same hook that decides whether the
           sidebar is a rail or a phone sheet — a `md:` variant here could
           disagree with it and stack the rail on top of the canvas. */}

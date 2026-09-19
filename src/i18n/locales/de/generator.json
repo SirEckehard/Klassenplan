@@ -919,5 +919,32 @@
       "noPlan": "Noch kein Sitzplan gemischt",
       "occupied": "{{filled}} von {{seats}} Plätzen besetzt"
     }
+  },
+  "sceneInspector": {
+    "title": "Eigenschaften",
+    "room": "Raum",
+    "selection": "Auswahl",
+    "table": "Tisch",
+    "tableCount": "Tische",
+    "seatCount": "Plätze",
+    "studentCount": "Schüler",
+    "empty": "Wähle einen Tisch oder ein Raummerkmal auf dem Plan, um seine Werte zu sehen und zu ändern.",
+    "tablePosition": "Tisch {{index}} von {{total}}",
+    "seats_one": "{{count}} Platz",
+    "seats_other": "{{count}} Plätze",
+    "selectedSeats_one": "{{count}} Platz ausgewählt",
+    "selectedSeats_other": "{{count}} Plätze ausgewählt",
+    "multiSelection": "{{tables}} Tische und {{features}} Raummerkmale ausgewählt",
+    "rotation": "Drehung",
+    "rotateLeft": "Gegen den Uhrzeigersinn drehen",
+    "rotateRight": "Im Uhrzeigersinn drehen",
+    "x": "X",
+    "y": "Y",
+    "width": "Breite",
+    "height": "Höhe",
+    "visible": "Sichtbar",
+    "deleteTable": "Tisch entfernen",
+    "deleteFeature": "Raummerkmal entfernen",
+    "deleteSelection": "Auswahl entfernen"
   }
 }
