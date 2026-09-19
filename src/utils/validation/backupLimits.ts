@@ -24,6 +24,10 @@ export const BACKUP_LIMITS = {
   maxTablesPerScene: 150,
   maxSeatsPerTable: 12,
   maxIdLength: 128,
+  // Partner wishes: the UI caps at MAX_PARTNER_WISHES, but a backup written by
+  // an older build may hold more. Bounded by the class size, which is the most
+  // a list of classmates can ever be.
+  maxPartnerIds: MAX_STUDENTS,
   maxNameLength: 120,
   maxTimestampLength: 64,
   maxDateLength: 64,

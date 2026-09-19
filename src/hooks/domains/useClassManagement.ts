@@ -39,10 +39,17 @@ export function useClassManagement({
   applyClassReload,
 }: UseClassManagementProps) {
   const { t } = useTranslation();
-  const formatClassLabel = useCallback((name?: string) => {
-    const trimmed = name?.trim();
-    return trimmed && trimmed.length > 0 ? `"${trimmed}"` : 'diese Klasse';
-  }, []);
+  // Classes carry a name, but a record written by an older build may not — and
+  // the placeholder goes into a translated toast, so it cannot be a literal.
+  const formatClassLabel = useCallback(
+    (name?: string) => {
+      const trimmed = name?.trim();
+      return trimmed && trimmed.length > 0
+        ? `"${trimmed}"`
+        : t('toast:class.unnamed');
+    },
+    [t],
+  );
 
   const selectClass = useCallback(
     async (classId: string) => {

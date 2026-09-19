@@ -119,6 +119,7 @@
     "switchSuccess": "Klasse gewechselt",
     "switchError": "Klasse konnte nicht gewechselt werden",
     "switchUnsaved": "Es gab noch Änderungen in der vorherigen Klasse – sie wurden dort gespeichert.",
+    "unnamed": "diese Klasse",
     "activatedName": "Klasse {{name}} aktiviert",
     "createdActivatedName": "Klasse {{name}} erstellt und aktiviert",
     "createdName": "Klasse {{name}} erstellt",

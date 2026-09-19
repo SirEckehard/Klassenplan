@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import '@testing-library/jest-dom/vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import ErrorReportLink from '../ErrorReportLink';
@@ -60,9 +60,11 @@ describe('ErrorReportLink', () => {
 
     expect(writeText).toHaveBeenCalledTimes(1);
     expect(writeText.mock.calls[0][0]).toContain('Area: App');
-    expect(
-      await screen.findByText(label('errors.report.copied')),
-    ).toBeInTheDocument();
+    await waitFor(() =>
+      expect(screen.getByRole('status')).toHaveTextContent(
+        label('errors.report.copied'),
+      ),
+    );
   });
 
   test('says so when the clipboard refuses', async () => {
@@ -72,8 +74,44 @@ describe('ErrorReportLink', () => {
     render(<ErrorReportLink error={new Error('boom')} area="App" tone="red" />);
     await user.click(getButton(label('errors.report.copy')));
 
-    expect(
-      await screen.findByText(label('errors.report.copyFailed')),
-    ).toBeInTheDocument();
+    // The label alone is not announced once the button already has focus, so
+    // the result has to reach the live region.
+    await waitFor(() =>
+      expect(screen.getByRole('status')).toHaveTextContent(
+        label('errors.report.copyFailed'),
+      ),
+    );
+  });
+
+  test('offers the details for selection when copying is impossible', async () => {
+    const user = userEvent.setup();
+    mockClipboard(() => Promise.reject(new Error('denied')));
+
+    render(<ErrorReportLink error={new Error('boom')} area="App" tone="red" />);
+    expect(screen.queryByLabelText(label('errors.report.detailsLabel'))).toBe(
+      null,
+    );
+
+    await user.click(getButton(label('errors.report.copy')));
+
+    const details = await screen.findByLabelText(
+      label('errors.report.detailsLabel'),
+    );
+    expect(details).toHaveTextContent('Area: App');
+  });
+
+  test('prepares a mail even when the error message ends in an emoji', () => {
+    // A message long enough to be cut right through a surrogate pair: the
+    // encode step used to throw here and take the whole error screen with it.
+    const message = `${'a'.repeat(299)}🙂 tail`;
+
+    render(
+      <ErrorReportLink error={new Error(message)} area="App" tone="red" />,
+    );
+
+    const link = screen.getByRole('link', {
+      name: label('errors.report.mailLink'),
+    });
+    expect(link.getAttribute('href')).toContain('mailto:');
   });
 });

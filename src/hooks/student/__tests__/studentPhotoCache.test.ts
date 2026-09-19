@@ -142,3 +142,45 @@ describe('studentPhotoCache', () => {
     await expect(cache.ensurePhotoLoaded('s1')).resolves.toBeDefined();
   });
 });
+
+describe('studentPhotoCache: loads that lose their race', () => {
+  it('does not cache a photo that was deleted while the load ran', async () => {
+    let releaseStore: (() => void) | undefined;
+    storeMocks.getStudentPhoto.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          releaseStore = () => resolve(ok(blob()));
+        }),
+    );
+    storeMocks.deleteStudentPhoto.mockResolvedValue(ok(undefined));
+
+    const loading = cache.ensurePhotoLoaded('s1');
+    // The photo is deleted before the store hands the blob over.
+    await cache.removeStudentPhoto('s1');
+    releaseStore?.();
+
+    expect(await loading).toBeUndefined();
+    expect(cache.getCachedObjectUrl('s1')).toBeUndefined();
+  });
+
+  it('starts a fresh load after an invalidation instead of reusing the old one', async () => {
+    let releaseFirst: (() => void) | undefined;
+    storeMocks.getStudentPhoto.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          releaseFirst = () => resolve(ok(blob()));
+        }),
+    );
+
+    const stale = cache.ensurePhotoLoaded('s1');
+    cache.invalidatePhoto('s1');
+
+    storeMocks.getStudentPhoto.mockResolvedValue(ok(blob()));
+    const fresh = cache.ensurePhotoLoaded('s1');
+    releaseFirst?.();
+
+    expect(await stale).toBeUndefined();
+    expect(await fresh).toBeDefined();
+    expect(cache.getCachedObjectUrl('s1')).toBeDefined();
+  });
+});

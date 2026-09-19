@@ -138,11 +138,19 @@ export function reorderByWishPartners(
   const seen = new Set<string>();
   const map = new Map(ordered.map((s) => [s.id, s] as const));
 
+  // A wish pointing at the student themselves would pair them with themselves
+  // below and push the same student into `reordered` twice — one seat too many
+  // for them, none for somebody else. The editor and the CSV import both drop
+  // such an id; this is the guard for data that came in another way.
   const getWishIds = (s: Student): string[] => {
-    if (s.wishPartnerIds && s.wishPartnerIds.length > 0) {
-      return s.wishPartnerIds.filter((id) => map.has(id));
+    if (Array.isArray(s.wishPartnerIds) && s.wishPartnerIds.length > 0) {
+      return s.wishPartnerIds.filter((id) => id !== s.id && map.has(id));
     }
-    if (s.wishPartnerId && map.has(s.wishPartnerId)) {
+    if (
+      s.wishPartnerId &&
+      s.wishPartnerId !== s.id &&
+      map.has(s.wishPartnerId)
+    ) {
       return [s.wishPartnerId];
     }
     return [];
@@ -158,21 +166,25 @@ export function reorderByWishPartners(
   }
 
   // Phase 1: mutual wishes first (highest priority)
+  //
+  // Every wish is checked, in the order the student ranked them, and the first
+  // mutual one wins. Looking at the primary wish alone let a genuinely mutual
+  // pair further down the list lose to a one-sided pairing in phase 2 — since
+  // wishes became a list, that is no longer the rare case.
   const mutualPairs: [Student, Student][] = [];
   for (const s of ordered) {
     if (seen.has(s.id)) continue;
-    const wishIds = getWishIds(s);
-    if (wishIds.length === 0) continue;
 
-    const primaryWishId = wishIds[0]!;
-    const partner = map.get(primaryWishId)!;
-    const partnerWishIds = getWishIds(partner);
+    for (const wishId of getWishIds(s)) {
+      const partner = map.get(wishId)!;
+      if (seen.has(partner.id)) continue;
+      if (!getWishIds(partner).includes(s.id)) continue;
 
-    if (partnerWishIds.includes(s.id) && !seen.has(partner.id)) {
       mutualPairs.push([s, partner]);
       reordered.push(s, partner);
       seen.add(s.id);
       seen.add(partner.id);
+      break;
     }
   }
 

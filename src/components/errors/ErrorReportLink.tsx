@@ -144,6 +144,27 @@ export default function ErrorReportLink({
           {copyLabel}
         </button>
       </div>
+      {/*
+        A screen reader does not re-announce the label of a control that already
+        has focus, so the copy result — above all the `failed` branch, the case
+        without a clipboard — would otherwise go unnoticed. The region is in the
+        DOM from the start; only its text changes.
+      */}
+      <p role="status" aria-live="polite" className="sr-only">
+        {copyState === 'idle' ? '' : copyLabel}
+      </p>
+      {copyState === 'failed' && (
+        // Without a clipboard and without a mail client the reference code was
+        // the only thing left on screen; the lines have to be selectable by
+        // hand. `tabIndex` so the box can be reached and scrolled by keyboard.
+        <pre
+          tabIndex={0}
+          aria-label={t('errors.report.detailsLabel')}
+          className={`mt-3 max-h-40 overflow-auto rounded-lg bg-white/70 p-2 font-mono text-[11px] leading-relaxed whitespace-pre-wrap select-all dark:bg-gray-900/60 ${styles.body}`}
+        >
+          {report.details}
+        </pre>
+      )}
       <p className={`mt-3 text-xs ${styles.body}`}>
         {t('errors.report.code')}:{' '}
         <code className={`rounded px-1.5 py-0.5 font-mono ${styles.code}`}>

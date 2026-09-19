@@ -157,13 +157,14 @@
       "copy": "Details kopieren",
       "copied": "Kopiert",
       "copyFailed": "Kopieren nicht möglich",
+      "detailsLabel": "Technische Angaben",
       "code": "Fehlercode",
       "mailSubject": "Klassenplan-Fehler {{code}}",
       "mailGreeting": "Hallo,",
       "mailIntro": "in Klassenplan ist ein Fehler aufgetreten.",
       "mailPrompt": "Das habe ich gemacht, als der Fehler auftrat:",
       "mailPlaceholder": "(bitte hier beschreiben)",
-      "mailDetails": "Technische Angaben (bitte unverändert lassen):"
+      "mailDetails": "Technische Angaben (bitte möglichst unverändert lassen):"
     }
   },
   "common": {

@@ -50,7 +50,24 @@ export class StudentPhotoStorageError extends Error {
 }
 
 const cache = new Map<string, PhotoEntry>();
-const inflight = new Map<string, Promise<PhotoEntry | undefined>>();
+/** In-flight loads, with the generation they were started for. */
+const inflight = new Map<
+  string,
+  { generation: number; promise: Promise<PhotoEntry | undefined> }
+>();
+
+/**
+ * Per-id counter, raised whenever a photo is invalidated or written directly.
+ *
+ * A load that started before that must not store its blob afterwards: the photo
+ * it read has since been deleted or replaced, and writing it back would put a
+ * stale entry (and a leaked Object URL) into the cache.
+ */
+const generations = new Map<string, number>();
+
+function bumpGeneration(id: string): void {
+  generations.set(id, (generations.get(id) ?? 0) + 1);
+}
 
 let version = 0;
 const listeners = new Set<() => void>();
@@ -106,9 +123,13 @@ export function ensurePhotoLoaded(id: string): Promise<PhotoEntry | undefined> {
   if (existing) {
     return Promise.resolve(existing);
   }
+  const generation = generations.get(id) ?? 0;
   const pending = inflight.get(id);
-  if (pending) {
-    return pending;
+  // Only reuse a load that was started for the photo as it is now — one from
+  // before an invalidation discards its result and would hand this caller an
+  // empty answer for a photo that is there.
+  if (pending && pending.generation === generation) {
+    return pending.promise;
   }
 
   const promise = (async () => {
@@ -127,6 +148,10 @@ export function ensurePhotoLoaded(id: string): Promise<PhotoEntry | undefined> {
         return undefined;
       }
       const dataUrl = await blobToDataUrl(blob);
+      if ((generations.get(id) ?? 0) !== generation) {
+        // Invalidated or replaced while this load was in flight.
+        return undefined;
+      }
       const objectUrl = URL.createObjectURL(blob);
       const entry = storeEntry(id, objectUrl, dataUrl);
       notify();
@@ -135,11 +160,14 @@ export function ensurePhotoLoaded(id: string): Promise<PhotoEntry | undefined> {
       logError('Failed to load student photo', { error, id }, LOG_SOURCE);
       return undefined;
     } finally {
-      inflight.delete(id);
+      // Only if no newer load has taken this slot in the meantime.
+      if (inflight.get(id)?.generation === generation) {
+        inflight.delete(id);
+      }
     }
   })();
 
-  inflight.set(id, promise);
+  inflight.set(id, { generation, promise });
   return promise;
 }
 
@@ -152,6 +180,9 @@ export async function saveStudentPhoto(id: string, blob: Blob): Promise<void> {
   if (!stored.success) {
     throw new StudentPhotoStorageError(stored.error);
   }
+  // Before awaiting, so a load already in flight cannot overwrite this photo
+  // with the one it read from storage a moment ago.
+  bumpGeneration(id);
   const dataUrl = await blobToDataUrl(blob);
   const objectUrl = URL.createObjectURL(blob);
   storeEntry(id, objectUrl, dataUrl);
@@ -169,8 +200,12 @@ export async function removeStudentPhoto(id: string): Promise<void> {
 
 /** Drop every cached photo (revokes all Object URLs). Used after a full import. */
 export function clearPhotoCache(): void {
+  for (const id of inflight.keys()) {
+    bumpGeneration(id);
+  }
   if (cache.size === 0) return;
-  for (const entry of cache.values()) {
+  for (const [id, entry] of cache) {
+    bumpGeneration(id);
     URL.revokeObjectURL(entry.objectUrl);
   }
   cache.clear();
@@ -179,6 +214,7 @@ export function clearPhotoCache(): void {
 
 /** Drop cached representations for `id` (revokes the Object URL). */
 export function invalidatePhoto(id: string): void {
+  bumpGeneration(id);
   const entry = cache.get(id);
   if (entry) {
     URL.revokeObjectURL(entry.objectUrl);

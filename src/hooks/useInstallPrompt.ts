@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import { useState, useEffect, useCallback } from 'react';
-import { logInfo } from '@/utils';
+import { logInfo, logWarn } from '@/utils';
 import { LOCAL_STORAGE_KEYS } from '@/utils/data/storageKeys';
 
 interface BeforeInstallPromptEvent extends Event {
@@ -47,30 +47,10 @@ export function dismissInstallPrompt(): void {
   }
 }
 
+// Registered at module scope, not per component: `beforeinstallprompt` fires
+// once, early, and has to be captured before any component mounts. The entry
+// module imports this file for that side effect alone.
 if (typeof window !== 'undefined') {
-  // Check if event already fired (captured by index.html script)
-  if (window.deferredPrompt) {
-    deferredPrompt = window.deferredPrompt;
-  }
-
-  // Listen for the custom event from index.html
-  window.addEventListener('pwa-installable', () => {
-    logInfo('App is installable (custom event)', {}, 'PWA');
-    if (window.deferredPrompt) {
-      deferredPrompt = window.deferredPrompt;
-      listeners.forEach((listener) => listener(true));
-    }
-  });
-
-  document.addEventListener('pwa-installable', () => {
-    logInfo('App is installable (custom event on document)', {}, 'PWA');
-    if (window.deferredPrompt) {
-      deferredPrompt = window.deferredPrompt;
-      listeners.forEach((listener) => listener(true));
-    }
-  });
-
-  // Backup: Listen for the raw event just in case
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e as BeforeInstallPromptEvent;
@@ -121,21 +101,22 @@ export function useInstallPrompt() {
       return;
     }
 
-    // Show the install prompt
-    deferredPrompt.prompt();
-
-    // Wait for the user to respond to the prompt
-    const { outcome } = await deferredPrompt.userChoice;
-
-    logInfo('User response to install prompt', { outcome }, 'PWA');
-
-    // We've used the prompt, and can't use it again, discard it
-    deferredPrompt = null;
-    window.deferredPrompt = undefined;
-    setIsInstallable(false);
-
-    // Notify other components
-    listeners.forEach((listener) => listener(false));
+    // A prompt can only be shown once and only from a user gesture; a second
+    // call rejects. Either way the event is spent, so the state is reset in
+    // `finally` rather than being left claiming the app is still installable.
+    const prompt = deferredPrompt;
+    try {
+      await prompt.prompt();
+      const { outcome } = await prompt.userChoice;
+      logInfo('User response to install prompt', { outcome }, 'PWA');
+    } catch (error) {
+      logWarn('Install prompt could not be shown', { error }, 'PWA');
+    } finally {
+      deferredPrompt = null;
+      window.deferredPrompt = undefined;
+      setIsInstallable(false);
+      listeners.forEach((listener) => listener(false));
+    }
   }, []);
 
   return { isInstallable, triggerInstall };

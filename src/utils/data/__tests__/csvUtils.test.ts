@@ -274,6 +274,23 @@ ${longName}
       expect(students[0].name.endsWith('EXTRA')).toBe(false);
     });
 
+    it('does not cut an emoji in half when shortening a name', async () => {
+      // The cut lands between the two halves of the surrogate pair, which used
+      // to leave a replacement character at the end of the stored name.
+      const longName = `${'A'.repeat(MAX_STUDENT_NAME_LENGTH - 1)}\u{1F642}tail`;
+      const csvContent = `Name
+${longName}
+`;
+      const file = createCsvFile(csvContent, 'emoji-name.csv');
+      const students = await parseCsvFlexible(file);
+
+      expect(students).toHaveLength(1);
+      expect(students[0].name).toBe('A'.repeat(MAX_STUDENT_NAME_LENGTH - 1));
+      expect(students[0].name).not.toMatch(
+        /[\uD800-\uDBFF](?![\uDC00-\uDFFF])/,
+      );
+    });
+
     it('rejects CSV files that exceed MAX_STUDENTS rows', async () => {
       const studentRows = Array.from(
         { length: MAX_STUDENTS + 1 },

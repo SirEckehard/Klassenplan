@@ -71,6 +71,35 @@ describe('buildErrorReport', () => {
     expect(report.details.split('Stack:')[1]).not.toContain('Error: boom');
   });
 
+  test('keeps a multi-line message out of the stack frames', () => {
+    const report = buildErrorReport({
+      error: errorWithStack(
+        'boom\nsecond line of the message',
+        [
+          'Error: boom',
+          'second line of the message',
+          '    at render (app.js:1:1)',
+        ].join('\n'),
+      ),
+      now: FIXED_NOW,
+    });
+
+    const stack = report.details.split('Stack:')[1] ?? '';
+    expect(stack).toContain('at render (app.js:1:1)');
+    expect(stack).not.toContain('second line of the message');
+  });
+
+  test('drops the header of an error without a message', () => {
+    const report = buildErrorReport({
+      error: errorWithStack('', 'Error\n    at render (app.js:1:1)'),
+      now: FIXED_NOW,
+    });
+
+    const stack = report.details.split('Stack:')[1] ?? '';
+    expect(stack).toContain('at render (app.js:1:1)');
+    expect(stack.trim().startsWith('Error')).toBe(false);
+  });
+
   test('shortens an overlong message', () => {
     const report = buildErrorReport({
       error: new Error('x'.repeat(500)),
@@ -78,6 +107,18 @@ describe('buildErrorReport', () => {
     });
 
     expect(report.details).toContain(`Error: Error: ${'x'.repeat(300)}…`);
+  });
+
+  test('never cuts an emoji in half', () => {
+    // The cut lands between the two halves of the surrogate pair; a lone half
+    // would make the mailto encoding throw inside the error screen.
+    const report = buildErrorReport({
+      error: new Error(`${'x'.repeat(299)}🙂${'y'.repeat(50)}`),
+      now: FIXED_NOW,
+    });
+
+    expect(report.details).toContain(`Error: Error: ${'x'.repeat(299)}…`);
+    expect(report.details).not.toMatch(/[\uD800-\uDBFF](?![\uDC00-\uDFFF])/);
   });
 });
 
@@ -103,5 +144,27 @@ describe('buildErrorReportMailto', () => {
 
     expect(href.length).toBeLessThanOrEqual(1900);
     expect(decodeURIComponent(href)).toContain('…');
+  });
+
+  test('shortens a body full of emoji without breaking the encoding', () => {
+    const href = buildErrorReportMailto({
+      email: 'someone@example.com',
+      subject: 'Klassenplan error',
+      body: '🙂'.repeat(2000),
+    });
+
+    expect(href.length).toBeLessThanOrEqual(1900);
+    expect(() => decodeURIComponent(href)).not.toThrow();
+  });
+
+  test('survives a message that already carries a lone surrogate', () => {
+    const href = buildErrorReportMailto({
+      email: 'someone@example.com',
+      subject: 'Klassenplan error',
+      body: 'Code: KP-1.0.0-ABCDEFG\uD83D',
+    });
+
+    expect(href).toContain('body=Code');
+    expect(() => decodeURIComponent(href)).not.toThrow();
   });
 });

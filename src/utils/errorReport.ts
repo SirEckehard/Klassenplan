@@ -66,8 +66,23 @@ export type ErrorReport = {
   details: string;
 };
 
+/**
+ * `slice` cuts by UTF-16 code units and can leave the high half of a surrogate
+ * pair behind — an emoji in an error message is enough. `encodeURIComponent`
+ * throws `URIError: URI malformed` on a lone surrogate, and inside the root
+ * error fallback nothing catches that: the tree unmounts to a blank page
+ * instead of showing the error screen. So cut whole characters only.
+ */
+function sliceWholeCharacters(value: string, maxLength: number): string {
+  const cut = value.slice(0, maxLength);
+  const last = cut.charCodeAt(cut.length - 1);
+  return last >= 0xd800 && last <= 0xdbff ? cut.slice(0, -1) : cut;
+}
+
 function truncate(value: string, maxLength: number): string {
-  return value.length > maxLength ? `${value.slice(0, maxLength)}…` : value;
+  return value.length > maxLength
+    ? `${sliceWholeCharacters(value, maxLength)}…`
+    : value;
 }
 
 /**
@@ -84,21 +99,27 @@ function hashToken(value: string): string {
 }
 
 /**
- * The stack frames without the `Name: message` header V8 puts in front of them.
- * Firefox and Safari start with the first frame already.
+ * The stack frames without the `Name: message` header V8 puts in front of them
+ * (just `Name` when the message is empty). Firefox and Safari start with the
+ * first frame already.
+ *
+ * The header is cut by length, not by line: a message containing a line break
+ * otherwise left its remaining lines behind, and they were reported as stack
+ * frames that never existed.
  */
 function stackFrames(error: Error): string[] {
   const stack = typeof error.stack === 'string' ? error.stack : '';
-  const lines = stack
+  const header = `${error.name}: ${error.message}`;
+  let body = stack;
+  if (stack.startsWith(header)) {
+    body = stack.slice(header.length);
+  } else if (error.message === '' && stack.startsWith(error.name)) {
+    body = stack.slice(error.name.length);
+  }
+  return body
     .split('\n')
     .map((line) => line.trim())
-    .filter((line) => line.length > 0);
-  const header = `${error.name}: ${error.message}`;
-  const frames =
-    lines[0] !== undefined && header.startsWith(lines[0])
-      ? lines.slice(1)
-      : lines;
-  return frames
+    .filter((line) => line.length > 0)
     .slice(0, MAX_STACK_FRAMES)
     .map((frame) => truncate(frame, MAX_FRAME_LENGTH));
 }
@@ -148,9 +169,29 @@ export function buildErrorReport({
   return { code, details: lines.join('\n') };
 }
 
+/**
+ * Drops unpaired surrogates, which `encodeURIComponent` rejects. Iterating a
+ * string yields whole code points, so a *paired* surrogate arrives as one
+ * character above U+FFFF and only an unpaired half lands in the surrogate
+ * range. {@link sliceWholeCharacters} keeps this module from producing any;
+ * this is the net under strings that arrive broken from elsewhere, where the
+ * caller is an error screen that must not fail a second time.
+ */
+function dropLoneSurrogates(value: string): string {
+  let result = '';
+  for (const character of value) {
+    const code = character.codePointAt(0) ?? 0;
+    if (code >= 0xd800 && code <= 0xdfff) continue;
+    result += character;
+  }
+  return result;
+}
+
 function encodeMailPart(value: string): string {
   // Mail clients expect CRLF line breaks inside a mailto body.
-  return encodeURIComponent(value.replace(/\r?\n/g, '\r\n'));
+  return encodeURIComponent(
+    dropLoneSurrogates(value).replace(/\r?\n/g, '\r\n'),
+  );
 }
 
 function composeMailto(email: string, subject: string, body: string): string {
@@ -179,7 +220,10 @@ export function buildErrorReportMailto({
     candidate.length > 0 &&
     composeMailto(email, subject, withMarker()).length > MAX_MAILTO_LENGTH
   ) {
-    candidate = candidate.slice(0, Math.max(0, candidate.length - 64));
+    candidate = sliceWholeCharacters(
+      candidate,
+      Math.max(0, candidate.length - 64),
+    );
     shortened = true;
   }
   return composeMailto(email, subject, withMarker());

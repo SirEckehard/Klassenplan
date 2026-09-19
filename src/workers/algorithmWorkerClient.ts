@@ -313,7 +313,13 @@ class AlgorithmWorkerClient {
     reject: (reason: unknown) => void,
   ): ReturnType<typeof setTimeout> {
     return setTimeout(() => {
+      const entry = this.pending.get(requestId);
       this.pending.delete(requestId);
+      // The success and dispose paths both detach the abort listener; without
+      // it here a timed-out request left one behind on the caller's signal.
+      if (entry?.abortHandler && entry.options.signal) {
+        entry.options.signal.removeEventListener('abort', entry.abortHandler);
+      }
       logWarn(
         'Worker request timed out',
         { operation, timeoutMs },
@@ -464,7 +470,11 @@ class AlgorithmWorkerClient {
       event.error ?? event.message,
       'Algorithm worker encountered a runtime error',
     );
-    this.initAttempts += 1;
+    // Counting the attempt is left to `initializeWorker`, which is the one
+    // place that knows an initialization finished. A crash during the warmup
+    // reaches both: it rejects the warmup dispatch through `disposeWorker`, so
+    // counting here too burned the whole retry budget on a single failure and
+    // pushed every later run onto the main thread for the rest of the session.
     this.initPromise = null;
     this.disposeWorker();
   }

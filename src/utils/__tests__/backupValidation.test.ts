@@ -140,3 +140,43 @@ describe('backupValidation', () => {
     );
   });
 });
+
+describe('backupValidation: partner id lists', () => {
+  const withStudent = (extra: Record<string, unknown>) =>
+    JSON.stringify({
+      ...baseBundle,
+      students: [{ ...baseBundle.students[0], ...extra }],
+    });
+
+  it('accepts well-formed wish and avoid lists', () => {
+    const parsed = parseExportBundle(
+      withStudent({ wishPartnerIds: ['2'], avoidPartnerIds: ['3'] }),
+    );
+    expect(parsed.students[0]?.wishPartnerIds).toEqual(['2']);
+  });
+
+  it('rejects a wish list that is not an array', () => {
+    // It used to pass through and throw a TypeError in the seating algorithm.
+    expect(() =>
+      parseExportBundle(withStudent({ wishPartnerIds: '2' })),
+    ).toThrowError(
+      new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData),
+    );
+  });
+
+  it('rejects non-string entries in an avoid list', () => {
+    expect(() =>
+      parseExportBundle(withStudent({ avoidPartnerIds: [42] })),
+    ).toThrowError(
+      new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData),
+    );
+  });
+
+  it('rejects an unknown height category', () => {
+    expect(() =>
+      parseExportBundle(withStudent({ height: 'gigantic' })),
+    ).toThrowError(
+      new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData),
+    );
+  });
+});

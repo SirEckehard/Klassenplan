@@ -1,7 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { generateSeatingPlan, refineSeatingLocal } from '../seatingAlgorithm';
+import {
+  generateSeatingPlan,
+  refineSeatingLocal,
+  reorderByWishPartners,
+} from '../seatingAlgorithm';
 import * as genderBalance from '../genderBalance';
 import type {
   Student,
@@ -1620,5 +1624,75 @@ describe('seatingAlgorithm', () => {
       expect(refined[0]![0]?.gender).not.toBe(refined[0]![1]?.gender);
       expect(refined[1]![0]?.gender).not.toBe(refined[1]![1]?.gender);
     });
+  });
+});
+
+describe('reorderByWishPartners', () => {
+  it('ignores a wish a student has for themselves', () => {
+    // A self-wish used to pair the student with themselves: they landed in the
+    // processing order twice and somebody else lost their seat.
+    const anna = createMockStudent({ id: 'a', name: 'Anna' });
+    const ben = createMockStudent({ id: 'b', name: 'Ben' });
+    const withSelfWish = { ...anna, wishPartnerIds: ['a'] };
+
+    const ordered = reorderByWishPartners([withSelfWish, ben], {
+      considerWishPartners: 1,
+    });
+
+    expect(ordered.map((student) => student.id)).toEqual(['a', 'b']);
+  });
+
+  it('finds a mutual wish that is not the first on the list', () => {
+    // Anna ranks Ben first, but only Clara wants her back. The pair that is
+    // actually mutual has to win over the one-sided pairing with Ben.
+    const anna = {
+      ...createMockStudent({ id: 'a', name: 'Anna' }),
+      wishPartnerIds: ['b', 'c'],
+    };
+    const ben = createMockStudent({ id: 'b', name: 'Ben' });
+    const clara = {
+      ...createMockStudent({ id: 'c', name: 'Clara' }),
+      wishPartnerIds: ['a'],
+    };
+
+    const ordered = reorderByWishPartners([anna, ben, clara], {
+      considerWishPartners: 1,
+    });
+
+    expect(ordered.map((student) => student.id)).toEqual(['a', 'c', 'b']);
+  });
+
+  it('still pairs on the first wish when that one is mutual', () => {
+    const anna = {
+      ...createMockStudent({ id: 'a', name: 'Anna' }),
+      wishPartnerIds: ['b', 'c'],
+    };
+    const ben = {
+      ...createMockStudent({ id: 'b', name: 'Ben' }),
+      wishPartnerIds: ['a'],
+    };
+    const clara = {
+      ...createMockStudent({ id: 'c', name: 'Clara' }),
+      wishPartnerIds: ['a'],
+    };
+
+    const ordered = reorderByWishPartners([anna, ben, clara], {
+      considerWishPartners: 1,
+    });
+
+    expect(ordered.map((student) => student.id)).toEqual(['a', 'b', 'c']);
+  });
+
+  it('survives a wish list that is not an array', () => {
+    const anna = createMockStudent({ id: 'a', name: 'Anna' });
+    const ben = createMockStudent({ id: 'b', name: 'Ben' });
+    const broken = {
+      ...anna,
+      wishPartnerIds: 'b' as unknown as string[],
+    };
+
+    expect(() =>
+      reorderByWishPartners([broken, ben], { considerWishPartners: 1 }),
+    ).not.toThrow();
   });
 });

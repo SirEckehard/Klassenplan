@@ -153,6 +153,38 @@ function validateStudent(value: unknown): asserts value is Student {
       throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
     }
   }
+  // The plural fields are what the app writes and what the algorithm reads
+  // first; the singular ones above are only the legacy shape. Unchecked, a
+  // non-array reached `reorderByWishPartners` and threw a TypeError there, and
+  // an id pointing at the student itself put them into the processing order
+  // twice.
+  for (const key of ['wishPartnerIds', 'avoidPartnerIds'] as const) {
+    if (!(key in value) || value[key] === undefined || value[key] === null) {
+      continue;
+    }
+    const ids: unknown = value[key];
+    if (
+      !Array.isArray(ids) ||
+      ids.length > BACKUP_LIMITS.maxPartnerIds ||
+      !ids.every((id) =>
+        assertString(id, {
+          allowEmpty: false,
+          maxLength: BACKUP_LIMITS.maxIdLength,
+        }),
+      )
+    ) {
+      throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
+    }
+  }
+  if ('height' in value && value.height !== undefined) {
+    if (
+      value.height !== 'small' &&
+      value.height !== 'medium' &&
+      value.height !== 'tall'
+    ) {
+      throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
+    }
+  }
   if (
     'performanceStrong' in value &&
     typeof value.performanceStrong !== 'boolean'

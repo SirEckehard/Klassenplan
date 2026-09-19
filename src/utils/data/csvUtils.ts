@@ -466,7 +466,16 @@ const sanitizeStudentName = (value: unknown): string => {
     return '';
   }
 
-  return normalized.slice(0, MAX_STUDENT_NAME_LENGTH);
+  if (normalized.length <= MAX_STUDENT_NAME_LENGTH) {
+    return normalized;
+  }
+  // `slice` cuts by UTF-16 code units and would leave the high half of a
+  // surrogate pair behind — an emoji in a long name renders as a replacement
+  // character from then on. (`errorReport.ts` carries its own copy of this;
+  // that module is deliberately import-free to keep the entry chunk intact.)
+  const cut = normalized.slice(0, MAX_STUDENT_NAME_LENGTH);
+  const last = cut.charCodeAt(cut.length - 1);
+  return last >= 0xd800 && last <= 0xdbff ? cut.slice(0, -1) : cut;
 };
 
 /** First header matching one of the variants, compared accent-insensitively. */

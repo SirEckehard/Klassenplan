@@ -8,7 +8,7 @@ import {
   dismissInstallPrompt,
 } from '@/hooks/useInstallPrompt';
 import { showToast } from '@/utils/ui/toast';
-import { logInfo } from '@/utils';
+import { logError, logInfo } from '@/utils';
 
 /**
  * Component to handle PWA install prompt via Toast
@@ -30,7 +30,13 @@ export default function InstallPrompt() {
         id: 'pwa-install-prompt',
         action: {
           label: t('pwa.install'),
-          onClick: triggerInstall,
+          // The toast calls this synchronously, so an async handler has to keep
+          // its own rejection — the footer's install entry does the same.
+          onClick: () => {
+            triggerInstall().catch((error: unknown) => {
+              logError('Install prompt failed', { error }, 'PWA');
+            });
+          },
         },
         onDismiss: () => {
           logInfo('User dismissed the install toast', {}, 'PWA');

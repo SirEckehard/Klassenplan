@@ -36,14 +36,31 @@ export const KDF_ITERATIONS = 600000;
 // were derived with this fixed iteration count and must stay importable.
 export const LEGACY_KDF_ITERATIONS = 250000;
 
+/**
+ * Chunk size for the Base64 conversion below. Well under the argument limit of
+ * every engine, and large enough that the loop runs a few hundred times for a
+ * full-size backup instead of a few million.
+ */
+const BASE64_CHUNK_BYTES = 0x8000;
+
 function bufferToBase64(buffer: ArrayBuffer | Uint8Array) {
-  // Convert buffer to Base64 string
   const bytes = buffer instanceof Uint8Array ? buffer : new Uint8Array(buffer);
-  let binary = '';
-  for (let i = 0; i < bytes.byteLength; i++) {
-    binary += String.fromCharCode(bytes[i]);
+  // A byte-at-a-time concatenation ran into the millions of string operations
+  // at the allowed backup size and blocked the main thread for seconds;
+  // `fromCharCode` takes a whole chunk in one call.
+  const parts: string[] = [];
+  for (
+    let offset = 0;
+    offset < bytes.byteLength;
+    offset += BASE64_CHUNK_BYTES
+  ) {
+    parts.push(
+      String.fromCharCode(
+        ...bytes.subarray(offset, offset + BASE64_CHUNK_BYTES),
+      ),
+    );
   }
-  return btoa(binary);
+  return btoa(parts.join(''));
 }
 
 function base64ToBuffer(base64: string): Uint8Array<ArrayBuffer> {
