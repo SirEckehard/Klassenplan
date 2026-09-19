@@ -3,23 +3,30 @@
 import React from 'react';
 import SeatingPlanHeader from '@/components/SeatingPlanGenerator/SeatingPlanHeader';
 import AppStatusBar from '@/components/shell/AppStatusBar';
+import Inspector from '@/components/shell/Inspector';
+import { InspectorProvider } from '@/contexts/InspectorContext';
 
 /**
  * The workspace frame: one header on top, one status bar at the bottom, the
- * active layer in between.
+ * active layer in the middle and the inspector beside it.
  *
- * Both bars are sticky rather than fixed, so the document keeps its normal
+ * The bars are sticky rather than fixed, so the document keeps its normal
  * scroll and the adaptive-height machinery in the student list and the sidebar
  * goes on working untouched. The page footer stays below the shell.
  */
 export default function AppShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-screen flex-col">
-      <SeatingPlanHeader />
-      <main id="main" tabIndex={-1} className="flex-1 px-4 py-6">
-        <div className="mx-auto max-w-7xl">{children}</div>
-      </main>
-      <AppStatusBar />
-    </div>
+    <InspectorProvider>
+      <div className="flex min-h-screen flex-col">
+        <SeatingPlanHeader />
+        <main id="main" tabIndex={-1} className="flex-1 px-4 py-6">
+          <div className="mx-auto flex max-w-7xl items-start gap-4">
+            <div className="min-w-0 flex-1">{children}</div>
+            <Inspector />
+          </div>
+        </main>
+        <AppStatusBar />
+      </div>
+    </InspectorProvider>
   );
 }

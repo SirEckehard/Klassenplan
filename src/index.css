@@ -482,6 +482,72 @@
   color: var(--text-muted);
 }
 
+/*
+ * A data chip states one pedagogical fact: icon, word, and the colour of its
+ * family. It renders only for a value that is actually set — "not set" has no
+ * representation at all, which is what the old 16-column toggle matrix got
+ * wrong. The family utilities below only set the three custom properties, so
+ * they work on an icon or a section heading just as well as on a chip.
+ */
+@utility data-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3125rem;
+  padding: 0.1875rem 0.5rem;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 500;
+  white-space: nowrap;
+  border-radius: 0.375rem;
+  background-color: var(--data-chip-surface, var(--data-person-surface));
+  color: var(--data-chip-text, var(--data-person-text));
+}
+
+@utility data-behavior {
+  --data-chip-text: var(--data-behavior-text);
+  --data-chip-surface: var(--data-behavior-surface);
+  --data-chip-accent: var(--data-behavior);
+}
+
+@utility data-social {
+  --data-chip-text: var(--data-social-text);
+  --data-chip-surface: var(--data-social-surface);
+  --data-chip-accent: var(--data-social);
+}
+
+@utility data-learning {
+  --data-chip-text: var(--data-learning-text);
+  --data-chip-surface: var(--data-learning-surface);
+  --data-chip-accent: var(--data-learning);
+}
+
+@utility data-language {
+  --data-chip-text: var(--data-language-text);
+  --data-chip-surface: var(--data-language-surface);
+  --data-chip-accent: var(--data-language);
+}
+
+@utility data-space {
+  --data-chip-text: var(--data-space-text);
+  --data-chip-surface: var(--data-space-surface);
+  --data-chip-accent: var(--data-space);
+}
+
+@utility data-person {
+  --data-chip-text: var(--data-person-text);
+  --data-chip-surface: var(--data-person-surface);
+  --data-chip-accent: var(--data-person);
+}
+
+/* A section heading takes its family's accent as the text colour. */
+@utility data-heading {
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--data-chip-text, var(--text-muted));
+}
+
 @utility badge-surface {
   display: inline-flex;
   align-items: center;

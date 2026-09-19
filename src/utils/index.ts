@@ -292,6 +292,9 @@ export {
   optionRadioClass,
   optionCardTitleClass,
   optionCardHintClass,
+  dataFamilyClass,
+  dataChipClass,
+  dataHeadingClass,
   badgeSurfaceClass,
   primaryButtonClass,
   secondaryButtonClass,
@@ -320,6 +323,7 @@ export {
   toastAccentClass,
   toastIconClass,
 } from './ui/designTokens';
+export type { DataFamily } from './ui/designTokens';
 export { calculateSeatLabelFontSize } from './ui/textScaling';
 export {
   getSidebarSurfaceClasses,

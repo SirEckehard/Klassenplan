@@ -78,34 +78,10 @@
     "photoFull": "Student photo – stored only locally on this device",
     "name": "Name",
     "nameFull": "Student name",
-    "gender": "Gender",
-    "genderFull": "Gender",
-    "height": "Height",
-    "heightFull": "Body height",
-    "language": "Lang.",
-    "languageFull": "Language level",
-    "strong": "strong",
-    "strongFull": "High performer",
-    "weak": "weak",
-    "weakFull": "Needs support",
-    "front": "front",
-    "frontFull": "Front seat",
-    "restless": "restl.",
-    "restlessFull": "Restless behavior",
-    "shy": "shy",
-    "shyFull": "Shy",
-    "distracted": "distr.",
-    "distractedFull": "Easily distracted",
-    "role": "role",
-    "roleFull": "Social role",
-    "wish": "wish",
-    "wishFull": "Wish partner",
-    "avoid": "avoid",
-    "avoidFull": "Avoid partner",
-    "window": "window",
     "windowFull": "Window seat",
-    "door": "door",
-    "doorFull": "Near door"
+    "doorFull": "Near door",
+    "number": "No",
+    "attributes": "Attributes set"
   },
   "studentList": {
     "title": "Class List",
@@ -126,7 +102,8 @@
     "createPlaceholders": "Create placeholders",
     "delete": "Delete",
     "removeStudentTitle": "Remove {{name}}",
-    "placeholderCountPlaceholder": "Count"
+    "placeholderCountPlaceholder": "Count",
+    "inspect": "Edit attributes of {{name}}"
   },
   "csv": {
     "import": "Import class list",
@@ -440,5 +417,24 @@
     "redo": "Redo (Ctrl/Cmd+Shift+Z)",
     "undoLabel": "Undo the last change to the class list",
     "redoLabel": "Redo the last change to the class list"
+  },
+  "inspector": {
+    "title": "Attributes",
+    "close": "Close attributes",
+    "position": "Student {{index}} of {{total}}",
+    "previousStudent": "Previous student",
+    "nextStudent": "Next student",
+    "empty": {
+      "title": "No student selected",
+      "body": "Pick someone in the list to set their attributes."
+    },
+    "groups": {
+      "person": "Person",
+      "learning": "Learning",
+      "language": "Language",
+      "behavior": "Behaviour",
+      "social": "Social",
+      "space": "Seat & room"
+    }
   }
 }

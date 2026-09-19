@@ -125,7 +125,6 @@ const StudentList = ({
               updateStudent={updateStudent}
               removeStudent={requestStudentRemoval}
               allStudents={classRoster}
-              scrollContainerRef={listContainerRef}
               selected={isSelected?.(student.id)}
               onToggleSelected={onToggleSelected}
             />
@@ -181,7 +180,6 @@ const StudentList = ({
                   updateStudent={updateStudent}
                   removeStudent={requestStudentRemoval}
                   allStudents={classRoster}
-                  scrollContainerRef={listContainerRef}
                   selected={isSelected?.(student.id)}
                   onToggleSelected={onToggleSelected}
                 />

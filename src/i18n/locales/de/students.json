@@ -78,34 +78,10 @@
     "photoFull": "Schülerfoto – wird nur lokal auf diesem Gerät gespeichert",
     "name": "Name",
     "nameFull": "Name des Schülers",
-    "gender": "Geschl.",
-    "genderFull": "Geschlecht",
-    "height": "Größe",
-    "heightFull": "Körpergröße",
-    "language": "Sprache",
-    "languageFull": "Sprachniveau",
-    "strong": "stark",
-    "strongFull": "Leistungsstark",
-    "weak": "schwach",
-    "weakFull": "Leistungsschwach",
-    "front": "vorn",
-    "frontFull": "Vorderer Platz",
-    "restless": "unruhig",
-    "restlessFull": "Unruhiges Verhalten",
-    "shy": "schüch.",
-    "shyFull": "Schüchtern",
-    "distracted": "ablenk.",
-    "distractedFull": "Leicht ablenkbar",
-    "role": "Rolle",
-    "roleFull": "Soziale Rolle",
-    "wish": "Wunsch",
-    "wishFull": "Wunschpartner",
-    "avoid": "meiden",
-    "avoidFull": "Distanzwunsch",
-    "window": "Fenster",
     "windowFull": "Fensterplatz",
-    "door": "Tür",
-    "doorFull": "Türnähe"
+    "doorFull": "Türnähe",
+    "number": "Nr",
+    "attributes": "Gesetzte Merkmale"
   },
   "studentList": {
     "title": "Klassenliste",
@@ -126,7 +102,8 @@
     "createPlaceholders": "Platzhalter erstellen",
     "delete": "Löschen",
     "removeStudentTitle": "{{name}} entfernen",
-    "placeholderCountPlaceholder": "Anzahl"
+    "placeholderCountPlaceholder": "Anzahl",
+    "inspect": "Merkmale von {{name}} bearbeiten"
   },
   "csv": {
     "import": "Klassenliste importieren",
@@ -440,5 +417,24 @@
     "redo": "Wiederherstellen (Strg/Cmd+Umschalt+Z)",
     "undoLabel": "Letzte Änderung an der Klassenliste rückgängig machen",
     "redoLabel": "Letzte Änderung an der Klassenliste wiederherstellen"
+  },
+  "inspector": {
+    "title": "Merkmale",
+    "close": "Merkmale schließen",
+    "position": "Schüler {{index}} von {{total}}",
+    "previousStudent": "Vorheriger Schüler",
+    "nextStudent": "Nächster Schüler",
+    "empty": {
+      "title": "Kein Schüler ausgewählt",
+      "body": "Wähle jemanden in der Liste aus, um Merkmale zu setzen."
+    },
+    "groups": {
+      "person": "Person",
+      "learning": "Lernen",
+      "language": "Sprache",
+      "behavior": "Verhalten",
+      "social": "Soziales",
+      "space": "Platz & Raum"
+    }
   }
 }

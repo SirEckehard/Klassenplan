@@ -23,6 +23,26 @@ export const optionCardTitleClass = 'option-card-title';
 
 export const optionCardHintClass = 'option-card-hint';
 
+/**
+ * The six pedagogical colour families. A chip, an icon or a section heading
+ * takes one of these next to `dataChipClass` / `dataHeadingClass`; the family
+ * sets the colours, the base class sets the shape.
+ */
+export const dataFamilyClass = {
+  behavior: 'data-behavior',
+  social: 'data-social',
+  learning: 'data-learning',
+  language: 'data-language',
+  space: 'data-space',
+  person: 'data-person',
+} as const;
+
+export type DataFamily = keyof typeof dataFamilyClass;
+
+export const dataChipClass = 'data-chip';
+
+export const dataHeadingClass = 'data-heading';
+
 export const badgeSurfaceClass = 'badge-surface';
 
 export const primaryButtonClass = 'primary-button';

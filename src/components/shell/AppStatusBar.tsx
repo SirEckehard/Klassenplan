@@ -144,12 +144,12 @@ export default function AppStatusBar() {
     <div
       role="region"
       aria-label={t('generator:shell.statusBarLabel')}
-      className="sticky bottom-0 z-30 border-t border-[var(--border-card)] bg-[var(--surface-card)]"
+      className="sticky bottom-0 z-30 border-t border-(--border-card) bg-(--surface-card)"
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-2">
         <p
           data-tour={step === 2 ? TOUR_ANCHORS.layoutStatus : undefined}
-          className="min-w-0 truncate text-xs tabular-nums text-[var(--text-muted)] sm:text-sm"
+          className="min-w-0 truncate text-xs tabular-nums text-(--text-muted) sm:text-sm"
         >
           {segments.join(' · ')}
         </p>

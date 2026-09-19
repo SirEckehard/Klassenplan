@@ -57,13 +57,13 @@ describe('StudentListHeader', () => {
     expect(checkbox.indeterminate).toBe(false);
   });
 
-  it('keeps the column captions out of the accessibility tree', () => {
+  it('keeps the captions out of the accessibility tree', () => {
     render(<StudentListHeader onToggleAllVisible={vi.fn()} />);
 
     // Every control the captions sit above carries its own accessible name;
-    // reading "Geschl." before each row would only add noise. `getByText` does
+    // reading "Name" before each row would only add noise. `getByText` does
     // not honour aria-hidden, so the caption is found and its container checked.
-    const caption = screen.getByText(/^(Geschl\.|Gender)$/);
+    const caption = screen.getByText(/^(Name)$/);
     expect(caption.closest('[aria-hidden="true"]')).not.toBeNull();
   });
 });

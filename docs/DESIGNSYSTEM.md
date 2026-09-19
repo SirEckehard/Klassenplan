@@ -29,6 +29,9 @@ The look is called **Papier & Werkzeug**: the interface is a passepartout in war
 | `cardSurfaceClass`       | `card-surface`        | Cards, dialog content                                   |
 | `listContainerClass`     | `list-container`      | History panels, template lists                          |
 | `badgeSurfaceClass`      | `badge-surface`       | Status badges, pills                                    |
+| `dataChipClass`          | `data-chip`           | One pedagogical fact: icon, word, family colour         |
+| `dataHeadingClass`       | `data-heading`        | A section heading in its family's accent                |
+| `dataFamilyClass[…]`     | `data-behavior`, …    | Sets the family's three custom properties               |
 | `primaryButtonClass`     | `primary-button`      | Primary actions                                         |
 | `secondaryButtonClass`   | `secondary-button`    | Secondary actions                                       |
 | `neutralButtonClass`     | `neutral-button`      | Neutral actions (e.g. back navigation)                  |
@@ -124,6 +127,8 @@ Rose (`--button-danger-bg`) and green (`--button-success-bg`) are the two except
 | Person           | `#52525b` | `#43464b` | `#f0f0ee`    | Geschlechtermischung, Foto, Name                             |
 
 Every chip-text-on-chip-surface pair clears 4.5:1, and a data colour never appears without its icon and its spelled-out word, so colour is never the only channel.
+
+In code a family is a class, not a hex: `dataFamilyClass.behavior` sets `--data-chip-text`, `--data-chip-surface` and `--data-chip-accent`, and `dataChipClass` or `dataHeadingClass` beside it supplies the shape. `StudentChips` maps the badge keys from `utils/ui/studentAppearance` to families in one place; nothing else decides what colour an attribute speaks in.
 
 **Two rules that decide arguments**
 

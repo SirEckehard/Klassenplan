@@ -7,10 +7,18 @@ import { STUDENT_FLAGS, cardSurfaceClass } from '@/utils';
 import { specialNeedsButtonTokens } from './studentStyleTokens';
 import IconWithLabel from './IconWithLabel';
 
+type StudentFlagKey = (typeof STUDENT_FLAGS)[number]['key'];
+
 type Props = {
   student: Student;
   updateStudent: (id: string, patch: Partial<Student>) => void;
   variant: 'compact' | 'detailed' | 'hybrid';
+  /**
+   * Render only these flags, in this order. The list row wants all of them in
+   * one run; the inspector splits them across its Lernen, Verhalten and Platz
+   * sections, which is what the flags always meant but never showed.
+   */
+  keys?: readonly StudentFlagKey[];
 };
 
 /**
@@ -28,6 +36,7 @@ export default function SpecialNeedsToggles({
   student,
   updateStudent,
   variant,
+  keys,
 }: Props) {
   const { t } = useTranslation('students');
   const groupLabel = t('specialNeeds.title', 'Besondere Bedürfnisse');
@@ -37,6 +46,12 @@ export default function SpecialNeedsToggles({
     activeStateClass,
     inactiveStateClass,
   } = specialNeedsButtonTokens;
+
+  const flags = keys
+    ? keys
+        .map((key) => STUDENT_FLAGS.find((flag) => flag.key === key))
+        .filter((flag) => flag !== undefined)
+    : STUDENT_FLAGS;
 
   const handleToggle = (key: keyof Student, exclusiveWith?: keyof Student) => {
     const newValue = !student[key];
@@ -129,16 +144,12 @@ export default function SpecialNeedsToggles({
 
   // Hybrid variant: Render as IconWithLabel components
   if (variant === 'hybrid') {
-    return (
-      <>{STUDENT_FLAGS.map((flag) => renderToggleButton(flag, 'hybrid'))}</>
-    );
+    return <>{flags.map((flag) => renderToggleButton(flag, 'hybrid'))}</>;
   }
 
   // Compact variant: Icon-only buttons
   if (variant === 'compact') {
-    return (
-      <>{STUDENT_FLAGS.map((flag) => renderToggleButton(flag, 'compact'))}</>
-    );
+    return <>{flags.map((flag) => renderToggleButton(flag, 'compact'))}</>;
   }
 
   // Detailed variant: Section with labeled buttons
@@ -152,7 +163,7 @@ export default function SpecialNeedsToggles({
         role="group"
         aria-label={groupLabel}
       >
-        {STUDENT_FLAGS.map((flag) => renderToggleButton(flag, 'detailed'))}
+        {flags.map((flag) => renderToggleButton(flag, 'detailed'))}
       </div>
     </section>
   );

@@ -119,7 +119,7 @@ export default function SeatingPlanHeader() {
   const helpContent = getHelpContent();
 
   return (
-    <header className="sticky top-0 z-30 border-b border-[var(--border-card)] bg-[var(--surface-card)]">
+    <header className="sticky top-0 z-30 border-b border-(--border-card) bg-(--surface-card)">
       <div className="mx-auto flex h-14 max-w-7xl flex-row items-center justify-between gap-4 px-4">
         {/* Left - Logo + Branding */}
         <h1 className="flex shrink-0 items-center">

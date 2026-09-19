@@ -1,23 +1,18 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import { TrashIcon } from '@phosphor-icons/react';
-import React, { useEffect } from 'react';
+import { SlidersHorizontalIcon, TrashIcon } from '@phosphor-icons/react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Student } from '@/types';
-import { useStudentRowState } from '@/hooks/ui/useStudentRowState';
-import { useIsLgUp } from '@/hooks/ui/useIsLgUp';
-import { cardSurfaceClass, dangerIconButtonClass } from '@/utils';
-import IconWithLabel from './IconWithLabel';
+import { useInspector } from '@/contexts/InspectorContext';
+import {
+  cardSurfaceClass,
+  dangerIconButtonClass,
+  quietIconButtonClass,
+} from '@/utils';
 import StudentNameEditor from './StudentNameEditor';
 import StudentPhotoButton from './StudentPhotoButton';
-import PartnerSelector from './PartnerSelector';
-import AvoidPartnerSelector from './AvoidPartnerSelector';
-import GenderSelector from './GenderSelector';
-import HeightSelector from './HeightSelector';
-import LanguageSkillSelector from './LanguageSkillSelector';
-import SocialRoleSelector from './SocialRoleSelector';
-import SpecialNeedsToggles from './SpecialNeedsToggles';
-import StudentPreferenceToggles from './StudentPreferenceToggles';
+import StudentChips from './StudentChips';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 
 type Props = {
@@ -27,7 +22,6 @@ type Props = {
   updateStudent: (id: string, patch: Partial<Student>) => void;
   removeStudent: (id: string) => void;
   allStudents: Student[];
-  scrollContainerRef?: React.RefObject<HTMLDivElement | null>;
   /**
    * Multi-select for bulk edits. Omitted while the class is too small for the
    * list toolbar to appear, in which case no checkbox is rendered at all.
@@ -37,20 +31,14 @@ type Props = {
 };
 
 /**
- * Displays controls for a single student entry.
+ * One student, at a glance: photo, name, and the attributes that are actually
+ * set.
  *
- * Renders compact icon-only buttons; column labels are provided by the
- * StudentListHeader above the list.
- *
- * Refactored to use sub-components:
- * - StudentNameEditor (name editing logic)
- * - PartnerSelector (wish partner dropdown)
- * - AvoidPartnerSelector (avoid partner dropdown)
- * - GenderSelector (gender selection UI)
- * - HeightSelector (height category selection)
- * - SpecialNeedsToggles (special needs flags)
- * - StudentPreferenceToggles (room preferences)
- * - useStudentRowState (centralized state management)
+ * The row used to carry sixteen icon columns per student — for a class of
+ * thirty, four hundred and eighty controls, in which an unset attribute looked
+ * exactly like one deliberately turned off. Editing moved to the inspector;
+ * what is left here is the answer to "who is in this class and what do I know
+ * about them", which is what a list is for.
  */
 function StudentRow({
   student,
@@ -59,211 +47,103 @@ function StudentRow({
   updateStudent,
   removeStudent,
   allStudents,
-  scrollContainerRef,
   selected,
   onToggleSelected,
 }: Props) {
-  // Centralized state management for dropdowns
-  const rowState = useStudentRowState();
   const { t } = useTranslation('students');
+  const { selection, toggleStudent, selectStudent } = useInspector();
+  const isInspected =
+    selection?.kind === 'student' && selection.id === student.id;
 
-  // Below `lg` the row stacks and each control renders as a labelled chip
-  // (`hybrid`); at `lg+` it stays a single-line columnar row (`compact`) that
-  // the sticky StudentListHeader aligns over.
-  const isLgUp = useIsLgUp();
-  const variant = isLgUp ? 'compact' : 'hybrid';
+  // The name editor is the only piece of row state left now that the selectors
+  // and their dropdowns live in the inspector.
+  const [isEditing, setIsEditing] = useState(false);
+  const [draftName, setDraftName] = useState('');
 
-  // Close any open selector dropdown when the layout switches, so a portal
-  // anchored to a now-remounted control can't be left orphaned.
-  const {
-    setShowGenderDropdown,
-    setShowHeightDropdown,
-    setShowLanguageDropdown,
-    setShowSocialRoleDropdown,
-    setShowPartnerDropdown,
-    setShowAvoidDropdown,
-  } = rowState;
-  useEffect(() => {
-    setShowGenderDropdown(false);
-    setShowHeightDropdown(false);
-    setShowLanguageDropdown(false);
-    setShowSocialRoleDropdown(false);
-    setShowPartnerDropdown(false);
-    setShowAvoidDropdown(false);
-  }, [
-    isLgUp,
-    setShowGenderDropdown,
-    setShowHeightDropdown,
-    setShowLanguageDropdown,
-    setShowSocialRoleDropdown,
-    setShowPartnerDropdown,
-    setShowAvoidDropdown,
-  ]);
+  const displayName = student.name || t('studentList.newStudent');
 
-  const baseCardClass = `${cardSurfaceClass} cursor-default transition-shadow hover:shadow-lg`;
-  const highlightClass = highlight
-    ? 'border-green-500 bg-green-50/90 shadow-md dark:border-green-400 dark:bg-green-900/30'
-    : selected
-      ? 'border-blue-400 bg-blue-50/70 dark:border-blue-500 dark:bg-blue-950/40'
-      : '';
-  const genderHintId = `gender-hint-${student.id}`;
+  /**
+   * A click anywhere in the row opens the inspector, unless it landed on a
+   * control of its own. Keyboard users get the explicit button at the end —
+   * the row is not a button itself, because it contains several.
+   */
+  const handleRowClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (
+      event.target instanceof Element &&
+      event.target.closest('button, input, a, label, [role="button"]')
+    ) {
+      return;
+    }
+    selectStudent(student.id);
+  };
+
+  const stateClass = isInspected
+    ? 'border-blue-600 shadow-[inset_3px_0_0_var(--button-primary-bg)] dark:border-blue-500'
+    : highlight
+      ? 'border-green-500 bg-green-50/90 dark:border-green-400 dark:bg-green-900/30'
+      : selected
+        ? 'border-blue-400 bg-blue-50/70 dark:border-blue-500 dark:bg-blue-950/40'
+        : '';
 
   return (
     <div
       id={`student-${student.id}`}
-      className={`${baseCardClass} px-3 py-2 ${highlightClass}`}
+      className={`${cardSurfaceClass} flex flex-wrap items-center gap-x-3 gap-y-2 px-3 py-2 ${stateClass}`}
       data-tour={TOUR_ANCHORS.studentRow}
+      onClick={handleRowClick}
     >
-      <div className="flex flex-col gap-2 lg:flex-row lg:flex-wrap lg:items-center lg:justify-between">
-        {/* Left: Index + Name */}
-        <div className="flex flex-1 items-center gap-2 min-w-fit">
-          {onToggleSelected && (
-            <input
-              type="checkbox"
-              checked={Boolean(selected)}
-              onChange={() => onToggleSelected(student.id)}
-              data-disable-card-toggle
-              className="h-4 w-4 shrink-0 cursor-pointer accent-blue-600"
-              aria-label={t('listToolbar.selectStudent', {
-                name:
-                  student.name || t('studentList.newStudent', 'Neuer Schüler'),
-                defaultValue: '{{name}} auswählen',
-              })}
-            />
-          )}
-          <span className="min-w-6 text-sm text-gray-500 dark:text-gray-400 font-medium">
-            {index + 1}.
-          </span>
-          <div data-disable-card-toggle>
-            <StudentPhotoButton
-              student={student}
-              updateStudent={updateStudent}
-            />
-          </div>
-          <StudentNameEditor
-            student={student}
-            allStudents={allStudents}
-            updateStudent={updateStudent}
-            isEditing={rowState.isEditing}
-            setIsEditing={rowState.setIsEditing}
-            draftName={rowState.draftName}
-            setDraftName={rowState.setDraftName}
-            showEditButton={false}
-          />
-        </div>
+      {onToggleSelected && (
+        <input
+          type="checkbox"
+          checked={Boolean(selected)}
+          onChange={() => onToggleSelected(student.id)}
+          className="h-4 w-4 shrink-0 cursor-pointer accent-blue-600"
+          aria-label={t('listToolbar.selectStudent', { name: displayName })}
+        />
+      )}
+      <span className="min-w-6 shrink-0 text-sm font-medium tabular-nums text-(--text-muted)">
+        {index + 1}.
+      </span>
+      <StudentPhotoButton student={student} updateStudent={updateStudent} />
+      <StudentNameEditor
+        student={student}
+        allStudents={allStudents}
+        updateStudent={updateStudent}
+        isEditing={isEditing}
+        setIsEditing={setIsEditing}
+        draftName={draftName}
+        setDraftName={setDraftName}
+        showEditButton={false}
+      />
 
-        {/* Right: Icon-only selectors (labelled chips below lg) */}
-        <div
-          className="flex flex-wrap items-start gap-2 lg:items-center lg:justify-end"
-          data-disable-card-toggle
+      <StudentChips
+        student={student}
+        allStudents={allStudents}
+        className="min-w-0 flex-1 basis-full lg:basis-auto"
+      />
+
+      <div className="ml-auto flex shrink-0 items-center gap-1">
+        <button
+          type="button"
+          onClick={() => toggleStudent(student.id)}
+          aria-pressed={isInspected}
+          className={`${quietIconButtonClass} min-h-11 min-w-11`}
+          title={t('studentList.inspect', { name: displayName })}
+          aria-label={t('studentList.inspect', { name: displayName })}
         >
-          {/* Identität */}
-          <GenderSelector
-            student={student}
-            updateStudent={updateStudent}
-            variant={variant}
-            showDropdown={rowState.showGenderDropdown}
-            setShowDropdown={rowState.setShowGenderDropdown}
-            dropdownRef={rowState.genderDropdownRef}
-            hintId={genderHintId}
-            scrollContainerRef={scrollContainerRef}
-          />
-          <HeightSelector
-            student={student}
-            updateStudent={updateStudent}
-            variant={variant}
-            showDropdown={rowState.showHeightDropdown}
-            setShowDropdown={rowState.setShowHeightDropdown}
-            dropdownRef={rowState.heightDropdownRef}
-            scrollContainerRef={scrollContainerRef}
-          />
-          {/* Fähigkeiten/Eigenschaften */}
-          <LanguageSkillSelector
-            student={student}
-            updateStudent={updateStudent}
-            variant={variant}
-            showDropdown={rowState.showLanguageDropdown}
-            setShowDropdown={rowState.setShowLanguageDropdown}
-            dropdownRef={rowState.languageDropdownRef}
-            scrollContainerRef={scrollContainerRef}
-          />
-          <SpecialNeedsToggles
-            student={student}
-            updateStudent={updateStudent}
-            variant={variant}
-          />
-          {/* Soziales */}
-          <SocialRoleSelector
-            student={student}
-            updateStudent={updateStudent}
-            variant={variant}
-            showDropdown={rowState.showSocialRoleDropdown}
-            setShowDropdown={rowState.setShowSocialRoleDropdown}
-            dropdownRef={rowState.socialRoleDropdownRef}
-            scrollContainerRef={scrollContainerRef}
-          />
-          <PartnerSelector
-            student={student}
-            allStudents={allStudents}
-            updateStudent={updateStudent}
-            showDropdown={rowState.showPartnerDropdown}
-            setShowDropdown={rowState.setShowPartnerDropdown}
-            dropdownRef={rowState.dropdownRef}
-            variant={variant}
-            scrollContainerRef={scrollContainerRef}
-          />
-          <AvoidPartnerSelector
-            student={student}
-            allStudents={allStudents}
-            updateStudent={updateStudent}
-            showDropdown={rowState.showAvoidDropdown}
-            setShowDropdown={rowState.setShowAvoidDropdown}
-            dropdownRef={rowState.avoidDropdownRef}
-            variant={variant}
-            scrollContainerRef={scrollContainerRef}
-          />
-          {/* Raumpräferenzen */}
-          <StudentPreferenceToggles
-            student={student}
-            updateStudent={updateStudent}
-            variant={variant}
-          />
-          {variant === 'hybrid' ? (
-            <IconWithLabel
-              icon={<TrashIcon size={14} />}
-              label={t('studentList.delete', 'Löschen')}
-              onClick={() => removeStudent(student.id)}
-              tooltip={t('studentList.removeStudentTitle', {
-                name: student.name,
-                defaultValue: `${student.name} entfernen`,
-              })}
-              ariaLabel={t('studentList.removeStudentTitle', {
-                name: student.name,
-                defaultValue: `${student.name} entfernen`,
-              })}
-              colorClasses="border-rose-200! bg-rose-50! text-rose-600! hover:border-rose-300! hover:bg-rose-100! dark:border-rose-900/40! dark:bg-rose-900/20! dark:text-rose-300! dark:hover:bg-rose-900/30!"
-            />
-          ) : (
-            <button
-              type="button"
-              className={`${dangerIconButtonClass} min-h-11 min-w-11`}
-              onClick={(e) => {
-                e.stopPropagation();
-                removeStudent(student.id);
-              }}
-              title={t('studentList.removeStudentTitle', {
-                name: student.name,
-                defaultValue: `${student.name} entfernen`,
-              })}
-              aria-label={t('studentList.removeStudentTitle', {
-                name: student.name,
-                defaultValue: `${student.name} entfernen`,
-              })}
-            >
-              <TrashIcon size={14} />
-            </button>
-          )}
-        </div>
+          <SlidersHorizontalIcon size={16} aria-hidden="true" />
+        </button>
+        <button
+          type="button"
+          className={`${dangerIconButtonClass} min-h-11 min-w-11`}
+          onClick={() => removeStudent(student.id)}
+          title={t('studentList.removeStudentTitle', { name: displayName })}
+          aria-label={t('studentList.removeStudentTitle', {
+            name: displayName,
+          })}
+        >
+          <TrashIcon size={14} aria-hidden="true" />
+        </button>
       </div>
     </div>
   );
