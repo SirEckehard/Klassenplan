@@ -56,9 +56,6 @@ export type SeatingPlanViewProps = {
     options?: { triesPerPass?: number; passes?: number },
     start?: SeatingArrangement,
   ) => Promise<SeatingArrangement>;
-  onEditStudents: () => void;
-  onEditLayout: () => void;
-  onProceedToPlan: () => void;
   step: number;
   seatingMode?: 'table' | 'circle';
   onModeChange?: (mode: 'table' | 'circle') => void;

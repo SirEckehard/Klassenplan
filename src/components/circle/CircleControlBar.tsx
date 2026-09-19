@@ -3,7 +3,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  ArrowLeftIcon,
   ChalkboardTeacherIcon,
   FloppyDiskIcon,
   ShareNetworkIcon,
@@ -14,7 +13,6 @@ import type { CircleLayout } from '@/types/Circle';
 import {
   inputFieldClass,
   isFormElementFocused,
-  neutralButtonClass,
   primaryButtonClass,
   warningButtonClass,
 } from '@/utils';
@@ -25,7 +23,6 @@ type Props = {
   planNameError: boolean;
   setPlanNameError: (v: boolean) => void;
   planNameInputRef: React.RefObject<HTMLInputElement | null>;
-  onEditLayout: () => void;
   saveSeatingPlan: (
     name: string,
     scene: ClassroomScene,
@@ -47,7 +44,6 @@ export default function CircleControlBar({
   planNameError,
   setPlanNameError,
   planNameInputRef,
-  onEditLayout,
   saveSeatingPlan,
   circleLayout,
   classroomScene,
@@ -85,15 +81,7 @@ export default function CircleControlBar({
         saveSeatingPlan(planName, classroomScene, circleLayout);
       }}
     >
-      <button
-        type="button"
-        onClick={onEditLayout}
-        title={t('actions.backShortcut', 'Zurück (Alt/Option+←)')}
-        className={`${neutralButtonClass} w-full shrink-0 justify-center gap-2 whitespace-nowrap sm:w-auto`}
-      >
-        <ArrowLeftIcon className="w-4 h-4" />
-        {t('circle.backToClassroom', 'Zurück zum Klassenraum')}
-      </button>
+      {/* Going back to the room is the layer switcher's job now. */}
       <PlanHistoryButton className="shrink-0" />
       <div className="w-full flex-1 sm:w-auto sm:min-w-64">
         <div className="relative">

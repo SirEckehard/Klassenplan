@@ -22,6 +22,4 @@ export type StudentInputProps = {
   updateStudents: (ids: string[], patch: Partial<Student>) => void;
   importCsv: (file: File, selection?: CsvImportSelection) => Promise<Student[]>;
   downloadStudentsCsv: () => void;
-  onProceedToLayout: () => void;
-  onProceedToPlan: () => void;
 };

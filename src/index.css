@@ -47,6 +47,7 @@
 
   /* Paper and ink — light */
   --surface-page: #fcfbf8;
+  --surface-sunken: #f3f1ec;
   --text-page: #17181a;
   --text-muted: #54565a;
 
@@ -133,11 +134,11 @@
   --input-bg: #ffffff;
   --input-text: #17181a;
   --input-shadow: none;
-  --pill-tab-active-bg: #2563eb;
-  --pill-tab-active-text: #ffffff;
-  --pill-tab-active-shadow: none;
+  --pill-tab-active-bg: #ffffff;
+  --pill-tab-active-text: #17181a;
+  --pill-tab-active-shadow: 0 1px 2px rgba(23, 24, 26, 0.1);
   --pill-tab-inactive-text: #54565a;
-  --pill-tab-inactive-hover-bg: #f3f1ec;
+  --pill-tab-inactive-hover-bg: rgba(23, 24, 26, 0.04);
 
   --menu-bg: #ffffff;
   --menu-border: #e3dfd6;
@@ -225,6 +226,7 @@
   .dark {
     /* Paper and ink — dark */
     --surface-page: #101113;
+    --surface-sunken: #202327;
     --text-page: #f2f1ee;
     --text-muted: #a9acb1;
 
@@ -295,10 +297,11 @@
     --input-bg: #101113;
     --input-text: #f2f1ee;
     --input-shadow: none;
-    --pill-tab-active-bg: #2563eb;
-    --pill-tab-active-shadow: none;
+    --pill-tab-active-bg: #2f3237;
+    --pill-tab-active-text: #f2f1ee;
+    --pill-tab-active-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
     --pill-tab-inactive-text: #a9acb1;
-    --pill-tab-inactive-hover-bg: #202327;
+    --pill-tab-inactive-hover-bg: rgba(242, 241, 238, 0.06);
 
     --menu-bg: #1c1f23;
     --menu-border: #2a2d31;
@@ -959,6 +962,22 @@
 .textarea-field:disabled {
   cursor: not-allowed;
   opacity: 0.6;
+}
+
+/*
+ * The recessed track a segmented control's options sit in. Every segmented
+ * control shares it — the layer switcher, the seating-mode toggle, the tab
+ * strips in dialogs — so none of them hand-rolls a border and a background any
+ * more.
+ */
+@utility segmented-track {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.125rem;
+  padding: 0.1875rem;
+  border-radius: 0.5625rem;
+  border: 1px solid var(--border-card);
+  background-color: var(--surface-sunken);
 }
 
 @utility pill-tab-base {

@@ -449,7 +449,6 @@ export default function EnhancedSeatingPlanView(
               planNameError={props.planNameError}
               setPlanNameError={props.setPlanNameError}
               planNameInputRef={props.planNameInputRef}
-              onEditLayout={props.onEditLayout}
               saveSeatingPlan={props.saveSeatingPlan}
               circleLayout={circleLayout}
               classroomScene={props.classroomScene}

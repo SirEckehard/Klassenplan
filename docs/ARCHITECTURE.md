@@ -141,7 +141,7 @@ deletes the sample class
 ```mermaid
 flowchart TD
   subgraph ui["UI — src/pages, src/components"]
-    wizard["Wizard steps 1–4"]
+    wizard["Shell layers 1–3 + export"]
     canvas["Classroom canvas"]
     present["/present, /export"]
   end
@@ -177,7 +177,7 @@ flowchart TD
 
 - **UI** components read trimmed state and actions from the domain contexts, not
   from the generator directly. `/present` and `/export` sit inside the same
-  provider tree, so they show exactly what the wizard shows.
+  provider tree, so they show exactly what the workspace shows.
 - **`useSeatingGenerator`** composes state, persistence, algorithm calls, class
   management and the plan usage record into one snapshot. The contexts slice
   that snapshot so a component only re-renders for what it uses.

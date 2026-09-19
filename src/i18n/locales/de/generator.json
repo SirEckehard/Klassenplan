@@ -734,7 +734,8 @@
       "plan_redo": "Sitzplan-Aktion wiederherstellen",
       "students_undo": "Änderung an der Klassenliste rückgängig machen",
       "students_redo": "Änderung an der Klassenliste wiederherstellen",
-      "layout_redo": "Letzte Änderung wiederherstellen"
+      "layout_redo": "Letzte Änderung wiederherstellen",
+      "global_switchLayer": "Zwischen Klasse, Raum und Sitzplan wechseln"
     },
     "keys": {
       "global_toggleHelp": "?",
@@ -772,7 +773,8 @@
       "plan_redo": "Strg / Cmd + Shift + Z",
       "students_undo": "Strg (Windows) / Cmd (Mac) + Z",
       "students_redo": "Strg / Cmd + Shift + Z",
-      "layout_redo": "Strg / Cmd + Shift + Z"
+      "layout_redo": "Strg / Cmd + Shift + Z",
+      "global_switchLayer": "1 / 2 / 3"
     }
   },
   "tableType": {
@@ -886,6 +888,36 @@
         "title": "Speichern, präsentieren, exportieren",
         "body": "Speichere den Plan unter einem Namen, zeige ihn auf der Tafel oder exportiere ihn als PDF."
       }
+    }
+  },
+  "shell": {
+    "layers": {
+      "class": "Klasse",
+      "room": "Raum",
+      "plan": "Sitzplan",
+      "circle": "Sitzkreis"
+    },
+    "layerSwitchLabel": "Ebene wechseln",
+    "statusBarLabel": "Statusleiste",
+    "next": "Weiter",
+    "status": {
+      "noStudents": "Noch keine Schüler",
+      "students_one": "{{count}} Schüler",
+      "students_other": "{{count}} Schüler",
+      "namesComplete": "alle Namen gesetzt",
+      "missingNames_one": "{{count}} Name fehlt",
+      "missingNames_other": "{{count}} Namen fehlen",
+      "noTables": "Noch keine Tische",
+      "tables_one": "{{count}} Tisch",
+      "tables_other": "{{count}} Tische",
+      "seatsFor": "{{seats}} Plätze für {{students}} Schüler",
+      "seatsExact": "passt genau",
+      "seatsMissing_one": "{{count}} Platz fehlt",
+      "seatsMissing_other": "{{count}} Plätze fehlen",
+      "seatsSpare_one": "{{count}} Platz frei",
+      "seatsSpare_other": "{{count}} Plätze frei",
+      "noPlan": "Noch kein Sitzplan gemischt",
+      "occupied": "{{filled}} von {{seats}} Plätzen besetzt"
     }
   }
 }

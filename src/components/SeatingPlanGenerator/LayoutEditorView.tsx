@@ -72,9 +72,7 @@ type Props = {
   redo: () => void;
   canRedo: boolean;
   historyLength: number;
-  studentsCount: number;
   students: Student[];
-  seatCount: number;
   templates: ClassroomTemplate[];
   selectedTemplateId: number | null;
   handleSaveTemplate: () => void;
@@ -110,8 +108,6 @@ type Props = {
   placeholderSeating: SeatingArrangement;
   onTableUpdate: () => void;
   snapshot: () => void;
-  onEditStudents: () => void;
-  onProceedToPlan: () => void;
   onCloseTableContextMenu: () => void;
   onTableContextMenuSetterChange?: (
     setter: React.Dispatch<
@@ -156,9 +152,7 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
   redo,
   canRedo,
   historyLength,
-  studentsCount,
   students,
-  seatCount,
   templates,
   selectedTemplateId,
   handleSaveTemplate,
@@ -186,8 +180,6 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
   placeholderSeating,
   onTableUpdate,
   snapshot,
-  onEditStudents,
-  onProceedToPlan,
   onCloseTableContextMenu,
   onTableContextMenuSetterChange,
   onCloseCanvasContextMenu,
@@ -923,13 +915,6 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
     onSaveTemplate: handleSaveTemplate,
   };
 
-  const footerProps = {
-    onEditStudents,
-    onProceedToPlan,
-    seatCount,
-    studentsCount,
-  };
-
   return (
     <div className="space-y-6">
       {/* The direction comes from the same hook that decides whether the
@@ -958,8 +943,6 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
           historyLength={historyLength}
           layoutSettingsGroups={layoutSettingsGroups}
           canvasProps={canvasProps}
-          studentsCount={studentsCount}
-          seatCount={seatCount}
           quickSetupOverlay={{
             panel: quickSetupPanel,
             canDismiss: canDismissQuickSetup,
@@ -971,7 +954,6 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
           featureMenu={featureMenuConfig}
           featurePalette={FEATURE_PALETTE}
           mobileTemplatesProps={mobileTemplatesProps}
-          footerProps={footerProps}
         />
       </div>
     </div>

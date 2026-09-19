@@ -308,6 +308,7 @@ export {
   inputFieldClass,
   selectFieldClass,
   textareaFieldClass,
+  segmentedTrackClass,
   pillTabBaseClass,
   pillTabActiveClass,
   pillTabInactiveClass,

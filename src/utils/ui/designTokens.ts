@@ -55,6 +55,9 @@ export const selectFieldClass = inputFieldClass;
 
 export const textareaFieldClass = 'textarea-field';
 
+/** Recessed track for a segmented control; wraps `pill-tab-base` options. */
+export const segmentedTrackClass = 'segmented-track';
+
 export const pillTabBaseClass = 'pill-tab-base';
 
 export const pillTabActiveClass = 'pill-tab-active';

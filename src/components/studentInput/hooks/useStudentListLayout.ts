@@ -25,9 +25,9 @@ const ACTION_ROW_RESERVED_PX = 76;
  */
 export type ListScrollHint = 'down' | 'up' | null;
 
-// The proceed button counts as reached once it clears the bottom edge by this
+// The end of the list counts as reached once it clears the bottom edge by this
 // much — the same margin the earlier scroll affordance used.
-const PROCEED_REACHED_MARGIN_PX = 100;
+const LIST_END_REACHED_MARGIN_PX = 100;
 
 // How far the top of the step has to be scrolled past before offering the way
 // back. Roughly one student row, so the button does not flicker in at the very
@@ -40,7 +40,7 @@ export const useStudentListLayout = ({
   recalcKey,
 }: UseStudentListLayoutOptions) => {
   const cookieBannerOffset = useCookieBannerOffset();
-  const proceedButtonRef = useRef<HTMLButtonElement | null>(null);
+  const listEndRef = useRef<HTMLButtonElement | null>(null);
   const floatingActionOffsets = useFloatingActionOffset();
   const { containerRef: listContainerRef, maxHeight: listMaxHeight } =
     useAdaptiveViewportHeight<HTMLDivElement>({
@@ -73,17 +73,17 @@ export const useStudentListLayout = ({
     // both ways: down while the action row is still out of reach, up once it
     // has been reached and the toolbar at the top is what is far away.
     const checkScrollPosition = () => {
-      const proceedButton = proceedButtonRef.current;
-      if (!proceedButton) {
+      const listEnd = listEndRef.current;
+      if (!listEnd) {
         setScrollHint(null);
         return;
       }
 
       const { height } = getViewportMetrics();
       const viewportHeight = height || window.innerHeight || 0;
-      const proceedRect = proceedButton.getBoundingClientRect();
+      const listEndRect = listEnd.getBoundingClientRect();
 
-      if (proceedRect.top > viewportHeight - PROCEED_REACHED_MARGIN_PX) {
+      if (listEndRect.top > viewportHeight - LIST_END_REACHED_MARGIN_PX) {
         setScrollHint('down');
         return;
       }
@@ -129,14 +129,14 @@ export const useStudentListLayout = ({
       return;
     }
 
-    proceedButtonRef.current?.scrollIntoView({ behavior, block: 'center' });
+    listEndRef.current?.scrollIntoView({ behavior, block: 'center' });
   }, [prefersReducedMotion, scrollHint]);
 
   return {
     listContainerRef,
     listMaxHeight,
     listTopRef,
-    proceedButtonRef,
+    listEndRef,
     scrollHint,
     handleScrollHint,
     floatingActionOffsets,

@@ -12,6 +12,7 @@ import {
 } from '@/contexts/SeatingPlanContext';
 import { prefetchGeneratorSteps } from '@/utils/performance/generatorPrefetch';
 import { isFormElementFocused } from '@/utils';
+import { isAnyDialogOpen } from '@/hooks/ui/useDialogLayer';
 
 // Lazy load large components for better initial bundle size
 const StudentInput = lazy(() => import('@/components/StudentInput'));
@@ -81,19 +82,37 @@ export default function PlanControls() {
 
   useEffect(() => {
     const handleKeydown = (event: KeyboardEvent) => {
-      if (!event.altKey) return;
       if (isFormElementFocused()) return;
-      if (event.key === 'ArrowRight') {
-        event.preventDefault();
-        const nextStep = Math.min(step + 1, 3);
-        if (nextStep !== step) {
-          void handleStepChange(nextStep);
+      // A dialog owns the keyboard while it is up; switching the layer
+      // underneath it would leave the dialog explaining the wrong view.
+      if (isAnyDialogOpen()) return;
+
+      // Alt + arrows step through the layers in order …
+      if (event.altKey) {
+        if (event.key === 'ArrowRight') {
+          event.preventDefault();
+          const nextStep = Math.min(step + 1, 3);
+          if (nextStep !== step) {
+            void handleStepChange(nextStep);
+          }
+        } else if (event.key === 'ArrowLeft') {
+          event.preventDefault();
+          const previousStep = Math.max(step - 1, 1);
+          if (previousStep !== step) {
+            void handleStepChange(previousStep);
+          }
         }
-      } else if (event.key === 'ArrowLeft') {
+        return;
+      }
+
+      // … and 1/2/3 jump straight to one. Bare digits only: Ctrl/Cmd+1 belongs
+      // to the browser's tab switching.
+      if (event.ctrlKey || event.metaKey || event.shiftKey) return;
+      const target = Number(event.key);
+      if (Number.isInteger(target) && target >= 1 && target <= 3) {
         event.preventDefault();
-        const previousStep = Math.max(step - 1, 1);
-        if (previousStep !== step) {
-          void handleStepChange(previousStep);
+        if (target !== step) {
+          void handleStepChange(target);
         }
       }
     };
@@ -123,9 +142,6 @@ export default function PlanControls() {
     toggleLock,
     onMix,
     refineSeatingLocal,
-    onEditStudents: () => void handleStepChange(1),
-    onEditLayout: () => void handleStepChange(2),
-    onProceedToPlan: () => void handleStepChange(3),
     saveTemplate,
     updateTemplate,
     loadTemplate,
@@ -181,8 +197,6 @@ export default function PlanControls() {
               updateStudents={updateStudents}
               importCsv={importCsv}
               downloadStudentsCsv={downloadStudentsCsv}
-              onProceedToLayout={() => void handleStepChange(2)}
-              onProceedToPlan={() => void handleStepChange(3)}
             />
           </SectionErrorBoundary>
         </Suspense>

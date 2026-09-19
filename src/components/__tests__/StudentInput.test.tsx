@@ -149,11 +149,9 @@ describe('StudentInput', () => {
       within(addMenu).getByText(/Klassenliste importieren|Import class list/i),
     ).toBeInTheDocument();
 
-    // Button check is already semantic
-    const proceedButton = getButton(
-      /Weiter zum Klassenraum|Proceed to Classroom/i,
-    );
-    expect(proceedButton).toBeInTheDocument();
+    // The way on to the classroom lives in the shell's status bar now; what
+    // this view still offers is the name game.
+    expect(getButton(/Namensspiel|Name game/i)).toBeInTheDocument();
   });
 
   it('deletes the class picked in the switcher dropdown', async () => {
@@ -229,49 +227,6 @@ describe('StudentInput', () => {
         /Hinweis: Alle weiteren Schülerdetails pflegst du direkt in der Schülerliste|Note: Add all further student details directly in the class list/i,
       ),
     ).toBeInTheDocument();
-  });
-
-  it('erklärt am Weiter-Button, warum der Schritt blockiert ist', () => {
-    const students = [
-      createMockStudent({ id: '1', name: '' }),
-      createMockStudent({ id: '2', name: '' }),
-      createMockStudent({ id: '3', name: 'Alex' }),
-    ];
-
-    const { rerender } = renderWithClassContext(
-      <StudentInput {...createMockStudentInputProps({ students })} />,
-    );
-
-    const proceedButton = getButton(
-      /Weiter zum Klassenraum|Proceed to Classroom/i,
-    );
-    expect(proceedButton).toHaveAttribute('aria-disabled', 'true');
-
-    const tooltip = screen.getByRole('tooltip');
-    expect(tooltip).toHaveTextContent(/2/);
-    expect(tooltip).toHaveTextContent(/fehlenden Namen|missing names/i);
-    expect(proceedButton).toHaveAttribute('aria-describedby', tooltip.id);
-
-    // Once every name is filled in, the notice disappears again.
-    const complete = students.map((student, index) => ({
-      ...student,
-      name: student.name || `Name ${index}`,
-    }));
-    rerender(
-      <MemoryRouter>
-        <SeatingPlanGeneratorProvider>
-          <ClassManagementContext.Provider value={createMockClassContext()}>
-            <StudentInput
-              {...createMockStudentInputProps({ students: complete })}
-            />
-          </ClassManagementContext.Provider>
-        </SeatingPlanGeneratorProvider>
-      </MemoryRouter>,
-    );
-    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
-    expect(
-      getButton(/Weiter zum Klassenraum|Proceed to Classroom/i),
-    ).not.toHaveAttribute('aria-disabled');
   });
 
   it('schließt die Schnell-Namenerfassung nach erfolgreicher Eingabe', async () => {

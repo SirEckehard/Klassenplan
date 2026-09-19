@@ -22,7 +22,7 @@ it for Antigravity — edit this file, never those two.
 - Check modified files with `npx eslint <files>`
 - TypeScript compilation check: `npm run typecheck` (app) and `npm run typecheck:test` (tests); both via `npm run typecheck:all`
 - Check for unused exports: `npm run check:unused` — a ratchet against the baseline in `scripts/check-unused-exports.mjs`; the count may fall, never rise. For the full list run `npx ts-unused-exports tsconfig.ts-unused.json --allowUnusedTypes --ignoreFiles='vite-env.d.ts|index.tsx|App.tsx'`
-- E2E: Playwright specs live in `e2e/` — smoke, the wizard core flow and the first-visit onboarding (sample class and tours) (`npm run test:e2e`; needs `npx playwright install chromium`)
+- E2E: Playwright specs live in `e2e/` — smoke, the core flow and the first-visit onboarding (sample class and tours) (`npm run test:e2e`; needs `npx playwright install chromium`)
 - i18n consistency: `npm run check:i18n` (DE/EN key parity + every `t(key, 'default')` resolves to a real key)
 - Bundle budgets: `npm run check:bundle` (after a build; part of `npm run build:static`)
 - Docs consistency: `npm run check:docs` (relative links, heading anchors and `src/…`-style paths in Markdown resolve; `docs/CHANGELOG.md` is skipped)
@@ -32,7 +32,7 @@ it for Antigravity — edit this file, never those two.
 
 - ✅ ESLint: 0 errors, 0 warnings
 - ✅ TypeScript: 0 compilation errors (strict mode)
-- ✅ Tests: 2290 unit tests (223 test files) + 9 Playwright tests (3 smoke + 2 wizard core flow + 4 onboarding), 100% passing
+- ✅ Tests: 2293 unit tests (224 test files) + 9 Playwright tests (3 smoke + 2 core flow + 4 onboarding), 100% passing
 - 📊 Coverage: 72.5 % lines / 71.8 % statements / 61.9 % branches (`npm run test:coverage`, v8 provider, no thresholds enforced)
 - ⚠️ Unused Exports: 53 modules ignoring type-only exports, held by a ratchet (`npm run check:unused`); the remainder are re-export barrels, `lazyWithRetry` default exports and shared test helpers
 - ✅ Test Infrastructure: Centralized accessibility helpers and toast matchers for robust testing
@@ -206,7 +206,7 @@ import { generateId, logError, errorHandlers } from '@/utils';
 
 ## Core Architecture
 
-This is a React-based classroom seating plan generator with a multi-step wizard interface. The application combines layered contexts, Zustand stores, XState machines for canvas interaction, repository-backed persistence and a constraint-driven algorithm pipeline running in a web worker. Goals, non-goals, scenarios and data-flow diagrams: `docs/ARCHITECTURE.md`.
+This is a React-based classroom seating plan generator. Its workspace is one shell — header, layer switcher, stage, status bar (`src/components/shell/`) — around three layers of the same classroom: Klasse, Raum, Plan. Internally the layer is still the numeric `step`; the switcher only stopped presenting it as a one-way road. The application combines layered contexts, Zustand stores, XState machines for canvas interaction, repository-backed persistence and a constraint-driven algorithm pipeline running in a web worker. Goals, non-goals, scenarios and data-flow diagrams: `docs/ARCHITECTURE.md`.
 
 ### State Management Architecture
 
@@ -249,7 +249,8 @@ Consumers import dedicated hooks (e.g. `useClassroomLayoutContext`) to minimize 
 ### Hook & Component Landscape
 
 - Hooks are grouped by domain (`hooks/wizard`, `hooks/scene`, `hooks/canvas`, `hooks/circle`, `hooks/ui`, `hooks/student`) and favour focused responsibilities (scene history, canvas interactions, shortcut handling, drag/drop state, pan/zoom, photo cache, etc.).
-- Wizard UI resides in `src/components/SeatingPlanGenerator/` with shared UI primitives in `src/components/ui/` and student tools in `src/components/students/`.
+- The workspace shell lives in `src/components/shell/`: `AppShell` frames every layer, `LayerSwitcher` sits in the header, `AppStatusBar` holds the live status line and the layer's one primary action. A view never draws its own "carry on" or "go back" button — that is the status bar's and the switcher's job.
+- Layer UI resides in `src/components/SeatingPlanGenerator/` with shared UI primitives in `src/components/ui/` and student tools in `src/components/students/`.
 - Circle-specific components live under `src/components/circle/`; presentation mode lives in `src/pages/Present.tsx` + `src/components/scene/PresentationScene.tsx`.
 
 ### Styling & Design Tokens

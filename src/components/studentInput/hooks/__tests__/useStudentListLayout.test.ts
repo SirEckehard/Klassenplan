@@ -26,7 +26,7 @@ const place = (
   { proceedTop, listTop }: { proceedTop: number; listTop: number },
 ) => {
   act(() => {
-    result.current.proceedButtonRef.current = elementAt<HTMLButtonElement>(
+    result.current.listEndRef.current = elementAt<HTMLButtonElement>(
       'button',
       proceedTop,
     );
@@ -88,7 +88,7 @@ describe('useStudentListLayout scroll hint', () => {
     act(() => result.current.handleScrollHint());
 
     expect(
-      result.current.proceedButtonRef.current?.scrollIntoView,
+      result.current.listEndRef.current?.scrollIntoView,
     ).toHaveBeenCalledWith(
       expect.objectContaining({ block: 'center', behavior: 'smooth' }),
     );

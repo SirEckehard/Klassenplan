@@ -734,7 +734,8 @@
       "plan_redo": "Redo the last seating action",
       "students_undo": "Undo a change to the class list",
       "students_redo": "Redo a change to the class list",
-      "layout_redo": "Redo the last change"
+      "layout_redo": "Redo the last change",
+      "global_switchLayer": "Switch between class, room and seating plan"
     },
     "keys": {
       "global_toggleHelp": "?",
@@ -772,7 +773,8 @@
       "plan_redo": "Ctrl/Cmd + Shift + Z",
       "students_undo": "Ctrl (Windows) / Cmd (Mac) + Z",
       "students_redo": "Ctrl / Cmd + Shift + Z",
-      "layout_redo": "Ctrl / Cmd + Shift + Z"
+      "layout_redo": "Ctrl / Cmd + Shift + Z",
+      "global_switchLayer": "1 / 2 / 3"
     }
   },
   "tableType": {
@@ -886,6 +888,36 @@
         "title": "Save, present, export",
         "body": "Save the plan under a name, show it on the board or export it as a PDF."
       }
+    }
+  },
+  "shell": {
+    "layers": {
+      "class": "Class",
+      "room": "Room",
+      "plan": "Plan",
+      "circle": "Circle"
+    },
+    "layerSwitchLabel": "Switch layer",
+    "statusBarLabel": "Status bar",
+    "next": "Next",
+    "status": {
+      "noStudents": "No students yet",
+      "students_one": "{{count}} student",
+      "students_other": "{{count}} students",
+      "namesComplete": "all names set",
+      "missingNames_one": "{{count}} name missing",
+      "missingNames_other": "{{count}} names missing",
+      "noTables": "No tables yet",
+      "tables_one": "{{count}} table",
+      "tables_other": "{{count}} tables",
+      "seatsFor": "{{seats}} seats for {{students}} students",
+      "seatsExact": "an exact fit",
+      "seatsMissing_one": "{{count}} seat short",
+      "seatsMissing_other": "{{count}} seats short",
+      "seatsSpare_one": "{{count}} seat spare",
+      "seatsSpare_other": "{{count}} seats spare",
+      "noPlan": "No seating plan yet",
+      "occupied": "{{filled}} of {{seats}} seats taken"
     }
   }
 }

@@ -71,9 +71,6 @@ export function useSeatingPlanViewLogic({
   toggleLock,
   onMix,
   refineSeatingLocal,
-  onEditStudents,
-  onEditLayout,
-  onProceedToPlan,
   step,
   seatingMode,
   onModeChange,
@@ -467,9 +464,7 @@ export function useSeatingPlanViewLogic({
         redo={redo}
         canRedo={canRedo}
         historyLength={history.length}
-        studentsCount={studentsCount}
         students={students}
-        seatCount={seatCount}
         templates={templates}
         selectedTemplateId={selectedTemplateId}
         handleSaveTemplate={openSaveModal}
@@ -496,8 +491,6 @@ export function useSeatingPlanViewLogic({
         placeholderSeating={placeholderSeating}
         onTableUpdate={commitScene}
         snapshot={snapshot}
-        onEditStudents={onEditStudents}
-        onProceedToPlan={onProceedToPlan}
         onCloseTableContextMenu={closeTableContextMenu}
         onTableContextMenuSetterChange={registerTableContextMenuSetter}
         onCloseCanvasContextMenu={closeCanvasContextMenu}
@@ -556,7 +549,6 @@ export function useSeatingPlanViewLogic({
           planNameError,
           setPlanNameError,
           planNameInputRef,
-          onEditLayout,
           saveSeatingPlan: saveSeatingPlanWithCircle,
           classroomScene,
           onExport: () => navigate('/export'),

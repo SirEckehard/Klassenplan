@@ -2,7 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import { useTranslation } from 'react-i18next';
 import { LocalizedLink } from '@/components/LocalizedLink';
-import WizardProgressBar from '@/components/ui/navigation/WizardProgressBar';
+import LayerSwitcher from '@/components/shell/LayerSwitcher';
 import HelpButton from '@/components/ui/buttons/HelpButton';
 import OnboardingTour from '@/components/onboarding/OnboardingTour';
 import { resolveTourId } from '@/components/onboarding/tours';
@@ -18,10 +18,12 @@ import { type ShortcutContext } from '@/utils';
 import { KpLockup } from '@/components/KpLockup';
 
 /**
- * Header with Klassenplan branding, centered wizard progress bar, and Help button.
+ * The workspace header: branding, the layer switcher, and Help.
  *
- * It also hosts the onboarding tour: the header knows the step and class that
- * decide which tour applies, and the Help button that restarts it lives here.
+ * It sticks to the top so the layer switcher is reachable from anywhere in a
+ * long student list, and it hosts the onboarding tour: the header knows the
+ * step and class that decide which tour applies, and the Help button that
+ * restarts it lives here.
  */
 export default function SeatingPlanHeader() {
   const { t } = useTranslation('generator');
@@ -38,7 +40,7 @@ export default function SeatingPlanHeader() {
     autoMixing,
   );
 
-  // Handle wizard step changes
+  // Handle layer changes
   const onStepChange = (targetStep: number) => {
     if (targetStep !== step) {
       void handleStepChange(targetStep);
@@ -117,41 +119,39 @@ export default function SeatingPlanHeader() {
   const helpContent = getHelpContent();
 
   return (
-    <div className="mb-6 flex flex-row items-center justify-between gap-4">
-      {/* Left side - Logo + Branding (matching Export.tsx style) */}
-      <h1 className="flex items-center shrink-0">
-        <LocalizedLink
-          to="/"
-          className="kp-lockup focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
-        >
-          <KpLockup size="sm" hideWordmarkOnMobile />
-        </LocalizedLink>
-      </h1>
+    <header className="sticky top-0 z-30 border-b border-[var(--border-card)] bg-[var(--surface-card)]">
+      <div className="mx-auto flex h-14 max-w-7xl flex-row items-center justify-between gap-4 px-4">
+        {/* Left - Logo + Branding */}
+        <h1 className="flex shrink-0 items-center">
+          <LocalizedLink
+            to="/"
+            className="kp-lockup focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
+          >
+            <KpLockup size="sm" hideWordmarkOnMobile />
+          </LocalizedLink>
+        </h1>
 
-      {/* Centered Wizard Progress Bar */}
-      <div className="flex-1 flex justify-center px-4">
-        <WizardProgressBar
+        {/* Centre - the three layers of the classroom */}
+        <LayerSwitcher
           currentStep={step}
-          totalSteps={3}
           onStepChange={onStepChange}
           seatingMode={seatingMode}
-          className="w-full max-w-xl"
         />
-      </div>
 
-      {/* Right side - Help Button */}
-      <div className="flex items-center shrink-0">
-        {helpContent && (
-          <HelpButton
-            title={helpContent.title}
-            instructions={helpContent.instructions}
-            shortcutContexts={helpContent.contexts}
-            onStartTour={tourId ? () => requestTour(tourId) : undefined}
-          />
-        )}
+        {/* Right - Help Button */}
+        <div className="flex shrink-0 items-center">
+          {helpContent && (
+            <HelpButton
+              title={helpContent.title}
+              instructions={helpContent.instructions}
+              shortcutContexts={helpContent.contexts}
+              onStartTour={tourId ? () => requestTour(tourId) : undefined}
+            />
+          )}
+        </div>
       </div>
 
       <OnboardingTour tourId={tourId} />
-    </div>
+    </header>
   );
 }

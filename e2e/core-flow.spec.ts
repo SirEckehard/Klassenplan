@@ -92,11 +92,11 @@ test('a teacher can go from an empty app to an exportable seating plan', async (
       .getByRole('button', { name: /Doppelplatz/ })
       .click();
 
-    // The badge is the editor's own verdict on whether the room fits the class.
-    // Named explicitly because toasts also carry role="status".
+    // The shell's status bar is the app's verdict on whether the room fits the
+    // class. It is a named landmark, so toasts cannot be mistaken for it.
     await expect(
-      page.getByRole('status', { name: '4 Schüler, 4 Plätze.' }),
-    ).toBeVisible();
+      page.getByRole('region', { name: 'Statusleiste' }),
+    ).toContainText('4 Plätze für 4 Schüler');
   });
 
   await test.step('step 3 — the algorithm seats every student', async () => {

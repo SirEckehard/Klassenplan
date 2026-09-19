@@ -6,7 +6,6 @@ import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import {
   WarningIcon,
-  ArrowLeftIcon,
   ChartBarIcon,
   GridNine,
   SpinnerGapIcon,
@@ -35,7 +34,6 @@ import {
   canvasFrameClass,
   getViewportMetrics,
   primaryButtonClass,
-  neutralButtonClass,
   warningButtonClass,
   secondaryButtonClass,
   inputFieldClass,
@@ -217,7 +215,6 @@ type Props = {
   planNameError: boolean;
   setPlanNameError: (v: boolean) => void;
   planNameInputRef: React.RefObject<HTMLInputElement | null>;
-  onEditLayout: () => void;
   saveSeatingPlan: (name: string, scene: ClassroomScene) => void;
   classroomScene: ClassroomScene;
   onExport: () => void;
@@ -283,7 +280,6 @@ export default function SeatingPlanEditorView({
   planNameError,
   setPlanNameError,
   planNameInputRef,
-  onEditLayout,
   saveSeatingPlan,
   classroomScene,
   onExport,
@@ -1085,16 +1081,7 @@ export default function SeatingPlanEditorView({
                 saveSeatingPlan(planName, classroomScene);
               }}
             >
-              {/* Desktop: Zurück-Button oben links */}
-              <button
-                type="button"
-                onClick={onEditLayout}
-                title={t('actions.backShortcut', 'Zurück (Alt/Option+←)')}
-                className={`${neutralButtonClass} hidden shrink-0 justify-center gap-2 whitespace-nowrap sm:flex sm:w-auto`}
-              >
-                <ArrowLeftIcon className="w-4 h-4" />
-                {t('circle.backToClassroom', 'Zurück zum Klassenraum')}
-              </button>
+              {/* Going back to the room is the layer switcher's job now. */}
               <PlanHistoryButton className="shrink-0" />
               <div className="w-full flex-1 sm:w-auto sm:min-w-64">
                 <div className="relative">
@@ -1162,16 +1149,6 @@ export default function SeatingPlanEditorView({
                 >
                   <ExportIcon className="w-4 h-4" size={16} />
                   {t('actions.export', 'Exportieren')}
-                </button>
-                {/* Mobile: Zurück-Button unterhalb von Exportieren */}
-                <button
-                  type="button"
-                  onClick={onEditLayout}
-                  title={t('actions.backShortcut', 'Zurück (Alt/Option+←)')}
-                  className={`${neutralButtonClass} flex w-full justify-center gap-2 sm:hidden`}
-                >
-                  <ArrowLeftIcon className="w-4 h-4" />
-                  {t('circle.backToClassroom', 'Zurück zum Klassenraum')}
                 </button>
               </div>
             </form>

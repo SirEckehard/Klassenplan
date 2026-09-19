@@ -667,9 +667,6 @@ export const createMockSeatingPlanViewProps = (
     updateClassroomScene:
       createMockFn<SeatingPlanViewProps['updateClassroomScene']>(),
     removeTables: createMockFn<SeatingPlanViewProps['removeTables']>(),
-    onEditStudents: createMockFn<SeatingPlanViewProps['onEditStudents']>(),
-    onEditLayout: createMockFn<SeatingPlanViewProps['onEditLayout']>(),
-    onProceedToPlan: createMockFn<SeatingPlanViewProps['onProceedToPlan']>(),
     step: 2,
     moveStudent:
       createMockFn<NonNullable<SeatingPlanViewProps['moveStudent']>>(),
@@ -734,8 +731,6 @@ export const createMockStudentInputProps = (
     importCsv: createMockFn<StudentInputProps['importCsv']>(),
     downloadStudentsCsv:
       createMockFn<StudentInputProps['downloadStudentsCsv']>(),
-    onProceedToLayout: createMockFn<StudentInputProps['onProceedToLayout']>(),
-    onProceedToPlan: createMockFn<StudentInputProps['onProceedToPlan']>(),
   };
 
   toMock(defaultProps.addStudent).mockImplementation(

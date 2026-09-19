@@ -23,37 +23,38 @@ The look is called **Papier & Werkzeug**: the interface is a passepartout in war
 
 ## 2. Surface and button tokens
 
-| Token                    | Underlying classes    | Typical use                                     |
-| ------------------------ | --------------------- | ----------------------------------------------- |
-| `panelSurfaceClass`      | `panel-surface`       | Shells, wizard steps, quick menu                |
-| `cardSurfaceClass`       | `card-surface`        | Cards, dialog content                           |
-| `listContainerClass`     | `list-container`      | History panels, template lists                  |
-| `badgeSurfaceClass`      | `badge-surface`       | Status badges, pills                            |
-| `primaryButtonClass`     | `primary-button`      | Primary actions                                 |
-| `secondaryButtonClass`   | `secondary-button`    | Secondary actions                               |
-| `neutralButtonClass`     | `neutral-button`      | Neutral actions (e.g. back navigation)          |
-| `dangerButtonClass`      | `danger-button`       | Destructive actions                             |
-| `successButtonClass`     | `success-button`      | Confirmations                                   |
-| `warningButtonClass`     | `warning-button`      | Warning actions                                 |
-| `iconButtonClass`        | `icon-button`         | Prominent icon actions                          |
-| `quietIconButtonClass`   | `quiet-icon-button`   | Toolbar / secondary actions                     |
-| `dangerIconButtonClass`  | `danger-icon-button`  | Warn / delete icons                             |
-| `successIconButtonClass` | `success-icon-button` | Success icons                                   |
-| `loadingIconButtonClass` | `loading-icon-button` | Loading indicators                              |
-| `mutedIconButtonClass`   | `muted-icon-button`   | Neutral icon actions, basis for student toggles |
-| `inputFieldClass`        | `input-field`         | Inputs, selects, textareas                      |
-| `selectFieldClass`       | `input-field`         | Alias for select elements                       |
-| `textareaFieldClass`     | `textarea-field`      | Multi-line fields                               |
-| `pillTabBaseClass`       | `pill-tab-base`       | Step navigation, filters                        |
-| `pillTabActiveClass`     | `pill-tab-active`     | Active pill states                              |
-| `pillTabInactiveClass`   | `pill-tab-inactive`   | Inactive pill states                            |
-| `menuSurfaceClass`       | `menu-surface`        | Desktop menus                                   |
-| `touchMenuSurfaceClass`  | `touch-menu-surface`  | Touch-optimized menus                           |
-| `floatingStatusClass`    | `floating-status`     | Floating badges                                 |
-| `canvasFrameClass`       | `canvas-frame`        | Canvas frame                                    |
-| `toastSurfaceClass`      | `toast-surface`       | Toast container                                 |
-| `toastAccentClass`       | `toast-accent`        | Toast accent bar                                |
-| `toastIconClass`         | `toast-icon`          | Toast icon                                      |
+| Token                    | Underlying classes    | Typical use                                             |
+| ------------------------ | --------------------- | ------------------------------------------------------- |
+| `panelSurfaceClass`      | `panel-surface`       | Shells, wizard steps, quick menu                        |
+| `cardSurfaceClass`       | `card-surface`        | Cards, dialog content                                   |
+| `listContainerClass`     | `list-container`      | History panels, template lists                          |
+| `badgeSurfaceClass`      | `badge-surface`       | Status badges, pills                                    |
+| `primaryButtonClass`     | `primary-button`      | Primary actions                                         |
+| `secondaryButtonClass`   | `secondary-button`    | Secondary actions                                       |
+| `neutralButtonClass`     | `neutral-button`      | Neutral actions (e.g. back navigation)                  |
+| `dangerButtonClass`      | `danger-button`       | Destructive actions                                     |
+| `successButtonClass`     | `success-button`      | Confirmations                                           |
+| `warningButtonClass`     | `warning-button`      | Warning actions                                         |
+| `iconButtonClass`        | `icon-button`         | Prominent icon actions                                  |
+| `quietIconButtonClass`   | `quiet-icon-button`   | Toolbar / secondary actions                             |
+| `dangerIconButtonClass`  | `danger-icon-button`  | Warn / delete icons                                     |
+| `successIconButtonClass` | `success-icon-button` | Success icons                                           |
+| `loadingIconButtonClass` | `loading-icon-button` | Loading indicators                                      |
+| `mutedIconButtonClass`   | `muted-icon-button`   | Neutral icon actions, basis for student toggles         |
+| `inputFieldClass`        | `input-field`         | Inputs, selects, textareas                              |
+| `selectFieldClass`       | `input-field`         | Alias for select elements                               |
+| `textareaFieldClass`     | `textarea-field`      | Multi-line fields                                       |
+| `segmentedTrackClass`    | `segmented-track`     | Recessed track a segmented control's options sit in     |
+| `pillTabBaseClass`       | `pill-tab-base`       | Segmented options: layer switcher, filters, dialog tabs |
+| `pillTabActiveClass`     | `pill-tab-active`     | Active pill states                                      |
+| `pillTabInactiveClass`   | `pill-tab-inactive`   | Inactive pill states                                    |
+| `menuSurfaceClass`       | `menu-surface`        | Desktop menus                                           |
+| `touchMenuSurfaceClass`  | `touch-menu-surface`  | Touch-optimized menus                                   |
+| `floatingStatusClass`    | `floating-status`     | Floating badges                                         |
+| `canvasFrameClass`       | `canvas-frame`        | Canvas frame                                            |
+| `toastSurfaceClass`      | `toast-surface`       | Toast container                                         |
+| `toastAccentClass`       | `toast-accent`        | Toast accent bar                                        |
+| `toastIconClass`         | `toast-icon`          | Toast icon                                              |
 
 All classes in the table automatically read the variables defined in `@theme`. Dark-mode variants are embedded inside the utility definitions.
 
@@ -86,6 +87,8 @@ The central radii live in `@theme`:
 | `--radius-badge`           | `9999px`           | `badge-surface` — the only round shape left |
 
 `--radius-pill` keeps its name for compatibility; controls stopped being pills. Only badges and avatars stay circular.
+
+A segmented control is `segmented-track` around `pill-tab-base` options, one of them carrying `pill-tab-active`. The active option is a raised paper pill rather than a blue one — blue means "you can act here", and which view you are looking at is not an action. `--surface-sunken` is the recessed ground it sits on.
 
 **Borders & shadows**
 

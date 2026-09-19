@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import { useTranslation } from 'react-i18next';
-import SeatingPlanHeader from '@/components/SeatingPlanGenerator/SeatingPlanHeader';
+import AppShell from '@/components/shell/AppShell';
 import PlanControls from '@/components/SeatingPlanGenerator/PlanControls';
 import Seo from '@/components/Seo';
 import { usePageSeo } from '@/hooks/usePageSeo';
 import PostUpdateNotice from '@/components/ui/feedback/PostUpdateNotice';
 import BackupReminder from '@/components/ui/feedback/BackupReminder';
 
-// Compound components
+// Compound components. The header and the status bar belong to `AppShell`,
+// which frames every layer; only the layer itself is composed here.
 const SeatingPlanGeneratorCompound = {
-  Header: SeatingPlanHeader,
   Controls: PlanControls,
 };
 
@@ -45,22 +45,14 @@ export default function SeatingPlanGenerator() {
           featureList: SCHEMA_FEATURE_KEYS.map((key) => t(key)),
         }}
       />
-      <main
-        id="main"
-        tabIndex={-1}
-        className="min-h-[80vh] bg-linear-to-b from-slate-50 via-white to-slate-100 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 px-4 py-12"
-      >
-        <div className="mx-auto max-w-7xl dark:text-gray-100">
-          <PostUpdateNotice />
-          <BackupReminder />
-          <SeatingPlanGenerator.Header />
-          <SeatingPlanGenerator.Controls />
-        </div>
-      </main>
+      <AppShell>
+        <PostUpdateNotice />
+        <BackupReminder />
+        <SeatingPlanGenerator.Controls />
+      </AppShell>
     </>
   );
 }
 
 // Attach compound components to main component
-SeatingPlanGenerator.Header = SeatingPlanGeneratorCompound.Header;
 SeatingPlanGenerator.Controls = SeatingPlanGeneratorCompound.Controls;

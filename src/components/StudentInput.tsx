@@ -2,12 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import React, { useState, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  ArrowRightIcon,
-  GameControllerIcon,
-  InfoIcon,
-  TableIcon,
-} from '@phosphor-icons/react';
+import { GameControllerIcon, InfoIcon, TableIcon } from '@phosphor-icons/react';
 
 import { useStudentManagement } from '@/hooks/student/useStudentManagement';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
@@ -20,14 +15,12 @@ import {
   cardSurfaceClass,
   isFormElementFocused,
   logError,
-  primaryButtonClass,
   secondaryButtonClass,
   warningButtonClass,
   MAX_STUDENTS,
   NAME_GAME_MIN_PHOTOS,
   STUDENT_LIST_TOOLS_THRESHOLD,
 } from '@/utils';
-import { validateStudentsComplete } from '@/utils/validation';
 import type { CsvImportSelection } from '@/utils/data/csvUtils';
 import type { Student } from '@/types';
 import { useClassManagementContext } from '@/contexts/seatingPlan/ClassManagementContext';
@@ -35,7 +28,6 @@ import { useSeatingPlanActions } from '@/contexts/seatingPlan/store';
 import type { StudentInputProps } from '@/components/studentInput/types';
 import ClassActionsPanel from '@/components/studentInput/ClassActionsPanel';
 import MissingNameNotice from '@/components/studentInput/MissingNameNotice';
-import HintTooltip from '@/components/ui/feedback/HintTooltip';
 import StudentList from '@/components/studentInput/StudentList';
 import NameColumnSelectionDialog from '@/components/students/NameColumnSelectionDialog';
 import { useStudentListLayout } from '@/components/studentInput/hooks/useStudentListLayout';
@@ -47,7 +39,6 @@ import { useIsLgUp } from '@/hooks/ui/useIsLgUp';
 import { useCsvImportWithDialog } from '@/hooks/csv/useCsvImportWithDialog';
 import { isAnyDialogOpen } from '@/hooks/ui/useDialogLayer';
 import { useDemoClass } from '@/hooks/onboarding/useDemoClass';
-import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 
 /**
  * Whether Escape is free for the selection shortcut.
@@ -76,7 +67,6 @@ function StudentInput({
   updateStudents,
   importCsv,
   downloadStudentsCsv,
-  onProceedToLayout,
 }: StudentInputProps) {
   const { t } = useTranslation('students');
   const navigate = useLocalizedNavigate();
@@ -93,7 +83,7 @@ function StudentInput({
     listContainerRef,
     listMaxHeight,
     listTopRef,
-    proceedButtonRef,
+    listEndRef,
     scrollHint,
     handleScrollHint,
     floatingActionOffsets,
@@ -105,20 +95,6 @@ function StudentInput({
 
   // Track which student card was just expanded (e.g. after bulk creation)
   const [expandedCardId, setExpandedCardId] = useState<string | null>(null);
-
-  // Same rule the wizard uses to block the step change (empty names only).
-  const missingNameHintId = React.useId();
-  const missingNameCount = React.useMemo(
-    () => validateStudentsComplete(students).emptyNameCount,
-    [students],
-  );
-  const missingNameHint =
-    missingNameCount > 0
-      ? t('validation.missingNames', {
-          count: missingNameCount,
-          defaultValue: 'Bitte ergänze die {{count}} fehlenden Namen.',
-        })
-      : '';
 
   // Student management hook
   const {
@@ -485,9 +461,13 @@ function StudentInput({
 
       {/* Classroom setup moved to Step 2 - LayoutEditorView */}
 
+      {/* Carrying on to the classroom is the status bar's job now; what is
+          left here is the one side trip this view offers. The ref stays: the
+          mobile scroll affordance uses it to mean "the end of the list". */}
       {students.length > 0 && (
-        <div className="mt-4 flex flex-col justify-between gap-2 sm:flex-row">
+        <div className="mt-4 flex flex-col gap-2 sm:flex-row">
           <button
+            ref={listEndRef}
             type="button"
             aria-disabled={!canPlayNameGame}
             onClick={handleNameGameClick}
@@ -500,28 +480,6 @@ function StudentInput({
             <GameControllerIcon size={16} aria-hidden />
             {t('studentInput.nameGameButton', 'Namensspiel')}
           </button>
-          {/* Proceed Button — blocked by missing names; the reason shows on
-              hover/focus, the click still raises the toast. */}
-          <div
-            className="group relative w-full sm:w-auto"
-            data-tour={TOUR_ANCHORS.proceedToLayout}
-          >
-            <button
-              ref={proceedButtonRef}
-              type="button"
-              onClick={onProceedToLayout}
-              aria-disabled={missingNameHint ? true : undefined}
-              aria-describedby={missingNameHint ? missingNameHintId : undefined}
-              title={t('studentInput.proceedShortcut', 'Weiter (Alt/Option+→)')}
-              className={`${primaryButtonClass} flex w-full items-center justify-center gap-2 sm:w-auto`}
-            >
-              {t('studentInput.proceedButton', 'Weiter zum Klassenraum')}
-              <ArrowRightIcon className="w-4 h-4" />
-            </button>
-            {missingNameHint && (
-              <HintTooltip id={missingNameHintId} hint={missingNameHint} />
-            )}
-          </div>
         </div>
       )}
 

@@ -20,6 +20,10 @@ export const shortcutContextLabels: Record<ShortcutContext, string> = {
 export const shortcutMap: Record<ShortcutContext, Shortcut[]> = {
   global: [
     {
+      keysKey: 'shortcuts.keys.global_switchLayer',
+      descriptionKey: 'shortcuts.descriptions.global_switchLayer',
+    },
+    {
       keysKey: 'shortcuts.keys.global_toggleHelp',
       descriptionKey: 'shortcuts.descriptions.global_toggleHelp',
     },
