@@ -32,7 +32,7 @@ it for Antigravity — edit this file, never those two.
 
 - ✅ ESLint: 0 errors, 0 warnings
 - ✅ TypeScript: 0 compilation errors (strict mode)
-- ✅ Tests: 2302 unit tests (226 test files) + 9 Playwright tests (3 smoke + 2 core flow + 4 onboarding), 100% passing
+- ✅ Tests: 2308 unit tests (227 test files) + 9 Playwright tests (3 smoke + 2 core flow + 4 onboarding), 100% passing
 - 📊 Coverage: 72.5 % lines / 71.8 % statements / 61.9 % branches (`npm run test:coverage`, v8 provider, no thresholds enforced)
 - ⚠️ Unused Exports: 53 modules ignoring type-only exports, held by a ratchet (`npm run check:unused`); the remainder are re-export barrels, `lazyWithRetry` default exports and shared test helpers
 - ✅ Test Infrastructure: Centralized accessibility helpers and toast matchers for robust testing
@@ -251,6 +251,7 @@ Consumers import dedicated hooks (e.g. `useClassroomLayoutContext`) to minimize 
 - Hooks are grouped by domain (`hooks/wizard`, `hooks/scene`, `hooks/canvas`, `hooks/circle`, `hooks/ui`, `hooks/student`) and favour focused responsibilities (scene history, canvas interactions, shortcut handling, drag/drop state, pan/zoom, photo cache, etc.).
 - The workspace shell lives in `src/components/shell/`: `AppShell` frames every layer, `LayerSwitcher` sits in the header, `AppStatusBar` holds the live status line and the layer's one primary action, and `Inspector` is the right-hand panel. A view never draws its own "carry on" or "go back" button — that is the status bar's and the switcher's job.
 - **Editing a thing happens in the inspector, not in the list.** `InspectorContext` holds what is selected (students so far; tables and features follow), a list row states what is set and offers to open it, and `StudentInspector` groups the controls under the pedagogical family they belong to. Adding an attribute means adding it to one group there — never a new column.
+- **Two ways into the same student data.** The roster answers "who is in this class"; `AttributeFocusMode` asks one question of everybody at once ("Wer zeigt Unruhe?") and is how the eight yes/no flags get filled in. A new yes/no flag belongs in its `PASSES` list as well as in the inspector; attributes with more than two values stay inspector-only. A view that wants the full width sets `suspended` on `InspectorContext`.
 - Layer UI resides in `src/components/SeatingPlanGenerator/` with shared UI primitives in `src/components/ui/` and student tools in `src/components/students/`.
 - Circle-specific components live under `src/components/circle/`; presentation mode lives in `src/pages/Present.tsx` + `src/components/scene/PresentationScene.tsx`.
 

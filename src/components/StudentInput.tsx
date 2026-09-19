@@ -34,6 +34,8 @@ import { useStudentListLayout } from '@/components/studentInput/hooks/useStudent
 import { useStudentListView } from '@/components/studentInput/hooks/useStudentListView';
 import { useStudentSelection } from '@/components/studentInput/hooks/useStudentSelection';
 import StudentListToolsRow from '@/components/studentInput/StudentListToolsRow';
+import AttributeFocusMode from '@/components/studentInput/AttributeFocusMode';
+import SegmentedControl from '@/components/ui/controls/SegmentedControl';
 import ListScrollFab from '@/components/studentInput/ListScrollFab';
 import { useIsLgUp } from '@/hooks/ui/useIsLgUp';
 import { useCsvImportWithDialog } from '@/hooks/csv/useCsvImportWithDialog';
@@ -212,6 +214,9 @@ function StudentInput({
 
   // Search / filter / sort and multi-select only appear once a class is big
   // enough for them to help; below that they would just be chrome.
+  // Two ways into the same data: the roster answers "who is in this class",
+  // the focus mode answers "who is restless" for everyone at once.
+  const [listMode, setListMode] = useState<'list' | 'focus'>('list');
   const listView = useStudentListView(students);
   const selection = useStudentSelection(students, listView.visibleStudents);
   const showListTools = students.length >= STUDENT_LIST_TOOLS_THRESHOLD;
@@ -431,7 +436,26 @@ function StudentInput({
             updateStudent={updateStudent}
           />
 
-          {showListTools && listView.visibleStudents.length === 0 ? (
+          {students.length > 0 && (
+            <SegmentedControl
+              options={[
+                { value: 'list' as const, label: t('focusMode.listMode') },
+                { value: 'focus' as const, label: t('focusMode.title') },
+              ]}
+              value={listMode}
+              onChange={setListMode}
+              ariaLabel={t('focusMode.viewLabel')}
+              className="self-start"
+            />
+          )}
+
+          {listMode === 'focus' ? (
+            <AttributeFocusMode
+              students={students}
+              updateStudent={updateStudent}
+              onFinish={() => setListMode('list')}
+            />
+          ) : showListTools && listView.visibleStudents.length === 0 ? (
             <p className="px-1 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
               {t(
                 'listToolbar.noMatches',

@@ -436,5 +436,30 @@
       "social": "Social",
       "space": "Seat & room"
     }
+  },
+  "focusMode": {
+    "title": "Attribute mode",
+    "listMode": "List",
+    "viewLabel": "Class list view",
+    "hint": "Tap everyone it applies to. The rest stays as it is.",
+    "selected_one": "{{count}} selected",
+    "selected_other": "{{count}} selected",
+    "clear": "Clear selection",
+    "progress": "Attribute {{index}} of {{total}}",
+    "previousPass": "Back: {{label}}",
+    "nextPass": "Next: {{label}}",
+    "firstPass": "First attribute",
+    "finish": "Finish pass",
+    "empty": "Add students first.",
+    "questions": {
+      "restless": "Who is restless?",
+      "concentrationIssues": "Who is easily distracted?",
+      "shy": "Who tends to hold back?",
+      "performanceStrong": "Who is a strong learner?",
+      "performanceWeak": "Who needs support?",
+      "needsFrontSeat": "Who should sit near the front?",
+      "prefersWindow": "Who likes sitting by the window?",
+      "prefersDoor": "Who likes sitting near the door?"
+    }
   }
 }

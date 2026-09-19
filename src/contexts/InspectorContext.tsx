@@ -19,6 +19,13 @@ type InspectorContextValue = {
   selectStudent: (id: string) => void;
   toggleStudent: (id: string) => void;
   clear: () => void;
+  /**
+   * True while the active view has nothing for the inspector to show and
+   * wants the width instead — the attribute focus mode asks one question of
+   * the whole class at once, so there is no "the selected one" to inspect.
+   */
+  suspended: boolean;
+  setSuspended: (suspended: boolean) => void;
 };
 
 const InspectorContext = React.createContext<InspectorContextValue | null>(
@@ -42,9 +49,18 @@ export function InspectorProvider({ children }: { children: React.ReactNode }) {
 
   const clear = React.useCallback(() => setSelection(null), []);
 
+  const [suspended, setSuspended] = React.useState(false);
+
   const value = React.useMemo(
-    () => ({ selection, selectStudent, toggleStudent, clear }),
-    [clear, selectStudent, selection, toggleStudent],
+    () => ({
+      selection,
+      selectStudent,
+      toggleStudent,
+      clear,
+      suspended,
+      setSuspended,
+    }),
+    [clear, selectStudent, selection, suspended, toggleStudent],
   );
 
   return (
@@ -71,4 +87,6 @@ const FALLBACK: InspectorContextValue = {
   selectStudent: noop,
   toggleStudent: noop,
   clear: noop,
+  suspended: false,
+  setSuspended: noop,
 };

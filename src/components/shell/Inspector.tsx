@@ -25,7 +25,7 @@ export default function Inspector() {
   const { t } = useTranslation('students');
   const { step, students } = useSeatingPlanState();
   const { updateStudent } = useSeatingPlanActions();
-  const { selection, selectStudent, clear } = useInspector();
+  const { selection, selectStudent, clear, suspended } = useInspector();
   const isPhone = useIsPhone();
 
   const index = React.useMemo(
@@ -48,7 +48,7 @@ export default function Inspector() {
   const sheetRef = useDialogA11y<HTMLDivElement>({ open: isPhone && isOpen });
   useDialogLayer(isPhone && isOpen);
 
-  if (step !== 1) return null;
+  if (step !== 1 || suspended) return null;
 
   const body = student ? (
     <StudentInspector

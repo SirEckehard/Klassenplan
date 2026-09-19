@@ -436,5 +436,30 @@
       "social": "Soziales",
       "space": "Platz & Raum"
     }
+  },
+  "focusMode": {
+    "title": "Merkmal-Modus",
+    "listMode": "Liste",
+    "viewLabel": "Ansicht der Klassenliste",
+    "hint": "Tippe alle an, auf die es zutrifft. Der Rest bleibt, wie er ist.",
+    "selected_one": "{{count}} ausgewählt",
+    "selected_other": "{{count}} ausgewählt",
+    "clear": "Auswahl leeren",
+    "progress": "Merkmal {{index}} von {{total}}",
+    "previousPass": "Zurück: {{label}}",
+    "nextPass": "Weiter: {{label}}",
+    "firstPass": "Erstes Merkmal",
+    "finish": "Durchgang beenden",
+    "empty": "Füge zuerst Schüler hinzu.",
+    "questions": {
+      "restless": "Wer zeigt Unruhe?",
+      "concentrationIssues": "Wer lässt sich leicht ablenken?",
+      "shy": "Wer ist eher zurückhaltend?",
+      "performanceStrong": "Wer ist leistungsstark?",
+      "performanceWeak": "Wer braucht Unterstützung?",
+      "needsFrontSeat": "Wer sollte möglichst vorne sitzen?",
+      "prefersWindow": "Wer sitzt gern am Fenster?",
+      "prefersDoor": "Wer sitzt gern nah an der Tür?"
+    }
   }
 }

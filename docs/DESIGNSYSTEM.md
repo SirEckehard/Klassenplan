@@ -91,7 +91,7 @@ The central radii live in `@theme`:
 
 `--radius-pill` keeps its name for compatibility; controls stopped being pills. Only badges and avatars stay circular.
 
-A segmented control is `segmented-track` around `pill-tab-base` options, one of them carrying `pill-tab-active`. The active option is a raised paper pill rather than a blue one — blue means "you can act here", and which view you are looking at is not an action. `--surface-sunken` is the recessed ground it sits on.
+A segmented control is `SegmentedControl` (`components/ui/controls/`), which wraps `segmented-track` around `pill-tab-base` options, one of them carrying `pill-tab-active`. Reach for the component, not the classes. The active option is a raised paper pill rather than a blue one — blue means "you can act here", and which view you are looking at is not an action. `--surface-sunken` is the recessed ground it sits on.
 
 **Borders & shadows**
 

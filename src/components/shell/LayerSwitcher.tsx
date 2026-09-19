@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import React, { useCallback, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   AddressBookTabsIcon,
@@ -8,12 +8,7 @@ import {
   GridNineIcon,
   CircleDashedIcon,
 } from '@phosphor-icons/react';
-import {
-  pillTabActiveClass,
-  pillTabBaseClass,
-  pillTabInactiveClass,
-  segmentedTrackClass,
-} from '@/utils';
+import SegmentedControl from '@/components/ui/controls/SegmentedControl';
 import { prefetchGeneratorStep } from '@/utils/performance/generatorPrefetch';
 
 export interface LayerSwitcherProps {
@@ -23,6 +18,8 @@ export interface LayerSwitcherProps {
   className?: string;
 }
 
+type LayerValue = '1' | '2' | '3';
+
 /**
  * Klasse · Raum · Plan.
  *
@@ -31,9 +28,6 @@ export interface LayerSwitcherProps {
  * constantly. A segmented control says "you are looking at one of three
  * things"; a progress bar said "you are on your way somewhere", which stopped
  * being true after the first class.
- *
- * The active option is a raised paper pill rather than a blue one: blue means
- * "you can act here", and which layer you are looking at is not an action.
  */
 export default function LayerSwitcher({
   currentStep,
@@ -43,12 +37,20 @@ export default function LayerSwitcher({
 }: LayerSwitcherProps) {
   const { t } = useTranslation('generator');
 
-  const layers = useMemo(
+  const options = useMemo(
     () => [
-      { step: 1, icon: AddressBookTabsIcon, label: t('shell.layers.class') },
-      { step: 2, icon: HouseIcon, label: t('shell.layers.room') },
       {
-        step: 3,
+        value: '1' as LayerValue,
+        icon: AddressBookTabsIcon,
+        label: t('shell.layers.class'),
+      },
+      {
+        value: '2' as LayerValue,
+        icon: HouseIcon,
+        label: t('shell.layers.room'),
+      },
+      {
+        value: '3' as LayerValue,
         icon: seatingMode === 'circle' ? CircleDashedIcon : GridNineIcon,
         label:
           seatingMode === 'circle'
@@ -59,41 +61,22 @@ export default function LayerSwitcher({
     [seatingMode, t],
   );
 
-  const handleHover = useCallback((step: number) => {
+  const handlePointed = useCallback((value: LayerValue) => {
+    const step = Number(value);
     if (step > 1) {
       void prefetchGeneratorStep(step, 'hover');
     }
   }, []);
 
   return (
-    <div
-      className={`${segmentedTrackClass} ${className}`}
-      role="tablist"
-      aria-label={t('shell.layerSwitchLabel')}
-    >
-      {layers.map(({ step, icon: Icon, label }) => {
-        const isActive = step === currentStep;
-        return (
-          <button
-            key={step}
-            type="button"
-            role="tab"
-            aria-selected={isActive}
-            onClick={() => {
-              if (!isActive) onStepChange(step);
-            }}
-            onMouseEnter={() => handleHover(step)}
-            onFocus={() => handleHover(step)}
-            className={`${pillTabBaseClass} ${
-              isActive ? pillTabActiveClass : pillTabInactiveClass
-            } gap-2 px-3 py-1.5 sm:px-4`}
-          >
-            <Icon size={17} aria-hidden="true" />
-            <span className="hidden sm:inline">{label}</span>
-            <span className="sr-only sm:hidden">{label}</span>
-          </button>
-        );
-      })}
-    </div>
+    <SegmentedControl
+      options={options}
+      value={String(currentStep) as LayerValue}
+      onChange={(value) => onStepChange(Number(value))}
+      onOptionPointed={handlePointed}
+      ariaLabel={t('shell.layerSwitchLabel')}
+      compactLabels
+      className={className}
+    />
   );
 }
