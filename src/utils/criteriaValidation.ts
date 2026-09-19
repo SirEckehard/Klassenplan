@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import type { Student, ScalarMixSettingKey } from '@/types';
+import { hasWishPartners, hasAvoidPartners } from './student/partnerUtils';
 
 /**
  * Result of checking if a criterion is available for use
@@ -25,7 +26,7 @@ export function isCriterionAvailable(
 ): CriterionAvailability {
   switch (key) {
     case 'considerWishPartners': {
-      const available = students.some((s) => s.wishPartnerId);
+      const available = students.some(hasWishPartners);
       return {
         key,
         available,
@@ -36,7 +37,7 @@ export function isCriterionAvailable(
     }
 
     case 'avoidConflictPartners': {
-      const available = students.some((s) => s.avoidPartnerId);
+      const available = students.some(hasAvoidPartners);
       return {
         key,
         available,

@@ -411,6 +411,42 @@ describe('studentAppearance', () => {
       ]);
     });
 
+    it('names every partner of the array fields in one badge', () => {
+      const secondWish: Student = {
+        ...wishPartner,
+        id: 'wish-2',
+        name: 'Second Wish',
+      };
+      const student: Student = {
+        id: 'student-multi',
+        name: 'Multi',
+        gender: 'girl',
+        restless: false,
+        shy: false,
+        concentrationIssues: false,
+        needsFrontSeat: false,
+        performanceStrong: false,
+        performanceWeak: false,
+        // No legacy field, as the sample class stores it
+        wishPartnerId: null,
+        wishPartnerIds: ['wish', 'wish-2'],
+        avoidPartnerIds: ['avoid'],
+      };
+
+      const badges = getAllStudentBadges(
+        student,
+        [student, wishPartner, secondWish, avoidPartner],
+        { showPartners: true },
+      );
+
+      const wishBadge = badges.find((badge) => badge.key === 'wishPartner');
+      const avoidBadge = badges.find((badge) => badge.key === 'avoidPartner');
+
+      expect(wishBadge?.tooltip).toContain('Wish Partner');
+      expect(wishBadge?.tooltip).toContain('Second Wish');
+      expect(avoidBadge?.tooltip).toContain('Avoid Partner');
+    });
+
     it('uses step-one color palette for height and partner badges', () => {
       const student: Student = {
         id: 'student-colors',

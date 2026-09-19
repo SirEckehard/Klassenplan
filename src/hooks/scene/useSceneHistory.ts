@@ -2,7 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import type { ClassroomScene, SeatingArrangement, Student } from '@/types';
-import { deepClone } from '@/utils';
+import { deepClone, getWishPartnerIds, getAvoidPartnerIds } from '@/utils';
 import { FEATURE_TYPES, type FeatureVisibilityFlags } from '@/utils/ui';
 import type {
   CommittedSceneState,
@@ -79,8 +79,8 @@ const hashStudent = (hash: number, student: Student): number => {
   hash = mixBoolean(hash, student.shy);
   hash = mixBoolean(hash, student.concentrationIssues);
   hash = mixBoolean(hash, student.needsFrontSeat);
-  hash = mixString(hash, student.wishPartnerId);
-  hash = mixString(hash, student.avoidPartnerId);
+  hash = mixString(hash, getWishPartnerIds(student).join(','));
+  hash = mixString(hash, getAvoidPartnerIds(student).join(','));
   hash = mixBoolean(hash, student.prefersWindow);
   hash = mixBoolean(hash, student.prefersDoor);
   hash = mixBoolean(hash, student.performanceStrong);

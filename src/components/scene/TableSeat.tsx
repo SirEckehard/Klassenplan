@@ -14,6 +14,8 @@ import {
   getDisplayNameForMode,
   getTooltipName,
   calculateSeatLabelFontSize,
+  getWishPartnerIds,
+  getAvoidPartnerIds,
 } from '@/utils';
 import type { NameDisplayMode, NameLabels } from '@/utils';
 import type { SeatKeyboardEventInfo } from '@/hooks/scene/useSeatKeyboardMove';
@@ -782,8 +784,8 @@ const MemoizedTableSeat = React.memo(TableSeat, (prevProps, nextProps) => {
       prev.gender !== next.gender ||
       prev.height !== next.height ||
       prev.needsFrontSeat !== next.needsFrontSeat ||
-      prev.wishPartnerId !== next.wishPartnerId ||
-      prev.avoidPartnerId !== next.avoidPartnerId
+      getWishPartnerIds(prev).join(',') !== getWishPartnerIds(next).join(',') ||
+      getAvoidPartnerIds(prev).join(',') !== getAvoidPartnerIds(next).join(',')
     ) {
       return false;
     }

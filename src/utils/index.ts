@@ -152,6 +152,7 @@ export {
   hasAvoidPartners,
   wishesToSitWith,
   wantsToAvoid,
+  isWishPair,
   isMutualWish,
   hasWishAvoidConflict,
 } from './student/partnerUtils';

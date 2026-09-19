@@ -1,6 +1,6 @@
 # Architecture
 
-> **Status:** current · **Last reviewed:** 2026-09-17 · **Maintainer:** Eike
+> **Status:** current · **Last reviewed:** 2026-09-19 · **Maintainer:** Eike
 > Schäfer · **Describes:** Klassenplan 2.2.0
 
 This is the entry point for anyone who wants to understand _why_ Klassenplan is
@@ -392,6 +392,19 @@ a decision record once taken.
    actual reason next to the constant.
 
 ## Resolved questions
+
+**Partner wishes were read from the field they are no longer written to**
+(resolved 2026-09-19). Wishes became lists (`wishPartnerIds` /
+`avoidPartnerIds`), but the criterion availability check and
+`useAutoMixSettings` still asked for the single-value `wishPartnerId`. A class
+whose wishes lived only in the list — the sample class, among others — counted
+as having none: both partner criteria disappeared from the sidebar, their
+weights were cleared, the algorithm scored the wishes at zero and the
+statistics dropped the row. _Decision:_ `utils/student/partnerUtils.ts` is the
+one module that knows about the legacy fields; every reader goes through
+`getWishPartnerIds` / `getAvoidPartnerIds`, and the duplicates of that logic in
+statistics, scoring, `studentSync` and the unused `utils/data/studentMigration.ts`
+are gone.
 
 **The mix history kept the constructed arrangement** (resolved 2026-09-14).
 With criteria active, _Mischen_ refined after the result was added to the

@@ -176,3 +176,13 @@ Two properties matter here:
 
 `MIX_HISTORY_CONTRIBUTION` is the tuning knob if repeated shuffling turns out to
 vary too much or too little.
+
+### Wish pairs are exempt
+
+A pair the class asked for is not a repetition worth breaking up: while
+`considerWishPartners` is active, `avoidPreviousPairs` skips its penalty for a
+wish pair — in construction (`src/utils/algorithm/scoring/historyScoring.ts`) as
+in refinement (`src/utils/algorithm/scoring/arrangementScoring.ts`). A wish in
+**either** direction is enough, because the wish belongs to the pair rather than
+to whoever wrote it down, and every wish of the list counts, not only the first
+one (`isWishPair` in `src/utils/student/partnerUtils.ts`).

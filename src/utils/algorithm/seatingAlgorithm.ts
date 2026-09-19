@@ -13,6 +13,7 @@ import type {
 import { evenTargetsFor } from '@/utils/distribution';
 import { shuffleArray } from './shuffle';
 import { buildPreviousPairs } from '@/utils/pairs';
+import { getWishPartnerIds } from '@/utils/student/partnerUtils';
 import {
   DEFAULT_TRIES_PER_PASS,
   DEFAULT_PASSES,
@@ -142,19 +143,8 @@ export function reorderByWishPartners(
   // below and push the same student into `reordered` twice — one seat too many
   // for them, none for somebody else. The editor and the CSV import both drop
   // such an id; this is the guard for data that came in another way.
-  const getWishIds = (s: Student): string[] => {
-    if (Array.isArray(s.wishPartnerIds) && s.wishPartnerIds.length > 0) {
-      return s.wishPartnerIds.filter((id) => id !== s.id && map.has(id));
-    }
-    if (
-      s.wishPartnerId &&
-      s.wishPartnerId !== s.id &&
-      map.has(s.wishPartnerId)
-    ) {
-      return [s.wishPartnerId];
-    }
-    return [];
-  };
+  const getWishIds = (s: Student): string[] =>
+    getWishPartnerIds(s).filter((id) => id !== s.id && map.has(id));
 
   const wishGraph = new Map<string, Set<string>>();
   for (const s of ordered) {

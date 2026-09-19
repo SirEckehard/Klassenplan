@@ -1,6 +1,6 @@
 # Data Model
 
-> **Status:** current · **Last reviewed:** 2026-09-17 · **Source of truth:**
+> **Status:** current · **Last reviewed:** 2026-09-19 · **Source of truth:**
 > `src/utils/data/storageKeys.ts`, `src/types/`, `src/repositories/`
 
 Everything Klassenplan stores lives in the teacher's browser. This document
@@ -86,9 +86,11 @@ interface ClassRecord {
   ([decision 0014](decisions/0014-mix-history-records-refined-plan.md)).
 - **`lockedPositions`** maps a student id to `{ table, seat }`.
 - **Partner wishes** are stored as `wishPartnerIds` / `avoidPartnerIds`. The
-  single-value fields `wishPartnerId` / `avoidPartnerId` predate them;
-  `migrateStudentPartnerFields` converts them on load, and the CSV import still
-  fills both for compatibility.
+  single-value fields `wishPartnerId` / `avoidPartnerId` predate them and are
+  still written by the editors and the CSV import for compatibility. Records
+  are not rewritten on load: every reader normalizes both shapes through
+  `getWishPartnerIds` / `getAvoidPartnerIds` (`src/utils/student/partnerUtils.ts`),
+  which is the only place allowed to know about the legacy fields.
 - **Photos are not part of the record.** A student only carries `hasPhoto`.
 
 ### How changes reach storage

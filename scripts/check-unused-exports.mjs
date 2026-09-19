@@ -33,11 +33,15 @@ const rootDir = path.resolve(
  * Lower it whenever a cleanup drops the real count — that is what makes the
  * ratchet tighten. Raising it needs a reason in the same commit.
  *
+ * 53 (2026-09-19): `utils/data/studentMigration.ts` removed — nothing called
+ * it, the readers normalize the legacy partner fields through
+ * `utils/student/partnerUtils.ts` instead.
+ *
  * 54 (2026-09-16): `services/backup/dataBackup.ts` moved behind a dynamic
  * import to leave the initial bundle, and the tool does not follow `import()`;
  * `exportAllAsJson` is the one export of it no test imports statically.
  */
-const BASELINE = 54;
+const BASELINE = 53;
 
 const IGNORE_FILES = 'vite-env.d.ts|index.tsx|App.tsx';
 

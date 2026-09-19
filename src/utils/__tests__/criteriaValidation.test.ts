@@ -6,6 +6,7 @@ import {
   isCriterionAvailable,
   getAllCriteriaAvailability,
 } from '../criteriaValidation';
+import { buildDemoStudents } from '../demo/demoClass';
 
 // Helper function to create test students
 function createStudent(id: string, overrides: Partial<Student> = {}): Student {
@@ -44,6 +45,39 @@ describe('criteriaValidation', () => {
       expect(result.reason).toBe(
         'generator:mix.unavailable.considerWishPartners',
       );
+    });
+
+    // The editors keep the legacy single-value field in sync, but the sample
+    // class and any record written before that only carry the array.
+    test('considerWishPartners is available when the wish is only in wishPartnerIds', () => {
+      const students = [
+        createStudent('1'),
+        createStudent('2', { wishPartnerId: null, wishPartnerIds: ['1'] }),
+      ];
+
+      const result = isCriterionAvailable('considerWishPartners', students);
+      expect(result.available).toBe(true);
+    });
+
+    test('avoidConflictPartners is available when the wish is only in avoidPartnerIds', () => {
+      const students = [
+        createStudent('1'),
+        createStudent('2', { avoidPartnerId: null, avoidPartnerIds: ['1'] }),
+      ];
+
+      const result = isCriterionAvailable('avoidConflictPartners', students);
+      expect(result.available).toBe(true);
+    });
+
+    test('both partner criteria are available for the sample class', () => {
+      const students = buildDemoStudents('de');
+
+      expect(
+        isCriterionAvailable('considerWishPartners', students).available,
+      ).toBe(true);
+      expect(
+        isCriterionAvailable('avoidConflictPartners', students).available,
+      ).toBe(true);
     });
 
     test('avoidConflictPartners is available when at least one student has avoidPartnerId', () => {

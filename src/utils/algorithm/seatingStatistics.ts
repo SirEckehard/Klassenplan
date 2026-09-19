@@ -19,6 +19,10 @@ import {
 import { getFeatureDistanceMaps } from './featureDistances';
 import { createGenderCounts, calculateGenderImbalance } from './genderBalance';
 import { determineFrontDirection } from './orientationUtils';
+import {
+  getWishPartnerIds as getWishIds,
+  getAvoidPartnerIds as getAvoidIds,
+} from '@/utils/student/partnerUtils';
 
 // Seat is considered "fulfilled" for environmental preference if it is within
 // the closest 40% of all available distances relative to the farthest seat.
@@ -196,20 +200,6 @@ export function calculateSeatingStatistics(
   let doorPreferenceFulfilled = 0;
   let doorPreferenceTotal = 0;
   let doorPreferenceScoreSum = 0;
-
-  // Helper to get wish/avoid partner IDs (handles both legacy and new format)
-  const getWishIds = (s: Student): string[] => {
-    if (s.wishPartnerIds && s.wishPartnerIds.length > 0)
-      return s.wishPartnerIds;
-    if (s.wishPartnerId) return [s.wishPartnerId];
-    return [];
-  };
-  const getAvoidIds = (s: Student): string[] => {
-    if (s.avoidPartnerIds && s.avoidPartnerIds.length > 0)
-      return s.avoidPartnerIds;
-    if (s.avoidPartnerId) return [s.avoidPartnerId];
-    return [];
-  };
 
   // Count students with specific attributes - now counts all wishes
   students.forEach((s) => {

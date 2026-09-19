@@ -2,11 +2,12 @@
 // Copyright (C) 2026 Eike Schäfer
 import type { ScoringContext } from './scoringContext';
 import { seatPairKey } from '@/utils/pairs';
+import { isWishPair } from '@/utils/student/partnerUtils';
 
 /**
  * Score previous pairs constraint.
  * Penalizes placing students who have been paired together before.
- * Wish partners are exempt from this penalty.
+ * Wish pairs are exempt from this penalty — a wish in either direction counts.
  *
  * @param context - Scoring context with student and position information
  * @returns Positive score for repeated pairs (penalty)
@@ -25,7 +26,7 @@ export const scorePreviousPairs = (context: ScoringContext): number => {
 
     const key = seatPairKey(student.id, other.id);
     const wishPair =
-      settings.considerWishPartners && student.wishPartnerId === other.id;
+      settings.considerWishPartners && isWishPair(student, other);
     const pairPenalty = previousPairs.get(key) ?? 0;
 
     // Don't penalize wish partners even if they were together before

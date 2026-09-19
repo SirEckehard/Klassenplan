@@ -2,19 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import type { Student } from '@/types';
 import { stableStringify } from './jsonUtils';
-
-const normalizePartnerIds = (
-  ids?: string[] | null,
-  legacyId?: string | null,
-): string[] => {
-  if (ids && ids.length > 0) {
-    return ids;
-  }
-  if (legacyId) {
-    return [legacyId];
-  }
-  return [];
-};
+import { getWishPartnerIds, getAvoidPartnerIds } from './student/partnerUtils';
 
 const buildSignaturePayload = (student: Student): Record<string, unknown> => {
   const payload: Record<string, unknown> = {};
@@ -23,14 +11,8 @@ const buildSignaturePayload = (student: Student): Record<string, unknown> => {
     payload[key] = value ?? null;
   });
 
-  const normalizedWishPartners = normalizePartnerIds(
-    student.wishPartnerIds,
-    student.wishPartnerId ?? null,
-  );
-  const normalizedAvoidPartners = normalizePartnerIds(
-    student.avoidPartnerIds,
-    student.avoidPartnerId ?? null,
-  );
+  const normalizedWishPartners = getWishPartnerIds(student);
+  const normalizedAvoidPartners = getAvoidPartnerIds(student);
 
   if (normalizedWishPartners.length > 0) {
     payload.wishPartnerIds = normalizedWishPartners;

@@ -26,6 +26,11 @@ import {
 import { HEIGHT_PLACEMENT_AMPLIFICATION } from './heightScoring';
 import { scoreTableComposition } from './tableScoring';
 import { resolvePerformanceCriterion } from '../../mixSettings';
+import {
+  getWishPartnerIds as getWishIds,
+  getAvoidPartnerIds as getAvoidIds,
+  isWishPair,
+} from '@/utils/student/partnerUtils';
 
 /**
  * Everything {@link scoreTable} needs to rate a table of an existing plan.
@@ -67,20 +72,6 @@ const normalizeFeatureDistance = (
   }
   return Math.min(distance / maxDistance, 1);
 };
-
-const getWishIds = (student: Student): string[] =>
-  student.wishPartnerIds?.length
-    ? student.wishPartnerIds
-    : student.wishPartnerId
-      ? [student.wishPartnerId]
-      : [];
-
-const getAvoidIds = (student: Student): string[] =>
-  student.avoidPartnerIds?.length
-    ? student.avoidPartnerIds
-    : student.avoidPartnerId
-      ? [student.avoidPartnerId]
-      : [];
 
 /** Score the seat pairs of a table: behaviour, partner wishes, performance. */
 const scoreSeatPairs = (
@@ -284,8 +275,7 @@ const scorePreviousPairs = (
     for (let j = i + 1; j < members.length; j++) {
       const mj = members[j]!;
       const pairKey = [mi.id, mj.id].sort().join('::');
-      const wishPair =
-        settings.considerWishPartners && mi.wishPartnerId === mj.id;
+      const wishPair = settings.considerWishPartners && isWishPair(mi, mj);
       if (!wishPair && previousPairs.has(pairKey)) {
         score += settings.avoidPreviousPairs;
       }

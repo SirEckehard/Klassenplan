@@ -145,6 +145,38 @@ describe('historyScoring', () => {
       expect(score).toBe(0); // No penalty for wish partners
     });
 
+    it('does not penalize a wish pair when the seated neighbour holds the wish', () => {
+      const studentB = createMockStudent({
+        id: 's2',
+        name: 'Bob',
+        wishPartnerIds: ['s1'],
+      });
+      baseContext.arrangement[0]![0] = studentB;
+      baseContext.student = createMockStudent({ id: 's1', name: 'Alice' });
+      baseContext.previousPairs.set('s1::s2', 1);
+      baseContext.settings.considerWishPartners = 5;
+      baseContext.seatIndex = 1;
+
+      const score = scorePreviousPairs(baseContext);
+      expect(score).toBe(0);
+    });
+
+    it('does not penalize a wish that is not the first one', () => {
+      const studentB = createMockStudent({ id: 's2', name: 'Bob' });
+      baseContext.arrangement[0]![0] = studentB;
+      baseContext.student = createMockStudent({
+        id: 's1',
+        name: 'Alice',
+        wishPartnerIds: ['s3', 's2'],
+      });
+      baseContext.previousPairs.set('s1::s2', 1);
+      baseContext.settings.considerWishPartners = 5;
+      baseContext.seatIndex = 1;
+
+      const score = scorePreviousPairs(baseContext);
+      expect(score).toBe(0);
+    });
+
     it('uses sorted pair key to match history', () => {
       const studentB = createMockStudent({ id: 's2', name: 'Bob' });
       baseContext.arrangement[0]![0] = studentB;

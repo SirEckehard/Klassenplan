@@ -13,7 +13,13 @@ import type { Student } from '@/types';
  * // Returns: ['id1', 'id2'] or []
  */
 export const getWishPartnerIds = (student: Student): string[] => {
-  if (student.wishPartnerIds && student.wishPartnerIds.length > 0) {
+  // `Array.isArray` rather than a truthy check: a record that came in through a
+  // hand-edited backup can carry anything here, and every caller filters or
+  // iterates the result.
+  if (
+    Array.isArray(student.wishPartnerIds) &&
+    student.wishPartnerIds.length > 0
+  ) {
     return student.wishPartnerIds;
   }
   if (student.wishPartnerId) {
@@ -33,7 +39,10 @@ export const getWishPartnerIds = (student: Student): string[] => {
  * // Returns: ['id1'] or []
  */
 export const getAvoidPartnerIds = (student: Student): string[] => {
-  if (student.avoidPartnerIds && student.avoidPartnerIds.length > 0) {
+  if (
+    Array.isArray(student.avoidPartnerIds) &&
+    student.avoidPartnerIds.length > 0
+  ) {
     return student.avoidPartnerIds;
   }
   if (student.avoidPartnerId) {
@@ -81,6 +90,18 @@ export const wishesToSitWith = (
  */
 export const wantsToAvoid = (studentA: Student, studentB: Student): boolean =>
   getAvoidPartnerIds(studentA).includes(studentB.id);
+
+/**
+ * Checks whether the two students form a wish pair — one wish in either
+ * direction is enough, since the wish is honoured for the pair, not for the
+ * student who happened to write it down.
+ *
+ * @param studentA - First student
+ * @param studentB - Second student
+ * @returns True if either student has the other in their wish list
+ */
+export const isWishPair = (studentA: Student, studentB: Student): boolean =>
+  wishesToSitWith(studentA, studentB) || wishesToSitWith(studentB, studentA);
 
 /**
  * Checks if both students mutually wish to sit together.

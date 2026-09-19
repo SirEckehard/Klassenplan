@@ -2,7 +2,11 @@
 // Copyright (C) 2026 Eike Schäfer
 import { useEffect, useMemo, useRef } from 'react';
 import type { Student, MixSettings } from '@/types';
-import { DEFAULT_MIX_WEIGHTS } from '@/utils';
+import {
+  DEFAULT_MIX_WEIGHTS,
+  hasWishPartners,
+  hasAvoidPartners,
+} from '@/utils';
 
 type StudentNeeds = {
   hasRestlessPair: boolean;
@@ -34,8 +38,8 @@ function calculateStudentNeeds(students: Student[]): StudentNeeds {
     hasRestlessAndConcentration: restlessCount > 0 && concentrationCount > 0,
     hasShy: students.some((s) => s.shy),
     hasNeedsFrontSeat: students.some((s) => s.needsFrontSeat),
-    hasWishPartner: students.some((s) => Boolean(s.wishPartnerId)),
-    hasAvoidPartner: students.some((s) => Boolean(s.avoidPartnerId)),
+    hasWishPartner: students.some(hasWishPartners),
+    hasAvoidPartner: students.some(hasAvoidPartners),
     hasPerformance: students.some(
       (s) => s.performanceStrong === true || s.performanceWeak === true,
     ),

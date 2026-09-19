@@ -3,6 +3,7 @@
 import type { Student, ClassroomScene, SeatingArrangement } from '@/types';
 import type { NeighborhoodAnalysis, NeighborhoodPair } from '@/types/Circle';
 import { getAdjacentSeats, seatPairsFor } from '@/utils/math/seatGeometry';
+import { isWishPair } from '@/utils/student/partnerUtils';
 
 /**
  * Analyzes neighborhood relationships from the current table layout
@@ -196,10 +197,7 @@ function calculateRelationshipStrength(
   let strength = 0.5; // Base strength for any adjacency
 
   // Wish partners get highest priority
-  if (
-    student1.wishPartnerId === student2.id ||
-    student2.wishPartnerId === student1.id
-  ) {
+  if (isWishPair(student1, student2)) {
     strength += 0.4;
   }
 

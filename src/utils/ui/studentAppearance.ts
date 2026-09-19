@@ -2,7 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import type { Student, LanguageSkillLevel, SocialRole } from '@/types';
 import i18n from '@/i18n';
-import { STUDENT_FLAGS } from '@/utils';
+import { STUDENT_FLAGS, getWishPartnerIds, getAvoidPartnerIds } from '@/utils';
 import {
   HeartIcon,
   HeartBreakIcon,
@@ -476,6 +476,12 @@ export function getStudentBadges(
   }));
 }
 
+/** Names of the referenced students, skipping ids that no longer exist. */
+const partnerNames = (ids: string[], allStudents: Student[]): string[] =>
+  ids
+    .map((id) => allStudents.find((s) => s.id === id)?.name)
+    .filter((name): name is string => Boolean(name));
+
 /**
  * Get partner badges (wish/avoid partners)
  *
@@ -501,34 +507,29 @@ export function getPartnerBadges(
 
   const badges: PartnerBadge[] = [];
 
-  // Wish partner badge
-  if (student.wishPartnerId) {
-    const partner = allStudents.find((s) => s.id === student.wishPartnerId);
-    if (partner) {
-      const label = ts('partners.wishPartner', 'Wunschpartner');
-      badges.push({
-        key: 'wishPartner',
-        label,
-        icon: HeartIcon,
-        tooltip: `${label}: ${partner.name}`,
-        color: '#22c55e', // green-500
-      });
-    }
+  // One badge per direction, naming every partner in priority order
+  const wishNames = partnerNames(getWishPartnerIds(student), allStudents);
+  if (wishNames.length > 0) {
+    const label = ts('partners.wishPartner', 'Wunschpartner');
+    badges.push({
+      key: 'wishPartner',
+      label,
+      icon: HeartIcon,
+      tooltip: `${label}: ${wishNames.join(', ')}`,
+      color: '#22c55e', // green-500
+    });
   }
 
-  // Avoid partner badge
-  if (student.avoidPartnerId) {
-    const partner = allStudents.find((s) => s.id === student.avoidPartnerId);
-    if (partner) {
-      const label = ts('partners.distancePartner', 'Distanzwunsch');
-      badges.push({
-        key: 'avoidPartner',
-        label,
-        icon: HeartBreakIcon,
-        tooltip: `${label}: ${partner.name}`,
-        color: '#f43f5e', // rose-500
-      });
-    }
+  const avoidNames = partnerNames(getAvoidPartnerIds(student), allStudents);
+  if (avoidNames.length > 0) {
+    const label = ts('partners.distancePartner', 'Distanzwunsch');
+    badges.push({
+      key: 'avoidPartner',
+      label,
+      icon: HeartBreakIcon,
+      tooltip: `${label}: ${avoidNames.join(', ')}`,
+      color: '#f43f5e', // rose-500
+    });
   }
 
   return badges;
