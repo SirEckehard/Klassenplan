@@ -1,8 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import { useTranslation } from 'react-i18next';
+import { ChalkboardTeacherIcon, ExportIcon } from '@phosphor-icons/react';
 import { LocalizedLink } from '@/components/LocalizedLink';
 import LayerSwitcher from '@/components/shell/LayerSwitcher';
+import HeaderClassMenu from '@/components/shell/HeaderClassMenu';
+import HeaderPlanName from '@/components/shell/HeaderPlanName';
 import HelpButton from '@/components/ui/buttons/HelpButton';
 import OnboardingTour from '@/components/onboarding/OnboardingTour';
 import { resolveTourId } from '@/components/onboarding/tours';
@@ -14,7 +17,14 @@ import {
 import { useClassManagementContext } from '@/contexts/seatingPlan/ClassManagementContext';
 import { useSeatingPlanSelector } from '@/contexts/seatingPlan/seatingPlanSelectors';
 import { useOnboardingTour } from '@/hooks/onboarding/onboardingTourStore';
-import { type ShortcutContext } from '@/utils';
+import { usePlanExits } from '@/hooks/plan/usePlanExits';
+import {
+  primaryButtonClass,
+  secondaryButtonClass,
+  showToast,
+  TOAST_MESSAGES,
+  type ShortcutContext,
+} from '@/utils';
 import { KpLockup } from '@/components/KpLockup';
 
 /**
@@ -32,6 +42,7 @@ export default function SeatingPlanHeader() {
   const { handleStepChange } = useSeatingPlanActions();
   const { activeClass } = useClassManagementContext();
   const { requestTour } = useOnboardingTour();
+  const { exportPlan, presentPlan, canExit } = usePlanExits();
   const autoMixing = useSeatingPlanSelector(({ state }) => state.autoMixing);
   const tourId = resolveTourId(
     step,
@@ -39,6 +50,18 @@ export default function SeatingPlanHeader() {
     seatingMode,
     autoMixing,
   );
+
+  // Both exits stay clickable without a plan: a disabled button in the header
+  // would leave a teacher guessing, a toast says what is missing.
+  const guardExit = (run: () => void) => () => {
+    if (!canExit) {
+      showToast('info', TOAST_MESSAGES.PLAN_NONE_YET);
+      return;
+    }
+    run();
+  };
+  const handleExport = guardExit(exportPlan);
+  const handlePresent = guardExit(presentPlan);
 
   // Handle layer changes
   const onStepChange = (targetStep: number) => {
@@ -120,16 +143,21 @@ export default function SeatingPlanHeader() {
 
   return (
     <header className="sticky top-0 z-30 border-b border-(--border-card) bg-(--surface-card)">
-      <div className="mx-auto flex h-14 max-w-7xl flex-row items-center justify-between gap-4 px-4">
-        {/* Left - Logo + Branding */}
-        <h1 className="flex shrink-0 items-center">
-          <LocalizedLink
-            to="/"
-            className="kp-lockup focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
-          >
-            <KpLockup size="sm" hideWordmarkOnMobile />
-          </LocalizedLink>
-        </h1>
+      <div className="mx-auto flex h-14 max-w-7xl flex-row items-center justify-between gap-3 px-4">
+        {/* Left — the brand, and the class as the name of the open document */}
+        <div className="flex min-w-0 shrink items-center gap-3">
+          <h1 className="flex shrink-0 items-center">
+            <LocalizedLink
+              to="/"
+              className="kp-lockup focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
+            >
+              <KpLockup size="sm" hideWordmarkOnMobile />
+            </LocalizedLink>
+          </h1>
+          <HeaderClassMenu />
+          {/* The plan is the version of that class currently open. */}
+          {step === 3 && <HeaderPlanName />}
+        </div>
 
         {/* Centre - the three layers of the classroom */}
         <LayerSwitcher
@@ -138,8 +166,8 @@ export default function SeatingPlanHeader() {
           seatingMode={seatingMode}
         />
 
-        {/* Right - Help Button */}
-        <div className="flex shrink-0 items-center">
+        {/* Right — help, and the two ways out: export and the smartboard */}
+        <div className="flex shrink-0 items-center gap-2">
           {helpContent && (
             <HelpButton
               title={helpContent.title}
@@ -148,6 +176,32 @@ export default function SeatingPlanHeader() {
               onStartTour={tourId ? () => requestTour(tourId) : undefined}
             />
           )}
+          {/* Both stay clickable without a plan so the toast can say why
+              nothing happened — see `usePlanExits`. */}
+          <button
+            type="button"
+            onClick={handleExport}
+            title={t('actions.exportShortcut')}
+            className={`${secondaryButtonClass} hidden h-9 gap-2 px-3 text-sm md:inline-flex ${
+              canExit ? '' : 'opacity-60'
+            }`}
+            aria-disabled={canExit ? undefined : true}
+          >
+            <ExportIcon className="h-4 w-4" aria-hidden="true" />
+            {t('actions.export')}
+          </button>
+          <button
+            type="button"
+            onClick={handlePresent}
+            title={t('present.buttonTitle')}
+            className={`${primaryButtonClass} h-9 gap-2 px-3 text-sm ${
+              canExit ? '' : 'opacity-60'
+            }`}
+            aria-disabled={canExit ? undefined : true}
+          >
+            <ChalkboardTeacherIcon className="h-4 w-4" aria-hidden="true" />
+            <span className="hidden sm:inline">{t('present.button')}</span>
+          </button>
         </div>
       </div>
 

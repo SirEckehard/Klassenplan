@@ -22,6 +22,8 @@ interface CanvasToolbarProps {
    * Whether redo is available (redo stack not empty)
    */
   canRedo: boolean;
+  /** Overrides the canvas sizing where the pair sits in a tighter row. */
+  buttonClass?: string;
 }
 
 const canvasButtonClass = `${mutedIconButtonClass} h-12 w-12 text-gray-700 transition disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-100`;
@@ -40,6 +42,7 @@ const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
   canUndo,
   onRedo,
   canRedo,
+  buttonClass = canvasButtonClass,
 }) => {
   const { t } = useTranslation('generator');
   return (
@@ -52,7 +55,7 @@ const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
       redoTitle={t('canvas.redo', 'Wiederherstellen (Strg/Cmd+Y)')}
       undoLabel={t('canvas.undoLabel', 'Letzte Aktion rückgängig machen')}
       redoLabel={t('canvas.redoLabel', 'Letzte Aktion wiederherstellen')}
-      buttonClass={canvasButtonClass}
+      buttonClass={buttonClass}
     />
   );
 };

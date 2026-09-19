@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import equal from 'fast-deep-equal';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   LinkSimpleIcon,
@@ -12,13 +11,13 @@ import {
   EyeSlashIcon,
   CursorIcon,
 } from '@phosphor-icons/react';
-import { useNavigate } from 'react-router-dom';
 import SmartSidebar from '@/components/ui/panels/SmartSidebar';
-import CircleViewControls from '@/components/ui/controls/CircleViewControls';
+import PlanToolPanel from '@/components/SeatingPlanGenerator/views/PlanToolPanel';
+import { ToolRailButton } from '@/components/shell/ToolRail';
+import StatusBarPortal from '@/components/shell/StatusBarPortal';
 import SeatingPlanView from './SeatingPlanView';
 import SimpleCircleView from '@/components/circle/SimpleCircleView';
-import CircleControlBar from '@/components/circle/CircleControlBar';
-import SeatingModeToggle, { type SeatingMode } from './SeatingModeToggle';
+import { type SeatingMode } from './SeatingModeToggle';
 import type { ConnectionDisplayMode } from '@/components/circle/SimpleCircleView';
 import type { PhotoDisplayMode } from '@/types';
 import {
@@ -34,12 +33,11 @@ import type { Props as SeatingPlanViewProps } from './SeatingPlanView';
 import {
   canvasFrameClass,
   LOCAL_STORAGE_KEYS,
+  primaryButtonClass,
   secondaryButtonClass,
   type NameDisplayMode,
 } from '@/utils';
 import { buildNameDisplayGroup } from '@/components/SeatingPlanGenerator/canvas/nameDisplayGroup';
-import SeatingHistoryToolbar from '@/components/SeatingPlanGenerator/canvas/SeatingHistoryToolbar';
-import { CanvasSettingsButton } from '@/components/SeatingPlanGenerator/canvas/CanvasSettingsButton';
 import { useEnsureCircleLayout } from '@/hooks/circle/useEnsureCircleLayout';
 
 type EnhancedSeatingPlanViewProps = SeatingPlanViewProps & {
@@ -59,8 +57,7 @@ export default function EnhancedSeatingPlanView(
     showModeToggle: propShowModeToggle,
     ...seatingPlanViewProps
   } = props;
-  const navigate = useNavigate();
-  const { circleLayout, circleGenerationInProgress } = useSeatingPlanState();
+  const { circleLayout } = useSeatingPlanState();
   const {
     generateCircleSeating,
     swapStudentPositions,
@@ -154,45 +151,6 @@ export default function EnhancedSeatingPlanView(
       batchSwapStudentPositions(swaps);
     }
   };
-
-  // CheckIcon if there are unsaved changes compared to the saved plan (for circle view export)
-  const hasUnsavedChanges = useCallback(() => {
-    const trimmedName = props.planName.trim();
-    if (!trimmedName) return true; // New unnamed plan
-
-    const savedPlan = props.seatingHistory?.find((p) => p.name === trimmedName);
-    if (!savedPlan) return true; // Plan doesn't exist yet
-
-    // Compare current state with saved plan
-    const seatingChanged = !equal(savedPlan.seating, props.currentSeating);
-    const sceneChanged = !equal(savedPlan.scene, props.classroomScene);
-    const circleChanged = !equal(savedPlan.circleLayout, circleLayout);
-
-    return seatingChanged || sceneChanged || circleChanged;
-  }, [
-    props.planName,
-    props.seatingHistory,
-    props.currentSeating,
-    props.classroomScene,
-    circleLayout,
-  ]);
-
-  // Export handler that saves only if there are changes
-  const handleExportWithConditionalSave = useCallback(() => {
-    if (hasUnsavedChanges()) {
-      props.saveSeatingPlan(props.planName, props.classroomScene, circleLayout);
-    }
-    navigate('/export');
-  }, [hasUnsavedChanges, props, circleLayout, navigate]);
-
-  // Present handler that saves only if there are changes, then opens the
-  // smartboard view directly in circle mode.
-  const handlePresentWithConditionalSave = useCallback(() => {
-    if (hasUnsavedChanges()) {
-      props.saveSeatingPlan(props.planName, props.classroomScene, circleLayout);
-    }
-    navigate('/present', { state: { mode: 'circle' } });
-  }, [hasUnsavedChanges, props, circleLayout, navigate]);
 
   const circleStudentNames = useMemo(
     () =>
@@ -291,10 +249,36 @@ export default function EnhancedSeatingPlanView(
           {!isPhone && (
             <SmartSidebar>
               {({ isExpanded }) => (
-                <CircleViewControls
-                  onSyncCircle={() => void generateCircleSeating()}
-                  onShuffleCircle={handleShuffleCircle}
-                  isExpanded={isExpanded}
+                <PlanToolPanel
+                  density={isExpanded ? 'comfortable' : 'compact'}
+                  seatingMode="circle"
+                  onModeChange={handleModeChange}
+                  showModeToggle={showModeToggle}
+                  settingsGroups={circleSettingsGroups}
+                  onSavePlan={() =>
+                    props.saveSeatingPlan(
+                      props.planName,
+                      props.classroomScene,
+                      circleLayout,
+                    )
+                  }
+                  canSavePlan={props.currentSeating.length > 0}
+                  extraTools={
+                    <>
+                      <ToolRailButton
+                        icon={<ArrowCounterClockwiseIcon size={18} />}
+                        label={t('circleView.syncButton')}
+                        title={t('circleView.syncTitle')}
+                        onClick={() => void generateCircleSeating()}
+                      />
+                      <ToolRailButton
+                        icon={<ShuffleIcon size={18} />}
+                        label={t('circleView.shuffleButton')}
+                        title={t('circleView.shuffleTitle')}
+                        onClick={handleShuffleCircle}
+                      />
+                    </>
+                  }
                 />
               )}
             </SmartSidebar>
@@ -305,26 +289,6 @@ export default function EnhancedSeatingPlanView(
               className={`${canvasFrameClass} select-none`}
               style={{ width: '100%', maxWidth: '100vw' }}
             >
-              {/* Undo/redo — the circle shares the seating history, so a
-                  mis-drop here is taken back the same way as on the plan. */}
-              <div className="absolute top-3 left-3 z-20">
-                <SeatingHistoryToolbar />
-              </div>
-
-              {/* SeatingModeToggle - fixed top-right */}
-              <div className="absolute top-3 right-3 z-10 opacity-80">
-                <SeatingModeToggle
-                  mode={seatingMode}
-                  onModeChange={handleModeChange}
-                  disabled={circleGenerationInProgress}
-                />
-              </div>
-
-              <CanvasSettingsButton
-                groups={circleSettingsGroups}
-                buttonTitle={t('editor.viewSettings', 'Ansichtseinstellungen')}
-              />
-
               {circleLayout ? (
                 <SimpleCircleView
                   layout={circleLayout}
@@ -443,19 +407,22 @@ export default function EnhancedSeatingPlanView(
               </div>
             )}
 
-            <CircleControlBar
-              planName={props.planName}
-              setPlanName={props.setPlanName}
-              planNameError={props.planNameError}
-              setPlanNameError={props.setPlanNameError}
-              planNameInputRef={props.planNameInputRef}
-              saveSeatingPlan={props.saveSeatingPlan}
-              circleLayout={circleLayout}
-              classroomScene={props.classroomScene}
-              onExport={handleExportWithConditionalSave}
-              onPresent={handlePresentWithConditionalSave}
-              isSaveDisabled={props.currentSeating.length === 0}
-            />
+            {/* The circle's own primary action sits where every layer's
+                does; naming and the two exits live in the header. */}
+            <StatusBarPortal slot="end">
+              <button
+                type="button"
+                onClick={() => void generateCircleSeating()}
+                title={t('circleView.syncTitle')}
+                className={`${primaryButtonClass} flex items-center gap-2 whitespace-nowrap`}
+              >
+                <ArrowCounterClockwiseIcon
+                  className="h-4 w-4"
+                  aria-hidden="true"
+                />
+                {t('circleView.syncButton')}
+              </button>
+            </StatusBarPortal>
           </div>
         </div>
       </div>

@@ -6,7 +6,7 @@ import { render, screen, cleanup } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
 import '@/i18n';
-import SeatingCanvasToolbar from '../SeatingCanvasToolbar';
+import SeatingHistoryToolbar from '../SeatingHistoryToolbar';
 
 const contextValue = vi.hoisted(() => ({
   undoSeating: vi.fn(),
@@ -34,13 +34,13 @@ const getUndo = () =>
     name: /rückgängig|undo/i,
   });
 
-/** Renders with idle-mix defaults; each case overrides only what it asserts on. */
+/** The status bar sets the sizing; the pair itself is what is under test. */
 const renderToolbar = (
-  props: Partial<React.ComponentProps<typeof SeatingCanvasToolbar>> = {},
+  props: Partial<React.ComponentProps<typeof SeatingHistoryToolbar>> = {},
 ) =>
-  render(<SeatingCanvasToolbar onMix={vi.fn()} isMixing={false} {...props} />);
+  render(<SeatingHistoryToolbar buttonClass="quiet-icon-button" {...props} />);
 
-describe('SeatingCanvasToolbar', () => {
+describe('SeatingHistoryToolbar', () => {
   it('disables undo and redo while the history is empty', () => {
     renderToolbar();
 
@@ -59,13 +59,12 @@ describe('SeatingCanvasToolbar', () => {
     expect(contextValue.undoSeating).toHaveBeenCalledTimes(1);
   });
 
-  // "Verfeinern" was removed on 2026-09-14: a second refinement gained nothing
-  // measurable (docs/PERFORMANCE.md#does-a-longer-refinement-help).
-  it('offers no separate refine action', () => {
+  // Mixing is the status bar's primary action, not part of this pair; and
+  // "Verfeinern" was removed on 2026-09-14 because a second refinement gained
+  // nothing measurable (docs/PERFORMANCE.md#does-a-longer-refinement-help).
+  it('carries nothing but undo and redo', () => {
     renderToolbar();
 
-    expect(
-      screen.queryByRole('button', { name: /verfeiner|refine/i }),
-    ).not.toBeInTheDocument();
+    expect(screen.getAllByRole('button')).toHaveLength(2);
   });
 });

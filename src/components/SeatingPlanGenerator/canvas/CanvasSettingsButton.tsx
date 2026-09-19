@@ -235,57 +235,75 @@ export const CanvasSettingsButton = React.forwardRef<
               width: `${panelWidth}px`,
             }}
           >
-            <div className="space-y-4 pr-1">
-              {groups
-                .filter((group) => group.options.length > 0)
-                .map((group) => (
-                  <div key={group.id} className="space-y-2">
-                    {group.title && (
-                      <div className="flex items-center gap-2">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-300">
-                          {group.title}
-                        </p>
-                        {group.headerToggle && (
-                          <ToggleSwitch
-                            size="sm"
-                            checked={group.headerToggle.checked}
-                            onChange={group.headerToggle.onChange}
-                            label={group.headerToggle.label}
-                            title={group.headerToggle.label}
-                            disabled={group.headerToggle.disabled}
-                          />
-                        )}
-                      </div>
-                    )}
-                    <div className="space-y-2">
-                      {group.options.map((option) =>
-                        option.kind === 'iconGrid' ? (
-                          <IconGridSetting key={option.id} option={option} />
-                        ) : option.kind === 'segment' ? (
-                          <SegmentSetting key={option.id} option={option} />
-                        ) : (
-                          <SettingToggle
-                            key={option.id}
-                            icon={option.icon}
-                            label={option.label}
-                            description={option.description}
-                            checked={option.checked}
-                            onChange={(checked) => option.onChange(checked)}
-                            hideCheckboxIndicator
-                            disabled={option.disabled}
-                          />
-                        ),
-                      )}
-                    </div>
-                  </div>
-                ))}
-            </div>
+            <CanvasSettingsGroups groups={groups} />
           </div>
         )}
       </div>
     </div>
   );
 });
+
+/**
+ * The settings themselves, without an opinion on what holds them.
+ *
+ * The canvas button popped them up in a corner of the stage; the layer
+ * toolbars show the same groups in their "what to show" section. Both render
+ * this, so a new option appears in every place the settings are reachable
+ * from.
+ */
+export function CanvasSettingsGroups({
+  groups,
+}: {
+  groups: CanvasSettingsGroup[];
+}) {
+  return (
+    <div className="space-y-4 pr-1">
+      {groups
+        .filter((group) => group.options.length > 0)
+        .map((group) => (
+          <div key={group.id} className="space-y-2">
+            {group.title && (
+              <div className="flex items-center gap-2">
+                <p className="text-xs font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-300">
+                  {group.title}
+                </p>
+                {group.headerToggle && (
+                  <ToggleSwitch
+                    size="sm"
+                    checked={group.headerToggle.checked}
+                    onChange={group.headerToggle.onChange}
+                    label={group.headerToggle.label}
+                    title={group.headerToggle.label}
+                    disabled={group.headerToggle.disabled}
+                  />
+                )}
+              </div>
+            )}
+            <div className="space-y-2">
+              {group.options.map((option) =>
+                option.kind === 'iconGrid' ? (
+                  <IconGridSetting key={option.id} option={option} />
+                ) : option.kind === 'segment' ? (
+                  <SegmentSetting key={option.id} option={option} />
+                ) : (
+                  <SettingToggle
+                    key={option.id}
+                    icon={option.icon}
+                    label={option.label}
+                    description={option.description}
+                    checked={option.checked}
+                    onChange={(checked) => option.onChange(checked)}
+                    hideCheckboxIndicator
+                    disabled={option.disabled}
+                  />
+                ),
+              )}
+            </div>
+          </div>
+        ))}
+    </div>
+  );
+}
 
 /**
  * Renders a multi-state setting as a labelled row with a segmented control

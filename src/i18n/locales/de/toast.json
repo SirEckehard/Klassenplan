@@ -178,6 +178,7 @@
   "plan": {
     "nameChangeError": "Name konnte nicht geändert werden",
     "noneToSave": "Kein Sitzplan zum Speichern",
+    "noneYet": "Noch kein Sitzplan vorhanden — misch zuerst einen auf der Ebene Sitzplan.",
     "saveFailed": "Sitzplan konnte nicht gespeichert werden",
     "saved": "Sitzplan \"{{name}}\" gespeichert"
   },

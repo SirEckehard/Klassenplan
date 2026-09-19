@@ -27,15 +27,11 @@ export type SeatingPlanViewProps = {
   students: Student[];
   studentsCount: number;
   planName: string;
-  setPlanName: (v: string) => void;
   saveSeatingPlan: (
     name: string,
     scene: ClassroomScene,
     circleLayout?: CircleLayout | null,
   ) => void;
-  planNameError: boolean;
-  setPlanNameError: (v: boolean) => void;
-  planNameInputRef: React.RefObject<HTMLInputElement | null>;
   updateClassroomScene: (next: React.SetStateAction<ClassroomScene>) => void;
   moveStudent?: (
     fromTable: number,

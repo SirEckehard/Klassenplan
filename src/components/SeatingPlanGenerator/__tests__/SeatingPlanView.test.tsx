@@ -16,6 +16,29 @@ import {
   setupCleanStorage,
   neutralSettings,
 } from '../../../__tests__/utils';
+import {
+  StatusBarSlotProvider,
+  useStatusBarSlot,
+} from '@/contexts/StatusBarSlotContext';
+
+/**
+ * "Mix again" is the plan layer's primary action and so lives in the shell's
+ * status bar; the view fills that slot through a portal. This stands in for
+ * the shell so the button can be asserted on.
+ */
+function WithStatusBar({ children }: { children: React.ReactNode }) {
+  return (
+    <StatusBarSlotProvider>
+      <StatusBarSlot />
+      {children}
+    </StatusBarSlotProvider>
+  );
+}
+
+function StatusBarSlot() {
+  const { setEndNode } = useStatusBarSlot();
+  return <div ref={setEndNode} />;
+}
 
 describe('SeatingPlanView board visibility', () => {
   beforeEach(() => {
@@ -136,12 +159,14 @@ describe('SeatingPlanView board visibility', () => {
   it('shows auto-mix progress indicators and disables mix button', async () => {
     await act(async () => {
       renderWithProvidersAndRouter(
-        <SeatingPlanView
-          {...createMockSeatingPlanViewProps({
-            step: 3,
-            autoMixing: true,
-          })}
-        />,
+        <WithStatusBar>
+          <SeatingPlanView
+            {...createMockSeatingPlanViewProps({
+              step: 3,
+              autoMixing: true,
+            })}
+          />
+        </WithStatusBar>,
       );
     });
     expect(
@@ -150,8 +175,8 @@ describe('SeatingPlanView board visibility', () => {
       ).length,
     ).toBeGreaterThan(0);
     expect(
-      screen.getByLabelText(/Mischvorgang läuft|Shuffling in progress/i),
-    ).toBeInTheDocument();
+      screen.getByRole('button', { name: /Neu mischen|Mix again/i }),
+    ).toBeDisabled();
   });
 
   it('renders auto-mix error banner with retry button', async () => {

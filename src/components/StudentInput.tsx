@@ -2,7 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import React, { useState, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { GameControllerIcon, InfoIcon, TableIcon } from '@phosphor-icons/react';
+import { InfoIcon, TableIcon } from '@phosphor-icons/react';
 
 import { useStudentManagement } from '@/hooks/student/useStudentManagement';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
@@ -16,7 +16,6 @@ import {
   isFormElementFocused,
   logError,
   secondaryButtonClass,
-  warningButtonClass,
   MAX_STUDENTS,
   NAME_GAME_MIN_PHOTOS,
   STUDENT_LIST_TOOLS_THRESHOLD,
@@ -26,7 +25,13 @@ import type { Student } from '@/types';
 import { useClassManagementContext } from '@/contexts/seatingPlan/ClassManagementContext';
 import { useSeatingPlanActions } from '@/contexts/seatingPlan/store';
 import type { StudentInputProps } from '@/components/studentInput/types';
-import ClassActionsPanel from '@/components/studentInput/ClassActionsPanel';
+import ClassEmptyState from '@/components/studentInput/ClassEmptyState';
+import ClassToolPanel, {
+  type ClassViewMode,
+} from '@/components/studentInput/ClassToolPanel';
+import RelationsView from '@/components/studentInput/RelationsView';
+import SmartSidebar from '@/components/ui/panels/SmartSidebar';
+import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 import MissingNameNotice from '@/components/studentInput/MissingNameNotice';
 import StudentList from '@/components/studentInput/StudentList';
 import NameColumnSelectionDialog from '@/components/students/NameColumnSelectionDialog';
@@ -35,7 +40,6 @@ import { useStudentListView } from '@/components/studentInput/hooks/useStudentLi
 import { useStudentSelection } from '@/components/studentInput/hooks/useStudentSelection';
 import StudentListToolsRow from '@/components/studentInput/StudentListToolsRow';
 import AttributeFocusMode from '@/components/studentInput/AttributeFocusMode';
-import SegmentedControl from '@/components/ui/controls/SegmentedControl';
 import ListScrollFab from '@/components/studentInput/ListScrollFab';
 import { useIsLgUp } from '@/hooks/ui/useIsLgUp';
 import { useCsvImportWithDialog } from '@/hooks/csv/useCsvImportWithDialog';
@@ -110,15 +114,13 @@ function StudentInput({
     addStudent,
     onCardExpand: (id) => setExpandedCardId(id),
   });
-  const {
-    classSummaries,
-    activeClass,
-    selectClass,
-    createClass,
-    updateClassMetadata,
-    deleteClass,
-  } = useClassManagementContext();
-  const { triggerImport } = useSeatingPlanActions();
+  const { activeClass } = useClassManagementContext();
+  const { triggerImport, handleExportAll } = useSeatingPlanActions();
+  const handleCreateBackup = useCallback(() => {
+    handleExportAll().catch((error: unknown) => {
+      logError('Backup export failed', { error }, 'StudentInput');
+    });
+  }, [handleExportAll]);
   const { loadDemoClass, isLoadingDemoClass, hasDemoClass, isDemoClassActive } =
     useDemoClass();
   const handleLoadDemoClass = useCallback(() => {
@@ -216,7 +218,7 @@ function StudentInput({
   // enough for them to help; below that they would just be chrome.
   // Two ways into the same data: the roster answers "who is in this class",
   // the focus mode answers "who is restless" for everyone at once.
-  const [listMode, setListMode] = useState<'list' | 'focus'>('list');
+  const [listMode, setListMode] = useState<ClassViewMode>('list');
   const listView = useStudentListView(students);
   const selection = useStudentSelection(students, listView.visibleStudents);
   const showListTools = students.length >= STUDENT_LIST_TOOLS_THRESHOLD;
@@ -302,35 +304,56 @@ function StudentInput({
     navigate('/namensspiel');
   }, [canPlayNameGame, navigate, photoCount, t]);
 
-  return (
-    // The scroll anchor sits on the step root, not on the list toolbar: the
-    // toolbar only appears from `STUDENT_LIST_TOOLS_THRESHOLD` students up, and
-    // the way back should show the class panel with it either way.
-    <div ref={listTopRef} className="space-y-6">
-      <ClassActionsPanel
-        classSummaries={classSummaries}
-        activeClass={activeClass}
-        selectClass={selectClass}
-        createClass={createClass}
-        updateClassMetadata={updateClassMetadata}
-        deleteClass={deleteClass}
-        studentCount={students.length}
-        placeholderCount={placeholderCount}
-        onPlaceholderCountChange={setPlaceholderCount}
-        onCreatePlaceholders={handlePlaceholderClass}
-        newStudentName={newStudentName}
-        onNewStudentNameChange={setNewStudentName}
-        onAddStudent={handleAddStudent}
-        isAddStudentDisabled={isAddDisabled}
-        onImportCsv={analyzeCsvFile}
-        onExportCsv={downloadStudentsCsv}
+  if (!hasActiveClass) {
+    return (
+      <ClassEmptyState
         onImportBackup={triggerImport}
         onLoadDemoClass={isDemoClassActive ? undefined : handleLoadDemoClass}
         isDemoClassLoading={isLoadingDemoClass}
         hasDemoClass={hasDemoClass}
-        selectionActive={selection.selectedCount > 0}
-      >
-        {showListTools && (
+      />
+    );
+  }
+
+  return (
+    // The direction comes from the same hook that decides whether the toolbar
+    // is a rail or a phone sheet, exactly as in the room and plan layers.
+    <div
+      className={`flex ${isLgUp ? 'flex-row items-start gap-2' : 'flex-col gap-4'}`}
+    >
+      <SmartSidebar tourAnchor={TOUR_ANCHORS.classToolbar}>
+        {({ isExpanded }) => (
+          <ClassToolPanel
+            density={isExpanded ? 'comfortable' : 'compact'}
+            hasActiveClass={hasActiveClass}
+            studentCount={students.length}
+            view={listMode}
+            onViewChange={setListMode}
+            newStudentName={newStudentName}
+            onNewStudentNameChange={setNewStudentName}
+            onAddStudent={handleAddStudent}
+            isAddStudentDisabled={isAddDisabled}
+            placeholderCount={placeholderCount}
+            onPlaceholderCountChange={setPlaceholderCount}
+            onCreatePlaceholders={handlePlaceholderClass}
+            onImportCsv={analyzeCsvFile}
+            onExportCsv={downloadStudentsCsv}
+            onCreateBackup={handleCreateBackup}
+            onPlayNameGame={handleNameGameClick}
+            onLoadDemoClass={
+              isDemoClassActive ? undefined : handleLoadDemoClass
+            }
+            isDemoClassLoading={isLoadingDemoClass}
+            hasDemoClass={hasDemoClass}
+          />
+        )}
+      </SmartSidebar>
+
+      {/* The scroll anchor sits on the stage root: the list toolbar only
+          appears from `STUDENT_LIST_TOOLS_THRESHOLD` students up, and the way
+          back should land above the list either way. */}
+      <div ref={listTopRef} className="min-w-0 flex-1 space-y-4">
+        {showListTools && listMode === 'list' && (
           <StudentListToolsRow
             listView={listView}
             selection={selection}
@@ -340,8 +363,6 @@ function StudentInput({
             onDeleteSelected={() => setBulkDeleteOpen(true)}
           />
         )}
-      </ClassActionsPanel>
-      {!hasActiveClass ? null : (
         <>
           {students.length === 0 && (
             <div
@@ -436,25 +457,14 @@ function StudentInput({
             updateStudent={updateStudent}
           />
 
-          {students.length > 0 && (
-            <SegmentedControl
-              options={[
-                { value: 'list' as const, label: t('focusMode.listMode') },
-                { value: 'focus' as const, label: t('focusMode.title') },
-              ]}
-              value={listMode}
-              onChange={setListMode}
-              ariaLabel={t('focusMode.viewLabel')}
-              className="self-start"
-            />
-          )}
-
           {listMode === 'focus' ? (
             <AttributeFocusMode
               students={students}
               updateStudent={updateStudent}
               onFinish={() => setListMode('list')}
             />
+          ) : listMode === 'relations' ? (
+            <RelationsView students={students} />
           ) : showListTools && listView.visibleStudents.length === 0 ? (
             <p className="px-1 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
               {t(
@@ -481,31 +491,12 @@ function StudentInput({
             />
           )}
         </>
-      )}
 
-      {/* Classroom setup moved to Step 2 - LayoutEditorView */}
-
-      {/* Carrying on to the classroom is the status bar's job now; what is
-          left here is the one side trip this view offers. The ref stays: the
-          mobile scroll affordance uses it to mean "the end of the list". */}
-      {students.length > 0 && (
-        <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-          <button
-            ref={listEndRef}
-            type="button"
-            aria-disabled={!canPlayNameGame}
-            onClick={handleNameGameClick}
-            title={t(
-              'studentInput.nameGameTitle',
-              'Namen deiner Schüler spielerisch lernen',
-            )}
-            className={`${warningButtonClass} w-full justify-center gap-2 sm:w-auto`}
-          >
-            <GameControllerIcon size={16} aria-hidden />
-            {t('studentInput.nameGameButton', 'Namensspiel')}
-          </button>
-        </div>
-      )}
+        {/* The mobile scroll affordance uses this to mean "the end of the
+            list"; the Namensspiel button it used to hang on now sits in the
+            toolbar with the rest of what a whole class can undergo. */}
+        <div ref={listEndRef} aria-hidden="true" />
+      </div>
 
       {students.length > 0 && (
         <ListScrollFab

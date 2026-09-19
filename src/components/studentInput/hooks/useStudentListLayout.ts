@@ -40,7 +40,10 @@ export const useStudentListLayout = ({
   recalcKey,
 }: UseStudentListLayoutOptions) => {
   const cookieBannerOffset = useCookieBannerOffset();
-  const listEndRef = useRef<HTMLButtonElement | null>(null);
+  // Marks the end of the list for the phone's scroll affordance. It used to
+  // be the Namensspiel button; that moved to the toolbar, so what is left is
+  // an empty sentinel element.
+  const listEndRef = useRef<HTMLDivElement | null>(null);
   const floatingActionOffsets = useFloatingActionOffset();
   const { containerRef: listContainerRef, maxHeight: listMaxHeight } =
     useAdaptiveViewportHeight<HTMLDivElement>({

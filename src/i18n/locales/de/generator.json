@@ -100,16 +100,17 @@
     "redoLabel": "Letzte Aktion wiederherstellen"
   },
   "actions": {
-    "shuffle": "Mischen",
-    "reset": "Zurücksetzen",
+    "backShortcut": "Zurück (Alt/Option+←)",
     "export": "Exportieren",
+    "exportShortcut": "Exportieren (Strg/Cmd+E)",
+    "mixAgain": "Neu mischen",
+    "mixNow": "Jetzt neu mischen",
     "print": "Drucken",
+    "reset": "Zurücksetzen",
+    "retryMix": "Erneut mischen",
     "savePlan": "Plan speichern",
     "saveShortcut": "Plan speichern (Strg/Cmd+S)",
-    "exportShortcut": "Exportieren (Strg/Cmd+E)",
-    "backShortcut": "Zurück (Alt/Option+←)",
-    "retryMix": "Erneut mischen",
-    "mixNow": "Jetzt neu mischen"
+    "shuffle": "Mischen"
   },
   "present": {
     "button": "Präsentieren",
@@ -205,9 +206,10 @@
   },
   "mixButton": {
     "label": "Mischen",
-    "title": "Sitzplan mischen",
+    "loadingAriaLabel": "Mischvorgang läuft",
     "loadingTitle": "Mischvorgang läuft...",
-    "loadingAriaLabel": "Mischvorgang läuft"
+    "shortcut": "Neu mischen (Strg/Cmd+M)",
+    "title": "Sitzplan mischen"
   },
   "messages": {
     "noStudents": "Noch keine Schüler hinzugefügt",
@@ -946,5 +948,11 @@
     "deleteTable": "Tisch entfernen",
     "deleteFeature": "Raummerkmal entfernen",
     "deleteSelection": "Auswahl entfernen"
+  },
+  "planToolbar": {
+    "arrangement": "Anordnung",
+    "show": "Im Plan zeigen",
+    "tools": "Werkzeuge",
+    "manage": "Verwalten"
   }
 }

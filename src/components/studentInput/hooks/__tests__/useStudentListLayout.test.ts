@@ -26,8 +26,8 @@ const place = (
   { proceedTop, listTop }: { proceedTop: number; listTop: number },
 ) => {
   act(() => {
-    result.current.listEndRef.current = elementAt<HTMLButtonElement>(
-      'button',
+    result.current.listEndRef.current = elementAt<HTMLDivElement>(
+      'div',
       proceedTop,
     );
     result.current.listTopRef.current = elementAt<HTMLDivElement>(

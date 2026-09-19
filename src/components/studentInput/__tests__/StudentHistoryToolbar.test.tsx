@@ -31,7 +31,7 @@ const renderToolbar = (
         } as StudentManagementContextValue
       }
     >
-      <StudentHistoryToolbar />
+      <StudentHistoryToolbar buttonClass="quiet-icon-button" />
       {children}
     </StudentManagementContext.Provider>,
   );

@@ -5,6 +5,8 @@ import SeatingPlanHeader from '@/components/SeatingPlanGenerator/SeatingPlanHead
 import AppStatusBar from '@/components/shell/AppStatusBar';
 import Inspector from '@/components/shell/Inspector';
 import { InspectorProvider } from '@/contexts/InspectorContext';
+import { ClassDialogsProvider } from '@/contexts/ClassDialogsContext';
+import { StatusBarSlotProvider } from '@/contexts/StatusBarSlotContext';
 
 /**
  * The workspace frame: one header on top, one status bar at the bottom, the
@@ -17,16 +19,22 @@ import { InspectorProvider } from '@/contexts/InspectorContext';
 export default function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <InspectorProvider>
-      <div className="flex min-h-screen flex-col">
-        <SeatingPlanHeader />
-        <main id="main" tabIndex={-1} className="flex-1 px-4 py-6">
-          <div className="mx-auto flex max-w-7xl items-start gap-4">
-            <div className="min-w-0 flex-1">{children}</div>
-            <Inspector />
+      {/* Creating, renaming and deleting a class is reachable from the header
+          on every layer, so the dialogs live above the layer, not inside it. */}
+      <ClassDialogsProvider>
+        <StatusBarSlotProvider>
+          <div className="flex min-h-screen flex-col">
+            <SeatingPlanHeader />
+            <main id="main" tabIndex={-1} className="flex-1 px-4 py-6">
+              <div className="mx-auto flex max-w-7xl items-start gap-4">
+                <div className="min-w-0 flex-1">{children}</div>
+                <Inspector />
+              </div>
+            </main>
+            <AppStatusBar />
           </div>
-        </main>
-        <AppStatusBar />
-      </div>
+        </StatusBarSlotProvider>
+      </ClassDialogsProvider>
     </InspectorProvider>
   );
 }

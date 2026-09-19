@@ -461,5 +461,25 @@
       "prefersWindow": "Wer sitzt gern am Fenster?",
       "prefersDoor": "Wer sitzt gern nah an der Tür?"
     }
+  },
+  "toolRail": {
+    "insert": "Einfügen",
+    "view": "Ansehen",
+    "manage": "Verwalten"
+  },
+  "relations": {
+    "title": "Beziehungen",
+    "description": "Wer möchte neben wem sitzen — und wer lieber nicht. Ein Klick auf einen Namen öffnet ihn rechts.",
+    "wishHeading": "Wunschpartner",
+    "avoidHeading": "Distanzpartner",
+    "mutual": "gegenseitig",
+    "oneSided": "einseitig",
+    "noRelations": "Für diese Klasse ist noch kein Wunsch und kein Distanzpartner eingetragen.",
+    "noRelationsHint": "Wünsche trägst du rechts im Merkmale-Panel unter „Soziales“ ein.",
+    "countWishes_one": "{{count}} Wunsch",
+    "countWishes_other": "{{count}} Wünsche",
+    "countAvoids_one": "{{count}} Distanzwunsch",
+    "countAvoids_other": "{{count}} Distanzwünsche",
+    "unknownStudent": "Unbekannt"
   }
 }

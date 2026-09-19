@@ -25,6 +25,21 @@ const mocks = vi.hoisted(() => ({
 vi.mock('@/contexts/SeatingPlanContext', () => ({
   useSeatingPlanState: () => mocks.state,
   useSeatingPlanActions: () => ({ handleStepChange: mocks.handleStepChange }),
+  useSeatingAlgorithmContext: () => ({
+    undoSeating: vi.fn(),
+    redoSeating: vi.fn(),
+    canUndoSeating: false,
+    canRedoSeating: false,
+  }),
+}));
+
+vi.mock('@/contexts/seatingPlan/StudentManagementContext', () => ({
+  useStudentManagementContext: () => ({
+    undoStudents: vi.fn(),
+    redoStudents: vi.fn(),
+    canUndoStudents: false,
+    canRedoStudents: false,
+  }),
 }));
 
 const named = (count: number) =>
@@ -87,7 +102,11 @@ describe('AppStatusBar', () => {
     render(<AppStatusBar />);
 
     expect(status()).toHaveTextContent(/Noch keine Schüler|No students yet/i);
-    expect(screen.queryByRole('button')).not.toBeInTheDocument();
+    // Undo/redo are always there; what an empty class has no use for is the
+    // way on to the room.
+    expect(
+      screen.queryByRole('button', { name: /Weiter|Next|Proceed/i }),
+    ).not.toBeInTheDocument();
   });
 
   it('weighs seats against students on the room layer', () => {
@@ -142,6 +161,8 @@ describe('AppStatusBar', () => {
     expect(status()).toHaveTextContent(
       /3 von 4 Plätzen besetzt|3 of 4 seats taken/i,
     );
-    expect(screen.queryByRole('button')).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /Weiter|Next|Proceed/i }),
+    ).not.toBeInTheDocument();
   });
 });

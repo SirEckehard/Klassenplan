@@ -54,23 +54,29 @@ export default function Inspector() {
 
   if (suspended) return null;
 
-  // The room layer fills the panel itself. Editing furniture is a pointer job
+  // The room and plan layers fill the panel themselves. Both are pointer jobs
   // on a canvas the phone barely fits already, so the slot is desktop-only.
-  if (step === 2) {
+  if (step === 2 || step === 3) {
     return (
       <aside
-        aria-label={t('generator:sceneInspector.title')}
-        className="sticky top-[4.5rem] hidden w-80 shrink-0 self-start rounded-xl border border-(--border-card) bg-(--surface-card) p-4 lg:block"
+        aria-label={
+          step === 2
+            ? t('generator:sceneInspector.title')
+            : t('generator:mix.title')
+        }
+        className="sticky top-[4.5rem] hidden w-80 shrink-0 self-start overflow-y-auto rounded-xl border border-(--border-card) bg-(--surface-card) p-4 lg:block"
       >
-        <h2 className="mb-3 text-sm font-semibold">
-          {t('generator:sceneInspector.title')}
-        </h2>
+        {/* The plan layer's panel brings its own heading; the room layer's
+            says what the numbers below belong to. */}
+        {step === 2 && (
+          <h2 className="mb-3 text-sm font-semibold">
+            {t('generator:sceneInspector.title')}
+          </h2>
+        )}
         <div ref={setSlotNode} />
       </aside>
     );
   }
-
-  if (step !== 1) return null;
 
   const body = student ? (
     <StudentInspector

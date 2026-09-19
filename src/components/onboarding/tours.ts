@@ -20,6 +20,7 @@ import type { TourId } from '@/hooks/onboarding/onboardingTourStore';
 export const TOUR_ANCHORS = {
   classEmptyState: 'class-empty-state',
   classSwitcher: 'class-switcher',
+  classToolbar: 'class-toolbar',
   addStudents: 'add-students',
   studentRow: 'student-row',
   proceedToLayout: 'proceed-layout',

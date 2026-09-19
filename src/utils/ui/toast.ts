@@ -120,6 +120,7 @@ export const TOAST_MESSAGES = {
   // Plan operations
   PLAN_NAME_CHANGE_ERROR: 'toast:plan.nameChangeError',
   PLAN_NONE_TO_SAVE: 'toast:plan.noneToSave',
+  PLAN_NONE_YET: 'toast:plan.noneYet',
   PLAN_SAVE_FAILED: 'toast:plan.saveFailed',
 
   // Mix operations

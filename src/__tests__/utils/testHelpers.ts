@@ -659,11 +659,7 @@ export const createMockSeatingPlanViewProps = (
     students: [],
     studentsCount: 0,
     planName: '',
-    setPlanName: createMockFn<SeatingPlanViewProps['setPlanName']>(),
     saveSeatingPlan: createMockFn<SeatingPlanViewProps['saveSeatingPlan']>(),
-    planNameError: false,
-    setPlanNameError: createMockFn<SeatingPlanViewProps['setPlanNameError']>(),
-    planNameInputRef: React.createRef<HTMLInputElement>(),
     updateClassroomScene:
       createMockFn<SeatingPlanViewProps['updateClassroomScene']>(),
     removeTables: createMockFn<SeatingPlanViewProps['removeTables']>(),

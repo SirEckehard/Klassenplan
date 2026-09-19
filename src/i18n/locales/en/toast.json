@@ -178,6 +178,7 @@
   "plan": {
     "nameChangeError": "Could not change name",
     "noneToSave": "No seating plan to save",
+    "noneYet": "No seating plan yet — mix one on the plan layer first.",
     "saveFailed": "Could not save seating plan",
     "saved": "Seating plan \"{{name}}\" saved"
   },

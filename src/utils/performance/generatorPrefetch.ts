@@ -36,7 +36,7 @@ const stepModuleLoaders: Record<number, ReadonlyArray<ModuleLoader>> = {
   ],
   3: [
     () => import('@/components/circle/SimpleCircleView'),
-    () => import('@/components/circle/CircleControlBar'),
+    () => import('@/components/SeatingPlanGenerator/views/PlanToolPanel'),
   ],
 };
 

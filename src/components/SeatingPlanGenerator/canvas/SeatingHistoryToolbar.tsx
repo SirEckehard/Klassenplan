@@ -12,7 +12,12 @@ import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
  * algorithm context instead of props — the views it sits in are already the
  * two most prop-heavy components in the app.
  */
-export default function SeatingHistoryToolbar() {
+export default function SeatingHistoryToolbar({
+  buttonClass,
+}: {
+  /** Set by the row it sits in, so the pair matches its neighbours. */
+  buttonClass?: string;
+}) {
   const { undoSeating, redoSeating, canUndoSeating, canRedoSeating } =
     useSeatingAlgorithmContext();
 
@@ -31,6 +36,7 @@ export default function SeatingHistoryToolbar() {
       canUndo={canUndoSeating}
       onRedo={redoSeating}
       canRedo={canRedoSeating}
+      buttonClass={buttonClass}
     />
   );
 }

@@ -1,30 +1,26 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
-import equal from 'fast-deep-equal';
 import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import {
   WarningIcon,
   ChartBarIcon,
   GridNine,
+  ShuffleIcon,
   SpinnerGapIcon,
-  FloppyDiskIcon,
-  ExportIcon,
-  ChalkboardTeacherIcon,
   EyeIcon,
   CursorIcon,
   EyeSlashIcon,
 } from '@phosphor-icons/react';
 import SmartSidebar from '@/components/ui/panels/SmartSidebar';
 import SmartMixControls from '@/components/ui/controls/SmartMixControls';
-import SeatingCanvasToolbar from '@/components/SeatingPlanGenerator/canvas/SeatingCanvasToolbar';
+import PlanToolPanel from '@/components/SeatingPlanGenerator/views/PlanToolPanel';
+import InspectorPortal from '@/components/shell/InspectorPortal';
+import StatusBarPortal from '@/components/shell/StatusBarPortal';
 import { useCanvasPreferences } from '@/contexts/seatingPlan/CanvasPreferencesContext';
-import SeatingModeToggle from '@/components/SeatingPlanGenerator/SeatingModeToggle';
 import SeatingPlanCanvas from '@/components/SeatingPlanGenerator/SeatingPlanCanvas';
 import SeatingStatisticsBadge from '@/components/ui/feedback/SeatingStatisticsBadge';
-import PlanHistoryButton from '@/components/ui/navigation/PlanHistoryButton';
-import { CanvasSettingsButton } from '@/components/SeatingPlanGenerator/canvas/CanvasSettingsButton';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 import {
   GRID_SIZE,
@@ -34,9 +30,7 @@ import {
   canvasFrameClass,
   getViewportMetrics,
   primaryButtonClass,
-  warningButtonClass,
   secondaryButtonClass,
-  inputFieldClass,
   mutedIconButtonClass,
   cardSurfaceClass,
   onVisualViewport,
@@ -64,7 +58,7 @@ import {
   type CriterionFulfillment,
 } from '@/utils/algorithm/seatingStatistics';
 import { useIsDarkMode } from '@/hooks/useIsDarkMode';
-import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';
+import { usePlanExits } from '@/hooks/plan/usePlanExits';
 import { useFirstVisit } from '@/hooks/ui/useFirstVisit';
 import { useIsPhone } from '@/hooks/ui/useLayoutMode';
 import { createSuspendedWeights } from '@/hooks/ui/useMixCriteria';
@@ -211,13 +205,8 @@ type Props = {
   snapshot: () => void;
   dragPreview: DragPreview | null;
   planName: string;
-  setPlanName: (v: string) => void;
-  planNameError: boolean;
-  setPlanNameError: (v: boolean) => void;
-  planNameInputRef: React.RefObject<HTMLInputElement | null>;
   saveSeatingPlan: (name: string, scene: ClassroomScene) => void;
   classroomScene: ClassroomScene;
-  onExport: () => void;
   seatingMode?: 'table' | 'circle';
   onModeChange?: (mode: 'table' | 'circle') => void;
   showModeToggle?: boolean;
@@ -276,13 +265,8 @@ export default function SeatingPlanEditorView({
   snapshot,
   dragPreview,
   planName,
-  setPlanName,
-  planNameError,
-  setPlanNameError,
-  planNameInputRef,
   saveSeatingPlan,
   classroomScene,
-  onExport,
   seatingMode,
   onModeChange,
   showModeToggle,
@@ -304,7 +288,6 @@ export default function SeatingPlanEditorView({
   const isDark = useIsDarkMode();
   const { t } = useTranslation('generator');
   const { showGrid, setShowGrid } = useCanvasPreferences();
-  const navigate = useLocalizedNavigate();
   // Marks the visit (`spg.hasVisitedApp`) for the onboarding tour record.
   useFirstVisit();
   const isPhone = useIsPhone();
@@ -692,36 +675,9 @@ export default function SeatingPlanEditorView({
     }
   }, [showStatisticsBadge, clearStatisticsHighlight]);
 
-  // CheckIcon if there are unsaved changes compared to the saved plan
-  const hasUnsavedChanges = React.useCallback(() => {
-    const trimmedName = planName.trim();
-    if (!trimmedName) return true; // New unnamed plan
-
-    const savedPlan = seatingHistory.find((p) => p.name === trimmedName);
-    if (!savedPlan) return true; // Plan doesn't exist yet
-
-    // Compare current state with saved plan
-    const seatingChanged = !equal(savedPlan.seating, currentSeating);
-    const sceneChanged = !equal(savedPlan.scene, classroomScene);
-
-    return seatingChanged || sceneChanged;
-  }, [planName, seatingHistory, currentSeating, classroomScene]);
-
-  // Export handler that saves only if there are changes
-  const handleExportWithConditionalSave = React.useCallback(() => {
-    if (hasUnsavedChanges()) {
-      saveSeatingPlan(planName, classroomScene);
-    }
-    onExport();
-  }, [hasUnsavedChanges, saveSeatingPlan, planName, classroomScene, onExport]);
-
-  // Open the smartboard presentation view, saving first if there are changes.
-  const handlePresentWithConditionalSave = React.useCallback(() => {
-    if (hasUnsavedChanges()) {
-      saveSeatingPlan(planName, classroomScene);
-    }
-    navigate('/present', { state: { mode: 'table' } });
-  }, [hasUnsavedChanges, saveSeatingPlan, planName, classroomScene, navigate]);
+  // Exporting and presenting live in the header, which saves first through
+  // `usePlanExits`; Ctrl/Cmd+E reaches the same one implementation.
+  const { exportPlan } = usePlanExits();
 
   React.useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -735,7 +691,7 @@ export default function SeatingPlanEditorView({
       }
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'e') {
         event.preventDefault();
-        handleExportWithConditionalSave();
+        exportPlan();
         return;
       }
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'm') {
@@ -752,7 +708,7 @@ export default function SeatingPlanEditorView({
     planName,
     classroomScene,
     saveSeatingPlan,
-    handleExportWithConditionalSave,
+    exportPlan,
     handleMix,
     mixingLocked,
   ]);
@@ -903,16 +859,48 @@ export default function SeatingPlanEditorView({
       >
         <SmartSidebar tourAnchor={TOUR_ANCHORS.planSidebar}>
           {({ isExpanded }) => (
-            <SmartMixControls
-              settings={settings}
-              setMixSettings={setMixSettings}
-              students={students}
-              suspendedWeights={suspendedWeights}
+            <PlanToolPanel
               density={isExpanded ? 'comfortable' : 'compact'}
-              {...fulfillmentProps}
+              seatingMode={seatingMode}
+              onModeChange={onModeChange}
+              showModeToggle={showModeToggle}
+              settingsGroups={seatingSettingsGroups}
+              onSavePlan={() => saveSeatingPlan(planName, classroomScene)}
+              canSavePlan={currentSeating.length > 0}
             />
           )}
         </SmartSidebar>
+
+        {/* Why the plan looks like this is a property of the plan, so the
+            criteria belong in the inspector — not in the toolbar opposite. */}
+        <InspectorPortal>
+          <SmartMixControls
+            settings={settings}
+            setMixSettings={setMixSettings}
+            students={students}
+            suspendedWeights={suspendedWeights}
+            density="comfortable"
+            {...fulfillmentProps}
+          />
+        </InspectorPortal>
+
+        {/* The layer's one primary action, in the same spot as the other
+            layers' "carry on". */}
+        <StatusBarPortal slot="end">
+          <button
+            type="button"
+            data-tour={TOUR_ANCHORS.mixButton}
+            onClick={() => void handleMix()}
+            disabled={mixingLocked}
+            title={t('mixButton.shortcut', 'Neu mischen (Strg/Cmd+M)')}
+            className={`${primaryButtonClass} flex items-center gap-2 whitespace-nowrap ${
+              mixingLocked ? 'cursor-not-allowed opacity-60' : ''
+            }`}
+          >
+            <ShuffleIcon className="h-4 w-4" aria-hidden="true" />
+            {t('actions.mixAgain', 'Neu mischen')}
+          </button>
+        </StatusBarPortal>
 
         <div className="relative flex-1">
           <div className="flex min-w-0 flex-col gap-4">
@@ -922,9 +910,6 @@ export default function SeatingPlanEditorView({
               className={`${canvasFrameClass} relative select-none`}
               style={{ width: '100%', maxWidth: '100vw' }}
             >
-              {/* Canvas overlay row: undo/redo, mix, optimise */}
-              <SeatingCanvasToolbar onMix={handleMix} isMixing={mixingLocked} />
-
               {hasStatistics && (onOpenStatistics || onCloseStatistics) && (
                 <button
                   type="button"
@@ -961,21 +946,6 @@ export default function SeatingPlanEditorView({
                   />
                 )}
 
-              {showModeToggle && seatingMode && onModeChange && (
-                <div
-                  className="absolute top-3 right-3 z-10 opacity-80"
-                  data-tour={TOUR_ANCHORS.seatingModeToggle}
-                >
-                  <SeatingModeToggle
-                    mode={seatingMode}
-                    onModeChange={onModeChange}
-                  />
-                </div>
-              )}
-              <CanvasSettingsButton
-                groups={seatingSettingsGroups}
-                buttonTitle={t('editor.viewSettings', 'Ansichtseinstellungen')}
-              />
               <div
                 ref={canvasContainerRef}
                 style={{
@@ -1072,86 +1042,6 @@ export default function SeatingPlanEditorView({
                 />
               </div>
             )}
-
-            <form
-              data-tour={TOUR_ANCHORS.planActions}
-              className="mt-4 flex flex-col items-start gap-2 sm:flex-row sm:flex-wrap"
-              onSubmit={(e) => {
-                e.preventDefault();
-                saveSeatingPlan(planName, classroomScene);
-              }}
-            >
-              {/* Going back to the room is the layer switcher's job now. */}
-              <PlanHistoryButton className="shrink-0" />
-              <div className="w-full flex-1 sm:w-auto sm:min-w-64">
-                <div className="relative">
-                  <input
-                    ref={planNameInputRef}
-                    type="text"
-                    value={planName}
-                    onChange={(e) => {
-                      setPlanName(e.target.value);
-                      if (planNameError) {
-                        setPlanNameError(false);
-                      }
-                    }}
-                    placeholder={t(
-                      'circle.planNamePlaceholder',
-                      'Name für diesen Sitzplan',
-                    )}
-                    className={`${inputFieldClass} w-full pr-12`}
-                    aria-label={t(
-                      'circle.planNameLabel',
-                      'Gib einen Namen für diesen Sitzplan ein',
-                    )}
-                  />
-                  <button
-                    type="submit"
-                    disabled={currentSeating.length === 0}
-                    title={t(
-                      'actions.saveShortcut',
-                      'Plan speichern (Strg/Cmd+S)',
-                    )}
-                    className={`absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg transition-colors ${
-                      currentSeating.length === 0
-                        ? 'cursor-not-allowed text-gray-400 dark:text-gray-600'
-                        : 'cursor-pointer text-green-600 hover:bg-green-50 hover:text-green-700 dark:text-green-400 dark:hover:bg-green-900/30 dark:hover:text-green-300'
-                    }`}
-                    aria-label={t('actions.savePlan', 'Plan speichern')}
-                  >
-                    <FloppyDiskIcon className="w-5 h-5" />
-                  </button>
-                </div>
-                {planNameError && (
-                  <p className="text-red-600 dark:text-red-400 text-sm mt-1">
-                    {t('circle.planNameError', 'Bitte gib einen Namen ein.')}
-                  </p>
-                )}
-              </div>
-              <div className="flex w-full shrink-0 flex-col gap-2 sm:ml-auto sm:w-auto sm:flex-row">
-                <button
-                  type="button"
-                  onClick={handlePresentWithConditionalSave}
-                  title={t('present.buttonTitle', 'Sitzplan präsentieren')}
-                  className={`${warningButtonClass} flex items-center gap-2 whitespace-nowrap`}
-                >
-                  <ChalkboardTeacherIcon className="w-4 h-4" size={16} />
-                  {t('present.button', 'Präsentieren')}
-                </button>
-                <button
-                  type="button"
-                  onClick={handleExportWithConditionalSave}
-                  title={t(
-                    'actions.exportShortcut',
-                    'Exportieren (Strg/Cmd+E)',
-                  )}
-                  className={`${primaryButtonClass} flex items-center gap-2 whitespace-nowrap`}
-                >
-                  <ExportIcon className="w-4 h-4" size={16} />
-                  {t('actions.export', 'Exportieren')}
-                </button>
-              </div>
-            </form>
           </div>
         </div>
       </div>

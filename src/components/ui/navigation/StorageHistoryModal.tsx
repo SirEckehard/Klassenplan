@@ -28,11 +28,19 @@ import {
 import { showToast } from '@/utils/ui/toast';
 import type { SavedPlan, MixResult } from '@/types';
 
-type TabId = 'plans' | 'mixes' | 'neighbors';
+export type StorageHistoryTab = 'plans' | 'mixes' | 'neighbors';
+
+type TabId = StorageHistoryTab;
 
 interface StorageHistoryModalProps {
   open: boolean;
   onClose: () => void;
+  /**
+   * Which tab to land on. The toolbar offers earlier plans and the
+   * neighbourhoods as two separate entries, and each should open on what it
+   * promised rather than on the first tab.
+   */
+  initialTab?: TabId;
 }
 
 /**
@@ -42,9 +50,12 @@ interface StorageHistoryModalProps {
 export default function StorageHistoryModal({
   open,
   onClose,
+  initialTab = 'plans',
 }: StorageHistoryModalProps) {
   const { t } = useTranslation('generator');
-  const [activeTab, setActiveTab] = useState<TabId>('plans');
+  // Only the initial value: switching tabs while the modal is open stays the
+  // user's business. A caller that opens it on another tab remounts it.
+  const [activeTab, setActiveTab] = useState<TabId>(initialTab);
 
   const {
     seatingHistory,

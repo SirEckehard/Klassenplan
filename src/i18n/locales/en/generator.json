@@ -100,16 +100,17 @@
     "redoLabel": "Redo last action"
   },
   "actions": {
-    "shuffle": "Shuffle",
-    "reset": "Reset",
+    "backShortcut": "Back (Alt/Option+←)",
     "export": "Export",
+    "exportShortcut": "Export (Ctrl/Cmd+E)",
+    "mixAgain": "Mix again",
+    "mixNow": "Shuffle now",
     "print": "Print",
+    "reset": "Reset",
+    "retryMix": "Try again",
     "savePlan": "Save Plan",
     "saveShortcut": "Save Plan (Ctrl/Cmd+S)",
-    "exportShortcut": "Export (Ctrl/Cmd+E)",
-    "backShortcut": "Back (Alt/Option+←)",
-    "retryMix": "Try again",
-    "mixNow": "Shuffle now"
+    "shuffle": "Shuffle"
   },
   "present": {
     "button": "Present",
@@ -205,9 +206,10 @@
   },
   "mixButton": {
     "label": "Shuffle",
-    "title": "Shuffle seating plan",
+    "loadingAriaLabel": "Shuffling in progress",
     "loadingTitle": "Shuffling in progress...",
-    "loadingAriaLabel": "Shuffling in progress"
+    "shortcut": "Mix again (Ctrl/Cmd+M)",
+    "title": "Shuffle seating plan"
   },
   "messages": {
     "noStudents": "No students added yet",
@@ -946,5 +948,11 @@
     "deleteTable": "Remove table",
     "deleteFeature": "Remove room feature",
     "deleteSelection": "Remove selection"
+  },
+  "planToolbar": {
+    "arrangement": "Arrangement",
+    "show": "Show in the plan",
+    "tools": "Tools",
+    "manage": "Manage"
   }
 }

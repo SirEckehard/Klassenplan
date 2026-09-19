@@ -8,6 +8,7 @@ import ContextActionMenu, {
 } from '@/components/SeatingPlanGenerator/ContextActionMenu';
 import ClassroomCanvas from '@/components/SeatingPlanGenerator/canvas/ClassroomCanvas';
 import CanvasToolbar from '@/components/SeatingPlanGenerator/canvas/CanvasToolbar';
+import StatusBarPortal from '@/components/shell/StatusBarPortal';
 import MobileTableTemplates from '@/components/SeatingPlanGenerator/mobile/MobileTableTemplates';
 import {
   CanvasSettingsButton,
@@ -21,7 +22,14 @@ import type {
   CanvasContextMenuState,
   FeatureContextMenuState,
 } from '@/hooks/useContextMenus';
-import { canvasFrameClass, secondaryButtonClass } from '@/utils';
+import {
+  canvasFrameClass,
+  quietIconButtonClass,
+  secondaryButtonClass,
+} from '@/utils';
+
+/** Matches the pair the other layers put in the status bar. */
+const statusBarButtonClass = `${quietIconButtonClass} h-9 w-9`;
 import type { FeaturePaletteItem } from '@/hooks/canvas/useFeaturePaletteDrag';
 
 export type LayoutEditorContextMenuProps<T> = {
@@ -123,14 +131,17 @@ const LayoutEditorMainSection = React.memo(function LayoutEditorMainSection({
         }}
         ref={containerRef}
       >
-        <div className="absolute top-3 left-3 z-20">
+        {/* Undo/redo sit in the shell's status bar, where the other two
+            histories are too — the stage keeps nothing floating over it. */}
+        <StatusBarPortal>
           <CanvasToolbar
             onUndo={undo}
             canUndo={historyLength > 0}
             onRedo={redo}
             canRedo={canRedo}
+            buttonClass={statusBarButtonClass}
           />
-        </div>
+        </StatusBarPortal>
         <CanvasSettingsButton
           groups={layoutSettingsGroups}
           buttonTitle={t('editor.viewSettings', 'Ansichtseinstellungen')}

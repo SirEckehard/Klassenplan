@@ -461,5 +461,25 @@
       "prefersWindow": "Who likes sitting by the window?",
       "prefersDoor": "Who likes sitting near the door?"
     }
+  },
+  "toolRail": {
+    "insert": "Insert",
+    "view": "View",
+    "manage": "Manage"
+  },
+  "relations": {
+    "title": "Relationships",
+    "description": "Who wants to sit next to whom — and who would rather not. Clicking a name opens it on the right.",
+    "wishHeading": "Preferred partners",
+    "avoidHeading": "Keep apart",
+    "mutual": "mutual",
+    "oneSided": "one-sided",
+    "noRelations": "No preferred and no keep-apart partners have been set for this class yet.",
+    "noRelationsHint": "You set them on the right, in the attributes panel under \"Social\".",
+    "countWishes_one": "{{count}} wish",
+    "countWishes_other": "{{count}} wishes",
+    "countAvoids_one": "{{count}} keep-apart wish",
+    "countAvoids_other": "{{count}} keep-apart wishes",
+    "unknownStudent": "Unknown"
   }
 }

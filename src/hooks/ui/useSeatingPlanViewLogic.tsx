@@ -3,7 +3,6 @@
 /* eslint-disable react-hooks/refs -- refs are used as stable references to avoid re-renders in template/selection management */
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';
 import { buildFeatureTemplateMap } from '@/hooks/canvas/featureTemplates';
 import type {
   SeatingArrangement,
@@ -59,11 +58,7 @@ export function useSeatingPlanViewLogic({
   students,
   studentsCount,
   planName,
-  setPlanName,
   saveSeatingPlan,
-  planNameError,
-  setPlanNameError,
-  planNameInputRef,
   updateClassroomScene,
   moveStudent,
   removeTables,
@@ -91,7 +86,6 @@ export function useSeatingPlanViewLogic({
   autoMixing = false,
   autoMixError = null,
 }: SeatingPlanViewProps) {
-  const navigate = useLocalizedNavigate();
   const { t } = useTranslation('generator');
 
   const seatingPlanState = useOptionalSeatingPlanState();
@@ -545,13 +539,8 @@ export function useSeatingPlanViewLogic({
           snapshot,
           dragPreview,
           planName,
-          setPlanName,
-          planNameError,
-          setPlanNameError,
-          planNameInputRef,
           saveSeatingPlan: saveSeatingPlanWithCircle,
           classroomScene,
-          onExport: () => navigate('/export'),
           seatingMode,
           onModeChange,
           showModeToggle,

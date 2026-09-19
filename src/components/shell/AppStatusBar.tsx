@@ -7,7 +7,10 @@ import {
   useSeatingPlanState,
   useSeatingPlanActions,
 } from '@/contexts/SeatingPlanContext';
-import { countSeats, primaryButtonClass } from '@/utils';
+import { useStatusBarSlot } from '@/contexts/StatusBarSlotContext';
+import StudentHistoryToolbar from '@/components/studentInput/StudentHistoryToolbar';
+import SeatingHistoryToolbar from '@/components/SeatingPlanGenerator/canvas/SeatingHistoryToolbar';
+import { countSeats, primaryButtonClass, quietIconButtonClass } from '@/utils';
 import { validateStudentsComplete } from '@/utils/validation';
 import HintTooltip from '@/components/ui/feedback/HintTooltip';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
@@ -25,11 +28,15 @@ import { TOUR_ANCHORS } from '@/components/onboarding/tours';
  * keeps focus and pointer events, so the hint shows on hover and focus and a
  * click still surfaces the toast that explains the shortfall.
  */
+/** Undo/redo in the status bar: quiet, and small enough for a 44px line. */
+const historyButtonClass = `${quietIconButtonClass} h-9 w-9`;
+
 export default function AppStatusBar() {
   const { t } = useTranslation(['generator', 'students']);
   const { step, students, classroomScene, currentSeating } =
     useSeatingPlanState();
   const { handleStepChange } = useSeatingPlanActions();
+  const { setStartNode, setEndNode } = useStatusBarSlot();
   const hintId = React.useId();
 
   const studentsCount = students.length;
@@ -147,12 +154,30 @@ export default function AppStatusBar() {
       className="sticky bottom-0 z-30 border-t border-(--border-card) bg-(--surface-card)"
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-2">
-        <p
-          data-tour={step === 2 ? TOUR_ANCHORS.layoutStatus : undefined}
-          className="min-w-0 truncate text-xs tabular-nums text-(--text-muted) sm:text-sm"
-        >
-          {segments.join(' · ')}
-        </p>
+        <div className="flex min-w-0 items-center gap-3">
+          {/* Undo/redo lead the line on every layer. Two of the three
+              histories are in the context; the room layer's lives with the
+              canvas state and fills the slot through `StatusBarPortal`. */}
+          {step === 1 && (
+            <StudentHistoryToolbar buttonClass={historyButtonClass} />
+          )}
+          {step === 3 && (
+            <SeatingHistoryToolbar buttonClass={historyButtonClass} />
+          )}
+          {step === 2 && (
+            <span ref={setStartNode} className="flex items-center" />
+          )}
+          <p
+            data-tour={step === 2 ? TOUR_ANCHORS.layoutStatus : undefined}
+            className="min-w-0 truncate text-xs tabular-nums text-(--text-muted) sm:text-sm"
+          >
+            {segments.join(' · ')}
+          </p>
+        </div>
+
+        {/* The plan layer's primary action is "mix again", which belongs to
+            the view that owns the mix handler; it fills this slot. */}
+        <span ref={setEndNode} className="flex shrink-0 items-center" />
 
         {action && (
           <div className="group relative shrink-0">

@@ -55,15 +55,13 @@ vi.mock('@/components/studentInput/StudentList', () => ({
 
 describe('StudentInput', () => {
   /**
-   * Single names, placeholder rows and CSV import all live behind the add
-   * trigger, so a test that wants any of them has to open it first.
+   * Each way of filling a class is its own toolbar entry, and the ones that
+   * need a value open a panel — so a test that wants one opens it first.
    */
-  const openAddMenu = async () => {
-    fireEvent.click(
-      screen.getByRole('button', { name: /^(Hinzufügen|Add)$/i }),
-    );
+  const openImportPanel = async () => {
+    fireEvent.click(getButton(/Klassenliste importieren|Import class list/i));
     return await screen.findByRole('dialog', {
-      name: /Schüler hinzufügen|Add student/i,
+      name: /Klassenliste importieren|Import class list/i,
     });
   };
 
@@ -132,7 +130,7 @@ describe('StudentInput', () => {
     });
   });
 
-  it('renders CSV controls and table preview', async () => {
+  it('offers every way of filling a class in the toolbar', async () => {
     const students = [
       createMockStudent({ id: '1', name: 'Max', gender: 'boy' }),
     ];
@@ -142,47 +140,21 @@ describe('StudentInput', () => {
     expect(students[0].restless).toBe(false);
     renderWithClassContext(<StudentInput {...props} />);
 
-    // CSV import sits with the other ways of filling a class, not next to
-    // Export.
-    const addMenu = await openAddMenu();
+    // Insert, in the toolbar's top group.
+    expect(getButton(/Schüler hinzufügen|Add student/i)).toBeInTheDocument();
     expect(
-      within(addMenu).getByText(/Klassenliste importieren|Import class list/i),
+      getButton(/Platzhalter erstellen|Create placeholders/i),
+    ).toBeInTheDocument();
+    const importPanel = await openImportPanel();
+    expect(
+      within(importPanel).getByText(
+        /Klassenliste importieren|Import class list/i,
+      ),
     ).toBeInTheDocument();
 
-    // The way on to the classroom lives in the shell's status bar now; what
-    // this view still offers is the name game.
+    // The way on to the classroom lives in the shell's status bar; the side
+    // trips live at the bottom of the toolbar.
     expect(getButton(/Namensspiel|Name game/i)).toBeInTheDocument();
-  });
-
-  it('deletes the class picked in the switcher dropdown', async () => {
-    const students = [
-      createMockStudent({ id: '1', name: 'Max', gender: 'boy' }),
-    ];
-    const deleteClass = vi.fn().mockResolvedValue(true);
-
-    renderWithClassContext(
-      <StudentInput {...createMockStudentInputProps({ students })} />,
-      { deleteClass },
-    );
-
-    // Deleting a class sits next to the class it acts on, inside the switcher
-    // dropdown. That dropdown is a portal that renders nothing — and so stays
-    // out of the a11y tree — until it has measured its position.
-    fireEvent.click(getButton(/Klasse wechseln|Switch class/i));
-    fireEvent.click(
-      await screen.findByRole('button', {
-        name: /Klasse löschen Testklasse|Delete class Testklasse/i,
-      }),
-    );
-
-    const confirmDialog = getDialog(/Klasse löschen|Delete class/i);
-    fireEvent.click(
-      within(confirmDialog).getByRole('button', {
-        name: /Löschen|Delete/i,
-      }),
-    );
-
-    expect(deleteClass).toHaveBeenCalledWith('class-1');
   });
 
   it('requires confirmation before removing a single student', async () => {
@@ -329,8 +301,8 @@ describe('StudentInput', () => {
 
     renderWithClassContext(<StudentInput {...props} />);
 
-    const addMenu = await openAddMenu();
-    const input = addMenu.querySelector(
+    const importPanel = await openImportPanel();
+    const input = importPanel.querySelector(
       'input[type="file"]',
     ) as HTMLInputElement | null;
     expect(input).toBeTruthy();
@@ -354,8 +326,8 @@ describe('StudentInput', () => {
 
     renderWithClassContext(<StudentInput {...props} />);
 
-    const addMenu = await openAddMenu();
-    const input = addMenu.querySelector(
+    const importPanel = await openImportPanel();
+    const input = importPanel.querySelector(
       'input[type="file"]',
     ) as HTMLInputElement;
 
