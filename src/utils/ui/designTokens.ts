@@ -1,5 +1,13 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
+/**
+ * Font stack for SVG `font-family` attributes (scene, presentation, circle
+ * print). SVG attributes are not styled by the `@theme` `--font-sans` token, so
+ * the stack is spelled out here once instead of in every `<text>` element.
+ */
+export const svgFontFamily =
+  "'Instrument Sans Variable', system-ui, sans-serif";
+
 export const panelSurfaceClass = 'panel-surface';
 
 export const cardSurfaceClass = 'card-surface';

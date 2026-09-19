@@ -16,6 +16,7 @@ import {
   CLASSROOM_HEIGHT,
   getRotatedAabbHalfExtents,
   type NameDisplayMode,
+  svgFontFamily,
 } from '@/utils';
 import { getFeatureStyles } from '@/utils/ui';
 import {
@@ -218,7 +219,7 @@ export default function PresentationScene({
       height="100%"
       viewBox={`${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`}
       preserveAspectRatio="xMidYMid meet"
-      fontFamily="'DM Sans Variable', system-ui, sans-serif"
+      fontFamily={svgFontFamily}
       style={{
         display: 'block',
         transform: `translate(${panX}px, ${panY}px) scale(${zoom})`,

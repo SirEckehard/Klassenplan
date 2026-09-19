@@ -379,13 +379,38 @@ expectErrorToast(); // Just check toast exists
 
 ## Color Palette Standards
 
-Primary Klassenplan colors:
+Colour is split in two, and the split is the rule that matters (see
+`docs/DESIGNSYSTEM.md` § 4):
 
-- **Blue (`blue-600`)** - Primary actions, main navigation
-- **Orange (`orange-600`)** - Step labels and accents
-- **Green (`green-600`)** - Success actions (save, add)
-- **Red (`red-600`)** - Delete/remove actions
-- **Amber (`amber-500`)** - Back navigation, warnings
-- **Gray (`gray-*`)** - Neutral elements, secondary actions
+**The interface is paper and ink.** A warm neutral ramp (`--surface-page`,
+`--surface-card`, `--border-card`, `--text-page`, `--text-muted`) plus exactly
+one accent:
 
-Always include appropriate `dark:` variants for dark mode support.
+- **Blue (`#2563eb`, `--button-primary-bg`)** - the only colour that means "you
+  can act here": the one primary button per screen, selection, focus ring.
+- **Rose (`#be123c`, `--button-danger-bg`)** - destructive actions only, never
+  next to the primary button.
+- **Green (`#15803d`, `--button-success-bg`)** - confirmation of a completed
+  action, not a decoration.
+
+**Everything else that is coloured describes pedagogy**, through the `--data-*`
+families, and never appears in chrome. Each family always ships with an icon and
+a spelled-out word, so colour is never the only channel:
+
+| Family           | Token prefix      | Covers                                                       |
+| ---------------- | ----------------- | ------------------------------------------------------------ |
+| Verhalten        | `--data-behavior` | Unruhe, Ablenkbarkeit, Ablenkung durch Unruhe                |
+| Soziales         | `--data-social`   | Schüchternheit, Wunsch-/Distanzpartner, Rollen, Wiederholung |
+| Lernen           | `--data-learning` | Fördern heterogen, Fördern homogen                           |
+| Sprache          | `--data-language` | Sprachförderung, Sprachstand                                 |
+| Platz &amp; Raum | `--data-space`    | Vordere Plätze, Körpergröße, Fensterplätze, Türnähe          |
+| Person           | `--data-person`   | Geschlechtermischung, Foto, Name                             |
+
+Each family exposes `--data-<name>` (the accent), `--data-<name>-text` (chip and
+icon foreground, contrast-checked at 4.5:1) and `--data-<name>-surface` (chip
+background).
+
+Never reach for a raw Tailwind palette class (`bg-amber-500`, `text-green-600`)
+in a component — take the token. Dark mode is handled inside the token, so no
+`dark:` variant is needed when a token is used; hand-written colour utilities
+still need one and should be replaced instead.

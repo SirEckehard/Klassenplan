@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import dmSansWoff2Url from '@fontsource-variable/dm-sans/files/dm-sans-latin-wght-normal.woff2?url';
+import primaryFontWoff2Url from '@fontsource-variable/instrument-sans/files/instrument-sans-latin-wght-normal.woff2?url';
 
 /**
  * Shared SVG → raster pipeline for every file export.
@@ -12,12 +12,12 @@ import dmSansWoff2Url from '@fontsource-variable/dm-sans/files/dm-sans-latin-wgh
 let cachedFontBase64: string | null = null;
 
 /**
- * DM Sans as base64. The rasterizing browser resolves no external requests for
- * the detached SVG image, so the font has to travel inside the markup.
+ * The UI font as base64. The rasterizing browser resolves no external requests
+ * for the detached SVG image, so the font has to travel inside the markup.
  */
-export async function getDmSansBase64(): Promise<string> {
+export async function getPrimaryFontBase64(): Promise<string> {
   if (cachedFontBase64) return cachedFontBase64;
-  const res = await fetch(dmSansWoff2Url);
+  const res = await fetch(primaryFontWoff2Url);
   const buf = await res.arrayBuffer();
   const bytes = new Uint8Array(buf);
   let binary = '';
@@ -30,7 +30,7 @@ export async function getDmSansBase64(): Promise<string> {
 
 /** Inline an `@font-face` rule carrying the embedded font into the SVG. */
 export function injectFontIntoSvg(svg: string, base64: string): string {
-  const style = `<defs><style>@font-face{font-family:'DM Sans Variable';src:url('data:font/woff2;base64,${base64}');font-weight:100 900;font-style:normal;}</style></defs>`;
+  const style = `<defs><style>@font-face{font-family:'Instrument Sans Variable';src:url('data:font/woff2;base64,${base64}');font-weight:400 700;font-style:normal;}</style></defs>`;
   return svg.replace(/(<svg[^>]*>)/, `$1${style}`);
 }
 
@@ -75,7 +75,7 @@ async function drawSvgToCanvas(
   heightPx: number,
   background?: string,
 ): Promise<HTMLCanvasElement> {
-  const fontBase64 = await getDmSansBase64();
+  const fontBase64 = await getPrimaryFontBase64();
   const svgWithFont = injectFontIntoSvg(svgMarkup, fontBase64);
 
   return new Promise((resolve, reject) => {

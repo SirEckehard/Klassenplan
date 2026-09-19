@@ -284,6 +284,7 @@ export {
 
 // ===== UI Design Tokens =====
 export {
+  svgFontFamily,
   panelSurfaceClass,
   cardSurfaceClass,
   listContainerClass,

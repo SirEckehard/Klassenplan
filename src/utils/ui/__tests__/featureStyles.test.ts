@@ -22,23 +22,23 @@ const makeFeature = (
 describe('getFeatureStyles', () => {
   it('returns the type palette by default', () => {
     const light = getFeatureStyles(makeFeature(), false);
-    expect(light.fill).toBe('#dbeafe');
+    expect(light.fill).toBe('#f5f7fb');
     const dark = getFeatureStyles(makeFeature(), true);
-    expect(dark.fill).toBe('#1e3a8a');
+    expect(dark.fill).toBe('#12203f');
   });
 
   it('returns the neutral gray palette when neutral colors are requested', () => {
     const light = getFeatureStyles(makeFeature(), false, undefined, true);
     expect(light).toMatchObject({
-      fill: '#e5e7eb',
-      stroke: '#6b7280',
-      text: '#374151',
+      fill: '#f3f1ec',
+      stroke: '#54565a',
+      text: '#43464b',
     });
     const dark = getFeatureStyles(makeFeature(), true, undefined, true);
     expect(dark).toMatchObject({
-      fill: '#4b5563',
-      stroke: '#9ca3af',
-      text: '#f3f4f6',
+      fill: '#202327',
+      stroke: '#8c9096',
+      text: '#c9cbcf',
     });
     // Every feature type maps to the same neutral palette
     const door = getFeatureStyles(
@@ -47,7 +47,7 @@ describe('getFeatureStyles', () => {
       undefined,
       true,
     );
-    expect(door.fill).toBe('#e5e7eb');
+    expect(door.fill).toBe('#f3f1ec');
   });
 
   it('keeps visibility semantics regardless of neutral colors', () => {

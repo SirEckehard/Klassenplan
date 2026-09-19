@@ -3,7 +3,7 @@
 import { downloadBlob, logError } from '@/utils';
 import {
   extractSvgElement,
-  getDmSansBase64,
+  getPrimaryFontBase64,
   injectFontIntoSvg,
   renderSvgToPngBlob,
 } from '@/utils/export/svgRasterizer';
@@ -80,7 +80,7 @@ export async function exportSvgAsPng(
  * Download the export markup as a standalone SVG file.
  *
  * The font is embedded like in the raster exports so the file renders the same
- * on a machine without DM Sans installed. Student photos are already inlined,
+ * on a machine without the UI font installed. Student photos are already inlined,
  * which is what makes the file self-contained — and sizeable.
  */
 export async function exportSvgAsFile(
@@ -90,7 +90,7 @@ export async function exportSvgAsFile(
   try {
     // Validate before writing: a broken SVG should fail here, not on the disk.
     extractSvgElement(svgMarkup);
-    const fontBase64 = await getDmSansBase64();
+    const fontBase64 = await getPrimaryFontBase64();
     const withFont = injectFontIntoSvg(svgMarkup, fontBase64);
 
     await downloadBlob(

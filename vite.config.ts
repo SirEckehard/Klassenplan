@@ -101,11 +101,13 @@ const preloadPrimaryFont = (): PluginOption => ({
     order: 'post',
     handler(_html, ctx) {
       const font = Object.keys(ctx.bundle ?? {}).find((fileName) =>
-        /^assets\/dm-sans-latin-wght-normal-[^/]+\.woff2$/.test(fileName),
+        /^assets\/instrument-sans-latin-wght-normal-[^/]+\.woff2$/.test(
+          fileName,
+        ),
       );
       if (!font) {
         throw new Error(
-          'The DM Sans Latin font is missing from the bundle; update ' +
+          'The Instrument Sans Latin font is missing from the bundle; update ' +
             'preloadPrimaryFont in vite.config.ts to the new file name.',
         );
       }

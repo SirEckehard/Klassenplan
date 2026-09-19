@@ -91,7 +91,7 @@ describe('FeatureShape', () => {
     const feature = makeFeature();
     const { container } = renderShape(feature, {}, true);
     const rect = getGroup(container).querySelector('rect');
-    expect(rect?.getAttribute('fill')).toBe('#4b5563');
+    expect(rect?.getAttribute('fill')).toBe('#202327');
   });
 
   it('always draws the palette frame and switches to the selection color when active', () => {
@@ -101,7 +101,7 @@ describe('FeatureShape', () => {
       getGroup(inactive.container)
         .querySelector('rect')
         ?.getAttribute('stroke'),
-    ).toBe('#6b7280');
+    ).toBe('#3f3f46');
 
     const active = renderShape(feature, { isActive: true });
     expect(

@@ -5,7 +5,12 @@ import { useTranslation } from 'react-i18next';
 import type { ClassroomScene, SeatingArrangement, Student } from '@/types';
 import TableIcon from './SceneTable';
 import FeatureShape from './FeatureShape';
-import { CLASSROOM_WIDTH, CLASSROOM_HEIGHT, formatDate } from '@/utils';
+import {
+  CLASSROOM_WIDTH,
+  CLASSROOM_HEIGHT,
+  formatDate,
+  svgFontFamily,
+} from '@/utils';
 import type { NameDisplayMode } from '@/utils';
 import { getFeatureStyles } from '@/utils/ui';
 import type { FeatureVisibilityFlags } from '@/utils/ui';
@@ -199,7 +204,7 @@ export default function SceneSvg({
       height="100%"
       viewBox={`0 0 ${pageWidth} ${pageHeight}`}
       preserveAspectRatio="xMidYMid meet"
-      fontFamily="'DM Sans Variable', system-ui, sans-serif"
+      fontFamily={svgFontFamily}
       style={{ display: 'block' }}
       role="img"
       aria-label={displayTitle}
@@ -235,7 +240,7 @@ export default function SceneSvg({
           fontSize={isPortrait ? 8 : 16}
           fontWeight="bold"
           fill="#2563EB"
-          fontFamily="'DM Sans Variable', system-ui, sans-serif"
+          fontFamily={svgFontFamily}
         >
           Klassenplan.de
         </text>

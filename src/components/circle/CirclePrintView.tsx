@@ -10,6 +10,7 @@ import {
   getDisplayNameForMode,
   calculateSeatLabelFontSize,
   formatDate,
+  svgFontFamily,
 } from '@/utils';
 import {
   getStudentAppearance,
@@ -313,7 +314,7 @@ export default function CirclePrintView({
       viewBox={`0 0 ${pageWidth} ${pageHeight}`}
       preserveAspectRatio="xMidYMid meet"
       style={{ display: 'block' }}
-      fontFamily="'DM Sans Variable', system-ui, sans-serif"
+      fontFamily={svgFontFamily}
     >
       {/* Header - Logo and Branding - responsive sizing for portrait mode */}
       <g
@@ -344,7 +345,7 @@ export default function CirclePrintView({
           fontSize={isPortrait ? 8 : 16}
           fontWeight="bold"
           fill="#2563EB"
-          fontFamily="'DM Sans Variable', system-ui, sans-serif"
+          fontFamily={svgFontFamily}
         >
           Klassenplan.de
         </text>

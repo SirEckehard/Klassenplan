@@ -18,7 +18,7 @@ vi.mock('@/utils/export/svgRasterizer', async () => {
   >('@/utils/export/svgRasterizer');
   return {
     ...actual,
-    getDmSansBase64: vi.fn(async () => 'Zm9udA=='),
+    getPrimaryFontBase64: vi.fn(async () => 'Zm9udA=='),
     renderSvgToPngBlob: renderSvgToPngBlobMock,
   };
 });
@@ -78,7 +78,7 @@ describe('exportSvgAsPng', () => {
 });
 
 describe('exportSvgAsFile', () => {
-  it('embeds the font so the file renders without DM Sans installed', async () => {
+  it('embeds the font so the file renders without the UI font installed', async () => {
     await exportSvgAsFile(SVG, 'Klasse 5a');
 
     const [content, filename, mimeType] = downloadBlobMock.mock

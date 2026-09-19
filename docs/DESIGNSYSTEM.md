@@ -1,6 +1,11 @@
 # Design System – Klassenplan
 
-This document describes the binding design tokens for Klassenplan. All values reflect the state of the Tailwind 4 migration (see `src/index.css`).
+> **Status:** current · **Last reviewed:** 2026-09-19 · **Maintainer:** Eike
+> Schäfer · **Describes:** Klassenplan 2.2.0
+
+This document describes the binding design tokens for Klassenplan. All values live in `src/index.css` and are reachable from TypeScript through `src/utils/ui/designTokens.ts`.
+
+The look is called **Papier & Werkzeug**: the interface is a passepartout in warm paper grey, and the classroom is the picture inside it. Two rules carry the whole system, and § 4 spells them out — the interface uses exactly one accent colour, and every other colour describes pedagogy.
 
 ## 1. Token layers
 
@@ -54,30 +59,80 @@ All classes in the table automatically read the variables defined in `@theme`. D
 
 **Interaction behavior:** All button and icon-button tokens explicitly set `cursor: pointer` and switch to `cursor: not-allowed` automatically in the `:disabled` state. This keeps the mouse cursor consistent regardless of browser defaults.
 
-## 3. Radii, borders, and shadows
+## 3. Typefaces, radii, borders, and shadows
+
+**Typefaces.** Two families from one superfamily, both self-hosted through Fontsource — no CDN, because the production CSP is `script-src 'self'` and the app ships no third-party requests:
+
+| Token          | Stack                                                      | Used for                                  |
+| -------------- | ---------------------------------------------------------- | ----------------------------------------- |
+| `--font-sans`  | `'Instrument Sans Variable'`, `'Instrument Sans Fallback'` | The whole interface, the plan, the export |
+| `--font-serif` | `'Instrument Serif'`, `'Instrument Serif Fallback'`        | Display headings, empty states            |
+
+Both fallbacks are metric-matched `@font-face` stand-ins calculated from `@capsizecss/metrics` the way `next/font` does (`xWidthAvg` against the fallback), so the swap does not move text: Instrument Sans over Arial, Instrument Serif over Times New Roman. Only the Latin Instrument Sans file is preloaded; the serif carries headings and swaps in.
+
+SVG `font-family` attributes are not reached by the `@theme` token, so the scene, the presentation and the circle print view take `svgFontFamily` from `designTokens.ts`. The image and PDF exporters embed the same Latin woff2 as base64 (`getPrimaryFontBase64` in `utils/export/svgRasterizer.ts`), so an exported file renders identically on a machine that has neither font installed.
+
+Numbers that sit in columns or get compared — counts, percentages, times — are set with `tabular-nums`.
 
 The central radii live in `@theme`:
 
-| Variable          | Value (light)     | Used for                         |
-| ----------------- | ----------------- | -------------------------------- |
-| `--radius-panel`  | `1.5rem` (≈24 px) | `panel-surface`, `canvas-frame`  |
-| `--radius-card`   | `1rem` (≈16 px)   | `card-surface`, `list-container` |
-| `--radius-list`   | `1rem` (≈16 px)   | History panels                   |
-| `--radius-badge`  | `9999px`          | `badge-surface`                  |
-| `--radius-pill`   | `9999px`          | Buttons, tabs                    |
-| `--radius-canvas` | `1.5rem` (≈24 px) | Canvas wrapper                   |
+| Variable                   | Value (light)      | Used for                                    |
+| -------------------------- | ------------------ | ------------------------------------------- |
+| `--radius-panel`           | `0.875rem` (14 px) | `panel-surface`, `canvas-frame`             |
+| `--radius-card`            | `0.625rem` (10 px) | `card-surface`, `list-container`, menus     |
+| `--radius-list`            | `0.625rem` (10 px) | History panels                              |
+| `--radius-pill`            | `0.5rem` (8 px)    | Buttons, tabs, toast icon                   |
+| `--radius-floating-status` | `0.5rem` (8 px)    | `floating-status`                           |
+| `--radius-badge`           | `9999px`           | `badge-surface` — the only round shape left |
+
+`--radius-pill` keeps its name for compatibility; controls stopped being pills. Only badges and avatars stay circular.
 
 **Borders & shadows**
 
-- Standard borders (`card-surface`, `list-container`, `muted-icon-button`) use 1 px (`border`) backed by `--border-card` / `--border-list`.
-- Highlighted panels (`panel-surface`, `canvas-frame`) use `border: 2px solid var(--border-panel)`.
-- Shadows are centrally defined in `--shadow-*` (e.g. `--shadow-panel`, `--button-primary-shadow`). All adjustments go through the variables.
+- Every surface — panels and the canvas frame included — uses a 1 px border. The 2 px frame is gone; structure is carried by the line, not by the weight.
+- Shadows are for things that genuinely float: `--menu-shadow` and `--toast-shadow` at `0 8px 24px -12px`. Resting surfaces use `0 1px 2px` at 5 % or nothing at all, and every button shadow token is `none`.
+- The glass look is gone: `--backdrop-blur-soft` and `--backdrop-blur-medium` both resolve to `none`. The variables stay so the utilities referencing them keep resolving and a future surface can opt back in.
+- All adjustments go through the variables; never hand a component its own `shadow-*` utility.
 
-## 4. Focus, hover, and color worlds
+## 4. Focus, hover, and the two colour worlds
 
-- Focus rings are driven by `--focus-ring-primary`, `--focus-ring-danger`, `--focus-ring-success`.
-- Buttons and icon buttons have defined hover states (e.g. `--button-primary-bg-hover`). These values also apply in the dark variant because `@layer base` overrides the variables.
-- For glass/gradient surfaces (`panel-surface`, `menu-surface`), `--backdrop-blur-*` provides consistent blur.
+**The interface is paper and ink.** A warm neutral ramp plus exactly one accent, which means one thing: _you can act here_.
+
+| Role       | Light     | Dark      | Token                       |
+| ---------- | --------- | --------- | --------------------------- |
+| Page       | `#fcfbf8` | `#101113` | `--surface-page`            |
+| Surface    | `#ffffff` | `#181a1d` | `--surface-card` / `-panel` |
+| Line       | `#e3dfd6` | `#2a2d31` | `--border-card`             |
+| Muted text | `#54565a` | `#a9acb1` | `--text-muted`              |
+| Ink        | `#17181a` | `#f2f1ee` | `--text-page`               |
+| Accent     | `#2563eb` | `#2563eb` | `--button-primary-bg`       |
+
+Rose (`--button-danger-bg`) and green (`--button-success-bg`) are the two exceptions, reserved for destructive and confirming actions.
+
+**Everything else that is coloured describes pedagogy.** Six `--data-*` families, and no interface element may use them:
+
+| Family           | Accent    | Chip text | Chip surface | Covers                                                       |
+| ---------------- | --------- | --------- | ------------ | ------------------------------------------------------------ |
+| Verhalten        | `#b45309` | `#8a3d06` | `#fbf0df`    | Unruhe, Ablenkbarkeit, Ablenkung durch Unruhe                |
+| Soziales         | `#6d28d9` | `#5b21b6` | `#efe9fc`    | Schüchternheit, Wunsch-/Distanzpartner, Rollen, Wiederholung |
+| Lernen           | `#15803d` | `#14622f` | `#e6f2ea`    | Fördern heterogen, Fördern homogen                           |
+| Sprache          | `#be123c` | `#9f1239` | `#fbe8ec`    | Sprachförderung, Sprachstand                                 |
+| Platz &amp; Raum | `#0e7490` | `#0b5f76` | `#e2f0f5`    | Vordere Plätze, Körpergröße, Fensterplätze, Türnähe          |
+| Person           | `#52525b` | `#43464b` | `#f0f0ee`    | Geschlechtermischung, Foto, Name                             |
+
+Every chip-text-on-chip-surface pair clears 4.5:1, and a data colour never appears without its icon and its spelled-out word, so colour is never the only channel.
+
+**Two rules that decide arguments**
+
+1. The interface uses no data colour. No button is green because it saves, no toolbar is amber.
+2. A data colour never appears alone. Icon and word travel with it.
+
+`warning-button` is the one leftover: it carried the old amber "back / side trip" accent and is used for navigation (Namensspiel, Zurück zum Klassenraum), not for warnings. Its tokens (`--button-warning-*`) now render neutral; the call sites move to `secondary-button` and the token disappears with them.
+
+**Focus and hover**
+
+- A focus ring is a solid 2 px contour in `--focus-ring-primary` (danger and success variants exist), never a soft glow. The old translucent rings are gone.
+- Buttons and icon buttons have defined hover states (e.g. `--button-primary-bg-hover`). These apply in dark mode too, because `@layer base` overrides the variables rather than the utilities.
 
 ## 5. Tokens for student toggles
 
@@ -92,12 +147,17 @@ The central radii live in `@theme`:
 
 ## 6. Classroom features & feature palette
 
-The classroom features (windows, doors, teacher's desk, blackboard) are rendered as `ClassroomFeature` shapes on the canvas. Colors live in `src/utils/ui/featureStyles.ts` (`getFeatureStyles()`, light/dark palettes per feature type) and are consumed by `ClassroomCanvas.tsx`. They align with the primary palette:
+The classroom features (windows, doors, teacher's desk, blackboard) are rendered as `ClassroomFeature` shapes on the canvas. Colors live in `src/utils/ui/featureStyles.ts` (`getFeatureStyles()`, light/dark palettes per feature type) and are consumed by `ClassroomCanvas.tsx`.
 
-- **Window**: light blue (`#dbeafe`) / dark mode `#1e3a8a`, border `#1d4ed8` or `#60a5fa`
-- **Door**: warm amber (`#fef3c7`) / dark mode `#78350f`, border `#b45309` or `#fbbf24`
-- **Blackboard**: mint green (`#d1fae5`) / dark mode `#1e3a33`, border `#1e3a33` or `#10b981`
-- **Teacher's desk**: neutral gray (`#e5e7eb`) / dark mode `#4b5563`, border `#6b7280` or `#9ca3af`
+They are drawn like a floor plan: a barely tinted fill carrying a strong ink contour. Projectors wash pastel fills out almost completely, so the contour — not the fill — is what has to survive the beamer. The hues stay recognisable but live at ink darkness instead of candy lightness:
+
+- **Window**: fill `#f5f7fb` / dark `#12203f`, contour `#1e3a8a` or `#6f9bf5`
+- **Door**: fill `#fbf7f0` / dark `#2b1810`, contour `#7c2d12` or `#d08a5f`
+- **Blackboard**: fill `#f2f7f3` / dark `#12261a`, contour `#14532d` or `#57b37a`
+- **Teacher's desk**: fill `#f3f1ec` / dark `#202327`, contour `#3f3f46` or `#8c9096`
+- **Cabinet**: fill `#f7f3ed` / dark `#2a2218`, contour `#6b5a45` or `#b79a74`
+
+These are deliberately _not_ the `--data-*` families: a window is furniture, not a pedagogical fact.
 
 Drag indicators use:
 

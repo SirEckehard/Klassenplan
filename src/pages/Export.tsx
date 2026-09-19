@@ -65,7 +65,7 @@ import { KpLockup } from '@/components/KpLockup';
 import SeatingModeToggle, {
   type SeatingMode,
 } from '@/components/SeatingPlanGenerator/SeatingModeToggle';
-import dmSansWoff2Url from '@fontsource-variable/dm-sans/files/dm-sans-latin-wght-normal.woff2?url';
+import primaryFontWoff2Url from '@fontsource-variable/instrument-sans/files/instrument-sans-latin-wght-normal.woff2?url';
 import HelpButton from '@/components/ui/buttons/HelpButton';
 import WizardProgressBar from '@/components/ui/navigation/WizardProgressBar';
 import ExportSidebar from '@/components/SeatingPlanGenerator/ExportSidebar';
@@ -460,9 +460,9 @@ export default function Export() {
     // Inline stylesheet - Safari print fix v4
     // Screen preview uses original working CSS
     // Print mode has aggressive Safari-specific overrides
-    const fontUrl = new URL(dmSansWoff2Url, window.location.href).href;
+    const fontUrl = new URL(primaryFontWoff2Url, window.location.href).href;
     const styles =
-      `@font-face{font-family:'DM Sans Variable';src:url('${fontUrl}') format('woff2');font-weight:100 900;font-style:normal;}
+      `@font-face{font-family:'Instrument Sans Variable';src:url('${fontUrl}') format('woff2');font-weight:400 700;font-style:normal;}
 
       :root { color-scheme: light; }
       @page {
