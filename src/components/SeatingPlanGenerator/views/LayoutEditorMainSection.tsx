@@ -10,10 +10,6 @@ import ClassroomCanvas from '@/components/SeatingPlanGenerator/canvas/ClassroomC
 import CanvasToolbar from '@/components/SeatingPlanGenerator/canvas/CanvasToolbar';
 import StatusBarPortal from '@/components/shell/StatusBarPortal';
 import MobileTableTemplates from '@/components/SeatingPlanGenerator/mobile/MobileTableTemplates';
-import {
-  CanvasSettingsButton,
-  type CanvasSettingsGroup,
-} from '@/components/SeatingPlanGenerator/canvas/CanvasSettingsButton';
 import LayoutEditorQuickSetupOverlay from '@/components/SeatingPlanGenerator/views/LayoutEditorQuickSetupOverlay';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 import type { ClassroomFeatureType, TableTemplateType } from '@/types';
@@ -48,7 +44,6 @@ type LayoutEditorMainSectionProps = {
   redo: () => void;
   canRedo: boolean;
   historyLength: number;
-  layoutSettingsGroups: CanvasSettingsGroup[];
   canvasProps: React.ComponentProps<typeof ClassroomCanvas>;
   quickSetupOverlay: {
     panel: React.ReactNode;
@@ -87,7 +82,6 @@ const LayoutEditorMainSection = React.memo(function LayoutEditorMainSection({
   redo,
   canRedo,
   historyLength,
-  layoutSettingsGroups,
   canvasProps,
   quickSetupOverlay,
   onOpenQuickSetup,
@@ -142,10 +136,6 @@ const LayoutEditorMainSection = React.memo(function LayoutEditorMainSection({
             buttonClass={statusBarButtonClass}
           />
         </StatusBarPortal>
-        <CanvasSettingsButton
-          groups={layoutSettingsGroups}
-          buttonTitle={t('editor.viewSettings', 'Ansichtseinstellungen')}
-        />
         <ClassroomCanvas {...canvasProps} />
 
         <LayoutEditorQuickSetupOverlay

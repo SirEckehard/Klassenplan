@@ -4,7 +4,23 @@ import '@testing-library/jest-dom/vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import '@/i18n/i18n';
-import SmartEditPanel from '../SmartEditPanel';
+import RoomToolPanel from '../RoomToolPanel';
+
+const settingsGroups = [
+  {
+    id: 'layout-base',
+    title: 'Arbeitsfläche',
+    options: [
+      {
+        id: 'show-grid',
+        label: 'Raster anzeigen',
+        icon: <span />,
+        checked: true,
+        onChange: vi.fn(),
+      },
+    ],
+  },
+];
 
 const renderPanel = (density: 'comfortable' | 'compact') => {
   const handlers = {
@@ -14,20 +30,21 @@ const renderPanel = (density: 'comfortable' | 'compact') => {
     onFeaturePointerDown: vi.fn(),
   };
   render(
-    <SmartEditPanel
+    <RoomToolPanel
       density={density}
       quickSetupShortcutHint="Q"
       featurePalette={[
         { type: 'window', label: 'Fenster', icon: <span /> },
         { type: 'door', label: 'Tür', icon: <span /> },
       ]}
+      settingsGroups={settingsGroups}
       {...handlers}
     />,
   );
   return handlers;
 };
 
-describe('SmartEditPanel', () => {
+describe('RoomToolPanel', () => {
   it.each(['comfortable', 'compact'] as const)(
     'offers setup, saving, tables and room elements in the %s density',
     (density) => {
@@ -57,7 +74,7 @@ describe('SmartEditPanel', () => {
     },
   );
 
-  it('explains the round buttons in their tooltips as the cards do', () => {
+  it('explains the round buttons in their tooltips as the labels do', () => {
     renderPanel('compact');
 
     const group4 = screen.getByRole('button', {
@@ -74,10 +91,16 @@ describe('SmartEditPanel', () => {
     ).toHaveAttribute('title', expect.stringContaining('(Q)'));
   });
 
-  it('shows the explanations as text in the comfortable density only', () => {
+  // The floating settings button on the canvas is gone; its options are a
+  // group of the toolbar like everything else the layer can do.
+  it('opens the view settings from the toolbar', () => {
     renderPanel('comfortable');
+
+    fireEvent.click(screen.getByRole('button', { name: /Arbeitsfläche/ }));
+
     expect(
-      screen.getByText(/Ziehe Tische in den Klassenraum|Drag tables/),
+      screen.getByRole('dialog', { name: /Arbeitsfläche/ }),
     ).toBeInTheDocument();
+    expect(screen.getByText(/Raster anzeigen/)).toBeInTheDocument();
   });
 });

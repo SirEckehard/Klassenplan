@@ -2,7 +2,8 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import SmartSidebar from '@/components/ui/panels/SmartSidebar';
-import SmartEditPanel from '@/components/ui/panels/SmartEditPanel';
+import RoomToolPanel from '@/components/SeatingPlanGenerator/views/RoomToolPanel';
+import type { CanvasSettingsGroup } from '@/components/SeatingPlanGenerator/canvas/CanvasSettingsButton';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 import type { ClassroomFeatureType, TableTemplateType } from '@/types';
 
@@ -24,8 +25,10 @@ type LayoutEditorSidebarSectionProps = {
   featurePalette: SidebarFeaturePaletteItem[];
   onFeaturePointerDown: (
     type: ClassroomFeatureType,
-    event: React.PointerEvent<Element>,
+    event: React.PointerEvent<HTMLButtonElement>,
   ) => void;
+  /** Grid, snapping, guides and room-element visibility. */
+  settingsGroups: CanvasSettingsGroup[];
 };
 
 const LayoutEditorSidebarSection = React.memo(
@@ -37,6 +40,7 @@ const LayoutEditorSidebarSection = React.memo(
     quickSetupShortcutHint,
     featurePalette,
     onFeaturePointerDown,
+    settingsGroups,
   }: LayoutEditorSidebarSectionProps) {
     if (isPhone) {
       return null;
@@ -45,7 +49,7 @@ const LayoutEditorSidebarSection = React.memo(
     return (
       <SmartSidebar tourAnchor={TOUR_ANCHORS.layoutSidebar}>
         {({ isExpanded }) => (
-          <SmartEditPanel
+          <RoomToolPanel
             density={isExpanded ? 'comfortable' : 'compact'}
             handleSaveTemplate={handleSaveTemplate}
             onTemplatePointerDown={onTemplatePointerDown}
@@ -53,6 +57,7 @@ const LayoutEditorSidebarSection = React.memo(
             quickSetupShortcutHint={quickSetupShortcutHint}
             featurePalette={featurePalette}
             onFeaturePointerDown={onFeaturePointerDown}
+            settingsGroups={settingsGroups}
           />
         )}
       </SmartSidebar>

@@ -12,15 +12,20 @@ import type {
 import {
   CLASSROOM_HEIGHT,
   CLASSROOM_WIDTH,
+  GRID_SIZE,
   dangerButtonClass,
   dataFamilyClass,
   dataHeadingClass,
   inputFieldClass,
   quietIconButtonClass,
+  secondaryButtonClass,
 } from '@/utils';
 
 /** The canvas rotates in 15° steps, by handle and by Q/E; so does this. */
 const ROTATION_STEP = 15;
+
+/** Narrower than this and the table has no room for a seat. */
+const MIN_TABLE_SIDE = 20;
 
 type FeaturePaletteItem = {
   type: ClassroomFeatureType;
@@ -43,18 +48,21 @@ type Props = {
   onDeleteSelection: () => void;
 };
 
-const clamp = (value: number, max: number) =>
-  Math.max(0, Math.min(Math.round(value), max));
+const clamp = (value: number, min: number, max: number) =>
+  Math.max(min, Math.min(Math.round(value), max));
 
 function Field({
   label,
   value,
   onCommit,
+  min = 0,
   max,
 }: {
   label: string;
   value: number;
   onCommit: (next: number) => void;
+  /** A table of zero width has no seats left to draw. */
+  min?: number;
   max: number;
 }) {
   const id = React.useId();
@@ -76,7 +84,7 @@ function Field({
       setDraft(String(rounded));
       return;
     }
-    const next = clamp(parsed, max);
+    const next = clamp(parsed, min, max);
     setDraft(String(next));
     if (next !== rounded) onCommit(next);
   };
@@ -156,6 +164,25 @@ export default function SceneInspector({
         position === index ? { ...table, ...patch } : table,
       ),
     );
+  };
+
+  /**
+   * A copy one grid step down and to the right, so it is visibly a second
+   * table rather than one hiding exactly under the first.
+   */
+  const duplicateTable = (index: number) => {
+    const table = tables[index];
+    if (!table) return;
+    snapshot();
+    updateSceneTables((current) => [
+      ...current,
+      {
+        ...table,
+        x: Math.min(table.x + GRID_SIZE, CLASSROOM_WIDTH - table.width),
+        y: Math.min(table.y + GRID_SIZE, CLASSROOM_HEIGHT - table.height),
+        locked: false,
+      },
+    ]);
   };
 
   const patchFeature = (id: string, patch: Partial<ClassroomFeature>) => {
@@ -295,15 +322,40 @@ export default function SceneInspector({
             max={CLASSROOM_HEIGHT}
             onCommit={(next) => patchTable(index, { y: next })}
           />
+          {/* Resizing was a drag handle and a guess; the same two numbers the
+              canvas writes can now be typed. */}
+          <Field
+            label={t('sceneInspector.width')}
+            value={table.width}
+            min={MIN_TABLE_SIDE}
+            max={CLASSROOM_WIDTH}
+            onCommit={(next) => patchTable(index, { width: next })}
+          />
+          <Field
+            label={t('sceneInspector.height')}
+            value={table.height}
+            min={MIN_TABLE_SIDE}
+            max={CLASSROOM_HEIGHT}
+            onCommit={(next) => patchTable(index, { height: next })}
+          />
         </div>
 
-        <button
-          type="button"
-          onClick={onDeleteSelection}
-          className={`${dangerButtonClass} w-full`}
-        >
-          {t('sceneInspector.deleteTable')}
-        </button>
+        <div className="flex flex-col gap-2">
+          <button
+            type="button"
+            onClick={() => duplicateTable(index)}
+            className={`${secondaryButtonClass} w-full`}
+          >
+            {t('sceneInspector.duplicateTable')}
+          </button>
+          <button
+            type="button"
+            onClick={onDeleteSelection}
+            className={`${dangerButtonClass} w-full`}
+          >
+            {t('sceneInspector.deleteTable')}
+          </button>
+        </div>
       </div>
     );
   }

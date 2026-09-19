@@ -136,6 +136,39 @@ describe('SceneInspector', () => {
     expect(applyTableUpdate(updateSceneTables, tables)[0].x).toBe(900);
   });
 
+  it('takes a typed size and keeps the table wide enough for a seat', () => {
+    const tables = [table()];
+    const { updateSceneTables } = renderInspector({
+      tables,
+      selectedTableIds: [0],
+    });
+
+    const width = screen.getByLabelText(/Breite|Width/i);
+    fireEvent.change(width, { target: { value: '0' } });
+    fireEvent.blur(width);
+
+    expect(applyTableUpdate(updateSceneTables, tables)[0].width).toBe(20);
+  });
+
+  it('duplicates a table one grid step away from the original', () => {
+    const tables = [table()];
+    const { snapshot, updateSceneTables } = renderInspector({
+      tables,
+      selectedTableIds: [0],
+    });
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: /Tisch duplizieren|Duplicate table/i,
+      }),
+    );
+
+    expect(snapshot).toHaveBeenCalledTimes(1);
+    const next = applyTableUpdate(updateSceneTables, tables);
+    expect(next).toHaveLength(2);
+    expect(next[1]).toMatchObject({ x: 110, y: 210, seatCount: 4 });
+  });
+
   it('offers no way to change a seat count under a finished plan', () => {
     renderInspector({ selectedTableIds: [0] });
 

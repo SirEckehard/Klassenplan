@@ -106,7 +106,7 @@ export default function RelationsView({ students }: { students: Student[] }) {
       </div>
       {pairs.length === 0 ? (
         <p className="text-sm text-(--text-muted)">
-          {t('relations.noRelations')}
+          {t('relations.noneInGroup')}
         </p>
       ) : (
         <ul className="m-0 flex list-none flex-col gap-1 p-0">

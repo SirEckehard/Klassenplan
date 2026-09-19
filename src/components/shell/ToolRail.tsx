@@ -113,6 +113,11 @@ type ToolRailButtonProps = {
   disabled?: boolean;
   onClick?: () => void;
   /**
+   * For an entry that is dragged onto the stage rather than pressed — the
+   * table templates and the room elements. Turns the entry into a drag source.
+   */
+  onPointerDown?: (event: React.PointerEvent<HTMLButtonElement>) => void;
+  /**
    * A panel the entry opens instead of acting straight away — a name to type,
    * a number of placeholders, a set of switches. Receives a `close` it can
    * call once its job is done.
@@ -132,6 +137,7 @@ export function ToolRailButton({
   active = false,
   disabled = false,
   onClick,
+  onPointerDown,
   panel,
   'data-tour': dataTour,
 }: ToolRailButtonProps) {
@@ -172,6 +178,9 @@ export function ToolRailButton({
       ref={anchorRef}
       data-tour={dataTour}
       disabled={disabled}
+      onPointerDown={onPointerDown}
+      // A drag must not scroll the rail under the finger.
+      style={onPointerDown ? { touchAction: 'none' } : undefined}
       onClick={() => {
         if (panel) {
           setOpen((previous) => !previous);
@@ -190,6 +199,7 @@ export function ToolRailButton({
               variant: 'collapsed',
               isActive: active,
               disabled,
+              draggable: Boolean(onPointerDown),
             })}`
           : `flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm transition ${
               active

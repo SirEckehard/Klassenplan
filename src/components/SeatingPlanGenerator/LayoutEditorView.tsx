@@ -949,6 +949,7 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
           quickSetupShortcutHint={quickSetupShortcutHint}
           featurePalette={FEATURE_PALETTE}
           onFeaturePointerDown={handleFeatureTemplatePointerDown}
+          settingsGroups={layoutSettingsGroups}
         />
 
         <LayoutEditorMainSection
@@ -959,7 +960,6 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
           redo={redo}
           canRedo={canRedo}
           historyLength={historyLength}
-          layoutSettingsGroups={layoutSettingsGroups}
           canvasProps={canvasProps}
           quickSetupOverlay={{
             panel: quickSetupPanel,
