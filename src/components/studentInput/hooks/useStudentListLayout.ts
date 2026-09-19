@@ -44,7 +44,9 @@ export const useStudentListLayout = ({
   // be the Namensspiel button; that moved to the toolbar, so what is left is
   // an empty sentinel element.
   const listEndRef = useRef<HTMLDivElement | null>(null);
-  const floatingActionOffsets = useFloatingActionOffset();
+  // Left edge: the class layer now has the toolbar's phone trigger in the
+  // bottom-right corner, and two floating buttons must not stack.
+  const floatingActionOffsets = useFloatingActionOffset({ side: 'left' });
   const { containerRef: listContainerRef, maxHeight: listMaxHeight } =
     useAdaptiveViewportHeight<HTMLDivElement>({
       disabled: isMobile,

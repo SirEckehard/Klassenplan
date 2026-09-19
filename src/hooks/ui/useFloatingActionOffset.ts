@@ -28,7 +28,10 @@ export function useFloatingActionOffset(
       cookieBannerOffset > 0 ? `${cookieBannerOffset}px` : '0px';
 
     return {
-      bottom: `calc(${bottomSpacing} + env(safe-area-inset-bottom) + ${offsetValue})`,
+      // `--shell-bottom-inset` is the height of the shell's status bar, which
+      // is sticky at the bottom of the workspace; a floating control that
+      // ignored it would cover the layer's primary action.
+      bottom: `calc(${bottomSpacing} + env(safe-area-inset-bottom) + ${offsetValue} + var(--shell-bottom-inset, 0px))`,
       [side]: `calc(${inlineSpacing} + env(safe-area-inset-${side}))`,
     };
   }, [bottomSpacing, cookieBannerOffset, inlineSpacing, side]);

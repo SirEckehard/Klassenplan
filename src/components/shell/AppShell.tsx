@@ -23,7 +23,12 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           on every layer, so the dialogs live above the layer, not inside it. */}
       <ClassDialogsProvider>
         <StatusBarSlotProvider>
-          <div className="flex min-h-screen flex-col">
+          {/* The status bar's height, for the floating controls inside the
+              workspace that must stay clear of it (`useFloatingActionOffset`). */}
+          <div
+            className="flex min-h-screen flex-col"
+            style={{ '--shell-bottom-inset': '3.25rem' } as React.CSSProperties}
+          >
             <SeatingPlanHeader />
             <main id="main" tabIndex={-1} className="flex-1 px-4 py-6">
               <div className="mx-auto flex max-w-7xl items-start gap-4">

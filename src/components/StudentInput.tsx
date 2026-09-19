@@ -366,9 +366,9 @@ function StudentInput({
         <>
           {students.length === 0 && (
             <div
-              className={`${cardSurfaceClass} flex flex-col gap-4 border border-blue-200/80 bg-blue-50/90 p-5 text-blue-900 shadow-lg dark:border-blue-900/50 dark:bg-blue-950/40 dark:text-blue-100 sm:flex-row sm:items-start sm:gap-6`}
+              className={`${cardSurfaceClass} flex flex-col gap-4 border border-(--border-card) p-5 sm:flex-row sm:items-start sm:gap-6`}
             >
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-blue-200/70 bg-white/80 text-blue-600 shadow-sm dark:border-blue-900/40 dark:bg-blue-950/60 dark:text-blue-200">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-(--border-card) bg-(--surface-sunken) text-(--text-badge)">
                 <InfoIcon className="h-6 w-6" aria-hidden="true" />
               </div>
               <div className="space-y-3 text-sm">
@@ -406,7 +406,7 @@ function StudentInput({
                       'csv.downloadTemplate',
                       'CSV-Vorlage herunterladen',
                     )}
-                    className="font-semibold text-green-600 underline transition hover:text-green-800 dark:text-green-400 dark:hover:text-green-300"
+                    className="font-semibold underline"
                   >
                     {t('csv.templateLink', 'CSV-Vorlage')}
                   </a>
@@ -438,7 +438,7 @@ function StudentInput({
                       type="button"
                       onClick={handleLoadDemoClass}
                       disabled={isLoadingDemoClass}
-                      className="cursor-pointer font-semibold text-blue-700 underline transition hover:text-blue-900 disabled:cursor-wait disabled:opacity-70 dark:text-blue-300 dark:hover:text-blue-100"
+                      className="cursor-pointer font-semibold text-(--text-badge) underline disabled:cursor-wait disabled:opacity-70"
                     >
                       {isLoadingDemoClass
                         ? t('generator:demoClass.loading')
@@ -466,7 +466,7 @@ function StudentInput({
           ) : listMode === 'relations' ? (
             <RelationsView students={students} />
           ) : showListTools && listView.visibleStudents.length === 0 ? (
-            <p className="px-1 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
+            <p className="px-1 py-6 text-center text-sm text-(--text-muted)">
               {t(
                 'listToolbar.noMatches',
                 'Keine Schüler passen zu Suche und Filter.',

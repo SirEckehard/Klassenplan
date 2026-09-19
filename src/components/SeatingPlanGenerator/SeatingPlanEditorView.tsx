@@ -443,6 +443,29 @@ export default function SeatingPlanEditorView({
     [statisticsHighlight],
   );
   const mixingLocked = isMixing || autoMixing;
+  /**
+   * What the highlight is showing, in words: the criterion and how many of the
+   * seats it touches are short of it.
+   */
+  const highlightNotice = React.useMemo(() => {
+    if (!statisticsHighlight || statisticsHighlight.mode !== 'persistent') {
+      return null;
+    }
+    const criterion = lastStatistics?.find(
+      (entry) => entry.key === statisticsHighlight.key,
+    );
+    if (!criterion) return null;
+    const open = statisticsHighlight.entries.filter(
+      (entry) => entry.status !== 'ok',
+    ).length;
+    return {
+      label: t('statisticsBadge.highlighted', {
+        criterion: criterion.label,
+        count: open,
+      }),
+    };
+  }, [lastStatistics, statisticsHighlight, t]);
+
   const activeHighlightKey = statisticsHighlight?.key ?? null;
   const activeHighlightMode = statisticsHighlight?.mode ?? null;
   const buildHighlightEntriesForCriterion = React.useCallback(
@@ -904,6 +927,23 @@ export default function SeatingPlanEditorView({
 
         <div className="relative flex-1">
           <div className="flex min-w-0 flex-col gap-4">
+            {/* A highlight changes what the seats mean, so it says so above
+                the plan rather than leaving the colours to be guessed at. */}
+            {highlightNotice && (
+              <div
+                role="status"
+                className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-(--border-card) bg-(--surface-sunken) px-3 py-2 text-sm"
+              >
+                <span>{highlightNotice.label}</span>
+                <button
+                  type="button"
+                  onClick={() => clearStatisticsHighlight?.()}
+                  className={`${secondaryButtonClass} h-8 px-3 text-xs`}
+                >
+                  {t('statisticsBadge.highlightOff')}
+                </button>
+              </div>
+            )}
             <div
               data-testid="classroom-canvas"
               data-tour={TOUR_ANCHORS.planCanvas}

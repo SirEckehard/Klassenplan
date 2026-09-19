@@ -10,6 +10,7 @@ import {
 } from '@phosphor-icons/react';
 import {
   iconButtonClass,
+  panelSurfaceClass,
   primaryButtonClass,
   secondaryButtonClass,
 } from '@/utils';
@@ -144,10 +145,10 @@ export default function SmartSidebar({
   const collapsedWidth = 'w-22';
   const expandedWidth = 'w-72';
 
-  const expandedContainerClass =
-    'self-stretch rounded-3xl border-2 border-blue-200 bg-linear-to-br from-blue-50 via-white to-indigo-50 shadow-2xl backdrop-blur-md dark:border-blue-900/40 dark:from-gray-900 dark:via-gray-900 dark:to-gray-950';
-  const collapsedContainerClass =
-    'self-start rounded-2xl border border-blue-100 bg-white/70 shadow-lg backdrop-blur-sm dark:border-blue-900/40 dark:bg-gray-950/60';
+  // Paper, like every other surface of the workspace: the toolbar is where
+  // the tools are, not something that has to announce itself in blue.
+  const expandedContainerClass = `${panelSurfaceClass} self-stretch`;
+  const collapsedContainerClass = `${panelSurfaceClass} self-start`;
 
   // Simplified style - only use maxHeight from the debounced hook
   const sidebarStyle = React.useMemo<React.CSSProperties | undefined>(() => {
@@ -183,20 +184,17 @@ export default function SmartSidebar({
             aria-modal="true"
             aria-labelledby={mobileSheetTitleId}
             tabIndex={-1}
-            className="fixed inset-0 z-50 overflow-y-auto bg-white focus:outline-none dark:bg-gray-900"
+            className="fixed inset-0 z-50 overflow-y-auto bg-(--surface-page) focus:outline-none"
           >
             {/* Header with close button */}
-            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-blue-100/70 bg-white px-4 py-3 shadow-sm dark:border-blue-900/40 dark:bg-gray-900">
-              <h2
-                id={mobileSheetTitleId}
-                className="text-lg font-semibold text-gray-900 dark:text-gray-100"
-              >
+            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-(--border-panel) bg-(--surface-card) px-4 py-3">
+              <h2 id={mobileSheetTitleId} className="text-lg font-semibold">
                 {t('sidebar.options', 'Optionen')}
               </h2>
               <button
                 type="button"
                 onClick={closeMobileOverlay}
-                className={`${iconButtonClass} h-10 w-10 border-none bg-transparent text-gray-500 shadow-none transition hover:text-blue-600 dark:text-gray-300`}
+                className={`${iconButtonClass} h-10 w-10 border-none bg-transparent shadow-none`}
                 aria-label={t('common.close', 'Schließen')}
               >
                 <XIcon size={24} />
@@ -231,7 +229,7 @@ export default function SmartSidebar({
       {/* Sidebar Header and Content */}
       <div className="flex flex-col h-full min-h-0">
         {/* Header with toggle button */}
-        <div className="shrink-0 border-b border-blue-100/70 px-2 py-2 dark:border-blue-900/50">
+        <div className="shrink-0 border-b border-(--border-panel) px-2 py-2">
           {isExpanded ? (
             // Expanded header with title and collapse button
             <button
@@ -247,10 +245,10 @@ export default function SmartSidebar({
               )}
               aria-label={t('sidebar.collapseLabel', 'Sidebar minimieren')}
             >
-              <span className="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-gray-100">
+              <span className="flex items-center gap-2 text-sm font-semibold">
                 <GearIcon
                   size={18}
-                  className="text-blue-600 dark:text-blue-300"
+                  className="text-(--text-muted)"
                   aria-hidden="true"
                 />
                 {t('sidebar.options', 'Optionen')}
@@ -264,7 +262,7 @@ export default function SmartSidebar({
               onClick={toggle}
               data-tour={TOUR_ANCHORS.sidebarToggle}
               onMouseUp={(event) => event.currentTarget.blur()}
-              className={`${secondaryButtonClass} h-12 w-full justify-center px-0 text-gray-600 hover:text-blue-600 dark:text-gray-300`}
+              className={`${secondaryButtonClass} h-12 w-full justify-center px-0`}
               title={t(
                 'sidebar.expandShortcut',
                 'Sidebar erweitern (⌘/Strg+B)',

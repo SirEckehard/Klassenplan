@@ -677,19 +677,22 @@
     "fromPlan": "Sitzkreis wird aus dem Sitzplan übernommen..."
   },
   "statisticsBadge": {
-    "title": "Kriterien-Erfüllung",
     "close": "Schließen",
-    "overallLabel": "Gesamt",
+    "footerHint": "Tipp: Passe die Gewichtung in den Optionen an.",
+    "highlightOff": "Hervorhebung aus",
+    "highlighted_one": "Hervorgehoben: {{criterion}} — {{count}} offener Platz",
+    "highlighted_other": "Hervorgehoben: {{criterion}} — {{count}} offene Plätze",
     "hoverHint": "Wenn du über ein Kriterium hoverst, werden die betroffenen Plätze im Sitzplan hervorgehoben. Klicke, um die Hervorhebung zu fixieren.",
     "hoverHintShort": "Hover für Markierung",
+    "overallLabel": "Gesamt",
     "overallScore": "Gesamt-Score:",
-    "weightLabel": "Gewichtung: {{weight}}/10",
-    "footerHint": "Tipp: Passe die Gewichtung in den Optionen an.",
     "status": {
       "ok": "Erfüllung über 80 % (gut)",
       "warn": "Erfüllung zwischen 50 % und 80 % (teilweise)",
       "alert": "Erfüllung unter 50 % (gering)"
-    }
+    },
+    "title": "Kriterien-Erfüllung",
+    "weightLabel": "Gewichtung: {{weight}}/10"
   },
   "shortcuts": {
     "labels": {
