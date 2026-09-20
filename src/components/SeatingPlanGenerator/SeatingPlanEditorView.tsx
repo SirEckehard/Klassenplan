@@ -25,6 +25,7 @@ import StatusBarPortal from '@/components/shell/StatusBarPortal';
 import { useCanvasPreferences } from '@/contexts/seatingPlan/CanvasPreferencesContext';
 import SeatingPlanCanvas from '@/components/SeatingPlanGenerator/SeatingPlanCanvas';
 import SeatingStatisticsBadge from '@/components/ui/feedback/SeatingStatisticsBadge';
+import PlanReasons from '@/components/ui/feedback/PlanReasons';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 import {
   GRID_SIZE,
@@ -68,6 +69,7 @@ import { useFirstVisit } from '@/hooks/ui/useFirstVisit';
 import { useIsPhone } from '@/hooks/ui/useLayoutMode';
 import { createSuspendedWeights } from '@/hooks/ui/useMixCriteria';
 import { buildCriterionHighlightEntries } from '@/utils/algorithm/criterionHighlights';
+import { buildPlanReasons } from '@/utils/algorithm/planReasons';
 import type {
   DragPreview,
   DragOrigin,
@@ -553,6 +555,30 @@ export default function SeatingPlanEditorView({
     ],
   );
 
+  // Why the plan came out this way — read off the plan that was built, so it
+  // only exists once there is a mix to explain.
+  const planReasons = React.useMemo(
+    () =>
+      lastStatistics && lastStatistics.length > 0
+        ? buildPlanReasons({
+            fulfillment: lastStatistics,
+            arrangement: effectiveSeating,
+            scene: classroomScene,
+            seatingHistory,
+            mixHistory,
+            planUsage,
+          })
+        : [],
+    [
+      classroomScene,
+      effectiveSeating,
+      lastStatistics,
+      mixHistory,
+      planUsage,
+      seatingHistory,
+    ],
+  );
+
   const sidebarFulfillment = statisticsVisible
     ? (lastStatistics ?? undefined)
     : undefined;
@@ -934,6 +960,12 @@ export default function SeatingPlanEditorView({
               suspendedWeights={suspendedWeights}
               density="comfortable"
               {...fulfillmentProps}
+            />
+            {/* Under the criteria, because it is what they came to. */}
+            <PlanReasons
+              reasons={planReasons}
+              students={students}
+              nameDisplay={nameDisplay}
             />
           </InspectorBody>
         </InspectorPortal>

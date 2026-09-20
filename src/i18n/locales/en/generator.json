@@ -330,6 +330,74 @@
         "desc": "Mix widely, leave nobody sitting alone, spread the roles."
       }
     },
+    "reasons": {
+      "title": "Why this plan",
+      "andMore": "{{names}} and {{more}} more",
+      "generic": {
+        "met": "{{criterion}}: fully met.",
+        "open": "{{criterion}}: {{percentage}}% met."
+      },
+      "avoidPreviousPairs": {
+        "met": "Nobody sits next to their neighbour from last time.",
+        "open": "{{names}} sit next to each other again — {{done}} of {{total}} pairs are new."
+      },
+      "preferGenderMix": {
+        "met": "All {{total}} occupied tables have a gender mix.",
+        "open": "{{done}} of {{total}} tables have a gender mix."
+      },
+      "preferFrontForSmallerStudents": {
+        "met": "All {{total}} are seated by height: shorter at the front, taller at the back.",
+        "open": "{{done}} of {{total}} are seated by height."
+      },
+      "preferLanguageMixing": {
+        "met": "All {{total}} tables seat strong and weak language levels together.",
+        "open": "{{done}} of {{total}} tables mix the language levels."
+      },
+      "peerTutoring": {
+        "met": "All {{total}} pairs bring different performance levels together.",
+        "open": "{{done}} of {{total}} pairs mix strong and weak students."
+      },
+      "homogeneousPerformanceGroups": {
+        "met": "All {{total}} pairs are at a similar level.",
+        "open": "{{done}} of {{total}} pairs are at a similar level."
+      },
+      "preferFrontForNeedsFrontSeat": {
+        "met": "{{names}} sit in the front rows.",
+        "open": "{{names}} do not sit at the front although they should."
+      },
+      "avoidRestlessTogether": {
+        "met": "{{names}} do not sit next to each other.",
+        "open": "{{names}} sit next to someone who is restless as well."
+      },
+      "avoidShyAlone": {
+        "met": "{{names}} have a seat neighbour.",
+        "open": "{{names}} sit alone at their table."
+      },
+      "avoidConcentrationTogether": {
+        "met": "{{names}} do not sit next to each other.",
+        "open": "{{names}} sit next to someone who is easily distracted as well."
+      },
+      "distributeSocialRoles": {
+        "met": "All {{total}} tables have their social roles spread out.",
+        "open": "{{done}} of {{total}} tables have their social roles spread out."
+      },
+      "considerWishPartners": {
+        "met": "{{names}} sit with their wish partner — all {{total}} wishes met.",
+        "open": "{{done}} of {{total}} wishes met; open for {{names}}."
+      },
+      "avoidConflictPartners": {
+        "met": "{{names}} sit away from the ones they wanted to avoid.",
+        "open": "{{names}} sit next to someone they wanted to avoid."
+      },
+      "preferWindowSeats": {
+        "met": "{{names}} sit close to a window.",
+        "open": "{{names}} sit further from the window than they wanted."
+      },
+      "preferDoorSeats": {
+        "met": "{{names}} sit close to the door.",
+        "open": "{{names}} sit further from the door than they wanted."
+      }
+    },
     "enableAll": "Enable all criteria",
     "disableAll": "Disable all criteria",
     "toggleAll": "All criteria",

@@ -39,18 +39,18 @@ A few areas intentionally stay outside the central API to optimize bundle size a
 
 ## Who may import what
 
-| Importing layer                            | `@/utils` | `@/utils/algorithm`                                      | `@/utils/data`            |
-| ------------------------------------------ | --------- | -------------------------------------------------------- | ------------------------- |
-| `src/components`, `src/pages` (enforced)   | yes       | type imports, `seatingStatistics`, `criterionHighlights` | type imports, `planUsage` |
-| hooks, contexts, stores, services, workers | yes       | yes                                                      | yes                       |
-| repositories                               | yes       | not used                                                 | yes                       |
-| `src/utils` (enforced)                     | yes       | yes                                                      | yes – but no layer above  |
-| tests                                      | yes       | yes – to build fixtures                                  | yes                       |
+| Importing layer                            | `@/utils` | `@/utils/algorithm`                                                     | `@/utils/data`            |
+| ------------------------------------------ | --------- | ----------------------------------------------------------------------- | ------------------------- |
+| `src/components`, `src/pages` (enforced)   | yes       | type imports, `seatingStatistics`, `criterionHighlights`, `planReasons` | type imports, `planUsage` |
+| hooks, contexts, stores, services, workers | yes       | yes                                                                     | yes                       |
+| repositories                               | yes       | not used                                                                | yes                       |
+| `src/utils` (enforced)                     | yes       | yes                                                                     | yes – but no layer above  |
+| tests                                      | yes       | yes – to build fixtures                                                 | yes                       |
 
 ### Why the UI exceptions
 
 - **Type imports** carry no runtime code, so they cannot pull a namespace into a component's chunk.
-- **`seatingStatistics`, `criterionHighlights`, `planUsage`** are pure, synchronous derivations of what is on screen: the statistics badge, the criterion highlights on the seats and the neighbourhood view. They have to show exactly what the algorithm scores – `isCountedUsage()` is shared by the evaluation and the scoring for precisely that reason ([ALGORITHM.md](ALGORITHM.md#confirmation)). Wrapping them in hooks would add a layer without protecting anything.
+- **`seatingStatistics`, `criterionHighlights`, `planReasons`, `planUsage`** are pure, synchronous derivations of what is on screen: the fulfilment beside each criterion, the criterion highlights on the seats, the sentences under "Warum dieser Plan" and the neighbourhood view. They have to show exactly what the algorithm scores – `isCountedUsage()` is shared by the evaluation and the scoring for precisely that reason ([ALGORITHM.md](ALGORITHM.md#confirmation)). Wrapping them in hooks would add a layer without protecting anything.
 
 Adding an exception means extending the allow-list in `eslint.config.js` and the table above in the same commit, with the reason.
 
