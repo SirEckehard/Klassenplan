@@ -12,7 +12,6 @@ interface SidebarToneStyles {
   hoverBg: string;
   hoverText: string;
   indicator: string;
-  ring: string;
 }
 
 type SidebarButtonEmphasis = 'default' | 'accent';
@@ -39,42 +38,49 @@ interface SidebarSurfaceOptions extends SidebarButtonOptions {
 export const sidebarRailButtonClass =
   'group relative inline-flex h-12 w-12 shrink-0 select-none items-center justify-center rounded-full p-0 [-webkit-touch-callout:none]';
 
+/*
+ * Every colour here is a token, so a rail button has one look in both modes and
+ * cannot drift from the buttons around it (docs/DESIGNSYSTEM.md § 4).
+ *
+ * `blue` is the accent that means "you can act here" — the tone of every
+ * ordinary rail button. `green` and `amber` are the two states the rail has to
+ * be able to show: an action that completes something (printing), and a
+ * warning that what is set is not what the teacher probably wants (mixing
+ * with no criterion left on).
+ */
 const toneStyles: Record<SidebarTone, SidebarToneStyles> = {
   blue: {
-    activeBg: 'bg-blue-50 dark:bg-blue-900/20',
-    activeBorder: 'border-blue-200 dark:border-blue-700',
-    accentBorder: 'border-blue-200 dark:border-blue-700',
-    activeText: 'text-blue-600 dark:text-blue-400',
-    accentText: 'text-blue-600 dark:text-blue-400',
-    hoverBorder: 'hover:border-blue-400 dark:hover:border-blue-500',
-    hoverBg: 'hover:bg-blue-50 dark:hover:bg-blue-900/20',
-    hoverText: 'group-hover:text-blue-600 dark:group-hover:text-blue-400',
-    indicator: 'bg-blue-500',
-    ring: 'ring-blue-200 dark:ring-blue-900/40',
+    activeBg: 'bg-(--surface-option-selected)',
+    activeBorder: 'border-(--border-option-selected)',
+    accentBorder: 'border-(--border-option-selected)',
+    activeText: 'text-(--text-badge)',
+    accentText: 'text-(--text-badge)',
+    hoverBorder: 'hover:border-(--border-option-hover)',
+    hoverBg: 'hover:bg-(--surface-option-selected)',
+    hoverText: 'group-hover:text-(--text-badge)',
+    indicator: 'bg-(--button-primary-bg)',
   },
   green: {
-    activeBg: 'bg-green-50 dark:bg-green-900/20',
-    activeBorder: 'border-green-200 dark:border-green-700/60',
-    accentBorder: 'border-green-200 dark:border-green-700/60',
-    activeText: 'text-green-600 dark:text-green-300',
-    accentText: 'text-green-600 dark:text-green-300',
-    hoverBorder: 'hover:border-green-400 dark:hover:border-green-500',
-    hoverBg: 'hover:bg-green-50 dark:hover:bg-green-900/20',
-    hoverText: 'group-hover:text-green-600 dark:group-hover:text-green-300',
-    indicator: 'bg-green-500',
-    ring: 'ring-green-200 dark:ring-green-900/30',
+    activeBg: 'bg-(--status-ok-surface)',
+    activeBorder: 'border-(--status-ok)',
+    accentBorder: 'border-(--status-ok)',
+    activeText: 'text-(--status-ok-text)',
+    accentText: 'text-(--status-ok-text)',
+    hoverBorder: 'hover:border-(--status-ok)',
+    hoverBg: 'hover:bg-(--status-ok-surface)',
+    hoverText: 'group-hover:text-(--status-ok-text)',
+    indicator: 'bg-(--status-ok)',
   },
   amber: {
-    activeBg: 'bg-amber-50 dark:bg-amber-900/20',
-    activeBorder: 'border-amber-200 dark:border-amber-600/60',
-    accentBorder: 'border-amber-200 dark:border-amber-600/60',
-    activeText: 'text-amber-600 dark:text-amber-300',
-    accentText: 'text-amber-600 dark:text-amber-300',
-    hoverBorder: 'hover:border-amber-400 dark:hover:border-amber-500',
-    hoverBg: 'hover:bg-amber-50 dark:hover:bg-amber-900/20',
-    hoverText: 'group-hover:text-amber-600 dark:group-hover:text-amber-300',
-    indicator: 'bg-amber-500',
-    ring: 'ring-amber-200 dark:ring-amber-900/30',
+    activeBg: 'bg-(--status-warn-surface)',
+    activeBorder: 'border-(--status-warn)',
+    accentBorder: 'border-(--status-warn)',
+    activeText: 'text-(--status-warn-text)',
+    accentText: 'text-(--status-warn-text)',
+    hoverBorder: 'hover:border-(--status-warn)',
+    hoverBg: 'hover:bg-(--status-warn-surface)',
+    hoverText: 'group-hover:text-(--status-warn-text)',
+    indicator: 'bg-(--status-warn)',
   },
 };
 
@@ -88,13 +94,13 @@ export function getSidebarSurfaceClasses({
   draggable = false,
 }: SidebarSurfaceOptions): string {
   const styles = toneStyles[tone];
-  const base =
-    variant === 'collapsed'
-      ? 'border-2 transition-all shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500'
-      : 'border-2 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400';
+  // The round button of the rail lifts off the sunken column with the card
+  // shadow; a wide entry sits on the card already and takes none.
+  const base = `border transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)${
+    variant === 'collapsed' ? ' shadow-(--shadow-card)' : ''
+  }`;
 
-  const inactiveSurface =
-    'bg-white/85 border-gray-200 dark:bg-gray-800 dark:border-gray-600';
+  const inactiveSurface = 'bg-(--surface-card) border-(--border-card)';
 
   const hoverClasses =
     disabled || !interactive ? '' : `${styles.hoverBorder} ${styles.hoverBg}`;
@@ -106,7 +112,6 @@ export function getSidebarSurfaceClasses({
     surfaceState = `${styles.activeBg} ${styles.accentBorder}`;
   }
 
-  const ringClass = isActive ? styles.ring : '';
   const cursorClass = disabled
     ? 'cursor-not-allowed opacity-50'
     : !interactive
@@ -115,7 +120,7 @@ export function getSidebarSurfaceClasses({
         ? 'cursor-grab active:cursor-grabbing'
         : 'cursor-pointer';
 
-  return [base, surfaceState, ringClass, hoverClasses, cursorClass]
+  return [base, surfaceState, hoverClasses, cursorClass]
     .filter(Boolean)
     .join(' ');
 }
@@ -129,9 +134,7 @@ export function getSidebarIconClasses({
   const styles = toneStyles[tone];
   const activeText = styles.activeText;
   const inactiveText =
-    emphasis === 'accent'
-      ? styles.accentText
-      : 'text-gray-600 dark:text-gray-300';
+    emphasis === 'accent' ? styles.accentText : 'text-(--text-muted)';
   const hoverText = disabled ? '' : styles.hoverText;
 
   return [
@@ -146,7 +149,7 @@ export function getSidebarIconClasses({
 export function getSidebarIndicatorClasses(tone: SidebarTone = 'blue'): string {
   const styles = toneStyles[tone];
   return [
-    'absolute -top-1.5 -right-1.5 h-3 w-3 rounded-full border-2 border-white dark:border-gray-800',
+    'absolute -top-1.5 -right-1.5 h-3 w-3 rounded-full border-2 border-(--surface-card)',
     styles.indicator,
   ].join(' ');
 }

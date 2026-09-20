@@ -9,10 +9,14 @@ export const STATISTIC_STATUS_THRESHOLDS = {
 
 // User-facing texts live in i18n under `generator:statisticsBadge.status.*`,
 // keyed by the returned status — this module stays presentation-language-free.
+//
+// The three colours are the `--status-*` tokens, which carry their own dark
+// mode: how far something got is chrome, not one of the `--data-*` families a
+// criterion belongs to (docs/DESIGNSYSTEM.md § 4).
 const STATUS_DOT_CLASSES: Record<StatisticStatus, string> = {
-  ok: 'bg-green-500',
-  warn: 'bg-amber-500',
-  alert: 'bg-red-500',
+  ok: 'bg-(--status-ok)',
+  warn: 'bg-(--status-warn)',
+  alert: 'bg-(--status-alert)',
 };
 
 export function getStatisticStatus(percentage: number): StatisticStatus {
