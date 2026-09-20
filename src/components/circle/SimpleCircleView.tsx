@@ -33,8 +33,6 @@ type SimpleCircleViewProps = {
   layout: CircleLayout;
   isDark?: boolean;
   showSpecialNeeds?: boolean;
-  /** When false, gender colors are dropped for a neutral (colorless) render. */
-  showGenderColors?: boolean;
   showGrid?: boolean;
   /** Drop the canvas background so the circle blends into the page (present mode). */
   transparentBackground?: boolean;
@@ -57,7 +55,6 @@ function SimpleCircleView({
   layout,
   isDark = false,
   showSpecialNeeds = true,
-  showGenderColors = true,
   showGrid = false,
   transparentBackground = false,
   editable = false,
@@ -197,7 +194,7 @@ function SimpleCircleView({
 
   const getCircleAppearance = (student: Student | null) => {
     return {
-      ...getStudentAppearance(student, isDark, !showGenderColors),
+      ...getStudentAppearance(student, isDark),
       flags: getAllStudentBadges(student, allStudents, {
         showSpecialNeeds,
         showPartners: showSpecialNeeds,

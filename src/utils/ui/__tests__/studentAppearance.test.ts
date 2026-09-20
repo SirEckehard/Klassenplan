@@ -13,47 +13,33 @@ import type { Student } from '../../../types';
 
 describe('studentAppearance', () => {
   describe('STUDENT_COLORS constants', () => {
-    it('defines all gender colors with light and dark modes', () => {
-      expect(STUDENT_COLORS.girl.fill.light).toBe('#f5f3ff');
-      expect(STUDENT_COLORS.girl.fill.dark).toBe('#5b21b6');
-      expect(STUDENT_COLORS.girl.stroke.light).toBe('#8b5cf6');
-      expect(STUDENT_COLORS.girl.stroke.dark).toBe('#a855f7');
-
-      expect(STUDENT_COLORS.boy.fill.light).toBe('#ecfdf5');
-      expect(STUDENT_COLORS.boy.fill.dark).toBe('#047857');
-      expect(STUDENT_COLORS.boy.stroke.light).toBe('#10b981');
-      expect(STUDENT_COLORS.boy.stroke.dark).toBe('#10b981');
-
-      expect(STUDENT_COLORS.diverse.fill.light).toBe('#eff6ff');
-      expect(STUDENT_COLORS.diverse.fill.dark).toBe('#1e40af');
-      expect(STUDENT_COLORS.diverse.stroke.light).toBe('#3b82f6');
-      expect(STUDENT_COLORS.diverse.stroke.dark).toBe('#3b82f6');
-
-      expect(STUDENT_COLORS.neutral.fill.light).toBe('#ffffff');
-      expect(STUDENT_COLORS.neutral.fill.dark).toBe('#1f2937');
-      expect(STUDENT_COLORS.neutral.stroke.light).toBe('#d1d5db');
-      expect(STUDENT_COLORS.neutral.stroke.dark).toBe('#4b5563');
+    it('gives every occupied seat the same paper, whatever the gender', () => {
+      for (const key of ['girl', 'boy', 'diverse', 'neutral'] as const) {
+        expect(STUDENT_COLORS[key].fill.light).toBe('#ffffff');
+        expect(STUDENT_COLORS[key].fill.dark).toBe('#181a1d');
+        expect(STUDENT_COLORS[key].stroke.light).toBe('#cec8bb');
+        expect(STUDENT_COLORS[key].stroke.dark).toBe('#3a3e44');
+      }
     });
 
-    it('defines empty seat colors', () => {
-      expect(STUDENT_COLORS.empty.fill.light).toBe('#f0f0f0');
-      expect(STUDENT_COLORS.empty.fill.dark).toBe('#374151');
-      expect(STUDENT_COLORS.empty.stroke.light).toBe('#d1d5db');
-      expect(STUDENT_COLORS.empty.stroke.dark).toBe('#6b7280');
+    it('keeps an empty seat apart from an occupied one', () => {
+      expect(STUDENT_COLORS.empty.fill.light).toBe('#f3f1ec');
+      expect(STUDENT_COLORS.empty.fill.dark).toBe('#202327');
+      expect(STUDENT_COLORS.empty.fill.light).not.toBe(
+        STUDENT_COLORS.neutral.fill.light,
+      );
     });
 
-    it('defines locked seat colors', () => {
-      expect(STUDENT_COLORS.locked.fill.light).toBe('#e5e7eb');
-      expect(STUDENT_COLORS.locked.fill.dark).toBe('#4b5563');
-      expect(STUDENT_COLORS.locked.stroke.light).toBe('#d1d5db');
-      expect(STUDENT_COLORS.locked.stroke.dark).toBe('#6b7280');
+    it('marks a held seat with the one colour that means "you did this"', () => {
+      expect(STUDENT_COLORS.locked.fill.light).toBe('#eaf0fe');
+      expect(STUDENT_COLORS.locked.stroke.light).toBe('#2563eb');
     });
   });
 
   describe('SEAT_UI_COLORS constants', () => {
     it('defines text colors', () => {
-      expect(SEAT_UI_COLORS.text.light).toBe('#000');
-      expect(SEAT_UI_COLORS.text.dark).toBe('#fff');
+      expect(SEAT_UI_COLORS.text.light).toBe('#17181a');
+      expect(SEAT_UI_COLORS.text.dark).toBe('#f2f1ee');
     });
 
     it('defines lock icon colors', () => {
@@ -112,63 +98,35 @@ describe('studentAppearance', () => {
       gender: undefined,
     };
 
-    describe('gender colors', () => {
-      it('returns girl colors in light mode', () => {
-        const result = getStudentAppearance(girlStudent, false);
-        expect(result.fill).toBe('#f5f3ff');
-        expect(result.stroke).toBe('#8b5cf6');
-        expect(result.text).toBe('#000');
+    describe('seats', () => {
+      it('renders the same for every gender', () => {
+        const paper = { fill: '#ffffff', stroke: '#cec8bb', text: '#17181a' };
+        for (const student of [girlStudent, boyStudent, diverseStudent]) {
+          expect(getStudentAppearance(student, false)).toEqual(paper);
+        }
       });
 
-      it('returns girl colors in dark mode', () => {
-        const result = getStudentAppearance(girlStudent, true);
-        expect(result.fill).toBe('#5b21b6');
-        expect(result.stroke).toBe('#a855f7');
-        expect(result.text).toBe('#fff');
-      });
-
-      it('returns boy colors in light mode', () => {
-        const result = getStudentAppearance(boyStudent, false);
-        expect(result.fill).toBe('#ecfdf5');
-        expect(result.stroke).toBe('#10b981');
-        expect(result.text).toBe('#000');
-      });
-
-      it('returns boy colors in dark mode', () => {
-        const result = getStudentAppearance(boyStudent, true);
-        expect(result.fill).toBe('#047857');
-        expect(result.stroke).toBe('#10b981');
-        expect(result.text).toBe('#fff');
-      });
-
-      it('returns diverse colors in light mode', () => {
-        const result = getStudentAppearance(diverseStudent, false);
-        expect(result.fill).toBe('#eff6ff');
-        expect(result.stroke).toBe('#3b82f6');
-        expect(result.text).toBe('#000');
-      });
-
-      it('returns diverse colors in dark mode', () => {
-        const result = getStudentAppearance(diverseStudent, true);
-        expect(result.fill).toBe('#1e40af');
-        expect(result.stroke).toBe('#3b82f6');
-        expect(result.text).toBe('#fff');
+      it('renders the same for every gender in dark mode', () => {
+        const paper = { fill: '#181a1d', stroke: '#3a3e44', text: '#f2f1ee' };
+        for (const student of [girlStudent, boyStudent, diverseStudent]) {
+          expect(getStudentAppearance(student, true)).toEqual(paper);
+        }
       });
     });
 
     describe('empty seats', () => {
       it('returns empty seat colors in light mode', () => {
         const result = getStudentAppearance(null, false);
-        expect(result.fill).toBe('#f0f0f0');
-        expect(result.stroke).toBe('#d1d5db');
-        expect(result.text).toBe('#000');
+        expect(result.fill).toBe('#f3f1ec');
+        expect(result.stroke).toBe('#e3dfd6');
+        expect(result.text).toBe('#17181a');
       });
 
       it('returns empty seat colors in dark mode', () => {
         const result = getStudentAppearance(null, true);
-        expect(result.fill).toBe('#374151');
-        expect(result.stroke).toBe('#6b7280');
-        expect(result.text).toBe('#fff');
+        expect(result.fill).toBe('#202327');
+        expect(result.stroke).toBe('#2a2d31');
+        expect(result.text).toBe('#f2f1ee');
       });
     });
 
@@ -176,38 +134,38 @@ describe('studentAppearance', () => {
       it('returns neutral colors in light mode', () => {
         const result = getStudentAppearance(unspecifiedStudent, false);
         expect(result.fill).toBe('#ffffff');
-        expect(result.stroke).toBe('#d1d5db');
-        expect(result.text).toBe('#000');
+        expect(result.stroke).toBe('#cec8bb');
+        expect(result.text).toBe('#17181a');
       });
 
       it('returns neutral colors in dark mode', () => {
         const result = getStudentAppearance(unspecifiedStudent, true);
-        expect(result.fill).toBe('#1f2937');
-        expect(result.stroke).toBe('#4b5563');
-        expect(result.text).toBe('#fff');
+        expect(result.fill).toBe('#181a1d');
+        expect(result.stroke).toBe('#3a3e44');
+        expect(result.text).toBe('#f2f1ee');
       });
     });
 
     describe('locked seats', () => {
-      it('returns locked colors overriding gender in light mode', () => {
+      it('marks a held seat, whoever sits in it', () => {
         const result = getStudentAppearance(girlStudent, false, true);
-        expect(result.fill).toBe('#e5e7eb');
-        expect(result.stroke).toBe('#d1d5db');
-        expect(result.text).toBe('#000');
+        expect(result.fill).toBe('#eaf0fe');
+        expect(result.stroke).toBe('#2563eb');
+        expect(result.text).toBe('#17181a');
       });
 
-      it('returns locked colors overriding gender in dark mode', () => {
+      it('marks a held seat in dark mode', () => {
         const result = getStudentAppearance(boyStudent, true, true);
-        expect(result.fill).toBe('#4b5563');
-        expect(result.stroke).toBe('#6b7280');
-        expect(result.text).toBe('#fff');
+        expect(result.fill).toBe('#16243f');
+        expect(result.stroke).toBe('#4f86f7');
+        expect(result.text).toBe('#f2f1ee');
       });
 
-      it('returns locked colors for empty seats', () => {
+      it('marks a held seat that is empty', () => {
         const result = getStudentAppearance(null, false, true);
-        expect(result.fill).toBe('#e5e7eb');
-        expect(result.stroke).toBe('#d1d5db');
-        expect(result.text).toBe('#000');
+        expect(result.fill).toBe('#eaf0fe');
+        expect(result.stroke).toBe('#2563eb');
+        expect(result.text).toBe('#17181a');
       });
     });
   });
@@ -315,9 +273,9 @@ describe('studentAppearance', () => {
 
     it('combines appearance and badges', () => {
       const result = getCompleteStudentAppearance(studentWithFlags, false);
-      expect(result.fill).toBe('#f5f3ff');
-      expect(result.stroke).toBe('#8b5cf6');
-      expect(result.text).toBe('#000');
+      expect(result.fill).toBe('#ffffff');
+      expect(result.stroke).toBe('#cec8bb');
+      expect(result.text).toBe('#17181a');
       expect(result.flags).toHaveLength(1);
       expect(result.flags[0].key).toBe('restless');
     });
@@ -326,8 +284,8 @@ describe('studentAppearance', () => {
       const result = getCompleteStudentAppearance(studentWithFlags, false, {
         locked: true,
       });
-      expect(result.fill).toBe('#e5e7eb');
-      expect(result.stroke).toBe('#d1d5db');
+      expect(result.fill).toBe('#eaf0fe');
+      expect(result.stroke).toBe('#2563eb');
     });
 
     it('respects showSpecialNeeds option', () => {
@@ -339,15 +297,15 @@ describe('studentAppearance', () => {
 
     it('handles null student', () => {
       const result = getCompleteStudentAppearance(null, false);
-      expect(result.fill).toBe('#f0f0f0');
-      expect(result.stroke).toBe('#d1d5db');
+      expect(result.fill).toBe('#f3f1ec');
+      expect(result.stroke).toBe('#e3dfd6');
       expect(result.flags).toHaveLength(0);
     });
 
     it('uses default options when not provided', () => {
       const result = getCompleteStudentAppearance(studentWithFlags, false);
       expect(result.flags).toHaveLength(1);
-      expect(result.fill).toBe('#f5f3ff'); // Not locked
+      expect(result.fill).toBe('#ffffff'); // Not locked
     });
   });
 

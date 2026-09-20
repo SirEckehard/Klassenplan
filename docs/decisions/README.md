@@ -29,6 +29,7 @@ it says so instead of reconstructing one.
 | [0014](0014-mix-history-records-refined-plan.md)   | The mix history records the refined plan                   |
 | [0015](0015-onboarding-sample-class-and-tour.md)   | A sample class and coach marks for the first visit         |
 | [0016](0016-hidden-criteria-carry-no-weight.md)    | Criteria the class has no data for carry no weight         |
+| [0017](0017-seats-are-paper-and-ink.md)            | A seat is paper and ink, not a gender colour               |
 
 ## Reasons still to be recorded
 

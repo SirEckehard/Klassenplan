@@ -44,8 +44,6 @@ interface TableSeatProps {
   nameDisplay?: NameDisplayMode;
   /** Disambiguated labels of the class (see `buildNameLabels`). */
   nameLabels?: NameLabels;
-  /** When false, gender colors are dropped for a neutral (colorless) seat. */
-  showGenderColors?: boolean;
   /** When false, the seat name label and lock toggle are hidden (layout editor). */
   showSeatLabels?: boolean;
   lockSeatLabelOrientation: boolean;
@@ -183,7 +181,6 @@ function TableSeat({
   showSpecialNeeds,
   nameDisplay,
   nameLabels,
-  showGenderColors = true,
   showSeatLabels = true,
   lockSeatLabelOrientation,
   seatTextRotation,
@@ -203,8 +200,8 @@ function TableSeat({
 }: TableSeatProps) {
   // Memoize appearance calculation - only recompute when dependencies change
   const appearance = React.useMemo(
-    () => getStudentAppearance(student, isDark, locked, !showGenderColors),
-    [student, isDark, locked, showGenderColors],
+    () => getStudentAppearance(student, isDark, locked),
+    [student, isDark, locked],
   );
 
   // Memoize badge flags calculation
@@ -768,7 +765,6 @@ const MemoizedTableSeat = React.memo(TableSeat, (prevProps, nextProps) => {
     prevProps.isDark !== nextProps.isDark ||
     prevProps.nameDisplay !== nextProps.nameDisplay ||
     prevProps.nameLabels !== nextProps.nameLabels ||
-    prevProps.showGenderColors !== nextProps.showGenderColors ||
     prevProps.showSeatLabels !== nextProps.showSeatLabels ||
     prevProps.seatTextRotation !== nextProps.seatTextRotation ||
     prevProps.tableRotation !== nextProps.tableRotation

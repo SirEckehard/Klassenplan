@@ -132,12 +132,6 @@ export default function CirclePrintView({
           fontSize: legendFontSize,
           iconSize: legendIconSize,
           showSpecialNeeds,
-          genderLabels: {
-            girl: t('legend.genderGirl', 'Weiblich'),
-            boy: t('legend.genderBoy', 'Männlich'),
-            diverse: t('legend.genderDiverse', 'Divers'),
-            neutral: t('legend.genderNeutral', 'Ohne Angabe'),
-          },
         })
       : null;
   const legendGap = legendLayout && legendLayout.height > 0 ? 10 : 0;

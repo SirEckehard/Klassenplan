@@ -148,7 +148,7 @@ export default function GenderSelector({
     const icon = student.gender ? (
       GENDER_ICONS[student.gender]
     ) : (
-      <span className="text-gray-900">
+      <span className="text-(--text-page)">
         <PersonSimpleIcon size={14} aria-hidden="true" />
       </span>
     );
@@ -185,10 +185,10 @@ export default function GenderSelector({
               {/* Reset option */}
               <button
                 type="button"
-                className={`flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs cursor-pointer transition hover:bg-gray-100 dark:hover:bg-gray-700 ${
+                className={`flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs cursor-pointer transition hover:bg-(--surface-sunken) ${
                   !student.gender
-                    ? 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200'
-                    : 'text-gray-600 dark:text-gray-300'
+                    ? 'bg-(--surface-sunken) text-(--text-page)'
+                    : 'text-(--text-muted)'
                 }`}
                 aria-pressed={!student.gender}
                 onClick={(e) => {
@@ -197,17 +197,17 @@ export default function GenderSelector({
                   setShowDropdown?.(false);
                 }}
               >
-                <span className="text-gray-900">
+                <span className="text-(--text-page)">
                   <PersonSimpleIcon size={14} aria-hidden="true" />
                 </span>
                 {t('gender.noValue', 'Keine Angabe')}
               </button>
               <button
                 type="button"
-                className={`flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs cursor-pointer transition hover:bg-emerald-50 dark:hover:bg-gray-800 ${
+                className={`flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs cursor-pointer transition hover:bg-(--surface-sunken) ${
                   student.gender === 'boy'
-                    ? 'bg-emerald-100/70 text-emerald-700 hover:bg-emerald-100/70! dark:bg-emerald-900/40 dark:text-emerald-200 dark:hover:bg-emerald-900/40!'
-                    : 'text-gray-700 hover:bg-emerald-100/70! dark:text-gray-200 dark:hover:bg-emerald-900/40!'
+                    ? 'bg-(--surface-option-selected) text-(--text-badge) hover:bg-(--surface-option-selected)!'
+                    : 'text-(--text-page) hover:bg-(--surface-sunken)!'
                 }`}
                 aria-pressed={student.gender === 'boy'}
                 onClick={(e) => {
@@ -215,17 +215,17 @@ export default function GenderSelector({
                   handleGenderChange('boy');
                 }}
               >
-                <span className="text-emerald-500 dark:text-emerald-400">
+                <span className="text-(--text-muted)">
                   <GenderMaleIcon size={14} aria-hidden="true" />
                 </span>
                 {t('gender.boy')}
               </button>
               <button
                 type="button"
-                className={`flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs cursor-pointer transition hover:bg-purple-50 dark:hover:bg-gray-800 ${
+                className={`flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs cursor-pointer transition hover:bg-(--surface-sunken) ${
                   student.gender === 'girl'
-                    ? 'bg-purple-100/70 text-purple-700 hover:bg-purple-100/70! dark:bg-purple-900/40 dark:text-purple-200 dark:hover:bg-purple-900/40!'
-                    : 'text-gray-700 hover:bg-purple-100/70! dark:text-gray-200 dark:hover:bg-purple-900/40!'
+                    ? 'bg-(--surface-option-selected) text-(--text-badge) hover:bg-(--surface-option-selected)!'
+                    : 'text-(--text-page) hover:bg-(--surface-sunken)!'
                 }`}
                 aria-pressed={student.gender === 'girl'}
                 onClick={(e) => {
@@ -233,17 +233,17 @@ export default function GenderSelector({
                   handleGenderChange('girl');
                 }}
               >
-                <span className="text-purple-500 dark:text-purple-400">
+                <span className="text-(--text-muted)">
                   <GenderFemaleIcon size={14} aria-hidden="true" />
                 </span>
                 {t('gender.girl')}
               </button>
               <button
                 type="button"
-                className={`flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs cursor-pointer transition hover:bg-sky-50 dark:hover:bg-gray-800 ${
+                className={`flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs cursor-pointer transition hover:bg-(--surface-sunken) ${
                   student.gender === 'diverse'
-                    ? 'bg-sky-100/70 text-sky-700 hover:bg-sky-100/70! dark:bg-sky-900/40 dark:text-sky-200 dark:hover:bg-sky-900/40!'
-                    : 'text-gray-700 hover:bg-sky-100/70! dark:text-gray-200 dark:hover:bg-sky-900/40!'
+                    ? 'bg-(--surface-option-selected) text-(--text-badge) hover:bg-(--surface-option-selected)!'
+                    : 'text-(--text-page) hover:bg-(--surface-sunken)!'
                 }`}
                 aria-pressed={student.gender === 'diverse'}
                 onClick={(e) => {
@@ -251,7 +251,7 @@ export default function GenderSelector({
                   handleGenderChange('diverse');
                 }}
               >
-                <span className="text-sky-500 dark:text-sky-400">
+                <span className="text-(--text-muted)">
                   <GenderNonbinaryIcon size={14} aria-hidden="true" />
                 </span>
                 {t('gender.diverse')}
@@ -287,7 +287,7 @@ export default function GenderSelector({
               {GENDER_ICONS[student.gender]}
             </span>
           ) : (
-            <span className="text-gray-900">
+            <span className="text-(--text-page)">
               <PersonSimpleIcon size={16} aria-hidden="true" />
             </span>
           )}
@@ -308,10 +308,10 @@ export default function GenderSelector({
               {/* Reset option */}
               <button
                 type="button"
-                className={`flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs cursor-pointer transition hover:bg-gray-100 dark:hover:bg-gray-700 ${
+                className={`flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs cursor-pointer transition hover:bg-(--surface-sunken) ${
                   !student.gender
-                    ? 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200'
-                    : 'text-gray-600 dark:text-gray-300'
+                    ? 'bg-(--surface-sunken) text-(--text-page)'
+                    : 'text-(--text-muted)'
                 }`}
                 aria-pressed={!student.gender}
                 onClick={(e) => {
@@ -320,17 +320,17 @@ export default function GenderSelector({
                   setShowDropdown?.(false);
                 }}
               >
-                <span className="text-gray-900">
+                <span className="text-(--text-page)">
                   <PersonSimpleIcon size={14} aria-hidden="true" />
                 </span>
                 {t('gender.noValue', 'Keine Angabe')}
               </button>
               <button
                 type="button"
-                className={`flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs cursor-pointer transition hover:bg-emerald-50 dark:hover:bg-gray-800 ${
+                className={`flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs cursor-pointer transition hover:bg-(--surface-sunken) ${
                   student.gender === 'boy'
-                    ? 'bg-emerald-100/70 text-emerald-700 hover:bg-emerald-100/70! dark:bg-emerald-900/40 dark:text-emerald-200 dark:hover:bg-emerald-900/40!'
-                    : 'text-gray-700 hover:bg-emerald-100/70! dark:text-gray-200 dark:hover:bg-emerald-900/40!'
+                    ? 'bg-(--surface-option-selected) text-(--text-badge) hover:bg-(--surface-option-selected)!'
+                    : 'text-(--text-page) hover:bg-(--surface-sunken)!'
                 }`}
                 aria-pressed={student.gender === 'boy'}
                 onClick={(e) => {
@@ -338,17 +338,17 @@ export default function GenderSelector({
                   handleGenderChange('boy');
                 }}
               >
-                <span className="text-emerald-500 dark:text-emerald-400">
+                <span className="text-(--text-muted)">
                   <GenderMaleIcon size={14} aria-hidden="true" />
                 </span>
                 {t('gender.boy')}
               </button>
               <button
                 type="button"
-                className={`flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs cursor-pointer transition hover:bg-purple-50 dark:hover:bg-gray-800 ${
+                className={`flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs cursor-pointer transition hover:bg-(--surface-sunken) ${
                   student.gender === 'girl'
-                    ? 'bg-purple-100/70 text-purple-700 hover:bg-purple-100/70! dark:bg-purple-900/40 dark:text-purple-200 dark:hover:bg-purple-900/40!'
-                    : 'text-gray-700 hover:bg-purple-100/70! dark:text-gray-200 dark:hover:bg-purple-900/40!'
+                    ? 'bg-(--surface-option-selected) text-(--text-badge) hover:bg-(--surface-option-selected)!'
+                    : 'text-(--text-page) hover:bg-(--surface-sunken)!'
                 }`}
                 aria-pressed={student.gender === 'girl'}
                 onClick={(e) => {
@@ -356,17 +356,17 @@ export default function GenderSelector({
                   handleGenderChange('girl');
                 }}
               >
-                <span className="text-purple-500 dark:text-purple-400">
+                <span className="text-(--text-muted)">
                   <GenderFemaleIcon size={14} aria-hidden="true" />
                 </span>
                 {t('gender.girl')}
               </button>
               <button
                 type="button"
-                className={`flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs cursor-pointer transition hover:bg-sky-50 dark:hover:bg-gray-800 ${
+                className={`flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs cursor-pointer transition hover:bg-(--surface-sunken) ${
                   student.gender === 'diverse'
-                    ? 'bg-sky-100/70 text-sky-700 hover:bg-sky-100/70! dark:bg-sky-900/40 dark:text-sky-200 dark:hover:bg-sky-900/40!'
-                    : 'text-gray-700 hover:bg-sky-100/70! dark:text-gray-200 dark:hover:bg-sky-900/40!'
+                    ? 'bg-(--surface-option-selected) text-(--text-badge) hover:bg-(--surface-option-selected)!'
+                    : 'text-(--text-page) hover:bg-(--surface-sunken)!'
                 }`}
                 aria-pressed={student.gender === 'diverse'}
                 onClick={(e) => {
@@ -374,7 +374,7 @@ export default function GenderSelector({
                   handleGenderChange('diverse');
                 }}
               >
-                <span className="text-sky-500 dark:text-sky-400">
+                <span className="text-(--text-muted)">
                   <GenderNonbinaryIcon size={14} aria-hidden="true" />
                 </span>
                 {t('gender.diverse')}
@@ -390,18 +390,18 @@ export default function GenderSelector({
   return (
     <section className="space-y-2">
       <div className="flex items-center justify-between gap-2">
-        <h4 className="text-xs font-medium uppercase tracking-wide text-gray-600 dark:text-gray-400">
+        <h4 className="text-xs font-medium uppercase tracking-wide text-(--text-muted)">
           Geschlecht
         </h4>
         {showDetailedHint && (
           <p
             id={describedById}
-            className="flex items-center gap-1 text-[11px] text-gray-500 dark:text-gray-400"
+            className="flex items-center gap-1 text-[11px] text-(--text-muted)"
           >
             <QuestionIcon
               size={12}
               aria-hidden="true"
-              className="text-gray-400 dark:text-gray-500"
+              className="text-(--text-muted)"
             />
             {t(
               'gender.hint',
@@ -430,7 +430,7 @@ export default function GenderSelector({
           aria-pressed={student.gender === 'boy'}
           aria-describedby={describedBy}
         >
-          <span className="text-emerald-700 dark:text-emerald-200">
+          <span className="text-(--text-muted)">
             <GenderMaleIcon size={14} aria-hidden="true" />
           </span>
           {t('gender.boy')}
@@ -450,7 +450,7 @@ export default function GenderSelector({
           aria-pressed={student.gender === 'girl'}
           aria-describedby={describedBy}
         >
-          <span className="text-purple-700 dark:text-purple-200">
+          <span className="text-(--text-muted)">
             <GenderFemaleIcon size={14} aria-hidden="true" />
           </span>
           {t('gender.girl')}
@@ -470,7 +470,7 @@ export default function GenderSelector({
           aria-pressed={student.gender === 'diverse'}
           aria-describedby={describedBy}
         >
-          <span className="text-sky-700 dark:text-sky-200">
+          <span className="text-(--text-muted)">
             <GenderNonbinaryIcon size={14} aria-hidden="true" />
           </span>
           {t('gender.diverse')}

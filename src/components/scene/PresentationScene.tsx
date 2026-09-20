@@ -44,7 +44,7 @@ type PresentationSceneProps = {
   /** Teacher view only: show student photos. */
   showPhotos?: boolean;
   /** When false, gender colors are dropped for a neutral (colorless) render. */
-  showGenderColors?: boolean;
+  showRoomColors?: boolean;
   /**
    * When false, room elements (board, windows, doors, furniture) are hidden.
    * Deliberately independent of the editor's per-type visibility flags
@@ -125,7 +125,7 @@ export default function PresentationScene({
   perspective,
   showBadges = false,
   showPhotos = true,
-  showGenderColors = true,
+  showRoomColors = true,
   showFeatures = true,
   nameDisplay,
   zoom = 1,
@@ -164,12 +164,12 @@ export default function PresentationScene({
                 feature,
                 isDark,
                 undefined,
-                !showGenderColors,
+                !showRoomColors,
               ),
             }))
             .filter(({ styles }) => styles.shouldRender)
         : [],
-    [scene.features, isDark, showFeatures, showGenderColors],
+    [scene.features, isDark, showFeatures, showRoomColors],
   );
 
   // The drawn content, mapped through the same rotation the classroom group
@@ -247,7 +247,6 @@ export default function PresentationScene({
             onUpdate={() => {}}
             editable={false}
             showSpecialNeeds={showSpecialNeeds}
-            showGenderColors={showGenderColors}
             isDark={isDark}
             lockSeatLabelOrientation={true}
             seatLabelRotation={-rotation}

@@ -32,13 +32,13 @@ it for Antigravity — edit this file, never those two.
 
 - ✅ ESLint: 0 errors, 0 warnings
 - ✅ TypeScript: 0 compilation errors (strict mode)
-- ✅ Tests: 2326 unit tests (231 test files) + 9 Playwright tests (3 smoke + 2 core flow + 4 onboarding), 100% passing
+- ✅ Tests: 2320 unit tests (231 test files) + 9 Playwright tests (3 smoke + 2 core flow + 4 onboarding), 100% passing
 - 📊 Coverage: 72.5 % lines / 71.8 % statements / 61.9 % branches (`npm run test:coverage`, v8 provider, no thresholds enforced)
 - ⚠️ Unused Exports: 53 modules ignoring type-only exports, held by a ratchet (`npm run check:unused`); the remainder are re-export barrels, `lazyWithRetry` default exports and shared test helpers
 - ✅ Test Infrastructure: Centralized accessibility helpers and toast matchers for robust testing
 - ✅ Architecture: Repository Pattern implemented, UI components reorganized into logical subdirectories
-- ✅ i18n: Bilingual support (German/English) fully implemented, DE/EN key parity 1:1 (2019 keys per language)
-- 📦 Bundle: initial payload 203 KB brotli / 756 KB raw over 34 preloaded files, largest chunk 61 KB brotli, CSS 19 KB brotli
+- ✅ i18n: Bilingual support (German/English) fully implemented, DE/EN key parity 1:1 (2015 keys per language)
+- 📦 Bundle: initial payload 203 KB brotli / 756 KB raw over 34 preloaded files, largest chunk 61 KB brotli, CSS 18 KB brotli
 
 ## Logging
 
@@ -419,6 +419,10 @@ a spelled-out word, so colour is never the only channel:
 | Sprache          | `--data-language` | Sprachförderung, Sprachstand                                 |
 | Platz &amp; Raum | `--data-space`    | Vordere Plätze, Körpergröße, Fensterplätze, Türnähe          |
 | Person           | `--data-person`   | Geschlechtermischung, Foto, Name                             |
+
+A seat is not one of those families: every occupied seat is the canvas surface
+with a hairline, whoever sits in it. Gender stopped tinting one — decision
+0017 — and is read where it is acted on, in the criterion and the statistics.
 
 Each family exposes `--data-<name>` (the accent), `--data-<name>-text` (chip and
 icon foreground, contrast-checked at 4.5:1) and `--data-<name>-surface` (chip

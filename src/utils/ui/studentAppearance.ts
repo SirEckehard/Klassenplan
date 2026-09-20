@@ -32,67 +32,54 @@ const ts = (key: string, fallback: string) =>
 
 /**
  * Centralized student appearance configuration
- * Single source of truth for all gender colors, empty seats, and locked seats
+ * Single source of truth for seat fills, empty seats and locked seats
+ *
+ * A seat used to be tinted by the student's gender — lavender, mint, cornflower
+ * — which made a plan read as a colour-coded map of who is a girl and who is a
+ * boy, at every distance, to everybody in the room. Gender is one of sixteen
+ * criteria, no louder than the rest, and colour in this app describes pedagogy
+ * only where it comes with an icon and a word (`docs/DESIGNSYSTEM.md` § 4). A
+ * seat is paper and ink now, and the gender mix is read where it is actually
+ * acted on: the criterion, its fulfilment and the statistics.
+ *
+ * The four student buckets are kept apart from `empty` and `locked` on purpose:
+ * those two are states of the seat, not of a person, and they stay tellable.
+ * See `docs/decisions/0017-seats-are-paper-and-ink.md`.
  */
+const SEAT_PAPER = {
+  fill: {
+    light: '#ffffff', // --canvas-bg
+    dark: '#181a1d', // --canvas-bg, dark
+  },
+  stroke: {
+    light: '#cec8bb', // --border-option-hover: one step darker than a hairline
+    dark: '#3a3e44',
+  },
+} as const;
+
 export const STUDENT_COLORS = {
-  girl: {
-    fill: {
-      light: '#f5f3ff', // purple-50
-      dark: '#5b21b6', // purple-700
-    },
-    stroke: {
-      light: '#8b5cf6', // purple-500
-      dark: '#a855f7', // purple-400
-    },
-  },
-  boy: {
-    fill: {
-      light: '#ecfdf5', // emerald-50
-      dark: '#047857', // emerald-700
-    },
-    stroke: {
-      light: '#10b981', // emerald-500
-      dark: '#10b981', // emerald-500 (same for both modes)
-    },
-  },
-  diverse: {
-    fill: {
-      light: '#eff6ff', // blue-50
-      dark: '#1e40af', // blue-700
-    },
-    stroke: {
-      light: '#3b82f6', // blue-500
-      dark: '#3b82f6', // blue-500 (same for both modes)
-    },
-  },
-  neutral: {
-    fill: {
-      light: '#ffffff', // white for unspecified gender in light mode
-      dark: '#1f2937', // gray-800 for unspecified gender in dark mode
-    },
-    stroke: {
-      light: '#d1d5db', // gray-300 border for light mode
-      dark: '#4b5563', // gray-600 border for dark mode
-    },
-  },
+  girl: SEAT_PAPER,
+  boy: SEAT_PAPER,
+  diverse: SEAT_PAPER,
+  neutral: SEAT_PAPER,
   empty: {
     fill: {
-      light: '#f0f0f0', // gray-100
-      dark: '#374151', // gray-700
+      light: '#f3f1ec', // --surface-sunken
+      dark: '#202327',
     },
     stroke: {
-      light: '#d1d5db', // gray-300
-      dark: '#6b7280', // gray-500
+      light: '#e3dfd6', // --border-card
+      dark: '#2a2d31',
     },
   },
   locked: {
     fill: {
-      light: '#e5e7eb', // gray-200
-      dark: '#4b5563', // gray-600
+      light: '#eaf0fe', // --surface-option-selected: held by hand
+      dark: '#16243f',
     },
     stroke: {
-      light: '#d1d5db', // gray-300
-      dark: '#6b7280', // gray-500
+      light: '#2563eb', // --border-option-selected
+      dark: '#4f86f7',
     },
   },
 } as const;
@@ -102,8 +89,8 @@ export const STUDENT_COLORS = {
  */
 export const SEAT_UI_COLORS = {
   text: {
-    light: '#000',
-    dark: '#fff',
+    light: '#17181a', // --text-page
+    dark: '#f2f1ee',
   },
   lockIcon: {
     light: '#d97706', // amber-600
@@ -139,26 +126,22 @@ export type StudentAppearance = {
  * @param student - The student to get appearance for (null for empty seat)
  * @param isDark - Whether dark mode is active
  * @param locked - Whether the seat is locked (optional, defaults to false)
- * @param neutralColors - Force the neutral (colorless) appearance, ignoring
- *   gender colors (optional, defaults to false). Empty/locked seats keep their
- *   own overrides.
  * @returns Object with fill, stroke, and text colors
  *
  * @example
  * ```typescript
  * const appearance = getStudentAppearance(student, isDark, locked);
- * // Returns: { fill: '#f5f3ff', stroke: '#8b5cf6', text: '#000' }
+ * // Returns: { fill: '#ffffff', stroke: '#cec8bb', text: '#17181a' }
  * ```
  */
 export function getStudentAppearance(
   student: Student | null,
   isDark: boolean,
   locked = false,
-  neutralColors = false,
 ): Omit<StudentAppearance, 'flags'> {
   const mode = isDark ? 'dark' : 'light';
 
-  // Locked seats override gender colors
+  // A held seat is a state of the seat, and outranks everything else.
   if (locked) {
     return {
       fill: STUDENT_COLORS.locked.fill[mode],
@@ -176,20 +159,11 @@ export function getStudentAppearance(
     };
   }
 
-  if (neutralColors || !student.gender) {
-    return {
-      fill: STUDENT_COLORS.neutral.fill[mode],
-      stroke: STUDENT_COLORS.neutral.stroke[mode],
-      text: SEAT_UI_COLORS.text[mode],
-    };
-  }
-
-  // Gender-based colors for explicitly selected values
-  const genderColors = STUDENT_COLORS[student.gender];
-
+  // Every occupied seat is the same paper; who is sitting there is the name
+  // on it, and what is known about them is the chips beside it.
   return {
-    fill: genderColors.fill[mode],
-    stroke: genderColors.stroke[mode],
+    fill: STUDENT_COLORS.neutral.fill[mode],
+    stroke: STUDENT_COLORS.neutral.stroke[mode],
     text: SEAT_UI_COLORS.text[mode],
   };
 }

@@ -63,8 +63,6 @@ type TableProps = {
   onSeatFocus?: React.ComponentProps<typeof SeatGrid>['onSeatFocus'];
   onSeatBlur?: React.ComponentProps<typeof SeatGrid>['onSeatBlur'];
   showSpecialNeeds?: boolean;
-  /** When false, gender colors are dropped for a neutral (colorless) render. */
-  showGenderColors?: boolean;
   isDark?: boolean;
   lockSeatLabelOrientation?: boolean;
   seatLabelRotation?: number;
@@ -116,7 +114,6 @@ function SceneTable({
   onSeatFocus,
   onSeatBlur,
   showSpecialNeeds = true,
-  showGenderColors = true,
   isDark = false,
   lockSeatLabelOrientation = true,
   seatLabelRotation = 0,
@@ -381,7 +378,6 @@ function SceneTable({
         showSpecialNeeds={showSpecialNeeds}
         nameDisplay={nameDisplay}
         nameLabels={nameLabels}
-        showGenderColors={showGenderColors}
         showSeatLabels={seatMarkerMode === 'full'}
         lockSeatLabelOrientation={lockSeatLabelOrientation}
         seatTextRotation={seatTextRotation}
@@ -444,12 +440,7 @@ function SceneTable({
         const uprightTransform = lockSeatLabelOrientation
           ? `rotate(${seatTextRotation} ${photoCx} ${photoCy})`
           : undefined;
-        const ringStroke = getStudentAppearance(
-          seatStudent,
-          isDark,
-          false,
-          !showGenderColors,
-        ).stroke;
+        const ringStroke = getStudentAppearance(seatStudent, isDark).stroke;
         const clipId = `chair-photo-${index}-${dot.key}`;
         return (
           <g

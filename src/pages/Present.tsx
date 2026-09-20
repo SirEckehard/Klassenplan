@@ -106,7 +106,7 @@ export default function Present() {
     LOCAL_STORAGE_KEYS.presentShowPhotos,
     true,
   );
-  const [showGenderColors, setShowGenderColors] = usePersistentState(
+  const [showRoomColors, setShowRoomColors] = usePersistentState(
     LOCAL_STORAGE_KEYS.presentShowColors,
     true,
   );
@@ -323,7 +323,6 @@ export default function Present() {
                 editable={false}
                 isDark={isDark}
                 showSpecialNeeds={isTeacher && showBadges}
-                showGenderColors={showGenderColors}
                 photoMode={isTeacher && showPhotos ? 'all' : 'off'}
                 nameDisplay={currentNameDisplay}
                 connectionMode="off"
@@ -339,8 +338,8 @@ export default function Present() {
             perspective={perspective}
             showBadges={showBadges}
             showPhotos={showPhotos}
-            showGenderColors={showGenderColors}
             showFeatures={showFeatures}
+            showRoomColors={showRoomColors}
             nameDisplay={currentNameDisplay}
             zoom={zoom}
             panX={pan.x}
@@ -440,11 +439,11 @@ export default function Present() {
 
             <button
               type="button"
-              onClick={() => setShowGenderColors((value) => !value)}
+              onClick={() => setShowRoomColors((value) => !value)}
               className={`${
-                showGenderColors ? primaryButtonClass : secondaryButtonClass
+                showRoomColors ? primaryButtonClass : secondaryButtonClass
               } h-10 gap-2 px-4`}
-              aria-pressed={showGenderColors}
+              aria-pressed={showRoomColors}
               title={t('present.colorsTitle', 'Farben ein- oder ausblenden')}
             >
               <PaletteIcon size={20} aria-hidden />
