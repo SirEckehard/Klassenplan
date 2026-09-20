@@ -2,7 +2,12 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { GearIcon, SidebarSimpleIcon, XIcon } from '@phosphor-icons/react';
+import {
+  ArrowLineLeftIcon,
+  ArrowLineRightIcon,
+  GearIcon,
+  XIcon,
+} from '@phosphor-icons/react';
 import {
   iconButtonClass,
   panelSurfaceClass,
@@ -242,7 +247,11 @@ export default function SmartSidebar({
               }
               aria-expanded={isExpanded}
             >
-              <SidebarSimpleIcon size={18} aria-hidden="true" />
+              {isExpanded ? (
+                <ArrowLineLeftIcon size={18} aria-hidden="true" />
+              ) : (
+                <ArrowLineRightIcon size={18} aria-hidden="true" />
+              )}
               {isExpanded && <span>{t('sidebar.options', 'Optionen')}</span>}
             </button>
           </div>

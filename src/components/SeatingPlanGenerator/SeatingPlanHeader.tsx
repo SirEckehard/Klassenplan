@@ -37,7 +37,7 @@ import { KpLockup } from '@/components/KpLockup';
  * restarts it lives here.
  */
 export default function SeatingPlanHeader() {
-  const { t } = useTranslation('generator');
+  const { t } = useTranslation(['generator', 'common']);
   const { step } = useSeatingAlgorithmContext();
   const { seatingMode } = useClassroomLayoutContext();
   const { handleStepChange } = useSeatingPlanActions();
@@ -150,9 +150,12 @@ export default function SeatingPlanHeader() {
           <h1 className="flex shrink-0 items-center">
             <LocalizedLink
               to="/"
+              // Both halves of the lockup are decorative, so without a label
+              // the heading and its link have no accessible name at all.
+              aria-label={t('common:nav.home')}
               className="kp-lockup focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
             >
-              <KpLockup size="sm" hideWordmarkOnMobile />
+              <KpLockup size="sm" markOnly />
             </LocalizedLink>
           </h1>
           <HeaderClassMenu />

@@ -15,11 +15,18 @@ interface KpLockupProps {
   size?: 'xs' | 'sm' | 'md';
   /** Hide the "Klassenplan" wordmark on small screens, keeping only the mark. */
   hideWordmarkOnMobile?: boolean;
+  /**
+   * Drop the wordmark at every width. The workspace says which class is open
+   * right beside the brand; the product's own name next to it is the one thing
+   * on that row a teacher never needs to read.
+   */
+  markOnly?: boolean;
 }
 
 export function KpLockup({
   size = 'md',
   hideWordmarkOnMobile = false,
+  markOnly = false,
 }: KpLockupProps) {
   const markClass = MARK_CLASS[size];
   const sizeTextClass = TEXT_SIZE_CLASS[size];
@@ -76,9 +83,11 @@ export function KpLockup({
           rx="8"
         />
       </svg>
-      <span className={textClass} aria-hidden="true">
-        Klassenplan
-      </span>
+      {!markOnly && (
+        <span className={textClass} aria-hidden="true">
+          Klassenplan
+        </span>
+      )}
     </>
   );
 }

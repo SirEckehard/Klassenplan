@@ -2,7 +2,11 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { ArrowRightIcon, SidebarSimpleIcon } from '@phosphor-icons/react';
+import {
+  ArrowLineLeftIcon,
+  ArrowLineRightIcon,
+  ArrowRightIcon,
+} from '@phosphor-icons/react';
 import {
   useSeatingPlanState,
   useSeatingPlanActions,
@@ -183,7 +187,11 @@ export default function AppStatusBar() {
                 }
                 aria-expanded={toolRail.isExpanded}
               >
-                <SidebarSimpleIcon size={16} aria-hidden="true" />
+                {toolRail.isExpanded ? (
+                  <ArrowLineLeftIcon size={16} aria-hidden="true" />
+                ) : (
+                  <ArrowLineRightIcon size={16} aria-hidden="true" />
+                )}
               </button>
               <span
                 aria-hidden="true"
