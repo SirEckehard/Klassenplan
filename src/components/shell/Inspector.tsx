@@ -2,7 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { XIcon, SlidersHorizontalIcon } from '@phosphor-icons/react';
+import { SlidersHorizontalIcon } from '@phosphor-icons/react';
 import {
   useSeatingPlanState,
   useSeatingPlanActions,
@@ -11,7 +11,7 @@ import { useInspector } from '@/contexts/InspectorContext';
 import { useIsPhone } from '@/hooks/ui/useLayoutMode';
 import { useDialogA11y } from '@/hooks/ui/useDialogA11y';
 import { useDialogLayer } from '@/hooks/ui/useDialogLayer';
-import { quietIconButtonClass, showToast } from '@/utils';
+import { showToast } from '@/utils';
 import StudentInspector from '@/components/students/StudentInspector';
 import { confirmDialog } from '@/services/ui/dialogs';
 
@@ -93,16 +93,11 @@ export default function Inspector() {
             ? t('generator:sceneInspector.title')
             : t('generator:mix.title')
         }
-        className="hidden w-80 shrink-0 overflow-y-auto border-l border-(--border-card) bg-(--surface-card) p-4 lg:block"
+        className="hidden w-80 shrink-0 flex-col overflow-hidden border-l border-(--border-card) bg-(--surface-card) lg:flex"
       >
-        {/* The plan layer's panel brings its own heading; the room layer's
-            says what the numbers below belong to. */}
-        {step === 2 && (
-          <h2 className="mb-3 text-sm font-semibold">
-            {t('generator:sceneInspector.title')}
-          </h2>
-        )}
-        <div ref={setSlotNode} />
+        {/* Both layers bring their own header strip and body through the
+            portal, so the slot is only the column they fill. */}
+        <div ref={setSlotNode} className="flex min-h-0 flex-1 flex-col" />
       </aside>
     );
   }
@@ -113,6 +108,7 @@ export default function Inspector() {
       allStudents={students}
       updateStudent={updateStudent}
       onRemove={() => void handleRemove()}
+      onClose={clear}
       position={{ index: index + 1, total: students.length }}
       onPrevious={
         index > 0 ? () => selectStudent(students[index - 1].id) : undefined
@@ -124,7 +120,7 @@ export default function Inspector() {
       }
     />
   ) : (
-    <div className="flex flex-col items-center gap-3 px-4 py-10 text-center">
+    <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 py-10 text-center">
       <SlidersHorizontalIcon
         size={28}
         className="text-(--text-muted)"
@@ -142,25 +138,13 @@ export default function Inspector() {
   if (isPhone) {
     if (!isOpen) return null;
     return (
-      <div className="fixed inset-x-0 bottom-0 z-40 max-h-[80vh] overflow-y-auto rounded-t-xl border-t border-(--border-card) bg-(--surface-card) p-4 shadow-[0_-8px_24px_-12px_rgba(23,24,26,0.3)]">
+      <div className="fixed inset-x-0 bottom-0 z-40 flex max-h-[80vh] flex-col overflow-hidden rounded-t-xl border-t border-(--border-card) bg-(--surface-card) shadow-[0_-8px_24px_-12px_rgba(23,24,26,0.3)]">
         <div
           ref={sheetRef}
           role="dialog"
           aria-label={t('students:inspector.title')}
+          className="flex min-h-0 flex-1 flex-col"
         >
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-sm font-semibold">
-              {t('students:inspector.title')}
-            </h2>
-            <button
-              type="button"
-              onClick={clear}
-              className={`${quietIconButtonClass} h-9 w-9`}
-              aria-label={t('students:inspector.close')}
-            >
-              <XIcon size={18} aria-hidden="true" />
-            </button>
-          </div>
           {body}
         </div>
       </div>
@@ -170,23 +154,8 @@ export default function Inspector() {
   return (
     <aside
       aria-label={t('students:inspector.title')}
-      className="hidden w-80 shrink-0 overflow-y-auto border-l border-(--border-card) bg-(--surface-card) p-4 lg:block"
+      className="hidden w-80 shrink-0 flex-col overflow-hidden border-l border-(--border-card) bg-(--surface-card) lg:flex"
     >
-      <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-sm font-semibold">
-          {t('students:inspector.title')}
-        </h2>
-        {student && (
-          <button
-            type="button"
-            onClick={clear}
-            className={`${quietIconButtonClass} h-8 w-8`}
-            aria-label={t('students:inspector.close')}
-          >
-            <XIcon size={16} aria-hidden="true" />
-          </button>
-        )}
-      </div>
       {body}
     </aside>
   );

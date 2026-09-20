@@ -6,15 +6,17 @@ import {
   CaretLeftIcon,
   CaretRightIcon,
   TrashIcon,
+  XIcon,
 } from '@phosphor-icons/react';
 import type { Student } from '@/types';
 import { useStudentRowState } from '@/hooks/ui/useStudentRowState';
+import { quietIconButtonClass, dangerButtonClass } from '@/utils';
 import {
-  dataFamilyClass,
-  dataHeadingClass,
-  quietIconButtonClass,
-  dangerButtonClass,
-} from '@/utils';
+  InspectorBody,
+  InspectorFooter,
+  InspectorHeader,
+  InspectorSection,
+} from '@/components/shell/InspectorPanel';
 import StudentNameEditor from './StudentNameEditor';
 import StudentPhotoButton from './StudentPhotoButton';
 import GenderSelector from './GenderSelector';
@@ -32,6 +34,8 @@ type Props = {
   updateStudent: (id: string, patch: Partial<Student>) => void;
   /** Remove this student, confirmation included. Omitted where it has none. */
   onRemove?: () => void;
+  /** Let the selection go, so the panel falls back to its empty state. */
+  onClose?: () => void;
   /** Step to the previous/next student; omitted at the ends of the list. */
   onPrevious?: () => void;
   onNext?: () => void;
@@ -46,30 +50,12 @@ type Props = {
  * columns. Here they get their `hybrid` variant (icon plus word) and a heading
  * that says which pedagogical family they belong to, in that family's colour.
  */
-function Section({
-  family,
-  title,
-  children,
-}: {
-  family: keyof typeof dataFamilyClass;
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section className="flex flex-col gap-2">
-      <h3 className={`${dataHeadingClass} ${dataFamilyClass[family]}`}>
-        {title}
-      </h3>
-      <div className="flex flex-wrap items-center gap-2">{children}</div>
-    </section>
-  );
-}
-
 export default function StudentInspector({
   student,
   allStudents,
   updateStudent,
   onRemove,
+  onClose,
   onPrevious,
   onNext,
   position,
@@ -95,10 +81,12 @@ export default function StudentInspector({
   }, [hasName, setDraftName, setIsEditing, student.id]);
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center gap-3">
-        <StudentPhotoButton student={student} updateStudent={updateStudent} />
-        <div className="flex min-w-0 flex-col gap-0.5">
+    <>
+      <InspectorHeader
+        media={
+          <StudentPhotoButton student={student} updateStudent={updateStudent} />
+        }
+        title={
           <StudentNameEditor
             student={student}
             allStudents={allStudents}
@@ -110,137 +98,157 @@ export default function StudentInspector({
             showEditButton={false}
             onSubmit={onNext}
           />
-          <span className="text-xs tabular-nums text-(--text-muted)">
-            {t('inspector.position', {
-              index: position.index,
-              total: position.total,
-            })}
-          </span>
-        </div>
-        <div className="ml-auto flex shrink-0 items-center gap-1">
-          <button
-            type="button"
-            onClick={onPrevious}
-            disabled={!onPrevious}
-            className={`${quietIconButtonClass} h-8 w-8`}
-            aria-label={t('inspector.previousStudent')}
-          >
-            <CaretLeftIcon size={16} aria-hidden="true" />
-          </button>
-          <button
-            type="button"
-            onClick={onNext}
-            disabled={!onNext}
-            className={`${quietIconButtonClass} h-8 w-8`}
-            aria-label={t('inspector.nextStudent')}
-          >
-            <CaretRightIcon size={16} aria-hidden="true" />
-          </button>
-        </div>
-      </div>
+        }
+        subtitle={t('inspector.position', {
+          index: position.index,
+          total: position.total,
+        })}
+        actions={
+          <>
+            <button
+              type="button"
+              onClick={onPrevious}
+              disabled={!onPrevious}
+              className={`${quietIconButtonClass} h-8 w-8`}
+              aria-label={t('inspector.previousStudent')}
+            >
+              <CaretLeftIcon size={16} aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              onClick={onNext}
+              disabled={!onNext}
+              className={`${quietIconButtonClass} h-8 w-8`}
+              aria-label={t('inspector.nextStudent')}
+            >
+              <CaretRightIcon size={16} aria-hidden="true" />
+            </button>
+            {onClose && (
+              <button
+                type="button"
+                onClick={onClose}
+                className={`${quietIconButtonClass} h-8 w-8`}
+                aria-label={t('inspector.close')}
+              >
+                <XIcon size={16} aria-hidden="true" />
+              </button>
+            )}
+          </>
+        }
+      />
+      <InspectorBody>
+        <InspectorSection family="person" title={t('inspector.groups.person')}>
+          <GenderSelector
+            student={student}
+            updateStudent={updateStudent}
+            variant="hybrid"
+            showDropdown={rowState.showGenderDropdown}
+            setShowDropdown={rowState.setShowGenderDropdown}
+            dropdownRef={rowState.genderDropdownRef}
+            hintId={`inspector-gender-hint-${student.id}`}
+          />
+          <HeightSelector
+            student={student}
+            updateStudent={updateStudent}
+            variant="hybrid"
+            showDropdown={rowState.showHeightDropdown}
+            setShowDropdown={rowState.setShowHeightDropdown}
+            dropdownRef={rowState.heightDropdownRef}
+          />
+        </InspectorSection>
 
-      <Section family="person" title={t('inspector.groups.person')}>
-        <GenderSelector
-          student={student}
-          updateStudent={updateStudent}
-          variant="hybrid"
-          showDropdown={rowState.showGenderDropdown}
-          setShowDropdown={rowState.setShowGenderDropdown}
-          dropdownRef={rowState.genderDropdownRef}
-          hintId={`inspector-gender-hint-${student.id}`}
-        />
-        <HeightSelector
-          student={student}
-          updateStudent={updateStudent}
-          variant="hybrid"
-          showDropdown={rowState.showHeightDropdown}
-          setShowDropdown={rowState.setShowHeightDropdown}
-          dropdownRef={rowState.heightDropdownRef}
-        />
-      </Section>
+        <InspectorSection
+          family="learning"
+          title={t('inspector.groups.learning')}
+        >
+          <SpecialNeedsToggles
+            student={student}
+            updateStudent={updateStudent}
+            variant="hybrid"
+            keys={['performanceStrong', 'performanceWeak']}
+          />
+        </InspectorSection>
 
-      <Section family="learning" title={t('inspector.groups.learning')}>
-        <SpecialNeedsToggles
-          student={student}
-          updateStudent={updateStudent}
-          variant="hybrid"
-          keys={['performanceStrong', 'performanceWeak']}
-        />
-      </Section>
+        <InspectorSection
+          family="language"
+          title={t('inspector.groups.language')}
+        >
+          <LanguageSkillSelector
+            student={student}
+            updateStudent={updateStudent}
+            variant="hybrid"
+            showDropdown={rowState.showLanguageDropdown}
+            setShowDropdown={rowState.setShowLanguageDropdown}
+            dropdownRef={rowState.languageDropdownRef}
+          />
+        </InspectorSection>
 
-      <Section family="language" title={t('inspector.groups.language')}>
-        <LanguageSkillSelector
-          student={student}
-          updateStudent={updateStudent}
-          variant="hybrid"
-          showDropdown={rowState.showLanguageDropdown}
-          setShowDropdown={rowState.setShowLanguageDropdown}
-          dropdownRef={rowState.languageDropdownRef}
-        />
-      </Section>
+        <InspectorSection
+          family="behavior"
+          title={t('inspector.groups.behavior')}
+        >
+          <SpecialNeedsToggles
+            student={student}
+            updateStudent={updateStudent}
+            variant="hybrid"
+            keys={['restless', 'concentrationIssues']}
+          />
+        </InspectorSection>
 
-      <Section family="behavior" title={t('inspector.groups.behavior')}>
-        <SpecialNeedsToggles
-          student={student}
-          updateStudent={updateStudent}
-          variant="hybrid"
-          keys={['restless', 'concentrationIssues']}
-        />
-      </Section>
+        <InspectorSection family="social" title={t('inspector.groups.social')}>
+          <SpecialNeedsToggles
+            student={student}
+            updateStudent={updateStudent}
+            variant="hybrid"
+            keys={['shy']}
+          />
+          <SocialRoleSelector
+            student={student}
+            updateStudent={updateStudent}
+            variant="hybrid"
+            showDropdown={rowState.showSocialRoleDropdown}
+            setShowDropdown={rowState.setShowSocialRoleDropdown}
+            dropdownRef={rowState.socialRoleDropdownRef}
+          />
+          <PartnerSelector
+            student={student}
+            allStudents={allStudents}
+            updateStudent={updateStudent}
+            variant="hybrid"
+            showDropdown={rowState.showPartnerDropdown}
+            setShowDropdown={rowState.setShowPartnerDropdown}
+            dropdownRef={rowState.dropdownRef}
+          />
+          <AvoidPartnerSelector
+            student={student}
+            allStudents={allStudents}
+            updateStudent={updateStudent}
+            variant="hybrid"
+            showDropdown={rowState.showAvoidDropdown}
+            setShowDropdown={rowState.setShowAvoidDropdown}
+            dropdownRef={rowState.avoidDropdownRef}
+          />
+        </InspectorSection>
 
-      <Section family="social" title={t('inspector.groups.social')}>
-        <SpecialNeedsToggles
-          student={student}
-          updateStudent={updateStudent}
-          variant="hybrid"
-          keys={['shy']}
-        />
-        <SocialRoleSelector
-          student={student}
-          updateStudent={updateStudent}
-          variant="hybrid"
-          showDropdown={rowState.showSocialRoleDropdown}
-          setShowDropdown={rowState.setShowSocialRoleDropdown}
-          dropdownRef={rowState.socialRoleDropdownRef}
-        />
-        <PartnerSelector
-          student={student}
-          allStudents={allStudents}
-          updateStudent={updateStudent}
-          variant="hybrid"
-          showDropdown={rowState.showPartnerDropdown}
-          setShowDropdown={rowState.setShowPartnerDropdown}
-          dropdownRef={rowState.dropdownRef}
-        />
-        <AvoidPartnerSelector
-          student={student}
-          allStudents={allStudents}
-          updateStudent={updateStudent}
-          variant="hybrid"
-          showDropdown={rowState.showAvoidDropdown}
-          setShowDropdown={rowState.setShowAvoidDropdown}
-          dropdownRef={rowState.avoidDropdownRef}
-        />
-      </Section>
-
-      <Section family="space" title={t('inspector.groups.space')}>
-        <SpecialNeedsToggles
-          student={student}
-          updateStudent={updateStudent}
-          variant="hybrid"
-          keys={['needsFrontSeat']}
-        />
-        <StudentPreferenceToggles
-          student={student}
-          updateStudent={updateStudent}
-          variant="hybrid"
-        />
-      </Section>
+        <InspectorSection family="space" title={t('inspector.groups.space')}>
+          <SpecialNeedsToggles
+            student={student}
+            updateStudent={updateStudent}
+            variant="hybrid"
+            keys={['needsFrontSeat']}
+          />
+          <StudentPreferenceToggles
+            student={student}
+            updateStudent={updateStudent}
+            variant="hybrid"
+          />
+        </InspectorSection>
+      </InspectorBody>
 
       {/* Removing a student left the list with its rows; this is where it
           landed, next to everything else that acts on this one student. */}
       {onRemove && (
-        <div className="mt-auto flex items-center justify-end border-t border-(--border-card) pt-3">
+        <InspectorFooter>
           <button
             type="button"
             onClick={onRemove}
@@ -249,8 +257,8 @@ export default function StudentInspector({
             <TrashIcon size={14} aria-hidden="true" />
             {t('studentList.delete')}
           </button>
-        </div>
+        </InspectorFooter>
       )}
-    </div>
+    </>
   );
 }

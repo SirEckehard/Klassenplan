@@ -176,7 +176,18 @@ Every layer's toolbar is a `ToolRail` (`src/components/shell/ToolRail.tsx`) insi
 
 From `lg` up `SmartSidebar` drops that panel surface: on the desktop shell it is not a card but the window's left edge, one hairline (`border-r`) of `--border-card` against the sunken stage. Below `lg` the layer is still a stacked document, where a panel needs a frame of its own to read as one.
 
-## 6a. Menus
+## 6a. The inspector
+
+The right-hand panel is a wall, not a stack of cards. `InspectorHeader`,
+`InspectorBody`, `InspectorSection` and `InspectorFooter`
+(`src/components/shell/InspectorPanel.tsx`) are its only parts: the header is a
+strip of 44px media, an `h2` and a subtitle above a hairline; sections carry a
+`data-heading` in their family's colour and are separated by `border-t` with
+`first:border-t-0`, never by a gap; the footer holds what acts on the whole
+selection, destructive last. A panel that needs a new group adds a section —
+not a card, not a heading of its own invention.
+
+## 6b. Menus
 
 A dropdown is a `menuSurfaceClass` box; its rows are `menuItemClass`, and the one destructive row is `menuItemDangerClass`. Both hover on paper — `--surface-sunken`, or `--button-icon-danger-bg` for the destructive one — never on blue: blue means "you can act here", and a hovered row is a pointer, not an action.
 

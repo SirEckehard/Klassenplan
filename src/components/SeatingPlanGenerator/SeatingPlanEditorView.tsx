@@ -17,6 +17,10 @@ import SmartSidebar from '@/components/ui/panels/SmartSidebar';
 import SmartMixControls from '@/components/ui/controls/SmartMixControls';
 import PlanToolPanel from '@/components/SeatingPlanGenerator/views/PlanToolPanel';
 import InspectorPortal from '@/components/shell/InspectorPortal';
+import {
+  InspectorBody,
+  InspectorHeader,
+} from '@/components/shell/InspectorPanel';
 import StatusBarPortal from '@/components/shell/StatusBarPortal';
 import { useCanvasPreferences } from '@/contexts/seatingPlan/CanvasPreferencesContext';
 import SeatingPlanCanvas from '@/components/SeatingPlanGenerator/SeatingPlanCanvas';
@@ -897,35 +901,38 @@ export default function SeatingPlanEditorView({
         {/* Why the plan looks like this is a property of the plan, so the
             criteria belong in the inspector — not in the toolbar opposite. */}
         <InspectorPortal>
-          {/* How well the plan meets the criteria, above the criteria it is
+          <InspectorHeader title={t('mix.title')} />
+          <InspectorBody>
+            {/* How well the plan meets the criteria, above the criteria it is
               about; the switch shows or hides the value beside each one. */}
-          {hasStatistics && (onOpenStatistics || onCloseStatistics) && (
-            <button
-              type="button"
-              onClick={handleStatisticsToggle}
-              data-tour={TOUR_ANCHORS.planFulfillment}
-              aria-pressed={showStatisticsBadge}
-              title={statisticsButtonTitle}
-              aria-label={statisticsButtonLabel}
-              className={`${secondaryButtonClass} mb-3 flex w-full items-center justify-between gap-2 px-3 py-2 text-sm`}
-            >
-              <span className="flex items-center gap-2">
-                <ChartBarIcon size={18} aria-hidden="true" />
-                {t('editor.fulfillmentLabel')}
-              </span>
-              <span className="font-semibold tabular-nums">
-                {statisticsScore}%
-              </span>
-            </button>
-          )}
-          <SmartMixControls
-            settings={settings}
-            setMixSettings={setMixSettings}
-            students={students}
-            suspendedWeights={suspendedWeights}
-            density="comfortable"
-            {...fulfillmentProps}
-          />
+            {hasStatistics && (onOpenStatistics || onCloseStatistics) && (
+              <button
+                type="button"
+                onClick={handleStatisticsToggle}
+                data-tour={TOUR_ANCHORS.planFulfillment}
+                aria-pressed={showStatisticsBadge}
+                title={statisticsButtonTitle}
+                aria-label={statisticsButtonLabel}
+                className={`${secondaryButtonClass} mb-3 flex w-full items-center justify-between gap-2 px-3 py-2 text-sm`}
+              >
+                <span className="flex items-center gap-2">
+                  <ChartBarIcon size={18} aria-hidden="true" />
+                  {t('editor.fulfillmentLabel')}
+                </span>
+                <span className="font-semibold tabular-nums">
+                  {statisticsScore}%
+                </span>
+              </button>
+            )}
+            <SmartMixControls
+              settings={settings}
+              setMixSettings={setMixSettings}
+              students={students}
+              suspendedWeights={suspendedWeights}
+              density="comfortable"
+              {...fulfillmentProps}
+            />
+          </InspectorBody>
         </InspectorPortal>
 
         {/* The layer's one primary action, in the same spot as the other

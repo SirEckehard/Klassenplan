@@ -10,12 +10,15 @@ import type {
   TableTemplateType,
 } from '@/types';
 import {
+  InspectorBody,
+  InspectorFooter,
+  InspectorHeader,
+} from '@/components/shell/InspectorPanel';
+import {
   CLASSROOM_HEIGHT,
   CLASSROOM_WIDTH,
   GRID_SIZE,
   dangerButtonClass,
-  dataFamilyClass,
-  dataHeadingClass,
   inputFieldClass,
   quietIconButtonClass,
   secondaryButtonClass,
@@ -196,34 +199,37 @@ export default function SceneInspector({
 
   if (selectionSize === 0) {
     return (
-      <div className="flex flex-col gap-4">
-        <h3 className={`${dataHeadingClass} ${dataFamilyClass.space}`}>
-          {t('sceneInspector.room')}
-        </h3>
-        <dl className="m-0 flex flex-col gap-1.5 text-sm">
-          <div className="flex items-center justify-between gap-3">
-            <dt className="text-(--text-muted)">
-              {t('sceneInspector.tableCount')}
-            </dt>
-            <dd className="m-0 tabular-nums">{tables.length}</dd>
-          </div>
-          <div className="flex items-center justify-between gap-3">
-            <dt className="text-(--text-muted)">
-              {t('sceneInspector.seatCount')}
-            </dt>
-            <dd className="m-0 tabular-nums">{totalSeats}</dd>
-          </div>
-          <div className="flex items-center justify-between gap-3">
-            <dt className="text-(--text-muted)">
-              {t('sceneInspector.studentCount')}
-            </dt>
-            <dd className="m-0 tabular-nums">{studentsCount}</dd>
-          </div>
-        </dl>
-        <p className="text-xs leading-relaxed text-(--text-muted)">
-          {t('sceneInspector.empty')}
-        </p>
-      </div>
+      <>
+        <InspectorHeader
+          title={t('sceneInspector.room')}
+          subtitle={t('sceneInspector.title')}
+        />
+        <InspectorBody>
+          <dl className="m-0 flex flex-col gap-1.5 text-sm">
+            <div className="flex items-center justify-between gap-3">
+              <dt className="text-(--text-muted)">
+                {t('sceneInspector.tableCount')}
+              </dt>
+              <dd className="m-0 tabular-nums">{tables.length}</dd>
+            </div>
+            <div className="flex items-center justify-between gap-3">
+              <dt className="text-(--text-muted)">
+                {t('sceneInspector.seatCount')}
+              </dt>
+              <dd className="m-0 tabular-nums">{totalSeats}</dd>
+            </div>
+            <div className="flex items-center justify-between gap-3">
+              <dt className="text-(--text-muted)">
+                {t('sceneInspector.studentCount')}
+              </dt>
+              <dd className="m-0 tabular-nums">{studentsCount}</dd>
+            </div>
+          </dl>
+          <p className="mt-3 text-xs leading-relaxed text-(--text-muted)">
+            {t('sceneInspector.empty')}
+          </p>
+        </InspectorBody>
+      </>
     );
   }
 
@@ -233,29 +239,31 @@ export default function SceneInspector({
       0,
     );
     return (
-      <div className="flex flex-col gap-4">
-        <h3 className={`${dataHeadingClass} ${dataFamilyClass.space}`}>
-          {t('sceneInspector.selection')}
-        </h3>
-        <p className="text-sm">
-          {t('sceneInspector.multiSelection', {
-            tables: selectedTables.length,
-            features: selectedFeatures.length,
-          })}
-        </p>
-        {selectedTables.length > 0 && (
-          <p className="text-sm tabular-nums text-(--text-muted)">
-            {t('sceneInspector.selectedSeats', { count: selectedSeats })}
+      <>
+        <InspectorHeader title={t('sceneInspector.selection')} />
+        <InspectorBody>
+          <p className="text-sm">
+            {t('sceneInspector.multiSelection', {
+              tables: selectedTables.length,
+              features: selectedFeatures.length,
+            })}
           </p>
-        )}
-        <button
-          type="button"
-          onClick={onDeleteSelection}
-          className={`${dangerButtonClass} w-full`}
-        >
-          {t('sceneInspector.deleteSelection')}
-        </button>
-      </div>
+          {selectedTables.length > 0 && (
+            <p className="text-sm tabular-nums text-(--text-muted)">
+              {t('sceneInspector.selectedSeats', { count: selectedSeats })}
+            </p>
+          )}
+        </InspectorBody>
+        <InspectorFooter>
+          <button
+            type="button"
+            onClick={onDeleteSelection}
+            className={`${dangerButtonClass} h-8 px-3 text-xs`}
+          >
+            {t('sceneInspector.deleteSelection')}
+          </button>
+        </InspectorFooter>
+      </>
     );
   }
 
@@ -267,96 +275,90 @@ export default function SceneInspector({
       });
 
     return (
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-col gap-0.5">
-          <h3 className={`${dataHeadingClass} ${dataFamilyClass.space}`}>
-            {tableTypeLabel(table)}
-          </h3>
-          <p className="text-xs tabular-nums text-(--text-muted)">
-            {t('sceneInspector.tablePosition', {
-              index: index + 1,
-              total: tables.length,
-            })}
-            {' · '}
-            {t('sceneInspector.seats', { count: table.seatCount })}
-          </p>
-        </div>
-
-        <div className="flex items-center justify-between gap-3">
-          <span className="text-sm text-(--text-muted)">
-            {t('sceneInspector.rotation')}
-          </span>
-          <span className="flex items-center gap-1">
-            <button
-              type="button"
-              onClick={() => rotate(-ROTATION_STEP)}
-              className={`${quietIconButtonClass} h-8 w-8`}
-              aria-label={t('sceneInspector.rotateLeft')}
-            >
-              <ArrowArcLeftIcon size={16} aria-hidden="true" />
-            </button>
-            <span className="w-12 text-center text-sm tabular-nums">
-              {Math.round(table.rotation)}°
+      <>
+        <InspectorHeader
+          title={tableTypeLabel(table)}
+          subtitle={`${t('sceneInspector.tablePosition', {
+            index: index + 1,
+            total: tables.length,
+          })} · ${t('sceneInspector.seats', { count: table.seatCount })}`}
+        />
+        <InspectorBody>
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-sm text-(--text-muted)">
+              {t('sceneInspector.rotation')}
             </span>
-            <button
-              type="button"
-              onClick={() => rotate(ROTATION_STEP)}
-              className={`${quietIconButtonClass} h-8 w-8`}
-              aria-label={t('sceneInspector.rotateRight')}
-            >
-              <ArrowArcRightIcon size={16} aria-hidden="true" />
-            </button>
-          </span>
-        </div>
+            <span className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => rotate(-ROTATION_STEP)}
+                className={`${quietIconButtonClass} h-8 w-8`}
+                aria-label={t('sceneInspector.rotateLeft')}
+              >
+                <ArrowArcLeftIcon size={16} aria-hidden="true" />
+              </button>
+              <span className="w-12 text-center text-sm tabular-nums">
+                {Math.round(table.rotation)}°
+              </span>
+              <button
+                type="button"
+                onClick={() => rotate(ROTATION_STEP)}
+                className={`${quietIconButtonClass} h-8 w-8`}
+                aria-label={t('sceneInspector.rotateRight')}
+              >
+                <ArrowArcRightIcon size={16} aria-hidden="true" />
+              </button>
+            </span>
+          </div>
 
-        <div className="grid grid-cols-2 gap-2">
-          <Field
-            label={t('sceneInspector.x')}
-            value={table.x}
-            max={CLASSROOM_WIDTH}
-            onCommit={(next) => patchTable(index, { x: next })}
-          />
-          <Field
-            label={t('sceneInspector.y')}
-            value={table.y}
-            max={CLASSROOM_HEIGHT}
-            onCommit={(next) => patchTable(index, { y: next })}
-          />
-          {/* Resizing was a drag handle and a guess; the same two numbers the
+          <div className="grid grid-cols-2 gap-2">
+            <Field
+              label={t('sceneInspector.x')}
+              value={table.x}
+              max={CLASSROOM_WIDTH}
+              onCommit={(next) => patchTable(index, { x: next })}
+            />
+            <Field
+              label={t('sceneInspector.y')}
+              value={table.y}
+              max={CLASSROOM_HEIGHT}
+              onCommit={(next) => patchTable(index, { y: next })}
+            />
+            {/* Resizing was a drag handle and a guess; the same two numbers the
               canvas writes can now be typed. */}
-          <Field
-            label={t('sceneInspector.width')}
-            value={table.width}
-            min={MIN_TABLE_SIDE}
-            max={CLASSROOM_WIDTH}
-            onCommit={(next) => patchTable(index, { width: next })}
-          />
-          <Field
-            label={t('sceneInspector.height')}
-            value={table.height}
-            min={MIN_TABLE_SIDE}
-            max={CLASSROOM_HEIGHT}
-            onCommit={(next) => patchTable(index, { height: next })}
-          />
-        </div>
-
-        <div className="flex flex-col gap-2">
+            <Field
+              label={t('sceneInspector.width')}
+              value={table.width}
+              min={MIN_TABLE_SIDE}
+              max={CLASSROOM_WIDTH}
+              onCommit={(next) => patchTable(index, { width: next })}
+            />
+            <Field
+              label={t('sceneInspector.height')}
+              value={table.height}
+              min={MIN_TABLE_SIDE}
+              max={CLASSROOM_HEIGHT}
+              onCommit={(next) => patchTable(index, { height: next })}
+            />
+          </div>
+        </InspectorBody>
+        <InspectorFooter>
           <button
             type="button"
             onClick={() => duplicateTable(index)}
-            className={`${secondaryButtonClass} w-full`}
+            className={`${secondaryButtonClass} mr-auto h-8 px-3 text-xs`}
           >
             {t('sceneInspector.duplicateTable')}
           </button>
           <button
             type="button"
             onClick={onDeleteSelection}
-            className={`${dangerButtonClass} w-full`}
+            className={`${dangerButtonClass} h-8 px-3 text-xs`}
           >
             {t('sceneInspector.deleteTable')}
           </button>
-        </div>
-      </div>
+        </InspectorFooter>
+      </>
     );
   }
 
@@ -366,63 +368,63 @@ export default function SceneInspector({
     feature.type;
 
   return (
-    <div className="flex flex-col gap-4">
-      <h3 className={`${dataHeadingClass} ${dataFamilyClass.space}`}>
-        {featureLabel}
-      </h3>
+    <>
+      <InspectorHeader title={featureLabel} />
+      <InspectorBody>
+        <div className="grid grid-cols-2 gap-2">
+          <Field
+            label={t('sceneInspector.x')}
+            value={feature.x}
+            max={CLASSROOM_WIDTH}
+            onCommit={(next) => patchFeature(feature.id, { x: next })}
+          />
+          <Field
+            label={t('sceneInspector.y')}
+            value={feature.y}
+            max={CLASSROOM_HEIGHT}
+            onCommit={(next) => patchFeature(feature.id, { y: next })}
+          />
+          <Field
+            label={t('sceneInspector.width')}
+            value={feature.width}
+            max={CLASSROOM_WIDTH}
+            onCommit={(next) => patchFeature(feature.id, { width: next })}
+          />
+          <Field
+            label={t('sceneInspector.height')}
+            value={feature.height}
+            max={CLASSROOM_HEIGHT}
+            onCommit={(next) => patchFeature(feature.id, { height: next })}
+          />
+        </div>
 
-      <div className="grid grid-cols-2 gap-2">
-        <Field
-          label={t('sceneInspector.x')}
-          value={feature.x}
-          max={CLASSROOM_WIDTH}
-          onCommit={(next) => patchFeature(feature.id, { x: next })}
-        />
-        <Field
-          label={t('sceneInspector.y')}
-          value={feature.y}
-          max={CLASSROOM_HEIGHT}
-          onCommit={(next) => patchFeature(feature.id, { y: next })}
-        />
-        <Field
-          label={t('sceneInspector.width')}
-          value={feature.width}
-          max={CLASSROOM_WIDTH}
-          onCommit={(next) => patchFeature(feature.id, { width: next })}
-        />
-        <Field
-          label={t('sceneInspector.height')}
-          value={feature.height}
-          max={CLASSROOM_HEIGHT}
-          onCommit={(next) => patchFeature(feature.id, { height: next })}
-        />
-      </div>
-
-      <div className="flex items-center justify-between gap-3">
-        <label
-          htmlFor={`feature-visible-${feature.id}`}
-          className="text-sm text-(--text-muted)"
+        <div className="flex items-center justify-between gap-3">
+          <label
+            htmlFor={`feature-visible-${feature.id}`}
+            className="text-sm text-(--text-muted)"
+          >
+            {t('sceneInspector.visible')}
+          </label>
+          <input
+            id={`feature-visible-${feature.id}`}
+            type="checkbox"
+            checked={feature.visible !== false}
+            onChange={(event) =>
+              patchFeature(feature.id, { visible: event.target.checked })
+            }
+            className="h-5 w-9 cursor-pointer accent-blue-600"
+          />
+        </div>
+      </InspectorBody>
+      <InspectorFooter>
+        <button
+          type="button"
+          onClick={onDeleteSelection}
+          className={`${dangerButtonClass} h-8 px-3 text-xs`}
         >
-          {t('sceneInspector.visible')}
-        </label>
-        <input
-          id={`feature-visible-${feature.id}`}
-          type="checkbox"
-          checked={feature.visible !== false}
-          onChange={(event) =>
-            patchFeature(feature.id, { visible: event.target.checked })
-          }
-          className="h-5 w-9 cursor-pointer accent-blue-600"
-        />
-      </div>
-
-      <button
-        type="button"
-        onClick={onDeleteSelection}
-        className={`${dangerButtonClass} w-full`}
-      >
-        {t('sceneInspector.deleteFeature')}
-      </button>
-    </div>
+          {t('sceneInspector.deleteFeature')}
+        </button>
+      </InspectorFooter>
+    </>
   );
 }
