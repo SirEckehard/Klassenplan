@@ -55,6 +55,8 @@ interface SeatGridProps {
   lockSeatLabelOrientation: boolean;
   seatTextRotation: number;
   isDark: boolean;
+  /** Beamer contrast mode; see `TableSeat`. */
+  contrast?: boolean;
   toggleLock?: (studentId: string, table: number, seat: number) => void;
   /** Reveal the open-lock toggle only on seat hover (hover-capable pointers). */
   lockRevealOnHover?: boolean;
@@ -84,6 +86,7 @@ function SeatGrid({
   lockSeatLabelOrientation,
   seatTextRotation,
   isDark,
+  contrast = false,
   toggleLock,
   lockRevealOnHover = false,
   hoveredSeatIndex = null,
@@ -111,6 +114,7 @@ function SeatGrid({
             tableRotation={tableRotation}
             allStudents={allStudents}
             isDark={isDark}
+            contrast={contrast}
             showSeatLabels={showSeatLabels}
             locked={config.locked}
             isOriginSeat={config.isOriginSeat}

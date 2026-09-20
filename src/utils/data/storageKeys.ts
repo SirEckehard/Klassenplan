@@ -23,6 +23,11 @@ export const STORAGE_KEYS = {
     presentShowColors: 'spg.present.showColors',
     presentShowFeatures: 'spg.present.showFeatures',
     presentZoom: 'spg.present.zoom',
+    // The beamer's own contrast mode and name rule. The editor keeps
+    // `spg.nameDisplay`: a projection is read from the back row, a plan on the
+    // desk from 40cm away, and they want different amounts of name.
+    presentContrast: 'spg.present.contrast',
+    presentNameDisplay: 'spg.present.nameDisplay',
     photoConsentConfirmed: 'spg.photoConsentConfirmed',
     lastSeenVersion: 'spg.lastSeenVersion',
     lastBackupAt: 'spg.lastBackupAt',
@@ -161,6 +166,8 @@ export const PROJECT_LOCAL_STORAGE_KEYS = [
   STORAGE_KEYS.localStorage.presentShowColors,
   STORAGE_KEYS.localStorage.presentShowFeatures,
   STORAGE_KEYS.localStorage.presentZoom,
+  STORAGE_KEYS.localStorage.presentContrast,
+  STORAGE_KEYS.localStorage.presentNameDisplay,
   STORAGE_KEYS.localStorage.photoConsentConfirmed,
   STORAGE_KEYS.localStorage.lastSeenVersion,
   STORAGE_KEYS.localStorage.lastBackupAt,

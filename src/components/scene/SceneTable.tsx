@@ -64,6 +64,8 @@ type TableProps = {
   onSeatBlur?: React.ComponentProps<typeof SeatGrid>['onSeatBlur'];
   showSpecialNeeds?: boolean;
   isDark?: boolean;
+  /** Beamer contrast mode: black on white, thicker contours (see `TableSeat`). */
+  contrast?: boolean;
   lockSeatLabelOrientation?: boolean;
   seatLabelRotation?: number;
   /** Uniform name rule for the seat labels (see {@link NameDisplayMode}). */
@@ -115,6 +117,7 @@ function SceneTable({
   onSeatBlur,
   showSpecialNeeds = true,
   isDark = false,
+  contrast = false,
   lockSeatLabelOrientation = true,
   seatLabelRotation = 0,
   nameDisplay,
@@ -177,15 +180,21 @@ function SceneTable({
   );
   const { cols, rows, seatWidth, seatHeight, positions } = seatLayout;
 
-  const tableFill = isDark ? '#374151' : '#fff';
-  const tableStroke = selected ? '#3b82f6' : isDark ? '#d1d5db' : '#000';
+  const tableFill = contrast ? '#ffffff' : isDark ? '#374151' : '#fff';
+  const tableStroke = contrast
+    ? '#000000'
+    : selected
+      ? '#3b82f6'
+      : isDark
+        ? '#d1d5db'
+        : '#000';
 
   // Chair dots: one small filled dot per seat, docked just outside the table
   // edge the seat faces. The facing edge is derived per template via
   // determineSeatEdge (the same logic the table-template previews use) so it is
   // correct for every table type, not only the 4-seat group. Drawn outside the
   // seat clip group so they sit against the table border instead of inside it.
-  const chairFill = isDark ? '#9ca3af' : '#94a3b8';
+  const chairFill = contrast ? '#767676' : isDark ? '#9ca3af' : '#94a3b8';
   const chairRadius = Math.max(
     2.5,
     Math.min(5, Math.min(seatWidth, seatHeight) * 0.12),
@@ -317,7 +326,7 @@ function SceneTable({
           : null;
   const tableHighlightOpacity = tableHighlightPriority ? 1 : 0;
   const baseTableStrokeOpacity = 1;
-  const baseTableStrokeWidth = selected ? 2.4 : 1;
+  const baseTableStrokeWidth = contrast ? 2.5 : selected ? 2.4 : 1;
 
   return (
     <g
@@ -376,6 +385,7 @@ function SceneTable({
         tableRotation={table.rotation}
         allStudents={allStudents}
         showSpecialNeeds={showSpecialNeeds}
+        contrast={contrast}
         nameDisplay={nameDisplay}
         nameLabels={nameLabels}
         showSeatLabels={seatMarkerMode === 'full'}

@@ -54,11 +54,12 @@
     },
     "present": {
       "title": "Presentation mode",
-      "item1": "Switch between teacher and student view as well as between seating plan and circle at the top.",
+      "item1": "The bar at the bottom switches between teacher and student view as well as between seating plan and circle.",
       "item2": "The student view shows the plan from the class's perspective – without markers and photos.",
       "item3": "Show or hide markers, photos, colors and room elements using the bar at the bottom.",
       "itemNames": "The \"Names\" button switches the display between first name, first name + last name initial, and first and last name.",
-      "item4": "Zoom with the slider or mouse wheel and drag to pan; the centre icon resets the view.",
+      "itemContrast": "Contrast mode shows the plan black on white with thicker outlines – for bright rooms and weak projectors.",
+      "item4": "Set the size with the slider or the mouse wheel and drag to pan; the centre icon resets the view.",
       "item5": "Press Alt + ← to return to the generator.",
       "item6": "\"Who's next?\" draws a random student and spotlights their seat – everyone gets a turn before anyone repeats.",
       "item7": "Keyboard: F fullscreen, Space draws a student, Esc resets the draw, + / − zoom, 0 recenters."
@@ -142,13 +143,22 @@
     "pickReset": "Reset the draw (Esc)",
     "fullscreen": "Fullscreen",
     "fullscreenTitle": "Enter fullscreen (F)",
-    "fullscreenExitTitle": "Exit fullscreen (F)"
+    "fullscreenExitTitle": "Exit fullscreen (F)",
+    "perspective": "View",
+    "contrast": "Contrast",
+    "contrastTitle": "Contrast mode: black on white, thicker outlines — for bright rooms",
+    "size": "Size",
+    "exit": "End the presentation",
+    "groups": "Build groups",
+    "groupsTitle": "Draw groups from this class",
+    "seats": "{{count}} seats"
   },
   "mode": {
     "table": "Seating Plan",
     "tableView": "Show Seating Plan",
     "circle": "Seating Circle",
-    "circleView": "Show Seating Circle"
+    "circleView": "Show Seating Circle",
+    "label": "Display"
   },
   "legend": {
     "title": "Legend"

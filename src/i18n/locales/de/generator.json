@@ -54,11 +54,12 @@
     },
     "present": {
       "title": "Präsentiermodus",
-      "item1": "Wechsle oben zwischen Lehrer- und Schüleransicht sowie zwischen Sitzplan und Sitzkreis.",
+      "item1": "In der Leiste unten wechselst du zwischen Lehrer- und Schüleransicht sowie zwischen Sitzplan und Sitzkreis.",
       "item2": "Die Schüleransicht zeigt den Plan aus Sicht der Klasse – ohne Merkmale und Fotos.",
       "item3": "Blende über die Leiste unten Merkmale, Fotos, Farben und Raumelemente ein oder aus.",
       "itemNames": "Der Button „Namen“ schaltet die Anzeige zwischen Vorname, Vorname + Initial des Nachnamens sowie Vor- und Nachname um.",
-      "item4": "Zoome per Regler oder Mausrad und verschiebe die Ansicht durch Ziehen; das Zentrieren-Symbol setzt die Ansicht zurück.",
+      "itemContrast": "Der Kontrastmodus zeigt den Plan schwarz auf weiß mit dickeren Konturen – für helle Räume und schwache Beamer.",
+      "item4": "Stelle die Größe mit dem Regler oder dem Mausrad ein und verschiebe die Ansicht durch Ziehen; das Zentrieren-Symbol setzt sie zurück.",
       "item5": "Mit Alt + ← kehrst du zum Generator zurück.",
       "item6": "„Wer kommt dran?“ zieht einen zufälligen Schüler und hebt seinen Platz hervor – jeder kommt einmal dran, bevor sich jemand wiederholt.",
       "item7": "Tastatur: F Vollbild, Leertaste zieht einen Schüler, Esc setzt die Auswahl zurück, + / − zoomen, 0 zentriert."
@@ -142,13 +143,22 @@
     "pickReset": "Auswahl zurücksetzen (Esc)",
     "fullscreen": "Vollbild",
     "fullscreenTitle": "Vollbild starten (F)",
-    "fullscreenExitTitle": "Vollbild beenden (F)"
+    "fullscreenExitTitle": "Vollbild beenden (F)",
+    "perspective": "Ansicht",
+    "contrast": "Kontrast",
+    "contrastTitle": "Kontrastmodus: schwarz auf weiß, dickere Konturen — für helle Räume",
+    "size": "Größe",
+    "exit": "Präsentation beenden",
+    "groups": "Gruppen bilden",
+    "groupsTitle": "Aus dieser Klasse Gruppen ziehen",
+    "seats": "{{count}} Plätze"
   },
   "mode": {
     "table": "Sitzplan",
     "tableView": "Sitzplan anzeigen",
     "circle": "Sitzkreis",
-    "circleView": "Sitzkreis anzeigen"
+    "circleView": "Sitzkreis anzeigen",
+    "label": "Darstellung"
   },
   "legend": {
     "title": "Legende"

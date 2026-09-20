@@ -6,15 +6,7 @@ import { useTranslation } from 'react-i18next';
 import {
   ArrowCounterClockwiseIcon,
   ArrowLeftIcon,
-  ArrowsInIcon,
-  ArrowsOutIcon,
-  CornersInIcon,
-  DoorOpenIcon,
   HandPointingIcon,
-  ImageIcon,
-  MagnifyingGlassIcon,
-  PaletteIcon,
-  UserSquareIcon,
 } from '@phosphor-icons/react';
 import Seo from '@/components/Seo';
 import { KpLockup } from '@/components/KpLockup';
@@ -32,25 +24,17 @@ import { useSeatingPlanState } from '@/contexts/SeatingPlanContext';
 import {
   iconButtonClass,
   LOCAL_STORAGE_KEYS,
-  neutralButtonClass,
   primaryButtonClass,
-  secondaryButtonClass,
   type NameDisplayMode,
 } from '@/utils';
 import { usePlanUsagePrompt } from '@/hooks/plan/usePlanUsagePrompt';
-import {
-  NAME_DISPLAY_ICONS,
-  NAME_DISPLAY_MODES,
-  nameDisplayLabelKey,
-} from '@/components/SeatingPlanGenerator/canvas/nameDisplayGroup';
+import { NAME_DISPLAY_MODES } from '@/components/SeatingPlanGenerator/canvas/nameDisplayGroup';
 import HelpButton from '@/components/ui/buttons/HelpButton';
 import AppearanceControls from '@/components/ui/navigation/AppearanceControls';
 import PresentationScene from '@/components/scene/PresentationScene';
+import PresentationToolbar from '@/components/scene/PresentationToolbar';
 import SimpleCircleView from '@/components/circle/SimpleCircleView';
-import PresentPerspectiveToggle from '@/components/SeatingPlanGenerator/PresentPerspectiveToggle';
-import SeatingModeToggle, {
-  type SeatingMode,
-} from '@/components/SeatingPlanGenerator/SeatingModeToggle';
+import { type SeatingMode } from '@/components/SeatingPlanGenerator/SeatingModeToggle';
 import type { PresentationPerspective } from '@/utils/ui/boardOrientation';
 
 const PRESENT_MIN_ZOOM = 0.5;
@@ -115,16 +99,23 @@ export default function Present() {
     true,
   );
   const [zoom, setZoom] = usePersistentState(LOCAL_STORAGE_KEYS.presentZoom, 1);
-  // Shared with step 3 and the circle view: one class, one name rule.
+  // Black on white for a bright room; the projection's own decision, kept
+  // between lessons like the other presentation preferences.
+  const [contrast, setContrast] = usePersistentState(
+    LOCAL_STORAGE_KEYS.presentContrast,
+    false,
+  );
+  // The beamer keeps its own name rule and starts at the first name: it is
+  // read from the back row, where "Mia W." is two words too many. The editor's
+  // `spg.nameDisplay` stays as it is.
   const [nameDisplay, setNameDisplay] = usePersistentState<NameDisplayMode>(
-    LOCAL_STORAGE_KEYS.nameDisplay,
-    'firstNameInitial',
+    LOCAL_STORAGE_KEYS.presentNameDisplay,
+    'firstName',
   );
   // The projector toolbar has no room for a segmented control, so one button
   // cycles through the modes and names the current one in its tooltip.
   const nameDisplayIndex = Math.max(0, NAME_DISPLAY_MODES.indexOf(nameDisplay));
   const currentNameDisplay = NAME_DISPLAY_MODES[nameDisplayIndex];
-  const NameDisplayIcon = NAME_DISPLAY_ICONS[currentNameDisplay];
   const cycleNameDisplay = () =>
     setNameDisplay(
       () =>
@@ -171,6 +162,10 @@ export default function Present() {
     '0': reset,
   });
 
+  const seatedCount = currentSeating.reduce(
+    (count, table) => count + table.filter(Boolean).length,
+    0,
+  );
   const hasPlan = classroomScene.tables.length > 0 && currentSeating.length > 0;
   const hasCircle = !!circleLayout && circleLayout.students.length > 0;
   const hasContent = mode === 'circle' ? hasCircle : hasPlan;
@@ -182,16 +177,17 @@ export default function Present() {
       id="main"
       ref={surfaceRef}
       tabIndex={-1}
-      className="fixed inset-0 flex flex-col bg-(--surface-sunken)"
+      className={`fixed inset-0 flex flex-col ${
+        contrast ? 'bg-white' : 'bg-(--surface-sunken)'
+      }`}
     >
       <Seo {...metadata} />
 
-      {/* Minimal toolbar. It wraps rather than overflowing: below `lg` the two
-          toggles drop to a row of their own below the logo and the appearance
-          controls. One row needs about 850 px in German, so a portrait tablet
-          wraps too — from `sm` up it cut off the help button. */}
-      <div className="flex flex-wrap items-center gap-3 px-3 py-2 sm:px-4 sm:py-3 lg:flex-nowrap">
-        <div className="flex flex-1 justify-start">
+      {/* A strip, not a toolbar: what is on the wall and for whom. Everything
+          that can be pressed lives in the bar at the bottom, within reach of
+          the teacher standing in front of it. */}
+      <div className="flex flex-wrap items-center gap-3 px-3 py-2 sm:px-4 sm:py-3">
+        <div className="flex flex-1 items-baseline gap-3">
           <h1 className="flex items-center shrink-0">
             <LocalizedLink
               to="/"
@@ -200,20 +196,20 @@ export default function Present() {
               <KpLockup size="sm" hideWordmarkOnMobile />
             </LocalizedLink>
           </h1>
+          <span className="truncate text-lg font-semibold text-(--text-page)">
+            {activeClass.name}
+          </span>
+          <span className="hidden text-sm text-(--text-muted) sm:inline">
+            {isTeacher ? t('present.teacherView') : t('present.studentView')}
+          </span>
         </div>
 
-        <div className="order-last flex w-full flex-wrap items-center justify-center gap-3 sm:flex-nowrap lg:order-0 lg:w-auto">
-          <PresentPerspectiveToggle
-            perspective={perspective}
-            onChange={setPerspective}
-          />
-
-          <SeatingModeToggle mode={mode} onModeChange={setMode} />
-        </div>
-
-        {/* The footer is hidden on fullscreen surfaces, so theme and language
-            live in the toolbar instead. */}
-        <div className="flex flex-1 items-center justify-end gap-2">
+        <div className="flex items-center gap-2">
+          {seatedCount > 0 && (
+            <span className="hidden text-sm tabular-nums text-(--text-muted) sm:inline">
+              {t('present.seats', { count: seatedCount })}
+            </span>
+          )}
           <AppearanceControls />
           <HelpButton
             title={t('help.present.title', 'Präsentiermodus')}
@@ -241,6 +237,7 @@ export default function Present() {
                   {/* New keys carry no inline default (see AGENTS.md). */}
                   {t('help.present.itemNames')}
                 </li>
+                <li>{t('help.present.itemContrast')}</li>
                 <li>
                   {t(
                     'help.present.item4',
@@ -345,6 +342,7 @@ export default function Present() {
             panX={pan.x}
             panY={pan.y}
             isDark={isDark}
+            contrast={contrast}
             spotlight={
               picker.picked
                 ? {
@@ -374,202 +372,38 @@ export default function Present() {
         )}
       </div>
 
-      {/* Bottom bar: back button pinned left, view controls centered below the
-          classroom. Teacher-only controls (badges, photos) hide in the student
-          view; colors and zoom stay. */}
+      {/* One bar, floating over the plan: everything the teacher reaches for
+          while standing in front of the projection. */}
       {hasContent ? (
-        <div className="flex flex-wrap items-center justify-center gap-3 px-4 py-4 sm:flex-nowrap">
-          {/* Narrow screens put the back button on its own row below the view
-              controls; from `sm` up it is pinned left again and the controls
-              stay centred under the classroom. */}
-          <div className="order-last flex w-full justify-center sm:order-0 sm:w-auto sm:flex-1 sm:justify-start">
-            <button
-              type="button"
-              onClick={() => navigate('/generator')}
-              className={`${neutralButtonClass} h-10 shrink-0 gap-2 px-4`}
-              title={t('present.backTitle', 'Zurück zum Generator (Alt + ←)')}
-            >
-              <ArrowLeftIcon size={20} aria-hidden />
-              <span className="text-sm font-semibold">
-                {t('present.back', 'Zurück')}
-              </span>
-            </button>
-          </div>
-
-          <div className="flex flex-wrap items-center justify-center gap-3">
-            {isTeacher && (
-              <button
-                type="button"
-                onClick={() => setShowBadges((value) => !value)}
-                className={`${
-                  showBadges ? primaryButtonClass : secondaryButtonClass
-                } h-10 gap-2 px-4`}
-                aria-pressed={showBadges}
-                title={t(
-                  'present.badgesTitle',
-                  'Merkmal-Symbole der Schüler ein- oder ausblenden',
-                )}
-              >
-                <UserSquareIcon size={20} aria-hidden />
-                <span className="text-sm font-semibold">
-                  {t('present.badges', 'Merkmale')}
-                </span>
-              </button>
-            )}
-
-            {isTeacher && (
-              <button
-                type="button"
-                onClick={() => setShowPhotos((value) => !value)}
-                className={`${
-                  showPhotos ? primaryButtonClass : secondaryButtonClass
-                } h-10 gap-2 px-4`}
-                aria-pressed={showPhotos}
-                title={t(
-                  'present.photosTitle',
-                  'Schülerfotos ein- oder ausblenden',
-                )}
-              >
-                <ImageIcon size={20} aria-hidden />
-                <span className="text-sm font-semibold">
-                  {t('present.photos', 'Fotos')}
-                </span>
-              </button>
-            )}
-
-            <button
-              type="button"
-              onClick={() => setShowRoomColors((value) => !value)}
-              className={`${
-                showRoomColors ? primaryButtonClass : secondaryButtonClass
-              } h-10 gap-2 px-4`}
-              aria-pressed={showRoomColors}
-              title={t('present.colorsTitle', 'Farben ein- oder ausblenden')}
-            >
-              <PaletteIcon size={20} aria-hidden />
-              <span className="text-sm font-semibold">
-                {t('present.colors', 'Farben')}
-              </span>
-            </button>
-
-            <button
-              type="button"
-              onClick={cycleNameDisplay}
-              className={`${secondaryButtonClass} h-10 gap-2 px-4`}
-              title={`${t('present.names')}: ${t(
-                nameDisplayLabelKey(currentNameDisplay),
-              )}`}
-            >
-              <NameDisplayIcon size={20} aria-hidden />
-              <span className="text-sm font-semibold">
-                {t('present.names')}
-              </span>
-            </button>
-
-            {!isCircle && (
-              <button
-                type="button"
-                onClick={() => setShowFeatures((value) => !value)}
-                className={`${
-                  showFeatures ? primaryButtonClass : secondaryButtonClass
-                } h-10 gap-2 px-4`}
-                aria-pressed={showFeatures}
-                title={t(
-                  'present.featuresTitle',
-                  'Raumelemente (Tafel, Fenster, Türen, Möbel) ein- oder ausblenden',
-                )}
-              >
-                <DoorOpenIcon size={20} aria-hidden />
-                <span className="text-sm font-semibold">
-                  {t('present.features', 'Raum')}
-                </span>
-              </button>
-            )}
-
-            {!isCircle && picker.total > 0 && (
-              <button
-                type="button"
-                onClick={picker.pick}
-                className={`${primaryButtonClass} h-10 gap-2 px-4`}
-                title={t(
-                  'present.pickTitle',
-                  'Zufälligen Schüler auswählen – jeder kommt einmal dran (Leertaste)',
-                )}
-              >
-                <HandPointingIcon size={20} aria-hidden />
-                <span className="text-sm font-semibold">
-                  {t('present.pick', 'Wer kommt dran?')}
-                </span>
-              </button>
-            )}
-
-            {fullscreenSupported && (
-              <button
-                type="button"
-                onClick={toggleFullscreen}
-                className={`${secondaryButtonClass} h-10 gap-2 px-4`}
-                aria-pressed={isFullscreen}
-                title={
-                  isFullscreen
-                    ? t('present.fullscreenExitTitle', 'Vollbild beenden (F)')
-                    : t('present.fullscreenTitle', 'Vollbild starten (F)')
-                }
-              >
-                {isFullscreen ? (
-                  <CornersInIcon size={20} aria-hidden />
-                ) : (
-                  <ArrowsOutIcon size={20} aria-hidden />
-                )}
-                <span className="text-sm font-semibold">
-                  {t('present.fullscreen', 'Vollbild')}
-                </span>
-              </button>
-            )}
-
-            <div className="flex h-10 items-center gap-2 rounded-full border border-(--border-option-selected) bg-(--surface-card) px-4 shadow-inner">
-              <MagnifyingGlassIcon
-                size={20}
-                aria-hidden
-                className="text-(--text-muted)"
-              />
-              <input
-                type="range"
-                min={PRESENT_MIN_ZOOM}
-                max={PRESENT_MAX_ZOOM}
-                step={0.05}
-                value={zoom}
-                onChange={(event) => setZoomLevel(Number(event.target.value))}
-                aria-label={t('present.zoom', 'Zoom')}
-                title={t(
-                  'present.zoomTitle',
-                  'Ansicht vergrößern oder verkleinern',
-                )}
-                className="w-28 cursor-pointer accent-(--accent-option) sm:w-40"
-              />
-              <span className="w-12 text-right text-sm font-semibold tabular-nums text-(--text-muted)">
-                {Math.round(zoom * 100)}%
-              </span>
-            </div>
-
-            <button
-              type="button"
-              onClick={reset}
-              className={`${iconButtonClass} h-10 w-10`}
-              aria-label={t(
-                'present.resetView',
-                'Ansicht zentrieren und zurücksetzen',
-              )}
-              title={t(
-                'present.resetView',
-                'Ansicht zentrieren und zurücksetzen',
-              )}
-            >
-              <ArrowsInIcon size={20} aria-hidden />
-            </button>
-          </div>
-
-          <div className="hidden flex-1 sm:block" aria-hidden />
-        </div>
+        <PresentationToolbar
+          perspective={perspective}
+          onPerspectiveChange={setPerspective}
+          mode={mode}
+          onModeChange={setMode}
+          isTeacher={isTeacher}
+          showBadges={showBadges}
+          onToggleBadges={() => setShowBadges((value) => !value)}
+          showPhotos={showPhotos}
+          onTogglePhotos={() => setShowPhotos((value) => !value)}
+          showRoomColors={showRoomColors}
+          onToggleRoomColors={() => setShowRoomColors((value) => !value)}
+          showFeatures={showFeatures}
+          onToggleFeatures={() => setShowFeatures((value) => !value)}
+          contrast={contrast}
+          onToggleContrast={() => setContrast((value) => !value)}
+          nameDisplay={currentNameDisplay}
+          onCycleNameDisplay={cycleNameDisplay}
+          onPick={!isCircle && picker.total > 0 ? picker.pick : undefined}
+          zoom={zoom}
+          minZoom={PRESENT_MIN_ZOOM}
+          maxZoom={PRESENT_MAX_ZOOM}
+          onZoomChange={setZoomLevel}
+          onResetView={reset}
+          fullscreenSupported={fullscreenSupported}
+          isFullscreen={isFullscreen}
+          onToggleFullscreen={toggleFullscreen}
+          onExit={() => navigate('/generator')}
+        />
       ) : (
         <div className="h-4" aria-hidden />
       )}

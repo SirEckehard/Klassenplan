@@ -173,6 +173,18 @@
   --toast-icon-border-critical: #e8b6c3;
 
   /*
+   * The projector's own control bar: ink in both themes, because it floats
+   * over a plan that is paper in both themes. Values are the dark palette's,
+   * so the bar is the one surface that does not change with the theme.
+   */
+  --present-bar-bg: #17181a;
+  --present-bar-surface: #2a2d31;
+  --present-bar-surface-hover: #3a3d42;
+  --present-bar-border: #3a3d42;
+  --present-bar-text: #f2f1ee;
+  --present-bar-muted: #c9cbcf;
+
+  /*
    * How far something got: the three states of a fulfilment value, a mix that
    * is random, a check that failed. Chrome, not pedagogy — a criterion keeps
    * its `--data-*` family, and this says nothing about which criterion it is.

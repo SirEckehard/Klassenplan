@@ -85,6 +85,21 @@ export const STUDENT_COLORS = {
 } as const;
 
 /**
+ * The beamer's contrast mode: paper white, ink black, whatever the theme.
+ *
+ * A projector in a bright room throws away the warm neutrals the interface is
+ * built from — `--surface-card` against `--border-card` is a hairline nobody in
+ * the back row can see. These are the only colours in the app that are not
+ * tokens, on purpose: they are picked for a wall, not for a screen.
+ */
+export const SEAT_CONTRAST_COLORS = {
+  fill: '#ffffff',
+  emptyFill: '#ededed',
+  stroke: '#000000',
+  text: '#000000',
+} as const;
+
+/**
  * Additional UI colors for seat interactions
  */
 export const SEAT_UI_COLORS = {
@@ -138,8 +153,21 @@ export function getStudentAppearance(
   student: Student | null,
   isDark: boolean,
   locked = false,
+  contrast = false,
 ): Omit<StudentAppearance, 'flags'> {
   const mode = isDark ? 'dark' : 'light';
+
+  // The projection's own palette outranks the theme and the seat's state:
+  // there is nothing to tell apart on a wall but occupied and empty.
+  if (contrast) {
+    return {
+      fill: student
+        ? SEAT_CONTRAST_COLORS.fill
+        : SEAT_CONTRAST_COLORS.emptyFill,
+      stroke: SEAT_CONTRAST_COLORS.stroke,
+      text: SEAT_CONTRAST_COLORS.text,
+    };
+  }
 
   // A held seat is a state of the seat, and outranks everything else.
   if (locked) {

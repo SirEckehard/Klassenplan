@@ -61,6 +61,12 @@ type PresentationSceneProps = {
   isDark?: boolean;
   /** Seat to spotlight; the rest of the classroom is dimmed. */
   spotlight?: SpotlightTarget | null;
+  /**
+   * Contrast mode for a bright room: black on white whatever the theme, with
+   * thicker contours and no photos, badges or room colours. A projector
+   * flattens the warm neutrals the interface is built from.
+   */
+  contrast?: boolean;
 };
 
 /** Padding around the classroom so seat photos docking outside seats aren't clipped. */
@@ -133,7 +139,12 @@ export default function PresentationScene({
   panY = 0,
   isDark = false,
   spotlight = null,
+  contrast = false,
 }: PresentationSceneProps) {
+  // Contrast mode brings its own palette, so the theme stands down; what is
+  // left of the plan is the seats, the names and the room's outline.
+  const dark = contrast ? false : isDark;
+  const roomColors = contrast ? false : showRoomColors;
   const photoUrls = useStudentPhotoUrls(students);
   const nameLabels = useNameLabels(students, nameDisplay);
 
@@ -151,8 +162,8 @@ export default function PresentationScene({
     `translate(${-CLASSROOM_WIDTH / 2} ${-CLASSROOM_HEIGHT / 2})`;
 
   const photoDisplayMode =
-    perspective === 'teacher' && showPhotos ? 'all' : 'off';
-  const showSpecialNeeds = perspective === 'teacher' && showBadges;
+    perspective === 'teacher' && showPhotos && !contrast ? 'all' : 'off';
+  const showSpecialNeeds = perspective === 'teacher' && showBadges && !contrast;
 
   const featureViewModels = React.useMemo(
     () =>
@@ -160,16 +171,11 @@ export default function PresentationScene({
         ? (scene.features ?? [])
             .map((feature) => ({
               feature,
-              styles: getFeatureStyles(
-                feature,
-                isDark,
-                undefined,
-                !showRoomColors,
-              ),
+              styles: getFeatureStyles(feature, dark, undefined, !roomColors),
             }))
             .filter(({ styles }) => styles.shouldRender)
         : [],
-    [scene.features, isDark, showFeatures, showRoomColors],
+    [scene.features, dark, showFeatures, roomColors],
   );
 
   // The drawn content, mapped through the same rotation the classroom group
@@ -247,7 +253,8 @@ export default function PresentationScene({
             onUpdate={() => {}}
             editable={false}
             showSpecialNeeds={showSpecialNeeds}
-            isDark={isDark}
+            isDark={dark}
+            contrast={contrast}
             lockSeatLabelOrientation={true}
             seatLabelRotation={-rotation}
             photoDisplayMode={photoDisplayMode}

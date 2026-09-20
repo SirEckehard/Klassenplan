@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import '@testing-library/jest-dom/vitest';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import '@/i18n'; // Initialize i18n for tests
@@ -87,12 +87,14 @@ describe('Present', () => {
     renderPresent();
 
     expect(screen.getByTestId('presentation-scene')).toBeInTheDocument();
-    // Logo link sits top-left, the back button moved into the bottom bar
+    // Logo link sits top-left; everything pressable is in the bar below.
     expect(screen.getByRole('link')).toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: /^(Zurück|Back)$/i }),
+      screen.getByRole('button', {
+        name: /Präsentation beenden|End the presentation/i,
+      }),
     ).toBeInTheDocument();
-    // Zoom slider + reset control are always available with content
+    // Size slider + reset control are always available with content
     expect(screen.getByRole('slider')).toBeInTheDocument();
     expect(
       screen.getByRole('button', {
@@ -106,6 +108,58 @@ describe('Present', () => {
     expect(
       screen.queryByRole('button', { name: /^(Fotos|Photos)$/i }),
     ).not.toBeInTheDocument();
+  });
+
+  it('switches to the teacher view and back from the bar', () => {
+    seatingState.current = {
+      currentSeating: [[student]],
+      classroomScene: {
+        tables: [{ x: 0, y: 0, width: 10, height: 10, seatCount: 2 }],
+        totalStudents: 1,
+      },
+      students: [student],
+      circleLayout: null,
+      activeClass: { id: 'class-1', name: '5a' },
+    };
+
+    renderPresent();
+
+    fireEvent.click(
+      screen.getByRole('button', { name: /Lehreransicht|Teacher view/i }),
+    );
+
+    // The two teacher-only toggles appear with the view they belong to.
+    expect(
+      screen.getByRole('button', { name: /Merkmale|Markers/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /^(Fotos|Photos)$/i }),
+    ).toBeInTheDocument();
+  });
+
+  it('keeps the contrast mode between visits', () => {
+    seatingState.current = {
+      currentSeating: [[student]],
+      classroomScene: {
+        tables: [{ x: 0, y: 0, width: 10, height: 10, seatCount: 2 }],
+        totalStudents: 1,
+      },
+      students: [student],
+      circleLayout: null,
+      activeClass: { id: 'class-1', name: '5a' },
+    };
+
+    const { unmount } = renderPresent();
+    const contrastButton = () =>
+      screen.getByRole('button', { name: /^(Kontrast|Contrast)$/i });
+
+    expect(contrastButton()).toHaveAttribute('aria-pressed', 'false');
+    fireEvent.click(contrastButton());
+    expect(contrastButton()).toHaveAttribute('aria-pressed', 'true');
+
+    unmount();
+    renderPresent();
+    expect(contrastButton()).toHaveAttribute('aria-pressed', 'true');
   });
 
   it('offers theme and language controls (the footer is hidden here)', () => {

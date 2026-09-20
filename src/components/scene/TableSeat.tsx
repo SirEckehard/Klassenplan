@@ -31,6 +31,8 @@ interface TableSeatProps {
   tableRotation?: number;
   allStudents?: Student[];
   isDark: boolean;
+  /** Beamer contrast mode: black on white, thicker contours, bolder names. */
+  contrast?: boolean;
   locked: boolean;
   isOriginSeat: boolean;
   isHoverSeat: boolean;
@@ -173,6 +175,7 @@ function TableSeat({
   tableRotation = 0,
   allStudents = [],
   isDark,
+  contrast = false,
   locked,
   isOriginSeat,
   isHoverSeat,
@@ -200,8 +203,8 @@ function TableSeat({
 }: TableSeatProps) {
   // Memoize appearance calculation - only recompute when dependencies change
   const appearance = React.useMemo(
-    () => getStudentAppearance(student, isDark, locked),
-    [student, isDark, locked],
+    () => getStudentAppearance(student, isDark, locked, contrast),
+    [student, isDark, locked, contrast],
   );
 
   // Memoize badge flags calculation
@@ -300,12 +303,22 @@ function TableSeat({
   // Empty (unoccupied, unlocked) seats read as "empty" purely via their subtle
   // neutral fill — no dashed outline or texture, so they stay visually calm and
   // don't clash with the table frame in step 3, the PDF export and presentation.
-  const seatStrokeWidth = showInteractiveSeatStroke ? 2 : locked ? 1 : 0.75;
-  const seatStrokeValue = showInteractiveSeatStroke
-    ? seatStrokeColor
-    : locked
-      ? seatStroke
-      : dividerStroke;
+  // On a wall a 0.75px hairline is not a line; the contrast mode draws the
+  // seat's own contour instead of the table's faint divider.
+  const seatStrokeWidth = contrast
+    ? 1.5
+    : showInteractiveSeatStroke
+      ? 2
+      : locked
+        ? 1
+        : 0.75;
+  const seatStrokeValue = contrast
+    ? seatStroke
+    : showInteractiveSeatStroke
+      ? seatStrokeColor
+      : locked
+        ? seatStroke
+        : dividerStroke;
   const effectiveSeatStrokeWidth = seatStrokeWidth;
   const effectiveSeatStrokeValue = seatStrokeValue;
   const seatTextOpacity = isOriginSeat ? 0.35 : 1;
@@ -488,7 +501,7 @@ function TableSeat({
               textAnchor="middle"
               dominantBaseline="central"
               fontSize={seatFontSize}
-              fontWeight="semibold"
+              fontWeight={contrast ? 700 : 'semibold'}
               transform={seatLabelTransform}
               fill={textColor}
               style={{
