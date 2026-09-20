@@ -17,7 +17,7 @@ export default function NotFound() {
     <main
       id="main"
       tabIndex={-1}
-      className="min-h-[80vh] bg-linear-to-b from-slate-50 via-white to-slate-100 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 px-4 py-12"
+      className="min-h-[80vh] bg-(--surface-page) px-4 py-12"
     >
       <Seo
         title={t('notFound.title')}
@@ -30,24 +30,22 @@ export default function NotFound() {
       <div className="mx-auto flex max-w-2xl flex-col items-center gap-10 text-center">
         <LocalizedLink
           to="/"
-          className="kp-lockup focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
+          className="kp-lockup focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:ring-offset-2"
           aria-label={t('notFound.home')}
         >
           <KpLockup size="md" />
         </LocalizedLink>
 
         <section
-          className={`${cardSurfaceClass} border border-blue-100/60 p-8 dark:border-blue-900/40`}
+          className={`${cardSurfaceClass} border border-(--border-card) p-8`}
         >
-          <p className="text-6xl font-bold text-blue-600 dark:text-blue-400">
+          <p className="text-6xl font-bold text-(--text-badge)">
             {t('notFound.code')}
           </p>
-          <h1 className="mt-4 text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
+          <h1 className="mt-4 text-2xl font-bold tracking-tight text-(--text-page)">
             {t('notFound.title')}
           </h1>
-          <p className="mt-3 text-gray-600 dark:text-gray-300">
-            {t('notFound.message')}
-          </p>
+          <p className="mt-3 text-(--text-muted)">{t('notFound.message')}</p>
           <LocalizedLink to="/" className={`${primaryButtonClass} mt-8`}>
             <HouseLineIcon aria-hidden="true" className="h-5 w-5" />
             {t('notFound.home')}

@@ -115,7 +115,7 @@ function PlanCard({ plan, onLoad, onDelete, onRename }: Props) {
                 <h3
                   role="heading"
                   aria-level={3}
-                  className="font-semibold text-gray-800 dark:text-gray-100 text-base leading-6 wrap-break-word"
+                  className="font-semibold text-(--text-page) text-base leading-6 wrap-break-word"
                 >
                   {plan.name}
                 </h3>
@@ -139,7 +139,7 @@ function PlanCard({ plan, onLoad, onDelete, onRename }: Props) {
               </div>
             )}
             {plan.date && (
-              <span className="shrink-0 inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 text-gray-700 text-xs border dark:bg-gray-700 dark:text-gray-200">
+              <span className="shrink-0 inline-flex items-center px-2 py-0.5 rounded-full bg-(--surface-sunken) text-(--text-muted) text-xs border">
                 {formatStoredDate(plan.date)}
               </span>
             )}
@@ -148,7 +148,7 @@ function PlanCard({ plan, onLoad, onDelete, onRename }: Props) {
           {/* Meta badges */}
           <div className="mt-2 flex flex-wrap items-center gap-2 text-xs min-h-7">
             {typeof countStudents(plan) === 'number' && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border bg-gray-50 text-gray-700 dark:bg-gray-700 dark:text-gray-200">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border bg-(--surface-sunken) text-(--text-muted)">
                 {t('planCard.studentsBadge', {
                   count: countStudents(plan),
                   defaultValue: `${countStudents(plan)} Schüler`,
@@ -157,7 +157,7 @@ function PlanCard({ plan, onLoad, onDelete, onRename }: Props) {
             )}
             {typeof tableCount(plan) === 'number' &&
               typeof seatsPerTable(plan) === 'number' && (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border bg-gray-50 text-gray-700 dark:bg-gray-700 dark:text-gray-200">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border bg-(--surface-sunken) text-(--text-muted)">
                   {t('planCard.tablesBadge', {
                     count: tableCount(plan),
                     defaultValue: `${tableCount(plan)} Tische`,

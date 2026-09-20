@@ -106,7 +106,7 @@ export default function QuizGame({
   // Defensive: with duplicate display names everywhere no question can be built.
   if (questions.length === 0) {
     return (
-      <div className="flex h-full flex-col items-center justify-center gap-4 px-4 text-center text-gray-600 dark:text-gray-300">
+      <div className="flex h-full flex-col items-center justify-center gap-4 px-4 text-center text-(--text-muted)">
         <p className="text-lg font-medium">
           {t(
             'nameGame.quiz.noQuestions',
@@ -150,7 +150,7 @@ export default function QuizGame({
 
   return (
     <div className="flex h-full flex-col items-center gap-4 overflow-y-auto px-4 py-6">
-      <div className="flex items-center gap-4 text-sm font-semibold text-gray-600 dark:text-gray-300">
+      <div className="flex items-center gap-4 text-sm font-semibold text-(--text-muted)">
         <span>
           {t('nameGame.quiz.progress', {
             current: index + 1,
@@ -158,7 +158,7 @@ export default function QuizGame({
             defaultValue: 'Frage {{current}} von {{total}}',
           })}
         </span>
-        <span className="text-green-600 dark:text-green-400">
+        <span className="text-(--button-success-bg)">
           {t('nameGame.quiz.score', {
             score: correctCount,
             defaultValue: '{{score}} richtig',
@@ -181,8 +181,8 @@ export default function QuizGame({
         aria-live="polite"
         className={`h-6 text-base font-semibold ${
           lastAnswer?.correct
-            ? 'text-green-600 dark:text-green-400'
-            : 'text-red-600 dark:text-red-400'
+            ? 'text-(--button-success-bg)'
+            : 'text-(--button-danger-bg)'
         }`}
       >
         {feedbackText}

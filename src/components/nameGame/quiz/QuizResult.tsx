@@ -37,10 +37,10 @@ export default function QuizResult({
 
   return (
     <div className="flex h-full flex-col items-center justify-center gap-6 overflow-y-auto px-4 py-8">
-      <h2 className="text-2xl font-bold text-gray-900">
+      <h2 className="text-2xl font-bold text-(--text-page)">
         {t('nameGame.quiz.result.title', 'Runde geschafft!')}
       </h2>
-      <p className="text-lg font-semibold text-orange-600 dark:text-orange-400">
+      <p className="text-lg font-semibold text-(--text-page)">
         {t('nameGame.quiz.result.score', {
           correct: correctCount,
           total: answers.length,
@@ -49,7 +49,7 @@ export default function QuizResult({
       </p>
 
       <ul
-        className={`${cardSurfaceClass} w-full max-w-md divide-y divide-gray-100 p-2 dark:divide-gray-800`}
+        className={`${cardSurfaceClass} w-full max-w-md divide-y divide-(--border-card) p-2`}
       >
         {answers.map((answer) => {
           const student = studentsById.get(answer.studentId);
@@ -66,20 +66,20 @@ export default function QuizResult({
                   alt=""
                 />
               </div>
-              <span className="flex-1 truncate font-medium text-gray-900">
+              <span className="flex-1 truncate font-medium text-(--text-page)">
                 {student.name}
               </span>
               {answer.correct ? (
                 <CheckIcon
                   size={20}
                   aria-label={t('nameGame.quiz.result.knew', 'Richtig')}
-                  className="text-green-600 dark:text-green-400"
+                  className="text-(--button-success-bg)"
                 />
               ) : (
                 <XIcon
                   size={20}
                   aria-label={t('nameGame.quiz.result.missed', 'Falsch')}
-                  className="text-red-600 dark:text-red-400"
+                  className="text-(--button-danger-bg)"
                 />
               )}
             </li>

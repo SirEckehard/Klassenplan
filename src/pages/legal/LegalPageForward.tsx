@@ -47,7 +47,7 @@ export default function LegalPageForward({ route }: { route: LegalPageRoute }) {
     <main
       id="main"
       tabIndex={-1}
-      className="min-h-[80vh] bg-linear-to-b from-slate-50 via-white to-slate-100 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 px-4 py-12"
+      className="min-h-[80vh] bg-(--surface-page) px-4 py-12"
     >
       <Seo
         {...metadata}
@@ -63,7 +63,7 @@ export default function LegalPageForward({ route }: { route: LegalPageRoute }) {
         <header className="text-center" role="banner" aria-label={t(bannerKey)}>
           <LocalizedLink
             to="/"
-            className="kp-lockup focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
+            className="kp-lockup focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:ring-offset-2"
             aria-label={t('header.homeLink')}
           >
             <KpLockup size="md" />
@@ -75,17 +75,17 @@ export default function LegalPageForward({ route }: { route: LegalPageRoute }) {
           aria-labelledby="legal-forward-title"
         >
           <div className="flex items-center gap-3">
-            <span className="flex h-12 w-12 items-center justify-center rounded-2xl border border-blue-100 bg-blue-50 text-blue-600 shadow-sm dark:border-blue-900/40 dark:bg-blue-500/20 dark:text-blue-200">
+            <span className="flex h-12 w-12 items-center justify-center rounded-2xl border border-(--border-card) bg-(--surface-option-selected) text-(--text-badge) shadow-sm/20">
               <Icon aria-hidden="true" className="h-6 w-6" />
             </span>
             <h2
               id="legal-forward-title"
-              className="text-xl font-bold tracking-tight text-gray-900 sm:text-3xl dark:text-gray-100"
+              className="text-xl font-bold tracking-tight text-(--text-page) sm:text-3xl"
             >
               {t(titleKey)}
             </h2>
           </div>
-          <p className="mt-6 leading-relaxed text-gray-700 dark:text-gray-200">
+          <p className="mt-6 leading-relaxed text-(--text-page)">
             {t('legal.forward.text')}
           </p>
           {externalUrl && (

@@ -17,7 +17,7 @@ export default function Impressum() {
     <main
       id="main"
       tabIndex={-1}
-      className="min-h-[80vh] bg-linear-to-b from-slate-50 via-white to-slate-100 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 px-4 py-12"
+      className="min-h-[80vh] bg-(--surface-page) px-4 py-12"
     >
       <Seo
         {...metadata}
@@ -46,7 +46,7 @@ export default function Impressum() {
         >
           <LocalizedLink
             to="/"
-            className="kp-lockup focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
+            className="kp-lockup focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:ring-offset-2"
             aria-label={t('header.homeLink')}
           >
             <KpLockup size="md" />
@@ -54,18 +54,18 @@ export default function Impressum() {
         </header>
 
         <section
-          className={`${cardSurfaceClass} border border-blue-100/60 p-5 sm:p-8 dark:border-blue-900/40`}
+          className={`${cardSurfaceClass} border border-(--border-card) p-5 sm:p-8`}
           aria-labelledby="impressum-title"
         >
           <div className="mb-8">
             {isEnglish && (
-              <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg text-sm text-blue-700 dark:text-blue-300">
+              <div className="mb-4 p-3 bg-(--surface-option-selected) border border-(--border-option-selected) rounded-lg text-sm text-(--text-badge)">
                 This Legal Notice (Impressum) is provided in German only, as
                 required by German law.
               </div>
             )}
             <div className="flex items-center gap-3">
-              <span className="flex h-12 w-12 items-center justify-center rounded-2xl border border-blue-100 bg-blue-50 text-blue-600 shadow-sm dark:border-blue-900/40 dark:bg-blue-500/20 dark:text-blue-200">
+              <span className="flex h-12 w-12 items-center justify-center rounded-2xl border border-(--border-card) bg-(--surface-option-selected) text-(--text-badge) shadow-sm/20">
                 <IdentificationCardIcon
                   aria-hidden="true"
                   className="h-6 w-6"
@@ -74,11 +74,11 @@ export default function Impressum() {
               <div>
                 <h2
                   id="impressum-title"
-                  className="text-xl font-bold tracking-tight text-gray-900 sm:text-3xl dark:text-gray-100"
+                  className="text-xl font-bold tracking-tight text-(--text-page) sm:text-3xl"
                 >
                   Impressum
                 </h2>
-                <p className="mt-1 text-sm text-gray-600 sm:text-base dark:text-gray-300">
+                <p className="mt-1 text-sm text-(--text-muted) sm:text-base">
                   Rechtliche Angaben gemäß § 5 TMG
                 </p>
               </div>
@@ -88,10 +88,10 @@ export default function Impressum() {
           <div className="space-y-8">
             {/* Anbieterkennzeichnung */}
             <div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+              <h3 className="text-xl font-semibold text-(--text-page)">
                 Anbieterkennzeichnung
               </h3>
-              <address className="mt-3 not-italic text-gray-700 dark:text-gray-200 leading-relaxed">
+              <address className="mt-3 not-italic text-(--text-page) leading-relaxed">
                 Eike Christian Schäfer
                 <br />
                 50679 Köln
@@ -102,14 +102,14 @@ export default function Impressum() {
 
             {/* Kontakt */}
             <div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+              <h3 className="text-xl font-semibold text-(--text-page)">
                 Kontakt
               </h3>
-              <ul className="mt-3 grid gap-2 text-gray-700 dark:text-gray-200">
+              <ul className="mt-3 grid gap-2 text-(--text-page)">
                 <li>
                   <span className="font-medium">E-Mail:</span>{' '}
                   <a
-                    className="font-semibold text-blue-600 hover:underline dark:text-blue-400"
+                    className="font-semibold text-(--text-badge) hover:underline"
                     href="mailto:webmaster@klassenplan.de"
                   >
                     webmaster@klassenplan.de
@@ -118,7 +118,7 @@ export default function Impressum() {
                 <li>
                   <span className="font-medium">Website:</span>{' '}
                   <a
-                    className="font-semibold text-blue-600 hover:underline dark:text-blue-400"
+                    className="font-semibold text-(--text-badge) hover:underline"
                     href="https://www.klassenplan.de"
                     target="_blank"
                     rel="noopener noreferrer"
@@ -131,10 +131,10 @@ export default function Impressum() {
 
             {/* Liability disclaimer */}
             <div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+              <h3 className="text-xl font-semibold text-(--text-page)">
                 Haftungsausschluss
               </h3>
-              <p className="mt-3 text-gray-700 dark:text-gray-200 leading-relaxed">
+              <p className="mt-3 text-(--text-page) leading-relaxed">
                 Die Inhalte dieser Website wurden mit größtmöglicher Sorgfalt
                 erstellt. Für die Richtigkeit, Vollständigkeit und Aktualität
                 der Inhalte übernehme ich jedoch keine Gewähr. Als
@@ -149,10 +149,10 @@ export default function Impressum() {
 
             {/* Urheberrecht */}
             <div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+              <h3 className="text-xl font-semibold text-(--text-page)">
                 Urheberrecht
               </h3>
-              <p className="mt-3 text-gray-700 dark:text-gray-200 leading-relaxed">
+              <p className="mt-3 text-(--text-page) leading-relaxed">
                 Die redaktionellen Inhalte dieser Website (Texte, Bilder,
                 Grafiken) sowie die Marke „Klassenplan“ (Wort- und Bildmarke)
                 unterliegen dem deutschen Urheberrecht. Ihre Vervielfältigung,
@@ -160,14 +160,14 @@ export default function Impressum() {
                 der Grenzen des Urheberrechts bedürfen der schriftlichen
                 Zustimmung des jeweiligen Autors bzw. Erstellers.
               </p>
-              <p className="mt-3 text-gray-700 dark:text-gray-200 leading-relaxed">
+              <p className="mt-3 text-(--text-page) leading-relaxed">
                 Der <strong>Quellcode</strong> von Klassenplan ist hingegen
                 freie Software und steht unter der GNU Affero General Public
                 License v3.0 (AGPL-3.0-or-later). Er darf gemäß den Bedingungen
                 dieser Lizenz frei genutzt, verändert und weiterverbreitet
                 werden. Der vollständige Quelltext ist auf{' '}
                 <a
-                  className="font-semibold text-blue-600 hover:underline dark:text-blue-400"
+                  className="font-semibold text-(--text-badge) hover:underline"
                   href={GITHUB_REPO_URL}
                   target="_blank"
                   rel="noopener noreferrer"

@@ -82,14 +82,14 @@ const ThemeToggle: React.FC = () => {
     <button
       type="button"
       onClick={toggleTheme}
-      className="group p-1.5 rounded hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors cursor-pointer"
+      className="group p-1.5 rounded hover:bg-(--surface-option-selected) transition-colors cursor-pointer"
       aria-label={t('theme.toggle')}
       title={t('theme.toggle')}
     >
       {isDark ? (
-        <SunIcon className="h-4 w-4 text-blue-600 dark:text-blue-400 group-hover:text-amber-500 dark:group-hover:text-amber-400 transition-colors" />
+        <SunIcon className="h-4 w-4 text-(--text-badge) group-hover:text-(--text-page) transition-colors" />
       ) : (
-        <MoonIcon className="h-4 w-4 text-blue-600 dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors" />
+        <MoonIcon className="h-4 w-4 text-(--text-badge) group-hover:text-(--text-badge) transition-colors" />
       )}
     </button>
   );

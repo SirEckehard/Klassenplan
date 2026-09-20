@@ -17,7 +17,7 @@ export default function Datenschutz() {
     <main
       id="main"
       tabIndex={-1}
-      className="min-h-[80vh] bg-linear-to-b from-slate-50 via-white to-slate-100 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 px-4 py-12"
+      className="min-h-[80vh] bg-(--surface-page) px-4 py-12"
     >
       <Seo
         {...metadata}
@@ -36,7 +36,7 @@ export default function Datenschutz() {
         >
           <LocalizedLink
             to="/"
-            className="kp-lockup focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
+            className="kp-lockup focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:ring-offset-2"
             aria-label={t('header.homeLink')}
           >
             <KpLockup size="md" />
@@ -44,28 +44,28 @@ export default function Datenschutz() {
         </header>
 
         <section
-          className={`${cardSurfaceClass} border border-blue-100/60 p-5 sm:p-8 dark:border-blue-900/40`}
+          className={`${cardSurfaceClass} border border-(--border-card) p-5 sm:p-8`}
           aria-labelledby="datenschutz-title"
         >
           <div className="mb-8">
             {isEnglish && (
-              <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg text-sm text-blue-700 dark:text-blue-300">
+              <div className="mb-4 p-3 bg-(--surface-option-selected) border border-(--border-option-selected) rounded-lg text-sm text-(--text-badge)">
                 This Privacy Policy is provided in German only, as required by
                 German law.
               </div>
             )}
             <div className="flex items-center gap-3">
-              <span className="flex h-12 w-12 items-center justify-center rounded-2xl border border-blue-100 bg-blue-50 text-blue-600 shadow-sm dark:border-blue-900/40 dark:bg-blue-500/20 dark:text-blue-200">
+              <span className="flex h-12 w-12 items-center justify-center rounded-2xl border border-(--border-card) bg-(--surface-option-selected) text-(--text-badge) shadow-sm/20">
                 <ShieldCheckIcon aria-hidden="true" className="h-6 w-6" />
               </span>
               <div>
                 <h2
                   id="datenschutz-title"
-                  className="text-xl font-bold tracking-tight text-gray-900 sm:text-3xl dark:text-gray-100"
+                  className="text-xl font-bold tracking-tight text-(--text-page) sm:text-3xl"
                 >
                   Datenschutzerklärung
                 </h2>
-                <p className="mt-1 text-sm text-gray-600 sm:text-base dark:text-gray-300">
+                <p className="mt-1 text-sm text-(--text-muted) sm:text-base">
                   Informationen nach Art. 13, 14 DSGVO
                 </p>
               </div>
@@ -75,10 +75,10 @@ export default function Datenschutz() {
           <div className="space-y-8">
             {/* Data controller */}
             <div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+              <h3 className="text-xl font-semibold text-(--text-page)">
                 1. Verantwortlicher
               </h3>
-              <address className="mt-3 not-italic text-gray-700 dark:text-gray-200 leading-relaxed">
+              <address className="mt-3 not-italic text-(--text-page) leading-relaxed">
                 Eike Christian Schäfer
                 <br />
                 50679 Köln
@@ -87,7 +87,7 @@ export default function Datenschutz() {
                 <br />
                 E-Mail:{' '}
                 <a
-                  className="font-semibold text-blue-600 hover:underline dark:text-blue-400"
+                  className="font-semibold text-(--text-badge) hover:underline"
                   href="mailto:webmaster@klassenplan.de"
                 >
                   webmaster@klassenplan.de
@@ -97,10 +97,10 @@ export default function Datenschutz() {
 
             {/* Collection and storage of personal data */}
             <div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+              <h3 className="text-xl font-semibold text-(--text-page)">
                 2. Erfassung und Speicherung personenbezogener Daten
               </h3>
-              <div className="mt-3 space-y-3 text-gray-700 dark:text-gray-200 leading-relaxed">
+              <div className="mt-3 space-y-3 text-(--text-page) leading-relaxed">
                 <p>
                   Die Website wird bei Hetzner Online GmbH, Industriestr. 25,
                   91710 Gunzenhausen, Deutschland (&bdquo;Hetzner&ldquo;)
@@ -113,7 +113,7 @@ export default function Datenschutz() {
                   Hosting-Server sogenannte Server-Logfiles erhoben. Diese
                   können folgende Daten enthalten:
                 </p>
-                <ul className="list-disc pl-5 space-y-1 text-gray-700 dark:text-gray-300">
+                <ul className="list-disc pl-5 space-y-1 text-(--text-muted)">
                   <li>IP-Adresse des anfragenden Geräts</li>
                   <li>Datum und Uhrzeit des Zugriffs</li>
                   <li>Adresse der abgerufenen Seite (URL)</li>
@@ -150,7 +150,7 @@ export default function Datenschutz() {
                     href="https://www.hetzner.com/de/legal/privacy-policy/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="font-semibold text-blue-600 hover:underline dark:text-blue-300"
+                    className="font-semibold text-(--text-badge) hover:underline"
                   >
                     https://www.hetzner.com/de/legal/privacy-policy/
                   </a>
@@ -165,10 +165,10 @@ export default function Datenschutz() {
 
             {/* Data usage */}
             <div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+              <h3 className="text-xl font-semibold text-(--text-page)">
                 3. Verwendung der Daten
               </h3>
-              <p className="mt-3 text-gray-700 dark:text-gray-200 leading-relaxed">
+              <p className="mt-3 text-(--text-page) leading-relaxed">
                 Die mitgeteilten Daten werden ausschließlich zur Bearbeitung
                 deiner Anfragen sowie zur Verbesserung des Angebots genutzt.
               </p>
@@ -176,20 +176,20 @@ export default function Datenschutz() {
 
             {/* Disclosure to third parties */}
             <div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+              <h3 className="text-xl font-semibold text-(--text-page)">
                 4. Weitergabe an Dritte
               </h3>
-              <p className="mt-3 text-gray-700 dark:text-gray-200 leading-relaxed">
+              <p className="mt-3 text-(--text-page) leading-relaxed">
                 Die Daten werden nicht an Dritte weitergegeben.
               </p>
             </div>
 
             {/* Data storage and deletion */}
             <div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+              <h3 className="text-xl font-semibold text-(--text-page)">
                 5. Speicherung und Löschung deiner Daten
               </h3>
-              <div className="mt-3 space-y-3 text-gray-700 dark:text-gray-200 leading-relaxed">
+              <div className="mt-3 space-y-3 text-(--text-page) leading-relaxed">
                 <p>
                   Alle erstellten Informationen werden ausschließlich lokal im
                   Browser gespeichert (localStorage und IndexedDB). Es werden
@@ -237,10 +237,10 @@ export default function Datenschutz() {
 
             {/* Rechte der Nutzer */}
             <div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+              <h3 className="text-xl font-semibold text-(--text-page)">
                 6. Rechte der Nutzer
               </h3>
-              <p className="mt-3 text-gray-700 dark:text-gray-200 leading-relaxed">
+              <p className="mt-3 text-(--text-page) leading-relaxed">
                 Der Nutzer hat das Recht, unentgeltlich Auskunft über die
                 gespeicherten personenbezogenen Daten zu erhalten. Außerdem hat
                 er das Recht auf Berichtigung, Löschung, Einschränkung der
@@ -250,10 +250,10 @@ export default function Datenschutz() {
 
             {/* Änderungen */}
             <div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+              <h3 className="text-xl font-semibold text-(--text-page)">
                 7. Änderungen der Datenschutzerklärung
               </h3>
-              <p className="mt-3 text-gray-700 dark:text-gray-200 leading-relaxed">
+              <p className="mt-3 text-(--text-page) leading-relaxed">
                 Die Datenschutzerklärung darf bei Bedarf aktualisiert werden, um
                 sie an geänderte rechtliche oder technische Rahmenbedingungen
                 anzupassen.

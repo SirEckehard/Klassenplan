@@ -10,29 +10,29 @@ function RootErrorFallback({ error }: { error: Error }) {
     i18n.t(key, { ns: 'common', defaultValue: fallback });
 
   return (
-    <div className="flex min-h-screen items-start justify-center bg-white px-4 py-16 dark:bg-gray-950">
-      <div className="w-full max-w-lg rounded-2xl border border-red-200 bg-red-50 p-8 shadow-lg dark:border-red-800 dark:bg-red-950/40">
-        <h1 className="text-xl font-bold text-red-900 dark:text-red-100">
+    <div className="flex min-h-screen items-start justify-center bg-(--surface-card) px-4 py-16">
+      <div className="w-full max-w-lg rounded-2xl border border-(--button-danger-bg) bg-(--button-icon-danger-bg) p-8 shadow-lg">
+        <h1 className="text-xl font-bold text-(--text-page)">
           {t('errors.generic', 'Ein Fehler ist aufgetreten')}
         </h1>
-        <p className="mt-2 text-sm text-red-700 dark:text-red-300">
+        <p className="mt-2 text-sm text-(--button-danger-bg)">
           {t('errors.tryAgain', 'Bitte versuche es erneut')}
         </p>
         <div className="mt-6 flex flex-wrap gap-3">
           <button
             type="button"
             onClick={() => window.location.reload()}
-            className="rounded-xl bg-red-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-red-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+            className="rounded-xl bg-(--button-danger-bg) px-5 py-2.5 text-sm font-semibold text-(--button-danger-text) shadow-sm transition hover:bg-(--button-danger-bg-hover) focus:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-danger)"
           >
             {t('common.reloadPage', 'Seite neu laden')}
           </button>
         </div>
         <ErrorReportLink error={error} area="App" tone="red" />
-        <details className="mt-6 text-xs text-red-600 dark:text-red-400">
+        <details className="mt-6 text-xs text-(--button-danger-bg)">
           <summary className="cursor-pointer font-medium select-none">
             {t('common.errorDetails', 'Fehlerdetails')}
           </summary>
-          <pre className="mt-2 whitespace-pre-wrap wrap-break-word rounded-lg bg-white/70 p-3 text-[11px] leading-relaxed dark:bg-gray-900/60">
+          <pre className="mt-2 whitespace-pre-wrap wrap-break-word rounded-lg bg-(--surface-card) p-3 text-[11px] leading-relaxed">
             {error.message}
           </pre>
         </details>

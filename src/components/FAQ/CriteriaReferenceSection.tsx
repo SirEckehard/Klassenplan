@@ -184,9 +184,7 @@ export default function CriteriaReferenceSection() {
   return (
     <div className="space-y-6">
       {/* Introduction */}
-      <p className="text-gray-700 dark:text-gray-300">
-        {t('faq.eigenschaften.intro')}
-      </p>
+      <p className="text-(--text-muted)">{t('faq.eigenschaften.intro')}</p>
 
       {/* TableIcon */}
       <div className="overflow-x-auto">
@@ -194,17 +192,17 @@ export default function CriteriaReferenceSection() {
           className={`${cardSurfaceClass} w-full border-collapse border text-sm`}
         >
           <thead>
-            <tr className="bg-blue-50 dark:bg-blue-900/30">
-              <th className="border border-gray-200 dark:border-gray-700 px-4 py-3 text-left font-semibold text-gray-800 dark:text-gray-200">
+            <tr className="bg-(--surface-option-selected)">
+              <th className="border border-(--border-card) px-4 py-3 text-left font-semibold text-(--text-page)">
                 {t('faq.eigenschaften.tableHeaders.property', 'Eigenschaft')}
               </th>
-              <th className="border border-gray-200 dark:border-gray-700 px-4 py-3 text-left font-semibold text-gray-800 dark:text-gray-200">
+              <th className="border border-(--border-card) px-4 py-3 text-left font-semibold text-(--text-page)">
                 {t(
                   'faq.eigenschaften.tableHeaders.description',
                   'Beschreibung',
                 )}
               </th>
-              <th className="border border-gray-200 dark:border-gray-700 px-4 py-3 text-left font-semibold text-gray-800 dark:text-gray-200">
+              <th className="border border-(--border-card) px-4 py-3 text-left font-semibold text-(--text-page)">
                 {t(
                   'faq.eigenschaften.tableHeaders.algorithm',
                   'Algorithmus-Auswirkung',
@@ -216,12 +214,12 @@ export default function CriteriaReferenceSection() {
             {categories.map((category) => (
               <React.Fragment key={category.id}>
                 {/* Category Header Row */}
-                <tr className="bg-gray-100 dark:bg-gray-800">
+                <tr className="bg-(--surface-sunken)">
                   <td
                     colSpan={3}
-                    className="border border-gray-200 dark:border-gray-700 px-4 py-2"
+                    className="border border-(--border-card) px-4 py-2"
                   >
-                    <span className="font-semibold text-blue-600 dark:text-blue-300">
+                    <span className="font-semibold text-(--text-badge)">
                       {t(category.labelKey)}
                     </span>
                   </td>
@@ -230,22 +228,22 @@ export default function CriteriaReferenceSection() {
                 {category.properties.map((prop) => (
                   <tr
                     key={prop.key}
-                    className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+                    className="hover:bg-(--surface-sunken) transition-colors"
                   >
-                    <td className="border border-gray-200 dark:border-gray-700 px-4 py-3">
+                    <td className="border border-(--border-card) px-4 py-3">
                       <div className="flex items-center gap-2">
-                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300">
+                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-(--surface-option-selected) text-(--text-badge)">
                           <prop.icon size={14} aria-hidden="true" />
                         </span>
-                        <span className="font-medium text-gray-900">
+                        <span className="font-medium text-(--text-page)">
                           {t(prop.labelKey)}
                         </span>
                       </div>
                     </td>
-                    <td className="border border-gray-200 dark:border-gray-700 px-4 py-3 text-gray-600 dark:text-gray-400">
+                    <td className="border border-(--border-card) px-4 py-3 text-(--text-muted)">
                       {t(prop.descriptionKey)}
                     </td>
-                    <td className="border border-gray-200 dark:border-gray-700 px-4 py-3 text-blue-600 dark:text-blue-300">
+                    <td className="border border-(--border-card) px-4 py-3 text-(--text-badge)">
                       {t(prop.algorithmKey)}
                     </td>
                   </tr>

@@ -38,7 +38,7 @@ it for Antigravity — edit this file, never those two.
 - ✅ Test Infrastructure: Centralized accessibility helpers and toast matchers for robust testing
 - ✅ Architecture: Repository Pattern implemented, UI components reorganized into logical subdirectories
 - ✅ i18n: Bilingual support (German/English) fully implemented, DE/EN key parity 1:1 (2015 keys per language)
-- 📦 Bundle: initial payload 203 KB brotli / 756 KB raw over 34 preloaded files, largest chunk 61 KB brotli, CSS 18 KB brotli
+- 📦 Bundle: initial payload 203 KB brotli / 756 KB raw over 34 preloaded files, largest chunk 60 KB brotli, CSS 17 KB brotli
 
 ## Logging
 
@@ -429,8 +429,11 @@ icon foreground, contrast-checked at 4.5:1) and `--data-<name>-surface` (chip
 background).
 
 Never reach for a raw Tailwind palette class (`bg-amber-500`, `text-green-600`)
-in a component — take the token. The workspace is clean of them apart from
-`GenderSelector`, whose gender palette moves with the seat colours; the public
-pages (start page, FAQ, legal, name game) are the remaining ~270 call sites. Dark mode is handled inside the token, so no
+in a component — take the token. `src/` is clean of them but for four
+deliberate exceptions: the three window dots in `HeroMockup` (a picture of a
+browser, not this app's palette) and the orange step counter in
+`OnboardingTour`, which the design system reserves for step labels. A `dark:`
+variant is a sign the colour is not a token yet — there are no
+palette-based ones left. Dark mode is handled inside the token, so no
 `dark:` variant is needed when a token is used; hand-written colour utilities
 still need one and should be replaced instead.

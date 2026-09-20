@@ -26,13 +26,13 @@ export default function ModeSelect({
   return (
     <div className="flex h-full flex-col items-center justify-center gap-8 overflow-y-auto px-4 py-8">
       <div className="text-center">
-        <p className="text-lg text-gray-600 dark:text-gray-300">
+        <p className="text-lg text-(--text-muted)">
           {t(
             'nameGame.menu.subtitle',
             'Lerne die Namen deiner Schüler – mit ihren Fotos.',
           )}
         </p>
-        <p className="mt-2 text-sm font-semibold text-orange-600 dark:text-orange-400">
+        <p className="mt-2 text-sm font-semibold text-(--text-page)">
           {t('nameGame.menu.progress', {
             known: knownCount,
             total: playableCount,
@@ -46,12 +46,12 @@ export default function ModeSelect({
           <ImagesIcon
             size={48}
             aria-hidden
-            className="text-blue-600 transition group-hover:scale-110 motion-reduce:transition-none dark:text-blue-400"
+            className="text-(--text-badge) transition group-hover:scale-110 motion-reduce:transition-none"
           />
-          <span className="text-xl font-bold text-gray-900">
+          <span className="text-xl font-bold text-(--text-page)">
             {t('nameGame.menu.quizTitle', 'Foto-Quiz')}
           </span>
-          <span className="text-sm text-gray-600 dark:text-gray-300">
+          <span className="text-sm text-(--text-muted)">
             {t(
               'nameGame.menu.quizDescription',
               'Sieh ein Foto und wähle den richtigen Namen – oder finde das passende Foto zum Namen.',
@@ -67,12 +67,12 @@ export default function ModeSelect({
           <CardsIcon
             size={48}
             aria-hidden
-            className="text-blue-600 transition group-hover:scale-110 motion-reduce:transition-none dark:text-blue-400"
+            className="text-(--text-badge) transition group-hover:scale-110 motion-reduce:transition-none"
           />
-          <span className="text-xl font-bold text-gray-900">
+          <span className="text-xl font-bold text-(--text-page)">
             {t('nameGame.menu.memoryTitle', 'Memory')}
           </span>
-          <span className="text-sm text-gray-600 dark:text-gray-300">
+          <span className="text-sm text-(--text-muted)">
             {t(
               'nameGame.menu.memoryDescription',
               'Finde die Paare aus Foto und Name.',
@@ -81,7 +81,7 @@ export default function ModeSelect({
         </button>
       </div>
 
-      <p className="text-sm text-gray-500 dark:text-gray-400">
+      <p className="text-sm text-(--text-muted)">
         {t('nameGame.menu.studentsWithPhoto', {
           count: playableCount,
           defaultValue: '{{count}} Schüler mit Foto',

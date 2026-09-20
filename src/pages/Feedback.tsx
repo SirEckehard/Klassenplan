@@ -19,7 +19,7 @@ export default function Feedback() {
     <main
       id="main"
       tabIndex={-1}
-      className="min-h-[80vh] bg-linear-to-b from-slate-50 via-white to-slate-100 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 px-4 py-12"
+      className="min-h-[80vh] bg-(--surface-page) px-4 py-12"
     >
       <Seo
         {...metadata}
@@ -43,7 +43,7 @@ export default function Feedback() {
         >
           <LocalizedLink
             to="/"
-            className="kp-lockup focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
+            className="kp-lockup focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:ring-offset-2"
             aria-label={t('header.homeLink')}
           >
             <KpLockup size="md" />
@@ -56,7 +56,7 @@ export default function Feedback() {
         >
           <div className="flex flex-col gap-6">
             <div className="flex items-center gap-3">
-              <span className="flex h-12 w-12 items-center justify-center rounded-2xl border border-blue-100 bg-blue-50 text-blue-600 shadow-sm dark:border-blue-900/40 dark:bg-blue-500/20 dark:text-blue-200">
+              <span className="flex h-12 w-12 items-center justify-center rounded-2xl border border-(--border-card) bg-(--surface-option-selected) text-(--text-badge) shadow-sm/20">
                 <MailboxIcon aria-hidden="true" className="h-6 w-6" />
               </span>
               <h2
@@ -67,7 +67,7 @@ export default function Feedback() {
               </h2>
             </div>
 
-            <div className="text-center space-y-4 text-gray-700 dark:text-gray-300">
+            <div className="text-center space-y-4 text-(--text-muted)">
               <p>{t('feedback.description')}</p>
               <a
                 className={`${primaryButtonClass} px-5 py-2 text-base font-semibold`}
@@ -78,13 +78,13 @@ export default function Feedback() {
             </div>
 
             <div
-              className={`${cardSurfaceClass} border px-4 py-4 text-sm text-gray-600 dark:text-gray-300`}
+              className={`${cardSurfaceClass} border px-4 py-4 text-sm text-(--text-muted)`}
             >
               <p>{t('feedback.bugNote')}</p>
             </div>
 
             <div
-              className={`${cardSurfaceClass} border px-4 py-4 text-sm text-gray-600 dark:text-gray-300`}
+              className={`${cardSurfaceClass} border px-4 py-4 text-sm text-(--text-muted)`}
             >
               <p className="flex items-center gap-2">
                 <GithubLogoIcon
@@ -97,7 +97,7 @@ export default function Feedback() {
                     href={GITHUB_REPO_URL}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="font-medium text-blue-600 underline hover:text-blue-700 dark:text-blue-300 dark:hover:text-blue-200"
+                    className="font-medium text-(--text-badge) underline hover:text-(--text-badge)"
                   >
                     {t('feedback.githubLink')}
                   </a>

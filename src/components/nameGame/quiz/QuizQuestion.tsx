@@ -26,15 +26,15 @@ function optionStateClass(
   targetId: string,
 ): string {
   if (picked === null) {
-    return 'border-gray-200 bg-white hover:border-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:hover:border-blue-400';
+    return 'border-(--border-card) bg-(--surface-card) hover:border-(--border-option-selected)';
   }
   if (optionId === targetId) {
-    return 'border-green-600 bg-green-50 ring-2 ring-green-600 dark:border-green-500 dark:bg-green-950 dark:ring-green-500';
+    return 'border-(--button-success-bg) bg-(--surface-sunken) ring-2 ring-(--focus-ring-success)';
   }
   if (optionId === picked) {
-    return 'border-red-600 bg-red-50 ring-2 ring-red-600 dark:border-red-500 dark:bg-red-950 dark:ring-red-500';
+    return 'border-(--button-danger-bg) bg-(--button-icon-danger-bg) ring-2 ring-(--focus-ring-danger)';
   }
-  return 'border-gray-200 bg-white opacity-50 dark:border-gray-700 dark:bg-gray-900';
+  return 'border-(--border-card) bg-(--surface-card) opacity-50';
 }
 
 /** One quiz question: photo→name (name buttons) or name→photo (photo grid). */
@@ -59,7 +59,7 @@ export default function QuizQuestion({
             alt={t('nameGame.quiz.photoAlt', 'Schülerfoto')}
           />
         </div>
-        <p className="text-xl font-semibold text-gray-900">
+        <p className="text-xl font-semibold text-(--text-page)">
           {t('nameGame.quiz.photoToName', 'Wie heißt dieser Schüler?')}
         </p>
         <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
@@ -72,7 +72,7 @@ export default function QuizQuestion({
                 type="button"
                 disabled={picked !== null}
                 onClick={() => onPick(optionId)}
-                className={`cursor-pointer rounded-xl border-2 px-4 py-3 text-lg font-semibold text-gray-900 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) motion-reduce:transition-none disabled:cursor-not-allowed ${optionStateClass(optionId, picked, question.targetId)}`}
+                className={`cursor-pointer rounded-xl border-2 px-4 py-3 text-lg font-semibold text-(--text-page) transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) motion-reduce:transition-none disabled:cursor-not-allowed ${optionStateClass(optionId, picked, question.targetId)}`}
               >
                 {option.name}
               </button>
@@ -85,7 +85,7 @@ export default function QuizQuestion({
 
   return (
     <div className="flex w-full max-w-lg flex-col items-center gap-6">
-      <p className="text-center text-xl font-semibold text-gray-900">
+      <p className="text-center text-xl font-semibold text-(--text-page)">
         {t('nameGame.quiz.nameToPhoto', {
           name: target.name,
           defaultValue: 'Welches Foto gehört zu {{name}}?',

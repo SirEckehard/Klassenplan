@@ -182,7 +182,7 @@ export default function PartnerSelector({
             >
               <span className="flex items-center gap-2">
                 {isSelected && (
-                  <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-pink-100 text-pink-700 text-[10px] font-semibold">
+                  <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-(--data-social-surface) text-(--data-social-text) text-[10px] font-semibold">
                     {priorityIdx + 1}
                   </span>
                 )}
@@ -260,7 +260,7 @@ export default function PartnerSelector({
         {variant === 'compact' ? (
           <>
             {hasPartners && wishPartnerIds.length >= 2 && (
-              <span className="absolute -top-0.5 -right-0.5 min-w-3 h-3 flex items-center justify-center rounded-full bg-pink-500/80 text-white text-[9px] font-medium">
+              <span className="absolute -top-0.5 -right-0.5 min-w-3 h-3 flex items-center justify-center rounded-full bg-(--data-social) text-white text-[9px] font-medium">
                 {wishPartnerIds.length}
               </span>
             )}

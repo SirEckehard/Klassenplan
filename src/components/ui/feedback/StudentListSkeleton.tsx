@@ -26,7 +26,7 @@ export default function StudentListSkeleton() {
         {Array.from({ length: 8 }).map((_, index) => (
           <div
             key={index}
-            className="flex items-center gap-4 rounded-lg bg-slate-50/50 p-3"
+            className="flex items-center gap-4 rounded-lg bg-(--surface-sunken) p-3"
           >
             <SkeletonCircle size="2rem" />
             <SkeletonLine width="40%" />

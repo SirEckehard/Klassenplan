@@ -99,7 +99,7 @@ function TablePreview({
             cx={cx}
             cy={cy}
             r={radius}
-            className="fill-gray-600 dark:fill-gray-300"
+            className="fill-(--text-muted)"
           />
         );
       });
@@ -135,7 +135,7 @@ function TablePreview({
           y={offsetY}
           width={tableWidth}
           height={tableHeight}
-          className="fill-white dark:fill-slate-900 stroke-blue-600 dark:stroke-blue-700"
+          className="fill-(--surface-card) stroke-(--border-option-selected)"
           strokeWidth={2}
           rx={4}
         />
@@ -165,7 +165,7 @@ function TablePreview({
         y={15}
         width={tableWidth}
         height={tableHeight}
-        className="fill-white dark:fill-slate-900 stroke-blue-600 dark:stroke-blue-700"
+        className="fill-(--surface-card) stroke-(--border-option-selected)"
         strokeWidth={2}
       />
       {seats}

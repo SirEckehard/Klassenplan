@@ -47,9 +47,9 @@ export default function MemoryCard({
 
   const surface = faceUp
     ? matched
-      ? 'border-green-600 opacity-70 dark:border-green-500'
-      : 'border-blue-500 dark:border-blue-400'
-    : 'border-gray-200 bg-blue-50 hover:border-(--border-option-selected) dark:border-gray-700 dark:bg-blue-950 dark:hover:border-blue-500';
+      ? 'border-(--button-success-bg) opacity-70'
+      : 'border-(--border-option-selected)'
+    : 'border-(--border-card) bg-(--surface-option-selected) hover:border-(--border-option-selected)';
 
   return (
     <button
@@ -58,13 +58,13 @@ export default function MemoryCard({
       disabled={disabled || matched || faceUp}
       aria-label={label}
       aria-pressed={faceUp}
-      className={`aspect-square cursor-pointer overflow-hidden rounded-xl border-2 bg-white transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) motion-reduce:transition-none disabled:cursor-not-allowed dark:bg-gray-900 ${surface}`}
+      className={`aspect-square cursor-pointer overflow-hidden rounded-xl border-2 bg-(--surface-card) transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) motion-reduce:transition-none disabled:cursor-not-allowed ${surface}`}
     >
       {faceUp ? (
         card.face === 'photo' ? (
           <PhotoCard student={student} photoUrl={photoUrl} alt="" />
         ) : (
-          <span className="flex h-full w-full items-center justify-center px-1 text-center text-sm font-semibold leading-tight text-gray-900 sm:text-base">
+          <span className="flex h-full w-full items-center justify-center px-1 text-center text-sm font-semibold leading-tight text-(--text-page) sm:text-base">
             {student.name}
           </span>
         )

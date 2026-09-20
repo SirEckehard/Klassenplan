@@ -167,10 +167,7 @@ They are drawn like a floor plan: a barely tinted fill carrying a strong ink con
 
 These are deliberately _not_ the `--data-*` families: a window is furniture, not a pedagogical fact.
 
-Drag indicators use:
-
-- Table templates: blue (`bg-blue-600` / `dark:bg-blue-500`)
-- Room features: amber (`bg-amber-500` / `dark:bg-amber-400`)
+Drag indicators use `--button-primary-bg` for a table template and `--text-muted` for a room feature.
 
 Every layer's toolbar is a `ToolRail` (`src/components/shell/ToolRail.tsx`) inside `SmartSidebar`. An entry adds layout classes only; its two densities — the 208px labelled column and the 60px icon rail — come from the rail, so a new tool cannot invent a look of its own. An entry is a row, not a card: 36px tall, `rounded-lg`, paper on hover (`--surface-sunken`) and `--surface-option-selected` when it is the view on screen, with the icon taking `--text-badge` so the state has a second channel.
 

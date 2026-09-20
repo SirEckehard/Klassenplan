@@ -1026,7 +1026,7 @@ export default function Export() {
     <main
       id="main"
       tabIndex={-1}
-      className="min-h-[80vh] bg-linear-to-b from-slate-50 via-white to-slate-100 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 px-4 py-12"
+      className="min-h-[80vh] bg-(--surface-page) px-4 py-12"
     >
       <Seo
         {...metadata}
@@ -1036,13 +1036,13 @@ export default function Export() {
           description: metadata.description,
         }}
       />
-      <div className="mx-auto max-w-7xl dark:text-gray-100">
+      <div className="mx-auto max-w-7xl">
         <header className="mb-8 flex flex-row items-center justify-between gap-4">
           {/* Left side - Logo + Branding */}
           <h1 className="flex items-center shrink-0">
             <LocalizedLink
               to="/"
-              className="kp-lockup focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
+              className="kp-lockup focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:ring-offset-2"
             >
               <KpLockup size="sm" hideWordmarkOnMobile />
             </LocalizedLink>
@@ -1067,7 +1067,7 @@ export default function Export() {
               title={t('help.export.title', 'Export')}
               instructions={
                 <div className="space-y-3">
-                  <ul className="list-disc list-inside space-y-1 text-sm text-gray-700 dark:text-gray-300">
+                  <ul className="list-disc list-inside space-y-1 text-sm text-(--text-muted)">
                     <li>
                       {t(
                         'help.export.item1',
@@ -1109,7 +1109,7 @@ export default function Export() {
         {/* Main content area with Sidebar and Canvas; empty state when no
             seating plan exists yet */}
         {!hasPlan ? (
-          <div className="flex min-h-96 flex-col items-center justify-center gap-4 text-center text-gray-600 dark:text-gray-300">
+          <div className="flex min-h-96 flex-col items-center justify-center gap-4 text-center text-(--text-muted)">
             <p className="text-lg font-medium">
               {t('export.empty', 'Noch kein Sitzplan zum Exportieren.')}
             </p>
@@ -1154,7 +1154,7 @@ export default function Export() {
                 style={previewFrameStyles}
               >
                 <div className="pointer-events-none absolute left-3 top-3 sm:left-4 sm:top-4">
-                  <span className="inline-flex items-center rounded-full border border-white/50 bg-gray-900/70 px-2.5 py-1 text-xs font-medium uppercase tracking-wide text-white shadow-sm backdrop-blur-sm">
+                  <span className="inline-flex items-center rounded-full border border-white/50 bg-(--text-page)/70 px-2.5 py-1 text-xs font-medium uppercase tracking-wide text-white shadow-sm backdrop-blur-sm">
                     {t('export.preview', 'Vorschau')}
                   </span>
                 </div>
@@ -1178,23 +1178,23 @@ export default function Export() {
                   title={t('export.preview', 'Vorschau')}
                 />
                 {isGenerating && (
-                  <div className="absolute inset-0 flex items-center justify-center rounded-[inherit] bg-white/50 backdrop-blur-sm dark:bg-gray-900/50">
-                    <div className="flex flex-col items-center gap-3 rounded-xl bg-white/90 p-5 shadow-lg dark:bg-gray-800/90">
+                  <div className="absolute inset-0 flex items-center justify-center rounded-[inherit] bg-white/50 backdrop-blur-sm">
+                    <div className="flex flex-col items-center gap-3 rounded-xl bg-(--surface-card) p-5 shadow-lg">
                       <div className="flex gap-1.5">
                         <div
-                          className="h-3 w-3 rounded-full bg-blue-600 animate-pulse"
+                          className="h-3 w-3 rounded-full bg-(--button-primary-bg) animate-pulse"
                           style={{ animationDelay: '0ms' }}
                         />
                         <div
-                          className="h-3 w-3 rounded-full bg-blue-600 animate-pulse"
+                          className="h-3 w-3 rounded-full bg-(--button-primary-bg) animate-pulse"
                           style={{ animationDelay: '150ms' }}
                         />
                         <div
-                          className="h-3 w-3 rounded-full bg-blue-600 animate-pulse"
+                          className="h-3 w-3 rounded-full bg-(--button-primary-bg) animate-pulse"
                           style={{ animationDelay: '300ms' }}
                         />
                       </div>
-                      <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                      <span className="text-sm font-medium text-(--text-page)">
                         {t(
                           'export.previewUpdating',
                           'Vorschau wird aktualisiert...',
@@ -1212,17 +1212,17 @@ export default function Export() {
                     />
                   </div>
                   {circleGenerationInProgress && (
-                    <div className="flex w-full flex-col gap-1 rounded-2xl bg-gray-900/80 px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-white shadow-lg backdrop-blur-sm dark:bg-gray-100/90 dark:text-gray-900">
+                    <div className="flex w-full flex-col gap-1 rounded-2xl bg-(--text-page)/80 px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-white shadow-lg backdrop-blur-sm">
                       <div className="flex items-center gap-2">
                         <span className="inline-flex h-3.5 w-3.5 items-center justify-center">
-                          <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-white border-t-transparent dark:border-gray-900 dark:border-t-transparent" />
+                          <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-(--surface-card) border-t-transparent dark:border-t-transparent" />
                         </span>
                         <div className="min-w-0 flex-1 text-left">
                           <span className="block truncate normal-case">
                             {generationMessage}
                           </span>
                           {generationProgress !== null && (
-                            <span className="text-[10px] font-normal normal-case text-white/75 dark:text-gray-800/75">
+                            <span className="text-[10px] font-normal normal-case text-white/75">
                               {generationProgress}%
                             </span>
                           )}
@@ -1230,15 +1230,15 @@ export default function Export() {
                         <button
                           type="button"
                           onClick={handleCancelCircleGeneration}
-                          className="text-amber-200 underline-offset-2 hover:text-white hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 dark:text-amber-600 dark:hover:text-gray-900"
+                          className="text-(--surface-card) underline-offset-2 hover:text-(--surface-page) hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)"
                         >
                           {t('export.cancelCircleGeneration', 'Abbrechen')}
                         </button>
                       </div>
                       {generationProgress !== null && (
-                        <div className="h-1.5 w-full rounded-full bg-white/20 dark:bg-gray-300/50">
+                        <div className="h-1.5 w-full rounded-full bg-white/20">
                           <span
-                            className="block h-full rounded-full bg-white/90 transition-[width] duration-200 dark:bg-gray-900"
+                            className="block h-full rounded-full bg-(--surface-card) transition-[width] duration-200"
                             style={{
                               width: `${Math.max(6, generationProgress)}%`,
                             }}

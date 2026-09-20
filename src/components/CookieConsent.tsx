@@ -154,7 +154,7 @@ const CookieConsent: React.FC = () => {
   return (
     <div
       ref={bannerRef}
-      className="fixed bottom-0 inset-x-0 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 p-4 shadow-lg z-50"
+      className="fixed bottom-0 inset-x-0 bg-(--surface-sunken) text-(--text-page) p-4 shadow-lg z-50"
       style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))' }}
     >
       <div className="max-w-6xl mx-auto flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -172,7 +172,7 @@ const CookieConsent: React.FC = () => {
           <button
             type="button"
             onClick={handleAccept}
-            className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-(--button-primary-bg-hover) transition-colors"
+            className="px-4 py-2 rounded-lg bg-(--button-primary-bg) text-white hover:bg-(--button-primary-bg-hover) transition-colors"
           >
             {t('cookieConsent.accept')}
           </button>

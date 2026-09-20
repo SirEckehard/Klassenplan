@@ -179,20 +179,22 @@ export default function HeroMockup() {
         aria-roledescription="carousel"
         aria-label={t('startPage.carousel.label')}
       >
-        <div className="w-full rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl overflow-hidden">
+        <div className="w-full rounded-2xl border border-(--border-card) bg-(--surface-card) shadow-xl overflow-hidden">
           {/* Mac-style chrome */}
           <div
-            className="flex items-center gap-1.5 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-3 py-2.5"
+            className="flex items-center gap-1.5 border-b border-(--border-card) bg-(--surface-sunken) px-3 py-2.5"
             aria-hidden="true"
           >
+            {/* The three dots of a window chrome — part of the picture, not of
+                this app's palette. */}
             <span className="h-2.5 w-2.5 rounded-full bg-red-400" />
             <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
             <span className="h-2.5 w-2.5 rounded-full bg-green-400" />
-            <span className="ml-2 flex-1 rounded bg-gray-200 dark:bg-gray-700 h-3 max-w-40" />
+            <span className="ml-2 flex-1 rounded bg-(--border-card) h-3 max-w-40" />
           </div>
 
           {/* Slides */}
-          <div className="group relative aspect-3/2 bg-gray-100 dark:bg-gray-900">
+          <div className="group relative aspect-3/2 bg-(--surface-sunken)">
             {SLIDES.map((slide, i) => {
               if (!mounted.has(i)) return null;
               const b = slideBase(slide.slug, lang, isDark);
@@ -228,14 +230,14 @@ export default function HeroMockup() {
             {/* Expand button — revealed on hover, but always visible on touch */}
             <button
               onClick={openLightbox}
-              className="absolute top-2 right-2 cursor-pointer rounded-full bg-white/80 dark:bg-gray-800/80 p-1.5 shadow-md opacity-0 transition group-hover:opacity-100 group-focus-within:opacity-100 pointer-coarse:opacity-100 hover:bg-white dark:hover:bg-gray-700"
+              className="absolute top-2 right-2 cursor-pointer rounded-full bg-(--surface-card) p-1.5 shadow-md opacity-0 transition group-hover:opacity-100 group-focus-within:opacity-100 pointer-coarse:opacity-100 hover:bg-(--surface-card)"
               title={t('startPage.carousel.expand')}
               aria-label={t('startPage.carousel.expand')}
             >
               <ArrowsOutIcon
                 size={14}
                 aria-hidden="true"
-                className="text-gray-600 dark:text-gray-300"
+                className="text-(--text-muted)"
               />
             </button>
 
@@ -243,12 +245,12 @@ export default function HeroMockup() {
             <button
               onClick={() => go(current - 1)}
               aria-label={t('startPage.carousel.previous')}
-              className="absolute left-2 top-1/2 -translate-y-1/2 cursor-pointer rounded-full bg-white/80 dark:bg-gray-800/80 p-1.5 shadow-md hover:bg-white dark:hover:bg-gray-700 transition"
+              className="absolute left-2 top-1/2 -translate-y-1/2 cursor-pointer rounded-full bg-(--surface-card) p-1.5 shadow-md hover:bg-(--surface-card) transition"
             >
               <CaretLeftIcon
                 size={14}
                 aria-hidden="true"
-                className="text-gray-600 dark:text-gray-300"
+                className="text-(--text-muted)"
               />
             </button>
 
@@ -256,12 +258,12 @@ export default function HeroMockup() {
             <button
               onClick={() => go(current + 1)}
               aria-label={t('startPage.carousel.next')}
-              className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer rounded-full bg-white/80 dark:bg-gray-800/80 p-1.5 shadow-md hover:bg-white dark:hover:bg-gray-700 transition"
+              className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer rounded-full bg-(--surface-card) p-1.5 shadow-md hover:bg-(--surface-card) transition"
             >
               <CaretRightIcon
                 size={14}
                 aria-hidden="true"
-                className="text-gray-600 dark:text-gray-300"
+                className="text-(--text-muted)"
               />
             </button>
           </div>
@@ -284,8 +286,8 @@ export default function HeroMockup() {
                   aria-hidden="true"
                   className={`h-1.5 rounded-full transition-all duration-300 ${
                     i === current
-                      ? 'w-4 bg-blue-500'
-                      : 'w-1.5 bg-gray-300 dark:bg-gray-600 group-hover:bg-gray-400'
+                      ? 'w-4 bg-(--button-primary-bg)'
+                      : 'w-1.5 bg-(--border-card) group-hover:bg-(--text-muted)'
                   }`}
                 />
               </button>
@@ -298,7 +300,7 @@ export default function HeroMockup() {
                   ? t('startPage.carousel.play')
                   : t('startPage.carousel.pause')
               }
-              className="absolute right-2 cursor-pointer rounded-full p-1.5 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition"
+              className="absolute right-2 cursor-pointer rounded-full p-1.5 text-(--text-muted) hover:text-(--text-muted) transition"
             >
               {paused ? (
                 <PlayIcon size={12} aria-hidden="true" />
@@ -367,8 +369,8 @@ export default function HeroMockup() {
                       aria-hidden="true"
                       className={`h-1.5 rounded-full transition-all duration-300 ${
                         i === current
-                          ? 'w-5 bg-white'
-                          : 'w-1.5 bg-white/40 group-hover:bg-white/70'
+                          ? 'w-5 bg-(--surface-card)'
+                          : 'w-1.5 bg-white/40 group-hover:bg-(--surface-card)'
                       }`}
                     />
                   </button>

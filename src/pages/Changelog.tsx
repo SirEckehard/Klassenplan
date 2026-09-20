@@ -28,22 +28,22 @@ const changeTypeConfig: Record<
   feature: {
     labelKey: 'types.feature',
     icon: PlusIcon,
-    color: 'text-green-600 dark:text-green-400',
+    color: 'text-(--button-success-bg)',
   },
   improvement: {
     labelKey: 'types.improvement',
     icon: WrenchIcon,
-    color: 'text-blue-600 dark:text-blue-400',
+    color: 'text-(--text-badge)',
   },
   bugfix: {
     labelKey: 'types.bugfix',
     icon: BroomIcon,
-    color: 'text-red-600 dark:text-red-400',
+    color: 'text-(--button-danger-bg)',
   },
   knownissue: {
     labelKey: 'types.knownissue',
     icon: BugIcon,
-    color: 'text-red-900 dark:text-red-700',
+    color: 'text-(--text-page)',
   },
 };
 
@@ -69,7 +69,7 @@ export default function Changelog() {
     <main
       id="main"
       tabIndex={-1}
-      className="min-h-[80vh] bg-linear-to-b from-slate-50 via-white to-slate-100 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 px-4 py-12"
+      className="min-h-[80vh] bg-(--surface-page) px-4 py-12"
     >
       <Seo {...metadata} />
       <div className="mx-auto flex max-w-4xl flex-col gap-10">
@@ -80,7 +80,7 @@ export default function Changelog() {
         >
           <LocalizedLink
             to="/"
-            className="kp-lockup focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
+            className="kp-lockup focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:ring-offset-2"
             aria-label={t('header.homeLink')}
           >
             <KpLockup size="md" />
@@ -92,7 +92,7 @@ export default function Changelog() {
           aria-labelledby="changelog-intro"
         >
           <div className="flex items-center gap-3">
-            <span className="flex h-12 w-12 items-center justify-center rounded-2xl border border-blue-100 bg-blue-50 text-blue-600 shadow-sm dark:border-blue-900/40 dark:bg-blue-500/20 dark:text-blue-200">
+            <span className="flex h-12 w-12 items-center justify-center rounded-2xl border border-(--border-card) bg-(--surface-option-selected) text-(--text-badge) shadow-sm/20">
               <GitDiffIcon aria-hidden="true" className="h-6 w-6" />
             </span>
             <div>
@@ -102,7 +102,7 @@ export default function Changelog() {
               >
                 {t('header.title', 'Changelog')}
               </h1>
-              <p className="mt-1 text-sm text-gray-700 sm:text-base dark:text-gray-300">
+              <p className="mt-1 text-sm text-(--text-muted) sm:text-base">
                 {t(
                   'header.subtitle',
                   'Alle Änderungen und neuen Features im Überblick',
@@ -122,15 +122,15 @@ export default function Changelog() {
                 className={`${cardSurfaceClass} border px-8 py-8`}
                 aria-labelledby={`version-${version.version}`}
               >
-                <div className="flex flex-col gap-2 border-b border-blue-100 pb-4 dark:border-blue-900/40">
+                <div className="flex flex-col gap-2 border-b border-(--border-card) pb-4">
                   <h2
                     id={`version-${version.version}`}
-                    className="text-2xl font-semibold text-blue-600"
+                    className="text-2xl font-semibold text-(--text-badge)"
                   >
                     Version {version.version}
                   </h2>
                   <time
-                    className="text-sm text-gray-600 dark:text-gray-400"
+                    className="text-sm text-(--text-muted)"
                     dateTime={version.date}
                   >
                     {formatLongDate(version.date)}
@@ -159,10 +159,10 @@ export default function Changelog() {
                           {items.map((item, index) => (
                             <li
                               key={index}
-                              className="flex gap-2 text-gray-700 dark:text-gray-300"
+                              className="flex gap-2 text-(--text-muted)"
                             >
                               <span
-                                className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-blue-600"
+                                className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-(--button-primary-bg)"
                                 aria-hidden="true"
                               />
                               <span>
@@ -182,10 +182,10 @@ export default function Changelog() {
         </div>
 
         <footer className={`${cardSurfaceClass} border px-8 py-8 text-center`}>
-          <h2 className="text-2xl font-semibold text-blue-600">
+          <h2 className="text-2xl font-semibold text-(--text-badge)">
             {t('footer.title', 'Fragen oder Feedback?')}
           </h2>
-          <p className="mt-2 text-gray-700 dark:text-gray-300">
+          <p className="mt-2 text-(--text-muted)">
             {t(
               'footer.text',
               'Ich freue mich über dein Feedback zu neuen Features und Verbesserungen.',

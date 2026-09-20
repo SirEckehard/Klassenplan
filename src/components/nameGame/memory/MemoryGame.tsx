@@ -156,7 +156,7 @@ export default function MemoryGame({
 
   return (
     <div className="flex h-full flex-col items-center gap-4 overflow-y-auto px-4 py-6">
-      <div className="flex flex-wrap items-center justify-center gap-4 text-sm font-semibold text-gray-600 dark:text-gray-300">
+      <div className="flex flex-wrap items-center justify-center gap-4 text-sm font-semibold text-(--text-muted)">
         {rounds.length > 1 && (
           <span>
             {t('nameGame.memory.round', {
@@ -182,13 +182,13 @@ export default function MemoryGame({
 
       {state.phase === 'roundDone' ? (
         <div className="flex w-full flex-1 flex-col items-center justify-center gap-5">
-          <h2 className="text-2xl font-bold text-gray-900">
+          <h2 className="text-2xl font-bold text-(--text-page)">
             {t('nameGame.memory.roundDone', 'Runde geschafft!')}
           </h2>
           <div
             className={`${cardSurfaceClass} flex flex-col items-center gap-2 p-6 text-center`}
           >
-            <p className="text-lg font-semibold text-gray-900">
+            <p className="text-lg font-semibold text-(--text-page)">
               {t('nameGame.memory.result', {
                 moves: state.moves,
                 time: formatDuration(roundResult?.timeMs ?? elapsedMs),
@@ -196,13 +196,13 @@ export default function MemoryGame({
               })}
             </p>
             {roundResult?.outcome.isNewBest && (
-              <p className="flex items-center gap-2 font-semibold text-orange-600 dark:text-orange-400">
+              <p className="flex items-center gap-2 font-semibold text-(--text-page)">
                 <TrophyIcon size={20} aria-hidden />
                 {t('nameGame.memory.newBest', 'Neuer Bestwert!')}
               </p>
             )}
             {roundResult && !roundResult.outcome.isNewBest && (
-              <p className="text-sm text-gray-600 dark:text-gray-300">
+              <p className="text-sm text-(--text-muted)">
                 {t('nameGame.memory.best', {
                   moves: roundResult.outcome.best.moves,
                   time: formatDuration(roundResult.outcome.best.timeMs),

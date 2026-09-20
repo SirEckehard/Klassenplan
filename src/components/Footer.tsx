@@ -59,13 +59,13 @@ const Footer: React.FC = () => {
   }, [menuOpen]);
 
   const linkClass =
-    'inline-flex min-h-9 sm:min-h-11 items-center gap-1 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium transition px-1.5 py-1 sm:px-3 sm:py-2 text-xs sm:text-sm rounded whitespace-nowrap';
-  const separatorClass = 'hidden sm:inline text-gray-300 dark:text-gray-600';
+    'inline-flex min-h-9 sm:min-h-11 items-center gap-1 text-(--text-badge) hover:text-(--text-badge) font-medium transition px-1.5 py-1 sm:px-3 sm:py-2 text-xs sm:text-sm rounded whitespace-nowrap';
+  const separatorClass = 'hidden sm:inline text-(--border-card)';
   const navGroupClass =
-    'flex flex-wrap items-center justify-center gap-x-1 px-1 text-gray-600 dark:text-gray-300';
+    'flex flex-wrap items-center justify-center gap-x-1 px-1 text-(--text-muted)';
 
   return (
-    <footer className="px-4 py-2 flex flex-wrap items-stretch justify-center lg:justify-between gap-2 bg-linear-to-b from-slate-50 to-slate-100 dark:from-gray-900 dark:to-gray-800 text-sm">
+    <footer className="px-4 py-2 flex flex-wrap items-stretch justify-center lg:justify-between gap-2 bg-(--surface-page) text-sm">
       {/* Navigation */}
       <div className="flex flex-wrap items-center justify-center lg:justify-start gap-x-1 gap-y-0.5 sm:gap-2">
         {/* Brand */}
@@ -124,9 +124,7 @@ const Footer: React.FC = () => {
           >
             <GitDiffIcon className="h-3.5 w-3.5" aria-hidden="true" />
             {t('nav.changelog')}
-            <span className="text-gray-400 dark:text-gray-500">
-              v{getAppVersion()}
-            </span>
+            <span className="text-(--text-muted)">v{getAppVersion()}</span>
           </LocalizedLink>
           <span className={separatorClass}>|</span>
           <LegalPageLink
@@ -166,7 +164,7 @@ const Footer: React.FC = () => {
       {/* Aktionen */}
       <div className="flex justify-center items-center gap-2 px-2">
         <AppearanceControls />
-        <span className="text-gray-300 dark:text-gray-600" aria-hidden="true">
+        <span className="text-(--border-card)" aria-hidden="true">
           |
         </span>
         <UpdateCheckButton />
@@ -174,14 +172,14 @@ const Footer: React.FC = () => {
           <button
             type="button"
             onClick={() => setMenuOpen((open) => !open)}
-            className="group flex items-center p-1.5 rounded hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors cursor-pointer"
+            className="group flex items-center p-1.5 rounded hover:bg-(--surface-option-selected) transition-colors cursor-pointer"
             aria-label={t('footer.settings')}
             title={t('footer.settings')}
             aria-haspopup="menu"
             aria-expanded={menuOpen}
             data-tour={TOUR_ANCHORS.appSettings}
           >
-            <GearIcon className="h-4 w-4 text-blue-600 dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors" />
+            <GearIcon className="h-4 w-4 text-(--text-badge) group-hover:text-(--text-badge) transition-colors" />
           </button>
           {menuOpen && (
             <div

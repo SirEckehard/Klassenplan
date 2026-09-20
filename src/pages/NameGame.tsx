@@ -134,7 +134,7 @@ export default function NameGame() {
     <main
       id="main"
       tabIndex={-1}
-      className="fixed inset-0 flex flex-col bg-gray-50 dark:bg-gray-950"
+      className="fixed inset-0 flex flex-col bg-(--surface-sunken)"
     >
       <Seo {...metadata} />
 
@@ -144,14 +144,14 @@ export default function NameGame() {
           <div className="flex items-center shrink-0">
             <LocalizedLink
               to="/"
-              className="kp-lockup focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
+              className="kp-lockup focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:ring-offset-2"
             >
               <KpLockup size="sm" hideWordmarkOnMobile />
             </LocalizedLink>
           </div>
         </div>
 
-        <h1 className="text-lg font-bold text-gray-900 dark:text-white">
+        <h1 className="text-lg font-bold text-(--text-page)">
           {t('nameGame.title', 'Namensspiel')}
         </h1>
 
@@ -201,7 +201,7 @@ export default function NameGame() {
 
       <div className="min-h-0 flex-1">
         {loading ? (
-          <div className="flex h-full items-center justify-center text-gray-600 dark:text-gray-300">
+          <div className="flex h-full items-center justify-center text-(--text-muted)">
             <p className="text-lg font-medium">
               {t('nameGame.loading', 'Fotos werden geladen…')}
             </p>
@@ -214,12 +214,12 @@ export default function NameGame() {
               <CameraIcon
                 size={48}
                 aria-hidden
-                className="text-blue-600 dark:text-blue-400"
+                className="text-(--text-badge)"
               />
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+              <h2 className="text-xl font-bold text-(--text-page)">
                 {t('nameGame.empty.title', 'Noch nicht genug Fotos')}
               </h2>
-              <p className="text-gray-600 dark:text-gray-300">
+              <p className="text-(--text-muted)">
                 {t('nameGame.empty.description', {
                   min: NAME_GAME_MIN_PHOTOS,
                   count: playable.length,
@@ -227,7 +227,7 @@ export default function NameGame() {
                     'Für das Namensspiel brauchst du mindestens {{min}} Schüler mit Foto. Aktuell: {{count}}.',
                 })}
               </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
+              <p className="text-sm text-(--text-muted)">
                 {t(
                   'nameGame.empty.hint',
                   'Fotos fügst du in der Klassenliste über das Porträt-Symbol neben jedem Schüler hinzu.',

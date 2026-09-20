@@ -182,7 +182,7 @@ export default function Present() {
       id="main"
       ref={surfaceRef}
       tabIndex={-1}
-      className="fixed inset-0 flex flex-col bg-gray-50 dark:bg-gray-950"
+      className="fixed inset-0 flex flex-col bg-(--surface-sunken)"
     >
       <Seo {...metadata} />
 
@@ -195,7 +195,7 @@ export default function Present() {
           <h1 className="flex items-center shrink-0">
             <LocalizedLink
               to="/"
-              className="kp-lockup focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
+              className="kp-lockup focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:ring-offset-2"
             >
               <KpLockup size="sm" hideWordmarkOnMobile />
             </LocalizedLink>
@@ -280,11 +280,11 @@ export default function Present() {
           aria-live="polite"
           className="flex flex-wrap items-center justify-center gap-3 px-4 pb-1"
         >
-          <span className="inline-flex items-center gap-2 rounded-full border border-amber-300 bg-amber-50 px-4 py-1.5 text-lg font-semibold text-amber-900 shadow-sm dark:border-amber-500/40 dark:bg-amber-900/30 dark:text-amber-100">
+          <span className="inline-flex items-center gap-2 rounded-full border border-(--border-card) bg-(--surface-sunken) px-4 py-1.5 text-lg font-semibold text-(--text-page) shadow-sm">
             <HandPointingIcon size={20} aria-hidden />
             {picker.picked.student.name}
           </span>
-          <span className="text-sm text-gray-500 dark:text-gray-400">
+          <span className="text-sm text-(--text-muted)">
             {t('present.pickRemaining', {
               count: picker.remaining,
               defaultValue: 'noch {{count}} übrig',
@@ -355,7 +355,7 @@ export default function Present() {
             }
           />
         ) : (
-          <div className="flex h-full flex-col items-center justify-center gap-4 text-center text-gray-600 dark:text-gray-300">
+          <div className="flex h-full flex-col items-center justify-center gap-4 text-center text-(--text-muted)">
             <p className="text-lg font-medium">
               {t('present.empty', 'Noch kein Sitzplan zum Präsentieren.')}
             </p>
@@ -526,11 +526,11 @@ export default function Present() {
               </button>
             )}
 
-            <div className="flex h-10 items-center gap-2 rounded-full border border-blue-200 bg-white/80 px-4 shadow-inner dark:border-blue-900/40 dark:bg-gray-950/70">
+            <div className="flex h-10 items-center gap-2 rounded-full border border-(--border-option-selected) bg-(--surface-card) px-4 shadow-inner">
               <MagnifyingGlassIcon
                 size={20}
                 aria-hidden
-                className="text-gray-600 dark:text-gray-300"
+                className="text-(--text-muted)"
               />
               <input
                 type="range"
@@ -544,9 +544,9 @@ export default function Present() {
                   'present.zoomTitle',
                   'Ansicht vergrößern oder verkleinern',
                 )}
-                className="w-28 cursor-pointer accent-blue-600 sm:w-40"
+                className="w-28 cursor-pointer accent-(--accent-option) sm:w-40"
               />
-              <span className="w-12 text-right text-sm font-semibold tabular-nums text-gray-600 dark:text-gray-300">
+              <span className="w-12 text-right text-sm font-semibold tabular-nums text-(--text-muted)">
                 {Math.round(zoom * 100)}%
               </span>
             </div>

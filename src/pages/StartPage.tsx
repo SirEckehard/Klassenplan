@@ -25,25 +25,25 @@ const benefits = [
     icon: ShieldCheckIcon,
     titleKey: 'startPage.whyKlassenplanItems.privacy',
     descKey: 'startPage.whyKlassenplanItems.privacyDescription',
-    color: 'text-green-600 dark:text-green-500',
-    bgColor: 'bg-green-100 dark:bg-green-900/30',
-    borderColor: 'border-t-2 border-t-green-500!',
+    color: 'text-(--button-success-bg)',
+    bgColor: 'bg-(--surface-sunken)',
+    borderColor: 'border-t-2 border-t-(--button-success-bg)!',
   },
   {
     icon: CursorClickIcon,
     titleKey: 'startPage.whyKlassenplanItems.editor',
     descKey: 'startPage.whyKlassenplanItems.editorDescription',
-    color: 'text-amber-600 dark:text-amber-500',
-    bgColor: 'bg-amber-100 dark:bg-amber-900/30',
-    borderColor: 'border-t-2 border-t-amber-500!',
+    color: 'text-(--text-muted)',
+    bgColor: 'bg-(--surface-sunken)',
+    borderColor: 'border-t-2 border-t-(--text-muted)!',
   },
   {
     icon: BrainIcon,
     titleKey: 'startPage.whyKlassenplanItems.algorithm',
     descKey: 'startPage.whyKlassenplanItems.algorithmDescription',
-    color: 'text-blue-600 dark:text-blue-500',
-    bgColor: 'bg-blue-100 dark:bg-blue-900/30',
-    borderColor: 'border-t-2 border-t-blue-500!',
+    color: 'text-(--text-badge)',
+    bgColor: 'bg-(--surface-option-selected)',
+    borderColor: 'border-t-2 border-t-(--button-primary-bg)!',
   },
 ] as const;
 
@@ -78,7 +78,7 @@ export default function StartPage() {
     <main
       id="main"
       tabIndex={-1}
-      className="min-h-[80vh] px-4 py-12 bg-linear-to-b from-slate-50 to-slate-100 dark:from-gray-900 dark:to-gray-800 dark:text-white"
+      className="min-h-[80vh] px-4 py-12 bg-(--surface-page)"
     >
       <Seo
         {...metadata}
@@ -113,17 +113,17 @@ export default function StartPage() {
             <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
               <LocalizedLink
                 to="/"
-                className="kp-lockup focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
+                className="kp-lockup focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:ring-offset-2"
                 aria-label={t('header.homeLink')}
               >
                 <KpLockup size="md" />
               </LocalizedLink>
 
-              <h1 className="mt-8 text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-gray-900 dark:text-white">
+              <h1 className="mt-8 text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-(--text-page)">
                 {t('startPage.heroTitle')}
               </h1>
 
-              <p className="mt-3 text-base sm:text-lg text-gray-600 dark:text-gray-300">
+              <p className="mt-3 text-base sm:text-lg text-(--text-muted)">
                 {t('startPage.heroDescription')}
               </p>
 
@@ -132,7 +132,7 @@ export default function StartPage() {
                 <LocalizedLink
                   to="/support"
                   title={t('startPage.heroBadgeTooltip')}
-                  className="inline-flex items-center gap-2 text-green-700 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300 font-medium transition"
+                  className="inline-flex items-center gap-2 text-(--button-success-bg) hover:text-(--text-page) font-medium transition"
                 >
                   <HandHeartIcon size={16} weight="fill" aria-hidden="true" />
                   <span>{t('startPage.heroBadge')}</span>
@@ -150,14 +150,14 @@ export default function StartPage() {
               <div className="mt-5 inline-flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm">
                 <LocalizedLink
                   to="/faq"
-                  className="inline-flex items-center gap-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 font-medium transition"
+                  className="inline-flex items-center gap-2 text-(--text-muted) hover:text-(--text-muted) font-medium transition"
                 >
                   <QuestionIcon size={16} aria-hidden="true" />
                   <span>{t('startPage.faqLink')}</span>
                 </LocalizedLink>
                 <LocalizedLink
                   to="/feedback"
-                  className="inline-flex items-center gap-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 font-medium transition"
+                  className="inline-flex items-center gap-2 text-(--text-muted) hover:text-(--text-muted) font-medium transition"
                 >
                   <MailboxIcon size={16} aria-hidden="true" />
                   <span>{t('startPage.contactLink')}</span>
@@ -176,7 +176,7 @@ export default function StartPage() {
         <section aria-labelledby="vorteile-title">
           <h2
             id="vorteile-title"
-            className="mb-5 text-center text-lg sm:text-xl font-semibold text-gray-800 dark:text-gray-200"
+            className="mb-5 text-center text-lg sm:text-xl font-semibold text-(--text-page)"
           >
             {t('startPage.whyKlassenplanTitle')}
           </h2>
@@ -184,7 +184,7 @@ export default function StartPage() {
             {benefits.map((benefit) => (
               <div
                 key={benefit.titleKey}
-                className={`${cardSurfaceClass} ${benefit.borderColor} flex flex-col items-center p-2 sm:p-5 text-center border border-gray-100/60 dark:border-gray-700/40`}
+                className={`${cardSurfaceClass} ${benefit.borderColor} flex flex-col items-center p-2 sm:p-5 text-center border border-(--border-card)`}
               >
                 <div
                   className={`mb-1 sm:mb-3 flex h-8 w-8 sm:h-12 sm:w-12 items-center justify-center rounded-full ${benefit.bgColor}`}
@@ -194,10 +194,10 @@ export default function StartPage() {
                     aria-hidden="true"
                   />
                 </div>
-                <h3 className="text-xs sm:text-base font-semibold text-gray-900 dark:text-white">
+                <h3 className="text-xs sm:text-base font-semibold text-(--text-page)">
                   {t(benefit.titleKey)}
                 </h3>
-                <p className="mt-1 text-[10px] leading-tight sm:text-sm text-gray-600 dark:text-gray-400">
+                <p className="mt-1 text-[10px] leading-tight sm:text-sm text-(--text-muted)">
                   {t(benefit.descKey)}
                 </p>
               </div>
@@ -209,7 +209,7 @@ export default function StartPage() {
         <section aria-labelledby="howItWorks-title">
           <h2
             id="howItWorks-title"
-            className="mb-5 text-center text-lg sm:text-xl font-semibold text-gray-800 dark:text-gray-200"
+            className="mb-5 text-center text-lg sm:text-xl font-semibold text-(--text-page)"
           >
             {t('startPage.howItWorksTitle')}
           </h2>
@@ -223,10 +223,10 @@ export default function StartPage() {
                       aria-hidden="true"
                     />
                   </div>
-                  <p className="mt-2 text-xs sm:mt-3 sm:text-base font-semibold text-gray-800 dark:text-gray-200">
+                  <p className="mt-2 text-xs sm:mt-3 sm:text-base font-semibold text-(--text-page)">
                     {t(step.titleKey)}
                   </p>
-                  <p className="mt-1 max-w-16 sm:max-w-44 text-[10px] leading-tight sm:text-sm sm:leading-snug text-gray-500 dark:text-gray-400">
+                  <p className="mt-1 max-w-16 sm:max-w-44 text-[10px] leading-tight sm:text-sm sm:leading-snug text-(--text-muted)">
                     {t(step.textKey)}
                   </p>
                 </div>
