@@ -12,9 +12,16 @@ import { StatusBarSlotProvider } from '@/contexts/StatusBarSlotContext';
  * The workspace frame: one header on top, one status bar at the bottom, the
  * active layer in the middle and the inspector beside it.
  *
- * The bars are sticky rather than fixed, so the document keeps its normal
- * scroll and the adaptive-height machinery in the student list and the sidebar
- * goes on working untouched. The page footer stays below the shell.
+ * From `lg` up the frame is the window itself: it takes the viewport's height
+ * and gives the scrolling to the three columns between the two bars, so the
+ * bars, the toolbar and the inspector stay where a teacher left them. Nothing
+ * is centred in a column of its own — the toolbar and the inspector are the
+ * margins, which is the whole reason they sit at the edges.
+ *
+ * Below `lg` it stays an ordinary document: the layer stacks, the page scrolls,
+ * and the adaptive-height machinery in the student list and the sidebar goes on
+ * working untouched. The page footer follows the shell there; on the workspace
+ * its entries hang in the header menu instead (`HeaderAppMenu`).
  */
 export default function AppShell({ children }: { children: React.ReactNode }) {
   return (
@@ -26,15 +33,19 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           {/* The status bar's height, for the floating controls inside the
               workspace that must stay clear of it (`useFloatingActionOffset`). */}
           <div
-            className="flex min-h-screen flex-col"
+            className="flex min-h-screen flex-col lg:h-dvh lg:min-h-0 lg:overflow-hidden"
             style={{ '--shell-bottom-inset': '3.25rem' } as React.CSSProperties}
           >
             <SeatingPlanHeader />
-            <main id="main" tabIndex={-1} className="flex-1 px-4 py-6">
-              <div className="mx-auto flex max-w-7xl items-start gap-4">
-                <div className="min-w-0 flex-1">{children}</div>
-                <Inspector />
+            <main
+              id="main"
+              tabIndex={-1}
+              className="flex flex-1 flex-col px-4 py-6 lg:min-h-0 lg:flex-row lg:p-0"
+            >
+              <div className="flex min-w-0 flex-1 flex-col lg:min-h-0">
+                {children}
               </div>
+              <Inspector />
             </main>
             <AppStatusBar />
           </div>

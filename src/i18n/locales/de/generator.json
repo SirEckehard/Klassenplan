@@ -830,9 +830,9 @@
         "title": "Deine Klassen",
         "body": "Oben in der Kopfzeile steht, welche Klasse offen ist. Hier wechselst du zwischen deinen Klassen, legst neue an oder benennst sie um. Jede Klasse hat eigene Schüler, Räume und Sitzpläne."
       },
-      "footerSettings": {
+      "appSettings": {
         "title": "Einstellungen und Backup",
-        "body": "Deine Daten liegen nur in diesem Browser. Über das Einstellungsrädchen in der Fußzeile exportierst du ein verschlüsseltes Backup und stellst es wieder her – auch auf einem anderen Gerät. Dort findest du außerdem alle gespeicherten Pläne."
+        "body": "Deine Daten liegen nur in diesem Browser. Über das Einstellungsrädchen oben rechts exportierst du ein verschlüsseltes Backup und stellst es wieder her – auch auf einem anderen Gerät. Dort findest du außerdem alle gespeicherten Pläne."
       },
       "proceed": {
         "title": "Weiter zum Klassenraum",

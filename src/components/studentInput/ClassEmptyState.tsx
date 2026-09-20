@@ -40,7 +40,10 @@ export default function ClassEmptyState({
 
   return (
     <div
-      className={`${cardSurfaceClass} border border-(--border-card) p-6`}
+      // Without a class there is no toolbar, so the card is alone on the stage:
+      // from `lg` up the shell has no padding of its own, and a card as wide as
+      // the window is not a card any more.
+      className={`${cardSurfaceClass} border border-(--border-card) p-6 lg:m-5 lg:max-w-3xl`}
       data-tour={TOUR_ANCHORS.classEmptyState}
     >
       <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">

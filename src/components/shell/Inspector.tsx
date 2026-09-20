@@ -64,7 +64,7 @@ export default function Inspector() {
             ? t('generator:sceneInspector.title')
             : t('generator:mix.title')
         }
-        className="sticky top-[4.5rem] hidden w-80 shrink-0 self-start overflow-y-auto rounded-xl border border-(--border-card) bg-(--surface-card) p-4 lg:block"
+        className="hidden w-80 shrink-0 overflow-y-auto border-l border-(--border-card) bg-(--surface-card) p-4 lg:block"
       >
         {/* The plan layer's panel brings its own heading; the room layer's
             says what the numbers below belong to. */}
@@ -140,7 +140,7 @@ export default function Inspector() {
   return (
     <aside
       aria-label={t('students:inspector.title')}
-      className="sticky top-[4.5rem] hidden w-80 shrink-0 self-start rounded-xl border border-(--border-card) bg-(--surface-card) p-4 lg:block"
+      className="hidden w-80 shrink-0 overflow-y-auto border-l border-(--border-card) bg-(--surface-card) p-4 lg:block"
     >
       <div className="mb-3 flex items-center justify-between">
         <h2 className="text-sm font-semibold">

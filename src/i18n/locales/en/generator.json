@@ -830,9 +830,9 @@
         "title": "Your classes",
         "body": "The header states which class is open. Switch between classes here, create new ones or rename them. Every class has its own students, rooms and seating plans."
       },
-      "footerSettings": {
+      "appSettings": {
         "title": "Settings and backup",
-        "body": "Your data lives only in this browser. The gear icon in the footer exports an encrypted backup and restores it – on another device, too. It also lists all saved plans."
+        "body": "Your data lives only in this browser. The gear icon at the top right exports an encrypted backup and restores it – on another device, too. It also lists all saved plans."
       },
       "proceed": {
         "title": "On to the classroom",

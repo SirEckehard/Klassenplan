@@ -97,7 +97,9 @@ export default function SmartSidebar({
   }, [isTablet, sidebar]);
   const { maxHeight } = useAdaptiveViewportHeight<HTMLElement>({
     containerRef,
-    disabled: false,
+    // From `lg` up the shell is the window: the column has a real height from
+    // the frame, and a measured `max-height` on top of it would only fight it.
+    disabled: layoutMode === 'desktop',
     reservedTop: 24,
     detectOverflow: false, // Disabled to prevent scrollHeight reads during resize
     debounceMs: 100, // Increased debounce for smoother zoom handling
@@ -147,8 +149,18 @@ export default function SmartSidebar({
 
   // Paper, like every other surface of the workspace: the toolbar is where
   // the tools are, not something that has to announce itself in blue.
-  const expandedContainerClass = `${panelSurfaceClass} self-stretch`;
-  const collapsedContainerClass = `${panelSurfaceClass} self-start`;
+  //
+  // On the desktop shell it is not a card at all but the left edge of the
+  // window — one hairline against the sunken stage. Below `lg` the layer is
+  // still a stacked document, where a panel needs its own frame to read as one.
+  const isDesktopShell = layoutMode === 'desktop';
+  const frameClass = isDesktopShell
+    ? 'border-r border-(--border-card) bg-(--surface-page)'
+    : panelSurfaceClass;
+  const expandedContainerClass = `${frameClass} self-stretch`;
+  const collapsedContainerClass = `${frameClass} ${
+    isDesktopShell ? 'self-stretch' : 'self-start'
+  }`;
 
   // Simplified style - only use maxHeight from the debounced hook
   const sidebarStyle = React.useMemo<React.CSSProperties | undefined>(() => {

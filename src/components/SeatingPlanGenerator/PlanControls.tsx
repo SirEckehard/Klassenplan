@@ -169,7 +169,7 @@ export default function PlanControls() {
   ];
 
   return (
-    <div>
+    <div className="flex flex-1 flex-col lg:min-h-0">
       {step === 1 && (
         <Suspense fallback={<StudentListSkeleton />}>
           <SectionErrorBoundary

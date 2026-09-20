@@ -32,13 +32,13 @@ it for Antigravity — edit this file, never those two.
 
 - ✅ ESLint: 0 errors, 0 warnings
 - ✅ TypeScript: 0 compilation errors (strict mode)
-- ✅ Tests: 2321 unit tests (230 test files) + 9 Playwright tests (3 smoke + 2 core flow + 4 onboarding), 100% passing
+- ✅ Tests: 2323 unit tests (231 test files) + 9 Playwright tests (3 smoke + 2 core flow + 4 onboarding), 100% passing
 - 📊 Coverage: 72.5 % lines / 71.8 % statements / 61.9 % branches (`npm run test:coverage`, v8 provider, no thresholds enforced)
 - ⚠️ Unused Exports: 53 modules ignoring type-only exports, held by a ratchet (`npm run check:unused`); the remainder are re-export barrels, `lazyWithRetry` default exports and shared test helpers
 - ✅ Test Infrastructure: Centralized accessibility helpers and toast matchers for robust testing
 - ✅ Architecture: Repository Pattern implemented, UI components reorganized into logical subdirectories
 - ✅ i18n: Bilingual support (German/English) fully implemented, DE/EN key parity 1:1 (2038 keys per language)
-- 📦 Bundle: initial payload 199 KB brotli / 768 KB raw, largest chunk 62 KB brotli, CSS 20 KB brotli
+- 📦 Bundle: initial payload 205 KB brotli / 758 KB raw over 37 preloaded files, largest chunk 61 KB brotli, CSS 20 KB brotli
 
 ## Logging
 
@@ -249,7 +249,9 @@ Consumers import dedicated hooks (e.g. `useClassroomLayoutContext`) to minimize 
 ### Hook & Component Landscape
 
 - Hooks are grouped by domain (`hooks/wizard`, `hooks/scene`, `hooks/canvas`, `hooks/circle`, `hooks/ui`, `hooks/student`) and favour focused responsibilities (scene history, canvas interactions, shortcut handling, drag/drop state, pan/zoom, photo cache, etc.).
-- The workspace shell lives in `src/components/shell/`: `AppShell` frames every layer, `SeatingPlanHeader` carries the class (`HeaderClassMenu`), the plan's name (`HeaderPlanName`), `LayerSwitcher` and the two exits, `AppStatusBar` holds undo/redo, the live status line and the layer's one primary action, and `Inspector` is the right-hand panel. A view never draws its own "carry on" or "go back" button, and nothing floats over the stage — corner controls belong to the status bar, the toolbar or the inspector.
+- The workspace shell lives in `src/components/shell/`: `AppShell` frames every layer, `SeatingPlanHeader` carries the class (`HeaderClassMenu`), the plan's name (`HeaderPlanName`), `LayerSwitcher`, the settings menu (`HeaderAppMenu`) and the two exits, `AppStatusBar` holds undo/redo, the live status line and the layer's one primary action, and `Inspector` is the right-hand panel. A view never draws its own "carry on" or "go back" button, and nothing floats over the stage — corner controls belong to the status bar, the toolbar or the inspector.
+- **From `lg` up the shell is the window, not a document.** `AppShell` takes `h-dvh`, the two bars stand still and the three columns between them — toolbar, stage, inspector — scroll on their own, edge to edge with no centred column: the toolbar and the inspector _are_ the margins. A layer takes its geometry from `workspaceLayerClass` and `workspaceStageClass` (`shell/shellTokens.ts`) rather than spelling it out, so the four views (class, room, plan, circle) cannot disagree about it. Below `lg` the layer stays a stacked, scrolling page.
+- **The workspace has no page footer.** `App.tsx` leaves it off `/generator` for the same reason as the fullscreen routes, and `HeaderAppMenu` carries what a teacher reaches for from inside a plan: theme and language, the update check, storage and backup (`AppSettingsItems`, shared with the footer's own gear) and the two legal pages. FAQ, feedback, support and the changelog stay on the pages they belong to.
 - **The class is the document.** Which class is open is stated in the header on every layer, and everything a class itself can undergo — create, rename, delete — lives in that menu's dropdown. `ClassDialogsProvider` owns those dialogs, so the header and the class layer's empty state open the same ones.
 - **One toolbar shape for every layer** (`ToolRail`): insert on top, look at in the middle, manage at the bottom, in both densities of `SmartSidebar`. `ClassToolPanel`, `RoomToolPanel` and `PlanToolPanel` fill it; an entry that needs a value (a name, a number of placeholders, a set of switches) opens a panel instead of taking a permanent place. A new tool joins one of the three groups — never a new floating button.
 - **The two exits, once.** Exporting and presenting save the plan first when it differs from the saved one; `usePlanExits` is the single implementation, used by the header and by Ctrl/Cmd+E.

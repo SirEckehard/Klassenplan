@@ -46,8 +46,13 @@ export default function SeatingPlanGenerator() {
         }}
       />
       <AppShell>
-        <PostUpdateNotice />
-        <BackupReminder />
+        {/* Transient notices above the layer. They keep a gutter of their own:
+            the shell has none from `lg` up, where its columns are the margins.
+            `empty:hidden` keeps the gutter from showing when neither fires. */}
+        <div className="empty:hidden lg:px-5 lg:pt-5">
+          <PostUpdateNotice />
+          <BackupReminder />
+        </div>
         <SeatingPlanGenerator.Controls />
       </AppShell>
     </>

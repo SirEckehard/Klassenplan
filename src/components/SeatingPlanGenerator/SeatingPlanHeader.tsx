@@ -5,6 +5,7 @@ import { ChalkboardTeacherIcon, ExportIcon } from '@phosphor-icons/react';
 import { LocalizedLink } from '@/components/LocalizedLink';
 import LayerSwitcher from '@/components/shell/LayerSwitcher';
 import HeaderClassMenu from '@/components/shell/HeaderClassMenu';
+import HeaderAppMenu from '@/components/shell/HeaderAppMenu';
 import HeaderPlanName from '@/components/shell/HeaderPlanName';
 import HelpButton from '@/components/ui/buttons/HelpButton';
 import OnboardingTour from '@/components/onboarding/OnboardingTour';
@@ -142,10 +143,10 @@ export default function SeatingPlanHeader() {
   const helpContent = getHelpContent();
 
   return (
-    <header className="sticky top-0 z-30 border-b border-(--border-card) bg-(--surface-card)">
-      <div className="mx-auto flex h-14 max-w-7xl flex-row items-center justify-between gap-3 px-4">
+    <header className="sticky top-0 z-30 shrink-0 border-b border-(--border-card) bg-(--surface-card)">
+      <div className="flex h-14 flex-row items-center justify-between gap-3 px-4">
         {/* Left — the brand, and the class as the name of the open document */}
-        <div className="flex min-w-0 shrink items-center gap-3">
+        <div className="flex min-w-0 shrink items-center gap-3 lg:w-95">
           <h1 className="flex shrink-0 items-center">
             <LocalizedLink
               to="/"
@@ -168,7 +169,7 @@ export default function SeatingPlanHeader() {
 
         {/* Right — help, and the two ways out: export and the smartboard */}
         <div
-          className="flex shrink-0 items-center gap-2"
+          className="flex shrink-0 items-center justify-end gap-2 lg:w-95"
           data-tour={TOUR_ANCHORS.planExits}
         >
           {helpContent && (
@@ -179,6 +180,9 @@ export default function SeatingPlanHeader() {
               onStartTour={tourId ? () => requestTour(tourId) : undefined}
             />
           )}
+          {/* The workspace runs at viewport height and shows no footer, so
+              appearance, backup and the legal pages hang here instead. */}
+          <HeaderAppMenu />
           {/* Both stay clickable without a plan so the toast can say why
               nothing happened — see `usePlanExits`. */}
           <button

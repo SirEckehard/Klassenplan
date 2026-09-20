@@ -88,6 +88,10 @@ export const menuSurfaceClass = 'menu-surface';
 
 export const touchMenuSurfaceClass = 'touch-menu-surface';
 
+export const menuItemClass = 'menu-item';
+
+export const menuItemDangerClass = 'menu-item-danger';
+
 export const floatingStatusClass = 'floating-status';
 
 export const canvasFrameClass = 'canvas-frame';

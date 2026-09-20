@@ -70,6 +70,10 @@ import type {
   DragSeatConfig,
 } from '@/hooks/ui/useDragDropState';
 import type { TemplateDragPreview } from '@/types/templateDrag';
+import {
+  workspaceLayerClass,
+  workspaceStageClass,
+} from '@/components/shell/shellTokens';
 
 type SeatPreviewCardProps = {
   preview: DragPreview;
@@ -754,7 +758,7 @@ export default function SeatingPlanEditorView({
   }, [students, settings, setMixSettings]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 lg:flex lg:min-h-0 lg:flex-1 lg:flex-col lg:space-y-0">
       {autoMixing ? (
         <section
           aria-live="polite"
@@ -875,9 +879,7 @@ export default function SeatingPlanEditorView({
       {/* The direction comes from the same hook that decides whether the
           sidebar is a rail or a phone sheet — a `md:` variant here could
           disagree with it and stack the rail on top of the canvas. */}
-      <div
-        className={`flex ${isPhone ? 'flex-col gap-4' : 'flex-row items-start gap-2'}`}
-      >
+      <div className={workspaceLayerClass}>
         <SmartSidebar tourAnchor={TOUR_ANCHORS.planSidebar}>
           {({ isExpanded }) => (
             <PlanToolPanel
@@ -944,7 +946,7 @@ export default function SeatingPlanEditorView({
           </button>
         </StatusBarPortal>
 
-        <div className="relative flex-1">
+        <div className={`${workspaceStageClass} relative`}>
           <div className="flex min-w-0 flex-col gap-4">
             {/* A highlight changes what the seats mean, so it says so above
                 the plan rather than leaving the colours to be guessed at. */}

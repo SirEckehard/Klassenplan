@@ -34,6 +34,11 @@ const openSettingsMenu = async () => {
   await user.click(
     screen.getByRole('button', { name: /einstellungen|settings/i }),
   );
+  // The menu's entries are loaded on first open, so waiting for one that is
+  // always there keeps the checks below from passing on an empty menu.
+  await screen.findByRole('menuitem', {
+    name: /backup exportieren|export backup/i,
+  });
   return user;
 };
 

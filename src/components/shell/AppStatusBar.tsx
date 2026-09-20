@@ -151,9 +151,9 @@ export default function AppStatusBar() {
     <div
       role="region"
       aria-label={t('generator:shell.statusBarLabel')}
-      className="sticky bottom-0 z-30 border-t border-(--border-card) bg-(--surface-card)"
+      className="sticky bottom-0 z-30 shrink-0 border-t border-(--border-card) bg-(--surface-card)"
     >
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-2">
+      <div className="flex min-h-11 items-center justify-between gap-4 px-4 py-2">
         <div className="flex min-w-0 items-center gap-3">
           {/* Undo/redo lead the line on every layer. Two of the three
               histories are in the context; the room layer's lives with the

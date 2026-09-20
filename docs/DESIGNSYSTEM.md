@@ -1,6 +1,6 @@
 # Design System – Klassenplan
 
-> **Status:** current · **Last reviewed:** 2026-09-19 · **Maintainer:** Eike
+> **Status:** current · **Last reviewed:** 2026-09-20 · **Maintainer:** Eike
 > Schäfer · **Describes:** Klassenplan 2.2.0
 
 This document describes the binding design tokens for Klassenplan. All values live in `src/index.css` and are reachable from TypeScript through `src/utils/ui/designTokens.ts`.
@@ -173,6 +173,12 @@ Drag indicators use:
 - Room features: amber (`bg-amber-500` / `dark:bg-amber-400`)
 
 Every layer's toolbar is a `ToolRail` (`src/components/shell/ToolRail.tsx`) inside `SmartSidebar`, which carries the panel surface. An entry adds layout classes only; its two densities — the labelled column and the icon rail — come from the rail, so a new tool cannot invent a look of its own.
+
+From `lg` up `SmartSidebar` drops that panel surface: on the desktop shell it is not a card but the window's left edge, one hairline (`border-r`) of `--border-card` against the sunken stage. Below `lg` the layer is still a stacked document, where a panel needs a frame of its own to read as one.
+
+## 6a. Menus
+
+A dropdown is a `menuSurfaceClass` box; its rows are `menuItemClass`, and the one destructive row is `menuItemDangerClass`. Both hover on paper — `--surface-sunken`, or `--button-icon-danger-bg` for the destructive one — never on blue: blue means "you can act here", and a hovered row is a pointer, not an action.
 
 ## 7. Extensions & maintenance
 

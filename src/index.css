@@ -1113,6 +1113,71 @@
   backdrop-filter: var(--backdrop-blur-medium);
 }
 
+/*
+ * One row of a dropdown menu. The settings menus used to hand-paint their rows
+ * (`hover:bg-blue-50 dark:hover:bg-blue-950/40`), which put a second blue into
+ * a surface that is meant to be paper — blue says "you can act here", and a
+ * hovered row is not an action, it is a pointer.
+ */
+@utility menu-item {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-pill);
+  text-align: left;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: var(--text-page);
+  cursor: pointer;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+
+.menu-item:hover:not(:disabled) {
+  background-color: var(--surface-sunken);
+}
+
+.menu-item:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--focus-ring-primary);
+}
+
+.menu-item:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* The destructive row of a menu — rose only once the pointer is on it. */
+@utility menu-item-danger {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-pill);
+  text-align: left;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: var(--text-page);
+  cursor: pointer;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+
+.menu-item-danger:hover:not(:disabled) {
+  background-color: var(--button-icon-danger-bg);
+  color: var(--button-icon-danger-text);
+}
+
+.menu-item-danger:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--focus-ring-danger);
+}
+
 @utility floating-status {
   display: inline-flex;
   align-items: center;

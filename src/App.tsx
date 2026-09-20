@@ -79,13 +79,17 @@ export default function App() {
   const location = useLocation();
   const { t } = useTranslation('common');
 
-  // Fullscreen surfaces (presentation, name game); the global footer (and its
-  // "clear all data" action) is out of place there.
-  const isFullscreenRoute = [
+  // Surfaces that carry no page footer: the fullscreen ones (presentation,
+  // name game), where the footer and its "clear all data" action are out of
+  // place, and the workspace, which runs at viewport height from `lg` up and
+  // offers the same entries in its header menu (`HeaderAppMenu`).
+  const hidesFooter = [
     '/present',
     '/en/present',
     '/namensspiel',
     '/en/namensspiel',
+    '/generator',
+    '/en/generator',
   ].includes(location.pathname);
 
   // Route preloading for better perceived performance
@@ -119,7 +123,7 @@ export default function App() {
         </Routes>
       </Suspense>
 
-      {!isFullscreenRoute && <Footer />}
+      {!hidesFooter && <Footer />}
       <CookieConsent />
     </div>
   );

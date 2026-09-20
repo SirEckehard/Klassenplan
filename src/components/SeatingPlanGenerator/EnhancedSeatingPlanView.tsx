@@ -39,6 +39,10 @@ import {
 } from '@/utils';
 import { buildNameDisplayGroup } from '@/components/SeatingPlanGenerator/canvas/nameDisplayGroup';
 import { useEnsureCircleLayout } from '@/hooks/circle/useEnsureCircleLayout';
+import {
+  workspaceLayerClass,
+  workspaceStageClass,
+} from '@/components/shell/shellTokens';
 
 type EnhancedSeatingPlanViewProps = SeatingPlanViewProps & {
   seatingMode?: 'table' | 'circle';
@@ -240,12 +244,10 @@ export default function EnhancedSeatingPlanView(
   // For circle mode, we need different controls and view
   if (showModeToggle && seatingMode === 'circle') {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 lg:flex lg:min-h-0 lg:flex-1 lg:flex-col lg:space-y-0">
         {/* Same source as the sidebar's own phone/rail decision, so the two
             cannot disagree and stack the rail on top of the canvas. */}
-        <div
-          className={`flex gap-4 ${isPhone ? 'flex-col' : 'flex-row items-start'}`}
-        >
+        <div className={workspaceLayerClass}>
           {!isPhone && (
             <SmartSidebar>
               {({ isExpanded }) => (
@@ -284,7 +286,7 @@ export default function EnhancedSeatingPlanView(
             </SmartSidebar>
           )}
 
-          <div className="flex min-w-0 flex-1 flex-col gap-4">
+          <div className={`${workspaceStageClass} flex flex-col gap-4`}>
             <div
               className={`${canvasFrameClass} select-none`}
               style={{ width: '100%', maxWidth: '100vw' }}

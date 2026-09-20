@@ -317,6 +317,8 @@ export {
   pillTabInactiveClass,
   menuSurfaceClass,
   touchMenuSurfaceClass,
+  menuItemClass,
+  menuItemDangerClass,
   floatingStatusClass,
   canvasFrameClass,
   toastSurfaceClass,

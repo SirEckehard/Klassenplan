@@ -31,6 +31,10 @@ import ClassToolPanel, {
 } from '@/components/studentInput/ClassToolPanel';
 import RelationsView from '@/components/studentInput/RelationsView';
 import SmartSidebar from '@/components/ui/panels/SmartSidebar';
+import {
+  workspaceLayerClass,
+  workspaceStageClass,
+} from '@/components/shell/shellTokens';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 import MissingNameNotice from '@/components/studentInput/MissingNameNotice';
 import StudentList from '@/components/studentInput/StudentList';
@@ -318,9 +322,7 @@ function StudentInput({
   return (
     // The direction comes from the same hook that decides whether the toolbar
     // is a rail or a phone sheet, exactly as in the room and plan layers.
-    <div
-      className={`flex ${isLgUp ? 'flex-row items-start gap-2' : 'flex-col gap-4'}`}
-    >
+    <div className={workspaceLayerClass}>
       <SmartSidebar tourAnchor={TOUR_ANCHORS.classToolbar}>
         {({ isExpanded }) => (
           <ClassToolPanel
@@ -352,7 +354,7 @@ function StudentInput({
       {/* The scroll anchor sits on the stage root: the list toolbar only
           appears from `STUDENT_LIST_TOOLS_THRESHOLD` students up, and the way
           back should land above the list either way. */}
-      <div ref={listTopRef} className="min-w-0 flex-1 space-y-4">
+      <div ref={listTopRef} className={`${workspaceStageClass} space-y-4`}>
         {showListTools && listMode === 'list' && (
           <StudentListToolsRow
             listView={listView}

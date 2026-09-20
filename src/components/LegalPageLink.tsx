@@ -11,6 +11,9 @@ interface LegalPageLinkProps {
   to: LegalPageRoute;
   className?: string;
   title?: string;
+  /** Set when the link is a row of a menu rather than body text. */
+  role?: string;
+  onClick?: () => void;
   children: React.ReactNode;
 }
 

@@ -3,7 +3,6 @@
 import React, { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import {
   HandHeartIcon,
-  TrashIcon,
   GearIcon,
   MailboxIcon,
   QuestionIcon,
@@ -11,50 +10,31 @@ import {
   IdentificationCardIcon,
   ShieldCheckIcon,
   GithubLogoIcon,
-  HardDrivesIcon,
-  DownloadIcon,
-  UploadIcon,
-  ClockCounterClockwiseIcon,
-  DeviceMobileIcon,
 } from '@phosphor-icons/react';
 import { useTranslation } from 'react-i18next';
 import AppearanceControls from '@/components/ui/navigation/AppearanceControls';
 import UpdateCheckButton from '@/components/pwa/UpdateCheckButton';
-import { useInstallPrompt } from '@/hooks/useInstallPrompt';
 import { LocalizedLink } from './LocalizedLink';
 import { LegalPageLink } from './LegalPageLink';
-import { useSeatingPlanActions } from '@/contexts/SeatingPlanContext';
-import { showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
-import { logError, menuSurfaceClass } from '@/utils';
-import ConfirmDialog from '@/components/ui/modals/ConfirmDialog';
+import { menuSurfaceClass } from '@/utils';
 import { GITHUB_REPO_URL } from '@/config/links';
+
+// Behind a menu in both places it appears, so the storage dialogs, the confirm
+// dialog and their icons stay out of the cold-start payload.
+const AppSettingsItems = lazy(
+  () => import('@/components/ui/navigation/AppSettingsItems'),
+);
 import { getAppVersion } from '@/utils/version';
 import { useDialogLayer } from '@/hooks/ui/useDialogLayer';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 
-// Reached only through the settings menu, so the plan and mix history, the
-// neighbourhood matrix and their icons stay out of the initial bundle.
-const StorageHistoryModal = lazy(
-  () => import('@/components/ui/navigation/StorageHistoryModal'),
-);
-
 const Footer: React.FC = () => {
   const { t } = useTranslation('common');
-  const { clearAllData, handleExportAll, triggerImport } =
-    useSeatingPlanActions();
-  const [confirmOpen, setConfirmOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   // The settings menu owns Escape while it is open; the views underneath check
   // the layer registry before acting on it.
   useDialogLayer(menuOpen);
-  const [historyModalOpen, setHistoryModalOpen] = useState(false);
-  // Mounted on first open and kept afterwards, so the selected tab survives
-  // closing the modal just as it did while the modal was imported eagerly.
-  const [historyModalMounted, setHistoryModalMounted] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
-  // Dismissing the install toast is permanent; this menu entry stays as the
-  // way back in for as long as the browser reports the app as installable.
-  const { isInstallable, triggerInstall } = useInstallPrompt();
 
   useEffect(() => {
     if (!menuOpen) {
@@ -77,43 +57,6 @@ const Footer: React.FC = () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, [menuOpen]);
-
-  const handleConfirm = async () => {
-    try {
-      await clearAllData();
-      showToast('success', TOAST_MESSAGES.DATA_DELETED);
-      setConfirmOpen(false);
-    } catch {
-      showToast('error', TOAST_MESSAGES.DATA_DELETE_ERROR);
-    }
-  };
-
-  const handleShowAllPlans = () => {
-    setMenuOpen(false);
-    setHistoryModalMounted(true);
-    setHistoryModalOpen(true);
-  };
-
-  const handleExportBackup = () => {
-    setMenuOpen(false);
-    // The success toast is fired by the export itself, once the password has
-    // been confirmed and the file has been written.
-    handleExportAll().catch((error: unknown) => {
-      logError('Backup export failed', { error }, 'Footer');
-    });
-  };
-
-  const handleImportBackup = () => {
-    setMenuOpen(false);
-    triggerImport();
-  };
-
-  const handleInstallApp = () => {
-    setMenuOpen(false);
-    triggerInstall().catch((error: unknown) => {
-      logError('PWA install prompt failed', { error }, 'Footer');
-    });
-  };
 
   const linkClass =
     'inline-flex min-h-9 sm:min-h-11 items-center gap-1 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium transition px-1.5 py-1 sm:px-3 sm:py-2 text-xs sm:text-sm rounded whitespace-nowrap';
@@ -236,100 +179,25 @@ const Footer: React.FC = () => {
             title={t('footer.settings')}
             aria-haspopup="menu"
             aria-expanded={menuOpen}
-            data-tour={TOUR_ANCHORS.footerSettings}
+            data-tour={TOUR_ANCHORS.appSettings}
           >
             <GearIcon className="h-4 w-4 text-blue-600 dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors" />
           </button>
           {menuOpen && (
             <div
               role="menu"
-              className={`${menuSurfaceClass} absolute right-0 bottom-full mb-2 min-w-52 p-1`}
+              aria-label={t('footer.settings')}
+              className={`${menuSurfaceClass} absolute right-0 bottom-full mb-2 min-w-56 p-1`}
             >
-              <div className="flex items-center gap-2 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-300">
-                <HardDrivesIcon className="h-4 w-4" aria-hidden="true" />
-                {t('generator:storage.sectionTitle')}
-              </div>
-              <button
-                type="button"
-                role="menuitem"
-                onClick={handleShowAllPlans}
-                className={storageMenuItemClass}
-              >
-                <ClockCounterClockwiseIcon className="h-4 w-4 text-purple-600" />
-                {t('generator:storage.showAllPlans')}
-              </button>
-              <button
-                type="button"
-                role="menuitem"
-                onClick={handleExportBackup}
-                className={storageMenuItemClass}
-              >
-                <DownloadIcon className="h-4 w-4 text-green-600" />
-                {t('generator:storage.exportBackup')}
-              </button>
-              <button
-                type="button"
-                role="menuitem"
-                onClick={handleImportBackup}
-                className={storageMenuItemClass}
-              >
-                <UploadIcon className="h-4 w-4 text-blue-600" />
-                {t('generator:storage.importBackup')}
-              </button>
-              {isInstallable && (
-                <>
-                  <div className="my-1 h-px bg-gray-200 dark:bg-gray-700" />
-                  <button
-                    type="button"
-                    role="menuitem"
-                    onClick={handleInstallApp}
-                    className={storageMenuItemClass}
-                  >
-                    <DeviceMobileIcon className="h-4 w-4 text-blue-600" />
-                    {t('pwa.install')}
-                  </button>
-                </>
-              )}
-              <div className="my-1 h-px bg-gray-200 dark:bg-gray-700" />
-              <button
-                type="button"
-                role="menuitem"
-                onClick={() => {
-                  setMenuOpen(false);
-                  setConfirmOpen(true);
-                }}
-                className="group flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-gray-700 hover:bg-red-50 dark:text-gray-200 dark:hover:bg-red-950/40 transition-colors cursor-pointer"
-              >
-                <TrashIcon className="h-4 w-4 text-gray-500 group-hover:text-red-500 dark:text-gray-400 dark:group-hover:text-red-400 transition-colors" />
-                {t('footer.clearAllData')}
-              </button>
+              <Suspense fallback={null}>
+                <AppSettingsItems onDone={() => setMenuOpen(false)} />
+              </Suspense>
             </div>
           )}
         </div>
       </div>
-      {historyModalMounted && (
-        <Suspense fallback={null}>
-          <StorageHistoryModal
-            open={historyModalOpen}
-            onClose={() => setHistoryModalOpen(false)}
-          />
-        </Suspense>
-      )}
-      <ConfirmDialog
-        open={confirmOpen}
-        title={t('dialogs.clearAllData.title')}
-        message={t('dialogs.clearAllData.message')}
-        confirmLabel={t('dialogs.clearAllData.confirm')}
-        cancelLabel={t('dialogs.clearAllData.cancel')}
-        onConfirm={handleConfirm}
-        onCancel={() => setConfirmOpen(false)}
-      />
     </footer>
   );
 };
-
-// Storage menu item style (blue hover variant of the footer menu items)
-const storageMenuItemClass =
-  'group flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-gray-700 hover:bg-blue-50 dark:text-gray-200 dark:hover:bg-blue-950/40 transition-colors cursor-pointer';
 
 export default Footer;

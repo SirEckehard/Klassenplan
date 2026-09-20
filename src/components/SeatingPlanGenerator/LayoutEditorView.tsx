@@ -64,6 +64,7 @@ import {
   type FeatureTemplate,
 } from '@/hooks/canvas/featureTemplates';
 import type { SceneTransactionRunner } from '@/hooks/scene/useSceneManager';
+import { workspaceLayerClass } from '@/components/shell/shellTokens';
 
 type Props = {
   alignmentGuides: AlignmentGuide[] | null;
@@ -918,7 +919,7 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 lg:flex lg:min-h-0 lg:flex-1 lg:flex-col lg:space-y-0">
       {/* The shell owns the panel; the selection and its mutators live here,
           so this is where its content is rendered from. */}
       <InspectorPortal>
@@ -938,9 +939,7 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
       {/* The direction comes from the same hook that decides whether the
           sidebar is a rail or a phone sheet — a `md:` variant here could
           disagree with it and stack the rail on top of the canvas. */}
-      <div
-        className={`flex ${isPhone ? 'flex-col gap-4' : 'flex-row items-start gap-2'}`}
-      >
+      <div className={workspaceLayerClass}>
         <LayoutEditorSidebarSection
           isPhone={isPhone}
           handleSaveTemplate={handleSaveTemplate}

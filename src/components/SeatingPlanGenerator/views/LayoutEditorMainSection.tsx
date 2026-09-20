@@ -27,6 +27,7 @@ import {
 /** Matches the pair the other layers put in the status bar. */
 const statusBarButtonClass = `${quietIconButtonClass} h-9 w-9`;
 import type { FeaturePaletteItem } from '@/hooks/canvas/useFeaturePaletteDrag';
+import { workspaceStageClass } from '@/components/shell/shellTokens';
 
 export type LayoutEditorContextMenuProps<T> = {
   state: T | null;
@@ -93,7 +94,7 @@ const LayoutEditorMainSection = React.memo(function LayoutEditorMainSection({
 }: LayoutEditorMainSectionProps) {
   const { t } = useTranslation('generator');
   return (
-    <div className="flex min-w-0 flex-1 flex-col gap-4">
+    <div className={`${workspaceStageClass} flex flex-col gap-4`}>
       {/* Mobile: Quick Setup Button above canvas for easy access */}
       {isPhone && (
         <button
