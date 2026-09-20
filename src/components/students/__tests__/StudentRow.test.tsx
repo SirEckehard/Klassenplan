@@ -2,7 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import '@testing-library/jest-dom/vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { expect, test, vi } from 'vitest';
+import { expect, test } from 'vitest';
 import '@/i18n'; // Initialize i18n for tests
 import StudentRow from '../StudentRow';
 import { InspectorProvider, useInspector } from '@/contexts/InspectorContext';
@@ -17,31 +17,12 @@ const baseStudent: Student = {
   needsFrontSeat: false,
 };
 
-test('removes student via callback', () => {
-  const removeStudent = vi.fn();
-  render(
-    <StudentRow
-      student={{ ...baseStudent, gender: 'girl' }}
-      index={0}
-      highlight={false}
-      updateStudent={() => {}}
-      removeStudent={removeStudent}
-      allStudents={[baseStudent]}
-    />,
-  );
-
-  fireEvent.click(screen.getByLabelText(/Alice entfernen|Remove Alice/i));
-  expect(removeStudent).toHaveBeenCalledWith('1');
-});
-
 test('shows a chip for every attribute that is set, and none for the rest', () => {
   render(
     <StudentRow
       student={{ ...baseStudent, restless: true, height: 'tall' }}
       index={0}
       highlight={false}
-      updateStudent={() => {}}
-      removeStudent={() => {}}
       allStudents={[baseStudent]}
     />,
   );
@@ -54,7 +35,39 @@ test('shows a chip for every attribute that is set, and none for the rest', () =
   ).not.toBeInTheDocument();
 });
 
-test('opens and closes the inspector for its student', () => {
+test('names what the student is still missing, and nothing when complete', () => {
+  const { rerender } = render(
+    <StudentRow
+      student={baseStudent}
+      index={0}
+      highlight={false}
+      allStudents={[baseStudent]}
+    />,
+  );
+  expect(screen.getByText(/^(kein Foto|no photo)$/i)).toBeInTheDocument();
+
+  rerender(
+    <StudentRow
+      student={{ ...baseStudent, hasPhoto: true }}
+      index={0}
+      highlight={false}
+      allStudents={[baseStudent]}
+    />,
+  );
+  expect(screen.queryByText(/^(kein Foto|no photo)$/i)).not.toBeInTheDocument();
+
+  rerender(
+    <StudentRow
+      student={{ ...baseStudent, name: '', hasPhoto: true }}
+      index={0}
+      highlight={false}
+      allStudents={[baseStudent]}
+    />,
+  );
+  expect(screen.getByText(/^(kein Name|no name)$/i)).toBeInTheDocument();
+});
+
+test('the whole row opens its student in the inspector', () => {
   const Probe = () => {
     const { selection } = useInspector();
     return (
@@ -69,23 +82,23 @@ test('opens and closes the inspector for its student', () => {
         student={baseStudent}
         index={0}
         highlight={false}
-        updateStudent={() => {}}
-        removeStudent={() => {}}
         allStudents={[baseStudent]}
       />
     </InspectorProvider>,
   );
 
-  const inspect = screen.getByRole('button', {
-    name: /Merkmale von Alice bearbeiten|Edit attributes of Alice/i,
+  const row = screen.getByRole('button', {
+    name: /Alice im Inspektor öffnen|Open Alice in the inspector/i,
   });
-  expect(inspect).toHaveAttribute('aria-pressed', 'false');
+  expect(row).not.toHaveAttribute('aria-current');
   expect(screen.getByRole('status')).toHaveTextContent('none');
 
-  fireEvent.click(inspect);
+  fireEvent.click(row);
   expect(screen.getByRole('status')).toHaveTextContent('1');
-  expect(inspect).toHaveAttribute('aria-pressed', 'true');
+  expect(row).toHaveAttribute('aria-current', 'true');
 
-  fireEvent.click(inspect);
-  expect(screen.getByRole('status')).toHaveTextContent('none');
+  // Pressing the row that is already showing keeps it, rather than shutting
+  // the panel the teacher is working in.
+  fireEvent.click(row);
+  expect(screen.getByRole('status')).toHaveTextContent('1');
 });

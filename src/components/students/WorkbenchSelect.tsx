@@ -171,7 +171,7 @@ export default function WorkbenchSelect({
         ref={anchorRef}
         onClick={() => setOpen((previous) => !previous)}
         onKeyDown={handleTriggerKeyDown}
-        className={`${workbenchPillClass} ${widthClass} inline-flex cursor-pointer items-center pr-9`}
+        className={`${workbenchPillClass} ${widthClass} inline-flex cursor-pointer items-center pr-8`}
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label={`${label}: ${activeLabel}`}

@@ -5,6 +5,8 @@ import ConfirmDialog from '@/components/ui/modals/ConfirmDialog';
 import i18n from '@/i18n';
 
 interface ConfirmDialogOptions {
+  /** Names what is being decided; the generic "please confirm" otherwise. */
+  title?: string;
   confirmLabel?: string;
   cancelLabel?: string;
 }
@@ -14,6 +16,7 @@ export function confirmDialog(
   options: ConfirmDialogOptions = {},
 ): Promise<boolean> {
   const {
+    title = i18n.t('dialogs.confirmTitle', { ns: 'common' }),
     confirmLabel = 'OK',
     cancelLabel = i18n.t('buttons.cancel', { ns: 'common' }),
   } = options;
@@ -31,7 +34,7 @@ export function confirmDialog(
     root.render(
       <ConfirmDialog
         open={true}
-        title={i18n.t('dialogs.confirmTitle', { ns: 'common' })}
+        title={title}
         message={message}
         confirmLabel={confirmLabel}
         cancelLabel={cancelLabel}

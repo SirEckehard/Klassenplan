@@ -59,8 +59,9 @@ async function addStudents(page: Page, names: string[]): Promise<void> {
   for (const name of names) {
     await nameField.fill(name);
     await popover.getByRole('button', { name: 'Schüler hinzufügen' }).click();
+    // The list row is one button now; the name is edited in the inspector.
     await expect(
-      page.getByRole('button', { name: `Namen bearbeiten: ${name}` }),
+      page.getByRole('button', { name: `${name} im Inspektor öffnen` }),
     ).toBeVisible();
   }
 
@@ -181,6 +182,6 @@ test('the class and its plan survive a reload', async ({ page }) => {
     page.getByRole('button', { name: /Aktive Klasse: Persistenz 8c/ }),
   ).toContainText('2 Schüler');
   await expect(
-    page.getByRole('button', { name: 'Namen bearbeiten: Ada Lovelace' }),
+    page.getByRole('button', { name: 'Ada Lovelace im Inspektor öffnen' }),
   ).toBeVisible();
 });

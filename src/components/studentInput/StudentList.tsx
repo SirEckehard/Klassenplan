@@ -8,9 +8,11 @@ import type { VirtualItem } from '@tanstack/react-virtual';
 import StudentRow from '@/components/students/StudentRow';
 import StudentListHeader from '@/components/students/StudentListHeader';
 import { useIsLgUp } from '@/hooks/ui/useIsLgUp';
+import { listContainerClass } from '@/utils';
 import type { Student } from '@/types';
 
-const GRID_GAP_PX = 2;
+// The rows are divided by a hairline of their own, not by a gap.
+const GRID_GAP_PX = 0;
 const VIRTUALIZATION_THRESHOLD = 40; // Enable virtualization only for large lists (max 36 students currently)
 
 type StudentListProps = {
@@ -23,8 +25,6 @@ type StudentListProps = {
   allStudents?: Student[];
   lastAddedId: string | null;
   expandedCardId: string | null;
-  updateStudent: (id: string, patch: Partial<Student>) => void;
-  requestStudentRemoval: (studentId: string) => void;
   listContainerRef: MutableRefObject<HTMLDivElement | null>;
   maxHeight: number | null;
   onScrollCollapse?: () => void;
@@ -42,8 +42,6 @@ const StudentList = ({
   allStudents,
   lastAddedId,
   expandedCardId,
-  updateStudent,
-  requestStudentRemoval,
   listContainerRef,
   maxHeight,
   onScrollCollapse,
@@ -63,7 +61,7 @@ const StudentList = ({
     students.length >= VIRTUALIZATION_THRESHOLD && isLgUp;
 
   // Rough seed only; the virtualizer measures real element heights below.
-  const estimateSize = useCallback(() => (isLgUp ? 64 : 140), [isLgUp]);
+  const estimateSize = useCallback(() => (isLgUp ? 60 : 140), [isLgUp]);
 
   // The inner scroll height comes from the adaptive-viewport hook, which only
   // returns a value at `lg+` (null below `lg`, where the page scrolls instead).
@@ -102,10 +100,10 @@ const StudentList = ({
   // Non-virtualized rendering: small lists and all viewports below `lg`.
   if (!shouldVirtualize) {
     return (
-      <div className="relative">
+      <div className={`${listContainerClass} relative mb-4 overflow-hidden`}>
         <div
           ref={listContainerRef}
-          className="mb-4 grid content-start gap-0.5 lg:overflow-y-auto"
+          className="grid content-start lg:overflow-y-auto"
           style={maxHeight ? { maxHeight: `${maxHeight}px` } : undefined}
           onScroll={onScrollCollapse}
         >
@@ -122,8 +120,6 @@ const StudentList = ({
               student={student}
               index={index}
               highlight={student.id === lastAddedId}
-              updateStudent={updateStudent}
-              removeStudent={requestStudentRemoval}
               allStudents={classRoster}
               selected={isSelected?.(student.id)}
               onToggleSelected={onToggleSelected}
@@ -138,10 +134,10 @@ const StudentList = ({
   const virtualItems = virtualizer.getVirtualItems();
 
   return (
-    <div className="relative">
+    <div className={`${listContainerClass} relative mb-4 overflow-hidden`}>
       <div
         ref={parentRef}
-        className="overflow-y-auto mb-4"
+        className="overflow-y-auto"
         style={{
           height: `${listHeight}px`,
         }}
@@ -177,8 +173,6 @@ const StudentList = ({
                   student={student}
                   index={virtualItem.index}
                   highlight={student.id === lastAddedId}
-                  updateStudent={updateStudent}
-                  removeStudent={requestStudentRemoval}
                   allStudents={classRoster}
                   selected={isSelected?.(student.id)}
                   onToggleSelected={onToggleSelected}

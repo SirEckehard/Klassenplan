@@ -1,17 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import { SlidersHorizontalIcon, TrashIcon } from '@phosphor-icons/react';
-import React, { useState } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Student } from '@/types';
 import { useInspector } from '@/contexts/InspectorContext';
-import {
-  cardSurfaceClass,
-  dangerIconButtonClass,
-  quietIconButtonClass,
-} from '@/utils';
-import StudentNameEditor from './StudentNameEditor';
-import StudentPhotoButton from './StudentPhotoButton';
+import StudentAvatar from './StudentAvatar';
 import StudentChips from './StudentChips';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 
@@ -19,8 +12,6 @@ type Props = {
   student: Student;
   index: number;
   highlight: boolean;
-  updateStudent: (id: string, patch: Partial<Student>) => void;
-  removeStudent: (id: string) => void;
   allStudents: Student[];
   /**
    * Multi-select for bulk edits. Omitted while the class is too small for the
@@ -34,117 +25,91 @@ type Props = {
  * One student, at a glance: photo, name, and the attributes that are actually
  * set.
  *
- * The row used to carry sixteen icon columns per student — for a class of
- * thirty, four hundred and eighty controls, in which an unset attribute looked
- * exactly like one deliberately turned off. Editing moved to the inspector;
- * what is left here is the answer to "who is in this class and what do I know
- * about them", which is what a list is for.
+ * The row used to carry sixteen icon columns per student, then two buttons at
+ * its end — inspect and delete — beside an avatar and a name that were both
+ * controls of their own. For a class of twenty-four that is a hundred small
+ * targets in a list whose only job is to answer "who is in this class and what
+ * do I know about them". The row is now one button: pressing it opens the
+ * student in the inspector, which is where a name, a photo and an attribute
+ * are changed, and where removing one lives. The checkbox stays beside it,
+ * because a checkbox inside a button is not a checkbox.
  */
 function StudentRow({
   student,
   index,
   highlight,
-  updateStudent,
-  removeStudent,
   allStudents,
   selected,
   onToggleSelected,
 }: Props) {
   const { t } = useTranslation('students');
-  const { selection, toggleStudent, selectStudent } = useInspector();
+  const { selection, selectStudent } = useInspector();
   const isInspected =
     selection?.kind === 'student' && selection.id === student.id;
 
-  // The name editor is the only piece of row state left now that the selectors
-  // and their dropdowns live in the inspector.
-  const [isEditing, setIsEditing] = useState(false);
-  const [draftName, setDraftName] = useState('');
-
   const displayName = student.name || t('studentList.newStudent');
+  const hasName = student.name.trim().length > 0;
 
-  /**
-   * A click anywhere in the row opens the inspector, unless it landed on a
-   * control of its own. Keyboard users get the explicit button at the end —
-   * the row is not a button itself, because it contains several.
-   */
-  const handleRowClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (
-      event.target instanceof Element &&
-      event.target.closest('button, input, a, label, [role="button"]')
-    ) {
-      return;
-    }
-    selectStudent(student.id);
-  };
+  // Only what is still missing is worth a word; a complete row says nothing,
+  // so the column reads as a list of the students who still need something.
+  const state = !hasName
+    ? t('listStatus.noName')
+    : student.hasPhoto
+      ? ''
+      : t('listStatus.noPhoto');
 
   const stateClass = isInspected
-    ? 'border-blue-600 shadow-[inset_3px_0_0_var(--button-primary-bg)] dark:border-blue-500'
+    ? 'bg-(--surface-option-selected)'
     : highlight
-      ? 'border-green-500 bg-green-50/90 dark:border-green-400 dark:bg-green-900/30'
+      ? 'bg-(--surface-sunken)'
       : selected
-        ? 'border-blue-400 bg-blue-50/70 dark:border-blue-500 dark:bg-blue-950/40'
+        ? 'bg-(--surface-option-selected)'
         : '';
 
   return (
     <div
       id={`student-${student.id}`}
-      className={`${cardSurfaceClass} flex flex-wrap items-center gap-x-3 gap-y-2 px-3 py-2 ${stateClass}`}
       data-tour={TOUR_ANCHORS.studentRow}
-      onClick={handleRowClick}
+      className={`flex items-center gap-3 border-b border-(--border-card) px-3 last:border-b-0 ${stateClass}`}
     >
       {onToggleSelected && (
         <input
           type="checkbox"
           checked={Boolean(selected)}
           onChange={() => onToggleSelected(student.id)}
-          className="h-4 w-4 shrink-0 cursor-pointer accent-blue-600"
+          className="h-4 w-4 shrink-0 cursor-pointer accent-(--accent-option)"
           aria-label={t('listToolbar.selectStudent', { name: displayName })}
         />
       )}
-      <span className="min-w-6 shrink-0 text-sm font-medium tabular-nums text-(--text-muted)">
-        {index + 1}.
-      </span>
-      <StudentPhotoButton student={student} updateStudent={updateStudent} />
-      <StudentNameEditor
-        student={student}
-        allStudents={allStudents}
-        updateStudent={updateStudent}
-        isEditing={isEditing}
-        setIsEditing={setIsEditing}
-        draftName={draftName}
-        setDraftName={setDraftName}
-        showEditButton={false}
-      />
-
-      <StudentChips
-        student={student}
-        allStudents={allStudents}
-        className="min-w-0 flex-1 basis-full lg:basis-auto"
-      />
-
-      <div className="ml-auto flex shrink-0 items-center gap-1">
-        <button
-          type="button"
-          onClick={() => toggleStudent(student.id)}
-          aria-pressed={isInspected}
-          className={`${quietIconButtonClass} min-h-11 min-w-11`}
-          title={t('studentList.inspect', { name: displayName })}
-          aria-label={t('studentList.inspect', { name: displayName })}
+      <button
+        type="button"
+        onClick={() => selectStudent(student.id)}
+        // The row is not a toggle: pressing the one already showing must not
+        // shut the inspector, which is what `aria-pressed` would promise.
+        aria-current={isInspected ? 'true' : undefined}
+        aria-label={t('listStatus.openStudent', { name: displayName })}
+        className="flex min-w-0 flex-1 cursor-pointer flex-wrap items-center gap-x-3 gap-y-1 py-2 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) lg:h-15 lg:flex-nowrap lg:py-0"
+      >
+        <span className="w-6 shrink-0 text-xs tabular-nums text-(--text-muted)">
+          {index + 1}.
+        </span>
+        <StudentAvatar student={student} size={32} />
+        <span
+          className={`shrink-0 truncate text-[15px] lg:w-44 ${
+            hasName ? 'text-(--text-page)' : 'text-(--text-muted) italic'
+          }`}
         >
-          <SlidersHorizontalIcon size={16} aria-hidden="true" />
-        </button>
-        <button
-          type="button"
-          className={`${dangerIconButtonClass} min-h-11 min-w-11`}
-          onClick={() => removeStudent(student.id)}
-          title={t('studentList.removeStudentTitle', { name: displayName })}
-          aria-label={t('studentList.removeStudentTitle', {
-            name: displayName,
-          })}
-        >
-          <TrashIcon size={14} aria-hidden="true" />
-        </button>
-      </div>
+          {displayName}
+        </span>
+        <StudentChips
+          student={student}
+          allStudents={allStudents}
+          className="min-w-0 flex-1 basis-full lg:basis-auto"
+        />
+        <span className="shrink-0 text-xs text-(--text-muted) lg:w-20 lg:text-right">
+          {state}
+        </span>
+      </button>
     </div>
   );
 }

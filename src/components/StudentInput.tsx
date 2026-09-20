@@ -71,7 +71,6 @@ function StudentInput({
   students,
   addStudent,
   addBulkPlaceholderStudents,
-  removeStudent,
   removeStudents,
   updateStudent,
   updateStudents,
@@ -80,10 +79,6 @@ function StudentInput({
 }: StudentInputProps) {
   const { t } = useTranslation('students');
   const navigate = useLocalizedNavigate();
-  const [pendingRemoval, setPendingRemoval] = useState<{
-    id: string;
-    name: string;
-  } | null>(null);
   const [placeholderCount, setPlaceholderCount] = useState('10');
 
   // Below `lg` the list flows in the page scroll (no inner scroll container);
@@ -177,26 +172,6 @@ function StudentInput({
   );
 
   // Classroom setup removed - now handled in Step 2
-
-  const requestStudentRemoval = useCallback(
-    (studentId: string) => {
-      const targetStudent = students.find((entry) => entry.id === studentId);
-      if (!targetStudent) {
-        return;
-      }
-
-      setPendingRemoval({
-        id: studentId,
-        name: targetStudent.name,
-      });
-    },
-    [students],
-  );
-
-  const pendingRemovalName = pendingRemoval?.name?.trim();
-  const removalTargetLabel = pendingRemovalName
-    ? `"${pendingRemovalName}"`
-    : t('studentInput.thisStudent', 'diesen Schüler');
 
   const handleListScrollCollapse = useCallback(() => {
     // No longer needed - collapse functionality removed
@@ -480,8 +455,6 @@ function StudentInput({
               allStudents={students}
               lastAddedId={lastAddedId}
               expandedCardId={expandedCardId}
-              updateStudent={updateStudent}
-              requestStudentRemoval={requestStudentRemoval}
               listContainerRef={listContainerRef}
               maxHeight={listMaxHeight}
               onScrollCollapse={handleListScrollCollapse}
@@ -508,33 +481,6 @@ function StudentInput({
         />
       )}
 
-      <ConfirmDialog
-        open={Boolean(pendingRemoval)}
-        title={t('studentInput.removeStudentTitle', 'Schüler entfernen')}
-        message={t('studentInput.removeStudentMessage', {
-          studentName: removalTargetLabel,
-          defaultValue: `Möchtest du ${removalTargetLabel} wirklich entfernen? Du kannst das mit Strg/Cmd+Z rückgängig machen.`,
-        })}
-        confirmLabel={t('classManagement.delete', 'Löschen')}
-        cancelLabel={t('common.cancel', 'Abbrechen')}
-        onConfirm={() => {
-          if (!pendingRemoval) {
-            return;
-          }
-          const studentName = pendingRemoval.name.trim();
-          removeStudent(pendingRemoval.id);
-          showToast(
-            'success',
-            t('studentInput.studentRemoved', {
-              studentName:
-                studentName || t('studentList.newStudent', 'Neuer Schüler'),
-              defaultValue: `${studentName || 'Schüler'} wurde entfernt.`,
-            }),
-          );
-          setPendingRemoval(null);
-        }}
-        onCancel={() => setPendingRemoval(null)}
-      />
       <ConfirmDialog
         open={bulkDeleteOpen}
         title={t('bulkEdit.deleteTitle', 'Ausgewählte Schüler entfernen')}

@@ -1,22 +1,37 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import '@testing-library/jest-dom/vitest';
-import { render, screen, fireEvent, cleanup } from '@testing-library/react';
+import {
+  render,
+  screen,
+  fireEvent,
+  cleanup,
+  waitFor,
+} from '@testing-library/react';
 import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
 import '@/i18n';
 import Inspector from '@/components/shell/Inspector';
 import { InspectorProvider, useInspector } from '@/contexts/InspectorContext';
-import { createMockStudent } from '@/__tests__/utils';
+import { createMockStudent, getButton } from '@/__tests__/utils';
 import type { Student } from '@/types';
 
 const mocks = vi.hoisted(() => ({
   state: { step: 1, students: [] as Student[] },
   updateStudent: vi.fn(),
+  removeStudent: vi.fn(),
+  confirm: vi.fn(),
 }));
 
 vi.mock('@/contexts/SeatingPlanContext', () => ({
   useSeatingPlanState: () => mocks.state,
-  useSeatingPlanActions: () => ({ updateStudent: mocks.updateStudent }),
+  useSeatingPlanActions: () => ({
+    updateStudent: mocks.updateStudent,
+    removeStudent: mocks.removeStudent,
+  }),
+}));
+
+vi.mock('@/services/ui/dialogs', () => ({
+  confirmDialog: (...args: unknown[]) => mocks.confirm(...args),
 }));
 
 const ada = createMockStudent({ id: 'a', name: 'Ada' });
@@ -97,5 +112,28 @@ describe('Inspector', () => {
     expect(
       screen.getByText(/Kein Schüler ausgewählt|No student selected/i),
     ).toBeVisible();
+  });
+
+  it('removes the student it is showing, once that is confirmed', async () => {
+    mocks.confirm.mockResolvedValue(true);
+    renderInspector();
+    fireEvent.click(screen.getByRole('button', { name: 'pick-grace' }));
+
+    fireEvent.click(getButton(/^(Löschen|Delete)$/i));
+    await waitFor(() => expect(mocks.removeStudent).toHaveBeenCalledWith('g'));
+    // The panel lets go of what it just deleted.
+    expect(
+      screen.getByText(/Kein Schüler ausgewählt|No student selected/i),
+    ).toBeVisible();
+  });
+
+  it('keeps the student when the question is answered with no', async () => {
+    mocks.confirm.mockResolvedValue(false);
+    renderInspector();
+    fireEvent.click(screen.getByRole('button', { name: 'pick-grace' }));
+
+    fireEvent.click(getButton(/^(Löschen|Delete)$/i));
+    await waitFor(() => expect(mocks.confirm).toHaveBeenCalled());
+    expect(mocks.removeStudent).not.toHaveBeenCalled();
   });
 });

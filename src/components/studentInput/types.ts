@@ -14,7 +14,6 @@ export type StudentInputProps = {
     needsFrontSeat?: boolean,
   ) => Student;
   addBulkPlaceholderStudents: (count: number) => Student[];
-  removeStudent: (id: string) => void;
   /** Remove a whole selection as one undo step and one store write. */
   removeStudents: (ids: string[]) => void;
   updateStudent: (id: string, patch: Partial<Student>) => void;

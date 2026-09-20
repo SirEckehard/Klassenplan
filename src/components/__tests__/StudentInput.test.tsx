@@ -33,21 +33,12 @@ vi.mock('@/components/studentInput/StudentList', () => ({
   __esModule: true,
   default: ({
     students,
-    requestStudentRemoval,
   }: {
     students: Array<{ id: string; name: string }>;
-    requestStudentRemoval: (id: string) => void;
   }) => (
     <div data-testid="mock-student-list">
       {students.map((student) => (
-        <button
-          key={student.id}
-          type="button"
-          onClick={() => requestStudentRemoval(student.id)}
-          aria-label={`${student.name} entfernen`}
-        >
-          {student.name} entfernen
-        </button>
+        <span key={student.id}>{student.name}</span>
       ))}
     </div>
   ),
@@ -155,30 +146,6 @@ describe('StudentInput', () => {
     // The way on to the classroom lives in the shell's status bar; the side
     // trips live at the bottom of the toolbar.
     expect(getButton(/Namensspiel|Name game/i)).toBeInTheDocument();
-  });
-
-  it('requires confirmation before removing a single student', async () => {
-    const students = [
-      createMockStudent({ id: '1', name: 'Max', gender: 'boy' }),
-    ];
-
-    const props = createMockStudentInputProps({ students });
-
-    renderWithClassContext(<StudentInput {...props} />);
-
-    const removeButton = await waitFor(() => getButton(/Max entfernen/i));
-    fireEvent.click(removeButton);
-
-    const dialog = getDialog(/Schüler entfernen|Remove Student/i);
-    expect(dialog).toBeInTheDocument();
-    expect(props.removeStudent).not.toHaveBeenCalled();
-
-    const confirmButton = within(dialog).getByRole('button', {
-      name: /Löschen|Delete/i,
-    });
-    fireEvent.click(confirmButton);
-
-    expect(props.removeStudent).toHaveBeenCalledWith('1');
   });
 
   it('zeigt die Schnell-Namenerfassung bei fehlenden Namen an', () => {

@@ -81,7 +81,8 @@
     "windowFull": "Fensterplatz",
     "doorFull": "Türnähe",
     "number": "Nr",
-    "attributes": "Gesetzte Merkmale"
+    "attributes": "Gesetzte Merkmale",
+    "status": "Stand"
   },
   "studentList": {
     "title": "Klassenliste",
@@ -482,5 +483,10 @@
     "title": "Beziehungen",
     "unknownStudent": "Unbekannt",
     "wishHeading": "Wunschpartner"
+  },
+  "listStatus": {
+    "noName": "kein Name",
+    "noPhoto": "kein Foto",
+    "openStudent": "{{name}} im Inspektor öffnen"
   }
 }

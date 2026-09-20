@@ -92,11 +92,17 @@ test('a first visitor tries the sample class with the tours as a guide', async (
     await expect(activeClassButton(page, 'Beispielklasse')).toContainText(
       '24 Schüler',
     );
-    // "Foto ändern" only replaces "Foto hinzufügen" for a student whose
-    // picture was drawn and stored — a missing canvas would leave none.
+    // The list rows are avatars, not upload buttons — the photo is edited in
+    // the inspector, where "Foto ändern" only replaces "Foto hinzufügen" for a
+    // student whose picture was drawn and stored. A missing canvas would leave
+    // every row saying "kein Foto" instead.
+    await expect(page.getByText('kein Foto')).toHaveCount(0);
+    await page
+      .getByRole('button', { name: /^Emma Becker im Inspektor/ })
+      .click();
     await expect(
       page.getByRole('button', { name: /^Foto ändern – / }),
-    ).toHaveCount(24);
+    ).toBeVisible();
   });
 
   await test.step('step 1 — the class list tour ends with backup and help', async () => {

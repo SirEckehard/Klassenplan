@@ -81,7 +81,8 @@
     "windowFull": "Window seat",
     "doorFull": "Near door",
     "number": "No",
-    "attributes": "Attributes set"
+    "attributes": "Attributes set",
+    "status": "State"
   },
   "studentList": {
     "title": "Class List",
@@ -482,5 +483,10 @@
     "title": "Relationships",
     "unknownStudent": "Unknown",
     "wishHeading": "Preferred partners"
+  },
+  "listStatus": {
+    "noName": "no name",
+    "noPhoto": "no photo",
+    "openStudent": "Open {{name}} in the inspector"
   }
 }

@@ -2,27 +2,27 @@
 // Copyright (C) 2026 Eike Schäfer
 
 /**
- * The pill every control in the class workbench row is cut from — the class
- * switcher, the add trigger and the search/filter/sort fields.
+ * The control every field above the class list is cut from — search, filter
+ * and sort.
  *
- * The fields used to carry `input-field`, which is a *form* look: a
- * semi-transparent ground and an inset shadow, so they read as sunken next to
- * the raised pills beside them. One row of controls that all do the same kind
- * of job should not split into two visual families, so the pill wins and the
- * fields adopt it.
+ * They used to be blue-tinted pills painted by hand (`border-blue-200`,
+ * `bg-white`, `dark:bg-gray-900`), which put a second blue on a surface where
+ * blue means "you can act here" and left dark mode to a `dark:` variant per
+ * property. They are paper with one hairline now, the same 36px row height as
+ * a toolbar entry, and the tokens handle both modes.
  *
  * Layout (height is included, width and display are not) plus `cursor-pointer`
  * and any disabled handling are the caller's to add.
  */
 export const workbenchPillClass =
-  'h-11 rounded-full border border-blue-200/70 bg-white px-4 text-sm text-blue-900 shadow-sm transition hover:border-blue-300 hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-blue-900/40 dark:bg-gray-900 dark:text-blue-100 dark:hover:border-blue-700 dark:hover:bg-gray-800';
+  'h-9 rounded-lg border border-(--border-card) bg-(--surface-card) px-3 text-[13px] text-(--text-page) transition hover:border-(--border-option-hover) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)';
 
 /**
- * The caret that closes a workbench pill opening a menu. Absolutely placed, so
- * the pill it sits in needs `relative` and enough right padding (`pr-9`).
+ * The caret that closes a workbench field opening a menu. Absolutely placed,
+ * so the field it sits in needs `relative` and enough right padding (`pr-8`).
  *
  * `pointer-events-none` matters for the native selects: a click on the caret
  * has to reach the select underneath, or the arrow would look dead.
  */
 export const workbenchCaretClass =
-  'pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-blue-900/70 dark:text-blue-100/70';
+  'pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-(--text-muted)';

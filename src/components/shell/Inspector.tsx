@@ -11,8 +11,9 @@ import { useInspector } from '@/contexts/InspectorContext';
 import { useIsPhone } from '@/hooks/ui/useLayoutMode';
 import { useDialogA11y } from '@/hooks/ui/useDialogA11y';
 import { useDialogLayer } from '@/hooks/ui/useDialogLayer';
-import { quietIconButtonClass } from '@/utils';
+import { quietIconButtonClass, showToast } from '@/utils';
 import StudentInspector from '@/components/students/StudentInspector';
+import { confirmDialog } from '@/services/ui/dialogs';
 
 /**
  * The properties of whatever is selected, in one place on the right.
@@ -27,7 +28,7 @@ import StudentInspector from '@/components/students/StudentInspector';
 export default function Inspector() {
   const { t } = useTranslation(['students', 'generator']);
   const { step, students } = useSeatingPlanState();
-  const { updateStudent } = useSeatingPlanActions();
+  const { updateStudent, removeStudent } = useSeatingPlanActions();
   const { selection, selectStudent, clear, suspended, setSlotNode } =
     useInspector();
   const isPhone = useIsPhone();
@@ -47,6 +48,34 @@ export default function Inspector() {
       clear();
     }
   }, [clear, index, selection]);
+
+  // The list rows gave up their delete button, so this is the only way a
+  // single student leaves the class; the bulk bar still covers several at once.
+  const handleRemove = React.useCallback(async () => {
+    if (!student) return;
+    const name = student.name.trim();
+    const label = name
+      ? `"${name}"`
+      : t('students:studentInput.thisStudent', 'diesen Schüler');
+    const confirmed = await confirmDialog(
+      t('students:studentInput.removeStudentMessage', {
+        studentName: label,
+      }),
+      {
+        title: t('students:studentInput.removeStudentTitle'),
+        confirmLabel: t('students:classManagement.delete'),
+      },
+    );
+    if (!confirmed) return;
+    removeStudent(student.id);
+    clear();
+    showToast(
+      'success',
+      t('students:studentInput.studentRemoved', {
+        studentName: name || t('students:studentList.newStudent'),
+      }),
+    );
+  }, [clear, removeStudent, student, t]);
 
   const isOpen = Boolean(student);
   const sheetRef = useDialogA11y<HTMLDivElement>({ open: isPhone && isOpen });
@@ -83,6 +112,7 @@ export default function Inspector() {
       student={student}
       allStudents={students}
       updateStudent={updateStudent}
+      onRemove={() => void handleRemove()}
       position={{ index: index + 1, total: students.length }}
       onPrevious={
         index > 0 ? () => selectStudent(students[index - 1].id) : undefined

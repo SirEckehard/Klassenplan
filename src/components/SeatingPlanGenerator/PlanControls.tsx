@@ -44,7 +44,6 @@ export default function PlanControls() {
     handleStepChange,
     addStudent,
     addBulkPlaceholderStudents,
-    removeStudent,
     removeStudents,
     updateStudent,
     updateStudents,
@@ -183,7 +182,6 @@ export default function PlanControls() {
               students={students}
               addStudent={addStudent}
               addBulkPlaceholderStudents={addBulkPlaceholderStudents}
-              removeStudent={removeStudent}
               removeStudents={removeStudents}
               updateStudent={updateStudent}
               updateStudents={updateStudents}

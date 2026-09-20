@@ -2,13 +2,18 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { CaretLeftIcon, CaretRightIcon } from '@phosphor-icons/react';
+import {
+  CaretLeftIcon,
+  CaretRightIcon,
+  TrashIcon,
+} from '@phosphor-icons/react';
 import type { Student } from '@/types';
 import { useStudentRowState } from '@/hooks/ui/useStudentRowState';
 import {
   dataFamilyClass,
   dataHeadingClass,
   quietIconButtonClass,
+  dangerButtonClass,
 } from '@/utils';
 import StudentNameEditor from './StudentNameEditor';
 import StudentPhotoButton from './StudentPhotoButton';
@@ -25,6 +30,8 @@ type Props = {
   student: Student;
   allStudents: Student[];
   updateStudent: (id: string, patch: Partial<Student>) => void;
+  /** Remove this student, confirmation included. Omitted where it has none. */
+  onRemove?: () => void;
   /** Step to the previous/next student; omitted at the ends of the list. */
   onPrevious?: () => void;
   onNext?: () => void;
@@ -62,6 +69,7 @@ export default function StudentInspector({
   student,
   allStudents,
   updateStudent,
+  onRemove,
   onPrevious,
   onNext,
   position,
@@ -217,6 +225,21 @@ export default function StudentInspector({
           variant="hybrid"
         />
       </Section>
+
+      {/* Removing a student left the list with its rows; this is where it
+          landed, next to everything else that acts on this one student. */}
+      {onRemove && (
+        <div className="mt-auto flex items-center justify-end border-t border-(--border-card) pt-3">
+          <button
+            type="button"
+            onClick={onRemove}
+            className={`${dangerButtonClass} h-8 gap-2 px-3 text-xs`}
+          >
+            <TrashIcon size={14} aria-hidden="true" />
+            {t('studentList.delete')}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
