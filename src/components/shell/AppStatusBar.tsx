@@ -2,12 +2,14 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { ArrowRightIcon } from '@phosphor-icons/react';
+import { ArrowRightIcon, SidebarSimpleIcon } from '@phosphor-icons/react';
 import {
   useSeatingPlanState,
   useSeatingPlanActions,
 } from '@/contexts/SeatingPlanContext';
 import { useStatusBarSlot } from '@/contexts/StatusBarSlotContext';
+import { useShellToolRail } from '@/contexts/ToolRailContext';
+import { useLayoutMode } from '@/hooks/ui/useLayoutMode';
 import StudentHistoryToolbar from '@/components/studentInput/StudentHistoryToolbar';
 import SeatingHistoryToolbar from '@/components/SeatingPlanGenerator/canvas/SeatingHistoryToolbar';
 import { countSeats, primaryButtonClass, quietIconButtonClass } from '@/utils';
@@ -37,6 +39,12 @@ export default function AppStatusBar() {
     useSeatingPlanState();
   const { handleStepChange } = useSeatingPlanActions();
   const { setStartNode, setEndNode } = useStatusBarSlot();
+  // The toolbar's width belongs to the workspace, not to a layer, so its
+  // switch sits here rather than in a header above the tools. A phone has no
+  // toolbar column at all — there it is a sheet with its own trigger.
+  const toolRail = useShellToolRail();
+  const isPhone = useLayoutMode() === 'phone';
+  const showToolRailSwitch = toolRail !== null && !isPhone;
   const hintId = React.useId();
 
   const studentsCount = students.length;
@@ -155,6 +163,34 @@ export default function AppStatusBar() {
     >
       <div className="flex min-h-11 items-center justify-between gap-4 px-4 py-2">
         <div className="flex min-w-0 items-center gap-3">
+          {showToolRailSwitch && toolRail && (
+            <>
+              <button
+                type="button"
+                onClick={toolRail.toggle}
+                data-tour={TOUR_ANCHORS.sidebarToggle}
+                onMouseUp={(event) => event.currentTarget.blur()}
+                className={historyButtonClass}
+                title={
+                  toolRail.isExpanded
+                    ? t('generator:sidebar.collapseShortcut')
+                    : t('generator:sidebar.expandShortcut')
+                }
+                aria-label={
+                  toolRail.isExpanded
+                    ? t('generator:sidebar.collapseLabel')
+                    : t('generator:sidebar.expandLabel')
+                }
+                aria-expanded={toolRail.isExpanded}
+              >
+                <SidebarSimpleIcon size={16} aria-hidden="true" />
+              </button>
+              <span
+                aria-hidden="true"
+                className="h-4 w-px bg-(--border-card)"
+              />
+            </>
+          )}
           {/* Undo/redo lead the line on every layer. Two of the three
               histories are in the context; the room layer's lives with the
               canvas state and fills the slot through `StatusBarPortal`. */}

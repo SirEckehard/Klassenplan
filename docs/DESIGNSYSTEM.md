@@ -172,7 +172,7 @@ Drag indicators use:
 - Table templates: blue (`bg-blue-600` / `dark:bg-blue-500`)
 - Room features: amber (`bg-amber-500` / `dark:bg-amber-400`)
 
-Every layer's toolbar is a `ToolRail` (`src/components/shell/ToolRail.tsx`) inside `SmartSidebar`, which carries the panel surface. An entry adds layout classes only; its two densities — the labelled column and the icon rail — come from the rail, so a new tool cannot invent a look of its own.
+Every layer's toolbar is a `ToolRail` (`src/components/shell/ToolRail.tsx`) inside `SmartSidebar`. An entry adds layout classes only; its two densities — the 208px labelled column and the 60px icon rail — come from the rail, so a new tool cannot invent a look of its own. An entry is a row, not a card: 36px tall, `rounded-lg`, paper on hover (`--surface-sunken`) and `--surface-option-selected` when it is the view on screen, with the icon taking `--text-badge` so the state has a second channel.
 
 From `lg` up `SmartSidebar` drops that panel surface: on the desktop shell it is not a card but the window's left edge, one hairline (`border-r`) of `--border-card` against the sunken stage. Below `lg` the layer is still a stacked document, where a panel needs a frame of its own to read as one.
 

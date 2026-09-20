@@ -7,8 +7,8 @@ import { useBreakpointUp } from '@/hooks/ui/useBreakpoint';
  *
  * - `phone` (< `md`, 768px) — no room at all: the sidebar becomes a floating
  *   trigger plus a full-screen sheet, and the palettes move under the canvas.
- * - `tablet` (`md` … `lg`, 768–1023px) — room for the collapsed 88px rail but
- *   not for the expanded 288px panel next to a usable canvas. An iPad in
+ * - `tablet` (`md` … `lg`, 768–1023px) — room for the collapsed 60px rail but
+ *   not for the 208px labelled toolbar next to a usable canvas. An iPad in
  *   portrait lands here; before this tier existed it got the phone UI and could
  *   never see options and canvas at the same time.
  * - `desktop` (≥ `lg`, 1024px) — the full sidebar, expansion state remembered.

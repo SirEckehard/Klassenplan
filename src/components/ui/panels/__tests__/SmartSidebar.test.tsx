@@ -3,7 +3,7 @@
 /**
  * The sidebar is where the tablet tier is actually visible. Below `md` it is a
  * floating button and a full-screen sheet; from `md` up it is a real column, on
- * a tablet starting as the 88px rail so the canvas keeps its width.
+ * a tablet starting as the 60px rail so the canvas keeps its width.
  */
 import '@testing-library/jest-dom/vitest';
 import { render, screen, act } from '@testing-library/react';
@@ -11,6 +11,7 @@ import userEvent from '@testing-library/user-event';
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import i18n from '@/i18n';
 import SmartSidebar from '../SmartSidebar';
+import { ToolRailProvider } from '@/contexts/ToolRailContext';
 import { LOCAL_STORAGE_KEYS } from '@/utils/data/storageKeys';
 
 const setWidth = (width: number): void => {
@@ -29,6 +30,16 @@ const renderSidebar = () =>
     <SmartSidebar>
       <p>Optionen-Inhalt</p>
     </SmartSidebar>,
+  );
+
+/** As the workspace mounts it: the status bar owns the switch there. */
+const renderSidebarInShell = () =>
+  render(
+    <ToolRailProvider>
+      <SmartSidebar>
+        <p>Optionen-Inhalt</p>
+      </SmartSidebar>
+    </ToolRailProvider>,
   );
 
 const sidebarColumn = () => screen.queryByRole('complementary');
@@ -133,5 +144,14 @@ describe('SmartSidebar layout tiers', () => {
     expect(localStorage.getItem(LOCAL_STORAGE_KEYS.sidebarExpanded)).toBe(
       'true',
     );
+  });
+
+  it('leaves the switch to the status bar inside the shell', () => {
+    renderSidebarInShell();
+
+    expect(sidebarColumn()).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Sidebar erweitern' }),
+    ).not.toBeInTheDocument();
   });
 });

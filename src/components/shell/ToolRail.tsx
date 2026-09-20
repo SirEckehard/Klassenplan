@@ -4,11 +4,21 @@ import React from 'react';
 import FloatingDropdown from '@/components/students/FloatingDropdown';
 import { useClickOutside } from '@/hooks/ui/useClickOutside';
 import { useDialogLayer } from '@/hooks/ui/useDialogLayer';
-import {
-  getSidebarIconClasses,
-  getSidebarSurfaceClasses,
-  sidebarRailButtonClass,
-} from '@/utils';
+
+/**
+ * One entry, in the two densities the rail has. Paper and one accent: an entry
+ * is a row of the toolbar, not a card of its own — the round, bordered,
+ * shadowed buttons it replaces made a toolbar of eight tools look like eight
+ * separate panels.
+ */
+const entryStateClass = (active: boolean, disabled: boolean) =>
+  [
+    active
+      ? 'bg-(--surface-option-selected) text-(--text-badge)'
+      : 'text-(--text-page) hover:bg-(--surface-sunken)',
+    disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer',
+    'transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)',
+  ].join(' ');
 
 /**
  * The toolbar of a layer: what this layer lets you insert, look at and manage.
@@ -56,8 +66,8 @@ export function ToolRail({
       <div
         className={
           density === 'compact'
-            ? 'flex flex-col items-center gap-1 px-1'
-            : 'flex flex-col gap-5 pb-2'
+            ? 'flex min-h-0 flex-1 flex-col items-center gap-1'
+            : 'flex min-h-0 flex-1 flex-col gap-2'
         }
       >
         {children}
@@ -81,12 +91,16 @@ export function ToolRailGroup({
 }) {
   const density = React.useContext(DensityContext);
 
+  // The groups are told apart by a hairline, not by a gap — the rail is one
+  // column of tools, and `first:` keeps the line off the top of it.
   if (density === 'compact') {
     return (
       <>
         <div
           aria-hidden="true"
-          className={`h-px w-8 bg-(--border-card) ${atEnd ? 'mt-auto mb-1' : 'my-1'}`}
+          className={`h-px w-7 bg-(--border-card) first:hidden ${
+            atEnd ? 'mt-auto mb-1' : 'my-1'
+          }`}
         />
         {children}
       </>
@@ -94,11 +108,15 @@ export function ToolRailGroup({
   }
 
   return (
-    <section className={atEnd ? 'mt-auto' : undefined}>
-      <h3 className="px-1 text-[11px] font-semibold tracking-wider text-(--text-muted) uppercase">
+    <section
+      className={`border-t border-(--border-card) pt-2 first:border-t-0 first:pt-0 ${
+        atEnd ? 'mt-auto' : ''
+      }`}
+    >
+      <h3 className="px-2 pb-1 text-[11px] font-semibold tracking-wider text-(--text-muted) uppercase">
         {title}
       </h3>
-      <div className="mt-2 flex flex-col gap-1">{children}</div>
+      <div className="flex flex-col gap-0.5">{children}</div>
     </section>
   );
 }
@@ -195,27 +213,20 @@ export function ToolRailButton({
       aria-expanded={panel ? open : undefined}
       className={
         isCompact
-          ? `${sidebarRailButtonClass} ${getSidebarSurfaceClasses({
-              variant: 'collapsed',
-              isActive: active,
+          ? `relative inline-flex size-11 shrink-0 select-none items-center justify-center rounded-lg [-webkit-touch-callout:none] ${entryStateClass(
+              active,
               disabled,
-              draggable: Boolean(onPointerDown),
-            })}`
-          : `flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm transition ${
-              active
-                ? 'bg-(--surface-option-selected) font-semibold text-(--text-badge)'
-                : 'text-(--text-page) hover:bg-(--surface-sunken)'
-            } ${
-              disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
-            } focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)`
+            )} ${onPointerDown && !disabled ? 'cursor-grab active:cursor-grabbing' : ''}`
+          : `flex h-9 w-full items-center gap-2.5 rounded-lg px-2 text-left text-[13px] ${entryStateClass(
+              active,
+              disabled,
+            )} ${onPointerDown && !disabled ? 'cursor-grab active:cursor-grabbing' : ''}`
       }
     >
+      {/* The icon carries the active state a second time, so the row is not
+          told apart by its background alone. */}
       <span
-        className={
-          isCompact
-            ? getSidebarIconClasses({ isActive: active, disabled })
-            : 'shrink-0 text-(--text-muted)'
-        }
+        className={`shrink-0 ${active ? 'text-(--text-badge)' : 'text-(--text-muted)'}`}
         aria-hidden="true"
       >
         {icon}

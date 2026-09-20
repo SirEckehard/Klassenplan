@@ -7,6 +7,7 @@ import Inspector from '@/components/shell/Inspector';
 import { InspectorProvider } from '@/contexts/InspectorContext';
 import { ClassDialogsProvider } from '@/contexts/ClassDialogsContext';
 import { StatusBarSlotProvider } from '@/contexts/StatusBarSlotContext';
+import { ToolRailProvider } from '@/contexts/ToolRailContext';
 
 /**
  * The workspace frame: one header on top, one status bar at the bottom, the
@@ -30,25 +31,33 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           on every layer, so the dialogs live above the layer, not inside it. */}
       <ClassDialogsProvider>
         <StatusBarSlotProvider>
-          {/* The status bar's height, for the floating controls inside the
-              workspace that must stay clear of it (`useFloatingActionOffset`). */}
-          <div
-            className="flex min-h-screen flex-col lg:h-dvh lg:min-h-0 lg:overflow-hidden"
-            style={{ '--shell-bottom-inset': '3.25rem' } as React.CSSProperties}
-          >
-            <SeatingPlanHeader />
-            <main
-              id="main"
-              tabIndex={-1}
-              className="flex flex-1 flex-col px-4 py-6 lg:min-h-0 lg:flex-row lg:p-0"
+          {/* One answer for the whole workspace on whether the toolbar shows
+              its labels: the status bar carries the switch, the layer's
+              toolbar reads it. */}
+          <ToolRailProvider>
+            {/* The status bar's height, for the floating controls inside the
+                workspace that must stay clear of it
+                (`useFloatingActionOffset`). */}
+            <div
+              className="flex min-h-screen flex-col lg:h-dvh lg:min-h-0 lg:overflow-hidden"
+              style={
+                { '--shell-bottom-inset': '3.25rem' } as React.CSSProperties
+              }
             >
-              <div className="flex min-w-0 flex-1 flex-col lg:min-h-0">
-                {children}
-              </div>
-              <Inspector />
-            </main>
-            <AppStatusBar />
-          </div>
+              <SeatingPlanHeader />
+              <main
+                id="main"
+                tabIndex={-1}
+                className="flex flex-1 flex-col px-4 py-6 lg:min-h-0 lg:flex-row lg:p-0"
+              >
+                <div className="flex min-w-0 flex-1 flex-col lg:min-h-0">
+                  {children}
+                </div>
+                <Inspector />
+              </main>
+              <AppStatusBar />
+            </div>
+          </ToolRailProvider>
         </StatusBarSlotProvider>
       </ClassDialogsProvider>
     </InspectorProvider>

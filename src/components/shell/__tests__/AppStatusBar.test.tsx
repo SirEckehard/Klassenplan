@@ -2,9 +2,11 @@
 // Copyright (C) 2026 Eike Schäfer
 import '@testing-library/jest-dom/vitest';
 import { render, screen, cleanup } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
 import '@/i18n';
 import AppStatusBar from '@/components/shell/AppStatusBar';
+import { ToolRailProvider } from '@/contexts/ToolRailContext';
 import {
   createMockStudent,
   createMockClassroomScene,
@@ -163,6 +165,34 @@ describe('AppStatusBar', () => {
     );
     expect(
       screen.queryByRole('button', { name: /Weiter|Next|Proceed/i }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('carries the toolbar switch, which the toolbar itself no longer has', async () => {
+    setState({ step: 1, students: named(4) });
+    render(
+      <ToolRailProvider>
+        <AppStatusBar />
+      </ToolRailProvider>,
+    );
+
+    const toggle = getButton('Sidebar erweitern');
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+
+    await userEvent.click(toggle);
+
+    expect(getButton('Sidebar minimieren')).toHaveAttribute(
+      'aria-expanded',
+      'true',
+    );
+  });
+
+  it('leaves the switch out where there is no shell to switch', () => {
+    setState({ step: 1, students: named(4) });
+    render(<AppStatusBar />);
+
+    expect(
+      screen.queryByRole('button', { name: /Sidebar/i }),
     ).not.toBeInTheDocument();
   });
 });

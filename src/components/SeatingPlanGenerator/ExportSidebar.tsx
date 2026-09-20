@@ -391,7 +391,9 @@ function ExportAction({
  */
 export default function ExportSidebar(props: ExportSidebarProps) {
   return (
-    <SmartSidebar>
+    // Its rail buttons are still the round 48px ones, so the column stays as
+    // wide as they need until they follow the workspace toolbar.
+    <SmartSidebar widths={{ expanded: 'w-72', collapsed: 'w-22' }}>
       {({ isExpanded }) => (
         <ExportSidebarContent
           {...props}

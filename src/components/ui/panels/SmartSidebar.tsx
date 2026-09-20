@@ -2,22 +2,15 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  CaretLeftIcon,
-  CaretRightIcon,
-  GearIcon,
-  XIcon,
-} from '@phosphor-icons/react';
+import { GearIcon, SidebarSimpleIcon, XIcon } from '@phosphor-icons/react';
 import {
   iconButtonClass,
   panelSurfaceClass,
   primaryButtonClass,
   secondaryButtonClass,
 } from '@/utils';
-import {
-  useCollapsibleSidebar,
-  type UseCollapsibleSidebarOptions,
-} from '@/hooks/ui/useCollapsibleSidebar';
+import { type UseCollapsibleSidebarOptions } from '@/hooks/ui/useCollapsibleSidebar';
+import { useShellToolRail, useToolRailState } from '@/contexts/ToolRailContext';
 import { useLayoutMode } from '@/hooks/ui/useLayoutMode';
 import { useFloatingActionOffset } from '@/hooks/ui/useFloatingActionOffset';
 import { useAdaptiveViewportHeight } from '@/hooks/ui/useAdaptiveViewportHeight';
@@ -29,6 +22,12 @@ interface SmartSidebarProps extends UseCollapsibleSidebarOptions {
   className?: string;
   /** `data-tour` anchor for the onboarding tour, set on the rail (not the phone sheet). */
   tourAnchor?: string;
+  /**
+   * The column's two widths. The default is the workspace toolbar's — 208px
+   * labelled, 60px as icons, which is what a `ToolRail` entry is cut for. A
+   * sidebar whose entries are a different size says so here.
+   */
+  widths?: { expanded: string; collapsed: string };
   children?:
     | React.ReactNode
     | ((props: {
@@ -42,20 +41,20 @@ interface SmartSidebarProps extends UseCollapsibleSidebarOptions {
 export default function SmartSidebar({
   className = '',
   tourAnchor,
+  widths = { expanded: 'w-52', collapsed: 'w-15' },
   children,
   ...sidebarOptions
 }: SmartSidebarProps) {
   const { t } = useTranslation('generator');
-  const sidebar = useCollapsibleSidebar(sidebarOptions);
   const layoutMode = useLayoutMode();
   const isPhone = layoutMode === 'phone';
-  const isTablet = layoutMode === 'tablet';
+  // Inside the workspace the status bar owns the switch and the state is
+  // shared; a sidebar outside the shell — the export page's — keeps both.
+  const shellRail = useShellToolRail();
+  const ownRail = useToolRailState(sidebarOptions);
+  const rail = shellRail ?? ownRail;
+  const ownsSwitch = shellRail === null;
   const [mobileOpen, setMobileOpen] = React.useState(false);
-  // On a tablet the rail starts collapsed and its expansion lives for the
-  // session only: 288px of sidebar would leave a 900px scene barely 500px of
-  // width, and the stored preference belongs to the desktop layout it was made
-  // in — a laptop choice must not decide how the iPad opens.
-  const [tabletExpanded, setTabletExpanded] = React.useState(false);
   const openMobileOverlay = React.useCallback(
     () => setMobileOpen(true),
     [setMobileOpen],
@@ -73,28 +72,7 @@ export default function SmartSidebar({
   useDialogLayer(isPhone && mobileOpen);
   const mobileSheetTitleId = React.useId();
 
-  const isExpanded = isTablet ? tabletExpanded : sidebar.isExpanded;
-  const expand = React.useCallback(() => {
-    if (isTablet) {
-      setTabletExpanded(true);
-      return;
-    }
-    sidebar.expand();
-  }, [isTablet, sidebar]);
-  const collapse = React.useCallback(() => {
-    if (isTablet) {
-      setTabletExpanded(false);
-      return;
-    }
-    sidebar.collapse();
-  }, [isTablet, sidebar]);
-  const toggle = React.useCallback(() => {
-    if (isTablet) {
-      setTabletExpanded((previous) => !previous);
-      return;
-    }
-    sidebar.toggle();
-  }, [isTablet, sidebar]);
+  const { isExpanded, expand, toggle } = rail;
   const { maxHeight } = useAdaptiveViewportHeight<HTMLElement>({
     containerRef,
     // From `lg` up the shell is the window: the column has a real height from
@@ -144,8 +122,7 @@ export default function SmartSidebar({
     return () => document.removeEventListener('keydown', handleKeydown);
   }, [closeMobileOverlay, mobileOpen, toggle]);
 
-  const collapsedWidth = 'w-22';
-  const expandedWidth = 'w-72';
+  const { expanded: expandedWidth, collapsed: collapsedWidth } = widths;
 
   // Paper, like every other surface of the workspace: the toolbar is where
   // the tools are, not something that has to announce itself in blue.
@@ -162,7 +139,7 @@ export default function SmartSidebar({
     isDesktopShell ? 'self-stretch' : 'self-start'
   }`;
 
-  // Simplified style - only use maxHeight from the debounced hook
+  // Only the document layouts below `lg` need a measured ceiling.
   const sidebarStyle = React.useMemo<React.CSSProperties | undefined>(() => {
     if (maxHeight == null) {
       return undefined;
@@ -238,67 +215,45 @@ export default function SmartSidebar({
       aria-expanded={isExpanded}
       data-tour={tourAnchor}
     >
-      {/* Sidebar Header and Content */}
-      <div className="flex flex-col h-full min-h-0">
-        {/* Header with toggle button */}
-        <div className="shrink-0 border-b border-(--border-panel) px-2 py-2">
-          {isExpanded ? (
-            // Expanded header with title and collapse button
+      <div className="flex h-full min-h-0 flex-col">
+        {/* A sidebar outside the shell has no status bar to hang its switch
+            in, so it keeps one of its own above the tools. */}
+        {ownsSwitch && (
+          <div className="shrink-0 px-2 pt-2">
             <button
               ref={collapseButtonRef}
-              type="button"
-              onClick={collapse}
-              data-tour={TOUR_ANCHORS.sidebarToggle}
-              onMouseUp={(event) => event.currentTarget.blur()}
-              className={`${secondaryButtonClass} w-full justify-between gap-2 px-3 py-2 text-sm`}
-              title={t(
-                'sidebar.collapseShortcut',
-                'Sidebar minimieren (⌘/Strg+B)',
-              )}
-              aria-label={t('sidebar.collapseLabel', 'Sidebar minimieren')}
-            >
-              <span className="flex items-center gap-2 text-sm font-semibold">
-                <GearIcon
-                  size={18}
-                  className="text-(--text-muted)"
-                  aria-hidden="true"
-                />
-                {t('sidebar.options', 'Optionen')}
-              </span>
-              <CaretLeftIcon size={22} />
-            </button>
-          ) : (
-            // Collapsed header with expand button only
-            <button
               type="button"
               onClick={toggle}
               data-tour={TOUR_ANCHORS.sidebarToggle}
               onMouseUp={(event) => event.currentTarget.blur()}
-              className={`${secondaryButtonClass} h-12 w-full justify-center px-0`}
-              title={t(
-                'sidebar.expandShortcut',
-                'Sidebar erweitern (⌘/Strg+B)',
-              )}
-              aria-label={t('sidebar.expandLabel', 'Sidebar erweitern')}
+              className={`${secondaryButtonClass} h-9 w-full justify-center gap-2 px-2 text-sm`}
+              title={
+                isExpanded
+                  ? t(
+                      'sidebar.collapseShortcut',
+                      'Sidebar minimieren (⌘/Strg+B)',
+                    )
+                  : t('sidebar.expandShortcut', 'Sidebar erweitern (⌘/Strg+B)')
+              }
+              aria-label={
+                isExpanded
+                  ? t('sidebar.collapseLabel', 'Sidebar minimieren')
+                  : t('sidebar.expandLabel', 'Sidebar erweitern')
+              }
+              aria-expanded={isExpanded}
             >
-              <CaretRightIcon size={22} />
+              <SidebarSimpleIcon size={18} aria-hidden="true" />
+              {isExpanded && <span>{t('sidebar.options', 'Optionen')}</span>}
             </button>
-          )}
-        </div>
+          </div>
+        )}
 
-        {/* Content Area */}
-        <div
-          className={`overflow-x-visible ${
-            isExpanded
-              ? 'flex-1 min-h-0 overflow-y-auto'
-              : 'flex-1 min-h-0 overflow-y-auto'
-          }`}
-        >
-          {isExpanded ? (
-            <div className="p-3 sm:p-4">{renderedChildren}</div>
-          ) : (
-            <div className="py-3">{renderedChildren}</div>
-          )}
+        {/* The tools themselves, in the padding the rail's own entries are
+            measured against (`ToolRail`). */}
+        <div className="min-h-0 flex-1 overflow-x-visible overflow-y-auto">
+          <div className="flex h-full flex-col px-2 py-3">
+            {renderedChildren}
+          </div>
         </div>
       </div>
     </aside>
