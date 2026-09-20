@@ -32,6 +32,8 @@ import { useIsPhone } from '@/hooks/ui/useLayoutMode';
 import type { Props as SeatingPlanViewProps } from './SeatingPlanView';
 import {
   canvasFrameClass,
+  canvasStageClass,
+  canvasFitClass,
   LOCAL_STORAGE_KEYS,
   primaryButtonClass,
   secondaryButtonClass,
@@ -286,10 +288,10 @@ export default function EnhancedSeatingPlanView(
             </SmartSidebar>
           )}
 
-          <div className={`${workspaceStageClass} flex flex-col gap-4`}>
+          <div className={`${workspaceStageClass} ${canvasStageClass} gap-4`}>
             <div
-              className={`${canvasFrameClass} select-none`}
-              style={{ width: '100%', maxWidth: '100vw' }}
+              className={`${canvasFrameClass} ${canvasFitClass} select-none`}
+              style={{ maxWidth: '100vw' }}
             >
               {circleLayout ? (
                 <SimpleCircleView

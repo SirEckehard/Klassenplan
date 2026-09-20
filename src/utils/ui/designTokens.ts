@@ -96,6 +96,11 @@ export const floatingStatusClass = 'floating-status';
 
 export const canvasFrameClass = 'canvas-frame';
 
+/** The stage a canvas lives on, and the frame that fits inside it. */
+export const canvasStageClass = 'canvas-stage';
+
+export const canvasFitClass = 'canvas-fit';
+
 export const toastSurfaceClass = 'toast-surface';
 
 export const toastAccentClass = 'toast-accent';

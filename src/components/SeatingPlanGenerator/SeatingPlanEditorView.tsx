@@ -32,6 +32,8 @@ import {
   getDisplayNameForMode,
   type NameDisplayMode,
   canvasFrameClass,
+  canvasStageClass,
+  canvasFitClass,
   getViewportMetrics,
   primaryButtonClass,
   secondaryButtonClass,
@@ -953,7 +955,7 @@ export default function SeatingPlanEditorView({
           </button>
         </StatusBarPortal>
 
-        <div className={`${workspaceStageClass} relative`}>
+        <div className={`${workspaceStageClass} ${canvasStageClass} relative`}>
           <div className="flex min-w-0 flex-col gap-4">
             {/* A highlight changes what the seats mean, so it says so above
                 the plan rather than leaving the colours to be guessed at. */}
@@ -975,8 +977,8 @@ export default function SeatingPlanEditorView({
             <div
               data-testid="classroom-canvas"
               data-tour={TOUR_ANCHORS.planCanvas}
-              className={`${canvasFrameClass} relative select-none`}
-              style={{ width: '100%', maxWidth: '100vw' }}
+              className={`${canvasFrameClass} ${canvasFitClass} relative select-none`}
+              style={{ maxWidth: '100vw' }}
             >
               {/* Phone only: everywhere the options rail fits, the values sit
                   beside the criteria instead. */}

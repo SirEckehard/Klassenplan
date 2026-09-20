@@ -20,6 +20,8 @@ import type {
 } from '@/hooks/useContextMenus';
 import {
   canvasFrameClass,
+  canvasStageClass,
+  canvasFitClass,
   quietIconButtonClass,
   secondaryButtonClass,
 } from '@/utils';
@@ -94,7 +96,7 @@ const LayoutEditorMainSection = React.memo(function LayoutEditorMainSection({
 }: LayoutEditorMainSectionProps) {
   const { t } = useTranslation('generator');
   return (
-    <div className={`${workspaceStageClass} flex flex-col gap-4`}>
+    <div className={`${workspaceStageClass} ${canvasStageClass} gap-4`}>
       {/* Mobile: Quick Setup Button above canvas for easy access */}
       {isPhone && (
         <button
@@ -112,7 +114,7 @@ const LayoutEditorMainSection = React.memo(function LayoutEditorMainSection({
       <div
         data-testid="classroom-canvas"
         data-tour={TOUR_ANCHORS.layoutCanvas}
-        className={`${canvasFrameClass} relative select-none`}
+        className={`${canvasFrameClass} ${canvasFitClass} relative select-none`}
         style={{
           width: '100%',
           maxWidth: '100vw',

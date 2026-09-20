@@ -321,6 +321,8 @@ export {
   menuItemDangerClass,
   floatingStatusClass,
   canvasFrameClass,
+  canvasStageClass,
+  canvasFitClass,
   toastSurfaceClass,
   toastAccentClass,
   toastIconClass,

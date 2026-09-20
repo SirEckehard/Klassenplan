@@ -7,11 +7,15 @@ import {
   ToggleLeftIcon,
   ToggleRightIcon,
 } from '@phosphor-icons/react';
-import { CRITERIA_ICON_MAP } from '@/utils/ui/criteriaIcons';
+import {
+  CRITERIA_FAMILY_MAP,
+  CRITERIA_ICON_MAP,
+} from '@/utils/ui/criteriaIcons';
 import type { MixSettings, ScalarMixSettingKey, Student } from '@/types';
 import {
   LOCAL_STORAGE_KEYS,
   SCALAR_MIX_SETTING_KEYS,
+  dataFamilyClass,
   getSidebarIconClasses,
   getSidebarSurfaceClasses,
   getStatisticStatusMeta,
@@ -350,10 +354,7 @@ function CriterionCard({
   CriterionFulfillmentProps & { onWeightChange: (value: number) => void }) {
   const isActive = value > 0;
   const Icon = CRITERIA_ICON_MAP[criterion.key];
-  const surfaceClass = getSidebarSurfaceClasses({
-    variant: 'expanded',
-    isActive,
-  });
+  const family = dataFamilyClass[CRITERIA_FAMILY_MAP[criterion.key]];
   // One region over card and badge: moving between the two must not flicker
   // the marking off and straight back on.
   const preview =
@@ -371,15 +372,21 @@ function CriterionCard({
       <button
         type="button"
         onClick={(event) => onPress(event.currentTarget)}
-        className={`group relative w-full rounded-2xl p-3 text-left shadow-sm ${surfaceClass}`}
+        className={`group relative w-full cursor-pointer rounded-lg px-2.5 py-2 text-left transition ${
+          isActive
+            ? 'bg-(--surface-option-selected)'
+            : 'hover:bg-(--surface-sunken)'
+        } focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)`}
         title={`${criterion.label}: ${value}/10`}
       >
-        <div className="flex items-start gap-3">
+        <div className="flex items-start gap-2.5">
+          {/* The family's colour, always with its icon beside the name — a
+              criterion is pedagogy, so it is not chrome-coloured. */}
           <span
-            className={`${getSidebarIconClasses({ isActive })} mt-1 inline-flex items-center justify-center`}
+            className={`${family} mt-0.5 inline-flex size-5.5 shrink-0 items-center justify-center rounded-md bg-(--data-chip-surface) text-(--data-chip-text)`}
             aria-hidden="true"
           >
-            <Icon size={16} />
+            <Icon size={13} />
           </span>
           <div className="flex-1 cursor-pointer">
             <CriterionWeight

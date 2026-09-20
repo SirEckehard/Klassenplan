@@ -19,6 +19,7 @@ import {
   UsersThreeIcon,
 } from '@phosphor-icons/react';
 import type { ScalarMixSettingKey } from '@/types';
+import type { DataFamily } from './designTokens';
 
 export const CRITERIA_ICON_MAP: Record<ScalarMixSettingKey, Icon> = {
   avoidPreviousPairs: RepeatIcon,
@@ -37,4 +38,30 @@ export const CRITERIA_ICON_MAP: Record<ScalarMixSettingKey, Icon> = {
   preferDoorSeats: DoorIcon,
   preferLanguageMixing: TranslateIcon,
   distributeSocialRoles: UsersThreeIcon,
+};
+
+/**
+ * Which pedagogical family each criterion speaks for.
+ *
+ * The sixteen criteria are the same six families the student chips use, so a
+ * criterion in the inspector and the attribute it acts on carry one colour.
+ * Colour never travels alone here either: every row has its icon and its name.
+ */
+export const CRITERIA_FAMILY_MAP: Record<ScalarMixSettingKey, DataFamily> = {
+  avoidRestlessTogether: 'behavior',
+  avoidConcentrationTogether: 'behavior',
+  avoidConcentrationNearRestless: 'behavior',
+  avoidShyAlone: 'social',
+  considerWishPartners: 'social',
+  avoidConflictPartners: 'social',
+  distributeSocialRoles: 'social',
+  avoidPreviousPairs: 'social',
+  peerTutoring: 'learning',
+  homogeneousPerformanceGroups: 'learning',
+  preferLanguageMixing: 'language',
+  preferFrontForNeedsFrontSeat: 'space',
+  preferFrontForSmallerStudents: 'space',
+  preferWindowSeats: 'space',
+  preferDoorSeats: 'space',
+  preferGenderMix: 'person',
 };

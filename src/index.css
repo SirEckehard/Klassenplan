@@ -1262,6 +1262,35 @@
   --toast-icon-border-color: var(--toast-icon-border-critical);
 }
 
+/*
+ * A stage whose subject is the classroom itself.
+ *
+ * The plan is a fixed 900x600 shape. On a page that scrolled, letting it take
+ * the full width and whatever height that implied was fine; in a shell that is
+ * the window, a wide screen made it wide and short with a void underneath, and
+ * a tall one made it scroll. It is capped by whichever of the two dimensions
+ * binds and centred in what is left, so the sunken stage reads as the room
+ * around the room.
+ *
+ * The frame only ever changes width, which is what a window resize does
+ * anyway — every pointer coordinate is derived from its measured box.
+ */
+@utility canvas-stage {
+  display: flex;
+  flex-direction: column;
+}
+
+@media (width >= 64rem) {
+  .canvas-stage {
+    container-type: size;
+    justify-content: center;
+  }
+
+  .canvas-stage .canvas-fit {
+    width: min(100%, calc(100cqh * 3 / 2));
+  }
+}
+
 @utility canvas-frame {
   position: relative;
   display: block;
