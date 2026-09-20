@@ -22,6 +22,7 @@ import {
   type CanvasSettingsGroup,
 } from '@/components/SeatingPlanGenerator/canvas/CanvasSettingsButton';
 import { cardSurfaceClass } from '@/utils';
+import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 
 type FeaturePaletteItem = {
   type: ClassroomFeatureType;
@@ -145,6 +146,11 @@ export default function RoomToolPanel({
             key={group.id}
             icon={GROUP_ICONS[group.id] ?? <SlidersHorizontalIcon size={18} />}
             label={group.title ?? t('editor.viewSettings')}
+            data-tour={
+              group.id === 'layout-base'
+                ? TOUR_ANCHORS.canvasSettings
+                : undefined
+            }
             panel={() => (
               <div className={`${cardSurfaceClass} border p-4`}>
                 <CanvasSettingsGroups groups={[group]} />

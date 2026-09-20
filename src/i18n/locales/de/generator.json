@@ -568,19 +568,15 @@
     "date": "Datum"
   },
   "editor": {
-    "workspace": "Arbeitsfläche",
-    "showGrid": "Raster anzeigen",
-    "showBoard": "Tafel anzeigen",
-    "showWindows": "Fenster anzeigen",
-    "showDoor": "Tür anzeigen",
-    "showPodium": "Pult anzeigen",
-    "showWhiteboard": "Whiteboards anzeigen",
-    "showCabinet": "Schränke anzeigen",
-    "showDivider": "Raumtrenner anzeigen",
-    "studentPhotos": "Schülerfotos",
-    "photoModeAll": "An",
-    "photoModeHover": "Hover",
-    "photoModeOff": "Aus",
+    "alignmentGuides": "Ausrichtungshilfen",
+    "autoMixFailed": "Automatisches Mischen fehlgeschlagen",
+    "autoMixRunning": "Automatisches Mischen läuft",
+    "autoMixWait": "Bitte warte einen Moment, bis der neue Sitzplan erstellt wurde.",
+    "canvasLabel": "Sitzplan: {{occupied}} von {{total}} Plätzen belegt",
+    "classDataChanged": "Klassendaten wurden geändert",
+    "classDataChangedHint": "Deine Anpassungen sind sichtbar. Mische den Plan neu, damit der Algorithmus optimal reagieren kann.",
+    "fulfillmentLabel": "Erfüllung",
+    "hideNotice": "Hinweis ausblenden",
     "nameDisplay": {
       "label": "Namen",
       "firstName": "Vorname",
@@ -592,22 +588,27 @@
       "identicalHint_one": "{{count}} Name kommt mehrfach vor",
       "identicalHint_other": "{{count}} Namen sind identisch und nicht unterscheidbar"
     },
+    "photoCollision": "Fotokollision",
+    "photoModeAll": "An",
+    "photoModeHover": "Hover",
+    "photoModeOff": "Aus",
+    "photoOverlapWarning": "Fotokollisionen anzeigen",
+    "rotateTable": "Tisch drehen",
+    "showBoard": "Tafel anzeigen",
+    "showCabinet": "Schränke anzeigen",
+    "showDivider": "Raumtrenner anzeigen",
+    "showDoor": "Tür anzeigen",
+    "showGrid": "Raster anzeigen",
+    "showPodium": "Pult anzeigen",
     "showStatistics": "Statistik anzeigen",
+    "showWhiteboard": "Whiteboards anzeigen",
+    "showWindows": "Fenster anzeigen",
+    "snapToGrid": "Am Raster ausrichten",
     "statisticsLabel": "Statistik anzeigen – Gesamt-Score {{score}}%",
-    "autoMixRunning": "Automatisches Mischen läuft",
-    "autoMixWait": "Bitte warte einen Moment, bis der neue Sitzplan erstellt wurde.",
-    "autoMixFailed": "Automatisches Mischen fehlgeschlagen",
-    "classDataChanged": "Klassendaten wurden geändert",
-    "classDataChangedHint": "Deine Anpassungen sind sichtbar. Mische den Plan neu, damit der Algorithmus optimal reagieren kann.",
-    "hideNotice": "Hinweis ausblenden",
+    "studentPhotos": "Schülerfotos",
     "viewOptions": "Ansichtsoptionen",
     "viewSettings": "Ansichtseinstellungen",
-    "snapToGrid": "Am Raster ausrichten",
-    "alignmentGuides": "Ausrichtungshilfen",
-    "photoOverlapWarning": "Fotokollisionen anzeigen",
-    "photoCollision": "Fotokollision",
-    "rotateTable": "Tisch drehen",
-    "canvasLabel": "Sitzplan: {{occupied}} von {{total}} Plätzen belegt"
+    "workspace": "Arbeitsfläche"
   },
   "quickSetup": {
     "title": "Klassenraum einrichten",
@@ -821,25 +822,25 @@
       }
     },
     "students": {
-      "classSwitcher": {
-        "title": "Deine Klassen",
-        "body": "Hier wechselst du zwischen deinen Klassen, legst neue an oder benennst sie um. Jede Klasse hat eigene Schüler, Räume und Sitzpläne."
-      },
       "addStudents": {
         "title": "Schüler hinzufügen",
-        "body": "Füge Schüler einzeln, als Platzhalter oder per CSV-Import hinzu. Hier kannst du auch die Beispielklasse laden."
+        "body": "In der Werkzeugleiste links füllst du die Klasse: einzeln, als Platzhalter oder per CSV-Import. Die Beispielklasse liegt beim Import."
       },
-      "studentRow": {
-        "title": "Schüler bearbeiten",
-        "body": "Füge Merkmale wie unruhig, schüchtern, Sprachniveau, soziale Rolle oder Wunsch- und Distanzpartner hinzu. Über das Porträt-Symbol kannst du sogar Fotos hochladen."
+      "classSwitcher": {
+        "title": "Deine Klassen",
+        "body": "Oben in der Kopfzeile steht, welche Klasse offen ist. Hier wechselst du zwischen deinen Klassen, legst neue an oder benennst sie um. Jede Klasse hat eigene Schüler, Räume und Sitzpläne."
+      },
+      "footerSettings": {
+        "title": "Einstellungen und Backup",
+        "body": "Deine Daten liegen nur in diesem Browser. Über das Einstellungsrädchen in der Fußzeile exportierst du ein verschlüsseltes Backup und stellst es wieder her – auch auf einem anderen Gerät. Dort findest du außerdem alle gespeicherten Pläne."
       },
       "proceed": {
         "title": "Weiter zum Klassenraum",
         "body": "Steht die Liste, richtest du im nächsten Schritt den Klassenraum ein."
       },
-      "footerSettings": {
-        "title": "Einstellungen und Backup",
-        "body": "Deine Daten liegen nur in diesem Browser. Über das Einstellungsrädchen in der Fußzeile exportierst du ein verschlüsseltes Backup und stellst es wieder her – auch auf einem anderen Gerät. Dort findest du außerdem alle gespeicherten Pläne."
+      "studentRow": {
+        "title": "Schüler bearbeiten",
+        "body": "Füge Merkmale wie unruhig, schüchtern, Sprachniveau, soziale Rolle oder Wunsch- und Distanzpartner hinzu. Über das Porträt-Symbol kannst du sogar Fotos hochladen."
       }
     },
     "layout": {
@@ -849,7 +850,11 @@
       },
       "canvasSettings": {
         "title": "Ansichtseinstellungen",
-        "body": "Über das Regler-Symbol unten links passt du die Ansicht an – in jedem Schritt mit eigenen Optionen. Hier schaltest du Einrasten am Raster, Raster, Ausrichtungshilfen, Fotokollisionen und Raumelemente ein oder aus. Im Sitzplan wählst du, ob Fotos erscheinen und wie Namen abgekürzt werden, im Sitzkreis außerdem, ob Verbindungen sichtbar sind. Beim Export legst du fest, was die Vorschau zeigt – z. B. Bedürfnisse, Legende oder Klasseninfos."
+        "body": "Unter „Ansehen“ in der Werkzeugleiste passt du an, was der Raum zeigt – in jeder Ebene mit eigenen Optionen. Hier schaltest du Einrasten am Raster, Raster, Ausrichtungshilfen, Fotokollisionen und Raumelemente ein oder aus. Im Sitzplan wählst du, ob Fotos erscheinen und wie Namen abgekürzt werden, im Sitzkreis außerdem, ob Verbindungen sichtbar sind."
+      },
+      "proceed": {
+        "title": "Weiter zum Sitzplan",
+        "body": "Beim ersten Öffnen mischt Klassenplan automatisch einen Sitzplan für dich."
       },
       "sidebar": {
         "title": "Tische und Raumelemente",
@@ -858,40 +863,36 @@
       "status": {
         "title": "Plätze im Blick",
         "body": "Hier siehst du, ob die Plätze für alle Schüler reichen."
-      },
-      "proceed": {
-        "title": "Weiter zum Sitzplan",
-        "body": "Beim ersten Öffnen mischt Klassenplan automatisch einen Sitzplan für dich."
       }
     },
     "plan": {
-      "mix": {
-        "title": "Mischen",
-        "body": "Mischt die Klasse neu und berücksichtigt dabei alle ausgewählten Kriterien."
-      },
-      "sidebar": {
-        "title": "Kriterien wählen",
-        "body": "Lege fest, welche Kriterien beim Mischen beachtet werden sollen. Wie wichtig dir z. B. Wunschpartner oder die Geschlechtermischung sind, stellst du mit einem Rechtsklick oder langem Drücken auf das Symbol ein – oder in der erweiterten Sidebar."
-      },
-      "sidebarToggle": {
-        "title": "Sidebar erweitern und minimieren",
-        "body": "Mit diesem Knopf erweiterst oder minimierst du die Sidebar (⌘/Strg+B). Minimiert zeigt sie ihre Funktionen als Symbole und lässt dem Plan mehr Platz. In Schritt 2 und beim Export funktioniert die Sidebar genauso."
-      },
       "canvas": {
         "title": "Von Hand anpassen",
         "body": "Ziehe Schüler auf andere Plätze. Mit einem Klick auf das Schloss-Symbol bleibt ein Schüler beim Mischen auf seinem Platz."
-      },
-      "statistics": {
-        "title": "Statistikanzeige",
-        "body": "Zeigt in Prozent, wie gut der Plan deine Kriterien erfüllt. Ein Klick blendet die Werte neben den Kriterien in den Optionen ein oder aus – fährst du dort über ein Kriterium, werden die betroffenen Plätze markiert."
       },
       "circle": {
         "title": "Sitzkreis",
         "body": "Hier wechselst du zwischen Sitzplan und Sitzkreis. Der Sitzkreis entsteht aus dem aktuellen Sitzplan und zeigt Tischnachbarn als Verbindungen. Du kannst ihn verändern, separat speichern und exportieren."
       },
-      "actions": {
-        "title": "Speichern, präsentieren, exportieren",
-        "body": "Speichere den Plan unter einem Namen, zeige ihn auf der Tafel oder exportiere ihn als PDF."
+      "exits": {
+        "title": "Präsentieren und exportieren",
+        "body": "Oben rechts zeigst du den Plan an der Tafel oder exportierst ihn als PDF. Beides sichert den Plan vorher, wenn du etwas geändert hast."
+      },
+      "fulfillment": {
+        "title": "Kriterien und Erfüllung",
+        "body": "Rechts stellst du ein, welche Kriterien beim Mischen zählen und wie schwer sie wiegen. Der Knopf darüber zeigt in Prozent, wie gut der Plan sie erfüllt, und blendet den Wert neben jedem Kriterium ein – fährst du über eines, werden die betroffenen Plätze markiert."
+      },
+      "mix": {
+        "title": "Mischen",
+        "body": "Der Knopf in der Statusleiste mischt die Klasse neu und berücksichtigt dabei alle ausgewählten Kriterien (Strg/Cmd+M)."
+      },
+      "sidebar": {
+        "title": "Werkzeuge",
+        "body": "Hier wechselst du zwischen Sitzplan und Sitzkreis, legst fest, was der Plan zeigt, öffnest Nachbarschaften und frühere Pläne – und sicherst den Plan."
+      },
+      "sidebarToggle": {
+        "title": "Sidebar erweitern und minimieren",
+        "body": "Mit diesem Knopf erweiterst oder minimierst du die Sidebar (⌘/Strg+B). Minimiert zeigt sie ihre Funktionen als Symbole und lässt dem Plan mehr Platz. In Schritt 2 und beim Export funktioniert die Sidebar genauso."
       }
     }
   },

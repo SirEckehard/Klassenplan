@@ -76,25 +76,10 @@ export default function HeaderClassMenu() {
     void selectClass(classId);
   };
 
-  // Without a class there is nothing to switch to: the button becomes the one
-  // thing that helps, which is creating the first one.
-  if (!hasActiveClass) {
-    return (
-      <button
-        type="button"
-        onClick={openCreate}
-        disabled={isBusy}
-        data-tour={TOUR_ANCHORS.classSwitcher}
-        className={`${secondaryButtonClass} h-9 gap-2 px-3 text-sm`}
-      >
-        <PlusIcon className="h-4 w-4 shrink-0" aria-hidden="true" />
-        <span className="truncate">
-          {t('generator:classActions.emptyState.createButton')}
-        </span>
-      </button>
-    );
-  }
-
+  // Without a class the button keeps its shape and says so: creating the first
+  // one is in the dropdown, where creating any other one is too. The empty
+  // state of the class layer is where a beginner is meant to start, and two
+  // buttons reading "New class" beside each other help nobody.
   return (
     <div className="relative" ref={containerRef}>
       <button
@@ -109,10 +94,16 @@ export default function HeaderClassMenu() {
         aria-label={buttonLabel}
         className={`${secondaryButtonClass} h-9 max-w-full gap-2 px-3 text-sm`}
       >
-        <span className="max-w-32 truncate font-semibold sm:max-w-44">
-          {activeName}
+        <span
+          className={`max-w-32 truncate sm:max-w-44 ${
+            hasActiveClass ? 'font-semibold' : 'text-(--text-muted)'
+          }`}
+        >
+          {hasActiveClass
+            ? activeName
+            : t('students:classManagement.noClassSelected')}
         </span>
-        {students.length > 0 && (
+        {hasActiveClass && students.length > 0 && (
           <span className="hidden whitespace-nowrap text-xs font-normal tabular-nums text-(--text-muted) sm:inline">
             {t('students:classManagement.studentCount', {
               count: students.length,

@@ -31,7 +31,6 @@ import {
   getViewportMetrics,
   primaryButtonClass,
   secondaryButtonClass,
-  mutedIconButtonClass,
   cardSurfaceClass,
   onVisualViewport,
   buildSeatHighlightLookup,
@@ -427,9 +426,8 @@ export default function SeatingPlanEditorView({
     'Statistik anzeigen – Gesamt-Score {{score}}%',
     { score: statisticsScore },
   );
-  const statisticsButtonClasses = `${mutedIconButtonClass} absolute bottom-3 right-3 z-20 flex min-h-10 items-center justify-center gap-2 rounded-full bg-white/90 px-3 py-2 text-blue-700 shadow-md transition hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:bg-gray-900/70 dark:text-blue-200 sm:min-h-12 sm:gap-3 sm:px-4`;
-  // The pill on the canvas switches the statistics on and off; what it switches
-  // is the fulfilment beside each criterion in the options sidebar. Only a
+  // The switch above the criteria turns the statistics on and off; what it
+  // turns is the fulfilment beside each criterion in the inspector. Only a
   // phone, whose sidebar is a sheet over the plan, still gets a panel of its
   // own — see `SeatingStatisticsBadge`.
   const statisticsVisible = Boolean(
@@ -897,6 +895,27 @@ export default function SeatingPlanEditorView({
         {/* Why the plan looks like this is a property of the plan, so the
             criteria belong in the inspector — not in the toolbar opposite. */}
         <InspectorPortal>
+          {/* How well the plan meets the criteria, above the criteria it is
+              about; the switch shows or hides the value beside each one. */}
+          {hasStatistics && (onOpenStatistics || onCloseStatistics) && (
+            <button
+              type="button"
+              onClick={handleStatisticsToggle}
+              data-tour={TOUR_ANCHORS.planFulfillment}
+              aria-pressed={showStatisticsBadge}
+              title={statisticsButtonTitle}
+              aria-label={statisticsButtonLabel}
+              className={`${secondaryButtonClass} mb-3 flex w-full items-center justify-between gap-2 px-3 py-2 text-sm`}
+            >
+              <span className="flex items-center gap-2">
+                <ChartBarIcon size={18} aria-hidden="true" />
+                {t('editor.fulfillmentLabel')}
+              </span>
+              <span className="font-semibold tabular-nums">
+                {statisticsScore}%
+              </span>
+            </button>
+          )}
           <SmartMixControls
             settings={settings}
             setMixSettings={setMixSettings}
@@ -950,25 +969,6 @@ export default function SeatingPlanEditorView({
               className={`${canvasFrameClass} relative select-none`}
               style={{ width: '100%', maxWidth: '100vw' }}
             >
-              {hasStatistics && (onOpenStatistics || onCloseStatistics) && (
-                <button
-                  type="button"
-                  onClick={handleStatisticsToggle}
-                  data-tour={TOUR_ANCHORS.statistics}
-                  className={statisticsButtonClasses}
-                  title={statisticsButtonTitle}
-                  aria-label={statisticsButtonLabel}
-                  aria-pressed={showStatisticsBadge}
-                >
-                  <ChartBarIcon size={20} />
-                  <div className="flex flex-col leading-tight text-left">
-                    <span className="text-base font-semibold text-blue-700 dark:text-blue-200">
-                      {statisticsScore}%
-                    </span>
-                  </div>
-                </button>
-              )}
-
               {/* Phone only: everywhere the options rail fits, the values sit
                   beside the criteria instead. */}
               {isPhone &&

@@ -35,9 +35,9 @@ export const TOUR_ANCHORS = {
   planSidebar: 'plan-sidebar',
   sidebarToggle: 'sidebar-toggle',
   planCanvas: 'plan-canvas',
-  statistics: 'statistics',
+  planFulfillment: 'plan-fulfillment',
   seatingModeToggle: 'seating-mode-toggle',
-  planActions: 'plan-actions',
+  planExits: 'plan-exits',
 } as const;
 
 type TourAnchor = (typeof TOUR_ANCHORS)[keyof typeof TOUR_ANCHORS];
@@ -89,9 +89,9 @@ export const TOURS: Record<TourId, readonly TourMark[]> = {
     // Explained once here; step 2 and the export page share the same sidebar.
     { anchor: TOUR_ANCHORS.sidebarToggle, textKey: 'tour.plan.sidebarToggle' },
     { anchor: TOUR_ANCHORS.planCanvas, textKey: 'tour.plan.canvas' },
-    { anchor: TOUR_ANCHORS.statistics, textKey: 'tour.plan.statistics' },
+    { anchor: TOUR_ANCHORS.planFulfillment, textKey: 'tour.plan.fulfillment' },
     { anchor: TOUR_ANCHORS.seatingModeToggle, textKey: 'tour.plan.circle' },
-    { anchor: TOUR_ANCHORS.planActions, textKey: 'tour.plan.actions' },
+    { anchor: TOUR_ANCHORS.planExits, textKey: 'tour.plan.exits' },
   ],
 };
 

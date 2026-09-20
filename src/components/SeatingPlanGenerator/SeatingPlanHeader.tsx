@@ -8,7 +8,7 @@ import HeaderClassMenu from '@/components/shell/HeaderClassMenu';
 import HeaderPlanName from '@/components/shell/HeaderPlanName';
 import HelpButton from '@/components/ui/buttons/HelpButton';
 import OnboardingTour from '@/components/onboarding/OnboardingTour';
-import { resolveTourId } from '@/components/onboarding/tours';
+import { resolveTourId, TOUR_ANCHORS } from '@/components/onboarding/tours';
 import {
   useSeatingAlgorithmContext,
   useClassroomLayoutContext,
@@ -167,7 +167,10 @@ export default function SeatingPlanHeader() {
         />
 
         {/* Right — help, and the two ways out: export and the smartboard */}
-        <div className="flex shrink-0 items-center gap-2">
+        <div
+          className="flex shrink-0 items-center gap-2"
+          data-tour={TOUR_ANCHORS.planExits}
+        >
           {helpContent && (
             <HelpButton
               title={helpContent.title}

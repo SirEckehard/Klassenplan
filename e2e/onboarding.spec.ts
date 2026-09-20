@@ -132,16 +132,16 @@ test('a first visitor tries the sample class with the tours as a guide', async (
       page.getByRole('group', { name: /^Sitzplan:/ }),
     ).toHaveAccessibleName('Sitzplan: 24 von 24 Plätzen belegt');
 
-    // The statistics mark is only there when the tour started after the
+    // The fulfilment mark is only there when the tour started after the
     // automatic shuffle had produced statistics.
     expect(await walkTour(page)).toEqual([
       'Mischen',
-      'Kriterien wählen',
+      'Werkzeuge',
       'Sidebar erweitern und minimieren',
       'Von Hand anpassen',
-      'Statistikanzeige',
+      'Kriterien und Erfüllung',
       'Sitzkreis',
-      'Speichern, präsentieren, exportieren',
+      'Präsentieren und exportieren',
     ]);
   });
 
@@ -176,9 +176,13 @@ test('the sample class exists only once — asking again switches to it', async 
     await expect(activeClassButton(page, '7b')).toBeVisible();
   });
 
-  await test.step('the add menu offers the existing sample class', async () => {
-    await page.getByRole('button', { name: 'Hinzufügen' }).click();
-    const menu = page.getByRole('dialog', { name: 'Schüler hinzufügen' });
+  await test.step('the import entry offers the existing sample class', async () => {
+    await page
+      .getByRole('button', { name: 'Klassenliste importieren' })
+      .click();
+    const menu = page.getByRole('dialog', {
+      name: 'Klassenliste importieren',
+    });
     await menu
       .getByRole('button', { name: 'Zur Beispielklasse wechseln' })
       .click();
@@ -196,11 +200,19 @@ test('the sample class exists only once — asking again switches to it', async 
     ).toHaveCount(1);
     await page.keyboard.press('Escape');
 
-    await page.getByRole('button', { name: 'Hinzufügen' }).click();
-    const menu = page.getByRole('dialog', { name: 'Schüler hinzufügen' });
-    await expect(menu.getByRole('textbox')).toBeVisible();
+    await page.getByRole('button', { name: 'Schüler hinzufügen' }).click();
+    const addPanel = page.getByRole('dialog', { name: 'Schüler hinzufügen' });
+    await expect(addPanel.getByRole('textbox')).toBeVisible();
+    await page.keyboard.press('Escape');
+
+    await page
+      .getByRole('button', { name: 'Klassenliste importieren' })
+      .click();
+    const importPanel = page.getByRole('dialog', {
+      name: 'Klassenliste importieren',
+    });
     await expect(
-      menu.getByRole('button', { name: /Beispielklasse/ }),
+      importPanel.getByRole('button', { name: /Beispielklasse/ }),
     ).toHaveCount(0);
   });
 });

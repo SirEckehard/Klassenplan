@@ -48,7 +48,9 @@ async function createClass(page: Page, name: string): Promise<void> {
 }
 
 async function addStudents(page: Page, names: string[]): Promise<void> {
-  await page.getByRole('button', { name: 'Hinzufügen' }).click();
+  // Every way of filling a class is a toolbar entry; the ones that need a
+  // value ask for it in a panel of their own.
+  await page.getByRole('button', { name: 'Schüler hinzufügen' }).click();
   const popover = page.getByRole('dialog', { name: 'Schüler hinzufügen' });
   const nameField = popover.getByRole('textbox', { name: /Neuer Schüler/ });
 
@@ -114,7 +116,7 @@ test('a teacher can go from an empty app to an exportable seating plan', async (
   });
 
   await test.step('step 3 — a manual mix reseats everyone', async () => {
-    await page.getByRole('button', { name: 'Sitzplan mischen' }).click();
+    await page.getByRole('button', { name: 'Neu mischen' }).click();
 
     const plan = page.getByRole('group', { name: /^Sitzplan:/ });
     await expect(plan).toHaveAccessibleName('Sitzplan: 4 von 4 Plätzen belegt');
@@ -126,6 +128,8 @@ test('a teacher can go from an empty app to an exportable seating plan', async (
   });
 
   await test.step('step 3 — save the plan under a name', async () => {
+    // The plan is named in the header, beside the class it belongs to, and
+    // saved from the toolbar.
     await page
       .getByRole('textbox', { name: /Namen für diesen Sitzplan/ })
       .fill('E2E Plan');

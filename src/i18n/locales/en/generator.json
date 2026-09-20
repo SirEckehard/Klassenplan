@@ -568,19 +568,15 @@
     "date": "Date"
   },
   "editor": {
-    "workspace": "Workspace",
-    "showGrid": "Show grid",
-    "showBoard": "Show blackboard",
-    "showWindows": "Show windows",
-    "showDoor": "Show door",
-    "showPodium": "Show teacher's desk",
-    "showWhiteboard": "Show whiteboards",
-    "showCabinet": "Show cabinets",
-    "showDivider": "Show room dividers",
-    "studentPhotos": "Student photos",
-    "photoModeAll": "On",
-    "photoModeHover": "Hover",
-    "photoModeOff": "Off",
+    "alignmentGuides": "Alignment guides",
+    "autoMixFailed": "Auto-shuffle failed",
+    "autoMixRunning": "Auto-shuffle in progress",
+    "autoMixWait": "Please wait a moment while the new seating plan is being created.",
+    "canvasLabel": "Seating plan: {{occupied}} of {{total}} seats taken",
+    "classDataChanged": "Class data has been changed",
+    "classDataChangedHint": "Your adjustments are visible. Shuffle the plan again so the algorithm can respond optimally.",
+    "fulfillmentLabel": "Fulfilment",
+    "hideNotice": "Hide notice",
     "nameDisplay": {
       "label": "Names",
       "firstName": "First name",
@@ -592,22 +588,27 @@
       "identicalHint_one": "{{count}} name appears more than once",
       "identicalHint_other": "{{count}} names are identical and cannot be told apart"
     },
+    "photoCollision": "Photo collision",
+    "photoModeAll": "On",
+    "photoModeHover": "Hover",
+    "photoModeOff": "Off",
+    "photoOverlapWarning": "Show photo collisions",
+    "rotateTable": "Rotate table",
+    "showBoard": "Show blackboard",
+    "showCabinet": "Show cabinets",
+    "showDivider": "Show room dividers",
+    "showDoor": "Show door",
+    "showGrid": "Show grid",
+    "showPodium": "Show teacher's desk",
     "showStatistics": "Show statistics",
+    "showWhiteboard": "Show whiteboards",
+    "showWindows": "Show windows",
+    "snapToGrid": "Snap to grid",
     "statisticsLabel": "Show statistics – Total score {{score}}%",
-    "autoMixRunning": "Auto-shuffle in progress",
-    "autoMixWait": "Please wait a moment while the new seating plan is being created.",
-    "autoMixFailed": "Auto-shuffle failed",
-    "classDataChanged": "Class data has been changed",
-    "classDataChangedHint": "Your adjustments are visible. Shuffle the plan again so the algorithm can respond optimally.",
-    "hideNotice": "Hide notice",
+    "studentPhotos": "Student photos",
     "viewOptions": "View Options",
     "viewSettings": "View Settings",
-    "snapToGrid": "Snap to grid",
-    "alignmentGuides": "Alignment guides",
-    "photoOverlapWarning": "Show photo collisions",
-    "photoCollision": "Photo collision",
-    "rotateTable": "Rotate table",
-    "canvasLabel": "Seating plan: {{occupied}} of {{total}} seats taken"
+    "workspace": "Workspace"
   },
   "quickSetup": {
     "title": "Set Up Classroom",
@@ -821,25 +822,25 @@
       }
     },
     "students": {
-      "classSwitcher": {
-        "title": "Your classes",
-        "body": "Switch between your classes, create new ones or rename them. Each class keeps its own students, rooms and seating plans."
-      },
       "addStudents": {
         "title": "Add students",
-        "body": "Add students one by one, as placeholders or by CSV import. You can also load the sample class here."
+        "body": "The toolbar on the left fills the class: one by one, as placeholders or from a CSV file. The sample class sits with the import."
       },
-      "studentRow": {
-        "title": "Edit students",
-        "body": "Add attributes such as restless, shy, language level, social role or preferred and distance partners. The portrait icon even lets you upload photos."
+      "classSwitcher": {
+        "title": "Your classes",
+        "body": "The header states which class is open. Switch between classes here, create new ones or rename them. Every class has its own students, rooms and seating plans."
+      },
+      "footerSettings": {
+        "title": "Settings and backup",
+        "body": "Your data lives only in this browser. The gear icon in the footer exports an encrypted backup and restores it – on another device, too. It also lists all saved plans."
       },
       "proceed": {
         "title": "On to the classroom",
         "body": "Once the list is complete, set up the classroom in the next step."
       },
-      "footerSettings": {
-        "title": "Settings and backup",
-        "body": "Your data lives only in this browser. The gear icon in the footer exports an encrypted backup and restores it – on another device, too. It also lists all saved plans."
+      "studentRow": {
+        "title": "Edit students",
+        "body": "Add attributes such as restless, shy, language level, social role or preferred and distance partners. The portrait icon even lets you upload photos."
       }
     },
     "layout": {
@@ -849,7 +850,11 @@
       },
       "canvasSettings": {
         "title": "View settings",
-        "body": "The slider icon at the bottom left adjusts the view – with options of its own in every step. Here you switch snap to grid, the grid, alignment guides, photo collisions and room elements on or off. On the seating plan you choose whether photos appear and how names are shortened, in the seating circle also whether connections are shown. On export you decide what the preview shows – such as special needs, the legend or class info."
+        "body": "Under \"View\" in the toolbar you set what the room shows — every layer with options of its own. Snapping, the grid, alignment guides, photo collisions and room elements are switched here. In the seating plan you choose whether photos appear and how names are shortened, in the circle also whether connections are visible."
+      },
+      "proceed": {
+        "title": "On to the seating plan",
+        "body": "The first time it opens, Klassenplan shuffles a seating plan for you."
       },
       "sidebar": {
         "title": "Tables and room elements",
@@ -858,40 +863,36 @@
       "status": {
         "title": "Seats at a glance",
         "body": "Shows whether there are enough seats for all students."
-      },
-      "proceed": {
-        "title": "On to the seating plan",
-        "body": "The first time it opens, Klassenplan shuffles a seating plan for you."
       }
     },
     "plan": {
-      "mix": {
-        "title": "Shuffle",
-        "body": "Reshuffles the class, taking all selected criteria into account."
-      },
-      "sidebar": {
-        "title": "Choose criteria",
-        "body": "Decide which criteria to consider when shuffling. How much, for example, preferred partners or the gender mix matter to you is set with a right click or a long press on the icon – or in the expanded sidebar."
-      },
-      "sidebarToggle": {
-        "title": "Expand and collapse the sidebar",
-        "body": "This button expands or collapses the sidebar (⌘/Ctrl+B). Collapsed, it shows its functions as icons and leaves more room for the plan. The sidebar in step 2 and on the export page works the same way."
-      },
       "canvas": {
         "title": "Adjust by hand",
         "body": "Drag students to other seats. A click on the lock icon keeps a student in their seat when shuffling."
-      },
-      "statistics": {
-        "title": "Statistics",
-        "body": "Shows as a percentage how well the plan meets your criteria. A click shows or hides the values beside the criteria in the options – hover one there and the seats concerned are marked."
       },
       "circle": {
         "title": "Seating circle",
         "body": "Switch between seating plan and seating circle here. The circle is built from the current seating plan and shows table neighbors as connections. You can change it and save and export it separately."
       },
-      "actions": {
-        "title": "Save, present, export",
-        "body": "Save the plan under a name, show it on the board or export it as a PDF."
+      "exits": {
+        "title": "Present and export",
+        "body": "Top right you show the plan on the board or export it as a PDF. Both save the plan first when something has changed."
+      },
+      "fulfillment": {
+        "title": "Criteria and fulfilment",
+        "body": "On the right you set which criteria count when mixing and how much they weigh. The button above shows in per cent how well the plan meets them and puts the value beside each criterion — hover one and the seats it concerns are marked."
+      },
+      "mix": {
+        "title": "Mix",
+        "body": "The button in the status bar mixes the class again, taking every selected criterion into account (Ctrl/Cmd+M)."
+      },
+      "sidebar": {
+        "title": "Tools",
+        "body": "Switch between seating plan and circle, set what the plan shows, open the neighbourhoods and earlier plans — and save the plan."
+      },
+      "sidebarToggle": {
+        "title": "Expand and collapse the sidebar",
+        "body": "This button expands or collapses the sidebar (⌘/Ctrl+B). Collapsed, it shows its functions as icons and leaves more room for the plan. The sidebar in step 2 and on the export page works the same way."
       }
     }
   },

@@ -25,7 +25,7 @@ describe('resolveTourId', () => {
   });
 
   it('holds the plan tour back while the first plan is being shuffled', () => {
-    // The statistics mark needs a plan; a tour keeps the marks it started with.
+    // The fulfilment mark needs a plan; a tour keeps the marks it started with.
     expect(resolveTourId(3, true, 'table', true)).toBeNull();
     expect(resolveTourId(3, true, 'table', false)).toBe('plan');
   });

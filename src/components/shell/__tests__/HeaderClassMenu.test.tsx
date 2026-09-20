@@ -87,13 +87,17 @@ describe('HeaderClassMenu', () => {
     expect(mocks.openEdit).toHaveBeenCalledWith('class-1');
   });
 
-  // Without a class there is nothing to switch between, so the button becomes
-  // the one thing that helps.
-  it('offers to create the first class instead of an empty dropdown', () => {
+  // Without a class the button keeps its shape; creating the first one is in
+  // the dropdown, where creating any other one is too.
+  it('says that no class is open and offers to create one', async () => {
     mocks.activeClassId = null;
     render(<HeaderClassMenu />);
 
-    fireEvent.click(getButton(/Neue Klasse|New Class/i));
+    const button = getButton(/Keine Klasse ausgewählt|No class selected/i);
+    fireEvent.click(button);
+    fireEvent.click(
+      await screen.findByRole('button', { name: /Neue Klasse|New class/i }),
+    );
 
     expect(mocks.openCreate).toHaveBeenCalledTimes(1);
   });
