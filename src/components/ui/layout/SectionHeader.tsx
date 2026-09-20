@@ -22,17 +22,11 @@ export default function SectionHeader({
   return (
     <div className={`px-3 py-2 ${className}`}>
       <div className="flex items-center gap-2 mb-2">
-        {icon && (
-          <span className="text-gray-600 dark:text-gray-400">{icon}</span>
-        )}
-        <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200">
-          {title}
-        </h3>
+        {icon && <span className="text-(--text-muted)">{icon}</span>}
+        <h3 className="text-sm font-semibold text-(--text-page)">{title}</h3>
       </div>
       {description && (
-        <p className="text-xs text-gray-600 dark:text-gray-400">
-          {description}
-        </p>
+        <p className="text-xs text-(--text-muted)">{description}</p>
       )}
     </div>
   );

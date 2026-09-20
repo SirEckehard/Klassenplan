@@ -181,7 +181,7 @@ export default function PartnerSelector({
             >
               <span className="flex items-center gap-2">
                 {isSelected && (
-                  <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-pink-100 text-pink-700 dark:bg-pink-900 dark:text-pink-300 text-[10px] font-semibold">
+                  <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-pink-100 text-pink-700 text-[10px] font-semibold">
                     {priorityIdx + 1}
                   </span>
                 )}

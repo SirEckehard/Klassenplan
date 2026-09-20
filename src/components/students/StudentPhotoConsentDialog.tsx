@@ -65,13 +65,13 @@ export default function StudentPhotoConsentDialog({
       size="sm"
     >
       <div
-        className={`${cardSurfaceClass} space-y-3 p-4 text-sm text-gray-700 shadow-sm dark:text-gray-200`}
+        className={`${cardSurfaceClass} space-y-3 p-4 text-sm text-(--text-muted) shadow-sm`}
       >
         <p className="flex items-start gap-2">
           <ShieldCheckIcon
             size={18}
             aria-hidden="true"
-            className="mt-0.5 shrink-0 text-green-600 dark:text-green-400"
+            className="mt-0.5 shrink-0 text-(--button-success-bg)"
           />
           {t(
             'photo.consent.local',
@@ -82,7 +82,7 @@ export default function StudentPhotoConsentDialog({
           <UsersThreeIcon
             size={18}
             aria-hidden="true"
-            className="mt-0.5 shrink-0 text-blue-600 dark:text-blue-400"
+            className="mt-0.5 shrink-0 text-(--text-badge)"
           />
           {t(
             'photo.consent.permission',
@@ -91,12 +91,12 @@ export default function StudentPhotoConsentDialog({
         </p>
       </div>
 
-      <label className="flex cursor-pointer items-start gap-2 text-sm text-gray-700 dark:text-gray-200">
+      <label className="flex cursor-pointer items-start gap-2 text-sm text-(--text-muted)">
         <input
           type="checkbox"
           checked={dontShowAgain}
           onChange={(e) => setDontShowAgain(e.target.checked)}
-          className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer accent-blue-600"
+          className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer accent-(--accent-option)"
         />
         {t(
           'photo.consent.dontShowAgain',

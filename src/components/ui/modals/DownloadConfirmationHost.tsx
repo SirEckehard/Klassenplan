@@ -61,7 +61,7 @@ export default function DownloadConfirmationHost() {
       size="sm"
     >
       <div
-        className={`${cardSurfaceClass} p-4 text-sm text-gray-700 shadow-sm dark:text-gray-200`}
+        className={`${cardSurfaceClass} p-4 text-sm text-(--text-muted) shadow-sm`}
       >
         {t('downloadConfirm.message', {
           filename: request?.filename ?? '',

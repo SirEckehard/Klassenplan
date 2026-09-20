@@ -121,8 +121,8 @@ export default function ContextActionMenu({
     : `${menuSurfaceClass} flex items-center gap-1`;
 
   const buttonClass = isTouchLike
-    ? `${mutedIconButtonClass} flex w-full items-center justify-start gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-gray-700 transition disabled:opacity-40 disabled:hover:bg-transparent dark:text-gray-100`
-    : `${mutedIconButtonClass} flex h-9 w-9 items-center justify-center rounded-lg text-gray-700 transition disabled:opacity-40 disabled:hover:bg-transparent dark:text-gray-100`;
+    ? `${mutedIconButtonClass} flex w-full items-center justify-start gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-(--text-muted) transition disabled:opacity-40 disabled:hover:bg-transparent`
+    : `${mutedIconButtonClass} flex h-9 w-9 items-center justify-center rounded-lg text-(--text-muted) transition disabled:opacity-40 disabled:hover:bg-transparent`;
 
   return (
     <div

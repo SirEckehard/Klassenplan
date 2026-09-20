@@ -49,7 +49,7 @@ const LayoutEditorQuickSetupOverlay = React.memo(
         <div
           ref={dialogRef}
           {...dialogProps}
-          className="fixed inset-0 z-50 flex flex-col bg-white focus:outline-none dark:bg-gray-950"
+          className="fixed inset-0 z-50 flex flex-col bg-(--surface-card) focus:outline-none"
         >
           <div className="flex-1 overflow-y-auto px-3 py-4 sm:px-4">
             {panel}
@@ -63,7 +63,7 @@ const LayoutEditorQuickSetupOverlay = React.memo(
       <div
         ref={dialogRef}
         {...dialogProps}
-        className="absolute inset-0 z-10 flex items-center justify-center bg-white p-2 backdrop-blur-sm focus:outline-none sm:p-4 dark:bg-gray-950"
+        className="absolute inset-0 z-10 flex items-center justify-center bg-(--surface-card) p-2 backdrop-blur-sm focus:outline-none sm:p-4"
         style={{ borderRadius: 'inherit', overflow: 'hidden' }}
         onPointerDown={() => {
           if (canDismiss) {

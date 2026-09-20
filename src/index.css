@@ -1294,6 +1294,8 @@
 @utility canvas-frame {
   position: relative;
   display: block;
+  /* A room has corners. Nothing inside the frame rounds them either. */
+  border-radius: 0;
   margin-left: auto;
   margin-right: auto;
   overflow: hidden;

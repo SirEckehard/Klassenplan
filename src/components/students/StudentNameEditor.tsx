@@ -184,7 +184,7 @@ export default function StudentNameEditor({
                 startEditing();
               }
             }}
-            className="student-name-editable cursor-text select-text rounded-xl border border-blue-100 bg-white/70 px-3 py-1 text-sm font-medium text-gray-800 shadow-sm transition-colors hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-blue-400 dark:border-blue-900/40 dark:bg-gray-950/70 dark:text-gray-100 dark:hover:bg-gray-800/70"
+            className="student-name-editable cursor-text select-text rounded-xl border border-(--border-card) bg-(--surface-card) px-3 py-1 text-sm font-medium text-(--text-page) shadow-sm transition-colors hover:bg-(--surface-option-selected) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:border-(--border-option-selected)"
             tabIndex={0}
             role="button"
             aria-label={t('nameEditor.editName', { name: student.name })}

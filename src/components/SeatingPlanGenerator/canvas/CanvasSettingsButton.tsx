@@ -216,7 +216,7 @@ export const CanvasSettingsButton = React.forwardRef<
           ref={buttonRef}
           type="button"
           onClick={() => setOpen((prev) => !prev)}
-          className={`${mutedIconButtonClass} h-12 w-12 text-gray-700 transition hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-gray-100`}
+          className={`${mutedIconButtonClass} h-12 w-12 text-(--text-muted) transition hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)`}
           aria-label={buttonAriaLabel}
           title={effectiveTitle}
           aria-haspopup="true"
@@ -229,7 +229,7 @@ export const CanvasSettingsButton = React.forwardRef<
         {open && (
           <div
             ref={panelRef}
-            className={`${cardSurfaceClass} absolute left-0 ${panelPositionClass} max-w-sm overflow-y-auto rounded-2xl border border-blue-100 bg-white/95 p-4 shadow-xl backdrop-blur-sm dark:border-blue-900/50 dark:bg-gray-900/95`}
+            className={`${cardSurfaceClass} absolute left-0 ${panelPositionClass} max-w-sm overflow-y-auto rounded-2xl border border-(--border-card) bg-white/95 p-4 shadow-xl backdrop-blur-sm`}
             style={{
               maxHeight: panelMaxHeight,
               width: `${panelWidth}px`,
@@ -264,7 +264,7 @@ export function CanvasSettingsGroups({
           <div key={group.id} className="space-y-2">
             {group.title && (
               <div className="flex items-center gap-2">
-                <p className="text-xs font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-300">
+                <p className="text-xs font-semibold uppercase tracking-wide text-(--text-badge)">
                   {group.title}
                 </p>
                 {group.headerToggle && (
@@ -313,17 +313,15 @@ function SegmentSetting({ option }: { option: CanvasSettingsSegmentOption }) {
   return (
     <div className="space-y-2">
       {option.label && (
-        <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-100">
-          <span className="text-gray-500 dark:text-gray-300">
-            {option.icon}
-          </span>
+        <div className="flex items-center gap-2 text-sm text-(--text-muted)">
+          <span className="text-(--text-muted)">{option.icon}</span>
           <span className="font-medium">{option.label}</span>
         </div>
       )}
       <div
         role="group"
         aria-label={option.label ?? option.ariaLabel}
-        className="flex gap-1 rounded-xl bg-gray-100 p-1 dark:bg-gray-800"
+        className="flex gap-1 rounded-xl bg-(--surface-sunken) p-1"
       >
         {option.choices.map((choice) => {
           const active = choice.value === option.value;
@@ -336,10 +334,10 @@ function SegmentSetting({ option }: { option: CanvasSettingsSegmentOption }) {
               aria-label={option.iconOnly ? choice.label : undefined}
               title={option.iconOnly ? choice.label : undefined}
               onClick={() => option.onChange(choice.value)}
-              className={`flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-center text-xs font-medium leading-tight transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50 ${
+              className={`flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-center text-xs font-medium leading-tight transition focus:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) disabled:cursor-not-allowed disabled:opacity-50 ${
                 active
-                  ? 'bg-white text-blue-700 shadow-sm dark:bg-gray-900 dark:text-blue-200'
-                  : 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white'
+                  ? 'bg-(--surface-card) text-(--text-badge) shadow-sm'
+                  : 'text-(--text-muted) hover:text-(--text-page) dark:hover:text-white'
               }`}
             >
               {choice.icon}
@@ -349,9 +347,7 @@ function SegmentSetting({ option }: { option: CanvasSettingsSegmentOption }) {
         })}
       </div>
       {option.description && (
-        <p className="text-xs text-gray-500 dark:text-gray-400">
-          {option.description}
-        </p>
+        <p className="text-xs text-(--text-muted)">{option.description}</p>
       )}
     </div>
   );
@@ -379,10 +375,10 @@ function IconGridSetting({ option }: { option: CanvasSettingsIconGridOption }) {
           aria-label={item.label}
           title={item.label}
           onClick={() => item.onChange(!item.checked)}
-          className={`flex h-9 w-full cursor-pointer items-center justify-center rounded-lg transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-40 ${
+          className={`flex h-9 w-full cursor-pointer items-center justify-center rounded-lg transition focus:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) disabled:cursor-not-allowed disabled:opacity-40 ${
             item.checked
-              ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-200'
-              : 'bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600 dark:bg-gray-800 dark:text-gray-500 dark:hover:bg-gray-700 dark:hover:text-gray-300'
+              ? 'bg-(--surface-option-selected) text-(--text-badge)'
+              : 'bg-(--surface-sunken) text-(--text-muted) hover:bg-(--border-card) hover:text-(--text-muted) dark:text-(--text-muted)'
           }`}
         >
           {item.icon}

@@ -54,14 +54,14 @@ export default function ToggleSwitch({
       disabled={disabled}
       onClick={() => !disabled && onChange(!checked)}
       onKeyDown={handleKeyDown}
-      className={`relative inline-flex ${trackSizeClass} shrink-0 cursor-pointer items-center rounded-full transition-colors outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent disabled:cursor-not-allowed disabled:opacity-50 dark:focus-visible:ring-blue-600/80 ${
+      className={`relative inline-flex ${trackSizeClass} shrink-0 cursor-pointer items-center rounded-full transition-colors outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:ring-offset-2 focus-visible:ring-offset-transparent disabled:cursor-not-allowed disabled:opacity-50 ${
         checked
-          ? 'bg-blue-600 dark:bg-blue-500'
-          : 'bg-gray-300 dark:bg-gray-600'
+          ? 'bg-(--button-primary-bg) dark:bg-(--button-primary-bg)'
+          : 'bg-(--border-card)'
       } ${className}`}
     >
       <span
-        className={`inline-block ${knobSizeClass} transform rounded-full bg-white shadow transition-transform ${knobPositionClass}`}
+        className={`inline-block ${knobSizeClass} transform rounded-full bg-(--surface-card) shadow transition-transform ${knobPositionClass}`}
       />
     </button>
   );

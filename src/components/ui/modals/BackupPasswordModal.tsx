@@ -31,15 +31,15 @@ type BackupPasswordModalProps = {
 };
 
 const STRENGTH_BAR_CLASS: Record<PasswordStrength, string> = {
-  weak: 'w-1/3 bg-red-500',
-  medium: 'w-2/3 bg-amber-500',
-  strong: 'w-full bg-green-600',
+  weak: 'w-1/3 bg-(--button-danger-bg)',
+  medium: 'w-2/3 bg-(--text-muted)',
+  strong: 'w-full bg-(--button-success-bg)',
 };
 
 const STRENGTH_TEXT_CLASS: Record<PasswordStrength, string> = {
-  weak: 'text-red-600 dark:text-red-400',
-  medium: 'text-amber-600 dark:text-amber-400',
-  strong: 'text-green-700 dark:text-green-400',
+  weak: 'text-(--button-danger-bg)',
+  medium: 'text-(--text-muted)',
+  strong: 'text-(--button-success-bg)',
 };
 
 /**
@@ -142,7 +142,7 @@ export default function BackupPasswordModal({
         <div className="space-y-2">
           <label
             htmlFor={passwordId}
-            className="block text-sm font-medium text-gray-800 dark:text-gray-200"
+            className="block text-sm font-medium text-(--text-page)"
           >
             {t('backupPassword.passwordLabel', 'Passwort')}
           </label>
@@ -179,7 +179,7 @@ export default function BackupPasswordModal({
           {isCreate && (
             <div id={hintId} className="space-y-1">
               <div
-                className="h-1.5 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700"
+                className="h-1.5 w-full overflow-hidden rounded-full bg-(--border-card)"
                 aria-hidden="true"
               >
                 <div
@@ -191,7 +191,7 @@ export default function BackupPasswordModal({
               <p
                 className={`text-xs ${
                   password.length === 0
-                    ? 'text-gray-500 dark:text-gray-400'
+                    ? 'text-(--text-muted)'
                     : STRENGTH_TEXT_CLASS[strength]
                 }`}
               >
@@ -210,7 +210,7 @@ export default function BackupPasswordModal({
           <div className="space-y-2">
             <label
               htmlFor={confirmationId}
-              className="block text-sm font-medium text-gray-800 dark:text-gray-200"
+              className="block text-sm font-medium text-(--text-page)"
             >
               {t('backupPassword.confirmLabel', 'Passwort wiederholen')}
             </label>
@@ -229,7 +229,7 @@ export default function BackupPasswordModal({
         {visibleError && (
           <p
             role="alert"
-            className="text-sm font-medium text-red-600 dark:text-red-400"
+            className="text-sm font-medium text-(--button-danger-bg)"
           >
             {visibleError}
           </p>

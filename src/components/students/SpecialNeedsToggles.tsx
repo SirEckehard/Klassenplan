@@ -155,7 +155,7 @@ export default function SpecialNeedsToggles({
   // Detailed variant: Section with labeled buttons
   return (
     <section className="space-y-2">
-      <h4 className="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">
+      <h4 className="text-xs font-medium text-(--text-muted) uppercase tracking-wide">
         {t('specialNeeds.title', 'Besondere Bedürfnisse')}
       </h4>
       <div

@@ -42,23 +42,21 @@ export default function SeatingPlanErrorFallback({
 
   const copy = variantCopyTranslated[variant];
   return (
-    <div className="rounded-lg border border-amber-300 bg-amber-50 p-6 text-amber-900 shadow-sm dark:border-amber-600 dark:bg-amber-900/30 dark:text-amber-100">
+    <div className="rounded-lg border border-(--button-danger-bg) bg-(--button-icon-danger-bg) p-6 text-(--text-page)">
       <h2 className="text-lg font-semibold">{copy.title}</h2>
-      <p className="mt-2 text-sm text-amber-800 dark:text-amber-100">
-        {copy.description}
-      </p>
+      <p className="mt-2 text-sm text-(--text-muted)">{copy.description}</p>
       <div className="mt-4 flex flex-wrap items-center gap-3">
         <button
           type="button"
           onClick={onRetry}
-          className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+          className="rounded-md bg-(--button-primary-bg) px-4 py-2 text-sm font-medium text-(--button-primary-text) transition hover:bg-(--button-primary-bg-hover) focus:outline-none focus:ring-2 focus:ring-(--focus-ring-primary) focus:ring-offset-2"
         >
           {t('common.retry', 'Erneut versuchen')}
         </button>
         <button
           type="button"
           onClick={() => window.location.reload()}
-          className="rounded-md border border-blue-600 px-4 py-2 text-sm font-medium text-blue-700 transition hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:text-blue-200 dark:hover:bg-blue-900/30 dark:focus:ring-offset-gray-900"
+          className="rounded-md border border-(--border-option-selected) px-4 py-2 text-sm font-medium text-(--text-badge) transition hover:bg-(--surface-option-selected) focus:outline-none focus:ring-2 focus:ring-(--focus-ring-primary) focus:ring-offset-2"
         >
           {t('common.reloadPage', 'Seite neu laden')}
         </button>
@@ -68,11 +66,11 @@ export default function SeatingPlanErrorFallback({
         area={variant === 'layout' ? 'LayoutEditor' : 'SeatingPlanView'}
         tone="amber"
       />
-      <details className="mt-4 text-xs text-amber-700 dark:text-amber-100">
+      <details className="mt-4 text-xs text-(--text-muted)">
         <summary className="cursor-pointer font-medium">
           {t('common.errorDetails', 'Fehlerdetails')}
         </summary>
-        <pre className="mt-2 whitespace-pre-wrap wrap-break-word rounded bg-white/70 p-3 text-[11px] leading-relaxed text-amber-700 shadow-inner dark:bg-gray-900/60 dark:text-amber-100">
+        <pre className="mt-2 whitespace-pre-wrap wrap-break-word rounded bg-(--surface-card) p-3 text-[11px] leading-relaxed text-(--text-muted) shadow-inner">
           {error.message}
         </pre>
       </details>

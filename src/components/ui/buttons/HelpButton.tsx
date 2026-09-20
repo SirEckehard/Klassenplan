@@ -9,6 +9,7 @@ import {
   pillTabBaseClass,
   pillTabInactiveClass,
   secondaryButtonClass,
+  segmentedTrackClass,
   shortcutContextLabels,
   shortcutMap,
   type ShortcutContext,
@@ -85,25 +86,19 @@ export default function HelpButton({
   const showTabs = tabs.length > 1;
   const triggerDisabled = !hasInstructions && !hasShortcuts;
   const triggerClassName = [
-    `${secondaryButtonClass} gap-2`,
-    'focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-gray-900',
-    'disabled:border-blue-100 disabled:text-gray-400 disabled:opacity-60 dark:disabled:border-blue-900/40 dark:disabled:text-gray-500',
-    triggerDisabled
-      ? 'cursor-not-allowed border-gray-200 text-gray-400 dark:border-gray-800 dark:text-gray-600'
-      : 'border-blue-200 bg-white text-blue-600 hover:bg-blue-50 dark:border-blue-900/50 dark:bg-gray-950/60 dark:text-blue-300',
+    `${secondaryButtonClass} h-9 w-9 justify-center p-0`,
+    triggerDisabled ? 'cursor-not-allowed opacity-60' : '',
   ].join(' ');
 
-  const tabContainerClass =
-    'flex gap-2 rounded-full border border-blue-200 bg-white/80 p-1 shadow-inner dark:border-blue-900/50 dark:bg-gray-950/60';
+  const tabContainerClass = `${segmentedTrackClass} flex gap-1 p-1`;
   const tabButtonBaseClass = pillTabBaseClass;
   const tabButtonActiveClass = pillTabActiveClass;
   const tabButtonInactiveClass = pillTabInactiveClass;
-  const cardBaseClass = `${cardSurfaceClass} border px-4 py-4 text-sm text-gray-700 dark:text-gray-200`;
-  const shortcutSectionClass = `${cardSurfaceClass} border px-4 py-4 text-sm text-gray-700 dark:text-gray-200`;
-  const shortcutListClass =
-    'mt-3 space-y-2 text-sm text-gray-700 dark:text-gray-300';
+  const cardBaseClass = `${cardSurfaceClass} border px-4 py-4 text-sm text-(--text-page)`;
+  const shortcutSectionClass = `${cardSurfaceClass} border px-4 py-4 text-sm text-(--text-page)`;
+  const shortcutListClass = 'mt-3 space-y-2 text-sm text-(--text-muted)';
   const kbdClass =
-    'rounded-lg bg-blue-100/70 px-3 py-1 font-mono text-xs font-semibold text-blue-700 dark:bg-blue-900/40 dark:text-blue-200';
+    'rounded-md bg-(--surface-sunken) px-2 py-1 font-mono text-xs font-semibold text-(--text-page)';
 
   return (
     <>
@@ -173,7 +168,7 @@ export default function HelpButton({
                 <div className="space-y-4">
                   {shortcutSections.map((ctx) => (
                     <div key={ctx} className={shortcutSectionClass}>
-                      <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                      <h4 className="text-sm font-semibold text-(--text-page)">
                         {t(`generator:${shortcutContextLabels[ctx]}`)}
                       </h4>
                       <ul className={shortcutListClass}>
@@ -205,7 +200,7 @@ export default function HelpButton({
           <div className="mt-2 space-y-4">
             {shortcutSections.map((ctx) => (
               <div key={ctx} className={shortcutSectionClass}>
-                <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                <h4 className="text-sm font-semibold text-(--text-page)">
                   {t(`generator:${shortcutContextLabels[ctx]}`)}
                 </h4>
                 <ul className={shortcutListClass}>
@@ -226,8 +221,8 @@ export default function HelpButton({
           </div>
         ) : null}
         {onStartTour && (
-          <div className="flex flex-col gap-3 border-t border-blue-100 pt-4 sm:flex-row sm:items-center sm:justify-between dark:border-blue-900/40">
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+          <div className="flex flex-col gap-3 border-t border-(--border-card) pt-4 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm text-(--text-muted)">
               {t('generator:tour.startHint')}
             </p>
             <button

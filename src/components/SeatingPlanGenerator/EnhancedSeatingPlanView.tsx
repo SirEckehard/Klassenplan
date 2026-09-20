@@ -308,9 +308,9 @@ export default function EnhancedSeatingPlanView(
                   onSyncCircle={() => void generateCircleSeating()}
                 />
               ) : (
-                <div className="flex min-h-100 items-center justify-center bg-gray-50 dark:bg-gray-800">
+                <div className="flex min-h-100 items-center justify-center bg-(--surface-sunken)">
                   <div className="text-center space-y-4">
-                    <div className="text-gray-500 dark:text-gray-400">
+                    <div className="text-(--text-muted)">
                       <svg
                         className="mx-auto h-16 w-16 mb-4"
                         fill="none"
@@ -388,8 +388,8 @@ export default function EnhancedSeatingPlanView(
                     }
                     className={`${secondaryButtonClass} flex-1 min-w-35 justify-center gap-2 ${
                       connectionMode === 'off'
-                        ? 'text-gray-700 dark:text-gray-200'
-                        : 'text-blue-600 dark:text-blue-300'
+                        ? 'text-(--text-muted)'
+                        : 'text-(--text-badge)'
                     }`}
                     title={t(
                       'circleView.showConnections',

@@ -18,7 +18,7 @@ export default function PresentPerspectiveToggle({
   const teacherActive = perspective === 'teacher';
 
   return (
-    <div className="flex items-center gap-2 rounded-full border border-blue-200 bg-white/80 p-1 shadow-inner dark:border-blue-900/40 dark:bg-gray-950/70">
+    <div className="flex items-center gap-2 rounded-full border border-(--border-option-selected) bg-(--surface-card) p-1 shadow-inner">
       <button
         type="button"
         onClick={() => onChange('student')}

@@ -36,7 +36,7 @@ export default function SettingToggle({
     setIsFocusVisible(false);
   };
   const focusRingClass = isFocusVisible
-    ? 'ring-2 ring-blue-400 ring-offset-2 ring-offset-transparent dark:ring-blue-600/80'
+    ? 'ring-2 ring-(--focus-ring-primary) ring-offset-2 ring-offset-transparent'
     : 'ring-0 ring-transparent';
   const surfaceClass = [
     'group relative flex items-center gap-3 rounded-2xl px-4 py-3 transition-all outline-none',
@@ -73,11 +73,9 @@ export default function SettingToggle({
 
       {/* Label and Description */}
       <div className="min-w-0 flex-1">
-        <div className="text-sm font-medium text-gray-800 dark:text-gray-200">
-          {label}
-        </div>
+        <div className="text-sm font-medium text-(--text-page)">{label}</div>
         {description && (
-          <div className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+          <div className="mt-0.5 text-xs text-(--text-muted)">
             {description}
           </div>
         )}
@@ -95,7 +93,7 @@ export default function SettingToggle({
         className={`${
           hideCheckboxIndicator
             ? 'sr-only focus:outline-none focus-visible:outline-none'
-            : 'h-4 w-4 accent-blue-600 dark:accent-blue-500 cursor-pointer disabled:cursor-not-allowed focus:outline-none focus-visible:outline-none'
+            : 'h-4 w-4 accent-(--accent-option) cursor-pointer disabled:cursor-not-allowed focus:outline-none focus-visible:outline-none'
         }`}
         aria-label={label}
       />

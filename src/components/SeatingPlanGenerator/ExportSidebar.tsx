@@ -89,7 +89,7 @@ function RailDivider() {
   return (
     <div
       aria-hidden="true"
-      className="my-1 h-px w-8 bg-blue-100 dark:bg-blue-900/40"
+      className="my-1 h-px w-8 bg-(--surface-option-selected)"
     />
   );
 }
@@ -281,7 +281,7 @@ function ViewDirectionControl({
 
   return (
     <>
-      <p className="mt-3 text-xs font-medium text-gray-500 dark:text-gray-400">
+      <p className="mt-3 text-xs font-medium text-(--text-muted)">
         {t('export.viewDirection')}
       </p>
       <div className="mt-2 grid gap-2 sm:grid-cols-2">
@@ -322,7 +322,7 @@ function FormatGroup({
 
   return (
     <div>
-      <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-300">
+      <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-(--text-badge)">
         {icon}
         {label}
       </p>
@@ -577,7 +577,7 @@ function ExportSidebarContent({
           autoFocus
           onClose={closeTitleFlyout}
         >
-          <p className="mb-2 text-sm font-medium text-gray-800 dark:text-gray-200">
+          <p className="mb-2 text-sm font-medium text-(--text-page)">
             {t('export.title')}
           </p>
           <TitleInput

@@ -156,9 +156,9 @@ export default function WizardProgressBar({
               <span
                 className={`
                   hidden sm:block text-xs font-medium transition-colors duration-200
-                  ${isActive ? 'text-blue-600 dark:text-blue-400' : ''}
-                  ${isCompleted ? 'text-green-600 dark:text-green-400' : ''}
-                  ${!isActive && !isCompleted ? 'text-gray-500 dark:text-gray-400' : ''}
+                  ${isActive ? 'text-(--text-badge)' : ''}
+                  ${isCompleted ? 'text-(--button-success-bg)' : ''}
+                  ${!isActive && !isCompleted ? 'text-(--text-muted)' : ''}
                 `}
               >
                 {t(stepConfig.labelKey, stepConfig.defaultLabel)}

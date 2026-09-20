@@ -38,7 +38,7 @@ it for Antigravity — edit this file, never those two.
 - ✅ Test Infrastructure: Centralized accessibility helpers and toast matchers for robust testing
 - ✅ Architecture: Repository Pattern implemented, UI components reorganized into logical subdirectories
 - ✅ i18n: Bilingual support (German/English) fully implemented, DE/EN key parity 1:1 (2019 keys per language)
-- 📦 Bundle: initial payload 203 KB brotli / 757 KB raw over 34 preloaded files, largest chunk 61 KB brotli, CSS 20 KB brotli
+- 📦 Bundle: initial payload 203 KB brotli / 756 KB raw over 34 preloaded files, largest chunk 61 KB brotli, CSS 19 KB brotli
 
 ## Logging
 
@@ -425,6 +425,8 @@ icon foreground, contrast-checked at 4.5:1) and `--data-<name>-surface` (chip
 background).
 
 Never reach for a raw Tailwind palette class (`bg-amber-500`, `text-green-600`)
-in a component — take the token. Dark mode is handled inside the token, so no
+in a component — take the token. The workspace is clean of them apart from
+`GenderSelector`, whose gender palette moves with the seat colours; the public
+pages (start page, FAQ, legal, name game) are the remaining ~270 call sites. Dark mode is handled inside the token, so no
 `dark:` variant is needed when a token is used; hand-written colour utilities
 still need one and should be replaced instead.

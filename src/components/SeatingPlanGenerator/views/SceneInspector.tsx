@@ -412,7 +412,7 @@ export default function SceneInspector({
             onChange={(event) =>
               patchFeature(feature.id, { visible: event.target.checked })
             }
-            className="h-5 w-9 cursor-pointer accent-blue-600"
+            className="h-5 w-9 cursor-pointer accent-(--accent-option)"
           />
         </div>
       </InspectorBody>

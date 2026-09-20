@@ -60,7 +60,7 @@ export default function StudentListFilterControls({
     ? 'flex flex-col gap-1'
     : 'flex items-center gap-2';
   const captionClass = stacked
-    ? 'text-xs font-medium text-gray-600 dark:text-gray-300'
+    ? 'text-xs font-medium text-(--text-muted)'
     : 'sr-only';
 
   const searchLabel = t('listToolbar.searchLabel', 'Schüler suchen');
@@ -85,7 +85,7 @@ export default function StudentListFilterControls({
         <MagnifyingGlassIcon
           size={16}
           aria-hidden
-          className={`pointer-events-none absolute top-1/2 -translate-y-1/2 text-gray-400 ${
+          className={`pointer-events-none absolute top-1/2 -translate-y-1/2 text-(--text-muted) ${
             stacked ? 'left-3' : 'left-3.5'
           }`}
         />
@@ -154,7 +154,7 @@ export default function StudentListFilterControls({
           <SortAscendingIcon
             size={16}
             aria-hidden
-            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-(--text-muted)"
           />
           <select
             value={sortMode}

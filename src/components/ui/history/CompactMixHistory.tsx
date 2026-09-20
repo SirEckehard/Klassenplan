@@ -46,21 +46,19 @@ function CompactMixItem({ result, onLoad, onDelete }: MixItemProps) {
   return (
     <>
       <div
-        className={`${cardSurfaceClass} group relative flex h-full items-center gap-3 border border-blue-100/60 px-3 py-3 transition hover:border-blue-200 hover:bg-blue-50/70 dark:border-blue-900/40 dark:hover:border-blue-700 dark:hover:bg-blue-950/40`}
+        className={`${cardSurfaceClass} group relative flex h-full items-center gap-3 border border-(--border-card) px-3 py-3 transition hover:border-(--border-option-selected) hover:bg-(--surface-option-selected)`}
       >
         {/* Timeline dot */}
-        <div className="absolute -left-2.25 h-4 w-4 rounded-full border-2 border-white bg-blue-500 dark:border-gray-900 md:hidden"></div>
+        <div className="absolute -left-2.25 h-4 w-4 rounded-full border-2 border-(--surface-card) bg-(--button-primary-bg) md:hidden"></div>
 
         {/* Mix InfoIcon */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1 text-sm font-medium text-gray-900 dark:text-gray-100">
+            <div className="flex items-center gap-1 text-sm font-medium text-(--text-page)">
               <Clock size={14} />
               {timeString}
             </div>
-            <span className="text-xs text-gray-500 dark:text-gray-400">
-              {dateString}
-            </span>
+            <span className="text-xs text-(--text-muted)">{dateString}</span>
           </div>
 
           {/* Setting badges */}
@@ -72,14 +70,11 @@ function CompactMixItem({ result, onLoad, onDelete }: MixItemProps) {
               return (
                 <span
                   key={key}
-                  className="inline-flex items-center rounded-full border border-blue-100/70 bg-blue-50/70 p-1 text-xs dark:border-blue-900/40 dark:bg-blue-900/30"
+                  className="inline-flex items-center rounded-full border border-(--border-card) bg-(--surface-sunken) p-1 text-xs"
                   title={`${label}: ${value}/10`}
                   aria-label={`${label}: ${value}/10`}
                 >
-                  <Icon
-                    size={12}
-                    className="text-gray-600 dark:text-gray-300"
-                  />
+                  <Icon size={12} className="text-(--text-muted)" />
                 </span>
               );
             })}
@@ -145,7 +140,7 @@ export default function CompactMixHistory({
   if (mixHistory.length === 0) {
     return (
       <div
-        className={`${cardSurfaceClass} border border-blue-100/60 p-4 text-center text-gray-500 dark:border-blue-900/40 dark:text-gray-400`}
+        className={`${cardSurfaceClass} border border-(--border-card) p-4 text-center text-(--text-muted)`}
       >
         <div className="text-sm">
           {t('mixHistory.emptyTitle', 'Noch keine Mischungen erstellt')}
@@ -166,7 +161,7 @@ export default function CompactMixHistory({
     <div className="max-h-64 overflow-y-auto">
       <div className="relative p-2">
         {/* Timeline line */}
-        <div className="absolute left-5 top-0 bottom-0 w-0.5 bg-blue-100 dark:bg-blue-900/40 md:hidden" />
+        <div className="absolute left-5 top-0 bottom-0 w-0.5 bg-(--surface-option-selected) md:hidden" />
 
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
           {sortedHistory.map((result) => (

@@ -262,12 +262,12 @@ function CoachMark({
       >
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-xs font-semibold text-orange-600 dark:text-orange-400">
+            <p className="text-xs font-semibold text-orange-600">
               {t('tour.stepCounter', { current: position, total })}
             </p>
             <h2
               id={titleId}
-              className="mt-0.5 text-base font-semibold text-gray-900 dark:text-gray-100"
+              className="mt-0.5 text-base font-semibold text-(--text-page)"
             >
               {t(`${mark.textKey}.title`)}
             </h2>
@@ -282,17 +282,14 @@ function CoachMark({
             <XIcon size={16} aria-hidden="true" />
           </button>
         </div>
-        <p
-          id={bodyId}
-          className="text-sm leading-relaxed text-gray-700 dark:text-gray-300"
-        >
+        <p id={bodyId} className="text-sm leading-relaxed text-(--text-muted)">
           {t(`${mark.textKey}.body`)}
         </p>
         <div className="flex flex-wrap items-center justify-between gap-2">
           <button
             type="button"
             onClick={onSkip}
-            className="cursor-pointer rounded text-xs font-medium text-gray-500 underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-gray-400"
+            className="cursor-pointer rounded text-xs font-medium text-(--text-muted) underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) dark:text-(--text-muted)"
           >
             {t('tour.skip')}
           </button>

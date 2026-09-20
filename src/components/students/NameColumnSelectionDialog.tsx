@@ -179,17 +179,15 @@ export default function NameColumnSelectionDialog({
       size="md"
     >
       {preset && (
-        <div
-          className={`${cardSurfaceClass} border border-green-200/70 dark:border-green-900/50`}
-        >
-          <p className="flex items-center gap-2 text-sm font-semibold text-green-800 dark:text-green-200">
+        <div className={`${cardSurfaceClass} border border-(--border-card)`}>
+          <p className="flex items-center gap-2 text-sm font-semibold text-(--button-success-bg)">
             <SealCheckIcon size={18} aria-hidden="true" />
             {t('csvDialog.presetDetected', { vendor: preset.vendor })}
           </p>
-          <p className="mt-1 text-xs text-green-800 dark:text-green-200">
+          <p className="mt-1 text-xs text-(--text-muted)">
             {t('csvDialog.presetNote')}
           </p>
-          <label className="mt-2 flex items-center gap-2 text-xs text-green-900 dark:text-green-100">
+          <label className="mt-2 flex items-center gap-2 text-xs text-(--text-page)">
             <input
               type="checkbox"
               checked={!applyPreset}
@@ -205,7 +203,7 @@ export default function NameColumnSelectionDialog({
         <div className="space-y-2">
           <label
             htmlFor="csv-class-select"
-            className="block text-sm font-semibold text-gray-800 dark:text-gray-200"
+            className="block text-sm font-semibold text-(--text-page)"
           >
             {t('csvDialog.classLabel')}
           </label>
@@ -221,7 +219,7 @@ export default function NameColumnSelectionDialog({
               </option>
             ))}
           </select>
-          <p className="text-xs text-gray-500 dark:text-gray-400">
+          <p className="text-xs text-(--text-muted)">
             {t('csvDialog.classHint', { count: classOptions.length })}
           </p>
         </div>
@@ -254,20 +252,20 @@ export default function NameColumnSelectionDialog({
 
       {/* Preview */}
       <div className={`${listContainerClass} space-y-2`}>
-        <div className="border-b border-blue-100 pb-2 text-sm font-semibold text-gray-800 dark:border-blue-900/40 dark:text-gray-200">
+        <div className="border-b border-(--border-card) pb-2 text-sm font-semibold text-(--text-page)">
           {t('csvDialog.preview', 'Vorschau')} (
           {t('csvDialog.firstRows', { count: preview.length })})
         </div>
-        <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
+        <ul className="space-y-2 text-sm text-(--text-muted)">
           {preview.map((name, idx) => (
             <li key={idx} className="flex items-center gap-2">
-              <span className="font-medium text-blue-600 dark:text-blue-300">
+              <span className="font-medium text-(--text-badge)">
                 {idx + 1}.
               </span>
               {name ? (
                 <span>{name}</span>
               ) : (
-                <em className="text-gray-400 dark:text-gray-500">
+                <em className="text-(--text-muted)">
                   ({t('csvDialog.empty', 'leer')})
                 </em>
               )}
@@ -277,8 +275,8 @@ export default function NameColumnSelectionDialog({
       </div>
 
       {/* Privacy Notice */}
-      <div className={`${cardSurfaceClass} border border-blue-200/70`}>
-        <p className="text-xs text-blue-800 dark:text-blue-200">
+      <div className={`${cardSurfaceClass} border border-(--border-card)`}>
+        <p className="text-xs text-(--text-page)">
           <strong>{t('csvDialog.privacy', 'Datenschutz')}:</strong>{' '}
           {t(
             'csvDialog.privacyNote',

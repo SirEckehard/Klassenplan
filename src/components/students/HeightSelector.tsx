@@ -113,7 +113,7 @@ export default function HeightSelector({
     const colorClasses = compactStyleMap[currentHeight];
     const iconColorClass =
       currentHeight === 'medium'
-        ? 'text-gray-900 dark:text-white'
+        ? 'text-(--text-page) dark:text-white'
         : compactIconColorMap[currentHeight];
 
     return (
@@ -292,7 +292,7 @@ export default function HeightSelector({
   // Detailed variant: Section with full-width buttons inside responsive grid
   return (
     <section className="space-y-2">
-      <h4 className="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">
+      <h4 className="text-xs font-medium text-(--text-muted) uppercase tracking-wide">
         {t('height.title')}
       </h4>
       <div

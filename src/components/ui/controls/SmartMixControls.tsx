@@ -105,8 +105,8 @@ function WeightBadge({ value }: { value: number }) {
     <span
       className={`shrink-0 rounded-full px-3 py-1 text-xs tabular-nums shadow-sm ${
         value > 0
-          ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-200'
-          : 'bg-gray-100 text-gray-600 dark:bg-gray-900/60 dark:text-gray-300'
+          ? 'bg-(--surface-option-selected) text-(--text-badge)'
+          : 'bg-(--surface-sunken) text-(--text-muted)'
       }`}
     >
       {value}/10
@@ -139,7 +139,7 @@ function WeightSlider({
       onClick={(event) => event.stopPropagation()}
       onChange={(event) => onChange(parseInt(event.target.value, 10))}
       aria-label={t('mix.weightSliderLabel', { label })}
-      className={`h-6 w-full cursor-pointer appearance-none rounded-full bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400
+      className={`h-6 w-full cursor-pointer appearance-none rounded-full bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)
         [&::-moz-range-thumb]:size-3 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0
         [&::-moz-range-track]:h-1 [&::-moz-range-track]:rounded-full
         [&::-webkit-slider-runnable-track]:h-1 [&::-webkit-slider-runnable-track]:rounded-full
@@ -148,8 +148,8 @@ function WeightSlider({
         pointer-coarse:[&::-webkit-slider-thumb]:-mt-2 pointer-coarse:[&::-webkit-slider-thumb]:size-5
         ${
           isActive
-            ? '[&::-moz-range-thumb]:bg-blue-600 [&::-moz-range-track]:bg-blue-200 dark:[&::-moz-range-track]:bg-blue-800 [&::-webkit-slider-runnable-track]:bg-blue-200 dark:[&::-webkit-slider-runnable-track]:bg-blue-800 [&::-webkit-slider-thumb]:bg-blue-600'
-            : '[&::-moz-range-thumb]:bg-gray-400 [&::-moz-range-track]:bg-gray-200 dark:[&::-moz-range-track]:bg-gray-600 [&::-webkit-slider-runnable-track]:bg-gray-200 dark:[&::-webkit-slider-runnable-track]:bg-gray-600 [&::-webkit-slider-thumb]:bg-gray-400'
+            ? '[&::-moz-range-thumb]:bg-(--button-primary-bg) [&::-moz-range-track]:bg-(--surface-option-selected) [&::-webkit-slider-runnable-track]:bg-(--surface-option-selected) [&::-webkit-slider-thumb]:bg-(--button-primary-bg)'
+            : '[&::-moz-range-thumb]:bg-(--text-muted) [&::-moz-range-track]:bg-(--border-card) [&::-webkit-slider-runnable-track]:bg-(--border-card) [&::-webkit-slider-thumb]:bg-(--text-muted)'
         }`}
     />
   );
@@ -164,7 +164,7 @@ function WeightRing({ value }: { value: number }) {
     <svg
       aria-hidden="true"
       viewBox="0 0 48 48"
-      className="pointer-events-none absolute -top-0.5 -left-0.5 size-12 -rotate-90 text-blue-500 dark:text-blue-400"
+      className="pointer-events-none absolute -top-0.5 -left-0.5 size-12 -rotate-90 text-(--button-primary-bg)"
     >
       <circle
         cx="24"
@@ -217,8 +217,8 @@ function FulfillmentBadge({
   const statusLabel = t(`statisticsBadge.status.${status}`);
   const shapeClass = `inline-flex shrink-0 items-center gap-1.5 rounded-full px-2 py-1 text-xs tabular-nums shadow-sm ${
     pinned
-      ? 'bg-blue-100 text-blue-800 ring-1 ring-blue-400 dark:bg-blue-900/40 dark:text-blue-200'
-      : 'bg-gray-100 text-gray-600 dark:bg-gray-900/60 dark:text-gray-300'
+      ? 'bg-(--surface-option-selected) text-(--text-badge) ring-1 ring-(--focus-ring-primary)'
+      : 'bg-(--surface-sunken) text-(--text-muted)'
   } ${className}`;
   // Hidden from the accessible name, which the label below spells out in full:
   // read out on their own the two would be "green, 78%".
@@ -259,7 +259,7 @@ function FulfillmentBadge({
         { label, percentage },
       )}
       title={statusLabel}
-      className={`${shapeClass} cursor-pointer transition hover:ring-1 hover:ring-blue-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500`}
+      className={`${shapeClass} cursor-pointer transition hover:ring-1 hover:ring-(--focus-ring-primary) focus:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)`}
     >
       {body}
     </button>
@@ -278,7 +278,7 @@ function FulfillmentDot({ percentage }: { percentage: number }) {
   return (
     <span
       aria-hidden="true"
-      className={`pointer-events-none absolute -right-0.5 -bottom-0.5 size-3 rounded-full border-2 border-white dark:border-gray-800 ${dotClass}`}
+      className={`pointer-events-none absolute -right-0.5 -bottom-0.5 size-3 rounded-full border-2 border-(--surface-card) ${dotClass}`}
     />
   );
 }
@@ -306,14 +306,14 @@ function CriterionWeight({
       {/* A block, so the card's accessible name reads "Restlessness Separate
           students…", not one run-on word. */}
       <div
-        className={`mb-1 text-sm font-medium text-gray-800 dark:text-gray-200${
+        className={`mb-1 text-sm font-medium text-(--text-page)${
           reserveTrailingSpace ? ' pr-16' : ''
         }`}
       >
         {criterion.label}
       </div>
       <div
-        className="mb-2 text-xs text-gray-500 dark:text-gray-400"
+        className="mb-2 text-xs text-(--text-muted)"
         title={t('mix.weightTooltip', { value })}
       >
         {criterion.description}
@@ -322,7 +322,7 @@ function CriterionWeight({
           right corner belongs to the fulfilment badge. */}
       <div className="flex items-center gap-2">
         <WeightBadge value={value} />
-        <div className="flex-1 rounded-xl border border-blue-200 bg-white/80 px-3 dark:border-blue-900/40 dark:bg-gray-950/70">
+        <div className="flex-1 rounded-lg border border-(--border-card) bg-(--surface-card) px-3">
           <WeightSlider
             label={criterion.label}
             value={value}
@@ -489,8 +489,8 @@ function AllCriteriaSwitch({
 
   return (
     <div className="px-2">
-      <div className="flex items-center justify-between gap-3 rounded-2xl bg-gray-100 px-4 py-3 dark:bg-gray-800/60">
-        <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
+      <div className="flex items-center justify-between gap-3 rounded-lg bg-(--surface-sunken) px-4 py-3">
+        <span className="text-sm font-medium text-(--text-page)">
           {t('mix.toggleAll')}
         </span>
         <div className="flex items-center gap-1">
@@ -564,13 +564,11 @@ function AllCriteriaFlyoutContent({
 
   return (
     <div className="space-y-2">
-      <p className="text-sm font-medium text-gray-800 dark:text-gray-200">
+      <p className="text-sm font-medium text-(--text-page)">
         {t('mix.toggleAll')}
       </p>
       {isRandom && (
-        <p className="text-xs text-amber-700 dark:text-amber-400">
-          {t('mix.randomWarning')}
-        </p>
+        <p className="text-xs text-(--text-muted)">{t('mix.randomWarning')}</p>
       )}
       <button
         type="button"
@@ -740,7 +738,7 @@ function SmartMixControls({
             description={t('mix.description')}
           />
           {overallScore !== null && (
-            <p className="px-3 pb-1 text-xs font-medium text-blue-700 dark:text-blue-300">
+            <p className="px-3 pb-1 text-xs font-medium text-(--text-muted)">
               {t('mix.fulfillment.overall', { percentage: overallScore })}
             </p>
           )}
@@ -762,10 +760,7 @@ function SmartMixControls({
         />
       )}
       {isCompact && direction === 'column' && (
-        <div
-          aria-hidden="true"
-          className="my-1 h-px w-8 bg-blue-100 dark:bg-blue-900/50"
-        />
+        <div aria-hidden="true" className="my-1 h-px w-8 bg-(--border-card)" />
       )}
 
       {mix.categories.map((category, categoryIndex) => (
@@ -809,8 +804,8 @@ function SmartMixControls({
           whose button turns amber. */}
       {!isCompact && mix.isRandom && (
         <div className="px-2 pb-2">
-          <div className="rounded-2xl border-2 border-amber-200 bg-amber-50 p-3 dark:border-amber-700 dark:bg-amber-900/20">
-            <p className="text-center text-xs font-medium text-amber-700 dark:text-amber-400">
+          <div className="rounded-lg border border-(--border-card) bg-(--surface-sunken) p-3">
+            <p className="text-center text-xs font-medium text-(--text-page)">
               ⚠️ {t('mix.randomWarning')}
             </p>
           </div>
@@ -853,8 +848,8 @@ function SmartMixControls({
           {/* On the rail the button itself only previews while the pointer
               rests on it; pinning the marking lives here, next to the value. */}
           {flyoutFulfillment && (
-            <div className="mt-2 flex items-center justify-between gap-2 border-t border-blue-100 pt-2 dark:border-blue-900/50">
-              <span className="text-xs text-gray-500 dark:text-gray-400">
+            <div className="mt-2 flex items-center justify-between gap-2 border-t border-(--border-card) pt-2">
+              <span className="text-xs text-(--text-muted)">
                 {t('mix.fulfillment.label')}
               </span>
               <FulfillmentBadge
@@ -872,7 +867,7 @@ function SmartMixControls({
             </div>
           )}
           {flyout.showHint && (
-            <p className="mt-2 border-t border-blue-100 pt-2 text-xs text-blue-700 dark:border-blue-900/50 dark:text-blue-300">
+            <p className="mt-2 border-t border-(--border-card) pt-2 text-xs text-(--text-muted)">
               {t('mix.flyoutHint')}
             </p>
           )}

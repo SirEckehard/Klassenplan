@@ -78,12 +78,12 @@ export default function NeighborhoodMatrix({
         <UsersThreeIcon
           size={28}
           aria-hidden="true"
-          className="mx-auto text-gray-400 dark:text-gray-500"
+          className="mx-auto text-(--text-muted)"
         />
-        <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+        <p className="mt-2 text-sm text-(--text-muted)">
           {t('storage.neighbors.empty')}
         </p>
-        <p className="mx-auto mt-1 max-w-md text-xs text-gray-500 dark:text-gray-400">
+        <p className="mx-auto mt-1 max-w-md text-xs text-(--text-muted)">
           {t('storage.neighbors.emptyHint')}
         </p>
       </div>
@@ -92,7 +92,7 @@ export default function NeighborhoodMatrix({
 
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-xs text-gray-600 dark:text-gray-300">
+      <p className="text-xs text-(--text-muted)">
         {t('storage.neighbors.basis', { count: counted.length })}
         {since
           ? ` ${t('storage.neighbors.basisSince', {
@@ -106,7 +106,7 @@ export default function NeighborhoodMatrix({
         <MagnifyingGlassIcon
           size={16}
           aria-hidden="true"
-          className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+          className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-(--text-muted)"
         />
         <input
           type="search"
@@ -118,7 +118,7 @@ export default function NeighborhoodMatrix({
       </label>
 
       {filtered.length === 0 ? (
-        <p className="py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+        <p className="py-4 text-center text-sm text-(--text-muted)">
           {t('storage.neighbors.noMatches')}
         </p>
       ) : (
@@ -126,20 +126,20 @@ export default function NeighborhoodMatrix({
           {filtered.map((stat) => (
             <li
               key={stat.key}
-              className="flex items-center justify-between gap-3 rounded-lg border border-blue-100/60 px-3 py-2 text-sm dark:border-blue-900/40"
+              className="flex items-center justify-between gap-3 rounded-lg border border-(--border-card) px-3 py-2 text-sm"
             >
-              <span className="min-w-0 truncate text-gray-900 dark:text-gray-100">
+              <span className="min-w-0 truncate text-(--text-page)">
                 {nameOf(stat.studentIdA)}
-                <span className="mx-1.5 text-gray-400">&amp;</span>
+                <span className="mx-1.5 text-(--text-muted)">&amp;</span>
                 {nameOf(stat.studentIdB)}
               </span>
               <span className="flex shrink-0 items-center gap-2">
-                <span className="text-xs text-gray-500 dark:text-gray-400">
+                <span className="text-xs text-(--text-muted)">
                   {t('storage.neighbors.lastSeen', {
                     date: formatDate(stat.lastSeenAt),
                   })}
                 </span>
-                <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-semibold text-blue-700 dark:bg-blue-900/40 dark:text-blue-200">
+                <span className="rounded-full bg-(--surface-option-selected) px-2 py-0.5 text-xs font-semibold text-(--text-badge)">
                   {t('storage.neighbors.times', { count: stat.count })}
                 </span>
               </span>
@@ -173,15 +173,15 @@ export default function NeighborhoodMatrix({
                   <span
                     className={
                       excluded
-                        ? 'text-gray-400 line-through dark:text-gray-500'
-                        : 'text-gray-900 dark:text-gray-100'
+                        ? 'text-(--text-muted) line-through dark:text-(--text-muted)'
+                        : 'text-(--text-page)'
                     }
                   >
                     {t('storage.neighbors.recordLabel', {
                       date: formatDate(entry.lastSeenAt),
                     })}
                   </span>
-                  <span className="ml-2 text-gray-500 dark:text-gray-400">
+                  <span className="ml-2 text-(--text-muted)">
                     {entry.sources
                       .map((source) => t(`storage.neighbors.sources.${source}`))
                       .join(', ')}

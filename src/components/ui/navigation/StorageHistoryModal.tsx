@@ -139,7 +139,7 @@ export default function StorageHistoryModal({
   // pushing the modal past the viewport. The fully round pill shape only fits
   // a single row, hence the softer radius until the tabs sit side by side.
   const tabContainerClass =
-    'flex flex-wrap gap-2 rounded-3xl border border-blue-200 bg-white/80 p-1 shadow-inner sm:rounded-full dark:border-blue-900/50 dark:bg-gray-950/60';
+    'flex flex-wrap gap-2 rounded-3xl border border-(--border-option-selected) bg-(--surface-card) p-1 shadow-inner sm:rounded-full';
 
   return (
     <Modal
@@ -171,7 +171,7 @@ export default function StorageHistoryModal({
             <ClockCounterClockwiseIcon size={14} className="mr-1.5" />
             {t('storage.savedPlans', 'Gespeicherte Pläne')}
             {hasPlans && (
-              <span className="ml-1.5 rounded-full bg-blue-100 px-2 py-0.5 text-xs font-semibold text-blue-700 dark:bg-blue-900/40 dark:text-blue-200">
+              <span className="ml-1.5 rounded-full bg-(--surface-option-selected) px-2 py-0.5 text-xs font-semibold text-(--text-badge)">
                 {seatingHistory.length}
               </span>
             )}
@@ -191,7 +191,7 @@ export default function StorageHistoryModal({
             <ShuffleIcon size={14} className="mr-1.5" />
             {t('storage.mixHistory', 'Misch-Historie')}
             {hasMixes && (
-              <span className="ml-1.5 rounded-full bg-blue-100 px-2 py-0.5 text-xs font-semibold text-blue-700 dark:bg-blue-900/40 dark:text-blue-200">
+              <span className="ml-1.5 rounded-full bg-(--surface-option-selected) px-2 py-0.5 text-xs font-semibold text-(--text-badge)">
                 {mixHistory.length}
               </span>
             )}
@@ -213,7 +213,7 @@ export default function StorageHistoryModal({
             <UsersThreeIcon size={14} className="mr-1.5" />
             {t('storage.neighbors.tab')}
             {usageCount > 0 && (
-              <span className="ml-1.5 rounded-full bg-blue-100 px-2 py-0.5 text-xs font-semibold text-blue-700 dark:bg-blue-900/40 dark:text-blue-200">
+              <span className="ml-1.5 rounded-full bg-(--surface-option-selected) px-2 py-0.5 text-xs font-semibold text-(--text-badge)">
                 {usageCount}
               </span>
             )}
@@ -236,7 +236,7 @@ export default function StorageHistoryModal({
               onRename={handlePlanRename}
             />
           ) : (
-            <p className="py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+            <p className="py-4 text-center text-sm text-(--text-muted)">
               {t('storage.noPlans', 'Keine gespeicherten Pläne vorhanden.')}
             </p>
           )}
@@ -257,7 +257,7 @@ export default function StorageHistoryModal({
               onDelete={handleMixDelete}
             />
           ) : (
-            <p className="py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+            <p className="py-4 text-center text-sm text-(--text-muted)">
               {t('storage.noMixes', 'Keine Misch-Ergebnisse vorhanden.')}
             </p>
           )}

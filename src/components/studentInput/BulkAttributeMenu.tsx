@@ -197,16 +197,13 @@ export default function BulkAttributeMenu<TValue extends string>({
                 {option.label}
               </button>
             ))}
-            <div
-              className="my-1 h-px bg-gray-200 dark:bg-gray-700"
-              role="separator"
-            />
+            <div className="my-1 h-px bg-(--border-card)" role="separator" />
             {/* Same escape hatch the select's clear option was: an attribute
                 set by mistake comes off the way it went on. */}
             <button
               type="button"
               role="menuitem"
-              className={`${menuItemClass} text-gray-500 dark:text-gray-400`}
+              className={`${menuItemClass} text-(--text-muted)`}
               onClick={() => choose(null)}
             >
               {t('bulkEdit.clearValue', '— entfernen —')}
@@ -219,4 +216,4 @@ export default function BulkAttributeMenu<TValue extends string>({
 }
 
 const menuItemClass =
-  'w-full cursor-pointer whitespace-nowrap rounded-lg px-3 py-2 text-left text-sm text-gray-700 transition hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 dark:text-gray-100 dark:hover:bg-gray-800';
+  'w-full cursor-pointer whitespace-nowrap rounded-lg px-3 py-2 text-left text-sm text-(--text-muted) transition hover:bg-(--surface-option-selected) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)';

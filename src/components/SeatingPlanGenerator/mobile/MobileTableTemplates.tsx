@@ -78,7 +78,7 @@ const MobileTableTemplates: React.FC<MobileTableTemplatesProps> = ({
 
   return (
     <div className="mt-4 px-2">
-      <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">
+      <h3 className="text-sm font-semibold text-(--text-page) mb-2">
         {t('layout.tableTypes', 'Tischtypen')}
       </h3>
       <div className="grid grid-cols-4 gap-1.5">
@@ -87,7 +87,7 @@ const MobileTableTemplates: React.FC<MobileTableTemplatesProps> = ({
             key={template.type}
             type="button"
             onPointerDown={(e) => onTemplatePointerDown(template.type, e)}
-            className={`${cardSurfaceClass} group relative flex h-16 min-w-0 cursor-grab flex-col items-center gap-0.5 border-2 border-blue-100/80 p-1.5 transition hover:border-blue-400 hover:bg-blue-50/80 active:scale-95 active:cursor-grabbing dark:border-blue-900/40 dark:hover:border-blue-500`}
+            className={`${cardSurfaceClass} group relative flex h-16 min-w-0 cursor-grab flex-col items-center gap-0.5 border-2 border-(--border-card) p-1.5 transition hover:border-(--border-option-selected) hover:bg-(--surface-option-selected) active:scale-95 active:cursor-grabbing`}
             title={`${TABLE_TEMPLATE_LABELS[template.type]} (${template.seatCount} ${t('common.seats', 'Plätze')})`}
             style={{ touchAction: 'none' }}
           >
@@ -105,18 +105,18 @@ const MobileTableTemplates: React.FC<MobileTableTemplatesProps> = ({
                 <TablePreview type={template.type} fixedSize={true} />
               </div>
             </div>
-            <span className="text-[10px] font-medium text-gray-700 dark:text-gray-200">
+            <span className="text-[10px] font-medium text-(--text-muted)">
               {template.seatCount} {t('common.pl', 'Pl.')}
             </span>
 
             {/* Drag indicator */}
-            <div className="pointer-events-none absolute inset-0 rounded-2xl border-2 border-dashed border-transparent opacity-0 transition-opacity group-hover:border-blue-400 group-hover:opacity-60 dark:group-hover:border-blue-500" />
+            <div className="pointer-events-none absolute inset-0 rounded-2xl border-2 border-dashed border-transparent opacity-0 transition-opacity group-hover:border-(--border-option-selected) group-hover:opacity-60" />
           </button>
         ))}
       </div>
       {featurePalette && featurePalette.length > 0 && (
         <div className="mt-3">
-          <h4 className="text-xs font-semibold text-gray-800 dark:text-gray-200 mb-1.5">
+          <h4 className="text-xs font-semibold text-(--text-page) mb-1.5">
             {t('layout.roomElements', 'Raumelemente')}
           </h4>
           <div className="grid grid-cols-4 gap-1.5">
@@ -127,11 +127,11 @@ const MobileTableTemplates: React.FC<MobileTableTemplatesProps> = ({
                 onPointerDown={(event) =>
                   onFeaturePointerDown?.(feature.type, event)
                 }
-                className={`${cardSurfaceClass} flex h-14 min-w-0 cursor-grab flex-col items-center justify-center gap-0.5 border-2 border-blue-100/80 p-1 text-[10px] font-medium text-gray-700 transition hover:border-blue-400 hover:bg-blue-50/80 active:scale-95 active:cursor-grabbing dark:border-blue-900/40 dark:text-gray-200 dark:hover:border-blue-500`}
+                className={`${cardSurfaceClass} flex h-14 min-w-0 cursor-grab flex-col items-center justify-center gap-0.5 border-2 border-(--border-card) p-1 text-[10px] font-medium text-(--text-muted) transition hover:border-(--border-option-selected) hover:bg-(--surface-option-selected) active:scale-95 active:cursor-grabbing`}
                 style={{ touchAction: 'none' }}
                 title={`${feature.label} ${t('layout.place', 'platzieren')}`}
               >
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-200">
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-(--surface-option-selected) text-(--text-badge)">
                   {feature.icon}
                 </span>
                 <span>{feature.label}</span>
@@ -146,7 +146,7 @@ const MobileTableTemplates: React.FC<MobileTableTemplatesProps> = ({
           <button
             type="button"
             onClick={onSaveTemplate}
-            className={`${secondaryButtonClass} flex w-full items-center justify-center gap-3 px-4 py-3 text-sm text-green-700 hover:bg-green-50 dark:text-green-300 dark:hover:bg-green-900/30 h-12`}
+            className={`${secondaryButtonClass} flex w-full items-center justify-center gap-3 px-4 py-3 text-sm text-(--button-success-bg) hover:bg-(--surface-sunken) h-12`}
             title={t(
               'layout.saveTemplate',
               'Aktuellen Klassenraum als Vorlage speichern',

@@ -133,8 +133,8 @@ export default function SaveTemplateModal({
     >
       <div className="space-y-6">
         {/* Layout Preview */}
-        <div className="flex items-center gap-4 rounded-2xl border border-blue-100 bg-white/80 p-4 text-sm text-gray-700 shadow-sm dark:border-blue-900/40 dark:bg-gray-950/70 dark:text-gray-200">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600/90 text-white shadow-sm dark:bg-blue-500/80">
+        <div className="flex items-center gap-4 rounded-2xl border border-(--border-card) bg-(--surface-card) p-4 text-sm text-(--text-muted) shadow-sm">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-(--button-primary-bg)/90 text-white shadow-sm dark:bg-(--button-primary-bg)/80">
             <LayoutIcon size={20} aria-hidden="true" />
           </div>
           <div>
@@ -149,7 +149,7 @@ export default function SaveTemplateModal({
         <div>
           <label
             htmlFor="template-name"
-            className="mb-1.5 block text-sm font-semibold text-gray-800 dark:text-gray-200"
+            className="mb-1.5 block text-sm font-semibold text-(--text-page)"
           >
             {t('template.nameLabel', 'Vorlagenname')}
           </label>
@@ -166,15 +166,15 @@ export default function SaveTemplateModal({
                 onClose();
               }
             }}
-            className="w-full rounded-xl border border-blue-200 bg-white/80 px-3 py-2 text-sm text-gray-900 shadow-inner transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 dark:border-blue-900/40 dark:bg-gray-950/70 dark:text-gray-100"
+            className="w-full rounded-xl border border-(--border-option-selected) bg-(--surface-card) px-3 py-2 text-sm text-(--text-page) shadow-inner transition focus:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)"
             placeholder={t('template.namePlaceholder', 'z.B. Klassenraum 1a')}
             aria-label={t('template.nameAriaLabel', 'Vorlagenname eingeben')}
           />
 
           {/* Duplicate Warning */}
           {isDuplicate && (
-            <div className="mt-2 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50/80 p-3 text-sm text-amber-800 shadow-sm dark:border-amber-900/60 dark:bg-amber-900/30 dark:text-amber-200">
-              <WarningCircleIcon className="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-300" />
+            <div className="mt-2 flex items-start gap-3 rounded-lg border border-(--border-card) bg-(--surface-sunken) p-3 text-sm text-(--text-page)">
+              <WarningCircleIcon className="mt-0.5 h-5 w-5 shrink-0 text-(--text-muted)" />
               <div className="flex-1">
                 {t(
                   'template.duplicateWarning',
@@ -190,7 +190,7 @@ export default function SaveTemplateModal({
           <div>
             <label
               htmlFor="template-overwrite"
-              className="mb-1.5 block text-sm font-semibold text-gray-800 dark:text-gray-200"
+              className="mb-1.5 block text-sm font-semibold text-(--text-page)"
             >
               {t(
                 'template.overwriteLabel',
@@ -205,7 +205,7 @@ export default function SaveTemplateModal({
                   e.target.value ? Number(e.target.value) : null,
                 )
               }
-              className="w-full rounded-xl border border-blue-200 bg-white/80 px-3 py-2 text-sm text-gray-900 shadow-inner transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 dark:border-blue-900/40 dark:bg-gray-950/70 dark:text-gray-100"
+              className="w-full rounded-xl border border-(--border-option-selected) bg-(--surface-card) px-3 py-2 text-sm text-(--text-page) shadow-inner transition focus:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)"
               aria-label={t('template.overwriteSelect')}
             >
               <option value="">

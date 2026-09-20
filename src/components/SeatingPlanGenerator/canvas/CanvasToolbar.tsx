@@ -26,7 +26,7 @@ interface CanvasToolbarProps {
   buttonClass?: string;
 }
 
-const canvasButtonClass = `${mutedIconButtonClass} h-12 w-12 text-gray-700 transition disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-100`;
+const canvasButtonClass = `${mutedIconButtonClass} h-12 w-12 text-(--text-muted) transition disabled:cursor-not-allowed disabled:opacity-50`;
 
 /**
  * CanvasToolbar - undo/redo pair for a canvas overlay.

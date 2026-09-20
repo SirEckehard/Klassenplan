@@ -49,23 +49,23 @@ export default function BackupReminder() {
     <section
       aria-live="polite"
       role="status"
-      className="mb-6 rounded-2xl border border-amber-200 bg-amber-50/80 px-4 py-5 text-amber-900 shadow-xs backdrop-blur dark:border-amber-500/40 dark:bg-amber-900/30 dark:text-amber-100"
+      className="mb-6 rounded-lg border border-(--border-option-selected) bg-(--surface-option-selected) px-4 py-5 text-(--text-page)"
     >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-5">
-        <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-600/15 text-amber-700 dark:bg-amber-500/30 dark:text-amber-200">
+        <span className="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-(--surface-card) text-(--text-badge)">
           <FloppyDiskIcon aria-hidden="true" className="h-6 w-6" />
         </span>
         <div className="flex-1 space-y-3">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-amber-600 dark:text-amber-200">
+            <p className="text-xs font-semibold uppercase tracking-wide text-(--text-muted)">
               {t('backupReminder.eyebrow')}
             </p>
-            <p className="mt-2 text-sm text-amber-900/90 dark:text-amber-100/90">
+            <p className="mt-2 text-sm text-(--text-muted)">
               {hasEverBackedUp
                 ? t('backupReminder.aged', { count: ageInDays })
                 : t('backupReminder.never')}
             </p>
-            <p className="mt-1 text-sm text-amber-900/90 dark:text-amber-100/90">
+            <p className="mt-1 text-sm text-(--text-muted)">
               {t('backupReminder.why')}
             </p>
           </div>
@@ -73,28 +73,28 @@ export default function BackupReminder() {
             <button
               type="button"
               onClick={handleCreateBackup}
-              className="inline-flex items-center justify-center rounded-xl bg-amber-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-amber-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
+              className="inline-flex items-center justify-center rounded-lg bg-(--button-primary-bg) px-4 py-2 text-sm font-medium text-(--button-primary-text) transition hover:bg-(--button-primary-bg-hover) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:ring-offset-2"
             >
               {t('backupReminder.create')}
             </button>
             <button
               type="button"
               onClick={remindLater}
-              className="inline-flex items-center justify-center rounded-xl border border-amber-300 px-4 py-2 text-sm font-medium text-amber-800 transition hover:bg-amber-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2 dark:border-amber-500/50 dark:text-amber-100 dark:hover:bg-amber-900/50 dark:focus-visible:ring-offset-gray-900"
+              className="inline-flex items-center justify-center rounded-lg border border-(--border-card) px-4 py-2 text-sm font-medium text-(--text-page) transition hover:bg-(--surface-card) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:ring-offset-2"
             >
               {t('backupReminder.later')}
             </button>
             <button
               type="button"
               onClick={neverRemind}
-              className="text-sm font-medium text-amber-800 underline decoration-amber-400 underline-offset-4 transition hover:text-amber-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2 dark:text-amber-200 dark:hover:text-amber-100 dark:focus-visible:ring-offset-gray-900"
+              className="text-sm font-medium text-(--text-muted) underline decoration-(--border-card) underline-offset-4 transition hover:text-(--text-page) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:ring-offset-2"
             >
               {t('backupReminder.neverAgain')}
             </button>
           </div>
           <LocalizedLink
             to="/faq#backups"
-            className="inline-flex items-center gap-1 text-sm font-medium text-amber-800 underline decoration-amber-400 underline-offset-4 transition hover:text-amber-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2 dark:text-amber-200 dark:hover:text-amber-100 dark:focus-visible:ring-offset-gray-900"
+            className="inline-flex items-center gap-1 text-sm font-medium text-(--text-muted) underline decoration-(--border-card) underline-offset-4 transition hover:text-(--text-page) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:ring-offset-2"
           >
             {t('backupReminder.faqLink')}
             <ArrowRightIcon aria-hidden="true" className="h-4 w-4" />

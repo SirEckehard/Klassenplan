@@ -70,8 +70,8 @@ describe('IconWithLabel', () => {
     );
 
     const button = screen.getByRole('button', { name: 'Active Button' });
-    expect(button).toHaveClass('border-blue-400!');
-    expect(button).toHaveClass('bg-blue-200!');
+    expect(button).toHaveClass('border-(--border-option-selected)!');
+    expect(button).toHaveClass('bg-(--surface-option-selected)!');
   });
 
   it('shows inactive state correctly', () => {
@@ -84,8 +84,8 @@ describe('IconWithLabel', () => {
     );
 
     const button = screen.getByRole('button', { name: 'Inactive Button' });
-    expect(button).toHaveClass('border-gray-200!');
-    expect(button).toHaveClass('bg-white!');
+    expect(button).toHaveClass('border-(--border-card)!');
+    expect(button).toHaveClass('bg-(--surface-card)!');
   });
 
   it('applies danger variant styles when active', () => {
@@ -99,8 +99,8 @@ describe('IconWithLabel', () => {
     );
 
     const button = screen.getByRole('button', { name: 'Danger Active' });
-    expect(button).toHaveClass('border-rose-400!');
-    expect(button).toHaveClass('bg-rose-200!');
+    expect(button).toHaveClass('border-(--button-danger-bg)!');
+    expect(button).toHaveClass('bg-(--button-icon-danger-bg)!');
   });
 
   it('applies danger variant styles when inactive', () => {
@@ -114,7 +114,7 @@ describe('IconWithLabel', () => {
     );
 
     const button = screen.getByRole('button', { name: 'Danger Inactive' });
-    expect(button).toHaveClass('border-gray-200!');
+    expect(button).toHaveClass('border-(--border-card)!');
   });
 
   it('uses custom tooltip when provided', () => {

@@ -33,7 +33,7 @@ export default function TableTypeSelector({
 
   return (
     <div className="space-y-3">
-      <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+      <h3 className="text-sm font-semibold text-(--text-page)">
         {t('quickSetup.selectType', 'Tischtyp wählen')}
       </h3>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -51,11 +51,11 @@ export default function TableTypeSelector({
               className={`
                 ${cardSurfaceClass}
                 relative flex cursor-pointer flex-col items-center gap-3 border-2 p-4 transition-all duration-200
-                hover:border-blue-300 dark:hover:border-blue-500
+                hover:border-(--border-option-hover)
                 ${
                   isActive
-                    ? 'border-blue-600 bg-blue-50/90 shadow-md dark:border-blue-400 dark:bg-blue-900/30'
-                    : 'border-blue-300 bg-white/90 dark:border-blue-900/40 dark:bg-gray-950/70'
+                    ? 'border-(--border-option-selected) bg-(--surface-option-selected)'
+                    : 'border-(--border-card) bg-(--surface-card)'
                 }
               `}
             >
@@ -64,11 +64,7 @@ export default function TableTypeSelector({
                 <div
                   className={`
                     inline-flex rounded-xl p-3 transition-colors
-                    ${
-                      isActive
-                        ? 'bg-blue-100/80 dark:bg-blue-900/35'
-                        : 'bg-white/80 dark:bg-gray-900/60'
-                    }
+                    ${isActive ? 'bg-(--surface-option-selected)' : 'bg-(--surface-card)'}
                   `}
                 >
                   <TablePreview type={tableType} fixedSize={true} />
@@ -80,11 +76,7 @@ export default function TableTypeSelector({
                 <p
                   className={`
                   text-sm font-medium
-                  ${
-                    isActive
-                      ? 'text-blue-900 dark:text-blue-100'
-                      : 'text-gray-900 dark:text-gray-100'
-                  }
+                  ${isActive ? 'text-(--text-page)' : 'text-(--text-page)'}
                 `}
                 >
                   {tableTypeLabels[tableType]}
@@ -92,11 +84,7 @@ export default function TableTypeSelector({
                 <p
                   className={`
                   text-xs
-                  ${
-                    isActive
-                      ? 'text-blue-600 dark:text-blue-300'
-                      : 'text-gray-600 dark:text-gray-400'
-                  }
+                  ${isActive ? 'text-(--text-badge)' : 'text-(--text-muted)'}
                 `}
                 >
                   {preset.seatCount} {t('common.seats', 'Plätze')}
@@ -105,7 +93,7 @@ export default function TableTypeSelector({
 
               {/* Active Indicator */}
               {isActive && (
-                <div className="absolute top-2 right-2 w-3 h-3 bg-blue-600 dark:bg-blue-400 rounded-full"></div>
+                <div className="absolute top-2 right-2 w-3 h-3 bg-(--button-primary-bg) rounded-full"></div>
               )}
             </button>
           );

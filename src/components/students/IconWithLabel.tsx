@@ -63,11 +63,11 @@ export default function IconWithLabel({
     ? colorClasses
     : variant === 'danger'
       ? active
-        ? 'border-rose-400! bg-rose-200! text-rose-700! dark:border-rose-500! dark:bg-rose-500/20! dark:text-rose-200!'
-        : 'border-gray-200! bg-white! text-gray-500! hover:border-rose-300! hover:bg-rose-50! dark:border-gray-700! dark:bg-gray-800! dark:text-gray-400! dark:hover:border-rose-600! dark:hover:bg-rose-900/20!'
+        ? 'border-(--button-danger-bg)! bg-(--button-icon-danger-bg)! text-(--button-icon-danger-text)!'
+        : 'border-(--border-card)! bg-(--surface-card)! text-(--text-muted)! hover:border-(--button-danger-bg)! hover:bg-(--button-icon-danger-bg)!'
       : active
-        ? 'border-blue-400! bg-blue-200! text-blue-700! dark:border-blue-500! dark:bg-blue-500/20! dark:text-blue-200!'
-        : 'border-gray-200! bg-white! text-gray-600! hover:border-gray-300! hover:bg-gray-50! dark:border-gray-700! dark:bg-gray-800! dark:text-gray-300! dark:hover:border-gray-600! dark:hover:bg-gray-700!';
+        ? 'border-(--border-option-selected)! bg-(--surface-option-selected)! text-(--text-badge)!'
+        : 'border-(--border-card)! bg-(--surface-card)! text-(--text-muted)! hover:border-(--border-card)! hover:bg-(--surface-sunken)!';
 
   const buttonClass = `${baseButtonClass} ${buttonColorClass}`;
 
@@ -100,7 +100,7 @@ export default function IconWithLabel({
 
       {/* Label Below Button (Fixed Width: 8 chars) */}
       <span
-        className="text-[10px] font-medium leading-tight text-center text-gray-700 dark:text-gray-300 w-16 truncate"
+        className="text-[10px] font-medium leading-tight text-center text-(--text-muted) w-16 truncate"
         // Match the button tooltip so compact (icon-only) and detail views show
         // the same hover text; falls back to the (possibly truncated) label.
         title={tooltip ?? label}

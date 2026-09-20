@@ -21,7 +21,7 @@ const AppearanceControls: React.FC<AppearanceControlsProps> = ({
 }) => (
   <div className={`flex items-center gap-2 ${className}`.trimEnd()}>
     <ThemeToggle />
-    <span className="text-gray-300 dark:text-gray-600" aria-hidden="true">
+    <span className="text-(--text-muted)" aria-hidden="true">
       |
     </span>
     <LanguageSelector />

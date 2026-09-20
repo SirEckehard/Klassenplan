@@ -22,12 +22,12 @@ const UpdateCheckButton: React.FC = () => {
       type="button"
       onClick={checkNow}
       disabled={checking}
-      className="group p-1.5 rounded hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors cursor-pointer disabled:cursor-default"
+      className="group p-1.5 rounded hover:bg-(--surface-option-selected) transition-colors cursor-pointer disabled:cursor-default"
       aria-label={label}
       title={label}
     >
       <ArrowsClockwiseIcon
-        className={`h-4 w-4 text-blue-600 dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors ${checking ? 'animate-spin' : ''}`}
+        className={`h-4 w-4 text-(--text-badge) group-hover:text-(--text-badge) transition-colors ${checking ? 'animate-spin' : ''}`}
       />
     </button>
   );

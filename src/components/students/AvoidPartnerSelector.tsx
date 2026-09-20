@@ -181,7 +181,7 @@ export default function AvoidPartnerSelector({
             >
               <span className="flex items-center gap-2">
                 {isSelected && (
-                  <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300 text-[10px] font-semibold">
+                  <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-(--button-icon-danger-bg) text-(--button-icon-danger-text) text-[10px] font-semibold">
                     {priorityIdx + 1}
                   </span>
                 )}
@@ -266,7 +266,7 @@ export default function AvoidPartnerSelector({
         {variant === 'compact' ? (
           <>
             {hasPartners && avoidPartnerIds.length >= 2 && (
-              <span className="absolute -top-0.5 -right-0.5 min-w-3 h-3 flex items-center justify-center rounded-full bg-red-500/80 text-white text-[9px] font-medium">
+              <span className="absolute -top-0.5 -right-0.5 min-w-3 h-3 flex items-center justify-center rounded-full bg-(--button-danger-bg) text-white text-[9px] font-medium">
                 {avoidPartnerIds.length}
               </span>
             )}

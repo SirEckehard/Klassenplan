@@ -60,7 +60,7 @@ export default function StudentListToolbar({
       />
 
       {isNarrowed && (
-        <span className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
+        <span className="flex items-center gap-1 text-sm text-(--text-muted)">
           {t('listToolbar.countNarrowed', {
             visible: visibleCount,
             total: totalCount,

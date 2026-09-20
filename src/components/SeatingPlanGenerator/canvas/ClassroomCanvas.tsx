@@ -185,8 +185,7 @@ const ClassroomCanvas = React.memo<ClassroomCanvasProps>(
       templateDragPreview.canvasX !== null &&
       templateDragPreview.canvasY !== null
     ) {
-      const indicatorClass =
-        'bg-gray-300 text-gray-700 dark:bg-gray-600 dark:text-gray-100';
+      const indicatorClass = 'bg-(--border-card) text-(--text-muted)';
       templateIndicator = (
         <div
           className={`pointer-events-none absolute z-10 px-2 py-1 rounded-lg text-xs font-semibold shadow whitespace-nowrap ${indicatorClass}`}
@@ -208,8 +207,7 @@ const ClassroomCanvas = React.memo<ClassroomCanvasProps>(
       featureDragPreview.canvasX !== null &&
       featureDragPreview.canvasY !== null
     ) {
-      const indicatorClass =
-        'bg-gray-300 text-gray-700 dark:bg-gray-600 dark:text-gray-100';
+      const indicatorClass = 'bg-(--border-card) text-(--text-muted)';
       featureIndicator = (
         <div
           className={`pointer-events-none absolute z-10 px-2 py-1 rounded-lg text-xs font-semibold shadow whitespace-nowrap ${indicatorClass}`}
@@ -239,7 +237,7 @@ const ClassroomCanvas = React.memo<ClassroomCanvasProps>(
               : undefined,
             touchAction: 'none',
           }}
-          className="w-full h-auto touch-none"
+          className="h-auto w-full touch-none rounded-none"
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
           onPointerCancel={onPointerUp}

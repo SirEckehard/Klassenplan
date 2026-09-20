@@ -120,13 +120,13 @@ export default function SocialRoleSelector({
       {/* Reset option (neutral) */}
       <button
         type="button"
-        className={`${dropdownOptionBaseClass} ${!hasRole ? 'bg-gray-100 dark:bg-gray-700' : ''} text-gray-600 hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-gray-600`}
+        className={`${dropdownOptionBaseClass} ${!hasRole ? 'bg-(--surface-sunken)' : ''} text-(--text-muted) hover:bg-(--border-card)`}
         onClick={(e) => {
           e.stopPropagation();
           handleSocialRoleChange(undefined);
         }}
       >
-        <span className="text-gray-900 dark:text-white">
+        <span className="text-(--text-page) dark:text-white">
           <UsersThreeIcon size={14} aria-hidden="true" />
         </span>
         {t('socialRole.neutral', 'Neutral')}
@@ -168,7 +168,7 @@ export default function SocialRoleSelector({
             hasRole ? (
               SOCIAL_ROLE_ICONS[currentRole]
             ) : (
-              <span className="text-gray-900 dark:text-white">
+              <span className="text-(--text-page) dark:text-white">
                 <UsersThreeIcon size={14} aria-hidden="true" />
               </span>
             )
@@ -215,7 +215,7 @@ export default function SocialRoleSelector({
           }}
         >
           <span
-            className={`${hasRole ? compactIconColorMap[currentRole] : 'text-gray-900 dark:text-white'} text-lg`}
+            className={`${hasRole ? compactIconColorMap[currentRole] : 'text-(--text-page) dark:text-white'} text-lg`}
           >
             {hasRole ? (
               SOCIAL_ROLE_ICONS[currentRole]

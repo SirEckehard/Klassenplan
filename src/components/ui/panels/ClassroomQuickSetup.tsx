@@ -147,14 +147,14 @@ export default function ClassroomQuickSetup({
 
         {/* Header */}
         <div className="mb-3 flex flex-wrap items-center gap-3 sm:mb-4 sm:gap-4">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-blue-200 bg-white/80 shadow-sm dark:border-blue-900/40 dark:bg-gray-950/70">
-            <HammerIcon className="h-5 w-5 text-blue-600 dark:text-blue-400 sm:h-6 sm:w-6" />
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-(--border-option-selected) bg-(--surface-card) shadow-sm">
+            <HammerIcon className="h-5 w-5 text-(--text-badge) sm:h-6 sm:w-6" />
           </div>
           <div className="min-w-0 flex-1">
-            <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100">
+            <h3 className="text-base sm:text-lg font-semibold text-(--text-page)">
               {t('quickSetup.title', 'Klassenraum einrichten')}
             </h3>
-            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-xs sm:text-sm text-(--text-muted)">
               {t(
                 'quickSetup.subtitle',
                 'Wähle einen Tischtyp oder (falls verfügbar) eine gespeicherte Vorlage.',
@@ -180,7 +180,7 @@ export default function ClassroomQuickSetup({
         {templates.length > 0 && (
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+              <h3 className="text-sm font-semibold text-(--text-page)">
                 {t('sidebar.templates', 'Klassenraum-Vorlagen')}
               </h3>
             </div>
@@ -193,8 +193,8 @@ export default function ClassroomQuickSetup({
                   0,
                 );
                 const cardStateClass = isActive
-                  ? 'border-blue-600 bg-blue-50/90 shadow-md dark:border-blue-400 dark:bg-blue-900/30'
-                  : 'border-blue-100 hover:border-blue-200 hover:shadow-md dark:border-blue-900/40 dark:bg-gray-950/70';
+                  ? 'border-(--border-option-selected) bg-(--surface-option-selected)'
+                  : 'border-(--border-card) hover:border-(--border-option-selected) hover:shadow-md';
 
                 return (
                   <div
@@ -207,8 +207,8 @@ export default function ClassroomQuickSetup({
                         <div
                           className={
                             isActive
-                              ? 'text-blue-900 dark:text-blue-100'
-                              : 'text-gray-900 dark:text-gray-100'
+                              ? 'text-(--text-page)'
+                              : 'text-(--text-page)'
                           }
                         >
                           <TemplateNameEditor
@@ -222,9 +222,7 @@ export default function ClassroomQuickSetup({
                           className={`
                         text-sm font-medium truncate
                         ${
-                          isActive
-                            ? 'text-blue-900 dark:text-blue-100'
-                            : 'text-gray-900 dark:text-gray-100'
+                          isActive ? 'text-(--text-page)' : 'text-(--text-page)'
                         }
                       `}
                         >
@@ -235,9 +233,7 @@ export default function ClassroomQuickSetup({
                         className={`
                       text-xs mt-1
                       ${
-                        isActive
-                          ? 'text-blue-600 dark:text-blue-300'
-                          : 'text-gray-600 dark:text-gray-400'
+                        isActive ? 'text-(--text-badge)' : 'text-(--text-muted)'
                       }
                     `}
                       >
@@ -265,7 +261,7 @@ export default function ClassroomQuickSetup({
                         <button
                           type="button"
                           onClick={() => onOverwriteTemplate(template.id)}
-                          className={`${iconButtonClass} p-2 text-green-600 hover:bg-green-50 dark:text-green-300 dark:hover:bg-green-900/30`}
+                          className={`${iconButtonClass} p-2 text-(--button-success-bg) hover:bg-(--surface-sunken)`}
                           title={t(
                             'quickSetup.overwriteTemplate',
                             'Klassenraum-Vorlage überschreiben',
@@ -282,7 +278,7 @@ export default function ClassroomQuickSetup({
                         <button
                           type="button"
                           onClick={() => setTemplatePendingDelete(template)}
-                          className={`${iconButtonClass} p-2 text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/30`}
+                          className={`${iconButtonClass} p-2 text-(--button-icon-danger-text) hover:bg-(--button-icon-danger-bg)`}
                           title={t(
                             'quickSetup.deleteTemplate',
                             'Klassenraum-Vorlage löschen',
@@ -299,7 +295,7 @@ export default function ClassroomQuickSetup({
 
                     {/* Active Indicator */}
                     {isActive && (
-                      <div className="absolute top-2 right-2 h-2.5 w-2.5 rounded-full border-2 border-white bg-blue-600 dark:border-gray-950 dark:bg-blue-400" />
+                      <div className="absolute top-2 right-2 h-2.5 w-2.5 rounded-full border-2 border-(--surface-card) bg-(--button-primary-bg)" />
                     )}
                   </div>
                 );
@@ -309,7 +305,7 @@ export default function ClassroomQuickSetup({
         )}
 
         {/* InfoIcon Text */}
-        <p className="mt-3 sm:mt-4 text-xs text-center text-gray-600 dark:text-gray-400">
+        <p className="mt-3 sm:mt-4 text-xs text-center text-(--text-muted)">
           {infoMessage}
         </p>
       </div>

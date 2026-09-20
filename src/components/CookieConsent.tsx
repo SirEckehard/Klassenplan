@@ -162,7 +162,7 @@ const CookieConsent: React.FC = () => {
           {t('cookieConsent.message')}{' '}
           <LegalPageLink
             to="/datenschutz"
-            className="underline hover:text-blue-600"
+            className="underline hover:text-(--text-badge)"
           >
             {t('cookieConsent.privacyLink')}
           </LegalPageLink>
@@ -172,7 +172,7 @@ const CookieConsent: React.FC = () => {
           <button
             type="button"
             onClick={handleAccept}
-            className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+            className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-(--button-primary-bg-hover) transition-colors"
           >
             {t('cookieConsent.accept')}
           </button>

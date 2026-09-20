@@ -103,12 +103,12 @@ function SeatingStatisticsBadge({
         const isPersistent = isActive && activeHighlightMode === 'persistent';
 
         const stateClass = isPersistent
-          ? 'bg-blue-100 dark:bg-blue-900/40 ring-1 ring-blue-400'
+          ? 'bg-(--surface-option-selected) ring-1 ring-(--focus-ring-primary)'
           : isActive
-            ? 'bg-blue-50 dark:bg-blue-900/20'
+            ? 'bg-(--surface-option-selected)'
             : isFullscreen
               ? '' // No hover state on mobile (non-interactive)
-              : 'hover:bg-gray-50 dark:hover:bg-gray-800/50';
+              : 'hover:bg-(--surface-sunken)';
 
         // On fullscreen (mobile), render as non-interactive div
         if (isFullscreen) {
@@ -117,14 +117,14 @@ function SeatingStatisticsBadge({
               key={criterion.key}
               className="flex w-full items-center gap-2 rounded-lg px-2 py-2"
             >
-              <span className="text-blue-600 dark:text-blue-400">
+              <span className="text-(--text-badge)">
                 {getCriterionIcon(criterion.key)}
               </span>
-              <span className="flex-1 truncate text-sm text-gray-700 dark:text-gray-300">
+              <span className="flex-1 truncate text-sm text-(--text-muted)">
                 {translateCriterionLabel(criterion.key, criterion.label)}
               </span>
               <span className="flex items-center gap-1.5 shrink-0">
-                <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                <span className="text-sm font-medium text-(--text-muted)">
                   {roundedPercentage}%
                 </span>
                 <div
@@ -142,7 +142,7 @@ function SeatingStatisticsBadge({
           <button
             key={criterion.key}
             type="button"
-            className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left transition cursor-pointer focus:outline-none focus-visible:ring-1 focus-visible:ring-blue-500 ${stateClass}`}
+            className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left transition cursor-pointer focus:outline-none focus-visible:ring-1 focus-visible:ring-(--focus-ring-primary) ${stateClass}`}
             onMouseEnter={() => onHighlightHover?.(criterion)}
             onMouseLeave={onHighlightLeave}
             onFocus={() => onHighlightHover?.(criterion)}
@@ -151,14 +151,14 @@ function SeatingStatisticsBadge({
             aria-pressed={isPersistent}
             title={`${translateCriterionLabel(criterion.key, criterion.label)}: ${roundedPercentage}%`}
           >
-            <span className="text-blue-600 dark:text-blue-400">
+            <span className="text-(--text-badge)">
               {getCriterionIcon(criterion.key)}
             </span>
-            <span className="flex-1 truncate text-xs text-gray-700 dark:text-gray-300">
+            <span className="flex-1 truncate text-xs text-(--text-muted)">
               {translateCriterionLabel(criterion.key, criterion.label)}
             </span>
             <span className="flex items-center gap-1 shrink-0">
-              <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
+              <span className="text-xs font-medium text-(--text-muted)">
                 {roundedPercentage}%
               </span>
               <div
@@ -182,19 +182,19 @@ function SeatingStatisticsBadge({
         aria-modal="true"
         aria-labelledby={sheetTitleId}
         tabIndex={-1}
-        className="fixed inset-0 z-50 overflow-y-auto bg-white focus:outline-none dark:bg-gray-900"
+        className="fixed inset-0 z-50 overflow-y-auto bg-(--surface-card) focus:outline-none"
       >
         {/* Header with close button */}
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-blue-100/70 bg-white px-4 py-3 shadow-sm dark:border-blue-900/40 dark:bg-gray-900">
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-(--border-card) bg-(--surface-card) px-4 py-3">
           <div className="flex items-center gap-2">
             <ChartBarIcon
               size={18}
-              className="text-blue-600 dark:text-blue-400"
+              className="text-(--text-badge)"
               aria-hidden="true"
             />
             <h2
               id={sheetTitleId}
-              className="text-base font-semibold text-gray-900 dark:text-gray-100"
+              className="text-base font-semibold text-(--text-page)"
             >
               {t('statisticsBadge.title', 'Kriterien-Erfüllung')}
             </h2>
@@ -202,7 +202,7 @@ function SeatingStatisticsBadge({
           <button
             type="button"
             onClick={onClose}
-            className={`${iconButtonClass} h-10 w-10 border-none bg-transparent text-gray-500 shadow-none transition hover:text-blue-600 dark:text-gray-300`}
+            className={`${iconButtonClass} h-10 w-10 border-none bg-transparent text-(--text-muted) shadow-none transition hover:text-(--text-badge)`}
             aria-label={t('statisticsBadge.close', 'Schließen')}
           >
             <XIcon size={24} aria-hidden="true" />
@@ -210,19 +210,19 @@ function SeatingStatisticsBadge({
         </div>
 
         {/* Overall Score */}
-        <div className="mx-4 mt-4 rounded-2xl bg-blue-50/80 px-4 py-4 dark:bg-blue-900/20">
+        <div className="mx-4 mt-4 rounded-lg bg-(--surface-option-selected) px-4 py-4">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600 dark:text-gray-400">
+            <span className="text-sm text-(--text-muted)">
               {t('statisticsBadge.overallLabel', 'Gesamt')}:
             </span>
             <div className="flex items-center gap-3">
-              <div className="h-2 w-24 rounded-full bg-white/70 dark:bg-gray-800/80">
+              <div className="h-2 w-24 rounded-full bg-(--border-card)">
                 <div
-                  className="h-full rounded-full bg-blue-500 transition-all duration-500"
+                  className="h-full rounded-full bg-(--button-primary-bg) transition-all duration-500"
                   style={{ width: `${Math.round(weightedScore)}%` }}
                 />
               </div>
-              <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
+              <span className="text-lg font-bold text-(--text-badge)">
                 {Math.round(weightedScore)}%
               </span>
             </div>
@@ -239,23 +239,23 @@ function SeatingStatisticsBadge({
   return (
     <section
       aria-label={t('statisticsBadge.title', 'Kriterien-Erfüllung')}
-      className={`${cardSurfaceClass} ${positionClasses} flex max-h-[calc(100vh-6rem)] flex-col gap-2 overflow-hidden border-2 border-blue-200/80 p-3 transition-[opacity,transform] duration-100 ease-out dark:border-blue-900/50 ${className}`}
+      className={`${cardSurfaceClass} ${positionClasses} flex max-h-[calc(100vh-6rem)] flex-col gap-2 overflow-hidden border border-(--border-card) p-3 transition-[opacity,transform] duration-100 ease-out ${className}`}
     >
       {/* Compact Header with Score */}
-      <div className="flex items-center justify-between gap-2 border-b border-blue-100/70 pb-2 dark:border-blue-900/40">
+      <div className="flex items-center justify-between gap-2 border-b border-(--border-card) pb-2">
         <div className="flex items-center gap-1.5">
           <ChartBarIcon
             size={14}
-            className="text-blue-600 dark:text-blue-400"
+            className="text-(--text-badge)"
             aria-hidden="true"
           />
-          <span className="text-xs font-semibold text-gray-800 dark:text-gray-200">
+          <span className="text-xs font-semibold text-(--text-page)">
             {t('statisticsBadge.overallLabel', 'Gesamt')}{' '}
             {Math.round(weightedScore)}%
           </span>
-          <div className="h-1.5 w-12 rounded-full bg-gray-200 dark:bg-gray-700">
+          <div className="h-1.5 w-12 rounded-full bg-(--border-card)">
             <div
-              className="h-full rounded-full bg-blue-500 transition-all duration-500"
+              className="h-full rounded-full bg-(--button-primary-bg) transition-all duration-500"
               style={{ width: `${Math.round(weightedScore)}%` }}
             />
           </div>
@@ -263,7 +263,7 @@ function SeatingStatisticsBadge({
         <button
           type="button"
           onClick={onClose}
-          className={`${iconButtonClass} h-7 w-7 border-none bg-transparent text-gray-400 shadow-none transition hover:text-blue-600 dark:text-gray-500`}
+          className={`${iconButtonClass} h-7 w-7 border-none bg-transparent text-(--text-muted) shadow-none transition hover:text-(--text-badge)`}
           aria-label={t('statisticsBadge.close', 'Schließen')}
         >
           <XIcon size={16} aria-hidden="true" />

@@ -164,7 +164,7 @@ export default function StudentBulkEditBar({
 
   return (
     <div className="flex w-full flex-wrap items-center gap-2">
-      <span className="text-sm font-semibold text-blue-900 dark:text-blue-100">
+      <span className="text-sm font-semibold text-(--text-page)">
         {t('bulkEdit.selectedCount', {
           count: selectedCount,
           defaultValue: '{{count}} ausgewählt',
@@ -184,9 +184,9 @@ export default function StudentBulkEditBar({
 
       {filterSlot && (
         <>
-          <div className="h-6 w-px bg-blue-200 dark:bg-blue-900/60" />
+          <div className="h-6 w-px bg-(--surface-option-selected)" />
           {filterSlot}
-          <div className="h-6 w-px bg-blue-200 dark:bg-blue-900/60" />
+          <div className="h-6 w-px bg-(--surface-option-selected)" />
         </>
       )}
 

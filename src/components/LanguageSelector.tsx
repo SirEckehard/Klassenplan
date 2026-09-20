@@ -43,12 +43,12 @@ const LanguageSelector: React.FC = () => {
     <button
       type="button"
       onClick={toggleLanguage}
-      className="group flex items-center gap-1 p-1.5 rounded hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors cursor-pointer"
+      className="group flex items-center gap-1 p-1.5 rounded hover:bg-(--surface-sunken) transition-colors cursor-pointer"
       aria-label={label}
       title={label}
     >
-      <GlobeIcon className="h-4 w-4 text-blue-600 dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors" />
-      <span className="text-xs font-medium text-blue-600 dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors leading-none">
+      <GlobeIcon className="h-4 w-4 text-(--text-badge) transition-colors" />
+      <span className="text-xs font-medium text-(--text-badge) transition-colors leading-none">
         {targetLang}
       </span>
     </button>

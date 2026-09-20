@@ -92,7 +92,7 @@ function CompactPlanItem({
   return (
     <>
       <div
-        className={`${cardSurfaceClass} group flex h-full items-center gap-3 border border-blue-100/60 px-3 py-3 transition hover:border-blue-200 hover:bg-blue-50/70 dark:border-blue-900/40 dark:hover:border-blue-700 dark:hover:bg-blue-950/40`}
+        className={`${cardSurfaceClass} group flex h-full items-center gap-3 border border-(--border-card) px-3 py-3 transition hover:border-(--border-option-selected) hover:bg-(--surface-option-selected)`}
       >
         {/* Plan InfoIcon */}
         <div className="flex-1 min-w-0">
@@ -143,7 +143,7 @@ function CompactPlanItem({
             <>
               <div className="flex items-center gap-2">
                 <span
-                  className="student-plan-name cursor-text select-text rounded-xl border border-blue-100 px-3 py-1 text-sm font-medium text-gray-900 transition-colors hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 dark:border-blue-900/40 dark:text-gray-100 dark:hover:bg-gray-800/70"
+                  className="student-plan-name cursor-text select-text rounded-xl border border-(--border-card) px-3 py-1 text-sm font-medium text-(--text-page) transition-colors hover:bg-(--surface-option-selected) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)"
                   onClick={(event) => {
                     event.stopPropagation();
                     if (!isExpanded && onRequestExpand) {
@@ -185,7 +185,7 @@ function CompactPlanItem({
                   {plan.name}
                 </span>
               </div>
-              <div className="flex items-center gap-3 mt-1 text-xs text-gray-500 dark:text-gray-400">
+              <div className="flex items-center gap-3 mt-1 text-xs text-(--text-muted)">
                 {plan.date && (
                   <span className="flex items-center gap-1">
                     <CalendarBlankIcon size={12} />
@@ -274,7 +274,7 @@ export default function CompactPlanList({
   if (plans.length === 0) {
     return (
       <div
-        className={`${cardSurfaceClass} border border-blue-100/60 p-4 text-center text-gray-500 dark:border-blue-900/40 dark:text-gray-400`}
+        className={`${cardSurfaceClass} border border-(--border-card) p-4 text-center text-(--text-muted)`}
       >
         <div className="text-sm">
           {t('planList.emptyTitle', 'Noch keine Pläne gespeichert')}

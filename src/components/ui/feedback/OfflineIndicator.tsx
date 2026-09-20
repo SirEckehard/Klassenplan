@@ -53,7 +53,7 @@ function OfflineBadge() {
       aria-live="polite"
       style={offsets}
       title={label}
-      className={`${floatingStatusClass} pointer-events-none fixed z-40 gap-2 text-amber-700 dark:text-amber-300 ${
+      className={`${floatingStatusClass} pointer-events-none fixed z-40 gap-2 text-(--text-muted) ${
         isCollapsed ? 'p-2!' : ''
       }`}
     >

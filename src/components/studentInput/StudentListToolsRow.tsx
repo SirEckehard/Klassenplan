@@ -68,7 +68,7 @@ export default function StudentListToolsRow({
     <div
       role="region"
       aria-label={t('bulkEdit.regionLabel', 'Mehrfachbearbeitung')}
-      className="flex min-h-11 w-full flex-wrap items-center gap-2 rounded-xl bg-blue-50/80 px-3 py-2 dark:bg-blue-950/40"
+      className="flex min-h-11 w-full flex-wrap items-center gap-2 rounded-xl bg-(--surface-option-selected) px-3 py-2"
     >
       <StudentBulkEditBar
         selectedStudents={selectedStudents}
@@ -153,7 +153,7 @@ function FilterPopoverButton({
         {activeCount > 0 && (
           <span
             aria-hidden
-            className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-blue-600 px-1 text-[10px] font-semibold leading-none text-white"
+            className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-(--button-primary-bg) px-1 text-[10px] font-semibold leading-none text-white"
           >
             {activeCount}
           </span>
@@ -181,7 +181,7 @@ function FilterPopoverButton({
               onSortModeChange={listView.setSortMode}
             />
             {listView.isNarrowed && (
-              <span className="flex items-center justify-between gap-1 text-sm text-gray-500 dark:text-gray-400">
+              <span className="flex items-center justify-between gap-1 text-sm text-(--text-muted)">
                 {t('listToolbar.countNarrowed', {
                   visible: listView.visibleStudents.length,
                   total: totalCount,

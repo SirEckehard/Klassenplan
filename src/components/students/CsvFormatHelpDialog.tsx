@@ -84,14 +84,14 @@ export default function CsvFormatHelpDialog({
       icon={<TableIcon size={24} aria-hidden="true" />}
       size="lg"
     >
-      <div className="overflow-x-auto rounded-2xl border border-blue-200/80 bg-white shadow-inner dark:border-blue-900/40 dark:bg-gray-900">
+      <div className="overflow-x-auto rounded-2xl border border-(--border-card) bg-(--surface-card) shadow-inner">
         <table className="w-full min-w-max border-collapse text-left text-xs sm:text-sm">
           <caption className="sr-only">{t('csvHelp.tableCaption')}</caption>
           <thead>
-            <tr className="bg-blue-100/70 dark:bg-blue-950/50">
+            <tr className="bg-(--surface-option-selected)">
               <td
                 aria-hidden="true"
-                className="w-10 border-b border-r border-blue-200/80 px-2 py-2 text-center font-mono text-xs text-blue-500 dark:border-blue-900/40 dark:text-blue-300"
+                className="w-10 border-b border-r border-(--border-card) px-2 py-2 text-center font-mono text-xs text-(--text-badge)"
               >
                 1
               </td>
@@ -99,11 +99,11 @@ export default function CsvFormatHelpDialog({
                 <th
                   key={header}
                   scope="col"
-                  className="border-b border-blue-200/80 px-3 py-2 font-semibold whitespace-nowrap text-blue-900 dark:border-blue-900/40 dark:text-blue-100"
+                  className="border-b border-(--border-card) px-3 py-2 font-semibold whitespace-nowrap text-(--text-page)"
                 >
                   {header}
                   {index === 0 && (
-                    <span className="ml-2 rounded-full bg-blue-600 px-2 py-0.5 text-xs font-semibold text-white dark:bg-blue-500">
+                    <span className="ml-2 rounded-full bg-(--button-primary-bg) px-2 py-0.5 text-xs font-semibold text-white dark:bg-(--button-primary-bg)">
                       {t('csvHelp.requiredBadge')}
                     </span>
                   )}
@@ -111,7 +111,7 @@ export default function CsvFormatHelpDialog({
               ))}
               <th
                 scope="col"
-                className="border-b border-l border-blue-200/80 px-3 py-2 font-normal whitespace-nowrap text-blue-500 dark:border-blue-900/40 dark:text-blue-300"
+                className="border-b border-l border-(--border-card) px-3 py-2 font-normal whitespace-nowrap text-(--text-badge)"
               >
                 {t('csvHelp.moreColumns')}
               </th>
@@ -119,20 +119,17 @@ export default function CsvFormatHelpDialog({
           </thead>
           <tbody>
             {rows.map((cells, rowIndex) => (
-              <tr
-                key={cells[0]}
-                className="odd:bg-gray-50/70 dark:odd:bg-gray-800/40"
-              >
+              <tr key={cells[0]} className="odd:bg-(--surface-sunken)">
                 <td
                   aria-hidden="true"
-                  className="border-r border-blue-200/80 px-2 py-2 text-center font-mono text-xs text-blue-500 dark:border-blue-900/40 dark:text-blue-300"
+                  className="border-r border-(--border-card) px-2 py-2 text-center font-mono text-xs text-(--text-badge)"
                 >
                   {rowIndex + 2}
                 </td>
                 {cells.map((cell, cellIndex) => (
                   <td
                     key={`${cells[0]}-${cellIndex}`}
-                    className={`px-3 py-2 whitespace-nowrap text-gray-700 dark:text-gray-200 ${
+                    className={`px-3 py-2 whitespace-nowrap text-(--text-page) ${
                       cellIndex === 0 ? 'font-medium' : ''
                     }`}
                   >
@@ -141,7 +138,7 @@ export default function CsvFormatHelpDialog({
                 ))}
                 <td
                   aria-hidden="true"
-                  className="border-l border-blue-200/80 px-3 py-2 text-gray-400 dark:border-blue-900/40 dark:text-gray-500"
+                  className="border-l border-(--border-card) px-3 py-2 text-(--text-muted)"
                 >
                   …
                 </td>
@@ -151,12 +148,12 @@ export default function CsvFormatHelpDialog({
         </table>
       </div>
 
-      <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-200">
+      <ul className="space-y-2 text-sm text-(--text-page)">
         {['headerRow', 'oneRow', 'optional', 'saveAs'].map((rule) => (
           <li key={rule} className="flex items-start gap-2">
             <span
               aria-hidden="true"
-              className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-blue-500"
+              className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-(--button-primary-bg)"
             />
             <span className="leading-relaxed">
               <Trans
@@ -170,10 +167,8 @@ export default function CsvFormatHelpDialog({
       </ul>
 
       <div className="space-y-2">
-        <p className="text-sm text-gray-600 dark:text-gray-300">
-          {t('csvHelp.rawTitle')}
-        </p>
-        <pre className="overflow-x-auto rounded-2xl bg-gray-900 p-4 text-xs leading-relaxed text-gray-100 dark:bg-gray-950">
+        <p className="text-sm text-(--text-muted)">{t('csvHelp.rawTitle')}</p>
+        <pre className="overflow-x-auto rounded-lg bg-(--text-page) p-4 text-xs leading-relaxed text-(--surface-card)">
           <code>{rawLines.join('\n')}</code>
         </pre>
       </div>

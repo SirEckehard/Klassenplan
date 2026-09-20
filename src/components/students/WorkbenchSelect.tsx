@@ -226,6 +226,6 @@ export default function WorkbenchSelect({
 }
 
 const optionClass =
-  'flex w-full cursor-pointer items-center gap-2 whitespace-nowrap rounded-lg px-3 py-2 text-left text-sm text-gray-700 transition hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 dark:text-gray-100 dark:hover:bg-gray-800';
+  'flex w-full cursor-pointer items-center gap-2 whitespace-nowrap rounded-lg px-3 py-2 text-left text-sm text-(--text-muted) transition hover:bg-(--surface-option-selected) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)';
 const activeOptionClass =
-  'flex w-full cursor-pointer items-center gap-2 whitespace-nowrap rounded-lg bg-blue-50 px-3 py-2 text-left text-sm font-semibold text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 dark:bg-blue-950/40 dark:text-blue-200';
+  'flex w-full cursor-pointer items-center gap-2 whitespace-nowrap rounded-lg bg-(--surface-option-selected) px-3 py-2 text-left text-sm font-semibold text-(--text-badge) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)';

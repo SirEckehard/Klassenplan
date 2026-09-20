@@ -230,7 +230,7 @@ function StudentPhotoButton({ student, updateStudent }: Props) {
           disabled={busy}
           title={`${uploadLabel} – ${privacyHint}`}
           aria-label={`${uploadLabel} – ${student.name || ''}`.trim()}
-          className="group relative flex h-10 w-10 cursor-pointer items-center justify-center overflow-hidden rounded-full border border-gray-300 bg-white transition hover:border-blue-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-60 dark:border-gray-600 dark:bg-gray-800"
+          className="group relative flex h-10 w-10 cursor-pointer items-center justify-center overflow-hidden rounded-full border border-(--border-card) bg-(--surface-card) transition hover:border-(--border-option-selected) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) disabled:opacity-60"
           style={
             objectUrl
               ? undefined
@@ -255,17 +255,14 @@ function StudentPhotoButton({ student, updateStudent }: Props) {
               {initial}
             </span>
           ) : (
-            <CameraIcon
-              size={16}
-              className="text-gray-400 dark:text-gray-500"
-            />
+            <CameraIcon size={16} className="text-(--text-muted)" />
           )}
 
           {busy ? (
-            <span className="absolute inset-0 flex items-center justify-center bg-white/70 dark:bg-gray-900/70">
+            <span className="absolute inset-0 flex items-center justify-center bg-(--surface-card)">
               <SpinnerGapIcon
                 size={16}
-                className="animate-spin text-blue-600"
+                className="animate-spin text-(--text-badge)"
               />
             </span>
           ) : (
@@ -287,7 +284,7 @@ function StudentPhotoButton({ student, updateStudent }: Props) {
             onClick={handleRemove}
             title={t('photo.remove', 'Foto entfernen')}
             aria-label={t('photo.remove', 'Foto entfernen')}
-            className="absolute -right-1 -top-1 flex h-4 w-4 cursor-pointer items-center justify-center rounded-full border border-white bg-rose-500 text-white shadow-sm transition hover:bg-rose-600 dark:border-gray-800"
+            className="absolute -right-1 -top-1 flex h-4 w-4 cursor-pointer items-center justify-center rounded-full border border-(--surface-card) bg-(--button-danger-bg) text-white shadow-sm transition hover:bg-(--button-danger-bg-hover)"
           >
             <XIcon size={9} weight="bold" />
           </button>

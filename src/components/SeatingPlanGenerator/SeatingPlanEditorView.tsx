@@ -110,7 +110,7 @@ function SeatPreviewCard({ preview, viewportScale }: SeatPreviewCardProps) {
 
   return (
     <div
-      className={`${cardSurfaceClass} pointer-events-none px-2 py-2 shadow-lg backdrop-blur-sm bg-white/90 dark:bg-gray-800/90`}
+      className={`${cardSurfaceClass} pointer-events-none bg-(--surface-card) px-2 py-2 shadow-lg backdrop-blur-sm`}
     >
       <div
         className="relative flex items-center justify-center rounded-md"
@@ -769,21 +769,21 @@ export default function SeatingPlanEditorView({
         <section
           aria-live="polite"
           role="status"
-          className={`${cardSurfaceClass} border-blue-200 bg-blue-50/80 px-4 py-3 text-blue-900 shadow-xs backdrop-blur dark:border-blue-500/40 dark:bg-blue-900/20 dark:text-blue-50`}
+          className={`${cardSurfaceClass} border-(--border-option-selected) bg-(--surface-option-selected) px-4 py-3 text-(--text-page)`}
         >
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
-              <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500/20 text-blue-600 dark:bg-blue-400/20 dark:text-blue-200">
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-(--surface-card) text-(--text-badge)">
                 <SpinnerGapIcon
                   aria-hidden="true"
                   className="h-5 w-5 animate-spin"
                 />
               </span>
               <div className="space-y-0.5">
-                <p className="text-sm font-semibold text-blue-900 dark:text-blue-100">
+                <p className="text-sm font-semibold text-(--text-page)">
                   {t('editor.autoMixRunning', 'Automatisches Mischen läuft')}
                 </p>
-                <p className="text-sm text-blue-800 dark:text-blue-100/90">
+                <p className="text-sm text-(--text-muted)">
                   {t(
                     'editor.autoMixWait',
                     'Bitte warte einen Moment, bis der neue Sitzplan erstellt wurde.',
@@ -799,23 +799,21 @@ export default function SeatingPlanEditorView({
         <section
           aria-live="polite"
           role="alert"
-          className={`${cardSurfaceClass} border-red-200 bg-red-50/80 px-4 py-4 text-red-900 shadow-xs backdrop-blur dark:border-red-500/40 dark:bg-red-900/40 dark:text-red-100`}
+          className={`${cardSurfaceClass} border-(--button-danger-bg) bg-(--button-icon-danger-bg) px-4 py-4 text-(--text-page)`}
         >
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div className="flex flex-1 items-start gap-3">
-              <span className="mt-0.5 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-red-500/20 text-red-600 dark:bg-red-400/20 dark:text-red-200">
+              <span className="mt-0.5 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-(--surface-card) text-(--button-icon-danger-text)">
                 <WarningIcon aria-hidden="true" className="h-5 w-5" />
               </span>
               <div className="space-y-1">
-                <p className="text-sm font-semibold text-red-900 dark:text-red-100">
+                <p className="text-sm font-semibold text-(--text-page)">
                   {t(
                     'editor.autoMixFailed',
                     'Automatisches Mischen fehlgeschlagen',
                   )}
                 </p>
-                <p className="text-sm text-red-800 dark:text-red-100/90">
-                  {autoMixError}
-                </p>
+                <p className="text-sm text-(--text-muted)">{autoMixError}</p>
               </div>
             </div>
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
@@ -838,18 +836,18 @@ export default function SeatingPlanEditorView({
         <section
           aria-live="polite"
           role="status"
-          className={`${cardSurfaceClass} border-amber-200 bg-amber-50/80 px-4 py-4 text-amber-900 shadow-xs backdrop-blur dark:border-amber-500/40 dark:bg-amber-900/30 dark:text-amber-100`}
+          className={`${cardSurfaceClass} border-(--border-option-selected) bg-(--surface-option-selected) px-4 py-4 text-(--text-page)`}
         >
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div className="flex flex-1 items-start gap-3">
-              <span className="mt-0.5 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/20 text-amber-600 dark:bg-amber-400/20 dark:text-amber-200">
+              <span className="mt-0.5 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-(--surface-card) text-(--text-badge)">
                 <WarningIcon aria-hidden="true" className="h-5 w-5" />
               </span>
               <div className="space-y-1">
-                <p className="text-sm font-semibold text-amber-900 dark:text-amber-100">
+                <p className="text-sm font-semibold text-(--text-page)">
                   {t('editor.classDataChanged', 'Klassendaten wurden geändert')}
                 </p>
-                <p className="text-sm text-amber-800 dark:text-amber-100/90">
+                <p className="text-sm text-(--text-muted)">
                   {t(
                     'editor.classDataChangedHint',
                     'Deine Anpassungen sind sichtbar. Mische den Plan neu, damit der Algorithmus optimal reagieren kann.',
@@ -1008,7 +1006,7 @@ export default function SeatingPlanEditorView({
                     ? `${GRID_SIZE}px ${GRID_SIZE}px`
                     : undefined,
                 }}
-                className="w-full h-auto"
+                className="h-auto w-full rounded-none"
               >
                 <SeatingPlanCanvas
                   canvasWidth={canvasWidth}
@@ -1046,9 +1044,9 @@ export default function SeatingPlanEditorView({
                   nameDisplay={nameDisplay}
                 />
                 {autoMixing && (
-                  <div className="pointer-events-auto absolute inset-0 z-20 flex items-center justify-center rounded-xl bg-white/70 backdrop-blur-sm dark:bg-gray-900/80">
-                    <div className="flex flex-col items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-100">
-                      <SpinnerGapIcon className="h-5 w-5 animate-spin text-blue-600 dark:text-blue-300" />
+                  <div className="pointer-events-auto absolute inset-0 z-20 flex items-center justify-center bg-(--surface-card)/80 backdrop-blur-sm">
+                    <div className="flex flex-col items-center gap-2 text-sm font-medium text-(--text-page)">
+                      <SpinnerGapIcon className="h-5 w-5 animate-spin text-(--text-badge)" />
                       <span>
                         {t(
                           'editor.autoMixRunning',

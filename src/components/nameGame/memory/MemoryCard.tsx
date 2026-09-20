@@ -49,7 +49,7 @@ export default function MemoryCard({
     ? matched
       ? 'border-green-600 opacity-70 dark:border-green-500'
       : 'border-blue-500 dark:border-blue-400'
-    : 'border-gray-200 bg-blue-50 hover:border-blue-400 dark:border-gray-700 dark:bg-blue-950 dark:hover:border-blue-500';
+    : 'border-gray-200 bg-blue-50 hover:border-(--border-option-selected) dark:border-gray-700 dark:bg-blue-950 dark:hover:border-blue-500';
 
   return (
     <button
@@ -58,7 +58,7 @@ export default function MemoryCard({
       disabled={disabled || matched || faceUp}
       aria-label={label}
       aria-pressed={faceUp}
-      className={`aspect-square cursor-pointer overflow-hidden rounded-xl border-2 bg-white transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 motion-reduce:transition-none disabled:cursor-not-allowed dark:bg-gray-900 ${surface}`}
+      className={`aspect-square cursor-pointer overflow-hidden rounded-xl border-2 bg-white transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) motion-reduce:transition-none disabled:cursor-not-allowed dark:bg-gray-900 ${surface}`}
     >
       {faceUp ? (
         card.face === 'photo' ? (

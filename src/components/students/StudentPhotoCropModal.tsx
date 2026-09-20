@@ -201,7 +201,7 @@ function StudentPhotoCropModal({
   };
 
   const iconButtonClass =
-    'flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-gray-300 bg-white text-gray-700 transition hover:border-blue-400 hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200';
+    'flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-(--border-card) bg-(--surface-card) text-(--text-muted) transition hover:border-(--border-option-selected) hover:text-(--text-badge) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)';
 
   return (
     <Modal
@@ -224,13 +224,13 @@ function StudentPhotoCropModal({
           onPointerUp={endPointer}
           onPointerCancel={endPointer}
           aria-label={t('photo.cropTitle', 'Foto zuschneiden')}
-          className="aspect-square w-full max-w-65 cursor-grab touch-none rounded-2xl border border-gray-200 active:cursor-grabbing dark:border-gray-700"
+          className="aspect-square w-full max-w-65 cursor-grab touch-none rounded-2xl border border-(--border-card) active:cursor-grabbing"
         />
 
         <div className="flex w-full max-w-65 items-center gap-3">
           <MagnifyingGlassIcon
             size={18}
-            className="shrink-0 text-gray-500 dark:text-gray-400"
+            className="shrink-0 text-(--text-muted)"
             aria-hidden="true"
           />
           <input
@@ -243,7 +243,7 @@ function StudentPhotoCropModal({
               update({ ...transform, scale: Number(e.target.value) })
             }
             aria-label={t('photo.zoom', 'Zoom')}
-            className="h-2 w-full cursor-pointer appearance-none rounded-full bg-gray-200 accent-blue-600 dark:bg-gray-700"
+            className="h-2 w-full cursor-pointer appearance-none rounded-full bg-(--border-card) accent-(--accent-option)"
           />
         </div>
 
@@ -271,7 +271,7 @@ function StudentPhotoCropModal({
               type="button"
               onClick={onReplace}
               disabled={busy}
-              className="flex h-10 cursor-pointer items-center gap-2 rounded-full border border-gray-300 bg-white px-4 text-sm font-medium text-gray-700 transition hover:border-blue-400 hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200"
+              className="flex h-10 cursor-pointer items-center gap-2 rounded-full border border-(--border-card) bg-(--surface-card) px-4 text-sm font-medium text-(--text-muted) transition hover:border-(--border-option-selected) hover:text-(--text-badge) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) disabled:cursor-not-allowed disabled:opacity-60"
             >
               <UploadSimpleIcon size={18} aria-hidden="true" />
               {t('photo.replaceImage', 'Bild ersetzen')}
@@ -284,7 +284,7 @@ function StudentPhotoCropModal({
             type="button"
             onClick={onCancel}
             disabled={busy}
-            className="cursor-pointer rounded-full border border-gray-300 bg-white px-5 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+            className="cursor-pointer rounded-full border border-(--border-card) bg-(--surface-card) px-5 py-2 text-sm font-medium text-(--text-muted) transition hover:bg-(--surface-sunken) disabled:cursor-not-allowed disabled:opacity-60"
           >
             {t('photo.cancel', 'Abbrechen')}
           </button>
@@ -292,7 +292,7 @@ function StudentPhotoCropModal({
             type="button"
             onClick={handleApply}
             disabled={busy}
-            className="flex cursor-pointer items-center gap-2 rounded-full bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+            className="flex cursor-pointer items-center gap-2 rounded-full bg-(--button-primary-bg) px-5 py-2 text-sm font-semibold text-(--button-primary-text) transition hover:bg-(--button-primary-bg-hover) disabled:cursor-not-allowed disabled:opacity-60"
           >
             {busy && (
               <SpinnerGapIcon

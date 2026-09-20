@@ -22,18 +22,18 @@ export default function SectionSeparator({
         role="separator"
         aria-label={label}
       >
-        <div className="flex-1 h-px bg-gray-300 dark:bg-gray-600" />
-        <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+        <div className="flex-1 h-px bg-(--border-card)" />
+        <span className="text-xs font-medium text-(--text-muted) uppercase tracking-wide">
           {label}
         </span>
-        <div className="flex-1 h-px bg-gray-300 dark:bg-gray-600" />
+        <div className="flex-1 h-px bg-(--border-card)" />
       </div>
     );
   }
 
   return (
     <div
-      className={`border-t border-gray-200 dark:border-gray-600 ${className}`}
+      className={`border-t border-(--border-card) ${className}`}
       role="separator"
     />
   );

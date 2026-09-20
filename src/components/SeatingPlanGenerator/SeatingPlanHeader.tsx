@@ -153,7 +153,7 @@ export default function SeatingPlanHeader() {
               // Both halves of the lockup are decorative, so without a label
               // the heading and its link have no accessible name at all.
               aria-label={t('common:nav.home')}
-              className="kp-lockup focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
+              className="kp-lockup focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:ring-offset-2"
             >
               <KpLockup size="sm" markOnly />
             </LocalizedLink>

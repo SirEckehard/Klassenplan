@@ -26,23 +26,21 @@ const toneClasses: Record<
   { container: string; title: string; body: string; code: string }
 > = {
   red: {
-    container:
-      'border-red-200 bg-white/60 dark:border-red-800 dark:bg-gray-900/40',
-    title: 'text-red-900 dark:text-red-100',
-    body: 'text-red-700 dark:text-red-300',
-    code: 'bg-red-100 text-red-900 dark:bg-red-900/50 dark:text-red-100',
+    container: 'border-(--border-card) bg-(--surface-card)',
+    title: 'text-(--text-page)',
+    body: 'text-(--text-muted)',
+    code: 'bg-(--surface-sunken) text-(--text-page)',
   },
   amber: {
-    container:
-      'border-amber-300 bg-white/60 dark:border-amber-600 dark:bg-gray-900/40',
-    title: 'text-amber-900 dark:text-amber-100',
-    body: 'text-amber-800 dark:text-amber-100',
-    code: 'bg-amber-100 text-amber-900 dark:bg-amber-900/50 dark:text-amber-100',
+    container: 'border-(--border-card) bg-(--surface-card)',
+    title: 'text-(--text-page)',
+    body: 'text-(--text-muted)',
+    code: 'bg-(--surface-sunken) text-(--text-page)',
   },
 };
 
 const actionClass =
-  'inline-flex items-center gap-1.5 rounded-md font-medium underline underline-offset-2 transition hover:opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500 dark:focus-visible:ring-offset-gray-900';
+  'inline-flex items-center gap-1.5 rounded-md font-medium underline underline-offset-2 transition hover:opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-(--focus-ring-primary)';
 
 /**
  * Offers the one thing a teacher can do with an error: report it.
@@ -160,7 +158,7 @@ export default function ErrorReportLink({
         <pre
           tabIndex={0}
           aria-label={t('errors.report.detailsLabel')}
-          className={`mt-3 max-h-40 overflow-auto rounded-lg bg-white/70 p-2 font-mono text-[11px] leading-relaxed whitespace-pre-wrap select-all dark:bg-gray-900/60 ${styles.body}`}
+          className={`mt-3 max-h-40 overflow-auto rounded-lg bg-(--surface-card) p-2 font-mono text-[11px] leading-relaxed whitespace-pre-wrap select-all ${styles.body}`}
         >
           {report.details}
         </pre>

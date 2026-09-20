@@ -113,7 +113,7 @@ export default function ClassMetadataDialog({
             <div className="space-y-2">
               <label
                 htmlFor="class-name"
-                className="text-sm font-semibold text-gray-800 dark:text-gray-100"
+                className="text-sm font-semibold text-(--text-page)"
               >
                 {t('classDialog.className', 'Klassenname')} *
               </label>
@@ -133,10 +133,10 @@ export default function ClassMetadataDialog({
             <div className="space-y-2">
               <label
                 htmlFor="class-label"
-                className="text-sm font-semibold text-gray-800 dark:text-gray-100"
+                className="text-sm font-semibold text-(--text-page)"
               >
                 {t('classDialog.schoolYear', 'Schuljahr')}
-                <span className="ml-1 text-xs font-normal text-gray-500 dark:text-gray-400">
+                <span className="ml-1 text-xs font-normal text-(--text-muted)">
                   ({t('common.optional', 'optional')})
                 </span>
               </label>
@@ -154,10 +154,10 @@ export default function ClassMetadataDialog({
             <div className="space-y-2">
               <label
                 htmlFor="class-notes"
-                className="text-sm font-semibold text-gray-800 dark:text-gray-100"
+                className="text-sm font-semibold text-(--text-page)"
               >
                 {t('classDialog.notes', 'Notizen')}
-                <span className="ml-1 text-xs font-normal text-gray-500 dark:text-gray-400">
+                <span className="ml-1 text-xs font-normal text-(--text-muted)">
                   ({t('common.optional', 'optional')})
                 </span>
               </label>

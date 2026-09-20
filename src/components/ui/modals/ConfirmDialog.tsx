@@ -53,7 +53,7 @@ export default function ConfirmDialog({
       size="sm"
     >
       <div
-        className={`${cardSurfaceClass} p-4 text-sm text-gray-700 dark:text-gray-200 shadow-sm`}
+        className={`${cardSurfaceClass} p-4 text-sm text-(--text-muted) shadow-sm`}
       >
         {message}
       </div>

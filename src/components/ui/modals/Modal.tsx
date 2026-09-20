@@ -60,7 +60,7 @@ export default function Modal({
 
   const modalContent = (
     <div
-      className="fixed inset-0 z-60 overflow-y-auto bg-white/90 px-4 py-6 backdrop-blur-md dark:bg-gray-950/85"
+      className="fixed inset-0 z-60 overflow-y-auto bg-(--surface-card) px-4 py-6 backdrop-blur-md"
       onClick={onClose}
     >
       <div className="flex min-h-full w-full items-center justify-center py-6">
@@ -78,14 +78,14 @@ export default function Modal({
           }}
         >
           <div className="rounded-3xl shadow-2xl">
-            <div className="flex max-h-[calc(100vh-3rem)] flex-col overflow-hidden rounded-3xl border-2 border-blue-200 bg-linear-to-br from-blue-50 via-white to-indigo-50 dark:border-blue-900/40 dark:from-gray-900 dark:via-gray-900 dark:to-gray-950">
+            <div className="flex max-h-[calc(100vh-3rem)] flex-col overflow-hidden rounded-3xl border-2 border-(--border-option-selected) bg-linear-to-br from-blue-50 via-white to-indigo-50">
               <div className="flex-1 overflow-y-auto p-6 sm:p-8">
                 <div className="flex flex-col gap-6">
                   {hasHeaderContent && (
                     <div className="flex items-start justify-between gap-4 sm:gap-6">
                       <div className="flex flex-1 items-start gap-4">
                         {icon ? (
-                          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white shadow-md dark:bg-blue-500">
+                          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-(--button-primary-bg) text-white shadow-md dark:bg-(--button-primary-bg)">
                             {icon}
                           </div>
                         ) : null}
@@ -93,7 +93,7 @@ export default function Modal({
                           {title ? (
                             <h2
                               id={titleId}
-                              className="text-xl font-semibold text-gray-900 dark:text-gray-100 sm:text-2xl"
+                              className="text-xl font-semibold text-(--text-page) sm:text-2xl"
                             >
                               {title}
                             </h2>
@@ -101,7 +101,7 @@ export default function Modal({
                           {subtitle ? (
                             <p
                               id={descriptionId}
-                              className="mt-1 text-sm text-gray-600 dark:text-gray-400"
+                              className="mt-1 text-sm text-(--text-muted)"
                             >
                               {subtitle}
                             </p>
@@ -112,7 +112,7 @@ export default function Modal({
                         <button
                           type="button"
                           onClick={onClose}
-                          className="cursor-pointer rounded-full p-2 text-gray-500 transition hover:bg-white/70 hover:text-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200"
+                          className="cursor-pointer rounded-full p-2 text-(--text-muted) transition hover:bg-(--surface-card) hover:text-(--text-muted) focus:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) dark:text-(--text-muted)"
                           aria-label={t(
                             'common.closeDialog',
                             'Dialog schließen',
@@ -123,9 +123,7 @@ export default function Modal({
                       ) : null}
                     </div>
                   )}
-                  <div className="space-y-6 text-gray-800 dark:text-gray-200">
-                    {children}
-                  </div>
+                  <div className="space-y-6 text-(--text-page)">{children}</div>
                 </div>
               </div>
             </div>

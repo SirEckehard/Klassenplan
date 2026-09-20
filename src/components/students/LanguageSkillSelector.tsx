@@ -124,13 +124,13 @@ export default function LanguageSkillSelector({
       {/* Reset option */}
       <button
         type="button"
-        className={`${dropdownOptionBaseClass} ${!hasLevel ? 'bg-gray-100 dark:bg-gray-700' : ''} text-gray-600 hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-gray-600`}
+        className={`${dropdownOptionBaseClass} ${!hasLevel ? 'bg-(--surface-sunken)' : ''} text-(--text-muted) hover:bg-(--border-card)`}
         onClick={(e) => {
           e.stopPropagation();
           handleLanguageSkillChange(undefined);
         }}
       >
-        <span className="text-gray-900 dark:text-white">
+        <span className="text-(--text-page) dark:text-white">
           <TranslateIcon size={14} aria-hidden="true" />
         </span>
         {t('languageSkill.notSet', 'Nicht angegeben')}
@@ -172,7 +172,7 @@ export default function LanguageSkillSelector({
             hasLevel ? (
               LANGUAGE_SKILL_ICONS[currentLevel]
             ) : (
-              <span className="text-gray-900 dark:text-white">
+              <span className="text-(--text-page) dark:text-white">
                 <TranslateIcon size={14} aria-hidden="true" />
               </span>
             )
@@ -219,7 +219,7 @@ export default function LanguageSkillSelector({
           }}
         >
           <span
-            className={`${hasLevel ? compactIconColorMap[currentLevel] : 'text-gray-900 dark:text-white'} text-lg`}
+            className={`${hasLevel ? compactIconColorMap[currentLevel] : 'text-(--text-page) dark:text-white'} text-lg`}
           >
             {hasLevel ? (
               LANGUAGE_SKILL_ICONS[currentLevel]
