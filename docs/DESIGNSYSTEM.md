@@ -172,7 +172,7 @@ Drag indicators use:
 - Table templates: blue (`bg-blue-600` / `dark:bg-blue-500`)
 - Room features: amber (`bg-amber-500` / `dark:bg-amber-400`)
 
-The palette in `SmartEditPanel` still relies on `cardSurfaceClass` and `panelSurfaceClass`, but adds targeted gradients for hover states (`hover:bg-blue-50/80`, `dark:hover:bg-blue-900/30`). Adjustments happen centrally in the panel, not in the components.
+Every layer's toolbar is a `ToolRail` (`src/components/shell/ToolRail.tsx`) inside `SmartSidebar`, which carries the panel surface. An entry adds layout classes only; its two densities — the labelled column and the icon rail — come from the rail, so a new tool cannot invent a look of its own.
 
 ## 7. Extensions & maintenance
 

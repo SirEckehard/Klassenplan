@@ -28,16 +28,16 @@ it for Antigravity — edit this file, never those two.
 - Docs consistency: `npm run check:docs` (relative links, heading anchors and `src/…`-style paths in Markdown resolve; `docs/CHANGELOG.md` is skipped)
 - Algorithm runtime: `npm run bench` (by hand, not in CI; figures in `docs/PERFORMANCE.md`)
 
-**Current Code Quality Status (2026-09-19):**
+**Current Code Quality Status (2026-09-20):**
 
 - ✅ ESLint: 0 errors, 0 warnings
 - ✅ TypeScript: 0 compilation errors (strict mode)
-- ✅ Tests: 2316 unit tests (228 test files) + 9 Playwright tests (3 smoke + 2 core flow + 4 onboarding), 100% passing
+- ✅ Tests: 2321 unit tests (230 test files) + 9 Playwright tests (3 smoke + 2 core flow + 4 onboarding), 100% passing
 - 📊 Coverage: 72.5 % lines / 71.8 % statements / 61.9 % branches (`npm run test:coverage`, v8 provider, no thresholds enforced)
 - ⚠️ Unused Exports: 53 modules ignoring type-only exports, held by a ratchet (`npm run check:unused`); the remainder are re-export barrels, `lazyWithRetry` default exports and shared test helpers
 - ✅ Test Infrastructure: Centralized accessibility helpers and toast matchers for robust testing
 - ✅ Architecture: Repository Pattern implemented, UI components reorganized into logical subdirectories
-- ✅ i18n: Bilingual support (German/English) fully implemented, DE/EN key parity 1:1 (1947 keys per language)
+- ✅ i18n: Bilingual support (German/English) fully implemented, DE/EN key parity 1:1 (2038 keys per language)
 - 📦 Bundle: initial payload 199 KB brotli / 768 KB raw, largest chunk 62 KB brotli, CSS 20 KB brotli
 
 ## Logging
@@ -249,10 +249,13 @@ Consumers import dedicated hooks (e.g. `useClassroomLayoutContext`) to minimize 
 ### Hook & Component Landscape
 
 - Hooks are grouped by domain (`hooks/wizard`, `hooks/scene`, `hooks/canvas`, `hooks/circle`, `hooks/ui`, `hooks/student`) and favour focused responsibilities (scene history, canvas interactions, shortcut handling, drag/drop state, pan/zoom, photo cache, etc.).
-- The workspace shell lives in `src/components/shell/`: `AppShell` frames every layer, `LayerSwitcher` sits in the header, `AppStatusBar` holds the live status line and the layer's one primary action, and `Inspector` is the right-hand panel. A view never draws its own "carry on" or "go back" button — that is the status bar's and the switcher's job.
+- The workspace shell lives in `src/components/shell/`: `AppShell` frames every layer, `SeatingPlanHeader` carries the class (`HeaderClassMenu`), the plan's name (`HeaderPlanName`), `LayerSwitcher` and the two exits, `AppStatusBar` holds undo/redo, the live status line and the layer's one primary action, and `Inspector` is the right-hand panel. A view never draws its own "carry on" or "go back" button, and nothing floats over the stage — corner controls belong to the status bar, the toolbar or the inspector.
+- **The class is the document.** Which class is open is stated in the header on every layer, and everything a class itself can undergo — create, rename, delete — lives in that menu's dropdown. `ClassDialogsProvider` owns those dialogs, so the header and the class layer's empty state open the same ones.
+- **One toolbar shape for every layer** (`ToolRail`): insert on top, look at in the middle, manage at the bottom, in both densities of `SmartSidebar`. `ClassToolPanel`, `RoomToolPanel` and `PlanToolPanel` fill it; an entry that needs a value (a name, a number of placeholders, a set of switches) opens a panel instead of taking a permanent place. A new tool joins one of the three groups — never a new floating button.
+- **The two exits, once.** Exporting and presenting save the plan first when it differs from the saved one; `usePlanExits` is the single implementation, used by the header and by Ctrl/Cmd+E.
 - **Editing a thing happens in the inspector, not in the list.** `InspectorContext` holds what is selected (students so far; tables and features follow), a list row states what is set and offers to open it, and `StudentInspector` groups the controls under the pedagogical family they belong to. Adding an attribute means adding it to one group there — never a new column.
-- **Two ways into the same student data.** The roster answers "who is in this class"; `AttributeFocusMode` asks one question of everybody at once ("Wer zeigt Unruhe?") and is how the eight yes/no flags get filled in. A new yes/no flag belongs in its `PASSES` list as well as in the inspector; attributes with more than two values stay inspector-only. A view that wants the full width sets `suspended` on `InspectorContext`.
-- **Two ways to fill the inspector.** The class layer's selection is a student id, so `Inspector` resolves it from the seating-plan context itself. The room layer's selection is table indices and feature ids buried in the canvas state, so `LayoutEditorView` renders `SceneInspector` through `InspectorPortal` into the shell's slot — markup travels down instead of a dozen mutators travelling up. A third layer picks whichever of the two fits.
+- **Three ways into the same student data.** The roster answers "who is in this class"; `AttributeFocusMode` asks one question of everybody at once ("Wer zeigt Unruhe?") and is how the eight yes/no flags get filled in; `RelationsView` answers who wants to sit next to whom across the class and marks the pairs both sides named. A new yes/no flag belongs in the focus mode's `PASSES` list as well as in the inspector; attributes with more than two values stay inspector-only. A view that wants the full width sets `suspended` on `InspectorContext`.
+- **Three ways to fill the inspector.** The class layer's selection is a student id, so `Inspector` resolves it from the seating-plan context itself. The room layer's selection is table indices and feature ids buried in the canvas state, and the plan layer's criteria need the view's mix handlers, so both render through `InspectorPortal` into the shell's slot — markup travels down instead of a dozen mutators travelling up. `StatusBarPortal` does the same for the status bar (`start` for a layer's own history, `end` for its primary action).
 - Layer UI resides in `src/components/SeatingPlanGenerator/` with shared UI primitives in `src/components/ui/` and student tools in `src/components/students/`.
 - Circle-specific components live under `src/components/circle/`; presentation mode lives in `src/pages/Present.tsx` + `src/components/scene/PresentationScene.tsx`.
 
