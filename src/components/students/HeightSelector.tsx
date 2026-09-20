@@ -13,6 +13,10 @@ import { cardSurfaceClass, menuSurfaceClass } from '@/utils';
 import { heightButtonTokens } from './studentStyleTokens';
 import FloatingDropdown from './FloatingDropdown';
 import IconWithLabel from './IconWithLabel';
+import {
+  InspectorChoice,
+  InspectorRow,
+} from '@/components/shell/InspectorPanel';
 
 // Icon mapping for compact view
 const HEIGHT_ICONS = {
@@ -45,7 +49,7 @@ const {
 type Props = {
   student: Student;
   updateStudent: (id: string, patch: Partial<Student>) => void;
-  variant: 'compact' | 'detailed' | 'hybrid';
+  variant: 'compact' | 'detailed' | 'hybrid' | 'row';
   showDropdown?: boolean;
   setShowDropdown?: (value: boolean) => void;
   dropdownRef?: React.RefObject<HTMLDivElement | null>;
@@ -108,12 +112,29 @@ export default function HeightSelector({
   const currentHeight = student.height || 'medium';
 
   // Hybrid variant: IconWithLabel with dropdown
+  if (variant === 'row') {
+    return (
+      <InspectorRow label={t('height.title')}>
+        <InspectorChoice
+          label={t('height.title')}
+          value={student.height}
+          onChange={(next) => updateStudent(student.id, { height: next })}
+          options={[
+            { value: 'small', label: t('height.small') },
+            { value: 'medium', label: t('height.medium') },
+            { value: 'tall', label: t('height.tall') },
+          ]}
+        />
+      </InspectorRow>
+    );
+  }
+
   if (variant === 'hybrid') {
     // Use compact view color classes for consistency
     const colorClasses = compactStyleMap[currentHeight];
     const iconColorClass =
       currentHeight === 'medium'
-        ? 'text-(--text-page) dark:text-white'
+        ? 'text-(--text-page)'
         : compactIconColorMap[currentHeight];
 
     return (

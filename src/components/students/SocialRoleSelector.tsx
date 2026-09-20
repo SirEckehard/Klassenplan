@@ -15,6 +15,10 @@ import { menuSurfaceClass } from '@/utils';
 import { socialRoleButtonTokens } from './studentStyleTokens';
 import FloatingDropdown from './FloatingDropdown';
 import IconWithLabel from './IconWithLabel';
+import {
+  InspectorChoice,
+  InspectorRow,
+} from '@/components/shell/InspectorPanel';
 
 // Icon mapping for social roles
 const SOCIAL_ROLE_ICONS = {
@@ -53,7 +57,7 @@ const {
 type Props = {
   student: Student;
   updateStudent: (id: string, patch: Partial<Student>) => void;
-  variant: 'compact' | 'detailed' | 'hybrid';
+  variant: 'compact' | 'detailed' | 'hybrid' | 'row';
   showDropdown?: boolean;
   setShowDropdown?: (value: boolean) => void;
   dropdownRef?: React.RefObject<HTMLDivElement | null>;
@@ -126,7 +130,7 @@ export default function SocialRoleSelector({
           handleSocialRoleChange(undefined);
         }}
       >
-        <span className="text-(--text-page) dark:text-white">
+        <span className="text-(--text-page)">
           <UsersThreeIcon size={14} aria-hidden="true" />
         </span>
         {t('socialRole.neutral', 'Neutral')}
@@ -156,6 +160,22 @@ export default function SocialRoleSelector({
   );
 
   // Hybrid variant: IconWithLabel with dropdown
+  if (variant === 'row') {
+    return (
+      <InspectorRow label={t('socialRole.title')}>
+        <InspectorChoice
+          label={t('socialRole.title')}
+          value={student.socialRole}
+          onChange={(next) => updateStudent(student.id, { socialRole: next })}
+          options={SOCIAL_ROLE_OPTIONS.map((role) => ({
+            value: role,
+            label: t(SOCIAL_ROLE_LABELS[role]),
+          }))}
+        />
+      </InspectorRow>
+    );
+  }
+
   if (variant === 'hybrid') {
     const colorClasses = hasRole
       ? compactStyleMap[currentRole]
@@ -168,7 +188,7 @@ export default function SocialRoleSelector({
             hasRole ? (
               SOCIAL_ROLE_ICONS[currentRole]
             ) : (
-              <span className="text-(--text-page) dark:text-white">
+              <span className="text-(--text-page)">
                 <UsersThreeIcon size={14} aria-hidden="true" />
               </span>
             )
@@ -215,7 +235,7 @@ export default function SocialRoleSelector({
           }}
         >
           <span
-            className={`${hasRole ? compactIconColorMap[currentRole] : 'text-(--text-page) dark:text-white'} text-lg`}
+            className={`${hasRole ? compactIconColorMap[currentRole] : 'text-(--text-page)'} text-lg`}
           >
             {hasRole ? (
               SOCIAL_ROLE_ICONS[currentRole]

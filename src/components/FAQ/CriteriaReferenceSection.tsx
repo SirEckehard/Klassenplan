@@ -237,7 +237,7 @@ export default function CriteriaReferenceSection() {
                         <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300">
                           <prop.icon size={14} aria-hidden="true" />
                         </span>
-                        <span className="font-medium text-gray-900 dark:text-white">
+                        <span className="font-medium text-gray-900">
                           {t(prop.labelKey)}
                         </span>
                       </div>

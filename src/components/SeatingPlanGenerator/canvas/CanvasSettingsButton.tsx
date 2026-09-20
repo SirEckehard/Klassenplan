@@ -378,7 +378,7 @@ function IconGridSetting({ option }: { option: CanvasSettingsIconGridOption }) {
           className={`flex h-9 w-full cursor-pointer items-center justify-center rounded-lg transition focus:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) disabled:cursor-not-allowed disabled:opacity-40 ${
             item.checked
               ? 'bg-(--surface-option-selected) text-(--text-badge)'
-              : 'bg-(--surface-sunken) text-(--text-muted) hover:bg-(--border-card) hover:text-(--text-muted) dark:text-(--text-muted)'
+              : 'bg-(--surface-sunken) text-(--text-muted) hover:bg-(--border-card) hover:text-(--text-muted)'
           }`}
         >
           {item.icon}

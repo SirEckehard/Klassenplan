@@ -359,7 +359,7 @@ function SimpleCircleView({
         ref={svgRef}
         width="100%"
         viewBox="0 0 900 600"
-        className="block w-full h-auto rounded-lg"
+        className="block h-auto w-full"
         role="img"
         aria-label={t('circleView.canvasLabel', {
           count: layout.students.length,
@@ -368,11 +368,9 @@ function SimpleCircleView({
           aspectRatio: '3 / 2',
           backgroundColor: transparentBackground
             ? 'transparent'
-            : isDark
-              ? '#1f2937'
-              : '#f9fafb',
+            : 'var(--canvas-bg)',
           backgroundImage: showGrid
-            ? `linear-gradient(to right, ${isDark ? '#374151' : '#e5e7eb'} 1px, transparent 1px), linear-gradient(to bottom, ${isDark ? '#374151' : '#e5e7eb'} 1px, transparent 1px)`
+            ? 'linear-gradient(to right, var(--border-card) 1px, transparent 1px), linear-gradient(to bottom, var(--border-card) 1px, transparent 1px)'
             : undefined,
           backgroundSize: showGrid
             ? `${GRID_SIZE}px ${GRID_SIZE}px`

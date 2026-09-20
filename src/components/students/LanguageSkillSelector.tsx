@@ -16,6 +16,10 @@ import { menuSurfaceClass } from '@/utils';
 import { languageSkillButtonTokens } from './studentStyleTokens';
 import FloatingDropdown from './FloatingDropdown';
 import IconWithLabel from './IconWithLabel';
+import {
+  InspectorChoice,
+  InspectorRow,
+} from '@/components/shell/InspectorPanel';
 
 // Icon mapping for language skill levels
 const LANGUAGE_SKILL_ICONS = {
@@ -57,7 +61,7 @@ const {
 type Props = {
   student: Student;
   updateStudent: (id: string, patch: Partial<Student>) => void;
-  variant: 'compact' | 'detailed' | 'hybrid';
+  variant: 'compact' | 'detailed' | 'hybrid' | 'row';
   showDropdown?: boolean;
   setShowDropdown?: (value: boolean) => void;
   dropdownRef?: React.RefObject<HTMLDivElement | null>;
@@ -130,7 +134,7 @@ export default function LanguageSkillSelector({
           handleLanguageSkillChange(undefined);
         }}
       >
-        <span className="text-(--text-page) dark:text-white">
+        <span className="text-(--text-page)">
           <TranslateIcon size={14} aria-hidden="true" />
         </span>
         {t('languageSkill.notSet', 'Nicht angegeben')}
@@ -160,6 +164,24 @@ export default function LanguageSkillSelector({
   );
 
   // Hybrid variant: IconWithLabel with dropdown
+  if (variant === 'row') {
+    return (
+      <InspectorRow label={t('languageSkill.title')}>
+        <InspectorChoice
+          label={t('languageSkill.title')}
+          value={student.languageSkill}
+          onChange={(next) =>
+            updateStudent(student.id, { languageSkill: next })
+          }
+          options={LANGUAGE_SKILL_OPTIONS.map((level) => ({
+            value: level,
+            label: t(LANGUAGE_SKILL_LABELS[level]),
+          }))}
+        />
+      </InspectorRow>
+    );
+  }
+
   if (variant === 'hybrid') {
     const colorClasses = hasLevel
       ? compactStyleMap[currentLevel]
@@ -172,7 +194,7 @@ export default function LanguageSkillSelector({
             hasLevel ? (
               LANGUAGE_SKILL_ICONS[currentLevel]
             ) : (
-              <span className="text-(--text-page) dark:text-white">
+              <span className="text-(--text-page)">
                 <TranslateIcon size={14} aria-hidden="true" />
               </span>
             )
@@ -219,7 +241,7 @@ export default function LanguageSkillSelector({
           }}
         >
           <span
-            className={`${hasLevel ? compactIconColorMap[currentLevel] : 'text-(--text-page) dark:text-white'} text-lg`}
+            className={`${hasLevel ? compactIconColorMap[currentLevel] : 'text-(--text-page)'} text-lg`}
           >
             {hasLevel ? (
               LANGUAGE_SKILL_ICONS[currentLevel]

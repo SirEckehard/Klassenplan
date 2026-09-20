@@ -48,7 +48,7 @@ export default function ModeSelect({
             aria-hidden
             className="text-blue-600 transition group-hover:scale-110 motion-reduce:transition-none dark:text-blue-400"
           />
-          <span className="text-xl font-bold text-gray-900 dark:text-white">
+          <span className="text-xl font-bold text-gray-900">
             {t('nameGame.menu.quizTitle', 'Foto-Quiz')}
           </span>
           <span className="text-sm text-gray-600 dark:text-gray-300">
@@ -69,7 +69,7 @@ export default function ModeSelect({
             aria-hidden
             className="text-blue-600 transition group-hover:scale-110 motion-reduce:transition-none dark:text-blue-400"
           />
-          <span className="text-xl font-bold text-gray-900 dark:text-white">
+          <span className="text-xl font-bold text-gray-900">
             {t('nameGame.menu.memoryTitle', 'Memory')}
           </span>
           <span className="text-sm text-gray-600 dark:text-gray-300">

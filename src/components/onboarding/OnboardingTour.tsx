@@ -289,7 +289,7 @@ function CoachMark({
           <button
             type="button"
             onClick={onSkip}
-            className="cursor-pointer rounded text-xs font-medium text-(--text-muted) underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) dark:text-(--text-muted)"
+            className="cursor-pointer rounded text-xs font-medium text-(--text-muted) underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)"
           >
             {t('tour.skip')}
           </button>

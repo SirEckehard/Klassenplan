@@ -182,13 +182,13 @@ export default function MemoryGame({
 
       {state.phase === 'roundDone' ? (
         <div className="flex w-full flex-1 flex-col items-center justify-center gap-5">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+          <h2 className="text-2xl font-bold text-gray-900">
             {t('nameGame.memory.roundDone', 'Runde geschafft!')}
           </h2>
           <div
             className={`${cardSurfaceClass} flex flex-col items-center gap-2 p-6 text-center`}
           >
-            <p className="text-lg font-semibold text-gray-900 dark:text-white">
+            <p className="text-lg font-semibold text-gray-900">
               {t('nameGame.memory.result', {
                 moves: state.moves,
                 time: formatDuration(roundResult?.timeMs ?? elapsedMs),

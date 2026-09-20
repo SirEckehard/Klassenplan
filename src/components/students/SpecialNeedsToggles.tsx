@@ -6,13 +6,15 @@ import type { Student } from '@/types';
 import { STUDENT_FLAGS, cardSurfaceClass } from '@/utils';
 import { specialNeedsButtonTokens } from './studentStyleTokens';
 import IconWithLabel from './IconWithLabel';
+import ToggleSwitch from '@/components/ui/controls/ToggleSwitch';
+import { InspectorRow } from '@/components/shell/InspectorPanel';
 
 type StudentFlagKey = (typeof STUDENT_FLAGS)[number]['key'];
 
 type Props = {
   student: Student;
   updateStudent: (id: string, patch: Partial<Student>) => void;
-  variant: 'compact' | 'detailed' | 'hybrid';
+  variant: 'compact' | 'detailed' | 'hybrid' | 'row';
   /**
    * Render only these flags, in this order. The list row wants all of them in
    * one run; the inspector splits them across its Lernen, Verhalten and Platz
@@ -141,6 +143,35 @@ export default function SpecialNeedsToggles({
       </button>
     );
   };
+
+  // Row variant: the inspector's list — what it is, and whether it is set.
+  if (variant === 'row') {
+    return (
+      <>
+        {flags.map(
+          ({
+            key,
+            tooltip: defaultTooltip,
+            label: defaultLabel,
+            exclusiveWith,
+          }) => (
+            <InspectorRow
+              key={key}
+              label={t(`studentFlags.${key}.label`, defaultLabel)}
+              hint={t(`studentFlags.${key}.tooltip`, defaultTooltip)}
+            >
+              <ToggleSwitch
+                checked={Boolean(student[key])}
+                onChange={() => handleToggle(key, exclusiveWith)}
+                label={t(`studentFlags.${key}.label`, defaultLabel)}
+                size="sm"
+              />
+            </InspectorRow>
+          ),
+        )}
+      </>
+    );
+  }
 
   // Hybrid variant: Render as IconWithLabel components
   if (variant === 'hybrid') {

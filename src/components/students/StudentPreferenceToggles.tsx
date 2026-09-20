@@ -7,6 +7,8 @@ import type { Student } from '@/types';
 import { cardSurfaceClass } from '@/utils';
 import { specialNeedsButtonTokens } from './studentStyleTokens';
 import IconWithLabel from './IconWithLabel';
+import ToggleSwitch from '@/components/ui/controls/ToggleSwitch';
+import { InspectorRow } from '@/components/shell/InspectorPanel';
 
 type PreferenceKey = 'prefersWindow' | 'prefersDoor';
 
@@ -20,7 +22,7 @@ type PreferenceOption = {
 type Props = {
   student: Student;
   updateStudent: (id: string, patch: Partial<Student>) => void;
-  variant: 'compact' | 'detailed' | 'hybrid';
+  variant: 'compact' | 'detailed' | 'hybrid' | 'row';
 };
 
 // Preference options with i18n keys
@@ -48,7 +50,7 @@ function PreferenceButton({
   student: Student;
   updateStudent: (id: string, patch: Partial<Student>) => void;
   option: PreferenceOption;
-  variant: 'compact' | 'detailed' | 'hybrid';
+  variant: 'compact' | 'detailed' | 'hybrid' | 'row';
 }) {
   const { t } = useTranslation('students');
   const isActive = Boolean(student[option.key]);
@@ -118,6 +120,31 @@ export default function StudentPreferenceToggles({
   variant,
 }: Props) {
   const { t } = useTranslation('students');
+
+  // Row variant: the inspector's list — what it is, and whether it is set.
+  if (variant === 'row') {
+    return (
+      <>
+        {preferenceOptions.map((option) => (
+          <InspectorRow
+            key={option.key}
+            label={t(option.label)}
+            hint={t(option.tooltip)}
+          >
+            <ToggleSwitch
+              checked={Boolean(student[option.key])}
+              onChange={(checked) =>
+                updateStudent(student.id, { [option.key]: checked })
+              }
+              label={t(option.label)}
+              size="sm"
+            />
+          </InspectorRow>
+        ))}
+      </>
+    );
+  }
+
   // Hybrid variant: Render as IconWithLabel components
   if (variant === 'hybrid') {
     return (

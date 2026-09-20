@@ -15,6 +15,10 @@ import { cardSurfaceClass, menuSurfaceClass } from '@/utils';
 import { genderButtonTokens } from './studentStyleTokens';
 import FloatingDropdown from './FloatingDropdown';
 import IconWithLabel from './IconWithLabel';
+import {
+  InspectorChoice,
+  InspectorRow,
+} from '@/components/shell/InspectorPanel';
 
 // Icon mapping for compact view
 const GENDER_ICONS = {
@@ -32,7 +36,7 @@ const GENDER_LABELS = {
 type Props = {
   student: Student;
   updateStudent: (id: string, patch: Partial<Student>) => void;
-  variant: 'compact' | 'detailed' | 'hybrid';
+  variant: 'compact' | 'detailed' | 'hybrid' | 'row';
   showDropdown?: boolean;
   setShowDropdown?: (value: boolean) => void;
   dropdownRef?: React.RefObject<HTMLDivElement | null>;
@@ -121,6 +125,22 @@ export default function GenderSelector({
   } = genderButtonTokens;
 
   // Hybrid variant: IconWithLabel with dropdown
+  if (variant === 'row') {
+    return (
+      <InspectorRow label={t('gender.title')}>
+        <InspectorChoice
+          label={t('gender.title')}
+          value={student.gender}
+          onChange={(next) => updateStudent(student.id, { gender: next })}
+          options={(['boy', 'girl', 'diverse'] as const).map((gender) => ({
+            value: gender,
+            label: t(GENDER_LABELS[gender]),
+          }))}
+        />
+      </InspectorRow>
+    );
+  }
+
   if (variant === 'hybrid') {
     const label = student.gender
       ? t(GENDER_LABELS[student.gender])
@@ -128,7 +148,7 @@ export default function GenderSelector({
     const icon = student.gender ? (
       GENDER_ICONS[student.gender]
     ) : (
-      <span className="text-gray-900 dark:text-white">
+      <span className="text-gray-900">
         <PersonSimpleIcon size={14} aria-hidden="true" />
       </span>
     );
@@ -177,7 +197,7 @@ export default function GenderSelector({
                   setShowDropdown?.(false);
                 }}
               >
-                <span className="text-gray-900 dark:text-white">
+                <span className="text-gray-900">
                   <PersonSimpleIcon size={14} aria-hidden="true" />
                 </span>
                 {t('gender.noValue', 'Keine Angabe')}
@@ -267,7 +287,7 @@ export default function GenderSelector({
               {GENDER_ICONS[student.gender]}
             </span>
           ) : (
-            <span className="text-gray-900 dark:text-white">
+            <span className="text-gray-900">
               <PersonSimpleIcon size={16} aria-hidden="true" />
             </span>
           )}
@@ -300,7 +320,7 @@ export default function GenderSelector({
                   setShowDropdown?.(false);
                 }}
               >
-                <span className="text-gray-900 dark:text-white">
+                <span className="text-gray-900">
                   <PersonSimpleIcon size={14} aria-hidden="true" />
                 </span>
                 {t('gender.noValue', 'Keine Angabe')}

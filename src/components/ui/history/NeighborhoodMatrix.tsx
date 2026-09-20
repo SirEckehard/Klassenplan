@@ -173,7 +173,7 @@ export default function NeighborhoodMatrix({
                   <span
                     className={
                       excluded
-                        ? 'text-(--text-muted) line-through dark:text-(--text-muted)'
+                        ? 'text-(--text-muted) line-through'
                         : 'text-(--text-page)'
                     }
                   >

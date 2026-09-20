@@ -26,7 +26,7 @@ const HintTooltip: React.FC<HintTooltipProps> = ({
   <span
     id={id}
     role="tooltip"
-    className={`pointer-events-none absolute z-20 max-w-64 rounded-xl bg-(--text-page) px-3 py-1.5 text-xs font-semibold text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 dark:bg-(--surface-sunken) dark:text-(--text-page) ${className}`}
+    className={`pointer-events-none absolute z-20 max-w-64 rounded-xl bg-(--text-page) px-3 py-1.5 text-xs font-semibold text-(--surface-card) opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 ${className}`}
   >
     {hint}
   </span>

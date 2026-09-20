@@ -22,7 +22,7 @@ export default function SeatingModeToggle({
   const circleActive = mode === 'circle';
   const sharedButtonState = disabled ? 'cursor-not-allowed opacity-60' : '';
   const hoverLabelClass =
-    'pointer-events-none absolute left-1/2 top-full z-20 mt-2 hidden -translate-x-1/2 whitespace-nowrap rounded-full bg-(--text-page) px-3 py-1 text-xs font-semibold text-white shadow-lg transition sm:group-hover:flex sm:group-focus-visible:flex dark:bg-(--surface-sunken) dark:text-(--text-page)';
+    'pointer-events-none absolute left-1/2 top-full z-20 mt-2 hidden -translate-x-1/2 whitespace-nowrap rounded-full bg-(--text-page) px-3 py-1 text-xs font-semibold text-(--surface-card) shadow-lg transition sm:group-hover:flex sm:group-focus-visible:flex';
 
   return (
     <div className="flex items-center gap-2 rounded-full border border-(--border-option-selected) bg-(--surface-card) p-1 shadow-inner">

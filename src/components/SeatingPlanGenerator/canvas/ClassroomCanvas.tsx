@@ -133,8 +133,11 @@ const ClassroomCanvas = React.memo<ClassroomCanvasProps>(
       [t],
     );
 
-    const backgroundColor = isDark ? '#1f2937' : '#f9fafb';
-    const gridColor = isDark ? '#374151' : '#e5e7eb';
+    // The floor takes the canvas surface and the grid the hairline, both as
+    // custom properties so light and dark come from the one place that defines
+    // them — an inline style resolves `var()` like any other declaration.
+    const backgroundColor = 'var(--canvas-bg)';
+    const gridColor = 'var(--border-card)';
     // Amber keeps the guides distinct from the blue selection overlay.
     const guideColor = isDark ? '#fbbf24' : '#f59e0b';
     // Red marks predicted photo collisions (red-400 / red-500).

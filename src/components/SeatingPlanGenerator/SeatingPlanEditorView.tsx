@@ -300,8 +300,11 @@ export default function SeatingPlanEditorView({
   // Marks the visit (`spg.hasVisitedApp`) for the onboarding tour record.
   useFirstVisit();
   const isPhone = useIsPhone();
-  const backgroundColor = isDark ? '#1f2937' : '#f9fafb';
-  const gridColor = isDark ? '#374151' : '#e5e7eb';
+  // The floor takes the canvas surface and the grid the hairline, both as
+  // custom properties so light and dark come from the one place that defines
+  // them — an inline style resolves `var()` like any other declaration.
+  const backgroundColor = 'var(--canvas-bg)';
+  const gridColor = 'var(--border-card)';
 
   const handleToggleGrid = React.useCallback(
     (checked: boolean) => setShowGrid(() => checked),

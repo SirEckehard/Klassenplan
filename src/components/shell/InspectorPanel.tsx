@@ -81,8 +81,81 @@ export function InspectorSection({
       >
         {title}
       </h3>
-      <div className="flex flex-wrap items-center gap-2">{children}</div>
+      <div className="flex flex-col gap-2">{children}</div>
     </section>
+  );
+}
+
+/**
+ * One setting: what it is on the left, what it is set to on the right.
+ *
+ * The inspector used to stack 44px icon tiles with a word underneath, which
+ * said what an attribute is but never what it is set to without reading the
+ * colour. A row states both, and eleven of them read as one list.
+ */
+export function InspectorRow({
+  label,
+  hint,
+  children,
+}: {
+  label: string;
+  /** A word on what the setting does, where the label cannot carry it. */
+  hint?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex w-full flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
+      <span className="text-[13px] text-(--text-page)" title={hint}>
+        {label}
+      </span>
+      <span className="flex flex-wrap items-center gap-1">{children}</span>
+    </div>
+  );
+}
+
+/** The value of a setting with a handful of options, as chips. */
+export function InspectorChoice<T extends string>({
+  value,
+  options,
+  onChange,
+  label,
+}: {
+  value: T | undefined;
+  options: ReadonlyArray<{
+    value: T;
+    label: string;
+    title?: string;
+    icon?: React.ReactNode;
+  }>;
+  onChange: (value: T | undefined) => void;
+  /** Names the group for a screen reader; the row's label repeats it on screen. */
+  label: string;
+}) {
+  return (
+    <span role="group" aria-label={label} className="flex flex-wrap gap-1">
+      {options.map((option) => {
+        const isActive = value === option.value;
+        return (
+          <button
+            key={option.value}
+            type="button"
+            // Pressing the value it already has clears it: "not decided" has
+            // to stay reachable, or every student ends up with an opinion.
+            onClick={() => onChange(isActive ? undefined : option.value)}
+            aria-pressed={isActive}
+            title={option.title ?? option.label}
+            className={`inline-flex cursor-pointer items-center gap-1 rounded-md border px-2 py-1 text-xs transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) ${
+              isActive
+                ? 'border-(--border-option-selected) bg-(--surface-option-selected) text-(--text-badge)'
+                : 'border-(--border-card) bg-(--surface-card) text-(--text-muted) hover:border-(--border-option-hover)'
+            }`}
+          >
+            {option.icon}
+            {option.label}
+          </button>
+        );
+      })}
+    </span>
   );
 }
 

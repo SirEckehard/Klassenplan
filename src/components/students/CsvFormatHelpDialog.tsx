@@ -103,7 +103,7 @@ export default function CsvFormatHelpDialog({
                 >
                   {header}
                   {index === 0 && (
-                    <span className="ml-2 rounded-full bg-(--button-primary-bg) px-2 py-0.5 text-xs font-semibold text-white dark:bg-(--button-primary-bg)">
+                    <span className="ml-2 rounded-full bg-(--button-primary-bg) px-2 py-0.5 text-xs font-semibold text-(--button-primary-text)">
                       {t('csvHelp.requiredBadge')}
                     </span>
                   )}

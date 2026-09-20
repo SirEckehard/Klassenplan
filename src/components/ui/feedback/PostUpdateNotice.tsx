@@ -52,7 +52,7 @@ export default function PostUpdateNotice() {
       className="mb-6 rounded-2xl border border-(--border-option-selected) bg-(--surface-option-selected) px-4 py-5 text-(--text-page) shadow-xs backdrop-blur"
     >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-5">
-        <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-(--button-primary-bg)/15 text-(--text-badge) dark:bg-(--button-primary-bg)/30">
+        <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-(--button-primary-bg)/15 text-(--text-badge)/30">
           <MegaphoneIcon aria-hidden="true" className="h-6 w-6" />
         </span>
         <div className="flex-1 space-y-3">

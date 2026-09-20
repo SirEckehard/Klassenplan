@@ -6,6 +6,7 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import '@/i18n';
 import StudentInspector from '../StudentInspector';
 import type { Student } from '@/types';
+import { getButton } from '@/__tests__/utils';
 
 const alice: Student = {
   id: '1',
@@ -47,16 +48,11 @@ describe('StudentInspector', () => {
     }
   });
 
-  it('updates the gender through the dropdown', () => {
+  it('sets the gender from its row of choices', () => {
     const updateStudent = vi.fn();
     renderInspector({ updateStudent });
 
-    fireEvent.click(
-      screen.getByRole('button', {
-        name: /geschlecht: keine angabe|gender: not specified/i,
-      }),
-    );
-    fireEvent.click(screen.getByText(/^(Männlich|Male)$/i));
+    fireEvent.click(getButton(/^(Männlich|Male)$/i));
 
     expect(updateStudent).toHaveBeenCalledWith('1', { gender: 'boy' });
   });
@@ -65,12 +61,7 @@ describe('StudentInspector', () => {
     const updateStudent = vi.fn();
     renderInspector({ updateStudent });
 
-    fireEvent.click(
-      screen.getByRole('button', {
-        name: /geschlecht: keine angabe|gender: not specified/i,
-      }),
-    );
-    fireEvent.click(screen.getByText(/^Divers$|^Diverse$/i));
+    fireEvent.click(getButton(/^(Divers|Diverse|Non-binary)$/i));
 
     expect(updateStudent).toHaveBeenCalledWith('1', { gender: 'diverse' });
   });
@@ -79,7 +70,8 @@ describe('StudentInspector', () => {
     const updateStudent = vi.fn();
     renderInspector({ updateStudent });
 
-    fireEvent.click(screen.getByRole('button', { name: /unruhig|restless/i }));
+    // The flag is a switch beside its name now, not an icon tile.
+    fireEvent.click(screen.getByRole('switch', { name: /unruhig|restless/i }));
 
     expect(updateStudent).toHaveBeenCalledWith('1', { restless: true });
   });

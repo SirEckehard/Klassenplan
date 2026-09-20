@@ -37,7 +37,7 @@ export default function QuizResult({
 
   return (
     <div className="flex h-full flex-col items-center justify-center gap-6 overflow-y-auto px-4 py-8">
-      <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+      <h2 className="text-2xl font-bold text-gray-900">
         {t('nameGame.quiz.result.title', 'Runde geschafft!')}
       </h2>
       <p className="text-lg font-semibold text-orange-600 dark:text-orange-400">
@@ -66,7 +66,7 @@ export default function QuizResult({
                   alt=""
                 />
               </div>
-              <span className="flex-1 truncate font-medium text-gray-900 dark:text-white">
+              <span className="flex-1 truncate font-medium text-gray-900">
                 {student.name}
               </span>
               {answer.correct ? (

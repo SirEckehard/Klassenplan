@@ -55,9 +55,7 @@ export default function ToggleSwitch({
       onClick={() => !disabled && onChange(!checked)}
       onKeyDown={handleKeyDown}
       className={`relative inline-flex ${trackSizeClass} shrink-0 cursor-pointer items-center rounded-full transition-colors outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:ring-offset-2 focus-visible:ring-offset-transparent disabled:cursor-not-allowed disabled:opacity-50 ${
-        checked
-          ? 'bg-(--button-primary-bg) dark:bg-(--button-primary-bg)'
-          : 'bg-(--border-card)'
+        checked ? 'bg-(--button-primary-bg)' : 'bg-(--border-card)'
       } ${className}`}
     >
       <span

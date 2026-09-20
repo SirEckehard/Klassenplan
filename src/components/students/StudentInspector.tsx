@@ -141,7 +141,7 @@ export default function StudentInspector({
           <GenderSelector
             student={student}
             updateStudent={updateStudent}
-            variant="hybrid"
+            variant="row"
             showDropdown={rowState.showGenderDropdown}
             setShowDropdown={rowState.setShowGenderDropdown}
             dropdownRef={rowState.genderDropdownRef}
@@ -150,7 +150,7 @@ export default function StudentInspector({
           <HeightSelector
             student={student}
             updateStudent={updateStudent}
-            variant="hybrid"
+            variant="row"
             showDropdown={rowState.showHeightDropdown}
             setShowDropdown={rowState.setShowHeightDropdown}
             dropdownRef={rowState.heightDropdownRef}
@@ -164,7 +164,7 @@ export default function StudentInspector({
           <SpecialNeedsToggles
             student={student}
             updateStudent={updateStudent}
-            variant="hybrid"
+            variant="row"
             keys={['performanceStrong', 'performanceWeak']}
           />
         </InspectorSection>
@@ -176,7 +176,7 @@ export default function StudentInspector({
           <LanguageSkillSelector
             student={student}
             updateStudent={updateStudent}
-            variant="hybrid"
+            variant="row"
             showDropdown={rowState.showLanguageDropdown}
             setShowDropdown={rowState.setShowLanguageDropdown}
             dropdownRef={rowState.languageDropdownRef}
@@ -190,7 +190,7 @@ export default function StudentInspector({
           <SpecialNeedsToggles
             student={student}
             updateStudent={updateStudent}
-            variant="hybrid"
+            variant="row"
             keys={['restless', 'concentrationIssues']}
           />
         </InspectorSection>
@@ -199,13 +199,13 @@ export default function StudentInspector({
           <SpecialNeedsToggles
             student={student}
             updateStudent={updateStudent}
-            variant="hybrid"
+            variant="row"
             keys={['shy']}
           />
           <SocialRoleSelector
             student={student}
             updateStudent={updateStudent}
-            variant="hybrid"
+            variant="row"
             showDropdown={rowState.showSocialRoleDropdown}
             setShowDropdown={rowState.setShowSocialRoleDropdown}
             dropdownRef={rowState.socialRoleDropdownRef}
@@ -214,7 +214,7 @@ export default function StudentInspector({
             student={student}
             allStudents={allStudents}
             updateStudent={updateStudent}
-            variant="hybrid"
+            variant="row"
             showDropdown={rowState.showPartnerDropdown}
             setShowDropdown={rowState.setShowPartnerDropdown}
             dropdownRef={rowState.dropdownRef}
@@ -223,7 +223,7 @@ export default function StudentInspector({
             student={student}
             allStudents={allStudents}
             updateStudent={updateStudent}
-            variant="hybrid"
+            variant="row"
             showDropdown={rowState.showAvoidDropdown}
             setShowDropdown={rowState.setShowAvoidDropdown}
             dropdownRef={rowState.avoidDropdownRef}
@@ -234,13 +234,13 @@ export default function StudentInspector({
           <SpecialNeedsToggles
             student={student}
             updateStudent={updateStudent}
-            variant="hybrid"
+            variant="row"
             keys={['needsFrontSeat']}
           />
           <StudentPreferenceToggles
             student={student}
             updateStudent={updateStudent}
-            variant="hybrid"
+            variant="row"
           />
         </InspectorSection>
       </InspectorBody>

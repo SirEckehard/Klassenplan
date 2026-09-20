@@ -59,7 +59,7 @@ export default function QuizQuestion({
             alt={t('nameGame.quiz.photoAlt', 'Schülerfoto')}
           />
         </div>
-        <p className="text-xl font-semibold text-gray-900 dark:text-white">
+        <p className="text-xl font-semibold text-gray-900">
           {t('nameGame.quiz.photoToName', 'Wie heißt dieser Schüler?')}
         </p>
         <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
@@ -72,7 +72,7 @@ export default function QuizQuestion({
                 type="button"
                 disabled={picked !== null}
                 onClick={() => onPick(optionId)}
-                className={`cursor-pointer rounded-xl border-2 px-4 py-3 text-lg font-semibold text-gray-900 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) motion-reduce:transition-none disabled:cursor-not-allowed dark:text-white ${optionStateClass(optionId, picked, question.targetId)}`}
+                className={`cursor-pointer rounded-xl border-2 px-4 py-3 text-lg font-semibold text-gray-900 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) motion-reduce:transition-none disabled:cursor-not-allowed ${optionStateClass(optionId, picked, question.targetId)}`}
               >
                 {option.name}
               </button>
@@ -85,7 +85,7 @@ export default function QuizQuestion({
 
   return (
     <div className="flex w-full max-w-lg flex-col items-center gap-6">
-      <p className="text-center text-xl font-semibold text-gray-900 dark:text-white">
+      <p className="text-center text-xl font-semibold text-gray-900">
         {t('nameGame.quiz.nameToPhoto', {
           name: target.name,
           defaultValue: 'Welches Foto gehört zu {{name}}?',

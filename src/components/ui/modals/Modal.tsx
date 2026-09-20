@@ -60,7 +60,7 @@ export default function Modal({
 
   const modalContent = (
     <div
-      className="fixed inset-0 z-60 overflow-y-auto bg-(--surface-card) px-4 py-6 backdrop-blur-md"
+      className="fixed inset-0 z-60 overflow-y-auto bg-(--scrim) px-4 py-6 backdrop-blur-sm"
       onClick={onClose}
     >
       <div className="flex min-h-full w-full items-center justify-center py-6">
@@ -77,15 +77,15 @@ export default function Modal({
             e.stopPropagation();
           }}
         >
-          <div className="rounded-3xl shadow-2xl">
-            <div className="flex max-h-[calc(100vh-3rem)] flex-col overflow-hidden rounded-3xl border-2 border-(--border-option-selected) bg-linear-to-br from-blue-50 via-white to-indigo-50">
+          <div className="rounded-xl shadow-2xl">
+            <div className="flex max-h-[calc(100vh-3rem)] flex-col overflow-hidden rounded-xl border border-(--border-card) bg-(--surface-card)">
               <div className="flex-1 overflow-y-auto p-6 sm:p-8">
                 <div className="flex flex-col gap-6">
                   {hasHeaderContent && (
                     <div className="flex items-start justify-between gap-4 sm:gap-6">
                       <div className="flex flex-1 items-start gap-4">
                         {icon ? (
-                          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-(--button-primary-bg) text-white shadow-md dark:bg-(--button-primary-bg)">
+                          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-(--button-primary-bg) text-(--button-primary-text)">
                             {icon}
                           </div>
                         ) : null}
@@ -112,7 +112,7 @@ export default function Modal({
                         <button
                           type="button"
                           onClick={onClose}
-                          className="cursor-pointer rounded-full p-2 text-(--text-muted) transition hover:bg-(--surface-card) hover:text-(--text-muted) focus:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) dark:text-(--text-muted)"
+                          className="cursor-pointer rounded-lg p-2 text-(--text-muted) transition hover:bg-(--surface-sunken) hover:text-(--text-page) focus:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)"
                           aria-label={t(
                             'common.closeDialog',
                             'Dialog schließen',

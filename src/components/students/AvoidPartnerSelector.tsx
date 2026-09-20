@@ -13,6 +13,7 @@ import {
 import { avoidPartnerButtonTokens } from './studentStyleTokens';
 import FloatingDropdown from './FloatingDropdown';
 import IconWithLabel from './IconWithLabel';
+import { InspectorRow } from '@/components/shell/InspectorPanel';
 
 type Props = {
   student: Student;
@@ -21,7 +22,7 @@ type Props = {
   showDropdown: boolean;
   setShowDropdown: (value: boolean) => void;
   dropdownRef: React.RefObject<HTMLDivElement | null>;
-  variant?: 'compact' | 'detailed' | 'hybrid';
+  variant?: 'compact' | 'detailed' | 'hybrid' | 'row';
   scrollContainerRef?: React.RefObject<HTMLDivElement | null>;
 };
 
@@ -241,7 +242,7 @@ export default function AvoidPartnerSelector({
   }
 
   // Compact and detailed variants
-  return (
+  const control = (
     <div className="relative" ref={dropdownRef}>
       <button
         type="button"
@@ -291,4 +292,16 @@ export default function AvoidPartnerSelector({
       )}
     </div>
   );
+
+  // In the inspector the control is one row of a list, under the name of the
+  // relation it sets rather than under an icon that has to be decoded.
+  if (variant === 'row') {
+    return (
+      <InspectorRow label={t('partners.distancePartner')}>
+        {control}
+      </InspectorRow>
+    );
+  }
+
+  return control;
 }

@@ -64,7 +64,7 @@ export default function MemoryCard({
         card.face === 'photo' ? (
           <PhotoCard student={student} photoUrl={photoUrl} alt="" />
         ) : (
-          <span className="flex h-full w-full items-center justify-center px-1 text-center text-sm font-semibold leading-tight text-gray-900 sm:text-base dark:text-white">
+          <span className="flex h-full w-full items-center justify-center px-1 text-center text-sm font-semibold leading-tight text-gray-900 sm:text-base">
             {student.name}
           </span>
         )
