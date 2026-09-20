@@ -5,6 +5,7 @@ import type { SeatingArrangement, Student } from '@/types';
 
 export interface PickedStudent {
   student: Student;
+  /** -1 when the draw came from the class list rather than from a plan. */
   tableIndex: number;
   seatIndex: number;
 }
@@ -18,8 +19,15 @@ export interface RandomStudentPicker {
   total: number;
   /** Draw the next student. Starts a new round once everyone has had a turn. */
   pick: () => void;
+  /**
+   * Draw someone else and put the current pick back into the round — the
+   * answer to "der ist heute nicht da", which must not cost them their turn.
+   */
+  skip: () => void;
   /** Clear the current pick and start over. */
   reset: () => void;
+  /** Who has had a turn this round, the most recent first. */
+  recent: Student[];
 }
 
 type SeatEntry = PickedStudent;
@@ -33,6 +41,11 @@ type SeatEntry = PickedStudent;
  */
 export function useRandomStudentPicker(
   seating: SeatingArrangement,
+  /**
+   * Drawn from when no plan is seated yet — the class list is enough to call
+   * on somebody, and on a phone there may be no plan at all.
+   */
+  fallbackStudents: Student[] = [],
 ): RandomStudentPicker {
   const seatedStudents = React.useMemo<SeatEntry[]>(() => {
     const entries: SeatEntry[] = [];
@@ -43,13 +56,25 @@ export function useRandomStudentPicker(
         }
       });
     });
-    return entries;
-  }, [seating]);
+    if (entries.length > 0) {
+      return entries;
+    }
+    return fallbackStudents
+      .filter((student) => student.name.trim().length > 0)
+      .map((student) => ({ student, tableIndex: -1, seatIndex: -1 }));
+  }, [seating, fallbackStudents]);
 
-  const [picked, setPicked] = React.useState<PickedStudent | null>(null);
-  const [drawnIds, setDrawnIds] = React.useState<ReadonlySet<string>>(
-    () => new Set(),
-  );
+  /**
+   * One state, because the three parts of a round have to agree: who was
+   * drawn, in what order, and who is up now. `Math.random()` runs inside the
+   * updater, so a double-invoked updater (StrictMode) still leaves all three
+   * describing the same draw.
+   */
+  const [round, setRound] = React.useState<{
+    picked: PickedStudent | null;
+    drawn: ReadonlySet<string>;
+    history: Student[];
+  }>(() => ({ picked: null, drawn: new Set(), history: [] }));
 
   // A changed plan invalidates the round — ids may not exist any more.
   const seatingKey = seatedStudents.map((entry) => entry.student.id).join('|');
@@ -57,41 +82,74 @@ export function useRandomStudentPicker(
   React.useEffect(() => {
     if (lastKeyRef.current !== seatingKey) {
       lastKeyRef.current = seatingKey;
-      setPicked(null);
-      setDrawnIds(new Set());
+      setRound({ picked: null, drawn: new Set(), history: [] });
     }
   }, [seatingKey]);
 
-  const pick = React.useCallback(() => {
-    if (seatedStudents.length === 0) {
-      return;
-    }
+  /** `skippedId` goes back into the pool instead of counting as a turn. */
+  const draw = React.useCallback(
+    (skippedId?: string) => {
+      if (seatedStudents.length === 0) {
+        return;
+      }
 
-    setDrawnIds((previous) => {
-      const pool = seatedStudents.filter(
-        (entry) => !previous.has(entry.student.id),
-      );
-      // Round complete → start the next one with the full class.
-      const candidates = pool.length > 0 ? pool : seatedStudents;
-      const nextDrawn = pool.length > 0 ? new Set(previous) : new Set<string>();
+      setRound((previous) => {
+        const drawn = new Set(previous.drawn);
+        if (skippedId) {
+          drawn.delete(skippedId);
+        }
+        const pool = seatedStudents.filter(
+          (entry) =>
+            !drawn.has(entry.student.id) && entry.student.id !== skippedId,
+        );
+        // Round complete → start the next one with the full class.
+        const exhausted = pool.length === 0;
+        const candidates = exhausted
+          ? seatedStudents.filter((entry) => entry.student.id !== skippedId)
+          : pool;
+        if (candidates.length === 0) {
+          return previous;
+        }
 
-      const choice = candidates[Math.floor(Math.random() * candidates.length)];
-      nextDrawn.add(choice.student.id);
-      setPicked(choice);
-      return nextDrawn;
-    });
-  }, [seatedStudents]);
+        const choice =
+          candidates[Math.floor(Math.random() * candidates.length)];
+        const nextDrawn = exhausted ? new Set<string>() : drawn;
+        nextDrawn.add(choice.student.id);
+        const rest = exhausted
+          ? []
+          : previous.history.filter(
+              (student) =>
+                student.id !== choice.student.id && student.id !== skippedId,
+            );
+
+        return {
+          picked: choice,
+          drawn: nextDrawn,
+          history: [choice.student, ...rest],
+        };
+      });
+    },
+    [seatedStudents],
+  );
+
+  const pick = React.useCallback(() => draw(), [draw]);
+
+  const skip = React.useCallback(() => {
+    draw(round.picked?.student.id);
+  }, [draw, round.picked]);
 
   const reset = React.useCallback(() => {
-    setPicked(null);
-    setDrawnIds(new Set());
+    setRound({ picked: null, drawn: new Set(), history: [] });
   }, []);
 
   return {
-    picked,
-    remaining: Math.max(seatedStudents.length - drawnIds.size, 0),
+    picked: round.picked,
+    remaining: Math.max(seatedStudents.length - round.drawn.size, 0),
     total: seatedStudents.length,
     pick,
+    skip,
     reset,
+    // The current pick leads the list the view shows.
+    recent: round.history,
   };
 }

@@ -1075,5 +1075,64 @@
     "show": "Im Plan zeigen",
     "tools": "Werkzeuge",
     "manage": "Verwalten"
+  },
+  "tools": {
+    "toClass": "Zur Klassenliste",
+    "toPlan": "Zum Sitzplan",
+    "seat": {
+      "table": "Tisch {{number}}",
+      "depth": {
+        "front": "vorne",
+        "middle": "in der Mitte",
+        "back": "hinten"
+      },
+      "landmark": {
+        "window": "am Fenster",
+        "door": "an der Tür"
+      },
+      "nextTo": "neben {{name}}"
+    },
+    "whoIsNext": {
+      "title": "Wer kommt dran?",
+      "start": "Ziehen",
+      "next": "Nächste Person",
+      "skip": "Überspringen",
+      "reset": "Von vorn",
+      "already": "Schon dran gewesen",
+      "idle": "Tippe auf „Ziehen“ — {{waiting}} Schüler warten.",
+      "remaining": "Noch {{remaining}} von {{total}} in dieser Runde",
+      "emptyTitle": "Niemand zum Aufrufen",
+      "emptyBody": "Lege zuerst eine Klasse mit Namen an; danach zieht diese Ansicht daraus.",
+      "help1": "Jeder kommt einmal dran, bevor sich jemand wiederholt. Ist die Runde durch, beginnt die nächste.",
+      "help2": "„Überspringen“ zieht jemand anderen und lässt die übersprungene Person in der Runde.",
+      "help3": "Tastatur: Leertaste zieht, Esc beginnt von vorn."
+    },
+    "seatFinder": {
+      "title": "Wo sitzt wer?",
+      "placeholder": "Namen eintippen",
+      "clear": "Suche leeren",
+      "noMatch": "Niemand in diesem Plan heißt „{{query}}“.",
+      "emptyTitle": "Noch kein Sitzplan",
+      "emptyBody": "Diese Ansicht liest den aktuellen Sitzplan. Misch ihn einmal, dann steht hier, wer wo sitzt.",
+      "help1": "Tippe einen Namen; bleibt nur noch einer übrig, öffnet er sich von selbst.",
+      "help2": "Der Plan darunter hebt den Platz hervor, damit sich der Satz im Raum prüfen lässt."
+    },
+    "groups": {
+      "title": "Gruppen bilden",
+      "size": "Gruppengröße",
+      "sizeOption": "Gruppen zu {{size}}",
+      "draw": "Gruppen ziehen",
+      "again": "Neu würfeln",
+      "groupName": "Gruppe {{number}}",
+      "memberCount_one": "{{count}} Person",
+      "memberCount_other": "{{count}} Personen",
+      "hint": "Aus {{total}} Schülern — tippe unten auf „Gruppen ziehen“.",
+      "conflict": "Nicht getrennt zu bekommen: {{names}}. Dafür reichen die Gruppen nicht.",
+      "emptyTitle": "Keine Klasse zum Aufteilen",
+      "emptyBody": "Lege zuerst eine Klasse mit Namen an; danach zieht diese Ansicht daraus Gruppen.",
+      "help1": "Die Gruppen werden jedes Mal neu gezogen und nirgends gespeichert.",
+      "help2": "Wer einen Distanzwunsch hat, landet nach Möglichkeit nicht in derselben Gruppe.",
+      "help3": "Der Sitzplan bleibt unberührt — eine Gruppe gilt für eine Stunde, ein Platz für das Halbjahr."
+    }
   }
 }

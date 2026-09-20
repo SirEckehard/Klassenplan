@@ -52,6 +52,39 @@
     "noindex": true
   },
   {
+    "path": "/wer-kommt-dran",
+    "title": "Wer kommt dran? – Schüler zufällig aufrufen | Klassenplan",
+    "description": "Ruf deine Schüler zufällig auf, ohne dass jemand zweimal drankommt, bevor alle einmal dran waren – mit Sitzplatz und Merkmalen.",
+    "titleEn": "Who's Next? – Call on Students at Random | Klassenplan",
+    "descriptionEn": "Call on your students at random, with nobody repeating until everyone has had a turn – seat and markers included.",
+    "changefreq": "monthly",
+    "priority": 0.5,
+    "ogType": "article",
+    "noindex": true
+  },
+  {
+    "path": "/wo-sitzt-wer",
+    "title": "Wo sitzt wer? – Sitzplatz nachschlagen | Klassenplan",
+    "description": "Schlage in der Vertretungsstunde nach, wo ein Schüler sitzt: Name eintippen, Tisch, Lage im Raum und Sitznachbar ablesen.",
+    "titleEn": "Where Does Who Sit? – Look Up a Seat | Klassenplan",
+    "descriptionEn": "Covering a lesson? Look up where a student sits: type the name and read off the table, the place in the room and the seat neighbour.",
+    "changefreq": "monthly",
+    "priority": 0.5,
+    "ogType": "article",
+    "noindex": true
+  },
+  {
+    "path": "/gruppen",
+    "title": "Gruppen bilden – Klasse zufällig aufteilen | Klassenplan",
+    "description": "Teile deine Klasse in Gruppen auf: Gruppengröße wählen, neu würfeln, Distanzwünsche bleiben nach Möglichkeit gewahrt.",
+    "titleEn": "Build Groups – Split Your Class at Random | Klassenplan",
+    "descriptionEn": "Split your class into groups: pick the group size, roll again, and students who asked to stay apart are kept apart where possible.",
+    "changefreq": "monthly",
+    "priority": 0.5,
+    "ogType": "article",
+    "noindex": true
+  },
+  {
     "path": "/impressum",
     "title": "Impressum | Klassenplan",
     "description": "Kontaktdaten, Verantwortliche und rechtliche Angaben zum Projekt Klassenplan.",

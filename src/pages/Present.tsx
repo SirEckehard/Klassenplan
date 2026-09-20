@@ -394,6 +394,7 @@ export default function Present() {
           nameDisplay={currentNameDisplay}
           onCycleNameDisplay={cycleNameDisplay}
           onPick={!isCircle && picker.total > 0 ? picker.pick : undefined}
+          onOpenGroups={() => navigate('/gruppen')}
           zoom={zoom}
           minZoom={PRESENT_MIN_ZOOM}
           maxZoom={PRESENT_MAX_ZOOM}

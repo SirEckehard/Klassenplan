@@ -1075,5 +1075,64 @@
     "show": "Show in the plan",
     "tools": "Tools",
     "manage": "Manage"
+  },
+  "tools": {
+    "toClass": "To the class list",
+    "toPlan": "To the seating plan",
+    "seat": {
+      "table": "Table {{number}}",
+      "depth": {
+        "front": "at the front",
+        "middle": "in the middle",
+        "back": "at the back"
+      },
+      "landmark": {
+        "window": "by the window",
+        "door": "by the door"
+      },
+      "nextTo": "next to {{name}}"
+    },
+    "whoIsNext": {
+      "title": "Who's next?",
+      "start": "Draw",
+      "next": "Next person",
+      "skip": "Skip",
+      "reset": "Start over",
+      "already": "Already had a turn",
+      "idle": "Press \"Draw\" — {{waiting}} students are waiting.",
+      "remaining": "{{remaining}} of {{total}} left in this round",
+      "emptyTitle": "Nobody to call on",
+      "emptyBody": "Create a class with names first; this view then draws from it.",
+      "help1": "Everyone has a turn before anyone repeats. When the round is over, the next one starts.",
+      "help2": "\"Skip\" draws someone else and leaves the skipped student in the round.",
+      "help3": "Keyboard: Space draws, Esc starts over."
+    },
+    "seatFinder": {
+      "title": "Where does who sit?",
+      "placeholder": "Type a name",
+      "clear": "Clear the search",
+      "noMatch": "Nobody in this plan is called \"{{query}}\".",
+      "emptyTitle": "No seating plan yet",
+      "emptyBody": "This view reads the current seating plan. Shuffle one, and it will say who sits where.",
+      "help1": "Type a name; once one match is left, it opens by itself.",
+      "help2": "The plan below lights up the seat, so the sentence can be checked against the room."
+    },
+    "groups": {
+      "title": "Build groups",
+      "size": "Group size",
+      "sizeOption": "Groups of {{size}}",
+      "draw": "Draw groups",
+      "again": "Roll again",
+      "groupName": "Group {{number}}",
+      "memberCount_one": "{{count}} person",
+      "memberCount_other": "{{count}} people",
+      "hint": "From {{total}} students — press \"Draw groups\" below.",
+      "conflict": "Could not be kept apart: {{names}}. There are not enough groups for that.",
+      "emptyTitle": "No class to split",
+      "emptyBody": "Create a class with names first; this view then draws groups from it.",
+      "help1": "The groups are drawn afresh every time and are not stored anywhere.",
+      "help2": "Students with a distance wish stay out of the same group where the sizes allow it.",
+      "help3": "The seating plan is untouched — a group is for one lesson, a seat for the term."
+    }
   }
 }

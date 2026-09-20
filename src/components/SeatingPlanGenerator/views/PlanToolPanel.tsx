@@ -8,9 +8,12 @@ import {
   ClockCounterClockwiseIcon,
   FloppyDiskIcon,
   GridNineIcon,
+  HandPointingIcon,
   ImageIcon,
+  MagnifyingGlassIcon,
   SlidersHorizontalIcon,
   TextAaIcon,
+  UsersThreeIcon,
   ArmchairIcon,
 } from '@phosphor-icons/react';
 import {
@@ -27,6 +30,7 @@ import StorageHistoryModal, {
   type StorageHistoryTab,
 } from '@/components/ui/navigation/StorageHistoryModal';
 import { cardSurfaceClass } from '@/utils';
+import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 
 type Props = {
@@ -71,6 +75,7 @@ export default function PlanToolPanel({
   extraTools,
 }: Props) {
   const { t } = useTranslation('generator');
+  const navigate = useLocalizedNavigate();
   const [historyTab, setHistoryTab] = React.useState<StorageHistoryTab | null>(
     null,
   );
@@ -122,6 +127,23 @@ export default function PlanToolPanel({
 
         <ToolRailGroup title={t('planToolbar.tools')}>
           {extraTools}
+          {/* The three classroom tools: each one a screen of its own, because
+              each is used standing up rather than at the desk. */}
+          <ToolRailButton
+            icon={<HandPointingIcon size={18} />}
+            label={t('tools.whoIsNext.title')}
+            onClick={() => navigate('/wer-kommt-dran')}
+          />
+          <ToolRailButton
+            icon={<MagnifyingGlassIcon size={18} />}
+            label={t('tools.seatFinder.title')}
+            onClick={() => navigate('/wo-sitzt-wer')}
+          />
+          <ToolRailButton
+            icon={<UsersThreeIcon size={18} />}
+            label={t('tools.groups.title')}
+            onClick={() => navigate('/gruppen')}
+          />
           <ToolRailButton
             icon={<ChartBarIcon size={18} />}
             label={t('storage.neighbors.tab')}

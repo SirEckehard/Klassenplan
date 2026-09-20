@@ -20,13 +20,16 @@ import {
   Export,
   FAQ,
   Feedback,
+  Groups,
   Impressum,
   NameGame,
   NotFound,
   Present,
+  SeatFinder,
   SeatingPlanGenerator,
   StartPage,
   Support,
+  WhoIsNext,
 } from '@/pages/lazyPages';
 
 /**
@@ -64,6 +67,9 @@ function AppRoutes() {
       <Route path="export" element={<Export />} />
       <Route path="present" element={<Present />} />
       <Route path="namensspiel" element={<NameGame />} />
+      <Route path="wer-kommt-dran" element={<WhoIsNext />} />
+      <Route path="wo-sitzt-wer" element={<SeatFinder />} />
+      <Route path="gruppen" element={<Groups />} />
       <Route path="impressum" element={<Impressum />} />
       <Route path="datenschutz" element={<Datenschutz />} />
       <Route path="feedback" element={<Feedback />} />
@@ -90,6 +96,13 @@ export default function App() {
     '/en/namensspiel',
     '/generator',
     '/en/generator',
+    // The classroom tools are full-height screens of their own.
+    '/wer-kommt-dran',
+    '/en/wer-kommt-dran',
+    '/wo-sitzt-wer',
+    '/en/wo-sitzt-wer',
+    '/gruppen',
+    '/en/gruppen',
   ].includes(location.pathname);
 
   // Route preloading for better perceived performance

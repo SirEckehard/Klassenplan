@@ -147,6 +147,14 @@ export {
 } from './mixRecipes';
 export type { MixRecipe, MixRecipeId } from './mixRecipes';
 
+// ===== Where a student sits, in words =====
+export { findSeatLocation } from './seatLocation';
+export type { SeatDepth, SeatLandmark, SeatLocation } from './seatLocation';
+
+// ===== Drawing groups out of a class =====
+export { buildGroups, planGroupSizes } from './groupDraw';
+export type { GroupDrawOptions, GroupDrawResult } from './groupDraw';
+
 // ===== Seating Utilities =====
 export { countStudents, tableCount, seatsPerTable } from './plan';
 export { addSeatingForTables } from './seating/seatingOperations';
