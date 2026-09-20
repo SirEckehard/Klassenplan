@@ -6,12 +6,15 @@ import type { TFunction } from 'i18next';
 import type { MixSettings, ScalarMixSettingKey, Student } from '@/types';
 import {
   DEFAULT_MIX_WEIGHTS,
+  criterionImportance,
   criterionWeight,
   hasActiveWeights,
+  weightForImportance,
   withCriterionWeight,
   withDefaultWeights,
   withWeightsFrom,
   withoutWeights,
+  type MixImportance,
 } from '@/utils';
 import { isCriterionAvailable } from '@/utils/criteriaValidation';
 import { showToast } from '@/utils/ui/toast';
@@ -288,6 +291,27 @@ export function useMixCriteria({
     [setMixSettings, students],
   );
 
+  /** The level a criterion's control shows; see {@link criterionImportance}. */
+  const importanceOf = React.useCallback(
+    (key: ScalarMixSettingKey) => criterionImportance(settings, key),
+    [settings],
+  );
+
+  /**
+   * The weight behind a named level. A weight the fine tuning set inside the
+   * same band is kept, so pressing the level a criterion already has changes
+   * nothing about the plan it produces.
+   */
+  const setImportance = React.useCallback(
+    (key: ScalarMixSettingKey, level: MixImportance) => {
+      setWeight(
+        key,
+        weightForImportance(level, criterionWeight(settings, key)),
+      );
+    },
+    [setWeight, settings],
+  );
+
   /** Off, or on at the recommended weight. */
   const toggle = React.useCallback(
     (key: ScalarMixSettingKey) => {
@@ -324,6 +348,8 @@ export function useMixCriteria({
     isRandom,
     weightOf,
     setWeight,
+    importanceOf,
+    setImportance,
     toggle,
     disableAll,
     enableAll,

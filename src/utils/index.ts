@@ -131,6 +131,14 @@ export {
   withoutUnavailableWeights,
   withoutWeights,
 } from './mixSettings';
+export {
+  MIX_IMPORTANCE_LEVELS,
+  MIX_IMPORTANCE_WEIGHTS,
+  criterionImportance,
+  importanceOfWeight,
+  weightForImportance,
+} from './mixImportance';
+export type { MixImportance } from './mixImportance';
 
 // ===== Seating Utilities =====
 export { countStudents, tableCount, seatsPerTable } from './plan';

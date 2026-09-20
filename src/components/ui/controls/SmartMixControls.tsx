@@ -14,6 +14,7 @@ import {
 import type { MixSettings, ScalarMixSettingKey, Student } from '@/types';
 import {
   LOCAL_STORAGE_KEYS,
+  MIX_IMPORTANCE_LEVELS,
   SCALAR_MIX_SETTING_KEYS,
   dataFamilyClass,
   getSidebarIconClasses,
@@ -21,6 +22,7 @@ import {
   getStatisticStatusMeta,
   quietIconButtonClass,
   secondaryButtonClass,
+  type MixImportance,
 } from '@/utils';
 import {
   calculateCriteriaWeightedScore,
@@ -99,6 +101,60 @@ const compactFrameClass = {
   column: 'flex flex-col items-center gap-1 px-1',
   row: 'flex flex-wrap items-center justify-center gap-2 px-1',
 };
+
+/**
+ * How important a criterion is, in the four words a teacher can decide
+ * between. The weight behind them is still there — the fine tuning switch
+ * shows it — but nobody has to think in tenths to set a plan up.
+ */
+function ImportanceChoice({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: MixImportance;
+  onChange: (level: MixImportance) => void;
+}) {
+  const { t } = useTranslation('generator');
+
+  return (
+    <div
+      role="group"
+      aria-label={t('mix.importance.groupLabel', { label })}
+      className="flex gap-1"
+    >
+      {MIX_IMPORTANCE_LEVELS.map((level) => {
+        const isActive = value === level;
+        const levelLabel = t(`mix.importance.${level}`);
+        return (
+          <button
+            key={level}
+            type="button"
+            // Inside a card whose own press would switch the criterion.
+            onClick={(event) => {
+              event.stopPropagation();
+              onChange(level);
+            }}
+            aria-pressed={isActive}
+            aria-label={t('mix.importance.optionLabel', {
+              label,
+              level: levelLabel,
+            })}
+            title={t(`mix.importance.${level}Hint`)}
+            className={`flex-1 cursor-pointer rounded-md border px-1 py-1 text-[11px] leading-tight transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) ${
+              isActive
+                ? 'border-(--border-option-selected) bg-(--surface-option-selected) font-medium text-(--text-badge)'
+                : 'border-(--border-card) bg-(--surface-card) text-(--text-muted) hover:border-(--border-option-hover)'
+            }`}
+          >
+            {levelLabel}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
 
 function WeightBadge({ value }: { value: number }) {
   return (
@@ -284,18 +340,26 @@ function FulfillmentDot({ percentage }: { percentage: number }) {
 }
 
 /**
- * Name, weight, explanation and slider of one criterion: the body of its card,
- * and of its flyout in the compact density.
+ * Name, explanation and importance of one criterion: the body of its card, and
+ * of its flyout in the compact density. The weight from 0 to 10 comes along
+ * only where the fine tuning asks for it.
  */
 function CriterionWeight({
   criterion,
   value,
+  importance,
+  onImportanceChange,
   onChange,
+  fineTuning,
   reserveTrailingSpace = false,
 }: {
   criterion: MixCriterion;
   value: number;
+  importance: MixImportance;
+  onImportanceChange: (level: MixImportance) => void;
   onChange: (value: number) => void;
+  /** Shows the weight the level stands for, and lets it be set exactly. */
+  fineTuning: boolean;
   /** Keeps the label clear of the fulfilment badge laid over the card's corner. */
   reserveTrailingSpace?: boolean;
 }) {
@@ -318,18 +382,24 @@ function CriterionWeight({
       >
         {criterion.description}
       </div>
-      {/* The weight reads next to the slider that sets it — the card's top
-          right corner belongs to the fulfilment badge. */}
-      <div className="flex items-center gap-2">
-        <WeightBadge value={value} />
-        <div className="flex-1 rounded-lg border border-(--border-card) bg-(--surface-card) px-3">
-          <WeightSlider
-            label={criterion.label}
-            value={value}
-            onChange={onChange}
-          />
+      <ImportanceChoice
+        label={criterion.label}
+        value={importance}
+        onChange={onImportanceChange}
+      />
+      {/* The number behind the words, for whoever wants to set it exactly. */}
+      {fineTuning && (
+        <div className="mt-2 flex items-center gap-2">
+          <WeightBadge value={value} />
+          <div className="flex-1 rounded-lg border border-(--border-card) bg-(--surface-card) px-3">
+            <WeightSlider
+              label={criterion.label}
+              value={value}
+              onChange={onChange}
+            />
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
@@ -340,18 +410,33 @@ type CriterionControlProps = {
   onPress: (button: HTMLButtonElement) => void;
 };
 
+/**
+ * One criterion in the inspector: what it is, what it does, how important it
+ * is — and, once the plan has been mixed, how far it got.
+ *
+ * The card is paper, not a button: the four levels inside it are the controls,
+ * and a criterion that is off wears a grey icon instead of its family's colour,
+ * so the list says at a glance what is acting on the plan.
+ */
 function CriterionCard({
   criterion,
   value,
-  onPress,
+  importance,
+  onImportanceChange,
   onWeightChange,
+  fineTuning,
   fulfillment,
   pinned,
   onHighlightHover,
   onHighlightLeave,
   onHighlightToggle,
-}: CriterionControlProps &
-  CriterionFulfillmentProps & { onWeightChange: (value: number) => void }) {
+}: Omit<CriterionControlProps, 'onPress'> &
+  CriterionFulfillmentProps & {
+    importance: MixImportance;
+    onImportanceChange: (level: MixImportance) => void;
+    onWeightChange: (value: number) => void;
+    fineTuning: boolean;
+  }) {
   const isActive = value > 0;
   const Icon = CRITERIA_ICON_MAP[criterion.key];
   const family = dataFamilyClass[CRITERIA_FAMILY_MAP[criterion.key]];
@@ -368,45 +453,41 @@ function CriterionCard({
       : undefined;
 
   return (
-    <div className="relative" {...preview}>
-      <button
-        type="button"
-        onClick={(event) => onPress(event.currentTarget)}
-        className={`group relative w-full cursor-pointer rounded-lg px-2.5 py-2 text-left transition ${
-          isActive
-            ? 'bg-(--surface-option-selected)'
-            : 'hover:bg-(--surface-sunken)'
-        } focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)`}
-        title={`${criterion.label}: ${value}/10`}
-      >
-        <div className="flex items-start gap-2.5">
-          {/* The family's colour, always with its icon beside the name — a
-              criterion is pedagogy, so it is not chrome-coloured. */}
-          <span
-            className={`${family} mt-0.5 inline-flex size-5.5 shrink-0 items-center justify-center rounded-md bg-(--data-chip-surface) text-(--data-chip-text)`}
-            aria-hidden="true"
-          >
-            <Icon size={13} />
-          </span>
-          <div className="flex-1 cursor-pointer">
-            <CriterionWeight
-              criterion={criterion}
-              value={value}
-              onChange={onWeightChange}
-              reserveTrailingSpace={Boolean(fulfillment)}
-            />
-          </div>
+    <div className="relative rounded-lg px-2.5 py-2" {...preview}>
+      <div className="flex items-start gap-2.5">
+        {/* The family's colour, always with its icon beside the name — a
+            criterion is pedagogy, so it is not chrome-coloured. */}
+        <span
+          className={`${
+            isActive
+              ? `${family} bg-(--data-chip-surface) text-(--data-chip-text)`
+              : 'bg-(--surface-sunken) text-(--text-muted)'
+          } mt-0.5 inline-flex size-5.5 shrink-0 items-center justify-center rounded-md`}
+          aria-hidden="true"
+        >
+          <Icon size={13} />
+        </span>
+        <div className="min-w-0 flex-1">
+          <CriterionWeight
+            criterion={criterion}
+            value={value}
+            importance={importance}
+            onImportanceChange={onImportanceChange}
+            onChange={onWeightChange}
+            fineTuning={fineTuning}
+            reserveTrailingSpace={Boolean(fulfillment)}
+          />
         </div>
-      </button>
-      {/* A sibling of the card, not a child: a button inside the card's button
-          would fold its text into the card's name and eat the press. */}
+      </div>
+      {/* Laid over the card's corner rather than placed in the flow: the name
+          reserves the space for it. */}
       {fulfillment && (
         <FulfillmentBadge
           criterion={fulfillment}
           label={criterion.label}
           pinned={pinned}
           onToggle={onHighlightToggle}
-          className="absolute top-3 right-3 z-10"
+          className="absolute top-2 right-2 z-10"
         />
       )}
     </div>
@@ -640,6 +721,12 @@ function SmartMixControls({
     LOCAL_STORAGE_KEYS.mixWeightHintSeen,
     false,
   );
+  // A way of looking at the panel, not a property of the plan — so it is
+  // remembered per browser, like the sidebar's density.
+  const [fineTuning, setFineTuning] = usePersistentState(
+    LOCAL_STORAGE_KEYS.mixFineTuning,
+    false,
+  );
   const weightHintId = React.useId();
   const defaultsHintId = React.useId();
 
@@ -742,6 +829,18 @@ function SmartMixControls({
               {t('mix.fulfillment.overall', { percentage: overallScore })}
             </p>
           )}
+          {/* The weights never went away; this is where they come back. */}
+          <div className="flex justify-end px-3 pb-1">
+            <button
+              type="button"
+              onClick={() => setFineTuning(!fineTuning)}
+              aria-pressed={fineTuning}
+              title={t('mix.fineTuningHint')}
+              className="cursor-pointer rounded-md px-2 py-1 text-xs font-medium text-(--text-muted) transition hover:text-(--text-page) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)"
+            >
+              {t('mix.fineTuning')}
+            </button>
+          </div>
         </div>
       )}
 
@@ -774,8 +873,6 @@ function SmartMixControls({
             const control = {
               criterion,
               value: mix.weightOf(criterion.key),
-              onPress: (button: HTMLButtonElement) =>
-                handleCriterionPress(criterion.key, button),
               fulfillment: fulfillmentByKey.get(criterion.key),
               pinned: pinnedKey === criterion.key,
               onHighlightHover,
@@ -786,6 +883,9 @@ function SmartMixControls({
               <CriterionRailButton
                 key={criterion.key}
                 {...control}
+                onPress={(button) =>
+                  handleCriterionPress(criterion.key, button)
+                }
                 describedBy={weightHintId}
                 onOpenFlyout={(button) => openFlyout(criterion.key, button)}
               />
@@ -793,7 +893,12 @@ function SmartMixControls({
               <CriterionCard
                 key={criterion.key}
                 {...control}
+                importance={mix.importanceOf(criterion.key)}
+                onImportanceChange={(level) =>
+                  mix.setImportance(criterion.key, level)
+                }
                 onWeightChange={(value) => mix.setWeight(criterion.key, value)}
+                fineTuning={fineTuning}
               />
             );
           })}
@@ -840,10 +945,17 @@ function SmartMixControls({
           autoFocus={flyout.autoFocus}
           onClose={closeFlyout}
         >
+          {/* The rail has no room for the levels, so its flyout carries them —
+              together with the weight, which is what it was opened for. */}
           <CriterionWeight
             criterion={flyoutCriterion}
             value={mix.weightOf(flyoutCriterion.key)}
+            importance={mix.importanceOf(flyoutCriterion.key)}
+            onImportanceChange={(level) =>
+              mix.setImportance(flyoutCriterion.key, level)
+            }
             onChange={(value) => mix.setWeight(flyoutCriterion.key, value)}
+            fineTuning
           />
           {/* On the rail the button itself only previews while the pointer
               rests on it; pinning the marking lives here, next to the value. */}

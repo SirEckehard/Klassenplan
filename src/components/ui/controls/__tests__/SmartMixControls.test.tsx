@@ -15,6 +15,7 @@ import type { CriterionFulfillment } from '@/utils/algorithm/seatingStatistics';
 import {
   DEFAULT_MIX_WEIGHTS,
   LOCAL_STORAGE_KEYS,
+  MIX_IMPORTANCE_WEIGHTS,
   SCALAR_MIX_SETTING_KEYS,
   neutralSettings,
   normalizeMixSettings,
@@ -116,10 +117,29 @@ function Harness({
 const weightOf = (key: ScalarMixSettingKey) =>
   Number(screen.getByTestId(key).textContent);
 
-// The card's name starts with the label; the round button's is the label,
-// followed by the weight when it is on.
+// The rail button's name is the label, followed by the weight when it is on;
+// the level chips of a card carry "label: level" and are matched separately.
 const restlessButton = () =>
-  screen.getByRole('button', { name: /^(Unruhe|Restlessness)\b/ });
+  screen.getByRole('button', { name: /^(Unruhe|Restlessness)(,|$)/ });
+
+/** One of the four named levels inside a criterion's card or flyout. */
+const levelChip = (label: RegExp, level: RegExp) =>
+  screen.getByRole('button', {
+    name: new RegExp(`^(${label.source}): (${level.source})$`),
+  });
+
+const restlessLevel = (level: RegExp) =>
+  levelChip(/Unruhe|Restlessness/, level);
+
+const OFF = /Aus|Off/;
+const IMPORTANT = /Wichtig|Important/;
+const ESSENTIAL = /Sehr wichtig|Very important/;
+
+/** Brings the weights from 0 to 10 back into view, as the teacher would. */
+const openFineTuning = () =>
+  fireEvent.click(
+    screen.getByRole('button', { name: /^(Feinjustierung|Fine tuning)$/ }),
+  );
 
 const allCriteriaButton = () =>
   screen.getByRole('button', { name: /^(Alle Kriterien|All criteria)$/ });
@@ -159,44 +179,68 @@ describe('SmartMixControls — comfortable density', () => {
     ).toBeInTheDocument();
   });
 
-  it('switches a criterion on at its recommended weight with a press on its card', () => {
+  it('sets a criterion to the weight behind the level that is pressed', () => {
     render(<Harness />);
 
-    fireEvent.click(restlessButton());
+    expect(restlessLevel(OFF)).toHaveAttribute('aria-pressed', 'true');
+
+    fireEvent.click(restlessLevel(IMPORTANT));
     expect(weightOf('avoidRestlessTogether')).toBe(
-      DEFAULT_MIX_WEIGHTS.avoidRestlessTogether,
+      MIX_IMPORTANCE_WEIGHTS.important,
+    );
+    expect(restlessLevel(IMPORTANT)).toHaveAttribute('aria-pressed', 'true');
+
+    fireEvent.click(restlessLevel(ESSENTIAL));
+    expect(weightOf('avoidRestlessTogether')).toBe(
+      MIX_IMPORTANCE_WEIGHTS.essential,
     );
 
-    fireEvent.click(restlessButton());
+    fireEvent.click(restlessLevel(OFF));
     expect(weightOf('avoidRestlessTogether')).toBe(0);
   });
 
-  it('sets the weight with the slider without also switching the card', () => {
+  it('keeps a fine-tuned weight when its own level is pressed again', () => {
+    render(<Harness initial={{ avoidRestlessTogether: 6 }} />);
+
+    // 6 reads as "important" — pressing that level must not reset it to 5.
+    expect(restlessLevel(IMPORTANT)).toHaveAttribute('aria-pressed', 'true');
+    fireEvent.click(restlessLevel(IMPORTANT));
+    expect(weightOf('avoidRestlessTogether')).toBe(6);
+  });
+
+  it('sets the weight with the slider once the fine tuning is open', () => {
     render(<Harness initial={{ avoidRestlessTogether: 5 }} />);
 
+    // The weights are out of the way until they are asked for.
+    expect(
+      screen.queryByRole('slider', { name: /Unruhe|Restlessness/ }),
+    ).not.toBeInTheDocument();
+
+    openFineTuning();
     const slider = sliderFor(/Unruhe|Restlessness/);
     fireEvent.click(slider);
     expect(weightOf('avoidRestlessTogether')).toBe(5);
 
     fireEvent.change(slider, { target: { value: '8' } });
     expect(weightOf('avoidRestlessTogether')).toBe(8);
+    expect(restlessLevel(ESSENTIAL)).toHaveAttribute('aria-pressed', 'true');
   });
 
   it('activating peerTutoring deactivates homogeneousPerformanceGroups', () => {
     render(<Harness initial={{ homogeneousPerformanceGroups: 5 }} />);
 
-    fireEvent.change(
-      sliderFor(/Fördern \(heterogen\)|Support \(heterogeneous\)/),
-      { target: { value: '8' } },
+    fireEvent.click(
+      levelChip(/Fördern \(heterogen\)|Support \(heterogeneous\)/, ESSENTIAL),
     );
 
-    expect(weightOf('peerTutoring')).toBe(8);
+    expect(weightOf('peerTutoring')).toBe(MIX_IMPORTANCE_WEIGHTS.essential);
     expect(weightOf('homogeneousPerformanceGroups')).toBe(0);
   });
 
   it('activating homogeneousPerformanceGroups deactivates peerTutoring', () => {
     render(<Harness initial={{ peerTutoring: 3 }} />);
 
+    openFineTuning();
     fireEvent.change(sliderFor(/Fördern \(homogen\)|Support \(homogeneous\)/), {
       target: { value: '6' },
     });
@@ -287,7 +331,8 @@ describe('SmartMixControls — compact density', () => {
     const dialog = screen.getByRole('dialog', { name: /Unruhe|Restlessness/ });
     const slider = sliderFor(/Unruhe|Restlessness/);
     expect(dialog).toContainElement(slider);
-    expect(slider).toHaveFocus();
+    // The flyout opens on what it is for: how important the criterion is.
+    expect(restlessLevel(OFF)).toHaveFocus();
     // The same explanation the card shows.
     expect(dialog).toHaveTextContent(
       /Schüler mit Unruheverhalten trennen|Separate students showing restless behavior/,
@@ -313,10 +358,10 @@ describe('SmartMixControls — compact density', () => {
     restlessButton().focus();
     fireEvent.keyDown(restlessButton(), { key: 'ArrowRight' });
 
-    const slider = screen.getByRole('slider');
-    expect(slider).toHaveFocus();
+    const firstControl = restlessLevel(OFF);
+    expect(firstControl).toHaveFocus();
 
-    fireEvent.keyDown(slider, { key: 'Tab' });
+    fireEvent.keyDown(firstControl, { key: 'Tab' });
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(restlessButton()).toHaveFocus();
   });
@@ -558,8 +603,8 @@ describe('SmartMixControls — criteria fulfilment', () => {
     expect(
       screen.getByText(/Erfüllung gesamt: 78\s?%|Overall fulfilment: 78%/),
     ).toBeInTheDocument();
-    // The card keeps its own press: switching the criterion off, not marking.
-    fireEvent.click(restlessButton());
+    // The value sits beside the levels that caused it, and changes nothing.
+    fireEvent.click(restlessLevel(OFF));
     expect(weightOf('avoidRestlessTogether')).toBe(0);
   });
 
@@ -575,17 +620,14 @@ describe('SmartMixControls — criteria fulfilment', () => {
       />,
     );
 
-    fireEvent.mouseOver(restlessButton());
+    const card = restlessLevel(OFF).closest('div.relative') as HTMLElement;
+    fireEvent.mouseOver(card);
     expect(onHighlightHover).toHaveBeenCalledWith(
       expect.objectContaining({ key: 'avoidRestlessTogether' }),
     );
 
-    fireEvent.mouseOut(restlessButton());
+    fireEvent.mouseOut(card);
     expect(onHighlightLeave).toHaveBeenCalled();
-
-    // A button inside the card's button would fold its text into the card's
-    // name and swallow the press meant for the badge.
-    expect(restlessButton()).not.toContainElement(pinButton());
 
     fireEvent.click(pinButton());
     expect(onHighlightToggle).toHaveBeenCalledWith(
@@ -674,6 +716,6 @@ describe('SmartMixControls — criteria fulfilment', () => {
     expect(
       screen.queryByText(/Erfüllung gesamt|Overall fulfilment/),
     ).not.toBeInTheDocument();
-    expect(restlessButton()).toBeInTheDocument();
+    expect(restlessLevel(IMPORTANT)).toHaveAttribute('aria-pressed', 'true');
   });
 });
