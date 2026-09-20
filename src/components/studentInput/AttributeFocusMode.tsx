@@ -148,7 +148,30 @@ export default function AttributeFocusMode({
           <PassIcon size={22} aria-hidden="true" />
         </span>
         <div className="flex min-w-0 flex-1 flex-col gap-1">
-          <h2 className="font-serif text-3xl leading-tight">
+          {/* How far through the questions this is, above the question
+              itself: on a phone the footer is a thumb's width away and only
+              carries the way on. */}
+          <span className="flex items-center gap-2 text-xs tabular-nums text-(--text-muted)">
+            {t('focusMode.progress', {
+              index: passIndex + 1,
+              total: PASSES.length,
+            })}
+            <span className="flex gap-1" aria-hidden="true">
+              {PASSES.map((entry, index) => (
+                <span
+                  key={entry.key}
+                  className={`h-1 w-4 rounded-full ${
+                    index === passIndex
+                      ? 'bg-(--button-primary-bg)'
+                      : index < passIndex
+                        ? 'bg-(--text-page)'
+                        : 'bg-(--border-card)'
+                  }`}
+                />
+              ))}
+            </span>
+          </span>
+          <h2 className="font-serif text-2xl leading-tight sm:text-3xl">
             {t(`focusMode.questions.${pass.key}`)}
           </h2>
           <p className="text-sm text-(--text-muted)">{t('focusMode.hint')}</p>
@@ -215,7 +238,9 @@ export default function AttributeFocusMode({
         </ul>
       )}
 
-      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-(--border-card) pt-4">
+      {/* Sticky on a phone: the pass is as long as the class, and the way on
+          must not be at the far end of a scroll. */}
+      <div className="sticky bottom-0 z-10 flex items-center justify-between gap-2 border-t border-(--border-card) bg-(--surface-page) py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:static sm:pb-3">
         <button
           type="button"
           onClick={() => setPassIndex((index) => index - 1)}
@@ -225,52 +250,34 @@ export default function AttributeFocusMode({
           aria-label={
             previous
               ? t('focusMode.previousPass', { label: label(previous.key) })
-              : undefined
+              : t('focusMode.firstPass')
           }
-          className={`${secondaryButtonClass} gap-2`}
+          className={`${secondaryButtonClass} h-11 shrink-0 gap-2`}
         >
           <ArrowLeftIcon size={14} aria-hidden="true" />
-          {previous ? label(previous.key) : t('focusMode.firstPass')}
+          {/* The label costs the width the next button needs on a phone. */}
+          <span className="hidden sm:inline">
+            {previous ? label(previous.key) : t('focusMode.firstPass')}
+          </span>
         </button>
-
-        <div className="flex items-center gap-3">
-          <span className="text-xs tabular-nums text-(--text-muted)">
-            {t('focusMode.progress', {
-              index: passIndex + 1,
-              total: PASSES.length,
-            })}
-          </span>
-          <span className="flex gap-1" aria-hidden="true">
-            {PASSES.map((entry, index) => (
-              <span
-                key={entry.key}
-                className={`h-1 w-5 rounded-full ${
-                  index === passIndex
-                    ? 'bg-(--button-primary-bg)'
-                    : index < passIndex
-                      ? 'bg-(--text-page)'
-                      : 'bg-(--border-card)'
-                }`}
-              />
-            ))}
-          </span>
-        </div>
 
         {next ? (
           <button
             type="button"
             onClick={() => setPassIndex((index) => index + 1)}
             aria-label={t('focusMode.nextPass', { label: label(next.key) })}
-            className={`${primaryButtonClass} gap-2`}
+            className={`${primaryButtonClass} h-11 flex-1 justify-center gap-2 sm:flex-none`}
           >
-            {label(next.key)}
+            <span className="truncate">
+              {t('focusMode.nextPass', { label: label(next.key) })}
+            </span>
             <ArrowRightIcon size={14} aria-hidden="true" />
           </button>
         ) : (
           <button
             type="button"
             onClick={onFinish}
-            className={`${primaryButtonClass} gap-2`}
+            className={`${primaryButtonClass} h-11 flex-1 justify-center gap-2 sm:flex-none`}
           >
             {t('focusMode.finish')}
             <CheckIcon size={14} aria-hidden="true" />
