@@ -18,11 +18,8 @@ import {
   createMockStudentInputProps,
   createMockCsvFile,
   getButton,
-  getDialog,
-  getField,
   getHeading,
 } from '../../__tests__/utils';
-import type { Student } from '@/types';
 import {
   ClassManagementContext,
   type ClassManagementContextValue,
@@ -146,100 +143,6 @@ describe('StudentInput', () => {
     // The way on to the classroom lives in the shell's status bar; the side
     // trips live at the bottom of the toolbar.
     expect(getButton(/Namensspiel|Name game/i)).toBeInTheDocument();
-  });
-
-  it('zeigt die Schnell-Namenerfassung bei fehlenden Namen an', () => {
-    const students = [
-      createMockStudent({ id: '1', name: '' }),
-      createMockStudent({ id: '2', name: 'Alex' }),
-    ];
-
-    const props = createMockStudentInputProps({ students });
-
-    renderWithClassContext(<StudentInput {...props} />);
-
-    expect(
-      getButton(/Schnell-Namenerfassung starten|Start quick name entry/i),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        /Hinweis: Alle weiteren Schülerdetails pflegst du direkt in der Schülerliste|Note: Add all further student details directly in the class list/i,
-      ),
-    ).toBeInTheDocument();
-  });
-
-  it('schließt die Schnell-Namenerfassung nach erfolgreicher Eingabe', async () => {
-    const initialStudents = [
-      createMockStudent({ id: '1', name: '' }),
-      createMockStudent({ id: '2', name: 'Bea' }),
-    ];
-
-    const baseProps = createMockStudentInputProps();
-
-    const Harness: React.FC = () => {
-      const [currentStudents, setCurrentStudents] =
-        React.useState(initialStudents);
-
-      const updateStudent = React.useCallback(
-        (id: string, patch: Partial<Student>) => {
-          baseProps.updateStudent(id, patch);
-          setCurrentStudents((previous) =>
-            previous.map((student) =>
-              student.id === id
-                ? ({ ...student, ...patch } as Student)
-                : student,
-            ),
-          );
-        },
-        [],
-      );
-
-      return (
-        <StudentInput
-          {...baseProps}
-          students={currentStudents}
-          updateStudent={updateStudent}
-        />
-      );
-    };
-
-    renderWithClassContext(<Harness />);
-
-    fireEvent.click(
-      getButton(/Schnell-Namenerfassung starten|Start quick name entry/i),
-    );
-
-    const dialog = getDialog(/Schnell-Namenerfassung|Quick Name Entry/i);
-    expect(dialog).toBeInTheDocument();
-
-    const nameField = await waitFor(() =>
-      getField(/Name für Schüler|Name for student/i),
-    );
-    fireEvent.change(nameField, { target: { value: 'Lena   ' } });
-
-    fireEvent.click(getButton(/Name speichern|Save name/i));
-
-    await waitFor(() => {
-      expect(baseProps.updateStudent).toHaveBeenCalledWith('1', {
-        name: 'Lena',
-      });
-    });
-
-    await waitFor(() => {
-      expect(
-        screen.queryByRole('dialog', {
-          name: /Schnell-Namenerfassung|Quick Name Entry/i,
-        }),
-      ).not.toBeInTheDocument();
-    });
-
-    await waitFor(() => {
-      expect(
-        screen.queryByRole('button', {
-          name: /Schnell-Namenerfassung starten|Start quick name entry/i,
-        }),
-      ).not.toBeInTheDocument();
-    });
   });
 
   it('zeigt einen klassenbezogenen Leerzustand an', () => {

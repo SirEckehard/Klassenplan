@@ -37,6 +37,16 @@ vi.mock('@/services/ui/dialogs', () => ({
 const ada = createMockStudent({ id: 'a', name: 'Ada' });
 const grace = createMockStudent({ id: 'g', name: 'Grace' });
 
+/** Picks the one student a nameless-class case works with. */
+const Namer = () => {
+  const { selectStudent } = useInspector();
+  return (
+    <button type="button" onClick={() => selectStudent('n')}>
+      pick-nameless
+    </button>
+  );
+};
+
 /** Lets a case drive the selection the way a row click would. */
 const Picker = () => {
   const { selectStudent } = useInspector();
@@ -135,5 +145,39 @@ describe('Inspector', () => {
     fireEvent.click(getButton(/^(Löschen|Delete)$/i));
     await waitFor(() => expect(mocks.confirm).toHaveBeenCalled());
     expect(mocks.removeStudent).not.toHaveBeenCalled();
+  });
+
+  it('opens the name field for a student who has none', () => {
+    mocks.state.students = [createMockStudent({ id: 'n', name: '' })];
+    render(
+      <InspectorProvider>
+        <Namer />
+        <Inspector />
+      </InspectorProvider>,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'pick-nameless' }));
+
+    expect(screen.getByRole('textbox')).toHaveFocus();
+  });
+
+  it('hands Enter on to the next student, saving as it goes', async () => {
+    renderInspector();
+    fireEvent.click(screen.getByRole('button', { name: 'pick-grace' }));
+    // Ada is first, so stepping on from Grace is not possible; start at Ada.
+    fireEvent.click(getButton(/Vorheriger Schüler|Previous student/i));
+
+    fireEvent.click(screen.getByText('Ada'));
+    const field = screen.getByRole('textbox');
+    fireEvent.change(field, { target: { value: 'Ada Lovelace' } });
+    fireEvent.keyDown(field, { key: 'Enter' });
+
+    expect(mocks.updateStudent).toHaveBeenCalledWith('a', {
+      name: 'Ada Lovelace',
+    });
+    // The field stays open on the next student rather than closing.
+    await waitFor(() =>
+      expect(screen.getByText(/Schüler 2 von 2|Student 2 of 2/i)).toBeVisible(),
+    );
+    expect(screen.getByRole('textbox')).toBeInTheDocument();
   });
 });

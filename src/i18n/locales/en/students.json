@@ -81,8 +81,7 @@
     "windowFull": "Window seat",
     "doorFull": "Near door",
     "number": "No",
-    "attributes": "Attributes set",
-    "status": "State"
+    "attributes": "Attributes set"
   },
   "studentList": {
     "title": "Class List",
@@ -241,28 +240,6 @@
     "noPreference": "No preference",
     "windowTooltip": "Student prefers seats near the window",
     "doorTooltip": "Student prefers seats near the door"
-  },
-  "quickEntry": {
-    "title": "Quick Name Entry",
-    "subtitle": "Enter missing names one by one.",
-    "description": "Enter student names, one per line",
-    "placeholder": "John Doe\nJane Smith\n...",
-    "create": "Create Class",
-    "remainingOne": "1 student without name remaining.",
-    "remainingMultiple": "{{count}} students without names remaining.",
-    "nameForStudent": "Name for student {{number}}",
-    "enterName": "Enter name",
-    "skip": "Skip",
-    "skipTitle": "Skip current student (Alt/Option+→)",
-    "save": "Save name",
-    "saveTitle": "Save name (Enter)",
-    "allUpdated": "All names have been updated.",
-    "noticeTitleSingular": "One student is still missing a name.",
-    "noticeTitlePlural": "{{count}} students are still missing names.",
-    "noticeDescription": "Start the quick name entry to complete all missing names.",
-    "noticeHint": "Note: Add all further student details directly in the class list.",
-    "startButton": "Start quick name entry",
-    "startButtonTitle": "Quickly add missing names"
   },
   "dialogs": {
     "deleteClassTitle": "Delete Class",
@@ -485,8 +462,6 @@
     "wishHeading": "Preferred partners"
   },
   "listStatus": {
-    "noName": "no name",
-    "noPhoto": "no photo",
     "openStudent": "Open {{name}} in the inspector"
   }
 }

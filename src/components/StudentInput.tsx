@@ -36,7 +36,6 @@ import {
   workspaceStageClass,
 } from '@/components/shell/shellTokens';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
-import MissingNameNotice from '@/components/studentInput/MissingNameNotice';
 import StudentList from '@/components/studentInput/StudentList';
 import NameColumnSelectionDialog from '@/components/students/NameColumnSelectionDialog';
 import { useStudentListLayout } from '@/components/studentInput/hooks/useStudentListLayout';
@@ -428,11 +427,6 @@ function StudentInput({
               </div>
             </div>
           )}
-
-          <MissingNameNotice
-            students={students}
-            updateStudent={updateStudent}
-          />
 
           {listMode === 'focus' ? (
             <AttributeFocusMode

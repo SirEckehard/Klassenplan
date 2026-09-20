@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
  *
  * It used to carry fourteen abbreviated column headings — Geschl., schüch.,
  * ablenk. — one per icon column of the old row, each aligned to a 44px cell.
- * The row has no icon columns any more, so the captions are down to the four
+ * The row has no icon columns any more, so the captions are down to the three
  * things it still has, and the select-all checkbox they always accompanied.
  *
  * The columns line up with `StudentRow` by hand: both are flex rows with the
@@ -70,9 +70,6 @@ export default function StudentListHeader({
         <span className="shrink-0 lg:w-44">{t('listHeader.name')}</span>
         <span className="hidden min-w-0 flex-1 lg:block">
           {t('listHeader.attributes')}
-        </span>
-        <span className="hidden shrink-0 text-right lg:block lg:w-20">
-          {t('listHeader.status')}
         </span>
       </div>
     </div>

@@ -79,10 +79,20 @@ export default function StudentInspector({
 
   // A different student means a different set of dropdowns; leaving one open
   // across the switch would point a portal at a control that just unmounted.
-  const { setShowGenderDropdown } = rowState;
+  const { setShowGenderDropdown, setIsEditing, setDraftName } = rowState;
   React.useEffect(() => {
     setShowGenderDropdown(false);
   }, [setShowGenderDropdown, student.id]);
+
+  // A student without a name has exactly one thing to do next, so the field is
+  // already open for it. With Enter handing over to the next student, naming a
+  // class of placeholders is typing and Enter, all the way down.
+  const hasName = student.name.trim().length > 0;
+  React.useEffect(() => {
+    if (hasName) return;
+    setIsEditing(true);
+    setDraftName('');
+  }, [hasName, setDraftName, setIsEditing, student.id]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -98,6 +108,7 @@ export default function StudentInspector({
             draftName={rowState.draftName}
             setDraftName={rowState.setDraftName}
             showEditButton={false}
+            onSubmit={onNext}
           />
           <span className="text-xs tabular-nums text-(--text-muted)">
             {t('inspector.position', {

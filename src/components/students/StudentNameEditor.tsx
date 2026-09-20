@@ -25,6 +25,12 @@ type Props = {
   showEditButton?: boolean;
   onEditStart?: () => void; // Called when editing starts
   onEditEnd?: () => void; // Called when editing ends (save or cancel)
+  /**
+   * What Enter does after the name is saved. Given one, the field stays open
+   * and hands over — the inspector steps to the next student, and a whole
+   * class of placeholders can be named without touching the mouse.
+   */
+  onSubmit?: () => void;
 };
 
 /**
@@ -54,10 +60,21 @@ export default function StudentNameEditor({
   showEditButton = true,
   onEditStart,
   onEditEnd,
+  onSubmit,
 }: Props) {
   const { t } = useTranslation('students');
 
-  const saveName = () => {
+  // Handing over to the next student swaps the `student` prop underneath an
+  // open field; the draft has to follow, or it would still hold the name that
+  // was just saved.
+  const editedId = React.useRef(student.id);
+  React.useEffect(() => {
+    if (editedId.current === student.id) return;
+    editedId.current = student.id;
+    if (isEditing) setDraftName(student.name);
+  }, [isEditing, setDraftName, student.id, student.name]);
+
+  const saveName = ({ advance = false } = {}) => {
     const trimmedName = draftName.trim();
 
     if (!trimmedName) {
@@ -84,6 +101,13 @@ export default function StudentNameEditor({
     }
 
     updateStudent(student.id, { name: trimmedName });
+
+    if (advance && onSubmit) {
+      // Stay open: the effect above seeds the draft from whoever arrives next.
+      onSubmit();
+      return;
+    }
+
     setIsEditing(false);
     setDraftName('');
     onEditEnd?.(); // Notify that editing ended
@@ -113,13 +137,13 @@ export default function StudentNameEditor({
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
                 e.preventDefault();
-                saveName();
+                saveName({ advance: true });
               } else if (e.key === 'Escape') {
                 e.preventDefault();
                 cancelEditing();
               }
             }}
-            onBlur={saveName}
+            onBlur={() => saveName()}
             className={`${inputFieldClass} w-full px-3 py-1.5 pr-14 lg:w-44`}
             autoFocus
           />
@@ -129,7 +153,7 @@ export default function StudentNameEditor({
               className={`${successIconButtonClass} h-6 w-6 p-1.5!`}
               title={t('common.save', 'Speichern')}
               onPointerDown={(e) => e.preventDefault()}
-              onClick={saveName}
+              onClick={() => saveName()}
               aria-label={t('nameEditor.saveName', 'Namen speichern')}
             >
               <CheckIcon size={12} />

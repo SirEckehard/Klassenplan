@@ -94,9 +94,7 @@ test('a first visitor tries the sample class with the tours as a guide', async (
     );
     // The list rows are avatars, not upload buttons — the photo is edited in
     // the inspector, where "Foto ändern" only replaces "Foto hinzufügen" for a
-    // student whose picture was drawn and stored. A missing canvas would leave
-    // every row saying "kein Foto" instead.
-    await expect(page.getByText('kein Foto')).toHaveCount(0);
+    // student whose picture was drawn and stored.
     await page
       .getByRole('button', { name: /^Emma Becker im Inspektor/ })
       .click();

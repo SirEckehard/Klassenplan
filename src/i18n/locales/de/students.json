@@ -81,8 +81,7 @@
     "windowFull": "Fensterplatz",
     "doorFull": "Türnähe",
     "number": "Nr",
-    "attributes": "Gesetzte Merkmale",
-    "status": "Stand"
+    "attributes": "Gesetzte Merkmale"
   },
   "studentList": {
     "title": "Klassenliste",
@@ -241,28 +240,6 @@
     "noPreference": "Keine Präferenz",
     "windowTooltip": "Schüler bevorzugt Plätze am Fenster",
     "doorTooltip": "Schüler bevorzugt Plätze an der Tür"
-  },
-  "quickEntry": {
-    "title": "Schnell-Namenerfassung",
-    "subtitle": "Trage fehlende Namen nacheinander ein.",
-    "description": "Gib die Namen der Schüler ein, einen pro Zeile",
-    "placeholder": "Max Mustermann\nErika Musterfrau\n...",
-    "create": "Klasse erstellen",
-    "remainingOne": "Noch 1 Schüler ohne Namen.",
-    "remainingMultiple": "Noch {{count}} Schüler ohne Namen.",
-    "nameForStudent": "Name für Schüler {{number}}",
-    "enterName": "Name eintragen",
-    "skip": "Überspringen",
-    "skipTitle": "Aktuellen Schüler überspringen (Alt/Option+→)",
-    "save": "Name speichern",
-    "saveTitle": "Name speichern (Enter)",
-    "allUpdated": "Alle Namen wurden aktualisiert.",
-    "noticeTitleSingular": "Ein Schüler hat noch keinen Namen.",
-    "noticeTitlePlural": "{{count}} Schüler haben noch keinen Namen.",
-    "noticeDescription": "Starte die Schnell-Namenerfassung, um alle fehlenden Namen zu ergänzen.",
-    "noticeHint": "Hinweis: Alle weiteren Schülerdetails pflegst du direkt in der Schülerliste hinzu.",
-    "startButton": "Schnell-Namenerfassung starten",
-    "startButtonTitle": "Fehlende Namen schnell hinzufügen"
   },
   "dialogs": {
     "deleteClassTitle": "Klasse löschen",
@@ -485,8 +462,6 @@
     "wishHeading": "Wunschpartner"
   },
   "listStatus": {
-    "noName": "kein Name",
-    "noPhoto": "kein Foto",
     "openStudent": "{{name}} im Inspektor öffnen"
   }
 }

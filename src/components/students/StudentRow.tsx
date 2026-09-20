@@ -50,14 +50,6 @@ function StudentRow({
   const displayName = student.name || t('studentList.newStudent');
   const hasName = student.name.trim().length > 0;
 
-  // Only what is still missing is worth a word; a complete row says nothing,
-  // so the column reads as a list of the students who still need something.
-  const state = !hasName
-    ? t('listStatus.noName')
-    : student.hasPhoto
-      ? ''
-      : t('listStatus.noPhoto');
-
   const stateClass = isInspected
     ? 'bg-(--surface-option-selected)'
     : highlight
@@ -106,9 +98,6 @@ function StudentRow({
           allStudents={allStudents}
           className="min-w-0 flex-1 basis-full lg:basis-auto"
         />
-        <span className="shrink-0 text-xs text-(--text-muted) lg:w-20 lg:text-right">
-          {state}
-        </span>
       </button>
     </div>
   );

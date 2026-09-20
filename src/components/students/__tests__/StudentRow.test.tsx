@@ -35,38 +35,6 @@ test('shows a chip for every attribute that is set, and none for the rest', () =
   ).not.toBeInTheDocument();
 });
 
-test('names what the student is still missing, and nothing when complete', () => {
-  const { rerender } = render(
-    <StudentRow
-      student={baseStudent}
-      index={0}
-      highlight={false}
-      allStudents={[baseStudent]}
-    />,
-  );
-  expect(screen.getByText(/^(kein Foto|no photo)$/i)).toBeInTheDocument();
-
-  rerender(
-    <StudentRow
-      student={{ ...baseStudent, hasPhoto: true }}
-      index={0}
-      highlight={false}
-      allStudents={[baseStudent]}
-    />,
-  );
-  expect(screen.queryByText(/^(kein Foto|no photo)$/i)).not.toBeInTheDocument();
-
-  rerender(
-    <StudentRow
-      student={{ ...baseStudent, name: '', hasPhoto: true }}
-      index={0}
-      highlight={false}
-      allStudents={[baseStudent]}
-    />,
-  );
-  expect(screen.getByText(/^(kein Name|no name)$/i)).toBeInTheDocument();
-});
-
 test('the whole row opens its student in the inspector', () => {
   const Probe = () => {
     const { selection } = useInspector();
