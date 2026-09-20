@@ -714,12 +714,25 @@ export function calculateSeatingStatistics(
 /**
  * Represents a single criterion's fulfillment status
  */
+/**
+ * How many of the cases a criterion is about came out right — the plain
+ * counting behind the percentage, where there is one to do. Window and door
+ * seats have none: their percentage is an average distance, not a tally, and
+ * "2 von 2" beside a 60 % bar would be a lie.
+ */
+export interface CriterionCount {
+  fulfilled: number;
+  total: number;
+}
+
 export interface CriterionFulfillment {
   key: keyof MixSettings;
   label: string;
   percentage: number;
   weight: number;
   active: boolean;
+  /** Absent where the criterion is scored rather than counted. */
+  count?: CriterionCount;
 }
 
 export function calculateCriteriaWeightedScore(
@@ -802,6 +815,16 @@ export function getTopFulfilledCriteria(
   const concentrationActive =
     concentrationWeight > 0 && concentrationMetrics.length > 0;
 
+  /** Rounded, because half a fulfilled wish is not something to read. */
+  const counted = (fulfilled: number, total: number): CriterionCount => ({
+    fulfilled: Math.round(fulfilled),
+    total: Math.round(total),
+  });
+
+  // Pairs of restless students that could be sitting together at worst.
+  const restlessPairsPossible = Math.floor(stats.restlessTotalCount / 2);
+  const performancePairs = stats.peerTutoringPairs + stats.sameLevelPairs;
+
   // Criteria ordered by Option A: Wiederholung → Identität → Fähigkeiten → Verhalten → Soziales → Raum
   const criteria: CriterionFulfillment[] = [
     // Wiederholung (ganz oben, ohne Kategorie)
@@ -810,6 +833,10 @@ export function getTopFulfilledCriteria(
       label: 'Wiederholung',
       percentage: stats.previousPairsPercentage,
       weight: settings.avoidPreviousPairs ?? 0,
+      count: counted(
+        stats.previousPairsAvoided,
+        stats.previousPairsAvoided + stats.previousPairsTotal,
+      ),
       active:
         (settings.avoidPreviousPairs ?? 0) > 0 &&
         stats.previousPairsTotal + stats.previousPairsAvoided > 0,
@@ -820,6 +847,7 @@ export function getTopFulfilledCriteria(
       label: 'Geschlechter',
       percentage: stats.genderMixScore,
       weight: settings.preferGenderMix ?? 0,
+      count: counted(stats.genderBalancedTables, stats.genderTotalTables),
       active: (settings.preferGenderMix ?? 0) > 0,
     },
     {
@@ -827,6 +855,10 @@ export function getTopFulfilledCriteria(
       label: 'Körpergröße',
       percentage: stats.heightPlacementPercentage,
       weight: settings.preferFrontForSmallerStudents ?? 0,
+      count: counted(
+        stats.smallInFrontCount + stats.tallInBackCount,
+        stats.smallTotalCount + stats.tallTotalCount,
+      ),
       active:
         (settings.preferFrontForSmallerStudents ?? 0) > 0 &&
         (stats.smallTotalCount > 0 || stats.tallTotalCount > 0),
@@ -837,6 +869,10 @@ export function getTopFulfilledCriteria(
       label: 'Sprachförderung',
       percentage: stats.languageMixingPercentage,
       weight: settings.preferLanguageMixing ?? 0,
+      count: counted(
+        stats.languageMixedTables,
+        stats.languageTotalRelevantTables,
+      ),
       active:
         (settings.preferLanguageMixing ?? 0) > 0 &&
         stats.languageTotalRelevantTables > 0,
@@ -846,6 +882,7 @@ export function getTopFulfilledCriteria(
       label: 'Fördern (heterogen)',
       percentage: stats.peerTutoringPercentage,
       weight: settings.peerTutoring ?? 0,
+      count: counted(stats.peerTutoringPairs, performancePairs),
       active: resolvePerformanceCriterion(settings) === 'peerTutoring',
     },
     {
@@ -853,6 +890,7 @@ export function getTopFulfilledCriteria(
       label: 'Fördern (homogen)',
       percentage: stats.homogeneousPerformancePercentage,
       weight: settings.homogeneousPerformanceGroups ?? 0,
+      count: counted(stats.sameLevelPairs, performancePairs),
       active:
         resolvePerformanceCriterion(settings) ===
         'homogeneousPerformanceGroups',
@@ -862,6 +900,7 @@ export function getTopFulfilledCriteria(
       label: 'Vordere Plätze',
       percentage: stats.frontSeatFrontPercentage,
       weight: settings.preferFrontForNeedsFrontSeat ?? 0,
+      count: counted(stats.frontSeatInFrontCount, stats.frontSeatTotalCount),
       active:
         (settings.preferFrontForNeedsFrontSeat ?? 0) > 0 &&
         stats.frontSeatTotalCount > 0,
@@ -872,6 +911,10 @@ export function getTopFulfilledCriteria(
       label: 'Unruhe',
       percentage: stats.restlessAvoidedPercentage,
       weight: settings.avoidRestlessTogether ?? 0,
+      count: counted(
+        Math.max(0, restlessPairsPossible - stats.restlessPairCount),
+        restlessPairsPossible,
+      ),
       active:
         (settings.avoidRestlessTogether ?? 0) > 0 &&
         stats.restlessTotalCount >= 2,
@@ -881,6 +924,10 @@ export function getTopFulfilledCriteria(
       label: 'Schüchternheit',
       percentage: stats.shyAlonePercentage,
       weight: settings.avoidShyAlone ?? 0,
+      count: counted(
+        stats.shyTotalCount - stats.shyAloneCount,
+        stats.shyTotalCount,
+      ),
       active: (settings.avoidShyAlone ?? 0) > 0 && stats.shyTotalCount > 0,
     },
     {
@@ -896,6 +943,10 @@ export function getTopFulfilledCriteria(
       label: 'Soziale Rollen',
       percentage: stats.socialRoleDistributionPercentage,
       weight: settings.distributeSocialRoles ?? 0,
+      count: counted(
+        stats.socialRoleBalancedTables,
+        stats.socialRoleTotalRelevantTables,
+      ),
       active:
         (settings.distributeSocialRoles ?? 0) > 0 &&
         stats.socialRoleTotalRelevantTables > 0,
@@ -905,6 +956,7 @@ export function getTopFulfilledCriteria(
       label: 'Wunschpartner erfüllt',
       percentage: stats.wishPartnersPercentage,
       weight: settings.considerWishPartners ?? 0,
+      count: counted(stats.wishPartnersFulfilled, stats.wishPartnersTotal),
       active:
         (settings.considerWishPartners ?? 0) > 0 && stats.wishPartnersTotal > 0,
     },
@@ -913,6 +965,7 @@ export function getTopFulfilledCriteria(
       label: 'Distanzwünsche',
       percentage: stats.avoidPartnersPercentage,
       weight: settings.avoidConflictPartners ?? 0,
+      count: counted(stats.avoidPartnersFulfilled, stats.avoidPartnersTotal),
       active:
         (settings.avoidConflictPartners ?? 0) > 0 &&
         stats.avoidPartnersTotal > 0,

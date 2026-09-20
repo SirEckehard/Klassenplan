@@ -681,7 +681,9 @@ describe('SmartMixControls — criteria fulfilment', () => {
       />,
     );
 
-    const card = restlessLevel(OFF).closest('div.relative') as HTMLElement;
+    const card = restlessLevel(OFF).closest(
+      '[data-criterion="avoidRestlessTogether"]',
+    ) as HTMLElement;
     fireEvent.mouseOver(card);
     expect(onHighlightHover).toHaveBeenCalledWith(
       expect.objectContaining({ key: 'avoidRestlessTogether' }),
@@ -696,6 +698,33 @@ describe('SmartMixControls — criteria fulfilment', () => {
     );
     // Marking is the badge's job — the weight stays where it was.
     expect(weightOf('avoidRestlessTogether')).toBe(5);
+  });
+
+  it('counts the cases where the criterion can be counted', () => {
+    render(
+      <Harness
+        initial={{ avoidRestlessTogether: 5 }}
+        fulfillment={[
+          {
+            key: 'avoidRestlessTogether',
+            label: 'Unruhe',
+            percentage: 75,
+            weight: 5,
+            active: true,
+            count: { fulfilled: 3, total: 4 },
+          },
+        ]}
+        highlight={{ onHighlightToggle: vi.fn() }}
+      />,
+    );
+
+    const meter = screen.getByRole('button', {
+      name: /^(Erfüllung|Fulfilment) (Unruhe|Restlessness): 3 (von|of) 4/,
+    });
+    // On screen the tally, because it names the cases rather than a share.
+    expect(meter).toHaveTextContent('3/4');
+    // The percentage stays in the accessible name, where the bar cannot go.
+    expect(meter).toHaveAccessibleName(/75\s?%/);
   });
 
   it('names the badge as pressed while its marking is the pinned one', () => {

@@ -30,7 +30,7 @@ const students: Student[] = [
     wishPartnerId: '2',
     avoidPartnerId: '3',
     prefersWindow: true,
-    languageSkill: 'advanced',
+    languageSkill: 'fluent',
     socialRole: 'mediator',
   }),
   createMockStudent({

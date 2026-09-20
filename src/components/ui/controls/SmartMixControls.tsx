@@ -242,9 +242,9 @@ function WeightRing({ value }: { value: number }) {
 }
 
 /**
- * How well the last mix met one criterion — the counterpart of the weight set
- * right above it. The dot repeats the number as a colour, so the three states
- * read without reading the value.
+ * How well the last mix met one criterion — under the levels that caused it.
+ * A bar the length of the percentage, and beside it the plain counting where
+ * there is one: "4/4" says more than "100 %" about four restless students.
  *
  * Without `onToggle` it is plain text: on a phone the marking it would pin sits
  * behind the sheet this badge is shown in.
@@ -274,21 +274,37 @@ function FulfillmentBadge({
   const percentage = Math.round(criterion.percentage);
   const { status, dotClass } = getStatisticStatusMeta(criterion.percentage);
   const statusLabel = t(`statisticsBadge.status.${status}`);
-  const shapeClass = `inline-flex shrink-0 items-center gap-1.5 rounded-full px-2 py-1 text-xs tabular-nums shadow-sm ${
-    pinned
-      ? 'bg-(--surface-option-selected) text-(--text-badge) ring-1 ring-(--focus-ring-primary)'
-      : 'bg-(--surface-sunken) text-(--text-muted)'
+  const count = criterion.count;
+  // The accessible name spells the value out; on screen the count wins where
+  // there is one, because it names the cases rather than a share of them.
+  const accessibleValue = count
+    ? t('mix.fulfillment.countValue', {
+        percentage,
+        fulfilled: count.fulfilled,
+        total: count.total,
+      })
+    : t('mix.fulfillment.value', { percentage });
+  const shapeClass = `flex w-full items-center gap-2 rounded-md px-1 py-1 text-xs tabular-nums ${
+    pinned ? 'bg-(--surface-option-selected)' : ''
   } ${className}`;
-  // Hidden from the accessible name, which the label below spells out in full:
-  // read out on their own the two would be "green, 78%".
   const body = (
     <>
       <span
         aria-hidden="true"
-        className={`size-1.5 rounded-full ${dotClass}`}
-      />
-      <span aria-hidden="true">
-        {t('mix.fulfillment.value', { percentage })}
+        className="h-1 flex-1 overflow-hidden rounded-full bg-(--surface-sunken)"
+      >
+        <span
+          className={`block h-1 rounded-full ${dotClass} transition-[width] duration-300 motion-reduce:transition-none`}
+          style={{ width: `${Math.min(100, Math.max(0, percentage))}%` }}
+        />
+      </span>
+      <span aria-hidden="true" className="shrink-0 text-(--text-muted)">
+        {count
+          ? t('mix.fulfillment.count', {
+              fulfilled: count.fulfilled,
+              total: count.total,
+            })
+          : t('mix.fulfillment.value', { percentage })}
       </span>
     </>
   );
@@ -297,7 +313,7 @@ function FulfillmentBadge({
     return (
       <span className={`${shapeClass} pointer-events-none`} title={statusLabel}>
         <span className="sr-only">
-          {t('mix.fulfillment.plainLabel', { label, percentage })}
+          {t('mix.fulfillment.plainLabel', { label, value: accessibleValue })}
         </span>
         {body}
       </span>
@@ -315,10 +331,10 @@ function FulfillmentBadge({
       aria-pressed={pinned}
       aria-label={t(
         pinned ? 'mix.fulfillment.unpinLabel' : 'mix.fulfillment.pinLabel',
-        { label, percentage },
+        { label, value: accessibleValue },
       )}
       title={statusLabel}
-      className={`${shapeClass} cursor-pointer transition hover:ring-1 hover:ring-(--focus-ring-primary) focus:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)`}
+      className={`${shapeClass} cursor-pointer transition hover:bg-(--surface-sunken) focus:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)`}
     >
       {body}
     </button>
@@ -354,7 +370,6 @@ function CriterionWeight({
   onImportanceChange,
   onChange,
   fineTuning,
-  reserveTrailingSpace = false,
 }: {
   criterion: MixCriterion;
   value: number;
@@ -363,8 +378,6 @@ function CriterionWeight({
   onChange: (value: number) => void;
   /** Shows the weight the level stands for, and lets it be set exactly. */
   fineTuning: boolean;
-  /** Keeps the label clear of the fulfilment badge laid over the card's corner. */
-  reserveTrailingSpace?: boolean;
 }) {
   const { t } = useTranslation('generator');
 
@@ -372,11 +385,7 @@ function CriterionWeight({
     <div>
       {/* A block, so the card's accessible name reads "Restlessness Separate
           students…", not one run-on word. */}
-      <div
-        className={`mb-1 text-sm font-medium text-(--text-page)${
-          reserveTrailingSpace ? ' pr-16' : ''
-        }`}
-      >
+      <div className="mb-1 text-sm font-medium text-(--text-page)">
         {criterion.label}
       </div>
       <div
@@ -456,7 +465,11 @@ function CriterionCard({
       : undefined;
 
   return (
-    <div className="relative rounded-lg px-2.5 py-2" {...preview}>
+    <div
+      data-criterion={criterion.key}
+      className="rounded-lg px-2.5 py-2"
+      {...preview}
+    >
       <div className="flex items-start gap-2.5">
         {/* The family's colour, always with its icon beside the name — a
             criterion is pedagogy, so it is not chrome-coloured. */}
@@ -478,20 +491,19 @@ function CriterionCard({
             onImportanceChange={onImportanceChange}
             onChange={onWeightChange}
             fineTuning={fineTuning}
-            reserveTrailingSpace={Boolean(fulfillment)}
           />
         </div>
       </div>
-      {/* Laid over the card's corner rather than placed in the flow: the name
-          reserves the space for it. */}
+      {/* Under the levels that caused it, indented to their line. */}
       {fulfillment && (
-        <FulfillmentBadge
-          criterion={fulfillment}
-          label={criterion.label}
-          pinned={pinned}
-          onToggle={onHighlightToggle}
-          className="absolute top-2 right-2 z-10"
-        />
+        <div className="mt-1.5 pl-8">
+          <FulfillmentBadge
+            criterion={fulfillment}
+            label={criterion.label}
+            pinned={pinned}
+            onToggle={onHighlightToggle}
+          />
+        </div>
       )}
     </div>
   );

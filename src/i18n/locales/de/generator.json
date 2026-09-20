@@ -362,11 +362,13 @@
     "fulfillment": {
       "label": "Erfüllung",
       "value": "{{percentage}} %",
+      "count": "{{fulfilled}}/{{total}}",
+      "countValue": "{{fulfilled}} von {{total}}, {{percentage}} %",
       "overall": "Erfüllung gesamt: {{percentage}} %",
       "suffix": ", zu {{percentage}} % erfüllt",
-      "plainLabel": "Erfüllung {{label}}: {{percentage}} %",
-      "pinLabel": "Erfüllung {{label}}: {{percentage}} % – betroffene Plätze markieren",
-      "unpinLabel": "Erfüllung {{label}}: {{percentage}} % – Markierung aufheben"
+      "plainLabel": "Erfüllung {{label}}: {{value}}",
+      "pinLabel": "Erfüllung {{label}}: {{value}} – betroffene Plätze markieren",
+      "unpinLabel": "Erfüllung {{label}}: {{value}} – Markierung aufheben"
     },
     "randomWarning": "Alle Kriterien deaktiviert - Mischen ist zufällig!",
     "categories": {

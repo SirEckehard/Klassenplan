@@ -362,11 +362,13 @@
     "fulfillment": {
       "label": "Fulfilment",
       "value": "{{percentage}}%",
+      "count": "{{fulfilled}}/{{total}}",
+      "countValue": "{{fulfilled}} of {{total}}, {{percentage}}%",
       "overall": "Overall fulfilment: {{percentage}}%",
       "suffix": ", {{percentage}}% fulfilled",
-      "plainLabel": "Fulfilment {{label}}: {{percentage}}%",
-      "pinLabel": "Fulfilment {{label}}: {{percentage}}% – mark the seats concerned",
-      "unpinLabel": "Fulfilment {{label}}: {{percentage}}% – clear the marking"
+      "plainLabel": "Fulfilment {{label}}: {{value}}",
+      "pinLabel": "Fulfilment {{label}}: {{value}} – mark the seats concerned",
+      "unpinLabel": "Fulfilment {{label}}: {{value}} – clear the marking"
     },
     "randomWarning": "All criteria disabled - Shuffling is random!",
     "categories": {
