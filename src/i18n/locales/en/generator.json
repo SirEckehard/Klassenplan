@@ -304,6 +304,32 @@
   "mix": {
     "title": "Mix Criteria",
     "description": "How important is each criterion when mixing?",
+    "recipes": {
+      "title": "Recipe",
+      "custom": "Your own mix",
+      "activeCount": "{{active}} of {{total}} criteria active",
+      "railTitle": "Recipe: {{recipe}}",
+      "recommended": {
+        "label": "Recommended mix",
+        "desc": "Every criterion this class has data for, at its default weight."
+      },
+      "quietWork": {
+        "label": "Quiet work",
+        "desc": "Separates what disturbs: restlessness, distractibility, conflicts. Front seats count."
+      },
+      "groupWork": {
+        "label": "Group work",
+        "desc": "Wish partners, peer support and language mixing at one table."
+      },
+      "exam": {
+        "label": "Written test",
+        "desc": "As much distance as possible: wishes do not count, new neighbours do."
+      },
+      "newClass": {
+        "label": "New class",
+        "desc": "Mix widely, leave nobody sitting alone, spread the roles."
+      }
+    },
     "enableAll": "Enable all criteria",
     "disableAll": "Disable all criteria",
     "toggleAll": "All criteria",

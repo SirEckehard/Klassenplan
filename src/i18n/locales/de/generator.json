@@ -304,6 +304,32 @@
   "mix": {
     "title": "Mischkriterien",
     "description": "Wie wichtig ist dir jedes Kriterium beim Mischen?",
+    "recipes": {
+      "title": "Rezept",
+      "custom": "Eigene Mischung",
+      "activeCount": "{{active}} von {{total}} Kriterien aktiv",
+      "railTitle": "Rezept: {{recipe}}",
+      "recommended": {
+        "label": "Empfohlene Mischung",
+        "desc": "Alle Kriterien, für die diese Klasse Daten hat, mit ihren Standardwerten."
+      },
+      "quietWork": {
+        "label": "Ruhige Arbeitsphase",
+        "desc": "Trennt, was stört: Unruhe, Ablenkbarkeit, Distanzwünsche. Vordere Plätze zählen."
+      },
+      "groupWork": {
+        "label": "Gruppenarbeit",
+        "desc": "Wunschpartner, gegenseitige Förderung und Sprachmischung an einem Tisch."
+      },
+      "exam": {
+        "label": "Klassenarbeit",
+        "desc": "Größtmöglicher Abstand: Wünsche zählen nicht, neue Nachbarn schon."
+      },
+      "newClass": {
+        "label": "Neue Klasse",
+        "desc": "Weit mischen, niemanden allein sitzen lassen, Rollen verteilen."
+      }
+    },
     "enableAll": "Alle Kriterien aktivieren",
     "disableAll": "Alle Kriterien deaktivieren",
     "toggleAll": "Alle Kriterien",

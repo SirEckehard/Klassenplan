@@ -139,6 +139,13 @@ export {
   weightForImportance,
 } from './mixImportance';
 export type { MixImportance } from './mixImportance';
+export {
+  MIX_RECIPES,
+  findMixRecipe,
+  matchMixRecipe,
+  recipeSettings,
+} from './mixRecipes';
+export type { MixRecipe, MixRecipeId } from './mixRecipes';
 
 // ===== Seating Utilities =====
 export { countStudents, tableCount, seatsPerTable } from './plan';

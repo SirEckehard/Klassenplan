@@ -304,6 +304,67 @@ describe('SmartMixControls — comfortable density', () => {
   });
 });
 
+describe('SmartMixControls — recipes', () => {
+  const recipeButton = () =>
+    screen.getByRole('button', {
+      name: new RegExp('(Kriterien aktiv|criteria active)'),
+    });
+
+  const chooseRecipe = (name: RegExp) => {
+    fireEvent.click(recipeButton());
+    fireEvent.click(screen.getByRole('button', { name }));
+  };
+
+  it('sets every weight at once and names the recipe it is on', () => {
+    render(<Harness />);
+
+    // Nothing is set yet, so the mix belongs to nobody.
+    expect(recipeButton()).toHaveTextContent(/Eigene Mischung|Your own mix/);
+
+    chooseRecipe(/Klassenarbeit|Written test/);
+
+    expect(weightOf('avoidConflictPartners')).toBe(9);
+    expect(weightOf('avoidRestlessTogether')).toBe(9);
+    // A written test is the one lesson where a wish is the wrong thing.
+    expect(weightOf('considerWishPartners')).toBe(0);
+    expect(recipeButton()).toHaveTextContent(/Klassenarbeit|Written test/);
+  });
+
+  it('lets go of the recipe as soon as a criterion is moved', () => {
+    render(<Harness />);
+
+    chooseRecipe(/Ruhige Arbeitsphase|Quiet work/);
+    expect(recipeButton()).toHaveTextContent(/Ruhige Arbeitsphase|Quiet work/);
+
+    fireEvent.click(restlessLevel(OFF));
+
+    expect(recipeButton()).toHaveTextContent(/Eigene Mischung|Your own mix/);
+  });
+
+  it('counts only the criteria this class has data for', () => {
+    render(<Harness />);
+
+    chooseRecipe(/Empfohlene Mischung|Recommended mix/);
+
+    // Language levels and social roles are missing from this class, so its
+    // panel shows 13 criteria; the homogeneous groups stay off beside the
+    // heterogeneous ones (decision 0013), which leaves 12 of them active.
+    expect(recipeButton()).toHaveTextContent(/12 (von|of) 13/);
+  });
+
+  it('is reachable from the rail through its flyout', () => {
+    render(<Harness density="compact" />);
+
+    fireEvent.click(screen.getByRole('button', { name: /^(Rezept|Recipe)$/ }));
+    fireEvent.click(
+      screen.getByRole('button', { name: /Gruppenarbeit|Group work/ }),
+    );
+
+    expect(weightOf('considerWishPartners')).toBe(8);
+    expect(weightOf('peerTutoring')).toBe(8);
+  });
+});
+
 describe('SmartMixControls — compact density', () => {
   it('switches a criterion on at its recommended weight and names the weight', () => {
     render(<Harness density="compact" />);

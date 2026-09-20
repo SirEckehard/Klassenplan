@@ -4,6 +4,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ArrowCounterClockwiseIcon,
+  NotebookIcon,
   ToggleLeftIcon,
   ToggleRightIcon,
 } from '@phosphor-icons/react';
@@ -34,9 +35,11 @@ import {
   type MixCriterion,
   type SuspendedWeights,
 } from '@/hooks/ui/useMixCriteria';
+import { useMixRecipes } from '@/hooks/ui/useMixRecipes';
 import SidebarFlyout from '@/components/ui/panels/SidebarFlyout';
 import SectionHeader from '../layout/SectionHeader';
 import SectionSeparator from '../feedback/SectionSeparator';
+import { MixRecipeList, MixRecipePanel } from './MixRecipes';
 import RailButton from './RailButton';
 import ToggleSwitch from './ToggleSwitch';
 
@@ -87,7 +90,7 @@ type CriterionFulfillmentProps = Omit<
   pinned: boolean;
 };
 
-type FlyoutTarget = ScalarMixSettingKey | 'all';
+type FlyoutTarget = ScalarMixSettingKey | 'all' | 'recipes';
 
 type FlyoutState = {
   target: FlyoutTarget;
@@ -715,6 +718,7 @@ function SmartMixControls({
     students,
     suspendedWeights,
   });
+  const recipes = useMixRecipes({ settings, setMixSettings, students });
   const isCompact = density === 'compact';
   const [flyout, setFlyout] = React.useState<FlyoutState | null>(null);
   const [hintSeen, setHintSeen] = usePersistentState(
@@ -735,9 +739,13 @@ function SmartMixControls({
     [mix.categories],
   );
   const flyoutCriterion =
-    flyout && flyout.target !== 'all'
+    flyout && flyout.target !== 'all' && flyout.target !== 'recipes'
       ? criteria.find((criterion) => criterion.key === flyout.target)
       : undefined;
+  // Of the criteria this class has data for — the ones the panel shows.
+  const activeCriteriaCount = criteria.filter(
+    (criterion) => mix.weightOf(criterion.key) > 0,
+  ).length;
 
   // The statistics carry only the criteria the mix scored, in the order of the
   // categories above — a lookup keeps the two lists from having to line up.
@@ -844,6 +852,33 @@ function SmartMixControls({
         </div>
       )}
 
+      {/* What the plan is for, above the criteria it sets. */}
+      {isCompact ? (
+        <RailButton
+          label={t('mix.recipes.title')}
+          title={t('mix.recipes.railTitle', {
+            recipe: recipes.activeId
+              ? t(`mix.recipes.${recipes.activeId}.label`)
+              : t('mix.recipes.custom'),
+          })}
+          pressed={false}
+          className={getSidebarSurfaceClasses({ variant: 'collapsed' })}
+          onPress={(button) => openFlyout('recipes', button)}
+          onOpenFlyout={(button) => openFlyout('recipes', button)}
+        >
+          <span className={getSidebarIconClasses({})}>
+            <NotebookIcon size={16} />
+          </span>
+        </RailButton>
+      ) : (
+        <MixRecipePanel
+          activeId={recipes.activeId}
+          activeCount={activeCriteriaCount}
+          total={criteria.length}
+          onSelect={recipes.apply}
+        />
+      )}
+
       {isCompact ? (
         <AllCriteriaRailButton
           {...allCriteria}
@@ -920,6 +955,23 @@ function SmartMixControls({
       {/* Keyed by target: moving from one button's flyout straight to
           another's starts afresh, with its own placement and focus. Widening
           the sidebar removes the anchor, and the flyout closes itself. */}
+      {flyout && flyout.target === 'recipes' && (
+        <SidebarFlyout
+          key="recipes"
+          anchor={flyout.anchor}
+          label={t('mix.recipes.title')}
+          autoFocus={flyout.autoFocus}
+          onClose={closeFlyout}
+        >
+          <MixRecipeList
+            activeId={recipes.activeId}
+            onSelect={(id) => {
+              recipes.apply(id);
+              closeFlyout({ restoreFocus: true });
+            }}
+          />
+        </SidebarFlyout>
+      )}
       {flyout && flyout.target === 'all' && (
         <SidebarFlyout
           key="all"
