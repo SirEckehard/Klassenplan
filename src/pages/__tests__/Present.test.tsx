@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import '@testing-library/jest-dom/vitest';
-import { fireEvent, render, screen } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { act, fireEvent, render, screen } from '@testing-library/react';
+import { MemoryRouter, Route, Routes, useNavigate } from 'react-router-dom';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import '@/i18n'; // Initialize i18n for tests
 import Present from '../Present';
 import { setupLocalStorageMock } from '@/__tests__/utils';
@@ -173,6 +173,101 @@ describe('Present', () => {
         name: /^(Zu (English|Deutsch) wechseln|Switch to (English|Deutsch))$/i,
       }),
     ).toBeInTheDocument();
+  });
+
+  // The way back from the groups goes through the history; the teacher lands
+  // in the view they left, not in the one the projection was opened with.
+  it('comes back from "Gruppen bilden" in the view it was left in', () => {
+    seatingState.current = {
+      currentSeating: [[student]],
+      classroomScene: {
+        tables: [{ x: 0, y: 0, width: 10, height: 10, seatCount: 2 }],
+        totalStudents: 1,
+      },
+      students: [student],
+      circleLayout: null,
+      activeClass: { id: 'class-1', name: '5a' },
+    };
+    function GroupsStandIn() {
+      const navigate = useNavigate();
+      return (
+        <button type="button" onClick={() => navigate(-1)}>
+          Zurück aus den Gruppen
+        </button>
+      );
+    }
+    render(
+      <MemoryRouter
+        initialEntries={[{ pathname: '/present', state: { mode: 'table' } }]}
+      >
+        <Routes>
+          <Route path="/present" element={<Present />} />
+          <Route path="/gruppen" element={<GroupsStandIn />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    const teacherView = () =>
+      screen.getByRole('button', { name: /Lehreransicht|Teacher view/i });
+
+    fireEvent.click(teacherView());
+    fireEvent.click(
+      screen.getByRole('button', { name: /Gruppen bilden|Build groups/i }),
+    );
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Zurück aus den Gruppen' }),
+    );
+
+    expect(teacherView()).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  describe('in fullscreen', () => {
+    const setFullscreen = (element: Element | null) =>
+      act(() => {
+        Object.defineProperty(document, 'fullscreenElement', {
+          configurable: true,
+          get: () => element,
+        });
+        document.dispatchEvent(new Event('fullscreenchange'));
+      });
+
+    afterEach(() => {
+      setFullscreen(null);
+    });
+
+    // The room sees the plan alone; the teacher reaches for the bar when it
+    // is needed.
+    it('drops the strip and keeps the bar below the edge until reached for', () => {
+      seatingState.current = {
+        currentSeating: [[student]],
+        classroomScene: {
+          tables: [{ x: 0, y: 0, width: 10, height: 10, seatCount: 2 }],
+          totalStudents: 1,
+        },
+        students: [student],
+        circleLayout: null,
+        activeClass: { id: 'class-1', name: '5a' },
+      };
+      renderPresent();
+      const bar = () => screen.getByTestId('present-bar');
+      expect(screen.getByText('5a')).toBeInTheDocument();
+      expect(bar()).toHaveAttribute('data-visible', 'true');
+
+      setFullscreen(document.body);
+
+      expect(screen.queryByText('5a')).not.toBeInTheDocument();
+      expect(screen.queryByRole('link')).not.toBeInTheDocument();
+      expect(bar()).toHaveAttribute('data-visible', 'false');
+
+      act(() => {
+        window.dispatchEvent(
+          new MouseEvent('pointermove', { clientY: window.innerHeight - 10 }),
+        );
+      });
+      expect(bar()).toHaveAttribute('data-visible', 'true');
+
+      setFullscreen(null);
+      expect(screen.getByText('5a')).toBeInTheDocument();
+    });
   });
 
   it('starts in circle mode when navigated with state.mode = circle', () => {

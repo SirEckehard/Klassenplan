@@ -62,7 +62,8 @@
       "item4": "Set the size with the slider or the mouse wheel and drag to pan; the centre icon resets the view.",
       "item5": "Press Alt + ← to return to the generator.",
       "item6": "\"Who's next?\" draws a random student and spotlights their seat – everyone gets a turn before anyone repeats.",
-      "item7": "Keyboard: F fullscreen, Space draws a student, Esc resets the draw, + / − zoom, 0 recenters."
+      "item7": "Keyboard: F fullscreen, Space draws a student, Esc resets the draw, + / − zoom, 0 recenters.",
+      "itemFullscreen": "In fullscreen the wall belongs to the plan: the strip on top goes away, and the bar at the bottom appears when the pointer nears the bottom edge or you tap there, then slides away again shortly after."
     }
   },
   "sidebar": {
@@ -989,7 +990,7 @@
       },
       "fulfillment": {
         "title": "Criteria and fulfilment",
-        "body": "On the right you set which criteria count when mixing and how much they weigh. The button above shows in per cent how well the plan meets them and puts the value beside each criterion — hover one and the seats it concerns are marked."
+        "body": "On the right you set which criteria count when mixing and how much they weigh. The button above shows in per cent how well the plan meets them and puts a bar under each criterion — hover it and the seats it concerns are marked, click it to keep the marking."
       },
       "mix": {
         "title": "Mix",
@@ -1127,6 +1128,8 @@
       "help1": "The groups are drawn afresh every time and are not stored anywhere.",
       "help2": "Students with a distance wish stay out of the same group where the sizes allow it.",
       "help3": "The seating plan is untouched — a group is for one lesson, a seat for the term."
-    }
+    },
+    "back": "Back",
+    "backTitle": "Back (Alt + ←)"
   }
 }

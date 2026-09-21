@@ -88,7 +88,8 @@ export default function App() {
   // Surfaces that carry no page footer: the fullscreen ones (presentation,
   // name game), where the footer and its "clear all data" action are out of
   // place, and the workspace, which runs at viewport height from `lg` up and
-  // offers the same entries in its header menu (`HeaderAppMenu`).
+  // offers the same entries in the settings menu of its status bar
+  // (`AppSettingsMenu`).
   const hidesFooter = [
     '/present',
     '/en/present',

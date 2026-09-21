@@ -22,7 +22,8 @@ import { ToolRailProvider } from '@/contexts/ToolRailContext';
  * Below `lg` it stays an ordinary document: the layer stacks, the page scrolls,
  * and the adaptive-height machinery in the student list and the sidebar goes on
  * working untouched. The page footer follows the shell there; on the workspace
- * its entries hang in the header menu instead (`HeaderAppMenu`).
+ * its entries hang in the status bar's settings menu instead
+ * (`AppSettingsMenu`).
  */
 export default function AppShell({ children }: { children: React.ReactNode }) {
   return (

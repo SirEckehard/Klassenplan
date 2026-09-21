@@ -216,6 +216,18 @@ describe('AppStatusBar', () => {
     expect(mocks.exits.presentPlan).not.toHaveBeenCalled();
   });
 
+  // A fixed place on every layer, also on the first screen, which has no
+  // toolbar to hold it.
+  it.each([1, 2, 3])('carries the settings on layer %i', (step) => {
+    setState({ step });
+    render(<AppStatusBar />);
+
+    expect(getButton(/^(Einstellungen|Settings)$/i)).toHaveAttribute(
+      'aria-haspopup',
+      'menu',
+    );
+  });
+
   it('carries the toolbar switch, which the toolbar itself no longer has', async () => {
     setState({ step: 1, students: named(4) });
     render(

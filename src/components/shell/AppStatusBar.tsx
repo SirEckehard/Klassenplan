@@ -19,6 +19,7 @@ import { useLayoutMode } from '@/hooks/ui/useLayoutMode';
 import StudentHistoryToolbar from '@/components/studentInput/StudentHistoryToolbar';
 import SeatingHistoryToolbar from '@/components/SeatingPlanGenerator/canvas/SeatingHistoryToolbar';
 import PlanExits from '@/components/shell/PlanExits';
+import AppSettingsMenu from '@/components/shell/AppSettingsMenu';
 import { countSeats, primaryButtonClass, quietIconButtonClass } from '@/utils';
 import { validateStudentsComplete } from '@/utils/validation';
 import HintTooltip from '@/components/ui/feedback/HintTooltip';
@@ -208,8 +209,12 @@ export default function AppStatusBar() {
           in the middle of the bar whatever the line on the left says. */}
       <div className="flex min-h-11 items-center gap-2 px-4 py-2 sm:gap-4">
         <div className="flex min-w-0 flex-1 items-center gap-3">
-          {showToolRailSwitch && toolRail && (
-            <>
+          {/* The settings and the toolbar's switch belong to the workspace,
+              not to a layer, so they lead the bar together — right under the
+              toolbar they concern. */}
+          <span className="flex items-center gap-1">
+            <AppSettingsMenu />
+            {showToolRailSwitch && toolRail && (
               <button
                 type="button"
                 onClick={toolRail.toggle}
@@ -234,12 +239,9 @@ export default function AppStatusBar() {
                   <ArrowLineRightIcon size={16} aria-hidden="true" />
                 )}
               </button>
-              <span
-                aria-hidden="true"
-                className="h-4 w-px bg-(--border-card)"
-              />
-            </>
-          )}
+            )}
+          </span>
+          <span aria-hidden="true" className="h-4 w-px bg-(--border-card)" />
           {/* Undo/redo lead the line on every layer. Two of the three
               histories are in the context; the room layer's lives with the
               canvas state and fills the slot through `StatusBarPortal`. */}

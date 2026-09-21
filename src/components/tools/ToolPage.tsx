@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
+import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeftIcon } from '@phosphor-icons/react';
 import Seo from '@/components/Seo';
@@ -43,9 +44,22 @@ export default function ToolPage({
   const { t } = useTranslation('generator');
   const metadata = usePageSeo(route);
   const navigate = useLocalizedNavigate();
+  const location = useLocation();
 
-  // The same way back as the export, present and name game pages.
-  useKeyboardShortcuts({ 'alt+arrowleft': () => navigate('/generator') });
+  // Back is where the tool was opened from: the workspace's toolbar, or the
+  // projection whose bar offers "Gruppen bilden" — which then comes back as it
+  // was left. Opened straight from a link or a bookmark there is nothing behind
+  // it inside the app, and the workspace is the way in.
+  const goBack = React.useCallback(() => {
+    if (location.key !== 'default') {
+      navigate(-1);
+      return;
+    }
+    navigate('/generator');
+  }, [location.key, navigate]);
+
+  // The same shortcut as the export, present and name game pages.
+  useKeyboardShortcuts({ 'alt+arrowleft': goBack });
 
   return (
     <main
@@ -58,10 +72,10 @@ export default function ToolPage({
       <div className="flex shrink-0 items-center gap-2 border-b border-(--border-card) bg-(--surface-card) px-3 py-2">
         <button
           type="button"
-          onClick={() => navigate('/generator')}
+          onClick={goBack}
           className={`${quietIconButtonClass} h-10 w-10 shrink-0`}
-          aria-label={t('present.backTitle')}
-          title={t('present.backTitle')}
+          aria-label={t('tools.back')}
+          title={t('tools.backTitle')}
         >
           <ArrowLeftIcon size={20} aria-hidden />
         </button>

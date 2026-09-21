@@ -7,7 +7,7 @@
  */
 import '@testing-library/jest-dom/vitest';
 import { fireEvent, render, screen, within } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import '@/i18n';
 import Groups from '../Groups';
@@ -159,5 +159,36 @@ describe('Wo sitzt wer?', () => {
     expect(
       screen.getByText(/Niemand in diesem Plan|Nobody in this plan/),
     ).toBeInTheDocument();
+  });
+});
+
+describe('the way back from a tool', () => {
+  const renderAt = (entries: string[]) =>
+    render(
+      <MemoryRouter initialEntries={entries} initialIndex={entries.length - 1}>
+        <Routes>
+          <Route path="/gruppen" element={<Groups />} />
+          <Route path="/present" element={<p>Projektion</p>} />
+          <Route path="/generator" element={<p>Arbeitsbereich</p>} />
+        </Routes>
+      </MemoryRouter>,
+    );
+  const back = () => screen.getByRole('button', { name: /^(Zurück|Back)$/ });
+
+  // "Gruppen bilden" is also a button of the projection's bar.
+  it('returns to the projection it was opened from', () => {
+    renderAt(['/generator', '/present', '/gruppen']);
+
+    fireEvent.click(back());
+
+    expect(screen.getByText('Projektion')).toBeInTheDocument();
+  });
+
+  it('goes to the workspace when it was opened straight from a link', () => {
+    renderAt(['/gruppen']);
+
+    fireEvent.click(back());
+
+    expect(screen.getByText('Arbeitsbereich')).toBeInTheDocument();
   });
 });

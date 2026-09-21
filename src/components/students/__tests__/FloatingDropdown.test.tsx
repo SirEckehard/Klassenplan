@@ -99,4 +99,54 @@ describe('FloatingDropdown', () => {
       HTMLElement.prototype.getBoundingClientRect = originalRect;
     }
   });
+
+  // A part of the content that loads after the dropdown opened (the settings
+  // menu's lower rows) makes it taller; it has to be placed again for that
+  // height, or it grows over the anchor instead of staying above it.
+  it('places itself again when its content grows after opening', async () => {
+    const notify: Array<() => void> = [];
+    const originalObserver = globalThis.ResizeObserver;
+    globalThis.ResizeObserver = class {
+      constructor(callback: () => void) {
+        notify.push(callback);
+      }
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    } as unknown as typeof ResizeObserver;
+    let height = 100;
+    Object.defineProperty(HTMLElement.prototype, 'offsetHeight', {
+      configurable: true,
+      get: () => height,
+    });
+    const originalRect = HTMLElement.prototype.getBoundingClientRect;
+    HTMLElement.prototype.getBoundingClientRect = function () {
+      return {
+        top: 700,
+        bottom: 740,
+        left: 20,
+        right: 260,
+        width: 240,
+        height: 40,
+        x: 20,
+        y: 700,
+        toJSON: () => ({}),
+      } as DOMRect;
+    };
+
+    try {
+      render(<Harness />);
+      await settle();
+      // 100px fit above the anchor: 700 - 100 - 4.
+      expect(portal()).toHaveStyle({ top: '596px' });
+
+      height = 300;
+      act(() => notify.forEach((callback) => callback()));
+
+      expect(portal()).toHaveStyle({ top: '396px' });
+    } finally {
+      HTMLElement.prototype.getBoundingClientRect = originalRect;
+      globalThis.ResizeObserver = originalObserver;
+    }
+  });
 });

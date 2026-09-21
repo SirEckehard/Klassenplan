@@ -153,7 +153,9 @@ them.
 ink values in both themes, because the plan underneath is paper in both. It is
 the only surface in the app that does not follow the theme, and it exists
 because the bar belongs to the teacher standing in front of the wall while the
-projection belongs to the room.
+projection belongs to the room. In fullscreen the room gets the wall to itself:
+the strip on top is gone, and the bar slides away until the pointer comes near
+the bottom edge (a tap there on a touch screen) or the keyboard moves into it.
 
 Its contrast mode goes the other way: black on white whatever the theme, with
 thicker contours and the seat names bolder (`SEAT_CONTRAST_COLORS`). Those are
@@ -164,6 +166,7 @@ projector rather than for a screen.
 
 - A focus ring is a solid 2 px contour in `--focus-ring-primary` (danger and success variants exist), never a soft glow. The old translucent rings are gone.
 - Buttons and icon buttons have defined hover states (e.g. `--button-primary-bg-hover`). These apply in dark mode too, because `@layer base` overrides the variables rather than the utilities.
+- A `secondary-button` that switches something on carries `aria-pressed`, and while it is `true` the button wears the selection colours (`--surface-option-selected`, `--border-option-selected`, `--text-badge`) — hovered or not. The state a screen reader hears is the state on screen; no call site paints its own.
 
 ## 5. Tokens for student toggles
 

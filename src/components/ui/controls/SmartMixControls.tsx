@@ -353,24 +353,9 @@ function CriterionCard({
   const isActive = value > 0;
   const Icon = CRITERIA_ICON_MAP[criterion.key];
   const family = dataFamilyClass[CRITERIA_FAMILY_MAP[criterion.key]];
-  // One region over card and badge: moving between the two must not flicker
-  // the marking off and straight back on.
-  const preview =
-    fulfillment && onHighlightHover
-      ? {
-          onMouseEnter: () => onHighlightHover(fulfillment),
-          onMouseLeave: onHighlightLeave,
-          onFocus: () => onHighlightHover(fulfillment),
-          onBlur: onHighlightLeave,
-        }
-      : undefined;
 
   return (
-    <div
-      data-criterion={criterion.key}
-      className="rounded-lg px-2.5 py-2"
-      {...preview}
-    >
+    <div data-criterion={criterion.key} className="rounded-lg px-2.5 py-2">
       <div className="flex items-start gap-2.5">
         {/* The family's colour, always with its icon beside the name — a
             criterion is pedagogy, so it is not chrome-coloured. */}
@@ -395,11 +380,19 @@ function CriterionCard({
       {/* Under the levels that caused it, indented to their line. */}
       {fulfillment && (
         <div className="mt-1.5 pl-8">
+          {/* The seats are marked while the pointer or the focus rests on
+              this bar, and only then: the levels above it are pressed on
+              the way through, and a plan lighting up under every pass was
+              noise. */}
           <FulfillmentBadge
             criterion={fulfillment}
             label={criterion.label}
             pinned={pinned}
             onToggle={onHighlightToggle}
+            onHoverStart={
+              onHighlightHover ? () => onHighlightHover(fulfillment) : undefined
+            }
+            onHoverEnd={onHighlightLeave}
           />
         </div>
       )}

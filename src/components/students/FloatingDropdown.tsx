@@ -208,8 +208,14 @@ export default function FloatingDropdown({
     };
   }, [updatePosition, scrollContainerRef, onClose, resolvedPortalRef]);
 
+  // Content that changes its size after opening — a lazily loaded part, a
+  // list that fills in — is placed again for its new height. The portal only
+  // exists from the second render on (the first returns nothing until there is
+  // a position), so the observer attaches once it is there: keyed on the
+  // rendered state, not on the ref, whose identity never changes.
+  const isRendered = position !== null;
   React.useEffect(() => {
-    if (typeof ResizeObserver === 'undefined') {
+    if (!isRendered || typeof ResizeObserver === 'undefined') {
       return;
     }
     const element = resolvedPortalRef.current;
@@ -220,7 +226,7 @@ export default function FloatingDropdown({
     const observer = new ResizeObserver(() => updatePosition());
     observer.observe(element);
     return () => observer.disconnect();
-  }, [resolvedPortalRef, updatePosition]);
+  }, [isRendered, resolvedPortalRef, updatePosition]);
 
   if (typeof document === 'undefined' || !position) {
     return null;

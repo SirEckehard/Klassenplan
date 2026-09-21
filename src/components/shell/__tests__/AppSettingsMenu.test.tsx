@@ -6,7 +6,7 @@ import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { BrowserRouter } from 'react-router-dom';
 import '@/i18n';
-import HeaderAppMenu from '@/components/shell/HeaderAppMenu';
+import AppSettingsMenu from '@/components/shell/AppSettingsMenu';
 import { getButton } from '@/__tests__/utils';
 
 vi.mock('@/contexts/SeatingPlanContext', () => ({
@@ -24,7 +24,7 @@ vi.mock('@/hooks/useInstallPrompt', () => ({
 const renderMenu = () =>
   render(
     <BrowserRouter>
-      <HeaderAppMenu />
+      <AppSettingsMenu />
     </BrowserRouter>,
   );
 
@@ -40,7 +40,7 @@ const openMenu = async () => {
 
 afterEach(cleanup);
 
-describe('HeaderAppMenu', () => {
+describe('AppSettingsMenu', () => {
   it('carries what the workspace loses with the footer', async () => {
     renderMenu();
     await openMenu();

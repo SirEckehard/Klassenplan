@@ -677,7 +677,7 @@ describe('SmartMixControls — criteria fulfilment', () => {
     expect(weightOf('avoidRestlessTogether')).toBe(0);
   });
 
-  it('marks the seats while the pointer rests on the card and pins them on a press', () => {
+  it('marks the seats only while the pointer rests on the bar, and pins them on a press', () => {
     const onHighlightHover = vi.fn();
     const onHighlightLeave = vi.fn();
     const onHighlightToggle = vi.fn();
@@ -689,15 +689,22 @@ describe('SmartMixControls — criteria fulfilment', () => {
       />,
     );
 
+    // The card around the bar is passed through on the way to the levels;
+    // it marks nothing.
     const card = restlessLevel(OFF).closest(
       '[data-criterion="avoidRestlessTogether"]',
     ) as HTMLElement;
     fireEvent.mouseOver(card);
+    fireEvent.mouseOver(restlessLevel(IMPORTANT));
+    fireEvent.focus(restlessLevel(IMPORTANT));
+    expect(onHighlightHover).not.toHaveBeenCalled();
+
+    fireEvent.mouseOver(pinButton());
     expect(onHighlightHover).toHaveBeenCalledWith(
       expect.objectContaining({ key: 'avoidRestlessTogether' }),
     );
 
-    fireEvent.mouseOut(card);
+    fireEvent.mouseOut(pinButton());
     expect(onHighlightLeave).toHaveBeenCalled();
 
     fireEvent.click(pinButton());

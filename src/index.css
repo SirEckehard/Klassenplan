@@ -718,6 +718,18 @@
   opacity: 0.6;
 }
 
+/*
+ * A secondary button that switches something on says so while it is on, in
+ * the same selection colours a chosen option wears. `aria-pressed` is the one
+ * source: the state a screen reader hears is the state on screen.
+ */
+.secondary-button[aria-pressed='true'],
+.secondary-button[aria-pressed='true']:hover:not(:disabled) {
+  border-color: var(--border-option-selected);
+  background-color: var(--surface-option-selected);
+  color: var(--text-badge);
+}
+
 @utility neutral-button {
   display: inline-flex;
   align-items: center;

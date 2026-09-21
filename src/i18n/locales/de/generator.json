@@ -62,7 +62,8 @@
       "item4": "Stelle die Größe mit dem Regler oder dem Mausrad ein und verschiebe die Ansicht durch Ziehen; das Zentrieren-Symbol setzt sie zurück.",
       "item5": "Mit Alt + ← kehrst du zum Generator zurück.",
       "item6": "„Wer kommt dran?“ zieht einen zufälligen Schüler und hebt seinen Platz hervor – jeder kommt einmal dran, bevor sich jemand wiederholt.",
-      "item7": "Tastatur: F Vollbild, Leertaste zieht einen Schüler, Esc setzt die Auswahl zurück, + / − zoomen, 0 zentriert."
+      "item7": "Tastatur: F Vollbild, Leertaste zieht einen Schüler, Esc setzt die Auswahl zurück, + / − zoomen, 0 zentriert.",
+      "itemFullscreen": "Im Vollbild gehört die Wand dem Plan: Die Leiste oben verschwindet, die Leiste unten erscheint, sobald du mit dem Zeiger an den unteren Rand fährst oder dort tippst, und blendet sich kurz danach wieder aus."
     }
   },
   "sidebar": {
@@ -989,7 +990,7 @@
       },
       "fulfillment": {
         "title": "Kriterien und Erfüllung",
-        "body": "Rechts stellst du ein, welche Kriterien beim Mischen zählen und wie schwer sie wiegen. Der Knopf darüber zeigt in Prozent, wie gut der Plan sie erfüllt, und blendet den Wert neben jedem Kriterium ein – fährst du über eines, werden die betroffenen Plätze markiert."
+        "body": "Rechts stellst du ein, welche Kriterien beim Mischen zählen und wie schwer sie wiegen. Der Knopf darüber zeigt in Prozent, wie gut der Plan sie erfüllt, und blendet unter jedem Kriterium eine Leiste ein – fährst du über sie, werden die betroffenen Plätze markiert, ein Klick hält die Markierung fest."
       },
       "mix": {
         "title": "Mischen",
@@ -1127,6 +1128,8 @@
       "help1": "Die Gruppen werden jedes Mal neu gezogen und nirgends gespeichert.",
       "help2": "Wer einen Distanzwunsch hat, landet nach Möglichkeit nicht in derselben Gruppe.",
       "help3": "Der Sitzplan bleibt unberührt — eine Gruppe gilt für eine Stunde, ein Platz für das Halbjahr."
-    }
+    },
+    "back": "Zurück",
+    "backTitle": "Zurück (Alt + ←)"
   }
 }

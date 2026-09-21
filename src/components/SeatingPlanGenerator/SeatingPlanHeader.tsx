@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 import { LocalizedLink } from '@/components/LocalizedLink';
 import LayerSwitcher from '@/components/shell/LayerSwitcher';
 import HeaderClassMenu from '@/components/shell/HeaderClassMenu';
-import HeaderAppMenu from '@/components/shell/HeaderAppMenu';
 import HeaderPlanName from '@/components/shell/HeaderPlanName';
 import HelpButton from '@/components/ui/buttons/HelpButton';
 import OnboardingTour from '@/components/onboarding/OnboardingTour';
@@ -21,14 +20,14 @@ import type { ShortcutContext } from '@/utils';
 import { KpLockup } from '@/components/KpLockup';
 
 /**
- * The workspace header: branding, the class and the plan, the layer switcher,
- * Help and the settings.
+ * The workspace header: branding, the class and the plan, the layer switcher
+ * and Help.
  *
  * It sticks to the top so the layer switcher is reachable from anywhere in a
  * long student list, and it hosts the onboarding tour: the header knows the
  * step and class that decide which tour applies, and the Help button that
- * restarts it lives here. Exporting and presenting moved to the middle of the
- * status bar (`PlanExits`), beside the layer's one primary action.
+ * restarts it lives here. Exporting and presenting sit in the middle of the
+ * status bar (`PlanExits`), the settings at its left end (`AppSettingsMenu`).
  */
 export default function SeatingPlanHeader() {
   const { t } = useTranslation(['generator', 'common']);
@@ -151,8 +150,8 @@ export default function SeatingPlanHeader() {
           seatingMode={seatingMode}
         />
 
-        {/* Right — help and the settings. The two ways out, export and the
-            smartboard, sit in the middle of the status bar. */}
+        {/* Right — help. The settings sit at the left end of the status bar,
+            the two ways out, export and the smartboard, in its middle. */}
         <div className="flex shrink-0 items-center justify-end gap-2 lg:w-95">
           {helpContent && (
             <HelpButton
@@ -162,9 +161,6 @@ export default function SeatingPlanHeader() {
               onStartTour={tourId ? () => requestTour(tourId) : undefined}
             />
           )}
-          {/* The workspace runs at viewport height and shows no footer, so
-              appearance, the data wipe and the legal pages hang here. */}
-          <HeaderAppMenu />
         </div>
       </div>
 

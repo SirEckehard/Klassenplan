@@ -18,6 +18,7 @@ import { useIsDarkMode } from '@/hooks/useIsDarkMode';
 import usePersistentState from '@/hooks/usePersistentState';
 import { usePanZoom } from '@/hooks/ui/usePanZoom';
 import { useFullscreen } from '@/hooks/ui/useFullscreen';
+import { useEdgeReveal } from '@/hooks/ui/useEdgeReveal';
 import { useRandomStudentPicker } from '@/hooks/ui/useRandomStudentPicker';
 import { useEnsureCircleLayout } from '@/hooks/circle/useEnsureCircleLayout';
 import { useSeatingPlanState } from '@/contexts/SeatingPlanContext';
@@ -62,9 +63,13 @@ export default function Present() {
     activeClass,
   } = useSeatingPlanState();
 
-  const initialMode =
-    (location.state as { mode?: SeatingMode } | null)?.mode ?? 'table';
-  const [mode, setMode] = useState<SeatingMode>(initialMode);
+  // The view to open with: the workspace hands over the arrangement it was
+  // in, and the way back from "Gruppen bilden" hands back the whole view.
+  const openedWith = location.state as {
+    mode?: SeatingMode;
+    perspective?: PresentationPerspective;
+  } | null;
+  const [mode, setMode] = useState<SeatingMode>(openedWith?.mode ?? 'table');
   // Generate the circle layout on demand when switching to circle presentation.
   useEnsureCircleLayout(mode, { enabled: mode === 'circle' });
 
@@ -83,8 +88,9 @@ export default function Present() {
     return () => window.clearTimeout(timer);
   }, [mode, currentSeating, recordUsage]);
 
-  const [perspective, setPerspective] =
-    useState<PresentationPerspective>('student');
+  const [perspective, setPerspective] = useState<PresentationPerspective>(
+    openedWith?.perspective ?? 'student',
+  );
   const [showBadges, setShowBadges] = useState(false);
   const [showPhotos, setShowPhotos] = usePersistentState(
     LOCAL_STORAGE_KEYS.presentShowPhotos,
@@ -135,6 +141,9 @@ export default function Present() {
     isSupported: fullscreenSupported,
     toggle: toggleFullscreen,
   } = useFullscreen(surfaceRef);
+  // In fullscreen the wall belongs to the plan: the strip on top goes, and the
+  // bar waits below the edge until the teacher reaches for it.
+  const { visible: barVisible, barProps } = useEdgeReveal(isFullscreen);
 
   // "Who's next?" draws without replacement, so every student gets a turn
   // before anyone repeats.
@@ -162,6 +171,13 @@ export default function Present() {
     '0': reset,
   });
 
+  // "Gruppen bilden" goes back through the history, so this entry is where
+  // its way back lands: it is brought up to the view on screen first.
+  const openGroups = () => {
+    navigate('/present', { replace: true, state: { mode, perspective } });
+    navigate('/gruppen');
+  };
+
   const seatedCount = currentSeating.reduce(
     (count, table) => count + table.filter(Boolean).length,
     0,
@@ -179,94 +195,104 @@ export default function Present() {
       tabIndex={-1}
       className={`fixed inset-0 flex flex-col ${
         contrast ? 'bg-white' : 'bg-(--surface-sunken)'
-      }`}
+      } ${isFullscreen ? 'overflow-hidden' : ''}`}
     >
       <Seo {...metadata} />
 
       {/* A strip, not a toolbar: what is on the wall and for whom. Everything
           that can be pressed lives in the bar at the bottom, within reach of
-          the teacher standing in front of it. */}
-      <div className="flex flex-wrap items-center gap-3 px-3 py-2 sm:px-4 sm:py-3">
-        <div className="flex flex-1 items-baseline gap-3">
-          <h1 className="flex items-center shrink-0">
-            <LocalizedLink
-              to="/"
-              className="kp-lockup focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:ring-offset-2"
-            >
-              <KpLockup size="sm" hideWordmarkOnMobile />
-            </LocalizedLink>
-          </h1>
-          <span className="truncate text-lg font-semibold text-(--text-page)">
-            {activeClass.name}
-          </span>
-          <span className="hidden text-sm text-(--text-muted) sm:inline">
-            {isTeacher ? t('present.teacherView') : t('present.studentView')}
-          </span>
-        </div>
+          the teacher standing in front of it. In fullscreen the room sees the
+          plan alone, so the strip is not drawn at all. */}
+      {!isFullscreen && (
+        <div className="flex flex-wrap items-center gap-3 px-3 py-2 sm:px-4 sm:py-3">
+          {/* The mark sits centred on the line; the class and whose view it is
+            share one baseline beside it. */}
+          <div className="flex min-w-0 flex-1 items-center gap-3">
+            <h1 className="flex shrink-0 items-center">
+              <LocalizedLink
+                to="/"
+                className="kp-lockup focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:ring-offset-2"
+              >
+                <KpLockup size="sm" hideWordmarkOnMobile />
+              </LocalizedLink>
+            </h1>
+            <div className="flex min-w-0 items-baseline gap-3">
+              <span className="truncate text-lg font-semibold text-(--text-page)">
+                {activeClass.name}
+              </span>
+              <span className="hidden shrink-0 text-sm text-(--text-muted) sm:inline">
+                {isTeacher
+                  ? t('present.teacherView')
+                  : t('present.studentView')}
+              </span>
+            </div>
+          </div>
 
-        <div className="flex items-center gap-2">
-          {seatedCount > 0 && (
-            <span className="hidden text-sm tabular-nums text-(--text-muted) sm:inline">
-              {t('present.seats', { count: seatedCount })}
-            </span>
-          )}
-          <AppearanceControls />
-          <HelpButton
-            title={t('help.present.title', 'Präsentiermodus')}
-            instructions={
-              <ul className="list-disc space-y-1 pl-4">
-                <li>
-                  {t(
-                    'help.present.item1',
-                    'Wechsle oben zwischen Lehrer- und Schüleransicht sowie zwischen Sitzplan und Sitzkreis.',
-                  )}
-                </li>
-                <li>
-                  {t(
-                    'help.present.item2',
-                    'Die Schüleransicht zeigt den Plan aus Sicht der Klasse – ohne Merkmale und Fotos.',
-                  )}
-                </li>
-                <li>
-                  {t(
-                    'help.present.item3',
-                    'Blende über die Leiste unten Merkmale, Fotos, Farben und Raumelemente ein oder aus.',
-                  )}
-                </li>
-                <li>
-                  {/* New keys carry no inline default (see AGENTS.md). */}
-                  {t('help.present.itemNames')}
-                </li>
-                <li>{t('help.present.itemContrast')}</li>
-                <li>
-                  {t(
-                    'help.present.item4',
-                    'Zoome per Regler oder Mausrad und verschiebe die Ansicht durch Ziehen; das Zentrieren-Symbol setzt die Ansicht zurück.',
-                  )}
-                </li>
-                <li>
-                  {t(
-                    'help.present.item6',
-                    '„Wer kommt dran?“ zieht einen zufälligen Schüler und hebt seinen Platz hervor – jeder kommt einmal dran, bevor sich jemand wiederholt.',
-                  )}
-                </li>
-                <li>
-                  {t(
-                    'help.present.item7',
-                    'Tastatur: F Vollbild, Leertaste zieht einen Schüler, Esc setzt die Auswahl zurück, + / − zoomen, 0 zentriert.',
-                  )}
-                </li>
-                <li>
-                  {t(
-                    'help.present.item5',
-                    'Mit Alt + ← kehrst du zum Generator zurück.',
-                  )}
-                </li>
-              </ul>
-            }
-          />
+          <div className="flex items-center gap-2">
+            {seatedCount > 0 && (
+              <span className="hidden text-sm tabular-nums text-(--text-muted) sm:inline">
+                {t('present.seats', { count: seatedCount })}
+              </span>
+            )}
+            <AppearanceControls />
+            <HelpButton
+              title={t('help.present.title', 'Präsentiermodus')}
+              instructions={
+                <ul className="list-disc space-y-1 pl-4">
+                  <li>
+                    {t(
+                      'help.present.item1',
+                      'Wechsle oben zwischen Lehrer- und Schüleransicht sowie zwischen Sitzplan und Sitzkreis.',
+                    )}
+                  </li>
+                  <li>
+                    {t(
+                      'help.present.item2',
+                      'Die Schüleransicht zeigt den Plan aus Sicht der Klasse – ohne Merkmale und Fotos.',
+                    )}
+                  </li>
+                  <li>
+                    {t(
+                      'help.present.item3',
+                      'Blende über die Leiste unten Merkmale, Fotos, Farben und Raumelemente ein oder aus.',
+                    )}
+                  </li>
+                  <li>
+                    {/* New keys carry no inline default (see AGENTS.md). */}
+                    {t('help.present.itemNames')}
+                  </li>
+                  <li>{t('help.present.itemContrast')}</li>
+                  <li>
+                    {t(
+                      'help.present.item4',
+                      'Zoome per Regler oder Mausrad und verschiebe die Ansicht durch Ziehen; das Zentrieren-Symbol setzt die Ansicht zurück.',
+                    )}
+                  </li>
+                  <li>
+                    {t(
+                      'help.present.item6',
+                      '„Wer kommt dran?“ zieht einen zufälligen Schüler und hebt seinen Platz hervor – jeder kommt einmal dran, bevor sich jemand wiederholt.',
+                    )}
+                  </li>
+                  <li>
+                    {t(
+                      'help.present.item7',
+                      'Tastatur: F Vollbild, Leertaste zieht einen Schüler, Esc setzt die Auswahl zurück, + / − zoomen, 0 zentriert.',
+                    )}
+                  </li>
+                  <li>{t('help.present.itemFullscreen')}</li>
+                  <li>
+                    {t(
+                      'help.present.item5',
+                      'Mit Alt + ← kehrst du zum Generator zurück.',
+                    )}
+                  </li>
+                </ul>
+              }
+            />
+          </div>
         </div>
-      </div>
+      )}
 
       {/* The drawn student is named in text as well: on a projection the
           spotlight alone is not readable from the back row, and the announcement
@@ -373,38 +399,56 @@ export default function Present() {
       </div>
 
       {/* One bar, floating over the plan: everything the teacher reaches for
-          while standing in front of the projection. */}
+          while standing in front of the projection. In fullscreen it lies over
+          the plan instead of beside it, so coming and going does not resize
+          the plan under it, and it waits below the edge until the pointer
+          comes near, a tap lands there or the keyboard moves into it. */}
       {hasContent ? (
-        <PresentationToolbar
-          perspective={perspective}
-          onPerspectiveChange={setPerspective}
-          mode={mode}
-          onModeChange={setMode}
-          isTeacher={isTeacher}
-          showBadges={showBadges}
-          onToggleBadges={() => setShowBadges((value) => !value)}
-          showPhotos={showPhotos}
-          onTogglePhotos={() => setShowPhotos((value) => !value)}
-          showRoomColors={showRoomColors}
-          onToggleRoomColors={() => setShowRoomColors((value) => !value)}
-          showFeatures={showFeatures}
-          onToggleFeatures={() => setShowFeatures((value) => !value)}
-          contrast={contrast}
-          onToggleContrast={() => setContrast((value) => !value)}
-          nameDisplay={currentNameDisplay}
-          onCycleNameDisplay={cycleNameDisplay}
-          onPick={!isCircle && picker.total > 0 ? picker.pick : undefined}
-          onOpenGroups={() => navigate('/gruppen')}
-          zoom={zoom}
-          minZoom={PRESENT_MIN_ZOOM}
-          maxZoom={PRESENT_MAX_ZOOM}
-          onZoomChange={setZoomLevel}
-          onResetView={reset}
-          fullscreenSupported={fullscreenSupported}
-          isFullscreen={isFullscreen}
-          onToggleFullscreen={toggleFullscreen}
-          onExit={() => navigate('/generator')}
-        />
+        <div
+          {...barProps}
+          className={
+            isFullscreen
+              ? `absolute inset-x-0 bottom-0 z-20 transition duration-200 ease-out motion-reduce:transition-none ${
+                  barVisible
+                    ? 'translate-y-0 opacity-100'
+                    : 'pointer-events-none translate-y-full opacity-0'
+                }`
+              : undefined
+          }
+          data-testid="present-bar"
+          data-visible={barVisible}
+        >
+          <PresentationToolbar
+            perspective={perspective}
+            onPerspectiveChange={setPerspective}
+            mode={mode}
+            onModeChange={setMode}
+            isTeacher={isTeacher}
+            showBadges={showBadges}
+            onToggleBadges={() => setShowBadges((value) => !value)}
+            showPhotos={showPhotos}
+            onTogglePhotos={() => setShowPhotos((value) => !value)}
+            showRoomColors={showRoomColors}
+            onToggleRoomColors={() => setShowRoomColors((value) => !value)}
+            showFeatures={showFeatures}
+            onToggleFeatures={() => setShowFeatures((value) => !value)}
+            contrast={contrast}
+            onToggleContrast={() => setContrast((value) => !value)}
+            nameDisplay={currentNameDisplay}
+            onCycleNameDisplay={cycleNameDisplay}
+            onPick={!isCircle && picker.total > 0 ? picker.pick : undefined}
+            onOpenGroups={openGroups}
+            zoom={zoom}
+            minZoom={PRESENT_MIN_ZOOM}
+            maxZoom={PRESENT_MAX_ZOOM}
+            onZoomChange={setZoomLevel}
+            onResetView={reset}
+            fullscreenSupported={fullscreenSupported}
+            isFullscreen={isFullscreen}
+            onToggleFullscreen={toggleFullscreen}
+            onExit={() => navigate('/generator')}
+          />
+        </div>
       ) : (
         <div className="h-4" aria-hidden />
       )}
