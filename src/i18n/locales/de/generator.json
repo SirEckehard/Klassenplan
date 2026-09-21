@@ -442,16 +442,6 @@
       "unpinLabel": "Erfüllung {{label}}: {{value}} – Markierung aufheben"
     },
     "randomWarning": "Alle Kriterien deaktiviert - Mischen ist zufällig!",
-    "categories": {
-      "avoidance": "Vermeidung",
-      "promotion": "Förderung",
-      "needs": "Bedürfnisse",
-      "environment": "Raum",
-      "identity": "Identität",
-      "abilities": "Fähigkeiten",
-      "behavior": "Verhalten",
-      "social": "Soziales"
-    },
     "criteria": {
       "avoidPreviousPairs": {
         "label": "Wiederholung",

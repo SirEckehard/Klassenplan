@@ -416,14 +416,15 @@ one accent:
 families, and never appears in chrome. Each family always ships with an icon and
 a spelled-out word, so colour is never the only channel:
 
-| Family           | Token prefix      | Covers                                                       |
-| ---------------- | ----------------- | ------------------------------------------------------------ |
-| Verhalten        | `--data-behavior` | Unruhe, Ablenkbarkeit, Ablenkung durch Unruhe                |
-| Soziales         | `--data-social`   | Schüchternheit, Wunsch-/Distanzpartner, Rollen, Wiederholung |
-| Lernen           | `--data-learning` | Fördern heterogen, Fördern homogen                           |
-| Sprache          | `--data-language` | Sprachförderung, Sprachstand                                 |
-| Platz &amp; Raum | `--data-space`    | Vordere Plätze, Körpergröße, Fensterplätze, Türnähe          |
-| Person           | `--data-person`   | Geschlechtermischung, Foto, Name                             |
+| Family           | Token prefix      | Covers                                               |
+| ---------------- | ----------------- | ---------------------------------------------------- |
+| Verhalten        | `--data-behavior` | Unruhe, Ablenkbarkeit, Ablenkung durch Unruhe        |
+| Soziales         | `--data-social`   | Schüchternheit, Wunsch-/Distanzpartner, Rollen       |
+| Lernen           | `--data-learning` | Fördern heterogen, Fördern homogen                   |
+| Sprache          | `--data-language` | Sprachförderung, Sprachstand                         |
+| Platz &amp; Raum | `--data-space`    | Vordere Plätze, Körpergröße, Fensterplätze, Türnähe  |
+| Person           | `--data-person`   | Geschlechtermischung, Foto, Name                     |
+| Verlauf          | `--data-history`  | Wiederholung (the plans already used, not a student) |
 
 A seat is not one of those families: every occupied seat is the canvas surface
 with a hairline, whoever sits in it. Gender stopped tinting one — decision

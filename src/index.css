@@ -229,6 +229,9 @@
   --data-person: #52525b;
   --data-person-text: #43464b;
   --data-person-surface: #f0f0ee;
+  --data-history: #a21caf;
+  --data-history-text: #86198f;
+  --data-history-surface: #fae8fb;
 
   --animate-marquee-label: marquee-label 6s ease-in-out infinite alternate;
 }
@@ -394,6 +397,9 @@
     --data-person: #9ca0a6;
     --data-person-text: #c2c5c9;
     --data-person-surface: rgba(82, 82, 91, 0.24);
+    --data-history: #d56ae0;
+    --data-history-text: #eba6f2;
+    --data-history-surface: rgba(162, 28, 175, 0.2);
   }
 }
 
@@ -578,6 +584,12 @@
   --data-chip-text: var(--data-person-text);
   --data-chip-surface: var(--data-person-surface);
   --data-chip-accent: var(--data-person);
+}
+
+@utility data-history {
+  --data-chip-text: var(--data-history-text);
+  --data-chip-surface: var(--data-history-surface);
+  --data-chip-accent: var(--data-history);
 }
 
 /* A section heading takes its family's accent as the text colour. */

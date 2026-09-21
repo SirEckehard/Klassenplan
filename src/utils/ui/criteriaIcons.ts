@@ -43,9 +43,11 @@ export const CRITERIA_ICON_MAP: Record<ScalarMixSettingKey, Icon> = {
 /**
  * Which pedagogical family each criterion speaks for.
  *
- * The sixteen criteria are the same six families the student chips use, so a
- * criterion in the inspector and the attribute it acts on carry one colour.
- * Colour never travels alone here either: every row has its icon and its name.
+ * A criterion that acts on a student attribute speaks in the family the
+ * student chips use, so a criterion in the inspector and the attribute it acts
+ * on carry one colour. Repetition acts on the plans already used, not on an
+ * attribute, and has a family of its own. Colour never travels alone here
+ * either: every row has its icon and its name.
  */
 export const CRITERIA_FAMILY_MAP: Record<ScalarMixSettingKey, DataFamily> = {
   avoidRestlessTogether: 'behavior',
@@ -55,7 +57,7 @@ export const CRITERIA_FAMILY_MAP: Record<ScalarMixSettingKey, DataFamily> = {
   considerWishPartners: 'social',
   avoidConflictPartners: 'social',
   distributeSocialRoles: 'social',
-  avoidPreviousPairs: 'social',
+  avoidPreviousPairs: 'history',
   peerTutoring: 'learning',
   homogeneousPerformanceGroups: 'learning',
   preferLanguageMixing: 'language',

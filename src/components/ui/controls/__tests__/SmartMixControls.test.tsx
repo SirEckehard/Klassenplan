@@ -158,11 +158,20 @@ describe('SmartMixControls — comfortable density', () => {
   it('shows the criteria in their categories, each with its explanation', () => {
     render(<Harness initial={DEFAULT_MIX_WEIGHTS} />);
 
-    expect(screen.getByText(/Identität|Identity/)).toBeInTheDocument();
-    expect(screen.getByText(/Fähigkeiten|Abilities/)).toBeInTheDocument();
-    // Anchored: "Verhalten" also occurs inside a criterion description.
-    expect(screen.getByText(/^(Verhalten|Behavior)$/)).toBeInTheDocument();
-    expect(screen.getByText(/Soziales|Social/)).toBeInTheDocument();
+    // The class list's families in its order; language drops out because
+    // nobody in the harness has a language level.
+    const headings = screen
+      .getAllByRole('separator')
+      .map((separator) => separator.getAttribute('aria-label'))
+      .filter(Boolean);
+    expect(headings).toHaveLength(5);
+    [
+      /^(Person)$/,
+      /^(Lernen|Learning)$/,
+      /^(Verhalten|Behaviour)$/,
+      /^(Soziales|Social)$/,
+      /^(Platz & Raum|Seat & room)$/,
+    ].forEach((pattern, index) => expect(headings[index]).toMatch(pattern));
     expect(
       screen.getByText(
         /Schüler mit Unruheverhalten trennen|Separate students showing restless behavior/,

@@ -156,13 +156,6 @@
         "description": "Beschreibung",
         "algorithm": "Algorithmus-Auswirkung"
       },
-      "categories": {
-        "identity": "Identität",
-        "abilities": "Fähigkeiten",
-        "behavior": "Verhalten",
-        "social": "Soziales",
-        "room": "Raumpräferenzen"
-      },
       "props": {
         "gender": {
           "label": "Geschlecht",

@@ -3,23 +3,24 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  // Identity
+  // Person
   PersonSimpleIcon,
   ArrowsVerticalIcon,
-  // Abilities
-  TranslateIcon,
+  // Learning
   TrendUpIcon,
   TrendDownIcon,
-  MapPinAreaIcon,
-  // Behavior
+  // Language
+  TranslateIcon,
+  // Behaviour
   ActivityIcon,
-  SmileyNervousIcon,
   BrainIcon,
   // Social
+  SmileyNervousIcon,
   UsersThreeIcon,
   HeartIcon,
   HeartBreakIcon,
-  // Room
+  // Seat & room
+  MapPinAreaIcon,
   ImageIcon,
   DoorIcon,
 } from '@phosphor-icons/react';
@@ -47,11 +48,12 @@ interface CategoryDefinition {
 export default function CriteriaReferenceSection() {
   const { t } = useTranslation('pages');
 
-  // Student properties organized by category (matching Step 1 order)
+  // Student properties in the class list's groups and order
+  // (`StudentInspector`), under the same headings.
   const categories: CategoryDefinition[] = [
     {
-      id: 'identity',
-      labelKey: 'faq.eigenschaften.categories.identity',
+      id: 'person',
+      labelKey: 'students:inspector.groups.person',
       properties: [
         {
           key: 'gender',
@@ -70,16 +72,9 @@ export default function CriteriaReferenceSection() {
       ],
     },
     {
-      id: 'abilities',
-      labelKey: 'faq.eigenschaften.categories.abilities',
+      id: 'learning',
+      labelKey: 'students:inspector.groups.learning',
       properties: [
-        {
-          key: 'languageSkill',
-          icon: TranslateIcon,
-          labelKey: 'faq.eigenschaften.props.languageSkill.label',
-          descriptionKey: 'faq.eigenschaften.props.languageSkill.description',
-          algorithmKey: 'faq.eigenschaften.props.languageSkill.algorithm',
-        },
         {
           key: 'performanceStrong',
           icon: TrendUpIcon,
@@ -95,18 +90,24 @@ export default function CriteriaReferenceSection() {
           descriptionKey: 'faq.eigenschaften.props.performanceWeak.description',
           algorithmKey: 'faq.eigenschaften.props.performanceWeak.algorithm',
         },
+      ],
+    },
+    {
+      id: 'language',
+      labelKey: 'students:inspector.groups.language',
+      properties: [
         {
-          key: 'needsFrontSeat',
-          icon: MapPinAreaIcon,
-          labelKey: 'faq.eigenschaften.props.needsFrontSeat.label',
-          descriptionKey: 'faq.eigenschaften.props.needsFrontSeat.description',
-          algorithmKey: 'faq.eigenschaften.props.needsFrontSeat.algorithm',
+          key: 'languageSkill',
+          icon: TranslateIcon,
+          labelKey: 'faq.eigenschaften.props.languageSkill.label',
+          descriptionKey: 'faq.eigenschaften.props.languageSkill.description',
+          algorithmKey: 'faq.eigenschaften.props.languageSkill.algorithm',
         },
       ],
     },
     {
       id: 'behavior',
-      labelKey: 'faq.eigenschaften.categories.behavior',
+      labelKey: 'students:inspector.groups.behavior',
       properties: [
         {
           key: 'restless',
@@ -114,13 +115,6 @@ export default function CriteriaReferenceSection() {
           labelKey: 'faq.eigenschaften.props.restless.label',
           descriptionKey: 'faq.eigenschaften.props.restless.description',
           algorithmKey: 'faq.eigenschaften.props.restless.algorithm',
-        },
-        {
-          key: 'shy',
-          icon: SmileyNervousIcon,
-          labelKey: 'faq.eigenschaften.props.shy.label',
-          descriptionKey: 'faq.eigenschaften.props.shy.description',
-          algorithmKey: 'faq.eigenschaften.props.shy.algorithm',
         },
         {
           key: 'concentrationIssues',
@@ -134,8 +128,15 @@ export default function CriteriaReferenceSection() {
     },
     {
       id: 'social',
-      labelKey: 'faq.eigenschaften.categories.social',
+      labelKey: 'students:inspector.groups.social',
       properties: [
+        {
+          key: 'shy',
+          icon: SmileyNervousIcon,
+          labelKey: 'faq.eigenschaften.props.shy.label',
+          descriptionKey: 'faq.eigenschaften.props.shy.description',
+          algorithmKey: 'faq.eigenschaften.props.shy.algorithm',
+        },
         {
           key: 'socialRole',
           icon: UsersThreeIcon,
@@ -160,9 +161,16 @@ export default function CriteriaReferenceSection() {
       ],
     },
     {
-      id: 'room',
-      labelKey: 'faq.eigenschaften.categories.room',
+      id: 'space',
+      labelKey: 'students:inspector.groups.space',
       properties: [
+        {
+          key: 'needsFrontSeat',
+          icon: MapPinAreaIcon,
+          labelKey: 'faq.eigenschaften.props.needsFrontSeat.label',
+          descriptionKey: 'faq.eigenschaften.props.needsFrontSeat.description',
+          algorithmKey: 'faq.eigenschaften.props.needsFrontSeat.algorithm',
+        },
         {
           key: 'prefersWindow',
           icon: ImageIcon,

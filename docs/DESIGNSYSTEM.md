@@ -1,6 +1,6 @@
 # Design System – Klassenplan
 
-> **Status:** current · **Last reviewed:** 2026-09-21 · **Maintainer:** Eike
+> **Status:** current · **Last reviewed:** 2026-09-22 · **Maintainer:** Eike
 > Schäfer · **Describes:** Klassenplan 2.2.0
 
 This document describes the binding design tokens for Klassenplan. All values live in `src/index.css` and are reachable from TypeScript through `src/utils/ui/designTokens.ts`.
@@ -115,16 +115,17 @@ A segmented control is `SegmentedControl` (`components/ui/controls/`), which wra
 
 Rose (`--button-danger-bg`) and green (`--button-success-bg`) are the two exceptions, reserved for destructive and confirming actions.
 
-**Everything else that is coloured describes pedagogy.** Six `--data-*` families, and no interface element may use them:
+**Everything else that is coloured describes pedagogy.** Seven `--data-*` families — six for what a student brings, one for the plans already used — and no interface element may use them:
 
-| Family           | Accent    | Chip text | Chip surface | Covers                                                       |
-| ---------------- | --------- | --------- | ------------ | ------------------------------------------------------------ |
-| Verhalten        | `#b45309` | `#8a3d06` | `#fbf0df`    | Unruhe, Ablenkbarkeit, Ablenkung durch Unruhe                |
-| Soziales         | `#6d28d9` | `#5b21b6` | `#efe9fc`    | Schüchternheit, Wunsch-/Distanzpartner, Rollen, Wiederholung |
-| Lernen           | `#15803d` | `#14622f` | `#e6f2ea`    | Fördern heterogen, Fördern homogen                           |
-| Sprache          | `#be123c` | `#9f1239` | `#fbe8ec`    | Sprachförderung, Sprachstand                                 |
-| Platz &amp; Raum | `#0e7490` | `#0b5f76` | `#e2f0f5`    | Vordere Plätze, Körpergröße, Fensterplätze, Türnähe          |
-| Person           | `#52525b` | `#43464b` | `#f0f0ee`    | Geschlechtermischung, Foto, Name                             |
+| Family           | Accent    | Chip text | Chip surface | Covers                                              |
+| ---------------- | --------- | --------- | ------------ | --------------------------------------------------- |
+| Verhalten        | `#b45309` | `#8a3d06` | `#fbf0df`    | Unruhe, Ablenkbarkeit, Ablenkung durch Unruhe       |
+| Soziales         | `#6d28d9` | `#5b21b6` | `#efe9fc`    | Schüchternheit, Wunsch-/Distanzpartner, Rollen      |
+| Lernen           | `#15803d` | `#14622f` | `#e6f2ea`    | Fördern heterogen, Fördern homogen                  |
+| Sprache          | `#be123c` | `#9f1239` | `#fbe8ec`    | Sprachförderung, Sprachstand                        |
+| Platz &amp; Raum | `#0e7490` | `#0b5f76` | `#e2f0f5`    | Vordere Plätze, Körpergröße, Fensterplätze, Türnähe |
+| Person           | `#52525b` | `#43464b` | `#f0f0ee`    | Geschlechtermischung, Foto, Name                    |
+| Verlauf          | `#a21caf` | `#86198f` | `#fae8fb`    | Wiederholung                                        |
 
 Every chip-text-on-chip-surface pair clears 4.5:1, and a data colour never appears without its icon and its spelled-out word, so colour is never the only channel.
 

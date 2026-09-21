@@ -24,9 +24,11 @@ export const optionCardTitleClass = 'option-card-title';
 export const optionCardHintClass = 'option-card-hint';
 
 /**
- * The six pedagogical colour families. A chip, an icon or a section heading
- * takes one of these next to `dataChipClass` / `dataHeadingClass`; the family
- * sets the colours, the base class sets the shape.
+ * The pedagogical colour families. A chip, an icon or a section heading takes
+ * one of these next to `dataChipClass` / `dataHeadingClass`; the family sets
+ * the colours, the base class sets the shape. Six describe a student; `history`
+ * describes the plans already used and belongs to the repetition criterion
+ * alone.
  */
 export const dataFamilyClass = {
   behavior: 'data-behavior',
@@ -35,6 +37,7 @@ export const dataFamilyClass = {
   language: 'data-language',
   space: 'data-space',
   person: 'data-person',
+  history: 'data-history',
 } as const;
 
 export type DataFamily = keyof typeof dataFamilyClass;

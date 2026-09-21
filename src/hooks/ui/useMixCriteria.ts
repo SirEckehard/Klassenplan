@@ -64,9 +64,18 @@ type UseMixCriteriaOptions = {
   suspendedWeights?: SuspendedWeights;
 };
 
+/**
+ * The criteria in the order the class list asks about a student
+ * (`StudentInspector`): person, learning, language, behaviour, social, place and
+ * room. Each category is a data family and borrows the class list's heading, so
+ * a criterion stands under the same word — and in the same colour
+ * (`CRITERIA_FAMILY_MAP`) — as the attribute it acts on. Repetition is about the
+ * plans already used rather than an attribute: it has a family of its own
+ * (`history`) and leads without a heading.
+ */
 const buildCategories = (t: TFunction<'generator'>): MixCriteriaCategory[] => [
   {
-    id: 'repetition',
+    id: 'history',
     label: '',
     criteria: [
       {
@@ -80,8 +89,8 @@ const buildCategories = (t: TFunction<'generator'>): MixCriteriaCategory[] => [
     ],
   },
   {
-    id: 'identity',
-    label: t('mix.categories.identity', 'Identität'),
+    id: 'person',
+    label: t('students:inspector.groups.person'),
     criteria: [
       {
         key: 'preferGenderMix',
@@ -91,31 +100,12 @@ const buildCategories = (t: TFunction<'generator'>): MixCriteriaCategory[] => [
           'Geschlechter mischen für ausgewogene Tischbesetzung',
         ),
       },
-      {
-        key: 'preferFrontForSmallerStudents',
-        label: t(
-          'mix.criteria.preferFrontForSmallerStudents.label',
-          'Körpergröße',
-        ),
-        description: t(
-          'mix.criteria.preferFrontForSmallerStudents.desc',
-          'kleinere Schüler vorne, größere hinten',
-        ),
-      },
     ],
   },
   {
-    id: 'abilities',
-    label: t('mix.categories.abilities', 'Fähigkeiten'),
+    id: 'learning',
+    label: t('students:inspector.groups.learning'),
     criteria: [
-      {
-        key: 'preferLanguageMixing',
-        label: t('mix.criteria.preferLanguageMixing.label', 'Sprachförderung'),
-        description: t(
-          'mix.criteria.preferLanguageMixing.desc',
-          'Sprachstarke Schüler neben Anfänger/DaZ setzen',
-        ),
-      },
       {
         key: 'peerTutoring',
         label: t('mix.criteria.peerTutoring.label', 'Fördern (heterogen)'),
@@ -135,22 +125,25 @@ const buildCategories = (t: TFunction<'generator'>): MixCriteriaCategory[] => [
           'Schüler mit ähnlichem Förderstand zusammen',
         ),
       },
+    ],
+  },
+  {
+    id: 'language',
+    label: t('students:inspector.groups.language'),
+    criteria: [
       {
-        key: 'preferFrontForNeedsFrontSeat',
-        label: t(
-          'mix.criteria.preferFrontForNeedsFrontSeat.label',
-          'Vordere Plätze',
-        ),
+        key: 'preferLanguageMixing',
+        label: t('mix.criteria.preferLanguageMixing.label', 'Sprachförderung'),
         description: t(
-          'mix.criteria.preferFrontForNeedsFrontSeat.desc',
-          'Schüler, die vorne sitzen sollen',
+          'mix.criteria.preferLanguageMixing.desc',
+          'Sprachstarke Schüler neben Anfänger/DaZ setzen',
         ),
       },
     ],
   },
   {
     id: 'behavior',
-    label: t('mix.categories.behavior', 'Verhalten'),
+    label: t('students:inspector.groups.behavior'),
     criteria: [
       {
         key: 'avoidRestlessTogether',
@@ -158,14 +151,6 @@ const buildCategories = (t: TFunction<'generator'>): MixCriteriaCategory[] => [
         description: t(
           'mix.criteria.avoidRestlessTogether.desc',
           'Schüler mit Unruheverhalten trennen',
-        ),
-      },
-      {
-        key: 'avoidShyAlone',
-        label: t('mix.criteria.avoidShyAlone.label', 'Schüchternheit'),
-        description: t(
-          'mix.criteria.avoidShyAlone.desc',
-          'Schüler mit zurückhaltendem Verhalten nicht alleine sitzen lassen',
         ),
       },
       {
@@ -183,8 +168,16 @@ const buildCategories = (t: TFunction<'generator'>): MixCriteriaCategory[] => [
   },
   {
     id: 'social',
-    label: t('mix.categories.social', 'Soziales'),
+    label: t('students:inspector.groups.social'),
     criteria: [
+      {
+        key: 'avoidShyAlone',
+        label: t('mix.criteria.avoidShyAlone.label', 'Schüchternheit'),
+        description: t(
+          'mix.criteria.avoidShyAlone.desc',
+          'Schüler mit zurückhaltendem Verhalten nicht alleine sitzen lassen',
+        ),
+      },
       {
         key: 'distributeSocialRoles',
         label: t('mix.criteria.distributeSocialRoles.label', 'Soziale Rollen'),
@@ -212,9 +205,31 @@ const buildCategories = (t: TFunction<'generator'>): MixCriteriaCategory[] => [
     ],
   },
   {
-    id: 'environment',
-    label: t('mix.categories.environment', 'Raum'),
+    id: 'space',
+    label: t('students:inspector.groups.space'),
     criteria: [
+      {
+        key: 'preferFrontForNeedsFrontSeat',
+        label: t(
+          'mix.criteria.preferFrontForNeedsFrontSeat.label',
+          'Vordere Plätze',
+        ),
+        description: t(
+          'mix.criteria.preferFrontForNeedsFrontSeat.desc',
+          'Schüler, die vorne sitzen sollen',
+        ),
+      },
+      {
+        key: 'preferFrontForSmallerStudents',
+        label: t(
+          'mix.criteria.preferFrontForSmallerStudents.label',
+          'Körpergröße',
+        ),
+        description: t(
+          'mix.criteria.preferFrontForSmallerStudents.desc',
+          'kleinere Schüler vorne, größere hinten',
+        ),
+      },
       {
         key: 'preferWindowSeats',
         label: t('mix.criteria.preferWindowSeats.label', 'Fensterplätze'),

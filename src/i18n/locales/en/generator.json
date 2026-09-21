@@ -442,16 +442,6 @@
       "unpinLabel": "Fulfilment {{label}}: {{value}} – clear the marking"
     },
     "randomWarning": "All criteria disabled - Shuffling is random!",
-    "categories": {
-      "avoidance": "Avoidance",
-      "promotion": "Support",
-      "needs": "Needs",
-      "environment": "Room",
-      "identity": "Identity",
-      "abilities": "Abilities",
-      "behavior": "Behavior",
-      "social": "Social"
-    },
     "criteria": {
       "avoidPreviousPairs": {
         "label": "Repetition",

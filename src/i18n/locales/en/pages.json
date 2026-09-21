@@ -156,13 +156,6 @@
         "description": "Description",
         "algorithm": "Algorithm Effect"
       },
-      "categories": {
-        "identity": "Identity",
-        "abilities": "Abilities",
-        "behavior": "Behavior",
-        "social": "Social",
-        "room": "Room Preferences"
-      },
       "props": {
         "gender": {
           "label": "Gender",
