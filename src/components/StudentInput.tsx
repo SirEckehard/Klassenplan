@@ -315,6 +315,7 @@ function StudentInput({
             onImportCsv={analyzeCsvFile}
             onExportCsv={downloadStudentsCsv}
             onCreateBackup={handleCreateBackup}
+            onImportBackup={triggerImport}
             onPlayNameGame={handleNameGameClick}
             onLoadDemoClass={
               isDemoClassActive ? undefined : handleLoadDemoClass

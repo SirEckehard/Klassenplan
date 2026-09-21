@@ -251,6 +251,7 @@
   },
   "storage": {
     "sectionTitle": "Storage & Backup",
+    "backup": "Backup",
     "exportBackup": "Export backup",
     "importBackup": "Import backup",
     "showAllPlans": "Show all plans",
@@ -313,7 +314,6 @@
   },
   "mix": {
     "title": "Mix Criteria",
-    "description": "How important is each criterion when mixing?",
     "recipes": {
       "title": "Recipe",
       "custom": "Your own mix",
@@ -412,11 +412,8 @@
     "disableAll": "Disable all criteria",
     "toggleAll": "All criteria",
     "resetDefaults": "Default weights",
-    "resetDefaultsTitle": "Restore default weights",
     "on": "On",
     "off": "Off",
-    "weightTooltip": "Weight: {{value}}/10 – The higher the value, the more important this criterion is for seating assignment.",
-    "weightSliderLabel": "Importance: {{label}}",
     "importance": {
       "off": "Off",
       "consider": "Consider",
@@ -429,20 +426,15 @@
       "groupLabel": "Importance: {{label}}",
       "optionLabel": "{{label}}: {{level}}"
     },
-    "fineTuning": "Fine tuning",
-    "fineTuningHint": "Also shows the weight from 0 to 10.",
     "flyoutHint": "A long press or a right click opens this setting again.",
     "railAllTitle": "{{action}} – right click: default weights",
-    "railCriterionTitle": "{{label}}: {{value}}/10 – right click: set importance",
-    "railCriterionActiveLabel": "{{label}}, importance {{value}} of 10",
+    "railCriterionTitle": "{{label}}: {{level}} – right click: set importance",
+    "railCriterionActiveLabel": "{{label}}, {{level}}",
     "railWeightHint": "Right click, long press, Shift+F10 or right arrow: set importance",
     "railDefaultsHint": "Right click, long press, Shift+F10 or right arrow: default weights",
     "fulfillment": {
       "label": "Fulfilment",
       "value": "{{percentage}}%",
-      "count": "{{fulfilled}}/{{total}}",
-      "countValue": "{{fulfilled}} of {{total}}, {{percentage}}%",
-      "overall": "Overall fulfilment: {{percentage}}%",
       "suffix": ", {{percentage}}% fulfilled",
       "plainLabel": "Fulfilment {{label}}: {{value}}",
       "pinLabel": "Fulfilment {{label}}: {{value}} – mark the seats concerned",
@@ -680,6 +672,7 @@
     "backToClassroom": "Back to Classroom",
     "planNamePlaceholder": "Name for this seating plan",
     "planNameLabel": "Enter a name for this seating plan",
+    "planNameSave": "Save under this name",
     "planNameError": "Please enter a name.",
     "date": "Date"
   },
@@ -946,9 +939,9 @@
         "title": "Your classes",
         "body": "The header states which class is open. Switch between classes here, create new ones or rename them. Every class has its own students, rooms and seating plans."
       },
-      "appSettings": {
-        "title": "Settings and backup",
-        "body": "Your data lives only in this browser. The gear icon at the top right exports an encrypted backup and restores it – on another device, too. It also lists all saved plans."
+      "backup": {
+        "title": "Back up your data",
+        "body": "Your data lives only in this browser. \"Backup\" in the toolbar exports an encrypted backup and restores it – on another device, too."
       },
       "proceed": {
         "title": "On to the classroom",
@@ -992,7 +985,7 @@
       },
       "exits": {
         "title": "Present and export",
-        "body": "Top right you show the plan on the board or export it as a PDF. Both save the plan first when something has changed."
+        "body": "In the status bar at the bottom you show the plan on the board or export it as a PDF. Both save the plan first when something has changed."
       },
       "fulfillment": {
         "title": "Criteria and fulfilment",
@@ -1030,8 +1023,6 @@
       "missingNames_one": "{{count}} name missing",
       "missingNames_other": "{{count}} names missing",
       "noTables": "No tables yet",
-      "tables_one": "{{count}} table",
-      "tables_other": "{{count}} tables",
       "seatsFor": "{{seats}} seats for {{students}} students",
       "seatsExact": "an exact fit",
       "seatsMissing_one": "{{count}} seat short",
@@ -1046,9 +1037,15 @@
     "deleteFeature": "Remove room feature",
     "deleteSelection": "Remove selection",
     "deleteTable": "Remove table",
-    "duplicateTable": "Duplicate table",
-    "empty": "Pick a table or a room feature on the plan to see and change its values.",
-    "height": "Height",
+    "duplicate": "Duplicate",
+    "copyShortcut": "Copy (Ctrl/Cmd+C)",
+    "cutShortcut": "Cut (Ctrl/Cmd+X)",
+    "pasteShortcut": "Paste (Ctrl/Cmd+V)",
+    "edit": "Edit",
+    "orientation": "Orientation",
+    "display": "Display",
+    "overview": "Overview",
+    "empty": "Pick a table or a room feature on the plan to rotate, copy or remove it. Moving happens right on the plan.",
     "multiSelection": "{{tables}} tables and {{features}} room features selected",
     "room": "Room",
     "rotateLeft": "Rotate counter-clockwise",
@@ -1065,10 +1062,7 @@
     "tableCount": "Tables",
     "tablePosition": "Table {{index}} of {{total}}",
     "title": "Properties",
-    "visible": "Visible",
-    "width": "Width",
-    "x": "X",
-    "y": "Y"
+    "visible": "Visible"
   },
   "planToolbar": {
     "arrangement": "Arrangement",

@@ -21,7 +21,7 @@ import {
   CanvasSettingsGroups,
   type CanvasSettingsGroup,
 } from '@/components/SeatingPlanGenerator/canvas/CanvasSettingsButton';
-import { cardSurfaceClass } from '@/utils';
+import { menuSurfaceClass } from '@/utils';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 
 type FeaturePaletteItem = {
@@ -152,7 +152,7 @@ export default function RoomToolPanel({
                 : undefined
             }
             panel={() => (
-              <div className={`${cardSurfaceClass} border p-4`}>
+              <div className={`${menuSurfaceClass} p-1`}>
                 <CanvasSettingsGroups groups={[group]} />
               </div>
             )}

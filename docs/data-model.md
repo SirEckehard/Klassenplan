@@ -177,10 +177,7 @@ list is `PROJECT_LOCAL_STORAGE_KEYS` in `storageKeys.ts`. Groups:
   tours seen or switched off (`spg.onboardingTour`,
   [decision 0015](decisions/0015-onboarding-sample-class-and-tour.md)), whether
   the collapsed sidebar has shown its one-time hint on criterion weights
-  (`spg.mixWeightHintSeen`), whether the criteria show their weights beside the
-  named levels (`spg.mixFineTuning`,
-  [decision 0018](decisions/0018-criteria-in-words-with-recipes.md)), last seen
-  version, PWA install prompt dismissal.
+  (`spg.mixWeightHintSeen`), last seen version, PWA install prompt dismissal.
 - **Backup reminder:** `spg.lastBackupAt`, `spg.backupDataSince`,
   `spg.backupReminderSnoozedUntil`, `spg.backupReminderDisabled`.
 - **Consent:** `cookieConsent`, `spg.photoConsentConfirmed`.
@@ -189,7 +186,10 @@ list is `PROJECT_LOCAL_STORAGE_KEYS` in `storageKeys.ts`. Groups:
   pending.
 - **No longer written:** `klassenplan-language`, the language detector's cache.
   The language follows the URL alone (`/en` or not); the key is only removed by
-  a data wipe.
+  a data wipe. The same goes for `spg.mixFineTuning`, which remembered whether
+  the criteria showed their weights beside the named levels until the fine
+  tuning was removed
+  ([decision 0018](decisions/0018-criteria-in-words-with-recipes.md)).
 
 ## Versions and migrations
 

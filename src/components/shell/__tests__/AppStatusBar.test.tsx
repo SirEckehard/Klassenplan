@@ -22,6 +22,11 @@ const mocks = vi.hoisted(() => ({
     currentSeating: [] as SeatingArrangement,
   },
   handleStepChange: vi.fn(),
+  exits: {
+    exportPlan: vi.fn(),
+    presentPlan: vi.fn(),
+    canExit: false,
+  },
 }));
 
 vi.mock('@/contexts/SeatingPlanContext', () => ({
@@ -33,6 +38,12 @@ vi.mock('@/contexts/SeatingPlanContext', () => ({
     canUndoSeating: false,
     canRedoSeating: false,
   }),
+}));
+
+// The exits save and navigate; what they do is `usePlanExits`' business, where
+// they sit and when they hold back is this bar's.
+vi.mock('@/hooks/plan/usePlanExits', () => ({
+  usePlanExits: () => mocks.exits,
 }));
 
 vi.mock('@/contexts/seatingPlan/StudentManagementContext', () => ({
@@ -54,6 +65,7 @@ const setState = (next: Partial<typeof mocks.state>) => {
 };
 
 beforeEach(() => {
+  mocks.exits.canExit = false;
   setState({
     step: 1,
     students: [],
@@ -120,11 +132,16 @@ describe('AppStatusBar', () => {
     });
     render(<AppStatusBar />);
 
-    expect(status()).toHaveTextContent(/2 Tische|2 tables/i);
     expect(status()).toHaveTextContent(
       /4 Plätze für 4 Schüler|4 seats for 4 students/i,
     );
-    expect(status()).toHaveTextContent(/passt genau|an exact fit/i);
+    // What anyone reads off the numbers is an icon, not a third segment: the
+    // table count and the words stay out of sight.
+    expect(status()).not.toHaveTextContent(/2 Tische|2 tables/i);
+    expect(screen.getByText(/passt genau|an exact fit/i)).toHaveClass(
+      'sr-only',
+    );
+    expect(screen.getByTitle(/passt genau|an exact fit/i)).toBeInTheDocument();
     expect(proceed()).not.toHaveAttribute('aria-disabled');
   });
 
@@ -136,7 +153,10 @@ describe('AppStatusBar', () => {
     });
     render(<AppStatusBar />);
 
-    expect(status()).toHaveTextContent(/8 Plätze fehlen|8 seats short/i);
+    expect(status()).toHaveTextContent(
+      /4 Plätze für 12 Schüler|4 seats for 12 students/i,
+    );
+    expect(screen.getByTitle(/8 Plätze fehlen|8 seats short/i)).toBeVisible();
 
     const button = proceed();
     expect(button).toHaveAttribute('aria-disabled', 'true');
@@ -166,6 +186,34 @@ describe('AppStatusBar', () => {
     expect(
       screen.queryByRole('button', { name: /Weiter|Next|Proceed/i }),
     ).not.toBeInTheDocument();
+  });
+
+  it('offers exporting and presenting on every layer, as two quiet buttons', async () => {
+    mocks.exits.canExit = true;
+    setState({ step: 1, students: named(2) });
+    render(<AppStatusBar />);
+
+    const exportButton = getButton(/^(Exportieren|Export)$/i);
+    const presentButton = getButton(/^(Präsentieren|Present)$/i);
+    // Blue is the layer's own action; the exits are never it.
+    expect(exportButton).toHaveClass('secondary-button');
+    expect(presentButton.className).toBe(exportButton.className);
+
+    await userEvent.click(exportButton);
+    await userEvent.click(presentButton);
+    expect(mocks.exits.exportPlan).toHaveBeenCalledTimes(1);
+    expect(mocks.exits.presentPlan).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps the exits clickable without a plan but does not leave', async () => {
+    setState({ step: 1, students: named(2) });
+    render(<AppStatusBar />);
+
+    const presentButton = getButton(/^(Präsentieren|Present)$/i);
+    expect(presentButton).toHaveAttribute('aria-disabled', 'true');
+
+    await userEvent.click(presentButton);
+    expect(mocks.exits.presentPlan).not.toHaveBeenCalled();
   });
 
   it('carries the toolbar switch, which the toolbar itself no longer has', async () => {

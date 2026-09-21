@@ -29,7 +29,7 @@ import {
 import StorageHistoryModal, {
   type StorageHistoryTab,
 } from '@/components/ui/navigation/StorageHistoryModal';
-import { cardSurfaceClass } from '@/utils';
+import { menuSurfaceClass } from '@/utils';
 import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 
@@ -117,7 +117,7 @@ export default function PlanToolPanel({
                   : undefined
               }
               panel={() => (
-                <div className={`${cardSurfaceClass} border p-4`}>
+                <div className={`${menuSurfaceClass} p-1`}>
                   <CanvasSettingsGroups groups={[group]} />
                 </div>
               )}

@@ -24,7 +24,7 @@ export const TOUR_ANCHORS = {
   addStudents: 'add-students',
   studentRow: 'student-row',
   proceedToLayout: 'proceed-layout',
-  appSettings: 'app-settings',
+  backup: 'backup',
   help: 'help',
   layoutCanvas: 'layout-canvas',
   canvasSettings: 'canvas-settings',
@@ -64,10 +64,7 @@ export const TOURS: Record<TourId, readonly TourMark[]> = {
     { anchor: TOUR_ANCHORS.proceedToLayout, textKey: 'tour.students.proceed' },
     // The data lives in this browser only, so the backup gets its own mark
     // before anything could be lost.
-    {
-      anchor: TOUR_ANCHORS.appSettings,
-      textKey: 'tour.students.appSettings',
-    },
+    { anchor: TOUR_ANCHORS.backup, textKey: 'tour.students.backup' },
     // Last, because the Help dialog is where every tour can be started again.
     { anchor: TOUR_ANCHORS.help, textKey: 'tour.help' },
   ],

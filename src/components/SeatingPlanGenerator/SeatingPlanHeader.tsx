@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import { useTranslation } from 'react-i18next';
-import { ChalkboardTeacherIcon, ExportIcon } from '@phosphor-icons/react';
 import { LocalizedLink } from '@/components/LocalizedLink';
 import LayerSwitcher from '@/components/shell/LayerSwitcher';
 import HeaderClassMenu from '@/components/shell/HeaderClassMenu';
@@ -9,7 +8,7 @@ import HeaderAppMenu from '@/components/shell/HeaderAppMenu';
 import HeaderPlanName from '@/components/shell/HeaderPlanName';
 import HelpButton from '@/components/ui/buttons/HelpButton';
 import OnboardingTour from '@/components/onboarding/OnboardingTour';
-import { resolveTourId, TOUR_ANCHORS } from '@/components/onboarding/tours';
+import { resolveTourId } from '@/components/onboarding/tours';
 import {
   useSeatingAlgorithmContext,
   useClassroomLayoutContext,
@@ -18,23 +17,18 @@ import {
 import { useClassManagementContext } from '@/contexts/seatingPlan/ClassManagementContext';
 import { useSeatingPlanSelector } from '@/contexts/seatingPlan/seatingPlanSelectors';
 import { useOnboardingTour } from '@/hooks/onboarding/onboardingTourStore';
-import { usePlanExits } from '@/hooks/plan/usePlanExits';
-import {
-  primaryButtonClass,
-  secondaryButtonClass,
-  showToast,
-  TOAST_MESSAGES,
-  type ShortcutContext,
-} from '@/utils';
+import type { ShortcutContext } from '@/utils';
 import { KpLockup } from '@/components/KpLockup';
 
 /**
- * The workspace header: branding, the layer switcher, and Help.
+ * The workspace header: branding, the class and the plan, the layer switcher,
+ * Help and the settings.
  *
  * It sticks to the top so the layer switcher is reachable from anywhere in a
  * long student list, and it hosts the onboarding tour: the header knows the
  * step and class that decide which tour applies, and the Help button that
- * restarts it lives here.
+ * restarts it lives here. Exporting and presenting moved to the middle of the
+ * status bar (`PlanExits`), beside the layer's one primary action.
  */
 export default function SeatingPlanHeader() {
   const { t } = useTranslation(['generator', 'common']);
@@ -43,7 +37,6 @@ export default function SeatingPlanHeader() {
   const { handleStepChange } = useSeatingPlanActions();
   const { activeClass } = useClassManagementContext();
   const { requestTour } = useOnboardingTour();
-  const { exportPlan, presentPlan, canExit } = usePlanExits();
   const autoMixing = useSeatingPlanSelector(({ state }) => state.autoMixing);
   const tourId = resolveTourId(
     step,
@@ -51,18 +44,6 @@ export default function SeatingPlanHeader() {
     seatingMode,
     autoMixing,
   );
-
-  // Both exits stay clickable without a plan: a disabled button in the header
-  // would leave a teacher guessing, a toast says what is missing.
-  const guardExit = (run: () => void) => () => {
-    if (!canExit) {
-      showToast('info', TOAST_MESSAGES.PLAN_NONE_YET);
-      return;
-    }
-    run();
-  };
-  const handleExport = guardExit(exportPlan);
-  const handlePresent = guardExit(presentPlan);
 
   // Handle layer changes
   const onStepChange = (targetStep: number) => {
@@ -170,11 +151,9 @@ export default function SeatingPlanHeader() {
           seatingMode={seatingMode}
         />
 
-        {/* Right — help, and the two ways out: export and the smartboard */}
-        <div
-          className="flex shrink-0 items-center justify-end gap-2 lg:w-95"
-          data-tour={TOUR_ANCHORS.planExits}
-        >
+        {/* Right — help and the settings. The two ways out, export and the
+            smartboard, sit in the middle of the status bar. */}
+        <div className="flex shrink-0 items-center justify-end gap-2 lg:w-95">
           {helpContent && (
             <HelpButton
               title={helpContent.title}
@@ -184,34 +163,8 @@ export default function SeatingPlanHeader() {
             />
           )}
           {/* The workspace runs at viewport height and shows no footer, so
-              appearance, backup and the legal pages hang here instead. */}
+              appearance, the data wipe and the legal pages hang here. */}
           <HeaderAppMenu />
-          {/* Both stay clickable without a plan so the toast can say why
-              nothing happened — see `usePlanExits`. */}
-          <button
-            type="button"
-            onClick={handleExport}
-            title={t('actions.exportShortcut')}
-            className={`${secondaryButtonClass} hidden h-9 gap-2 px-3 text-sm md:inline-flex ${
-              canExit ? '' : 'opacity-60'
-            }`}
-            aria-disabled={canExit ? undefined : true}
-          >
-            <ExportIcon className="h-4 w-4" aria-hidden="true" />
-            {t('actions.export')}
-          </button>
-          <button
-            type="button"
-            onClick={handlePresent}
-            title={t('present.buttonTitle')}
-            className={`${primaryButtonClass} h-9 gap-2 px-3 text-sm ${
-              canExit ? '' : 'opacity-60'
-            }`}
-            aria-disabled={canExit ? undefined : true}
-          >
-            <ChalkboardTeacherIcon className="h-4 w-4" aria-hidden="true" />
-            <span className="hidden sm:inline">{t('present.button')}</span>
-          </button>
         </div>
       </div>
 

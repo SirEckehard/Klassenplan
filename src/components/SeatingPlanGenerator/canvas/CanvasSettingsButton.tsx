@@ -1,15 +1,14 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
-import { SlidersHorizontalIcon } from '@phosphor-icons/react';
+import { CheckIcon, SlidersHorizontalIcon } from '@phosphor-icons/react';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
-import SettingToggle from '@/components/ui/controls/SettingToggle';
 import ToggleSwitch from '@/components/ui/controls/ToggleSwitch';
-import { cardSurfaceClass, mutedIconButtonClass } from '@/utils';
+import { menuItemClass, menuSurfaceClass, mutedIconButtonClass } from '@/utils';
 import { useClickOutside } from '@/hooks/ui/useClickOutside';
 
 const PANEL_MARGIN = 12;
-const DEFAULT_PANEL_WIDTH = 256;
+const DEFAULT_PANEL_WIDTH = 288;
 
 type CanvasSettingsToggleOption = {
   kind?: 'toggle';
@@ -28,13 +27,16 @@ type CanvasSettingsSegmentChoice = {
   icon?: React.ReactNode;
 };
 
-/** A multi-state (segmented) setting, e.g. the student-photo display mode. */
+/**
+ * A setting with a handful of values, one of which is on — e.g. the
+ * student-photo display mode. One row per value, the chosen one checked.
+ */
 type CanvasSettingsSegmentOption = {
   kind: 'segment';
   id: string;
-  /** Optional row heading above the segmented control; omitted → no heading. */
+  /** Optional heading above the values; omitted → no heading. */
   label?: string;
-  /** Accessible name of the control when no visible heading is rendered. */
+  /** Accessible name of the group when no visible heading is rendered. */
   ariaLabel?: string;
   icon?: React.ReactNode;
   value: string;
@@ -42,17 +44,11 @@ type CanvasSettingsSegmentOption = {
   onChange: (next: string) => void;
   description?: string;
   disabled?: boolean;
-  /**
-   * Renders the choices as icon-only buttons carrying their label as tooltip
-   * and accessible name. For labels too long to fit three across the panel.
-   */
-  iconOnly?: boolean;
 };
 
-type CanvasSettingsIconGridItem = {
+type CanvasSettingsCheckListItem = {
   id: string;
   icon: React.ReactNode;
-  /** Accessible name and tooltip of the chip. */
   label: string;
   checked: boolean;
   onChange: (next: boolean) => void;
@@ -60,21 +56,21 @@ type CanvasSettingsIconGridItem = {
 };
 
 /**
- * A compact grid of icon-only toggle chips, e.g. the per-type room-element
- * visibility. Saves vertical space compared to one toggle row per item.
+ * Several switches that belong together, e.g. which room elements are shown:
+ * one row per item, each an icon and a word, checked while it is on.
  */
-type CanvasSettingsIconGridOption = {
-  kind: 'iconGrid';
+type CanvasSettingsCheckListOption = {
+  kind: 'checkList';
   id: string;
-  /** Accessible name of the chip group. */
+  /** Accessible name of the group. */
   label?: string;
-  items: CanvasSettingsIconGridItem[];
+  items: CanvasSettingsCheckListItem[];
 };
 
 type CanvasSettingsOption =
   | CanvasSettingsToggleOption
   | CanvasSettingsSegmentOption
-  | CanvasSettingsIconGridOption;
+  | CanvasSettingsCheckListOption;
 
 /** Small switch rendered next to the group title, e.g. to toggle a whole group on/off. */
 type CanvasSettingsHeaderToggle = {
@@ -229,7 +225,7 @@ export const CanvasSettingsButton = React.forwardRef<
         {open && (
           <div
             ref={panelRef}
-            className={`${cardSurfaceClass} absolute left-0 ${panelPositionClass} max-w-sm overflow-y-auto rounded-2xl border border-(--border-card) bg-white/95 p-4 shadow-xl backdrop-blur-sm`}
+            className={`${menuSurfaceClass} absolute left-0 ${panelPositionClass} max-w-sm overflow-y-auto p-1`}
             style={{
               maxHeight: panelMaxHeight,
               width: `${panelWidth}px`,
@@ -244,12 +240,15 @@ export const CanvasSettingsButton = React.forwardRef<
 });
 
 /**
- * The settings themselves, without an opinion on what holds them.
+ * The settings themselves, as the inside of a dropdown menu: one row per
+ * setting, an icon and a word, checked while it is on.
  *
- * The canvas button popped them up in a corner of the stage; the layer
- * toolbars show the same groups in their "what to show" section. Both render
- * this, so a new option appears in every place the settings are reachable
- * from.
+ * They used to be a card of their own — a coloured heading, switches in
+ * bordered tiles, a grid of bare icons whose meaning lived in their tooltips.
+ * Next to a workspace that otherwise speaks in rows of icon and word, that read
+ * like a second application. What holds the rows brings the menu surface; the
+ * layer toolbars and the export page's canvas button both render this, so a new
+ * option appears in every place the settings are reachable from.
  */
 export function CanvasSettingsGroups({
   groups,
@@ -257,16 +256,20 @@ export function CanvasSettingsGroups({
   groups: CanvasSettingsGroup[];
 }) {
   return (
-    <div className="space-y-4 pr-1">
+    <div className="flex flex-col">
       {groups
         .filter((group) => group.options.length > 0)
-        .map((group) => (
-          <div key={group.id} className="space-y-2">
+        .map((group, index) => (
+          <div key={group.id} className="flex flex-col">
+            {index > 0 && (
+              <div
+                className="my-1 h-px bg-(--border-card)"
+                aria-hidden="true"
+              />
+            )}
             {group.title && (
-              <div className="flex items-center gap-2">
-                <p className="text-xs font-semibold uppercase tracking-wide text-(--text-badge)">
-                  {group.title}
-                </p>
+              <div className="flex items-center justify-between gap-2 px-3 pt-2 pb-1">
+                <span className={menuHeadingClass}>{group.title}</span>
                 {group.headerToggle && (
                   <ToggleSwitch
                     size="sm"
@@ -279,111 +282,136 @@ export function CanvasSettingsGroups({
                 )}
               </div>
             )}
-            <div className="space-y-2">
-              {group.options.map((option) =>
-                option.kind === 'iconGrid' ? (
-                  <IconGridSetting key={option.id} option={option} />
-                ) : option.kind === 'segment' ? (
-                  <SegmentSetting key={option.id} option={option} />
-                ) : (
-                  <SettingToggle
-                    key={option.id}
-                    icon={option.icon}
-                    label={option.label}
-                    description={option.description}
-                    checked={option.checked}
-                    onChange={(checked) => option.onChange(checked)}
-                    hideCheckboxIndicator
-                    disabled={option.disabled}
-                  />
-                ),
-              )}
-            </div>
+            {group.options.map((option) =>
+              option.kind === 'checkList' ? (
+                <div key={option.id} role="group" aria-label={option.label}>
+                  {option.items.map((item) => (
+                    <CheckRow
+                      key={item.id}
+                      icon={item.icon}
+                      label={item.label}
+                      checked={item.checked}
+                      disabled={item.disabled}
+                      onChange={item.onChange}
+                    />
+                  ))}
+                </div>
+              ) : option.kind === 'segment' ? (
+                <SegmentSetting key={option.id} option={option} />
+              ) : (
+                <CheckRow
+                  key={option.id}
+                  icon={option.icon}
+                  label={option.label}
+                  description={option.description}
+                  checked={option.checked}
+                  disabled={option.disabled}
+                  onChange={option.onChange}
+                />
+              ),
+            )}
           </div>
         ))}
     </div>
   );
 }
 
+/** The small caps above a group of rows, as in the header's own menus. */
+const menuHeadingClass =
+  'text-[11px] font-semibold uppercase tracking-wider text-(--text-muted)';
+
 /**
- * Renders a multi-state setting as a labelled row with a segmented control
- * underneath (used for the student-photo display mode: all / hover / off).
+ * One row of the menu: its icon, its word and — while it is on — a check. The
+ * row itself is the switch, pressed or not; the check says the same thing
+ * without colour.
  */
-function SegmentSetting({ option }: { option: CanvasSettingsSegmentOption }) {
+function CheckRow({
+  icon,
+  label,
+  description,
+  checked,
+  disabled = false,
+  onChange,
+}: {
+  icon?: React.ReactNode;
+  label: string;
+  description?: string;
+  checked: boolean;
+  disabled?: boolean;
+  onChange: (next: boolean) => void;
+}) {
   return (
-    <div className="space-y-2">
-      {option.label && (
-        <div className="flex items-center gap-2 text-sm text-(--text-muted)">
-          <span className="text-(--text-muted)">{option.icon}</span>
-          <span className="font-medium">{option.label}</span>
-        </div>
+    <button
+      type="button"
+      aria-pressed={checked}
+      disabled={disabled}
+      onClick={() => onChange(!checked)}
+      className={menuItemClass}
+    >
+      {icon && (
+        <span
+          aria-hidden="true"
+          className={`inline-flex size-4.5 shrink-0 items-center justify-center ${
+            checked ? 'text-(--text-page)' : 'text-(--text-muted)'
+          }`}
+        >
+          {icon}
+        </span>
       )}
-      <div
-        role="group"
-        aria-label={option.label ?? option.ariaLabel}
-        className="flex gap-1 rounded-xl bg-(--surface-sunken) p-1"
-      >
-        {option.choices.map((choice) => {
-          const active = choice.value === option.value;
-          return (
-            <button
-              key={choice.value}
-              type="button"
-              disabled={option.disabled}
-              aria-pressed={active}
-              aria-label={option.iconOnly ? choice.label : undefined}
-              title={option.iconOnly ? choice.label : undefined}
-              onClick={() => option.onChange(choice.value)}
-              className={`flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-center text-xs font-medium leading-tight transition focus:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) disabled:cursor-not-allowed disabled:opacity-50 ${
-                active
-                  ? 'bg-(--surface-card) text-(--text-badge) shadow-sm'
-                  : 'text-(--text-muted) hover:text-(--text-page) dark:hover:text-white'
-              }`}
-            >
-              {choice.icon}
-              {!option.iconOnly && <span>{choice.label}</span>}
-            </button>
-          );
-        })}
-      </div>
-      {option.description && (
-        <p className="text-xs text-(--text-muted)">{option.description}</p>
-      )}
-    </div>
+      <span className="min-w-0 flex-1">
+        <span className="block">{label}</span>
+        {description && (
+          <span className="block text-xs text-(--text-muted)">
+            {description}
+          </span>
+        )}
+      </span>
+      <CheckIcon
+        size={16}
+        aria-hidden="true"
+        className={`shrink-0 text-(--text-badge) ${checked ? '' : 'invisible'}`}
+      />
+    </button>
   );
 }
 
 /**
- * Renders icon-only toggle chips in a four-column grid. Every group shares that
- * raster and the chips stretch to fill it, so the rows end flush with the panel
- * edges instead of leaving a ragged gap. Active chips are colored, inactive
- * chips grayed out; each chip carries its label as tooltip and accessible name.
+ * A setting with a handful of values as rows of the menu, the chosen one
+ * checked (e.g. the student photos: on / on hover / off). The hint under them
+ * previews what the choice does.
  */
-function IconGridSetting({ option }: { option: CanvasSettingsIconGridOption }) {
+function SegmentSetting({ option }: { option: CanvasSettingsSegmentOption }) {
   return (
-    <div
-      role="group"
-      aria-label={option.label}
-      className="grid grid-cols-4 gap-1.5"
-    >
-      {option.items.map((item) => (
-        <button
-          key={item.id}
-          type="button"
-          disabled={item.disabled}
-          aria-pressed={item.checked}
-          aria-label={item.label}
-          title={item.label}
-          onClick={() => item.onChange(!item.checked)}
-          className={`flex h-9 w-full cursor-pointer items-center justify-center rounded-lg transition focus:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) disabled:cursor-not-allowed disabled:opacity-40 ${
-            item.checked
-              ? 'bg-(--surface-option-selected) text-(--text-badge)'
-              : 'bg-(--surface-sunken) text-(--text-muted) hover:bg-(--border-card) hover:text-(--text-muted)'
-          }`}
-        >
-          {item.icon}
-        </button>
-      ))}
+    <div className="flex flex-col">
+      {option.label && (
+        <div className="px-3 pt-2 pb-1">
+          <span className={menuHeadingClass}>{option.label}</span>
+        </div>
+      )}
+      <div role="group" aria-label={option.label ?? option.ariaLabel}>
+        {option.choices.map((choice) => {
+          const active = choice.value === option.value;
+          return (
+            <CheckRow
+              key={choice.value}
+              icon={choice.icon}
+              label={choice.label}
+              checked={active}
+              disabled={option.disabled}
+              // Pressing the value it already has keeps it: one of them is
+              // always on.
+              onChange={() => {
+                if (!active) option.onChange(choice.value);
+              }}
+            />
+          );
+        })}
+      </div>
+      {option.description && (
+        <p className="px-3 pt-1 pb-2 text-xs text-(--text-muted)">
+          {option.description}
+        </p>
+      )}
     </div>
   );
 }
@@ -392,6 +420,6 @@ export type {
   CanvasSettingsGroup,
   CanvasSettingsOption,
   CanvasSettingsSegmentOption,
-  CanvasSettingsIconGridOption,
-  CanvasSettingsIconGridItem,
+  CanvasSettingsCheckListOption,
+  CanvasSettingsCheckListItem,
 };

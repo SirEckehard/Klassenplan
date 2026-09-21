@@ -7,6 +7,7 @@ import {
   NotebookIcon,
   ToggleLeftIcon,
   ToggleRightIcon,
+  WarningIcon,
 } from '@phosphor-icons/react';
 import {
   CRITERIA_FAMILY_MAP,
@@ -21,14 +22,10 @@ import {
   getSidebarIconClasses,
   getSidebarSurfaceClasses,
   getStatisticStatusMeta,
-  quietIconButtonClass,
   secondaryButtonClass,
   type MixImportance,
 } from '@/utils';
-import {
-  calculateCriteriaWeightedScore,
-  type CriterionFulfillment,
-} from '@/utils/algorithm/seatingStatistics';
+import type { CriterionFulfillment } from '@/utils/algorithm/seatingStatistics';
 import usePersistentState from '@/hooks/usePersistentState';
 import {
   useMixCriteria,
@@ -37,18 +34,17 @@ import {
 } from '@/hooks/ui/useMixCriteria';
 import { useMixRecipes } from '@/hooks/ui/useMixRecipes';
 import SidebarFlyout from '@/components/ui/panels/SidebarFlyout';
-import SectionHeader from '../layout/SectionHeader';
 import SectionSeparator from '../feedback/SectionSeparator';
 import { MixRecipeList, MixRecipePanel } from './MixRecipes';
 import RailButton from './RailButton';
 import ToggleSwitch from './ToggleSwitch';
 
 /**
- * - `comfortable`: the expanded sidebar and the phone sheet. Every criterion is
- *   a card with its explanation and slider in view.
- * - `compact`: the collapsed sidebar and the row under the canvas on a phone.
- *   Every criterion is a round button whose ring shows the weight; explanation
- *   and slider are in its flyout.
+ * - `comfortable`: the inspector. Every criterion is a card with its
+ *   explanation and its four levels in view.
+ * - `compact`: the row under the canvas on a phone. Every criterion is a round
+ *   button whose ring shows the weight; explanation and levels are in its
+ *   flyout.
  */
 type Density = 'comfortable' | 'compact';
 
@@ -107,8 +103,9 @@ const compactFrameClass = {
 
 /**
  * How important a criterion is, in the four words a teacher can decide
- * between. The weight behind them is still there — the fine tuning switch
- * shows it — but nobody has to think in tenths to set a plan up.
+ * between. The weight behind them is still there for the algorithm, but
+ * nobody has to think in tenths to set a plan up — so the panel no longer
+ * offers them at all.
  */
 function ImportanceChoice({
   label,
@@ -159,61 +156,6 @@ function ImportanceChoice({
   );
 }
 
-function WeightBadge({ value }: { value: number }) {
-  return (
-    <span
-      className={`shrink-0 rounded-full px-3 py-1 text-xs tabular-nums shadow-sm ${
-        value > 0
-          ? 'bg-(--surface-option-selected) text-(--text-badge)'
-          : 'bg-(--surface-sunken) text-(--text-muted)'
-      }`}
-    >
-      {value}/10
-    </span>
-  );
-}
-
-function WeightSlider({
-  label,
-  value,
-  onChange,
-}: {
-  label: string;
-  value: number;
-  onChange: (value: number) => void;
-}) {
-  const { t } = useTranslation('generator');
-  const isActive = value > 0;
-
-  // The input is a tall transparent hit area with a thin track drawn inside,
-  // so a finger on a tablet finds the thumb.
-  return (
-    <input
-      type="range"
-      min="0"
-      max="10"
-      step="1"
-      value={value}
-      // Inside a card, a press on the slider must not also switch the card.
-      onClick={(event) => event.stopPropagation()}
-      onChange={(event) => onChange(parseInt(event.target.value, 10))}
-      aria-label={t('mix.weightSliderLabel', { label })}
-      className={`h-6 w-full cursor-pointer appearance-none rounded-full bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)
-        [&::-moz-range-thumb]:size-3 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0
-        [&::-moz-range-track]:h-1 [&::-moz-range-track]:rounded-full
-        [&::-webkit-slider-runnable-track]:h-1 [&::-webkit-slider-runnable-track]:rounded-full
-        [&::-webkit-slider-thumb]:-mt-1 [&::-webkit-slider-thumb]:size-3 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full
-        pointer-coarse:[&::-moz-range-thumb]:size-5
-        pointer-coarse:[&::-webkit-slider-thumb]:-mt-2 pointer-coarse:[&::-webkit-slider-thumb]:size-5
-        ${
-          isActive
-            ? '[&::-moz-range-thumb]:bg-(--button-primary-bg) [&::-moz-range-track]:bg-(--surface-option-selected) [&::-webkit-slider-runnable-track]:bg-(--surface-option-selected) [&::-webkit-slider-thumb]:bg-(--button-primary-bg)'
-            : '[&::-moz-range-thumb]:bg-(--text-muted) [&::-moz-range-track]:bg-(--border-card) [&::-webkit-slider-runnable-track]:bg-(--border-card) [&::-webkit-slider-thumb]:bg-(--text-muted)'
-        }`}
-    />
-  );
-}
-
 /**
  * The weight drawn on the button's own border: a 5 fills half of it. `pathLength`
  * turns the dash pattern into weight units, so no circumference is computed.
@@ -243,8 +185,11 @@ function WeightRing({ value }: { value: number }) {
 
 /**
  * How well the last mix met one criterion — under the levels that caused it.
- * A bar the length of the percentage, and beside it the plain counting where
- * there is one: "4/4" says more than "100 %" about four restless students.
+ * A bar the length of the percentage, and the percentage beside it.
+ *
+ * It showed the plain counting for a while ("3/4"), which read as a number of
+ * students next to a bar and a total that are shares; one scale for every
+ * criterion and for the whole plan reads faster.
  *
  * Without `onToggle` it is plain text: on a phone the marking it would pin sits
  * behind the sheet this badge is shown in.
@@ -274,16 +219,7 @@ function FulfillmentBadge({
   const percentage = Math.round(criterion.percentage);
   const { status, dotClass } = getStatisticStatusMeta(criterion.percentage);
   const statusLabel = t(`statisticsBadge.status.${status}`);
-  const count = criterion.count;
-  // The accessible name spells the value out; on screen the count wins where
-  // there is one, because it names the cases rather than a share of them.
-  const accessibleValue = count
-    ? t('mix.fulfillment.countValue', {
-        percentage,
-        fulfilled: count.fulfilled,
-        total: count.total,
-      })
-    : t('mix.fulfillment.value', { percentage });
+  const value = t('mix.fulfillment.value', { percentage });
   const shapeClass = `flex w-full items-center gap-2 rounded-md px-1 py-1 text-xs tabular-nums ${
     pinned ? 'bg-(--surface-option-selected)' : ''
   } ${className}`;
@@ -299,12 +235,7 @@ function FulfillmentBadge({
         />
       </span>
       <span aria-hidden="true" className="shrink-0 text-(--text-muted)">
-        {count
-          ? t('mix.fulfillment.count', {
-              fulfilled: count.fulfilled,
-              total: count.total,
-            })
-          : t('mix.fulfillment.value', { percentage })}
+        {value}
       </span>
     </>
   );
@@ -313,7 +244,7 @@ function FulfillmentBadge({
     return (
       <span className={`${shapeClass} pointer-events-none`} title={statusLabel}>
         <span className="sr-only">
-          {t('mix.fulfillment.plainLabel', { label, value: accessibleValue })}
+          {t('mix.fulfillment.plainLabel', { label, value })}
         </span>
         {body}
       </span>
@@ -331,7 +262,7 @@ function FulfillmentBadge({
       aria-pressed={pinned}
       aria-label={t(
         pinned ? 'mix.fulfillment.unpinLabel' : 'mix.fulfillment.pinLabel',
-        { label, value: accessibleValue },
+        { label, value },
       )}
       title={statusLabel}
       className={`${shapeClass} cursor-pointer transition hover:bg-(--surface-sunken) focus:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)`}
@@ -360,27 +291,17 @@ function FulfillmentDot({ percentage }: { percentage: number }) {
 
 /**
  * Name, explanation and importance of one criterion: the body of its card, and
- * of its flyout in the compact density. The weight from 0 to 10 comes along
- * only where the fine tuning asks for it.
+ * of its flyout in the compact density.
  */
 function CriterionWeight({
   criterion,
-  value,
   importance,
   onImportanceChange,
-  onChange,
-  fineTuning,
 }: {
   criterion: MixCriterion;
-  value: number;
   importance: MixImportance;
   onImportanceChange: (level: MixImportance) => void;
-  onChange: (value: number) => void;
-  /** Shows the weight the level stands for, and lets it be set exactly. */
-  fineTuning: boolean;
 }) {
-  const { t } = useTranslation('generator');
-
   return (
     <div>
       {/* A block, so the card's accessible name reads "Restlessness Separate
@@ -388,10 +309,7 @@ function CriterionWeight({
       <div className="mb-1 text-sm font-medium text-(--text-page)">
         {criterion.label}
       </div>
-      <div
-        className="mb-2 text-xs text-(--text-muted)"
-        title={t('mix.weightTooltip', { value })}
-      >
+      <div className="mb-2 text-xs text-(--text-muted)">
         {criterion.description}
       </div>
       <ImportanceChoice
@@ -399,19 +317,6 @@ function CriterionWeight({
         value={importance}
         onChange={onImportanceChange}
       />
-      {/* The number behind the words, for whoever wants to set it exactly. */}
-      {fineTuning && (
-        <div className="mt-2 flex items-center gap-2">
-          <WeightBadge value={value} />
-          <div className="flex-1 rounded-lg border border-(--border-card) bg-(--surface-card) px-3">
-            <WeightSlider
-              label={criterion.label}
-              value={value}
-              onChange={onChange}
-            />
-          </div>
-        </div>
-      )}
     </div>
   );
 }
@@ -435,8 +340,6 @@ function CriterionCard({
   value,
   importance,
   onImportanceChange,
-  onWeightChange,
-  fineTuning,
   fulfillment,
   pinned,
   onHighlightHover,
@@ -446,8 +349,6 @@ function CriterionCard({
   CriterionFulfillmentProps & {
     importance: MixImportance;
     onImportanceChange: (level: MixImportance) => void;
-    onWeightChange: (value: number) => void;
-    fineTuning: boolean;
   }) {
   const isActive = value > 0;
   const Icon = CRITERIA_ICON_MAP[criterion.key];
@@ -486,11 +387,8 @@ function CriterionCard({
         <div className="min-w-0 flex-1">
           <CriterionWeight
             criterion={criterion}
-            value={value}
             importance={importance}
             onImportanceChange={onImportanceChange}
-            onChange={onWeightChange}
-            fineTuning={fineTuning}
           />
         </div>
       </div>
@@ -512,6 +410,7 @@ function CriterionCard({
 function CriterionRailButton({
   criterion,
   value,
+  importance,
   onPress,
   describedBy,
   onOpenFlyout,
@@ -520,11 +419,13 @@ function CriterionRailButton({
   onHighlightLeave,
 }: CriterionControlProps &
   CriterionFulfillmentProps & {
+    importance: MixImportance;
     describedBy: string;
     onOpenFlyout: (button: HTMLButtonElement) => void;
   }) {
   const { t } = useTranslation('generator');
   const isActive = value > 0;
+  const level = t(`mix.importance.${importance}`);
   const Icon = CRITERIA_ICON_MAP[criterion.key];
   // `aria-label` replaces the button's content, so the dot's meaning has to be
   // spelled into it rather than left to the markup.
@@ -542,11 +443,11 @@ function CriterionRailButton({
     <RailButton
       label={
         (isActive
-          ? t('mix.railCriterionActiveLabel', { label: criterion.label, value })
+          ? t('mix.railCriterionActiveLabel', { label: criterion.label, level })
           : criterion.label) + fulfillmentSuffix
       }
       title={
-        t('mix.railCriterionTitle', { label: criterion.label, value }) +
+        t('mix.railCriterionTitle', { label: criterion.label, level }) +
         fulfillmentSuffix
       }
       pressed={isActive}
@@ -571,45 +472,6 @@ type AllCriteriaControlProps = {
   /** What switching all criteria would do now. */
   actionLabel: string;
 };
-
-function AllCriteriaSwitch({
-  isRandom,
-  actionLabel,
-  onChange,
-  onResetToDefaults,
-}: AllCriteriaControlProps & {
-  onChange: (on: boolean) => void;
-  onResetToDefaults: () => void;
-}) {
-  const { t } = useTranslation('generator');
-
-  return (
-    <div className="px-2">
-      <div className="flex items-center justify-between gap-3 rounded-lg bg-(--surface-sunken) px-4 py-3">
-        <span className="text-sm font-medium text-(--text-page)">
-          {t('mix.toggleAll')}
-        </span>
-        <div className="flex items-center gap-1">
-          <button
-            type="button"
-            onClick={onResetToDefaults}
-            className={`${quietIconButtonClass} h-8 w-8`}
-            title={t('mix.resetDefaultsTitle')}
-            aria-label={t('mix.resetDefaultsTitle')}
-          >
-            <ArrowCounterClockwiseIcon size={16} aria-hidden="true" />
-          </button>
-          <ToggleSwitch
-            checked={!isRandom}
-            onChange={onChange}
-            label={t('mix.toggleAll')}
-            title={actionLabel}
-          />
-        </div>
-      </div>
-    </div>
-  );
-}
 
 function AllCriteriaRailButton({
   isRandom,
@@ -704,10 +566,13 @@ function CriteriaGroup({
 }
 
 /**
- * The mixing criteria in both sidebar densities. Each part of the panel — the
- * switch for all criteria, a criterion, the warning when mixing is random — is
- * one place with a comfortable and a compact form, so a change to it reaches
- * both, and the compact form keeps everything the comfortable one offers.
+ * The mixing criteria in both densities: the inspector's panel and the row
+ * under the canvas on a phone. Each part — the recipes, a criterion, the
+ * warning when mixing is random — is one place with a comfortable and a compact
+ * form, so a change to it reaches both, and the compact form keeps everything
+ * the comfortable one offers. The switch for all criteria is the one part that
+ * lives apart: in the inspector it sits beside the heading
+ * (`MixCriteriaSwitch`), on the phone it leads the row.
  */
 function SmartMixControls({
   settings,
@@ -737,12 +602,6 @@ function SmartMixControls({
     LOCAL_STORAGE_KEYS.mixWeightHintSeen,
     false,
   );
-  // A way of looking at the panel, not a property of the plan — so it is
-  // remembered per browser, like the sidebar's density.
-  const [fineTuning, setFineTuning] = usePersistentState(
-    LOCAL_STORAGE_KEYS.mixFineTuning,
-    false,
-  );
   const weightHintId = React.useId();
   const defaultsHintId = React.useId();
 
@@ -768,10 +627,6 @@ function SmartMixControls({
     }
     return byKey;
   }, [fulfillment]);
-  const overallScore =
-    fulfillment && fulfillment.length > 0
-      ? Math.round(calculateCriteriaWeightedScore(fulfillment))
-      : null;
   const flyoutFulfillment = flyoutCriterion
     ? fulfillmentByKey.get(flyoutCriterion.key)
     : undefined;
@@ -839,29 +694,22 @@ function SmartMixControls({
           </span>
         </>
       ) : (
-        <div>
-          <SectionHeader
-            title={t('mix.title')}
-            description={t('mix.description')}
-          />
-          {overallScore !== null && (
-            <p className="px-3 pb-1 text-xs font-medium text-(--text-muted)">
-              {t('mix.fulfillment.overall', { percentage: overallScore })}
-            </p>
-          )}
-          {/* The weights never went away; this is where they come back. */}
-          <div className="flex justify-end px-3 pb-1">
-            <button
-              type="button"
-              onClick={() => setFineTuning(!fineTuning)}
-              aria-pressed={fineTuning}
-              title={t('mix.fineTuningHint')}
-              className="cursor-pointer rounded-md px-2 py-1 text-xs font-medium text-(--text-muted) transition hover:text-(--text-page) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)"
-            >
-              {t('mix.fineTuning')}
-            </button>
+        // The inspector's heading already names the panel and carries the
+        // switch for all criteria (`MixCriteriaSwitch`); what is left up here
+        // is the one thing that switch cannot say by itself.
+        mix.isRandom && (
+          <div
+            role="status"
+            className="mx-2 flex items-center gap-2 rounded-lg border border-(--border-card) bg-(--surface-sunken) px-3 py-2 text-xs font-medium text-(--text-page)"
+          >
+            <WarningIcon
+              size={16}
+              aria-hidden="true"
+              className="shrink-0 text-(--status-warn)"
+            />
+            {t('mix.randomWarning')}
           </div>
-        </div>
+        )
       )}
 
       {/* What the plan is for, above the criteria it sets. */}
@@ -891,18 +739,12 @@ function SmartMixControls({
         />
       )}
 
-      {isCompact ? (
+      {isCompact && (
         <AllCriteriaRailButton
           {...allCriteria}
           describedBy={defaultsHintId}
           onPress={() => setAllCriteria(mix.isRandom)}
           onOpenFlyout={(button) => openFlyout('all', button)}
-        />
-      ) : (
-        <AllCriteriaSwitch
-          {...allCriteria}
-          onChange={setAllCriteria}
-          onResetToDefaults={mix.resetToDefaults}
         />
       )}
       {isCompact && direction === 'column' && (
@@ -930,6 +772,7 @@ function SmartMixControls({
               <CriterionRailButton
                 key={criterion.key}
                 {...control}
+                importance={mix.importanceOf(criterion.key)}
                 onPress={(button) =>
                   handleCriterionPress(criterion.key, button)
                 }
@@ -944,25 +787,11 @@ function SmartMixControls({
                 onImportanceChange={(level) =>
                   mix.setImportance(criterion.key, level)
                 }
-                onWeightChange={(value) => mix.setWeight(criterion.key, value)}
-                fineTuning={fineTuning}
               />
             );
           })}
         </CriteriaGroup>
       ))}
-
-      {/* In the compact density the warning is in the flyout of "all criteria",
-          whose button turns amber. */}
-      {!isCompact && mix.isRandom && (
-        <div className="px-2 pb-2">
-          <div className="rounded-lg border border-(--border-card) bg-(--surface-sunken) p-3">
-            <p className="text-center text-xs font-medium text-(--text-page)">
-              ⚠️ {t('mix.randomWarning')}
-            </p>
-          </div>
-        </div>
-      )}
 
       {/* Keyed by target: moving from one button's flyout straight to
           another's starts afresh, with its own placement and focus. Widening
@@ -1009,17 +838,14 @@ function SmartMixControls({
           autoFocus={flyout.autoFocus}
           onClose={closeFlyout}
         >
-          {/* The rail has no room for the levels, so its flyout carries them —
-              together with the weight, which is what it was opened for. */}
+          {/* The rail has no room for the levels, so its flyout carries
+              them — which is what it was opened for. */}
           <CriterionWeight
             criterion={flyoutCriterion}
-            value={mix.weightOf(flyoutCriterion.key)}
             importance={mix.importanceOf(flyoutCriterion.key)}
             onImportanceChange={(level) =>
               mix.setImportance(flyoutCriterion.key, level)
             }
-            onChange={(value) => mix.setWeight(flyoutCriterion.key, value)}
-            fineTuning
           />
           {/* On the rail the button itself only previews while the pointer
               rests on it; pinning the marking lives here, next to the value. */}
@@ -1050,6 +876,40 @@ function SmartMixControls({
         </SidebarFlyout>
       )}
     </div>
+  );
+}
+
+/**
+ * "Alle Kriterien" as a switch beside the inspector's heading: the one control
+ * that acts on every criterion sits above all of them, where the heading names
+ * what it switches. It reads the weights itself, so the header strip and the
+ * panel under it stay two separate pieces of the inspector. The way back to
+ * the recommended weights is the recipe of that name.
+ */
+export function MixCriteriaSwitch({
+  settings,
+  setMixSettings,
+  students,
+  suspendedWeights,
+}: Pick<
+  SmartMixControlsProps,
+  'settings' | 'setMixSettings' | 'students' | 'suspendedWeights'
+>) {
+  const { t } = useTranslation('generator');
+  const mix = useMixCriteria({
+    settings,
+    setMixSettings,
+    students,
+    suspendedWeights,
+  });
+
+  return (
+    <ToggleSwitch
+      checked={!mix.isRandom}
+      onChange={(on) => (on ? mix.enableAll() : mix.disableAll())}
+      label={t('mix.toggleAll')}
+      title={mix.isRandom ? t('mix.enableAll') : t('mix.disableAll')}
+    />
   );
 }
 

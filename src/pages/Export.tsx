@@ -72,7 +72,7 @@ import ExportSidebar from '@/components/SeatingPlanGenerator/ExportSidebar';
 import {
   CanvasSettingsButton,
   type CanvasSettingsGroup,
-  type CanvasSettingsIconGridItem,
+  type CanvasSettingsCheckListItem,
   type CanvasSettingsButtonHandle,
 } from '@/components/SeatingPlanGenerator/canvas/CanvasSettingsButton';
 
@@ -352,7 +352,7 @@ export default function Export() {
   }, [activeOrientation, previewFrameHeight]);
 
   const exportSettingsGroups = useMemo<CanvasSettingsGroup[]>(() => {
-    const displayItems: CanvasSettingsIconGridItem[] = [];
+    const displayItems: CanvasSettingsCheckListItem[] = [];
 
     if (previewMode === 'circle') {
       displayItems.push({
@@ -401,7 +401,7 @@ export default function Export() {
         title: t('export.preview', 'Vorschau'),
         options: [
           {
-            kind: 'iconGrid',
+            kind: 'checkList',
             id: 'preview-display-grid',
             label: t('export.preview', 'Vorschau'),
             items: displayItems,

@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import {
   ArrowRightIcon,
   ArchiveIcon,
+  DownloadIcon,
   FileArrowDownIcon,
   FileArrowUpIcon,
   GameControllerIcon,
@@ -12,6 +13,7 @@ import {
   ListBulletsIcon,
   SquaresFourIcon,
   TableIcon,
+  UploadIcon,
   UserPlusIcon,
   UsersThreeIcon,
 } from '@phosphor-icons/react';
@@ -23,6 +25,7 @@ import {
 } from '@/components/shell/ToolRail';
 import {
   inputFieldClass,
+  menuItemClass,
   menuSurfaceClass,
   primaryButtonClass,
   successIconButtonClass,
@@ -51,16 +54,19 @@ type Props = {
   onImportCsv: (file: File) => Promise<unknown>;
   onExportCsv: () => void;
   onCreateBackup: () => void;
+  onImportBackup: () => void;
   onPlayNameGame: () => void;
   onLoadDemoClass?: () => void;
   isDemoClassLoading?: boolean;
   hasDemoClass?: boolean;
 };
 
+/** A panel that asks for a value: a name, a number of placeholders. */
 const panelClass = `${menuSurfaceClass} flex flex-col gap-3 p-3`;
 const panelLabelClass = 'text-xs font-medium text-(--text-muted)';
-const panelOptionClass =
-  'flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-left text-sm transition hover:bg-(--surface-sunken) focus-within:ring-2 focus-within:ring-(--focus-ring-primary) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)';
+/** A panel that offers a choice of actions: a dropdown menu, icon and word. */
+const menuClass = `${menuSurfaceClass} p-1`;
+const menuIconClass = 'h-4 w-4 shrink-0 text-(--text-muted)';
 
 /**
  * The class layer's toolbar: how students get in, how to look at them, and
@@ -88,6 +94,7 @@ export default function ClassToolPanel({
   onImportCsv,
   onExportCsv,
   onCreateBackup,
+  onImportBackup,
   onPlayNameGame,
   onLoadDemoClass,
   isDemoClassLoading = false,
@@ -95,6 +102,9 @@ export default function ClassToolPanel({
 }: Props) {
   const { t } = useTranslation(['students', 'generator']);
   const hasStudents = studentCount > 0;
+  // The file picker is opened from a menu row: a hidden input inside a label
+  // could not be reached with the keyboard.
+  const csvInputRef = React.useRef<HTMLInputElement | null>(null);
 
   return (
     <ToolRail density={density}>
@@ -151,32 +161,42 @@ export default function ClassToolPanel({
           label={t('students:csv.import')}
           disabled={!hasActiveClass}
           panel={(close) => (
-            <div className={panelClass}>
-              <label className={panelOptionClass}>
-                <FileArrowUpIcon size={16} aria-hidden="true" />
+            <div className={menuClass}>
+              <button
+                type="button"
+                onClick={() => csvInputRef.current?.click()}
+                className={menuItemClass}
+              >
+                <FileArrowUpIcon className={menuIconClass} aria-hidden="true" />
                 {t('students:csv.import')}
-                <input
-                  type="file"
-                  accept=".csv"
-                  onChange={async (event) => {
-                    const file = event.target.files?.[0];
-                    event.target.value = '';
-                    if (!file) return;
-                    close();
-                    await onImportCsv(file);
-                  }}
-                  className="hidden"
-                />
-              </label>
+              </button>
+              <input
+                ref={csvInputRef}
+                type="file"
+                accept=".csv"
+                tabIndex={-1}
+                aria-hidden="true"
+                onChange={async (event) => {
+                  const file = event.target.files?.[0];
+                  event.target.value = '';
+                  if (!file) return;
+                  close();
+                  await onImportCsv(file);
+                }}
+                className="hidden"
+              />
               <button
                 type="button"
                 onClick={() => {
                   close();
                   downloadCsvTemplate();
                 }}
-                className={panelOptionClass}
+                className={menuItemClass}
               >
-                <FileArrowDownIcon size={16} aria-hidden="true" />
+                <FileArrowDownIcon
+                  className={menuIconClass}
+                  aria-hidden="true"
+                />
                 {t('students:csv.templateLink')}
               </button>
               <button
@@ -185,16 +205,19 @@ export default function ClassToolPanel({
                   close();
                   openCsvFormatHelp();
                 }}
-                className={panelOptionClass}
+                className={menuItemClass}
               >
-                <TableIcon size={16} aria-hidden="true" />
+                <TableIcon className={menuIconClass} aria-hidden="true" />
                 {t('students:csv.formatHelp')}
               </button>
               {/* Last on purpose: every other option fills this class, the
                   sample class is created as a class of its own. */}
               {onLoadDemoClass && (
                 <>
-                  <div className="h-px bg-(--border-card)" role="separator" />
+                  <div
+                    className="my-1 h-px bg-(--border-card)"
+                    role="separator"
+                  />
                   <button
                     type="button"
                     onClick={() => {
@@ -203,20 +226,23 @@ export default function ClassToolPanel({
                     }}
                     disabled={isDemoClassLoading}
                     aria-busy={isDemoClassLoading || undefined}
-                    className={`${panelOptionClass} disabled:cursor-wait disabled:opacity-70`}
+                    className={`${menuItemClass} disabled:cursor-wait disabled:opacity-70`}
                   >
-                    <UsersThreeIcon size={16} aria-hidden="true" />
+                    <UsersThreeIcon
+                      className={menuIconClass}
+                      aria-hidden="true"
+                    />
                     {isDemoClassLoading
                       ? t('generator:demoClass.loading')
                       : hasDemoClass
                         ? t('generator:demoClass.switchButton')
                         : t('generator:demoClass.button')}
                   </button>
-                  <span className="px-3 text-xs text-(--text-muted)">
+                  <p className="px-3 pt-0.5 pb-2 text-xs text-(--text-muted)">
                     {hasDemoClass
                       ? t('generator:demoClass.addMenuSwitchHint')
                       : t('generator:demoClass.addMenuHint')}
-                  </span>
+                  </p>
                 </>
               )}
             </div>
@@ -310,10 +336,38 @@ export default function ClassToolPanel({
           disabled={!hasStudents}
           onClick={onExportCsv}
         />
+        {/* The data lives in this browser only; both ways a backup travels
+            sit behind one entry, so the rail keeps its length. */}
         <ToolRailButton
           icon={<ArchiveIcon size={18} />}
-          label={t('generator:storage.exportBackup')}
-          onClick={onCreateBackup}
+          label={t('generator:storage.backup')}
+          data-tour={TOUR_ANCHORS.backup}
+          panel={(close) => (
+            <div className={menuClass}>
+              <button
+                type="button"
+                onClick={() => {
+                  close();
+                  onCreateBackup();
+                }}
+                className={menuItemClass}
+              >
+                <DownloadIcon className={menuIconClass} aria-hidden="true" />
+                {t('generator:storage.exportBackup')}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  close();
+                  onImportBackup();
+                }}
+                className={menuItemClass}
+              >
+                <UploadIcon className={menuIconClass} aria-hidden="true" />
+                {t('generator:storage.importBackup')}
+              </button>
+            </div>
+          )}
         />
       </ToolRailGroup>
     </ToolRail>

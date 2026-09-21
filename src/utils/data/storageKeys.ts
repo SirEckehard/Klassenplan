@@ -44,8 +44,10 @@ export const STORAGE_KEYS = {
     // Whether the collapsed sidebar has already shown, once, that a criterion's
     // weight opens with a right click or a long press.
     mixWeightHintSeen: 'spg.mixWeightHintSeen',
-    // Whether the criteria show their weight from 0 to 10 beside the named
-    // importance level. A way of looking at the panel, so it is remembered.
+    // Retired: whether the criteria showed their weight from 0 to 10 beside
+    // the named importance level. The fine tuning is gone and nothing reads
+    // this any more; it stays listed so a wipe still removes what older
+    // versions wrote.
     mixFineTuning: 'spg.mixFineTuning',
     hasVisitedApp: 'spg.hasVisitedApp',
     // Which onboarding tours have been shown and whether they are switched off

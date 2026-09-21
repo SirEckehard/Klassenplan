@@ -5,7 +5,7 @@ import React from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import '@/i18n/i18n';
-import SmartMixControls from '../SmartMixControls';
+import SmartMixControls, { MixCriteriaSwitch } from '../SmartMixControls';
 import { createSuspendedWeights } from '@/hooks/ui/useMixCriteria';
 import { useAutoMixSettings } from '@/hooks/domains/useAutoMixSettings';
 import { createMockStudent } from '@/__tests__/utils';
@@ -101,6 +101,8 @@ function Harness({
 
   return (
     <>
+      {/* The inspector puts the switch for all criteria into its header. */}
+      {density !== 'compact' && <MixCriteriaSwitch {...controls} />}
       <SmartMixControls {...controls} density={density} />
       {withCompactRow && (
         <SmartMixControls {...controls} density="compact" direction="row" />
@@ -135,22 +137,11 @@ const OFF = /Aus|Off/;
 const IMPORTANT = /Wichtig|Important/;
 const ESSENTIAL = /Sehr wichtig|Very important/;
 
-/** Brings the weights from 0 to 10 back into view, as the teacher would. */
-const openFineTuning = () =>
-  fireEvent.click(
-    screen.getByRole('button', { name: /^(Feinjustierung|Fine tuning)$/ }),
-  );
-
 const allCriteriaButton = () =>
   screen.getByRole('button', { name: /^(Alle Kriterien|All criteria)$/ });
 
 const allCriteriaSwitch = () =>
   screen.getByRole('switch', { name: /Alle Kriterien|All criteria/ });
-
-const sliderFor = (label: RegExp) =>
-  screen.getByRole('slider', {
-    name: new RegExp(`(Wichtigkeit|Importance): (${label.source})`),
-  });
 
 beforeEach(() => {
   localStorage.clear();
@@ -199,7 +190,7 @@ describe('SmartMixControls — comfortable density', () => {
     expect(weightOf('avoidRestlessTogether')).toBe(0);
   });
 
-  it('keeps a fine-tuned weight when its own level is pressed again', () => {
+  it("keeps a recipe's weight when its own level is pressed again", () => {
     render(<Harness initial={{ avoidRestlessTogether: 6 }} />);
 
     // 6 reads as "important" — pressing that level must not reset it to 5.
@@ -208,22 +199,27 @@ describe('SmartMixControls — comfortable density', () => {
     expect(weightOf('avoidRestlessTogether')).toBe(6);
   });
 
-  it('sets the weight with the slider once the fine tuning is open', () => {
+  // The fine tuning is gone: four words, and no weights from 0 to 10.
+  it('sets a criterion in words only', () => {
     render(<Harness initial={{ avoidRestlessTogether: 5 }} />);
 
-    // The weights are out of the way until they are asked for.
+    expect(screen.queryByRole('slider')).not.toBeInTheDocument();
     expect(
-      screen.queryByRole('slider', { name: /Unruhe|Restlessness/ }),
+      screen.queryByRole('button', { name: /Feinjustierung|Fine tuning/ }),
     ).not.toBeInTheDocument();
+    expect(screen.queryByText(/\/10/)).not.toBeInTheDocument();
+  });
 
-    openFineTuning();
-    const slider = sliderFor(/Unruhe|Restlessness/);
-    fireEvent.click(slider);
-    expect(weightOf('avoidRestlessTogether')).toBe(5);
+  // The inspector's heading names the panel; the panel does not repeat it.
+  it('leaves the heading and its explanation to the inspector', () => {
+    render(<Harness />);
 
-    fireEvent.change(slider, { target: { value: '8' } });
-    expect(weightOf('avoidRestlessTogether')).toBe(8);
-    expect(restlessLevel(ESSENTIAL)).toHaveAttribute('aria-pressed', 'true');
+    expect(
+      screen.queryByText(/^(Mischkriterien|Mix Criteria)$/),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/Wie wichtig ist dir|How important is each/),
+    ).not.toBeInTheDocument();
   });
 
   it('activating peerTutoring deactivates homogeneousPerformanceGroups', () => {
@@ -240,13 +236,14 @@ describe('SmartMixControls — comfortable density', () => {
   it('activating homogeneousPerformanceGroups deactivates peerTutoring', () => {
     render(<Harness initial={{ peerTutoring: 3 }} />);
 
-    openFineTuning();
-    fireEvent.change(sliderFor(/Fördern \(homogen\)|Support \(homogeneous\)/), {
-      target: { value: '6' },
-    });
+    fireEvent.click(
+      levelChip(/Fördern \(homogen\)|Support \(homogeneous\)/, IMPORTANT),
+    );
 
     expect(weightOf('peerTutoring')).toBe(0);
-    expect(weightOf('homogeneousPerformanceGroups')).toBe(6);
+    expect(weightOf('homogeneousPerformanceGroups')).toBe(
+      MIX_IMPORTANCE_WEIGHTS.important,
+    );
   });
 
   it('master switch enables criteria and resolves peer/homo exclusivity', () => {
@@ -287,20 +284,29 @@ describe('SmartMixControls — comfortable density', () => {
     expect(weightOf('peerTutoring')).toBe(7);
   });
 
-  it('restore button sets the recommended weights', () => {
-    render(<Harness initial={{ homogeneousPerformanceGroups: 9 }} />);
+  // The header carries only the switch; the recommended recipe is the way
+  // back to the default weights.
+  it('has no restore button of its own beside the recipes', () => {
+    render(<Harness initial={{ avoidRestlessTogether: 9 }} />);
+
+    expect(
+      screen.queryByRole('button', {
+        name: /Standardwerte|Default weights/,
+      }),
+    ).not.toBeInTheDocument();
 
     fireEvent.click(
+      screen.getByRole('button', { name: /Kriterien aktiv|criteria active/ }),
+    );
+    fireEvent.click(
       screen.getByRole('button', {
-        name: /Standardwerte wiederherstellen|Restore default weights/,
+        name: /Empfohlene Mischung|Recommended mix/,
       }),
     );
 
-    // The recommended weight, still on the criterion that was chosen.
-    expect(weightOf('homogeneousPerformanceGroups')).toBe(
-      DEFAULT_MIX_WEIGHTS.homogeneousPerformanceGroups,
+    expect(weightOf('avoidRestlessTogether')).toBe(
+      DEFAULT_MIX_WEIGHTS.avoidRestlessTogether,
     );
-    expect(weightOf('peerTutoring')).toBe(0);
   });
 });
 
@@ -377,12 +383,12 @@ describe('SmartMixControls — compact density', () => {
     );
     expect(restlessButton()).toHaveAttribute('aria-pressed', 'true');
     expect(restlessButton()).toHaveAccessibleName(
-      /Unruhe, Wichtigkeit 5 von 10|Restlessness, importance 5 of 10/,
+      /^(Unruhe, Wichtig|Restlessness, Important)$/,
     );
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
-  it('sets the weight in a flyout behind a right click; Escape closes it', () => {
+  it('sets the level in a flyout behind a right click; Escape closes it', () => {
     render(
       <Harness density="compact" initial={{ avoidRestlessTogether: 5 }} />,
     );
@@ -390,18 +396,19 @@ describe('SmartMixControls — compact density', () => {
     fireEvent.contextMenu(restlessButton());
 
     const dialog = screen.getByRole('dialog', { name: /Unruhe|Restlessness/ });
-    const slider = sliderFor(/Unruhe|Restlessness/);
-    expect(dialog).toContainElement(slider);
+    expect(dialog).toContainElement(restlessLevel(ESSENTIAL));
     // The flyout opens on what it is for: how important the criterion is.
     expect(restlessLevel(OFF)).toHaveFocus();
-    // The same explanation the card shows.
+    // The same explanation the card shows, and no weight from 0 to 10.
     expect(dialog).toHaveTextContent(
       /Schüler mit Unruheverhalten trennen|Separate students showing restless behavior/,
     );
+    expect(screen.queryByRole('slider')).not.toBeInTheDocument();
 
-    fireEvent.change(slider, { target: { value: '8' } });
-    expect(weightOf('avoidRestlessTogether')).toBe(8);
-    expect(dialog).toHaveTextContent('8/10');
+    fireEvent.click(restlessLevel(ESSENTIAL));
+    expect(weightOf('avoidRestlessTogether')).toBe(
+      MIX_IMPORTANCE_WEIGHTS.essential,
+    );
 
     // Pressing the button itself toggles and leaves the flyout open.
     fireEvent.click(restlessButton());
@@ -461,7 +468,7 @@ describe('SmartMixControls — compact density', () => {
       /Lange drücken oder Rechtsklick|long press or a right click/,
     );
     // It explains; it does not take the focus away from the rail.
-    expect(screen.getByRole('slider')).not.toHaveFocus();
+    expect(dialog).not.toContainElement(document.activeElement as HTMLElement);
     expect(localStorage.getItem(LOCAL_STORAGE_KEYS.mixWeightHintSeen)).toBe(
       'true',
     );
@@ -545,7 +552,7 @@ describe('SmartMixControls — distractibility', () => {
 
     expect(distractibilityButton()).toHaveAttribute('aria-pressed', 'true');
     expect(distractibilityButton()).toHaveAccessibleName(
-      /Wichtigkeit 6 von 10|importance 6 of 10/,
+      /(Ablenkbarkeit, Wichtig|Distractibility, Important)$/,
     );
 
     fireEvent.click(distractibilityButton());
@@ -651,7 +658,7 @@ describe('SmartMixControls — criteria fulfilment', () => {
       name: /^(Erfüllung|Fulfilment) (Unruhe|Restlessness): 78\s?%/,
     });
 
-  it('shows the value beside the weight and the overall score', () => {
+  it('shows the value beside the levels, and the total only once', () => {
     render(
       <Harness
         initial={{ avoidRestlessTogether: 5 }}
@@ -661,9 +668,10 @@ describe('SmartMixControls — criteria fulfilment', () => {
     );
 
     expect(pinButton()).toHaveTextContent(/78\s?%/);
+    // The total is the inspector's button above the panel, not a line in it.
     expect(
-      screen.getByText(/Erfüllung gesamt: 78\s?%|Overall fulfilment: 78%/),
-    ).toBeInTheDocument();
+      screen.queryByText(/Erfüllung gesamt|Overall fulfilment/),
+    ).not.toBeInTheDocument();
     // The value sits beside the levels that caused it, and changes nothing.
     fireEvent.click(restlessLevel(OFF));
     expect(weightOf('avoidRestlessTogether')).toBe(0);
@@ -700,7 +708,7 @@ describe('SmartMixControls — criteria fulfilment', () => {
     expect(weightOf('avoidRestlessTogether')).toBe(5);
   });
 
-  it('counts the cases where the criterion can be counted', () => {
+  it('speaks in per cent even where the cases could be counted', () => {
     render(
       <Harness
         initial={{ avoidRestlessTogether: 5 }}
@@ -719,12 +727,11 @@ describe('SmartMixControls — criteria fulfilment', () => {
     );
 
     const meter = screen.getByRole('button', {
-      name: /^(Erfüllung|Fulfilment) (Unruhe|Restlessness): 3 (von|of) 4/,
+      name: /^(Erfüllung|Fulfilment) (Unruhe|Restlessness): 75\s?%/,
     });
-    // On screen the tally, because it names the cases rather than a share.
-    expect(meter).toHaveTextContent('3/4');
-    // The percentage stays in the accessible name, where the bar cannot go.
-    expect(meter).toHaveAccessibleName(/75\s?%/);
+    // One scale for every criterion and for the plan as a whole.
+    expect(meter).toHaveTextContent(/75\s?%/);
+    expect(meter).not.toHaveTextContent('3/4');
   });
 
   it('names the badge as pressed while its marking is the pinned one', () => {
@@ -804,7 +811,7 @@ describe('SmartMixControls — criteria fulfilment', () => {
     render(<Harness initial={{ avoidRestlessTogether: 5 }} />);
 
     expect(
-      screen.queryByText(/Erfüllung gesamt|Overall fulfilment/),
+      screen.queryByRole('button', { name: /^(Erfüllung|Fulfilment) / }),
     ).not.toBeInTheDocument();
     expect(restlessLevel(IMPORTANT)).toHaveAttribute('aria-pressed', 'true');
   });

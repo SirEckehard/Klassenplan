@@ -26,7 +26,6 @@ const AppSettingsItems = lazy(
 );
 import { getAppVersion } from '@/utils/version';
 import { useDialogLayer } from '@/hooks/ui/useDialogLayer';
-import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 
 const Footer: React.FC = () => {
   const { t } = useTranslation('common');
@@ -177,7 +176,6 @@ const Footer: React.FC = () => {
             title={t('footer.settings')}
             aria-haspopup="menu"
             aria-expanded={menuOpen}
-            data-tour={TOUR_ANCHORS.appSettings}
           >
             <GearIcon className="h-4 w-4 text-(--text-badge) group-hover:text-(--text-badge) transition-colors" />
           </button>

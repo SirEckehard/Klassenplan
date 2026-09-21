@@ -1,7 +1,13 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import '@testing-library/jest-dom/vitest';
-import { render, screen, fireEvent, cleanup } from '@testing-library/react';
+import {
+  render,
+  screen,
+  fireEvent,
+  cleanup,
+  within,
+} from '@testing-library/react';
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import '@/i18n';
 import ClassToolPanel from '@/components/studentInput/ClassToolPanel';
@@ -21,6 +27,7 @@ const renderPanel = (
     onImportCsv: vi.fn().mockResolvedValue(undefined),
     onExportCsv: vi.fn(),
     onCreateBackup: vi.fn(),
+    onImportBackup: vi.fn(),
     onPlayNameGame: vi.fn(),
   };
   render(
@@ -92,7 +99,33 @@ describe('ClassToolPanel', () => {
     fireEvent.click(getButton(/Klassenliste exportieren|Export class list/i));
     expect(handlers.onExportCsv).toHaveBeenCalledTimes(1);
 
+    // Both ways a backup travels sit behind one entry.
+    fireEvent.click(getButton(/^Backup$/i));
     fireEvent.click(getButton(/Backup exportieren|Export backup/i));
     expect(handlers.onCreateBackup).toHaveBeenCalledTimes(1);
+
+    fireEvent.click(getButton(/^Backup$/i));
+    fireEvent.click(getButton(/Backup importieren|Import backup/i));
+    expect(handlers.onImportBackup).toHaveBeenCalledTimes(1);
+  });
+
+  it('offers the CSV import as a menu of icon and word', () => {
+    renderPanel();
+
+    fireEvent.click(
+      getButton(/^(Klassenliste importieren|Import class list)$/i),
+    );
+    const panel = screen.getByRole('dialog', {
+      name: /Klassenliste importieren|Import class list/i,
+    });
+    // A row, not a label around a hidden input: the keyboard reaches it.
+    expect(
+      within(panel).getByRole('button', {
+        name: /Klassenliste importieren|Import class list/i,
+      }),
+    ).toBeInTheDocument();
+    expect(
+      within(panel).getByRole('button', { name: /CSV-Vorlage|CSV template/i }),
+    ).toBeInTheDocument();
   });
 });

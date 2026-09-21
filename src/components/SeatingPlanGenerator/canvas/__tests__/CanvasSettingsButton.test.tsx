@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import '@testing-library/jest-dom/vitest';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { CanvasSettingsButton } from '../CanvasSettingsButton';
 import { buildFeatureVisibilityGroup } from '../featureVisibilityGroup';
@@ -40,19 +40,29 @@ const renderWithFeatureGroup = ({
   );
 };
 
-describe('CanvasSettingsButton icon grid', () => {
-  it('renders one aria-pressed chip per feature type inside a labelled group', () => {
+describe('CanvasSettingsButton check list', () => {
+  it('renders one pressed row per feature type inside a labelled group', () => {
     renderWithFeatureGroup();
     const group = screen.getByRole('group', { name: 'Raumelemente' });
-    const chips = group.querySelectorAll('button[aria-pressed]');
-    expect(chips).toHaveLength(FEATURE_TYPES.length);
-    chips.forEach((chip) => {
-      expect(chip).toHaveAttribute('aria-pressed', 'true');
-      expect(chip.getAttribute('aria-label')).toBeTruthy();
+    const rows = within(group).getAllByRole('button');
+    expect(rows).toHaveLength(FEATURE_TYPES.length);
+    rows.forEach((row) => {
+      expect(row).toHaveAttribute('aria-pressed', 'true');
     });
   });
 
-  it('toggles a chip with the flipped value', () => {
+  // A menu row says what it is in words, not in a tooltip behind an icon.
+  it('names every row in visible words', () => {
+    renderWithFeatureGroup();
+    const group = screen.getByRole('group', { name: 'Raumelemente' });
+
+    for (const row of within(group).getAllByRole('button')) {
+      expect(row).not.toHaveAttribute('aria-label');
+      expect(row.textContent?.trim()).toMatch(/^layout\./);
+    }
+  });
+
+  it('toggles a row with the flipped value', () => {
     const onToggle = vi.fn();
     renderWithFeatureGroup({
       onToggle,
@@ -65,15 +75,59 @@ describe('CanvasSettingsButton icon grid', () => {
     expect(onToggle).toHaveBeenCalledWith('board', false);
   });
 
-  it('does not fire for disabled chips', () => {
+  it('does not fire for disabled rows', () => {
     const onToggle = vi.fn();
     renderWithFeatureGroup({
       onToggle,
       isDisabled: (type) => type === 'podium',
     });
-    const chip = screen.getByRole('button', { name: 'layout.podium' });
-    expect(chip).toBeDisabled();
-    fireEvent.click(chip);
+    const row = screen.getByRole('button', { name: 'layout.podium' });
+    expect(row).toBeDisabled();
+    fireEvent.click(row);
     expect(onToggle).not.toHaveBeenCalled();
+  });
+});
+
+describe('CanvasSettingsButton choices', () => {
+  it('checks the chosen value and switches to another one', () => {
+    const onChange = vi.fn();
+    render(
+      <CanvasSettingsButton
+        groups={[
+          {
+            id: 'photos',
+            title: 'Schülerfotos',
+            options: [
+              {
+                kind: 'segment',
+                id: 'photo-mode',
+                ariaLabel: 'Schülerfotos',
+                value: 'all',
+                onChange,
+                choices: [
+                  { value: 'all', label: 'An' },
+                  { value: 'off', label: 'Aus' },
+                ],
+              },
+            ],
+          },
+        ]}
+        buttonAriaLabel="Ansichtseinstellungen"
+      />,
+    );
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Ansichtseinstellungen' }),
+    );
+
+    expect(screen.getByRole('button', { name: 'An' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    // The value it already has stays: one of them is always on.
+    fireEvent.click(screen.getByRole('button', { name: 'An' }));
+    expect(onChange).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Aus' }));
+    expect(onChange).toHaveBeenCalledWith('off');
   });
 });

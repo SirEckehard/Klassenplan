@@ -36,7 +36,19 @@ const StorageHistoryModal = lazy(
  * to fall back on. The rows, their modals and their toasts live here once so
  * the two cannot drift apart; the caller brings the `role="menu"` container.
  */
-export default function AppSettingsItems({ onDone }: { onDone: () => void }) {
+export default function AppSettingsItems({
+  onDone,
+  storage = true,
+}: {
+  onDone: () => void;
+  /**
+   * The saved plans and the backup. The workspace leaves them out: its
+   * toolbar carries them on the layer they belong to — the backup on the class
+   * layer, the saved plans on the plan layer — so its gear keeps only what no
+   * layer owns.
+   */
+  storage?: boolean;
+}) {
   const { t } = useTranslation(['common', 'generator']);
   const { clearAllData, handleExportAll, triggerImport } =
     useSeatingPlanActions();
@@ -90,37 +102,44 @@ export default function AppSettingsItems({ onDone }: { onDone: () => void }) {
 
   return (
     <>
-      <div className="flex items-center gap-2 px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-(--text-muted)">
-        <HardDrivesIcon className="h-4 w-4" aria-hidden="true" />
-        {t('generator:storage.sectionTitle')}
-      </div>
-      <button
-        type="button"
-        role="menuitem"
-        onClick={handleShowAllPlans}
-        className={menuItemClass}
-      >
-        <ClockCounterClockwiseIcon className={iconClass} aria-hidden="true" />
-        {t('generator:storage.showAllPlans')}
-      </button>
-      <button
-        type="button"
-        role="menuitem"
-        onClick={handleExportBackup}
-        className={menuItemClass}
-      >
-        <DownloadIcon className={iconClass} aria-hidden="true" />
-        {t('generator:storage.exportBackup')}
-      </button>
-      <button
-        type="button"
-        role="menuitem"
-        onClick={handleImportBackup}
-        className={menuItemClass}
-      >
-        <UploadIcon className={iconClass} aria-hidden="true" />
-        {t('generator:storage.importBackup')}
-      </button>
+      {storage && (
+        <>
+          <div className="flex items-center gap-2 px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-(--text-muted)">
+            <HardDrivesIcon className="h-4 w-4" aria-hidden="true" />
+            {t('generator:storage.sectionTitle')}
+          </div>
+          <button
+            type="button"
+            role="menuitem"
+            onClick={handleShowAllPlans}
+            className={menuItemClass}
+          >
+            <ClockCounterClockwiseIcon
+              className={iconClass}
+              aria-hidden="true"
+            />
+            {t('generator:storage.showAllPlans')}
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            onClick={handleExportBackup}
+            className={menuItemClass}
+          >
+            <DownloadIcon className={iconClass} aria-hidden="true" />
+            {t('generator:storage.exportBackup')}
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            onClick={handleImportBackup}
+            className={menuItemClass}
+          >
+            <UploadIcon className={iconClass} aria-hidden="true" />
+            {t('generator:storage.importBackup')}
+          </button>
+        </>
+      )}
       {isInstallable && (
         <button
           type="button"
@@ -132,7 +151,9 @@ export default function AppSettingsItems({ onDone }: { onDone: () => void }) {
           {t('common:pwa.install')}
         </button>
       )}
-      <div className="my-1 h-px bg-(--border-card)" aria-hidden="true" />
+      {(storage || isInstallable) && (
+        <div className="my-1 h-px bg-(--border-card)" aria-hidden="true" />
+      )}
       <button
         type="button"
         role="menuitem"

@@ -14,7 +14,9 @@ import {
   EyeSlashIcon,
 } from '@phosphor-icons/react';
 import SmartSidebar from '@/components/ui/panels/SmartSidebar';
-import SmartMixControls from '@/components/ui/controls/SmartMixControls';
+import SmartMixControls, {
+  MixCriteriaSwitch,
+} from '@/components/ui/controls/SmartMixControls';
 import PlanToolPanel from '@/components/SeatingPlanGenerator/views/PlanToolPanel';
 import InspectorPortal from '@/components/shell/InspectorPortal';
 import {
@@ -336,7 +338,7 @@ export default function SeatingPlanEditorView({
         title: t('editor.workspace', 'Arbeitsfläche'),
         options: [
           {
-            kind: 'iconGrid' as const,
+            kind: 'checkList' as const,
             id: 'editor-canvas-grid',
             label: t('editor.workspace', 'Arbeitsfläche'),
             items: [
@@ -364,17 +366,17 @@ export default function SeatingPlanEditorView({
               {
                 value: 'all',
                 label: t('editor.photoModeAll', 'An'),
-                icon: <EyeIcon size={14} />,
+                icon: <EyeIcon size={18} />,
               },
               {
                 value: 'hover',
                 label: t('editor.photoModeHover', 'Hover'),
-                icon: <CursorIcon size={14} />,
+                icon: <CursorIcon size={18} />,
               },
               {
                 value: 'off',
                 label: t('editor.photoModeOff', 'Aus'),
-                icon: <EyeSlashIcon size={14} />,
+                icon: <EyeSlashIcon size={18} />,
               },
             ],
           },
@@ -930,10 +932,22 @@ export default function SeatingPlanEditorView({
         {/* Why the plan looks like this is a property of the plan, so the
             criteria belong in the inspector — not in the toolbar opposite. */}
         <InspectorPortal>
-          <InspectorHeader title={t('mix.title')} />
+          {/* The heading names the panel once, and the switch beside it acts
+              on every criterion under it. */}
+          <InspectorHeader
+            title={t('mix.title')}
+            actions={
+              <MixCriteriaSwitch
+                settings={settings}
+                setMixSettings={setMixSettings}
+                students={students}
+                suspendedWeights={suspendedWeights}
+              />
+            }
+          />
           <InspectorBody>
             {/* How well the plan meets the criteria, above the criteria it is
-              about; the switch shows or hides the value beside each one. */}
+              about; the button shows or hides the value beside each one. */}
             {hasStatistics && (onOpenStatistics || onCloseStatistics) && (
               <button
                 type="button"

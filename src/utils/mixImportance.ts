@@ -9,8 +9,8 @@ import { criterionWeight } from './mixSettings';
  *
  * "Wie wichtig ist dir Unruhe?" has an answer; "Wie viel von zehn ist dir
  * Unruhe wert?" has not. Four named steps are what a teacher can decide
- * between, and the weight behind them stays reachable through the fine
- * tuning (decision 0018).
+ * between; the weight behind them is the algorithm's business, and only a
+ * recipe still sets one inside a band (decision 0018).
  */
 export type MixImportance = 'off' | 'consider' | 'important' | 'essential';
 
@@ -55,8 +55,9 @@ export const importanceOfWeight = (weight: number): MixImportance => {
 
 /**
  * The weight to store for a level. A weight already inside the band survives
- * untouched: a teacher who fine-tuned "Unruhe" to 6 and then presses the level
- * it is already on must not silently get a different plan out of it.
+ * untouched: a recipe (or an older version's fine tuning) that set "Unruhe" to
+ * 6 must not turn into a different plan because the level it is already on
+ * was pressed again.
  */
 export const weightForImportance = (
   level: MixImportance,

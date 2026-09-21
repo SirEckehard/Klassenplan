@@ -19,10 +19,10 @@ type FeatureVisibilityGroupOptions = {
 };
 
 /**
- * Builds the shared "Raumelemente" settings group as one compact icon-chip
- * grid (one chip per feature type) for the canvas view-options popovers.
- * A small switch next to the group title toggles all available types at once.
- * Plain function (not a hook) so callers can use it inside their `useMemo`.
+ * Builds the shared "Raumelemente" settings group: one menu row per feature
+ * type, checked while it is shown. A small switch next to the group title
+ * toggles all available types at once. Plain function (not a hook) so callers
+ * can use it inside their `useMemo`.
  */
 export function buildFeatureVisibilityGroup({
   id,
@@ -50,7 +50,7 @@ export function buildFeatureVisibilityGroup({
     },
     options: [
       {
-        kind: 'iconGrid',
+        kind: 'checkList',
         id: `${id}-grid`,
         label: title,
         items: FEATURE_TYPES.map((type) => {

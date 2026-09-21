@@ -176,9 +176,8 @@ export default function EnhancedSeatingPlanView(
         title: t('circleView.connectionsTitle', 'Verbindungen'),
         options: [
           {
-            // Icon chip like the seating plan's workspace toggles — same size,
-            // label as tooltip and accessible name.
-            kind: 'iconGrid' as const,
+            // A row of the menu like the seating plan's workspace toggles.
+            kind: 'checkList' as const,
             id: 'circle-connections-grid',
             label: t('circleView.connectionsTitle', 'Verbindungen'),
             items: [
@@ -207,17 +206,17 @@ export default function EnhancedSeatingPlanView(
               {
                 value: 'all',
                 label: t('editor.photoModeAll', 'An'),
-                icon: <EyeIcon size={14} />,
+                icon: <EyeIcon size={18} />,
               },
               {
                 value: 'hover',
                 label: t('editor.photoModeHover', 'Hover'),
-                icon: <CursorIcon size={14} />,
+                icon: <CursorIcon size={18} />,
               },
               {
                 value: 'off',
                 label: t('editor.photoModeOff', 'Aus'),
-                icon: <EyeSlashIcon size={14} />,
+                icon: <EyeSlashIcon size={18} />,
               },
             ],
           },

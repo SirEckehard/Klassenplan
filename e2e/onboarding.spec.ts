@@ -109,7 +109,7 @@ test('a first visitor tries the sample class with the tours as a guide', async (
       'Schüler hinzufügen',
       'Schüler bearbeiten',
       'Weiter zum Klassenraum',
-      'Einstellungen und Backup',
+      'Daten sichern',
       'Hilfe und Tour',
     ]);
   });
@@ -118,10 +118,10 @@ test('a first visitor tries the sample class with the tours as a guide', async (
     await page.getByRole('button', { name: 'Weiter zum Klassenraum' }).click();
 
     // The sample class brings its own room, so the quick setup stays shut and
-    // the badge can confirm a seat for everyone.
+    // the status bar can confirm a seat for everyone.
     await expect(
-      page.getByRole('status', { name: '24 Schüler, 24 Plätze.' }),
-    ).toBeVisible();
+      page.getByRole('region', { name: 'Statusleiste' }),
+    ).toContainText('24 Plätze für 24 Schüler');
 
     const tour = tourPopover(page);
     await expect(tour.getByRole('heading')).toHaveText('Dein Klassenraum');

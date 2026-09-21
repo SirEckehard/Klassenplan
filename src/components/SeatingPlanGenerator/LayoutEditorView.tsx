@@ -246,10 +246,17 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
     copySelection,
     cutSelection,
     deleteSelection,
+    pasteSelectionAt,
     handleCanvasMenuPaste,
     canPaste,
     selectionBox,
   } = canvasHandlers;
+  // Without a point on the canvas the copy lands beside its original, as with
+  // Ctrl/Cmd+V.
+  const pasteSelection = React.useCallback(
+    () => pasteSelectionAt(),
+    [pasteSelectionAt],
+  );
 
   // Kontextmenüs verwalten
   const {
@@ -736,7 +743,7 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
         title: t('editor.workspace', 'Arbeitsfläche'),
         options: [
           {
-            kind: 'iconGrid' as const,
+            kind: 'checkList' as const,
             id: 'layout-base-grid',
             label: t('editor.workspace', 'Arbeitsfläche'),
             items: [
@@ -934,6 +941,10 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
           updateSceneTables={updateSceneTables}
           setSceneFeatures={setSceneFeatures}
           onDeleteSelection={deleteSelection}
+          onCopySelection={copySelection}
+          onCutSelection={cutSelection}
+          onPasteSelection={pasteSelection}
+          canPaste={canPaste}
         />
       </InspectorPortal>
       {/* The direction comes from the same hook that decides whether the

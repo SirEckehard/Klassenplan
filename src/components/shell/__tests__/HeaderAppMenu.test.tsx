@@ -33,7 +33,7 @@ const openMenu = async () => {
   const user = userEvent.setup();
   await user.click(getButton(/einstellungen|settings/i));
   await screen.findByRole('menuitem', {
-    name: /backup exportieren|export backup/i,
+    name: /alle daten löschen|clear all/i,
   });
   return user;
 };
@@ -45,12 +45,7 @@ describe('HeaderAppMenu', () => {
     renderMenu();
     await openMenu();
 
-    // Storage and backup — the entries the class tour points at.
-    expect(
-      screen.getByRole('menuitem', {
-        name: /alle pläne anzeigen|show all plans/i,
-      }),
-    ).toBeInTheDocument();
+    // Wiping the data belongs to no layer, so it stays here.
     expect(
       screen.getByRole('menuitem', { name: /alle daten löschen|clear all/i }),
     ).toBeInTheDocument();
@@ -61,6 +56,29 @@ describe('HeaderAppMenu', () => {
     expect(
       screen.getByRole('menuitem', { name: /datenschutz|privacy/i }),
     ).toBeInTheDocument();
+  });
+
+  // The class layer's toolbar carries the backup and the plan layer's the
+  // saved plans; the gear does not repeat them.
+  it('leaves the backup and the saved plans to the toolbar', async () => {
+    renderMenu();
+    await openMenu();
+
+    expect(
+      screen.queryByRole('menuitem', {
+        name: /backup exportieren|export backup/i,
+      }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('menuitem', {
+        name: /backup importieren|import backup/i,
+      }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('menuitem', {
+        name: /alle pläne anzeigen|show all plans/i,
+      }),
+    ).not.toBeInTheDocument();
   });
 
   it('closes on Escape and hands focus back to the gear', async () => {

@@ -38,10 +38,9 @@ export function nameDisplayLabelKey(mode: NameDisplayMode): string {
 }
 
 /**
- * Line below the control: warns about students whose full names repeat (no
+ * Line below the choices: warns about students whose full names repeat (no
  * label can separate them), then reports labels lengthened to tell students
- * apart, otherwise previews the rule on a real name from the class. The buttons
- * are icon-only, so this line carries the concrete meaning.
+ * apart, otherwise previews the rule on a real name from the class.
  */
 function buildHint(
   value: NameDisplayMode,
@@ -67,9 +66,9 @@ function buildHint(
 }
 
 /**
- * Builds the shared "Namen" settings group: one segmented control that applies
- * the same abbreviation rule to every seat label. Offered by the seating plan,
- * the circle view and the export, so all three read identically.
+ * Builds the shared "Namen" settings group: one choice of rule that shortens
+ * every seat label alike. Offered by the seating plan, the circle view and the
+ * export, so all three read identically.
  * Plain function (not a hook) so callers can use it inside their `useMemo`.
  */
 export function buildNameDisplayGroup({
@@ -87,7 +86,6 @@ export function buildNameDisplayGroup({
         kind: 'segment',
         id: `${id}-segment`,
         ariaLabel: t('editor.nameDisplay.label'),
-        iconOnly: true,
         value,
         choices: NAME_DISPLAY_MODES.map((mode) => {
           const ModeIcon = NAME_DISPLAY_ICONS[mode];

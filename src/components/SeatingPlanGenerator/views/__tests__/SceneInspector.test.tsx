@@ -32,6 +32,13 @@ const window_: ClassroomFeature = {
   rotation: 0,
 };
 
+const board: ClassroomFeature = {
+  ...window_,
+  id: 'f2',
+  type: 'board',
+  anchor: 'top',
+};
+
 const renderInspector = (
   props: Partial<React.ComponentProps<typeof SceneInspector>> = {},
 ) => {
@@ -39,22 +46,40 @@ const renderInspector = (
   const updateSceneTables = vi.fn();
   const setSceneFeatures = vi.fn();
   const onDeleteSelection = vi.fn();
+  const onCopySelection = vi.fn();
+  const onCutSelection = vi.fn();
+  const onPasteSelection = vi.fn();
   render(
     <SceneInspector
       tables={[table(), table({ x: 400, seatCount: 2 })]}
-      features={[window_]}
+      features={[window_, board]}
       selectedTableIds={[]}
       selectedFeatureIds={[]}
-      featurePalette={[{ type: 'window', label: 'Fenster' }]}
+      featurePalette={[
+        { type: 'window', label: 'Fenster', allowMultiple: true },
+        { type: 'board', label: 'Tafel', allowMultiple: false },
+      ]}
       studentsCount={5}
       snapshot={snapshot}
       updateSceneTables={updateSceneTables}
       setSceneFeatures={setSceneFeatures}
       onDeleteSelection={onDeleteSelection}
+      onCopySelection={onCopySelection}
+      onCutSelection={onCutSelection}
+      onPasteSelection={onPasteSelection}
+      canPaste={false}
       {...props}
     />,
   );
-  return { snapshot, updateSceneTables, setSceneFeatures, onDeleteSelection };
+  return {
+    snapshot,
+    updateSceneTables,
+    setSceneFeatures,
+    onDeleteSelection,
+    onCopySelection,
+    onCutSelection,
+    onPasteSelection,
+  };
 };
 
 /** Applies the updater the component handed to `updateSceneTables`. */
@@ -121,33 +146,47 @@ describe('SceneInspector', () => {
     expect(applyTableUpdate(updateSceneTables, tables)[0].rotation).toBe(345);
   });
 
-  it('commits a typed position and clamps it to the room', () => {
-    const tables = [table()];
-    const { updateSceneTables } = renderInspector({
-      tables,
-      selectedTableIds: [0],
-    });
+  // Dragging places and sizes a table; the panel no longer asks for pixels.
+  it('asks for no coordinates or sizes', () => {
+    renderInspector({ selectedTableIds: [0] });
 
-    const x = screen.getByLabelText('X');
-    fireEvent.change(x, { target: { value: '99999' } });
-    fireEvent.blur(x);
-
-    // The classroom is 900 wide, so the value lands on the edge, not beyond it.
-    expect(applyTableUpdate(updateSceneTables, tables)[0].x).toBe(900);
+    expect(screen.queryByRole('spinbutton')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/^(X|Y)$/)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Breite|Width/i)).not.toBeInTheDocument();
   });
 
-  it('takes a typed size and keeps the table wide enough for a seat', () => {
-    const tables = [table()];
-    const { updateSceneTables } = renderInspector({
-      tables,
+  it('copies and cuts a table with the canvas clipboard', () => {
+    const { onCopySelection, onCutSelection } = renderInspector({
       selectedTableIds: [0],
     });
 
-    const width = screen.getByLabelText(/Breite|Width/i);
-    fireEvent.change(width, { target: { value: '0' } });
-    fireEvent.blur(width);
+    fireEvent.click(screen.getByRole('button', { name: /Kopieren|Copy/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Ausschneiden|Cut/i }));
 
-    expect(applyTableUpdate(updateSceneTables, tables)[0].width).toBe(20);
+    expect(onCopySelection).toHaveBeenCalledTimes(1);
+    expect(onCutSelection).toHaveBeenCalledTimes(1);
+    // Nothing to paste until something is copied.
+    expect(
+      screen.queryByRole('button', { name: /Einfügen|Paste/i }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('pastes once the clipboard holds something, even without a selection', () => {
+    const { onPasteSelection } = renderInspector({ canPaste: true });
+
+    fireEvent.click(screen.getByRole('button', { name: /Einfügen|Paste/i }));
+
+    expect(onPasteSelection).toHaveBeenCalledTimes(1);
+  });
+
+  it('removes the selected table from the pinned footer', () => {
+    const { onDeleteSelection } = renderInspector({ selectedTableIds: [0] });
+
+    fireEvent.click(
+      screen.getByRole('button', { name: /Tisch entfernen|Remove table/i }),
+    );
+
+    expect(onDeleteSelection).toHaveBeenCalledTimes(1);
   });
 
   it('duplicates a table one grid step away from the original', () => {
@@ -158,9 +197,7 @@ describe('SceneInspector', () => {
     });
 
     fireEvent.click(
-      screen.getByRole('button', {
-        name: /Tisch duplizieren|Duplicate table/i,
-      }),
+      screen.getByRole('button', { name: /^(Duplizieren|Duplicate)$/i }),
     );
 
     expect(snapshot).toHaveBeenCalledTimes(1);
@@ -186,7 +223,24 @@ describe('SceneInspector', () => {
     expect(
       screen.getByText(/6 Plätze ausgewählt|6 seats selected/i),
     ).toBeInTheDocument();
-    expect(screen.queryByLabelText('X')).not.toBeInTheDocument();
+    // What acts on the whole selection: the clipboard and removing it.
+    expect(
+      screen.getByRole('button', { name: /Kopieren|Copy/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', {
+        name: /Auswahl entfernen|Remove selection/i,
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it('offers no copy of the one-of-a-kind board', () => {
+    renderInspector({ selectedFeatureIds: ['f2'] });
+
+    expect(screen.getByRole('heading', { name: /Tafel|Board/i })).toBeVisible();
+    expect(
+      screen.queryByRole('button', { name: /Kopieren|Copy/i }),
+    ).not.toBeInTheDocument();
   });
 
   it('toggles a room feature between shown and hidden', () => {
@@ -194,7 +248,7 @@ describe('SceneInspector', () => {
       selectedFeatureIds: ['f1'],
     });
 
-    const visible = screen.getByLabelText(/Sichtbar|Visible/i);
+    const visible = screen.getByRole('switch', { name: /Sichtbar|Visible/i });
     expect(visible).toBeChecked();
     fireEvent.click(visible);
 

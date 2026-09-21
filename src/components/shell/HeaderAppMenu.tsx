@@ -13,7 +13,6 @@ import UpdateCheckButton from '@/components/pwa/UpdateCheckButton';
 import { LegalPageLink } from '@/components/LegalPageLink';
 import { useClickOutside } from '@/hooks/ui/useClickOutside';
 import { useDialogLayer } from '@/hooks/ui/useDialogLayer';
-import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 import { menuItemClass, menuSurfaceClass, secondaryButtonClass } from '@/utils';
 
 // Shared with the footer's gear and loaded on first open in both, so the
@@ -26,11 +25,13 @@ const AppSettingsItems = lazy(
  * What a workspace without a footer still has to offer.
  *
  * From `lg` up the shell is the window, so the page footer is gone on this
- * route. The four things a teacher genuinely reaches for from inside a plan
- * come back here: theme and language, the update check, storage and backup,
- * and the two legal pages. Help has its own button beside this one, and the
- * remaining footer links — FAQ, feedback, support, the changelog — stay on the
- * pages they belong to rather than following the workspace around.
+ * route. What a teacher reaches for from inside a plan and no layer owns comes
+ * back here: theme and language, the update check, wiping the data, and the
+ * two legal pages. The backup and the saved plans are not repeated — the
+ * toolbar of the class and the plan layer carries them. Help has its own
+ * button beside this one, and the remaining footer links — FAQ, feedback,
+ * support, the changelog — stay on the pages they belong to rather than
+ * following the workspace around.
  */
 export default function HeaderAppMenu() {
   const { t } = useTranslation('common');
@@ -71,7 +72,6 @@ export default function HeaderAppMenu() {
         aria-label={t('footer.settings')}
         aria-haspopup="menu"
         aria-expanded={open}
-        data-tour={TOUR_ANCHORS.appSettings}
       >
         <GearIcon className="h-5 w-5" aria-hidden="true" />
       </button>
@@ -94,7 +94,7 @@ export default function HeaderAppMenu() {
             <div className="my-1 h-px bg-(--border-card)" aria-hidden="true" />
 
             <Suspense fallback={null}>
-              <AppSettingsItems onDone={close} />
+              <AppSettingsItems onDone={close} storage={false} />
             </Suspense>
 
             <div className="my-1 h-px bg-(--border-card)" aria-hidden="true" />

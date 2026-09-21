@@ -4,7 +4,9 @@
 - **In place since:** unreleased (2026-09-20)
 - **Sources:** maintainer decision of 2026-09-20, the redesign concept
   "Papier & Werkzeug" (stage 4, "Rezepte & Gründe"), `src/utils/mixImportance.ts`,
-  `src/utils/mixRecipes.ts`, `src/utils/algorithm/planReasons.ts`
+  `src/utils/mixRecipes.ts`, `src/utils/algorithm/planReasons.ts`; revised by
+  the maintainer's review of 2026-09-21 (fine tuning removed, fulfilment in per
+  cent)
 
 ## Context
 
@@ -31,9 +33,12 @@ and the plans the algorithm produces are untouched.
 1. **Four named levels instead of eleven numbers.** `mixImportance.ts` maps the
    weights into `off` (0), `consider` (1–3), `important` (4–6) and `essential`
    (7–10), and back: pressing a level writes that band's weight (0, 3, 5, 8).
-   A weight already inside the band survives — pressing the level a fine-tuned
-   criterion already has cannot change the plan it produces. The slider stays
-   one press away behind "Feinjustierung", which the panel remembers.
+   A weight already inside the band survives — pressing the level a recipe or
+   an earlier fine tuning already set cannot change the plan it produces. The
+   slider first stayed one press away behind "Feinjustierung"; the review of
+   2026-09-21 removed it, because the panel above the criteria had grown
+   cluttered, so the four words are the whole scale now. `spg.mixFineTuning`
+   is no longer written.
 2. **Recipes.** `mixRecipes.ts` holds five named mixes — Empfohlene Mischung,
    Ruhige Arbeitsphase, Gruppenarbeit, Klassenarbeit, Neue Klasse — that set all
    sixteen weights at once, above the criteria they set. Criteria the class has
@@ -43,9 +48,10 @@ and the plans the algorithm produces are untouched.
    the plan that was actually mixed, using the same per-seat data the criterion
    highlights are drawn from. It always keeps the criterion that came off worst.
 
-The fulfilment beside each criterion shows the plain counting where there is one
-("3/4") and the percentage where there is not — window and door seats are scored
-by distance, not counted, and a tally beside them would be a lie.
+The fulfilment beside each criterion is a bar and its percentage. For a day it
+showed the plain counting where there was one ("3/4"); the review of 2026-09-21
+brought the percentage back, so every criterion and the plan's total above them
+read on one scale. The counts still feed the sentences of "Warum dieser Plan".
 
 ## Alternatives considered
 

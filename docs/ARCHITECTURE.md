@@ -1,6 +1,6 @@
 # Architecture
 
-> **Status:** current · **Last reviewed:** 2026-09-20 · **Maintainer:** Eike
+> **Status:** current · **Last reviewed:** 2026-09-21 · **Maintainer:** Eike
 > Schäfer · **Describes:** Klassenplan 2.2.0
 
 This is the entry point for anyone who wants to understand _why_ Klassenplan is
@@ -114,8 +114,8 @@ mitigation today is organisational — one browser profile per person.
 Klassenplan from a colleague, opens the generator and chooses _Beispielklasse
 laden_ in the empty class list. Klassenplan creates an ordinary class with 24
 invented students, drawn pictures and a furnished room. A short tour points out
-the class switcher, the add menu, the attributes and the backup behind the
-settings gear in the footer; the room and the seating plan get a tour of their
+the class switcher, the add menu, the attributes and the backup in the class
+toolbar; the room and the seating plan get a tour of their
 own when they first open, including the sidebar, the statistics and the seating
 circle. Convinced, the teacher imports the real list into a new class and
 deletes the sample class
@@ -236,8 +236,9 @@ The weights are the algorithm's; the words around them are the panel's
 
 - **`utils/mixImportance.ts`** maps each weight to one of four named levels and
   back, so a criterion is set as "Wichtig" rather than as 5. A weight inside the
-  band survives being set to its own level; "Feinjustierung" brings the slider
-  back.
+  band — a recipe's, or one set before the fine tuning was removed — survives
+  being set to its own level. There is no slider any more: the four words are
+  the whole scale.
 - **`utils/mixRecipes.ts`** holds five named mixes that set all sixteen weights
   at once. Which one is active is derived from the weights, never stored.
 - **`utils/algorithm/planReasons.ts`** turns the last mix into up to three

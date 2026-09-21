@@ -251,6 +251,7 @@
   },
   "storage": {
     "sectionTitle": "Speicher & Backup",
+    "backup": "Backup",
     "exportBackup": "Backup exportieren",
     "importBackup": "Backup importieren",
     "showAllPlans": "Alle Pläne anzeigen",
@@ -313,7 +314,6 @@
   },
   "mix": {
     "title": "Mischkriterien",
-    "description": "Wie wichtig ist dir jedes Kriterium beim Mischen?",
     "recipes": {
       "title": "Rezept",
       "custom": "Eigene Mischung",
@@ -412,11 +412,8 @@
     "disableAll": "Alle Kriterien deaktivieren",
     "toggleAll": "Alle Kriterien",
     "resetDefaults": "Standardwerte",
-    "resetDefaultsTitle": "Standardwerte wiederherstellen",
     "on": "An",
     "off": "Aus",
-    "weightTooltip": "Gewichtung: {{value}}/10 – Je höher der Wert, desto wichtiger ist dieses Kriterium bei der Sitzplatzverteilung.",
-    "weightSliderLabel": "Wichtigkeit: {{label}}",
     "importance": {
       "off": "Aus",
       "consider": "Beachten",
@@ -429,20 +426,15 @@
       "groupLabel": "Wichtigkeit: {{label}}",
       "optionLabel": "{{label}}: {{level}}"
     },
-    "fineTuning": "Feinjustierung",
-    "fineTuningHint": "Zeigt zusätzlich die Gewichtung von 0 bis 10.",
     "flyoutHint": "Lange drücken oder Rechtsklick öffnet diese Einstellung wieder.",
     "railAllTitle": "{{action}} – Rechtsklick: Standardwerte",
-    "railCriterionTitle": "{{label}}: {{value}}/10 – Rechtsklick: Wichtigkeit einstellen",
-    "railCriterionActiveLabel": "{{label}}, Wichtigkeit {{value}} von 10",
+    "railCriterionTitle": "{{label}}: {{level}} – Rechtsklick: Wichtigkeit einstellen",
+    "railCriterionActiveLabel": "{{label}}, {{level}}",
     "railWeightHint": "Rechtsklick, lange drücken, Umschalt+F10 oder Pfeil nach rechts: Wichtigkeit einstellen",
     "railDefaultsHint": "Rechtsklick, lange drücken, Umschalt+F10 oder Pfeil nach rechts: Standardwerte",
     "fulfillment": {
       "label": "Erfüllung",
       "value": "{{percentage}} %",
-      "count": "{{fulfilled}}/{{total}}",
-      "countValue": "{{fulfilled}} von {{total}}, {{percentage}} %",
-      "overall": "Erfüllung gesamt: {{percentage}} %",
       "suffix": ", zu {{percentage}} % erfüllt",
       "plainLabel": "Erfüllung {{label}}: {{value}}",
       "pinLabel": "Erfüllung {{label}}: {{value}} – betroffene Plätze markieren",
@@ -680,6 +672,7 @@
     "backToClassroom": "Zurück zum Klassenraum",
     "planNamePlaceholder": "Name für diesen Sitzplan",
     "planNameLabel": "Gib einen Namen für diesen Sitzplan ein",
+    "planNameSave": "Unter diesem Namen speichern",
     "planNameError": "Bitte gib einen Namen ein.",
     "date": "Datum"
   },
@@ -946,9 +939,9 @@
         "title": "Deine Klassen",
         "body": "Oben in der Kopfzeile steht, welche Klasse offen ist. Hier wechselst du zwischen deinen Klassen, legst neue an oder benennst sie um. Jede Klasse hat eigene Schüler, Räume und Sitzpläne."
       },
-      "appSettings": {
-        "title": "Einstellungen und Backup",
-        "body": "Deine Daten liegen nur in diesem Browser. Über das Einstellungsrädchen oben rechts exportierst du ein verschlüsseltes Backup und stellst es wieder her – auch auf einem anderen Gerät. Dort findest du außerdem alle gespeicherten Pläne."
+      "backup": {
+        "title": "Daten sichern",
+        "body": "Deine Daten liegen nur in diesem Browser. Unter „Backup“ in der Werkzeugleiste exportierst du ein verschlüsseltes Backup und stellst es wieder her – auch auf einem anderen Gerät."
       },
       "proceed": {
         "title": "Weiter zum Klassenraum",
@@ -992,7 +985,7 @@
       },
       "exits": {
         "title": "Präsentieren und exportieren",
-        "body": "Oben rechts zeigst du den Plan an der Tafel oder exportierst ihn als PDF. Beides sichert den Plan vorher, wenn du etwas geändert hast."
+        "body": "Unten in der Statusleiste zeigst du den Plan an der Tafel oder exportierst ihn als PDF. Beides sichert den Plan vorher, wenn du etwas geändert hast."
       },
       "fulfillment": {
         "title": "Kriterien und Erfüllung",
@@ -1030,8 +1023,6 @@
       "missingNames_one": "{{count}} Name fehlt",
       "missingNames_other": "{{count}} Namen fehlen",
       "noTables": "Noch keine Tische",
-      "tables_one": "{{count}} Tisch",
-      "tables_other": "{{count}} Tische",
       "seatsFor": "{{seats}} Plätze für {{students}} Schüler",
       "seatsExact": "passt genau",
       "seatsMissing_one": "{{count}} Platz fehlt",
@@ -1046,9 +1037,15 @@
     "deleteFeature": "Raummerkmal entfernen",
     "deleteSelection": "Auswahl entfernen",
     "deleteTable": "Tisch entfernen",
-    "duplicateTable": "Tisch duplizieren",
-    "empty": "Wähle einen Tisch oder ein Raummerkmal auf dem Plan, um seine Werte zu sehen und zu ändern.",
-    "height": "Höhe",
+    "duplicate": "Duplizieren",
+    "copyShortcut": "Kopieren (Strg/Cmd+C)",
+    "cutShortcut": "Ausschneiden (Strg/Cmd+X)",
+    "pasteShortcut": "Einfügen (Strg/Cmd+V)",
+    "edit": "Bearbeiten",
+    "orientation": "Ausrichtung",
+    "display": "Anzeige",
+    "overview": "Überblick",
+    "empty": "Wähle einen Tisch oder ein Raummerkmal auf dem Plan, um es zu drehen, zu kopieren oder zu entfernen. Verschoben wird direkt auf dem Plan.",
     "multiSelection": "{{tables}} Tische und {{features}} Raummerkmale ausgewählt",
     "room": "Raum",
     "rotateLeft": "Gegen den Uhrzeigersinn drehen",
@@ -1065,10 +1062,7 @@
     "tableCount": "Tische",
     "tablePosition": "Tisch {{index}} von {{total}}",
     "title": "Eigenschaften",
-    "visible": "Sichtbar",
-    "width": "Breite",
-    "x": "X",
-    "y": "Y"
+    "visible": "Sichtbar"
   },
   "planToolbar": {
     "arrangement": "Anordnung",
