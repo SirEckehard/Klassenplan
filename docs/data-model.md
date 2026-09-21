@@ -1,6 +1,6 @@
 # Data Model
 
-> **Status:** current · **Last reviewed:** 2026-09-19 · **Source of truth:**
+> **Status:** current · **Last reviewed:** 2026-09-21 · **Source of truth:**
 > `src/utils/data/storageKeys.ts`, `src/types/`, `src/repositories/`
 
 Everything Klassenplan stores lives in the teacher's browser. This document
@@ -169,12 +169,18 @@ list is `PROJECT_LOCAL_STORAGE_KEYS` in `storageKeys.ts`. Groups:
 - **Appearance:** `theme`, `showGrid`, `spg.alignmentGuides`,
   `spg.featureVisibility`, `spg.nameDisplay`, `spg.photoDisplayMode`, …
 - **Presentation and export:** `spg.present.*`, `export.*` — the export keys
-  predate the `spg.` prefix and keep their names so existing preferences survive.
+  predate the `spg.` prefix and keep their names so existing preferences
+  survive. The projection keeps its own contrast mode and name rule
+  (`spg.present.contrast`, `spg.present.nameDisplay`): it is read from the back
+  row, the editor's plan from 40 cm away.
 - **Workflow:** sidebar state, class list sort order, first visit, onboarding
   tours seen or switched off (`spg.onboardingTour`,
   [decision 0015](decisions/0015-onboarding-sample-class-and-tour.md)), whether
   the collapsed sidebar has shown its one-time hint on criterion weights
-  (`spg.mixWeightHintSeen`), last seen version, PWA install prompt dismissal.
+  (`spg.mixWeightHintSeen`), whether the criteria show their weights beside the
+  named levels (`spg.mixFineTuning`,
+  [decision 0018](decisions/0018-criteria-in-words-with-recipes.md)), last seen
+  version, PWA install prompt dismissal.
 - **Backup reminder:** `spg.lastBackupAt`, `spg.backupDataSince`,
   `spg.backupReminderSnoozedUntil`, `spg.backupReminderDisabled`.
 - **Consent:** `cookieConsent`, `spg.photoConsentConfirmed`.

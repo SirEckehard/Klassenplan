@@ -31,6 +31,7 @@ it says so instead of reconstructing one.
 | [0016](0016-hidden-criteria-carry-no-weight.md)    | Criteria the class has no data for carry no weight         |
 | [0017](0017-seats-are-paper-and-ink.md)            | A seat is paper and ink, not a gender colour               |
 | [0018](0018-criteria-in-words-with-recipes.md)     | The criteria are set in words, and a recipe sets them all  |
+| [0019](0019-classroom-tools-as-routes.md)          | The three classroom tools are routes, not panels           |
 
 ## Reasons still to be recorded
 

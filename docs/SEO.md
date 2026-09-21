@@ -137,9 +137,11 @@ Set `"noindex": true` on a route in `seoRoutes.json`. The route is then:
 - excluded from `sitemap.xml`
 - still prerendered, so canonical and hreflang stay consistent
 
-`/present` is marked this way: without a saved plan it renders only an empty
-state ("Noch kein Sitzplan zum Präsentieren"), which has no business in the
-index.
+`/present`, `/namensspiel` and the three classroom tools (`/wer-kommt-dran`,
+`/wo-sitzt-wer`, `/gruppen`) are marked this way: without a class in this
+browser they render only an empty state ("Noch kein Sitzplan zum
+Präsentieren"), which has no business in the index
+([decision 0019](decisions/0019-classroom-tools-as-routes.md)).
 
 ## Sitemap `lastmod`
 

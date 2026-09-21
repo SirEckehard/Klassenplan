@@ -1,6 +1,6 @@
 # Design System – Klassenplan
 
-> **Status:** current · **Last reviewed:** 2026-09-20 · **Maintainer:** Eike
+> **Status:** current · **Last reviewed:** 2026-09-21 · **Maintainer:** Eike
 > Schäfer · **Describes:** Klassenplan 2.2.0
 
 This document describes the binding design tokens for Klassenplan. All values live in `src/index.css` and are reachable from TypeScript through `src/utils/ui/designTokens.ts`.
@@ -137,6 +137,29 @@ In code a family is a class, not a hex: `dataFamilyClass.behavior` sets `--data-
 
 `warning-button` is the one leftover: it carried the old amber "back / side trip" accent and is used for navigation (Namensspiel, Zurück zum Klassenraum), not for warnings. Its tokens (`--button-warning-*`) now render neutral; the call sites move to `secondary-button` and the token disappears with them.
 
+**How far something got is chrome, not pedagogy**
+
+A fulfilment value, a mix with every criterion switched off, a check that
+failed: three states that say how something went, in `--status-ok`,
+`--status-warn` and `--status-alert` (each with a `-surface` and a `-text`
+companion). They are not `--data-*` families — the criterion they describe
+keeps its own family — and they are the only other colours the interface is
+allowed to carry. `getStatisticStatusMeta` is the one place that picks between
+them.
+
+**The projection brings its own bar**
+
+`/present` floats one dark bar over the plan, in `--present-bar-*`: the same
+ink values in both themes, because the plan underneath is paper in both. It is
+the only surface in the app that does not follow the theme, and it exists
+because the bar belongs to the teacher standing in front of the wall while the
+projection belongs to the room.
+
+Its contrast mode goes the other way: black on white whatever the theme, with
+thicker contours and the seat names bolder (`SEAT_CONTRAST_COLORS`). Those are
+the only hard-coded colours left in `src/`, chosen for a wall and a weak
+projector rather than for a screen.
+
 **Focus and hover**
 
 - A focus ring is a solid 2 px contour in `--focus-ring-primary` (danger and success variants exist), never a soft glow. The old translucent rings are gone.
@@ -144,14 +167,25 @@ In code a family is a class, not a hex: `dataFamilyClass.behavior` sets `--data-
 
 ## 5. Tokens for student toggles
 
-`src/components/students/studentStyleTokens.ts` provides specialized tokens built on `mutedIconButtonClass`:
+A student attribute is an `InspectorRow` with either `InspectorChoice` chips or
+a `ToggleSwitch` — neither of which needs a token of its own. The selectors
+used to carry four shapes each (compact, detailed, hybrid, row); only `row`
+ever reached a screen once the inspector existed, and the other three took
+2,500 lines of hand-written palette classes with them when they went.
 
-- **Gender selector**: `genderButtonTokens` with `compactBaseClass`, `detailedBaseClass`, colored `compactStyleMap` / `detailedActiveStyleMap`, and icon color maps.
-- **Special needs**: `specialNeedsButtonTokens` with an `activeStateClass` (amber) and a neutral `inactiveStateClass`.
-- **Height selector**: `heightButtonTokens` including dropdown styles (`dropdownOptionBaseClass`, `dropdownActiveStyleMap`, …) and icon color maps.
-- **Partner / avoid partner**: `partnerButtonTokens` and `avoidPartnerButtonTokens` with matching dropdown variants.
+What is left in `src/components/students/studentStyleTokens.ts`:
 
-**Important:** The tokens already include minimum sizes (`min-h-10`, `min-w-[44px]`) and typography (`text-xs font-semibold`). Additional classes are only allowed for layout scaffolding (e.g. `grid`, `gap-*`).
+- **Partner / avoid partner** (`partnerButtonTokens`, `avoidPartnerButtonTokens`):
+  the button that opens the list of classmates. Both wear the **Soziales**
+  family when they are set — a wish and a distance wish are told apart by their
+  icon and the row's name, not by two different colours.
+- **Bulk bar chips** (`specialNeedsButtonTokens`): setting a flag for twelve
+  students at once is an action, so the chip takes the blue accent, and the
+  mixed state (some of them carry it) is the same chip with a dashed border.
+
+**Important:** The tokens already include minimum sizes and typography.
+Additional classes are only allowed for layout scaffolding (e.g. `grid`,
+`gap-*`).
 
 ## 6. Classroom features & feature palette
 

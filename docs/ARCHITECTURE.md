@@ -372,27 +372,31 @@ because a report endpoint is a server receiving data from visitors' browsers.
 The UI speaks German, the code English. These are the terms that do not
 translate one to one.
 
-| UI (German)                               | Code                                                         | Meaning                                                                                      |
-| ----------------------------------------- | ------------------------------------------------------------ | -------------------------------------------------------------------------------------------- |
-| Klasse                                    | class, `activeClass`, `ClassCollectionState`                 | A group of up to 36 students with its own plans, room and weights                            |
-| Klassenliste (step 1)                     | `students`, `Student`                                        | The students of the active class                                                             |
-| Merkmal                                   | `restless`, `shy`, `concentrationIssues`, … on `Student`     | Contextual description of current behaviour, not a diagnosis                                 |
-| Klassenraum (step 2)                      | `ClassroomScene`, "scene"                                    | The 900 × 600 room: tables and room elements                                                 |
-| Einzelplatz, Doppelplatz, 4er-/6er-Gruppe | `TableTemplateType` (`single`, `double`, `group4`, `group6`) | Table types placed from the toolbar                                                          |
-| Klassenraum-Vorlage                       | `ClassroomTemplate`                                          | A saved room layout — not to be confused with the table types above                          |
-| Raumelement: Fenster, Tür, Tafel, Pult    | `ClassroomFeature` (`window`, `door`, `board`, `podium`)     | Fixed parts of the room that criteria can refer to                                           |
-| Sitzplan (step 3)                         | `SeatingArrangement`, `currentSeating`                       | Tables × seats → student or empty                                                            |
-| Mischen                                   | mix, shuffle, `mix:generate`                                 | Build a new arrangement (and refine it when criteria are active)                             |
-| Kriterium, Wichtigkeit                    | `MixSettings`                                                | Weights 0–10 per criterion, set as four named levels; defaults in [PEDAGOGY.md](PEDAGOGY.md) |
-| Rezept                                    | `MixRecipe`, `mixRecipes.ts`                                 | A named set of all sixteen weights for a kind of lesson                                      |
-| Gesperrter Platz                          | `lockedPositions`, `isSeatLocked`                            | A seat the algorithm must not change                                                         |
-| Gespeicherter Plan                        | `SavedPlan` in `seatingHistory`                              | A plan saved under a name. Despite its name, `seatingHistory` holds saved plans, not a log   |
-| Mischung                                  | `MixResult` in `mixHistory`                                  | One shuffle result, kept for the last 20                                                     |
-| Nachbarschaften                           | plan usage record, `PlanUsage`                               | Which plans were really used, and who sat next to whom                                       |
-| Sitzkreis                                 | circle mode, `CircleLayout`, `seatingMode: 'circle'`         | Seating in a circle instead of tables                                                        |
-| Präsentation                              | `/present`                                                   | Full-screen view for projector and whiteboard                                                |
-| Namensspiel                               | `/namensspiel`                                               | Photo quiz and memory for learning students' names                                           |
-| Backup                                    | `ExportBundle`, encrypted envelope                           | The one way data leaves the browser                                                          |
+| UI (German)                               | Code                                                         | Meaning                                                                                                                 |
+| ----------------------------------------- | ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------- |
+| Klasse                                    | class, `activeClass`, `ClassCollectionState`                 | A group of up to 36 students with its own plans, room and weights                                                       |
+| Klassenliste (step 1)                     | `students`, `Student`                                        | The students of the active class                                                                                        |
+| Merkmal                                   | `restless`, `shy`, `concentrationIssues`, … on `Student`     | Contextual description of current behaviour, not a diagnosis                                                            |
+| Klassenraum (step 2)                      | `ClassroomScene`, "scene"                                    | The 900 × 600 room: tables and room elements                                                                            |
+| Einzelplatz, Doppelplatz, 4er-/6er-Gruppe | `TableTemplateType` (`single`, `double`, `group4`, `group6`) | Table types placed from the toolbar                                                                                     |
+| Klassenraum-Vorlage                       | `ClassroomTemplate`                                          | A saved room layout — not to be confused with the table types above                                                     |
+| Raumelement: Fenster, Tür, Tafel, Pult    | `ClassroomFeature` (`window`, `door`, `board`, `podium`)     | Fixed parts of the room that criteria can refer to                                                                      |
+| Sitzplan (step 3)                         | `SeatingArrangement`, `currentSeating`                       | Tables × seats → student or empty                                                                                       |
+| Mischen                                   | mix, shuffle, `mix:generate`                                 | Build a new arrangement (and refine it when criteria are active)                                                        |
+| Kriterium, Wichtigkeit                    | `MixSettings`                                                | Weights 0–10 per criterion, set as four named levels; defaults in [PEDAGOGY.md](PEDAGOGY.md)                            |
+| Rezept                                    | `MixRecipe`, `mixRecipes.ts`                                 | A named set of all sixteen weights for a kind of lesson                                                                 |
+| Gesperrter Platz                          | `lockedPositions`, `isSeatLocked`                            | A seat the algorithm must not change                                                                                    |
+| Gespeicherter Plan                        | `SavedPlan` in `seatingHistory`                              | A plan saved under a name. Despite its name, `seatingHistory` holds saved plans, not a log                              |
+| Mischung                                  | `MixResult` in `mixHistory`                                  | One shuffle result, kept for the last 20                                                                                |
+| Nachbarschaften                           | plan usage record, `PlanUsage`                               | Which plans were really used, and who sat next to whom                                                                  |
+| Sitzkreis                                 | circle mode, `CircleLayout`, `seatingMode: 'circle'`         | Seating in a circle instead of tables                                                                                   |
+| Präsentation                              | `/present`                                                   | Full-screen view for projector and whiteboard                                                                           |
+| Namensspiel                               | `/namensspiel`                                               | Photo quiz and memory for learning students' names                                                                      |
+| Wer kommt dran?                           | `/wer-kommt-dran`, `useRandomStudentPicker`                  | Draws a student without replacement — everybody before anybody twice                                                    |
+| Wo sitzt wer?                             | `/wo-sitzt-wer`, `findSeatLocation`                          | Looks a seat up: table, depth, landmark, neighbour                                                                      |
+| Gruppen bilden                            | `/gruppen`, `buildGroups`                                    | Draws groups out of the class; not the seating algorithm ([decision 0019](decisions/0019-classroom-tools-as-routes.md)) |
+| Kontrastmodus                             | `contrast` on `PresentationScene`                            | The projection in black on white for a bright room                                                                      |
+| Backup                                    | `ExportBundle`, encrypted envelope                           | The one way data leaves the browser                                                                                     |
 
 ## Open questions
 

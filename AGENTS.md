@@ -28,16 +28,16 @@ it for Antigravity — edit this file, never those two.
 - Docs consistency: `npm run check:docs` (relative links, heading anchors and `src/…`-style paths in Markdown resolve; `docs/CHANGELOG.md` is skipped)
 - Algorithm runtime: `npm run bench` (by hand, not in CI; figures in `docs/PERFORMANCE.md`)
 
-**Current Code Quality Status (2026-09-20):**
+**Current Code Quality Status (2026-09-21):**
 
 - ✅ ESLint: 0 errors, 0 warnings
 - ✅ TypeScript: 0 compilation errors (strict mode)
-- ✅ Tests: 2351 unit tests (235 test files) + 9 Playwright tests (3 smoke + 2 core flow + 4 onboarding), 100% passing
+- ✅ Tests: 2326 unit tests (236 test files) + 9 Playwright tests (3 smoke + 2 core flow + 4 onboarding), 100% passing
 - 📊 Coverage: 72.5 % lines / 71.8 % statements / 61.9 % branches (`npm run test:coverage`, v8 provider, no thresholds enforced)
-- ⚠️ Unused Exports: 53 modules ignoring type-only exports, held by a ratchet (`npm run check:unused`); the remainder are re-export barrels, `lazyWithRetry` default exports and shared test helpers
+- ⚠️ Unused Exports: 52 modules ignoring type-only exports, held by a ratchet (`npm run check:unused`); the remainder are re-export barrels, `lazyWithRetry` default exports and shared test helpers
 - ✅ Test Infrastructure: Centralized accessibility helpers and toast matchers for robust testing
 - ✅ Architecture: Repository Pattern implemented, UI components reorganized into logical subdirectories
-- ✅ i18n: Bilingual support (German/English) fully implemented, DE/EN key parity 1:1 (2077 keys per language)
+- ✅ i18n: Bilingual support (German/English) fully implemented, DE/EN key parity 1:1 (2132 keys per language)
 - 📦 Bundle: initial payload 204 KB brotli / 760 KB raw over 34 preloaded files, largest chunk 62 KB brotli, CSS 17 KB brotli
 
 ## Logging
@@ -265,6 +265,8 @@ Consumers import dedicated hooks (e.g. `useClassroomLayoutContext`) to minimize 
 - **A criterion is set in words, and the plan says what it came to.** Four named levels — Aus, Beachten, Wichtig, Sehr wichtig — stand for the weights 0–10 (`utils/mixImportance.ts`); the slider comes back behind "Feinjustierung". Above them a recipe (`utils/mixRecipes.ts`) sets all sixteen at once, and which one is active is derived from the weights, never stored. Under them, "Warum dieser Plan" (`utils/algorithm/planReasons.ts`) builds up to three sentences from the seats themselves. A new criterion therefore needs a `met` and an `open` sentence in both languages and a decision whether names say anything about it (`NAMED_CRITERIA`); decision 0018 holds the reasons.
 - **Three ways to fill the inspector.** The class layer's selection is a student id, so `Inspector` resolves it from the seating-plan context itself. The room layer's selection is table indices and feature ids buried in the canvas state, and the plan layer's criteria need the view's mix handlers, so both render through `InspectorPortal` into the shell's slot — markup travels down instead of a dozen mutators travelling up. `StatusBarPortal` does the same for the status bar (`start` for a layer's own history, `end` for its primary action).
 - Layer UI resides in `src/components/SeatingPlanGenerator/` with shared UI primitives in `src/components/ui/` and student tools in `src/components/students/`.
+- **The projection carries one bar, and it is ink in both themes.** `/present` puts every control into `PresentationToolbar` under the plan — the two views, the two shapes, the draw, what to show, the size, the way out — while the strip on top only says what is on the wall. The plan is framed on the furniture, not on the empty 900×600 room; the contrast mode draws it black on white for a bright room, and the beamer keeps its own name rule (`spg.present.nameDisplay`, first names) apart from the editor's.
+- **A tool used standing up is a route, not a panel.** "Wer kommt dran?" (`/wer-kommt-dran`), "Wo sitzt wer?" (`/wo-sitzt-wer`) and "Gruppen bilden" (`/gruppen`) share `components/tools/ToolPage.tsx`: the way back on top, the answer in the middle, one action pinned to the bottom edge. They are `noindex`, store nothing, and are reachable from the plan layer's toolbar. A new one of them needs a route, a `seoRoutes.json` entry, a `hidesFooter` entry and a `routeComponents` key — decision 0019 holds the reasons.
 - Circle-specific components live under `src/components/circle/`; presentation mode lives in `src/pages/Present.tsx` + `src/components/scene/PresentationScene.tsx`.
 
 ### Styling & Design Tokens
