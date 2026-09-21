@@ -433,7 +433,9 @@ Never reach for a raw Tailwind palette class (`bg-amber-500`, `text-green-600`)
 in a component — take the token. `src/` is clean of them but for four
 deliberate exceptions: the three window dots in `HeroMockup` (a picture of a
 browser, not this app's palette) and the orange step counter in
-`OnboardingTour`, which the design system reserves for step labels. A `dark:`
+`OnboardingTour`, which the design system reserves for step labels. Three
+comments in `studentAppearance.ts` and `classWorkbenchTokens.ts` still _name_
+old palette classes to say what a hex value came from; they set nothing. A `dark:`
 variant is a sign the colour is not a token yet — there are no
 palette-based ones left. Dark mode is handled inside the token, so no
 `dark:` variant is needed when a token is used; hand-written colour utilities

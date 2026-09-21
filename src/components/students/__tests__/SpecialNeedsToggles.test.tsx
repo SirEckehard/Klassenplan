@@ -6,7 +6,8 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@/i18n'; // Initialize i18n for tests
 import SpecialNeedsToggles from '../SpecialNeedsToggles';
-import type { Student } from '../../../types';
+import { STUDENT_FLAGS } from '@/utils';
+import type { Student } from '@/types';
 
 const createMockStudent = (overrides?: Partial<Student>): Student => ({
   id: '1',
@@ -21,188 +22,77 @@ const createMockStudent = (overrides?: Partial<Student>): Student => ({
   ...overrides,
 });
 
+const switchFor = (name: RegExp) => screen.getByRole('switch', { name });
+
 describe('SpecialNeedsToggles', () => {
-  describe('compact variant', () => {
-    it('renders all special needs toggle buttons', () => {
-      const student = createMockStudent();
+  it('is one row per flag, each with a switch', () => {
+    render(
+      <SpecialNeedsToggles
+        student={createMockStudent()}
+        updateStudent={vi.fn()}
+      />,
+    );
 
-      render(
-        <SpecialNeedsToggles
-          student={student}
-          updateStudent={vi.fn()}
-          variant="compact"
-        />,
-      );
-
-      // Should render 6 flag buttons (restless, shy, concentration, sensory, performance strong/weak)
-      const buttons = screen.getAllByRole('button');
-      expect(buttons).toHaveLength(6);
-    });
-
-    it('shows inactive state for unchecked flags', () => {
-      const student = createMockStudent({
-        needsFrontSeat: false,
-        restless: false,
-        shy: false,
-        concentrationIssues: false,
-      });
-
-      render(
-        <SpecialNeedsToggles
-          student={student}
-          updateStudent={vi.fn()}
-          variant="compact"
-        />,
-      );
-
-      const buttons = screen.getAllByRole('button');
-      buttons.forEach((button) => {
-        expect(button).toHaveClass('text-gray-700!');
-        expect(button).not.toHaveClass('bg-amber-300!');
-      });
-    });
-
-    it('shows active state for checked flags', () => {
-      const student = createMockStudent({
-        restless: true,
-      });
-
-      render(
-        <SpecialNeedsToggles
-          student={student}
-          updateStudent={vi.fn()}
-          variant="compact"
-        />,
-      );
-
-      const restlessButton = screen.getByRole('button', {
-        name: /unruhig|restless/i,
-      });
-      expect(restlessButton).toHaveClass('bg-amber-300!');
-    });
-
-    it('toggles flag when button is clicked', async () => {
-      const user = userEvent.setup();
-      const student = createMockStudent({ restless: false });
-      const updateStudent = vi.fn();
-
-      render(
-        <SpecialNeedsToggles
-          student={student}
-          updateStudent={updateStudent}
-          variant="compact"
-        />,
-      );
-
-      const buttons = screen.getAllByRole('button');
-      await user.click(buttons[0]); // Click first flag
-
-      expect(updateStudent).toHaveBeenCalledWith('1', expect.any(Object));
-    });
-
-    it('handles mutual exclusivity for performance strong/weak', async () => {
-      const user = userEvent.setup();
-      const student = createMockStudent({
-        performanceStrong: true,
-        performanceWeak: false,
-      });
-      const updateStudent = vi.fn();
-
-      render(
-        <SpecialNeedsToggles
-          student={student}
-          updateStudent={updateStudent}
-          variant="compact"
-        />,
-      );
-
-      const buttons = screen.getAllByRole('button');
-      // Click performance weak button - index 1 per STUDENT_FLAGS order
-      await user.click(buttons[1]);
-
-      // Should toggle performance weak on and strong off
-      const call = updateStudent.mock.calls[0];
-      expect(call[1]).toHaveProperty('performanceWeak', true);
-      expect(call[1]).toHaveProperty('performanceStrong', false);
-    });
+    expect(screen.getAllByRole('switch')).toHaveLength(STUDENT_FLAGS.length);
   });
 
-  describe('detailed variant', () => {
-    it('renders section with heading', () => {
-      const student = createMockStudent();
+  it('shows only the flags the section asked for', () => {
+    render(
+      <SpecialNeedsToggles
+        student={createMockStudent()}
+        updateStudent={vi.fn()}
+        keys={['restless', 'concentrationIssues']}
+      />,
+    );
 
-      render(
-        <SpecialNeedsToggles
-          student={student}
-          updateStudent={vi.fn()}
-          variant="detailed"
-        />,
-      );
+    expect(screen.getAllByRole('switch')).toHaveLength(2);
+    expect(switchFor(/unruhig|restless/i)).toBeInTheDocument();
+  });
 
-      expect(
-        screen.getByText(/Besondere Bedürfnisse|Special Needs/i),
-      ).toBeInTheDocument();
-    });
+  it('says which flags are set', () => {
+    render(
+      <SpecialNeedsToggles
+        student={createMockStudent({ restless: true })}
+        updateStudent={vi.fn()}
+        keys={['restless', 'shy']}
+      />,
+    );
 
-    it('renders labeled buttons for all flags', () => {
-      const student = createMockStudent();
+    expect(switchFor(/unruhig|restless/i)).toBeChecked();
+    expect(switchFor(/schüchtern|shy/i)).not.toBeChecked();
+  });
 
-      render(
-        <SpecialNeedsToggles
-          student={student}
-          updateStudent={vi.fn()}
-          variant="detailed"
-        />,
-      );
+  it('sets a flag when its switch is pressed', async () => {
+    const user = userEvent.setup();
+    const updateStudent = vi.fn();
+    render(
+      <SpecialNeedsToggles
+        student={createMockStudent({ restless: false })}
+        updateStudent={updateStudent}
+        keys={['restless']}
+      />,
+    );
 
-      // Check for some labels (these come from i18n translations)
-      expect(screen.getByText(/unruhig|restless/i)).toBeInTheDocument();
-      expect(
-        screen.getByText(/leistungsstark|high performer/i),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByText(/leistungsschwach|needs support/i),
-      ).toBeInTheDocument();
-    });
+    await user.click(switchFor(/unruhig|restless/i));
 
-    it('highlights active flags', () => {
-      const student = createMockStudent({
-        restless: true,
-      });
+    expect(updateStudent).toHaveBeenCalledWith('1', { restless: true });
+  });
 
-      render(
-        <SpecialNeedsToggles
-          student={student}
-          updateStudent={vi.fn()}
-          variant="detailed"
-        />,
-      );
+  it('keeps the two performance flags exclusive', async () => {
+    const user = userEvent.setup();
+    const updateStudent = vi.fn();
+    render(
+      <SpecialNeedsToggles
+        student={createMockStudent({ performanceStrong: true })}
+        updateStudent={updateStudent}
+        keys={['performanceStrong', 'performanceWeak']}
+      />,
+    );
 
-      const restlessButton = screen.getByRole('button', {
-        name: /unruhig|restless/i,
-      });
-      expect(restlessButton).toHaveClass('bg-amber-300!');
-    });
+    await user.click(switchFor(/leistungsschwach|needs support/i));
 
-    it('toggles flag when button is clicked', async () => {
-      const user = userEvent.setup();
-      const student = createMockStudent({ restless: false });
-      const updateStudent = vi.fn();
-
-      render(
-        <SpecialNeedsToggles
-          student={student}
-          updateStudent={updateStudent}
-          variant="detailed"
-        />,
-      );
-
-      const restlessButton = screen.getByRole('button', {
-        name: /unruhig|restless/i,
-      });
-      await user.click(restlessButton);
-
-      expect(updateStudent).toHaveBeenCalledWith('1', expect.any(Object));
-    });
+    const [, patch] = updateStudent.mock.calls[0];
+    expect(patch).toHaveProperty('performanceWeak', true);
+    expect(patch).toHaveProperty('performanceStrong', false);
   });
 });

@@ -63,12 +63,18 @@ export default function StudentInspector({
   const { t } = useTranslation('students');
   const rowState = useStudentRowState();
 
-  // A different student means a different set of dropdowns; leaving one open
-  // across the switch would point a portal at a control that just unmounted.
-  const { setShowGenderDropdown, setIsEditing, setDraftName } = rowState;
+  // A different student means different partner lists; leaving one open across
+  // the switch would point a portal at a control that just unmounted.
+  const {
+    setShowPartnerDropdown,
+    setShowAvoidDropdown,
+    setIsEditing,
+    setDraftName,
+  } = rowState;
   React.useEffect(() => {
-    setShowGenderDropdown(false);
-  }, [setShowGenderDropdown, student.id]);
+    setShowPartnerDropdown(false);
+    setShowAvoidDropdown(false);
+  }, [setShowAvoidDropdown, setShowPartnerDropdown, student.id]);
 
   // A student without a name has exactly one thing to do next, so the field is
   // already open for it. With Enter handing over to the next student, naming a
@@ -138,23 +144,8 @@ export default function StudentInspector({
       />
       <InspectorBody>
         <InspectorSection family="person" title={t('inspector.groups.person')}>
-          <GenderSelector
-            student={student}
-            updateStudent={updateStudent}
-            variant="row"
-            showDropdown={rowState.showGenderDropdown}
-            setShowDropdown={rowState.setShowGenderDropdown}
-            dropdownRef={rowState.genderDropdownRef}
-            hintId={`inspector-gender-hint-${student.id}`}
-          />
-          <HeightSelector
-            student={student}
-            updateStudent={updateStudent}
-            variant="row"
-            showDropdown={rowState.showHeightDropdown}
-            setShowDropdown={rowState.setShowHeightDropdown}
-            dropdownRef={rowState.heightDropdownRef}
-          />
+          <GenderSelector student={student} updateStudent={updateStudent} />
+          <HeightSelector student={student} updateStudent={updateStudent} />
         </InspectorSection>
 
         <InspectorSection
@@ -164,7 +155,6 @@ export default function StudentInspector({
           <SpecialNeedsToggles
             student={student}
             updateStudent={updateStudent}
-            variant="row"
             keys={['performanceStrong', 'performanceWeak']}
           />
         </InspectorSection>
@@ -176,10 +166,6 @@ export default function StudentInspector({
           <LanguageSkillSelector
             student={student}
             updateStudent={updateStudent}
-            variant="row"
-            showDropdown={rowState.showLanguageDropdown}
-            setShowDropdown={rowState.setShowLanguageDropdown}
-            dropdownRef={rowState.languageDropdownRef}
           />
         </InspectorSection>
 
@@ -190,7 +176,6 @@ export default function StudentInspector({
           <SpecialNeedsToggles
             student={student}
             updateStudent={updateStudent}
-            variant="row"
             keys={['restless', 'concentrationIssues']}
           />
         </InspectorSection>
@@ -199,22 +184,13 @@ export default function StudentInspector({
           <SpecialNeedsToggles
             student={student}
             updateStudent={updateStudent}
-            variant="row"
             keys={['shy']}
           />
-          <SocialRoleSelector
-            student={student}
-            updateStudent={updateStudent}
-            variant="row"
-            showDropdown={rowState.showSocialRoleDropdown}
-            setShowDropdown={rowState.setShowSocialRoleDropdown}
-            dropdownRef={rowState.socialRoleDropdownRef}
-          />
+          <SocialRoleSelector student={student} updateStudent={updateStudent} />
           <PartnerSelector
             student={student}
             allStudents={allStudents}
             updateStudent={updateStudent}
-            variant="row"
             showDropdown={rowState.showPartnerDropdown}
             setShowDropdown={rowState.setShowPartnerDropdown}
             dropdownRef={rowState.dropdownRef}
@@ -223,7 +199,6 @@ export default function StudentInspector({
             student={student}
             allStudents={allStudents}
             updateStudent={updateStudent}
-            variant="row"
             showDropdown={rowState.showAvoidDropdown}
             setShowDropdown={rowState.setShowAvoidDropdown}
             dropdownRef={rowState.avoidDropdownRef}
@@ -234,13 +209,11 @@ export default function StudentInspector({
           <SpecialNeedsToggles
             student={student}
             updateStudent={updateStudent}
-            variant="row"
             keys={['needsFrontSeat']}
           />
           <StudentPreferenceToggles
             student={student}
             updateStudent={updateStudent}
-            variant="row"
           />
         </InspectorSection>
       </InspectorBody>

@@ -36,7 +36,6 @@ describe('PartnerSelector', () => {
         showDropdown={false}
         setShowDropdown={vi.fn()}
         dropdownRef={dropdownRef}
-        variant="compact"
       />,
     );
 
@@ -44,7 +43,7 @@ describe('PartnerSelector', () => {
     expect(button).toBeInTheDocument();
   });
 
-  it('displays selected partner name in compact mode', () => {
+  it('names the partner it is set to', () => {
     const partner = createMockStudent({ id: '2', name: 'Anna Schmidt' });
     // Use new array field for consistent behavior with getWishPartnerIds helper
     const student = createMockStudent({
@@ -61,7 +60,6 @@ describe('PartnerSelector', () => {
         showDropdown={false}
         setShowDropdown={vi.fn()}
         dropdownRef={dropdownRef}
-        variant="compact"
       />,
     );
 
@@ -83,7 +81,6 @@ describe('PartnerSelector', () => {
         showDropdown={false}
         setShowDropdown={setShowDropdown}
         dropdownRef={dropdownRef}
-        variant="compact"
       />,
     );
 
@@ -107,7 +104,6 @@ describe('PartnerSelector', () => {
         showDropdown={true}
         setShowDropdown={vi.fn()}
         dropdownRef={dropdownRef}
-        variant="compact"
       />,
     );
 
@@ -134,7 +130,6 @@ describe('PartnerSelector', () => {
         showDropdown={true}
         setShowDropdown={vi.fn()}
         dropdownRef={dropdownRef}
-        variant="compact"
       />,
     );
 
@@ -162,7 +157,6 @@ describe('PartnerSelector', () => {
         showDropdown={true}
         setShowDropdown={vi.fn()}
         dropdownRef={dropdownRef}
-        variant="compact"
       />,
     );
 
@@ -190,7 +184,6 @@ describe('PartnerSelector', () => {
         showDropdown={true}
         setShowDropdown={vi.fn()}
         dropdownRef={dropdownRef}
-        variant="compact"
       />,
     );
 
@@ -198,7 +191,7 @@ describe('PartnerSelector', () => {
     expect(screen.getByText('Anna Schmidt')).toBeInTheDocument();
   });
 
-  it('uses different text for detailed variant', () => {
+  it('offers clearing the wish in the list', () => {
     const student = createMockStudent();
     const dropdownRef = createRef<HTMLDivElement>();
 
@@ -210,7 +203,6 @@ describe('PartnerSelector', () => {
         showDropdown={true}
         setShowDropdown={vi.fn()}
         dropdownRef={dropdownRef}
-        variant="detailed"
       />,
     );
 

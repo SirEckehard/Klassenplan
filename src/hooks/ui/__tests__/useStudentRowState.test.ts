@@ -15,12 +15,12 @@ describe('useStudentRowState', () => {
     // Dropdown visibility state
     expect(result.current.showPartnerDropdown).toBe(false);
     expect(result.current.showAvoidDropdown).toBe(false);
-    expect(result.current.showGenderDropdown).toBe(false);
+    expect(result.current.showAvoidDropdown).toBe(false);
 
     // Refs should be defined
     expect(result.current.dropdownRef.current).toBeNull();
     expect(result.current.avoidDropdownRef.current).toBeNull();
-    expect(result.current.genderDropdownRef.current).toBeNull();
+    expect(result.current.avoidDropdownRef.current).toBeNull();
   });
 
   it('updates name editing state correctly', () => {
@@ -44,7 +44,6 @@ describe('useStudentRowState', () => {
 
     expect(result.current.showPartnerDropdown).toBe(true);
     expect(result.current.showAvoidDropdown).toBe(false);
-    expect(result.current.showGenderDropdown).toBe(false);
   });
 
   it('toggles avoid dropdown independently', () => {
@@ -56,19 +55,6 @@ describe('useStudentRowState', () => {
 
     expect(result.current.showPartnerDropdown).toBe(false);
     expect(result.current.showAvoidDropdown).toBe(true);
-    expect(result.current.showGenderDropdown).toBe(false);
-  });
-
-  it('toggles gender dropdown independently', () => {
-    const { result } = renderHook(() => useStudentRowState());
-
-    act(() => {
-      result.current.setShowGenderDropdown(true);
-    });
-
-    expect(result.current.showPartnerDropdown).toBe(false);
-    expect(result.current.showAvoidDropdown).toBe(false);
-    expect(result.current.showGenderDropdown).toBe(true);
   });
 
   it('maintains stable ref objects', () => {
@@ -76,7 +62,6 @@ describe('useStudentRowState', () => {
 
     const initialDropdownRef = result.current.dropdownRef;
     const initialAvoidRef = result.current.avoidDropdownRef;
-    const initialGenderRef = result.current.genderDropdownRef;
 
     // Trigger a re-render by updating state
     act(() => {
@@ -88,7 +73,6 @@ describe('useStudentRowState', () => {
     // Refs should remain the same object
     expect(result.current.dropdownRef).toBe(initialDropdownRef);
     expect(result.current.avoidDropdownRef).toBe(initialAvoidRef);
-    expect(result.current.genderDropdownRef).toBe(initialGenderRef);
   });
 
   it('resets name editing state', () => {

@@ -3,24 +3,11 @@
 import { useState, useRef } from 'react';
 
 /**
- * State management hook for StudentRow component
+ * The inspector's own UI state: editing the name, and the two partner lists.
  *
- * Centralizes all UI state for name editing and dropdown interactions.
- * This hook reduces complexity in StudentRow by extracting state logic.
- *
- * @returns Object containing state values and refs
- *
- * @example
- * ```tsx
- * const rowState = useStudentRowState();
- *
- * // Name editing
- * rowState.setIsEditing(true);
- * rowState.setDraftName('New Name');
- *
- * // Dropdown control
- * rowState.setShowPartnerDropdown(true);
- * ```
+ * Everything else a student has is a switch or a chip group now and needs no
+ * state of its own — the four dropdowns for gender, height, language level and
+ * social role went with the variants that used them.
  */
 export function useStudentRowState() {
   // Name editing state
@@ -30,18 +17,10 @@ export function useStudentRowState() {
   // Dropdown visibility state
   const [showPartnerDropdown, setShowPartnerDropdown] = useState(false);
   const [showAvoidDropdown, setShowAvoidDropdown] = useState(false);
-  const [showGenderDropdown, setShowGenderDropdown] = useState(false);
-  const [showHeightDropdown, setShowHeightDropdown] = useState(false);
-  const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
-  const [showSocialRoleDropdown, setShowSocialRoleDropdown] = useState(false);
 
   // Refs for click-outside detection
   const dropdownRef = useRef<HTMLDivElement>(null);
   const avoidDropdownRef = useRef<HTMLDivElement>(null);
-  const genderDropdownRef = useRef<HTMLDivElement>(null);
-  const heightDropdownRef = useRef<HTMLDivElement>(null);
-  const languageDropdownRef = useRef<HTMLDivElement>(null);
-  const socialRoleDropdownRef = useRef<HTMLDivElement>(null);
 
   return {
     // Name editing
@@ -55,21 +34,9 @@ export function useStudentRowState() {
     setShowPartnerDropdown,
     showAvoidDropdown,
     setShowAvoidDropdown,
-    showGenderDropdown,
-    setShowGenderDropdown,
-    showHeightDropdown,
-    setShowHeightDropdown,
-    showLanguageDropdown,
-    setShowLanguageDropdown,
-    showSocialRoleDropdown,
-    setShowSocialRoleDropdown,
 
     // Refs
     dropdownRef,
     avoidDropdownRef,
-    genderDropdownRef,
-    heightDropdownRef,
-    languageDropdownRef,
-    socialRoleDropdownRef,
   };
 }

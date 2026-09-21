@@ -12,7 +12,6 @@ import {
 } from '@/utils';
 import { avoidPartnerButtonTokens } from './studentStyleTokens';
 import FloatingDropdown from './FloatingDropdown';
-import IconWithLabel from './IconWithLabel';
 import { InspectorRow } from '@/components/shell/InspectorPanel';
 
 type Props = {
@@ -22,7 +21,6 @@ type Props = {
   showDropdown: boolean;
   setShowDropdown: (value: boolean) => void;
   dropdownRef: React.RefObject<HTMLDivElement | null>;
-  variant?: 'compact' | 'detailed' | 'hybrid' | 'row';
   scrollContainerRef?: React.RefObject<HTMLDivElement | null>;
 };
 
@@ -50,7 +48,6 @@ const {
  * @param showDropdown - Whether dropdown is currently visible
  * @param setShowDropdown - Setter for dropdown visibility
  * @param dropdownRef - Ref for click-outside detection
- * @param variant - Display variant (compact, detailed, or hybrid)
  */
 export default function AvoidPartnerSelector({
   student,
@@ -59,7 +56,6 @@ export default function AvoidPartnerSelector({
   showDropdown,
   setShowDropdown,
   dropdownRef,
-  variant = 'detailed',
   scrollContainerRef,
 }: Props) {
   const { t } = useTranslation('students');
@@ -194,54 +190,8 @@ export default function AvoidPartnerSelector({
     </div>
   );
 
-  // Hybrid variant: IconWithLabel with partner name
-  if (variant === 'hybrid') {
-    const label = getDisplayLabel();
-    const colorClasses = hasPartners ? activeStateClass : inactiveStateClass;
-
-    return (
-      <div className="relative" ref={dropdownRef}>
-        <IconWithLabel
-          icon={
-            <HeartBreakIcon
-              size={14}
-              aria-hidden="true"
-              className={avoidPartnerIconClass}
-            />
-          }
-          label={label}
-          onClick={() => setShowDropdown(!showDropdown)}
-          active={hasPartners}
-          tooltip={getTooltip()}
-          ariaLabel={
-            hasPartners
-              ? getTooltip()
-              : t(
-                  'distance.noDistanceSelected',
-                  'Kein Distanzwunsch ausgewählt',
-                )
-          }
-          ariaPressed={hasPartners}
-          colorClasses={colorClasses}
-        />
-
-        {showDropdown && (
-          <FloatingDropdown
-            anchorRef={dropdownRef}
-            align="center"
-            portalRef={dropdownContentRef}
-            scrollContainerRef={scrollContainerRef}
-            className="z-50"
-            onClose={() => setShowDropdown(false)}
-          >
-            {renderDropdownContent()}
-          </FloatingDropdown>
-        )}
-      </div>
-    );
-  }
-
-  // Compact and detailed variants
+  // One row of the inspector: the relation's name on the left, the button
+  // that opens the list of classmates on the right.
   const control = (
     <div className="relative" ref={dropdownRef}>
       <button
@@ -264,18 +214,7 @@ export default function AvoidPartnerSelector({
           className={avoidPartnerIconClass}
           aria-hidden="true"
         />
-        {variant === 'compact' ? (
-          <>
-            {hasPartners && avoidPartnerIds.length >= 2 && (
-              <span className="absolute -top-0.5 -right-0.5 min-w-3 h-3 flex items-center justify-center rounded-full bg-(--button-danger-bg) text-white text-[9px] font-medium">
-                {avoidPartnerIds.length}
-              </span>
-            )}
-            <span className="sr-only">{getTooltip()}</span>
-          </>
-        ) : (
-          <span className="hidden sm:inline">{getDisplayLabel()}</span>
-        )}
+        <span className="truncate">{getDisplayLabel()}</span>
       </button>
 
       {showDropdown && (
@@ -293,15 +232,7 @@ export default function AvoidPartnerSelector({
     </div>
   );
 
-  // In the inspector the control is one row of a list, under the name of the
-  // relation it sets rather than under an icon that has to be decoded.
-  if (variant === 'row') {
-    return (
-      <InspectorRow label={t('partners.distancePartner')}>
-        {control}
-      </InspectorRow>
-    );
-  }
-
-  return control;
+  return (
+    <InspectorRow label={t('partners.avoidPartner')}>{control}</InspectorRow>
+  );
 }
