@@ -160,6 +160,7 @@ export default function NameGame() {
         <div className="flex flex-1 items-center justify-end gap-2">
           <AppearanceControls />
           <HelpButton
+            faqSection="klassenliste"
             title={t('nameGame.help.title', 'Namensspiel')}
             instructions={
               <ul className="list-disc space-y-1 pl-4">

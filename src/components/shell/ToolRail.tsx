@@ -1,7 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
+import { useTranslation } from 'react-i18next';
+import { HandHeartIcon } from '@phosphor-icons/react';
 import FloatingDropdown from '@/components/students/FloatingDropdown';
+import { LocalizedLink } from '@/components/LocalizedLink';
+import { APP_RETURN_STATE } from '@/hooks/useReturnToApp';
 import { useClickOutside } from '@/hooks/ui/useClickOutside';
 import { useDialogLayer } from '@/hooks/ui/useDialogLayer';
 
@@ -61,18 +65,70 @@ export function ToolRail({
   density: ToolRailDensity;
   children: React.ReactNode;
 }) {
+  const isCompact = density === 'compact';
+
   return (
     <DensityContext.Provider value={density}>
       <div
-        className={
-          density === 'compact'
-            ? 'flex min-h-0 flex-1 flex-col items-center gap-1'
-            : 'flex min-h-0 flex-1 flex-col gap-2'
-        }
+        className={`flex min-h-0 flex-1 flex-col ${isCompact ? 'items-center' : ''}`}
       >
-        {children}
+        {/* The layer's own tools. The column grows with them rather than
+            shrinking below them, so on a short window the rail scrolls
+            instead of drawing the last entry over the support link. */}
+        <div
+          className={
+            isCompact
+              ? 'flex flex-1 flex-col items-center gap-1'
+              : 'flex flex-1 flex-col gap-2'
+          }
+        >
+          {children}
+        </div>
+        <ToolRailSupport />
       </div>
     </DensityContext.Provider>
+  );
+}
+
+/**
+ * The last entry of every rail, on every layer and on the export page: the
+ * way to support the project. It belongs to no layer, so no layer's panel
+ * lists it — the rail itself closes with it, under the tools, where it never
+ * takes the place of one.
+ */
+function ToolRailSupport() {
+  const { t } = useTranslation('common');
+  const isCompact = React.useContext(DensityContext) === 'compact';
+  const label = t('nav.support');
+
+  return (
+    <div
+      className={
+        isCompact
+          ? 'mt-1 flex flex-col items-center'
+          : 'mt-2 border-t border-(--border-card) pt-2'
+      }
+    >
+      {isCompact && (
+        <div aria-hidden="true" className="mb-1 h-px w-7 bg-(--border-card)" />
+      )}
+      <LocalizedLink
+        to="/support"
+        state={APP_RETURN_STATE}
+        title={t('nav.titles.support')}
+        aria-label={isCompact ? label : undefined}
+        className={
+          isCompact
+            ? `inline-flex size-11 shrink-0 items-center justify-center rounded-lg ${entryStateClass(false, false)}`
+            : `flex h-9 w-full items-center gap-2.5 rounded-lg px-2 text-left text-[13px] ${entryStateClass(false, false)}`
+        }
+      >
+        <span className="shrink-0 text-(--text-muted)" aria-hidden="true">
+          <HandHeartIcon size={18} />
+        </span>
+        {!isCompact && <span className="min-w-0 flex-1 truncate">{label}</span>}
+      </LocalizedLink>
+    </div>
   );
 }
 

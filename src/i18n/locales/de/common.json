@@ -14,6 +14,7 @@
   },
   "nav": {
     "home": "Home",
+    "back": "Zurück",
     "impressum": "Impressum",
     "datenschutz": "Datenschutz",
     "faq": "FAQ",
@@ -223,7 +224,10 @@
   "help": {
     "title": "Hilfe",
     "instructions": "Anleitung",
-    "shortcuts": "Tastenkürzel"
+    "shortcuts": "Tastenkürzel",
+    "faq": "Häufige Fragen",
+    "more": "Ausführliche Antworten stehen in den häufigen Fragen.",
+    "moreWithTour": "Die Tour zeigt dir die wichtigsten Stellen dieser Ebene, die häufigen Fragen beantworten den Rest."
   },
   "pwa": {
     "updateAvailable": "Neue Version verfügbar",

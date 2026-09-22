@@ -1,11 +1,16 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import '@testing-library/jest-dom/vitest';
-import { render, screen } from '@testing-library/react';
+import { render as rtlRender, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import '@/i18n/i18n';
 import HelpButton from '../buttons/HelpButton';
+
+// The dialog links to the FAQ, so it needs a router around it.
+const render = (ui: React.ReactElement) =>
+  rtlRender(ui, { wrapper: MemoryRouter });
 
 describe('HelpButton', () => {
   it('closes on ESC', async () => {
@@ -79,5 +84,31 @@ describe('HelpButton', () => {
     expect(
       screen.queryByRole('button', { name: /Tour starten|Start tour/i }),
     ).not.toBeInTheDocument();
+  });
+
+  it('leads to the FAQ at the section that answers this screen', async () => {
+    render(
+      <HelpButton
+        title="Test"
+        instructions={<div>Help Content</div>}
+        faqSection="layout"
+      />,
+    );
+
+    await userEvent.click(screen.getByRole('button', { name: /hilfe|help/i }));
+
+    expect(
+      screen.getByRole('link', { name: /Häufige Fragen|FAQ/i }),
+    ).toHaveAttribute('href', '/faq#layout');
+  });
+
+  it('leads to the whole FAQ where no section is named', async () => {
+    render(<HelpButton title="Test" instructions={<div>Help Content</div>} />);
+
+    await userEvent.click(screen.getByRole('button', { name: /hilfe|help/i }));
+
+    expect(
+      screen.getByRole('link', { name: /Häufige Fragen|FAQ/i }),
+    ).toHaveAttribute('href', '/faq');
   });
 });

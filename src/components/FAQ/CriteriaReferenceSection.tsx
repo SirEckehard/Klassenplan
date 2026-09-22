@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   // Person
@@ -25,7 +24,12 @@ import {
   DoorIcon,
 } from '@phosphor-icons/react';
 import type { Icon } from '@phosphor-icons/react';
-import { cardSurfaceClass } from '@/utils';
+import {
+  dataChipClass,
+  dataFamilyClass,
+  dataHeadingClass,
+  type DataFamily,
+} from '@/utils';
 
 interface PropertyDefinition {
   key: string;
@@ -36,14 +40,16 @@ interface PropertyDefinition {
 }
 
 interface CategoryDefinition {
-  id: string;
+  /** The pedagogical family, which is also the inspector's group. */
+  id: DataFamily;
   labelKey: string;
   properties: PropertyDefinition[];
 }
 
 /**
- * Displays a styled HTML table of student properties and mix criteria
- * with icons, descriptions, and algorithm explanations.
+ * Every student property under the family it belongs to, as the class list
+ * shows it: a chip with icon and word in the family's colour, what the property
+ * means and what the algorithm does with it.
  */
 export default function CriteriaReferenceSection() {
   const { t } = useTranslation('pages');
@@ -190,77 +196,46 @@ export default function CriteriaReferenceSection() {
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Introduction */}
-      <p className="text-(--text-muted)">{t('faq.eigenschaften.intro')}</p>
+    <div className="space-y-8">
+      <p className="text-pretty text-(--text-muted)">
+        {t('faq.eigenschaften.intro')}
+      </p>
 
-      {/* TableIcon */}
-      <div className="overflow-x-auto">
-        <table
-          className={`${cardSurfaceClass} w-full border-collapse border text-sm`}
+      {categories.map((category) => (
+        <section
+          key={category.id}
+          aria-labelledby={`property-group-${category.id}`}
+          className={`${dataFamilyClass[category.id]} border-t border-(--border-card) pt-3`}
         >
-          <thead>
-            <tr className="bg-(--surface-option-selected)">
-              <th className="border border-(--border-card) px-4 py-3 text-left font-semibold text-(--text-page)">
-                {t('faq.eigenschaften.tableHeaders.property', 'Eigenschaft')}
-              </th>
-              <th className="border border-(--border-card) px-4 py-3 text-left font-semibold text-(--text-page)">
-                {t(
-                  'faq.eigenschaften.tableHeaders.description',
-                  'Beschreibung',
-                )}
-              </th>
-              <th className="border border-(--border-card) px-4 py-3 text-left font-semibold text-(--text-page)">
-                {t(
-                  'faq.eigenschaften.tableHeaders.algorithm',
-                  'Algorithmus-Auswirkung',
-                )}
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {categories.map((category) => (
-              <React.Fragment key={category.id}>
-                {/* Category Header Row */}
-                <tr className="bg-(--surface-sunken)">
-                  <td
-                    colSpan={3}
-                    className="border border-(--border-card) px-4 py-2"
-                  >
-                    <span className="font-semibold text-(--text-badge)">
-                      {t(category.labelKey)}
-                    </span>
-                  </td>
-                </tr>
-                {/* Property Rows */}
-                {category.properties.map((prop) => (
-                  <tr
-                    key={prop.key}
-                    className="hover:bg-(--surface-sunken) transition-colors"
-                  >
-                    <td className="border border-(--border-card) px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-(--surface-option-selected) text-(--text-badge)">
-                          <prop.icon size={14} aria-hidden="true" />
-                        </span>
-                        <span className="font-medium text-(--text-page)">
-                          {t(prop.labelKey)}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="border border-(--border-card) px-4 py-3 text-(--text-muted)">
-                      {t(prop.descriptionKey)}
-                    </td>
-                    <td className="border border-(--border-card) px-4 py-3 text-(--text-badge)">
-                      {t(prop.algorithmKey)}
-                    </td>
-                  </tr>
-                ))}
-              </React.Fragment>
+          <h3 id={`property-group-${category.id}`} className={dataHeadingClass}>
+            {t(category.labelKey)}
+          </h3>
+          <dl className="mt-1">
+            {category.properties.map((prop) => (
+              <div
+                key={prop.key}
+                className="grid gap-x-6 gap-y-2 border-b border-(--border-card) py-3 last:border-b-0 sm:grid-cols-12"
+              >
+                <dt className="sm:col-span-4">
+                  <span className={dataChipClass}>
+                    <prop.icon size={14} aria-hidden="true" />
+                    {t(prop.labelKey)}
+                  </span>
+                </dt>
+                <dd className="text-sm text-pretty sm:col-span-8">
+                  <p className="text-(--text-page)">{t(prop.descriptionKey)}</p>
+                  <p className="mt-1 text-(--text-muted)">
+                    <span className="font-medium">
+                      {t('faq.eigenschaften.algorithmLabel')}
+                    </span>{' '}
+                    {t(prop.algorithmKey)}
+                  </p>
+                </dd>
+              </div>
             ))}
-          </tbody>
-        </table>
-      </div>
+          </dl>
+        </section>
+      ))}
     </div>
   );
 }

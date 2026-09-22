@@ -64,6 +64,9 @@ export const iconButtonClass = 'icon-button';
 
 export const quietIconButtonClass = 'quiet-icon-button';
 
+/** A link in the chrome of a page — muted ink at rest, ink and underlined on hover. */
+export const quietLinkClass = 'quiet-link';
+
 export const dangerIconButtonClass = 'danger-icon-button';
 
 export const successIconButtonClass = 'success-icon-button';

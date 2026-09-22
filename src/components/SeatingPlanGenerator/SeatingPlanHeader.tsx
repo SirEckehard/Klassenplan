@@ -88,6 +88,7 @@ export default function SeatingPlanHeader({
           'help.export.item5',
         ]),
         contexts: ['export'] as ShortcutContext[],
+        faqSection: 'unterricht',
       };
     }
 
@@ -104,6 +105,7 @@ export default function SeatingPlanHeader({
             'help.students.item6',
           ]),
           contexts: ['students'] as ShortcutContext[],
+          faqSection: 'klassenliste',
         };
       case 2:
         return {
@@ -118,6 +120,7 @@ export default function SeatingPlanHeader({
             'help.layout.item7',
           ]),
           contexts: ['layout'] as ShortcutContext[],
+          faqSection: 'layout',
         };
       case 3:
         if (seatingMode === 'circle') {
@@ -130,6 +133,7 @@ export default function SeatingPlanHeader({
               'help.circle.item4',
             ]),
             contexts: ['circle'] as ShortcutContext[],
+            faqSection: 'unterricht',
           };
         }
         return {
@@ -143,6 +147,7 @@ export default function SeatingPlanHeader({
             'help.plan.item6',
           ]),
           contexts: ['plan'] as ShortcutContext[],
+          faqSection: 'einstellungen',
         };
       default:
         return null;
@@ -188,6 +193,7 @@ export default function SeatingPlanHeader({
               instructions={helpContent.instructions}
               shortcutContexts={helpContent.contexts}
               onStartTour={tourId ? () => requestTour(tourId) : undefined}
+              faqSection={helpContent.faqSection}
             />
           )}
           {/* The workspace runs at viewport height and shows no footer, so

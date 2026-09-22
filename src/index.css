@@ -890,6 +890,29 @@
   opacity: 0.6;
 }
 
+/* A link in the chrome of a page: FAQ, contact, support, the way back. Not
+   blue — it leads somewhere, it does not act on anything. */
+@utility quiet-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  border-radius: 0.125rem;
+  color: var(--text-muted);
+  text-underline-offset: 4px;
+  transition: color 150ms ease;
+  cursor: pointer;
+}
+
+.quiet-link:hover {
+  color: var(--text-page);
+  text-decoration-line: underline;
+}
+
+.quiet-link:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--focus-ring-primary);
+}
+
 @utility quiet-icon-button {
   display: inline-flex;
   align-items: center;

@@ -920,7 +920,6 @@
     "skip": "Nicht mehr zeigen",
     "close": "Tour schließen",
     "startButton": "Tour starten",
-    "startHint": "Die Tour zeigt dir die wichtigsten Stellen dieses Schritts.",
     "help": {
       "title": "Hilfe und Tour",
       "body": "Hier findest du zu jedem Schritt eine Anleitung und die Tastenkürzel – und startest diese Tour jederzeit neu."

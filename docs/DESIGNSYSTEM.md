@@ -40,6 +40,7 @@ The look is called **Papier & Werkzeug**: the interface is a passepartout in war
 | `warningButtonClass`     | `warning-button`      | Warning actions                                         |
 | `iconButtonClass`        | `icon-button`         | Prominent icon actions                                  |
 | `quietIconButtonClass`   | `quiet-icon-button`   | Toolbar / secondary actions                             |
+| `quietLinkClass`         | `quiet-link`          | Links in a page's chrome: FAQ, contact, "Zurück"        |
 | `dangerIconButtonClass`  | `danger-icon-button`  | Warn / delete icons                                     |
 | `successIconButtonClass` | `success-icon-button` | Success icons                                           |
 | `loadingIconButtonClass` | `loading-icon-button` | Loading indicators                                      |
@@ -219,7 +220,7 @@ These are deliberately _not_ the `--data-*` families: a window is furniture, not
 
 Drag indicators use `--button-primary-bg` for a table template and `--text-muted` for a room feature.
 
-Every layer's toolbar is a `ToolRail` (`src/components/shell/ToolRail.tsx`) inside `SmartSidebar`. An entry adds layout classes only; its two densities — the 208px labelled column and the 60px icon rail — come from the rail, so a new tool cannot invent a look of its own. An entry is a row, not a card: 36px tall, `rounded-lg`, paper on hover (`--surface-sunken`) and `--surface-option-selected` when it is the view on screen, with the icon taking `--text-badge` so the state has a second channel.
+Every layer's toolbar is a `ToolRail` (`src/components/shell/ToolRail.tsx`) inside `SmartSidebar`. An entry adds layout classes only; its two densities — the 208px labelled column and the 60px icon rail — come from the rail, so a new tool cannot invent a look of its own. An entry is a row, not a card: 36px tall, `rounded-lg`, paper on hover (`--surface-sunken`) and `--surface-option-selected` when it is the view on screen, with the icon taking `--text-badge` so the state has a second channel. Under the layer's groups every rail ends with the same entry, "Unterstützen" — the rail draws it, not the layer — so the way to support the project stays in one place on every layer and on the export page.
 
 From `lg` up `SmartSidebar` drops that panel surface: on the desktop shell it is not a card but the window's left edge, one hairline (`border-r`) of `--border-card` against the sunken stage. Below `lg` the layer is still a stacked document, where a panel needs a frame of its own to read as one.
 
@@ -248,10 +249,12 @@ A dropdown is a `menuSurfaceClass` box; its rows are `menuItemClass`, and the on
 
 Whatever opens from a toolbar entry is such a dropdown: a row per choice, an icon and a word. A setting that is on carries a check at the row's end (`CanvasSettingsGroups`), a setting with a handful of values is a group of such rows with the chosen one checked, and small caps above a group name it. There are no cards inside a popover and no icon-only chips whose meaning lives in a tooltip. Only a panel that asks for a value — a name, a number of placeholders — is a small form, on the same surface.
 
-## 6d. The start page
+## 6d. The start page and the pages beside it
 
 `pages/StartPage.tsx` is the one page that sells rather than works, and it
-does so with the workspace's own means. The hero title and each section's
+does so with the workspace's own means. The FAQ and the support page share
+its type (`components/publicPage/pageTokens.ts`) and a header of their own
+(`PublicPageHeader`: the lockup, and "Zurück" when the app opened the page). The hero title and each section's
 claim are set in `--font-serif`; above a claim, small caps name what the
 section is about. Sections are divided by a hairline, not by cards, and the
 page carries one blue button — "Plane jetzt deine Klasse!". FAQ, contact and

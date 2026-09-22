@@ -10,6 +10,7 @@ import {
 } from '@testing-library/react';
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import '@/i18n';
+import { MemoryRouter } from 'react-router-dom';
 import ClassToolPanel from '@/components/studentInput/ClassToolPanel';
 import { getButton } from '@/__tests__/utils';
 
@@ -42,6 +43,9 @@ const renderPanel = (
       {...handlers}
       {...overrides}
     />,
+
+    // The rail closes with a link to the support page.
+    { wrapper: MemoryRouter },
   );
   return handlers;
 };

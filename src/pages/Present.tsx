@@ -236,6 +236,7 @@ export default function Present() {
             )}
             <AppearanceControls />
             <HelpButton
+              faqSection="unterricht"
               title={t('help.present.title', 'Präsentiermodus')}
               instructions={
                 <ul className="list-disc space-y-1 pl-4">

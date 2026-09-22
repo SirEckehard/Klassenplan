@@ -327,6 +327,7 @@ export {
   warningButtonClass,
   iconButtonClass,
   quietIconButtonClass,
+  quietLinkClass,
   dangerIconButtonClass,
   successIconButtonClass,
   loadingIconButtonClass,

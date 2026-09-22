@@ -2,7 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { PathIcon, QuestionIcon } from '@phosphor-icons/react';
+import { BookOpenIcon, PathIcon, QuestionIcon } from '@phosphor-icons/react';
 import {
   cardSurfaceClass,
   pillTabActiveClass,
@@ -15,6 +15,8 @@ import {
   type ShortcutContext,
 } from '@/utils';
 import Modal from '../modals/Modal';
+import { LocalizedLink } from '@/components/LocalizedLink';
+import { APP_RETURN_STATE } from '@/hooks/useReturnToApp';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 
@@ -26,6 +28,8 @@ type Props = {
   shortcutContexts?: ShortcutContext[];
   /** Offers "Tour starten" in the dialog; the dialog closes before the tour opens. */
   onStartTour?: () => void;
+  /** The FAQ section this screen's questions are answered in (`/faq#…`). */
+  faqSection?: string;
 };
 
 export default function HelpButton({
@@ -33,6 +37,7 @@ export default function HelpButton({
   instructions,
   shortcutContexts,
   onStartTour,
+  faqSection,
 }: Props) {
   const { t } = useTranslation(['common', 'generator']);
   const [open, setOpen] = React.useState(false);
@@ -220,26 +225,39 @@ export default function HelpButton({
             ))}
           </div>
         ) : null}
-        {onStartTour && (
-          <div className="flex flex-col gap-3 border-t border-(--border-card) pt-4 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-sm text-(--text-muted)">
-              {t('generator:tour.startHint')}
-            </p>
-            <button
-              type="button"
-              onClick={() => {
-                // The tour waits for the dialog to close anyway; closing first
-                // keeps focus handling in the right order.
-                setOpen(false);
-                onStartTour();
-              }}
-              className={`${secondaryButtonClass} shrink-0 gap-2`}
+        {/* The way on from here: the tour of this screen where there is
+            one, and the FAQ everywhere — opened at the section that answers
+            this screen, with the way back to it. */}
+        <div className="flex flex-col gap-3 border-t border-(--border-card) pt-4 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-(--text-muted)">
+            {onStartTour ? t('help.moreWithTour') : t('help.more')}
+          </p>
+          <div className="flex shrink-0 flex-wrap gap-2">
+            <LocalizedLink
+              to={faqSection ? `/faq#${faqSection}` : '/faq'}
+              state={APP_RETURN_STATE}
+              className={`${secondaryButtonClass} gap-2`}
             >
-              <PathIcon size={18} aria-hidden="true" />
-              {t('generator:tour.startButton')}
-            </button>
+              <BookOpenIcon size={18} aria-hidden="true" />
+              {t('help.faq')}
+            </LocalizedLink>
+            {onStartTour && (
+              <button
+                type="button"
+                onClick={() => {
+                  // The tour waits for the dialog to close anyway; closing
+                  // first keeps focus handling in the right order.
+                  setOpen(false);
+                  onStartTour();
+                }}
+                className={`${secondaryButtonClass} gap-2`}
+              >
+                <PathIcon size={18} aria-hidden="true" />
+                {t('generator:tour.startButton')}
+              </button>
+            )}
           </div>
-        )}
+        </div>
       </Modal>
     </>
   );

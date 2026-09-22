@@ -14,6 +14,7 @@
   },
   "nav": {
     "home": "Home",
+    "back": "Back",
     "impressum": "Legal Notice",
     "datenschutz": "Privacy Policy",
     "faq": "FAQ",
@@ -223,7 +224,10 @@
   "help": {
     "title": "Help",
     "instructions": "Instructions",
-    "shortcuts": "Shortcuts"
+    "shortcuts": "Shortcuts",
+    "faq": "FAQ",
+    "more": "Detailed answers are in the FAQ.",
+    "moreWithTour": "The tour shows you the most important places on this layer; the FAQ answers the rest."
   },
   "pwa": {
     "updateAvailable": "New version available",

@@ -920,7 +920,6 @@
     "skip": "Don't show again",
     "close": "Close tour",
     "startButton": "Start tour",
-    "startHint": "The tour shows you the most important places in this step.",
     "help": {
       "title": "Help and tour",
       "body": "Instructions and keyboard shortcuts for every step are here – and this is where you start the tour again at any time."

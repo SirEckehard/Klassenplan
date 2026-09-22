@@ -19,7 +19,12 @@ import {
   dataFamilyClass,
   dataHeadingClass,
   primaryButtonClass,
+  quietLinkClass,
 } from '@/utils';
+import {
+  pageEyebrowClass,
+  pageSectionTitleClass,
+} from '@/components/publicPage/pageTokens';
 import {
   CRITERIA_FAMILY_MAP,
   CRITERIA_ICON_MAP,
@@ -29,18 +34,8 @@ import { usePageSeo } from '@/hooks/usePageSeo';
 import HeroMockup from '@/components/HeroMockup';
 import type { ScalarMixSettingKey } from '@/types';
 
-/** Small caps above a section's title: what the section is about. */
-const eyebrowClass =
-  'text-xs font-semibold uppercase tracking-wider text-(--text-muted)';
-
-/** The serif is reserved for display type: the hero and each section's claim. */
-const sectionTitleClass =
-  'mt-3 font-serif text-3xl leading-tight text-(--text-page) sm:text-4xl';
-
+const sectionTitleClass = `mt-3 ${pageSectionTitleClass}`;
 const sectionClass = 'border-t border-(--border-card) py-14 lg:py-20';
-
-const quietLinkClass =
-  'inline-flex items-center gap-1.5 rounded-sm text-(--text-muted) underline-offset-4 transition-colors hover:text-(--text-page) hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)';
 
 /**
  * The three layers of the workspace, named with the layer switcher's own words
@@ -259,7 +254,9 @@ export default function StartPage() {
         <section aria-labelledby="layers-title" className={sectionClass}>
           <div className="grid gap-8 lg:grid-cols-12 lg:gap-12">
             <div className="lg:col-span-5">
-              <p className={eyebrowClass}>{t('startPage.layers.eyebrow')}</p>
+              <p className={pageEyebrowClass}>
+                {t('startPage.layers.eyebrow')}
+              </p>
               <h2 id="layers-title" className={sectionTitleClass}>
                 {t('startPage.layers.title')}
               </h2>
@@ -313,7 +310,9 @@ export default function StartPage() {
         <section aria-labelledby="criteria-title" className={sectionClass}>
           <div className="grid gap-8 lg:grid-cols-12 lg:gap-12">
             <div className="lg:col-span-5">
-              <p className={eyebrowClass}>{t('startPage.criteria.eyebrow')}</p>
+              <p className={pageEyebrowClass}>
+                {t('startPage.criteria.eyebrow')}
+              </p>
               <h2 id="criteria-title" className={sectionTitleClass}>
                 {t('startPage.criteria.title')}
               </h2>
@@ -350,7 +349,7 @@ export default function StartPage() {
         </section>
 
         <section aria-labelledby="why-title" className={sectionClass}>
-          <p className={eyebrowClass}>{t('startPage.why.eyebrow')}</p>
+          <p className={pageEyebrowClass}>{t('startPage.why.eyebrow')}</p>
           <h2 id="why-title" className={`${sectionTitleClass} max-w-2xl`}>
             {t('startPage.why.title')}
           </h2>

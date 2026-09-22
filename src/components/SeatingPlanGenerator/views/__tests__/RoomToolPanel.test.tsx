@@ -4,6 +4,7 @@ import '@testing-library/jest-dom/vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import '@/i18n/i18n';
+import { MemoryRouter } from 'react-router-dom';
 import RoomToolPanel from '../RoomToolPanel';
 
 const settingsGroups = [
@@ -40,6 +41,9 @@ const renderPanel = (density: 'comfortable' | 'compact') => {
       settingsGroups={settingsGroups}
       {...handlers}
     />,
+
+    // The rail closes with a link to the support page.
+    { wrapper: MemoryRouter },
   );
   return handlers;
 };
@@ -103,4 +107,16 @@ describe('RoomToolPanel', () => {
     ).toBeInTheDocument();
     expect(screen.getByText(/Raster anzeigen/)).toBeInTheDocument();
   });
+
+  it.each(['comfortable', 'compact'] as const)(
+    'closes the %s rail with the way to support the project',
+    (density) => {
+      renderPanel(density);
+
+      const links = screen.getAllByRole('link');
+      const support = links[links.length - 1];
+      expect(support).toHaveAccessibleName(/Unterstützen|Support/);
+      expect(support).toHaveAttribute('href', '/support');
+    },
+  );
 });
