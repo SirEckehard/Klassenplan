@@ -20,10 +20,16 @@ export default function SpecialNeedsToggles({
   student,
   updateStudent,
   keys,
+  mixed,
 }: {
   student: Student;
   updateStudent: (id: string, patch: Partial<Student>) => void;
   keys?: readonly StudentFlagKey[];
+  /**
+   * Flags only some of a multi-selection carry (`StudentBulkInspector`). A
+   * press sets them for everyone, as for a flag nobody has.
+   */
+  mixed?: ReadonlySet<keyof Student>;
 }) {
   const { t } = useTranslation('students');
 
@@ -53,20 +59,29 @@ export default function SpecialNeedsToggles({
           tooltip: defaultTooltip,
           label: defaultLabel,
           exclusiveWith,
-        }) => (
-          <InspectorRow
-            key={key}
-            label={t(`studentFlags.${key}.label`, defaultLabel)}
-            hint={t(`studentFlags.${key}.tooltip`, defaultTooltip)}
-          >
-            <ToggleSwitch
-              checked={Boolean(student[key])}
-              onChange={() => handleToggle(key, exclusiveWith)}
-              label={t(`studentFlags.${key}.label`, defaultLabel)}
-              size="sm"
-            />
-          </InspectorRow>
-        ),
+        }) => {
+          const label = t(`studentFlags.${key}.label`, defaultLabel);
+          const isMixed = mixed?.has(key) ?? false;
+          return (
+            <InspectorRow
+              key={key}
+              label={label}
+              hint={t(`studentFlags.${key}.tooltip`, defaultTooltip)}
+            >
+              <ToggleSwitch
+                checked={Boolean(student[key])}
+                mixed={isMixed}
+                onChange={() => handleToggle(key, exclusiveWith)}
+                label={
+                  isMixed
+                    ? `${label} (${t('bulkEdit.flagState.mixed')})`
+                    : label
+                }
+                size="sm"
+              />
+            </InspectorRow>
+          );
+        },
       )}
     </>
   );

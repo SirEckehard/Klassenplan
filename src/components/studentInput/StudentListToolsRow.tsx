@@ -21,6 +21,11 @@ interface StudentListToolsRowProps {
   totalCount: number;
   onBulkApply: (patch: Partial<Student>) => void;
   onDeleteSelected: () => void;
+  /**
+   * The inspector carries the bulk controls (`StudentBulkInspector`, from `lg`
+   * up), so the row keeps search, filter and sort while students are ticked.
+   */
+  bulkInInspector?: boolean;
 }
 
 /**
@@ -30,7 +35,8 @@ interface StudentListToolsRowProps {
  * Selecting students switches the row's mode instead of adding a bar below it:
  * the browse controls collapse into a popover and the bulk controls take the
  * whole line. That keeps the chrome above the list at a constant height, so the
- * list never jumps while the teacher ticks boxes.
+ * list never jumps while the teacher ticks boxes. Where the inspector has room
+ * for them the bulk controls live there instead, and the row stays as it is.
  */
 export default function StudentListToolsRow({
   listView,
@@ -39,9 +45,10 @@ export default function StudentListToolsRow({
   totalCount,
   onBulkApply,
   onDeleteSelected,
+  bulkInInspector = false,
 }: StudentListToolsRowProps) {
   const { t } = useTranslation('students');
-  const selectionActive = selection.selectedCount > 0;
+  const selectionActive = selection.selectedCount > 0 && !bulkInInspector;
 
   if (!selectionActive) {
     // Bare: the workbench row is the flex container these controls live in, so

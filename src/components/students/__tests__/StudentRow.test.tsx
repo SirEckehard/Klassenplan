@@ -70,3 +70,38 @@ test('the whole row opens its student in the inspector', () => {
   fireEvent.click(row);
   expect(screen.getByRole('status')).toHaveTextContent('1');
 });
+
+test('while students are ticked, the row ticks instead of opening', () => {
+  const toggled: string[] = [];
+  const Probe = () => {
+    const { selection } = useInspector();
+    return (
+      <output>{selection?.kind === 'student' ? selection.id : 'none'}</output>
+    );
+  };
+
+  render(
+    <InspectorProvider>
+      <Probe />
+      <StudentRow
+        student={baseStudent}
+        index={0}
+        highlight={false}
+        allStudents={[baseStudent]}
+        selected={false}
+        onToggleSelected={(id) => toggled.push(id)}
+        selectionActive
+      />
+    </InspectorProvider>,
+  );
+
+  const row = screen.getByRole('button', {
+    name: /Alice auswählen|Select Alice/i,
+  });
+  expect(row).toHaveAttribute('aria-pressed', 'false');
+
+  fireEvent.click(row);
+
+  expect(toggled).toEqual(['1']);
+  expect(screen.getByRole('status')).toHaveTextContent('none');
+});

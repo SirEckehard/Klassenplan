@@ -22,15 +22,23 @@ import { confirmDialog } from '@/services/ui/dialogs';
  * layer's selection is a student id, which this component can resolve from the
  * seating-plan context on its own. The room layer's selection lives inside the
  * canvas state together with its mutators, so that layer renders its own panel
- * through `InspectorPortal` into the slot below. The plan layer has no
- * inspector yet and gets its full width back instead of an empty column.
+ * through `InspectorPortal` into the slot below, and so does the plan layer
+ * with its criteria. The class layer does the same while several students are
+ * ticked: the batch actions live with the list, and the slot takes the one
+ * student's place until the selection is let go.
  */
 export default function Inspector() {
   const { t } = useTranslation(['students', 'generator']);
   const { step, students } = useSeatingPlanState();
   const { updateStudent, removeStudent } = useSeatingPlanActions();
-  const { selection, selectStudent, clear, suspended, setSlotNode } =
-    useInspector();
+  const {
+    selection,
+    selectStudent,
+    clear,
+    suspended,
+    setSlotNode,
+    portalMounted,
+  } = useInspector();
   const isPhone = useIsPhone();
 
   const index = React.useMemo(
@@ -84,18 +92,21 @@ export default function Inspector() {
   if (suspended) return null;
 
   // The room and plan layers fill the panel themselves. Both are pointer jobs
-  // on a canvas the phone barely fits already, so the slot is desktop-only.
-  if (step === 2 || step === 3) {
+  // on a canvas the phone barely fits already, so the slot is desktop-only —
+  // and the class layer's multi-selection only portals in from `lg` up.
+  if (step === 2 || step === 3 || portalMounted) {
     return (
       <aside
         aria-label={
           step === 2
             ? t('generator:sceneInspector.title')
-            : t('generator:mix.title')
+            : step === 3
+              ? t('generator:mix.title')
+              : t('students:bulkEdit.regionLabel')
         }
         className="hidden w-80 shrink-0 flex-col overflow-hidden border-l border-(--border-card) bg-(--surface-card) lg:flex"
       >
-        {/* Both layers bring their own header strip and body through the
+        {/* The layers bring their own header strip and body through the
             portal, so the slot is only the column they fill. */}
         <div ref={setSlotNode} className="flex min-h-0 flex-1 flex-col" />
       </aside>

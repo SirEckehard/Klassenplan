@@ -2,9 +2,9 @@
 // Copyright (C) 2026 Eike Schäfer
 import '@testing-library/jest-dom/vitest';
 import React from 'react';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import '@/i18n';
 import StudentInput from '../StudentInput';
@@ -18,7 +18,10 @@ import {
   type ClassManagementContextValue,
 } from '@/contexts/seatingPlan/ClassManagementContext';
 import { SeatingPlanGeneratorProvider } from '@/contexts/SeatingPlanContext';
+import { InspectorProvider } from '@/contexts/InspectorContext';
+import Inspector from '@/components/shell/Inspector';
 import { STUDENT_LIST_TOOLS_THRESHOLD } from '@/utils';
+import type { Student } from '@/types';
 
 /**
  * The list itself is replaced by a checkbox-per-student stand-in: what is under
@@ -119,6 +122,40 @@ const renderInput = (props = {}) =>
     </MemoryRouter>,
   );
 
+/** As the shell mounts the class layer: the inspector column beside it. */
+const renderWithInspector = (props = {}) =>
+  render(
+    <MemoryRouter>
+      <SeatingPlanGeneratorProvider>
+        <ClassManagementContext.Provider value={classContext()}>
+          <InspectorProvider>
+            <StudentInput
+              {...createMockStudentInputProps({
+                students: makeStudents(),
+                ...props,
+              })}
+            />
+            <Inspector />
+          </InspectorProvider>
+        </ClassManagementContext.Provider>
+      </SeatingPlanGeneratorProvider>
+    </MemoryRouter>,
+  );
+
+const setWidth = (width: number): void => {
+  Object.defineProperty(window, 'innerWidth', {
+    configurable: true,
+    writable: true,
+    value: width,
+  });
+  act(() => {
+    window.dispatchEvent(new Event('resize'));
+  });
+};
+
+// jsdom's window is 1024px wide, which is `lg`.
+const LG_WIDTH = 1024;
+
 const listItems = () =>
   within(screen.getByTestId('mock-student-list')).getAllByRole('listitem');
 
@@ -126,7 +163,12 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
+// Below `lg` there is no inspector column, so the bulk controls take over the
+// row above the list.
 describe('StudentInput list tools', () => {
+  beforeEach(() => setWidth(900));
+  afterEach(() => setWidth(LG_WIDTH));
+
   it('hides the toolbar for a class below the threshold', () => {
     renderInput({
       students: makeStudents().slice(0, STUDENT_LIST_TOOLS_THRESHOLD - 1),
@@ -454,5 +496,150 @@ describe('StudentInput list tools', () => {
     expect(removeStudents).toHaveBeenCalledExactlyOnceWith(
       NAMES.map((_, index) => String(index + 1)),
     );
+  });
+});
+
+describe('StudentInput bulk editing in the inspector', () => {
+  const selectionPanel = () =>
+    screen.queryByRole('complementary', {
+      name: /Mehrfachbearbeitung|Bulk editing/i,
+    });
+
+  const tick = async (
+    user: ReturnType<typeof userEvent.setup>,
+    ...rows: number[]
+  ) => {
+    const checkboxes = screen.getAllByRole('checkbox');
+    // First checkbox is the list header's select-all.
+    for (const row of rows) {
+      await user.click(checkboxes[row]);
+    }
+  };
+
+  it('moves the bulk controls into the inspector and keeps the row for browsing', async () => {
+    renderWithInspector();
+    const user = userEvent.setup();
+
+    await tick(user, 1, 2);
+
+    const panel = await screen.findByRole('complementary', {
+      name: /Mehrfachbearbeitung|Bulk editing/i,
+    });
+    expect(
+      within(panel).getByRole('heading', { name: /2 ausgewählt|2 selected/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('searchbox', { name: /suchen|search/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('region', {
+        name: /Mehrfachbearbeitung|Bulk editing/i,
+      }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('sets a value for every selected student', async () => {
+    const updateStudents = vi.fn();
+    renderWithInspector({ updateStudents });
+    const user = userEvent.setup();
+
+    await tick(user, 1, 2);
+    const panel = await screen.findByRole('complementary', {
+      name: /Mehrfachbearbeitung|Bulk editing/i,
+    });
+    await user.click(
+      within(panel).getByRole('button', { name: /^(Fließend|Fluent)$/i }),
+    );
+
+    expect(updateStudents).toHaveBeenCalledExactlyOnceWith(['1', '2'], {
+      languageSkill: 'fluent',
+    });
+  });
+
+  it('clears a value everybody in the selection shares', async () => {
+    const updateStudents = vi.fn();
+    renderWithInspector({
+      students: makeStudents().map((student): Student => ({
+        ...student,
+        gender: 'girl',
+      })),
+      updateStudents,
+    });
+    const user = userEvent.setup();
+
+    await tick(user, 1, 2);
+    const panel = await screen.findByRole('complementary', {
+      name: /Mehrfachbearbeitung|Bulk editing/i,
+    });
+    const chip = within(panel).getByRole('button', {
+      name: /^(Weiblich|Female)$/i,
+    });
+    expect(chip).toHaveAttribute('aria-pressed', 'true');
+
+    await user.click(chip);
+
+    expect(updateStudents).toHaveBeenCalledExactlyOnceWith(['1', '2'], {
+      gender: undefined,
+    });
+  });
+
+  it('says a flag is mixed and sets it for everyone on a press', async () => {
+    const updateStudents = vi.fn();
+    const students = makeStudents();
+    students[0] = { ...students[0], restless: true };
+    renderWithInspector({ students, updateStudents });
+    const user = userEvent.setup();
+
+    await tick(user, 1, 2);
+    const panel = await screen.findByRole('complementary', {
+      name: /Mehrfachbearbeitung|Bulk editing/i,
+    });
+    const flag = within(panel).getByRole('switch', {
+      name: /(unruhig|restless) \((gemischt|mixed)\)/i,
+    });
+    expect(flag).toHaveAttribute('aria-checked', 'false');
+
+    await user.click(flag);
+
+    expect(updateStudents).toHaveBeenCalledExactlyOnceWith(['1', '2'], {
+      restless: true,
+    });
+  });
+
+  it('asks before removing the selection from the inspector', async () => {
+    const removeStudents = vi.fn();
+    renderWithInspector({ removeStudents });
+    const user = userEvent.setup();
+
+    await tick(user, 1, 2);
+    const panel = await screen.findByRole('complementary', {
+      name: /Mehrfachbearbeitung|Bulk editing/i,
+    });
+    await user.click(
+      within(panel).getByRole('button', { name: /^(Entfernen|Remove)$/i }),
+    );
+    const dialog = screen.getByRole('dialog');
+    await user.click(
+      within(dialog).getByRole('button', { name: /Entfernen|Remove/i }),
+    );
+
+    expect(removeStudents).toHaveBeenCalledExactlyOnceWith(['1', '2']);
+  });
+
+  it('hands the inspector back when the selection is dropped', async () => {
+    renderWithInspector();
+    const user = userEvent.setup();
+
+    await tick(user, 1);
+    await screen.findByRole('complementary', {
+      name: /Mehrfachbearbeitung|Bulk editing/i,
+    });
+
+    await user.keyboard('{Escape}');
+
+    await waitFor(() => expect(selectionPanel()).not.toBeInTheDocument());
+    expect(
+      screen.getByRole('complementary', { name: /Merkmale|Attributes/i }),
+    ).toBeInTheDocument();
   });
 });

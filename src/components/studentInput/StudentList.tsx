@@ -35,6 +35,8 @@ type StudentListProps = {
   allVisibleSelected?: boolean;
   someVisibleSelected?: boolean;
   onToggleAllVisible?: () => void;
+  /** Students are ticked: pressing a row ticks it too (see `StudentRow`). */
+  selectionActive?: boolean;
 };
 
 const StudentList = ({
@@ -50,6 +52,7 @@ const StudentList = ({
   allVisibleSelected,
   someVisibleSelected,
   onToggleAllVisible,
+  selectionActive = false,
 }: StudentListProps) => {
   const parentRef = useRef<HTMLDivElement>(null);
   const classRoster = allStudents ?? students;
@@ -123,6 +126,7 @@ const StudentList = ({
               allStudents={classRoster}
               selected={isSelected?.(student.id)}
               onToggleSelected={onToggleSelected}
+              selectionActive={selectionActive}
             />
           ))}
         </div>
@@ -176,6 +180,7 @@ const StudentList = ({
                   allStudents={classRoster}
                   selected={isSelected?.(student.id)}
                   onToggleSelected={onToggleSelected}
+                  selectionActive={selectionActive}
                 />
               </div>
             );

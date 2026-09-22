@@ -7,18 +7,23 @@ import { useInspector } from '@/contexts/InspectorContext';
 /**
  * Renders a layer's own panel content into the shell's inspector frame.
  *
- * The class layer needs nothing like this — the inspector can read a student
+ * One student needs nothing like this — the inspector can read a student
  * straight from the seating-plan context. The room layer cannot: its selection
  * is a list of table indices and feature ids living inside the canvas state,
  * together with the mutators that go with them. Sending that up through context
  * would mean a dozen callbacks crossing the shell; sending the markup down is
- * one node.
+ * one node. The same holds for the class layer's multi-selection, whose ticks
+ * and batch actions live in the list view.
+ *
+ * Mounting says so to the inspector (`mountPortal`), which is how the class
+ * layer's panel knows to hand its slot over.
  */
 export default function InspectorPortal({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { slotNode } = useInspector();
+  const { slotNode, mountPortal } = useInspector();
+  React.useEffect(() => mountPortal(), [mountPortal]);
   return slotNode ? createPortal(children, slotNode) : null;
 }

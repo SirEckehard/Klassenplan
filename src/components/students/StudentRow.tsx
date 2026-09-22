@@ -19,6 +19,12 @@ type Props = {
    */
   selected?: boolean;
   onToggleSelected?: (studentId: string) => void;
+  /**
+   * Students are ticked. The inspector then shows the whole selection, so
+   * pressing a row adds it to that selection or takes it out, instead of
+   * opening one student nobody would see.
+   */
+  selectionActive?: boolean;
 };
 
 /**
@@ -32,7 +38,8 @@ type Props = {
  * do I know about them". The row is now one button: pressing it opens the
  * student in the inspector, which is where a name, a photo and an attribute
  * are changed, and where removing one lives. The checkbox stays beside it,
- * because a checkbox inside a button is not a checkbox.
+ * because a checkbox inside a button is not a checkbox. While a selection is
+ * being built the row ticks instead, like a mail client's selection mode.
  */
 function StudentRow({
   student,
@@ -41,11 +48,13 @@ function StudentRow({
   allStudents,
   selected,
   onToggleSelected,
+  selectionActive = false,
 }: Props) {
   const { t } = useTranslation('students');
   const { selection, selectStudent } = useInspector();
+  const ticks = selectionActive && onToggleSelected !== undefined;
   const isInspected =
-    selection?.kind === 'student' && selection.id === student.id;
+    !ticks && selection?.kind === 'student' && selection.id === student.id;
 
   const displayName = student.name || t('studentList.newStudent');
   const hasName = student.name.trim().length > 0;
@@ -75,11 +84,19 @@ function StudentRow({
       )}
       <button
         type="button"
-        onClick={() => selectStudent(student.id)}
-        // The row is not a toggle: pressing the one already showing must not
+        onClick={() =>
+          ticks ? onToggleSelected(student.id) : selectStudent(student.id)
+        }
+        // Opening is not a toggle: pressing the one already showing must not
         // shut the inspector, which is what `aria-pressed` would promise.
+        // Ticking is, and says so.
         aria-current={isInspected ? 'true' : undefined}
-        aria-label={t('listStatus.openStudent', { name: displayName })}
+        aria-pressed={ticks ? Boolean(selected) : undefined}
+        aria-label={
+          ticks
+            ? t('listToolbar.selectStudent', { name: displayName })
+            : t('listStatus.openStudent', { name: displayName })
+        }
         className="flex min-w-0 flex-1 cursor-pointer flex-wrap items-center gap-x-3 gap-y-1 py-2 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) lg:h-15 lg:flex-nowrap lg:py-0"
       >
         <span className="w-6 shrink-0 text-xs tabular-nums text-(--text-muted)">

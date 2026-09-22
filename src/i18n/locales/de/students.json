@@ -357,6 +357,7 @@
     "regionLabel": "Mehrfachbearbeitung",
     "selectedCount_one": "{{count}} ausgewählt",
     "selectedCount_other": "{{count}} ausgewählt",
+    "appliesToAll": "Gilt für alle Ausgewählten",
     "setGender": "Geschlecht setzen",
     "setHeight": "Körpergröße setzen",
     "setLanguage": "Sprachniveau setzen",

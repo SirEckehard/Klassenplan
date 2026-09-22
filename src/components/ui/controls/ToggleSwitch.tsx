@@ -11,6 +11,12 @@ interface ToggleSwitchProps {
   className?: string;
   /** Visual size of the switch; `sm` fits compact popover headings. */
   size?: 'md' | 'sm';
+  /**
+   * Neither on nor off: the value differs across a multi-selection. The knob
+   * rests in the middle; a press sets it (`onChange(true)`), as `checked` is
+   * false. A switch has no "mixed" in ARIA, so the caller says it in `label`.
+   */
+  mixed?: boolean;
 }
 
 /**
@@ -26,14 +32,19 @@ export default function ToggleSwitch({
   title,
   className = '',
   size = 'md',
+  mixed = false,
 }: ToggleSwitchProps) {
   const trackSizeClass = size === 'sm' ? 'h-4 w-7' : 'h-6 w-11';
   const knobSizeClass = size === 'sm' ? 'h-3 w-3' : 'h-5 w-5';
-  const knobPositionClass = checked
+  const knobPositionClass = mixed
     ? size === 'sm'
-      ? 'translate-x-3.5'
-      : 'translate-x-5.5'
-    : 'translate-x-0.5';
+      ? 'translate-x-2'
+      : 'translate-x-3'
+    : checked
+      ? size === 'sm'
+        ? 'translate-x-3.5'
+        : 'translate-x-5.5'
+      : 'translate-x-0.5';
   const handleKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
     if (disabled) {
       return;
@@ -55,7 +66,11 @@ export default function ToggleSwitch({
       onClick={() => !disabled && onChange(!checked)}
       onKeyDown={handleKeyDown}
       className={`relative inline-flex ${trackSizeClass} shrink-0 cursor-pointer items-center rounded-full transition-colors outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:ring-offset-2 focus-visible:ring-offset-transparent disabled:cursor-not-allowed disabled:opacity-50 ${
-        checked ? 'bg-(--button-primary-bg)' : 'bg-(--border-card)'
+        mixed
+          ? 'bg-(--border-option-hover)'
+          : checked
+            ? 'bg-(--button-primary-bg)'
+            : 'bg-(--border-card)'
       } ${className}`}
     >
       <span

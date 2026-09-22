@@ -2,7 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { CaretDownIcon, CheckIcon } from '@phosphor-icons/react';
-import { menuSurfaceClass } from '@/utils';
+import { menuItemClass, menuSurfaceClass } from '@/utils';
 import {
   workbenchCaretClass,
   workbenchPillClass,
@@ -32,7 +32,8 @@ type Props = {
  * is drawn by the operating system: a different surface, a different radius, a
  * different type scale and a check mark that belongs to nobody. Next to the
  * class switcher's own dropdown that reads as a foreign control, so the list is
- * ours too — same `menu-surface`, same rows, same active state.
+ * ours too — the menu rows every dropdown uses (`menu-item`), the chosen one
+ * with a check at its end.
  *
  * Only the workbench row uses this. Inside the selection mode's popover the
  * plain `<select>` stays: a second floating layer over the first would close it
@@ -201,20 +202,20 @@ export default function WorkbenchSelect({
                   type="button"
                   role="option"
                   aria-selected={isSelected}
-                  className={isSelected ? activeOptionClass : optionClass}
+                  className={`${menuItemClass} whitespace-nowrap`}
                   onClick={() => {
                     onChange(option.value);
                     close();
                   }}
                 >
-                  {/* The check keeps its space when absent, so the labels line
-                      up whatever is selected. */}
+                  <span className="min-w-0 flex-1">{option.label}</span>
+                  {/* The check keeps its space when absent, so the list does
+                      not change width with the choice. */}
                   <CheckIcon
-                    size={14}
+                    size={16}
                     aria-hidden
-                    className={`shrink-0 ${isSelected ? '' : 'invisible'}`}
+                    className={`shrink-0 text-(--text-badge) ${isSelected ? '' : 'invisible'}`}
                   />
-                  {option.label}
                 </button>
               );
             })}
@@ -224,8 +225,3 @@ export default function WorkbenchSelect({
     </div>
   );
 }
-
-const optionClass =
-  'flex w-full cursor-pointer items-center gap-2 whitespace-nowrap rounded-lg px-3 py-2 text-left text-sm text-(--text-muted) transition hover:bg-(--surface-option-selected) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)';
-const activeOptionClass =
-  'flex w-full cursor-pointer items-center gap-2 whitespace-nowrap rounded-lg bg-(--surface-option-selected) px-3 py-2 text-left text-sm font-semibold text-(--text-badge) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)';

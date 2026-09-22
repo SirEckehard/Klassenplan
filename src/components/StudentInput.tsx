@@ -42,6 +42,8 @@ import { useStudentListLayout } from '@/components/studentInput/hooks/useStudent
 import { useStudentListView } from '@/components/studentInput/hooks/useStudentListView';
 import { useStudentSelection } from '@/components/studentInput/hooks/useStudentSelection';
 import StudentListToolsRow from '@/components/studentInput/StudentListToolsRow';
+import StudentBulkInspector from '@/components/students/StudentBulkInspector';
+import InspectorPortal from '@/components/shell/InspectorPortal';
 import AttributeFocusMode from '@/components/studentInput/AttributeFocusMode';
 import ListScrollFab from '@/components/studentInput/ListScrollFab';
 import { useIsLgUp } from '@/hooks/ui/useIsLgUp';
@@ -200,6 +202,12 @@ function StudentInput({
   const listView = useStudentListView(students);
   const selection = useStudentSelection(students, listView.visibleStudents);
   const showListTools = students.length >= STUDENT_LIST_TOOLS_THRESHOLD;
+  const selectionActive =
+    showListTools && listMode === 'list' && selection.selectedCount > 0;
+  // From `lg` up the inspector column is on screen, so the bulk controls take
+  // its place for as long as students are ticked; below it they stay the row
+  // above the list.
+  const bulkInInspector = isLgUp;
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
 
   // The bulk bar needs the students themselves, not just the count: its flag
@@ -338,7 +346,18 @@ function StudentInput({
             totalCount={students.length}
             onBulkApply={handleBulkApply}
             onDeleteSelected={() => setBulkDeleteOpen(true)}
+            bulkInInspector={bulkInInspector}
           />
+        )}
+        {selectionActive && bulkInInspector && (
+          <InspectorPortal>
+            <StudentBulkInspector
+              selectedStudents={selectedStudents}
+              onApply={handleBulkApply}
+              onRemove={() => setBulkDeleteOpen(true)}
+              onClear={selection.clear}
+            />
+          </InspectorPortal>
         )}
         <>
           {students.length === 0 && (
@@ -455,6 +474,7 @@ function StudentInput({
               onScrollCollapse={handleListScrollCollapse}
               isSelected={showListTools ? selection.isSelected : undefined}
               onToggleSelected={showListTools ? selection.toggle : undefined}
+              selectionActive={selectionActive}
               allVisibleSelected={selection.allVisibleSelected}
               someVisibleSelected={selection.selectedCount > 0}
               onToggleAllVisible={selection.toggleAllVisible}

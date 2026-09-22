@@ -357,6 +357,7 @@
     "regionLabel": "Bulk editing",
     "selectedCount_one": "{{count}} selected",
     "selectedCount_other": "{{count}} selected",
+    "appliesToAll": "Applies to everyone selected",
     "setGender": "Set gender",
     "setHeight": "Set height",
     "setLanguage": "Set language level",

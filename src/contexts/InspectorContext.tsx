@@ -34,6 +34,15 @@ type InspectorContextValue = {
    */
   slotNode: HTMLElement | null;
   setSlotNode: (node: HTMLElement | null) => void;
+  /**
+   * Whether an `InspectorPortal` is mounted. The room and plan layers always
+   * fill the panel that way; the class layer does so only while several
+   * students are ticked, and the inspector shows its slot instead of the one
+   * student for as long as that lasts.
+   */
+  portalMounted: boolean;
+  /** Called by `InspectorPortal` on mount; returns the release for unmount. */
+  mountPortal: () => () => void;
 };
 
 const InspectorContext = React.createContext<InspectorContextValue | null>(
@@ -59,6 +68,12 @@ export function InspectorProvider({ children }: { children: React.ReactNode }) {
 
   const [suspended, setSuspended] = React.useState(false);
   const [slotNode, setSlotNode] = React.useState<HTMLElement | null>(null);
+  const [portalCount, setPortalCount] = React.useState(0);
+
+  const mountPortal = React.useCallback(() => {
+    setPortalCount((count) => count + 1);
+    return () => setPortalCount((count) => count - 1);
+  }, []);
 
   const value = React.useMemo(
     () => ({
@@ -70,8 +85,19 @@ export function InspectorProvider({ children }: { children: React.ReactNode }) {
       setSuspended,
       slotNode,
       setSlotNode,
+      portalMounted: portalCount > 0,
+      mountPortal,
     }),
-    [clear, selectStudent, selection, slotNode, suspended, toggleStudent],
+    [
+      clear,
+      mountPortal,
+      portalCount,
+      selectStudent,
+      selection,
+      slotNode,
+      suspended,
+      toggleStudent,
+    ],
   );
 
   return (
@@ -102,4 +128,6 @@ const FALLBACK: InspectorContextValue = {
   setSuspended: noop,
   slotNode: null,
   setSlotNode: noop,
+  portalMounted: false,
+  mountPortal: () => noop,
 };

@@ -32,30 +32,36 @@ const PREFERENCES: ReadonlyArray<{
 export default function StudentPreferenceToggles({
   student,
   updateStudent,
+  mixed,
 }: {
   student: Student;
   updateStudent: (id: string, patch: Partial<Student>) => void;
+  /** Preferences only some of a multi-selection share; see `SpecialNeedsToggles`. */
+  mixed?: ReadonlySet<keyof Student>;
 }) {
   const { t } = useTranslation('students');
 
   return (
     <>
-      {PREFERENCES.map((option) => (
-        <InspectorRow
-          key={option.key}
-          label={t(option.label)}
-          hint={t(option.tooltip)}
-        >
-          <ToggleSwitch
-            checked={Boolean(student[option.key])}
-            onChange={(checked) =>
-              updateStudent(student.id, { [option.key]: checked })
-            }
-            label={t(option.label)}
-            size="sm"
-          />
-        </InspectorRow>
-      ))}
+      {PREFERENCES.map((option) => {
+        const label = t(option.label);
+        const isMixed = mixed?.has(option.key) ?? false;
+        return (
+          <InspectorRow key={option.key} label={label} hint={t(option.tooltip)}>
+            <ToggleSwitch
+              checked={Boolean(student[option.key])}
+              mixed={isMixed}
+              onChange={(checked) =>
+                updateStudent(student.id, { [option.key]: checked })
+              }
+              label={
+                isMixed ? `${label} (${t('bulkEdit.flagState.mixed')})` : label
+              }
+              size="sm"
+            />
+          </InspectorRow>
+        );
+      })}
     </>
   );
 }

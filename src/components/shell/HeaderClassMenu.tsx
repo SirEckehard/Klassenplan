@@ -4,6 +4,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   CaretDownIcon,
+  CheckIcon,
   PencilLineIcon,
   PlusIcon,
   TrashIcon,
@@ -14,7 +15,7 @@ import { useClassDialogs } from '@/contexts/ClassDialogsContext';
 import { useClassManagementContext } from '@/contexts/seatingPlan/ClassManagementContext';
 import { useSeatingPlanState } from '@/contexts/SeatingPlanContext';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
-import { menuSurfaceClass, secondaryButtonClass } from '@/utils';
+import { menuItemClass, menuSurfaceClass, secondaryButtonClass } from '@/utils';
 
 /**
  * Which class is open — as the document name of the whole workspace.
@@ -131,9 +132,12 @@ export default function HeaderClassMenu() {
                 openCreate();
               }}
               disabled={isBusy}
-              className={createOptionClass}
+              className={menuItemClass}
             >
-              <PlusIcon className="h-4 w-4 shrink-0" aria-hidden="true" />
+              <PlusIcon
+                className="h-4 w-4 shrink-0 text-(--text-muted)"
+                aria-hidden="true"
+              />
               {t('students:classManagement.newClass')}
             </button>
             <div className="my-1 h-px bg-(--border-card)" role="separator" />
@@ -150,11 +154,16 @@ export default function HeaderClassMenu() {
                       role="option"
                       aria-selected={isSelected}
                       title={entry.name}
-                      className={`${isSelected ? activeOptionClass : optionClass} min-w-0 flex-1`}
+                      className={`${menuItemClass} min-w-0 flex-1`}
                     >
                       <span className="block min-w-0 flex-1 truncate">
                         {entry.name}
                       </span>
+                      <CheckIcon
+                        size={16}
+                        aria-hidden="true"
+                        className={`shrink-0 text-(--text-badge) ${isSelected ? '' : 'invisible'}`}
+                      />
                     </button>
                     <button
                       type="button"
@@ -193,13 +202,11 @@ export default function HeaderClassMenu() {
   );
 }
 
-const optionClass =
-  'flex w-full cursor-pointer items-center overflow-hidden rounded-lg px-3 py-2 text-left text-sm transition hover:bg-(--surface-sunken) disabled:cursor-not-allowed';
-const activeOptionClass =
-  'flex w-full cursor-pointer items-center overflow-hidden rounded-lg bg-(--surface-option-selected) px-3 py-2 text-left text-sm font-semibold text-(--text-badge) disabled:cursor-not-allowed';
-const createOptionClass =
-  'flex w-full cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium text-(--text-badge) transition hover:bg-(--surface-sunken) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) disabled:cursor-not-allowed disabled:opacity-40';
+// The rows are the menu rows every dropdown uses (`menu-item`), the open class
+// with a check at its end; beside each the two things a class can undergo, as
+// quiet icons. Deleting turns rose only under the pointer, as a menu's
+// destructive row does (`menu-item-danger`).
 const optionActionClass =
   'inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-(--text-muted) transition hover:bg-(--surface-sunken) hover:text-(--text-page) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) disabled:cursor-not-allowed disabled:opacity-40';
 const optionDeleteClass =
-  'inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-(--button-danger-bg) transition hover:bg-(--surface-sunken) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-danger) disabled:cursor-not-allowed disabled:opacity-40';
+  'inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-(--text-muted) transition hover:bg-(--button-icon-danger-bg) hover:text-(--button-icon-danger-text) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-danger) disabled:cursor-not-allowed disabled:opacity-40';
