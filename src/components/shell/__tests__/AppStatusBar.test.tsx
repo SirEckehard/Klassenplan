@@ -216,16 +216,15 @@ describe('AppStatusBar', () => {
     expect(mocks.exits.presentPlan).not.toHaveBeenCalled();
   });
 
-  // A fixed place on every layer, also on the first screen, which has no
-  // toolbar to hold it.
-  it.each([1, 2, 3])('carries the settings on layer %i', (step) => {
-    setState({ step });
+  // The settings hang in the header beside Help; the bar keeps to where the
+  // layer stands and what it does.
+  it('leaves the settings to the header', () => {
+    setState({ step: 1, students: named(2) });
     render(<AppStatusBar />);
 
-    expect(getButton(/^(Einstellungen|Settings)$/i)).toHaveAttribute(
-      'aria-haspopup',
-      'menu',
-    );
+    expect(
+      screen.queryByRole('button', { name: /^(Einstellungen|Settings)$/i }),
+    ).not.toBeInTheDocument();
   });
 
   it('carries the toolbar switch, which the toolbar itself no longer has', async () => {

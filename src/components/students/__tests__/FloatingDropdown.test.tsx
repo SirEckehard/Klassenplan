@@ -149,4 +149,55 @@ describe('FloatingDropdown', () => {
       globalThis.ResizeObserver = originalObserver;
     }
   });
+
+  // The settings menu is a `w-64` list hanging from the rightmost button of
+  // the header. Placed for the default width instead of its own, it ran past
+  // the window's edge by the difference.
+  it('ends flush with a right-hand anchor however wide its content is', async () => {
+    function RightHarness() {
+      const anchorRef = React.useRef<HTMLButtonElement | null>(null);
+      return (
+        <>
+          <button type="button" ref={anchorRef}>
+            Anchor
+          </button>
+          <FloatingDropdown anchorRef={anchorRef} align="right">
+            <div role="dialog" aria-label="Menu" />
+          </FloatingDropdown>
+        </>
+      );
+    }
+    Object.defineProperty(HTMLElement.prototype, 'scrollWidth', {
+      configurable: true,
+      get: () => 256,
+    });
+    const originalRect = HTMLElement.prototype.getBoundingClientRect;
+    HTMLElement.prototype.getBoundingClientRect = function () {
+      return {
+        top: 10,
+        bottom: 46,
+        left: 964,
+        right: 1000,
+        width: 36,
+        height: 36,
+        x: 964,
+        y: 10,
+        toJSON: () => ({}),
+      } as DOMRect;
+    };
+
+    try {
+      render(<RightHarness />);
+      await settle();
+      act(() => {
+        window.dispatchEvent(new Event('resize'));
+      });
+
+      // 1000 - 256: the content's own width, not the 240 guessed first.
+      expect(portal()).toHaveStyle({ left: '744px', width: '256px' });
+    } finally {
+      HTMLElement.prototype.getBoundingClientRect = originalRect;
+      Reflect.deleteProperty(HTMLElement.prototype, 'scrollWidth');
+    }
+  });
 });

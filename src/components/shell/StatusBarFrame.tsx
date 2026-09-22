@@ -5,7 +5,6 @@ import { useTranslation } from 'react-i18next';
 import { ArrowLineLeftIcon, ArrowLineRightIcon } from '@phosphor-icons/react';
 import { useShellToolRail } from '@/contexts/ToolRailContext';
 import { useLayoutMode } from '@/hooks/ui/useLayoutMode';
-import AppSettingsMenu from '@/components/shell/AppSettingsMenu';
 import { quietIconButtonClass } from '@/utils';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 
@@ -16,8 +15,8 @@ export const statusBarIconButtonClass = `${quietIconButtonClass} h-9 w-9`;
  * The bar at the bottom of the shell, without what a surface says in it.
  *
  * Every surface in the shell — the three layers and the export — leads the bar
- * with the same two workspace controls, the settings and the toolbar's switch,
- * and then fills three parts: where it stands (`start`), the ways out
+ * with the toolbar's switch, a control of the workspace rather than of the
+ * surface, and then fills three parts: where it stands (`start`), the ways out
  * (`middle`) and its one primary action (`end`). The outer two share the width
  * equally, so the middle sits in the middle whatever the line on the left says.
  */
@@ -49,12 +48,10 @@ export default function StatusBarFrame({
     >
       <div className="flex min-h-11 items-center gap-2 px-4 py-2 sm:gap-4">
         <div className="flex min-w-0 flex-1 items-center gap-3">
-          {/* The settings and the toolbar's switch belong to the workspace,
-              not to a surface, so they lead the bar together — right under
-              the toolbar they concern. */}
-          <span className="flex items-center gap-1">
-            <AppSettingsMenu />
-            {showToolRailSwitch && toolRail && (
+          {/* The toolbar's switch belongs to the workspace, not to a surface,
+              so it leads the bar — right under the toolbar it concerns. */}
+          {showToolRailSwitch && toolRail && (
+            <>
               <button
                 type="button"
                 onClick={toolRail.toggle}
@@ -79,9 +76,12 @@ export default function StatusBarFrame({
                   <ArrowLineRightIcon size={16} aria-hidden="true" />
                 )}
               </button>
-            )}
-          </span>
-          <span aria-hidden="true" className="h-4 w-px bg-(--border-card)" />
+              <span
+                aria-hidden="true"
+                className="h-4 w-px bg-(--border-card)"
+              />
+            </>
+          )}
           {start}
         </div>
 

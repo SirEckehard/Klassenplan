@@ -63,13 +63,19 @@ export default function FloatingDropdown({
     const safePadding = VIEWPORT_PADDING;
     const maxAvailableWidth =
       viewportWidth > 0 ? Math.max(viewportWidth - safePadding * 2, 0) : 0;
+    // The wrapper is given a width, so measuring the wrapper alone only ever
+    // returns that width again: content wider than the first guess (a menu of
+    // `w-64`) overflowed it, and a right-aligned dropdown then ran past the
+    // window's edge by the difference. `scrollWidth` is what the content
+    // really takes.
+    const contentWidth = dropdownElement
+      ? Math.max(dropdownRect?.width ?? 0, dropdownElement.scrollWidth)
+      : 0;
     const resolvedDropdownWidth =
-      dropdownRect && dropdownRect.width > 0
-        ? dropdownRect.width
-        : measuredWidthRef.current;
+      contentWidth > 0 ? contentWidth : measuredWidthRef.current;
 
-    if (dropdownRect && dropdownRect.width > 0) {
-      measuredWidthRef.current = dropdownRect.width;
+    if (contentWidth > 0) {
+      measuredWidthRef.current = contentWidth;
     }
 
     const preferredWidth = matchAnchorWidth

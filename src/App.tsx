@@ -89,7 +89,7 @@ export default function App() {
   // name game), where the footer and its "clear all data" action are out of
   // place, and the workspace and the export page, which share its shell, run at
   // viewport height from `lg` up and offer the same entries in the settings
-  // menu of their status bar (`AppSettingsMenu`).
+  // menu of their header (`AppSettingsMenu`).
   const hidesFooter = [
     '/present',
     '/en/present',

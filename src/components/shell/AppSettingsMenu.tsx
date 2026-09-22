@@ -17,7 +17,7 @@ import {
   logWarn,
   menuItemClass,
   menuSurfaceClass,
-  quietIconButtonClass,
+  secondaryButtonClass,
 } from '@/utils';
 import { lazyWithRetry } from '@/utils/performance/lazyWithRetry';
 import { scheduleIdleTask } from '@/utils/performance/idleTasks';
@@ -49,11 +49,8 @@ const preloadSettingsItems = () => {
  * links — FAQ, feedback, support, the changelog — stay on the pages they
  * belong to rather than following the workspace around.
  *
- * It sits at the left end of the status bar, under the toolbar and beside the
- * toolbar's own switch: a fixed place on every layer. The toolbar itself could
- * not be that place — the first screen, before there is a class, has none, and
- * on a phone it hides behind a button of its own. The menu opens upwards; the
- * dropdown turns over by itself where there is no room below.
+ * It sits in the header beside Help, the same place on every layer, on the
+ * export page and on the first screen, which has no toolbar yet.
  */
 export default function AppSettingsMenu() {
   const { t } = useTranslation('common');
@@ -97,19 +94,19 @@ export default function AppSettingsMenu() {
         // early enough.
         onPointerEnter={preloadSettingsItems}
         onFocus={preloadSettingsItems}
-        className={`${quietIconButtonClass} h-9 w-9`}
+        className={`${secondaryButtonClass} h-9 w-9 justify-center p-0`}
         title={t('footer.settings')}
         aria-label={t('footer.settings')}
         aria-haspopup="menu"
         aria-expanded={open}
       >
-        <GearIcon size={18} aria-hidden="true" />
+        <GearIcon className="h-5 w-5" aria-hidden="true" />
       </button>
 
       {open && (
         <FloatingDropdown
           anchorRef={anchorRef}
-          align="left"
+          align="right"
           portalRef={contentRef}
         >
           {/* The whole menu waits for its lazy part, should it still be on
