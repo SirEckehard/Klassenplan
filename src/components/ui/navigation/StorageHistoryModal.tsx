@@ -23,6 +23,7 @@ import {
   pillTabActiveClass,
   pillTabBaseClass,
   pillTabInactiveClass,
+  segmentedTrackClass,
   formatTime,
 } from '@/utils';
 import { showToast } from '@/utils/ui/toast';
@@ -134,12 +135,11 @@ export default function StorageHistoryModal({
   const hasMixes = mixHistory.length > 0;
   const usageCount = planUsage.length;
 
-  // The three German labels need more than a phone's width in one row, and a
-  // pill tab cannot shrink below its own text — so the row wraps instead of
-  // pushing the modal past the viewport. The fully round pill shape only fits
-  // a single row, hence the softer radius until the tabs sit side by side.
-  const tabContainerClass =
-    'flex flex-wrap gap-2 rounded-3xl border border-(--border-option-selected) bg-(--surface-card) p-1 shadow-inner sm:rounded-full';
+  // The same recessed track as the help dialog's tabs. The three German labels
+  // need more than a phone's width in one row, and a tab cannot shrink below
+  // its own text — so the row wraps instead of pushing the modal past the
+  // viewport.
+  const tabContainerClass = `${segmentedTrackClass} flex flex-wrap gap-1 p-1`;
 
   return (
     <Modal
