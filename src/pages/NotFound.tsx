@@ -2,11 +2,15 @@
 // Copyright (C) 2026 Eike Schäfer
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
-import { HouseLineIcon } from '@phosphor-icons/react';
+import { ArrowRightIcon, HouseLineIcon } from '@phosphor-icons/react';
 import Seo from '@/components/Seo';
 import { LocalizedLink } from '@/components/LocalizedLink';
-import { KpLockup } from '@/components/KpLockup';
-import { cardSurfaceClass, primaryButtonClass } from '@/utils';
+import PublicPageHeader from '@/components/publicPage/PublicPageHeader';
+import {
+  pageEyebrowClass,
+  pageTitleClass,
+} from '@/components/publicPage/pageTokens';
+import { primaryButtonClass, quietLinkClass } from '@/utils';
 
 export default function NotFound() {
   const { t, i18n } = useTranslation('common');
@@ -14,11 +18,7 @@ export default function NotFound() {
   const lang = i18n.language === 'en' ? 'en' : 'de';
 
   return (
-    <main
-      id="main"
-      tabIndex={-1}
-      className="min-h-[80vh] bg-(--surface-page) px-4 py-12"
-    >
+    <main id="main" tabIndex={-1} className="bg-(--surface-page) px-4 sm:px-6">
       <Seo
         title={t('notFound.title')}
         description={t('notFound.message')}
@@ -27,30 +27,32 @@ export default function NotFound() {
         ogType="website"
         noindex
       />
-      <div className="mx-auto flex max-w-2xl flex-col items-center gap-10 text-center">
-        <LocalizedLink
-          to="/"
-          className="kp-lockup focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:ring-offset-2"
-          aria-label={t('notFound.home')}
-        >
-          <KpLockup size="md" />
-        </LocalizedLink>
+      <div className="mx-auto max-w-6xl">
+        <PublicPageHeader bannerLabel={t('pages:header.banner.notFound')} />
 
-        <section
-          className={`${cardSurfaceClass} border border-(--border-card) p-8`}
-        >
-          <p className="text-6xl font-bold text-(--text-badge)">
-            {t('notFound.code')}
+        <div className="max-w-2xl pt-4 pb-16 lg:pb-24">
+          <p className={pageEyebrowClass}>{t('notFound.eyebrow')}</p>
+          <h1 className={pageTitleClass}>{t('notFound.title')}</h1>
+          <p className="mt-4 text-lg text-pretty text-(--text-muted)">
+            {t('notFound.message')}
           </p>
-          <h1 className="mt-4 text-2xl font-bold tracking-tight text-(--text-page)">
-            {t('notFound.title')}
-          </h1>
-          <p className="mt-3 text-(--text-muted)">{t('notFound.message')}</p>
-          <LocalizedLink to="/" className={`${primaryButtonClass} mt-8`}>
-            <HouseLineIcon aria-hidden="true" className="h-5 w-5" />
-            {t('notFound.home')}
-          </LocalizedLink>
-        </section>
+
+          {/* Home is the page's one action; whoever came back for a plan
+              finds the generator one step closer. */}
+          <div className="mt-8 flex flex-col items-start gap-5 sm:flex-row sm:items-center sm:gap-8">
+            <LocalizedLink
+              to="/"
+              className={`${primaryButtonClass} w-full gap-2 px-6 py-3 text-base font-semibold sm:w-auto`}
+            >
+              <HouseLineIcon size={20} aria-hidden="true" />
+              {t('notFound.home')}
+            </LocalizedLink>
+            <LocalizedLink to="/generator" className={quietLinkClass}>
+              {t('notFound.generator')}
+              <ArrowRightIcon size={16} aria-hidden="true" />
+            </LocalizedLink>
+          </div>
+        </div>
       </div>
     </main>
   );

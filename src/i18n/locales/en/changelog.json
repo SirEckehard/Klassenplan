@@ -256,12 +256,11 @@
     "knownissue": "Known Issues"
   },
   "header": {
+    "eyebrow": "Releases",
     "title": "Changelog",
     "subtitle": "Overview of all changes and new features",
-    "homeLink": "Back to Home",
     "aria": {
-      "banner": "Changelog Overview",
-      "intro": "changelog-intro"
+      "banner": "Changelog Overview"
     }
   },
   "footer": {

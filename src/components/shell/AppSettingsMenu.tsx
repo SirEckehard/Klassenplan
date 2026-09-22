@@ -11,6 +11,7 @@ import FloatingDropdown from '@/components/students/FloatingDropdown';
 import AppearanceControls from '@/components/ui/navigation/AppearanceControls';
 import UpdateCheckButton from '@/components/pwa/UpdateCheckButton';
 import { LegalPageLink } from '@/components/LegalPageLink';
+import { APP_RETURN_STATE } from '@/hooks/useReturnToApp';
 import { useClickOutside } from '@/hooks/ui/useClickOutside';
 import { useDialogLayer } from '@/hooks/ui/useDialogLayer';
 import {
@@ -44,10 +45,11 @@ const preloadSettingsItems = () => {
  * From `lg` up the shell is the window, so the page footer is gone on this
  * route. What a teacher reaches for from inside a plan and no layer owns comes
  * back here: theme and language, the update check, wiping the data, and the
- * two legal pages. The backup and the saved plans are not repeated — the
- * toolbar of the class and the plan layer carries them. The remaining footer
- * links — FAQ, feedback, support, the changelog — stay on the pages they
- * belong to rather than following the workspace around.
+ * two legal pages, which offer the way back here. The backup and the saved
+ * plans are not repeated — the toolbar of the class and the plan layer
+ * carries them. The remaining footer links — FAQ, feedback, support, the
+ * changelog — stay on the pages they belong to rather than following the
+ * workspace around.
  *
  * It sits in the header beside Help, the same place on every layer, on the
  * export page and on the first screen, which has no toolbar yet.
@@ -134,6 +136,7 @@ export default function AppSettingsMenu() {
               />
               <LegalPageLink
                 to="/datenschutz"
+                state={APP_RETURN_STATE}
                 role="menuitem"
                 className={menuItemClass}
                 onClick={close}
@@ -143,6 +146,7 @@ export default function AppSettingsMenu() {
               </LegalPageLink>
               <LegalPageLink
                 to="/impressum"
+                state={APP_RETURN_STATE}
                 role="menuitem"
                 className={menuItemClass}
                 onClick={close}

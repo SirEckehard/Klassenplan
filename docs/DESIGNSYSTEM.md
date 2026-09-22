@@ -1,6 +1,6 @@
 # Design System – Klassenplan
 
-> **Status:** current · **Last reviewed:** 2026-09-22 · **Maintainer:** Eike
+> **Status:** current · **Last reviewed:** 2026-09-23 · **Maintainer:** Eike
 > Schäfer · **Describes:** Klassenplan 2.2.0
 
 This document describes the binding design tokens for Klassenplan. All values live in `src/index.css` and are reachable from TypeScript through `src/utils/ui/designTokens.ts`.
@@ -252,9 +252,7 @@ Whatever opens from a toolbar entry is such a dropdown: a row per choice, an ico
 ## 6d. The start page and the pages beside it
 
 `pages/StartPage.tsx` is the one page that sells rather than works, and it
-does so with the workspace's own means. The FAQ and the support page share
-its type (`components/publicPage/pageTokens.ts`) and a header of their own
-(`PublicPageHeader`: the lockup, and "Zurück" when the app opened the page). The hero title and each section's
+does so with the workspace's own means. The hero title and each section's
 claim are set in `--font-serif`; above a claim, small caps name what the
 section is about. Sections are divided by a hairline, not by cards, and the
 page carries one blue button — "Plane jetzt deine Klasse!". FAQ, contact and
@@ -273,6 +271,24 @@ screenshots (`npm run capture:preview-screenshots`), with no browser chrome
 drawn around them. Nothing floats over the picture: the slide's name, its
 position and the controls sit in a strip below it, the way the app keeps its
 own out of the stage.
+
+The pages beside it — FAQ, support, contact, changelog, Impressum and
+Datenschutzerklärung — share its type (`components/publicPage/pageTokens.ts`)
+and a header of their own (`PublicPageHeader`: the lockup, and "Zurück" when
+the app opened the page). Each opens with small caps, a serif title and a
+muted lead; what follows is divided by hairlines, never framed in cards, and
+a page has at most one blue button — the donation, the mail address, the way
+to the generator. A link inside running text is `pageInlineLinkClass`, a link
+in the page's chrome `quietLinkClass`. Where a page is a list of parts — the
+changelog's versions, the sections of a legal text (`LegalPage`,
+`LegalSection`) — each part is a row: its name on the left, staying in view
+while the part is read, its text on the right. The changelog tells its kinds
+of change apart by icon and word, in the same order in every version, and
+gives them no colour: none of them is something to act on.
+
+None of these pages sets a minimum height. `App.tsx` makes the page a column
+at least as tall as the window, so the footer sits on the bottom edge however
+short the page is.
 
 ## 7. Extensions & maintenance
 

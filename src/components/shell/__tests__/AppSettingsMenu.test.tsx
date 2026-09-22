@@ -4,9 +4,10 @@ import '@testing-library/jest-dom/vitest';
 import { render, screen, cleanup } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, MemoryRouter, Route, Routes } from 'react-router-dom';
 import '@/i18n';
 import AppSettingsMenu from '@/components/shell/AppSettingsMenu';
+import ReturnToAppLink from '@/components/ReturnToAppLink';
 import { getButton } from '@/__tests__/utils';
 
 vi.mock('@/contexts/SeatingPlanContext', () => ({
@@ -79,6 +80,28 @@ describe('AppSettingsMenu', () => {
         name: /alle pläne anzeigen|show all plans/i,
       }),
     ).not.toBeInTheDocument();
+  });
+
+  // The workspace has no footer, so the teacher reached the page from here and
+  // is taken back to the plan, not to the start page.
+  it('opens the legal pages with the way back into the app', async () => {
+    render(
+      <MemoryRouter initialEntries={['/generator']}>
+        <Routes>
+          <Route path="/generator" element={<AppSettingsMenu />} />
+          <Route path="/impressum" element={<ReturnToAppLink />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    const user = await openMenu();
+
+    await user.click(
+      screen.getByRole('menuitem', { name: /impressum|legal notice/i }),
+    );
+
+    expect(
+      await screen.findByRole('button', { name: /^(Zurück|Back)$/ }),
+    ).toBeInTheDocument();
   });
 
   it('closes on Escape and hands focus back to the gear', async () => {

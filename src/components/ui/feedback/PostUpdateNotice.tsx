@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import React, { useCallback, useMemo } from 'react';
-import { Link } from 'react-router-dom';
 import { MegaphoneIcon, ArrowRightIcon } from '@phosphor-icons/react';
 import {
   useSeatingPlanActions,
   useSeatingPlanState,
 } from '@/contexts/SeatingPlanContext';
+import { LocalizedLink } from '@/components/LocalizedLink';
+import { APP_RETURN_STATE } from '@/hooks/useReturnToApp';
 import { CHANGELOG_ROUTE, formatLongDate, logInfo } from '@/utils';
 import { useTranslation } from 'react-i18next';
 
@@ -94,14 +95,17 @@ export default function PostUpdateNotice() {
             >
               {t('updateNotice.dismiss')}
             </button>
-            <Link
+            {/* In the language of the workspace, and with the way back to
+                it: the notice is read inside a plan. */}
+            <LocalizedLink
               to={CHANGELOG_ROUTE}
+              state={APP_RETURN_STATE}
               onClick={handleOpenChangelog}
               className="inline-flex items-center gap-1 text-sm font-medium text-(--text-badge) underline decoration-(--border-card) underline-offset-4 transition hover:text-(--text-page) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:ring-offset-2"
             >
               {t('updateNotice.link')}
               <ArrowRightIcon aria-hidden="true" className="h-4 w-4" />
-            </Link>
+            </LocalizedLink>
           </div>
         </div>
       </div>

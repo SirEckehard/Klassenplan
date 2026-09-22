@@ -1,24 +1,17 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import { useTranslation } from 'react-i18next';
-import { ShieldCheckIcon } from '@phosphor-icons/react';
 import Seo from '@/components/Seo';
-import { LocalizedLink } from '@/components/LocalizedLink';
-import { cardSurfaceClass } from '@/utils';
-import { KpLockup } from '@/components/KpLockup';
+import { LegalPage, LegalSection } from '@/components/publicPage/LegalPage';
+import { pageInlineLinkClass } from '@/components/publicPage/pageTokens';
 import { usePageSeo } from '@/hooks/usePageSeo';
 
 export default function Datenschutz() {
-  const { t, i18n } = useTranslation('pages');
-  const isEnglish = i18n.language === 'en';
+  const { t } = useTranslation('pages');
   const metadata = usePageSeo('/datenschutz');
 
   return (
-    <main
-      id="main"
-      tabIndex={-1}
-      className="min-h-[80vh] bg-(--surface-page) px-4 py-12"
-    >
+    <>
       <Seo
         {...metadata}
         structuredData={{
@@ -28,240 +21,175 @@ export default function Datenschutz() {
           description: metadata.description,
         }}
       />
-      <div className="mx-auto flex max-w-4xl flex-col gap-10">
-        <header
-          className="text-center"
-          role="banner"
-          aria-label={t('header.banner.datenschutz')}
+      <LegalPage
+        bannerLabel={t('header.banner.datenschutz')}
+        title="Datenschutzerklärung"
+        lead="Informationen nach Art. 13, 14 DSGVO"
+        germanOnly
+      >
+        <LegalSection
+          id="datenschutz-verantwortlicher"
+          title="1. Verantwortlicher"
         >
-          <LocalizedLink
-            to="/"
-            className="kp-lockup focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:ring-offset-2"
-            aria-label={t('header.homeLink')}
-          >
-            <KpLockup size="md" />
-          </LocalizedLink>
-        </header>
+          <address className="not-italic">
+            Eike Christian Schäfer
+            <br />
+            50679 Köln
+            <br />
+            Deutschland
+            <br />
+            E-Mail:{' '}
+            <a
+              className={pageInlineLinkClass}
+              href="mailto:webmaster@klassenplan.de"
+            >
+              webmaster@klassenplan.de
+            </a>
+          </address>
+        </LegalSection>
 
-        <section
-          className={`${cardSurfaceClass} border border-(--border-card) p-5 sm:p-8`}
-          aria-labelledby="datenschutz-title"
+        <LegalSection
+          id="datenschutz-erfassung"
+          title="2. Erfassung und Speicherung personenbezogener Daten"
         >
-          <div className="mb-8">
-            {isEnglish && (
-              <div className="mb-4 p-3 bg-(--surface-option-selected) border border-(--border-option-selected) rounded-lg text-sm text-(--text-badge)">
-                This Privacy Policy is provided in German only, as required by
-                German law.
-              </div>
-            )}
-            <div className="flex items-center gap-3">
-              <span className="flex h-12 w-12 items-center justify-center rounded-2xl border border-(--border-card) bg-(--surface-option-selected) text-(--text-badge) shadow-sm/20">
-                <ShieldCheckIcon aria-hidden="true" className="h-6 w-6" />
-              </span>
-              <div>
-                <h2
-                  id="datenschutz-title"
-                  className="text-xl font-bold tracking-tight text-(--text-page) sm:text-3xl"
-                >
-                  Datenschutzerklärung
-                </h2>
-                <p className="mt-1 text-sm text-(--text-muted) sm:text-base">
-                  Informationen nach Art. 13, 14 DSGVO
-                </p>
-              </div>
-            </div>
-          </div>
+          <p>
+            Die Website wird bei Hetzner Online GmbH, Industriestr. 25, 91710
+            Gunzenhausen, Deutschland (&bdquo;Hetzner&ldquo;) gehostet. Hetzner
+            stellt die Server-Infrastruktur bereit, über die die Website
+            ausgeliefert wird. Die Auslieferung erfolgt aus dem Rechenzentrum in
+            Nürnberg, Deutschland.
+          </p>
+          <p>
+            Beim Aufruf der Website werden automatisch durch den Hosting-Server
+            sogenannte Server-Logfiles erhoben. Diese können folgende Daten
+            enthalten:
+          </p>
+          <ul className="list-disc space-y-1 pl-5 text-(--text-muted)">
+            <li>IP-Adresse des anfragenden Geräts</li>
+            <li>Datum und Uhrzeit des Zugriffs</li>
+            <li>Adresse der abgerufenen Seite (URL)</li>
+            <li>Browsertyp und -version</li>
+            <li>Betriebssystem des Nutzers</li>
+            <li>
+              Referrer-URL (die Seite, von der du auf Klassenplan gelangt bist)
+            </li>
+            <li>Übertragene Datenmenge und Meldung über erfolgreichen Abruf</li>
+          </ul>
+          <p>
+            Diese Daten sind technisch erforderlich, um die Website
+            bereitzustellen, Stabilität und Sicherheit zu gewährleisten und
+            Missbrauch zu verhindern.
+          </p>
+          <p>
+            Eine Zusammenführung dieser Daten mit anderen Datenquellen findet
+            nicht statt. Die Verarbeitung dieser Daten erfolgt auf Grundlage von
+            Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an einem sicheren
+            und effizienten Betrieb der Website).
+          </p>
+          <p>
+            Die Datenverarbeitung erfolgt ausschließlich in Deutschland. Es
+            findet keine Übertragung von Daten in Drittländer statt.
+          </p>
+          <p>
+            Weitere Informationen findest du in der Datenschutzerklärung von
+            Hetzner:{' '}
+            <a
+              href="https://www.hetzner.com/de/legal/privacy-policy/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`${pageInlineLinkClass} wrap-break-word`}
+            >
+              https://www.hetzner.com/de/legal/privacy-policy/
+            </a>
+          </p>
+          <p>
+            Personenbezogene Daten werden nur erhoben, wenn diese freiwillig
+            mitgeteilt werden, z. B. im Rahmen einer E-Mail-Anfrage.
+          </p>
+        </LegalSection>
 
-          <div className="space-y-8">
-            {/* Data controller */}
-            <div>
-              <h3 className="text-xl font-semibold text-(--text-page)">
-                1. Verantwortlicher
-              </h3>
-              <address className="mt-3 not-italic text-(--text-page) leading-relaxed">
-                Eike Christian Schäfer
-                <br />
-                50679 Köln
-                <br />
-                Deutschland
-                <br />
-                E-Mail:{' '}
-                <a
-                  className="font-semibold text-(--text-badge) hover:underline"
-                  href="mailto:webmaster@klassenplan.de"
-                >
-                  webmaster@klassenplan.de
-                </a>
-              </address>
-            </div>
+        <LegalSection
+          id="datenschutz-verwendung"
+          title="3. Verwendung der Daten"
+        >
+          <p>
+            Die mitgeteilten Daten werden ausschließlich zur Bearbeitung deiner
+            Anfragen sowie zur Verbesserung des Angebots genutzt.
+          </p>
+        </LegalSection>
 
-            {/* Collection and storage of personal data */}
-            <div>
-              <h3 className="text-xl font-semibold text-(--text-page)">
-                2. Erfassung und Speicherung personenbezogener Daten
-              </h3>
-              <div className="mt-3 space-y-3 text-(--text-page) leading-relaxed">
-                <p>
-                  Die Website wird bei Hetzner Online GmbH, Industriestr. 25,
-                  91710 Gunzenhausen, Deutschland (&bdquo;Hetzner&ldquo;)
-                  gehostet. Hetzner stellt die Server-Infrastruktur bereit, über
-                  die die Website ausgeliefert wird. Die Auslieferung erfolgt
-                  aus dem Rechenzentrum in Nürnberg, Deutschland.
-                </p>
-                <p>
-                  Beim Aufruf der Website werden automatisch durch den
-                  Hosting-Server sogenannte Server-Logfiles erhoben. Diese
-                  können folgende Daten enthalten:
-                </p>
-                <ul className="list-disc pl-5 space-y-1 text-(--text-muted)">
-                  <li>IP-Adresse des anfragenden Geräts</li>
-                  <li>Datum und Uhrzeit des Zugriffs</li>
-                  <li>Adresse der abgerufenen Seite (URL)</li>
-                  <li>Browsertyp und -version</li>
-                  <li>Betriebssystem des Nutzers</li>
-                  <li>
-                    Referrer-URL (die Seite, von der du auf Klassenplan gelangt
-                    bist)
-                  </li>
-                  <li>
-                    Übertragene Datenmenge und Meldung über erfolgreichen Abruf
-                  </li>
-                </ul>
-                <p>
-                  Diese Daten sind technisch erforderlich, um die Website
-                  bereitzustellen, Stabilität und Sicherheit zu gewährleisten
-                  und Missbrauch zu verhindern.
-                </p>
-                <p>
-                  Eine Zusammenführung dieser Daten mit anderen Datenquellen
-                  findet nicht statt. Die Verarbeitung dieser Daten erfolgt auf
-                  Grundlage von Art. 6 Abs. 1 lit. f DSGVO (berechtigtes
-                  Interesse an einem sicheren und effizienten Betrieb der
-                  Website).
-                </p>
-                <p>
-                  Die Datenverarbeitung erfolgt ausschließlich in Deutschland.
-                  Es findet keine Übertragung von Daten in Drittländer statt.
-                </p>
-                <p>
-                  Weitere Informationen finden Sie in der Datenschutzerklärung
-                  von Hetzner:{' '}
-                  <a
-                    href="https://www.hetzner.com/de/legal/privacy-policy/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="font-semibold text-(--text-badge) hover:underline"
-                  >
-                    https://www.hetzner.com/de/legal/privacy-policy/
-                  </a>
-                </p>
-                <p>
-                  Personenbezogene Daten werden nur erhoben, wenn diese
-                  freiwillig mitgeteilt werden, z. B. im Rahmen einer
-                  E-Mail-Anfrage.
-                </p>
-              </div>
-            </div>
+        <LegalSection id="datenschutz-dritte" title="4. Weitergabe an Dritte">
+          <p>Die Daten werden nicht an Dritte weitergegeben.</p>
+        </LegalSection>
 
-            {/* Data usage */}
-            <div>
-              <h3 className="text-xl font-semibold text-(--text-page)">
-                3. Verwendung der Daten
-              </h3>
-              <p className="mt-3 text-(--text-page) leading-relaxed">
-                Die mitgeteilten Daten werden ausschließlich zur Bearbeitung
-                deiner Anfragen sowie zur Verbesserung des Angebots genutzt.
-              </p>
-            </div>
+        <LegalSection
+          id="datenschutz-speicherung"
+          title="5. Speicherung und Löschung deiner Daten"
+        >
+          <p>
+            Alle erstellten Informationen werden ausschließlich lokal im Browser
+            gespeichert (localStorage und IndexedDB). Es werden keine Cookies
+            gesetzt und keine Daten an einen Server übertragen. Dadurch ist die
+            Nutzung nach dem initialen Laden auch offline möglich, solange der
+            Browser-Cache nicht gelöscht wurde.
+          </p>
+          <p>
+            Optional hinzugefügte <strong>Schülerfotos</strong> werden ebenfalls
+            ausschließlich lokal auf diesem Gerät (in IndexedDB) gespeichert und
+            niemals übertragen. Beim Import werden Fotos neu berechnet und
+            verkleinert; dabei werden eingebettete Metadaten (z.&nbsp;B.
+            EXIF-Daten inkl. GPS-Position) entfernt. Sie sind nur in einem
+            Backup enthalten, wenn du selbst eines exportierst, und werden
+            gemeinsam mit den übrigen Daten gelöscht.
+          </p>
+          <p>
+            Damit die Wiederholungsvermeidung echte Sitzpläne von bloßem
+            Ausprobieren unterscheiden kann, hält Klassenplan fest, welche
+            Sitzpläne tatsächlich im Einsatz waren – erkennbar daran, dass du
+            sie präsentierst, druckst bzw. exportierst, unter einem eigenen
+            Namen speicherst oder von Hand anpasst. Festgehalten werden dabei
+            ausschließlich die Sitznachbarschaften (als Schüler-IDs) und ein
+            Zeitstempel, nicht der Sitzplan selbst. Auch diese Aufzeichnung
+            verbleibt lokal auf deinem Gerät, wird weder übertragen noch
+            ausgewertet und gemeinsam mit den übrigen Daten gelöscht.
+          </p>
+          <p>
+            Die lokal gespeicherten Daten liegen{' '}
+            <strong>unverschlüsselt</strong> im Browser-Profil dieses Geräts.
+            Schütze das Gerät daher wie gewohnt (Benutzerkonto,
+            Geräteverschlüsselung). Exportierte Backups werden dagegen immer mit
+            einem von dir gewählten Passwort verschlüsselt.
+          </p>
+          <p>
+            Sämtliche Daten sind über den Eintrag{' '}
+            <strong>Alle Daten löschen</strong> in den Einstellungen
+            (Zahnrad-Symbol im Footer bzw. im Sitzplan-Generator oben rechts)
+            oder über die Löschfunktion deines Browsers zu entfernen.
+          </p>
+        </LegalSection>
 
-            {/* Disclosure to third parties */}
-            <div>
-              <h3 className="text-xl font-semibold text-(--text-page)">
-                4. Weitergabe an Dritte
-              </h3>
-              <p className="mt-3 text-(--text-page) leading-relaxed">
-                Die Daten werden nicht an Dritte weitergegeben.
-              </p>
-            </div>
+        <LegalSection id="datenschutz-rechte" title="6. Rechte der Nutzer">
+          <p>
+            Der Nutzer hat das Recht, unentgeltlich Auskunft über die
+            gespeicherten personenbezogenen Daten zu erhalten. Außerdem hat er
+            das Recht auf Berichtigung, Löschung, Einschränkung der Verarbeitung
+            sowie auf Datenübertragbarkeit und Widerspruch. Zudem hat er das
+            Recht, sich bei einer Datenschutz-Aufsichtsbehörde zu beschweren
+            (Art. 77 DSGVO).
+          </p>
+        </LegalSection>
 
-            {/* Data storage and deletion */}
-            <div>
-              <h3 className="text-xl font-semibold text-(--text-page)">
-                5. Speicherung und Löschung deiner Daten
-              </h3>
-              <div className="mt-3 space-y-3 text-(--text-page) leading-relaxed">
-                <p>
-                  Alle erstellten Informationen werden ausschließlich lokal im
-                  Browser gespeichert (localStorage und IndexedDB). Es werden
-                  keine Cookies gesetzt und keine Daten an einen Server
-                  übertragen. Dadurch ist die Nutzung nach dem initialen Laden
-                  auch offline möglich, solange der Browser-Cache nicht gelöscht
-                  wurde.
-                </p>
-                <p>
-                  Optional hinzugefügte <strong>Schülerfotos</strong> werden
-                  ebenfalls ausschließlich lokal auf diesem Gerät (in IndexedDB)
-                  gespeichert und niemals übertragen. Beim Import werden Fotos
-                  neu berechnet und verkleinert; dabei werden eingebettete
-                  Metadaten (z.&nbsp;B. EXIF-Daten inkl. GPS-Position) entfernt.
-                  Sie sind nur in einem Backup enthalten, wenn du selbst eines
-                  exportierst, und werden gemeinsam mit den übrigen Daten
-                  gelöscht.
-                </p>
-                <p>
-                  Damit die Wiederholungsvermeidung echte Sitzpläne von bloßem
-                  Ausprobieren unterscheiden kann, hält Klassenplan fest, welche
-                  Sitzpläne tatsächlich im Einsatz waren – erkennbar daran, dass
-                  du sie präsentierst, druckst bzw. exportierst, unter einem
-                  eigenen Namen speicherst oder von Hand anpasst. Festgehalten
-                  werden dabei ausschließlich die Sitznachbarschaften (als
-                  Schüler-IDs) und ein Zeitstempel, nicht der Sitzplan selbst.
-                  Auch diese Aufzeichnung verbleibt lokal auf deinem Gerät, wird
-                  weder übertragen noch ausgewertet und gemeinsam mit den
-                  übrigen Daten gelöscht.
-                </p>
-                <p>
-                  Die lokal gespeicherten Daten liegen{' '}
-                  <strong>unverschlüsselt</strong> im Browser-Profil dieses
-                  Geräts. Schütze das Gerät daher wie gewohnt (Benutzerkonto,
-                  Geräteverschlüsselung). Exportierte Backups werden dagegen
-                  immer mit einem von dir gewählten Passwort verschlüsselt.
-                </p>
-                <p>
-                  Sämtliche Daten sind über den Button{' '}
-                  <strong>Alle Daten löschen</strong> im Footer oder über die
-                  Löschfunktion deines Browsers zu entfernen.
-                </p>
-              </div>
-            </div>
-
-            {/* Rechte der Nutzer */}
-            <div>
-              <h3 className="text-xl font-semibold text-(--text-page)">
-                6. Rechte der Nutzer
-              </h3>
-              <p className="mt-3 text-(--text-page) leading-relaxed">
-                Der Nutzer hat das Recht, unentgeltlich Auskunft über die
-                gespeicherten personenbezogenen Daten zu erhalten. Außerdem hat
-                er das Recht auf Berichtigung, Löschung, Einschränkung der
-                Verarbeitung sowie auf Datenübertragbarkeit und Widerspruch.
-              </p>
-            </div>
-
-            {/* Änderungen */}
-            <div>
-              <h3 className="text-xl font-semibold text-(--text-page)">
-                7. Änderungen der Datenschutzerklärung
-              </h3>
-              <p className="mt-3 text-(--text-page) leading-relaxed">
-                Die Datenschutzerklärung darf bei Bedarf aktualisiert werden, um
-                sie an geänderte rechtliche oder technische Rahmenbedingungen
-                anzupassen.
-              </p>
-            </div>
-          </div>
-        </section>
-      </div>
-    </main>
+        <LegalSection
+          id="datenschutz-aenderungen"
+          title="7. Änderungen der Datenschutzerklärung"
+        >
+          <p>
+            Die Datenschutzerklärung darf bei Bedarf aktualisiert werden, um sie
+            an geänderte rechtliche oder technische Rahmenbedingungen
+            anzupassen.
+          </p>
+        </LegalSection>
+      </LegalPage>
+    </>
   );
 }

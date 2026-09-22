@@ -1,10 +1,11 @@
 {
   "skipToContent": "Skip to content",
   "notFound": {
-    "code": "404",
+    "eyebrow": "Error 404",
     "title": "Page not found",
     "message": "This page doesn't exist or has been moved.",
-    "home": "Back to home"
+    "home": "Back to home",
+    "generator": "Go to the seating chart generator"
   },
   "language": {
     "de": "Deutsch",

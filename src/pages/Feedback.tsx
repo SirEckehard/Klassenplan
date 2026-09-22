@@ -1,11 +1,22 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import { useTranslation } from 'react-i18next';
-import { MailboxIcon, GithubLogoIcon } from '@phosphor-icons/react';
+import {
+  ArrowRightIcon,
+  ArrowUpRightIcon,
+  BugIcon,
+  EnvelopeSimpleIcon,
+  GithubLogoIcon,
+  QuestionIcon,
+} from '@phosphor-icons/react';
 import Seo from '@/components/Seo';
 import { LocalizedLink } from '@/components/LocalizedLink';
-import { cardSurfaceClass, primaryButtonClass } from '@/utils';
-import { KpLockup } from '@/components/KpLockup';
+import PublicPageHeader from '@/components/publicPage/PublicPageHeader';
+import {
+  pageEyebrowClass,
+  pageTitleClass,
+} from '@/components/publicPage/pageTokens';
+import { primaryButtonClass, quietLinkClass } from '@/utils';
 import { usePageSeo } from '@/hooks/usePageSeo';
 import { CONTACT_EMAIL, GITHUB_REPO_URL } from '@/config/links';
 
@@ -15,12 +26,37 @@ export default function Feedback() {
   const metadata = usePageSeo('/feedback');
   const contactEmail = CONTACT_EMAIL;
 
+  const notes = [
+    {
+      key: 'faq',
+      icon: QuestionIcon,
+      link: (
+        <LocalizedLink to="/faq" className={`${quietLinkClass} text-sm`}>
+          {t('feedback.notes.faq.link')}
+          <ArrowRightIcon size={14} aria-hidden="true" />
+        </LocalizedLink>
+      ),
+    },
+    { key: 'bugs', icon: BugIcon, link: null },
+    {
+      key: 'code',
+      icon: GithubLogoIcon,
+      link: (
+        <a
+          href={GITHUB_REPO_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`${quietLinkClass} text-sm`}
+        >
+          {t('feedback.notes.code.link')}
+          <ArrowUpRightIcon size={14} aria-hidden="true" />
+        </a>
+      ),
+    },
+  ];
+
   return (
-    <main
-      id="main"
-      tabIndex={-1}
-      className="min-h-[80vh] bg-(--surface-page) px-4 py-12"
-    >
+    <main id="main" tabIndex={-1} className="bg-(--surface-page) px-4 sm:px-6">
       <Seo
         {...metadata}
         structuredData={{
@@ -35,77 +71,57 @@ export default function Feedback() {
           },
         }}
       />
-      <div className="mx-auto flex max-w-4xl flex-col gap-10">
-        <header
-          className="text-center"
-          role="banner"
-          aria-label={t('header.banner.feedback')}
-        >
-          <LocalizedLink
-            to="/"
-            className="kp-lockup focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:ring-offset-2"
-            aria-label={t('header.homeLink')}
-          >
-            <KpLockup size="md" />
-          </LocalizedLink>
-        </header>
+      <div className="mx-auto max-w-6xl">
+        <PublicPageHeader bannerLabel={t('header.banner.feedback')} />
 
-        <section
-          className={`${cardSurfaceClass} border px-5 py-5 sm:px-8 sm:py-8`}
-          aria-labelledby="feedback-title"
-        >
-          <div className="flex flex-col gap-6">
-            <div className="flex items-center gap-3">
-              <span className="flex h-12 w-12 items-center justify-center rounded-2xl border border-(--border-card) bg-(--surface-option-selected) text-(--text-badge) shadow-sm/20">
-                <MailboxIcon aria-hidden="true" className="h-6 w-6" />
-              </span>
-              <h2
-                id="feedback-title"
-                className="text-xl font-semibold sm:text-2xl"
-              >
-                {t('feedback.title')}
-              </h2>
-            </div>
+        <div className="grid gap-12 pt-4 pb-16 lg:grid-cols-12 lg:pb-24">
+          <div className="lg:col-span-7">
+            <p className={pageEyebrowClass}>{t('feedback.eyebrow')}</p>
+            <h1 className={pageTitleClass}>{t('feedback.title')}</h1>
+            <p className="mt-6 max-w-xl text-lg text-pretty text-(--text-muted)">
+              {t('feedback.description')}
+            </p>
 
-            <div className="text-center space-y-4 text-(--text-muted)">
-              <p>{t('feedback.description')}</p>
-              <a
-                className={`${primaryButtonClass} px-5 py-2 text-base font-semibold`}
-                href={`mailto:${contactEmail}`}
-              >
-                {contactEmail}
-              </a>
-            </div>
-
-            <div
-              className={`${cardSurfaceClass} border px-4 py-4 text-sm text-(--text-muted)`}
+            {/* The page's one action. The address is its label, so it can
+                be read off and typed where no mail program opens. */}
+            <a
+              href={`mailto:${contactEmail}`}
+              className={`${primaryButtonClass} mt-8 w-full gap-2 px-6 py-3 text-base font-semibold wrap-anywhere sm:w-auto`}
             >
-              <p>{t('feedback.bugNote')}</p>
-            </div>
-
-            <div
-              className={`${cardSurfaceClass} border px-4 py-4 text-sm text-(--text-muted)`}
-            >
-              <p className="flex items-center gap-2">
-                <GithubLogoIcon
-                  aria-hidden="true"
-                  className="h-5 w-5 shrink-0"
-                />
-                <span>
-                  {t('feedback.githubNote')}{' '}
-                  <a
-                    href={GITHUB_REPO_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="font-medium text-(--text-badge) underline hover:text-(--text-badge)"
-                  >
-                    {t('feedback.githubLink')}
-                  </a>
-                </span>
-              </p>
-            </div>
+              <EnvelopeSimpleIcon size={20} aria-hidden="true" />
+              {contactEmail}
+            </a>
           </div>
-        </section>
+
+          <section aria-labelledby="feedback-notes" className="lg:col-span-5">
+            <h2 id="feedback-notes" className={pageEyebrowClass}>
+              {t('feedback.notes.title')}
+            </h2>
+            <ul className="mt-3 border-t border-(--border-card)">
+              {notes.map((note) => (
+                <li
+                  key={note.key}
+                  className="flex gap-4 border-b border-(--border-card) py-5"
+                >
+                  <note.icon
+                    size={22}
+                    aria-hidden="true"
+                    className="mt-0.5 shrink-0 text-(--text-muted)"
+                  />
+                  <div className="min-w-0">
+                    <h3 className="font-semibold text-(--text-page)">
+                      {t(`feedback.notes.${note.key}.title`)}
+                    </h3>
+                    <p className="mt-1 text-pretty text-(--text-muted)">
+                      {t(`feedback.notes.${note.key}.text`)}
+                    </p>
+                    {note.link && <div className="mt-2">{note.link}</div>}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </section>
+        </div>
       </div>
     </main>
   );

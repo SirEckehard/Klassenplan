@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import type React from 'react';
+import type { LinkProps } from 'react-router-dom';
 import { LocalizedLink } from '@/components/LocalizedLink';
 import {
   getExternalLegalPageUrl,
@@ -13,6 +14,12 @@ interface LegalPageLinkProps {
   title?: string;
   /** Set when the link is a row of a menu rather than body text. */
   role?: string;
+  /**
+   * Router state for the bundled page, e.g. `APP_RETURN_STATE` so it offers
+   * the way back into the app. An external page opens in a tab of its own and
+   * needs none.
+   */
+  state?: LinkProps['state'];
   onClick?: () => void;
   children: React.ReactNode;
 }
@@ -25,6 +32,7 @@ interface LegalPageLinkProps {
  */
 export function LegalPageLink({
   to,
+  state,
   children,
   ...linkProps
 }: LegalPageLinkProps) {
@@ -44,7 +52,7 @@ export function LegalPageLink({
   }
 
   return (
-    <LocalizedLink to={to} {...linkProps}>
+    <LocalizedLink to={to} state={state} {...linkProps}>
       {children}
     </LocalizedLink>
   );

@@ -23,6 +23,7 @@ import CriteriaReferenceSection from '@/components/FAQ/CriteriaReferenceSection'
 import PublicPageHeader from '@/components/publicPage/PublicPageHeader';
 import {
   pageEyebrowClass,
+  pageInlineLinkClass,
   pageSectionTitleClass,
   pageTitleClass,
 } from '@/components/publicPage/pageTokens';
@@ -56,8 +57,6 @@ interface FaqSection {
 
 const listClass = 'list-disc space-y-1 pl-5';
 const termClass = 'font-medium text-(--text-page)';
-const inlineLinkClass =
-  'font-medium text-(--text-badge) underline underline-offset-2';
 
 /**
  * The three fulfilment colours, each at a percentage inside its band, so the
@@ -465,7 +464,7 @@ export default function FAQ() {
                     href={GITHUB_REPO_URL}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={inlineLinkClass}
+                    className={pageInlineLinkClass}
                   >
                     {t('faq.projekt.feedback.githubLink')}
                   </a>
@@ -484,7 +483,7 @@ export default function FAQ() {
                     href={GITHUB_REPO_URL}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={inlineLinkClass}
+                    className={pageInlineLinkClass}
                   >
                     {t('faq.projekt.license.githubLink')}
                   </a>

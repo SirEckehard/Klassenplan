@@ -1,174 +1,112 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import {
-  GitDiffIcon,
+  BroomIcon,
+  BugIcon,
   PlusIcon,
   WrenchIcon,
-  BugIcon,
-  BroomIcon,
   type Icon,
 } from '@phosphor-icons/react';
 import Seo from '@/components/Seo';
 import { LocalizedLink } from '@/components/LocalizedLink';
+import PublicPageHeader from '@/components/publicPage/PublicPageHeader';
 import {
-  cardSurfaceClass,
+  pageEyebrowClass,
+  pageSectionTitleClass,
+  pageTitleClass,
+} from '@/components/publicPage/pageTokens';
+import {
   formatLongDate,
+  primaryButtonClass,
   secondaryButtonClass,
 } from '@/utils';
-import { KpLockup } from '@/components/KpLockup';
 import { usePageSeo } from '@/hooks/usePageSeo';
 import { changelogVersions, type ChangeItem } from '@/data/changelogEntries';
 import { useTranslation } from 'react-i18next';
 
-// Type mapping for change categories
-const changeTypeConfig: Record<
-  ChangeItem['type'],
-  { labelKey: string; icon: Icon; color: string }
-> = {
-  feature: {
-    labelKey: 'types.feature',
-    icon: PlusIcon,
-    color: 'text-(--button-success-bg)',
-  },
-  improvement: {
-    labelKey: 'types.improvement',
-    icon: WrenchIcon,
-    color: 'text-(--text-badge)',
-  },
-  bugfix: {
-    labelKey: 'types.bugfix',
-    icon: BroomIcon,
-    color: 'text-(--button-danger-bg)',
-  },
-  knownissue: {
-    labelKey: 'types.knownissue',
-    icon: BugIcon,
-    color: 'text-(--text-page)',
-  },
-};
+/**
+ * The kinds of change, in the order every version lists them. Icon and word
+ * tell them apart; none of them is something to act on, so none takes a
+ * colour.
+ */
+const CHANGE_TYPES: {
+  type: ChangeItem['type'];
+  labelKey: string;
+  icon: Icon;
+}[] = [
+  { type: 'feature', labelKey: 'types.feature', icon: PlusIcon },
+  { type: 'improvement', labelKey: 'types.improvement', icon: WrenchIcon },
+  { type: 'bugfix', labelKey: 'types.bugfix', icon: BroomIcon },
+  { type: 'knownissue', labelKey: 'types.knownissue', icon: BugIcon },
+];
 
-const versions = changelogVersions;
+/** A version, or the closing note: its name on the left, the rest beside it. */
+const rowClass =
+  'grid gap-6 border-t border-(--border-card) py-10 lg:grid-cols-12 lg:gap-12 lg:py-14';
 
 export default function Changelog() {
   const { t } = useTranslation('changelog');
   const metadata = usePageSeo('/changelog');
 
-  // Group changes by type for each version
-  const getGroupedChanges = (changes: ChangeItem[]) => {
-    const grouped: Partial<Record<ChangeItem['type'], ChangeItem[]>> = {};
-    changes.forEach((change) => {
-      if (!grouped[change.type]) {
-        grouped[change.type] = [];
-      }
-      grouped[change.type]!.push(change);
-    });
-    return grouped;
-  };
-
   return (
-    <main
-      id="main"
-      tabIndex={-1}
-      className="min-h-[80vh] bg-(--surface-page) px-4 py-12"
-    >
+    <main id="main" tabIndex={-1} className="bg-(--surface-page) px-4 sm:px-6">
       <Seo {...metadata} />
-      <div className="mx-auto flex max-w-4xl flex-col gap-10">
-        <header
-          className="text-center"
-          role="banner"
-          aria-label={t('header.aria.banner', 'Changelog Überblick')}
-        >
-          <LocalizedLink
-            to="/"
-            className="kp-lockup focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:ring-offset-2"
-            aria-label={t('header.homeLink')}
-          >
-            <KpLockup size="md" />
-          </LocalizedLink>
-        </header>
+      <div className="mx-auto max-w-6xl">
+        <PublicPageHeader bannerLabel={t('header.aria.banner')} />
 
-        <section
-          className={`${cardSurfaceClass} border px-5 py-5 sm:px-8 sm:py-8`}
-          aria-labelledby="changelog-intro"
-        >
-          <div className="flex items-center gap-3">
-            <span className="flex h-12 w-12 items-center justify-center rounded-2xl border border-(--border-card) bg-(--surface-option-selected) text-(--text-badge) shadow-sm/20">
-              <GitDiffIcon aria-hidden="true" className="h-6 w-6" />
-            </span>
-            <div>
-              <h1
-                id="changelog-intro"
-                className="text-xl font-bold sm:text-3xl"
-              >
-                {t('header.title', 'Changelog')}
-              </h1>
-              <p className="mt-1 text-sm text-(--text-muted) sm:text-base">
-                {t(
-                  'header.subtitle',
-                  'Alle Änderungen und neuen Features im Überblick',
-                )}
-              </p>
-            </div>
-          </div>
-        </section>
+        <div className="max-w-3xl pt-4 pb-10 lg:pb-14">
+          <p className={pageEyebrowClass}>{t('header.eyebrow')}</p>
+          <h1 className={pageTitleClass}>{t('header.title')}</h1>
+          <p className="mt-4 text-lg text-pretty text-(--text-muted)">
+            {t('header.subtitle')}
+          </p>
+        </div>
 
-        <div className="space-y-8">
-          {versions.map((version) => {
-            const groupedChanges = getGroupedChanges(version.changes);
+        <div className="pb-16 lg:pb-24">
+          {changelogVersions.map((version) => {
+            const headingId = `version-${version.version}`;
 
             return (
               <section
                 key={version.version}
-                className={`${cardSurfaceClass} border px-8 py-8`}
-                aria-labelledby={`version-${version.version}`}
+                aria-labelledby={headingId}
+                className={rowClass}
               >
-                <div className="flex flex-col gap-2 border-b border-(--border-card) pb-4">
-                  <h2
-                    id={`version-${version.version}`}
-                    className="text-2xl font-semibold text-(--text-badge)"
-                  >
-                    Version {version.version}
-                  </h2>
-                  <time
-                    className="text-sm text-(--text-muted)"
-                    dateTime={version.date}
-                  >
-                    {formatLongDate(version.date)}
-                  </time>
+                {/* The version stays in view while its changes are read. */}
+                <div className="lg:col-span-4">
+                  <div className="lg:sticky lg:top-8">
+                    <h2 id={headingId} className={pageSectionTitleClass}>
+                      Version {version.version}
+                    </h2>
+                    <time
+                      className="mt-2 block text-sm text-(--text-muted)"
+                      dateTime={version.date}
+                    >
+                      {formatLongDate(version.date)}
+                    </time>
+                  </div>
                 </div>
 
-                <div className="mt-6 space-y-6">
-                  {(
-                    Object.entries(groupedChanges) as [
-                      ChangeItem['type'],
-                      ChangeItem[],
-                    ][]
-                  ).map(([type, items]) => {
-                    const config = changeTypeConfig[type];
-                    const Icon = config.icon;
+                <div className="min-w-0 space-y-8 lg:col-span-8">
+                  {CHANGE_TYPES.map(({ type, labelKey, icon: TypeIcon }) => {
+                    const items = version.changes.filter(
+                      (change) => change.type === type,
+                    );
+                    if (items.length === 0) return null;
 
                     return (
                       <div key={type}>
                         <h3
-                          className={`mb-3 flex items-center gap-2 text-lg font-medium ${config.color}`}
+                          className={`flex items-center gap-2 ${pageEyebrowClass}`}
                         >
-                          <Icon aria-hidden="true" className="h-5 w-5" />
-                          {t(config.labelKey)}
+                          <TypeIcon size={16} aria-hidden="true" />
+                          {t(labelKey)}
                         </h3>
-                        <ul className="space-y-2">
+                        <ul className="mt-3 list-disc space-y-2 pl-5 text-pretty text-(--text-page) marker:text-(--text-muted)">
                           {items.map((item, index) => (
-                            <li
-                              key={index}
-                              className="flex gap-2 text-(--text-muted)"
-                            >
-                              <span
-                                className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-(--button-primary-bg)"
-                                aria-hidden="true"
-                              />
-                              <span>
-                                {item.text ||
-                                  (item.textKey ? t(item.textKey) : '')}
-                              </span>
+                            <li key={index}>
+                              {item.text ||
+                                (item.textKey ? t(item.textKey) : '')}
                             </li>
                           ))}
                         </ul>
@@ -179,33 +117,35 @@ export default function Changelog() {
               </section>
             );
           })}
-        </div>
 
-        <footer className={`${cardSurfaceClass} border px-8 py-8 text-center`}>
-          <h2 className="text-2xl font-semibold text-(--text-badge)">
-            {t('footer.title', 'Fragen oder Feedback?')}
-          </h2>
-          <p className="mt-2 text-(--text-muted)">
-            {t(
-              'footer.text',
-              'Ich freue mich über dein Feedback zu neuen Features und Verbesserungen.',
-            )}
-          </p>
-          <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
-            <LocalizedLink
-              to="/feedback"
-              className={`${secondaryButtonClass} px-5 py-2.5 text-base font-semibold`}
+          <section aria-labelledby="changelog-more-title" className={rowClass}>
+            <h2
+              id="changelog-more-title"
+              className={`${pageSectionTitleClass} lg:col-span-4`}
             >
-              {t('footer.feedbackBtn', 'Feedback geben')}
-            </LocalizedLink>
-            <LocalizedLink
-              to="/generator"
-              className={`${secondaryButtonClass} px-5 py-2.5 text-base font-semibold`}
-            >
-              {t('footer.generatorBtn', 'Direkt zum Generator')}
-            </LocalizedLink>
-          </div>
-        </footer>
+              {t('footer.title')}
+            </h2>
+            <div className="lg:col-span-8">
+              <p className="text-pretty text-(--text-muted)">
+                {t('footer.text')}
+              </p>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <LocalizedLink
+                  to="/generator"
+                  className={`${primaryButtonClass} px-5 py-2.5 text-base font-semibold`}
+                >
+                  {t('footer.generatorBtn')}
+                </LocalizedLink>
+                <LocalizedLink
+                  to="/feedback"
+                  className={`${secondaryButtonClass} px-5 py-2.5 text-base font-semibold`}
+                >
+                  {t('footer.feedbackBtn')}
+                </LocalizedLink>
+              </div>
+            </div>
+          </section>
+        </div>
       </div>
     </main>
   );

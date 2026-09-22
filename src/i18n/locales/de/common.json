@@ -1,10 +1,11 @@
 {
   "skipToContent": "Zum Inhalt springen",
   "notFound": {
-    "code": "404",
+    "eyebrow": "Fehler 404",
     "title": "Seite nicht gefunden",
     "message": "Diese Seite existiert nicht oder wurde verschoben.",
-    "home": "Zur Startseite"
+    "home": "Zur Startseite",
+    "generator": "Direkt zum Sitzplan-Generator"
   },
   "language": {
     "de": "Deutsch",

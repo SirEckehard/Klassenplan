@@ -7,23 +7,43 @@ import { describe, it, expect } from 'vitest';
 import '@/i18n'; // Initialize i18n for tests
 import Feedback from '../Feedback';
 
-// Test rendering of contact information
-describe('Feedback', () => {
-  it('renders contact information and mail link', () => {
-    render(
-      <MemoryRouter>
-        <Feedback />
-      </MemoryRouter>,
-    );
+const renderFeedback = () =>
+  render(
+    <MemoryRouter initialEntries={['/feedback']}>
+      <Feedback />
+    </MemoryRouter>,
+  );
 
-    // Heading - match either German 'Kontakt' or English 'Contact'
+describe('Feedback', () => {
+  it('makes the mail address the one action', () => {
+    renderFeedback();
+
     expect(
-      screen.getByRole('heading', { level: 2, name: /Kontakt|Contact/i }),
+      screen.getByRole('heading', {
+        level: 1,
+        name: /Schreib mir eine Nachricht|Send me a message/,
+      }),
     ).toBeInTheDocument();
     const mailLink = screen.getByRole('link', {
       name: 'webmaster@klassenplan.de',
     });
-    expect(mailLink).toBeInTheDocument();
     expect(mailLink).toHaveAttribute('href', 'mailto:webmaster@klassenplan.de');
+  });
+
+  it('points to the FAQ and the code before anyone writes', () => {
+    renderFeedback();
+
+    expect(
+      screen.getByRole('link', { name: /Zum FAQ|Go to the FAQ/ }),
+    ).toHaveAttribute('href', '/faq');
+    expect(
+      screen.getByRole('link', {
+        name: /Zum Projekt auf GitHub|The project on GitHub/,
+      }),
+    ).toHaveAttribute('target', '_blank');
+    expect(screen.getAllByRole('heading', { level: 3 })).toHaveLength(3);
+    // The notes are looked up with computed keys, which the i18n check
+    // cannot see.
+    expect(document.body.textContent).not.toMatch(/feedback\.notes\./);
   });
 });

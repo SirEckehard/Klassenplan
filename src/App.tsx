@@ -114,8 +114,11 @@ export default function App() {
   }, [location.pathname]);
 
   return (
-    // `html, body` already carry --surface-page and --text-page.
-    <div className="min-h-screen">
+    // `html, body` already carry --surface-page and --text-page. The column is
+    // at least as tall as the window and the page takes whatever height is
+    // left, so the footer sits on the window's bottom edge however short the
+    // page is. The pages themselves set no minimum height for it.
+    <div className="flex min-h-dvh flex-col">
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-(--button-primary-bg) focus:px-4 focus:py-2 focus:text-(--button-primary-text) focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-(--focus-ring-primary)"
@@ -128,16 +131,20 @@ export default function App() {
       <OfflineIndicator />
       <DownloadConfirmationHost />
       <CsvFormatHelpHost />
-      <Suspense fallback={<PageSkeleton />}>
-        <Routes>
-          {/* German routes (default, no prefix) */}
-          <Route element={<LanguageWrapper />}>{AppRoutes()}</Route>
-          {/* English routes (/en prefix) */}
-          <Route path="en" element={<LanguageWrapper />}>
-            {AppRoutes()}
-          </Route>
-        </Routes>
-      </Suspense>
+      {/* A block of its own, so a page lays out as it did outside the flex
+          column (a centred `mx-auto` box would shrink to its content). */}
+      <div className="grow">
+        <Suspense fallback={<PageSkeleton />}>
+          <Routes>
+            {/* German routes (default, no prefix) */}
+            <Route element={<LanguageWrapper />}>{AppRoutes()}</Route>
+            {/* English routes (/en prefix) */}
+            <Route path="en" element={<LanguageWrapper />}>
+              {AppRoutes()}
+            </Route>
+          </Routes>
+        </Suspense>
+      </div>
 
       {!hidesFooter && <Footer />}
       <CookieConsent />

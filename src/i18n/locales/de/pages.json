@@ -89,13 +89,29 @@
     }
   },
   "feedback": {
-    "title": "Kontakt",
+    "eyebrow": "Kontakt",
+    "title": "Schreib mir eine Nachricht",
     "description": "Ich freue mich über dein Feedback zu Klassenplan! Ob Lob, Verbesserungsvorschläge oder Fehlerberichte – jede Nachricht hilft mir, Klassenplan besser zu machen. Klick einfach auf den Button, um mir eine E-Mail zu schreiben.",
-    "bugNote": "Wenn du Bugs oder Feature-Wünsche teilst, hänge gern Screenshots, Videos oder kurze, klare Beschreibungen an, damit ich das Problem besser nachvollziehen kann.",
-    "githubNote": "Klassenplan ist Open Source – den Quellcode findest du auf GitHub:",
-    "githubLink": "github.com/SirEckehard/Klassenplan"
+    "notes": {
+      "title": "Gut zu wissen",
+      "faq": {
+        "title": "Häufige Fragen",
+        "text": "Viele Fragen zu Bedienung, Kriterien und Datensicherung beantwortet schon das FAQ.",
+        "link": "Zum FAQ"
+      },
+      "bugs": {
+        "title": "Fehler und Wünsche",
+        "text": "Wenn du Bugs oder Feature-Wünsche teilst, hänge gern Screenshots, Videos oder kurze, klare Beschreibungen an, damit ich das Problem besser nachvollziehen kann."
+      },
+      "code": {
+        "title": "Open Source",
+        "text": "Klassenplan ist Open Source – den Quellcode findest du auf GitHub.",
+        "link": "Zum Projekt auf GitHub"
+      }
+    }
   },
   "legal": {
+    "eyebrow": "Rechtliches",
     "germanOnlyNote": "Dieser Inhalt ist nur auf Deutsch verfügbar, da es sich um rechtlich verbindliche Informationen handelt.",
     "forward": {
       "imprintTitle": "Impressum",
@@ -577,7 +593,8 @@
       "support": "Support Überblick",
       "datenschutz": "Datenschutz Überblick",
       "feedback": "Feedback Überblick",
-      "impressum": "Impressum Überblick"
+      "impressum": "Impressum Überblick",
+      "notFound": "Fehlerseite Überblick"
     }
   }
 }

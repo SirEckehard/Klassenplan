@@ -256,12 +256,11 @@
     "knownissue": "Bekannte Fehler"
   },
   "header": {
+    "eyebrow": "Versionen",
     "title": "Changelog",
     "subtitle": "Alle Änderungen und neuen Features im Überblick",
-    "homeLink": "Zur Startseite",
     "aria": {
-      "banner": "Changelog Überblick",
-      "intro": "changelog-intro"
+      "banner": "Changelog Überblick"
     }
   },
   "footer": {

@@ -11,11 +11,7 @@ export default function PageSkeleton() {
   const { t } = useTranslation('common');
 
   return (
-    <div
-      className="min-h-[80vh] px-4 py-12"
-      aria-label={t('loading.page')}
-      role="status"
-    >
+    <div className="px-4 py-12" aria-label={t('loading.page')} role="status">
       <div className="mx-auto max-w-5xl space-y-8">
         {/* Header skeleton */}
         <div className="text-center">

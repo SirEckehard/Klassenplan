@@ -89,13 +89,29 @@
     }
   },
   "feedback": {
-    "title": "Contact",
+    "eyebrow": "Contact",
+    "title": "Send me a message",
     "description": "I appreciate your feedback on Klassenplan! Whether praise, suggestions for improvement, or bug reports – every message helps me make Klassenplan better. Simply click the button to send me an email.",
-    "bugNote": "When sharing bugs or feature requests, please attach screenshots, videos, or clear descriptions so I can better understand the issue.",
-    "githubNote": "Klassenplan is open source – you can find the source code on GitHub:",
-    "githubLink": "github.com/SirEckehard/Klassenplan"
+    "notes": {
+      "title": "Good to know",
+      "faq": {
+        "title": "Frequently asked questions",
+        "text": "Many questions about using the app, the criteria and backups are already answered in the FAQ.",
+        "link": "Go to the FAQ"
+      },
+      "bugs": {
+        "title": "Bugs and requests",
+        "text": "When sharing bugs or feature requests, please attach screenshots, videos, or clear descriptions so I can better understand the issue."
+      },
+      "code": {
+        "title": "Open source",
+        "text": "Klassenplan is open source – you can find the source code on GitHub.",
+        "link": "The project on GitHub"
+      }
+    }
   },
   "legal": {
+    "eyebrow": "Legal",
     "germanOnlyNote": "This content is only available in German as it contains legally binding information.",
     "forward": {
       "imprintTitle": "Legal notice",
@@ -577,7 +593,8 @@
       "support": "Support overview",
       "datenschutz": "Privacy overview",
       "feedback": "Feedback overview",
-      "impressum": "Legal notice overview"
+      "impressum": "Legal notice overview",
+      "notFound": "Error page overview"
     }
   }
 }

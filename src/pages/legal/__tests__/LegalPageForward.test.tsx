@@ -22,7 +22,7 @@ describe('legal page forwarding', () => {
 
     expect(
       screen.getByRole('heading', {
-        level: 2,
+        level: 1,
         name: /Impressum|Legal notice/i,
       }),
     ).toBeInTheDocument();
@@ -42,7 +42,7 @@ describe('legal page forwarding', () => {
 
     expect(
       screen.getByRole('heading', {
-        level: 2,
+        level: 1,
         name: /Datenschutzerklärung|Privacy policy/i,
       }),
     ).toBeInTheDocument();

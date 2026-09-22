@@ -29,7 +29,7 @@ describe('Datenschutz page', () => {
     ).toHaveAttribute('href', '/');
     expect(
       screen.getByRole('heading', {
-        level: 2,
+        level: 1,
         name: /^Datenschutzerklärung$/i,
       }),
     ).toBeInTheDocument();
@@ -37,5 +37,7 @@ describe('Datenschutz page', () => {
       name: /webmaster@klassenplan.de/i,
     });
     expect(mailLink).toHaveAttribute('href', 'mailto:webmaster@klassenplan.de');
+    // Art. 13 (2) (d) GDPR: the right to complain has to be named.
+    expect(document.body).toHaveTextContent('Art. 77 DSGVO');
   });
 });
