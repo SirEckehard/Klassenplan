@@ -16,14 +16,18 @@ import { useInspector } from '@/contexts/InspectorContext';
  * and batch actions live in the list view.
  *
  * Mounting says so to the inspector (`mountPortal`), which is how the class
- * layer's panel knows to hand its slot over.
+ * layer's panel knows to hand its slot over. It happens before paint, so the
+ * panel it replaces is never drawn for a frame.
  */
 export default function InspectorPortal({
+  label,
   children,
 }: {
+  /** Names the inspector column while this content fills it. */
+  label?: string;
   children: React.ReactNode;
 }) {
   const { slotNode, mountPortal } = useInspector();
-  React.useEffect(() => mountPortal(), [mountPortal]);
+  React.useLayoutEffect(() => mountPortal(label), [label, mountPortal]);
   return slotNode ? createPortal(children, slotNode) : null;
 }

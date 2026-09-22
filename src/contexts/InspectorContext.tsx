@@ -41,8 +41,13 @@ type InspectorContextValue = {
    * student for as long as that lasts.
    */
   portalMounted: boolean;
+  /**
+   * What the mounted portal calls its panel, for the column's landmark; null
+   * leaves the name to the layer.
+   */
+  portalLabel: string | null;
   /** Called by `InspectorPortal` on mount; returns the release for unmount. */
-  mountPortal: () => () => void;
+  mountPortal: (label?: string) => () => void;
 };
 
 const InspectorContext = React.createContext<InspectorContextValue | null>(
@@ -69,10 +74,15 @@ export function InspectorProvider({ children }: { children: React.ReactNode }) {
   const [suspended, setSuspended] = React.useState(false);
   const [slotNode, setSlotNode] = React.useState<HTMLElement | null>(null);
   const [portalCount, setPortalCount] = React.useState(0);
+  const [portalLabel, setPortalLabel] = React.useState<string | null>(null);
 
-  const mountPortal = React.useCallback(() => {
+  const mountPortal = React.useCallback((label?: string) => {
     setPortalCount((count) => count + 1);
-    return () => setPortalCount((count) => count - 1);
+    setPortalLabel(label ?? null);
+    return () => {
+      setPortalCount((count) => count - 1);
+      setPortalLabel(null);
+    };
   }, []);
 
   const value = React.useMemo(
@@ -86,12 +96,14 @@ export function InspectorProvider({ children }: { children: React.ReactNode }) {
       slotNode,
       setSlotNode,
       portalMounted: portalCount > 0,
+      portalLabel,
       mountPortal,
     }),
     [
       clear,
       mountPortal,
       portalCount,
+      portalLabel,
       selectStudent,
       selection,
       slotNode,
@@ -129,5 +141,6 @@ const FALLBACK: InspectorContextValue = {
   slotNode: null,
   setSlotNode: noop,
   portalMounted: false,
+  portalLabel: null,
   mountPortal: () => noop,
 };

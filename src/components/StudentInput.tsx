@@ -350,7 +350,7 @@ function StudentInput({
           />
         )}
         {selectionActive && bulkInInspector && (
-          <InspectorPortal>
+          <InspectorPortal label={t('bulkEdit.regionLabel')}>
             <StudentBulkInspector
               selectedStudents={selectedStudents}
               onApply={handleBulkApply}

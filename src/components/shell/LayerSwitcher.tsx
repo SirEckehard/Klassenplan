@@ -12,6 +12,7 @@ import SegmentedControl from '@/components/ui/controls/SegmentedControl';
 import { prefetchGeneratorStep } from '@/utils/performance/generatorPrefetch';
 
 export interface LayerSwitcherProps {
+  /** 1–3; anything else marks no layer as current (the export page). */
   currentStep: number;
   onStepChange: (step: number) => void;
   seatingMode?: 'table' | 'circle';

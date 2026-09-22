@@ -16,6 +16,7 @@ import {
 import { useClassManagementContext } from '@/contexts/seatingPlan/ClassManagementContext';
 import { useSeatingPlanSelector } from '@/contexts/seatingPlan/seatingPlanSelectors';
 import { useOnboardingTour } from '@/hooks/onboarding/onboardingTourStore';
+import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';
 import type { ShortcutContext } from '@/utils';
 import { KpLockup } from '@/components/KpLockup';
 
@@ -28,24 +29,35 @@ import { KpLockup } from '@/components/KpLockup';
  * step and class that decide which tour applies, and the Help button that
  * restarts it lives here. Exporting and presenting sit in the middle of the
  * status bar (`PlanExits`), the settings at its left end (`AppSettingsMenu`).
+ *
+ * The export page wears the same header (`view="export"`). No layer is current
+ * there, so every one of the three leads back into the workspace, the plan's
+ * name gives way to the title field of the sheet, and there is no tour to run.
  */
-export default function SeatingPlanHeader() {
+export default function SeatingPlanHeader({
+  view = 'workspace',
+}: {
+  view?: 'workspace' | 'export';
+}) {
   const { t } = useTranslation(['generator', 'common']);
+  const isExport = view === 'export';
+  const navigate = useLocalizedNavigate();
   const { step } = useSeatingAlgorithmContext();
   const { seatingMode } = useClassroomLayoutContext();
   const { handleStepChange } = useSeatingPlanActions();
   const { activeClass } = useClassManagementContext();
   const { requestTour } = useOnboardingTour();
   const autoMixing = useSeatingPlanSelector(({ state }) => state.autoMixing);
-  const tourId = resolveTourId(
-    step,
-    Boolean(activeClass.id),
-    seatingMode,
-    autoMixing,
-  );
+  const tourId = isExport
+    ? null
+    : resolveTourId(step, Boolean(activeClass.id), seatingMode, autoMixing);
 
   // Handle layer changes
   const onStepChange = (targetStep: number) => {
+    if (isExport) {
+      navigate('/generator', { state: { step: targetStep } });
+      return;
+    }
     if (targetStep !== step) {
       void handleStepChange(targetStep);
     }
@@ -61,6 +73,22 @@ export default function SeatingPlanHeader() {
         ))}
       </ul>
     );
+
+    if (isExport) {
+      return {
+        title: t('help.export.title'),
+        instructions: list([
+          'help.export.item1',
+          'help.export.item2',
+          'help.export.itemFlip',
+          'help.export.item3',
+          'help.export.itemNames',
+          'help.export.item4',
+          'help.export.item5',
+        ]),
+        contexts: ['export'] as ShortcutContext[],
+      };
+    }
 
     switch (step) {
       case 1:
@@ -140,12 +168,12 @@ export default function SeatingPlanHeader() {
           </h1>
           <HeaderClassMenu />
           {/* The plan is the version of that class currently open. */}
-          {step === 3 && <HeaderPlanName />}
+          {step === 3 && !isExport && <HeaderPlanName />}
         </div>
 
         {/* Centre - the three layers of the classroom */}
         <LayerSwitcher
-          currentStep={step}
+          currentStep={isExport ? 0 : step}
           onStepChange={onStepChange}
           seatingMode={seatingMode}
         />
@@ -164,7 +192,7 @@ export default function SeatingPlanHeader() {
         </div>
       </div>
 
-      <OnboardingTour tourId={tourId} />
+      {!isExport && <OnboardingTour tourId={tourId} />}
     </header>
   );
 }

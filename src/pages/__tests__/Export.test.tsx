@@ -11,12 +11,18 @@
  * tests, and their real cost would only make this file slow.
  */
 import '@testing-library/jest-dom/vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import type React from 'react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import i18n from '@/i18n';
 import Export from '../Export';
+import {
+  exportTableLayoutToPdf,
+  generatePdfBlob,
+  openPdfForPrinting,
+} from '@/services/export/pdfExportFunctions';
 import { createMockClassroomScene, createMockStudent } from '@/__tests__/utils';
 import {
   LEGACY_EXPORT_KEYS,
@@ -34,6 +40,17 @@ vi.mock('@/contexts/SeatingPlanContext', () => ({
     cancelCircleGeneration: vi.fn(),
     setCircleLayoutValue: vi.fn(),
   }),
+}));
+
+// The header is the workspace's and has its own tests; the class dialogs it
+// opens need a class context this page does not care about.
+vi.mock('@/components/SeatingPlanGenerator/SeatingPlanHeader', () => ({
+  default: () => null,
+}));
+vi.mock('@/contexts/ClassDialogsContext', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/contexts/ClassDialogsContext')>()),
+  ClassDialogsProvider: ({ children }: { children: React.ReactNode }) =>
+    children,
 }));
 
 vi.mock('@/services/export/sceneRenderer', () => ({
@@ -57,6 +74,7 @@ const students = [
 ];
 
 const withPlan = () => ({
+  step: 3,
   currentSeating: [[students[0]!, students[1]!]],
   planName: 'Plan A',
   classroomScene: createMockClassroomScene(1),
@@ -157,27 +175,30 @@ describe('Export page', () => {
     });
   });
 
-  describe('display options', () => {
-    const openDisplayOptions = async () => {
-      await userEvent.click(
-        screen.getByRole('button', { name: 'Export-Anzeigeoptionen' }),
-      );
-    };
+  describe('the sheet in the inspector', () => {
+    const sheetPanel = () =>
+      screen.findByRole('complementary', { name: 'Blatt' });
 
-    const needsToggle = () =>
-      screen.findByRole('button', { name: 'Bedürfnisse anzeigen' });
+    const needsSwitch = async () =>
+      within(await sheetPanel()).getByRole('switch', { name: 'Bedürfnisse' });
+
+    it('reads the inspector column as the sheet', async () => {
+      renderExport();
+
+      expect(
+        within(await sheetPanel()).getByRole('heading', { name: 'Blatt' }),
+      ).toBeInTheDocument();
+    });
 
     it('starts with needs shown', async () => {
       renderExport();
-      await openDisplayOptions();
 
-      expect(await needsToggle()).toHaveAttribute('aria-pressed', 'true');
+      expect(await needsSwitch()).toHaveAttribute('aria-checked', 'true');
     });
 
-    it('remembers the needs toggle across visits', async () => {
+    it('remembers the needs switch across visits', async () => {
       const { unmount } = renderExport();
-      await openDisplayOptions();
-      await userEvent.click(await needsToggle());
+      await userEvent.click(await needsSwitch());
 
       await waitFor(() =>
         expect(localStorage.getItem(LOCAL_STORAGE_KEYS.exportShowNeeds)).toBe(
@@ -189,36 +210,71 @@ describe('Export page', () => {
       // `useState`, so every visit silently switched it back on.
       unmount();
       renderExport();
-      await openDisplayOptions();
 
-      expect(await needsToggle()).toHaveAttribute('aria-pressed', 'false');
+      expect(await needsSwitch()).toHaveAttribute('aria-checked', 'false');
     });
 
-    it('seeds the needs toggle from a stored preference', async () => {
+    it('seeds the needs switch from a stored preference', async () => {
       localStorage.setItem(LOCAL_STORAGE_KEYS.exportShowNeeds, 'false');
 
       renderExport();
-      await openDisplayOptions();
 
-      expect(await needsToggle()).toHaveAttribute('aria-pressed', 'false');
+      expect(await needsSwitch()).toHaveAttribute('aria-checked', 'false');
+    });
+
+    it('leaves out the circle connections while the seating plan is shown', async () => {
+      renderExport();
+
+      expect(
+        within(await sheetPanel()).queryByRole('switch', {
+          name: 'Verbindungen',
+        }),
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  describe('printing and saving', () => {
+    it('prints from the one primary action in the status bar', async () => {
+      renderExport();
+      // Printing needs the rendered sheet, not just the empty document.
+      const iframe = await screen.findByTitle('Vorschau');
+      await waitFor(
+        () =>
+          expect(iframe.getAttribute('srcdoc') ?? '').toContain(
+            'data-testid="scene"',
+          ),
+        { timeout: 4000 },
+      );
+
+      await userEvent.click(screen.getByRole('button', { name: 'Drucken' }));
+
+      await waitFor(() => expect(openPdfForPrinting).toHaveBeenCalled());
+      expect(generatePdfBlob).toHaveBeenCalledWith(
+        expect.stringContaining('data-testid="scene"'),
+        'portrait',
+      );
+    });
+
+    it('saves the PDF of the arrangement on the sheet from the toolbar', async () => {
+      renderExport();
+
+      await userEvent.click(
+        screen.getByRole('button', { name: 'PDF-Dokument' }),
+      );
+
+      await waitFor(() => expect(exportTableLayoutToPdf).toHaveBeenCalled());
     });
   });
 
   describe('page orientation', () => {
     it('persists the choice for the table plan', async () => {
       renderExport();
-      // The sidebar starts collapsed, and the orientation choice lives in its
-      // expanded form.
-      await userEvent.click(
-        screen.getByRole('button', { name: 'Sidebar erweitern' }),
-      );
 
-      // Two sections offer the same choice (table plan and circle); the first
-      // one belongs to the table plan.
-      const [tableLandscape] = screen.getAllByRole('button', {
-        name: 'Querformat',
-      });
-      await userEvent.click(tableLandscape!);
+      // The inspector offers the orientation of the arrangement on the sheet,
+      // which starts as the seating plan.
+      await userEvent.click(
+        await screen.findByRole('button', { name: 'Querformat' }),
+      );
 
       await waitFor(() =>
         expect(

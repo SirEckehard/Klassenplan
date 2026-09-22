@@ -17,7 +17,7 @@ import { ToolRailButton } from '@/components/shell/ToolRail';
 import StatusBarPortal from '@/components/shell/StatusBarPortal';
 import SeatingPlanView from './SeatingPlanView';
 import SimpleCircleView from '@/components/circle/SimpleCircleView';
-import { type SeatingMode } from './SeatingModeToggle';
+import type { SeatingMode } from '@/types/Circle';
 import type { ConnectionDisplayMode } from '@/components/circle/SimpleCircleView';
 import type { PhotoDisplayMode } from '@/types';
 import {

@@ -22,7 +22,7 @@ import {
 } from '@phosphor-icons/react';
 import type { NameDisplayMode } from '@/utils';
 import type { PresentationPerspective } from '@/utils/ui/boardOrientation';
-import type { SeatingMode } from '@/components/SeatingPlanGenerator/SeatingModeToggle';
+import type { SeatingMode } from '@/types/Circle';
 import {
   NAME_DISPLAY_ICONS,
   nameDisplayLabelKey,

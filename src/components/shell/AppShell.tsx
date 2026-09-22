@@ -24,8 +24,20 @@ import { ToolRailProvider } from '@/contexts/ToolRailContext';
  * working untouched. The page footer follows the shell there; on the workspace
  * its entries hang in the status bar's settings menu instead
  * (`AppSettingsMenu`).
+ *
+ * The export page wears the same frame with its own header variant and status
+ * bar (`header`, `statusBar`), so leaving the plan for the printout does not
+ * leave the workspace's shape.
  */
-export default function AppShell({ children }: { children: React.ReactNode }) {
+export default function AppShell({
+  header = <SeatingPlanHeader />,
+  statusBar = <AppStatusBar />,
+  children,
+}: {
+  header?: React.ReactNode;
+  statusBar?: React.ReactNode;
+  children: React.ReactNode;
+}) {
   return (
     <InspectorProvider>
       {/* Creating, renaming and deleting a class is reachable from the header
@@ -45,7 +57,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 { '--shell-bottom-inset': '3.25rem' } as React.CSSProperties
               }
             >
-              <SeatingPlanHeader />
+              {header}
               <main
                 id="main"
                 tabIndex={-1}
@@ -56,7 +68,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 </div>
                 <Inspector />
               </main>
-              <AppStatusBar />
+              {statusBar}
             </div>
           </ToolRailProvider>
         </StatusBarSlotProvider>

@@ -2,6 +2,9 @@
 // Copyright (C) 2026 Eike Schäfer
 import type { Student, SeatingArrangement } from './base';
 
+/** How the class sits: at the tables of the room, or in one circle. */
+export type SeatingMode = 'table' | 'circle';
+
 /**
  * Individual student position in the circle
  */

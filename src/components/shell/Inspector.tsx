@@ -38,6 +38,7 @@ export default function Inspector() {
     suspended,
     setSlotNode,
     portalMounted,
+    portalLabel,
   } = useInspector();
   const isPhone = useIsPhone();
 
@@ -98,11 +99,10 @@ export default function Inspector() {
     return (
       <aside
         aria-label={
-          step === 2
+          portalLabel ??
+          (step === 2
             ? t('generator:sceneInspector.title')
-            : step === 3
-              ? t('generator:mix.title')
-              : t('students:bulkEdit.regionLabel')
+            : t('generator:mix.title'))
         }
         className="hidden w-80 shrink-0 flex-col overflow-hidden border-l border-(--border-card) bg-(--surface-card) lg:flex"
       >

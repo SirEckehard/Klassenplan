@@ -87,9 +87,9 @@ export default function App() {
 
   // Surfaces that carry no page footer: the fullscreen ones (presentation,
   // name game), where the footer and its "clear all data" action are out of
-  // place, and the workspace, which runs at viewport height from `lg` up and
-  // offers the same entries in the settings menu of its status bar
-  // (`AppSettingsMenu`).
+  // place, and the workspace and the export page, which share its shell, run at
+  // viewport height from `lg` up and offer the same entries in the settings
+  // menu of their status bar (`AppSettingsMenu`).
   const hidesFooter = [
     '/present',
     '/en/present',
@@ -97,6 +97,8 @@ export default function App() {
     '/en/namensspiel',
     '/generator',
     '/en/generator',
+    '/export',
+    '/en/export',
     // The classroom tools are full-height screens of their own.
     '/wer-kommt-dran',
     '/en/wer-kommt-dran',

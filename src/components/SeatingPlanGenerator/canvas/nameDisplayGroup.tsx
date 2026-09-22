@@ -40,9 +40,10 @@ export function nameDisplayLabelKey(mode: NameDisplayMode): string {
 /**
  * Line below the choices: warns about students whose full names repeat (no
  * label can separate them), then reports labels lengthened to tell students
- * apart, otherwise previews the rule on a real name from the class.
+ * apart, otherwise previews the rule on a real name from the class. Shared by
+ * the view settings menu and the export page's inspector.
  */
-function buildHint(
+export function buildNameDisplayHint(
   value: NameDisplayMode,
   names: string[],
   t: TFunction,
@@ -96,7 +97,7 @@ export function buildNameDisplayGroup({
           };
         }),
         onChange: (next: string) => onChange(next as NameDisplayMode),
-        description: buildHint(value, names, t),
+        description: buildNameDisplayHint(value, names, t),
       },
     ],
   };

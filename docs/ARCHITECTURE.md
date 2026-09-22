@@ -1,6 +1,6 @@
 # Architecture
 
-> **Status:** current · **Last reviewed:** 2026-09-21 · **Maintainer:** Eike
+> **Status:** current · **Last reviewed:** 2026-09-22 · **Maintainer:** Eike
 > Schäfer · **Describes:** Klassenplan 2.2.0
 
 This is the entry point for anyone who wants to understand _why_ Klassenplan is
@@ -308,7 +308,7 @@ behaviour more easily than it looks.
 
 | File (lines on 2026-09-14)                                       | Owns                                                                                                       | Moved out                                                                                         | Candidates, not done                                                                                                                        |
 | ---------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/pages/Export.tsx` (1,317)                                   | Export page: settings seeded from the editor, the preview document, print, PDF, PNG and SVG                | —                                                                                                 | The four output handlers into one hook; they share preview state, so it needs tests first                                                   |
+| `src/pages/Export.tsx` (1,317)                                   | Export page: settings seeded from the editor, the preview document, print, PDF, PNG and SVG                | Toolbar, sheet inspector and status bar → `src/components/SeatingPlanGenerator/Export*.tsx`       | The four output handlers into one hook; they share preview state, so it needs tests first                                                   |
 | `src/hooks/canvas/useFeaturePaletteDrag.ts` (1,238)              | Room elements on the canvas: palette drag and drop, dragging, rotating, group drag with tables, long press | Placement math → `src/utils/canvas/featurePlacement.ts`                                           | Splitting the interaction paths needs the shared drag model missing from [canvas-interactions.md](canvas-interactions.md#known-pain-points) |
 | `src/hooks/useSeatingPersistence.ts` (1,005)                     | Loading and applying a class, saved plans, backups, "delete all data", room templates                      | CSV export → `src/utils/csv/csvExport.ts`                                                         | Backup and template operations as hooks of their own                                                                                        |
 | `src/components/SeatingPlanGenerator/LayoutEditorView.tsx` (986) | Step 2: state and wiring of canvas, palette, context menus, shortcuts and quick setup                      | Canvas column rendering → `src/components/SeatingPlanGenerator/views/LayoutEditorMainSection.tsx` | —                                                                                                                                           |

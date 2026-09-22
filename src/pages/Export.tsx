@@ -3,6 +3,7 @@
 import {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -10,37 +11,22 @@ import {
 } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
-import {
-  ArrowLeftIcon,
-  LinkSimpleIcon,
-  EyeIcon,
-  InfoIcon,
-  ListBulletsIcon,
-  CameraIcon,
-  PrinterIcon,
-  GridNineIcon,
-  CircleDashedIcon,
-} from '@phosphor-icons/react';
+import { ArrowLeftIcon } from '@phosphor-icons/react';
 import {
   canvasFrameClass,
+  canvasStageClass,
   errorHandlers,
   LEGACY_EXPORT_KEYS,
   LOCAL_STORAGE_KEYS,
   logError,
-  neutralButtonClass,
   primaryButtonClass,
-  successButtonClass,
 } from '@/utils';
 import type { NameDisplayMode } from '@/utils';
 import { showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
 import { FEATURE_TYPES, type FeatureVisibilityFlags } from '@/utils/ui';
-import { buildFeatureVisibilityGroup } from '@/components/SeatingPlanGenerator/canvas/featureVisibilityGroup';
-import {
-  buildNameDisplayGroup,
-  NAME_DISPLAY_MODES,
-} from '@/components/SeatingPlanGenerator/canvas/nameDisplayGroup';
+import { NAME_DISPLAY_MODES } from '@/components/SeatingPlanGenerator/canvas/nameDisplayGroup';
 import { useFeatureVisibility } from '@/hooks/ui/useFeatureVisibility';
-import { useAdaptiveViewportHeight } from '@/hooks/ui/useAdaptiveViewportHeight';
+import { useIsLgUp } from '@/hooks/ui/useIsLgUp';
 import {
   useSeatingPlanState,
   useSeatingPlanActions,
@@ -53,28 +39,26 @@ import {
 import { buildPhotoDataUrlMap } from '@/services/export/pdfExportFunctions';
 import type { PhotoDisplayMode, SeatingArrangement, Student } from '@/types';
 import usePersistentState from '@/hooks/usePersistentState';
-import type { CircleLayout } from '@/types/Circle';
+import type { CircleLayout, SeatingMode } from '@/types/Circle';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useFirstVisit } from '@/hooks/ui/useFirstVisit';
 import { usePlanUsagePrompt } from '@/hooks/plan/usePlanUsagePrompt';
 import Seo from '@/components/Seo';
-import { LocalizedLink } from '@/components/LocalizedLink';
 import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';
 import { usePageSeo } from '@/hooks/usePageSeo';
-import { KpLockup } from '@/components/KpLockup';
-import SeatingModeToggle, {
-  type SeatingMode,
-} from '@/components/SeatingPlanGenerator/SeatingModeToggle';
 import primaryFontWoff2Url from '@fontsource-variable/instrument-sans/files/instrument-sans-latin-wght-normal.woff2?url';
-import HelpButton from '@/components/ui/buttons/HelpButton';
-import WizardProgressBar from '@/components/ui/navigation/WizardProgressBar';
-import ExportSidebar from '@/components/SeatingPlanGenerator/ExportSidebar';
+import AppShell from '@/components/shell/AppShell';
+import InspectorPortal from '@/components/shell/InspectorPortal';
 import {
-  CanvasSettingsButton,
-  type CanvasSettingsGroup,
-  type CanvasSettingsCheckListItem,
-  type CanvasSettingsButtonHandle,
-} from '@/components/SeatingPlanGenerator/canvas/CanvasSettingsButton';
+  workspaceLayerClass,
+  workspaceStageClass,
+} from '@/components/shell/shellTokens';
+import SeatingPlanHeader from '@/components/SeatingPlanGenerator/SeatingPlanHeader';
+import ExportStatusBar from '@/components/SeatingPlanGenerator/ExportStatusBar';
+import ExportToolPanel from '@/components/SeatingPlanGenerator/ExportToolPanel';
+import ExportSheetInspector from '@/components/SeatingPlanGenerator/ExportSheetInspector';
+import SmartSidebar from '@/components/ui/panels/SmartSidebar';
+import { useInspector } from '@/contexts/InspectorContext';
 
 type PageOrientation = 'landscape' | 'portrait';
 
@@ -116,10 +100,35 @@ function readLegacyOrientation(): PageOrientation | null {
 const PORTRAIT_PAGE_RATIO = 817 / 1148;
 const LANDSCAPE_PAGE_RATIO = 1148 / 817;
 
-// Space kept free below the preview frame so the back button stays visible
-// and shares the wizard steps' action-row baseline: column gap (16px) +
-// button row (~36px) + bottom margin (16px).
-const PREVIEW_ACTION_RESERVED_PX = 68;
+/**
+ * The page without a plan to print. The inspector has nothing to show, so it
+ * gives its width back, and the one way on is back to the plan.
+ */
+function ExportEmptyState({ onBack }: { onBack: () => void }) {
+  const { t } = useTranslation('generator');
+  const { setSuspended } = useInspector();
+  useLayoutEffect(() => {
+    setSuspended(true);
+    return () => setSuspended(false);
+  }, [setSuspended]);
+
+  return (
+    <div className="flex min-h-96 flex-1 flex-col items-center justify-center gap-4 px-4 text-center text-(--text-muted)">
+      <p className="text-lg font-medium">{t('export.empty')}</p>
+      <button
+        type="button"
+        onClick={onBack}
+        className={`${primaryButtonClass} h-10 gap-2 px-4`}
+        title={t('export.backTitle')}
+      >
+        <ArrowLeftIcon size={20} aria-hidden />
+        <span className="text-sm font-semibold">
+          {t('export.backToSeating')}
+        </span>
+      </button>
+    </div>
+  );
+}
 
 export default function Export() {
   const { t } = useTranslation('generator');
@@ -156,8 +165,6 @@ export default function Export() {
   const circleLayoutPromiseRef = useRef<Promise<CircleLayout | null> | null>(
     null,
   );
-  const hasCircleLayoutAvailable =
-    Boolean(circleLayout) || circleGenerationInProgress;
   const generationProgress =
     typeof circleGenerationStatus?.progress === 'number'
       ? Math.round(circleGenerationStatus.progress * 100)
@@ -165,14 +172,20 @@ export default function Export() {
   const generationMessage =
     circleGenerationStatus?.message ??
     t('export.generatingCircle', 'Sitzkreis wird erstellt...');
-  const [title, setTitle] = useState(
-    navigationState.planName || contextPlanName || '',
-  );
+  // The sheet's title follows the plan's name until the teacher types one of
+  // their own — renaming the plan, or switching the class in the header,
+  // should not leave the old name printed on the sheet.
+  const planNameForTitle = navigationState.planName || contextPlanName || '';
+  const [title, setTitle] = useState(planNameForTitle);
+  const lastPlanNameRef = useRef(planNameForTitle);
+  useEffect(() => {
+    const previous = lastPlanNameRef.current;
+    lastPlanNameRef.current = planNameForTitle;
+    setTitle((current) => (current === previous ? planNameForTitle : current));
+  }, [planNameForTitle]);
   const [previewSvg, setPreviewSvg] = useState('');
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const canvasSettingsButtonRef = useRef<CanvasSettingsButtonHandle | null>(
-    null,
-  );
+  const isLgUp = useIsLgUp();
   const [previewMode, setPreviewMode] = useState<SeatingMode>('table');
   // Persisted like every other display option on this page: a teacher who
   // never wants needs or connection lines on the printout should not have to
@@ -323,134 +336,18 @@ export default function Export() {
   const activeOrientation =
     previewMode === 'circle' ? circleOrientation : tableOrientation;
 
-  // Measure the frame's real viewport position (instead of estimating header
-  // heights via CSS calc) so the back button below the preview ends exactly
-  // 16px above the viewport bottom, like the other steps' action rows.
-  const { containerRef: previewFrameRef, maxHeight: previewFrameHeight } =
-    useAdaptiveViewportHeight<HTMLDivElement>({
-      reservedBottom: PREVIEW_ACTION_RESERVED_PX,
-      minHeight: 280,
-      maxHeight: 960,
-      fallbackHeight: 720,
-      includeViewportOffset: true,
-      changeThreshold: 8,
-    });
-
-  const previewFrameStyles = useMemo<CSSProperties>(() => {
-    const ratio =
-      activeOrientation === 'portrait'
-        ? PORTRAIT_PAGE_RATIO
-        : LANDSCAPE_PAGE_RATIO;
-    const frameHeight = Math.round(previewFrameHeight ?? 720);
-
+  // From `lg` up the stage is a size container (`canvas-stage`): the sheet
+  // takes whichever of width and height binds first, like the plan's canvas.
+  // Below it the unit falls back to the viewport, which keeps a portrait sheet
+  // from growing past the screen on a phone.
+  const sheetStyle = useMemo<CSSProperties>(() => {
+    const isPortrait = activeOrientation === 'portrait';
+    const ratio = isPortrait ? PORTRAIT_PAGE_RATIO : LANDSCAPE_PAGE_RATIO;
     return {
-      maxHeight: `${frameHeight}px`,
-      maxWidth: `min(90vw, ${Math.round(frameHeight * ratio)}px)`,
-      aspectRatio:
-        activeOrientation === 'portrait' ? '817 / 1148' : '1148 / 817',
+      width: `min(100%, calc(100cqh * ${ratio}))`,
+      aspectRatio: isPortrait ? '817 / 1148' : '1148 / 817',
     };
-  }, [activeOrientation, previewFrameHeight]);
-
-  const exportSettingsGroups = useMemo<CanvasSettingsGroup[]>(() => {
-    const displayItems: CanvasSettingsCheckListItem[] = [];
-
-    if (previewMode === 'circle') {
-      displayItems.push({
-        id: 'connections',
-        label: t('export.showConnections', 'Verbindungen anzeigen'),
-        icon: <LinkSimpleIcon size={18} />,
-        checked: showConnections,
-        onChange: handleToggleConnections,
-      });
-    }
-
-    displayItems.push(
-      {
-        id: 'needs',
-        label: t('export.showNeeds', 'Bedürfnisse anzeigen'),
-        icon: <EyeIcon size={18} />,
-        checked: showNeeds,
-        onChange: handleToggleNeeds,
-      },
-      {
-        id: 'class-info',
-        label: t('export.showClassInfo', 'Zusätzliche Klasseninfos anzeigen'),
-        icon: <InfoIcon size={18} />,
-        checked: showClassInfo,
-        onChange: handleToggleClassInfo,
-      },
-      {
-        id: 'legend',
-        label: t('export.showLegend', 'Legende anzeigen'),
-        icon: <ListBulletsIcon size={18} />,
-        checked: showLegend,
-        onChange: handleToggleLegend,
-      },
-      {
-        id: 'photos',
-        label: t('export.showPhotos', 'Fotos anzeigen'),
-        icon: <CameraIcon size={18} />,
-        checked: showPhotos,
-        onChange: handleTogglePhotos,
-      },
-    );
-
-    const groups: CanvasSettingsGroup[] = [
-      {
-        id: 'preview-display',
-        title: t('export.preview', 'Vorschau'),
-        options: [
-          {
-            kind: 'checkList',
-            id: 'preview-display-grid',
-            label: t('export.preview', 'Vorschau'),
-            items: displayItems,
-          },
-        ],
-      },
-      buildNameDisplayGroup({
-        id: 'preview-names',
-        value: effectiveNameDisplay,
-        onChange: setNameDisplay,
-        names: studentNames,
-        t,
-      }),
-    ];
-
-    if (previewMode === 'table') {
-      groups.push(
-        buildFeatureVisibilityGroup({
-          id: 'preview-features',
-          title: t('export.roomElements', 'Raumelemente'),
-          t,
-          isChecked: (type) => effectiveVisibility[type] === true,
-          isDisabled: (type) => !featureAvailability[type],
-          onToggle: setFeatureVisible,
-        }),
-      );
-    }
-
-    return groups;
-  }, [
-    effectiveVisibility,
-    featureAvailability,
-    setFeatureVisible,
-    handleToggleClassInfo,
-    handleToggleConnections,
-    handleToggleNeeds,
-    handleTogglePhotos,
-    handleToggleLegend,
-    effectiveNameDisplay,
-    setNameDisplay,
-    studentNames,
-    previewMode,
-    showClassInfo,
-    showConnections,
-    showLegend,
-    showNeeds,
-    showPhotos,
-    t,
-  ]);
+  }, [activeOrientation]);
 
   const previewDocument = useMemo(() => {
     const isPortrait = activeOrientation === 'portrait';
@@ -725,56 +622,6 @@ export default function Export() {
       iframeRef.current.srcdoc = previewDocument;
     }
   }, [previewDocument]);
-  useEffect(() => {
-    const iframe = iframeRef.current;
-    if (!iframe) {
-      return;
-    }
-
-    const closeSettings = () => {
-      canvasSettingsButtonRef.current?.close();
-    };
-
-    let detachDocumentListeners: (() => void) | null = null;
-
-    const attachDocumentListeners = () => {
-      const doc = iframe.contentDocument || iframe.contentWindow?.document;
-      if (!doc) {
-        return;
-      }
-      const handleDocPointerDown = () => {
-        closeSettings();
-      };
-      doc.addEventListener('pointerdown', handleDocPointerDown);
-      doc.addEventListener('mousedown', handleDocPointerDown);
-      doc.addEventListener('touchstart', handleDocPointerDown);
-      detachDocumentListeners = () => {
-        doc.removeEventListener('pointerdown', handleDocPointerDown);
-        doc.removeEventListener('mousedown', handleDocPointerDown);
-        doc.removeEventListener('touchstart', handleDocPointerDown);
-      };
-    };
-
-    const handleLoad = () => {
-      if (detachDocumentListeners) {
-        detachDocumentListeners();
-        detachDocumentListeners = null;
-      }
-      attachDocumentListeners();
-    };
-
-    attachDocumentListeners();
-    iframe.addEventListener('load', handleLoad);
-    iframe.addEventListener('pointerdown', closeSettings);
-
-    return () => {
-      iframe.removeEventListener('load', handleLoad);
-      iframe.removeEventListener('pointerdown', closeSettings);
-      if (detachDocumentListeners) {
-        detachDocumentListeners();
-      }
-    };
-  }, []);
   const recordUsage = usePlanUsagePrompt(activeClass.id);
 
   // A plan that gets printed or exported leaves the app for real classroom use,
@@ -1010,8 +857,22 @@ export default function Export() {
     t,
   ]);
 
+  // The toolbar has one PDF entry: the file of the arrangement on the sheet.
+  const handlePdf = useCallback(() => {
+    if (previewMode === 'circle') {
+      void handleCirclePdf();
+      return;
+    }
+    void handleTablePdf();
+  }, [previewMode, handleCirclePdf, handleTablePdf]);
+
+  const backToPlan = useCallback(
+    () => navigate('/generator', { state: { step: 3 } }),
+    [navigate],
+  );
+
   useKeyboardShortcuts({
-    'alt+arrowleft': () => navigate('/generator', { state: { step: 3 } }),
+    'alt+arrowleft': backToPlan,
     'ctrl+shift+t': () => void handleTablePdf(),
     'cmd+shift+t': () => void handleTablePdf(),
     'ctrl+shift+c': () => void handleCirclePdf(),
@@ -1022,11 +883,60 @@ export default function Export() {
     'cmd+p': handlePrint,
   });
 
+  const sheetLabel = t('export.sheetFormat', {
+    orientation:
+      activeOrientation === 'landscape'
+        ? t('export.landscape')
+        : t('export.portrait'),
+  });
+
+  const sheetInspector = (
+    <ExportSheetInspector
+      mode={previewMode}
+      title={title}
+      onTitleChange={setTitle}
+      orientation={activeOrientation}
+      onOrientationChange={
+        previewMode === 'circle' ? setCircleOrientation : setTableOrientation
+      }
+      flipView={{ checked: flipView, onChange: handleToggleFlipView }}
+      needs={{ checked: showNeeds, onChange: handleToggleNeeds }}
+      photos={{ checked: showPhotos, onChange: handleTogglePhotos }}
+      legend={{ checked: showLegend, onChange: handleToggleLegend }}
+      classInfo={{ checked: showClassInfo, onChange: handleToggleClassInfo }}
+      connections={{
+        checked: showConnections,
+        onChange: handleToggleConnections,
+      }}
+      nameDisplay={effectiveNameDisplay}
+      onNameDisplayChange={setNameDisplay}
+      names={studentNames}
+      featureAvailability={featureAvailability}
+      featureVisibility={featureVisibility}
+      onFeatureToggle={setFeatureVisible}
+    />
+  );
+
   return (
-    <main
-      id="main"
-      tabIndex={-1}
-      className="min-h-[80vh] bg-(--surface-page) px-4 py-12"
+    <AppShell
+      header={<SeatingPlanHeader view="export" />}
+      statusBar={
+        <ExportStatusBar
+          hasPlan={hasPlan}
+          sheetLabel={sheetLabel}
+          studentCount={students.length}
+          circleGeneration={
+            circleGenerationInProgress
+              ? {
+                  message: generationMessage,
+                  progress: generationProgress,
+                  onCancel: handleCancelCircleGeneration,
+                }
+              : null
+          }
+          onPrint={() => void handlePrint()}
+        />
+      }
     >
       <Seo
         {...metadata}
@@ -1036,282 +946,59 @@ export default function Export() {
           description: metadata.description,
         }}
       />
-      <div className="mx-auto max-w-7xl">
-        <header className="mb-8 flex flex-row items-center justify-between gap-4">
-          {/* Left side - Logo + Branding */}
-          <h1 className="flex items-center shrink-0">
-            <LocalizedLink
-              to="/"
-              className="kp-lockup focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:ring-offset-2"
+      {!hasPlan ? (
+        <ExportEmptyState onBack={backToPlan} />
+      ) : (
+        <div className={workspaceLayerClass}>
+          <SmartSidebar>
+            {({ isExpanded }) => (
+              <ExportToolPanel
+                density={isExpanded ? 'comfortable' : 'compact'}
+                mode={previewMode}
+                onModeChange={handleModeChange}
+                modeDisabled={circleGenerationInProgress}
+                onPdf={handlePdf}
+                onPng={() => void handlePngExport()}
+                onSvg={() => void handleSvgExport()}
+              />
+            )}
+          </SmartSidebar>
+
+          {/* The sheet is paper on the sunken stage, and nothing lies on top
+              of it: the arrangement is switched in the toolbar, what the
+              sheet carries in the inspector, and the circle's progress is
+              told in the status bar. */}
+          <div className={`${workspaceStageClass} ${canvasStageClass} gap-4`}>
+            <div
+              className={`${canvasFrameClass} w-full shrink-0`}
+              style={sheetStyle}
+              aria-busy={isGenerating}
             >
-              <KpLockup size="sm" hideWordmarkOnMobile />
-            </LocalizedLink>
-          </h1>
-
-          {/* Centered Wizard Progress Bar */}
-          <div className="flex-1 flex justify-center px-4">
-            <WizardProgressBar
-              currentStep={4}
-              totalSteps={4}
-              onStepChange={(step) =>
-                navigate('/generator', { state: { step } })
-              }
-              seatingMode={previewMode}
-              className="w-full max-w-xl"
-            />
-          </div>
-
-          {/* Right side - Help Button */}
-          <div className="flex items-center shrink-0">
-            <HelpButton
-              title={t('help.export.title', 'Export')}
-              instructions={
-                <div className="space-y-3">
-                  <ul className="list-disc list-inside space-y-1 text-sm text-(--text-muted)">
-                    <li>
-                      {t(
-                        'help.export.item1',
-                        'Passe den Namen deines Sitzplans an.',
-                      )}
-                    </li>
-                    <li>
-                      {t(
-                        'help.export.item2',
-                        'Wechsel zwischen Hochformat und Querformat für den PDF-Export.',
-                      )}
-                    </li>
-                    <li>
-                      {/* New keys carry no inline default (see AGENTS.md). */}
-                      {t('help.export.itemFlip')}
-                    </li>
-                    <li>{t('help.export.item3')}</li>
-                    <li>{t('help.export.itemNames')}</li>
-                    <li>
-                      {t(
-                        'help.export.item4',
-                        'Wechsle die Vorschau zwischen Sitzplan und Sitzkreis oben rechts.',
-                      )}
-                    </li>
-                    <li>
-                      {t(
-                        'help.export.item5',
-                        'Neben PDF und Druck kannst du die Ansicht auch als PNG-Bild oder SVG-Vektorgrafik speichern.',
-                      )}
-                    </li>
-                  </ul>
-                </div>
-              }
-              shortcutContexts={['export']}
-            />
-          </div>
-        </header>
-
-        {/* Main content area with Sidebar and Canvas; empty state when no
-            seating plan exists yet */}
-        {!hasPlan ? (
-          <div className="flex min-h-96 flex-col items-center justify-center gap-4 text-center text-(--text-muted)">
-            <p className="text-lg font-medium">
-              {t('export.empty', 'Noch kein Sitzplan zum Exportieren.')}
-            </p>
-            <button
-              type="button"
-              onClick={() => navigate('/generator', { state: { step: 3 } })}
-              className={`${primaryButtonClass} h-10 gap-2 px-4`}
-              title={t('export.backTitle', 'Zurück (Alt/Option+←)')}
-            >
-              <ArrowLeftIcon size={20} aria-hidden />
-              <span className="text-sm font-semibold">
-                {t('export.backToSeating', 'Zurück zum Sitzplan')}
-              </span>
-            </button>
-          </div>
-        ) : (
-          <div className="flex gap-4 h-full">
-            {/* Sidebar Links */}
-            <ExportSidebar
-              title={title}
-              onTitleChange={setTitle}
-              tableOrientation={tableOrientation}
-              onTableOrientationChange={setTableOrientation}
-              showViewDirection={previewMode === 'table'}
-              flipView={flipView}
-              onFlipViewChange={handleToggleFlipView}
-              circleOrientation={circleOrientation}
-              onCircleOrientationChange={setCircleOrientation}
-              onPrint={handlePrint}
-              onTablePdf={handleTablePdf}
-              onCirclePdf={handleCirclePdf}
-              onPngExport={handlePngExport}
-              onSvgExport={handleSvgExport}
-              hasCircleLayout={hasCircleLayoutAvailable}
-            />
-
-            {/* Canvas Bereich */}
-            <div className="flex-1 space-y-4">
-              <div
-                ref={previewFrameRef}
-                className={`${canvasFrameClass} relative w-full`}
-                style={previewFrameStyles}
-              >
-                <div className="pointer-events-none absolute left-3 top-3 sm:left-4 sm:top-4">
-                  <span className="inline-flex items-center rounded-full border border-white/50 bg-(--text-page)/70 px-2.5 py-1 text-xs font-medium uppercase tracking-wide text-white shadow-sm backdrop-blur-sm">
-                    {t('export.preview', 'Vorschau')}
-                  </span>
-                </div>
-                <CanvasSettingsButton
-                  ref={canvasSettingsButtonRef}
-                  groups={exportSettingsGroups}
-                  buttonAriaLabel={t(
-                    'export.displayOptions',
-                    'Export-Anzeigeoptionen',
-                  )}
-                  buttonTitle={t(
-                    'editor.viewSettings',
-                    'Ansichtseinstellungen',
-                  )}
-                />
-                <iframe
-                  ref={iframeRef}
-                  className={`h-full w-full rounded-[inherit] border-0 transition-opacity duration-300 ${
-                    isGenerating ? 'opacity-50' : 'opacity-100'
-                  }`}
-                  title={t('export.preview', 'Vorschau')}
-                />
-                {isGenerating && (
-                  <div className="absolute inset-0 flex items-center justify-center rounded-[inherit] bg-white/50 backdrop-blur-sm">
-                    <div className="flex flex-col items-center gap-3 rounded-xl bg-(--surface-card) p-5 shadow-lg">
-                      <div className="flex gap-1.5">
-                        <div
-                          className="h-3 w-3 rounded-full bg-(--button-primary-bg) animate-pulse"
-                          style={{ animationDelay: '0ms' }}
-                        />
-                        <div
-                          className="h-3 w-3 rounded-full bg-(--button-primary-bg) animate-pulse"
-                          style={{ animationDelay: '150ms' }}
-                        />
-                        <div
-                          className="h-3 w-3 rounded-full bg-(--button-primary-bg) animate-pulse"
-                          style={{ animationDelay: '300ms' }}
-                        />
-                      </div>
-                      <span className="text-sm font-medium text-(--text-page)">
-                        {t(
-                          'export.previewUpdating',
-                          'Vorschau wird aktualisiert...',
-                        )}
-                      </span>
-                    </div>
-                  </div>
-                )}
-                <div className="absolute right-3 top-3 flex flex-col items-end gap-2">
-                  <div className="opacity-90">
-                    <SeatingModeToggle
-                      mode={previewMode}
-                      onModeChange={handleModeChange}
-                      disabled={circleGenerationInProgress}
-                    />
-                  </div>
-                  {circleGenerationInProgress && (
-                    <div className="flex w-full flex-col gap-1 rounded-2xl bg-(--text-page)/80 px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-white shadow-lg backdrop-blur-sm">
-                      <div className="flex items-center gap-2">
-                        <span className="inline-flex h-3.5 w-3.5 items-center justify-center">
-                          <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-(--surface-card) border-t-transparent dark:border-t-transparent" />
-                        </span>
-                        <div className="min-w-0 flex-1 text-left">
-                          <span className="block truncate normal-case">
-                            {generationMessage}
-                          </span>
-                          {generationProgress !== null && (
-                            <span className="text-[10px] font-normal normal-case text-white/75">
-                              {generationProgress}%
-                            </span>
-                          )}
-                        </div>
-                        <button
-                          type="button"
-                          onClick={handleCancelCircleGeneration}
-                          className="text-(--surface-card) underline-offset-2 hover:text-(--surface-page) hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)"
-                        >
-                          {t('export.cancelCircleGeneration', 'Abbrechen')}
-                        </button>
-                      </div>
-                      {generationProgress !== null && (
-                        <div className="h-1.5 w-full rounded-full bg-white/20">
-                          <span
-                            className="block h-full rounded-full bg-(--surface-card) transition-[width] duration-200"
-                            style={{
-                              width: `${Math.max(6, generationProgress)}%`,
-                            }}
-                          />
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="sm:hidden space-y-2">
-                {/* Drucken-Button alleinstehend */}
-                <button
-                  type="button"
-                  onClick={handlePrint}
-                  className={`${successButtonClass} w-full justify-center gap-2`}
-                  title={t('export.printShortcut', 'Drucken (Strg/Cmd+P)')}
-                >
-                  <PrinterIcon className="h-4 w-4" />
-                  <span className="text-sm font-semibold">
-                    {t('actions.print', 'Drucken')}
-                  </span>
-                </button>
-                {/* PDF-Buttons nebeneinander */}
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={handleTablePdf}
-                    className={`${primaryButtonClass} flex-1 min-w-0 justify-center gap-2`}
-                    title={t(
-                      'export.tablePdfShortcut',
-                      'Sitzplan als PDF exportieren (Strg/Cmd+Shift+T)',
-                    )}
-                  >
-                    <GridNineIcon className="h-4 w-4" />
-                    <span className="text-sm font-semibold">
-                      {t('export.tablePdfButton', 'Sitzplan PDF')}
-                    </span>
-                  </button>
-                  {hasCircleLayoutAvailable && (
-                    <button
-                      type="button"
-                      onClick={handleCirclePdf}
-                      className={`${primaryButtonClass} flex-1 min-w-0 justify-center gap-2`}
-                      title={t(
-                        'export.circlePdfShortcut',
-                        'Sitzkreis als PDF exportieren (Strg/Cmd+Shift+C)',
-                      )}
-                    >
-                      <CircleDashedIcon className="h-4 w-4" />
-                      <span className="text-sm font-semibold">
-                        {t('export.circlePdfButton', 'Sitzkreis PDF')}
-                      </span>
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {/* Zurück-Button unter Canvas */}
-              <button
-                type="button"
-                onClick={() => navigate('/generator', { state: { step: 3 } })}
-                className={`${neutralButtonClass} w-full justify-center gap-2 sm:w-auto`}
-                title={t('export.backTitle', 'Zurück (Alt/Option+←)')}
-              >
-                <ArrowLeftIcon className="w-4 h-4" />
-                {t('export.backToSeating', 'Zurück zum Sitzplan')}
-              </button>
+              <iframe
+                ref={iframeRef}
+                className={`h-full w-full border-0 transition-opacity duration-300 ${
+                  isGenerating ? 'opacity-50' : 'opacity-100'
+                }`}
+                title={t('export.preview')}
+              />
             </div>
+
+            {/* Below `lg` there is no inspector column, so the sheet's
+                settings follow the sheet down the page. */}
+            {!isLgUp && (
+              <div className="flex flex-col overflow-hidden rounded-xl border border-(--border-card) bg-(--surface-card)">
+                {sheetInspector}
+              </div>
+            )}
           </div>
-        )}
-      </div>
-    </main>
+
+          {isLgUp && (
+            <InspectorPortal label={t('export.sheet')}>
+              {sheetInspector}
+            </InspectorPortal>
+          )}
+        </div>
+      )}
+    </AppShell>
   );
 }

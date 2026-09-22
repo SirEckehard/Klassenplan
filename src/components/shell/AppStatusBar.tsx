@@ -3,8 +3,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  ArrowLineLeftIcon,
-  ArrowLineRightIcon,
   ArrowRightIcon,
   CheckCircleIcon,
   WarningCircleIcon,
@@ -14,13 +12,13 @@ import {
   useSeatingPlanActions,
 } from '@/contexts/SeatingPlanContext';
 import { useStatusBarSlot } from '@/contexts/StatusBarSlotContext';
-import { useShellToolRail } from '@/contexts/ToolRailContext';
-import { useLayoutMode } from '@/hooks/ui/useLayoutMode';
 import StudentHistoryToolbar from '@/components/studentInput/StudentHistoryToolbar';
 import SeatingHistoryToolbar from '@/components/SeatingPlanGenerator/canvas/SeatingHistoryToolbar';
 import PlanExits from '@/components/shell/PlanExits';
-import AppSettingsMenu from '@/components/shell/AppSettingsMenu';
-import { countSeats, primaryButtonClass, quietIconButtonClass } from '@/utils';
+import StatusBarFrame, {
+  statusBarIconButtonClass,
+} from '@/components/shell/StatusBarFrame';
+import { countSeats, primaryButtonClass } from '@/utils';
 import { validateStudentsComplete } from '@/utils/validation';
 import HintTooltip from '@/components/ui/feedback/HintTooltip';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
@@ -39,21 +37,12 @@ import { TOUR_ANCHORS } from '@/components/onboarding/tours';
  * keeps focus and pointer events, so the hint shows on hover and focus and a
  * click still surfaces the toast that explains the shortfall.
  */
-/** Undo/redo in the status bar: quiet, and small enough for a 44px line. */
-const historyButtonClass = `${quietIconButtonClass} h-9 w-9`;
-
 export default function AppStatusBar() {
   const { t } = useTranslation(['generator', 'students']);
   const { step, students, classroomScene, currentSeating } =
     useSeatingPlanState();
   const { handleStepChange } = useSeatingPlanActions();
   const { setStartNode, setEndNode } = useStatusBarSlot();
-  // The toolbar's width belongs to the workspace, not to a layer, so its
-  // switch sits here rather than in a header above the tools. A phone has no
-  // toolbar column at all — there it is a sheet with its own trigger.
-  const toolRail = useShellToolRail();
-  const isPhone = useLayoutMode() === 'phone';
-  const showToolRailSwitch = toolRail !== null && !isPhone;
   const hintId = React.useId();
 
   const studentsCount = students.length;
@@ -196,60 +185,17 @@ export default function AppStatusBar() {
   }, [missingNameCount, seatCount, step, studentsCount, t]);
 
   return (
-    // A landmark region rather than a live region on purpose: the line changes
-    // with every keystroke in the class list, and announcing each one would
-    // bury anything that actually matters.
-    <div
-      role="region"
-      aria-label={t('generator:shell.statusBarLabel')}
-      className="sticky bottom-0 z-30 shrink-0 border-t border-(--border-card) bg-(--surface-card)"
-    >
-      {/* Three parts: where the layer stands, the two exits, the layer's
-          own action. The outer two share the width equally, so the exits sit
-          in the middle of the bar whatever the line on the left says. */}
-      <div className="flex min-h-11 items-center gap-2 px-4 py-2 sm:gap-4">
-        <div className="flex min-w-0 flex-1 items-center gap-3">
-          {/* The settings and the toolbar's switch belong to the workspace,
-              not to a layer, so they lead the bar together — right under the
-              toolbar they concern. */}
-          <span className="flex items-center gap-1">
-            <AppSettingsMenu />
-            {showToolRailSwitch && toolRail && (
-              <button
-                type="button"
-                onClick={toolRail.toggle}
-                data-tour={TOUR_ANCHORS.sidebarToggle}
-                onMouseUp={(event) => event.currentTarget.blur()}
-                className={historyButtonClass}
-                title={
-                  toolRail.isExpanded
-                    ? t('generator:sidebar.collapseShortcut')
-                    : t('generator:sidebar.expandShortcut')
-                }
-                aria-label={
-                  toolRail.isExpanded
-                    ? t('generator:sidebar.collapseLabel')
-                    : t('generator:sidebar.expandLabel')
-                }
-                aria-expanded={toolRail.isExpanded}
-              >
-                {toolRail.isExpanded ? (
-                  <ArrowLineLeftIcon size={16} aria-hidden="true" />
-                ) : (
-                  <ArrowLineRightIcon size={16} aria-hidden="true" />
-                )}
-              </button>
-            )}
-          </span>
-          <span aria-hidden="true" className="h-4 w-px bg-(--border-card)" />
+    <StatusBarFrame
+      start={
+        <>
           {/* Undo/redo lead the line on every layer. Two of the three
               histories are in the context; the room layer's lives with the
               canvas state and fills the slot through `StatusBarPortal`. */}
           {step === 1 && (
-            <StudentHistoryToolbar buttonClass={historyButtonClass} />
+            <StudentHistoryToolbar buttonClass={statusBarIconButtonClass} />
           )}
           {step === 3 && (
-            <SeatingHistoryToolbar buttonClass={historyButtonClass} />
+            <SeatingHistoryToolbar buttonClass={statusBarIconButtonClass} />
           )}
           {step === 2 && (
             <span ref={setStartNode} className="flex items-center" />
@@ -275,11 +221,11 @@ export default function AppStatusBar() {
               </span>
             )}
           </p>
-        </div>
-
-        <PlanExits />
-
-        <div className="flex flex-1 items-center justify-end">
+        </>
+      }
+      middle={<PlanExits />}
+      end={
+        <>
           {/* The plan layer's primary action is "mix again", which belongs to
               the view that owns the mix handler; it fills this slot. */}
           <span ref={setEndNode} className="flex shrink-0 items-center" />
@@ -307,8 +253,8 @@ export default function AppStatusBar() {
               {action.hint && <HintTooltip id={hintId} hint={action.hint} />}
             </div>
           )}
-        </div>
-      </div>
-    </div>
+        </>
+      }
+    />
   );
 }

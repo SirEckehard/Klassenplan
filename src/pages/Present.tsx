@@ -35,7 +35,7 @@ import AppearanceControls from '@/components/ui/navigation/AppearanceControls';
 import PresentationScene from '@/components/scene/PresentationScene';
 import PresentationToolbar from '@/components/scene/PresentationToolbar';
 import SimpleCircleView from '@/components/circle/SimpleCircleView';
-import { type SeatingMode } from '@/components/SeatingPlanGenerator/SeatingModeToggle';
+import type { SeatingMode } from '@/types/Circle';
 import type { PresentationPerspective } from '@/utils/ui/boardOrientation';
 
 const PRESENT_MIN_ZOOM = 0.5;
