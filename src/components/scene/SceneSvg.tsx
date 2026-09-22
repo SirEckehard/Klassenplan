@@ -118,6 +118,12 @@ export default function SceneSvg({
           fontSize: legendFontSize,
           iconSize: legendIconSize,
           showSpecialNeeds,
+          genderLabels: {
+            girl: t('legend.genderGirl'),
+            boy: t('legend.genderBoy'),
+            diverse: t('legend.genderDiverse'),
+            neutral: t('legend.genderNeutral'),
+          },
         })
       : null;
   const legendGap = legendLayout && legendLayout.height > 0 ? 10 : 0;

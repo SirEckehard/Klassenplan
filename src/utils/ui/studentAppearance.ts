@@ -34,17 +34,18 @@ const ts = (key: string, fallback: string) =>
  * Centralized student appearance configuration
  * Single source of truth for seat fills, empty seats and locked seats
  *
- * A seat used to be tinted by the student's gender — lavender, mint, cornflower
- * — which made a plan read as a colour-coded map of who is a girl and who is a
- * boy, at every distance, to everybody in the room. Gender is one of sixteen
- * criteria, no louder than the rest, and colour in this app describes pedagogy
- * only where it comes with an icon and a word (`docs/DESIGNSYSTEM.md` § 4). A
- * seat is paper and ink now, and the gender mix is read where it is actually
- * acted on: the criterion, its fulfilment and the statistics.
+ * An occupied seat carries the student's gender as a quiet tint — green for a
+ * boy, lilac for a girl, blue for a non-binary student, paper for nobody's
+ * guess — so a plan shows the gender mix at a glance. The tints are washes of
+ * the canvas rather than colours of their own: pale in light mode, a dark
+ * glaze in dark mode, each with a mid-tone contour, and the seat's text keeps
+ * at least 12:1 on all of them. Only seats ask for them (`genderColors`); an
+ * avatar, a photo frame or a card stays paper. A legend explains them in every
+ * export, and the projection's colour switch takes them off the wall.
  *
  * The four student buckets are kept apart from `empty` and `locked` on purpose:
  * those two are states of the seat, not of a person, and they stay tellable.
- * See `docs/decisions/0017-seats-are-paper-and-ink.md`.
+ * See `docs/decisions/0020-gender-tint-on-seats.md`.
  */
 const SEAT_PAPER = {
   fill: {
@@ -58,9 +59,18 @@ const SEAT_PAPER = {
 } as const;
 
 export const STUDENT_COLORS = {
-  girl: SEAT_PAPER,
-  boy: SEAT_PAPER,
-  diverse: SEAT_PAPER,
+  girl: {
+    fill: { light: '#f3effc', dark: '#2d2b3f' },
+    stroke: { light: '#b79deb', dark: '#685a9c' },
+  },
+  boy: {
+    fill: { light: '#ebf4ef', dark: '#20312a' },
+    stroke: { light: '#84bf9d', dark: '#376f4c' },
+  },
+  diverse: {
+    fill: { light: '#ecf4f9', dark: '#232f3b' },
+    stroke: { light: '#8abddc', dark: '#406a8c' },
+  },
   neutral: SEAT_PAPER,
   empty: {
     fill: {
@@ -141,6 +151,9 @@ export type StudentAppearance = {
  * @param student - The student to get appearance for (null for empty seat)
  * @param isDark - Whether dark mode is active
  * @param locked - Whether the seat is locked (optional, defaults to false)
+ * @param contrast - The projection's black-on-white palette (optional)
+ * @param genderColors - Tint an occupied seat by gender (optional). Seats
+ *   pass it; everything else that shows a student stays paper.
  * @returns Object with fill, stroke, and text colors
  *
  * @example
@@ -154,6 +167,7 @@ export function getStudentAppearance(
   isDark: boolean,
   locked = false,
   contrast = false,
+  genderColors = false,
 ): Omit<StudentAppearance, 'flags'> {
   const mode = isDark ? 'dark' : 'light';
 
@@ -187,11 +201,13 @@ export function getStudentAppearance(
     };
   }
 
-  // Every occupied seat is the same paper; who is sitting there is the name
-  // on it, and what is known about them is the chips beside it.
+  const colors =
+    genderColors && student.gender
+      ? STUDENT_COLORS[student.gender]
+      : STUDENT_COLORS.neutral;
   return {
-    fill: STUDENT_COLORS.neutral.fill[mode],
-    stroke: STUDENT_COLORS.neutral.stroke[mode],
+    fill: colors.fill[mode],
+    stroke: colors.stroke[mode],
     text: SEAT_UI_COLORS.text[mode],
   };
 }

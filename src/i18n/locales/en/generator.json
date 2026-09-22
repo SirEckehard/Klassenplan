@@ -162,7 +162,11 @@
     "label": "Display"
   },
   "legend": {
-    "title": "Legend"
+    "title": "Legend",
+    "genderGirl": "Female",
+    "genderBoy": "Male",
+    "genderDiverse": "Diverse",
+    "genderNeutral": "Unspecified"
   },
   "circleView": {
     "step3": "Step 3: Edit Seating Plan",

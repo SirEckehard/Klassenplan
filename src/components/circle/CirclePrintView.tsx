@@ -132,6 +132,12 @@ export default function CirclePrintView({
           fontSize: legendFontSize,
           iconSize: legendIconSize,
           showSpecialNeeds,
+          genderLabels: {
+            girl: t('legend.genderGirl'),
+            boy: t('legend.genderBoy'),
+            diverse: t('legend.genderDiverse'),
+            neutral: t('legend.genderNeutral'),
+          },
         })
       : null;
   const legendGap = legendLayout && legendLayout.height > 0 ? 10 : 0;
@@ -272,7 +278,8 @@ export default function CirclePrintView({
 
   // Helper to get student appearance for PDF export (light mode only)
   const getStudentColors = (student: Student) => {
-    const appearance = getStudentAppearance(student, false); // PDF always uses light mode
+    // PDF always uses light mode; the legend explains the gender tint.
+    const appearance = getStudentAppearance(student, false, false, false, true);
     return {
       fill: appearance.fill,
       stroke: appearance.stroke,

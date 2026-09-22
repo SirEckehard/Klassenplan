@@ -96,7 +96,7 @@ export default function Present() {
     LOCAL_STORAGE_KEYS.presentShowPhotos,
     true,
   );
-  const [showRoomColors, setShowRoomColors] = usePersistentState(
+  const [showColors, setShowColors] = usePersistentState(
     LOCAL_STORAGE_KEYS.presentShowColors,
     true,
   );
@@ -346,6 +346,7 @@ export default function Present() {
                 editable={false}
                 isDark={isDark}
                 showSpecialNeeds={isTeacher && showBadges}
+                showGenderColors={showColors}
                 photoMode={isTeacher && showPhotos ? 'all' : 'off'}
                 nameDisplay={currentNameDisplay}
                 connectionMode="off"
@@ -362,7 +363,7 @@ export default function Present() {
             showBadges={showBadges}
             showPhotos={showPhotos}
             showFeatures={showFeatures}
-            showRoomColors={showRoomColors}
+            showColors={showColors}
             nameDisplay={currentNameDisplay}
             zoom={zoom}
             panX={pan.x}
@@ -428,8 +429,8 @@ export default function Present() {
             onToggleBadges={() => setShowBadges((value) => !value)}
             showPhotos={showPhotos}
             onTogglePhotos={() => setShowPhotos((value) => !value)}
-            showRoomColors={showRoomColors}
-            onToggleRoomColors={() => setShowRoomColors((value) => !value)}
+            showColors={showColors}
+            onToggleColors={() => setShowColors((value) => !value)}
             showFeatures={showFeatures}
             onToggleFeatures={() => setShowFeatures((value) => !value)}
             contrast={contrast}

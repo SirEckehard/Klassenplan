@@ -426,9 +426,13 @@ a spelled-out word, so colour is never the only channel:
 | Person           | `--data-person`   | Geschlechtermischung, Foto, Name                     |
 | Verlauf          | `--data-history`  | Wiederholung (the plans already used, not a student) |
 
-A seat is not one of those families: every occupied seat is the canvas surface
-with a hairline, whoever sits in it. Gender stopped tinting one — decision
-0017 — and is read where it is acted on, in the criterion and the statistics.
+A seat is not one of those families. An occupied seat carries the student's
+gender as a quiet tint — green for a boy, lilac for a girl, blue for a
+non-binary student, paper when nobody said — in `STUDENT_COLORS`
+(`utils/ui/studentAppearance.ts`), and only seat renderers ask for it
+(`genderColors`); avatars, photo frames and cards stay paper. Exports explain
+the tint in their legend, the projection's colour switch takes it off the wall,
+and the contrast mode never shows it — decision 0020, which replaced 0017.
 
 Each family exposes `--data-<name>` (the accent), `--data-<name>-text` (chip and
 icon foreground, contrast-checked at 4.5:1) and `--data-<name>-surface` (chip

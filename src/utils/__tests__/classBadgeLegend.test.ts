@@ -2,7 +2,10 @@
 // Copyright (C) 2026 Eike Schäfer
 import { describe, it, expect } from 'vitest';
 import type { Student } from '@/types';
-import { getPresentBadgeLegend } from '../ui/classBadgeLegend';
+import {
+  getPresentBadgeLegend,
+  getPresentGenderLegend,
+} from '../ui/classBadgeLegend';
 
 function makeStudent(overrides: Partial<Student>): Student {
   return {
@@ -17,6 +20,24 @@ function makeStudent(overrides: Partial<Student>): Student {
 }
 
 describe('classBadgeLegend', () => {
+  it('lists only the gender swatches actually present, in a stable order', () => {
+    const students = [
+      makeStudent({ id: '1', gender: 'boy' }),
+      makeStudent({ id: '2', gender: 'girl' }),
+      makeStudent({ id: '3' }), // no gender → neutral
+    ];
+    const legend = getPresentGenderLegend(students);
+    expect(legend.map((g) => g.key)).toEqual(['girl', 'boy', 'neutral']);
+    // Each swatch carries light-mode colours.
+    expect(legend.every((g) => g.fill && g.stroke)).toBe(true);
+  });
+
+  it('omits genders that no student uses', () => {
+    const students = [makeStudent({ id: '1', gender: 'boy' })];
+    const legend = getPresentGenderLegend(students);
+    expect(legend.map((g) => g.key)).toEqual(['boy']);
+  });
+
   it('deduplicates badges by key across the class', () => {
     const students = [
       makeStudent({ id: '1', restless: true }),

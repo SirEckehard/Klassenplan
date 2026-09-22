@@ -148,8 +148,8 @@ type PresentationToolbarProps = {
   onToggleBadges: () => void;
   showPhotos: boolean;
   onTogglePhotos: () => void;
-  showRoomColors: boolean;
-  onToggleRoomColors: () => void;
+  showColors: boolean;
+  onToggleColors: () => void;
   /** Room elements have nothing to hide in the seating circle. */
   showFeatures: boolean;
   onToggleFeatures: () => void;
@@ -182,8 +182,8 @@ export default function PresentationToolbar({
   onToggleBadges,
   showPhotos,
   onTogglePhotos,
-  showRoomColors,
-  onToggleRoomColors,
+  showColors,
+  onToggleColors,
   showFeatures,
   onToggleFeatures,
   contrast,
@@ -317,8 +317,8 @@ export default function PresentationToolbar({
           icon={PaletteIcon}
           label={t('present.colors')}
           title={t('present.colorsTitle')}
-          pressed={showRoomColors}
-          onClick={onToggleRoomColors}
+          pressed={showColors}
+          onClick={onToggleColors}
         />
         <BarToggle
           icon={SunIcon}

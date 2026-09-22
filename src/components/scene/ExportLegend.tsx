@@ -43,6 +43,31 @@ export default function ExportLegend({
         {title}
       </text>
       {layout.items.map((item, index) => {
+        if (item.kind === 'gender') {
+          return (
+            <g key={`g-${index}`} transform={`translate(${item.x} ${item.y})`}>
+              <rect
+                x={0}
+                y={-half}
+                width={iconSize}
+                height={iconSize}
+                rx={3}
+                fill={item.fill}
+                stroke={item.stroke}
+                strokeWidth={1}
+              />
+              <text
+                x={iconSize + 4}
+                y={0}
+                fontSize={fontSize}
+                dominantBaseline="central"
+                fill="#475569"
+              >
+                {item.label}
+              </text>
+            </g>
+          );
+        }
         const Icon = item.icon;
         return (
           <g

@@ -29,9 +29,10 @@ it says so instead of reconstructing one.
 | [0014](0014-mix-history-records-refined-plan.md)   | The mix history records the refined plan                   |
 | [0015](0015-onboarding-sample-class-and-tour.md)   | A sample class and coach marks for the first visit         |
 | [0016](0016-hidden-criteria-carry-no-weight.md)    | Criteria the class has no data for carry no weight         |
-| [0017](0017-seats-are-paper-and-ink.md)            | A seat is paper and ink, not a gender colour               |
+| [0017](0017-seats-are-paper-and-ink.md)            | A seat is paper and ink, not a gender colour (superseded)  |
 | [0018](0018-criteria-in-words-with-recipes.md)     | The criteria are set in words, and a recipe sets them all  |
 | [0019](0019-classroom-tools-as-routes.md)          | The three classroom tools are routes, not panels           |
+| [0020](0020-gender-tint-on-seats.md)               | Seats carry a quiet gender tint again                      |
 
 ## Reasons still to be recorded
 

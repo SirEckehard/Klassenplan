@@ -46,6 +46,8 @@ interface TableSeatProps {
   nameDisplay?: NameDisplayMode;
   /** Disambiguated labels of the class (see `buildNameLabels`). */
   nameLabels?: NameLabels;
+  /** When false, the gender tint is dropped for a paper seat (the beamer's colour switch). */
+  showGenderColors?: boolean;
   /** When false, the seat name label and lock toggle are hidden (layout editor). */
   showSeatLabels?: boolean;
   lockSeatLabelOrientation: boolean;
@@ -184,6 +186,7 @@ function TableSeat({
   showSpecialNeeds,
   nameDisplay,
   nameLabels,
+  showGenderColors = true,
   showSeatLabels = true,
   lockSeatLabelOrientation,
   seatTextRotation,
@@ -203,8 +206,9 @@ function TableSeat({
 }: TableSeatProps) {
   // Memoize appearance calculation - only recompute when dependencies change
   const appearance = React.useMemo(
-    () => getStudentAppearance(student, isDark, locked, contrast),
-    [student, isDark, locked, contrast],
+    () =>
+      getStudentAppearance(student, isDark, locked, contrast, showGenderColors),
+    [student, isDark, locked, contrast, showGenderColors],
   );
 
   // Memoize badge flags calculation
@@ -776,6 +780,8 @@ const MemoizedTableSeat = React.memo(TableSeat, (prevProps, nextProps) => {
   // CheckIcon visual state changes
   if (
     prevProps.isDark !== nextProps.isDark ||
+    prevProps.contrast !== nextProps.contrast ||
+    prevProps.showGenderColors !== nextProps.showGenderColors ||
     prevProps.nameDisplay !== nextProps.nameDisplay ||
     prevProps.nameLabels !== nextProps.nameLabels ||
     prevProps.showSeatLabels !== nextProps.showSeatLabels ||

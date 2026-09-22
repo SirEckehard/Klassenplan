@@ -13,12 +13,20 @@ import type { Student } from '../../../types';
 
 describe('studentAppearance', () => {
   describe('STUDENT_COLORS constants', () => {
-    it('gives every occupied seat the same paper, whatever the gender', () => {
-      for (const key of ['girl', 'boy', 'diverse', 'neutral'] as const) {
-        expect(STUDENT_COLORS[key].fill.light).toBe('#ffffff');
-        expect(STUDENT_COLORS[key].fill.dark).toBe('#181a1d');
-        expect(STUDENT_COLORS[key].stroke.light).toBe('#cec8bb');
-        expect(STUDENT_COLORS[key].stroke.dark).toBe('#3a3e44');
+    it('keeps paper for a student without a gender', () => {
+      expect(STUDENT_COLORS.neutral.fill.light).toBe('#ffffff');
+      expect(STUDENT_COLORS.neutral.fill.dark).toBe('#181a1d');
+      expect(STUDENT_COLORS.neutral.stroke.light).toBe('#cec8bb');
+      expect(STUDENT_COLORS.neutral.stroke.dark).toBe('#3a3e44');
+    });
+
+    it('gives each gender a tint of its own, apart from paper and a held seat', () => {
+      for (const mode of ['light', 'dark'] as const) {
+        const fills = ['girl', 'boy', 'diverse', 'neutral', 'locked'].map(
+          (key) =>
+            STUDENT_COLORS[key as keyof typeof STUDENT_COLORS].fill[mode],
+        );
+        expect(new Set(fills).size).toBe(fills.length);
       }
     });
 
@@ -99,18 +107,57 @@ describe('studentAppearance', () => {
     };
 
     describe('seats', () => {
-      it('renders the same for every gender', () => {
+      // Avatars, photo frames and cards call without the flag; only seats ask.
+      it('stays paper unless a seat asks for the tint', () => {
         const paper = { fill: '#ffffff', stroke: '#cec8bb', text: '#17181a' };
         for (const student of [girlStudent, boyStudent, diverseStudent]) {
           expect(getStudentAppearance(student, false)).toEqual(paper);
         }
       });
 
-      it('renders the same for every gender in dark mode', () => {
-        const paper = { fill: '#181a1d', stroke: '#3a3e44', text: '#f2f1ee' };
-        for (const student of [girlStudent, boyStudent, diverseStudent]) {
-          expect(getStudentAppearance(student, true)).toEqual(paper);
-        }
+      it('tints a seat by gender', () => {
+        const tint = (student: Student) =>
+          getStudentAppearance(student, false, false, false, true);
+        expect(tint(boyStudent)).toEqual({
+          fill: '#ebf4ef',
+          stroke: '#84bf9d',
+          text: '#17181a',
+        });
+        expect(tint(girlStudent)).toEqual({
+          fill: '#f3effc',
+          stroke: '#b79deb',
+          text: '#17181a',
+        });
+        expect(tint(diverseStudent)).toEqual({
+          fill: '#ecf4f9',
+          stroke: '#8abddc',
+          text: '#17181a',
+        });
+      });
+
+      it('tints a seat by gender in dark mode', () => {
+        const tint = (student: Student) =>
+          getStudentAppearance(student, true, false, false, true);
+        expect(tint(boyStudent).fill).toBe('#20312a');
+        expect(tint(girlStudent).fill).toBe('#2d2b3f');
+        expect(tint(diverseStudent).fill).toBe('#232f3b');
+        expect(tint(girlStudent).text).toBe('#f2f1ee');
+      });
+
+      it('leaves a seat paper when nobody said the gender', () => {
+        expect(
+          getStudentAppearance(unspecifiedStudent, false, false, false, true)
+            .fill,
+        ).toBe('#ffffff');
+      });
+
+      it('lets a held seat and the contrast mode outrank the tint', () => {
+        expect(
+          getStudentAppearance(girlStudent, false, true, false, true).fill,
+        ).toBe('#eaf0fe');
+        expect(
+          getStudentAppearance(girlStudent, false, false, true, true).fill,
+        ).toBe('#ffffff');
       });
     });
 

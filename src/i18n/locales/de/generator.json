@@ -162,7 +162,11 @@
     "label": "Darstellung"
   },
   "legend": {
-    "title": "Legende"
+    "title": "Legende",
+    "genderGirl": "Weiblich",
+    "genderBoy": "Männlich",
+    "genderDiverse": "Divers",
+    "genderNeutral": "Ohne Angabe"
   },
   "circleView": {
     "step3": "Schritt 3: Sitzplan bearbeiten",

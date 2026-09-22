@@ -63,6 +63,8 @@ type TableProps = {
   onSeatFocus?: React.ComponentProps<typeof SeatGrid>['onSeatFocus'];
   onSeatBlur?: React.ComponentProps<typeof SeatGrid>['onSeatBlur'];
   showSpecialNeeds?: boolean;
+  /** When false, the gender tint is dropped for a paper seat (the beamer's colour switch). */
+  showGenderColors?: boolean;
   isDark?: boolean;
   /** Beamer contrast mode: black on white, thicker contours (see `TableSeat`). */
   contrast?: boolean;
@@ -116,6 +118,7 @@ function SceneTable({
   onSeatFocus,
   onSeatBlur,
   showSpecialNeeds = true,
+  showGenderColors = true,
   isDark = false,
   contrast = false,
   lockSeatLabelOrientation = true,
@@ -386,6 +389,7 @@ function SceneTable({
         allStudents={allStudents}
         showSpecialNeeds={showSpecialNeeds}
         contrast={contrast}
+        showGenderColors={showGenderColors}
         nameDisplay={nameDisplay}
         nameLabels={nameLabels}
         showSeatLabels={seatMarkerMode === 'full'}
@@ -450,7 +454,13 @@ function SceneTable({
         const uprightTransform = lockSeatLabelOrientation
           ? `rotate(${seatTextRotation} ${photoCx} ${photoCy})`
           : undefined;
-        const ringStroke = getStudentAppearance(seatStudent, isDark).stroke;
+        const ringStroke = getStudentAppearance(
+          seatStudent,
+          isDark,
+          false,
+          false,
+          showGenderColors,
+        ).stroke;
         const clipId = `chair-photo-${index}-${dot.key}`;
         return (
           <g

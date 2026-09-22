@@ -136,6 +136,18 @@ In code a family is a class, not a hex: `dataFamilyClass.behavior` sets `--data-
 1. The interface uses no data colour. No button is green because it saves, no toolbar is amber.
 2. A data colour never appears alone. Icon and word travel with it.
 
+**The gender tint on a seat**
+
+An occupied seat is tinted by gender — green for a boy, lilac for a girl, blue
+for a non-binary student, paper when nobody said — in `STUDENT_COLORS`
+(`utils/ui/studentAppearance.ts`). It is not a data family and the one
+exception to rule 2: on screen the tint stands without a word, and only the
+export legend names it. The tones are washes of the canvas (light fills around
+`#f3effc`, dark fills around `#2d2b3f`) with a mid-tone contour, and the seat's
+text keeps at least 12:1 on each. Only seats carry it; avatars and cards stay
+paper, the projection's colour switch removes it and its contrast mode never
+shows it. Decision 0020 holds the reasons.
+
 `warning-button` is the one leftover: it carried the old amber "back / side trip" accent and is used for navigation (Namensspiel, Zurück zum Klassenraum), not for warnings. Its tokens (`--button-warning-*`) now render neutral; the call sites move to `secondary-button` and the token disappears with them.
 
 **How far something got is chrome, not pedagogy**

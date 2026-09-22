@@ -17,9 +17,8 @@ const GENDER_LABELS = {
  * One row of the inspector: what the setting is on the left, the three chips
  * on the right, and "not decided" reachable by pressing the chip again.
  *
- * Gender is read where it is acted on — the Geschlechter criterion and the
- * statistics — and nowhere else; the seats stopped carrying it in decision
- * 0017.
+ * The chips stay neutral: the colour of a gender belongs to the seat it tints
+ * on the plan (decision 0020), not to the control that sets it.
  */
 export default function GenderSelector({
   student,

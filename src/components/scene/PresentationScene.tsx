@@ -43,8 +43,11 @@ type PresentationSceneProps = {
   showBadges?: boolean;
   /** Teacher view only: show student photos. */
   showPhotos?: boolean;
-  /** When false, gender colors are dropped for a neutral (colorless) render. */
-  showRoomColors?: boolean;
+  /**
+   * When false, the plan goes colourless: the seats drop their gender tint
+   * and the windows, doors, board and desk turn grey.
+   */
+  showColors?: boolean;
   /**
    * When false, room elements (board, windows, doors, furniture) are hidden.
    * Deliberately independent of the editor's per-type visibility flags
@@ -131,7 +134,7 @@ export default function PresentationScene({
   perspective,
   showBadges = false,
   showPhotos = true,
-  showRoomColors = true,
+  showColors = true,
   showFeatures = true,
   nameDisplay,
   zoom = 1,
@@ -144,7 +147,7 @@ export default function PresentationScene({
   // Contrast mode brings its own palette, so the theme stands down; what is
   // left of the plan is the seats, the names and the room's outline.
   const dark = contrast ? false : isDark;
-  const roomColors = contrast ? false : showRoomColors;
+  const colors = contrast ? false : showColors;
   const photoUrls = useStudentPhotoUrls(students);
   const nameLabels = useNameLabels(students, nameDisplay);
 
@@ -171,11 +174,11 @@ export default function PresentationScene({
         ? (scene.features ?? [])
             .map((feature) => ({
               feature,
-              styles: getFeatureStyles(feature, dark, undefined, !roomColors),
+              styles: getFeatureStyles(feature, dark, undefined, !colors),
             }))
             .filter(({ styles }) => styles.shouldRender)
         : [],
-    [scene.features, dark, showFeatures, roomColors],
+    [scene.features, dark, showFeatures, colors],
   );
 
   // The drawn content, mapped through the same rotation the classroom group
@@ -255,6 +258,7 @@ export default function PresentationScene({
             showSpecialNeeds={showSpecialNeeds}
             isDark={dark}
             contrast={contrast}
+            showGenderColors={colors}
             lockSeatLabelOrientation={true}
             seatLabelRotation={-rotation}
             photoDisplayMode={photoDisplayMode}
