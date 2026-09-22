@@ -203,14 +203,14 @@ export default defineConfig({
         screenshots: [
           {
             src: 'preview/03_sitzplan_de_light.webp',
-            sizes: '2990x1796',
+            sizes: '2880x1920',
             type: 'image/webp',
             form_factor: 'wide',
-            label: 'Sitzplan-Editor mit Sitzordnung',
+            label: 'Sitzplan mit Kriterien im Inspektor',
           },
           {
             src: 'preview/02_editor_de_light.webp',
-            sizes: '2990x1796',
+            sizes: '2880x1920',
             type: 'image/webp',
             form_factor: 'wide',
             label: 'Klassenraum-Editor mit Tischen und Raumelementen',

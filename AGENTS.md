@@ -28,17 +28,17 @@ it for Antigravity — edit this file, never those two.
 - Docs consistency: `npm run check:docs` (relative links, heading anchors and `src/…`-style paths in Markdown resolve; `docs/CHANGELOG.md` is skipped)
 - Algorithm runtime: `npm run bench` (by hand, not in CI; figures in `docs/PERFORMANCE.md`)
 
-**Current Code Quality Status (2026-09-21):**
+**Current Code Quality Status (2026-09-22):**
 
 - ✅ ESLint: 0 errors, 0 warnings
 - ✅ TypeScript: 0 compilation errors (strict mode)
-- ✅ Tests: 2368 unit tests (238 test files) + 9 Playwright tests (3 smoke + 2 core flow + 4 onboarding), 100% passing
+- ✅ Tests: 2374 unit tests (239 test files) + 9 Playwright tests (3 smoke + 2 core flow + 4 onboarding), 100% passing
 - 📊 Coverage: 72.5 % lines / 71.8 % statements / 61.9 % branches (`npm run test:coverage`, v8 provider, no thresholds enforced)
 - ⚠️ Unused Exports: 52 modules ignoring type-only exports, held by a ratchet (`npm run check:unused`); the remainder are re-export barrels, `lazyWithRetry` default exports and shared test helpers
 - ✅ Test Infrastructure: Centralized accessibility helpers and toast matchers for robust testing
 - ✅ Architecture: Repository Pattern implemented, UI components reorganized into logical subdirectories
-- ✅ i18n: Bilingual support (German/English) fully implemented, DE/EN key parity 1:1 (2125 keys per language)
-- 📦 Bundle: initial payload 204 KB brotli / 760 KB raw over 34 preloaded files, largest chunk 62 KB brotli, CSS 17 KB brotli
+- ✅ i18n: Bilingual support (German/English) fully implemented, DE/EN key parity 1:1 (2130 keys per language)
+- 📦 Bundle: initial payload 207 KB brotli / 764 KB raw over 40 preloaded files, largest chunk 64 KB brotli, CSS 14 KB brotli
 
 ## Logging
 
@@ -440,10 +440,9 @@ icon foreground, contrast-checked at 4.5:1) and `--data-<name>-surface` (chip
 background).
 
 Never reach for a raw Tailwind palette class (`bg-amber-500`, `text-green-600`)
-in a component — take the token. `src/` is clean of them but for four
-deliberate exceptions: the three window dots in `HeroMockup` (a picture of a
-browser, not this app's palette) and the orange step counter in
-`OnboardingTour`, which the design system reserves for step labels. Three
+in a component — take the token. `src/` is clean of them but for one
+deliberate exception: the orange step counter in `OnboardingTour`, which the
+design system reserves for step labels. Three
 comments in `studentAppearance.ts` and `classWorkbenchTokens.ts` still _name_
 old palette classes to say what a hex value came from; they set nothing. A `dark:`
 variant is a sign the colour is not a token yet — there are no

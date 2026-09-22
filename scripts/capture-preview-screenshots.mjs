@@ -8,15 +8,18 @@
 // Each language gets a fresh browser profile. The sample class is loaded
 // through the UI, so its pictures are drawn and stored the way a visitor's
 // would be. Its room is then replaced by a more varied one, written straight
-// into the class record in IndexedDB, and step 3 shuffles once. The English
+// into the class record in IndexedDB, and the plan layer shuffles once. The English
 // class takes over the German seating and circle — the two sample classes list
 // the same students in the same order — so every slide shows the same plan in
 // all four variants.
 //
-// Screenshots are taken at a device scale factor of 3 around the part of the
-// view a slide shows, then scaled down to the master's size in the browser.
-// The sizes are the ones HeroMockup and the web app manifest (vite.config.ts)
-// declare; changing one means changing those too. A canvas only writes RGBA
+// The workspace fills the window from `lg` up — header, toolbar, stage,
+// inspector, status bar — so a slide is the whole window rather than a cut-out:
+// 1440 × 960, the 3:2 shape of the start page's slot. The projection is the
+// exception, shot on a portrait tablet. Screenshots are taken at a device scale
+// factor of 3, then scaled down to the master's size in the browser. The sizes
+// are the ones HeroMockup and the web app manifest (vite.config.ts) declare;
+// changing one means changing those too. A canvas only writes RGBA
 // PNGs, so each master takes a lossless round trip through cwebp and dwebp and
 // is stored as RGB, a third smaller.
 //
@@ -45,18 +48,19 @@ const localesDir = path.join(projectRoot, 'src', 'i18n', 'locales');
 const LANGUAGES = ['de', 'en'];
 const THEMES = ['light', 'dark'];
 const CAPTURE_SCALE = 3;
-/** Wide enough for the widest app layout (`max-w-7xl` plus gutters). */
-const DESKTOP_VIEWPORT = { width: 1600, height: 1100 };
-/** Tall enough for the export preview to reach its maximum height. */
-const EXPORT_VIEWPORT = { width: 1600, height: 1300 };
+/** A laptop window in the slot's 3:2 shape, half the master's size. */
+const DESKTOP_VIEWPORT = { width: 1440, height: 960 };
+const WIDE_MASTER = { width: 2880, height: 1920 };
 /** A portrait tablet, half the master's size. */
 const PRESENT_VIEWPORT = { width: 712, height: 1118 };
-/**
- * Space around the captured elements, in CSS px. Step 2 leaves 13.6 px between
- * its sidebar and the button row below, which must stay out of the slide.
- */
-const MARGIN = 12;
+const PORTRAIT_MASTER = { width: 1424, height: 2236 };
 const STUDENT_COUNT = 24;
+/**
+ * The student the class slide opens in the inspector: restless, tall, a wish
+ * and an avoid wish, so the panel shows three families at once. Its position
+ * in the sample class (`DEMO_STUDENTS` in src/utils/demo/demoClass.ts).
+ */
+const INSPECTED_STUDENT = 1;
 
 // Table sizes from TABLE_PRESETS in src/utils/constants.ts.
 const TABLE_SIZES = {
@@ -98,11 +102,7 @@ function feature(id, type, x, y, width, height, anchor, rotation) {
   };
 }
 
-/**
- * 24 seats at every table template, some of them turned. The board is on the
- * right wall; the corners stay clear of the canvas controls (shuffle button,
- * view settings, statistics badge).
- */
+/** 24 seats at every table template, some of them turned. The board is on the right wall. */
 const SCREENSHOT_SCENE = {
   totalStudents: STUDENT_COUNT,
   tables: [
@@ -161,7 +161,10 @@ async function readTranslations(lang) {
     if (typeof text !== 'string') {
       throw new Error(`missing translation ${lang}/${key}`);
     }
-    return text.replace(/\{\{(\w+)\}\}/g, (_, name) => String(values[name]));
+    // A placeholder without a value stays, for translationPattern to open up.
+    return text.replace(/\{\{(\w+)\}\}/g, (placeholder, name) =>
+      name in values ? String(values[name]) : placeholder,
+    );
   };
 }
 
@@ -229,39 +232,6 @@ async function settle(page) {
   await page.waitForLoadState('networkidle');
   await page.evaluate(() => document.fonts.ready);
   await page.waitForTimeout(800);
-}
-
-/**
- * Bounding box around every element, grown by MARGIN and to the slide's aspect
- * ratio. The growth is split evenly; given a `floor` element, extra height
- * goes below the content instead, as far as that element's top edge.
- */
-async function clipAround(locators, target, { floor } = {}) {
-  const boxes = await Promise.all(
-    locators.map(async (locator) => {
-      const box = await locator.boundingBox();
-      if (!box) {
-        throw new Error(`nothing to capture for ${locator}`);
-      }
-      return box;
-    }),
-  );
-  const left = Math.min(...boxes.map((box) => box.x)) - MARGIN;
-  const top = Math.min(...boxes.map((box) => box.y)) - MARGIN;
-  const right = Math.max(...boxes.map((box) => box.x + box.width)) + MARGIN;
-  const bottom = Math.max(...boxes.map((box) => box.y + box.height)) + MARGIN;
-  const aspect = target.width / target.height;
-  const width = Math.max(right - left, (bottom - top) * aspect);
-  const height = width / aspect;
-  const floorBox = floor ? await floor.boundingBox() : null;
-  return {
-    x: (left + right - width) / 2,
-    y: floorBox
-      ? Math.min(top, floorBox.y - height)
-      : (top + bottom - height) / 2,
-    width,
-    height,
-  };
 }
 
 /** Scales a screenshot to the master size in the browser and returns a PNG. */
@@ -334,29 +304,86 @@ async function roomPointOnPage(container, x, y) {
   );
 }
 
-/** Resolves once step 1 lists every student with a stored picture. */
-async function waitForClassList(page, t) {
-  const label = t('students:photo.change').replace(
-    /[.*+?^${}()|[\]\\]/g,
-    '\\$&',
-  );
-  await page
-    .getByRole('button', { name: new RegExp(`^${label} – `) })
-    .nth(STUDENT_COUNT - 1)
-    .waitFor();
+/** Resolves once the class layer lists every student with a drawn picture. */
+async function waitForClassList(page) {
+  await page.waitForFunction((count) => {
+    const pictures = [
+      ...document.querySelectorAll('[data-tour="student-row"] img'),
+    ];
+    return (
+      pictures.length === count &&
+      pictures.every((picture) => picture.complete && picture.naturalWidth > 0)
+    );
+  }, STUDENT_COUNT);
   await settle(page);
 }
 
 async function openGenerator(page, baseUrl, prefix, t) {
   await page.setViewportSize(DESKTOP_VIEWPORT);
   await page.goto(`${baseUrl}${prefix}/generator`);
-  await waitForClassList(page, t);
+  await goToLayer(page, t, 'class');
+  await waitForClassList(page);
 }
 
-async function goToStep(page, t, step) {
+/**
+ * Moves the pointer off whatever it last pressed, so no hover state lands in a
+ * slide: the right edge of the inspector, which reacts to nothing.
+ */
+async function restPointer(page) {
+  await page.mouse.move(
+    DESKTOP_VIEWPORT.width - 2,
+    DESKTOP_VIEWPORT.height / 2,
+  );
+}
+
+/** Klasse, Raum or Sitzplan in the header's layer switcher. */
+async function goToLayer(page, t, layer) {
   await page
-    .getByRole('button', { name: t('generator:wizard.goToStep', { step }) })
+    .getByRole('tab', { name: t(`generator:shell.layers.${layer}`) })
     .click();
+}
+
+/** Sitzplan or Sitzkreis in the plan layer's toolbar. */
+async function showArrangement(page, t, layer) {
+  await page
+    .getByRole('button', {
+      name: t(`generator:shell.layers.${layer}`),
+      exact: true,
+    })
+    .click();
+}
+
+/** A pattern for a translation with its placeholders left open. */
+function translationPattern(text) {
+  return new RegExp(
+    text
+      .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      .replace(/\\\{\\\{\w+\\\}\\\}/g, '.+?'),
+  );
+}
+
+/**
+ * Picks a recipe above the criteria and shuffles with it, so the plan slide
+ * shows a named lesson rather than the settings a first shuffle left behind.
+ */
+async function mixWithRecipe(page, t, recipe) {
+  await page
+    .getByRole('button', { expanded: false })
+    .filter({
+      hasText: translationPattern(t('generator:mix.recipes.activeCount')),
+    })
+    .click();
+  await page
+    .getByRole('group', { name: t('generator:mix.recipes.title') })
+    .getByRole('button', {
+      name: translationPattern(t(`generator:mix.recipes.${recipe}.label`)),
+    })
+    .click();
+  await page.locator('[data-tour="mix-button"]').first().click();
+  await waitForPlan(page, t);
+  // The worker reports no end of its run on screen beyond the plan itself.
+  await page.waitForTimeout(1500);
+  await settle(page);
 }
 
 async function waitForPlan(page, t) {
@@ -368,7 +395,7 @@ async function waitForPlan(page, t) {
       }),
     })
     .waitFor();
-  await page.locator('[data-tour="statistics"]').first().waitFor();
+  await page.locator('[data-tour="plan-fulfillment"]').first().waitFor();
 }
 
 /**
@@ -380,7 +407,7 @@ async function prepareClass(page, baseUrl, prefix, t, germanPlan) {
   await page
     .getByRole('button', { name: t('generator:demoClass.button'), exact: true })
     .click();
-  await waitForClassList(page, t);
+  await waitForClassList(page);
 
   if (germanPlan) {
     const { students } = await accessActiveClass(page, baseUrl);
@@ -405,19 +432,16 @@ async function prepareClass(page, baseUrl, prefix, t, germanPlan) {
     circleLayout: null,
   });
   await openGenerator(page, baseUrl, prefix, t);
-  await goToStep(page, t, 3);
+  await goToLayer(page, t, 'plan');
   await waitForPlan(page, t);
+  await mixWithRecipe(page, t, 'recommended');
   // Opening the circle view generates the circle in the worker. Nothing on
   // screen marks the end of that run, hence the fixed wait; the check below
   // fails loudly if it was not enough.
-  await page
-    .getByRole('button', { name: t('generator:mode.circleView') })
-    .click();
+  await showArrangement(page, t, 'circle');
   await settle(page);
   await page.waitForTimeout(2000);
-  await page
-    .getByRole('button', { name: t('generator:mode.tableView') })
-    .click();
+  await showArrangement(page, t, 'plan');
   await settle(page);
 
   const germanClass = await accessActiveClass(page, baseUrl);
@@ -438,39 +462,25 @@ async function prepareClass(page, baseUrl, prefix, t, germanPlan) {
 }
 
 async function captureTheme(page, output, baseUrl, prefix, lang, theme, t) {
-  // View preferences a previous pass may have left behind.
+  const fullWindow = { x: 0, y: 0, ...DESKTOP_VIEWPORT };
+
+  // View preferences a previous pass may have left behind. The toolbar shows
+  // its labels: a slide is looked at, not used, and the words say what the
+  // icons would leave to a tooltip.
   await page.evaluate((value) => {
     localStorage.setItem('theme', value);
     localStorage.removeItem('spg.seatingMode');
-    localStorage.removeItem('spg.sidebarExpanded');
+    localStorage.setItem('spg.sidebarExpanded', 'true');
   }, theme);
 
-  const wide = { width: 2990, height: 1796 };
-
-  // 01 — class list from the wizard header down to the proceed button. The
-  // list fills the viewport and the button sits at its bottom, so the viewport
-  // is cut to end where the clip ends.
+  // 01 — the class layer with one student open in the inspector.
   await openGenerator(page, baseUrl, prefix, t);
-  const rowBox = await page
+  await page
     .locator('[data-tour="student-row"]')
-    .first()
-    .boundingBox();
-  const stepperBox = await page
-    .getByRole('button', {
-      name: t('generator:wizard.goToStep', { step: 1 }),
-    })
-    .boundingBox();
-  const listWidth = rowBox.width + 2 * MARGIN;
-  const listClip = {
-    x: rowBox.x - MARGIN,
-    y: Math.max(0, stepperBox.y - MARGIN),
-    width: listWidth,
-    height: (listWidth * wide.height) / wide.width,
-  };
-  await page.setViewportSize({
-    width: DESKTOP_VIEWPORT.width,
-    height: Math.ceil(listClip.y + listClip.height),
-  });
+    .nth(INSPECTED_STUDENT)
+    .getByRole('button')
+    .click();
+  await restPointer(page);
   await settle(page);
   await saveSlide(
     page,
@@ -478,13 +488,12 @@ async function captureTheme(page, output, baseUrl, prefix, lang, theme, t) {
     '01_schuelerliste',
     lang,
     theme,
-    wide,
-    listClip,
+    WIDE_MASTER,
+    fullWindow,
   );
 
-  // 02 — room editor with one table selected.
-  await openGenerator(page, baseUrl, prefix, t);
-  await goToStep(page, t, 2);
+  // 02 — the room layer with the group table selected.
+  await goToLayer(page, t, 'room');
   const layoutCanvas = page.locator('[data-tour="layout-canvas"]').first();
   await layoutCanvas.waitFor();
   await settle(page);
@@ -497,58 +506,38 @@ async function captureTheme(page, output, baseUrl, prefix, lang, theme, t) {
     '02_editor',
     lang,
     theme,
-    wide,
-    await clipAround(
-      [page.locator('[data-tour="layout-sidebar"]').first(), layoutCanvas],
-      wide,
-    ),
+    WIDE_MASTER,
+    fullWindow,
   );
 
-  // 03 — seating plan.
-  await goToStep(page, t, 3);
+  // 03 — the plan layer: the plan, and the criteria beside it.
+  await goToLayer(page, t, 'plan');
   await waitForPlan(page, t);
+  await restPointer(page);
   await settle(page);
-  const planCanvas = page.locator('[data-tour="plan-canvas"]').first();
-  const planSidebar = page.locator('[data-tour="plan-sidebar"]').first();
   await saveSlide(
     page,
     output,
     '03_sitzplan',
     lang,
     theme,
-    wide,
-    await clipAround([planSidebar, planCanvas], wide),
+    WIDE_MASTER,
+    fullWindow,
   );
 
-  // 04 — seating circle with its options and the plan actions. The circle
-  // view carries no tour anchors; its sidebar shares a row with the canvas
-  // column, which ends with the action buttons. Above the row are the step
-  // labels, so the slide grows towards the footer.
-  await page
-    .getByRole('button', { name: t('generator:mode.circleView') })
-    .click();
-  await page
-    .getByRole('button', { name: t('generator:sidebar.expandLabel') })
-    .click();
+  // 04 — the same plan as a seating circle.
+  await showArrangement(page, t, 'circle');
   await settle(page);
-  const circleRow = page
-    .getByRole('complementary', { name: t('generator:sidebar.ariaLabel') })
-    .locator('xpath=..');
   await saveSlide(
     page,
     output,
     '04_sitzkreis',
     lang,
     theme,
-    wide,
-    await clipAround([circleRow], wide, {
-      floor: page.locator('footer').first(),
-    }),
+    WIDE_MASTER,
+    fullWindow,
   );
-  await page.evaluate(() => {
-    localStorage.removeItem('spg.seatingMode');
-    localStorage.removeItem('spg.sidebarExpanded');
-  });
+  await page.evaluate(() => localStorage.removeItem('spg.seatingMode'));
 
   // 05 — presentation, student view, as on a portrait tablet.
   await page.setViewportSize(PRESENT_VIEWPORT);
@@ -560,15 +549,13 @@ async function captureTheme(page, output, baseUrl, prefix, lang, theme, t) {
     '05_praesentation',
     lang,
     theme,
-    { width: 1424, height: 2236 },
+    PORTRAIT_MASTER,
     { x: 0, y: 0, ...PRESENT_VIEWPORT },
   );
 
-  // 06 — export preview.
-  const portrait = { width: 1350, height: 1840 };
-  await page.setViewportSize(EXPORT_VIEWPORT);
+  // 06 — the export page: the sheet on the stage, its settings beside it.
+  await page.setViewportSize(DESKTOP_VIEWPORT);
   await page.goto(`${baseUrl}${prefix}/export`);
-  const previewFrame = page.locator('div:has(> iframe)').first();
   await page
     .locator('iframe')
     .first()
@@ -583,8 +570,8 @@ async function captureTheme(page, output, baseUrl, prefix, lang, theme, t) {
     '06_export',
     lang,
     theme,
-    portrait,
-    await clipAround([previewFrame], portrait),
+    WIDE_MASTER,
+    fullWindow,
   );
 }
 
@@ -635,11 +622,24 @@ async function main() {
       });
       const page = await context.newPage();
 
-      const result = await prepareClass(page, baseUrl, prefix, t, germanPlan);
-      germanPlan ??= result;
+      try {
+        const result = await prepareClass(page, baseUrl, prefix, t, germanPlan);
+        germanPlan ??= result;
 
-      for (const theme of THEMES) {
-        await captureTheme(page, output, baseUrl, prefix, lang, theme, t);
+        // A view's first visit makes the dev server discover the dependencies
+        // it pulls in, and a discovery reloads the page — mid-capture, as like
+        // as not. The first language therefore takes one throwaway pass that
+        // warms every view up; the pass after it overwrites what it wrote.
+        const themes = lang === LANGUAGES[0] ? [THEMES[0], ...THEMES] : THEMES;
+        for (const theme of themes) {
+          await captureTheme(page, output, baseUrl, prefix, lang, theme, t);
+        }
+      } catch (error) {
+        // What was on screen when a step gave up says more than its selector.
+        const failure = path.join(os.tmpdir(), 'kp-capture-failure.png');
+        await page.screenshot({ path: failure }).catch(() => {});
+        logError('Screen at the failure', { file: failure }, SOURCE);
+        throw error;
       }
       await context.close();
     }

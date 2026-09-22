@@ -248,6 +248,29 @@ A dropdown is a `menuSurfaceClass` box; its rows are `menuItemClass`, and the on
 
 Whatever opens from a toolbar entry is such a dropdown: a row per choice, an icon and a word. A setting that is on carries a check at the row's end (`CanvasSettingsGroups`), a setting with a handful of values is a group of such rows with the chosen one checked, and small caps above a group name it. There are no cards inside a popover and no icon-only chips whose meaning lives in a tooltip. Only a panel that asks for a value — a name, a number of placeholders — is a small form, on the same surface.
 
+## 6d. The start page
+
+`pages/StartPage.tsx` is the one page that sells rather than works, and it
+does so with the workspace's own means. The hero title and each section's
+claim are set in `--font-serif`; above a claim, small caps name what the
+section is about. Sections are divided by a hairline, not by cards, and the
+page carries one blue button — "Plane jetzt deine Klasse!". FAQ, contact and
+support are quiet links in ink.
+
+The criteria section is the only place on the page with colour, and it may
+have it because every colour there describes pedagogy: each family is a
+`dataHeadingClass` over `dataChipClass` chips, icon and word, in the order and
+with the names the inspector uses (`criteriaIcons.ts`,
+`generator:mix.criteria.*`). The layers, recipes, importance levels and tools
+the page mentions are quoted from the app's own keys, so the page cannot call
+a thing differently from the screen it describes.
+
+The preview (`HeroMockup`) is a `panelSurfaceClass` frame around whole-window
+screenshots (`npm run capture:preview-screenshots`), with no browser chrome
+drawn around them. Nothing floats over the picture: the slide's name, its
+position and the controls sit in a strip below it, the way the app keeps its
+own out of the stage.
+
 ## 7. Extensions & maintenance
 
 1. New surface or button variants are first added as a utility in `src/index.css` and then exported from `designTokens.ts`.

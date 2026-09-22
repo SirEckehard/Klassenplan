@@ -7,6 +7,7 @@ import { useDialogA11y } from '@/hooks/ui/useDialogA11y';
 import { useDialogLayer } from '@/hooks/ui/useDialogLayer';
 import { usePrefersReducedMotion } from '@/hooks/ui/usePrefersReducedMotion';
 import previewImages from '@/data/previewImages.json';
+import { panelSurfaceClass, quietIconButtonClass } from '@/utils';
 import {
   CaretLeftIcon,
   CaretRightIcon,
@@ -26,26 +27,26 @@ const SLIDES = [
   {
     slug: '01_schuelerliste',
     labelKey: 'startPage.previewSlides.schuelerliste',
-    width: 2990,
-    height: 1796,
+    width: 2880,
+    height: 1920,
   },
   {
     slug: '02_editor',
     labelKey: 'startPage.previewSlides.editor',
-    width: 2990,
-    height: 1796,
+    width: 2880,
+    height: 1920,
   },
   {
     slug: '03_sitzplan',
     labelKey: 'startPage.previewSlides.sitzplan',
-    width: 2990,
-    height: 1796,
+    width: 2880,
+    height: 1920,
   },
   {
     slug: '04_sitzkreis',
     labelKey: 'startPage.previewSlides.sitzkreis',
-    width: 2990,
-    height: 1796,
+    width: 2880,
+    height: 1920,
   },
   {
     slug: '05_praesentation',
@@ -56,15 +57,26 @@ const SLIDES = [
   {
     slug: '06_export',
     labelKey: 'startPage.previewSlides.export',
-    width: 1350,
-    height: 1840,
+    width: 2880,
+    height: 1920,
   },
 ];
 
 /** The slide area is `aspect-3/2`. */
 const SLOT_ASPECT = 3 / 2;
-/** Slot width from `lg` up: half of `max-w-5xl` minus the `gap-12` column gap. */
-const SLOT_WIDTH_LG = 488;
+/**
+ * The slot's rendered width. From `lg` up it takes seven of the start page's
+ * twelve columns (`max-w-6xl`, `gap-12`): 652px once the page has reached its
+ * full width at 1200px, 7/12 of the viewport less the gutters below that.
+ * Under `lg` it spans the page less its `px-4` gutters.
+ */
+const SLOT_WIDTH_XL = 652;
+const slotWidths = (share: number) =>
+  [
+    `(min-width: 1200px) ${Math.ceil(SLOT_WIDTH_XL * share)}px`,
+    `(min-width: 1024px) calc((58.4vw - 48px) * ${share.toFixed(3)})`,
+    `calc((100vw - 2rem) * ${share.toFixed(3)})`,
+  ].join(', ');
 
 function useIsDark() {
   const [dark, setDark] = useState(() =>
@@ -101,11 +113,7 @@ function slideSrcSet(base: string, width: number, ext: 'avif' | 'webp') {
  * browser would pick a candidate for the full slot width.
  */
 function slideSizes(width: number, height: number) {
-  const share = Math.min(1, width / height / SLOT_ASPECT);
-  if (share === 1) {
-    return `(min-width: 1024px) ${SLOT_WIDTH_LG}px, calc(100vw - 2rem)`;
-  }
-  return `(min-width: 1024px) ${Math.ceil(SLOT_WIDTH_LG * share)}px, calc((100vw - 2rem) * ${share.toFixed(3)})`;
+  return slotWidths(Math.min(1, width / height / SLOT_ASPECT));
 }
 
 export default function HeroMockup() {
@@ -171,144 +179,119 @@ export default function HeroMockup() {
     return () => window.removeEventListener('keydown', onKey);
   }, [lightbox, current, closeLightbox]);
 
+  const slide = SLIDES[current];
+  // The caption announces a slide change only when the visitor made it: a
+  // rotating carousel that spoke up every four seconds would drown out
+  // everything else (WAI-ARIA carousel pattern).
+  const rotating = !paused && !prefersReducedMotion;
+
   return (
     <>
       <div
-        className="relative flex items-center justify-center"
         role="region"
         aria-roledescription="carousel"
         aria-label={t('startPage.carousel.label')}
+        className={`${panelSurfaceClass} overflow-hidden`}
       >
-        <div className="w-full rounded-2xl border border-(--border-card) bg-(--surface-card) shadow-xl overflow-hidden">
-          {/* Mac-style chrome */}
-          <div
-            className="flex items-center gap-1.5 border-b border-(--border-card) bg-(--surface-sunken) px-3 py-2.5"
-            aria-hidden="true"
-          >
-            {/* The three dots of a window chrome — part of the picture, not of
-                this app's palette. */}
-            <span className="h-2.5 w-2.5 rounded-full bg-red-400" />
-            <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
-            <span className="h-2.5 w-2.5 rounded-full bg-green-400" />
-            <span className="ml-2 flex-1 rounded bg-(--border-card) h-3 max-w-40" />
-          </div>
-
-          {/* Slides */}
-          <div className="group relative aspect-3/2 bg-(--surface-sunken)">
-            {SLIDES.map((slide, i) => {
-              if (!mounted.has(i)) return null;
-              const b = slideBase(slide.slug, lang, isDark);
-              const isActive = i === current;
-              const sizes = slideSizes(slide.width, slide.height);
-              return (
-                <picture key={slide.slug}>
-                  <source
-                    srcSet={slideSrcSet(b, slide.width, 'avif')}
-                    sizes={sizes}
-                    type="image/avif"
-                  />
-                  <source
-                    srcSet={slideSrcSet(b, slide.width, 'webp')}
-                    sizes={sizes}
-                    type="image/webp"
-                  />
-                  <img
-                    src={`${b}.webp`}
-                    alt={t(slide.labelKey)}
-                    aria-hidden={!isActive}
-                    loading={isActive ? 'eager' : 'lazy'}
-                    decoding="async"
-                    fetchPriority={isActive ? 'high' : 'low'}
-                    className={`absolute inset-0 w-full h-full object-contain transition-opacity duration-500 ${
-                      isActive ? 'opacity-100' : 'opacity-0 pointer-events-none'
-                    }`}
-                  />
-                </picture>
-              );
-            })}
-
-            {/* Expand button — revealed on hover, but always visible on touch */}
-            <button
-              onClick={openLightbox}
-              className="absolute top-2 right-2 cursor-pointer rounded-full bg-(--surface-card) p-1.5 shadow-md opacity-0 transition group-hover:opacity-100 group-focus-within:opacity-100 pointer-coarse:opacity-100 hover:bg-(--surface-card)"
-              title={t('startPage.carousel.expand')}
-              aria-label={t('startPage.carousel.expand')}
-            >
-              <ArrowsOutIcon
-                size={14}
-                aria-hidden="true"
-                className="text-(--text-muted)"
-              />
-            </button>
-
-            {/* Prev button */}
-            <button
-              onClick={() => go(current - 1)}
-              aria-label={t('startPage.carousel.previous')}
-              className="absolute left-2 top-1/2 -translate-y-1/2 cursor-pointer rounded-full bg-(--surface-card) p-1.5 shadow-md hover:bg-(--surface-card) transition"
-            >
-              <CaretLeftIcon
-                size={14}
-                aria-hidden="true"
-                className="text-(--text-muted)"
-              />
-            </button>
-
-            {/* Next button */}
-            <button
-              onClick={() => go(current + 1)}
-              aria-label={t('startPage.carousel.next')}
-              className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer rounded-full bg-(--surface-card) p-1.5 shadow-md hover:bg-(--surface-card) transition"
-            >
-              <CaretRightIcon
-                size={14}
-                aria-hidden="true"
-                className="text-(--text-muted)"
-              />
-            </button>
-          </div>
-
-          {/* Dot navigation + autoplay toggle. Each dot sits in a 24 × 24 px
-              button: the visible dot stays small, the target meets WCAG 2.5.8. */}
-          <div className="relative flex justify-center items-center py-0.5">
-            {SLIDES.map((slide, i) => (
-              <button
-                key={i}
-                onClick={() => go(i)}
-                aria-label={t('startPage.carousel.goToSlide', {
-                  number: i + 1,
-                  total: SLIDES.length,
-                })}
-                aria-current={i === current ? 'true' : undefined}
-                className="group flex h-6 min-w-6 cursor-pointer items-center justify-center rounded-full"
-              >
-                <span
-                  aria-hidden="true"
-                  className={`h-1.5 rounded-full transition-all duration-300 ${
-                    i === current
-                      ? 'w-4 bg-(--button-primary-bg)'
-                      : 'w-1.5 bg-(--border-card) group-hover:bg-(--text-muted)'
+        {/* Slides. Nothing floats over the picture: its controls sit in the
+            strip below, the way the app keeps its own out of the stage. */}
+        <div className="relative aspect-3/2 bg-(--surface-sunken)">
+          {SLIDES.map((entry, i) => {
+            if (!mounted.has(i)) return null;
+            const b = slideBase(entry.slug, lang, isDark);
+            const isActive = i === current;
+            const sizes = slideSizes(entry.width, entry.height);
+            return (
+              <picture key={entry.slug}>
+                <source
+                  srcSet={slideSrcSet(b, entry.width, 'avif')}
+                  sizes={sizes}
+                  type="image/avif"
+                />
+                <source
+                  srcSet={slideSrcSet(b, entry.width, 'webp')}
+                  sizes={sizes}
+                  type="image/webp"
+                />
+                <img
+                  src={`${b}.webp`}
+                  alt={t(entry.labelKey)}
+                  aria-hidden={!isActive}
+                  loading={isActive ? 'eager' : 'lazy'}
+                  decoding="async"
+                  fetchPriority={isActive ? 'high' : 'low'}
+                  className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-500 ${
+                    isActive ? 'opacity-100' : 'pointer-events-none opacity-0'
                   }`}
                 />
-              </button>
-            ))}
-            <button
-              onClick={() => setPaused((p) => !p)}
-              aria-pressed={paused}
-              aria-label={
-                paused
-                  ? t('startPage.carousel.play')
-                  : t('startPage.carousel.pause')
-              }
-              className="absolute right-2 cursor-pointer rounded-full p-1.5 text-(--text-muted) hover:text-(--text-muted) transition"
+              </picture>
+            );
+          })}
+        </div>
+
+        <div className="flex items-center gap-1 border-t border-(--border-card) py-1 pr-1 pl-4">
+          <p
+            className="flex min-w-0 flex-1 items-baseline gap-2 text-sm"
+            aria-live={rotating ? 'off' : 'polite'}
+          >
+            <span className="truncate font-medium text-(--text-page)">
+              {t(slide.labelKey)}
+            </span>
+            <span
+              className="text-xs tabular-nums text-(--text-muted)"
+              aria-hidden="true"
             >
-              {paused ? (
-                <PlayIcon size={12} aria-hidden="true" />
-              ) : (
-                <PauseIcon size={12} aria-hidden="true" />
-              )}
-            </button>
-          </div>
+              {current + 1} / {SLIDES.length}
+            </span>
+            <span className="sr-only">
+              {t('startPage.carousel.position', {
+                number: current + 1,
+                total: SLIDES.length,
+              })}
+            </span>
+          </p>
+          <button
+            type="button"
+            onClick={() => go(current - 1)}
+            aria-label={t('startPage.carousel.previous')}
+            className={quietIconButtonClass}
+          >
+            <CaretLeftIcon size={16} aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            onClick={() => go(current + 1)}
+            aria-label={t('startPage.carousel.next')}
+            className={quietIconButtonClass}
+          >
+            <CaretRightIcon size={16} aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            onClick={() => setPaused((p) => !p)}
+            aria-pressed={paused}
+            aria-label={
+              paused
+                ? t('startPage.carousel.play')
+                : t('startPage.carousel.pause')
+            }
+            className={quietIconButtonClass}
+          >
+            {paused ? (
+              <PlayIcon size={16} aria-hidden="true" />
+            ) : (
+              <PauseIcon size={16} aria-hidden="true" />
+            )}
+          </button>
+          <button
+            type="button"
+            onClick={openLightbox}
+            title={t('startPage.carousel.expand')}
+            aria-label={t('startPage.carousel.expand')}
+            className={quietIconButtonClass}
+          >
+            <ArrowsOutIcon size={16} aria-hidden="true" />
+          </button>
         </div>
       </div>
 
@@ -316,7 +299,7 @@ export default function HeroMockup() {
       {lightbox &&
         createPortal(
           <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm p-4"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4"
             onClick={closeLightbox}
           >
             <div
@@ -342,7 +325,7 @@ export default function HeroMockup() {
                   src={`${slideBase(SLIDES[current].slug, lang, isDark)}.webp`}
                   alt={t(SLIDES[current].labelKey)}
                   decoding="async"
-                  className="max-h-[80vh] w-full object-contain rounded-xl shadow-2xl"
+                  className="max-h-[80vh] w-full rounded-lg object-contain"
                 />
               </picture>
 
@@ -363,14 +346,16 @@ export default function HeroMockup() {
                       total: SLIDES.length,
                     })}
                     aria-current={i === current ? 'true' : undefined}
-                    className="group flex h-6 min-w-6 cursor-pointer items-center justify-center rounded-full"
+                    className="group flex h-6 min-w-6 cursor-pointer items-center justify-center rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
                   >
+                    {/* White whatever the theme: the backdrop is black in
+                        both, like a photo viewer's. */}
                     <span
                       aria-hidden="true"
                       className={`h-1.5 rounded-full transition-all duration-300 ${
                         i === current
-                          ? 'w-5 bg-(--surface-card)'
-                          : 'w-1.5 bg-white/40 group-hover:bg-(--surface-card)'
+                          ? 'w-5 bg-white'
+                          : 'w-1.5 bg-white/40 group-hover:bg-white/70'
                       }`}
                     />
                   </button>
@@ -381,7 +366,7 @@ export default function HeroMockup() {
               <button
                 onClick={() => go(current - 1)}
                 aria-label={t('startPage.carousel.previous')}
-                className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 sm:-translate-x-12 cursor-pointer rounded-full bg-white/10 hover:bg-white/20 p-2.5 transition"
+                className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 sm:-translate-x-12 cursor-pointer rounded-lg bg-white/10 p-2.5 transition hover:bg-white/20"
               >
                 <CaretLeftIcon
                   size={20}
@@ -394,7 +379,7 @@ export default function HeroMockup() {
               <button
                 onClick={() => go(current + 1)}
                 aria-label={t('startPage.carousel.next')}
-                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 sm:translate-x-12 cursor-pointer rounded-full bg-white/10 hover:bg-white/20 p-2.5 transition"
+                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 sm:translate-x-12 cursor-pointer rounded-lg bg-white/10 p-2.5 transition hover:bg-white/20"
               >
                 <CaretRightIcon
                   size={20}
@@ -407,7 +392,7 @@ export default function HeroMockup() {
               <button
                 onClick={closeLightbox}
                 aria-label={t('startPage.carousel.close')}
-                className="absolute -top-3 -right-3 sm:-top-10 sm:-right-10 cursor-pointer rounded-full bg-white/10 hover:bg-white/20 p-2 transition"
+                className="absolute -top-3 -right-3 sm:-top-10 sm:-right-10 cursor-pointer rounded-lg bg-white/10 p-2 transition hover:bg-white/20"
               >
                 <XIcon size={18} aria-hidden="true" className="text-white" />
               </button>

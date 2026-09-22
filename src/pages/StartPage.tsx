@@ -2,84 +2,173 @@
 // Copyright (C) 2026 Eike Schäfer
 import {
   ShieldCheckIcon,
-  BrainIcon,
-  CursorClickIcon,
   QuestionIcon,
   AddressBookTabsIcon,
-  HouseLineIcon,
+  HouseIcon,
   GridNineIcon,
   MailboxIcon,
-  FilePdfIcon,
   HandHeartIcon,
+  ChalkboardTeacherIcon,
+  UsersThreeIcon,
 } from '@phosphor-icons/react';
 import { useTranslation } from 'react-i18next';
 import Seo from '@/components/Seo';
 import { LocalizedLink } from '@/components/LocalizedLink';
-import { cardSurfaceClass, primaryButtonClass } from '@/utils';
+import {
+  dataChipClass,
+  dataFamilyClass,
+  dataHeadingClass,
+  primaryButtonClass,
+} from '@/utils';
+import {
+  CRITERIA_FAMILY_MAP,
+  CRITERIA_ICON_MAP,
+} from '@/utils/ui/criteriaIcons';
 import { KpLockup } from '@/components/KpLockup';
 import { usePageSeo } from '@/hooks/usePageSeo';
 import HeroMockup from '@/components/HeroMockup';
+import type { ScalarMixSettingKey } from '@/types';
 
-const benefits = [
-  {
-    icon: ShieldCheckIcon,
-    titleKey: 'startPage.whyKlassenplanItems.privacy',
-    descKey: 'startPage.whyKlassenplanItems.privacyDescription',
-    color: 'text-(--button-success-bg)',
-    bgColor: 'bg-(--surface-sunken)',
-    borderColor: 'border-t-2 border-t-(--button-success-bg)!',
-  },
-  {
-    icon: CursorClickIcon,
-    titleKey: 'startPage.whyKlassenplanItems.editor',
-    descKey: 'startPage.whyKlassenplanItems.editorDescription',
-    color: 'text-(--text-muted)',
-    bgColor: 'bg-(--surface-sunken)',
-    borderColor: 'border-t-2 border-t-(--text-muted)!',
-  },
-  {
-    icon: BrainIcon,
-    titleKey: 'startPage.whyKlassenplanItems.algorithm',
-    descKey: 'startPage.whyKlassenplanItems.algorithmDescription',
-    color: 'text-(--text-badge)',
-    bgColor: 'bg-(--surface-option-selected)',
-    borderColor: 'border-t-2 border-t-(--button-primary-bg)!',
-  },
-] as const;
+/** Small caps above a section's title: what the section is about. */
+const eyebrowClass =
+  'text-xs font-semibold uppercase tracking-wider text-(--text-muted)';
 
-const steps = [
+/** The serif is reserved for display type: the hero and each section's claim. */
+const sectionTitleClass =
+  'mt-3 font-serif text-3xl leading-tight text-(--text-page) sm:text-4xl';
+
+const sectionClass = 'border-t border-(--border-card) py-14 lg:py-20';
+
+const quietLinkClass =
+  'inline-flex items-center gap-1.5 rounded-sm text-(--text-muted) underline-offset-4 transition-colors hover:text-(--text-page) hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)';
+
+/**
+ * The three layers of the workspace, named with the layer switcher's own words
+ * so the start page and the app cannot call them differently.
+ */
+const layers = [
   {
     icon: AddressBookTabsIcon,
-    titleKey: 'startPage.howItWorksItems.step1Title',
-    textKey: 'startPage.howItWorksItems.step1Text',
+    titleKey: 'generator:shell.layers.class',
+    textKey: 'startPage.layers.classText',
   },
   {
-    icon: HouseLineIcon,
-    titleKey: 'startPage.howItWorksItems.step2Title',
-    textKey: 'startPage.howItWorksItems.step2Text',
+    icon: HouseIcon,
+    titleKey: 'generator:shell.layers.room',
+    textKey: 'startPage.layers.roomText',
   },
   {
     icon: GridNineIcon,
-    titleKey: 'startPage.howItWorksItems.step3Title',
-    textKey: 'startPage.howItWorksItems.step3Text',
-  },
-  {
-    icon: FilePdfIcon,
-    titleKey: 'startPage.howItWorksItems.step4Title',
-    textKey: 'startPage.howItWorksItems.step4Text',
+    titleKey: 'generator:shell.layers.plan',
+    textKey: 'startPage.layers.planText',
   },
 ] as const;
 
+/**
+ * The criteria in the order the inspector asks about a student, each under the
+ * family it speaks for. Colour and icon come from `criteriaIcons`, the label
+ * from the criterion itself — the chips here read exactly like the ones beside
+ * the plan.
+ */
+const criteriaGroups: readonly {
+  labelKey: string;
+  criteria: readonly ScalarMixSettingKey[];
+}[] = [
+  {
+    labelKey: 'students:inspector.groups.behavior',
+    criteria: ['avoidRestlessTogether', 'avoidConcentrationTogether'],
+  },
+  {
+    labelKey: 'students:inspector.groups.social',
+    criteria: [
+      'avoidShyAlone',
+      'distributeSocialRoles',
+      'considerWishPartners',
+      'avoidConflictPartners',
+    ],
+  },
+  {
+    labelKey: 'students:inspector.groups.learning',
+    criteria: ['peerTutoring', 'homogeneousPerformanceGroups'],
+  },
+  {
+    labelKey: 'students:inspector.groups.language',
+    criteria: ['preferLanguageMixing'],
+  },
+  {
+    labelKey: 'students:inspector.groups.space',
+    criteria: [
+      'preferFrontForNeedsFrontSeat',
+      'preferFrontForSmallerStudents',
+      'preferWindowSeats',
+      'preferDoorSeats',
+    ],
+  },
+  {
+    labelKey: 'students:inspector.groups.person',
+    criteria: ['preferGenderMix'],
+  },
+  {
+    labelKey: 'startPage.criteria.historyGroup',
+    criteria: ['avoidPreviousPairs'],
+  },
+];
+
+const recipeKeys = [
+  'generator:mix.recipes.quietWork.label',
+  'generator:mix.recipes.groupWork.label',
+  'generator:mix.recipes.exam.label',
+] as const;
+
+const importanceKeys = [
+  'generator:mix.importance.off',
+  'generator:mix.importance.consider',
+  'generator:mix.importance.important',
+  'generator:mix.importance.essential',
+] as const;
+
+const toolKeys = [
+  'generator:tools.whoIsNext.title',
+  'generator:tools.seatFinder.title',
+  'generator:tools.groups.title',
+] as const;
+
 export default function StartPage() {
-  const { t } = useTranslation('pages');
+  const { t, i18n } = useTranslation('pages');
   const metadata = usePageSeo('/');
 
+  // Names quoted from the app, joined the way the language joins a list.
+  const quote = (key: string) => t('startPage.quoted', { text: t(key) });
+  const joinWith = (
+    keys: readonly string[],
+    type: 'conjunction' | 'disjunction',
+  ) =>
+    new Intl.ListFormat(i18n.language, { style: 'long', type }).format(
+      keys.map(quote),
+    );
+
+  const benefits = [
+    {
+      icon: ShieldCheckIcon,
+      title: t('startPage.why.privacy'),
+      text: t('startPage.why.privacyDescription'),
+    },
+    {
+      icon: ChalkboardTeacherIcon,
+      title: t('startPage.why.projector'),
+      text: t('startPage.why.projectorDescription', {
+        tools: joinWith(toolKeys, 'conjunction'),
+      }),
+    },
+    {
+      icon: UsersThreeIcon,
+      title: t('startPage.why.sample'),
+      text: t('startPage.why.sampleDescription'),
+    },
+  ];
+
   return (
-    <main
-      id="main"
-      tabIndex={-1}
-      className="min-h-[80vh] px-4 py-12 bg-(--surface-page)"
-    >
+    <main id="main" tabIndex={-1} className="bg-(--surface-page) px-4 sm:px-6">
       <Seo
         {...metadata}
         structuredData={[
@@ -105,141 +194,186 @@ export default function StartPage() {
           },
         ]}
       />
-      <div className="mx-auto max-w-5xl space-y-8">
-        {/* Hero – Split layout */}
-        <header role="banner" aria-label={t('header.banner.start')}>
-          <div className="lg:grid lg:grid-cols-2 lg:gap-12 lg:items-start">
-            {/* Text side */}
-            <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
-              <LocalizedLink
-                to="/"
-                className="kp-lockup focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:ring-offset-2"
-                aria-label={t('header.homeLink')}
-              >
-                <KpLockup size="md" />
-              </LocalizedLink>
+      <div className="mx-auto max-w-6xl">
+        <header
+          role="banner"
+          aria-label={t('header.banner.start')}
+          className="grid items-center gap-10 py-10 lg:grid-cols-12 lg:gap-12 lg:py-16"
+        >
+          <div className="flex flex-col items-start lg:col-span-5">
+            <LocalizedLink
+              to="/"
+              className="kp-lockup focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:ring-offset-2"
+              aria-label={t('header.homeLink')}
+            >
+              <KpLockup size="md" />
+            </LocalizedLink>
 
-              <h1 className="mt-8 text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-(--text-page)">
-                {t('startPage.heroTitle')}
-              </h1>
+            <h1 className="mt-10 font-serif text-5xl tracking-tight text-balance text-(--text-page) sm:text-6xl">
+              {t('startPage.heroTitle')}
+            </h1>
 
-              <p className="mt-3 text-base sm:text-lg text-(--text-muted)">
-                {t('startPage.heroDescription')}
-              </p>
+            <p className="mt-5 max-w-md text-lg text-pretty text-(--text-muted)">
+              {t('startPage.heroDescription')}
+            </p>
 
-              {/* Support-Badge – über dem CTA */}
-              <div className="mt-6 inline-flex items-center justify-center text-sm">
+            <LocalizedLink
+              to="/generator"
+              className={`mt-8 w-full sm:w-auto ${primaryButtonClass} px-6 py-3 text-center text-base font-semibold`}
+            >
+              {t('startPage.ctaButton')}
+            </LocalizedLink>
+
+            <ul className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
+              <li>
                 <LocalizedLink
                   to="/support"
                   title={t('startPage.heroBadgeTooltip')}
-                  className="inline-flex items-center gap-2 text-(--button-success-bg) hover:text-(--text-page) font-medium transition"
+                  className={quietLinkClass}
                 >
-                  <HandHeartIcon size={16} weight="fill" aria-hidden="true" />
+                  <HandHeartIcon size={16} aria-hidden="true" />
                   <span>{t('startPage.heroBadge')}</span>
                 </LocalizedLink>
-              </div>
-
-              <LocalizedLink
-                to="/generator"
-                className={`mt-5 w-full sm:w-auto ${primaryButtonClass} px-6 py-3 text-base font-semibold shadow-lg text-center`}
-              >
-                {t('startPage.ctaButton')}
-              </LocalizedLink>
-
-              {/* Quick-Links – unter dem CTA als dezente Nebeninfos */}
-              <div className="mt-5 inline-flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm">
-                <LocalizedLink
-                  to="/faq"
-                  className="inline-flex items-center gap-2 text-(--text-muted) hover:text-(--text-muted) font-medium transition"
-                >
+              </li>
+              <li>
+                <LocalizedLink to="/faq" className={quietLinkClass}>
                   <QuestionIcon size={16} aria-hidden="true" />
                   <span>{t('startPage.faqLink')}</span>
                 </LocalizedLink>
-                <LocalizedLink
-                  to="/feedback"
-                  className="inline-flex items-center gap-2 text-(--text-muted) hover:text-(--text-muted) font-medium transition"
-                >
+              </li>
+              <li>
+                <LocalizedLink to="/feedback" className={quietLinkClass}>
                   <MailboxIcon size={16} aria-hidden="true" />
                   <span>{t('startPage.contactLink')}</span>
                 </LocalizedLink>
-              </div>
-            </div>
+              </li>
+            </ul>
+          </div>
 
-            {/* Mockup side */}
-            <div className="mt-8 lg:mt-0">
-              <HeroMockup />
-            </div>
+          <div className="min-w-0 lg:col-span-7">
+            <HeroMockup />
           </div>
         </header>
 
-        {/* Benefits - 3 cards */}
-        <section aria-labelledby="vorteile-title">
-          <h2
-            id="vorteile-title"
-            className="mb-5 text-center text-lg sm:text-xl font-semibold text-(--text-page)"
-          >
-            {t('startPage.whyKlassenplanTitle')}
-          </h2>
-          <div className="grid grid-cols-3 gap-2 sm:gap-4">
-            {benefits.map((benefit) => (
-              <div
-                key={benefit.titleKey}
-                className={`${cardSurfaceClass} ${benefit.borderColor} flex flex-col items-center p-2 sm:p-5 text-center border border-(--border-card)`}
-              >
-                <div
-                  className={`mb-1 sm:mb-3 flex h-8 w-8 sm:h-12 sm:w-12 items-center justify-center rounded-full ${benefit.bgColor}`}
-                >
-                  <benefit.icon
-                    className={`h-4 w-4 sm:h-6 sm:w-6 ${benefit.color}`}
-                    aria-hidden="true"
-                  />
-                </div>
-                <h3 className="text-xs sm:text-base font-semibold text-(--text-page)">
-                  {t(benefit.titleKey)}
-                </h3>
-                <p className="mt-1 text-[10px] leading-tight sm:text-sm text-(--text-muted)">
-                  {t(benefit.descKey)}
-                </p>
-              </div>
-            ))}
+        {/* Klasse · Raum · Plan */}
+        <section aria-labelledby="layers-title" className={sectionClass}>
+          <div className="grid gap-8 lg:grid-cols-12 lg:gap-12">
+            <div className="lg:col-span-5">
+              <p className={eyebrowClass}>{t('startPage.layers.eyebrow')}</p>
+              <h2 id="layers-title" className={sectionTitleClass}>
+                {t('startPage.layers.title')}
+              </h2>
+              <p className="mt-4 max-w-md text-pretty text-(--text-muted)">
+                {t('startPage.layers.intro')}
+              </p>
+            </div>
+
+            <div className="lg:col-span-7">
+              <ol className="border-b border-(--border-card)">
+                {layers.map((layer, index) => (
+                  <li
+                    key={layer.titleKey}
+                    className="flex gap-5 border-t border-(--border-card) py-5"
+                  >
+                    <span
+                      className="w-6 shrink-0 font-serif text-3xl leading-none tabular-nums text-(--text-muted)"
+                      aria-hidden="true"
+                    >
+                      {index + 1}
+                    </span>
+                    <div className="min-w-0">
+                      <h3 className="flex items-center gap-2 text-lg font-semibold text-(--text-page)">
+                        <layer.icon
+                          size={20}
+                          className="text-(--text-muted)"
+                          aria-hidden="true"
+                        />
+                        {t(layer.titleKey)}
+                      </h3>
+                      <p className="mt-1 text-pretty text-(--text-muted)">
+                        {t(layer.textKey, {
+                          question: quote(
+                            'students:focusMode.questions.restless',
+                          ),
+                        })}
+                      </p>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+              <p className="mt-5 text-sm text-pretty text-(--text-muted)">
+                {t('startPage.layers.exits')}
+              </p>
+            </div>
           </div>
         </section>
 
-        {/* How it works */}
-        <section aria-labelledby="howItWorks-title">
-          <h2
-            id="howItWorks-title"
-            className="mb-5 text-center text-lg sm:text-xl font-semibold text-(--text-page)"
-          >
-            {t('startPage.howItWorksTitle')}
-          </h2>
-          <div className="flex items-start justify-center gap-0">
-            {steps.map((step, index) => (
-              <div key={step.titleKey} className="flex items-start">
-                <div className="flex flex-col items-center px-0.5 text-center sm:px-4">
-                  <div className="landing-step-indicator pointer-events-none">
-                    <step.icon
-                      className="h-5 w-5 sm:h-8 sm:w-8"
-                      aria-hidden="true"
-                    />
-                  </div>
-                  <p className="mt-2 text-xs sm:mt-3 sm:text-base font-semibold text-(--text-page)">
-                    {t(step.titleKey)}
-                  </p>
-                  <p className="mt-1 max-w-16 sm:max-w-44 text-[10px] leading-tight sm:text-sm sm:leading-snug text-(--text-muted)">
-                    {t(step.textKey)}
-                  </p>
-                </div>
+        {/* The criteria — the one place this page carries colour, and only
+            because each colour describes pedagogy, with icon and word. */}
+        <section aria-labelledby="criteria-title" className={sectionClass}>
+          <div className="grid gap-8 lg:grid-cols-12 lg:gap-12">
+            <div className="lg:col-span-5">
+              <p className={eyebrowClass}>{t('startPage.criteria.eyebrow')}</p>
+              <h2 id="criteria-title" className={sectionTitleClass}>
+                {t('startPage.criteria.title')}
+              </h2>
+              <p className="mt-4 max-w-md text-pretty text-(--text-muted)">
+                {t('startPage.criteria.intro', {
+                  recipes: joinWith(recipeKeys, 'disjunction'),
+                  levels: joinWith(importanceKeys, 'disjunction'),
+                })}
+              </p>
+            </div>
 
-                {index < steps.length - 1 && (
-                  <div
-                    className="landing-connector mt-5 mx-0.5 sm:mt-8 sm:mx-2"
-                    aria-hidden="true"
-                  />
-                )}
-              </div>
-            ))}
+            <div className="grid content-start gap-x-8 gap-y-6 sm:grid-cols-2 lg:col-span-7">
+              {criteriaGroups.map((group) => (
+                <div
+                  key={group.labelKey}
+                  className={`${dataFamilyClass[CRITERIA_FAMILY_MAP[group.criteria[0]]]} border-t border-(--border-card) pt-3`}
+                >
+                  <h3 className={dataHeadingClass}>{t(group.labelKey)}</h3>
+                  <ul className="mt-2.5 flex flex-wrap gap-1.5">
+                    {group.criteria.map((key) => {
+                      const Icon = CRITERIA_ICON_MAP[key];
+                      return (
+                        <li key={key} className={dataChipClass}>
+                          <Icon size={14} aria-hidden="true" />
+                          {t(`generator:mix.criteria.${key}.label`)}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              ))}
+            </div>
           </div>
+        </section>
+
+        <section aria-labelledby="why-title" className={sectionClass}>
+          <p className={eyebrowClass}>{t('startPage.why.eyebrow')}</p>
+          <h2 id="why-title" className={`${sectionTitleClass} max-w-2xl`}>
+            {t('startPage.why.title')}
+          </h2>
+          <ul className="mt-10 grid gap-8 sm:grid-cols-3">
+            {benefits.map((benefit) => (
+              <li
+                key={benefit.title}
+                className="border-t border-(--border-card) pt-5"
+              >
+                <benefit.icon
+                  size={24}
+                  className="text-(--text-muted)"
+                  aria-hidden="true"
+                />
+                <h3 className="mt-3 text-lg font-semibold text-(--text-page)">
+                  {benefit.title}
+                </h3>
+                <p className="mt-1 text-pretty text-(--text-muted)">
+                  {benefit.text}
+                </p>
+              </li>
+            ))}
+          </ul>
         </section>
       </div>
     </main>

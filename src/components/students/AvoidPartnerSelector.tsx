@@ -233,6 +233,6 @@ export default function AvoidPartnerSelector({
   );
 
   return (
-    <InspectorRow label={t('partners.avoidPartner')}>{control}</InspectorRow>
+    <InspectorRow label={t('partners.distancePartner')}>{control}</InspectorRow>
   );
 }

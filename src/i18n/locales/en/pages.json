@@ -4,32 +4,38 @@
     "heroDescription": "Built from everyday school life & developed together with feedback from teachers.",
     "heroBadge": "Free, no ads & open source.",
     "heroBadgeTooltip": "Go to Support",
-    "whyKlassenplanTitle": "Why Klassenplan?",
-    "whyKlassenplanItems": {
+    "ctaButton": "Plan your class now!",
+    "faqLink": "Common questions",
+    "contactLink": "Send a message",
+    "quoted": "“{{text}}”",
+    "layers": {
+      "eyebrow": "How it works",
+      "title": "Three layers of the same classroom",
+      "intro": "Class, room and seating plan sit on top of each other, not one after the other. One click switches the layer, and nothing gets lost on the way.",
+      "classText": "Type in your students or import a CSV. Attributes are set with one question to everyone, such as {{question}}",
+      "roomText": "Arrange tables, board, windows and door by drag and drop, and save the room as a template for your next class.",
+      "planText": "Shuffle, adjust by hand, lock seats — and turn it into a seating circle with one click.",
+      "exits": "Then present the plan on the projector or export it as PDF, PNG or SVG."
+    },
+    "criteria": {
+      "eyebrow": "What the plan considers",
+      "title": "Criteria in words, not sliders",
+      "intro": "Pick a recipe such as {{recipes}}, or set each criterion to {{levels}}. Next to the plan you see how far each one is met — and, in whole sentences, why the plan looks the way it does.",
+      "historyGroup": "History"
+    },
+    "why": {
+      "eyebrow": "Why Klassenplan?",
+      "title": "Built for the classroom, not for the cloud",
       "privacy": "Focus on data protection",
       "privacyDescription": "GDPR-compliant, hosted in Germany, no account, no cloud & works offline.",
-      "algorithm": "Intelligent algorithm",
-      "algorithmDescription": "Considers needs, social roles, room preferences & more.",
-      "editor": "Flexible classroom editor",
-      "editorDescription": "Drag & drop for various tables & room elements."
+      "projector": "Made for the projector",
+      "projectorDescription": "A bar of its own, a contrast mode for bright rooms and first names only on the wall. Plus {{tools}}.",
+      "sample": "Try it without your own data",
+      "sampleDescription": "A sample class of 24 students and a short tour show every layer before you create your own class."
     },
-    "howItWorksTitle": "How it works:",
-    "howItWorksItems": {
-      "step1Title": "Class List",
-      "step1Text": "Add students & choose needs.",
-      "step2Title": "Classroom",
-      "step2Text": "Save your classroom as a template.",
-      "step3Title": "Seating Plan & Circle",
-      "step3Text": "Shuffle & refine – automatically adjusted seating circle.",
-      "step4Title": "Export",
-      "step4Text": "Export as PDF, PNG or SVG & print."
-    },
-    "ctaButton": "Plan your class now!",
-    "faqLink": "Learn more in the FAQ!",
-    "contactLink": "Send a message!",
     "previewSlides": {
       "schuelerliste": "Class list",
-      "editor": "Classroom editor",
+      "editor": "Classroom",
       "sitzplan": "Seating plan",
       "sitzkreis": "Seating circle",
       "praesentation": "Presentation",
@@ -43,7 +49,8 @@
       "expand": "Enlarge preview",
       "close": "Close preview",
       "pause": "Pause automatic slideshow",
-      "play": "Resume automatic slideshow"
+      "play": "Resume automatic slideshow",
+      "position": "Slide {{number}} of {{total}}"
     }
   },
   "generator": {

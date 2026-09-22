@@ -1,20 +1,22 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import '@testing-library/jest-dom/vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, it, expect } from 'vitest';
 import '@/i18n'; // Initialize i18n for tests
 import StartPage from '../StartPage';
 
-// Test main heading and navigation link on the start page
+const renderStartPage = () =>
+  render(
+    <MemoryRouter>
+      <StartPage />
+    </MemoryRouter>,
+  );
+
 describe('StartPage', () => {
   it('renders heading and link to generator', () => {
-    render(
-      <MemoryRouter>
-        <StartPage />
-      </MemoryRouter>,
-    );
+    renderStartPage();
 
     expect(
       screen.getByRole('link', {
@@ -26,5 +28,45 @@ describe('StartPage', () => {
       name: /Plane jetzt deine Klasse|Plan your class now/i,
     });
     expect(link).toHaveAttribute('href', '/generator');
+  });
+
+  it('names the three layers the way the layer switcher does', () => {
+    renderStartPage();
+
+    const layers = screen.getByRole('region', {
+      name: /Drei Ebenen|Three layers/i,
+    });
+    expect(
+      within(layers)
+        .getAllByRole('heading', { level: 3 })
+        .map((heading) => heading.textContent),
+    ).toEqual(
+      expect.arrayContaining([
+        expect.stringMatching(/^(Klasse|Class)$/),
+        expect.stringMatching(/^(Raum|Room)$/),
+        expect.stringMatching(/^(Sitzplan|Plan)$/),
+      ]),
+    );
+  });
+
+  it('lists every criterion the plan weighs, each with a real label', () => {
+    renderStartPage();
+
+    const criteria = screen.getByRole('region', {
+      name: /Kriterien in Wörtern|Criteria in words/i,
+    });
+    const chips = within(criteria).getAllByRole('listitem');
+
+    // The fifteen criteria the inspector shows, under seven family headings.
+    expect(chips).toHaveLength(15);
+    expect(within(criteria).getAllByRole('heading', { level: 3 })).toHaveLength(
+      7,
+    );
+    for (const chip of chips) {
+      expect(chip.textContent).not.toMatch(/mix\.criteria/);
+    }
+    // The recipes and the four levels are quoted from the app, not retyped.
+    expect(criteria).toHaveTextContent(/„Ruhige Arbeitsphase“|“Quiet work”/);
+    expect(criteria).toHaveTextContent(/„Sehr wichtig“|“Very important”/);
   });
 });

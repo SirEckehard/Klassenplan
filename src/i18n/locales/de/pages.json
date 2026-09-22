@@ -4,32 +4,38 @@
     "heroDescription": "Aus dem Schulalltag & gemeinsam mit dem Feedback von Lehrkräften entwickelt.",
     "heroBadge": "Kostenlos, keine Werbung & Open Source.",
     "heroBadgeTooltip": "Gehe zu Unterstützen",
-    "whyKlassenplanTitle": "Warum Klassenplan?",
-    "whyKlassenplanItems": {
+    "ctaButton": "Plane jetzt deine Klasse!",
+    "faqLink": "Häufige Fragen",
+    "contactLink": "Nachricht schreiben",
+    "quoted": "„{{text}}“",
+    "layers": {
+      "eyebrow": "So funktioniert's",
+      "title": "Drei Ebenen desselben Klassenzimmers",
+      "intro": "Klasse, Raum und Sitzplan liegen übereinander, nicht hintereinander. Ein Klick wechselt die Ebene, und nichts geht dabei verloren.",
+      "classText": "Schüler eintragen oder als CSV importieren. Merkmale setzt du mit einer Frage an alle, etwa {{question}}",
+      "roomText": "Tische, Tafel, Fenster und Tür per Drag & Drop einrichten und als Vorlage für die nächste Klasse speichern.",
+      "planText": "Mischen, von Hand nachjustieren, Plätze festhalten – und mit einem Klick daraus den Sitzkreis machen.",
+      "exits": "Danach präsentierst du den Plan am Beamer oder exportierst ihn als PDF, PNG oder SVG."
+    },
+    "criteria": {
+      "eyebrow": "Was der Plan beachtet",
+      "title": "Kriterien in Wörtern statt Reglern",
+      "intro": "Wähle ein Rezept wie {{recipes}} oder stelle jedes Kriterium einzeln auf {{levels}}. Neben dem Plan steht, wie weit jedes erfüllt ist – und in ganzen Sätzen, warum er so aussieht.",
+      "historyGroup": "Verlauf"
+    },
+    "why": {
+      "eyebrow": "Warum Klassenplan?",
+      "title": "Für den Unterricht gebaut, nicht für die Cloud",
       "privacy": "Fokus auf Datenschutz",
       "privacyDescription": "DSGVO-konform in Deutschland gehostet, kein Konto, keine Cloud & funktioniert offline.",
-      "algorithm": "Intelligenter Algorithmus",
-      "algorithmDescription": "Beachtet Bedürfnisse, soziale Rollen, Raumpräferenzen & mehr.",
-      "editor": "Flexibler Klassenraum-Editor",
-      "editorDescription": "Drag & Drop für verschiedene Tische & Raumelemente."
+      "projector": "Für den Beamer gemacht",
+      "projectorDescription": "Eine eigene Leiste, ein Kontrastmodus für helle Räume und nur Vornamen an der Wand. Dazu {{tools}}.",
+      "sample": "Ohne eigene Daten ausprobieren",
+      "sampleDescription": "Eine Beispielklasse mit 24 Schülern und eine kurze Tour zeigen jede Ebene, bevor du deine eigene Klasse anlegst."
     },
-    "howItWorksTitle": "So funktioniert's:",
-    "howItWorksItems": {
-      "step1Title": "Klassenliste",
-      "step1Text": "Schüler hinzufügen & Bedürfnisse wählen.",
-      "step2Title": "Klassenraum",
-      "step2Text": "Speichere deinen Klassenraum als Vorlage.",
-      "step3Title": "Sitzplan & Sitzkreis",
-      "step3Text": "Mischen & verfeinern – automatisch angepasster Sitzkreis.",
-      "step4Title": "Export",
-      "step4Text": "Als PDF, PNG oder SVG exportieren & drucken."
-    },
-    "ctaButton": "Plane jetzt deine Klasse!",
-    "faqLink": "Erfahre mehr im FAQ!",
-    "contactLink": "Schreib eine Nachricht!",
     "previewSlides": {
-      "schuelerliste": "Schülerliste",
-      "editor": "Klassenraum-Editor",
+      "schuelerliste": "Klassenliste",
+      "editor": "Klassenraum",
       "sitzplan": "Sitzplan",
       "sitzkreis": "Sitzkreis",
       "praesentation": "Präsentation",
@@ -43,7 +49,8 @@
       "expand": "Vorschau vergrößern",
       "close": "Vorschau schließen",
       "pause": "Automatischen Bildwechsel pausieren",
-      "play": "Automatischen Bildwechsel fortsetzen"
+      "play": "Automatischen Bildwechsel fortsetzen",
+      "position": "Bild {{number}} von {{total}}"
     }
   },
   "generator": {

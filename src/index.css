@@ -1520,35 +1520,6 @@ html.dark {
   background-color: var(--button-success-bg);
 }
 
-/* Larger, calmer step indicators for the landing "how it works" section */
-@utility landing-step-indicator {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 9999px;
-  border: 2px solid var(--border-card);
-  background-color: var(--surface-card);
-  color: var(--button-primary-bg);
-}
-
-@media (min-width: 640px) {
-  .landing-step-indicator {
-    width: 4rem;
-    height: 4rem;
-  }
-}
-
-@utility landing-connector {
-  flex: 1;
-  height: 4px;
-  min-width: 0.75rem;
-  max-width: 5rem;
-  background-color: var(--border-card);
-  border-radius: 9999px;
-}
-
 /* Onboarding tour: a ring around the element a coach mark explains, the rest of
    the page dimmed. The shadow does the dimming, so the element stays clickable
    and the backdrop never catches a click (the element carries
@@ -1571,14 +1542,6 @@ html.dark {
 @media (prefers-reduced-motion: reduce) {
   .tour-spotlight {
     transition: none;
-  }
-}
-
-@media (min-width: 640px) {
-  .landing-connector {
-    height: 5px;
-    min-width: 4rem;
-    max-width: 9rem;
   }
 }
 
