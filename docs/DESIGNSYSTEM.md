@@ -272,14 +272,15 @@ drawn around them. Nothing floats over the picture: the slide's name, its
 position and the controls sit in a strip below it, the way the app keeps its
 own out of the stage.
 
-The pages beside it — FAQ, support, contact, changelog, Impressum and
-Datenschutzerklärung — share its type (`components/publicPage/pageTokens.ts`)
-and a header of their own (`PublicPageHeader`: the lockup, and "Zurück" when
-the app opened the page). Each opens with small caps, a serif title and a
-muted lead; what follows is divided by hairlines, never framed in cards, and
-a page has at most one blue button — the donation, the mail address, the way
-to the generator. A link inside running text is `pageInlineLinkClass`, a link
-in the page's chrome `quietLinkClass`. Where a page is a list of parts — the
+The pages beside it — FAQ, support, contact, changelog, Impressum,
+Datenschutzerklärung and the 404 page — share its type
+(`components/publicPage/pageTokens.ts`) and a header of their own
+(`PublicPageHeader`: the lockup, and "Zurück" when the app opened the page).
+Each opens with small caps, a serif title and a muted lead; what follows is
+divided by hairlines, never framed in cards, and a page has at most one blue
+button — the donation, the mail address, the way to the generator, the way
+home. A link inside running text is `pageInlineLinkClass`, a link in the
+page's chrome `quietLinkClass`. Where a page is a list of parts — the
 changelog's versions, the sections of a legal text (`LegalPage`,
 `LegalSection`) — each part is a row: its name on the left, staying in view
 while the part is read, its text on the right. The changelog tells its kinds

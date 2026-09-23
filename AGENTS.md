@@ -32,12 +32,12 @@ it for Antigravity — edit this file, never those two.
 
 - ✅ ESLint: 0 errors, 0 warnings
 - ✅ TypeScript: 0 compilation errors (strict mode)
-- ✅ Tests: 2393 unit tests (242 test files) + 9 Playwright tests (3 smoke + 2 core flow + 4 onboarding), 100% passing
+- ✅ Tests: 2396 unit tests (243 test files) + 9 Playwright tests (3 smoke + 2 core flow + 4 onboarding), 100% passing
 - 📊 Coverage: 72.5 % lines / 71.8 % statements / 61.9 % branches (`npm run test:coverage`, v8 provider, no thresholds enforced)
 - ⚠️ Unused Exports: 52 modules ignoring type-only exports, held by a ratchet (`npm run check:unused`); the remainder are re-export barrels, `lazyWithRetry` default exports and shared test helpers
 - ✅ Test Infrastructure: Centralized accessibility helpers and toast matchers for robust testing
 - ✅ Architecture: Repository Pattern implemented, UI components reorganized into logical subdirectories
-- ✅ i18n: Bilingual support (German/English) fully implemented, DE/EN key parity 1:1 (2159 keys per language)
+- ✅ i18n: Bilingual support (German/English) fully implemented, DE/EN key parity 1:1 (2161 keys per language)
 - 📦 Bundle: initial payload 208 KB brotli / 768 KB raw over 41 preloaded files, largest chunk 63 KB brotli, CSS 14 KB brotli
 
 ## Logging
@@ -270,7 +270,7 @@ Consumers import dedicated hooks (e.g. `useClassroomLayoutContext`) to minimize 
 - Layer UI resides in `src/components/SeatingPlanGenerator/` with shared UI primitives in `src/components/ui/` and student tools in `src/components/students/`.
 - **The projection carries one bar, and it is ink in both themes.** `/present` puts every control into `PresentationToolbar` under the plan — the two views, the two shapes, the draw, what to show, the size, the way out — while the strip on top only says what is on the wall. In fullscreen the strip is not drawn and the bar lies over the plan, out of sight until the pointer nears the bottom edge, a tap lands there or the keyboard moves into it (`useEdgeReveal`). The plan is framed on the furniture, not on the empty 900×600 room; the contrast mode draws it black on white for a bright room, and the beamer keeps its own name rule (`spg.present.nameDisplay`, first names) apart from the editor's.
 - **A tool used standing up is a route, not a panel.** "Wer kommt dran?" (`/wer-kommt-dran`), "Wo sitzt wer?" (`/wo-sitzt-wer`) and "Gruppen bilden" (`/gruppen`) share `components/tools/ToolPage.tsx`: the way back on top, the answer in the middle, one action pinned to the bottom edge. They are `noindex`, store nothing, and are reachable from the plan layer's toolbar ("Gruppen bilden" also from the projection's bar); their way back goes through the history, so it returns to where they were opened from — the projection in the view it was left in. A new one of them needs a route, a `seoRoutes.json` entry, a `hidesFooter` entry and a `routeComponents` key — decision 0019 holds the reasons.
-- **The pages beside the app share one frame** (`components/publicPage/`): `PublicPageHeader` (the lockup, and "Zurück" when the app opened the page), the type in `pageTokens.ts`, and `LegalPage`/`LegalSection` for the Impressum, the Datenschutzerklärung and the stand-in that forwards to an operator's own. None of them sets a minimum height: `App.tsx` makes the page a column at least as tall as the window, so the footer sits on its bottom edge however short the page is. The rules are in `docs/DESIGNSYSTEM.md` § 6d.
+- **The pages beside the app share one frame** (`components/publicPage/`): `PublicPageHeader` (the lockup, and "Zurück" when the app opened the page), the type in `pageTokens.ts`, and `LegalPage`/`LegalSection` for the Impressum, the Datenschutzerklärung and the stand-in that forwards to an operator's own; the 404 page wears the same header. None of them sets a minimum height: `App.tsx` makes the page a column at least as tall as the window, so the footer sits on its bottom edge however short the page is. The rules are in `docs/DESIGNSYSTEM.md` § 6d.
 - Circle-specific components live under `src/components/circle/`; presentation mode lives in `src/pages/Present.tsx` + `src/components/scene/PresentationScene.tsx`.
 
 ### Styling & Design Tokens
