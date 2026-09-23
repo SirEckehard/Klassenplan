@@ -107,4 +107,59 @@ describe('TablePreview', () => {
       unmount();
     });
   });
+
+  describe('as a toolbar icon', () => {
+    const types = ['single', 'double', 'group4', 'group6'] as const;
+
+    it.each([24, 32])(
+      'keeps every template, dots included, inside a %ipx box',
+      (size) => {
+        types.forEach((type) => {
+          const { getByTestId, unmount } = render(
+            <TablePreview type={type} iconSize={size} />,
+          );
+          const svg = getByTestId('table-preview');
+          const rect = svg.querySelector('rect')!;
+          const x = parseFloat(rect.getAttribute('x')!);
+          const y = parseFloat(rect.getAttribute('y')!);
+          expect(x).toBeGreaterThanOrEqual(0);
+          expect(y).toBeGreaterThanOrEqual(0);
+          expect(x + parseFloat(rect.getAttribute('width')!)).toBeLessThan(
+            size,
+          );
+          expect(y + parseFloat(rect.getAttribute('height')!)).toBeLessThan(
+            size,
+          );
+          svg.querySelectorAll('circle').forEach((circle) => {
+            const cx = parseFloat(circle.getAttribute('cx')!);
+            const cy = parseFloat(circle.getAttribute('cy')!);
+            const r = parseFloat(circle.getAttribute('r')!);
+            expect(cx - r).toBeGreaterThanOrEqual(0);
+            expect(cy - r).toBeGreaterThanOrEqual(0);
+            expect(cx + r).toBeLessThanOrEqual(size);
+            expect(cy + r).toBeLessThanOrEqual(size);
+          });
+          unmount();
+        });
+      },
+    );
+
+    it('draws all four on one scale, so a single desk is half a double', () => {
+      const heightOf = (type: (typeof types)[number]) => {
+        const { getByTestId, unmount } = render(
+          <TablePreview type={type} iconSize={32} />,
+        );
+        const height = parseFloat(
+          getByTestId('table-preview')
+            .querySelector('rect')!
+            .getAttribute('height')!,
+        );
+        unmount();
+        return height;
+      };
+
+      expect(heightOf('single') * 2).toBeCloseTo(heightOf('double'));
+      expect(heightOf('group6')).toBeCloseTo(heightOf('double'));
+    });
+  });
 });

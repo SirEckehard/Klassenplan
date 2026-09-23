@@ -134,7 +134,7 @@ export default function SaveTemplateModal({
       <div className="space-y-6">
         {/* Layout Preview */}
         <div className="flex items-center gap-4 rounded-2xl border border-(--border-card) bg-(--surface-card) p-4 text-sm text-(--text-muted) shadow-sm">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-(--button-primary-bg)/90 text-white shadow-sm/80">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-(--surface-sunken) text-(--text-page)">
             <LayoutIcon size={20} aria-hidden="true" />
           </div>
           <div>

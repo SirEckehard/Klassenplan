@@ -61,24 +61,14 @@ const GROUP_ICONS: Record<string, React.ReactNode> = {
   'layout-features': <ArmchairIcon size={18} />,
 };
 
-/** A table drawn small; the preview is laid out at 80px and scaled down. */
-function TemplatePreview({ type }: { type: TableTemplateType }) {
-  return (
-    <span className="relative flex h-6 w-6 items-center justify-center">
-      <span
-        className="absolute"
-        style={{
-          width: '80px',
-          height: '80px',
-          transform: 'scale(0.3)',
-          transformOrigin: 'center center',
-        }}
-      >
-        <TablePreview type={type} fixedSize={true} />
-      </span>
-    </span>
-  );
-}
+/**
+ * The tables are the room's main tool, so on the rail — where they stand
+ * without their words — they get most of the 44px entry.
+ */
+const TEMPLATE_ICON_SIZE: Record<ToolRailDensity, number> = {
+  compact: 32,
+  comfortable: 24,
+};
 
 /**
  * The room layer's toolbar: what goes into the room, what the plan of it
@@ -116,7 +106,12 @@ export default function RoomToolPanel({
         {TABLE_TEMPLATES.map(({ type, seatCount }) => (
           <ToolRailButton
             key={type}
-            icon={<TemplatePreview type={type} />}
+            icon={
+              <TablePreview
+                type={type}
+                iconSize={TEMPLATE_ICON_SIZE[density]}
+              />
+            }
             label={templateLabels[type]}
             title={`${templateLabels[type]} (${seatCount} ${t('common.seats')}) - ${t('layout.dragDropHint')}`}
             onPointerDown={(event) => onTemplatePointerDown(type, event)}

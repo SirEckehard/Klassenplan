@@ -84,8 +84,10 @@ export default function Modal({
                   {hasHeaderContent && (
                     <div className="flex items-start justify-between gap-4 sm:gap-6">
                       <div className="flex flex-1 items-start gap-4">
+                        {/* Paper, not blue: the icon names the dialog, and
+                            blue is kept for what can be pressed. */}
                         {icon ? (
-                          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-(--button-primary-bg) text-(--button-primary-text)">
+                          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-(--surface-sunken) text-(--text-page)">
                             {icon}
                           </div>
                         ) : null}

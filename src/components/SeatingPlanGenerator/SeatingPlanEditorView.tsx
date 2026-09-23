@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import {
   WarningIcon,
+  InfoIcon,
   ChartBarIcon,
   GridNine,
   ShuffleIcon,
@@ -178,6 +179,40 @@ function SeatPreviewCard({ preview, viewportScale }: SeatPreviewCardProps) {
     </div>
   );
 }
+
+/**
+ * A line about the plan, above the plan: what changed or went wrong, and what
+ * can be done about it in grey. It sits inside the stage because it concerns
+ * the plan alone — a strip across the layer would push the toolbar out of line
+ * with the inspector — and its buttons are never blue, because the layer's one
+ * primary button is the status bar's.
+ */
+function PlanNotice({
+  role = 'status',
+  icon,
+  action,
+  children,
+}: {
+  role?: 'status' | 'alert';
+  icon?: React.ReactNode;
+  action?: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      role={role}
+      className="flex shrink-0 flex-wrap items-center justify-between gap-x-4 gap-y-2 rounded-lg border border-(--border-card) bg-(--surface-card) px-3 py-2 text-sm text-(--text-page)"
+    >
+      <div className="flex min-w-0 flex-1 items-start gap-2">
+        {icon}
+        <div className="min-w-0">{children}</div>
+      </div>
+      {action}
+    </div>
+  );
+}
+
+const planNoticeActionClass = `${secondaryButtonClass} h-8 shrink-0 px-3 text-xs`;
 
 type Props = {
   settings: MixSettings;
@@ -796,121 +831,6 @@ export default function SeatingPlanEditorView({
 
   return (
     <div className="space-y-6 lg:flex lg:min-h-0 lg:flex-1 lg:flex-col lg:space-y-0">
-      {autoMixing ? (
-        <section
-          aria-live="polite"
-          role="status"
-          className={`${cardSurfaceClass} border-(--border-option-selected) bg-(--surface-option-selected) px-4 py-3 text-(--text-page)`}
-        >
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-3">
-              <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-(--surface-card) text-(--text-badge)">
-                <SpinnerGapIcon
-                  aria-hidden="true"
-                  className="h-5 w-5 animate-spin"
-                />
-              </span>
-              <div className="space-y-0.5">
-                <p className="text-sm font-semibold text-(--text-page)">
-                  {t('editor.autoMixRunning', 'Automatisches Mischen läuft')}
-                </p>
-                <p className="text-sm text-(--text-muted)">
-                  {t(
-                    'editor.autoMixWait',
-                    'Bitte warte einen Moment, bis der neue Sitzplan erstellt wurde.',
-                  )}
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-      ) : null}
-
-      {!autoMixing && autoMixError ? (
-        <section
-          aria-live="polite"
-          role="alert"
-          className={`${cardSurfaceClass} border-(--button-danger-bg) bg-(--button-icon-danger-bg) px-4 py-4 text-(--text-page)`}
-        >
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-            <div className="flex flex-1 items-start gap-3">
-              <span className="mt-0.5 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-(--surface-card) text-(--button-icon-danger-text)">
-                <WarningIcon aria-hidden="true" className="h-5 w-5" />
-              </span>
-              <div className="space-y-1">
-                <p className="text-sm font-semibold text-(--text-page)">
-                  {t(
-                    'editor.autoMixFailed',
-                    'Automatisches Mischen fehlgeschlagen',
-                  )}
-                </p>
-                <p className="text-sm text-(--text-muted)">{autoMixError}</p>
-              </div>
-            </div>
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
-              <button
-                type="button"
-                onClick={() => void handleMix()}
-                disabled={mixingLocked}
-                className={`${primaryButtonClass} h-10 px-4 ${
-                  mixingLocked ? 'cursor-not-allowed opacity-60' : ''
-                }`}
-              >
-                {t('actions.retryMix', 'Erneut mischen')}
-              </button>
-            </div>
-          </div>
-        </section>
-      ) : null}
-
-      {hasPendingStudentUpdates ? (
-        <section
-          aria-live="polite"
-          role="status"
-          className={`${cardSurfaceClass} border-(--border-option-selected) bg-(--surface-option-selected) px-4 py-4 text-(--text-page)`}
-        >
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-            <div className="flex flex-1 items-start gap-3">
-              <span className="mt-0.5 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-(--surface-card) text-(--text-badge)">
-                <WarningIcon aria-hidden="true" className="h-5 w-5" />
-              </span>
-              <div className="space-y-1">
-                <p className="text-sm font-semibold text-(--text-page)">
-                  {t('editor.classDataChanged', 'Klassendaten wurden geändert')}
-                </p>
-                <p className="text-sm text-(--text-muted)">
-                  {t(
-                    'editor.classDataChangedHint',
-                    'Deine Anpassungen sind sichtbar. Mische den Plan neu, damit der Algorithmus optimal reagieren kann.',
-                  )}
-                </p>
-              </div>
-            </div>
-            <div className="mt-3 flex flex-col gap-2 sm:mt-0 sm:flex-row sm:items-center sm:justify-end">
-              <button
-                type="button"
-                onClick={() => void handleMix()}
-                disabled={mixingLocked}
-                className={`${primaryButtonClass} h-10 px-4 ${
-                  mixingLocked ? 'cursor-not-allowed opacity-60' : ''
-                }`}
-              >
-                {t('actions.mixNow', 'Jetzt neu mischen')}
-              </button>
-              {onAcknowledgeStudentUpdates ? (
-                <button
-                  type="button"
-                  onClick={onAcknowledgeStudentUpdates}
-                  className={`${secondaryButtonClass} h-10 px-4`}
-                >
-                  {t('editor.hideNotice', 'Hinweis ausblenden')}
-                </button>
-              ) : null}
-            </div>
-          </div>
-        </section>
-      ) : null}
-
       {/* The direction comes from the same hook that decides whether the
           sidebar is a rail or a phone sheet — a `md:` variant here could
           disagree with it and stack the rail on top of the canvas. */}
@@ -1002,129 +922,210 @@ export default function SeatingPlanEditorView({
           </button>
         </StatusBarPortal>
 
-        <div className={`${workspaceStageClass} ${canvasStageClass} relative`}>
-          <div className="flex min-w-0 flex-col gap-4">
+        <div className={`${workspaceStageClass} relative flex flex-col`}>
+          <div className="flex min-w-0 flex-col gap-4 lg:min-h-0 lg:flex-1">
+            {!autoMixing && autoMixError && (
+              <PlanNotice
+                role="alert"
+                icon={
+                  <WarningIcon
+                    aria-hidden="true"
+                    className="mt-0.5 h-4 w-4 shrink-0 text-(--button-icon-danger-text)"
+                  />
+                }
+                action={
+                  <button
+                    type="button"
+                    onClick={() => void handleMix()}
+                    disabled={mixingLocked}
+                    className={planNoticeActionClass}
+                  >
+                    {t('actions.retryMix', 'Erneut mischen')}
+                  </button>
+                }
+              >
+                <p className="font-semibold">
+                  {t(
+                    'editor.autoMixFailed',
+                    'Automatisches Mischen fehlgeschlagen',
+                  )}
+                </p>
+                <p className="text-(--text-muted)">{autoMixError}</p>
+              </PlanNotice>
+            )}
+            {/* Grey, not blue: the status bar's "Neu mischen" stays the one
+                primary button, the notice only offers the same step where
+                the reason for it is written. */}
+            {hasPendingStudentUpdates && (
+              <PlanNotice
+                icon={
+                  <InfoIcon
+                    aria-hidden="true"
+                    className="mt-0.5 h-4 w-4 shrink-0 text-(--text-muted)"
+                  />
+                }
+                action={
+                  <div className="flex shrink-0 flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => void handleMix()}
+                      disabled={mixingLocked}
+                      className={planNoticeActionClass}
+                    >
+                      {t('actions.mixNow', 'Jetzt neu mischen')}
+                    </button>
+                    {onAcknowledgeStudentUpdates && (
+                      <button
+                        type="button"
+                        onClick={onAcknowledgeStudentUpdates}
+                        className={planNoticeActionClass}
+                      >
+                        {t('editor.hideNotice', 'Hinweis ausblenden')}
+                      </button>
+                    )}
+                  </div>
+                }
+              >
+                <p className="font-semibold">
+                  {t('editor.classDataChanged', 'Klassendaten wurden geändert')}
+                </p>
+                <p className="text-(--text-muted)">
+                  {t(
+                    'editor.classDataChangedHint',
+                    'Deine Anpassungen sind sichtbar. Mische den Plan neu, damit der Algorithmus optimal reagieren kann.',
+                  )}
+                </p>
+              </PlanNotice>
+            )}
             {/* A highlight changes what the seats mean, so it says so above
                 the plan rather than leaving the colours to be guessed at. */}
             {highlightNotice && (
-              <div
-                role="status"
-                className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-(--border-card) bg-(--surface-sunken) px-3 py-2 text-sm"
-              >
-                <span>{highlightNotice.label}</span>
-                <button
-                  type="button"
-                  onClick={() => clearStatisticsHighlight?.()}
-                  className={`${secondaryButtonClass} h-8 px-3 text-xs`}
-                >
-                  {t('statisticsBadge.highlightOff')}
-                </button>
-              </div>
-            )}
-            <div
-              data-testid="classroom-canvas"
-              data-tour={TOUR_ANCHORS.planCanvas}
-              className={`${canvasFrameClass} ${canvasFitClass} relative select-none`}
-              style={{ maxWidth: '100vw' }}
-            >
-              {/* Phone only: everywhere the options rail fits, the values sit
-                  beside the criteria instead. */}
-              {isPhone &&
-                canShowStatisticsBadge &&
-                lastStatistics &&
-                onCloseStatistics && (
-                  <SeatingStatisticsBadge
-                    criteria={lastStatistics}
-                    onClose={onCloseStatistics}
-                    onHighlightHover={handleCriterionHover}
-                    onHighlightLeave={handleCriterionHoverEnd}
-                    onHighlightToggle={handleCriterionToggle}
-                    activeHighlightKey={activeHighlightKey}
-                    activeHighlightMode={activeHighlightMode}
-                  />
-                )}
-
-              <div
-                ref={canvasContainerRef}
-                style={{
-                  backgroundColor,
-                  backgroundImage: showGrid
-                    ? `linear-gradient(to right, ${gridColor} 1px, transparent 1px), linear-gradient(to bottom, ${gridColor} 1px, transparent 1px)`
-                    : undefined,
-                  backgroundSize: showGrid
-                    ? `${GRID_SIZE}px ${GRID_SIZE}px`
-                    : undefined,
-                }}
-                className="h-auto w-full rounded-none"
-              >
-                <SeatingPlanCanvas
-                  canvasWidth={canvasWidth}
-                  classroomHeight={classroomHeight}
-                  sceneTables={sceneTables}
-                  features={classroomScene.features ?? []}
-                  currentSeating={effectiveSeating}
-                  allStudents={students}
-                  selectedTableIds={[]}
-                  showGrid={false}
-                  featureVisibility={featureVisibility}
-                  selectionBox={null}
-                  handlePointerMove={() => {}}
-                  handlePointerUp={() => {}}
-                  beginSelection={() => {}}
-                  startTablePointerDrag={() => {}}
-                  templateDragPreview={templateDragPreview}
-                  onTableUpdate={onTableUpdate}
-                  toggleSelect={() => []}
-                  handleSeatDragStart={handleSeatDragStart}
-                  handleSeatDrag={handleSeatDrag}
-                  handleSeatDragEnd={handleSeatDragEnd}
-                  dragOrigin={dragOrigin}
-                  dragHover={dragHover}
-                  lockedDropTarget={lockedDropTarget}
-                  onSeatHoverChange={handleSeatHoverChange}
-                  onLockedSeatDrop={handleLockedDrop}
-                  moveStudent={moveStudent}
-                  isSeatLocked={isSeatLocked}
-                  toggleLock={toggleLock}
-                  onTransformStart={snapshot}
-                  isDark={isDark}
-                  seatHighlights={seatHighlightLookup}
-                  photoDisplayMode={photoDisplayMode}
-                  nameDisplay={nameDisplay}
-                />
-                {autoMixing && (
-                  <div className="pointer-events-auto absolute inset-0 z-20 flex items-center justify-center bg-(--surface-card)/80 backdrop-blur-sm">
-                    <div className="flex flex-col items-center gap-2 text-sm font-medium text-(--text-page)">
-                      <SpinnerGapIcon className="h-5 w-5 animate-spin text-(--text-badge)" />
-                      <span>
-                        {t(
-                          'editor.autoMixRunning',
-                          'Automatisches Mischen läuft',
-                        )}{' '}
-                        …
-                      </span>
-                    </div>
-                  </div>
-                )}
-              </div>
-              {dragPreview &&
-                typeof document !== 'undefined' &&
-                createPortal(
-                  <div
-                    className="pointer-events-none fixed z-50"
-                    style={{
-                      left: dragPreview.x + viewportOffset.left,
-                      top: dragPreview.y + viewportOffset.top,
-                      transform: 'translate(-50%, -50%)',
-                    }}
+              <PlanNotice
+                action={
+                  <button
+                    type="button"
+                    onClick={() => clearStatisticsHighlight?.()}
+                    className={planNoticeActionClass}
                   >
-                    <SeatPreviewCard
-                      preview={dragPreview}
-                      viewportScale={previewViewportScale}
+                    {t('statisticsBadge.highlightOff')}
+                  </button>
+                }
+              >
+                <p>{highlightNotice.label}</p>
+              </PlanNotice>
+            )}
+            {/* The notices above take their height out of the stage, so the
+                plan is fitted into what is left rather than into the whole
+                stage, which would push its bottom edge out of sight. */}
+            <div className={`${canvasStageClass} lg:min-h-0 lg:flex-1`}>
+              <div
+                data-testid="classroom-canvas"
+                data-tour={TOUR_ANCHORS.planCanvas}
+                className={`${canvasFrameClass} ${canvasFitClass} relative select-none`}
+                style={{ maxWidth: '100vw' }}
+              >
+                {/* Phone only: everywhere the options rail fits, the values sit
+                  beside the criteria instead. */}
+                {isPhone &&
+                  canShowStatisticsBadge &&
+                  lastStatistics &&
+                  onCloseStatistics && (
+                    <SeatingStatisticsBadge
+                      criteria={lastStatistics}
+                      onClose={onCloseStatistics}
+                      onHighlightHover={handleCriterionHover}
+                      onHighlightLeave={handleCriterionHoverEnd}
+                      onHighlightToggle={handleCriterionToggle}
+                      activeHighlightKey={activeHighlightKey}
+                      activeHighlightMode={activeHighlightMode}
                     />
-                  </div>,
-                  document.body,
-                )}
+                  )}
+
+                <div
+                  ref={canvasContainerRef}
+                  style={{
+                    backgroundColor,
+                    backgroundImage: showGrid
+                      ? `linear-gradient(to right, ${gridColor} 1px, transparent 1px), linear-gradient(to bottom, ${gridColor} 1px, transparent 1px)`
+                      : undefined,
+                    backgroundSize: showGrid
+                      ? `${GRID_SIZE}px ${GRID_SIZE}px`
+                      : undefined,
+                  }}
+                  className="h-auto w-full rounded-none"
+                >
+                  <SeatingPlanCanvas
+                    canvasWidth={canvasWidth}
+                    classroomHeight={classroomHeight}
+                    sceneTables={sceneTables}
+                    features={classroomScene.features ?? []}
+                    currentSeating={effectiveSeating}
+                    allStudents={students}
+                    selectedTableIds={[]}
+                    showGrid={false}
+                    featureVisibility={featureVisibility}
+                    selectionBox={null}
+                    handlePointerMove={() => {}}
+                    handlePointerUp={() => {}}
+                    beginSelection={() => {}}
+                    startTablePointerDrag={() => {}}
+                    templateDragPreview={templateDragPreview}
+                    onTableUpdate={onTableUpdate}
+                    toggleSelect={() => []}
+                    handleSeatDragStart={handleSeatDragStart}
+                    handleSeatDrag={handleSeatDrag}
+                    handleSeatDragEnd={handleSeatDragEnd}
+                    dragOrigin={dragOrigin}
+                    dragHover={dragHover}
+                    lockedDropTarget={lockedDropTarget}
+                    onSeatHoverChange={handleSeatHoverChange}
+                    onLockedSeatDrop={handleLockedDrop}
+                    moveStudent={moveStudent}
+                    isSeatLocked={isSeatLocked}
+                    toggleLock={toggleLock}
+                    onTransformStart={snapshot}
+                    isDark={isDark}
+                    seatHighlights={seatHighlightLookup}
+                    photoDisplayMode={photoDisplayMode}
+                    nameDisplay={nameDisplay}
+                  />
+                  {autoMixing && (
+                    <div
+                      role="status"
+                      className="pointer-events-auto absolute inset-0 z-20 flex items-center justify-center bg-(--surface-card)/80 backdrop-blur-sm"
+                    >
+                      <div className="flex flex-col items-center gap-2 text-sm font-medium text-(--text-page)">
+                        <SpinnerGapIcon className="h-5 w-5 animate-spin text-(--text-badge)" />
+                        <span>
+                          {t(
+                            'editor.autoMixRunning',
+                            'Automatisches Mischen läuft',
+                          )}{' '}
+                          …
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                {dragPreview &&
+                  typeof document !== 'undefined' &&
+                  createPortal(
+                    <div
+                      className="pointer-events-none fixed z-50"
+                      style={{
+                        left: dragPreview.x + viewportOffset.left,
+                        top: dragPreview.y + viewportOffset.top,
+                        transform: 'translate(-50%, -50%)',
+                      }}
+                    >
+                      <SeatPreviewCard
+                        preview={dragPreview}
+                        viewportScale={previewViewportScale}
+                      />
+                    </div>,
+                    document.body,
+                  )}
+              </div>
             </div>
 
             {isPhone && (

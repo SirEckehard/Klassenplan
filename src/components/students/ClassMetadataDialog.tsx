@@ -8,7 +8,6 @@ import {
   inputFieldClass,
   primaryButtonClass,
   secondaryButtonClass,
-  cardSurfaceClass,
 } from '@/utils';
 
 export type ClassMetadataFormValues = {
@@ -108,70 +107,69 @@ export default function ClassMetadataDialog({
       size="sm"
     >
       <form className="space-y-6" onSubmit={handleSubmit}>
-        <div className={cardSurfaceClass}>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <label
-                htmlFor="class-name"
-                className="text-sm font-semibold text-(--text-page)"
-              >
-                {t('classDialog.className', 'Klassenname')} *
-              </label>
-              <input
-                id="class-name"
-                className={inputFieldClass}
-                value={formValues.name}
-                onChange={handleChange('name')}
-                placeholder={t(
-                  'classDialog.classNamePlaceholder',
-                  'z. B. Klasse 7b',
-                )}
-                required
-                autoFocus
-              />
-            </div>
-            <div className="space-y-2">
-              <label
-                htmlFor="class-label"
-                className="text-sm font-semibold text-(--text-page)"
-              >
-                {t('classDialog.schoolYear', 'Schuljahr')}
-                <span className="ml-1 text-xs font-normal text-(--text-muted)">
-                  ({t('common.optional', 'optional')})
-                </span>
-              </label>
-              <input
-                id="class-label"
-                className={inputFieldClass}
-                value={formValues.label}
-                onChange={handleChange('label')}
-                placeholder={t(
-                  'classDialog.schoolYearPlaceholder',
-                  'z. B. 2025/26',
-                )}
-              />
-            </div>
-            <div className="space-y-2">
-              <label
-                htmlFor="class-notes"
-                className="text-sm font-semibold text-(--text-page)"
-              >
-                {t('classDialog.notes', 'Notizen')}
-                <span className="ml-1 text-xs font-normal text-(--text-muted)">
-                  ({t('common.optional', 'optional')})
-                </span>
-              </label>
-              <textarea
-                id="class-notes"
-                className={`${inputFieldClass} min-h-24`}
-                value={formValues.notes}
-                onChange={handleChange('notes')}
-                placeholder={t(
-                  'classDialog.notesPlaceholder',
-                  'Besonderheiten, Schwerpunkt, etc.',
-                )}
-              />
-            </div>
+        {/* The dialog is the card; the fields sit on it directly. */}
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <label
+              htmlFor="class-name"
+              className="text-sm font-semibold text-(--text-page)"
+            >
+              {t('classDialog.className', 'Klassenname')} *
+            </label>
+            <input
+              id="class-name"
+              className={inputFieldClass}
+              value={formValues.name}
+              onChange={handleChange('name')}
+              placeholder={t(
+                'classDialog.classNamePlaceholder',
+                'z. B. Klasse 7b',
+              )}
+              required
+              autoFocus
+            />
+          </div>
+          <div className="space-y-2">
+            <label
+              htmlFor="class-label"
+              className="text-sm font-semibold text-(--text-page)"
+            >
+              {t('classDialog.schoolYear', 'Schuljahr')}
+              <span className="ml-1 text-xs font-normal text-(--text-muted)">
+                ({t('common.optional', 'optional')})
+              </span>
+            </label>
+            <input
+              id="class-label"
+              className={inputFieldClass}
+              value={formValues.label}
+              onChange={handleChange('label')}
+              placeholder={t(
+                'classDialog.schoolYearPlaceholder',
+                'z. B. 2025/26',
+              )}
+            />
+          </div>
+          <div className="space-y-2">
+            <label
+              htmlFor="class-notes"
+              className="text-sm font-semibold text-(--text-page)"
+            >
+              {t('classDialog.notes', 'Notizen')}
+              <span className="ml-1 text-xs font-normal text-(--text-muted)">
+                ({t('common.optional', 'optional')})
+              </span>
+            </label>
+            <textarea
+              id="class-notes"
+              className={`${inputFieldClass} min-h-24`}
+              value={formValues.notes}
+              onChange={handleChange('notes')}
+              placeholder={t(
+                'classDialog.notesPlaceholder',
+                'Besonderheiten, Schwerpunkt, etc.',
+              )}
+            />
           </div>
         </div>
         <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">

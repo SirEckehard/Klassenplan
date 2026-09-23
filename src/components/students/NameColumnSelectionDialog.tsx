@@ -179,7 +179,7 @@ export default function NameColumnSelectionDialog({
       size="md"
     >
       {preset && (
-        <div className={`${cardSurfaceClass} border border-(--border-card)`}>
+        <div className={`${cardSurfaceClass} p-4`}>
           <p className="flex items-center gap-2 text-sm font-semibold text-(--button-success-bg)">
             <SealCheckIcon size={18} aria-hidden="true" />
             {t('csvDialog.presetDetected', { vendor: preset.vendor })}
@@ -251,7 +251,7 @@ export default function NameColumnSelectionDialog({
       )}
 
       {/* Preview */}
-      <div className={`${listContainerClass} space-y-2`}>
+      <div className={`${listContainerClass} space-y-2 p-4`}>
         <div className="border-b border-(--border-card) pb-2 text-sm font-semibold text-(--text-page)">
           {t('csvDialog.preview', 'Vorschau')} (
           {t('csvDialog.firstRows', { count: preview.length })})
@@ -275,7 +275,7 @@ export default function NameColumnSelectionDialog({
       </div>
 
       {/* Privacy Notice */}
-      <div className={`${cardSurfaceClass} border border-(--border-card)`}>
+      <div className={`${cardSurfaceClass} p-4`}>
         <p className="text-xs text-(--text-page)">
           <strong>{t('csvDialog.privacy', 'Datenschutz')}:</strong>{' '}
           {t(

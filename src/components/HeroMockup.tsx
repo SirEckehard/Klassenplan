@@ -117,7 +117,8 @@ function slideSizes(width: number, height: number) {
 }
 
 export default function HeroMockup() {
-  const [current, setCurrent] = useState(2);
+  // The show starts where the app does: with the class list.
+  const [current, setCurrent] = useState(0);
   const [tick, setTick] = useState(0);
   const [paused, setPaused] = useState(false);
   const [lightbox, setLightbox] = useState(false);

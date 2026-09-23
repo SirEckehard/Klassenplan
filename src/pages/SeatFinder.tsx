@@ -86,7 +86,9 @@ export default function SeatFinder() {
           actionLabel={t('tools.toPlan')}
         />
       ) : (
-        <div className="mx-auto flex max-w-xl flex-col gap-4">
+        // At least as tall as the page, so the answer card below the search
+        // can take whatever height is left for the plan in it.
+        <div className="mx-auto flex min-h-full max-w-xl flex-col gap-4 lg:max-w-3xl">
           <div className="relative">
             <MagnifyingGlassIcon
               size={18}
@@ -122,7 +124,7 @@ export default function SeatFinder() {
           </div>
 
           {selected && location ? (
-            <div className="flex flex-col gap-3 rounded-xl border border-(--border-card) bg-(--surface-card) p-4">
+            <div className="flex flex-1 flex-col gap-3 rounded-xl border border-(--border-card) bg-(--surface-card) p-4">
               <div className="flex flex-col gap-1">
                 <span className="text-xl font-semibold text-(--text-page)">
                   {selected.name}
@@ -130,23 +132,30 @@ export default function SeatFinder() {
                 <SeatLocationLine location={location} />
               </div>
               {/* The same drawing the beamer shows, with the seat lit: the
-                  sentence above is only useful if it can be checked. */}
-              <div className="h-56 w-full overflow-hidden rounded-lg bg-(--surface-sunken)">
-                <PresentationScene
-                  scene={classroomScene}
-                  seating={currentSeating}
-                  students={students}
-                  perspective="teacher"
-                  showBadges={false}
-                  showPhotos={false}
-                  showFeatures
-                  nameDisplay="firstName"
-                  isDark={isDark}
-                  spotlight={{
-                    tableIndex: location.tableIndex,
-                    seatIndex: location.seatIndex,
-                  }}
-                />
+                  sentence above is only useful if it can be checked. It fills
+                  the rest of the screen — a plan framed on its furniture is
+                  often upright, so height is what makes the names readable —
+                  and keeps a floor for a phone with its keyboard up. The scene
+                  sits in an absolute box so its 100% size resolves against
+                  what the flex layout handed out. */}
+              <div className="relative min-h-72 w-full flex-1 overflow-hidden rounded-lg bg-(--surface-sunken)">
+                <div className="absolute inset-0">
+                  <PresentationScene
+                    scene={classroomScene}
+                    seating={currentSeating}
+                    students={students}
+                    perspective="teacher"
+                    showBadges={false}
+                    showPhotos={false}
+                    showFeatures
+                    nameDisplay="firstName"
+                    isDark={isDark}
+                    spotlight={{
+                      tableIndex: location.tableIndex,
+                      seatIndex: location.seatIndex,
+                    }}
+                  />
+                </div>
               </div>
             </div>
           ) : (

@@ -19,9 +19,9 @@ describe('HeroMockup', () => {
   it('names the slide on screen below the picture', () => {
     render(<HeroMockup />);
 
-    expect(caption()).toHaveTextContent(/^(Bild 3 von|Slide 3 of) 6$/);
+    expect(caption()).toHaveTextContent(/^(Bild 1 von|Slide 1 of) 6$/);
     expect(caption().parentElement).toHaveTextContent(
-      /^(Sitzplan|Seating plan)/,
+      /^(Klassenliste|Class list)/,
     );
   });
 
@@ -31,14 +31,13 @@ describe('HeroMockup', () => {
 
     await user.click(getButton(/Nächstes Bild|Next slide/i));
     expect(caption().parentElement).toHaveTextContent(
-      /^(Sitzkreis|Seating circle)/,
-    );
-
-    await user.click(getButton(/Vorheriges Bild|Previous slide/i));
-    await user.click(getButton(/Vorheriges Bild|Previous slide/i));
-    expect(caption().parentElement).toHaveTextContent(
       /^(Klassenraum|Classroom)/,
     );
+
+    // Back past the first slide wraps round to the last.
+    await user.click(getButton(/Vorheriges Bild|Previous slide/i));
+    await user.click(getButton(/Vorheriges Bild|Previous slide/i));
+    expect(caption().parentElement).toHaveTextContent(/^Export/);
   });
 
   it('announces a slide change only once the rotation is paused', async () => {
@@ -60,6 +59,6 @@ describe('HeroMockup', () => {
     render(<HeroMockup />);
 
     await user.click(getButton(/Vorschau vergrößern|Enlarge preview/i));
-    expect(getDialog(/^(Sitzplan|Seating plan)$/)).toBeInTheDocument();
+    expect(getDialog(/^(Klassenliste|Class list)$/)).toBeInTheDocument();
   });
 });

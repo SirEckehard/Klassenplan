@@ -718,7 +718,6 @@
     "alignmentGuides": "Alignment guides",
     "autoMixFailed": "Auto-shuffle failed",
     "autoMixRunning": "Auto-shuffle in progress",
-    "autoMixWait": "Please wait a moment while the new seating plan is being created.",
     "canvasLabel": "Seating plan: {{occupied}} of {{total}} seats taken",
     "classDataChanged": "Class data has been changed",
     "classDataChangedHint": "Your adjustments are visible. Shuffle the plan again so the algorithm can respond optimally.",

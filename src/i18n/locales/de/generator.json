@@ -718,7 +718,6 @@
     "alignmentGuides": "Ausrichtungshilfen",
     "autoMixFailed": "Automatisches Mischen fehlgeschlagen",
     "autoMixRunning": "Automatisches Mischen läuft",
-    "autoMixWait": "Bitte warte einen Moment, bis der neue Sitzplan erstellt wurde.",
     "canvasLabel": "Sitzplan: {{occupied}} von {{total}} Plätzen belegt",
     "classDataChanged": "Klassendaten wurden geändert",
     "classDataChangedHint": "Deine Anpassungen sind sichtbar. Mische den Plan neu, damit der Algorithmus optimal reagieren kann.",

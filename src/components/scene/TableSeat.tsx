@@ -505,7 +505,7 @@ function TableSeat({
               textAnchor="middle"
               dominantBaseline="central"
               fontSize={seatFontSize}
-              fontWeight={contrast ? 700 : 'semibold'}
+              fontWeight={contrast ? 700 : 400}
               transform={seatLabelTransform}
               fill={textColor}
               style={{
