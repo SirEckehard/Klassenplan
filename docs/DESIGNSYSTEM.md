@@ -234,7 +234,7 @@ plan. The frame itself is `canvas-frame` — white, one hairline, no radius.
 
 ## 6b. The inspector
 
-The right-hand panel is a wall, not a stack of cards. A setting inside it is a row — `InspectorRow` with its name and, on the right, a `ToggleSwitch` for a yes/no or `InspectorChoice` chips for a handful of values; pressing the chip a value already has clears it, so "not decided" stays reachable. `InspectorHeader`,
+The right-hand panel is a wall, not a stack of cards. A setting inside it is a row — `InspectorRow` with its name and, on the right, a `ToggleSwitch` for a yes/no or `InspectorChoice` chips for a handful of values; pressing the chip a value already has clears it, so "not decided" stays reachable. A value that is read rather than set — the circle's checks against the criteria (`CircleInspector`) — is the same row with a status icon (`--status-ok`, `--status-warn`) and a word or a count on the right, and the names it concerns in a muted line beneath. `InspectorHeader`,
 `InspectorBody`, `InspectorSection` and `InspectorFooter`
 (`src/components/shell/InspectorPanel.tsx`) are its only parts: the header is a
 strip of 44px media, an `h2` and a subtitle above a hairline; sections carry a

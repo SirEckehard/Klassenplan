@@ -19,6 +19,7 @@ import {
 } from '@/utils/ui/studentAppearance';
 import { computeTokenPhotoLayout } from '@/utils/ui/studentTokenLayout';
 import { buildLegendLayout } from '@/utils/ui/classBadgeLegend';
+import { summarizeCircle } from '@/utils/algorithm/circleSummary';
 import ExportLegend from '@/components/scene/ExportLegend';
 import { useNameLabels } from '@/hooks/student/useNameLabels';
 
@@ -241,10 +242,9 @@ export default function CirclePrintView({
   );
   const arcDistance = Math.max(24, 40 * safeCircleScale);
 
-  const studentIndexMap = new Map<string, number>();
   const studentCoordinates = new Map<string, { x: number; y: number }>();
 
-  layout.students.forEach((studentPosition, index) => {
+  layout.students.forEach((studentPosition) => {
     // Validate student position data
     if (
       !studentPosition?.student?.id ||
@@ -272,7 +272,6 @@ export default function CirclePrintView({
       return;
     }
 
-    studentIndexMap.set(studentPosition.student.id, index);
     studentCoordinates.set(studentPosition.student.id, { x, y });
   });
 
@@ -389,25 +388,15 @@ export default function CirclePrintView({
           </text>
         ))}
 
-      {/* Preserved neighborhood connections */}
+      {/* Table neighbours still side by side. Read off the current order:
+          the neighbour lists stored on each position describe the order the
+          circle was built in, and a drag leaves them behind. */}
       {showConnections &&
-        layout.students.map((studentPosition) => {
-          const start = studentCoordinates.get(studentPosition.student.id);
-          if (!start) return null;
-
-          return studentPosition.preservedNeighbors.map((neighborId) => {
-            const neighborIndex = studentIndexMap.get(neighborId);
-            const startIndex = studentIndexMap.get(studentPosition.student.id);
-            if (
-              neighborIndex === undefined ||
-              startIndex === undefined ||
-              startIndex >= neighborIndex
-            ) {
-              return null;
-            }
-
-            const end = studentCoordinates.get(neighborId);
-            if (!end) return null;
+        summarizeCircle(layout).tableNeighbors.kept.map(
+          ([firstId, secondId]) => {
+            const start = studentCoordinates.get(firstId);
+            const end = studentCoordinates.get(secondId);
+            if (!start || !end) return null;
 
             const path = createArcPath(
               start.x,
@@ -420,7 +409,7 @@ export default function CirclePrintView({
 
             return (
               <path
-                key={`${studentPosition.student.id}-${neighborId}`}
+                key={`${firstId}-${secondId}`}
                 d={path}
                 fill="none"
                 stroke={CONNECTION_STROKE}
@@ -429,8 +418,8 @@ export default function CirclePrintView({
                 strokeLinecap="round"
               />
             );
-          });
-        })}
+          },
+        )}
 
       {/* Students */}
       {layout.students.map((studentPosition) => {

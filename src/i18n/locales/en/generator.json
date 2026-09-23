@@ -186,7 +186,44 @@
     "canvasLabel_one": "Seating circle with {{count}} student",
     "canvasLabel_other": "Seating circle with {{count}} students",
     "orderLabel": "Seating order in the circle",
-    "connectionsTitle": "Connections"
+    "connectionsTitle": "Connections",
+    "inspector": {
+      "tableNeighbors": {
+        "title": "Table neighbours",
+        "none": "The seating plan has no table neighbours for the circle to keep together.",
+        "allKept_one": "The pair sits side by side in the circle too.",
+        "allKept_other": "All {{count}} pairs sit side by side in the circle too.",
+        "noneKept_one": "The pair no longer sits side by side in the circle.",
+        "noneKept_other": "None of the {{count}} pairs sits side by side in the circle any more.",
+        "someKept_one": "{{count}} of {{total}} pairs sits side by side in the circle too.",
+        "someKept_other": "{{count}} of {{total}} pairs sit side by side in the circle too.",
+        "separated": "Split up: {{pairs}}"
+      },
+      "criteria": {
+        "title": "Side by side in the circle",
+        "wishes": {
+          "value": "{{done}} of {{total}}",
+          "hint": "Who sits next to at least one of their wish partners",
+          "waiting": "No wish partner beside them: {{names}}"
+        },
+        "distance": {
+          "met": "respected"
+        },
+        "restless": {
+          "met": "apart"
+        },
+        "gender": {
+          "met": "mixed",
+          "run": "{{length}} in a row",
+          "runRange": "Same gender from {{first}} to {{last}}",
+          "hint": "Reports the longest stretch of one gender when it is clearly longer than the class requires"
+        },
+        "pairs_one": "{{count}} pair",
+        "pairs_other": "{{count}} pairs",
+        "beside": "Side by side: {{pairs}}"
+      },
+      "pair": "{{first}} & {{second}}"
+    }
   },
   "seat": {
     "lockSeat": "Lock seat",

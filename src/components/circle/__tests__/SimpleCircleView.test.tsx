@@ -214,6 +214,32 @@ describe('SimpleCircleView', () => {
     expect(screen.getAllByText('Alice').length).toBeGreaterThan(0);
   });
 
+  it('draws arcs only between table neighbours still side by side', () => {
+    // Four seats: Alice sat at a table with Bob, who is beside her, and
+    // another pair put her with Charlie, who faces her across the ring. The
+    // lists stored per seat say nothing — the arcs follow the order.
+    const dave = createMockStudent({ name: 'Dave', id: '4' });
+    const layout: CircleLayout = {
+      ...mockLayout,
+      students: [
+        ...mockLayout.students,
+        { ...mockLayout.students[0], student: dave, angle: 270 },
+      ],
+      neighborhoodPairs: [
+        { student1Id: '1', student2Id: '2', strength: 0.5, preserved: true },
+        { student1Id: '1', student2Id: '3', strength: 0.5, preserved: true },
+      ],
+    };
+
+    const { container, rerender } = render(
+      <SimpleCircleView layout={layout} connectionMode="subtle" />,
+    );
+    expect(container.querySelectorAll('path')).toHaveLength(1);
+
+    rerender(<SimpleCircleView layout={layout} connectionMode="off" />);
+    expect(container.querySelectorAll('path')).toHaveLength(0);
+  });
+
   it('accepts onSyncCircle callback prop', () => {
     render(
       <SimpleCircleView layout={mockLayout} onSyncCircle={mockOnSyncCircle} />,

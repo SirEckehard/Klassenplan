@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import type { CircleLayout } from '@/types/Circle';
 import type { PhotoDisplayMode, Student } from '@/types';
 import { angleToPosition } from '@/utils/math/circleGeometry';
+import { summarizeCircle } from '@/utils/algorithm/circleSummary';
 import {
   GRID_SIZE,
   LOCAL_STORAGE_KEYS,
@@ -165,6 +166,21 @@ function SimpleCircleView({
 
   const photoUrls = useStudentPhotoUrls(allStudents);
   const nameLabels = useNameLabels(allStudents, nameDisplay);
+
+  // The arcs join table neighbours who are still side by side. Read off the
+  // current order: the neighbour lists stored on each position describe the
+  // order the circle was built in, and a drag leaves them behind.
+  const keptTablePairs = React.useMemo(
+    () => summarizeCircle(layout).tableNeighbors.kept,
+    [layout],
+  );
+  const slotIndexById = React.useMemo(() => {
+    const byId = new Map<string, number>();
+    layout.students.forEach((position, index) => {
+      if (position?.student) byId.set(position.student.id, index);
+    });
+    return byId;
+  }, [layout.students]);
 
   // When any student has a photo, shrink the ring so the avatars docked just
   // outside each token still fit inside the 900×600 viewBox (otherwise the
@@ -378,46 +394,39 @@ function SimpleCircleView({
           touchAction: editable ? 'none' : 'auto',
         }}
       >
-        {/* Preserved neighborhood connections - MOVED BEFORE position slots to render behind */}
+        {/* Table neighbours still side by side, drawn before the slots so
+            they sit behind them */}
         {connectionMode === 'subtle' &&
-          layout.students.map((studentPosition, currentIndex) =>
-            studentPosition.preservedNeighbors.map((neighborId) => {
-              const neighborIndex = layout.students.findIndex(
-                (pos) => pos.student.id === neighborId,
-              );
+          keptTablePairs.map(([firstId, secondId]) => {
+            const firstSlot = studentSlots[slotIndexById.get(firstId) ?? -1];
+            const secondSlot = studentSlots[slotIndexById.get(secondId) ?? -1];
+            if (!firstSlot || !secondSlot) return null;
 
-              if (neighborIndex === -1 || currentIndex > neighborIndex)
-                return null;
+            // Calculate center of the circle
+            const centerX = 450; // Half of 900px viewport width
+            const centerY = 300; // Half of 600px viewport height
 
-              const currentSlot = studentSlots[currentIndex];
-              const neighborSlot = studentSlots[neighborIndex];
+            const pathData = createArcPath(
+              firstSlot.x,
+              firstSlot.y,
+              secondSlot.x,
+              secondSlot.y,
+              centerX,
+              centerY,
+            );
 
-              // Calculate center of the circle
-              const centerX = 450; // Half of 900px viewport width
-              const centerY = 300; // Half of 600px viewport height
-
-              const pathData = createArcPath(
-                currentSlot.x,
-                currentSlot.y,
-                neighborSlot.x,
-                neighborSlot.y,
-                centerX,
-                centerY,
-              );
-
-              return (
-                <path
-                  key={`${studentPosition.student.id}-${neighborId}`}
-                  d={pathData}
-                  fill="none"
-                  stroke={isDark ? '#22c55e' : '#16a34a'}
-                  strokeWidth="2"
-                  opacity="0.4"
-                  strokeLinecap="round"
-                />
-              );
-            }),
-          )}
+            return (
+              <path
+                key={`${firstId}-${secondId}`}
+                d={pathData}
+                fill="none"
+                stroke={isDark ? '#22c55e' : '#16a34a'}
+                strokeWidth="2"
+                opacity="0.4"
+                strokeLinecap="round"
+              />
+            );
+          })}
 
         {/* Position slots */}
         {studentSlots.map((slot) => {

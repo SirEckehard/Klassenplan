@@ -46,7 +46,7 @@ const testFiles = [
 ];
 
 const UI_ALGORITHM_MESSAGE =
-  'UI-Code erreicht "@/utils/algorithm" über Hooks und Contexts. Erlaubt sind Typ-Importe sowie seatingStatistics, criterionHighlights und planReasons (siehe docs/MODULE_BOUNDARIES.md).';
+  'UI-Code erreicht "@/utils/algorithm" über Hooks und Contexts. Erlaubt sind Typ-Importe sowie seatingStatistics, criterionHighlights, planReasons und circleSummary (siehe docs/MODULE_BOUNDARIES.md).';
 const UI_DATA_MESSAGE =
   'UI-Code erreicht "@/utils/data" über Hooks und Repositories. Erlaubt sind Typ-Importe sowie planUsage; Storage-Keys kommen aus "@/utils" (siehe docs/MODULE_BOUNDARIES.md).';
 
@@ -157,6 +157,7 @@ export default defineConfig([
                 '!@/utils/algorithm/seatingStatistics',
                 '!@/utils/algorithm/criterionHighlights',
                 '!@/utils/algorithm/planReasons',
+                '!@/utils/algorithm/circleSummary',
               ],
               allowTypeImports: true,
               message: UI_ALGORITHM_MESSAGE,

@@ -186,7 +186,44 @@
     "canvasLabel_one": "Sitzkreis mit {{count}} Schüler",
     "canvasLabel_other": "Sitzkreis mit {{count}} Schülern",
     "orderLabel": "Sitzreihenfolge im Sitzkreis",
-    "connectionsTitle": "Verbindungen"
+    "connectionsTitle": "Verbindungen",
+    "inspector": {
+      "tableNeighbors": {
+        "title": "Tischnachbarn",
+        "none": "Der Sitzplan hat keine Tischnachbarn, die der Kreis zusammenhalten könnte.",
+        "allKept_one": "Das Paar sitzt auch im Kreis nebeneinander.",
+        "allKept_other": "Alle {{count}} Paare sitzen auch im Kreis nebeneinander.",
+        "noneKept_one": "Das Paar sitzt im Kreis nicht mehr nebeneinander.",
+        "noneKept_other": "Keins der {{count}} Paare sitzt im Kreis noch nebeneinander.",
+        "someKept_one": "{{count}} von {{total}} Paaren sitzt auch im Kreis nebeneinander.",
+        "someKept_other": "{{count}} von {{total}} Paaren sitzen auch im Kreis nebeneinander.",
+        "separated": "Getrennt: {{pairs}}"
+      },
+      "criteria": {
+        "title": "Im Kreis nebeneinander",
+        "wishes": {
+          "value": "{{done}} von {{total}}",
+          "hint": "Wer neben mindestens einem Wunschpartner sitzt",
+          "waiting": "Ohne Wunschpartner daneben: {{names}}"
+        },
+        "distance": {
+          "met": "eingehalten"
+        },
+        "restless": {
+          "met": "getrennt"
+        },
+        "gender": {
+          "met": "gemischt",
+          "run": "{{length}} am Stück",
+          "runRange": "Gleiches Geschlecht von {{first}} bis {{last}}",
+          "hint": "Meldet die längste Reihe mit gleichem Geschlecht, wenn sie deutlich länger ist, als die Klasse es erfordert"
+        },
+        "pairs_one": "{{count}} Paar",
+        "pairs_other": "{{count}} Paare",
+        "beside": "Nebeneinander: {{pairs}}"
+      },
+      "pair": "{{first}} & {{second}}"
+    }
   },
   "seat": {
     "lockSeat": "Sitzplatz sperren",

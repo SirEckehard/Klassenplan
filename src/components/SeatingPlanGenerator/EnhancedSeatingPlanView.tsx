@@ -17,6 +17,7 @@ import { ToolRailButton } from '@/components/shell/ToolRail';
 import StatusBarPortal from '@/components/shell/StatusBarPortal';
 import SeatingPlanView from './SeatingPlanView';
 import SimpleCircleView from '@/components/circle/SimpleCircleView';
+import CircleInspector from '@/components/circle/CircleInspector';
 import type { SeatingMode } from '@/types/Circle';
 import type { ConnectionDisplayMode } from '@/components/circle/SimpleCircleView';
 import type { PhotoDisplayMode } from '@/types';
@@ -286,6 +287,14 @@ export default function EnhancedSeatingPlanView(
               )}
             </SmartSidebar>
           )}
+
+          {/* The table plan's inspector holds its criteria; the circle is
+              not built from them, so its panel says what the ring came to. */}
+          <CircleInspector
+            layout={circleLayout}
+            settings={props.settings}
+            nameDisplay={nameDisplay}
+          />
 
           <div className={`${workspaceStageClass} ${canvasStageClass} gap-4`}>
             <div
