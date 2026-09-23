@@ -23,12 +23,21 @@
 //
 // Usage: npm run generate:preview-images [-- --force]
 // Without --force, files newer than their master are skipped.
+//
+// Last, it stamps a hash of the finished files into previewImages.json as
+// `version`, which HeroMockup appends to every image URL — the file names stay
+// the same across re-shoots, so without it the caches kept the old pictures
+// (see scripts/utils/previewVersion.mjs).
 import { spawnSync } from 'node:child_process';
 import { promises as fs } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { logError, logInfo } from './utils/logger.mjs';
+import {
+  computePreviewVersion,
+  writePreviewVersion,
+} from './utils/previewVersion.mjs';
 
 const SOURCE = 'generate-preview-images';
 const projectRoot = path.resolve(
@@ -172,7 +181,16 @@ async function main() {
     await fs.rm(tmpDir, { recursive: true, force: true });
   }
 
-  logInfo('Preview variants ready', { written, skipped }, SOURCE);
+  // Always recomputed, even when every file was skipped: a screenshot replaced
+  // by hand is only picked up here.
+  const version = await computePreviewVersion(previewDir);
+  const versionChanged = await writePreviewVersion(configPath, version);
+
+  logInfo(
+    'Preview variants ready',
+    { written, skipped, version, versionChanged },
+    SOURCE,
+  );
 }
 
 main().catch((error) => {

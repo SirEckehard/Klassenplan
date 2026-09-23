@@ -97,13 +97,24 @@ function slideBase(slug: string, lang: 'de' | 'en', dark: boolean) {
   return `/preview/${slug}_${lang}_${dark ? 'dark' : 'light'}`;
 }
 
+/**
+ * One file of a slide. The screenshots keep their names when they are re-shot
+ * while nginx and the service worker cache them as if they never changed, so
+ * the URL carries the set's version (`npm run generate:preview-images`): new
+ * screenshots are new URLs, and no cache can answer with the old picture.
+ */
+function slideUrl(base: string, ext: 'avif' | 'webp', width?: number) {
+  const suffix = width === undefined ? '' : `-${width}`;
+  return `${base}${suffix}.${ext}?v=${previewImages.version}`;
+}
+
 /** Downscaled copies plus the full-size file as the largest candidate. */
 function slideSrcSet(base: string, width: number, ext: 'avif' | 'webp') {
   return [
     ...previewImages.variantWidths
       .filter((w) => w < width)
-      .map((w) => `${base}-${w}.${ext} ${w}w`),
-    `${base}.${ext} ${width}w`,
+      .map((w) => `${slideUrl(base, ext, w)} ${w}w`),
+    `${slideUrl(base, ext)} ${width}w`,
   ].join(', ');
 }
 
@@ -215,7 +226,7 @@ export default function HeroMockup() {
                   type="image/webp"
                 />
                 <img
-                  src={`${b}.webp`}
+                  src={slideUrl(b, 'webp')}
                   alt={t(entry.labelKey)}
                   aria-hidden={!isActive}
                   loading={isActive ? 'eager' : 'lazy'}
@@ -315,15 +326,24 @@ export default function HeroMockup() {
               {/* Lightbox image */}
               <picture>
                 <source
-                  srcSet={`${slideBase(SLIDES[current].slug, lang, isDark)}.avif`}
+                  srcSet={slideUrl(
+                    slideBase(SLIDES[current].slug, lang, isDark),
+                    'avif',
+                  )}
                   type="image/avif"
                 />
                 <source
-                  srcSet={`${slideBase(SLIDES[current].slug, lang, isDark)}.webp`}
+                  srcSet={slideUrl(
+                    slideBase(SLIDES[current].slug, lang, isDark),
+                    'webp',
+                  )}
                   type="image/webp"
                 />
                 <img
-                  src={`${slideBase(SLIDES[current].slug, lang, isDark)}.webp`}
+                  src={slideUrl(
+                    slideBase(SLIDES[current].slug, lang, isDark),
+                    'webp',
+                  )}
                   alt={t(SLIDES[current].labelKey)}
                   decoding="async"
                   className="max-h-[80vh] w-full rounded-lg object-contain"

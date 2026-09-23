@@ -289,6 +289,12 @@ export default defineConfig({
         // them here precached every PNG master — 24 files, 11 MB — on each
         // first visit, although the app never requests one.
         globIgnores: ['**/node_modules/**/*', 'preview/**'],
+        // The carousel asks for its screenshots with the set's version
+        // appended (`?v=…`, see HeroMockup). Ignoring it lets the precached
+        // German ones above answer those requests; they are replaced together
+        // with the rest of the precache, so they always match the page that
+        // asks for them. The first two are Workbox's defaults.
+        ignoreURLParametersMatching: [/^utm_/, /^fbclid$/, /^v$/],
         runtimeCaching: [
           {
             urlPattern: ({ request, url }) =>
@@ -307,6 +313,8 @@ export default defineConfig({
             },
           },
           {
+            // Cache-first is safe only because the URLs are versioned: a new
+            // set of screenshots never shares a URL with the old one.
             urlPattern: ({ request, url }) =>
               request.destination === 'image' &&
               url.pathname.startsWith('/preview/'),

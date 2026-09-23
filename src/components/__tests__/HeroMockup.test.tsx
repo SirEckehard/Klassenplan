@@ -7,6 +7,7 @@ import { describe, it, expect } from 'vitest';
 import '@/i18n'; // Initialize i18n for tests
 import HeroMockup from '../HeroMockup';
 import { getButton, getDialog } from '@/__tests__/utils';
+import previewImages from '@/data/previewImages.json';
 
 const carousel = () =>
   screen.getByRole('region', { name: /App-Vorschau|App preview/i });
@@ -60,5 +61,25 @@ describe('HeroMockup', () => {
 
     await user.click(getButton(/Vorschau vergrößern|Enlarge preview/i));
     expect(getDialog(/^(Klassenliste|Class list)$/)).toBeInTheDocument();
+  });
+
+  it('versions every screenshot URL, so no cache serves an old picture', () => {
+    const { container } = render(<HeroMockup />);
+    const stamp = `?v=${previewImages.version}`;
+    const urls = [
+      ...Array.from(container.querySelectorAll('img')).map((img) =>
+        img.getAttribute('src')!,
+      ),
+      ...Array.from(container.querySelectorAll('source')).flatMap((source) =>
+        source
+          .getAttribute('srcset')!
+          .split(', ')
+          .map((candidate) => candidate.split(' ')[0]),
+      ),
+    ];
+
+    expect(previewImages.version).toMatch(/^[0-9a-f]{10}$/);
+    expect(urls.length).toBeGreaterThan(0);
+    urls.forEach((url) => expect(url.endsWith(stamp)).toBe(true));
   });
 });
