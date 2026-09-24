@@ -463,7 +463,7 @@ describe('StudentInput list tools', () => {
 
     await user.click(screen.getAllByRole('checkbox')[1]);
     await user.click(
-      screen.getByRole('button', { name: /^(Entfernen|Remove)$/i }),
+      screen.getByRole('button', { name: /^(Löschen|Delete)$/i }),
     );
     expect(screen.getByRole('dialog')).toBeInTheDocument();
 
@@ -482,14 +482,14 @@ describe('StudentInput list tools', () => {
       screen.getByRole('checkbox', { name: /Alle auswählen|Select all/i }),
     );
     await user.click(
-      screen.getByRole('button', { name: /^(Entfernen|Remove)$/i }),
+      screen.getByRole('button', { name: /^(Löschen|Delete)$/i }),
     );
 
     const dialog = screen.getByRole('dialog');
     expect(removeStudents).not.toHaveBeenCalled();
 
     await user.click(
-      within(dialog).getByRole('button', { name: /Entfernen|Remove/i }),
+      within(dialog).getByRole('button', { name: /^(Löschen|Delete)$/i }),
     );
 
     // The whole selection goes in one write, undoable in one step.
@@ -616,11 +616,11 @@ describe('StudentInput bulk editing in the inspector', () => {
       name: /Mehrfachbearbeitung|Bulk editing/i,
     });
     await user.click(
-      within(panel).getByRole('button', { name: /^(Entfernen|Remove)$/i }),
+      within(panel).getByRole('button', { name: /^(Löschen|Delete)$/i }),
     );
     const dialog = screen.getByRole('dialog');
     await user.click(
-      within(dialog).getByRole('button', { name: /Entfernen|Remove/i }),
+      within(dialog).getByRole('button', { name: /^(Löschen|Delete)$/i }),
     );
 
     expect(removeStudents).toHaveBeenCalledExactlyOnceWith(['1', '2']);
@@ -630,7 +630,7 @@ describe('StudentInput bulk editing in the inspector', () => {
     renderWithInspector();
     const user = userEvent.setup();
 
-    await tick(user, 1);
+    await tick(user, 1, 2);
     await screen.findByRole('complementary', {
       name: /Mehrfachbearbeitung|Bulk editing/i,
     });
@@ -641,5 +641,95 @@ describe('StudentInput bulk editing in the inspector', () => {
     expect(
       screen.getByRole('complementary', { name: /Merkmale|Attributes/i }),
     ).toBeInTheDocument();
+  });
+});
+
+// A selection of one needs nothing the bulk panel offers, and would lose the
+// name, the photo and the partners to it.
+describe('StudentInput with a single ticked student', () => {
+  const studentPanel = () =>
+    screen.findByRole('complementary', { name: /Merkmale|Attributes/i });
+
+  const tickFirst = async (user: ReturnType<typeof userEvent.setup>) => {
+    // First checkbox is the list header's select-all.
+    await user.click(screen.getAllByRole('checkbox')[1]);
+  };
+
+  it('shows the student in the panel an opened one gets', async () => {
+    renderWithInspector();
+    const user = userEvent.setup();
+
+    await tickFirst(user);
+
+    const panel = await studentPanel();
+    expect(within(panel).getByText('Anna')).toBeInTheDocument();
+    expect(
+      within(panel).getByText(/Schüler 1 von 10|Student 1 of 10/i),
+    ).toBeInTheDocument();
+    expect(
+      within(panel).queryByRole('heading', { name: /ausgewählt|selected/i }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('carries the tick along when stepping to the next student', async () => {
+    renderWithInspector();
+    const user = userEvent.setup();
+
+    await tickFirst(user);
+    const panel = await studentPanel();
+    const next = within(panel).getByRole('button', {
+      name: /Nächster Schüler|Next student/i,
+    });
+    await user.click(next);
+
+    const checkboxes = screen.getAllByRole('checkbox');
+    expect(checkboxes[1]).not.toBeChecked();
+    expect(checkboxes[2]).toBeChecked();
+    expect(
+      within(panel).getByText(/Schüler 2 von 10|Student 2 of 10/i),
+    ).toBeInTheDocument();
+    // The panel stayed where it was, so the keyboard did too.
+    expect(next).toHaveFocus();
+  });
+
+  it('lets the selection go when the panel is closed', async () => {
+    renderWithInspector();
+    const user = userEvent.setup();
+
+    await tickFirst(user);
+    const panel = await studentPanel();
+    await user.click(
+      within(panel).getByRole('button', {
+        name: /Merkmale schließen|Close attributes/i,
+      }),
+    );
+
+    expect(screen.getAllByRole('checkbox')[1]).not.toBeChecked();
+    expect(
+      await screen.findByText(/Kein Schüler ausgewählt|No student selected/i),
+    ).toBeInTheDocument();
+  });
+
+  it('asks by name before removing the student', async () => {
+    const removeStudents = vi.fn();
+    renderWithInspector({ removeStudents });
+    const user = userEvent.setup();
+
+    await tickFirst(user);
+    const panel = await studentPanel();
+    await user.click(
+      within(panel).getByRole('button', { name: /^(Löschen|Delete)$/i }),
+    );
+    const dialog = await screen.findByRole('dialog');
+    expect(dialog).toHaveTextContent(/Anna/);
+    expect(removeStudents).not.toHaveBeenCalled();
+
+    await user.click(
+      within(dialog).getByRole('button', { name: /^(Löschen|Delete)$/i }),
+    );
+
+    await waitFor(() =>
+      expect(removeStudents).toHaveBeenCalledExactlyOnceWith(['1']),
+    );
   });
 });

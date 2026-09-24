@@ -1070,9 +1070,9 @@
     }
   },
   "sceneInspector": {
-    "deleteFeature": "Raummerkmal entfernen",
-    "deleteSelection": "Auswahl entfernen",
-    "deleteTable": "Tisch entfernen",
+    "deleteFeature": "Raummerkmal löschen",
+    "deleteSelection": "Auswahl löschen",
+    "deleteTable": "Tisch löschen",
     "duplicate": "Duplizieren",
     "copyShortcut": "Kopieren (Strg/Cmd+C)",
     "cutShortcut": "Ausschneiden (Strg/Cmd+X)",
@@ -1081,7 +1081,7 @@
     "orientation": "Ausrichtung",
     "display": "Anzeige",
     "overview": "Überblick",
-    "empty": "Wähle einen Tisch oder ein Raummerkmal auf dem Plan, um es zu drehen, zu kopieren oder zu entfernen. Verschoben wird direkt auf dem Plan.",
+    "empty": "Wähle einen Tisch oder ein Raummerkmal auf dem Plan, um es zu drehen, zu kopieren oder zu löschen. Verschoben wird direkt auf dem Plan.",
     "multiSelection": "{{tables}} Tische und {{features}} Raummerkmale ausgewählt",
     "room": "Raum",
     "rotateLeft": "Gegen den Uhrzeigersinn drehen",

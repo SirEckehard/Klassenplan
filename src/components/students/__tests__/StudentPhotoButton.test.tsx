@@ -126,7 +126,7 @@ test('removing a photo only schedules the deletion', async () => {
   const updateStudent = vi.fn();
   renderButton(true, updateStudent);
 
-  fireEvent.click(getButton(/Foto entfernen|Remove photo/i));
+  fireEvent.click(getButton(/Foto löschen|Delete photo/i));
 
   // `hasPhoto: false` is an undoable student edit, so the blob has to stay
   // until no undo step can reach it (see studentPhotoTrash).
@@ -141,7 +141,7 @@ test('keeps the photo when the removal is cancelled', async () => {
   const updateStudent = vi.fn();
   renderButton(true, updateStudent);
 
-  fireEvent.click(getButton(/Foto entfernen|Remove photo/i));
+  fireEvent.click(getButton(/Foto löschen|Delete photo/i));
 
   await waitFor(() => expect(confirmDialogMock).toHaveBeenCalled());
   expect(schedulePhotoDeletionMock).not.toHaveBeenCalled();

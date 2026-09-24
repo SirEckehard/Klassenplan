@@ -12,7 +12,7 @@ import { useInspector } from '@/contexts/InspectorContext';
  * is a list of table indices and feature ids living inside the canvas state,
  * together with the mutators that go with them. Sending that up through context
  * would mean a dozen callbacks crossing the shell; sending the markup down is
- * one node. The same holds for the class layer's multi-selection, whose ticks
+ * one node. The same holds for the class layer's selection, whose ticks
  * and batch actions live in the list view.
  *
  * Mounting says so to the inspector (`mountPortal`), which is how the class

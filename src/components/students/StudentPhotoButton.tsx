@@ -201,16 +201,8 @@ function StudentPhotoButton({ student, updateStudent }: Props) {
     e.stopPropagation();
     const name = student.name.trim();
     const confirmed = await confirmDialog(
-      name
-        ? t(
-            'photo.removeConfirmNamed',
-            'Foto von {{name}} wirklich entfernen?',
-            {
-              name,
-            },
-          )
-        : t('photo.removeConfirm', 'Dieses Foto wirklich entfernen?'),
-      { confirmLabel: t('photo.remove', 'Foto entfernen') },
+      name ? t('photo.removeConfirmNamed', { name }) : t('photo.removeConfirm'),
+      { confirmLabel: t('photo.remove') },
     );
     if (!confirmed) return;
     // Scheduled, not deleted: `hasPhoto: false` is an undoable student edit,
@@ -282,8 +274,8 @@ function StudentPhotoButton({ student, updateStudent }: Props) {
           <button
             type="button"
             onClick={handleRemove}
-            title={t('photo.remove', 'Foto entfernen')}
-            aria-label={t('photo.remove', 'Foto entfernen')}
+            title={t('photo.remove')}
+            aria-label={t('photo.remove')}
             className="absolute -right-1 -top-1 flex h-4 w-4 cursor-pointer items-center justify-center rounded-full border border-(--surface-card) bg-(--button-danger-bg) text-white shadow-sm transition hover:bg-(--button-danger-bg-hover)"
           >
             <XIcon size={9} weight="bold" />

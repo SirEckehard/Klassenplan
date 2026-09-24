@@ -36,8 +36,8 @@ type InspectorContextValue = {
   setSlotNode: (node: HTMLElement | null) => void;
   /**
    * Whether an `InspectorPortal` is mounted. The room and plan layers always
-   * fill the panel that way; the class layer does so only while several
-   * students are ticked, and the inspector shows its slot instead of the one
+   * fill the panel that way; the class layer does so only while students
+   * are ticked, and the inspector shows its slot instead of the opened
    * student for as long as that lasts.
    */
   portalMounted: boolean;

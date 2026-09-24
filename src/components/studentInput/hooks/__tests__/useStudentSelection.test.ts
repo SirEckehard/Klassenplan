@@ -22,6 +22,16 @@ describe('useStudentSelection', () => {
     expect(result.current.isSelected('a')).toBe(false);
   });
 
+  it('makes one student the whole selection', () => {
+    const { result } = renderHook(() => useStudentSelection(all, all));
+
+    act(() => result.current.toggle('a'));
+    act(() => result.current.toggle('b'));
+    act(() => result.current.selectOnly('c'));
+
+    expect([...result.current.selectedIds]).toEqual(['c']);
+  });
+
   it('select-all covers only the visible students', () => {
     const visible = [anna, ben];
     const { result } = renderHook(() => useStudentSelection(all, visible));

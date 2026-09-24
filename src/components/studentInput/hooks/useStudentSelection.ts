@@ -8,6 +8,11 @@ export interface StudentSelection {
   selectedCount: number;
   isSelected: (id: string) => boolean;
   toggle: (id: string) => void;
+  /**
+   * Make this student the whole selection. Stepping through the class from a
+   * single ticked student carries the tick along instead of adding to it.
+   */
+  selectOnly: (id: string) => void;
   /** Select every currently visible student, or clear if all are selected. */
   toggleAllVisible: () => void;
   allVisibleSelected: boolean;
@@ -53,6 +58,10 @@ export function useStudentSelection(
     });
   }, []);
 
+  const selectOnly = React.useCallback((id: string) => {
+    setSelectedIds(new Set([id]));
+  }, []);
+
   const allVisibleSelected =
     visibleStudents.length > 0 &&
     visibleStudents.every((student) => selectedIds.has(student.id));
@@ -81,6 +90,7 @@ export function useStudentSelection(
     selectedCount: selectedIds.size,
     isSelected: (id: string) => selectedIds.has(id),
     toggle,
+    selectOnly,
     toggleAllVisible,
     allVisibleSelected,
     clear,

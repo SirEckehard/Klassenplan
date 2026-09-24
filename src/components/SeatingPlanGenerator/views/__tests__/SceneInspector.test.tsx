@@ -183,7 +183,7 @@ describe('SceneInspector', () => {
     const { onDeleteSelection } = renderInspector({ selectedTableIds: [0] });
 
     fireEvent.click(
-      screen.getByRole('button', { name: /Tisch entfernen|Remove table/i }),
+      screen.getByRole('button', { name: /Tisch löschen|Delete table/i }),
     );
 
     expect(onDeleteSelection).toHaveBeenCalledTimes(1);
@@ -229,7 +229,7 @@ describe('SceneInspector', () => {
     ).toBeInTheDocument();
     expect(
       screen.getByRole('button', {
-        name: /Auswahl entfernen|Remove selection/i,
+        name: /Auswahl löschen|Delete selection/i,
       }),
     ).toBeInTheDocument();
   });

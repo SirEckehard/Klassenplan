@@ -59,20 +59,29 @@ function StudentRow({
   const displayName = student.name || t('studentList.newStudent');
   const hasName = student.name.trim().length > 0;
 
-  const stateClass = isInspected
+  // Opened and ticked are two states, so they look different. The selection
+  // fill belongs to the ticked rows alone, beside the checkbox that says so;
+  // the row the inspector shows sits on paper and carries a blue bar at its
+  // edge. Sharing the fill made an opened row with an empty checkbox read as
+  // a tick that had failed to land.
+  const stateClass = selected
     ? 'bg-(--surface-option-selected)'
-    : highlight
+    : isInspected || highlight
       ? 'bg-(--surface-sunken)'
-      : selected
-        ? 'bg-(--surface-option-selected)'
-        : '';
+      : '';
 
   return (
     <div
       id={`student-${student.id}`}
       data-tour={TOUR_ANCHORS.studentRow}
-      className={`flex items-center gap-3 border-b border-(--border-card) px-3 last:border-b-0 ${stateClass}`}
+      className={`relative flex items-center gap-3 border-b border-(--border-card) px-3 last:border-b-0 ${stateClass}`}
     >
+      {isInspected && (
+        <span
+          aria-hidden="true"
+          className="absolute inset-y-0 left-0 w-1 bg-(--border-option-selected)"
+        />
+      )}
       {onToggleSelected && (
         <input
           type="checkbox"

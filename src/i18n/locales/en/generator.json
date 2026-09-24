@@ -1070,9 +1070,9 @@
     }
   },
   "sceneInspector": {
-    "deleteFeature": "Remove room feature",
-    "deleteSelection": "Remove selection",
-    "deleteTable": "Remove table",
+    "deleteFeature": "Delete room feature",
+    "deleteSelection": "Delete selection",
+    "deleteTable": "Delete table",
     "duplicate": "Duplicate",
     "copyShortcut": "Copy (Ctrl/Cmd+C)",
     "cutShortcut": "Cut (Ctrl/Cmd+X)",
@@ -1081,7 +1081,7 @@
     "orientation": "Orientation",
     "display": "Display",
     "overview": "Overview",
-    "empty": "Pick a table or a room feature on the plan to rotate, copy or remove it. Moving happens right on the plan.",
+    "empty": "Pick a table or a room feature on the plan to rotate, copy or delete it. Moving happens right on the plan.",
     "multiSelection": "{{tables}} tables and {{features}} room features selected",
     "room": "Room",
     "rotateLeft": "Rotate counter-clockwise",

@@ -168,7 +168,7 @@
       "description": "Multiple classes, CSV import, photos, attribute mode and the name game.",
       "classes": {
         "q": "Can I manage several classes?",
-        "a": "Yes. The class switcher at the top left of the header lets you create as many classes as you like, rename them, switch between them or delete them. Each class keeps its own students, classroom layouts, seating plans and shuffle history. Deleting a class also removes its seating plans – so a backup beforehand is worth it."
+        "a": "Yes. The class switcher at the top left of the header lets you create as many classes as you like, rename them, switch between them or delete them. Each class keeps its own students, classroom layouts, seating plans and shuffle history. Deleting a class also deletes its seating plans – so a backup beforehand is worth it."
       },
       "csv": {
         "q": "How do I import an existing class list?",

@@ -168,7 +168,7 @@
       "description": "Mehrere Klassen, CSV-Import, Fotos, Merkmal-Modus und Namensspiel.",
       "classes": {
         "q": "Kann ich mehrere Klassen verwalten?",
-        "a": "Ja. Über die Klassenauswahl oben links in der Kopfzeile legst du beliebig viele Klassen an, benennst sie um, wechselst zwischen ihnen oder löschst sie. Jede Klasse hat ihre eigenen Schüler, Klassenraum-Layouts, Sitzpläne und Misch-Historien. Löschst du eine Klasse, werden auch deren Sitzpläne entfernt – ein Backup vorher lohnt sich."
+        "a": "Ja. Über die Klassenauswahl oben links in der Kopfzeile legst du beliebig viele Klassen an, benennst sie um, wechselst zwischen ihnen oder löschst sie. Jede Klasse hat ihre eigenen Schüler, Klassenraum-Layouts, Sitzpläne und Misch-Historien. Löschst du eine Klasse, werden auch deren Sitzpläne gelöscht – ein Backup vorher lohnt sich."
       },
       "csv": {
         "q": "Wie importiere ich eine bestehende Klassenliste?",

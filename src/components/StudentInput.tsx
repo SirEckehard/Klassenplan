@@ -43,6 +43,7 @@ import { useStudentListView } from '@/components/studentInput/hooks/useStudentLi
 import { useStudentSelection } from '@/components/studentInput/hooks/useStudentSelection';
 import StudentListToolsRow from '@/components/studentInput/StudentListToolsRow';
 import StudentBulkInspector from '@/components/students/StudentBulkInspector';
+import StudentInspectorPanel from '@/components/students/StudentInspectorPanel';
 import InspectorPortal from '@/components/shell/InspectorPortal';
 import AttributeFocusMode from '@/components/studentInput/AttributeFocusMode';
 import ListScrollFab from '@/components/studentInput/ListScrollFab';
@@ -216,6 +217,15 @@ function StudentInput({
     () => students.filter((student) => selection.selectedIds.has(student.id)),
     [students, selection.selectedIds],
   );
+  // One ticked student is shown like an opened one: the bulk panel would only
+  // take the name, the photo and the partners away. Its arrows carry the tick
+  // along, and its close button lets the selection go, as the bulk one does.
+  const singleSelected =
+    selectedStudents.length === 1 ? selectedStudents[0] : null;
+  const removeStudent = useCallback(
+    (id: string) => removeStudents([id]),
+    [removeStudents],
+  );
 
   // Escape drops the selection, the way it dismisses any other transient state.
   // An open dialog or menu owns the key though (Modal closes on Escape as well,
@@ -262,13 +272,7 @@ function StudentInput({
     removeStudents(ids);
     selection.clear();
     setBulkDeleteOpen(false);
-    showToast(
-      'success',
-      t('bulkEdit.deleted', {
-        count: ids.length,
-        defaultValue: '{{count}} Schüler entfernt.',
-      }),
-    );
+    showToast('success', t('bulkEdit.deleted', { count: ids.length }));
   }, [selection, removeStudents, setBulkDeleteOpen, t]);
 
   const photoCount = students.filter((student) => student.hasPhoto).length;
@@ -350,13 +354,28 @@ function StudentInput({
           />
         )}
         {selectionActive && bulkInInspector && (
-          <InspectorPortal label={t('bulkEdit.regionLabel')}>
-            <StudentBulkInspector
-              selectedStudents={selectedStudents}
-              onApply={handleBulkApply}
-              onRemove={() => setBulkDeleteOpen(true)}
-              onClear={selection.clear}
-            />
+          <InspectorPortal
+            label={
+              singleSelected ? t('inspector.title') : t('bulkEdit.regionLabel')
+            }
+          >
+            {singleSelected ? (
+              <StudentInspectorPanel
+                student={singleSelected}
+                students={students}
+                updateStudent={updateStudent}
+                removeStudent={removeStudent}
+                onOpen={selection.selectOnly}
+                onClose={selection.clear}
+              />
+            ) : (
+              <StudentBulkInspector
+                selectedStudents={selectedStudents}
+                onApply={handleBulkApply}
+                onRemove={() => setBulkDeleteOpen(true)}
+                onClear={selection.clear}
+              />
+            )}
           </InspectorPortal>
         )}
         <>
@@ -498,13 +517,11 @@ function StudentInput({
 
       <ConfirmDialog
         open={bulkDeleteOpen}
-        title={t('bulkEdit.deleteTitle', 'Ausgewählte Schüler entfernen')}
+        title={t('bulkEdit.deleteTitle')}
         message={t('bulkEdit.deleteMessage', {
           count: selection.selectedCount,
-          defaultValue:
-            'Möchtest du {{count}} ausgewählte Schüler wirklich entfernen? Du kannst das mit Strg/Cmd+Z rückgängig machen.',
         })}
-        confirmLabel={t('bulkEdit.deleteSelected', 'Entfernen')}
+        confirmLabel={t('bulkEdit.deleteSelected')}
         cancelLabel={t('common.cancel', 'Abbrechen')}
         onConfirm={handleBulkDelete}
         onCancel={() => setBulkDeleteOpen(false)}

@@ -278,7 +278,7 @@ export default function StudentBulkEditBar({
       </div>
 
       {/*
-        Icon-only: the German labels ("Entfernen", "Auswahl aufheben") pushed
+        Icon-only: the German labels ("Löschen", "Auswahl aufheben") pushed
         the bar onto a second line on a 14" screen. Both actions are reversible
         or confirmed, and carry their wording in the tooltip and accessible name.
 
@@ -291,8 +291,8 @@ export default function StudentBulkEditBar({
         type="button"
         onClick={onDeleteSelected}
         className={`${dangerButtonClass} h-9 w-9 p-0!`}
-        aria-label={t('bulkEdit.deleteSelected', 'Entfernen')}
-        title={t('bulkEdit.deleteSelected', 'Entfernen')}
+        aria-label={t('bulkEdit.deleteSelected')}
+        title={t('bulkEdit.deleteSelected')}
       >
         <TrashIcon size={16} aria-hidden />
       </button>
