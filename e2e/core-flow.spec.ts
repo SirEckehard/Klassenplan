@@ -117,7 +117,7 @@ test('a teacher can go from an empty app to an exportable seating plan', async (
   });
 
   await test.step('step 3 — a manual mix reseats everyone', async () => {
-    await page.getByRole('button', { name: 'Neu mischen' }).click();
+    await page.getByRole('button', { name: 'Mischen', exact: true }).click();
 
     const plan = page.getByRole('group', { name: /^Sitzplan:/ });
     await expect(plan).toHaveAccessibleName('Sitzplan: 4 von 4 Plätzen belegt');
@@ -129,12 +129,12 @@ test('a teacher can go from an empty app to an exportable seating plan', async (
   });
 
   await test.step('step 3 — save the plan under a name', async () => {
-    // The plan is named in the header, beside the class it belongs to, and
-    // saved from the toolbar.
-    await page
-      .getByRole('textbox', { name: /Namen für diesen Sitzplan/ })
-      .fill('E2E Plan');
+    // The plan is named where it is saved: the toolbar's entry opens a panel
+    // with its name, and Enter saves under it.
     await page.getByRole('button', { name: 'Plan speichern' }).click();
+    const name = page.getByRole('textbox', { name: 'Name des Sitzplans' });
+    await name.fill('E2E Plan');
+    await name.press('Enter');
 
     // Filtered rather than indexed: earlier toasts (class created, plan mixed)
     // may still be on screen and their order is not this test's business.

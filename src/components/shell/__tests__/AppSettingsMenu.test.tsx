@@ -59,6 +59,47 @@ describe('AppSettingsMenu', () => {
     ).toBeInTheDocument();
   });
 
+  // The footer's links about the app itself come along: whom to tell, what
+  // changed in which version, where the code lives.
+  it('carries feedback, the changelog and the source code', async () => {
+    renderMenu();
+    await openMenu();
+
+    expect(
+      screen.getByRole('menuitem', { name: /^feedback$/i }),
+    ).toHaveAttribute('href', '/feedback');
+    expect(
+      screen.getByRole('menuitem', { name: /^changelog v\d+\.\d+\.\d+/i }),
+    ).toHaveAttribute('href', '/changelog');
+    const github = screen.getByRole('menuitem', { name: /^github$/i });
+    expect(github).toHaveAttribute(
+      'href',
+      expect.stringContaining('github.com'),
+    );
+    expect(github).toHaveAttribute('target', '_blank');
+  });
+
+  it.each([
+    ['/feedback', /^feedback$/i],
+    ['/changelog', /^changelog/i],
+  ])('opens %s with the way back into the app', async (path, name) => {
+    render(
+      <MemoryRouter initialEntries={['/generator']}>
+        <Routes>
+          <Route path="/generator" element={<AppSettingsMenu />} />
+          <Route path={path} element={<ReturnToAppLink />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    const user = await openMenu();
+
+    await user.click(screen.getByRole('menuitem', { name }));
+
+    expect(
+      await screen.findByRole('button', { name: /^(Zurück|Back)$/ }),
+    ).toBeInTheDocument();
+  });
+
   // The class layer's toolbar carries the backup and the plan layer's the
   // saved plans; the gear does not repeat them.
   it('leaves the backup and the saved plans to the toolbar', async () => {

@@ -30,24 +30,26 @@ export function useGuardedPlanExits() {
 }
 
 /**
- * The two ways a plan leaves the workspace, side by side in the header, left
- * of Help.
+ * The two ways a plan leaves the workspace, side by side at the right end of
+ * the plan layer's status bar, beside "Zurück".
  *
- * They leave the workspace, so they sit with the other things that are not a
- * layer's business, not in the status bar, which belongs to the layer: where
- * it stands, its history, the way back and its one primary action. Blue marks
- * that action, so the exits are two equal, quiet buttons — the header's first
- * version had "Präsentieren" in blue beside it.
+ * Every other layer has its way on there — "Weiter" to the next layer. The
+ * plan layer is the last, so its way on leads out of the workspace: to the
+ * export page or to the board. They used to sit in the header, beside Help,
+ * as things that are no layer's business; but a plan is what they carry out,
+ * and the header is calmer for it. Blue marks the layer's own action,
+ * "Mischen" in the middle of the bar, so the exits are two equal, quiet
+ * buttons.
  *
  * The words show from `xl` up; below they are icons with their names in the
- * tooltip. A phone has no room in the header at all and finds both at the
- * foot of its tool sheet (`ToolRail`).
+ * tooltip. A phone's status bar has no room left for them, so it finds both
+ * at the foot of its tool sheet (`ToolRail`).
  */
 export default function PlanExits() {
   const { t } = useTranslation('generator');
   const { onExport, onPresent, canExit } = useGuardedPlanExits();
 
-  const buttonClass = `${secondaryButtonClass} h-9 gap-2 px-2.5 text-sm xl:px-3 ${
+  const buttonClass = `${secondaryButtonClass} h-9 gap-2 px-2.5 text-sm whitespace-nowrap xl:px-3 ${
     canExit ? '' : 'opacity-60'
   }`;
 

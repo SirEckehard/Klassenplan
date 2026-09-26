@@ -4,10 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { LocalizedLink } from '@/components/LocalizedLink';
 import LayerSwitcher from '@/components/shell/LayerSwitcher';
 import HeaderClassMenu from '@/components/shell/HeaderClassMenu';
-import HeaderPlanName from '@/components/shell/HeaderPlanName';
 import HelpButton from '@/components/ui/buttons/HelpButton';
 import AppSettingsMenu from '@/components/shell/AppSettingsMenu';
-import PlanExits from '@/components/shell/PlanExits';
 import OnboardingTour from '@/components/onboarding/OnboardingTour';
 import { resolveTourId } from '@/components/onboarding/tours';
 import {
@@ -23,18 +21,20 @@ import type { ShortcutContext } from '@/utils';
 import { KpLockup } from '@/components/KpLockup';
 
 /**
- * The workspace header: branding, the class and the plan, the layer switcher,
- * the two ways out, Help and the settings.
+ * The workspace header: branding, the class, the layer switcher, Help and the
+ * settings.
  *
  * It sticks to the top so the layer switcher is reachable from anywhere in a
  * long student list, and it hosts the onboarding tour: the header knows the
  * step and class that decide which tour applies, and the Help button that
- * restarts it lives here. Exporting and presenting leave the workspace, so
- * they sit here rather than in the layer's status bar (`PlanExits`).
+ * restarts it lives here. The plan itself is not here: its name is set where
+ * it is saved, in the plan layer's toolbar (`PlanSavePanel`), and exporting
+ * and presenting are the plan layer's way on, at the end of its status bar
+ * (`PlanExits`).
  *
  * The export page wears the same header (`view="export"`). No layer is current
- * there, so every one of the three leads back into the workspace, the plan's
- * name gives way to the title field of the sheet, and there is no tour to run.
+ * there, so every one of the three leads back into the workspace, and there is
+ * no tour to run.
  */
 export default function SeatingPlanHeader({
   view = 'workspace',
@@ -177,8 +177,6 @@ export default function SeatingPlanHeader({
             </LocalizedLink>
           </h1>
           <HeaderClassMenu />
-          {/* The plan is the version of that class currently open. */}
-          {step === 3 && !isExport && <HeaderPlanName />}
         </div>
 
         {/* Centre - the three layers of the classroom */}
@@ -188,10 +186,8 @@ export default function SeatingPlanHeader({
           seatingMode={seatingMode}
         />
 
-        {/* Right — the two ways out, export and the smartboard, then help
-            and the settings. The export page is already one of the two. */}
+        {/* Right — help and the settings. */}
         <div className="flex shrink-0 items-center justify-end gap-2 lg:w-95">
-          {!isExport && <PlanExits />}
           {helpContent && (
             <HelpButton
               title={helpContent.title}
@@ -202,7 +198,8 @@ export default function SeatingPlanHeader({
             />
           )}
           {/* The workspace runs at viewport height and shows no footer, so
-              appearance, the data wipe and the legal pages hang here. */}
+              appearance, the data wipe, feedback, the changelog and the legal
+              pages hang here. */}
           <AppSettingsMenu />
         </div>
       </div>

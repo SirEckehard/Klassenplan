@@ -6,6 +6,8 @@ import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
 import '@/i18n';
 import AppStatusBar from '@/components/shell/AppStatusBar';
+import StatusBarPortal from '@/components/shell/StatusBarPortal';
+import { StatusBarSlotProvider } from '@/contexts/StatusBarSlotContext';
 import { ToolRailProvider } from '@/contexts/ToolRailContext';
 import {
   createMockStudent,
@@ -32,6 +34,16 @@ vi.mock('@/contexts/SeatingPlanContext', () => ({
     redoSeating: vi.fn(),
     canUndoSeating: false,
     canRedoSeating: false,
+  }),
+}));
+
+// The exits save and navigate; `PlanExits` and `usePlanExits` have tests of
+// their own, here only where they sit matters.
+vi.mock('@/hooks/plan/usePlanExits', () => ({
+  usePlanExits: () => ({
+    exportPlan: vi.fn(),
+    presentPlan: vi.fn(),
+    canExit: true,
   }),
 }));
 
@@ -238,9 +250,28 @@ describe('AppStatusBar', () => {
     ).toBeInTheDocument();
   });
 
-  // Exporting and presenting leave the workspace; they sit in the header.
-  it('leaves the exits to the header', () => {
+  // The plan layer is the last one: its way on leads out of the workspace.
+  it('offers the exits where the other layers go on', () => {
     setState({ step: 3, students: named(2) });
+    render(<AppStatusBar />);
+
+    const exportButton = getButton(/^(Exportieren|Export)$/i);
+    const presentButton = getButton(/^(Präsentieren|Present)$/i);
+    // Beside the way back, at the end of the bar.
+    expect(back().compareDocumentPosition(exportButton)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
+    expect(exportButton.compareDocumentPosition(presentButton)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
+  });
+
+  it('keeps the exits to the plan layer', () => {
+    setState({
+      step: 2,
+      students: named(4),
+      classroomScene: createMockClassroomScene(2),
+    });
     render(<AppStatusBar />);
 
     expect(
@@ -249,6 +280,28 @@ describe('AppStatusBar', () => {
     expect(
       screen.queryByRole('button', { name: /^(Präsentieren|Present)$/i }),
     ).not.toBeInTheDocument();
+  });
+
+  // What the layer does to the stage sits with what takes it back.
+  it('puts the layer’s own action beside undo/redo, not at the end', () => {
+    setState({ step: 3, students: named(2) });
+    render(
+      <StatusBarSlotProvider>
+        <AppStatusBar />
+        <StatusBarPortal slot="action">
+          <button type="button">Mischen</button>
+        </StatusBarPortal>
+      </StatusBarSlotProvider>,
+    );
+
+    const mix = getButton('Mischen');
+    expect(status()).toContainElement(mix);
+    expect(mix.compareDocumentPosition(getButton(/rückgängig|undo/i))).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
+    expect(mix.compareDocumentPosition(back())).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
   });
 
   // The settings hang in the header beside Help; the bar keeps to where the

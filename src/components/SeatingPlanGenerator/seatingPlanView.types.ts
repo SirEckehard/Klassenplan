@@ -12,7 +12,6 @@ import type {
   MixResult,
   PlanUsage,
 } from '@/types';
-import type { CircleLayout } from '@/types/Circle';
 import type { CriterionFulfillment } from '@/utils/algorithm/seatingStatistics';
 
 export type SeatingPlanViewProps = {
@@ -27,11 +26,8 @@ export type SeatingPlanViewProps = {
   students: Student[];
   studentsCount: number;
   planName: string;
-  saveSeatingPlan: (
-    name: string,
-    scene: ClassroomScene,
-    circleLayout?: CircleLayout | null,
-  ) => void;
+  /** Saves under the name; the circle's layout is saved with the plan. */
+  saveSeatingPlan: (name: string, scene: ClassroomScene) => void;
   updateClassroomScene: (next: React.SetStateAction<ClassroomScene>) => void;
   moveStudent?: (
     fromTable: number,

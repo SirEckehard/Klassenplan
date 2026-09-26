@@ -306,13 +306,6 @@ export default function EnhancedSeatingPlanView(
                 onModeChange={handleModeChange}
                 showModeToggle={showModeToggle}
                 settingsGroups={circleSettingsGroups}
-                onSavePlan={() =>
-                  props.saveSeatingPlan(
-                    props.planName,
-                    props.classroomScene,
-                    circleLayout,
-                  )
-                }
                 canSavePlan={props.currentSeating.length > 0}
                 extraTools={
                   <ToolRailButton
@@ -395,9 +388,10 @@ export default function EnhancedSeatingPlanView(
               )}
             </div>
 
-            {/* The circle's own primary action sits where every layer's
-                does; naming and the two exits live in the header. */}
-            <StatusBarPortal slot="end">
+            {/* The circle's own primary action sits where the plan's
+                "Mischen" does, beside undo/redo; naming is in the toolbar,
+                the two exits at the end of the status bar. */}
+            <StatusBarPortal slot="action">
               <button
                 type="button"
                 onClick={() => void generateCircleSeating()}

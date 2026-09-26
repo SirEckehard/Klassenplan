@@ -22,7 +22,7 @@ export const statusBarHistoryGroupClass =
 export const statusBarHistoryButtonClass =
   'inline-flex h-9 w-11 cursor-pointer items-center justify-center text-(--button-secondary-text) transition hover:not-disabled:bg-(--button-secondary-bg-hover) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-(--focus-ring-primary) disabled:cursor-not-allowed disabled:text-(--text-muted) disabled:opacity-50';
 
-/** The way back to the previous layer, beside the layer's primary action. */
+/** The way back to the previous layer, beside the way on. */
 export const statusBarBackButtonClass = `${secondaryButtonClass} h-9 shrink-0 gap-2 px-3 whitespace-nowrap`;
 
 /**
@@ -30,10 +30,11 @@ export const statusBarBackButtonClass = `${secondaryButtonClass} h-9 shrink-0 ga
  *
  * Every surface in the shell — the three layers and the export — leads the bar
  * with the toolbar's switch, a control of the workspace rather than of the
- * surface, and then fills three parts: where it stands (`start`), its history
- * (`middle`) and the way back beside its one primary action (`end`). The outer
- * two share the width equally, so the middle sits under the stage whatever the
- * line on the left says.
+ * surface, and then fills three parts: where it stands (`start`), what acts on
+ * the stage — its history, and where there is one the action it takes back
+ * (`middle`) — and the way back beside the way on (`end`). The outer two share
+ * the width equally, so the middle sits under the stage whatever the line on
+ * the left says.
  */
 export default function StatusBarFrame({
   start,

@@ -105,7 +105,7 @@
     "backShortcut": "Back (Alt/⌥+←)",
     "export": "Export",
     "exportShortcut": "Export (Ctrl/⌘+E)",
-    "mixAgain": "Mix again",
+    "mixAgain": "Mix",
     "mixNow": "Shuffle now",
     "print": "Print",
     "reset": "Reset",
@@ -244,7 +244,7 @@
     "label": "Shuffle",
     "loadingAriaLabel": "Shuffling in progress",
     "loadingTitle": "Shuffling in progress...",
-    "shortcut": "Mix again (Ctrl/⌘+M)",
+    "shortcut": "Mix (Ctrl/⌘+M)",
     "title": "Shuffle seating plan"
   },
   "messages": {
@@ -633,9 +633,6 @@
   },
   "circle": {
     "backToClassroom": "Back to Classroom",
-    "planNamePlaceholder": "Name for this seating plan",
-    "planNameLabel": "Enter a name for this seating plan",
-    "planNameSave": "Save under this name",
     "planNameError": "Please enter a name.",
     "date": "Date"
   },
@@ -958,7 +955,7 @@
       },
       "exits": {
         "title": "Present and export",
-        "body": "At the top right of the header you show the plan on the board or export it as a PDF. Both save the plan first when something has changed."
+        "body": "At the bottom right of the status bar you show the plan on the board or export it as a PDF. Both save the plan first when something has changed."
       },
       "fulfillment": {
         "title": "Criteria and fulfilment",
@@ -1046,6 +1043,14 @@
     "viewSettings": "View settings",
     "manage": "Manage",
     "classTools": "Class tools"
+  },
+  "planSave": {
+    "nameLabel": "Seating plan name",
+    "namePlaceholder": "e.g. German from October",
+    "nameTaken": "Another plan already has this name.",
+    "save": "Save",
+    "rename": "Rename and save",
+    "saveAsNew": "Save as new plan"
   },
   "tools": {
     "toClass": "To the class list",

@@ -501,6 +501,7 @@ export function useSeatingPersistence(state: SeatingState) {
         activePlanId,
         name: trimmed,
         autoSave,
+        rename: options?.rename === true,
       });
       if (!slot) return false;
 

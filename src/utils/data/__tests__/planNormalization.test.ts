@@ -40,6 +40,53 @@ describe('resolvePlanSlot', () => {
     expect(slot).toEqual({ planId: existing.id });
   });
 
+  it('starts a new plan under a new name unless the save renames', () => {
+    const existing = createPlan();
+
+    const copy = resolvePlanSlot({
+      history: [existing],
+      activePlanId: existing.id,
+      name: 'Plan A ab Oktober',
+      autoSave: false,
+    });
+    const renamed = resolvePlanSlot({
+      history: [existing],
+      activePlanId: existing.id,
+      name: 'Plan A ab Oktober',
+      autoSave: false,
+      rename: true,
+    });
+
+    expect(copy?.planId).not.toBe(existing.id);
+    expect(renamed).toEqual({ planId: existing.id });
+  });
+
+  it('does not rename into a name another plan already uses', () => {
+    const other = createPlan({ id: 'plan-2', name: 'Plan B' });
+
+    const slot = resolvePlanSlot({
+      history: [createPlan(), other],
+      activePlanId: 'plan-1',
+      name: 'Plan B',
+      autoSave: false,
+      rename: true,
+    });
+
+    expect(slot).toBeNull();
+  });
+
+  it('starts a new plan when a rename finds no open plan', () => {
+    const slot = resolvePlanSlot({
+      history: [createPlan()],
+      activePlanId: null,
+      name: 'Plan C',
+      autoSave: false,
+      rename: true,
+    });
+
+    expect(slot?.planId).not.toBe('plan-1');
+  });
+
   it('rejects a name that another plan already uses', () => {
     const other = createPlan({ id: 'plan-2', name: 'Plan B' });
 

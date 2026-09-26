@@ -90,11 +90,11 @@ export default function StorageHistoryModal({
     [deleteSeatingPlan, t],
   );
 
+  // A name another plan carries is refused; passing that on lets the list
+  // say so instead of keeping the old name without a word.
   const handlePlanRename = useCallback(
-    (planId: string, newName: string): boolean => {
-      renameSeatingPlan(planId, newName);
-      return true;
-    },
+    (planId: string, newName: string): boolean =>
+      renameSeatingPlan(planId, newName),
     [renameSeatingPlan],
   );
 

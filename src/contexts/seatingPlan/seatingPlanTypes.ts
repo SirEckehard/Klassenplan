@@ -15,6 +15,7 @@ import type {
   StatisticHighlightMode,
   StatisticHighlightState,
   ActiveClassState,
+  SaveSeatingPlanOptions,
   SaveTemplateResult,
   PlanUsage,
 } from '@/types';
@@ -112,7 +113,16 @@ export interface SeatingPlanActions {
   redoSeating: () => void;
   setPlanName: (v: string) => void;
   setPlanNameError: (v: boolean) => void;
-  handleSaveSeatingPlan: (name: string, scene: ClassroomScene) => void;
+  /**
+   * Saves the plan on screen under `name` and reports whether it was saved.
+   * `rename` keeps writing to the open plan under a new name rather than
+   * starting a new one beside it.
+   */
+  handleSaveSeatingPlan: (
+    name: string,
+    scene: ClassroomScene,
+    options?: Pick<SaveSeatingPlanOptions, 'rename'>,
+  ) => boolean;
   isSeatLocked: (table: number, seat: number) => boolean;
   toggleLock: (studentId: string, table: number, seat: number) => void;
   saveTemplate: (

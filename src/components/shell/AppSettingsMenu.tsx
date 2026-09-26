@@ -4,17 +4,23 @@ import React, { Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   GearIcon,
+  GitDiffIcon,
+  GithubLogoIcon,
   IdentificationCardIcon,
+  MailboxIcon,
   ShieldCheckIcon,
 } from '@phosphor-icons/react';
 import FloatingDropdown from '@/components/students/FloatingDropdown';
 import AppearanceControls from '@/components/ui/navigation/AppearanceControls';
 import UpdateCheckButton from '@/components/pwa/UpdateCheckButton';
 import { LegalPageLink } from '@/components/LegalPageLink';
+import { LocalizedLink } from '@/components/LocalizedLink';
+import { GITHUB_REPO_URL } from '@/config/links';
 import { APP_RETURN_STATE } from '@/hooks/useReturnToApp';
 import { useClickOutside } from '@/hooks/ui/useClickOutside';
 import { useDialogLayer } from '@/hooks/ui/useDialogLayer';
 import {
+  getAppVersion,
   logWarn,
   menuItemClass,
   menuSurfaceClass,
@@ -44,12 +50,11 @@ const preloadSettingsItems = () => {
  *
  * From `lg` up the shell is the window, so the page footer is gone on this
  * route. What a teacher reaches for from inside a plan and no layer owns comes
- * back here: theme and language, the update check, wiping the data, and the
- * two legal pages, which offer the way back here. The backup and the saved
- * plans are not repeated — the toolbar of the class and the plan layer
- * carries them. The remaining footer links — FAQ, feedback, support, the
- * changelog — stay on the pages they belong to rather than following the
- * workspace around.
+ * back here: theme and language, the update check, wiping the data, the way
+ * to send feedback, what changed in which version, the source code, and the
+ * two legal pages. The pages of the app offer the way back here. The backup,
+ * the saved plans and the support page are not repeated — the foot of every
+ * toolbar carries them — and the FAQ is reached from Help.
  *
  * It sits in the header beside Help, the same place on every layer, on the
  * export page and on the first screen, which has no toolbar yet.
@@ -129,6 +134,53 @@ export default function AppSettingsMenu() {
               />
 
               <AppSettingsItems onDone={close} storage={false} />
+
+              <div
+                className="my-1 h-px bg-(--border-card)"
+                aria-hidden="true"
+              />
+              {/* About the app rather than about this class: whom to tell,
+                  what changed, where the code lives. */}
+              <LocalizedLink
+                to="/feedback"
+                state={APP_RETURN_STATE}
+                role="menuitem"
+                title={t('nav.titles.feedback')}
+                className={menuItemClass}
+                onClick={close}
+              >
+                <MailboxIcon className={iconClass} aria-hidden="true" />
+                {t('nav.feedback')}
+              </LocalizedLink>
+              <LocalizedLink
+                to="/changelog"
+                state={APP_RETURN_STATE}
+                role="menuitem"
+                title={t('nav.titles.changelog')}
+                className={menuItemClass}
+                onClick={close}
+              >
+                <GitDiffIcon className={iconClass} aria-hidden="true" />
+                {t('nav.changelog')}{' '}
+                {/* The one place in the workspace that says which version
+                    is running. The space keeps the two words apart for a
+                    screen reader; on screen the row's gap does. */}
+                <span className="ml-auto text-xs tabular-nums text-(--text-muted)">
+                  v{getAppVersion()}
+                </span>
+              </LocalizedLink>
+              <a
+                href={GITHUB_REPO_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                role="menuitem"
+                title={t('nav.titles.github')}
+                className={menuItemClass}
+                onClick={close}
+              >
+                <GithubLogoIcon className={iconClass} aria-hidden="true" />
+                {t('nav.github')}
+              </a>
 
               <div
                 className="my-1 h-px bg-(--border-card)"

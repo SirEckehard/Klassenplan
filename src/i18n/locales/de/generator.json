@@ -105,7 +105,7 @@
     "backShortcut": "Zurück (Alt/⌥+←)",
     "export": "Exportieren",
     "exportShortcut": "Exportieren (Strg/⌘+E)",
-    "mixAgain": "Neu mischen",
+    "mixAgain": "Mischen",
     "mixNow": "Jetzt neu mischen",
     "print": "Drucken",
     "reset": "Zurücksetzen",
@@ -244,7 +244,7 @@
     "label": "Mischen",
     "loadingAriaLabel": "Mischvorgang läuft",
     "loadingTitle": "Mischvorgang läuft...",
-    "shortcut": "Neu mischen (Strg/⌘+M)",
+    "shortcut": "Mischen (Strg/⌘+M)",
     "title": "Sitzplan mischen"
   },
   "messages": {
@@ -633,9 +633,6 @@
   },
   "circle": {
     "backToClassroom": "Zurück zum Klassenraum",
-    "planNamePlaceholder": "Name für diesen Sitzplan",
-    "planNameLabel": "Gib einen Namen für diesen Sitzplan ein",
-    "planNameSave": "Unter diesem Namen speichern",
     "planNameError": "Bitte gib einen Namen ein.",
     "date": "Datum"
   },
@@ -958,7 +955,7 @@
       },
       "exits": {
         "title": "Präsentieren und exportieren",
-        "body": "Oben rechts in der Kopfzeile zeigst du den Plan an der Tafel oder exportierst ihn als PDF. Beides sichert den Plan vorher, wenn du etwas geändert hast."
+        "body": "Unten rechts in der Statusleiste zeigst du den Plan an der Tafel oder exportierst ihn als PDF. Beides sichert den Plan vorher, wenn du etwas geändert hast."
       },
       "fulfillment": {
         "title": "Kriterien und Erfüllung",
@@ -1046,6 +1043,14 @@
     "viewSettings": "Ansichtseinstellungen",
     "manage": "Verwalten",
     "classTools": "Klassenwerkzeuge"
+  },
+  "planSave": {
+    "nameLabel": "Name des Sitzplans",
+    "namePlaceholder": "z. B. Deutsch ab Oktober",
+    "nameTaken": "Diesen Namen trägt schon ein anderer Plan.",
+    "save": "Speichern",
+    "rename": "Umbenennen und speichern",
+    "saveAsNew": "Als neuen Plan speichern"
   },
   "tools": {
     "toClass": "Zur Klassenliste",

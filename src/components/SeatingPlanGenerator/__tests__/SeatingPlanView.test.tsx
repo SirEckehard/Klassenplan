@@ -21,9 +21,9 @@ import {
 } from '@/contexts/StatusBarSlotContext';
 
 /**
- * "Mix again" is the plan layer's primary action and so lives in the shell's
- * status bar; the view fills that slot through a portal. This stands in for
- * the shell so the button can be asserted on.
+ * "Mischen" is the plan layer's primary action and so lives in the shell's
+ * status bar, beside undo/redo; the view fills that slot through a portal.
+ * This stands in for the shell so the button can be asserted on.
  */
 function WithStatusBar({ children }: { children: React.ReactNode }) {
   return (
@@ -35,8 +35,8 @@ function WithStatusBar({ children }: { children: React.ReactNode }) {
 }
 
 function StatusBarSlot() {
-  const { setEndNode } = useStatusBarSlot();
-  return <div ref={setEndNode} />;
+  const { setActionNode } = useStatusBarSlot();
+  return <div ref={setActionNode} />;
 }
 
 describe('SeatingPlanView', () => {
@@ -156,7 +156,7 @@ describe('SeatingPlanView', () => {
       ).length,
     ).toBeGreaterThan(0);
     expect(
-      screen.getByRole('button', { name: /Neu mischen|Mix again/i }),
+      screen.getByRole('button', { name: /^(Mischen|Mix)$/i }),
     ).toBeDisabled();
   });
 

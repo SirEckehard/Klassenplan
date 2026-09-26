@@ -4,7 +4,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { buildFeatureTemplateMap } from '@/hooks/canvas/featureTemplates';
-import type { SeatingArrangement, ClassroomScene } from '@/types';
+import type { SeatingArrangement } from '@/types';
 import {
   CLASSROOM_WIDTH,
   CLASSROOM_HEIGHT,
@@ -24,10 +24,7 @@ import LayoutEditorView from '@/components/SeatingPlanGenerator/LayoutEditorView
 import SeatingPlanEditorView from '@/components/SeatingPlanGenerator/SeatingPlanEditorView';
 import SaveTemplateModal from '@/components/ui/modals/SaveTemplateModal';
 import { useCanvasPreferences } from '@/contexts/seatingPlan/CanvasPreferencesContext';
-import {
-  useOptionalSeatingPlanActions,
-  useOptionalSeatingPlanState,
-} from '@/contexts/SeatingPlanContext';
+import { useOptionalSeatingPlanActions } from '@/contexts/SeatingPlanContext';
 import { useSceneHistory } from '@/hooks/scene/useSceneHistory';
 import { useSceneManager } from '@/hooks/scene/useSceneManager';
 import { useContextMenuIntegration } from '@/hooks/ui/useContextMenuIntegration';
@@ -81,9 +78,7 @@ export function useSeatingPlanViewLogic({
 }: SeatingPlanViewProps) {
   const { t } = useTranslation('generator');
 
-  const seatingPlanState = useOptionalSeatingPlanState();
   const seatingPlanActions = useOptionalSeatingPlanActions();
-  const circleLayout = seatingPlanState?.circleLayout ?? null; // Gracefully handle missing provider
 
   const noopSetCurrentSeating = React.useCallback<
     React.Dispatch<React.SetStateAction<SeatingArrangement>>
@@ -397,14 +392,6 @@ export function useSeatingPlanViewLogic({
     void handleMix();
   }, [canAutoMixNow, sceneSignature, handleMix]);
 
-  // Wrap saveSeatingPlan to automatically include circleLayout
-  const saveSeatingPlanWithCircle = React.useCallback(
-    (name: string, scene: ClassroomScene) => {
-      saveSeatingPlan(name, scene, circleLayout);
-    },
-    [saveSeatingPlan, circleLayout],
-  );
-
   // Layout Editor Props Construction
   let layoutEditorSection: LayoutEditorSectionProps | null = null;
   if (step === 2) {
@@ -540,7 +527,7 @@ export function useSeatingPlanViewLogic({
           snapshot,
           dragPreview,
           planName,
-          saveSeatingPlan: saveSeatingPlanWithCircle,
+          saveSeatingPlan,
           classroomScene,
           seatingMode,
           onModeChange,

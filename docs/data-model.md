@@ -78,7 +78,10 @@ interface ClassRecord {
 - **`activeClassId` repairs itself on read** (`ensureActiveClass`): an unknown or
   missing id falls back to the first class.
 - **`seatingHistory` holds saved plans**, not a log. At most one entry carries
-  `autoSaved: true`; the next silent auto-save overwrites it.
+  `autoSaved: true`; the next silent auto-save overwrites it. Names are unique
+  within a class: a save writes to the open plan when the name is its own or
+  the save renames it (`SaveSeatingPlanOptions.rename`), and otherwise starts a
+  new entry (`resolvePlanSlot`).
 - **`SavedPlan.date`** is an ISO date (`YYYY-MM-DD`). Older entries hold a
   pre-formatted German string; render both through `formatStoredDate`.
 - **`mixHistory`** keeps the last `MIX_HISTORY_LIMIT` (20) shuffle results, each

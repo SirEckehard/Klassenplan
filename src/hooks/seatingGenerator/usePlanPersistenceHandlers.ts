@@ -13,6 +13,7 @@ import type {
   ClassroomScene,
   MixResult,
   SavedPlan,
+  SaveSeatingPlanOptions,
   SeatingArrangement,
   MixSettings,
 } from '@/types';
@@ -26,6 +27,7 @@ type UsePlanPersistenceHandlersParams = {
     name: string,
     scene: ClassroomScene,
     circleLayout?: CircleLayout | null,
+    options?: SaveSeatingPlanOptions,
   ) => boolean;
   loadSeatingPlan: (
     plan: SavedPlan,
@@ -62,11 +64,17 @@ export function usePlanPersistenceHandlers({
   syncSeatingSnapshot,
   recordSeatingSnapshot,
 }: UsePlanPersistenceHandlersParams) {
+  // Reports whether the plan was saved, so a form that asked for the name
+  // can stay open when it was not.
   const handleSaveSeatingPlan = useCallback(
-    (name: string, scene: ClassroomScene) => {
+    (
+      name: string,
+      scene: ClassroomScene,
+      options?: Pick<SaveSeatingPlanOptions, 'rename'>,
+    ): boolean => {
       if (currentSeatingLength === 0) {
         showToast('error', TOAST_MESSAGES.PLAN_NONE_TO_SAVE);
-        return;
+        return false;
       }
 
       const trimmed = (name ?? '').trim();
@@ -77,7 +85,7 @@ export function usePlanPersistenceHandlers({
       }
 
       setPlanNameError(false);
-      const ok = saveSeatingPlan(finalName, scene, circleLayout);
+      const ok = saveSeatingPlan(finalName, scene, circleLayout, options);
       if (ok) {
         announcePlanSaved(finalName);
         markClassroomSynced(scene);
@@ -85,6 +93,7 @@ export function usePlanPersistenceHandlers({
       } else {
         showToast('error', TOAST_MESSAGES.PLAN_SAVE_FAILED);
       }
+      return ok;
     },
     [
       circleLayout,

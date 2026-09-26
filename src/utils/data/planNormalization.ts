@@ -36,20 +36,24 @@ export type ResolvePlanSlotParams = {
   name: string;
   /** Silent auto-save; recycles the previous auto-saved entry. */
   autoSave: boolean;
+  /** Keep the active plan's entry under a new name: a rename, not a copy. */
+  rename?: boolean;
 };
 
 /**
  * Decides which history entry a save writes to.
  *
- * Three outcomes: update the active plan when the name is unchanged, recycle
- * the single auto-save slot, or append a new entry. Returns `null` when another
- * plan already carries the name — the caller then rejects the save.
+ * Three outcomes: update the active plan when the name is unchanged or the
+ * save renames it, recycle the single auto-save slot, or append a new entry.
+ * Returns `null` when another plan already carries the name — the caller then
+ * rejects the save.
  */
 export function resolvePlanSlot({
   history,
   activePlanId,
   name,
   autoSave,
+  rename = false,
 }: ResolvePlanSlotParams): { planId: string } | null {
   const previousAutoSave = autoSave
     ? history.find((plan) => plan.autoSaved)
@@ -70,8 +74,8 @@ export function resolvePlanSlot({
       ? history.find((plan) => plan.id === activePlanId)
       : undefined;
 
-  if (active?.name === name && activePlanId !== null) {
-    return { planId: activePlanId };
+  if (active && (active.name === name || rename)) {
+    return { planId: active.id };
   }
 
   return { planId: previousAutoSave?.id ?? generateUniquePlanId(history) };

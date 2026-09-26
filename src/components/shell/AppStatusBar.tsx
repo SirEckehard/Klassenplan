@@ -20,6 +20,7 @@ import StatusBarFrame, {
   statusBarHistoryButtonClass,
   statusBarHistoryGroupClass,
 } from '@/components/shell/StatusBarFrame';
+import PlanExits from '@/components/shell/PlanExits';
 import { countSeats, primaryButtonClass } from '@/utils';
 import { validateStudentsComplete } from '@/utils/validation';
 import HintTooltip from '@/components/ui/feedback/HintTooltip';
@@ -33,8 +34,12 @@ import { TOUR_ANCHORS } from '@/components/onboarding/tours';
  * Before this bar the same information sat in a floating badge at the canvas
  * corner (step 2) and nowhere at all (steps 1 and 3), while "carry on" buttons
  * hid at the bottom of three different view footers. Both now have exactly one
- * home, in the same spot on every layer. Exporting and presenting are not
- * among them: they leave the workspace, so they sit in the header.
+ * home, in the same spot on every layer.
+ *
+ * The plan layer is the last one, so its way on leads out of the workspace:
+ * exporting and presenting take the place the other layers give "Weiter"
+ * (`PlanExits`). Its own action, "Mischen", acts on the stage and undo takes
+ * it back, so it sits in the middle beside undo/redo.
  *
  * The blocked states stay `aria-disabled` rather than `disabled`: the button
  * keeps focus and pointer events, so the hint shows on hover and focus and a
@@ -45,7 +50,7 @@ export default function AppStatusBar() {
   const { step, students, classroomScene, currentSeating } =
     useSeatingPlanState();
   const { handleStepChange } = useSeatingPlanActions();
-  const { setHistoryNode, setEndNode } = useStatusBarSlot();
+  const { setHistoryNode, setActionNode } = useStatusBarSlot();
   const hintId = React.useId();
 
   const studentsCount = students.length;
@@ -184,8 +189,9 @@ export default function AppStatusBar() {
   }, [step, t]);
 
   /**
-   * The layer's primary action. The plan layer's is "Neu mischen", which
-   * belongs to the view that owns the mix handler and fills the end slot.
+   * The way on to the next layer. The plan layer has none; its primary
+   * action, "Mischen", belongs to the view that owns the mix handler and
+   * fills the action slot in the middle.
    */
   const action = React.useMemo(() => {
     if (step === 1 && studentsCount > 0) {
@@ -249,7 +255,13 @@ export default function AppStatusBar() {
         // Undo/redo sit in the middle, under the stage, on every layer. Two
         // of the three histories are in the context; the room layer's lives
         // with the canvas state and fills the slot through `StatusBarPortal`.
-        <div className="flex shrink-0 items-center">
+        // Beside them what they take back: the plan layer's "Mischen" and
+        // the circle's fitting, which their views fill in the same way.
+        <div className="flex shrink-0 items-center gap-2">
+          <span
+            ref={setActionNode}
+            className="flex shrink-0 items-center empty:hidden"
+          />
           {step === 1 && (
             <StudentHistoryToolbar
               buttonClass={statusBarHistoryButtonClass}
@@ -286,12 +298,8 @@ export default function AppStatusBar() {
             </button>
           )}
 
-          {/* The plan layer's primary action is "mix again", which belongs to
-              the view that owns the mix handler; it fills this slot. */}
-          <span
-            ref={setEndNode}
-            className="flex shrink-0 items-center empty:hidden"
-          />
+          {/* The last layer's way on leads out of the workspace. */}
+          {step === 3 && <PlanExits />}
 
           {action && (
             <div className="group relative shrink-0">

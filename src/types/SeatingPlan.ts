@@ -89,6 +89,11 @@ export interface SaveSeatingPlanOptions {
    * plan name was generated rather than chosen by the user.
    */
   autoSave?: boolean;
+  /**
+   * Write to the open plan even under a name it does not carry yet, which
+   * renames it. Without it, such a name saves a new plan beside the open one.
+   */
+  rename?: boolean;
 }
 
 export interface ClassroomTemplate {

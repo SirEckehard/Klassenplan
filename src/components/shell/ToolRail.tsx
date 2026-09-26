@@ -136,7 +136,8 @@ const footMenuIconClass = 'h-4 w-4 shrink-0 text-(--text-muted)';
  * in the same place on every layer rather than on the one they were first
  * built for. The class tools stay routes of their own (decision 0019) — what
  * they share is the way in, one menu instead of an entry per tool. A phone
- * finds exporting and presenting on top of them, since its header has no room.
+ * finds exporting and presenting on top of them, since its status bar has no
+ * room.
  */
 function ToolRailFoot({ planExits }: { planExits: boolean }) {
   const { t } = useTranslation(['generator', 'pages']);
@@ -254,8 +255,8 @@ function ToolRailFoot({ planExits }: { planExits: boolean }) {
 }
 
 /**
- * Exporting and presenting, on a phone only: from `md` up they sit in the
- * header beside Help, and a phone's header has no room left for them.
+ * Exporting and presenting, on a phone only: from `md` up they sit at the end
+ * of the plan layer's status bar, and a phone's has no room left for them.
  */
 function ToolRailPlanExits() {
   const { t } = useTranslation('generator');

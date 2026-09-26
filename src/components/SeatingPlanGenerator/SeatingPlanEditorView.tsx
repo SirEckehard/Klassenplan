@@ -770,8 +770,9 @@ export default function SeatingPlanEditorView({
     }
   }, [showStatisticsBadge, clearStatisticsHighlight]);
 
-  // Exporting and presenting live in the header, which saves first through
-  // `usePlanExits`; Ctrl/Cmd+E reaches the same one implementation.
+  // Exporting and presenting live at the end of the status bar, which saves
+  // first through `usePlanExits`; Ctrl/⌘+E reaches the same one
+  // implementation.
   const { exportPlan } = usePlanExits();
 
   React.useEffect(() => {
@@ -841,7 +842,6 @@ export default function SeatingPlanEditorView({
               onModeChange={onModeChange}
               showModeToggle={showModeToggle}
               settingsGroups={seatingSettingsGroups}
-              onSavePlan={() => saveSeatingPlan(planName, classroomScene)}
               canSavePlan={currentSeating.length > 0}
             />
           )}
@@ -896,21 +896,21 @@ export default function SeatingPlanEditorView({
           </InspectorBody>
         </InspectorPortal>
 
-        {/* The layer's one primary action, in the same spot as the other
-            layers' "carry on". */}
-        <StatusBarPortal slot="end">
+        {/* The layer's one primary action, in the middle of the status bar
+            beside undo/redo, which take a mix back. */}
+        <StatusBarPortal slot="action">
           <button
             type="button"
             data-tour={TOUR_ANCHORS.mixButton}
             onClick={() => void handleMix()}
             disabled={mixingLocked}
-            title={t('mixButton.shortcut', 'Neu mischen (Strg/Cmd+M)')}
+            title={t('mixButton.shortcut')}
             className={`${primaryButtonClass} flex items-center gap-2 whitespace-nowrap ${
               mixingLocked ? 'cursor-not-allowed opacity-60' : ''
             }`}
           >
             <ShuffleIcon className="h-4 w-4" aria-hidden="true" />
-            {t('actions.mixAgain', 'Neu mischen')}
+            {t('actions.mixAgain')}
           </button>
         </StatusBarPortal>
 
