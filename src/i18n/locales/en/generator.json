@@ -1025,6 +1025,7 @@
     "rotateRight": "Rotate clockwise",
     "rotation": "Rotation",
     "rotationAngle": "Rotation in degrees",
+    "rotationMixed": "The selection is turned differently",
     "seatCount": "Seats",
     "seats_one": "{{count}} seat",
     "seats_other": "{{count}} seats",

@@ -349,6 +349,47 @@ describe('useTableOperations', () => {
     });
   });
 
+  describe('duplicateSelectedTables', () => {
+    it('places copies of the selection as a paste would and selects them', () => {
+      const { result } = getHookResult();
+
+      act(() => {
+        result.current.duplicateSelectedTables();
+      });
+
+      expect(mockSnapshot).toHaveBeenCalledTimes(1);
+      expect(mockSetSelectedTableIds).toHaveBeenCalledWith([3, 4]);
+      expect(mockSceneTables).toHaveLength(5);
+      // Around the selection's own centre, like a keyboard paste.
+      expect(mockSceneTables[3]).toMatchObject({ x: 150, y: 125, zIndex: 3 });
+      expect(mockCurrentSeating).toHaveLength(5);
+      expect(mockCurrentSeating[3]).toEqual([null, null, null, null]);
+    });
+
+    it('leaves the clipboard as it was', () => {
+      mockClipboard = [createMockTable(2)];
+      const { result } = getHookResult();
+
+      act(() => {
+        result.current.duplicateSelectedTables();
+      });
+
+      expect(mockSetClipboard).not.toHaveBeenCalled();
+    });
+
+    it('does nothing when no tables are selected', () => {
+      mockSelectedTableIds = [];
+      const { result } = getHookResult();
+
+      act(() => {
+        result.current.duplicateSelectedTables();
+      });
+
+      expect(mockSnapshot).not.toHaveBeenCalled();
+      expect(mockRunSceneTransaction).not.toHaveBeenCalled();
+    });
+  });
+
   describe('handleCanvasMenuPaste', () => {
     it('calls pasteTablesAt with state coordinates, closes menu, and clears selection', () => {
       mockClipboard = [createMockTable(0)];

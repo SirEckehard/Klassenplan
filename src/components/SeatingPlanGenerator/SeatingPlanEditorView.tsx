@@ -170,7 +170,6 @@ type Props = {
   lockedDropTarget: LockedDropTarget | null;
   handleSeatHoverChange: (hover: DragHover | null) => void;
   handleLockedDrop: (target: DragHover) => void;
-  snapshot: () => void;
   dragPreview: DragPreview | null;
   planName: string;
   saveSeatingPlan: (name: string, scene: ClassroomScene) => void;
@@ -233,7 +232,6 @@ export default function SeatingPlanEditorView({
   lockedDropTarget,
   handleSeatHoverChange,
   handleLockedDrop,
-  snapshot,
   dragPreview,
   planName,
   saveSeatingPlan,
@@ -1072,7 +1070,6 @@ export default function SeatingPlanEditorView({
                     moveStudent={moveStudent}
                     isSeatLocked={isSeatLocked}
                     toggleLock={toggleLock}
-                    onTransformStart={snapshot}
                     isDark={isDark}
                     seatHighlights={canvasSeatHighlights}
                     photoDisplayMode={photoDisplayMode}

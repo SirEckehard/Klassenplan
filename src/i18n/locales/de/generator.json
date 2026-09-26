@@ -1025,6 +1025,7 @@
     "rotateRight": "Im Uhrzeigersinn drehen",
     "rotation": "Drehung",
     "rotationAngle": "Drehung in Grad",
+    "rotationMixed": "Die Auswahl ist unterschiedlich gedreht",
     "seatCount": "Plätze",
     "seats_one": "{{count}} Platz",
     "seats_other": "{{count}} Plätze",

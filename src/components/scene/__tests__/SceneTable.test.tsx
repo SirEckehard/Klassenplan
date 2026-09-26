@@ -286,15 +286,16 @@ describe('SceneTable rotation with parent updates', () => {
       { ...baseTable },
     ]);
 
+    // The parent turns the table from the angle it had when the handle was
+    // pressed, as the room layer does.
     const handleRotate = React.useCallback<TableRotationHandler>(
-      (rotations) => {
+      (phase, delta) => {
+        if (phase !== 'move') return;
         setTables((prev) =>
-          prev.map((tableItem, idx) => {
-            const rotation = rotations.get(idx);
-            return rotation === undefined
-              ? tableItem
-              : { ...tableItem, rotation };
-          }),
+          prev.map((tableItem) => ({
+            ...tableItem,
+            rotation: baseTable.rotation + delta,
+          })),
         );
       },
       [],
@@ -308,8 +309,6 @@ describe('SceneTable rotation with parent updates', () => {
           students={[student]}
           selected
           editable={true}
-          sceneTables={tables}
-          selectedTableIds={[0]}
           onRotate={handleRotate}
         />
       </svg>
@@ -497,7 +496,6 @@ describe('SceneTable drag cleanup', () => {
 
   it('handles pointercancel event for rotation', () => {
     const onRotate = vi.fn<TableRotationHandler>();
-    const onTransformStart = vi.fn();
 
     const { container } = render(
       <svg>
@@ -508,7 +506,6 @@ describe('SceneTable drag cleanup', () => {
           // The rotate handle only renders while selected or hovered
           selected
           onRotate={onRotate}
-          onTransformStart={onTransformStart}
           editable={true}
         />
       </svg>,
@@ -525,7 +522,7 @@ describe('SceneTable drag cleanup', () => {
       clientX: 100,
       clientY: 100,
     });
-    expect(onTransformStart).toHaveBeenCalledTimes(1);
+    expect(onRotate).toHaveBeenLastCalledWith('start', 0);
 
     // Move to trigger rotation
     fireEvent(
@@ -536,11 +533,11 @@ describe('SceneTable drag cleanup', () => {
         clientY: 110,
       }),
     );
-    expect(onRotate).toHaveBeenLastCalledWith(expect.any(Map), 'move');
+    expect(onRotate).toHaveBeenLastCalledWith('move', expect.any(Number));
 
     // Trigger pointercancel - ends the gesture and cleans up listeners
     fireEvent(window, new PointerEvent('pointercancel', { pointerId: 1 }));
-    expect(onRotate).toHaveBeenLastCalledWith(expect.any(Map), 'end');
+    expect(onRotate).toHaveBeenLastCalledWith('end', 0);
     const callsAfterCancel = onRotate.mock.calls.length;
 
     // Move after cancel should not trigger updates
@@ -557,7 +554,9 @@ describe('SceneTable drag cleanup', () => {
   });
 });
 
-describe('SceneTable rotation snapping', () => {
+// Snapping, what turns with the table and the locked tables are the room
+// layer's (useSelectionRotation); the table only measures the turn.
+describe('SceneTable rotation measuring', () => {
   const getBoundingBox = () => ({
     left: 100,
     top: 100,
@@ -597,201 +596,60 @@ describe('SceneTable rotation snapping', () => {
     return { table, onRotate, rotationHandle };
   };
 
-  /** What the last call reported for one table, and in which phase. */
-  const lastRotation = (
-    onRotate: ReturnType<typeof vi.fn<TableRotationHandler>>,
-    index = 0,
-  ) => {
-    const [rotations, phase] = onRotate.mock.lastCall ?? [new Map(), null];
-    return { rotation: rotations.get(index), phase };
-  };
-
-  it('snaps rotation to 90 degrees when close to threshold', () => {
-    const { table, onRotate, rotationHandle } = setupRotationTest();
+  const turnHandleTo = (rotationHandle: Element, angle: number) => {
     const bbox = getBoundingBox();
     const centerX = bbox.left + bbox.width / 2;
     const centerY = bbox.top + bbox.height / 2;
     const radius = 50;
+    const rad = (angle * Math.PI) / 180;
 
     fireEvent.pointerDown(rotationHandle, {
       pointerId: 2,
       clientX: centerX + radius,
       clientY: centerY,
     });
-
-    const targetAngle = 92;
-    const targetRad = (targetAngle * Math.PI) / 180;
-    const moveX = centerX + radius * Math.cos(targetRad);
-    const moveY = centerY + radius * Math.sin(targetRad);
-
     fireEvent(
       window,
       new PointerEvent('pointermove', {
         pointerId: 2,
-        clientX: moveX,
-        clientY: moveY,
+        clientX: centerX + radius * Math.cos(rad),
+        clientY: centerY + radius * Math.sin(rad),
       }),
     );
-
     fireEvent(window, new PointerEvent('pointerup', { pointerId: 2 }));
+  };
 
-    expect(lastRotation(onRotate)).toEqual({ rotation: 90, phase: 'end' });
+  it('reports the angle turned around the table centre, unsnapped', () => {
+    const { table, onRotate, rotationHandle } = setupRotationTest();
+
+    turnHandleTo(rotationHandle, 92);
+
+    expect(onRotate.mock.calls.map(([phase]) => phase)).toEqual([
+      'start',
+      'move',
+      'end',
+    ]);
+    expect(onRotate.mock.calls[1][1]).toBeCloseTo(92, 2);
     // The handle reports the angle; it never turns the table object itself.
     expect(table.rotation).toBe(0);
   });
 
-  it('keeps free rotation when outside snap tolerance', () => {
-    const { onRotate, rotationHandle } = setupRotationTest();
-    const bbox = getBoundingBox();
-    const centerX = bbox.left + bbox.width / 2;
-    const centerY = bbox.top + bbox.height / 2;
-    const radius = 50;
-
-    fireEvent.pointerDown(rotationHandle, {
-      pointerId: 3,
-      clientX: centerX + radius,
-      clientY: centerY,
-    });
-
-    const targetAngle = 63;
-    const targetRad = (targetAngle * Math.PI) / 180;
-    const moveX = centerX + radius * Math.cos(targetRad);
-    const moveY = centerY + radius * Math.sin(targetRad);
-
-    fireEvent(
-      window,
-      new PointerEvent('pointermove', {
-        pointerId: 3,
-        clientX: moveX,
-        clientY: moveY,
-      }),
-    );
-
-    fireEvent(window, new PointerEvent('pointerup', { pointerId: 3 }));
-
-    const { rotation, phase } = lastRotation(onRotate);
-    expect(phase).toBe('end');
-    expect(rotation).toBeCloseTo(targetAngle, 2);
-  });
-
-  it('rotates all selected tables together when one handle is used', () => {
-    const bbox = getBoundingBox();
-    const tables: ClassroomTable[] = [
-      { ...baseTable },
-      { ...baseTable, x: 150 },
-    ];
-    const onRotate = vi.fn<TableRotationHandler>();
+  it('reports nothing without a handler to report to', () => {
     const { container } = render(
       <svg>
         <TableIcon
-          table={tables[0]}
+          table={baseTable}
           index={0}
           students={[student]}
           selected
           editable={true}
-          sceneTables={tables}
-          selectedTableIds={[0, 1]}
-          onRotate={onRotate}
         />
       </svg>,
     );
-
-    const tableElement = container.querySelector('g[data-table-index="0"]');
-    expect(tableElement).toBeTruthy();
-    if (!tableElement) {
-      return;
-    }
-    tableElement.getBoundingClientRect = getBoundingBox;
-
     const rotationHandle = container.querySelector('circle[r="10"]')
-      ?.parentElement as Element | null;
-    expect(rotationHandle).toBeTruthy();
-    if (!rotationHandle) {
-      return;
-    }
+      ?.parentElement as Element;
 
-    const pointerId = 4;
-    const centerX = bbox.left + bbox.width / 2;
-    const centerY = bbox.top + bbox.height / 2;
-    const radius = 50;
-
-    fireEvent.pointerDown(rotationHandle, {
-      pointerId,
-      clientX: centerX + radius,
-      clientY: centerY,
-    });
-
-    fireEvent(
-      window,
-      new PointerEvent('pointermove', {
-        pointerId,
-        clientX: centerX,
-        clientY: centerY + radius,
-      }),
-    );
-
-    const [rotations, phase] = onRotate.mock.lastCall ?? [];
-    expect(phase).toBe('move');
-    expect(rotations?.get(0)).not.toBe(0);
-    expect(rotations?.get(1)).toBeCloseTo(rotations?.get(0) ?? NaN, 1);
-
-    fireEvent(window, new PointerEvent('pointerup', { pointerId }));
-  });
-
-  it('skips locked tables when rotating a selection', () => {
-    const bbox = getBoundingBox();
-    const tables: ClassroomTable[] = [
-      { ...baseTable },
-      { ...baseTable, x: 150, locked: true },
-    ];
-    const onRotate = vi.fn<TableRotationHandler>();
-    const { container } = render(
-      <svg>
-        <TableIcon
-          table={tables[0]}
-          index={0}
-          students={[student]}
-          selected
-          editable={true}
-          sceneTables={tables}
-          selectedTableIds={[0, 1]}
-          onRotate={onRotate}
-        />
-      </svg>,
-    );
-
-    const rotationHandle = container.querySelector('circle[r="10"]')
-      ?.parentElement as Element | null;
-    expect(rotationHandle).toBeTruthy();
-    if (!rotationHandle) {
-      return;
-    }
-
-    const pointerId = 5;
-    const centerX = bbox.left + bbox.width / 2;
-    const centerY = bbox.top + bbox.height / 2;
-    const radius = 50;
-
-    fireEvent.pointerDown(rotationHandle, {
-      pointerId,
-      clientX: centerX + radius,
-      clientY: centerY,
-    });
-
-    fireEvent(
-      window,
-      new PointerEvent('pointermove', {
-        pointerId,
-        clientX: centerX,
-        clientY: centerY + radius,
-      }),
-    );
-
-    const [rotations] = onRotate.mock.lastCall ?? [];
-    expect(rotations?.get(0)).not.toBe(0);
-    expect(rotations?.has(1)).toBe(false);
-
-    fireEvent(window, new PointerEvent('pointerup', { pointerId }));
+    expect(() => turnHandleTo(rotationHandle, 45)).not.toThrow();
   });
 });
 

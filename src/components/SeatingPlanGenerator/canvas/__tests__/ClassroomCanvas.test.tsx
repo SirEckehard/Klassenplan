@@ -42,8 +42,7 @@ const baseProps: React.ComponentProps<typeof ClassroomCanvas> = {
   onPointerDown: vi.fn(),
   onContextMenu: vi.fn(),
   onTablePointerDown: vi.fn(),
-  onTableRotate: vi.fn(),
-  onTransformStart: vi.fn(),
+  onRotateGesture: vi.fn(),
 };
 
 const getResizeHandles = (container: HTMLElement) =>

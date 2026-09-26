@@ -9,10 +9,8 @@ import type {
 } from '@/types';
 import { useCanvasBoundingRect } from '@/hooks/canvas/useCanvasBoundingRect';
 import {
-  clampCenterToRoom,
   generateId,
-  getRotatedAabbHalfExtents,
-  snapRotationAngle,
+  isRotatableFeature,
   calculateDragDelta,
   applyDragMovement,
   showToast,
@@ -28,6 +26,7 @@ import type { FeatureVisibilityFlags } from '@/utils/ui';
 import type { SceneTransactionRunner } from '@/hooks/scene/useSceneManager';
 import type { FeatureContextMenuState } from '@/hooks/useContextMenus';
 import type { FeatureTemplate } from '@/hooks/canvas/featureTemplates';
+import type { RotationGestureHandler } from '@/hooks/canvas/useSelectionRotation';
 import { applyFeatureGroupDelta } from '@/hooks/useTableInteraction';
 import {
   computeFeatureDropPlacement,
@@ -66,6 +65,8 @@ type FeatureDragUpdatePayload = FeaturePlacement & {
 };
 
 type UseFeaturePaletteDragOptions = {
+  /** Turns the selection by a handle; a feature's handle reports here. */
+  rotateSelection: RotationGestureHandler;
   featureTemplateMap: Map<ClassroomFeatureType, FeatureTemplate>;
   sceneFeatures: ClassroomFeature[];
   runSceneTransaction: SceneTransactionRunner;
@@ -111,6 +112,7 @@ type UseFeaturePaletteDragOptions = {
 };
 
 export function useFeaturePaletteDrag({
+  rotateSelection,
   featureTemplateMap,
   sceneFeatures,
   runSceneTransaction,
@@ -169,9 +171,7 @@ export function useFeaturePaletteDrag({
     featureId: string;
     pointerId: number;
     centerClient: { x: number; y: number };
-    initialRotation: number;
     startAngle: number;
-    moved: boolean;
   } | null>(null);
   const [featureDragPreview, setFeatureDragPreview] =
     React.useState<FeatureDragPreview | null>(null);
@@ -693,6 +693,9 @@ export function useFeaturePaletteDrag({
     ],
   );
 
+  // The handle only measures the turn; what turns with it — the selection,
+  // tables included — and the snapping and committing belong to
+  // `rotateSelection`, which the tables' handles report to as well.
   const handleFeatureRotateMove = React.useCallback(
     (event: PointerEvent) => {
       const rotationState = featureRotationRef.current;
@@ -706,43 +709,13 @@ export function useFeaturePaletteDrag({
       );
       const deltaDegrees =
         ((currentAngle - rotationState.startAngle) * 180) / Math.PI;
-      const rawRotation = rotationState.initialRotation + deltaDegrees;
-      const snapped = snapRotationAngle(rawRotation);
-      const nextRotation = snapped.normalized;
-
-      rotationState.moved = true;
-      setSceneFeatures((prev) =>
-        prev.map((feature) => {
-          if (feature.id !== rotationState.featureId) {
-            return feature;
-          }
-          // Re-clamp around the fixed center so a feature rotated while
-          // flush against a wall doesn't end up sticking out of the room.
-          const { halfWidth, halfHeight } = getRotatedAabbHalfExtents(
-            feature.width,
-            feature.height,
-            nextRotation,
-          );
-          const centerX = clampCenterToRoom(
-            feature.x + feature.width / 2,
-            halfWidth,
-            classroomWidth,
-          );
-          const centerY = clampCenterToRoom(
-            feature.y + feature.height / 2,
-            halfHeight,
-            classroomHeight,
-          );
-          return {
-            ...feature,
-            rotation: nextRotation,
-            x: centerX - feature.width / 2,
-            y: centerY - feature.height / 2,
-          };
-        }),
+      rotateSelection(
+        { feature: rotationState.featureId },
+        'move',
+        deltaDegrees,
       );
     },
-    [setSceneFeatures, classroomWidth, classroomHeight],
+    [rotateSelection],
   );
 
   const handleFeatureRotateEnd = React.useCallback(
@@ -754,14 +727,11 @@ export function useFeaturePaletteDrag({
 
       window.removeEventListener('pointermove', handleFeatureRotateMove);
       window.removeEventListener('pointerup', handleFeatureRotateEnd);
+      window.removeEventListener('pointercancel', handleFeatureRotateEnd);
       featureRotationRef.current = null;
-      // A bare click on the rotate handle must not create an undo entry
-      if (rotationState.moved) {
-        snapshot();
-        commitFeatureState(latestFeaturesRef.current);
-      }
+      rotateSelection({ feature: rotationState.featureId }, 'end', 0);
     },
-    [commitFeatureState, handleFeatureRotateMove, snapshot],
+    [handleFeatureRotateMove, rotateSelection],
   );
 
   const handleFeatureRotateStart = React.useCallback(
@@ -771,7 +741,7 @@ export function useFeaturePaletteDrag({
     ): void => {
       // Every freely placed, movable feature (podium, cabinet, divider, …)
       // can be rotated — matching the rotate handle shown on the canvas.
-      if (feature.anchor !== 'free' || !feature.movable) {
+      if (!isRotatableFeature(feature)) {
         return;
       }
       const centerScene = {
@@ -784,19 +754,22 @@ export function useFeaturePaletteDrag({
       }
 
       cancelPendingFeatureInteraction();
-      selectFeature(feature.id, false);
+      // A feature of the selection turns the whole selection with it; any
+      // other feature becomes the selection and turns alone.
+      if (!selectedFeatureIdsRef.current.includes(feature.id)) {
+        selectFeature(feature.id, false);
+      }
 
       featureRotationRef.current = {
         featureId: feature.id,
         pointerId: event.pointerId,
         centerClient,
-        initialRotation: feature.rotation ?? 0,
         startAngle: Math.atan2(
           event.clientY - centerClient.y,
           event.clientX - centerClient.x,
         ),
-        moved: false,
       };
+      rotateSelection({ feature: feature.id }, 'start', 0);
 
       if (typeof event.currentTarget.setPointerCapture === 'function') {
         event.currentTarget.setPointerCapture(event.pointerId);
@@ -807,11 +780,13 @@ export function useFeaturePaletteDrag({
 
       window.addEventListener('pointermove', handleFeatureRotateMove);
       window.addEventListener('pointerup', handleFeatureRotateEnd);
+      window.addEventListener('pointercancel', handleFeatureRotateEnd);
     },
     [
       cancelPendingFeatureInteraction,
       handleFeatureRotateEnd,
       handleFeatureRotateMove,
+      rotateSelection,
       sceneToClient,
       selectFeature,
     ],
@@ -1214,6 +1189,7 @@ export function useFeaturePaletteDrag({
       cancelPendingFeatureInteraction();
       window.removeEventListener('pointermove', handleFeatureRotateMove);
       window.removeEventListener('pointerup', handleFeatureRotateEnd);
+      window.removeEventListener('pointercancel', handleFeatureRotateEnd);
       window.removeEventListener('pointermove', handleGroupDragMove);
       window.removeEventListener('pointerup', endGroupDrag);
       featureRotationRef.current = null;

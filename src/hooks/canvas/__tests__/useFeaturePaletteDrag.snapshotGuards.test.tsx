@@ -5,6 +5,7 @@ import { act, renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useFeaturePaletteDrag } from '@/hooks/canvas/useFeaturePaletteDrag';
 import type { FeatureTemplate } from '@/hooks/canvas/featureTemplates';
+import type { RotationGestureHandler } from '@/hooks/canvas/useSelectionRotation';
 import type { ClassroomFeature, ClassroomFeatureType } from '@/types';
 import { CLASSROOM_WIDTH, CLASSROOM_HEIGHT } from '@/utils';
 
@@ -50,7 +51,7 @@ const makePointerEvent = <T extends Element>(
   }) as unknown as React.PointerEvent<T>;
 
 const dispatchWindowPointerEvent = (
-  type: 'pointermove' | 'pointerup',
+  type: 'pointermove' | 'pointerup' | 'pointercancel',
   init: { pointerId: number; clientX: number; clientY: number },
 ) => {
   const event = new Event(type);
@@ -66,6 +67,7 @@ describe('useFeaturePaletteDrag snapshot guards', () => {
   let selectFeature: ReturnType<
     typeof vi.fn<(featureId: string, additive: boolean) => void>
   >;
+  let rotateSelection: ReturnType<typeof vi.fn<RotationGestureHandler>>;
 
   const canvasRef = {
     current: document.createElementNS('http://www.w3.org/2000/svg', 'svg'),
@@ -90,11 +92,13 @@ describe('useFeaturePaletteDrag snapshot guards', () => {
     runSceneTransaction = vi.fn();
     snapshot = vi.fn();
     selectFeature = vi.fn();
+    rotateSelection = vi.fn();
   });
 
-  const renderPaletteDragHook = () =>
+  const renderPaletteDragHook = (selectedFeatureIds: string[] = []) =>
     renderHook(() =>
       useFeaturePaletteDrag({
+        rotateSelection,
         featureTemplateMap: new Map<ClassroomFeatureType, FeatureTemplate>([
           ['podium', podiumTemplate],
         ]),
@@ -107,7 +111,7 @@ describe('useFeaturePaletteDrag snapshot guards', () => {
         snapToGrid: false,
         classroomWidth: CLASSROOM_WIDTH,
         classroomHeight: CLASSROOM_HEIGHT,
-        selectedFeatureIds: [],
+        selectedFeatureIds,
         selectedTableIds: [],
         sceneTables: [],
         updateSceneTables: vi.fn(),
@@ -121,32 +125,15 @@ describe('useFeaturePaletteDrag snapshot guards', () => {
       }),
     );
 
+  // The handle only measures; snapping, the undo step and the commit belong
+  // to the selection rotation (useSelectionRotation), tested there.
   describe('feature rotation', () => {
-    it('does not commit when the rotate handle is clicked without movement', () => {
+    it('reports the turn as a gesture on the feature', () => {
       const { result } = renderPaletteDragHook();
 
       act(() => {
-        result.current.handleFeatureRotateStart(
-          features[0],
-          makePointerEvent<SVGElement>(),
-        );
-        dispatchWindowPointerEvent('pointerup', {
-          pointerId: 1,
-          clientX: 190,
-          clientY: 80,
-        });
-      });
-
-      expect(snapshot).not.toHaveBeenCalled();
-      expect(runSceneTransaction).not.toHaveBeenCalled();
-    });
-
-    it('commits exactly one snapshot + transaction after rotating', () => {
-      const { result } = renderPaletteDragHook();
-
-      act(() => {
-        // Feature center is (145, 80); moving the pointer below the center
-        // rotates the feature by ~90°.
+        // Feature center is (145, 80); moving the pointer from its right to
+        // below it turns by 90°.
         result.current.handleFeatureRotateStart(
           features[0],
           makePointerEvent<SVGElement>(),
@@ -163,12 +150,81 @@ describe('useFeaturePaletteDrag snapshot guards', () => {
         });
       });
 
-      // Live rotation updates the local scene state …
-      expect(setSceneFeatures).toHaveBeenCalled();
-      expect(features[0].rotation).toBe(90);
-      // … and pointerup commits exactly once.
-      expect(snapshot).toHaveBeenCalledTimes(1);
-      expect(runSceneTransaction).toHaveBeenCalledTimes(1);
+      const origin = { feature: 'feature-1' };
+      expect(rotateSelection.mock.calls).toEqual([
+        [origin, 'start', 0],
+        [origin, 'move', 90],
+        [origin, 'end', 0],
+      ]);
+      // It never writes the scene itself.
+      expect(setSceneFeatures).not.toHaveBeenCalled();
+      expect(snapshot).not.toHaveBeenCalled();
+      expect(runSceneTransaction).not.toHaveBeenCalled();
+    });
+
+    it('makes a feature outside the selection the selection', () => {
+      const { result } = renderPaletteDragHook(['feature-2']);
+
+      act(() => {
+        result.current.handleFeatureRotateStart(
+          features[0],
+          makePointerEvent<SVGElement>(),
+        );
+      });
+
+      expect(selectFeature).toHaveBeenCalledWith('feature-1', false);
+    });
+
+    it('keeps the selection when its own feature is turned', () => {
+      const { result } = renderPaletteDragHook(['feature-1', 'feature-2']);
+
+      act(() => {
+        result.current.handleFeatureRotateStart(
+          features[0],
+          makePointerEvent<SVGElement>(),
+        );
+      });
+
+      expect(selectFeature).not.toHaveBeenCalled();
+    });
+
+    it('ends the gesture when the pointer is cancelled', () => {
+      const { result } = renderPaletteDragHook();
+
+      act(() => {
+        result.current.handleFeatureRotateStart(
+          features[0],
+          makePointerEvent<SVGElement>(),
+        );
+        dispatchWindowPointerEvent('pointercancel', {
+          pointerId: 1,
+          clientX: 190,
+          clientY: 80,
+        });
+        dispatchWindowPointerEvent('pointermove', {
+          pointerId: 1,
+          clientX: 145,
+          clientY: 160,
+        });
+      });
+
+      expect(rotateSelection.mock.calls.map(([, phase]) => phase)).toEqual([
+        'start',
+        'end',
+      ]);
+    });
+
+    it('offers no turn for a feature on a wall', () => {
+      const { result } = renderPaletteDragHook();
+
+      act(() => {
+        result.current.handleFeatureRotateStart(
+          makeFeature({ anchor: 'left', movable: false }),
+          makePointerEvent<SVGElement>(),
+        );
+      });
+
+      expect(rotateSelection).not.toHaveBeenCalled();
     });
   });
 

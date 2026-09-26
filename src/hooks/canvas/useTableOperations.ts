@@ -18,6 +18,8 @@ export interface TableOperationsHook {
   copySelectedTables: () => void;
   cutSelectedTables: () => void;
   pasteTablesAt: (coords?: { sceneX?: number; sceneY?: number }) => void;
+  /** Places copies of the selected tables as a paste would, clipboard untouched. */
+  duplicateSelectedTables: () => void;
   handleCanvasMenuPaste: (state: CanvasContextMenuState) => void;
   applySelectionForTable: (tableIndex: number, multi: boolean) => number[];
 }
@@ -132,9 +134,17 @@ export function useTableOperations({
     deleteSelectedTables();
   }, [copySelectedTables, deleteSelectedTables]);
 
-  const pasteTablesAt = React.useCallback(
-    ({ sceneX, sceneY }: { sceneX?: number; sceneY?: number } = {}) => {
-      if (!clipboard || clipboard.length === 0) return;
+  /**
+   * Adds copies of `source` to the scene and selects them — the one way both
+   * paste and duplicate place tables, so a duplicate lands exactly where a
+   * paste of the same tables would.
+   */
+  const placeTableCopies = React.useCallback(
+    (
+      source: ClassroomTable[],
+      { sceneX, sceneY }: { sceneX?: number; sceneY?: number } = {},
+    ) => {
+      if (source.length === 0) return;
       snapshot();
 
       // Determine target position for paste operation
@@ -147,7 +157,7 @@ export function useTableOperations({
         targetCenter = { x: sceneX, y: sceneY }; // Long-press context menu at mouse position
       } else {
         // Calculate center of original copied selection
-        const originalBounds = calculateTableGroupBounds(clipboard);
+        const originalBounds = calculateTableGroupBounds(source);
         targetCenter = {
           x: originalBounds.x + originalBounds.width / 2,
           y: originalBounds.y + originalBounds.height / 2,
@@ -157,7 +167,7 @@ export function useTableOperations({
       // Use precise positioning utility to maintain relative positions
       // Always add paste offset for better visual feedback (context menu is long-press, not right-click)
       const newTables = positionTablesRelative(
-        clipboard,
+        source,
         targetCenter,
         { width: classroomWidth, height: classroomHeight },
         snapToGrid,
@@ -191,7 +201,6 @@ export function useTableOperations({
       setSelectedTableIds(newIndices);
     },
     [
-      clipboard,
       snapshot,
       snapToGrid,
       classroomWidth,
@@ -200,6 +209,23 @@ export function useTableOperations({
       runSceneTransaction,
     ],
   );
+
+  const pasteTablesAt = React.useCallback(
+    (coords: { sceneX?: number; sceneY?: number } = {}) => {
+      if (!clipboard) return;
+      placeTableCopies(clipboard, coords);
+    },
+    [clipboard, placeTableCopies],
+  );
+
+  const duplicateSelectedTables = React.useCallback(() => {
+    placeTableCopies(
+      selectedTableIds
+        .map((index) => sceneTables[index])
+        .filter((table) => table !== undefined)
+        .map((table) => deepClone(table)),
+    );
+  }, [placeTableCopies, sceneTables, selectedTableIds]);
 
   const handleCanvasMenuPaste = React.useCallback(
     (state: CanvasContextMenuState) => {
@@ -219,6 +245,7 @@ export function useTableOperations({
     copySelectedTables,
     cutSelectedTables,
     pasteTablesAt,
+    duplicateSelectedTables,
     handleCanvasMenuPaste,
     applySelectionForTable,
   };

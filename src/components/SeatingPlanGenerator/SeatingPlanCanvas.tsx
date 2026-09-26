@@ -67,7 +67,6 @@ interface SeatingPlanCanvasProps {
   ) => boolean;
   isSeatLocked?: (table: number, seat: number) => boolean;
   toggleLock?: (studentId: string, table: number, seat: number) => void;
-  onTransformStart?: () => void;
   isDark?: boolean;
   seatHighlights?: SeatHighlightLookup | null;
   /** How student photos grow on the seat dots (all / hover / off). */
@@ -119,7 +118,6 @@ const SeatingPlanCanvas = React.memo(
     moveStudent,
     isSeatLocked,
     toggleLock,
-    onTransformStart,
     isDark = false,
     seatHighlights = null,
     photoDisplayMode = 'off',
@@ -315,7 +313,6 @@ const SeatingPlanCanvas = React.memo(
                 photoUrls={photoUrls}
                 selected={selectedTableIds.includes(index)}
                 onPointerDown={(e) => handleTablePointerDown(index, e)}
-                onTransformStart={onTransformStart}
                 onSeatDragStart={handleSeatDragStart}
                 onSeatDrag={handleSeatDrag}
                 onSeatDragEnd={handleSeatDragEnd}

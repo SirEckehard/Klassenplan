@@ -94,6 +94,7 @@ export interface CanvasInteractionLayerProps {
     copySelection: () => void;
     cutSelection: () => void;
     pasteSelectionAt: (coords?: { sceneX?: number; sceneY?: number }) => void;
+    duplicateSelection: () => void;
     handleCanvasMenuPaste: (state: CanvasContextMenuState) => void;
     canPaste: boolean;
     selectionBox: SelectionBox | null;
@@ -248,6 +249,13 @@ export default function CanvasInteractionLayer({
     [tableOperations, featureOperations],
   );
 
+  // A paste of the selection that leaves the clipboard as it is: the copies
+  // land where a paste would put them and become the selection.
+  const duplicateSelection = React.useCallback(() => {
+    tableOperations.duplicateSelectedTables();
+    featureOperations.duplicateSelectedFeatures();
+  }, [tableOperations, featureOperations]);
+
   const handleCanvasMenuPaste = React.useCallback(
     (state: CanvasContextMenuState) => {
       pasteSelectionAt({ sceneX: state.sceneX, sceneY: state.sceneY });
@@ -290,6 +298,9 @@ export default function CanvasInteractionLayer({
   useKeyboardInteraction({
     selectedTableIds,
     sceneTables,
+    selectedFeatureIds,
+    sceneFeatures,
+    canvasWidth,
     classroomScene,
     updateClassroomScene,
     snapToGrid,
@@ -326,6 +337,7 @@ export default function CanvasInteractionLayer({
       copySelection,
       cutSelection,
       pasteSelectionAt,
+      duplicateSelection,
       handleCanvasMenuPaste,
       canPaste,
       selectionBox: canvasInteraction.selectionBox,
@@ -340,6 +352,7 @@ export default function CanvasInteractionLayer({
       copySelection,
       cutSelection,
       pasteSelectionAt,
+      duplicateSelection,
       handleCanvasMenuPaste,
       canPaste,
     ],

@@ -6,7 +6,11 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useKeyboardInteraction } from '../../../hooks/ui/useKeyboardInteraction';
 import { DEFAULT_ROTATION_SNAP_STEP } from '@/utils';
-import type { ClassroomScene, ClassroomTable } from '../../../types';
+import type {
+  ClassroomFeature,
+  ClassroomScene,
+  ClassroomTable,
+} from '../../../types';
 
 describe('useKeyboardInteraction', () => {
   const createMockTable = (index: number): ClassroomTable => ({
@@ -36,6 +40,9 @@ describe('useKeyboardInteraction', () => {
     return {
       selectedTableIds: [0],
       sceneTables,
+      selectedFeatureIds: [],
+      sceneFeatures: [],
+      canvasWidth: 800,
       classroomScene,
       updateClassroomScene: vi.fn(),
       snapToGrid: false,
@@ -298,6 +305,52 @@ describe('useKeyboardInteraction', () => {
       .calls[0][0] as ClassroomScene;
     const firstTable = updatedScene.tables[0] as ClassroomTable;
     expect(firstTable.rotation).toBe(90);
+
+    unmount();
+  });
+
+  it('turns selected room elements with the tables, inside the room', async () => {
+    const updateClassroomScene = vi.fn();
+    const cabinet: ClassroomFeature = {
+      id: 'cabinet',
+      type: 'cabinet',
+      // Flush against the top wall, lying along it.
+      x: 200,
+      y: 0,
+      width: 120,
+      height: 40,
+      anchor: 'free',
+      movable: true,
+      rotation: 0,
+    };
+    const door: ClassroomFeature = {
+      ...cabinet,
+      id: 'door',
+      type: 'door',
+      anchor: 'left',
+      movable: false,
+    };
+    const params = createParams({
+      updateClassroomScene,
+      selectedFeatureIds: ['cabinet', 'door'],
+      sceneFeatures: [cabinet, door],
+    });
+    const { unmount } = renderHook(() => useKeyboardInteraction(params));
+
+    const user = userEvent.setup();
+    await user.keyboard('{Shift>}e{/Shift}');
+
+    const updatedScene = updateClassroomScene.mock
+      .calls[0][0] as ClassroomScene;
+    expect(updatedScene.tables[0].rotation).toBe(90);
+    const [turned, wall] = updatedScene.features ?? [];
+    expect(turned.rotation).toBe(90);
+    // Standing upright it reaches 60 px either side of its centre, so the
+    // centre moves down from y = 20 to y = 60 instead of poking out of the
+    // room: the frame's top edge lands at 60 − 20.
+    expect(turned).toMatchObject({ x: 200, y: 40 });
+    // A door takes its angle from the wall.
+    expect(wall).toBe(door);
 
     unmount();
   });

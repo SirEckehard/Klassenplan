@@ -7,17 +7,26 @@ import { keyboardInteractionMachine } from '@/stateMachines';
 import {
   DEFAULT_ROTATION_SNAP_STEP,
   GRID_SNAP_SIZE,
+  applyFeatureRotations,
+  applyTableRotations,
   clampTablePositionWithinBounds,
+  collectRotationTargets,
+  hasRotationTargets,
   isFormElementFocused,
   logDebug,
-  normalizeRotation,
+  rotateTargets,
 } from '@/utils';
-import type { ClassroomTable, ClassroomScene } from '@/types';
+import type { ClassroomTable, ClassroomScene, ClassroomFeature } from '@/types';
 import type { KeyboardDirection } from '@/stateMachines/canvas/keyboardInteractionMachine';
 
 export interface UseKeyboardInteractionParams {
   selectedTableIds: number[];
   sceneTables: ClassroomTable[];
+  /** Room elements turn with the tables on Q/E. */
+  selectedFeatureIds: string[];
+  sceneFeatures: ClassroomFeature[];
+  /** The area room elements are kept inside (the canvas, board strip included). */
+  canvasWidth: number;
   classroomScene: ClassroomScene;
   updateClassroomScene: (next: React.SetStateAction<ClassroomScene>) => void;
   snapToGrid: boolean;
@@ -61,6 +70,9 @@ interface KeyboardActionApi {
 export function useKeyboardInteraction({
   selectedTableIds,
   sceneTables,
+  selectedFeatureIds,
+  sceneFeatures,
+  canvasWidth,
   classroomScene,
   updateClassroomScene,
   snapToGrid,
@@ -161,33 +173,37 @@ export function useKeyboardInteraction({
       direction: 'cw' | 'ccw';
       shiftKey: boolean;
     }) => {
-      if (selectedTableIds.length === 0) {
-        return;
-      }
-      const rotatable = selectedTableIds.filter(
-        (index) => sceneTables[index] && !sceneTables[index].locked,
+      // The same targets as the handles and the inspector: unlocked tables
+      // and freely placed room elements (cabinet, divider, lectern).
+      const targets = collectRotationTargets(
+        sceneTables,
+        sceneFeatures,
+        selectedTableIds,
+        selectedFeatureIds,
       );
-      if (rotatable.length === 0) {
+      if (!hasRotationTargets(targets)) {
         return;
       }
       snapshot();
       const step = shiftKey ? 90 : DEFAULT_ROTATION_SNAP_STEP;
       const delta = direction === 'cw' ? step : -step;
-      const rotatableSet = new Set(rotatable);
-      const updatedTables = sceneTables.map((table, index) => {
-        if (!rotatableSet.has(index)) {
-          return table;
-        }
-        return {
-          ...table,
-          rotation: normalizeRotation(table.rotation + delta),
-        };
+      const rotations = rotateTargets(targets, (rotation) => rotation + delta);
+      updateClassroomScene({
+        ...classroomScene,
+        tables: applyTableRotations(sceneTables, rotations.tables),
+        features: applyFeatureRotations(sceneFeatures, rotations.features, {
+          width: canvasWidth,
+          height: classroomHeight,
+        }),
       });
-      updateClassroomScene({ ...classroomScene, tables: updatedTables });
     },
     [
+      canvasWidth,
+      classroomHeight,
       classroomScene,
+      sceneFeatures,
       sceneTables,
+      selectedFeatureIds,
       selectedTableIds,
       snapshot,
       updateClassroomScene,

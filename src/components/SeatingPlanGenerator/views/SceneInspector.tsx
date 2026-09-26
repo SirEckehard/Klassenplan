@@ -25,19 +25,28 @@ import {
   InspectorSection,
 } from '@/components/shell/InspectorPanel';
 import ToggleSwitch from '@/components/ui/controls/ToggleSwitch';
+import type { SceneTransactionRunner } from '@/hooks/scene/useSceneManager';
 import {
-  CLASSROOM_HEIGHT,
-  CLASSROOM_WIDTH,
-  GRID_SIZE,
+  DEFAULT_ROTATION_SNAP_STEP,
+  collectRotationTargets,
+  hasRotationTargets,
+  rotateTargets,
+  rotationsChangeTargets,
   dangerButtonClass,
   inputFieldClass,
   menuItemClass,
-  normalizeRotation,
+  type SceneRotations,
   quietIconButtonClass,
 } from '@/utils';
 
-/** The canvas rotates in 15° steps, by handle and by Q/E; so does this. */
-const ROTATION_STEP = 15;
+/**
+ * The arrows turn as far as Q/E do on the canvas, whose shortcut their
+ * tooltips name — and the handle snaps to the same step.
+ */
+const ROTATION_STEP = DEFAULT_ROTATION_SNAP_STEP;
+
+/** A typed angle stays within one turn; 360 would only be 0 again. */
+const MAX_TYPED_ANGLE = 359;
 
 type FeaturePaletteItem = {
   type: ClassroomFeatureType;
@@ -55,13 +64,13 @@ type Props = {
   studentsCount: number;
   /** Takes an undo snapshot before a change lands. */
   snapshot: () => void;
-  /** Sets one table's rotation and commits the scene. */
-  onRotateTable: (index: number, rotation: number) => void;
-  updateSceneTables: (
-    updateFn: (tables: ClassroomTable[]) => ClassroomTable[],
-  ) => void;
-  setSceneFeatures: React.Dispatch<React.SetStateAction<ClassroomFeature[]>>;
+  /** Sets rotations of tables and room elements and commits the scene. */
+  onRotateSelection: (rotations: SceneRotations) => void;
+  /** Changes the scene and commits it, as the canvas's own actions do. */
+  runSceneTransaction: SceneTransactionRunner;
   onDeleteSelection: () => void;
+  /** Pastes a copy of the selection without touching the clipboard. */
+  onDuplicateSelection: () => void;
   /** The canvas's own clipboard: the same actions as its context menu. */
   onCopySelection: () => void;
   onCutSelection: () => void;
@@ -100,20 +109,27 @@ function ActionRow({
 }
 
 /**
- * The angle as a field: it shows the table's rotation as it is — live while
- * the handle turns it — until somebody types, and takes the typed value on
- * Enter or when the field is left. Escape drops the draft.
+ * The angle as a field: it shows the rotation as it is — live while a
+ * handle turns it — until somebody types, and takes the typed value on
+ * Enter or when the field is left. Escape drops the draft. What lies outside
+ * 0–359° lands on the nearer end rather than wrapping round, so a slip of the
+ * finger gives a predictable angle. A selection turned differently leaves it
+ * empty.
  */
 function RotationField({
   value,
   label,
+  mixedHint,
   onCommit,
 }: {
-  value: number;
+  /** The shared angle, or null when the tables stand at different ones. */
+  value: number | null;
   label: string;
+  mixedHint: string;
   onCommit: (degrees: number) => void;
 }) {
   const [draft, setDraft] = React.useState<string | null>(null);
+  const mixed = value === null;
 
   const commit = () => {
     if (draft === null) return;
@@ -121,7 +137,7 @@ function RotationField({
     // A German keyboard types the decimal comma.
     const degrees = Number(draft.trim().replace(',', '.'));
     if (draft.trim() === '' || !Number.isFinite(degrees)) return;
-    onCommit(degrees);
+    onCommit(Math.min(Math.max(Math.round(degrees), 0), MAX_TYPED_ANGLE));
   };
 
   return (
@@ -129,7 +145,9 @@ function RotationField({
       <input
         type="text"
         inputMode="numeric"
-        value={draft ?? String(Math.round(value))}
+        value={draft ?? (mixed ? '' : String(Math.round(value)))}
+        placeholder={mixed ? '–' : undefined}
+        title={mixed ? mixedHint : undefined}
         onChange={(event) => setDraft(event.target.value)}
         onFocus={(event) => event.currentTarget.select()}
         onBlur={commit}
@@ -164,9 +182,9 @@ function RotationField({
  * The panel used to state a table's place and size in pixels and let them be
  * typed. Nobody places a table by its x coordinate: dragging does all of that
  * directly, so the numbers were noise. What stays is what a drag cannot do in
- * one gesture — turning it to an exact angle or in steps, duplicating,
- * copying, cutting, removing — each with the shortcut that does the same on
- * the canvas.
+ * one gesture — turning to an exact angle or in steps, duplicating, copying,
+ * cutting, removing — each with the shortcut that does the same on the
+ * canvas, and each for one table as for a whole selection.
  *
  * Seat count and table type stay out of reach on purpose — changing them under
  * a finished plan would move students around without being asked, and the
@@ -180,10 +198,10 @@ export default function SceneInspector({
   featurePalette,
   studentsCount,
   snapshot,
-  onRotateTable,
-  updateSceneTables,
-  setSceneFeatures,
+  onRotateSelection,
+  runSceneTransaction,
   onDeleteSelection,
+  onDuplicateSelection,
   onCopySelection,
   onCutSelection,
   onPasteSelection,
@@ -213,31 +231,82 @@ export default function SceneInspector({
       : t('sceneInspector.table');
   };
 
-  /**
-   * A copy one grid step down and to the right, so it is visibly a second
-   * table rather than one hiding exactly under the first.
-   */
-  const duplicateTable = (index: number) => {
-    const table = tables[index];
-    if (!table) return;
-    snapshot();
-    updateSceneTables((current) => [
-      ...current,
-      {
-        ...table,
-        x: Math.min(table.x + GRID_SIZE, CLASSROOM_WIDTH - table.width),
-        y: Math.min(table.y + GRID_SIZE, CLASSROOM_HEIGHT - table.height),
-        locked: false,
-      },
-    ]);
-  };
-
   const patchFeature = (id: string, patch: Partial<ClassroomFeature>) => {
     snapshot();
-    setSceneFeatures((current) =>
-      current.map((feature) =>
-        feature.id === id ? { ...feature, ...patch } : feature,
+    runSceneTransaction(
+      ({ features: current }) => ({
+        features: current.map((feature) =>
+          feature.id === id ? { ...feature, ...patch } : feature,
+        ),
+      }),
+      { skipSeatingUpdate: true },
+    );
+  };
+
+  /**
+   * Turning acts on what the canvas would turn: the unlocked tables and the
+   * freely placed room elements (cabinet, divider, lectern) of the selection.
+   * A window, a door or the board takes its angle from its wall.
+   */
+  const rotatable = collectRotationTargets(
+    tables,
+    features,
+    selectedTableIds,
+    selectedFeatureIds,
+  );
+
+  const applyRotation = (next: (rotation: number) => number) => {
+    const rotations = rotateTargets(rotatable, next);
+    if (!rotationsChangeTargets(rotatable, rotations)) return;
+    snapshot();
+    onRotateSelection(rotations);
+  };
+
+  const orientationSection = () => {
+    if (!hasRotationTargets(rotatable)) return null;
+    const angles = new Set(
+      [...rotatable.tables, ...rotatable.features].map(({ rotation }) =>
+        Math.round(rotation),
       ),
+    );
+    const sharedAngle = angles.size === 1 ? [...angles][0] : null;
+    const turnBy = (delta: number) =>
+      applyRotation((rotation) => Math.round(rotation) + delta);
+
+    return (
+      <InspectorSection title={t('sceneInspector.orientation')}>
+        <InspectorRow label={t('sceneInspector.rotation')}>
+          <button
+            type="button"
+            onClick={() => turnBy(-ROTATION_STEP)}
+            className={`${quietIconButtonClass} h-8 w-8`}
+            title={`${t('sceneInspector.rotateLeft')} (Q)`}
+            aria-label={t('sceneInspector.rotateLeft')}
+          >
+            <ArrowArcLeftIcon size={16} aria-hidden="true" />
+          </button>
+          <RotationField
+            // A new selection starts without a draft.
+            key={[
+              ...rotatable.tables.map(({ index }) => index),
+              ...rotatable.features.map(({ id }) => id),
+            ].join(',')}
+            value={sharedAngle}
+            label={t('sceneInspector.rotationAngle')}
+            mixedHint={t('sceneInspector.rotationMixed')}
+            onCommit={(degrees) => applyRotation(() => degrees)}
+          />
+          <button
+            type="button"
+            onClick={() => turnBy(ROTATION_STEP)}
+            className={`${quietIconButtonClass} h-8 w-8`}
+            title={`${t('sceneInspector.rotateRight')} (E)`}
+            aria-label={t('sceneInspector.rotateRight')}
+          >
+            <ArrowArcRightIcon size={16} aria-hidden="true" />
+          </button>
+        </InspectorRow>
+      </InspectorSection>
     );
   };
 
@@ -250,7 +319,11 @@ export default function SceneInspector({
     />
   );
 
-  /** Copy and cut (and paste, once something is copied) for any selection. */
+  /**
+   * Duplicate, copy and cut (and paste, once something is copied) for any
+   * selection. Duplicating is a paste of the selection that leaves the
+   * clipboard alone, so the copies land and get selected as pasted ones do.
+   */
   const clipboardSection = (copyable: boolean) =>
     copyable || canPaste ? (
       <InspectorSection title={t('sceneInspector.edit')}>
@@ -259,6 +332,11 @@ export default function SceneInspector({
         <div className="-mx-3 flex flex-col">
           {copyable && (
             <>
+              <ActionRow
+                icon={CopySimpleIcon}
+                label={t('sceneInspector.duplicate')}
+                onClick={onDuplicateSelection}
+              />
               <ActionRow
                 icon={CopyIcon}
                 label={t('common.copy')}
@@ -337,6 +415,7 @@ export default function SceneInspector({
               {t('sceneInspector.selectedSeats', { count: selectedSeats })}
             </p>
           )}
+          {orientationSection()}
           {clipboardSection(true)}
         </InspectorBody>
         <InspectorFooter>
@@ -354,14 +433,6 @@ export default function SceneInspector({
 
   if (selectedTables.length === 1) {
     const { index, table } = selectedTables[0];
-    const setRotation = (degrees: number) => {
-      const rotation = normalizeRotation(Math.round(degrees));
-      if (rotation === table.rotation) return;
-      snapshot();
-      onRotateTable(index, rotation);
-    };
-    const rotate = (delta: number) =>
-      setRotation(Math.round(table.rotation) + delta);
 
     return (
       <>
@@ -373,56 +444,8 @@ export default function SceneInspector({
           })} · ${t('sceneInspector.seats', { count: table.seatCount })}`}
         />
         <InspectorBody>
-          <InspectorSection title={t('sceneInspector.orientation')}>
-            <InspectorRow label={t('sceneInspector.rotation')}>
-              <button
-                type="button"
-                onClick={() => rotate(-ROTATION_STEP)}
-                className={`${quietIconButtonClass} h-8 w-8`}
-                title={`${t('sceneInspector.rotateLeft')} (Q)`}
-                aria-label={t('sceneInspector.rotateLeft')}
-              >
-                <ArrowArcLeftIcon size={16} aria-hidden="true" />
-              </button>
-              <RotationField
-                key={index}
-                value={table.rotation}
-                label={t('sceneInspector.rotationAngle')}
-                onCommit={setRotation}
-              />
-              <button
-                type="button"
-                onClick={() => rotate(ROTATION_STEP)}
-                className={`${quietIconButtonClass} h-8 w-8`}
-                title={`${t('sceneInspector.rotateRight')} (E)`}
-                aria-label={t('sceneInspector.rotateRight')}
-              >
-                <ArrowArcRightIcon size={16} aria-hidden="true" />
-              </button>
-            </InspectorRow>
-          </InspectorSection>
-          <InspectorSection title={t('sceneInspector.edit')}>
-            <div className="-mx-3 flex flex-col">
-              <ActionRow
-                icon={CopySimpleIcon}
-                label={t('sceneInspector.duplicate')}
-                onClick={() => duplicateTable(index)}
-              />
-              <ActionRow
-                icon={CopyIcon}
-                label={t('common.copy')}
-                title={t('sceneInspector.copyShortcut')}
-                onClick={onCopySelection}
-              />
-              <ActionRow
-                icon={ScissorsIcon}
-                label={t('common.cut')}
-                title={t('sceneInspector.cutShortcut')}
-                onClick={onCutSelection}
-              />
-              {pasteRow}
-            </div>
-          </InspectorSection>
+          {orientationSection()}
+          {clipboardSection(true)}
         </InspectorBody>
         <InspectorFooter>
           <button
@@ -448,6 +471,7 @@ export default function SceneInspector({
     <>
       <InspectorHeader title={featureLabel} />
       <InspectorBody>
+        {orientationSection()}
         <InspectorSection title={t('sceneInspector.display')}>
           <InspectorRow label={t('sceneInspector.visible')}>
             <ToggleSwitch

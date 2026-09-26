@@ -64,7 +64,7 @@ import {
   type FeatureTemplate,
 } from '@/hooks/canvas/featureTemplates';
 import type { SceneTransactionRunner } from '@/hooks/scene/useSceneManager';
-import type { TableRotationHandler } from '@/hooks/scene/useTableRotation';
+import { useSelectionRotation } from '@/hooks/canvas/useSelectionRotation';
 import { workspaceLayerClass } from '@/components/shell/shellTokens';
 
 type Props = {
@@ -248,6 +248,7 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
     cutSelection,
     deleteSelection,
     pasteSelectionAt,
+    duplicateSelection,
     handleCanvasMenuPaste,
     canPaste,
     selectionBox,
@@ -439,12 +440,28 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
 
     previousTablesRef.current = sceneTables;
   }, [isQuickSetupOpen, sceneTables]);
+  // Tables and room elements turn together, by either handle, Q/E or the
+  // inspector; the handles' gesture and the inspector's commit live here.
+  const { handleRotationGesture, commitRotations } = useSelectionRotation({
+    sceneTables,
+    sceneFeatures,
+    selectedTableIds,
+    selectedFeatureIds,
+    updateSceneTables,
+    setSceneFeatures,
+    runSceneTransaction,
+    snapshot,
+    roomWidth: canvasWidth,
+    roomHeight: classroomHeight,
+  });
+
   const {
     featureDragPreview,
     handleFeatureTemplatePointerDown,
     handleFeaturePointerDown,
     handleFeatureRotateStart,
   } = useFeaturePaletteDrag({
+    rotateSelection: handleRotationGesture,
     featureTemplateMap,
     sceneFeatures,
     runSceneTransaction,
@@ -482,33 +499,6 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
     toSceneCoordinates,
     selectFeature,
   });
-
-  // A turn arrives as new table objects, so the inspector follows the handle
-  // live; letting go commits it to the store, as a drop does after a drag.
-  // The inspector's own rotation lands here too, as a gesture that has ended.
-  const handleTableRotate = React.useCallback<TableRotationHandler>(
-    (rotations, phase) => {
-      const rotate = (tables: ClassroomTable[]) =>
-        tables.map((table, index) => {
-          const rotation = rotations.get(index);
-          return rotation === undefined ? table : { ...table, rotation };
-        });
-      if (phase === 'move') {
-        updateSceneTables(rotate);
-        return;
-      }
-      runSceneTransaction(({ tables }) => ({ tables: rotate(tables) }), {
-        skipSeatingUpdate: true,
-      });
-    },
-    [runSceneTransaction, updateSceneTables],
-  );
-
-  const handleRotateTable = React.useCallback(
-    (index: number, rotation: number) =>
-      handleTableRotate(new Map([[index, rotation]]), 'end'),
-    [handleTableRotate],
-  );
 
   const handleEscapeKeyWithQuickSetup = React.useCallback(() => {
     // Whoever sits innermost owns Escape. While Quick Setup is up that is this
@@ -918,8 +908,7 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
     onPointerDown: handleSvgPointerDown,
     onContextMenu: handleSvgContextMenu,
     onTablePointerDown: handleTablePointerDown,
-    onTableRotate: handleTableRotate,
-    onTransformStart: snapshot,
+    onRotateGesture: handleRotationGesture,
     onFeaturePointerDown: handleFeaturePointerDown,
   };
 
@@ -966,10 +955,10 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
           featurePalette={FEATURE_PALETTE}
           studentsCount={students.length}
           snapshot={snapshot}
-          onRotateTable={handleRotateTable}
-          updateSceneTables={updateSceneTables}
-          setSceneFeatures={setSceneFeatures}
+          onRotateSelection={commitRotations}
+          runSceneTransaction={runSceneTransaction}
           onDeleteSelection={deleteSelection}
+          onDuplicateSelection={duplicateSelection}
           onCopySelection={copySelection}
           onCutSelection={cutSelection}
           onPasteSelection={pasteSelection}

@@ -51,10 +51,7 @@ type TableProps = {
   toggleLock?: (studentId: string, table: number, seat: number) => void;
   /** Turns the table by its handle; only an editable table has one. */
   onRotate?: TableRotationHandler;
-  onTransformStart?: () => void;
   editable: boolean;
-  sceneTables?: ClassroomTable[];
-  selectedTableIds?: number[];
   onSeatDragStart?: (student: Student, config: DragSeatConfig) => void;
   onSeatDrag?: (x: number, y: number) => void;
   onSeatDragEnd?: () => void;
@@ -113,10 +110,7 @@ function SceneTable({
   isSeatLocked,
   toggleLock,
   onRotate,
-  onTransformStart,
   editable,
-  sceneTables,
-  selectedTableIds,
   onSeatDragStart,
   onSeatDrag,
   onSeatDragEnd,
@@ -162,15 +156,7 @@ function SceneTable({
       `table-seat-clip-${index}-${Math.round(table.x)}-${Math.round(table.y)}`,
     [index, table.x, table.y],
   );
-  const { handleRotate } = useTableRotation({
-    table,
-    index,
-    tableRef,
-    onRotate,
-    onTransformStart,
-    selectedTableIds,
-    sceneTables,
-  });
+  const { handleRotate } = useTableRotation({ tableRef, onRotate });
 
   const { handleSeatPointerDown, handleSeatPointerUp } = useSeatDrag({
     draggable,

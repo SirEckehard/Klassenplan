@@ -241,6 +241,17 @@ export {
   type FeatureResizeHandle,
 } from './canvas/featureResize';
 export {
+  applyFeatureRotations,
+  applyTableRotations,
+  collectRotationTargets,
+  hasRotationTargets,
+  isRotatableFeature,
+  rotateTargets,
+  rotationsChangeTargets,
+  type RotationTargets,
+  type SceneRotations,
+} from './canvas/selectionRotation';
+export {
   ALIGNMENT_GUIDE_EPSILON,
   ALIGNMENT_GUIDE_TOLERANCE,
   applyAlignmentToDelta,

@@ -523,7 +523,6 @@ export function useSeatingPlanViewLogic({
           lockedDropTarget,
           handleSeatHoverChange,
           handleLockedDrop,
-          snapshot,
           dragPreview,
           planName,
           saveSeatingPlan,

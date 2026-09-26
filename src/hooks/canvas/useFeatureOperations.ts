@@ -18,6 +18,8 @@ export interface FeatureOperationsHook {
   cutSelectedFeatures: () => void;
   deleteSelectedFeatures: () => void;
   pasteFeaturesAt: (coords?: { sceneX?: number; sceneY?: number }) => void;
+  /** Places copies of the selected elements as a paste would, clipboard untouched. */
+  duplicateSelectedFeatures: () => void;
 }
 
 export interface UseFeatureOperationsParams {
@@ -160,23 +162,29 @@ export function useFeatureOperations({
     setSelectedFeatureIds,
   ]);
 
-  const pasteFeaturesAt = React.useCallback(
-    ({ sceneX, sceneY }: { sceneX?: number; sceneY?: number } = {}) => {
-      const clipboardFeatures = featureClipboard;
-      if (!clipboardFeatures || clipboardFeatures.length === 0) return;
+  /**
+   * Adds copies of `source` to the scene and selects them — the one way both
+   * paste and duplicate place elements.
+   */
+  const placeFeatureCopies = React.useCallback(
+    (
+      source: ClassroomFeature[],
+      { sceneX, sceneY }: { sceneX?: number; sceneY?: number } = {},
+    ) => {
+      if (source.length === 0) return;
 
       // Preserve the copied elements' relative layout. Without an explicit
       // target (keyboard paste) they land right next to the originals; with a
       // target (context-menu paste) the group is centered on the cursor. A
       // small offset keeps the copy visually distinct from its source.
       const PASTE_OFFSET = 20;
-      const minX = Math.min(...clipboardFeatures.map((feature) => feature.x));
-      const minY = Math.min(...clipboardFeatures.map((feature) => feature.y));
+      const minX = Math.min(...source.map((feature) => feature.x));
+      const minY = Math.min(...source.map((feature) => feature.y));
       const maxX = Math.max(
-        ...clipboardFeatures.map((feature) => feature.x + feature.width),
+        ...source.map((feature) => feature.x + feature.width),
       );
       const maxY = Math.max(
-        ...clipboardFeatures.map((feature) => feature.y + feature.height),
+        ...source.map((feature) => feature.y + feature.height),
       );
       const hasTarget =
         typeof sceneX === 'number' && typeof sceneY === 'number';
@@ -187,7 +195,7 @@ export function useFeatureOperations({
           }
         : { x: PASTE_OFFSET, y: PASTE_OFFSET };
 
-      const pastedFeatures = clipboardFeatures
+      const pastedFeatures = source
         .map((feature) => {
           const template = featureTemplateMap.get(feature.type);
           if (!template) {
@@ -263,7 +271,6 @@ export function useFeatureOperations({
       setSelectedFeatureIds(pastedFeatures.map((feature) => feature.id));
     },
     [
-      featureClipboard,
       canvasWidth,
       classroomHeight,
       featureTemplateMap,
@@ -275,10 +282,25 @@ export function useFeatureOperations({
     ],
   );
 
+  const pasteFeaturesAt = React.useCallback(
+    (coords: { sceneX?: number; sceneY?: number } = {}) => {
+      if (!featureClipboard) return;
+      placeFeatureCopies(featureClipboard, coords);
+    },
+    [featureClipboard, placeFeatureCopies],
+  );
+
+  const duplicateSelectedFeatures = React.useCallback(() => {
+    if (selectedFeatureIds.length === 0) return;
+    const { copyable } = collectCopyableSelection();
+    placeFeatureCopies(copyable.map((feature) => deepClone(feature)));
+  }, [selectedFeatureIds, collectCopyableSelection, placeFeatureCopies]);
+
   return {
     copySelectedFeatures,
     cutSelectedFeatures,
     deleteSelectedFeatures,
     pasteFeaturesAt,
+    duplicateSelectedFeatures,
   };
 }

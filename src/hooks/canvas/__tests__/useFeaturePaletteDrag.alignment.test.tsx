@@ -122,6 +122,7 @@ describe('useFeaturePaletteDrag alignment guides', () => {
   const renderPaletteDragHook = (enabled = true) =>
     renderHook(() =>
       useFeaturePaletteDrag({
+        rotateSelection: vi.fn(),
         featureTemplateMap: new Map<ClassroomFeatureType, FeatureTemplate>([
           ['podium', podiumTemplate],
           ['window', windowTemplate],

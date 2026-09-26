@@ -9,6 +9,7 @@ import ResizeHandle from '@/components/scene/ResizeHandle';
 import {
   GRID_SIZE,
   getFeatureResizeHandles,
+  isRotatableFeature,
   showToast,
   type AlignmentGuide,
   type FeatureResizeHandle,
@@ -25,7 +26,7 @@ import type {
 } from '@/types';
 import type { TemplateDragPreview } from '@/types/templateDrag';
 import type { FeatureDragPreview } from '@/hooks/canvas/useFeaturePaletteDrag';
-import type { TableRotationHandler } from '@/hooks/scene/useTableRotation';
+import type { RotationGestureHandler } from '@/hooks/canvas/useSelectionRotation';
 import { useIsDarkMode } from '@/hooks/useIsDarkMode';
 import type { SelectionBox } from '@/types/canvas';
 
@@ -67,8 +68,8 @@ interface ClassroomCanvasProps {
     e: React.PointerEvent<SVGGElement>,
     index: number,
   ) => void;
-  onTableRotate: TableRotationHandler;
-  onTransformStart: () => void;
+  /** Turns the selection by a table's handle, as the room layer decides. */
+  onRotateGesture: RotationGestureHandler;
   onFeaturePointerDown?: (
     feature: ClassroomFeature,
     event: React.PointerEvent<SVGRectElement>,
@@ -108,8 +109,7 @@ const ClassroomCanvas = React.memo<ClassroomCanvasProps>(
     onPointerDown,
     onContextMenu,
     onTablePointerDown,
-    onTableRotate,
-    onTransformStart,
+    onRotateGesture,
     onFeaturePointerDown,
     onFeatureRotateStart,
     onFeatureResizeStart,
@@ -251,7 +251,7 @@ const ClassroomCanvas = React.memo<ClassroomCanvasProps>(
             const isActive = selectedFeatureIds.includes(feature.id);
             // The rotate handle only makes sense for a single active feature.
             const isSoleSelection = selectedFeatureIds.length === 1 && isActive;
-            const isRotatable = feature.anchor === 'free' && feature.movable;
+            const isRotatable = isRotatableFeature(feature);
             const rotation =
               feature.anchor === 'free' ? (feature.rotation ?? 0) : 0;
             const showRotationHandle =
@@ -334,11 +334,10 @@ const ClassroomCanvas = React.memo<ClassroomCanvasProps>(
               allStudents={allStudents}
               selected={selectedTableIds.includes(tIndex)}
               onPointerDown={(e) => onTablePointerDown(e, tIndex)}
-              onRotate={onTableRotate}
-              onTransformStart={onTransformStart}
+              onRotate={(phase, delta) =>
+                onRotateGesture({ table: tIndex }, phase, delta)
+              }
               editable
-              sceneTables={sceneTables}
-              selectedTableIds={selectedTableIds}
               isDark={isDark}
               seatMarkerMode="dots"
             />
