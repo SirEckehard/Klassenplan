@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import React, { useMemo, useReducer, useRef } from 'react';
+import React, { useMemo, useRef } from 'react';
 import type { Student, ClassroomTable, PhotoDisplayMode } from '@/types';
 import {
   TABLE_CORNER_RADIUS,
@@ -25,7 +25,10 @@ import type {
 import SeatGrid, { type SeatConfig } from '@/components/scene/SeatGrid';
 import RotationHandle from '@/components/scene/RotationHandle';
 import { useSeatDrag } from '@/hooks/scene/useSeatDrag';
-import { useTableRotation } from '@/hooks/scene/useTableRotation';
+import {
+  useTableRotation,
+  type TableRotationHandler,
+} from '@/hooks/scene/useTableRotation';
 import { useHasHoverPointer } from '@/hooks/ui/useHasHoverPointer';
 
 type TableProps = {
@@ -46,7 +49,8 @@ type TableProps = {
   draggable?: boolean;
   isSeatLocked?: (table: number, seat: number) => boolean;
   toggleLock?: (studentId: string, table: number, seat: number) => void;
-  onUpdate: () => void;
+  /** Turns the table by its handle; only an editable table has one. */
+  onRotate?: TableRotationHandler;
   onTransformStart?: () => void;
   editable: boolean;
   sceneTables?: ClassroomTable[];
@@ -108,7 +112,7 @@ function SceneTable({
   draggable,
   isSeatLocked,
   toggleLock,
-  onUpdate,
+  onRotate,
   onTransformStart,
   editable,
   sceneTables,
@@ -158,17 +162,14 @@ function SceneTable({
       `table-seat-clip-${index}-${Math.round(table.x)}-${Math.round(table.y)}`,
     [index, table.x, table.y],
   );
-  const [, forceLocalRender] = useReducer((value: number) => value + 1, 0);
-
   const { handleRotate } = useTableRotation({
     table,
     index,
     tableRef,
-    onUpdate,
+    onRotate,
     onTransformStart,
     selectedTableIds,
     sceneTables,
-    forceLocalRender,
   });
 
   const { handleSeatPointerDown, handleSeatPointerUp } = useSeatDrag({

@@ -323,7 +323,6 @@ export default function SceneSvg({
             allStudents={allStudents}
             photoUrls={photoUrls}
             selected={false}
-            onUpdate={() => {}}
             editable={false}
             showSpecialNeeds={showSpecialNeeds}
             badgeView={badgeView}

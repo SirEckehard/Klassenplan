@@ -30,7 +30,9 @@ import {
   CLASSROOM_WIDTH,
   GRID_SIZE,
   dangerButtonClass,
+  inputFieldClass,
   menuItemClass,
+  normalizeRotation,
   quietIconButtonClass,
 } from '@/utils';
 
@@ -53,6 +55,8 @@ type Props = {
   studentsCount: number;
   /** Takes an undo snapshot before a change lands. */
   snapshot: () => void;
+  /** Sets one table's rotation and commits the scene. */
+  onRotateTable: (index: number, rotation: number) => void;
   updateSceneTables: (
     updateFn: (tables: ClassroomTable[]) => ClassroomTable[],
   ) => void;
@@ -96,13 +100,73 @@ function ActionRow({
 }
 
 /**
+ * The angle as a field: it shows the table's rotation as it is — live while
+ * the handle turns it — until somebody types, and takes the typed value on
+ * Enter or when the field is left. Escape drops the draft.
+ */
+function RotationField({
+  value,
+  label,
+  onCommit,
+}: {
+  value: number;
+  label: string;
+  onCommit: (degrees: number) => void;
+}) {
+  const [draft, setDraft] = React.useState<string | null>(null);
+
+  const commit = () => {
+    if (draft === null) return;
+    setDraft(null);
+    // A German keyboard types the decimal comma.
+    const degrees = Number(draft.trim().replace(',', '.'));
+    if (draft.trim() === '' || !Number.isFinite(degrees)) return;
+    onCommit(degrees);
+  };
+
+  return (
+    <span className="relative">
+      <input
+        type="text"
+        inputMode="numeric"
+        value={draft ?? String(Math.round(value))}
+        onChange={(event) => setDraft(event.target.value)}
+        onFocus={(event) => event.currentTarget.select()}
+        onBlur={commit}
+        onKeyDown={(event) => {
+          if (event.key === 'Enter') {
+            event.preventDefault();
+            commit();
+          } else if (event.key === 'Escape') {
+            // The canvas clears its selection on Escape; here it only
+            // means "not this number".
+            event.preventDefault();
+            event.stopPropagation();
+            setDraft(null);
+          }
+        }}
+        aria-label={label}
+        className={`${inputFieldClass} h-8 w-16 py-0 pr-5 pl-2 text-right tabular-nums`}
+      />
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-sm text-(--text-muted)"
+      >
+        °
+      </span>
+    </span>
+  );
+}
+
+/**
  * What can be done with the canvas selection besides dragging it.
  *
  * The panel used to state a table's place and size in pixels and let them be
  * typed. Nobody places a table by its x coordinate: dragging does all of that
  * directly, so the numbers were noise. What stays is what a drag cannot do in
- * one gesture — turning it in exact steps, duplicating, copying, cutting,
- * removing — each with the shortcut that does the same on the canvas.
+ * one gesture — turning it to an exact angle or in steps, duplicating,
+ * copying, cutting, removing — each with the shortcut that does the same on
+ * the canvas.
  *
  * Seat count and table type stay out of reach on purpose — changing them under
  * a finished plan would move students around without being asked, and the
@@ -116,6 +180,7 @@ export default function SceneInspector({
   featurePalette,
   studentsCount,
   snapshot,
+  onRotateTable,
   updateSceneTables,
   setSceneFeatures,
   onDeleteSelection,
@@ -146,15 +211,6 @@ export default function SceneInspector({
     return table.templateType
       ? labels[table.templateType]
       : t('sceneInspector.table');
-  };
-
-  const patchTable = (index: number, patch: Partial<ClassroomTable>) => {
-    snapshot();
-    updateSceneTables((current) =>
-      current.map((table, position) =>
-        position === index ? { ...table, ...patch } : table,
-      ),
-    );
   };
 
   /**
@@ -298,10 +354,14 @@ export default function SceneInspector({
 
   if (selectedTables.length === 1) {
     const { index, table } = selectedTables[0];
+    const setRotation = (degrees: number) => {
+      const rotation = normalizeRotation(Math.round(degrees));
+      if (rotation === table.rotation) return;
+      snapshot();
+      onRotateTable(index, rotation);
+    };
     const rotate = (delta: number) =>
-      patchTable(index, {
-        rotation: (((Math.round(table.rotation) + delta) % 360) + 360) % 360,
-      });
+      setRotation(Math.round(table.rotation) + delta);
 
     return (
       <>
@@ -324,9 +384,12 @@ export default function SceneInspector({
               >
                 <ArrowArcLeftIcon size={16} aria-hidden="true" />
               </button>
-              <span className="w-10 text-center text-sm tabular-nums">
-                {Math.round(table.rotation)}°
-              </span>
+              <RotationField
+                key={index}
+                value={table.rotation}
+                label={t('sceneInspector.rotationAngle')}
+                onCommit={setRotation}
+              />
               <button
                 type="button"
                 onClick={() => rotate(ROTATION_STEP)}

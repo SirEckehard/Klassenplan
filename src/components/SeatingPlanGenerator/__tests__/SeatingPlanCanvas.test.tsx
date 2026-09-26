@@ -50,7 +50,6 @@ const renderCanvas = (
       beginSelection={() => {}}
       startTablePointerDrag={() => {}}
       templateDragPreview={null}
-      onTableUpdate={() => {}}
       toggleSelect={() => []}
       {...overrides}
     />,

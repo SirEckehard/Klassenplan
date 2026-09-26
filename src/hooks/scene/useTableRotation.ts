@@ -14,34 +14,48 @@ const rotationSnapOptions = {
   tolerance: DEFAULT_ROTATION_SNAP_TOLERANCE,
 } as const;
 
-const rotationRenderRegistry = new WeakMap<ClassroomTable, () => void>();
+/**
+ * Receives the rotations (table index → degrees) of a handle gesture: on
+ * every pointer move (`'move'`) and once more when the handle is let go
+ * (`'end'`), which is where the scene gets committed.
+ */
+export type TableRotationHandler = (
+  rotations: ReadonlyMap<number, number>,
+  phase: 'move' | 'end',
+) => void;
 
 interface UseTableRotationOptions {
   table: ClassroomTable;
   index: number;
   tableRef: React.RefObject<SVGGElement | null>;
-  onUpdate: () => void;
+  onRotate?: TableRotationHandler;
   onTransformStart?: () => void;
   selectedTableIds?: number[];
   sceneTables?: ClassroomTable[];
-  forceLocalRender: () => void;
 }
 
 interface UseTableRotationResult {
   handleRotate: (event: React.PointerEvent<SVGGElement>) => void;
 }
 
+/**
+ * Turns a table (or every unlocked table of the selection) by its handle.
+ *
+ * The hook never writes to the table objects themselves: they are shared
+ * with the layout store, which would compare the scene with itself, see no
+ * change and tell nobody — the inspector kept showing the old angle, and the
+ * turn was only saved with the next change. New rotations go to `onRotate`
+ * instead, and the scene re-renders from there.
+ */
 export function useTableRotation({
   table,
   index,
   tableRef,
-  onUpdate,
+  onRotate,
   onTransformStart,
   selectedTableIds,
   sceneTables,
-  forceLocalRender,
 }: UseTableRotationOptions): UseTableRotationResult {
-  const rotationSnapActiveRef = React.useRef(false);
   const sceneTablesRef = React.useRef<ClassroomTable[] | null>(
     sceneTables ?? null,
   );
@@ -55,18 +69,12 @@ export function useTableRotation({
     tableDataRef.current = table;
   }, [table]);
 
-  React.useEffect(() => {
-    rotationRenderRegistry.set(table, forceLocalRender);
-    return () => {
-      rotationRenderRegistry.delete(table);
-    };
-  }, [table, forceLocalRender]);
-
   const handleRotate = React.useCallback<
     (event: React.PointerEvent<SVGGElement>) => void
   >(
     (event) => {
       event.stopPropagation();
+      if (!onRotate) return;
       onTransformStart?.();
       const bbox = tableRef.current?.getBoundingClientRect();
       if (!bbox) return;
@@ -104,67 +112,26 @@ export function useTableRotation({
         return validTargets.length > 0 ? validTargets : [index];
       };
 
-      const effectiveTargets = getRotationTargets();
-      const startRotations = effectiveTargets.map((targetIndex) => {
-        const target = resolveTable(targetIndex);
-        return target ? target.rotation : 0;
+      const targets = getRotationTargets().flatMap((tableIndex) => {
+        const target = resolveTable(tableIndex);
+        return target ? [{ tableIndex, startRotation: target.rotation }] : [];
       });
 
-      const applyRotationDelta = (deltaDeg: number) => {
-        let snappedInMove = false;
-        let mutated = false;
-        effectiveTargets.forEach((tableIndex, idx) => {
-          const targetTable = resolveTable(tableIndex);
-          if (!targetTable) {
-            return;
-          }
-          const rawRotation = startRotations[idx] + deltaDeg;
-          const result = snapRotationAngle(rawRotation, rotationSnapOptions);
-          const nextRotation = result.snapped
-            ? result.normalized
-            : normalizeRotation(rawRotation);
-          targetTable.rotation = nextRotation;
-          rotationRenderRegistry.get(targetTable)?.();
-          if (tableIndex === index && tableDataRef.current) {
-            tableDataRef.current.rotation = nextRotation;
-          }
-          snappedInMove = snappedInMove || result.snapped;
-          mutated = true;
-        });
-        rotationSnapActiveRef.current = snappedInMove;
-        if (mutated) {
-          forceLocalRender();
-          onUpdate();
-        }
-      };
+      let latestRotations: Map<number, number> | null = null;
 
-      const finalizeRotation = () => {
-        let updated = false;
-        effectiveTargets.forEach((tableIndex) => {
-          const targetTable = resolveTable(tableIndex);
-          if (!targetTable) {
-            return;
-          }
-          const currentRotation = targetTable.rotation;
-          const result = snapRotationAngle(
-            currentRotation,
-            rotationSnapOptions,
+      const applyRotationDelta = (deltaDeg: number) => {
+        const rotations = new Map<number, number>();
+        targets.forEach(({ tableIndex, startRotation }) => {
+          const rawRotation = startRotation + deltaDeg;
+          const result = snapRotationAngle(rawRotation, rotationSnapOptions);
+          rotations.set(
+            tableIndex,
+            result.snapped ? result.normalized : normalizeRotation(rawRotation),
           );
-          const nextRotation = normalizeRotation(
-            result.snapped ? result.value : currentRotation,
-          );
-          if (!Object.is(nextRotation, currentRotation)) {
-            targetTable.rotation = nextRotation;
-            if (tableIndex === index && tableDataRef.current) {
-              tableDataRef.current.rotation = nextRotation;
-            }
-            updated = true;
-          }
         });
-        if (updated || rotationSnapActiveRef.current) {
-          onUpdate();
-        }
-        rotationSnapActiveRef.current = false;
+        if (rotations.size === 0) return;
+        latestRotations = rotations;
+        onRotate(rotations, 'move');
       };
 
       const onMove = (ev: PointerEvent) => {
@@ -174,24 +141,20 @@ export function useTableRotation({
       };
 
       const onPointerComplete = () => {
-        finalizeRotation();
         window.removeEventListener('pointermove', onMove);
         window.removeEventListener('pointerup', onPointerComplete);
         window.removeEventListener('pointercancel', onPointerComplete);
+        // A press without a move turned nothing and commits nothing.
+        if (latestRotations) {
+          onRotate(latestRotations, 'end');
+        }
       };
 
       window.addEventListener('pointermove', onMove);
       window.addEventListener('pointerup', onPointerComplete);
       window.addEventListener('pointercancel', onPointerComplete);
     },
-    [
-      onTransformStart,
-      tableRef,
-      selectedTableIds,
-      index,
-      onUpdate,
-      forceLocalRender,
-    ],
+    [onRotate, onTransformStart, tableRef, selectedTableIds, index],
   );
 
   return {

@@ -264,7 +264,6 @@ export default function PresentationScene({
               allStudents={students}
               photoUrls={photoUrls}
               selected={false}
-              onUpdate={() => {}}
               editable={false}
               showSpecialNeeds={showSpecialNeeds}
               badgeView={PRESENT_BADGE_VIEW}

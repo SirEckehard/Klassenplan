@@ -25,12 +25,11 @@ import type {
 } from '@/types';
 import type { TemplateDragPreview } from '@/types/templateDrag';
 import type { FeatureDragPreview } from '@/hooks/canvas/useFeaturePaletteDrag';
+import type { TableRotationHandler } from '@/hooks/scene/useTableRotation';
 import { useIsDarkMode } from '@/hooks/useIsDarkMode';
 import type { SelectionBox } from '@/types/canvas';
 
 // Template labels will be translated in component using useTranslation
-
-const noop = () => {};
 
 interface ClassroomCanvasProps {
   canvasRef: React.RefObject<SVGSVGElement | null>;
@@ -68,7 +67,7 @@ interface ClassroomCanvasProps {
     e: React.PointerEvent<SVGGElement>,
     index: number,
   ) => void;
-  onTableUpdate: () => void;
+  onTableRotate: TableRotationHandler;
   onTransformStart: () => void;
   onFeaturePointerDown?: (
     feature: ClassroomFeature,
@@ -109,7 +108,7 @@ const ClassroomCanvas = React.memo<ClassroomCanvasProps>(
     onPointerDown,
     onContextMenu,
     onTablePointerDown,
-    onTableUpdate,
+    onTableRotate,
     onTransformStart,
     onFeaturePointerDown,
     onFeatureRotateStart,
@@ -335,7 +334,7 @@ const ClassroomCanvas = React.memo<ClassroomCanvasProps>(
               allStudents={allStudents}
               selected={selectedTableIds.includes(tIndex)}
               onPointerDown={(e) => onTablePointerDown(e, tIndex)}
-              onUpdate={onTableUpdate}
+              onRotate={onTableRotate}
               onTransformStart={onTransformStart}
               editable
               sceneTables={sceneTables}
@@ -377,7 +376,6 @@ const ClassroomCanvas = React.memo<ClassroomCanvasProps>(
                 )}
                 selected={false}
                 editable={false}
-                onUpdate={noop}
                 isDark={isDark}
                 seatMarkerMode="dots"
               />

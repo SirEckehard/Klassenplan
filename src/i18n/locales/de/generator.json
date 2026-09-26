@@ -1024,6 +1024,7 @@
     "rotateLeft": "Gegen den Uhrzeigersinn drehen",
     "rotateRight": "Im Uhrzeigersinn drehen",
     "rotation": "Drehung",
+    "rotationAngle": "Drehung in Grad",
     "seatCount": "Plätze",
     "seats_one": "{{count}} Platz",
     "seats_other": "{{count}} Plätze",

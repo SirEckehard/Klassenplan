@@ -6,6 +6,7 @@ import { render, fireEvent, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import TableIcon from '../SceneTable';
 import type { ClassroomTable, Student } from '../../../types';
+import type { TableRotationHandler } from '@/hooks/scene/useTableRotation';
 
 const baseTable: ClassroomTable = {
   x: 0,
@@ -46,7 +47,6 @@ describe('SceneTable seat locking', () => {
           draggable
           isSeatLocked={isSeatLocked}
           toggleLock={toggleLock}
-          onUpdate={() => {}}
           editable={false}
         />
       </svg>,
@@ -74,7 +74,6 @@ describe('SceneTable seat locking', () => {
           draggable
           isSeatLocked={isSeatLocked}
           toggleLock={toggleLock}
-          onUpdate={() => {}}
           editable={false}
         />
       </svg>,
@@ -121,7 +120,6 @@ describe('SceneTable seat lock hover reveal', () => {
           draggable
           isSeatLocked={vi.fn().mockReturnValue(locked)}
           toggleLock={toggleLock}
-          onUpdate={() => {}}
           editable={false}
         />
       </svg>,
@@ -189,7 +187,6 @@ describe('SceneTable seat label rotation', () => {
           selected={false}
           toggleLock={toggleLock}
           isSeatLocked={isSeatLocked}
-          onUpdate={() => {}}
           editable={false}
           seatLabelRotation={15}
         />
@@ -224,7 +221,6 @@ describe('SceneTable seat label rotation', () => {
           selected={false}
           toggleLock={toggleLock}
           isSeatLocked={isSeatLocked}
-          onUpdate={() => {}}
           editable={false}
           lockSeatLabelOrientation={false}
           seatLabelRotation={20}
@@ -254,7 +250,6 @@ describe('SceneTable rotate handle visibility', () => {
           index={0}
           students={[student]}
           selected={false}
-          onUpdate={() => {}}
           editable={true}
         />
       </svg>,
@@ -291,14 +286,19 @@ describe('SceneTable rotation with parent updates', () => {
       { ...baseTable },
     ]);
 
-    const handleUpdate = React.useCallback(() => {
-      setTables((prev) =>
-        prev.map((tableItem, idx) => ({
-          ...tableItem,
-          zIndex: idx,
-        })),
-      );
-    }, []);
+    const handleRotate = React.useCallback<TableRotationHandler>(
+      (rotations) => {
+        setTables((prev) =>
+          prev.map((tableItem, idx) => {
+            const rotation = rotations.get(idx);
+            return rotation === undefined
+              ? tableItem
+              : { ...tableItem, rotation };
+          }),
+        );
+      },
+      [],
+    );
 
     return (
       <svg>
@@ -310,7 +310,7 @@ describe('SceneTable rotation with parent updates', () => {
           editable={true}
           sceneTables={tables}
           selectedTableIds={[0]}
-          onUpdate={handleUpdate}
+          onRotate={handleRotate}
         />
       </svg>
     );
@@ -407,7 +407,6 @@ describe('SceneTable drag cleanup', () => {
           onSeatDragStart={onSeatDragStart}
           onSeatDrag={onSeatDrag}
           onSeatDragEnd={onSeatDragEnd}
-          onUpdate={() => {}}
           editable={false}
         />
       </svg>,
@@ -462,7 +461,6 @@ describe('SceneTable drag cleanup', () => {
           onSeatDragStart={onSeatDragStart}
           onSeatDrag={onSeatDrag}
           onSeatDragEnd={onSeatDragEnd}
-          onUpdate={() => {}}
           editable={false}
         />
       </svg>,
@@ -498,7 +496,7 @@ describe('SceneTable drag cleanup', () => {
   });
 
   it('handles pointercancel event for rotation', () => {
-    const onUpdate = vi.fn();
+    const onRotate = vi.fn<TableRotationHandler>();
     const onTransformStart = vi.fn();
 
     const { container } = render(
@@ -509,7 +507,7 @@ describe('SceneTable drag cleanup', () => {
           students={[student]}
           // The rotate handle only renders while selected or hovered
           selected
-          onUpdate={onUpdate}
+          onRotate={onRotate}
           onTransformStart={onTransformStart}
           editable={true}
         />
@@ -538,11 +536,12 @@ describe('SceneTable drag cleanup', () => {
         clientY: 110,
       }),
     );
-    expect(onUpdate).toHaveBeenCalled();
+    expect(onRotate).toHaveBeenLastCalledWith(expect.any(Map), 'move');
 
-    // Trigger pointercancel - should cleanup listeners
+    // Trigger pointercancel - ends the gesture and cleans up listeners
     fireEvent(window, new PointerEvent('pointercancel', { pointerId: 1 }));
-    const callsAfterCancel = onUpdate.mock.calls.length;
+    expect(onRotate).toHaveBeenLastCalledWith(expect.any(Map), 'end');
+    const callsAfterCancel = onRotate.mock.calls.length;
 
     // Move after cancel should not trigger updates
     fireEvent(
@@ -554,7 +553,7 @@ describe('SceneTable drag cleanup', () => {
       }),
     );
 
-    expect(onUpdate.mock.calls.length).toBe(callsAfterCancel);
+    expect(onRotate.mock.calls.length).toBe(callsAfterCancel);
   });
 });
 
@@ -573,7 +572,7 @@ describe('SceneTable rotation snapping', () => {
 
   const setupRotationTest = () => {
     const table = { ...baseTable };
-    const onUpdate = vi.fn();
+    const onRotate = vi.fn<TableRotationHandler>();
     const { container } = render(
       <svg>
         <TableIcon
@@ -582,7 +581,7 @@ describe('SceneTable rotation snapping', () => {
           students={[student]}
           // The rotate handle only renders while selected or hovered
           selected
-          onUpdate={onUpdate}
+          onRotate={onRotate}
           editable={true}
         />
       </svg>,
@@ -595,11 +594,20 @@ describe('SceneTable rotation snapping', () => {
     const rotationHandle = container.querySelector('circle[r="10"]')
       ?.parentElement as Element;
     expect(rotationHandle).toBeTruthy();
-    return { table, onUpdate, rotationHandle };
+    return { table, onRotate, rotationHandle };
+  };
+
+  /** What the last call reported for one table, and in which phase. */
+  const lastRotation = (
+    onRotate: ReturnType<typeof vi.fn<TableRotationHandler>>,
+    index = 0,
+  ) => {
+    const [rotations, phase] = onRotate.mock.lastCall ?? [new Map(), null];
+    return { rotation: rotations.get(index), phase };
   };
 
   it('snaps rotation to 90 degrees when close to threshold', () => {
-    const { table, onUpdate, rotationHandle } = setupRotationTest();
+    const { table, onRotate, rotationHandle } = setupRotationTest();
     const bbox = getBoundingBox();
     const centerX = bbox.left + bbox.width / 2;
     const centerY = bbox.top + bbox.height / 2;
@@ -627,12 +635,13 @@ describe('SceneTable rotation snapping', () => {
 
     fireEvent(window, new PointerEvent('pointerup', { pointerId: 2 }));
 
-    expect(table.rotation).toBe(90);
-    expect(onUpdate).toHaveBeenCalled();
+    expect(lastRotation(onRotate)).toEqual({ rotation: 90, phase: 'end' });
+    // The handle reports the angle; it never turns the table object itself.
+    expect(table.rotation).toBe(0);
   });
 
   it('keeps free rotation when outside snap tolerance', () => {
-    const { table, rotationHandle } = setupRotationTest();
+    const { onRotate, rotationHandle } = setupRotationTest();
     const bbox = getBoundingBox();
     const centerX = bbox.left + bbox.width / 2;
     const centerY = bbox.top + bbox.height / 2;
@@ -660,7 +669,9 @@ describe('SceneTable rotation snapping', () => {
 
     fireEvent(window, new PointerEvent('pointerup', { pointerId: 3 }));
 
-    expect(table.rotation).toBeCloseTo(targetAngle, 2);
+    const { rotation, phase } = lastRotation(onRotate);
+    expect(phase).toBe('end');
+    expect(rotation).toBeCloseTo(targetAngle, 2);
   });
 
   it('rotates all selected tables together when one handle is used', () => {
@@ -669,7 +680,7 @@ describe('SceneTable rotation snapping', () => {
       { ...baseTable },
       { ...baseTable, x: 150 },
     ];
-    const onUpdate = vi.fn();
+    const onRotate = vi.fn<TableRotationHandler>();
     const { container } = render(
       <svg>
         <TableIcon
@@ -680,7 +691,7 @@ describe('SceneTable rotation snapping', () => {
           editable={true}
           sceneTables={tables}
           selectedTableIds={[0, 1]}
-          onUpdate={onUpdate}
+          onRotate={onRotate}
         />
       </svg>,
     );
@@ -719,9 +730,10 @@ describe('SceneTable rotation snapping', () => {
       }),
     );
 
-    expect(tables[0].rotation).not.toBe(0);
-    expect(tables[1].rotation).toBeCloseTo(tables[0].rotation, 1);
-    expect(onUpdate).toHaveBeenCalled();
+    const [rotations, phase] = onRotate.mock.lastCall ?? [];
+    expect(phase).toBe('move');
+    expect(rotations?.get(0)).not.toBe(0);
+    expect(rotations?.get(1)).toBeCloseTo(rotations?.get(0) ?? NaN, 1);
 
     fireEvent(window, new PointerEvent('pointerup', { pointerId }));
   });
@@ -732,7 +744,7 @@ describe('SceneTable rotation snapping', () => {
       { ...baseTable },
       { ...baseTable, x: 150, locked: true },
     ];
-    const onUpdate = vi.fn();
+    const onRotate = vi.fn<TableRotationHandler>();
     const { container } = render(
       <svg>
         <TableIcon
@@ -743,7 +755,7 @@ describe('SceneTable rotation snapping', () => {
           editable={true}
           sceneTables={tables}
           selectedTableIds={[0, 1]}
-          onUpdate={onUpdate}
+          onRotate={onRotate}
         />
       </svg>,
     );
@@ -775,9 +787,9 @@ describe('SceneTable rotation snapping', () => {
       }),
     );
 
-    expect(tables[0].rotation).not.toBe(0);
-    expect(tables[1].rotation).toBe(0);
-    expect(onUpdate).toHaveBeenCalled();
+    const [rotations] = onRotate.mock.lastCall ?? [];
+    expect(rotations?.get(0)).not.toBe(0);
+    expect(rotations?.has(1)).toBe(false);
 
     fireEvent(window, new PointerEvent('pointerup', { pointerId }));
   });
@@ -799,7 +811,6 @@ describe('SceneTable seat highlights', () => {
           index={3}
           students={[student, neighbour]}
           selected={false}
-          onUpdate={() => {}}
           editable={false}
           seatHighlights={
             new Map([

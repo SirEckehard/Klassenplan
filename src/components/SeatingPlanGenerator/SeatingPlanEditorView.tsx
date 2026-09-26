@@ -170,7 +170,6 @@ type Props = {
   lockedDropTarget: LockedDropTarget | null;
   handleSeatHoverChange: (hover: DragHover | null) => void;
   handleLockedDrop: (target: DragHover) => void;
-  onTableUpdate: () => void;
   snapshot: () => void;
   dragPreview: DragPreview | null;
   planName: string;
@@ -234,7 +233,6 @@ export default function SeatingPlanEditorView({
   lockedDropTarget,
   handleSeatHoverChange,
   handleLockedDrop,
-  onTableUpdate,
   snapshot,
   dragPreview,
   planName,
@@ -1062,7 +1060,6 @@ export default function SeatingPlanEditorView({
                     beginSelection={() => {}}
                     startTablePointerDrag={() => {}}
                     templateDragPreview={templateDragPreview}
-                    onTableUpdate={onTableUpdate}
                     toggleSelect={() => []}
                     handleSeatDragStart={handleSeatDragStart}
                     handleSeatDrag={handleSeatDrag}

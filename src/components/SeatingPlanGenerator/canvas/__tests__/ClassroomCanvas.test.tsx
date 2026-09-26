@@ -42,7 +42,7 @@ const baseProps: React.ComponentProps<typeof ClassroomCanvas> = {
   onPointerDown: vi.fn(),
   onContextMenu: vi.fn(),
   onTablePointerDown: vi.fn(),
-  onTableUpdate: vi.fn(),
+  onTableRotate: vi.fn(),
   onTransformStart: vi.fn(),
 };
 

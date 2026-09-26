@@ -43,13 +43,16 @@ const renderInspector = (
   props: Partial<React.ComponentProps<typeof SceneInspector>> = {},
 ) => {
   const snapshot = vi.fn();
+  const onRotateTable = vi.fn();
   const updateSceneTables = vi.fn();
   const setSceneFeatures = vi.fn();
   const onDeleteSelection = vi.fn();
   const onCopySelection = vi.fn();
   const onCutSelection = vi.fn();
   const onPasteSelection = vi.fn();
-  render(
+  const element = (
+    overrides: Partial<React.ComponentProps<typeof SceneInspector>>,
+  ) => (
     <SceneInspector
       tables={[table(), table({ x: 400, seatCount: 2 })]}
       features={[window_, board]}
@@ -61,6 +64,7 @@ const renderInspector = (
       ]}
       studentsCount={5}
       snapshot={snapshot}
+      onRotateTable={onRotateTable}
       updateSceneTables={updateSceneTables}
       setSceneFeatures={setSceneFeatures}
       onDeleteSelection={onDeleteSelection}
@@ -68,11 +72,16 @@ const renderInspector = (
       onCutSelection={onCutSelection}
       onPasteSelection={onPasteSelection}
       canPaste={false}
-      {...props}
-    />,
+      {...overrides}
+    />
   );
+  const { rerender } = render(element(props));
   return {
+    /** Renders the same panel again with changed props, keeping its state. */
+    rerender: (next: Partial<React.ComponentProps<typeof SceneInspector>>) =>
+      rerender(element({ ...props, ...next })),
     snapshot,
+    onRotateTable,
     updateSceneTables,
     setSceneFeatures,
     onDeleteSelection,
@@ -115,10 +124,8 @@ describe('SceneInspector', () => {
     expect(screen.getByText(/Tisch 1 von 2|Table 1 of 2/i)).toBeInTheDocument();
   });
 
-  it('rotates in the same 15° steps as the canvas, through undo history', () => {
-    const tables = [table(), table({ x: 400, seatCount: 2 })];
-    const { snapshot, updateSceneTables } = renderInspector({
-      tables,
+  it('rotates in 15° steps, through undo history', () => {
+    const { snapshot, onRotateTable } = renderInspector({
       selectedTableIds: [0],
     });
 
@@ -127,15 +134,11 @@ describe('SceneInspector', () => {
     );
 
     expect(snapshot).toHaveBeenCalledTimes(1);
-    expect(applyTableUpdate(updateSceneTables, tables)[0].rotation).toBe(15);
+    expect(onRotateTable).toHaveBeenCalledWith(0, 15);
   });
 
   it('wraps a rotation below zero round to 345°', () => {
-    const tables = [table()];
-    const { updateSceneTables } = renderInspector({
-      tables,
-      selectedTableIds: [0],
-    });
+    const { onRotateTable } = renderInspector({ selectedTableIds: [0] });
 
     fireEvent.click(
       screen.getByRole('button', {
@@ -143,14 +146,93 @@ describe('SceneInspector', () => {
       }),
     );
 
-    expect(applyTableUpdate(updateSceneTables, tables)[0].rotation).toBe(345);
+    expect(onRotateTable).toHaveBeenCalledWith(0, 345);
+  });
+
+  it('shows the angle the table has, rounded to whole degrees', () => {
+    renderInspector({
+      tables: [table({ rotation: 37.4 })],
+      selectedTableIds: [0],
+    });
+
+    expect(
+      screen.getByRole('textbox', { name: /Drehung in Grad|Rotation in/i }),
+    ).toHaveValue('37');
+  });
+
+  it('follows the angle while the handle turns the table', () => {
+    const { rerender } = renderInspector({
+      tables: [table({ rotation: 0 })],
+      selectedTableIds: [0],
+    });
+    const field = screen.getByRole('textbox', {
+      name: /Drehung in Grad|Rotation in/i,
+    });
+    expect(field).toHaveValue('0');
+
+    rerender({ tables: [table({ rotation: 52 })] });
+    expect(field).toHaveValue('52');
+
+    // What is being typed stays put until it is taken or dropped.
+    fireEvent.change(field, { target: { value: '9' } });
+    rerender({ tables: [table({ rotation: 60 })] });
+    expect(field).toHaveValue('9');
+  });
+
+  it('takes a typed angle on Enter, through undo history', () => {
+    const { snapshot, onRotateTable } = renderInspector({
+      selectedTableIds: [0],
+    });
+    const field = screen.getByRole('textbox', {
+      name: /Drehung in Grad|Rotation in/i,
+    });
+
+    fireEvent.change(field, { target: { value: '-30' } });
+    fireEvent.keyDown(field, { key: 'Enter' });
+
+    expect(snapshot).toHaveBeenCalledTimes(1);
+    expect(onRotateTable).toHaveBeenCalledWith(0, 330);
+  });
+
+  it('takes a typed angle when the field is left, decimal comma included', () => {
+    const { onRotateTable } = renderInspector({ selectedTableIds: [0] });
+    const field = screen.getByRole('textbox', {
+      name: /Drehung in Grad|Rotation in/i,
+    });
+
+    fireEvent.change(field, { target: { value: '22,6' } });
+    fireEvent.blur(field);
+
+    expect(onRotateTable).toHaveBeenCalledWith(0, 23);
+  });
+
+  it('drops the draft on Escape and ignores what is not a number', () => {
+    const { snapshot, onRotateTable } = renderInspector({
+      selectedTableIds: [0],
+    });
+    const field = screen.getByRole('textbox', {
+      name: /Drehung in Grad|Rotation in/i,
+    });
+
+    fireEvent.change(field, { target: { value: '90' } });
+    fireEvent.keyDown(field, { key: 'Escape' });
+    expect(field).toHaveValue('0');
+    fireEvent.blur(field);
+
+    fireEvent.change(field, { target: { value: 'quer' } });
+    fireEvent.blur(field);
+    expect(field).toHaveValue('0');
+
+    expect(snapshot).not.toHaveBeenCalled();
+    expect(onRotateTable).not.toHaveBeenCalled();
   });
 
   // Dragging places and sizes a table; the panel no longer asks for pixels.
+  // The angle is the one number it takes.
   it('asks for no coordinates or sizes', () => {
     renderInspector({ selectedTableIds: [0] });
 
-    expect(screen.queryByRole('spinbutton')).not.toBeInTheDocument();
+    expect(screen.getAllByRole('textbox')).toHaveLength(1);
     expect(screen.queryByLabelText(/^(X|Y)$/)).not.toBeInTheDocument();
     expect(screen.queryByLabelText(/Breite|Width/i)).not.toBeInTheDocument();
   });

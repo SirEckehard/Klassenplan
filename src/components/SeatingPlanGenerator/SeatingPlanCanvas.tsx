@@ -50,7 +50,6 @@ interface SeatingPlanCanvasProps {
   beginSelection: (e: React.PointerEvent<SVGSVGElement>) => void;
   startTablePointerDrag: (e: React.PointerEvent<SVGGElement>) => void;
   templateDragPreview: TemplateDragPreview | null;
-  onTableUpdate: () => void;
   toggleSelect: (tableIndex: number, multi: boolean) => number[];
   handleSeatDragStart?: (student: Student, config: DragSeatConfig) => void;
   handleSeatDrag?: (x: number, y: number) => void;
@@ -108,7 +107,6 @@ const SeatingPlanCanvas = React.memo(
     beginSelection,
     startTablePointerDrag,
     templateDragPreview,
-    onTableUpdate,
     toggleSelect,
     handleSeatDragStart,
     handleSeatDrag,
@@ -317,7 +315,6 @@ const SeatingPlanCanvas = React.memo(
                 photoUrls={photoUrls}
                 selected={selectedTableIds.includes(index)}
                 onPointerDown={(e) => handleTablePointerDown(index, e)}
-                onUpdate={onTableUpdate}
                 onTransformStart={onTransformStart}
                 onSeatDragStart={handleSeatDragStart}
                 onSeatDrag={handleSeatDrag}

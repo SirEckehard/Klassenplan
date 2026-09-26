@@ -64,6 +64,7 @@ import {
   type FeatureTemplate,
 } from '@/hooks/canvas/featureTemplates';
 import type { SceneTransactionRunner } from '@/hooks/scene/useSceneManager';
+import type { TableRotationHandler } from '@/hooks/scene/useTableRotation';
 import { workspaceLayerClass } from '@/components/shell/shellTokens';
 
 type Props = {
@@ -482,6 +483,33 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
     selectFeature,
   });
 
+  // A turn arrives as new table objects, so the inspector follows the handle
+  // live; letting go commits it to the store, as a drop does after a drag.
+  // The inspector's own rotation lands here too, as a gesture that has ended.
+  const handleTableRotate = React.useCallback<TableRotationHandler>(
+    (rotations, phase) => {
+      const rotate = (tables: ClassroomTable[]) =>
+        tables.map((table, index) => {
+          const rotation = rotations.get(index);
+          return rotation === undefined ? table : { ...table, rotation };
+        });
+      if (phase === 'move') {
+        updateSceneTables(rotate);
+        return;
+      }
+      runSceneTransaction(({ tables }) => ({ tables: rotate(tables) }), {
+        skipSeatingUpdate: true,
+      });
+    },
+    [runSceneTransaction, updateSceneTables],
+  );
+
+  const handleRotateTable = React.useCallback(
+    (index: number, rotation: number) =>
+      handleTableRotate(new Map([[index, rotation]]), 'end'),
+    [handleTableRotate],
+  );
+
   const handleEscapeKeyWithQuickSetup = React.useCallback(() => {
     // Whoever sits innermost owns Escape. While Quick Setup is up that is this
     // layer unless a modal opened on top of it; while it is closed, any open
@@ -890,7 +918,7 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
     onPointerDown: handleSvgPointerDown,
     onContextMenu: handleSvgContextMenu,
     onTablePointerDown: handleTablePointerDown,
-    onTableUpdate,
+    onTableRotate: handleTableRotate,
     onTransformStart: snapshot,
     onFeaturePointerDown: handleFeaturePointerDown,
   };
@@ -938,6 +966,7 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
           featurePalette={FEATURE_PALETTE}
           studentsCount={students.length}
           snapshot={snapshot}
+          onRotateTable={handleRotateTable}
           updateSceneTables={updateSceneTables}
           setSceneFeatures={setSceneFeatures}
           onDeleteSelection={deleteSelection}
