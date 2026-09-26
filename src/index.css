@@ -1374,8 +1374,10 @@
     justify-content: center;
   }
 
+  /* The frame's 1px border sits outside the 3:2 plan, so its height is
+     (width - 2px) * 2/3 + 2px; the -1px keeps that within the stage. */
   .canvas-stage .canvas-fit {
-    width: min(100%, calc(100cqh * 3 / 2));
+    width: min(100%, calc(100cqh * 3 / 2 - 1px));
   }
 }
 

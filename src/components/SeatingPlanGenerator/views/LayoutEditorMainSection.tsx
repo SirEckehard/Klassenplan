@@ -114,9 +114,11 @@ const LayoutEditorMainSection = React.memo(function LayoutEditorMainSection({
       <div
         data-testid="classroom-canvas"
         data-tour={TOUR_ANCHORS.layoutCanvas}
-        className={`${canvasFrameClass} ${canvasFitClass} relative select-none`}
+        // Full width as a class, not an inline style: from `lg` up
+        // `canvas-fit` caps the width by the stage's height, and an inline
+        // width would override it and push the room's bottom edge out of sight.
+        className={`${canvasFrameClass} ${canvasFitClass} relative w-full select-none`}
         style={{
-          width: '100%',
           maxWidth: '100vw',
           ...(isQuickSetupOpen
             ? {

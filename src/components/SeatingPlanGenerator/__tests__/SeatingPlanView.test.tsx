@@ -8,8 +8,7 @@ import '@/i18n/i18n';
 import SeatingPlanView, {
   type Props as SeatingPlanViewProps,
 } from '../SeatingPlanView';
-import { BOARD_WIDTH, CLASSROOM_HEIGHT } from '../../../utils/constants';
-import { DEFAULT_MIX_WEIGHTS } from '@/utils';
+import { DEFAULT_MIX_WEIGHTS, canvasFitClass } from '@/utils';
 import {
   renderWithProvidersAndRouter,
   createMockSeatingPlanViewProps,
@@ -40,40 +39,22 @@ function StatusBarSlot() {
   return <div ref={setEndNode} />;
 }
 
-describe('SeatingPlanView board visibility', () => {
+describe('SeatingPlanView', () => {
   beforeEach(() => {
     setupCleanStorage();
-    ['useViewportSize', 'classroomWidth', 'classroomHeight'].forEach((key) => {
-      localStorage.removeItem(key);
-    });
   });
 
-  it('keeps the board visible in auto mode', async () => {
-    localStorage.setItem('useViewportSize', 'true');
+  it('leaves the room canvas width to the stage fit rule', async () => {
     await act(async () => {
       renderWithProvidersAndRouter(
         <SeatingPlanView {...createMockSeatingPlanViewProps()} />,
       );
     });
     const canvas = screen.getByTestId('classroom-canvas');
-    expect(parseInt(canvas.style.width, 10)).toBeGreaterThanOrEqual(
-      BOARD_WIDTH,
-    );
-  });
-
-  it('keeps the board visible in manual mode with small width', async () => {
-    localStorage.setItem('useViewportSize', 'false');
-    localStorage.setItem('classroomWidth', '20');
-    localStorage.setItem('classroomHeight', `${CLASSROOM_HEIGHT}`);
-    await act(async () => {
-      renderWithProvidersAndRouter(
-        <SeatingPlanView {...createMockSeatingPlanViewProps()} />,
-      );
-    });
-    const canvas = screen.getByTestId('classroom-canvas');
-    expect(parseInt(canvas.style.width, 10)).toBeGreaterThanOrEqual(
-      BOARD_WIDTH,
-    );
+    // An inline width would override `canvas-fit`, which caps the frame by the
+    // stage's height from `lg` up; the room's bottom edge was cut off.
+    expect(canvas).toHaveClass(canvasFitClass, 'w-full');
+    expect(canvas.style.width).toBe('');
   });
 
   it('renders mix controls sidebar with neutral settings', async () => {
