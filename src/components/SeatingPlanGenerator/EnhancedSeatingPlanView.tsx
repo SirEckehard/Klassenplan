@@ -20,12 +20,11 @@ import SimpleCircleView from '@/components/circle/SimpleCircleView';
 import CircleInspector from '@/components/circle/CircleInspector';
 import type { SeatingMode } from '@/types/Circle';
 import type { ConnectionDisplayMode } from '@/components/circle/SimpleCircleView';
-import type { PhotoDisplayMode } from '@/types';
+import type { PhotoDisplayMode, Student } from '@/types';
 import {
   useSeatingPlanState,
   useSeatingPlanActions,
 } from '@/contexts/SeatingPlanContext';
-import usePersistentState from '@/hooks/usePersistentState';
 import { useIsDarkMode } from '@/hooks/useIsDarkMode';
 import { useFirstVisit } from '@/hooks/ui/useFirstVisit';
 import { useCanvasPreferences } from '@/contexts/seatingPlan/CanvasPreferencesContext';
@@ -35,12 +34,17 @@ import {
   canvasFrameClass,
   canvasStageClass,
   canvasFitClass,
-  LOCAL_STORAGE_KEYS,
   primaryButtonClass,
   secondaryButtonClass,
-  type NameDisplayMode,
 } from '@/utils';
 import { buildNameDisplayGroup } from '@/components/SeatingPlanGenerator/canvas/nameDisplayGroup';
+import { buildBadgeDisplayGroup } from '@/components/SeatingPlanGenerator/canvas/badgeDisplayGroup';
+import {
+  createBadgeDisplayFilter,
+  isBadgeCriterionActive,
+  type BadgeFocus,
+  type SeatBadgeView,
+} from '@/utils/ui/seatBadges';
 import { useEnsureCircleLayout } from '@/hooks/circle/useEnsureCircleLayout';
 import {
   workspaceLayerClass,
@@ -69,6 +73,7 @@ export default function EnhancedSeatingPlanView(
     generateCircleSeating,
     swapStudentPositions,
     batchSwapStudentPositions,
+    toggleCircleLock,
   } = useSeatingPlanActions();
   // Read from the shared context rather than a second `usePersistentState` on
   // the same key: two instances only agreed because nothing toggled the grid
@@ -84,16 +89,31 @@ export default function EnhancedSeatingPlanView(
   // Connection mode state for circle view
   const [connectionMode, setConnectionMode] =
     useState<ConnectionDisplayMode>('subtle');
-  // Photo display mode for circle view (parity with the seating plan).
-  const [photoMode, setPhotoMode] = usePersistentState<PhotoDisplayMode>(
-    LOCAL_STORAGE_KEYS.circlePhotoMode,
-    'all',
+  // Photos, names and badges are the table plan's own settings, read from the
+  // same place: whatever was chosen in one arrangement holds in the other.
+  const {
+    photoDisplayMode: photoMode,
+    setPhotoDisplayMode: setPhotoMode,
+    nameDisplay,
+    setNameDisplay,
+    badgeDisplay,
+    setBadgeDisplay,
+    badgeHover,
+    setBadgeHover,
+  } = useCanvasPreferences();
+  const mixSettings = props.settings;
+  const badgeView = useMemo<SeatBadgeView>(
+    () => ({
+      filter: createBadgeDisplayFilter(badgeDisplay, mixSettings),
+      collapse: true,
+      prioritize: (badge) => isBadgeCriterionActive(badge, mixSettings),
+    }),
+    [badgeDisplay, mixSettings],
   );
-  // Shared with the table plan and the presentation: one class, one name rule.
-  const [nameDisplay, setNameDisplay] = usePersistentState<NameDisplayMode>(
-    LOCAL_STORAGE_KEYS.nameDisplay,
-    'firstNameInitial',
-  );
+  const [storedBadgeFocus, setBadgeFocus] = useState<BadgeFocus | null>(null);
+  // Marking the others is a choice; switched off, pointing marks nobody.
+  const badgeFocus = badgeHover.highlight ? storedBadgeFocus : null;
+  const reportBadgeFocus = badgeHover.highlight ? setBadgeFocus : undefined;
   const isPhone = useIsPhone();
 
   // Use prop values if provided, otherwise use internal state and logic
@@ -139,14 +159,21 @@ export default function EnhancedSeatingPlanView(
   const handleShuffleCircle = () => {
     if (!circleLayout) return;
 
-    // Perform multiple random swaps to shuffle the circle
-    const studentCount = circleLayout.students.length;
-    const swapCount = Math.max(10, studentCount); // At least 10 swaps or 1 per student
+    // Perform multiple random swaps to shuffle the circle. Only the places of
+    // students who are not locked take part: a locked student stays put.
+    const locked = new Set(circleLayout.lockedStudentIds ?? []);
+    const freePositions = circleLayout.students
+      .map((position, index) =>
+        position?.student && !locked.has(position.student.id) ? index : -1,
+      )
+      .filter((index) => index !== -1);
+    const freeCount = freePositions.length;
+    const swapCount = Math.max(10, freeCount); // At least 10 swaps or 1 per student
 
     const swaps: Array<{ studentId: string; targetPosition: number }> = [];
-    for (let i = 0; i < swapCount; i++) {
-      const pos1 = Math.floor(Math.random() * studentCount);
-      const pos2 = Math.floor(Math.random() * studentCount);
+    for (let i = 0; i < swapCount && freeCount > 1; i++) {
+      const pos1 = freePositions[Math.floor(Math.random() * freeCount)];
+      const pos2 = freePositions[Math.floor(Math.random() * freeCount)];
 
       if (pos1 !== pos2 && circleLayout.students[pos1]) {
         const studentId = circleLayout.students[pos1].student.id;
@@ -159,12 +186,16 @@ export default function EnhancedSeatingPlanView(
     }
   };
 
-  const circleStudentNames = useMemo(
+  const circleStudents = useMemo(
     () =>
       (circleLayout?.students ?? [])
-        .map((entry) => entry.student?.name)
-        .filter((name): name is string => Boolean(name)),
+        .map((entry) => entry.student)
+        .filter((student): student is Student => Boolean(student)),
     [circleLayout],
+  );
+  const circleStudentNames = useMemo(
+    () => circleStudents.map((student) => student.name),
+    [circleStudents],
   );
 
   // Circle view settings live in the canvas' settings button, exactly like the
@@ -230,8 +261,24 @@ export default function EnhancedSeatingPlanView(
         names: circleStudentNames,
         t,
       }),
+      buildBadgeDisplayGroup({
+        id: 'circle-badges',
+        value: badgeDisplay,
+        onChange: (next) => setBadgeDisplay(next),
+        hover: badgeHover,
+        onHoverChange: (next) => setBadgeHover(next),
+        students: circleStudents,
+        onFocusChange: reportBadgeFocus,
+        t,
+      }),
     ],
     [
+      badgeDisplay,
+      setBadgeDisplay,
+      badgeHover,
+      setBadgeHover,
+      reportBadgeFocus,
+      circleStudents,
       circleStudentNames,
       connectionMode,
       nameDisplay,
@@ -309,6 +356,11 @@ export default function EnhancedSeatingPlanView(
                   onConnectionModeChange={setConnectionMode}
                   photoMode={photoMode}
                   nameDisplay={nameDisplay}
+                  badgeView={badgeView}
+                  badgeFocus={badgeFocus}
+                  onBadgeFocusChange={reportBadgeFocus}
+                  showBadgeTooltip={badgeHover.tooltip}
+                  onToggleLock={toggleCircleLock}
                   onSyncCircle={() => void generateCircleSeating()}
                 />
               ) : (

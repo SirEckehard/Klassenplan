@@ -85,6 +85,8 @@ type CanvasSettingsGroup = {
   title?: string;
   headerToggle?: CanvasSettingsHeaderToggle;
   options: CanvasSettingsOption[];
+  /** Read-only content under the rows, e.g. the key to what they switch. */
+  footer?: React.ReactNode;
 };
 
 interface CanvasSettingsButtonProps {
@@ -256,7 +258,10 @@ export function CanvasSettingsGroups({
   groups: CanvasSettingsGroup[];
 }) {
   return (
-    <div className="flex flex-col">
+    // A menu, not a page: its words are not text to select, so they take the
+    // arrow like the rest of the menu instead of the text cursor. The rows
+    // themselves point (`menuItemClass`).
+    <div className="flex cursor-default flex-col select-none">
       {groups
         .filter((group) => group.options.length > 0)
         .map((group, index) => (
@@ -310,6 +315,7 @@ export function CanvasSettingsGroups({
                 />
               ),
             )}
+            {group.footer}
           </div>
         ))}
     </div>
@@ -317,7 +323,7 @@ export function CanvasSettingsGroups({
 }
 
 /** The small caps above a group of rows, as in the header's own menus. */
-const menuHeadingClass =
+export const menuHeadingClass =
   'text-[11px] font-semibold uppercase tracking-wider text-(--text-muted)';
 
 /**

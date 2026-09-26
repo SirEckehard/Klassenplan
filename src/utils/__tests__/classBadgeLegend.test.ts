@@ -6,6 +6,7 @@ import {
   getPresentBadgeLegend,
   getPresentGenderLegend,
 } from '../ui/classBadgeLegend';
+import { DATA_FAMILY_TEXT_COLORS } from '../ui/studentAppearance';
 
 function makeStudent(overrides: Partial<Student>): Student {
   return {
@@ -50,6 +51,23 @@ describe('classBadgeLegend', () => {
     expect(keys).toContain('shy');
     expect(badges.every((b) => Boolean(b.label && b.color))).toBe(true);
     expect(badges.every((b) => b.icon != null)).toBe(true);
+  });
+
+  it('draws each badge in its family colour for a light export', () => {
+    const students = [
+      makeStudent({ id: '1', restless: true, shy: true, height: 'small' }),
+    ];
+    const colors = Object.fromEntries(
+      getPresentBadgeLegend(students, { showSpecialNeeds: true }).map((b) => [
+        b.key,
+        b.color,
+      ]),
+    );
+    expect(colors).toEqual({
+      heightSmall: DATA_FAMILY_TEXT_COLORS.space.light,
+      restless: DATA_FAMILY_TEXT_COLORS.behavior.light,
+      shy: DATA_FAMILY_TEXT_COLORS.social.light,
+    });
   });
 
   it('returns no badges when nothing is flagged', () => {

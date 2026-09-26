@@ -2,37 +2,8 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import type { Student } from '@/types';
-import { dataChipClass, dataFamilyClass, type DataFamily } from '@/utils';
+import { dataChipClass, dataFamilyClass } from '@/utils';
 import { getAllStudentBadges } from '@/utils/ui/studentAppearance';
-
-/**
- * Which pedagogical family a badge belongs to.
- *
- * The badge keys come from `studentAppearance`, which the SVG scene and the
- * exports already share; this map is the one place that says what colour each
- * of them speaks in. Anything unmapped falls back to the neutral person
- * family rather than picking a colour at random.
- */
-const BADGE_FAMILY: Record<string, DataFamily> = {
-  restless: 'behavior',
-  concentrationIssues: 'behavior',
-  shy: 'social',
-  wishPartner: 'social',
-  avoidPartner: 'social',
-  performanceStrong: 'learning',
-  performanceWeak: 'learning',
-  needsFrontSeat: 'space',
-  heightSmall: 'space',
-  heightTall: 'space',
-  prefersWindow: 'space',
-  prefersDoor: 'space',
-};
-
-const familyFor = (key: string): DataFamily => {
-  if (key.startsWith('languageSkill_')) return 'language';
-  if (key.startsWith('socialRole_')) return 'social';
-  return BADGE_FAMILY[key] ?? 'person';
-};
 
 type Props = {
   student: Student;
@@ -64,7 +35,7 @@ function StudentChips({ student, allStudents, className = '' }: Props) {
         return (
           <span
             key={badge.key}
-            className={`${dataChipClass} ${dataFamilyClass[familyFor(badge.key)]}`}
+            className={`${dataChipClass} ${dataFamilyClass[badge.family]}`}
             title={badge.tooltip}
           >
             <Icon size={13} aria-hidden="true" />

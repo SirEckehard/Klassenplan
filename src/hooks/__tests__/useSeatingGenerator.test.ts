@@ -286,6 +286,7 @@ describe('useSeatingGenerator', () => {
       updateStudentPosition: vi.fn(),
       swapStudentPositions: vi.fn(),
       batchSwapStudentPositions: vi.fn(),
+      toggleCircleLock: vi.fn(),
       clearCircleLayout: vi.fn(),
       circleGenerationInProgress: false,
       syncCircleFromTable: vi.fn().mockResolvedValue(null),

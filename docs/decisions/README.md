@@ -33,6 +33,8 @@ it says so instead of reconstructing one.
 | [0018](0018-criteria-in-words-with-recipes.md)     | The criteria are set in words, and a recipe sets them all  |
 | [0019](0019-classroom-tools-as-routes.md)          | The three classroom tools are routes, not panels           |
 | [0020](0020-gender-tint-on-seats.md)               | Seats carry a quiet gender tint again                      |
+| [0021](0021-seat-badges-explained.md)              | The badges on a seat explain themselves                    |
+| [0022](0022-one-drag-for-plan-and-circle.md)       | One drag for the plan and the circle, locks in the circle  |
 
 ## Reasons still to be recorded
 

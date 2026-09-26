@@ -2,7 +2,6 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { createPortal } from 'react-dom';
 import {
   WarningIcon,
   InfoIcon,
@@ -40,12 +39,22 @@ import {
   getViewportMetrics,
   primaryButtonClass,
   secondaryButtonClass,
-  cardSurfaceClass,
   onVisualViewport,
   buildSeatHighlightLookup,
+  buildDropConfirmLookup,
+  getTooltipName,
   withoutUnavailableWeights,
 } from '@/utils';
-import { calculateBadgePillLayout } from '@/utils/ui/studentAppearance';
+import {
+  buildBadgeHighlightLookup,
+  createBadgeDisplayFilter,
+  isBadgeCriterionActive,
+  type BadgeDisplayMode,
+  type BadgeFocus,
+  type BadgeHoverSettings,
+  type SeatBadgeView,
+} from '@/utils/ui/seatBadges';
+import { buildBadgeDisplayGroup } from '@/components/SeatingPlanGenerator/canvas/badgeDisplayGroup';
 import { FEATURE_TYPES, type FeatureVisibilityFlags } from '@/utils/ui';
 import { buildFeatureVisibilityGroup } from '@/components/SeatingPlanGenerator/canvas/featureVisibilityGroup';
 import { buildNameDisplayGroup } from '@/components/SeatingPlanGenerator/canvas/nameDisplayGroup';
@@ -71,112 +80,20 @@ import { useFirstVisit } from '@/hooks/ui/useFirstVisit';
 import { useIsPhone } from '@/hooks/ui/useLayoutMode';
 import { createSuspendedWeights } from '@/hooks/ui/useMixCriteria';
 import { buildCriterionHighlightEntries } from '@/utils/algorithm/criterionHighlights';
-import type {
-  DragPreview,
-  DragOrigin,
-  DragHover,
-  LockedDropTarget,
-  DragSeatConfig,
+import {
+  getSwapPartner,
+  type DragPreview,
+  type DragOrigin,
+  type DragHover,
+  type LockedDropTarget,
+  type DragSeatConfig,
 } from '@/hooks/ui/useDragDropState';
+import DragGhost from '@/components/scene/DragGhost';
 import type { TemplateDragPreview } from '@/types/templateDrag';
 import {
   workspaceLayerClass,
   workspaceStageClass,
 } from '@/components/shell/shellTokens';
-
-type SeatPreviewCardProps = {
-  preview: DragPreview;
-  viewportScale: number;
-};
-
-function SeatPreviewCard({ preview, viewportScale }: SeatPreviewCardProps) {
-  const clampedViewportScale = Math.max(0.3, Math.min(1, viewportScale * 0.92));
-  const baseTarget = 60 * clampedViewportScale;
-  const maxDimension = Math.max(preview.seatWidth, preview.seatHeight, 1);
-  const targetSize = Math.max(24, Math.min(68, baseTarget));
-  const sizeScale = targetSize / maxDimension;
-  const width = Math.max(24, preview.seatWidth * sizeScale);
-  const height = Math.max(24, preview.seatHeight * sizeScale);
-  const badgeLayout =
-    preview.flags.length > 0
-      ? calculateBadgePillLayout({
-          availableWidth: Math.max(width - 14, 30),
-          iconCount: preview.flags.length,
-          baseIconSize: Math.max(7, Math.min(10, width * 0.18)),
-          minIconSize: 6,
-          horizontalPadding: 6,
-          verticalPadding: 1,
-          rowGap: 2,
-          minIconsForWrap: 5,
-        })
-      : null;
-
-  return (
-    <div
-      className={`${cardSurfaceClass} pointer-events-none bg-(--surface-card) px-2 py-2 shadow-lg backdrop-blur-sm`}
-    >
-      <div
-        className="relative flex items-center justify-center rounded-md"
-        style={{
-          width,
-          height,
-          backgroundColor: preview.appearance.fill,
-          border: `2px solid ${preview.appearance.stroke}`,
-          transition: 'transform 150ms ease',
-        }}
-      >
-        <span
-          className="text-xs font-semibold"
-          style={{ color: preview.appearance.text }}
-        >
-          {getDisplayNameForMode(
-            preview.student.name,
-            'table',
-            preview.nameDisplay,
-            preview.nameLabels,
-          )}
-        </span>
-        {preview.flags.length > 0 && badgeLayout && (
-          <div
-            className="pointer-events-none absolute left-1/2 bottom-1 -translate-x-1/2 rounded-full border"
-            style={{
-              position: 'absolute',
-              width: badgeLayout.width,
-              height: badgeLayout.height,
-              backgroundColor: 'rgba(255, 255, 255, 0.95)',
-              borderColor: 'rgba(148, 163, 184, 0.6)',
-            }}
-          >
-            <div className="relative h-full w-full">
-              {preview.flags.map(({ key, icon: Icon, tooltip }, index) => {
-                const position = badgeLayout.iconPositions[index];
-                if (!position) {
-                  return null;
-                }
-                return (
-                  <span
-                    key={key}
-                    className="absolute flex items-center justify-center"
-                    style={{
-                      left: position.x,
-                      top: position.y,
-                      width: badgeLayout.iconSize,
-                      height: badgeLayout.iconSize,
-                    }}
-                  >
-                    <Icon size={badgeLayout.iconSize} color="#d97706">
-                      <title>{tooltip}</title>
-                    </Icon>
-                  </span>
-                );
-              })}
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
 
 /**
  * A line about the plan, above the plan: what changed or went wrong, and what
@@ -227,6 +144,12 @@ type Props = {
   setPhotoDisplayMode: React.Dispatch<React.SetStateAction<PhotoDisplayMode>>;
   nameDisplay: NameDisplayMode;
   setNameDisplay: React.Dispatch<React.SetStateAction<NameDisplayMode>>;
+  /** Which badges the seats show; see `BadgeDisplayMode`. */
+  badgeDisplay: BadgeDisplayMode;
+  setBadgeDisplay: React.Dispatch<React.SetStateAction<BadgeDisplayMode>>;
+  /** What pointing at a badge does; see `BadgeHoverSettings`. */
+  badgeHover: BadgeHoverSettings;
+  setBadgeHover: React.Dispatch<React.SetStateAction<BadgeHoverSettings>>;
   sceneTables: ClassroomTable[];
   currentSeating: SeatingArrangement;
   students: Student[];
@@ -292,6 +215,10 @@ export default function SeatingPlanEditorView({
   setPhotoDisplayMode,
   nameDisplay,
   setNameDisplay,
+  badgeDisplay,
+  setBadgeDisplay,
+  badgeHover,
+  setBadgeHover,
   sceneTables,
   currentSeating,
   students,
@@ -355,6 +282,32 @@ export default function SeatingPlanEditorView({
     () => students.map((student) => student.name),
     [students],
   );
+  const handleBadgeDisplayChange = React.useCallback(
+    (next: BadgeDisplayMode) => setBadgeDisplay(() => next),
+    [setBadgeDisplay],
+  );
+  const handleBadgeHoverChange = React.useCallback(
+    (next: BadgeHoverSettings) => setBadgeHover(() => next),
+    [setBadgeHover],
+  );
+  // The badges the seats show, legible and with a "+N" for what does not
+  // fit; the ones whose criterion the mix weighs keep their place first.
+  const badgeView = React.useMemo<SeatBadgeView>(
+    () => ({
+      filter: createBadgeDisplayFilter(badgeDisplay, settings),
+      collapse: true,
+      prioritize: (badge) => isBadgeCriterionActive(badge, settings),
+    }),
+    [badgeDisplay, settings],
+  );
+  // The badge a pointer is on — an icon on a seat or a row of the legend —
+  // lights the seats of the students it points at.
+  const [storedBadgeFocus, setBadgeFocus] = React.useState<BadgeFocus | null>(
+    null,
+  );
+  // Marking the others is a choice; switched off, pointing marks nobody.
+  const badgeFocus = badgeHover.highlight ? storedBadgeFocus : null;
+  const reportBadgeFocus = badgeHover.highlight ? setBadgeFocus : undefined;
   const featureAvailability = React.useMemo(() => {
     const features = classroomScene.features ?? [];
     const availability: FeatureVisibilityFlags = {};
@@ -422,6 +375,16 @@ export default function SeatingPlanEditorView({
         names: studentNames,
         t,
       }),
+      buildBadgeDisplayGroup({
+        id: 'editor-badges',
+        value: badgeDisplay,
+        onChange: handleBadgeDisplayChange,
+        hover: badgeHover,
+        onHoverChange: handleBadgeHoverChange,
+        students,
+        onFocusChange: reportBadgeFocus,
+        t,
+      }),
       buildFeatureVisibilityGroup({
         id: 'editor-features',
         title: t('layout.roomElements', 'Raumelemente'),
@@ -442,6 +405,12 @@ export default function SeatingPlanEditorView({
       nameDisplay,
       setNameDisplay,
       studentNames,
+      badgeDisplay,
+      handleBadgeDisplayChange,
+      badgeHover,
+      handleBadgeHoverChange,
+      reportBadgeFocus,
+      students,
       photoDisplayMode,
       showGrid,
       t,
@@ -490,6 +459,61 @@ export default function SeatingPlanEditorView({
     () => buildSeatHighlightLookup(statisticsHighlight),
     [statisticsHighlight],
   );
+  const badgeHighlightLookup = React.useMemo(
+    () => buildBadgeHighlightLookup(badgeFocus, effectiveSeating, students),
+    [badgeFocus, effectiveSeating, students],
+  );
+  // A criterion the teacher pinned stays on the plan; a hovered badge only
+  // takes over from a passing criterion hover, the way two hovers would.
+  // The seats a student has just moved between ring green for a moment.
+  const [dropConfirm, setDropConfirm] = React.useState<{
+    id: number;
+    seats: DragOrigin[];
+  } | null>(null);
+  const [dropAnnouncement, setDropAnnouncement] = React.useState('');
+  React.useEffect(() => {
+    if (!dropConfirm) return undefined;
+    const timeout = window.setTimeout(() => setDropConfirm(null), 900);
+    return () => window.clearTimeout(timeout);
+  }, [dropConfirm]);
+  const dropConfirmLookup = React.useMemo(
+    () => buildDropConfirmLookup(dropConfirm?.seats ?? []),
+    [dropConfirm],
+  );
+  const handleSeatDropped = React.useCallback(
+    (from: DragOrigin, to: DragOrigin, source: 'pointer' | 'keyboard') => {
+      // Read before the move lands: the seat it went to held the other one.
+      const moved = effectiveSeating[from.tableIndex]?.[from.seatIndex];
+      const other = effectiveSeating[to.tableIndex]?.[to.seatIndex] ?? null;
+      setDropConfirm({ id: Date.now(), seats: other ? [to, from] : [to] });
+      // The keyboard path speaks for itself (`useSeatKeyboardMove`).
+      if (source !== 'pointer' || !moved) return;
+      setDropAnnouncement(
+        other
+          ? t('drag.announce.swapped', {
+              name: getTooltipName(moved.name),
+              other: getTooltipName(other.name),
+            })
+          : t('drag.announce.moved', {
+              name: getTooltipName(moved.name),
+              table: to.tableIndex + 1,
+              seat: to.seatIndex + 1,
+            }),
+      );
+    },
+    [effectiveSeating, t],
+  );
+  const dragSwapStudent = getSwapPartner(
+    effectiveSeating,
+    dragOrigin,
+    dragHover,
+  );
+
+  const canvasSeatHighlights =
+    dropConfirmLookup ??
+    (statisticsHighlight?.mode === 'persistent'
+      ? seatHighlightLookup
+      : (badgeHighlightLookup ?? seatHighlightLookup));
   const mixingLocked = isMixing || autoMixing;
   /**
    * What the highlight is showing, in words: the criterion and how many of the
@@ -1053,9 +1077,14 @@ export default function SeatingPlanEditorView({
                     toggleLock={toggleLock}
                     onTransformStart={snapshot}
                     isDark={isDark}
-                    seatHighlights={seatHighlightLookup}
+                    seatHighlights={canvasSeatHighlights}
                     photoDisplayMode={photoDisplayMode}
                     nameDisplay={nameDisplay}
+                    badgeView={badgeView}
+                    onBadgeFocusChange={reportBadgeFocus}
+                    showBadgeTooltip={badgeHover.tooltip}
+                    onSeatDropped={handleSeatDropped}
+                    dropAnnouncement={dropAnnouncement}
                   />
                   {autoMixing && (
                     <div
@@ -1075,24 +1104,34 @@ export default function SeatingPlanEditorView({
                     </div>
                   )}
                 </div>
-                {dragPreview &&
-                  typeof document !== 'undefined' &&
-                  createPortal(
-                    <div
-                      className="pointer-events-none fixed z-50"
-                      style={{
-                        left: dragPreview.x + viewportOffset.left,
-                        top: dragPreview.y + viewportOffset.top,
-                        transform: 'translate(-50%, -50%)',
-                      }}
-                    >
-                      <SeatPreviewCard
-                        preview={dragPreview}
-                        viewportScale={previewViewportScale}
-                      />
-                    </div>,
-                    document.body,
-                  )}
+                {dragPreview && (
+                  <DragGhost
+                    x={dragPreview.x + viewportOffset.left}
+                    y={dragPreview.y + viewportOffset.top}
+                    shape="seat"
+                    width={dragPreview.seatWidth}
+                    height={dragPreview.seatHeight}
+                    viewportScale={previewViewportScale}
+                    name={getDisplayNameForMode(
+                      dragPreview.student.name,
+                      'table',
+                      dragPreview.nameDisplay,
+                      dragPreview.nameLabels,
+                    )}
+                    appearance={dragPreview.appearance}
+                    badges={dragPreview.flags}
+                    swapWith={
+                      dragSwapStudent
+                        ? getDisplayNameForMode(
+                            dragSwapStudent.name,
+                            'table',
+                            nameDisplay,
+                          )
+                        : null
+                    }
+                    isDark={isDark}
+                  />
+                )}
               </div>
             </div>
 

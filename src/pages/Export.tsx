@@ -21,7 +21,8 @@ import {
   logError,
   primaryButtonClass,
 } from '@/utils';
-import type { NameDisplayMode } from '@/utils';
+import type { DataFamily, NameDisplayMode } from '@/utils';
+import { BADGE_FAMILY_ORDER, getClassBadges } from '@/utils/ui/seatBadges';
 import { showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
 import { FEATURE_TYPES, type FeatureVisibilityFlags } from '@/utils/ui';
 import { NAME_DISPLAY_MODES } from '@/components/SeatingPlanGenerator/canvas/nameDisplayGroup';
@@ -270,6 +271,38 @@ export default function Export() {
   const studentNames = useMemo(
     () => students.map((student) => student.name),
     [students],
+  );
+
+  // Badge families the printout leaves out. A plan that hangs on the wall
+  // may show who wants to sit where, but not who is restless.
+  const [storedHiddenFamilies, setHiddenFamilies] = usePersistentState<
+    DataFamily[]
+  >(LOCAL_STORAGE_KEYS.exportHiddenBadgeFamilies, []);
+  const hiddenBadgeFamilies = useMemo(
+    () =>
+      BADGE_FAMILY_ORDER.filter(
+        (family) =>
+          Array.isArray(storedHiddenFamilies) &&
+          storedHiddenFamilies.includes(family),
+      ),
+    [storedHiddenFamilies],
+  );
+  // Only the families the class actually carries get a switch.
+  const presentBadgeFamilies = useMemo(() => {
+    const families = new Set(
+      getClassBadges(students).map((badge) => badge.family),
+    );
+    return BADGE_FAMILY_ORDER.filter((family) => families.has(family));
+  }, [students]);
+  const handleToggleBadgeFamily = useCallback(
+    (family: DataFamily, visible: boolean) =>
+      setHiddenFamilies((current) => {
+        const rest = (Array.isArray(current) ? current : []).filter(
+          (entry) => entry !== family,
+        );
+        return visible ? rest : [...rest, family];
+      }),
+    [setHiddenFamilies],
   );
 
   const classMetadataForExport = useMemo(() => {
@@ -553,6 +586,7 @@ export default function Export() {
             photoDataUrls: circlePhotoUrls,
             photoDisplayMode: showPhotos ? 'all' : 'off',
             showLegend,
+            hiddenBadgeFamilies,
           });
           if (!isCancelled) {
             setPreviewSvg(svg);
@@ -574,6 +608,7 @@ export default function Export() {
           photoDisplayMode: showPhotos ? 'all' : 'off',
           showLegend,
           classMetadata: classMetadataForExport,
+          hiddenBadgeFamilies,
         });
         if (!isCancelled) {
           setPreviewSvg(svg);
@@ -615,6 +650,7 @@ export default function Export() {
     showPhotos,
     showLegend,
     classMetadataForExport,
+    hiddenBadgeFamilies,
   ]);
 
   useEffect(() => {
@@ -715,6 +751,7 @@ export default function Export() {
         orientation: tableOrientation,
         flipped: flipView,
         classMetadata: classMetadataForExport,
+        hiddenBadgeFamilies,
       });
       recordTablePlanExport();
     } catch (error) {
@@ -739,6 +776,7 @@ export default function Export() {
     tableOrientation,
     flipView,
     classMetadataForExport,
+    hiddenBadgeFamilies,
     recordTablePlanExport,
     exportError,
     t,
@@ -758,6 +796,7 @@ export default function Export() {
         showPhotos,
         showLegend,
         classMetadata: classMetadataForExport,
+        hiddenBadgeFamilies,
       });
     } catch (error) {
       exportError(
@@ -778,6 +817,7 @@ export default function Export() {
     showPhotos,
     showLegend,
     classMetadataForExport,
+    hiddenBadgeFamilies,
     exportError,
     t,
   ]);
@@ -901,6 +941,11 @@ export default function Export() {
       }
       flipView={{ checked: flipView, onChange: handleToggleFlipView }}
       needs={{ checked: showNeeds, onChange: handleToggleNeeds }}
+      badgeFamilies={{
+        present: presentBadgeFamilies,
+        hidden: hiddenBadgeFamilies,
+        onToggle: handleToggleBadgeFamily,
+      }}
       photos={{ checked: showPhotos, onChange: handleTogglePhotos }}
       legend={{ checked: showLegend, onChange: handleToggleLegend }}
       classInfo={{ checked: showClassInfo, onChange: handleToggleClassInfo }}

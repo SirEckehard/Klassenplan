@@ -13,11 +13,13 @@ import { useSeatingPlanState } from '@/contexts/SeatingPlanContext';
 import { useRandomStudentPicker } from '@/hooks/ui/useRandomStudentPicker';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import {
+  dataChipClass,
+  dataFamilyClass,
   findSeatLocation,
   primaryButtonClass,
   secondaryButtonClass,
 } from '@/utils';
-import { getStudentBadges } from '@/utils/ui/studentAppearance';
+import { getStudentBadges, sortBadges } from '@/utils/ui/studentAppearance';
 
 /**
  * "Wer kommt dran?" without a projector: the phone in the hand, in the middle
@@ -45,7 +47,7 @@ export default function WhoIsNext() {
   );
 
   const badges = React.useMemo(
-    () => (picked ? getStudentBadges(picked.student, true) : []),
+    () => (picked ? sortBadges(getStudentBadges(picked.student, true)) : []),
     [picked],
   );
 
@@ -118,7 +120,7 @@ export default function WhoIsNext() {
                       <span
                         key={badge.key}
                         title={badge.tooltip}
-                        className="inline-flex items-center gap-1 rounded-md bg-(--surface-sunken) px-2 py-0.5 text-xs text-(--text-muted)"
+                        className={`${dataChipClass} ${dataFamilyClass[badge.family]}`}
                       >
                         <badge.icon size={12} aria-hidden />
                         {badge.label}

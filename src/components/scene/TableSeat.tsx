@@ -5,11 +5,19 @@ import { useTranslation } from 'react-i18next';
 import { LockIcon, LockOpenIcon } from '@phosphor-icons/react';
 import type { StatisticHighlightMode, StatisticStatus, Student } from '@/types';
 import {
+  describeBadge,
   getStudentAppearance,
-  getAllStudentBadges,
   SEAT_UI_COLORS,
-  calculateBadgePillLayout,
+  type StudentBadge,
 } from '@/utils/ui/studentAppearance';
+import {
+  fitSeatBadges,
+  getSeatBadgePillParams,
+  getSeatBadges,
+  type SeatBadgeView,
+} from '@/utils/ui/seatBadges';
+import SeatBadgePill from '@/components/scene/SeatBadgePill';
+import type { SeatHighlightTone } from '@/utils/ui/statisticsHighlight';
 import {
   getDisplayNameForMode,
   getTooltipName,
@@ -39,6 +47,8 @@ interface TableSeatProps {
   isHoverLockedSeat: boolean;
   isLockedFeedbackSeat: boolean;
   showSpecialNeeds: boolean;
+  /** Which badges the seat carries and how they are drawn (see `SeatBadgeView`). */
+  badgeView?: SeatBadgeView;
   /**
    * Uniform name rule for the seat label; undefined shortens only names that do
    * not fit (the editor default). See {@link NameDisplayMode}.
@@ -64,6 +74,13 @@ interface TableSeatProps {
   highlightStatus?: StatisticStatus;
   highlightMode?: StatisticHighlightMode;
   highlightPercentage?: number;
+  /** No verdict: a badge points here (`focus`), a student just landed (`confirm`). */
+  highlightTone?: SeatHighlightTone;
+  /**
+   * On the seat a drag started from: the student who would take the dragged
+   * student's place, shown faintly while the drag points at them.
+   */
+  swapPreviewStudent?: Student | null;
   onSeatPointerDown?: (
     e: React.PointerEvent<SVGRectElement>,
     seatIndex: number,
@@ -72,7 +89,7 @@ interface TableSeatProps {
     seatWidth: number,
     seatHeight: number,
     appearance: ReturnType<typeof getStudentAppearance>,
-    flags: ReturnType<typeof getAllStudentBadges>,
+    flags: StudentBadge[],
   ) => void;
   onSeatPointerUp?: (
     e: React.PointerEvent<SVGRectElement>,
@@ -135,23 +152,100 @@ const matchesFocusVisible = (element: Element): boolean => {
   }
 };
 
-const HIGHLIGHT_STROKES: Record<StatisticStatus, string> = {
-  ok: '#2563eb',
-  warn: '#f97316',
-  alert: '#dc2626',
+/**
+ * A highlighted seat's ring and tint. A criterion's verdict speaks in the
+ * status colours the fulfilment in the inspector uses; a badge pointing at a
+ * seat is no verdict and takes the selection colour. Tokens, so both themes
+ * come from `index.css` — highlights are drawn on screen only, never exported.
+ */
+const HIGHLIGHT_COLORS: Record<
+  StatisticStatus | SeatHighlightTone,
+  SeatRingColors
+> = {
+  ok: { ring: 'var(--status-ok)', tint: 'var(--status-ok-surface)' },
+  warn: { ring: 'var(--status-warn)', tint: 'var(--status-warn-surface)' },
+  alert: { ring: 'var(--status-alert)', tint: 'var(--status-alert-surface)' },
+  focus: {
+    ring: 'var(--border-option-selected)',
+    tint: 'var(--surface-option-selected)',
+  },
+  // A student has just landed here: a completed action.
+  confirm: { ring: 'var(--status-ok)', tint: 'var(--status-ok-surface)' },
 };
 
-const HIGHLIGHT_FILLS_LIGHT: Record<StatisticStatus, string> = {
-  ok: '#dbeafe',
-  warn: '#fff7ed',
-  alert: '#fef2f2',
+/**
+ * A seat a dragged student hovers: blue where it can land — the colour of
+ * "you can act here" — and rose where the seat is held. The seat it came
+ * from is not a target and gets neither.
+ */
+const DROP_COLORS: Record<'target' | 'blocked', SeatRingColors> = {
+  target: {
+    ring: 'var(--border-option-selected)',
+    tint: 'var(--surface-option-selected)',
+  },
+  blocked: { ring: 'var(--status-alert)', tint: 'var(--status-alert-surface)' },
 };
 
-const HIGHLIGHT_FILLS_DARK: Record<StatisticStatus, string> = {
-  ok: 'rgba(147, 197, 253, 0.28)',
-  warn: 'rgba(251, 191, 36, 0.22)',
-  alert: 'rgba(248, 113, 113, 0.24)',
-};
+type SeatRingColors = { ring: string; tint: string };
+
+/** Ring widths and their inset, so the whole ring lies inside the seat. */
+const HIGHLIGHT_RING_WIDTH = 2.5;
+const DROP_RING_WIDTH = 3;
+const SEAT_RING_INSET = 2;
+
+/**
+ * A tint under the name and a ring inset into the seat: how a seat is marked,
+ * for a highlight and as a drop target alike. Inset, because the seat's own
+ * edge is the table's edge on the outside — a contour there is clipped by the
+ * table and covered by its outline, and only the line between two seats would
+ * be left.
+ */
+function SeatRing({
+  seatWidth,
+  seatHeight,
+  colors,
+  ringWidth,
+  motion,
+  title,
+  ...dataAttributes
+}: {
+  seatWidth: number;
+  seatHeight: number;
+  colors: SeatRingColors;
+  ringWidth: number;
+  /** `pulse`: the tint breathes. `confirm`: the whole ring fades once. */
+  motion?: 'pulse' | 'confirm';
+  title?: string;
+  [dataAttribute: `data-${string}`]: string;
+}) {
+  return (
+    <g
+      {...dataAttributes}
+      className={motion === 'confirm' ? 'seat-drop-confirm' : undefined}
+      style={{ pointerEvents: 'none' }}
+    >
+      <rect
+        width={seatWidth}
+        height={seatHeight}
+        rx={4}
+        className={motion === 'pulse' ? 'animate-pulse' : undefined}
+        style={{ fill: colors.tint, transition: 'fill 160ms ease' }}
+      />
+      <rect
+        x={SEAT_RING_INSET}
+        y={SEAT_RING_INSET}
+        width={Math.max(seatWidth - SEAT_RING_INSET * 2, 0)}
+        height={Math.max(seatHeight - SEAT_RING_INSET * 2, 0)}
+        rx={3}
+        fill="none"
+        strokeWidth={ringWidth}
+        style={{ stroke: colors.ring, transition: 'stroke 160ms ease' }}
+      >
+        {title ? <title>{title}</title> : null}
+      </rect>
+    </g>
+  );
+}
 
 /**
  * TableSeat - Individual seat rendering component for SceneTable
@@ -184,6 +278,7 @@ function TableSeat({
   isHoverLockedSeat,
   isLockedFeedbackSeat,
   showSpecialNeeds,
+  badgeView,
   nameDisplay,
   nameLabels,
   showGenderColors = true,
@@ -193,6 +288,8 @@ function TableSeat({
   highlightStatus,
   highlightMode,
   highlightPercentage,
+  highlightTone,
+  swapPreviewStudent = null,
   toggleLock,
   lockRevealOnHover = false,
   isSeatHovered = false,
@@ -211,16 +308,12 @@ function TableSeat({
     [student, isDark, locked, contrast, showGenderColors],
   );
 
-  // Memoize badge flags calculation
+  // The badges the seat shows: they ride along with a drag and are read out
+  // with the seat's name.
+  const badgeFilter = badgeView?.filter;
   const flags = React.useMemo(
-    () =>
-      getAllStudentBadges(student, allStudents, {
-        showSpecialNeeds,
-        showPartners: showSpecialNeeds,
-        showHeight: showSpecialNeeds,
-        showEnvironment: showSpecialNeeds,
-      }),
-    [student, allStudents, showSpecialNeeds],
+    () => getSeatBadges(student, allStudents, showSpecialNeeds, badgeFilter),
+    [student, allStudents, showSpecialNeeds, badgeFilter],
   );
 
   const seatFill = appearance.fill;
@@ -249,58 +342,37 @@ function TableSeat({
     lockButtonRotationCompensation !== 0
       ? `rotate(${lockButtonRotationCompensation} 5 5)`
       : undefined;
-  const highlightStroke = highlightStatus
-    ? HIGHLIGHT_STROKES[highlightStatus]
+  // The seat itself carries the highlight — never its table, which would
+  // mark the neighbours at a double or group table as well.
+  const highlightKind = highlightStatus
+    ? (highlightTone ?? highlightStatus)
     : null;
-  const highlightFill = highlightStatus
-    ? isDark
-      ? HIGHLIGHT_FILLS_DARK[highlightStatus]
-      : HIGHLIGHT_FILLS_LIGHT[highlightStatus]
+  const highlightColors = highlightKind
+    ? HIGHLIGHT_COLORS[highlightKind]
     : null;
-  const highlightPulseFill = isDark
-    ? 'rgba(147, 197, 253, 0.42)'
-    : 'rgba(59, 130, 246, 0.3)';
-  const effectiveHighlightFill =
-    highlightStatus && highlightMode === 'hover'
-      ? highlightPulseFill
-      : highlightFill;
-  const highlightOpacity = highlightStatus
-    ? highlightMode === 'persistent'
-      ? isDark
-        ? 0.9
-        : 0.45
-      : isDark
-        ? 0.75
-        : 0.42
-    : 0;
   const { t } = useTranslation('generator');
 
   const highlightTitle =
-    highlightStatus && typeof highlightPercentage === 'number'
+    highlightKind && !highlightTone && typeof highlightPercentage === 'number'
       ? t('seat.fulfillmentTitle', {
           percentage: Math.round(highlightPercentage),
           defaultValue: `Erfüllung ${Math.round(highlightPercentage)}%`,
         })
       : undefined;
-  const highlightAnimationClass =
-    highlightStatus && highlightMode === 'hover' ? 'animate-pulse' : '';
+  // Where a dragged student would land. The seat it was picked up from is
+  // under the pointer at the start of every drag, and is no target.
+  const dropState =
+    isLockedFeedbackSeat || isHoverLockedSeat
+      ? 'blocked'
+      : isHoverSeat && !locked && !isOriginSeat
+        ? 'target'
+        : null;
 
-  const seatScale = isHoverSeat ? 1.06 : 1;
-  const seatGroupOpacity = isOriginSeat ? 0.35 : 1;
-  const seatStrokeColor = isLockedFeedbackSeat
-    ? '#ef4444'
-    : isHoverLockedSeat
-      ? '#ef4444'
-      : isHoverSeat && !locked
-        ? '#16a34a'
-        : seatStroke;
-  const seatFillColor = isLockedFeedbackSeat
-    ? '#fee2e2'
-    : isHoverLockedSeat
-      ? '#fee2e2'
-      : seatFill;
-  const showInteractiveSeatStroke =
-    isLockedFeedbackSeat || isHoverLockedSeat || (isHoverSeat && !locked);
+  // The seat a drag started from fades; while the drag points at a taken
+  // seat, it shows who would come here instead.
+  const showsSwapPreview = isOriginSeat && swapPreviewStudent !== null;
+  const seatGroupOpacity = isOriginSeat ? (showsSwapPreview ? 0.6 : 0.35) : 1;
+  const focusInset = dropState ? SEAT_RING_INSET + DROP_RING_WIDTH + 1 : 2.5;
   const dividerStroke = isDark
     ? 'rgba(226, 232, 240, 0.18)'
     : 'rgba(30, 41, 59, 0.12)';
@@ -309,25 +381,12 @@ function TableSeat({
   // don't clash with the table frame in step 3, the PDF export and presentation.
   // On a wall a 0.75px hairline is not a line; the contrast mode draws the
   // seat's own contour instead of the table's faint divider.
-  const seatStrokeWidth = contrast
-    ? 1.5
-    : showInteractiveSeatStroke
-      ? 2
-      : locked
-        ? 1
-        : 0.75;
-  const seatStrokeValue = contrast
-    ? seatStroke
-    : showInteractiveSeatStroke
-      ? seatStrokeColor
-      : locked
-        ? seatStroke
-        : dividerStroke;
-  const effectiveSeatStrokeWidth = seatStrokeWidth;
-  const effectiveSeatStrokeValue = seatStrokeValue;
+  const seatStrokeWidth = contrast ? 1.5 : locked ? 1 : 0.75;
+  const seatStrokeValue = contrast || locked ? seatStroke : dividerStroke;
   const seatTextOpacity = isOriginSeat ? 0.35 : 1;
-  const displayName = student
-    ? getDisplayNameForMode(student.name, 'table', nameDisplay, nameLabels)
+  const labelStudent = showsSwapPreview ? swapPreviewStudent : student;
+  const displayName = labelStudent
+    ? getDisplayNameForMode(labelStudent.name, 'table', nameDisplay, nameLabels)
     : '';
   const seatFontSize = calculateSeatLabelFontSize(displayName, seatWidth);
 
@@ -369,6 +428,14 @@ function TableSeat({
   if (locked) {
     seatAriaLabel += `, ${t('seat.ariaLocked', 'gesperrt')}`;
   }
+  // What the icons on the seat say, for everyone who cannot see them.
+  if (student && flags.length > 0) {
+    seatAriaLabel += `, ${t('seat.ariaBadges', {
+      // The tooltip's heading: "Körpergröße: Klein" rather than a bare
+      // "Klein", which means nothing without the icon.
+      list: flags.map((flag) => describeBadge(flag).heading).join(', '),
+    })}`;
+  }
 
   return (
     <g transform={`translate(${col * seatWidth} ${row * seatHeight})`}>
@@ -384,11 +451,8 @@ function TableSeat({
           onSeatPointerLeave ? () => onSeatPointerLeave(seatIndex) : undefined
         }
         style={{
-          transform: `scale(${seatScale})`,
-          transformOrigin: 'center',
-          transformBox: 'fill-box',
           opacity: seatGroupOpacity,
-          transition: 'transform 140ms ease, opacity 160ms ease',
+          transition: 'opacity 160ms ease',
         }}
       >
         {/* Touch target area - minimum 44x44px for better touch accessibility.
@@ -451,9 +515,9 @@ function TableSeat({
         <rect
           width={seatWidth}
           height={seatHeight}
-          fill={seatFillColor}
-          stroke={effectiveSeatStrokeValue}
-          strokeWidth={effectiveSeatStrokeWidth}
+          fill={seatFill}
+          stroke={seatStrokeValue}
+          strokeWidth={seatStrokeWidth}
           rx={4}
           strokeLinejoin="round"
           strokeLinecap="round"
@@ -464,18 +528,52 @@ function TableSeat({
               'fill 150ms ease, stroke 150ms ease, stroke-width 150ms ease',
           }}
         />
+        {/* The highlight, then the drop target on top of it: both on the
+            seat itself, never on its table. */}
+        {highlightColors && highlightKind && (
+          <SeatRing
+            data-seat-highlight={highlightKind}
+            seatWidth={seatWidth}
+            seatHeight={seatHeight}
+            colors={highlightColors}
+            ringWidth={HIGHLIGHT_RING_WIDTH}
+            // A passing hover breathes, a pinned highlight stands still, a
+            // landing fades out once.
+            motion={
+              highlightKind === 'confirm'
+                ? 'confirm'
+                : // A pointed-at badge stands still in the plan and in
+                  // the circle alike; only a passing criterion breathes.
+                  highlightMode === 'hover' && highlightKind !== 'focus'
+                  ? 'pulse'
+                  : undefined
+            }
+            title={highlightTitle}
+          />
+        )}
+        {dropState && (
+          <SeatRing
+            data-seat-drop={dropState}
+            seatWidth={seatWidth}
+            seatHeight={seatHeight}
+            colors={DROP_COLORS[dropState]}
+            ringWidth={DROP_RING_WIDTH}
+          />
+        )}
         {/* Keyboard focus ring - drawn manually because SVG outline rendering
             is inconsistent across browsers. Inset so it stays visible inside
             the table clip path and is not covered by the table border. Uses a
             two-tone ring (white halo + blue ring, like ring + ring-offset) so
             it stays visible on any seat color in light and dark mode. */}
         {hasVisibleFocus && (
+          // While a keyboard move points here, the drop ring takes the
+          // seat's edge and the focus ring steps inside it.
           <>
             <rect
-              x={2.5}
-              y={2.5}
-              width={Math.max(seatWidth - 5, 0)}
-              height={Math.max(seatHeight - 5, 0)}
+              x={focusInset}
+              y={focusInset}
+              width={Math.max(seatWidth - focusInset * 2, 0)}
+              height={Math.max(seatHeight - focusInset * 2, 0)}
               rx={3}
               fill="none"
               stroke="#ffffff"
@@ -484,10 +582,10 @@ function TableSeat({
               pointerEvents="none"
             />
             <rect
-              x={2.5}
-              y={2.5}
-              width={Math.max(seatWidth - 5, 0)}
-              height={Math.max(seatHeight - 5, 0)}
+              x={focusInset}
+              y={focusInset}
+              width={Math.max(seatWidth - focusInset * 2, 0)}
+              height={Math.max(seatHeight - focusInset * 2, 0)}
               rx={3}
               fill="none"
               stroke={isDark ? '#60a5fa' : '#2563eb'}
@@ -592,29 +690,6 @@ function TableSeat({
             )}
           </>
         )}
-        {highlightStroke && (
-          <>
-            <rect
-              width={seatWidth}
-              height={seatHeight}
-              rx={4}
-              fill={effectiveHighlightFill ?? 'none'}
-              stroke={highlightStroke}
-              strokeWidth={4.6}
-              vectorEffect="non-scaling-stroke"
-              opacity={highlightOpacity}
-              className={highlightAnimationClass}
-              style={{
-                pointerEvents: 'none',
-                transition:
-                  'stroke 160ms ease, stroke-width 160ms ease, opacity 140ms ease',
-                mixBlendMode: 'normal',
-              }}
-            >
-              {highlightTitle ? <title>{highlightTitle}</title> : null}
-            </rect>
-          </>
-        )}
       </g>
     </g>
   );
@@ -628,6 +703,7 @@ interface TableSeatBadgeOverlayProps {
   seatHeight: number;
   allStudents?: Student[];
   showSpecialNeeds: boolean;
+  badgeView?: SeatBadgeView;
   isDark: boolean;
   isOriginSeat: boolean;
   lockSeatLabelOrientation: boolean;
@@ -642,55 +718,32 @@ export const TableSeatBadgeOverlay = React.memo(function TableSeatBadgeOverlay({
   seatHeight,
   allStudents = [],
   showSpecialNeeds,
+  badgeView,
   isDark,
   isOriginSeat,
   lockSeatLabelOrientation,
   seatTextRotation,
 }: TableSeatBadgeOverlayProps) {
-  const flags = React.useMemo(
-    () =>
-      getAllStudentBadges(student, allStudents, {
-        showSpecialNeeds,
-        showPartners: showSpecialNeeds,
-        showHeight: showSpecialNeeds,
-        showEnvironment: showSpecialNeeds,
-      }),
-    [student, allStudents, showSpecialNeeds],
-  );
+  const fit = React.useMemo(() => {
+    const collapse = Boolean(badgeView?.collapse);
+    return fitSeatBadges(
+      getSeatBadges(student, allStudents, showSpecialNeeds, badgeView?.filter),
+      getSeatBadgePillParams(seatWidth, seatHeight, collapse),
+      { collapse, prioritize: badgeView?.prioritize },
+    );
+  }, [
+    student,
+    allStudents,
+    showSpecialNeeds,
+    badgeView,
+    seatWidth,
+    seatHeight,
+  ]);
 
-  const badgeLayout = React.useMemo(() => {
-    if (flags.length === 0) {
-      return null;
-    }
-
-    const availableWidth = Math.max(seatWidth - 12, 30);
-    const baseIconSize = Math.max(7, Math.min(10, seatWidth * 0.2));
-    const horizontalPadding = Math.max(4, Math.round(seatWidth * 0.08));
-
-    return calculateBadgePillLayout({
-      availableWidth,
-      iconCount: flags.length,
-      baseIconSize,
-      minIconSize: 5,
-      horizontalPadding,
-      verticalPadding: 1,
-      rowGap: 2,
-      maxRows: 3,
-      maxHeight: Math.max(14, seatHeight * 0.45),
-      minIconsForWrap: 5,
-    });
-  }, [flags, seatWidth, seatHeight]);
-
-  if (flags.length === 0 || !badgeLayout) {
+  if (!student || !fit) {
     return null;
   }
 
-  const badgePillFill = isDark
-    ? 'rgba(15, 23, 42, 0.68)'
-    : 'rgba(248, 250, 252, 0.92)';
-  const badgePillStroke = isDark
-    ? 'rgba(148, 163, 184, 0.45)'
-    : 'rgba(148, 163, 184, 0.7)';
   const seatLabelTransform = lockSeatLabelOrientation
     ? `rotate(${seatTextRotation} ${seatWidth / 2} ${seatHeight / 2})`
     : undefined;
@@ -706,39 +759,13 @@ export const TableSeatBadgeOverlay = React.memo(function TableSeatBadgeOverlay({
           transition: 'opacity 150ms ease',
         }}
       >
-        <g
-          transform={`translate(${(seatWidth - badgeLayout.width) / 2} ${seatHeight - badgeLayout.height - 6})`}
-        >
-          <rect
-            width={badgeLayout.width}
-            height={badgeLayout.height}
-            rx={badgeLayout.height / 2}
-            fill={badgePillFill}
-            stroke={badgePillStroke}
-            strokeWidth={0.8}
-            style={{
-              transition: 'fill 150ms ease, stroke 150ms ease',
-            }}
-          />
-          {flags.map((flag, index) => {
-            const Icon = flag.icon;
-            const color = 'color' in flag ? flag.color : '#d97706';
-            const position = badgeLayout.iconPositions[index];
-            if (!position) {
-              return null;
-            }
-            return (
-              <g
-                key={`${flag.key}-${index}`}
-                transform={`translate(${position.x} ${position.y})`}
-              >
-                <Icon size={badgeLayout.iconSize} color={color}>
-                  <title>{flag.tooltip}</title>
-                </Icon>
-              </g>
-            );
-          })}
-        </g>
+        <SeatBadgePill
+          fit={fit}
+          studentId={student.id}
+          isDark={isDark}
+          x={(seatWidth - fit.layout.width) / 2}
+          y={seatHeight - fit.layout.height - 6}
+        />
       </g>
     </g>
   );
@@ -758,6 +785,9 @@ const MemoizedTableSeat = React.memo(TableSeat, (prevProps, nextProps) => {
   if (prevProps.highlightStatus !== nextProps.highlightStatus) return false;
   if (prevProps.highlightMode !== nextProps.highlightMode) return false;
   if (prevProps.highlightPercentage !== nextProps.highlightPercentage)
+    return false;
+  if (prevProps.highlightTone !== nextProps.highlightTone) return false;
+  if (prevProps.swapPreviewStudent !== nextProps.swapPreviewStudent)
     return false;
 
   // Lock hover-reveal state
@@ -786,7 +816,9 @@ const MemoizedTableSeat = React.memo(TableSeat, (prevProps, nextProps) => {
     prevProps.nameLabels !== nextProps.nameLabels ||
     prevProps.showSeatLabels !== nextProps.showSeatLabels ||
     prevProps.seatTextRotation !== nextProps.seatTextRotation ||
-    prevProps.tableRotation !== nextProps.tableRotation
+    prevProps.tableRotation !== nextProps.tableRotation ||
+    prevProps.showSpecialNeeds !== nextProps.showSpecialNeeds ||
+    prevProps.badgeView !== nextProps.badgeView
   )
     return false;
 
@@ -799,6 +831,16 @@ const MemoizedTableSeat = React.memo(TableSeat, (prevProps, nextProps) => {
       prev.gender !== next.gender ||
       prev.height !== next.height ||
       prev.needsFrontSeat !== next.needsFrontSeat ||
+      // The rest of what becomes a badge, which the seat reads out.
+      prev.restless !== next.restless ||
+      prev.shy !== next.shy ||
+      prev.concentrationIssues !== next.concentrationIssues ||
+      prev.performanceStrong !== next.performanceStrong ||
+      prev.performanceWeak !== next.performanceWeak ||
+      prev.languageSkill !== next.languageSkill ||
+      prev.socialRole !== next.socialRole ||
+      prev.prefersWindow !== next.prefersWindow ||
+      prev.prefersDoor !== next.prefersDoor ||
       getWishPartnerIds(prev).join(',') !== getWishPartnerIds(next).join(',') ||
       getAvoidPartnerIds(prev).join(',') !== getAvoidPartnerIds(next).join(',')
     ) {

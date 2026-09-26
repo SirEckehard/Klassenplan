@@ -1,333 +1,184 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import { renderHook, act } from '@testing-library/react';
-import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
+/**
+ * Dragging in the circle: a press becomes a drag only once it travels, the
+ * target is the nearest place as drawn, held places refuse, and Escape or a
+ * cancelled pointer lets go without moving anyone.
+ */
+import '@testing-library/jest-dom/vitest';
+import type React from 'react';
+import { act, renderHook } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useCircleDragDrop } from '../useCircleDragDrop';
 import type { UseCircleDragDropParams } from '../useCircleDragDrop';
-import type {
-  CircleLayout,
-  CircleStudentPosition,
-} from '../../../types/Circle';
-import type { Student } from '../../../types';
-import type React from 'react';
+import type { CircleLayout, CircleStudentPosition } from '@/types/Circle';
+import { createMockStudent } from '@/__tests__/utils';
 
-// Add vitest-dom matchers
-import '@testing-library/jest-dom/vitest';
+vi.mock('@/utils/ui/toast', () => ({
+  showToast: vi.fn(),
+  TOAST_MESSAGES: { SEAT_LOCKED_DROP: 'toast:seatLocked' },
+}));
 
-const circleCenter = { x: 450, y: 300 } as const;
-const circleRadius = { horizontal: 200, vertical: 200 } as const;
+const position = (id: string, x: number): CircleStudentPosition => ({
+  student: createMockStudent({ id, name: `Student ${id}` }),
+  angle: 0,
+  x,
+  y: 300,
+  preservedNeighbors: [],
+  lostNeighbors: [],
+  newNeighbors: [],
+});
 
-const createPosition = (
-  student: Student,
-  angle: number,
-): CircleStudentPosition => {
-  const radians = (angle * Math.PI) / 180;
-  return {
-    student,
-    angle,
-    x: circleCenter.x + circleRadius.horizontal * Math.cos(radians),
-    y: circleCenter.y + circleRadius.vertical * Math.sin(radians),
-    preservedNeighbors: [],
-    lostNeighbors: [],
-    newNeighbors: [],
-  };
+const layout: CircleLayout = {
+  students: [position('a', 100), position('b', 300), position('c', 500)],
+  radius: { horizontal: 200, vertical: 200 },
+  center: { x: 450, y: 300 },
+  preservedNeighborhoods: 0,
+  totalOriginalNeighborhoods: 0,
+  newNeighborhoods: 0,
+  preservationRate: 1,
+  mode: 'preserve-neighbors',
+  timestamp: 0,
+  neighborhoodPairs: [],
 };
 
-const createEmptyPosition = (angle: number): CircleStudentPosition => {
-  const radians = (angle * Math.PI) / 180;
-  return {
-    student: null as unknown as Student,
-    angle,
-    x: circleCenter.x + circleRadius.horizontal * Math.cos(radians),
-    y: circleCenter.y + circleRadius.vertical * Math.sin(radians),
-    preservedNeighbors: [],
-    lostNeighbors: [],
-    newNeighbors: [],
-  };
-};
+// Drawn where the layout says, except that the view box is 1:1 with the
+// screen: one view-box unit per pixel.
+const slots = layout.students.map(({ x, y }) => ({ x, y }));
 
-const createMockPointerEvent = (): React.PointerEvent<Element> =>
+const press = (x: number, y = 300, pointerType = 'mouse') =>
   ({
     preventDefault: vi.fn(),
     stopPropagation: vi.fn(),
-    pointerType: 'mouse',
+    pointerId: 1,
+    pointerType,
+    clientX: x,
+    clientY: y,
   }) as unknown as React.PointerEvent<Element>;
 
+const pointer = (type: string, x: number, y = 300) =>
+  act(() => {
+    window.dispatchEvent(
+      Object.assign(new MouseEvent(type, { clientX: x, clientY: y }), {
+        pointerId: 1,
+      }),
+    );
+  });
+
+let params: UseCircleDragDropParams;
+
+beforeEach(() => {
+  params = {
+    layout,
+    editable: true,
+    slotPositions: slots,
+    onStudentMove: vi.fn(),
+    onMoved: vi.fn(),
+  };
+});
+
+afterEach(() => {
+  vi.clearAllMocks();
+});
+
+const renderDrag = (overrides: Partial<UseCircleDragDropParams> = {}) => {
+  const hook = renderHook(() => useCircleDragDrop({ ...params, ...overrides }));
+  // The circle's SVG, 900 × 600 on screen.
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.getBoundingClientRect = () =>
+    ({ left: 0, top: 0, width: 900, height: 600 }) as DOMRect;
+  (hook.result.current.svgRef as { current: SVGSVGElement | null }).current =
+    svg;
+  return hook;
+};
+
 describe('useCircleDragDrop', () => {
-  let mockLayout: CircleLayout;
-  let mockParams: UseCircleDragDropParams;
-
-  const createMockStudent = (id: string, name: string): Student => ({
-    id,
-    name,
-    gender: 'boy',
-    restless: false,
-    shy: false,
-    concentrationIssues: false,
-    needsFrontSeat: false,
-  });
-
-  beforeEach(() => {
-    mockLayout = {
-      center: circleCenter,
-      radius: circleRadius,
-      students: [
-        createPosition(createMockStudent('1', 'Student 1'), 0),
-        createPosition(createMockStudent('2', 'Student 2'), 120),
-        createPosition(createMockStudent('3', 'Student 3'), 240),
-      ],
-      preservedNeighborhoods: 0,
-      totalOriginalNeighborhoods: 0,
-      newNeighborhoods: 0,
-      preservationRate: 1,
-      mode: 'preserve-neighbors',
-      timestamp: Date.now(),
-      neighborhoodPairs: [],
-    };
-
-    mockParams = {
-      layout: mockLayout,
-      editable: true,
-      onStudentMove:
-        vi.fn<NonNullable<UseCircleDragDropParams['onStudentMove']>>(),
-    };
-  });
-
-  afterEach(() => {
-    vi.clearAllMocks();
-  });
-
-  it('returns correct interface', () => {
-    const { result } = renderHook(() => useCircleDragDrop(mockParams));
-
-    expect(result.current).toHaveProperty('dragState');
-    expect(result.current).toHaveProperty('handlePointerDown');
-    expect(result.current).toHaveProperty('svgRef');
-
-    expect(typeof result.current.handlePointerDown).toBe('function');
-    expect(result.current.svgRef.current).toBeNull(); // No SVG element attached yet
-  });
-
-  it('initializes with empty drag state', () => {
-    const { result } = renderHook(() => useCircleDragDrop(mockParams));
-
-    expect(result.current.dragState).toEqual({
+  it('starts idle', () => {
+    const { result } = renderDrag();
+    expect(result.current.dragState).toMatchObject({
       isDragging: false,
       draggedPosition: null,
       hoverPosition: null,
-      dragPreview: null,
+      pointer: null,
     });
   });
 
-  it('does not start drag when not editable', () => {
-    const nonEditableParams = { ...mockParams, editable: false };
-    const { result } = renderHook(() => useCircleDragDrop(nonEditableParams));
-
-    const mockEvent = createMockPointerEvent();
-
-    act(() => {
-      result.current.handlePointerDown(mockEvent, 0, 'student-1');
-    });
-
+  it('turns a press into a drag only once it travels', () => {
+    const { result } = renderDrag();
+    act(() => result.current.handlePointerDown(press(100), 0, 'a'));
     expect(result.current.dragState.isDragging).toBe(false);
-    expect(mockEvent.preventDefault).not.toHaveBeenCalled();
-  });
 
-  it('does not start drag when no student at position', () => {
-    const emptyLayout: CircleLayout = {
-      ...mockLayout,
-      students: [createEmptyPosition(0), createEmptyPosition(120)],
-    };
-    const paramsWithEmptyLayout = { ...mockParams, layout: emptyLayout };
-    const { result } = renderHook(() =>
-      useCircleDragDrop(paramsWithEmptyLayout),
-    );
-
-    const mockEvent = createMockPointerEvent();
-
-    act(() => {
-      result.current.handlePointerDown(mockEvent, 0, 'student-1');
-    });
-
+    pointer('pointermove', 102);
     expect(result.current.dragState.isDragging).toBe(false);
-    expect(mockEvent.preventDefault).not.toHaveBeenCalled();
-  });
 
-  it('starts drag when conditions are met', () => {
-    const { result } = renderHook(() => useCircleDragDrop(mockParams));
-
-    const mockEvent = createMockPointerEvent();
-
-    act(() => {
-      result.current.handlePointerDown(mockEvent, 0, 'student-1');
+    pointer('pointermove', 120);
+    expect(result.current.dragState).toMatchObject({
+      isDragging: true,
+      draggedPosition: 0,
+      pointer: { x: 120, y: 300 },
     });
 
-    expect(mockEvent.preventDefault).toHaveBeenCalled();
-    expect(mockEvent.stopPropagation).toHaveBeenCalled();
-    expect(result.current.dragState.isDragging).toBe(true);
-    expect(result.current.dragState.draggedPosition).toBe(0);
-  });
-
-  it('provides stable svgRef across renders', () => {
-    const { result, rerender } = renderHook(() =>
-      useCircleDragDrop(mockParams),
-    );
-
-    const firstRef = result.current.svgRef;
-    rerender();
-    const secondRef = result.current.svgRef;
-
-    expect(firstRef).toBe(secondRef);
-  });
-
-  it('handles multiple drag sessions', () => {
-    const { result } = renderHook(() => useCircleDragDrop(mockParams));
-
-    const mockEvent = createMockPointerEvent();
-
-    // First drag session
-    act(() => {
-      result.current.handlePointerDown(mockEvent, 0, 'student-1');
-    });
-
-    expect(result.current.dragState.isDragging).toBe(true);
-    expect(result.current.dragState.draggedPosition).toBe(0);
-
-    // Simulate drag end by creating and dispatching a mock pointerup event
-    act(() => {
-      const mockPointerUpEvent = new Event('pointerup');
-      window.dispatchEvent(mockPointerUpEvent);
-    });
-
+    // Released without a target: nobody moves.
+    pointer('pointerup', 120);
     expect(result.current.dragState.isDragging).toBe(false);
-    expect(result.current.dragState.draggedPosition).toBeNull();
-
-    // Second drag session
-    act(() => {
-      result.current.handlePointerDown(mockEvent, 1, 'student-2');
-    });
-
-    expect(result.current.dragState.isDragging).toBe(true);
-    expect(result.current.dragState.draggedPosition).toBe(1);
+    expect(params.onStudentMove).not.toHaveBeenCalled();
   });
 
-  it('cleans up listeners on unmount', () => {
-    const addEventListenerSpy = vi.spyOn(window, 'addEventListener');
-    const removeEventListenerSpy = vi.spyOn(window, 'removeEventListener');
+  it('swaps with the nearest place as drawn', () => {
+    const { result } = renderDrag();
+    act(() => result.current.handlePointerDown(press(100), 0, 'a'));
+    pointer('pointermove', 290);
+    expect(result.current.dragState.hoverPosition).toBe(1);
 
-    // Start a drag to create listeners
-    const { result, unmount } = renderHook(() => useCircleDragDrop(mockParams));
-    const mockEvent = createMockPointerEvent();
-
-    act(() => {
-      result.current.handlePointerDown(mockEvent, 0, 'student-1');
-    });
-
-    // Verify listeners were added
-    expect(addEventListenerSpy).toHaveBeenCalledWith(
-      'pointermove',
-      expect.any(Function),
-    );
-    expect(addEventListenerSpy).toHaveBeenCalledWith(
-      'pointerup',
-      expect.any(Function),
-    );
-
-    // Unmount should clean up
-    unmount();
-
-    // Should have called removeEventListener for cleanup
-    expect(removeEventListenerSpy).toHaveBeenCalledWith(
-      'pointermove',
-      expect.any(Function),
-    );
-    expect(removeEventListenerSpy).toHaveBeenCalledWith(
-      'pointerup',
-      expect.any(Function),
-    );
-
-    addEventListenerSpy.mockRestore();
-    removeEventListenerSpy.mockRestore();
+    pointer('pointerup', 290);
+    expect(params.onStudentMove).toHaveBeenCalledWith('a', 1);
+    expect(params.onMoved).toHaveBeenCalledWith(0, 1);
   });
 
-  it('handles multiple concurrent hook instances independently', () => {
-    const mockParams1: UseCircleDragDropParams = {
-      ...mockParams,
-      layout: mockLayout,
-      onStudentMove:
-        vi.fn<NonNullable<UseCircleDragDropParams['onStudentMove']>>(),
-    };
+  it('never picks up a held student and refuses to drop on one', () => {
+    const isPositionLocked = (index: number) => index === 1;
+    const { result } = renderDrag({ isPositionLocked });
 
-    const mockLayout2: CircleLayout = {
-      center: circleCenter,
-      radius: circleRadius,
-      students: [
-        createPosition(createMockStudent('4', 'Student 4'), 0),
-        createPosition(createMockStudent('5', 'Student 5'), 120),
-        createPosition(createMockStudent('6', 'Student 6'), 240),
-      ],
-      preservedNeighborhoods: 0,
-      totalOriginalNeighborhoods: 0,
-      newNeighborhoods: 0,
-      preservationRate: 1,
-      mode: 'preserve-neighbors',
-      timestamp: Date.now(),
-      neighborhoodPairs: [],
-    };
+    act(() => result.current.handlePointerDown(press(300), 1, 'b'));
+    pointer('pointermove', 400);
+    expect(result.current.dragState.isDragging).toBe(false);
+    pointer('pointerup', 400);
 
-    const mockParams2: UseCircleDragDropParams = {
-      layout: mockLayout2,
-      editable: true,
-      onStudentMove:
-        vi.fn<NonNullable<UseCircleDragDropParams['onStudentMove']>>(),
-    };
-
-    const { result: result1 } = renderHook(() =>
-      useCircleDragDrop(mockParams1),
-    );
-    const { result: result2 } = renderHook(() =>
-      useCircleDragDrop(mockParams2),
-    );
-
-    const mockEvent1 = createMockPointerEvent();
-    const mockEvent2 = createMockPointerEvent();
-
-    // Start drag in both instances
-    act(() => {
-      result1.current.handlePointerDown(mockEvent1, 0, 'student-1');
+    act(() => result.current.handlePointerDown(press(100), 0, 'a'));
+    pointer('pointermove', 295);
+    expect(result.current.dragState).toMatchObject({
+      hoverPosition: 1,
+      hoverBlocked: true,
     });
+    pointer('pointerup', 295);
+    expect(params.onStudentMove).not.toHaveBeenCalled();
+  });
 
+  it('lets go on Escape and on a cancelled pointer', () => {
+    const { result } = renderDrag();
+
+    act(() => result.current.handlePointerDown(press(100), 0, 'a'));
+    pointer('pointermove', 290);
     act(() => {
-      result2.current.handlePointerDown(mockEvent2, 0, 'student-4');
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
     });
+    expect(result.current.dragState.isDragging).toBe(false);
+    pointer('pointerup', 290);
+    expect(params.onStudentMove).not.toHaveBeenCalled();
 
-    // Both should be dragging independently
-    expect(result1.current.dragState.isDragging).toBe(true);
-    expect(result1.current.dragState.draggedPosition).toBe(0);
+    act(() => result.current.handlePointerDown(press(100), 0, 'a'));
+    pointer('pointermove', 290);
+    pointer('pointercancel', 290);
+    expect(result.current.dragState.isDragging).toBe(false);
+    expect(params.onStudentMove).not.toHaveBeenCalled();
+  });
 
-    expect(result2.current.dragState.isDragging).toBe(true);
-    expect(result2.current.dragState.draggedPosition).toBe(0);
-
-    // Verify they don't interfere with each other
-    expect(mockEvent1.preventDefault).toHaveBeenCalled();
-    expect(mockEvent2.preventDefault).toHaveBeenCalled();
-
-    // Verify both instances maintain independent state
-    // Each instance has its own listeners and state management
-    expect(result1.current.svgRef).not.toBe(result2.current.svgRef);
-
-    // End both drags via window event (simulates real pointer up)
-    act(() => {
-      const mockPointerUpEvent = new Event('pointerup');
-      window.dispatchEvent(mockPointerUpEvent);
-    });
-
-    // Both instances should have cleaned up independently
-    expect(result1.current.dragState.isDragging).toBe(false);
-    expect(result2.current.dragState.isDragging).toBe(false);
-
-    // Verify callbacks were independent
-    expect(mockParams1.onStudentMove).not.toHaveBeenCalled();
-    expect(mockParams2.onStudentMove).not.toHaveBeenCalled();
+  it('does nothing while the circle is only shown', () => {
+    const { result } = renderDrag({ editable: false });
+    const event = press(100);
+    act(() => result.current.handlePointerDown(event, 0, 'a'));
+    pointer('pointermove', 290);
+    expect(result.current.dragState.isDragging).toBe(false);
+    expect(event.preventDefault).not.toHaveBeenCalled();
   });
 });

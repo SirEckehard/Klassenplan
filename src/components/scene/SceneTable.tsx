@@ -10,6 +10,7 @@ import {
   type SeatHighlightLookup,
 } from '@/utils';
 import { getStudentAppearance } from '@/utils/ui/studentAppearance';
+import type { SeatBadgeView } from '@/utils/ui/seatBadges';
 import {
   calculateSeatLayout,
   determineSeatEdge,
@@ -58,11 +59,17 @@ type TableProps = {
   lockedDropTarget?: LockedDropTarget | null;
   onSeatHoverChange?: (hover: DragHover | null) => void;
   onSeatDropRejected?: (target: DragHover) => void;
+  /** A student landed: where from, where to. */
+  onSeatDropped?: (from: DragOrigin, to: DragOrigin) => void;
+  /** Who would take the dragged student's place, shown on the origin seat. */
+  dragSwapStudent?: Student | null;
   /** Keyboard alternative to the pointer seat drag (grab/drop via Enter). */
   onSeatKeyDown?: React.ComponentProps<typeof SeatGrid>['onSeatKeyDown'];
   onSeatFocus?: React.ComponentProps<typeof SeatGrid>['onSeatFocus'];
   onSeatBlur?: React.ComponentProps<typeof SeatGrid>['onSeatBlur'];
   showSpecialNeeds?: boolean;
+  /** Which badges the seats carry and how they are drawn (see `SeatBadgeView`). */
+  badgeView?: SeatBadgeView;
   /** When false, the gender tint is dropped for a paper seat (the beamer's colour switch). */
   showGenderColors?: boolean;
   isDark?: boolean;
@@ -114,10 +121,13 @@ function SceneTable({
   lockedDropTarget = null,
   onSeatHoverChange,
   onSeatDropRejected,
+  onSeatDropped,
+  dragSwapStudent = null,
   onSeatKeyDown,
   onSeatFocus,
   onSeatBlur,
   showSpecialNeeds = true,
+  badgeView,
   showGenderColors = true,
   isDark = false,
   contrast = false,
@@ -172,6 +182,7 @@ function SceneTable({
     onSeatDragEnd,
     onSeatHoverChange,
     onSeatDropRejected,
+    onSeatDropped,
     nameDisplay,
     nameLabels,
   });
@@ -298,36 +309,11 @@ function SceneTable({
       highlightStatus: highlight?.status,
       highlightMode: highlight?.mode,
       highlightPercentage: highlight?.percentage,
+      highlightTone: highlight?.tone,
+      swapPreviewStudent: isOriginSeat ? dragSwapStudent : null,
     };
   });
 
-  const tableHighlightPriority = React.useMemo(() => {
-    let status: 'ok' | 'warn' | 'alert' | null = null;
-    for (const config of seatConfigs) {
-      if (!config.highlightStatus) continue;
-      if (config.highlightStatus === 'alert') {
-        status = 'alert';
-        break;
-      }
-      if (config.highlightStatus === 'warn') {
-        status = 'warn';
-      }
-      if (config.highlightStatus === 'ok') {
-        status = status ?? 'ok';
-      }
-    }
-    return status;
-  }, [seatConfigs]);
-
-  const tableHighlightStroke =
-    tableHighlightPriority === 'alert'
-      ? '#ef4444'
-      : tableHighlightPriority === 'warn'
-        ? '#f59e0b'
-        : tableHighlightPriority === 'ok'
-          ? '#22c55e'
-          : null;
-  const tableHighlightOpacity = tableHighlightPriority ? 1 : 0;
   const baseTableStrokeOpacity = 1;
   const baseTableStrokeWidth = contrast ? 2.5 : selected ? 2.4 : 1;
 
@@ -388,6 +374,7 @@ function SceneTable({
         tableRotation={table.rotation}
         allStudents={allStudents}
         showSpecialNeeds={showSpecialNeeds}
+        badgeView={badgeView}
         contrast={contrast}
         showGenderColors={showGenderColors}
         nameDisplay={nameDisplay}
@@ -533,23 +520,6 @@ function SceneTable({
         strokeLinecap="round"
         opacity={baseTableStrokeOpacity}
       />
-      {tableHighlightStroke && (
-        <rect
-          width={table.width}
-          height={table.height}
-          fill="none"
-          stroke={tableHighlightStroke}
-          strokeWidth={4.8}
-          rx={TABLE_CORNER_RADIUS}
-          pointerEvents="none"
-          opacity={tableHighlightOpacity}
-          vectorEffect="non-scaling-stroke"
-          style={{
-            transition:
-              'stroke 160ms ease, stroke-width 160ms ease, opacity 160ms ease',
-          }}
-        />
-      )}
       {!table.locked && editable && (selected || isHovered) && (
         <RotationHandle
           width={table.width}

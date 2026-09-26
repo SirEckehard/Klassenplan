@@ -3,7 +3,10 @@
 import '@testing-library/jest-dom/vitest';
 import { act, renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi, afterEach } from 'vitest';
-import { useDragDropState } from '../../../hooks/ui/useDragDropState';
+import {
+  getSwapPartner,
+  useDragDropState,
+} from '../../../hooks/ui/useDragDropState';
 import type { DragSeatConfig } from '../../../hooks/ui/useDragDropState';
 import type { Student } from '../../../types';
 
@@ -71,7 +74,7 @@ describe('useDragDropState', () => {
     expect(result.current.dragHover).toBeNull();
   });
 
-  it('stores drag preview, origin and hover on drag start', () => {
+  it('stores drag preview and origin on drag start, with no target yet', () => {
     const { result } = renderDragHook();
 
     act(() => {
@@ -91,11 +94,8 @@ describe('useDragDropState', () => {
       tableIndex: baseConfig.tableIndex,
       seatIndex: baseConfig.seatIndex,
     });
-    expect(result.current.dragHover).toEqual({
-      tableIndex: baseConfig.tableIndex,
-      seatIndex: baseConfig.seatIndex,
-      locked: false,
-    });
+    // The seat a drag starts from is no target; the first move finds one.
+    expect(result.current.dragHover).toBeNull();
   });
 
   it('updates preview coordinates while dragging', () => {
@@ -205,5 +205,43 @@ describe('useDragDropState', () => {
 
     expect(result.current.lockedDropTarget).toBeNull();
     vi.useRealTimers();
+  });
+});
+
+describe('getSwapPartner', () => {
+  const anna = { id: 'a', name: 'Anna' } as Student;
+  const ben = { id: 'b', name: 'Ben' } as Student;
+  const seating = [[anna, ben], [null]];
+  const origin = { tableIndex: 0, seatIndex: 0 };
+
+  it('names whoever sits on a free target seat', () => {
+    expect(
+      getSwapPartner(seating, origin, {
+        tableIndex: 0,
+        seatIndex: 1,
+        locked: false,
+      }),
+    ).toBe(ben);
+  });
+
+  it('has nobody for an empty or held seat, the origin or no target', () => {
+    expect(
+      getSwapPartner(seating, origin, {
+        tableIndex: 1,
+        seatIndex: 0,
+        locked: false,
+      }),
+    ).toBeNull();
+    expect(
+      getSwapPartner(seating, origin, {
+        tableIndex: 0,
+        seatIndex: 1,
+        locked: true,
+      }),
+    ).toBeNull();
+    expect(
+      getSwapPartner(seating, origin, { ...origin, locked: false }),
+    ).toBeNull();
+    expect(getSwapPartner(seating, origin, null)).toBeNull();
   });
 });

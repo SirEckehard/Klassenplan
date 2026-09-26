@@ -15,7 +15,15 @@ export const STORAGE_KEYS = {
     seatingMode: 'spg.seatingMode',
     photoDisplayMode: 'spg.photoDisplayMode',
     nameDisplay: 'spg.nameDisplay',
+    // Which badges the seats of the plan and the circle show: all of them,
+    // only those whose mix criterion is on, or none.
+    badgeDisplay: 'spg.badgeDisplay',
+    // What pointing at a badge on a seat does: `{ tooltip, highlight }`.
+    badgeHover: 'spg.badgeHover',
     photoOverlapWarning: 'spg.photoOverlapWarning',
+    // Retired: the circle's own photo setting. The circle now shares
+    // `spg.photoDisplayMode` with the table plan; nothing reads or writes this,
+    // and it stays listed so a wipe still removes what older versions wrote.
     circlePhotoMode: 'circle-photo-mode',
     lockSeatLabelOrientation: 'lockSeatLabelOrientation',
     seatLabelRotation: 'seatLabelRotation',
@@ -70,6 +78,9 @@ export const STORAGE_KEYS = {
     exportShowNeeds: 'export.showNeeds',
     exportShowConnections: 'export.showConnections',
     exportFlipView: 'export.flipView',
+    // The badge families a printout leaves out, e.g. behaviour on a plan that
+    // hangs on the classroom wall. A new key, so it takes the `spg.` prefix.
+    exportHiddenBadgeFamilies: 'spg.export.hiddenBadgeFamilies',
   },
   indexedDB: {
     students: 'spg.students',
@@ -160,6 +171,8 @@ export const PROJECT_LOCAL_STORAGE_KEYS = [
   STORAGE_KEYS.localStorage.seatingMode,
   STORAGE_KEYS.localStorage.photoDisplayMode,
   STORAGE_KEYS.localStorage.nameDisplay,
+  STORAGE_KEYS.localStorage.badgeDisplay,
+  STORAGE_KEYS.localStorage.badgeHover,
   STORAGE_KEYS.localStorage.photoOverlapWarning,
   STORAGE_KEYS.localStorage.circlePhotoMode,
   STORAGE_KEYS.localStorage.lockSeatLabelOrientation,
@@ -195,6 +208,7 @@ export const PROJECT_LOCAL_STORAGE_KEYS = [
   STORAGE_KEYS.localStorage.exportShowNeeds,
   STORAGE_KEYS.localStorage.exportShowConnections,
   STORAGE_KEYS.localStorage.exportFlipView,
+  STORAGE_KEYS.localStorage.exportHiddenBadgeFamilies,
   LEGACY_EXPORT_KEYS.showFullNames,
   LEGACY_EXPORT_KEYS.pageOrientation,
   LEGACY_LANGUAGE_KEY,

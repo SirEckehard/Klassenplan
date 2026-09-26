@@ -38,6 +38,43 @@ const baseBundle: ExportBundle = {
 };
 
 describe('backupValidation', () => {
+  const withCircle = (lockedStudentIds: unknown) => ({
+    ...baseBundle,
+    circleLayouts: [
+      {
+        exportType: 'circle-only',
+        circleLayout: {
+          students: [],
+          radius: { horizontal: 200, vertical: 150 },
+          center: { x: 450, y: 300 },
+          preservedNeighborhoods: 0,
+          totalOriginalNeighborhoods: 0,
+          newNeighborhoods: 0,
+          preservationRate: 0,
+          mode: 'preserve-neighbors',
+          timestamp: 1,
+          neighborhoodPairs: [],
+          lockedStudentIds,
+        },
+        comparisonReport: {},
+        timestamp: 1,
+        metadata: {},
+      },
+    ],
+  });
+
+  it('keeps the locked students of a circle and rejects malformed ones', () => {
+    const parsed = parseExportBundle(JSON.stringify(withCircle(['1'])));
+    expect(parsed.circleLayouts?.[0].circleLayout.lockedStudentIds).toEqual([
+      '1',
+    ]);
+    expect(() =>
+      parseExportBundle(JSON.stringify(withCircle([42]))),
+    ).toThrowError(
+      new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidCircleData),
+    );
+  });
+
   it('parses a valid export bundle', () => {
     const json = JSON.stringify(baseBundle);
     const parsed = parseExportBundle(json);

@@ -145,6 +145,8 @@ export interface SeatingPlanActions {
   batchSwapStudentPositions: (
     swaps: Array<{ studentId: string; targetPosition: number }>,
   ) => void;
+  /** Locks a student to their place in the circle, or lets them go. */
+  toggleCircleLock: (studentId: string) => void;
   clearCircleLayout: () => void;
   syncCircleFromTable: () => Promise<CircleLayout | null>;
   setCircleLayoutValue: (

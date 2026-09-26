@@ -27,6 +27,7 @@ export interface ClassroomLayoutContextValue {
   updateStudentPosition: SeatingPlanSnapshot['actions']['updateStudentPosition'];
   swapStudentPositions: SeatingPlanSnapshot['actions']['swapStudentPositions'];
   batchSwapStudentPositions: SeatingPlanSnapshot['actions']['batchSwapStudentPositions'];
+  toggleCircleLock: SeatingPlanSnapshot['actions']['toggleCircleLock'];
   syncCircleFromTable: SeatingPlanSnapshot['actions']['syncCircleFromTable'];
   seatingMode: SeatingPlanSnapshot['state']['seatingMode'];
   setSeatingMode: SeatingPlanSnapshot['actions']['setSeatingMode'];
@@ -62,6 +63,7 @@ export const selectClassroomLayoutContext = ({
   updateStudentPosition: actions.updateStudentPosition,
   swapStudentPositions: actions.swapStudentPositions,
   batchSwapStudentPositions: actions.batchSwapStudentPositions,
+  toggleCircleLock: actions.toggleCircleLock,
   syncCircleFromTable: actions.syncCircleFromTable,
   seatingMode: state.seatingMode,
   setSeatingMode: actions.setSeatingMode,

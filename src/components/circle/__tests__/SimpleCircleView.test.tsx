@@ -61,6 +61,9 @@ vi.mock('@phosphor-icons/react', () => ({
   LightningIcon: () => <div data-testid="zap-icon" />,
   SpeakerHighIcon: () => <div data-testid="volume-icon" />,
   RocketIcon: () => <div data-testid="rocket-icon" />,
+  LockIcon: () => <g data-testid="lock-icon" />,
+  LockOpenIcon: () => <g data-testid="lock-open-icon" />,
+  ArrowsLeftRightIcon: () => <span data-testid="swap-icon" />,
 }));
 
 describe('SimpleCircleView', () => {
@@ -312,6 +315,71 @@ describe('SimpleCircleView', () => {
     // In editable mode, student circles should have grab cursor
     // This is tested through the component rendering without errors
     expect(screen.getAllByText('Alice')).toHaveLength(3); // token text, SVG title, screen-reader list
+  });
+
+  it('lets the keyboard pick a student up and swap them round the circle', async () => {
+    const user = userEvent.setup();
+    render(
+      <SimpleCircleView
+        layout={mockLayout}
+        editable={true}
+        onStudentMove={mockOnStudentMove}
+      />,
+    );
+
+    const alice = screen.getByRole('button', {
+      name: /^Alice – (Platz|place) 1/,
+    });
+    alice.focus();
+    await user.keyboard('{Enter}');
+    expect(screen.getByRole('status')).toHaveTextContent(
+      /Alice (aufgenommen|picked up)/,
+    );
+
+    // The arrows walk round the circle.
+    await user.keyboard('{ArrowRight}');
+    expect(document.activeElement).toBe(
+      screen.getByRole('button', { name: /^Bob – (Platz|place) 2/ }),
+    );
+
+    await user.keyboard('{Enter}');
+    expect(mockOnStudentMove).toHaveBeenCalledWith('1', 1);
+    expect(screen.getByRole('status')).toHaveTextContent(/Alice (und|and) Bob/);
+  });
+
+  it('keeps a locked student in place and lets the lock be switched', async () => {
+    const user = userEvent.setup();
+    const onToggleLock = vi.fn();
+    render(
+      <SimpleCircleView
+        layout={{ ...mockLayout, lockedStudentIds: ['2'] }}
+        editable={true}
+        onStudentMove={mockOnStudentMove}
+        onToggleLock={onToggleLock}
+      />,
+    );
+
+    // Bob's lock is closed, the others' are open.
+    expect(
+      screen.getAllByRole('button', {
+        name: /Sitzplatz entsperren|Unlock seat/,
+      }),
+    ).toHaveLength(1);
+    const openLocks = screen.getAllByRole('button', {
+      name: /Sitzplatz sperren|Lock seat/,
+    });
+    expect(openLocks).toHaveLength(2);
+    openLocks[0].focus();
+    await user.keyboard('{Enter}');
+    expect(onToggleLock).toHaveBeenCalledWith('1');
+
+    // Bob cannot be picked up, and nobody can be put on his place.
+    screen.getByRole('button', { name: /^Bob – (Platz|place) 2/ }).focus();
+    await user.keyboard('{Enter}');
+    expect(screen.getByRole('status')).toHaveTextContent(/gesperrt|locked/);
+    screen.getByRole('button', { name: /^Alice – (Platz|place) 1/ }).focus();
+    await user.keyboard('{Enter}{ArrowRight}{Enter}');
+    expect(mockOnStudentMove).not.toHaveBeenCalled();
   });
 
   it('handles non-editable mode correctly', () => {

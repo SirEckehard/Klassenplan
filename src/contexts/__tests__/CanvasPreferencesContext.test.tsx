@@ -102,3 +102,45 @@ describe('CanvasPreferencesContext', () => {
     );
   });
 });
+
+describe('CanvasPreferencesContext view settings', () => {
+  // The table plan and the circle both read these. They used to keep a copy
+  // each, and the circle's container — mounted for both arrangements — never
+  // saw a change made in the table plan.
+  it('gives the plan and the circle one value, changed in either', async () => {
+    const { result } = renderHook(
+      () => ({ plan: useCanvasPreferences(), circle: useCanvasPreferences() }),
+      { wrapper },
+    );
+
+    await act(async () => {
+      result.current.plan.setBadgeDisplay('active');
+      result.current.plan.setBadgeHover({ tooltip: false, highlight: true });
+      result.current.plan.setNameDisplay('full');
+      result.current.plan.setPhotoDisplayMode('off');
+    });
+
+    expect(result.current.circle).toMatchObject({
+      badgeDisplay: 'active',
+      badgeHover: { tooltip: false, highlight: true },
+      nameDisplay: 'full',
+      photoDisplayMode: 'off',
+    });
+    expect(localStorage.getItem(LOCAL_STORAGE_KEYS.badgeDisplay)).toBe(
+      '"active"',
+    );
+  });
+
+  it('reads a stored value it does not know as the default', () => {
+    localStorage.setItem(LOCAL_STORAGE_KEYS.badgeDisplay, '"sometimes"');
+    localStorage.setItem(LOCAL_STORAGE_KEYS.photoDisplayMode, '"blurred"');
+    const { result } = renderPreferences();
+
+    expect(result.current.badgeDisplay).toBe('all');
+    expect(result.current.photoDisplayMode).toBe('hover');
+    expect(result.current.badgeHover).toEqual({
+      tooltip: true,
+      highlight: true,
+    });
+  });
+});

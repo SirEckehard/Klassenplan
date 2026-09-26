@@ -1,6 +1,6 @@
 # Data Model
 
-> **Status:** current · **Last reviewed:** 2026-09-21 · **Source of truth:**
+> **Status:** current · **Last reviewed:** 2026-09-26 · **Source of truth:**
 > `src/utils/data/storageKeys.ts`, `src/types/`, `src/repositories/`
 
 Everything Klassenplan stores lives in the teacher's browser. This document
@@ -85,6 +85,10 @@ interface ClassRecord {
   as the arrangement after refinement
   ([decision 0014](decisions/0014-mix-history-records-refined-plan.md)).
 - **`lockedPositions`** maps a student id to `{ table, seat }`.
+- **`circleLayout.lockedStudentIds`** (optional) lists the students held in
+  their place in the circle; a regenerated circle puts them back
+  ([decision 0022](decisions/0022-one-drag-for-plan-and-circle.md)). Circles
+  without the field have nothing locked.
 - **Partner wishes** are stored as `wishPartnerIds` / `avoidPartnerIds`. The
   single-value fields `wishPartnerId` / `avoidPartnerId` predate them and are
   still written by the editors and the CSV import for compatibility. Records
@@ -167,12 +171,19 @@ Only preferences and small bits of workflow state; no student data. The full
 list is `PROJECT_LOCAL_STORAGE_KEYS` in `storageKeys.ts`. Groups:
 
 - **Appearance:** `theme`, `showGrid`, `spg.alignmentGuides`,
-  `spg.featureVisibility`, `spg.nameDisplay`, `spg.photoDisplayMode`, …
+  `spg.featureVisibility`, `spg.nameDisplay`, `spg.photoDisplayMode`,
+  `spg.badgeDisplay` (which badges the seats show: `all`, `active`, `off`),
+  `spg.badgeHover` (`{ tooltip, highlight }`: what pointing at one does), …
+  The table plan and the circle share photos, names and badges through
+  `CanvasPreferencesContext`; the circle's own `circle-photo-mode` is retired
+  and only still listed so a wipe removes it.
 - **Presentation and export:** `spg.present.*`, `export.*` — the export keys
   predate the `spg.` prefix and keep their names so existing preferences
   survive. The projection keeps its own contrast mode and name rule
   (`spg.present.contrast`, `spg.present.nameDisplay`): it is read from the back
-  row, the editor's plan from 40 cm away.
+  row, the editor's plan from 40 cm away. `spg.export.hiddenBadgeFamilies`
+  lists the badge families a printout leaves out
+  ([decision 0021](decisions/0021-seat-badges-explained.md)).
 - **Workflow:** sidebar state, class list sort order, first visit, onboarding
   tours seen or switched off (`spg.onboardingTour`,
   [decision 0015](decisions/0015-onboarding-sample-class-and-tour.md)), whether

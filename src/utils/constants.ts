@@ -15,6 +15,7 @@ import {
   TrendDownIcon,
   type Icon,
 } from '@phosphor-icons/react';
+import type { DataFamily } from '@/utils/ui/designTokens';
 
 export const TABLE_CORNER_RADIUS = 8;
 // Features render with sharp corners so they stand apart from the rounded tables.
@@ -195,11 +196,14 @@ export const STUDENT_FLAGS: {
   label: string;
   icon: Icon;
   tooltip: string;
+  /** The pedagogical family the flag speaks in, wherever it is shown. */
+  family: DataFamily;
   exclusiveWith?: 'performanceStrong' | 'performanceWeak';
 }[] = [
   // Fähigkeiten/Eigenschaften (ändern sich selten)
   {
     key: 'performanceStrong',
+    family: 'learning',
     icon: TrendUpIcon,
     label: 'stark',
     tooltip: 'Schüler ist leistungsstark',
@@ -207,6 +211,7 @@ export const STUDENT_FLAGS: {
   },
   {
     key: 'performanceWeak',
+    family: 'learning',
     icon: TrendDownIcon,
     label: 'schwach',
     tooltip: 'Schüler ist leistungsschwach',
@@ -214,6 +219,7 @@ export const STUDENT_FLAGS: {
   },
   {
     key: 'needsFrontSeat',
+    family: 'space',
     label: 'Vordere Plätze',
     icon: MapPinAreaIcon,
     tooltip: 'Benötigt einen festen vorderen Platz',
@@ -221,18 +227,21 @@ export const STUDENT_FLAGS: {
   // Verhalten (kontextabhängig)
   {
     key: 'restless',
+    family: 'behavior',
     label: 'unruhig',
     icon: ActivityIcon,
     tooltip: 'Trennt unruhige Schüler voneinander',
   },
   {
     key: 'shy',
+    family: 'social',
     label: 'schüchtern',
     icon: SmileyNervousIcon,
     tooltip: 'Platziert schüchterne Schüler eher neben ruhigen Schülern',
   },
   {
     key: 'concentrationIssues',
+    family: 'behavior',
     label: 'ablenkbar',
     icon: BrainIcon,
     tooltip:

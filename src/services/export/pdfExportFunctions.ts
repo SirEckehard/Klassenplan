@@ -8,7 +8,7 @@ import {
   type ExportClassMetadata,
 } from '@/services/export/sceneRenderer';
 import { logError } from '@/utils';
-import type { NameDisplayMode } from '@/utils';
+import type { DataFamily, NameDisplayMode } from '@/utils';
 import { confirmDownload } from '@/utils/ui/downloadConfirmation';
 import type { FeatureVisibilityFlags } from '@/utils/ui/featureStyles';
 import { getStudentPhotoDataUrl } from '@/hooks/student/studentPhotoCache';
@@ -57,6 +57,8 @@ export type ExportOptions = {
    */
   flipped?: boolean;
   classMetadata?: ExportClassMetadata;
+  /** Badge families the printout leaves out, on the seats and in the legend. */
+  hiddenBadgeFamilies?: readonly DataFamily[];
 };
 
 /**
@@ -81,6 +83,7 @@ export async function exportTableLayoutToPdf(
     photoDisplayMode: (options?.showPhotos ?? true) ? 'all' : 'off',
     showLegend: options?.showLegend ?? false,
     classMetadata: options?.classMetadata,
+    hiddenBadgeFamilies: options?.hiddenBadgeFamilies,
   });
 
   await exportSvgToPdf(
@@ -112,6 +115,7 @@ export async function exportCircleLayoutToPdf(
     photoDataUrls,
     photoDisplayMode: (options?.showPhotos ?? true) ? 'all' : 'off',
     showLegend: options?.showLegend ?? false,
+    hiddenBadgeFamilies: options?.hiddenBadgeFamilies,
   });
 
   await exportSvgToPdf(

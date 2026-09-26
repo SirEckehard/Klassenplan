@@ -7,11 +7,19 @@ import type {
 } from '@/types';
 import type { StatisticStatus } from '@/utils';
 
+export type SeatHighlightTone = 'focus' | 'confirm';
+
 export type SeatHighlightInfo = {
   status: StatisticStatus;
   percentage: number;
   mode: StatisticHighlightMode;
   target: StatisticHighlightTarget;
+  /**
+   * `focus` marks a seat a hovered badge points at. That is no verdict on the
+   * seat, so it takes the selection colour rather than a status colour.
+   * `confirm` marks the seats a student has just moved between, for a moment.
+   */
+  tone?: SeatHighlightTone;
 };
 
 type SeatHighlightLookup = Map<string, SeatHighlightInfo>;
@@ -83,6 +91,27 @@ export function getSeatHighlight(
   if (!lookup) return undefined;
   const key = `${tableIndex}-${seatIndex}`;
   return lookup.get(key);
+}
+
+/**
+ * The seats a student has just moved between: a moment of the confirm tone,
+ * no verdict and no percentage.
+ */
+export function buildDropConfirmLookup(
+  seats: ReadonlyArray<{ tableIndex: number; seatIndex: number }>,
+): SeatHighlightLookup | null {
+  if (seats.length === 0) return null;
+  const lookup: SeatHighlightLookup = new Map();
+  for (const { tableIndex, seatIndex } of seats) {
+    lookup.set(`${tableIndex}-${seatIndex}`, {
+      status: 'ok',
+      percentage: 100,
+      mode: 'persistent',
+      tone: 'confirm',
+      target: { type: 'seat', tableIndex, seatIndex },
+    });
+  }
+  return lookup;
 }
 
 export type { SeatHighlightLookup };

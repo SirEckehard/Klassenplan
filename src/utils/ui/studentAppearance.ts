@@ -1,8 +1,14 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import type { Student, LanguageSkillLevel, SocialRole } from '@/types';
+import type {
+  Student,
+  LanguageSkillLevel,
+  ScalarMixSettingKey,
+  SocialRole,
+} from '@/types';
 import i18n from '@/i18n';
 import { STUDENT_FLAGS, getWishPartnerIds, getAvoidPartnerIds } from '@/utils';
+import type { DataFamily } from './designTokens';
 import {
   HeartIcon,
   HeartBreakIcon,
@@ -29,6 +35,8 @@ import {
 // readable if a key is ever missing.
 const ts = (key: string, fallback: string) =>
   i18n.t(key, { ns: 'students', defaultValue: fallback });
+/** The same lookup without a fallback, for keys that exist in both languages. */
+const tStudents = (key: string) => i18n.t(key, { ns: 'students' });
 
 /**
  * Centralized student appearance configuration
@@ -107,6 +115,57 @@ export const SEAT_CONTRAST_COLORS = {
   emptyFill: '#ededed',
   stroke: '#000000',
   text: '#000000',
+} as const;
+
+/**
+ * The ink of a badge icon on a seat: the `--data-<family>-text` tokens of
+ * `src/index.css`, the foreground every student chip uses too, so an icon on
+ * the plan speaks in the colour of the chip it stands for.
+ *
+ * They are spelled out because the exports serialise the SVG, and a CSS
+ * variable does not travel with it; a test holds both themes to the tokens.
+ */
+export const DATA_FAMILY_TEXT_COLORS: Record<
+  DataFamily,
+  { light: string; dark: string }
+> = {
+  behavior: { light: '#8a3d06', dark: '#f0b878' },
+  social: { light: '#5b21b6', dark: '#c4b1fd' },
+  learning: { light: '#14622f', dark: '#85d3a0' },
+  language: { light: '#9f1239', dark: '#f8a3b7' },
+  space: { light: '#0b5f76', dark: '#7fcbdd' },
+  person: { light: '#43464b', dark: '#c2c5c9' },
+  history: { light: '#86198f', dark: '#eba6f2' },
+};
+
+/** The colour a badge icon is drawn in on a seat, in the plan or an export. */
+export function getBadgeColor(
+  badge: { family: DataFamily },
+  isDark: boolean,
+): string {
+  return DATA_FAMILY_TEXT_COLORS[badge.family][isDark ? 'dark' : 'light'];
+}
+
+/**
+ * The pill the badge icons sit on: paper over the seat's tint, one hairline
+ * around it, the way a chip sits on a card. `--surface-card` for the fill,
+ * `--border-option-hover` for the line, `--text-muted` for the "+N" that
+ * stands in for the icons that did not fit. Spelled out for the same reason
+ * as the family inks above: the exports serialise their SVG.
+ */
+export const BADGE_PILL_COLORS = {
+  fill: {
+    light: 'rgba(255, 255, 255, 0.94)',
+    dark: 'rgba(24, 26, 29, 0.82)',
+  },
+  stroke: {
+    light: '#cec8bb',
+    dark: '#3a3d42',
+  },
+  more: {
+    light: '#54565a',
+    dark: '#a9acb1',
+  },
 } as const;
 
 /**
@@ -220,7 +279,9 @@ export type PartnerBadge = {
   label: string;
   icon: Icon;
   tooltip: string;
-  color: string;
+  family: DataFamily;
+  /** The classmates the wish or the distance points at, in priority order. */
+  names: string[];
 };
 
 export type HeightBadge = {
@@ -228,7 +289,7 @@ export type HeightBadge = {
   label: string;
   icon: Icon;
   tooltip: string;
-  color: string;
+  family: DataFamily;
 };
 
 export type EnvironmentBadge = {
@@ -236,7 +297,7 @@ export type EnvironmentBadge = {
   label: string;
   icon: Icon;
   tooltip: string;
-  color: string;
+  family: DataFamily;
 };
 
 export type LanguageSkillBadge = {
@@ -244,7 +305,7 @@ export type LanguageSkillBadge = {
   label: string;
   icon: Icon;
   tooltip: string;
-  color: string;
+  family: DataFamily;
 };
 
 export type SocialRoleBadge = {
@@ -252,7 +313,7 @@ export type SocialRoleBadge = {
   label: string;
   icon: Icon;
   tooltip: string;
-  color: string;
+  family: DataFamily;
 };
 
 /**
@@ -534,7 +595,8 @@ export function getPartnerBadges(
       label,
       icon: HeartIcon,
       tooltip: `${label}: ${wishNames.join(', ')}`,
-      color: '#22c55e', // green-500
+      family: 'social',
+      names: wishNames,
     });
   }
 
@@ -546,7 +608,8 @@ export function getPartnerBadges(
       label,
       icon: HeartBreakIcon,
       tooltip: `${label}: ${avoidNames.join(', ')}`,
-      color: '#f43f5e', // rose-500
+      family: 'social',
+      names: avoidNames,
     });
   }
 
@@ -579,7 +642,7 @@ export function getHeightBadge(student: Student | null): HeightBadge | null {
       label,
       icon: ArrowDownIcon,
       tooltip: `${heightTitle}: ${label}`,
-      color: '#60a5fa', // blue-400
+      family: 'space',
     };
   }
 
@@ -590,7 +653,7 @@ export function getHeightBadge(student: Student | null): HeightBadge | null {
     label,
     icon: ArrowUpIcon,
     tooltip: `${heightTitle}: ${label}`,
-    color: '#f97316', // orange-500
+    family: 'space',
   };
 }
 
@@ -610,7 +673,7 @@ export function getEnvironmentBadges(
       label: ts('listHeader.windowFull', 'Fensterplatz'),
       icon: ImageIcon,
       tooltip: ts('environment.windowTooltip', 'Bevorzugt Plätze am Fenster'),
-      color: '#38bdf8', // sky-400
+      family: 'space',
     });
   }
 
@@ -620,7 +683,7 @@ export function getEnvironmentBadges(
       label: ts('listHeader.doorFull', 'Türnähe'),
       icon: DoorIcon,
       tooltip: ts('environment.doorTooltip', 'Bevorzugt Plätze in Türnähe'),
-      color: '#fb923c', // orange-400
+      family: 'space',
     });
   }
 
@@ -628,21 +691,17 @@ export function getEnvironmentBadges(
 }
 
 /**
- * Language skill configuration with icons and colors
+ * Language skill configuration with icons
  */
 const LANGUAGE_SKILL_CONFIG: Record<
   LanguageSkillLevel,
-  { icon: Icon; label: string; color: string }
+  { icon: Icon; label: string }
 > = {
-  native: { icon: ChatCircleIcon, label: 'Muttersprache', color: '#22c55e' }, // green-500
-  fluent: { icon: ChatDotsIcon, label: 'Fließend', color: '#3b82f6' }, // blue-500
-  intermediate: {
-    icon: BookOpenIcon,
-    label: 'Fortgeschritten',
-    color: '#8b5cf6',
-  }, // purple-500
-  beginner: { icon: StudentIcon, label: 'Anfänger', color: '#f59e0b' }, // amber-500
-  daz: { icon: RocketIcon, label: 'DaZ-Förderung', color: '#ef4444' }, // red-500
+  native: { icon: ChatCircleIcon, label: 'Muttersprache' },
+  fluent: { icon: ChatDotsIcon, label: 'Fließend' },
+  intermediate: { icon: BookOpenIcon, label: 'Fortgeschritten' },
+  beginner: { icon: StudentIcon, label: 'Anfänger' },
+  daz: { icon: RocketIcon, label: 'DaZ-Förderung' },
 };
 
 /**
@@ -663,21 +722,18 @@ export function getLanguageSkillBadge(
     label,
     icon: config.icon,
     tooltip: `${ts('languageSkill.title', 'Sprachniveau')}: ${label}`,
-    color: config.color,
+    family: 'language',
   };
 }
 
 /**
- * Social role configuration with icons and colors
+ * Social role configuration with icons
  */
-const SOCIAL_ROLE_CONFIG: Record<
-  SocialRole,
-  { icon: Icon; label: string; color: string }
-> = {
-  mediator: { icon: HandshakeIcon, label: 'Mediator', color: '#22c55e' }, // green-500
-  leader: { icon: CrownIcon, label: 'Anführer', color: '#f59e0b' }, // amber-500
-  loner: { icon: SignpostIcon, label: 'Einzelgänger', color: '#6b7280' }, // gray-500
-  socialHub: { icon: SparkleIcon, label: 'Mittelpunkt', color: '#ec4899' }, // pink-500
+const SOCIAL_ROLE_CONFIG: Record<SocialRole, { icon: Icon; label: string }> = {
+  mediator: { icon: HandshakeIcon, label: 'Mediator' },
+  leader: { icon: CrownIcon, label: 'Anführer' },
+  loner: { icon: SignpostIcon, label: 'Einzelgänger' },
+  socialHub: { icon: SparkleIcon, label: 'Mittelpunkt' },
 };
 
 /**
@@ -698,7 +754,118 @@ export function getSocialRoleBadge(
     label,
     icon: config.icon,
     tooltip: `${ts('socialRole.title', 'Soziale Rolle')}: ${label}`,
-    color: config.color,
+    family: 'social',
+  };
+}
+
+/**
+ * The order badges are read in — on a seat, in a row of chips, in a legend —
+ * and the mix criteria each one feeds.
+ *
+ * Sorted by family (Verhalten, Soziales, Lernen, Sprache, Platz & Raum), so a
+ * seat's icons read as runs of one colour instead of a scatter. The criteria
+ * say when a badge matters for the plan on screen: "only active criteria"
+ * keeps the badges at least one of whose criteria the mix weighs, and a seat
+ * short of room shows those first. Language levels and social roles share an
+ * entry each: their keys carry the level or role after an underscore.
+ */
+const BADGE_ORDER: ReadonlyArray<{
+  key: string;
+  criteria: readonly ScalarMixSettingKey[];
+}> = [
+  // Verhalten
+  {
+    key: 'restless',
+    criteria: ['avoidRestlessTogether', 'avoidConcentrationNearRestless'],
+  },
+  {
+    key: 'concentrationIssues',
+    criteria: ['avoidConcentrationTogether', 'avoidConcentrationNearRestless'],
+  },
+  // Soziales
+  { key: 'shy', criteria: ['avoidShyAlone'] },
+  { key: 'socialRole', criteria: ['distributeSocialRoles'] },
+  { key: 'wishPartner', criteria: ['considerWishPartners'] },
+  { key: 'avoidPartner', criteria: ['avoidConflictPartners'] },
+  // Lernen
+  {
+    key: 'performanceStrong',
+    criteria: ['peerTutoring', 'homogeneousPerformanceGroups'],
+  },
+  {
+    key: 'performanceWeak',
+    criteria: ['peerTutoring', 'homogeneousPerformanceGroups'],
+  },
+  // Sprache
+  { key: 'languageSkill', criteria: ['preferLanguageMixing'] },
+  // Platz & Raum
+  { key: 'needsFrontSeat', criteria: ['preferFrontForNeedsFrontSeat'] },
+  { key: 'heightSmall', criteria: ['preferFrontForSmallerStudents'] },
+  { key: 'heightTall', criteria: ['preferFrontForSmallerStudents'] },
+  { key: 'prefersWindow', criteria: ['preferWindowSeats'] },
+  { key: 'prefersDoor', criteria: ['preferDoorSeats'] },
+];
+
+const badgeOrderIndex = (key: string): number => {
+  const base = key.split('_')[0];
+  const index = BADGE_ORDER.findIndex((entry) => entry.key === base);
+  return index === -1 ? BADGE_ORDER.length : index;
+};
+
+/** The mix criteria a badge feeds; empty for a key the table does not know. */
+export function getBadgeCriteria(
+  badgeKey: string,
+): readonly ScalarMixSettingKey[] {
+  return BADGE_ORDER[badgeOrderIndex(badgeKey)]?.criteria ?? [];
+}
+
+/** Badges in reading order (see {@link BADGE_ORDER}); stable for equal keys. */
+export function sortBadges<T extends { key: string }>(
+  badges: readonly T[],
+): T[] {
+  return [...badges].sort(
+    (a, b) => badgeOrderIndex(a.key) - badgeOrderIndex(b.key),
+  );
+}
+
+/**
+ * What a badge says in words, for the tooltip on a seat: a heading and, where
+ * there is one, the sentence behind it — whom a wish points at, what a level
+ * or a role means, how the mix treats a flag.
+ */
+export function describeBadge(badge: StudentBadge): {
+  heading: string;
+  detail?: string;
+} {
+  if (badge.key === 'wishPartner' || badge.key === 'avoidPartner') {
+    return { heading: badge.label, detail: badge.names.join(', ') };
+  }
+  if (badge.key === 'heightSmall' || badge.key === 'heightTall') {
+    return {
+      heading: badge.tooltip,
+      detail:
+        badge.key === 'heightSmall'
+          ? tStudents('height.smallTooltip')
+          : tStudents('height.tallTooltip'),
+    };
+  }
+  if (badge.key.startsWith('languageSkill_')) {
+    const level = badge.key.slice('languageSkill_'.length);
+    return {
+      heading: badge.tooltip,
+      detail: tStudents(`languageSkill.tooltip.${level}`),
+    };
+  }
+  if (badge.key.startsWith('socialRole_')) {
+    const role = badge.key.slice('socialRole_'.length);
+    return {
+      heading: badge.tooltip,
+      detail: tStudents(`socialRole.tooltip.${role}`),
+    };
+  }
+  return {
+    heading: badge.label,
+    detail: badge.tooltip !== badge.label ? badge.tooltip : undefined,
   };
 }
 
@@ -717,7 +884,7 @@ export function getSocialRoleBadge(
  *   showPartners: true,
  *   showHeight: true
  * });
- * // Returns: [...specialNeedsBadges, ...partnerBadges, heightBadge?]
+ * // Returns the badges in reading order (see `BADGE_ORDER`)
  * ```
  */
 export function getAllStudentBadges(
@@ -758,36 +925,16 @@ export function getAllStudentBadges(
   const languageBadge = getLanguageSkillBadge(student, shouldShowLanguage);
   const socialRoleBadge = getSocialRoleBadge(student, shouldShowSocialRole);
 
-  // Badge order follows Option A: Identität → Fähigkeiten → Verhalten → Soziales → Raum
-  const performanceKeys = new Set(['performanceStrong', 'performanceWeak']);
-  const behaviorBadges = combinedSpecialNeeds.filter(
-    (badge) => !performanceKeys.has(badge.key),
-  );
-  const performanceBadges = combinedSpecialNeeds.filter((badge) =>
-    performanceKeys.has(badge.key),
-  );
+  const badges: StudentBadge[] = [
+    ...combinedSpecialNeeds,
+    ...partners,
+    ...environmentBadges,
+  ];
+  if (height) badges.push(height);
+  if (languageBadge) badges.push(languageBadge);
+  if (socialRoleBadge) badges.push(socialRoleBadge);
 
-  const orderedBadges: StudentBadge[] = [];
-  // Identität: height first
-  if (height) {
-    orderedBadges.push(height);
-  }
-  // Fähigkeiten: language, then performance
-  if (languageBadge) {
-    orderedBadges.push(languageBadge);
-  }
-  orderedBadges.push(...performanceBadges);
-  // Verhalten: behavior flags (restless, shy, concentration, sensory)
-  orderedBadges.push(...behaviorBadges);
-  // Soziales: social role, then partners
-  if (socialRoleBadge) {
-    orderedBadges.push(socialRoleBadge);
-  }
-  orderedBadges.push(...partners);
-  // Raum: environment preferences last
-  orderedBadges.push(...environmentBadges);
-
-  return orderedBadges;
+  return sortBadges(badges);
 }
 
 /**

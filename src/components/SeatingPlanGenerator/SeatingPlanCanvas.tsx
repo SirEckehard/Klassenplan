@@ -10,17 +10,20 @@ import type {
   PhotoDisplayMode,
 } from '@/types';
 import type { NameDisplayMode, SeatHighlightLookup } from '@/utils';
+import type { BadgeFocus, SeatBadgeView } from '@/utils/ui/seatBadges';
 import { GRID_SIZE } from '@/utils';
 import { getFeatureStyles } from '@/utils/ui';
 import type { FeatureVisibilityFlags } from '@/utils/ui';
 import type { TemplateDragPreview } from '@/types/templateDrag';
-import type {
-  DragOrigin,
-  DragHover,
-  LockedDropTarget,
-  DragSeatConfig,
+import {
+  getSwapPartner,
+  type DragOrigin,
+  type DragHover,
+  type LockedDropTarget,
+  type DragSeatConfig,
 } from '@/hooks/ui/useDragDropState';
 import TableIcon from '@/components/scene/SceneTable';
+import BadgeTooltipLayer from '@/components/scene/BadgeTooltip';
 import FeatureShape from '@/components/scene/FeatureShape';
 import { useStudentPhotoUrls } from '@/hooks/student/useStudentPhoto';
 import { useNameLabels } from '@/hooks/student/useNameLabels';
@@ -72,6 +75,20 @@ interface SeatingPlanCanvasProps {
   photoDisplayMode?: PhotoDisplayMode;
   /** Uniform name rule for the seat labels (see {@link NameDisplayMode}). */
   nameDisplay?: NameDisplayMode;
+  /** Which badges the seats show and how (see `SeatBadgeView`). */
+  badgeView?: SeatBadgeView;
+  /** The badge under the pointer, so the plan can light its seats. */
+  onBadgeFocusChange?: (focus: BadgeFocus | null) => void;
+  /** Whether pointing at a badge explains it in a tooltip. */
+  showBadgeTooltip?: boolean;
+  /** A student landed, by pointer or keyboard: where from, where to. */
+  onSeatDropped?: (
+    from: DragOrigin,
+    to: DragOrigin,
+    source: 'pointer' | 'keyboard',
+  ) => void;
+  /** What the last pointer drop did, for screen readers. */
+  dropAnnouncement?: string;
 }
 
 const SeatingPlanCanvas = React.memo(
@@ -109,6 +126,11 @@ const SeatingPlanCanvas = React.memo(
     seatHighlights = null,
     photoDisplayMode = 'off',
     nameDisplay,
+    badgeView,
+    onBadgeFocusChange,
+    showBadgeTooltip = true,
+    onSeatDropped,
+    dropAnnouncement = '',
   }: SeatingPlanCanvasProps) => {
     const { t } = useTranslation('generator');
     const canvasRef = React.useRef<SVGSVGElement | null>(null);
@@ -129,7 +151,17 @@ const SeatingPlanCanvas = React.memo(
       moveStudent,
       onHoverChange: onSeatHoverChange,
       onDropRejected: onLockedSeatDrop,
+      onMoved: React.useCallback(
+        (from: DragOrigin, to: DragOrigin) =>
+          onSeatDropped?.(from, to, 'keyboard'),
+        [onSeatDropped],
+      ),
     });
+    const handlePointerDrop = React.useCallback(
+      (from: DragOrigin, to: DragOrigin) =>
+        onSeatDropped?.(from, to, 'pointer'),
+      [onSeatDropped],
+    );
 
     // A pointer drag takes precedence: release any pending keyboard grab.
     React.useEffect(() => {
@@ -139,6 +171,12 @@ const SeatingPlanCanvas = React.memo(
     }, [dragOrigin, cancelKeyboardMove]);
 
     const effectiveDragOrigin = dragOrigin ?? keyboardMoveOrigin;
+    // Over a taken seat the drag is a swap: the origin shows who would come.
+    const dragSwapStudent = getSwapPartner(
+      currentSeating,
+      effectiveDragOrigin,
+      dragHover,
+    );
 
     const applySelectionForTable = React.useCallback(
       (tableIndex: number, multi: boolean) => {
@@ -224,6 +262,16 @@ const SeatingPlanCanvas = React.memo(
         <span role="status" aria-live="polite" className="sr-only">
           {keyboardAnnouncement}
         </span>
+        <span role="status" aria-live="polite" className="sr-only">
+          {dropAnnouncement}
+        </span>
+        <BadgeTooltipLayer
+          svgRef={canvasRef}
+          allStudents={allStudents ?? []}
+          enabled={!effectiveDragOrigin}
+          showTooltip={showBadgeTooltip}
+          onFocusChange={onBadgeFocusChange}
+        />
         <svg
           ref={canvasRef}
           width="100%"
@@ -279,6 +327,8 @@ const SeatingPlanCanvas = React.memo(
                 lockedDropTarget={lockedDropTarget}
                 onSeatHoverChange={onSeatHoverChange}
                 onSeatDropRejected={onLockedSeatDrop}
+                onSeatDropped={handlePointerDrop}
+                dragSwapStudent={dragSwapStudent}
                 onSeatKeyDown={handleSeatKeyDown}
                 onSeatFocus={handleSeatFocus}
                 onSeatBlur={handleSeatBlur}
@@ -292,6 +342,7 @@ const SeatingPlanCanvas = React.memo(
                 photoDisplayMode={photoDisplayMode}
                 nameDisplay={nameDisplay}
                 nameLabels={nameLabels}
+                badgeView={badgeView}
               />
             ))}
           </g>

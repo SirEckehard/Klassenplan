@@ -2,21 +2,42 @@
 // Copyright (C) 2026 Eike Schäfer
 import React, { useState, useCallback, useRef } from 'react';
 import type { CircleLayout } from '@/types/Circle';
-import type { Student } from '@/types';
-import { angleToPosition } from '@/utils/math/circleGeometry';
 import { triggerHapticFeedback } from '@/utils/touch/hapticFeedback';
+import { showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
+import { useDragGesture } from '@/hooks/ui/useDragGesture';
+
+/** The circle is drawn in a 900×600 view box. */
+const VIEW_WIDTH = 900;
+const VIEW_HEIGHT = 600;
+/** How far from a place, in view-box units, the pointer still means it. */
+const TARGET_RADIUS = 50;
 
 export interface UseCircleDragDropParams {
   layout: CircleLayout;
   editable: boolean;
   onStudentMove?: (studentId: string, targetPosition: number) => void;
+  /**
+   * Where each place is drawn, in view-box units. The target is the nearest
+   * of these — the places as drawn, not as stored: a circle with photos is
+   * drawn smaller than its layout says.
+   */
+  slotPositions: ReadonlyArray<{ x: number; y: number }>;
+  /** A held place: nothing leaves it and nothing lands on it. */
+  isPositionLocked?: (position: number) => boolean;
+  /** A student landed: from which place to which. */
+  onMoved?: (from: number, to: number) => void;
 }
 
 export interface CircleDragState {
   isDragging: boolean;
   draggedPosition: number | null;
   hoverPosition: number | null;
-  dragPreview: { x: number; y: number; student: Student | null } | null;
+  /** The place under the pointer is held and refuses the drop. */
+  hoverBlocked: boolean;
+  /** The pointer in client coordinates, for the preview. */
+  pointer: { x: number; y: number } | null;
+  /** Screen pixels per view-box unit, measured when the drag began. */
+  viewportScale: number;
 }
 
 export interface CircleDragDropHook {
@@ -29,231 +50,123 @@ export interface CircleDragDropHook {
   svgRef: React.RefObject<SVGSVGElement | null>;
 }
 
-// Distance (in SVG units) the preview should keep from the finger on touch devices
-const TOUCH_DRAG_PREVIEW_DISTANCE = 36;
+const IDLE: CircleDragState = {
+  isDragging: false,
+  draggedPosition: null,
+  hoverPosition: null,
+  hoverBlocked: false,
+  pointer: null,
+  viewportScale: 1,
+};
 
 /**
- * Custom hook for managing drag-and-drop interactions in circle view
- * Handles pointer events, drag state, and cleanup for circle student positioning
+ * Dragging a student to another place in the circle.
+ *
+ * The gesture — how far a press travels before it is a drag, and what ends
+ * it — is `useDragGesture`, shared with the table plan. This hook adds what
+ * the circle knows: the nearest drawn place under the pointer, the places
+ * that are held, and the swap.
  */
 export function useCircleDragDrop({
   layout,
   editable,
   onStudentMove,
+  slotPositions,
+  isPositionLocked,
+  onMoved,
 }: UseCircleDragDropParams): CircleDragDropHook {
-  const [dragState, setDragState] = useState<CircleDragState>({
-    isDragging: false,
-    draggedPosition: null,
-    hoverPosition: null,
-    dragPreview: null,
-  });
-
+  const [dragState, setDragState] = useState<CircleDragState>(IDLE);
   const svgRef = useRef<SVGSVGElement>(null);
-  const isMountedRef = useRef(true);
+  const gesture = useDragGesture();
 
-  // Instance-specific drag state refs
-  const dragInfoRef = useRef<{
-    fromPosition: number;
-    studentId: string;
-  } | null>(null);
-  const dragMoveListenerRef = useRef<((e: PointerEvent) => void) | null>(null);
-  const dragUpListenerRef = useRef<((e: PointerEvent) => void) | null>(null);
+  const findTarget = useCallback(
+    (point: { x: number; y: number }, from: number): number | null => {
+      const rect = svgRef.current?.getBoundingClientRect();
+      if (!rect || rect.width === 0 || rect.height === 0) return null;
+      const x = ((point.x - rect.left) / rect.width) * VIEW_WIDTH;
+      const y = ((point.y - rect.top) / rect.height) * VIEW_HEIGHT;
 
-  // Cleanup effect for drag listeners and mount state
-  React.useEffect(() => {
-    isMountedRef.current = true;
-
-    return () => {
-      isMountedRef.current = false;
-
-      // Clean up any active drag listeners
-      if (dragMoveListenerRef.current) {
-        window.removeEventListener('pointermove', dragMoveListenerRef.current);
-        dragMoveListenerRef.current = null;
-      }
-      if (dragUpListenerRef.current) {
-        window.removeEventListener('pointerup', dragUpListenerRef.current);
-        dragUpListenerRef.current = null;
-      }
-      dragInfoRef.current = null;
-    };
-  }, []);
+      let closest: number | null = null;
+      let minDistance = TARGET_RADIUS;
+      slotPositions.forEach((slot, index) => {
+        const distance = Math.hypot(x - slot.x, y - slot.y);
+        if (distance < minDistance) {
+          minDistance = distance;
+          closest = index;
+        }
+      });
+      // The place the drag started from is no target.
+      return closest === from ? null : closest;
+    },
+    [slotPositions],
+  );
 
   const handlePointerDown = useCallback(
     (e: React.PointerEvent, position: number, studentId: string) => {
       if (!editable) return;
-
-      const student = layout.students[position];
-      if (!student || !student.student) return;
+      if (!layout.students[position]?.student) return;
+      // A held student stays where they are.
+      if (isPositionLocked?.(position)) return;
 
       e.preventDefault();
       e.stopPropagation();
 
-      // Clean up any existing listeners
-      if (dragMoveListenerRef.current) {
-        window.removeEventListener('pointermove', dragMoveListenerRef.current);
-        dragMoveListenerRef.current = null;
-      }
-      if (dragUpListenerRef.current) {
-        window.removeEventListener('pointerup', dragUpListenerRef.current);
-        dragUpListenerRef.current = null;
-      }
+      let target: number | null = null;
+      let blocked = false;
+      const reset = () => setDragState(IDLE);
 
-      dragInfoRef.current = { fromPosition: position, studentId };
-
-      // Trigger haptic feedback on drag start
-      triggerHapticFeedback('dragStart');
-
-      if (isMountedRef.current) {
-        setDragState({
-          isDragging: true,
-          draggedPosition: position,
-          hoverPosition: null,
-          dragPreview: null, // Will be set during mouse move
-        });
-      }
-
-      // Store current hover position in a variable to avoid stale closure
-      let currentHoverPosition: number | null = null;
-      const pointerType = e.pointerType;
-
-      // Mouse move handler
-      dragMoveListenerRef.current = (moveEvent: PointerEvent) => {
-        if (!svgRef.current || !dragInfoRef.current) return;
-
-        const rect = svgRef.current.getBoundingClientRect();
-        const svgX = ((moveEvent.clientX - rect.left) / rect.width) * 900;
-        const svgY = ((moveEvent.clientY - rect.top) / rect.height) * 600;
-
-        const isTouchPointer = pointerType === 'touch';
-
-        let previewX = svgX;
-        let previewY = svgY;
-
-        if (isTouchPointer) {
-          const { x: centerX, y: centerY } = layout.center;
-          const deltaX = svgX - centerX;
-          const deltaY = svgY - centerY;
-          const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-
-          if (distance > 0.0001) {
-            const scale = TOUCH_DRAG_PREVIEW_DISTANCE / distance;
-            previewX = svgX + deltaX * scale;
-            previewY = svgY + deltaY * scale;
-          } else {
-            previewY = svgY - TOUCH_DRAG_PREVIEW_DISTANCE;
-          }
-
-          previewX = Math.min(Math.max(previewX, 40), 860);
-          previewY = Math.min(Math.max(previewY, 30), 570);
-        }
-
-        // Update drag preview position
-        if (isMountedRef.current) {
+      gesture.begin(e, {
+        onStart: (point) => {
+          triggerHapticFeedback('dragStart');
+          const rect = svgRef.current?.getBoundingClientRect();
+          setDragState({
+            ...IDLE,
+            isDragging: true,
+            draggedPosition: position,
+            pointer: point,
+            viewportScale: rect && rect.width > 0 ? rect.width / VIEW_WIDTH : 1,
+          });
+        },
+        onMove: (point) => {
+          target = findTarget(point, position);
+          blocked = target !== null && Boolean(isPositionLocked?.(target));
           setDragState((prev) => ({
             ...prev,
-            dragPreview: {
-              x: previewX,
-              y: previewY,
-              student: dragInfoRef.current
-                ? layout.students[dragInfoRef.current.fromPosition]?.student
-                : null,
-            },
+            pointer: point,
+            hoverPosition: target,
+            hoverBlocked: blocked,
           }));
-        }
-
-        // Find closest position
-        let closestPosition = -1;
-        let minDistance = Infinity;
-
-        layout.students.forEach((_, index) => {
-          const angle = (360 / layout.students.length) * index;
-          const pos = angleToPosition(angle, layout.center, layout.radius);
-          const distance = Math.sqrt(
-            Math.pow(svgX - pos.x, 2) + Math.pow(svgY - pos.y, 2),
-          );
-
-          if (distance < minDistance) {
-            minDistance = distance;
-            closestPosition = index;
+        },
+        onDrop: () => {
+          reset();
+          if (target === null) {
+            triggerHapticFeedback('dragEnd');
+            return;
           }
-        });
-
-        // Update hover position if close enough and different from start position
-        if (
-          minDistance < 50 &&
-          closestPosition !== dragInfoRef.current.fromPosition
-        ) {
-          if (currentHoverPosition !== closestPosition) {
-            currentHoverPosition = closestPosition;
-            if (isMountedRef.current) {
-              setDragState((prev) => ({
-                ...prev,
-                hoverPosition: closestPosition,
-              }));
-            }
+          if (blocked) {
+            triggerHapticFeedback('error');
+            showToast('error', TOAST_MESSAGES.SEAT_LOCKED_DROP);
+            return;
           }
-        } else {
-          if (currentHoverPosition !== null) {
-            currentHoverPosition = null;
-            if (isMountedRef.current) {
-              setDragState((prev) => ({
-                ...prev,
-                hoverPosition: null,
-              }));
-            }
-          }
-        }
-      };
-
-      // Mouse up handler
-      dragUpListenerRef.current = () => {
-        let wasSuccessfulDrop = false;
-
-        if (
-          dragInfoRef.current &&
-          currentHoverPosition !== null &&
-          currentHoverPosition !== dragInfoRef.current.fromPosition
-        ) {
-          onStudentMove?.(dragInfoRef.current.studentId, currentHoverPosition);
-          wasSuccessfulDrop = true;
-        }
-
-        // Trigger haptic feedback based on drop result
-        if (wasSuccessfulDrop) {
+          onStudentMove?.(studentId, target);
           triggerHapticFeedback('drop');
-        } else {
+          onMoved?.(position, target);
+        },
+        onCancel: () => {
+          reset();
           triggerHapticFeedback('dragEnd');
-        }
-
-        // Cleanup
-        if (dragMoveListenerRef.current) {
-          window.removeEventListener(
-            'pointermove',
-            dragMoveListenerRef.current,
-          );
-          dragMoveListenerRef.current = null;
-        }
-        if (dragUpListenerRef.current) {
-          window.removeEventListener('pointerup', dragUpListenerRef.current);
-          dragUpListenerRef.current = null;
-        }
-
-        dragInfoRef.current = null;
-        if (isMountedRef.current) {
-          setDragState({
-            isDragging: false,
-            draggedPosition: null,
-            hoverPosition: null,
-            dragPreview: null,
-          });
-        }
-      };
-
-      window.addEventListener('pointermove', dragMoveListenerRef.current);
-      window.addEventListener('pointerup', dragUpListenerRef.current);
+        },
+      });
     },
-    [editable, layout.students, layout.center, layout.radius, onStudentMove],
+    [
+      editable,
+      layout.students,
+      isPositionLocked,
+      gesture,
+      findTarget,
+      onStudentMove,
+      onMoved,
+    ],
   );
 
   return {

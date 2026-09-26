@@ -237,9 +237,42 @@ describe('TableSeat component', () => {
       </svg>,
     );
 
-    // Hover state should apply scale transform
-    const group = container.querySelector('g[style*="scale"]');
-    expect(group).toBeInTheDocument();
+    // The seat under a dragged student is ringed inside its own edge, where
+    // the table can neither clip nor cover it.
+    const drop = container.querySelector('[data-seat-drop]');
+    expect(drop).toHaveAttribute('data-seat-drop', 'target');
+    const ring = drop?.querySelectorAll('rect')[1];
+    // Blue: where the student can land is where the teacher can act.
+    expect(ring?.style.stroke).toBe('var(--border-option-selected)');
+    expect(ring).toHaveAttribute('x', '2');
+    expect(container.querySelector('g[style*="scale"]')).toBeNull();
+  });
+
+  it('does not mark the seat a drag started from as its target', () => {
+    const { container } = render(
+      <svg>
+        <TableSeat
+          student={baseStudent}
+          seatIndex={0}
+          tableIndex={0}
+          col={0}
+          row={0}
+          seatWidth={55}
+          seatHeight={65}
+          isDark={false}
+          locked={false}
+          isOriginSeat={true}
+          isHoverSeat={true}
+          isHoverLockedSeat={false}
+          isLockedFeedbackSeat={false}
+          showSpecialNeeds={true}
+          lockSeatLabelOrientation={true}
+          seatTextRotation={0}
+        />
+      </svg>,
+    );
+
+    expect(container.querySelector('[data-seat-drop]')).toBeNull();
   });
 
   it('applies origin seat opacity', () => {
@@ -315,6 +348,197 @@ describe('TableSeat component', () => {
     // Should render badge icons
     const svgElements = container.querySelectorAll('svg');
     expect(svgElements.length).toBeGreaterThan(0);
+  });
+
+  it('reads the badges out with the seat and leaves out what the view hides', () => {
+    const student: Student = {
+      ...baseStudent,
+      restless: true,
+      needsFrontSeat: true,
+    };
+    const seat = (
+      badgeView?: React.ComponentProps<typeof TableSeat>['badgeView'],
+    ) =>
+      render(
+        <svg>
+          <TableSeat
+            student={student}
+            seatIndex={0}
+            tableIndex={0}
+            col={0}
+            row={0}
+            seatWidth={55}
+            seatHeight={65}
+            isDark={false}
+            locked={false}
+            isOriginSeat={false}
+            isHoverSeat={false}
+            isHoverLockedSeat={false}
+            isLockedFeedbackSeat={false}
+            showSpecialNeeds={true}
+            badgeView={badgeView}
+            lockSeatLabelOrientation={true}
+            seatTextRotation={0}
+            onSeatKeyDown={vi.fn()}
+          />
+        </svg>,
+      ).container.querySelector('rect[role="button"]');
+
+    expect(seat()?.getAttribute('aria-label')).toMatch(
+      /(Merkmale|Markers): unruhig, Vordere Plätze$/,
+    );
+    expect(
+      seat({ filter: (badge) => badge.family === 'space' })?.getAttribute(
+        'aria-label',
+      ),
+    ).toMatch(/(Merkmale|Markers): Vordere Plätze$/);
+  });
+
+  it('folds what does not fit into a "+N" where the view can explain it', () => {
+    const student: Student = {
+      ...baseStudent,
+      restless: true,
+      concentrationIssues: true,
+      shy: true,
+      needsFrontSeat: true,
+      performanceWeak: true,
+      socialRole: 'leader',
+      languageSkill: 'daz',
+      height: 'small',
+      prefersWindow: true,
+      prefersDoor: true,
+    };
+    const overlay = (collapse: boolean) =>
+      render(
+        <svg>
+          <TableSeatBadgeOverlay
+            student={student}
+            col={0}
+            row={0}
+            seatWidth={55}
+            seatHeight={65}
+            isDark={false}
+            showSpecialNeeds={true}
+            badgeView={{ collapse }}
+            isOriginSeat={false}
+            lockSeatLabelOrientation={true}
+            seatTextRotation={0}
+          />
+        </svg>,
+      ).container;
+
+    const onScreen = overlay(true);
+    const more = onScreen.querySelector('[data-badge-key="__more"]');
+    expect(more).toBeInTheDocument();
+    // Its <title> names the badges it stands for, then comes the "+N".
+    expect(more?.textContent).toMatch(/\+\d+$/);
+    expect(
+      onScreen.querySelector('[data-badge-pill="s1"]'),
+    ).toBeInTheDocument();
+
+    // A printout cannot be hovered, so it keeps every icon.
+    const printed = overlay(false);
+    expect(printed.querySelector('[data-badge-key="__more"]')).toBeNull();
+    expect(printed.querySelectorAll('[data-badge-key]')).toHaveLength(10);
+  });
+
+  it('rings the seat in the colour of its verdict, or of a badge pointing at it', () => {
+    const seat = (
+      highlight: Pick<
+        React.ComponentProps<typeof TableSeat>,
+        'highlightStatus' | 'highlightMode' | 'highlightTone'
+      >,
+    ) =>
+      render(
+        <svg>
+          <TableSeat
+            student={baseStudent}
+            seatIndex={0}
+            tableIndex={0}
+            col={0}
+            row={0}
+            seatWidth={55}
+            seatHeight={65}
+            isDark={false}
+            locked={false}
+            isOriginSeat={false}
+            isHoverSeat={false}
+            isHoverLockedSeat={false}
+            isLockedFeedbackSeat={false}
+            showSpecialNeeds={true}
+            lockSeatLabelOrientation={true}
+            seatTextRotation={0}
+            highlightPercentage={50}
+            {...highlight}
+          />
+        </svg>,
+      ).container.querySelector('[data-seat-highlight]');
+
+    const warn = seat({ highlightStatus: 'warn', highlightMode: 'persistent' });
+    expect(warn).toHaveAttribute('data-seat-highlight', 'warn');
+    const ring = warn?.querySelectorAll('rect')[1];
+    expect(ring?.style.stroke).toBe('var(--status-warn)');
+    // Inset, so the table's outline cannot clip it.
+    expect(ring).toHaveAttribute('x', '2');
+
+    const focus = seat({
+      highlightStatus: 'ok',
+      highlightMode: 'hover',
+      highlightTone: 'focus',
+    });
+    expect(focus).toHaveAttribute('data-seat-highlight', 'focus');
+    expect(focus?.querySelectorAll('rect')[1]?.style.stroke).toBe(
+      'var(--border-option-selected)',
+    );
+    // It stands still: a pointed-at badge does not blink.
+    expect(focus?.querySelector('.animate-pulse')).toBeNull();
+    // A badge is no verdict: no fulfilment in the tooltip.
+    expect(focus?.querySelector('title')).toBeNull();
+  });
+
+  it('shows who would come to the seat a drag started from, and rings a landing green', () => {
+    const seat = (props: Partial<React.ComponentProps<typeof TableSeat>>) =>
+      render(
+        <svg>
+          <TableSeat
+            student={baseStudent}
+            seatIndex={0}
+            tableIndex={0}
+            col={0}
+            row={0}
+            seatWidth={55}
+            seatHeight={65}
+            isDark={false}
+            locked={false}
+            isOriginSeat={false}
+            isHoverSeat={false}
+            isHoverLockedSeat={false}
+            isLockedFeedbackSeat={false}
+            showSpecialNeeds={true}
+            lockSeatLabelOrientation={true}
+            seatTextRotation={0}
+            nameDisplay="full"
+            {...props}
+          />
+        </svg>,
+      ).container;
+
+    const origin = seat({
+      isOriginSeat: true,
+      swapPreviewStudent: { ...baseStudent, id: 's2', name: 'Grace Hopper' },
+    });
+    expect(origin.querySelector('text')?.textContent).toContain('Grace Hopper');
+
+    const landed = seat({
+      highlightStatus: 'ok',
+      highlightMode: 'persistent',
+      highlightTone: 'confirm',
+    });
+    const ring = landed.querySelector('[data-seat-highlight="confirm"]');
+    expect(ring).toHaveClass('seat-drop-confirm');
+    expect(ring?.querySelectorAll('rect')[1]?.style.stroke).toBe(
+      'var(--status-ok)',
+    );
   });
 
   it('calls onSeatPointerDown with correct parameters', () => {
@@ -578,10 +802,12 @@ describe('TableSeat component', () => {
       </svg>,
     );
 
-    // Locked feedback should apply red error colors
-    const seatRect = container.querySelector('rect[rx="4"]');
-    expect(seatRect).toBeInTheDocument();
-    expect(seatRect?.getAttribute('stroke')).toBe('#ef4444');
+    // A held seat refuses the drop in the alert colour, in both themes.
+    const drop = container.querySelector('[data-seat-drop]');
+    expect(drop).toHaveAttribute('data-seat-drop', 'blocked');
+    expect(drop?.querySelectorAll('rect')[1]?.style.stroke).toBe(
+      'var(--status-alert)',
+    );
   });
 });
 

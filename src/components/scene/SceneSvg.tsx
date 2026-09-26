@@ -11,8 +11,12 @@ import {
   formatDate,
   svgFontFamily,
 } from '@/utils';
-import type { NameDisplayMode } from '@/utils';
+import type { DataFamily, NameDisplayMode } from '@/utils';
 import { getFeatureStyles } from '@/utils/ui';
+import {
+  createHiddenFamiliesFilter,
+  type SeatBadgeView,
+} from '@/utils/ui/seatBadges';
 import type { FeatureVisibilityFlags } from '@/utils/ui';
 import { buildLegendLayout } from '@/utils/ui/classBadgeLegend';
 import ExportLegend from '@/components/scene/ExportLegend';
@@ -50,6 +54,8 @@ type SceneSvgProps = {
   photoDisplayMode?: 'all' | 'off';
   /** When true, append a legend (badge icons + gender colours) in the footer. */
   showLegend?: boolean;
+  /** Badge families the sheet leaves out, on the seats and in the legend. */
+  hiddenBadgeFamilies?: readonly DataFamily[];
 };
 
 export default function SceneSvg({
@@ -68,7 +74,21 @@ export default function SceneSvg({
   nameDisplay,
   photoDisplayMode = 'all',
   showLegend = false,
+  hiddenBadgeFamilies,
 }: SceneSvgProps) {
+  // Keyed on the families rather than the array, which a caller may rebuild
+  // on every render.
+  const hiddenFamiliesKey = (hiddenBadgeFamilies ?? []).join(',');
+  const badgeView = React.useMemo<SeatBadgeView>(
+    () => ({
+      filter: createHiddenFamiliesFilter(
+        hiddenFamiliesKey
+          ? (hiddenFamiliesKey.split(',') as DataFamily[])
+          : undefined,
+      ),
+    }),
+    [hiddenFamiliesKey],
+  );
   const { t, i18n } = useTranslation('generator');
   const nameLabels = useNameLabels(allStudents, nameDisplay);
 
@@ -118,6 +138,7 @@ export default function SceneSvg({
           fontSize: legendFontSize,
           iconSize: legendIconSize,
           showSpecialNeeds,
+          badgeFilter: badgeView.filter,
           genderLabels: {
             girl: t('legend.genderGirl'),
             boy: t('legend.genderBoy'),
@@ -305,6 +326,7 @@ export default function SceneSvg({
             onUpdate={() => {}}
             editable={false}
             showSpecialNeeds={showSpecialNeeds}
+            badgeView={badgeView}
             isDark={false}
             lockSeatLabelOrientation={lockSeatLabelOrientation}
             seatLabelRotation={seatLabelRotation - classroomRotation}

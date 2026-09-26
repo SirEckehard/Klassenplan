@@ -4,11 +4,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { buildFeatureTemplateMap } from '@/hooks/canvas/featureTemplates';
-import type {
-  SeatingArrangement,
-  ClassroomScene,
-  PhotoDisplayMode,
-} from '@/types';
+import type { SeatingArrangement, ClassroomScene } from '@/types';
 import {
   CLASSROOM_WIDTH,
   CLASSROOM_HEIGHT,
@@ -16,11 +12,9 @@ import {
   hasShapeMismatch,
   createClientToSceneConverter,
   type AlignmentGuide,
-  type NameDisplayMode,
 } from '@/utils';
 import useTableSelection from '@/hooks/useTableSelection';
 import useFeatureSelection from '@/hooks/useFeatureSelection';
-import usePersistentState from '@/hooks/usePersistentState';
 import useTableInteraction from '@/hooks/useTableInteraction';
 import { countSeats } from '@/utils/math/scene';
 import useTemplateManager from '@/hooks/template/useTemplateManager';
@@ -29,7 +23,6 @@ import { useClassroomSetup } from '@/hooks/classroom/useClassroomSetup';
 import LayoutEditorView from '@/components/SeatingPlanGenerator/LayoutEditorView';
 import SeatingPlanEditorView from '@/components/SeatingPlanGenerator/SeatingPlanEditorView';
 import SaveTemplateModal from '@/components/ui/modals/SaveTemplateModal';
-import { LOCAL_STORAGE_KEYS } from '@/utils/data/storageKeys';
 import { useCanvasPreferences } from '@/contexts/seatingPlan/CanvasPreferencesContext';
 import {
   useOptionalSeatingPlanActions,
@@ -156,20 +149,24 @@ export function useSeatingPlanViewLogic({
 
   // The canvas view toggles live in their own context, so the editor views read
   // them where they use them instead of taking eight props for four booleans.
-  const { snapToGrid, showAlignmentGuides } = useCanvasPreferences();
+  // Photos, names and badges come from there too: the table plan and the
+  // circle show the class the same way.
+  const {
+    snapToGrid,
+    showAlignmentGuides,
+    photoDisplayMode,
+    setPhotoDisplayMode,
+    nameDisplay,
+    setNameDisplay,
+    badgeDisplay,
+    setBadgeDisplay,
+    badgeHover,
+    setBadgeHover,
+  } = useCanvasPreferences();
   // Guides of the drag currently in progress; null while nothing is dragged.
   const [activeAlignmentGuides, setActiveAlignmentGuides] = React.useState<
     AlignmentGuide[] | null
   >(null);
-  const [photoDisplayMode, setPhotoDisplayMode] =
-    usePersistentState<PhotoDisplayMode>(
-      LOCAL_STORAGE_KEYS.photoDisplayMode,
-      'hover',
-    ); // How student photos grow on the seat dots (all / hover / off)
-  const [nameDisplay, setNameDisplay] = usePersistentState<NameDisplayMode>(
-    LOCAL_STORAGE_KEYS.nameDisplay,
-    'firstNameInitial',
-  ); // Uniform seat label rule (first name / first name + initial / full)
   const canvasRef = React.useRef<SVGSVGElement | null>(null);
 
   // Context Menu Integration
@@ -520,6 +517,10 @@ export function useSeatingPlanViewLogic({
           setPhotoDisplayMode,
           nameDisplay,
           setNameDisplay,
+          badgeDisplay,
+          setBadgeDisplay,
+          badgeHover,
+          setBadgeHover,
           sceneTables,
           currentSeating,
           students,

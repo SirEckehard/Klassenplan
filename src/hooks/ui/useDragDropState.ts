@@ -4,7 +4,7 @@ import React from 'react';
 import type { Icon } from '@phosphor-icons/react';
 import type { Student } from '@/types';
 import { triggerHapticFeedback } from '@/utils/touch/hapticFeedback';
-import type { NameDisplayMode, NameLabels } from '@/utils';
+import type { DataFamily, NameDisplayMode, NameLabels } from '@/utils';
 
 export interface DragPreview {
   student: Student;
@@ -27,6 +27,8 @@ interface SeatBadge {
   label: string;
   icon: Icon;
   tooltip: string;
+  /** Colours the icon in the drag preview, as on the seat. */
+  family: DataFamily;
 }
 
 interface DragDropStateHook {
@@ -105,11 +107,8 @@ export function useDragDropState(): DragDropStateHook {
         tableIndex: config.tableIndex,
         seatIndex: config.seatIndex,
       });
-      setDragHover({
-        tableIndex: config.tableIndex,
-        seatIndex: config.seatIndex,
-        locked: false,
-      });
+      // The seat it came from is no target; the first move finds one.
+      setDragHover(null);
       setLockedDropTarget(null);
     },
     [],
@@ -177,4 +176,24 @@ export function useDragDropState(): DragDropStateHook {
     handleSeatHoverChange,
     handleLockedDrop,
   };
+}
+
+/**
+ * The student who would take the dragged student's place: whoever sits on
+ * the target seat, while it is a free target that is not the origin itself.
+ * Null for an empty seat, a held seat or no target at all.
+ */
+export function getSwapPartner(
+  arrangement: ReadonlyArray<ReadonlyArray<Student | null>>,
+  origin: DragOrigin | null,
+  hover: DragHover | null,
+): Student | null {
+  if (!origin || !hover || hover.locked) return null;
+  if (
+    origin.tableIndex === hover.tableIndex &&
+    origin.seatIndex === hover.seatIndex
+  ) {
+    return null;
+  }
+  return arrangement[hover.tableIndex]?.[hover.seatIndex] ?? null;
 }

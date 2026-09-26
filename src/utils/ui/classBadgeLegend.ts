@@ -10,13 +10,21 @@
  */
 import type { Student } from '@/types';
 import type { Icon } from '@phosphor-icons/react';
-import { getAllStudentBadges, STUDENT_COLORS } from './studentAppearance';
+import type { DataFamily } from './designTokens';
+import {
+  getAllStudentBadges,
+  getBadgeColor,
+  sortBadges,
+  STUDENT_COLORS,
+} from './studentAppearance';
+import type { BadgeFilter } from './seatBadges';
 
 export interface LegendBadgeEntry {
   key: string;
   label: string;
   icon: Icon;
   color: string;
+  family: DataFamily;
 }
 
 /** A gender swatch entry; `key` matches a {@link STUDENT_COLORS} gender bucket. */
@@ -26,33 +34,36 @@ export interface LegendGenderEntry {
   stroke: string;
 }
 
-/** Fallback colour for badges that don't carry their own (special-need flags). */
-const DEFAULT_BADGE_COLOR = '#d97706';
-
 type BadgeOptions = Parameters<typeof getAllStudentBadges>[2];
 
 /**
  * Collect the distinct badges present across the class, deduplicated by badge
- * `key` (e.g. several "wish partner" badges collapse into one legend row).
+ * `key` (e.g. several "wish partner" badges collapse into one legend row), in
+ * the order a seat reads them. `filter` leaves out what the view does not
+ * show, so the legend explains exactly the icons on the sheet.
  */
 export function getPresentBadgeLegend(
   students: Student[],
   options?: BadgeOptions,
+  filter?: BadgeFilter,
 ): LegendBadgeEntry[] {
   const seen = new Map<string, LegendBadgeEntry>();
   for (const student of students) {
     const badges = getAllStudentBadges(student, students, options);
     for (const badge of badges) {
+      if (filter && !filter(badge)) continue;
       if (seen.has(badge.key)) continue;
       seen.set(badge.key, {
         key: badge.key,
         label: badge.label,
         icon: badge.icon,
-        color: 'color' in badge ? badge.color : DEFAULT_BADGE_COLOR,
+        // Exports always render light, like the gender swatches below.
+        color: getBadgeColor(badge, false),
+        family: badge.family,
       });
     }
   }
-  return [...seen.values()];
+  return sortBadges([...seen.values()]);
 }
 
 /**
@@ -123,6 +134,8 @@ export interface LegendLayoutParams {
   fontSize: number;
   iconSize: number;
   showSpecialNeeds?: boolean;
+  /** Leaves out the badges the sheet does not draw (see `getPresentBadgeLegend`). */
+  badgeFilter?: BadgeFilter;
   /** Translated gender labels keyed by {@link LegendGenderEntry.key}. */
   genderLabels: Record<LegendGenderEntry['key'], string>;
 }
@@ -143,16 +156,21 @@ export function buildLegendLayout(params: LegendLayoutParams): LegendLayout {
     fontSize,
     iconSize,
     showSpecialNeeds,
+    badgeFilter,
     genderLabels,
   } = params;
 
   const genders = getPresentGenderLegend(students);
-  const badges = getPresentBadgeLegend(students, {
-    showSpecialNeeds,
-    showPartners: showSpecialNeeds,
-    showHeight: showSpecialNeeds,
-    showEnvironment: showSpecialNeeds,
-  });
+  const badges = getPresentBadgeLegend(
+    students,
+    {
+      showSpecialNeeds,
+      showPartners: showSpecialNeeds,
+      showHeight: showSpecialNeeds,
+      showEnvironment: showSpecialNeeds,
+    },
+    badgeFilter,
+  );
 
   const titleLineHeight = fontSize + 5;
   const rowHeight = Math.max(iconSize, fontSize) + 6;

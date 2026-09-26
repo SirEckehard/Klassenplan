@@ -30,6 +30,8 @@ interface UseSeatKeyboardMoveOptions {
   moveStudent?: MoveStudentHandler;
   onHoverChange?: (hover: DragHover | null) => void;
   onDropRejected?: (target: DragHover) => void;
+  /** A student landed: where from, where to (the pointer path reports too). */
+  onMoved?: (from: DragOrigin, to: DragOrigin) => void;
 }
 
 interface UseSeatKeyboardMoveResult {
@@ -58,6 +60,7 @@ export function useSeatKeyboardMove({
   moveStudent,
   onHoverChange,
   onDropRejected,
+  onMoved,
 }: UseSeatKeyboardMoveOptions): UseSeatKeyboardMoveResult {
   const { t } = useTranslation('generator');
   const [origin, setOrigin] = React.useState<KeyboardMoveOrigin | null>(null);
@@ -68,10 +71,17 @@ export function useSeatKeyboardMove({
     moveStudent,
     onHoverChange,
     onDropRejected,
+    onMoved,
     t,
   });
   React.useEffect(() => {
-    optionsRef.current = { moveStudent, onHoverChange, onDropRejected, t };
+    optionsRef.current = {
+      moveStudent,
+      onHoverChange,
+      onDropRejected,
+      onMoved,
+      t,
+    };
   });
 
   const updateOrigin = React.useCallback((next: KeyboardMoveOrigin | null) => {
@@ -191,6 +201,13 @@ export function useSeatKeyboardMove({
       hover?.(null);
       if (moved) {
         triggerHapticFeedback('drop');
+        optionsRef.current.onMoved?.(
+          {
+            tableIndex: activeOrigin.tableIndex,
+            seatIndex: activeOrigin.seatIndex,
+          },
+          { tableIndex: info.tableIndex, seatIndex: info.seatIndex },
+        );
         setAnnouncement(
           translate('seat.keyboard.moved', {
             name: activeOrigin.studentName,

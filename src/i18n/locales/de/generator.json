@@ -29,18 +29,21 @@
     "plan": {
       "title": "Sitzplan",
       "item1": "Passe die Gewichtung der Kriterien (0-10) in der Sidebar an – in der minimierten Sidebar mit einem Rechtsklick oder langem Drücken auf das Symbol.",
-      "item2": "Ziehe Schüler per Drag & Drop auf andere Plätze.",
+      "item2": "Ziehe Schüler auf andere Plätze – auf einem besetzten Platz tauschen die beiden. Escape bricht das Ziehen ab.",
       "item3": "Klicke auf das Schloss-Symbol, um einen Platz beim nächsten Mischen zu sperren.",
       "item4": "Über die Statistikanzeige siehst du, wie gut die Kriterien erfüllt sind – die Werte stehen dann neben den Kriterien in den Optionen.",
       "item5": "In den Ansichtseinstellungen legst du fest, wie Namen erscheinen sollen (nur Vorname, Vorname + Initial oder Vor- und Nachname) und ob Fotos angezeigt werden.",
-      "item6": "Änderungen am Sitzplan kannst du über die jeweiligen Icons rückgängig machen und wiederherstellen."
+      "item6": "Änderungen am Sitzplan kannst du über die jeweiligen Icons rückgängig machen und wiederherstellen.",
+      "item7": "Fahre über ein Icon auf einem Platz oder tippe darauf, um zu sehen, was es bedeutet – die Plätze aller, die es teilen, werden dabei markiert. Unter „Merkmale“ in der Werkzeugleiste findest du die Legende, wählst, welche Icons die Plätze zeigen, und schaltest Erklärung und Markieren ab."
     },
     "circle": {
       "title": "Sitzkreis",
-      "item1": "Ziehe Schüler per Drag & Drop auf neue Positionen.",
+      "item1": "Ziehe Schüler auf andere Plätze im Kreis – die beiden tauschen. Escape bricht das Ziehen ab.",
       "item2": "Grüne Linien zeigen Verbindungen zu Tischnachbarn im Sitzplan.",
       "item3": "Blende Verbindungen in der Sidebar ein oder aus.",
-      "item4": "Der Sitzkreis ist zu Beginn an den Sitzplan gekoppelt, lässt sich aber verändern, separat speichern und exportieren."
+      "item4": "Der Sitzkreis ist zu Beginn an den Sitzplan gekoppelt, lässt sich aber verändern, separat speichern und exportieren.",
+      "item5": "Fahre über ein Icon auf einem Platz oder tippe darauf, um zu sehen, was es bedeutet – die Plätze aller, die es teilen, werden dabei markiert. Unter „Merkmale“ in der Werkzeugleiste findest du die Legende, wählst, welche Icons die Plätze zeigen, und schaltest Erklärung und Markieren ab.",
+      "item6": "Mit dem Schloss hält ein Schüler seinen Platz im Kreis: Ziehen, Mischen und Neu-Erzeugen lassen ihn dort. Mit der Tastatur nimmt die Eingabetaste einen Schüler auf, die Pfeiltasten wählen den Platz, die Eingabetaste setzt ihn ab."
     },
     "export": {
       "title": "Export",
@@ -201,6 +204,11 @@
       },
       "pair": "{{first}} & {{second}}",
       "andMore": "{{names}} und {{more}} weitere"
+    },
+    "keyboard": {
+      "grabbed": "{{name}} aufgenommen. Mit den Pfeiltasten zum Zielplatz, Eingabetaste zum Absetzen, Escape zum Abbrechen.",
+      "lockedTarget": "Platz {{position}} im Sitzkreis ist gesperrt. Bitte einen anderen Platz wählen.",
+      "tokenLabel": "{{name}} – Platz {{position}} im Sitzkreis"
     }
   },
   "seat": {
@@ -217,6 +225,11 @@
       "lockedTarget": "Tisch {{table}}, Platz {{seat}} ist gesperrt. Bitte anderen Platz wählen.",
       "sourceLocked": "Dieser Platz ist gesperrt und kann nicht aufgenommen werden.",
       "moveFailed": "Umsetzen nicht möglich."
+    },
+    "ariaBadges": "Merkmale: {{list}}",
+    "badgeTooltip": {
+      "more_one": "Ein weiteres Merkmal",
+      "more_other": "{{count}} weitere Merkmale"
     }
   },
   "backupReminder": {
@@ -580,7 +593,9 @@
       "legend": "Legende",
       "classInfo": "Klasseninfos",
       "connections": "Verbindungen"
-    }
+    },
+    "badgeFamilies": "Merkmale auf dem Blatt",
+    "badgeFamiliesHint": "Was ausgeschaltet ist, steht weder auf dem Plan noch in der Legende."
   },
   "wizard": {
     "step": "Schritt",
@@ -664,7 +679,19 @@
     "studentPhotos": "Schülerfotos",
     "viewOptions": "Ansichtsoptionen",
     "viewSettings": "Ansichtseinstellungen",
-    "workspace": "Arbeitsfläche"
+    "workspace": "Arbeitsfläche",
+    "badges": {
+      "title": "Merkmale",
+      "all": "Alle",
+      "active": "Nur aktive Kriterien",
+      "off": "Aus",
+      "hint": "„Nur aktive Kriterien“ zeigt nur die Merkmale, deren Mischkriterium nicht auf „Aus“ steht.",
+      "legend": "Legende",
+      "legendEmpty": "In dieser Klasse ist noch kein Merkmal gesetzt.",
+      "hoverLabel": "Beim Überfahren",
+      "hoverTooltip": "Erklärung beim Überfahren",
+      "hoverHighlight": "Gleiche Merkmale markieren"
+    }
   },
   "quickSetup": {
     "title": "Klassenraum einrichten",
@@ -1076,5 +1103,12 @@
     },
     "back": "Zurück",
     "backTitle": "Zurück (Alt + ←)"
+  },
+  "drag": {
+    "swapWith": "tauscht mit {{name}}",
+    "announce": {
+      "swapped": "{{name}} und {{other}} haben die Plätze getauscht.",
+      "moved": "{{name}} sitzt jetzt an Tisch {{table}}, Platz {{seat}}."
+    }
   }
 }

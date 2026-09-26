@@ -23,9 +23,17 @@ import {
   getPresentationRotation,
   type PresentationPerspective,
 } from '@/utils/ui/boardOrientation';
+import BadgeTooltipLayer from '@/components/scene/BadgeTooltip';
+import type { SeatBadgeView } from '@/utils/ui/seatBadges';
 import PresentationSpotlight, {
   type SpotlightTarget,
 } from '@/components/scene/PresentationSpotlight';
+
+/**
+ * On the wall the badges stay legible and give way to a "+N"; the teacher at
+ * the board can point at it for the rest.
+ */
+const PRESENT_BADGE_VIEW: SeatBadgeView = { collapse: true };
 
 /**
  * Read-only, chrome-free classroom render for the smartboard projection view.
@@ -164,6 +172,7 @@ export default function PresentationScene({
     `translate(${boxWidth / 2} ${boxHeight / 2}) rotate(${rotation}) ` +
     `translate(${-CLASSROOM_WIDTH / 2} ${-CLASSROOM_HEIGHT / 2})`;
 
+  const svgRef = React.useRef<SVGSVGElement | null>(null);
   const photoDisplayMode =
     perspective === 'teacher' && showPhotos && !contrast ? 'all' : 'off';
   const showSpecialNeeds = perspective === 'teacher' && showBadges && !contrast;
@@ -222,58 +231,65 @@ export default function PresentationScene({
   }, [boxHeight, boxWidth, featureViewModels, rotation, scene.tables]);
 
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="100%"
-      height="100%"
-      viewBox={`${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`}
-      preserveAspectRatio="xMidYMid meet"
-      fontFamily={svgFontFamily}
-      style={{
-        display: 'block',
-        transform: `translate(${panX}px, ${panY}px) scale(${zoom})`,
-        transformOrigin: 'center',
-      }}
-    >
-      <g transform={groupTransform}>
-        {featureViewModels.map(({ feature, styles }) => (
-          <FeatureShape
-            key={feature.id}
-            feature={feature}
-            styles={styles}
-            extraIconRotation={rotation}
-          />
-        ))}
-        {scene.tables.map((table, index) => (
-          <TableIcon
-            key={index}
-            table={table}
-            index={index}
-            students={seating[index] || []}
-            allStudents={students}
-            photoUrls={photoUrls}
-            selected={false}
-            onUpdate={() => {}}
-            editable={false}
-            showSpecialNeeds={showSpecialNeeds}
-            isDark={dark}
-            contrast={contrast}
-            showGenderColors={colors}
-            lockSeatLabelOrientation={true}
-            seatLabelRotation={-rotation}
-            photoDisplayMode={photoDisplayMode}
-            nameDisplay={nameDisplay}
-            nameLabels={nameLabels}
-          />
-        ))}
-      </g>
-      <PresentationSpotlight
-        scene={scene}
-        seating={seating}
-        target={spotlight}
-        viewBox={viewBox}
-        groupTransform={groupTransform}
-      />
-    </svg>
+    <>
+      <svg
+        ref={svgRef}
+        xmlns="http://www.w3.org/2000/svg"
+        width="100%"
+        height="100%"
+        viewBox={`${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`}
+        preserveAspectRatio="xMidYMid meet"
+        fontFamily={svgFontFamily}
+        style={{
+          display: 'block',
+          transform: `translate(${panX}px, ${panY}px) scale(${zoom})`,
+          transformOrigin: 'center',
+        }}
+      >
+        <g transform={groupTransform}>
+          {featureViewModels.map(({ feature, styles }) => (
+            <FeatureShape
+              key={feature.id}
+              feature={feature}
+              styles={styles}
+              extraIconRotation={rotation}
+            />
+          ))}
+          {scene.tables.map((table, index) => (
+            <TableIcon
+              key={index}
+              table={table}
+              index={index}
+              students={seating[index] || []}
+              allStudents={students}
+              photoUrls={photoUrls}
+              selected={false}
+              onUpdate={() => {}}
+              editable={false}
+              showSpecialNeeds={showSpecialNeeds}
+              badgeView={PRESENT_BADGE_VIEW}
+              isDark={dark}
+              contrast={contrast}
+              showGenderColors={colors}
+              lockSeatLabelOrientation={true}
+              seatLabelRotation={-rotation}
+              photoDisplayMode={photoDisplayMode}
+              nameDisplay={nameDisplay}
+              nameLabels={nameLabels}
+            />
+          ))}
+        </g>
+        <PresentationSpotlight
+          scene={scene}
+          seating={seating}
+          target={spotlight}
+          viewBox={viewBox}
+          groupTransform={groupTransform}
+        />
+      </svg>
+      {showSpecialNeeds && (
+        <BadgeTooltipLayer svgRef={svgRef} allStudents={students} />
+      )}
+    </>
   );
 }

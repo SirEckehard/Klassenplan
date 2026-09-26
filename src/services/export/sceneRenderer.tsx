@@ -4,7 +4,7 @@ import type { ReactElement } from 'react';
 import type { ClassroomScene, SeatingArrangement, Student } from '@/types';
 import type { CircleLayout } from '@/types/Circle';
 import type { FeatureVisibilityFlags } from '@/utils/ui';
-import type { NameDisplayMode } from '@/utils';
+import type { DataFamily, NameDisplayMode } from '@/utils';
 import SceneSvg from '@/components/scene/SceneSvg';
 import CirclePrintView from '@/components/circle/CirclePrintView';
 
@@ -52,6 +52,7 @@ export async function renderSceneSvg(
     photoDisplayMode?: 'all' | 'off';
     showLegend?: boolean;
     classMetadata?: ExportClassMetadata;
+    hiddenBadgeFamilies?: readonly DataFamily[];
   },
 ): Promise<string> {
   return renderMarkup(
@@ -72,6 +73,7 @@ export async function renderSceneSvg(
         nameDisplay={options?.nameDisplay}
         photoDisplayMode={options?.photoDisplayMode}
         showLegend={options?.showLegend}
+        hiddenBadgeFamilies={options?.hiddenBadgeFamilies}
       />
     </div>,
   );
@@ -92,6 +94,7 @@ export async function renderCircleSvg(
     photoDataUrls?: ReadonlyMap<string, string>;
     photoDisplayMode?: 'all' | 'off';
     showLegend?: boolean;
+    hiddenBadgeFamilies?: readonly DataFamily[];
   },
 ): Promise<string> {
   return renderMarkup(
@@ -107,6 +110,7 @@ export async function renderCircleSvg(
         photoDataUrls={options?.photoDataUrls}
         photoDisplayMode={options?.photoDisplayMode}
         showLegend={options?.showLegend}
+        hiddenBadgeFamilies={options?.hiddenBadgeFamilies}
       />
     </div>,
   );

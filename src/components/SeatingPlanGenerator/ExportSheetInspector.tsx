@@ -8,7 +8,13 @@ import {
   RectangleIcon,
 } from '@phosphor-icons/react';
 import type { ClassroomFeatureType } from '@/types';
-import { inputFieldClass, type NameDisplayMode } from '@/utils';
+import {
+  dataFamilyClass,
+  inputFieldClass,
+  type DataFamily,
+  type NameDisplayMode,
+} from '@/utils';
+import { badgeFamilyLabelKey } from '@/components/scene/BadgeTooltip';
 import {
   FEATURE_TYPES,
   FEATURE_TYPE_LABEL_KEYS,
@@ -43,6 +49,15 @@ type Props = {
   /** Seating plan only: read the sheet from the back of the room. */
   flipView: Toggle;
   needs: Toggle;
+  /**
+   * Which badge families the sheet carries, one switch each, for the families
+   * the class has. Shown while the badges themselves are on.
+   */
+  badgeFamilies: {
+    present: readonly DataFamily[];
+    hidden: readonly DataFamily[];
+    onToggle: (family: DataFamily, visible: boolean) => void;
+  };
   photos: Toggle;
   legend: Toggle;
   classInfo: Toggle;
@@ -75,6 +90,7 @@ export default function ExportSheetInspector({
   onOrientationChange,
   flipView,
   needs,
+  badgeFamilies,
   photos,
   legend,
   classInfo,
@@ -182,6 +198,36 @@ export default function ExportSheetInspector({
 
         <InspectorSection title={t('export.content')}>
           {switchRow(t('export.rows.needs'), needs)}
+          {needs.checked && badgeFamilies.present.length > 0 && (
+            // The families under the switch they belong to: what a printout
+            // on the classroom wall should not say is left out here.
+            <div
+              role="group"
+              aria-label={t('export.badgeFamilies')}
+              className="flex flex-col gap-2 border-l border-(--border-card) pl-3"
+            >
+              {badgeFamilies.present.map((family) => (
+                <div
+                  key={family}
+                  className={`${dataFamilyClass[family]} flex items-center gap-2`}
+                >
+                  <span
+                    aria-hidden="true"
+                    className="size-2 shrink-0 rounded-full bg-(--data-chip-accent)"
+                  />
+                  <div className="min-w-0 flex-1">
+                    {switchRow(t(badgeFamilyLabelKey(family)), {
+                      checked: !badgeFamilies.hidden.includes(family),
+                      onChange: (next) => badgeFamilies.onToggle(family, next),
+                    })}
+                  </div>
+                </div>
+              ))}
+              <p className="text-xs text-(--text-muted)">
+                {t('export.badgeFamiliesHint')}
+              </p>
+            </div>
+          )}
           {switchRow(t('export.rows.photos'), photos)}
           {switchRow(t('export.rows.legend'), legend)}
           {switchRow(t('export.rows.classInfo'), classInfo)}

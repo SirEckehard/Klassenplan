@@ -643,6 +643,23 @@ function validateCircleLayout(value: unknown): asserts value is CircleLayout {
   if (!Array.isArray(record.neighborhoodPairs)) {
     throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidCircleData);
   }
+
+  // Locked students: optional, written since the circle could be locked
+  if ('lockedStudentIds' in record && record.lockedStudentIds !== undefined) {
+    const locked = record.lockedStudentIds;
+    if (
+      !Array.isArray(locked) ||
+      locked.length > BACKUP_LIMITS.maxCircleStudents ||
+      !locked.every((id) =>
+        assertString(id, {
+          allowEmpty: false,
+          maxLength: BACKUP_LIMITS.maxIdLength,
+        }),
+      )
+    ) {
+      throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidCircleData);
+    }
+  }
 }
 
 function validateCircleExportData(

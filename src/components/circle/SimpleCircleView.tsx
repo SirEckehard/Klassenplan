@@ -8,20 +8,34 @@ import { angleToPosition } from '@/utils/math/circleGeometry';
 import { summarizeCircle } from '@/utils/algorithm/circleSummary';
 import {
   GRID_SIZE,
-  LOCAL_STORAGE_KEYS,
   getDisplayNameForMode,
   getTooltipName,
   calculateSeatLabelFontSize,
   logDebug,
   type NameDisplayMode,
 } from '@/utils';
+import { LockIcon, LockOpenIcon } from '@phosphor-icons/react';
 import {
+  describeBadge,
   getStudentAppearance,
-  getAllStudentBadges,
-  calculateBadgePillLayout,
+  SEAT_UI_COLORS,
 } from '@/utils/ui/studentAppearance';
+import {
+  fitSeatBadges,
+  getBadgeHighlightStudentIds,
+  getSeatBadges,
+  LEGIBLE_BADGE_ICON_SIZE,
+  BADGE_MORE_KEY,
+  type BadgeFocus,
+  type SeatBadgeView,
+} from '@/utils/ui/seatBadges';
+import SeatBadgePill from '@/components/scene/SeatBadgePill';
+import BadgeTooltipLayer from '@/components/scene/BadgeTooltip';
 import { computeTokenPhotoLayout } from '@/utils/ui/studentTokenLayout';
 import { useCircleDragDrop } from '@/hooks/circle/useCircleDragDrop';
+import { useCircleKeyboardMove } from '@/hooks/circle/useCircleKeyboardMove';
+import { useHasHoverPointer } from '@/hooks/ui/useHasHoverPointer';
+import DragGhost from '@/components/scene/DragGhost';
 import { useLayoutMode } from '@/hooks/ui/useLayoutMode';
 import { useIsCoarsePointer } from '@/hooks/ui/useCoarsePointer';
 import { useStudentPhotoUrls } from '@/hooks/student/useStudentPhoto';
@@ -49,6 +63,16 @@ type SimpleCircleViewProps = {
   /** Uniform name rule for the tokens (see {@link NameDisplayMode}). */
   nameDisplay?: NameDisplayMode;
   onPhotoModeChange?: (mode: PhotoDisplayMode) => void;
+  /** Which badges the tokens show and how (see `SeatBadgeView`). */
+  badgeView?: SeatBadgeView;
+  /** The badge being pointed at — here or in the legend — whose seats light up. */
+  badgeFocus?: BadgeFocus | null;
+  /** Reports the badge under the pointer, so the host can keep one focus. */
+  onBadgeFocusChange?: (focus: BadgeFocus | null) => void;
+  /** Whether pointing at a badge explains it in a tooltip. */
+  showBadgeTooltip?: boolean;
+  /** Locks a student to their place, or lets them go (editable circle only). */
+  onToggleLock?: (studentId: string) => void;
 };
 
 /**
@@ -67,6 +91,11 @@ function SimpleCircleView({
   onConnectionModeChange,
   photoMode: externalPhotoMode,
   nameDisplay,
+  badgeView,
+  badgeFocus = null,
+  onBadgeFocusChange,
+  showBadgeTooltip = true,
+  onToggleLock,
 }: SimpleCircleViewProps) {
   const { t } = useTranslation('generator');
   const layoutMode = useLayoutMode();
@@ -107,31 +136,13 @@ function SimpleCircleView({
     }
   }, [connectionMode, onConnectionModeChange]);
 
-  // Photo display mode — falls back to a persisted local value (parity with the
-  // seating plan's all/hover/off control). Default 'all' preserves prior behaviour.
-  const photoMode: PhotoDisplayMode = (() => {
-    if (externalPhotoMode) return externalPhotoMode;
-    try {
-      const stored = localStorage.getItem(LOCAL_STORAGE_KEYS.circlePhotoMode);
-      if (stored === 'all' || stored === 'hover' || stored === 'off') {
-        return stored;
-      }
-    } catch (error) {
-      logDebug('Failed to read circle photo mode from localStorage', { error });
-    }
-    return 'all';
-  })();
+  // Photo display mode: the host passes the setting the table plan shares
+  // (`CanvasPreferencesContext`); on its own the circle shows every photo.
+  const photoMode: PhotoDisplayMode = externalPhotoMode ?? 'all';
   // Hover mode tracks the pointer-hovered token so only its photo is revealed.
   const [hoveredPhotoPosition, setHoveredPhotoPosition] = useState<
     number | null
   >(null);
-
-  // Drag and drop functionality
-  const { dragState, handlePointerDown, svgRef } = useCircleDragDrop({
-    layout,
-    editable,
-    onStudentMove,
-  });
 
   const seatRadius = 30;
   const seatDiameter = seatRadius * 2;
@@ -211,17 +222,121 @@ function SimpleCircleView({
     };
   }, [allStudents, layout.radius, layout.center]);
 
-  const getCircleAppearance = (student: Student | null) => {
-    return {
-      ...getStudentAppearance(student, isDark, false, false, showGenderColors),
-      flags: getAllStudentBadges(student, allStudents, {
-        showSpecialNeeds,
-        showPartners: showSpecialNeeds,
-        showHeight: showSpecialNeeds,
-        showEnvironment: showSpecialNeeds,
+  // Where every place is drawn. The drag finds its target among these, so it
+  // agrees with the drawing — also when photos make the circle smaller.
+  const studentSlots = React.useMemo(
+    () =>
+      Array.from({ length: layout.students.length }, (_, index) => {
+        const angle = (360 / layout.students.length) * index;
+        const position = angleToPosition(angle, layout.center, renderRadius);
+        return { position: index, angle, x: position.x, y: position.y };
       }),
+    [layout.students.length, layout.center, renderRadius],
+  );
+
+  // Held places: they neither give their student away nor take another. Only
+  // the editable circle knows about them — the projection shows a circle.
+  const lockedIds = React.useMemo(
+    () => new Set(editable ? (layout.lockedStudentIds ?? []) : []),
+    [editable, layout.lockedStudentIds],
+  );
+  const isPositionLocked = useCallback(
+    (position: number) => {
+      const id = layout.students[position]?.student?.id;
+      return id !== undefined && lockedIds.has(id);
+    },
+    [layout.students, lockedIds],
+  );
+
+  // The places a student just moved between ring green for a moment.
+  const [dropConfirm, setDropConfirm] = useState<{
+    id: number;
+    positions: number[];
+  } | null>(null);
+  React.useEffect(() => {
+    if (!dropConfirm) return undefined;
+    const timeout = window.setTimeout(() => setDropConfirm(null), 900);
+    return () => window.clearTimeout(timeout);
+  }, [dropConfirm]);
+  const handleMoved = useCallback(
+    (from: number, to: number) =>
+      setDropConfirm({ id: Date.now(), positions: [from, to] }),
+    [],
+  );
+
+  const keyboard = useCircleKeyboardMove({
+    layout,
+    editable,
+    isPositionLocked,
+    onStudentMove,
+    onMoved: handleMoved,
+  });
+  const { announce } = keyboard;
+
+  // A pointer drop is said in the keyboard's live region too.
+  const handlePointerMoved = useCallback(
+    (from: number, to: number) => {
+      handleMoved(from, to);
+      announce(
+        t('drag.announce.swapped', {
+          name: getTooltipName(layout.students[from]?.student?.name ?? ''),
+          other: getTooltipName(layout.students[to]?.student?.name ?? ''),
+        }),
+      );
+    },
+    [announce, handleMoved, layout.students, t],
+  );
+
+  // Drag and drop functionality
+  const { dragState, handlePointerDown, svgRef } = useCircleDragDrop({
+    layout,
+    editable,
+    onStudentMove,
+    slotPositions: studentSlots,
+    isPositionLocked,
+    onMoved: handlePointerMoved,
+  });
+
+  // One origin and one target, whichever of pointer and keyboard moves.
+  const originPosition = dragState.draggedPosition ?? keyboard.keyboardOrigin;
+  const targetPosition = dragState.isDragging
+    ? dragState.hoverPosition
+    : keyboard.keyboardTarget;
+  const targetBlocked =
+    targetPosition !== null && isPositionLocked(targetPosition);
+
+  const hasHoverPointer = useHasHoverPointer();
+  const lockMode = isDark ? 'dark' : 'light';
+  const [hoveredToken, setHoveredToken] = useState<number | null>(null);
+  const [focusedToken, setFocusedToken] = useState<number | null>(null);
+  const [focusedLock, setFocusedLock] = useState<number | null>(null);
+
+  const getCircleAppearance = (student: Student | null) => {
+    const locked = student ? lockedIds.has(student.id) : false;
+    return {
+      ...getStudentAppearance(student, isDark, locked, false, showGenderColors),
+      flags: getSeatBadges(
+        student,
+        allStudents,
+        showSpecialNeeds,
+        badgeView?.filter,
+      ),
     };
   };
+  const collapseBadges = Boolean(badgeView?.collapse);
+
+  // The seats a hovered badge points at, ringed like a drop target.
+  const highlightedIds = React.useMemo(
+    () =>
+      badgeFocus && badgeFocus.badgeKey !== BADGE_MORE_KEY
+        ? getBadgeHighlightStudentIds(
+            badgeFocus.badgeKey,
+            badgeFocus.studentId,
+            allStudents,
+          )
+        : null,
+    [allStudents, badgeFocus],
+  );
 
   // Function to create arc path for connections
   const createArcPath = useCallback(
@@ -289,63 +404,27 @@ function SimpleCircleView({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleConnectionModeToggle]);
 
-  // Calculate positions for each student slot
-  const studentSlots = Array.from(
-    { length: layout.students.length },
-    (_, index) => {
-      const angle = (360 / layout.students.length) * index;
-      const position = angleToPosition(angle, layout.center, renderRadius);
-      return {
-        position: index,
-        angle,
-        x: position.x,
-        y: position.y,
-      };
-    },
-  );
-
   // Map students to their current positions
   const studentPositionMap = new Map<number, (typeof layout.students)[0]>();
   layout.students.forEach((studentPos, index) => {
     studentPositionMap.set(index, studentPos);
   });
 
-  const previewAppearance = dragState.dragPreview
-    ? getCircleAppearance(dragState.dragPreview.student ?? null)
-    : null;
-  const previewRadius = 25;
-  const previewBadgeMaxHeightValue =
-    previewRadius - (badgeMinNameSpacing + badgeMinBottomSpacing);
-  const previewBadgeMaxHeight =
-    previewBadgeMaxHeightValue > 0 ? previewBadgeMaxHeightValue : undefined;
-  const previewBadgeLayout =
-    previewAppearance && previewAppearance.flags.length > 0
-      ? calculateBadgePillLayout({
-          availableWidth: 50 - 8,
-          iconCount: previewAppearance.flags.length,
-          baseIconSize: 9,
-          minIconSize: 6,
-          horizontalPadding: 5,
-          verticalPadding: 2,
-          maxHeight: previewBadgeMaxHeight,
-        })
+  // The dragged student, for the preview above the pointer.
+  const draggedStudent =
+    dragState.draggedPosition !== null
+      ? (layout.students[dragState.draggedPosition]?.student ?? null)
       : null;
-  const previewBadgeOffset =
-    previewBadgeLayout && previewBadgeLayout.height > 0
-      ? computeBadgeOffset(previewRadius, previewBadgeLayout.height)
-      : 0;
-  const previewDisplayName = dragState.dragPreview?.student
-    ? getDisplayNameForMode(
-        dragState.dragPreview.student.name,
-        'circle',
-        nameDisplay,
-        nameLabels,
-      )
-    : '';
-  const previewFontSize = calculateSeatLabelFontSize(
-    previewDisplayName,
-    previewRadius * 2,
-  );
+  const previewAppearance = draggedStudent
+    ? getCircleAppearance(draggedStudent)
+    : null;
+  // Over another place the drag is a swap: who would come here instead.
+  const swapStudent =
+    originPosition !== null && targetPosition !== null && !targetBlocked
+      ? (layout.students[targetPosition]?.student ?? null)
+      : null;
+  const circleName = (student: Student) =>
+    getDisplayNameForMode(student.name, 'circle', nameDisplay, nameLabels);
 
   return (
     <div className="relative w-full">
@@ -358,8 +437,8 @@ function SimpleCircleView({
         }
       `}</style>
 
-      {/* Text equivalent of the circle: nothing inside the SVG is focusable,
-          so screen readers would otherwise get no seating order at all. */}
+      {/* Text equivalent of the circle, in order. The editable circle's
+          tokens are focusable as well; the projection's are not. */}
       <ol
         className="sr-only"
         aria-label={t('circleView.orderLabel', 'Sitzreihenfolge im Sitzkreis')}
@@ -376,7 +455,8 @@ function SimpleCircleView({
         width="100%"
         viewBox="0 0 900 600"
         className="block h-auto w-full"
-        role="img"
+        // Focusable tokens need a group: an image hides its children.
+        role={editable ? 'group' : 'img'}
         aria-label={t('circleView.canvasLabel', {
           count: layout.students.length,
         })}
@@ -431,260 +511,377 @@ function SimpleCircleView({
         {/* Position slots */}
         {studentSlots.map((slot) => {
           const studentPosition = studentPositionMap.get(slot.position);
-          const appearance = getCircleAppearance(
-            studentPosition?.student ?? null,
-          );
-          const studentDisplayName = studentPosition?.student
-            ? getDisplayNameForMode(
-                studentPosition.student.name,
-                'circle',
-                nameDisplay,
-                nameLabels,
-              )
+          const student = studentPosition?.student ?? null;
+          const isOrigin = originPosition === slot.position;
+          const isTarget = targetPosition === slot.position;
+          // Over a taken place the origin shows who would come here instead.
+          const labelStudent = isOrigin && swapStudent ? swapStudent : student;
+          const appearance = getCircleAppearance(student);
+          const studentDisplayName = labelStudent
+            ? circleName(labelStudent)
             : '';
-          const studentTooltip = studentPosition?.student
-            ? getTooltipName(studentPosition.student.name)
-            : '';
+          const studentTooltip = student ? getTooltipName(student.name) : '';
           const seatFontSize = calculateSeatLabelFontSize(
             studentDisplayName,
             seatDiameter,
           );
-          const isDragged = dragState.draggedPosition === slot.position;
-          const isHovered = dragState.hoverPosition === slot.position;
-          const seatScale = isHovered ? 1.06 : 1;
-          const seatOpacity = isDragged ? 0.3 : 1;
-          const seatStrokeColor = isHovered ? '#16a34a' : appearance.stroke;
-          const seatStrokeWidth = isHovered ? 2 : 1;
-          const badgeLayout =
-            appearance.flags.length > 0
-              ? calculateBadgePillLayout({
-                  availableWidth: seatDiameter - 14,
-                  iconCount: appearance.flags.length,
-                  baseIconSize: badgeBaseIconSize,
-                  minIconSize: 5,
-                  horizontalPadding: 4,
-                  verticalPadding: 1,
-                  rowGap: 2,
-                  maxRows: 3,
-                  maxHeight: badgeMaxHeight,
-                  minIconsForWrap: 5,
-                })
-              : null;
-          const badgeFill = isDark
-            ? 'rgba(15, 23, 42, 0.7)'
-            : 'rgba(255, 255, 255, 0.92)';
-          const badgeStroke = isDark
-            ? 'rgba(148, 163, 184, 0.45)'
-            : 'rgba(148, 163, 184, 0.65)';
+          const seatOpacity = isOrigin ? (swapStudent ? 0.6 : 0.3) : 1;
+          const locked = student ? lockedIds.has(student.id) : false;
+          const badgeFit = fitSeatBadges(
+            appearance.flags,
+            {
+              availableWidth: seatDiameter - 14,
+              baseIconSize: badgeBaseIconSize,
+              minIconSize: collapseBadges ? LEGIBLE_BADGE_ICON_SIZE : 5,
+              horizontalPadding: 4,
+              verticalPadding: 1,
+              rowGap: 2,
+              maxRows: 3,
+              maxHeight: badgeMaxHeight,
+              minIconsForWrap: 5,
+            },
+            { collapse: collapseBadges, prioritize: badgeView?.prioritize },
+          );
           const badgeOffset =
-            badgeLayout && badgeLayout.height > 0
-              ? computeBadgeOffset(seatRadius, badgeLayout.height)
+            badgeFit && badgeFit.layout.height > 0
+              ? computeBadgeOffset(seatRadius, badgeFit.layout.height)
               : 0;
+          const isBadgeHighlighted = Boolean(
+            student && highlightedIds?.has(student.id),
+          );
+          const confirmed =
+            dropConfirm?.positions.includes(slot.position) ?? false;
+          const canToggleLock = editable && Boolean(onToggleLock) && student;
+          // The closed lock always shows; the open one on hover, on focus,
+          // and always where nothing can hover.
+          const lockVisible =
+            locked ||
+            !hasHoverPointer ||
+            hoveredToken === slot.position ||
+            focusedLock === slot.position;
+          const tokenLabel = student
+            ? [
+                t('circleView.keyboard.tokenLabel', {
+                  name: getTooltipName(student.name),
+                  position: slot.position + 1,
+                }),
+                locked ? t('seat.ariaLocked') : null,
+                appearance.flags.length > 0
+                  ? t('seat.ariaBadges', {
+                      list: appearance.flags
+                        .map((flag) => describeBadge(flag).heading)
+                        .join(', '),
+                    })
+                  : null,
+              ]
+                .filter(Boolean)
+                .join(', ')
+            : '';
 
           return (
             <g key={slot.position}>
-              {/* Drop zone indicator */}
-              {isHovered && (
-                <circle
-                  cx={slot.x}
-                  cy={slot.y}
-                  r="32"
-                  fill="none"
-                  stroke="#16a34a"
-                  strokeWidth="3"
-                  opacity="0.8"
-                />
-              )}
-
               {/* Student or empty slot */}
-              {studentPosition ? (
+              {student ? (
                 <g
+                  onPointerEnter={() => setHoveredToken(slot.position)}
+                  onPointerLeave={() =>
+                    setHoveredToken((current) =>
+                      current === slot.position ? null : current,
+                    )
+                  }
                   style={{
-                    cursor: editable
-                      ? isDragged
-                        ? 'grabbing'
-                        : 'grab'
-                      : 'default',
+                    opacity: seatOpacity,
+                    transition: 'opacity 160ms ease',
                   }}
                 >
-                  <g
+                  {/* Drag target: sized for the pointer, not the viewport. A
+                      tablet in landscape is 1180px wide and used to get the
+                      mouse-sized circle although every drag is a fingertip.
+                      In the editable circle it is also the keyboard's
+                      handle on the student. */}
+                  <circle
+                    ref={
+                      editable
+                        ? keyboard.registerToken(slot.position)
+                        : undefined
+                    }
+                    cx={slot.x}
+                    cy={slot.y}
+                    r={isCoarsePointer ? '48' : '35'}
+                    fill="transparent"
+                    tabIndex={editable ? 0 : undefined}
+                    role={editable ? 'button' : undefined}
+                    aria-label={editable ? tokenLabel : undefined}
+                    aria-pressed={editable ? isOrigin : undefined}
+                    onKeyDown={
+                      editable
+                        ? (event) =>
+                            keyboard.handleKeyDown(event, slot.position)
+                        : undefined
+                    }
+                    onFocus={
+                      editable
+                        ? (event) => {
+                            setFocusedToken(
+                              isFocusVisible(event.currentTarget)
+                                ? slot.position
+                                : null,
+                            );
+                            keyboard.handleFocus(slot.position);
+                          }
+                        : undefined
+                    }
+                    onBlur={
+                      editable
+                        ? () =>
+                            setFocusedToken((current) =>
+                              current === slot.position ? null : current,
+                            )
+                        : undefined
+                    }
+                    onPointerDown={(e) =>
+                      handlePointerDown(e, slot.position, student.id)
+                    }
+                    onPointerEnter={
+                      photoMode === 'hover'
+                        ? () => setHoveredPhotoPosition(slot.position)
+                        : undefined
+                    }
+                    onPointerLeave={
+                      photoMode === 'hover'
+                        ? () =>
+                            setHoveredPhotoPosition((current) =>
+                              current === slot.position ? null : current,
+                            )
+                        : undefined
+                    }
                     style={{
-                      transform: `scale(${seatScale})`,
-                      transformOrigin: 'center',
-                      transformBox: 'fill-box',
-                      opacity: seatOpacity,
-                      transition: isDragged
-                        ? 'opacity 0.1s ease'
-                        : 'transform 140ms ease, opacity 160ms ease',
+                      cursor: editable && !locked ? 'grab' : 'default',
+                      touchAction: 'none',
+                      outline: 'none',
                     }}
-                  >
-                    {/* Drag target: sized for the pointer, not the viewport. A
-                        tablet in landscape is 1180px wide and used to get the
-                        mouse-sized circle although every drag is a fingertip. */}
-                    <circle
+                  />
+
+                  {/* Student circle */}
+                  <circle
+                    cx={slot.x}
+                    cy={slot.y}
+                    r="30"
+                    fill={appearance.fill}
+                    stroke={appearance.stroke}
+                    strokeWidth={1}
+                    pointerEvents="none"
+                    style={{
+                      transition: 'fill 0.2s ease, stroke 0.2s ease',
+                    }}
+                  />
+
+                  {/* Where the dragged student would land, and where one
+                      just did: a tint under the name and a ring inside the
+                      token, as on a seat of the table plan. */}
+                  {isTarget && (
+                    <TokenRing
                       cx={slot.x}
                       cy={slot.y}
-                      r={isCoarsePointer ? '48' : '35'}
-                      fill="transparent"
-                      onPointerDown={(e) =>
-                        handlePointerDown(
-                          e,
-                          slot.position,
-                          studentPosition.student.id,
+                      kind={targetBlocked ? 'blocked' : 'target'}
+                    />
+                  )}
+                  {/* A badge being pointed at marks this student: the same
+                      steady ring a seat of the table plan wears for it. */}
+                  {isBadgeHighlighted && !isTarget && (
+                    <TokenRing cx={slot.x} cy={slot.y} kind="focus" />
+                  )}
+                  {confirmed && !isTarget && (
+                    <TokenRing
+                      key={dropConfirm?.id}
+                      cx={slot.x}
+                      cy={slot.y}
+                      kind="confirm"
+                    />
+                  )}
+
+                  {/* Keyboard focus: a white halo and a blue ring round the
+                      token, visible on any tint. */}
+                  {focusedToken === slot.position && (
+                    <g pointerEvents="none">
+                      <circle
+                        cx={slot.x}
+                        cy={slot.y}
+                        r={33}
+                        fill="none"
+                        stroke="#ffffff"
+                        strokeWidth={4.5}
+                      />
+                      <circle
+                        cx={slot.x}
+                        cy={slot.y}
+                        r={33}
+                        fill="none"
+                        strokeWidth={2}
+                        style={{ stroke: 'var(--border-option-selected)' }}
+                      />
+                    </g>
+                  )}
+
+                  {/* Optional student photo: small circular avatar docked
+                      radially just outside the token, away from the circle
+                      centre, so it never overlaps the name. */}
+                  {(() => {
+                    const photoVisible =
+                      photoMode === 'all' ||
+                      (photoMode === 'hover' &&
+                        hoveredPhotoPosition === slot.position);
+                    if (!photoVisible) return null;
+                    const photoUrl = student.hasPhoto
+                      ? photoUrls.get(student.id)
+                      : undefined;
+                    if (!photoUrl) return null;
+                    const { avatar } = computeTokenPhotoLayout({
+                      shape: 'circle',
+                      centerX: slot.x,
+                      centerY: slot.y,
+                      width: seatDiameter,
+                      height: seatDiameter,
+                      hasPhoto: true,
+                      nameFontSize: seatFontSize,
+                      outward: {
+                        dirX: slot.x - layout.center.x,
+                        dirY: slot.y - layout.center.y,
+                        tokenRadius: seatRadius,
+                      },
+                    });
+                    if (!avatar) return null;
+                    const clipId = `circle-photo-${slot.position}`;
+                    return (
+                      <g pointerEvents="none">
+                        <defs>
+                          <clipPath id={clipId}>
+                            <circle
+                              cx={avatar.cx}
+                              cy={avatar.cy}
+                              r={avatar.r}
+                            />
+                          </clipPath>
+                        </defs>
+                        <image
+                          href={photoUrl}
+                          x={avatar.cx - avatar.r}
+                          y={avatar.cy - avatar.r}
+                          width={avatar.r * 2}
+                          height={avatar.r * 2}
+                          preserveAspectRatio="xMidYMid slice"
+                          clipPath={`url(#${clipId})`}
+                        />
+                        <circle
+                          cx={avatar.cx}
+                          cy={avatar.cy}
+                          r={avatar.r}
+                          fill="none"
+                          stroke={appearance.stroke}
+                          strokeWidth={1}
+                        />
+                      </g>
+                    );
+                  })()}
+
+                  {/* Student name with improved readability */}
+                  <text
+                    x={slot.x}
+                    y={slot.y}
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                    fontSize={seatFontSize}
+                    fontWeight="400"
+                    fill={appearance.text}
+                    pointerEvents="none"
+                    style={{ userSelect: 'none' }}
+                  >
+                    <title>{studentTooltip}</title>
+                    {studentDisplayName}
+                  </text>
+
+                  {/* Special needs and partner indicators */}
+                  {badgeFit && (
+                    <g style={{ pointerEvents: 'none' }}>
+                      <SeatBadgePill
+                        fit={badgeFit}
+                        studentId={student.id}
+                        isDark={isDark}
+                        x={slot.x - badgeFit.layout.width / 2}
+                        y={slot.y + badgeOffset}
+                      />
+                    </g>
+                  )}
+
+                  {/* The lock: inside the token's upper left, as on a seat
+                      of the table plan, clear of the name and the photo. */}
+                  {canToggleLock && (
+                    <g
+                      role="button"
+                      tabIndex={0}
+                      aria-label={
+                        locked ? t('seat.unlockSeat') : t('seat.lockSeat')
+                      }
+                      aria-pressed={locked}
+                      onFocus={() => setFocusedLock(slot.position)}
+                      onBlur={() =>
+                        setFocusedLock((current) =>
+                          current === slot.position ? null : current,
                         )
                       }
-                      onPointerEnter={
-                        photoMode === 'hover'
-                          ? () => setHoveredPhotoPosition(slot.position)
-                          : undefined
-                      }
-                      onPointerLeave={
-                        photoMode === 'hover'
-                          ? () =>
-                              setHoveredPhotoPosition((current) =>
-                                current === slot.position ? null : current,
-                              )
-                          : undefined
-                      }
-                      style={{
-                        cursor: editable ? 'grab' : 'default',
-                        touchAction: 'none',
+                      onPointerDown={(event) => {
+                        event.stopPropagation();
+                        event.preventDefault();
+                        onToggleLock?.(student.id);
                       }}
-                    />
-
-                    {/* Student circle */}
-                    <circle
-                      cx={slot.x}
-                      cy={slot.y}
-                      r="30"
-                      fill={appearance.fill}
-                      stroke={seatStrokeColor}
-                      strokeWidth={seatStrokeWidth}
-                      pointerEvents="none"
-                      style={{
-                        filter: isDragged
-                          ? 'drop-shadow(0 4px 8px rgba(0,0,0,0.3))'
-                          : 'none',
-                        transition: isDragged
-                          ? 'none'
-                          : 'fill 0.2s ease, stroke 0.2s ease, stroke-width 0.2s ease',
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                          event.preventDefault();
+                          event.stopPropagation();
+                          onToggleLock?.(student.id);
+                        }
                       }}
-                    />
-
-                    {/* Optional student photo: small circular avatar docked
-                        radially just outside the token, away from the circle
-                        centre, so it never overlaps the name. */}
-                    {(() => {
-                      const photoVisible =
-                        photoMode === 'all' ||
-                        (photoMode === 'hover' &&
-                          hoveredPhotoPosition === slot.position);
-                      if (!photoVisible) return null;
-                      const photoUrl = studentPosition.student.hasPhoto
-                        ? photoUrls.get(studentPosition.student.id)
-                        : undefined;
-                      if (!photoUrl) return null;
-                      const { avatar } = computeTokenPhotoLayout({
-                        shape: 'circle',
-                        centerX: slot.x,
-                        centerY: slot.y,
-                        width: seatDiameter,
-                        height: seatDiameter,
-                        hasPhoto: true,
-                        nameFontSize: seatFontSize,
-                        outward: {
-                          dirX: slot.x - layout.center.x,
-                          dirY: slot.y - layout.center.y,
-                          tokenRadius: seatRadius,
-                        },
-                      });
-                      if (!avatar) return null;
-                      const clipId = `circle-photo-${slot.position}`;
-                      return (
-                        <g pointerEvents="none">
-                          <defs>
-                            <clipPath id={clipId}>
-                              <circle
-                                cx={avatar.cx}
-                                cy={avatar.cy}
-                                r={avatar.r}
-                              />
-                            </clipPath>
-                          </defs>
-                          <image
-                            href={photoUrl}
-                            x={avatar.cx - avatar.r}
-                            y={avatar.cy - avatar.r}
-                            width={avatar.r * 2}
-                            height={avatar.r * 2}
-                            preserveAspectRatio="xMidYMid slice"
-                            clipPath={`url(#${clipId})`}
-                          />
-                          <circle
-                            cx={avatar.cx}
-                            cy={avatar.cy}
-                            r={avatar.r}
-                            fill="none"
-                            stroke={appearance.stroke}
-                            strokeWidth={1}
-                          />
-                        </g>
-                      );
-                    })()}
-
-                    {/* Student name with improved readability */}
-                    <text
-                      x={slot.x}
-                      y={slot.y}
-                      textAnchor="middle"
-                      dominantBaseline="middle"
-                      fontSize={seatFontSize}
-                      fontWeight="400"
-                      fill={appearance.text}
-                      pointerEvents="none"
-                      style={{ userSelect: 'none' }}
+                      style={{
+                        cursor: 'pointer',
+                        opacity: lockVisible ? 1 : 0,
+                        pointerEvents: lockVisible ? 'auto' : 'none',
+                        transition: 'opacity 150ms ease',
+                      }}
                     >
-                      <title>{studentTooltip}</title>
-                      {studentDisplayName}
-                    </text>
-
-                    {/* Special needs and partner indicators */}
-                    {appearance.flags.length > 0 && badgeLayout && (
-                      <g style={{ pointerEvents: 'none' }}>
-                        <g
-                          transform={`translate(${slot.x - badgeLayout.width / 2} ${slot.y + badgeOffset})`}
-                        >
-                          <rect
-                            width={badgeLayout.width}
-                            height={badgeLayout.height}
-                            rx={badgeLayout.height / 2}
-                            fill={badgeFill}
-                            stroke={badgeStroke}
-                            strokeWidth={0.8}
+                      <title>
+                        {locked ? t('seat.unlockSeat') : t('seat.lockSeat')}
+                      </title>
+                      <circle
+                        cx={slot.x - 14}
+                        cy={slot.y - 16}
+                        r={12}
+                        fill="transparent"
+                      />
+                      <circle
+                        cx={slot.x - 14}
+                        cy={slot.y - 16}
+                        r={8}
+                        fill={SEAT_UI_COLORS.lockButtonBackground[lockMode]}
+                        stroke={SEAT_UI_COLORS.lockButtonBorder[lockMode]}
+                        strokeWidth={1}
+                      />
+                      <g
+                        transform={`translate(${slot.x - 18.5} ${slot.y - 20.5})`}
+                      >
+                        {locked ? (
+                          <LockIcon
+                            size={9}
+                            color={SEAT_UI_COLORS.lockIcon[lockMode]}
                           />
-                          {appearance.flags.map((flag, index) => {
-                            const Icon = flag.icon;
-                            const color =
-                              'color' in flag ? flag.color : '#d97706';
-                            const position = badgeLayout.iconPositions[index];
-                            if (!position) {
-                              return null;
-                            }
-                            return (
-                              <g
-                                key={flag.key}
-                                transform={`translate(${position.x} ${position.y})`}
-                              >
-                                <Icon size={badgeLayout.iconSize} color={color}>
-                                  <title>{flag.tooltip}</title>
-                                </Icon>
-                              </g>
-                            );
-                          })}
-                        </g>
+                        ) : (
+                          <LockOpenIcon
+                            size={9}
+                            color={SEAT_UI_COLORS.unlockIcon[lockMode]}
+                          />
+                        )}
                       </g>
-                    )}
-                  </g>
+                    </g>
+                  )}
                 </g>
               ) : (
                 /* Empty slot */
@@ -704,81 +901,92 @@ function SimpleCircleView({
             </g>
           );
         })}
-
-        {/* Drag Preview */}
-        {dragState.dragPreview && previewAppearance && (
-          <g style={{ pointerEvents: 'none' }}>
-            {/* Preview student circle */}
-            <circle
-              cx={dragState.dragPreview.x}
-              cy={dragState.dragPreview.y}
-              r="25"
-              fill={previewAppearance.fill}
-              stroke={previewAppearance.stroke}
-              strokeWidth={2.5}
-              opacity="0.8"
-              style={{
-                filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.4))',
-              }}
-            />
-            {/* Preview student name */}
-            <text
-              x={dragState.dragPreview.x}
-              y={dragState.dragPreview.y}
-              textAnchor="middle"
-              dominantBaseline="middle"
-              fontSize={previewFontSize}
-              fontWeight="500"
-              fill={previewAppearance.text}
-              opacity="0.8"
-              style={{ userSelect: 'none' }}
-            >
-              {previewDisplayName}
-            </text>
-            {/* Preview special needs indicators */}
-            {previewAppearance.flags.length > 0 && previewBadgeLayout && (
-              <g opacity="0.8">
-                <g
-                  transform={`translate(${dragState.dragPreview.x - previewBadgeLayout.width / 2} ${dragState.dragPreview.y + previewBadgeOffset})`}
-                >
-                  <rect
-                    width={previewBadgeLayout.width}
-                    height={previewBadgeLayout.height}
-                    rx={previewBadgeLayout.height / 2}
-                    fill="rgba(255, 255, 255, 0.95)"
-                    stroke="rgba(148, 163, 184, 0.6)"
-                    strokeWidth={0.8}
-                  />
-                  {previewAppearance.flags.map(
-                    ({ key, icon: Icon, tooltip }, index) => {
-                      const position = previewBadgeLayout.iconPositions[index];
-                      if (!position) {
-                        return null;
-                      }
-                      return (
-                        <g
-                          key={key}
-                          transform={`translate(${position.x} ${position.y})`}
-                        >
-                          <Icon
-                            size={previewBadgeLayout.iconSize}
-                            color="#d97706"
-                          >
-                            <title>{tooltip}</title>
-                          </Icon>
-                        </g>
-                      );
-                    },
-                  )}
-                </g>
-              </g>
-            )}
-          </g>
-        )}
       </svg>
+      <BadgeTooltipLayer
+        svgRef={svgRef}
+        allStudents={allStudents}
+        enabled={!dragState.isDragging}
+        showTooltip={showBadgeTooltip}
+        onFocusChange={onBadgeFocusChange}
+      />
+      {dragState.isDragging &&
+        dragState.pointer &&
+        draggedStudent &&
+        previewAppearance && (
+          <DragGhost
+            x={dragState.pointer.x}
+            y={dragState.pointer.y}
+            shape="token"
+            width={seatDiameter}
+            height={seatDiameter}
+            viewportScale={dragState.viewportScale}
+            name={circleName(draggedStudent)}
+            appearance={previewAppearance}
+            badges={previewAppearance.flags}
+            swapWith={swapStudent ? circleName(swapStudent) : null}
+            isDark={isDark}
+          />
+        )}
+      {editable && (
+        <span role="status" aria-live="polite" className="sr-only">
+          {keyboard.announcement}
+        </span>
+      )}
     </div>
   );
 }
+
+/** Where a student would land, where one cannot, and where one just did. */
+const TOKEN_RING_COLORS = {
+  target: {
+    ring: 'var(--border-option-selected)',
+    tint: 'var(--surface-option-selected)',
+  },
+  focus: {
+    ring: 'var(--border-option-selected)',
+    tint: 'var(--surface-option-selected)',
+  },
+  blocked: { ring: 'var(--status-alert)', tint: 'var(--status-alert-surface)' },
+  confirm: { ring: 'var(--status-ok)', tint: 'var(--status-ok-surface)' },
+} as const;
+
+function TokenRing({
+  cx,
+  cy,
+  kind,
+}: {
+  cx: number;
+  cy: number;
+  kind: keyof typeof TOKEN_RING_COLORS;
+}) {
+  const colors = TOKEN_RING_COLORS[kind];
+  return (
+    <g
+      data-token-ring={kind}
+      className={kind === 'confirm' ? 'seat-drop-confirm' : undefined}
+      pointerEvents="none"
+    >
+      <circle cx={cx} cy={cy} r={30} style={{ fill: colors.tint }} />
+      <circle
+        cx={cx}
+        cy={cy}
+        r={27.5}
+        fill="none"
+        strokeWidth={3}
+        style={{ stroke: colors.ring }}
+      />
+    </g>
+  );
+}
+
+/** Keyboard focus only, like `:focus-visible`; true where that is unknown. */
+const isFocusVisible = (element: Element) => {
+  try {
+    return element.matches(':focus-visible');
+  } catch {
+    return true;
+  }
+};
 
 // Memoize for better performance with complex SVG rendering
 export default React.memo(SimpleCircleView);

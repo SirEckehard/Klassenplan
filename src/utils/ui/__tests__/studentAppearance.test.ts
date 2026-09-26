@@ -1,17 +1,53 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { describe, it, expect } from 'vitest';
 import {
   getStudentAppearance,
   getStudentBadges,
   getCompleteStudentAppearance,
   getAllStudentBadges,
+  getBadgeColor,
+  DATA_FAMILY_TEXT_COLORS,
   STUDENT_COLORS,
   SEAT_UI_COLORS,
 } from '../studentAppearance';
+import { dataFamilyClass, type DataFamily } from '../designTokens';
 import type { Student } from '../../../types';
 
 describe('studentAppearance', () => {
+  describe('DATA_FAMILY_TEXT_COLORS', () => {
+    it('spells out the --data-*-text tokens of both themes', () => {
+      const css = readFileSync(resolve(process.cwd(), 'src/index.css'), 'utf8');
+      // The light theme defines each token first, the `.dark` block second.
+      const defined = new Map<string, string[]>();
+      for (const [, family, hex] of css.matchAll(
+        /--data-([a-z]+)-text:\s*(#[0-9a-f]{6});/g,
+      )) {
+        defined.set(family, [...(defined.get(family) ?? []), hex]);
+      }
+
+      const families = Object.keys(dataFamilyClass) as DataFamily[];
+      expect(Object.keys(DATA_FAMILY_TEXT_COLORS).sort()).toEqual(
+        [...families].sort(),
+      );
+      for (const family of families) {
+        const { light, dark } = DATA_FAMILY_TEXT_COLORS[family];
+        expect(defined.get(family), family).toEqual([light, dark]);
+      }
+    });
+
+    it('colours a badge by its family and the theme', () => {
+      expect(getBadgeColor({ family: 'behavior' }, false)).toBe(
+        DATA_FAMILY_TEXT_COLORS.behavior.light,
+      );
+      expect(getBadgeColor({ family: 'behavior' }, true)).toBe(
+        DATA_FAMILY_TEXT_COLORS.behavior.dark,
+      );
+    });
+  });
+
   describe('STUDENT_COLORS constants', () => {
     it('keeps paper for a student without a gender', () => {
       expect(STUDENT_COLORS.neutral.fill.light).toBe('#ffffff');
@@ -376,7 +412,7 @@ describe('studentAppearance', () => {
       name: 'Avoid Partner',
     };
 
-    it('orders badges as height, performance, behavior, partners, environment', () => {
+    it('orders badges by family: behaviour, social, learning, space', () => {
       const student: Student = {
         id: 'student',
         name: 'Sample',
@@ -404,15 +440,25 @@ describe('studentAppearance', () => {
         },
       );
 
-      // Order follows Option A: height → performance → behavior → partners → environment
+      // A seat reads in runs of one colour: Verhalten, Soziales, Lernen,
+      // Sprache, Platz & Raum.
       expect(badges.map((badge) => badge.key)).toEqual([
-        'heightSmall',
-        'performanceStrong',
         'restless',
         'wishPartner',
         'avoidPartner',
+        'performanceStrong',
+        'heightSmall',
         'prefersWindow',
         'prefersDoor',
+      ]);
+      expect(badges.map((badge) => badge.family)).toEqual([
+        'behavior',
+        'social',
+        'social',
+        'learning',
+        'space',
+        'space',
+        'space',
       ]);
     });
 
@@ -452,7 +498,7 @@ describe('studentAppearance', () => {
       expect(avoidBadge?.tooltip).toContain('Avoid Partner');
     });
 
-    it('uses step-one color palette for height and partner badges', () => {
+    it('files height and partner badges under their data families', () => {
       const student: Student = {
         id: 'student-colors',
         name: 'Color Check',
@@ -481,15 +527,9 @@ describe('studentAppearance', () => {
       const avoidBadge = badges.find((badge) => badge.key === 'avoidPartner');
       const heightBadge = badges.find((badge) => badge.key === 'heightSmall');
 
-      expect(
-        wishBadge && 'color' in wishBadge ? wishBadge.color : undefined,
-      ).toBe('#22c55e');
-      expect(
-        avoidBadge && 'color' in avoidBadge ? avoidBadge.color : undefined,
-      ).toBe('#f43f5e');
-      expect(
-        heightBadge && 'color' in heightBadge ? heightBadge.color : undefined,
-      ).toBe('#60a5fa');
+      expect(wishBadge?.family).toBe('social');
+      expect(avoidBadge?.family).toBe('social');
+      expect(heightBadge?.family).toBe('space');
     });
 
     it('includes environment badges when preferences are set', () => {
@@ -517,9 +557,7 @@ describe('studentAppearance', () => {
 
       const windowBadge = badges.find((badge) => badge.key === 'prefersWindow');
       expect(windowBadge).toBeDefined();
-      expect(
-        windowBadge && 'color' in windowBadge ? windowBadge.color : undefined,
-      ).toBe('#38bdf8');
+      expect(windowBadge?.family).toBe('space');
     });
   });
 });

@@ -24,8 +24,17 @@ type DropdownPosition = {
   dropdownWidth: number;
   maxWidth?: number;
   openAbove?: boolean;
+  /** Set when the dropdown fits on neither side: it scrolls inside. */
+  maxHeight?: number;
   isFinalized?: boolean;
 };
+
+/**
+ * How tall the content wants to be. Once the dropdown scrolls, its box is
+ * clamped and only `scrollHeight` still says what the content takes.
+ */
+const naturalHeight = (element: HTMLElement | null | undefined) =>
+  element ? Math.max(element.offsetHeight, element.scrollHeight) : 0;
 
 const DEFAULT_OFFSET = 4;
 const VIEWPORT_PADDING = 8;
@@ -119,18 +128,36 @@ export default function FloatingDropdown({
       maxWidth: maxAvailableWidth || undefined,
     };
 
-    /** Below the anchor unless the dropdown would run past the viewport. */
+    /**
+     * Below the anchor if it fits there, above if it fits there. A dropdown
+     * taller than either side — a long menu next to a short window — takes
+     * the larger side and scrolls inside rather than running off the window,
+     * where its end could not be reached at all.
+     */
     const placeVertically = (
       height: number,
-    ): Pick<DropdownPosition, 'top' | 'openAbove'> => {
+    ): Pick<DropdownPosition, 'top' | 'openAbove' | 'maxHeight'> => {
       const viewportHeight =
         typeof window !== 'undefined' ? window.innerHeight : 0;
-      const spaceBelow = viewportHeight - rect.bottom - offset;
-      const spaceAbove = rect.top - offset;
-      if (height > spaceBelow && spaceAbove > spaceBelow) {
+      if (viewportHeight <= 0) {
+        return { top: rect.bottom + offset, openAbove: false };
+      }
+      const spaceBelow = viewportHeight - rect.bottom - offset - safePadding;
+      const spaceAbove = rect.top - offset - safePadding;
+      if (height <= spaceBelow) {
+        return { top: rect.bottom + offset, openAbove: false };
+      }
+      if (height <= spaceAbove) {
         return { top: rect.top - height - offset, openAbove: true };
       }
-      return { top: rect.bottom + offset, openAbove: false };
+      if (spaceAbove > spaceBelow) {
+        return { top: safePadding, openAbove: true, maxHeight: spaceAbove };
+      }
+      return {
+        top: rect.bottom + offset,
+        openAbove: false,
+        maxHeight: Math.max(spaceBelow, 0),
+      };
     };
 
     // A dropdown that is already on screen never goes back through the
@@ -144,7 +171,7 @@ export default function FloatingDropdown({
     if (hasMeasuredRef.current) {
       setPosition({
         ...horizontal,
-        ...placeVertically(dropdownElement?.offsetHeight ?? 0),
+        ...placeVertically(naturalHeight(dropdownElement)),
         isFinalized: true,
       });
       return;
@@ -166,7 +193,7 @@ export default function FloatingDropdown({
       hasMeasuredRef.current = true;
       setPosition({
         ...horizontal,
-        ...placeVertically(element.offsetHeight),
+        ...placeVertically(naturalHeight(element)),
         isFinalized: true,
       });
     });
@@ -248,6 +275,10 @@ export default function FloatingDropdown({
         minWidth: matchAnchorWidth ? position.width : undefined,
         width: matchAnchorWidth ? undefined : position.dropdownWidth,
         maxWidth: position.maxWidth,
+        maxHeight: position.maxHeight,
+        overflowY: position.maxHeight !== undefined ? 'auto' : undefined,
+        overscrollBehavior:
+          position.maxHeight !== undefined ? 'contain' : undefined,
       }}
     >
       {children}

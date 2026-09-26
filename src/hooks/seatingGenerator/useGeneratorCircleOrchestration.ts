@@ -32,6 +32,7 @@ export interface CircleOrchestrationReturn {
   batchSwapStudentPositions: ReturnType<
     typeof useCircleActions
   >['batchSwapStudentPositions'];
+  toggleCircleLock: ReturnType<typeof useCircleActions>['toggleCircleLock'];
   clearCircleLayout: ReturnType<typeof useCircleActions>['clearCircleLayout'];
   syncCircleFromTable: ReturnType<
     typeof useCircleActions
@@ -69,6 +70,7 @@ export function useGeneratorCircleOrchestration(
     updateStudentPosition,
     swapStudentPositions,
     batchSwapStudentPositions,
+    toggleCircleLock,
     clearCircleLayout,
     syncCircleFromTable,
     cancelCircleGeneration,
@@ -81,6 +83,7 @@ export function useGeneratorCircleOrchestration(
     updateStudentPosition,
     swapStudentPositions,
     batchSwapStudentPositions,
+    toggleCircleLock,
     clearCircleLayout,
     syncCircleFromTable,
     cancelCircleGeneration,

@@ -14,6 +14,7 @@ import {
   SlidersHorizontalIcon,
   TextAaIcon,
   UsersThreeIcon,
+  UserSquareIcon,
   ArmchairIcon,
 } from '@phosphor-icons/react';
 import {
@@ -52,7 +53,9 @@ const GROUP_ICONS: Record<string, React.ReactNode> = {
   'editor-canvas': <GridNineIcon size={18} />,
   'editor-photos': <ImageIcon size={18} />,
   'editor-names': <TextAaIcon size={18} />,
+  'editor-badges': <UserSquareIcon size={18} />,
   'editor-features': <ArmchairIcon size={18} />,
+  'circle-badges': <UserSquareIcon size={18} />,
 };
 
 /**

@@ -59,6 +59,14 @@ export type CircleLayout = {
 
   // Detailed neighborhood analysis
   neighborhoodPairs: NeighborhoodPair[];
+
+  /**
+   * Students who keep their place in the circle: a drag cannot move them or
+   * swap anyone onto their place, the shuffle leaves them where they are,
+   * and a regenerated circle puts them back. Optional, so layouts and
+   * backups written before it read as "nothing locked".
+   */
+  lockedStudentIds?: string[];
 };
 
 /**

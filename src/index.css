@@ -1570,6 +1570,31 @@ html.dark {
   }
 }
 
+/*
+ * A student has landed: the seats that changed hands ring green for a moment
+ * and let go. Green is a completed action, never a target — the target of a
+ * drag is blue. Without motion the ring simply stands until it is removed.
+ */
+@keyframes seat-drop-confirm {
+  0%,
+  55% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.seat-drop-confirm {
+  animation: seat-drop-confirm 900ms ease-out forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .seat-drop-confirm {
+    animation: none;
+  }
+}
+
 /* Theme transition suppression - prevents layout thrashing during theme switch */
 html.theme-switching,
 html.theme-switching *,

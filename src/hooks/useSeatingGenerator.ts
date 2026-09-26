@@ -335,6 +335,7 @@ export function useSeatingGenerator() {
     updateStudentPosition: updateStudentPositionBase,
     swapStudentPositions: swapStudentPositionsBase,
     batchSwapStudentPositions: batchSwapStudentPositionsBase,
+    toggleCircleLock: toggleCircleLockBase,
     clearCircleLayout: clearCircleLayoutBase,
     syncCircleFromTable,
     cancelCircleGeneration,
@@ -366,6 +367,16 @@ export function useSeatingGenerator() {
       return batchSwapStudentPositionsBase(...args);
     },
     [batchSwapStudentPositionsBase, recordSeatingSnapshot],
+  );
+
+  // A lock decides what the next shuffle may move, so it is undone with the
+  // arrangement it protects.
+  const toggleCircleLock = useCallback(
+    (...args: Parameters<typeof toggleCircleLockBase>) => {
+      recordSeatingSnapshot();
+      return toggleCircleLockBase(...args);
+    },
+    [toggleCircleLockBase, recordSeatingSnapshot],
   );
 
   const clearCircleLayout = useCallback(
@@ -641,6 +652,7 @@ export function useSeatingGenerator() {
       updateStudentPosition,
       swapStudentPositions,
       batchSwapStudentPositions,
+      toggleCircleLock,
       clearCircleLayout,
       syncCircleFromTable,
       setCircleLayoutValue: setCircleLayout,
@@ -709,6 +721,7 @@ export function useSeatingGenerator() {
       updateStudentPosition,
       swapStudentPositions,
       batchSwapStudentPositions,
+      toggleCircleLock,
       clearCircleLayout,
       syncCircleFromTable,
       setCircleLayout,

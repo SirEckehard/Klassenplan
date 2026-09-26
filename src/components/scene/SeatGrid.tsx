@@ -4,6 +4,8 @@ import React from 'react';
 import type { StatisticHighlightMode, StatisticStatus, Student } from '@/types';
 import TableSeat, { TableSeatBadgeOverlay } from '@/components/scene/TableSeat';
 import type { NameDisplayMode, NameLabels } from '@/utils';
+import type { SeatBadgeView } from '@/utils/ui/seatBadges';
+import type { SeatHighlightTone } from '@/utils/ui/statisticsHighlight';
 
 type SeatPointerDownHandler = NonNullable<
   React.ComponentProps<typeof TableSeat>['onSeatPointerDown']
@@ -35,6 +37,10 @@ export interface SeatConfig {
   highlightStatus?: StatisticStatus;
   highlightMode?: StatisticHighlightMode;
   highlightPercentage?: number;
+  /** No verdict: a badge points here (`focus`), a student just landed (`confirm`). */
+  highlightTone?: SeatHighlightTone;
+  /** On the seat a drag started from: who would take the dragged student's place. */
+  swapPreviewStudent?: Student | null;
 }
 
 interface SeatGridProps {
@@ -46,6 +52,8 @@ interface SeatGridProps {
   tableRotation: number;
   allStudents: Student[];
   showSpecialNeeds: boolean;
+  /** Which badges the seats carry and how they are drawn. */
+  badgeView?: SeatBadgeView;
   /** Uniform name rule for the seat labels (see {@link NameDisplayMode}). */
   nameDisplay?: NameDisplayMode;
   /** Disambiguated labels of the class (see `buildNameLabels`). */
@@ -82,6 +90,7 @@ function SeatGrid({
   tableRotation,
   allStudents,
   showSpecialNeeds,
+  badgeView,
   nameDisplay,
   nameLabels,
   showGenderColors = true,
@@ -128,7 +137,10 @@ function SeatGrid({
             highlightStatus={config.highlightStatus}
             highlightMode={config.highlightMode}
             highlightPercentage={config.highlightPercentage}
+            highlightTone={config.highlightTone}
+            swapPreviewStudent={config.swapPreviewStudent}
             showSpecialNeeds={showSpecialNeeds}
+            badgeView={badgeView}
             nameDisplay={nameDisplay}
             nameLabels={nameLabels}
             lockSeatLabelOrientation={lockSeatLabelOrientation}
@@ -158,6 +170,7 @@ function SeatGrid({
               seatHeight={seatHeight}
               allStudents={allStudents}
               showSpecialNeeds={showSpecialNeeds}
+              badgeView={badgeView}
               isDark={isDark}
               isOriginSeat={config.isOriginSeat}
               lockSeatLabelOrientation={lockSeatLabelOrientation}

@@ -3,7 +3,7 @@
 import { useTranslation } from 'react-i18next';
 import type { CircleLayout } from '@/types/Circle';
 import type { Student } from '@/types';
-import type { NameDisplayMode } from '@/utils';
+import type { DataFamily, NameDisplayMode } from '@/utils';
 import {
   CLASSROOM_WIDTH,
   CLASSROOM_HEIGHT,
@@ -12,11 +12,13 @@ import {
   formatDate,
   svgFontFamily,
 } from '@/utils';
+import { getStudentAppearance } from '@/utils/ui/studentAppearance';
 import {
-  getStudentAppearance,
-  getAllStudentBadges,
-  calculateBadgePillLayout,
-} from '@/utils/ui/studentAppearance';
+  createHiddenFamiliesFilter,
+  fitSeatBadges,
+  getSeatBadges,
+} from '@/utils/ui/seatBadges';
+import SeatBadgePill from '@/components/scene/SeatBadgePill';
 import { computeTokenPhotoLayout } from '@/utils/ui/studentTokenLayout';
 import { buildLegendLayout } from '@/utils/ui/classBadgeLegend';
 import { summarizeCircle } from '@/utils/algorithm/circleSummary';
@@ -44,6 +46,8 @@ interface CirclePrintViewProps {
   photoDisplayMode?: 'all' | 'off';
   /** When true, append a legend (badge icons + gender colours) in the footer. */
   showLegend?: boolean;
+  /** Badge families the sheet leaves out, on the tokens and in the legend. */
+  hiddenBadgeFamilies?: readonly DataFamily[];
 }
 
 const CONNECTION_STROKE = '#16a34a';
@@ -62,7 +66,9 @@ export default function CirclePrintView({
   photoDataUrls,
   photoDisplayMode = 'all',
   showLegend = false,
+  hiddenBadgeFamilies,
 }: CirclePrintViewProps) {
+  const badgeFilter = createHiddenFamiliesFilter(hiddenBadgeFamilies);
   const { t, i18n } = useTranslation('generator');
   const nameLabels = useNameLabels(
     layout.students
@@ -133,6 +139,7 @@ export default function CirclePrintView({
           fontSize: legendFontSize,
           iconSize: legendIconSize,
           showSpecialNeeds,
+          badgeFilter,
           genderLabels: {
             girl: t('legend.genderGirl'),
             boy: t('legend.genderBoy'),
@@ -448,31 +455,29 @@ export default function CirclePrintView({
         const allStudents = layout.students
           .map((sp) => sp.student)
           .filter((s): s is Student => s !== null);
-        const flags = getAllStudentBadges(student, allStudents, {
+        const flags = getSeatBadges(
+          student,
+          allStudents,
           showSpecialNeeds,
-          showPartners: showSpecialNeeds,
-          showHeight: showSpecialNeeds,
-          showEnvironment: showSpecialNeeds,
-        });
+          badgeFilter,
+        );
         const colors = getStudentColors(student);
-        const badgeLayout =
-          flags.length > 0
-            ? calculateBadgePillLayout({
-                availableWidth: seatDiameter - 14,
-                iconCount: flags.length,
-                baseIconSize: seatRadius >= 26 ? 9 : 8,
-                minIconSize: 4,
-                horizontalPadding: 4,
-                verticalPadding: 1,
-                rowGap: 2,
-                maxRows: 3,
-                maxHeight: badgeMaxHeight,
-                minIconsForWrap: 5,
-              })
-            : null;
+        // Paper cannot be hovered: every badge is printed, as small as it
+        // takes, rather than folded into a "+N".
+        const badgeFit = fitSeatBadges(flags, {
+          availableWidth: seatDiameter - 14,
+          baseIconSize: seatRadius >= 26 ? 9 : 8,
+          minIconSize: 4,
+          horizontalPadding: 4,
+          verticalPadding: 1,
+          rowGap: 2,
+          maxRows: 3,
+          maxHeight: badgeMaxHeight,
+          minIconsForWrap: 5,
+        });
         const badgeOffset =
-          badgeLayout && badgeLayout.height > 0
-            ? computeBadgeOffset(seatRadius, badgeLayout.height)
+          badgeFit && badgeFit.layout.height > 0
+            ? computeBadgeOffset(seatRadius, badgeFit.layout.height)
             : 0;
 
         const photoUrl =
@@ -555,39 +560,15 @@ export default function CirclePrintView({
               {displayName}
             </text>
 
-            {flags.length > 0 && badgeLayout && (
-              <g>
-                <g
-                  transform={`translate(${x - badgeLayout.width / 2} ${y + badgeOffset})`}
-                >
-                  <rect
-                    width={badgeLayout.width}
-                    height={badgeLayout.height}
-                    rx={badgeLayout.height / 2}
-                    fill="#f8fafc"
-                    stroke="rgba(148, 163, 184, 0.6)"
-                    strokeWidth={0.8}
-                  />
-                  {flags.map((flag, index) => {
-                    const Icon = flag.icon;
-                    const color = 'color' in flag ? flag.color : '#d97706';
-                    const position = badgeLayout.iconPositions[index];
-                    if (!position) {
-                      return null;
-                    }
-                    return (
-                      <g
-                        key={flag.key}
-                        transform={`translate(${position.x} ${position.y})`}
-                      >
-                        <Icon size={badgeLayout.iconSize} color={color}>
-                          <title>{flag.tooltip}</title>
-                        </Icon>
-                      </g>
-                    );
-                  })}
-                </g>
-              </g>
+            {badgeFit && (
+              <SeatBadgePill
+                fit={badgeFit}
+                studentId={student.id}
+                // An export is always printed light.
+                isDark={false}
+                x={x - badgeFit.layout.width / 2}
+                y={y + badgeOffset}
+              />
             )}
           </g>
         );

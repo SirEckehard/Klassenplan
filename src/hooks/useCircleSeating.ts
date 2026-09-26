@@ -24,6 +24,8 @@ import {
   updateCircleStudentPosition,
   swapCircleStudents,
   batchSwapCircleStudents,
+  restoreCircleLocks,
+  toggleCircleStudentLock,
 } from '@/services/circleLayoutService';
 import { useLayoutStore } from '@/stores/layoutStore';
 import {
@@ -54,6 +56,8 @@ interface CircleSeatingHook {
   batchSwapStudentPositions: (
     swaps: Array<{ studentId: string; targetPosition: number }>,
   ) => void;
+  /** Locks a student to their place in the circle, or lets them go. */
+  toggleCircleLock: (studentId: string) => void;
   clearCircleLayout: () => void;
   circleGenerationInProgress: boolean;
   circleGenerationStatus: CircleGenerationStatus | null;
@@ -179,6 +183,12 @@ function useCircleSeatingInternal(
   currentSeating?: SeatingArrangement,
 ): CircleSeatingHook {
   const circleLayout = useLayoutStore((store) => store.circleLayout);
+  // The circle a regeneration replaces, read when the worker answers: its
+  // locks have to survive whatever changed while the circle was computed.
+  const circleLayoutRef = useRef(circleLayout);
+  useEffect(() => {
+    circleLayoutRef.current = circleLayout;
+  }, [circleLayout]);
   const setCircleLayoutState = useLayoutStore((store) => store.setCircleLayout);
   const circleGenerationInProgress = useLayoutStore(
     (store) => store.circleGenerationInProgress,
@@ -320,8 +330,10 @@ function useCircleSeatingInternal(
         },
       );
 
-      setCircleLayout(layout);
-      return layout;
+      // A regenerated circle keeps the students who were locked in place.
+      const restored = restoreCircleLocks(layout, circleLayoutRef.current);
+      setCircleLayout(restored);
+      return restored;
     } catch (error) {
       if (error instanceof DOMException && error.name === 'AbortError') {
         return null;
@@ -395,6 +407,17 @@ function useCircleSeatingInternal(
       });
     },
     [circleLayout, setCircleLayout],
+  );
+
+  const toggleCircleLock = useCallback(
+    (studentId: string) => {
+      setCircleLayout((currentLayout) =>
+        currentLayout
+          ? toggleCircleStudentLock(currentLayout, studentId)
+          : currentLayout,
+      );
+    },
+    [setCircleLayout],
   );
 
   const clearCircleLayout = useCallback(() => {
@@ -509,8 +532,9 @@ function useCircleSeatingInternal(
         neighborhoodPairs: updatedAnalysis.neighborhoodPairs,
       };
 
-      setCircleLayout(layout);
-      return layout;
+      const restored = restoreCircleLocks(layout, circleLayoutRef.current);
+      setCircleLayout(restored);
+      return restored;
     } catch (error) {
       logError(
         'Failed to sync circle layout from seating',
@@ -542,6 +566,7 @@ function useCircleSeatingInternal(
     updateStudentPosition,
     swapStudentPositions,
     batchSwapStudentPositions,
+    toggleCircleLock,
     clearCircleLayout,
     circleGenerationInProgress,
     circleGenerationStatus,

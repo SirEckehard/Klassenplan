@@ -29,18 +29,21 @@
     "plan": {
       "title": "Seating Plan",
       "item1": "Adjust the weighting of criteria (0-10) in the sidebar – in the collapsed sidebar with a right click or a long press on the icon.",
-      "item2": "Drag students to other seats via drag & drop.",
+      "item2": "Drag students to other seats – on a taken seat the two swap. Escape cancels the drag.",
       "item3": "Click the lock icon to lock a seat for the next shuffle.",
       "item4": "The statistics display shows how well the criteria are met – the values then sit beside the criteria in the options.",
       "item5": "The view settings control how names appear (first name only, first name + initial, or first and last name) and whether photos are shown.",
-      "item6": "Undo and redo changes to the seating plan with the corresponding icons."
+      "item6": "Undo and redo changes to the seating plan with the corresponding icons.",
+      "item7": "Hover over or tap an icon on a seat to see what it means – the seats of everyone who shares it are marked. Under “Markers” in the toolbar you find the legend, choose which icons the seats show and switch the explanation and the marking off."
     },
     "circle": {
       "title": "Seating Circle",
-      "item1": "Drag students to new positions via drag & drop.",
+      "item1": "Drag students to other places in the circle – the two swap. Escape cancels the drag.",
       "item2": "Green lines show connections to table neighbors in the seating plan.",
       "item3": "Show or hide connections in the sidebar.",
-      "item4": "The circle starts out linked to the seating plan, but you can change it and save and export it separately."
+      "item4": "The circle starts out linked to the seating plan, but you can change it and save and export it separately.",
+      "item5": "Hover over or tap an icon on a seat to see what it means – the seats of everyone who shares it are marked. Under “Markers” in the toolbar you find the legend, choose which icons the seats show and switch the explanation and the marking off.",
+      "item6": "The lock keeps a student in their place in the circle: dragging, shuffling and regenerating leave them there. With the keyboard, Enter picks a student up, the arrow keys choose the place, Enter puts them down."
     },
     "export": {
       "title": "Export",
@@ -201,6 +204,11 @@
       },
       "pair": "{{first}} & {{second}}",
       "andMore": "{{names}} and {{more}} more"
+    },
+    "keyboard": {
+      "grabbed": "{{name}} picked up. Use the arrow keys to reach the target place, Enter to put down, Escape to cancel.",
+      "lockedTarget": "Place {{position}} in the circle is locked. Please choose another place.",
+      "tokenLabel": "{{name}} – place {{position}} in the circle"
     }
   },
   "seat": {
@@ -217,6 +225,11 @@
       "lockedTarget": "Table {{table}}, seat {{seat}} is locked. Please choose another seat.",
       "sourceLocked": "This seat is locked and cannot be picked up.",
       "moveFailed": "Move not possible."
+    },
+    "ariaBadges": "Markers: {{list}}",
+    "badgeTooltip": {
+      "more_one": "One more marker",
+      "more_other": "{{count}} more markers"
     }
   },
   "backupReminder": {
@@ -580,7 +593,9 @@
       "legend": "Legend",
       "classInfo": "Class info",
       "connections": "Connections"
-    }
+    },
+    "badgeFamilies": "Markers on the sheet",
+    "badgeFamiliesHint": "What is switched off appears neither on the plan nor in the legend."
   },
   "wizard": {
     "step": "Step",
@@ -664,7 +679,19 @@
     "studentPhotos": "Student photos",
     "viewOptions": "View Options",
     "viewSettings": "View Settings",
-    "workspace": "Workspace"
+    "workspace": "Workspace",
+    "badges": {
+      "title": "Markers",
+      "all": "All",
+      "active": "Active criteria only",
+      "off": "Off",
+      "hint": "“Active criteria only” shows just the markers whose mix criterion is not set to “Off”.",
+      "legend": "Legend",
+      "legendEmpty": "No markers are set in this class yet.",
+      "hoverLabel": "On hover",
+      "hoverTooltip": "Explain on hover",
+      "hoverHighlight": "Mark shared markers"
+    }
   },
   "quickSetup": {
     "title": "Set Up Classroom",
@@ -1076,5 +1103,12 @@
     },
     "back": "Back",
     "backTitle": "Back (Alt + ←)"
+  },
+  "drag": {
+    "swapWith": "swaps with {{name}}",
+    "announce": {
+      "swapped": "{{name}} and {{other}} swapped places.",
+      "moved": "{{name}} now sits at table {{table}}, seat {{seat}}."
+    }
   }
 }

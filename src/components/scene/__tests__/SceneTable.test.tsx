@@ -422,6 +422,16 @@ describe('SceneTable drag cleanup', () => {
       clientX: 50,
       clientY: 50,
     });
+    // A press only becomes a drag once it travels.
+    expect(onSeatDragStart).not.toHaveBeenCalled();
+    fireEvent(
+      window,
+      new PointerEvent('pointermove', {
+        pointerId: 1,
+        clientX: 70,
+        clientY: 50,
+      }),
+    );
 
     expect(onSeatDragStart).toHaveBeenCalledTimes(1);
 
@@ -467,6 +477,16 @@ describe('SceneTable drag cleanup', () => {
       clientX: 50,
       clientY: 50,
     });
+    // A press only becomes a drag once it travels.
+    expect(onSeatDragStart).not.toHaveBeenCalled();
+    fireEvent(
+      window,
+      new PointerEvent('pointermove', {
+        pointerId: 1,
+        clientX: 70,
+        clientY: 50,
+      }),
+    );
 
     expect(onSeatDragStart).toHaveBeenCalledTimes(1);
 
@@ -760,5 +780,48 @@ describe('SceneTable rotation snapping', () => {
     expect(onUpdate).toHaveBeenCalled();
 
     fireEvent(window, new PointerEvent('pointerup', { pointerId }));
+  });
+});
+
+describe('SceneTable seat highlights', () => {
+  it('marks the seat a criterion concerns, never the whole table', () => {
+    const neighbour: Student = { ...student, id: 's2', name: 'Ben' };
+    const { container } = render(
+      <svg>
+        <TableIcon
+          table={{
+            ...baseTable,
+            width: 55,
+            height: 130,
+            seatCount: 2,
+            templateType: 'double',
+          }}
+          index={3}
+          students={[student, neighbour]}
+          selected={false}
+          onUpdate={() => {}}
+          editable={false}
+          seatHighlights={
+            new Map([
+              [
+                '3-1',
+                {
+                  status: 'alert',
+                  percentage: 0,
+                  mode: 'persistent',
+                  target: { type: 'seat', tableIndex: 3, seatIndex: 1 },
+                },
+              ],
+            ])
+          }
+        />
+      </svg>,
+    );
+
+    const highlights = container.querySelectorAll('[data-seat-highlight]');
+    expect(highlights).toHaveLength(1);
+    expect(highlights[0]).toHaveAttribute('data-seat-highlight', 'alert');
+    // No ring around the table: its outline keeps its own width.
+    expect(container.querySelector('rect[stroke-width="4.8"]')).toBeNull();
   });
 });

@@ -100,6 +100,45 @@ describe('FloatingDropdown', () => {
     }
   });
 
+  // A long menu next to a short window: taller than the room on either side
+  // of its button. It takes the larger side and scrolls inside, instead of
+  // running off the window where its end could not be reached.
+  it('scrolls inside when it fits on neither side of the anchor', async () => {
+    Object.defineProperty(HTMLElement.prototype, 'offsetHeight', {
+      configurable: true,
+      value: 900,
+    });
+    const originalRect = HTMLElement.prototype.getBoundingClientRect;
+    HTMLElement.prototype.getBoundingClientRect = function () {
+      return {
+        top: 300,
+        bottom: 340,
+        left: 20,
+        right: 260,
+        width: 240,
+        height: 40,
+        x: 20,
+        y: 300,
+        toJSON: () => ({}),
+      } as DOMRect;
+    };
+
+    try {
+      render(<Harness />);
+      await settle();
+
+      // 768px viewport: 416px below the anchor (after the 8px margin), 288px
+      // above it. Below it is, 344px from the top, scrolling after 416px.
+      expect(portal()).toHaveStyle({
+        top: '344px',
+        maxHeight: '416px',
+        overflowY: 'auto',
+      });
+    } finally {
+      HTMLElement.prototype.getBoundingClientRect = originalRect;
+    }
+  });
+
   // A part of the content that loads after the dropdown opened (the settings
   // menu's lower rows) makes it taller; it has to be placed again for that
   // height, or it grows over the anchor instead of staying above it.

@@ -8,7 +8,12 @@ import {
   type NameLabels,
 } from '@/utils';
 import { showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
-import type { DragHover, DragSeatConfig } from '@/hooks/ui/useDragDropState';
+import type {
+  DragHover,
+  DragOrigin,
+  DragSeatConfig,
+} from '@/hooks/ui/useDragDropState';
+import { useDragGesture } from '@/hooks/ui/useDragGesture';
 
 type MoveStudentHandler = (
   fromTable: number,
@@ -45,6 +50,8 @@ interface UseSeatDragOptions {
   onSeatDragEnd?: () => void;
   onSeatHoverChange?: (hover: DragHover | null) => void;
   onSeatDropRejected?: (target: DragHover) => void;
+  /** A student landed: where from, where to. */
+  onSeatDropped?: (from: DragOrigin, to: DragOrigin) => void;
   nameDisplay?: NameDisplayMode;
   nameLabels?: NameLabels;
 }
@@ -54,6 +61,15 @@ interface UseSeatDragResult {
   handleSeatPointerUp: SeatPointerUpHandler;
 }
 
+/**
+ * Dragging a student from a seat of one table to any seat of the plan.
+ *
+ * The gesture — how far a press travels before it is a drag, and what ends
+ * it — is `useDragGesture`, shared with the circle. This hook adds what the
+ * table plan knows: the seat under the pointer (found with
+ * `elementFromPoint`, which is why nothing drawn over the seats takes pointer
+ * events), held seats, and the move itself.
+ */
 export function useSeatDrag({
   draggable,
   index,
@@ -65,24 +81,19 @@ export function useSeatDrag({
   onSeatDragEnd,
   onSeatHoverChange,
   onSeatDropRejected,
+  onSeatDropped,
   nameDisplay,
   nameLabels,
 }: UseSeatDragOptions): UseSeatDragResult {
-  const dragInfoRef = React.useRef<{ table: number; seat: number } | null>(
-    null,
-  );
-  const dragMoveListenerRef = React.useRef<
-    ((event: PointerEvent) => void) | null
-  >(null);
-  const dragUpListenerRef = React.useRef<
-    ((event: PointerEvent) => void) | null
-  >(null);
-  const activePointerIdRef = React.useRef<number | null>(null);
+  const gesture = useDragGesture();
   const hoverSeatRef = React.useRef<DragHover | null>(null);
 
   const resolveSeatTarget = React.useCallback(
     (clientX: number, clientY: number): DragHover | null => {
-      if (typeof document === 'undefined') {
+      if (
+        typeof document === 'undefined' ||
+        typeof document.elementFromPoint !== 'function'
+      ) {
         return null;
       }
       const elementAtPoint = document.elementFromPoint(clientX, clientY);
@@ -92,51 +103,25 @@ export function useSeatDrag({
       if (!seatElement) {
         return null;
       }
-      const seatIndexAttr = seatElement.getAttribute('data-seat-index');
-      const tableIndexAttr = seatElement.getAttribute('data-table-index');
-      const parsedSeat = seatIndexAttr
-        ? Number.parseInt(seatIndexAttr, 10)
-        : Number.NaN;
-      const parsedTable = tableIndexAttr
-        ? Number.parseInt(tableIndexAttr, 10)
-        : Number.NaN;
+      const parsedSeat = Number.parseInt(
+        seatElement.getAttribute('data-seat-index') ?? '',
+        10,
+      );
+      const parsedTable = Number.parseInt(
+        seatElement.getAttribute('data-table-index') ?? '',
+        10,
+      );
       if (Number.isNaN(parsedSeat) || Number.isNaN(parsedTable)) {
         return null;
       }
-      const lockedState = isSeatLocked
-        ? isSeatLocked(parsedTable, parsedSeat)
-        : false;
       return {
         tableIndex: parsedTable,
         seatIndex: parsedSeat,
-        locked: lockedState,
+        locked: isSeatLocked ? isSeatLocked(parsedTable, parsedSeat) : false,
       };
     },
     [isSeatLocked],
   );
-
-  React.useEffect(() => {
-    return () => {
-      if (dragMoveListenerRef.current) {
-        window.removeEventListener('pointermove', dragMoveListenerRef.current);
-        dragMoveListenerRef.current = null;
-      }
-      if (dragUpListenerRef.current) {
-        window.removeEventListener('pointerup', dragUpListenerRef.current);
-        window.removeEventListener('pointercancel', dragUpListenerRef.current);
-        dragUpListenerRef.current = null;
-      }
-      if (dragInfoRef.current && onSeatDragEnd) {
-        onSeatDragEnd();
-      }
-      dragInfoRef.current = null;
-      activePointerIdRef.current = null;
-      if (hoverSeatRef.current && onSeatHoverChange) {
-        onSeatHoverChange(null);
-      }
-      hoverSeatRef.current = null;
-    };
-  }, [onSeatDragEnd, onSeatHoverChange]);
 
   const handleSeatPointerDown = React.useCallback<SeatPointerDownHandler>(
     (
@@ -149,164 +134,114 @@ export function useSeatDrag({
       appearanceValue,
       flagsValue,
     ) => {
-      if (!draggable || !moveStudent || locked || !hasStudent) return;
+      const student = students[fromSeat];
+      if (!draggable || !moveStudent || locked || !hasStudent || !student) {
+        return;
+      }
       e.stopPropagation();
-
-      if (dragMoveListenerRef.current) {
-        window.removeEventListener('pointermove', dragMoveListenerRef.current);
-        dragMoveListenerRef.current = null;
-      }
-      if (dragUpListenerRef.current) {
-        window.removeEventListener('pointerup', dragUpListenerRef.current);
-        window.removeEventListener('pointercancel', dragUpListenerRef.current);
-        dragUpListenerRef.current = null;
-      }
-
-      activePointerIdRef.current = e.pointerId;
       if (typeof e.currentTarget.setPointerCapture === 'function') {
         e.currentTarget.setPointerCapture(e.pointerId);
       }
-      dragInfoRef.current = { table: index, seat: fromSeat };
-      if (onSeatDragStart && students[fromSeat]) {
-        onSeatDragStart(students[fromSeat]!, {
-          x: e.clientX,
-          y: e.clientY,
-          tableIndex: index,
-          seatIndex: fromSeat,
-          seatWidth: seatWidthValue,
-          seatHeight: seatHeightValue,
-          appearance: appearanceValue,
-          flags: flagsValue,
-          nameDisplay,
-          nameLabels,
-        });
-      }
 
-      if (onSeatHoverChange) {
-        const initialHover: DragHover = {
-          tableIndex: index,
-          seatIndex: fromSeat,
-          locked,
-        };
-        hoverSeatRef.current = initialHover;
-        onSeatHoverChange(initialHover);
-      }
-
-      const moveListener = (event: PointerEvent) => {
-        if (event.pointerId !== activePointerIdRef.current) return;
-        onSeatDrag?.(event.clientX, event.clientY);
-
-        if (onSeatHoverChange) {
-          const nextHover = resolveSeatTarget(event.clientX, event.clientY);
-          const prevHover = hoverSeatRef.current;
-          if (
-            prevHover?.tableIndex !== nextHover?.tableIndex ||
-            prevHover?.seatIndex !== nextHover?.seatIndex ||
-            prevHover?.locked !== nextHover?.locked
-          ) {
-            hoverSeatRef.current = nextHover;
-            onSeatHoverChange(nextHover);
-          }
+      const origin: DragOrigin = { tableIndex: index, seatIndex: fromSeat };
+      const isOrigin = (target: DragHover | null) =>
+        target?.tableIndex === origin.tableIndex &&
+        target.seatIndex === origin.seatIndex;
+      const setHover = (next: DragHover | null) => {
+        const prev = hoverSeatRef.current;
+        if (
+          prev?.tableIndex === next?.tableIndex &&
+          prev?.seatIndex === next?.seatIndex &&
+          prev?.locked === next?.locked
+        ) {
+          return;
         }
+        hoverSeatRef.current = next;
+        onSeatHoverChange?.(next);
       };
-
-      const cleanupListeners = () => {
-        window.removeEventListener('pointermove', moveListener);
-        window.removeEventListener('pointerup', upListener);
-        window.removeEventListener('pointercancel', upListener);
-        if (onSeatHoverChange) {
-          hoverSeatRef.current = null;
-          onSeatHoverChange(null);
-        }
-      };
-
-      const upListener = (event: PointerEvent) => {
-        if (event.pointerId !== activePointerIdRef.current) return;
-        dragInfoRef.current = null;
-        activePointerIdRef.current = null;
-        cleanupListeners();
-        dragMoveListenerRef.current = null;
-        dragUpListenerRef.current = null;
+      const finish = () => {
+        setHover(null);
         onSeatDragEnd?.();
       };
 
-      dragMoveListenerRef.current = moveListener;
-      dragUpListenerRef.current = upListener;
-
-      window.addEventListener('pointermove', moveListener);
-      window.addEventListener('pointerup', upListener);
-      window.addEventListener('pointercancel', upListener);
+      gesture.begin(e, {
+        onStart: (point) => {
+          onSeatDragStart?.(student, {
+            x: point.x,
+            y: point.y,
+            tableIndex: index,
+            seatIndex: fromSeat,
+            seatWidth: seatWidthValue,
+            seatHeight: seatHeightValue,
+            appearance: appearanceValue,
+            flags: flagsValue,
+            nameDisplay,
+            nameLabels,
+          });
+        },
+        onMove: (point) => {
+          onSeatDrag?.(point.x, point.y);
+          const target = resolveSeatTarget(point.x, point.y);
+          // The seat it came from is under the pointer at first; it is no
+          // target.
+          setHover(isOrigin(target) ? null : target);
+        },
+        onDrop: (point) => {
+          const target = resolveSeatTarget(point.x, point.y);
+          finish();
+          if (!target || isOrigin(target)) {
+            return;
+          }
+          if (target.locked) {
+            onSeatDropRejected?.({ ...target, locked: true });
+            triggerHapticFeedback('error');
+            showToast('error', TOAST_MESSAGES.SEAT_LOCKED_DROP);
+            return;
+          }
+          const moved = moveStudent(
+            origin.tableIndex,
+            origin.seatIndex,
+            target.tableIndex,
+            target.seatIndex,
+          );
+          if (moved) {
+            triggerHapticFeedback('drop');
+            onSeatDropped?.(origin, {
+              tableIndex: target.tableIndex,
+              seatIndex: target.seatIndex,
+            });
+          }
+        },
+        onCancel: finish,
+      });
     },
     [
       draggable,
       moveStudent,
       index,
       students,
+      gesture,
       onSeatDragStart,
       nameDisplay,
       nameLabels,
       onSeatHoverChange,
       onSeatDrag,
       onSeatDragEnd,
-      resolveSeatTarget,
-    ],
-  );
-
-  const handleSeatPointerUp = React.useCallback<SeatPointerUpHandler>(
-    (e, toSeat, locked) => {
-      if (!draggable || !moveStudent) return;
-      if (
-        typeof e.currentTarget.hasPointerCapture === 'function' &&
-        e.currentTarget.hasPointerCapture(e.pointerId)
-      ) {
-        e.currentTarget.releasePointerCapture(e.pointerId);
-      }
-      let targetSeat = toSeat;
-      let targetTable = index;
-      let targetLocked = locked;
-      const seatTarget = resolveSeatTarget(e.clientX, e.clientY);
-      if (seatTarget) {
-        targetSeat = seatTarget.seatIndex;
-        targetTable = seatTarget.tableIndex;
-        targetLocked = seatTarget.locked;
-      }
-
-      if (targetLocked) {
-        onSeatDropRejected?.({
-          tableIndex: targetTable,
-          seatIndex: targetSeat,
-          locked: true,
-        });
-        triggerHapticFeedback('error');
-        showToast('error', TOAST_MESSAGES.SEAT_LOCKED_DROP);
-        if (onSeatHoverChange) {
-          hoverSeatRef.current = null;
-          onSeatHoverChange(null);
-        }
-        return;
-      }
-
-      if (dragInfoRef.current) {
-        const { table: fromTable, seat: fromSeat } = dragInfoRef.current;
-        if (fromTable !== targetTable || fromSeat !== targetSeat) {
-          moveStudent(fromTable, fromSeat, targetTable, targetSeat);
-          triggerHapticFeedback('drop');
-        }
-      }
-      if (onSeatHoverChange) {
-        hoverSeatRef.current = null;
-        onSeatHoverChange(null);
-      }
-    },
-    [
-      draggable,
-      moveStudent,
-      index,
       onSeatDropRejected,
-      onSeatHoverChange,
+      onSeatDropped,
       resolveSeatTarget,
     ],
   );
+
+  // The drop is the gesture's; the seat only lets go of the pointer it held.
+  const handleSeatPointerUp = React.useCallback<SeatPointerUpHandler>((e) => {
+    if (
+      typeof e.currentTarget.hasPointerCapture === 'function' &&
+      e.currentTarget.hasPointerCapture(e.pointerId)
+    ) {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    }
+  }, []);
 
   return {
     handleSeatPointerDown,

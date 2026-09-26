@@ -37,6 +37,10 @@ import PresentationToolbar from '@/components/scene/PresentationToolbar';
 import SimpleCircleView from '@/components/circle/SimpleCircleView';
 import type { SeatingMode } from '@/types/Circle';
 import type { PresentationPerspective } from '@/utils/ui/boardOrientation';
+import type { SeatBadgeView } from '@/utils/ui/seatBadges';
+
+/** Legible badges and a "+N" on the tokens, as on the projected table plan. */
+const PRESENT_CIRCLE_BADGE_VIEW: SeatBadgeView = { collapse: true };
 
 const PRESENT_MIN_ZOOM = 0.5;
 const PRESENT_MAX_ZOOM = 3;
@@ -351,6 +355,7 @@ export default function Present() {
                 photoMode={isTeacher && showPhotos ? 'all' : 'off'}
                 nameDisplay={currentNameDisplay}
                 connectionMode="off"
+                badgeView={PRESENT_CIRCLE_BADGE_VIEW}
                 transparentBackground
               />
             </div>

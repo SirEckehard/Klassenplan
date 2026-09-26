@@ -301,6 +301,7 @@ export {
 } from './ui/statisticsStatus';
 export {
   buildSeatHighlightLookup,
+  buildDropConfirmLookup,
   getSeatHighlight,
   type SeatHighlightLookup,
 } from './ui/statisticsHighlight';
