@@ -258,7 +258,9 @@ export default function SmartSidebar({
         )}
 
         {/* The tools themselves, in the padding the rail's own entries are
-            measured against (`ToolRail`). */}
+            measured against (`ToolRail`). The rail's scrolling part reaches
+            back into this padding with negative margins, so change the two
+            together. */}
         <div className="min-h-0 flex-1 overflow-x-visible overflow-y-auto">
           <div className="flex h-full flex-col px-2 py-3">
             {renderedChildren}

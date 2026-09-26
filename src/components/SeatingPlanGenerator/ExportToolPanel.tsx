@@ -28,14 +28,14 @@ type Props = {
 };
 
 /**
- * The export page's toolbar, in the shape every layer's has: what to look at
- * on top, what to do with it at the bottom.
+ * The export page's toolbar, in the shape every layer's has: the view on top,
+ * what to do with it below, and the foot every rail shares (`ToolRail`).
  *
- * The arrangement is the plan layer's own pair of entries, so the sheet is
- * switched the way the plan is. The files at the bottom save the sheet as it
- * stands — the PDF of whichever arrangement is shown, which is why there is
- * one PDF entry rather than one per arrangement. Printing is the page's primary
- * action and lives at the end of the status bar.
+ * The view is the plan layer's own pair of entries, so the sheet is switched
+ * the way the plan is. The files save the sheet as it stands — the PDF of
+ * whichever arrangement is shown, which is why there is one PDF entry rather
+ * than one per arrangement. Printing is the page's primary action and lives at
+ * the end of the status bar.
  */
 export default function ExportToolPanel({
   density,
@@ -50,7 +50,7 @@ export default function ExportToolPanel({
 
   return (
     <ToolRail density={density}>
-      <ToolRailGroup title={t('planToolbar.arrangement')}>
+      <ToolRailGroup title={t('toolRail.view')}>
         <ToolRailButton
           icon={<GridNineIcon size={18} />}
           label={t('shell.layers.plan')}
@@ -67,7 +67,7 @@ export default function ExportToolPanel({
         />
       </ToolRailGroup>
 
-      <ToolRailGroup title={t('export.saveAs')} atEnd>
+      <ToolRailGroup title={t('export.saveAs')}>
         <ToolRailButton
           icon={<FilePdfIcon size={18} />}
           label={t('export.pdfButton')}

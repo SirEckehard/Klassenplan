@@ -235,12 +235,12 @@ describe('AppStatusBar', () => {
       </ToolRailProvider>,
     );
 
-    const toggle = getButton('Sidebar erweitern');
+    const toggle = getButton('Werkzeugleiste erweitern');
     expect(toggle).toHaveAttribute('aria-expanded', 'false');
 
     await userEvent.click(toggle);
 
-    expect(getButton('Sidebar minimieren')).toHaveAttribute(
+    expect(getButton('Werkzeugleiste minimieren')).toHaveAttribute(
       'aria-expanded',
       'true',
     );
@@ -251,7 +251,9 @@ describe('AppStatusBar', () => {
     render(<AppStatusBar />);
 
     expect(
-      screen.queryByRole('button', { name: /Sidebar/i }),
+      screen.queryByRole('button', {
+        name: /Werkzeugleiste|toolbar/i,
+      }),
     ).not.toBeInTheDocument();
   });
 });

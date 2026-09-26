@@ -115,19 +115,6 @@ const recipeKeys = [
   'generator:mix.recipes.exam.label',
 ] as const;
 
-const importanceKeys = [
-  'generator:mix.importance.off',
-  'generator:mix.importance.consider',
-  'generator:mix.importance.important',
-  'generator:mix.importance.essential',
-] as const;
-
-const toolKeys = [
-  'generator:tools.whoIsNext.title',
-  'generator:tools.seatFinder.title',
-  'generator:tools.groups.title',
-] as const;
-
 export default function StartPage() {
   const { t, i18n } = useTranslation('pages');
   const metadata = usePageSeo('/');
@@ -151,9 +138,7 @@ export default function StartPage() {
     {
       icon: ChalkboardTeacherIcon,
       title: t('startPage.why.projector'),
-      text: t('startPage.why.projectorDescription', {
-        tools: joinWith(toolKeys, 'conjunction'),
-      }),
+      text: t('startPage.why.projectorDescription'),
     },
     {
       icon: UsersThreeIcon,
@@ -319,7 +304,6 @@ export default function StartPage() {
               <p className="mt-4 max-w-md text-pretty text-(--text-muted)">
                 {t('startPage.criteria.intro', {
                   recipes: joinWith(recipeKeys, 'disjunction'),
-                  levels: joinWith(importanceKeys, 'disjunction'),
                 })}
               </p>
             </div>

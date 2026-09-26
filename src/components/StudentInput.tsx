@@ -6,7 +6,6 @@ import { InfoIcon, TableIcon } from '@phosphor-icons/react';
 
 import { useStudentManagement } from '@/hooks/student/useStudentManagement';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
-import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';
 import { downloadCsvTemplate } from '@/utils/csv/csvTemplateDownload';
 import { openCsvFormatHelp } from '@/utils/ui/csvFormatHelp';
 import ConfirmDialog from '@/components/ui/modals/ConfirmDialog';
@@ -17,7 +16,6 @@ import {
   logError,
   secondaryButtonClass,
   MAX_STUDENTS,
-  NAME_GAME_MIN_PHOTOS,
   STUDENT_LIST_TOOLS_THRESHOLD,
 } from '@/utils';
 import type { CsvImportSelection } from '@/utils/data/csvUtils';
@@ -80,7 +78,6 @@ function StudentInput({
   downloadStudentsCsv,
 }: StudentInputProps) {
   const { t } = useTranslation('students');
-  const navigate = useLocalizedNavigate();
   const [placeholderCount, setPlaceholderCount] = useState('10');
 
   // Below `lg` the list flows in the page scroll (no inner scroll container);
@@ -116,12 +113,7 @@ function StudentInput({
     onCardExpand: (id) => setExpandedCardId(id),
   });
   const { activeClass } = useClassManagementContext();
-  const { triggerImport, handleExportAll } = useSeatingPlanActions();
-  const handleCreateBackup = useCallback(() => {
-    handleExportAll().catch((error: unknown) => {
-      logError('Backup export failed', { error }, 'StudentInput');
-    });
-  }, [handleExportAll]);
+  const { triggerImport } = useSeatingPlanActions();
   const { loadDemoClass, isLoadingDemoClass, hasDemoClass, isDemoClassActive } =
     useDemoClass();
   const handleLoadDemoClass = useCallback(() => {
@@ -275,25 +267,6 @@ function StudentInput({
     showToast('success', t('bulkEdit.deleted', { count: ids.length }));
   }, [selection, removeStudents, setBulkDeleteOpen, t]);
 
-  const photoCount = students.filter((student) => student.hasPhoto).length;
-  const canPlayNameGame = photoCount >= NAME_GAME_MIN_PHOTOS;
-
-  // The button stays clickable while inactive so it can explain the reason.
-  const handleNameGameClick = useCallback(() => {
-    if (!canPlayNameGame) {
-      showToast(
-        'info',
-        t('studentInput.nameGameLockedToast', {
-          min: NAME_GAME_MIN_PHOTOS,
-          count: photoCount,
-          defaultValue: `Für das Namensspiel brauchst du mindestens ${NAME_GAME_MIN_PHOTOS} Schüler mit Foto (aktuell: ${photoCount}). Fotos fügst du über das Porträt-Symbol neben jedem Schüler hinzu.`,
-        }),
-      );
-      return;
-    }
-    navigate('/namensspiel');
-  }, [canPlayNameGame, navigate, photoCount, t]);
-
   if (!hasActiveClass) {
     return (
       <ClassEmptyState
@@ -326,9 +299,6 @@ function StudentInput({
             onCreatePlaceholders={handlePlaceholderClass}
             onImportCsv={analyzeCsvFile}
             onExportCsv={downloadStudentsCsv}
-            onCreateBackup={handleCreateBackup}
-            onImportBackup={triggerImport}
-            onPlayNameGame={handleNameGameClick}
             onLoadDemoClass={
               isDemoClassActive ? undefined : handleLoadDemoClass
             }

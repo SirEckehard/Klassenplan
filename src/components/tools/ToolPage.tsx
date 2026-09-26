@@ -121,10 +121,17 @@ export function ToolEmptyState({
   title,
   body,
   actionLabel,
+  step,
 }: {
   title: string;
   body: string;
   actionLabel: string;
+  /**
+   * The layer that supplies what is missing — 1 for the class list, 3 for the
+   * seating plan. The tools open from every layer, so the workspace is told
+   * where to land rather than returning to whichever layer was open last.
+   */
+  step: 1 | 3;
 }) {
   const navigate = useLocalizedNavigate();
 
@@ -134,7 +141,7 @@ export function ToolEmptyState({
       <p className="max-w-xs text-sm text-(--text-muted)">{body}</p>
       <button
         type="button"
-        onClick={() => navigate('/generator')}
+        onClick={() => navigate('/generator', { state: { step } })}
         className={`${primaryButtonClass} h-10 px-4 text-sm font-semibold`}
       >
         {actionLabel}

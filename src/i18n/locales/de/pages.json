@@ -9,29 +9,29 @@
     "contactLink": "Nachricht schreiben",
     "quoted": "„{{text}}“",
     "layers": {
-      "eyebrow": "So funktioniert's",
-      "title": "Drei Ebenen desselben Klassenzimmers",
-      "intro": "Klasse, Raum und Sitzplan liegen übereinander, nicht hintereinander. Ein Klick wechselt die Ebene, und nichts geht dabei verloren.",
-      "classText": "Schüler eintragen oder als CSV importieren. Merkmale setzt du mit einer Frage an alle, etwa {{question}}",
-      "roomText": "Tische, Tafel, Fenster und Tür per Drag & Drop einrichten und als Vorlage für die nächste Klasse speichern.",
-      "planText": "Mischen, von Hand nachjustieren, Plätze festhalten – und mit einem Klick daraus den Sitzkreis machen.",
-      "exits": "Danach präsentierst du den Plan am Beamer oder exportierst ihn als PDF, PNG oder SVG."
+      "eyebrow": "So funktioniert's!",
+      "title": "Alles im Blick",
+      "intro": "Klassenliste, Klassenraum und Sitzplan. Ein Klick wechselt die Ebene, und nichts geht dabei verloren.",
+      "classText": "Trage Schüler ein oder importiere eine vorhandene CSV-Tabelle mit deiner Klasse. Merkmale kannst du schnell mit Fragen beantworten, wie z. B. {{question}}",
+      "roomText": "Passe den Klassenraum deinen Wünschen an. Füge Tische, Tafel, Fenster, Tür und mehr per Drag & Drop hinzu und speichere den Klassenraum als Vorlage.",
+      "planText": "Mischen, von Hand nachjustieren, Plätze sperren – und mit einem Klick den passenden Sitzkreis erstellen.",
+      "exits": "Danach präsentierst du den Plan direkt an der digitalen Tafel oder exportierst ihn als PDF."
     },
     "criteria": {
-      "eyebrow": "Was der Plan beachtet",
-      "title": "Kriterien in Wörtern statt Reglern",
-      "intro": "Wähle ein Rezept wie {{recipes}} oder stelle jedes Kriterium einzeln auf {{levels}}. Neben dem Plan steht, wie weit jedes erfüllt ist – und in ganzen Sätzen, warum er so aussieht.",
+      "eyebrow": "Was der Plan beachtet!",
+      "title": "Eine Vielzahl an Kriterien für jede Klasse",
+      "intro": "Wähle für jeden Schüler die passenden Merkmale aus. Rezepte wie {{recipes}} helfen dir für jede Situation den richtigen Sitzplan zu finden.",
       "historyGroup": "Verlauf"
     },
     "why": {
       "eyebrow": "Warum Klassenplan?",
-      "title": "Für den Unterricht gebaut, nicht für die Cloud",
+      "title": "Für den Unterricht, nicht für die Cloud",
       "privacy": "Fokus auf Datenschutz",
-      "privacyDescription": "DSGVO-konform in Deutschland gehostet, kein Konto, keine Cloud & funktioniert offline.",
-      "projector": "Für den Beamer gemacht",
-      "projectorDescription": "Eine eigene Leiste, ein Kontrastmodus für helle Räume und nur Vornamen an der Wand. Dazu {{tools}}.",
-      "sample": "Ohne eigene Daten ausprobieren",
-      "sampleDescription": "Eine Beispielklasse mit 24 Schülern und eine kurze Tour zeigen jede Ebene, bevor du deine eigene Klasse anlegst."
+      "privacyDescription": "DSGVO-konform in Deutschland gehostet, kein Konto, keine Cloud, funktioniert vollständig offline & ist installierbar als Webapp.",
+      "projector": "Für die digitale Tafel",
+      "projectorDescription": "Präsentiere deinen Sitzplan auf der Tafel. Mit einem Kontrastmodus für helle Räume und gut lesbaren Namen. So findet jeder schnell seinen Platz.",
+      "sample": "Starte direkt mit einer Demo",
+      "sampleDescription": "Eine Beispielklasse mit 24 Schülern und eine kurze Tour zeigen dir Klassenplan, bevor du deine eigene Klasse anlegst."
     },
     "previewSlides": {
       "schuelerliste": "Klassenliste",
@@ -168,7 +168,7 @@
       "description": "Mehrere Klassen, CSV-Import, Fotos, Merkmal-Modus und Namensspiel.",
       "classes": {
         "q": "Kann ich mehrere Klassen verwalten?",
-        "a": "Ja. Über die Klassenauswahl oben links in der Kopfzeile legst du beliebig viele Klassen an, benennst sie um, wechselst zwischen ihnen oder löschst sie. Jede Klasse hat ihre eigenen Schüler, Klassenraum-Layouts, Sitzpläne und Misch-Historien. Löschst du eine Klasse, werden auch deren Sitzpläne gelöscht – ein Backup vorher lohnt sich."
+        "a": "Ja. Über die Klassenauswahl oben links in der Kopfzeile legst du beliebig viele Klassen an, benennst sie um, wechselst zwischen ihnen oder löschst sie. Jede Klasse hat ihre eigenen Schüler, Klassenraum-Layouts, Sitzpläne und letzten Mischungen. Löschst du eine Klasse, werden auch deren Sitzpläne gelöscht – ein Backup vorher lohnt sich."
       },
       "csv": {
         "q": "Wie importiere ich eine bestehende Klassenliste?",
@@ -180,7 +180,7 @@
       },
       "focusMode": {
         "q": "Wie setze ich ein Merkmal schnell für die ganze Klasse?",
-        "a": "Mit dem Merkmal-Modus in der Werkzeugleiste unter „Ansehen“. Er stellt eine Frage an alle – etwa „Wer zeigt Unruhe?“ – und du tippst die Schüler an, auf die sie zutrifft. Danach geht es zum nächsten Merkmal, bis alle Ja/Nein-Merkmale der Klasse gesetzt sind."
+        "a": "Mit dem Merkmal-Modus in der Werkzeugleiste unter „Ansicht“. Er stellt eine Frage an alle – etwa „Wer zeigt Unruhe?“ – und du tippst die Schüler an, auf die sie zutrifft. Danach geht es zum nächsten Merkmal, bis alle Ja/Nein-Merkmale der Klasse gesetzt sind."
       },
       "bulk": {
         "q": "Wie bearbeite ich mehrere Schüler auf einmal?",
@@ -192,7 +192,7 @@
       },
       "nameGame": {
         "q": "Was ist das Namensspiel?",
-        "a": "Das Namensspiel hilft dir, die Namen einer neuen Klasse zu lernen. Es nutzt nur Schüler mit Foto und bietet ein Foto-Quiz (Name zum Foto finden oder umgekehrt, unsichere Namen kommen häufiger dran) sowie ein Memory aus Foto- und Namenskarten. Der Lernfortschritt bleibt lokal auf deinem Gerät. Du startest es in der Werkzeugleiste der Klasse unter „Verwalten“."
+        "a": "Das Namensspiel hilft dir, die Namen einer neuen Klasse zu lernen. Es nutzt nur Schüler mit Foto und bietet ein Foto-Quiz (Name zum Foto finden oder umgekehrt, unsichere Namen kommen häufiger dran) sowie ein Memory aus Foto- und Namenskarten. Der Lernfortschritt bleibt lokal auf deinem Gerät. Du startest es in der Werkzeugleiste unter „Klassenwerkzeuge“ – auf jeder Ebene."
       }
     },
     "eigenschaften": {
@@ -278,7 +278,7 @@
       "description": "Wie Wunschpartner, Distanzwünsche und Förderbedarfe in die Berechnung einfließen.",
       "relations": {
         "q": "Wo sehe ich alle Wünsche der Klasse auf einen Blick?",
-        "a": "In der Ebene Klasse unter „Ansehen › Beziehungen“. Die Ansicht zeigt, wer neben wem sitzen möchte und wer Abstand wünscht, und markiert Paare, die sich gegenseitig gewählt haben. Ein Klick auf einen Namen öffnet den Schüler im Inspektor."
+        "a": "In der Ebene Klasse unter „Ansicht › Beziehungen“. Die Ansicht zeigt, wer neben wem sitzen möchte und wer Abstand wünscht, und markiert Paare, die sich gegenseitig gewählt haben. Ein Klick auf einen Namen öffnet den Schüler im Inspektor."
       },
       "multi": {
         "q": "Wie funktionieren mehrere Wunsch- und Distanzpartner?",
@@ -365,12 +365,12 @@
       },
       "repeat": {
         "q": "Wie funktioniert die Wiederholungsvermeidung?",
-        "intro": "Die Wiederholungsbewertung berücksichtigt sowohl gespeicherte Sitzpläne als auch die aktuelle Misch-Historie der Sitzung:",
+        "intro": "Die Wiederholungsbewertung berücksichtigt sowohl gespeicherte Sitzpläne als auch die letzten Mischungen der Sitzung:",
         "li1_b": "Gespeicherte Pläne:",
         "li1": "Paare aus älteren Plänen erhalten abnehmende Gewichtung (neuere zählen stärker)",
         "li2_b": "Aktuelle Session:",
         "li2": "Die letzten Mischungen werden stärker gewichtet, damit sich Paare nicht sofort wiederholen",
-        "outro": "So wird vermieden, dass dieselben Schüler ständig nebeneinander sitzen, wenn du mehrfach hintereinander mischst. Nicht jede Mischung wird aber auch wirklich umgesetzt – und genau da stößt die reine Misch-Historie an ihre Grenzen.",
+        "outro": "So wird vermieden, dass dieselben Schüler ständig nebeneinander sitzen, wenn du mehrfach hintereinander mischst. Nicht jede Mischung wird aber auch wirklich umgesetzt – und genau da stoßen die letzten Mischungen allein an ihre Grenzen.",
         "usageIntro": "Klassenplan merkt sich deshalb im Hintergrund, welche Sitzpläne tatsächlich im Einsatz waren. Markieren musst du dafür nichts – gewertet wird, was du ohnehin tust:",
         "usage1": "Einen Sitzplan im Präsentationsmodus zeigen",
         "usage2": "Einen Sitzplan drucken oder als PDF, PNG oder SVG exportieren",
@@ -378,7 +378,7 @@
         "usage4": "Plätze im Sitzplan von Hand tauschen",
         "usageOutro": "Gespeichert werden dabei nur die Sitznachbarschaften und ein Zeitstempel, ausschließlich lokal auf deinem Gerät – ohne Cloud, ohne Statistik-Dienst. Beim ersten starken Signal fragt ein kurzer Hinweis nach: Wenn es doch nur ein Test war, nimmst du den Plan mit einem Klick wieder aus der Wertung.",
         "weightNote": "Für die Wiederholungsvermeidung zählen diese echten Sitzpläne zuerst; reine Mischungen aus der laufenden Sitzung gehen nur noch halb so stark ein. So kann eine lange Probier-Runde das Ergebnis nicht mehr überlagern.",
-        "viewNote": "In der Werkzeugleiste des Sitzplans zeigt „Nachbarschaften“, wer schon wie oft nebeneinander saß – samt Datengrundlage, aus der du einzelne Pläne herausnehmen kannst."
+        "viewNote": "Unter „Pläne & Verlauf“ in der Werkzeugleiste zeigt der Reiter „Nachbarschaften“, wer schon wie oft nebeneinander saß – samt Datengrundlage, aus der du einzelne Pläne herausnehmen kannst."
       }
     },
     "tipps": {
@@ -390,27 +390,27 @@
         "li1": "Wichtige Kriterien auf „Wichtig“ oder „Sehr wichtig“ stellen – oder ein passendes Rezept wählen",
         "li2": "Mehrfach mischen, um unterschiedliche Zufallsstarts zu nutzen",
         "li3": "Einzelne Plätze manuell via Drag & Drop anpassen und bei Bedarf sperren, sodass der Algorithmus diese nicht mehr verändert.",
-        "li4": "Eine misslungene Mischung mit Strg/Cmd+Z zurücknehmen oder unter „Gespeicherte Pläne“ ein früheres Ergebnis laden"
+        "li4": "Eine misslungene Mischung mit Strg/⌘+Z zurücknehmen oder unter „Pläne & Verlauf“ ein früheres Ergebnis laden"
       }
     },
     "unterricht": {
       "title": "Präsentieren, Exportieren & Werkzeuge",
-      "description": "Beamer, Sitzkreis, Ausdruck und die drei Werkzeuge für den Unterricht.",
+      "description": "Digitale Tafel, Sitzkreis, Ausdruck und die drei Werkzeuge für den Unterricht.",
       "present": {
         "q": "Wie funktioniert der Präsentiermodus?",
-        "a": "„Präsentieren“ in der Mitte der Statusleiste zeigt den Sitzplan oder Sitzkreis groß am Beamer oder Smartboard. Alle Bedienelemente liegen in einer Leiste unter dem Plan: Lehrer- oder Schüleransicht (sie dreht den Plan aus Sicht der Klasse), Plan oder Kreis, Fotos, Farben, Raumelemente, ein Kontrastmodus für helle Räume und die Größe. An der Wand stehen Vornamen, unabhängig davon, wie du die Namen im Editor zeigst. Im Vollbild (Taste F) verschwindet die Leiste und erscheint wieder, sobald du die Maus an den unteren Rand bewegst."
+        "a": "„Präsentieren“ in der Mitte der Statusleiste zeigt den Sitzplan oder Sitzkreis groß an der digitalen Tafel. Alle Bedienelemente liegen in einer Leiste unter dem Plan: Lehrer- oder Schüleransicht (sie dreht den Plan aus Sicht der Klasse), Plan oder Kreis, Fotos, Farben, Raumelemente, ein Kontrastmodus für helle Räume und die Größe. An der Tafel stehen Vornamen, unabhängig davon, wie du die Namen im Editor zeigst. Im Vollbild (Taste F) verschwindet die Leiste und erscheint wieder, sobald du die Maus an den unteren Rand bewegst."
       },
       "tools": {
         "q": "Was sind „Wer kommt dran?“, „Wo sitzt wer?“ und „Gruppen bilden“?",
-        "a": "Drei Werkzeuge für den Unterricht, jedes eine eigene Seite, die sich auch im Stehen am Tablet oder Handy bedienen lässt. „Wer kommt dran?“ zieht zufällig einen Schüler, wobei jeder einmal drankommt, bevor sich jemand wiederholt. „Wo sitzt wer?“ findet einen Schüler im Raum. „Gruppen bilden“ lost Gruppen aus der Klasse aus und trennt dabei nach Möglichkeit Distanzwünsche. Du öffnest sie in der Werkzeugleiste des Sitzplans unter „Werkzeuge“, „Gruppen bilden“ auch aus dem Präsentiermodus. Gespeichert wird dabei nichts."
+        "a": "Drei Werkzeuge für den Unterricht, jedes eine eigene Seite, die sich auch im Stehen am Tablet oder Handy bedienen lässt. „Wer kommt dran?“ zieht zufällig einen Schüler, wobei jeder einmal drankommt, bevor sich jemand wiederholt. „Wo sitzt wer?“ findet einen Schüler im Raum. „Gruppen bilden“ lost Gruppen aus der Klasse aus und trennt dabei nach Möglichkeit Distanzwünsche. Du öffnest sie in der Werkzeugleiste unter „Klassenwerkzeuge“ – auf jeder Ebene –, „Gruppen bilden“ auch aus dem Präsentiermodus. Gespeichert wird dabei nichts."
       },
       "circle": {
         "q": "Wie funktioniert der Sitzkreis-Modus?",
-        "a": "Im Sitzplan wählst du in der Werkzeugleiste unter „Anordnung“ den „Sitzkreis“. Klassenplan berechnet automatisch einen passenden Kreis und koppelt ihn an deinen aktuellen Sitzplan. Du kannst die Plätze im Sitzkreis per Drag & Drop anpassen, ohne den Sitzplan zu verändern, und ihn separat präsentieren oder exportieren."
+        "a": "Im Sitzplan wählst du in der Werkzeugleiste unter „Ansicht“ den „Sitzkreis“. Klassenplan berechnet automatisch einen passenden Kreis und koppelt ihn an deinen aktuellen Sitzplan. Du kannst die Plätze im Sitzkreis per Drag & Drop anpassen, ohne den Sitzplan zu verändern, und ihn separat präsentieren oder exportieren."
       },
       "exportFormats": {
         "q": "In welchen Formaten kann ich den Sitzplan exportieren?",
-        "a": "Die Exportseite speichert PDF, PNG und SVG und druckt direkt – praktisch für Elternbriefe, Vertretungsmappen oder das Schulportal. Sitzplan oder Sitzkreis wählst du in der Werkzeugleiste unter „Anordnung“, jeweils im Hoch- oder Querformat."
+        "a": "Die Exportseite speichert PDF, PNG und SVG und druckt direkt – praktisch für Elternbriefe, Vertretungsmappen oder das Schulportal. Sitzplan oder Sitzkreis wählst du in der Werkzeugleiste unter „Ansicht“, jeweils im Hoch- oder Querformat."
       },
       "print": {
         "q": "Ich möchte den Sitzplan ausdrucken und die Tafel als Orientierungshilfe unten angezeigt haben. Geht das?",
@@ -418,7 +418,7 @@
       },
       "names": {
         "q": "Die Namen sind auf dem Plan zu lang – was kann ich tun?",
-        "a": "Im Sitzplan unter „Im Plan zeigen › Namen“, im Präsentiermodus und auf der Exportseite unter „Namen“ legst du fest, wie Namen erscheinen: nur Vorname, Vorname + Initial des Nachnamens oder Vor- und Nachname. Namen, die gleich aussähen, unterscheidet Klassenplan von selbst – aus „Frida Ehrmann“ und „Frida Emmerich“ werden „Frida Eh.“ und „Frida Em.“."
+        "a": "Im Sitzplan unter „Ansichtseinstellungen › Namen“, im Präsentiermodus und auf der Exportseite unter „Namen“ legst du fest, wie Namen erscheinen: nur Vorname, Vorname + Initial des Nachnamens oder Vor- und Nachname. Namen, die gleich aussähen, unterscheidet Klassenplan von selbst – aus „Frida Ehrmann“ und „Frida Emmerich“ werden „Frida Eh.“ und „Frida Em.“."
       }
     },
     "oberflaeche": {
@@ -426,15 +426,15 @@
       "description": "Dark Mode, Tastenkürzel, Rückgängig, Tour, Tablet und Installation.",
       "undo": {
         "q": "Kann ich Änderungen rückgängig machen?",
-        "a": "Ja, in allen drei Ebenen: in der Klassenliste, im Raum und im Sitzplan und Sitzkreis – so kommt z. B. ein versehentlich gelöschter Schüler samt Foto zurück. Die Pfeile unten links in der Statusleiste nehmen Änderungen zurück und stellen sie wieder her, ebenso Strg/Cmd + Z und Strg/Cmd + Shift + Z."
+        "a": "Ja, in allen drei Ebenen: in der Klassenliste, im Raum und im Sitzplan und Sitzkreis – so kommt z. B. ein versehentlich gelöschter Schüler samt Foto zurück. Die Pfeile unten links in der Statusleiste nehmen Änderungen zurück und stellen sie wieder her, ebenso Strg/⌘+Z und Strg/⌘+Umschalt+Z."
       },
       "shortcuts": {
         "q": "Welche Tastenkürzel gibt es?",
-        "a": "Viele – etwa Strg/Cmd + C, V und X zum Kopieren, Einfügen und Ausschneiden von Tischen oder Strg/Cmd + B, um die Werkzeugleiste ein- und auszuklappen. Das Fragezeichen oben rechts zeigt unter „Tastenkürzel“ alle Kürzel der aktuellen Ebene; die Taste ? öffnet es direkt."
+        "a": "Viele – etwa Strg/⌘+C, V und X zum Kopieren, Einfügen und Ausschneiden von Tischen oder Strg/⌘+B, um die Werkzeugleiste ein- und auszuklappen. Das Fragezeichen oben rechts zeigt unter „Tastenkürzel“ alle Kürzel der aktuellen Ebene; die Taste ? öffnet es direkt."
       },
       "tour": {
         "q": "Gibt es eine Einführung in die Bedienung?",
-        "a": "Ja. Beim ersten Besuch zeigt dir eine kurze Tour in jeder Ebene die wichtigsten Stellen – von der Klassenauswahl über die Werkzeugleiste bis zu den Kriterien und dem Sitzkreis. Die Tour blockiert nichts: Du kannst jederzeit weiterarbeiten, sie mit Escape schließen oder mit „Nicht mehr zeigen“ ganz abschalten. Über das Fragezeichen oben rechts startest du die Tour der aktuellen Ebene jederzeit neu – dort führt auch ein Weg zu diesen Fragen."
+        "a": "Ja. Beim ersten Besuch zeigt dir eine kurze Tour in jeder Ebene die wichtigsten Stellen – von der Klassenauswahl über die Werkzeugleiste bis zu den Kriterien und dem Sitzkreis. Die Tour blockiert nichts: Du kannst jederzeit weiterarbeiten, sie mit Esc schließen oder mit „Nicht mehr zeigen“ ganz abschalten. Über das Fragezeichen oben rechts startest du die Tour der aktuellen Ebene jederzeit neu – dort führt auch ein Weg zu diesen Fragen."
       },
       "dark": {
         "q": "Gibt es einen Dark Mode?",
@@ -471,15 +471,15 @@
       "deviceChange": {
         "q": "Wie nehme ich meine Daten auf einen neuen Rechner mit?",
         "intro": "Über die Backup-Datei – eine Synchronisation zwischen Geräten gibt es nicht, weil es keinen Server gibt.",
-        "li1": "Auf dem alten Gerät in der Ebene Klasse in der Werkzeugleiste auf „Backup“ klicken, „Backup exportieren“ wählen und ein Passwort vergeben.",
+        "li1": "Auf dem alten Gerät ganz unten in der Werkzeugleiste auf „Backup“ klicken, „Backup exportieren“ wählen und ein Passwort vergeben.",
         "li2": "Die Datei auf das neue Gerät bringen, etwa per USB-Stick, Cloud-Ordner oder E-Mail an dich selbst.",
-        "li3": "Auf dem neuen Gerät Klassenplan öffnen und in der Werkzeugleiste unter „Backup“ den Eintrag „Backup importieren“ wählen.",
+        "li3": "Auf dem neuen Gerät Klassenplan öffnen und „Backup importieren“ wählen – auf der leeren Klassenseite oder, wenn es dort schon eine Klasse gibt, ganz unten in der Werkzeugleiste unter „Backup“.",
         "li4": "Die Datei auswählen, das Passwort eingeben und „Alles ersetzen“ bestätigen.",
         "outro": "Danach sind Klassen, Schüler samt Fotos, Sitzpläne und Vorlagen auf dem neuen Gerät. Die Datei funktioniert auf jedem Betriebssystem und in jedem Browser. Ohne das Passwort lässt sie sich jedoch nicht öffnen."
       },
       "frequency": {
         "q": "Wie oft sollte ich ein Backup machen?",
-        "a": "Zum Beispiel nach dem Anlegen einer Klasse oder nach dem Einrichten & Speichern eines Klassenraums. Klassenplan erinnert dich von selbst, wenn dein letztes Backup älter als 30 Tage ist. Diese Erinnerung kannst du vertagen oder über „Nicht mehr erinnern“ dauerhaft abschalten."
+        "a": "Zum Beispiel nach dem Anlegen einer Klasse oder nach dem Einrichten & Speichern eines Klassenraums. Klassenplan erinnert dich, wenn dein letztes Backup älter als 30 Tage ist. Diese Erinnerung kannst du vertagen oder über „Nicht mehr erinnern“ dauerhaft abschalten."
       },
       "update": {
         "q": "Was passiert nach einem Update von Klassenplan mit meinem Backup?",
@@ -524,7 +524,7 @@
   "nameGame": {
     "title": "Namensspiel",
     "back": "Zurück",
-    "backTitle": "Zurück zum Generator (Alt + ←)",
+    "backTitle": "Zurück zum Generator (Alt/⌥+←)",
     "backToMenuTitle": "Zurück zum Spielmenü",
     "loading": "Fotos werden geladen…",
     "empty": {
@@ -583,7 +583,7 @@
       "item2": "Foto-Quiz: Wähle den passenden Namen zum Foto oder umgekehrt. Unsichere Namen kommen häufiger dran.",
       "item3": "Memory: Decke Paare aus Foto und Name auf – große Klassen spielen in mehreren Runden.",
       "item4": "Dein Lernfortschritt wird nur lokal auf diesem Gerät gespeichert.",
-      "item5": "Mit Alt + ← kehrst du zum Generator zurück."
+      "item5": "Mit Alt/⌥+← kehrst du zum Generator zurück."
     }
   },
   "header": {

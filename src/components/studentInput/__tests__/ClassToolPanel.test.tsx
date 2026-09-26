@@ -14,6 +14,15 @@ import { MemoryRouter } from 'react-router-dom';
 import ClassToolPanel from '@/components/studentInput/ClassToolPanel';
 import { getButton } from '@/__tests__/utils';
 
+// The rail's foot reaches for the backup; the panel itself needs nothing else
+// from the seating plan.
+vi.mock('@/contexts/SeatingPlanContext', () => ({
+  useSeatingPlanActions: () => ({
+    handleExportAll: vi.fn().mockResolvedValue(undefined),
+    triggerImport: vi.fn(),
+  }),
+}));
+
 afterEach(cleanup);
 
 const renderPanel = (
@@ -27,9 +36,6 @@ const renderPanel = (
     onCreatePlaceholders: vi.fn(),
     onImportCsv: vi.fn().mockResolvedValue(undefined),
     onExportCsv: vi.fn(),
-    onCreateBackup: vi.fn(),
-    onImportBackup: vi.fn(),
-    onPlayNameGame: vi.fn(),
   };
   render(
     <ClassToolPanel
@@ -86,6 +92,10 @@ describe('ClassToolPanel', () => {
       'aria-pressed',
       'false',
     );
+    // An action is not a switch: it announces no pressed state.
+    expect(
+      getButton(/Klassenliste exportieren|Export class list/i),
+    ).not.toHaveAttribute('aria-pressed');
   });
 
   // An empty class has nobody to look at and nothing to export.
@@ -93,24 +103,43 @@ describe('ClassToolPanel', () => {
     renderPanel({ studentCount: 0 });
 
     expect(getButton(/Merkmal-Modus|Attribute mode/i)).toBeDisabled();
-    expect(getButton(/Namensspiel|Name game/i)).toBeDisabled();
+    expect(
+      getButton(/Klassenliste exportieren|Export class list/i),
+    ).toBeDisabled();
     expect(getButton(/Schüler hinzufügen|Add student/i)).toBeEnabled();
   });
 
-  it('keeps the class-wide actions at the bottom', () => {
+  // The view comes first on every layer; who is in the class is managing it,
+  // with the class list's import and export side by side.
+  it('puts the view on top and everything about who is in the class under one heading', () => {
+    renderPanel();
+
+    const headings = screen
+      .getAllByRole('heading', { level: 3 })
+      .map((heading) => heading.textContent);
+    expect(headings).toEqual([
+      expect.stringMatching(/^(Ansicht|View)$/),
+      expect.stringMatching(/^(Verwalten|Manage)$/),
+    ]);
+
+    const manage = screen.getByRole('heading', { name: /Verwalten|Manage/ })
+      .parentElement as HTMLElement;
+    const entries = within(manage)
+      .getAllByRole('button')
+      .map((button) => button.textContent);
+    expect(entries).toEqual([
+      expect.stringMatching(/Schüler hinzufügen|Add student/),
+      expect.stringMatching(/Platzhalter erstellen|Create placeholders/),
+      expect.stringMatching(/Klassenliste importieren|Import class list/),
+      expect.stringMatching(/Klassenliste exportieren|Export class list/),
+    ]);
+  });
+
+  it('exports the class list from the toolbar', () => {
     const handlers = renderPanel();
 
     fireEvent.click(getButton(/Klassenliste exportieren|Export class list/i));
     expect(handlers.onExportCsv).toHaveBeenCalledTimes(1);
-
-    // Both ways a backup travels sit behind one entry.
-    fireEvent.click(getButton(/^Backup$/i));
-    fireEvent.click(getButton(/Backup exportieren|Export backup/i));
-    expect(handlers.onCreateBackup).toHaveBeenCalledTimes(1);
-
-    fireEvent.click(getButton(/^Backup$/i));
-    fireEvent.click(getButton(/Backup importieren|Import backup/i));
-    expect(handlers.onImportBackup).toHaveBeenCalledTimes(1);
   });
 
   it('offers the CSV import as a menu of icon and word', () => {

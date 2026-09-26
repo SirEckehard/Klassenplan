@@ -34,7 +34,7 @@ describe('StartPage', () => {
     renderStartPage();
 
     const layers = screen.getByRole('region', {
-      name: /Drei Ebenen|Three layers/i,
+      name: /Alles im Blick|Everything at a glance/i,
     });
     expect(
       within(layers)
@@ -53,7 +53,7 @@ describe('StartPage', () => {
     renderStartPage();
 
     const criteria = screen.getByRole('region', {
-      name: /Kriterien in Wörtern|Criteria in words/i,
+      name: /Vielzahl an Kriterien|wide range of criteria/i,
     });
     const chips = within(criteria).getAllByRole('listitem');
 
@@ -65,8 +65,7 @@ describe('StartPage', () => {
     for (const chip of chips) {
       expect(chip.textContent).not.toMatch(/mix\.criteria/);
     }
-    // The recipes and the four levels are quoted from the app, not retyped.
+    // The recipes are quoted from the app, not retyped.
     expect(criteria).toHaveTextContent(/„Ruhige Arbeitsphase“|“Quiet work”/);
-    expect(criteria).toHaveTextContent(/„Sehr wichtig“|“Very important”/);
   });
 });

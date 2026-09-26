@@ -9,29 +9,29 @@
     "contactLink": "Send a message",
     "quoted": "“{{text}}”",
     "layers": {
-      "eyebrow": "How it works",
-      "title": "Three layers of the same classroom",
-      "intro": "Class, room and seating plan sit on top of each other, not one after the other. One click switches the layer, and nothing gets lost on the way.",
-      "classText": "Type in your students or import a CSV. Attributes are set with one question to everyone, such as {{question}}",
-      "roomText": "Arrange tables, board, windows and door by drag and drop, and save the room as a template for your next class.",
-      "planText": "Shuffle, adjust by hand, lock seats — and turn it into a seating circle with one click.",
-      "exits": "Then present the plan on the projector or export it as PDF, PNG or SVG."
+      "eyebrow": "How it works!",
+      "title": "Everything at a glance",
+      "intro": "Class list, classroom and seating plan. One click switches the layer, and nothing gets lost on the way.",
+      "classText": "Type in your students or import an existing CSV file of your class. You set attributes quickly by answering questions such as {{question}}",
+      "roomText": "Arrange the classroom the way you want it. Add tables, board, windows, door and more by drag and drop, and save the classroom as a template.",
+      "planText": "Shuffle, adjust by hand, lock seats – and create the matching seating circle with one click.",
+      "exits": "Then present the plan right on the interactive whiteboard or export it as a PDF."
     },
     "criteria": {
-      "eyebrow": "What the plan considers",
-      "title": "Criteria in words, not sliders",
-      "intro": "Pick a recipe such as {{recipes}}, or set each criterion to {{levels}}. Next to the plan you see how far each one is met — and, in whole sentences, why the plan looks the way it does.",
+      "eyebrow": "What the plan considers!",
+      "title": "A wide range of criteria for every class",
+      "intro": "Choose the right attributes for each student. Recipes such as {{recipes}} help you find the right seating plan for every situation.",
       "historyGroup": "History"
     },
     "why": {
       "eyebrow": "Why Klassenplan?",
-      "title": "Built for the classroom, not for the cloud",
+      "title": "For the classroom, not for the cloud",
       "privacy": "Focus on data protection",
-      "privacyDescription": "GDPR-compliant, hosted in Germany, no account, no cloud & works offline.",
-      "projector": "Made for the projector",
-      "projectorDescription": "A bar of its own, a contrast mode for bright rooms and first names only on the wall. Plus {{tools}}.",
-      "sample": "Try it without your own data",
-      "sampleDescription": "A sample class of 24 students and a short tour show every layer before you create your own class."
+      "privacyDescription": "GDPR-compliant, hosted in Germany, no account, no cloud, works fully offline & can be installed as a web app.",
+      "projector": "For the interactive whiteboard",
+      "projectorDescription": "Present your seating plan on the board. With a contrast mode for bright rooms and easy-to-read names. That way everyone finds their seat quickly.",
+      "sample": "Start right away with a demo",
+      "sampleDescription": "A sample class of 24 students and a short tour show you Klassenplan before you create your own class."
     },
     "previewSlides": {
       "schuelerliste": "Class list",
@@ -168,7 +168,7 @@
       "description": "Multiple classes, CSV import, photos, attribute mode and the name game.",
       "classes": {
         "q": "Can I manage several classes?",
-        "a": "Yes. The class switcher at the top left of the header lets you create as many classes as you like, rename them, switch between them or delete them. Each class keeps its own students, classroom layouts, seating plans and shuffle history. Deleting a class also deletes its seating plans – so a backup beforehand is worth it."
+        "a": "Yes. The class switcher at the top left of the header lets you create as many classes as you like, rename them, switch between them or delete them. Each class keeps its own students, classroom layouts, seating plans and recent shuffles. Deleting a class also deletes its seating plans – so a backup beforehand is worth it."
       },
       "csv": {
         "q": "How do I import an existing class list?",
@@ -192,7 +192,7 @@
       },
       "nameGame": {
         "q": "What is the name game?",
-        "a": "The name game helps you learn the names of a new class. It only uses students with a photo and offers a photo quiz (find the name for a photo or the other way round; uncertain names come up more often) and a memory game of photo and name cards. Your progress stays locally on your device. You start it in the class toolbar under “Manage”."
+        "a": "The name game helps you learn the names of a new class. It only uses students with a photo and offers a photo quiz (find the name for a photo or the other way round; uncertain names come up more often) and a memory game of photo and name cards. Your progress stays locally on your device. You start it from “Class tools” in the toolbar – on every layer."
       }
     },
     "eigenschaften": {
@@ -365,12 +365,12 @@
       },
       "repeat": {
         "q": "How does repeat avoidance work?",
-        "intro": "The repetition evaluation considers both saved seating plans and the current mix history of the session:",
+        "intro": "The repetition evaluation considers both saved seating plans and the recent shuffles of the session:",
         "li1_b": "Saved plans:",
         "li1": "Pairs from older plans receive decreasing weight (newer ones count more)",
         "li2_b": "Current Session:",
         "li2": "The last mixes are weighted more heavily so that pairs do not repeat immediately",
-        "outro": "This avoids the same students sitting next to each other constantly when you shuffle several times in a row. Not every shuffle is actually put into practice, though – and that is exactly where the mix history on its own reaches its limits.",
+        "outro": "This avoids the same students sitting next to each other constantly when you shuffle several times in a row. Not every shuffle is actually put into practice, though – and that is exactly where the recent shuffles on their own reach their limits.",
         "usageIntro": "Klassenplan therefore keeps track of which seating charts were really in use. There is nothing to tick – what counts is what you do anyway:",
         "usage1": "Showing a seating chart in presentation mode",
         "usage2": "Printing a seating chart or exporting it as PDF, PNG or SVG",
@@ -378,7 +378,7 @@
         "usage4": "Swapping seats by hand",
         "usageOutro": "Only the seating neighbourhoods and a timestamp are stored, entirely on your own device – no cloud, no analytics service. On the first strong signal a short notice asks: if it really was just a test, one click takes the chart back out of the count.",
         "weightNote": "For repeat avoidance these real seating charts are read first; mixes from the running session now weigh only half as much. A long session of trying things out can no longer drown out the result.",
-        "viewNote": "In the seating plan’s toolbar, “Neighbourhoods” shows who has sat next to whom and how often – including the data it rests on, from which you can remove individual plans."
+        "viewNote": "Under “Plans & history” in the toolbar, the “Neighbourhoods” tab shows who has sat next to whom and how often – including the data it rests on, from which you can remove individual plans."
       }
     },
     "tipps": {
@@ -390,27 +390,27 @@
         "li1": "Set the criteria that matter to “Important” or “Very important” – or pick a fitting recipe",
         "li2": "Mix multiple times to use different random starts",
         "li3": "Adjust individual seats manually via drag & drop and lock them if necessary so that the algorithm no longer changes them.",
-        "li4": "Take back a poor shuffle with Ctrl/Cmd+Z or load an earlier result under “Saved Plans”"
+        "li4": "Take back a poor shuffle with Ctrl/⌘+Z or load an earlier result under “Plans & history”"
       }
     },
     "unterricht": {
       "title": "Presenting, exporting & tools",
-      "description": "Projector, seating circle, printing and the three classroom tools.",
+      "description": "Interactive whiteboard, seating circle, printing and the three classroom tools.",
       "present": {
         "q": "How does presentation mode work?",
-        "a": "“Present” in the middle of the status bar shows the seating plan or circle large on the projector or smartboard. Every control sits in one bar below the plan: teacher or student view (which turns the plan to the class’s point of view), plan or circle, photos, colours, room elements, a contrast mode for bright rooms and the size. The wall shows first names, whatever the editor shows. In fullscreen (key F) the bar disappears and comes back as soon as you move the mouse to the bottom edge."
+        "a": "“Present” in the middle of the status bar shows the seating plan or circle large on the interactive whiteboard. Every control sits in one bar below the plan: teacher or student view (which turns the plan to the class’s point of view), plan or circle, photos, colours, room elements, a contrast mode for bright rooms and the size. The board shows first names, whatever the editor shows. In fullscreen (key F) the bar disappears and comes back as soon as you move the mouse to the bottom edge."
       },
       "tools": {
         "q": "What are “Who’s next?”, “Where does who sit?” and “Build groups”?",
-        "a": "Three tools for the lesson, each a page of its own that works standing up on a tablet or phone. “Who’s next?” draws a random student, and everyone gets a turn before anyone comes up twice. “Where does who sit?” finds a student in the room. “Build groups” draws groups from the class and keeps distance wishes apart where it can. You open them in the seating plan’s toolbar under “Tools”, “Build groups” also from presentation mode. Nothing is stored."
+        "a": "Three tools for the lesson, each a page of its own that works standing up on a tablet or phone. “Who’s next?” draws a random student, and everyone gets a turn before anyone comes up twice. “Where does who sit?” finds a student in the room. “Build groups” draws groups from the class and keeps distance wishes apart where it can. You open them from “Class tools” in the toolbar – on every layer – and “Build groups” also from presentation mode. Nothing is stored."
       },
       "circle": {
         "q": "How does the seating circle mode work?",
-        "a": "On the seating plan, choose “Circle” under “Arrangement” in the toolbar. Klassenplan calculates a suitable circle automatically and links it to your current seating plan. You can adjust the seats in the circle by drag & drop without changing the seating plan, and present or export it separately."
+        "a": "On the seating plan, choose “Circle” under “View” in the toolbar. Klassenplan calculates a suitable circle automatically and links it to your current seating plan. You can adjust the seats in the circle by drag & drop without changing the seating plan, and present or export it separately."
       },
       "exportFormats": {
         "q": "In which formats can I export the seating plan?",
-        "a": "The export page saves PDF, PNG and SVG and prints directly – handy for letters to parents, cover folders or the school portal. You choose the seating plan or the circle under “Arrangement” in the toolbar, each in portrait or landscape."
+        "a": "The export page saves PDF, PNG and SVG and prints directly – handy for letters to parents, cover folders or the school portal. You choose the seating plan or the circle under “View” in the toolbar, each in portrait or landscape."
       },
       "print": {
         "q": "I want to print the seating plan and have the blackboard shown at the bottom as orientation. Is that possible?",
@@ -418,7 +418,7 @@
       },
       "names": {
         "q": "The names on the plan are too long – what can I do?",
-        "a": "On the seating plan under “Show in the plan › Names”, in presentation mode and under “Names” on the export page you decide how names appear: first name only, first name + last initial, or first and last name. Names that would look the same are told apart automatically – “Frida Ehrmann” and “Frida Emmerich” become “Frida Eh.” and “Frida Em.”."
+        "a": "On the seating plan under “View settings › Names”, in presentation mode and under “Names” on the export page you decide how names appear: first name only, first name + last initial, or first and last name. Names that would look the same are told apart automatically – “Frida Ehrmann” and “Frida Emmerich” become “Frida Eh.” and “Frida Em.”."
       }
     },
     "oberflaeche": {
@@ -426,15 +426,15 @@
       "description": "Dark mode, shortcuts, undo, the tour, tablets and installation.",
       "undo": {
         "q": "Can I undo changes?",
-        "a": "Yes, on all three layers: in the class list, in the room and in the seating plan and circle – so a student deleted by accident comes back with their photo, for example. The arrows at the bottom left of the status bar undo and redo changes, and so do Ctrl/Cmd + Z and Ctrl/Cmd + Shift + Z."
+        "a": "Yes, on all three layers: in the class list, in the room and in the seating plan and circle – so a student deleted by accident comes back with their photo, for example. The arrows at the bottom left of the status bar undo and redo changes, and so do Ctrl/⌘+Z and Ctrl/⌘+Shift+Z."
       },
       "shortcuts": {
         "q": "Which keyboard shortcuts are there?",
-        "a": "Plenty – Ctrl/Cmd + C, V and X copy, paste and cut tables, for example, and Ctrl/Cmd + B folds the toolbar in and out. The question mark at the top right lists every shortcut of the current layer under “Shortcuts”; the ? key opens it directly."
+        "a": "Plenty – Ctrl/⌘+C, V and X copy, paste and cut tables, for example, and Ctrl/⌘+B folds the toolbar in and out. The question mark at the top right lists every shortcut of the current layer under “Shortcuts”; the ? key opens it directly."
       },
       "tour": {
         "q": "Is there an introduction to using Klassenplan?",
-        "a": "Yes. On your first visit, a short tour shows you the most important places on every layer – from the class switcher and the toolbar to the criteria and the seating circle. The tour never blocks anything: you can keep working, close it with Escape or switch it off for good with “Don’t show again”. The question mark at the top right restarts the tour of the current layer at any time – and leads to these questions, too."
+        "a": "Yes. On your first visit, a short tour shows you the most important places on every layer – from the class switcher and the toolbar to the criteria and the seating circle. The tour never blocks anything: you can keep working, close it with Esc or switch it off for good with “Don’t show again”. The question mark at the top right restarts the tour of the current layer at any time – and leads to these questions, too."
       },
       "dark": {
         "q": "Is there a Dark Mode?",
@@ -471,15 +471,15 @@
       "deviceChange": {
         "q": "How do I move my classes to a new computer?",
         "intro": "Through the backup file — there is no sync between devices, because there is no server.",
-        "li1": "On the old device, click “Backup” in the toolbar of the class layer, choose “Export backup” and set a password.",
+        "li1": "On the old device, click “Backup” at the very bottom of the toolbar, choose “Export backup” and set a password.",
         "li2": "Get the file onto the new device, for example via USB stick, a cloud folder or an email to yourself.",
-        "li3": "On the new device, open Klassenplan and choose “Import backup” under “Backup” in the toolbar.",
+        "li3": "On the new device, open Klassenplan and choose “Import backup” – on the empty class page or, if a class already exists there, under “Backup” at the very bottom of the toolbar.",
         "li4": "Pick the file, enter the password and confirm “Replace everything”.",
         "outro": "Your classes, students including photos, seating plans and templates are then on the new device. The file works on any operating system and in any browser. Without the password, however, it cannot be opened."
       },
       "frequency": {
         "q": "How often should I make a backup?",
-        "a": "For example after creating a class or after setting up and saving a classroom. Klassenplan reminds you on its own once your last backup is more than 30 days old. You can postpone that reminder or switch it off for good via “Stop reminding me”."
+        "a": "For example after creating a class or after setting up and saving a classroom. Klassenplan reminds you once your last backup is more than 30 days old. You can postpone that reminder or switch it off for good via “Stop reminding me”."
       },
       "update": {
         "q": "What happens to my backup after a Klassenplan update?",
@@ -524,7 +524,7 @@
   "nameGame": {
     "title": "Name Game",
     "back": "Back",
-    "backTitle": "Back to the generator (Alt + ←)",
+    "backTitle": "Back to the generator (Alt/⌥+←)",
     "backToMenuTitle": "Back to the game menu",
     "loading": "Loading photos…",
     "empty": {
@@ -583,7 +583,7 @@
       "item2": "Photo quiz: pick the matching name for a photo or vice versa. Uncertain names come up more often.",
       "item3": "Memory: reveal photo and name pairs – large classes play in several rounds.",
       "item4": "Your learning progress is stored locally on this device only.",
-      "item5": "Press Alt + ← to return to the generator."
+      "item5": "Press Alt/⌥+← to return to the generator."
     }
   },
   "header": {

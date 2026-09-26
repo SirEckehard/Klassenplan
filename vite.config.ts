@@ -220,7 +220,7 @@ export default defineConfig({
             sizes: '1424x2236',
             type: 'image/webp',
             form_factor: 'narrow',
-            label: 'Präsentationsmodus für Beamer und Tablet',
+            label: 'Präsentationsmodus für die digitale Tafel und das Tablet',
           },
         ],
         icons: [

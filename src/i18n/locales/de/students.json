@@ -158,8 +158,6 @@
   "viewMode": {
     "showLabels": "Beschriftung anzeigen",
     "hideLabels": "Beschriftung ausblenden",
-    "showLabelsShortcut": "Beschriftung anzeigen (⌘/Strg+B)",
-    "hideLabelsShortcut": "Beschriftung ausblenden (⌘/Strg+B)",
     "labels": "Beschriftung"
   },
   "partners": {
@@ -303,18 +301,15 @@
   },
   "studentInput": {
     "title": "Klassenliste",
-    "proceedShortcut": "Weiter (Alt/Option+→)",
+    "proceedShortcut": "Weiter (Alt/⌥+→)",
     "proceedButton": "Weiter zum Klassenraum",
     "scrollToActions": "Zum Ende der Liste",
     "scrollToListTop": "Zum Listenanfang",
-    "nameGameButton": "Namensspiel",
-    "nameGameTitle": "Namen deiner Schüler spielerisch lernen",
-    "nameGameLockedToast": "Für das Namensspiel brauchst du mindestens {{min}} Schüler mit Foto (aktuell: {{count}}). Fotos fügst du über das Porträt-Symbol neben jedem Schüler hinzu.",
     "emptyClassTitle": "{{className}} ist noch leer.",
     "emptyClassHint": "Lege Schüler an, indem du Platzhalter anlegst, sie einzeln hinzufügst oder eine bestehende CSV importierst. Alle Eingaben gelten nur für diese Klasse.",
     "emptyClassImportHint": "Hast du schon eine Liste aus deinem Schulverwaltungsprogramm – etwa WebUntis, Schulmanager oder SchILD? Die kannst du meist direkt hochladen: Klassenplan erkennt die üblichen Spaltennamen und Umlaute von selbst, umbenennen musst du nichts.",
     "removeStudentTitle": "Schüler löschen",
-    "removeStudentMessage": "Möchtest du {{studentName}} wirklich löschen? Du kannst das mit Strg/Cmd+Z rückgängig machen.",
+    "removeStudentMessage": "Möchtest du {{studentName}} wirklich löschen? Du kannst das mit Strg/⌘+Z rückgängig machen.",
     "thisStudent": "diesen Schüler",
     "studentRemoved": "{{studentName}} wurde gelöscht.",
     "yourClass": "deine Klasse",
@@ -386,14 +381,14 @@
     "applied_one": "{{count}} Schüler aktualisiert.",
     "applied_other": "{{count}} Schüler aktualisiert.",
     "deleteTitle": "Ausgewählte Schüler löschen",
-    "deleteMessage_one": "Möchtest du {{count}} ausgewählten Schüler wirklich löschen? Du kannst das mit Strg/Cmd+Z rückgängig machen.",
-    "deleteMessage_other": "Möchtest du {{count}} ausgewählte Schüler wirklich löschen? Du kannst das mit Strg/Cmd+Z rückgängig machen.",
+    "deleteMessage_one": "Möchtest du {{count}} ausgewählten Schüler wirklich löschen? Du kannst das mit Strg/⌘+Z rückgängig machen.",
+    "deleteMessage_other": "Möchtest du {{count}} ausgewählte Schüler wirklich löschen? Du kannst das mit Strg/⌘+Z rückgängig machen.",
     "deleted_one": "{{count}} Schüler gelöscht.",
     "deleted_other": "{{count}} Schüler gelöscht."
   },
   "history": {
-    "undo": "Rückgängig (Strg/Cmd+Z)",
-    "redo": "Wiederherstellen (Strg/Cmd+Umschalt+Z)",
+    "undo": "Rückgängig (Strg/⌘+Z)",
+    "redo": "Wiederherstellen (Strg/⌘+Umschalt+Z)",
     "undoLabel": "Letzte Änderung an der Klassenliste rückgängig machen",
     "redoLabel": "Letzte Änderung an der Klassenliste wiederherstellen"
   },
@@ -441,18 +436,13 @@
       "prefersDoor": "Wer sitzt gern nah an der Tür?"
     }
   },
-  "toolRail": {
-    "insert": "Einfügen",
-    "view": "Ansehen",
-    "manage": "Verwalten"
-  },
   "relations": {
     "avoidHeading": "Distanzpartner",
     "countAvoids_one": "{{count}} Distanzwunsch",
     "countAvoids_other": "{{count}} Distanzwünsche",
     "countWishes_one": "{{count}} Wunsch",
     "countWishes_other": "{{count}} Wünsche",
-    "description": "Wer möchte neben wem sitzen — und wer lieber nicht. Ein Klick auf einen Namen öffnet ihn rechts.",
+    "description": "Wer möchte neben wem sitzen – und wer lieber nicht. Ein Klick auf einen Namen öffnet ihn rechts.",
     "mutual": "gegenseitig",
     "noRelations": "Für diese Klasse ist noch kein Wunsch und kein Distanzpartner eingetragen.",
     "noRelationsHint": "Wünsche trägst du rechts im Merkmale-Panel unter „Soziales“ ein.",

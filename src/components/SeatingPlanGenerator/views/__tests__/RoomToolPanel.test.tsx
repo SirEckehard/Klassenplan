@@ -7,6 +7,15 @@ import '@/i18n/i18n';
 import { MemoryRouter } from 'react-router-dom';
 import RoomToolPanel from '../RoomToolPanel';
 
+// The rail's foot reaches for the backup; the panel itself needs nothing else
+// from the seating plan.
+vi.mock('@/contexts/SeatingPlanContext', () => ({
+  useSeatingPlanActions: () => ({
+    handleExportAll: vi.fn().mockResolvedValue(undefined),
+    triggerImport: vi.fn(),
+  }),
+}));
+
 const settingsGroups = [
   {
     id: 'layout-base',
@@ -23,7 +32,10 @@ const settingsGroups = [
   },
 ];
 
-const renderPanel = (density: 'comfortable' | 'compact') => {
+const renderPanel = (
+  density: 'comfortable' | 'compact',
+  { isPhone = false }: { isPhone?: boolean } = {},
+) => {
   const handlers = {
     handleSaveTemplate: vi.fn(),
     onTemplatePointerDown: vi.fn(),
@@ -39,6 +51,7 @@ const renderPanel = (density: 'comfortable' | 'compact') => {
         { type: 'door', label: 'Tür', icon: <span /> },
       ]}
       settingsGroups={settingsGroups}
+      isPhone={isPhone}
       {...handlers}
     />,
 
@@ -106,6 +119,44 @@ describe('RoomToolPanel', () => {
       screen.getByRole('dialog', { name: /Arbeitsfläche/ }),
     ).toBeInTheDocument();
     expect(screen.getByText(/Raster anzeigen/)).toBeInTheDocument();
+  });
+
+  // Tables and room elements are one group — "Raumelemente" names a view
+  // setting, not a second group of things to add.
+  it('adds, shows and manages, in the order every layer keeps', () => {
+    renderPanel('comfortable');
+
+    const headings = screen
+      .getAllByRole('heading', { level: 3 })
+      .map((heading) => heading.textContent);
+    expect(headings).toEqual([
+      expect.stringMatching(/^(Hinzufügen|Add)$/),
+      expect.stringMatching(/^(Ansichtseinstellungen|View settings)$/),
+      expect.stringMatching(/^(Verwalten|Manage)$/),
+    ]);
+  });
+
+  // On a phone the tables and the setup sit under the canvas, where a drag
+  // reaches the room; the sheet carries the rest.
+  it('leaves the tables and the setup to the stage on a phone', () => {
+    renderPanel('comfortable', { isPhone: true });
+
+    expect(
+      screen.queryByRole('button', {
+        name: /^(4er-Gruppe|Group of 4)$/,
+      }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', {
+        name: /Klassenraum einrichten|Set Up Classroom/,
+      }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /Arbeitsfläche/ }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /Klassenwerkzeuge|Class tools/ }),
+    ).toBeInTheDocument();
   });
 
   it.each(['comfortable', 'compact'] as const)(

@@ -141,7 +141,7 @@ test('a first visitor tries the sample class with the tours as a guide', async (
     expect(await walkTour(page)).toEqual([
       'Mischen',
       'Werkzeuge',
-      'Sidebar erweitern und minimieren',
+      'Werkzeugleiste erweitern und minimieren',
       'Von Hand anpassen',
       'Kriterien und Erfüllung',
       'Sitzkreis',

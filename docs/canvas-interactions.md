@@ -255,9 +255,9 @@ stable across renders:
 | Selection present   | `Arrow` keys           | Prevent default, snapshot, move, snap & clamp selected tables (locked skipped) |
 | Selection present   | `E` / `Q`              | Prevent default, snapshot, rotate clockwise / counter-clockwise                |
 | Selection present   | `Delete` / `Backspace` | Prevent default, `deleteSelection` (tables and features)                       |
-| Selection present   | `Ctrl/Cmd + C`         | Copy selection to clipboard                                                    |
-| Selection present   | `Ctrl/Cmd + X`         | Cut selection                                                                  |
-| Clipboard populated | `Ctrl/Cmd + V`         | Close canvas menu, paste                                                       |
+| Selection present   | `Ctrl/⌘+C`             | Copy selection to clipboard                                                    |
+| Selection present   | `Ctrl/⌘+X`             | Cut selection                                                                  |
+| Clipboard populated | `Ctrl/⌘+V`             | Close canvas menu, paste                                                       |
 
 ## Known pain points
 

@@ -4,16 +4,12 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ArrowRightIcon,
-  ArchiveIcon,
-  DownloadIcon,
   FileArrowDownIcon,
   FileArrowUpIcon,
-  GameControllerIcon,
   GraphIcon,
   ListBulletsIcon,
   SquaresFourIcon,
   TableIcon,
-  UploadIcon,
   UserPlusIcon,
   UsersThreeIcon,
 } from '@phosphor-icons/react';
@@ -53,9 +49,6 @@ type Props = {
   onCreatePlaceholders: () => void;
   onImportCsv: (file: File) => Promise<unknown>;
   onExportCsv: () => void;
-  onCreateBackup: () => void;
-  onImportBackup: () => void;
-  onPlayNameGame: () => void;
   onLoadDemoClass?: () => void;
   isDemoClassLoading?: boolean;
   hasDemoClass?: boolean;
@@ -69,8 +62,10 @@ const menuClass = `${menuSurfaceClass} p-1`;
 const menuIconClass = 'h-4 w-4 shrink-0 text-(--text-muted)';
 
 /**
- * The class layer's toolbar: how students get in, how to look at them, and
- * what to do with the class as a whole.
+ * The class layer's toolbar: how to look at the students, and who is in the
+ * class — added one by one or as placeholders, and the class list as a file.
+ * The backup and the class tools are in the foot every rail shares
+ * (`ToolRail`).
  *
  * These controls used to share one row above the list with the class switcher
  * and the search field, which meant the row grew a control every time the
@@ -93,9 +88,6 @@ export default function ClassToolPanel({
   onCreatePlaceholders,
   onImportCsv,
   onExportCsv,
-  onCreateBackup,
-  onImportBackup,
-  onPlayNameGame,
   onLoadDemoClass,
   isDemoClassLoading = false,
   hasDemoClass = false,
@@ -108,7 +100,33 @@ export default function ClassToolPanel({
 
   return (
     <ToolRail density={density}>
-      <ToolRailGroup title={t('students:toolRail.insert')}>
+      <ToolRailGroup title={t('generator:toolRail.view')}>
+        <ToolRailButton
+          icon={<ListBulletsIcon size={18} />}
+          label={t('students:focusMode.listMode')}
+          active={view === 'list'}
+          disabled={!hasStudents}
+          onClick={() => onViewChange('list')}
+        />
+        <ToolRailButton
+          icon={<SquaresFourIcon size={18} />}
+          label={t('students:focusMode.title')}
+          active={view === 'focus'}
+          disabled={!hasStudents}
+          onClick={() => onViewChange('focus')}
+        />
+        <ToolRailButton
+          icon={<GraphIcon size={18} />}
+          label={t('students:relations.title')}
+          active={view === 'relations'}
+          disabled={!hasStudents}
+          onClick={() => onViewChange('relations')}
+        />
+      </ToolRailGroup>
+
+      {/* Who is in the class: one at a time, as placeholders, or as a file —
+          and the class list goes in and out side by side. */}
+      <ToolRailGroup title={t('generator:toolRail.manage')}>
         <ToolRailButton
           icon={<UserPlusIcon size={18} />}
           label={t('students:studentList.addStudent')}
@@ -150,6 +168,54 @@ export default function ClassToolPanel({
                   >
                     <ArrowRightIcon className="h-4 w-4" aria-hidden="true" />
                   </button>
+                </span>
+              </label>
+            </div>
+          )}
+        />
+
+        <ToolRailButton
+          icon={<UsersThreeIcon size={18} />}
+          label={t('students:studentList.createPlaceholders')}
+          disabled={!hasActiveClass}
+          panel={() => (
+            <div className={panelClass}>
+              <label className="flex flex-col gap-1">
+                <span className={panelLabelClass}>
+                  {t('students:studentList.createPlaceholders')}
+                </span>
+                <span className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    min={1}
+                    max={40}
+                    value={placeholderCount}
+                    onChange={(event) =>
+                      onPlaceholderCountChange(event.target.value)
+                    }
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter') {
+                        event.preventDefault();
+                        onCreatePlaceholders();
+                      }
+                    }}
+                    placeholder={t(
+                      'students:studentList.placeholderCountPlaceholder',
+                    )}
+                    className={`${inputFieldClass} w-20`}
+                  />
+                  <button
+                    type="button"
+                    onClick={onCreatePlaceholders}
+                    className={`${primaryButtonClass} h-9 w-9 shrink-0 p-0!`}
+                    title={t('students:studentList.createPlaceholders')}
+                    aria-label={t('students:studentList.createPlaceholders')}
+                  >
+                    <ArrowRightIcon className="h-4 w-4" aria-hidden="true" />
+                  </button>
+                </span>
+                <span className="text-xs text-(--text-muted)">
+                  {t('students:studentList.addMenu.placeholderHint')}
                 </span>
               </label>
             </div>
@@ -250,124 +316,10 @@ export default function ClassToolPanel({
         />
 
         <ToolRailButton
-          icon={<UsersThreeIcon size={18} />}
-          label={t('students:studentList.createPlaceholders')}
-          disabled={!hasActiveClass}
-          panel={() => (
-            <div className={panelClass}>
-              <label className="flex flex-col gap-1">
-                <span className={panelLabelClass}>
-                  {t('students:studentList.createPlaceholders')}
-                </span>
-                <span className="flex items-center gap-2">
-                  <input
-                    type="number"
-                    min={1}
-                    max={40}
-                    value={placeholderCount}
-                    onChange={(event) =>
-                      onPlaceholderCountChange(event.target.value)
-                    }
-                    onKeyDown={(event) => {
-                      if (event.key === 'Enter') {
-                        event.preventDefault();
-                        onCreatePlaceholders();
-                      }
-                    }}
-                    placeholder={t(
-                      'students:studentList.placeholderCountPlaceholder',
-                    )}
-                    className={`${inputFieldClass} w-20`}
-                  />
-                  <button
-                    type="button"
-                    onClick={onCreatePlaceholders}
-                    className={`${primaryButtonClass} h-9 w-9 shrink-0 p-0!`}
-                    title={t('students:studentList.createPlaceholders')}
-                    aria-label={t('students:studentList.createPlaceholders')}
-                  >
-                    <ArrowRightIcon className="h-4 w-4" aria-hidden="true" />
-                  </button>
-                </span>
-                <span className="text-xs text-(--text-muted)">
-                  {t('students:studentList.addMenu.placeholderHint')}
-                </span>
-              </label>
-            </div>
-          )}
-        />
-      </ToolRailGroup>
-
-      <ToolRailGroup title={t('students:toolRail.view')}>
-        <ToolRailButton
-          icon={<ListBulletsIcon size={18} />}
-          label={t('students:focusMode.listMode')}
-          active={view === 'list'}
-          disabled={!hasStudents}
-          onClick={() => onViewChange('list')}
-        />
-        <ToolRailButton
-          icon={<SquaresFourIcon size={18} />}
-          label={t('students:focusMode.title')}
-          active={view === 'focus'}
-          disabled={!hasStudents}
-          onClick={() => onViewChange('focus')}
-        />
-        <ToolRailButton
-          icon={<GraphIcon size={18} />}
-          label={t('students:relations.title')}
-          active={view === 'relations'}
-          disabled={!hasStudents}
-          onClick={() => onViewChange('relations')}
-        />
-      </ToolRailGroup>
-
-      <ToolRailGroup title={t('students:toolRail.manage')} atEnd>
-        <ToolRailButton
-          icon={<GameControllerIcon size={18} />}
-          label={t('students:studentInput.nameGameButton')}
-          title={t('students:studentInput.nameGameTitle')}
-          disabled={!hasStudents}
-          onClick={onPlayNameGame}
-        />
-        <ToolRailButton
           icon={<FileArrowDownIcon size={18} />}
           label={t('students:csv.export')}
           disabled={!hasStudents}
           onClick={onExportCsv}
-        />
-        {/* The data lives in this browser only; both ways a backup travels
-            sit behind one entry, so the rail keeps its length. */}
-        <ToolRailButton
-          icon={<ArchiveIcon size={18} />}
-          label={t('generator:storage.backup')}
-          data-tour={TOUR_ANCHORS.backup}
-          panel={(close) => (
-            <div className={menuClass}>
-              <button
-                type="button"
-                onClick={() => {
-                  close();
-                  onCreateBackup();
-                }}
-                className={menuItemClass}
-              >
-                <DownloadIcon className={menuIconClass} aria-hidden="true" />
-                {t('generator:storage.exportBackup')}
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  close();
-                  onImportBackup();
-                }}
-                className={menuItemClass}
-              >
-                <UploadIcon className={menuIconClass} aria-hidden="true" />
-                {t('generator:storage.importBackup')}
-              </button>
-            </div>
-          )}
         />
       </ToolRailGroup>
     </ToolRail>

@@ -158,8 +158,6 @@
   "viewMode": {
     "showLabels": "Show labels",
     "hideLabels": "Hide labels",
-    "showLabelsShortcut": "Show labels (⌘/Ctrl+B)",
-    "hideLabelsShortcut": "Hide labels (⌘/Ctrl+B)",
     "labels": "Labels"
   },
   "partners": {
@@ -303,18 +301,15 @@
   },
   "studentInput": {
     "title": "Class List",
-    "proceedShortcut": "Continue (Alt/Option+→)",
+    "proceedShortcut": "Continue (Alt/⌥+→)",
     "proceedButton": "Proceed to Classroom",
     "scrollToActions": "Jump to end of list",
     "scrollToListTop": "Jump to top of list",
-    "nameGameButton": "Name Game",
-    "nameGameTitle": "Learn your students' names playfully",
-    "nameGameLockedToast": "The name game needs at least {{min}} students with a photo (currently: {{count}}). Add photos via the portrait icon next to each student.",
     "emptyClassTitle": "{{className}} is still empty.",
     "emptyClassHint": "Add students by creating placeholders, adding them individually, or importing an existing CSV. All entries apply only to this class.",
     "emptyClassImportHint": "Already have a list from your school administration software – WebUntis, Schulmanager or SchILD, say? You can usually upload it as it is: Klassenplan recognises the usual column names and accented characters on its own, so there is nothing to rename.",
     "removeStudentTitle": "Delete Student",
-    "removeStudentMessage": "Do you really want to delete {{studentName}}? You can undo this with Ctrl/Cmd+Z.",
+    "removeStudentMessage": "Do you really want to delete {{studentName}}? You can undo this with Ctrl/⌘+Z.",
     "thisStudent": "this student",
     "studentRemoved": "{{studentName}} has been deleted.",
     "yourClass": "your class",
@@ -386,14 +381,14 @@
     "applied_one": "{{count}} student updated.",
     "applied_other": "{{count}} students updated.",
     "deleteTitle": "Delete selected students",
-    "deleteMessage_one": "Do you really want to delete {{count}} selected student? You can undo this with Ctrl/Cmd+Z.",
-    "deleteMessage_other": "Do you really want to delete {{count}} selected students? You can undo this with Ctrl/Cmd+Z.",
+    "deleteMessage_one": "Do you really want to delete {{count}} selected student? You can undo this with Ctrl/⌘+Z.",
+    "deleteMessage_other": "Do you really want to delete {{count}} selected students? You can undo this with Ctrl/⌘+Z.",
     "deleted_one": "{{count}} student deleted.",
     "deleted_other": "{{count}} students deleted."
   },
   "history": {
-    "undo": "Undo (Ctrl/Cmd+Z)",
-    "redo": "Redo (Ctrl/Cmd+Shift+Z)",
+    "undo": "Undo (Ctrl/⌘+Z)",
+    "redo": "Redo (Ctrl/⌘+Shift+Z)",
     "undoLabel": "Undo the last change to the class list",
     "redoLabel": "Redo the last change to the class list"
   },
@@ -441,18 +436,13 @@
       "prefersDoor": "Who likes sitting near the door?"
     }
   },
-  "toolRail": {
-    "insert": "Insert",
-    "view": "View",
-    "manage": "Manage"
-  },
   "relations": {
     "avoidHeading": "Keep apart",
     "countAvoids_one": "{{count}} keep-apart wish",
     "countAvoids_other": "{{count}} keep-apart wishes",
     "countWishes_one": "{{count}} wish",
     "countWishes_other": "{{count}} wishes",
-    "description": "Who wants to sit next to whom — and who would rather not. Clicking a name opens it on the right.",
+    "description": "Who wants to sit next to whom – and who would rather not. Clicking a name opens it on the right.",
     "mutual": "mutual",
     "noRelations": "No preferred and no keep-apart partners have been set for this class yet.",
     "noRelationsHint": "You set them on the right, in the attributes panel under \"Social\".",

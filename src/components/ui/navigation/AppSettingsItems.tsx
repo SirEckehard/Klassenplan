@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import React, { lazy, Suspense } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ClockCounterClockwiseIcon,
@@ -11,6 +11,7 @@ import {
   UploadIcon,
 } from '@phosphor-icons/react';
 import ConfirmDialog from '@/components/ui/modals/ConfirmDialog';
+import { useStorageHistoryModal } from '@/components/ui/navigation/useStorageHistoryModal';
 import { useSeatingPlanActions } from '@/contexts/SeatingPlanContext';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
 import {
@@ -20,12 +21,6 @@ import {
   showToast,
   TOAST_MESSAGES,
 } from '@/utils';
-
-// Reached only through a settings menu, so the plan and mix history, the
-// neighbourhood matrix and their icons stay out of the initial bundle.
-const StorageHistoryModal = lazy(
-  () => import('@/components/ui/navigation/StorageHistoryModal'),
-);
 
 /**
  * What every settings menu offers: what is stored, how it leaves the device,
@@ -42,10 +37,9 @@ export default function AppSettingsItems({
 }: {
   onDone: () => void;
   /**
-   * The saved plans and the backup. The workspace leaves them out: its
-   * toolbar carries them on the layer they belong to — the backup on the class
-   * layer, the saved plans on the plan layer — so its gear keeps only what no
-   * layer owns.
+   * "Pläne & Verlauf" and the backup. The workspace leaves them out: the foot
+   * of every toolbar carries them, on every layer and on the export page, so
+   * its gear keeps only what no toolbar holds.
    */
   storage?: boolean;
 }) {
@@ -56,15 +50,11 @@ export default function AppSettingsItems({
   // back in for as long as the browser reports the app as installable.
   const { isInstallable, triggerInstall } = useInstallPrompt();
   const [confirmOpen, setConfirmOpen] = React.useState(false);
-  const [historyOpen, setHistoryOpen] = React.useState(false);
-  // Mounted on first open and kept afterwards, so the selected tab survives
-  // closing the modal just as it did while the modal was imported eagerly.
-  const [historyMounted, setHistoryMounted] = React.useState(false);
+  const history = useStorageHistoryModal();
 
-  const handleShowAllPlans = () => {
+  const handleShowHistory = () => {
     onDone();
-    setHistoryMounted(true);
-    setHistoryOpen(true);
+    history.show();
   };
 
   const handleExportBackup = () => {
@@ -111,14 +101,14 @@ export default function AppSettingsItems({
           <button
             type="button"
             role="menuitem"
-            onClick={handleShowAllPlans}
+            onClick={handleShowHistory}
             className={menuItemClass}
           >
             <ClockCounterClockwiseIcon
               className={iconClass}
               aria-hidden="true"
             />
-            {t('generator:storage.showAllPlans')}
+            {t('generator:storage.historyTitle')}
           </button>
           <button
             type="button"
@@ -167,14 +157,7 @@ export default function AppSettingsItems({
         {t('common:footer.clearAllData')}
       </button>
 
-      {historyMounted && (
-        <Suspense fallback={null}>
-          <StorageHistoryModal
-            open={historyOpen}
-            onClose={() => setHistoryOpen(false)}
-          />
-        </Suspense>
-      )}
+      {history.modal}
       <ConfirmDialog
         open={confirmOpen}
         title={t('common:dialogs.clearAllData.title')}

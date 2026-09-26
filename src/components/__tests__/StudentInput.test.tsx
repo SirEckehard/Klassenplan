@@ -128,10 +128,13 @@ describe('StudentInput', () => {
     expect(students[0].restless).toBe(false);
     renderWithClassContext(<StudentInput {...props} />);
 
-    // Insert, in the toolbar's top group.
+    // Filling the class is managing it, next to the class list's export.
     expect(getButton(/Schüler hinzufügen|Add student/i)).toBeInTheDocument();
     expect(
       getButton(/Platzhalter erstellen|Create placeholders/i),
+    ).toBeInTheDocument();
+    expect(
+      getButton(/Klassenliste exportieren|Export class list/i),
     ).toBeInTheDocument();
     const importPanel = await openImportPanel();
     expect(
@@ -141,7 +144,8 @@ describe('StudentInput', () => {
     ).toBeInTheDocument();
 
     // The way on to the classroom lives in the shell's status bar; the side
-    // trips live at the bottom of the toolbar.
+    // trips live in the foot every toolbar shares.
+    fireEvent.click(getButton(/Klassenwerkzeuge|Class tools/i));
     expect(getButton(/Namensspiel|Name game/i)).toBeInTheDocument();
   });
 

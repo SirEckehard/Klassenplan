@@ -83,7 +83,7 @@ describe('SmartSidebar layout tiers', () => {
 
     expect(sidebarColumn()).toHaveAttribute('aria-expanded', 'false');
     expect(
-      screen.getByRole('button', { name: 'Sidebar erweitern' }),
+      screen.getByRole('button', { name: 'Werkzeugleiste erweitern' }),
     ).toBeInTheDocument();
   });
 
@@ -122,7 +122,7 @@ describe('SmartSidebar layout tiers', () => {
 
     renderSidebar();
     await userEvent.click(
-      screen.getByRole('button', { name: 'Sidebar erweitern' }),
+      screen.getByRole('button', { name: 'Werkzeugleiste erweitern' }),
     );
 
     expect(sidebarColumn()).toHaveAttribute('aria-expanded', 'true');
@@ -138,7 +138,7 @@ describe('SmartSidebar layout tiers', () => {
 
     renderSidebar();
     await userEvent.click(
-      screen.getByRole('button', { name: 'Sidebar erweitern' }),
+      screen.getByRole('button', { name: 'Werkzeugleiste erweitern' }),
     );
 
     expect(localStorage.getItem(LOCAL_STORAGE_KEYS.sidebarExpanded)).toBe(
@@ -151,7 +151,7 @@ describe('SmartSidebar layout tiers', () => {
 
     expect(sidebarColumn()).toBeInTheDocument();
     expect(
-      screen.queryByRole('button', { name: 'Sidebar erweitern' }),
+      screen.queryByRole('button', { name: 'Werkzeugleiste erweitern' }),
     ).not.toBeInTheDocument();
   });
 });

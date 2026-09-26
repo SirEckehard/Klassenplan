@@ -32,9 +32,13 @@ and `/namensspiel` are: without a class in this browser they render an empty
 state, which has no business in a search index. They stay prerendered, so
 canonical and hreflang remain consistent, and they are left out of the sitemap.
 
-They are reachable from the plan layer's toolbar, and "Gruppen bilden" also
-from the projection's bar. Nothing about them is stored: the draw, the search
-and the groups live for as long as the screen is open.
+They are reachable from the projection's bar ("Gruppen bilden") and, since
+2026-09-26, from "Klassenwerkzeuge" at the foot of every toolbar — one menu
+that also opens the name game (`/namensspiel`), on every layer and on the
+export page; until then only the plan layer's toolbar listed them. What is
+shared is the way in, not the page: each tool keeps its own route. Nothing
+about them is stored: the draw, the search and the groups live for as long as
+the screen is open.
 
 ## Alternatives considered
 

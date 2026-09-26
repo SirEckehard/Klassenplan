@@ -29,34 +29,25 @@ import {
 import { showToast } from '@/utils/ui/toast';
 import type { SavedPlan, MixResult } from '@/types';
 
-export type StorageHistoryTab = 'plans' | 'mixes' | 'neighbors';
-
-type TabId = StorageHistoryTab;
+type TabId = 'plans' | 'mixes' | 'neighbors';
 
 interface StorageHistoryModalProps {
   open: boolean;
   onClose: () => void;
-  /**
-   * Which tab to land on. The toolbar offers earlier plans and the
-   * neighbourhoods as two separate entries, and each should open on what it
-   * promised rather than on the first tab.
-   */
-  initialTab?: TabId;
 }
 
 /**
- * Modal showing saved plans and mix history.
- * Re-uses existing CompactPlanList and CompactMixHistory components.
+ * "Pläne & Verlauf": the saved plans, the recent shuffles and the
+ * neighbourhoods, one tab each. Reached from the foot of every toolbar and
+ * from the footer's settings menu (`useStorageHistoryModal`), always on the
+ * saved plans first.
  */
 export default function StorageHistoryModal({
   open,
   onClose,
-  initialTab = 'plans',
 }: StorageHistoryModalProps) {
   const { t } = useTranslation('generator');
-  // Only the initial value: switching tabs while the modal is open stays the
-  // user's business. A caller that opens it on another tab remounts it.
-  const [activeTab, setActiveTab] = useState<TabId>(initialTab);
+  const [activeTab, setActiveTab] = useState<TabId>('plans');
 
   const {
     seatingHistory,

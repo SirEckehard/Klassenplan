@@ -234,9 +234,11 @@ export default function NameGame() {
                   'Fotos fügst du in der Klassenliste über das Porträt-Symbol neben jedem Schüler hinzu.',
                 )}
               </p>
+              {/* Photos are added in the class list; the game opens from
+                  every layer, so the workspace is told where to land. */}
               <button
                 type="button"
-                onClick={() => navigate('/generator')}
+                onClick={() => navigate('/generator', { state: { step: 1 } })}
                 className={`${primaryButtonClass} h-10 gap-2 px-4`}
               >
                 <ArrowLeftIcon size={20} aria-hidden />

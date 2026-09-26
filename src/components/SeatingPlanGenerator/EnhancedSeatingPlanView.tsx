@@ -6,7 +6,6 @@ import {
   LinkSimpleIcon,
   ArrowCounterClockwiseIcon,
   ShuffleIcon,
-  LinkBreakIcon,
   EyeIcon,
   EyeSlashIcon,
   CursorIcon,
@@ -28,14 +27,12 @@ import {
 import { useIsDarkMode } from '@/hooks/useIsDarkMode';
 import { useFirstVisit } from '@/hooks/ui/useFirstVisit';
 import { useCanvasPreferences } from '@/contexts/seatingPlan/CanvasPreferencesContext';
-import { useIsPhone } from '@/hooks/ui/useLayoutMode';
 import type { Props as SeatingPlanViewProps } from './SeatingPlanView';
 import {
   canvasFrameClass,
   canvasStageClass,
   canvasFitClass,
   primaryButtonClass,
-  secondaryButtonClass,
 } from '@/utils';
 import { buildNameDisplayGroup } from '@/components/SeatingPlanGenerator/canvas/nameDisplayGroup';
 import { buildBadgeDisplayGroup } from '@/components/SeatingPlanGenerator/canvas/badgeDisplayGroup';
@@ -114,7 +111,6 @@ export default function EnhancedSeatingPlanView(
   // Marking the others is a choice; switched off, pointing marks nobody.
   const badgeFocus = badgeHover.highlight ? storedBadgeFocus : null;
   const reportBadgeFocus = badgeHover.highlight ? setBadgeFocus : undefined;
-  const isPhone = useIsPhone();
 
   // Use prop values if provided, otherwise use internal state and logic
   const requestedSeatingMode = propSeatingMode ?? internalSeatingMode;
@@ -294,46 +290,41 @@ export default function EnhancedSeatingPlanView(
   if (showModeToggle && seatingMode === 'circle') {
     return (
       <div className="space-y-6 lg:flex lg:min-h-0 lg:flex-1 lg:flex-col lg:space-y-0">
-        {/* Same source as the sidebar's own phone/rail decision, so the two
-            cannot disagree and stack the rail on top of the canvas. */}
+        {/* The direction comes from the same hook that decides whether the
+            sidebar is a rail or a phone sheet, so the two cannot disagree and
+            stack the rail on top of the canvas. */}
         <div className={workspaceLayerClass}>
-          {!isPhone && (
-            <SmartSidebar>
-              {({ isExpanded }) => (
-                <PlanToolPanel
-                  density={isExpanded ? 'comfortable' : 'compact'}
-                  seatingMode="circle"
-                  onModeChange={handleModeChange}
-                  showModeToggle={showModeToggle}
-                  settingsGroups={circleSettingsGroups}
-                  onSavePlan={() =>
-                    props.saveSeatingPlan(
-                      props.planName,
-                      props.classroomScene,
-                      circleLayout,
-                    )
-                  }
-                  canSavePlan={props.currentSeating.length > 0}
-                  extraTools={
-                    <>
-                      <ToolRailButton
-                        icon={<ArrowCounterClockwiseIcon size={18} />}
-                        label={t('circleView.syncButton')}
-                        title={t('circleView.syncTitle')}
-                        onClick={() => void generateCircleSeating()}
-                      />
-                      <ToolRailButton
-                        icon={<ShuffleIcon size={18} />}
-                        label={t('circleView.shuffleButton')}
-                        title={t('circleView.shuffleTitle')}
-                        onClick={handleShuffleCircle}
-                      />
-                    </>
-                  }
-                />
-              )}
-            </SmartSidebar>
-          )}
+          {/* A phone gets the sheet as the table plan does: the way back to
+              the tables, the view settings, the shuffle and the foot every
+              rail shares. Rebuilding the circle from the plan is the status
+              bar's primary action, so the toolbar does not repeat it. */}
+          <SmartSidebar>
+            {({ isExpanded }) => (
+              <PlanToolPanel
+                density={isExpanded ? 'comfortable' : 'compact'}
+                seatingMode="circle"
+                onModeChange={handleModeChange}
+                showModeToggle={showModeToggle}
+                settingsGroups={circleSettingsGroups}
+                onSavePlan={() =>
+                  props.saveSeatingPlan(
+                    props.planName,
+                    props.classroomScene,
+                    circleLayout,
+                  )
+                }
+                canSavePlan={props.currentSeating.length > 0}
+                extraTools={
+                  <ToolRailButton
+                    icon={<ShuffleIcon size={18} />}
+                    label={t('circleView.shuffleButton')}
+                    title={t('circleView.shuffleTitle')}
+                    onClick={handleShuffleCircle}
+                  />
+                }
+              />
+            )}
+          </SmartSidebar>
 
           {/* The table plan's inspector holds its criteria; the circle is
               not built from them, so its panel says what the ring came to. */}
@@ -403,69 +394,6 @@ export default function EnhancedSeatingPlanView(
                 </div>
               )}
             </div>
-
-            {isPhone && (
-              <div className="sm:hidden">
-                <div className="mt-4 flex flex-wrap items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => void generateCircleSeating()}
-                    className={`${secondaryButtonClass} flex-1 min-w-35 justify-center gap-2`}
-                    title={t(
-                      'circleView.syncTitle',
-                      'Sitzkreis an Sitzplan anpassen',
-                    )}
-                  >
-                    <ArrowCounterClockwiseIcon className="h-4 w-4" />
-                    <span className="text-sm font-medium">
-                      {t('circleView.syncButton', 'An Sitzplan anpassen')}
-                    </span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleShuffleCircle}
-                    className={`${secondaryButtonClass} flex-1 min-w-35 justify-center gap-2`}
-                    title={t(
-                      'circleView.shuffleTitle',
-                      'Sitzkreis zufällig anordnen',
-                    )}
-                  >
-                    <ShuffleIcon className="h-4 w-4" />
-                    <span className="text-sm font-medium">
-                      {t('circleView.shuffleButton', 'Zufällig mischen')}
-                    </span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setConnectionMode((previous) =>
-                        previous === 'off' ? 'subtle' : 'off',
-                      )
-                    }
-                    className={`${secondaryButtonClass} flex-1 min-w-35 justify-center gap-2 ${
-                      connectionMode === 'off'
-                        ? 'text-(--text-muted)'
-                        : 'text-(--text-badge)'
-                    }`}
-                    title={t(
-                      'circleView.showConnections',
-                      'Verbindungen anzeigen',
-                    )}
-                    aria-pressed={connectionMode !== 'off'}
-                  >
-                    {/* Show what will happen on click: LinkSimpleIcon icon when off (to turn on), LinkBreakIcon when on (to turn off) */}
-                    {connectionMode === 'off' ? (
-                      <LinkSimpleIcon className="h-4 w-4" />
-                    ) : (
-                      <LinkBreakIcon className="h-4 w-4" />
-                    )}
-                    <span className="text-sm font-medium">
-                      {t('circleView.showConnections', 'Verbindungen anzeigen')}
-                    </span>
-                  </button>
-                </div>
-              </div>
-            )}
 
             {/* The circle's own primary action sits where every layer's
                 does; naming and the two exits live in the header. */}

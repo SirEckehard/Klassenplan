@@ -76,6 +76,7 @@ export default function Groups() {
           title={t('tools.groups.emptyTitle')}
           body={t('tools.groups.emptyBody')}
           actionLabel={t('tools.toClass')}
+          step={1}
         />
       ) : (
         <div className="mx-auto flex max-w-2xl flex-col gap-4">

@@ -84,6 +84,7 @@ export default function SeatFinder() {
           title={t('tools.seatFinder.emptyTitle')}
           body={t('tools.seatFinder.emptyBody')}
           actionLabel={t('tools.toPlan')}
+          step={3}
         />
       ) : (
         // At least as tall as the page, so the answer card below the search

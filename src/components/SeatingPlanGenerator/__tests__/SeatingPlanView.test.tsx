@@ -69,7 +69,7 @@ describe('SeatingPlanView', () => {
       );
     });
     // SmartMixControls is in a collapsed sidebar, so check for the sidebar presence
-    const sidebar = screen.getByLabelText(/Optionen-Sidebar|Options Sidebar/i);
+    const sidebar = screen.getByLabelText(/^(Werkzeugleiste|Toolbar)$/i);
     expect(sidebar).toBeInTheDocument();
     expect(sidebar).toHaveAttribute('aria-expanded', 'false');
   });

@@ -3,19 +3,15 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  ChartBarIcon,
+  ArmchairIcon,
   CircleDashedIcon,
-  ClockCounterClockwiseIcon,
   FloppyDiskIcon,
   GridNineIcon,
-  HandPointingIcon,
   ImageIcon,
-  MagnifyingGlassIcon,
+  LinkSimpleIcon,
   SlidersHorizontalIcon,
   TextAaIcon,
-  UsersThreeIcon,
   UserSquareIcon,
-  ArmchairIcon,
 } from '@phosphor-icons/react';
 import {
   ToolRail,
@@ -27,11 +23,7 @@ import {
   CanvasSettingsGroups,
   type CanvasSettingsGroup,
 } from '@/components/SeatingPlanGenerator/canvas/CanvasSettingsButton';
-import StorageHistoryModal, {
-  type StorageHistoryTab,
-} from '@/components/ui/navigation/StorageHistoryModal';
 import { menuSurfaceClass } from '@/utils';
-import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 
 type Props = {
@@ -44,7 +36,7 @@ type Props = {
   settingsGroups: CanvasSettingsGroup[];
   onSavePlan: () => void;
   canSavePlan: boolean;
-  /** Entries only one arrangement has — the circle's sync and shuffle. */
+  /** Entries only one arrangement has — the circle's shuffle. */
   extraTools?: React.ReactNode;
 };
 
@@ -55,17 +47,20 @@ const GROUP_ICONS: Record<string, React.ReactNode> = {
   'editor-names': <TextAaIcon size={18} />,
   'editor-badges': <UserSquareIcon size={18} />,
   'editor-features': <ArmchairIcon size={18} />,
+  'circle-connections': <LinkSimpleIcon size={18} />,
+  'circle-photos': <ImageIcon size={18} />,
+  'circle-names': <TextAaIcon size={18} />,
   'circle-badges': <UserSquareIcon size={18} />,
 };
 
 /**
- * The plan layer's toolbar: how the students are seated, what the plan shows,
- * and what to do with the finished plan.
+ * The plan layer's toolbar: which view of the plan is on the stage, what it
+ * shows, and what to do with the finished plan.
  *
  * The criteria are not here — they answer "why does the plan look like this",
- * which is a property of the plan and so belongs in the inspector. What is
- * left on this side is what every layer's toolbar holds: the arrangement to
- * work in, the view switches, and the plan's own actions at the bottom.
+ * which is a property of the plan and so belongs in the inspector. The class
+ * tools and the plans' history are not here either: every layer needs them,
+ * so they sit in the foot every rail shares (`ToolRail`).
  */
 export default function PlanToolPanel({
   density,
@@ -78,106 +73,60 @@ export default function PlanToolPanel({
   extraTools,
 }: Props) {
   const { t } = useTranslation('generator');
-  const navigate = useLocalizedNavigate();
-  const [historyTab, setHistoryTab] = React.useState<StorageHistoryTab | null>(
-    null,
-  );
 
   const groups = settingsGroups.filter((group) => group.options.length > 0);
 
   return (
-    <>
-      <ToolRail density={density}>
-        {showModeToggle && onModeChange && (
-          <ToolRailGroup title={t('planToolbar.arrangement')}>
-            <ToolRailButton
-              icon={<GridNineIcon size={18} />}
-              label={t('shell.layers.plan')}
-              active={seatingMode === 'table'}
-              onClick={() => onModeChange('table')}
-              data-tour={TOUR_ANCHORS.seatingModeToggle}
-            />
-            <ToolRailButton
-              icon={<CircleDashedIcon size={18} />}
-              label={t('shell.layers.circle')}
-              active={seatingMode === 'circle'}
-              onClick={() => onModeChange('circle')}
-            />
-          </ToolRailGroup>
-        )}
-
-        <ToolRailGroup title={t('planToolbar.show')}>
-          {groups.map((group) => (
-            <ToolRailButton
-              key={group.id}
-              icon={
-                GROUP_ICONS[group.id] ?? <SlidersHorizontalIcon size={18} />
-              }
-              label={group.title ?? t('editor.viewSettings')}
-              data-tour={
-                group.id === 'editor-canvas'
-                  ? TOUR_ANCHORS.canvasSettings
-                  : undefined
-              }
-              panel={() => (
-                <div className={`${menuSurfaceClass} p-1`}>
-                  <CanvasSettingsGroups groups={[group]} />
-                </div>
-              )}
-            />
-          ))}
-        </ToolRailGroup>
-
-        <ToolRailGroup title={t('planToolbar.tools')}>
-          {extraTools}
-          {/* The three classroom tools: each one a screen of its own, because
-              each is used standing up rather than at the desk. */}
+    <ToolRail density={density}>
+      {showModeToggle && onModeChange && (
+        // The tour explains the switch, so it frames both of its entries.
+        <ToolRailGroup
+          title={t('toolRail.view')}
+          data-tour={TOUR_ANCHORS.seatingModeToggle}
+        >
           <ToolRailButton
-            icon={<HandPointingIcon size={18} />}
-            label={t('tools.whoIsNext.title')}
-            onClick={() => navigate('/wer-kommt-dran')}
+            icon={<GridNineIcon size={18} />}
+            label={t('shell.layers.plan')}
+            active={seatingMode === 'table'}
+            onClick={() => onModeChange('table')}
           />
           <ToolRailButton
-            icon={<MagnifyingGlassIcon size={18} />}
-            label={t('tools.seatFinder.title')}
-            onClick={() => navigate('/wo-sitzt-wer')}
-          />
-          <ToolRailButton
-            icon={<UsersThreeIcon size={18} />}
-            label={t('tools.groups.title')}
-            onClick={() => navigate('/gruppen')}
-          />
-          <ToolRailButton
-            icon={<ChartBarIcon size={18} />}
-            label={t('storage.neighbors.tab')}
-            onClick={() => setHistoryTab('neighbors')}
-          />
-          <ToolRailButton
-            icon={<ClockCounterClockwiseIcon size={18} />}
-            label={t('storage.savedPlans')}
-            onClick={() => setHistoryTab('plans')}
+            icon={<CircleDashedIcon size={18} />}
+            label={t('shell.layers.circle')}
+            active={seatingMode === 'circle'}
+            onClick={() => onModeChange('circle')}
           />
         </ToolRailGroup>
+      )}
 
-        <ToolRailGroup title={t('planToolbar.manage')} atEnd>
+      <ToolRailGroup
+        title={t('toolRail.viewSettings')}
+        data-tour={TOUR_ANCHORS.canvasSettings}
+      >
+        {groups.map((group) => (
           <ToolRailButton
-            icon={<FloppyDiskIcon size={18} />}
-            label={t('actions.savePlan')}
-            title={t('actions.saveShortcut')}
-            disabled={!canSavePlan}
-            onClick={onSavePlan}
+            key={group.id}
+            icon={GROUP_ICONS[group.id] ?? <SlidersHorizontalIcon size={18} />}
+            label={group.title ?? t('editor.viewSettings')}
+            panel={() => (
+              <div className={`${menuSurfaceClass} p-1`}>
+                <CanvasSettingsGroups groups={[group]} />
+              </div>
+            )}
           />
-        </ToolRailGroup>
-      </ToolRail>
+        ))}
+      </ToolRailGroup>
 
-      {/* Keyed on the tab: opening it from the other entry remounts it, so
-          it lands on what that entry promised. */}
-      <StorageHistoryModal
-        key={historyTab ?? 'closed'}
-        open={historyTab !== null}
-        initialTab={historyTab ?? 'plans'}
-        onClose={() => setHistoryTab(null)}
-      />
-    </>
+      <ToolRailGroup title={t('toolRail.manage')}>
+        {extraTools}
+        <ToolRailButton
+          icon={<FloppyDiskIcon size={18} />}
+          label={t('actions.savePlan')}
+          title={t('actions.saveShortcut')}
+          disabled={!canSavePlan}
+          onClick={onSavePlan}
+        />
+      </ToolRailGroup>
+    </ToolRail>
   );
 }

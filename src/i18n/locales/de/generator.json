@@ -20,27 +20,27 @@
       "title": "Klassenraum",
       "item1": "Wähle eine Vorlage oder füge Tische per Klick hinzu.",
       "item2": "Verschiebe und drehe Tische per Drag & Drop.",
-      "item3": "Mehrfachauswahl: Shift oder Strg/Cmd + Klick oder Auswahl-Rechteck aufziehen.",
+      "item3": "Mehrfachauswahl: Umschalt+Klick, Strg/⌘+Klick oder ein Auswahl-Rechteck aufziehen.",
       "item4": "Rechtsklick (Desktop) oder langes Drücken (Touch) öffnet das Kontextmenü.",
-      "item5": "Speichere eigene Klassenraum-Vorlagen über die Sidebar.",
-      "item6": "Ziehe Raumelemente wie Fenster, Tür, Pult, Tafel, Whiteboard, Schrank oder Raumtrenner aus der Sidebar in den Raum und vergrößere bzw. verkleinere sie bei Bedarf.",
+      "item5": "Speichere eigene Klassenraum-Vorlagen über „Vorlage speichern“ in der Werkzeugleiste.",
+      "item6": "Ziehe Raumelemente wie Fenster, Tür, Pult, Tafel, Whiteboard, Schrank oder Raumtrenner aus der Werkzeugleiste in den Raum und vergrößere bzw. verkleinere sie bei Bedarf.",
       "item7": "Änderungen im Klassenraum kannst du über die jeweiligen Icons rückgängig machen und wiederherstellen."
     },
     "plan": {
       "title": "Sitzplan",
-      "item1": "Passe die Gewichtung der Kriterien (0-10) in der Sidebar an – in der minimierten Sidebar mit einem Rechtsklick oder langem Drücken auf das Symbol.",
-      "item2": "Ziehe Schüler auf andere Plätze – auf einem besetzten Platz tauschen die beiden. Escape bricht das Ziehen ab.",
+      "item1": "Rechts im Inspektor stellst du für jedes Kriterium ein, wie wichtig es ist – Aus, Beachten, Wichtig oder Sehr wichtig –, oder du wählst ein Rezept, das alle auf einmal setzt.",
+      "item2": "Ziehe Schüler auf andere Plätze – auf einem besetzten Platz tauschen die beiden. Esc bricht das Ziehen ab.",
       "item3": "Klicke auf das Schloss-Symbol, um einen Platz beim nächsten Mischen zu sperren.",
-      "item4": "Über die Statistikanzeige siehst du, wie gut die Kriterien erfüllt sind – die Werte stehen dann neben den Kriterien in den Optionen.",
+      "item4": "Der Knopf über den Kriterien zeigt in Prozent, wie gut der Plan sie erfüllt, und blendet unter jedem Kriterium eine Leiste ein – fährst du über sie, werden die betroffenen Plätze markiert.",
       "item5": "In den Ansichtseinstellungen legst du fest, wie Namen erscheinen sollen (nur Vorname, Vorname + Initial oder Vor- und Nachname) und ob Fotos angezeigt werden.",
       "item6": "Änderungen am Sitzplan kannst du über die jeweiligen Icons rückgängig machen und wiederherstellen.",
       "item7": "Fahre über ein Icon auf einem Platz oder tippe darauf, um zu sehen, was es bedeutet – die Plätze aller, die es teilen, werden dabei markiert. Unter „Merkmale“ in der Werkzeugleiste findest du die Legende, wählst, welche Icons die Plätze zeigen, und schaltest Erklärung und Markieren ab."
     },
     "circle": {
       "title": "Sitzkreis",
-      "item1": "Ziehe Schüler auf andere Plätze im Kreis – die beiden tauschen. Escape bricht das Ziehen ab.",
+      "item1": "Ziehe Schüler auf andere Plätze im Kreis – die beiden tauschen. Esc bricht das Ziehen ab.",
       "item2": "Grüne Linien zeigen Verbindungen zu Tischnachbarn im Sitzplan.",
-      "item3": "Blende Verbindungen in der Sidebar ein oder aus.",
+      "item3": "Blende Verbindungen in der Werkzeugleiste unter „Ansichtseinstellungen“ ein oder aus.",
       "item4": "Der Sitzkreis ist zu Beginn an den Sitzplan gekoppelt, lässt sich aber verändern, separat speichern und exportieren.",
       "item5": "Fahre über ein Icon auf einem Platz oder tippe darauf, um zu sehen, was es bedeutet – die Plätze aller, die es teilen, werden dabei markiert. Unter „Merkmale“ in der Werkzeugleiste findest du die Legende, wählst, welche Icons die Plätze zeigen, und schaltest Erklärung und Markieren ab.",
       "item6": "Mit dem Schloss hält ein Schüler seinen Platz im Kreis: Ziehen, Mischen und Neu-Erzeugen lassen ihn dort. Mit der Tastatur nimmt die Eingabetaste einen Schüler auf, die Pfeiltasten wählen den Platz, die Eingabetaste setzt ihn ab."
@@ -61,9 +61,9 @@
       "item2": "Die Schüleransicht zeigt den Plan aus Sicht der Klasse – ohne Merkmale und Fotos.",
       "item3": "Blende über die Leiste unten Merkmale, Fotos, Farben und Raumelemente ein oder aus.",
       "itemNames": "Der Button „Namen“ schaltet die Anzeige zwischen Vorname, Vorname + Initial des Nachnamens sowie Vor- und Nachname um.",
-      "itemContrast": "Der Kontrastmodus zeigt den Plan schwarz auf weiß mit dickeren Konturen – für helle Räume und schwache Beamer.",
+      "itemContrast": "Der Kontrastmodus zeigt den Plan schwarz auf weiß mit dickeren Konturen – so bleibt er an der Tafel auch in hellen Räumen gut lesbar.",
       "item4": "Stelle die Größe mit dem Regler oder dem Mausrad ein und verschiebe die Ansicht durch Ziehen; das Zentrieren-Symbol setzt sie zurück.",
-      "item5": "Mit Alt + ← kehrst du zum Generator zurück.",
+      "item5": "Mit Alt/⌥+← kehrst du zum Generator zurück.",
       "item6": "„Wer kommt dran?“ zieht einen zufälligen Schüler und hebt seinen Platz hervor – jeder kommt einmal dran, bevor sich jemand wiederholt.",
       "item7": "Tastatur: F Vollbild, Leertaste zieht einen Schüler, Esc setzt die Auswahl zurück, + / − zoomen, 0 zentriert.",
       "itemFullscreen": "Im Vollbild gehört die Wand dem Plan: Die Leiste oben verschwindet, die Leiste unten erscheint, sobald du mit dem Zeiger an den unteren Rand fährst oder dort tippst, und blendet sich kurz danach wieder aus."
@@ -79,16 +79,13 @@
     "statistics": "Statistiken",
     "options": "Optionen",
     "openOptions": "Optionen öffnen",
-    "ariaLabel": "Optionen-Sidebar",
-    "collapseShortcut": "Sidebar minimieren (⌘/Strg+B)",
-    "collapseLabel": "Sidebar minimieren",
-    "expandShortcut": "Sidebar erweitern (⌘/Strg+B)",
-    "expandLabel": "Sidebar erweitern"
+    "ariaLabel": "Werkzeugleiste",
+    "collapseShortcut": "Werkzeugleiste minimieren (Strg/⌘+B)",
+    "collapseLabel": "Werkzeugleiste minimieren",
+    "expandShortcut": "Werkzeugleiste erweitern (Strg/⌘+B)",
+    "expandLabel": "Werkzeugleiste erweitern"
   },
-  "tooltip": {
-    "compactModeHint": "Klicke hier oder drücke ⌘/Strg+B für die kompakte Ansicht",
-    "sidebarHint": "Klicke hier oder drücke ⌘/Strg+B, um die Sidebar zu minimieren"
-  },
+  "tooltip": {},
   "canvas": {
     "addFeature": "Raumelement hinzufügen",
     "paste": "Einfügen",
@@ -99,22 +96,22 @@
     "rotateTable": "Tisch drehen",
     "lockSeat": "Platz sperren",
     "unlockSeat": "Platz entsperren",
-    "undo": "Rückgängig (Strg/Cmd+Z)",
+    "undo": "Rückgängig (Strg/⌘+Z)",
     "undoLabel": "Letzte Aktion rückgängig machen",
-    "redo": "Wiederherstellen (Strg/Cmd+Y)",
+    "redo": "Wiederherstellen (Strg/⌘+Umschalt+Z)",
     "redoLabel": "Letzte Aktion wiederherstellen"
   },
   "actions": {
-    "backShortcut": "Zurück (Alt/Option+←)",
+    "backShortcut": "Zurück (Alt/⌥+←)",
     "export": "Exportieren",
-    "exportShortcut": "Exportieren (Strg/Cmd+E)",
+    "exportShortcut": "Exportieren (Strg/⌘+E)",
     "mixAgain": "Neu mischen",
     "mixNow": "Jetzt neu mischen",
     "print": "Drucken",
     "reset": "Zurücksetzen",
     "retryMix": "Erneut mischen",
     "savePlan": "Plan speichern",
-    "saveShortcut": "Plan speichern (Strg/Cmd+S)",
+    "saveShortcut": "Plan speichern (Strg/⌘+S)",
     "shuffle": "Mischen"
   },
   "present": {
@@ -138,7 +135,7 @@
     "zoomTitle": "Ansicht vergrößern oder verkleinern",
     "resetView": "Ansicht zentrieren und zurücksetzen",
     "back": "Zurück",
-    "backTitle": "Zurück zum Generator (Alt + ←)",
+    "backTitle": "Zurück zum Generator (Alt/⌥+←)",
     "empty": "Noch kein Sitzplan zum Präsentieren.",
     "pick": "Wer kommt dran?",
     "pickTitle": "Zufälligen Schüler auswählen – jeder kommt einmal dran (Leertaste)",
@@ -247,7 +244,7 @@
     "label": "Mischen",
     "loadingAriaLabel": "Mischvorgang läuft",
     "loadingTitle": "Mischvorgang läuft...",
-    "shortcut": "Neu mischen (Strg/Cmd+M)",
+    "shortcut": "Neu mischen (Strg/⌘+M)",
     "title": "Sitzplan mischen"
   },
   "messages": {
@@ -287,11 +284,10 @@
     "backup": "Backup",
     "exportBackup": "Backup exportieren",
     "importBackup": "Backup importieren",
-    "showAllPlans": "Alle Pläne anzeigen",
     "backupExported": "Backup exportiert.",
-    "historyTitle": "Pläne, Mischungen & Nachbarschaften",
+    "historyTitle": "Pläne & Verlauf",
     "savedPlans": "Gespeicherte Pläne",
-    "mixHistory": "Misch-Historie",
+    "mixHistory": "Letzte Mischungen",
     "noPlans": "Keine gespeicherten Pläne vorhanden.",
     "noMixes": "Keine Misch-Ergebnisse vorhanden.",
     "planLoaded": "Plan \"{{name}}\" geladen.",
@@ -513,7 +509,7 @@
     "resize": "Größe anpassen",
     "resizeWidth": "Breite anpassen",
     "resizeHeight": "Höhe anpassen",
-    "quickSetupShortcut": "(Strg/Cmd+E)",
+    "quickSetupShortcut": "Strg/⌘+E",
     "overwriteTemplateMessage": "Die aktuelle Vorlage wurde verändert. Soll sie überschrieben werden?",
     "overwrite": "Überschreiben",
     "dragDropHint": "Per Drag & Drop hinzufügen",
@@ -531,15 +527,15 @@
     "viewFromBack": "Von hinten",
     "viewFromBackTitle": "Der Raum wird um 180° gedreht, sodass Namen lesbar bleiben.",
     "printDocumentTitle": "Klassenplan",
-    "printShortcut": "Drucken (Strg/Cmd+P)",
-    "tablePdfShortcut": "Sitzplan als PDF exportieren (Strg/Cmd+Shift+T)",
-    "circlePdfShortcut": "Sitzkreis als PDF exportieren (Strg/Cmd+Shift+C)",
+    "printShortcut": "Drucken (Strg/⌘+P)",
+    "tablePdfShortcut": "Sitzplan als PDF exportieren (Strg/⌘+Umschalt+T)",
+    "circlePdfShortcut": "Sitzkreis als PDF exportieren (Strg/⌘+Umschalt+C)",
     "tableDefaultFilename": "Sitzplan",
     "circleDefaultFilename": "Sitzkreis",
     "dragDropHint": "Ziehe Elemente hierher",
     "dragDropPlace": "Hier ablegen",
     "backToSeating": "Zurück zum Sitzplan",
-    "backTitle": "Zurück (Alt/Option+←)",
+    "backTitle": "Zurück (Alt/⌥+←)",
     "preview": "Vorschau",
     "roomElements": "Raumelemente",
     "switchPreviewHint": "Wechsle die Vorschau zwischen Sitzplan und Sitzkreis oben",
@@ -578,7 +574,7 @@
     },
     "empty": "Noch kein Sitzplan zum Exportieren.",
     "pngButton": "PNG-Bild",
-    "pngShortcut": "Aktuelle Ansicht als PNG-Bild speichern (Strg/Cmd+Shift+I)",
+    "pngShortcut": "Aktuelle Ansicht als PNG-Bild speichern (Strg/⌘+Umschalt+I)",
     "svgButton": "SVG-Grafik",
     "svgTitle": "Aktuelle Ansicht als SVG-Vektorgrafik speichern",
     "saveAs": "Speichern als",
@@ -608,8 +604,8 @@
     },
     "backToStudents": "Zurück zur Klassenliste",
     "forwardToPlan": "Weiter zum Sitzplan",
-    "backToStudentsShortcut": "Zurück zur Klassenliste (Alt/Option+←)",
-    "forwardToPlanShortcut": "Weiter zum Sitzplan (Alt/Option+→)",
+    "backToStudentsShortcut": "Zurück zur Klassenliste (Alt/⌥+←)",
+    "forwardToPlanShortcut": "Weiter zum Sitzplan (Alt/⌥+→)",
     "noTablesYet": "Füge zuerst Tische für deine {{students}} Schüler ein.",
     "seatsMissing_one": "Es fehlt noch 1 Sitzplatz für {{students}} Schüler.",
     "seatsMissing_other": "Es fehlen noch {{count}} Sitzplätze für {{students}} Schüler."
@@ -697,7 +693,7 @@
     "title": "Klassenraum einrichten",
     "subtitle": "Wähle einen Tischtyp oder (falls verfügbar) eine gespeicherte Vorlage.",
     "selectType": "Tischtyp wählen",
-    "hint": "Wähle einen Tischtyp um den Klassenraum automatisch zu erstellen oder ziehe einen Tischtyp aus der Sidebar in den Klassenraum.",
+    "hint": "Wähle einen Tischtyp, um den Klassenraum automatisch zu erstellen, oder ziehe einen Tischtyp aus der Werkzeugleiste in den Klassenraum.",
     "overwriteHint": "Willst du dein aktuelles Layout überschreiben? Dann wähle einen Tischtyp oder eine Vorlage laden.",
     "closeLabel": "Klassenraum einrichten schließen",
     "loadButton": "Laden",
@@ -790,14 +786,14 @@
     "descriptions": {
       "global_toggleHelp": "Tastenkürzel anzeigen",
       "global_closeDialog": "Dialoge oder Hilfefenster schließen",
-      "global_toggleSidebar": "Optionen-Sidebar auf-/zuklappen",
+      "global_toggleSidebar": "Werkzeugleiste auf-/zuklappen",
       "students_addStudent": "Schüler hinzufügen (im Namensfeld)",
       "students_toClassroom": "Zum Klassenraum wechseln",
       "layout_toStudentList": "Zur Klassenliste zurückkehren",
       "layout_toSeatingPlan": "Zum Sitzplan wechseln",
       "layout_toggleQuickSetup": "Quick-Setup „Klassenraum einrichten“ öffnen oder schließen",
       "layout_multiSelect": "Mehrere Tische auswählen (oder Auswahl-Rechteck aufziehen)",
-      "layout_moveTables": "Ausgewählte Tische verschieben (Shift = größere Schritte)",
+      "layout_moveTables": "Ausgewählte Tische verschieben (Umschalt = größere Schritte)",
       "layout_deleteTables": "Ausgewählte Tische löschen",
       "layout_cutTables": "Ausgewählte Tische ausschneiden",
       "layout_copyTables": "Ausgewählte Tische kopieren",
@@ -829,40 +825,40 @@
     "keys": {
       "global_toggleHelp": "?",
       "global_closeDialog": "Esc",
-      "global_toggleSidebar": "Strg (Windows) / Cmd (Mac) + B",
-      "students_addStudent": "Enter",
-      "students_toClassroom": "Alt (Windows) / Option (Mac) + Pfeil rechts",
-      "layout_toStudentList": "Alt (Windows) / Option (Mac) + Pfeil links",
-      "layout_toSeatingPlan": "Alt (Windows) / Option (Mac) + Pfeil rechts",
-      "layout_toggleQuickSetup": "Strg (Windows) / Cmd (Mac) + E",
-      "layout_multiSelect": "Shift oder Strg (Windows) / Cmd (Mac) + Klick",
+      "global_toggleSidebar": "Strg/⌘+B",
+      "students_addStudent": "Eingabetaste",
+      "students_toClassroom": "Alt/⌥+→",
+      "layout_toStudentList": "Alt/⌥+←",
+      "layout_toSeatingPlan": "Alt/⌥+→",
+      "layout_toggleQuickSetup": "Strg/⌘+E",
+      "layout_multiSelect": "Umschalt+Klick oder Strg/⌘+Klick",
       "layout_moveTables": "Pfeiltasten",
-      "layout_deleteTables": "Entf / Backspace",
-      "layout_cutTables": "Strg (Windows) / Cmd (Mac) + X",
-      "layout_copyTables": "Strg (Windows) / Cmd (Mac) + C",
-      "layout_pasteTables": "Strg (Windows) / Cmd (Mac) + V",
+      "layout_deleteTables": "Entf / Rücktaste",
+      "layout_cutTables": "Strg/⌘+X",
+      "layout_copyTables": "Strg/⌘+C",
+      "layout_pasteTables": "Strg/⌘+V",
       "layout_rotateLeftRight": "Q / E",
-      "layout_rotate90": "Shift + Q / Shift + E",
-      "layout_undo": "Strg (Windows) / Cmd (Mac) + Z",
-      "plan_toClassroom": "Alt (Windows) / Option (Mac) + Pfeil links",
-      "plan_shuffle": "Strg (Windows) / Cmd (Mac) + M",
-      "plan_savePlan": "Strg (Windows) / Cmd (Mac) + S",
-      "plan_openExport": "Strg (Windows) / Cmd (Mac) + E",
-      "circle_toClassroom": "Alt (Windows) / Option (Mac) + Pfeil links",
+      "layout_rotate90": "Umschalt+Q / Umschalt+E",
+      "layout_undo": "Strg/⌘+Z",
+      "plan_toClassroom": "Alt/⌥+←",
+      "plan_shuffle": "Strg/⌘+M",
+      "plan_savePlan": "Strg/⌘+S",
+      "plan_openExport": "Strg/⌘+E",
+      "circle_toClassroom": "Alt/⌥+←",
       "circle_toggleConnections": "C",
       "circle_moveStudent": "Drag & Drop",
-      "circle_saveCircle": "Strg (Windows) / Cmd (Mac) + S",
-      "circle_openExport": "Strg (Windows) / Cmd (Mac) + E",
-      "export_backToPlan": "Alt (Windows) / Option (Mac) + Pfeil links",
-      "export_exportPdf": "Strg (Windows) / Cmd (Mac) + Shift + T",
-      "export_exportCirclePdf": "Strg (Windows) / Cmd (Mac) + Shift + C",
-      "export_exportPng": "Strg (Windows) / Cmd (Mac) + Shift + I",
-      "export_print": "Strg (Windows) / Cmd (Mac) + P",
-      "plan_undo": "Strg (Windows) / Cmd (Mac) + Z",
-      "plan_redo": "Strg / Cmd + Shift + Z",
-      "students_undo": "Strg (Windows) / Cmd (Mac) + Z",
-      "students_redo": "Strg / Cmd + Shift + Z",
-      "layout_redo": "Strg / Cmd + Shift + Z",
+      "circle_saveCircle": "Strg/⌘+S",
+      "circle_openExport": "Strg/⌘+E",
+      "export_backToPlan": "Alt/⌥+←",
+      "export_exportPdf": "Strg/⌘+Umschalt+T",
+      "export_exportCirclePdf": "Strg/⌘+Umschalt+C",
+      "export_exportPng": "Strg/⌘+Umschalt+I",
+      "export_print": "Strg/⌘+P",
+      "plan_undo": "Strg/⌘+Z",
+      "plan_redo": "Strg/⌘+Umschalt+Z",
+      "students_undo": "Strg/⌘+Z",
+      "students_redo": "Strg/⌘+Umschalt+Z",
+      "layout_redo": "Strg/⌘+Umschalt+Z",
       "global_switchLayer": "1 / 2 / 3"
     }
   },
@@ -914,7 +910,7 @@
       },
       "backup": {
         "title": "Daten sichern",
-        "body": "Deine Daten liegen nur in diesem Browser. Unter „Backup“ in der Werkzeugleiste exportierst du ein verschlüsseltes Backup und stellst es wieder her – auch auf einem anderen Gerät."
+        "body": "Deine Daten liegen nur in diesem Browser. Unter „Backup“ ganz unten in der Werkzeugleiste exportierst du ein verschlüsseltes Backup und stellst es wieder her, auch auf einem anderen Gerät."
       },
       "proceed": {
         "title": "Weiter zum Klassenraum",
@@ -932,7 +928,7 @@
       },
       "canvasSettings": {
         "title": "Ansichtseinstellungen",
-        "body": "Unter „Ansehen“ in der Werkzeugleiste passt du an, was der Raum zeigt – in jeder Ebene mit eigenen Optionen. Hier schaltest du Einrasten am Raster, Raster, Ausrichtungshilfen, Fotokollisionen und Raumelemente ein oder aus. Im Sitzplan wählst du, ob Fotos erscheinen und wie Namen abgekürzt werden, im Sitzkreis außerdem, ob Verbindungen sichtbar sind."
+        "body": "Unter „Ansichtseinstellungen“ in der Werkzeugleiste passt du an, was der Raum zeigt – in jeder Ebene mit eigenen Optionen. Hier schaltest du Einrasten am Raster, Raster, Ausrichtungshilfen, Fotokollisionen und Raumelemente ein oder aus. Im Sitzplan wählst du, ob Fotos erscheinen und wie Namen abgekürzt werden, im Sitzkreis außerdem, ob Verbindungen sichtbar sind."
       },
       "proceed": {
         "title": "Weiter zum Sitzplan",
@@ -966,15 +962,15 @@
       },
       "mix": {
         "title": "Mischen",
-        "body": "Der Knopf in der Statusleiste mischt die Klasse neu und berücksichtigt dabei alle ausgewählten Kriterien (Strg/Cmd+M)."
+        "body": "Der Knopf in der Statusleiste mischt die Klasse neu und berücksichtigt dabei alle ausgewählten Kriterien (Strg/⌘+M)."
       },
       "sidebar": {
         "title": "Werkzeuge",
-        "body": "Hier wechselst du zwischen Sitzplan und Sitzkreis, legst fest, was der Plan zeigt, öffnest Nachbarschaften und frühere Pläne – und sicherst den Plan."
+        "body": "Hier wechselst du zwischen Sitzplan und Sitzkreis, legst fest, was der Plan zeigt, und sicherst den Plan. Ganz unten steht auf jeder Ebene dasselbe: die Klassenwerkzeuge, „Pläne & Verlauf“ mit früheren Plänen und Nachbarschaften und das Backup."
       },
       "sidebarToggle": {
-        "title": "Sidebar erweitern und minimieren",
-        "body": "Mit diesem Knopf erweiterst oder minimierst du die Sidebar (⌘/Strg+B). Minimiert zeigt sie ihre Funktionen als Symbole und lässt dem Plan mehr Platz. In Schritt 2 und beim Export funktioniert die Sidebar genauso."
+        "title": "Werkzeugleiste erweitern und minimieren",
+        "body": "Mit diesem Knopf erweiterst oder minimierst du die Werkzeugleiste (Strg/⌘+B). Minimiert zeigt sie ihre Funktionen als Symbole und lässt dem Plan mehr Platz."
       }
     }
   },
@@ -1011,9 +1007,9 @@
     "deleteSelection": "Auswahl löschen",
     "deleteTable": "Tisch löschen",
     "duplicate": "Duplizieren",
-    "copyShortcut": "Kopieren (Strg/Cmd+C)",
-    "cutShortcut": "Ausschneiden (Strg/Cmd+X)",
-    "pasteShortcut": "Einfügen (Strg/Cmd+V)",
+    "copyShortcut": "Kopieren (Strg/⌘+C)",
+    "cutShortcut": "Ausschneiden (Strg/⌘+X)",
+    "pasteShortcut": "Einfügen (Strg/⌘+V)",
     "edit": "Bearbeiten",
     "orientation": "Ausrichtung",
     "display": "Anzeige",
@@ -1037,11 +1033,12 @@
     "title": "Eigenschaften",
     "visible": "Sichtbar"
   },
-  "planToolbar": {
-    "arrangement": "Anordnung",
-    "show": "Im Plan zeigen",
-    "tools": "Werkzeuge",
-    "manage": "Verwalten"
+  "toolRail": {
+    "add": "Hinzufügen",
+    "view": "Ansicht",
+    "viewSettings": "Ansichtseinstellungen",
+    "manage": "Verwalten",
+    "classTools": "Klassenwerkzeuge"
   },
   "tools": {
     "toClass": "Zur Klassenliste",
@@ -1102,7 +1099,7 @@
       "help3": "Der Sitzplan bleibt unberührt — eine Gruppe gilt für eine Stunde, ein Platz für das Halbjahr."
     },
     "back": "Zurück",
-    "backTitle": "Zurück (Alt + ←)"
+    "backTitle": "Zurück (Alt/⌥+←)"
   },
   "drag": {
     "swapWith": "tauscht mit {{name}}",

@@ -100,6 +100,7 @@ export default function WhoIsNext() {
           title={t('tools.whoIsNext.emptyTitle')}
           body={t('tools.whoIsNext.emptyBody')}
           actionLabel={t('tools.toClass')}
+          step={1}
         />
       ) : (
         <div className="mx-auto flex max-w-xl flex-col gap-4">

@@ -114,8 +114,8 @@ mitigation today is organisational — one browser profile per person.
 Klassenplan from a colleague, opens the generator and chooses _Beispielklasse
 laden_ in the empty class list. Klassenplan creates an ordinary class with 24
 invented students, drawn pictures and a furnished room. A short tour points out
-the class switcher, the add menu, the attributes and the backup in the class
-toolbar; the room and the seating plan get a tour of their
+the class switcher, the add menu, the attributes and the backup at the foot of
+the toolbar; the room and the seating plan get a tour of their
 own when they first open, including the sidebar, the statistics and the seating
 circle. Convinced, the teacher imports the real list into a new class and
 deletes the sample class

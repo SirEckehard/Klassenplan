@@ -36,15 +36,17 @@ skipped:
 
 - welcome (no class yet): the empty state;
 - class list: class switcher, add menu, student row, "Weiter", the backup (first
-  the settings gear, since 2026-09-21 the "Backup" entry of the class toolbar),
-  the Help button;
-- room: canvas, view settings button (its text names the options of step 3,
-  the seating circle and the export as well), sidebar, seat status, "Weiter";
-- seating plan: shuffle, criteria sidebar, sidebar toggle (explained once for
-  step 2 and the export page as well), canvas, statistics, seating circle
-  toggle, save/present/export (present and export in the middle of the status
-  bar since 2026-09-21). This tour waits until the automatic first shuffle has
-  finished, so the statistics exist when it starts.
+  the settings gear, since 2026-09-21 the "Backup" entry of the class toolbar,
+  since 2026-09-26 the same entry at the foot of every toolbar), the Help
+  button;
+- room: canvas, view settings (the whole "Ansichtseinstellungen" group since
+  2026-09-26; its text names the options of step 3 and the seating circle as
+  well), sidebar, seat status, "Weiter";
+- seating plan: shuffle, criteria sidebar, toolbar toggle, canvas, statistics,
+  the switch between seating plan and circle (both entries of the "Ansicht"
+  group since 2026-09-26), save/present/export (present and export in the
+  middle of the status bar since 2026-09-21). This tour waits until the
+  automatic first shuffle has finished, so the statistics exist when it starts.
 
 A tour counts as seen the moment it appears, "Nicht mehr zeigen" switches all
 tours off, and the Help dialog starts the current step's tour again. The record

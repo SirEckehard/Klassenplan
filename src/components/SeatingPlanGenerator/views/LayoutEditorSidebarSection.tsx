@@ -42,10 +42,9 @@ const LayoutEditorSidebarSection = React.memo(
     onFeaturePointerDown,
     settingsGroups,
   }: LayoutEditorSidebarSectionProps) {
-    if (isPhone) {
-      return null;
-    }
-
+    // A phone gets the sheet too: its tables and its setup sit under the
+    // canvas, but the view settings and the foot every rail shares — the
+    // class tools, the plans, the backup — live nowhere else.
     return (
       <SmartSidebar tourAnchor={TOUR_ANCHORS.layoutSidebar}>
         {({ isExpanded }) => (
@@ -58,6 +57,7 @@ const LayoutEditorSidebarSection = React.memo(
             featurePalette={featurePalette}
             onFeaturePointerDown={onFeaturePointerDown}
             settingsGroups={settingsGroups}
+            isPhone={isPhone}
           />
         )}
       </SmartSidebar>

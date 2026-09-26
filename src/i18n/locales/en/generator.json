@@ -20,27 +20,27 @@
       "title": "Classroom",
       "item1": "Choose a template or add tables by clicking.",
       "item2": "Move and rotate tables via drag & drop.",
-      "item3": "Multi-select: Shift or Ctrl/Cmd + click, or draw a selection rectangle.",
+      "item3": "Multi-select: Shift+click, Ctrl/⌘+click or draw a selection rectangle.",
       "item4": "Right-click (desktop) or long press (touch) opens the context menu.",
-      "item5": "Save custom classroom templates via the sidebar.",
-      "item6": "Drag room elements such as windows, door, desk, blackboard, whiteboard, cabinet or divider from the sidebar into the room and resize them if needed.",
+      "item5": "Save custom classroom templates with “Save Template” in the toolbar.",
+      "item6": "Drag room elements such as windows, door, desk, blackboard, whiteboard, cabinet or divider from the toolbar into the room and resize them if needed.",
       "item7": "Undo and redo changes in the classroom with the corresponding icons."
     },
     "plan": {
       "title": "Seating Plan",
-      "item1": "Adjust the weighting of criteria (0-10) in the sidebar – in the collapsed sidebar with a right click or a long press on the icon.",
-      "item2": "Drag students to other seats – on a taken seat the two swap. Escape cancels the drag.",
+      "item1": "In the inspector on the right you set how much each criterion matters – Off, Consider, Important or Very important – or pick a recipe that sets them all at once.",
+      "item2": "Drag students to other seats – on a taken seat the two swap. Esc cancels the drag.",
       "item3": "Click the lock icon to lock a seat for the next shuffle.",
-      "item4": "The statistics display shows how well the criteria are met – the values then sit beside the criteria in the options.",
+      "item4": "The button above the criteria shows in per cent how well the plan meets them and puts a bar under each criterion – hover it and the seats it concerns are marked.",
       "item5": "The view settings control how names appear (first name only, first name + initial, or first and last name) and whether photos are shown.",
       "item6": "Undo and redo changes to the seating plan with the corresponding icons.",
       "item7": "Hover over or tap an icon on a seat to see what it means – the seats of everyone who shares it are marked. Under “Markers” in the toolbar you find the legend, choose which icons the seats show and switch the explanation and the marking off."
     },
     "circle": {
       "title": "Seating Circle",
-      "item1": "Drag students to other places in the circle – the two swap. Escape cancels the drag.",
+      "item1": "Drag students to other places in the circle – the two swap. Esc cancels the drag.",
       "item2": "Green lines show connections to table neighbors in the seating plan.",
-      "item3": "Show or hide connections in the sidebar.",
+      "item3": "Show or hide connections in the toolbar under “View settings”.",
       "item4": "The circle starts out linked to the seating plan, but you can change it and save and export it separately.",
       "item5": "Hover over or tap an icon on a seat to see what it means – the seats of everyone who shares it are marked. Under “Markers” in the toolbar you find the legend, choose which icons the seats show and switch the explanation and the marking off.",
       "item6": "The lock keeps a student in their place in the circle: dragging, shuffling and regenerating leave them there. With the keyboard, Enter picks a student up, the arrow keys choose the place, Enter puts them down."
@@ -61,9 +61,9 @@
       "item2": "The student view shows the plan from the class's perspective – without markers and photos.",
       "item3": "Show or hide markers, photos, colors and room elements using the bar at the bottom.",
       "itemNames": "The \"Names\" button switches the display between first name, first name + last name initial, and first and last name.",
-      "itemContrast": "Contrast mode shows the plan black on white with thicker outlines – for bright rooms and weak projectors.",
+      "itemContrast": "Contrast mode shows the plan black on white with thicker outlines – so it stays easy to read on the board, even in a bright room.",
       "item4": "Set the size with the slider or the mouse wheel and drag to pan; the centre icon resets the view.",
-      "item5": "Press Alt + ← to return to the generator.",
+      "item5": "Press Alt/⌥+← to return to the generator.",
       "item6": "\"Who's next?\" draws a random student and spotlights their seat – everyone gets a turn before anyone repeats.",
       "item7": "Keyboard: F fullscreen, Space draws a student, Esc resets the draw, + / − zoom, 0 recenters.",
       "itemFullscreen": "In fullscreen the wall belongs to the plan: the strip on top goes away, and the bar at the bottom appears when the pointer nears the bottom edge or you tap there, then slides away again shortly after."
@@ -79,16 +79,13 @@
     "statistics": "Statistics",
     "options": "Options",
     "openOptions": "Open options",
-    "ariaLabel": "Options Sidebar",
-    "collapseShortcut": "Collapse sidebar (⌘/Ctrl+B)",
-    "collapseLabel": "Collapse sidebar",
-    "expandShortcut": "Expand sidebar (⌘/Ctrl+B)",
-    "expandLabel": "Expand sidebar"
+    "ariaLabel": "Toolbar",
+    "collapseShortcut": "Collapse toolbar (Ctrl/⌘+B)",
+    "collapseLabel": "Collapse toolbar",
+    "expandShortcut": "Expand toolbar (Ctrl/⌘+B)",
+    "expandLabel": "Expand toolbar"
   },
-  "tooltip": {
-    "compactModeHint": "Click here or press ⌘/Ctrl+B for the compact view",
-    "sidebarHint": "Click here or press ⌘/Ctrl+B to collapse the sidebar"
-  },
+  "tooltip": {},
   "canvas": {
     "addTable": "Add Table",
     "addFeature": "Add room element",
@@ -99,22 +96,22 @@
     "rotateTable": "Rotate Table",
     "lockSeat": "Lock Seat",
     "unlockSeat": "Unlock Seat",
-    "undo": "Undo (Ctrl/Cmd+Z)",
+    "undo": "Undo (Ctrl/⌘+Z)",
     "undoLabel": "Undo last action",
-    "redo": "Redo (Ctrl/Cmd+Y)",
+    "redo": "Redo (Ctrl/⌘+Shift+Z)",
     "redoLabel": "Redo last action"
   },
   "actions": {
-    "backShortcut": "Back (Alt/Option+←)",
+    "backShortcut": "Back (Alt/⌥+←)",
     "export": "Export",
-    "exportShortcut": "Export (Ctrl/Cmd+E)",
+    "exportShortcut": "Export (Ctrl/⌘+E)",
     "mixAgain": "Mix again",
     "mixNow": "Shuffle now",
     "print": "Print",
     "reset": "Reset",
     "retryMix": "Try again",
     "savePlan": "Save Plan",
-    "saveShortcut": "Save Plan (Ctrl/Cmd+S)",
+    "saveShortcut": "Save Plan (Ctrl/⌘+S)",
     "shuffle": "Shuffle"
   },
   "present": {
@@ -138,7 +135,7 @@
     "zoomTitle": "Zoom the view in or out",
     "resetView": "Recentre and reset view",
     "back": "Back",
-    "backTitle": "Back to the generator (Alt + ←)",
+    "backTitle": "Back to the generator (Alt/⌥+←)",
     "empty": "No seating chart to present yet.",
     "pick": "Who's next?",
     "pickTitle": "Draw a random student – everyone gets one turn (Space)",
@@ -247,7 +244,7 @@
     "label": "Shuffle",
     "loadingAriaLabel": "Shuffling in progress",
     "loadingTitle": "Shuffling in progress...",
-    "shortcut": "Mix again (Ctrl/Cmd+M)",
+    "shortcut": "Mix again (Ctrl/⌘+M)",
     "title": "Shuffle seating plan"
   },
   "messages": {
@@ -287,11 +284,10 @@
     "backup": "Backup",
     "exportBackup": "Export backup",
     "importBackup": "Import backup",
-    "showAllPlans": "Show all plans",
     "backupExported": "Backup exported.",
-    "historyTitle": "Plans, mixes & neighbourhoods",
+    "historyTitle": "Plans & history",
     "savedPlans": "Saved Plans",
-    "mixHistory": "Shuffle History",
+    "mixHistory": "Recent shuffles",
     "noPlans": "No saved plans available.",
     "noMixes": "No shuffle results available.",
     "planLoaded": "Plan \"{{name}}\" loaded.",
@@ -513,7 +509,7 @@
     "resize": "Adjust size",
     "resizeWidth": "Adjust width",
     "resizeHeight": "Adjust height",
-    "quickSetupShortcut": "(Ctrl/Cmd+E)",
+    "quickSetupShortcut": "Ctrl/⌘+E",
     "overwriteTemplateMessage": "The current template has been modified. Do you want to overwrite it?",
     "overwrite": "Overwrite",
     "dragDropHint": "Add via drag and drop",
@@ -531,15 +527,15 @@
     "viewFromBack": "From the back",
     "viewFromBackTitle": "The room is rotated by 180° so names stay readable.",
     "printDocumentTitle": "Klassenplan",
-    "printShortcut": "Print (Ctrl/Cmd+P)",
-    "tablePdfShortcut": "Export the seating plan as PDF (Ctrl/Cmd+Shift+T)",
-    "circlePdfShortcut": "Export the seating circle as PDF (Ctrl/Cmd+Shift+C)",
+    "printShortcut": "Print (Ctrl/⌘+P)",
+    "tablePdfShortcut": "Export the seating plan as PDF (Ctrl/⌘+Shift+T)",
+    "circlePdfShortcut": "Export the seating circle as PDF (Ctrl/⌘+Shift+C)",
     "tableDefaultFilename": "Seating Plan",
     "circleDefaultFilename": "Circle Plan",
     "dragDropHint": "Drag elements here",
     "dragDropPlace": "Drop here",
     "backToSeating": "Back to Seating Plan",
-    "backTitle": "Back (Alt/Option+←)",
+    "backTitle": "Back (Alt/⌥+←)",
     "preview": "Preview",
     "roomElements": "Room Elements",
     "switchPreviewHint": "Switch the preview between seating plan and seating circle above",
@@ -578,7 +574,7 @@
     },
     "empty": "No seating plan to export yet.",
     "pngButton": "PNG image",
-    "pngShortcut": "Save the current view as a PNG image (Ctrl/Cmd+Shift+I)",
+    "pngShortcut": "Save the current view as a PNG image (Ctrl/⌘+Shift+I)",
     "svgButton": "SVG graphic",
     "svgTitle": "Save the current view as an SVG vector graphic",
     "saveAs": "Save as",
@@ -608,8 +604,8 @@
     },
     "backToStudents": "Back to Class List",
     "forwardToPlan": "Proceed to Seating Plan",
-    "backToStudentsShortcut": "Back to Class List (Alt/Option+←)",
-    "forwardToPlanShortcut": "Proceed to Seating Plan (Alt/Option+→)",
+    "backToStudentsShortcut": "Back to Class List (Alt/⌥+←)",
+    "forwardToPlanShortcut": "Proceed to Seating Plan (Alt/⌥+→)",
     "noTablesYet": "Add tables for your {{students}} students first.",
     "seatsMissing_one": "1 seat is still missing for {{students}} students.",
     "seatsMissing_other": "{{count}} seats are still missing for {{students}} students."
@@ -697,7 +693,7 @@
     "title": "Set Up Classroom",
     "subtitle": "Choose a table type or (if available) a saved template.",
     "selectType": "Select table type",
-    "hint": "Choose a table type to automatically create the classroom or drag a table type from the sidebar into the classroom.",
+    "hint": "Choose a table type to create the classroom automatically, or drag a table type from the toolbar into the classroom.",
     "overwriteHint": "Do you want to overwrite your current layout? Then choose a table type or load a template.",
     "closeLabel": "Close classroom setup",
     "loadButton": "Load",
@@ -790,7 +786,7 @@
     "descriptions": {
       "global_toggleHelp": "Show keyboard shortcuts",
       "global_closeDialog": "Close dialogs or help window",
-      "global_toggleSidebar": "Expand/Collapse options sidebar",
+      "global_toggleSidebar": "Expand/collapse the toolbar",
       "students_addStudent": "Add student (in the name field)",
       "students_toClassroom": "Switch to Classroom",
       "layout_toStudentList": "Return to Class List",
@@ -829,40 +825,40 @@
     "keys": {
       "global_toggleHelp": "?",
       "global_closeDialog": "Esc",
-      "global_toggleSidebar": "Ctrl/Cmd + B",
+      "global_toggleSidebar": "Ctrl/⌘+B",
       "students_addStudent": "Enter",
-      "students_toClassroom": "Alt/Option + Right Arrow",
-      "layout_toStudentList": "Alt/Option + Left Arrow",
-      "layout_toSeatingPlan": "Alt/Option + Right Arrow",
-      "layout_toggleQuickSetup": "Ctrl/Cmd + E",
-      "layout_multiSelect": "Shift or Ctrl/Cmd + Click",
+      "students_toClassroom": "Alt/⌥+→",
+      "layout_toStudentList": "Alt/⌥+←",
+      "layout_toSeatingPlan": "Alt/⌥+→",
+      "layout_toggleQuickSetup": "Ctrl/⌘+E",
+      "layout_multiSelect": "Shift+Click or Ctrl/⌘+Click",
       "layout_moveTables": "Arrow Keys",
       "layout_deleteTables": "Del / Backspace",
-      "layout_cutTables": "Ctrl/Cmd + X",
-      "layout_copyTables": "Ctrl/Cmd + C",
-      "layout_pasteTables": "Ctrl/Cmd + V",
+      "layout_cutTables": "Ctrl/⌘+X",
+      "layout_copyTables": "Ctrl/⌘+C",
+      "layout_pasteTables": "Ctrl/⌘+V",
       "layout_rotateLeftRight": "Q / E",
-      "layout_rotate90": "Shift + Q / Shift + E",
-      "layout_undo": "Ctrl/Cmd + Z",
-      "plan_toClassroom": "Alt/Option + Left Arrow",
-      "plan_shuffle": "Ctrl/Cmd + M",
-      "plan_savePlan": "Ctrl/Cmd + S",
-      "plan_openExport": "Ctrl/Cmd + E",
-      "circle_toClassroom": "Alt/Option + Left Arrow",
+      "layout_rotate90": "Shift+Q / Shift+E",
+      "layout_undo": "Ctrl/⌘+Z",
+      "plan_toClassroom": "Alt/⌥+←",
+      "plan_shuffle": "Ctrl/⌘+M",
+      "plan_savePlan": "Ctrl/⌘+S",
+      "plan_openExport": "Ctrl/⌘+E",
+      "circle_toClassroom": "Alt/⌥+←",
       "circle_toggleConnections": "C",
       "circle_moveStudent": "Drag & Drop",
-      "circle_saveCircle": "Ctrl/Cmd + S",
-      "circle_openExport": "Ctrl/Cmd + E",
-      "export_backToPlan": "Alt/Option + Left Arrow",
-      "export_exportPdf": "Ctrl/Cmd + Shift + T",
-      "export_exportCirclePdf": "Ctrl/Cmd + Shift + C",
-      "export_exportPng": "Ctrl/Cmd + Shift + I",
-      "export_print": "Ctrl/Cmd + P",
-      "plan_undo": "Ctrl/Cmd + Z",
-      "plan_redo": "Ctrl/Cmd + Shift + Z",
-      "students_undo": "Ctrl (Windows) / Cmd (Mac) + Z",
-      "students_redo": "Ctrl / Cmd + Shift + Z",
-      "layout_redo": "Ctrl / Cmd + Shift + Z",
+      "circle_saveCircle": "Ctrl/⌘+S",
+      "circle_openExport": "Ctrl/⌘+E",
+      "export_backToPlan": "Alt/⌥+←",
+      "export_exportPdf": "Ctrl/⌘+Shift+T",
+      "export_exportCirclePdf": "Ctrl/⌘+Shift+C",
+      "export_exportPng": "Ctrl/⌘+Shift+I",
+      "export_print": "Ctrl/⌘+P",
+      "plan_undo": "Ctrl/⌘+Z",
+      "plan_redo": "Ctrl/⌘+Shift+Z",
+      "students_undo": "Ctrl/⌘+Z",
+      "students_redo": "Ctrl/⌘+Shift+Z",
+      "layout_redo": "Ctrl/⌘+Shift+Z",
       "global_switchLayer": "1 / 2 / 3"
     }
   },
@@ -914,7 +910,7 @@
       },
       "backup": {
         "title": "Back up your data",
-        "body": "Your data lives only in this browser. \"Backup\" in the toolbar exports an encrypted backup and restores it – on another device, too."
+        "body": "Your data lives only in this browser. \"Backup\", at the very bottom of the toolbar, exports an encrypted backup and restores it – on another device, too."
       },
       "proceed": {
         "title": "On to the classroom",
@@ -932,7 +928,7 @@
       },
       "canvasSettings": {
         "title": "View settings",
-        "body": "Under \"View\" in the toolbar you set what the room shows — every layer with options of its own. Snapping, the grid, alignment guides, photo collisions and room elements are switched here. In the seating plan you choose whether photos appear and how names are shortened, in the circle also whether connections are visible."
+        "body": "Under \"View settings\" in the toolbar you set what the room shows — every layer with options of its own. Snapping, the grid, alignment guides, photo collisions and room elements are switched here. In the seating plan you choose whether photos appear and how names are shortened, in the circle also whether connections are visible."
       },
       "proceed": {
         "title": "On to the seating plan",
@@ -966,15 +962,15 @@
       },
       "mix": {
         "title": "Mix",
-        "body": "The button in the status bar mixes the class again, taking every selected criterion into account (Ctrl/Cmd+M)."
+        "body": "The button in the status bar mixes the class again, taking every selected criterion into account (Ctrl/⌘+M)."
       },
       "sidebar": {
         "title": "Tools",
-        "body": "Switch between seating plan and circle, set what the plan shows, open the neighbourhoods and earlier plans — and save the plan."
+        "body": "Switch between seating plan and circle, set what the plan shows and save the plan. The very bottom is the same on every layer: the class tools, \"Plans & history\" with earlier plans and neighbourhoods, and the backup."
       },
       "sidebarToggle": {
-        "title": "Expand and collapse the sidebar",
-        "body": "This button expands or collapses the sidebar (⌘/Ctrl+B). Collapsed, it shows its functions as icons and leaves more room for the plan. The sidebar in step 2 and on the export page works the same way."
+        "title": "Expand and collapse the toolbar",
+        "body": "This button expands or collapses the toolbar (Ctrl/⌘+B). Collapsed, it shows its functions as icons and leaves more room for the plan."
       }
     }
   },
@@ -1011,9 +1007,9 @@
     "deleteSelection": "Delete selection",
     "deleteTable": "Delete table",
     "duplicate": "Duplicate",
-    "copyShortcut": "Copy (Ctrl/Cmd+C)",
-    "cutShortcut": "Cut (Ctrl/Cmd+X)",
-    "pasteShortcut": "Paste (Ctrl/Cmd+V)",
+    "copyShortcut": "Copy (Ctrl/⌘+C)",
+    "cutShortcut": "Cut (Ctrl/⌘+X)",
+    "pasteShortcut": "Paste (Ctrl/⌘+V)",
     "edit": "Edit",
     "orientation": "Orientation",
     "display": "Display",
@@ -1037,11 +1033,12 @@
     "title": "Properties",
     "visible": "Visible"
   },
-  "planToolbar": {
-    "arrangement": "Arrangement",
-    "show": "Show in the plan",
-    "tools": "Tools",
-    "manage": "Manage"
+  "toolRail": {
+    "add": "Add",
+    "view": "View",
+    "viewSettings": "View settings",
+    "manage": "Manage",
+    "classTools": "Class tools"
   },
   "tools": {
     "toClass": "To the class list",
@@ -1102,7 +1099,7 @@
       "help3": "The seating plan is untouched — a group is for one lesson, a seat for the term."
     },
     "back": "Back",
-    "backTitle": "Back (Alt + ←)"
+    "backTitle": "Back (Alt/⌥+←)"
   },
   "drag": {
     "swapWith": "swaps with {{name}}",
