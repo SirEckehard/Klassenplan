@@ -8,7 +8,7 @@ import Inspector from '@/components/shell/Inspector';
 import CircleInspector from '@/components/circle/CircleInspector';
 import { InspectorProvider } from '@/contexts/InspectorContext';
 import { createMockStudent, getHeading } from '@/__tests__/utils';
-import type { MixSettings, Student } from '@/types';
+import type { Student } from '@/types';
 import type { CircleLayout } from '@/types/Circle';
 
 vi.mock('@/contexts/SeatingPlanContext', () => ({
@@ -50,36 +50,15 @@ const ring = (
 
 /**
  * Anna, Ben, Cem, Dana, Emil in a ring of five. Anna and Ben kept their table
- * together, Cem and Emil did not; Anna and Ben are both restless; Dana wished
- * for Anna two seats away, Emil for Anna beside him across the join.
+ * together, Cem and Emil did not.
  */
 const classCircle = ring(
   [
-    createMockStudent({
-      id: 'anna',
-      name: 'Anna',
-      gender: 'girl',
-      restless: true,
-    }),
-    createMockStudent({
-      id: 'ben',
-      name: 'Ben',
-      gender: 'boy',
-      restless: true,
-    }),
-    createMockStudent({ id: 'cem', name: 'Cem', gender: 'boy' }),
-    createMockStudent({
-      id: 'dana',
-      name: 'Dana',
-      gender: 'girl',
-      wishPartnerIds: ['anna'],
-    }),
-    createMockStudent({
-      id: 'emil',
-      name: 'Emil',
-      gender: 'boy',
-      wishPartnerIds: ['anna'],
-    }),
+    createMockStudent({ id: 'anna', name: 'Anna' }),
+    createMockStudent({ id: 'ben', name: 'Ben' }),
+    createMockStudent({ id: 'cem', name: 'Cem' }),
+    createMockStudent({ id: 'dana', name: 'Dana' }),
+    createMockStudent({ id: 'emil', name: 'Emil' }),
   ],
   [
     ['anna', 'ben'],
@@ -87,21 +66,11 @@ const classCircle = ring(
   ],
 );
 
-const allOn: Partial<MixSettings> = {
-  considerWishPartners: 5,
-  avoidConflictPartners: 5,
-  avoidRestlessTogether: 5,
-  preferGenderMix: 5,
-};
-
-const renderPanel = (
-  layout: CircleLayout | null,
-  settings: Partial<MixSettings> = allOn,
-) =>
+const renderPanel = (layout: CircleLayout | null) =>
   render(
     <InspectorProvider>
       <Inspector />
-      <CircleInspector layout={layout} settings={settings} />
+      <CircleInspector layout={layout} />
     </InspectorProvider>,
   );
 
@@ -133,33 +102,8 @@ describe('CircleInspector', () => {
     expect(
       screen.getByText(/(Getrennt|Split up): Cem & Emil/),
     ).toBeInTheDocument();
-  });
-
-  it('checks the criteria a ring can answer, with the names concerned', () => {
-    renderPanel(classCircle);
-    getHeading(/Im Kreis nebeneinander|Side by side in the circle/i, 3);
-    expect(
-      screen.getByText(/(Nebeneinander|Side by side): Anna & Ben/),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        /(Ohne Wunschpartner daneben|No wish partner beside them): Dana/,
-      ),
-    ).toBeInTheDocument();
-    expect(screen.getByText(/^(1 von 2|1 of 2)$/)).toBeInTheDocument();
-    expect(screen.getByText(/^(gemischt|mixed)$/)).toBeInTheDocument();
-    // Nobody asked for distance, so there is nothing to check.
-    expect(
-      screen.queryByText(/^(Distanzwünsche|Distance Requests)$/),
-    ).not.toBeInTheDocument();
-  });
-
-  it('leaves out a criterion that is switched off for the plan', () => {
-    renderPanel(classCircle, { ...allOn, preferGenderMix: 0 });
-    expect(screen.getByText(/^(Unruhe|Restlessness)$/)).toBeInTheDocument();
-    expect(
-      screen.queryByText(/^(Geschlechter|Gender)$/),
-    ).not.toBeInTheDocument();
+    // The table neighbours are all the panel reports.
+    expect(screen.getAllByRole('heading', { level: 3 })).toHaveLength(1);
   });
 
   it('says so when the seating plan had no table neighbours', () => {

@@ -328,7 +328,7 @@
       },
       "check": {
         "q": "Wie erkenne ich, dass eine Mischung den Kriterien entspricht?",
-        "a": "Im Sitzplan zeigt der Inspektor oben die Erfüllung des ganzen Plans und neben jedem Kriterium einen Balken mit Prozentwert. Darunter erklärt „Warum dieser Plan“ in bis zu drei Sätzen, was der Plan erreicht hat und was offen bleibt."
+        "a": "Im Sitzplan zeigt der Inspektor oben die Erfüllung des ganzen Plans und neben jedem Kriterium einen Balken mit Prozentwert."
       },
       "colors": {
         "q": "Was bedeuten die Farben der Erfüllung?",

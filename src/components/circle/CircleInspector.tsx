@@ -2,9 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import type { TFunction } from 'i18next';
-import { CheckCircleIcon, WarningCircleIcon } from '@phosphor-icons/react';
-import type { MixSettings, ScalarMixSettingKey, Student } from '@/types';
+import type { Student } from '@/types';
 import type { CircleLayout } from '@/types/Circle';
 import {
   summarizeCircle,
@@ -22,22 +20,11 @@ import InspectorPortal from '@/components/shell/InspectorPortal';
 import {
   InspectorBody,
   InspectorHeader,
-  InspectorRow,
   InspectorSection,
 } from '@/components/shell/InspectorPanel';
 
 /** More than three names stop being a line and start being a list. */
 const MAX_ITEMS = 3;
-
-type CriterionCheck = {
-  key: ScalarMixSettingKey;
-  label: string;
-  hint?: string;
-  met: boolean;
-  value: string;
-  /** Who it is about, where the check came out open. */
-  detail?: string;
-};
 
 /**
  * What the circle came to, in the panel the table plan fills with its
@@ -46,18 +33,13 @@ type CriterionCheck = {
  * The circle is not built from the criteria — it keeps table neighbours side
  * by side and restless students apart, nothing else — so this panel sets
  * nothing. It says how many table neighbours stayed together, which is what
- * the circle aims for, and checks the criteria that mean something in a ring
- * where everybody has two neighbours. Front, window, door and height have no
- * place in a circle and are left out; a criterion switched off for the plan
- * is not checked here either.
+ * the circle aims for.
  */
 export default function CircleInspector({
   layout,
-  settings,
   nameDisplay,
 }: {
   layout: CircleLayout | null;
-  settings: Partial<MixSettings>;
   /** The rule the seats use, so a line names what is on them. */
   nameDisplay?: NameDisplayMode;
 }) {
@@ -106,7 +88,7 @@ export default function CircleInspector({
   };
   const formatList = (items: string[]) =>
     items.length > MAX_ITEMS
-      ? t('mix.reasons.andMore', {
+      ? t('circleView.inspector.andMore', {
           names: items.slice(0, MAX_ITEMS).join(', '),
           more: items.length - MAX_ITEMS,
         })
@@ -121,12 +103,6 @@ export default function CircleInspector({
       ),
     );
 
-  const checks = buildChecks(summary, settings, t, {
-    names: (ids) => formatList(ids.map(nameOf)),
-    pairs: formatPairs,
-    name: nameOf,
-  });
-
   return (
     <InspectorPortal label={title}>
       <InspectorHeader title={title} />
@@ -139,39 +115,6 @@ export default function CircleInspector({
             formatPairs={formatPairs}
           />
         </InspectorSection>
-        {checks.length > 0 && (
-          <InspectorSection title={t('circleView.inspector.criteria.title')}>
-            {checks.map((check) => {
-              const VerdictIcon = check.met
-                ? CheckCircleIcon
-                : WarningCircleIcon;
-              return (
-                <div key={check.key} className="flex flex-col gap-1">
-                  <InspectorRow label={check.label} hint={check.hint}>
-                    <VerdictIcon
-                      size={14}
-                      weight="fill"
-                      aria-hidden="true"
-                      className={
-                        check.met
-                          ? 'text-(--status-ok)'
-                          : 'text-(--status-warn)'
-                      }
-                    />
-                    <span className="text-xs tabular-nums text-(--text-muted)">
-                      {check.value}
-                    </span>
-                  </InspectorRow>
-                  {check.detail && (
-                    <p className="text-xs leading-relaxed text-(--text-muted)">
-                      {check.detail}
-                    </p>
-                  )}
-                </div>
-              );
-            })}
-          </InspectorSection>
-        )}
       </InspectorBody>
     </InspectorPortal>
   );
@@ -239,101 +182,4 @@ function TableNeighbors({
       )}
     </>
   );
-}
-
-/**
- * The criteria a ring can answer — who wished for whom, who asked for
- * distance, restlessness, genders. One is checked only while it is switched
- * on and somebody in the class gives it something to check.
- */
-function buildChecks(
-  summary: CircleSummary,
-  settings: Partial<MixSettings>,
-  t: TFunction,
-  format: {
-    names: (ids: string[]) => string;
-    pairs: (pairs: CirclePair[]) => string;
-    name: (id: string) => string;
-  },
-): CriterionCheck[] {
-  const isOn = (key: ScalarMixSettingKey) => (settings[key] ?? 0) > 0;
-  const label = (key: ScalarMixSettingKey) => t(`mix.criteria.${key}.label`);
-  const checks: CriterionCheck[] = [];
-
-  if (summary.wishes && isOn('considerWishPartners')) {
-    const { total, waiting } = summary.wishes;
-    checks.push({
-      key: 'considerWishPartners',
-      label: label('considerWishPartners'),
-      hint: t('circleView.inspector.criteria.wishes.hint'),
-      met: waiting.length === 0,
-      value: t('circleView.inspector.criteria.wishes.value', {
-        done: total - waiting.length,
-        total,
-      }),
-      detail:
-        waiting.length > 0
-          ? t('circleView.inspector.criteria.wishes.waiting', {
-              names: format.names(waiting),
-            })
-          : undefined,
-    });
-  }
-
-  const pairCheck = (
-    key: ScalarMixSettingKey,
-    metKey: string,
-    pairs: CirclePair[],
-  ) =>
-    checks.push({
-      key,
-      label: label(key),
-      met: pairs.length === 0,
-      value:
-        pairs.length === 0
-          ? t(metKey)
-          : t('circleView.inspector.criteria.pairs', { count: pairs.length }),
-      detail:
-        pairs.length > 0
-          ? t('circleView.inspector.criteria.beside', {
-              pairs: format.pairs(pairs),
-            })
-          : undefined,
-    });
-
-  if (summary.distance && isOn('avoidConflictPartners')) {
-    pairCheck(
-      'avoidConflictPartners',
-      'circleView.inspector.criteria.distance.met',
-      summary.distance.pairs,
-    );
-  }
-  if (summary.restless && isOn('avoidRestlessTogether')) {
-    pairCheck(
-      'avoidRestlessTogether',
-      'circleView.inspector.criteria.restless.met',
-      summary.restless.pairs,
-    );
-  }
-
-  if (summary.gender && isOn('preferGenderMix')) {
-    const { run } = summary.gender;
-    checks.push({
-      key: 'preferGenderMix',
-      label: label('preferGenderMix'),
-      hint: t('circleView.inspector.criteria.gender.hint'),
-      met: run === null,
-      value: run
-        ? t('circleView.inspector.criteria.gender.run', { length: run.length })
-        : t('circleView.inspector.criteria.gender.met'),
-      detail: run
-        ? t('circleView.inspector.criteria.gender.runRange', {
-            first: format.name(run.firstId),
-            last: format.name(run.lastId),
-          })
-        : undefined,
-    });
-  }
-
-  return checks;
 }

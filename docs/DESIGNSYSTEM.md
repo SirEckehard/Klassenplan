@@ -1,6 +1,6 @@
 # Design System – Klassenplan
 
-> **Status:** current · **Last reviewed:** 2026-09-23 · **Maintainer:** Eike
+> **Status:** current · **Last reviewed:** 2026-09-26 · **Maintainer:** Eike
 > Schäfer · **Describes:** Klassenplan 2.2.0
 
 This document describes the binding design tokens for Klassenplan. All values live in `src/index.css` and are reachable from TypeScript through `src/utils/ui/designTokens.ts`.
@@ -229,12 +229,13 @@ From `lg` up `SmartSidebar` drops that panel surface: on the desktop shell it is
 A layer's stage is `workspaceStageClass` — the sunken surface the subject sits
 on. Where that subject is the classroom, it also carries `canvas-stage`, which
 from `lg` up makes it a size container and centres its content, and the frame
-inside takes `canvas-fit`: `min(100%, 100cqh * 3 / 2)` for the fixed 900×600
-plan. The frame itself is `canvas-frame` — white, one hairline, no radius.
+inside takes `canvas-fit`: `min(100%, 100cqh * 3 / 2 - 1px)` for the fixed
+900×600 plan, the pixel making room for the frame's hairline. The frame itself
+is `canvas-frame` — white, one hairline, no radius.
 
 ## 6b. The inspector
 
-The right-hand panel is a wall, not a stack of cards. A setting inside it is a row — `InspectorRow` with its name and, on the right, a `ToggleSwitch` for a yes/no or `InspectorChoice` chips for a handful of values; pressing the chip a value already has clears it, so "not decided" stays reachable. A value that is read rather than set — the circle's checks against the criteria (`CircleInspector`) — is the same row with a status icon (`--status-ok`, `--status-warn`) and a word or a count on the right, and the names it concerns in a muted line beneath. `InspectorHeader`,
+The right-hand panel is a wall, not a stack of cards. A setting inside it is a row — `InspectorRow` with its name and, on the right, a `ToggleSwitch` for a yes/no or `InspectorChoice` chips for a handful of values; pressing the chip a value already has clears it, so "not decided" stays reachable. `InspectorHeader`,
 `InspectorBody`, `InspectorSection` and `InspectorFooter`
 (`src/components/shell/InspectorPanel.tsx`) are its only parts: the header is a
 strip of 44px media, an `h2` and a subtitle above a hairline; sections carry a

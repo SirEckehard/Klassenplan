@@ -199,30 +199,8 @@
         "someKept_other": "{{count}} von {{total}} Paaren sitzen auch im Kreis nebeneinander.",
         "separated": "Getrennt: {{pairs}}"
       },
-      "criteria": {
-        "title": "Im Kreis nebeneinander",
-        "wishes": {
-          "value": "{{done}} von {{total}}",
-          "hint": "Wer neben mindestens einem Wunschpartner sitzt",
-          "waiting": "Ohne Wunschpartner daneben: {{names}}"
-        },
-        "distance": {
-          "met": "eingehalten"
-        },
-        "restless": {
-          "met": "getrennt"
-        },
-        "gender": {
-          "met": "gemischt",
-          "run": "{{length}} am Stück",
-          "runRange": "Gleiches Geschlecht von {{first}} bis {{last}}",
-          "hint": "Meldet die längste Reihe mit gleichem Geschlecht, wenn sie deutlich länger ist, als die Klasse es erfordert"
-        },
-        "pairs_one": "{{count}} Paar",
-        "pairs_other": "{{count}} Paare",
-        "beside": "Nebeneinander: {{pairs}}"
-      },
-      "pair": "{{first}} & {{second}}"
+      "pair": "{{first}} & {{second}}",
+      "andMore": "{{names}} und {{more}} weitere"
     }
   },
   "seat": {
@@ -380,74 +358,6 @@
       "newClass": {
         "label": "Neue Klasse",
         "desc": "Weit mischen, niemanden allein sitzen lassen, Rollen verteilen."
-      }
-    },
-    "reasons": {
-      "title": "Warum dieser Plan",
-      "andMore": "{{names}} und {{more}} weitere",
-      "generic": {
-        "met": "{{criterion}}: vollständig erfüllt.",
-        "open": "{{criterion}}: zu {{percentage}} % erfüllt."
-      },
-      "avoidPreviousPairs": {
-        "met": "Niemand sitzt wieder neben dem Nachbarn vom letzten Mal.",
-        "open": "{{names}} sitzen wieder nebeneinander — {{done}} von {{total}} Paaren sind neu."
-      },
-      "preferGenderMix": {
-        "met": "An allen {{total}} besetzten Tischen sind die Geschlechter gemischt.",
-        "open": "An {{done}} von {{total}} Tischen sind die Geschlechter gemischt."
-      },
-      "preferFrontForSmallerStudents": {
-        "met": "Alle {{total}} sitzen der Körpergröße nach: kleinere vorn, größere hinten.",
-        "open": "{{done}} von {{total}} sitzen der Körpergröße nach."
-      },
-      "preferLanguageMixing": {
-        "met": "An allen {{total}} Tischen sitzen starke und schwache Sprachstände zusammen.",
-        "open": "An {{done}} von {{total}} Tischen sind die Sprachstände gemischt."
-      },
-      "peerTutoring": {
-        "met": "Alle {{total}} Paare sind aus unterschiedlichen Leistungsniveaus gebildet.",
-        "open": "{{done}} von {{total}} Paaren mischen starke und schwache Schüler."
-      },
-      "homogeneousPerformanceGroups": {
-        "met": "Alle {{total}} Paare haben einen ähnlichen Förderstand.",
-        "open": "{{done}} von {{total}} Paaren haben einen ähnlichen Förderstand."
-      },
-      "preferFrontForNeedsFrontSeat": {
-        "met": "{{names}} sitzen in den vorderen Reihen.",
-        "open": "{{names}} sitzen nicht vorn, obwohl sie dort sitzen sollten."
-      },
-      "avoidRestlessTogether": {
-        "met": "{{names}} sitzen nicht nebeneinander.",
-        "open": "{{names}} sitzen neben jemandem, der ebenfalls Unruhe zeigt."
-      },
-      "avoidShyAlone": {
-        "met": "{{names}} haben einen Sitznachbarn.",
-        "open": "{{names}} sitzen allein am Tisch."
-      },
-      "avoidConcentrationTogether": {
-        "met": "{{names}} sitzen nicht nebeneinander.",
-        "open": "{{names}} sitzen neben jemandem, der ebenfalls leicht abzulenken ist."
-      },
-      "distributeSocialRoles": {
-        "met": "An allen {{total}} Tischen sind die sozialen Rollen verteilt.",
-        "open": "An {{done}} von {{total}} Tischen sind die sozialen Rollen verteilt."
-      },
-      "considerWishPartners": {
-        "met": "{{names}} sitzen bei ihrem Wunschpartner — alle {{total}} Wünsche erfüllt.",
-        "open": "{{done}} von {{total}} Wünschen erfüllt; offen bei {{names}}."
-      },
-      "avoidConflictPartners": {
-        "met": "{{names}} sitzen weg von denen, die sie meiden wollten.",
-        "open": "{{names}} sitzen neben jemandem, den sie meiden wollten."
-      },
-      "preferWindowSeats": {
-        "met": "{{names}} sitzen nah am Fenster.",
-        "open": "{{names}} sitzen weiter vom Fenster weg als gewünscht."
-      },
-      "preferDoorSeats": {
-        "met": "{{names}} sitzen nah an der Tür.",
-        "open": "{{names}} sitzen weiter von der Tür weg als gewünscht."
       }
     },
     "enableAll": "Alle Kriterien aktivieren",

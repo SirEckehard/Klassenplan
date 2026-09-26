@@ -4,9 +4,10 @@
 - **In place since:** unreleased (2026-09-20)
 - **Sources:** maintainer decision of 2026-09-20, the redesign concept
   "Papier & Werkzeug" (stage 4, "Rezepte & Gründe"), `src/utils/mixImportance.ts`,
-  `src/utils/mixRecipes.ts`, `src/utils/algorithm/planReasons.ts`; revised by
-  the maintainer's review of 2026-09-21 (fine tuning removed, fulfilment in per
-  cent)
+  `src/utils/mixRecipes.ts`; revised by the maintainer's review of 2026-09-21
+  (fine tuning removed, fulfilment in per cent) and the maintainer's decision
+  of 2026-09-26 ("Warum dieser Plan" removed before it was released; no reason
+  recorded)
 
 ## Context
 
@@ -44,14 +45,17 @@ and the plans the algorithm produces are untouched.
    sixteen weights at once, above the criteria they set. Criteria the class has
    no data for stay off (decision 0016), and a recipe is a starting point, not a
    lock: moving any criterion afterwards makes the mix the teacher's own again.
-3. **"Warum dieser Plan".** `planReasons.ts` builds up to three sentences from
+3. **"Warum dieser Plan".** `planReasons.ts` built up to three sentences from
    the plan that was actually mixed, using the same per-seat data the criterion
-   highlights are drawn from. It always keeps the criterion that came off worst.
+   highlights are drawn from. It always kept the criterion that came off worst.
+   It was removed on 2026-09-26, before any release carried it, together with
+   the circle inspector's checks against the criteria; the circle's panel now
+   reports only its table neighbours.
 
 The fulfilment beside each criterion is a bar and its percentage. For a day it
 showed the plain counting where there was one ("3/4"); the review of 2026-09-21
 brought the percentage back, so every criterion and the plan's total above them
-read on one scale. The counts still feed the sentences of "Warum dieser Plan".
+read on one scale.
 
 ## Alternatives considered
 
@@ -80,10 +84,4 @@ read on one scale. The counts still feed the sentences of "Warum dieser Plan".
   presses "Wichtig" gets 5 — the level is a decision, and it overwrites.
 - The recommended weights now also have a name ("Empfohlene Mischung"), so
   `withDefaultWeights` has a second way in through the recipe list.
-- The sentences need names, so they read the class's student names. They stay in
-  the browser like everything else (decision 0001) and follow the same
-  shortening the seats use.
-- Adding a criterion now means three things instead of one: its level chips come
-  for free, but it needs a `met` and an `open` sentence in both languages, and a
-  decision whether names say anything about it
-  (`NAMED_CRITERIA` in `planReasons.ts`). A test holds both languages to that.
+- Adding a criterion needs nothing beyond its level chips, which come for free.

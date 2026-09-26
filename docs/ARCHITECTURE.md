@@ -1,6 +1,6 @@
 # Architecture
 
-> **Status:** current · **Last reviewed:** 2026-09-22 · **Maintainer:** Eike
+> **Status:** current · **Last reviewed:** 2026-09-26 · **Maintainer:** Eike
 > Schäfer · **Describes:** Klassenplan 2.2.0
 
 This is the entry point for anyone who wants to understand _why_ Klassenplan is
@@ -241,9 +241,6 @@ The weights are the algorithm's; the words around them are the panel's
   the whole scale.
 - **`utils/mixRecipes.ts`** holds five named mixes that set all sixteen weights
   at once. Which one is active is derived from the weights, never stored.
-- **`utils/algorithm/planReasons.ts`** turns the last mix into up to three
-  sentences ("Warum dieser Plan"), built from the per-seat data of
-  `criterionHighlights` — the same source the markings on the seats come from.
 
 ### Switching classes
 

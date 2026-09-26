@@ -328,7 +328,7 @@
       },
       "check": {
         "q": "How do I recognize that a mix meets the criteria?",
-        "a": "On the seating plan, the inspector shows the fulfilment of the whole plan at the top and a bar with a percentage next to every criterion. Below, “Why this plan” explains in up to three sentences what the plan achieved and what remains open."
+        "a": "On the seating plan, the inspector shows the fulfilment of the whole plan at the top and a bar with a percentage next to every criterion."
       },
       "colors": {
         "q": "What do the fulfilment colours mean?",

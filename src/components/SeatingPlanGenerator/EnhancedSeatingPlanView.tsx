@@ -290,11 +290,7 @@ export default function EnhancedSeatingPlanView(
 
           {/* The table plan's inspector holds its criteria; the circle is
               not built from them, so its panel says what the ring came to. */}
-          <CircleInspector
-            layout={circleLayout}
-            settings={props.settings}
-            nameDisplay={nameDisplay}
-          />
+          <CircleInspector layout={circleLayout} nameDisplay={nameDisplay} />
 
           <div className={`${workspaceStageClass} ${canvasStageClass} gap-4`}>
             <div
