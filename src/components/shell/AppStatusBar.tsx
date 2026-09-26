@@ -3,9 +3,10 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
+  ArrowLeftIcon,
   ArrowRightIcon,
   CheckCircleIcon,
-  WarningCircleIcon,
+  XCircleIcon,
 } from '@phosphor-icons/react';
 import {
   useSeatingPlanState,
@@ -14,9 +15,10 @@ import {
 import { useStatusBarSlot } from '@/contexts/StatusBarSlotContext';
 import StudentHistoryToolbar from '@/components/studentInput/StudentHistoryToolbar';
 import SeatingHistoryToolbar from '@/components/SeatingPlanGenerator/canvas/SeatingHistoryToolbar';
-import PlanExits from '@/components/shell/PlanExits';
 import StatusBarFrame, {
-  statusBarIconButtonClass,
+  statusBarBackButtonClass,
+  statusBarHistoryButtonClass,
+  statusBarHistoryGroupClass,
 } from '@/components/shell/StatusBarFrame';
 import { countSeats, primaryButtonClass } from '@/utils';
 import { validateStudentsComplete } from '@/utils/validation';
@@ -25,13 +27,14 @@ import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 
 /**
  * The one place the app states where it stands, and the one place the layer's
- * primary action lives — with the two ways a plan leaves the workspace,
- * exporting and presenting, in the middle between the two.
+ * primary action lives — with undo/redo in the middle, under the stage, and
+ * the way back to the previous layer beside the way on.
  *
  * Before this bar the same information sat in a floating badge at the canvas
  * corner (step 2) and nowhere at all (steps 1 and 3), while "carry on" buttons
  * hid at the bottom of three different view footers. Both now have exactly one
- * home, in the same spot on every layer.
+ * home, in the same spot on every layer. Exporting and presenting are not
+ * among them: they leave the workspace, so they sit in the header.
  *
  * The blocked states stay `aria-disabled` rather than `disabled`: the button
  * keeps focus and pointer events, so the hint shows on hover and focus and a
@@ -42,7 +45,7 @@ export default function AppStatusBar() {
   const { step, students, classroomScene, currentSeating } =
     useSeatingPlanState();
   const { handleStepChange } = useSeatingPlanActions();
-  const { setStartNode, setEndNode } = useStatusBarSlot();
+  const { setHistoryNode, setEndNode } = useStatusBarSlot();
   const hintId = React.useId();
 
   const studentsCount = students.length;
@@ -52,20 +55,26 @@ export default function AppStatusBar() {
     () => validateStudentsComplete(students).emptyNameCount,
     [students],
   );
-  const occupiedSeats = React.useMemo(
-    () =>
-      currentSeating.reduce(
-        (sum, table) => sum + table.filter(Boolean).length,
-        0,
-      ),
-    [currentSeating],
-  );
+  const { occupiedSeats, unseatedCount } = React.useMemo(() => {
+    const seatedIds = new Set<string>();
+    for (const table of currentSeating) {
+      for (const seat of table) {
+        if (seat) seatedIds.add(seat.id);
+      }
+    }
+    return {
+      occupiedSeats: seatedIds.size,
+      unseatedCount: students.filter((student) => !seatedIds.has(student.id))
+        .length,
+    };
+  }, [currentSeating, students]);
 
   /**
-   * The status line, as segments joined by a middot, and where one applies the
-   * verdict on it. A verdict anyone reads off the numbers — "24 Plätze für 24
-   * Schüler" plainly fits — is an icon with its words for the screen reader and
-   * the tooltip, not a third segment.
+   * The status line, as segments joined by a middot, and the verdict on it.
+   * The verdict is a green check or a red cross with its words for the screen
+   * reader and the tooltip, never a segment of its own: "alle Namen gesetzt"
+   * beside "24 Schüler" only repeated what the check already says. A layer
+   * with nothing on it yet has nothing to judge and shows no icon.
    */
   const { segments, verdict } = React.useMemo((): {
     segments: string[];
@@ -81,13 +90,16 @@ export default function AppStatusBar() {
       return {
         segments: [
           t('generator:shell.status.students', { count: studentsCount }),
-          missingNameCount > 0
-            ? t('generator:shell.status.missingNames', {
-                count: missingNameCount,
-              })
-            : t('generator:shell.status.namesComplete'),
         ],
-        verdict: null,
+        verdict: {
+          fits: missingNameCount === 0,
+          label:
+            missingNameCount > 0
+              ? t('generator:shell.status.missingNames', {
+                  count: missingNameCount,
+                })
+              : t('generator:shell.status.namesComplete'),
+        },
       };
     }
 
@@ -132,7 +144,13 @@ export default function AppStatusBar() {
           seats: seatCount,
         }),
       ],
-      verdict: null,
+      verdict: {
+        fits: unseatedCount === 0,
+        label:
+          unseatedCount > 0
+            ? t('generator:shell.status.unseated', { count: unseatedCount })
+            : t('generator:shell.status.allSeated'),
+      },
     };
   }, [
     missingNameCount,
@@ -142,8 +160,28 @@ export default function AppStatusBar() {
     studentsCount,
     t,
     tableCount,
+    unseatedCount,
   ]);
-  const VerdictIcon = verdict?.fits ? CheckCircleIcon : WarningCircleIcon;
+  const VerdictIcon = verdict?.fits ? CheckCircleIcon : XCircleIcon;
+
+  /** The way back to the previous layer; the class list is the first. */
+  const back = React.useMemo(() => {
+    if (step === 2) {
+      return {
+        label: t('generator:wizard.backToStudents'),
+        title: t('generator:wizard.backToStudentsShortcut'),
+        target: 1,
+      };
+    }
+    if (step === 3) {
+      return {
+        label: t('generator:wizard.backToRoom'),
+        title: t('generator:wizard.backToRoomShortcut'),
+        target: 2,
+      };
+    }
+    return null;
+  }, [step, t]);
 
   /**
    * The layer's primary action. The plan layer's is "Neu mischen", which
@@ -187,48 +225,73 @@ export default function AppStatusBar() {
   return (
     <StatusBarFrame
       start={
-        <>
-          {/* Undo/redo lead the line on every layer. Two of the three
-              histories are in the context; the room layer's lives with the
-              canvas state and fills the slot through `StatusBarPortal`. */}
+        <p
+          data-tour={step === 2 ? TOUR_ANCHORS.layoutStatus : undefined}
+          className="flex min-w-0 items-center gap-1.5 text-xs tabular-nums text-(--text-muted) sm:text-sm"
+        >
+          <span className="min-w-0 truncate">{segments.join(' · ')}</span>
+          {verdict && (
+            <span className="inline-flex shrink-0" title={verdict.label}>
+              <VerdictIcon
+                size={16}
+                weight="fill"
+                aria-hidden="true"
+                className={
+                  verdict.fits ? 'text-(--status-ok)' : 'text-(--status-alert)'
+                }
+              />
+              <span className="sr-only">{verdict.label}</span>
+            </span>
+          )}
+        </p>
+      }
+      middle={
+        // Undo/redo sit in the middle, under the stage, on every layer. Two
+        // of the three histories are in the context; the room layer's lives
+        // with the canvas state and fills the slot through `StatusBarPortal`.
+        <div className="flex shrink-0 items-center">
           {step === 1 && (
-            <StudentHistoryToolbar buttonClass={statusBarIconButtonClass} />
+            <StudentHistoryToolbar
+              buttonClass={statusBarHistoryButtonClass}
+              groupClass={statusBarHistoryGroupClass}
+            />
           )}
           {step === 3 && (
-            <SeatingHistoryToolbar buttonClass={statusBarIconButtonClass} />
+            <SeatingHistoryToolbar
+              buttonClass={statusBarHistoryButtonClass}
+              groupClass={statusBarHistoryGroupClass}
+            />
           )}
           {step === 2 && (
-            <span ref={setStartNode} className="flex items-center" />
+            <span ref={setHistoryNode} className="flex items-center" />
           )}
-          <p
-            data-tour={step === 2 ? TOUR_ANCHORS.layoutStatus : undefined}
-            className="flex min-w-0 items-center gap-1.5 text-xs tabular-nums text-(--text-muted) sm:text-sm"
-          >
-            <span className="min-w-0 truncate">{segments.join(' · ')}</span>
-            {verdict && (
-              <span className="inline-flex shrink-0" title={verdict.label}>
-                <VerdictIcon
-                  size={16}
-                  weight="fill"
-                  aria-hidden="true"
-                  className={
-                    verdict.fits
-                      ? 'text-(--status-ok)'
-                      : 'text-(--status-alert)'
-                  }
-                />
-                <span className="sr-only">{verdict.label}</span>
-              </span>
-            )}
-          </p>
-        </>
+        </div>
       }
-      middle={<PlanExits />}
       end={
         <>
+          {back && (
+            <button
+              type="button"
+              onClick={() => void handleStepChange(back.target)}
+              // Only the word "Zurück" is visible, and on a phone only the
+              // arrow; the accessible name says where it leads.
+              aria-label={back.label}
+              title={back.title}
+              className={statusBarBackButtonClass}
+            >
+              <ArrowLeftIcon className="h-4 w-4" aria-hidden="true" />
+              <span className="hidden sm:inline">
+                {t('generator:wizard.back')}
+              </span>
+            </button>
+          )}
+
           {/* The plan layer's primary action is "mix again", which belongs to
               the view that owns the mix handler; it fills this slot. */}
-          <span ref={setEndNode} className="flex shrink-0 items-center" />
+          <span
+            ref={setEndNode}
+            className="flex shrink-0 items-center empty:hidden"
+          />
 
           {action && (
             <div className="group relative shrink-0">

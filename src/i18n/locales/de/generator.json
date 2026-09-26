@@ -535,6 +535,7 @@
     "dragDropHint": "Ziehe Elemente hierher",
     "dragDropPlace": "Hier ablegen",
     "backToSeating": "Zurück zum Sitzplan",
+    "backToSeatingShortcut": "Zurück zum Sitzplan (Alt/⌥+←)",
     "backTitle": "Zurück (Alt/⌥+←)",
     "preview": "Vorschau",
     "roomElements": "Raumelemente",
@@ -602,9 +603,12 @@
       "layout": "Raum",
       "plan": "Plan"
     },
+    "back": "Zurück",
     "backToStudents": "Zurück zur Klassenliste",
+    "backToRoom": "Zurück zum Klassenraum",
     "forwardToPlan": "Weiter zum Sitzplan",
     "backToStudentsShortcut": "Zurück zur Klassenliste (Alt/⌥+←)",
+    "backToRoomShortcut": "Zurück zum Klassenraum (Alt/⌥+←)",
     "forwardToPlanShortcut": "Weiter zum Sitzplan (Alt/⌥+→)",
     "noTablesYet": "Füge zuerst Tische für deine {{students}} Schüler ein.",
     "seatsMissing_one": "Es fehlt noch 1 Sitzplatz für {{students}} Schüler.",
@@ -954,7 +958,7 @@
       },
       "exits": {
         "title": "Präsentieren und exportieren",
-        "body": "Unten in der Statusleiste zeigst du den Plan an der Tafel oder exportierst ihn als PDF. Beides sichert den Plan vorher, wenn du etwas geändert hast."
+        "body": "Oben rechts in der Kopfzeile zeigst du den Plan an der Tafel oder exportierst ihn als PDF. Beides sichert den Plan vorher, wenn du etwas geändert hast."
       },
       "fulfillment": {
         "title": "Kriterien und Erfüllung",
@@ -988,18 +992,21 @@
       "noStudents": "Noch keine Schüler",
       "students_one": "{{count}} Schüler",
       "students_other": "{{count}} Schüler",
-      "namesComplete": "alle Namen gesetzt",
+      "namesComplete": "Alle Namen gesetzt",
       "missingNames_one": "{{count}} Name fehlt",
       "missingNames_other": "{{count}} Namen fehlen",
       "noTables": "Noch keine Tische",
       "seatsFor": "{{seats}} Plätze für {{students}} Schüler",
-      "seatsExact": "passt genau",
+      "seatsExact": "Passt genau",
       "seatsMissing_one": "{{count}} Platz fehlt",
       "seatsMissing_other": "{{count}} Plätze fehlen",
       "seatsSpare_one": "{{count}} Platz frei",
       "seatsSpare_other": "{{count}} Plätze frei",
       "noPlan": "Noch kein Sitzplan gemischt",
-      "occupied": "{{filled}} von {{seats}} Plätzen besetzt"
+      "occupied": "{{filled}} von {{seats}} Plätzen besetzt",
+      "allSeated": "Alle Schüler haben einen Platz",
+      "unseated_one": "{{count}} Schüler ohne Platz",
+      "unseated_other": "{{count}} Schüler ohne Platz"
     }
   },
   "sceneInspector": {

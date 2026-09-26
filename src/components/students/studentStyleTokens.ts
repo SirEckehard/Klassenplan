@@ -11,14 +11,19 @@ import { dataFamilyClass, mutedIconButtonClass } from '@/utils';
  * other piece of pedagogy in this interface is read (docs/DESIGNSYSTEM.md
  * § 4). Nothing here paints a raw palette colour any more; the family tokens
  * bring their own dark mode.
+ *
+ * The button is shaped like the chips of `InspectorChoice` in the rows above
+ * it — the social role sits right there — so the inspector reads as one list
+ * of values rather than a list with two big buttons at its end.
  */
 const partnerControl = {
-  baseClass: `${mutedIconButtonClass} ${dataFamilyClass.social} min-h-11 min-w-11 gap-2 px-3 text-xs font-semibold`,
+  baseClass: `${dataFamilyClass.social} inline-flex max-w-44 cursor-pointer items-center gap-1 rounded-md border px-2 py-1 text-xs transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)`,
   activeStateClass:
-    'border-(--data-chip-accent)! bg-(--data-chip-surface)! text-(--data-chip-text)!',
+    'border-(--data-chip-accent) bg-(--data-chip-surface) font-semibold text-(--data-chip-text)',
   inactiveStateClass:
-    'border-(--border-card)! bg-(--surface-card)! text-(--text-muted)! hover:bg-(--surface-sunken)!',
-  iconClass: 'text-(--data-chip-accent)',
+    'border-(--border-card) bg-(--surface-card) text-(--text-muted) hover:border-(--border-option-hover)',
+  iconClass: 'shrink-0 text-(--data-chip-accent)',
+  caretClass: 'shrink-0 opacity-70',
   dropdownResetClass:
     'flex w-full cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-xs text-(--text-muted) transition hover:bg-(--surface-sunken)',
   dropdownOptionBaseClass:

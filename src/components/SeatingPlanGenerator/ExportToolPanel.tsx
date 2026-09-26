@@ -49,7 +49,7 @@ export default function ExportToolPanel({
   const { t } = useTranslation('generator');
 
   return (
-    <ToolRail density={density}>
+    <ToolRail density={density} planExits={false}>
       <ToolRailGroup title={t('toolRail.view')}>
         <ToolRailButton
           icon={<GridNineIcon size={18} />}

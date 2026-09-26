@@ -18,6 +18,8 @@ interface UndoRedoButtonsProps {
   redoLabel: string;
   /** Applied to both buttons so the pair matches the row it sits in */
   buttonClass: string;
+  /** Wraps the pair; the status bar draws it as one bordered control */
+  groupClass?: string;
   iconSize?: number;
 }
 
@@ -42,9 +44,10 @@ const UndoRedoButtons: React.FC<UndoRedoButtonsProps> = ({
   undoLabel,
   redoLabel,
   buttonClass,
+  groupClass = 'flex gap-1',
   iconSize = 16,
 }) => (
-  <div className="flex gap-1">
+  <div className={groupClass}>
     <button
       type="button"
       onClick={onUndo}

@@ -7,19 +7,11 @@ import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 import { secondaryButtonClass, showToast, TOAST_MESSAGES } from '@/utils';
 
 /**
- * The two ways a plan leaves the workspace, side by side in the middle of the
- * status bar.
- *
- * They used to sit in the header, "Präsentieren" as a blue button. Blue marks
- * the one primary action of a screen, and that is the layer's own — "Weiter",
- * "Neu mischen" — at the right end of this bar. So the exits are two equal,
- * quiet buttons between the status line and that action.
- *
- * Both stay clickable without a plan: a disabled button would leave a teacher
- * guessing, the toast says what is missing.
+ * The two exits as a control calls them: both stay clickable without a plan,
+ * because a disabled button would leave a teacher guessing — the toast says
+ * what is missing.
  */
-export default function PlanExits() {
-  const { t } = useTranslation('generator');
+export function useGuardedPlanExits() {
   const { exportPlan, presentPlan, canExit } = usePlanExits();
 
   const guardExit = (run: () => void) => () => {
@@ -30,38 +22,62 @@ export default function PlanExits() {
     run();
   };
 
-  const buttonClass = `${secondaryButtonClass} h-9 gap-2 px-2.5 text-sm sm:px-3 ${
+  return {
+    onExport: guardExit(exportPlan),
+    onPresent: guardExit(presentPlan),
+    canExit,
+  };
+}
+
+/**
+ * The two ways a plan leaves the workspace, side by side in the header, left
+ * of Help.
+ *
+ * They leave the workspace, so they sit with the other things that are not a
+ * layer's business, not in the status bar, which belongs to the layer: where
+ * it stands, its history, the way back and its one primary action. Blue marks
+ * that action, so the exits are two equal, quiet buttons — the header's first
+ * version had "Präsentieren" in blue beside it.
+ *
+ * The words show from `xl` up; below they are icons with their names in the
+ * tooltip. A phone has no room in the header at all and finds both at the
+ * foot of its tool sheet (`ToolRail`).
+ */
+export default function PlanExits() {
+  const { t } = useTranslation('generator');
+  const { onExport, onPresent, canExit } = useGuardedPlanExits();
+
+  const buttonClass = `${secondaryButtonClass} h-9 gap-2 px-2.5 text-sm xl:px-3 ${
     canExit ? '' : 'opacity-60'
   }`;
 
   return (
     <div
-      className="flex shrink-0 items-center gap-2"
+      className="hidden shrink-0 items-center gap-2 md:flex"
       data-tour={TOUR_ANCHORS.planExits}
     >
-      {/* The visible words give way to the icons on a phone; the accessible
-          names are spelled out once for every width. */}
+      {/* The accessible names are spelled out once for every width. */}
       <button
         type="button"
-        onClick={guardExit(exportPlan)}
+        onClick={onExport}
         title={t('actions.exportShortcut')}
         aria-label={t('actions.export')}
         aria-disabled={canExit ? undefined : true}
         className={buttonClass}
       >
         <ExportIcon className="h-4 w-4" aria-hidden="true" />
-        <span className="hidden sm:inline">{t('actions.export')}</span>
+        <span className="hidden xl:inline">{t('actions.export')}</span>
       </button>
       <button
         type="button"
-        onClick={guardExit(presentPlan)}
+        onClick={onPresent}
         title={t('present.buttonTitle')}
         aria-label={t('present.button')}
         aria-disabled={canExit ? undefined : true}
         className={buttonClass}
       >
         <ChalkboardTeacherIcon className="h-4 w-4" aria-hidden="true" />
-        <span className="hidden sm:inline">{t('present.button')}</span>
+        <span className="hidden xl:inline">{t('present.button')}</span>
       </button>
     </div>
   );

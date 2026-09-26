@@ -22,11 +22,6 @@ const mocks = vi.hoisted(() => ({
     currentSeating: [] as SeatingArrangement,
   },
   handleStepChange: vi.fn(),
-  exits: {
-    exportPlan: vi.fn(),
-    presentPlan: vi.fn(),
-    canExit: false,
-  },
 }));
 
 vi.mock('@/contexts/SeatingPlanContext', () => ({
@@ -38,12 +33,6 @@ vi.mock('@/contexts/SeatingPlanContext', () => ({
     canUndoSeating: false,
     canRedoSeating: false,
   }),
-}));
-
-// The exits save and navigate; what they do is `usePlanExits`' business, where
-// they sit and when they hold back is this bar's.
-vi.mock('@/hooks/plan/usePlanExits', () => ({
-  usePlanExits: () => mocks.exits,
 }));
 
 vi.mock('@/contexts/seatingPlan/StudentManagementContext', () => ({
@@ -65,7 +54,6 @@ const setState = (next: Partial<typeof mocks.state>) => {
 };
 
 beforeEach(() => {
-  mocks.exits.canExit = false;
   setState({
     step: 1,
     students: [],
@@ -82,14 +70,21 @@ afterEach(() => {
 const status = () =>
   screen.getByRole('region', { name: /Statusleiste|Status bar/i });
 const proceed = () => getButton(/Weiter|Next|Proceed/i);
+const back = () => getButton(/^(Zurück|Back) /i);
 
 describe('AppStatusBar', () => {
-  it('counts the class and offers the way on to the room', () => {
+  it('counts the class, checks it off and offers the way on to the room', () => {
     setState({ students: named(3) });
     render(<AppStatusBar />);
 
     expect(status()).toHaveTextContent(/3 Schüler|3 students/i);
-    expect(status()).toHaveTextContent(/alle Namen gesetzt|all names set/i);
+    // The check says it; the words are for the tooltip and the screen reader.
+    expect(screen.getByText(/Alle Namen gesetzt|All names set/i)).toHaveClass(
+      'sr-only',
+    );
+    expect(
+      screen.getByTitle(/Alle Namen gesetzt|All names set/i),
+    ).toBeInTheDocument();
     expect(proceed()).not.toHaveAttribute('aria-disabled');
   });
 
@@ -103,7 +98,12 @@ describe('AppStatusBar', () => {
     });
     render(<AppStatusBar />);
 
-    expect(status()).toHaveTextContent(/2 Namen fehlen|2 names missing/i);
+    expect(screen.getByText(/2 Namen fehlen|2 names missing/i)).toHaveClass(
+      'sr-only',
+    );
+    expect(
+      screen.getByTitle(/2 Namen fehlen|2 names missing/i),
+    ).toBeInTheDocument();
 
     const button = proceed();
     expect(button).toHaveAttribute('aria-disabled', 'true');
@@ -116,10 +116,16 @@ describe('AppStatusBar', () => {
     render(<AppStatusBar />);
 
     expect(status()).toHaveTextContent(/Noch keine Schüler|No students yet/i);
+    // Nothing to judge yet, so no check and no cross.
+    expect(screen.queryByTitle(/Namen|names/i)).not.toBeInTheDocument();
     // Undo/redo are always there; what an empty class has no use for is the
-    // way on to the room.
+    // way on to the room — and the first layer has no way back.
+    expect(getButton(/rückgängig|undo/i)).toBeDisabled();
     expect(
       screen.queryByRole('button', { name: /Weiter|Next|Proceed/i }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /^(Zurück|Back) /i }),
     ).not.toBeInTheDocument();
   });
 
@@ -143,6 +149,27 @@ describe('AppStatusBar', () => {
     );
     expect(screen.getByTitle(/passt genau|an exact fit/i)).toBeInTheDocument();
     expect(proceed()).not.toHaveAttribute('aria-disabled');
+  });
+
+  it('leads back one layer at a time', async () => {
+    setState({
+      step: 2,
+      students: named(4),
+      classroomScene: createMockClassroomScene(2),
+    });
+    const { unmount } = render(<AppStatusBar />);
+
+    expect(back()).toHaveAccessibleName(/Klassenliste|Class List/i);
+    await userEvent.click(back());
+    expect(mocks.handleStepChange).toHaveBeenLastCalledWith(1);
+    unmount();
+
+    setState({ step: 3 });
+    render(<AppStatusBar />);
+
+    expect(back()).toHaveAccessibleName(/Klassenraum|Classroom/i);
+    await userEvent.click(back());
+    expect(mocks.handleStepChange).toHaveBeenLastCalledWith(2);
   });
 
   it('blocks the way to the plan while seats are missing', () => {
@@ -184,36 +211,44 @@ describe('AppStatusBar', () => {
       /3 von 4 Plätzen besetzt|3 of 4 seats taken/i,
     );
     expect(
+      screen.getByTitle(
+        /Alle Schüler haben einen Platz|Every student has a seat/i,
+      ),
+    ).toBeInTheDocument();
+    expect(
       screen.queryByRole('button', { name: /Weiter|Next|Proceed/i }),
     ).not.toBeInTheDocument();
   });
 
-  it('offers exporting and presenting on every layer, as two quiet buttons', async () => {
-    mocks.exits.canExit = true;
-    setState({ step: 1, students: named(2) });
+  it('crosses the plan off while students are left without a seat', () => {
+    const students = named(5);
+    setState({
+      step: 3,
+      students,
+      classroomScene: createMockClassroomScene(2), // 4 seats
+      currentSeating: [
+        [students[0], students[1]],
+        [students[2], null],
+      ],
+    });
     render(<AppStatusBar />);
 
-    const exportButton = getButton(/^(Exportieren|Export)$/i);
-    const presentButton = getButton(/^(Präsentieren|Present)$/i);
-    // Blue is the layer's own action; the exits are never it.
-    expect(exportButton).toHaveClass('secondary-button');
-    expect(presentButton.className).toBe(exportButton.className);
-
-    await userEvent.click(exportButton);
-    await userEvent.click(presentButton);
-    expect(mocks.exits.exportPlan).toHaveBeenCalledTimes(1);
-    expect(mocks.exits.presentPlan).toHaveBeenCalledTimes(1);
+    expect(
+      screen.getByTitle(/2 Schüler ohne Platz|2 students without a seat/i),
+    ).toBeInTheDocument();
   });
 
-  it('keeps the exits clickable without a plan but does not leave', async () => {
-    setState({ step: 1, students: named(2) });
+  // Exporting and presenting leave the workspace; they sit in the header.
+  it('leaves the exits to the header', () => {
+    setState({ step: 3, students: named(2) });
     render(<AppStatusBar />);
 
-    const presentButton = getButton(/^(Präsentieren|Present)$/i);
-    expect(presentButton).toHaveAttribute('aria-disabled', 'true');
-
-    await userEvent.click(presentButton);
-    expect(mocks.exits.presentPlan).not.toHaveBeenCalled();
+    expect(
+      screen.queryByRole('button', { name: /^(Exportieren|Export)$/i }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /^(Präsentieren|Present)$/i }),
+    ).not.toBeInTheDocument();
   });
 
   // The settings hang in the header beside Help; the bar keeps to where the

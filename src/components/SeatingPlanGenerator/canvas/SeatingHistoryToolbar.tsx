@@ -14,9 +14,11 @@ import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
  */
 export default function SeatingHistoryToolbar({
   buttonClass,
+  groupClass,
 }: {
   /** Set by the row it sits in, so the pair matches its neighbours. */
   buttonClass?: string;
+  groupClass?: string;
 }) {
   const { undoSeating, redoSeating, canUndoSeating, canRedoSeating } =
     useSeatingAlgorithmContext();
@@ -37,6 +39,7 @@ export default function SeatingHistoryToolbar({
       onRedo={redoSeating}
       canRedo={canRedoSeating}
       buttonClass={buttonClass}
+      groupClass={groupClass}
     />
   );
 }

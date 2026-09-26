@@ -12,12 +12,12 @@ import React from 'react';
  * render into the slots below through `StatusBarPortal` — the same trade as
  * the inspector's, markup travelling down instead of state travelling up.
  */
-export type StatusBarSlot = 'start' | 'end';
+export type StatusBarSlot = 'history' | 'end';
 
 type StatusBarSlotContextValue = {
-  /** Beside the status line: the layer's own history. */
-  startNode: HTMLElement | null;
-  setStartNode: (node: HTMLElement | null) => void;
+  /** The middle of the bar, under the stage: the layer's own history. */
+  historyNode: HTMLElement | null;
+  setHistoryNode: (node: HTMLElement | null) => void;
   /** The right end: the layer's one primary action. */
   endNode: HTMLElement | null;
   setEndNode: (node: HTMLElement | null) => void;
@@ -31,11 +31,13 @@ export function StatusBarSlotProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const [startNode, setStartNode] = React.useState<HTMLElement | null>(null);
+  const [historyNode, setHistoryNode] = React.useState<HTMLElement | null>(
+    null,
+  );
   const [endNode, setEndNode] = React.useState<HTMLElement | null>(null);
   const value = React.useMemo(
-    () => ({ startNode, setStartNode, endNode, setEndNode }),
-    [endNode, startNode],
+    () => ({ historyNode, setHistoryNode, endNode, setEndNode }),
+    [endNode, historyNode],
   );
   return (
     <StatusBarSlotContext.Provider value={value}>
@@ -50,8 +52,8 @@ export function useStatusBarSlot(): StatusBarSlotContextValue {
 }
 
 const FALLBACK: StatusBarSlotContextValue = {
-  startNode: null,
-  setStartNode: () => {},
+  historyNode: null,
+  setHistoryNode: () => {},
   endNode: null,
   setEndNode: () => {},
 };

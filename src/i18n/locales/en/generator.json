@@ -535,6 +535,7 @@
     "dragDropHint": "Drag elements here",
     "dragDropPlace": "Drop here",
     "backToSeating": "Back to Seating Plan",
+    "backToSeatingShortcut": "Back to Seating Plan (Alt/⌥+←)",
     "backTitle": "Back (Alt/⌥+←)",
     "preview": "Preview",
     "roomElements": "Room Elements",
@@ -602,9 +603,12 @@
       "layout": "Room",
       "plan": "Plan"
     },
+    "back": "Back",
     "backToStudents": "Back to Class List",
+    "backToRoom": "Back to Classroom",
     "forwardToPlan": "Proceed to Seating Plan",
     "backToStudentsShortcut": "Back to Class List (Alt/⌥+←)",
+    "backToRoomShortcut": "Back to Classroom (Alt/⌥+←)",
     "forwardToPlanShortcut": "Proceed to Seating Plan (Alt/⌥+→)",
     "noTablesYet": "Add tables for your {{students}} students first.",
     "seatsMissing_one": "1 seat is still missing for {{students}} students.",
@@ -954,7 +958,7 @@
       },
       "exits": {
         "title": "Present and export",
-        "body": "In the status bar at the bottom you show the plan on the board or export it as a PDF. Both save the plan first when something has changed."
+        "body": "At the top right of the header you show the plan on the board or export it as a PDF. Both save the plan first when something has changed."
       },
       "fulfillment": {
         "title": "Criteria and fulfilment",
@@ -988,18 +992,21 @@
       "noStudents": "No students yet",
       "students_one": "{{count}} student",
       "students_other": "{{count}} students",
-      "namesComplete": "all names set",
+      "namesComplete": "All names set",
       "missingNames_one": "{{count}} name missing",
       "missingNames_other": "{{count}} names missing",
       "noTables": "No tables yet",
       "seatsFor": "{{seats}} seats for {{students}} students",
-      "seatsExact": "an exact fit",
+      "seatsExact": "An exact fit",
       "seatsMissing_one": "{{count}} seat short",
       "seatsMissing_other": "{{count}} seats short",
       "seatsSpare_one": "{{count}} seat spare",
       "seatsSpare_other": "{{count}} seats spare",
       "noPlan": "No seating plan yet",
-      "occupied": "{{filled}} of {{seats}} seats taken"
+      "occupied": "{{filled}} of {{seats}} seats taken",
+      "allSeated": "Every student has a seat",
+      "unseated_one": "{{count}} student without a seat",
+      "unseated_other": "{{count}} students without a seat"
     }
   },
   "sceneInspector": {

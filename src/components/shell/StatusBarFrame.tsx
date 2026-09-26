@@ -5,20 +5,35 @@ import { useTranslation } from 'react-i18next';
 import { ArrowLineLeftIcon, ArrowLineRightIcon } from '@phosphor-icons/react';
 import { useShellToolRail } from '@/contexts/ToolRailContext';
 import { useLayoutMode } from '@/hooks/ui/useLayoutMode';
-import { quietIconButtonClass } from '@/utils';
+import { quietIconButtonClass, secondaryButtonClass } from '@/utils';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 
-/** Undo/redo and the like in the status bar: quiet, and small enough for a 44px line. */
-export const statusBarIconButtonClass = `${quietIconButtonClass} h-9 w-9`;
+/** The toolbar's switch: quiet, and small enough for a 44px line. */
+const statusBarIconButtonClass = `${quietIconButtonClass} h-9 w-9`;
+
+/**
+ * Undo/redo as one bordered control in the middle of the bar. Two quiet icons
+ * beside the toolbar's switch were easy to miss and far from the stage; drawn
+ * like the secondary buttons at the right end, the pair reads as a control of
+ * its own, right under the thing it takes back.
+ */
+export const statusBarHistoryGroupClass =
+  'flex items-center divide-x divide-(--button-secondary-border) overflow-hidden rounded-full border border-(--button-secondary-border) bg-(--button-secondary-bg) shadow-(--button-secondary-shadow)';
+export const statusBarHistoryButtonClass =
+  'inline-flex h-9 w-11 cursor-pointer items-center justify-center text-(--button-secondary-text) transition hover:not-disabled:bg-(--button-secondary-bg-hover) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-(--focus-ring-primary) disabled:cursor-not-allowed disabled:text-(--text-muted) disabled:opacity-50';
+
+/** The way back to the previous layer, beside the layer's primary action. */
+export const statusBarBackButtonClass = `${secondaryButtonClass} h-9 shrink-0 gap-2 px-3 whitespace-nowrap`;
 
 /**
  * The bar at the bottom of the shell, without what a surface says in it.
  *
  * Every surface in the shell — the three layers and the export — leads the bar
  * with the toolbar's switch, a control of the workspace rather than of the
- * surface, and then fills three parts: where it stands (`start`), the ways out
- * (`middle`) and its one primary action (`end`). The outer two share the width
- * equally, so the middle sits in the middle whatever the line on the left says.
+ * surface, and then fills three parts: where it stands (`start`), its history
+ * (`middle`) and the way back beside its one primary action (`end`). The outer
+ * two share the width equally, so the middle sits under the stage whatever the
+ * line on the left says.
  */
 export default function StatusBarFrame({
   start,
@@ -87,7 +102,7 @@ export default function StatusBarFrame({
 
         {middle}
 
-        <div className="flex flex-1 items-center justify-end">{end}</div>
+        <div className="flex flex-1 items-center justify-end gap-2">{end}</div>
       </div>
     </div>
   );

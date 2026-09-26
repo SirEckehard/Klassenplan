@@ -44,8 +44,9 @@ skipped:
   well), sidebar, seat status, "Weiter";
 - seating plan: shuffle, criteria sidebar, toolbar toggle, canvas, statistics,
   the switch between seating plan and circle (both entries of the "Ansicht"
-  group since 2026-09-26), save/present/export (present and export in the
-  middle of the status bar since 2026-09-21). This tour waits until the
+  group since 2026-09-26), save/present/export (present and export beside
+  Help in the header since 2026-09-26; from 2026-09-21 they sat in the middle
+  of the status bar, which now carries undo/redo). This tour waits until the
   automatic first shuffle has finished, so the statistics exist when it starts.
 
 A tour counts as seen the moment it appears, "Nicht mehr zeigen" switches all

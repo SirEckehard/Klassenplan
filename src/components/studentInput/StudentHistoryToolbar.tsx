@@ -8,8 +8,9 @@ import UndoRedoButtons from '@/components/ui/buttons/UndoRedoButtons';
 /**
  * Undo/redo for the class list, including the Ctrl/Cmd+Z bindings.
  *
- * Sits in the shell's status bar, where the two other histories are too: one
- * gesture for taking something back, in the same spot on every layer.
+ * Sits in the middle of the shell's status bar, where the two other histories
+ * are too: one gesture for taking something back, in the same spot on every
+ * layer.
  *
  * The shortcuts stand down while a form element has focus (the default of
  * `useKeyboardShortcuts`), which matters more here than anywhere else in the
@@ -18,9 +19,11 @@ import UndoRedoButtons from '@/components/ui/buttons/UndoRedoButtons';
  */
 export default function StudentHistoryToolbar({
   buttonClass,
+  groupClass,
 }: {
   /** Set by the row it sits in, so the pair matches its neighbours. */
   buttonClass: string;
+  groupClass?: string;
 }) {
   const { t } = useTranslation('students');
   const { undoStudents, redoStudents, canUndoStudents, canRedoStudents } =
@@ -46,6 +49,7 @@ export default function StudentHistoryToolbar({
       undoLabel={t('history.undoLabel')}
       redoLabel={t('history.redoLabel')}
       buttonClass={buttonClass}
+      groupClass={groupClass}
     />
   );
 }

@@ -22,12 +22,12 @@ import {
   canvasFrameClass,
   canvasStageClass,
   canvasFitClass,
-  quietIconButtonClass,
   secondaryButtonClass,
 } from '@/utils';
-
-/** Matches the pair the other layers put in the status bar. */
-const statusBarButtonClass = `${quietIconButtonClass} h-9 w-9`;
+import {
+  statusBarHistoryButtonClass,
+  statusBarHistoryGroupClass,
+} from '@/components/shell/StatusBarFrame';
 import type { FeaturePaletteItem } from '@/hooks/canvas/useFeaturePaletteDrag';
 import { workspaceStageClass } from '@/components/shell/shellTokens';
 
@@ -138,7 +138,8 @@ const LayoutEditorMainSection = React.memo(function LayoutEditorMainSection({
             canUndo={historyLength > 0}
             onRedo={redo}
             canRedo={canRedo}
-            buttonClass={statusBarButtonClass}
+            buttonClass={statusBarHistoryButtonClass}
+            groupClass={statusBarHistoryGroupClass}
           />
         </StatusBarPortal>
         <ClassroomCanvas {...canvasProps} />

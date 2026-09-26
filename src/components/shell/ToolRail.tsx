@@ -4,8 +4,10 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ArchiveIcon,
+  ChalkboardTeacherIcon,
   ClockCounterClockwiseIcon,
   DownloadIcon,
+  ExportIcon,
   GameControllerIcon,
   HandHeartIcon,
   HandPointingIcon,
@@ -23,6 +25,8 @@ import { APP_RETURN_STATE } from '@/hooks/useReturnToApp';
 import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';
 import { useClickOutside } from '@/hooks/ui/useClickOutside';
 import { useDialogLayer } from '@/hooks/ui/useDialogLayer';
+import { useIsPhone } from '@/hooks/ui/useLayoutMode';
+import { useGuardedPlanExits } from '@/components/shell/PlanExits';
 import { logError, menuItemClass, menuSurfaceClass } from '@/utils';
 
 /**
@@ -82,12 +86,19 @@ function ToolRailPanel({
 
 export function ToolRail({
   density,
+  planExits = true,
   children,
 }: {
   density: ToolRailDensity;
+  /**
+   * Whether a phone finds exporting and presenting at the foot. The export
+   * page is one of the two ways out and leaves them off.
+   */
+  planExits?: boolean;
   children: React.ReactNode;
 }) {
   const isCompact = density === 'compact';
+  const isPhone = useIsPhone();
 
   return (
     <DensityContext.Provider value={density}>
@@ -107,7 +118,7 @@ export function ToolRail({
         >
           {children}
         </div>
-        <ToolRailFoot />
+        <ToolRailFoot planExits={planExits && isPhone} />
       </div>
     </DensityContext.Provider>
   );
@@ -124,9 +135,10 @@ const footMenuIconClass = 'h-4 w-4 shrink-0 text-(--text-muted)';
  * earlier plan or saves a backup from wherever they are, so these entries sit
  * in the same place on every layer rather than on the one they were first
  * built for. The class tools stay routes of their own (decision 0019) — what
- * they share is the way in, one menu instead of an entry per tool.
+ * they share is the way in, one menu instead of an entry per tool. A phone
+ * finds exporting and presenting on top of them, since its header has no room.
  */
-function ToolRailFoot() {
+function ToolRailFoot({ planExits }: { planExits: boolean }) {
   const { t } = useTranslation(['generator', 'pages']);
   const isCompact = React.useContext(DensityContext) === 'compact';
   const navigate = useLocalizedNavigate();
@@ -167,6 +179,7 @@ function ToolRailFoot() {
       {isCompact && (
         <div aria-hidden="true" className="mb-1 h-px w-7 bg-(--border-card)" />
       )}
+      {planExits && <ToolRailPlanExits />}
       {/* Each tool opens its own page and explains there what it still
           needs — a plan, names, photos — so none of them is held back here. */}
       <ToolRailButton
@@ -237,6 +250,30 @@ function ToolRailFoot() {
       <ToolRailSupport />
       {history.modal}
     </div>
+  );
+}
+
+/**
+ * Exporting and presenting, on a phone only: from `md` up they sit in the
+ * header beside Help, and a phone's header has no room left for them.
+ */
+function ToolRailPlanExits() {
+  const { t } = useTranslation('generator');
+  const { onExport, onPresent } = useGuardedPlanExits();
+
+  return (
+    <>
+      <ToolRailButton
+        icon={<ExportIcon size={18} />}
+        label={t('actions.export')}
+        onClick={onExport}
+      />
+      <ToolRailButton
+        icon={<ChalkboardTeacherIcon size={18} />}
+        label={t('present.button')}
+        onClick={onPresent}
+      />
+    </>
   );
 }
 

@@ -2,7 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { HeartIcon } from '@phosphor-icons/react';
+import { CaretDownIcon, HeartIcon } from '@phosphor-icons/react';
 import type { Student } from '@/types';
 import { useClickOutside } from '@/hooks/ui/useClickOutside';
 import {
@@ -29,6 +29,7 @@ const {
   activeStateClass,
   inactiveStateClass,
   iconClass: partnerIconClass,
+  caretClass,
   dropdownResetClass,
   dropdownOptionBaseClass,
   dropdownActiveClass,
@@ -113,11 +114,11 @@ export default function PartnerSelector({
     setShowDropdown(false);
   };
 
-  // Build display label
+  // The value of the row: the row's label already names the relation, so an
+  // empty one says "none" rather than repeating it.
   const getDisplayLabel = (): string => {
-    if (!hasPartners) return t('partners.partner', 'Partner');
-    if (wishPartnerIds.length === 1)
-      return firstPartner?.name || t('partners.partner', 'Partner');
+    if (!hasPartners) return t('partners.none');
+    if (wishPartnerIds.length === 1) return firstPartner?.name || '?';
     return `${firstPartner?.name || '?'} +${wishPartnerIds.length - 1}`;
   };
 
@@ -209,8 +210,9 @@ export default function PartnerSelector({
             : t('partners.noPartnerSelected', 'Kein Partner ausgewählt')
         }
       >
-        <HeartIcon size={14} className={partnerIconClass} aria-hidden="true" />
+        <HeartIcon size={12} className={partnerIconClass} aria-hidden="true" />
         <span className="truncate">{getDisplayLabel()}</span>
+        <CaretDownIcon size={10} className={caretClass} aria-hidden="true" />
       </button>
 
       {showDropdown && (

@@ -980,6 +980,7 @@ export default function Export() {
               : null
           }
           onPrint={() => void handlePrint()}
+          onBack={hasPlan ? backToPlan : undefined}
         />
       }
     >

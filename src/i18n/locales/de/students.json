@@ -169,12 +169,11 @@
     "removePartner": "Partner entfernen",
     "priority": "Priorität",
     "maxPartners": "Maximal 3 Partner möglich",
-    "partner": "Partner",
+    "none": "Keiner",
     "noWishPartner": "Kein Wunschpartner",
     "noPartnerSelected": "Kein Partner ausgewählt"
   },
   "distance": {
-    "label": "Distanz",
     "noDistancePartner": "Kein Distanzpartner",
     "noDistanceSelected": "Kein Distanzwunsch ausgewählt",
     "distanceWish": "Distanzpartner",

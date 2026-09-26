@@ -7,6 +7,7 @@ import HeaderClassMenu from '@/components/shell/HeaderClassMenu';
 import HeaderPlanName from '@/components/shell/HeaderPlanName';
 import HelpButton from '@/components/ui/buttons/HelpButton';
 import AppSettingsMenu from '@/components/shell/AppSettingsMenu';
+import PlanExits from '@/components/shell/PlanExits';
 import OnboardingTour from '@/components/onboarding/OnboardingTour';
 import { resolveTourId } from '@/components/onboarding/tours';
 import {
@@ -23,13 +24,13 @@ import { KpLockup } from '@/components/KpLockup';
 
 /**
  * The workspace header: branding, the class and the plan, the layer switcher,
- * Help and the settings.
+ * the two ways out, Help and the settings.
  *
  * It sticks to the top so the layer switcher is reachable from anywhere in a
  * long student list, and it hosts the onboarding tour: the header knows the
  * step and class that decide which tour applies, and the Help button that
- * restarts it lives here. Exporting and presenting sit in the middle of the
- * status bar (`PlanExits`).
+ * restarts it lives here. Exporting and presenting leave the workspace, so
+ * they sit here rather than in the layer's status bar (`PlanExits`).
  *
  * The export page wears the same header (`view="export"`). No layer is current
  * there, so every one of the three leads back into the workspace, the plan's
@@ -187,9 +188,10 @@ export default function SeatingPlanHeader({
           seatingMode={seatingMode}
         />
 
-        {/* Right — help and the settings. The two ways out, export and the
-            smartboard, sit in the middle of the status bar. */}
+        {/* Right — the two ways out, export and the smartboard, then help
+            and the settings. The export page is already one of the two. */}
         <div className="flex shrink-0 items-center justify-end gap-2 lg:w-95">
+          {!isExport && <PlanExits />}
           {helpContent && (
             <HelpButton
               title={helpContent.title}

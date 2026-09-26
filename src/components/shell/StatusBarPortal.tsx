@@ -8,17 +8,17 @@ import {
 } from '@/contexts/StatusBarSlotContext';
 
 /**
- * Renders a layer's own controls into the shell's status bar: `start` for the
- * layer's history, `end` for its one primary action.
+ * Renders a layer's own controls into the shell's status bar: `history` for
+ * the layer's undo/redo in the middle, `end` for its one primary action.
  */
 export default function StatusBarPortal({
-  slot = 'start',
+  slot = 'history',
   children,
 }: {
   slot?: StatusBarSlot;
   children: React.ReactNode;
 }) {
-  const { startNode, endNode } = useStatusBarSlot();
-  const target = slot === 'end' ? endNode : startNode;
+  const { historyNode, endNode } = useStatusBarSlot();
+  const target = slot === 'end' ? endNode : historyNode;
   return target ? createPortal(children, target) : null;
 }

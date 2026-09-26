@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import { useTranslation } from 'react-i18next';
-import { PrinterIcon } from '@phosphor-icons/react';
-import StatusBarFrame from '@/components/shell/StatusBarFrame';
+import { ArrowLeftIcon, PrinterIcon } from '@phosphor-icons/react';
+import StatusBarFrame, {
+  statusBarBackButtonClass,
+} from '@/components/shell/StatusBarFrame';
 import { primaryButtonClass, secondaryButtonClass } from '@/utils';
 
 type Props = {
@@ -17,6 +19,11 @@ type Props = {
     onCancel: () => void;
   } | null;
   onPrint: () => void;
+  /**
+   * Back to the plan the sheet was made from. Left out while there is no
+   * plan: the empty page is that one button already.
+   */
+  onBack?: () => void;
 };
 
 /**
@@ -26,8 +33,8 @@ type Props = {
  * where they were a click ago. The line says what will come out of the printer
  * — or, while the circle is still being built, how far that has got, with the
  * way to stop it beside it; it used to float over the preview. Printing is the
- * page's one primary action; the files to save sit at the bottom of the
- * toolbar.
+ * page's one primary action, with the way back to the plan beside it as on
+ * every layer; the files to save sit in the toolbar.
  */
 export default function ExportStatusBar({
   hasPlan,
@@ -35,6 +42,7 @@ export default function ExportStatusBar({
   studentCount,
   circleGeneration,
   onPrint,
+  onBack,
 }: Props) {
   const { t } = useTranslation('generator');
 
@@ -65,17 +73,31 @@ export default function ExportStatusBar({
         </p>
       }
       end={
-        hasPlan && (
-          <button
-            type="button"
-            onClick={onPrint}
-            title={t('export.printShortcut')}
-            className={`${primaryButtonClass} flex items-center gap-2 whitespace-nowrap`}
-          >
-            <PrinterIcon className="h-4 w-4" aria-hidden="true" />
-            {t('actions.print')}
-          </button>
-        )
+        <>
+          {onBack && (
+            <button
+              type="button"
+              onClick={onBack}
+              aria-label={t('export.backToSeating')}
+              title={t('export.backToSeatingShortcut')}
+              className={statusBarBackButtonClass}
+            >
+              <ArrowLeftIcon className="h-4 w-4" aria-hidden="true" />
+              <span className="hidden sm:inline">{t('wizard.back')}</span>
+            </button>
+          )}
+          {hasPlan && (
+            <button
+              type="button"
+              onClick={onPrint}
+              title={t('export.printShortcut')}
+              className={`${primaryButtonClass} flex items-center gap-2 whitespace-nowrap`}
+            >
+              <PrinterIcon className="h-4 w-4" aria-hidden="true" />
+              {t('actions.print')}
+            </button>
+          )}
+        </>
       }
     />
   );

@@ -24,6 +24,8 @@ interface CanvasToolbarProps {
   canRedo: boolean;
   /** Overrides the canvas sizing where the pair sits in a tighter row. */
   buttonClass?: string;
+  /** Wraps the pair, e.g. as one bordered control in the status bar. */
+  groupClass?: string;
 }
 
 const canvasButtonClass = `${mutedIconButtonClass} h-12 w-12 text-(--text-muted) transition disabled:cursor-not-allowed disabled:opacity-50`;
@@ -43,6 +45,7 @@ const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
   onRedo,
   canRedo,
   buttonClass = canvasButtonClass,
+  groupClass,
 }) => {
   const { t } = useTranslation('generator');
   return (
@@ -56,6 +59,7 @@ const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
       undoLabel={t('canvas.undoLabel', 'Letzte Aktion rückgängig machen')}
       redoLabel={t('canvas.redoLabel', 'Letzte Aktion wiederherstellen')}
       buttonClass={buttonClass}
+      groupClass={groupClass}
     />
   );
 };
