@@ -2,7 +2,11 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { triggerHapticFeedback } from '@/utils';
+import {
+  arrowDirection,
+  nearestInDirection,
+  triggerHapticFeedback,
+} from '@/utils';
 import { showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
 import type { DragHover, DragOrigin } from '@/hooks/ui/useDragDropState';
 
@@ -48,13 +52,46 @@ interface UseSeatKeyboardMoveResult {
   cancelKeyboardMove: () => void;
 }
 
+/** The focusable seats of the plan the given seat is drawn in. */
+const SEAT_SELECTOR = 'rect[data-seat-index][tabindex="0"]';
+
+const centreOf = (element: Element) => {
+  const box = element.getBoundingClientRect();
+  return { x: box.left + box.width / 2, y: box.top + box.height / 2 };
+};
+
+/**
+ * Moves the focus to the seat the arrow points at, as drawn on screen — so a
+ * turned table and the zoom are taken as the teacher sees them. False when
+ * nothing lies that way.
+ */
+function focusSeatInDirection(
+  seat: SVGRectElement,
+  direction: NonNullable<ReturnType<typeof arrowDirection>>,
+): boolean {
+  const svg = seat.ownerSVGElement;
+  if (!svg) return false;
+  const seats = Array.from(svg.querySelectorAll<SVGRectElement>(SEAT_SELECTOR));
+  const index = nearestInDirection(
+    centreOf(seat),
+    seats.map(centreOf),
+    direction,
+  );
+  const next = seats[index];
+  if (!next) return false;
+  next.focus();
+  return true;
+}
+
 /**
  * Keyboard alternative to the pointer-based seat drag (useSeatDrag):
- * Enter/Space on an occupied seat picks the student up, Tab moves focus to a
- * target seat, Enter/Space drops, Escape cancels. Locked targets are rejected
- * with the same feedback as pointer drops; the grab stays active so the user
- * can pick another target. Visual feedback reuses the existing dragOrigin /
- * dragHover plumbing of the pointer path.
+ * Enter/Space on an occupied seat picks the student up, the arrow keys move
+ * the focus to the neighbouring seat in their direction (Tab still walks the
+ * seats in order), Enter/Space drops, Escape cancels — the same keys as in
+ * the circle (`useCircleKeyboardMove`). Locked targets are rejected with the
+ * same feedback as pointer drops; the grab stays active so the user can pick
+ * another target. Visual feedback reuses the existing dragOrigin / dragHover
+ * plumbing of the pointer path.
  */
 export function useSeatKeyboardMove({
   moveStudent,
@@ -121,6 +158,18 @@ export function useSeatKeyboardMove({
         return;
       }
 
+      // Alt+arrows belong to the layer switch (`PlanControls`).
+      const direction = arrowDirection(event.key);
+      if (direction) {
+        const modified =
+          event.altKey || event.ctrlKey || event.metaKey || event.shiftKey;
+        if (!modified && focusSeatInDirection(event.currentTarget, direction)) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+        return;
+      }
+
       if (event.key !== 'Enter' && event.key !== ' ') {
         return;
       }
@@ -156,7 +205,7 @@ export function useSeatKeyboardMove({
         setAnnouncement(
           translate('seat.keyboard.grabbed', {
             name: info.studentName ?? '',
-            defaultValue: `${info.studentName ?? ''} aufgenommen. Mit Tab zum Zielplatz wechseln, Eingabetaste zum Absetzen, Escape zum Abbrechen.`,
+            defaultValue: `${info.studentName ?? ''} aufgenommen. Mit den Pfeiltasten zum Zielplatz wechseln, Eingabetaste zum Absetzen, Escape zum Abbrechen.`,
           }),
         );
         return;

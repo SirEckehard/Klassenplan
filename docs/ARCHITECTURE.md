@@ -1,6 +1,6 @@
 # Architecture
 
-> **Status:** current · **Last reviewed:** 2026-09-27 · **Maintainer:** Eike
+> **Status:** current · **Last reviewed:** 2026-09-28 · **Maintainer:** Eike
 > Schäfer · **Describes:** Klassenplan 2.2.0
 
 This is the entry point for anyone who wants to understand _why_ Klassenplan is
@@ -395,6 +395,13 @@ translate one to one.
 | Gruppen bilden                            | `/gruppen`, `buildGroups`                                    | Draws groups out of the class; not the seating algorithm ([decision 0019](decisions/0019-classroom-tools-as-routes.md)) |
 | Kontrastmodus                             | `contrast` on `PresentationScene`                            | The projection in black on white for a bright room                                                                      |
 | Backup                                    | `ExportBundle`, encrypted envelope                           | The one way data leaves the browser                                                                                     |
+
+The English interface keeps one word per German term, so a teacher never
+wonders whether two words mean two things. _Mischen_ is **mix** throughout —
+the button, "mix result", "recent mixes", "mix criteria"; **shuffle** is kept
+for the circle's _Zufällig mischen_, which ignores the criteria and really is
+pure chance. The code keeps both words (`plan_shuffle`, `mixHistory`); only
+the interface is held to this.
 
 ## Open questions
 

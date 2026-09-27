@@ -3,13 +3,13 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  AlignCenterVerticalSimple,
-  ClipboardText,
-  Copy,
-  GridNine,
-  Intersect,
-  Magnet,
-  Scissors,
+  AlignCenterVerticalSimpleIcon,
+  ClipboardTextIcon,
+  CopyIcon,
+  GridNineIcon,
+  IntersectIcon,
+  MagnetIcon,
+  ScissorsIcon,
   TrashIcon,
   LecternIcon,
   LockersIcon,
@@ -698,21 +698,21 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
               {
                 id: 'snap-to-grid',
                 label: t('editor.snapToGrid', 'Am Raster ausrichten'),
-                icon: <Magnet size={18} />,
+                icon: <MagnetIcon size={18} />,
                 checked: snapToGrid,
                 onChange: handleToggleSnapToGrid,
               },
               {
                 id: 'show-grid',
                 label: t('editor.showGrid', 'Raster anzeigen'),
-                icon: <GridNine size={18} />,
+                icon: <GridNineIcon size={18} />,
                 checked: showGrid,
                 onChange: handleToggleShowGrid,
               },
               {
                 id: 'alignment-guides',
                 label: t('editor.alignmentGuides', 'Ausrichtungshilfen'),
-                icon: <AlignCenterVerticalSimple size={18} />,
+                icon: <AlignCenterVerticalSimpleIcon size={18} />,
                 checked: showAlignmentGuides,
                 onChange: handleToggleAlignmentGuides,
               },
@@ -722,7 +722,7 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
                   'editor.photoOverlapWarning',
                   'Fotokollisionen anzeigen',
                 ),
-                icon: <Intersect size={18} />,
+                icon: <IntersectIcon size={18} />,
                 checked: showPhotoOverlapWarning,
                 onChange: handleTogglePhotoOverlapWarning,
               },
@@ -772,12 +772,12 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
     () => [
       {
         label: t('common.copy', 'Kopieren'),
-        icon: Copy,
+        icon: CopyIcon,
         onSelect: withMenuClose(copySelection),
       },
       {
         label: t('common.cut', 'Ausschneiden'),
-        icon: Scissors,
+        icon: ScissorsIcon,
         onSelect: withMenuClose(cutSelection),
       },
       {
@@ -809,7 +809,7 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
     return [
       {
         label: t('canvas.paste', 'Einfügen'),
-        icon: ClipboardText,
+        icon: ClipboardTextIcon,
         onSelect: () => handleCanvasMenuPaste(menuState),
       },
     ];

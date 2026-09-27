@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Criteria are set in words – Off, Consider, Important, Very important – and recipes set all sixteen at once, "Recommended mix" among them
 - Three class tools, each a screen of its own: "Who's next?", "Where does who sit?" and "Build groups", reachable from "Class tools" at the foot of every toolbar
 - An error screen offers a prepared email with a reference code; nothing is sent automatically
+- Shortcuts on a single key – "?", P, F, 1–3, Q/E and others – can be switched off in the settings menu, so speech input cannot set them off by mistake
 
 ### Improved
 
@@ -27,6 +28,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Menus and panels of the header and the toolbar can be reached, used and closed with the keyboard
 - Creating placeholders adds as many as the class has room for, says in one message how many there are, and opens the first of them for its name
 - With the seating circle on the stage, the status bar counts the circle instead of the table seats
+- On a phone the toolbar opens from the left end of the status bar, where a tablet has its switch; the blue "Options" button that floated over the stage is gone
+- In the seating plan the arrow keys move from seat to seat, as they do round the circle: Enter picks a student up, the arrows choose the seat, Enter puts them down
+- Ticking several students who differ in gender, height, language level or role shows the values some of them have, outlined in dashes, instead of looking as if nothing were set
+- The window seat has the window's icon; the picture icon now only means photos
+- English says "mix" throughout – only the circle's purely random shuffle is still called "shuffle" – and names and percentages are written as each language writes them
+- The browser bar and the installed app's splash screen take the page's own paper colour
+- The changelog's texts load with the changelog, and more than 200 texts nothing used any more are gone: the first visit downloads about 7 KB less
 - New shortcuts: "Mix" is Ctrl/⌘+Enter, as ⌘+M minimised the window on a Mac. On the export page P saves the PDF of the arrangement on the sheet and Ctrl/⌘+P prints; Ctrl/⌘+S and Ctrl/⌘+E work in the seating circle as well
 
 ### Removed
@@ -41,6 +49,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - A typed angle wraps round as a turn does: 360° is 0°, −90° is 270°
 - Voice control finds the fulfilment button by the words it shows
 - Hints that pointed to places the redesign had moved – the footer, "step 3", the portrait icon in the list – now name where things are
+- Escape closes an opened student on a phone
+- Saving could offer to rename a plan and then refuse: the save panel and the ways out now find the open plan the way saving does
 
 ## [2.2.0] - 2026-09-17
 

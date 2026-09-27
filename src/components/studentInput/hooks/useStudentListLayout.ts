@@ -10,7 +10,6 @@ import { getViewportMetrics, onVisualViewport } from '@/utils';
 type UseStudentListLayoutOptions = {
   isMobile: boolean;
   studentCount: number;
-  recalcKey?: number;
 };
 
 // Space kept free below the list so the action row (name game / proceed
@@ -37,16 +36,15 @@ const TOP_SCROLLED_PAST_PX = 120;
 export const useStudentListLayout = ({
   isMobile,
   studentCount,
-  recalcKey,
 }: UseStudentListLayoutOptions) => {
   const cookieBannerOffset = useCookieBannerOffset();
   // Marks the end of the list for the phone's scroll affordance. It used to
   // be the Namensspiel button; that moved to the toolbar, so what is left is
   // an empty sentinel element.
   const listEndRef = useRef<HTMLDivElement | null>(null);
-  // Left edge: the class layer now has the toolbar's phone trigger in the
-  // bottom-right corner, and two floating buttons must not stack.
-  const floatingActionOffsets = useFloatingActionOffset({ side: 'left' });
+  // The right edge, where a thumb reaches it: the left one belongs to the
+  // offline notice (`OfflineIndicator`), and the two must not stack.
+  const floatingActionOffsets = useFloatingActionOffset();
   const { containerRef: listContainerRef, maxHeight: listMaxHeight } =
     useAdaptiveViewportHeight<HTMLDivElement>({
       disabled: isMobile,
@@ -56,7 +54,7 @@ export const useStudentListLayout = ({
       includeViewportOffset: true,
       changeThreshold: 50,
       debounceMs: 300,
-      dependencies: [studentCount, cookieBannerOffset, recalcKey],
+      dependencies: [studentCount, cookieBannerOffset],
     });
   const listTopRef = useRef<HTMLDivElement | null>(null);
   const prefersReducedMotion = usePrefersReducedMotion();

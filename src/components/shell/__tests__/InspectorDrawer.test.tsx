@@ -98,6 +98,26 @@ describe('Inspector below lg', () => {
     expect(screen.getByRole('heading', { name: 'Grace' })).toBeInTheDocument();
   });
 
+  it('closes a phone’s student sheet on Escape', () => {
+    setWidth(390);
+    mocks.state.step = 1;
+    mocks.state.students = [createMockStudent({ id: 'g', name: 'Grace' })];
+    render(
+      <InspectorProvider>
+        <Picker />
+        <Inspector />
+      </InspectorProvider>,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'pick' }));
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+
+    // The sheet is a dialog, so the class list leaves Escape to it.
+    fireEvent.keyDown(window, { key: 'Escape' });
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
   it('opens a layer’s panel from the status bar and closes it on Escape', () => {
     setWidth(820);
     renderLayer();

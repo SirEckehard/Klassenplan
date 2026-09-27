@@ -7,6 +7,8 @@ import {
   useSeatingPlanActions,
 } from '@/contexts/SeatingPlanContext';
 import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';
+import { useOpenPlan } from '@/hooks/plan/useOpenPlan';
+import { hasSeatedStudent } from '@/utils';
 
 /**
  * The two ways a finished plan leaves the workspace: the export page and the
@@ -19,41 +21,31 @@ import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';
  * the mode decides which fields matter, so table plans keep ignoring the
  * circle layout exactly as before.
  *
- * `canExit` is false while there is no plan at all: exporting an empty room
- * would produce an empty sheet and presenting it an empty board.
+ * `canExit` is false while there is no plan at all (`hasSeatedStudent`):
+ * exporting an empty room would produce an empty sheet and presenting it an
+ * empty board.
  */
 export function usePlanExits() {
   const {
     planName,
     classroomScene,
     currentSeating,
-    seatingHistory,
     circleLayout,
     seatingMode,
   } = useSeatingPlanState();
   const { handleSaveSeatingPlan } = useSeatingPlanActions();
   const navigate = useLocalizedNavigate();
+  const savedPlan = useOpenPlan();
 
   const hasUnsavedChanges = useCallback(() => {
-    const trimmedName = planName.trim();
-    if (!trimmedName) return true; // A plan without a name was never saved.
-
-    const savedPlan = seatingHistory.find((plan) => plan.name === trimmedName);
-    if (!savedPlan) return true;
+    if (!savedPlan) return true; // Never saved.
 
     if (!equal(savedPlan.seating, currentSeating)) return true;
     if (!equal(savedPlan.scene, classroomScene)) return true;
     return (
       seatingMode === 'circle' && !equal(savedPlan.circleLayout, circleLayout)
     );
-  }, [
-    circleLayout,
-    classroomScene,
-    currentSeating,
-    planName,
-    seatingHistory,
-    seatingMode,
-  ]);
+  }, [circleLayout, classroomScene, currentSeating, savedPlan, seatingMode]);
 
   const saveIfNeeded = useCallback(() => {
     if (hasUnsavedChanges()) {
@@ -74,6 +66,6 @@ export function usePlanExits() {
   return {
     exportPlan,
     presentPlan,
-    canExit: currentSeating.length > 0,
+    canExit: hasSeatedStudent(currentSeating),
   };
 }

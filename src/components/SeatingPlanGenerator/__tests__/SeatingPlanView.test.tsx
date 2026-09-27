@@ -87,7 +87,7 @@ describe('SeatingPlanView', () => {
     // SmartMixControls is in a collapsed sidebar, so check for the sidebar presence
     const sidebar = screen.getByLabelText(/^(Werkzeugleiste|Toolbar)$/i);
     expect(sidebar).toBeInTheDocument();
-    expect(sidebar).toHaveAttribute('aria-expanded', 'false');
+    expect(sidebar).toHaveAttribute('data-expanded', 'false');
   });
 
   it('clears the weights of criteria without data while the sidebar is collapsed', async () => {
@@ -105,7 +105,7 @@ describe('SeatingPlanView', () => {
     });
 
     expect(screen.getByRole('complementary')).toHaveAttribute(
-      'aria-expanded',
+      'data-expanded',
       'false',
     );
     const updates = setMixSettings.mock.calls.map(([update]) =>
@@ -168,7 +168,7 @@ describe('SeatingPlanView', () => {
     });
     expect(
       screen.getAllByText(
-        /Automatisches Mischen läuft|Auto-shuffle in progress/i,
+        /Automatisches Mischen läuft|Automatic mix in progress/i,
       ).length,
     ).toBeGreaterThan(0);
     expect(
@@ -242,7 +242,7 @@ describe('SeatingPlanView', () => {
     });
     expect(
       screen.getByText(
-        /Automatisches Mischen fehlgeschlagen|Auto-shuffle failed/i,
+        /Automatisches Mischen fehlgeschlagen|Automatic mix failed/i,
       ),
     ).toBeInTheDocument();
     const retryButton = screen.getByRole('button', {

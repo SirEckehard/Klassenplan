@@ -16,9 +16,7 @@ const elementAt = <T extends HTMLElement>(tag: string, top: number): T => {
 };
 
 const renderLayout = (isMobile = true) =>
-  renderHook(() =>
-    useStudentListLayout({ isMobile, studentCount: 24, recalcKey: 0 }),
-  );
+  renderHook(() => useStudentListLayout({ isMobile, studentCount: 24 }));
 
 /** Places both anchors and lets the scroll listener's debounce elapse. */
 const place = (

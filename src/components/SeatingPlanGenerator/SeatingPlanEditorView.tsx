@@ -6,7 +6,7 @@ import {
   WarningIcon,
   InfoIcon,
   ChartBarIcon,
-  GridNine,
+  GridNineIcon,
   ShuffleIcon,
   SpinnerGapIcon,
   EyeIcon,
@@ -44,6 +44,7 @@ import {
   getTooltipName,
   withoutUnavailableWeights,
   formatPercent,
+  hasSeatedStudent,
 } from '@/utils';
 import {
   buildBadgeHighlightLookup,
@@ -328,7 +329,7 @@ export default function SeatingPlanEditorView({
               {
                 id: 'show-grid',
                 label: t('editor.showGrid', 'Raster anzeigen'),
-                icon: <GridNine size={18} />,
+                icon: <GridNineIcon size={18} />,
                 checked: showGrid,
                 onChange: handleToggleGrid,
               },
@@ -810,7 +811,7 @@ export default function SeatingPlanEditorView({
               onModeChange={onModeChange}
               showModeToggle={showModeToggle}
               settingsGroups={seatingSettingsGroups}
-              canSavePlan={currentSeating.length > 0}
+              canSavePlan={hasSeatedStudent(currentSeating)}
             />
           )}
         </SmartSidebar>

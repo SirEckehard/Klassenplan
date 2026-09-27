@@ -244,7 +244,7 @@ function CompactPlanItem({
         title={t('planList.deleteDialogTitle', 'Sitzplan löschen')}
         message={t('planList.deleteDialogMessage', {
           name: plan.name,
-          defaultValue: `Möchtest du den Sitzplan "${plan.name}" wirklich löschen?`,
+          defaultValue: `Möchtest du den Sitzplan „${plan.name}“ wirklich löschen?`,
         })}
         confirmLabel={t('common.delete', 'Löschen')}
         cancelLabel={t('common.cancel', 'Abbrechen')}

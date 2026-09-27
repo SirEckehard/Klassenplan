@@ -227,4 +227,84 @@ describe('useSeatKeyboardMove', () => {
     expect(result.current.keyboardMoveOrigin).toBeNull();
     expect(onHoverChange).toHaveBeenLastCalledWith(null);
   });
+
+  describe('arrow keys', () => {
+    /** Three seats in an SVG at the given screen centres, all focusable. */
+    const drawSeats = (centres: Array<{ x: number; y: number }>) => {
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      const seats = centres.map(({ x, y }, index) => {
+        const rect = document.createElementNS(
+          'http://www.w3.org/2000/svg',
+          'rect',
+        );
+        rect.setAttribute('data-seat-index', String(index));
+        rect.setAttribute('tabindex', '0');
+        rect.getBoundingClientRect = () =>
+          ({ left: x - 10, top: y - 10, width: 20, height: 20 }) as DOMRect;
+        svg.appendChild(rect);
+        return rect;
+      });
+      document.body.appendChild(svg);
+      return { svg, seats };
+    };
+
+    const arrow = (
+      key: string,
+      target: SVGRectElement,
+      modifiers: Partial<KeyboardEvent> = {},
+    ) =>
+      ({
+        key,
+        currentTarget: target,
+        preventDefault: vi.fn(),
+        stopPropagation: vi.fn(),
+        altKey: false,
+        ctrlKey: false,
+        metaKey: false,
+        shiftKey: false,
+        ...modifiers,
+      }) as unknown as React.KeyboardEvent<SVGRectElement>;
+
+    it('moves the focus to the next seat that way, as in the circle', () => {
+      const { svg, seats } = drawSeats([
+        { x: 0, y: 0 },
+        { x: 40, y: 0 },
+        { x: 0, y: 80 },
+      ]);
+      const { result } = setup();
+
+      const right = arrow('ArrowRight', seats[0]!);
+      act(() => result.current.handleSeatKeyDown(right, seatInfo()));
+      expect(seats[1]).toHaveFocus();
+      expect(right.preventDefault).toHaveBeenCalled();
+
+      act(() =>
+        result.current.handleSeatKeyDown(
+          arrow('ArrowDown', seats[0]!),
+          seatInfo(),
+        ),
+      );
+      expect(seats[2]).toHaveFocus();
+      svg.remove();
+    });
+
+    it('leaves the key alone at the edge and with Alt held', () => {
+      const { svg, seats } = drawSeats([
+        { x: 0, y: 0 },
+        { x: 40, y: 0 },
+      ]);
+      const { result } = setup();
+
+      const edge = arrow('ArrowLeft', seats[0]!);
+      act(() => result.current.handleSeatKeyDown(edge, seatInfo()));
+      expect(edge.preventDefault).not.toHaveBeenCalled();
+
+      // Alt+→ is the way to the next layer, not to the next seat.
+      const layer = arrow('ArrowRight', seats[0]!, { altKey: true });
+      act(() => result.current.handleSeatKeyDown(layer, seatInfo()));
+      expect(layer.preventDefault).not.toHaveBeenCalled();
+      expect(seats[1]).not.toHaveFocus();
+      svg.remove();
+    });
+  });
 });

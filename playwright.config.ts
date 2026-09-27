@@ -21,6 +21,22 @@ export default defineConfig({
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
+      testIgnore: /touch-layouts\.spec\.ts/,
+    },
+    // Below `lg` the inspector and the toolbar have no column; these two walk
+    // what takes their place. Chromium in both, as the CI installs only it —
+    // the iPad's own descriptor would ask for WebKit.
+    {
+      name: 'tablet',
+      use: { ...devices['iPad (gen 7)'], browserName: 'chromium' },
+      testMatch: /touch-layouts\.spec\.ts/,
+      grep: /@tablet/,
+    },
+    {
+      name: 'phone',
+      use: { ...devices['Pixel 7'] },
+      testMatch: /touch-layouts\.spec\.ts/,
+      grep: /@phone/,
     },
   ],
   webServer: {

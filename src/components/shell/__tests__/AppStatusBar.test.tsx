@@ -405,6 +405,39 @@ describe('AppStatusBar', () => {
     );
   });
 
+  it('opens the toolbar as a sheet on a phone', async () => {
+    const width = window.innerWidth;
+    Object.defineProperty(window, 'innerWidth', {
+      configurable: true,
+      writable: true,
+      value: 390,
+    });
+    setState({ step: 1, students: named(4) });
+    try {
+      render(
+        <ToolRailProvider>
+          <AppStatusBar />
+        </ToolRailProvider>,
+      );
+
+      const open = getButton(/Werkzeugleiste öffnen|Open toolbar/i);
+      expect(open).toHaveAttribute('aria-expanded', 'false');
+      expect(
+        screen.queryByRole('button', { name: /erweitern|Expand/i }),
+      ).not.toBeInTheDocument();
+
+      await userEvent.click(open);
+
+      expect(open).toHaveAttribute('aria-expanded', 'true');
+    } finally {
+      Object.defineProperty(window, 'innerWidth', {
+        configurable: true,
+        writable: true,
+        value: width,
+      });
+    }
+  });
+
   it('leaves the switch out where there is no shell to switch', () => {
     setState({ step: 1, students: named(4) });
     render(<AppStatusBar />);

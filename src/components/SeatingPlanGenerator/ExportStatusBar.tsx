@@ -5,7 +5,11 @@ import { ArrowLeftIcon, PrinterIcon } from '@phosphor-icons/react';
 import StatusBarFrame, {
   statusBarBackButtonClass,
 } from '@/components/shell/StatusBarFrame';
-import { primaryButtonClass, secondaryButtonClass } from '@/utils';
+import {
+  formatPercent,
+  primaryButtonClass,
+  secondaryButtonClass,
+} from '@/utils';
 
 type Props = {
   hasPlan: boolean;
@@ -51,7 +55,7 @@ export default function ExportStatusBar({
     : circleGeneration
       ? circleGeneration.progress === null
         ? circleGeneration.message
-        : `${circleGeneration.message} ${circleGeneration.progress} %`
+        : `${circleGeneration.message} ${formatPercent(circleGeneration.progress)}`
       : [sheetLabel, t('shell.status.students', { count: studentCount })].join(
           ' · ',
         );

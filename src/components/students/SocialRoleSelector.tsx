@@ -29,9 +29,12 @@ const SOCIAL_ROLE_OPTIONS: SocialRole[] = [
 export default function SocialRoleSelector({
   student,
   updateStudent,
+  mixedValues,
 }: {
   student: Student;
   updateStudent: (id: string, patch: Partial<Student>) => void;
+  /** Values only some of a multi-selection have; see `InspectorChoice`. */
+  mixedValues?: ReadonlySet<string>;
 }) {
   const { t } = useTranslation('students');
 
@@ -40,6 +43,7 @@ export default function SocialRoleSelector({
       <InspectorChoice
         label={t('socialRole.title')}
         value={student.socialRole}
+        mixedValues={mixedValues}
         onChange={(next) => updateStudent(student.id, { socialRole: next })}
         options={SOCIAL_ROLE_OPTIONS.map((role) => ({
           value: role,

@@ -180,7 +180,7 @@
     "noneToSave": "No seating plan to save",
     "noneYet": "No seating plan yet — mix one on the plan layer first.",
     "saveFailed": "Could not save seating plan",
-    "saved": "Seating plan \"{{name}}\" saved"
+    "saved": "Seating plan “{{name}}” saved"
   },
   "mix": {
     "deleted": "Mix result deleted",

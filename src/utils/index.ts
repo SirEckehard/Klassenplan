@@ -212,7 +212,7 @@ export {
 export { formatPercent } from './numberFormat';
 
 // ===== Math Utilities =====
-export { countSeats } from './math/scene';
+export { countSeats, hasSeatedStudent } from './math/scene';
 export { hasShapeMismatch } from './math/scene';
 export { angleToPosition } from './math/circleGeometry';
 export {
@@ -226,6 +226,11 @@ export {
 // ===== Touch & Input Handling =====
 export { triggerHapticFeedback } from './touch/hapticFeedback';
 export { isFormElementFocused } from './focus';
+export {
+  characterKeyShortcutsEnabled,
+  isSilencedCharacterKey,
+  setCharacterKeyShortcutsEnabled,
+} from './characterKeys';
 
 // ===== Canvas Utilities =====
 export {
@@ -272,6 +277,7 @@ export {
   findFreeWallSpot,
 } from './canvas/freePlacement';
 export { moveFeaturesBy } from './canvas/featureMovement';
+export { arrowDirection, nearestInDirection } from './canvas/directionalFocus';
 
 // ===== SEO =====
 export { getRouteMetadata } from './seo/routeMetadata';

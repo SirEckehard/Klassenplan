@@ -15,9 +15,12 @@ import {
 export default function HeightSelector({
   student,
   updateStudent,
+  mixedValues,
 }: {
   student: Student;
   updateStudent: (id: string, patch: Partial<Student>) => void;
+  /** Values only some of a multi-selection have; see `InspectorChoice`. */
+  mixedValues?: ReadonlySet<string>;
 }) {
   const { t } = useTranslation('students');
 
@@ -26,6 +29,7 @@ export default function HeightSelector({
       <InspectorChoice
         label={t('height.title')}
         value={student.height}
+        mixedValues={mixedValues}
         onChange={(next) => updateStudent(student.id, { height: next })}
         options={[
           { value: 'small', label: t('height.small') },

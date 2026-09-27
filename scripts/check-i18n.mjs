@@ -3,7 +3,7 @@
 //
 // Verifies the two translation bundles against each other and against the code.
 //
-// Two independent failure modes are covered:
+// Three independent failure modes are covered:
 //
 //   1. Key drift — a key exists in one language but not the other, so the
 //      English UI silently falls back to German (`fallbackLng: 'de'`).
@@ -11,6 +11,9 @@
 //      `some.key` exists in no bundle at all. i18next then renders the second
 //      argument, which means German text ships to /en. This is not theoretical:
 //      it was the state of 18 call sites before this script existed.
+//   3. Unused keys — a key no code asks for any more. Every redesign left some
+//      behind (216 of them before this check existed), and each one is text
+//      that ships to every visitor and has to be kept in two languages.
 //
 // Inline defaults are tolerated (there are several hundred), but only as long
 // as they are unreachable. The moment one becomes the actual source of a
@@ -114,6 +117,78 @@ async function sourceFiles(dir, acc = []) {
 const INLINE_DEFAULT_PATTERN =
   /\bt\(\s*(['"`])([^'"`]+)\1\s*,\s*(['"`])((?:[^'"`\\]|\\.)*)\3/g;
 
+/**
+ * Every string the code could hand to `t()`: the quoted literals, and the
+ * fixed start of each template literal that builds a key
+ * (`mix.criteria.${key}.label`). Keys are built in many ways — maps of
+ * labels, `TOAST_MESSAGES`, `textKey` + `.title` in the tours — but all of
+ * them start from one of these.
+ */
+async function collectKeyReferences() {
+  const literals = new Set();
+  const templatePrefixes = new Set();
+  for (const file of await sourceFiles(srcDir)) {
+    const contents = await fs.readFile(file, 'utf8');
+    for (const match of contents.matchAll(
+      /'((?:[^'\\\n]|\\.)*)'|"((?:[^"\\\n]|\\.)*)"/g,
+    )) {
+      literals.add(match[1] ?? match[2]);
+    }
+    for (const match of contents.matchAll(/`((?:[^`\\]|\\.)*)`/gs)) {
+      const parts = match[1].split(/\$\{[^}]*\}/);
+      if (parts.length === 1) {
+        literals.add(parts[0]);
+        continue;
+      }
+      // `generator:${key}` alone says nothing about which key; a prefix only
+      // counts once it names at least the start of one.
+      const [, rest = parts[0]] = parts[0].split(':');
+      if (/^[a-zA-Z]/.test(rest)) templatePrefixes.add(parts[0]);
+    }
+  }
+  return { literals, templatePrefixes };
+}
+
+/**
+ * A key counts as used when the code names it, names the start of a template
+ * that can produce it, or names a parent of at least two segments that a
+ * suffix is added to (`tour.plan.canvas` + `.title`). Lenient on purpose: a
+ * key reported here is one nothing could possibly reach.
+ */
+function isReferenced(namespace, key, { literals, templatePrefixes }) {
+  const base = PLURAL_SUFFIXES.reduce(
+    (current, suffix) =>
+      current.endsWith(suffix) ? current.slice(0, -suffix.length) : current,
+    key,
+  );
+  const spellings = [base, `${namespace}:${base}`];
+  if (spellings.some((spelling) => literals.has(spelling))) return true;
+  for (const prefix of templatePrefixes) {
+    if (spellings.some((spelling) => spelling.startsWith(prefix))) return true;
+  }
+  const segments = base.split('.');
+  for (let length = segments.length - 1; length >= 2; length -= 1) {
+    const parent = segments.slice(0, length).join('.');
+    if (literals.has(parent) || literals.has(`${namespace}:${parent}`)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+async function checkUnusedKeys(sets) {
+  const references = await collectKeyReferences();
+  const problems = [];
+  for (const namespace of NAMESPACES) {
+    for (const key of sets.de[namespace]) {
+      if (!isReferenced(namespace, key, references)) {
+        problems.push(`${namespace}:${key}`);
+      }
+    }
+  }
+  return problems;
+}
+
 function checkParity(sets) {
   const problems = [];
   for (const namespace of NAMESPACES) {
@@ -166,6 +241,7 @@ async function run() {
 
   const parityProblems = checkParity(sets);
   const { problems: defaultProblems, total } = await checkInlineDefaults(sets);
+  const unusedProblems = await checkUnusedKeys(sets);
 
   const keyCount = NAMESPACES.reduce(
     (sum, namespace) => sum + sets.de[namespace].size,
@@ -194,7 +270,22 @@ async function run() {
     }
   }
 
-  if (parityProblems.length > 0 || defaultProblems.length > 0) {
+  if (unusedProblems.length > 0) {
+    logError(
+      'Translation keys no code refers to — remove them from both languages',
+      { unused: unusedProblems.length },
+      SOURCE,
+    );
+    for (const problem of unusedProblems) {
+      logError(`  ${problem}`, undefined, SOURCE);
+    }
+  }
+
+  if (
+    parityProblems.length > 0 ||
+    defaultProblems.length > 0 ||
+    unusedProblems.length > 0
+  ) {
     process.exitCode = 1;
     return;
   }

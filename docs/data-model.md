@@ -1,6 +1,6 @@
 # Data Model
 
-> **Status:** current · **Last reviewed:** 2026-09-26 · **Source of truth:**
+> **Status:** current · **Last reviewed:** 2026-09-28 · **Source of truth:**
 > `src/utils/data/storageKeys.ts`, `src/types/`, `src/repositories/`
 
 Everything Klassenplan stores lives in the teacher's browser. This document
@@ -187,6 +187,9 @@ list is `PROJECT_LOCAL_STORAGE_KEYS` in `storageKeys.ts`. Groups:
   row, the editor's plan from 40 cm away. `spg.export.hiddenBadgeFamilies`
   lists the badge families a printout leaves out
   ([decision 0021](decisions/0021-seat-badges-explained.md)).
+- **Keyboard:** `spg.characterKeyShortcuts` — `false` once the teacher has
+  switched off the shortcuts on a single character key ("?", P, F, 1–3, Q/E …)
+  in the settings menu, for speech input (WCAG 2.1.4, `utils/characterKeys.ts`).
 - **Workflow:** sidebar state, class list sort order, first visit, onboarding
   tours seen or switched off (`spg.onboardingTour`,
   [decision 0015](decisions/0015-onboarding-sample-class-and-tour.md)), whether

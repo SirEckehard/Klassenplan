@@ -120,7 +120,9 @@ export function ClassDialogsProvider({
       classSummaries.find((entry) => entry.id === deleteTarget) ??
       (deleteTarget === activeClass.id ? activeClass : null);
     const name = target?.name?.trim();
-    return name ? `„${name}"` : t('classActions.deleteDialog.fallbackName');
+    return name
+      ? t('common:quoted', { text: name })
+      : t('classActions.deleteDialog.fallbackName');
   }, [activeClass, classSummaries, deleteTarget, t]);
 
   const value = React.useMemo(

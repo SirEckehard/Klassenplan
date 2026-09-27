@@ -120,7 +120,7 @@ export default function StartPage() {
   const metadata = usePageSeo('/');
 
   // Names quoted from the app, joined the way the language joins a list.
-  const quote = (key: string) => t('startPage.quoted', { text: t(key) });
+  const quote = (key: string) => t('common:quoted', { text: t(key) });
   const joinWith = (
     keys: readonly string[],
     type: 'conjunction' | 'disjunction',

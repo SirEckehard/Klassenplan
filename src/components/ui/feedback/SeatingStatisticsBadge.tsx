@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { XIcon, ChartBarIcon, QuestionIcon } from '@phosphor-icons/react';
 import {
   cardSurfaceClass,
+  formatPercent,
   getStatisticStatusMeta,
   iconButtonClass,
 } from '@/utils';
@@ -125,7 +126,7 @@ function SeatingStatisticsBadge({
               </span>
               <span className="flex items-center gap-1.5 shrink-0">
                 <span className="text-sm font-medium text-(--text-muted)">
-                  {roundedPercentage}%
+                  {formatPercent(roundedPercentage)}
                 </span>
                 <div
                   className={`w-2 h-2 rounded-full ${statusMeta.dotClass}`}
@@ -149,7 +150,7 @@ function SeatingStatisticsBadge({
             onBlur={onHighlightLeave}
             onClick={() => onHighlightToggle?.(criterion)}
             aria-pressed={isPersistent}
-            title={`${translateCriterionLabel(criterion.key, criterion.label)}: ${roundedPercentage}%`}
+            title={`${translateCriterionLabel(criterion.key, criterion.label)}: ${formatPercent(roundedPercentage)}`}
           >
             <span className="text-(--text-badge)">
               {getCriterionIcon(criterion.key)}
@@ -159,7 +160,7 @@ function SeatingStatisticsBadge({
             </span>
             <span className="flex items-center gap-1 shrink-0">
               <span className="text-xs font-medium text-(--text-muted)">
-                {roundedPercentage}%
+                {formatPercent(roundedPercentage)}
               </span>
               <div
                 className={`w-1.5 h-1.5 rounded-full ${statusMeta.dotClass}`}
@@ -223,7 +224,7 @@ function SeatingStatisticsBadge({
                 />
               </div>
               <span className="text-lg font-bold text-(--text-badge)">
-                {Math.round(weightedScore)}%
+                {formatPercent(weightedScore)}
               </span>
             </div>
           </div>
@@ -251,7 +252,7 @@ function SeatingStatisticsBadge({
           />
           <span className="text-xs font-semibold text-(--text-page)">
             {t('statisticsBadge.overallLabel', 'Gesamt')}{' '}
-            {Math.round(weightedScore)}%
+            {formatPercent(weightedScore)}
           </span>
           <div className="h-1.5 w-12 rounded-full bg-(--border-card)">
             <div

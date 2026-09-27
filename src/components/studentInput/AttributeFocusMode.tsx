@@ -7,7 +7,7 @@ import {
   ArrowRightIcon,
   CheckIcon,
   DoorIcon,
-  ImageIcon,
+  PanoramaIcon,
   type Icon,
 } from '@phosphor-icons/react';
 import type { Student } from '@/types';
@@ -67,7 +67,7 @@ const PASSES: readonly Pass[] = [
     exclusiveWith: 'performanceStrong',
   },
   { key: 'needsFrontSeat', family: 'space', icon: flagIcon('needsFrontSeat') },
-  { key: 'prefersWindow', family: 'space', icon: ImageIcon },
+  { key: 'prefersWindow', family: 'space', icon: PanoramaIcon },
   { key: 'prefersDoor', family: 'space', icon: DoorIcon },
 ] as const;
 

@@ -36,10 +36,13 @@ const FLAG_FIELDS = [
   'prefersDoor',
 ] as const;
 
+type ChoiceField = (typeof CHOICE_FIELDS)[number];
+
 /**
  * The selection read as one student: a value everybody shares, a flag
- * everybody carries. Whatever differs is left unset, and a flag only some of
- * them carry is named in `mixed` so its switch can say so.
+ * everybody carries. Whatever differs is left unset; a flag only some of them
+ * carry is named in `mixed` so its switch can say so, and the values of a
+ * choice they do not agree on are listed in `mixedChoices` for its chips.
  *
  * That is exactly what the single-student controls need to behave as bulk
  * controls: a chip pressed sets its value for all, the chip everybody already
@@ -49,15 +52,24 @@ const FLAG_FIELDS = [
 function readSelection(students: Student[]): {
   student: Student;
   mixed: ReadonlySet<keyof Student>;
+  mixedChoices: Partial<Record<ChoiceField, ReadonlySet<string>>>;
 } {
   const shared: Record<string, unknown> = {};
   const mixed = new Set<keyof Student>();
+  const mixedChoices: Partial<Record<ChoiceField, ReadonlySet<string>>> = {};
 
   for (const field of CHOICE_FIELDS) {
     const first = students[0]?.[field];
     if (students.every((student) => student[field] === first)) {
       shared[field] = first;
+      continue;
     }
+    const present = new Set<string>();
+    for (const student of students) {
+      const value = student[field];
+      if (value !== undefined) present.add(value);
+    }
+    mixedChoices[field] = present;
   }
   for (const flag of FLAG_FIELDS) {
     const count = students.filter((student) => Boolean(student[flag])).length;
@@ -70,6 +82,7 @@ function readSelection(students: Student[]): {
   return {
     student: { id: 'selection', name: '', ...shared } as Student,
     mixed,
+    mixedChoices,
   };
 }
 
@@ -98,7 +111,7 @@ export default function StudentBulkInspector({
   onClear,
 }: Props) {
   const { t } = useTranslation('students');
-  const { student, mixed } = React.useMemo(
+  const { student, mixed, mixedChoices } = React.useMemo(
     () => readSelection(selectedStudents),
     [selectedStudents],
   );
@@ -128,8 +141,16 @@ export default function StudentBulkInspector({
       />
       <InspectorBody>
         <InspectorSection family="person" title={t('inspector.groups.person')}>
-          <GenderSelector student={student} updateStudent={update} />
-          <HeightSelector student={student} updateStudent={update} />
+          <GenderSelector
+            student={student}
+            updateStudent={update}
+            mixedValues={mixedChoices.gender}
+          />
+          <HeightSelector
+            student={student}
+            updateStudent={update}
+            mixedValues={mixedChoices.height}
+          />
         </InspectorSection>
 
         <InspectorSection
@@ -148,7 +169,11 @@ export default function StudentBulkInspector({
           family="language"
           title={t('inspector.groups.language')}
         >
-          <LanguageSkillSelector student={student} updateStudent={update} />
+          <LanguageSkillSelector
+            student={student}
+            updateStudent={update}
+            mixedValues={mixedChoices.languageSkill}
+          />
         </InspectorSection>
 
         <InspectorSection
@@ -170,7 +195,11 @@ export default function StudentBulkInspector({
             keys={['shy']}
             mixed={mixed}
           />
-          <SocialRoleSelector student={student} updateStudent={update} />
+          <SocialRoleSelector
+            student={student}
+            updateStudent={update}
+            mixedValues={mixedChoices.socialRole}
+          />
         </InspectorSection>
 
         <InspectorSection family="space" title={t('inspector.groups.space')}>

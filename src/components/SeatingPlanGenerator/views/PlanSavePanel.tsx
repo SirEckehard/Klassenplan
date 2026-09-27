@@ -8,6 +8,7 @@ import {
   useSeatingPlanActions,
 } from '@/contexts/SeatingPlanContext';
 import { useIsCoarsePointer } from '@/hooks/ui/useCoarsePointer';
+import { useOpenPlan } from '@/hooks/plan/useOpenPlan';
 import { inputFieldClass, menuItemClass, menuSurfaceClass } from '@/utils';
 
 const iconClass = 'h-4 w-4 shrink-0 text-(--text-muted)';
@@ -38,12 +39,9 @@ export default function PlanSavePanel({ onDone }: { onDone: () => void }) {
   const fieldId = React.useId();
   const hintId = React.useId();
 
-  // The saved plan on screen, found by its name as every view finds it
-  // (`usePlanExits`); names are unique within a class.
-  const openPlan = React.useMemo(() => {
-    const name = planName.trim();
-    return name ? seatingHistory.find((plan) => plan.name === name) : undefined;
-  }, [planName, seatingHistory]);
+  // The saved plan on screen, by the id a save writes to — the panel must
+  // not offer a rename the save would then refuse.
+  const openPlan = useOpenPlan();
 
   // Ready for a new name at once — but a finger may only have come to save,
   // so it does not get the on-screen keyboard for nothing.

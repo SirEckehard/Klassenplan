@@ -17,14 +17,21 @@ import { useLayoutMode } from '@/hooks/ui/useLayoutMode';
  * it sits in the status bar and the state has to be reachable from both ends
  * of the window.
  *
- * A sidebar outside the shell — the export page's — finds no provider and
- * keeps its own state and its own switch.
+ * A phone has no column, only a sheet, and its switch sits in the status bar
+ * too — so whether the sheet is up is shared state as well.
+ *
+ * A sidebar outside the shell finds no provider and keeps its own state and
+ * its own switch. Every layer and the export page wear the shell, so that is
+ * a sidebar in a test or one yet to be written.
  */
 export type ToolRailState = {
   isExpanded: boolean;
   expand: () => void;
   collapse: () => void;
   toggle: () => void;
+  /** Whether the phone's sheet is up; meaningless from `md` up. */
+  sheetOpen: boolean;
+  setSheetOpen: (open: boolean) => void;
 };
 
 const ToolRailContext = React.createContext<ToolRailState | null>(null);
@@ -43,6 +50,7 @@ export function useToolRailState(
   const stored = useCollapsibleSidebar(options);
   const isTablet = useLayoutMode() === 'tablet';
   const [tabletExpanded, setTabletExpanded] = React.useState(false);
+  const [sheetOpen, setSheetOpen] = React.useState(false);
 
   const expand = React.useCallback(() => {
     if (isTablet) {
@@ -74,8 +82,18 @@ export function useToolRailState(
       expand,
       collapse,
       toggle,
+      sheetOpen,
+      setSheetOpen,
     }),
-    [collapse, expand, isTablet, stored.isExpanded, tabletExpanded, toggle],
+    [
+      collapse,
+      expand,
+      isTablet,
+      sheetOpen,
+      stored.isExpanded,
+      tabletExpanded,
+      toggle,
+    ],
   );
 }
 

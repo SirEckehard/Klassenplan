@@ -134,8 +134,8 @@ const SeatingPlanCanvas = React.memo(
     const nameLabels = useNameLabels(allStudents ?? [], nameDisplay);
 
     // Keyboard alternative to the pointer seat drag (P2.10): Enter/Space picks
-    // a student up, Tab moves to the target seat, Enter/Space drops, Escape
-    // cancels. Reuses the existing dragOrigin/dragHover visuals.
+    // a student up, the arrow keys move to the target seat, Enter/Space drops,
+    // Escape cancels. Reuses the existing dragOrigin/dragHover visuals.
     const {
       keyboardMoveOrigin,
       keyboardAnnouncement,

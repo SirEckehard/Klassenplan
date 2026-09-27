@@ -20,7 +20,7 @@ import {
   HeartBreakIcon,
   // Seat & room
   MapPinAreaIcon,
-  ImageIcon,
+  PanoramaIcon,
   DoorIcon,
 } from '@phosphor-icons/react';
 import type { Icon } from '@phosphor-icons/react';
@@ -179,7 +179,7 @@ export default function CriteriaReferenceSection() {
         },
         {
           key: 'prefersWindow',
-          icon: ImageIcon,
+          icon: PanoramaIcon,
           labelKey: 'faq.eigenschaften.props.prefersWindow.label',
           descriptionKey: 'faq.eigenschaften.props.prefersWindow.description',
           algorithmKey: 'faq.eigenschaften.props.prefersWindow.algorithm',

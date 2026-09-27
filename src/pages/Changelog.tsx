@@ -21,6 +21,7 @@ import {
   secondaryButtonClass,
 } from '@/utils';
 import { usePageSeo } from '@/hooks/usePageSeo';
+import { useChangelogReady } from '@/hooks/useChangelogReady';
 import { changelogVersions, type ChangeItem } from '@/data/changelogEntries';
 import { useTranslation } from 'react-i18next';
 
@@ -44,7 +45,26 @@ const CHANGE_TYPES: {
 const rowClass =
   'grid gap-6 border-t border-(--border-card) py-10 lg:grid-cols-12 lg:gap-12 lg:py-14';
 
+/**
+ * The page waits for its texts, which are not bundled with the app
+ * (`useChangelogReady`). Its metadata waits with it: the prerender takes the
+ * page once `<Seo>` has run, and must find the versions there.
+ */
 export default function Changelog() {
+  const ready = useChangelogReady();
+  if (!ready) {
+    return (
+      <main
+        id="main"
+        tabIndex={-1}
+        className="bg-(--surface-page) px-4 sm:px-6"
+      />
+    );
+  }
+  return <ChangelogContent />;
+}
+
+function ChangelogContent() {
   const { t } = useTranslation('changelog');
   const metadata = usePageSeo('/changelog');
 

@@ -45,7 +45,7 @@ export function useClassManagement({
     (name?: string) => {
       const trimmed = name?.trim();
       return trimmed && trimmed.length > 0
-        ? `"${trimmed}"`
+        ? t('common:quoted', { text: trimmed })
         : t('toast:class.unnamed');
     },
     [t],

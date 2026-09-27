@@ -145,6 +145,8 @@ export default function NameGame() {
             <LocalizedLink
               to="/"
               className="kp-lockup focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:ring-offset-2"
+              // On a phone only the mark is left, which is decorative.
+              aria-label={t('header.homeLink')}
             >
               <KpLockup size="sm" hideWordmarkOnMobile />
             </LocalizedLink>

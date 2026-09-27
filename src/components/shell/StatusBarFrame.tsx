@@ -6,6 +6,7 @@ import {
   ArrowLineLeftIcon,
   ArrowLineRightIcon,
   SlidersHorizontalIcon,
+  WrenchIcon,
 } from '@phosphor-icons/react';
 import { useShellToolRail } from '@/contexts/ToolRailContext';
 import { INSPECTOR_DRAWER_ID, useInspector } from '@/contexts/InspectorContext';
@@ -44,7 +45,8 @@ export const statusBarBackButtonClass = `${secondaryButtonClass} h-9 shrink-0 ga
  * Below `lg` the inspector has no column, so its switch closes the bar on the
  * right, mirroring the toolbar's switch on the left: each sits under the panel
  * it opens. It appears only while a layer has something to show there — the
- * room's properties, the plan's criteria, the circle's summary.
+ * room's properties, the plan's criteria, the circle's summary. A phone has no
+ * toolbar column either; there the left switch opens the toolbar's sheet.
  */
 export default function StatusBarFrame({
   start,
@@ -58,11 +60,10 @@ export default function StatusBarFrame({
   const { t } = useTranslation('generator');
   // The toolbar's width belongs to the workspace, not to a layer, so its
   // switch sits here rather than in a header above the tools. A phone has no
-  // toolbar column at all — there it is a sheet with its own trigger.
+  // toolbar column at all — there the same place opens it as a sheet.
   const toolRail = useShellToolRail();
   const layoutMode = useLayoutMode();
   const isPhone = layoutMode === 'phone';
-  const showToolRailSwitch = toolRail !== null && !isPhone;
   const { portalMounted, portalLabel, drawerOpen, setDrawerOpen } =
     useInspector();
   const showInspectorSwitch =
@@ -81,7 +82,26 @@ export default function StatusBarFrame({
         <div className="flex min-w-0 flex-1 items-center gap-3">
           {/* The toolbar's switch belongs to the workspace, not to a surface,
               so it leads the bar — right under the toolbar it concerns. */}
-          {showToolRailSwitch && toolRail && (
+          {toolRail && isPhone && (
+            <>
+              <button
+                type="button"
+                onClick={() => toolRail.setSheetOpen(true)}
+                aria-haspopup="dialog"
+                aria-expanded={toolRail.sheetOpen}
+                aria-label={t('sidebar.openLabel')}
+                title={t('sidebar.openLabel')}
+                className={`${secondaryButtonClass} h-9 w-9 shrink-0 px-0`}
+              >
+                <WrenchIcon className="h-4 w-4" aria-hidden="true" />
+              </button>
+              <span
+                aria-hidden="true"
+                className="h-4 w-px bg-(--border-card)"
+              />
+            </>
+          )}
+          {toolRail && !isPhone && (
             <>
               <button
                 type="button"

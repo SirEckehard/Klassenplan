@@ -9,12 +9,15 @@ import Changelog from '../Changelog';
 import { changelogVersions } from '@/data/changelogEntries';
 import { APP_RETURN_STATE } from '@/hooks/useReturnToApp';
 
-const renderChangelog = (state?: unknown) =>
+/** Renders the page and waits for its texts, which load on demand. */
+const renderChangelog = async (state?: unknown) => {
   render(
     <MemoryRouter initialEntries={[{ pathname: '/changelog', state }]}>
       <Changelog />
     </MemoryRouter>,
   );
+  await screen.findByRole('heading', { level: 1 });
+};
 
 /** The kinds of change in the order the page promises for every version. */
 const TYPE_ORDER = [
@@ -25,8 +28,8 @@ const TYPE_ORDER = [
 ];
 
 describe('Changelog', () => {
-  it('gives every version a section with all of its changes', () => {
-    renderChangelog();
+  it('gives every version a section with all of its changes', async () => {
+    await renderChangelog();
 
     expect(
       screen.getByRole('heading', { level: 1, name: 'Changelog' }),
@@ -41,8 +44,8 @@ describe('Changelog', () => {
     }
   });
 
-  it('lists the kinds of change in the same order in every version', () => {
-    renderChangelog();
+  it('lists the kinds of change in the same order in every version', async () => {
+    await renderChangelog();
 
     // The data does not keep that order everywhere — 2.0.4 names its bug
     // fixes before its improvements — so the page has to.
@@ -62,16 +65,16 @@ describe('Changelog', () => {
     }
   });
 
-  it('shows no raw translation key anywhere', () => {
-    renderChangelog();
+  it('shows no raw translation key anywhere', async () => {
+    await renderChangelog();
 
     expect(document.body.textContent).not.toMatch(
       /\bv\d+_\d+_\d+\.\d+|\b(types|header|footer)\.[a-z]/,
     );
   });
 
-  it('leads back to the app when the update notice opened it', () => {
-    renderChangelog(APP_RETURN_STATE);
+  it('leads back to the app when the update notice opened it', async () => {
+    await renderChangelog(APP_RETURN_STATE);
 
     expect(
       screen.getByRole('button', { name: /^(Zurück|Back)$/ }),

@@ -11,6 +11,7 @@ import {
   getDisplayNameForMode,
   getTooltipName,
   calculateSeatLabelFontSize,
+  isSilencedCharacterKey,
   logDebug,
   type NameDisplayMode,
 } from '@/utils';
@@ -393,7 +394,9 @@ function SimpleCircleView({
         return;
       }
 
-      // 'C' key toggles connections
+      // 'C' key toggles connections, unless character keys are switched off
+      // (WCAG 2.1.4); the toolbar's view settings do the same.
+      if (isSilencedCharacterKey(event)) return;
       if (event.key.toLowerCase() === 'c' && !event.ctrlKey && !event.metaKey) {
         event.preventDefault();
         handleConnectionModeToggle();

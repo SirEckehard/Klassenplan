@@ -95,7 +95,6 @@ function StudentInput({
   } = useStudentListLayout({
     isMobile: !isLgUp,
     studentCount: students.length,
-    recalcKey: 0, // No longer need dynamic recalc
   });
 
   // Student management hook
@@ -119,7 +118,7 @@ function StudentInput({
   const hasActiveClass = Boolean(activeClass.id);
   const formatClassName = (name?: string | null) =>
     name && name.trim().length > 0
-      ? `„${name.trim()}"`
+      ? t('common:quoted', { text: name.trim() })
       : t('studentInput.yourClass', 'deine Klasse');
 
   // CSV import handler

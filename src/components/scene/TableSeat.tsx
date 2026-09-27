@@ -24,6 +24,7 @@ import {
   calculateSeatLabelFontSize,
   getWishPartnerIds,
   getAvoidPartnerIds,
+  formatPercent,
 } from '@/utils';
 import type { NameDisplayMode, NameLabels } from '@/utils';
 import type { SeatKeyboardEventInfo } from '@/hooks/scene/useSeatKeyboardMove';
@@ -355,8 +356,7 @@ function TableSeat({
   const highlightTitle =
     highlightKind && !highlightTone && typeof highlightPercentage === 'number'
       ? t('seat.fulfillmentTitle', {
-          percentage: Math.round(highlightPercentage),
-          defaultValue: `Erfüllung ${Math.round(highlightPercentage)}%`,
+          percentage: formatPercent(highlightPercentage),
         })
       : undefined;
   // Where a dragged student would land. The seat it was picked up from is

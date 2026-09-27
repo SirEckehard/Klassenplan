@@ -15,7 +15,7 @@ import {
   ArrowDownIcon,
   ArrowUpIcon,
   DoorIcon,
-  ImageIcon,
+  PanoramaIcon,
   // Language skill icons
   ChatCircleIcon,
   ChatDotsIcon,
@@ -671,7 +671,7 @@ export function getEnvironmentBadges(
     badges.push({
       key: 'prefersWindow',
       label: ts('listHeader.windowFull', 'Fensterplatz'),
-      icon: ImageIcon,
+      icon: PanoramaIcon,
       tooltip: ts('environment.windowTooltip', 'Bevorzugt Plätze am Fenster'),
       family: 'space',
     });

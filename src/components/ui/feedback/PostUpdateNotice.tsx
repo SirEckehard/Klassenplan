@@ -10,6 +10,7 @@ import { LocalizedLink } from '@/components/LocalizedLink';
 import { APP_RETURN_STATE } from '@/hooks/useReturnToApp';
 import { CHANGELOG_ROUTE, formatLongDate, logInfo } from '@/utils';
 import { useTranslation } from 'react-i18next';
+import { useChangelogReady } from '@/hooks/useChangelogReady';
 
 const MAX_HIGHLIGHTS = 3;
 
@@ -18,6 +19,10 @@ export default function PostUpdateNotice() {
   const { showPostUpdateNotice, latestChangelogEntry, currentAppVersion } =
     useSeatingPlanState();
   const { acknowledgePostUpdateNotice } = useSeatingPlanActions();
+  // Its texts come from the changelog, which is fetched only when asked for.
+  const textsReady = useChangelogReady(
+    showPostUpdateNotice && latestChangelogEntry !== null,
+  );
 
   const highlights = useMemo(() => {
     if (!latestChangelogEntry) {
@@ -42,7 +47,7 @@ export default function PostUpdateNotice() {
     );
   }, [currentAppVersion]);
 
-  if (!showPostUpdateNotice || !latestChangelogEntry) {
+  if (!showPostUpdateNotice || !latestChangelogEntry || !textsReady) {
     return null;
   }
 

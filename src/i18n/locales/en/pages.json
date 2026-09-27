@@ -7,14 +7,13 @@
     "ctaButton": "Plan your class now!",
     "faqLink": "FAQ",
     "contactLink": "Send a message",
-    "quoted": "“{{text}}”",
     "layers": {
       "eyebrow": "How it works!",
       "title": "Everything at a glance",
       "intro": "Class list, classroom and seating plan. One click switches the layer, and nothing gets lost on the way.",
       "classText": "Type in your students or import an existing CSV file of your class. You set attributes quickly by answering questions such as {{question}}",
       "roomText": "Arrange the classroom the way you want it. Add tables, board, windows, door and more by drag and drop, and save the classroom as a template.",
-      "planText": "Shuffle, adjust by hand, lock seats – and create the matching seating circle with one click.",
+      "planText": "Mix, adjust by hand, lock seats – and create the matching seating circle with one click.",
       "exits": "Then present the plan right on the interactive whiteboard or export it as a PDF."
     },
     "criteria": {
@@ -56,7 +55,7 @@
   "generator": {
     "schema": {
       "name": "Klassenplan – Seating Chart Generator",
-      "featureAlgorithm": "Smart shuffling algorithm",
+      "featureAlgorithm": "Smart mixing algorithm",
       "featureCriteria": "Pedagogical criteria (concentration, restlessness, preferred partners)",
       "featurePdfExport": "PDF export",
       "featureCsvImport": "CSV import",
@@ -168,7 +167,7 @@
       "description": "Multiple classes, CSV import, photos, attribute mode and the name game.",
       "classes": {
         "q": "Can I manage several classes?",
-        "a": "Yes. The class switcher at the top left of the header lets you create as many classes as you like, rename them, switch between them or delete them. Each class keeps its own students, classroom layouts, seating plans and recent shuffles. Deleting a class also deletes its seating plans – so a backup beforehand is worth it."
+        "a": "Yes. The class switcher at the top left of the header lets you create as many classes as you like, rename them, switch between them or delete them. Each class keeps its own students, classroom layouts, seating plans and recent mixes. Deleting a class also deletes its seating plans – so a backup beforehand is worth it."
       },
       "csv": {
         "q": "How do I import an existing class list?",
@@ -198,8 +197,8 @@
     "eigenschaften": {
       "title": "Student Properties & Criteria",
       "description": "Overview of all properties and how the algorithm uses them.",
-      "intro": "On the class layer you record properties for every student – in the inspector, or for everyone at once in attribute mode. When you shuffle the seating plan, they come into play through the criteria. This overview shows every property, what it means and what the algorithm does with it.",
-      "algorithmLabel": "When shuffling:",
+      "intro": "On the class layer you record properties for every student – in the inspector, or for everyone at once in attribute mode. When you mix the seating plan, they come into play through the criteria. This overview shows every property, what it means and what the algorithm does with it.",
+      "algorithmLabel": "When mixing:",
       "props": {
         "gender": {
           "label": "Gender",
@@ -365,12 +364,12 @@
       },
       "repeat": {
         "q": "How does repeat avoidance work?",
-        "intro": "The repetition evaluation considers both saved seating plans and the recent shuffles of the session:",
+        "intro": "The repetition evaluation considers both saved seating plans and the recent mixes of the session:",
         "li1_b": "Saved plans:",
         "li1": "Pairs from older plans receive decreasing weight (newer ones count more)",
         "li2_b": "Current Session:",
         "li2": "The last mixes are weighted more heavily so that pairs do not repeat immediately",
-        "outro": "This avoids the same students sitting next to each other constantly when you shuffle several times in a row. Not every shuffle is actually put into practice, though – and that is exactly where the recent shuffles on their own reach their limits.",
+        "outro": "This avoids the same students sitting next to each other constantly when you mix several times in a row. Not every mix is actually put into practice, though – and that is exactly where the recent mixes on their own reach their limits.",
         "usageIntro": "Klassenplan therefore keeps track of which seating charts were really in use. There is nothing to tick – what counts is what you do anyway:",
         "usage1": "Showing a seating chart in presentation mode",
         "usage2": "Printing a seating chart or exporting it as PDF, PNG or SVG",
@@ -390,7 +389,7 @@
         "li1": "Set the criteria that matter to “Important” or “Very important” – or pick a fitting recipe",
         "li2": "Mix multiple times to use different random starts",
         "li3": "Adjust individual seats manually via drag & drop and lock them if necessary so that the algorithm no longer changes them.",
-        "li4": "Take back a poor shuffle with Ctrl/⌘+Z or load an earlier result under “Plans & history”"
+        "li4": "Take back a poor mix with Ctrl/⌘+Z or load an earlier result under “Plans & history”"
       }
     },
     "unterricht": {
@@ -466,7 +465,7 @@
       },
       "how": {
         "q": "How does the backup work?",
-        "a": "The export creates a file encrypted with your password (at least 8 characters) containing all classes, students including their photos, seating plans, shuffle and usage history, seating circle, classroom features, templates and settings. Without that password the file cannot be restored – so keep it safe to avoid losing your data."
+        "a": "The export creates a file encrypted with your password (at least 8 characters) containing all classes, students including their photos, seating plans, mix and usage history, seating circle, classroom features, templates and settings. Without that password the file cannot be restored – so keep it safe to avoid losing your data."
       },
       "deviceChange": {
         "q": "How do I move my classes to a new computer?",

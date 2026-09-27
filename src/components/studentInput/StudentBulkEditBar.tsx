@@ -6,7 +6,7 @@ import {
   ActivityIcon,
   BrainIcon,
   DoorIcon,
-  ImageIcon,
+  PanoramaIcon,
   MapPinAreaIcon,
   SmileyNervousIcon,
   TrashIcon,
@@ -55,7 +55,7 @@ const FLAG_ICONS: Record<BulkFlag, Icon> = {
   restless: ActivityIcon,
   shy: SmileyNervousIcon,
   concentrationIssues: BrainIcon,
-  prefersWindow: ImageIcon,
+  prefersWindow: PanoramaIcon,
   prefersDoor: DoorIcon,
 };
 

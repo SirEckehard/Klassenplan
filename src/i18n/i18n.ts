@@ -6,22 +6,22 @@ import { initReactI18next } from 'react-i18next';
 // the algorithm and schema modules in the initial load (see src/index.tsx).
 import { logWarn } from '@/utils/logging/logger.client';
 
-// DE is the fallback language — always bundled statically
+// DE is the fallback language — always bundled statically, but for the
+// changelog (`ensureChangelogLoaded`).
 import commonDe from './locales/de/common.json';
 import toastDe from './locales/de/toast.json';
 import pagesDe from './locales/de/pages.json';
 import generatorDe from './locales/de/generator.json';
 import studentsDe from './locales/de/students.json';
-import changelogDe from './locales/de/changelog.json';
 
-const NAMESPACES = [
+const EAGER_NAMESPACES = [
   'common',
   'toast',
   'pages',
   'generator',
   'students',
-  'changelog',
 ] as const;
+const NAMESPACES = [...EAGER_NAMESPACES, 'changelog'] as const;
 
 /**
  * The URL decides the language: `/en` and everything below it is English, every
@@ -65,7 +65,6 @@ i18next
         pages: pagesDe,
         generator: generatorDe,
         students: studentsDe,
-        changelog: changelogDe,
       },
     },
     fallbackLng: 'de',
@@ -94,16 +93,49 @@ export function ensureEnglishLoaded(): Promise<void> {
     import('./locales/en/pages.json'),
     import('./locales/en/generator.json'),
     import('./locales/en/students.json'),
-    import('./locales/en/changelog.json'),
-  ]).then(([common, toast, pages, generator, students, changelog]) => {
-    const modules = [common, toast, pages, generator, students, changelog];
-    NAMESPACES.forEach((ns, i) => {
+  ]).then(([common, toast, pages, generator, students]) => {
+    const modules = [common, toast, pages, generator, students];
+    EAGER_NAMESPACES.forEach((ns, i) => {
       // Dynamic JSON imports return { default: <json> } — extract the payload.
       const data = (modules[i] as { default?: object }).default ?? modules[i];
       i18next.addResourceBundle('en', ns, data, true, false);
     });
   });
   return enLoadPromise;
+}
+
+/**
+ * The changelog holds the text of every release — the largest namespace, and
+ * read by two views only: /changelog and the notice after an update. It is
+ * fetched when one of them asks (`useChangelogReady`) rather than with every
+ * page. German comes along with English, being the fallback. A failed fetch
+ * is forgotten, so the next view to ask tries again.
+ */
+const changelogLoads = new Map<'de' | 'en', Promise<void>>();
+function loadChangelog(language: 'de' | 'en'): Promise<void> {
+  const pending = changelogLoads.get(language);
+  if (pending) return pending;
+  const load = (
+    language === 'en'
+      ? import('./locales/en/changelog.json')
+      : import('./locales/de/changelog.json')
+  )
+    .then((module) => {
+      const data = (module as { default?: object }).default ?? module;
+      i18next.addResourceBundle(language, 'changelog', data, true, false);
+    })
+    .catch((error: unknown) => {
+      changelogLoads.delete(language);
+      throw error;
+    });
+  changelogLoads.set(language, load);
+  return load;
+}
+
+export function ensureChangelogLoaded(language: string): Promise<void> {
+  const loads = [loadChangelog('de')];
+  if (language === 'en') loads.push(loadChangelog('en'));
+  return Promise.all(loads).then(() => undefined);
 }
 
 if (initialLanguage === 'en') {

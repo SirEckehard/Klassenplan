@@ -271,14 +271,14 @@ describe('SmartMixControls — comfortable density', () => {
     render(<Harness initial={{ peerTutoring: 4 }} />);
 
     expect(
-      screen.queryByText(/Mischen ist zufällig!|Shuffling is random!/i),
+      screen.queryByText(/Mischen ist zufällig!|mixing is purely random!/i),
     ).not.toBeInTheDocument();
     fireEvent.click(allCriteriaSwitch());
 
     expect(weightOf('peerTutoring')).toBe(0);
     expect(weightOf('homogeneousPerformanceGroups')).toBe(0);
     expect(
-      screen.getByText(/Mischen ist zufällig!|Shuffling is random!/i),
+      screen.getByText(/Mischen ist zufällig!|mixing is purely random!/i),
     ).toBeInTheDocument();
   });
 
@@ -802,7 +802,7 @@ describe('SmartMixControls — criteria fulfilment', () => {
 
     // The rail has no room for the number, so the button's name carries it.
     expect(restlessButton()).toHaveAccessibleName(
-      /zu 78 % erfüllt|78% fulfilled/,
+      /zu 78\s%\serfüllt|78% fulfilled/,
     );
 
     restlessButton().focus();

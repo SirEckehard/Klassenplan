@@ -198,7 +198,7 @@ export default function Present() {
       ref={surfaceRef}
       tabIndex={-1}
       className={`fixed inset-0 flex flex-col ${
-        contrast ? 'bg-white' : 'bg-(--surface-sunken)'
+        contrast ? 'bg-(--present-contrast-bg)' : 'bg-(--surface-sunken)'
       } ${isFullscreen ? 'overflow-hidden' : ''}`}
     >
       <Seo {...metadata} />
@@ -216,6 +216,8 @@ export default function Present() {
               <LocalizedLink
                 to="/"
                 className="kp-lockup focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:ring-offset-2"
+                // On a phone only the mark is left, which is decorative.
+                aria-label={t('pages:header.homeLink')}
               >
                 <KpLockup size="sm" hideWordmarkOnMobile />
               </LocalizedLink>

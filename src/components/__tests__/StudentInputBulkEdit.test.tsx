@@ -606,6 +606,40 @@ describe('StudentInput bulk editing in the inspector', () => {
     });
   });
 
+  it('marks the values a mixed selection holds and sets one for everyone', async () => {
+    const updateStudents = vi.fn();
+    const students = makeStudents();
+    students[0] = { ...students[0], gender: 'girl' };
+    students[1] = { ...students[1], gender: 'boy' };
+    renderWithInspector({ students, updateStudents });
+    const user = userEvent.setup();
+
+    await tick(user, 1, 2);
+    const panel = await screen.findByRole('complementary', {
+      name: /Mehrfachbearbeitung|Bulk editing/i,
+    });
+    const girl = within(panel).getByRole('button', {
+      name: /^(Weiblich|Female)$/i,
+    });
+    const boy = within(panel).getByRole('button', {
+      name: /^(Männlich|Male)$/i,
+    });
+    const diverse = within(panel).getByRole('button', {
+      name: /^(Divers|Diverse|Non-binary)$/i,
+    });
+    // Not "nothing set": the two values somebody has are half pressed, the
+    // one nobody has is not.
+    expect(girl).toHaveAttribute('aria-pressed', 'mixed');
+    expect(boy).toHaveAttribute('aria-pressed', 'mixed');
+    expect(diverse).toHaveAttribute('aria-pressed', 'false');
+
+    await user.click(girl);
+
+    expect(updateStudents).toHaveBeenCalledExactlyOnceWith(['1', '2'], {
+      gender: 'girl',
+    });
+  });
+
   it('asks before removing the selection from the inspector', async () => {
     const removeStudents = vi.fn();
     renderWithInspector({ removeStudents });

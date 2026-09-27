@@ -7,12 +7,14 @@ import {
   GitDiffIcon,
   GithubLogoIcon,
   IdentificationCardIcon,
+  KeyboardIcon,
   MailboxIcon,
   ShieldCheckIcon,
 } from '@phosphor-icons/react';
 import FloatingDropdown from '@/components/students/FloatingDropdown';
 import AppearanceControls from '@/components/ui/navigation/AppearanceControls';
 import UpdateCheckButton from '@/components/pwa/UpdateCheckButton';
+import MenuCheckRow from '@/components/ui/controls/MenuCheckRow';
 import { LegalPageLink } from '@/components/LegalPageLink';
 import { LocalizedLink } from '@/components/LocalizedLink';
 import { GITHUB_REPO_URL } from '@/config/links';
@@ -20,11 +22,13 @@ import { APP_RETURN_STATE } from '@/hooks/useReturnToApp';
 import { useClickOutside } from '@/hooks/ui/useClickOutside';
 import { usePopoverFocus } from '@/hooks/ui/usePopoverFocus';
 import {
+  characterKeyShortcutsEnabled,
   getAppVersion,
   logWarn,
   menuItemClass,
   menuSurfaceClass,
   secondaryButtonClass,
+  setCharacterKeyShortcutsEnabled,
 } from '@/utils';
 import { lazyWithRetry } from '@/utils/performance/lazyWithRetry';
 import { scheduleIdleTask } from '@/utils/performance/idleTasks';
@@ -65,6 +69,13 @@ export default function AppSettingsMenu() {
   const containerRef = React.useRef<HTMLDivElement | null>(null);
   const contentRef = React.useRef<HTMLDivElement | null>(null);
   const [open, setOpen] = React.useState(false);
+  const [characterKeys, setCharacterKeys] = React.useState(
+    characterKeyShortcutsEnabled,
+  );
+  const toggleCharacterKeys = (enabled: boolean) => {
+    setCharacterKeyShortcutsEnabled(enabled);
+    setCharacterKeys(enabled);
+  };
 
   const close = React.useCallback(() => setOpen(false), []);
   useClickOutside([containerRef, contentRef], close, open);
@@ -118,6 +129,15 @@ export default function AppSettingsMenu() {
                 <AppearanceControls />
                 <UpdateCheckButton />
               </div>
+              {/* Speech input types words as keystrokes, so a shortcut on a
+                  single key can fire by mistake (WCAG 2.1.4). */}
+              <MenuCheckRow
+                icon={<KeyboardIcon size={16} />}
+                label={t('settings.characterKeys')}
+                description={t('settings.characterKeysHint')}
+                checked={characterKeys}
+                onChange={toggleCharacterKeys}
+              />
               <div
                 className="my-1 h-px bg-(--border-card)"
                 aria-hidden="true"

@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
-import { CheckIcon, SlidersHorizontalIcon } from '@phosphor-icons/react';
+import { SlidersHorizontalIcon } from '@phosphor-icons/react';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 import ToggleSwitch from '@/components/ui/controls/ToggleSwitch';
-import { menuItemClass, menuSurfaceClass, mutedIconButtonClass } from '@/utils';
+import MenuCheckRow from '@/components/ui/controls/MenuCheckRow';
+import { menuSurfaceClass, mutedIconButtonClass } from '@/utils';
 import { useClickOutside } from '@/hooks/ui/useClickOutside';
 
 const PANEL_MARGIN = 12;
@@ -291,7 +292,7 @@ export function CanvasSettingsGroups({
               option.kind === 'checkList' ? (
                 <div key={option.id} role="group" aria-label={option.label}>
                   {option.items.map((item) => (
-                    <CheckRow
+                    <MenuCheckRow
                       key={item.id}
                       icon={item.icon}
                       label={item.label}
@@ -304,7 +305,7 @@ export function CanvasSettingsGroups({
               ) : option.kind === 'segment' ? (
                 <SegmentSetting key={option.id} option={option} />
               ) : (
-                <CheckRow
+                <MenuCheckRow
                   key={option.id}
                   icon={option.icon}
                   label={option.label}
@@ -327,61 +328,6 @@ export const menuHeadingClass =
   'text-[11px] font-semibold uppercase tracking-wider text-(--text-muted)';
 
 /**
- * One row of the menu: its icon, its word and — while it is on — a check. The
- * row itself is the switch, pressed or not; the check says the same thing
- * without colour.
- */
-function CheckRow({
-  icon,
-  label,
-  description,
-  checked,
-  disabled = false,
-  onChange,
-}: {
-  icon?: React.ReactNode;
-  label: string;
-  description?: string;
-  checked: boolean;
-  disabled?: boolean;
-  onChange: (next: boolean) => void;
-}) {
-  return (
-    <button
-      type="button"
-      aria-pressed={checked}
-      disabled={disabled}
-      onClick={() => onChange(!checked)}
-      className={menuItemClass}
-    >
-      {icon && (
-        <span
-          aria-hidden="true"
-          className={`inline-flex size-4.5 shrink-0 items-center justify-center ${
-            checked ? 'text-(--text-page)' : 'text-(--text-muted)'
-          }`}
-        >
-          {icon}
-        </span>
-      )}
-      <span className="min-w-0 flex-1">
-        <span className="block">{label}</span>
-        {description && (
-          <span className="block text-xs text-(--text-muted)">
-            {description}
-          </span>
-        )}
-      </span>
-      <CheckIcon
-        size={16}
-        aria-hidden="true"
-        className={`shrink-0 text-(--text-badge) ${checked ? '' : 'invisible'}`}
-      />
-    </button>
-  );
-}
-
-/**
  * A setting with a handful of values as rows of the menu, the chosen one
  * checked (e.g. the student photos: on / on hover / off). The hint under them
  * previews what the choice does.
@@ -398,7 +344,7 @@ function SegmentSetting({ option }: { option: CanvasSettingsSegmentOption }) {
         {option.choices.map((choice) => {
           const active = choice.value === option.value;
           return (
-            <CheckRow
+            <MenuCheckRow
               key={choice.value}
               icon={choice.icon}
               label={choice.label}

@@ -21,7 +21,8 @@ import type { StateUpdater } from '@/stores/featureStores';
 import type { SyncSnapshotOptions } from './useUnsavedSeatingTracker';
 
 type UsePlanPersistenceHandlersParams = {
-  currentSeatingLength: number;
+  /** At least one student seated (`hasSeatedStudent`); nothing to save otherwise. */
+  hasPlan: boolean;
   circleLayout: CircleLayout | null;
   saveSeatingPlan: (
     name: string,
@@ -48,7 +49,7 @@ type UsePlanPersistenceHandlersParams = {
 };
 
 export function usePlanPersistenceHandlers({
-  currentSeatingLength,
+  hasPlan,
   circleLayout,
   saveSeatingPlan,
   loadSeatingPlan,
@@ -72,7 +73,7 @@ export function usePlanPersistenceHandlers({
       scene: ClassroomScene,
       options?: Pick<SaveSeatingPlanOptions, 'rename'>,
     ): boolean => {
-      if (currentSeatingLength === 0) {
+      if (!hasPlan) {
         showToast('error', TOAST_MESSAGES.PLAN_NONE_TO_SAVE);
         return false;
       }
@@ -97,7 +98,7 @@ export function usePlanPersistenceHandlers({
     },
     [
       circleLayout,
-      currentSeatingLength,
+      hasPlan,
       saveSeatingPlan,
       setPlanName,
       setPlanNameError,

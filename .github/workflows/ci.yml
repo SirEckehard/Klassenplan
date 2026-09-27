@@ -21,7 +21,7 @@ jobs:
       - run: npm run check:unused # Ratchet: unused exports must not grow
       - run: npm run check:docs # Links, heading anchors and code paths in the docs resolve
       - run: npm test # Execute tests
-      - run: npm run test:e2e # Playwright: smoke specs, the wizard core flow and the first-visit onboarding
+      - run: npm run test:e2e # Playwright: smoke specs, the wizard core flow, the first-visit onboarding, tablet and phone layouts
       - uses: actions/upload-artifact@v7
         if: failure()
         with:

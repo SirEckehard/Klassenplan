@@ -25,7 +25,7 @@ type ListScrollFabProps = {
  * has the least of it, and the direction is unambiguous from the scroll
  * position anyway.
  *
- * `z-40` matches the other floating controls (offline badge, sidebar trigger)
+ * `z-40` matches the other floating control (the offline badge)
  * and stays below modals and toasts.
  */
 export default function ListScrollFab({

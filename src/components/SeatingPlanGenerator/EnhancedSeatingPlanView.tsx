@@ -32,6 +32,7 @@ import {
   canvasFrameClass,
   canvasStageClass,
   canvasFitClass,
+  hasSeatedStudent,
   primaryButtonClass,
 } from '@/utils';
 import { buildNameDisplayGroup } from '@/components/SeatingPlanGenerator/canvas/nameDisplayGroup';
@@ -324,7 +325,7 @@ export default function EnhancedSeatingPlanView(
                 onModeChange={handleModeChange}
                 showModeToggle={showModeToggle}
                 settingsGroups={circleSettingsGroups}
-                canSavePlan={props.currentSeating.length > 0}
+                canSavePlan={hasSeatedStudent(props.currentSeating)}
                 extraTools={
                   <ToolRailButton
                     icon={<ShuffleIcon size={18} />}

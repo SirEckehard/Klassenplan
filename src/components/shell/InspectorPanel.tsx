@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { dataFamilyClass, dataHeadingClass } from '@/utils';
 
 /**
@@ -125,6 +126,7 @@ export function InspectorChoice<T extends string>({
   options,
   onChange,
   label,
+  mixedValues,
 }: {
   value: T | undefined;
   options: ReadonlyArray<{
@@ -136,11 +138,21 @@ export function InspectorChoice<T extends string>({
   onChange: (value: T | undefined) => void;
   /** Names the group for a screen reader; the row's label repeats it on screen. */
   label: string;
+  /**
+   * Several students who do not agree: the values some of them have. Those
+   * chips are outlined in dashes and announced as half pressed — otherwise a
+   * mixed selection looks exactly like one where nothing is set. Pressing one
+   * sets it for all, as pressing any other chip does.
+   */
+  mixedValues?: ReadonlySet<string>;
 }) {
+  const { t } = useTranslation('students');
   return (
     <span role="group" aria-label={label} className="flex flex-wrap gap-1">
       {options.map((option) => {
         const isActive = value === option.value;
+        const isMixed = !isActive && (mixedValues?.has(option.value) ?? false);
+        const title = option.title ?? option.label;
         return (
           <button
             key={option.value}
@@ -148,12 +160,16 @@ export function InspectorChoice<T extends string>({
             // Pressing the value it already has clears it: "not decided" has
             // to stay reachable, or every student ends up with an opinion.
             onClick={() => onChange(isActive ? undefined : option.value)}
-            aria-pressed={isActive}
-            title={option.title ?? option.label}
+            aria-pressed={isActive ? true : isMixed ? 'mixed' : false}
+            title={
+              isMixed ? t('bulkEdit.choiceMixed', { label: title }) : title
+            }
             className={`inline-flex cursor-pointer items-center gap-1 rounded-md border px-2 py-1 text-xs transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) ${
               isActive
                 ? 'border-(--border-option-selected) bg-(--surface-option-selected) text-(--text-badge)'
-                : 'border-(--border-card) bg-(--surface-card) text-(--text-muted) hover:border-(--border-option-hover)'
+                : isMixed
+                  ? 'border-dashed border-(--border-option-selected) bg-(--surface-card) text-(--text-page) hover:bg-(--surface-option-selected)'
+                  : 'border-(--border-card) bg-(--surface-card) text-(--text-muted) hover:border-(--border-option-hover)'
             }`}
           >
             {option.icon}

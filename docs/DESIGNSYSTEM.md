@@ -1,6 +1,6 @@
 # Design System – Klassenplan
 
-> **Status:** current · **Last reviewed:** 2026-09-27 · **Maintainer:** Eike
+> **Status:** current · **Last reviewed:** 2026-09-28 · **Maintainer:** Eike
 > Schäfer · **Describes:** Klassenplan 2.2.0
 
 This document describes the binding design tokens for Klassenplan. All values live in `src/index.css` and are reachable from TypeScript through `src/utils/ui/designTokens.ts`.
@@ -237,7 +237,7 @@ is `canvas-frame` — white, one hairline, no radius.
 
 ## 6b. The inspector
 
-The right-hand panel is a wall, not a stack of cards. A setting inside it is a row — `InspectorRow` with its name and, on the right, a `ToggleSwitch` for a yes/no or `InspectorChoice` chips for a handful of values; pressing the chip a value already has clears it, so "not decided" stays reachable. `InspectorHeader`,
+The right-hand panel is a wall, not a stack of cards. A setting inside it is a row — `InspectorRow` with its name and, on the right, a `ToggleSwitch` for a yes/no or `InspectorChoice` chips for a handful of values; pressing the chip a value already has clears it, so "not decided" stays reachable. Several students who disagree show that too: a switch with its knob in the middle, and the chips of the values some of them have outlined in dashes (`aria-pressed="mixed"`) — otherwise a mixed selection looks like one where nothing is set. `InspectorHeader`,
 `InspectorBody`, `InspectorSection` and `InspectorFooter`
 (`src/components/shell/InspectorPanel.tsx`) are its only parts: the header is a
 strip of 44px media, an `h2` and a subtitle above a hairline; sections carry a
@@ -260,6 +260,11 @@ layer portals in — the room's properties, the plan's criteria, the circle's
 summary — opens as the same drawer from the switch at the right end of the
 status bar, the mirror of the toolbar's switch at the left end. The drawer is
 not modal: the stage beside it stays in reach, and Escape closes it.
+
+The toolbar loses its column on a phone as well. There it is a full-screen
+sheet, and the same place at the left end of the status bar opens it — a
+wrench on a secondary button, since the bar's blue button is the layer's own
+action and a second one floating over the stage would compete with it.
 
 ## 6c. Menus
 

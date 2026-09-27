@@ -10,6 +10,7 @@ import {
   type CircleSummary,
 } from '@/utils/algorithm/circleSummary';
 import {
+  formatPercent,
   getDisplayNameForMode,
   getStatisticStatusMeta,
   resolveLocale,
@@ -169,7 +170,7 @@ function TableNeighbors({
           />
         </span>
         <span className="shrink-0 text-(--text-muted)">
-          {t('mix.fulfillment.value', { percentage })}
+          {formatPercent(percentage)}
         </span>
       </div>
       <p className="text-xs leading-relaxed text-(--text-page)">{sentence}</p>

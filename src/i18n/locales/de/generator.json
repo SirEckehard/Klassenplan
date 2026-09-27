@@ -1,11 +1,4 @@
 {
-  "steps": {
-    "step1": "Klassenliste",
-    "step2": "Klassenraum",
-    "step3": "Sitzplan",
-    "step3Circle": "Sitzkreis",
-    "step4": "Export"
-  },
   "help": {
     "students": {
       "title": "Klassenliste",
@@ -29,7 +22,7 @@
     "plan": {
       "title": "Sitzplan",
       "item1": "Rechts im Inspektor stellst du für jedes Kriterium ein, wie wichtig es ist – Aus, Beachten, Wichtig oder Sehr wichtig –, oder du wählst ein Rezept, das alle auf einmal setzt.",
-      "item2": "Ziehe Schüler auf andere Plätze – auf einem besetzten Platz tauschen die beiden. Esc bricht das Ziehen ab.",
+      "item2": "Ziehe Schüler auf andere Plätze – auf einem besetzten Platz tauschen die beiden. Esc bricht das Ziehen ab. Mit der Tastatur nimmt die Eingabetaste einen Schüler auf, die Pfeiltasten wählen den Platz, die Eingabetaste setzt ihn ab.",
       "item3": "Klicke auf das Schloss-Symbol, um einen Platz beim nächsten Mischen zu sperren.",
       "item4": "Der Knopf über den Kriterien zeigt in Prozent, wie gut der Plan sie erfüllt, und blendet unter jedem Kriterium eine Leiste ein – fährst du über sie, werden die betroffenen Plätze markiert.",
       "item5": "In den Ansichtseinstellungen legst du fest, wie Namen erscheinen sollen (nur Vorname, Vorname + Initial oder Vor- und Nachname) und ob Fotos angezeigt werden.",
@@ -70,14 +63,7 @@
     }
   },
   "sidebar": {
-    "settings": "Einstellungen",
-    "mixSettings": "Misch-Einstellungen",
-    "weights": "Gewichtungen",
-    "mix": "Mischen",
-    "save": "Speichern",
-    "statistics": "Statistiken",
-    "options": "Optionen",
-    "openOptions": "Optionen öffnen",
+    "openLabel": "Werkzeugleiste öffnen",
     "ariaLabel": "Werkzeugleiste",
     "collapseShortcut": "Werkzeugleiste minimieren (Strg/⌘+B)",
     "collapseLabel": "Werkzeugleiste minimieren",
@@ -86,32 +72,21 @@
   },
   "tooltip": {},
   "canvas": {
-    "addFeature": "Raumelement hinzufügen",
     "paste": "Einfügen",
-    "pasteTables": "Tische einfügen",
-    "pasteFeature": "Raumelement einfügen",
-    "addTable": "Tisch hinzufügen",
-    "deleteTable": "Tisch löschen",
-    "rotateTable": "Tisch drehen",
-    "lockSeat": "Platz sperren",
-    "unlockSeat": "Platz entsperren",
     "undo": "Rückgängig (Strg/⌘+Z)",
     "undoLabel": "Letzte Aktion rückgängig machen",
     "redo": "Wiederherstellen (Strg/⌘+Umschalt+Z)",
     "redoLabel": "Letzte Aktion wiederherstellen"
   },
   "actions": {
-    "backShortcut": "Zurück (Alt/⌥+←)",
     "export": "Exportieren",
     "exportShortcut": "Exportieren (Strg/⌘+E)",
     "mixAgain": "Mischen",
     "mixNow": "Jetzt neu mischen",
     "print": "Drucken",
-    "reset": "Zurücksetzen",
     "retryMix": "Erneut mischen",
     "savePlan": "Plan speichern",
-    "saveShortcut": "Plan speichern (Strg/⌘+S)",
-    "shuffle": "Mischen"
+    "saveShortcut": "Plan speichern (Strg/⌘+S)"
   },
   "present": {
     "button": "Präsentieren",
@@ -120,7 +95,6 @@
     "teacherViewTitle": "Sitzplan aus Sicht der Lehrkraft zeigen",
     "studentView": "Schüleransicht",
     "studentViewTitle": "Sitzplan aus Sicht der Klasse zeigen – ohne Merkmale und Fotos",
-    "circleView": "Sitzkreis",
     "badges": "Merkmale",
     "badgesTitle": "Merkmal-Symbole der Schüler ein- oder ausblenden",
     "photos": "Fotos",
@@ -130,7 +104,6 @@
     "names": "Namen",
     "features": "Raum",
     "featuresTitle": "Raumelemente (Tafel, Fenster, Türen, Möbel) ein- oder ausblenden",
-    "zoom": "Zoom",
     "zoomTitle": "Ansicht vergrößern oder verkleinern",
     "resetView": "Ansicht zentrieren und zurücksetzen",
     "back": "Zurück",
@@ -141,7 +114,6 @@
     "pickRemaining_one": "noch {{count}} übrig",
     "pickRemaining_other": "noch {{count}} übrig",
     "pickReset": "Auswahl zurücksetzen (Esc)",
-    "fullscreen": "Vollbild",
     "fullscreenTitle": "Vollbild starten (F)",
     "fullscreenExitTitle": "Vollbild beenden (F)",
     "perspective": "Ansicht",
@@ -168,20 +140,14 @@
     "genderNeutral": "Ohne Angabe"
   },
   "circleView": {
-    "step3": "Schritt 3: Sitzplan bearbeiten",
-    "step3Desc": "Plätze mischen, per Drag and Drop anpassen.",
     "title": "Sitzkreis",
     "syncTitle": "Sitzkreis an Sitzplan anpassen",
     "syncButton": "An Sitzplan anpassen",
     "shuffleTitle": "Sitzkreis zufällig anordnen",
     "shuffleButton": "Zufällig mischen",
     "showConnections": "Verbindungen anzeigen",
-    "photoMode": "Fotos: {{mode}}",
-    "photoModeDescription": "Schülerfotos an den Plätzen anzeigen (An / Hover / Aus).",
-    "generatingTitle": "Sitzkreis wird generiert...",
+    "generatingTitle": "Sitzkreis wird generiert…",
     "generatingHint": "Der Sitzkreis wird automatisch basierend auf dem Tischplan erstellt.",
-    "syncDescription": "Sitzkreis an Änderungen im Sitzplan anpassen.",
-    "shuffleDescription": "Nur Sitzkreis ändern (Sitzplan bleibt unverändert).",
     "canvasLabel_one": "Sitzkreis mit {{count}} Schüler",
     "canvasLabel_other": "Sitzkreis mit {{count}} Schülern",
     "orderLabel": "Sitzreihenfolge im Sitzkreis",
@@ -210,12 +176,12 @@
   "seat": {
     "lockSeat": "Sitzplatz sperren",
     "unlockSeat": "Sitzplatz entsperren",
-    "fulfillmentTitle": "Erfüllung {{percentage}}%",
+    "fulfillmentTitle": "Erfüllung {{percentage}}",
     "ariaOccupied": "{{name}} – Tisch {{table}}, Platz {{seat}}",
     "ariaEmpty": "Freier Platz – Tisch {{table}}, Platz {{seat}}",
     "ariaLocked": "gesperrt",
     "keyboard": {
-      "grabbed": "{{name}} aufgenommen. Mit Tab zum Zielplatz wechseln, Eingabetaste zum Absetzen, Escape zum Abbrechen.",
+      "grabbed": "{{name}} aufgenommen. Mit den Pfeiltasten zum Zielplatz wechseln, Eingabetaste zum Absetzen, Escape zum Abbrechen.",
       "moved": "{{name}} auf Tisch {{table}}, Platz {{seat}} abgesetzt.",
       "cancelled": "Umsetzen abgebrochen.",
       "lockedTarget": "Tisch {{table}}, Platz {{seat}} ist gesperrt. Bitte anderen Platz wählen.",
@@ -240,43 +206,12 @@
     "faqLink": "Daten auf ein neues Gerät mitnehmen"
   },
   "mixButton": {
-    "label": "Mischen",
-    "loadingAriaLabel": "Mischvorgang läuft",
-    "loadingTitle": "Mischvorgang läuft...",
-    "shortcut": "Mischen (Strg/⌘+Eingabetaste)",
-    "title": "Sitzplan mischen"
-  },
-  "messages": {
-    "noStudents": "Noch keine Schüler hinzugefügt",
-    "noTables": "Noch keine Tische platziert",
-    "notEnoughSeats": "Nicht genügend Sitzplätze für alle Schüler"
+    "shortcut": "Mischen (Strg/⌘+Eingabetaste)"
   },
   "cookieConsent": {
     "message": "Diese Website speichert notwendige Informationen lokal in deinem Browser. Es werden keine Cookies verwendet und keine Daten an Server übertragen. Weitere Informationen findest du in der",
     "privacyLink": "Datenschutzerklärung",
     "accept": "Verstanden"
-  },
-  "navigation": {
-    "toHome": "Zur Startseite",
-    "menuTitle": "Speicher & Backup",
-    "menuSubtitle": "Verwalte deine Sitzpläne, Mischergebnisse und Backups.",
-    "closeMenu": "Speicher & Backup schließen",
-    "quickActions": "Schnellaktionen",
-    "quickActionsHint": "Speichere den aktuellen Plan oder lade das letzte Mischergebnis.",
-    "savePlan": "Plan speichern",
-    "noPlanAvailable": "Kein Plan vorhanden",
-    "loadLastMix": "Letztes Mischergebnis laden",
-    "noMixResults": "Keine Misch-Ergebnisse",
-    "savedPlansTitle": "Gespeicherte Sitzpläne",
-    "savedPlansDescription": "{{count}} gespeicherte Sitzpläne",
-    "mixHistoryTitle": "Misch-Historie",
-    "mixHistoryDescription": "{{count}} Misch-Ergebnisse",
-    "backupTitle": "Backup",
-    "backupDescription": "Alle Daten sichern und wiederherstellen.",
-    "exportBackup": "Backup exportieren",
-    "exportBackupHint": "Alle Daten und Einstellungen als JSON sichern.",
-    "importBackup": "Backup importieren",
-    "importBackupHint": "Alle Daten und Einstellungen wiederherstellen."
   },
   "storage": {
     "sectionTitle": "Speicher & Backup",
@@ -289,8 +224,8 @@
     "mixHistory": "Letzte Mischungen",
     "noPlans": "Keine gespeicherten Pläne vorhanden.",
     "noMixes": "Keine Misch-Ergebnisse vorhanden.",
-    "planLoaded": "Plan \"{{name}}\" geladen.",
-    "planDeleted": "Plan \"{{name}}\" gelöscht.",
+    "planLoaded": "Plan „{{name}}“ geladen.",
+    "planDeleted": "Plan „{{name}}“ gelöscht.",
     "mixLoaded": "Mischergebnis von {{time}} geladen.",
     "mixDeleted": "Mischergebnis gelöscht.",
     "historyTabs": "Verlauf",
@@ -372,8 +307,6 @@
     "disableAll": "Alle Kriterien deaktivieren",
     "toggleAll": "Alle Kriterien",
     "resetDefaults": "Standardwerte",
-    "on": "An",
-    "off": "Aus",
     "importance": {
       "off": "Aus",
       "consider": "Beachten",
@@ -394,8 +327,7 @@
     "railDefaultsHint": "Rechtsklick, lange drücken, Umschalt+F10 oder Pfeil nach rechts: Standardwerte",
     "fulfillment": {
       "label": "Erfüllung",
-      "value": "{{percentage}} %",
-      "suffix": ", zu {{percentage}} % erfüllt",
+      "suffix": ", zu {{percentage}} erfüllt",
       "plainLabel": "Erfüllung {{label}}: {{value}}",
       "pinLabel": "Erfüllung {{label}}: {{value}} – betroffene Plätze markieren",
       "unpinLabel": "Erfüllung {{label}}: {{value}} – Markierung aufheben"
@@ -487,15 +419,10 @@
     "group4": "4er-Gruppe",
     "group6": "6er-Gruppe",
     "tableTypes": "Tischtypen",
-    "tableTypesDescription": "Ziehe Tische in den Klassenraum.",
     "roomElements": "Raumelemente",
     "roomElementsToggleAll": "Alle Raumelemente ein- oder ausblenden",
-    "roomElementsDescription": "Ziehe Fenster, Türen, Pult, Tafel oder Möbel in den Klassenraum.",
     "setupClassroom": "Klassenraum einrichten",
     "emptyRoomHint": "Der Raum ist noch leer: Stelle unter „Einrichten“ Tische für die ganze Klasse auf oder füge einzelne Tische hinzu.",
-    "statusBadge": "{{students}} Schüler, {{seats}} Plätze.",
-    "classroomTitle": "Klassenraum",
-    "planTitle": "Sitzplan",
     "window": "Fenster",
     "door": "Tür",
     "board": "Tafel",
@@ -527,43 +454,30 @@
     "circlePdfShortcut": "Sitzkreis als PDF exportieren (P)",
     "tableDefaultFilename": "Sitzplan",
     "circleDefaultFilename": "Sitzkreis",
-    "dragDropHint": "Ziehe Elemente hierher",
-    "dragDropPlace": "Hier ablegen",
     "backToSeating": "Zurück zum Sitzplan",
     "backToSeatingShortcut": "Zurück zum Sitzplan (Alt/⌥+←)",
     "backTitle": "Zurück (Alt/⌥+←)",
     "preview": "Vorschau",
     "roomElements": "Raumelemente",
-    "switchPreviewHint": "Wechsle die Vorschau zwischen Sitzplan und Sitzkreis oben",
     "showConnections": "Verbindungen anzeigen",
     "showBoard": "Tafel anzeigen",
-    "showWindows": "Fenster anzeigen",
-    "showDoor": "Tür anzeigen",
-    "showPodium": "Pult anzeigen",
-    "showWhiteboard": "Whiteboards anzeigen",
-    "showCabinet": "Schränke anzeigen",
-    "showDivider": "Raumtrenner anzeigen",
     "showNeeds": "Bedürfnisse anzeigen",
     "showPhotos": "Fotos anzeigen",
     "showClassInfo": "Zusätzliche Klasseninfos anzeigen",
     "showLegend": "Legende anzeigen",
-    "generatingCircle": "Sitzkreis wird erstellt...",
+    "generatingCircle": "Sitzkreis wird erstellt…",
     "circleStage": {
-      "initializing": "Sitzkreis wird vorbereitet...",
-      "analyzing": "Sitzplan wird analysiert...",
-      "arranging": "Schüler werden angeordnet..."
+      "initializing": "Sitzkreis wird vorbereitet…",
+      "analyzing": "Sitzplan wird analysiert…",
+      "arranging": "Schüler werden angeordnet…"
     },
     "cancelCircleGeneration": "Abbrechen",
     "printDownloadedInfo": "Pop-up blockiert - PDF wurde heruntergeladen. Bitte öffne die Datei zum Drucken.",
     "errors": {
       "printPreviewUnavailable": "Die Druckvorschau ist noch nicht bereit. Bitte warten Sie einen Moment und versuchen Sie es erneut.",
       "printPreparationFailed": "Drucken konnte nicht vorbereitet werden. Bitte versuchen Sie es erneut.",
-      "printStartFailed": "Drucken konnte nicht gestartet werden. Bitte versuchen Sie es erneut.",
-      "printFrameMissing": "Drucken konnte nicht vorbereitet werden (Frame fehlt).",
-      "printPopupBlocked": "Das Druckfenster wurde blockiert. Bitte erlaube Pop-ups für diese Seite.",
       "tablePdfFailed": "Sitzplan PDF-Export fehlgeschlagen. Bitte versuchen Sie es erneut.",
       "circlePdfFailed": "Sitzkreis PDF-Export fehlgeschlagen. Bitte versuchen Sie es erneut.",
-      "circleGenerationFailed": "Sitzkreis konnte nicht erstellt werden.",
       "imagePreviewUnavailable": "Die Vorschau ist noch nicht bereit. Bitte warte einen Moment und versuche es erneut.",
       "pngFailed": "PNG-Export fehlgeschlagen. Bitte versuche es erneut.",
       "svgFailed": "SVG-Export fehlgeschlagen. Bitte versuche es erneut."
@@ -590,14 +504,6 @@
     "badgeFamiliesHint": "Was ausgeschaltet ist, steht weder auf dem Plan noch in der Legende."
   },
   "wizard": {
-    "step": "Schritt",
-    "goToStep": "Zu Schritt {{step}}",
-    "progressLabel": "Wizard-Fortschritt",
-    "stepLabels": {
-      "students": "Schüler",
-      "layout": "Raum",
-      "plan": "Plan"
-    },
     "back": "Zurück",
     "backToStudents": "Zurück zur Klassenliste",
     "backToRoom": "Zurück zum Klassenraum",
@@ -623,8 +529,6 @@
     "overwriteSelect": "Vorlage zum Überschreiben auswählen"
   },
   "circle": {
-    "backToClassroom": "Zurück zum Klassenraum",
-    "planNameError": "Bitte gib einen Namen ein.",
     "date": "Datum"
   },
   "editor": {
@@ -654,18 +558,11 @@
     "photoOverlapWarning": "Fotokollisionen anzeigen",
     "rotateTable": "Tisch drehen",
     "showBoard": "Tafel anzeigen",
-    "showCabinet": "Schränke anzeigen",
-    "showDivider": "Raumtrenner anzeigen",
-    "showDoor": "Tür anzeigen",
     "showGrid": "Raster anzeigen",
-    "showPodium": "Pult anzeigen",
     "showFulfillment": "Erfüllung je Kriterium zeigen",
     "hideFulfillment": "Erfüllung je Kriterium ausblenden",
-    "showWhiteboard": "Whiteboards anzeigen",
-    "showWindows": "Fenster anzeigen",
     "snapToGrid": "Am Raster ausrichten",
     "studentPhotos": "Schülerfotos",
-    "viewOptions": "Ansichtsoptionen",
     "viewSettings": "Ansichtseinstellungen",
     "workspace": "Arbeitsfläche",
     "badges": {
@@ -700,7 +597,7 @@
     "deletePlan": "Sitzplan löschen",
     "deletePlanAriaLabel": "Sitzplan {{name}} löschen",
     "deleteDialogTitle": "Sitzplan löschen",
-    "deleteDialogMessage": "Möchtest du den Sitzplan \"{{name}}\" wirklich löschen?",
+    "deleteDialogMessage": "Möchtest du den Sitzplan „{{name}}“ wirklich löschen?",
     "studentsBadge": "{{count}} Schüler",
     "tablesBadge": "{{count}} Tische",
     "seatsPerTableBadge": "{{count}} / Tisch",
@@ -726,31 +623,26 @@
     "deleteTitle": "Sitzplan löschen",
     "deleteAriaLabel": "Sitzplan {{name}} löschen",
     "deleteDialogTitle": "Sitzplan löschen",
-    "deleteDialogMessage": "Möchtest du den Sitzplan \"{{name}}\" wirklich löschen?",
+    "deleteDialogMessage": "Möchtest du den Sitzplan „{{name}}“ wirklich löschen?",
     "emptyTitle": "Noch keine Pläne gespeichert",
     "emptyHint": "Speichere deinen ersten Plan mit „Plan speichern“ auf der Ebene Plan."
   },
   "circleStatus": {
-    "preparing": "Sitzkreis wird vorbereitet...",
-    "fromPlan": "Sitzkreis wird aus dem Sitzplan übernommen..."
+    "preparing": "Sitzkreis wird vorbereitet…",
+    "fromPlan": "Sitzkreis wird aus dem Sitzplan übernommen…"
   },
   "statisticsBadge": {
     "close": "Schließen",
-    "footerHint": "Tipp: Passe die Gewichtung in den Optionen an.",
     "highlightOff": "Hervorhebung aus",
     "highlighted_one": "Hervorgehoben: {{criterion}} — {{count}} offener Platz",
     "highlighted_other": "Hervorgehoben: {{criterion}} — {{count}} offene Plätze",
-    "hoverHint": "Wenn du über ein Kriterium hoverst, werden die betroffenen Plätze im Sitzplan hervorgehoben. Klicke, um die Hervorhebung zu fixieren.",
-    "hoverHintShort": "Hover für Markierung",
     "overallLabel": "Gesamt",
-    "overallScore": "Gesamt-Score:",
     "status": {
       "ok": "Erfüllung über 80 % (gut)",
       "warn": "Erfüllung zwischen 50 % und 80 % (teilweise)",
       "alert": "Erfüllung unter 50 % (gering)"
     },
-    "title": "Kriterien-Erfüllung",
-    "weightLabel": "Gewichtung: {{weight}}/10"
+    "title": "Kriterien-Erfüllung"
   },
   "shortcuts": {
     "labels": {

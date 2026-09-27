@@ -10,7 +10,6 @@
   "language": {
     "de": "Deutsch",
     "en": "English",
-    "select": "Select language",
     "switchTo": "Switch to {{language}}"
   },
   "nav": {
@@ -41,44 +40,9 @@
     "cancel": "Cancel"
   },
   "buttons": {
-    "save": "Save",
-    "cancel": "Cancel",
-    "delete": "Delete",
-    "edit": "Edit",
-    "add": "Add",
-    "close": "Close",
-    "back": "Back",
-    "next": "Next",
-    "confirm": "Confirm",
-    "undo": "Undo",
-    "redo": "Redo",
-    "print": "Print",
-    "toGenerator": "Go to Generator",
-    "contactUs": "Contact Us",
-    "giveFeedback": "Give Feedback"
+    "cancel": "Cancel"
   },
-  "labels": {
-    "yes": "Yes",
-    "no": "No",
-    "name": "Name",
-    "class": "Class",
-    "student": "Student",
-    "students": "Students",
-    "table": "Table",
-    "tables": "Tables",
-    "seat": "Seat",
-    "seats": "Seats",
-    "version": "Version"
-  },
-  "features": {
-    "window": "Window",
-    "door": "Door",
-    "board": "Blackboard",
-    "podium": "Teacher's Desk",
-    "whiteboard": "Whiteboard",
-    "cabinet": "Cabinet",
-    "divider": "Room Divider"
-  },
+  "quoted": "“{{text}}”",
   "gender": {
     "male": "male",
     "female": "female",
@@ -92,56 +56,17 @@
     "performanceStrong": "high performer",
     "performanceWeak": "needs support"
   },
-  "studentFlagTooltips": {
-    "restless": "Currently showing restless behavior in class",
-    "shy": "Currently showing withdrawn behavior in class",
-    "concentrationIssues": "Gets distracted easily at the moment",
-    "needsFrontSeat": "Needs a fixed front seat",
-    "performanceStrong": "Currently showing particular strengths in class",
-    "performanceWeak": "Currently showing support needs in class"
-  },
   "heightCategories": {
     "small": "short",
     "medium": "medium",
     "tall": "tall"
   },
   "theme": {
-    "light": "Light",
-    "dark": "Dark",
     "toggle": "Toggle theme"
   },
-  "pages": {
-    "faq": {
-      "title": "Frequently Asked Questions",
-      "description": "Find answers about the algorithm, settings, usage, and the project.",
-      "stillUnclear": "Still have questions?",
-      "stillUnclearDescription": "If your question wasn't answered here, feel free to contact us via email. All information can be found on our contact page."
-    },
-    "changelog": {
-      "title": "Changelog",
-      "description": "All changes and new features at a glance",
-      "newFeatures": "New Features",
-      "improvements": "Improvements",
-      "bugfixes": "Bug Fixes",
-      "knownIssues": "Known Issues",
-      "feedbackTitle": "Questions or Feedback?",
-      "feedbackDescription": "I appreciate your feedback on new features and improvements."
-    },
-    "export": {
-      "title": "Export",
-      "backToSeating": "Back to Seating Plan",
-      "preview": "Preview",
-      "roomElements": "Room Elements",
-      "showBoard": "Show Blackboard",
-      "showWindows": "Show Windows",
-      "showDoor": "Show Door",
-      "showPodium": "Show Teacher's Desk",
-      "showWhiteboard": "Show Whiteboards",
-      "showCabinet": "Show Cabinets",
-      "showDivider": "Show Room Dividers",
-      "showConnections": "Show Connections",
-      "showNeeds": "Show Special Needs"
-    }
+  "settings": {
+    "characterKeys": "Single-key shortcuts",
+    "characterKeysHint": "?, P, F, 1–3, Q/E … – turn off for speech input"
   },
   "errors": {
     "generic": "An error occurred",

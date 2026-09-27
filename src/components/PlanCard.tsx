@@ -207,7 +207,7 @@ function PlanCard({ plan, onLoad, onDelete, onRename }: Props) {
         title={t('planCard.deleteDialogTitle', 'Sitzplan löschen')}
         message={t('planCard.deleteDialogMessage', {
           name: plan.name,
-          defaultValue: `Möchtest du den Sitzplan "${plan.name}" wirklich löschen?`,
+          defaultValue: `Möchtest du den Sitzplan „${plan.name}“ wirklich löschen?`,
         })}
         confirmLabel={t('common.delete', 'Löschen')}
         cancelLabel={t('common.cancel', 'Abbrechen')}

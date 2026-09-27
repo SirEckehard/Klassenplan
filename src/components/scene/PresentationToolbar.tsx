@@ -20,7 +20,7 @@ import {
   XIcon,
   type Icon,
 } from '@phosphor-icons/react';
-import type { NameDisplayMode } from '@/utils';
+import { formatPercent, type NameDisplayMode } from '@/utils';
 import type { PresentationPerspective } from '@/utils/ui/boardOrientation';
 import type { SeatingMode } from '@/types/Circle';
 import {
@@ -349,7 +349,7 @@ export default function PresentationToolbar({
             className="w-24 cursor-pointer accent-(--button-primary-bg) sm:w-28"
           />
           <span className="w-11 text-right text-xs font-semibold tabular-nums text-(--present-bar-text)">
-            {Math.round(zoom * 100)} %
+            {formatPercent(zoom * 100)}
           </span>
         </div>
         <button

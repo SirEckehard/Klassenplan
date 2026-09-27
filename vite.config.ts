@@ -88,7 +88,7 @@ const resolveTailwindcssPlugin = async (): Promise<PluginOption> => {
 const tailwindcss = await resolveTailwindcssPlugin();
 
 /**
- * Preloads the Latin subset of DM Sans, the only font file a German or English
+ * Preloads the Latin subset of Instrument Sans, the only font file a German or English
  * page needs. The stylesheet reveals it only once the CSS has been downloaded
  * and parsed, which queued the font behind the stylesheet (PageSpeed Insights:
  * network dependency tree) and let the swap land after the first paint. The
@@ -163,8 +163,11 @@ export default defineConfig({
         short_name: 'Klassenplan',
         description:
           'Intelligente Sitzpläne für Schulen - effizient und datenschutzkonform',
-        theme_color: '#1B4965',
-        background_color: '#1B4965',
+        // Paper, as the app's own surface (`--surface-page`): the installed
+        // app's title bar and its splash screen open on what the page shows,
+        // not on the dark brand tile.
+        theme_color: '#fcfbf8',
+        background_color: '#fcfbf8',
         display: 'standalone',
         orientation: 'any',
         start_url: '/',

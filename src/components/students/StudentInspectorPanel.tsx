@@ -49,7 +49,9 @@ export default function StudentInspectorPanel({
   // panel.
   const handleRemove = React.useCallback(async () => {
     const name = student.name.trim();
-    const label = name ? `"${name}"` : t('studentInput.thisStudent');
+    const label = name
+      ? t('common:quoted', { text: name })
+      : t('studentInput.thisStudent');
     const confirmed = await confirmDialog(
       t('studentInput.removeStudentMessage', { studentName: label }),
       {

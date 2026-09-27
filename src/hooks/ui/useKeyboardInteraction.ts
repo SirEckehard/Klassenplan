@@ -13,6 +13,7 @@ import {
   collectRotationTargets,
   hasRotationTargets,
   isFormElementFocused,
+  isSilencedCharacterKey,
   logDebug,
   moveFeaturesBy,
   rotateTargets,
@@ -364,7 +365,13 @@ export function useKeyboardInteraction({
       const normalizedKey = event.key.toLowerCase();
 
       if (normalizedKey === 'e' || normalizedKey === 'q') {
-        if (focusInInput || hasSystemModifier) {
+        // The inspector turns a table as well, so switching the keys off
+        // (WCAG 2.1.4) takes nothing away.
+        if (
+          focusInInput ||
+          hasSystemModifier ||
+          isSilencedCharacterKey(event)
+        ) {
           return;
         }
         event.preventDefault();

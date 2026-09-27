@@ -87,10 +87,12 @@ Favicon-PNGs (`favicon-16-dark.png`, `favicon-32-dark.png`, `favicon-48-dark.png
       "purpose": "maskable any"
     }
   ],
-  "theme_color": "#2563EB",
-  "background_color": "#FFFFFF"
+  "theme_color": "#FCFBF8",
+  "background_color": "#FCFBF8"
 }
 ```
+
+`theme_color` und `background_color` sind die Papierfarbe der App (`--surface-page`), nicht die Markenfarbe: Titelleiste und Startbildschirm der installierten App sollen aussehen wie die Seite, die gleich erscheint. Die `theme-color`-Meta-Tags in `index.html` setzen dieselbe Farbe für den hellen und `#101113` für den dunklen Modus.
 
 ## Wortmarke
 
@@ -99,7 +101,7 @@ Favicon-PNGs (`favicon-16-dark.png`, `favicon-32-dark.png`, `favicon-48-dark.png
 - Letter-Spacing: −1.5 % (leicht verdichtet, üblich für Logos)
 - Glyphen sind im SVG als Pfade eingebettet – die Datei rendert ohne installierte Schrift identisch.
 
-Da DM Sans Variable bereits eure Webapp-Schrift ist, bleibt die Markenstimme zwischen Logo und UI-Typografie konsistent: das Wortlogo ist nichts anderes als ein gesetzter Headline-Block in eurer eigenen Schrift, nur als Pfade eingefroren.
+Die App selbst setzt seit dem Redesign „Papier & Werkzeug“ Instrument Sans. Die Wortmarke bleibt in DM Sans: Sie ist als Pfade eingefroren und hängt an keiner Schrift der App.
 
 ## Maskable-Hinweis
 

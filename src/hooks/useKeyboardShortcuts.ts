@@ -2,7 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 
-import { isFormElementFocused } from '@/utils';
+import { isFormElementFocused, isSilencedCharacterKey } from '@/utils';
 
 export type KeyboardShortcuts = Record<string, () => void>;
 
@@ -121,6 +121,11 @@ export function useKeyboardShortcuts(
       }
 
       if (ignoreWhileTyping && isFormElementFocused()) {
+        return;
+      }
+
+      // "?", P, F, + … can be switched off in the settings (WCAG 2.1.4).
+      if (isSilencedCharacterKey(keyboardEvent)) {
         return;
       }
 

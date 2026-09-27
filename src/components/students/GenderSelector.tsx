@@ -23,9 +23,12 @@ const GENDER_LABELS = {
 export default function GenderSelector({
   student,
   updateStudent,
+  mixedValues,
 }: {
   student: Student;
   updateStudent: (id: string, patch: Partial<Student>) => void;
+  /** Values only some of a multi-selection have; see `InspectorChoice`. */
+  mixedValues?: ReadonlySet<string>;
 }) {
   const { t } = useTranslation('students');
 
@@ -34,6 +37,7 @@ export default function GenderSelector({
       <InspectorChoice
         label={t('gender.title')}
         value={student.gender}
+        mixedValues={mixedValues}
         onChange={(next) => updateStudent(student.id, { gender: next })}
         options={(['boy', 'girl', 'diverse'] as const).map((gender) => ({
           value: gender,

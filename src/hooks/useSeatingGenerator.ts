@@ -29,6 +29,7 @@ import { usePlanUsageTracking } from './plan/usePlanUsageTracking';
 import { usePlanUsageRecords } from './plan/usePlanUsageRecords';
 import { useStudentHistory } from './student/useStudentHistory';
 import type { ClassroomScene as ClassroomSceneT, Student } from '@/types';
+import { hasSeatedStudent } from '@/utils';
 
 /**
  * Composes seating state, persistence, algorithm utilities, and UI orchestration into a single generator hook.
@@ -80,7 +81,13 @@ export function useSeatingGenerator() {
       moveStudent,
     },
     historyState: { seatingHistory, mixHistory, deleteMixResult },
-    planState: { currentSeating, setCurrentSeating, planName, setPlanName },
+    planState: {
+      currentSeating,
+      setCurrentSeating,
+      planName,
+      setPlanName,
+      activePlanId,
+    },
     algorithmState: {
       mixSettings,
       setMixSettings,
@@ -497,7 +504,7 @@ export function useSeatingGenerator() {
   // Plan persistence handlers
   const { handleSaveSeatingPlan, handleHistoryLoad, handleMixLoad } =
     usePlanPersistenceHandlers({
-      currentSeatingLength: currentSeating.length,
+      hasPlan: hasSeatedStudent(currentSeating),
       circleLayout,
       saveSeatingPlan,
       loadSeatingPlan,
@@ -538,6 +545,7 @@ export function useSeatingGenerator() {
       classroomEdited,
       hasUnsavedSeatingChanges,
       planName,
+      activePlanId,
       planNameError,
       planNameInputRef,
       autoMixing,
@@ -573,6 +581,7 @@ export function useSeatingGenerator() {
       classroomEdited,
       hasUnsavedSeatingChanges,
       planName,
+      activePlanId,
       planNameError,
       planNameInputRef,
       autoMixing,

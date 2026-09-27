@@ -5,19 +5,17 @@ import { useTranslation } from 'react-i18next';
 import {
   ArrowLineLeftIcon,
   ArrowLineRightIcon,
-  GearIcon,
+  WrenchIcon,
   XIcon,
 } from '@phosphor-icons/react';
 import {
   iconButtonClass,
   panelSurfaceClass,
-  primaryButtonClass,
   secondaryButtonClass,
 } from '@/utils';
 import { type UseCollapsibleSidebarOptions } from '@/hooks/ui/useCollapsibleSidebar';
 import { useShellToolRail, useToolRailState } from '@/contexts/ToolRailContext';
 import { useLayoutMode } from '@/hooks/ui/useLayoutMode';
-import { useFloatingActionOffset } from '@/hooks/ui/useFloatingActionOffset';
 import { useAdaptiveViewportHeight } from '@/hooks/ui/useAdaptiveViewportHeight';
 import { useDialogA11y } from '@/hooks/ui/useDialogA11y';
 import { useDialogLayer } from '@/hooks/ui/useDialogLayer';
@@ -54,19 +52,20 @@ export default function SmartSidebar({
   const layoutMode = useLayoutMode();
   const isPhone = layoutMode === 'phone';
   // Inside the workspace the status bar owns the switch and the state is
-  // shared; a sidebar outside the shell — the export page's — keeps both.
+  // shared — the column's width and, on a phone, whether the sheet is up. A
+  // sidebar outside the shell keeps both.
   const shellRail = useShellToolRail();
   const ownRail = useToolRailState(sidebarOptions);
   const rail = shellRail ?? ownRail;
   const ownsSwitch = shellRail === null;
-  const [mobileOpen, setMobileOpen] = React.useState(false);
+  const { sheetOpen: mobileOpen, setSheetOpen } = rail;
   const openMobileOverlay = React.useCallback(
-    () => setMobileOpen(true),
-    [setMobileOpen],
+    () => setSheetOpen(true),
+    [setSheetOpen],
   );
   const closeMobileOverlay = React.useCallback(
-    () => setMobileOpen(false),
-    [setMobileOpen],
+    () => setSheetOpen(false),
+    [setSheetOpen],
   );
   const containerRef = React.useRef<HTMLElement | null>(null);
   const collapseButtonRef = React.useRef<HTMLButtonElement | null>(null);
@@ -105,8 +104,6 @@ export default function SmartSidebar({
   );
   const renderedChildren =
     typeof children === 'function' ? children(renderProps) : children;
-
-  const floatingTriggerOffsets = useFloatingActionOffset();
 
   // Handle keyboard shortcuts
   React.useEffect(() => {
@@ -152,23 +149,25 @@ export default function SmartSidebar({
     return { maxHeight };
   }, [maxHeight]);
 
-  // Only a phone has no room for a column: floating button + full-screen sheet.
+  // Only a phone has no room for a column: the toolbar is a full-screen sheet.
+  // Its switch sits at the left end of the status bar, where the column's
+  // switch sits on a tablet — nothing floats over the stage, and the bar's
+  // blue button stays the only one on the screen.
   if (isPhone) {
     return (
       <>
-        {/* Floating trigger button */}
-        <button
-          type="button"
-          onClick={openMobileOverlay}
-          className={`${primaryButtonClass} fixed bottom-4 right-4 z-40 flex items-center gap-2 px-4 py-3 shadow-lg`}
-          style={floatingTriggerOffsets}
-          aria-label={t('sidebar.openOptions', 'Optionen öffnen')}
-        >
-          <GearIcon size={20} />
-          <span className="text-sm font-medium">
-            {t('sidebar.options', 'Optionen')}
-          </span>
-        </button>
+        {ownsSwitch && (
+          <button
+            type="button"
+            onClick={openMobileOverlay}
+            aria-haspopup="dialog"
+            aria-expanded={mobileOpen}
+            className={`${secondaryButtonClass} h-9 gap-2 self-start px-3 text-sm`}
+          >
+            <WrenchIcon size={18} aria-hidden="true" />
+            <span>{t('sidebar.ariaLabel')}</span>
+          </button>
+        )}
 
         {/* Full-screen overlay */}
         {mobileOpen && (
@@ -183,7 +182,7 @@ export default function SmartSidebar({
             {/* Header with close button */}
             <div className="sticky top-0 z-10 flex items-center justify-between border-b border-(--border-panel) bg-(--surface-card) px-4 py-3">
               <h2 id={mobileSheetTitleId} className="text-lg font-semibold">
-                {t('sidebar.options', 'Optionen')}
+                {t('sidebar.ariaLabel')}
               </h2>
               <button
                 type="button"
@@ -216,8 +215,10 @@ export default function SmartSidebar({
         ${className}
       `}
       role="complementary"
-      aria-label={t('sidebar.ariaLabel', 'Optionen-Sidebar')}
-      aria-expanded={isExpanded}
+      aria-label={t('sidebar.ariaLabel')}
+      // A landmark has no expanded state; the switch that changes the width
+      // announces it (`aria-expanded` there). Tests read it from here.
+      data-expanded={isExpanded}
       data-tour={tourAnchor}
     >
       <div className="flex h-full min-h-0 flex-col">
@@ -234,16 +235,13 @@ export default function SmartSidebar({
               className={`${secondaryButtonClass} h-9 w-full justify-center gap-2 px-2 text-sm`}
               title={
                 isExpanded
-                  ? t(
-                      'sidebar.collapseShortcut',
-                      'Sidebar minimieren (⌘/Strg+B)',
-                    )
-                  : t('sidebar.expandShortcut', 'Sidebar erweitern (⌘/Strg+B)')
+                  ? t('sidebar.collapseShortcut')
+                  : t('sidebar.expandShortcut')
               }
               aria-label={
                 isExpanded
-                  ? t('sidebar.collapseLabel', 'Sidebar minimieren')
-                  : t('sidebar.expandLabel', 'Sidebar erweitern')
+                  ? t('sidebar.collapseLabel')
+                  : t('sidebar.expandLabel')
               }
               aria-expanded={isExpanded}
             >
@@ -252,7 +250,7 @@ export default function SmartSidebar({
               ) : (
                 <ArrowLineRightIcon size={18} aria-hidden="true" />
               )}
-              {isExpanded && <span>{t('sidebar.options', 'Optionen')}</span>}
+              {isExpanded && <span>{t('sidebar.ariaLabel')}</span>}
             </button>
           </div>
         )}

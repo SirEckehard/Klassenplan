@@ -2,7 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { EyeIcon, TrashIcon, Clock } from '@phosphor-icons/react';
+import { EyeIcon, TrashIcon, ClockIcon } from '@phosphor-icons/react';
 import type { MixResult } from '@/types';
 import ConfirmDialog from '@/components/ui/modals/ConfirmDialog';
 import {
@@ -55,7 +55,7 @@ function CompactMixItem({ result, onLoad, onDelete }: MixItemProps) {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1 text-sm font-medium text-(--text-page)">
-              <Clock size={14} />
+              <ClockIcon size={14} />
               {timeString}
             </div>
             <span className="text-xs text-(--text-muted)">{dateString}</span>

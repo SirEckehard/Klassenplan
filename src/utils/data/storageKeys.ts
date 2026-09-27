@@ -48,6 +48,8 @@ export const STORAGE_KEYS = {
     // not — they hide students and must not do so silently on return).
     studentSortMode: 'spg.studentSortMode',
     sidebarExpanded: 'spg.sidebarExpanded',
+    // Whether shortcuts on a single character key fire (`utils/characterKeys`).
+    characterKeyShortcuts: 'spg.characterKeyShortcuts',
     sidebarActiveTab: 'spg.sidebarActiveTab',
     // Whether the collapsed sidebar has already shown, once, that a criterion's
     // weight opens with a right click or a long press.
@@ -192,6 +194,7 @@ export const PROJECT_LOCAL_STORAGE_KEYS = [
   STORAGE_KEYS.localStorage.mixSettings,
   STORAGE_KEYS.localStorage.studentSortMode,
   STORAGE_KEYS.localStorage.sidebarExpanded,
+  STORAGE_KEYS.localStorage.characterKeyShortcuts,
   STORAGE_KEYS.localStorage.sidebarActiveTab,
   STORAGE_KEYS.localStorage.mixWeightHintSeen,
   STORAGE_KEYS.localStorage.mixFineTuning,

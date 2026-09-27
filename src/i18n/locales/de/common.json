@@ -10,7 +10,6 @@
   "language": {
     "de": "Deutsch",
     "en": "English",
-    "select": "Sprache wählen",
     "switchTo": "Zu {{language}} wechseln"
   },
   "nav": {
@@ -41,44 +40,9 @@
     "cancel": "Abbrechen"
   },
   "buttons": {
-    "save": "Speichern",
-    "cancel": "Abbrechen",
-    "delete": "Löschen",
-    "edit": "Bearbeiten",
-    "add": "Hinzufügen",
-    "close": "Schließen",
-    "back": "Zurück",
-    "next": "Weiter",
-    "confirm": "Bestätigen",
-    "undo": "Rückgängig",
-    "redo": "Wiederholen",
-    "print": "Drucken",
-    "toGenerator": "Direkt zum Generator",
-    "contactUs": "Kontakt aufnehmen",
-    "giveFeedback": "Feedback geben"
+    "cancel": "Abbrechen"
   },
-  "labels": {
-    "yes": "Ja",
-    "no": "Nein",
-    "name": "Name",
-    "class": "Klasse",
-    "student": "Schüler",
-    "students": "Schüler",
-    "table": "Tisch",
-    "tables": "Tische",
-    "seat": "Sitzplatz",
-    "seats": "Sitzplätze",
-    "version": "Version"
-  },
-  "features": {
-    "window": "Fenster",
-    "door": "Tür",
-    "board": "Tafel",
-    "podium": "Pult",
-    "whiteboard": "Whiteboard",
-    "cabinet": "Schrank",
-    "divider": "Raumtrenner"
-  },
+  "quoted": "„{{text}}“",
   "gender": {
     "male": "männlich",
     "female": "weiblich",
@@ -92,56 +56,17 @@
     "performanceStrong": "leistungsstark",
     "performanceWeak": "leistungsschwach"
   },
-  "studentFlagTooltips": {
-    "restless": "Zeigt aktuell unruhiges Verhalten im Unterricht",
-    "shy": "Zeigt aktuell zurückhaltendes Verhalten im Unterricht",
-    "concentrationIssues": "Lässt sich aktuell leicht ablenken",
-    "needsFrontSeat": "Benötigt einen festen vorderen Platz",
-    "performanceStrong": "Zeigt aktuell besondere Stärken im Unterricht",
-    "performanceWeak": "Zeigt aktuell Förderbedarf im Unterricht"
-  },
   "heightCategories": {
     "small": "klein",
     "medium": "mittel",
     "tall": "groß"
   },
   "theme": {
-    "light": "Hell",
-    "dark": "Dunkel",
     "toggle": "Design wechseln"
   },
-  "pages": {
-    "faq": {
-      "title": "Häufige Fragen",
-      "description": "Hier findest du Antworten zu Algorithmus, Einstellungen, Bedienung und dem Projekt.",
-      "stillUnclear": "Noch etwas unklar?",
-      "stillUnclearDescription": "Wenn deine Frage hier nicht beantwortet wurde, melde dich gern per E-Mail. Alle Informationen findest du auf unserer Kontaktseite."
-    },
-    "changelog": {
-      "title": "Changelog",
-      "description": "Alle Änderungen und neuen Features im Überblick",
-      "newFeatures": "Neue Features",
-      "improvements": "Verbesserungen",
-      "bugfixes": "Fehlerbehebungen",
-      "knownIssues": "Bekannte Fehler",
-      "feedbackTitle": "Fragen oder Feedback?",
-      "feedbackDescription": "Ich freue mich über dein Feedback zu neuen Features und Verbesserungen."
-    },
-    "export": {
-      "title": "Export",
-      "backToSeating": "Zurück zum Sitzplan",
-      "preview": "Vorschau",
-      "roomElements": "Raumelemente",
-      "showBoard": "Tafel anzeigen",
-      "showWindows": "Fenster anzeigen",
-      "showDoor": "Tür anzeigen",
-      "showPodium": "Pult anzeigen",
-      "showWhiteboard": "Whiteboards anzeigen",
-      "showCabinet": "Schränke anzeigen",
-      "showDivider": "Raumtrenner anzeigen",
-      "showConnections": "Verbindungen anzeigen",
-      "showNeeds": "Bedürfnisse anzeigen"
-    }
+  "settings": {
+    "characterKeys": "Kürzel mit einer Taste",
+    "characterKeysHint": "?, P, F, 1–3, Q/E … – für Spracheingabe abschalten"
   },
   "errors": {
     "generic": "Ein Fehler ist aufgetreten",

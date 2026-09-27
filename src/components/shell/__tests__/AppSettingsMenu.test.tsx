@@ -9,6 +9,7 @@ import '@/i18n';
 import AppSettingsMenu from '@/components/shell/AppSettingsMenu';
 import ReturnToAppLink from '@/components/ReturnToAppLink';
 import { getButton } from '@/__tests__/utils';
+import { characterKeyShortcutsEnabled } from '@/utils';
 
 vi.mock('@/contexts/SeatingPlanContext', () => ({
   useSeatingPlanActions: () => ({
@@ -144,6 +145,26 @@ describe('AppSettingsMenu', () => {
     expect(
       await screen.findByRole('button', { name: /^(Zurück|Back)$/ }),
     ).toBeInTheDocument();
+  });
+
+  it('switches the single-key shortcuts off and on again', async () => {
+    localStorage.clear();
+    renderMenu();
+    const user = await openMenu();
+
+    const row = screen.getByRole('button', {
+      name: /Kürzel mit einer Taste|Single-key shortcuts/i,
+    });
+    expect(row).toHaveAttribute('aria-pressed', 'true');
+
+    await user.click(row);
+
+    expect(row).toHaveAttribute('aria-pressed', 'false');
+    expect(characterKeyShortcutsEnabled()).toBe(false);
+
+    await user.click(row);
+
+    expect(characterKeyShortcutsEnabled()).toBe(true);
   });
 
   it('closes on Escape and hands focus back to the gear', async () => {

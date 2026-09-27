@@ -24,10 +24,8 @@
     }
   },
   "classManagement": {
-    "title": "Klassenverwaltung",
     "activeClass": "Aktive Klasse",
     "noClassSelected": "Keine Klasse ausgewählt",
-    "noClasses": "Noch keine Klassen",
     "selectClass": "Klasse auswählen",
     "switchClass": "Klasse wechseln",
     "studentCount_one": "{{count}} Schüler",
@@ -75,44 +73,29 @@
   },
   "listHeader": {
     "photo": "Foto",
-    "photoFull": "Schülerfoto – wird nur lokal auf diesem Gerät gespeichert",
     "name": "Name",
-    "nameFull": "Name des Schülers",
     "windowFull": "Fensterplatz",
     "doorFull": "Türnähe",
     "number": "Nr",
     "attributes": "Gesetzte Merkmale"
   },
   "studentList": {
-    "title": "Klassenliste",
     "addStudent": "Schüler hinzufügen",
     "addMenu": {
-      "trigger": "Hinzufügen",
       "singleLabel": "Neuer Schüler",
       "namePlaceholder": "Name",
       "placeholderHint": "Danach öffnet sich der erste zum Benennen – Enter springt zum nächsten."
     },
     "newStudent": "Neuer Schüler",
-    "studentName": "Name des Schülers",
-    "noStudents": "Noch keine Schüler hinzugefügt",
-    "studentCount": "{{count}} Schüler",
-    "removeStudent": "Schüler löschen",
-    "editStudent": "Schüler bearbeiten",
-    "placeholders": "Platzhalter",
     "createPlaceholders": "Platzhalter erstellen",
     "delete": "Löschen",
-    "removeStudentTitle": "{{name}} löschen",
-    "placeholderCountPlaceholder": "Anzahl",
-    "inspect": "Merkmale von {{name}} bearbeiten"
+    "placeholderCountPlaceholder": "Anzahl"
   },
   "csv": {
     "import": "Klassenliste importieren",
     "export": "Klassenliste exportieren",
-    "uploadCsv": "CSV hochladen",
     "templateLink": "CSV-Vorlage",
     "downloadTemplate": "CSV-Vorlage herunterladen",
-    "externalModernCsv": "Externer Link zu Modern CSV",
-    "softwareRecommendation": "Software-Empfehlung für die Verwaltung von CSV-Dateien:",
     "formatHelp": "So sieht die Datei aus"
   },
   "csvHelp": {
@@ -164,11 +147,7 @@
     "wishPartner": "Wunschpartner",
     "wishPartners": "Wunschpartner",
     "distancePartner": "Distanzpartner",
-    "distancePartners": "Distanzpartner",
     "selectPartner": "Wunschpartner auswählen",
-    "removePartner": "Partner entfernen",
-    "priority": "Priorität",
-    "maxPartners": "Maximal 3 Partner möglich",
     "none": "Keiner",
     "noWishPartner": "Kein Wunschpartner",
     "noPartnerSelected": "Kein Partner ausgewählt"
@@ -177,7 +156,6 @@
     "noDistancePartner": "Kein Distanzpartner",
     "noDistanceSelected": "Kein Distanzwunsch ausgewählt",
     "distanceWish": "Distanzpartner",
-    "distanceWishes": "Distanzpartner",
     "selectDistance": "Distanzpartner auswählen"
   },
   "environment": {
@@ -227,35 +205,10 @@
     }
   },
   "roomPreference": {
-    "title": "Raumpräferenz",
-    "window": "Fenster",
-    "door": "Tür",
     "windowSeat": "Platz am Fenster",
     "doorProximity": "Platz an der Tür",
-    "nearWindow": "Am Fenster",
-    "nearDoor": "An der Tür",
-    "noPreference": "Keine Präferenz",
     "windowTooltip": "Schüler bevorzugt Plätze am Fenster",
     "doorTooltip": "Schüler bevorzugt Plätze an der Tür"
-  },
-  "dialogs": {
-    "deleteClassTitle": "Klasse löschen",
-    "deleteClassMessage": "Möchtest du diese Klasse wirklich löschen? Alle Schüler und Sitzpläne werden unwiderruflich gelöscht.",
-    "clearStudentsTitle": "Alle Schüler löschen",
-    "clearStudentsMessage": "Möchtest du wirklich alle Schüler dieser Klasse löschen?",
-    "editClassTitle": "Klasse bearbeiten",
-    "className": "Klassenname",
-    "classLabel": "Klassenkürzel",
-    "classNotes": "Notizen"
-  },
-  "specialNeeds": {
-    "title": "Besondere Bedürfnisse",
-    "vision": "Sehen",
-    "hearing": "Hören",
-    "restless": "Unruhig",
-    "active": "aktiv",
-    "inactive": "inaktiv",
-    "clickToToggle": "Klicken zum Umschalten"
   },
   "nameEditor": {
     "saveName": "Namen speichern",
@@ -278,19 +231,12 @@
     "createButton": "Klasse anlegen"
   },
   "quickClass": {
-    "invalidCount": "Bitte gib eine Zahl zwischen 1 und {{max}} ein.",
-    "decreaseCount": "Anzahl verringern",
-    "increaseCount": "Anzahl erhöhen",
-    "placeholderCount": "Anzahl Platzhalter-Schüler",
-    "createTitle": "Klasse mit leeren Platzhaltern anlegen",
-    "createButton": "Klasse anlegen"
+    "invalidCount": "Bitte gib eine Zahl zwischen 1 und {{max}} ein."
   },
   "common": {
     "save": "Speichern",
     "cancel": "Abbrechen",
-    "optional": "optional",
-    "active": "aktiv",
-    "inactive": "inaktiv"
+    "optional": "optional"
   },
   "validation": {
     "missingNames_one": "Bitte ergänze den fehlenden Namen.",
@@ -299,7 +245,6 @@
     "genderHint_other": "Für {{count}} Personen wurden keine Geschlechtsangaben hinterlegt. Diese Angaben sind optional und können jederzeit ergänzt werden."
   },
   "studentInput": {
-    "title": "Klassenliste",
     "proceedShortcut": "Weiter (Alt/⌥+→)",
     "proceedButton": "Weiter zum Klassenraum",
     "scrollToActions": "Zum Ende der Liste",
@@ -365,6 +310,7 @@
       "off": "bei keinem",
       "mixed": "gemischt"
     },
+    "choiceMixed": "{{label}} (bei einigen)",
     "flagSetHint": "Klicken, um es bei allen Ausgewählten zu setzen",
     "flagClearHint": "Klicken, um es bei allen Ausgewählten zu entfernen",
     "clearValue": "— entfernen —",
@@ -416,7 +362,6 @@
   "focusMode": {
     "title": "Merkmal-Modus",
     "listMode": "Liste",
-    "viewLabel": "Ansicht der Klassenliste",
     "hint": "Tippe alle an, auf die es zutrifft. Der Rest bleibt, wie er ist.",
     "selected_one": "{{count}} ausgewählt",
     "selected_other": "{{count}} ausgewählt",

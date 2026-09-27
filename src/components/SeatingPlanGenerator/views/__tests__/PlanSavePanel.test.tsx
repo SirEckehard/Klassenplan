@@ -11,6 +11,7 @@ import type { SavedPlan } from '@/types';
 
 const mocks = vi.hoisted(() => ({
   planName: '',
+  activePlanId: null as string | null,
   seatingHistory: [] as SavedPlan[],
   classroomScene: { tables: [], features: [] },
   handleSaveSeatingPlan: vi.fn((..._args: unknown[]) => true),
@@ -20,6 +21,7 @@ const mocks = vi.hoisted(() => ({
 vi.mock('@/contexts/SeatingPlanContext', () => ({
   useSeatingPlanState: () => ({
     planName: mocks.planName,
+    activePlanId: mocks.activePlanId,
     seatingHistory: mocks.seatingHistory,
     classroomScene: mocks.classroomScene,
   }),
@@ -51,6 +53,7 @@ const renderPanel = () => {
 
 beforeEach(() => {
   mocks.planName = 'Deutsch';
+  mocks.activePlanId = 'id-Deutsch';
   mocks.seatingHistory = [savedPlan('Deutsch'), savedPlan('Mathe')];
   mocks.isCoarsePointer = false;
   mocks.handleSaveSeatingPlan.mockReturnValue(true);
@@ -164,6 +167,7 @@ describe('PlanSavePanel', () => {
 
   it('saves a plan never saved as a new one', async () => {
     mocks.planName = '';
+    mocks.activePlanId = null;
     const user = userEvent.setup();
     renderPanel();
 
@@ -176,6 +180,23 @@ describe('PlanSavePanel', () => {
       { rename: false },
     );
     expect(saveAsNewButton()).not.toBeInTheDocument();
+  });
+
+  it('goes by the id a save writes to, not by the name', async () => {
+    // A name that matches a saved plan the persistence does not consider
+    // open: offering a rename here would end in a refused save.
+    mocks.activePlanId = null;
+    const user = userEvent.setup();
+    renderPanel();
+
+    await user.keyboard('{Enter}');
+
+    expect(mocks.handleSaveSeatingPlan).not.toHaveBeenCalled();
+    expect(
+      screen.getByText(
+        /trägt schon ein anderer Plan|Another plan already has/i,
+      ),
+    ).toBeInTheDocument();
   });
 
   it('stays open when the plan could not be saved', async () => {

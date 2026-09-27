@@ -3,6 +3,7 @@
 import { renderHook } from '@testing-library/react';
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { useKeyboardShortcuts } from '../useKeyboardShortcuts';
+import { setCharacterKeyShortcutsEnabled } from '@/utils';
 
 const pressEscape = () => {
   document.body.dispatchEvent(
@@ -139,5 +140,53 @@ describe('useKeyboardShortcuts: which key a shortcut names', () => {
     expect(handler).not.toHaveBeenCalled();
     press({ key: 's', ctrlKey: true });
     expect(handler).toHaveBeenCalledTimes(1);
+  });
+
+  describe('with character keys switched off (WCAG 2.1.4)', () => {
+    afterEach(() => {
+      localStorage.clear();
+    });
+
+    it('silences a shortcut on a single character, keeps the rest', () => {
+      setCharacterKeyShortcutsEnabled(false);
+      const pdf = vi.fn();
+      const help = vi.fn();
+      const pick = vi.fn();
+      const save = vi.fn();
+      const close = vi.fn();
+      renderHook(() =>
+        useKeyboardShortcuts({
+          p: pdf,
+          '?': help,
+          ' ': pick,
+          'ctrl+s': save,
+          escape: close,
+        }),
+      );
+
+      press({ key: 'p' });
+      press({ key: '?', shiftKey: true });
+      expect(pdf).not.toHaveBeenCalled();
+      expect(help).not.toHaveBeenCalled();
+
+      // Not character keys: the space bar, a modifier, Escape.
+      press({ key: ' ' });
+      press({ key: 's', ctrlKey: true });
+      press({ key: 'Escape' });
+      expect(pick).toHaveBeenCalledTimes(1);
+      expect(save).toHaveBeenCalledTimes(1);
+      expect(close).toHaveBeenCalledTimes(1);
+    });
+
+    it('fires them again once they are back on', () => {
+      setCharacterKeyShortcutsEnabled(false);
+      setCharacterKeyShortcutsEnabled(true);
+      const pdf = vi.fn();
+      renderHook(() => useKeyboardShortcuts({ p: pdf }));
+
+      press({ key: 'p' });
+
+      expect(pdf).toHaveBeenCalledTimes(1);
+    });
   });
 });

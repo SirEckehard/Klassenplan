@@ -35,6 +35,8 @@ export interface SeatingPlanState {
   classroomEdited: boolean;
   hasUnsavedSeatingChanges: boolean;
   planName: string;
+  /** The saved plan on screen, or null while it has never been saved. */
+  activePlanId: string | null;
   planNameError: boolean;
   planNameInputRef: React.RefObject<HTMLInputElement | null>;
   autoMixing: boolean;

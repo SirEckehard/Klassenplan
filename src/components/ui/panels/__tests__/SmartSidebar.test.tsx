@@ -2,8 +2,9 @@
 // Copyright (C) 2026 Eike Schäfer
 /**
  * The sidebar is where the tablet tier is actually visible. Below `md` it is a
- * floating button and a full-screen sheet; from `md` up it is a real column, on
- * a tablet starting as the 60px rail so the canvas keeps its width.
+ * full-screen sheet, opened from the status bar inside the shell; from `md` up
+ * it is a real column, on a tablet starting as the 60px rail so the canvas
+ * keeps its width.
  */
 import '@testing-library/jest-dom/vitest';
 import { render, screen, act } from '@testing-library/react';
@@ -44,7 +45,7 @@ const renderSidebarInShell = () =>
 
 const sidebarColumn = () => screen.queryByRole('complementary');
 const openSheetButton = () =>
-  screen.queryByRole('button', { name: 'Optionen öffnen' });
+  screen.queryByRole('button', { name: 'Werkzeugleiste' });
 
 beforeEach(async () => {
   localStorage.clear();
@@ -56,13 +57,27 @@ afterEach(() => {
 });
 
 describe('SmartSidebar layout tiers', () => {
-  it('gives a phone a floating trigger instead of a column', () => {
+  it('gives a phone a sheet instead of a column', async () => {
     setWidth(390);
 
     renderSidebar();
 
-    expect(openSheetButton()).toBeInTheDocument();
     expect(sidebarColumn()).not.toBeInTheDocument();
+    await userEvent.click(openSheetButton()!);
+
+    expect(
+      screen.getByRole('dialog', { name: 'Werkzeugleiste' }),
+    ).toHaveTextContent('Optionen-Inhalt');
+  });
+
+  it('floats nothing over the stage on a phone inside the shell', () => {
+    setWidth(390);
+
+    renderSidebarInShell();
+
+    // The status bar carries the switch there (`StatusBarFrame`); a second,
+    // floating one would be a second coloured button over the stage.
+    expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
 
   it('gives a tablet a real column', () => {
@@ -81,7 +96,7 @@ describe('SmartSidebar layout tiers', () => {
 
     renderSidebar();
 
-    expect(sidebarColumn()).toHaveAttribute('aria-expanded', 'false');
+    expect(sidebarColumn()).toHaveAttribute('data-expanded', 'false');
     expect(
       screen.getByRole('button', { name: 'Werkzeugleiste erweitern' }),
     ).toBeInTheDocument();
@@ -95,7 +110,7 @@ describe('SmartSidebar layout tiers', () => {
 
     // 288px of sidebar would leave a 900px scene under 500px of width. The
     // stored value was made on a laptop and stays there.
-    expect(sidebarColumn()).toHaveAttribute('aria-expanded', 'false');
+    expect(sidebarColumn()).toHaveAttribute('data-expanded', 'false');
   });
 
   it('starts the desktop column collapsed on a first visit', () => {
@@ -105,7 +120,7 @@ describe('SmartSidebar layout tiers', () => {
 
     // No stored preference yet: the tour and the Help dialog point out the
     // toggle, so the sidebar does not open expanded on its own.
-    expect(sidebarColumn()).toHaveAttribute('aria-expanded', 'false');
+    expect(sidebarColumn()).toHaveAttribute('data-expanded', 'false');
   });
 
   it('still honours the stored preference on a desktop', () => {
@@ -114,7 +129,7 @@ describe('SmartSidebar layout tiers', () => {
 
     renderSidebar();
 
-    expect(sidebarColumn()).toHaveAttribute('aria-expanded', 'true');
+    expect(sidebarColumn()).toHaveAttribute('data-expanded', 'true');
   });
 
   it('lets the tablet column be expanded without writing that back', async () => {
@@ -125,7 +140,7 @@ describe('SmartSidebar layout tiers', () => {
       screen.getByRole('button', { name: 'Werkzeugleiste erweitern' }),
     );
 
-    expect(sidebarColumn()).toHaveAttribute('aria-expanded', 'true');
+    expect(sidebarColumn()).toHaveAttribute('data-expanded', 'true');
     // Session state: the next visit on the tablet opens with the canvas at full
     // width again, and the laptop's own preference is untouched.
     expect(localStorage.getItem(LOCAL_STORAGE_KEYS.sidebarExpanded)).toBe(

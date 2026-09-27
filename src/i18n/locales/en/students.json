@@ -24,10 +24,8 @@
     }
   },
   "classManagement": {
-    "title": "Class Management",
     "activeClass": "Active Class",
     "noClassSelected": "No class selected",
-    "noClasses": "No classes yet",
     "selectClass": "Select class",
     "switchClass": "Switch class",
     "studentCount_one": "{{count}} student",
@@ -75,44 +73,29 @@
   },
   "listHeader": {
     "photo": "Photo",
-    "photoFull": "Student photo – stored only locally on this device",
     "name": "Name",
-    "nameFull": "Student name",
     "windowFull": "Window seat",
     "doorFull": "Near door",
     "number": "No",
     "attributes": "Attributes set"
   },
   "studentList": {
-    "title": "Class List",
     "addStudent": "Add student",
     "addMenu": {
-      "trigger": "Add",
       "singleLabel": "Student",
       "namePlaceholder": "Name",
       "placeholderHint": "The first one then opens for its name – Enter moves on to the next."
     },
     "newStudent": "New Student",
-    "studentName": "Student name",
-    "noStudents": "No students added yet",
-    "studentCount": "{{count}} students",
-    "removeStudent": "Delete student",
-    "editStudent": "Edit student",
-    "placeholders": "Placeholders",
     "createPlaceholders": "Create placeholders",
     "delete": "Delete",
-    "removeStudentTitle": "Delete {{name}}",
-    "placeholderCountPlaceholder": "Count",
-    "inspect": "Edit attributes of {{name}}"
+    "placeholderCountPlaceholder": "Count"
   },
   "csv": {
     "import": "Import class list",
     "export": "Export class list",
-    "uploadCsv": "Upload CSV",
     "templateLink": "CSV template",
     "downloadTemplate": "Download CSV template",
-    "externalModernCsv": "External link to Modern CSV",
-    "softwareRecommendation": "Software recommendation for managing CSV files:",
     "formatHelp": "What the file looks like"
   },
   "csvHelp": {
@@ -164,11 +147,7 @@
     "wishPartner": "Preferred Partner",
     "wishPartners": "Preferred Partners",
     "distancePartner": "Distance Partner",
-    "distancePartners": "Distance Partners",
     "selectPartner": "Select preferred partner",
-    "removePartner": "Remove partner",
-    "priority": "Priority",
-    "maxPartners": "Maximum 3 partners allowed",
     "none": "None",
     "noWishPartner": "No preferred partner",
     "noPartnerSelected": "No partner selected"
@@ -177,7 +156,6 @@
     "noDistancePartner": "No distance partner",
     "noDistanceSelected": "No distance partner selected",
     "distanceWish": "Distance Partner",
-    "distanceWishes": "Distance Partners",
     "selectDistance": "Select distance partner"
   },
   "environment": {
@@ -227,35 +205,10 @@
     }
   },
   "roomPreference": {
-    "title": "Room Preference",
-    "window": "Window",
-    "door": "Door",
     "windowSeat": "Window Seat",
     "doorProximity": "Near Door",
-    "nearWindow": "Near Window",
-    "nearDoor": "Near Door",
-    "noPreference": "No preference",
     "windowTooltip": "Student prefers seats near the window",
     "doorTooltip": "Student prefers seats near the door"
-  },
-  "dialogs": {
-    "deleteClassTitle": "Delete Class",
-    "deleteClassMessage": "Are you sure you want to delete this class? All students and seating plans will be permanently deleted.",
-    "clearStudentsTitle": "Delete All Students",
-    "clearStudentsMessage": "Are you sure you want to delete all students in this class?",
-    "editClassTitle": "Edit Class",
-    "className": "Class Name",
-    "classLabel": "Class Label",
-    "classNotes": "Notes"
-  },
-  "specialNeeds": {
-    "title": "Special Needs",
-    "vision": "Vision",
-    "hearing": "Hearing",
-    "restless": "Restless",
-    "active": "active",
-    "inactive": "inactive",
-    "clickToToggle": "Click to toggle"
   },
   "nameEditor": {
     "saveName": "Save name",
@@ -278,19 +231,12 @@
     "createButton": "Create Class"
   },
   "quickClass": {
-    "invalidCount": "Please enter a number between 1 and {{max}}.",
-    "decreaseCount": "Decrease count",
-    "increaseCount": "Increase count",
-    "placeholderCount": "Number of placeholder students",
-    "createTitle": "Create class with empty placeholders",
-    "createButton": "Create Class"
+    "invalidCount": "Please enter a number between 1 and {{max}}."
   },
   "common": {
     "save": "Save",
     "cancel": "Cancel",
-    "optional": "optional",
-    "active": "active",
-    "inactive": "inactive"
+    "optional": "optional"
   },
   "validation": {
     "missingNames_one": "Please add the missing name.",
@@ -299,7 +245,6 @@
     "genderHint_other": "{{count}} people have no gender information. These details are optional and can be added at any time."
   },
   "studentInput": {
-    "title": "Class List",
     "proceedShortcut": "Continue (Alt/⌥+→)",
     "proceedButton": "Proceed to Classroom",
     "scrollToActions": "Jump to end of list",
@@ -365,6 +310,7 @@
       "off": "off for all",
       "mixed": "mixed"
     },
+    "choiceMixed": "{{label}} (some of them)",
     "flagSetHint": "Click to set it for everyone selected",
     "flagClearHint": "Click to clear it for everyone selected",
     "clearValue": "— clear —",
@@ -416,7 +362,6 @@
   "focusMode": {
     "title": "Attribute mode",
     "listMode": "List",
-    "viewLabel": "Class list view",
     "hint": "Tap everyone it applies to. The rest stays as it is.",
     "selected_one": "{{count}} selected",
     "selected_other": "{{count}} selected",

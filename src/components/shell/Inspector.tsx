@@ -10,7 +10,11 @@ import {
 import { INSPECTOR_DRAWER_ID, useInspector } from '@/contexts/InspectorContext';
 import { useLayoutMode } from '@/hooks/ui/useLayoutMode';
 import { useDialogA11y } from '@/hooks/ui/useDialogA11y';
-import { isAnyDialogOpen, useDialogLayer } from '@/hooks/ui/useDialogLayer';
+import {
+  isAnyDialogOpen,
+  isTopDialogLayer,
+  useDialogLayer,
+} from '@/hooks/ui/useDialogLayer';
 import StudentInspectorPanel from '@/components/students/StudentInspectorPanel';
 
 /** The column from `lg` up; `hidden` below, where the drawer takes over. */
@@ -82,7 +86,20 @@ export default function Inspector() {
 
   const isOpen = Boolean(student);
   const sheetRef = useDialogA11y<HTMLDivElement>({ open: isPhone && isOpen });
-  useDialogLayer(isPhone && isOpen);
+  const sheetLayer = useDialogLayer(isPhone && isOpen);
+
+  // The phone's sheet is a dialog, so the class list leaves Escape to it — and
+  // it has to take the key itself, or nothing closes it without a finger.
+  React.useEffect(() => {
+    if (!isPhone || !isOpen) return undefined;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape' || !isTopDialogLayer(sheetLayer)) return;
+      event.stopPropagation();
+      clear();
+    };
+    window.addEventListener('keydown', handleKeyDown, true);
+    return () => window.removeEventListener('keydown', handleKeyDown, true);
+  }, [clear, isOpen, isPhone, sheetLayer]);
 
   const hasPortal = step === 2 || step === 3 || portalMounted;
   const showsDrawer = !isDesktop && hasPortal && drawerOpen;
@@ -171,7 +188,7 @@ export default function Inspector() {
   if (isPhone) {
     if (!isOpen) return null;
     return (
-      <div className="fixed inset-x-0 bottom-0 z-40 flex max-h-[80vh] flex-col overflow-hidden rounded-t-xl border-t border-(--border-card) bg-(--surface-card) shadow-[0_-8px_24px_-12px_rgba(23,24,26,0.3)]">
+      <div className="fixed inset-x-0 bottom-0 z-40 flex max-h-[80vh] flex-col overflow-hidden rounded-t-xl border-t border-(--border-card) bg-(--surface-card) shadow-(--shadow-sheet)">
         <div
           ref={sheetRef}
           role="dialog"

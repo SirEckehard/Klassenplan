@@ -19,6 +19,7 @@ import {
   MIX_IMPORTANCE_LEVELS,
   SCALAR_MIX_SETTING_KEYS,
   dataFamilyClass,
+  formatPercent,
   getSidebarIconClasses,
   getSidebarSurfaceClasses,
   getStatisticStatusMeta,
@@ -219,7 +220,7 @@ function FulfillmentBadge({
   const percentage = Math.round(criterion.percentage);
   const { status, dotClass } = getStatisticStatusMeta(criterion.percentage);
   const statusLabel = t(`statisticsBadge.status.${status}`);
-  const value = t('mix.fulfillment.value', { percentage });
+  const value = formatPercent(percentage);
   const shapeClass = `flex w-full items-center gap-2 rounded-md px-1 py-1 text-xs tabular-nums ${
     pinned ? 'bg-(--surface-option-selected)' : ''
   } ${className}`;
@@ -424,7 +425,7 @@ function CriterionRailButton({
   // spelled into it rather than left to the markup.
   const fulfillmentSuffix = fulfillment
     ? t('mix.fulfillment.suffix', {
-        percentage: Math.round(fulfillment.percentage),
+        percentage: formatPercent(fulfillment.percentage),
       })
     : '';
   const preview =

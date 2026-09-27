@@ -31,9 +31,12 @@ const LANGUAGE_SKILL_OPTIONS: LanguageSkillLevel[] = [
 export default function LanguageSkillSelector({
   student,
   updateStudent,
+  mixedValues,
 }: {
   student: Student;
   updateStudent: (id: string, patch: Partial<Student>) => void;
+  /** Values only some of a multi-selection have; see `InspectorChoice`. */
+  mixedValues?: ReadonlySet<string>;
 }) {
   const { t } = useTranslation('students');
 
@@ -42,6 +45,7 @@ export default function LanguageSkillSelector({
       <InspectorChoice
         label={t('languageSkill.title')}
         value={student.languageSkill}
+        mixedValues={mixedValues}
         onChange={(next) => updateStudent(student.id, { languageSkill: next })}
         options={LANGUAGE_SKILL_OPTIONS.map((level) => ({
           value: level,

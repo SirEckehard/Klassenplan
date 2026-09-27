@@ -11,7 +11,7 @@ import {
   useSeatingPlanActions,
 } from '@/contexts/SeatingPlanContext';
 import { prefetchGeneratorSteps } from '@/utils/performance/generatorPrefetch';
-import { isFormElementFocused } from '@/utils';
+import { isFormElementFocused, isSilencedCharacterKey } from '@/utils';
 import { isAnyDialogOpen } from '@/hooks/ui/useDialogLayer';
 
 // Lazy load large components for better initial bundle size
@@ -101,8 +101,10 @@ export default function PlanControls() {
       }
 
       // … and 1/2/3 jump straight to one. Bare digits only: Ctrl/Cmd+1 belongs
-      // to the browser's tab switching.
+      // to the browser's tab switching. Character keys can be switched off
+      // (WCAG 2.1.4).
       if (event.ctrlKey || event.metaKey || event.shiftKey) return;
+      if (isSilencedCharacterKey(event)) return;
       const target = Number(event.key);
       if (Number.isInteger(target) && target >= 1 && target <= 3) {
         event.preventDefault();
