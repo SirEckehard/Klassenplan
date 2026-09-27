@@ -11,6 +11,7 @@
  */
 import type { MixSettings, SeatingArrangement, Student } from '@/types';
 import type { DataFamily } from './designTokens';
+import type { BadgeDisplayMode } from './badgePreferences';
 import type { SeatHighlightLookup } from './statisticsHighlight';
 import {
   calculateBadgePillLayout,
@@ -28,40 +29,9 @@ import {
 /** Which badges a view shows; without one it shows every badge. */
 export type BadgeFilter = (badge: StudentBadge) => boolean;
 
-/**
- * What the seats in the editor show: every badge, only those whose mix
- * criterion is on, or none.
- */
-export type BadgeDisplayMode = 'all' | 'active' | 'off';
-
-export const BADGE_DISPLAY_MODES: readonly BadgeDisplayMode[] = [
-  'all',
-  'active',
-  'off',
-];
-
-/**
- * What pointing at a badge does: explain it in a tooltip, and mark everyone
- * who shares it. Both on unless the teacher switches them off.
- */
-export type BadgeHoverSettings = { tooltip: boolean; highlight: boolean };
-
-export const DEFAULT_BADGE_HOVER: BadgeHoverSettings = {
-  tooltip: true,
-  highlight: true,
-};
-
-/** A stored value read back safely: anything but `false` keeps the default. */
-export function normalizeBadgeHover(value: unknown): BadgeHoverSettings {
-  const record =
-    value && typeof value === 'object'
-      ? (value as Partial<Record<keyof BadgeHoverSettings, unknown>>)
-      : {};
-  return {
-    tooltip: record.tooltip !== false,
-    highlight: record.highlight !== false,
-  };
-}
+// The display preferences live in their own import-free module, because the
+// provider that stores them wraps every page (see `badgePreferences`).
+export type { BadgeDisplayMode, BadgeHoverSettings } from './badgePreferences';
 
 /** The families a badge can belong to, in the order they are read. */
 export const BADGE_FAMILY_ORDER: readonly DataFamily[] = [

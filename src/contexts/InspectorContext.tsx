@@ -9,10 +9,13 @@ import React from 'react';
  * for a bulk edit is a different intent from opening one to read its
  * properties, and conflating the two made the old row do both jobs badly.
  *
- * Only students so far. Tables and room features join once the room layer
- * gets its inspector.
+ * Only students are selected here. The room, the plan and the circle fill
+ * the panel through `InspectorPortal` from where their own state lives.
  */
 export type InspectorSelection = { kind: 'student'; id: string } | null;
+
+/** The inspector's element, for the status bar switch that opens its drawer. */
+export const INSPECTOR_DRAWER_ID = 'shell-inspector';
 
 type InspectorContextValue = {
   selection: InspectorSelection;
@@ -48,6 +51,13 @@ type InspectorContextValue = {
   portalLabel: string | null;
   /** Called by `InspectorPortal` on mount; returns the release for unmount. */
   mountPortal: (label?: string) => () => void;
+  /**
+   * Below `lg` there is no room for the inspector's column, so what a layer
+   * portals in opens as a drawer over the stage — from the status bar
+   * (`StatusBarFrame`), which is where this is switched.
+   */
+  drawerOpen: boolean;
+  setDrawerOpen: (open: boolean) => void;
 };
 
 const InspectorContext = React.createContext<InspectorContextValue | null>(
@@ -75,6 +85,7 @@ export function InspectorProvider({ children }: { children: React.ReactNode }) {
   const [slotNode, setSlotNode] = React.useState<HTMLElement | null>(null);
   const [portalCount, setPortalCount] = React.useState(0);
   const [portalLabel, setPortalLabel] = React.useState<string | null>(null);
+  const [drawerOpen, setDrawerOpen] = React.useState(false);
 
   const mountPortal = React.useCallback((label?: string) => {
     setPortalCount((count) => count + 1);
@@ -98,9 +109,12 @@ export function InspectorProvider({ children }: { children: React.ReactNode }) {
       portalMounted: portalCount > 0,
       portalLabel,
       mountPortal,
+      drawerOpen,
+      setDrawerOpen,
     }),
     [
       clear,
+      drawerOpen,
       mountPortal,
       portalCount,
       portalLabel,
@@ -143,4 +157,6 @@ const FALLBACK: InspectorContextValue = {
   portalMounted: false,
   portalLabel: null,
   mountPortal: () => noop,
+  drawerOpen: false,
+  setDrawerOpen: noop,
 };

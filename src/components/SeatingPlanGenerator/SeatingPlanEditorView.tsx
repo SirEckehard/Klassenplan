@@ -30,7 +30,6 @@ import SeatingStatisticsBadge from '@/components/ui/feedback/SeatingStatisticsBa
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 import {
   GRID_SIZE,
-  isFormElementFocused,
   getDisplayNameForMode,
   type NameDisplayMode,
   canvasFrameClass,
@@ -76,6 +75,7 @@ import {
 } from '@/utils/algorithm/seatingStatistics';
 import { useIsDarkMode } from '@/hooks/useIsDarkMode';
 import { usePlanExits } from '@/hooks/plan/usePlanExits';
+import { usePlanShortcuts } from '@/hooks/plan/usePlanShortcuts';
 import { useFirstVisit } from '@/hooks/ui/useFirstVisit';
 import { useIsPhone } from '@/hooks/ui/useLayoutMode';
 import { createSuspendedWeights } from '@/hooks/ui/useMixCriteria';
@@ -768,42 +768,22 @@ export default function SeatingPlanEditorView({
 
   // Exporting and presenting live at the end of the status bar, which saves
   // first through `usePlanExits`; Ctrl/⌘+E reaches the same one
-  // implementation.
+  // implementation. The circle registers the same keys (`usePlanShortcuts`).
   const { exportPlan } = usePlanExits();
-
-  React.useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (isFormElementFocused()) {
-        return;
-      }
-      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') {
-        event.preventDefault();
-        saveSeatingPlan(planName, classroomScene);
-        return;
-      }
-      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'e') {
-        event.preventDefault();
-        exportPlan();
-        return;
-      }
-      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'm') {
-        event.preventDefault();
-        if (!mixingLocked) {
-          void handleMix();
-        }
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [
-    planName,
-    classroomScene,
-    saveSeatingPlan,
-    exportPlan,
-    handleMix,
-    mixingLocked,
-  ]);
+  const handleSaveShortcut = React.useCallback(
+    () => saveSeatingPlan(planName, classroomScene),
+    [classroomScene, planName, saveSeatingPlan],
+  );
+  const handleMixShortcut = React.useCallback(() => {
+    if (!mixingLocked) {
+      void handleMix();
+    }
+  }, [handleMix, mixingLocked]);
+  usePlanShortcuts({
+    onSave: handleSaveShortcut,
+    onExport: exportPlan,
+    onMix: handleMixShortcut,
+  });
 
   // What "all criteria off" cleared, for "all on" to bring back — shared by the
   // expanded panel, the rail and the phone row, so each can undo the others.
@@ -845,7 +825,7 @@ export default function SeatingPlanEditorView({
 
         {/* Why the plan looks like this is a property of the plan, so the
             criteria belong in the inspector — not in the toolbar opposite. */}
-        <InspectorPortal>
+        <InspectorPortal label={t('mix.title')}>
           {/* The heading names the panel once, and the switch beside it acts
               on every criterion under it. */}
           <InspectorHeader
@@ -1129,8 +1109,11 @@ export default function SeatingPlanEditorView({
               </div>
             </div>
 
+            {/* Every phone, not just a narrow one: the row used to vanish at
+                `sm`, so a phone held sideways had no criteria at all. The
+                drawer from the status bar carries the whole panel. */}
             {isPhone && (
-              <div className="mt-4 sm:hidden">
+              <div className="mt-4">
                 <SmartMixControls
                   settings={settings}
                   setMixSettings={setMixSettings}

@@ -24,7 +24,7 @@ import { useSeatingPlanActions } from '@/contexts/SeatingPlanContext';
 import { APP_RETURN_STATE } from '@/hooks/useReturnToApp';
 import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';
 import { useClickOutside } from '@/hooks/ui/useClickOutside';
-import { useDialogLayer } from '@/hooks/ui/useDialogLayer';
+import { usePopoverFocus } from '@/hooks/ui/usePopoverFocus';
 import { useIsPhone } from '@/hooks/ui/useLayoutMode';
 import { useGuardedPlanExits } from '@/components/shell/PlanExits';
 import { logError, menuItemClass, menuSurfaceClass } from '@/utils';
@@ -425,29 +425,13 @@ export function ToolRailButton({
   const contentRef = React.useRef<HTMLDivElement | null>(null);
   const [open, setOpen] = React.useState(false);
 
-  useDialogLayer(open);
-  useClickOutside([containerRef, contentRef], () => setOpen(false), open);
-
-  const close = React.useCallback((restoreFocus = true) => {
-    setOpen(false);
-    if (restoreFocus) anchorRef.current?.focus();
-  }, []);
-  // The panel closes itself once its job is done; focus stays where the
-  // pointer left it rather than jumping back to the rail.
-  const closeFromPanel = React.useCallback(() => close(false), [close]);
-
-  // The panel owns Escape while it is up, so the view underneath does not also
-  // act on it (the class list would drop its selection).
-  React.useEffect(() => {
-    if (!open) return;
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== 'Escape') return;
-      event.stopPropagation();
-      close();
-    };
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [close, open]);
+  const closePanel = React.useCallback(() => setOpen(false), []);
+  useClickOutside([containerRef, contentRef], closePanel, open);
+  // Focus moves into the panel when it opens, Tab and the arrow keys stay
+  // inside, Escape closes it with the focus back on this entry — and the
+  // view underneath leaves Escape alone meanwhile (the class list would drop
+  // its selection).
+  usePopoverFocus({ open, contentRef, anchorRef, onClose: closePanel });
 
   const button = (
     <button
@@ -507,7 +491,9 @@ export function ToolRailButton({
           align="left"
           portalRef={contentRef}
         >
-          <ToolRailPanel label={label} close={closeFromPanel} render={panel} />
+          {/* The panel closes itself once its job is done; focus stays where
+              the pointer left it rather than jumping back to the rail. */}
+          <ToolRailPanel label={label} close={closePanel} render={panel} />
         </FloatingDropdown>
       )}
     </div>

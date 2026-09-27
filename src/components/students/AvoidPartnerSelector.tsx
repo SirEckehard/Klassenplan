@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { CaretDownIcon, HeartBreakIcon } from '@phosphor-icons/react';
 import type { Student } from '@/types';
 import { useClickOutside } from '@/hooks/ui/useClickOutside';
+import { usePopoverFocus } from '@/hooks/ui/usePopoverFocus';
 import {
   getAvoidPartnerIds,
   menuSurfaceClass,
@@ -67,6 +68,21 @@ export default function AvoidPartnerSelector({
     [dropdownRef],
   );
   useClickOutside(outsideRefs, () => setShowDropdown(false), showDropdown);
+  // The list is portalled to the end of the page: the focus moves in when it
+  // opens (to a chosen classmate, if there is one), Tab and the arrow keys
+  // stay inside, Escape closes it with the focus back on the button.
+  const triggerRef = React.useRef<HTMLButtonElement | null>(null);
+  const closeDropdown = React.useCallback(
+    () => setShowDropdown(false),
+    [setShowDropdown],
+  );
+  usePopoverFocus({
+    open: showDropdown,
+    contentRef: dropdownContentRef,
+    anchorRef: triggerRef,
+    onClose: closeDropdown,
+    initialFocusSelector: '[aria-pressed="true"]',
+  });
 
   // Get current avoid partner IDs (handles both legacy and new format)
   const avoidPartnerIds = getAvoidPartnerIds(student);
@@ -141,6 +157,8 @@ export default function AvoidPartnerSelector({
   // Render dropdown content (shared between variants)
   const renderDropdownContent = () => (
     <div
+      role="dialog"
+      aria-label={t('partners.distancePartner')}
       className={`${menuSurfaceClass} min-w-50 max-h-40 overflow-y-auto`}
       style={{ scrollbarGutter: 'stable both-edges' }}
     >
@@ -197,13 +215,17 @@ export default function AvoidPartnerSelector({
     <div className="relative" ref={dropdownRef}>
       <button
         type="button"
+        ref={triggerRef}
         className={`${baseClass} ${hasPartners ? activeStateClass : inactiveStateClass}`}
         title={getTooltip()}
         onClick={(e) => {
           e.stopPropagation();
           setShowDropdown(!showDropdown);
         }}
-        aria-pressed={hasPartners}
+        // It opens the list of classmates; whether a partner is set is in
+        // its name, not in a pressed state.
+        aria-haspopup="dialog"
+        aria-expanded={showDropdown}
         aria-label={
           hasPartners
             ? getTooltip()

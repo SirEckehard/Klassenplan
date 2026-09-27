@@ -268,7 +268,11 @@ export default function FloatingDropdown({
   return createPortal(
     <div
       ref={resolvedPortalRef}
-      className={`fixed z-40 transition-opacity duration-75 ${position.isFinalized ? 'opacity-100' : 'pointer-events-none opacity-0'} ${className ?? ''}`.trim()}
+      // Focusable from script, not by Tab: a popover whose first control is a
+      // text field takes the focus on itself when a finger opened it
+      // (`usePopoverFocus`).
+      tabIndex={-1}
+      className={`fixed z-40 transition-opacity duration-75 focus:outline-none ${position.isFinalized ? 'opacity-100' : 'pointer-events-none opacity-0'} ${className ?? ''}`.trim()}
       style={{
         top: position.top,
         left: position.left,

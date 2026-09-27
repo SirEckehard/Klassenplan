@@ -244,7 +244,7 @@
     "label": "Mischen",
     "loadingAriaLabel": "Mischvorgang läuft",
     "loadingTitle": "Mischvorgang läuft...",
-    "shortcut": "Mischen (Strg/⌘+M)",
+    "shortcut": "Mischen (Strg/⌘+Eingabetaste)",
     "title": "Sitzplan mischen"
   },
   "messages": {
@@ -528,8 +528,8 @@
     "viewFromBackTitle": "Der Raum wird um 180° gedreht, sodass Namen lesbar bleiben.",
     "printDocumentTitle": "Klassenplan",
     "printShortcut": "Drucken (Strg/⌘+P)",
-    "tablePdfShortcut": "Sitzplan als PDF exportieren (Strg/⌘+Umschalt+T)",
-    "circlePdfShortcut": "Sitzkreis als PDF exportieren (Strg/⌘+Umschalt+C)",
+    "tablePdfShortcut": "Sitzplan als PDF exportieren (P)",
+    "circlePdfShortcut": "Sitzkreis als PDF exportieren (P)",
     "tableDefaultFilename": "Sitzplan",
     "circleDefaultFilename": "Sitzkreis",
     "dragDropHint": "Ziehe Elemente hierher",
@@ -575,7 +575,7 @@
     },
     "empty": "Noch kein Sitzplan zum Exportieren.",
     "pngButton": "PNG-Bild",
-    "pngShortcut": "Aktuelle Ansicht als PNG-Bild speichern (Strg/⌘+Umschalt+I)",
+    "pngTitle": "Aktuelle Ansicht als PNG-Bild speichern",
     "svgButton": "SVG-Grafik",
     "svgTitle": "Aktuelle Ansicht als SVG-Vektorgrafik speichern",
     "saveAs": "Speichern als",
@@ -812,9 +812,7 @@
       "circle_saveCircle": "Sitzkreis speichern",
       "circle_openExport": "Exportansicht öffnen",
       "export_backToPlan": "Zurück zum Sitzplan",
-      "export_exportPdf": "Sitzplan als PDF herunterladen",
-      "export_exportCirclePdf": "Sitzkreis als PDF herunterladen",
-      "export_exportPng": "Aktuelle Ansicht als PNG-Bild speichern",
+      "export_exportPdf": "Sitzplan oder Sitzkreis auf dem Blatt als PDF herunterladen",
       "export_print": "Sitzplan drucken",
       "plan_undo": "Sitzplan-Aktion rückgängig machen",
       "plan_redo": "Sitzplan-Aktion wiederherstellen",
@@ -842,7 +840,7 @@
       "layout_rotate90": "Umschalt+Q / Umschalt+E",
       "layout_undo": "Strg/⌘+Z",
       "plan_toClassroom": "Alt/⌥+←",
-      "plan_shuffle": "Strg/⌘+M",
+      "plan_shuffle": "Strg/⌘+Eingabetaste",
       "plan_savePlan": "Strg/⌘+S",
       "plan_openExport": "Strg/⌘+E",
       "circle_toClassroom": "Alt/⌥+←",
@@ -851,9 +849,7 @@
       "circle_saveCircle": "Strg/⌘+S",
       "circle_openExport": "Strg/⌘+E",
       "export_backToPlan": "Alt/⌥+←",
-      "export_exportPdf": "Strg/⌘+Umschalt+T",
-      "export_exportCirclePdf": "Strg/⌘+Umschalt+C",
-      "export_exportPng": "Strg/⌘+Umschalt+I",
+      "export_exportPdf": "P",
       "export_print": "Strg/⌘+P",
       "plan_undo": "Strg/⌘+Z",
       "plan_redo": "Strg/⌘+Umschalt+Z",
@@ -963,7 +959,7 @@
       },
       "mix": {
         "title": "Mischen",
-        "body": "Der Knopf in der Statusleiste mischt die Klasse neu und berücksichtigt dabei alle ausgewählten Kriterien (Strg/⌘+M)."
+        "body": "Der Knopf in der Statusleiste mischt die Klasse neu und berücksichtigt dabei alle ausgewählten Kriterien (Strg/⌘+Eingabetaste)."
       },
       "sidebar": {
         "title": "Werkzeuge",

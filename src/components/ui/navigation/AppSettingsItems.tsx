@@ -29,13 +29,20 @@ import {
  * Two menus show these rows — the footer's gear on the public pages, and the
  * header's on the workspace, which runs at viewport height and has no footer
  * to fall back on. The rows, their modals and their toasts live here once so
- * the two cannot drift apart; the caller brings the `role="menu"` container.
+ * the two cannot drift apart; the caller brings the container.
  */
 export default function AppSettingsItems({
   onDone,
   storage = true,
+  menuItems = true,
 }: {
   onDone: () => void;
+  /**
+   * Whether the rows are items of a `role="menu"` (the footer's gear). The
+   * header's gear is a dialog that also holds the theme and language
+   * switches, which a menu may not contain, so its rows are plain buttons.
+   */
+  menuItems?: boolean;
   /**
    * "Pläne & Verlauf" and the backup. The workspace leaves them out: the foot
    * of every toolbar carries them, on every layer and on the export page, so
@@ -44,6 +51,7 @@ export default function AppSettingsItems({
   storage?: boolean;
 }) {
   const { t } = useTranslation(['common', 'generator']);
+  const itemRole = menuItems ? 'menuitem' : undefined;
   const { clearAllData, handleExportAll, triggerImport } =
     useSeatingPlanActions();
   // Dismissing the install toast is permanent; this entry stays as the way
@@ -100,7 +108,7 @@ export default function AppSettingsItems({
           </div>
           <button
             type="button"
-            role="menuitem"
+            role={itemRole}
             onClick={handleShowHistory}
             className={menuItemClass}
           >
@@ -112,7 +120,7 @@ export default function AppSettingsItems({
           </button>
           <button
             type="button"
-            role="menuitem"
+            role={itemRole}
             onClick={handleExportBackup}
             className={menuItemClass}
           >
@@ -121,7 +129,7 @@ export default function AppSettingsItems({
           </button>
           <button
             type="button"
-            role="menuitem"
+            role={itemRole}
             onClick={handleImportBackup}
             className={menuItemClass}
           >
@@ -133,7 +141,7 @@ export default function AppSettingsItems({
       {isInstallable && (
         <button
           type="button"
-          role="menuitem"
+          role={itemRole}
           onClick={handleInstallApp}
           className={menuItemClass}
         >
@@ -146,7 +154,7 @@ export default function AppSettingsItems({
       )}
       <button
         type="button"
-        role="menuitem"
+        role={itemRole}
         onClick={() => {
           onDone();
           setConfirmOpen(true);

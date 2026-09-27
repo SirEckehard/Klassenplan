@@ -11,7 +11,7 @@ import {
   normalizeBadgeHover,
   type BadgeDisplayMode,
   type BadgeHoverSettings,
-} from '@/utils/ui/seatBadges';
+} from '@/utils/ui/badgePreferences';
 
 const PHOTO_DISPLAY_MODES: readonly PhotoDisplayMode[] = [
   'all',

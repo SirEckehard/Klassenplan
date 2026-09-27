@@ -86,3 +86,58 @@ describe('useKeyboardShortcuts', () => {
     expect(handler).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('useKeyboardShortcuts: which key a shortcut names', () => {
+  const press = (init: KeyboardEventInit) =>
+    window.dispatchEvent(new KeyboardEvent('keydown', init));
+
+  // "+" and the space bar used to parse to an empty key: the presentation's
+  // zoom and "Wer kommt dran?" never reacted to them.
+  it.each([
+    ['+', { key: '+' }],
+    [' ', { key: ' ' }],
+    ['space', { key: ' ' }],
+    ['plus', { key: '+' }],
+    ['ctrl++', { key: '+', ctrlKey: true }],
+    ['-', { key: '-' }],
+    ['0', { key: '0' }],
+    ['f', { key: 'f' }],
+    ['alt+arrowleft', { key: 'ArrowLeft', altKey: true }],
+    ['ctrl+shift+z', { key: 'z', ctrlKey: true, shiftKey: true }],
+    ['cmd+enter', { key: 'Enter', metaKey: true }],
+  ] as const)('%j fires on its key', (shortcut, init) => {
+    const handler = vi.fn();
+    renderHook(() => useKeyboardShortcuts({ [shortcut]: handler }));
+    press(init);
+    expect(handler).toHaveBeenCalledTimes(1);
+  });
+
+  it('matches a symbol with or without Shift, as layouts need it', () => {
+    // A US keyboard types "+" with Shift, a German one without.
+    const handler = vi.fn();
+    renderHook(() => useKeyboardShortcuts({ '+': handler }));
+    press({ key: '+', shiftKey: true });
+    press({ key: '+' });
+    expect(handler).toHaveBeenCalledTimes(2);
+  });
+
+  it('keeps letters and the space bar strict about Shift', () => {
+    const letter = vi.fn();
+    const space = vi.fn();
+    renderHook(() => useKeyboardShortcuts({ f: letter, ' ': space }));
+    press({ key: 'F', shiftKey: true });
+    press({ key: ' ', shiftKey: true });
+    expect(letter).not.toHaveBeenCalled();
+    expect(space).not.toHaveBeenCalled();
+  });
+
+  it('keeps modifiers exact', () => {
+    const handler = vi.fn();
+    renderHook(() => useKeyboardShortcuts({ 'ctrl+s': handler }));
+    press({ key: 's' });
+    press({ key: 's', ctrlKey: true, altKey: true });
+    expect(handler).not.toHaveBeenCalled();
+    press({ key: 's', ctrlKey: true });
+    expect(handler).toHaveBeenCalledTimes(1);
+  });
+});

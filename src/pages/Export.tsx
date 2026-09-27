@@ -42,6 +42,7 @@ import type { PhotoDisplayMode, SeatingArrangement, Student } from '@/types';
 import usePersistentState from '@/hooks/usePersistentState';
 import type { CircleLayout, SeatingMode } from '@/types/Circle';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
+import { isAnyDialogOpen } from '@/hooks/ui/useDialogLayer';
 import { useFirstVisit } from '@/hooks/ui/useFirstVisit';
 import { usePlanUsagePrompt } from '@/hooks/plan/usePlanUsagePrompt';
 import Seo from '@/components/Seo';
@@ -911,17 +912,19 @@ export default function Export() {
     [navigate],
   );
 
-  useKeyboardShortcuts({
-    'alt+arrowleft': backToPlan,
-    'ctrl+shift+t': () => void handleTablePdf(),
-    'cmd+shift+t': () => void handleTablePdf(),
-    'ctrl+shift+c': () => void handleCirclePdf(),
-    'cmd+shift+c': () => void handleCirclePdf(),
-    'ctrl+shift+i': () => void handlePngExport(),
-    'cmd+shift+i': () => void handlePngExport(),
-    'ctrl+p': handlePrint,
-    'cmd+p': handlePrint,
-  });
+  // P saves the PDF of whatever the sheet shows, as the toolbar's one PDF
+  // entry does. The shortcuts it replaces (Ctrl/⌘+Shift+T, +C and +I) belong
+  // to the browsers: reopening a closed tab and the developer tools. A dialog
+  // owns the keyboard while it is up.
+  useKeyboardShortcuts(
+    {
+      'alt+arrowleft': backToPlan,
+      p: handlePdf,
+      'ctrl+p': handlePrint,
+      'cmd+p': handlePrint,
+    },
+    { condition: () => !isAnyDialogOpen() },
+  );
 
   const sheetLabel = t('export.sheetFormat', {
     orientation:

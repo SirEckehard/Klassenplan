@@ -174,14 +174,6 @@ export const shortcutMap: Record<ShortcutContext, Shortcut[]> = {
       descriptionKey: 'shortcuts.descriptions.export_exportPdf',
     },
     {
-      keysKey: 'shortcuts.keys.export_exportCirclePdf',
-      descriptionKey: 'shortcuts.descriptions.export_exportCirclePdf',
-    },
-    {
-      keysKey: 'shortcuts.keys.export_exportPng',
-      descriptionKey: 'shortcuts.descriptions.export_exportPng',
-    },
-    {
       keysKey: 'shortcuts.keys.export_print',
       descriptionKey: 'shortcuts.descriptions.export_print',
     },

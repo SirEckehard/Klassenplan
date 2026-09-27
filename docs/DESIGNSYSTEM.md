@@ -1,6 +1,6 @@
 # Design System – Klassenplan
 
-> **Status:** current · **Last reviewed:** 2026-09-26 · **Maintainer:** Eike
+> **Status:** current · **Last reviewed:** 2026-09-27 · **Maintainer:** Eike
 > Schäfer · **Describes:** Klassenplan 2.2.0
 
 This document describes the binding design tokens for Klassenplan. All values live in `src/index.css` and are reachable from TypeScript through `src/utils/ui/designTokens.ts`.
@@ -246,11 +246,21 @@ strip of 44px media, an `h2` and a subtitle above a hairline; sections carry a
 selection, destructive last. A panel that needs a new group adds a section —
 not a card, not a heading of its own invention.
 
+Below `lg` the panel keeps its parts but loses its column. A phone shows an
+opened student as a sheet from the bottom; a tablet shows it as a drawer on
+the right, between the two bars, where the column stands from `lg` up. What a
+layer portals in — the room's properties, the plan's criteria, the circle's
+summary — opens as the same drawer from the switch at the right end of the
+status bar, the mirror of the toolbar's switch at the left end. The drawer is
+not modal: the stage beside it stays in reach, and Escape closes it.
+
 ## 6c. Menus
 
 A dropdown is a `menuSurfaceClass` box; its rows are `menuItemClass`, and the one destructive row is `menuItemDangerClass`. Both hover on paper — `--surface-sunken`, or `--button-icon-danger-bg` for the destructive one — never on blue: blue means "you can act here", and a hovered row is a pointer, not an action.
 
 Whatever opens from a toolbar entry is such a dropdown: a row per choice, an icon and a word. A setting that is on carries a check at the row's end (`CanvasSettingsGroups`), a setting with a handful of values is a group of such rows with the chosen one checked, and small caps above a group name it. There are no cards inside a popover and no icon-only chips whose meaning lives in a tooltip. Only a panel that asks for a value — a name, a number of placeholders — is a small form, on the same surface. What a group only explains goes below its rows (`footer`), after a hairline — the key to the seat badges under "Merkmale" is the one so far.
+
+A dropdown is reached with the keyboard as well as the pointer (`usePopoverFocus`): the focus moves into it when it opens, Tab and the arrow keys stay inside, Escape closes it and gives the focus back to its button. To assistive technology it is a dialog of buttons and links rather than a `menu` — a menu may hold neither the theme switch nor a row's own rename and delete.
 
 ## 6e. Badges on a seat
 

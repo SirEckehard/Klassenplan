@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useCallback, useState, useEffect, useRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   LinkSimpleIcon,
@@ -43,6 +43,8 @@ import {
   type SeatBadgeView,
 } from '@/utils/ui/seatBadges';
 import { useEnsureCircleLayout } from '@/hooks/circle/useEnsureCircleLayout';
+import { usePlanExits } from '@/hooks/plan/usePlanExits';
+import { usePlanShortcuts } from '@/hooks/plan/usePlanShortcuts';
 import {
   workspaceLayerClass,
   workspaceStageClass,
@@ -285,9 +287,25 @@ export default function EnhancedSeatingPlanView(
     ],
   );
 
+  // Saving and exporting answer to the same keys as in the table plan; the
+  // help lists them for the circle too. The table plan registers its own
+  // (with mixing), so these only listen while the circle is on screen.
+  const isCircleView = showModeToggle && seatingMode === 'circle';
+  const { exportPlan } = usePlanExits();
+  const { saveSeatingPlan, planName, classroomScene } = props;
+  const handleSaveShortcut = useCallback(
+    () => saveSeatingPlan(planName, classroomScene),
+    [classroomScene, planName, saveSeatingPlan],
+  );
+  usePlanShortcuts({
+    enabled: isCircleView,
+    onSave: handleSaveShortcut,
+    onExport: exportPlan,
+  });
+
   // Calculate actual neighborhood count (preserved neighbors from table seating)
   // For circle mode, we need different controls and view
-  if (showModeToggle && seatingMode === 'circle') {
+  if (isCircleView) {
     return (
       <div className="space-y-6 lg:flex lg:min-h-0 lg:flex-1 lg:flex-col lg:space-y-0">
         {/* The direction comes from the same hook that decides whether the

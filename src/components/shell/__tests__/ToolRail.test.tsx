@@ -1,7 +1,13 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import '@testing-library/jest-dom/vitest';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import '@/i18n';
@@ -172,5 +178,37 @@ describe('ToolRail', () => {
     fireEvent.click(getButton(/^Backup$/i));
     fireEvent.click(getButton(/Backup importieren|Import backup/i));
     expect(actions.triggerImport).toHaveBeenCalledTimes(1);
+  });
+
+  // The panel is portalled to the end of the page. A keyboard user used to
+  // tab from the entry to the next one and never reached the menu.
+  it('takes the focus into an opened panel and gives it back on Escape', async () => {
+    renderRail();
+    const entry = getButton(/Klassenwerkzeuge|Class tools/i);
+    entry.focus();
+    fireEvent.click(entry);
+
+    const first = getButton(/Wer kommt dran\?|Who.s next\?/);
+    await waitFor(() => expect(first).toHaveFocus());
+
+    fireEvent.keyDown(first, { key: 'ArrowDown' });
+    expect(getButton(/Wo sitzt wer\?|Where does who sit\?/)).toHaveFocus();
+
+    // Tab wraps inside the panel instead of leaving it behind.
+    fireEvent.keyDown(document.activeElement as HTMLElement, {
+      key: 'Tab',
+      shiftKey: true,
+    });
+    expect(first).toHaveFocus();
+    fireEvent.keyDown(first, { key: 'Tab', shiftKey: true });
+    expect(getButton(/Namensspiel|Name Game/i)).toHaveFocus();
+
+    fireEvent.keyDown(document.activeElement as HTMLElement, {
+      key: 'Escape',
+    });
+    expect(
+      screen.queryByRole('dialog', { name: /Klassenwerkzeuge|Class tools/i }),
+    ).not.toBeInTheDocument();
+    expect(entry).toHaveFocus();
   });
 });

@@ -35,6 +35,10 @@ type Props<T extends string> = {
  * can act here", and picking which of several views you are looking at is not
  * an action. Three places grew their own version of this before the token
  * existed — the layer switcher, the seating mode toggle and the dialog tabs.
+ *
+ * To a screen reader it is a group of toggle buttons, one of them pressed. It
+ * used to announce itself as tabs, which promised arrow-key navigation it never
+ * had and tab panels it does not own.
  */
 export default function SegmentedControl<T extends string>({
   options,
@@ -48,7 +52,7 @@ export default function SegmentedControl<T extends string>({
   return (
     <div
       className={`${segmentedTrackClass} ${className}`}
-      role="tablist"
+      role="group"
       aria-label={ariaLabel}
     >
       {options.map((option) => {
@@ -58,8 +62,7 @@ export default function SegmentedControl<T extends string>({
           <button
             key={option.value}
             type="button"
-            role="tab"
-            aria-selected={isActive}
+            aria-pressed={isActive}
             onClick={() => {
               if (!isActive) onChange(option.value);
             }}

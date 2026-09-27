@@ -2,9 +2,9 @@
 // Copyright (C) 2026 Eike Schäfer
 import '@testing-library/jest-dom/vitest';
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { createRef } from 'react';
+import { createRef, useRef, useState } from 'react';
 import '@/i18n'; // Initialize i18n for tests
 import PartnerSelector from '../PartnerSelector';
 import type { Student } from '../../../types';
@@ -211,4 +211,40 @@ describe('PartnerSelector', () => {
       screen.getByText(/Kein Wunschpartner|No preferred partner/i),
     ).toBeInTheDocument();
   });
+
+  // The list is portalled to the end of the page; without the focus moving in,
+  // a keyboard could never reach a classmate.
+  it('takes the focus into the list and gives it back on Escape', async () => {
+    const partner = createMockStudent({ id: '2', name: 'Anna Schmidt' });
+    const student = createMockStudent();
+    const Harness = () => {
+      const [open, setOpen] = useState(false);
+      const dropdownRef = useRef<HTMLDivElement | null>(null);
+      return (
+        <PartnerSelector
+          student={student}
+          allStudents={[student, partner]}
+          updateStudent={vi.fn()}
+          showDropdown={open}
+          setShowDropdown={setOpen}
+          dropdownRef={dropdownRef}
+        />
+      );
+    };
+    render(<Harness />);
+    const trigger = getButton(/Kein Partner ausgewählt|No partner selected/i);
+
+    fireEvent.click(trigger);
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    const list = screen.getByRole('dialog', {
+      name: /Wunschpartner|Preferred partner/i,
+    });
+    await waitFor(() => expect(list).toContainElement(focusedElement()));
+
+    fireEvent.keyDown(focusedElement() as HTMLElement, { key: 'Escape' });
+    expect(trigger).toHaveAttribute('aria-expanded', 'false');
+    expect(trigger).toHaveFocus();
+  });
 });
+
+const focusedElement = () => document.activeElement as HTMLElement | null;

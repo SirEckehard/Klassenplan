@@ -81,7 +81,7 @@ export default function ExportToolPanel({
         <ToolRailButton
           icon={<FileImageIcon size={18} />}
           label={t('export.pngButton')}
-          title={t('export.pngShortcut')}
+          title={t('export.pngTitle')}
           onClick={onPng}
         />
         <ToolRailButton

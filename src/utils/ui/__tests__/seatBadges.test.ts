@@ -20,7 +20,6 @@ import {
   groupBadgesByFamily,
   isBadgeCriterionActive,
   LEGIBLE_BADGE_ICON_SIZE,
-  normalizeBadgeHover,
 } from '../seatBadges';
 import { describeBadge, getBadgeCriteria } from '../studentAppearance';
 
@@ -211,22 +210,5 @@ describe('legend', () => {
       (badge) => badge.key === 'wishPartner',
     )!;
     expect(describeBadge(wish).detail).toBe('friend Test');
-  });
-});
-
-describe('normalizeBadgeHover', () => {
-  it('keeps both on unless a stored value switched one off', () => {
-    expect(normalizeBadgeHover(undefined)).toEqual({
-      tooltip: true,
-      highlight: true,
-    });
-    expect(normalizeBadgeHover({ highlight: false })).toEqual({
-      tooltip: true,
-      highlight: false,
-    });
-    expect(normalizeBadgeHover('garbage')).toEqual({
-      tooltip: true,
-      highlight: true,
-    });
   });
 });

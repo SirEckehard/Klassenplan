@@ -2,8 +2,13 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { ArrowLineLeftIcon, ArrowLineRightIcon } from '@phosphor-icons/react';
+import {
+  ArrowLineLeftIcon,
+  ArrowLineRightIcon,
+  SlidersHorizontalIcon,
+} from '@phosphor-icons/react';
 import { useShellToolRail } from '@/contexts/ToolRailContext';
+import { INSPECTOR_DRAWER_ID, useInspector } from '@/contexts/InspectorContext';
 import { useLayoutMode } from '@/hooks/ui/useLayoutMode';
 import { quietIconButtonClass, secondaryButtonClass } from '@/utils';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
@@ -35,6 +40,11 @@ export const statusBarBackButtonClass = `${secondaryButtonClass} h-9 shrink-0 ga
  * (`middle`) — and the way back beside the way on (`end`). The outer two share
  * the width equally, so the middle sits under the stage whatever the line on
  * the left says.
+ *
+ * Below `lg` the inspector has no column, so its switch closes the bar on the
+ * right, mirroring the toolbar's switch on the left: each sits under the panel
+ * it opens. It appears only while a layer has something to show there — the
+ * room's properties, the plan's criteria, the circle's summary.
  */
 export default function StatusBarFrame({
   start,
@@ -50,8 +60,13 @@ export default function StatusBarFrame({
   // switch sits here rather than in a header above the tools. A phone has no
   // toolbar column at all — there it is a sheet with its own trigger.
   const toolRail = useShellToolRail();
-  const isPhone = useLayoutMode() === 'phone';
+  const layoutMode = useLayoutMode();
+  const isPhone = layoutMode === 'phone';
   const showToolRailSwitch = toolRail !== null && !isPhone;
+  const { portalMounted, portalLabel, drawerOpen, setDrawerOpen } =
+    useInspector();
+  const showInspectorSwitch =
+    layoutMode !== 'desktop' && portalMounted && portalLabel !== null;
 
   return (
     // A landmark region rather than a live region on purpose: the line changes
@@ -103,7 +118,34 @@ export default function StatusBarFrame({
 
         {middle}
 
-        <div className="flex flex-1 items-center justify-end gap-2">{end}</div>
+        <div className="flex flex-1 items-center justify-end gap-2">
+          {end}
+          {showInspectorSwitch && (
+            <>
+              <span
+                aria-hidden="true"
+                className="h-4 w-px bg-(--border-card)"
+              />
+              <button
+                type="button"
+                onClick={() => setDrawerOpen(!drawerOpen)}
+                aria-expanded={drawerOpen}
+                aria-controls={INSPECTOR_DRAWER_ID}
+                title={portalLabel}
+                className={`${secondaryButtonClass} h-9 shrink-0 gap-2 px-2.5 text-sm whitespace-nowrap ${
+                  drawerOpen
+                    ? 'border-(--border-option-selected) bg-(--surface-option-selected) text-(--text-badge)'
+                    : ''
+                }`}
+              >
+                <SlidersHorizontalIcon className="h-4 w-4" aria-hidden="true" />
+                {/* The name stays for a screen reader where only the icon
+                    fits. */}
+                <span className="sr-only sm:not-sr-only">{portalLabel}</span>
+              </button>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

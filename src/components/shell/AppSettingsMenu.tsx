@@ -18,7 +18,7 @@ import { LocalizedLink } from '@/components/LocalizedLink';
 import { GITHUB_REPO_URL } from '@/config/links';
 import { APP_RETURN_STATE } from '@/hooks/useReturnToApp';
 import { useClickOutside } from '@/hooks/ui/useClickOutside';
-import { useDialogLayer } from '@/hooks/ui/useDialogLayer';
+import { usePopoverFocus } from '@/hooks/ui/usePopoverFocus';
 import {
   getAppVersion,
   logWarn,
@@ -66,24 +66,12 @@ export default function AppSettingsMenu() {
   const contentRef = React.useRef<HTMLDivElement | null>(null);
   const [open, setOpen] = React.useState(false);
 
-  useDialogLayer(open);
-  useClickOutside([containerRef, contentRef], () => setOpen(false), open);
-
   const close = React.useCallback(() => setOpen(false), []);
-
-  // The menu owns Escape while it is up, so the layer underneath does not also
-  // act on it (the class list would drop its selection).
-  React.useEffect(() => {
-    if (!open) return;
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== 'Escape') return;
-      event.stopPropagation();
-      setOpen(false);
-      anchorRef.current?.focus();
-    };
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [open]);
+  useClickOutside([containerRef, contentRef], close, open);
+  // Focus moves in when it opens and stays inside; Escape closes it with the
+  // focus back on the gear, and the layer underneath leaves Escape alone
+  // meanwhile (the class list would drop its selection).
+  usePopoverFocus({ open, contentRef, anchorRef, onClose: close });
 
   React.useEffect(() => {
     scheduleIdleTask(preloadSettingsItems);
@@ -104,7 +92,7 @@ export default function AppSettingsMenu() {
         className={`${secondaryButtonClass} h-9 w-9 justify-center p-0`}
         title={t('footer.settings')}
         aria-label={t('footer.settings')}
-        aria-haspopup="menu"
+        aria-haspopup="dialog"
         aria-expanded={open}
       >
         <GearIcon className="h-5 w-5" aria-hidden="true" />
@@ -119,8 +107,10 @@ export default function AppSettingsMenu() {
           {/* The whole menu waits for its lazy part, should it still be on
               its way: it appears complete, never growing under the pointer. */}
           <Suspense fallback={null}>
+            {/* A dialog rather than a menu: it holds the theme and language
+                switches beside its rows, which a menu may not contain. */}
             <div
-              role="menu"
+              role="dialog"
               aria-label={t('footer.settings')}
               className={`${menuSurfaceClass} max-h-96 w-64 overflow-y-auto p-1`}
             >
@@ -133,7 +123,11 @@ export default function AppSettingsMenu() {
                 aria-hidden="true"
               />
 
-              <AppSettingsItems onDone={close} storage={false} />
+              <AppSettingsItems
+                onDone={close}
+                storage={false}
+                menuItems={false}
+              />
 
               <div
                 className="my-1 h-px bg-(--border-card)"
@@ -144,7 +138,6 @@ export default function AppSettingsMenu() {
               <LocalizedLink
                 to="/feedback"
                 state={APP_RETURN_STATE}
-                role="menuitem"
                 title={t('nav.titles.feedback')}
                 className={menuItemClass}
                 onClick={close}
@@ -155,7 +148,6 @@ export default function AppSettingsMenu() {
               <LocalizedLink
                 to="/changelog"
                 state={APP_RETURN_STATE}
-                role="menuitem"
                 title={t('nav.titles.changelog')}
                 className={menuItemClass}
                 onClick={close}
@@ -173,7 +165,6 @@ export default function AppSettingsMenu() {
                 href={GITHUB_REPO_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                role="menuitem"
                 title={t('nav.titles.github')}
                 className={menuItemClass}
                 onClick={close}
@@ -189,7 +180,6 @@ export default function AppSettingsMenu() {
               <LegalPageLink
                 to="/datenschutz"
                 state={APP_RETURN_STATE}
-                role="menuitem"
                 className={menuItemClass}
                 onClick={close}
               >
@@ -199,7 +189,6 @@ export default function AppSettingsMenu() {
               <LegalPageLink
                 to="/impressum"
                 state={APP_RETURN_STATE}
-                role="menuitem"
                 className={menuItemClass}
                 onClick={close}
               >

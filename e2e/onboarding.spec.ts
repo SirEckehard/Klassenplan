@@ -198,9 +198,15 @@ test('the sample class exists only once — asking again switches to it', async 
 
   await test.step('no copy was made, and the open sample class is not offered', async () => {
     await activeClassButton(page, 'Beispielklasse').click();
-    await expect(page.getByRole('option')).toHaveCount(2);
+    // One button per class; rename and delete beside each carry no text.
+    const classes = page
+      .getByRole('dialog', { name: 'Klasse wechseln' })
+      .getByRole('group', { name: 'Klasse auswählen' });
     await expect(
-      page.getByRole('option', { name: 'Beispielklasse', exact: true }),
+      classes.getByRole('button').filter({ hasText: /\S/ }),
+    ).toHaveCount(2);
+    await expect(
+      classes.getByRole('button', { name: 'Beispielklasse', exact: true }),
     ).toHaveCount(1);
     await page.keyboard.press('Escape');
 

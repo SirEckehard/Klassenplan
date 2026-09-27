@@ -11,6 +11,7 @@ import {
 } from '@phosphor-icons/react';
 import FloatingDropdown from '@/components/students/FloatingDropdown';
 import { useClickOutside } from '@/hooks/ui/useClickOutside';
+import { usePopoverFocus } from '@/hooks/ui/usePopoverFocus';
 import { useClassDialogs } from '@/contexts/ClassDialogsContext';
 import { useClassManagementContext } from '@/contexts/seatingPlan/ClassManagementContext';
 import { useSeatingPlanState } from '@/contexts/SeatingPlanContext';
@@ -40,7 +41,17 @@ export default function HeaderClassMenu() {
 
   const hasActiveClass = Boolean(activeClass.id);
 
-  useClickOutside([containerRef, contentRef], () => setOpen(false), open);
+  const close = React.useCallback(() => setOpen(false), []);
+  useClickOutside([containerRef, contentRef], close, open);
+  // Focus lands on the open class, Tab and the arrow keys stay in the list,
+  // Escape closes it with the focus back on this button.
+  usePopoverFocus({
+    open,
+    contentRef,
+    anchorRef,
+    onClose: close,
+    initialFocusSelector: '[aria-current="true"]',
+  });
 
   // A class that exists but has not reached the summaries yet still belongs in
   // the list — otherwise the open class is missing from its own switcher.
@@ -89,7 +100,7 @@ export default function HeaderClassMenu() {
         onClick={() => setOpen((previous) => !previous)}
         disabled={isBusy}
         data-tour={TOUR_ANCHORS.classSwitcher}
-        aria-haspopup="listbox"
+        aria-haspopup="dialog"
         aria-expanded={open}
         title={buttonLabel}
         aria-label={buttonLabel}
@@ -120,7 +131,11 @@ export default function HeaderClassMenu() {
           align="left"
           portalRef={contentRef}
         >
+          {/* A dialog of buttons, not a listbox: each class carries its own
+              rename and delete beside it, which an option may not contain. */}
           <div
+            role="dialog"
+            aria-label={t('students:classManagement.switchClass')}
             className={`${menuSurfaceClass} max-h-72 w-64 overflow-y-auto p-1`}
           >
             {/* Creating a class is offered above the existing ones, so the
@@ -142,7 +157,10 @@ export default function HeaderClassMenu() {
             </button>
             <div className="my-1 h-px bg-(--border-card)" role="separator" />
 
-            <div role="listbox">
+            <div
+              role="group"
+              aria-label={t('students:classManagement.selectClass')}
+            >
               {summaries.map((entry) => {
                 const isSelected = entry.id === activeClass.id;
                 return (
@@ -151,8 +169,7 @@ export default function HeaderClassMenu() {
                       type="button"
                       onClick={() => handleSelect(entry.id)}
                       disabled={isBusy}
-                      role="option"
-                      aria-selected={isSelected}
+                      aria-current={isSelected ? 'true' : undefined}
                       title={entry.name}
                       className={`${menuItemClass} min-w-0 flex-1`}
                     >

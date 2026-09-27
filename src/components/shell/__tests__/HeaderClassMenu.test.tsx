@@ -1,7 +1,13 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import '@testing-library/jest-dom/vitest';
-import { render, screen, fireEvent, cleanup } from '@testing-library/react';
+import {
+  render,
+  screen,
+  fireEvent,
+  cleanup,
+  waitFor,
+} from '@testing-library/react';
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import '@/i18n';
 import HeaderClassMenu from '@/components/shell/HeaderClassMenu';
@@ -61,7 +67,7 @@ describe('HeaderClassMenu', () => {
     openMenu();
 
     fireEvent.click(
-      await screen.findByRole('option', { name: 'Parallelklasse' }),
+      await screen.findByRole('button', { name: 'Parallelklasse' }),
     );
 
     expect(mocks.selectClass).toHaveBeenCalledWith('class-2');
@@ -100,5 +106,38 @@ describe('HeaderClassMenu', () => {
     );
 
     expect(mocks.openCreate).toHaveBeenCalledTimes(1);
+  });
+
+  // The list is portalled to the end of the page; the keyboard used to tab
+  // past it without ever reaching a class.
+  it('takes the focus to the open class and steps on with the arrow keys', async () => {
+    render(<HeaderClassMenu />);
+    openMenu();
+
+    const current = await screen.findByRole('button', { name: 'Testklasse' });
+    expect(current).toHaveAttribute('aria-current', 'true');
+    await waitFor(() => expect(current).toHaveFocus());
+
+    fireEvent.keyDown(current, { key: 'ArrowDown' });
+    expect(
+      screen.getByRole('button', {
+        name: /Klasse bearbeiten Testklasse|Edit class Testklasse/i,
+      }),
+    ).toHaveFocus();
+  });
+
+  it('closes on Escape with the focus back on the button', async () => {
+    render(<HeaderClassMenu />);
+    const trigger = getButton(/Klasse wechseln|Switch class/i);
+    openMenu();
+    const current = await screen.findByRole('button', { name: 'Testklasse' });
+    await waitFor(() => expect(current).toHaveFocus());
+
+    fireEvent.keyDown(current, { key: 'Escape' });
+
+    expect(
+      screen.queryByRole('dialog', { name: /Klasse wechseln|Switch class/i }),
+    ).not.toBeInTheDocument();
+    expect(trigger).toHaveFocus();
   });
 });

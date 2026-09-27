@@ -7,11 +7,24 @@ import {
   useSeatingPlanState,
   useSeatingPlanActions,
 } from '@/contexts/SeatingPlanContext';
-import { useInspector } from '@/contexts/InspectorContext';
-import { useIsPhone } from '@/hooks/ui/useLayoutMode';
+import { INSPECTOR_DRAWER_ID, useInspector } from '@/contexts/InspectorContext';
+import { useLayoutMode } from '@/hooks/ui/useLayoutMode';
 import { useDialogA11y } from '@/hooks/ui/useDialogA11y';
-import { useDialogLayer } from '@/hooks/ui/useDialogLayer';
+import { isAnyDialogOpen, useDialogLayer } from '@/hooks/ui/useDialogLayer';
 import StudentInspectorPanel from '@/components/students/StudentInspectorPanel';
+
+/** The column from `lg` up; `hidden` below, where the drawer takes over. */
+const columnClass =
+  'hidden w-80 shrink-0 flex-col overflow-hidden border-l border-(--border-card) bg-(--surface-card) lg:flex';
+
+/**
+ * Below `lg` the inspector has no column of its own: it opens as a drawer
+ * over the stage, between the header and the status bar, on the right where
+ * the column stands from `lg` up — an iPad turned from landscape to portrait
+ * finds it in the same place.
+ */
+const inspectorDrawerClass =
+  'fixed top-14 right-0 bottom-(--shell-bottom-inset) z-40 flex w-full max-w-sm flex-col overflow-hidden border-l border-(--border-card) bg-(--surface-card) shadow-(--menu-shadow) focus:outline-none';
 
 /**
  * The properties of whatever is selected, in one place on the right.
@@ -25,6 +38,13 @@ import StudentInspectorPanel from '@/components/students/StudentInspectorPanel';
  * because the ticks live with the list: one ticked student in the panel an
  * opened one gets, several in the bulk panel. The slot takes the opened
  * student's place until the selection is let go.
+ *
+ * Below `lg` there is no column. A phone shows an opened student as a sheet
+ * from the bottom; a tablet as a drawer on the right. What a layer portals in
+ * — the room's properties, the plan's criteria, the circle's summary — opens
+ * as the same drawer, from the switch in the status bar. Before, all of it was
+ * a column that stayed hidden below `lg`, and an iPad in portrait could
+ * neither name a student nor set a criterion.
  */
 export default function Inspector() {
   const { t } = useTranslation(['students', 'generator']);
@@ -38,8 +58,12 @@ export default function Inspector() {
     setSlotNode,
     portalMounted,
     portalLabel,
+    drawerOpen,
+    setDrawerOpen,
   } = useInspector();
-  const isPhone = useIsPhone();
+  const layoutMode = useLayoutMode();
+  const isPhone = layoutMode === 'phone';
+  const isDesktop = layoutMode === 'desktop';
 
   const student = React.useMemo(
     () =>
@@ -60,21 +84,54 @@ export default function Inspector() {
   const sheetRef = useDialogA11y<HTMLDivElement>({ open: isPhone && isOpen });
   useDialogLayer(isPhone && isOpen);
 
+  const hasPortal = step === 2 || step === 3 || portalMounted;
+  const showsDrawer = !isDesktop && hasPortal && drawerOpen;
+
+  // Another layer brings another panel; the drawer opens again when asked.
+  React.useEffect(() => {
+    setDrawerOpen(false);
+  }, [setDrawerOpen, step]);
+
+  // The drawer is not modal: the stage beside it stays in reach. It takes the
+  // focus when it opens, so the keyboard lands in it rather than after the
+  // status bar, and hands it back when Escape closes it.
+  const drawerRef = React.useRef<HTMLElement | null>(null);
+  React.useEffect(() => {
+    if (!showsDrawer) return undefined;
+    const opener =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
+    drawerRef.current?.focus();
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape' || isAnyDialogOpen()) return;
+      // First in line, so the stage underneath does not also take Escape as
+      // "clear the selection".
+      event.stopPropagation();
+      setDrawerOpen(false);
+      opener?.focus();
+    };
+    window.addEventListener('keydown', handleKeyDown, true);
+    return () => window.removeEventListener('keydown', handleKeyDown, true);
+  }, [setDrawerOpen, showsDrawer]);
+
   if (suspended) return null;
 
-  // The room and plan layers fill the panel themselves. Both are pointer jobs
-  // on a canvas the phone barely fits already, so the slot is desktop-only —
-  // and the class layer's ticks only portal in from `lg` up.
-  if (step === 2 || step === 3 || portalMounted) {
+  // The room and plan layers fill the panel themselves, and so does the class
+  // layer's selection from `lg` up.
+  if (hasPortal) {
     return (
       <aside
+        id={INSPECTOR_DRAWER_ID}
+        ref={drawerRef}
+        tabIndex={showsDrawer ? -1 : undefined}
         aria-label={
           portalLabel ??
           (step === 2
             ? t('generator:sceneInspector.title')
             : t('generator:mix.title'))
         }
-        className="hidden w-80 shrink-0 flex-col overflow-hidden border-l border-(--border-card) bg-(--surface-card) lg:flex"
+        className={showsDrawer ? inspectorDrawerClass : columnClass}
       >
         {/* The layers bring their own header strip and body through the
             portal, so the slot is only the column they fill. */}
@@ -124,11 +181,22 @@ export default function Inspector() {
     );
   }
 
+  // A tablet: the opened student in the drawer, the list beside it still in
+  // reach — tapping another row opens that one instead.
+  if (!isDesktop) {
+    if (!isOpen) return null;
+    return (
+      <aside
+        aria-label={t('students:inspector.title')}
+        className={inspectorDrawerClass}
+      >
+        {body}
+      </aside>
+    );
+  }
+
   return (
-    <aside
-      aria-label={t('students:inspector.title')}
-      className="hidden w-80 shrink-0 flex-col overflow-hidden border-l border-(--border-card) bg-(--surface-card) lg:flex"
-    >
+    <aside aria-label={t('students:inspector.title')} className={columnClass}>
       {body}
     </aside>
   );

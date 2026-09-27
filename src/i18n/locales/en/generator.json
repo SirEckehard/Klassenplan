@@ -244,7 +244,7 @@
     "label": "Shuffle",
     "loadingAriaLabel": "Shuffling in progress",
     "loadingTitle": "Shuffling in progress...",
-    "shortcut": "Mix (Ctrl/⌘+M)",
+    "shortcut": "Mix (Ctrl/⌘+Enter)",
     "title": "Shuffle seating plan"
   },
   "messages": {
@@ -528,8 +528,8 @@
     "viewFromBackTitle": "The room is rotated by 180° so names stay readable.",
     "printDocumentTitle": "Klassenplan",
     "printShortcut": "Print (Ctrl/⌘+P)",
-    "tablePdfShortcut": "Export the seating plan as PDF (Ctrl/⌘+Shift+T)",
-    "circlePdfShortcut": "Export the seating circle as PDF (Ctrl/⌘+Shift+C)",
+    "tablePdfShortcut": "Export the seating plan as PDF (P)",
+    "circlePdfShortcut": "Export the seating circle as PDF (P)",
     "tableDefaultFilename": "Seating Plan",
     "circleDefaultFilename": "Circle Plan",
     "dragDropHint": "Drag elements here",
@@ -575,7 +575,7 @@
     },
     "empty": "No seating plan to export yet.",
     "pngButton": "PNG image",
-    "pngShortcut": "Save the current view as a PNG image (Ctrl/⌘+Shift+I)",
+    "pngTitle": "Save the current view as a PNG image",
     "svgButton": "SVG graphic",
     "svgTitle": "Save the current view as an SVG vector graphic",
     "saveAs": "Save as",
@@ -812,9 +812,7 @@
       "circle_saveCircle": "Save Seating Circle",
       "circle_openExport": "Open Export view",
       "export_backToPlan": "Back to Seating Plan",
-      "export_exportPdf": "Download Seating Plan as PDF",
-      "export_exportCirclePdf": "Download Seating Circle as PDF",
-      "export_exportPng": "Save the current view as a PNG image",
+      "export_exportPdf": "Download the plan or circle on the sheet as PDF",
       "export_print": "Print Seating Plan",
       "plan_undo": "Undo the last seating action",
       "plan_redo": "Redo the last seating action",
@@ -842,7 +840,7 @@
       "layout_rotate90": "Shift+Q / Shift+E",
       "layout_undo": "Ctrl/⌘+Z",
       "plan_toClassroom": "Alt/⌥+←",
-      "plan_shuffle": "Ctrl/⌘+M",
+      "plan_shuffle": "Ctrl/⌘+Enter",
       "plan_savePlan": "Ctrl/⌘+S",
       "plan_openExport": "Ctrl/⌘+E",
       "circle_toClassroom": "Alt/⌥+←",
@@ -851,9 +849,7 @@
       "circle_saveCircle": "Ctrl/⌘+S",
       "circle_openExport": "Ctrl/⌘+E",
       "export_backToPlan": "Alt/⌥+←",
-      "export_exportPdf": "Ctrl/⌘+Shift+T",
-      "export_exportCirclePdf": "Ctrl/⌘+Shift+C",
-      "export_exportPng": "Ctrl/⌘+Shift+I",
+      "export_exportPdf": "P",
       "export_print": "Ctrl/⌘+P",
       "plan_undo": "Ctrl/⌘+Z",
       "plan_redo": "Ctrl/⌘+Shift+Z",
@@ -963,7 +959,7 @@
       },
       "mix": {
         "title": "Mix",
-        "body": "The button in the status bar mixes the class again, taking every selected criterion into account (Ctrl/⌘+M)."
+        "body": "The button in the status bar mixes the class again, taking every selected criterion into account (Ctrl/⌘+Enter)."
       },
       "sidebar": {
         "title": "Tools",
