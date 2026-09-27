@@ -24,10 +24,8 @@ type StudentListProps = {
    */
   allStudents?: Student[];
   lastAddedId: string | null;
-  expandedCardId: string | null;
   listContainerRef: MutableRefObject<HTMLDivElement | null>;
   maxHeight: number | null;
-  onScrollCollapse?: () => void;
   /** Multi-select for bulk edits; omitted hides the row checkboxes. */
   isSelected?: (studentId: string) => boolean;
   onToggleSelected?: (studentId: string) => void;
@@ -43,10 +41,8 @@ const StudentList = ({
   students,
   allStudents,
   lastAddedId,
-  expandedCardId,
   listContainerRef,
   maxHeight,
-  onScrollCollapse,
   isSelected,
   onToggleSelected,
   allVisibleSelected,
@@ -93,7 +89,7 @@ const StudentList = ({
     if (shouldVirtualize && virtualizerRef.current) {
       virtualizerRef.current.measure();
     }
-  }, [isLgUp, expandedCardId, shouldVirtualize]);
+  }, [isLgUp, shouldVirtualize]);
 
   // Early return after all hooks
   if (students.length === 0) {
@@ -108,7 +104,6 @@ const StudentList = ({
           ref={listContainerRef}
           className="grid content-start lg:overflow-y-auto"
           style={maxHeight ? { maxHeight: `${maxHeight}px` } : undefined}
-          onScroll={onScrollCollapse}
         >
           <StudentListHeader
             allVisibleSelected={allVisibleSelected}
@@ -145,7 +140,6 @@ const StudentList = ({
         style={{
           height: `${listHeight}px`,
         }}
-        onScroll={onScrollCollapse}
       >
         <StudentListHeader
           allVisibleSelected={allVisibleSelected}

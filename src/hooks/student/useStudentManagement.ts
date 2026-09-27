@@ -27,10 +27,6 @@ export interface UseStudentManagementOptions {
     concentrationIssues?: boolean,
     needsFrontSeat?: boolean,
   ) => Student;
-  /**
-   * Callback when a card should be expanded
-   */
-  onCardExpand?: (studentId: string) => void;
 }
 
 export interface UseStudentManagementReturn {
@@ -63,7 +59,7 @@ export interface UseStudentManagementReturn {
 export function useStudentManagement(
   options: UseStudentManagementOptions,
 ): UseStudentManagementReturn {
-  const { students, addStudent, onCardExpand } = options;
+  const { students, addStudent } = options;
 
   const [newStudentName, setNewStudentName] = useState('');
   const [lastAddedId, setLastAddedId] = useState<string | null>(null);
@@ -119,12 +115,9 @@ export function useStudentManagement(
     const student = addStudent(name);
     setLastAddedId(student.id);
 
-    // Expand the card for the new student (for gender selection)
-    onCardExpand?.(student.id);
-
     // Clear input for next entry
     setNewStudentName('');
-  }, [newStudentName, students.length, addStudent, onCardExpand]);
+  }, [newStudentName, students.length, addStudent]);
 
   const isAddDisabled =
     !newStudentName.trim() || students.length >= MAX_STUDENTS;

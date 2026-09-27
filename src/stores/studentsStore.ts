@@ -5,8 +5,7 @@ import { createStore } from 'zustand/vanilla';
 import { useStore } from 'zustand';
 import type { Student } from '@/types';
 import type { CsvImportSelection } from '@/utils/data/csvUtils';
-import { showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
-import { generateId, MAX_STUDENTS, numberValidation } from '@/utils';
+import { generateId, MAX_STUDENTS } from '@/utils';
 import type {
   StateUpdater,
   StudentStore,
@@ -117,18 +116,11 @@ export const createStudentsStore = (
           return [];
         }
 
+        // Capped at the class limit. How many there are is the caller's to
+        // say — in one message, with the number that actually came about.
         const currentCount = get().students.length;
-        const requestedCount = currentCount + count;
         const availableSlots = Math.max(0, MAX_STUDENTS - currentCount);
         const placeholderCount = Math.min(count, availableSlots);
-
-        const countValidation = numberValidation.validateStudentCount(
-          requestedCount,
-          MAX_STUDENTS,
-        );
-        if (!countValidation.isValid) {
-          showToast('error', TOAST_MESSAGES.STUDENT_MAX_REACHED);
-        }
 
         if (placeholderCount === 0) {
           return [];

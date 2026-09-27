@@ -16,7 +16,13 @@ import { useClassDialogs } from '@/contexts/ClassDialogsContext';
 import { useClassManagementContext } from '@/contexts/seatingPlan/ClassManagementContext';
 import { useSeatingPlanState } from '@/contexts/SeatingPlanContext';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
-import { menuItemClass, menuSurfaceClass, secondaryButtonClass } from '@/utils';
+import {
+  menuItemClass,
+  menuSurfaceClass,
+  quietDangerIconButtonClass,
+  quietIconButtonClass,
+  secondaryButtonClass,
+} from '@/utils';
 
 /**
  * Which class is open — as the document name of the whole workspace.
@@ -223,7 +229,5 @@ export default function HeaderClassMenu() {
 // with a check at its end; beside each the two things a class can undergo, as
 // quiet icons. Deleting turns rose only under the pointer, as a menu's
 // destructive row does (`menu-item-danger`).
-const optionActionClass =
-  'inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-(--text-muted) transition hover:bg-(--surface-sunken) hover:text-(--text-page) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) disabled:cursor-not-allowed disabled:opacity-40';
-const optionDeleteClass =
-  'inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-(--text-muted) transition hover:bg-(--button-icon-danger-bg) hover:text-(--button-icon-danger-text) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-danger) disabled:cursor-not-allowed disabled:opacity-40';
+const optionActionClass = `${quietIconButtonClass} h-9 w-9 shrink-0`;
+const optionDeleteClass = `${quietDangerIconButtonClass} h-9 w-9 shrink-0`;

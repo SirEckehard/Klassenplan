@@ -15,6 +15,7 @@ import { useCanvasInteraction } from '@/hooks/canvas/useCanvasInteraction';
 import { useTableOperations } from '@/hooks/canvas/useTableOperations';
 import { useFeatureOperations } from '@/hooks/canvas/useFeatureOperations';
 import { useKeyboardInteraction } from '@/hooks/ui/useKeyboardInteraction';
+import { useUndoStep } from '@/hooks/scene/useUndoStep';
 import type { SceneTransactionRunner } from '@/hooks/scene/useSceneManager';
 import type { FeatureTemplate } from '@/hooks/canvas/featureTemplates';
 import type { SelectionBox } from '@/types/canvas';
@@ -151,6 +152,10 @@ export default function CanvasInteractionLayer({
     ClassroomFeature[] | null
   >(null);
 
+  // One gesture on a mixed selection is one undo step: Ctrl+Z brings both
+  // halves back at once.
+  const { snapshot: stepSnapshot, asOneStep } = useUndoStep(snapshot);
+
   // TableIcon operations hook
   const tableOperations = useTableOperations({
     selectedTableIds,
@@ -164,7 +169,7 @@ export default function CanvasInteractionLayer({
     setClipboard,
     runSceneTransaction,
     removeTables,
-    snapshot,
+    snapshot: stepSnapshot,
     toggleSelect,
     clearSelection: cancelSelectionInteraction,
     closeCanvasContextMenu,
@@ -182,7 +187,7 @@ export default function CanvasInteractionLayer({
     setSelectedFeatureIds,
     setFeatureClipboard,
     runSceneTransaction,
-    snapshot,
+    snapshot: stepSnapshot,
     setFeatureVisible,
   });
 
@@ -214,9 +219,11 @@ export default function CanvasInteractionLayer({
   ]);
 
   const deleteSelection = React.useCallback(() => {
-    tableOperations.deleteSelectedTables();
-    featureOperations.deleteSelectedFeatures();
-  }, [tableOperations, featureOperations]);
+    asOneStep(() => {
+      tableOperations.deleteSelectedTables();
+      featureOperations.deleteSelectedFeatures();
+    });
+  }, [asOneStep, tableOperations, featureOperations]);
 
   const cutSelection = React.useCallback(() => {
     const hasTables = selectedTableIds.length > 0;
@@ -224,17 +231,20 @@ export default function CanvasInteractionLayer({
     if (!hasTables && !hasFeatures) return;
     // Per-domain cut: the feature side keeps singleton elements (board /
     // lectern) in place since they can't be pasted back.
-    if (hasTables) {
-      tableOperations.cutSelectedTables();
-    } else {
-      setClipboard(null);
-    }
-    if (hasFeatures) {
-      featureOperations.cutSelectedFeatures();
-    } else {
-      setFeatureClipboard(null);
-    }
+    asOneStep(() => {
+      if (hasTables) {
+        tableOperations.cutSelectedTables();
+      } else {
+        setClipboard(null);
+      }
+      if (hasFeatures) {
+        featureOperations.cutSelectedFeatures();
+      } else {
+        setFeatureClipboard(null);
+      }
+    });
   }, [
+    asOneStep,
     selectedTableIds,
     selectedFeatureIds,
     tableOperations,
@@ -243,18 +253,22 @@ export default function CanvasInteractionLayer({
 
   const pasteSelectionAt = React.useCallback(
     (coords?: { sceneX?: number; sceneY?: number }) => {
-      tableOperations.pasteTablesAt(coords);
-      featureOperations.pasteFeaturesAt(coords);
+      asOneStep(() => {
+        tableOperations.pasteTablesAt(coords);
+        featureOperations.pasteFeaturesAt(coords);
+      });
     },
-    [tableOperations, featureOperations],
+    [asOneStep, tableOperations, featureOperations],
   );
 
   // A paste of the selection that leaves the clipboard as it is: the copies
   // land where a paste would put them and become the selection.
   const duplicateSelection = React.useCallback(() => {
-    tableOperations.duplicateSelectedTables();
-    featureOperations.duplicateSelectedFeatures();
-  }, [tableOperations, featureOperations]);
+    asOneStep(() => {
+      tableOperations.duplicateSelectedTables();
+      featureOperations.duplicateSelectedFeatures();
+    });
+  }, [asOneStep, tableOperations, featureOperations]);
 
   const handleCanvasMenuPaste = React.useCallback(
     (state: CanvasContextMenuState) => {

@@ -64,6 +64,9 @@ export const iconButtonClass = 'icon-button';
 
 export const quietIconButtonClass = 'quiet-icon-button';
 
+/** The destructive icon beside a row: quiet, rose only under the pointer. */
+export const quietDangerIconButtonClass = 'quiet-danger-icon-button';
+
 /** A link in the chrome of a page — muted ink at rest, ink and underlined on hover. */
 export const quietLinkClass = 'quiet-link';
 

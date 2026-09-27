@@ -5,8 +5,6 @@ import { useTranslation } from 'react-i18next';
 import {
   AlignCenterVerticalSimpleIcon,
   ArmchairIcon,
-  FloppyDiskIcon,
-  HammerIcon,
   SlidersHorizontalIcon,
 } from '@phosphor-icons/react';
 import type { ClassroomFeatureType, TableTemplateType } from '@/types';
@@ -33,24 +31,24 @@ type FeaturePaletteItem = {
 
 type Props = {
   density: ToolRailDensity;
-  handleSaveTemplate: () => void;
   onTemplatePointerDown: (
     type: TableTemplateType,
     event: React.PointerEvent<Element>,
   ) => void;
-  onOpenQuickSetup: () => void;
-  quickSetupShortcutHint?: string;
+  /** A click or Enter adds one where there is room — dragging is optional. */
+  onTemplateAdd: (type: TableTemplateType) => void;
   featurePalette: FeaturePaletteItem[];
   onFeaturePointerDown: (
     type: ClassroomFeatureType,
     event: React.PointerEvent<HTMLButtonElement>,
   ) => void;
+  onFeatureAdd: (type: ClassroomFeatureType) => void;
   /** Grid, snapping, alignment guides and which room elements are shown. */
   settingsGroups: CanvasSettingsGroup[];
   /**
-   * On a phone the tables, the room elements, the setup and the template
-   * saving sit under the canvas (`MobileTableTemplates`), where a drag can
-   * reach the room; the sheet carries only what is not there.
+   * On a phone the tables and the room elements sit under the canvas
+   * (`MobileTableTemplates`), where a drag can reach the room; the sheet
+   * carries only what is not there.
    */
   isPhone?: boolean;
 };
@@ -78,23 +76,25 @@ const TEMPLATE_ICON_SIZE: Record<ToolRailDensity, number> = {
 };
 
 /**
- * The room layer's toolbar: what goes into the room, what the drawing of it
- * shows, and the templates a whole room is built from.
+ * The room layer's toolbar: what goes into the room and what the drawing of
+ * it shows.
  *
  * Same sections and the same order as the other layers': the tables and the
- * room elements are dragged out of "Hinzufügen" — one group, split by a
+ * room elements come out of "Hinzufügen" — dragged to a place, or clicked
+ * (Enter) onto the free spot nearest the middle — one group, split by a
  * hairline, so "Raumelemente" does not name a group and a view setting at
- * once — the view settings follow, and setting a room up from scratch or
- * keeping it as a template is managing.
+ * once — and the view settings follow. Setting a room up from scratch and
+ * keeping it as a template concern the room as a whole, so they are the
+ * inspector's while nothing is selected (`RoomSetupSections`), and the room
+ * has no "Verwalten" of its own.
  */
 export default function RoomToolPanel({
   density,
-  handleSaveTemplate,
   onTemplatePointerDown,
-  onOpenQuickSetup,
-  quickSetupShortcutHint,
+  onTemplateAdd,
   featurePalette,
   onFeaturePointerDown,
+  onFeatureAdd,
   settingsGroups,
   isPhone = false,
 }: Props) {
@@ -106,7 +106,6 @@ export default function RoomToolPanel({
     group4: t('layout.group4'),
     group6: t('layout.group6'),
   };
-  const setupLabel = t('layout.setupClassroom');
   const groups = settingsGroups.filter((group) => group.options.length > 0);
 
   return (
@@ -123,8 +122,9 @@ export default function RoomToolPanel({
                 />
               }
               label={templateLabels[type]}
-              title={`${templateLabels[type]} (${seatCount} ${t('common.seats')}) - ${t('layout.dragDropHint')}`}
+              title={`${templateLabels[type]} (${seatCount} ${t('common.seats')}) – ${t('layout.dragDropHint')}`}
               onPointerDown={(event) => onTemplatePointerDown(type, event)}
+              onClick={() => onTemplateAdd(type)}
             />
           ))}
           {featurePalette.length > 0 && <ToolRailDivider />}
@@ -133,10 +133,11 @@ export default function RoomToolPanel({
               key={feature.type}
               icon={feature.icon}
               label={feature.label}
-              title={`${feature.label} ${t('layout.dragDropPlace')}`}
+              title={`${feature.label} – ${t('layout.dragDropHint')}`}
               onPointerDown={(event) =>
                 onFeaturePointerDown(feature.type, event)
               }
+              onClick={() => onFeatureAdd(feature.type)}
             />
           ))}
         </ToolRailGroup>
@@ -161,27 +162,6 @@ export default function RoomToolPanel({
           />
         ))}
       </ToolRailGroup>
-
-      {!isPhone && (
-        <ToolRailGroup title={t('toolRail.manage')}>
-          <ToolRailButton
-            icon={<HammerIcon size={18} />}
-            label={setupLabel}
-            title={
-              quickSetupShortcutHint
-                ? `${setupLabel} (${quickSetupShortcutHint})`
-                : setupLabel
-            }
-            onClick={onOpenQuickSetup}
-          />
-          <ToolRailButton
-            icon={<FloppyDiskIcon size={18} />}
-            label={t('layout.saveTemplateButton')}
-            title={t('layout.saveTemplate')}
-            onClick={handleSaveTemplate}
-          />
-        </ToolRailGroup>
-      )}
     </ToolRail>
   );
 }

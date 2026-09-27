@@ -67,7 +67,9 @@ describe('studentsStore', () => {
       expect(placeholders[0]!.gender).toBeUndefined();
     });
 
-    it('caps at MAX_STUDENTS and toasts when over limit (failure path)', () => {
+    // How many came about is the caller's to say, in one message with the
+    // number that actually did.
+    it('caps at MAX_STUDENTS and leaves the message to the caller', () => {
       // Pre-populate near the limit
       for (let i = 0; i < MAX_STUDENTS - 2; i++) {
         studentStore.getState().addStudent(`S${i}`);
@@ -79,7 +81,7 @@ describe('studentsStore', () => {
 
       expect(placeholders).toHaveLength(2); // only 2 slots left
       expect(studentStore.getState().students).toHaveLength(MAX_STUDENTS);
-      expect(showToast).toHaveBeenCalledWith('error', 'STUDENT_MAX_REACHED');
+      expect(showToast).not.toHaveBeenCalled();
     });
 
     it('returns empty array when count is non-positive', () => {

@@ -43,6 +43,7 @@ import {
   buildDropConfirmLookup,
   getTooltipName,
   withoutUnavailableWeights,
+  formatPercent,
 } from '@/utils';
 import {
   buildBadgeHighlightLookup,
@@ -431,15 +432,6 @@ export default function SeatingPlanEditorView({
         seating?.length ? seating : (emptySeating[tIndex] ?? []),
       ),
     [currentSeating, emptySeating],
-  );
-  const statisticsButtonTitle = t(
-    'editor.showStatistics',
-    'Statistik anzeigen',
-  );
-  const statisticsButtonLabel = t(
-    'editor.statisticsLabel',
-    'Statistik anzeigen – Gesamt-Score {{score}}%',
-    { score: statisticsScore },
   );
   // The switch above the criteria turns the statistics on and off; what it
   // turns is the fulfilment beside each criterion in the inspector. Only a
@@ -847,9 +839,15 @@ export default function SeatingPlanEditorView({
                 type="button"
                 onClick={handleStatisticsToggle}
                 data-tour={TOUR_ANCHORS.planFulfillment}
+                // Named by what it shows — "Erfüllung 85 %" — so speech
+                // input finds it by its words; whether the values are on is
+                // the pressed state alone.
                 aria-pressed={showStatisticsBadge}
-                title={statisticsButtonTitle}
-                aria-label={statisticsButtonLabel}
+                title={
+                  showStatisticsBadge
+                    ? t('editor.hideFulfillment')
+                    : t('editor.showFulfillment')
+                }
                 className={`${secondaryButtonClass} mb-3 flex w-full items-center justify-between gap-2 px-3 py-2 text-sm`}
               >
                 <span className="flex items-center gap-2">
@@ -857,7 +855,7 @@ export default function SeatingPlanEditorView({
                   {t('editor.fulfillmentLabel')}
                 </span>
                 <span className="font-semibold tabular-nums">
-                  {statisticsScore}%
+                  {formatPercent(statisticsScore)}
                 </span>
               </button>
             )}

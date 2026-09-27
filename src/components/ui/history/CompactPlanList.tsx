@@ -279,9 +279,7 @@ export default function CompactPlanList({
         <div className="text-sm">
           {t('planList.emptyTitle', 'Noch keine Pläne gespeichert')}
         </div>
-        <div className="text-xs mt-1">
-          {t('planList.emptyHint', 'Speichere deinen ersten Plan im Schritt 3')}
-        </div>
+        <div className="text-xs mt-1">{t('planList.emptyHint')}</div>
       </div>
     );
   }

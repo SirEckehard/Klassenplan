@@ -148,7 +148,7 @@
     "longNamesImported": "Namen importiert - einige werden gekürzt dargestellt",
     "fileTypeExcel": "„{{fileName}}“ ist eine Excel-Datei. Öffne sie in Excel und speichere sie über „Datei > Speichern unter“ als CSV.",
     "fileTypeSpreadsheet": "„{{fileName}}“ ist eine Tabelle, aber keine CSV. Exportiere sie in deinem Tabellenprogramm als CSV und lade sie erneut hoch.",
-    "fileTypeBackup": "„{{fileName}}“ sieht nach einem Klassenplan-Backup aus. Dafür gibt es den Backup-Import in der Fußzeile.",
+    "fileTypeBackup": "„{{fileName}}“ sieht nach einem Klassenplan-Backup aus. Dafür gibt es „Backup“ in der Werkzeugleiste.",
     "fileTypeText": "„{{fileName}}“ ist eine Textdatei. Sind die Namen darin durch Kommas getrennt, benenne sie in .csv um. Sonst speichere sie neu als CSV.",
     "fileTypeDocument": "„{{fileName}}“ ist ein Dokument, keine Tabelle. Klassenplan braucht eine CSV-Datei, kein Word oder PDF.",
     "fileTypeImage": "„{{fileName}}“ ist ein Bild. Namen darauf kann Klassenplan nicht lesen, es braucht eine CSV-Datei.",
@@ -202,5 +202,8 @@
     "recorded": "Als genutzter Sitzplan vermerkt – das verbessert die Wiederholungsvermeidung.",
     "recordedAction": "War nur ein Test",
     "dismissed": "Dieser Sitzplan wird nicht gewertet."
+  },
+  "room": {
+    "noFreeSpot": "Im Raum ist kein Platz mehr frei – ziehe es an eine Stelle deiner Wahl."
   }
 }

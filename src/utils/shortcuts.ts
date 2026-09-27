@@ -64,8 +64,8 @@ export const shortcutMap: Record<ShortcutContext, Shortcut[]> = {
       descriptionKey: 'shortcuts.descriptions.layout_toSeatingPlan',
     },
     {
-      keysKey: 'shortcuts.keys.layout_toggleQuickSetup',
-      descriptionKey: 'shortcuts.descriptions.layout_toggleQuickSetup',
+      keysKey: 'shortcuts.keys.layout_setUpRoom',
+      descriptionKey: 'shortcuts.descriptions.layout_setUpRoom',
     },
     {
       keysKey: 'shortcuts.keys.layout_multiSelect',

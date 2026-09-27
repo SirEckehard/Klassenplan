@@ -1,11 +1,23 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import '@testing-library/jest-dom/vitest';
-import { render, screen, fireEvent, cleanup } from '@testing-library/react';
+import {
+  render,
+  screen,
+  fireEvent,
+  cleanup,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import '@/i18n';
 import SceneInspector from '../SceneInspector';
-import type { ClassroomFeature, ClassroomTable } from '@/types';
+import type {
+  ClassroomFeature,
+  ClassroomTable,
+  ClassroomTemplate,
+} from '@/types';
+import { confirmDialog } from '@/services/ui/dialogs';
 import type {
   SceneTransactionRunner,
   SceneTransactionState,
@@ -58,6 +70,21 @@ const board: ClassroomFeature = {
   anchor: 'top',
 };
 
+// Deleting a template asks first; the dialog itself is not this panel's.
+vi.mock('@/services/ui/dialogs', () => ({
+  confirmDialog: vi.fn(() => Promise.resolve(true)),
+}));
+
+const template = (
+  id: number,
+  name: string,
+  tables: ClassroomTable[],
+): ClassroomTemplate => ({
+  id,
+  name,
+  scene: { tables, features: [], totalStudents: 0 },
+});
+
 const renderInspector = (
   props: Partial<React.ComponentProps<typeof SceneInspector>> = {},
 ) => {
@@ -69,6 +96,11 @@ const renderInspector = (
   const onCopySelection = vi.fn();
   const onCutSelection = vi.fn();
   const onPasteSelection = vi.fn();
+  const onSetUpRoom = vi.fn();
+  const onLoadTemplate = vi.fn();
+  const onRenameTemplate = vi.fn(() => Promise.resolve({ success: true }));
+  const onDeleteTemplate = vi.fn();
+  const onSaveTemplate = vi.fn();
   const element = (
     overrides: Partial<React.ComponentProps<typeof SceneInspector>>,
   ) => (
@@ -82,6 +114,12 @@ const renderInspector = (
         { type: 'board', label: 'Tafel', allowMultiple: false },
       ]}
       studentsCount={5}
+      onSetUpRoom={onSetUpRoom}
+      templates={[]}
+      onLoadTemplate={onLoadTemplate}
+      onRenameTemplate={onRenameTemplate}
+      onDeleteTemplate={onDeleteTemplate}
+      onSaveTemplate={onSaveTemplate}
       snapshot={snapshot}
       onRotateSelection={onRotateSelection}
       runSceneTransaction={runSceneTransaction}
@@ -107,6 +145,11 @@ const renderInspector = (
     onCopySelection,
     onCutSelection,
     onPasteSelection,
+    onSetUpRoom,
+    onLoadTemplate,
+    onRenameTemplate,
+    onDeleteTemplate,
+    onSaveTemplate,
   };
 };
 
@@ -138,14 +181,174 @@ const applyTransaction = (
 afterEach(cleanup);
 
 describe('SceneInspector', () => {
-  it('sums up the room while nothing is selected', () => {
+  // Seats and students are the status bar's to state; the room panel only
+  // names how many tables stand there.
+  it('names the room and its tables while nothing is selected', () => {
     renderInspector();
 
-    expect(screen.getByRole('heading', { name: /Raum|Room/i })).toBeVisible();
-    // Two tables, six seats between them, five students.
-    expect(screen.getByText('2')).toBeInTheDocument();
-    expect(screen.getByText('6')).toBeInTheDocument();
-    expect(screen.getByText('5')).toBeInTheDocument();
+    const heading = screen.getByRole('heading', { name: /^(Raum|Room)$/ });
+    expect(heading).toBeVisible();
+    expect(
+      within(heading.parentElement as HTMLElement).getByText(
+        /^(2 Tische|2 tables)$/,
+      ),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/^(Schüler|Students)$/)).not.toBeInTheDocument();
+  });
+
+  it('says so when the room has no tables yet', () => {
+    renderInspector({ tables: [] });
+
+    expect(
+      screen.getByText(/Noch keine Tische|No tables yet/),
+    ).toBeInTheDocument();
+  });
+
+  it('sets the room up with as many tables as the class needs', () => {
+    const { onSetUpRoom } = renderInspector({ studentsCount: 25 });
+
+    // 25 students: 25 single seats, 13 doubles, 7 groups of 4, 5 of 6.
+    const setup = screen.getByRole('heading', { name: /^(Einrichten|Set up)$/ })
+      .parentElement as HTMLElement;
+    const rows = within(setup).getAllByRole('button');
+    expect(rows.map((row) => row.textContent)).toEqual([
+      expect.stringMatching(/^(Einzelplätze|Single seats)25 (Tische|tables)$/),
+      expect.stringMatching(/^(Doppelplätze|Double seats)13 (Tische|tables)$/),
+      expect.stringMatching(/^(4er-Gruppen|Groups of 4)7 (Tische|tables)$/),
+      expect.stringMatching(/^(6er-Gruppen|Groups of 6)5 (Tische|tables)$/),
+    ]);
+
+    fireEvent.click(rows[1]);
+    expect(onSetUpRoom).toHaveBeenCalledWith('double');
+  });
+
+  // The setup replaces what stands there; the hint says so, and how to get
+  // it back.
+  it('warns that setting up replaces the tables, but not in an empty room', () => {
+    const { rerender } = renderInspector();
+    const row = () =>
+      screen.getByRole('button', { name: /^(Doppelplätze|Double seats)/ });
+    expect(row()).toHaveAccessibleDescription(/Strg\/⌘\+Z|Ctrl\/⌘\+Z/);
+
+    rerender({ tables: [] });
+    expect(row()).not.toHaveAccessibleDescription(/Strg\/⌘\+Z|Ctrl\/⌘\+Z/);
+  });
+
+  it('offers no setup to a class without students', () => {
+    renderInspector({ studentsCount: 0 });
+
+    expect(
+      screen.getByRole('button', { name: /^(Doppelplätze|Double seats)/ }),
+    ).toBeDisabled();
+    expect(screen.getByText(/zuerst Schüler|Add students/)).toBeInTheDocument();
+  });
+
+  it('moves the focus to the setup when it is asked for', async () => {
+    const { rerender } = renderInspector();
+
+    rerender({ setupFocusRequest: 1 });
+
+    await waitFor(() =>
+      expect(
+        screen.getByRole('button', { name: /^(Einzelplätze|Single seats)/ }),
+      ).toHaveFocus(),
+    );
+  });
+
+  it('keeps this room as a template and loads a saved one', () => {
+    const { onSaveTemplate, onLoadTemplate } = renderInspector({
+      templates: [template(7, 'Raum 104', [table(), table({ seatCount: 2 })])],
+    });
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: /Diesen Raum als Vorlage speichern|Save this room as a template/,
+      }),
+    );
+    expect(onSaveTemplate).toHaveBeenCalledTimes(1);
+
+    const saved = screen.getByRole('button', { name: /^Raum 104/ });
+    expect(saved).toHaveTextContent(/2 (Tische|tables) · 6 (Plätze|seats)/);
+    fireEvent.click(saved);
+    expect(onLoadTemplate).toHaveBeenCalledWith(7);
+  });
+
+  it('explains templates before there is one', () => {
+    renderInspector();
+
+    expect(
+      screen.getByText(/in anderen Klassen zu laden|load it in other classes/),
+    ).toBeInTheDocument();
+  });
+
+  it('renames a template in its row, refusing a name another one carries', async () => {
+    const { onRenameTemplate } = renderInspector({
+      templates: [template(1, 'Raum 104', []), template(2, 'Raum 105', [])],
+    });
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: /„Raum 104“ umbenennen|Rename “Raum 104”/,
+      }),
+    );
+    const field = screen.getByRole('textbox', {
+      name: /Name der Vorlage|Template name/,
+    });
+    expect(field).toHaveValue('Raum 104');
+
+    fireEvent.change(field, { target: { value: 'Raum 105' } });
+    fireEvent.keyDown(field, { key: 'Enter' });
+    expect(field).toHaveAttribute('aria-invalid', 'true');
+    expect(onRenameTemplate).not.toHaveBeenCalled();
+
+    fireEvent.change(field, { target: { value: 'Physikraum' } });
+    fireEvent.keyDown(field, { key: 'Enter' });
+    expect(onRenameTemplate).toHaveBeenCalledWith(1, 'Physikraum');
+    await waitFor(() =>
+      expect(
+        screen.queryByRole('textbox', {
+          name: /Name der Vorlage|Template name/,
+        }),
+      ).not.toBeInTheDocument(),
+    );
+  });
+
+  it('drops a rename on Escape', () => {
+    const { onRenameTemplate } = renderInspector({
+      templates: [template(1, 'Raum 104', [])],
+    });
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: /„Raum 104“ umbenennen|Rename “Raum 104”/,
+      }),
+    );
+    const field = screen.getByRole('textbox', {
+      name: /Name der Vorlage|Template name/,
+    });
+    fireEvent.change(field, { target: { value: 'Anders' } });
+    fireEvent.keyDown(field, { key: 'Escape' });
+
+    expect(field).not.toBeInTheDocument();
+    expect(onRenameTemplate).not.toHaveBeenCalled();
+  });
+
+  // A template is not part of the room's undo history, so removing one asks.
+  it('deletes a template only once that is confirmed', async () => {
+    const { onDeleteTemplate } = renderInspector({
+      templates: [template(3, 'Raum 104', [])],
+    });
+    const deleteButton = screen.getByRole('button', {
+      name: /„Raum 104“ löschen|Delete “Raum 104”/,
+    });
+
+    vi.mocked(confirmDialog).mockResolvedValueOnce(false);
+    fireEvent.click(deleteButton);
+    await waitFor(() => expect(confirmDialog).toHaveBeenCalledTimes(1));
+    expect(onDeleteTemplate).not.toHaveBeenCalled();
+
+    fireEvent.click(deleteButton);
+    await waitFor(() => expect(onDeleteTemplate).toHaveBeenCalledWith(3));
   });
 
   it('names the selected table and states its seats', () => {
@@ -227,24 +430,26 @@ describe('SceneInspector', () => {
     expect(onRotateSelection).toHaveBeenCalledWith(turned([[0, 120]]));
   });
 
-  it('keeps a typed angle within 0–359° instead of wrapping it round', () => {
-    const { onRotateSelection } = renderInspector({ selectedTableIds: [0] });
+  it('wraps a typed angle round as a turn does', () => {
+    const { onRotateSelection } = renderInspector({
+      tables: [table({ rotation: 10 })],
+      selectedTableIds: [0],
+    });
     const field = screen.getByRole('textbox', {
       name: /Drehung in Grad|Rotation in/i,
     });
 
     fireEvent.change(field, { target: { value: '400' } });
     fireEvent.keyDown(field, { key: 'Enter' });
-    expect(onRotateSelection).toHaveBeenLastCalledWith(turned([[0, 359]]));
+    expect(onRotateSelection).toHaveBeenLastCalledWith(turned([[0, 40]]));
+
+    fireEvent.change(field, { target: { value: '-90' } });
+    fireEvent.keyDown(field, { key: 'Enter' });
+    expect(onRotateSelection).toHaveBeenLastCalledWith(turned([[0, 270]]));
 
     fireEvent.change(field, { target: { value: '360' } });
     fireEvent.keyDown(field, { key: 'Enter' });
-    expect(onRotateSelection).toHaveBeenLastCalledWith(turned([[0, 359]]));
-
-    fireEvent.change(field, { target: { value: '-30' } });
-    fireEvent.keyDown(field, { key: 'Enter' });
-    // The table still stands at 0° in this render, so 0° changes nothing.
-    expect(onRotateSelection).toHaveBeenCalledTimes(2);
+    expect(onRotateSelection).toHaveBeenLastCalledWith(turned([[0, 0]]));
   });
 
   it('takes a typed angle when the field is left, decimal comma included', () => {

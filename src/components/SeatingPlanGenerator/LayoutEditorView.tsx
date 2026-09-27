@@ -19,7 +19,6 @@ import {
   ChalkboardSimpleIcon,
   WallIcon,
 } from '@phosphor-icons/react';
-import ClassroomQuickSetup from '@/components/ui/panels/ClassroomQuickSetup';
 import ClassroomCanvas from '@/components/SeatingPlanGenerator/canvas/ClassroomCanvas';
 import type { CanvasInteractionHandlers } from '@/components/SeatingPlanGenerator/canvas/CanvasInteractionLayer';
 import LayoutEditorSidebarSection from '@/components/SeatingPlanGenerator/views/LayoutEditorSidebarSection';
@@ -43,15 +42,16 @@ import type {
 } from '@/hooks/useContextMenus';
 import { useCanvasContextMenus } from '@/hooks/canvas/useCanvasContextMenus';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
-import { useIsPhone } from '@/hooks/ui/useLayoutMode';
-import {
-  isAnyDialogOpen,
-  isTopDialogLayer,
-  useDialogLayer,
-} from '@/hooks/ui/useDialogLayer';
+import { useLayoutMode } from '@/hooks/ui/useLayoutMode';
+import { isAnyDialogOpen } from '@/hooks/ui/useDialogLayer';
+import { useInspector } from '@/contexts/InspectorContext';
 import { useCanvasPreferences } from '@/contexts/seatingPlan/CanvasPreferencesContext';
 import { useFirstVisit } from '@/hooks/ui/useFirstVisit';
-import { createClientToSceneConverter, type AlignmentGuide } from '@/utils';
+import {
+  createClientToSceneConverter,
+  showToast,
+  type AlignmentGuide,
+} from '@/utils';
 import { FEATURE_TYPES, type FeatureVisibilityFlags } from '@/utils/ui';
 import { buildFeatureVisibilityGroup } from '@/components/SeatingPlanGenerator/canvas/featureVisibilityGroup';
 import {
@@ -65,6 +65,7 @@ import {
 } from '@/hooks/canvas/featureTemplates';
 import type { SceneTransactionRunner } from '@/hooks/scene/useSceneManager';
 import { useSelectionRotation } from '@/hooks/canvas/useSelectionRotation';
+import { useRoomSetup } from '@/hooks/canvas/useRoomSetup';
 import { workspaceLayerClass } from '@/components/shell/shellTokens';
 
 type Props = {
@@ -78,14 +79,12 @@ type Props = {
   historyLength: number;
   students: Student[];
   templates: ClassroomTemplate[];
-  selectedTemplateId: number | null;
   handleSaveTemplate: () => void;
   handleDeleteTemplate: (id?: number) => void;
   handleRenameTemplate: (
     id: number,
     newName: string,
   ) => Promise<{ success: boolean; error?: string }>;
-  handleOverwriteTemplate?: (id: number) => void;
   canvasWidth: number;
   classroomHeight: number;
   sceneTables: ClassroomTable[];
@@ -107,6 +106,8 @@ type Props = {
     type: TableTemplateType,
     e: React.PointerEvent<Element>,
   ) => void;
+  /** Adds one table at the free spot nearest the middle; false when full. */
+  onTemplateAdd: (type: TableTemplateType) => boolean;
   canvasRef: React.RefObject<SVGSVGElement | null>;
   templateDragPreview: TemplateDragPreview | null;
   placeholderSeating: SeatingArrangement;
@@ -130,9 +131,8 @@ type Props = {
       React.SetStateAction<FeatureContextMenuState | null>
     > | null,
   ) => void;
-  // Quick Setup props
-  currentTableType: TableTemplateType;
-  onTableTypeChange: (type: TableTemplateType) => void;
+  // Setting the room up from one kind of table, or from a template
+  onTableTypeChange: (type: TableTemplateType, force?: boolean) => void;
   onTemplateChange: (templateId: number | null) => void;
 };
 
@@ -158,11 +158,9 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
   historyLength,
   students,
   templates,
-  selectedTemplateId,
   handleSaveTemplate,
   handleDeleteTemplate,
   handleRenameTemplate,
-  handleOverwriteTemplate,
   canvasWidth,
   classroomHeight,
   sceneTables,
@@ -179,6 +177,7 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
   featureTemplateMap,
   canvasHandlers,
   onTemplatePointerDown,
+  onTemplateAdd,
   canvasRef,
   templateDragPreview,
   placeholderSeating,
@@ -190,7 +189,6 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
   onCanvasContextMenuSetterChange,
   onCloseFeatureContextMenu,
   onFeatureContextMenuSetterChange,
-  currentTableType,
   onTableTypeChange,
   onTemplateChange,
 }: Props) {
@@ -205,7 +203,10 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
     showPhotoOverlapWarning,
     setShowPhotoOverlapWarning,
   } = useCanvasPreferences();
-  const isPhone = useIsPhone();
+  const layoutMode = useLayoutMode();
+  const isPhone = layoutMode === 'phone';
+  const isDesktop = layoutMode === 'desktop';
+  const { setDrawerOpen } = useInspector();
   // Marks the visit (`spg.hasVisitedApp`) for the onboarding tour record.
   useFirstVisit();
   const containerRef = React.useRef<HTMLDivElement | null>(null);
@@ -376,70 +377,23 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
     },
     [canvasRef, canvasWidth, classroomHeight],
   );
-  const quickSetupShortcutHint = t('layout.quickSetupShortcut', '(Strg/Cmd+E)');
-  const [isQuickSetupOpen, setIsQuickSetupOpen] = React.useState(
-    sceneTables.length === 0,
-  );
-  const canDismissQuickSetup = sceneTables.length > 0;
-  const quickSetupLayerId = useDialogLayer(isQuickSetupOpen);
-
-  React.useEffect(() => {
-    if (sceneTables.length === 0) {
-      setIsQuickSetupOpen(true);
-    }
-  }, [sceneTables.length]);
-
-  React.useEffect(() => {
-    if (!isPhone || !isQuickSetupOpen) {
-      return;
-    }
-
-    if (typeof document === 'undefined') {
-      return;
-    }
-
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-
-    return () => {
-      document.body.style.overflow = previousOverflow;
-    };
-  }, [isPhone, isQuickSetupOpen]);
-
-  const handleOpenQuickSetup = React.useCallback(() => {
-    setIsQuickSetupOpen(true);
-  }, []);
-
-  const handleCloseQuickSetup = React.useCallback(() => {
-    setIsQuickSetupOpen(false);
-  }, []);
-
-  const handleToggleQuickSetupShortcut = React.useCallback(() => {
-    setIsQuickSetupOpen((previousState) => {
-      if (previousState) {
-        if (sceneTables.length === 0) {
-          return true;
-        }
-        return false;
-      }
-      return true;
+  // The setup and the templates are the inspector's while nothing is
+  // selected; this is how the room gets there and what it does there.
+  const clearCanvasSelection = React.useCallback(() => {
+    setSelectedTableIds([]);
+    clearFeatureSelection();
+  }, [clearFeatureSelection, setSelectedTableIds]);
+  const { setupFocusRequest, revealSetup, setUpRoom, loadTemplate } =
+    useRoomSetup({
+      isRoomEmpty: sceneTables.length === 0,
+      isDesktop,
+      snapshot,
+      onTemplateChange,
+      onTableTypeChange,
+      clearSelection: clearCanvasSelection,
+      setDrawerOpen,
     });
-  }, [sceneTables.length]);
 
-  const previousTablesRef = React.useRef(sceneTables);
-
-  React.useEffect(() => {
-    const previousTables = previousTablesRef.current;
-    const tablesChanged =
-      previousTables.length !== sceneTables.length ||
-      previousTables.some((table, index) => table !== sceneTables[index]);
-
-    if (isQuickSetupOpen && sceneTables.length > 0 && tablesChanged) {
-      setIsQuickSetupOpen(false);
-    }
-
-    previousTablesRef.current = sceneTables;
-  }, [isQuickSetupOpen, sceneTables]);
   // Tables and room elements turn together, by either handle, Q/E or the
   // inspector; the handles' gesture and the inspector's commit live here.
   const { handleRotationGesture, commitRotations } = useSelectionRotation({
@@ -460,6 +414,7 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
     handleFeatureTemplatePointerDown,
     handleFeaturePointerDown,
     handleFeatureRotateStart,
+    addFeature,
   } = useFeaturePaletteDrag({
     rotateSelection: handleRotationGesture,
     featureTemplateMap,
@@ -500,38 +455,13 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
     selectFeature,
   });
 
-  const handleEscapeKeyWithQuickSetup = React.useCallback(() => {
-    // Whoever sits innermost owns Escape. While Quick Setup is up that is this
-    // layer unless a modal opened on top of it; while it is closed, any open
-    // overlay outranks the canvas.
-    if (isQuickSetupOpen) {
-      if (!isTopDialogLayer(quickSetupLayerId)) {
-        return;
-      }
-      setIsQuickSetupOpen(false);
-      return;
-    }
+  const handleEscape = React.useCallback(() => {
+    // Any open overlay outranks the canvas.
     if (isAnyDialogOpen()) {
       return;
     }
     handleEscapeKey();
-  }, [handleEscapeKey, isQuickSetupOpen, quickSetupLayerId]);
-
-  const quickSetupPanel = (
-    <ClassroomQuickSetup
-      templates={templates}
-      selectedTemplate={selectedTemplateId}
-      onTemplateChange={onTemplateChange}
-      currentType={currentTableType}
-      onTypeChange={onTableTypeChange}
-      sceneTables={sceneTables}
-      panelClassName="shadow-none [box-shadow:none]"
-      onClose={sceneTables.length === 0 ? undefined : handleCloseQuickSetup}
-      onDeleteTemplate={handleDeleteTemplate}
-      onRenameTemplate={handleRenameTemplate}
-      onOverwriteTemplate={handleOverwriteTemplate}
-    />
-  );
+  }, [handleEscapeKey]);
 
   // Register context menu setters with parent
   React.useEffect(() => {
@@ -551,15 +481,15 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
 
   // Keyboard shortcuts
   useKeyboardShortcuts({
-    escape: handleEscapeKeyWithQuickSetup,
+    escape: handleEscape,
     'ctrl+z': undo,
     'cmd+z': undo,
     'ctrl+y': redo,
     'cmd+y': redo,
     'ctrl+shift+z': redo,
     'cmd+shift+z': redo,
-    'ctrl+e': handleToggleQuickSetupShortcut,
-    'cmd+e': handleToggleQuickSetupShortcut,
+    'ctrl+e': revealSetup,
+    'cmd+e': revealSetup,
   });
   const handleSvgPointerMove = React.useCallback(
     (e: React.PointerEvent<SVGSVGElement>) => {
@@ -936,10 +866,32 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
     onCloseMenu: handleCloseFeatureMenu,
   };
 
+  // A click or Enter on an entry — dragging is not the only way into the
+  // room (WCAG 2.5.7, 2.1.1): one more where there is room, selected, so
+  // the arrow keys and Q/E take it on.
+  const handleTemplateAdd = React.useCallback(
+    (type: TableTemplateType) => {
+      clearFeatureSelection();
+      if (!onTemplateAdd(type)) {
+        showToast('info', 'toast:room.noFreeSpot');
+      }
+    },
+    [clearFeatureSelection, onTemplateAdd],
+  );
+  const handleFeatureAdd = React.useCallback(
+    (type: ClassroomFeatureType) => {
+      if (!addFeature(type)) {
+        showToast('info', 'toast:room.noFreeSpot');
+      }
+    },
+    [addFeature],
+  );
+
   const mobileTemplatesProps = {
     onTemplatePointerDown,
     onFeaturePointerDown: handleFeatureTemplatePointerDown,
-    onSaveTemplate: handleSaveTemplate,
+    onTemplateAdd: handleTemplateAdd,
+    onFeatureAdd: handleFeatureAdd,
   };
 
   return (
@@ -954,6 +906,13 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
           selectedFeatureIds={selectedFeatureIds}
           featurePalette={FEATURE_PALETTE}
           studentsCount={students.length}
+          onSetUpRoom={setUpRoom}
+          setupFocusRequest={setupFocusRequest}
+          templates={templates}
+          onLoadTemplate={loadTemplate}
+          onRenameTemplate={handleRenameTemplate}
+          onDeleteTemplate={handleDeleteTemplate}
+          onSaveTemplate={handleSaveTemplate}
           snapshot={snapshot}
           onRotateSelection={commitRotations}
           runSceneTransaction={runSceneTransaction}
@@ -971,30 +930,23 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
       <div className={workspaceLayerClass}>
         <LayoutEditorSidebarSection
           isPhone={isPhone}
-          handleSaveTemplate={handleSaveTemplate}
           onTemplatePointerDown={onTemplatePointerDown}
-          onOpenQuickSetup={handleOpenQuickSetup}
-          quickSetupShortcutHint={quickSetupShortcutHint}
+          onTemplateAdd={handleTemplateAdd}
           featurePalette={FEATURE_PALETTE}
           onFeaturePointerDown={handleFeatureTemplatePointerDown}
+          onFeatureAdd={handleFeatureAdd}
           settingsGroups={layoutSettingsGroups}
         />
 
         <LayoutEditorMainSection
           isPhone={isPhone}
           containerRef={containerRef}
-          isQuickSetupOpen={isQuickSetupOpen}
           undo={undo}
           redo={redo}
           canRedo={canRedo}
           historyLength={historyLength}
           canvasProps={canvasProps}
-          quickSetupOverlay={{
-            panel: quickSetupPanel,
-            canDismiss: canDismissQuickSetup,
-            onClose: handleCloseQuickSetup,
-          }}
-          onOpenQuickSetup={handleOpenQuickSetup}
+          onOpenSetup={revealSetup}
           tableMenu={tableMenuConfig}
           canvasMenu={canvasMenuConfig}
           featureMenu={featureMenuConfig}

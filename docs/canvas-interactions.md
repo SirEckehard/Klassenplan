@@ -183,7 +183,8 @@ This flow does not use a state machine.
    `focusInInput`.
 2. Arrow keys dispatch `KEY_ARROW` (direction, shift state, `repeat`); `keyup`
    produces `KEY_RELEASE` to stop auto-repeat. Ignored while a form field is
-   focused or with Ctrl, Cmd or Alt held.
+   focused, with Ctrl, Cmd or Alt held, or while nothing is selected — then
+   the arrows stay the page's and scroll it below `lg`.
 3. `E` / `Q` dispatch `KEY_ROTATE` (clockwise / counter-clockwise, shift
    state). Ignored under the same conditions as arrow keys.
 4. Delete/Backspace produce `KEY_DELETE`; `Ctrl|Cmd + C/X/V` are translated to
@@ -214,15 +215,21 @@ focused. `SYNC_STATUS` updates the context in every state; `RESET` returns to
 All actions are injected via `actionApiRef`, so the machine instance stays
 stable across renders:
 
-- `moveSelection` – takes a history snapshot, then moves the selected tables by
-  1 (10 with Shift), multiplied by `GRID_SNAP_SIZE` while snapping is on.
-  Positions are snapped and clamped to the room bounds; locked tables stay put.
-  Features are not moved by the keyboard.
+- `moveSelection` – moves what a drag would move by 1 (10 with Shift),
+  multiplied by `GRID_SNAP_SIZE` while snapping is on: the unlocked selected
+  tables, snapped and clamped to the room bounds, and the selected room
+  elements (`moveFeaturesBy`) — a free one anywhere in the room, one on a wall
+  along that wall only. Only the first press of a key takes a history
+  snapshot; its auto-repeats (`repeat`) add to the same undo step. A selection
+  of locked tables alone moves nothing and takes no snapshot.
 - `rotateSelection` – takes a history snapshot and rotates the unlocked
-  selected tables by `DEFAULT_ROTATION_SNAP_STEP`, or by 90° with Shift.
+  selected tables and the freely placed room elements by
+  `DEFAULT_ROTATION_SNAP_STEP`, or by 90° with Shift.
 - `deleteSelection`, `copySelection`, `cutSelection`, `pasteSelection` – the
   unified table + feature operations passed in from `CanvasInteractionLayer`;
-  keyboard paste calls `pasteSelectionAt()` without coordinates.
+  keyboard paste calls `pasteSelectionAt()` without coordinates. Each runs as
+  one undo step (`useUndoStep`): the table and the feature half take their
+  snapshots through it, and only the first inside the step counts.
 - `closeCanvasMenu` – prevents keyboard paste from leaving menus open.
 - `logKeyboardState` – debug log under the source `keyboardMachine`.
 
@@ -250,14 +257,14 @@ stable across renders:
 
 ## Keyboard mode snapshot
 
-| Condition           | Key                    | Side effects                                                                   |
-| ------------------- | ---------------------- | ------------------------------------------------------------------------------ |
-| Selection present   | `Arrow` keys           | Prevent default, snapshot, move, snap & clamp selected tables (locked skipped) |
-| Selection present   | `E` / `Q`              | Prevent default, snapshot, rotate clockwise / counter-clockwise                |
-| Selection present   | `Delete` / `Backspace` | Prevent default, `deleteSelection` (tables and features)                       |
-| Selection present   | `Ctrl/⌘+C`             | Copy selection to clipboard                                                    |
-| Selection present   | `Ctrl/⌘+X`             | Cut selection                                                                  |
-| Clipboard populated | `Ctrl/⌘+V`             | Close canvas menu, paste                                                       |
+| Condition           | Key                    | Side effects                                                                |
+| ------------------- | ---------------------- | --------------------------------------------------------------------------- |
+| Selection present   | `Arrow` keys           | Prevent default, snapshot on the first press, move tables and room elements |
+| Selection present   | `E` / `Q`              | Prevent default, snapshot, rotate clockwise / counter-clockwise             |
+| Selection present   | `Delete` / `Backspace` | Prevent default, `deleteSelection` (tables and features)                    |
+| Selection present   | `Ctrl/⌘+C`             | Copy selection to clipboard                                                 |
+| Selection present   | `Ctrl/⌘+X`             | Cut selection                                                               |
+| Clipboard populated | `Ctrl/⌘+V`             | Close canvas menu, paste                                                    |
 
 ## Known pain points
 

@@ -302,7 +302,7 @@
       "description": "Tische und Raumelemente, Vorlagen, Abstände und Grenzen.",
       "best": {
         "q": "Welche Layouts funktionieren am besten?",
-        "a": "Lass deiner Kreativität freien Lauf: Tische, Fenster, Türen, Pult, Tafel und Schränke ziehst du aus der Werkzeugleiste in den Raum und verschiebst sie frei. „Klassenraum einrichten“ baut dir in einem Schritt einen Grundriss, „Vorlage speichern“ hebt ihn für andere Klassen auf. Der Sitzkreis bleibt mit dem Tischlayout synchron und lässt sich separat anpassen."
+        "a": "Lass deiner Kreativität freien Lauf: Tische, Fenster, Türen, Pult, Tafel und Schränke ziehst du aus der Werkzeugleiste in den Raum oder setzt sie mit einem Klick an einen freien Platz und verschiebst sie frei. Solange nichts ausgewählt ist, baut dir „Einrichten“ im Inspektor in einem Schritt einen Grundriss, und unter „Vorlagen“ hebst du ihn für andere Klassen auf. Der Sitzkreis bleibt mit dem Tischlayout synchron und lässt sich separat anpassen."
       },
       "measure": {
         "q": "Wie werden Abstände gemessen?",
@@ -426,7 +426,7 @@
       "description": "Dark Mode, Tastenkürzel, Rückgängig, Tour, Tablet und Installation.",
       "undo": {
         "q": "Kann ich Änderungen rückgängig machen?",
-        "a": "Ja, in allen drei Ebenen: in der Klassenliste, im Raum und im Sitzplan und Sitzkreis – so kommt z. B. ein versehentlich gelöschter Schüler samt Foto zurück. Die Pfeile unten links in der Statusleiste nehmen Änderungen zurück und stellen sie wieder her, ebenso Strg/⌘+Z und Strg/⌘+Umschalt+Z."
+        "a": "Ja, in allen drei Ebenen: in der Klassenliste, im Raum und im Sitzplan und Sitzkreis – so kommt z. B. ein versehentlich gelöschter Schüler samt Foto zurück. Die Pfeile in der Mitte der Statusleiste nehmen Änderungen zurück und stellen sie wieder her, ebenso Strg/⌘+Z und Strg/⌘+Umschalt+Z."
       },
       "shortcuts": {
         "q": "Welche Tastenkürzel gibt es?",
@@ -530,7 +530,7 @@
     "empty": {
       "title": "Noch nicht genug Fotos",
       "description": "Für das Namensspiel brauchst du mindestens {{min}} Schüler mit Foto. Aktuell: {{count}}.",
-      "hint": "Fotos fügst du in der Klassenliste über das Porträt-Symbol neben jedem Schüler hinzu.",
+      "hint": "Fotos fügst du im Inspektor hinzu: Klicke in der Klassenliste auf einen Schüler und dann auf sein Porträt.",
       "cta": "Zur Klassenliste"
     },
     "menu": {

@@ -88,7 +88,10 @@ export default function Inspector() {
   const showsDrawer = !isDesktop && hasPortal && drawerOpen;
 
   // Another layer brings another panel; the drawer opens again when asked.
-  React.useEffect(() => {
+  // Before paint and before the layer's own effects, so a layer that opens
+  // the drawer on arrival — the room does while it is empty — has the last
+  // word.
+  React.useLayoutEffect(() => {
     setDrawerOpen(false);
   }, [setDrawerOpen, step]);
 

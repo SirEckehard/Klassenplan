@@ -47,8 +47,14 @@ import { TOUR_ANCHORS } from '@/components/onboarding/tours';
  */
 export default function AppStatusBar() {
   const { t } = useTranslation(['generator', 'students']);
-  const { step, students, classroomScene, currentSeating } =
-    useSeatingPlanState();
+  const {
+    step,
+    students,
+    classroomScene,
+    currentSeating,
+    seatingMode,
+    circleLayout,
+  } = useSeatingPlanState();
   const { handleStepChange } = useSeatingPlanActions();
   const { setHistoryNode, setActionNode } = useStatusBarSlot();
   const hintId = React.useId();
@@ -73,6 +79,21 @@ export default function AppStatusBar() {
         .length,
     };
   }, [currentSeating, students]);
+
+  // The circle takes every student, with a seat at a table or without, so
+  // while it is on the stage the line counts the circle, not the tables.
+  const showsCircle = step === 3 && seatingMode === 'circle';
+  const circleCounts = React.useMemo(() => {
+    if (!showsCircle || !circleLayout) return null;
+    const inCircle = new Set<string>();
+    for (const position of circleLayout.students) {
+      if (position?.student) inCircle.add(position.student.id);
+    }
+    return {
+      inCircle: inCircle.size,
+      missing: students.filter((student) => !inCircle.has(student.id)).length,
+    };
+  }, [circleLayout, showsCircle, students]);
 
   /**
    * The status line, as segments joined by a middot, and the verdict on it.
@@ -139,6 +160,31 @@ export default function AppStatusBar() {
       };
     }
 
+    if (showsCircle) {
+      if (!circleCounts || circleCounts.inCircle === 0) {
+        return {
+          segments: [t('generator:shell.status.noCircle')],
+          verdict: null,
+        };
+      }
+      return {
+        segments: [
+          t('generator:shell.status.inCircle', {
+            count: circleCounts.inCircle,
+          }),
+        ],
+        verdict: {
+          fits: circleCounts.missing === 0,
+          label:
+            circleCounts.missing > 0
+              ? t('generator:shell.status.notInCircle', {
+                  count: circleCounts.missing,
+                })
+              : t('generator:shell.status.allInCircle'),
+        },
+      };
+    }
+
     if (occupiedSeats === 0) {
       return { segments: [t('generator:shell.status.noPlan')], verdict: null };
     }
@@ -158,9 +204,11 @@ export default function AppStatusBar() {
       },
     };
   }, [
+    circleCounts,
     missingNameCount,
     occupiedSeats,
     seatCount,
+    showsCircle,
     step,
     studentsCount,
     t,

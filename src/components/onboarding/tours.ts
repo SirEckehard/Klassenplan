@@ -29,6 +29,7 @@ export const TOUR_ANCHORS = {
   layoutCanvas: 'layout-canvas',
   canvasSettings: 'canvas-settings',
   layoutSidebar: 'layout-sidebar',
+  layoutSetup: 'layout-setup',
   layoutStatus: 'layout-status',
   proceedToPlan: 'proceed-plan',
   mixButton: 'mix-button',
@@ -77,6 +78,9 @@ export const TOURS: Record<TourId, readonly TourMark[]> = {
       textKey: 'tour.layout.canvasSettings',
     },
     { anchor: TOUR_ANCHORS.layoutSidebar, textKey: 'tour.layout.sidebar' },
+    // The inspector's room panel, while nothing is selected; below `lg` it
+    // sits in a closed drawer and the mark is skipped.
+    { anchor: TOUR_ANCHORS.layoutSetup, textKey: 'tour.layout.setup' },
     { anchor: TOUR_ANCHORS.layoutStatus, textKey: 'tour.layout.status' },
     { anchor: TOUR_ANCHORS.proceedToPlan, textKey: 'tour.layout.proceed' },
   ],

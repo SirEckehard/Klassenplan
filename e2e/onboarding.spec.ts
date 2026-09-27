@@ -117,8 +117,8 @@ test('a first visitor tries the sample class with the tours as a guide', async (
   await test.step('step 2 — the room is furnished and its tour closes on Escape', async () => {
     await page.getByRole('button', { name: 'Weiter zum Klassenraum' }).click();
 
-    // The sample class brings its own room, so the quick setup stays shut and
-    // the status bar can confirm a seat for everyone.
+    // The sample class brings its own room, so the status bar can confirm a
+    // seat for everyone.
     await expect(
       page.getByRole('region', { name: 'Statusleiste' }),
     ).toContainText('24 Plätze für 24 Schüler');

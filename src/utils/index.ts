@@ -209,6 +209,7 @@ export {
   resolveLocale,
   toIsoDate,
 } from './dateTimeFormat';
+export { formatPercent } from './numberFormat';
 
 // ===== Math Utilities =====
 export { countSeats } from './math/scene';
@@ -264,6 +265,13 @@ export {
   type AlignmentRect,
   type AlignmentSnapResult,
 } from './canvas/alignmentGuides';
+export {
+  collectRoomObstacles,
+  featureFootprint,
+  findFreeSpot,
+  findFreeWallSpot,
+} from './canvas/freePlacement';
+export { moveFeaturesBy } from './canvas/featureMovement';
 
 // ===== SEO =====
 export { getRouteMetadata } from './seo/routeMetadata';
@@ -339,6 +347,7 @@ export {
   warningButtonClass,
   iconButtonClass,
   quietIconButtonClass,
+  quietDangerIconButtonClass,
   quietLinkClass,
   dangerIconButtonClass,
   successIconButtonClass,

@@ -15,18 +15,17 @@ type SidebarFeaturePaletteItem = {
 
 type LayoutEditorSidebarSectionProps = {
   isPhone: boolean;
-  handleSaveTemplate: () => void;
   onTemplatePointerDown: (
     type: TableTemplateType,
     event: React.PointerEvent<Element>,
   ) => void;
-  onOpenQuickSetup: () => void;
-  quickSetupShortcutHint: string;
+  onTemplateAdd: (type: TableTemplateType) => void;
   featurePalette: SidebarFeaturePaletteItem[];
   onFeaturePointerDown: (
     type: ClassroomFeatureType,
     event: React.PointerEvent<HTMLButtonElement>,
   ) => void;
+  onFeatureAdd: (type: ClassroomFeatureType) => void;
   /** Grid, snapping, guides and room-element visibility. */
   settingsGroups: CanvasSettingsGroup[];
 };
@@ -34,28 +33,26 @@ type LayoutEditorSidebarSectionProps = {
 const LayoutEditorSidebarSection = React.memo(
   function LayoutEditorSidebarSection({
     isPhone,
-    handleSaveTemplate,
     onTemplatePointerDown,
-    onOpenQuickSetup,
-    quickSetupShortcutHint,
+    onTemplateAdd,
     featurePalette,
     onFeaturePointerDown,
+    onFeatureAdd,
     settingsGroups,
   }: LayoutEditorSidebarSectionProps) {
-    // A phone gets the sheet too: its tables and its setup sit under the
-    // canvas, but the view settings and the foot every rail shares — the
-    // class tools, the plans, the backup — live nowhere else.
+    // A phone gets the sheet too: its tables sit under the canvas, but the
+    // view settings and the foot every rail shares — the class tools, the
+    // plans, the backup — live nowhere else.
     return (
       <SmartSidebar tourAnchor={TOUR_ANCHORS.layoutSidebar}>
         {({ isExpanded }) => (
           <RoomToolPanel
             density={isExpanded ? 'comfortable' : 'compact'}
-            handleSaveTemplate={handleSaveTemplate}
             onTemplatePointerDown={onTemplatePointerDown}
-            onOpenQuickSetup={onOpenQuickSetup}
-            quickSetupShortcutHint={quickSetupShortcutHint}
+            onTemplateAdd={onTemplateAdd}
             featurePalette={featurePalette}
             onFeaturePointerDown={onFeaturePointerDown}
+            onFeatureAdd={onFeatureAdd}
             settingsGroups={settingsGroups}
             isPhone={isPhone}
           />

@@ -208,16 +208,15 @@ export function useSeatingPlanViewLogic({
     closeSaveModal,
   } = useTemplateManager(classroomScene, updateClassroomScene);
 
-  // Classroom Setup Hook (moved from StudentInput)
-  const { currentType, handleTemplateChange, handleTypeChange } =
-    useClassroomSetup({
-      students,
-      templates,
-      classroomScene,
-      setClassroomScene: updateClassroomScene,
-      selectedTemplate: selectedTemplateId,
-      disableAutoGeneration: true, // Manual control only
-    });
+  // Builds the room from one kind of table or from a template
+  const { handleTemplateChange, handleTypeChange } = useClassroomSetup({
+    students,
+    templates,
+    classroomScene,
+    setClassroomScene: updateClassroomScene,
+    selectedTemplate: selectedTemplateId,
+    disableAutoGeneration: true, // Manual control only
+  });
 
   // Wrapper for template change to sync both states
   const handleTemplateChangeWrapper = React.useCallback(
@@ -226,17 +225,6 @@ export function useSeatingPlanViewLogic({
       handleTemplateChange(templateId);
     },
     [setSelectedTemplateId, handleTemplateChange],
-  );
-
-  // Handler for quick overwrite in ClassroomQuickSetup
-  const handleOverwriteTemplate = React.useCallback(
-    (templateId: number) => {
-      const template = templates.find((t) => t.id === templateId);
-      if (template) {
-        handleSaveTemplate(template.name, templateId);
-      }
-    },
-    [templates, handleSaveTemplate],
   );
 
   // Drag & Drop State Management
@@ -253,6 +241,7 @@ export function useSeatingPlanViewLogic({
   } = useDragDropState();
   const {
     startTemplateDrag,
+    addTemplate,
     startTablePointerDrag,
     templateDragPreview,
     initializeDragFromSelection,
@@ -444,11 +433,9 @@ export function useSeatingPlanViewLogic({
         historyLength={history.length}
         students={students}
         templates={templates}
-        selectedTemplateId={selectedTemplateId}
         handleSaveTemplate={openSaveModal}
         handleDeleteTemplate={handleDeleteTemplate}
         handleRenameTemplate={handleRenameTemplate}
-        handleOverwriteTemplate={handleOverwriteTemplate}
         canvasWidth={canvasWidth}
         classroomHeight={classroomHeight}
         sceneTables={sceneTables}
@@ -464,6 +451,7 @@ export function useSeatingPlanViewLogic({
         clearFeatureSelection={clearFeatureSelection}
         featureTemplateMap={featureTemplateMap}
         onTemplatePointerDown={startTemplateDrag}
+        onTemplateAdd={addTemplate}
         canvasRef={canvasRef}
         templateDragPreview={templateDragPreview}
         placeholderSeating={placeholderSeating}
@@ -475,7 +463,6 @@ export function useSeatingPlanViewLogic({
         onCanvasContextMenuSetterChange={registerCanvasContextMenuSetter}
         onCloseFeatureContextMenu={closeFeatureContextMenu}
         onFeatureContextMenuSetterChange={registerFeatureContextMenuSetter}
-        currentTableType={currentType}
         onTableTypeChange={handleTypeChange}
         onTemplateChange={handleTemplateChangeWrapper}
       />

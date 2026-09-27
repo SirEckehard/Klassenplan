@@ -13,17 +13,17 @@
       "item2": "Füge Schüler einzeln hinzu, erzeuge Platzhalter für eine ganze Klasse oder importiere eine CSV-Datei – „So sieht die Datei aus“ zeigt dir den nötigen Aufbau.",
       "item3": "Wähle bis zu 3 Wunsch- und Distanzpartner pro Schüler – die Reihenfolge bestimmt die Priorität.",
       "item4": "Mit Suche, Filter und Sortierung findest du einzelne Schüler; über die Auswahlkästchen bearbeitest du mehrere Schüler gleichzeitig.",
-      "item5": "Fotos fügst du über das Porträt-Symbol hinzu – sie bleiben nur auf diesem Gerät.",
+      "item5": "Fotos fügst du im Inspektor über das Porträt hinzu – sie bleiben nur auf diesem Gerät.",
       "item6": "Änderungen in der Klassenliste kannst du über die jeweiligen Icons rückgängig machen und wiederherstellen."
     },
     "layout": {
       "title": "Klassenraum",
-      "item1": "Wähle eine Vorlage oder füge Tische per Klick hinzu.",
-      "item2": "Verschiebe und drehe Tische per Drag & Drop.",
+      "item1": "Solange nichts ausgewählt ist, stellt „Einrichten“ im Inspektor Tische für die ganze Klasse auf. Einzelne Tische setzt ein Klick an einen freien Platz, oder du ziehst sie aus der Werkzeugleiste in den Raum.",
+      "item2": "Verschiebe und drehe Tische per Drag & Drop oder mit den Pfeiltasten und Q/E.",
       "item3": "Mehrfachauswahl: Umschalt+Klick, Strg/⌘+Klick oder ein Auswahl-Rechteck aufziehen.",
       "item4": "Rechtsklick (Desktop) oder langes Drücken (Touch) öffnet das Kontextmenü.",
-      "item5": "Speichere eigene Klassenraum-Vorlagen über „Vorlage speichern“ in der Werkzeugleiste.",
-      "item6": "Ziehe Raumelemente wie Fenster, Tür, Pult, Tafel, Whiteboard, Schrank oder Raumtrenner aus der Werkzeugleiste in den Raum und vergrößere bzw. verkleinere sie bei Bedarf.",
+      "item5": "Unter „Vorlagen“ im Inspektor speicherst du den Raum für andere Klassen und lädst gespeicherte Räume.",
+      "item6": "Raumelemente wie Fenster, Tür, Pult, Tafel, Whiteboard, Schrank oder Raumtrenner setzt ein Klick an einen freien Platz, oder du ziehst sie aus der Werkzeugleiste in den Raum; vergrößere oder verkleinere sie bei Bedarf.",
       "item7": "Änderungen im Klassenraum kannst du über die jeweiligen Icons rückgängig machen und wiederherstellen."
     },
     "plan": {
@@ -41,7 +41,7 @@
       "item1": "Ziehe Schüler auf andere Plätze im Kreis – die beiden tauschen. Esc bricht das Ziehen ab.",
       "item2": "Grüne Linien zeigen Verbindungen zu Tischnachbarn im Sitzplan.",
       "item3": "Blende Verbindungen in der Werkzeugleiste unter „Ansichtseinstellungen“ ein oder aus.",
-      "item4": "Der Sitzkreis ist zu Beginn an den Sitzplan gekoppelt, lässt sich aber verändern, separat speichern und exportieren.",
+      "item4": "Der Sitzkreis entsteht aus dem Sitzplan und lässt sich verändern. „Plan speichern“ sichert ihn zusammen mit dem Plan; exportieren und präsentieren kannst du ihn für sich.",
       "item5": "Fahre über ein Icon auf einem Platz oder tippe darauf, um zu sehen, was es bedeutet – die Plätze aller, die es teilen, werden dabei markiert. Unter „Merkmale“ in der Werkzeugleiste findest du die Legende, wählst, welche Icons die Plätze zeigen, und schaltest Erklärung und Markieren ab.",
       "item6": "Mit dem Schloss hält ein Schüler seinen Platz im Kreis: Ziehen, Mischen und Neu-Erzeugen lassen ihn dort. Mit der Tastatur nimmt die Eingabetaste einen Schüler auf, die Pfeiltasten wählen den Platz, die Eingabetaste setzt ihn ab."
     },
@@ -75,7 +75,6 @@
     "weights": "Gewichtungen",
     "mix": "Mischen",
     "save": "Speichern",
-    "templates": "Klassenraum-Vorlagen",
     "statistics": "Statistiken",
     "options": "Optionen",
     "openOptions": "Optionen öffnen",
@@ -493,9 +492,7 @@
     "roomElementsToggleAll": "Alle Raumelemente ein- oder ausblenden",
     "roomElementsDescription": "Ziehe Fenster, Türen, Pult, Tafel oder Möbel in den Klassenraum.",
     "setupClassroom": "Klassenraum einrichten",
-    "saveTemplate": "Aktuellen Klassenraum als Vorlage speichern",
-    "saveTemplateButton": "Vorlage speichern",
-    "place": "platzieren",
+    "emptyRoomHint": "Der Raum ist noch leer: Stelle unter „Einrichten“ Tische für die ganze Klasse auf oder füge einzelne Tische hinzu.",
     "statusBadge": "{{students}} Schüler, {{seats}} Plätze.",
     "classroomTitle": "Klassenraum",
     "planTitle": "Sitzplan",
@@ -509,11 +506,9 @@
     "resize": "Größe anpassen",
     "resizeWidth": "Breite anpassen",
     "resizeHeight": "Höhe anpassen",
-    "quickSetupShortcut": "Strg/⌘+E",
     "overwriteTemplateMessage": "Die aktuelle Vorlage wurde verändert. Soll sie überschrieben werden?",
     "overwrite": "Überschreiben",
-    "dragDropHint": "Per Drag & Drop hinzufügen",
-    "dragDropPlace": "per Drag & Drop platzieren"
+    "dragDropHint": "Klicken oder in den Raum ziehen"
   },
   "export": {
     "title": "Titel",
@@ -625,10 +620,6 @@
     "overwriteLabel": "Oder bestehende Vorlage überschreiben",
     "noSelection": "-- Keine Auswahl (neue Vorlage) --",
     "overwrite": "Überschreiben",
-    "saveName": "Namen speichern",
-    "cancelEdit": "Bearbeitung abbrechen",
-    "editName": "Vorlagennamen bearbeiten: {{name}}",
-    "clickToEdit": "Klick oder Eingabetaste zum Bearbeiten",
     "overwriteSelect": "Vorlage zum Überschreiben auswählen"
   },
   "circle": {
@@ -668,11 +659,11 @@
     "showDoor": "Tür anzeigen",
     "showGrid": "Raster anzeigen",
     "showPodium": "Pult anzeigen",
-    "showStatistics": "Statistik anzeigen",
+    "showFulfillment": "Erfüllung je Kriterium zeigen",
+    "hideFulfillment": "Erfüllung je Kriterium ausblenden",
     "showWhiteboard": "Whiteboards anzeigen",
     "showWindows": "Fenster anzeigen",
     "snapToGrid": "Am Raster ausrichten",
-    "statisticsLabel": "Statistik anzeigen – Gesamt-Score {{score}}%",
     "studentPhotos": "Schülerfotos",
     "viewOptions": "Ansichtsoptionen",
     "viewSettings": "Ansichtseinstellungen",
@@ -689,20 +680,6 @@
       "hoverTooltip": "Erklärung beim Überfahren",
       "hoverHighlight": "Gleiche Merkmale markieren"
     }
-  },
-  "quickSetup": {
-    "title": "Klassenraum einrichten",
-    "subtitle": "Wähle einen Tischtyp oder (falls verfügbar) eine gespeicherte Vorlage.",
-    "selectType": "Tischtyp wählen",
-    "hint": "Wähle einen Tischtyp, um den Klassenraum automatisch zu erstellen, oder ziehe einen Tischtyp aus der Werkzeugleiste in den Klassenraum.",
-    "overwriteHint": "Willst du dein aktuelles Layout überschreiben? Dann wähle einen Tischtyp oder eine Vorlage laden.",
-    "closeLabel": "Klassenraum einrichten schließen",
-    "loadButton": "Laden",
-    "overwriteTemplate": "Klassenraum-Vorlage überschreiben",
-    "deleteTemplate": "Klassenraum-Vorlage löschen",
-    "deleteDialogTitle": "Vorlage löschen",
-    "deleteConfirm": "Möchtest du die Klassenraum-Vorlage wirklich löschen?",
-    "deleteConfirmNamed": "Möchtest du die Klassenraum-Vorlage \"{{name}}\" wirklich löschen?"
   },
   "common": {
     "cancel": "Abbrechen",
@@ -751,7 +728,7 @@
     "deleteDialogTitle": "Sitzplan löschen",
     "deleteDialogMessage": "Möchtest du den Sitzplan \"{{name}}\" wirklich löschen?",
     "emptyTitle": "Noch keine Pläne gespeichert",
-    "emptyHint": "Speichere deinen ersten Plan im Schritt 3"
+    "emptyHint": "Speichere deinen ersten Plan mit „Plan speichern“ auf der Ebene Plan."
   },
   "circleStatus": {
     "preparing": "Sitzkreis wird vorbereitet...",
@@ -792,15 +769,15 @@
       "students_toClassroom": "Zum Klassenraum wechseln",
       "layout_toStudentList": "Zur Klassenliste zurückkehren",
       "layout_toSeatingPlan": "Zum Sitzplan wechseln",
-      "layout_toggleQuickSetup": "Quick-Setup „Klassenraum einrichten“ öffnen oder schließen",
-      "layout_multiSelect": "Mehrere Tische auswählen (oder Auswahl-Rechteck aufziehen)",
-      "layout_moveTables": "Ausgewählte Tische verschieben (Umschalt = größere Schritte)",
-      "layout_deleteTables": "Ausgewählte Tische löschen",
-      "layout_cutTables": "Ausgewählte Tische ausschneiden",
-      "layout_copyTables": "Ausgewählte Tische kopieren",
-      "layout_pasteTables": "Kopierte Tische einfügen",
-      "layout_rotateLeftRight": "Ausgewählte Tische drehen (Q = gegen den Uhrzeigersinn, E = im Uhrzeigersinn)",
-      "layout_rotate90": "Ausgewählte Tische in 90°-Schritten drehen",
+      "layout_setUpRoom": "Raum einrichten: Tische und Vorlagen im Inspektor zeigen",
+      "layout_multiSelect": "Mehrere auswählen (oder Auswahl-Rechteck aufziehen)",
+      "layout_moveTables": "Auswahl verschieben (Umschalt = größere Schritte)",
+      "layout_deleteTables": "Auswahl löschen",
+      "layout_cutTables": "Auswahl ausschneiden",
+      "layout_copyTables": "Auswahl kopieren",
+      "layout_pasteTables": "Kopiertes einfügen",
+      "layout_rotateLeftRight": "Auswahl drehen (Q = gegen den Uhrzeigersinn, E = im Uhrzeigersinn)",
+      "layout_rotate90": "Auswahl in 90°-Schritten drehen",
       "layout_undo": "Letzte Änderung rückgängig machen",
       "plan_toClassroom": "Zum Klassenraum zurückkehren",
       "plan_shuffle": "Sitzplan neu mischen",
@@ -829,7 +806,7 @@
       "students_toClassroom": "Alt/⌥+→",
       "layout_toStudentList": "Alt/⌥+←",
       "layout_toSeatingPlan": "Alt/⌥+→",
-      "layout_toggleQuickSetup": "Strg/⌘+E",
+      "layout_setUpRoom": "Strg/⌘+E",
       "layout_multiSelect": "Umschalt+Klick oder Strg/⌘+Klick",
       "layout_moveTables": "Pfeiltasten",
       "layout_deleteTables": "Entf / Rücktaste",
@@ -915,7 +892,7 @@
       },
       "studentRow": {
         "title": "Schüler bearbeiten",
-        "body": "Füge Merkmale wie unruhig, schüchtern, Sprachniveau, soziale Rolle oder Wunsch- und Distanzpartner hinzu. Über das Porträt-Symbol kannst du sogar Fotos hochladen."
+        "body": "Ein Klick auf die Zeile öffnet den Schüler im Inspektor. Dort legst du Merkmale wie unruhig, schüchtern, Sprachniveau, soziale Rolle oder Wunsch- und Distanzpartner fest und lädst über sein Porträt sogar ein Foto hoch."
       }
     },
     "layout": {
@@ -933,7 +910,11 @@
       },
       "sidebar": {
         "title": "Tische und Raumelemente",
-        "body": "Ziehe u. a. Tische, Fenster, Türen oder die Tafel in den Raum. Über „Klassenraum einrichten“ ordnest du Tische automatisch an oder lädst eine gespeicherte Vorlage und bearbeitest sie weiter. Eigene Räume speicherst du als Vorlage."
+        "body": "Ziehe u. a. Tische, Fenster, Türen oder die Tafel in den Raum – oder setze sie mit einem Klick an einen freien Platz."
+      },
+      "setup": {
+        "title": "Raum einrichten",
+        "body": "Solange nichts ausgewählt ist, gehört der Inspektor dem Raum: „Einrichten“ stellt so viele Tische auf, wie deine Klasse braucht, und unter „Vorlagen“ lädst du gespeicherte Räume oder hebst diesen für andere Klassen auf."
       },
       "status": {
         "title": "Plätze im Blick",
@@ -947,7 +928,7 @@
       },
       "circle": {
         "title": "Sitzkreis",
-        "body": "Hier wechselst du zwischen Sitzplan und Sitzkreis. Der Sitzkreis entsteht aus dem aktuellen Sitzplan und zeigt Tischnachbarn als Verbindungen. Du kannst ihn verändern, separat speichern und exportieren."
+        "body": "Hier wechselst du zwischen Sitzplan und Sitzkreis. Der Sitzkreis entsteht aus dem aktuellen Sitzplan und zeigt Tischnachbarn als Verbindungen. Du kannst ihn verändern; „Plan speichern“ sichert ihn zusammen mit dem Plan."
       },
       "exits": {
         "title": "Präsentieren und exportieren",
@@ -999,7 +980,13 @@
       "occupied": "{{filled}} von {{seats}} Plätzen besetzt",
       "allSeated": "Alle Schüler haben einen Platz",
       "unseated_one": "{{count}} Schüler ohne Platz",
-      "unseated_other": "{{count}} Schüler ohne Platz"
+      "unseated_other": "{{count}} Schüler ohne Platz",
+      "noCircle": "Noch kein Sitzkreis",
+      "inCircle_one": "{{count}} Schüler im Kreis",
+      "inCircle_other": "{{count}} Schüler im Kreis",
+      "allInCircle": "Alle Schüler sitzen im Kreis",
+      "notInCircle_one": "{{count}} Schüler fehlt im Kreis",
+      "notInCircle_other": "{{count}} Schüler fehlen im Kreis"
     }
   },
   "sceneInspector": {
@@ -1013,8 +1000,6 @@
     "edit": "Bearbeiten",
     "orientation": "Ausrichtung",
     "display": "Anzeige",
-    "overview": "Überblick",
-    "empty": "Wähle einen Tisch oder ein Raummerkmal auf dem Plan, um es zu drehen, zu kopieren oder zu löschen. Verschoben wird direkt auf dem Plan.",
     "multiSelection": "{{tables}} Tische und {{features}} Raummerkmale ausgewählt",
     "room": "Raum",
     "rotateLeft": "Gegen den Uhrzeigersinn drehen",
@@ -1022,18 +1007,37 @@
     "rotation": "Drehung",
     "rotationAngle": "Drehung in Grad",
     "rotationMixed": "Die Auswahl ist unterschiedlich gedreht",
-    "seatCount": "Plätze",
     "seats_one": "{{count}} Platz",
     "seats_other": "{{count}} Plätze",
     "selectedSeats_one": "{{count}} Platz ausgewählt",
     "selectedSeats_other": "{{count}} Plätze ausgewählt",
     "selection": "Auswahl",
-    "studentCount": "Schüler",
     "table": "Tisch",
-    "tableCount": "Tische",
     "tablePosition": "Tisch {{index}} von {{total}}",
     "title": "Eigenschaften",
-    "visible": "Sichtbar"
+    "visible": "Sichtbar",
+    "setup": "Einrichten",
+    "setupHint": "Stellt so viele Tische auf, wie deine Klasse braucht.",
+    "setupReplaceHint": "Stellt die Tische neu auf, so viele wie deine Klasse braucht. Strg/⌘+Z holt die bisherigen zurück.",
+    "setupNoStudents": "Lege zuerst Schüler in der Klasse an.",
+    "setupSingle": "Einzelplätze",
+    "setupDouble": "Doppelplätze",
+    "setupGroup4": "4er-Gruppen",
+    "setupGroup6": "6er-Gruppen",
+    "tables_one": "{{count}} Tisch",
+    "tables_other": "{{count}} Tische",
+    "noTables": "Noch keine Tische",
+    "templates": "Vorlagen",
+    "templatesHint": "Hebe diesen Raum als Vorlage auf, um ihn in anderen Klassen zu laden.",
+    "saveAsTemplate": "Diesen Raum als Vorlage speichern",
+    "loadTemplate": "Vorlage „{{name}}“ laden – ersetzt den Raum",
+    "templateName": "Name der Vorlage",
+    "renameTemplate": "Umbenennen",
+    "renameTemplateNamed": "„{{name}}“ umbenennen",
+    "deleteTemplate": "Löschen",
+    "deleteTemplateNamed": "„{{name}}“ löschen",
+    "deleteTemplateTitle": "Vorlage löschen",
+    "deleteTemplateMessage": "Möchtest du die Vorlage „{{name}}“ wirklich löschen? Das lässt sich nicht rückgängig machen."
   },
   "toolRail": {
     "add": "Hinzufügen",

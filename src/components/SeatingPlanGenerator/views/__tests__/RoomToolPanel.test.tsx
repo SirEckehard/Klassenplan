@@ -37,15 +37,14 @@ const renderPanel = (
   { isPhone = false }: { isPhone?: boolean } = {},
 ) => {
   const handlers = {
-    handleSaveTemplate: vi.fn(),
     onTemplatePointerDown: vi.fn(),
-    onOpenQuickSetup: vi.fn(),
+    onTemplateAdd: vi.fn(),
     onFeaturePointerDown: vi.fn(),
+    onFeatureAdd: vi.fn(),
   };
   render(
     <RoomToolPanel
       density={density}
-      quickSetupShortcutHint="Q"
       featurePalette={[
         { type: 'window', label: 'Fenster', icon: <span /> },
         { type: 'door', label: 'Tür', icon: <span /> },
@@ -63,19 +62,9 @@ const renderPanel = (
 
 describe('RoomToolPanel', () => {
   it.each(['comfortable', 'compact'] as const)(
-    'offers setup, saving, tables and room elements in the %s density',
+    'offers tables and room elements in the %s density',
     (density) => {
       const handlers = renderPanel(density);
-
-      fireEvent.click(
-        screen.getByRole('button', {
-          name: /Klassenraum einrichten|Set Up Classroom/,
-        }),
-      );
-      expect(handlers.onOpenQuickSetup).toHaveBeenCalledTimes(1);
-
-      fireEvent.click(screen.getByTitle(/Vorlage speichern|as template/));
-      expect(handlers.handleSaveTemplate).toHaveBeenCalledTimes(1);
 
       fireEvent.pointerDown(screen.getByTitle(/^(4er-Gruppe|Group of 4) /));
       expect(handlers.onTemplatePointerDown).toHaveBeenCalledWith(
@@ -99,13 +88,40 @@ describe('RoomToolPanel', () => {
     });
     expect(group4).toHaveAttribute(
       'title',
-      expect.stringMatching(/Drag & Drop|drag and drop/),
+      expect.stringMatching(/Klicken oder in den Raum ziehen|Click or drag/),
     );
+  });
+
+  // Dragging is not the only way into the room (WCAG 2.5.7): a click, or
+  // Enter on the focused entry, adds one where there is room.
+  it.each(['comfortable', 'compact'] as const)(
+    'adds a table or a room element on a click in the %s density',
+    (density) => {
+      const handlers = renderPanel(density);
+
+      fireEvent.click(
+        screen.getByRole('button', { name: /^(Doppelplatz|Double Seat)$/ }),
+      );
+      expect(handlers.onTemplateAdd).toHaveBeenCalledWith('double');
+
+      fireEvent.click(screen.getByRole('button', { name: /^Fenster$/ }));
+      expect(handlers.onFeatureAdd).toHaveBeenCalledWith('window');
+    },
+  );
+
+  // Setting the room up and keeping it as a template concern the room as a
+  // whole: the inspector offers both while nothing is selected.
+  it('leaves setting up and templates to the inspector', () => {
+    renderPanel('comfortable');
+
     expect(
-      screen.getByRole('button', {
-        name: /^(Klassenraum einrichten|Set Up Classroom)$/,
+      screen.queryByRole('button', {
+        name: /Klassenraum einrichten|Set Up Classroom/,
       }),
-    ).toHaveAttribute('title', expect.stringContaining('(Q)'));
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /Vorlage|template/i }),
+    ).not.toBeInTheDocument();
   });
 
   // The floating settings button on the canvas is gone; its options are a
@@ -123,7 +139,7 @@ describe('RoomToolPanel', () => {
 
   // Tables and room elements are one group — "Raumelemente" names a view
   // setting, not a second group of things to add.
-  it('adds, shows and manages, in the order every layer keeps', () => {
+  it('adds and shows, in the order every layer keeps', () => {
     renderPanel('comfortable');
 
     const headings = screen
@@ -132,23 +148,17 @@ describe('RoomToolPanel', () => {
     expect(headings).toEqual([
       expect.stringMatching(/^(Hinzufügen|Add)$/),
       expect.stringMatching(/^(Ansichtseinstellungen|View settings)$/),
-      expect.stringMatching(/^(Verwalten|Manage)$/),
     ]);
   });
 
-  // On a phone the tables and the setup sit under the canvas, where a drag
-  // reaches the room; the sheet carries the rest.
-  it('leaves the tables and the setup to the stage on a phone', () => {
+  // On a phone the tables sit under the canvas, where a drag reaches the
+  // room; the sheet carries the rest.
+  it('leaves the tables to the stage on a phone', () => {
     renderPanel('comfortable', { isPhone: true });
 
     expect(
       screen.queryByRole('button', {
         name: /^(4er-Gruppe|Group of 4)$/,
-      }),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole('button', {
-        name: /Klassenraum einrichten|Set Up Classroom/,
       }),
     ).not.toBeInTheDocument();
     expect(

@@ -19,6 +19,10 @@ import {
   computeAlignmentSnap,
   getGroupAabb,
   selectAlignmentTargets,
+  collectRoomObstacles,
+  findFreeSpot,
+  findFreeWallSpot,
+  getRotatedAabbHalfExtents,
   type AlignmentGuide,
   type AlignmentRect,
 } from '@/utils';
@@ -413,6 +417,94 @@ export function useFeaturePaletteDrag({
       snapToGrid,
       classroomWidth,
       classroomHeight,
+    ],
+  );
+
+  /**
+   * A click or Enter on a room element in the toolbar: it lands where a drop
+   * would put it, at the free spot nearest the middle of the room — a free
+   * element on the floor, one for a wall on the first stretch of wall with
+   * room for it — and is selected, so the arrow keys and Q/E take it on.
+   * A one-of-a-kind element (the board) is not replaced by a click: the one
+   * there is gets selected instead. False when the room has no place left.
+   */
+  const addFeature = React.useCallback(
+    (type: ClassroomFeatureType): boolean => {
+      const template = featureTemplateMap.get(type);
+      if (!template) {
+        return false;
+      }
+      const features = latestFeaturesRef.current;
+      if (!template.allowMultiple) {
+        const existing = features.find((feature) => feature.type === type);
+        if (existing) {
+          selectFeature(existing.id, false);
+          return true;
+        }
+      }
+      const obstacles = collectRoomObstacles(sceneTablesRef.current, features);
+      const room = { width: classroomWidth, height: classroomHeight };
+
+      if (template.movable) {
+        // The footprint as it will stand, turned as a drop turns it.
+        const { rotation } = computeFeatureDropPlacement(
+          template,
+          room.width / 2,
+          room.height / 2,
+          snapToGrid,
+          room.width,
+          room.height,
+        );
+        const { halfWidth, halfHeight } = getRotatedAabbHalfExtents(
+          template.width,
+          template.height,
+          rotation,
+        );
+        const spot = findFreeSpot(
+          { width: halfWidth * 2, height: halfHeight * 2 },
+          obstacles,
+          room,
+        );
+        if (!spot) {
+          return false;
+        }
+        addFeatureFromTemplate(type, spot.x + halfWidth, spot.y + halfHeight);
+        return true;
+      }
+
+      const point = findFreeWallSpot(
+        ({ x, y }) => {
+          const placement = computeFeatureDropPlacement(
+            template,
+            x,
+            y,
+            snapToGrid,
+            room.width,
+            room.height,
+          );
+          return {
+            x: placement.x,
+            y: placement.y,
+            width: placement.width,
+            height: placement.height,
+          };
+        },
+        obstacles,
+        room,
+      );
+      if (!point) {
+        return false;
+      }
+      addFeatureFromTemplate(type, point.x, point.y);
+      return true;
+    },
+    [
+      addFeatureFromTemplate,
+      classroomHeight,
+      classroomWidth,
+      featureTemplateMap,
+      selectFeature,
+      snapToGrid,
     ],
   );
 
@@ -1210,5 +1302,6 @@ export function useFeaturePaletteDrag({
     handleFeatureTemplatePointerDown,
     handleFeaturePointerDown,
     handleFeatureRotateStart,
+    addFeature,
   } as const;
 }

@@ -90,7 +90,7 @@
       "trigger": "Hinzufügen",
       "singleLabel": "Neuer Schüler",
       "namePlaceholder": "Name",
-      "placeholderHint": "Die Namen trägst du danach direkt in der Liste ein."
+      "placeholderHint": "Danach öffnet sich der erste zum Benennen – Enter springt zum nächsten."
     },
     "newStudent": "Neuer Schüler",
     "studentName": "Name des Schülers",
@@ -312,7 +312,10 @@
     "thisStudent": "diesen Schüler",
     "studentRemoved": "{{studentName}} wurde gelöscht.",
     "yourClass": "deine Klasse",
-    "placeholdersCreated": "{{count}} Schüler-Platzhalter erstellt. Fülle jetzt die Namen und Details aus.",
+    "placeholdersCreated_one": "1 Platzhalter angelegt – tippe den Namen ein.",
+    "placeholdersCreated_other": "{{count}} Platzhalter angelegt – tippe die Namen ein, Enter springt zum nächsten.",
+    "placeholdersCapped_one": "Nur 1 Platzhalter angelegt: Eine Klasse hat höchstens {{max}} Schüler.",
+    "placeholdersCapped_other": "Nur {{count}} Platzhalter angelegt: Eine Klasse hat höchstens {{max}} Schüler.",
     "emptyClassCsvHintPrefix": "Wenn du bei null anfängst, nimm diese ",
     "emptyClassCsvHintSuffix": " und trage die Namen deiner Schüler ein. Klicke dann auf Import und lade die Datei hoch.",
     "emptyClassCsvNoDownload": "Oder sieh dir einfach an, wie eine fertige Klassenliste aussehen kann."

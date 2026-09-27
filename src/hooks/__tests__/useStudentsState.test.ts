@@ -5,7 +5,7 @@ import { expect, test, describe, beforeEach, vi } from 'vitest';
 import { useStudentsState } from '../state/useStudentsState';
 import { resetStudentStore } from '@/stores/studentsStore';
 import { MAX_STUDENTS } from '@/utils';
-import { showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
+import { showToast } from '@/utils/ui/toast';
 
 vi.mock('@/utils/ui/toast', () => ({
   showToast: vi.fn(),
@@ -150,10 +150,8 @@ describe('addBulkPlaceholderStudents', () => {
     });
 
     expect(result.current.students).toHaveLength(MAX_STUDENTS);
-    expect(showToast).toHaveBeenCalledWith(
-      'error',
-      TOAST_MESSAGES.STUDENT_MAX_REACHED,
-    );
+    // How many came about is the caller's to say, in one message.
+    expect(showToast).not.toHaveBeenCalled();
   });
 
   test('returns empty array when no placeholder slots remain', () => {
@@ -172,10 +170,7 @@ describe('addBulkPlaceholderStudents', () => {
     });
 
     expect(createdStudents).toHaveLength(0);
-    expect(showToast).toHaveBeenCalledWith(
-      'error',
-      TOAST_MESSAGES.STUDENT_MAX_REACHED,
-    );
+    expect(showToast).not.toHaveBeenCalled();
     expect(result.current.students).toHaveLength(MAX_STUDENTS);
   });
 });

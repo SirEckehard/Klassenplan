@@ -5,6 +5,43 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+- A new workspace around the three layers of a class – Class, Room, Plan: the open class is named in the header, the toolbar sits on the left, the stage in the middle and the inspector on the right. A status bar under the stage says where things stand, carries undo and redo, and leads back and on. On a desktop the window no longer scrolls as a page; the toolbar, the stage and the inspector scroll on their own
+- The inspector: whatever is selected – a student, a table, a room element, several ticked students – is edited in one panel on the right instead of in the list rows. On a tablet in portrait it opens as a drawer from the status bar, on a phone as a sheet
+- "Attribute mode" asks one question of the whole class at once – "Who is restless?" – with one tap per student, and "Relationships" shows who wants to sit next to whom
+- Criteria are set in words – Off, Consider, Important, Very important – and recipes set all sixteen at once, "Recommended mix" among them
+- Three class tools, each a screen of its own: "Who's next?", "Where does who sit?" and "Build groups", reachable from "Class tools" at the foot of every toolbar
+- An error screen offers a prepared email with a reference code; nothing is sent automatically
+
+### Improved
+
+- The toolbar has the same shape on every layer: the view first, then what can be added, the view settings and managing the class, and at its foot the class tools, "Plans & history", the backup and support
+- The room is set up from the inspector while nothing is selected: "Set up" places as many tables of one kind as the class needs, "Templates" keeps the room for other classes and loads a kept one. It replaces the dialog that covered the room, and Ctrl/⌘+Z brings back what stood there
+- Tables and room elements are added with a click or Enter as well as by dragging: they land on the free spot nearest the middle of the room, and a window or a door on the first free stretch of wall. The arrow keys move room elements too – along their wall if they hang on one – a key held down is one undo step, and deleting, cutting, pasting or duplicating tables and room elements together is one undo step as well
+- The markers on a seat explain themselves: pointing at one names it and marks the seats it concerns. Dragging works the same in the plan and the circle, with a ring on the target and a confirmation after the drop
+- The projection has one bar under the plan, a contrast mode for bright rooms and its own name rule (first names)
+- A plan is named where it is saved, and "Mix" and the two ways out – present and export – sit in the status bar
+- Menus and panels of the header and the toolbar can be reached, used and closed with the keyboard
+- Creating placeholders adds as many as the class has room for, says in one message how many there are, and opens the first of them for its name
+- With the seating circle on the stage, the status bar counts the circle instead of the table seats
+- New shortcuts: "Mix" is Ctrl/⌘+Enter, as ⌘+M minimised the window on a Mac. On the export page P saves the PDF of the arrangement on the sheet and Ctrl/⌘+P prints; Ctrl/⌘+S and Ctrl/⌘+E work in the seating circle as well
+
+### Removed
+
+- The slider for each criterion: the four words are the whole scale
+- The shortcuts for the circle PDF and for PNG on the export page, where Ctrl/⌘+Shift+T reopened the last closed browser tab and Ctrl/⌘+Shift+C and +I opened the developer tools
+
+### Fixed
+
+- The space bar draws a student and + zooms in presentation mode, and the space bar draws on "Who's next?" – the help promised all three
+- Ctrl/⌘+S in the seating circle opened the browser's own save dialog
+- A typed angle wraps round as a turn does: 360° is 0°, −90° is 270°
+- Voice control finds the fulfilment button by the words it shows
+- Hints that pointed to places the redesign had moved – the footer, "step 3", the portrait icon in the list – now name where things are
+
 ## [2.2.0] - 2026-09-17
 
 ### Added

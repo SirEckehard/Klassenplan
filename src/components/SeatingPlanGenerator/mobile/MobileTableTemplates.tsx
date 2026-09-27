@@ -2,10 +2,9 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { FloppyDiskIcon } from '@phosphor-icons/react';
 import TablePreview from '@/components/TablePreview';
 import type { ClassroomFeatureType, TableTemplateType } from '@/types';
-import { cardSurfaceClass, secondaryButtonClass } from '@/utils';
+import { cardSurfaceClass } from '@/utils';
 
 interface TemplateConfig {
   type: TableTemplateType;
@@ -50,7 +49,9 @@ interface MobileTableTemplatesProps {
     type: ClassroomFeatureType,
     event: React.PointerEvent<HTMLButtonElement>,
   ) => void;
-  onSaveTemplate?: () => void;
+  /** A tap adds one where there is room; dragging picks the place. */
+  onTemplateAdd?: (type: TableTemplateType) => void;
+  onFeatureAdd?: (type: ClassroomFeatureType) => void;
 }
 
 /**
@@ -65,7 +66,8 @@ const MobileTableTemplates: React.FC<MobileTableTemplatesProps> = ({
   onTemplatePointerDown,
   featurePalette,
   onFeaturePointerDown,
-  onSaveTemplate,
+  onTemplateAdd,
+  onFeatureAdd,
 }) => {
   const { t } = useTranslation('generator');
 
@@ -87,8 +89,9 @@ const MobileTableTemplates: React.FC<MobileTableTemplatesProps> = ({
             key={template.type}
             type="button"
             onPointerDown={(e) => onTemplatePointerDown(template.type, e)}
+            onClick={() => onTemplateAdd?.(template.type)}
             className={`${cardSurfaceClass} group relative flex h-16 min-w-0 cursor-grab flex-col items-center gap-0.5 border-2 border-(--border-card) p-1.5 transition hover:border-(--border-option-selected) hover:bg-(--surface-option-selected) active:scale-95 active:cursor-grabbing`}
-            title={`${TABLE_TEMPLATE_LABELS[template.type]} (${template.seatCount} ${t('common.seats', 'Plätze')})`}
+            title={`${TABLE_TEMPLATE_LABELS[template.type]} (${template.seatCount} ${t('common.seats', 'Plätze')}) – ${t('layout.dragDropHint')}`}
             style={{ touchAction: 'none' }}
           >
             {/* TablePreview */}
@@ -127,9 +130,10 @@ const MobileTableTemplates: React.FC<MobileTableTemplatesProps> = ({
                 onPointerDown={(event) =>
                   onFeaturePointerDown?.(feature.type, event)
                 }
+                onClick={() => onFeatureAdd?.(feature.type)}
                 className={`${cardSurfaceClass} flex h-14 min-w-0 cursor-grab flex-col items-center justify-center gap-0.5 border-2 border-(--border-card) p-1 text-[10px] font-medium text-(--text-muted) transition hover:border-(--border-option-selected) hover:bg-(--surface-option-selected) active:scale-95 active:cursor-grabbing`}
                 style={{ touchAction: 'none' }}
-                title={`${feature.label} ${t('layout.place', 'platzieren')}`}
+                title={`${feature.label} – ${t('layout.dragDropHint')}`}
               >
                 <span className="flex h-6 w-6 items-center justify-center rounded-full bg-(--surface-option-selected) text-(--text-badge)">
                   {feature.icon}
@@ -138,25 +142,6 @@ const MobileTableTemplates: React.FC<MobileTableTemplatesProps> = ({
               </button>
             ))}
           </div>
-        </div>
-      )}
-
-      {onSaveTemplate && (
-        <div className="mt-4">
-          <button
-            type="button"
-            onClick={onSaveTemplate}
-            className={`${secondaryButtonClass} flex w-full items-center justify-center gap-3 px-4 py-3 text-sm text-(--button-success-bg) hover:bg-(--surface-sunken) h-12`}
-            title={t(
-              'layout.saveTemplate',
-              'Aktuellen Klassenraum als Vorlage speichern',
-            )}
-          >
-            <FloppyDiskIcon className="h-4 w-4 shrink-0" />
-            <span className="text-sm font-medium">
-              {t('layout.saveTemplateButton', 'Vorlage speichern')}
-            </span>
-          </button>
         </div>
       )}
     </div>

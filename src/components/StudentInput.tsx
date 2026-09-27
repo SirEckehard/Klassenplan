@@ -9,7 +9,7 @@ import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { downloadCsvTemplate } from '@/utils/csv/csvTemplateDownload';
 import { openCsvFormatHelp } from '@/utils/ui/csvFormatHelp';
 import ConfirmDialog from '@/components/ui/modals/ConfirmDialog';
-import { showToast } from '@/utils/ui/toast';
+import { showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
 import {
   cardSurfaceClass,
   isFormElementFocused,
@@ -43,6 +43,7 @@ import StudentListToolsRow from '@/components/studentInput/StudentListToolsRow';
 import StudentBulkInspector from '@/components/students/StudentBulkInspector';
 import StudentInspectorPanel from '@/components/students/StudentInspectorPanel';
 import InspectorPortal from '@/components/shell/InspectorPortal';
+import { useInspector } from '@/contexts/InspectorContext';
 import AttributeFocusMode from '@/components/studentInput/AttributeFocusMode';
 import ListScrollFab from '@/components/studentInput/ListScrollFab';
 import { useIsLgUp } from '@/hooks/ui/useIsLgUp';
@@ -97,9 +98,6 @@ function StudentInput({
     recalcKey: 0, // No longer need dynamic recalc
   });
 
-  // Track which student card was just expanded (e.g. after bulk creation)
-  const [expandedCardId, setExpandedCardId] = useState<string | null>(null);
-
   // Student management hook
   const {
     newStudentName,
@@ -107,11 +105,8 @@ function StudentInput({
     lastAddedId,
     handleAddStudent,
     isAddDisabled,
-  } = useStudentManagement({
-    students,
-    addStudent,
-    onCardExpand: (id) => setExpandedCardId(id),
-  });
+  } = useStudentManagement({ students, addStudent });
+  const { selectStudent } = useInspector();
   const { activeClass } = useClassManagementContext();
   const { triggerImport } = useSeatingPlanActions();
   const { loadDemoClass, isLoadingDemoClass, hasDemoClass, isDemoClassActive } =
@@ -145,47 +140,53 @@ function StudentInput({
     handleDialogCancel,
   } = useCsvImportWithDialog(handleCsvImport);
 
-  // Quick class setup handler
-  const handleQuickClassSetup = useCallback(
-    (count: number) => {
-      const placeholders = addBulkPlaceholderStudents(count);
-      if (placeholders.length > 0) {
-        showToast(
-          'success',
-          t('studentInput.placeholdersCreated', {
-            count,
-            defaultValue:
-              '{{count}} Schüler-Platzhalter erstellt. Fülle jetzt die Namen und Details aus.',
-          }),
-        );
-        // Auto-expand first student after bulk creation
-        setExpandedCardId(placeholders[0].id);
-      }
-    },
-    [addBulkPlaceholderStudents, setExpandedCardId, t],
-  );
-
-  // Classroom setup removed - now handled in Step 2
-
-  const handleListScrollCollapse = useCallback(() => {
-    // No longer needed - collapse functionality removed
-  }, []);
-
-  const handlePlaceholderClass = useCallback(() => {
-    const parsed = parseInt(placeholderCount, 10);
-    if (!Number.isFinite(parsed) || parsed < 1 || parsed > MAX_STUDENTS) {
+  /**
+   * Placeholders: as many as asked for and the class has room for, with one
+   * message saying how many there are, and the first of them opened in the
+   * inspector with its name field active — naming a class is typing and
+   * Enter, which steps on to the next one. Returns whether any were created,
+   * so the toolbar's panel can close.
+   */
+  const handleCreatePlaceholders = useCallback((): boolean => {
+    const room = MAX_STUDENTS - students.length;
+    if (room <= 0) {
+      showToast('error', TOAST_MESSAGES.STUDENT_MAX_REACHED);
+      return false;
+    }
+    const requested = parseInt(placeholderCount, 10);
+    if (!Number.isFinite(requested) || requested < 1) {
+      showToast('error', t('quickClass.invalidCount', { max: room }));
+      return false;
+    }
+    const placeholders = addBulkPlaceholderStudents(Math.min(requested, room));
+    if (placeholders.length === 0) {
+      showToast('error', TOAST_MESSAGES.STUDENT_MAX_REACHED);
+      return false;
+    }
+    if (placeholders.length < requested) {
       showToast(
-        'error',
-        t('quickClass.invalidCount', {
+        'warning',
+        t('studentInput.placeholdersCapped', {
+          count: placeholders.length,
           max: MAX_STUDENTS,
-          defaultValue: `Bitte gib eine Zahl zwischen 1 und ${MAX_STUDENTS} ein.`,
         }),
       );
-      return;
+    } else {
+      showToast(
+        'success',
+        t('studentInput.placeholdersCreated', { count: placeholders.length }),
+      );
     }
-    handleQuickClassSetup(parsed);
     setPlaceholderCount('10');
-  }, [handleQuickClassSetup, placeholderCount, t]);
+    selectStudent(placeholders[0].id);
+    return true;
+  }, [
+    addBulkPlaceholderStudents,
+    placeholderCount,
+    selectStudent,
+    students.length,
+    t,
+  ]);
 
   // Search / filter / sort and multi-select only appear once a class is big
   // enough for them to help; below that they would just be chrome.
@@ -296,7 +297,7 @@ function StudentInput({
             isAddStudentDisabled={isAddDisabled}
             placeholderCount={placeholderCount}
             onPlaceholderCountChange={setPlaceholderCount}
-            onCreatePlaceholders={handlePlaceholderClass}
+            onCreatePlaceholders={handleCreatePlaceholders}
             onImportCsv={analyzeCsvFile}
             onExportCsv={downloadStudentsCsv}
             onLoadDemoClass={
@@ -457,10 +458,8 @@ function StudentInput({
               students={listView.visibleStudents}
               allStudents={students}
               lastAddedId={lastAddedId}
-              expandedCardId={expandedCardId}
               listContainerRef={listContainerRef}
               maxHeight={listMaxHeight}
-              onScrollCollapse={handleListScrollCollapse}
               isSelected={showListTools ? selection.isSelected : undefined}
               onToggleSelected={showListTools ? selection.toggle : undefined}
               selectionActive={selectionActive}

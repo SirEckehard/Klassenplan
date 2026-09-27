@@ -217,6 +217,7 @@ describe('useKeyboardInteraction', () => {
     const secondaryTable = createMockTable(1);
     const updateClassroomScene = vi.fn();
     const params = createParams({
+      selectedTableIds: [0, 1],
       sceneTables: [lockedTable, secondaryTable],
       classroomScene: {
         tables: [lockedTable, secondaryTable],
@@ -235,8 +236,110 @@ describe('useKeyboardInteraction', () => {
     const updatedScene = updateClassroomScene.mock
       .calls[0][0] as ClassroomScene;
     const tables = updatedScene.tables as ClassroomTable[];
-    const locked = tables.find((table) => table.locked);
-    expect(locked?.x).toBe(100);
+    expect(tables[0].x).toBe(100);
+    expect(tables[1].x).toBe(151);
+
+    unmount();
+  });
+
+  // Nothing to move is no undo step.
+  it('does nothing while only locked tables are selected', async () => {
+    const lockedTable = { ...createMockTable(0), locked: true };
+    const params = createParams({
+      sceneTables: [lockedTable],
+      classroomScene: { tables: [lockedTable], totalStudents: 4 },
+    });
+    const { unmount } = renderHook(() => useKeyboardInteraction(params));
+
+    const user = userEvent.setup();
+    await user.keyboard('{ArrowRight}');
+
+    expect(params.snapshot).not.toHaveBeenCalled();
+    expect(params.updateClassroomScene).not.toHaveBeenCalled();
+
+    unmount();
+  });
+
+  // What a drag moves, the arrows move: a free element anywhere, one on a
+  // wall along that wall.
+  it('moves selected room elements along with the tables', async () => {
+    const updateClassroomScene = vi.fn();
+    const cabinet: ClassroomFeature = {
+      id: 'cabinet',
+      type: 'cabinet',
+      x: 300,
+      y: 300,
+      width: 120,
+      height: 40,
+      anchor: 'free',
+      movable: true,
+      rotation: 0,
+    };
+    const window: ClassroomFeature = {
+      ...cabinet,
+      id: 'window',
+      type: 'window',
+      anchor: 'left',
+      movable: false,
+      x: 0,
+      y: 200,
+      width: 12,
+      height: 90,
+    };
+    const params = createParams({
+      updateClassroomScene,
+      selectedTableIds: [],
+      selectedFeatureIds: ['cabinet', 'window'],
+      sceneFeatures: [cabinet, window],
+    });
+    const { unmount } = renderHook(() => useKeyboardInteraction(params));
+
+    const user = userEvent.setup();
+    await user.keyboard('{ArrowDown}');
+
+    const updatedScene = updateClassroomScene.mock
+      .calls[0][0] as ClassroomScene;
+    const [movedCabinet, movedWindow] = updatedScene.features ?? [];
+    expect(movedCabinet).toMatchObject({ x: 300, y: 301 });
+    expect(movedWindow).toMatchObject({ x: 0, y: 201 });
+
+    unmount();
+  });
+
+  // A key held down repeats; the whole move is one step back.
+  it('takes one undo step for a key held down', () => {
+    const params = createParams();
+    const { unmount } = renderHook(() => useKeyboardInteraction(params));
+
+    window.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'ArrowRight', repeat: false }),
+    );
+    window.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'ArrowRight', repeat: true }),
+    );
+    window.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'ArrowRight', repeat: true }),
+    );
+
+    expect(params.updateClassroomScene).toHaveBeenCalledTimes(3);
+    expect(params.snapshot).toHaveBeenCalledTimes(1);
+
+    unmount();
+  });
+
+  // Without a selection the arrow keys are the page's: below `lg` they
+  // scroll it.
+  it('leaves the arrow keys to the page while nothing is selected', () => {
+    const params = createParams({ selectedTableIds: [], hasSelection: false });
+    const { unmount } = renderHook(() => useKeyboardInteraction(params));
+
+    const event = new KeyboardEvent('keydown', {
+      key: 'ArrowDown',
+      cancelable: true,
+    });
+    window.dispatchEvent(event);
+
+    expect(event.defaultPrevented).toBe(false);
 
     unmount();
   });

@@ -87,12 +87,14 @@ test('a teacher can go from an empty app to an exportable seating plan', async (
     ).toContainText('4 Schüler');
   });
 
-  await test.step('step 2 — let the quick setup build a room', async () => {
+  await test.step('step 2 — set the room up from the inspector', async () => {
     await page.getByRole('button', { name: 'Weiter zum Klassenraum' }).click();
 
+    // While nothing is selected the inspector belongs to the room: its setup
+    // places as many tables as the class needs.
     await page
-      .getByRole('dialog', { name: 'Klassenraum einrichten' })
-      .getByRole('button', { name: /Doppelplatz/ })
+      .getByRole('complementary', { name: 'Eigenschaften' })
+      .getByRole('button', { name: /^Doppelplätze/ })
       .click();
 
     // The shell's status bar is the app's verdict on whether the room fits the

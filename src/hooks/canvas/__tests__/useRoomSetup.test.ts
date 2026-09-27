@@ -1,0 +1,114 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Eike Schäfer
+import { act, renderHook, waitFor } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
+import { useRoomSetup } from '../useRoomSetup';
+
+const setup = ({
+  isRoomEmpty = false,
+  isDesktop = true,
+}: { isRoomEmpty?: boolean; isDesktop?: boolean } = {}) => {
+  const handlers = {
+    snapshot: vi.fn(),
+    onTemplateChange: vi.fn(),
+    onTableTypeChange: vi.fn(),
+    clearSelection: vi.fn(),
+    setDrawerOpen: vi.fn(),
+  };
+  const hook = renderHook(
+    (props: { isRoomEmpty: boolean; isDesktop: boolean }) =>
+      useRoomSetup({ ...props, ...handlers }),
+    { initialProps: { isRoomEmpty, isDesktop } },
+  );
+  return { ...hook, ...handlers };
+};
+
+describe('useRoomSetup', () => {
+  // The undo history has to hold the room before it is replaced, or Ctrl+Z
+  // after a stray click would bring back nothing.
+  it('keeps the room in the undo history before setting it up anew', () => {
+    const { result, snapshot, onTemplateChange, onTableTypeChange } = setup();
+
+    act(() => result.current.setUpRoom('double'));
+
+    expect(snapshot).toHaveBeenCalledTimes(1);
+    expect(onTemplateChange).toHaveBeenCalledWith(null);
+    expect(onTableTypeChange).toHaveBeenCalledWith('double', true);
+    expect(snapshot.mock.invocationCallOrder[0]).toBeLessThan(
+      onTemplateChange.mock.invocationCallOrder[0],
+    );
+    expect(snapshot.mock.invocationCallOrder[0]).toBeLessThan(
+      onTableTypeChange.mock.invocationCallOrder[0],
+    );
+  });
+
+  it('keeps the room in the undo history before loading a template', () => {
+    const { result, snapshot, onTemplateChange } = setup();
+
+    act(() => result.current.loadTemplate(4));
+
+    expect(onTemplateChange).toHaveBeenCalledWith(4);
+    expect(snapshot.mock.invocationCallOrder[0]).toBeLessThan(
+      onTemplateChange.mock.invocationCallOrder[0],
+    );
+  });
+
+  it('leaves the drawer alone from lg up, where the inspector is a column', () => {
+    const { result, setDrawerOpen } = setup({ isDesktop: true });
+
+    act(() => result.current.setUpRoom('group4'));
+    act(() => result.current.loadTemplate(1));
+    act(() => result.current.revealSetup());
+
+    expect(setDrawerOpen).not.toHaveBeenCalled();
+  });
+
+  // Below lg the drawer covers much of the stage; the result is what the
+  // teacher wants to see next.
+  it('closes the drawer below lg once the room is set up or loaded', () => {
+    const { result, setDrawerOpen } = setup({ isDesktop: false });
+
+    act(() => result.current.setUpRoom('single'));
+    expect(setDrawerOpen).toHaveBeenLastCalledWith(false);
+
+    setDrawerOpen.mockClear();
+    act(() => result.current.loadTemplate(2));
+    expect(setDrawerOpen).toHaveBeenLastCalledWith(false);
+  });
+
+  it('shows the setup when asked: selection let go, drawer open, focus asked for', () => {
+    const { result, clearSelection, setDrawerOpen } = setup({
+      isDesktop: false,
+    });
+    expect(result.current.setupFocusRequest).toBe(0);
+
+    act(() => result.current.revealSetup());
+
+    expect(clearSelection).toHaveBeenCalledTimes(1);
+    expect(setDrawerOpen).toHaveBeenCalledWith(true);
+    expect(result.current.setupFocusRequest).toBe(1);
+
+    act(() => result.current.revealSetup());
+    expect(result.current.setupFocusRequest).toBe(2);
+  });
+
+  it('opens the drawer by itself below lg while the room is empty', async () => {
+    const { setDrawerOpen, rerender } = setup({
+      isRoomEmpty: true,
+      isDesktop: false,
+    });
+    await waitFor(() => expect(setDrawerOpen).toHaveBeenCalledWith(true));
+
+    setDrawerOpen.mockClear();
+    rerender({ isRoomEmpty: false, isDesktop: false });
+    expect(setDrawerOpen).not.toHaveBeenCalled();
+  });
+
+  it('opens nothing by itself from lg up or in a furnished room', () => {
+    const desktop = setup({ isRoomEmpty: true, isDesktop: true });
+    expect(desktop.setDrawerOpen).not.toHaveBeenCalled();
+
+    const furnished = setup({ isRoomEmpty: false, isDesktop: false });
+    expect(furnished.setDrawerOpen).not.toHaveBeenCalled();
+  });
+});

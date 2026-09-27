@@ -7,7 +7,7 @@ import { useEffect, useId, useSyncExternalStore } from 'react';
  *
  * Two views need to know whether something is open above them before acting on
  * Escape: the student list would otherwise drop the whole selection behind an
- * open popover, and the layout editor would close the Quick Setup overlay from
+ * open popover, and the layout editor would clear the canvas selection from
  * under a modal. Both used to ask the DOM — `document.querySelector('[role="dialog"],
  * [role="menu"]')` — which turned an ARIA role into application state: every new
  * component that legitimately carried one of those roles silently changed the

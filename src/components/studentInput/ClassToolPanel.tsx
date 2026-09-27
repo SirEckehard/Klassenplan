@@ -20,11 +20,11 @@ import {
   type ToolRailDensity,
 } from '@/components/shell/ToolRail';
 import {
+  MAX_STUDENTS,
   inputFieldClass,
   menuItemClass,
   menuSurfaceClass,
   primaryButtonClass,
-  successIconButtonClass,
 } from '@/utils';
 import { downloadCsvTemplate } from '@/utils/csv/csvTemplateDownload';
 import { openCsvFormatHelp } from '@/utils/ui/csvFormatHelp';
@@ -46,7 +46,11 @@ type Props = {
   isAddStudentDisabled: boolean;
   placeholderCount: string;
   onPlaceholderCountChange: (value: string) => void;
-  onCreatePlaceholders: () => void;
+  /**
+   * Creates the placeholders; true once there are some, which closes the
+   * panel — the first of them opens in the inspector to be named.
+   */
+  onCreatePlaceholders: () => boolean;
   onImportCsv: (file: File) => Promise<unknown>;
   onExportCsv: () => void;
   onLoadDemoClass?: () => void;
@@ -162,7 +166,7 @@ export default function ClassToolPanel({
                     type="button"
                     onClick={onAddStudent}
                     disabled={isAddStudentDisabled}
-                    className={`${successIconButtonClass} h-9 w-9 shrink-0 p-0!`}
+                    className={`${primaryButtonClass} h-9 w-9 shrink-0 p-0!`}
                     title={t('students:studentList.addStudent')}
                     aria-label={t('students:studentList.addStudent')}
                   >
@@ -177,8 +181,9 @@ export default function ClassToolPanel({
         <ToolRailButton
           icon={<UsersThreeIcon size={18} />}
           label={t('students:studentList.createPlaceholders')}
-          disabled={!hasActiveClass}
-          panel={() => (
+          // A full class has no room for one more.
+          disabled={!hasActiveClass || studentCount >= MAX_STUDENTS}
+          panel={(close) => (
             <div className={panelClass}>
               <label className="flex flex-col gap-1">
                 <span className={panelLabelClass}>
@@ -188,7 +193,7 @@ export default function ClassToolPanel({
                   <input
                     type="number"
                     min={1}
-                    max={40}
+                    max={Math.max(1, MAX_STUDENTS - studentCount)}
                     value={placeholderCount}
                     onChange={(event) =>
                       onPlaceholderCountChange(event.target.value)
@@ -196,7 +201,7 @@ export default function ClassToolPanel({
                     onKeyDown={(event) => {
                       if (event.key === 'Enter') {
                         event.preventDefault();
-                        onCreatePlaceholders();
+                        if (onCreatePlaceholders()) close();
                       }
                     }}
                     placeholder={t(
@@ -206,7 +211,9 @@ export default function ClassToolPanel({
                   />
                   <button
                     type="button"
-                    onClick={onCreatePlaceholders}
+                    onClick={() => {
+                      if (onCreatePlaceholders()) close();
+                    }}
                     className={`${primaryButtonClass} h-9 w-9 shrink-0 p-0!`}
                     title={t('students:studentList.createPlaceholders')}
                     aria-label={t('students:studentList.createPlaceholders')}

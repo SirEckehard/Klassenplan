@@ -942,6 +942,38 @@
   opacity: 0.6;
 }
 
+/* The destructive icon beside a row — a class's or a template's delete —
+   quiet like its neighbours, rose only once the pointer is on it, as a menu's
+   destructive row (`menu-item-danger`). */
+@utility quiet-danger-icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  border-radius: var(--radius-pill);
+  background-color: transparent;
+  color: var(--button-icon-quiet-text);
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+  cursor: pointer;
+}
+
+.quiet-danger-icon-button:hover:not(:disabled) {
+  background-color: var(--button-icon-danger-bg);
+  color: var(--button-icon-danger-text);
+}
+
+.quiet-danger-icon-button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--focus-ring-danger);
+}
+
+.quiet-danger-icon-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 @utility danger-icon-button {
   display: inline-flex;
   align-items: center;

@@ -13,6 +13,8 @@ import {
   computeAlignmentSnap,
   getGroupAabb,
   selectAlignmentTargets,
+  collectRoomObstacles,
+  findFreeSpot,
   type AlignmentGuide,
   type AlignmentRect,
 } from '@/utils';
@@ -233,41 +235,22 @@ export default function useTableInteraction({
     ],
   );
 
-  const dropTemplateAt = React.useCallback(
-    (
-      templateType: TableTemplateType,
-      clientX: number,
-      clientY: number,
-      svg: SVGSVGElement,
-    ) => {
-      const rect = svg.getBoundingClientRect();
-      if (
-        clientX < rect.left ||
-        clientX > rect.right ||
-        clientY < rect.top ||
-        clientY > rect.bottom
-      ) {
-        return false;
-      }
-      const type = templateType;
+  /**
+   * Adds a table of `type` with its top-left corner at `x`/`y` and selects
+   * it — the one way a drop and a click place a new table, so both land the
+   * same.
+   */
+  const placeTemplate = React.useCallback(
+    (type: TableTemplateType, { x, y }: { x: number; y: number }) => {
+      const preset = getTablePresets()[type];
       snapshot();
-      const { x: dropX, y: dropY } = getPointerPosition(svg, clientX, clientY);
-      const placement = computeTemplateDropPlacement(
-        type,
-        dropX,
-        dropY,
-        snapToGrid,
-        classroomWidth,
-        classroomHeight,
-        getTemplateDropAlignment(),
-      );
       const newTable = {
-        x: placement.x,
-        y: placement.y,
-        width: placement.width,
-        height: placement.height,
+        x,
+        y,
+        width: preset.width,
+        height: preset.height,
         rotation: 0, // All templates use 0° (dimensions are optimized)
-        seatCount: placement.seatCount,
+        seatCount: preset.seatCount,
         locked: false,
         zIndex: 0,
         templateType: type,
@@ -296,6 +279,37 @@ export default function useTableInteraction({
       if (nextTables.length > 0) {
         setSelectedTableIds([nextTables.length - 1]);
       }
+    },
+    [runSceneTransaction, setSelectedTableIds, snapshot],
+  );
+
+  const dropTemplateAt = React.useCallback(
+    (
+      templateType: TableTemplateType,
+      clientX: number,
+      clientY: number,
+      svg: SVGSVGElement,
+    ) => {
+      const rect = svg.getBoundingClientRect();
+      if (
+        clientX < rect.left ||
+        clientX > rect.right ||
+        clientY < rect.top ||
+        clientY > rect.bottom
+      ) {
+        return false;
+      }
+      const { x: dropX, y: dropY } = getPointerPosition(svg, clientX, clientY);
+      const placement = computeTemplateDropPlacement(
+        templateType,
+        dropX,
+        dropY,
+        snapToGrid,
+        classroomWidth,
+        classroomHeight,
+        getTemplateDropAlignment(),
+      );
+      placeTemplate(templateType, placement);
       setActiveAlignmentGuides(null);
       return true;
     },
@@ -304,11 +318,38 @@ export default function useTableInteraction({
       classroomWidth,
       getPointerPosition,
       getTemplateDropAlignment,
-      runSceneTransaction,
+      placeTemplate,
       setActiveAlignmentGuides,
-      setSelectedTableIds,
       snapToGrid,
-      snapshot,
+    ],
+  );
+
+  /**
+   * A click or Enter on a table in the toolbar: the table lands at the free
+   * spot nearest the middle of the room, as a drop there would, and is
+   * selected — the arrow keys and Q/E take it on from there. False when the
+   * room has no spot left for it.
+   */
+  const addTemplate = React.useCallback(
+    (templateType: TableTemplateType): boolean => {
+      const preset = getTablePresets()[templateType];
+      const spot = findFreeSpot(
+        { width: preset.width, height: preset.height },
+        collectRoomObstacles(sceneTables, sceneFeatures),
+        { width: classroomWidth, height: classroomHeight },
+      );
+      if (!spot) {
+        return false;
+      }
+      placeTemplate(templateType, spot);
+      return true;
+    },
+    [
+      classroomHeight,
+      classroomWidth,
+      placeTemplate,
+      sceneFeatures,
+      sceneTables,
     ],
   );
 
@@ -572,6 +613,7 @@ export default function useTableInteraction({
 
   return {
     startTemplateDrag,
+    addTemplate,
     startTablePointerDrag,
     templateDragPreview,
     initializeDragFromSelection,

@@ -246,6 +246,13 @@ strip of 44px media, an `h2` and a subtitle above a hairline; sections carry a
 selection, destructive last. A panel that needs a new group adds a section —
 not a card, not a heading of its own invention.
 
+A panel with nothing selected belongs to what the layer shows as a whole. The
+room's names its tables in the header and offers what concerns the room
+itself — "Einrichten" and "Vorlagen", as menu rows — rather than repeating the
+seats and students the status bar already states. That is also why the room
+has no dialog over its canvas: rebuilding a room happens in the panel, and an
+empty room says so in words on the drawing.
+
 Below `lg` the panel keeps its parts but loses its column. A phone shows an
 opened student as a sheet from the bottom; a tablet shows it as a drawer on
 the right, between the two bars, where the column stands from `lg` up. What a

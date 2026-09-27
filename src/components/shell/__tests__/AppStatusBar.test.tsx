@@ -15,6 +15,7 @@ import {
   getButton,
 } from '@/__tests__/utils';
 import type { ClassroomScene, SeatingArrangement, Student } from '@/types';
+import type { CircleLayout } from '@/types/Circle';
 
 const mocks = vi.hoisted(() => ({
   state: {
@@ -22,6 +23,8 @@ const mocks = vi.hoisted(() => ({
     students: [] as Student[],
     classroomScene: { tables: [], features: [] } as unknown as ClassroomScene,
     currentSeating: [] as SeatingArrangement,
+    seatingMode: 'table' as 'table' | 'circle',
+    circleLayout: null as CircleLayout | null,
   },
   handleStepChange: vi.fn(),
 }));
@@ -71,8 +74,21 @@ beforeEach(() => {
     students: [],
     classroomScene: createMockClassroomScene(0),
     currentSeating: [],
+    seatingMode: 'table',
+    circleLayout: null,
   });
 });
+
+/** A circle holding `students`, in that order. */
+const circleOf = (students: Student[]): CircleLayout =>
+  ({
+    students: students.map((student, index) => ({
+      student,
+      angle: index,
+      x: 0,
+      y: 0,
+    })),
+  }) as unknown as CircleLayout;
 
 afterEach(() => {
   cleanup();
@@ -248,6 +264,61 @@ describe('AppStatusBar', () => {
     expect(
       screen.getByTitle(/2 Schüler ohne Platz|2 students without a seat/i),
     ).toBeInTheDocument();
+  });
+
+  // The circle takes every student, a seat at a table or not: while it is on
+  // the stage the line counts the circle, and two students without a table
+  // seat are no reason for a red cross.
+  it('counts the circle while the circle is on the stage', () => {
+    const students = named(5);
+    setState({
+      step: 3,
+      students,
+      classroomScene: createMockClassroomScene(2), // 4 seats
+      currentSeating: [
+        [students[0], students[1]],
+        [students[2], null],
+      ],
+      seatingMode: 'circle',
+      circleLayout: circleOf(students),
+    });
+    render(<AppStatusBar />);
+
+    expect(status()).toHaveTextContent(
+      /5 Schüler im Kreis|5 students in the circle/i,
+    );
+    expect(status()).not.toHaveTextContent(/Plätzen|seats/i);
+    expect(
+      screen.getByTitle(
+        /Alle Schüler sitzen im Kreis|Every student sits in the circle/i,
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it('crosses the circle off while students are missing from it', () => {
+    const students = named(4);
+    setState({
+      step: 3,
+      students,
+      seatingMode: 'circle',
+      circleLayout: circleOf(students.slice(0, 3)),
+    });
+    render(<AppStatusBar />);
+
+    expect(
+      screen.getByTitle(
+        /1 Schüler fehlt im Kreis|1 student missing from the circle/i,
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it('says so before there is a circle', () => {
+    setState({ step: 3, students: named(3), seatingMode: 'circle' });
+    render(<AppStatusBar />);
+
+    expect(status()).toHaveTextContent(
+      /Noch kein Sitzkreis|No seating circle yet/i,
+    );
   });
 
   // The plan layer is the last one: its way on leads out of the workspace.

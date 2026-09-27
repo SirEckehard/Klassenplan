@@ -10,7 +10,6 @@ import ClassroomCanvas from '@/components/SeatingPlanGenerator/canvas/ClassroomC
 import CanvasToolbar from '@/components/SeatingPlanGenerator/canvas/CanvasToolbar';
 import StatusBarPortal from '@/components/shell/StatusBarPortal';
 import MobileTableTemplates from '@/components/SeatingPlanGenerator/mobile/MobileTableTemplates';
-import LayoutEditorQuickSetupOverlay from '@/components/SeatingPlanGenerator/views/LayoutEditorQuickSetupOverlay';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 import type { ClassroomFeatureType, TableTemplateType } from '@/types';
 import type {
@@ -42,18 +41,13 @@ export type LayoutEditorContextMenuProps<T> = {
 type LayoutEditorMainSectionProps = {
   isPhone: boolean;
   containerRef: React.RefObject<HTMLDivElement | null>;
-  isQuickSetupOpen: boolean;
   undo: () => void;
   redo: () => void;
   canRedo: boolean;
   historyLength: number;
   canvasProps: React.ComponentProps<typeof ClassroomCanvas>;
-  quickSetupOverlay: {
-    panel: React.ReactNode;
-    canDismiss: boolean;
-    onClose: () => void;
-  };
-  onOpenQuickSetup: () => void;
+  /** Shows the inspector's setup — on a phone, in the drawer. */
+  onOpenSetup: () => void;
   tableMenu: LayoutEditorContextMenuProps<TableContextMenuState>;
   canvasMenu: LayoutEditorContextMenuProps<CanvasContextMenuState>;
   featureMenu: LayoutEditorContextMenuProps<FeatureContextMenuState>;
@@ -67,27 +61,26 @@ type LayoutEditorMainSectionProps = {
       type: ClassroomFeatureType,
       event: React.PointerEvent<Element>,
     ) => void;
-    onSaveTemplate: () => void;
+    onTemplateAdd: (type: TableTemplateType) => void;
+    onFeatureAdd: (type: ClassroomFeatureType) => void;
   };
 };
 
 /**
- * The canvas column of the room layer: toolbar, canvas, quick setup overlay,
- * the three context menus and the phone palette. Seat counts and the way on to
- * the plan live in the shell's status bar.
+ * The canvas column of the room layer: the canvas, the three context menus and
+ * the phone palette. Seat counts and the way on to the plan live in the
+ * shell's status bar, the setup and the templates in the inspector.
  * `LayoutEditorView` owns the state and wiring; this component only renders.
  */
 const LayoutEditorMainSection = React.memo(function LayoutEditorMainSection({
   isPhone,
   containerRef,
-  isQuickSetupOpen,
   undo,
   redo,
   canRedo,
   historyLength,
   canvasProps,
-  quickSetupOverlay,
-  onOpenQuickSetup,
+  onOpenSetup,
   tableMenu,
   canvasMenu,
   featureMenu,
@@ -97,11 +90,12 @@ const LayoutEditorMainSection = React.memo(function LayoutEditorMainSection({
   const { t } = useTranslation('generator');
   return (
     <div className={`${workspaceStageClass} ${canvasStageClass} gap-4`}>
-      {/* Mobile: Quick Setup Button above canvas for easy access */}
+      {/* A phone has no inspector column: the setup is in the drawer, and
+          this names the way there. */}
       {isPhone && (
         <button
           type="button"
-          onClick={onOpenQuickSetup}
+          onClick={onOpenSetup}
           className={`${secondaryButtonClass} flex w-full items-center justify-center gap-3 px-4 py-3 text-sm h-12`}
           title={t('layout.setupClassroom', 'Klassenraum einrichten')}
         >
@@ -118,16 +112,7 @@ const LayoutEditorMainSection = React.memo(function LayoutEditorMainSection({
         // `canvas-fit` caps the width by the stage's height, and an inline
         // width would override it and push the room's bottom edge out of sight.
         className={`${canvasFrameClass} ${canvasFitClass} relative w-full select-none`}
-        style={{
-          maxWidth: '100vw',
-          ...(isQuickSetupOpen
-            ? {
-                borderColor: 'transparent',
-                boxShadow: 'none',
-                background: 'transparent',
-              }
-            : undefined),
-        }}
+        style={{ maxWidth: '100vw' }}
         ref={containerRef}
       >
         {/* Undo/redo sit in the shell's status bar, where the other two
@@ -144,13 +129,15 @@ const LayoutEditorMainSection = React.memo(function LayoutEditorMainSection({
         </StatusBarPortal>
         <ClassroomCanvas {...canvasProps} />
 
-        <LayoutEditorQuickSetupOverlay
-          isOpen={isQuickSetupOpen}
-          isPhone={isPhone}
-          panel={quickSetupOverlay.panel}
-          canDismiss={quickSetupOverlay.canDismiss}
-          onClose={quickSetupOverlay.onClose}
-        />
+        {/* An empty room says what fills it — words on the drawing, not a
+            control over it, so a table dragged in lands right through them. */}
+        {canvasProps.sceneTables.length === 0 &&
+          !canvasProps.templateDragPreview &&
+          !canvasProps.featureDragPreview && (
+            <p className="pointer-events-none absolute inset-x-8 top-1/2 -translate-y-1/2 text-center text-sm leading-relaxed text-balance text-(--text-muted)">
+              {t('layout.emptyRoomHint')}
+            </p>
+          )}
 
         {tableMenu.state && tableMenu.position && (
           <div ref={tableMenu.menuRef}>
@@ -196,7 +183,8 @@ const LayoutEditorMainSection = React.memo(function LayoutEditorMainSection({
             onTemplatePointerDown={mobileTemplatesProps.onTemplatePointerDown}
             featurePalette={featurePalette}
             onFeaturePointerDown={mobileTemplatesProps.onFeaturePointerDown}
-            onSaveTemplate={mobileTemplatesProps.onSaveTemplate}
+            onTemplateAdd={mobileTemplatesProps.onTemplateAdd}
+            onFeatureAdd={mobileTemplatesProps.onFeatureAdd}
           />
         </div>
       )}

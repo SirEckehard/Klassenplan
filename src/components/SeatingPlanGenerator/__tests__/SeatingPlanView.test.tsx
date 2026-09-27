@@ -19,6 +19,7 @@ import {
   StatusBarSlotProvider,
   useStatusBarSlot,
 } from '@/contexts/StatusBarSlotContext';
+import { InspectorProvider, useInspector } from '@/contexts/InspectorContext';
 
 /**
  * "Mischen" is the plan layer's primary action and so lives in the shell's
@@ -37,6 +38,21 @@ function WithStatusBar({ children }: { children: React.ReactNode }) {
 function StatusBarSlot() {
   const { setActionNode } = useStatusBarSlot();
   return <div ref={setActionNode} />;
+}
+
+/** Stands in for the shell's inspector column, which the plan portals into. */
+function WithInspector({ children }: { children: React.ReactNode }) {
+  return (
+    <InspectorProvider>
+      <InspectorSlot />
+      {children}
+    </InspectorProvider>
+  );
+}
+
+function InspectorSlot() {
+  const { setSlotNode } = useInspector();
+  return <div ref={setSlotNode} />;
 }
 
 describe('SeatingPlanView', () => {
@@ -158,6 +174,59 @@ describe('SeatingPlanView', () => {
     expect(
       screen.getByRole('button', { name: /^(Mischen|Mix)$/i }),
     ).toBeDisabled();
+  });
+
+  // Speech input says what it sees: "Erfüllung 85 %". The name is the
+  // visible words; whether the values are on is the pressed state alone.
+  it('names the fulfilment button by what it shows', async () => {
+    const renderPlan = (showStatisticsBadge: boolean) =>
+      renderWithProvidersAndRouter(
+        <WithInspector>
+          <SeatingPlanView
+            {...createMockSeatingPlanViewProps({
+              step: 3,
+              lastStatistics: [
+                {
+                  key: 'preferGenderMix',
+                  label: 'Geschlechtermischung',
+                  percentage: 85,
+                  weight: 5,
+                  active: true,
+                },
+              ],
+              showStatisticsBadge,
+              onOpenStatistics: vi.fn(),
+              onCloseStatistics: vi.fn(),
+            })}
+          />
+        </WithInspector>,
+      );
+
+    let view!: ReturnType<typeof renderPlan>;
+    await act(async () => {
+      view = renderPlan(false);
+    });
+    const hidden = screen.getByRole('button', {
+      name: /^(Erfüllung|Fulfilment)\s*85\s?%$/,
+    });
+    expect(hidden).toHaveAttribute('aria-pressed', 'false');
+    expect(hidden).toHaveAttribute(
+      'title',
+      expect.stringMatching(/zeigen|Show/),
+    );
+
+    view.unmount();
+    await act(async () => {
+      renderPlan(true);
+    });
+    const shown = screen.getByRole('button', {
+      name: /^(Erfüllung|Fulfilment)\s*85\s?%$/,
+    });
+    expect(shown).toHaveAttribute('aria-pressed', 'true');
+    expect(shown).toHaveAttribute(
+      'title',
+      expect.stringMatching(/ausblenden|Hide/),
+    );
   });
 
   it('renders auto-mix error banner with retry button', async () => {

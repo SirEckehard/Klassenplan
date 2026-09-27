@@ -90,7 +90,7 @@
       "trigger": "Add",
       "singleLabel": "Student",
       "namePlaceholder": "Name",
-      "placeholderHint": "You fill in the names directly in the list afterwards."
+      "placeholderHint": "The first one then opens for its name – Enter moves on to the next."
     },
     "newStudent": "New Student",
     "studentName": "Student name",
@@ -312,7 +312,10 @@
     "thisStudent": "this student",
     "studentRemoved": "{{studentName}} has been deleted.",
     "yourClass": "your class",
-    "placeholdersCreated": "{{count}} student placeholders created. Now fill in the names and details.",
+    "placeholdersCreated_one": "1 placeholder added – type the name.",
+    "placeholdersCreated_other": "{{count}} placeholders added – type the names, Enter moves on to the next.",
+    "placeholdersCapped_one": "Only 1 placeholder added: a class has at most {{max}} students.",
+    "placeholdersCapped_other": "Only {{count}} placeholders added: a class has at most {{max}} students.",
     "emptyClassCsvHintPrefix": "If you are starting from scratch, use this ",
     "emptyClassCsvHintSuffix": " and enter your students' names. Then click Import and upload the file.",
     "emptyClassCsvNoDownload": "Or just look at what a finished class list can look like."

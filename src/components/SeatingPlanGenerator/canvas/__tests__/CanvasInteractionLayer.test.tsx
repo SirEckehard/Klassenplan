@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import CanvasInteractionLayer, {
   type CanvasInteractionLayerProps,
 } from '../CanvasInteractionLayer';
-import type { ClassroomTable } from '../../../../types';
+import type { ClassroomFeature, ClassroomTable } from '../../../../types';
 
 // Add vitest-dom matchers
 import '@testing-library/jest-dom/vitest';
@@ -95,5 +95,42 @@ describe('CanvasInteractionLayer', () => {
     expect(() => {
       render(<CanvasInteractionLayer {...mockProps} />);
     }).not.toThrow();
+  });
+
+  // Tables and room elements have operations of their own, each with its own
+  // snapshot; one Ctrl+Z has to bring both halves of a mixed selection back.
+  it('removes a mixed selection as one undo step', () => {
+    const cabinet: ClassroomFeature = {
+      id: 'cabinet',
+      type: 'cabinet',
+      x: 300,
+      y: 300,
+      width: 120,
+      height: 40,
+      anchor: 'free',
+      movable: true,
+      rotation: 0,
+    };
+    const runSceneTransaction = vi.fn(() => ({ tables: [] }));
+    render(
+      <CanvasInteractionLayer
+        {...mockProps}
+        sceneFeatures={[cabinet]}
+        selectedFeatureIds={['cabinet']}
+        runSceneTransaction={runSceneTransaction}
+      />,
+    );
+    const handlers = vi.mocked(mockChildren).mock.lastCall?.[0];
+
+    act(() => handlers?.deleteSelection());
+
+    // Both halves changed the room ...
+    expect(runSceneTransaction).toHaveBeenCalledTimes(2);
+    // ... after a single snapshot of it.
+    expect(mockProps.snapshot).toHaveBeenCalledTimes(1);
+
+    // The step closes with the gesture: the next one is a step of its own.
+    act(() => handlers?.deleteSelection());
+    expect(mockProps.snapshot).toHaveBeenCalledTimes(2);
   });
 });

@@ -14,6 +14,7 @@ import {
   hasRotationTargets,
   isFormElementFocused,
   logDebug,
+  moveFeaturesBy,
   rotateTargets,
 } from '@/utils';
 import type { ClassroomTable, ClassroomScene, ClassroomFeature } from '@/types';
@@ -51,6 +52,7 @@ interface KeyboardActionApi {
   moveSelection: (payload: {
     direction: KeyboardDirection;
     shiftKey: boolean;
+    repeat: boolean;
   }) => void;
   rotateSelection: (payload: {
     direction: 'cw' | 'ccw';
@@ -97,15 +99,27 @@ export function useKeyboardInteraction({
     closeCanvasMenu: closeCanvasContextMenu,
   });
 
+  /**
+   * The arrow keys move what a drag would move: the unlocked tables of the
+   * selection and its room elements — a free one anywhere, one on a wall
+   * along that wall. A key held down is one undo step: only its first press
+   * takes a snapshot, its repeats add to the same move.
+   */
   const moveSelection = React.useCallback(
     ({
       direction,
       shiftKey,
+      repeat,
     }: {
       direction: KeyboardDirection;
       shiftKey: boolean;
+      repeat: boolean;
     }) => {
-      if (selectedTableIds.length === 0) {
+      const movesTables = selectedTableIds.some(
+        (index) => sceneTables[index] && !sceneTables[index].locked,
+      );
+      const movesFeatures = selectedFeatureIds.length > 0;
+      if (!movesTables && !movesFeatures) {
         return;
       }
       const baseStep = shiftKey ? 10 : 1;
@@ -129,7 +143,9 @@ export function useKeyboardInteraction({
         default:
           return;
       }
-      snapshot();
+      if (!repeat) {
+        snapshot();
+      }
       const updatedTables = sceneTables.map((table, index) => {
         if (!selectedTableIds.includes(index) || table.locked) {
           return table;
@@ -151,13 +167,28 @@ export function useKeyboardInteraction({
           y: clamped.y,
         };
       });
-      updateClassroomScene({ ...classroomScene, tables: updatedTables });
+      const updatedFeatures = movesFeatures
+        ? moveFeaturesBy(
+            sceneFeatures,
+            selectedFeatureIds,
+            { x: dx, y: dy },
+            { width: canvasWidth, height: classroomHeight },
+          )
+        : sceneFeatures;
+      updateClassroomScene({
+        ...classroomScene,
+        tables: updatedTables,
+        features: updatedFeatures,
+      });
     },
     [
+      canvasWidth,
       classroomHeight,
       classroomScene,
       classroomWidth,
+      sceneFeatures,
       sceneTables,
+      selectedFeatureIds,
       selectedTableIds,
       snapToGrid,
       snapshot,
@@ -239,6 +270,7 @@ export function useKeyboardInteraction({
               actionApiRef.current.moveSelection({
                 direction: event.payload.direction,
                 shiftKey: event.payload.shiftKey,
+                repeat: event.payload.repeat,
               });
             }
           },
@@ -271,6 +303,11 @@ export function useKeyboardInteraction({
 
   const selectionCount = hasSelection ? 1 : 0;
   const hasClipboardContent = canPaste;
+  // Read by the key handler, which is registered once.
+  const hasSelectionRef = React.useRef(hasSelection);
+  React.useEffect(() => {
+    hasSelectionRef.current = hasSelection;
+  }, [hasSelection]);
 
   const syncStatus = React.useCallback(
     (focusInInput: boolean) => {
@@ -298,7 +335,9 @@ export function useKeyboardInteraction({
       const direction = mapKeyToDirection(event.key);
 
       if (direction) {
-        if (focusInInput || hasSystemModifier) {
+        // Without a selection the arrows are the page's: below `lg` they
+        // scroll it.
+        if (focusInInput || hasSystemModifier || !hasSelectionRef.current) {
           return;
         }
         event.preventDefault();

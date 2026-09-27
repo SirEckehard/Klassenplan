@@ -39,7 +39,7 @@ export default function Modal({
   const { t } = useTranslation('common');
   const dialogRef = useDialogA11y<HTMLDivElement>({ open });
   // Claims the Escape key for as long as this modal is up, so views underneath
-  // (the student list, the Quick Setup overlay) leave it alone.
+  // (the student list, the room's canvas) leave it alone.
   useDialogLayer(open);
   const titleId = useId();
   const descriptionId = useId();

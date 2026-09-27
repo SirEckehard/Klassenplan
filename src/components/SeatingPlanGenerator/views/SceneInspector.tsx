@@ -15,6 +15,7 @@ import type {
   ClassroomFeature,
   ClassroomFeatureType,
   ClassroomTable,
+  ClassroomTemplate,
   TableTemplateType,
 } from '@/types';
 import {
@@ -25,6 +26,10 @@ import {
   InspectorSection,
 } from '@/components/shell/InspectorPanel';
 import ToggleSwitch from '@/components/ui/controls/ToggleSwitch';
+import {
+  RoomSetupSection,
+  RoomTemplatesSection,
+} from '@/components/SeatingPlanGenerator/views/RoomSetupSections';
 import type { SceneTransactionRunner } from '@/hooks/scene/useSceneManager';
 import {
   DEFAULT_ROTATION_SNAP_STEP,
@@ -45,8 +50,8 @@ import {
  */
 const ROTATION_STEP = DEFAULT_ROTATION_SNAP_STEP;
 
-/** A typed angle stays within one turn; 360 would only be 0 again. */
-const MAX_TYPED_ANGLE = 359;
+/** A typed angle wraps round within one turn: 360 is 0, −90 is 270. */
+const wrapAngle = (degrees: number) => ((degrees % 360) + 360) % 360;
 
 type FeaturePaletteItem = {
   type: ClassroomFeatureType;
@@ -62,6 +67,20 @@ type Props = {
   selectedFeatureIds: string[];
   featurePalette: FeaturePaletteItem[];
   studentsCount: number;
+  /** Rebuilds the room's tables from one kind, as many as the class needs. */
+  onSetUpRoom: (type: TableTemplateType) => void;
+  /** Counts up whenever the setup is asked for, to take the focus. */
+  setupFocusRequest?: number;
+  templates: ClassroomTemplate[];
+  /** Replaces the room with a saved one. */
+  onLoadTemplate: (id: number) => void;
+  onRenameTemplate: (
+    id: number,
+    name: string,
+  ) => Promise<{ success: boolean; error?: string }>;
+  onDeleteTemplate: (id: number) => void;
+  /** Opens the dialog that keeps this room as a template. */
+  onSaveTemplate: () => void;
   /** Takes an undo snapshot before a change lands. */
   snapshot: () => void;
   /** Sets rotations of tables and room elements and commits the scene. */
@@ -112,9 +131,8 @@ function ActionRow({
  * The angle as a field: it shows the rotation as it is — live while a
  * handle turns it — until somebody types, and takes the typed value on
  * Enter or when the field is left. Escape drops the draft. What lies outside
- * 0–359° lands on the nearer end rather than wrapping round, so a slip of the
- * finger gives a predictable angle. A selection turned differently leaves it
- * empty.
+ * 0–359° wraps round as a turn does: 360 is 0, −90 is 270. A selection
+ * turned differently leaves it empty.
  */
 function RotationField({
   value,
@@ -137,7 +155,7 @@ function RotationField({
     // A German keyboard types the decimal comma.
     const degrees = Number(draft.trim().replace(',', '.'));
     if (draft.trim() === '' || !Number.isFinite(degrees)) return;
-    onCommit(Math.min(Math.max(Math.round(degrees), 0), MAX_TYPED_ANGLE));
+    onCommit(wrapAngle(Math.round(degrees)));
   };
 
   return (
@@ -187,8 +205,9 @@ function RotationField({
  * canvas, and each for one table as for a whole selection.
  *
  * Seat count and table type stay out of reach on purpose — changing them under
- * a finished plan would move students around without being asked, and the
- * quick setup is where a room gets rebuilt.
+ * a finished plan would move students around without being asked. A room is
+ * rebuilt as a whole: while nothing is selected the panel is the room's own,
+ * with the setup and the templates that used to open over the canvas.
  */
 export default function SceneInspector({
   tables,
@@ -197,6 +216,13 @@ export default function SceneInspector({
   selectedFeatureIds,
   featurePalette,
   studentsCount,
+  onSetUpRoom,
+  setupFocusRequest,
+  templates,
+  onLoadTemplate,
+  onRenameTemplate,
+  onDeleteTemplate,
+  onSaveTemplate,
   snapshot,
   onRotateSelection,
   runSceneTransaction,
@@ -216,8 +242,6 @@ export default function SceneInspector({
     .map((id) => features.find((feature) => feature.id === id))
     .filter((feature) => feature !== undefined);
   const selectionSize = selectedTables.length + selectedFeatures.length;
-
-  const totalSeats = tables.reduce((sum, table) => sum + table.seatCount, 0);
 
   const tableTypeLabel = (table: ClassroomTable) => {
     const labels: Record<TableTemplateType, string> = {
@@ -356,39 +380,33 @@ export default function SceneInspector({
       </InspectorSection>
     ) : null;
 
+  // Nothing selected: the room itself. Seats and students are the status
+  // bar's to state; what the panel adds is how a room is set up or kept.
   if (selectionSize === 0) {
     return (
       <>
         <InspectorHeader
           title={t('sceneInspector.room')}
-          subtitle={t('sceneInspector.title')}
+          subtitle={
+            tables.length > 0
+              ? t('sceneInspector.tables', { count: tables.length })
+              : t('sceneInspector.noTables')
+          }
         />
         <InspectorBody>
-          <InspectorSection title={t('sceneInspector.overview')}>
-            <dl className="m-0 flex flex-col gap-1.5 text-sm">
-              <div className="flex items-center justify-between gap-3">
-                <dt className="text-(--text-muted)">
-                  {t('sceneInspector.tableCount')}
-                </dt>
-                <dd className="m-0 tabular-nums">{tables.length}</dd>
-              </div>
-              <div className="flex items-center justify-between gap-3">
-                <dt className="text-(--text-muted)">
-                  {t('sceneInspector.seatCount')}
-                </dt>
-                <dd className="m-0 tabular-nums">{totalSeats}</dd>
-              </div>
-              <div className="flex items-center justify-between gap-3">
-                <dt className="text-(--text-muted)">
-                  {t('sceneInspector.studentCount')}
-                </dt>
-                <dd className="m-0 tabular-nums">{studentsCount}</dd>
-              </div>
-            </dl>
-            <p className="text-xs leading-relaxed text-(--text-muted)">
-              {t('sceneInspector.empty')}
-            </p>
-          </InspectorSection>
+          <RoomSetupSection
+            studentsCount={studentsCount}
+            hasTables={tables.length > 0}
+            onSetUp={onSetUpRoom}
+            focusRequest={setupFocusRequest}
+          />
+          <RoomTemplatesSection
+            templates={templates}
+            onSave={onSaveTemplate}
+            onLoad={onLoadTemplate}
+            onRename={onRenameTemplate}
+            onDelete={onDeleteTemplate}
+          />
           {clipboardSection(false)}
         </InspectorBody>
       </>
