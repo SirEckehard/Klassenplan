@@ -301,7 +301,7 @@
       "description": "Tische und Raumelemente, Vorlagen, Abstände und Grenzen.",
       "best": {
         "q": "Welche Layouts funktionieren am besten?",
-        "a": "Lass deiner Kreativität freien Lauf: Tische, Fenster, Türen, Pult, Tafel und Schränke ziehst du aus der Werkzeugleiste in den Raum oder setzt sie mit einem Klick an einen freien Platz und verschiebst sie frei. Solange nichts ausgewählt ist, baut dir „Einrichten“ im Inspektor in einem Schritt einen Grundriss, und unter „Vorlagen“ hebst du ihn für andere Klassen auf. Der Sitzkreis bleibt mit dem Tischlayout synchron und lässt sich separat anpassen."
+        "a": "Lass deiner Kreativität freien Lauf: Tische, Fenster, Türen, Pult, Tafel und Schränke ziehst du aus der Werkzeugleiste in den Raum oder setzt sie mit einem Klick an einen freien Platz und verschiebst sie frei. Solange nichts ausgewählt ist, baut dir „Neu einrichten“ im Inspektor in einem Schritt einen Grundriss, und unter „Vorlagen“ hebst du ihn für andere Klassen auf. Der Sitzkreis bleibt mit dem Tischlayout synchron und lässt sich separat anpassen."
       },
       "measure": {
         "q": "Wie werden Abstände gemessen?",
@@ -530,7 +530,7 @@
       "title": "Noch nicht genug Fotos",
       "description": "Für das Namensspiel brauchst du mindestens {{min}} Schüler mit Foto. Aktuell: {{count}}.",
       "hint": "Fotos fügst du im Inspektor hinzu: Klicke in der Klassenliste auf einen Schüler und dann auf sein Porträt.",
-      "cta": "Zur Klassenliste"
+      "cta": "Zur Klasse"
     },
     "menu": {
       "subtitle": "Lerne die Namen deiner Schüler – mit ihren Fotos.",

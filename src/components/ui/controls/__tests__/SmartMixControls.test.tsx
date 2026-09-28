@@ -2,27 +2,23 @@
 // Copyright (C) 2026 Eike Schäfer
 import '@testing-library/jest-dom/vitest';
 import React from 'react';
-import { act, fireEvent, render, screen } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import '@/i18n/i18n';
 import SmartMixControls, { MixCriteriaSwitch } from '../SmartMixControls';
 import { createSuspendedWeights } from '@/hooks/ui/useMixCriteria';
 import { useAutoMixSettings } from '@/hooks/domains/useAutoMixSettings';
 import { createMockStudent } from '@/__tests__/utils';
-import { resetDialogLayersForTests } from '@/hooks/ui/useDialogLayer';
 import type { MixSettings, ScalarMixSettingKey, Student } from '@/types';
 import type { CriterionFulfillment } from '@/utils/algorithm/seatingStatistics';
 import {
   DEFAULT_MIX_WEIGHTS,
-  LOCAL_STORAGE_KEYS,
   MIX_IMPORTANCE_WEIGHTS,
   SCALAR_MIX_SETTING_KEYS,
   neutralSettings,
   normalizeMixSettings,
   withoutUnavailableWeights,
 } from '@/utils';
-
-type Density = React.ComponentProps<typeof SmartMixControls>['density'];
 
 // Every criterion but language levels and social roles has data.
 const students: Student[] = [
@@ -74,15 +70,10 @@ type HighlightProps = Partial<{
 
 function Harness({
   initial = {},
-  density,
-  withCompactRow = false,
   fulfillment,
   highlight,
 }: {
   initial?: Partial<MixSettings>;
-  density?: Density;
-  /** A second control in the compact density, as under the canvas on a phone. */
-  withCompactRow?: boolean;
   fulfillment?: CriterionFulfillment[];
   highlight?: HighlightProps;
 }) {
@@ -102,11 +93,8 @@ function Harness({
   return (
     <>
       {/* The inspector puts the switch for all criteria into its header. */}
-      {density !== 'compact' && <MixCriteriaSwitch {...controls} />}
-      <SmartMixControls {...controls} density={density} />
-      {withCompactRow && (
-        <SmartMixControls {...controls} density="compact" direction="row" />
-      )}
+      <MixCriteriaSwitch {...controls} />
+      <SmartMixControls {...controls} />
       {SCALAR_MIX_SETTING_KEYS.map((key) => (
         <span key={key} hidden data-testid={key}>
           {settings[key]}
@@ -119,12 +107,7 @@ function Harness({
 const weightOf = (key: ScalarMixSettingKey) =>
   Number(screen.getByTestId(key).textContent);
 
-// The rail button's name is the label, followed by the weight when it is on;
-// the level chips of a card carry "label: level" and are matched separately.
-const restlessButton = () =>
-  screen.getByRole('button', { name: /^(Unruhe|Restlessness)(,|$)/ });
-
-/** One of the four named levels inside a criterion's card or flyout. */
+/** One of the four named levels inside a criterion's card. */
 const levelChip = (label: RegExp, level: RegExp) =>
   screen.getByRole('button', {
     name: new RegExp(`^(${label.source}): (${level.source})$`),
@@ -137,21 +120,11 @@ const OFF = /Aus|Off/;
 const IMPORTANT = /Wichtig|Important/;
 const ESSENTIAL = /Sehr wichtig|Very important/;
 
-const allCriteriaButton = () =>
-  screen.getByRole('button', { name: /^(Alle Kriterien|All criteria)$/ });
-
 const allCriteriaSwitch = () =>
   screen.getByRole('switch', { name: /Alle Kriterien|All criteria/ });
 
 beforeEach(() => {
   localStorage.clear();
-  // Most tests are about something else than the one-time hint.
-  localStorage.setItem(LOCAL_STORAGE_KEYS.mixWeightHintSeen, 'true');
-  resetDialogLayersForTests();
-});
-
-afterEach(() => {
-  vi.useRealTimers();
 });
 
 describe('SmartMixControls — comfortable density', () => {
@@ -366,184 +339,6 @@ describe('SmartMixControls — recipes', () => {
     // heterogeneous ones (decision 0013), which leaves 12 of them active.
     expect(recipeButton()).toHaveTextContent(/12 (von|of) 13/);
   });
-
-  it('is reachable from the rail through its flyout', () => {
-    render(<Harness density="compact" />);
-
-    fireEvent.click(screen.getByRole('button', { name: /^(Rezept|Recipe)$/ }));
-    fireEvent.click(
-      screen.getByRole('button', { name: /Gruppenarbeit|Group work/ }),
-    );
-
-    expect(weightOf('considerWishPartners')).toBe(8);
-    expect(weightOf('peerTutoring')).toBe(8);
-  });
-});
-
-describe('SmartMixControls — compact density', () => {
-  it('switches a criterion on at its recommended weight and names the weight', () => {
-    render(<Harness density="compact" />);
-
-    expect(restlessButton()).toHaveAttribute('aria-pressed', 'false');
-    fireEvent.click(restlessButton());
-
-    expect(weightOf('avoidRestlessTogether')).toBe(
-      DEFAULT_MIX_WEIGHTS.avoidRestlessTogether,
-    );
-    expect(restlessButton()).toHaveAttribute('aria-pressed', 'true');
-    expect(restlessButton()).toHaveAccessibleName(
-      /^(Unruhe, Wichtig|Restlessness, Important)$/,
-    );
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-  });
-
-  it('sets the level in a flyout behind a right click; Escape closes it', () => {
-    render(
-      <Harness density="compact" initial={{ avoidRestlessTogether: 5 }} />,
-    );
-
-    fireEvent.contextMenu(restlessButton());
-
-    const dialog = screen.getByRole('dialog', { name: /Unruhe|Restlessness/ });
-    expect(dialog).toContainElement(restlessLevel(ESSENTIAL));
-    // The flyout opens on what it is for: how important the criterion is.
-    expect(restlessLevel(OFF)).toHaveFocus();
-    // The same explanation the card shows, and no weight from 0 to 10.
-    expect(dialog).toHaveTextContent(
-      /Schüler mit Unruheverhalten trennen|Separate students showing restless behavior/,
-    );
-    expect(screen.queryByRole('slider')).not.toBeInTheDocument();
-
-    fireEvent.click(restlessLevel(ESSENTIAL));
-    expect(weightOf('avoidRestlessTogether')).toBe(
-      MIX_IMPORTANCE_WEIGHTS.essential,
-    );
-
-    // Pressing the button itself toggles and leaves the flyout open.
-    fireEvent.click(restlessButton());
-    expect(weightOf('avoidRestlessTogether')).toBe(0);
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
-
-    fireEvent.keyDown(document, { key: 'Escape' });
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-    expect(restlessButton()).toHaveFocus();
-  });
-
-  it('opens from the keyboard with the right arrow and hands Tab back', () => {
-    render(<Harness density="compact" />);
-
-    restlessButton().focus();
-    fireEvent.keyDown(restlessButton(), { key: 'ArrowRight' });
-
-    const firstControl = restlessLevel(OFF);
-    expect(firstControl).toHaveFocus();
-
-    fireEvent.keyDown(firstControl, { key: 'Tab' });
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-    expect(restlessButton()).toHaveFocus();
-  });
-
-  it('opens on a long press without also switching the criterion', () => {
-    vi.useFakeTimers();
-    render(<Harness density="compact" />);
-
-    fireEvent.pointerDown(restlessButton(), { pointerType: 'touch' });
-    act(() => vi.advanceTimersByTime(500));
-    fireEvent.pointerUp(restlessButton(), { pointerType: 'touch' });
-    fireEvent.click(restlessButton());
-
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
-    expect(weightOf('avoidRestlessTogether')).toBe(0);
-  });
-
-  it('closes when something else is pressed', () => {
-    render(<Harness density="compact" />);
-
-    fireEvent.contextMenu(restlessButton());
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
-
-    fireEvent.pointerDown(document.body);
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-  });
-
-  it('shows the flyout by itself once, on the first switch-on', () => {
-    localStorage.removeItem(LOCAL_STORAGE_KEYS.mixWeightHintSeen);
-    render(<Harness density="compact" />);
-
-    fireEvent.click(restlessButton());
-
-    const dialog = screen.getByRole('dialog', { name: /Unruhe|Restlessness/ });
-    expect(dialog).toHaveTextContent(
-      /Lange drücken oder Rechtsklick|long press or a right click/,
-    );
-    // It explains; it does not take the focus away from the rail.
-    expect(dialog).not.toContainElement(document.activeElement as HTMLElement);
-    expect(localStorage.getItem(LOCAL_STORAGE_KEYS.mixWeightHintSeen)).toBe(
-      'true',
-    );
-
-    fireEvent.pointerDown(document.body);
-    fireEvent.click(
-      screen.getByRole('button', { name: /^(Schüchternheit|Shyness)$/ }),
-    );
-    expect(weightOf('avoidShyAlone')).toBe(DEFAULT_MIX_WEIGHTS.avoidShyAlone);
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-  });
-
-  it('keeps the weights on "all off" and brings them back on "all on"', () => {
-    render(
-      <Harness
-        density="compact"
-        initial={{ avoidRestlessTogether: 9, avoidShyAlone: 4 }}
-      />,
-    );
-
-    expect(allCriteriaButton()).toHaveAttribute('aria-pressed', 'true');
-    fireEvent.click(allCriteriaButton());
-
-    expect(weightOf('avoidRestlessTogether')).toBe(0);
-    expect(weightOf('avoidShyAlone')).toBe(0);
-    expect(allCriteriaButton()).toHaveAttribute('aria-pressed', 'false');
-
-    fireEvent.click(allCriteriaButton());
-
-    expect(weightOf('avoidRestlessTogether')).toBe(9);
-    expect(weightOf('avoidShyAlone')).toBe(4);
-    // Criteria that were off before stay off.
-    expect(weightOf('considerWishPartners')).toBe(0);
-  });
-
-  it('uses the recommended weights on "all on" when nothing was kept', () => {
-    render(<Harness density="compact" />);
-
-    fireEvent.click(allCriteriaButton());
-
-    expect(weightOf('considerWishPartners')).toBe(
-      DEFAULT_MIX_WEIGHTS.considerWishPartners,
-    );
-    expect(weightOf('peerTutoring')).toBe(DEFAULT_MIX_WEIGHTS.peerTutoring);
-    expect(weightOf('homogeneousPerformanceGroups')).toBe(0);
-  });
-
-  it('keeps the default weights behind a right click on "all criteria"', () => {
-    render(
-      <Harness density="compact" initial={{ avoidRestlessTogether: 9 }} />,
-    );
-
-    fireEvent.contextMenu(allCriteriaButton());
-    fireEvent.click(
-      screen.getByRole('button', { name: /^(Standardwerte|Default weights)$/ }),
-    );
-
-    expect(weightOf('avoidRestlessTogether')).toBe(
-      DEFAULT_MIX_WEIGHTS.avoidRestlessTogether,
-    );
-    expect(weightOf('considerWishPartners')).toBe(
-      DEFAULT_MIX_WEIGHTS.considerWishPartners,
-    );
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-    expect(allCriteriaButton()).toHaveFocus();
-  });
 });
 
 describe('SmartMixControls — distractibility', () => {
@@ -553,18 +348,18 @@ describe('SmartMixControls — distractibility', () => {
     avoidConcentrationTogether: 0,
     avoidConcentrationNearRestless: 6,
   };
-  const distractibilityButton = () =>
-    screen.getByRole('button', { name: /^(Ablenkbarkeit|Distractibility)\b/ });
+  const distractibilityLevel = (level: RegExp) =>
+    levelChip(/Ablenkbarkeit|Distractibility/, level);
 
   it('shows the weight that acts and switches both off', () => {
-    render(<Harness density="compact" initial={initial} />);
+    render(<Harness initial={initial} />);
 
-    expect(distractibilityButton()).toHaveAttribute('aria-pressed', 'true');
-    expect(distractibilityButton()).toHaveAccessibleName(
-      /(Ablenkbarkeit, Wichtig|Distractibility, Important)$/,
+    expect(distractibilityLevel(IMPORTANT)).toHaveAttribute(
+      'aria-pressed',
+      'true',
     );
 
-    fireEvent.click(distractibilityButton());
+    fireEvent.click(distractibilityLevel(OFF));
     expect(weightOf('avoidConcentrationTogether')).toBe(0);
     expect(weightOf('avoidConcentrationNearRestless')).toBe(0);
   });
@@ -591,7 +386,6 @@ describe('SmartMixControls — distractibility', () => {
           settings={settings}
           setMixSettings={setMixSettings}
           students={oneDistractible}
-          density="compact"
         />
       );
     }
@@ -614,39 +408,16 @@ describe('SmartMixControls — distractibility', () => {
     expect(weightOf('avoidConcentrationNearRestless')).toBe(
       DEFAULT_MIX_WEIGHTS.avoidConcentrationNearRestless,
     );
-    expect(distractibilityButton()).toHaveAttribute('aria-pressed', 'true');
+    expect(distractibilityLevel(OFF)).toHaveAttribute('aria-pressed', 'false');
 
-    fireEvent.click(distractibilityButton());
-    expect(distractibilityButton()).toHaveAttribute('aria-pressed', 'false');
+    fireEvent.click(distractibilityLevel(OFF));
+    expect(distractibilityLevel(OFF)).toHaveAttribute('aria-pressed', 'true');
 
-    fireEvent.click(distractibilityButton());
-    expect(distractibilityButton()).toHaveAttribute('aria-pressed', 'true');
-  });
-});
-
-describe('SmartMixControls — switching densities', () => {
-  it('brings back in one density what the other switched off', () => {
-    render(<Harness initial={{ avoidRestlessTogether: 7 }} withCompactRow />);
-
-    fireEvent.click(allCriteriaSwitch());
-    expect(weightOf('avoidRestlessTogether')).toBe(0);
-
-    fireEvent.click(allCriteriaButton());
-    expect(weightOf('avoidRestlessTogether')).toBe(7);
-  });
-
-  it('closes an open flyout when the sidebar widens', () => {
-    const { rerender } = render(<Harness density="compact" />);
-
-    fireEvent.contextMenu(restlessButton());
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
-
-    rerender(<Harness density="comfortable" />);
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-
-    // Narrowing again does not bring it back.
-    rerender(<Harness density="compact" />);
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    fireEvent.click(distractibilityLevel(IMPORTANT));
+    expect(distractibilityLevel(IMPORTANT)).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
   });
 });
 
@@ -786,41 +557,6 @@ describe('SmartMixControls — criteria fulfilment', () => {
         /^(Erfüllung|Fulfilment) (Unruhe|Restlessness): 78\s?%$/,
       ),
     ).toBeInTheDocument();
-  });
-
-  it('marks from the rail on focus and pins from the flyout', () => {
-    const onHighlightHover = vi.fn();
-    const onHighlightToggle = vi.fn();
-    render(
-      <Harness
-        density="compact"
-        initial={{ avoidRestlessTogether: 5 }}
-        fulfillment={fulfillmentFor(78)}
-        highlight={{ onHighlightHover, onHighlightToggle }}
-      />,
-    );
-
-    // The rail has no room for the number, so the button's name carries it.
-    expect(restlessButton()).toHaveAccessibleName(
-      /zu 78\s%\serfüllt|78% fulfilled/,
-    );
-
-    restlessButton().focus();
-    expect(onHighlightHover).toHaveBeenCalledWith(
-      expect.objectContaining({ key: 'avoidRestlessTogether' }),
-    );
-
-    fireEvent.contextMenu(restlessButton());
-    const dialog = screen.getByRole('dialog', { name: /Unruhe|Restlessness/ });
-    const badge = screen.getByRole('button', {
-      name: /^(Erfüllung|Fulfilment) (Unruhe|Restlessness): 78\s?%/,
-    });
-    expect(dialog).toContainElement(badge);
-
-    fireEvent.click(badge);
-    expect(onHighlightToggle).toHaveBeenCalledWith(
-      expect.objectContaining({ key: 'avoidRestlessTogether' }),
-    );
   });
 
   it('leaves the criteria untouched before the plan has been mixed', () => {

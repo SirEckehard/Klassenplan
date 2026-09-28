@@ -108,14 +108,14 @@ test('a first visitor tries the sample class with the tours as a guide', async (
       'Deine Klassen',
       'Schüler hinzufügen',
       'Schüler bearbeiten',
-      'Weiter zum Klassenraum',
+      'Weiter zum Raum',
       'Daten sichern',
       'Hilfe und Tour',
     ]);
   });
 
   await test.step('step 2 — the room is furnished and its tour closes on Escape', async () => {
-    await page.getByRole('button', { name: 'Weiter zum Klassenraum' }).click();
+    await page.getByRole('button', { name: 'Weiter zum Raum' }).click();
 
     // The sample class brings its own room, so the status bar can confirm a
     // seat for everyone.

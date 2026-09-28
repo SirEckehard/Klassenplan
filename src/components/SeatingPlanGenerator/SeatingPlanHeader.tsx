@@ -134,6 +134,7 @@ export default function SeatingPlanHeader({
               'help.circle.item4',
               'help.circle.item5',
               'help.circle.item6',
+              'help.circle.item7',
             ]),
             contexts: ['circle'] as ShortcutContext[],
             faqSection: 'unterricht',

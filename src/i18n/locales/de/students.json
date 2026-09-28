@@ -246,7 +246,7 @@
   },
   "studentInput": {
     "proceedShortcut": "Weiter (Alt/⌥+→)",
-    "proceedButton": "Weiter zum Klassenraum",
+    "proceedButton": "Weiter zum Raum",
     "scrollToActions": "Zum Ende der Liste",
     "scrollToListTop": "Zum Listenanfang",
     "emptyClassTitle": "{{className}} ist noch leer.",

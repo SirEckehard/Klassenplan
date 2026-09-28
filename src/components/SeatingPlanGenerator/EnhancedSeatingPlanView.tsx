@@ -355,17 +355,23 @@ export default function EnhancedSeatingPlanView(
                 "Mischen" does, beside undo/redo; naming is in the toolbar,
                 the two exits at the end of the status bar. */}
             <StatusBarPortal slot="action">
+              {/* On a phone only the icon: the words took the bar's width and
+                  pushed the toolbar's switch out of reach. The accessible
+                  name stays whole at every width. */}
               <button
                 type="button"
                 onClick={() => void generateCircleSeating()}
                 title={t('circleView.syncTitle')}
+                aria-label={t('circleView.syncButton')}
                 className={`${primaryButtonClass} flex items-center gap-2 whitespace-nowrap`}
               >
                 <ArrowCounterClockwiseIcon
                   className="h-4 w-4"
                   aria-hidden="true"
                 />
-                {t('circleView.syncButton')}
+                <span className="hidden sm:inline">
+                  {t('circleView.syncButton')}
+                </span>
               </button>
             </StatusBarPortal>
           </div>

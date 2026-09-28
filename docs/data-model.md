@@ -192,9 +192,8 @@ list is `PROJECT_LOCAL_STORAGE_KEYS` in `storageKeys.ts`. Groups:
   in the settings menu, for speech input (WCAG 2.1.4, `utils/characterKeys.ts`).
 - **Workflow:** sidebar state, class list sort order, first visit, onboarding
   tours seen or switched off (`spg.onboardingTour`,
-  [decision 0015](decisions/0015-onboarding-sample-class-and-tour.md)), whether
-  the collapsed sidebar has shown its one-time hint on criterion weights
-  (`spg.mixWeightHintSeen`), last seen version, PWA install prompt dismissal.
+  [decision 0015](decisions/0015-onboarding-sample-class-and-tour.md)), last
+  seen version, PWA install prompt dismissal.
 - **Backup reminder:** `spg.lastBackupAt`, `spg.backupDataSince`,
   `spg.backupReminderSnoozedUntil`, `spg.backupReminderDisabled`.
 - **Consent:** `cookieConsent`, `spg.photoConsentConfirmed`.
@@ -206,7 +205,9 @@ list is `PROJECT_LOCAL_STORAGE_KEYS` in `storageKeys.ts`. Groups:
   a data wipe. The same goes for `spg.mixFineTuning`, which remembered whether
   the criteria showed their weights beside the named levels until the fine
   tuning was removed
-  ([decision 0018](decisions/0018-criteria-in-words-with-recipes.md)).
+  ([decision 0018](decisions/0018-criteria-in-words-with-recipes.md)), and for
+  `spg.mixWeightHintSeen`, the one-time hint of the round criterion buttons
+  under a phone's plan, which gave way to the inspector's drawer.
 
 ## Versions and migrations
 

@@ -740,7 +740,8 @@ export default function SeatingPlanEditorView({
   });
 
   // What "all criteria off" cleared, for "all on" to bring back — shared by the
-  // expanded panel, the rail and the phone row, so each can undo the others.
+  // switch beside the inspector's heading and the panel under it, so each can
+  // undo the other.
   // Kept for this visit of the step only: classes are switched in step 1, so
   // one class's weights can never come back in another.
   const [suspendedWeights] = React.useState(createSuspendedWeights);
@@ -826,14 +827,16 @@ export default function SeatingPlanEditorView({
               setMixSettings={setMixSettings}
               students={students}
               suspendedWeights={suspendedWeights}
-              density="comfortable"
               {...fulfillmentProps}
             />
           </InspectorBody>
         </InspectorPortal>
 
         {/* The layer's one primary action, in the middle of the status bar
-            beside undo/redo, which take a mix back. */}
+            beside undo/redo, which take a mix back. On a phone only the icon,
+            as the circle's fitting in the same place: the word pushed the
+            toolbar's switch under the button on a narrow screen. The
+            accessible name stays whole at every width. */}
         <StatusBarPortal slot="action">
           <button
             type="button"
@@ -841,12 +844,13 @@ export default function SeatingPlanEditorView({
             onClick={() => void handleMix()}
             disabled={mixingLocked}
             title={t('mixButton.shortcut')}
+            aria-label={t('actions.mixAgain')}
             className={`${primaryButtonClass} flex items-center gap-2 whitespace-nowrap ${
               mixingLocked ? 'cursor-not-allowed opacity-60' : ''
             }`}
           >
             <ShuffleIcon className="h-4 w-4" aria-hidden="true" />
-            {t('actions.mixAgain')}
+            <span className="hidden sm:inline">{t('actions.mixAgain')}</span>
           </button>
         </StatusBarPortal>
 
@@ -1068,23 +1072,9 @@ export default function SeatingPlanEditorView({
                 )}
               </div>
             </div>
-
-            {/* Every phone, not just a narrow one: the row used to vanish at
-                `sm`, so a phone held sideways had no criteria at all. The
-                drawer from the status bar carries the whole panel. */}
-            {isPhone && (
-              <div className="mt-4">
-                <SmartMixControls
-                  settings={settings}
-                  setMixSettings={setMixSettings}
-                  students={students}
-                  suspendedWeights={suspendedWeights}
-                  density="compact"
-                  direction="row"
-                  {...fulfillmentProps}
-                />
-              </div>
-            )}
+            {/* Below `lg` the criteria are in the drawer from the switch at
+                the right end of the status bar — no second row of them under
+                the plan. */}
           </div>
         </div>
       </div>

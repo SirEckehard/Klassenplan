@@ -2,22 +2,22 @@
   "help": {
     "students": {
       "title": "Class List",
-      "item1": "Create as many classes as you like in the class manager and switch between them – each class keeps its own students, seating plans and classrooms.",
+      "item1": "Create as many classes as you like in the class manager and switch between them – each class keeps its own students and seating plans.",
       "item2": "Add students one by one, create placeholders for a whole class, or import a CSV file – \"What the file looks like\" shows the required structure.",
       "item3": "Select up to 3 preferred and distance partners per student – the order determines priority.",
       "item4": "Search, filter and sorting help you find individual students; the checkboxes let you edit several students at once.",
       "item5": "Add photos in the inspector via the portrait – they stay on this device only.",
-      "item6": "Undo and redo changes in the class list with the corresponding icons."
+      "item6": "Undo and redo changes in the class list with the corresponding icons in the status bar."
     },
     "layout": {
       "title": "Classroom",
-      "item1": "While nothing is selected, “Set up” in the inspector places tables for the whole class. A click puts a single table on a free spot, or you drag it from the toolbar into the room.",
+      "item1": "While nothing is selected, “Set up from scratch” in the inspector places tables for the whole class. A click puts a single table on a free spot, or you drag it from the toolbar into the room.",
       "item2": "Move and rotate tables via drag & drop, or with the arrow keys and Q/E.",
       "item3": "Multi-select: Shift+click, Ctrl/⌘+click or draw a selection rectangle.",
       "item4": "Right-click (desktop) or long press (touch) opens the context menu.",
       "item5": "Under “Templates” in the inspector you save the room for other classes and load saved rooms.",
       "item6": "Room elements such as windows, door, desk, blackboard, whiteboard, cabinet or divider go onto a free spot with a click, or you drag them from the toolbar into the room; resize them if needed.",
-      "item7": "Undo and redo changes in the classroom with the corresponding icons."
+      "item7": "Undo and redo changes in the classroom with the corresponding icons in the status bar."
     },
     "plan": {
       "title": "Seating Plan",
@@ -26,7 +26,7 @@
       "item3": "Click the lock icon to lock a seat for the next mix.",
       "item4": "The button above the criteria shows in per cent how well the plan meets them and puts a bar under each criterion – hover it and the seats it concerns are marked.",
       "item5": "The view settings control how names appear (first name only, first name + initial, or first and last name) and whether photos are shown.",
-      "item6": "Undo and redo changes to the seating plan with the corresponding icons.",
+      "item6": "Undo and redo changes to the seating plan with the corresponding icons in the status bar.",
       "item7": "Hover over or tap an icon on a seat to see what it means – the seats of everyone who shares it are marked. Under “Markers” in the toolbar you find the legend, choose which icons the seats show and switch the explanation and the marking off."
     },
     "circle": {
@@ -36,7 +36,8 @@
       "item3": "Show or hide connections in the toolbar under “View settings”.",
       "item4": "The circle is built from the seating plan and can be changed. “Save plan” keeps it together with the plan; you can export and present it on its own.",
       "item5": "Hover over or tap an icon on a seat to see what it means – the seats of everyone who shares it are marked. Under “Markers” in the toolbar you find the legend, choose which icons the seats show and switch the explanation and the marking off.",
-      "item6": "The lock keeps a student in their place in the circle: dragging, shuffling and regenerating leave them there. With the keyboard, Enter picks a student up, the arrow keys choose the place, Enter puts them down."
+      "item6": "The lock keeps a student in their place in the circle: dragging, shuffling and regenerating leave them there. With the keyboard, Enter picks a student up, the arrow keys choose the place, Enter puts them down.",
+      "item7": "Undo and redo changes to the seating circle with the corresponding icons in the status bar."
     },
     "export": {
       "title": "Export",
@@ -280,7 +281,6 @@
       "title": "Recipe",
       "custom": "Your own mix",
       "activeCount": "{{active}} of {{total}} criteria active",
-      "railTitle": "Recipe: {{recipe}}",
       "recommended": {
         "label": "Recommended mix",
         "desc": "Every criterion this class has data for, at its default weight."
@@ -305,7 +305,6 @@
     "enableAll": "Enable all criteria",
     "disableAll": "Disable all criteria",
     "toggleAll": "All criteria",
-    "resetDefaults": "Default weights",
     "importance": {
       "off": "Off",
       "consider": "Consider",
@@ -318,20 +317,12 @@
       "groupLabel": "Importance: {{label}}",
       "optionLabel": "{{label}}: {{level}}"
     },
-    "flyoutHint": "A long press or a right click opens this setting again.",
-    "railAllTitle": "{{action}} – right click: default weights",
-    "railCriterionTitle": "{{label}}: {{level}} – right click: set importance",
-    "railCriterionActiveLabel": "{{label}}, {{level}}",
-    "railWeightHint": "Right click, long press, Shift+F10 or right arrow: set importance",
-    "railDefaultsHint": "Right click, long press, Shift+F10 or right arrow: default weights",
     "fulfillment": {
-      "label": "Fulfilment",
-      "suffix": ", {{percentage}} fulfilled",
       "plainLabel": "Fulfilment {{label}}: {{value}}",
       "pinLabel": "Fulfilment {{label}}: {{value}} – mark the seats concerned",
       "unpinLabel": "Fulfilment {{label}}: {{value}} – clear the marking"
     },
-    "randomWarning": "All criteria off – mixing is purely random!",
+    "randomWarning": "Mixing is purely random!",
     "criteria": {
       "avoidPreviousPairs": {
         "label": "Repetition",
@@ -420,8 +411,7 @@
     "tableTypes": "Table Types",
     "roomElements": "Room Elements",
     "roomElementsToggleAll": "Show or hide all room elements",
-    "setupClassroom": "Set Up Classroom",
-    "emptyRoomHint": "The room is still empty: place tables for the whole class under “Set up”, or add single tables.",
+    "emptyRoomHint": "The room is still empty: place tables for the whole class under “Set up from scratch”, or add single tables.",
     "window": "Window",
     "door": "Door",
     "board": "Blackboard",
@@ -504,11 +494,11 @@
   },
   "wizard": {
     "back": "Back",
-    "backToStudents": "Back to Class List",
-    "backToRoom": "Back to Classroom",
+    "backToStudents": "Back to Class",
+    "backToRoom": "Back to Room",
     "forwardToPlan": "Proceed to Seating Plan",
-    "backToStudentsShortcut": "Back to Class List (Alt/⌥+←)",
-    "backToRoomShortcut": "Back to Classroom (Alt/⌥+←)",
+    "backToStudentsShortcut": "Back to Class (Alt/⌥+←)",
+    "backToRoomShortcut": "Back to Room (Alt/⌥+←)",
     "forwardToPlanShortcut": "Proceed to Seating Plan (Alt/⌥+→)",
     "noTablesYet": "Add tables for your {{students}} students first.",
     "seatsMissing_one": "1 seat is still missing for {{students}} students.",
@@ -536,7 +526,7 @@
     "autoMixRunning": "Automatic mix in progress",
     "canvasLabel": "Seating plan: {{occupied}} of {{total}} seats taken",
     "classDataChanged": "Class data has been changed",
-    "classDataChangedHint": "Your adjustments are visible. Mix the plan again so the algorithm can respond optimally.",
+    "classDataChangedHint": "Your adjustments are visible. Mix the plan again so the algorithm can respond to them.",
     "fulfillmentLabel": "Fulfilment",
     "hideNotice": "Hide notice",
     "nameDisplay": {
@@ -646,8 +636,8 @@
   "shortcuts": {
     "labels": {
       "global": "General",
-      "students": "Students",
-      "layout": "Classroom",
+      "students": "Class",
+      "layout": "Room",
       "plan": "Seating Plan",
       "circle": "Seating Circle",
       "export": "Export"
@@ -657,8 +647,8 @@
       "global_closeDialog": "Close dialogs or help window",
       "global_toggleSidebar": "Expand/collapse the toolbar",
       "students_addStudent": "Add student (in the name field)",
-      "students_toClassroom": "Switch to Classroom",
-      "layout_toStudentList": "Return to Class List",
+      "students_toClassroom": "Switch to Room",
+      "layout_toStudentList": "Return to Class",
       "layout_toSeatingPlan": "Switch to Seating Plan",
       "layout_setUpRoom": "Set up the room: show tables and templates in the inspector",
       "layout_multiSelect": "Select several (or drag a selection rectangle)",
@@ -670,11 +660,11 @@
       "layout_rotateLeftRight": "Rotate the selection (Q = counter-clockwise, E = clockwise)",
       "layout_rotate90": "Rotate the selection in 90° steps",
       "layout_undo": "Undo last change",
-      "plan_toClassroom": "Return to Classroom",
+      "plan_toClassroom": "Return to Room",
       "plan_shuffle": "Mix seating plan again",
       "plan_savePlan": "Save Seating Plan",
       "plan_openExport": "Open Export view",
-      "circle_toClassroom": "Return to Classroom",
+      "circle_toClassroom": "Return to Room",
       "circle_toggleConnections": "Show/Hide neighbor connections",
       "circle_moveStudent": "Move student in circle",
       "circle_saveCircle": "Save Seating Circle",
@@ -744,7 +734,7 @@
     "emptyClassPrompt": "Rather try it out first? The sample class is added as a separate class.",
     "emptyClassSwitchPrompt": "Rather try it out first? The sample class is already there.",
     "addMenuHint": "Creates a separate class with 24 invented students – this class stays as it is.",
-    "addMenuSwitchHint": "Opens the sample class you already created – this class stays as it is."
+    "addMenuSwitchHint": "Opens the sample class – this class stays as it is."
   },
   "tour": {
     "stepCounter": "{{current}} of {{total}}",
@@ -778,7 +768,7 @@
         "body": "Your data lives only in this browser. \"Backup\", at the very bottom of the toolbar, exports an encrypted backup and restores it – on another device, too."
       },
       "proceed": {
-        "title": "On to the classroom",
+        "title": "On to the room",
         "body": "Once the list is complete, set up the classroom in the next step."
       },
       "studentRow": {
@@ -805,7 +795,7 @@
       },
       "setup": {
         "title": "Set up the room",
-        "body": "While nothing is selected, the inspector belongs to the room: “Set up” places as many tables as your class needs, and under “Templates” you load saved rooms or keep this one for other classes."
+        "body": "While nothing is selected, the inspector belongs to the room: “Set up from scratch” places as many tables as your class needs, and under “Templates” you load saved rooms or keep this one for other classes."
       },
       "status": {
         "title": "Seats at a glance",
@@ -907,9 +897,9 @@
     "tablePosition": "Table {{index}} of {{total}}",
     "title": "Properties",
     "visible": "Visible",
-    "setup": "Set up",
-    "setupHint": "Places as many tables as your class needs.",
-    "setupReplaceHint": "Places the tables anew, as many as your class needs. Ctrl/⌘+Z brings the previous ones back.",
+    "setup": "Set up from scratch",
+    "setupHint": "Places as many tables of the chosen kind as your class needs.",
+    "setupReplaceHint": "Your room is set up from scratch with the chosen tables.",
     "setupNoStudents": "Add students to the class first.",
     "setupSingle": "Single seats",
     "setupDouble": "Double seats",
@@ -919,7 +909,7 @@
     "tables_other": "{{count}} tables",
     "noTables": "No tables yet",
     "templates": "Templates",
-    "templatesHint": "Keep this room as a template to load it in other classes.",
+    "templatesHint": "Save this room as a template to use it for other classes as well.",
     "saveAsTemplate": "Save this room as a template",
     "loadTemplate": "Load template “{{name}}” – replaces the room",
     "templateName": "Template name",
@@ -946,7 +936,7 @@
     "saveAsNew": "Save as new plan"
   },
   "tools": {
-    "toClass": "To the class list",
+    "toClass": "To the class",
     "toPlan": "To the seating plan",
     "seat": {
       "table": "Table {{number}}",

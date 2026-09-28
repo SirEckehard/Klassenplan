@@ -2,7 +2,6 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { HammerIcon } from '@phosphor-icons/react';
 import ContextActionMenu, {
   type ContextAction,
 } from '@/components/SeatingPlanGenerator/ContextActionMenu';
@@ -17,12 +16,7 @@ import type {
   CanvasContextMenuState,
   FeatureContextMenuState,
 } from '@/hooks/useContextMenus';
-import {
-  canvasFrameClass,
-  canvasStageClass,
-  canvasFitClass,
-  secondaryButtonClass,
-} from '@/utils';
+import { canvasFrameClass, canvasStageClass, canvasFitClass } from '@/utils';
 import {
   statusBarHistoryButtonClass,
   statusBarHistoryGroupClass,
@@ -46,8 +40,6 @@ type LayoutEditorMainSectionProps = {
   canRedo: boolean;
   historyLength: number;
   canvasProps: React.ComponentProps<typeof ClassroomCanvas>;
-  /** Shows the inspector's setup — on a phone, in the drawer. */
-  onOpenSetup: () => void;
   tableMenu: LayoutEditorContextMenuProps<TableContextMenuState>;
   canvasMenu: LayoutEditorContextMenuProps<CanvasContextMenuState>;
   featureMenu: LayoutEditorContextMenuProps<FeatureContextMenuState>;
@@ -80,7 +72,6 @@ const LayoutEditorMainSection = React.memo(function LayoutEditorMainSection({
   canRedo,
   historyLength,
   canvasProps,
-  onOpenSetup,
   tableMenu,
   canvasMenu,
   featureMenu,
@@ -89,22 +80,10 @@ const LayoutEditorMainSection = React.memo(function LayoutEditorMainSection({
 }: LayoutEditorMainSectionProps) {
   const { t } = useTranslation('generator');
   return (
+    // A phone has no inspector column: the setup is in the drawer, opened by
+    // the switch at the right end of the status bar, so nothing above the
+    // canvas repeats the way there.
     <div className={`${workspaceStageClass} ${canvasStageClass} gap-4`}>
-      {/* A phone has no inspector column: the setup is in the drawer, and
-          this names the way there. */}
-      {isPhone && (
-        <button
-          type="button"
-          onClick={onOpenSetup}
-          className={`${secondaryButtonClass} flex w-full items-center justify-center gap-3 px-4 py-3 text-sm h-12`}
-          title={t('layout.setupClassroom', 'Klassenraum einrichten')}
-        >
-          <HammerIcon className="h-4 w-4 shrink-0" />
-          <span className="text-sm font-semibold">
-            {t('layout.setupClassroom', 'Klassenraum einrichten')}
-          </span>
-        </button>
-      )}
       <div
         data-testid="classroom-canvas"
         data-tour={TOUR_ANCHORS.layoutCanvas}

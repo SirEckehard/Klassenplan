@@ -89,7 +89,10 @@ export default function App() {
   // name game), where the footer and its "clear all data" action are out of
   // place, and the workspace and the export page, which share its shell, run at
   // viewport height from `lg` up and offer the same entries in the settings
-  // menu of their header (`AppSettingsMenu`).
+  // menu of their header (`AppSettingsMenu`). A prerendered route is a
+  // directory, so nginx answers a direct visit to `/generator` with a redirect
+  // to `/generator/` — the trailing slash is dropped before comparing.
+  const routePath = location.pathname.replace(/(.)\/+$/, '$1');
   const hidesFooter = [
     '/present',
     '/en/present',
@@ -106,7 +109,7 @@ export default function App() {
     '/en/wo-sitzt-wer',
     '/gruppen',
     '/en/gruppen',
-  ].includes(location.pathname);
+  ].includes(routePath);
 
   // Route preloading for better perceived performance
   React.useEffect(() => {

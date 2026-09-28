@@ -187,7 +187,7 @@ describe('AppStatusBar', () => {
     });
     const { unmount } = render(<AppStatusBar />);
 
-    expect(back()).toHaveAccessibleName(/Klassenliste|Class List/i);
+    expect(back()).toHaveAccessibleName(/Zurück zur Klasse|Back to Class/i);
     await userEvent.click(back());
     expect(mocks.handleStepChange).toHaveBeenLastCalledWith(1);
     unmount();
@@ -195,7 +195,7 @@ describe('AppStatusBar', () => {
     setState({ step: 3 });
     render(<AppStatusBar />);
 
-    expect(back()).toHaveAccessibleName(/Klassenraum|Classroom/i);
+    expect(back()).toHaveAccessibleName(/Zurück zum Raum|Back to Room/i);
     await userEvent.click(back());
     expect(mocks.handleStepChange).toHaveBeenLastCalledWith(2);
   });

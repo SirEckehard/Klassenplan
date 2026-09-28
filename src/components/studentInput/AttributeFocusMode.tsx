@@ -15,12 +15,10 @@ import { useInspector } from '@/contexts/InspectorContext';
 import {
   STUDENT_FLAGS,
   dataFamilyClass,
-  primaryButtonClass,
   secondaryButtonClass,
   type DataFamily,
 } from '@/utils';
-import { getStudentAppearance } from '@/utils/ui/studentAppearance';
-import { useIsDarkMode } from '@/hooks/useIsDarkMode';
+import StudentAvatar from '@/components/students/StudentAvatar';
 
 /** A flag the whole class can be walked through in one pass. */
 type Pass = {
@@ -97,7 +95,6 @@ export default function AttributeFocusMode({
   onFinish,
 }: Props) {
   const { t } = useTranslation('students');
-  const isDark = useIsDarkMode();
   const { setSuspended } = useInspector();
   const [passIndex, setPassIndex] = React.useState(0);
 
@@ -143,40 +140,47 @@ export default function AttributeFocusMode({
 
   return (
     <section className="flex flex-col gap-5" aria-label={t('focusMode.title')}>
-      <div className={`flex flex-wrap items-start gap-4 ${family}`}>
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-(--data-chip-surface) text-(--data-chip-text)">
-          <PassIcon size={22} aria-hidden="true" />
+      {/* One line for where the pass stands, then the question across the
+          whole width — beside the icon it was squeezed into a column a few
+          words wide on a phone. The count and "Auswahl leeren" follow the
+          hint there, right above the names they count; from `lg` up there is
+          room for them at the end of the first line. */}
+      <div className={`flex flex-wrap items-center gap-x-3 gap-y-2 ${family}`}>
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-(--data-chip-surface) text-(--data-chip-text) sm:h-11 sm:w-11">
+          <PassIcon size={20} aria-hidden="true" />
         </span>
-        <div className="flex min-w-0 flex-1 flex-col gap-1">
-          {/* How far through the questions this is, above the question
-              itself: on a phone the footer is a thumb's width away and only
-              carries the way on. */}
-          <span className="flex items-center gap-2 text-xs tabular-nums text-(--text-muted)">
+        {/* How far through the questions this is, above the question itself:
+            on a phone the footer is a thumb's width away and only carries the
+            way on. The bars give way before the words do. */}
+        <span className="flex min-w-0 flex-1 items-center gap-2 text-xs tabular-nums text-(--text-muted)">
+          <span className="shrink-0 whitespace-nowrap">
             {t('focusMode.progress', {
               index: passIndex + 1,
               total: PASSES.length,
             })}
-            <span className="flex gap-1" aria-hidden="true">
-              {PASSES.map((entry, index) => (
-                <span
-                  key={entry.key}
-                  className={`h-1 w-4 rounded-full ${
-                    index === passIndex
-                      ? 'bg-(--button-primary-bg)'
-                      : index < passIndex
-                        ? 'bg-(--text-page)'
-                        : 'bg-(--border-card)'
-                  }`}
-                />
-              ))}
-            </span>
           </span>
-          <h2 className="font-serif text-2xl leading-tight sm:text-3xl">
-            {t(`focusMode.questions.${pass.key}`)}
-          </h2>
-          <p className="text-sm text-(--text-muted)">{t('focusMode.hint')}</p>
-        </div>
-        <div className="flex shrink-0 items-center gap-2">
+          <span className="flex min-w-0 gap-1" aria-hidden="true">
+            {PASSES.map((entry, index) => (
+              <span
+                key={entry.key}
+                className={`h-1 w-4 rounded-full ${
+                  index === passIndex
+                    ? 'bg-(--button-primary-bg)'
+                    : index < passIndex
+                      ? 'bg-(--text-page)'
+                      : 'bg-(--border-card)'
+                }`}
+              />
+            ))}
+          </span>
+        </span>
+        <h2 className="w-full font-serif text-2xl leading-tight sm:text-3xl lg:order-1">
+          {t(`focusMode.questions.${pass.key}`)}
+        </h2>
+        <p className="w-full text-sm text-(--text-muted) lg:order-1">
+          {t('focusMode.hint')}
+        </p>
+        <div className="flex w-full items-center justify-between gap-2 lg:w-auto lg:justify-end">
           <span className="text-sm tabular-nums text-(--text-muted)">
             {t('focusMode.selected', { count: selectedCount })}
           </span>
@@ -199,7 +203,6 @@ export default function AttributeFocusMode({
         <ul className="grid list-none grid-cols-1 gap-2 p-0 sm:grid-cols-2 xl:grid-cols-3">
           {students.map((student) => {
             const active = isSet(student);
-            const appearance = getStudentAppearance(student, isDark);
             return (
               <li key={student.id}>
                 <button
@@ -212,14 +215,10 @@ export default function AttributeFocusMode({
                       : 'border-(--border-card) bg-(--surface-card) hover:bg-(--surface-sunken)'
                   }`}
                 >
-                  <span
-                    className="h-8 w-8 shrink-0 rounded-full border-2"
-                    style={{
-                      backgroundColor: appearance.fill,
-                      borderColor: appearance.stroke,
-                    }}
-                    aria-hidden="true"
-                  />
+                  {/* The face or the initial, as in the class list — a bare
+                      ring read as an unticked radio button beside the tick
+                      at the end of the row. */}
+                  <StudentAvatar student={student} size={32} />
                   <span className="min-w-0 flex-1 truncate text-sm">
                     {student.name || t('studentList.newStudent')}
                   </span>
@@ -238,9 +237,16 @@ export default function AttributeFocusMode({
         </ul>
       )}
 
-      {/* Sticky on a phone: the pass is as long as the class, and the way on
-          must not be at the far end of a scroll. */}
-      <div className="sticky bottom-0 z-10 flex items-center justify-between gap-2 border-t border-(--border-card) bg-(--surface-page) py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:static sm:pb-3">
+      {/* Sticky below `lg`, where the list flows in the page: the pass is as
+          long as the class, and the way on must not be at the far end of a
+          scroll. It stops above the shell's status bar, which is sticky at
+          the bottom edge too and would otherwise cover it; from `lg` up the
+          list scrolls in its own column and the way on follows it. There it
+          is no bar of its own: the page's paper on the stage's sunken
+          surface drew a dark strip across it.
+          Both buttons are grey — the status bar's "Weiter" to the room is
+          the layer's one blue button, and two of them read as rivals. */}
+      <div className="sticky bottom-(--shell-bottom-inset) z-10 flex items-center justify-between gap-2 border-t border-(--border-card) bg-(--surface-page) py-3 lg:static lg:border-t-0 lg:bg-transparent lg:py-0">
         <button
           type="button"
           onClick={() => setPassIndex((index) => index - 1)}
@@ -266,7 +272,7 @@ export default function AttributeFocusMode({
             type="button"
             onClick={() => setPassIndex((index) => index + 1)}
             aria-label={t('focusMode.nextPass', { label: label(next.key) })}
-            className={`${primaryButtonClass} h-11 flex-1 justify-center gap-2 sm:flex-none`}
+            className={`${secondaryButtonClass} h-11 flex-1 justify-center gap-2 sm:flex-none`}
           >
             <span className="truncate">
               {t('focusMode.nextPass', { label: label(next.key) })}
@@ -277,7 +283,7 @@ export default function AttributeFocusMode({
           <button
             type="button"
             onClick={onFinish}
-            className={`${primaryButtonClass} h-11 flex-1 justify-center gap-2 sm:flex-none`}
+            className={`${secondaryButtonClass} h-11 flex-1 justify-center gap-2 sm:flex-none`}
           >
             {t('focusMode.finish')}
             <CheckIcon size={14} aria-hidden="true" />

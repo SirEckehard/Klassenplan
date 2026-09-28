@@ -51,8 +51,10 @@ export const STORAGE_KEYS = {
     // Whether shortcuts on a single character key fire (`utils/characterKeys`).
     characterKeyShortcuts: 'spg.characterKeyShortcuts',
     sidebarActiveTab: 'spg.sidebarActiveTab',
-    // Whether the collapsed sidebar has already shown, once, that a criterion's
-    // weight opens with a right click or a long press.
+    // Retired: whether the round criterion buttons had shown, once, that a
+    // criterion's weight opens with a right click or a long press. The
+    // buttons are gone and nothing reads this any more; it stays listed so a
+    // wipe still removes what older versions wrote.
     mixWeightHintSeen: 'spg.mixWeightHintSeen',
     // Retired: whether the criteria showed their weight from 0 to 10 beside
     // the named importance level. The fine tuning is gone and nothing reads

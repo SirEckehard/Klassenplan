@@ -2,22 +2,22 @@
   "help": {
     "students": {
       "title": "Klassenliste",
-      "item1": "Lege in der Klassenverwaltung beliebig viele Klassen an und wechsle zwischen ihnen – jede Klasse hat eigene Schüler, Sitzpläne und Klassenräume.",
+      "item1": "Lege in der Klassenverwaltung beliebig viele Klassen an und wechsle zwischen ihnen – jede Klasse hat eigene Schüler und Sitzpläne.",
       "item2": "Füge Schüler einzeln hinzu, erzeuge Platzhalter für eine ganze Klasse oder importiere eine CSV-Datei – „So sieht die Datei aus“ zeigt dir den nötigen Aufbau.",
       "item3": "Wähle bis zu 3 Wunsch- und Distanzpartner pro Schüler – die Reihenfolge bestimmt die Priorität.",
       "item4": "Mit Suche, Filter und Sortierung findest du einzelne Schüler; über die Auswahlkästchen bearbeitest du mehrere Schüler gleichzeitig.",
       "item5": "Fotos fügst du im Inspektor über das Porträt hinzu – sie bleiben nur auf diesem Gerät.",
-      "item6": "Änderungen in der Klassenliste kannst du über die jeweiligen Icons rückgängig machen und wiederherstellen."
+      "item6": "Änderungen in der Klassenliste kannst du über die entsprechenden Icons in der Statusleiste rückgängig machen und wiederherstellen."
     },
     "layout": {
       "title": "Klassenraum",
-      "item1": "Solange nichts ausgewählt ist, stellt „Einrichten“ im Inspektor Tische für die ganze Klasse auf. Einzelne Tische setzt ein Klick an einen freien Platz, oder du ziehst sie aus der Werkzeugleiste in den Raum.",
+      "item1": "Solange nichts ausgewählt ist, stellt „Neu einrichten“ im Inspektor Tische für die ganze Klasse auf. Einzelne Tische setzt ein Klick an einen freien Platz, oder du ziehst sie aus der Werkzeugleiste in den Raum.",
       "item2": "Verschiebe und drehe Tische per Drag & Drop oder mit den Pfeiltasten und Q/E.",
       "item3": "Mehrfachauswahl: Umschalt+Klick, Strg/⌘+Klick oder ein Auswahl-Rechteck aufziehen.",
       "item4": "Rechtsklick (Desktop) oder langes Drücken (Touch) öffnet das Kontextmenü.",
       "item5": "Unter „Vorlagen“ im Inspektor speicherst du den Raum für andere Klassen und lädst gespeicherte Räume.",
       "item6": "Raumelemente wie Fenster, Tür, Pult, Tafel, Whiteboard, Schrank oder Raumtrenner setzt ein Klick an einen freien Platz, oder du ziehst sie aus der Werkzeugleiste in den Raum; vergrößere oder verkleinere sie bei Bedarf.",
-      "item7": "Änderungen im Klassenraum kannst du über die jeweiligen Icons rückgängig machen und wiederherstellen."
+      "item7": "Änderungen im Klassenraum kannst du über die entsprechenden Icons in der Statusleiste rückgängig machen und wiederherstellen."
     },
     "plan": {
       "title": "Sitzplan",
@@ -26,7 +26,7 @@
       "item3": "Klicke auf das Schloss-Symbol, um einen Platz beim nächsten Mischen zu sperren.",
       "item4": "Der Knopf über den Kriterien zeigt in Prozent, wie gut der Plan sie erfüllt, und blendet unter jedem Kriterium eine Leiste ein – fährst du über sie, werden die betroffenen Plätze markiert.",
       "item5": "In den Ansichtseinstellungen legst du fest, wie Namen erscheinen sollen (nur Vorname, Vorname + Initial oder Vor- und Nachname) und ob Fotos angezeigt werden.",
-      "item6": "Änderungen am Sitzplan kannst du über die jeweiligen Icons rückgängig machen und wiederherstellen.",
+      "item6": "Änderungen am Sitzplan kannst du über die entsprechenden Icons in der Statusleiste rückgängig machen und wiederherstellen.",
       "item7": "Fahre über ein Icon auf einem Platz oder tippe darauf, um zu sehen, was es bedeutet – die Plätze aller, die es teilen, werden dabei markiert. Unter „Merkmale“ in der Werkzeugleiste findest du die Legende, wählst, welche Icons die Plätze zeigen, und schaltest Erklärung und Markieren ab."
     },
     "circle": {
@@ -36,7 +36,8 @@
       "item3": "Blende Verbindungen in der Werkzeugleiste unter „Ansichtseinstellungen“ ein oder aus.",
       "item4": "Der Sitzkreis entsteht aus dem Sitzplan und lässt sich verändern. „Plan speichern“ sichert ihn zusammen mit dem Plan; exportieren und präsentieren kannst du ihn für sich.",
       "item5": "Fahre über ein Icon auf einem Platz oder tippe darauf, um zu sehen, was es bedeutet – die Plätze aller, die es teilen, werden dabei markiert. Unter „Merkmale“ in der Werkzeugleiste findest du die Legende, wählst, welche Icons die Plätze zeigen, und schaltest Erklärung und Markieren ab.",
-      "item6": "Mit dem Schloss hält ein Schüler seinen Platz im Kreis: Ziehen, Mischen und Neu-Erzeugen lassen ihn dort. Mit der Tastatur nimmt die Eingabetaste einen Schüler auf, die Pfeiltasten wählen den Platz, die Eingabetaste setzt ihn ab."
+      "item6": "Mit dem Schloss hält ein Schüler seinen Platz im Kreis: Ziehen, Mischen und Neu-Erzeugen lassen ihn dort. Mit der Tastatur nimmt die Eingabetaste einen Schüler auf, die Pfeiltasten wählen den Platz, die Eingabetaste setzt ihn ab.",
+      "item7": "Änderungen am Sitzkreis kannst du über die entsprechenden Icons in der Statusleiste rückgängig machen und wiederherstellen."
     },
     "export": {
       "title": "Export",
@@ -231,7 +232,7 @@
     "neighbors": {
       "tab": "Nachbarschaften",
       "empty": "Noch keine Auswertung möglich.",
-      "emptyHint": "Sobald du einen Sitzplan präsentierst, druckst, exportierst oder unter eigenem Namen speicherst, wird er hier gewertet. Reines Mischen zählt nicht.",
+      "emptyHint": "Sobald du einen Sitzplan präsentierst, druckst, exportierst oder unter eigenem Namen speicherst, wird er hier gewertet. Mischen allein zählt nicht.",
       "basis_one": "Beruht auf {{count}} gewertetem Sitzplan",
       "basis_other": "Beruht auf {{count}} gewerteten Sitzplänen",
       "basisSince": "seit {{date}}.",
@@ -280,7 +281,6 @@
       "title": "Rezept",
       "custom": "Eigene Mischung",
       "activeCount": "{{active}} von {{total}} Kriterien aktiv",
-      "railTitle": "Rezept: {{recipe}}",
       "recommended": {
         "label": "Empfohlene Mischung",
         "desc": "Alle Kriterien, für die diese Klasse Daten hat, mit ihren Standardwerten."
@@ -305,7 +305,6 @@
     "enableAll": "Alle Kriterien aktivieren",
     "disableAll": "Alle Kriterien deaktivieren",
     "toggleAll": "Alle Kriterien",
-    "resetDefaults": "Standardwerte",
     "importance": {
       "off": "Aus",
       "consider": "Beachten",
@@ -318,20 +317,12 @@
       "groupLabel": "Wichtigkeit: {{label}}",
       "optionLabel": "{{label}}: {{level}}"
     },
-    "flyoutHint": "Lange drücken oder Rechtsklick öffnet diese Einstellung wieder.",
-    "railAllTitle": "{{action}} – Rechtsklick: Standardwerte",
-    "railCriterionTitle": "{{label}}: {{level}} – Rechtsklick: Wichtigkeit einstellen",
-    "railCriterionActiveLabel": "{{label}}, {{level}}",
-    "railWeightHint": "Rechtsklick, lange drücken, Umschalt+F10 oder Pfeil nach rechts: Wichtigkeit einstellen",
-    "railDefaultsHint": "Rechtsklick, lange drücken, Umschalt+F10 oder Pfeil nach rechts: Standardwerte",
     "fulfillment": {
-      "label": "Erfüllung",
-      "suffix": ", zu {{percentage}} erfüllt",
       "plainLabel": "Erfüllung {{label}}: {{value}}",
       "pinLabel": "Erfüllung {{label}}: {{value}} – betroffene Plätze markieren",
       "unpinLabel": "Erfüllung {{label}}: {{value}} – Markierung aufheben"
     },
-    "randomWarning": "Alle Kriterien deaktiviert - Mischen ist zufällig!",
+    "randomWarning": "Mischen ist zufällig!",
     "criteria": {
       "avoidPreviousPairs": {
         "label": "Wiederholung",
@@ -420,8 +411,7 @@
     "tableTypes": "Tischtypen",
     "roomElements": "Raumelemente",
     "roomElementsToggleAll": "Alle Raumelemente ein- oder ausblenden",
-    "setupClassroom": "Klassenraum einrichten",
-    "emptyRoomHint": "Der Raum ist noch leer: Stelle unter „Einrichten“ Tische für die ganze Klasse auf oder füge einzelne Tische hinzu.",
+    "emptyRoomHint": "Der Raum ist noch leer: Stelle unter „Neu einrichten“ Tische für die ganze Klasse auf oder füge einzelne Tische hinzu.",
     "window": "Fenster",
     "door": "Tür",
     "board": "Tafel",
@@ -473,10 +463,10 @@
     "cancelCircleGeneration": "Abbrechen",
     "printDownloadedInfo": "Pop-up blockiert - PDF wurde heruntergeladen. Bitte öffne die Datei zum Drucken.",
     "errors": {
-      "printPreviewUnavailable": "Die Druckvorschau ist noch nicht bereit. Bitte warten Sie einen Moment und versuchen Sie es erneut.",
-      "printPreparationFailed": "Drucken konnte nicht vorbereitet werden. Bitte versuchen Sie es erneut.",
-      "tablePdfFailed": "Sitzplan PDF-Export fehlgeschlagen. Bitte versuchen Sie es erneut.",
-      "circlePdfFailed": "Sitzkreis PDF-Export fehlgeschlagen. Bitte versuchen Sie es erneut.",
+      "printPreviewUnavailable": "Die Druckvorschau ist noch nicht bereit. Bitte warte einen Moment und versuche es erneut.",
+      "printPreparationFailed": "Drucken konnte nicht vorbereitet werden. Bitte versuche es erneut.",
+      "tablePdfFailed": "Sitzplan PDF-Export fehlgeschlagen. Bitte versuche es erneut.",
+      "circlePdfFailed": "Sitzkreis PDF-Export fehlgeschlagen. Bitte versuche es erneut.",
       "imagePreviewUnavailable": "Die Vorschau ist noch nicht bereit. Bitte warte einen Moment und versuche es erneut.",
       "pngFailed": "PNG-Export fehlgeschlagen. Bitte versuche es erneut.",
       "svgFailed": "SVG-Export fehlgeschlagen. Bitte versuche es erneut."
@@ -504,11 +494,11 @@
   },
   "wizard": {
     "back": "Zurück",
-    "backToStudents": "Zurück zur Klassenliste",
-    "backToRoom": "Zurück zum Klassenraum",
+    "backToStudents": "Zurück zur Klasse",
+    "backToRoom": "Zurück zum Raum",
     "forwardToPlan": "Weiter zum Sitzplan",
-    "backToStudentsShortcut": "Zurück zur Klassenliste (Alt/⌥+←)",
-    "backToRoomShortcut": "Zurück zum Klassenraum (Alt/⌥+←)",
+    "backToStudentsShortcut": "Zurück zur Klasse (Alt/⌥+←)",
+    "backToRoomShortcut": "Zurück zum Raum (Alt/⌥+←)",
     "forwardToPlanShortcut": "Weiter zum Sitzplan (Alt/⌥+→)",
     "noTablesYet": "Füge zuerst Tische für deine {{students}} Schüler ein.",
     "seatsMissing_one": "Es fehlt noch 1 Sitzplatz für {{students}} Schüler.",
@@ -536,7 +526,7 @@
     "autoMixRunning": "Automatisches Mischen läuft",
     "canvasLabel": "Sitzplan: {{occupied}} von {{total}} Plätzen belegt",
     "classDataChanged": "Klassendaten wurden geändert",
-    "classDataChangedHint": "Deine Anpassungen sind sichtbar. Mische den Plan neu, damit der Algorithmus optimal reagieren kann.",
+    "classDataChangedHint": "Deine Anpassungen sind sichtbar. Mische den Plan neu, damit der Algorithmus darauf reagieren kann.",
     "fulfillmentLabel": "Erfüllung",
     "hideNotice": "Hinweis ausblenden",
     "nameDisplay": {
@@ -646,8 +636,8 @@
   "shortcuts": {
     "labels": {
       "global": "Allgemein",
-      "students": "Schüler",
-      "layout": "Layout",
+      "students": "Klasse",
+      "layout": "Raum",
       "plan": "Sitzplan",
       "circle": "Sitzkreis",
       "export": "Export"
@@ -657,8 +647,8 @@
       "global_closeDialog": "Dialoge oder Hilfefenster schließen",
       "global_toggleSidebar": "Werkzeugleiste auf-/zuklappen",
       "students_addStudent": "Schüler hinzufügen (im Namensfeld)",
-      "students_toClassroom": "Zum Klassenraum wechseln",
-      "layout_toStudentList": "Zur Klassenliste zurückkehren",
+      "students_toClassroom": "Zum Raum wechseln",
+      "layout_toStudentList": "Zur Klasse zurückkehren",
       "layout_toSeatingPlan": "Zum Sitzplan wechseln",
       "layout_setUpRoom": "Raum einrichten: Tische und Vorlagen im Inspektor zeigen",
       "layout_multiSelect": "Mehrere auswählen (oder Auswahl-Rechteck aufziehen)",
@@ -670,11 +660,11 @@
       "layout_rotateLeftRight": "Auswahl drehen (Q = gegen den Uhrzeigersinn, E = im Uhrzeigersinn)",
       "layout_rotate90": "Auswahl in 90°-Schritten drehen",
       "layout_undo": "Letzte Änderung rückgängig machen",
-      "plan_toClassroom": "Zum Klassenraum zurückkehren",
+      "plan_toClassroom": "Zum Raum zurückkehren",
       "plan_shuffle": "Sitzplan neu mischen",
       "plan_savePlan": "Sitzplan speichern",
       "plan_openExport": "Exportansicht öffnen",
-      "circle_toClassroom": "Zum Klassenraum zurückkehren",
+      "circle_toClassroom": "Zum Raum zurückkehren",
       "circle_toggleConnections": "Nachbarschafts-Verbindungen ein-/ausblenden",
       "circle_moveStudent": "Schüler im Kreis verschieben",
       "circle_saveCircle": "Sitzkreis speichern",
@@ -744,7 +734,7 @@
     "emptyClassPrompt": "Lieber erst ausprobieren? Die Beispielklasse kommt als eigene Klasse dazu.",
     "emptyClassSwitchPrompt": "Lieber erst ausprobieren? Die Beispielklasse ist schon angelegt.",
     "addMenuHint": "Legt eine eigene Klasse mit 24 erfundenen Schülern an – diese Klasse bleibt, wie sie ist.",
-    "addMenuSwitchHint": "Öffnet die schon angelegte Beispielklasse – diese Klasse bleibt, wie sie ist."
+    "addMenuSwitchHint": "Öffnet die Beispielklasse – diese Klasse bleibt, wie sie ist."
   },
   "tour": {
     "stepCounter": "{{current}} von {{total}}",
@@ -778,7 +768,7 @@
         "body": "Deine Daten liegen nur in diesem Browser. Unter „Backup“ ganz unten in der Werkzeugleiste exportierst du ein verschlüsseltes Backup und stellst es wieder her, auch auf einem anderen Gerät."
       },
       "proceed": {
-        "title": "Weiter zum Klassenraum",
+        "title": "Weiter zum Raum",
         "body": "Steht die Liste, richtest du im nächsten Schritt den Klassenraum ein."
       },
       "studentRow": {
@@ -805,7 +795,7 @@
       },
       "setup": {
         "title": "Raum einrichten",
-        "body": "Solange nichts ausgewählt ist, gehört der Inspektor dem Raum: „Einrichten“ stellt so viele Tische auf, wie deine Klasse braucht, und unter „Vorlagen“ lädst du gespeicherte Räume oder hebst diesen für andere Klassen auf."
+        "body": "Solange nichts ausgewählt ist, gehört der Inspektor dem Raum: „Neu einrichten“ stellt so viele Tische auf, wie deine Klasse braucht, und unter „Vorlagen“ lädst du gespeicherte Räume oder hebst diesen für andere Klassen auf."
       },
       "status": {
         "title": "Plätze im Blick",
@@ -907,9 +897,9 @@
     "tablePosition": "Tisch {{index}} von {{total}}",
     "title": "Eigenschaften",
     "visible": "Sichtbar",
-    "setup": "Einrichten",
-    "setupHint": "Stellt so viele Tische auf, wie deine Klasse braucht.",
-    "setupReplaceHint": "Stellt die Tische neu auf, so viele wie deine Klasse braucht. Strg/⌘+Z holt die bisherigen zurück.",
+    "setup": "Neu einrichten",
+    "setupHint": "Stellt so viele Tische der ausgewählten Art auf, wie deine Klasse braucht.",
+    "setupReplaceHint": "Dein Raum wird komplett neu mit den ausgewählten Tischen eingerichtet.",
     "setupNoStudents": "Lege zuerst Schüler in der Klasse an.",
     "setupSingle": "Einzelplätze",
     "setupDouble": "Doppelplätze",
@@ -919,7 +909,7 @@
     "tables_other": "{{count}} Tische",
     "noTables": "Noch keine Tische",
     "templates": "Vorlagen",
-    "templatesHint": "Hebe diesen Raum als Vorlage auf, um ihn in anderen Klassen zu laden.",
+    "templatesHint": "Speichere diesen Raum als Vorlage, um ihn auch für weitere Klassen zu nutzen.",
     "saveAsTemplate": "Diesen Raum als Vorlage speichern",
     "loadTemplate": "Vorlage „{{name}}“ laden – ersetzt den Raum",
     "templateName": "Name der Vorlage",
@@ -946,7 +936,7 @@
     "saveAsNew": "Als neuen Plan speichern"
   },
   "tools": {
-    "toClass": "Zur Klassenliste",
+    "toClass": "Zur Klasse",
     "toPlan": "Zum Sitzplan",
     "seat": {
       "table": "Tisch {{number}}",

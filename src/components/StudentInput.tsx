@@ -475,7 +475,9 @@ function StudentInput({
         <div ref={listEndRef} aria-hidden="true" />
       </div>
 
-      {students.length > 0 && (
+      {/* The attribute pass keeps its way on stuck to the bottom edge, where
+          this button would lie on top of it. */}
+      {students.length > 0 && listMode !== 'focus' && (
         <ListScrollFab
           hint={scrollHint}
           onScroll={handleScrollHint}

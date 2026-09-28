@@ -381,13 +381,6 @@ export {
 export type { DataFamily } from './ui/designTokens';
 export { calculateSeatLabelFontSize } from './ui/textScaling';
 export {
-  getSidebarSurfaceClasses,
-  getSidebarIconClasses,
-  getSidebarIndicatorClasses,
-  sidebarRailButtonClass,
-  type SidebarTone,
-} from './ui/sidebarButtonStyles';
-export {
   getViewportMetrics,
   onVisualViewport,
   hasVisualViewport,

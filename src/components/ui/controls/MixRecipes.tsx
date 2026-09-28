@@ -15,8 +15,8 @@ import { MIX_RECIPES, type MixRecipeId } from '@/utils';
  * moment one of them is moved the panel says so by naming the mix "eigene".
  */
 
-/** The recipes as a list to choose from, in the panel and in the rail flyout. */
-export function MixRecipeList({
+/** The recipes as a list to choose from, folded out of the panel. */
+function MixRecipeList({
   activeId,
   onSelect,
 }: {

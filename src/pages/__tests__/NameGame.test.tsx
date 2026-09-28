@@ -83,7 +83,7 @@ describe('NameGame', () => {
     ).toBeInTheDocument();
     expect(
       screen.getByRole('button', {
-        name: /Zur Klassenliste|Go to class list/i,
+        name: /Zur Klasse|Go to class/i,
       }),
     ).toBeInTheDocument();
     expect(

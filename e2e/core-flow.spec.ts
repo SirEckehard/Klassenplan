@@ -88,7 +88,7 @@ test('a teacher can go from an empty app to an exportable seating plan', async (
   });
 
   await test.step('step 2 — set the room up from the inspector', async () => {
-    await page.getByRole('button', { name: 'Weiter zum Klassenraum' }).click();
+    await page.getByRole('button', { name: 'Weiter zum Raum' }).click();
 
     // While nothing is selected the inspector belongs to the room: its setup
     // places as many tables as the class needs.

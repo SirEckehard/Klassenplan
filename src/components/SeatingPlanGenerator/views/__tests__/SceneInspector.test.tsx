@@ -208,8 +208,9 @@ describe('SceneInspector', () => {
     const { onSetUpRoom } = renderInspector({ studentsCount: 25 });
 
     // 25 students: 25 single seats, 13 doubles, 7 groups of 4, 5 of 6.
-    const setup = screen.getByRole('heading', { name: /^(Einrichten|Set up)$/ })
-      .parentElement as HTMLElement;
+    const setup = screen.getByRole('heading', {
+      name: /^(Neu einrichten|Set up from scratch)$/,
+    }).parentElement as HTMLElement;
     const rows = within(setup).getAllByRole('button');
     expect(rows.map((row) => row.textContent)).toEqual([
       expect.stringMatching(/^(Einzelplätze|Single seats)25 (Tische|tables)$/),
@@ -222,16 +223,15 @@ describe('SceneInspector', () => {
     expect(onSetUpRoom).toHaveBeenCalledWith('double');
   });
 
-  // The setup replaces what stands there; the hint says so, and how to get
-  // it back.
+  // The setup replaces what stands there, and the hint says so.
   it('warns that setting up replaces the tables, but not in an empty room', () => {
     const { rerender } = renderInspector();
     const row = () =>
       screen.getByRole('button', { name: /^(Doppelplätze|Double seats)/ });
-    expect(row()).toHaveAccessibleDescription(/Strg\/⌘\+Z|Ctrl\/⌘\+Z/);
+    expect(row()).toHaveAccessibleDescription(/komplett neu|from scratch/);
 
     rerender({ tables: [] });
-    expect(row()).not.toHaveAccessibleDescription(/Strg\/⌘\+Z|Ctrl\/⌘\+Z/);
+    expect(row()).not.toHaveAccessibleDescription(/komplett neu|from scratch/);
   });
 
   it('offers no setup to a class without students', () => {
@@ -277,7 +277,9 @@ describe('SceneInspector', () => {
     renderInspector();
 
     expect(
-      screen.getByText(/in anderen Klassen zu laden|load it in other classes/),
+      screen.getByText(
+        /für weitere Klassen zu nutzen|for other classes as well/,
+      ),
     ).toBeInTheDocument();
   });
 

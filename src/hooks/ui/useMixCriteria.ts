@@ -5,7 +5,6 @@ import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 import type { MixSettings, ScalarMixSettingKey, Student } from '@/types';
 import {
-  DEFAULT_MIX_WEIGHTS,
   criterionImportance,
   criterionWeight,
   hasActiveWeights,
@@ -327,14 +326,6 @@ export function useMixCriteria({
     [setWeight, settings],
   );
 
-  /** Off, or on at the recommended weight. */
-  const toggle = React.useCallback(
-    (key: ScalarMixSettingKey) => {
-      setWeight(key, weightOf(key) > 0 ? 0 : DEFAULT_MIX_WEIGHTS[key]);
-    },
-    [setWeight, weightOf],
-  );
-
   /** Every criterion off; the weights are kept for {@link enableAll}. */
   const disableAll = React.useCallback(() => {
     suspended.keep(hasActiveWeights(settings) ? settings : null);
@@ -342,8 +333,8 @@ export function useMixCriteria({
   }, [setMixSettings, settings, suspended]);
 
   /**
-   * Brings back what {@link disableAll} switched off — a slip on the rail
-   * button must not cost the teacher their weights. With nothing kept, the
+   * Brings back what {@link disableAll} switched off — a slip on the switch
+   * must not cost the teacher their weights. With nothing kept, the
    * recommended weights.
    */
   const enableAll = React.useCallback(() => {
@@ -353,11 +344,6 @@ export function useMixCriteria({
     );
   }, [setMixSettings, suspended]);
 
-  const resetToDefaults = React.useCallback(() => {
-    suspended.keep(null);
-    setMixSettings((prev) => withDefaultWeights(prev));
-  }, [setMixSettings, suspended]);
-
   return {
     categories,
     isRandom,
@@ -365,9 +351,7 @@ export function useMixCriteria({
     setWeight,
     importanceOf,
     setImportance,
-    toggle,
     disableAll,
     enableAll,
-    resetToDefaults,
   };
 }

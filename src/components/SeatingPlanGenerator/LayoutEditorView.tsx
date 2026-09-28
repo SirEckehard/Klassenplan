@@ -945,7 +945,6 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
           canRedo={canRedo}
           historyLength={historyLength}
           canvasProps={canvasProps}
-          onOpenSetup={revealSetup}
           tableMenu={tableMenuConfig}
           canvasMenu={canvasMenuConfig}
           featureMenu={featureMenuConfig}

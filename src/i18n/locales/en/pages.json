@@ -301,7 +301,7 @@
       "description": "Tables and room elements, templates, distances and limits.",
       "best": {
         "q": "Which layouts work best?",
-        "a": "Let your creativity run free: you drag tables, windows, doors, the teacher’s desk, the blackboard and cabinets from the toolbar into the room or put them on a free spot with a click, and move them anywhere. While nothing is selected, “Set up” in the inspector builds a floor plan in one go, and under “Templates” you keep it for other classes. The seating circle stays in sync with the table layout and can be adjusted separately."
+        "a": "Let your creativity run free: you drag tables, windows, doors, the teacher’s desk, the blackboard and cabinets from the toolbar into the room or put them on a free spot with a click, and move them anywhere. While nothing is selected, “Set up from scratch” in the inspector builds a floor plan in one go, and under “Templates” you keep it for other classes. The seating circle stays in sync with the table layout and can be adjusted separately."
       },
       "measure": {
         "q": "How are distances measured?",
@@ -530,7 +530,7 @@
       "title": "Not enough photos yet",
       "description": "The name game needs at least {{min}} students with a photo. Currently: {{count}}.",
       "hint": "Add photos in the inspector: click a student in the class list, then their portrait.",
-      "cta": "Go to class list"
+      "cta": "Go to class"
     },
     "menu": {
       "subtitle": "Learn your students' names – with their photos.",

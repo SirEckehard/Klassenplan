@@ -110,7 +110,7 @@ async function openClassTools(page: Page): Promise<void> {
 
 /** From the class to the mixed plan, opening the criteria on the way. */
 async function mixThePlan(page: Page): Promise<void> {
-  await page.getByRole('button', { name: 'Weiter zum Klassenraum' }).click();
+  await page.getByRole('button', { name: 'Weiter zum Raum' }).click();
   await expect(statusBar(page)).toContainText('24 Plätze für 24 Schüler');
 
   await page.getByRole('button', { name: 'Weiter zum Sitzplan' }).click();

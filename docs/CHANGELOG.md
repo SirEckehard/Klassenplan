@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### Improved
 
 - The toolbar has the same shape on every layer: the view first, then what can be added, the view settings and managing the class, and at its foot the class tools, "Plans & history", the backup and support
-- The room is set up from the inspector while nothing is selected: "Set up" places as many tables of one kind as the class needs, "Templates" keeps the room for other classes and loads a kept one. It replaces the dialog that covered the room, and Ctrl/⌘+Z brings back what stood there
+- The room is set up from the inspector while nothing is selected: "Set up from scratch" places as many tables of one kind as the class needs, "Templates" keeps the room for other classes and loads a kept one. It replaces the dialog that covered the room, and Ctrl/⌘+Z brings back what stood there
 - Tables and room elements are added with a click or Enter as well as by dragging: they land on the free spot nearest the middle of the room, and a window or a door on the first free stretch of wall. The arrow keys move room elements too – along their wall if they hang on one – a key held down is one undo step, and deleting, cutting, pasting or duplicating tables and room elements together is one undo step as well
 - The markers on a seat explain themselves: pointing at one names it and marks the seats it concerns. Dragging works the same in the plan and the circle, with a ring on the target and a confirmation after the drop
 - The projection has one bar under the plan, a contrast mode for bright rooms and its own name rule (first names)
@@ -35,11 +35,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - English says "mix" throughout – only the circle's purely random shuffle is still called "shuffle" – and names and percentages are written as each language writes them
 - The browser bar and the installed app's splash screen take the page's own paper colour
 - The changelog's texts load with the changelog, and more than 200 texts nothing used any more are gone: the first visit downloads about 7 KB less
+- Attribute mode on a phone and a tablet: the question takes the whole width, the way on to the next attribute stays in reach above the status bar instead of hiding behind it, and every row shows the student's photo or initial. Its buttons are grey, so the status bar's "Next" stays the one blue button
+- On a phone the criteria live only in the drawer from the status bar, and the room's setup only in the inspector; "Mix" and "Sync with Plan" show their icon alone, so the toolbar's switch stays in reach
+- The ways between the layers are named after them: "Back to Class", "Back to Room", "Proceed to Room"
 - New shortcuts: "Mix" is Ctrl/⌘+Enter, as ⌘+M minimised the window on a Mac. On the export page P saves the PDF of the arrangement on the sheet and Ctrl/⌘+P prints; Ctrl/⌘+S and Ctrl/⌘+E work in the seating circle as well
 
 ### Removed
 
 - The slider for each criterion: the four words are the whole scale
+- The row of round criterion buttons under the plan on a phone and the "Set up classroom" button above the room, which repeated what the drawer holds
 - The shortcuts for the circle PDF and for PNG on the export page, where Ctrl/⌘+Shift+T reopened the last closed browser tab and Ctrl/⌘+Shift+C and +I opened the developer tools
 
 ### Fixed
@@ -54,6 +58,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - A long name fits its field in the inspector instead of being cut off at the edge
 - On a phone the toolbar's panels and menus – adding a student, the class tools, the backup – opened out of sight behind the toolbar
 - On a narrow phone such as the iPhone 16 Pro the class's name pushed the "Class" layer off the header
+- Opening the workspace or a class tool directly showed the page footer under it
+- In the seating circle on a phone, "Sync with Plan" pushed the toolbar's switch out of reach
 - "Shuffle randomly" in the circle came out in some orders more often than in others and left about one student in eight where they were; every order is equally likely now, and locked students stay put
 
 ## [2.2.0] - 2026-09-17
