@@ -261,10 +261,18 @@ summary — opens as the same drawer from the switch at the right end of the
 status bar, the mirror of the toolbar's switch at the left end. The drawer is
 not modal: the stage beside it stays in reach, and Escape closes it.
 
-The toolbar loses its column on a phone as well. There it is a full-screen
-sheet, and the same place at the left end of the status bar opens it — a
-wrench on a secondary button, since the bar's blue button is the layer's own
-action and a second one floating over the stage would compete with it.
+The toolbar loses its column on a phone as well. There it is a drawer from the
+left, the mirror of the inspector's, and the same place at the left end of the
+status bar opens it — a wrench on a secondary button, since the bar's blue
+button is the layer's own action and a second one floating over the stage
+would compete with it. The two drawers take turns; an action taken in the
+toolbar's closes it, so the stage shows what the action did, while an entry
+that opens a panel keeps it open behind the panel. A full-screen sheet would
+lie over those panels, which open at the end of the page.
+
+On a phone the header shows the open class as a mark rather than by name: the
+name would push the layer switch off a 402px header, and the switch is the
+header's reason to exist.
 
 ## 6c. Menus
 

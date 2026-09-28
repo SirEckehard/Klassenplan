@@ -9,9 +9,6 @@ import {
   GridNineIcon,
   ShuffleIcon,
   SpinnerGapIcon,
-  EyeIcon,
-  CursorIcon,
-  EyeSlashIcon,
 } from '@phosphor-icons/react';
 import SmartSidebar from '@/components/ui/panels/SmartSidebar';
 import SmartMixControls, {
@@ -48,17 +45,18 @@ import {
 } from '@/utils';
 import {
   buildBadgeHighlightLookup,
-  createBadgeDisplayFilter,
-  isBadgeCriterionActive,
   type BadgeDisplayMode,
-  type BadgeFocus,
   type BadgeHoverSettings,
-  type SeatBadgeView,
 } from '@/utils/ui/seatBadges';
 import { buildBadgeDisplayGroup } from '@/components/SeatingPlanGenerator/canvas/badgeDisplayGroup';
-import { FEATURE_TYPES, type FeatureVisibilityFlags } from '@/utils/ui';
-import { buildFeatureVisibilityGroup } from '@/components/SeatingPlanGenerator/canvas/featureVisibilityGroup';
+import {
+  buildFeatureVisibilityGroup,
+  getFeatureAvailability,
+} from '@/components/SeatingPlanGenerator/canvas/featureVisibilityGroup';
 import { buildNameDisplayGroup } from '@/components/SeatingPlanGenerator/canvas/nameDisplayGroup';
+import { buildPhotoDisplayGroup } from '@/components/SeatingPlanGenerator/canvas/photoDisplayGroup';
+import { useSeatBadgeView } from '@/hooks/canvas/useSeatBadgeView';
+import type { FeatureVisibilityFlags } from '@/utils/ui';
 import type {
   MixSettings,
   SeatingArrangement,
@@ -273,7 +271,7 @@ export default function SeatingPlanEditorView({
     [setShowGrid],
   );
   const handlePhotoDisplayModeChange = React.useCallback(
-    (next: string) => setPhotoDisplayMode(() => next as PhotoDisplayMode),
+    (next: PhotoDisplayMode) => setPhotoDisplayMode(() => next),
     [setPhotoDisplayMode],
   );
   const studentNames = React.useMemo(
@@ -288,32 +286,17 @@ export default function SeatingPlanEditorView({
     (next: BadgeHoverSettings) => setBadgeHover(() => next),
     [setBadgeHover],
   );
-  // The badges the seats show, legible and with a "+N" for what does not
-  // fit; the ones whose criterion the mix weighs keep their place first.
-  const badgeView = React.useMemo<SeatBadgeView>(
-    () => ({
-      filter: createBadgeDisplayFilter(badgeDisplay, settings),
-      collapse: true,
-      prioritize: (badge) => isBadgeCriterionActive(badge, settings),
-    }),
-    [badgeDisplay, settings],
+  // The badges the seats show, and the one a pointer is on, whose students
+  // light up — shared with the circle (`useSeatBadgeView`).
+  const { badgeView, badgeFocus, reportBadgeFocus } = useSeatBadgeView(
+    badgeDisplay,
+    settings,
+    badgeHover.highlight,
   );
-  // The badge a pointer is on — an icon on a seat or a row of the legend —
-  // lights the seats of the students it points at.
-  const [storedBadgeFocus, setBadgeFocus] = React.useState<BadgeFocus | null>(
-    null,
+  const featureAvailability = React.useMemo(
+    () => getFeatureAvailability(classroomScene.features),
+    [classroomScene.features],
   );
-  // Marking the others is a choice; switched off, pointing marks nobody.
-  const badgeFocus = badgeHover.highlight ? storedBadgeFocus : null;
-  const reportBadgeFocus = badgeHover.highlight ? setBadgeFocus : undefined;
-  const featureAvailability = React.useMemo(() => {
-    const features = classroomScene.features ?? [];
-    const availability: FeatureVisibilityFlags = {};
-    for (const type of FEATURE_TYPES) {
-      availability[type] = features.some((feature) => feature.type === type);
-    }
-    return availability;
-  }, [classroomScene.features]);
 
   const seatingSettingsGroups = React.useMemo(
     () => [
@@ -337,35 +320,13 @@ export default function SeatingPlanEditorView({
           },
         ],
       },
-      {
+      buildPhotoDisplayGroup({
         id: 'editor-photos',
-        title: t('editor.studentPhotos', 'Schülerfotos'),
-        options: [
-          {
-            kind: 'segment' as const,
-            id: 'photo-display-mode',
-            value: photoDisplayMode,
-            onChange: handlePhotoDisplayModeChange,
-            choices: [
-              {
-                value: 'all',
-                label: t('editor.photoModeAll', 'An'),
-                icon: <EyeIcon size={18} />,
-              },
-              {
-                value: 'hover',
-                label: t('editor.photoModeHover', 'Hover'),
-                icon: <CursorIcon size={18} />,
-              },
-              {
-                value: 'off',
-                label: t('editor.photoModeOff', 'Aus'),
-                icon: <EyeSlashIcon size={18} />,
-              },
-            ],
-          },
-        ],
-      },
+        optionId: 'photo-display-mode',
+        value: photoDisplayMode,
+        onChange: handlePhotoDisplayModeChange,
+        t,
+      }),
       buildNameDisplayGroup({
         id: 'editor-names',
         value: nameDisplay,

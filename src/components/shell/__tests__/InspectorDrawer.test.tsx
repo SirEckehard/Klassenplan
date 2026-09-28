@@ -14,6 +14,7 @@ import Inspector from '@/components/shell/Inspector';
 import InspectorPortal from '@/components/shell/InspectorPortal';
 import StatusBarFrame from '@/components/shell/StatusBarFrame';
 import { InspectorProvider, useInspector } from '@/contexts/InspectorContext';
+import { ToolRailProvider } from '@/contexts/ToolRailContext';
 import { createMockStudent } from '@/__tests__/utils';
 import type { Student } from '@/types';
 
@@ -139,6 +140,32 @@ describe('Inspector below lg', () => {
     fireEvent.keyDown(window, { key: 'Escape' });
     expect(aside).toHaveClass('hidden');
     expect(toggle).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('lets the toolbar’s drawer and the inspector’s take turns on a phone', () => {
+    setWidth(390);
+    render(
+      <ToolRailProvider>
+        <InspectorProvider>
+          <InspectorPortal label="Mischkriterien">
+            <button type="button">Kriterium</button>
+          </InspectorPortal>
+          <Inspector />
+          <StatusBarFrame start={<span>Status</span>} />
+        </InspectorProvider>
+      </ToolRailProvider>,
+    );
+    const criteria = screen.getByRole('button', { name: 'Mischkriterien' });
+    const toolbar = screen.getByRole('button', { name: 'Werkzeugleiste' });
+
+    fireEvent.click(criteria);
+    fireEvent.click(toolbar);
+    expect(criteria).toHaveAttribute('aria-expanded', 'false');
+    expect(toolbar).toHaveAttribute('aria-expanded', 'true');
+
+    fireEvent.click(criteria);
+    expect(criteria).toHaveAttribute('aria-expanded', 'true');
+    expect(toolbar).toHaveAttribute('aria-expanded', 'false');
   });
 
   it('closes the panel again from the same switch', () => {

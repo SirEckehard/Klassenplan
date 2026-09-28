@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import {
   CaretDownIcon,
   CheckIcon,
+  GraduationCapIcon,
   PencilLineIcon,
   PlusIcon,
   TrashIcon,
@@ -110,10 +111,17 @@ export default function HeaderClassMenu() {
         aria-expanded={open}
         title={buttonLabel}
         aria-label={buttonLabel}
-        className={`${secondaryButtonClass} h-9 max-w-full gap-2 px-3 text-sm`}
+        className={`${secondaryButtonClass} h-9 max-w-full gap-1.5 px-2.5 text-sm sm:gap-2 sm:px-3`}
       >
+        {/* A phone has no room for the name beside the layers and would
+            push "Klasse" off the header; there the button is a mark, and the
+            name stays in its label and tooltip. */}
+        <GraduationCapIcon
+          className="h-4 w-4 shrink-0 sm:hidden"
+          aria-hidden="true"
+        />
         <span
-          className={`max-w-32 truncate sm:max-w-44 ${
+          className={`hidden max-w-44 truncate sm:inline ${
             hasActiveClass ? 'font-semibold' : 'text-(--text-muted)'
           }`}
         >

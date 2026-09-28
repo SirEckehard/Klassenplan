@@ -2,8 +2,8 @@
 // Copyright (C) 2026 Eike Schäfer
 /**
  * The sidebar is where the tablet tier is actually visible. Below `md` it is a
- * full-screen sheet, opened from the status bar inside the shell; from `md` up
- * it is a real column, on a tablet starting as the 60px rail so the canvas
+ * drawer from the left, opened from the status bar inside the shell; from `md`
+ * up it is a real column, on a tablet starting as the 60px rail so the canvas
  * keeps its width.
  */
 import '@testing-library/jest-dom/vitest';
@@ -57,7 +57,7 @@ afterEach(() => {
 });
 
 describe('SmartSidebar layout tiers', () => {
-  it('gives a phone a sheet instead of a column', async () => {
+  it('gives a phone a drawer instead of a column', async () => {
     setWidth(390);
 
     renderSidebar();
@@ -65,9 +65,43 @@ describe('SmartSidebar layout tiers', () => {
     expect(sidebarColumn()).not.toBeInTheDocument();
     await userEvent.click(openSheetButton()!);
 
-    expect(
-      screen.getByRole('dialog', { name: 'Werkzeugleiste' }),
-    ).toHaveTextContent('Optionen-Inhalt');
+    // Not a modal sheet: a landmark beside the stage, like the inspector's
+    // drawer, so the panels its entries open can stack above it.
+    const drawer = screen.getByRole('complementary', {
+      name: 'Werkzeugleiste',
+    });
+    expect(drawer).toHaveTextContent('Optionen-Inhalt');
+    expect(drawer).toHaveFocus();
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('closes the phone drawer on Escape and after an action', async () => {
+    setWidth(390);
+    render(
+      <SmartSidebar>
+        <button type="button">Sitzkreis</button>
+        <button type="button" aria-haspopup="dialog">
+          Schüler hinzufügen
+        </button>
+      </SmartSidebar>,
+    );
+    const drawer = () =>
+      screen.queryByRole('complementary', { name: 'Werkzeugleiste' });
+
+    await userEvent.click(openSheetButton()!);
+    await userEvent.keyboard('{Escape}');
+    expect(drawer()).not.toBeInTheDocument();
+    expect(openSheetButton()).toHaveFocus();
+
+    await userEvent.click(openSheetButton()!);
+    // An entry with a panel of its own leaves the drawer open behind it …
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Schüler hinzufügen' }),
+    );
+    expect(drawer()).toBeInTheDocument();
+    // … an action closes it, so the stage shows what it did.
+    await userEvent.click(screen.getByRole('button', { name: 'Sitzkreis' }));
+    expect(drawer()).not.toBeInTheDocument();
   });
 
   it('floats nothing over the stage on a phone inside the shell', () => {

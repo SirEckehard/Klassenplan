@@ -52,8 +52,11 @@ import {
   showToast,
   type AlignmentGuide,
 } from '@/utils';
-import { FEATURE_TYPES, type FeatureVisibilityFlags } from '@/utils/ui';
-import { buildFeatureVisibilityGroup } from '@/components/SeatingPlanGenerator/canvas/featureVisibilityGroup';
+import { type FeatureVisibilityFlags } from '@/utils/ui';
+import {
+  buildFeatureVisibilityGroup,
+  getFeatureAvailability,
+} from '@/components/SeatingPlanGenerator/canvas/featureVisibilityGroup';
 import {
   useFeaturePaletteDrag,
   type FeaturePaletteItem,
@@ -291,14 +294,10 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
     canPaste,
   });
 
-  const featureAvailability = React.useMemo(() => {
-    const features = sceneFeatures ?? [];
-    const availability: FeatureVisibilityFlags = {};
-    for (const type of FEATURE_TYPES) {
-      availability[type] = features.some((feature) => feature.type === type);
-    }
-    return availability;
-  }, [sceneFeatures]);
+  const featureAvailability = React.useMemo(
+    () => getFeatureAvailability(sceneFeatures),
+    [sceneFeatures],
+  );
 
   React.useEffect(() => {
     if (!sceneFeatures) {

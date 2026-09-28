@@ -17,8 +17,8 @@ import { useLayoutMode } from '@/hooks/ui/useLayoutMode';
  * it sits in the status bar and the state has to be reachable from both ends
  * of the window.
  *
- * A phone has no column, only a sheet, and its switch sits in the status bar
- * too — so whether the sheet is up is shared state as well.
+ * A phone has no column, only a drawer, and its switch sits in the status bar
+ * too — so whether the drawer is open is shared state as well.
  *
  * A sidebar outside the shell finds no provider and keeps its own state and
  * its own switch. Every layer and the export page wear the shell, so that is
@@ -29,12 +29,15 @@ export type ToolRailState = {
   expand: () => void;
   collapse: () => void;
   toggle: () => void;
-  /** Whether the phone's sheet is up; meaningless from `md` up. */
+  /** Whether the phone's drawer is open; meaningless from `md` up. */
   sheetOpen: boolean;
   setSheetOpen: (open: boolean) => void;
 };
 
 const ToolRailContext = React.createContext<ToolRailState | null>(null);
+
+/** The phone's toolbar drawer, for the status bar switch that opens it. */
+export const TOOL_RAIL_DRAWER_ID = 'shell-tool-rail';
 
 /**
  * The state itself, for the provider and for a sidebar standing on its own.

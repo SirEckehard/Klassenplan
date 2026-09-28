@@ -1,13 +1,31 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import type { TFunction } from 'i18next';
-import type { ClassroomFeatureType } from '@/types';
+import type { ClassroomFeature, ClassroomFeatureType } from '@/types';
 import {
   FEATURE_TYPES,
   FEATURE_TYPE_ICONS,
   FEATURE_TYPE_LABEL_KEYS,
+  type FeatureVisibilityFlags,
 } from '@/utils/ui';
 import type { CanvasSettingsGroup } from './CanvasSettingsButton';
+
+/**
+ * Which kinds of room element the room has at all. A kind it lacks is offered
+ * in the group but cannot be switched on. The room and the table plan ask the
+ * same question of the same scene.
+ */
+export function getFeatureAvailability(
+  features: readonly ClassroomFeature[] | undefined,
+): FeatureVisibilityFlags {
+  const availability: FeatureVisibilityFlags = {};
+  for (const type of FEATURE_TYPES) {
+    availability[type] = (features ?? []).some(
+      (feature) => feature.type === type,
+    );
+  }
+  return availability;
+}
 
 type FeatureVisibilityGroupOptions = {
   id: string;

@@ -28,7 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Menus and panels of the header and the toolbar can be reached, used and closed with the keyboard
 - Creating placeholders adds as many as the class has room for, says in one message how many there are, and opens the first of them for its name
 - With the seating circle on the stage, the status bar counts the circle instead of the table seats
-- On a phone the toolbar opens from the left end of the status bar, where a tablet has its switch; the blue "Options" button that floated over the stage is gone
+- On a phone the toolbar opens as a drawer from the left end of the status bar, where a tablet has its switch, the mirror of the inspector on the right; the blue "Options" button that floated over the stage is gone. On a phone the header shows the open class as a mark, so all three layers stay in reach
 - In the seating plan the arrow keys move from seat to seat, as they do round the circle: Enter picks a student up, the arrows choose the seat, Enter puts them down
 - Ticking several students who differ in gender, height, language level or role shows the values some of them have, outlined in dashes, instead of looking as if nothing were set
 - The window seat has the window's icon; the picture icon now only means photos
@@ -52,6 +52,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Escape closes an opened student on a phone
 - Saving could offer to rename a plan and then refuse: the save panel and the ways out now find the open plan the way saving does
 - A long name fits its field in the inspector instead of being cut off at the edge
+- On a phone the toolbar's panels and menus – adding a student, the class tools, the backup – opened out of sight behind the toolbar
+- On a narrow phone such as the iPhone 16 Pro the class's name pushed the "Class" layer off the header
 - "Shuffle randomly" in the circle came out in some orders more often than in others and left about one student in eight where they were; every order is equally likely now, and locked students stay put
 
 ## [2.2.0] - 2026-09-17

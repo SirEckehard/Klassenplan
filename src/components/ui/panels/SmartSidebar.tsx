@@ -14,16 +14,26 @@ import {
   secondaryButtonClass,
 } from '@/utils';
 import { type UseCollapsibleSidebarOptions } from '@/hooks/ui/useCollapsibleSidebar';
-import { useShellToolRail, useToolRailState } from '@/contexts/ToolRailContext';
+import {
+  TOOL_RAIL_DRAWER_ID,
+  useShellToolRail,
+  useToolRailState,
+} from '@/contexts/ToolRailContext';
 import { useLayoutMode } from '@/hooks/ui/useLayoutMode';
 import { useAdaptiveViewportHeight } from '@/hooks/ui/useAdaptiveViewportHeight';
-import { useDialogA11y } from '@/hooks/ui/useDialogA11y';
-import { useDialogLayer } from '@/hooks/ui/useDialogLayer';
+import { isAnyDialogOpen } from '@/hooks/ui/useDialogLayer';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
+
+/**
+ * The toolbar's drawer on a phone: the left-hand mirror of the inspector's
+ * (`Inspector`), between the header and the status bar.
+ */
+const toolRailDrawerClass =
+  'fixed top-14 left-0 bottom-(--shell-bottom-inset) z-40 flex w-64 max-w-full flex-col overflow-hidden border-r border-(--border-card) bg-(--surface-card) shadow-(--menu-shadow) focus:outline-none';
 
 interface SmartSidebarProps extends UseCollapsibleSidebarOptions {
   className?: string;
-  /** `data-tour` anchor for the onboarding tour, set on the rail (not the phone sheet). */
+  /** `data-tour` anchor for the onboarding tour, set on the rail (not the phone drawer). */
   tourAnchor?: string;
   /**
    * The column's two widths. The default is the workspace toolbar's — 208px
@@ -52,8 +62,8 @@ export default function SmartSidebar({
   const layoutMode = useLayoutMode();
   const isPhone = layoutMode === 'phone';
   // Inside the workspace the status bar owns the switch and the state is
-  // shared — the column's width and, on a phone, whether the sheet is up. A
-  // sidebar outside the shell keeps both.
+  // shared — the column's width and, on a phone, whether the drawer is open.
+  // A sidebar outside the shell keeps both.
   const shellRail = useShellToolRail();
   const ownRail = useToolRailState(sidebarOptions);
   const rail = shellRail ?? ownRail;
@@ -69,12 +79,43 @@ export default function SmartSidebar({
   );
   const containerRef = React.useRef<HTMLElement | null>(null);
   const collapseButtonRef = React.useRef<HTMLButtonElement | null>(null);
-  const mobileSheetRef = useDialogA11y<HTMLDivElement>({
-    open: isPhone && mobileOpen,
-  });
-  // The phone sheet owns Escape while it is up.
-  useDialogLayer(isPhone && mobileOpen);
-  const mobileSheetTitleId = React.useId();
+  const drawerRef = React.useRef<HTMLElement | null>(null);
+  const drawerTitleId = React.useId();
+  const showsDrawer = isPhone && mobileOpen;
+
+  // Like the inspector's drawer, not modal: the focus moves in when it opens
+  // and goes back to the switch when Escape closes it. An open panel of the
+  // toolbar is a dialog layer and takes Escape first.
+  React.useEffect(() => {
+    if (!showsDrawer) return undefined;
+    const opener =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
+    drawerRef.current?.focus();
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape' || isAnyDialogOpen()) return;
+      event.stopPropagation();
+      setSheetOpen(false);
+      opener?.focus();
+    };
+    window.addEventListener('keydown', handleKeyDown, true);
+    return () => window.removeEventListener('keydown', handleKeyDown, true);
+  }, [setSheetOpen, showsDrawer]);
+
+  // An action taken in the drawer — a view switched, an export started —
+  // closes it, so the stage shows what it did. An entry that opens a panel or
+  // a dialog of its own keeps it open behind that.
+  const handleDrawerClick = React.useCallback(
+    (event: React.MouseEvent<HTMLElement>) => {
+      const target = event.target instanceof Element ? event.target : null;
+      const control = target?.closest('button, a');
+      if (!control || !event.currentTarget.contains(control)) return;
+      if (control.hasAttribute('aria-haspopup')) return;
+      setSheetOpen(false);
+    },
+    [setSheetOpen],
+  );
 
   const { isExpanded, expand, toggle } = rail;
   const { maxHeight } = useAdaptiveViewportHeight<HTMLElement>({
@@ -113,16 +154,11 @@ export default function SmartSidebar({
         e.preventDefault();
         toggle();
       }
-
-      // Close mobile overlay with Escape
-      if (e.key === 'Escape' && mobileOpen) {
-        closeMobileOverlay();
-      }
     };
 
     document.addEventListener('keydown', handleKeydown);
     return () => document.removeEventListener('keydown', handleKeydown);
-  }, [closeMobileOverlay, mobileOpen, toggle]);
+  }, [toggle]);
 
   const { expanded: expandedWidth, collapsed: collapsedWidth } = widths;
 
@@ -149,19 +185,22 @@ export default function SmartSidebar({
     return { maxHeight };
   }, [maxHeight]);
 
-  // Only a phone has no room for a column: the toolbar is a full-screen sheet.
-  // Its switch sits at the left end of the status bar, where the column's
-  // switch sits on a tablet — nothing floats over the stage, and the bar's
-  // blue button stays the only one on the screen.
+  // Only a phone has no room for a column: the toolbar is a drawer from the
+  // left, the mirror of the inspector's on the right. Its switch sits at the
+  // left end of the status bar, where the column's switch sits on a tablet —
+  // nothing floats over the stage, and the bar's blue button stays the only
+  // one on the screen. The panels its entries open are portalled to the end
+  // of the page and stack above it; the full-screen sheet it replaces lay
+  // above them, so on a phone they opened out of sight.
   if (isPhone) {
     return (
       <>
         {ownsSwitch && (
           <button
             type="button"
-            onClick={openMobileOverlay}
-            aria-haspopup="dialog"
+            onClick={() => setSheetOpen(!mobileOpen)}
             aria-expanded={mobileOpen}
+            aria-controls={TOOL_RAIL_DRAWER_ID}
             className={`${secondaryButtonClass} h-9 gap-2 self-start px-3 text-sm`}
           >
             <WrenchIcon size={18} aria-hidden="true" />
@@ -169,34 +208,32 @@ export default function SmartSidebar({
           </button>
         )}
 
-        {/* Full-screen overlay */}
-        {mobileOpen && (
-          <div
-            ref={mobileSheetRef}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby={mobileSheetTitleId}
+        {showsDrawer && (
+          <aside
+            id={TOOL_RAIL_DRAWER_ID}
+            ref={drawerRef}
             tabIndex={-1}
-            className="fixed inset-0 z-50 overflow-y-auto bg-(--surface-page) focus:outline-none"
+            aria-labelledby={drawerTitleId}
+            className={toolRailDrawerClass}
+            onClick={handleDrawerClick}
           >
-            {/* Header with close button */}
-            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-(--border-panel) bg-(--surface-card) px-4 py-3">
-              <h2 id={mobileSheetTitleId} className="text-lg font-semibold">
+            <div className="flex shrink-0 items-center justify-between gap-2 border-b border-(--border-card) px-4 py-2">
+              <h2 id={drawerTitleId} className="text-[15px] font-semibold">
                 {t('sidebar.ariaLabel')}
               </h2>
               <button
                 type="button"
                 onClick={closeMobileOverlay}
-                className={`${iconButtonClass} h-10 w-10 border-none bg-transparent shadow-none`}
+                className={`${iconButtonClass} h-9 w-9 border-none bg-transparent shadow-none`}
                 aria-label={t('common.close', 'Schließen')}
               >
-                <XIcon size={24} />
+                <XIcon size={18} aria-hidden="true" />
               </button>
             </div>
-
-            {/* Content */}
-            <div className="p-4">{renderedChildren}</div>
-          </div>
+            <div className="min-h-0 flex-1 overflow-y-auto px-2 py-3">
+              <div className="flex min-h-full flex-col">{renderedChildren}</div>
+            </div>
+          </aside>
         )}
       </>
     );

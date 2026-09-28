@@ -8,7 +8,10 @@ import {
   SlidersHorizontalIcon,
   WrenchIcon,
 } from '@phosphor-icons/react';
-import { useShellToolRail } from '@/contexts/ToolRailContext';
+import {
+  TOOL_RAIL_DRAWER_ID,
+  useShellToolRail,
+} from '@/contexts/ToolRailContext';
 import { INSPECTOR_DRAWER_ID, useInspector } from '@/contexts/InspectorContext';
 import { useLayoutMode } from '@/hooks/ui/useLayoutMode';
 import { quietIconButtonClass, secondaryButtonClass } from '@/utils';
@@ -46,7 +49,8 @@ export const statusBarBackButtonClass = `${secondaryButtonClass} h-9 shrink-0 ga
  * right, mirroring the toolbar's switch on the left: each sits under the panel
  * it opens. It appears only while a layer has something to show there — the
  * room's properties, the plan's criteria, the circle's summary. A phone has no
- * toolbar column either; there the left switch opens the toolbar's sheet.
+ * toolbar column either; there the left switch opens the toolbar as a drawer
+ * from the left. The two drawers take turns: opening one closes the other.
  */
 export default function StatusBarFrame({
   start,
@@ -60,7 +64,7 @@ export default function StatusBarFrame({
   const { t } = useTranslation('generator');
   // The toolbar's width belongs to the workspace, not to a layer, so its
   // switch sits here rather than in a header above the tools. A phone has no
-  // toolbar column at all — there the same place opens it as a sheet.
+  // toolbar column at all — there the same place opens it as a drawer.
   const toolRail = useShellToolRail();
   const layoutMode = useLayoutMode();
   const isPhone = layoutMode === 'phone';
@@ -86,12 +90,19 @@ export default function StatusBarFrame({
             <>
               <button
                 type="button"
-                onClick={() => toolRail.setSheetOpen(true)}
-                aria-haspopup="dialog"
+                onClick={() => {
+                  if (!toolRail.sheetOpen) setDrawerOpen(false);
+                  toolRail.setSheetOpen(!toolRail.sheetOpen);
+                }}
                 aria-expanded={toolRail.sheetOpen}
-                aria-label={t('sidebar.openLabel')}
-                title={t('sidebar.openLabel')}
-                className={`${secondaryButtonClass} h-9 w-9 shrink-0 px-0`}
+                aria-controls={TOOL_RAIL_DRAWER_ID}
+                aria-label={t('sidebar.ariaLabel')}
+                title={t('sidebar.ariaLabel')}
+                className={`${secondaryButtonClass} h-9 w-9 shrink-0 px-0 ${
+                  toolRail.sheetOpen
+                    ? 'border-(--border-option-selected) bg-(--surface-option-selected) text-(--text-badge)'
+                    : ''
+                }`}
               >
                 <WrenchIcon className="h-4 w-4" aria-hidden="true" />
               </button>
@@ -148,7 +159,10 @@ export default function StatusBarFrame({
               />
               <button
                 type="button"
-                onClick={() => setDrawerOpen(!drawerOpen)}
+                onClick={() => {
+                  if (!drawerOpen) toolRail?.setSheetOpen(false);
+                  setDrawerOpen(!drawerOpen);
+                }}
                 aria-expanded={drawerOpen}
                 aria-controls={INSPECTOR_DRAWER_ID}
                 title={portalLabel}

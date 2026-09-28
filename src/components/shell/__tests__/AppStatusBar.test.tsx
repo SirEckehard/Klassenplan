@@ -405,7 +405,7 @@ describe('AppStatusBar', () => {
     );
   });
 
-  it('opens the toolbar as a sheet on a phone', async () => {
+  it('opens the toolbar as a drawer on a phone', async () => {
     const width = window.innerWidth;
     Object.defineProperty(window, 'innerWidth', {
       configurable: true,
@@ -420,15 +420,19 @@ describe('AppStatusBar', () => {
         </ToolRailProvider>,
       );
 
-      const open = getButton(/Werkzeugleiste öffnen|Open toolbar/i);
-      expect(open).toHaveAttribute('aria-expanded', 'false');
+      const toggle = getButton(/^(Werkzeugleiste|Toolbar)$/i);
+      expect(toggle).toHaveAttribute('aria-expanded', 'false');
+      expect(toggle).toHaveAttribute('aria-controls', 'shell-tool-rail');
       expect(
         screen.queryByRole('button', { name: /erweitern|Expand/i }),
       ).not.toBeInTheDocument();
 
-      await userEvent.click(open);
+      await userEvent.click(toggle);
+      expect(toggle).toHaveAttribute('aria-expanded', 'true');
 
-      expect(open).toHaveAttribute('aria-expanded', 'true');
+      // The same switch closes it again.
+      await userEvent.click(toggle);
+      expect(toggle).toHaveAttribute('aria-expanded', 'false');
     } finally {
       Object.defineProperty(window, 'innerWidth', {
         configurable: true,

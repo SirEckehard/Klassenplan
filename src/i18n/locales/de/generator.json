@@ -63,7 +63,6 @@
     }
   },
   "sidebar": {
-    "openLabel": "Werkzeugleiste öffnen",
     "ariaLabel": "Werkzeugleiste",
     "collapseShortcut": "Werkzeugleiste minimieren (Strg/⌘+B)",
     "collapseLabel": "Werkzeugleiste minimieren",

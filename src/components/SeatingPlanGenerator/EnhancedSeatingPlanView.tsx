@@ -6,9 +6,6 @@ import {
   LinkSimpleIcon,
   ArrowCounterClockwiseIcon,
   ShuffleIcon,
-  EyeIcon,
-  EyeSlashIcon,
-  CursorIcon,
 } from '@phosphor-icons/react';
 import SmartSidebar from '@/components/ui/panels/SmartSidebar';
 import PlanToolPanel from '@/components/SeatingPlanGenerator/views/PlanToolPanel';
@@ -19,7 +16,7 @@ import SimpleCircleView from '@/components/circle/SimpleCircleView';
 import CircleInspector from '@/components/circle/CircleInspector';
 import type { SeatingMode } from '@/types/Circle';
 import type { ConnectionDisplayMode } from '@/components/circle/SimpleCircleView';
-import type { PhotoDisplayMode, Student } from '@/types';
+import type { Student } from '@/types';
 import {
   useSeatingPlanState,
   useSeatingPlanActions,
@@ -37,12 +34,8 @@ import {
 } from '@/utils';
 import { buildNameDisplayGroup } from '@/components/SeatingPlanGenerator/canvas/nameDisplayGroup';
 import { buildBadgeDisplayGroup } from '@/components/SeatingPlanGenerator/canvas/badgeDisplayGroup';
-import {
-  createBadgeDisplayFilter,
-  isBadgeCriterionActive,
-  type BadgeFocus,
-  type SeatBadgeView,
-} from '@/utils/ui/seatBadges';
+import { buildPhotoDisplayGroup } from '@/components/SeatingPlanGenerator/canvas/photoDisplayGroup';
+import { useSeatBadgeView } from '@/hooks/canvas/useSeatBadgeView';
 import { useEnsureCircleLayout } from '@/hooks/circle/useEnsureCircleLayout';
 import { circleShuffleSwaps } from '@/services/circleLayoutService';
 import { usePlanExits } from '@/hooks/plan/usePlanExits';
@@ -102,19 +95,12 @@ export default function EnhancedSeatingPlanView(
     badgeHover,
     setBadgeHover,
   } = useCanvasPreferences();
-  const mixSettings = props.settings;
-  const badgeView = useMemo<SeatBadgeView>(
-    () => ({
-      filter: createBadgeDisplayFilter(badgeDisplay, mixSettings),
-      collapse: true,
-      prioritize: (badge) => isBadgeCriterionActive(badge, mixSettings),
-    }),
-    [badgeDisplay, mixSettings],
+  // The same badges and the same pointing as on the table plan.
+  const { badgeView, badgeFocus, reportBadgeFocus } = useSeatBadgeView(
+    badgeDisplay,
+    props.settings,
+    badgeHover.highlight,
   );
-  const [storedBadgeFocus, setBadgeFocus] = useState<BadgeFocus | null>(null);
-  // Marking the others is a choice; switched off, pointing marks nobody.
-  const badgeFocus = badgeHover.highlight ? storedBadgeFocus : null;
-  const reportBadgeFocus = badgeHover.highlight ? setBadgeFocus : undefined;
 
   // Use prop values if provided, otherwise use internal state and logic
   const requestedSeatingMode = propSeatingMode ?? internalSeatingMode;
@@ -204,35 +190,13 @@ export default function EnhancedSeatingPlanView(
           },
         ],
       },
-      {
+      buildPhotoDisplayGroup({
         id: 'circle-photos',
-        title: t('editor.studentPhotos', 'Schülerfotos'),
-        options: [
-          {
-            kind: 'segment' as const,
-            id: 'circle-photo-mode',
-            value: photoMode,
-            onChange: (next: string) => setPhotoMode(next as PhotoDisplayMode),
-            choices: [
-              {
-                value: 'all',
-                label: t('editor.photoModeAll', 'An'),
-                icon: <EyeIcon size={18} />,
-              },
-              {
-                value: 'hover',
-                label: t('editor.photoModeHover', 'Hover'),
-                icon: <CursorIcon size={18} />,
-              },
-              {
-                value: 'off',
-                label: t('editor.photoModeOff', 'Aus'),
-                icon: <EyeSlashIcon size={18} />,
-              },
-            ],
-          },
-        ],
-      },
+        optionId: 'circle-photo-mode',
+        value: photoMode,
+        onChange: setPhotoMode,
+        t,
+      }),
       buildNameDisplayGroup({
         id: 'circle-names',
         value: nameDisplay,

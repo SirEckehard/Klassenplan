@@ -34,7 +34,9 @@ export default defineConfig({
     },
     {
       name: 'phone',
-      use: { ...devices['Pixel 7'] },
+      // The iPhone 16 Pro is 402px wide, the narrowest header the app has
+      // been reported on.
+      use: { ...devices['iPhone 16 Pro'], browserName: 'chromium' },
       testMatch: /touch-layouts\.spec\.ts/,
       grep: /@phone/,
     },

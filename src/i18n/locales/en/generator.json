@@ -63,7 +63,6 @@
     }
   },
   "sidebar": {
-    "openLabel": "Open toolbar",
     "ariaLabel": "Toolbar",
     "collapseShortcut": "Collapse toolbar (Ctrl/⌘+B)",
     "collapseLabel": "Collapse toolbar",
