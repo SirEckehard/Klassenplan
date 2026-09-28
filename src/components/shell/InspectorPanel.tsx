@@ -31,7 +31,10 @@ export function InspectorHeader({
   return (
     <div className="flex shrink-0 items-center gap-3 border-b border-(--border-card) px-4 py-3">
       {media}
-      <div className="flex min-w-0 flex-col gap-0.5">
+      {/* Takes the width between the media and the actions: a title that is
+          a field — the student's name — has to fit whole, not be cut off by
+          the heading's truncation. */}
+      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
         {/* A heading, so the panel has a place in the document outline and a
             test can ask for what is selected by name. */}
         <h2 className="truncate text-[17px] font-semibold text-(--text-page)">

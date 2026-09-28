@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import type { CircleLayout } from '@/types/Circle';
+import { shuffleArray } from '@/utils/algorithm/shuffle';
 
 export function updateCircleStudentPosition(
   layout: CircleLayout,
@@ -161,6 +162,50 @@ export function swapCircleStudents(
     students: updatedStudents,
     timestamp: Date.now(),
   };
+}
+
+/**
+ * The swaps that put the circle in a random order, for
+ * `batchSwapCircleStudents`. Every order of the free places is equally
+ * likely: the target order is a Fisher–Yates shuffle, and the swaps only
+ * carry it out. The earlier loop of `max(10, n)` random swaps left about one
+ * student in eight where they were. A locked student keeps their place and
+ * takes no part.
+ */
+export function circleShuffleSwaps(
+  layout: CircleLayout,
+  rng: () => number = Math.random,
+): Array<{ studentId: string; targetPosition: number }> {
+  const locked = new Set(layout.lockedStudentIds ?? []);
+  const freePositions = layout.students
+    .map((position, index) =>
+      position?.student && !locked.has(position.student.id) ? index : -1,
+    )
+    .filter((index) => index !== -1);
+  if (freePositions.length < 2) return [];
+
+  // Who sits where while the swaps are worked out, and where each one is.
+  const occupant = new Map(
+    freePositions.map((index) => [index, layout.students[index]!.student.id]),
+  );
+  const placeOf = new Map(
+    freePositions.map((index) => [layout.students[index]!.student.id, index]),
+  );
+  const target = shuffleArray([...occupant.values()], rng);
+
+  const swaps: Array<{ studentId: string; targetPosition: number }> = [];
+  freePositions.forEach((position, k) => {
+    const studentId = target[k]!;
+    const from = placeOf.get(studentId)!;
+    if (from === position) return;
+    const displaced = occupant.get(position)!;
+    swaps.push({ studentId, targetPosition: position });
+    occupant.set(position, studentId);
+    occupant.set(from, displaced);
+    placeOf.set(studentId, position);
+    placeOf.set(displaced, from);
+  });
+  return swaps;
 }
 
 export function batchSwapCircleStudents(

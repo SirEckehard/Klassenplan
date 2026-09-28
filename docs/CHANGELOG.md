@@ -51,6 +51,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Hints that pointed to places the redesign had moved – the footer, "step 3", the portrait icon in the list – now name where things are
 - Escape closes an opened student on a phone
 - Saving could offer to rename a plan and then refuse: the save panel and the ways out now find the open plan the way saving does
+- A long name fits its field in the inspector instead of being cut off at the edge
+- "Shuffle randomly" in the circle came out in some orders more often than in others and left about one student in eight where they were; every order is equally likely now, and locked students stay put
 
 ## [2.2.0] - 2026-09-17
 

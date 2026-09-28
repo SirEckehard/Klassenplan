@@ -44,6 +44,7 @@ import {
   type SeatBadgeView,
 } from '@/utils/ui/seatBadges';
 import { useEnsureCircleLayout } from '@/hooks/circle/useEnsureCircleLayout';
+import { circleShuffleSwaps } from '@/services/circleLayoutService';
 import { usePlanExits } from '@/hooks/plan/usePlanExits';
 import { usePlanShortcuts } from '@/hooks/plan/usePlanShortcuts';
 import {
@@ -154,32 +155,11 @@ export default function EnhancedSeatingPlanView(
     swapStudentPositions(studentId, targetPosition);
   };
 
-  // ShuffleIcon circle layout without affecting seating plan
+  // A random order for the circle alone; the seating plan stays as it is.
+  // Locked students keep their places (`circleShuffleSwaps`).
   const handleShuffleCircle = () => {
     if (!circleLayout) return;
-
-    // Perform multiple random swaps to shuffle the circle. Only the places of
-    // students who are not locked take part: a locked student stays put.
-    const locked = new Set(circleLayout.lockedStudentIds ?? []);
-    const freePositions = circleLayout.students
-      .map((position, index) =>
-        position?.student && !locked.has(position.student.id) ? index : -1,
-      )
-      .filter((index) => index !== -1);
-    const freeCount = freePositions.length;
-    const swapCount = Math.max(10, freeCount); // At least 10 swaps or 1 per student
-
-    const swaps: Array<{ studentId: string; targetPosition: number }> = [];
-    for (let i = 0; i < swapCount && freeCount > 1; i++) {
-      const pos1 = freePositions[Math.floor(Math.random() * freeCount)];
-      const pos2 = freePositions[Math.floor(Math.random() * freeCount)];
-
-      if (pos1 !== pos2 && circleLayout.students[pos1]) {
-        const studentId = circleLayout.students[pos1].student.id;
-        swaps.push({ studentId, targetPosition: pos2 });
-      }
-    }
-
+    const swaps = circleShuffleSwaps(circleLayout);
     if (swaps.length > 0) {
       batchSwapStudentPositions(swaps);
     }

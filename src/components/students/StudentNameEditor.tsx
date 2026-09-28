@@ -125,11 +125,13 @@ export default function StudentNameEditor({
     onEditEnd?.(); // Notify that editing ended
   };
 
+  // The whole width of the inspector's title, so a long name fits its field
+  // and the field fits the panel — the heading would clip anything wider.
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex min-w-0 items-center gap-1">
       {/* Name Field or Input */}
       {isEditing ? (
-        <div className="relative">
+        <div className="relative w-full min-w-0">
           <input
             type="text"
             value={draftName}
@@ -144,7 +146,7 @@ export default function StudentNameEditor({
               }
             }}
             onBlur={() => saveName()}
-            className={`${inputFieldClass} w-full px-3 py-1.5 pr-14 lg:w-44`}
+            className={`${inputFieldClass} w-full px-3 py-1.5 pr-14`}
             autoFocus
           />
           <div className="absolute inset-y-0 right-1 flex items-center gap-0.5">
@@ -171,7 +173,7 @@ export default function StudentNameEditor({
           </div>
         </div>
       ) : (
-        <div className="flex items-center overflow-visible">
+        <div className="flex min-w-0 items-center">
           <span
             onClick={(e) => {
               e.stopPropagation(); // Prevent event bubbling to card container
@@ -184,7 +186,7 @@ export default function StudentNameEditor({
                 startEditing();
               }
             }}
-            className="student-name-editable cursor-text select-text rounded-xl border border-(--border-card) bg-(--surface-card) px-3 py-1 text-sm font-medium text-(--text-page) shadow-sm transition-colors hover:bg-(--surface-option-selected) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:border-(--border-option-selected)"
+            className="student-name-editable block min-w-0 truncate cursor-text select-text rounded-xl border border-(--border-card) bg-(--surface-card) px-3 py-1 text-sm font-medium text-(--text-page) shadow-sm transition-colors hover:bg-(--surface-option-selected) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:border-(--border-option-selected)"
             tabIndex={0}
             role="button"
             aria-label={t('nameEditor.editName', { name: student.name })}

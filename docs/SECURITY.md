@@ -75,6 +75,17 @@ object-src 'none';
 
 **No inline scripts:** `index.html` contains no inline `<script>` blocks. The PWA install-prompt capture lives in the entry module (`src/index.tsx` imports `src/hooks/useInstallPrompt.ts`), and speculation rules are delivered via the `Speculation-Rules` HTTP header pointing at [`public/speculationrules.json`](../public/speculationrules.json) (served with the `application/speculationrules+json` MIME type, see `nginx.conf`).
 
+**HSTS for self-hosters:** the image sends `Strict-Transport-Security: max-age=31536000; includeSubDomains; preload`, which suits klassenplan.de: every subdomain there speaks HTTPS, and the domain is meant for the browsers' preload list. On another domain `includeSubDomains` forces HTTPS on every subdomain for a year once a browser has seen the header, and `preload` asks to be listed for good — neither is undone quickly. An operator whose domain does not qualify mounts a copy of [`nginx-security-headers.conf`](../nginx-security-headers.conf) with a narrower HSTS line over the image's snippet, for example in `docker-compose.yml`:
+
+```yaml
+volumes:
+  - ./security-headers.conf:/etc/nginx/snippets/security-headers.conf:ro
+```
+
+Keep the other headers of the copy as they are; only the HSTS line differs (`max-age=31536000` alone is a sound default).
+
+**Brand files are cached for a day:** `/brand/` keeps its file names across releases, so it gets `max-age=86400, must-revalidate` rather than the year of `immutable` that hashed chunks get (`nginx.conf`). Preview screenshots carry `?v=…` and stay immutable.
+
 **nginx `add_header` inheritance pitfall:** nginx does _not_ inherit server-level `add_header` directives into a `location` block that declares its own `add_header` (e.g. for `Cache-Control`). The security headers therefore live in [`nginx-security-headers.conf`](../nginx-security-headers.conf), which every such location `include`s again. When adding a new `location` with its own `add_header`, always re-include the snippet — otherwise those responses (including `index.html`) would be served without CSP/HSTS.
 
 ### Development CSP (vite.config.ts)

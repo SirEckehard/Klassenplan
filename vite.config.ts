@@ -8,12 +8,22 @@ import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 import viteCompression from 'vite-plugin-compression';
 import path from 'path';
+import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import type { Alias, PluginOption } from 'vite';
 import { readLegalPageUrls } from './src/config/legalPageUrls.ts';
 import { readContactEmail } from './src/config/contactEmail.ts';
 
 const rootDir = fileURLToPath(new URL('.', import.meta.url));
+
+// Read from the manifest rather than from `npm_package_version`, which only
+// npm scripts set: `npx vite build` used to ship "0.0.0" as the version, and
+// the update check and the changelog badge compare against it.
+const appVersion = (
+  JSON.parse(readFileSync(path.join(rootDir, 'package.json'), 'utf8')) as {
+    version: string;
+  }
+).version;
 
 // The operator's own legal pages (IMPRINT_URL / PRIVACY_URL, decision 0012).
 // Validated here, so a typo fails the build instead of shipping the pages of
@@ -359,7 +369,7 @@ export default defineConfig({
     ],
   },
   define: {
-    __APP_VERSION__: JSON.stringify(process.env.npm_package_version ?? '0.0.0'),
+    __APP_VERSION__: JSON.stringify(appVersion),
     // Canonical origin, baked in at build time. Deriving it from
     // window.location.origin emits localhost URLs while prerendering and
     // staging-host URLs on preview deploys. The same SITE_URL variable drives
