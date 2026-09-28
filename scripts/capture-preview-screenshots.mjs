@@ -336,16 +336,24 @@ async function restPointer(page) {
   );
 }
 
-/** Klasse, Raum or Sitzplan in the header's layer switcher. */
+/**
+ * Klasse, Raum or Sitzplan in the header's layer switcher — a group of toggle
+ * buttons whose third one carries the same name as the toolbar's view entry.
+ */
 async function goToLayer(page, t, layer) {
   await page
-    .getByRole('tab', { name: t(`generator:shell.layers.${layer}`) })
+    .getByRole('group', { name: t('generator:shell.layerSwitchLabel') })
+    .getByRole('button', {
+      name: t(`generator:shell.layers.${layer}`),
+      exact: true,
+    })
     .click();
 }
 
 /** Sitzplan or Sitzkreis in the plan layer's toolbar. */
 async function showArrangement(page, t, layer) {
   await page
+    .getByRole('complementary', { name: t('generator:sidebar.ariaLabel') })
     .getByRole('button', {
       name: t(`generator:shell.layers.${layer}`),
       exact: true,
