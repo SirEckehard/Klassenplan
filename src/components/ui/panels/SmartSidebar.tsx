@@ -23,6 +23,7 @@ import { useLayoutMode } from '@/hooks/ui/useLayoutMode';
 import { useAdaptiveViewportHeight } from '@/hooks/ui/useAdaptiveViewportHeight';
 import { isAnyDialogOpen } from '@/hooks/ui/useDialogLayer';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
+import { SHELL_STATUS_BAR_HEIGHT } from '@/components/shell/shellTokens';
 
 /**
  * The toolbar's drawer on a phone: the left-hand mirror of the inspector's
@@ -118,12 +119,19 @@ export default function SmartSidebar({
   );
 
   const { isExpanded, expand, toggle } = rail;
+  // On a tablet the workspace is still a scrolling page, and the toolbar stands
+  // beside the stage as a column that stays in view while the page scrolls
+  // under the sticky header — a long class list would otherwise carry the
+  // tools away. It has to end above the status bar the shell keeps at the
+  // bottom edge, or the foot of the toolbar slides under it.
+  const isStickyColumn = layoutMode === 'tablet' && !ownsSwitch;
   const { maxHeight } = useAdaptiveViewportHeight<HTMLElement>({
     containerRef,
     // From `lg` up the shell is the window: the column has a real height from
     // the frame, and a measured `max-height` on top of it would only fight it.
     disabled: layoutMode === 'desktop',
-    reservedTop: 24,
+    reservedTop: isStickyColumn ? 16 : 24,
+    reservedBottom: isStickyColumn ? SHELL_STATUS_BAR_HEIGHT : 0,
     detectOverflow: false, // Disabled to prevent scrollHeight reads during resize
     debounceMs: 100, // Increased debounce for smoother zoom handling
     dependencies: [isExpanded],
@@ -167,7 +175,8 @@ export default function SmartSidebar({
   //
   // On the desktop shell it is not a card at all but the left edge of the
   // window — one hairline against the sunken stage. Below `lg` the layer is
-  // still a stacked document, where a panel needs its own frame to read as one.
+  // still a scrolling document, where a panel needs its own frame to read as
+  // one.
   const isDesktopShell = layoutMode === 'desktop';
   const frameClass = isDesktopShell
     ? 'border-r border-(--border-card) bg-(--surface-page)'
@@ -244,7 +253,7 @@ export default function SmartSidebar({
       ref={containerRef}
       style={sidebarStyle}
       className={`
-        relative shrink-0 border-0
+        ${isStickyColumn ? 'sticky top-20' : 'relative'} shrink-0 border-0
         ${isExpanded ? 'overflow-hidden' : 'overflow-y-auto'}
         transition-[width] duration-100 ease-out
         ${isExpanded ? expandedWidth : collapsedWidth}

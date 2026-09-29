@@ -75,7 +75,7 @@ export default function CircleInspector({
 
   if (!summary) {
     return (
-      <InspectorPortal label={title}>
+      <InspectorPortal label={title} foldable>
         <InspectorHeader title={title} />
       </InspectorPortal>
     );
@@ -105,7 +105,7 @@ export default function CircleInspector({
     );
 
   return (
-    <InspectorPortal label={title}>
+    <InspectorPortal label={title} foldable>
       <InspectorHeader title={title} />
       <InspectorBody>
         <InspectorSection

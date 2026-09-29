@@ -106,14 +106,18 @@ function StudentRow({
             ? t('listToolbar.selectStudent', { name: displayName })
             : t('listStatus.openStudent', { name: displayName })
         }
-        className="flex min-w-0 flex-1 cursor-pointer flex-wrap items-center gap-x-3 gap-y-1 py-2 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) lg:h-15 lg:flex-nowrap lg:py-0"
+        // The chips stand beside the name where the list is wide enough
+        // (`@2xl`, the list card being the container) and under it where it
+        // is not. At least 60px, not exactly: a row of fixed height spilled
+        // chips that wrapped over the rows below.
+        className="flex min-w-0 flex-1 cursor-pointer flex-wrap items-center gap-x-3 gap-y-1 py-2 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) @2xl:min-h-15 @2xl:flex-nowrap"
       >
         <span className="w-6 shrink-0 text-xs tabular-nums text-(--text-muted)">
           {index + 1}.
         </span>
         <StudentAvatar student={student} size={32} />
         <span
-          className={`shrink-0 truncate text-[15px] lg:w-44 ${
+          className={`shrink-0 truncate text-[15px] @2xl:w-44 ${
             hasName ? 'text-(--text-page)' : 'text-(--text-muted) italic'
           }`}
         >
@@ -122,7 +126,7 @@ function StudentRow({
         <StudentChips
           student={student}
           allStudents={allStudents}
-          className="min-w-0 flex-1 basis-full lg:basis-auto"
+          className="min-w-0 flex-1 basis-full @2xl:basis-auto"
         />
       </button>
     </div>

@@ -58,6 +58,32 @@ describe('useLayoutMode', () => {
 
     expect(result.current).toBe('tablet');
   });
+
+  describe('with a larger default text size', () => {
+    // The CSS tests its breakpoints in rem, which follow the browser's default
+    // text size; set to 18px, `md` begins at 864px and `lg` at 1152px.
+    const setRootFontSize = (size: string): void => {
+      document.documentElement.style.fontSize = size;
+    };
+
+    afterEach(() => {
+      setRootFontSize('');
+    });
+
+    it.each([
+      [820, 'phone'],
+      [864, 'tablet'],
+      [1151, 'tablet'],
+      [1152, 'desktop'],
+    ])('reports %ipx as %s, as the media queries do', (width, expected) => {
+      setRootFontSize('18px');
+      setWidth(width);
+
+      const { result } = renderHook(() => useLayoutMode());
+
+      expect(result.current).toBe(expected);
+    });
+  });
 });
 
 describe('useIsPhone', () => {

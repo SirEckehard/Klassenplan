@@ -62,12 +62,18 @@ export default function Inspector() {
     setSlotNode,
     portalMounted,
     portalLabel,
+    portalFoldable,
+    folded,
     drawerOpen,
     setDrawerOpen,
   } = useInspector();
   const layoutMode = useLayoutMode();
   const isPhone = layoutMode === 'phone';
   const isDesktop = layoutMode === 'desktop';
+  // From `lg` up the room, the plan, the circle and the export sheet can have
+  // their column folded away, so the stage takes the width; the switch sits
+  // at the right end of the status bar (`StatusBarFrame`).
+  const columnFolded = isDesktop && portalFoldable && folded;
 
   const student = React.useMemo(
     () =>
@@ -151,7 +157,15 @@ export default function Inspector() {
             ? t('generator:sceneInspector.title')
             : t('generator:mix.title'))
         }
-        className={showsDrawer ? inspectorDrawerClass : columnClass}
+        // Folded, the column stays in the page as the portal's slot, only
+        // out of sight.
+        className={
+          showsDrawer
+            ? inspectorDrawerClass
+            : columnFolded
+              ? 'hidden'
+              : columnClass
+        }
       >
         {/* The layers bring their own header strip and body through the
             portal, so the slot is only the column they fill. */}

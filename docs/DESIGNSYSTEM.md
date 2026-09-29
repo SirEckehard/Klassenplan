@@ -1,6 +1,6 @@
 # Design System – Klassenplan
 
-> **Status:** current · **Last reviewed:** 2026-09-28 · **Maintainer:** Eike
+> **Status:** current · **Last reviewed:** 2026-09-29 · **Maintainer:** Eike
 > Schäfer · **Describes:** Klassenplan 2.2.0
 
 This document describes the binding design tokens for Klassenplan. All values live in `src/index.css` and are reachable from TypeScript through `src/utils/ui/designTokens.ts`.
@@ -224,7 +224,7 @@ Every layer's toolbar is a `ToolRail` (`src/components/shell/ToolRail.tsx`) insi
 
 The rail has two parts. On top the layer's own groups, in an order no layer changes — **Ansicht**, **Hinzufügen**, **Ansichtseinstellungen**, **Verwalten** — each titled in small caps in the labelled column and set off by a hairline on the icon rail; a layer leaves out what it has nothing for. Inside a group a shorter hairline (`ToolRailDivider`) separates two kinds of one thing, the room's tables and its elements. At the foot, under a full-width hairline and without a title, the entries every layer shares, drawn by the rail rather than the layer and identical on every layer and on the export page: "Klassenwerkzeuge", "Pläne & Verlauf", "Backup" and, last, "Unterstützen". Only the layer's part scrolls on a short window; the foot stays in view.
 
-From `lg` up `SmartSidebar` drops that panel surface: on the desktop shell it is not a card but the window's left edge, one hairline (`border-r`) of `--border-card` against the sunken stage. Below `lg` the layer is still a stacked document, where a panel needs a frame of its own to read as one.
+From `lg` up `SmartSidebar` drops that panel surface: on the desktop shell it is not a card but the window's left edge, one hairline (`border-r`) of `--border-card` against the sunken stage. Below `lg` the layer is still a scrolling document, where a panel needs a frame of its own to read as one. On a tablet that card stands beside the stage, sticks under the header while the page scrolls and ends above the status bar; a phone opens it as a drawer.
 
 ## 6a. The stage
 
@@ -232,8 +232,9 @@ A layer's stage is `workspaceStageClass` — the sunken surface the subject sits
 on. Where that subject is the classroom, it also carries `canvas-stage`, which
 from `lg` up makes it a size container and centres its content, and the frame
 inside takes `canvas-fit`: `min(100%, 100cqh * 3 / 2 - 1px)` for the fixed
-900×600 plan, the pixel making room for the frame's hairline. The frame itself
-is `canvas-frame` — white, one hairline, no radius.
+900×600 plan, the pixel making room for the frame's hairline, and the stage's
+full width below `lg`. Room, plan and circle take their width from it alone.
+The frame itself is `canvas-frame` — white, one hairline, no radius.
 
 ## 6b. The inspector
 
@@ -245,6 +246,13 @@ strip of 44px media, an `h2` and a subtitle above a hairline; sections carry a
 `first:border-t-0`, never by a gap; the footer holds what acts on the whole
 selection, destructive last. A panel that needs a new group adds a section —
 not a card, not a heading of its own invention.
+
+From `lg` up the column of the room, the plan, the circle and the export sheet
+folds away from the switch at the right end of the status bar — the one that
+opens the drawer below `lg` — so the stage takes the width. The switch is
+highlighted while the column shows, as it is while the drawer is open. A touch
+screen narrower than `xl` starts with the column folded. The class layer's
+column stays: it is where a student is edited.
 
 A panel with nothing selected belongs to what the layer shows as a whole. The
 room's names its tables in the header and offers what concerns the room

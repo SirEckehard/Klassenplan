@@ -14,6 +14,7 @@ const setup = ({
     onTableTypeChange: vi.fn(),
     clearSelection: vi.fn(),
     setDrawerOpen: vi.fn(),
+    unfoldInspector: vi.fn(),
   };
   const hook = renderHook(
     (props: { isRoomEmpty: boolean; isDesktop: boolean }) =>
@@ -63,6 +64,16 @@ describe('useRoomSetup', () => {
     expect(setDrawerOpen).not.toHaveBeenCalled();
   });
 
+  // A column folded away to give the room the width still has to show the
+  // setup when it is asked for.
+  it('unfolds the column from lg up when the setup is asked for', () => {
+    const { result, unfoldInspector } = setup({ isDesktop: true });
+
+    act(() => result.current.revealSetup());
+
+    expect(unfoldInspector).toHaveBeenCalledTimes(1);
+  });
+
   // Below lg the drawer covers much of the stage; the result is what the
   // teacher wants to see next.
   it('closes the drawer below lg once the room is set up or loaded', () => {
@@ -104,11 +115,20 @@ describe('useRoomSetup', () => {
     expect(setDrawerOpen).not.toHaveBeenCalled();
   });
 
-  it('opens nothing by itself from lg up or in a furnished room', () => {
+  it('unfolds the column by itself from lg up while the room is empty', async () => {
     const desktop = setup({ isRoomEmpty: true, isDesktop: true });
+    await waitFor(() =>
+      expect(desktop.unfoldInspector).toHaveBeenCalledTimes(1),
+    );
     expect(desktop.setDrawerOpen).not.toHaveBeenCalled();
+  });
 
+  it('shows nothing by itself in a furnished room', () => {
     const furnished = setup({ isRoomEmpty: false, isDesktop: false });
     expect(furnished.setDrawerOpen).not.toHaveBeenCalled();
+    expect(furnished.unfoldInspector).not.toHaveBeenCalled();
+
+    const desktop = setup({ isRoomEmpty: false, isDesktop: true });
+    expect(desktop.unfoldInspector).not.toHaveBeenCalled();
   });
 });

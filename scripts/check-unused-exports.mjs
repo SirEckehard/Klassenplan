@@ -33,6 +33,10 @@ const rootDir = path.resolve(
  * Lower it whenever a cleanup drops the real count — that is what makes the
  * ratchet tighten. Raising it needs a reason in the same commit.
  *
+ * 51 (2026-09-29): `BREAKPOINTS` in `hooks/ui/useBreakpoint.ts` is no longer
+ * exported; `InspectorContext`, which folds the column on a touch screen below
+ * `xl`, asks `isBreakpointUp` instead.
+ *
  * 53 (2026-09-19): `utils/data/studentMigration.ts` removed — nothing called
  * it, the readers normalize the legacy partner fields through
  * `utils/student/partnerUtils.ts` instead.
@@ -41,7 +45,7 @@ const rootDir = path.resolve(
  * import to leave the initial bundle, and the tool does not follow `import()`;
  * `exportAllAsJson` is the one export of it no test imports statically.
  */
-const BASELINE = 52;
+const BASELINE = 51;
 
 const IGNORE_FILES = 'vite-env.d.ts|index.tsx|App.tsx';
 

@@ -8,6 +8,7 @@ import { InspectorProvider } from '@/contexts/InspectorContext';
 import { ClassDialogsProvider } from '@/contexts/ClassDialogsContext';
 import { StatusBarSlotProvider } from '@/contexts/StatusBarSlotContext';
 import { ToolRailProvider } from '@/contexts/ToolRailContext';
+import { SHELL_STATUS_BAR_HEIGHT } from '@/components/shell/shellTokens';
 
 /**
  * The workspace frame: one header on top, one status bar at the bottom, the
@@ -19,10 +20,12 @@ import { ToolRailProvider } from '@/contexts/ToolRailContext';
  * is centred in a column of its own — the toolbar and the inspector are the
  * margins, which is the whole reason they sit at the edges.
  *
- * Below `lg` it stays an ordinary document: the layer stacks, the page scrolls,
- * and the adaptive-height machinery in the student list and the sidebar goes on
- * working untouched. The page footer follows the shell there; on the workspace
- * its entries hang in the header's settings menu instead (`AppSettingsMenu`).
+ * Below `lg` it stays an ordinary document: the page scrolls between the
+ * sticky header and status bar, a tablet keeps the toolbar beside the stage
+ * (`workspaceLayerClass`), and the adaptive-height machinery in the student
+ * list and the sidebar goes on working untouched. The page footer follows the
+ * shell there; on the workspace its entries hang in the header's settings menu
+ * instead (`AppSettingsMenu`).
  *
  * The export page wears the same frame with its own header variant and status
  * bar (`header`, `statusBar`), so leaving the plan for the printout does not
@@ -53,7 +56,9 @@ export default function AppShell({
             <div
               className="flex min-h-screen flex-col lg:h-dvh lg:min-h-0 lg:overflow-hidden"
               style={
-                { '--shell-bottom-inset': '3.25rem' } as React.CSSProperties
+                {
+                  '--shell-bottom-inset': `${SHELL_STATUS_BAR_HEIGHT}px`,
+                } as React.CSSProperties
               }
             >
               {header}

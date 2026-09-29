@@ -14,7 +14,8 @@ import { useBreakpointUp } from '@/hooks/ui/useBreakpoint';
  * - `desktop` (≥ `lg`, 1024px) — the full sidebar, expansion state remembered.
  *
  * The tiers are the Tailwind `md`/`lg` steps so the JS decisions line up with
- * the `md:`/`lg:` variants in the markup.
+ * the `md:`/`lg:` variants in the markup. The px figures hold at the browser's
+ * default text size of 16px; the steps are rem, and move with that setting.
  */
 export type LayoutMode = 'phone' | 'tablet' | 'desktop';
 

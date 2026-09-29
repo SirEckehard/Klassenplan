@@ -147,6 +147,13 @@ export function useFeaturePaletteDrag({
     type: ClassroomFeatureType;
     pointerId: number;
   } | null>(null);
+  // The window listeners of the palette drag in progress, kept so the very
+  // functions added are the ones removed again — whichever way it ends.
+  const paletteListenersRef = React.useRef<{
+    move: (event: PointerEvent) => void;
+    up: (event: PointerEvent) => void;
+    cancel: (event: PointerEvent) => void;
+  } | null>(null);
   const activeFeatureDragRef = React.useRef<{
     featureId: string;
     pointerId: number;
@@ -511,7 +518,8 @@ export function useFeaturePaletteDrag({
   const handlePalettePointerMove = React.useCallback(
     (event: PointerEvent) => {
       const drag = featureDragRef.current;
-      if (!drag) {
+      // Another finger on the screen is not the one carrying the element.
+      if (!drag || event.pointerId !== drag.pointerId) {
         return;
       }
       const template = featureTemplateMap.get(drag.type);
@@ -733,7 +741,13 @@ export function useFeaturePaletteDrag({
 
   const clearPaletteDrag = React.useCallback(
     (pointerId?: number | null) => {
-      window.removeEventListener('pointermove', handlePalettePointerMove);
+      const listeners = paletteListenersRef.current;
+      if (listeners) {
+        window.removeEventListener('pointermove', listeners.move);
+        window.removeEventListener('pointerup', listeners.up);
+        window.removeEventListener('pointercancel', listeners.cancel);
+        paletteListenersRef.current = null;
+      }
       const activePointerId =
         pointerId ?? featureDragRef.current?.pointerId ?? null;
       featureDragRef.current = null;
@@ -743,16 +757,15 @@ export function useFeaturePaletteDrag({
       setFeatureDragPreview(null);
       setActiveAlignmentGuides(null);
     },
-    [
-      handlePalettePointerMove,
-      releasePalettePointerRect,
-      setActiveAlignmentGuides,
-    ],
+    [releasePalettePointerRect, setActiveAlignmentGuides],
   );
 
   const handlePalettePointerUp = React.useCallback(
     (event: PointerEvent) => {
       const drag = featureDragRef.current;
+      if (drag && event.pointerId !== drag.pointerId) {
+        return;
+      }
       const canvas = canvasRef.current;
       if (!drag || !canvas) {
         clearPaletteDrag(event.pointerId);
@@ -1230,6 +1243,8 @@ export function useFeaturePaletteDrag({
       if (!template) {
         return;
       }
+      // A drag still open — one the browser never ended — goes first.
+      clearPaletteDrag();
 
       const rect = cachePalettePointerRect(pointerId);
       if (!rect) {
@@ -1262,11 +1277,27 @@ export function useFeaturePaletteDrag({
         placement: null,
       });
 
+      // A pointer the browser takes back — a swipe it scrolls the toolbar
+      // with, a palm on the board — places nothing. Left listening, the drag
+      // used to stay open and put its element wherever the next finger
+      // lifted over the room.
+      const handlePalettePointerCancel = (cancelEvent: PointerEvent) => {
+        if (cancelEvent.pointerId === pointerId) {
+          clearPaletteDrag(pointerId);
+        }
+      };
+      paletteListenersRef.current = {
+        move: handlePalettePointerMove,
+        up: handlePalettePointerUp,
+        cancel: handlePalettePointerCancel,
+      };
       window.addEventListener('pointermove', handlePalettePointerMove);
       window.addEventListener('pointerup', handlePalettePointerUp);
+      window.addEventListener('pointercancel', handlePalettePointerCancel);
     },
     [
       cachePalettePointerRect,
+      clearPaletteDrag,
       featureTemplateMap,
       getCanvasPointerMetrics,
       handlePalettePointerMove,

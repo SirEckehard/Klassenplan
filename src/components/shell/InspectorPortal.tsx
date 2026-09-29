@@ -21,13 +21,22 @@ import { useInspector } from '@/contexts/InspectorContext';
  */
 export default function InspectorPortal({
   label,
+  foldable = false,
   children,
 }: {
   /** Names the inspector column while this content fills it. */
   label?: string;
+  /**
+   * The column may fold away from `lg` up, so the stage beside it — a room,
+   * a plan, a sheet — takes the width (`InspectorContext.folded`).
+   */
+  foldable?: boolean;
   children: React.ReactNode;
 }) {
   const { slotNode, mountPortal } = useInspector();
-  React.useLayoutEffect(() => mountPortal(label), [label, mountPortal]);
+  React.useLayoutEffect(
+    () => mountPortal(label, foldable),
+    [foldable, label, mountPortal],
+  );
   return slotNode ? createPortal(children, slotNode) : null;
 }

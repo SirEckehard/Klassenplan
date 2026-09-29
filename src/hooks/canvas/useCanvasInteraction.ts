@@ -23,6 +23,7 @@ import {
   getRotationAdjustedPosition,
   getRotatedAabbHalfExtents,
   logDebug,
+  releasePointerCaptureIfHeld,
 } from '@/utils';
 import type { SelectionBox } from '@/types/canvas';
 
@@ -277,10 +278,7 @@ export function useCanvasInteraction({
       if (selectionPointerIdRef.current !== event.pointerId) {
         return;
       }
-      const svg = event.currentTarget as SVGSVGElement;
-      if (typeof svg.releasePointerCapture === 'function') {
-        svg.releasePointerCapture(event.pointerId);
-      }
+      releasePointerCaptureIfHeld(event.currentTarget, event.pointerId);
       resetSelectionState();
     },
     [resetSelectionState],
@@ -618,8 +616,17 @@ export function useCanvasInteraction({
       }
       finalizeSelectionPointer(e);
       clearPendingPressForPointer(e.pointerId);
+      // A tap on a table ends here without a drag, and the pointer it
+      // captured must not outlive it: a later clean-up would try to release
+      // a finger that lifted long ago.
+      releaseTablePointerCapture(e.pointerId);
     },
-    [clearPendingPressForPointer, finalizeSelectionPointer, send],
+    [
+      clearPendingPressForPointer,
+      finalizeSelectionPointer,
+      releaseTablePointerCapture,
+      send,
+    ],
   );
 
   const handleTablePointerDown = React.useCallback(

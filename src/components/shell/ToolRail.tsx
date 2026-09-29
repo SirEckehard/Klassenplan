@@ -65,6 +65,32 @@ export type ToolRailDensity = 'comfortable' | 'compact';
 const DensityContext = React.createContext<ToolRailDensity>('comfortable');
 
 /**
+ * Whether the layer's part of the rail is taller than its room and scrolls.
+ * An entry that is dragged onto the stage lets a finger scroll the rail only
+ * then: allowing it everywhere would let the browser take any drag that
+ * starts downwards for a scroll, even on a rail with nothing to scroll.
+ */
+const RailScrollsContext = React.createContext(false);
+
+/** Watches a scroll container for being taller inside than out. */
+function useScrolls(ref: React.RefObject<HTMLElement | null>): boolean {
+  const [scrolls, setScrolls] = React.useState(false);
+  React.useLayoutEffect(() => {
+    const element = ref.current;
+    if (!element || typeof ResizeObserver === 'undefined') return undefined;
+    const measure = () =>
+      setScrolls(element.scrollHeight > element.clientHeight + 1);
+    measure();
+    // The box changes with the window, the content with the layer's entries.
+    const observer = new ResizeObserver(measure);
+    observer.observe(element);
+    for (const child of Array.from(element.children)) observer.observe(child);
+    return () => observer.disconnect();
+  }, [ref]);
+  return scrolls;
+}
+
+/**
  * The open panel of an entry. Its own component so the `close` it hands down
  * is an ordinary prop here rather than a ref read while the rail renders.
  */
@@ -99,27 +125,32 @@ export function ToolRail({
 }) {
   const isCompact = density === 'compact';
   const isPhone = useIsPhone();
+  const scrollerRef = React.useRef<HTMLDivElement | null>(null);
+  const scrolls = useScrolls(scrollerRef);
 
   return (
     <DensityContext.Provider value={density}>
-      <div className="flex min-h-0 flex-1 flex-col">
-        {/* The layer's own tools. On a window too short for all of them they
-            scroll here, under a foot that stays in view: the room's tables
-            and elements alone fill a laptop's height, and what every layer
-            shares has to be in reach there too. The negative margins reach
-            into the sidebar's padding, so the scroll edge clips no focus
-            ring. */}
-        <div
-          className={`-mx-2 -mt-3 min-h-0 flex-1 overflow-y-auto px-2 pt-3 pb-1 ${
-            isCompact
-              ? 'flex flex-col items-center gap-1'
-              : 'flex flex-col gap-2'
-          }`}
-        >
-          {children}
+      <RailScrollsContext.Provider value={scrolls}>
+        <div className="flex min-h-0 flex-1 flex-col">
+          {/* The layer's own tools. On a window too short for all of them they
+              scroll here, under a foot that stays in view: the room's tables
+              and elements alone fill a laptop's height, and what every layer
+              shares has to be in reach there too. The negative margins reach
+              into the sidebar's padding, so the scroll edge clips no focus
+              ring. */}
+          <div
+            ref={scrollerRef}
+            className={`-mx-2 -mt-3 min-h-0 flex-1 overflow-y-auto px-2 pt-3 pb-1 ${
+              isCompact
+                ? 'flex flex-col items-center gap-1'
+                : 'flex flex-col gap-2'
+            }`}
+          >
+            {children}
+          </div>
+          <ToolRailFoot planExits={planExits && isPhone} />
         </div>
-        <ToolRailFoot planExits={planExits && isPhone} />
-      </div>
+      </RailScrollsContext.Provider>
     </DensityContext.Provider>
   );
 }
@@ -418,6 +449,7 @@ export function ToolRailButton({
   'data-tour': dataTour,
 }: ToolRailButtonProps) {
   const density = React.useContext(DensityContext);
+  const railScrolls = React.useContext(RailScrollsContext);
   const isCompact = density === 'compact';
   const isActive = active === true;
   const anchorRef = React.useRef<HTMLButtonElement | null>(null);
@@ -440,8 +472,17 @@ export function ToolRailButton({
       data-tour={dataTour}
       disabled={disabled}
       onPointerDown={onPointerDown}
-      // A drag must not scroll the rail under the finger.
-      style={onPointerDown ? { touchAction: 'none' } : undefined}
+      // A drag onto the stage must not turn into a scroll under the finger.
+      // Where the rail scrolls, an upright swipe still does: on an iPad in
+      // landscape the room's tables and elements fill it past its foot, and
+      // with every entry a drag source a finger could not reach the view
+      // settings below them. A drag then has to leave sideways, towards the
+      // stage; a tap adds the table anyway.
+      style={
+        onPointerDown
+          ? { touchAction: railScrolls ? 'pan-y' : 'none' }
+          : undefined
+      }
       onClick={() => {
         if (panel) {
           setOpen((previous) => !previous);

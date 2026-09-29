@@ -55,8 +55,13 @@ const StudentList = ({
   }
 
   // From `lg` up the list scrolls inside its card; below it flows in the page.
+  // The card is a size container: whether a row's chips stand beside the
+  // name or under it depends on how wide the list is, not the window — the
+  // toolbar and the inspector take their share of a wide one.
   return (
-    <div className={`${listContainerClass} relative mb-4 overflow-hidden`}>
+    <div
+      className={`${listContainerClass} @container relative mb-4 overflow-hidden`}
+    >
       <div
         ref={listContainerRef}
         className="grid content-start lg:overflow-y-auto"

@@ -10,8 +10,12 @@
  * status bar that opens a layer's panel, and on a phone the toolbar as a
  * drawer whose panels open above it — through the same journey: a class, a
  * student edited, the plan mixed.
+ *
+ * Roles and names alone did not notice the tablet going wrong twice in one
+ * day, so the journey also measures: the room and the plan have to fill their
+ * stage and start in sight, beside the toolbar rather than under it.
  */
-import { test, expect, type Page } from '@playwright/test';
+import { test, expect, type Locator, type Page } from '@playwright/test';
 
 test.use({ locale: 'de-DE' });
 test.setTimeout(120_000);
@@ -29,6 +33,28 @@ test.beforeEach(async ({ page }) => {
 
 const statusBar = (page: Page) =>
   page.getByRole('region', { name: 'Statusleiste' });
+
+async function boxOf(locator: Locator) {
+  const box = await locator.boundingBox();
+  if (!box) throw new Error(`${locator} has no box on screen`);
+  return box;
+}
+
+/**
+ * The room or the plan fills its stage and starts in sight. Below `lg` both
+ * once went wrong without a role or a name changing: the toolbar stacked
+ * above the stage pushed an iPad's room under the status bar, and the plan's
+ * frame shrank to the 300px an SVG falls back to.
+ */
+async function expectCanvasInSight(page: Page): Promise<void> {
+  const frame = page.getByTestId('classroom-canvas');
+  await expect(frame).toBeVisible();
+  const frameBox = await boxOf(frame);
+  const stageBox = await boxOf(frame.locator('..'));
+  const barBox = await boxOf(statusBar(page));
+  expect(frameBox.width).toBeGreaterThanOrEqual(stageBox.width * 0.95);
+  expect(frameBox.y + 100).toBeLessThan(barBox.y);
+}
 
 async function loadSampleClass(page: Page): Promise<void> {
   await page.goto('/generator');
@@ -112,10 +138,12 @@ async function openClassTools(page: Page): Promise<void> {
 async function mixThePlan(page: Page): Promise<void> {
   await page.getByRole('button', { name: 'Weiter zum Raum' }).click();
   await expect(statusBar(page)).toContainText('24 Plätze für 24 Schüler');
+  await expectCanvasInSight(page);
 
   await page.getByRole('button', { name: 'Weiter zum Sitzplan' }).click();
   const plan = page.getByRole('group', { name: /^Sitzplan:/ });
   await expect(plan).toHaveAccessibleName('Sitzplan: 24 von 24 Plätzen belegt');
+  await expectCanvasInSight(page);
 
   // The criteria have no column here: the switch at the right end of the
   // status bar opens them.
@@ -147,6 +175,20 @@ test(
     await loadSampleClass(page);
 
     await test.step('the toolbar is a column of icons with its switch below', async () => {
+      // Beside the class list, not on top of it: stacked, the column took
+      // the first screen and the list began halfway down.
+      const toolbar = page.getByRole('complementary', {
+        name: 'Werkzeugleiste',
+      });
+      const firstRow = page.getByRole('button', {
+        name: /^Emma Becker im Inspektor/,
+      });
+      await expect(firstRow).toBeInViewport();
+      const toolbarBox = await boxOf(toolbar);
+      expect(toolbarBox.x + toolbarBox.width).toBeLessThanOrEqual(
+        (await boxOf(firstRow)).x,
+      );
+
       const expand = statusBar(page).getByRole('button', {
         name: 'Werkzeugleiste erweitern',
       });
@@ -174,6 +216,65 @@ test(
     await test.step('the plan is mixed with the criteria in reach', async () => {
       await page.keyboard.press('Escape');
       await mixThePlan(page);
+    });
+  },
+);
+
+test(
+  'a long press on the empty floor of the room offers to paste',
+  { tag: '@tablet' },
+  async ({ page }) => {
+    await loadSampleClass(page);
+    await page.getByRole('button', { name: 'Weiter zum Raum' }).click();
+    const canvas = page.getByTestId('classroom-canvas');
+    const tables = canvas.locator('g[data-table-index]');
+    await expect(tables).toHaveCount(12);
+
+    await test.step('a table is tapped and copied in the inspector', async () => {
+      await tables.first().tap();
+      const drawerSwitch = statusBar(page).getByRole('button', {
+        name: 'Eigenschaften',
+      });
+      await drawerSwitch.click();
+      await page
+        .getByRole('complementary', { name: 'Eigenschaften' })
+        .getByRole('button', { name: /^Kopieren/ })
+        .click();
+      await drawerSwitch.click();
+    });
+
+    await test.step('a finger held on the floor opens the paste menu', async () => {
+      // The tap above left its pointer id behind, and the paste menu tried to
+      // release that long-lifted finger: the browser threw, and the room gave
+      // way to the error boundary on every touch screen.
+      const room = await boxOf(canvas.locator('svg[viewBox^="0 0 900"]'));
+      const floor = {
+        x: room.x + room.width * (200 / 900),
+        y: room.y + room.height * (300 / 600),
+        id: 1,
+        radiusX: 8,
+        radiusY: 8,
+        force: 1,
+      };
+      const cdp = await page.context().newCDPSession(page);
+      await cdp.send('Input.dispatchTouchEvent', {
+        type: 'touchStart',
+        touchPoints: [floor],
+      });
+      await expect(
+        page
+          .locator('[data-context-action-menu]')
+          .getByRole('button', { name: 'Einfügen' }),
+      ).toBeVisible();
+      await cdp.send('Input.dispatchTouchEvent', {
+        type: 'touchEnd',
+        touchPoints: [],
+      });
+
+      await expect(
+        page.getByText('Layout-Editor vorübergehend nicht verfügbar'),
+      ).toHaveCount(0);
+      await expect(tables).toHaveCount(12);
     });
   },
 );

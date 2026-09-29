@@ -67,8 +67,8 @@ export default function StudentListHeader({
       >
         <span className="w-6 shrink-0">{t('listHeader.number')}</span>
         <span className="w-8 shrink-0">{t('listHeader.photo')}</span>
-        <span className="shrink-0 lg:w-44">{t('listHeader.name')}</span>
-        <span className="hidden min-w-0 flex-1 lg:block">
+        <span className="shrink-0 @2xl:w-44">{t('listHeader.name')}</span>
+        <span className="hidden min-w-0 flex-1 @2xl:block">
           {t('listHeader.attributes')}
         </span>
       </div>

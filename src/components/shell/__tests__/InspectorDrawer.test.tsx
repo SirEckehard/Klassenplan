@@ -191,3 +191,117 @@ describe('Inspector below lg', () => {
     ).toHaveClass('lg:flex');
   });
 });
+
+describe('Inspector from lg up', () => {
+  const FOLDED_KEY = 'spg.inspectorFolded';
+
+  /** A layer whose column may fold away, as the room and the plan do. */
+  const renderFoldableLayer = () =>
+    render(
+      <InspectorProvider>
+        <InspectorPortal label="Mischkriterien" foldable>
+          <button type="button">Kriterium</button>
+        </InspectorPortal>
+        <Inspector />
+        <StatusBarFrame start={<span>Status</span>} />
+      </InspectorProvider>,
+    );
+
+  const pointerIs = (coarse: boolean) =>
+    Object.defineProperty(window, 'matchMedia', {
+      configurable: true,
+      writable: true,
+      value: (query: string) => ({
+        matches: coarse && query === '(pointer: coarse)',
+        media: query,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+      }),
+    });
+
+  beforeEach(() => {
+    localStorage.removeItem(FOLDED_KEY);
+  });
+
+  afterEach(() => {
+    localStorage.removeItem(FOLDED_KEY);
+    Reflect.deleteProperty(window, 'matchMedia');
+  });
+
+  // On an iPad in landscape the toolbar and the 320px column left the plan
+  // barely 500px; the stage gets the width when the column folds away.
+  it('folds the column away from the status bar and brings it back', () => {
+    setWidth(1280);
+    renderFoldableLayer();
+    const aside = screen.getByRole('complementary', {
+      name: 'Mischkriterien',
+      hidden: true,
+    });
+    const toggle = screen.getByRole('button', { name: 'Mischkriterien' });
+    expect(aside).toHaveClass('lg:flex');
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+
+    fireEvent.click(toggle);
+    expect(aside).toHaveClass('hidden');
+    expect(aside).not.toHaveClass('lg:flex');
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    // The portal keeps its slot while the column is out of sight.
+    expect(
+      screen.getByRole('button', { name: 'Kriterium', hidden: true }),
+    ).toBeInTheDocument();
+    expect(localStorage.getItem(FOLDED_KEY)).toBe('true');
+
+    fireEvent.click(toggle);
+    expect(aside).toHaveClass('lg:flex');
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    expect(localStorage.getItem(FOLDED_KEY)).toBe('false');
+  });
+
+  it('keeps a folded column folded on the next visit', () => {
+    localStorage.setItem(FOLDED_KEY, 'true');
+    setWidth(1280);
+    renderFoldableLayer();
+
+    expect(
+      screen.getByRole('complementary', {
+        name: 'Mischkriterien',
+        hidden: true,
+      }),
+    ).toHaveClass('hidden');
+  });
+
+  it('starts folded on a touch screen narrower than xl', () => {
+    pointerIs(true);
+    setWidth(1180);
+    renderFoldableLayer();
+
+    expect(
+      screen.getByRole('button', { name: 'Mischkriterien' }),
+    ).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('starts with the column shown on a wide touch screen', () => {
+    pointerIs(true);
+    setWidth(1920);
+    renderFoldableLayer();
+
+    expect(
+      screen.getByRole('button', { name: 'Mischkriterien' }),
+    ).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  // The class layer's column is where a student is edited; its ticked
+  // students' panel does not fold, whatever another layer left behind.
+  it('never folds a panel that does not allow it', () => {
+    localStorage.setItem(FOLDED_KEY, 'true');
+    setWidth(1280);
+    renderLayer();
+
+    expect(
+      screen.getByRole('complementary', { name: 'Mischkriterien' }),
+    ).toHaveClass('lg:flex');
+    expect(
+      screen.queryByRole('button', { name: 'Mischkriterien' }),
+    ).not.toBeInTheDocument();
+  });
+});

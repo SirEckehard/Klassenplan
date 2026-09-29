@@ -761,9 +761,9 @@ export default function SeatingPlanEditorView({
 
   return (
     <div className="space-y-6 lg:flex lg:min-h-0 lg:flex-1 lg:flex-col lg:space-y-0">
-      {/* The direction comes from the same hook that decides whether the
-          sidebar is a rail or a phone sheet — a `md:` variant here could
-          disagree with it and stack the rail on top of the canvas. */}
+      {/* The rail stands beside the canvas from `md` up, the step at which
+          `useLayoutMode` stops making it a drawer (`BREAKPOINTS` mirrors
+          Tailwind's scale), so the two cannot leave it stacked on top. */}
       <div className={workspaceLayerClass}>
         <SmartSidebar tourAnchor={TOUR_ANCHORS.planSidebar}>
           {({ isExpanded }) => (
@@ -780,7 +780,7 @@ export default function SeatingPlanEditorView({
 
         {/* Why the plan looks like this is a property of the plan, so the
             criteria belong in the inspector — not in the toolbar opposite. */}
-        <InspectorPortal label={t('mix.title')}>
+        <InspectorPortal label={t('mix.title')} foldable>
           {/* The heading names the panel once, and the switch beside it acts
               on every criterion under it. */}
           <InspectorHeader

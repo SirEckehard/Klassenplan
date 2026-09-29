@@ -1405,6 +1405,18 @@
   flex-direction: column;
 }
 
+/*
+ * Below `lg` the frame takes the stage's full width. `canvas-frame` centres
+ * itself with auto margins, which keeps the column from stretching it, and a
+ * frame without a width of its own shrinks to its SVG, whose width is a
+ * percentage of that very frame: the browser falls back to the 300px default
+ * of a replaced element, and an iPad in portrait got a 300×200 plan. From `lg`
+ * up the rule below caps the width by the stage's height instead.
+ */
+@utility canvas-fit {
+  width: 100%;
+}
+
 @media (width >= 64rem) {
   .canvas-stage {
     container-type: size;

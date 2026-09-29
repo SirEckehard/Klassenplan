@@ -209,7 +209,11 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
   const layoutMode = useLayoutMode();
   const isPhone = layoutMode === 'phone';
   const isDesktop = layoutMode === 'desktop';
-  const { setDrawerOpen } = useInspector();
+  const { setDrawerOpen, setFolded } = useInspector();
+  const unfoldInspector = React.useCallback(
+    () => setFolded(false),
+    [setFolded],
+  );
   // Marks the visit (`spg.hasVisitedApp`) for the onboarding tour record.
   useFirstVisit();
   const containerRef = React.useRef<HTMLDivElement | null>(null);
@@ -391,6 +395,7 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
       onTableTypeChange,
       clearSelection: clearCanvasSelection,
       setDrawerOpen,
+      unfoldInspector,
     });
 
   // Tables and room elements turn together, by either handle, Q/E or the
@@ -897,7 +902,7 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
     <div className="space-y-6 lg:flex lg:min-h-0 lg:flex-1 lg:flex-col lg:space-y-0">
       {/* The shell owns the panel; the selection and its mutators live here,
           so this is where its content is rendered from. */}
-      <InspectorPortal label={t('sceneInspector.title')}>
+      <InspectorPortal label={t('sceneInspector.title')} foldable>
         <SceneInspector
           tables={sceneTables}
           features={sceneFeatures}
@@ -923,9 +928,9 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
           canPaste={canPaste}
         />
       </InspectorPortal>
-      {/* The direction comes from the same hook that decides whether the
-          sidebar is a rail or a phone sheet — a `md:` variant here could
-          disagree with it and stack the rail on top of the canvas. */}
+      {/* The rail stands beside the canvas from `md` up, the step at which
+          `useLayoutMode` stops making it a drawer (`BREAKPOINTS` mirrors
+          Tailwind's scale), so the two cannot leave it stacked on top. */}
       <div className={workspaceLayerClass}>
         <LayoutEditorSidebarSection
           isPhone={isPhone}

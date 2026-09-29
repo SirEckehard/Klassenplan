@@ -15,6 +15,7 @@ import {
   selectAlignmentTargets,
   collectRoomObstacles,
   findFreeSpot,
+  releasePointerCaptureIfHeld,
   type AlignmentGuide,
   type AlignmentRect,
 } from '@/utils';
@@ -571,11 +572,9 @@ export default function useTableInteraction({
     if (pointerId === null) {
       return;
     }
-    const svg = canvasRef.current;
-    if (svg && typeof svg.releasePointerCapture === 'function') {
-      svg.releasePointerCapture(pointerId);
-    }
     capturedPointerId.current = null;
+    // By now the finger that pressed the table may have lifted long ago.
+    releasePointerCaptureIfHeld(canvasRef.current, pointerId);
   }, [canvasRef]);
 
   const cancelSelectionInteraction = React.useCallback(() => {
@@ -600,11 +599,8 @@ export default function useTableInteraction({
       if (capturedPointerId.current !== pointerId) {
         return;
       }
-      const svg = canvasRef.current;
-      if (svg && typeof svg.releasePointerCapture === 'function') {
-        svg.releasePointerCapture(pointerId);
-      }
       capturedPointerId.current = null;
+      releasePointerCaptureIfHeld(canvasRef.current, pointerId);
     },
     [canvasRef],
   );

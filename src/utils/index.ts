@@ -278,6 +278,7 @@ export {
 } from './canvas/freePlacement';
 export { moveFeaturesBy } from './canvas/featureMovement';
 export { arrowDirection, nearestInDirection } from './canvas/directionalFocus';
+export { releasePointerCaptureIfHeld } from './canvas/pointerCapture';
 
 // ===== SEO =====
 export { getRouteMetadata } from './seo/routeMetadata';

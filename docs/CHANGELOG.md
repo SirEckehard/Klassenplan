@@ -38,6 +38,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Attribute mode on a phone and a tablet: the question takes the whole width, the way on to the next attribute stays in reach above the status bar instead of hiding behind it, and every row shows the student's photo or initial. Its buttons are grey, so the status bar's "Next" stays the one blue button
 - On a phone the criteria live only in the drawer from the status bar, and the room's setup only in the inspector; "Mix" and "Sync with Plan" show their icon alone, so the toolbar's switch stays in reach
 - The ways between the layers are named after them: "Back to Class", "Back to Room", "Proceed to Room"
+- The inspector's column folds away from the switch at the right end of the status bar on the room, the plan, the circle and the export page, so the plan gets the width; an iPad in landscape starts with it folded, and the choice is kept per device
+- On a tablet or an interactive whiteboard the room's toolbar scrolls with a finger where it is taller than the screen
 - New shortcuts: "Mix" is Ctrl/⌘+Enter, as ⌘+M minimised the window on a Mac. On the export page P saves the PDF of the arrangement on the sheet and Ctrl/⌘+P prints; Ctrl/⌘+S and Ctrl/⌘+E work in the seating circle as well
 
 ### Removed
@@ -58,6 +60,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - A long name fits its field in the inspector instead of being cut off at the edge
 - On a phone the toolbar's panels and menus – adding a student, the class tools, the backup – opened out of sight behind the toolbar
 - On a narrow phone such as the iPhone 16 Pro the class's name pushed the "Class" layer off the header
+- On a touch screen a long press on the empty floor of the room – to paste what had been copied – took the room editor down to an error screen
+- A room element dragged from the toolbar and taken back by the browser – a swipe, a palm on the board – was placed wherever the next finger lifted over the room
+- With a default text size larger than 16px set in the browser, the layout and the toolbar disagreed about whether the window was a phone, a tablet or a desktop: on a tablet-sized window the toolbar stood above the stage and pushed the room and the plan out of sight
 - Opening the workspace or a class tool directly showed the page footer under it
 - In the seating circle on a phone, "Sync with Plan" pushed the toolbar's switch out of reach
 - "Shuffle randomly" in the circle came out in some orders more often than in others and left about one student in eight where they were; every order is equally likely now, and locked students stay put

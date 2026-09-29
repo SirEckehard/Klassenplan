@@ -87,10 +87,10 @@ const LayoutEditorMainSection = React.memo(function LayoutEditorMainSection({
       <div
         data-testid="classroom-canvas"
         data-tour={TOUR_ANCHORS.layoutCanvas}
-        // Full width as a class, not an inline style: from `lg` up
-        // `canvas-fit` caps the width by the stage's height, and an inline
-        // width would override it and push the room's bottom edge out of sight.
-        className={`${canvasFrameClass} ${canvasFitClass} relative w-full select-none`}
+        // The width comes from `canvas-fit`, the same for room, plan and
+        // circle; an inline width would override its cap from `lg` up and push
+        // the room's bottom edge out of sight.
+        className={`${canvasFrameClass} ${canvasFitClass} relative select-none`}
         style={{ maxWidth: '100vw' }}
         ref={containerRef}
       >

@@ -17,6 +17,8 @@ interface UseRoomSetupParams {
   /** Lets the canvas selection go, tables and room elements alike. */
   clearSelection: () => void;
   setDrawerOpen: (open: boolean) => void;
+  /** From `lg` up: brings a folded column back (`InspectorContext.folded`). */
+  unfoldInspector: () => void;
 }
 
 /**
@@ -25,12 +27,14 @@ interface UseRoomSetupParams {
  * The panel shows while nothing is selected — from `lg` up in the inspector's
  * column, below that in the drawer the status bar opens. Asking for the setup
  * (Ctrl/⌘+E, the phone's button) therefore lets the selection go, opens the
- * drawer where there is one and hands the panel a request to take the focus.
+ * drawer where there is one — or unfolds the column where it was folded away
+ * — and hands the panel a request to take the focus.
  *
  * Setting up and loading a template replace the room in one go, so both take
  * an undo snapshot first; below `lg` the drawer then steps aside to show the
- * result. An empty room has one thing to do, so below `lg` the drawer opens
- * by itself — as the setup used to open over the canvas.
+ * result. An empty room has one thing to do, so its panel shows by itself —
+ * below `lg` the drawer opens, from `lg` up a folded column unfolds — as the
+ * setup used to open over the canvas.
  */
 export function useRoomSetup({
   isRoomEmpty,
@@ -40,22 +44,29 @@ export function useRoomSetup({
   onTableTypeChange,
   clearSelection,
   setDrawerOpen,
+  unfoldInspector,
 }: UseRoomSetupParams) {
   const [setupFocusRequest, setSetupFocusRequest] = React.useState(0);
 
+  const showPanel = React.useCallback(() => {
+    if (isDesktop) {
+      unfoldInspector();
+    } else {
+      setDrawerOpen(true);
+    }
+  }, [isDesktop, setDrawerOpen, unfoldInspector]);
+
   const revealSetup = React.useCallback(() => {
     clearSelection();
-    if (!isDesktop) {
-      setDrawerOpen(true);
-    }
+    showPanel();
     setSetupFocusRequest((count) => count + 1);
-  }, [clearSelection, isDesktop, setDrawerOpen]);
+  }, [clearSelection, showPanel]);
 
   React.useEffect(() => {
-    if (isRoomEmpty && !isDesktop) {
-      setDrawerOpen(true);
+    if (isRoomEmpty) {
+      showPanel();
     }
-  }, [isDesktop, isRoomEmpty, setDrawerOpen]);
+  }, [isRoomEmpty, showPanel]);
 
   const setUpRoom = React.useCallback(
     (type: TableTemplateType) => {

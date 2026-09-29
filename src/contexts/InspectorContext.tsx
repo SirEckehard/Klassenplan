@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
+import usePersistentState from '@/hooks/usePersistentState';
+import { isBreakpointUp } from '@/hooks/ui/useBreakpoint';
+import { LOCAL_STORAGE_KEYS } from '@/utils';
 
 /**
  * What the inspector is currently looking at.
@@ -49,8 +52,23 @@ type InspectorContextValue = {
    * leaves the name to the layer.
    */
   portalLabel: string | null;
+  /**
+   * Whether the mounted portal lets the column fold away from `lg` up — the
+   * room, the plan, the circle and the export sheet do; the class layer's
+   * ticked students do not, since only the column shows them there.
+   */
+  portalFoldable: boolean;
   /** Called by `InspectorPortal` on mount; returns the release for unmount. */
-  mountPortal: (label?: string) => () => void;
+  mountPortal: (label?: string, foldable?: boolean) => () => void;
+  /**
+   * From `lg` up the column of a foldable panel can be folded away, so the
+   * stage takes its width: on an iPad in landscape the toolbar and a 320px
+   * column left the plan barely 500px. The switch at the right end of the
+   * status bar folds it, remembered per device. A touch screen narrower than
+   * `xl` starts folded, anything else with the column shown.
+   */
+  folded: boolean;
+  setFolded: (folded: boolean) => void;
   /**
    * Below `lg` there is no room for the inspector's column, so what a layer
    * portals in opens as a drawer over the stage — from the status bar
@@ -63,6 +81,23 @@ type InspectorContextValue = {
 const InspectorContext = React.createContext<InspectorContextValue | null>(
   null,
 );
+
+/**
+ * Where the column starts out before the teacher chose: folded on a touch
+ * screen narrower than `xl` — an iPad in landscape — where a column beside
+ * the toolbar squeezes the plan, shown everywhere else.
+ */
+function foldsByDefault(): boolean {
+  if (
+    typeof window === 'undefined' ||
+    typeof window.matchMedia !== 'function'
+  ) {
+    return false;
+  }
+  return (
+    window.matchMedia('(pointer: coarse)').matches && !isBreakpointUp('xl')
+  );
+}
 
 export function InspectorProvider({ children }: { children: React.ReactNode }) {
   const [selection, setSelection] = React.useState<InspectorSelection>(null);
@@ -85,14 +120,24 @@ export function InspectorProvider({ children }: { children: React.ReactNode }) {
   const [slotNode, setSlotNode] = React.useState<HTMLElement | null>(null);
   const [portalCount, setPortalCount] = React.useState(0);
   const [portalLabel, setPortalLabel] = React.useState<string | null>(null);
+  const [portalFoldable, setPortalFoldable] = React.useState(false);
   const [drawerOpen, setDrawerOpen] = React.useState(false);
+  // Read once, on the first render: the default decides how a device starts,
+  // the stored choice everything after.
+  const [defaultFolded] = React.useState(foldsByDefault);
+  const [folded, setFolded] = usePersistentState<boolean>(
+    LOCAL_STORAGE_KEYS.inspectorFolded,
+    defaultFolded,
+  );
 
-  const mountPortal = React.useCallback((label?: string) => {
+  const mountPortal = React.useCallback((label?: string, foldable = false) => {
     setPortalCount((count) => count + 1);
     setPortalLabel(label ?? null);
+    setPortalFoldable(foldable);
     return () => {
       setPortalCount((count) => count - 1);
       setPortalLabel(null);
+      setPortalFoldable(false);
     };
   }, []);
 
@@ -108,18 +153,24 @@ export function InspectorProvider({ children }: { children: React.ReactNode }) {
       setSlotNode,
       portalMounted: portalCount > 0,
       portalLabel,
+      portalFoldable,
       mountPortal,
+      folded,
+      setFolded,
       drawerOpen,
       setDrawerOpen,
     }),
     [
       clear,
       drawerOpen,
+      folded,
       mountPortal,
       portalCount,
+      portalFoldable,
       portalLabel,
       selectStudent,
       selection,
+      setFolded,
       slotNode,
       suspended,
       toggleStudent,
@@ -156,7 +207,10 @@ const FALLBACK: InspectorContextValue = {
   setSlotNode: noop,
   portalMounted: false,
   portalLabel: null,
+  portalFoldable: false,
   mountPortal: () => noop,
+  folded: false,
+  setFolded: noop,
   drawerOpen: false,
   setDrawerOpen: noop,
 };

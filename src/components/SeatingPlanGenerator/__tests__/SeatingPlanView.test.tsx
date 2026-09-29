@@ -67,9 +67,10 @@ describe('SeatingPlanView', () => {
       );
     });
     const canvas = screen.getByTestId('classroom-canvas');
-    // An inline width would override `canvas-fit`, which caps the frame by the
-    // stage's height from `lg` up; the room's bottom edge was cut off.
-    expect(canvas).toHaveClass(canvasFitClass, 'w-full');
+    // `canvas-fit` gives the frame the stage's width below `lg` and caps it by
+    // the stage's height from `lg` up; an inline width would override the cap
+    // and cut the room's bottom edge off.
+    expect(canvas).toHaveClass(canvasFitClass);
     expect(canvas.style.width).toBe('');
   });
 

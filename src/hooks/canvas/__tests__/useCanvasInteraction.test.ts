@@ -492,6 +492,31 @@ describe('useCanvasInteraction', () => {
       expect(mockApplySelectionForTable).toHaveBeenCalledWith(0, false);
     });
 
+    it('lets go of the pointer a tapped table captured', () => {
+      const { result } = getHookResult();
+
+      act(() => {
+        result.current.handleTablePointerDown(
+          createMockPointerEvent({
+            pointerId: 5,
+            pointerType: 'touch',
+            currentTarget: mockTableElement,
+            target: mockTableElement,
+          }),
+          0,
+        );
+      });
+      act(() => {
+        result.current.handleCanvasPointerUp(
+          createMockPointerEvent({ pointerId: 5, pointerType: 'touch' }),
+        );
+      });
+
+      // A tap never becomes a drag, so nothing else releases it; a clean-up
+      // later on would aim at a finger that lifted long ago.
+      expect(mockReleaseTablePointerCapture).toHaveBeenCalledWith(5);
+    });
+
     it('clears canvas pending press', () => {
       mockClipboard = [createMockTable(0)];
       const { result } = getHookResult();

@@ -134,7 +134,9 @@ export function useTemplateDrag({
         event.clientY,
       );
 
-      if (metrics.overCanvas) {
+      // A pointer the browser takes back — a swipe it scrolls the toolbar
+      // with, a palm on the board — ends the drag without placing a table.
+      if (metrics.overCanvas && event.type !== 'pointercancel') {
         const svg = canvasRef.current;
         if (svg) {
           dropTemplateAt(

@@ -48,6 +48,9 @@ export const STORAGE_KEYS = {
     // not — they hide students and must not do so silently on return).
     studentSortMode: 'spg.studentSortMode',
     sidebarExpanded: 'spg.sidebarExpanded',
+    // Whether the inspector's column is folded away from `lg` up on the
+    // layers that allow it (`InspectorContext`).
+    inspectorFolded: 'spg.inspectorFolded',
     // Whether shortcuts on a single character key fire (`utils/characterKeys`).
     characterKeyShortcuts: 'spg.characterKeyShortcuts',
     sidebarActiveTab: 'spg.sidebarActiveTab',
@@ -196,6 +199,7 @@ export const PROJECT_LOCAL_STORAGE_KEYS = [
   STORAGE_KEYS.localStorage.mixSettings,
   STORAGE_KEYS.localStorage.studentSortMode,
   STORAGE_KEYS.localStorage.sidebarExpanded,
+  STORAGE_KEYS.localStorage.inspectorFolded,
   STORAGE_KEYS.localStorage.characterKeyShortcuts,
   STORAGE_KEYS.localStorage.sidebarActiveTab,
   STORAGE_KEYS.localStorage.mixWeightHintSeen,

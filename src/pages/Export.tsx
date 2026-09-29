@@ -1042,7 +1042,7 @@ export default function Export() {
           </div>
 
           {isLgUp && (
-            <InspectorPortal label={t('export.sheet')}>
+            <InspectorPortal label={t('export.sheet')} foldable>
               {sheetInspector}
             </InspectorPortal>
           )}

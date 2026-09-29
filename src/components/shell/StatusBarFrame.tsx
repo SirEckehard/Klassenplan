@@ -48,9 +48,12 @@ export const statusBarBackButtonClass = `${secondaryButtonClass} h-9 shrink-0 ga
  * Below `lg` the inspector has no column, so its switch closes the bar on the
  * right, mirroring the toolbar's switch on the left: each sits under the panel
  * it opens. It appears only while a layer has something to show there — the
- * room's properties, the plan's criteria, the circle's summary. A phone has no
- * toolbar column either; there the left switch opens the toolbar as a drawer
- * from the left. The two drawers take turns: opening one closes the other.
+ * room's properties, the plan's criteria, the circle's summary. From `lg` up
+ * the same switch folds that column away and back, so the stage can take the
+ * width; the class layer's column does not fold, it is where a student is
+ * edited. A phone has no toolbar column either; there the left switch opens
+ * the toolbar as a drawer from the left. The two drawers take turns: opening
+ * one closes the other.
  */
 export default function StatusBarFrame({
   start,
@@ -68,10 +71,21 @@ export default function StatusBarFrame({
   const toolRail = useShellToolRail();
   const layoutMode = useLayoutMode();
   const isPhone = layoutMode === 'phone';
-  const { portalMounted, portalLabel, drawerOpen, setDrawerOpen } =
-    useInspector();
+  const {
+    portalMounted,
+    portalLabel,
+    portalFoldable,
+    drawerOpen,
+    setDrawerOpen,
+    folded,
+    setFolded,
+  } = useInspector();
+  const isDesktop = layoutMode === 'desktop';
+  // Below `lg` the switch opens the panel as a drawer; from `lg` up it folds
+  // the column away and back, where the panel allows it.
   const showInspectorSwitch =
-    layoutMode !== 'desktop' && portalMounted && portalLabel !== null;
+    portalMounted && portalLabel !== null && (!isDesktop || portalFoldable);
+  const inspectorShown = isDesktop ? !folded : drawerOpen;
 
   return (
     // A landmark region rather than a live region on purpose: the line changes
@@ -160,14 +174,18 @@ export default function StatusBarFrame({
               <button
                 type="button"
                 onClick={() => {
+                  if (isDesktop) {
+                    setFolded(!folded);
+                    return;
+                  }
                   if (!drawerOpen) toolRail?.setSheetOpen(false);
                   setDrawerOpen(!drawerOpen);
                 }}
-                aria-expanded={drawerOpen}
+                aria-expanded={inspectorShown}
                 aria-controls={INSPECTOR_DRAWER_ID}
                 title={portalLabel}
                 className={`${secondaryButtonClass} h-9 shrink-0 gap-2 px-2.5 text-sm whitespace-nowrap ${
-                  drawerOpen
+                  inspectorShown
                     ? 'border-(--border-option-selected) bg-(--surface-option-selected) text-(--text-badge)'
                     : ''
                 }`}
