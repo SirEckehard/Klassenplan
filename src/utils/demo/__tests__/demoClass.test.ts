@@ -139,6 +139,31 @@ describe('buildDemoClassroomScene', () => {
     );
   });
 
+  // A drop always puts a wall element against the edge of the room, so the
+  // sample room must not show one that a teacher could never place.
+  it('hangs every wall element flush on its wall', () => {
+    const scene = buildDemoClassroomScene(24);
+
+    for (const feature of scene.features ?? []) {
+      switch (feature.anchor) {
+        case 'left':
+          expect(feature.x).toBe(0);
+          break;
+        case 'right':
+          expect(feature.x + feature.width).toBe(CLASSROOM_WIDTH);
+          break;
+        case 'top':
+          expect(feature.y).toBe(0);
+          break;
+        case 'bottom':
+          expect(feature.y + feature.height).toBe(CLASSROOM_HEIGHT);
+          break;
+        default:
+          throw new Error(`${feature.id} hangs on no wall`);
+      }
+    }
+  });
+
   it('copies the default features instead of sharing them', () => {
     const first = buildDemoClassroomScene(24);
     const second = buildDemoClassroomScene(24);

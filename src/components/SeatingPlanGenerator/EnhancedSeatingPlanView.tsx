@@ -9,7 +9,6 @@ import {
 } from '@phosphor-icons/react';
 import SmartSidebar from '@/components/ui/panels/SmartSidebar';
 import PlanToolPanel from '@/components/SeatingPlanGenerator/views/PlanToolPanel';
-import { ToolRailButton } from '@/components/shell/ToolRail';
 import StatusBarPortal from '@/components/shell/StatusBarPortal';
 import SeatingPlanView from './SeatingPlanView';
 import SimpleCircleView from '@/components/circle/SimpleCircleView';
@@ -31,6 +30,7 @@ import {
   canvasFitClass,
   hasSeatedStudent,
   primaryButtonClass,
+  secondaryButtonClass,
 } from '@/utils';
 import { buildNameDisplayGroup } from '@/components/SeatingPlanGenerator/canvas/nameDisplayGroup';
 import { buildBadgeDisplayGroup } from '@/components/SeatingPlanGenerator/canvas/badgeDisplayGroup';
@@ -167,7 +167,7 @@ export default function EnhancedSeatingPlanView(
 
   // Circle view settings live in the canvas' settings button, exactly like the
   // table plan's — display options belong to the canvas they affect, while the
-  // sidebar keeps the actions (sync, shuffle).
+  // status bar carries the actions (sync, shuffle).
   const circleSettingsGroups = useMemo(
     () => [
       {
@@ -262,9 +262,9 @@ export default function EnhancedSeatingPlanView(
             stack the rail on top of the canvas. */}
         <div className={workspaceLayerClass}>
           {/* A phone gets the sheet as the table plan does: the way back to
-              the tables, the view settings, the shuffle and the foot every
-              rail shares. Rebuilding the circle from the plan is the status
-              bar's primary action, so the toolbar does not repeat it. */}
+              the tables, the view settings and the foot every rail shares.
+              Rebuilding the circle from the plan and shuffling it are the
+              status bar's, so the toolbar repeats neither. */}
           <SmartSidebar>
             {({ isExpanded }) => (
               <PlanToolPanel
@@ -274,14 +274,6 @@ export default function EnhancedSeatingPlanView(
                 showModeToggle={showModeToggle}
                 settingsGroups={circleSettingsGroups}
                 canSavePlan={hasSeatedStudent(props.currentSeating)}
-                extraTools={
-                  <ToolRailButton
-                    icon={<ShuffleIcon size={18} />}
-                    label={t('circleView.shuffleButton')}
-                    title={t('circleView.shuffleTitle')}
-                    onClick={handleShuffleCircle}
-                  />
-                }
               />
             )}
           </SmartSidebar>
@@ -355,9 +347,12 @@ export default function EnhancedSeatingPlanView(
               )}
             </div>
 
-            {/* The circle's own primary action sits where the plan's
-                "Mischen" does, beside undo/redo; naming is in the toolbar,
-                the two exits at the end of the status bar. */}
+            {/* The circle's actions sit where the plan's "Mischen" does,
+                beside undo/redo. Mixing is the blue one here too — the purely
+                random shuffle — and fitting the circle to the seating plan
+                stands quietly before it, so the screen keeps one blue
+                button. Saving is in the toolbar, the two exits at the end of
+                the status bar. */}
             <StatusBarPortal slot="action">
               {/* On a phone only the icon: the words took the bar's width and
                   pushed the toolbar's switch out of reach. The accessible
@@ -367,7 +362,7 @@ export default function EnhancedSeatingPlanView(
                 onClick={() => void generateCircleSeating()}
                 title={t('circleView.syncTitle')}
                 aria-label={t('circleView.syncButton')}
-                className={`${primaryButtonClass} flex items-center gap-2 whitespace-nowrap`}
+                className={`${secondaryButtonClass} flex items-center gap-2 whitespace-nowrap`}
               >
                 <ArrowCounterClockwiseIcon
                   className="h-4 w-4"
@@ -375,6 +370,21 @@ export default function EnhancedSeatingPlanView(
                 />
                 <span className="hidden sm:inline">
                   {t('circleView.syncButton')}
+                </span>
+              </button>
+              {/* Its word where the fitting shows one; the accessible name
+                  holds the visible word at every width. */}
+              <button
+                type="button"
+                onClick={handleShuffleCircle}
+                disabled={!circleLayout}
+                title={t('circleView.shuffleTitle')}
+                aria-label={t('circleView.shuffleButton')}
+                className={`${primaryButtonClass} flex items-center gap-2 whitespace-nowrap`}
+              >
+                <ShuffleIcon className="h-4 w-4" aria-hidden="true" />
+                <span className="hidden sm:inline">
+                  {t('circleView.shuffleShort')}
                 </span>
               </button>
             </StatusBarPortal>

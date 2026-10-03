@@ -274,8 +274,9 @@ export function buildDemoStudents(
 
 /**
  * A room that fits the class: double desks from the quick setup's own
- * arrangement, the board at the front, windows on the left and the door at the
- * back — enough for the window, door and front-seat criteria to mean something.
+ * arrangement, the board at the front, windows on the back wall and the door
+ * beside the board, all flush with their walls — enough for the window, door
+ * and front-seat criteria to mean something.
  */
 export function buildDemoClassroomScene(studentCount: number): ClassroomScene {
   const tableCount = Math.ceil(

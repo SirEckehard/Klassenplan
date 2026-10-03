@@ -337,7 +337,10 @@ test(
       await addStudentFromToolbar(page, 'Paul Phone');
       await toolbarSwitch.click();
       await openClassTools(page);
-      await drawer.getByRole('button', { name: 'Schließen' }).click();
+      // The drawer has no close button of its own: Escape puts the menu
+      // away, the switch the drawer.
+      await page.keyboard.press('Escape');
+      await toolbarSwitch.click();
       await expect(drawer).toBeHidden();
       await expect(toolbarSwitch).toHaveAttribute('aria-expanded', 'false');
     });

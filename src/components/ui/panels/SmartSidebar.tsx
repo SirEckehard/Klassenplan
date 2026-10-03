@@ -6,13 +6,8 @@ import {
   ArrowLineLeftIcon,
   ArrowLineRightIcon,
   WrenchIcon,
-  XIcon,
 } from '@phosphor-icons/react';
-import {
-  iconButtonClass,
-  panelSurfaceClass,
-  secondaryButtonClass,
-} from '@/utils';
+import { panelSurfaceClass, secondaryButtonClass } from '@/utils';
 import { type UseCollapsibleSidebarOptions } from '@/hooks/ui/useCollapsibleSidebar';
 import {
   TOOL_RAIL_DRAWER_ID,
@@ -22,6 +17,7 @@ import {
 import { useLayoutMode } from '@/hooks/ui/useLayoutMode';
 import { useAdaptiveViewportHeight } from '@/hooks/ui/useAdaptiveViewportHeight';
 import { isAnyDialogOpen } from '@/hooks/ui/useDialogLayer';
+import { useOutsideTap } from '@/hooks/ui/useOutsideTap';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 import { SHELL_STATUS_BAR_HEIGHT } from '@/components/shell/shellTokens';
 
@@ -81,7 +77,6 @@ export default function SmartSidebar({
   const containerRef = React.useRef<HTMLElement | null>(null);
   const collapseButtonRef = React.useRef<HTMLButtonElement | null>(null);
   const drawerRef = React.useRef<HTMLElement | null>(null);
-  const drawerTitleId = React.useId();
   const showsDrawer = isPhone && mobileOpen;
 
   // Like the inspector's drawer, not modal: the focus moves in when it opens
@@ -103,6 +98,12 @@ export default function SmartSidebar({
     window.addEventListener('keydown', handleKeyDown, true);
     return () => window.removeEventListener('keydown', handleKeyDown, true);
   }, [setSheetOpen, showsDrawer]);
+
+  // A tap beside the drawer closes it, as a tap beside a menu does; its
+  // switch in the status bar keeps the tap for itself.
+  useOutsideTap(drawerRef, closeMobileOverlay, showsDrawer, {
+    ignoreSelector: `[aria-controls="${TOOL_RAIL_DRAWER_ID}"]`,
+  });
 
   // An action taken in the drawer — a view switched, an export started —
   // closes it, so the stage shows what it did. An entry that opens a panel or
@@ -217,28 +218,17 @@ export default function SmartSidebar({
           </button>
         )}
 
+        {/* No head of its own, as the column has none: the switch that
+            opened it, Escape and a tap beside it close it again. */}
         {showsDrawer && (
           <aside
             id={TOOL_RAIL_DRAWER_ID}
             ref={drawerRef}
             tabIndex={-1}
-            aria-labelledby={drawerTitleId}
+            aria-label={t('sidebar.ariaLabel')}
             className={toolRailDrawerClass}
             onClick={handleDrawerClick}
           >
-            <div className="flex shrink-0 items-center justify-between gap-2 border-b border-(--border-card) px-4 py-2">
-              <h2 id={drawerTitleId} className="text-[15px] font-semibold">
-                {t('sidebar.ariaLabel')}
-              </h2>
-              <button
-                type="button"
-                onClick={closeMobileOverlay}
-                className={`${iconButtonClass} h-9 w-9 border-none bg-transparent shadow-none`}
-                aria-label={t('common.close', 'Schließen')}
-              >
-                <XIcon size={18} aria-hidden="true" />
-              </button>
-            </div>
             <div className="min-h-0 flex-1 overflow-y-auto px-2 py-3">
               <div className="flex min-h-full flex-col">{renderedChildren}</div>
             </div>

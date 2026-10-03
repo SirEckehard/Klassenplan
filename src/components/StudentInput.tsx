@@ -331,8 +331,12 @@ function StudentInput({
 
       {/* The scroll anchor sits on the stage root: the list toolbar only
           appears from `STUDENT_LIST_TOOLS_THRESHOLD` students up, and the way
-          back should land above the list either way. */}
-      <div ref={listTopRef} className={`${workspaceStageClass} space-y-4`}>
+          back should land above the list either way — below the sticky
+          header, not under it (`scroll-mt-20`). */}
+      <div
+        ref={listTopRef}
+        className={`${workspaceStageClass} scroll-mt-20 space-y-4`}
+      >
         {showListTools && listMode === 'list' && (
           <StudentListToolsRow
             listView={listView}

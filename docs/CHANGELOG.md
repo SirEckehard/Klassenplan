@@ -37,7 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - The browser bar and the installed app's splash screen take the page's own paper colour
 - The changelog's texts load with the changelog, and more than 200 texts nothing used any more are gone: the first visit downloads about 7 KB less
 - Attribute mode on a phone and a tablet: the question takes the whole width, the way on to the next attribute stays in reach above the status bar instead of hiding behind it, and every row shows the student's photo or initial. Its buttons are grey, so the status bar's "Next" stays the one blue button
-- On a phone the criteria live only in the drawer from the status bar, and the room's setup only in the inspector; "Mix" and "Sync with Plan" show their icon alone, so the toolbar's switch stays in reach
+- On a phone the criteria live only in the drawer from the status bar, and the room's setup only in the inspector; "Mix", "Align" and "Shuffle" show their icon alone, so the toolbar's switch stays in reach
 - The way on reads "Next" on every layer; its tooltip and its name for screen readers say where it leads. On a desktop and an interactive whiteboard the buttons at the right of the status bar carry their words, on a phone and a tablet their icons alone
 - The inspector's column folds away on every layer, the class included, from a small switch at the right end of the status bar – the mirror of the toolbar's at the left end – so the plan gets the width; an iPad in landscape starts with it folded, opening or ticking a student brings it back, and the choice is kept per device
 - On a tablet or an interactive whiteboard the room's toolbar scrolls with a finger where it is taller than the screen
@@ -45,7 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - On an interactive whiteboard the toolbar starts with its labels, and every button of the projection's bar names itself under its icon; a touch screen shows no tooltip to explain an icon
 - The projection frames the tables: the board, the windows and the door come in from their walls to just beside them, and furniture far from them stays out, so on an interactive whiteboard the names come out about twice as large. After a tap its bar stays up for five seconds
 - Messages appear at the top right, just under the header, instead of over Help and the settings; the projection shows no success messages
-- In the seating plan the status bar carries "Export" and, at its outer end, "Present", on a phone "Export" alone, with "Present" at the foot of the toolbar. The line on the left says nothing there any more – the plan shows whether it is there and the inspector its figures – and the projection's top strip no longer counts the seats
+- In the seating plan the status bar carries "Present" and, at its outer end, "Export", on a narrow phone "Export" alone, with "Present" at the foot of the toolbar. The line on the left says nothing there any more – the plan shows whether it is there and the inspector its figures – and the projection's top strip no longer counts the seats
 - Offline, a small cloud beside the toolbar's switch says so instead of a badge covering that switch, and on a phone the jump to the ends of the class list hangs above the status bar instead of slipping into it
 - The first screen, before there is a class, has the toolbar too, with what needs a class greyed out, and the card asking for a class in the middle of the stage
 - The seating circle fills the interactive whiteboard in the projection, and "Who's next?" draws from the circle there and on its own screen, naming who sits on either side
@@ -57,6 +57,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - New shortcuts: "Mix" is Ctrl/⌘+Enter, as ⌘+M minimised the window on a Mac. On the export page P saves the PDF of the arrangement on the sheet and Ctrl/⌘+P prints; Ctrl/⌘+S and Ctrl/⌘+E work in the seating circle as well
 - Names on the seats are larger in the plan, the circle, the projection and every export: a long name breaks into two lines – "Paul" over "Zimmermann" – instead of shrinking to a smudge, full names always stand on two lines, and the names of a plan share one size, so only a conspicuously long one is set smaller. On a table turned at a slant the name and its markers use the width the seat has across its middle and keep clear of the lock
 - The exported sheet uses the page: it is framed on the tables as the projection is, with the board, the windows and the door moved up to them, narrower margins and a one-line header in both orientations – the plan comes out about a third larger in portrait and two thirds larger in landscape. "Enlarge the plan", switched off, goes back to the whole room in its outline. On the circle's sheet the ring fills the page and its places grow with the space between them
+- In the seating circle "Shuffle" is the blue button of the status bar, beside "Sync with Plan", now the quiet "Align", instead of an entry in the toolbar
+- On a phone and a tablet the export page's settings open as a drawer from the status bar, as a layer's do, instead of under the sheet
+- A tap beside the toolbar's or the inspector's drawer, or beside a student opened on a phone, closes it
+- On an iPad mini in portrait the header shows the open class as a mark, as on a phone, so it no longer slides under the layer switch
 
 ### Removed
 
@@ -82,8 +86,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - A room element dragged from the toolbar and taken back by the browser – a swipe, a palm on the board – was placed wherever the next finger lifted over the room
 - With a default text size larger than 16px set in the browser, the layout and the toolbar disagreed about whether the window was a phone, a tablet or a desktop: on a tablet-sized window the toolbar stood above the stage and pushed the room and the plan out of sight
 - Opening the workspace or a class tool directly showed the page footer under it
-- In the seating circle on a phone, "Sync with Plan" pushed the toolbar's switch out of reach
+- In the seating circle on a phone, "Align" pushed the toolbar's switch out of reach
 - "Shuffle randomly" in the circle came out in some orders more often than in others and left about one student in eight where they were; every order is equally likely now, and locked students stay put
+- In the sample class the windows and the door hung a little away from the walls, where no teacher could place them
 
 ## [2.2.0] - 2026-09-17
 

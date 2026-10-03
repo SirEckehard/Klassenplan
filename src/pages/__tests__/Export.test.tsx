@@ -183,6 +183,34 @@ describe('Export page', () => {
     const needsSwitch = async () =>
       within(await sheetPanel()).getByRole('switch', { name: 'Bedürfnisse' });
 
+    // Below `lg` the settings no longer follow the sheet down the page: they
+    // open from the status bar's switch as a drawer, as a layer's panel does.
+    it('opens the sheet from the status bar below lg', async () => {
+      Object.defineProperty(window, 'innerWidth', {
+        configurable: true,
+        value: 820,
+      });
+      try {
+        renderExport();
+        const panel = await screen.findByRole('complementary', {
+          name: 'Blatt',
+          hidden: true,
+        });
+        expect(panel).toHaveClass('hidden');
+
+        await userEvent.click(
+          screen.getByRole('button', { name: /Blatt einblenden/i }),
+        );
+        expect(panel).toHaveClass('fixed');
+        expect(panel).not.toHaveClass('hidden');
+      } finally {
+        Object.defineProperty(window, 'innerWidth', {
+          configurable: true,
+          value: 1024,
+        });
+      }
+    });
+
     it('reads the inspector column as the sheet', async () => {
       renderExport();
 

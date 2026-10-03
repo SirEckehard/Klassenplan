@@ -71,6 +71,16 @@ describe('useStudentListLayout scroll hint', () => {
     expect(result.current.scrollHint).toBe('up');
   });
 
+  // At the foot of the page the end of the list stands only the status bar
+  // and the page's padding above the window's edge.
+  it('points back up at the foot of the page, just above the status bar', () => {
+    const { result } = renderLayout();
+
+    place(result, { proceedTop: VIEWPORT_HEIGHT - 80, listTop: -1500 });
+
+    expect(result.current.scrollHint).toBe('up');
+  });
+
   it('shows nothing while both ends of the list are within reach', () => {
     const { result } = renderLayout();
 

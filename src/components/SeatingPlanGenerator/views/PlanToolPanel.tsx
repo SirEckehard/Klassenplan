@@ -37,8 +37,6 @@ type Props = {
   settingsGroups: CanvasSettingsGroup[];
   /** False while there is no plan on screen to save. */
   canSavePlan: boolean;
-  /** Entries only one arrangement has — the circle's shuffle. */
-  extraTools?: React.ReactNode;
 };
 
 /** One icon per settings group, so the rail stays readable without labels. */
@@ -74,7 +72,6 @@ export default function PlanToolPanel({
   showModeToggle = false,
   settingsGroups,
   canSavePlan,
-  extraTools,
 }: Props) {
   const { t } = useTranslation('generator');
 
@@ -122,7 +119,6 @@ export default function PlanToolPanel({
       </ToolRailGroup>
 
       <ToolRailGroup title={t('toolRail.manage')}>
-        {extraTools}
         <ToolRailButton
           icon={<FloppyDiskIcon size={18} />}
           label={t('actions.savePlan')}

@@ -27,7 +27,6 @@ import { showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
 import { FEATURE_TYPES, type FeatureVisibilityFlags } from '@/utils/ui';
 import { NAME_DISPLAY_MODES } from '@/components/SeatingPlanGenerator/canvas/nameDisplayGroup';
 import { useFeatureVisibility } from '@/hooks/ui/useFeatureVisibility';
-import { useIsLgUp } from '@/hooks/ui/useIsLgUp';
 import {
   useSeatingPlanState,
   useSeatingPlanActions,
@@ -189,7 +188,6 @@ export default function Export() {
   }, [planNameForTitle]);
   const [previewSvg, setPreviewSvg] = useState('');
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const isLgUp = useIsLgUp();
   // Opened from the circle, the sheet shows the circle — where there is one
   // to show; the toolbar switches as before.
   const [previewMode, setPreviewMode] = useState<SeatingMode>(() =>
@@ -1046,7 +1044,7 @@ export default function Export() {
               of it: the arrangement is switched in the toolbar, what the
               sheet carries in the inspector, and the circle's progress is
               told in the status bar. */}
-          <div className={`${workspaceStageClass} ${canvasStageClass} gap-4`}>
+          <div className={`${workspaceStageClass} ${canvasStageClass}`}>
             <div
               className={`${canvasFrameClass} w-full shrink-0`}
               style={sheetStyle}
@@ -1060,21 +1058,14 @@ export default function Export() {
                 title={t('export.preview')}
               />
             </div>
-
-            {/* Below `lg` there is no inspector column, so the sheet's
-                settings follow the sheet down the page. */}
-            {!isLgUp && (
-              <div className="flex flex-col overflow-hidden rounded-xl border border-(--border-card) bg-(--surface-card)">
-                {sheetInspector}
-              </div>
-            )}
           </div>
 
-          {isLgUp && (
-            <InspectorPortal label={t('export.sheet')}>
-              {sheetInspector}
-            </InspectorPortal>
-          )}
+          {/* What the sheet carries is set in the inspector, as everything on
+              a layer is: a column from `lg` up, below it the drawer the
+              status bar's switch opens, as on the plan. */}
+          <InspectorPortal label={t('export.sheet')}>
+            {sheetInspector}
+          </InspectorPortal>
         </div>
       )}
     </AppShell>

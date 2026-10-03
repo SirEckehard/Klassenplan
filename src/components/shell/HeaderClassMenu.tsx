@@ -100,7 +100,9 @@ export default function HeaderClassMenu() {
   // state of the class layer is where a beginner is meant to start, and two
   // buttons reading "New class" beside each other help nobody.
   return (
-    <div className="relative" ref={containerRef}>
+    // `min-w-0`: where the header runs short, the name gives way rather than
+    // the button sliding under the layer switch.
+    <div className="relative min-w-0" ref={containerRef}>
       <button
         type="button"
         ref={anchorRef}
@@ -111,17 +113,18 @@ export default function HeaderClassMenu() {
         aria-expanded={open}
         title={buttonLabel}
         aria-label={buttonLabel}
-        className={`${secondaryButtonClass} h-9 max-w-full gap-1.5 px-2.5 text-sm sm:gap-2 sm:px-3`}
+        className={`${secondaryButtonClass} h-9 max-w-full gap-1.5 px-2.5 text-sm md:gap-2 md:px-3`}
       >
-        {/* A phone has no room for the name beside the layers and would
-            push "Klasse" off the header; there the button is a mark, and the
-            name stays in its label and tooltip. */}
+        {/* A phone and a small tablet in portrait — an iPad mini at 744px —
+            have no room for the name beside the layers, which carry their
+            words from `sm` up: it slid under "Klasse". There the button is a
+            mark, and the name stays in its label and tooltip. */}
         <GraduationCapIcon
-          className="h-4 w-4 shrink-0 sm:hidden"
+          className="h-4 w-4 shrink-0 md:hidden"
           aria-hidden="true"
         />
         <span
-          className={`hidden max-w-44 truncate sm:inline ${
+          className={`hidden max-w-44 truncate md:inline ${
             hasActiveClass ? 'font-semibold' : 'text-(--text-muted)'
           }`}
         >
@@ -130,7 +133,7 @@ export default function HeaderClassMenu() {
             : t('students:classManagement.noClassSelected')}
         </span>
         {hasActiveClass && students.length > 0 && (
-          <span className="hidden whitespace-nowrap text-xs font-normal tabular-nums text-(--text-muted) sm:inline">
+          <span className="hidden whitespace-nowrap text-xs font-normal tabular-nums text-(--text-muted) md:inline">
             {t('students:classManagement.studentCount', {
               count: students.length,
             })}

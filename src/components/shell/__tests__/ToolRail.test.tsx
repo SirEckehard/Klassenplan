@@ -2,6 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import '@testing-library/jest-dom/vitest';
 import {
+  act,
   cleanup,
   fireEvent,
   render,
@@ -54,7 +55,18 @@ afterEach(() => {
   cleanup();
   vi.clearAllMocks();
   layout.isPhone = false;
+  setWidth(1024);
 });
+
+const setWidth = (width: number) => {
+  Object.defineProperty(window, 'innerWidth', {
+    configurable: true,
+    value: width,
+  });
+  act(() => {
+    window.dispatchEvent(new Event('resize'));
+  });
+};
 
 const renderRail = (
   density: ToolRailDensity = 'comfortable',
@@ -107,10 +119,12 @@ describe('ToolRail', () => {
     },
   );
 
-  // A phone's status bar keeps exporting and has no room left for presenting,
-  // so the plan layer's sheet starts its foot with it — and only that layer.
-  it('starts a phone’s foot with presenting on the plan layer alone', () => {
+  // A narrow phone's status bar keeps exporting and has no room left for
+  // presenting, so the plan layer's sheet starts its foot with it — and only
+  // that layer.
+  it('starts a narrow phone’s foot with presenting on the plan layer alone', () => {
     layout.isPhone = true;
+    setWidth(390);
     const plan = renderRail('comfortable', true);
     expect(entryNames(plan.container).slice(1, 3)).toEqual([
       expect.stringMatching(/Präsentieren|Present/),
@@ -127,7 +141,12 @@ describe('ToolRail', () => {
     );
   });
 
-  it('leaves presenting to the status bar from a tablet up', () => {
+  it.each([
+    ['an iPad mini in portrait', 744],
+    ['a tablet', 820],
+  ])('leaves presenting to the status bar on %s', (_device, width) => {
+    layout.isPhone = width < 768;
+    setWidth(width);
     const { container } = renderRail('comfortable', true);
     expect(entryNames(container)).not.toContainEqual(
       expect.stringMatching(/Präsentieren|Present/),

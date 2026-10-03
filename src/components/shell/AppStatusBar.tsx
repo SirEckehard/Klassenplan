@@ -237,11 +237,12 @@ export default function AppStatusBar() {
         // of the three histories are in the context; the room layer's lives
         // with the canvas state and fills the slot through `StatusBarPortal`.
         // Beside them what they take back: the plan layer's "Mischen" and
-        // the circle's fitting, which their views fill in the same way.
+        // the circle's fitting and shuffle, which their views fill in the
+        // same way.
         <div className="flex shrink-0 items-center gap-2">
           <span
             ref={setActionNode}
-            className="flex shrink-0 items-center empty:hidden"
+            className="flex shrink-0 items-center gap-2 empty:hidden"
           />
           {step === 1 && (
             <StudentHistoryToolbar

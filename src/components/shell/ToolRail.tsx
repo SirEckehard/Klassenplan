@@ -24,7 +24,7 @@ import { APP_RETURN_STATE } from '@/hooks/useReturnToApp';
 import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';
 import { useClickOutside } from '@/hooks/ui/useClickOutside';
 import { usePopoverFocus } from '@/hooks/ui/usePopoverFocus';
-import { useIsPhone } from '@/hooks/ui/useLayoutMode';
+import { useBreakpointUp } from '@/hooks/ui/useBreakpoint';
 import { useGuardedPlanExits } from '@/components/shell/PlanExits';
 import { logError, menuItemClass, menuSurfaceClass } from '@/utils';
 
@@ -116,15 +116,17 @@ export function ToolRail({
 }: {
   density: ToolRailDensity;
   /**
-   * Whether a phone finds presenting at the foot: the plan layer's status bar
-   * keeps exporting there and has no room left for presenting. Only the plan
-   * layer — table plan and circle — has a plan to present.
+   * Whether a narrow phone finds presenting at the foot: below `sm` the plan
+   * layer's status bar keeps exporting and has no room left for presenting
+   * (`PlanExits`). Only the plan layer — table plan and circle — has a plan
+   * to present.
    */
   planPresent?: boolean;
   children: React.ReactNode;
 }) {
   const isCompact = density === 'compact';
-  const isPhone = useIsPhone();
+  // Where the status bar has room for presenting, the foot does not repeat it.
+  const barPresents = useBreakpointUp('sm');
   const scrollerRef = React.useRef<HTMLDivElement | null>(null);
   const scrolls = useScrolls(scrollerRef);
 
@@ -148,7 +150,7 @@ export function ToolRail({
           >
             {children}
           </div>
-          <ToolRailFoot planPresent={planPresent && isPhone} />
+          <ToolRailFoot planPresent={planPresent && !barPresents} />
         </div>
       </RailScrollsContext.Provider>
     </DensityContext.Provider>
@@ -167,8 +169,8 @@ const footMenuIconClass = 'h-4 w-4 shrink-0 text-(--text-muted)';
  * in the same place on every layer rather than on the one they were first
  * built for. The class tools stay routes of their own (decision 0019) — what
  * they share is the way in, one menu instead of an entry per tool. On the
- * plan layer a phone finds presenting on top of them, since its status bar
- * has room for exporting alone.
+ * plan layer a narrow phone finds presenting on top of them, since its status
+ * bar has room for exporting alone.
  */
 function ToolRailFoot({ planPresent }: { planPresent: boolean }) {
   const { t } = useTranslation(['generator', 'pages']);

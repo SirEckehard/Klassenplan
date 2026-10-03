@@ -8,6 +8,7 @@ import {
   render,
   screen,
 } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import '@/i18n';
 import Inspector from '@/components/shell/Inspector';
@@ -110,6 +111,52 @@ describe('Inspector below lg', () => {
     expect(screen.getByRole('heading', { name: 'Grace' })).toBeInTheDocument();
   });
 
+  // A tap beside the drawer puts the student away; a tap on another row
+  // opens that one, since the row's click comes after the drawer closed.
+  it('closes a tablet’s student drawer on a tap beside it', async () => {
+    setWidth(820);
+    mocks.state.step = 1;
+    mocks.state.students = [createMockStudent({ id: 'g', name: 'Grace' })];
+    render(
+      <InspectorProvider>
+        <Picker />
+        <p>Liste</p>
+        <Inspector />
+      </InspectorProvider>,
+    );
+    const drawer = () =>
+      screen.queryByRole('complementary', { name: /Merkmale|Attributes/i });
+
+    await userEvent.click(screen.getByRole('button', { name: 'pick' }));
+    await userEvent.click(screen.getByRole('heading', { name: 'Grace' }));
+    expect(drawer()).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: 'pick' }));
+    expect(drawer()).toBeInTheDocument();
+
+    await userEvent.click(screen.getByText('Liste'));
+    expect(drawer()).not.toBeInTheDocument();
+  });
+
+  it('closes a phone’s student sheet on a tap beside it', async () => {
+    setWidth(390);
+    mocks.state.step = 1;
+    mocks.state.students = [createMockStudent({ id: 'g', name: 'Grace' })];
+    render(
+      <InspectorProvider>
+        <Picker />
+        <p>Liste</p>
+        <Inspector />
+      </InspectorProvider>,
+    );
+
+    await userEvent.click(screen.getByRole('button', { name: 'pick' }));
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+
+    await userEvent.click(screen.getByText('Liste'));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
   it('closes a phone’s student sheet on Escape', () => {
     setWidth(390);
     mocks.state.step = 1;
@@ -162,6 +209,31 @@ describe('Inspector below lg', () => {
     fireEvent.keyDown(window, { key: 'Escape' });
     expect(aside).toHaveClass('hidden');
     expect(toggle).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('closes a layer’s panel on a tap beside it, not on its switch', async () => {
+    setWidth(820);
+    renderLayer();
+    const aside = screen.getByRole('complementary', {
+      name: 'Mischkriterien',
+      hidden: true,
+    });
+    const toggle = inspectorSwitch();
+
+    await userEvent.click(toggle);
+    expect(aside).toHaveClass('fixed');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Kriterium' }));
+    expect(aside).toHaveClass('fixed');
+
+    await userEvent.click(screen.getByText('Status'));
+    expect(aside).toHaveClass('hidden');
+
+    // The switch keeps its own tap: it opens the panel, not closes and
+    // reopens it.
+    await userEvent.click(toggle);
+    await userEvent.click(toggle);
+    expect(aside).toHaveClass('hidden');
   });
 
   it('lets the toolbar’s drawer and the inspector’s take turns on a phone', () => {

@@ -102,12 +102,16 @@ export const CABINET_HEIGHT = 40;
 export const DIVIDER_WIDTH = 160;
 export const DIVIDER_HEIGHT = WALL_FEATURE_THICKNESS;
 
+// The sample class's windows and door hang on the walls exactly where a drop
+// puts them (`placeFixedFeatureBase`): flush with the edge of the room, turned
+// for their wall. A teacher cannot place one a few pixels off the wall, so the
+// sample room should not show one there either.
 export const DEFAULT_WINDOW_FEATURES: ClassroomFeature[] = [
   {
     id: 'window-left-1',
     type: 'window',
     visible: true,
-    x: 12,
+    x: 0,
     y: 90,
     width: WINDOW_WIDTH,
     height: WINDOW_HEIGHT,
@@ -120,7 +124,7 @@ export const DEFAULT_WINDOW_FEATURES: ClassroomFeature[] = [
     id: 'window-left-2',
     type: 'window',
     visible: true,
-    x: 12,
+    x: 0,
     y: CLASSROOM_HEIGHT - WINDOW_HEIGHT - 90,
     width: WINDOW_WIDTH,
     height: WINDOW_HEIGHT,
@@ -136,10 +140,11 @@ export const DEFAULT_DOOR_FEATURES: ClassroomFeature[] = [
     id: 'door-main',
     type: 'door',
     visible: true,
-    x: CLASSROOM_WIDTH - DOOR_WIDTH - 24,
-    y: CLASSROOM_HEIGHT - DOOR_HEIGHT - 16,
-    width: DOOR_WIDTH,
-    height: DOOR_HEIGHT,
+    // On the front wall below the board, upright as a drop turns it there.
+    x: CLASSROOM_WIDTH - DOOR_HEIGHT,
+    y: CLASSROOM_HEIGHT - DOOR_WIDTH - 25,
+    width: DOOR_HEIGHT,
+    height: DOOR_WIDTH,
     anchor: 'right',
     movable: false,
     label: 'door', // Use getFeatureLabel('door') for translated label

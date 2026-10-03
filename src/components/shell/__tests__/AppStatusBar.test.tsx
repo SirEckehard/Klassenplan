@@ -269,10 +269,10 @@ describe('AppStatusBar', () => {
     const exportButton = getButton(/^(Exportieren|Export)$/i);
     const presentButton = getButton(/^(Präsentieren|Present)$/i);
     // Beside the way back, at the end of the bar.
-    expect(back().compareDocumentPosition(exportButton)).toBe(
+    expect(back().compareDocumentPosition(presentButton)).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING,
     );
-    expect(exportButton.compareDocumentPosition(presentButton)).toBe(
+    expect(presentButton.compareDocumentPosition(exportButton)).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING,
     );
   });

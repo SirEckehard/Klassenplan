@@ -10,6 +10,7 @@ import {
 import { INSPECTOR_DRAWER_ID, useInspector } from '@/contexts/InspectorContext';
 import { useLayoutMode } from '@/hooks/ui/useLayoutMode';
 import { useDialogA11y } from '@/hooks/ui/useDialogA11y';
+import { useOutsideTap } from '@/hooks/ui/useOutsideTap';
 import {
   isAnyDialogOpen,
   isTopDialogLayer,
@@ -112,6 +113,24 @@ export default function Inspector() {
   const hasPortal = step === 2 || step === 3 || portalMounted;
   const showsDrawer = !isDesktop && hasPortal && drawerOpen;
 
+  // A tap beside the phone's sheet or the tablet's drawer puts the student
+  // away, as Escape does; a tap on another row opens that one, since the row's
+  // click arrives after the panel closed. The sheet is an overlay itself, so
+  // it asks whether one is open above it instead of whether any is.
+  const studentPanelRef = React.useRef<HTMLElement | null>(null);
+  const setStudentPanel = React.useCallback((node: HTMLElement | null) => {
+    studentPanelRef.current = node;
+  }, []);
+  useOutsideTap(
+    studentPanelRef,
+    clear,
+    isOpen && !isDesktop && !hasPortal && !suspended,
+    {
+      isBlocked: () =>
+        isPhone ? !isTopDialogLayer(sheetLayer) : isAnyDialogOpen(),
+    },
+  );
+
   // Another layer brings another panel; the drawer opens again when asked.
   // Before paint and before the layer's own effects, so a layer that opens
   // the drawer on arrival — the room does while it is empty — has the last
@@ -142,6 +161,16 @@ export default function Inspector() {
     window.addEventListener('keydown', handleKeyDown, true);
     return () => window.removeEventListener('keydown', handleKeyDown, true);
   }, [setDrawerOpen, showsDrawer]);
+
+  // A tap beside the drawer closes it as well; the switch that opens it keeps
+  // its own tap.
+  const closeDrawer = React.useCallback(
+    () => setDrawerOpen(false),
+    [setDrawerOpen],
+  );
+  useOutsideTap(drawerRef, closeDrawer, showsDrawer, {
+    ignoreSelector: `[aria-controls="${INSPECTOR_DRAWER_ID}"]`,
+  });
 
   if (suspended) return null;
 
@@ -204,7 +233,10 @@ export default function Inspector() {
   if (isPhone) {
     if (!isOpen) return null;
     return (
-      <div className="fixed inset-x-0 bottom-0 z-40 flex max-h-[80vh] flex-col overflow-hidden rounded-t-xl border-t border-(--border-card) bg-(--surface-card) shadow-(--shadow-sheet)">
+      <div
+        ref={setStudentPanel}
+        className="fixed inset-x-0 bottom-0 z-40 flex max-h-[80vh] flex-col overflow-hidden rounded-t-xl border-t border-(--border-card) bg-(--surface-card) shadow-(--shadow-sheet)"
+      >
         <div
           ref={sheetRef}
           role="dialog"
@@ -223,6 +255,7 @@ export default function Inspector() {
     if (!isOpen) return null;
     return (
       <aside
+        ref={setStudentPanel}
         aria-label={t('students:inspector.title')}
         className={inspectorDrawerClass}
       >

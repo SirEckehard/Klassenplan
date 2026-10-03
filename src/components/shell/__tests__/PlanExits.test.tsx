@@ -41,8 +41,8 @@ describe('PlanExits', () => {
     // Blue is the layer's own action in the status bar; the exits are never it.
     expect(exportButton).toHaveClass('secondary-button');
     expect(presentButton).toHaveClass('secondary-button');
-    // Presenting closes the bar, exporting comes before it.
-    expect(exportButton.compareDocumentPosition(presentButton)).toBe(
+    // Exporting closes the bar, presenting comes before it.
+    expect(presentButton.compareDocumentPosition(exportButton)).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING,
     );
 
@@ -52,15 +52,16 @@ describe('PlanExits', () => {
     expect(mocks.exits.presentPlan).toHaveBeenCalledTimes(1);
   });
 
-  // A phone's bar has room for one exit: exporting stays, presenting moves to
-  // the foot of the tool sheet.
-  it('keeps exporting on a phone and leaves presenting to tablets and up', () => {
+  // A narrow phone's bar has room for one exit: exporting stays, presenting
+  // moves to the foot of the tool sheet. An iPad mini in portrait has room
+  // for both.
+  it('keeps exporting on a narrow phone and leaves presenting to wider bars', () => {
     render(<PlanExits />);
 
     const exportButton = getButton(/^(Exportieren|Export)$/i);
     const presentButton = getButton(/^(Präsentieren|Present)$/i);
     expect(exportButton).not.toHaveClass('hidden');
-    expect(presentButton).toHaveClass('hidden', 'md:inline-flex');
+    expect(presentButton).toHaveClass('hidden', 'sm:inline-flex');
   });
 
   // The words belong to a desktop and a whiteboard; the names stay on the

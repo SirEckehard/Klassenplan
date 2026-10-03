@@ -185,8 +185,8 @@ describe('renderSceneSvg', () => {
     const outline = 'width="900" height="600"';
     const scaleOf = (svg: string) =>
       Number(/rotate\(\d+\) scale\(([\d.]+)\)/.exec(svg)?.[1]);
-    // The sample class's room: twelve double desks, the board on the right
-    // wall, windows on the left, the door at the back.
+    // The sample class's room: twelve double desks, the board and the door
+    // on the right wall, windows on the left.
     const sampleRoom = buildDemoClassroomScene(24);
 
     it('frames the tables without the room outline', async () => {

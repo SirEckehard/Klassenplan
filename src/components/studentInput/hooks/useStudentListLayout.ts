@@ -5,6 +5,7 @@ import { useAdaptiveViewportHeight } from '@/hooks/ui/useAdaptiveViewportHeight'
 import { useCookieBannerOffset } from '@/hooks/ui/useCookieBannerOffset';
 import { usePrefersReducedMotion } from '@/hooks/ui/usePrefersReducedMotion';
 import { getViewportMetrics, onVisualViewport } from '@/utils';
+import { SHELL_STATUS_BAR_HEIGHT } from '@/components/shell/shellTokens';
 
 type UseStudentListLayoutOptions = {
   isMobile: boolean;
@@ -22,10 +23,6 @@ const ACTION_ROW_RESERVED_PX = 76;
  * list are within reach.
  */
 export type ListScrollHint = 'down' | 'up' | null;
-
-// The end of the list counts as reached once it clears the bottom edge by this
-// much — the same margin the earlier scroll affordance used.
-const LIST_END_REACHED_MARGIN_PX = 100;
 
 // How far the top of the step has to be scrolled past before offering the way
 // back. Roughly one student row, so the button does not flicker in at the very
@@ -82,7 +79,12 @@ export const useStudentListLayout = ({
       const viewportHeight = height || window.innerHeight || 0;
       const listEndRect = listEnd.getBoundingClientRect();
 
-      if (listEndRect.top > viewportHeight - LIST_END_REACHED_MARGIN_PX) {
+      // The status bar stands over the window's bottom edge, so the end is in
+      // reach once it shows above the bar. A margin of 100px from the window's
+      // edge, from before the bar, was more than the page could ever scroll:
+      // at its foot the end stands only the bar and the page's padding up,
+      // and the button kept pointing down there.
+      if (listEndRect.top > viewportHeight - SHELL_STATUS_BAR_HEIGHT) {
         setScrollHint('down');
         return;
       }

@@ -7,7 +7,7 @@
  * keeps its width.
  */
 import '@testing-library/jest-dom/vitest';
-import { render, screen, act } from '@testing-library/react';
+import { render, screen, act, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import i18n from '@/i18n';
@@ -101,6 +101,33 @@ describe('SmartSidebar layout tiers', () => {
     expect(drawer()).toBeInTheDocument();
     // … an action closes it, so the stage shows what it did.
     await userEvent.click(screen.getByRole('button', { name: 'Sitzkreis' }));
+    expect(drawer()).not.toBeInTheDocument();
+  });
+
+  // No head with a title and a close button: the switch, Escape and a tap
+  // beside the drawer close it.
+  it('closes the phone drawer on a tap beside it, without a close button', async () => {
+    setWidth(390);
+    render(
+      <>
+        <SmartSidebar>
+          <p>Optionen-Inhalt</p>
+        </SmartSidebar>
+        <p>Bühne</p>
+      </>,
+    );
+    const drawer = () =>
+      screen.queryByRole('complementary', { name: 'Werkzeugleiste' });
+
+    await userEvent.click(openSheetButton()!);
+    expect(
+      within(drawer()!).queryByRole('button', { name: /Schließen|Close/i }),
+    ).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByText('Optionen-Inhalt'));
+    expect(drawer()).toBeInTheDocument();
+
+    await userEvent.click(screen.getByText('Bühne'));
     expect(drawer()).not.toBeInTheDocument();
   });
 

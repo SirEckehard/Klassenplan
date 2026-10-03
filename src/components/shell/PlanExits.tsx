@@ -36,15 +36,17 @@ export function useGuardedPlanExits() {
  *
  * Every other layer has its way on there — "Weiter" to the next layer. The
  * plan layer is the last, so its way on leads out of the workspace: to the
- * export page or to the board, presenting at the outer end. Blue marks the
+ * board or to the export page, exporting at the outer end — where a phone's
+ * bar keeps it alone, so it does not jump when the window narrows. Blue marks the
  * layer's own action, "Mischen" in the middle of the bar, so the exits are
  * quiet buttons.
  *
  * Their words show on a desktop and a whiteboard (`statusBarWordClass`); a
  * phone and a tablet show the icons, with the names in the tooltip and the
- * accessible name. A phone's bar has room for one of them: exporting, which a
- * teacher reaches for far more often, stays; presenting moves to the foot of
- * its tool sheet (`ToolRail`'s `planPresent`).
+ * accessible name. Below `sm` the bar has room for one of them: exporting,
+ * which a teacher reaches for far more often, stays; presenting moves to the
+ * foot of the tool sheet (`ToolRail`'s `planPresent`). An iPad mini in
+ * portrait, a phone by its width, has room for both.
  */
 export default function PlanExits() {
   const { t } = useTranslation('generator');
@@ -62,6 +64,17 @@ export default function PlanExits() {
       {/* The accessible names are spelled out once for every width. */}
       <button
         type="button"
+        onClick={onPresent}
+        title={t('present.buttonTitle')}
+        aria-label={t('present.button')}
+        aria-disabled={canExit ? undefined : true}
+        className={`${buttonClass} hidden sm:inline-flex`}
+      >
+        <ChalkboardTeacherIcon className="h-4 w-4" aria-hidden="true" />
+        <span className={statusBarWordClass}>{t('present.button')}</span>
+      </button>
+      <button
+        type="button"
         onClick={onExport}
         title={t('actions.exportShortcut')}
         aria-label={t('actions.export')}
@@ -70,17 +83,6 @@ export default function PlanExits() {
       >
         <ExportIcon className="h-4 w-4" aria-hidden="true" />
         <span className={statusBarWordClass}>{t('actions.export')}</span>
-      </button>
-      <button
-        type="button"
-        onClick={onPresent}
-        title={t('present.buttonTitle')}
-        aria-label={t('present.button')}
-        aria-disabled={canExit ? undefined : true}
-        className={`${buttonClass} hidden md:inline-flex`}
-      >
-        <ChalkboardTeacherIcon className="h-4 w-4" aria-hidden="true" />
-        <span className={statusBarWordClass}>{t('present.button')}</span>
       </button>
     </div>
   );
