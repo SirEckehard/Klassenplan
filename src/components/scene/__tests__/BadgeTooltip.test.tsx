@@ -169,9 +169,33 @@ describe('BadgeTooltipLayer', () => {
     });
     expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
 
-    // A tap beside every icon explains nothing.
-    pointer(plan, 'pointerdown', 35, 'touch');
-    pointer(plan, 'pointerup', 35, 'touch');
+    // A tap well clear of every icon explains nothing.
+    pointer(plan, 'pointerdown', 60, 'touch');
+    pointer(plan, 'pointerup', 60, 'touch');
     expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+  });
+
+  // The icons are 6 to 8px on an iPad, a fifth of a fingertip.
+  it('gives a fingertip the nearest icon, where the mouse must hit it', async () => {
+    render(<Harness />);
+    const plan = screen.getByTestId('plan');
+
+    // Between the two icons, 3px from the window and 7px from restlessness.
+    pointer(plan, 'pointermove', 17, 'mouse');
+    await waitFor(() =>
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument(),
+    );
+
+    pointer(plan, 'pointerdown', 17, 'touch');
+    pointer(plan, 'pointerup', 17, 'touch');
+    expect(screen.getByRole('tooltip')).toHaveTextContent(/fenster|window/i);
+
+    // 12px past the last icon is still within a fingertip's reach.
+    act(() => {
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    });
+    pointer(plan, 'pointerdown', 42, 'touch');
+    pointer(plan, 'pointerup', 42, 'touch');
+    expect(screen.getByRole('tooltip')).toHaveTextContent(/fenster|window/i);
   });
 });

@@ -17,51 +17,68 @@ export type HoveredBadge = {
 
 /** Slack around a slot, so a 9px icon does not demand a surgeon's hand. */
 const HIT_SLOP = 2;
+/**
+ * The slack a tap gets. The icons grow and shrink with the plan — on an iPad
+ * in portrait they are 6 to 8px, a fifth of a fingertip — and they cannot
+ * simply be drawn larger without sending more of them behind the "+N" of a
+ * small seat. So a finger takes the nearest icon within 14px, a target of
+ * about 36px; a pen, which is precise, within 6px.
+ */
+const TAP_SLOP = { touch: 14, pen: 6 } as const;
 /** A tap moves less than this and lasts less than {@link TAP_MS}. */
 const TAP_DISTANCE = 8;
 const TAP_MS = 600;
 
-const contains = (rect: DOMRect, x: number, y: number) =>
-  x >= rect.left - HIT_SLOP &&
-  x <= rect.right + HIT_SLOP &&
-  y >= rect.top - HIT_SLOP &&
-  y <= rect.bottom + HIT_SLOP;
+/** How far a point lies outside a box; 0 inside it. */
+const distanceTo = (rect: DOMRect, x: number, y: number) =>
+  Math.hypot(
+    Math.max(rect.left - x, 0, x - rect.right),
+    Math.max(rect.top - y, 0, y - rect.bottom),
+  );
 
 /**
- * The badge slot at a screen point inside `root`.
+ * The badge slot at a screen point inside `root`, or the nearest one within
+ * `slop` of it.
  *
  * The badge layer takes no pointer events — the seat under it is what a drag
  * grabs, and `elementFromPoint` has to find that seat mid-drag — so the slot
- * is found by its box: first the pill that contains the point, then the slot
- * inside it. Rotated tables are covered because a box is measured after every
+ * is found by its box: the pills within reach first, then the nearest slot in
+ * them. Rotated tables are covered because a box is measured after every
  * transform.
  */
 function findBadgeAt(
   root: Element,
   x: number,
   y: number,
+  slop: number = HIT_SLOP,
 ): Omit<HoveredBadge, 'pinned'> | null {
-  const pills = root.querySelectorAll('[data-badge-pill]');
-  for (const pill of pills) {
-    if (!contains(pill.getBoundingClientRect(), x, y)) continue;
+  let nearest: { pill: Element; slot: Element; rect: DOMRect } | null = null;
+  let nearestDistance = Infinity;
+  for (const pill of root.querySelectorAll('[data-badge-pill]')) {
+    if (distanceTo(pill.getBoundingClientRect(), x, y) > slop) continue;
     for (const slot of pill.querySelectorAll('[data-badge-key]')) {
       const rect = slot.getBoundingClientRect();
-      if (!contains(rect, x, y)) continue;
-      const hidden = slot.getAttribute('data-badge-hidden');
-      return {
-        studentId: pill.getAttribute('data-badge-pill') ?? '',
-        badgeKey: slot.getAttribute('data-badge-key') ?? '',
-        hiddenKeys: hidden ? hidden.split(' ') : [],
-        rect: {
-          left: rect.left,
-          top: rect.top,
-          width: rect.width,
-          height: rect.height,
-        },
-      };
+      const distance = distanceTo(rect, x, y);
+      if (distance <= slop && distance < nearestDistance) {
+        nearest = { pill, slot, rect };
+        nearestDistance = distance;
+      }
     }
   }
-  return null;
+  if (!nearest) return null;
+  const { pill, slot, rect } = nearest;
+  const hidden = slot.getAttribute('data-badge-hidden');
+  return {
+    studentId: pill.getAttribute('data-badge-pill') ?? '',
+    badgeKey: slot.getAttribute('data-badge-key') ?? '',
+    hiddenKeys: hidden ? hidden.split(' ') : [],
+    rect: {
+      left: rect.left,
+      top: rect.top,
+      width: rect.width,
+      height: rect.height,
+    },
+  };
 }
 
 const sameSlot = (
@@ -96,7 +113,12 @@ export function useBadgeHover(
     if (!svg) return undefined;
 
     let frame = 0;
-    let tapStart: { x: number; y: number; time: number } | null = null;
+    let tapStart: {
+      x: number;
+      y: number;
+      time: number;
+      slop: number;
+    } | null = null;
 
     const update = (next: HoveredBadge | null) => {
       const current = hoveredRef.current;
@@ -133,7 +155,12 @@ export function useBadgeHover(
       tapStart =
         event.pointerType === 'mouse'
           ? null
-          : { x: event.clientX, y: event.clientY, time: event.timeStamp };
+          : {
+              x: event.clientX,
+              y: event.clientY,
+              time: event.timeStamp,
+              slop: event.pointerType === 'pen' ? TAP_SLOP.pen : TAP_SLOP.touch,
+            };
     };
 
     const handleUp = (event: PointerEvent) => {
@@ -147,7 +174,7 @@ export function useBadgeHover(
       if (moved > TAP_DISTANCE || event.timeStamp - start.time > TAP_MS) {
         return;
       }
-      const found = findBadgeAt(svg, event.clientX, event.clientY);
+      const found = findBadgeAt(svg, event.clientX, event.clientY, start.slop);
       // A second tap on the same icon puts the tooltip away again.
       update(
         found && !sameSlot(hoveredRef.current, found)
