@@ -495,10 +495,11 @@
       "photos": "Fotos",
       "legend": "Legende",
       "classInfo": "Klasseninfos",
-      "connections": "Verbindungen"
+      "connections": "Verbindungen",
+      "frameOnTables": "Anzeige vergrößern"
     },
     "badgeFamilies": "Merkmale auf dem Blatt",
-    "badgeFamiliesHint": "Was ausgeschaltet ist, steht weder auf dem Plan noch in der Legende."
+    "frameOnTablesHint": "Tafel, Fenster und Tür rücken an die Tische heran, ferne Möbel entfallen."
   },
   "wizard": {
     "back": "Zurück",

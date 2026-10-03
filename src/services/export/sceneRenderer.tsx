@@ -48,6 +48,8 @@ export async function renderSceneSvg(
     orientation?: 'landscape' | 'portrait';
     /** Rotate the classroom 180° while names stay upright (see `SceneSvg`). */
     flipped?: boolean;
+    /** Frame the sheet on the tables (default) or show the whole room (see `SceneSvg`). */
+    frameOnTables?: boolean;
     nameDisplay?: NameDisplayMode;
     photoDisplayMode?: 'all' | 'off';
     showLegend?: boolean;
@@ -70,6 +72,7 @@ export async function renderSceneSvg(
         seatLabelRotation={options?.seatLabelRotation}
         orientation={options?.orientation}
         flipped={options?.flipped}
+        frameOnTables={options?.frameOnTables}
         nameDisplay={options?.nameDisplay}
         photoDisplayMode={options?.photoDisplayMode}
         showLegend={options?.showLegend}

@@ -12,17 +12,21 @@ import {
   type StudentBadge,
 } from '@/utils/ui/studentAppearance';
 import {
-  fitSeatBadges,
-  getSeatBadgePillParams,
   getSeatBadges,
+  layoutSeatBadgePill,
   type SeatBadgeView,
 } from '@/utils/ui/seatBadges';
+import {
+  fitNameOnSeat,
+  seatLockOffset,
+  seatNameMaxFontSize,
+} from '@/utils/ui/seatLabelLayout';
 import SeatBadgePill from '@/components/scene/SeatBadgePill';
+import SeatNameText from '@/components/scene/SeatNameText';
 import type { SeatHighlightTone } from '@/utils/ui/statisticsHighlight';
 import {
   getDisplayNameForMode,
   getTooltipName,
-  calculateSeatLabelFontSize,
   getWishPartnerIds,
   getAvoidPartnerIds,
   formatPercent,
@@ -58,6 +62,11 @@ interface TableSeatProps {
   nameDisplay?: NameDisplayMode;
   /** Disambiguated labels of the class (see `buildNameLabels`). */
   nameLabels?: NameLabels;
+  /**
+   * The size the plan's names share (`computePlanNameFontSize`); a name that
+   * cannot reach it on this seat stays smaller. Undefined: the seat's own cap.
+   */
+  nameFontSize?: number;
   /** When false, the gender tint is dropped for a paper seat (the beamer's colour switch). */
   showGenderColors?: boolean;
   /** When false, the seat name label and lock toggle are hidden (layout editor). */
@@ -109,38 +118,6 @@ interface TableSeatProps {
   onSeatFocus?: (info: SeatKeyboardEventInfo) => void;
   onSeatBlur?: () => void;
 }
-
-/**
- * Calculate lock button position with a stable anchor inside the seat.
- *
- * Strategy: Anchor the toggle near the visual top-left corner of the unrotated
- * seat and keep it inside the bounds, even for compact seats. This ensures the
- * control does not jump between corners when the table rotates.
- *
- * @param seatWidth - Width of seat in pixels
- * @param seatHeight - Height of seat in pixels
- * @returns LockIcon button offset in local seat coordinates
- */
-const calculateLockIconPosition = (
-  seatWidth: number,
-  seatHeight: number,
-): { x: number; y: number } => {
-  const touchTargetSize = 24;
-  const padding = 1;
-
-  const resolveCoordinate = (dimension: number): number => {
-    if (dimension <= touchTargetSize + padding * 2) {
-      // Keep the button inside very small seats by centering the touch target.
-      return Math.max(padding, (dimension - touchTargetSize) / 2);
-    }
-    return padding;
-  };
-
-  return {
-    x: resolveCoordinate(seatWidth),
-    y: resolveCoordinate(seatHeight),
-  };
-};
 
 /**
  * Show the manual focus ring only for keyboard focus (like :focus-visible).
@@ -283,6 +260,7 @@ function TableSeat({
   badgeView,
   nameDisplay,
   nameLabels,
+  nameFontSize,
   showGenderColors = true,
   showSeatLabels = true,
   lockSeatLabelOrientation,
@@ -330,7 +308,7 @@ function TableSeat({
   const seatLabelTransform = lockSeatLabelOrientation
     ? `rotate(${seatTextRotation} ${seatWidth / 2} ${seatHeight / 2})`
     : undefined;
-  const lockButtonOffset = calculateLockIconPosition(seatWidth, seatHeight);
+  const lockButtonOffset = seatLockOffset(seatWidth, seatHeight);
   const lockButtonTransform = `translate(${lockButtonOffset.x} ${lockButtonOffset.y})`;
   const normalizedTableRotation = ((tableRotation % 360) + 360) % 360;
   const lockButtonRotationCompensation = lockSeatLabelOrientation
@@ -389,7 +367,38 @@ function TableSeat({
   const displayName = labelStudent
     ? getDisplayNameForMode(labelStudent.name, 'table', nameDisplay, nameLabels)
     : '';
-  const seatFontSize = calculateSeatLabelFontSize(displayName, seatWidth);
+  // The name stands upright in the seat, between its lock and its badges, on
+  // one line or two, at the plan's shared size where it fits.
+  const labelRotation = lockSeatLabelOrientation ? seatTextRotation : 0;
+  const nameFit = React.useMemo(() => {
+    const shape = {
+      seatWidth,
+      seatHeight,
+      rotation: labelRotation,
+      lock: Boolean(toggleLock),
+    };
+    const pill = layoutSeatBadgePill(flags, shape, badgeView);
+    return fitNameOnSeat(displayName, shape, pill?.rect ?? null, {
+      weight: contrast ? 700 : 400,
+      maxFont: Math.min(
+        seatNameMaxFontSize(seatWidth, seatHeight),
+        nameFontSize ?? Infinity,
+      ),
+      // Full names all break into first and last name, so a plan reads alike.
+      split: nameDisplay === 'full',
+    });
+  }, [
+    seatWidth,
+    seatHeight,
+    labelRotation,
+    flags,
+    badgeView,
+    toggleLock,
+    displayName,
+    contrast,
+    nameFontSize,
+    nameDisplay,
+  ]);
 
   // The open lock is hover-revealed on hover-capable pointers; the closed
   // lock always stays visible. Keyboard focus reveals it too, so the toggle
@@ -601,12 +610,11 @@ function TableSeat({
         )}
         {student && showSeatLabels && (
           <>
-            <text
+            <SeatNameText
               x={seatWidth / 2}
               y={seatHeight / 2}
-              textAnchor="middle"
-              dominantBaseline="central"
-              fontSize={seatFontSize}
+              fit={nameFit}
+              title={getTooltipName(student.name)}
               fontWeight={contrast ? 700 : 400}
               transform={seatLabelTransform}
               fill={textColor}
@@ -615,10 +623,7 @@ function TableSeat({
                 opacity: seatTextOpacity,
                 transition: 'opacity 150ms ease',
               }}
-            >
-              <title>{getTooltipName(student.name)}</title>
-              {displayName}
-            </text>
+            />
           </>
         )}
         {student && showSeatLabels && (
@@ -735,23 +740,35 @@ export const TableSeatBadgeOverlay = React.memo(function TableSeatBadgeOverlay({
   lockSeatLabelOrientation,
   seatTextRotation,
 }: TableSeatBadgeOverlayProps) {
-  const fit = React.useMemo(() => {
-    const collapse = Boolean(badgeView?.collapse);
-    return fitSeatBadges(
-      getSeatBadges(student, allStudents, showSpecialNeeds, badgeView?.filter),
-      getSeatBadgePillParams(seatWidth, seatHeight, collapse),
-      { collapse, prioritize: badgeView?.prioritize },
-    );
-  }, [
-    student,
-    allStudents,
-    showSpecialNeeds,
-    badgeView,
-    seatWidth,
-    seatHeight,
-  ]);
+  // The pill stands upright with the name, so it is sized and placed in the
+  // name's frame: at a quarter turn the seat's width is its height, on a seat
+  // turned at a slant it sits as low as the seat's outline allows.
+  const labelRotation = lockSeatLabelOrientation ? seatTextRotation : 0;
+  const pill = React.useMemo(
+    () =>
+      layoutSeatBadgePill(
+        getSeatBadges(
+          student,
+          allStudents,
+          showSpecialNeeds,
+          badgeView?.filter,
+        ),
+        { seatWidth, seatHeight, rotation: labelRotation },
+        badgeView,
+      ),
+    [
+      student,
+      allStudents,
+      showSpecialNeeds,
+      badgeView,
+      seatWidth,
+      seatHeight,
+      labelRotation,
+    ],
+  );
+  const fit = pill?.fit;
 
-  if (!student || !fit) {
+  if (!student || !fit || !pill) {
     return null;
   }
 
@@ -774,8 +791,8 @@ export const TableSeatBadgeOverlay = React.memo(function TableSeatBadgeOverlay({
           fit={fit}
           studentId={student.id}
           isDark={isDark}
-          x={(seatWidth - fit.layout.width) / 2}
-          y={seatHeight - fit.layout.height - 6}
+          x={seatWidth / 2 + pill.rect.x}
+          y={seatHeight / 2 + pill.rect.y}
         />
       </g>
     </g>
@@ -825,6 +842,7 @@ const MemoizedTableSeat = React.memo(TableSeat, (prevProps, nextProps) => {
     prevProps.showGenderColors !== nextProps.showGenderColors ||
     prevProps.nameDisplay !== nextProps.nameDisplay ||
     prevProps.nameLabels !== nextProps.nameLabels ||
+    prevProps.nameFontSize !== nextProps.nameFontSize ||
     prevProps.showSeatLabels !== nextProps.showSeatLabels ||
     prevProps.seatTextRotation !== nextProps.seatTextRotation ||
     prevProps.tableRotation !== nextProps.tableRotation ||

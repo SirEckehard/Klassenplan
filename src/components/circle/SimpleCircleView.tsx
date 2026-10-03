@@ -10,7 +10,6 @@ import {
   GRID_SIZE,
   getDisplayNameForMode,
   getTooltipName,
-  calculateSeatLabelFontSize,
   isSilencedCharacterKey,
   logDebug,
   type NameDisplayMode,
@@ -20,6 +19,7 @@ import {
   describeBadge,
   getStudentAppearance,
   SEAT_UI_COLORS,
+  type StudentBadge,
 } from '@/utils/ui/studentAppearance';
 import {
   fitSeatBadges,
@@ -31,6 +31,12 @@ import {
   type SeatBadgeView,
 } from '@/utils/ui/seatBadges';
 import SeatBadgePill from '@/components/scene/SeatBadgePill';
+import SeatNameText from '@/components/scene/SeatNameText';
+import {
+  fitNameInCircle,
+  planNameFontSize,
+  tokenNameMaxFontSize,
+} from '@/utils/ui/seatLabelLayout';
 import BadgeTooltipLayer from '@/components/scene/BadgeTooltip';
 import { computeTokenPhotoLayout } from '@/utils/ui/studentTokenLayout';
 import { useCircleDragDrop } from '@/hooks/circle/useCircleDragDrop';
@@ -88,6 +94,12 @@ type SimpleCircleViewProps = {
 
 /** Room around the framed ring, beyond the tokens and their photos. */
 const FIT_MARGIN = 12;
+
+/**
+ * Where a name may begin under the lock in a token's upper left (an 8-unit
+ * circle centred 16 above the token's centre).
+ */
+const LOCK_CLEARANCE_Y = -7;
 
 /**
  * Simplified circle view with real drag-and-drop like table seating
@@ -473,6 +485,59 @@ function SimpleCircleView({
   const circleName = (student: Student) =>
     getDisplayNameForMode(student.name, 'circle', nameDisplay, nameLabels);
 
+  const fitTokenBadges = (flags: StudentBadge[]) =>
+    fitSeatBadges(
+      flags,
+      {
+        availableWidth: seatDiameter - 14,
+        baseIconSize: badgeBaseIconSize,
+        minIconSize: collapseBadges ? LEGIBLE_BADGE_ICON_SIZE : 5,
+        horizontalPadding: 4,
+        verticalPadding: 1,
+        rowGap: 2,
+        maxRows: 3,
+        maxHeight: badgeMaxHeight,
+        minIconsForWrap: 5,
+      },
+      { collapse: collapseBadges, prioritize: badgeView?.prioritize },
+    );
+  // Where a token's name may stand: above its badges and, in the editor,
+  // below the lock in its upper left.
+  const hasLockToggle = editable && Boolean(onToggleLock);
+  const nameBandFor = (badgeFit: ReturnType<typeof fitTokenBadges>) => ({
+    radius: seatRadius,
+    top: hasLockToggle ? LOCK_CLEARANCE_Y : -seatRadius + 3,
+    bottom:
+      badgeFit && badgeFit.layout.height > 0
+        ? computeBadgeOffset(seatRadius, badgeFit.layout.height) - 2
+        : seatRadius - 3,
+  });
+  const tokenNameMax = tokenNameMaxFontSize(seatRadius);
+  // One name size for the whole circle; only a conspicuously long name
+  // shrinks on its own place.
+  const circleNameFontSize = planNameFontSize(
+    layout.students.flatMap(({ student }) =>
+      student
+        ? [
+            fitNameInCircle(
+              circleName(student),
+              nameBandFor(
+                fitTokenBadges(
+                  getSeatBadges(
+                    student,
+                    allStudents,
+                    showSpecialNeeds,
+                    badgeView?.filter,
+                  ),
+                ),
+              ),
+              { maxFont: tokenNameMax, split: nameDisplay === 'full' },
+            ).fontSize,
+          ]
+        : [],
+    ),
+  );
+
   return (
     <div className={`relative w-full ${fit ? 'h-full' : ''}`}>
       {/* CSS Animations */}
@@ -570,26 +635,16 @@ function SimpleCircleView({
             ? circleName(labelStudent)
             : '';
           const studentTooltip = student ? getTooltipName(student.name) : '';
-          const seatFontSize = calculateSeatLabelFontSize(
-            studentDisplayName,
-            seatDiameter,
-          );
           const seatOpacity = isOrigin ? (swapStudent ? 0.6 : 0.3) : 1;
           const locked = student ? lockedIds.has(student.id) : false;
-          const badgeFit = fitSeatBadges(
-            appearance.flags,
+          const badgeFit = fitTokenBadges(appearance.flags);
+          const nameFit = fitNameInCircle(
+            studentDisplayName,
+            nameBandFor(badgeFit),
             {
-              availableWidth: seatDiameter - 14,
-              baseIconSize: badgeBaseIconSize,
-              minIconSize: collapseBadges ? LEGIBLE_BADGE_ICON_SIZE : 5,
-              horizontalPadding: 4,
-              verticalPadding: 1,
-              rowGap: 2,
-              maxRows: 3,
-              maxHeight: badgeMaxHeight,
-              minIconsForWrap: 5,
+              maxFont: Math.min(tokenNameMax, circleNameFontSize ?? Infinity),
+              split: nameDisplay === 'full',
             },
-            { collapse: collapseBadges, prioritize: badgeView?.prioritize },
           );
           const badgeOffset =
             badgeFit && badgeFit.layout.height > 0
@@ -792,7 +847,7 @@ function SimpleCircleView({
                       width: seatDiameter,
                       height: seatDiameter,
                       hasPhoto: true,
-                      nameFontSize: seatFontSize,
+                      nameFontSize: nameFit.fontSize,
                       outward: {
                         dirX: slot.x - layout.center.x,
                         dirY: slot.y - layout.center.y,
@@ -834,20 +889,15 @@ function SimpleCircleView({
                   })()}
 
                   {/* Student name with improved readability */}
-                  <text
+                  <SeatNameText
                     x={slot.x}
                     y={slot.y}
-                    textAnchor="middle"
-                    dominantBaseline="middle"
-                    fontSize={seatFontSize}
-                    fontWeight="400"
+                    fit={nameFit}
+                    title={studentTooltip}
+                    fontWeight={400}
                     fill={appearance.text}
-                    pointerEvents="none"
-                    style={{ userSelect: 'none' }}
-                  >
-                    <title>{studentTooltip}</title>
-                    {studentDisplayName}
-                  </text>
+                    style={{ userSelect: 'none', pointerEvents: 'none' }}
+                  />
 
                   {/* Special needs and partner indicators */}
                   {badgeFit && (

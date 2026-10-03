@@ -23,6 +23,7 @@ import {
   generatePdfBlob,
   openPdfForPrinting,
 } from '@/services/export/pdfExportFunctions';
+import { renderSceneSvg } from '@/services/export/sceneRenderer';
 import { createMockClassroomScene, createMockStudent } from '@/__tests__/utils';
 import {
   LEGACY_EXPORT_KEYS,
@@ -263,6 +264,58 @@ describe('Export page', () => {
       );
 
       await waitFor(() => expect(exportTableLayoutToPdf).toHaveBeenCalled());
+    });
+  });
+
+  it('lets the sheet fill its frame on screen, whatever the paper size', async () => {
+    // A cap at 297 × 210 mm shrank a landscape sheet into the middle of a
+    // large screen; only print sets the paper's size.
+    localStorage.setItem(
+      LOCAL_STORAGE_KEYS.exportTableOrientation,
+      '"landscape"',
+    );
+    renderExport();
+
+    const srcdoc = await previewSrcdoc();
+    const screenRoot = /#print-root \{([^}]*)\}/.exec(srcdoc)?.[1] ?? '';
+    expect(screenRoot).toContain('width: 100%');
+    expect(screenRoot).not.toMatch(/max-(width|height)/);
+  });
+
+  describe('framing on the tables', () => {
+    it('frames the sheet on the tables by default', async () => {
+      renderExport();
+
+      await waitFor(() =>
+        expect(renderSceneSvg).toHaveBeenCalledWith(
+          expect.anything(),
+          expect.anything(),
+          expect.anything(),
+          expect.objectContaining({ frameOnTables: true }),
+        ),
+      );
+    });
+
+    it('shows the whole room once switched off, and remembers it', async () => {
+      renderExport();
+
+      await userEvent.click(
+        await screen.findByRole('switch', {
+          name: 'Anzeige vergrößern',
+        }),
+      );
+
+      await waitFor(() =>
+        expect(renderSceneSvg).toHaveBeenLastCalledWith(
+          expect.anything(),
+          expect.anything(),
+          expect.anything(),
+          expect.objectContaining({ frameOnTables: false }),
+        ),
+      );
+      expect(localStorage.getItem(LOCAL_STORAGE_KEYS.exportFrameOnTables)).toBe(
+        'false',
+      );
     });
   });
 

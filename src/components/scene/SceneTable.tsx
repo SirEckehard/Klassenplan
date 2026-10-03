@@ -82,6 +82,8 @@ type TableProps = {
   nameDisplay?: NameDisplayMode;
   /** Disambiguated labels of the class (see `buildNameLabels`). */
   nameLabels?: NameLabels;
+  /** The size the plan's names share (`computePlanNameFontSize`). */
+  nameFontSize?: number;
   seatHighlights?: SeatHighlightLookup | null;
   /**
    * Controls the seat *content*: 'full' renders the seat rectangles, names and
@@ -133,6 +135,7 @@ function SceneTable({
   seatLabelRotation = 0,
   nameDisplay,
   nameLabels,
+  nameFontSize,
   seatHighlights = null,
   seatMarkerMode = 'full',
   photoDisplayMode = 'off',
@@ -366,6 +369,7 @@ function SceneTable({
         showGenderColors={showGenderColors}
         nameDisplay={nameDisplay}
         nameLabels={nameLabels}
+        nameFontSize={nameFontSize}
         showSeatLabels={seatMarkerMode === 'full'}
         lockSeatLabelOrientation={lockSeatLabelOrientation}
         seatTextRotation={seatTextRotation}

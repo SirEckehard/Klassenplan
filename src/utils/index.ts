@@ -386,7 +386,6 @@ export {
   toastIconClass,
 } from './ui/designTokens';
 export type { DataFamily } from './ui/designTokens';
-export { calculateSeatLabelFontSize } from './ui/textScaling';
 export {
   getViewportMetrics,
   onVisualViewport,

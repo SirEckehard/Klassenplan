@@ -49,7 +49,13 @@ export interface TokenPhotoLayoutParams {
    * direction from the token centre; `tokenRadius` is the token's outer radius.
    * The avatar's inner edge touches the token edge.
    */
-  outward?: { dirX: number; dirY: number; tokenRadius: number };
+  outward?: {
+    dirX: number;
+    dirY: number;
+    tokenRadius: number;
+    /** Largest avatar radius; the print's larger places take larger photos. */
+    maxRadius?: number;
+  };
 }
 
 /** Smallest avatar radius worth drawing; below this we render the name only. */
@@ -89,7 +95,7 @@ export function computeTokenPhotoLayout(
     const nx = outward.dirX / length;
     const ny = outward.dirY / length;
     const r = Math.min(
-      OUTSIDE_AVATAR_MAX_RADIUS,
+      outward.maxRadius ?? OUTSIDE_AVATAR_MAX_RADIUS,
       Math.max(OUTSIDE_AVATAR_MIN_RADIUS, outward.tokenRadius * 0.5),
     );
     const distance = outward.tokenRadius + r;

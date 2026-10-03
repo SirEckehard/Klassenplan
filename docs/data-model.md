@@ -192,7 +192,9 @@ list is `PROJECT_LOCAL_STORAGE_KEYS` in `storageKeys.ts`. Groups:
   (`spg.present.contrast`, `spg.present.nameDisplay`): it is read from the back
   row, the editor's plan from 40 cm away. `spg.export.hiddenBadgeFamilies`
   lists the badge families a printout leaves out
-  ([decision 0021](decisions/0021-seat-badges-explained.md)).
+  ([decision 0021](decisions/0021-seat-badges-explained.md)), and
+  `spg.export.frameOnTables` is `false` once the table plan's sheet shows the
+  whole room instead of being framed on the tables.
 - **Keyboard:** `spg.characterKeyShortcuts` — `false` once the teacher has
   switched off the shortcuts on a single character key ("?", P, F, 1–3, Q/E …)
   in the settings menu, for speech input (WCAG 2.1.4, `utils/characterKeys.ts`).

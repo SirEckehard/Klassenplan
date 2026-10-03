@@ -4,32 +4,41 @@ import { useTranslation } from 'react-i18next';
 import type { CircleLayout } from '@/types/Circle';
 import type { Student } from '@/types';
 import type { DataFamily, NameDisplayMode } from '@/utils';
+import { getDisplayNameForMode, formatDate, svgFontFamily } from '@/utils';
 import {
-  CLASSROOM_WIDTH,
-  CLASSROOM_HEIGHT,
-  getDisplayNameForMode,
-  calculateSeatLabelFontSize,
-  formatDate,
-  svgFontFamily,
-} from '@/utils';
-import { getStudentAppearance } from '@/utils/ui/studentAppearance';
+  getStudentAppearance,
+  type StudentBadge,
+} from '@/utils/ui/studentAppearance';
 import {
   createHiddenFamiliesFilter,
   fitSeatBadges,
   getSeatBadges,
 } from '@/utils/ui/seatBadges';
+import {
+  fitNameInCircle,
+  planNameFontSize,
+  tokenNameMaxFontSize,
+} from '@/utils/ui/seatLabelLayout';
+import {
+  fitPrintRing,
+  PRINT_AVATAR_MAX_RADIUS,
+} from '@/utils/ui/circlePrintLayout';
 import SeatBadgePill from '@/components/scene/SeatBadgePill';
+import SeatNameText from '@/components/scene/SeatNameText';
+import {
+  EXPORT_PAGE_MARGIN,
+  ExportPageHeader,
+  exportMetadataLines,
+  getExportPageLayout,
+  type ExportClassInfo,
+} from '@/components/scene/ExportPageFrame';
 import { computeTokenPhotoLayout } from '@/utils/ui/studentTokenLayout';
 import { buildLegendLayout } from '@/utils/ui/classBadgeLegend';
 import { summarizeCircle } from '@/utils/algorithm/circleSummary';
 import ExportLegend from '@/components/scene/ExportLegend';
 import { useNameLabels } from '@/hooks/student/useNameLabels';
 
-interface ClassMetadataInfo {
-  name?: string | null;
-  label?: string | null;
-  notes?: string | null;
-}
+type ClassMetadataInfo = ExportClassInfo;
 
 interface CirclePrintViewProps {
   layout: CircleLayout;
@@ -77,53 +86,8 @@ export default function CirclePrintView({
     nameDisplay,
   );
 
-  // Page dimensions - exact 72dpi A4 for PDF compatibility
   const isPortrait = orientation === 'portrait';
-  const pageWidth = isPortrait ? 595 : 842;
-  const pageHeight = isPortrait ? 842 : 595;
-  const margin = isPortrait ? 40 : 70; // Sufficient margin for print boundaries
-  const trimmedName = classMetadata?.name?.trim() || undefined;
-  const trimmedLabel = classMetadata?.label?.trim() || undefined;
-  const trimmedNotes = classMetadata?.notes?.trim() || undefined;
-  const hasOptionalDetails = Boolean(trimmedLabel || trimmedNotes);
-  const metadataLines: string[] = [];
-
-  if (hasOptionalDetails) {
-    const primaryLineParts: string[] = [];
-    if (trimmedName) {
-      primaryLineParts.push(trimmedName);
-    }
-    if (trimmedLabel) {
-      primaryLineParts.push(trimmedLabel);
-    }
-    if (primaryLineParts.length > 0) {
-      metadataLines.push(primaryLineParts.join(' • '));
-    }
-    if (trimmedNotes) {
-      metadataLines.push(trimmedNotes);
-    }
-  }
-
-  const baseHeaderHeight = isPortrait ? 20 : 60;
-  const metadataGap = metadataLines.length > 0 ? (isPortrait ? 6 : 12) : 0;
-  const metadataLineSpacing = isPortrait ? 8 : 14;
-  const headerHeight =
-    baseHeaderHeight + metadataGap + metadataLines.length * metadataLineSpacing;
-
-  // Conditional oval rotation and sizing based on orientation
-  const shouldRotateOval = orientation === 'portrait';
-  const portraitRadiusReduction = 0.85; // 15% smaller in portrait for better spacing
-
-  // Validate layout.radius values with fallbacks and portrait optimization
-  const baseRadiusH =
-    layout.radius?.horizontal > 0 ? layout.radius.horizontal : 200;
-  const baseRadiusV =
-    layout.radius?.vertical > 0 ? layout.radius.vertical : 150;
-
-  const safeRadiusH = baseRadiusH * (isPortrait ? portraitRadiusReduction : 1);
-  const safeRadiusV = baseRadiusV * (isPortrait ? portraitRadiusReduction : 1);
-
-  // Debug logging temporarily disabled to prevent render loops
+  const metadataLines = exportMetadataLines(classMetadata);
 
   // Optional legend (badge icons + gender colours) as an un-rotated footer band.
   const legendStudents = layout.students
@@ -131,11 +95,12 @@ export default function CirclePrintView({
     .filter((s): s is Student => s !== null);
   const legendFontSize = isPortrait ? 7 : 10;
   const legendIconSize = isPortrait ? 10 : 13;
+  const pageWidth = isPortrait ? 595 : 842;
   const legendLayout =
     showLegend && legendStudents.length > 0
       ? buildLegendLayout({
           students: legendStudents,
-          width: pageWidth - margin * 2,
+          width: pageWidth - EXPORT_PAGE_MARGIN * 2,
           fontSize: legendFontSize,
           iconSize: legendIconSize,
           showSpecialNeeds,
@@ -148,65 +113,38 @@ export default function CirclePrintView({
           },
         })
       : null;
-  const legendGap = legendLayout && legendLayout.height > 0 ? 10 : 0;
-  const legendBandHeight = legendLayout ? legendLayout.height : 0;
+  const page = getExportPageLayout({
+    orientation,
+    metadataLineCount: metadataLines.length,
+    legendHeight: legendLayout?.height ?? 0,
+  });
 
-  // Use same frame calculation approach as SceneSvg with proper centering
-  const availableHeight =
-    pageHeight - margin * 2 - headerHeight - legendBandHeight - legendGap;
-  const scale = Math.min(
-    (pageWidth - margin * 2) / CLASSROOM_WIDTH,
-    availableHeight / CLASSROOM_HEIGHT,
-  );
-  const offsetX = (pageWidth - CLASSROOM_WIDTH * scale) / 2;
-  const offsetY =
-    margin + headerHeight + (availableHeight - CLASSROOM_HEIGHT * scale) / 2;
-
-  // Calculate circle dimensions within the scaled classroom frame
-  const frameWidth = CLASSROOM_WIDTH * scale;
-  const frameHeight = CLASSROOM_HEIGHT * scale;
-
-  // Scale circle to fit within the classroom frame with safety checks
-  const circleScaleH =
-    frameWidth > 0 && safeRadiusH > 0 ? frameWidth / (safeRadiusH * 2) : 1;
-  const circleScaleV =
-    frameHeight > 0 && safeRadiusV > 0 ? frameHeight / (safeRadiusV * 2) : 1;
-  const circleScale = Math.min(circleScaleH, circleScaleV);
-
-  // Ensure circleScale is valid
-  const safeCircleScale =
-    circleScale > 0 && Number.isFinite(circleScale) ? circleScale : 1;
-
-  const scaledRadiusH = safeRadiusH * safeCircleScale;
-  const scaledRadiusV = safeRadiusV * safeCircleScale;
-  const centerX = offsetX + frameWidth / 2;
-  const centerY = offsetY + frameHeight / 2;
-
-  // Calculations completed
+  // The ring with its places and their photos fills the area the page leaves;
+  // a place is as large as the gap to its neighbours allows. Portrait turns
+  // the oval a quarter.
+  const showsPhotos =
+    photoDisplayMode !== 'off' &&
+    legendStudents.some(
+      (student) => student.hasPhoto && photoDataUrls?.has(student.id),
+    );
+  const ring = fitPrintRing({
+    placements: layout.students.flatMap((studentPosition) =>
+      studentPosition?.student?.id && typeof studentPosition.angle === 'number'
+        ? [{ id: studentPosition.student.id, angle: studentPosition.angle }]
+        : [],
+    ),
+    radius: layout.radius ?? { horizontal: 0, vertical: 0 },
+    area: page.area,
+    portrait: isPortrait,
+    withPhotos: showsPhotos,
+  });
+  const { centerX, centerY, tokenRadius: seatRadius } = ring;
+  const seatDiameter = seatRadius * 2;
+  const studentCoordinates = ring.positions;
 
   const currentDate = formatDate(new Date(), i18n.language);
   const displayTitle = title || t('mode.circle', 'Sitzkreis');
-  const headerTitleY = isPortrait ? margin + 6 : 60;
-  const headerGroupY = isPortrait ? headerTitleY - 6 : 47;
-  const headerLogoX = isPortrait ? margin : 70;
-  const headerTitleX = isPortrait
-    ? margin + (pageWidth - margin * 2) / 2
-    : pageWidth / 2;
-  const headerDateX = isPortrait ? pageWidth - margin : pageWidth - 115;
-  const headerDateAnchor = isPortrait ? 'end' : 'middle';
-  const metadataStartY = headerTitleY + (isPortrait ? 8 : 20);
-  const metadataFontSize = isPortrait ? 6 : 12;
 
-  // Dynamic sizing based on student count to prevent overlapping
-  const studentCount = layout.students.length;
-
-  // Dynamic circle radius - smaller for larger classes
-  const baseSeatRadius = isPortrait ? 28 : 30;
-  const seatRadius = Math.max(
-    16,
-    baseSeatRadius - Math.floor(studentCount / 3),
-  );
-  const seatDiameter = seatRadius * 2;
   const badgeMinNameSpacing = 4;
   const badgeMinBottomSpacing = 4;
   // Allow 4px more vertical space so 3 rows fit even in small circles.
@@ -222,65 +160,50 @@ export default function CirclePrintView({
     const desiredOffset = Math.max(rawOffset, badgeMinNameSpacing);
     return Math.min(desiredOffset, maxAllowedOffset);
   };
-
-  // Calculate minimum required spacing between circles
-  const minCircleDistance = seatRadius * 2.2; // 20% spacing buffer
-  const requiredCircumference = studentCount * minCircleDistance;
-
-  // CheckIcon if current oval size can accommodate all students without overlap
-  const currentCircumference =
-    2 *
-    Math.PI *
-    Math.sqrt((Math.pow(scaledRadiusH, 2) + Math.pow(scaledRadiusV, 2)) / 2);
-  const needsOvalExpansion = currentCircumference < requiredCircumference;
-
-  // Expand oval if needed (up to 30% larger)
-  const expansionFactor = needsOvalExpansion
-    ? Math.min(1.3, requiredCircumference / currentCircumference)
-    : 1;
-
-  const finalRadiusH = scaledRadiusH * expansionFactor;
-  const finalRadiusV = scaledRadiusV * expansionFactor;
+  // Paper cannot be hovered: every badge is printed, as small as it takes,
+  // rather than folded into a "+N".
+  const fitTokenBadges = (flags: StudentBadge[]) =>
+    fitSeatBadges(flags, {
+      availableWidth: seatDiameter - 14,
+      baseIconSize: Math.min(12, Math.max(8, seatRadius * 0.3)),
+      minIconSize: 4,
+      horizontalPadding: 4,
+      verticalPadding: 1,
+      rowGap: 2,
+      maxRows: 3,
+      maxHeight: badgeMaxHeight,
+      minIconsForWrap: 5,
+    });
+  // Where a place's name may stand: above its badges.
+  const nameBandFor = (badgeFit: ReturnType<typeof fitTokenBadges>) => ({
+    radius: seatRadius,
+    top: -seatRadius + 3,
+    bottom:
+      badgeFit && badgeFit.layout.height > 0
+        ? computeBadgeOffset(seatRadius, badgeFit.layout.height) - 2
+        : seatRadius - 3,
+  });
+  const printName = (student: Student) =>
+    getDisplayNameForMode(student.name, 'pdf', nameDisplay, nameLabels);
+  const badgesOf = (student: Student) =>
+    getSeatBadges(student, legendStudents, showSpecialNeeds, badgeFilter);
+  const tokenNameMax = tokenNameMaxFontSize(seatRadius);
+  // One name size for the whole circle; only a conspicuously long name
+  // shrinks on its own place.
+  const circleNameFontSize = planNameFontSize(
+    legendStudents.map(
+      (student) =>
+        fitNameInCircle(
+          printName(student),
+          nameBandFor(fitTokenBadges(badgesOf(student))),
+          { maxFont: tokenNameMax, split: nameDisplay === 'full' },
+        ).fontSize,
+    ),
+  );
 
   // Optimized spacing for better readability, especially in portrait
-  const connectionStrokeWidth = Math.max(
-    1.2,
-    Math.min(2.2, 1.5 * safeCircleScale),
-  );
-  const arcDistance = Math.max(24, 40 * safeCircleScale);
-
-  const studentCoordinates = new Map<string, { x: number; y: number }>();
-
-  layout.students.forEach((studentPosition) => {
-    // Validate student position data
-    if (
-      !studentPosition?.student?.id ||
-      typeof studentPosition.angle !== 'number'
-    ) {
-      return;
-    }
-
-    // Single-ring positioning for all student counts
-    const angle = (studentPosition.angle * Math.PI) / 180;
-
-    // Calculate base oval coordinates using expanded radii
-    const baseX = Math.cos(angle) * finalRadiusH;
-    const baseY = Math.sin(angle) * finalRadiusV;
-
-    // Apply rotation only in portrait mode: (x,y) → (-y,x) for oval rotation
-    const rotatedX = shouldRotateOval ? -baseY : baseX; // Rotate only in portrait
-    const rotatedY = shouldRotateOval ? baseX : baseY; // Rotate only in portrait
-
-    const x = centerX + rotatedX;
-    const y = centerY + rotatedY;
-
-    // Validate calculated coordinates
-    if (!Number.isFinite(x) || !Number.isFinite(y)) {
-      return;
-    }
-
-    studentCoordinates.set(studentPosition.student.id, { x, y });
-  });
+  const connectionStrokeWidth = Math.max(1.2, Math.min(2.2, 1.5 * ring.scale));
+  const arcDistance = Math.max(24, 40 * ring.scale);
 
   // Helper to get student appearance for PDF export (light mode only)
   const getStudentColors = (student: Student) => {
@@ -318,82 +241,17 @@ export default function CirclePrintView({
       xmlns="http://www.w3.org/2000/svg"
       width="100%"
       height="100%"
-      viewBox={`0 0 ${pageWidth} ${pageHeight}`}
+      viewBox={`0 0 ${page.pageWidth} ${page.pageHeight}`}
       preserveAspectRatio="xMidYMid meet"
       style={{ display: 'block' }}
       fontFamily={svgFontFamily}
     >
-      {/* Header - Logo and Branding - responsive sizing for portrait mode */}
-      <g
-        transform={
-          isPortrait
-            ? `translate(${headerLogoX} ${headerGroupY})`
-            : 'translate(70 47)'
-        }
-      >
-        <g transform={`scale(${(isPortrait ? 8 : 16) / 240})`}>
-          <g fill="#2563EB">
-            <rect x="8" y="8" width="40" height="40" rx="8" />
-            <rect x="146" y="8" width="40" height="40" rx="8" />
-            <rect x="8" y="54" width="40" height="40" rx="8" />
-            <rect x="100" y="54" width="40" height="40" rx="8" />
-            <rect x="8" y="100" width="40" height="40" rx="8" />
-            <rect x="54" y="100" width="40" height="40" rx="8" />
-            <rect x="8" y="146" width="40" height="40" rx="8" />
-            <rect x="100" y="146" width="40" height="40" rx="8" />
-            <rect x="8" y="192" width="40" height="40" rx="8" />
-            <rect x="146" y="192" width="40" height="40" rx="8" />
-          </g>
-          <rect x="192" y="100" width="40" height="40" rx="8" fill="#F59E0B" />
-        </g>
-        <text
-          x={isPortrait ? 12 : 20}
-          y={isPortrait ? 7 : 14}
-          fontSize={isPortrait ? 8 : 16}
-          fontWeight="bold"
-          fill="#2563EB"
-          fontFamily={svgFontFamily}
-        >
-          Klassenplan.de
-        </text>
-      </g>
-
-      {/* Title */}
-      <text
-        x={headerTitleX}
-        y={headerTitleY}
-        textAnchor="middle"
-        fontSize={isPortrait ? 10 : 20}
-        fontWeight="bold"
-        fill="#000"
-      >
-        {displayTitle}
-      </text>
-
-      {/* Date */}
-      <text
-        x={headerDateX}
-        y={headerTitleY}
-        textAnchor={headerDateAnchor}
-        fontSize={isPortrait ? 6 : 12}
-        fill="#000"
-      >
-        {`${t('circle.date', 'Datum')}: ${currentDate}`}
-      </text>
-      {metadataLines.length > 0 &&
-        metadataLines.map((line, index) => (
-          <text
-            key={`metadata-${index}`}
-            x={headerTitleX}
-            y={metadataStartY + index * metadataLineSpacing}
-            textAnchor="middle"
-            fontSize={metadataFontSize}
-            fontWeight="500"
-            fill="#475569"
-          >
-            {line}
-          </text>
-        ))}
+      <ExportPageHeader
+        layout={page}
+        title={displayTitle}
+        dateLabel={`${t('circle.date', 'Datum')}: ${currentDate}`}
+        metadataLines={metadataLines}
+      />
 
       {/* Table neighbours still side by side. Read off the current order:
           the neighbour lists stored on each position describe the order the
@@ -442,43 +300,17 @@ export default function CirclePrintView({
 
         const { x, y } = coordinates;
         const student = studentPosition.student;
-        const displayName = getDisplayNameForMode(
-          student.name,
-          'pdf',
-          nameDisplay,
-          nameLabels,
-        );
-        const seatFontSize = calculateSeatLabelFontSize(
-          displayName,
-          seatDiameter,
-        );
-        const allStudents = layout.students
-          .map((sp) => sp.student)
-          .filter((s): s is Student => s !== null);
-        const flags = getSeatBadges(
-          student,
-          allStudents,
-          showSpecialNeeds,
-          badgeFilter,
-        );
+        const displayName = printName(student);
         const colors = getStudentColors(student);
-        // Paper cannot be hovered: every badge is printed, as small as it
-        // takes, rather than folded into a "+N".
-        const badgeFit = fitSeatBadges(flags, {
-          availableWidth: seatDiameter - 14,
-          baseIconSize: seatRadius >= 26 ? 9 : 8,
-          minIconSize: 4,
-          horizontalPadding: 4,
-          verticalPadding: 1,
-          rowGap: 2,
-          maxRows: 3,
-          maxHeight: badgeMaxHeight,
-          minIconsForWrap: 5,
-        });
+        const badgeFit = fitTokenBadges(badgesOf(student));
         const badgeOffset =
           badgeFit && badgeFit.layout.height > 0
             ? computeBadgeOffset(seatRadius, badgeFit.layout.height)
             : 0;
+        const nameFit = fitNameInCircle(displayName, nameBandFor(badgeFit), {
+          maxFont: Math.min(tokenNameMax, circleNameFontSize ?? Infinity),
+          split: nameDisplay === 'full',
+        });
 
         const photoUrl =
           photoDisplayMode !== 'off' && student.hasPhoto
@@ -494,11 +326,12 @@ export default function CirclePrintView({
           width: seatDiameter,
           height: seatDiameter,
           hasPhoto: Boolean(photoUrl),
-          nameFontSize: seatFontSize,
+          nameFontSize: nameFit.fontSize,
           outward: {
             dirX: x - centerX,
             dirY: y - centerY,
             tokenRadius: seatRadius,
+            maxRadius: PRINT_AVATAR_MAX_RADIUS,
           },
         });
         const photoClipId = `circle-print-photo-${student.id}`;
@@ -546,19 +379,15 @@ export default function CirclePrintView({
               </g>
             )}
 
-            <text
+            <SeatNameText
               x={x}
               y={y}
-              textAnchor="middle"
-              dominantBaseline="middle"
-              fontSize={seatFontSize}
-              fontWeight="400"
+              fit={nameFit}
+              title={displayName}
+              fontWeight={400}
               fill="#0f172a"
               style={{ userSelect: 'none' }}
-            >
-              <title>{displayName}</title>
-              {displayName}
-            </text>
+            />
 
             {badgeFit && (
               <SeatBadgePill
@@ -577,8 +406,8 @@ export default function CirclePrintView({
       {legendLayout && legendLayout.height > 0 && (
         <ExportLegend
           layout={legendLayout}
-          x={isPortrait ? margin : 70}
-          y={pageHeight - margin - legendBandHeight}
+          x={page.margin}
+          y={page.legendY}
           title={t('legend.title', 'Legende')}
           fontSize={legendFontSize}
           iconSize={legendIconSize}

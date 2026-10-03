@@ -2,7 +2,11 @@
 // Copyright (C) 2026 Eike Schäfer
 import { describe, expect, it } from 'vitest';
 import type { ClassroomFeature, ClassroomTable } from '@/types';
-import { featuresForTableFrame } from '../presentationFrame';
+import {
+  featuresForTableFrame,
+  frameContentBounds,
+  turnBox,
+} from '../presentationFrame';
 
 const table = (x: number, y: number): ClassroomTable => ({
   x,
@@ -114,5 +118,61 @@ describe('featuresForTableFrame', () => {
     });
 
     expect(featuresForTableFrame([], [board])).toEqual([board]);
+  });
+});
+
+describe('frameContentBounds', () => {
+  it('boxes the tables, the room elements and any further boxes', () => {
+    const board = feature('board', 'top', {
+      x: 350,
+      y: 100,
+      width: 100,
+      height: 12,
+    });
+    const photo = { minX: 260, minY: 250, maxX: 300, maxY: 290 };
+
+    expect(frameContentBounds(tables, [board], [photo])).toEqual({
+      minX: 260,
+      minY: 100,
+      maxX: 500,
+      maxY: 400,
+    });
+  });
+
+  it('measures a turned element by its outline', () => {
+    const turned = { x: 0, y: 0, width: 100, height: 20, rotation: 90 };
+
+    expect(frameContentBounds([], [turned])).toEqual({
+      minX: 40,
+      minY: -40,
+      maxX: 60,
+      maxY: 60,
+    });
+  });
+
+  it('is null when nothing is drawn', () => {
+    expect(frameContentBounds([], [])).toBeNull();
+  });
+});
+
+describe('turnBox', () => {
+  const box = { minX: 100, minY: 200, maxX: 300, maxY: 250 };
+  const center = { x: 450, y: 300 };
+
+  it('swaps width and height at a quarter turn', () => {
+    const turned = turnBox(box, 90, center);
+    expect(turned.maxX - turned.minX).toBe(50);
+    expect(turned.maxY - turned.minY).toBe(200);
+    // Clockwise: what lay left of the centre now lies above it.
+    expect(turned.maxY).toBeLessThan(center.y);
+  });
+
+  it('mirrors the box through the centre at a half turn', () => {
+    expect(turnBox(box, 180, center)).toEqual({
+      minX: 600,
+      minY: 350,
+      maxX: 800,
+      maxY: 400,
+    });
   });
 });

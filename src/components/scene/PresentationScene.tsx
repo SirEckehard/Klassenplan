@@ -1,12 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
-import type {
-  ClassroomFeature,
-  ClassroomScene,
-  SeatingArrangement,
-  Student,
-} from '@/types';
+import type { ClassroomScene, SeatingArrangement, Student } from '@/types';
 import TableIcon from './SceneTable';
 import FeatureShape from './FeatureShape';
 import { useStudentPhotoUrls } from '@/hooks/student/useStudentPhoto';
@@ -14,12 +9,17 @@ import { useNameLabels } from '@/hooks/student/useNameLabels';
 import {
   CLASSROOM_WIDTH,
   CLASSROOM_HEIGHT,
-  getRotatedAabbHalfExtents,
+  getDisplayNameForMode,
   type NameDisplayMode,
   svgFontFamily,
 } from '@/utils';
 import { getFeatureStyles } from '@/utils/ui';
-import { featuresForTableFrame } from '@/utils/ui/presentationFrame';
+import {
+  featuresForTableFrame,
+  frameContentBounds,
+  turnBox,
+} from '@/utils/ui/presentationFrame';
+import { computePlanNameFontSize } from '@/utils/ui/planNameSize';
 import {
   getPresentationRotation,
   type PresentationPerspective,
@@ -83,61 +83,6 @@ type PresentationSceneProps = {
 
 /** Padding around the classroom so seat photos docking outside seats aren't clipped. */
 const EDGE_PADDING = 48;
-
-type Rect = { minX: number; minY: number; maxX: number; maxY: number };
-
-/**
- * Axis-aligned box around everything that actually gets drawn, in scene units.
- *
- * The room is a fixed 900×600 no matter how much of it is furnished, so
- * projecting the whole rectangle wastes the screen — badly on a portrait
- * tablet, where the landscape room already only fills half the height. Framing
- * the furniture instead makes the names as large as the device allows. The
- * board, the windows and the door come in from their walls to just beside the
- * tables first, and furniture far from them stays out (`featuresForTableFrame`),
- * or the frame would still reach out to the walls.
- */
-function getContentBounds(
-  tables: ClassroomScene['tables'],
-  features: ClassroomFeature[],
-): Rect | null {
-  let bounds: Rect | null = null;
-
-  const add = (item: {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-    rotation?: number;
-  }) => {
-    const { halfWidth, halfHeight } = getRotatedAabbHalfExtents(
-      item.width,
-      item.height,
-      item.rotation ?? 0,
-    );
-    const centerX = item.x + item.width / 2;
-    const centerY = item.y + item.height / 2;
-    const next = {
-      minX: centerX - halfWidth,
-      minY: centerY - halfHeight,
-      maxX: centerX + halfWidth,
-      maxY: centerY + halfHeight,
-    };
-    bounds = bounds
-      ? {
-          minX: Math.min(bounds.minX, next.minX),
-          minY: Math.min(bounds.minY, next.minY),
-          maxX: Math.max(bounds.maxX, next.maxX),
-          maxY: Math.max(bounds.maxY, next.maxY),
-        }
-      : next;
-  };
-
-  tables.forEach(add);
-  features.forEach(add);
-
-  return bounds;
-}
 
 export default function PresentationScene({
   scene,
@@ -208,7 +153,7 @@ export default function PresentationScene({
   // room is framed as before.
   const viewBox = React.useMemo(() => {
     const fullRoom = { x: 0, y: 0, width: boxWidth, height: boxHeight };
-    const content = getContentBounds(
+    const content = frameContentBounds(
       scene.tables,
       featureViewModels.map(({ feature }) => feature),
     );
@@ -216,32 +161,50 @@ export default function PresentationScene({
       return fullRoom;
     }
 
-    // Rotation is always a multiple of 90°, so mapping the two opposite
-    // corners and re-ordering them is enough to get the rotated box.
-    const toBox = (x: number, y: number) => {
-      const radians = (rotation * Math.PI) / 180;
-      const cos = Math.round(Math.cos(radians));
-      const sin = Math.round(Math.sin(radians));
-      const dx = x - CLASSROOM_WIDTH / 2;
-      const dy = y - CLASSROOM_HEIGHT / 2;
-      return {
-        x: boxWidth / 2 + dx * cos - dy * sin,
-        y: boxHeight / 2 + dx * sin + dy * cos,
-      };
-    };
-
-    const a = toBox(content.minX, content.minY);
-    const b = toBox(content.maxX, content.maxY);
-    const minX = Math.min(a.x, b.x) - EDGE_PADDING;
-    const minY = Math.min(a.y, b.y) - EDGE_PADDING;
+    const turned = turnBox(content, rotation, {
+      x: CLASSROOM_WIDTH / 2,
+      y: CLASSROOM_HEIGHT / 2,
+    });
+    // From the room's turned frame into the padded box the group is drawn in.
+    const shiftX = boxWidth / 2 - CLASSROOM_WIDTH / 2;
+    const shiftY = boxHeight / 2 - CLASSROOM_HEIGHT / 2;
+    const minX = turned.minX + shiftX - EDGE_PADDING;
+    const minY = turned.minY + shiftY - EDGE_PADDING;
 
     return {
       x: minX,
       y: minY,
-      width: Math.max(a.x, b.x) + EDGE_PADDING - minX,
-      height: Math.max(a.y, b.y) + EDGE_PADDING - minY,
+      width: turned.maxX + shiftX + EDGE_PADDING - minX,
+      height: turned.maxY + shiftY + EDGE_PADDING - minY,
     };
   }, [boxHeight, boxWidth, featureViewModels, rotation, scene.tables]);
+
+  // One name size for the whole plan, as the editor and the export have.
+  const nameFontSize = React.useMemo(
+    () =>
+      computePlanNameFontSize({
+        tables: scene.tables,
+        seating,
+        labelFor: (student) =>
+          getDisplayNameForMode(student.name, 'table', nameDisplay, nameLabels),
+        allStudents: students,
+        showSpecialNeeds,
+        badgeView: PRESENT_BADGE_VIEW,
+        labelRotation: -rotation,
+        weight: contrast ? 700 : 400,
+        split: nameDisplay === 'full',
+      }),
+    [
+      scene.tables,
+      seating,
+      nameDisplay,
+      nameLabels,
+      students,
+      showSpecialNeeds,
+      rotation,
+      contrast,
+    ],
+  );
 
   return (
     <>
@@ -288,6 +251,7 @@ export default function PresentationScene({
               photoDisplayMode={photoDisplayMode}
               nameDisplay={nameDisplay}
               nameLabels={nameLabels}
+              nameFontSize={nameFontSize}
             />
           ))}
         </g>

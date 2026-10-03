@@ -58,6 +58,8 @@ interface SeatGridProps {
   nameDisplay?: NameDisplayMode;
   /** Disambiguated labels of the class (see `buildNameLabels`). */
   nameLabels?: NameLabels;
+  /** The size the plan's names share (see `TableSeat`). */
+  nameFontSize?: number;
   /** When false, the gender tint is dropped for a paper seat (the beamer's colour switch). */
   showGenderColors?: boolean;
   /** When false, seat name labels and badges are hidden (colours/dividers stay). */
@@ -93,6 +95,7 @@ function SeatGrid({
   badgeView,
   nameDisplay,
   nameLabels,
+  nameFontSize,
   showGenderColors = true,
   showSeatLabels = true,
   lockSeatLabelOrientation,
@@ -143,6 +146,7 @@ function SeatGrid({
             badgeView={badgeView}
             nameDisplay={nameDisplay}
             nameLabels={nameLabels}
+            nameFontSize={nameFontSize}
             lockSeatLabelOrientation={lockSeatLabelOrientation}
             seatTextRotation={seatTextRotation}
             toggleLock={toggleLock}

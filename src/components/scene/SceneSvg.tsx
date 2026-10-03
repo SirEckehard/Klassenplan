@@ -9,6 +9,7 @@ import {
   CLASSROOM_WIDTH,
   CLASSROOM_HEIGHT,
   formatDate,
+  getDisplayNameForMode,
   svgFontFamily,
 } from '@/utils';
 import type { DataFamily, NameDisplayMode } from '@/utils';
@@ -19,13 +20,40 @@ import {
 } from '@/utils/ui/seatBadges';
 import type { FeatureVisibilityFlags } from '@/utils/ui';
 import { buildLegendLayout } from '@/utils/ui/classBadgeLegend';
+import {
+  featuresForTableFrame,
+  frameContentBounds,
+  turnBox,
+  type FrameBox,
+} from '@/utils/ui/presentationFrame';
+import { computePlanNameFontSize } from '@/utils/ui/planNameSize';
+import { computePhotoCircles } from '@/utils/math/photoOverlap';
 import ExportLegend from '@/components/scene/ExportLegend';
+import {
+  EXPORT_PAGE_MARGIN,
+  ExportPageHeader,
+  exportMetadataLines,
+  getExportPageLayout,
+  type ExportClassInfo,
+} from '@/components/scene/ExportPageFrame';
 import { useNameLabels } from '@/hooks/student/useNameLabels';
 
-type ClassMetadataInfo = {
-  name?: string | null;
-  label?: string | null;
-  notes?: string | null;
+type ClassMetadataInfo = ExportClassInfo;
+
+/** Room around what is drawn, for the chair dots outside the table edges. */
+const FRAME_PADDING = 12;
+/** A photo's halo ring around its circle. */
+const PHOTO_HALO = 3;
+/**
+ * The largest scale a plan is drawn at: two tables framed on their own would
+ * otherwise fill the page with seats a hand wide.
+ */
+const MAX_SCALE = 1.8;
+const ROOM_BOX: FrameBox = {
+  minX: 0,
+  minY: 0,
+  maxX: CLASSROOM_WIDTH,
+  maxY: CLASSROOM_HEIGHT,
 };
 
 type SceneSvgProps = {
@@ -56,6 +84,13 @@ type SceneSvgProps = {
   showLegend?: boolean;
   /** Badge families the sheet leaves out, on the seats and in the legend. */
   hiddenBadgeFamilies?: readonly DataFamily[];
+  /**
+   * Frame the sheet on the tables (the default): the board, the windows and
+   * the door move up to them, furniture far from them is left out and the
+   * room's outline is not drawn — as on the projection. Off, the whole room
+   * is drawn with its outline and everything where it stands.
+   */
+  frameOnTables?: boolean;
 };
 
 export default function SceneSvg({
@@ -75,6 +110,7 @@ export default function SceneSvg({
   photoDisplayMode = 'all',
   showLegend = false,
   hiddenBadgeFamilies,
+  frameOnTables = true,
 }: SceneSvgProps) {
   // Keyed on the families rather than the array, which a caller may rebuild
   // on every render.
@@ -92,49 +128,19 @@ export default function SceneSvg({
   const { t, i18n } = useTranslation('generator');
   const nameLabels = useNameLabels(allStudents, nameDisplay);
 
-  // Page dimensions - exact 72dpi A4 for PDF compatibility
   const isPortrait = orientation === 'portrait';
-  const pageWidth = isPortrait ? 595 : 842;
-  const pageHeight = isPortrait ? 842 : 595;
-  const margin = isPortrait ? 40 : 70; // Sufficient margin for print boundaries
-
-  const trimmedName = classMetadata?.name?.trim() || undefined;
-  const trimmedLabel = classMetadata?.label?.trim() || undefined;
-  const trimmedNotes = classMetadata?.notes?.trim() || undefined;
-  const hasOptionalDetails = Boolean(trimmedLabel || trimmedNotes);
-  const metadataLines: string[] = [];
-
-  if (hasOptionalDetails) {
-    const primaryLineParts: string[] = [];
-    if (trimmedName) {
-      primaryLineParts.push(trimmedName);
-    }
-    if (trimmedLabel) {
-      primaryLineParts.push(trimmedLabel);
-    }
-    if (primaryLineParts.length > 0) {
-      metadataLines.push(primaryLineParts.join(' • '));
-    }
-    if (trimmedNotes) {
-      metadataLines.push(trimmedNotes);
-    }
-  }
-
-  const baseHeaderHeight = isPortrait ? 20 : 60;
-  const metadataGap = metadataLines.length > 0 ? (isPortrait ? 6 : 12) : 0;
-  const metadataLineSpacing = isPortrait ? 8 : 14;
-  const headerHeight =
-    baseHeaderHeight + metadataGap + metadataLines.length * metadataLineSpacing;
+  const metadataLines = exportMetadataLines(classMetadata);
 
   // Optional legend (badge icons + gender colours) drawn as an un-rotated footer
-  // band. Computed first so its height can be reserved out of availableHeight.
+  // band. Computed first so its height can be reserved below the plan.
   const legendFontSize = isPortrait ? 7 : 10;
   const legendIconSize = isPortrait ? 10 : 13;
+  const pageWidth = isPortrait ? 595 : 842;
   const legendLayout =
     showLegend && allStudents.length > 0
       ? buildLegendLayout({
           students: allStudents,
-          width: pageWidth - margin * 2,
+          width: pageWidth - EXPORT_PAGE_MARGIN * 2,
           fontSize: legendFontSize,
           iconSize: legendIconSize,
           showSpecialNeeds,
@@ -147,83 +153,135 @@ export default function SceneSvg({
           },
         })
       : null;
-  const legendGap = legendLayout && legendLayout.height > 0 ? 10 : 0;
-  const legendBandHeight = legendLayout ? legendLayout.height : 0;
-  const availableHeight =
-    pageHeight - margin * 2 - headerHeight - legendBandHeight - legendGap;
+  const page = getExportPageLayout({
+    orientation,
+    metadataLineCount: metadataLines.length,
+    legendHeight: legendLayout?.height ?? 0,
+  });
 
-  // Seats near the classroom edge dock their photo just *outside* the seat, so a
-  // table flush against the border pushes the photo past CLASSROOM_WIDTH/HEIGHT.
-  // Reserve a margin around the classroom when fitting it to the page so those
-  // photos stay visible instead of being clipped at the page edge. Worst case:
-  // a seat photo reaches ~2×max-photo-radius (18) + border past the seat edge.
-  const PHOTO_OVERFLOW = 40;
-  const paddedWidth = CLASSROOM_WIDTH + PHOTO_OVERFLOW * 2;
-  const paddedHeight = CLASSROOM_HEIGHT + PHOTO_OVERFLOW * 2;
-
-  // Portrait mode: account for 90° rotation (classroom dimensions swap)
-  const scale = isPortrait
-    ? Math.min(
-        (pageWidth - margin * 2) / paddedHeight, // After rotation: height becomes width
-        availableHeight / paddedWidth, // After rotation: width becomes height
-      )
-    : Math.min(
-        (pageWidth - margin * 2) / paddedWidth,
-        availableHeight / paddedHeight,
-      );
-
-  // Calculate precise centering offsets - simplified approach for portrait
-  const offsetX = isPortrait
-    ? pageWidth / 2 // Center for rotation pivot
-    : (pageWidth - CLASSROOM_WIDTH * scale) / 2; // Standard classroom
-  const offsetY = isPortrait
-    ? margin + headerHeight + availableHeight / 2 // Center in available space
-    : margin + headerHeight + (availableHeight - CLASSROOM_HEIGHT * scale) / 2;
-  const currentDate = formatDate(new Date(), i18n.language);
-  const displayTitle = title || t('mode.table', 'Sitzplan');
-  const headerTitleY = isPortrait ? margin + 6 : 60;
-  const headerGroupY = isPortrait ? headerTitleY - 6 : 47;
-  const headerLogoX = isPortrait ? margin : 70;
-  const headerTitleX = isPortrait
-    ? margin + (pageWidth - margin * 2) / 2
-    : pageWidth / 2;
-  const headerDateX = isPortrait ? pageWidth - margin : pageWidth - 115;
-  const metadataStartY = headerTitleY + (isPortrait ? 8 : 20);
-  const metadataFontSize = isPortrait ? 6 : 12;
-
-  // Portrait mode: Rotate classroom +90 degrees (Tafel nach unten). The flip
-  // adds a further 180°, which never swaps the bounding box, so scale and
-  // offsets above stay valid for every one of the four rotations.
+  // Portrait turns the classroom +90° (Tafel nach unten); the flip adds a
+  // further 180°. Seat labels, photos and icons counter-rotate and stay
+  // upright.
   const classroomRotation = ((isPortrait ? 90 : 0) + (flipped ? 180 : 0)) % 360;
 
-  // Rotation pivot: the centre of the placed classroom. In portrait the offsets
-  // already are that centre; in landscape they address its top-left corner.
-  const pivotX = isPortrait ? offsetX : offsetX + (CLASSROOM_WIDTH * scale) / 2;
-  const pivotY = isPortrait
-    ? offsetY
-    : offsetY + (CLASSROOM_HEIGHT * scale) / 2;
-  const classroomTransform =
-    `translate(${pivotX} ${pivotY}) rotate(${classroomRotation}) ` +
-    `translate(${(-CLASSROOM_WIDTH * scale) / 2} ${(-CLASSROOM_HEIGHT * scale) / 2}) ` +
-    `scale(${scale})`;
-  const features = React.useMemo(() => scene.features ?? [], [scene.features]);
+  const visibleFeatures = React.useMemo(
+    () =>
+      (scene.features ?? []).filter(
+        (feature) =>
+          getFeatureStyles(feature, false, featureVisibility).shouldRender,
+      ),
+    [scene.features, featureVisibility],
+  );
+  // Framed on the tables, the board, the windows and the door come in from
+  // their walls to just beside them, as on the projection.
+  const drawnFeatures = React.useMemo(
+    () =>
+      frameOnTables
+        ? featuresForTableFrame(scene.tables, visibleFeatures)
+        : visibleFeatures,
+    [frameOnTables, scene.tables, visibleFeatures],
+  );
   const featureViewModels = React.useMemo(
     () =>
-      features
-        .map((feature) => ({
-          feature,
-          styles: getFeatureStyles(feature, false, featureVisibility),
-        }))
-        .filter(({ styles }) => styles.shouldRender),
-    [features, featureVisibility],
+      drawnFeatures.map((feature) => ({
+        feature,
+        styles: getFeatureStyles(feature, false, featureVisibility),
+      })),
+    [drawnFeatures, featureVisibility],
   );
+
+  // The photos docked outside the seats, where a student has one: they reach
+  // past the tables and, at a wall, past the room.
+  const photoBoxes = React.useMemo<FrameBox[]>(() => {
+    if (photoDisplayMode === 'off' || !photoUrls || photoUrls.size === 0) {
+      return [];
+    }
+    return computePhotoCircles(scene.tables)
+      .filter((circle) => {
+        const student = seating[circle.tableIndex]?.[circle.seatIndex];
+        return Boolean(student && photoUrls.has(student.id));
+      })
+      .map((circle) => {
+        const reach = circle.radius + PHOTO_HALO;
+        return {
+          minX: circle.x - reach,
+          minY: circle.y - reach,
+          maxX: circle.x + reach,
+          maxY: circle.y + reach,
+        };
+      });
+  }, [photoDisplayMode, photoUrls, scene.tables, seating]);
+
+  // What the page frames, in scene units.
+  const content = React.useMemo<FrameBox>(() => {
+    const drawn = frameOnTables
+      ? frameContentBounds(scene.tables, drawnFeatures, photoBoxes)
+      : frameContentBounds([], [], [ROOM_BOX, ...photoBoxes]);
+    const box = drawn ?? ROOM_BOX;
+    const padding = frameOnTables ? FRAME_PADDING : 1;
+    return {
+      minX: box.minX - padding,
+      minY: box.minY - padding,
+      maxX: box.maxX + padding,
+      maxY: box.maxY + padding,
+    };
+  }, [frameOnTables, scene.tables, drawnFeatures, photoBoxes]);
+
+  // The framed content turned with the room, scaled into the plan area and
+  // centred in it.
+  const turned = turnBox(content, classroomRotation, {
+    x: (content.minX + content.maxX) / 2,
+    y: (content.minY + content.maxY) / 2,
+  });
+  const scale = Math.min(
+    page.area.width / (turned.maxX - turned.minX),
+    page.area.height / (turned.maxY - turned.minY),
+    MAX_SCALE,
+  );
+  const classroomTransform =
+    `translate(${page.area.x + page.area.width / 2} ${page.area.y + page.area.height / 2}) ` +
+    `rotate(${classroomRotation}) scale(${scale}) ` +
+    `translate(${-(content.minX + content.maxX) / 2} ${-(content.minY + content.maxY) / 2})`;
+
+  const labelRotation = seatLabelRotation - classroomRotation;
+  // One name size for the whole sheet; only a conspicuously long name
+  // shrinks on its own seat.
+  const nameFontSize = React.useMemo(
+    () =>
+      computePlanNameFontSize({
+        tables: scene.tables,
+        seating,
+        labelFor: (student: Student) =>
+          getDisplayNameForMode(student.name, 'table', nameDisplay, nameLabels),
+        allStudents,
+        showSpecialNeeds,
+        badgeView,
+        keepLabelsUpright: lockSeatLabelOrientation,
+        labelRotation,
+        split: nameDisplay === 'full',
+      }),
+    [
+      scene.tables,
+      seating,
+      nameDisplay,
+      nameLabels,
+      allStudents,
+      showSpecialNeeds,
+      badgeView,
+      lockSeatLabelOrientation,
+      labelRotation,
+    ],
+  );
+
+  const currentDate = formatDate(new Date(), i18n.language);
+  const displayTitle = title || t('mode.table', 'Sitzplan');
 
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
       width="100%"
       height="100%"
-      viewBox={`0 0 ${pageWidth} ${pageHeight}`}
+      viewBox={`0 0 ${page.pageWidth} ${page.pageHeight}`}
       preserveAspectRatio="xMidYMid meet"
       fontFamily={svgFontFamily}
       style={{ display: 'block' }}
@@ -232,80 +290,21 @@ export default function SceneSvg({
     >
       {/* Names the exported SVG for assistive tech and SVG viewers. */}
       <title>{displayTitle}</title>
-      {/* Header elements - responsive sizing for portrait mode */}
-      <g
-        transform={
-          isPortrait
-            ? `translate(${headerLogoX} ${headerGroupY})`
-            : 'translate(70 47)'
-        }
-      >
-        <g transform={`scale(${(isPortrait ? 8 : 16) / 240})`}>
-          <g fill="#2563EB">
-            <rect x="8" y="8" width="40" height="40" rx="8" />
-            <rect x="146" y="8" width="40" height="40" rx="8" />
-            <rect x="8" y="54" width="40" height="40" rx="8" />
-            <rect x="100" y="54" width="40" height="40" rx="8" />
-            <rect x="8" y="100" width="40" height="40" rx="8" />
-            <rect x="54" y="100" width="40" height="40" rx="8" />
-            <rect x="8" y="146" width="40" height="40" rx="8" />
-            <rect x="100" y="146" width="40" height="40" rx="8" />
-            <rect x="8" y="192" width="40" height="40" rx="8" />
-            <rect x="146" y="192" width="40" height="40" rx="8" />
-          </g>
-          <rect x="192" y="100" width="40" height="40" rx="8" fill="#F59E0B" />
-        </g>
-        <text
-          x={isPortrait ? 12 : 20}
-          y={isPortrait ? 7 : 14}
-          fontSize={isPortrait ? 8 : 16}
-          fontWeight="bold"
-          fill="#2563EB"
-          fontFamily={svgFontFamily}
-        >
-          Klassenplan.de
-        </text>
-      </g>
-      <text
-        x={headerTitleX}
-        y={headerTitleY}
-        textAnchor="middle"
-        fontSize={isPortrait ? 10 : 20}
-        fontWeight="bold"
-        fill="#000"
-      >
-        {displayTitle}
-      </text>
-      <text
-        x={headerDateX}
-        y={headerTitleY}
-        textAnchor={isPortrait ? 'end' : 'middle'}
-        fontSize={isPortrait ? 6 : 12}
-        fill="#000"
-      >
-        {`${t('circle.date', 'Datum')}: ${currentDate}`}
-      </text>
-      {metadataLines.length > 0 &&
-        metadataLines.map((line, index) => (
-          <text
-            key={`meta-${index}`}
-            x={headerTitleX}
-            y={metadataStartY + index * metadataLineSpacing}
-            textAnchor="middle"
-            fontSize={metadataFontSize}
-            fontWeight="500"
-            fill="#475569"
-          >
-            {line}
-          </text>
-        ))}
+      <ExportPageHeader
+        layout={page}
+        title={displayTitle}
+        dateLabel={`${t('circle.date', 'Datum')}: ${currentDate}`}
+        metadataLines={metadataLines}
+      />
       <g transform={classroomTransform}>
-        <rect
-          width={CLASSROOM_WIDTH}
-          height={CLASSROOM_HEIGHT}
-          fill="none"
-          stroke="#000"
-        />
+        {!frameOnTables && (
+          <rect
+            width={CLASSROOM_WIDTH}
+            height={CLASSROOM_HEIGHT}
+            fill="none"
+            stroke="#000"
+          />
+        )}
         {featureViewModels.map(({ feature, styles }) => (
           <FeatureShape
             key={feature.id}
@@ -328,9 +327,10 @@ export default function SceneSvg({
             badgeView={badgeView}
             isDark={false}
             lockSeatLabelOrientation={lockSeatLabelOrientation}
-            seatLabelRotation={seatLabelRotation - classroomRotation}
+            seatLabelRotation={labelRotation}
             nameDisplay={nameDisplay}
             nameLabels={nameLabels}
+            nameFontSize={nameFontSize}
             photoDisplayMode={photoDisplayMode}
           />
         ))}
@@ -338,8 +338,8 @@ export default function SceneSvg({
       {legendLayout && legendLayout.height > 0 && (
         <ExportLegend
           layout={legendLayout}
-          x={isPortrait ? margin : 70}
-          y={pageHeight - margin - legendBandHeight}
+          x={page.margin}
+          y={page.legendY}
           title={t('legend.title', 'Legende')}
           fontSize={legendFontSize}
           iconSize={legendIconSize}

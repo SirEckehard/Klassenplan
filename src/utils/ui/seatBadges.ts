@@ -25,6 +25,12 @@ import {
   getAvoidPartnerIds,
   getWishPartnerIds,
 } from '@/utils/student/partnerUtils';
+import {
+  getUprightSeatFrame,
+  placeSeatBadgePill,
+  type SeatRect,
+  type SeatShape,
+} from './seatLabelLayout';
 
 /** Which badges a view shows; without one it shows every badge. */
 export type BadgeFilter = (badge: StudentBadge) => boolean;
@@ -317,4 +323,33 @@ export function buildBadgeHighlightLookup(
     });
   });
   return lookup.size > 0 ? lookup : null;
+}
+
+/**
+ * A table seat's badge pill as a view draws it: its icons, sized in the frame
+ * the seat's name stands upright in (`getUprightSeatFrame`), and where it
+ * stands there — as low on the seat as it fits (`placeSeatBadgePill`). The
+ * seat lays its name out above it, the overlay draws it.
+ */
+export function layoutSeatBadgePill(
+  badges: StudentBadge[],
+  shape: SeatShape,
+  badgeView?: SeatBadgeView,
+): { fit: SeatBadgeFit; rect: SeatRect } | null {
+  const frame = getUprightSeatFrame(
+    shape.seatWidth,
+    shape.seatHeight,
+    shape.rotation,
+  );
+  const collapse = Boolean(badgeView?.collapse);
+  const fit = fitSeatBadges(
+    badges,
+    getSeatBadgePillParams(frame.width, frame.height, collapse),
+    { collapse, prioritize: badgeView?.prioritize },
+  );
+  if (!fit) return null;
+  return {
+    fit,
+    rect: placeSeatBadgePill(shape, fit.layout.width, fit.layout.height),
+  };
 }

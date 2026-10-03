@@ -55,6 +55,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - The photo setting "Hover" now reads "On hover" and is left out on a touch screen, where it showed a photo only while a finger rested on the seat
 - The keyboard on a tablet names what Enter does while naming a class: "Next", and "Done" at the last student
 - New shortcuts: "Mix" is Ctrl/⌘+Enter, as ⌘+M minimised the window on a Mac. On the export page P saves the PDF of the arrangement on the sheet and Ctrl/⌘+P prints; Ctrl/⌘+S and Ctrl/⌘+E work in the seating circle as well
+- Names on the seats are larger in the plan, the circle, the projection and every export: a long name breaks into two lines – "Paul" over "Zimmermann" – instead of shrinking to a smudge, full names always stand on two lines, and the names of a plan share one size, so only a conspicuously long one is set smaller. On a table turned at a slant the name and its markers use the width the seat has across its middle and keep clear of the lock
+- The exported sheet uses the page: it is framed on the tables as the projection is, with the board, the windows and the door moved up to them, narrower margins and a one-line header in both orientations – the plan comes out about a third larger in portrait and two thirds larger in landscape. "Enlarge the plan", switched off, goes back to the whole room in its outline. On the circle's sheet the ring fills the page and its places grow with the space between them
 
 ### Removed
 

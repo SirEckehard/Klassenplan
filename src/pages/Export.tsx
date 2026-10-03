@@ -278,6 +278,13 @@ export default function Export() {
     false,
   );
 
+  // Table export only: frame the sheet on the tables, as the projection does,
+  // or show the whole room with its outline.
+  const [frameOnTables, setFrameOnTables] = usePersistentState<boolean>(
+    LOCAL_STORAGE_KEYS.exportFrameOnTables,
+    true,
+  );
+
   const studentNames = useMemo(
     () => students.map((student) => student.name),
     [students],
@@ -359,6 +366,10 @@ export default function Export() {
     (checked: boolean) => setFlipView(() => checked),
     [setFlipView],
   );
+  const handleToggleFrameOnTables = useCallback(
+    (checked: boolean) => setFrameOnTables(() => checked),
+    [setFrameOnTables],
+  );
 
   useEffect(() => {
     void preloadRenderer();
@@ -424,11 +435,12 @@ export default function Export() {
         place-items: center;
         overflow: hidden;
       }
+      /* On screen the sheet fills the frame the page gives it; print sets
+         the page's own size below. A cap at the paper size shrank a
+         landscape sheet into the middle of a large screen. */
       #print-root {
         width: 100%;
         height: 100%;
-        max-width: ${pageWidthMm}mm;
-        max-height: ${pageHeightMm}mm;
         display: grid;
         place-items: center;
       }
@@ -614,6 +626,7 @@ export default function Export() {
           lockSeatLabelOrientation: true,
           orientation: tableOrientation,
           flipped: flipView,
+          frameOnTables,
           nameDisplay: effectiveNameDisplay,
           photoDisplayMode: showPhotos ? 'all' : 'off',
           showLegend,
@@ -656,6 +669,7 @@ export default function Export() {
     circleOrientation,
     tableOrientation,
     flipView,
+    frameOnTables,
     effectiveNameDisplay,
     showPhotos,
     showLegend,
@@ -760,6 +774,7 @@ export default function Export() {
         showLegend,
         orientation: tableOrientation,
         flipped: flipView,
+        frameOnTables,
         classMetadata: classMetadataForExport,
         hiddenBadgeFamilies,
       });
@@ -785,6 +800,7 @@ export default function Export() {
     showLegend,
     tableOrientation,
     flipView,
+    frameOnTables,
     classMetadataForExport,
     hiddenBadgeFamilies,
     recordTablePlanExport,
@@ -952,6 +968,10 @@ export default function Export() {
         previewMode === 'circle' ? setCircleOrientation : setTableOrientation
       }
       flipView={{ checked: flipView, onChange: handleToggleFlipView }}
+      frameOnTables={{
+        checked: frameOnTables,
+        onChange: handleToggleFrameOnTables,
+      }}
       needs={{ checked: showNeeds, onChange: handleToggleNeeds }}
       badgeFamilies={{
         present: presentBadgeFamilies,

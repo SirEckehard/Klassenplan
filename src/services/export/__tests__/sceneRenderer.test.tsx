@@ -6,6 +6,7 @@ import {
   renderSceneSvg,
 } from '@/services/export/sceneRenderer';
 import { createMockStudent } from '@/__tests__/utils';
+import { buildDemoClassroomScene } from '@/utils/demo/demoClass';
 import type { ClassroomScene, SeatingArrangement, Student } from '@/types';
 import type { CircleLayout } from '@/types/Circle';
 
@@ -67,15 +68,24 @@ describe('renderSceneSvg', () => {
       ],
     ];
 
-    // Seat labels render as `<title>full name</title>shown label`, so the
-    // assertions anchor on the text node rather than the tooltip.
-    const label = (name: string) => `</title>${name}<`;
+    // Seat labels render as `<title>full name</title>shown label`, a long one
+    // as a `tspan` per line; the assertions read the shown label, its lines
+    // joined, rather than the tooltip.
+    const seatLabels = (svg: string) =>
+      [...svg.matchAll(/<text[^>]*><title>[^<]*<\/title>(.*?)<\/text>/g)].map(
+        ([, body]) =>
+          body.includes('<tspan')
+            ? [...body.matchAll(/<tspan[^>]*>(.*?)<\/tspan>/g)]
+                .map(([, line]) => line)
+                .join(' ')
+            : body,
+      );
 
     it('shortens only the overlong name without a mode', async () => {
       const svg = await renderSceneSvg(scene, seating, 'Test');
 
-      expect(svg).toContain(label('Anna Meier'));
-      expect(svg).toContain(label('Maximilian S'));
+      expect(seatLabels(svg)).toContain('Anna Meier');
+      expect(seatLabels(svg)).toContain('Maximilian S');
     });
 
     it('renders first names only', async () => {
@@ -83,8 +93,8 @@ describe('renderSceneSvg', () => {
         nameDisplay: 'firstName',
       });
 
-      expect(svg).toContain(label('Anna'));
-      expect(svg).toContain(label('Maximilian'));
+      expect(seatLabels(svg)).toContain('Anna');
+      expect(seatLabels(svg)).toContain('Maximilian');
     });
 
     it('renders every name as first name plus last initial', async () => {
@@ -92,10 +102,10 @@ describe('renderSceneSvg', () => {
         nameDisplay: 'firstNameInitial',
       });
 
-      expect(svg).toContain(label('Anna M.'));
+      expect(seatLabels(svg)).toContain('Anna M.');
       // One character over the seat limit, so the period is dropped instead of
       // cutting into the first name.
-      expect(svg).toContain(label('Maximilian S'));
+      expect(seatLabels(svg)).toContain('Maximilian S');
     });
 
     it('keeps long names intact in the full mode', async () => {
@@ -103,7 +113,7 @@ describe('renderSceneSvg', () => {
         nameDisplay: 'full',
       });
 
-      expect(svg).toContain(label('Maximilian Schneider'));
+      expect(seatLabels(svg)).toContain('Maximilian Schneider');
     });
 
     it('keeps the complete name in the seat tooltip', async () => {
@@ -130,8 +140,8 @@ describe('renderSceneSvg', () => {
           nameDisplay: 'firstNameInitial',
         });
 
-        expect(svg).toContain(label('Frida Eh.'));
-        expect(svg).toContain(label('Eike Schä.'));
+        expect(seatLabels(svg)).toContain('Frida Eh.');
+        expect(seatLabels(svg)).toContain('Eike Schä.');
       });
 
       it('lengthens the circle labels the same way', async () => {
@@ -163,11 +173,62 @@ describe('renderSceneSvg', () => {
           nameDisplay: 'firstName',
         });
 
-        expect(svg).toContain(label('Frida Eh.'));
-        expect(svg).toContain(label('Frida Em.'));
-        expect(svg).toContain(label('Eike Schä.'));
-        expect(svg).toContain(label('Eike Schw.'));
+        expect(seatLabels(svg)).toContain('Frida Eh.');
+        expect(seatLabels(svg)).toContain('Frida Em.');
+        expect(seatLabels(svg)).toContain('Eike Schä.');
+        expect(seatLabels(svg)).toContain('Eike Schw.');
       });
+    });
+  });
+
+  describe('framing the sheet', () => {
+    const outline = 'width="900" height="600"';
+    const scaleOf = (svg: string) =>
+      Number(/rotate\(\d+\) scale\(([\d.]+)\)/.exec(svg)?.[1]);
+    // The sample class's room: twelve double desks, the board on the right
+    // wall, windows on the left, the door at the back.
+    const sampleRoom = buildDemoClassroomScene(24);
+
+    it('frames the tables without the room outline', async () => {
+      const svg = await renderSceneSvg(sampleRoom, [], 'Test');
+      expect(svg).not.toContain(outline);
+    });
+
+    it('draws the plan far larger than the whole room left it', async () => {
+      const portrait = await renderSceneSvg(sampleRoom, [], 'Test', {
+        orientation: 'portrait',
+      });
+      const landscape = await renderSceneSvg(sampleRoom, [], 'Test', {
+        orientation: 'landscape',
+      });
+      // The whole room came out at 0.757 in portrait and 0.581 in landscape.
+      expect(scaleOf(portrait)).toBeGreaterThan(0.95);
+      expect(scaleOf(landscape)).toBeGreaterThan(0.85);
+    });
+
+    it('does not blow a few tables up to fill the page', async () => {
+      const svg = await renderSceneSvg(scene, [], 'Test');
+      expect(scaleOf(svg)).toBe(1.8);
+    });
+
+    it('shows the whole room with its outline when asked to', async () => {
+      const svg = await renderSceneSvg(sampleRoom, [], 'Test', {
+        frameOnTables: false,
+      });
+      expect(svg).toContain(outline);
+      // Still larger than before: 10 mm margins instead of 14 to 25.
+      expect(scaleOf(svg)).toBeGreaterThan(0.757);
+    });
+
+    it('frames the whole room when there is nothing on it', async () => {
+      const empty: ClassroomScene = {
+        tables: [],
+        totalStudents: 0,
+        features: [],
+      };
+      const svg = await renderSceneSvg(empty, [], 'Test');
+      expect(svg).not.toContain(outline);
+      expect(scaleOf(svg)).toBeGreaterThan(0.5);
     });
   });
 

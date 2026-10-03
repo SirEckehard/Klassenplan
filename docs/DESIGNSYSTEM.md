@@ -177,7 +177,11 @@ look before the second tap. The plan is framed on the tables: the board, the
 windows and the door come in from their walls to just beside them, so the room
 keeps its front and its sides while the names grow to the wall's size, and
 furniture far from the tables stays out of the picture. No success message
-shows there — the wall faces the class.
+shows there — the wall faces the class. The exported sheet is framed the same
+way (`SceneSvg`), within margins of 10 mm and a header of one line — brand,
+title, date — in both orientations (`ExportPageFrame`); its switch "Anzeige
+vergrößern", switched off, brings back the whole room in its outline, everything
+where it stands.
 
 Its contrast mode goes the other way: black on white whatever the theme, with
 thicker contours and the seat names bolder (`SEAT_CONTRAST_COLORS`). Those are
@@ -329,6 +333,8 @@ A seat shows a student's badges as icons on a pill (`SeatBadgePill`, the one ren
 The word a chip carries comes three other ways: a tooltip on hover or tap (`BadgeTooltipLayer` on `menuSurfaceClass`: the family in small caps, what the badge is, what it means — a fingertip's tap takes the nearest icon within 14px, as the icons are a fifth of its size on an iPad), the seat's `aria-label`, and the legend under "Merkmale" in the plan's and the circle's toolbar. Pointing at an icon or a legend row rings the seats it points at in the selection colour (`--border-option-selected`), standing still in the plan and the circle alike — only a passing criterion breathes; a criterion rings the seats it concerns in the status colour of each one's verdict (`--status-ok`, `-warn`, `-alert`). Either way the ring belongs to the seat, inset so the table's outline cannot clip it — never to the table, which would mark the neighbours at a double or group table too. A place a dragged student hovers — a seat, or a token of the circle — wears the same ring (`SeatRing` in `TableSeat`, `TokenRing` in `SimpleCircleView`), a little wider: `--border-option-selected` where the student can land, `--status-alert` where the place is held. The place the drag started from is no target; it fades, and over a taken place shows who would come. After the drop both places ring `--status-ok` for a moment and let go (`seat-drop-confirm`) — green is a completed action, never a target. The preview of the student (`DragGhost`) floats above the pointer so the ring stays in sight, and says whom a drop would swap with ([decision 0022](decisions/0022-one-drag-for-plan-and-circle.md)). The badge layer takes no pointer events — a drag grabs the seat underneath — so the tooltip finds the icon by its box (`useBadgeHover`). Both the tooltip and the marking can be switched off under "Merkmale" (`spg.badgeHover`).
 
 A screen keeps icons at `LEGIBLE_BADGE_ICON_SIZE` or larger and the pill below the name; what does not fit becomes the "+N", whose tooltip lists the rest, and badges whose criterion the mix weighs keep their place first (`fitSeatBadges`). Paper cannot be hovered: an export shrinks the icons until every one fits. Decision 0021 holds the reasons.
+
+The name above the pill takes what the seat has left. Name and pill are fitted against the seat as it stands under the upright name — at a quarter turn, on a plan turned for its board, a 55 × 65 seat gives the name 65 across; a seat turned at a slant is widest across its middle, the pill sits as low as the outline allows and the name may step aside from the editor's lock. A name breaks into two lines where that makes it larger, between words or after a hyphen, never inside a word ("Paul" over "Zimmermann"); full names always break, so a plan reads alike. A plan's names share one size: as large as the great majority of seats allow, while a conspicuously long name shrinks on its own seat (`seatLabelLayout`, `computePlanNameFontSize`, `SeatNameText`). The circle does the same inside its round places. The text is measured by arithmetic from the advance widths of Instrument Sans (`src/data/nameGlyphWidths.json`, written by `npm run generate:glyph-widths`), so the editor, the projection and every export arrive at the same layout.
 
 ## 6d. The start page and the pages beside it
 

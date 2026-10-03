@@ -25,5 +25,6 @@ None recorded.
 
 - Stored scenes, room templates, saved plans and backups carry positions in
   these coordinates. Changing the size means migrating stored data.
-- Free-form room geometry is out of scope. The presentation view frames the
-  furnished part of the room instead of the whole scene.
+- Free-form room geometry is out of scope. The presentation view and the
+  exported sheet frame the furnished part of the room instead of the whole
+  scene; the sheet can be switched back to the whole room.

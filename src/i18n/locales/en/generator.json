@@ -495,10 +495,11 @@
       "photos": "Photos",
       "legend": "Legend",
       "classInfo": "Class info",
-      "connections": "Connections"
+      "connections": "Connections",
+      "frameOnTables": "Enlarge the plan"
     },
     "badgeFamilies": "Markers on the sheet",
-    "badgeFamiliesHint": "What is switched off appears neither on the plan nor in the legend."
+    "frameOnTablesHint": "The board, windows and door move up to the tables; furniture far from them is left out."
   },
   "wizard": {
     "back": "Back",

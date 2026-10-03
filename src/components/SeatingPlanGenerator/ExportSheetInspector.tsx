@@ -48,6 +48,8 @@ type Props = {
   onOrientationChange: (orientation: PageOrientation) => void;
   /** Seating plan only: read the sheet from the back of the room. */
   flipView: Toggle;
+  /** Seating plan only: frame the sheet on the tables or show the whole room. */
+  frameOnTables: Toggle;
   needs: Toggle;
   /**
    * Which badge families the sheet carries, one switch each, for the families
@@ -89,6 +91,7 @@ export default function ExportSheetInspector({
   orientation,
   onOrientationChange,
   flipView,
+  frameOnTables,
   needs,
   badgeFamilies,
   photos,
@@ -197,6 +200,12 @@ export default function ExportSheetInspector({
               />
             </InspectorRow>
           )}
+          {isTable && switchRow(t('export.rows.frameOnTables'), frameOnTables)}
+          {isTable && frameOnTables.checked && (
+            <p className="text-xs text-(--text-muted)">
+              {t('export.frameOnTablesHint')}
+            </p>
+          )}
         </InspectorSection>
 
         <InspectorSection title={t('export.content')}>
@@ -226,9 +235,6 @@ export default function ExportSheetInspector({
                   </div>
                 </div>
               ))}
-              <p className="text-xs text-(--text-muted)">
-                {t('export.badgeFamiliesHint')}
-              </p>
             </div>
           )}
           {switchRow(t('export.rows.photos'), photos)}

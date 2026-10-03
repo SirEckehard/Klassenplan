@@ -527,7 +527,13 @@ describe('TableSeat component', () => {
       isOriginSeat: true,
       swapPreviewStudent: { ...baseStudent, id: 's2', name: 'Grace Hopper' },
     });
-    expect(origin.querySelector('text')?.textContent).toContain('Grace Hopper');
+    // A full name on a 55-unit seat breaks into two lines.
+    expect(
+      Array.from(
+        origin.querySelectorAll('text tspan'),
+        (line) => line.textContent,
+      ),
+    ).toEqual(['Grace', 'Hopper']);
 
     const landed = seat({
       highlightStatus: 'ok',

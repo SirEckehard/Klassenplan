@@ -11,8 +11,9 @@ import type {
 } from '@/types';
 import type { NameDisplayMode, SeatHighlightLookup } from '@/utils';
 import type { BadgeFocus, SeatBadgeView } from '@/utils/ui/seatBadges';
-import { GRID_SIZE } from '@/utils';
+import { getDisplayNameForMode, GRID_SIZE } from '@/utils';
 import { getFeatureStyles } from '@/utils/ui';
+import { computePlanNameFontSize } from '@/utils/ui/planNameSize';
 import type { FeatureVisibilityFlags } from '@/utils/ui';
 import type { TemplateDragPreview } from '@/types/templateDrag';
 import {
@@ -132,6 +133,35 @@ const SeatingPlanCanvas = React.memo(
     const canvasRef = React.useRef<SVGSVGElement | null>(null);
     const photoUrls = useStudentPhotoUrls(allStudents ?? []);
     const nameLabels = useNameLabels(allStudents ?? [], nameDisplay);
+    // One name size for the whole plan, so the seats read alike; only a
+    // conspicuously long name shrinks on its own seat.
+    const nameFontSize = React.useMemo(
+      () =>
+        computePlanNameFontSize({
+          tables: sceneTables,
+          seating: currentSeating,
+          labelFor: (student) =>
+            getDisplayNameForMode(
+              student.name,
+              'table',
+              nameDisplay,
+              nameLabels,
+            ),
+          allStudents: allStudents ?? [],
+          badgeView,
+          lock: Boolean(toggleLock),
+          split: nameDisplay === 'full',
+        }),
+      [
+        sceneTables,
+        currentSeating,
+        nameDisplay,
+        nameLabels,
+        allStudents,
+        badgeView,
+        toggleLock,
+      ],
+    );
 
     // Keyboard alternative to the pointer seat drag (P2.10): Enter/Space picks
     // a student up, the arrow keys move to the target seat, Enter/Space drops,
@@ -336,6 +366,7 @@ const SeatingPlanCanvas = React.memo(
                 photoDisplayMode={photoDisplayMode}
                 nameDisplay={nameDisplay}
                 nameLabels={nameLabels}
+                nameFontSize={nameFontSize}
                 badgeView={badgeView}
               />
             ))}

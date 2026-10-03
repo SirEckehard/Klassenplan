@@ -24,6 +24,7 @@ const renderInspector = (
       orientation="portrait"
       onOrientationChange={() => {}}
       flipView={off}
+      frameOnTables={{ checked: true, onChange: () => {} }}
       needs={{ checked: true, onChange: () => {} }}
       badgeFamilies={{
         present: ['behavior', 'space'],
@@ -126,5 +127,38 @@ describe('ExportSheetInspector room elements', () => {
     fireEvent.click(all);
     expect(onFeatureToggle).toHaveBeenCalledWith('window', true);
     expect(onFeatureToggle).toHaveBeenCalledWith('door', true);
+  });
+});
+
+describe('ExportSheetInspector framing', () => {
+  const frameSwitch = () =>
+    screen.queryByRole('switch', {
+      name: /^(Anzeige vergrößern|Enlarge the plan)$/,
+    });
+
+  it('frames the seating plan on the tables until it is switched off', () => {
+    const onChange = vi.fn();
+    renderInspector({ frameOnTables: { checked: true, onChange } });
+
+    expect(frameSwitch()).toBeChecked();
+    expect(
+      screen.getByText(/Tafel, Fenster und Tür|The board, windows and door/),
+    ).toBeInTheDocument();
+
+    fireEvent.click(frameSwitch()!);
+    expect(onChange).toHaveBeenCalledWith(false);
+  });
+
+  it('drops the hint while the whole room is shown', () => {
+    renderInspector({ frameOnTables: off });
+    expect(frameSwitch()).not.toBeChecked();
+    expect(
+      screen.queryByText(/Tafel, Fenster und Tür|The board, windows and door/),
+    ).not.toBeInTheDocument();
+  });
+
+  it('leaves the switch out for the circle, whose sheet shows no room', () => {
+    renderInspector({ mode: 'circle' });
+    expect(frameSwitch()).not.toBeInTheDocument();
   });
 });

@@ -56,6 +56,8 @@ export type ExportOptions = {
    * plans read from the opposite side of the room.
    */
   flipped?: boolean;
+  /** Table export only: frame the sheet on the tables (default) or the whole room. */
+  frameOnTables?: boolean;
   classMetadata?: ExportClassMetadata;
   /** Badge families the printout leaves out, on the seats and in the legend. */
   hiddenBadgeFamilies?: readonly DataFamily[];
@@ -79,6 +81,7 @@ export async function exportTableLayoutToPdf(
     lockSeatLabelOrientation: true,
     orientation: options?.orientation ?? 'portrait',
     flipped: options?.flipped ?? false,
+    frameOnTables: options?.frameOnTables ?? true,
     nameDisplay: options?.nameDisplay,
     photoDisplayMode: (options?.showPhotos ?? true) ? 'all' : 'off',
     showLegend: options?.showLegend ?? false,

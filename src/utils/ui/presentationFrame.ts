@@ -12,7 +12,14 @@ const WALL_GAP = 24;
  */
 const FURNITURE_REACH = 96;
 
-type Box = { minX: number; minY: number; maxX: number; maxY: number };
+/** An axis-aligned box in scene units. */
+export type FrameBox = {
+  minX: number;
+  minY: number;
+  maxX: number;
+  maxY: number;
+};
+type Box = FrameBox;
 
 type Placed = {
   x: number;
@@ -126,4 +133,67 @@ export function featuresForTableFrame(
       x === feature.x && y === feature.y ? feature : { ...feature, x, y },
     ];
   });
+}
+
+/**
+ * Axis-aligned box around everything that gets drawn, in scene units: the
+ * tables, the room elements (each by its rotated outline) and any further
+ * boxes, such as the photos docked outside the seats. Null when nothing is
+ * drawn.
+ *
+ * The room is a fixed 900×600 no matter how much of it is furnished, so
+ * framing the whole rectangle wastes the screen and the sheet. Framing what is
+ * drawn instead — after `featuresForTableFrame` has brought the board, the
+ * windows and the door in from their walls — makes the names as large as the
+ * wall or the page allows.
+ */
+export function frameContentBounds(
+  tables: readonly Placed[],
+  features: readonly Placed[],
+  extra: readonly FrameBox[] = [],
+): FrameBox | null {
+  const placed = boxAround([...tables, ...features]);
+  return [...(placed ? [placed] : []), ...extra].reduce<FrameBox | null>(
+    (box, next) =>
+      box
+        ? {
+            minX: Math.min(box.minX, next.minX),
+            minY: Math.min(box.minY, next.minY),
+            maxX: Math.max(box.maxX, next.maxX),
+            maxY: Math.max(box.maxY, next.maxY),
+          }
+        : next,
+    null,
+  );
+}
+
+/**
+ * The box `box` becomes when the scene turns by `rotation` — a multiple of
+ * 90°, clockwise as in SVG — about `center`. Mapping two opposite corners and
+ * re-ordering them is enough at a quarter turn.
+ */
+export function turnBox(
+  box: FrameBox,
+  rotation: number,
+  center: { x: number; y: number },
+): FrameBox {
+  const radians = (rotation * Math.PI) / 180;
+  const cos = Math.round(Math.cos(radians));
+  const sin = Math.round(Math.sin(radians));
+  const turn = (x: number, y: number) => {
+    const dx = x - center.x;
+    const dy = y - center.y;
+    return {
+      x: center.x + dx * cos - dy * sin,
+      y: center.y + dx * sin + dy * cos,
+    };
+  };
+  const a = turn(box.minX, box.minY);
+  const b = turn(box.maxX, box.maxY);
+  return {
+    minX: Math.min(a.x, b.x),
+    minY: Math.min(a.y, b.y),
+    maxX: Math.max(a.x, b.x),
+    maxY: Math.max(a.y, b.y),
+  };
 }
