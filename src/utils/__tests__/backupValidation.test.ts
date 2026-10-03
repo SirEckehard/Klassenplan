@@ -241,3 +241,51 @@ describe('backupValidation: neighbourhood resets', () => {
     expect(() => parseExportBundle(json)).toThrow(BackupValidationError);
   });
 });
+
+describe('backupValidation: class notes', () => {
+  const withClassNotes = (notes: string) =>
+    JSON.stringify({
+      ...baseBundle,
+      version: 2,
+      classCollection: {
+        version: 1,
+        activeClassId: 'class-1',
+        classes: [
+          {
+            id: 'class-1',
+            name: '7b',
+            notes,
+            createdAt: '2026-10-03T08:00:00.000Z',
+            updatedAt: '2026-10-03T08:00:00.000Z',
+            students: [],
+            seatingHistory: [],
+            mixHistory: [],
+            currentSeating: [],
+            lockedPositions: {},
+            mixSettings: null,
+            classroomScene: null,
+            circleLayout: null,
+          },
+        ],
+      },
+    });
+
+  // Notes were held to the 120 characters of a name, so a backup with a
+  // longer one could not be read back.
+  it('accepts class notes longer than a name', () => {
+    const notes = 'Chemie im Fachraum, Gruppenarbeit dienstags. '.repeat(10);
+    expect(notes.length).toBeGreaterThan(BACKUP_LIMITS.maxNameLength);
+
+    const bundle = parseExportBundle(withClassNotes(notes));
+
+    expect(bundle.classCollection?.classes[0]).toMatchObject({ notes });
+  });
+
+  it('rejects class notes beyond the note limit', () => {
+    const notes = 'x'.repeat(BACKUP_LIMITS.maxNoteLength + 1);
+
+    expect(() => parseExportBundle(withClassNotes(notes))).toThrow(
+      BackupValidationError,
+    );
+  });
+});

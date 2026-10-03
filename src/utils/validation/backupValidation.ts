@@ -735,7 +735,7 @@ function validateClassRecord(value: unknown) {
   if (
     !assertOptionalString(value.notes, {
       allowEmpty: true,
-      maxLength: BACKUP_LIMITS.maxNameLength,
+      maxLength: BACKUP_LIMITS.maxNoteLength,
     })
   ) {
     throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);

@@ -6,6 +6,8 @@ import { NotePencilIcon } from '@phosphor-icons/react';
 import Modal from '@/components/ui/modals/Modal';
 import {
   inputFieldClass,
+  MAX_NAME_LENGTH,
+  MAX_NOTE_LENGTH,
   primaryButtonClass,
   secondaryButtonClass,
 } from '@/utils';
@@ -121,6 +123,7 @@ export default function ClassMetadataDialog({
               className={inputFieldClass}
               value={formValues.name}
               onChange={handleChange('name')}
+              maxLength={MAX_NAME_LENGTH}
               placeholder={t(
                 'classDialog.classNamePlaceholder',
                 'z. B. Klasse 7b',
@@ -144,6 +147,7 @@ export default function ClassMetadataDialog({
               className={inputFieldClass}
               value={formValues.label}
               onChange={handleChange('label')}
+              maxLength={MAX_NAME_LENGTH}
               placeholder={t(
                 'classDialog.schoolYearPlaceholder',
                 'z. B. 2025/26',
@@ -165,6 +169,7 @@ export default function ClassMetadataDialog({
               className={`${inputFieldClass} min-h-24`}
               value={formValues.notes}
               onChange={handleChange('notes')}
+              maxLength={MAX_NOTE_LENGTH}
               placeholder={t(
                 'classDialog.notesPlaceholder',
                 'Besonderheiten, Schwerpunkt, etc.',

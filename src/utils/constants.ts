@@ -61,6 +61,14 @@ export const MAX_STUDENTS = 36;
 // Maximum number of wish/avoid partners per student
 export const MAX_PARTNER_WISHES = 3;
 
+// Longest name a class, a school year label, a plan or a template may carry.
+// The backup import holds to it too, so a field that let more through would
+// write a backup that cannot be read back.
+export const MAX_NAME_LENGTH = 120;
+
+// Longest free-text note (the class notes); same reason as MAX_NAME_LENGTH.
+export const MAX_NOTE_LENGTH = 2000;
+
 // The name-game quiz needs 4 answer options, so 4 students with photos is the minimum
 export const NAME_GAME_MIN_PHOTOS = 4;
 

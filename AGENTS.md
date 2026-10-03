@@ -32,7 +32,7 @@ it for Antigravity — edit this file, never those two.
 
 - ✅ ESLint: 0 errors, 0 warnings
 - ✅ TypeScript: 0 compilation errors (strict mode)
-- ✅ Tests: 2823 unit tests (290 test files) + 13 Playwright tests (3 smoke + 2 core flow + 4 onboarding + 2 tablet + 1 phone + 1 whiteboard), 100% passing
+- ✅ Tests: 2825 unit tests (290 test files) + 13 Playwright tests (3 smoke + 2 core flow + 4 onboarding + 2 tablet + 1 phone + 1 whiteboard), 100% passing
 - 📊 Coverage: 76.0 % lines / 75.2 % statements / 66.3 % branches (`npm run test:coverage`, v8 provider, no thresholds enforced)
 - ⚠️ Unused Exports: 52 modules ignoring type-only exports, held by a ratchet (`npm run check:unused`); the remainder are re-export barrels, `lazyWithRetry` default exports and shared test helpers
 - ✅ Test Infrastructure: Centralized accessibility helpers and toast matchers for robust testing

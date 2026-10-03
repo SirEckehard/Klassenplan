@@ -8,7 +8,7 @@
  * ever lives in one chunk, so importing these from the validator module would
  * pull all of it into the initial bundle.
  */
-import { MAX_STUDENTS } from '../constants';
+import { MAX_NAME_LENGTH, MAX_NOTE_LENGTH, MAX_STUDENTS } from '../constants';
 
 // Hard limits that incoming backups must respect to be accepted.
 // Raised for export version 2: backups may embed downscaled student photos as
@@ -28,7 +28,10 @@ export const BACKUP_LIMITS = {
   // an older build may hold more. Bounded by the class size, which is the most
   // a list of classmates can ever be.
   maxPartnerIds: MAX_STUDENTS,
-  maxNameLength: 120,
+  maxNameLength: MAX_NAME_LENGTH,
+  // Class notes are free text and were checked against the name limit, so a
+  // note longer than 120 characters made the whole backup unreadable.
+  maxNoteLength: MAX_NOTE_LENGTH,
   maxTimestampLength: 64,
   maxDateLength: 64,
   maxCoordinateValue: 10000,
