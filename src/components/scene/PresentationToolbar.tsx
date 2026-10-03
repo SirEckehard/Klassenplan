@@ -31,10 +31,10 @@ import {
 /**
  * The one bar of the projection: what is shown, what to do with it, how large.
  *
- * It floats over the plan as ink in both themes, because the plan below it is
- * paper in both themes — the bar belongs to the teacher standing at the front,
- * the projection belongs to the room. Everything on it is one press away; the
- * plan itself carries no controls at all.
+ * It floats over the plan and follows the theme — paper with a hairline in the
+ * light one, ink in the dark one (`--present-bar-*`) — while the projection
+ * belongs to the room. Everything on it is one press away; the plan itself
+ * carries no controls at all.
  */
 
 const barBaseClass =
@@ -221,7 +221,7 @@ export default function PresentationToolbar({
 
   return (
     <div className="flex justify-center px-3 pb-4">
-      <div className="flex max-w-full flex-wrap items-center justify-center gap-1.5 rounded-panel bg-(--present-bar-bg) p-2 shadow-[0_8px_28px_-12px_rgba(0,0,0,0.45)]">
+      <div className="flex max-w-full flex-wrap items-center justify-center gap-1.5 rounded-panel border border-(--present-bar-border) bg-(--present-bar-bg) p-2 shadow-[0_8px_28px_-12px_rgba(0,0,0,0.3)]">
         <BarSegment
           label={t('present.perspective')}
           value={perspective}

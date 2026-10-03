@@ -221,7 +221,14 @@ export default function Present() {
           the teacher standing in front of it. In fullscreen the room sees the
           plan alone, so the strip is not drawn at all. */}
       {!isFullscreen && (
-        <div className="flex flex-wrap items-center gap-3 px-3 py-2 sm:px-4 sm:py-3">
+        <div
+          className={`flex flex-wrap items-center gap-3 px-3 py-2 sm:px-4 sm:py-3 ${
+            // The contrast wall is white in both themes, but the strip's
+            // controls speak the theme: in the dark one they keep their own
+            // surface rather than land light-on-white.
+            contrast && isDark ? 'bg-(--surface-sunken)' : ''
+          }`}
+        >
           {/* The mark sits centred on the line; the class and whose view it is
             share one baseline beside it. */}
           <div className="flex min-w-0 flex-1 items-center gap-3">
@@ -361,10 +368,11 @@ export default function Present() {
               <SimpleCircleView
                 layout={circleLayout}
                 editable={false}
-                isDark={isDark}
-                showSpecialNeeds={isTeacher && showBadges}
-                showGenderColors={showColors}
-                photoMode={isTeacher && showPhotos ? 'all' : 'off'}
+                isDark={contrast ? false : isDark}
+                contrast={contrast}
+                showSpecialNeeds={isTeacher && showBadges && !contrast}
+                showGenderColors={contrast ? false : showColors}
+                photoMode={isTeacher && showPhotos && !contrast ? 'all' : 'off'}
                 nameDisplay={currentNameDisplay}
                 connectionMode="off"
                 badgeView={PRESENT_CIRCLE_BADGE_VIEW}

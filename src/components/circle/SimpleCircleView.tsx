@@ -90,6 +90,11 @@ type SimpleCircleViewProps = {
   fit?: boolean;
   /** The student "Wer kommt dran?" drew: lit, the rest dimmed. */
   spotlightStudentId?: string | null;
+  /**
+   * The projection's contrast mode, as the table plan draws it: black on
+   * white whatever the theme, thicker contours and bold names.
+   */
+  contrast?: boolean;
 };
 
 /** Room around the framed ring, beyond the tokens and their photos. */
@@ -124,8 +129,10 @@ function SimpleCircleView({
   onToggleLock,
   fit = false,
   spotlightStudentId = null,
+  contrast = false,
 }: SimpleCircleViewProps) {
   const { t } = useTranslation('generator');
+  const nameWeight = contrast ? 700 : 400;
   const layoutMode = useLayoutMode();
   const isCoarsePointer = useIsCoarsePointer();
   // Connection display mode - with localStorage persistence
@@ -371,7 +378,13 @@ function SimpleCircleView({
   const getCircleAppearance = (student: Student | null) => {
     const locked = student ? lockedIds.has(student.id) : false;
     return {
-      ...getStudentAppearance(student, isDark, locked, false, showGenderColors),
+      ...getStudentAppearance(
+        student,
+        isDark,
+        locked,
+        contrast,
+        showGenderColors,
+      ),
       flags: getSeatBadges(
         student,
         allStudents,
@@ -531,7 +544,11 @@ function SimpleCircleView({
                   ),
                 ),
               ),
-              { maxFont: tokenNameMax, split: nameDisplay === 'full' },
+              {
+                weight: nameWeight,
+                maxFont: tokenNameMax,
+                split: nameDisplay === 'full',
+              },
             ).fontSize,
           ]
         : [],
@@ -642,6 +659,7 @@ function SimpleCircleView({
             studentDisplayName,
             nameBandFor(badgeFit),
             {
+              weight: nameWeight,
               maxFont: Math.min(tokenNameMax, circleNameFontSize ?? Infinity),
               split: nameDisplay === 'full',
             },
@@ -773,7 +791,7 @@ function SimpleCircleView({
                     r="30"
                     fill={appearance.fill}
                     stroke={appearance.stroke}
-                    strokeWidth={1}
+                    strokeWidth={contrast ? 1.5 : 1}
                     pointerEvents="none"
                     style={{
                       transition: 'fill 0.2s ease, stroke 0.2s ease',
@@ -894,7 +912,7 @@ function SimpleCircleView({
                     y={slot.y}
                     fit={nameFit}
                     title={studentTooltip}
-                    fontWeight={400}
+                    fontWeight={nameWeight}
                     fill={appearance.text}
                     style={{ userSelect: 'none', pointerEvents: 'none' }}
                   />

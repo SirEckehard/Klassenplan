@@ -175,16 +175,16 @@
   --toast-icon-border-critical: #e8b6c3;
 
   /*
-   * The projector's own control bar: ink in both themes, because it floats
-   * over a plan that is paper in both themes. Values are the dark palette's,
-   * so the bar is the one surface that does not change with the theme.
+   * The projector's own control bar follows the theme like the rest of the
+   * chrome: paper with a hairline in the light theme, ink in the dark one
+   * (the dark values sit in `.dark` below).
    */
-  --present-bar-bg: #17181a;
-  --present-bar-surface: #2a2d31;
-  --present-bar-surface-hover: #3a3d42;
-  --present-bar-border: #3a3d42;
-  --present-bar-text: #f2f1ee;
-  --present-bar-muted: #c9cbcf;
+  --present-bar-bg: var(--surface-card);
+  --present-bar-surface: var(--surface-sunken);
+  --present-bar-surface-hover: #e8e5de;
+  --present-bar-border: var(--border-card);
+  --present-bar-text: var(--text-page);
+  --present-bar-muted: var(--text-muted);
   /* The contrast mode's wall: white in both themes, as its scene draws it. */
   --present-contrast-bg: #ffffff;
 
@@ -298,6 +298,13 @@
     --scrim: rgba(0, 0, 0, 0.65);
     --border-option-selected: #4f86f7;
     --accent-option: #4f86f7;
+
+    --present-bar-bg: #17181a;
+    --present-bar-surface: #2a2d31;
+    --present-bar-surface-hover: #3a3d42;
+    --present-bar-border: #3a3d42;
+    --present-bar-text: #f2f1ee;
+    --present-bar-muted: #c9cbcf;
     --surface-badge: #181a1d;
     --border-badge: #2a2d31;
     --shadow-badge: none;

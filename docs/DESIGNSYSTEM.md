@@ -163,11 +163,11 @@ them.
 
 **The projection brings its own bar**
 
-`/present` floats one dark bar over the plan, in `--present-bar-*`: the same
-ink values in both themes, because the plan underneath is paper in both. It is
-the only surface in the app that does not follow the theme, and it exists
-because the bar belongs to the teacher standing in front of the wall while the
-projection belongs to the room. In fullscreen the room gets the wall to itself:
+`/present` floats one bar over the plan, in `--present-bar-*`: paper with a
+hairline in the light theme, ink in the dark one, like the rest of the chrome.
+It exists because the bar belongs to the teacher standing in front of the wall
+while the projection belongs to the room — the contrast mode's white wall
+changes the wall, not the bar. In fullscreen the room gets the wall to itself:
 the strip on top is gone, and the bar slides away until the pointer comes near
 the bottom edge (a tap there on a touch screen) or the keyboard moves into it.
 Every button on it carries a word — under the icon, so the bar stays narrow
