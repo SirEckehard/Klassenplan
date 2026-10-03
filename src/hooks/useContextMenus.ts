@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
+import { swallowReleaseClick } from '@/utils';
 
 export type PointerKind = 'mouse' | 'touch' | 'pen' | 'keyboard' | 'unknown';
 export type MenuTrigger = 'contextmenu' | 'longpress' | 'keyboard';
@@ -58,6 +59,17 @@ export function useContextMenus() {
   const featureContextMenuSetter = React.useRef<React.Dispatch<
     React.SetStateAction<FeatureContextMenuState | null>
   > | null>(null);
+  // A menu a long press opened must survive the click some browsers send
+  // when that finger lifts (`swallowReleaseClick`).
+  const releaseClickGuardRef = React.useRef<(() => void) | null>(null);
+  const guardReleaseClick = React.useCallback((trigger?: MenuTrigger) => {
+    releaseClickGuardRef.current?.();
+    releaseClickGuardRef.current =
+      trigger === 'longpress' && typeof window !== 'undefined'
+        ? swallowReleaseClick()
+        : null;
+  }, []);
+  React.useEffect(() => () => releaseClickGuardRef.current?.(), []);
 
   const registerTableContextMenuSetter = React.useCallback(
     (
@@ -114,43 +126,54 @@ export function useContextMenus() {
     (menu: TableContextMenuState, position?: ContextMenuPosition) => {
       closeCanvasContextMenu();
       closeFeatureContextMenu();
+      guardReleaseClick(menu.trigger);
       setTableContextMenu(menu);
       if (position) {
         setTableContextMenuPosition(position);
       }
       tableContextMenuSetter.current?.(menu);
     },
-    [closeCanvasContextMenu, closeFeatureContextMenu],
+    [closeCanvasContextMenu, closeFeatureContextMenu, guardReleaseClick],
   );
 
   const openCanvasContextMenu = React.useCallback(
     (menu: CanvasContextMenuState, position?: ContextMenuPosition) => {
       closeTableContextMenu();
       closeFeatureContextMenu();
+      guardReleaseClick(menu.trigger);
       setCanvasContextMenu(menu);
       if (position) {
         setCanvasContextMenuPosition(position);
       }
       canvasContextMenuSetter.current?.(menu);
     },
-    [closeFeatureContextMenu, closeTableContextMenu],
+    [closeFeatureContextMenu, closeTableContextMenu, guardReleaseClick],
   );
 
   const openFeatureContextMenu = React.useCallback(
     (menu: FeatureContextMenuState, position?: ContextMenuPosition) => {
       closeTableContextMenu();
       closeCanvasContextMenu();
+      guardReleaseClick(menu.trigger);
       setFeatureContextMenu(menu);
       if (position) {
         setFeatureContextMenuPosition(position);
       }
       featureContextMenuSetter.current?.(menu);
     },
-    [closeCanvasContextMenu, closeTableContextMenu],
+    [closeCanvasContextMenu, closeTableContextMenu, guardReleaseClick],
   );
 
   React.useEffect(() => {
-    const handleClickOutside = () => {
+    const handleClickOutside = (event: MouseEvent) => {
+      // A click inside the menu is its own: an entry closes the menu after
+      // acting, and the padding or a disabled entry leaves it open.
+      if (
+        event.target instanceof Element &&
+        event.target.closest('[data-context-action-menu]')
+      ) {
+        return;
+      }
       if (tableContextMenu || canvasContextMenu || featureContextMenu) {
         closeTableContextMenu();
         closeCanvasContextMenu();

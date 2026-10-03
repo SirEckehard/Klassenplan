@@ -154,6 +154,31 @@ describe('StudentNameEditor', () => {
     expect(input).toHaveFocus();
   });
 
+  // An iPad's keyboard showed "Return" although Enter steps to the next one.
+  it('tells the on-screen keyboard Enter goes on, or ends at the last', () => {
+    const props = {
+      student: baseStudent,
+      allStudents: [baseStudent],
+      updateStudent: mockUpdateStudent,
+      isEditing: true,
+      setIsEditing: mockSetIsEditing,
+      draftName: 'Alice',
+      setDraftName: mockSetDraftName,
+    };
+    const { unmount } = renderWithToast({ ...props, onSubmit: vi.fn() });
+    expect(screen.getByDisplayValue('Alice')).toHaveAttribute(
+      'enterkeyhint',
+      'next',
+    );
+    unmount();
+
+    renderWithToast(props);
+    expect(screen.getByDisplayValue('Alice')).toHaveAttribute(
+      'enterkeyhint',
+      'done',
+    );
+  });
+
   it('shows save and cancel buttons in edit mode', () => {
     renderWithToast({
       student: baseStudent,

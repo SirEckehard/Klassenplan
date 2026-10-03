@@ -3,6 +3,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { LockIcon, LockOpenIcon } from '@phosphor-icons/react';
+import { useIsCoarsePointer } from '@/hooks/ui/useCoarsePointer';
 import type { StatisticHighlightMode, StatisticStatus, Student } from '@/types';
 import {
   describeBadge,
@@ -396,6 +397,9 @@ function TableSeat({
   const [lockHasFocus, setLockHasFocus] = React.useState(false);
   const lockVisible =
     !lockRevealOnHover || locked || isSeatHovered || lockHasFocus;
+  // A fingertip gets a wider margin around the lock than the mouse's 24
+  // units; more would eat into the seat a finger grabs to drag.
+  const lockHitInset = useIsCoarsePointer() ? 7 : 2;
 
   // Keyboard move support: the touch target becomes a focusable button so the
   // seat drag has a keyboard alternative (Enter/Space grab & drop, Escape).
@@ -588,7 +592,7 @@ function TableSeat({
               height={Math.max(seatHeight - focusInset * 2, 0)}
               rx={3}
               fill="none"
-              stroke={isDark ? '#60a5fa' : '#2563eb'}
+              stroke="var(--canvas-selection)"
               strokeWidth={2}
               vectorEffect="non-scaling-stroke"
               pointerEvents="none"
@@ -657,11 +661,18 @@ function TableSeat({
                     ? t('seat.unlockSeat', 'Sitzplatz entsperren')
                     : t('seat.lockSeat', 'Sitzplatz sperren')}
                 </title>
-                {/* Invisible 24px hit area (touchTargetSize) around the 20px
-                    circle so the pointer cursor and click target cover the
-                    whole button, not just the painted circle — otherwise the
-                    seat's grab-cursor touch target wins right at the edge. */}
-                <rect x={-2} y={-2} width={24} height={24} fill="transparent" />
+                {/* Invisible hit area around the 20-unit circle (24 units,
+                    34 for a finger) so the pointer cursor and click target
+                    cover the whole button, not just the painted circle —
+                    otherwise the seat's grab-cursor touch target wins right
+                    at the edge. */}
+                <rect
+                  x={-lockHitInset}
+                  y={-lockHitInset}
+                  width={20 + lockHitInset * 2}
+                  height={20 + lockHitInset * 2}
+                  fill="transparent"
+                />
                 {/* Circular lock toggle surface using muted icon button design token colors */}
                 <circle
                   cx={10}

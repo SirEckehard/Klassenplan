@@ -26,6 +26,7 @@ import {
   iconButtonClass,
   LOCAL_STORAGE_KEYS,
   primaryButtonClass,
+  quietSuccessToasts,
   type NameDisplayMode,
 } from '@/utils';
 import { usePlanUsagePrompt } from '@/hooks/plan/usePlanUsagePrompt';
@@ -78,6 +79,10 @@ export default function Present() {
   useEnsureCircleLayout(mode, { enabled: mode === 'circle' });
 
   const recordUsage = usePlanUsagePrompt(activeClass.id);
+
+  // The wall faces the class: the plan's "saved" from the way here, or any
+  // other success, is not for the room to read (`quietSuccessToasts`).
+  useEffect(() => quietSuccessToasts(), []);
 
   // Showing a plan on the projector is the clearest evidence that it is the
   // arrangement actually in use, unlike the dozens of mixes tried beforehand.

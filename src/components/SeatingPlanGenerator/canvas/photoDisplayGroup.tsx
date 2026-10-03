@@ -11,6 +11,13 @@ type PhotoDisplayGroupOptions = {
   optionId: string;
   value: PhotoDisplayMode;
   onChange: (next: PhotoDisplayMode) => void;
+  /**
+   * Whether the device has a pointer that hovers (`useHasHoverPointer`).
+   * Without one, "on hover" shows a photo only while a finger rests on the
+   * seat, so the choice is left out — unless it is the one set, which has to
+   * stay visible to be changed.
+   */
+  hasHover: boolean;
   t: TFunction;
 };
 
@@ -25,8 +32,10 @@ export function buildPhotoDisplayGroup({
   optionId,
   value,
   onChange,
+  hasHover,
   t,
 }: PhotoDisplayGroupOptions): CanvasSettingsGroup {
+  const offersHover = hasHover || value === 'hover';
   return {
     id,
     title: t('editor.studentPhotos', 'Schülerfotos'),
@@ -42,11 +51,15 @@ export function buildPhotoDisplayGroup({
             label: t('editor.photoModeAll', 'An'),
             icon: <EyeIcon size={18} />,
           },
-          {
-            value: 'hover',
-            label: t('editor.photoModeHover', 'Hover'),
-            icon: <CursorIcon size={18} />,
-          },
+          ...(offersHover
+            ? [
+                {
+                  value: 'hover',
+                  label: t('editor.photoModeHover', 'Hover'),
+                  icon: <CursorIcon size={18} />,
+                },
+              ]
+            : []),
           {
             value: 'off',
             label: t('editor.photoModeOff', 'Aus'),

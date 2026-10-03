@@ -552,6 +552,16 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
       e.preventDefault();
       e.stopPropagation();
 
+      // A finger or a pen held still is the long press's to answer
+      // (`useCanvasInteraction`, `useFeaturePaletteDrag`). Chrome on Android
+      // and on a Windows whiteboard sends its own contextmenu for it as well,
+      // which reopened the menu as a mouse menu right beside the finger and
+      // let the click of the lifting finger through.
+      const { pointerType } = e.nativeEvent as Partial<PointerEvent>;
+      if (pointerType === 'touch' || pointerType === 'pen') {
+        return;
+      }
+
       // CheckIcon if right-clicked on a table element (including seats)
       const target = e.target as Element;
       const tableElement = target.closest('[data-table-index]');

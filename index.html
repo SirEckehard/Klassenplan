@@ -55,6 +55,9 @@
   <div id="root"></div>
   <!-- Vite lädt direkt dein Entry-File als ES Module -->
   <script type="module" src="/src/index.tsx"></script>
+  <!-- A classic ES5 script, so a browser too old for the module above still
+       says why the page stays empty (public/browser-check.js). -->
+  <script src="/browser-check.js"></script>
 </body>
 
 </html>

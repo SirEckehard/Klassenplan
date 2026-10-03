@@ -12,7 +12,7 @@ const MIN_ICON_EDGE = 20;
 /** Uniform glyph size so podium/cabinet icons match the thin wall elements. */
 const ICON_SIZE = 16;
 /** Selection stroke matching the table selection color. */
-const ACTIVE_STROKE = '#3b82f6';
+const ACTIVE_STROKE = 'var(--canvas-selection)';
 
 type FeatureShapeProps = {
   feature: ClassroomFeature;

@@ -137,10 +137,11 @@ const ClassroomCanvas = React.memo<ClassroomCanvasProps>(
     // them — an inline style resolves `var()` like any other declaration.
     const backgroundColor = 'var(--canvas-bg)';
     const gridColor = 'var(--border-card)';
-    // Amber keeps the guides distinct from the blue selection overlay.
-    const guideColor = isDark ? '#fbbf24' : '#f59e0b';
-    // Red marks predicted photo collisions (red-400 / red-500).
-    const collisionColor = isDark ? '#f87171' : '#ef4444';
+    // Amber keeps the guides distinct from the blue selection overlay; a
+    // predicted photo collision is the alert. Both are tokens, light and dark
+    // alike (`--canvas-guide`, `--canvas-alert`).
+    const guideColor = 'var(--canvas-guide)';
+    const collisionColor = 'var(--canvas-alert)';
     // The prediction only matters once at least one student photo exists.
     const hasStudentPhotos = React.useMemo(
       () => (allStudents ?? []).some((student) => student.hasPhoto),
@@ -350,8 +351,8 @@ const ClassroomCanvas = React.memo<ClassroomCanvasProps>(
               y={selectionBox.y}
               width={selectionBox.width}
               height={selectionBox.height}
-              fill="rgba(147,197,253,0.2)"
-              stroke="#60a5fa"
+              fill="var(--canvas-selection-fill)"
+              stroke="var(--canvas-selection)"
               strokeWidth={2}
               pointerEvents="none"
             />

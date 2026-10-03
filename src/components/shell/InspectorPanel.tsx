@@ -106,20 +106,37 @@ export function InspectorSection({
 export function InspectorRow({
   label,
   hint,
+  labelsControl = false,
   children,
 }: {
   label: string;
   /** A word on what the setting does, where the label cannot carry it. */
   hint?: string;
+  /**
+   * The row holds a single switch, and the whole row is its label: a tap on
+   * the name operates it as well. On a touch screen that makes the row the
+   * target, 44px tall, where the switch alone is 28×16px — never set it on a
+   * row of chips, whose first chip the label would press.
+   */
+  labelsControl?: boolean;
   children: React.ReactNode;
 }) {
-  return (
-    <div className="flex w-full flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
+  const rowClass =
+    'flex w-full flex-wrap items-center justify-between gap-x-3 gap-y-1.5';
+  const content = (
+    <>
       <span className="text-[13px] text-(--text-page)" title={hint}>
         {label}
       </span>
       <span className="flex flex-wrap items-center gap-1">{children}</span>
-    </div>
+    </>
+  );
+  return labelsControl ? (
+    <label className={`${rowClass} cursor-pointer pointer-coarse:min-h-11`}>
+      {content}
+    </label>
+  ) : (
+    <div className={rowClass}>{content}</div>
   );
 }
 
@@ -167,7 +184,8 @@ export function InspectorChoice<T extends string>({
             title={
               isMixed ? t('bulkEdit.choiceMixed', { label: title }) : title
             }
-            className={`inline-flex cursor-pointer items-center gap-1 rounded-md border px-2 py-1 text-xs transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) ${
+            // A fingertip needs 44px; with the mouse the chips stay compact.
+            className={`inline-flex cursor-pointer items-center gap-1 rounded-md border px-2 py-1 text-xs transition pointer-coarse:min-h-11 pointer-coarse:px-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) ${
               isActive
                 ? 'border-(--border-option-selected) bg-(--surface-option-selected) text-(--text-badge)'
                 : isMixed

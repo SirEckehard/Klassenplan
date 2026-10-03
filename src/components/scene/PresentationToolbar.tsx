@@ -37,8 +37,18 @@ import {
  * plan itself carries no controls at all.
  */
 
-const barButtonClass =
-  'inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-[10px] border-0 px-3 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:ring-offset-2 focus-visible:ring-offset-(--present-bar-bg)';
+const barBaseClass =
+  'inline-flex h-11 cursor-pointer items-center justify-center rounded-[10px] border-0 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:ring-offset-2 focus-visible:ring-offset-(--present-bar-bg)';
+
+/** A button that says what it does in a word beside its icon. */
+const barButtonClass = `${barBaseClass} gap-2 px-3 text-sm font-semibold`;
+
+/**
+ * A button with its word under the icon. At the board no tooltip explains an
+ * icon to a finger, and words beside every icon would make the bar too wide
+ * for a laptop; under it, a button grows from 44 to about 60px.
+ */
+const barIconButtonClass = `${barBaseClass} min-w-14 flex-col gap-1 px-2 text-xs font-medium leading-none`;
 
 const quietClass =
   'bg-(--present-bar-surface) text-(--present-bar-text) hover:bg-(--present-bar-surface-hover)';
@@ -60,19 +70,21 @@ function BarSegment<T extends string>({
   value,
   options,
   onChange,
-  labelled = true,
+  wordsBelow = false,
 }: {
   label: string;
   value: T;
   options: ReadonlyArray<{
     value: T;
     label: string;
+    /** The word under the icon, where `label` is too long for it. */
+    short?: string;
     title: string;
     icon: Icon;
   }>;
   onChange: (value: T) => void;
-  /** Icon-only where the bar is tight; the accessible name carries the word. */
-  labelled?: boolean;
+  /** The word under the icon, as on the bar's other icons, not beside it. */
+  wordsBelow?: boolean;
 }) {
   return (
     <div
@@ -90,14 +102,16 @@ function BarSegment<T extends string>({
             aria-pressed={isActive}
             aria-label={option.label}
             title={option.title}
-            className={`${barButtonClass} h-10 ${
+            className={`${wordsBelow ? barIconButtonClass : barButtonClass} h-10 ${
               isActive
                 ? 'bg-(--present-bar-text) text-(--present-bar-bg)'
                 : 'bg-transparent text-(--present-bar-muted) hover:bg-(--present-bar-surface)'
             }`}
           >
             <option.icon size={18} aria-hidden />
-            {labelled && (
+            {wordsBelow ? (
+              <span>{option.short ?? option.label}</span>
+            ) : (
               <span className="hidden sm:inline">{option.label}</span>
             )}
           </button>
@@ -107,7 +121,7 @@ function BarSegment<T extends string>({
   );
 }
 
-/** Something the plan shows or does not show: an icon, pressed or not. */
+/** Something the plan shows or does not show: an icon and its word, pressed or not. */
 function BarToggle({
   icon: ToggleIcon,
   label,
@@ -128,11 +142,10 @@ function BarToggle({
       aria-pressed={pressed}
       aria-label={label}
       title={title}
-      className={`${barButtonClass} w-11 px-0 ${
-        pressed ? pressedClass : quietClass
-      }`}
+      className={`${barIconButtonClass} ${pressed ? pressedClass : quietClass}`}
     >
-      <ToggleIcon size={20} aria-hidden />
+      <ToggleIcon size={18} aria-hidden />
+      <span>{label}</span>
     </button>
   );
 }
@@ -208,7 +221,7 @@ export default function PresentationToolbar({
 
   return (
     <div className="flex justify-center px-3 pb-4">
-      <div className="flex max-w-full flex-wrap items-center justify-center gap-1.5 rounded-[14px] bg-(--present-bar-bg) p-2 shadow-[0_8px_28px_-12px_rgba(0,0,0,0.45)]">
+      <div className="flex max-w-full flex-wrap items-center justify-center gap-1.5 rounded-panel bg-(--present-bar-bg) p-2 shadow-[0_8px_28px_-12px_rgba(0,0,0,0.45)]">
         <BarSegment
           label={t('present.perspective')}
           value={perspective}
@@ -233,17 +246,19 @@ export default function PresentationToolbar({
           label={t('mode.label')}
           value={mode}
           onChange={onModeChange}
-          labelled={false}
+          wordsBelow
           options={[
             {
               value: 'table',
               label: t('mode.table'),
+              short: t('present.planShort'),
               title: t('mode.tableView'),
               icon: GridNineIcon,
             },
             {
               value: 'circle',
               label: t('mode.circle'),
+              short: t('present.circleShort'),
               title: t('mode.circleView'),
               icon: CircleDashedIcon,
             },
@@ -300,9 +315,10 @@ export default function PresentationToolbar({
           onClick={onCycleNameDisplay}
           aria-label={`${t('present.names')}: ${t(nameDisplayLabelKey(nameDisplay))}`}
           title={`${t('present.names')}: ${t(nameDisplayLabelKey(nameDisplay))}`}
-          className={`${barButtonClass} ${quietClass} w-11 px-0`}
+          className={`${barIconButtonClass} ${quietClass}`}
         >
-          <NameIcon size={20} aria-hidden />
+          <NameIcon size={18} aria-hidden />
+          <span>{t('present.names')}</span>
         </button>
         {!isCircle && (
           <BarToggle
@@ -346,7 +362,9 @@ export default function PresentationToolbar({
             value={zoom}
             onChange={(event) => onZoomChange(Number(event.target.value))}
             title={t('present.zoomTitle')}
-            className="w-24 cursor-pointer accent-(--button-primary-bg) sm:w-28"
+            // As tall as the bar on a touch screen, so a finger finds the
+            // track and not only its 16px thumb.
+            className="w-24 cursor-pointer accent-(--button-primary-bg) sm:w-28 pointer-coarse:h-11 pointer-coarse:w-32"
           />
           <span className="w-11 text-right text-xs font-semibold tabular-nums text-(--present-bar-text)">
             {formatPercent(zoom * 100)}
@@ -357,9 +375,10 @@ export default function PresentationToolbar({
           onClick={onResetView}
           aria-label={t('present.resetView')}
           title={t('present.resetView')}
-          className={`${barButtonClass} ${quietClass} w-11 px-0`}
+          className={`${barIconButtonClass} ${quietClass}`}
         >
-          <ArrowsInIcon size={20} aria-hidden />
+          <ArrowsInIcon size={18} aria-hidden />
+          <span>{t('present.resetViewShort')}</span>
         </button>
         {fullscreenSupported && (
           <button
@@ -376,13 +395,14 @@ export default function PresentationToolbar({
                 ? t('present.fullscreenExitTitle')
                 : t('present.fullscreenTitle')
             }
-            className={`${barButtonClass} ${quietClass} w-11 px-0`}
+            className={`${barIconButtonClass} ${quietClass}`}
           >
             {isFullscreen ? (
-              <CornersInIcon size={20} aria-hidden />
+              <CornersInIcon size={18} aria-hidden />
             ) : (
-              <ArrowsOutIcon size={20} aria-hidden />
+              <ArrowsOutIcon size={18} aria-hidden />
             )}
+            <span>{t('present.fullscreen')}</span>
           </button>
         )}
 
@@ -393,9 +413,10 @@ export default function PresentationToolbar({
           onClick={onExit}
           aria-label={t('present.exit')}
           title={t('present.backTitle')}
-          className={`${barButtonClass} ${quietClass} w-11 px-0`}
+          className={`${barIconButtonClass} ${quietClass}`}
         >
-          <XIcon size={20} aria-hidden />
+          <XIcon size={18} aria-hidden />
+          <span>{t('present.end')}</span>
         </button>
       </div>
     </div>

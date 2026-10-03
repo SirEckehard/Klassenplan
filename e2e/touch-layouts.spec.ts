@@ -14,6 +14,10 @@
  * Roles and names alone did not notice the tablet going wrong twice in one
  * day, so the journey also measures: the room and the plan have to fill their
  * stage and start in sight, beside the toolbar rather than under it.
+ *
+ * The `whiteboard` project is the other end: the desktop layout, worked by a
+ * finger on a 1920px board — the toolbar's labels, a long press on a table
+ * and the projection, which has to fill the wall.
  */
 import { test, expect, type Locator, type Page } from '@playwright/test';
 
@@ -137,7 +141,9 @@ async function openClassTools(page: Page): Promise<void> {
 /** From the class to the mixed plan, opening the criteria on the way. */
 async function mixThePlan(page: Page): Promise<void> {
   await page.getByRole('button', { name: 'Weiter zum Raum' }).click();
-  await expect(statusBar(page)).toContainText('24 Plätze für 24 Schüler');
+  // Below xl the line is the count alone, the check says it fits; the long
+  // one came out as "24 Plä…".
+  await expect(statusBar(page).getByText('24', { exact: true })).toBeVisible();
   await expectCanvasInSight(page);
 
   await page.getByRole('button', { name: 'Weiter zum Sitzplan' }).click();
@@ -276,6 +282,18 @@ test(
       ).toHaveCount(0);
       await expect(tables).toHaveCount(12);
     });
+
+    await test.step('the menu outlives the finger and pastes on a tap', async () => {
+      // Lifting the finger used to close the menu, so no entry could ever be
+      // tapped.
+      const paste = page
+        .locator('[data-context-action-menu]')
+        .getByRole('button', { name: 'Einfügen' });
+      await expect(paste).toBeVisible();
+      await paste.tap();
+
+      await expect(tables).toHaveCount(13);
+    });
   },
 );
 
@@ -330,6 +348,91 @@ test(
     await test.step('the plan is mixed with the criteria in reach', async () => {
       await page.keyboard.press('Escape');
       await mixThePlan(page);
+    });
+  },
+);
+
+test(
+  'a whiteboard shows labels, keeps the long-press menu off the finger and fills the wall',
+  { tag: '@whiteboard' },
+  async ({ page }) => {
+    await loadSampleClass(page);
+
+    await test.step('the toolbar starts with its labels', async () => {
+      // No tooltip explains an icon to a finger.
+      await expect(
+        statusBar(page).getByRole('button', {
+          name: 'Werkzeugleiste minimieren',
+        }),
+      ).toHaveAttribute('aria-expanded', 'true');
+    });
+
+    await page.getByRole('button', { name: 'Weiter zum Raum' }).click();
+    const canvas = page.getByTestId('classroom-canvas');
+    const tables = canvas.locator('g[data-table-index]');
+    await expect(tables).toHaveCount(12);
+
+    await test.step('a long press on a top-row table opens a menu clear of the finger', async () => {
+      const boxes = await Promise.all((await tables.all()).map(boxOf));
+      const top = boxes.reduce((a, b) => (b.y < a.y ? b : a));
+      const finger = {
+        x: top.x + top.width / 2,
+        y: top.y + top.height / 2,
+        id: 1,
+        radiusX: 8,
+        radiusY: 8,
+        force: 1,
+      };
+      const cdp = await page.context().newCDPSession(page);
+      await cdp.send('Input.dispatchTouchEvent', {
+        type: 'touchStart',
+        touchPoints: [finger],
+      });
+      const menu = page.locator('[data-context-action-menu]');
+      await expect(
+        menu.getByRole('button', { name: 'Kopieren' }),
+      ).toBeVisible();
+      await cdp.send('Input.dispatchTouchEvent', {
+        type: 'touchEnd',
+        touchPoints: [],
+      });
+
+      // It outlives the finger, lies clear of where it lifted — the lift
+      // used to pick the entry under it — and took no table with it.
+      await expect(
+        menu.getByRole('button', { name: 'Kopieren' }),
+      ).toBeVisible();
+      const menuBox = await boxOf(menu);
+      const clearOfFinger =
+        finger.x + 22 <= menuBox.x ||
+        finger.x - 22 >= menuBox.x + menuBox.width ||
+        finger.y + 22 <= menuBox.y ||
+        finger.y - 22 >= menuBox.y + menuBox.height;
+      expect(clearOfFinger).toBe(true);
+      await expect(tables).toHaveCount(12);
+
+      await page.keyboard.press('Escape');
+      await expect(menu).toHaveCount(0);
+    });
+
+    await test.step('the projection frames the tables, not the walls', async () => {
+      await page.getByRole('button', { name: 'Weiter zum Sitzplan' }).click();
+      await expect(
+        page.getByRole('group', { name: /^Sitzplan:/ }),
+      ).toHaveAccessibleName('Sitzplan: 24 von 24 Plätzen belegt');
+      await statusBar(page)
+        .getByRole('button', { name: /Präsentieren/ })
+        .click();
+      await expect(page).toHaveURL(/\/present/);
+
+      const projected = page.locator('svg g[data-table-index]');
+      await expect(projected).toHaveCount(12);
+      const boxes = await Promise.all((await projected.all()).map(boxOf));
+      const top = Math.min(...boxes.map((box) => box.y));
+      const bottom = Math.max(...boxes.map((box) => box.y + box.height));
+      // Framed on the walls the tables filled 36 % of the height; on the
+      // tables they take most of it.
+      expect(bottom - top).toBeGreaterThan(1080 * 0.55);
     });
   },
 );

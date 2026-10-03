@@ -185,7 +185,7 @@ function SceneTable({
   const tableStroke = contrast
     ? '#000000'
     : selected
-      ? '#3b82f6'
+      ? 'var(--canvas-selection)'
       : isDark
         ? '#d1d5db'
         : '#000';

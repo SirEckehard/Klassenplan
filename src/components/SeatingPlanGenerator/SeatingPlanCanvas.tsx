@@ -364,8 +364,8 @@ const SeatingPlanCanvas = React.memo(
               <rect
                 width={50}
                 height={50}
-                fill="#3b82f6"
-                stroke="#1d4ed8"
+                fill="var(--canvas-selection)"
+                stroke="var(--canvas-selection)"
                 strokeWidth="2"
                 rx="4"
               />

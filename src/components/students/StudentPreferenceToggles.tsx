@@ -47,7 +47,12 @@ export default function StudentPreferenceToggles({
         const label = t(option.label);
         const isMixed = mixed?.has(option.key) ?? false;
         return (
-          <InspectorRow key={option.key} label={label} hint={t(option.tooltip)}>
+          <InspectorRow
+            key={option.key}
+            label={label}
+            hint={t(option.tooltip)}
+            labelsControl
+          >
             <ToggleSwitch
               checked={Boolean(student[option.key])}
               mixed={isMixed}

@@ -101,9 +101,15 @@ export default function AppStatusBar() {
    * reader and the tooltip, never a segment of its own: "alle Namen gesetzt"
    * beside "24 Schüler" only repeated what the check already says. A layer
    * with nothing on it yet has nothing to judge and shows no icon.
+   *
+   * `short` is what the line says below `xl`, where the bar shares a tablet's
+   * width with "Zurück", the way on and the inspector's switch: "24 von 24
+   * Plätzen besetzt" came out as "24 von 24 Plätz…". The full line stays in
+   * the tooltip, and the verdict says the rest.
    */
-  const { segments, verdict } = React.useMemo((): {
+  const { segments, short, verdict } = React.useMemo((): {
     segments: string[];
+    short?: string;
     verdict: { fits: boolean; label: string } | null;
   } => {
     if (step === 1) {
@@ -144,6 +150,7 @@ export default function AppStatusBar() {
             students: studentsCount,
           }),
         ],
+        short: t('generator:shell.status.seatsForShort', { count: seatCount }),
         verdict: {
           fits: missingSeats <= 0,
           label:
@@ -195,6 +202,10 @@ export default function AppStatusBar() {
           seats: seatCount,
         }),
       ],
+      short: t('generator:shell.status.occupiedShort', {
+        filled: occupiedSeats,
+        seats: seatCount,
+      }),
       verdict: {
         fits: unseatedCount === 0,
         label:
@@ -283,7 +294,14 @@ export default function AppStatusBar() {
           data-tour={step === 2 ? TOUR_ANCHORS.layoutStatus : undefined}
           className="flex min-w-0 items-center gap-1.5 text-xs tabular-nums text-(--text-muted) sm:text-sm"
         >
-          <span className="min-w-0 truncate">{segments.join(' · ')}</span>
+          {short ? (
+            <span className="min-w-0 truncate" title={segments.join(' · ')}>
+              <span className="xl:hidden">{short}</span>
+              <span className="hidden xl:inline">{segments.join(' · ')}</span>
+            </span>
+          ) : (
+            <span className="min-w-0 truncate">{segments.join(' · ')}</span>
+          )}
           {verdict && (
             <span className="inline-flex shrink-0" title={verdict.label}>
               <VerdictIcon

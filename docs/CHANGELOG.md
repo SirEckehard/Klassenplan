@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Criteria are set in words – Off, Consider, Important, Very important – and recipes set all sixteen at once, "Recommended mix" among them
 - Three class tools, each a screen of its own: "Who's next?", "Where does who sit?" and "Build groups", reachable from "Class tools" at the foot of every toolbar
 - An error screen offers a prepared email with a reference code; nothing is sent automatically
+- A browser too old for Klassenplan – often the built-in one of an interactive whiteboard – shows a notice with the versions it needs instead of a blank page: Chrome or Edge 111, Safari 16.4, Firefox 128
 - Shortcuts on a single key – "?", P, F, 1–3, Q/E and others – can be switched off in the settings menu, so speech input cannot set them off by mistake
 
 ### Improved
@@ -40,6 +41,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - The ways between the layers are named after them: "Back to Class", "Back to Room", "Proceed to Room"
 - The inspector's column folds away from the switch at the right end of the status bar on the room, the plan, the circle and the export page, so the plan gets the width; an iPad in landscape starts with it folded, and the choice is kept per device
 - On a tablet or an interactive whiteboard the room's toolbar scrolls with a finger where it is taller than the screen
+- On a touch screen the controls are a fingertip's size: switches in the inspector and on the export page work from their name as well, value chips, the class list's checkboxes, "Remove photo", the size slider of the projection, the room's locks and rotation handle grow to about 44px
+- On an interactive whiteboard the toolbar starts with its labels, on a touch screen "Export" and "Present" carry their words from tablet width up, and every button of the projection's bar names itself under its icon; a touch screen shows no tooltip to explain an icon
+- The projection frames the tables: the board, the windows and the door come in from their walls to just beside them, and furniture far from them stays out, so on an interactive whiteboard the names come out about twice as large. After a tap its bar stays up for five seconds
+- Messages appear at the bottom centre, above the status bar, instead of over Help, the settings and the head of the inspector; the projection shows no success messages
+- On a tablet the status bar says the number alone where the full line did not fit
+- The room selects in the one blue of the interface; guides and collision marks follow light and dark mode
+- The photo setting "Hover" now reads "On hover" and is left out on a touch screen, where it showed a photo only while a finger rested on the seat
+- The keyboard on a tablet names what Enter does while naming a class: "Next", and "Done" at the last student
 - New shortcuts: "Mix" is Ctrl/⌘+Enter, as ⌘+M minimised the window on a Mac. On the export page P saves the PDF of the arrangement on the sheet and Ctrl/⌘+P prints; Ctrl/⌘+S and Ctrl/⌘+E work in the seating circle as well
 
 ### Removed
@@ -60,6 +69,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - A long name fits its field in the inspector instead of being cut off at the edge
 - On a phone the toolbar's panels and menus – adding a student, the class tools, the backup – opened out of sight behind the toolbar
 - On a narrow phone such as the iPhone 16 Pro the class's name pushed the "Class" layer off the header
+- A long press on a table or the floor of the room opens a menu that stays open after the finger lifts and never lies under it. It used to close the moment the finger lifted, a finger that trembled started a drag instead, and near the top edge the menu slid under the finger, so lifting it chose the entry there – removing a table nobody meant to
+- The FAQ placed "Present" in the middle of the status bar; it is at the right end. Help and FAQ now mention tapping and the two-finger zoom
 - On a touch screen a long press on the empty floor of the room – to paste what had been copied – took the room editor down to an error screen
 - A room element dragged from the toolbar and taken back by the browser – a swipe, a palm on the board – was placed wherever the next finger lifted over the room
 - With a default text size larger than 16px set in the browser, the layout and the toolbar disagreed about whether the window was a phone, a tablet or a desktop: on a tablet-sized window the toolbar stood above the stage and pushed the room and the plan out of sight

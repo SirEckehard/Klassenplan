@@ -26,6 +26,7 @@ import {
   releasePointerCaptureIfHeld,
 } from '@/utils';
 import type { SelectionBox } from '@/types/canvas';
+import { DRAG_THRESHOLD_PX } from '@/hooks/ui/useDragGesture';
 
 type PendingLongPressPoint = { x: number; y: number };
 
@@ -49,6 +50,24 @@ type PendingCanvasLongPress = {
   lastClientPoint: PendingLongPressPoint;
   pointerType?: CanvasPointerType;
 };
+
+/** A finger or pen on the floor, until it has travelled the drag threshold. */
+type PendingCanvasPress = {
+  pointerId: number;
+  startClientPoint: PendingLongPressPoint;
+  pointerType: CanvasPointerType;
+};
+
+const isTouchLike = (pointerType: CanvasPointerType | undefined): boolean =>
+  pointerType === 'touch' || pointerType === 'pen';
+
+/**
+ * How far a finger or a pen travels on screen before its press becomes a drag
+ * or a selection box: the threshold of every other drag in the app
+ * (`useDragGesture`). Until then a press may still turn into a long press.
+ */
+const touchDragThreshold = (pointerType: CanvasPointerType | undefined) =>
+  pointerType === 'touch' ? DRAG_THRESHOLD_PX.touch : DRAG_THRESHOLD_PX.mouse;
 
 type PointerActionApi = {
   applySelectionForTable: (tableIndex: number, multi: boolean) => number[];
@@ -166,6 +185,7 @@ export function useCanvasInteraction({
   const pendingCanvasLongPressRef = React.useRef<PendingCanvasLongPress | null>(
     null,
   );
+  const pendingCanvasPressRef = React.useRef<PendingCanvasPress | null>(null);
   const selectionPointerIdRef = React.useRef<number | null>(null);
   const selectionStartRef = React.useRef<{ x: number; y: number }>({
     x: 0,
@@ -479,8 +499,13 @@ export function useCanvasInteraction({
         return;
       }
 
+      // A new press on the room lets go of a menu a long press left open; a
+      // finger that draws a selection box sends no click to close it.
+      closeTableContextMenu();
+      closeCanvasContextMenu();
+
       const pointerKind = normalizePointerType(e.pointerType);
-      const allowsLongPress = pointerKind === 'touch' || pointerKind === 'pen';
+      const allowsLongPress = isTouchLike(pointerKind);
       const hasClipboardContent =
         (clipboard && clipboard.length > 0) || hasFeatureClipboard;
       const svg = e.currentTarget as SVGSVGElement;
@@ -497,6 +522,13 @@ export function useCanvasInteraction({
         multiSelect: e.shiftKey || e.metaKey || e.ctrlKey,
       };
       send({ type: 'POINTER_DOWN_CANVAS', payload: canvasPressPayload });
+      pendingCanvasPressRef.current = allowsLongPress
+        ? {
+            pointerId: e.pointerId,
+            startClientPoint: { x: e.clientX, y: e.clientY },
+            pointerType: pointerKind,
+          }
+        : null;
 
       if (e.target === e.currentTarget) {
         beginSelection(e);
@@ -516,6 +548,8 @@ export function useCanvasInteraction({
     [
       clipboard,
       cancelSelectionInteraction,
+      closeCanvasContextMenu,
+      closeTableContextMenu,
       hasFeatureClipboard,
       beginSelection,
       clampScenePoint,
@@ -530,20 +564,24 @@ export function useCanvasInteraction({
       scenePoint: { x: number; y: number },
     ) => {
       const pointerId = event.pointerId;
-      if (
-        pendingTableLongPressRef.current &&
-        pendingTableLongPressRef.current.pointerId === pointerId
-      ) {
-        pendingTableLongPressRef.current.lastClientPoint = {
+      const pendingTable = pendingTableLongPressRef.current;
+      if (pendingTable && pendingTable.pointerId === pointerId) {
+        pendingTable.lastClientPoint = {
           x: event.clientX,
           y: event.clientY,
         };
-        const startPoint = pendingTableLongPressRef.current.startScenePoint;
-        const distance = Math.hypot(
-          scenePoint.x - startPoint.x,
-          scenePoint.y - startPoint.y,
-        );
-        if (distance >= DRAG_DISTANCE_THRESHOLD) {
+        // A finger is measured on screen, like every other drag; a mouse
+        // keeps the scene distance it always had.
+        const reachedThreshold = isTouchLike(pendingTable.pointerType)
+          ? Math.hypot(
+              event.clientX - pendingTable.startClientPoint.x,
+              event.clientY - pendingTable.startClientPoint.y,
+            ) >= touchDragThreshold(pendingTable.pointerType)
+          : Math.hypot(
+              scenePoint.x - pendingTable.startScenePoint.x,
+              scenePoint.y - pendingTable.startScenePoint.y,
+            ) >= DRAG_DISTANCE_THRESHOLD;
+        if (reachedThreshold) {
           pendingTableLongPressRef.current = null;
           send({ type: 'DRAG_THRESHOLD_REACHED', target: 'table' });
         }
@@ -556,6 +594,19 @@ export function useCanvasInteraction({
           x: event.clientX,
           y: event.clientY,
         };
+      }
+      const pendingCanvas = pendingCanvasPressRef.current;
+      if (
+        pendingCanvas &&
+        pendingCanvas.pointerId === pointerId &&
+        Math.hypot(
+          event.clientX - pendingCanvas.startClientPoint.x,
+          event.clientY - pendingCanvas.startClientPoint.y,
+        ) >= touchDragThreshold(pendingCanvas.pointerType)
+      ) {
+        pendingCanvasPressRef.current = null;
+        pendingCanvasLongPressRef.current = null;
+        send({ type: 'DRAG_THRESHOLD_REACHED', target: 'canvas' });
       }
     },
     [send],
@@ -578,6 +629,9 @@ export function useCanvasInteraction({
         pendingCanvasLongPressRef.current.pointerId === pointerId
       ) {
         pendingCanvasLongPressRef.current = null;
+      }
+      if (pendingCanvasPressRef.current?.pointerId === pointerId) {
+        pendingCanvasPressRef.current = null;
       }
     },
     [applySelectionForTable],

@@ -187,11 +187,15 @@ export interface ToastInstance {
 export type ToastEvent =
   | { action: 'add'; toast: ToastInstance }
   | { action: 'dismiss'; id: string }
+  | { action: 'dismissType'; type: ToastType }
   | { action: 'dismissAll' };
 
 export type ToastSubscriber = (event: ToastEvent) => void;
 
 const listeners = new Set<ToastSubscriber>();
+
+/** How many views currently want success messages kept off the screen. */
+let successQuietCount = 0;
 
 const DEFAULT_DURATION: Record<ToastType, number> = {
   success: 3000,
@@ -220,6 +224,9 @@ export function showToast(
   options: ToastOptions = {},
 ): string {
   const id = options.id ?? generateId();
+  if (type === 'success' && successQuietCount > 0) {
+    return id;
+  }
   const duration =
     options.duration ?? DEFAULT_DURATION[type] ?? DEFAULT_DURATION.info;
   const dismissible = options.dismissible ?? true;
@@ -250,4 +257,24 @@ export function dismissToast(id: string): void {
 
 export function dismissAllToasts(): void {
   emit({ action: 'dismissAll' });
+}
+
+/**
+ * Keeps success messages off the screen until the returned function is
+ * called, and takes away the ones showing.
+ *
+ * The projection is on the wall in front of the class: "Sitzplan …
+ * gespeichert" from the save that precedes it was the first thing the room
+ * read. Nothing a success message says needs the teacher there; an error
+ * still shows, since a plan that did not save is worth knowing about.
+ */
+export function quietSuccessToasts(): () => void {
+  successQuietCount += 1;
+  emit({ action: 'dismissType', type: 'success' });
+  let released = false;
+  return () => {
+    if (released) return;
+    released = true;
+    successQuietCount -= 1;
+  };
 }

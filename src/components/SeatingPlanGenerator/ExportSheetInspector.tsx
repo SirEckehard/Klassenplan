@@ -113,7 +113,7 @@ export default function ExportSheetInspector({
   );
 
   const switchRow = (label: string, toggle: Toggle) => (
-    <InspectorRow label={label}>
+    <InspectorRow label={label} labelsControl>
       <ToggleSwitch
         checked={toggle.checked}
         onChange={toggle.onChange}

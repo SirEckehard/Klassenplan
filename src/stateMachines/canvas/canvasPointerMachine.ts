@@ -130,6 +130,28 @@ const isTableLongPress = (event: CanvasPointerMachineEvent): boolean =>
 const isTableDragThreshold = (event: CanvasPointerMachineEvent): boolean =>
   event.type === 'DRAG_THRESHOLD_REACHED' && event.target === 'table';
 
+const isCanvasDragThreshold = (event: CanvasPointerMachineEvent): boolean =>
+  event.type === 'DRAG_THRESHOLD_REACHED' && event.target === 'canvas';
+
+/**
+ * A finger or a pen never holds perfectly still, so for them the first move
+ * does not end a press: the hook reports `DRAG_THRESHOLD_REACHED` once the
+ * pointer has travelled the drag threshold (`DRAG_THRESHOLD_PX`). Taking any
+ * move for a drag, a long press almost never lasted long enough to open its
+ * menu. A mouse still drags from its first move.
+ */
+const isMouseMoveForActiveContext = (
+  context: CanvasPointerMachineContext,
+  event: CanvasPointerMachineEvent,
+): boolean => {
+  const pointerType = context.activePointer?.pointerType;
+  return (
+    pointerType !== 'touch' &&
+    pointerType !== 'pen' &&
+    isPointerForActiveContext(context, event)
+  );
+};
+
 export const canvasPointerMachine = pointerSetup.createMachine({
   id: 'canvasPointer',
   context: createCanvasPointerContext,
@@ -167,7 +189,11 @@ export const canvasPointerMachine = pointerSetup.createMachine({
       on: {
         POINTER_MOVE: {
           guard: ({ context, event }) =>
-            isPointerForActiveContext(context, event),
+            isMouseMoveForActiveContext(context, event),
+          target: 'selectionBoxActive',
+        },
+        DRAG_THRESHOLD_REACHED: {
+          guard: ({ event }) => isCanvasDragThreshold(event),
           target: 'selectionBoxActive',
         },
         LONG_PRESS_TIMEOUT: {
@@ -232,7 +258,7 @@ export const canvasPointerMachine = pointerSetup.createMachine({
       on: {
         POINTER_MOVE: {
           guard: ({ context, event }) =>
-            isPointerForActiveContext(context, event),
+            isMouseMoveForActiveContext(context, event),
           target: 'draggingSelection',
         },
         LONG_PRESS_TIMEOUT: {
@@ -301,12 +327,15 @@ export const canvasPointerMachine = pointerSetup.createMachine({
         },
       },
     },
+    // The menu a long press opened outlives the finger that held it: lifting
+    // it hands the menu over to the next tap, on an entry or beside the menu
+    // (`useContextMenus`). Closing it on the way out of this state made it
+    // vanish the moment the finger lifted, so no entry could ever be tapped.
     contextMenuOpen: {
       entry: [
         'handleContextMenuEntry',
         { type: 'logPointerState', params: 'contextMenuOpen' },
       ],
-      exit: 'handleContextMenuExit',
       on: {
         CONTEXT_MENU_CLOSED: {
           target: 'idle',
@@ -322,11 +351,11 @@ export const canvasPointerMachine = pointerSetup.createMachine({
         },
         ESCAPE: {
           target: 'idle',
-          actions: resetInteractiveState,
+          actions: ['handleContextMenuExit', resetInteractiveState],
         },
         CANCEL: {
           target: 'idle',
-          actions: resetInteractiveState,
+          actions: ['handleContextMenuExit', resetInteractiveState],
         },
       },
     },

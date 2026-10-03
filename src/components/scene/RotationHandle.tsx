@@ -3,6 +3,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { ArrowClockwiseIcon } from '@phosphor-icons/react';
+import { useIsCoarsePointer } from '@/hooks/ui/useCoarsePointer';
 
 interface RotationHandleProps {
   width: number;
@@ -18,6 +19,9 @@ function RotationHandle({
   onRotateStart,
 }: RotationHandleProps) {
   const { t } = useTranslation('generator');
+  // The painted handle is 20 scene units, about 15px on an iPad: a fingertip
+  // gets an invisible ring around it to grab instead.
+  const isCoarsePointer = useIsCoarsePointer();
 
   return (
     <g
@@ -36,7 +40,8 @@ function RotationHandle({
       aria-label={t('editor.rotateTable')}
       role="button"
     >
-      <circle r={10} fill="#3b82f6" />
+      {isCoarsePointer && <circle r={24} fill="transparent" />}
+      <circle r={10} fill="var(--canvas-selection)" />
       <g transform="translate(-6 -6)">
         <ArrowClockwiseIcon size={12} color="#fff" />
       </g>

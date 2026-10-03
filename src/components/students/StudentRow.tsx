@@ -83,13 +83,18 @@ function StudentRow({
         />
       )}
       {onToggleSelected && (
-        <input
-          type="checkbox"
-          checked={Boolean(selected)}
-          onChange={() => onToggleSelected(student.id)}
-          className="h-4 w-4 shrink-0 cursor-pointer accent-(--accent-option)"
-          aria-label={t('listToolbar.selectStudent', { name: displayName })}
-        />
+        // The checkbox sits in a cell as tall as the row, so a fingertip that
+        // lands a little beside it ticks instead of opening the student; on a
+        // touch screen the cell starts at the row's edge and is 44px wide.
+        <label className="flex shrink-0 cursor-pointer items-center self-stretch pointer-coarse:-ml-3 pointer-coarse:w-11 pointer-coarse:justify-center">
+          <input
+            type="checkbox"
+            checked={Boolean(selected)}
+            onChange={() => onToggleSelected(student.id)}
+            className="h-4 w-4 shrink-0 cursor-pointer accent-(--accent-option) pointer-coarse:h-5 pointer-coarse:w-5"
+            aria-label={t('listToolbar.selectStudent', { name: displayName })}
+          />
+        </label>
       )}
       <button
         type="button"

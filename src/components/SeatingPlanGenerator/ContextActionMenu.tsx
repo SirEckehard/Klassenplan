@@ -8,6 +8,7 @@ import {
   touchMenuSurfaceClass,
   mutedIconButtonClass,
 } from '@/utils';
+import { placeTouchMenu } from '@/utils/ui/touchMenuPlacement';
 
 export type ContextAction = {
   label: string;
@@ -56,7 +57,6 @@ export default function ContextActionMenu({
     resolvedPointer === 'pen' ||
     trigger === 'longpress';
   const EDGE_MARGIN = 8;
-  const TOUCH_GAP = 16;
   const DESKTOP_GAP = 12;
 
   React.useLayoutEffect(() => {
@@ -71,8 +71,27 @@ export default function ContextActionMenu({
     const menuWidth = node.offsetWidth || 0;
     const menuHeight = node.offsetHeight || 0;
 
-    const nextLeft = isTouchLike ? x - menuWidth / 2 : x + DESKTOP_GAP;
-    const nextTop = isTouchLike ? y - menuHeight - TOUCH_GAP : y;
+    if (isTouchLike) {
+      // Never under the finger that opened it (`placeTouchMenu`).
+      const placed = placeTouchMenu({
+        x,
+        y,
+        menuWidth,
+        menuHeight,
+        containerWidth: parentWidth,
+        containerHeight: parentHeight,
+      });
+      setPosition((prev) =>
+        Math.abs(prev.left - placed.left) < 0.5 &&
+        Math.abs(prev.top - placed.top) < 0.5
+          ? prev
+          : placed,
+      );
+      return;
+    }
+
+    const nextLeft = x + DESKTOP_GAP;
+    const nextTop = y;
 
     const maxLeft =
       parentWidth > menuWidth

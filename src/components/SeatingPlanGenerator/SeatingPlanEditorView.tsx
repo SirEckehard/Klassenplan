@@ -89,6 +89,7 @@ import {
   type DragSeatConfig,
 } from '@/hooks/ui/useDragDropState';
 import DragGhost from '@/components/scene/DragGhost';
+import { useHasHoverPointer } from '@/hooks/ui/useHasHoverPointer';
 import type { TemplateDragPreview } from '@/types/templateDrag';
 import {
   workspaceLayerClass,
@@ -278,6 +279,7 @@ export default function SeatingPlanEditorView({
     () => students.map((student) => student.name),
     [students],
   );
+  const hasHoverPointer = useHasHoverPointer();
   const handleBadgeDisplayChange = React.useCallback(
     (next: BadgeDisplayMode) => setBadgeDisplay(() => next),
     [setBadgeDisplay],
@@ -325,6 +327,7 @@ export default function SeatingPlanEditorView({
         optionId: 'photo-display-mode',
         value: photoDisplayMode,
         onChange: handlePhotoDisplayModeChange,
+        hasHover: hasHoverPointer,
         t,
       }),
       buildNameDisplayGroup({
@@ -358,6 +361,7 @@ export default function SeatingPlanEditorView({
     [
       featureAvailability,
       featureVisibility,
+      hasHoverPointer,
       setFeatureVisible,
       handleToggleGrid,
       handlePhotoDisplayModeChange,

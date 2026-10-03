@@ -276,7 +276,9 @@ function StudentPhotoButton({ student, updateStudent }: Props) {
             onClick={handleRemove}
             title={t('photo.remove')}
             aria-label={t('photo.remove')}
-            className="absolute -right-1 -top-1 flex h-4 w-4 cursor-pointer items-center justify-center rounded-full border border-(--surface-card) bg-(--button-danger-bg) text-white shadow-sm transition hover:bg-(--button-danger-bg-hover)"
+            // On a touch screen the badge grows and an invisible margin makes
+            // it a 44px target; a tap that lands there by mistake only asks.
+            className="absolute -right-1 -top-1 flex h-4 w-4 cursor-pointer items-center justify-center rounded-full border border-(--surface-card) bg-(--button-danger-bg) text-white shadow-sm transition hover:bg-(--button-danger-bg-hover) pointer-coarse:h-6 pointer-coarse:w-6 pointer-coarse:before:absolute pointer-coarse:before:-inset-2.5 pointer-coarse:before:content-['']"
           >
             <XIcon size={9} weight="bold" />
           </button>

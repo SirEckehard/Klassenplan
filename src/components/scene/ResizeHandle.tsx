@@ -74,7 +74,7 @@ function ResizeHandle({
         width={HANDLE_HALF * 2}
         height={HANDLE_HALF * 2}
         rx={2}
-        fill="#3b82f6"
+        fill="var(--canvas-selection)"
         stroke="#fff"
         strokeWidth={1.5}
       />

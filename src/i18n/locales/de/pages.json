@@ -397,7 +397,7 @@
       "description": "Digitale Tafel, Sitzkreis, Ausdruck und die drei Werkzeuge für den Unterricht.",
       "present": {
         "q": "Wie funktioniert der Präsentiermodus?",
-        "a": "„Präsentieren“ in der Mitte der Statusleiste zeigt den Sitzplan oder Sitzkreis groß an der digitalen Tafel. Alle Bedienelemente liegen in einer Leiste unter dem Plan: Lehrer- oder Schüleransicht (sie dreht den Plan aus Sicht der Klasse), Plan oder Kreis, Fotos, Farben, Raumelemente, ein Kontrastmodus für helle Räume und die Größe. An der Tafel stehen Vornamen, unabhängig davon, wie du die Namen im Editor zeigst. Im Vollbild (Taste F) verschwindet die Leiste und erscheint wieder, sobald du die Maus an den unteren Rand bewegst."
+        "a": "„Präsentieren“ rechts in der Statusleiste zeigt den Sitzplan oder Sitzkreis groß an der digitalen Tafel. Alle Bedienelemente liegen in einer Leiste unter dem Plan: Lehrer- oder Schüleransicht (sie dreht den Plan aus Sicht der Klasse), Plan oder Kreis, Fotos, Farben, Raumelemente, ein Kontrastmodus für helle Räume und die Größe. An der Tafel stehen Vornamen, unabhängig davon, wie du die Namen im Editor zeigst. Im Vollbild (Taste F) verschwindet die Leiste und erscheint wieder, sobald du mit dem Zeiger an den unteren Rand fährst oder dort tippst."
       },
       "tools": {
         "q": "Was sind „Wer kommt dran?“, „Wo sitzt wer?“ und „Gruppen bilden“?",
@@ -441,7 +441,7 @@
       },
       "tablet": {
         "q": "Kann ich Klassenplan am Tablet oder Whiteboard nutzen?",
-        "a": "Ja. Die Oberfläche ist für Touch gemacht, inklusive Long-Press für Kontextmenüs, und läuft auf Tablets und Whiteboards flüssig. Auf dem Smartphone sind die drei Werkzeuge „Wer kommt dran?“, „Wo sitzt wer?“ und „Gruppen bilden“ für den Unterricht gedacht; Klasse und Raum richtest du besser an einem größeren Bildschirm ein."
+        "a": "Ja. Am Tablet und an der digitalen Tafel geht alles mit dem Finger: Tische ziehen, Schüler tauschen, langes Drücken öffnet im Raum das Kontextmenü. Klassenplan braucht einen aktuellen Browser – Chrome oder Edge ab Version 111, Safari ab 16.4, Firefox ab 128. Ist der eingebaute Browser einer Tafel älter, nimm Chrome oder Edge auf dem Tafel-PC. Auf dem Smartphone sind die drei Werkzeuge „Wer kommt dran?“, „Wo sitzt wer?“ und „Gruppen bilden“ für den Unterricht gedacht; Klasse und Raum richtest du besser an einem größeren Bildschirm ein."
       },
       "pwa": {
         "q": "Kann ich Klassenplan wie eine App installieren?",

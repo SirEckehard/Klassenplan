@@ -24,6 +24,10 @@ A web-based tool for creating seating plans and seating circles for teachers. Kl
 - Node.js ≥ 24
 - npm ≥ 10.9
 
+## Supported browsers
+
+Chrome and Edge from version 111, Safari from 16.4 and Firefox from 128 — what Tailwind CSS 4 requires; the bundle targets current browsers only. Many interactive whiteboards run an old built-in Android browser: there Chrome or Edge on the board's PC is the way. An older browser gets a notice in German or English instead of a blank page (`public/browser-check.js`).
+
 ## Installation & start
 
 ```bash

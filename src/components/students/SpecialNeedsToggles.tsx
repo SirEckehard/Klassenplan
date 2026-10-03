@@ -67,6 +67,7 @@ export default function SpecialNeedsToggles({
               key={key}
               label={label}
               hint={t(`studentFlags.${key}.tooltip`, defaultTooltip)}
+              labelsControl
             >
               <ToggleSwitch
                 checked={Boolean(student[key])}

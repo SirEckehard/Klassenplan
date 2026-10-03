@@ -1,6 +1,6 @@
 # Design System – Klassenplan
 
-> **Status:** current · **Last reviewed:** 2026-09-29 · **Maintainer:** Eike
+> **Status:** current · **Last reviewed:** 2026-10-03 · **Maintainer:** Eike
 > Schäfer · **Describes:** Klassenplan 2.2.0
 
 This document describes the binding design tokens for Klassenplan. All values live in `src/index.css` and are reachable from TypeScript through `src/utils/ui/designTokens.ts`.
@@ -56,7 +56,7 @@ The look is called **Papier & Werkzeug**: the interface is a passepartout in war
 | `touchMenuSurfaceClass`  | `touch-menu-surface`  | Touch-optimized menus                                   |
 | `floatingStatusClass`    | `floating-status`     | Floating badges                                         |
 | `canvasFrameClass`       | `canvas-frame`        | Canvas frame                                            |
-| `toastSurfaceClass`      | `toast-surface`       | Toast container                                         |
+| `toastSurfaceClass`      | `toast-surface`       | Toast, stacked bottom centre above the status bar       |
 | `toastAccentClass`       | `toast-accent`        | Toast accent bar                                        |
 | `toastIconClass`         | `toast-icon`          | Toast icon                                              |
 
@@ -170,6 +170,14 @@ because the bar belongs to the teacher standing in front of the wall while the
 projection belongs to the room. In fullscreen the room gets the wall to itself:
 the strip on top is gone, and the bar slides away until the pointer comes near
 the bottom edge (a tap there on a touch screen) or the keyboard moves into it.
+Every button on it carries a word — under the icon, so the bar stays narrow
+enough for a laptop — since at the board no tooltip explains an icon to a
+finger. After a tap it stays up five seconds, as a teacher at the board steps back to
+look before the second tap. The plan is framed on the tables: the board, the
+windows and the door come in from their walls to just beside them, so the room
+keeps its front and its sides while the names grow to the wall's size, and
+furniture far from the tables stays out of the picture. No success message
+shows there — the wall faces the class.
 
 Its contrast mode goes the other way: black on white whatever the theme, with
 thicker contours and the seat names bolder (`SEAT_CONTRAST_COLORS`). Those are
@@ -236,6 +244,21 @@ inside takes `canvas-fit`: `min(100%, 100cqh * 3 / 2 - 1px)` for the fixed
 full width below `lg`. Room, plan and circle take their width from it alone.
 The frame itself is `canvas-frame` — white, one hairline, no radius.
 
+What the room editor draws on top of the room is its own and goes into no
+export: the selection — tables, room elements, the selection rectangle, the
+rotation and resize handles, a seat's keyboard focus — is `--canvas-selection`,
+the interface's one blue (`--focus-ring-primary`), with
+`--canvas-selection-fill` for the rectangle; alignment guides are
+`--canvas-guide` (amber, so they never read as a selection) and a predicted
+photo collision is `--canvas-alert`. The drawing used to select in two blues of
+its own.
+
+On a touch screen the handles and the seat's lock keep their painted size but
+take a larger transparent hit area (`useIsCoarsePointer`), and a long press —
+the touch screen's right-click — opens its menu above, beside or below the
+finger, never under it (`placeTouchMenu`), as a list with words
+(`touchMenuSurfaceClass`).
+
 ## 6b. The inspector
 
 The right-hand panel is a wall, not a stack of cards. A setting inside it is a row — `InspectorRow` with its name and, on the right, a `ToggleSwitch` for a yes/no or `InspectorChoice` chips for a handful of values; pressing the chip a value already has clears it, so "not decided" stays reachable. Several students who disagree show that too: a switch with its knob in the middle, and the chips of the values some of them have outlined in dashes (`aria-pressed="mixed"`) — otherwise a mixed selection looks like one where nothing is set. `InspectorHeader`,
@@ -253,6 +276,11 @@ opens the drawer below `lg` — so the stage takes the width. The switch is
 highlighted while the column shows, as it is while the drawer is open. A touch
 screen narrower than `xl` starts with the column folded. The class layer's
 column stays: it is where a student is edited.
+
+A row that holds a single switch is its `<label>` (`labelsControl`): a tap on
+the name works the switch, and on a touch screen the row is at least 44px tall,
+where the switch alone is 28×16px. Chips grow to 44px on a touch screen too
+(`pointer-coarse:`); with a mouse the inspector stays compact.
 
 A panel with nothing selected belongs to what the layer shows as a whole. The
 room's names its tables in the header and offers what concerns the room

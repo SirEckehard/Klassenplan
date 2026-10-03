@@ -36,6 +36,7 @@ import { buildNameDisplayGroup } from '@/components/SeatingPlanGenerator/canvas/
 import { buildBadgeDisplayGroup } from '@/components/SeatingPlanGenerator/canvas/badgeDisplayGroup';
 import { buildPhotoDisplayGroup } from '@/components/SeatingPlanGenerator/canvas/photoDisplayGroup';
 import { useSeatBadgeView } from '@/hooks/canvas/useSeatBadgeView';
+import { useHasHoverPointer } from '@/hooks/ui/useHasHoverPointer';
 import { useEnsureCircleLayout } from '@/hooks/circle/useEnsureCircleLayout';
 import { circleShuffleSwaps } from '@/services/circleLayoutService';
 import { usePlanExits } from '@/hooks/plan/usePlanExits';
@@ -162,6 +163,7 @@ export default function EnhancedSeatingPlanView(
     () => circleStudents.map((student) => student.name),
     [circleStudents],
   );
+  const hasHoverPointer = useHasHoverPointer();
 
   // Circle view settings live in the canvas' settings button, exactly like the
   // table plan's — display options belong to the canvas they affect, while the
@@ -195,6 +197,7 @@ export default function EnhancedSeatingPlanView(
         optionId: 'circle-photo-mode',
         value: photoMode,
         onChange: setPhotoMode,
+        hasHover: hasHoverPointer,
         t,
       }),
       buildNameDisplayGroup({
@@ -223,6 +226,7 @@ export default function EnhancedSeatingPlanView(
       reportBadgeFocus,
       circleStudents,
       circleStudentNames,
+      hasHoverPointer,
       connectionMode,
       nameDisplay,
       setNameDisplay,

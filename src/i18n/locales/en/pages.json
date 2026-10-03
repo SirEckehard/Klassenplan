@@ -397,7 +397,7 @@
       "description": "Interactive whiteboard, seating circle, printing and the three classroom tools.",
       "present": {
         "q": "How does presentation mode work?",
-        "a": "“Present” in the middle of the status bar shows the seating plan or circle large on the interactive whiteboard. Every control sits in one bar below the plan: teacher or student view (which turns the plan to the class’s point of view), plan or circle, photos, colours, room elements, a contrast mode for bright rooms and the size. The board shows first names, whatever the editor shows. In fullscreen (key F) the bar disappears and comes back as soon as you move the mouse to the bottom edge."
+        "a": "“Present” at the right of the status bar shows the seating plan or circle large on the interactive whiteboard. Every control sits in one bar below the plan: teacher or student view (which turns the plan to the class’s point of view), plan or circle, photos, colours, room elements, a contrast mode for bright rooms and the size. The board shows first names, whatever the editor shows. In fullscreen (key F) the bar disappears and comes back as soon as the pointer nears the bottom edge or you tap there."
       },
       "tools": {
         "q": "What are “Who’s next?”, “Where does who sit?” and “Build groups”?",
@@ -441,7 +441,7 @@
       },
       "tablet": {
         "q": "Can I use Klassenplan on a tablet or whiteboard?",
-        "a": "Yes. The interface is built for touch, long press for context menus included, and runs smoothly on tablets and whiteboards. On a phone, the three tools “Who’s next?”, “Where does who sit?” and “Build groups” are meant for the lesson; class and room are better set up on a larger screen."
+        "a": "Yes. On a tablet and an interactive whiteboard everything works by finger: dragging tables, swapping students, and a long press opens the context menu in the room. Klassenplan needs a current browser – Chrome or Edge from version 111, Safari from 16.4, Firefox from 128. If a whiteboard’s built-in browser is older, use Chrome or Edge on the board’s PC. On a phone, the three tools “Who’s next?”, “Where does who sit?” and “Build groups” are meant for the lesson; class and room are better set up on a larger screen."
       },
       "pwa": {
         "q": "Can I install Klassenplan like an app?",

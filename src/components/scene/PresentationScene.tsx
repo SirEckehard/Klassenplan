@@ -19,6 +19,7 @@ import {
   svgFontFamily,
 } from '@/utils';
 import { getFeatureStyles } from '@/utils/ui';
+import { featuresForTableFrame } from '@/utils/ui/presentationFrame';
 import {
   getPresentationRotation,
   type PresentationPerspective,
@@ -91,7 +92,10 @@ type Rect = { minX: number; minY: number; maxX: number; maxY: number };
  * The room is a fixed 900×600 no matter how much of it is furnished, so
  * projecting the whole rectangle wastes the screen — badly on a portrait
  * tablet, where the landscape room already only fills half the height. Framing
- * the furniture instead makes the names as large as the device allows.
+ * the furniture instead makes the names as large as the device allows. The
+ * board, the windows and the door come in from their walls to just beside the
+ * tables first, and furniture far from them stays out (`featuresForTableFrame`),
+ * or the frame would still reach out to the walls.
  */
 function getContentBounds(
   tables: ClassroomScene['tables'],
@@ -177,18 +181,27 @@ export default function PresentationScene({
     perspective === 'teacher' && showPhotos && !contrast ? 'all' : 'off';
   const showSpecialNeeds = perspective === 'teacher' && showBadges && !contrast;
 
-  const featureViewModels = React.useMemo(
-    () =>
-      showFeatures
-        ? (scene.features ?? [])
-            .map((feature) => ({
-              feature,
-              styles: getFeatureStyles(feature, dark, undefined, !colors),
-            }))
-            .filter(({ styles }) => styles.shouldRender)
-        : [],
-    [scene.features, dark, showFeatures, colors],
-  );
+  const featureViewModels = React.useMemo(() => {
+    if (!showFeatures) {
+      return [];
+    }
+    const shown = (scene.features ?? [])
+      .map((feature) => ({
+        feature,
+        styles: getFeatureStyles(feature, dark, undefined, !colors),
+      }))
+      .filter(({ styles }) => styles.shouldRender);
+    const stylesById = new Map(
+      shown.map(({ feature, styles }) => [feature.id, styles]),
+    );
+    return featuresForTableFrame(
+      scene.tables,
+      shown.map(({ feature }) => feature),
+    ).flatMap((feature) => {
+      const styles = stylesById.get(feature.id);
+      return styles ? [{ feature, styles }] : [];
+    });
+  }, [scene.features, scene.tables, dark, showFeatures, colors]);
 
   // The drawn content, mapped through the same rotation the classroom group
   // gets, becomes the visible area. Without content (an empty room) the whole

@@ -674,6 +674,99 @@ describe('useCanvasInteraction', () => {
       expect(mockOpenCanvasContextMenu).not.toHaveBeenCalled();
     });
 
+    it('opens the table menu through a finger that trembles', () => {
+      const { result } = getHookResult();
+      const press = createMockPointerEvent({
+        currentTarget: mockTableElement,
+        target: mockTableElement,
+        pointerType: 'touch',
+      });
+
+      act(() => {
+        result.current.handleTablePointerDown(press, 0);
+      });
+      // 3px on screen: less than the 8px a finger has to travel to drag.
+      act(() => {
+        result.current.handleCanvasPointerMove(
+          createMockPointerEvent({
+            clientX: 203,
+            pointerType: 'touch',
+          }),
+        );
+        vi.advanceTimersByTime(500);
+      });
+
+      expect(mockInitializeDragFromSelection).not.toHaveBeenCalled();
+      expect(mockOpenTableContextMenu).toHaveBeenCalledWith(
+        expect.objectContaining({ tableIndex: 0, trigger: 'longpress' }),
+      );
+    });
+
+    it('drags a table once a finger has travelled the threshold', () => {
+      const { result } = getHookResult();
+      const press = createMockPointerEvent({
+        currentTarget: mockTableElement,
+        target: mockTableElement,
+        pointerType: 'touch',
+      });
+
+      act(() => {
+        result.current.handleTablePointerDown(press, 0);
+      });
+      act(() => {
+        result.current.handleCanvasPointerMove(
+          createMockPointerEvent({ clientX: 212, pointerType: 'touch' }),
+        );
+        vi.advanceTimersByTime(500);
+      });
+
+      expect(mockInitializeDragFromSelection).toHaveBeenCalledWith([0], {
+        x: 200,
+        y: 300,
+      });
+      expect(mockOpenTableContextMenu).not.toHaveBeenCalled();
+    });
+
+    it('opens the paste menu through a finger that trembles', () => {
+      mockClipboard = [createMockTable(0)];
+      const { result } = getHookResult();
+
+      act(() => {
+        result.current.beginSelectionWithLongPress(
+          createMockPointerEvent({ pointerType: 'touch' }),
+        );
+      });
+      act(() => {
+        result.current.handleCanvasPointerMove(
+          createMockPointerEvent({ clientY: 304, pointerType: 'touch' }),
+        );
+        vi.advanceTimersByTime(500);
+      });
+
+      expect(mockOpenCanvasContextMenu).toHaveBeenCalledWith(
+        expect.objectContaining({ trigger: 'longpress' }),
+      );
+    });
+
+    it('draws a selection box instead once a finger moves on', () => {
+      mockClipboard = [createMockTable(0)];
+      const { result } = getHookResult();
+
+      act(() => {
+        result.current.beginSelectionWithLongPress(
+          createMockPointerEvent({ pointerType: 'touch' }),
+        );
+      });
+      act(() => {
+        result.current.handleCanvasPointerMove(
+          createMockPointerEvent({ clientX: 240, pointerType: 'touch' }),
+        );
+        vi.advanceTimersByTime(500);
+      });
+
+      expect(mockOpenCanvasContextMenu).not.toHaveBeenCalled();
+    });
+
     it('ignores long press with mouse pointer', () => {
       mockClipboard = [createMockTable(0)];
       const { result } = getHookResult();

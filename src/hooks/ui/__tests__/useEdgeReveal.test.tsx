@@ -58,6 +58,26 @@ describe('useEdgeReveal', () => {
     expect(bar()).toHaveAttribute('data-visible', 'true');
   });
 
+  // At the board a teacher taps, steps back to look and taps again: the bar
+  // that went after 1.5 seconds was gone before the second tap.
+  it('stays up longer after a tap than after the mouse', () => {
+    render(<Bar enabled />);
+
+    act(() => {
+      window.dispatchEvent(
+        new PointerEvent('pointerdown', {
+          clientY: window.innerHeight - 20,
+          pointerType: 'touch',
+        }),
+      );
+    });
+    act(() => vi.advanceTimersByTime(3000));
+    expect(bar()).toHaveAttribute('data-visible', 'true');
+
+    waitLong();
+    expect(bar()).toHaveAttribute('data-visible', 'false');
+  });
+
   it('slides away a moment after the pointer has left the edge', () => {
     render(<Bar enabled />);
 

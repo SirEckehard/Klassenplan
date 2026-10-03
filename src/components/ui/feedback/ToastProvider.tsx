@@ -129,6 +129,25 @@ function handleDismissEvent(
   setToasts((prev) => prev.filter((toast) => toast.id !== id));
 }
 
+function handleDismissType(
+  type: ToastInstance['type'],
+  setToasts: React.Dispatch<React.SetStateAction<ToastInstance[]>>,
+  timers: React.MutableRefObject<Map<string, number>>,
+) {
+  setToasts((prev) => {
+    prev
+      .filter((toast) => toast.type === type)
+      .forEach((toast) => {
+        const timer = timers.current.get(toast.id);
+        if (timer) {
+          window.clearTimeout(timer);
+          timers.current.delete(toast.id);
+        }
+      });
+    return prev.filter((toast) => toast.type !== type);
+  });
+}
+
 function handleDismissAll(
   setToasts: React.Dispatch<React.SetStateAction<ToastInstance[]>>,
   timers: React.MutableRefObject<Map<string, number>>,
@@ -154,6 +173,9 @@ export function ToastProvider({
         case 'dismiss':
           handleDismissEvent(event.id, setToasts, timers);
           break;
+        case 'dismissType':
+          handleDismissType(event.type, setToasts, timers);
+          break;
         case 'dismissAll':
           handleDismissAll(setToasts, timers);
           break;
@@ -170,10 +192,14 @@ export function ToastProvider({
   return (
     <>
       {children}
+      {/* Bottom centre, just above the workspace's status bar: in the top
+          right corner messages lay over Help, the gear and the inspector's
+          head with its arrows and close button. The newest is nearest the
+          bar; the stack grows upwards. */}
       <div
         aria-live="polite"
         aria-atomic="false"
-        className="pointer-events-none fixed inset-x-4 top-6 z-9999 mx-auto flex max-h-svh flex-col items-end gap-3 sm:inset-x-auto sm:right-6"
+        className="pointer-events-none fixed inset-x-4 bottom-18 z-9999 mx-auto flex max-h-svh flex-col items-center justify-end gap-3"
         data-testid="toast-container"
       >
         {toasts.map((toast) => (

@@ -67,8 +67,11 @@ async function measure(relativePath) {
 function initialAssetsFrom(html) {
   const assets = new Set();
 
-  const entry = html.match(/<script[^>]*\bsrc="([^"]+\.js)"/i);
-  if (entry) assets.add(entry[1]);
+  // Every script the page names: the module entry and the classic browser
+  // check beside it (public/browser-check.js), which every visit loads too.
+  for (const match of html.matchAll(/<script[^>]*\bsrc="([^"]+\.js)"/gi)) {
+    assets.add(match[1]);
+  }
 
   for (const match of html.matchAll(
     /<link[^>]*\brel="modulepreload"[^>]*\bhref="([^"]+)"/gi,

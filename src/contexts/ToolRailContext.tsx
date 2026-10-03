@@ -6,6 +6,7 @@ import {
   type UseCollapsibleSidebarOptions,
 } from '@/hooks/ui/useCollapsibleSidebar';
 import { useLayoutMode } from '@/hooks/ui/useLayoutMode';
+import { isBreakpointUp } from '@/hooks/ui/useBreakpoint';
 
 /**
  * Whether the layer's toolbar shows its labels — one answer for the whole
@@ -100,8 +101,28 @@ export function useToolRailState(
   );
 }
 
+/**
+ * Where the toolbar starts out before the teacher chose: with its labels on a
+ * touch screen from `xl` up — an interactive whiteboard — where no tooltip
+ * explains an icon and the room has width to spare; as icons everywhere else.
+ * An iPad in landscape stays at icons, since its plan needs the width the
+ * folded inspector gave it.
+ */
+function startsExpanded(): boolean {
+  if (
+    typeof window === 'undefined' ||
+    typeof window.matchMedia !== 'function'
+  ) {
+    return false;
+  }
+  return window.matchMedia('(pointer: coarse)').matches && isBreakpointUp('xl');
+}
+
 export function ToolRailProvider({ children }: { children: React.ReactNode }) {
-  const value = useToolRailState();
+  // Read once, on the first render: the default decides how a device starts,
+  // the stored choice everything after.
+  const [defaultExpanded] = React.useState(startsExpanded);
+  const value = useToolRailState({ defaultExpanded });
   return (
     <ToolRailContext.Provider value={value}>
       {children}

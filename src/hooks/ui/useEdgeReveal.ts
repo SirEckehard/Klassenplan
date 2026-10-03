@@ -6,6 +6,17 @@ import React from 'react';
 const EDGE_REVEAL_ZONE_PX = 120;
 /** How long the bar stays up once neither the pointer nor the focus holds it. */
 const EDGE_REVEAL_HIDE_DELAY_MS = 1500;
+/**
+ * The same after a tap. A finger does not hover over the bar while the eye
+ * finds the button, and at the board a teacher steps back to look first: the
+ * bar went before the second tap came.
+ */
+const EDGE_REVEAL_TOUCH_HIDE_DELAY_MS = 5000;
+
+const hideDelayFor = (pointerType: string | undefined) =>
+  pointerType === 'touch'
+    ? EDGE_REVEAL_TOUCH_HIDE_DELAY_MS
+    : EDGE_REVEAL_HIDE_DELAY_MS;
 
 /**
  * Whether the keyboard brought the focus here. A click focuses the button it
@@ -31,7 +42,8 @@ const isKeyboardFocus = (target: EventTarget) => {
  * else, while the teacher still needs the controls. The bar comes up when the
  * pointer nears the bottom edge — a tap there does the same on a touch screen —
  * or when the keyboard moves the focus into it, and slides away again a moment
- * after pointer and focus have left it. Disabled, it is simply always up.
+ * after pointer and focus have left it — a longer moment after a tap.
+ * Disabled, it is simply always up.
  *
  * The element the bar lives in takes `barProps`; hiding it (off-screen, no
  * pointer events) is the caller's markup. It stays focusable while hidden, so
@@ -44,21 +56,24 @@ export function useEdgeReveal(enabled: boolean) {
   const focusInsideRef = React.useRef(false);
   const timerRef = React.useRef<number | undefined>(undefined);
 
-  const hideSoon = React.useCallback(() => {
-    window.clearTimeout(timerRef.current);
-    timerRef.current = window.setTimeout(() => {
-      if (!pointerInsideRef.current && !focusInsideRef.current) {
-        setRevealed(false);
-      }
-    }, EDGE_REVEAL_HIDE_DELAY_MS);
-  }, []);
+  const hideSoon = React.useCallback(
+    (delay: number = EDGE_REVEAL_HIDE_DELAY_MS) => {
+      window.clearTimeout(timerRef.current);
+      timerRef.current = window.setTimeout(() => {
+        if (!pointerInsideRef.current && !focusInsideRef.current) {
+          setRevealed(false);
+        }
+      }, delay);
+    },
+    [],
+  );
 
   React.useEffect(() => {
     if (!enabled) return;
     const handlePointer = (event: PointerEvent) => {
       if (window.innerHeight - event.clientY > EDGE_REVEAL_ZONE_PX) return;
       setRevealed(true);
-      hideSoon();
+      hideSoon(hideDelayFor(event.pointerType));
     };
     window.addEventListener('pointermove', handlePointer);
     window.addEventListener('pointerdown', handlePointer);
@@ -79,9 +94,9 @@ export function useEdgeReveal(enabled: boolean) {
       pointerInsideRef.current = true;
       setRevealed(true);
     },
-    onPointerLeave: () => {
+    onPointerLeave: (event: React.PointerEvent<HTMLElement>) => {
       pointerInsideRef.current = false;
-      hideSoon();
+      hideSoon(hideDelayFor(event.pointerType));
     },
     onFocus: (event: React.FocusEvent<HTMLElement>) => {
       if (!isKeyboardFocus(event.target)) return;

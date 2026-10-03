@@ -279,6 +279,7 @@ export {
 export { moveFeaturesBy } from './canvas/featureMovement';
 export { arrowDirection, nearestInDirection } from './canvas/directionalFocus';
 export { releasePointerCaptureIfHeld } from './canvas/pointerCapture';
+export { swallowReleaseClick } from './canvas/releaseClick';
 
 // ===== SEO =====
 export { getRouteMetadata } from './seo/routeMetadata';
@@ -317,7 +318,7 @@ export {
 } from './shortcuts';
 
 // ===== Toasts =====
-export { showToast, TOAST_MESSAGES } from './ui/toast';
+export { showToast, quietSuccessToasts, TOAST_MESSAGES } from './ui/toast';
 export { announcePlanSaved } from './ui/planAnnouncements';
 export {
   getStatisticStatus,

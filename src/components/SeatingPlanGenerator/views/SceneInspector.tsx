@@ -491,7 +491,7 @@ export default function SceneInspector({
       <InspectorBody>
         {orientationSection()}
         <InspectorSection title={t('sceneInspector.display')}>
-          <InspectorRow label={t('sceneInspector.visible')}>
+          <InspectorRow label={t('sceneInspector.visible')} labelsControl>
             <ToggleSwitch
               checked={feature.visible !== false}
               onChange={(visible) => patchFeature(feature.id, { visible })}

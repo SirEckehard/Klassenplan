@@ -146,6 +146,9 @@ export default function StudentNameEditor({
               }
             }}
             onBlur={() => saveName()}
+            // The on-screen keyboard's Enter names what it does here: on to
+            // the next student while there is one, done at the last.
+            enterKeyHint={onSubmit ? 'next' : 'done'}
             className={`${inputFieldClass} w-full px-3 py-1.5 pr-14`}
             autoFocus
           />

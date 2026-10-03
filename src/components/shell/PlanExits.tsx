@@ -42,14 +42,15 @@ export function useGuardedPlanExits() {
  * buttons.
  *
  * The words show from `xl` up; below they are icons with their names in the
- * tooltip. A phone's status bar has no room left for them, so it finds both
- * at the foot of its tool sheet (`ToolRail`).
+ * tooltip. A touch screen shows no tooltip, so there the words come from `lg`
+ * up, an iPad in landscape included. A phone's status bar has no room left
+ * for them, so it finds both at the foot of its tool sheet (`ToolRail`).
  */
 export default function PlanExits() {
   const { t } = useTranslation('generator');
   const { onExport, onPresent, canExit } = useGuardedPlanExits();
 
-  const buttonClass = `${secondaryButtonClass} h-9 gap-2 px-2.5 text-sm whitespace-nowrap xl:px-3 ${
+  const buttonClass = `${secondaryButtonClass} h-9 gap-2 px-2.5 text-sm whitespace-nowrap lg:pointer-coarse:px-3 xl:px-3 ${
     canExit ? '' : 'opacity-60'
   }`;
 
@@ -68,7 +69,9 @@ export default function PlanExits() {
         className={buttonClass}
       >
         <ExportIcon className="h-4 w-4" aria-hidden="true" />
-        <span className="hidden xl:inline">{t('actions.export')}</span>
+        <span className="hidden lg:pointer-coarse:inline xl:inline">
+          {t('actions.export')}
+        </span>
       </button>
       <button
         type="button"
@@ -79,7 +82,9 @@ export default function PlanExits() {
         className={buttonClass}
       >
         <ChalkboardTeacherIcon className="h-4 w-4" aria-hidden="true" />
-        <span className="hidden xl:inline">{t('present.button')}</span>
+        <span className="hidden lg:pointer-coarse:inline xl:inline">
+          {t('present.button')}
+        </span>
       </button>
     </div>
   );

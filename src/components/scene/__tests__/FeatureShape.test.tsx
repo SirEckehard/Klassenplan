@@ -106,7 +106,7 @@ describe('FeatureShape', () => {
     const active = renderShape(feature, { isActive: true });
     expect(
       getGroup(active.container).querySelector('rect')?.getAttribute('stroke'),
-    ).toBe('#3b82f6');
+    ).toBe('var(--canvas-selection)');
   });
 
   it('renders sharp corners with an inside-clipped border', () => {

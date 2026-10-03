@@ -40,6 +40,18 @@ export default defineConfig({
       testMatch: /touch-layouts\.spec\.ts/,
       grep: /@phone/,
     },
+    {
+      // An interactive whiteboard: a wide screen and only a finger. It gets
+      // the desktop layout, which the mouse-driven specs walk without touch.
+      name: 'whiteboard',
+      use: {
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1920, height: 1080 },
+        hasTouch: true,
+      },
+      testMatch: /touch-layouts\.spec\.ts/,
+      grep: /@whiteboard/,
+    },
   ],
   webServer: {
     // The port is passed explicitly: `vite.config.ts` serves on 3000, and Vite

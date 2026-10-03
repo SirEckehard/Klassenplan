@@ -206,6 +206,21 @@
   --canvas-bg: #ffffff;
   --canvas-border: #e3dfd6;
   --canvas-shadow: 0 1px 2px rgba(23, 24, 26, 0.05);
+  /*
+   * The room editor's own marks, which no export carries. Selection is the
+   * one accent, the blue that says "you act here" everywhere else; the
+   * drawing used to select in two other blues of its own. Guides stay amber
+   * so they never read as a selection, a predicted photo collision is the
+   * alert.
+   */
+  --canvas-selection: var(--focus-ring-primary);
+  --canvas-selection-fill: color-mix(
+    in srgb,
+    var(--focus-ring-primary) 15%,
+    transparent
+  );
+  --canvas-guide: #f59e0b;
+  --canvas-alert: var(--status-alert);
 
   /*
    * The glass look is gone; the variables stay so the utilities that reference
@@ -383,6 +398,7 @@
     --canvas-bg: #181a1d;
     --canvas-border: #2a2d31;
     --canvas-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --canvas-guide: #fbbf24;
 
     --data-behavior: #d98634;
     --data-behavior-text: #f0b878;
