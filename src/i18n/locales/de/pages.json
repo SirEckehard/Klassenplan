@@ -8,7 +8,7 @@
     "faqLink": "Häufige Fragen",
     "contactLink": "Nachricht schreiben",
     "layers": {
-      "eyebrow": "So funktioniert's!",
+      "eyebrow": "So funktioniert's",
       "title": "Alles im Blick",
       "intro": "Klassenliste, Klassenraum und Sitzplan. Ein Klick wechselt die Ebene, und nichts geht dabei verloren.",
       "classText": "Trage Schüler ein oder importiere eine vorhandene CSV-Tabelle mit deiner Klasse. Merkmale kannst du schnell mit Fragen beantworten, wie z. B. {{question}}",
@@ -17,13 +17,13 @@
       "exits": "Danach präsentierst du den Plan direkt an der digitalen Tafel oder exportierst ihn als PDF."
     },
     "criteria": {
-      "eyebrow": "Was der Plan beachtet!",
+      "eyebrow": "Was der Plan beachtet",
       "title": "Eine Vielzahl an Kriterien für jede Klasse",
       "intro": "Wähle für jeden Schüler die passenden Merkmale aus. Rezepte wie {{recipes}} helfen dir für jede Situation den richtigen Sitzplan zu finden.",
       "historyGroup": "Verlauf"
     },
     "why": {
-      "eyebrow": "Warum Klassenplan?",
+      "eyebrow": "Warum Klassenplan",
       "title": "Für den Unterricht, nicht für die Cloud",
       "privacy": "Fokus auf Datenschutz",
       "privacyDescription": "DSGVO-konform in Deutschland gehostet, kein Konto, keine Cloud, funktioniert vollständig offline & ist installierbar als Webapp.",
@@ -83,7 +83,7 @@
       },
       "share": {
         "title": "Weitersagen",
-        "text": "Erzähl im Kollegium davon – je mehr Lehrkräfte Klassenplan nutzen, desto mehr Rückmeldungen fließen ein."
+        "text": "Erzähl im Kollegium davon – je mehr Lehrkräfte Klassenplan nutzen, desto mehr Rückmeldungen können einfließen."
       }
     }
   },
@@ -131,7 +131,6 @@
     "disclaimer": {
       "title": "Was Sitzpläne leisten können – und was nicht?",
       "body": "Klassenplan ist ein Werkzeug zur Unterstützung deiner pädagogischen Arbeit, kein Ersatz dafür. Sitzordnungen haben laut Bildungsforschung einen kleinen, aber messbaren Effekt auf das Lernverhalten.",
-      "researchNote": "Zur Einordnung: Übersichtsarbeiten finden Effekte, die vom Ziel der Stunde abhängen – Tischreihen unterstützen konzentrierte Einzelarbeit, besonders bei unruhigen Schülern, Gruppentische den Austausch (Wannarka & Ruhl, 2008). Der Sitzplan ist ein Baustein unter vielen.",
       "callToAction": "Die von Klassenplan erstellten Sitzpläne sind Ausgangspunkte, keine fertigen Lösungen. Deine pädagogische Einschätzung ist entscheidend."
     },
     "allgemein": {
@@ -139,7 +138,7 @@
       "description": "Algorithmus, Datenschutz und Offline-Nutzung im Überblick.",
       "algo_intro": {
         "q": "Was macht der Mischalgorithmus überhaupt?",
-        "a": "Der Algorithmus verteilt deine Klasse anhand gewichteter Kriterien auf alle verfügbaren Plätze. Er startet mit einer heuristischen Erstbelegung und verfeinert sie in mehreren Durchläufen. Dabei berücksichtigt er Wunsch- und Distanzpartner, besondere Bedürfnisse, Körpergrößen, Fenster-/Türpräferenzen & weiteres."
+        "a": "Der Algorithmus verteilt deine Klasse anhand gewichteter Kriterien auf alle verfügbaren Plätze. Er startet mit einer heuristischen Erstbelegung und verfeinert sie in mehreren Durchläufen. Dabei berücksichtigt er die ausgewählten Kriterien, wie Wunsch- und Distanzpartner, besondere Bedürfnisse, Körpergrößen, Fenster-/Türpräferenzen & Weiteres."
       },
       "algo_neighbors": {
         "q": "Wie bewertet der Algorithmus Nachbarn?",
@@ -171,15 +170,15 @@
       },
       "csv": {
         "q": "Wie importiere ich eine bestehende Klassenliste?",
-        "a": "Über „Klassenliste importieren“ lädst du eine CSV-Datei hoch, wie du sie aus Excel, LibreOffice, Numbers oder Google Tabellen speichern kannst. Eine Liste aus deinem Schulverwaltungsprogramm – etwa WebUntis, Schulmanager oder SchILD – kannst du meist unverändert hochladen: Klassenplan erkennt die üblichen Spaltennamen, liest auch unter Windows gespeicherte Umlaute richtig und überspringt eine Titelzeile über den Überschriften. Pflicht ist nur eine Namensspalte – „Name“, „Vorname“ oder „Nachname“; alle weiteren Spalten wie Geschlecht, Unruhig, Fensterplatz oder Wunschpartner sind freiwillig, unbekannte Spalten werden ignoriert. Klicke auf „So sieht die Datei aus“, um ein Beispiel zu sehen, oder lade die CSV-Vorlage herunter, die du zum Ausfüllen nutzen kannst. Enthält deine Datei mehrere Namensspalten oder mehrere Klassen, fragt Klassenplan vor dem Import, was übernommen werden soll."
+        "a": "Über „Klassenliste importieren“ lädst du eine CSV-Datei hoch, wie du sie aus Excel, LibreOffice, Numbers oder Google Tabellen speichern kannst. Eine Liste aus deinem Schulverwaltungsprogramm – etwa WebUntis, Schulmanager oder SchILD – kannst du meist unverändert hochladen: Klassenplan erkennt die üblichen Spaltennamen und überspringt eine Titelzeile über den Überschriften. Pflicht ist nur eine Namensspalte – „Name“, „Vorname“ oder „Nachname“; alle weiteren möglichen Spalten wie Geschlecht, Unruhig, Fensterplatz oder Wunschpartner sind freiwillig, unbekannte Spalten werden ignoriert. Klicke auf „So sieht die Datei aus“, um ein Beispiel zu sehen, oder lade die CSV-Vorlage herunter, die du zum Ausfüllen nutzen kannst. Enthält deine Datei mehrere Namensspalten oder mehrere Klassen, fragt Klassenplan vor dem Import, was übernommen werden soll."
       },
       "photos": {
         "q": "Kann ich Fotos meiner Schüler hinterlegen?",
-        "a": "Ja. Klicke einen Schüler in der Klassenliste an; im Inspektor rechts fügst du über sein Porträt ein Foto hinzu. Die Bilder werden verkleinert und ausschließlich lokal auf diesem Gerät gespeichert – sie werden nie übertragen. Für den Einsatz von Schülerfotos brauchst du das Einverständnis von Schulleitung, Schülern und Eltern. Fotos lassen sich im Sitzplan, im Präsentiermodus und im Export ein- und ausblenden und schalten das Namensspiel frei."
+        "a": "Ja. Klicke einen Schüler in der Klassenliste an; im Inspektor rechts fügst du über sein Porträt ein Foto hinzu. Die Bilder werden verkleinert und ausschließlich lokal auf diesem Gerät gespeichert – sie werden nie übertragen. Für den Einsatz von Schülerfotos brauchst du das Einverständnis von Schulleitung, Schülern und Eltern. Fotos lassen sich im Sitzplan, im Präsentiermodus und im Export ein- und ausblenden und schalten das Namensspiel zum Lernen der Namen frei."
       },
       "focusMode": {
         "q": "Wie setze ich ein Merkmal schnell für die ganze Klasse?",
-        "a": "Mit dem Merkmal-Modus in der Werkzeugleiste unter „Ansicht“. Er stellt eine Frage an alle – etwa „Wer zeigt Unruhe?“ – und du tippst die Schüler an, auf die sie zutrifft. Danach geht es zum nächsten Merkmal, bis alle Ja/Nein-Merkmale der Klasse gesetzt sind."
+        "a": "Mit dem Merkmal-Modus in der Werkzeugleiste unter „Ansicht“. Er stellt eine Frage an alle – etwa „Wer zeigt Unruhe?“ – und du tippst die Schüler an, auf die das aktuell zutrifft. Danach geht es zum nächsten Merkmal, bis alle Ja/Nein-Merkmale der Klasse gesetzt sind."
       },
       "bulk": {
         "q": "Wie bearbeite ich mehrere Schüler auf einmal?",
@@ -191,13 +190,13 @@
       },
       "nameGame": {
         "q": "Was ist das Namensspiel?",
-        "a": "Das Namensspiel hilft dir, die Namen einer neuen Klasse zu lernen. Es nutzt nur Schüler mit Foto und bietet ein Foto-Quiz (Name zum Foto finden oder umgekehrt, unsichere Namen kommen häufiger dran) sowie ein Memory aus Foto- und Namenskarten. Der Lernfortschritt bleibt lokal auf deinem Gerät. Du startest es in der Werkzeugleiste unter „Klassenwerkzeuge“ – auf jeder Ebene."
+        "a": "Das Namensspiel hilft dir, die Namen einer neuen Klasse zu lernen. Es nutzt nur Schüler mit Foto und bietet ein Foto-Quiz (Name zum Foto finden oder umgekehrt, unsichere Namen kommen häufiger dran) sowie ein Memory aus Foto- und Namenskarten. Der Lernfortschritt bleibt lokal auf deinem Gerät. Du startest es in der Werkzeugleiste unter „Klassenwerkzeuge“."
       }
     },
     "eigenschaften": {
       "title": "Schülereigenschaften & Kriterien",
       "description": "Übersicht aller Eigenschaften und wie der Algorithmus sie verwendet.",
-      "intro": "Für jeden Schüler hinterlegst du in der Ebene Klasse Eigenschaften – im Inspektor oder für alle auf einmal im Merkmal-Modus. Beim Mischen im Sitzplan fließen sie über die Kriterien ein. Die Übersicht zeigt alle Eigenschaften, was sie bedeuten und was der Algorithmus daraus macht.",
+      "intro": "Für jeden Schüler hinterlegst du in der Klasse Eigenschaften – im Inspektor oder schneller im Merkmal-Modus. Beim Mischen im Sitzplan fließen sie über die dort ausgewählten Kriterien ein. Die Übersicht zeigt alle Eigenschaften, was sie bedeuten und was der Algorithmus daraus macht.",
       "algorithmLabel": "Beim Mischen:",
       "props": {
         "gender": {
@@ -301,7 +300,7 @@
       "description": "Tische und Raumelemente, Vorlagen, Abstände und Grenzen.",
       "best": {
         "q": "Welche Layouts funktionieren am besten?",
-        "a": "Lass deiner Kreativität freien Lauf: Tische, Fenster, Türen, Pult, Tafel und Schränke ziehst du aus der Werkzeugleiste in den Raum oder setzt sie mit einem Klick an einen freien Platz und verschiebst sie frei. Solange nichts ausgewählt ist, baut dir „Neu einrichten“ im Inspektor in einem Schritt einen Grundriss, und unter „Vorlagen“ hebst du ihn für andere Klassen auf. Der Sitzkreis bleibt mit dem Tischlayout synchron und lässt sich separat anpassen."
+        "a": "Lass deiner Kreativität freien Lauf: Tische, Fenster, Türen, Pult, Tafel und Schränke ziehst du aus der Werkzeugleiste in den Raum oder setzt sie mit einem Klick an einen freien Platz und verschiebst sie frei. Solange nichts ausgewählt ist, baut dir „Neu einrichten“ im Inspektor in einem Schritt einen Grundriss, und unter „Vorlagen“ hebst du ihn für andere Klassen auf. Der Sitzkreis bleibt standardmäßig mit dem Tischlayout synchron, lässt sich aber auch separat anpassen."
       },
       "measure": {
         "q": "Wie werden Abstände gemessen?",
@@ -309,7 +308,7 @@
       },
       "limits": {
         "q": "Gibt es Grenzen bei Schülern und Sitzplätzen?",
-        "a": "Ja. Klassenplan ist auf maximal 36 Schüler ausgelegt. Die Statusleiste zeigt im Raum, ob die Plätze für alle reichen und wie viele fehlen."
+        "a": "Ja. Klassenplan ist auf maximal 36 Schüler ausgelegt. Die Statusleiste zeigt im Raum, ob die Plätze für alle reichen."
       }
     },
     "settings": {
@@ -375,8 +374,8 @@
         "usage2": "Einen Sitzplan drucken oder als PDF, PNG oder SVG exportieren",
         "usage3": "Einen Sitzplan unter einem selbst gewählten Namen speichern",
         "usage4": "Plätze im Sitzplan von Hand tauschen",
-        "usageOutro": "Gespeichert werden dabei nur die Sitznachbarschaften und ein Zeitstempel, ausschließlich lokal auf deinem Gerät – ohne Cloud, ohne Statistik-Dienst. Beim ersten starken Signal fragt ein kurzer Hinweis nach: Wenn es doch nur ein Test war, nimmst du den Plan mit einem Klick wieder aus der Wertung.",
-        "weightNote": "Für die Wiederholungsvermeidung zählen diese echten Sitzpläne zuerst; reine Mischungen aus der laufenden Sitzung gehen nur noch halb so stark ein. So kann eine lange Probier-Runde das Ergebnis nicht mehr überlagern.",
+        "usageOutro": "Gespeichert werden dabei nur die Sitznachbarschaften und ein Zeitstempel, ausschließlich lokal auf deinem Gerät. Beim ersten starken Signal fragt ein kurzer Hinweis nach: Wenn es doch nur ein Test war, nimmst du den Plan mit einem Klick wieder aus der Wertung.",
+        "weightNote": "Für die Wiederholungsvermeidung zählen diese echten Sitzpläne zuerst; reine Mischungen aus der laufenden Sitzung gehen nur noch halb so stark ein. So sollte eine lange Probier-Runde das Ergebnis nicht mehr überlagern.",
         "viewNote": "Unter „Pläne & Verlauf“ in der Werkzeugleiste zeigt der Reiter „Nachbarschaften“, wer schon wie oft nebeneinander saß – samt Datengrundlage, aus der du einzelne Pläne herausnehmen kannst. „Zurücksetzen“ vergisst alle bisherigen Nachbarschaften auf einmal, etwa zum neuen Schuljahr."
       }
     },
@@ -389,7 +388,7 @@
         "li1": "Wichtige Kriterien auf „Wichtig“ oder „Sehr wichtig“ stellen – oder ein passendes Rezept wählen",
         "li2": "Mehrfach mischen, um unterschiedliche Zufallsstarts zu nutzen",
         "li3": "Einzelne Plätze manuell via Drag & Drop anpassen und bei Bedarf sperren, sodass der Algorithmus diese nicht mehr verändert.",
-        "li4": "Eine misslungene Mischung mit Strg/⌘+Z zurücknehmen oder unter „Pläne & Verlauf“ ein früheres Ergebnis laden"
+        "li4": "Eine misslungene Mischung mit „Rückgängig“ (Strg/⌘+Z) zurücknehmen oder unter „Pläne & Verlauf“ ein früheres Ergebnis laden"
       }
     },
     "unterricht": {
@@ -397,27 +396,27 @@
       "description": "Digitale Tafel, Sitzkreis, Ausdruck und die drei Werkzeuge für den Unterricht.",
       "present": {
         "q": "Wie funktioniert der Präsentiermodus?",
-        "a": "„Präsentieren“ rechts in der Statusleiste – auf dem Handy in der Werkzeugleiste – zeigt den Sitzplan oder Sitzkreis groß an der digitalen Tafel. Alle Bedienelemente liegen in einer Leiste unter dem Plan: Lehrer- oder Schüleransicht (sie dreht den Plan aus Sicht der Klasse), Plan oder Kreis, Fotos, Farben, Raumelemente, ein Kontrastmodus für helle Räume und die Größe. An der Tafel stehen Vornamen, unabhängig davon, wie du die Namen im Editor zeigst. Im Vollbild (Taste F) verschwindet die Leiste und erscheint wieder, sobald du mit dem Zeiger an den unteren Rand fährst oder dort tippst."
+        "a": "„Präsentieren“ rechts in der Statusleiste – auf dem Handy in der Werkzeugleiste – zeigt den Sitzplan oder Sitzkreis groß an der digitalen Tafel. Alle Bedienelemente liegen in einer Leiste unter dem Plan: Lehrer- oder Schüleransicht (sie dreht den Plan aus Sicht der Klasse), Plan oder Kreis, Fotos, Farben, Raumelemente, ein Kontrastmodus für helle Räume und die Größe. Im Vollbild (Taste F) verschwindet die Leiste und erscheint wieder, sobald du mit dem Zeiger an den unteren Rand fährst oder dort tippst."
       },
       "tools": {
         "q": "Was sind „Wer kommt dran?“, „Wo sitzt wer?“ und „Gruppen bilden“?",
-        "a": "Drei Werkzeuge für den Unterricht, jedes eine eigene Seite, die sich auch im Stehen am Tablet oder Handy bedienen lässt. „Wer kommt dran?“ zieht zufällig einen Schüler, wobei jeder einmal drankommt, bevor sich jemand wiederholt. „Wo sitzt wer?“ findet einen Schüler im Raum. „Gruppen bilden“ lost Gruppen aus der Klasse aus und trennt dabei nach Möglichkeit Distanzwünsche. Du öffnest sie in der Werkzeugleiste unter „Klassenwerkzeuge“ – auf jeder Ebene –, „Gruppen bilden“ auch aus dem Präsentiermodus. Gespeichert wird dabei nichts."
+        "a": "Drei Werkzeuge für den Unterricht, die sich auch gut am Tablet oder Handy bedienen lassen. „Wer kommt dran?“ zieht zufällig einen Schüler, wobei jeder einmal drankommt, bevor sich jemand wiederholt. „Wo sitzt wer?“ findet einen Schüler im Raum. „Gruppen bilden“ lost Gruppen aus der Klasse aus und trennt dabei nach Möglichkeit Distanzwünsche. Du öffnest sie in der Werkzeugleiste unter „Klassenwerkzeuge“."
       },
       "circle": {
         "q": "Wie funktioniert der Sitzkreis-Modus?",
-        "a": "Im Sitzplan wählst du in der Werkzeugleiste unter „Ansicht“ den „Sitzkreis“. Klassenplan berechnet automatisch einen passenden Kreis und koppelt ihn an deinen aktuellen Sitzplan. Du kannst die Plätze im Sitzkreis per Drag & Drop anpassen, ohne den Sitzplan zu verändern, und ihn separat präsentieren oder exportieren."
+        "a": "Im Sitzplan wählst du in der Werkzeugleiste unter „Ansicht“ den „Sitzkreis“. Klassenplan erstellt automatisch einen passenden Kreis und koppelt ihn an deinen aktuellen Sitzplan. Du kannst die Plätze im Sitzkreis per Drag & Drop anpassen, ohne den Sitzplan zu verändern, und ihn separat präsentieren oder exportieren."
       },
       "exportFormats": {
         "q": "In welchen Formaten kann ich den Sitzplan exportieren?",
-        "a": "Die Exportseite speichert PDF, PNG und SVG und druckt direkt – praktisch für Elternbriefe, Vertretungsmappen oder das Schulportal. Sitzplan oder Sitzkreis wählst du in der Werkzeugleiste unter „Ansicht“, jeweils im Hoch- oder Querformat."
+        "a": "Die Exportseite speichert PDF, PNG und SVG und druckt direkt – praktisch für Elternbriefe, Vertretungsmappen oder das Schulportal. Sitzplan oder Sitzkreis wählst du in der Werkzeugleiste unter „Ansicht“, die Darstellung passt du im Inspektor an."
       },
       "print": {
         "q": "Ich möchte den Sitzplan ausdrucken und die Tafel als Orientierungshilfe unten angezeigt haben. Geht das?",
-        "a": "Ja. Stelle auf der Exportseite rechts unter „Seitenformat“ die Ausrichtung auf „Hochformat“ und lass unter „Raumelemente“ die Tafel eingeschaltet. Sitzt dein Pult hinten im Raum, stellst du die Blickrichtung auf „Von hinten“: Der Plan dreht sich um 180°, die Namen bleiben lesbar. So behältst du auch auf dem Ausdruck die Orientierung im Klassenraum."
+        "a": "Ja. Stelle auf der Exportseite rechts unter „Seitenformat“ die Ausrichtung auf „Hochformat“ und lass unter „Raumelemente“ die Tafel eingeschaltet. Sitzt dein Pult hinten im Raum, stellst du die Blickrichtung auf „Von hinten“. So behältst du auch auf dem Ausdruck die Orientierung im Klassenraum."
       },
       "names": {
-        "q": "Die Namen sind auf dem Plan zu lang – was kann ich tun?",
-        "a": "Im Sitzplan unter „Ansichtseinstellungen › Namen“, im Präsentiermodus und auf der Exportseite unter „Namen“ legst du fest, wie Namen erscheinen: nur Vorname, Vorname + Initial des Nachnamens oder Vor- und Nachname. Namen, die gleich aussähen, unterscheidet Klassenplan von selbst – aus „Frida Ehrmann“ und „Frida Emmerich“ werden „Frida Eh.“ und „Frida Em.“."
+        "q": "Die Namen sind auf dem Plan zu lang und zu klein – was kann ich tun?",
+        "a": "Im Sitzplan unter „Ansichtseinstellungen › Namen“, im Präsentiermodus und auf der Exportseite unter „Namen“ legst du fest, wie Namen erscheinen: nur Vorname, Vorname + Initial des Nachnamens oder Vor- und Nachname. Namen, die gleich aussähen, unterscheidet Klassenplan von selbst – aus „Frida Ehrmann“ und „Frida Emmerich“ werden „Frida Eh.“ und „Frida Em.“. Größer werden die Namen auch, wenn weniger auf den Plätzen steht: Die Merkmale blendest du im Sitzplan unter „Ansichtseinstellungen › Merkmale“ aus, im Präsentiermodus über „Merkmale“ in der Leiste und auf der Exportseite im Inspektor unter „Merkmale auf dem Blatt“. Lass dort außerdem „Anzeige vergrößern“ eingeschaltet, dann füllen die Tische das Blatt."
       }
     },
     "oberflaeche": {
@@ -425,15 +424,15 @@
       "description": "Dark Mode, Tastenkürzel, Rückgängig, Tour, Tablet und Installation.",
       "undo": {
         "q": "Kann ich Änderungen rückgängig machen?",
-        "a": "Ja, in allen drei Ebenen: in der Klassenliste, im Raum und im Sitzplan und Sitzkreis – so kommt z. B. ein versehentlich gelöschter Schüler samt Foto zurück. Die Pfeile in der Mitte der Statusleiste nehmen Änderungen zurück und stellen sie wieder her, ebenso Strg/⌘+Z und Strg/⌘+Umschalt+Z."
+        "a": "Ja, in der Klassenliste, im Raum und im Sitzplan und Sitzkreis – so kommt z. B. ein versehentlich gelöschter Schüler samt Foto zurück. Die Pfeile in der Mitte der Statusleiste nehmen Änderungen zurück und stellen sie wieder her, ebenso Strg/⌘+Z und Strg/⌘+Umschalt+Z."
       },
       "shortcuts": {
         "q": "Welche Tastenkürzel gibt es?",
-        "a": "Viele – etwa Strg/⌘+C, V und X zum Kopieren, Einfügen und Ausschneiden von Tischen oder Strg/⌘+B, um die Werkzeugleiste ein- und auszuklappen. Das Fragezeichen oben rechts zeigt unter „Tastenkürzel“ alle Kürzel der aktuellen Ebene; die Taste ? öffnet es direkt."
+        "a": "Viele – etwa Strg/⌘+C, V und X zum Kopieren, Einfügen und Ausschneiden von Tischen oder Strg/⌘+B, um die Werkzeugleiste ein- und auszuklappen. Das Fragezeichen oben rechts zeigt unter „Tastenkürzel“ alle Kürzel der aktuellen Ebene; die Taste ? öffnet die Hilfe direkt."
       },
       "tour": {
         "q": "Gibt es eine Einführung in die Bedienung?",
-        "a": "Ja. Beim ersten Besuch zeigt dir eine kurze Tour in jeder Ebene die wichtigsten Stellen – von der Klassenauswahl über die Werkzeugleiste bis zu den Kriterien und dem Sitzkreis. Die Tour blockiert nichts: Du kannst jederzeit weiterarbeiten, sie mit Esc schließen oder mit „Nicht mehr zeigen“ ganz abschalten. Über das Fragezeichen oben rechts startest du die Tour der aktuellen Ebene jederzeit neu – dort führt auch ein Weg zu diesen Fragen."
+        "a": "Ja. Beim ersten Besuch zeigt dir eine kurze Tour in jeder Ebene die wichtigsten Stellen – von der Klassenauswahl über die Werkzeugleiste bis zu den Kriterien und dem Sitzkreis. Die Tour blockiert nichts: Du kannst jederzeit weiterarbeiten, sie mit Esc schließen oder mit „Nicht mehr zeigen“ ganz abschalten. Über das Fragezeichen oben rechts startest du die Tour der aktuellen Ebene jederzeit neu."
       },
       "dark": {
         "q": "Gibt es einen Dark Mode?",
@@ -441,7 +440,7 @@
       },
       "tablet": {
         "q": "Kann ich Klassenplan am Tablet oder Whiteboard nutzen?",
-        "a": "Ja. Am Tablet und an der digitalen Tafel geht alles mit dem Finger: Tische ziehen, Schüler tauschen, langes Drücken öffnet im Raum das Kontextmenü. Klassenplan braucht einen aktuellen Browser – Chrome oder Edge ab Version 111, Safari ab 16.4, Firefox ab 128. Ist der eingebaute Browser einer Tafel älter, nimm Chrome oder Edge auf dem Tafel-PC. Auf dem Smartphone sind die drei Werkzeuge „Wer kommt dran?“, „Wo sitzt wer?“ und „Gruppen bilden“ für den Unterricht gedacht; Klasse und Raum richtest du besser an einem größeren Bildschirm ein."
+        "a": "Ja. Am Tablet und an der digitalen Tafel geht alles mit dem Finger: Tische ziehen, Schüler tauschen, langes Drücken öffnet im Raum das Kontextmenü. Klassenplan braucht einen aktuellen Browser – Chrome oder Edge ab Version 111, Safari ab 16.4, Firefox ab 128. Ist der eingebaute Browser einer Tafel älter, versuche es mit Chrome oder Edge auf dem Tafel-PC. Auf dem Smartphone sind die drei Werkzeuge „Wer kommt dran?“, „Wo sitzt wer?“ und „Gruppen bilden“ für den Unterricht gedacht; Klasse und Raum richtest du besser an einem größeren Bildschirm ein."
       },
       "pwa": {
         "q": "Kann ich Klassenplan wie eine App installieren?",

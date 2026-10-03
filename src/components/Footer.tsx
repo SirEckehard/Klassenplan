@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import React, { lazy, Suspense, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   HandHeartIcon,
   GearIcon,
@@ -18,18 +18,22 @@ import { LocalizedLink } from './LocalizedLink';
 import { LegalPageLink } from './LegalPageLink';
 import { menuSurfaceClass } from '@/utils';
 import { GITHUB_REPO_URL } from '@/config/links';
-
-// Behind a menu in both places it appears, so the storage dialogs, the confirm
-// dialog and their icons stay out of the cold-start payload.
-const AppSettingsItems = lazy(
-  () => import('@/components/ui/navigation/AppSettingsItems'),
-);
+import { appSettingsItems } from '@/components/ui/navigation/appSettingsItemsModule';
+import { useStorageHistoryModal } from '@/components/ui/navigation/useStorageHistoryModal';
+import { reportChunkLoadFailure } from '@/utils/performance/chunkLoad';
 import { getAppVersion } from '@/utils/version';
 import { useDialogLayer } from '@/hooks/ui/useDialogLayer';
 
 const Footer: React.FC = () => {
   const { t } = useTranslation('common');
   const [menuOpen, setMenuOpen] = useState(false);
+  // Behind a menu in both places it appears, so the confirm dialog and the
+  // icons stay out of the cold-start payload.
+  const [settingsItems, setSettingsItems] = useState(appSettingsItems.get);
+  // The dialogs the entries open live beside the menu, not in it: choosing an
+  // entry closes the menu, and a dialog inside it would close with it.
+  const [clearAllOpen, setClearAllOpen] = useState(false);
+  const history = useStorageHistoryModal();
   // The settings menu owns Escape while it is open; the views underneath check
   // the layer registry before acting on it.
   useDialogLayer(menuOpen);
@@ -56,6 +60,27 @@ const Footer: React.FC = () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, [menuOpen]);
+
+  // The menu holds nothing but the lazy entries, so it opens once they are
+  // there. Offline, where no service worker serves the page, a message says
+  // why it does not.
+  const toggleMenu = () => {
+    if (menuOpen) {
+      setMenuOpen(false);
+      return;
+    }
+    appSettingsItems.load().then(
+      (module) => {
+        setSettingsItems(module);
+        setMenuOpen(true);
+      },
+      (error: unknown) => {
+        reportChunkLoadFailure(error, 'Footer');
+      },
+    );
+  };
+  const SettingsItems = settingsItems?.default;
+  const ClearAllDataDialog = settingsItems?.ClearAllDataDialog;
 
   const linkClass =
     'inline-flex min-h-9 sm:min-h-11 items-center gap-1 text-(--text-badge) hover:text-(--text-badge) font-medium transition px-1.5 py-1 sm:px-3 sm:py-2 text-xs sm:text-sm rounded whitespace-nowrap';
@@ -170,7 +195,7 @@ const Footer: React.FC = () => {
         <div className="relative" ref={menuRef}>
           <button
             type="button"
-            onClick={() => setMenuOpen((open) => !open)}
+            onClick={toggleMenu}
             className="group flex items-center p-1.5 rounded hover:bg-(--surface-option-selected) transition-colors cursor-pointer"
             aria-label={t('footer.settings')}
             title={t('footer.settings')}
@@ -179,16 +204,25 @@ const Footer: React.FC = () => {
           >
             <GearIcon className="h-4 w-4 text-(--text-badge) group-hover:text-(--text-badge) transition-colors" />
           </button>
-          {menuOpen && (
+          {menuOpen && SettingsItems && (
             <div
               role="menu"
               aria-label={t('footer.settings')}
               className={`${menuSurfaceClass} absolute right-0 bottom-full mb-2 min-w-56 p-1`}
             >
-              <Suspense fallback={null}>
-                <AppSettingsItems onDone={() => setMenuOpen(false)} />
-              </Suspense>
+              <SettingsItems
+                onDone={() => setMenuOpen(false)}
+                onShowHistory={history.show}
+                onClearAllData={() => setClearAllOpen(true)}
+              />
             </div>
+          )}
+          {history.modal}
+          {ClearAllDataDialog && (
+            <ClearAllDataDialog
+              open={clearAllOpen}
+              onClose={() => setClearAllOpen(false)}
+            />
           )}
         </div>
       </div>

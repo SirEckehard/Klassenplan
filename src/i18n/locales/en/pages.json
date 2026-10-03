@@ -8,7 +8,7 @@
     "faqLink": "FAQ",
     "contactLink": "Send a message",
     "layers": {
-      "eyebrow": "How it works!",
+      "eyebrow": "How it works",
       "title": "Everything at a glance",
       "intro": "Class list, classroom and seating plan. One click switches the layer, and nothing gets lost on the way.",
       "classText": "Type in your students or import an existing CSV file of your class. You set attributes quickly by answering questions such as {{question}}",
@@ -17,13 +17,13 @@
       "exits": "Then present the plan right on the interactive whiteboard or export it as a PDF."
     },
     "criteria": {
-      "eyebrow": "What the plan considers!",
+      "eyebrow": "What the plan considers",
       "title": "A wide range of criteria for every class",
       "intro": "Choose the right attributes for each student. Recipes such as {{recipes}} help you find the right seating plan for every situation.",
       "historyGroup": "History"
     },
     "why": {
-      "eyebrow": "Why Klassenplan?",
+      "eyebrow": "Why Klassenplan",
       "title": "For the classroom, not for the cloud",
       "privacy": "Focus on data protection",
       "privacyDescription": "GDPR-compliant, hosted in Germany, no account, no cloud, works fully offline & can be installed as a web app.",
@@ -83,7 +83,7 @@
       },
       "share": {
         "title": "Spread the word",
-        "text": "Tell your colleagues – the more teachers use Klassenplan, the more feedback flows into it."
+        "text": "Tell your colleagues – the more teachers use Klassenplan, the more feedback can flow into it."
       }
     }
   },
@@ -131,7 +131,6 @@
     "disclaimer": {
       "title": "What seating plans can achieve – and what they can't?",
       "body": "Klassenplan is a tool to support your teaching practice, not a replacement for it. Research shows that seating arrangements have a small but measurable effect on learning behavior.",
-      "researchNote": "For context: reviews find effects that depend on the lesson’s goal – rows support focused individual work, especially for restless students, while clusters support exchange (Wannarka & Ruhl, 2008). The seating plan is one piece of the puzzle.",
       "callToAction": "The seating plans created by Klassenplan are starting points, not finished solutions. Your pedagogical assessment is decisive."
     },
     "allgemein": {
@@ -139,7 +138,7 @@
       "description": "Overview of algorithm, privacy, and offline usage.",
       "algo_intro": {
         "q": "What does the mixing algorithm actually do?",
-        "a": "The algorithm distributes your class to all available seats based on weighted criteria. It starts with a heuristic initial placement and refines it in several passes. It takes into account preferred and distant partners, special needs, body heights, window/door preferences & more."
+        "a": "The algorithm distributes your class to all available seats based on weighted criteria. It starts with a heuristic initial placement and refines it in several passes. It takes into account the criteria you have selected, such as preferred and distant partners, special needs, body heights, window/door preferences & more."
       },
       "algo_neighbors": {
         "q": "How does the algorithm evaluate neighbors?",
@@ -171,15 +170,15 @@
       },
       "csv": {
         "q": "How do I import an existing class list?",
-        "a": "Use \"Import class list\" to upload a CSV file, the kind you can save from Excel, LibreOffice, Numbers or Google Sheets. A list from your school administration software – WebUntis, Schulmanager or SchILD, say – can usually be uploaded as it is: Klassenplan recognises the usual column names, reads accented characters correctly even when the file was saved on Windows, and skips a title line above the headers. The only requirement is a name column – \"Name\", \"First name\" or \"Last name\"; every other column such as gender, restless, window seat or preferred partner is optional, and unknown columns are simply ignored. Click \"What the file looks like\" to see an example, or download the CSV template and fill it in. If your file contains several name columns or several classes, Klassenplan asks what to import."
+        "a": "Use \"Import class list\" to upload a CSV file, the kind you can save from Excel, LibreOffice, Numbers or Google Sheets. A list from your school administration software – WebUntis, Schulmanager or SchILD, say – can usually be uploaded as it is: Klassenplan recognises the usual column names and skips a title line above the headers. The only requirement is a name column – \"Name\", \"First name\" or \"Last name\"; every other possible column such as gender, restless, window seat or preferred partner is optional, and unknown columns are simply ignored. Click \"What the file looks like\" to see an example, or download the CSV template and fill it in. If your file contains several name columns or several classes, Klassenplan asks what to import."
       },
       "photos": {
         "q": "Can I store photos of my students?",
-        "a": "Yes. Click a student in the class list; in the inspector on the right you add a photo through their portrait. The images are downscaled and stored exclusively on this device – they are never transferred. Using student photos requires consent from the school management, the students and their parents. Photos can be shown or hidden in the seating plan, in presentation mode and in the export, and they unlock the name game."
+        "a": "Yes. Click a student in the class list; in the inspector on the right you add a photo through their portrait. The images are downscaled and stored exclusively on this device – they are never transferred. Using student photos requires consent from the school management, the students and their parents. Photos can be shown or hidden in the seating plan, in presentation mode and in the export, and they unlock the name game for learning the names."
       },
       "focusMode": {
         "q": "How do I set an attribute for the whole class quickly?",
-        "a": "With attribute mode, under “View” in the toolbar. It asks everyone one question – “Who is restless?”, for instance – and you tap the students it applies to. Then it moves on to the next attribute until every yes/no attribute of the class is set."
+        "a": "With attribute mode, under “View” in the toolbar. It asks everyone one question – “Who is restless?”, for instance – and you tap the students it currently applies to. Then it moves on to the next attribute until every yes/no attribute of the class is set."
       },
       "bulk": {
         "q": "How do I edit several students at once?",
@@ -191,13 +190,13 @@
       },
       "nameGame": {
         "q": "What is the name game?",
-        "a": "The name game helps you learn the names of a new class. It only uses students with a photo and offers a photo quiz (find the name for a photo or the other way round; uncertain names come up more often) and a memory game of photo and name cards. Your progress stays locally on your device. You start it from “Class tools” in the toolbar – on every layer."
+        "a": "The name game helps you learn the names of a new class. It only uses students with a photo and offers a photo quiz (find the name for a photo or the other way round; uncertain names come up more often) and a memory game of photo and name cards. Your progress stays locally on your device. You start it from “Class tools” in the toolbar."
       }
     },
     "eigenschaften": {
       "title": "Student Properties & Criteria",
       "description": "Overview of all properties and how the algorithm uses them.",
-      "intro": "On the class layer you record properties for every student – in the inspector, or for everyone at once in attribute mode. When you mix the seating plan, they come into play through the criteria. This overview shows every property, what it means and what the algorithm does with it.",
+      "intro": "On the class layer you record properties for every student – in the inspector, or faster in attribute mode. When you mix the seating plan, they come into play through the criteria selected there. This overview shows every property, what it means and what the algorithm does with it.",
       "algorithmLabel": "When mixing:",
       "props": {
         "gender": {
@@ -301,7 +300,7 @@
       "description": "Tables and room elements, templates, distances and limits.",
       "best": {
         "q": "Which layouts work best?",
-        "a": "Let your creativity run free: you drag tables, windows, doors, the teacher’s desk, the blackboard and cabinets from the toolbar into the room or put them on a free spot with a click, and move them anywhere. While nothing is selected, “Set up from scratch” in the inspector builds a floor plan in one go, and under “Templates” you keep it for other classes. The seating circle stays in sync with the table layout and can be adjusted separately."
+        "a": "Let your creativity run free: you drag tables, windows, doors, the teacher’s desk, the blackboard and cabinets from the toolbar into the room or put them on a free spot with a click, and move them anywhere. While nothing is selected, “Set up from scratch” in the inspector builds a floor plan in one go, and under “Templates” you keep it for other classes. The seating circle stays in sync with the table layout by default, but can also be adjusted separately."
       },
       "measure": {
         "q": "How are distances measured?",
@@ -309,7 +308,7 @@
       },
       "limits": {
         "q": "Are there limits on students and seats?",
-        "a": "Yes. Klassenplan is designed for a maximum of 36 students. In the room, the status bar shows whether there are seats for everyone and how many are missing."
+        "a": "Yes. Klassenplan is designed for a maximum of 36 students. In the room, the status bar shows whether there are seats for everyone."
       }
     },
     "settings": {
@@ -375,8 +374,8 @@
         "usage2": "Printing a seating chart or exporting it as PDF, PNG or SVG",
         "usage3": "Saving a seating chart under a name you chose yourself",
         "usage4": "Swapping seats by hand",
-        "usageOutro": "Only the seating neighbourhoods and a timestamp are stored, entirely on your own device – no cloud, no analytics service. On the first strong signal a short notice asks: if it really was just a test, one click takes the chart back out of the count.",
-        "weightNote": "For repeat avoidance these real seating charts are read first; mixes from the running session now weigh only half as much. A long session of trying things out can no longer drown out the result.",
+        "usageOutro": "Only the seating neighbourhoods and a timestamp are stored, entirely on your own device. On the first strong signal a short notice asks: if it really was just a test, one click takes the chart back out of the count.",
+        "weightNote": "For repeat avoidance these real seating charts are read first; mixes from the running session now weigh only half as much. A long session of trying things out should no longer drown out the result.",
         "viewNote": "Under “Plans & history” in the toolbar, the “Neighbourhoods” tab shows who has sat next to whom and how often – including the data it rests on, from which you can remove individual plans. “Reset” forgets every neighbourhood so far at once, say for a new school year."
       }
     },
@@ -389,7 +388,7 @@
         "li1": "Set the criteria that matter to “Important” or “Very important” – or pick a fitting recipe",
         "li2": "Mix multiple times to use different random starts",
         "li3": "Adjust individual seats manually via drag & drop and lock them if necessary so that the algorithm no longer changes them.",
-        "li4": "Take back a poor mix with Ctrl/⌘+Z or load an earlier result under “Plans & history”"
+        "li4": "Take back a poor mix with “Undo” (Ctrl/⌘+Z) or load an earlier result under “Plans & history”"
       }
     },
     "unterricht": {
@@ -397,27 +396,27 @@
       "description": "Interactive whiteboard, seating circle, printing and the three classroom tools.",
       "present": {
         "q": "How does presentation mode work?",
-        "a": "“Present” at the right of the status bar – on a phone in the toolbar – shows the seating plan or circle large on the interactive whiteboard. Every control sits in one bar below the plan: teacher or student view (which turns the plan to the class’s point of view), plan or circle, photos, colours, room elements, a contrast mode for bright rooms and the size. The board shows first names, whatever the editor shows. In fullscreen (key F) the bar disappears and comes back as soon as the pointer nears the bottom edge or you tap there."
+        "a": "“Present” at the right of the status bar – on a phone in the toolbar – shows the seating plan or circle large on the interactive whiteboard. Every control sits in one bar below the plan: teacher or student view (which turns the plan to the class’s point of view), plan or circle, photos, colours, room elements, a contrast mode for bright rooms and the size. In fullscreen (key F) the bar disappears and comes back as soon as the pointer nears the bottom edge or you tap there."
       },
       "tools": {
         "q": "What are “Who’s next?”, “Where does who sit?” and “Build groups”?",
-        "a": "Three tools for the lesson, each a page of its own that works standing up on a tablet or phone. “Who’s next?” draws a random student, and everyone gets a turn before anyone comes up twice. “Where does who sit?” finds a student in the room. “Build groups” draws groups from the class and keeps distance wishes apart where it can. You open them from “Class tools” in the toolbar – on every layer – and “Build groups” also from presentation mode. Nothing is stored."
+        "a": "Three tools for the lesson that also work well on a tablet or phone. “Who’s next?” draws a random student, and everyone gets a turn before anyone comes up twice. “Where does who sit?” finds a student in the room. “Build groups” draws groups from the class and keeps distance wishes apart where it can. You open them from “Class tools” in the toolbar."
       },
       "circle": {
         "q": "How does the seating circle mode work?",
-        "a": "On the seating plan, choose “Circle” under “View” in the toolbar. Klassenplan calculates a suitable circle automatically and links it to your current seating plan. You can adjust the seats in the circle by drag & drop without changing the seating plan, and present or export it separately."
+        "a": "On the seating plan, choose “Circle” under “View” in the toolbar. Klassenplan creates a suitable circle automatically and links it to your current seating plan. You can adjust the seats in the circle by drag & drop without changing the seating plan, and present or export it separately."
       },
       "exportFormats": {
         "q": "In which formats can I export the seating plan?",
-        "a": "The export page saves PDF, PNG and SVG and prints directly – handy for letters to parents, cover folders or the school portal. You choose the seating plan or the circle under “View” in the toolbar, each in portrait or landscape."
+        "a": "The export page saves PDF, PNG and SVG and prints directly – handy for letters to parents, cover folders or the school portal. You choose the seating plan or the circle under “View” in the toolbar, and adjust how it looks in the inspector."
       },
       "print": {
         "q": "I want to print the seating plan and have the blackboard shown at the bottom as orientation. Is that possible?",
-        "a": "Yes. On the export page, set the orientation to “Portrait” under “Page Format” on the right and leave the blackboard switched on under “Room Elements”. If your desk is at the back of the room, set the viewing direction to “From the back”: the plan turns by 180° and the names stay readable. That way the printout keeps the same orientation as the classroom."
+        "a": "Yes. On the export page, set the orientation to “Portrait” under “Page Format” on the right and leave the blackboard switched on under “Room Elements”. If your desk is at the back of the room, set the viewing direction to “From the back”. That way the printout keeps the same orientation as the classroom."
       },
       "names": {
-        "q": "The names on the plan are too long – what can I do?",
-        "a": "On the seating plan under “View settings › Names”, in presentation mode and under “Names” on the export page you decide how names appear: first name only, first name + last initial, or first and last name. Names that would look the same are told apart automatically – “Frida Ehrmann” and “Frida Emmerich” become “Frida Eh.” and “Frida Em.”."
+        "q": "The names on the plan are too long and too small – what can I do?",
+        "a": "On the seating plan under “View settings › Names”, in presentation mode and under “Names” on the export page you decide how names appear: first name only, first name + last initial, or first and last name. Names that would look the same are told apart automatically – “Frida Ehrmann” and “Frida Emmerich” become “Frida Eh.” and “Frida Em.”. Names also grow when there is less on the seats: hide the markers under “View settings › Markers” on the seating plan, with “Markers” in the bar in presentation mode, and under “Markers on the sheet” in the inspector on the export page. Keep “Enlarge the plan” switched on there as well, and the tables fill the sheet."
       }
     },
     "oberflaeche": {
@@ -425,15 +424,15 @@
       "description": "Dark mode, shortcuts, undo, the tour, tablets and installation.",
       "undo": {
         "q": "Can I undo changes?",
-        "a": "Yes, on all three layers: in the class list, in the room and in the seating plan and circle – so a student deleted by accident comes back with their photo, for example. The arrows in the middle of the status bar undo and redo changes, and so do Ctrl/⌘+Z and Ctrl/⌘+Shift+Z."
+        "a": "Yes, in the class list, in the room and in the seating plan and circle – so a student deleted by accident comes back with their photo, for example. The arrows in the middle of the status bar undo and redo changes, and so do Ctrl/⌘+Z and Ctrl/⌘+Shift+Z."
       },
       "shortcuts": {
         "q": "Which keyboard shortcuts are there?",
-        "a": "Plenty – Ctrl/⌘+C, V and X copy, paste and cut tables, for example, and Ctrl/⌘+B folds the toolbar in and out. The question mark at the top right lists every shortcut of the current layer under “Shortcuts”; the ? key opens it directly."
+        "a": "Plenty – Ctrl/⌘+C, V and X copy, paste and cut tables, for example, and Ctrl/⌘+B folds the toolbar in and out. The question mark at the top right lists every shortcut of the current layer under “Shortcuts”; the ? key opens the help directly."
       },
       "tour": {
         "q": "Is there an introduction to using Klassenplan?",
-        "a": "Yes. On your first visit, a short tour shows you the most important places on every layer – from the class switcher and the toolbar to the criteria and the seating circle. The tour never blocks anything: you can keep working, close it with Esc or switch it off for good with “Don’t show again”. The question mark at the top right restarts the tour of the current layer at any time – and leads to these questions, too."
+        "a": "Yes. On your first visit, a short tour shows you the most important places on every layer – from the class switcher and the toolbar to the criteria and the seating circle. The tour never blocks anything: you can keep working, close it with Esc or switch it off for good with “Don’t show again”. The question mark at the top right restarts the tour of the current layer at any time."
       },
       "dark": {
         "q": "Is there a Dark Mode?",
@@ -441,7 +440,7 @@
       },
       "tablet": {
         "q": "Can I use Klassenplan on a tablet or whiteboard?",
-        "a": "Yes. On a tablet and an interactive whiteboard everything works by finger: dragging tables, swapping students, and a long press opens the context menu in the room. Klassenplan needs a current browser – Chrome or Edge from version 111, Safari from 16.4, Firefox from 128. If a whiteboard’s built-in browser is older, use Chrome or Edge on the board’s PC. On a phone, the three tools “Who’s next?”, “Where does who sit?” and “Build groups” are meant for the lesson; class and room are better set up on a larger screen."
+        "a": "Yes. On a tablet and an interactive whiteboard everything works by finger: dragging tables, swapping students, and a long press opens the context menu in the room. Klassenplan needs a current browser – Chrome or Edge from version 111, Safari from 16.4, Firefox from 128. If a whiteboard’s built-in browser is older, try Chrome or Edge on the board’s PC. On a phone, the three tools “Who’s next?”, “Where does who sit?” and “Build groups” are meant for the lesson; class and room are better set up on a larger screen."
       },
       "pwa": {
         "q": "Can I install Klassenplan like an app?",

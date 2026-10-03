@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { showToast } from '@/utils/ui/toast';
 import { logError } from '@/utils';
 import { getAppVersion } from '@/utils/version';
+import { isOffline } from '@/utils/performance/chunkLoad';
 import { applyPendingUpdate, checkForUpdate } from './swUpdateController';
 
 /**
@@ -32,6 +33,13 @@ export function useUpdateCheck(): UseUpdateCheckResult {
   const [checking, setChecking] = useState(false);
 
   const checkNow = useCallback(() => {
+    // Nothing to ask without a connection — and the fallback below, a plain
+    // reload, would trade the app for the browser's offline page.
+    if (isOffline()) {
+      showToast('info', t('pwa.updateCheckOffline'), { id: UPDATE_TOAST_ID });
+      return;
+    }
+
     setChecking(true);
 
     checkForUpdate()

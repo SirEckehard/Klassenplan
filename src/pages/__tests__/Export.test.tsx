@@ -57,7 +57,7 @@ vi.mock('@/contexts/ClassDialogsContext', async (importOriginal) => ({
 vi.mock('@/services/export/sceneRenderer', () => ({
   renderSceneSvg: vi.fn(async () => '<svg data-testid="scene"></svg>'),
   renderCircleSvg: vi.fn(async () => '<svg data-testid="circle"></svg>'),
-  preloadRenderer: vi.fn(),
+  preloadRenderer: vi.fn(() => Promise.resolve()),
 }));
 
 vi.mock('@/services/export/pdfExportFunctions', () => ({

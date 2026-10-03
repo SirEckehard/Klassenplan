@@ -571,7 +571,6 @@ export default function FAQ() {
             </h2>
             <div className="mt-2 space-y-2 text-(--text-muted)">
               <p>{t('faq.disclaimer.body')}</p>
-              <p className="text-sm">{t('faq.disclaimer.researchNote')}</p>
               <p className="text-sm font-medium text-(--text-page)">
                 {t('faq.disclaimer.callToAction')}
               </p>

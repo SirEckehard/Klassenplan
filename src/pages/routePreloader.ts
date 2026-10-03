@@ -62,18 +62,26 @@ export async function preloadRoute(routeName: string): Promise<void> {
 }
 
 /**
- * Preload likely next routes based on current route
+ * Preload likely next routes based on current route.
+ *
+ * Besides speed, this is what keeps a session that started online working
+ * when the connection drops where no service worker serves the page: a chunk
+ * that is already loaded needs no network.
  */
 export function preloadLikelyRoutes(currentPath: string): void {
+  // `/generator/` (a prerendered route is a directory) and `/en/generator`
+  // are the same route as `/generator`.
+  const routeName = routeNameForPath(currentPath);
+
   // Use requestIdleCallback for non-blocking preloading
   const preload = () => {
-    switch (currentPath) {
-      case '/':
+    switch (routeName) {
+      case 'startpage':
         // From start page, users likely go to generator
         addPrefetchHint('/generator', { as: 'document', importance: 'low' });
         preloadRoute('generator');
         break;
-      case '/generator':
+      case 'generator':
         // From generator, users likely export, present, or go back to start
         addPrefetchHint('/export', { as: 'document', importance: 'low' });
         addPrefetchHint('/present', { as: 'document', importance: 'low' });
@@ -81,13 +89,23 @@ export function preloadLikelyRoutes(currentPath: string): void {
         preloadRoute('export');
         preloadRoute('present');
         preloadRoute('startpage');
+        // The class tools at the foot of every toolbar
+        preloadRoute('wer-kommt-dran');
+        preloadRoute('wo-sitzt-wer');
+        preloadRoute('gruppen');
+        preloadRoute('namensspiel');
         break;
-      case '/export':
+      case 'export':
         // From export, users might go back to generator or start
         addPrefetchHint('/generator', { as: 'document', importance: 'low' });
         addPrefetchHint('/', { as: 'document', importance: 'low' });
         preloadRoute('generator');
         preloadRoute('startpage');
+        break;
+      case 'present':
+        // "Gruppen bilden" sits in the projection's bar
+        preloadRoute('gruppen');
+        preloadRoute('generator');
         break;
       default:
         // For other pages, preload start page

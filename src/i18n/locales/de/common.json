@@ -163,10 +163,13 @@
     "checkForUpdates": "Auf Updates prüfen",
     "checking": "Suche nach Updates …",
     "upToDate": "Du hast bereits die neueste Version (v{{version}})",
-    "updateCheckFailed": "Update-Prüfung fehlgeschlagen. Bist du online?"
+    "updateCheckFailed": "Update-Prüfung fehlgeschlagen. Bist du online?",
+    "updateCheckOffline": "Ohne Internetverbindung lässt sich nicht nach Updates suchen."
   },
   "offline": {
-    "badge": "Offline"
+    "badge": "Offline",
+    "pageTitle": "Offline noch nicht verfügbar",
+    "pageMessage": "Diese Seite wurde auf diesem Gerät noch nicht geladen. Sobald du wieder online bist, lässt sie sich öffnen."
   },
   "loading": {
     "page": "Seite wird geladen",

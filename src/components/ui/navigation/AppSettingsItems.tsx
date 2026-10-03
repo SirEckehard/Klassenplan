@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ClockCounterClockwiseIcon,
@@ -11,7 +10,6 @@ import {
   UploadIcon,
 } from '@phosphor-icons/react';
 import ConfirmDialog from '@/components/ui/modals/ConfirmDialog';
-import { useStorageHistoryModal } from '@/components/ui/navigation/useStorageHistoryModal';
 import { useSeatingPlanActions } from '@/contexts/SeatingPlanContext';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
 import {
@@ -28,15 +26,23 @@ import {
  *
  * Two menus show these rows — the footer's gear on the public pages, and the
  * header's on the workspace, which runs at viewport height and has no footer
- * to fall back on. The rows, their modals and their toasts live here once so
- * the two cannot drift apart; the caller brings the container.
+ * to fall back on. The rows and their toasts live here once so the two cannot
+ * drift apart; the caller brings the container, and the dialogs the rows open
+ * beside it: choosing a row closes the menu, and a dialog inside the menu
+ * would close with it before anybody saw it.
  */
 export default function AppSettingsItems({
   onDone,
+  onShowHistory,
+  onClearAllData,
   storage = true,
   menuItems = true,
 }: {
   onDone: () => void;
+  /** Opens "Pläne & Verlauf"; goes with `storage`. */
+  onShowHistory?: () => void;
+  /** Opens {@link ClearAllDataDialog}, which asks before anything is wiped. */
+  onClearAllData: () => void;
   /**
    * Whether the rows are items of a `role="menu"` (the footer's gear). The
    * header's gear is a dialog that also holds the theme and language
@@ -52,17 +58,14 @@ export default function AppSettingsItems({
 }) {
   const { t } = useTranslation(['common', 'generator']);
   const itemRole = menuItems ? 'menuitem' : undefined;
-  const { clearAllData, handleExportAll, triggerImport } =
-    useSeatingPlanActions();
+  const { handleExportAll, triggerImport } = useSeatingPlanActions();
   // Dismissing the install toast is permanent; this entry stays as the way
   // back in for as long as the browser reports the app as installable.
   const { isInstallable, triggerInstall } = useInstallPrompt();
-  const [confirmOpen, setConfirmOpen] = React.useState(false);
-  const history = useStorageHistoryModal();
 
   const handleShowHistory = () => {
     onDone();
-    history.show();
+    onShowHistory?.();
   };
 
   const handleExportBackup = () => {
@@ -84,16 +87,6 @@ export default function AppSettingsItems({
     triggerInstall().catch((error: unknown) => {
       logError('PWA install prompt failed', { error }, 'AppSettingsItems');
     });
-  };
-
-  const handleConfirm = async () => {
-    try {
-      await clearAllData();
-      showToast('success', TOAST_MESSAGES.DATA_DELETED);
-      setConfirmOpen(false);
-    } catch {
-      showToast('error', TOAST_MESSAGES.DATA_DELETE_ERROR);
-    }
   };
 
   const iconClass = 'h-4 w-4 shrink-0 text-(--text-muted)';
@@ -157,24 +150,50 @@ export default function AppSettingsItems({
         role={itemRole}
         onClick={() => {
           onDone();
-          setConfirmOpen(true);
+          onClearAllData();
         }}
         className={menuItemDangerClass}
       >
         <TrashIcon className={iconClass} aria-hidden="true" />
         {t('common:footer.clearAllData')}
       </button>
-
-      {history.modal}
-      <ConfirmDialog
-        open={confirmOpen}
-        title={t('common:dialogs.clearAllData.title')}
-        message={t('common:dialogs.clearAllData.message')}
-        confirmLabel={t('common:dialogs.clearAllData.confirm')}
-        cancelLabel={t('common:dialogs.clearAllData.cancel')}
-        onConfirm={handleConfirm}
-        onCancel={() => setConfirmOpen(false)}
-      />
     </>
+  );
+}
+
+/**
+ * Asks before every class, plan and setting is wiped. Rendered by the host
+ * beside its menu, not in it (see {@link AppSettingsItems}).
+ */
+export function ClearAllDataDialog({
+  open,
+  onClose,
+}: {
+  open: boolean;
+  onClose: () => void;
+}) {
+  const { t } = useTranslation('common');
+  const { clearAllData } = useSeatingPlanActions();
+
+  const handleConfirm = async () => {
+    try {
+      await clearAllData();
+      showToast('success', TOAST_MESSAGES.DATA_DELETED);
+      onClose();
+    } catch {
+      showToast('error', TOAST_MESSAGES.DATA_DELETE_ERROR);
+    }
+  };
+
+  return (
+    <ConfirmDialog
+      open={open}
+      title={t('dialogs.clearAllData.title')}
+      message={t('dialogs.clearAllData.message')}
+      confirmLabel={t('dialogs.clearAllData.confirm')}
+      cancelLabel={t('dialogs.clearAllData.cancel')}
+      onConfirm={handleConfirm}
+      onCancel={onClose}
+    />
   );
 }

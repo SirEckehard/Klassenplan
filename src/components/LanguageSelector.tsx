@@ -5,6 +5,7 @@ import { GlobeIcon } from '@phosphor-icons/react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ensureEnglishLoaded } from '../i18n/i18n';
+import { reportChunkLoadFailure } from '@/utils/performance/chunkLoad';
 
 const LanguageSelector: React.FC = () => {
   const { t, i18n } = useTranslation('common');
@@ -14,7 +15,11 @@ const LanguageSelector: React.FC = () => {
   const toggleLanguage = () => {
     const newLanguage = i18n.language === 'de' ? 'en' : 'de';
     if (newLanguage === 'en') {
-      void ensureEnglishLoaded().then(() => i18n.changeLanguage('en'));
+      ensureEnglishLoaded()
+        .then(() => i18n.changeLanguage('en'))
+        .catch((error: unknown) => {
+          reportChunkLoadFailure(error, 'LanguageSelector');
+        });
     } else {
       void i18n.changeLanguage('de');
     }

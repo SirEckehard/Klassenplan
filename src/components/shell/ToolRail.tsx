@@ -177,7 +177,8 @@ function ToolRailFoot({ planPresent }: { planPresent: boolean }) {
   const isCompact = React.useContext(DensityContext) === 'compact';
   const navigate = useLocalizedNavigate();
   const { handleExportAll, triggerImport } = useSeatingPlanActions();
-  const history = useStorageHistoryModal();
+  // Fetched while the workspace is idle, so it opens offline too.
+  const history = useStorageHistoryModal({ preloadWhenIdle: true });
 
   const classTools = [
     {

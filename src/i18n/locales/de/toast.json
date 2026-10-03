@@ -83,7 +83,9 @@
     "export": "Export fehlgeschlagen. Bitte versuche es erneut.",
     "import": "Import fehlgeschlagen. Datei könnte beschädigt sein.",
     "algorithm": "Berechnungsfehler. Bitte versuche es erneut oder melde das Problem.",
-    "ui": "Anzeigefehler. Bitte lade die Seite neu."
+    "ui": "Anzeigefehler. Bitte lade die Seite neu.",
+    "chunkOffline": "Ohne Internetverbindung ließ sich das nicht laden. Versuche es erneut, sobald du wieder online bist.",
+    "chunkFailed": "Dieser Teil der App ließ sich nicht laden. Lade die Seite neu, um es erneut zu versuchen."
   },
   "generation": {
     "success": "Sitzplan erfolgreich generiert",

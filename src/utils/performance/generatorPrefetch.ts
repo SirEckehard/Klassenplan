@@ -104,16 +104,12 @@ export const prefetchGeneratorSteps = (currentStep: number): void => {
     );
   }
 
-  const nextSteps =
-    currentStep === 1
-      ? [2, 3]
-      : currentStep === 2
-        ? [3]
-        : currentStep === 3
-          ? []
-          : [];
+  // Every other layer, not just the ones ahead: a teacher steps back as often
+  // as on, and a layer whose code is already loaded still opens when the
+  // connection drops where no service worker serves the page.
+  const otherSteps = [1, 2, 3].filter((step) => step !== currentStep);
 
-  nextSteps.forEach((step) => {
+  otherSteps.forEach((step) => {
     scheduleIdleTask(() => {
       void prefetchGeneratorStep(step);
     });

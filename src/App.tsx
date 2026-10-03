@@ -12,8 +12,10 @@ import InstallPrompt from '@/components/pwa/InstallPrompt';
 import OfflineIndicator from '@/components/ui/feedback/OfflineIndicator';
 import DownloadConfirmationHost from '@/components/ui/modals/DownloadConfirmationHost';
 import CsvFormatHelpHost from '@/components/ui/modals/CsvFormatHelpHost';
+import RouteOfflineBoundary from '@/components/errors/RouteOfflineBoundary';
 import { preloadLikelyRoutes } from '@/pages/routePreloader';
 import { ensureEnglishLoaded, languageForPath } from '@/i18n/i18n';
+import { logWarn } from '@/utils';
 import {
   Changelog,
   Datenschutz,
@@ -46,7 +48,12 @@ function LanguageWrapper() {
   useEffect(() => {
     // Only switch to English if /en prefix is present
     if (isEnglishPath && i18n.language !== 'en') {
-      void ensureEnglishLoaded().then(() => i18n.changeLanguage('en'));
+      ensureEnglishLoaded()
+        .then(() => i18n.changeLanguage('en'))
+        .catch((error: unknown) => {
+          // The page stays German; the language switch tells the teacher why.
+          logWarn('Failed to load the English bundle', { error }, 'App');
+        });
     } else if (!isEnglishPath && i18n.language !== 'de') {
       // Default to German for all other cases
       i18n.changeLanguage('de');
@@ -138,14 +145,18 @@ export default function App() {
           column (a centred `mx-auto` box would shrink to its content). */}
       <div className="grow">
         <Suspense fallback={<PageSkeleton />}>
-          <Routes>
-            {/* German routes (default, no prefix) */}
-            <Route element={<LanguageWrapper />}>{AppRoutes()}</Route>
-            {/* English routes (/en prefix) */}
-            <Route path="en" element={<LanguageWrapper />}>
-              {AppRoutes()}
-            </Route>
-          </Routes>
+          {/* A page whose code could not be fetched offline shows a notice
+              with the way back instead of the error screen. */}
+          <RouteOfflineBoundary pathname={location.pathname}>
+            <Routes>
+              {/* German routes (default, no prefix) */}
+              <Route element={<LanguageWrapper />}>{AppRoutes()}</Route>
+              {/* English routes (/en prefix) */}
+              <Route path="en" element={<LanguageWrapper />}>
+                {AppRoutes()}
+              </Route>
+            </Routes>
+          </RouteOfflineBoundary>
         </Suspense>
       </div>
 

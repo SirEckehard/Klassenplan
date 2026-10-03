@@ -83,7 +83,9 @@
     "export": "Export failed. Please try again.",
     "import": "Import failed. The file may be corrupted.",
     "algorithm": "Calculation error. Please try again or report the problem.",
-    "ui": "Display error. Please reload the page."
+    "ui": "Display error. Please reload the page.",
+    "chunkOffline": "This couldn't be loaded without an internet connection. Try again once you're back online.",
+    "chunkFailed": "This part of the app couldn't be loaded. Reload the page to try again."
   },
   "generation": {
     "success": "Seating plan generated successfully",

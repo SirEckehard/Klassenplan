@@ -3,6 +3,11 @@
 import { lazy, useState } from 'react';
 import type { ComponentProps, ComponentType } from 'react';
 import { logWarn } from '@/utils';
+import {
+  isChunkLoadError,
+  isOffline,
+  OfflineChunkError,
+} from '@/utils/performance/chunkLoad';
 
 /**
  * sessionStorage flag that records that we already forced a reload to recover
@@ -22,21 +27,6 @@ export type PreloadableComponent<T extends AnyComponent> = ComponentType<
 };
 
 /**
- * Detect the "failed dynamic import" class of errors raised by browsers when a
- * lazily-loaded chunk cannot be fetched or parsed. Messages differ per engine:
- *
- * - Chrome/Edge: "Failed to fetch dynamically imported module"
- * - Safari/iOS (incl. in-app browsers): "Importing a module script failed"
- * - Firefox: "error loading dynamically imported module"
- */
-function isChunkLoadError(error: unknown): boolean {
-  const message = error instanceof Error ? error.message : String(error ?? '');
-  return /dynamically imported module|module script failed|importing a module/i.test(
-    message,
-  );
-}
-
-/**
  * Import the chunk, recovering once from a stale-chunk failure.
  *
  * After a deploy, content-hashed chunk filenames change. A client holding a
@@ -45,6 +35,11 @@ function isChunkLoadError(error: unknown): boolean {
  * cache-busting reload so the browser fetches a fresh `index.html` with valid
  * chunk references. If the import still fails afterwards, we surface the error
  * to the nearest error boundary instead of reloading again.
+ *
+ * Offline there is nothing to recover: the chunk was never fetched (no service
+ * worker serves this page), and a reload would trade the app for the browser's
+ * offline page. The failure becomes an {@link OfflineChunkError}, which
+ * `RouteOfflineBoundary` turns into a notice with the way back.
  */
 async function importWithRecovery<T extends AnyComponent>(
   factory: () => Promise<{ default: T }>,
@@ -60,6 +55,15 @@ async function importWithRecovery<T extends AnyComponent>(
   } catch (error) {
     if (typeof window === 'undefined' || !isChunkLoadError(error)) {
       throw error;
+    }
+
+    if (isOffline()) {
+      logWarn(
+        'Failed to load route chunk while offline',
+        { error },
+        'lazyWithRetry',
+      );
+      throw new OfflineChunkError(error);
     }
 
     const alreadyReloaded =

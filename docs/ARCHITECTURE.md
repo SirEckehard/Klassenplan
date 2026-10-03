@@ -1,6 +1,6 @@
 # Architecture
 
-> **Status:** current · **Last reviewed:** 2026-09-28 · **Maintainer:** Eike
+> **Status:** current · **Last reviewed:** 2026-10-03 · **Maintainer:** Eike
 > Schäfer · **Describes:** Klassenplan 2.2.0
 
 This is the entry point for anyone who wants to understand _why_ Klassenplan is
@@ -326,8 +326,17 @@ described yet.
 - A push to `main` runs CI only. A `v*` tag publishes the multi-arch image to
   GHCR and creates the GitHub release.
 - The service worker precaches the app, so it works offline after the first
-  visit. It uses the prompt update model: a new version waits until the teacher
-  confirms the reload.
+  visit — on that visit too, once it has installed, since it takes over the open
+  page without a reload. It uses the prompt update model: a new version waits
+  until the teacher confirms the reload
+  ([decision 0009](decisions/0009-prompt-update-model.md)).
+- A chunk that cannot be fetched — offline where no service worker serves the
+  page, or gone after a deployment — never takes a page down. What a teacher
+  opens on demand (a dialog, the settings menu's entries) loads through
+  `loadOnDemand` and says in a message why it does not open
+  (`utils/performance/chunkLoad.ts`); a page offline shows a notice with the way
+  back (`RouteOfflineBoundary`) instead of reloading into the browser's offline
+  page.
 
 ## Quality budgets
 

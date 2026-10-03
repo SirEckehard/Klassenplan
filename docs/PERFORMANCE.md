@@ -106,7 +106,8 @@ Not done, deliberately:
 
 ## Prefetch & navigation
 
-- **Route preloader:** `preloadLikelyRoutes` uses `requestIdleCallback` to warm up wizard and export pages. Missing routes trigger warning logs.
+- **Route preloader:** `preloadLikelyRoutes` uses `requestIdleCallback` to warm up the pages a teacher is likely to open next — from the workspace the export, the projection, the start page and the four class tools. It reads the route name rather than the raw path, so `/generator/` and `/en/generator` count as the workspace. Missing routes trigger warning logs.
 - **Prefetch hints:** `addPrefetchHint` creates `<link rel="prefetch">` entries once and logs them at debug level. Options for `as`, `crossOrigin` and `importance` are available.
-- **Wizard-specific:** `prefetchGeneratorSteps` loads upcoming steps (e.g. the circle view) while the current step is still being edited.
+- **Wizard-specific:** `prefetchGeneratorSteps` loads the other two layers (e.g. the circle view) while the current one is still being edited — the one behind as well as the one ahead.
+- **Offline without a service worker.** Where nothing is precached — an origin without HTTPS, a private window — a chunk that is already loaded is the only one that still works when the connection drops. The preloads above, the settings menu's entries and "Pläne & Verlauf" (fetched while the workspace is idle) are what keeps such a session usable; everything else fails gracefully (see [ARCHITECTURE.md](ARCHITECTURE.md#build-and-delivery)).
 - **`prefetchOrchestrator`** wraps those jobs to log their duration and failures. It kept a 40-entry telemetry ring for the dashboard; that is gone with it.

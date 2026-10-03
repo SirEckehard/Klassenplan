@@ -24,6 +24,10 @@ import {
 import type { DataFamily, NameDisplayMode } from '@/utils';
 import { BADGE_FAMILY_ORDER, getClassBadges } from '@/utils/ui/seatBadges';
 import { showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
+import {
+  isChunkLoadError,
+  reportChunkLoadFailure,
+} from '@/utils/performance/chunkLoad';
 import { FEATURE_TYPES, type FeatureVisibilityFlags } from '@/utils/ui';
 import { NAME_DISPLAY_MODES } from '@/components/SeatingPlanGenerator/canvas/nameDisplayGroup';
 import { useFeatureVisibility } from '@/hooks/ui/useFeatureVisibility';
@@ -370,7 +374,10 @@ export default function Export() {
   );
 
   useEffect(() => {
-    void preloadRenderer();
+    // Drawing the sheet asks for the renderer again and reports a failure.
+    preloadRenderer().catch((error: unknown) => {
+      logError('Preloading the sheet renderer failed', { error }, 'Export');
+    });
   }, []);
 
   // The seeding above has already consumed the value, so the only thing left is
@@ -642,6 +649,11 @@ export default function Export() {
             { error, previewMode },
             'ExportPage',
           );
+          // The renderer is fetched on demand; offline, without a service
+          // worker, the sheet would stay blank without a word.
+          if (isChunkLoadError(error)) {
+            reportChunkLoadFailure(error, 'ExportPage');
+          }
           setIsGenerating(false);
         }
       }

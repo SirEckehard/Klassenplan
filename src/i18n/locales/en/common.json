@@ -163,10 +163,13 @@
     "checkForUpdates": "Check for updates",
     "checking": "Checking for updates …",
     "upToDate": "You already have the latest version (v{{version}})",
-    "updateCheckFailed": "Update check failed. Are you online?"
+    "updateCheckFailed": "Update check failed. Are you online?",
+    "updateCheckOffline": "Checking for updates needs an internet connection."
   },
   "offline": {
-    "badge": "Offline"
+    "badge": "Offline",
+    "pageTitle": "Not available offline yet",
+    "pageMessage": "This page hasn't been loaded on this device yet. Once you're back online, it will open."
   },
   "loading": {
     "page": "Loading page",

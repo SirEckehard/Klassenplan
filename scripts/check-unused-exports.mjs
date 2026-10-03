@@ -33,6 +33,12 @@ const rootDir = path.resolve(
  * Lower it whenever a cleanup drops the real count — that is what makes the
  * ratchet tighten. Raising it needs a reason in the same commit.
  *
+ * 52 (2026-10-03): `ClearAllDataDialog` in
+ * `components/ui/navigation/AppSettingsItems.tsx` is reached only through the
+ * module that `loadOnDemand` imports for both settings menus, and the tool
+ * does not follow `import()`. It left the menu so that it no longer closes
+ * with it.
+ *
  * 51 (2026-09-29): `BREAKPOINTS` in `hooks/ui/useBreakpoint.ts` is no longer
  * exported; `InspectorContext`, which folds the column on a touch screen below
  * `xl`, asks `isBreakpointUp` instead.
@@ -45,7 +51,7 @@ const rootDir = path.resolve(
  * import to leave the initial bundle, and the tool does not follow `import()`;
  * `exportAllAsJson` is the one export of it no test imports statically.
  */
-const BASELINE = 51;
+const BASELINE = 52;
 
 const IGNORE_FILES = 'vite-env.d.ts|index.tsx|App.tsx';
 

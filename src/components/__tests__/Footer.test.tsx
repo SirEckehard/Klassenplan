@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import '@testing-library/jest-dom/vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router-dom';
 import { describe, it, expect, vi, afterEach } from 'vitest';
@@ -18,6 +18,12 @@ vi.mock('@/hooks/useInstallPrompt', () => ({
   useInstallPrompt: () => installPromptMock,
   isInstallPromptDismissed: () => false,
   dismissInstallPrompt: vi.fn(),
+}));
+
+// The real dialog reads the whole seating plan; here it only has to open.
+vi.mock('@/components/ui/navigation/StorageHistoryModal', () => ({
+  default: ({ open }: { open: boolean }) =>
+    open ? <div role="dialog" aria-label="Pläne & Verlauf" /> : null,
 }));
 
 const renderFooter = () =>
@@ -72,6 +78,41 @@ describe('Footer', () => {
     await user.click(installItem);
 
     expect(installPromptMock.triggerInstall).toHaveBeenCalledTimes(1);
+  });
+
+  // Choosing an entry closes the menu. The dialogs used to live inside it and
+  // closed with it before anybody saw them.
+  it('opens the plans and their history once the menu has closed', async () => {
+    renderFooter();
+    const user = await openSettingsMenu();
+
+    await user.click(
+      screen.getByRole('menuitem', {
+        name: /pläne & verlauf|plans & history/i,
+      }),
+    );
+
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+    expect(
+      await screen.findByRole('dialog', { name: 'Pläne & Verlauf' }),
+    ).toBeInTheDocument();
+  });
+
+  it('asks before wiping everything once the menu has closed', async () => {
+    renderFooter();
+    const user = await openSettingsMenu();
+
+    await user.click(
+      screen.getByRole('menuitem', { name: /alle daten löschen|clear all/i }),
+    );
+
+    const dialog = await screen.findByRole('dialog', {
+      name: /alle daten löschen|clear all/i,
+    });
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+    expect(
+      within(dialog).getByRole('button', { name: /^(abbrechen|cancel)$/i }),
+    ).toBeInTheDocument();
   });
 
   it('hides the install entry when the app cannot be installed', async () => {

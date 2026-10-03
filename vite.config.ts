@@ -292,10 +292,15 @@ export default defineConfig({
         mode: isProductionBuild ? 'production' : 'development',
         // registerType is 'prompt': the new service worker must wait until the
         // user confirms via ReloadPrompt (updateServiceWorker(true) sends
-        // SKIP_WAITING). skipWaiting/clientsClaim would activate it instantly
-        // and contradict that model.
+        // SKIP_WAITING). skipWaiting would activate it instantly and
+        // contradict that model.
         skipWaiting: false,
-        clientsClaim: false,
+        // clientsClaim only reaches pages no worker controls yet — a page that
+        // already has one moves to the new worker when it activates, claim or
+        // not. Without it the first visit stayed uncontrolled until a reload:
+        // offline, every chunk it had not fetched yet failed although the
+        // precache held it (decision 0009).
+        clientsClaim: true,
         globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
         // The start page screenshots are left to the runtime cache below; the
         // ones meant for offline use are listed in `includeAssets`. Globbing
@@ -308,6 +313,11 @@ export default defineConfig({
         // with the rest of the precache, so they always match the page that
         // asks for them. The first two are Workbox's defaults.
         ignoreURLParametersMatching: [/^utm_/, /^fbclid$/, /^v$/],
+        // Every other navigation gets the app's shell from the precache, which
+        // answered /robots.txt, /sitemap.xml or /.well-known/security.txt with
+        // the app's 404 page. A path whose last segment has an extension is a
+        // file, never a route.
+        navigateFallbackDenylist: [/^[^?]*\/[^/?]+\.[a-z0-9]+(?:\?.*)?$/i],
         runtimeCaching: [
           {
             urlPattern: ({ request, url }) =>

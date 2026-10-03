@@ -20,7 +20,14 @@ let rendererPromise: Promise<ServerRenderer> | null = null;
 
 export async function preloadRenderer(): Promise<ServerRenderer> {
   if (!rendererPromise) {
-    rendererPromise = import('react-dom/server.browser');
+    // A failed fetch (offline, with no service worker serving the page) is
+    // forgotten, so the sheet can still be drawn once the connection is back.
+    rendererPromise = import('react-dom/server.browser').catch(
+      (error: unknown) => {
+        rendererPromise = null;
+        throw error;
+      },
+    );
   }
   return rendererPromise;
 }

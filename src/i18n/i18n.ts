@@ -83,7 +83,9 @@ i18next
 
 // Lazy-load EN resources on demand. Vite splits these into a separate chunk;
 // in PWA mode the service worker caches all chunks on first load so offline
-// use is unaffected. Idempotent: the bundle is only fetched and added once.
+// use is unaffected. Idempotent: the bundle is only fetched and added once. A
+// failed fetch — offline where no service worker serves the page — is
+// forgotten, so the next switch tries again.
 let enLoadPromise: Promise<void> | null = null;
 export function ensureEnglishLoaded(): Promise<void> {
   if (enLoadPromise) return enLoadPromise;
@@ -93,14 +95,20 @@ export function ensureEnglishLoaded(): Promise<void> {
     import('./locales/en/pages.json'),
     import('./locales/en/generator.json'),
     import('./locales/en/students.json'),
-  ]).then(([common, toast, pages, generator, students]) => {
-    const modules = [common, toast, pages, generator, students];
-    EAGER_NAMESPACES.forEach((ns, i) => {
-      // Dynamic JSON imports return { default: <json> } — extract the payload.
-      const data = (modules[i] as { default?: object }).default ?? modules[i];
-      i18next.addResourceBundle('en', ns, data, true, false);
-    });
-  });
+  ]).then(
+    ([common, toast, pages, generator, students]) => {
+      const modules = [common, toast, pages, generator, students];
+      EAGER_NAMESPACES.forEach((ns, i) => {
+        // Dynamic JSON imports return { default: <json> } — extract the payload.
+        const data = (modules[i] as { default?: object }).default ?? modules[i];
+        i18next.addResourceBundle('en', ns, data, true, false);
+      });
+    },
+    (error: unknown) => {
+      enLoadPromise = null;
+      throw error;
+    },
+  );
   return enLoadPromise;
 }
 

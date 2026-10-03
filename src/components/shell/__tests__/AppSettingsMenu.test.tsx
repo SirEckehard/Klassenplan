@@ -1,7 +1,13 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import '@testing-library/jest-dom/vitest';
-import { render, screen, cleanup, waitFor } from '@testing-library/react';
+import {
+  render,
+  screen,
+  cleanup,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { BrowserRouter, MemoryRouter, Route, Routes } from 'react-router-dom';
@@ -11,9 +17,11 @@ import ReturnToAppLink from '@/components/ReturnToAppLink';
 import { getButton } from '@/__tests__/utils';
 import { characterKeyShortcutsEnabled } from '@/utils';
 
+const clearAllData = vi.hoisted(() => vi.fn(async () => {}));
+
 vi.mock('@/contexts/SeatingPlanContext', () => ({
   useSeatingPlanActions: () => ({
-    clearAllData: vi.fn(),
+    clearAllData,
     handleExportAll: vi.fn(),
     triggerImport: vi.fn(),
   }),
@@ -145,6 +153,29 @@ describe('AppSettingsMenu', () => {
     expect(
       await screen.findByRole('button', { name: /^(Zurück|Back)$/ }),
     ).toBeInTheDocument();
+  });
+
+  // Choosing the entry closes the menu; the question it asks has to outlive
+  // it. Rendered inside the menu, it closed with it and nothing happened.
+  it('asks before wiping everything and wipes on confirmation', async () => {
+    clearAllData.mockClear();
+    renderMenu();
+    const user = await openMenu();
+
+    await user.click(
+      screen.getByRole('button', { name: /alle daten löschen|clear all/i }),
+    );
+
+    const dialog = await screen.findByRole('dialog', {
+      name: /alle daten löschen|clear all/i,
+    });
+    expect(
+      screen.queryByRole('dialog', { name: /einstellungen|settings/i }),
+    ).not.toBeInTheDocument();
+    await user.click(
+      within(dialog).getByRole('button', { name: /^(löschen|delete)$/i }),
+    );
+    expect(clearAllData).toHaveBeenCalledTimes(1);
   });
 
   it('switches the single-key shortcuts off and on again', async () => {
