@@ -330,8 +330,13 @@ described yet.
   page without a reload. It uses the prompt update model: a new version waits
   until the teacher confirms the reload
   ([decision 0009](decisions/0009-prompt-update-model.md)).
-- A chunk that cannot be fetched — offline where no service worker serves the
-  page, or gone after a deployment — never takes a page down. What a teacher
+- Where a page cannot have a service worker — served over plain HTTP, in a
+  private window — the app loads every file of its version into the browser's
+  cache once it is idle (`offline-files.json`, written by the build;
+  `utils/performance/offlineWarmup.ts`), so it works offline as a whole there
+  too.
+- A chunk that cannot be fetched — offline before that is done, or gone after a
+  deployment — never takes a page down. What a teacher
   opens on demand (a dialog, the settings menu's entries) loads through
   `loadOnDemand` and says in a message why it does not open
   (`utils/performance/chunkLoad.ts`); a page offline shows a notice with the way

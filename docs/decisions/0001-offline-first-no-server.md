@@ -38,6 +38,9 @@ works offline once loaded.
   mitigation is organisational (one profile per person).
 - The browser may evict storage, so the app asks for persistent storage once a
   class exists.
+- Working offline is part of the promise that nothing is transmitted, so it
+  must not depend on HTTPS: where no service worker can run, the app loads all
+  its files into the browser's cache instead (since 2026-10-03).
 - No telemetry ([0008](0008-no-telemetry.md)), search engines get prerendered
   HTML ([0007](0007-prerender-instead-of-ssr.md)), and a school can host the
   static image itself.

@@ -91,6 +91,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - In the sample class the windows and the door hung a little away from the walls, where no teacher could place them
 - Offline, "Plans & history", the settings menus, the CSV example and the English texts no longer take the room editor or the whole app down to an error screen when their part of the app has not been loaded yet: a message says why they do not open. A page that has not been loaded yet shows a notice with the way back instead of reloading into the browser's offline page, and checking for updates offline says it needs a connection instead of reloading
 - The app works offline from the first visit on: it no longer has to be reloaded once before the service worker takes over
+- Served over plain HTTP – on a school's own server, say – or in a private window, where the browser allows no service worker, Klassenplan works offline as a whole again: once it has loaded, it keeps all its parts in the browser's cache instead of only those already opened
 - "Clear all data" in the settings menu and "Plans & history" in the footer's menu closed together with the menu and did nothing
 - Once Klassenplan had been opened in a browser, `/robots.txt`, `/sitemap.xml` or `/.well-known/security.txt` opened there showed the app's "page not found" instead of the file
 

@@ -10,6 +10,7 @@ import {
   setUpdateController,
 } from '@/hooks/pwa/swUpdateController';
 import { UPDATE_TOAST_ID } from '@/hooks/pwa/useUpdateCheck';
+import { startOfflineWarmup } from '@/utils/performance/offlineWarmup';
 
 /** How often an open session re-checks for a new deployment. */
 const UPDATE_CHECK_INTERVAL_MS = 60 * 60 * 1000;
@@ -37,6 +38,9 @@ export default function ReloadPrompt() {
     },
     onRegisterError(error) {
       logInfo('SW registration error', { error }, 'PWA');
+      // A browser that refuses a worker (a private window, a policy) gets
+      // the app into its cache another way, so it still works offline.
+      startOfflineWarmup();
     },
   });
 

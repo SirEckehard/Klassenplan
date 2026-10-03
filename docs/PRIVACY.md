@@ -1,6 +1,6 @@
 # Privacy
 
-> **Status:** current · **Last reviewed:** 2026-09-26 · **For:** developers,
+> **Status:** current · **Last reviewed:** 2026-10-03 · **For:** developers,
 > self-hosting operators and schools evaluating Klassenplan
 
 This document describes what personal data Klassenplan handles, where it goes and
@@ -73,6 +73,10 @@ any other class
   referrer) are the only personal data it processes. Routes are fixed paths
   (`src/data/seoRoutes.json`); the app does not put student data into URLs.
 - **The service worker** caches the app's own files and fonts, nothing else.
+  Where a page cannot have one — an instance served over plain HTTP, a private
+  window — the app loads the same files into the browser's cache instead
+  (`offline-files.json`, `utils/performance/offlineWarmup.ts`): requests for
+  static files of its own origin, sending nothing.
 - **No cookies, no analytics, no external fonts or CDNs.** The local storage
   notice only informs; with the Global Privacy Control signal it is skipped.
 - **Feedback** is an e-mail link; only what someone writes arrives.

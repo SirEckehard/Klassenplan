@@ -17,6 +17,10 @@ import { LOCAL_STORAGE_KEYS } from '@/utils/data/storageKeys';
 import { preloadRoute, routeNameForPath } from '@/pages/routePreloader';
 import { runMigration } from '@/services/migration/migrationService';
 import { scheduleIdleTask } from '@/utils/performance/idleTasks';
+import {
+  canHaveServiceWorker,
+  startOfflineWarmup,
+} from '@/utils/performance/offlineWarmup';
 // Imported from the logger module directly rather than the '@/utils' barrel:
 // the barrel re-exports the algorithm, schema and design-token modules, which
 // would anchor them all in the entry chunk and delay the first paint.
@@ -114,6 +118,12 @@ async function initializeApp() {
   );
 
   startWebVitals();
+
+  // Without a service worker nothing is precached: the whole app is loaded
+  // into the browser's cache instead, so it works offline all the same.
+  if (!canHaveServiceWorker()) {
+    scheduleIdleTask(startOfflineWarmup);
+  }
 }
 
 // Initialize the app

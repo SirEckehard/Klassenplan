@@ -137,6 +137,30 @@ const preloadPrimaryFont = (): PluginOption => ({
     },
   },
 });
+/**
+ * Lists every file the app may ask for once it has loaded — the chunks, the
+ * workers, the stylesheet, the fonts — in `offline-files.json`. Where no
+ * service worker can precache them (an origin without HTTPS, a private
+ * window), `warmOfflineFiles` (`src/utils/performance/offlineWarmup.ts`)
+ * loads them into the browser's cache instead, so the whole app works offline
+ * there too. Written after bundling, since the names carry content hashes.
+ */
+const offlineFileList = (): PluginOption => ({
+  name: 'klassenplan:offline-file-list',
+  apply: 'build',
+  enforce: 'post',
+  generateBundle(_options, bundle) {
+    const files = Object.keys(bundle)
+      .filter((fileName) => /\.(js|css|woff2)$/.test(fileName))
+      .sort();
+    this.emitFile({
+      type: 'asset',
+      fileName: 'offline-files.json',
+      source: JSON.stringify(files),
+    });
+  },
+});
+
 const isProductionBuild = process.env.NODE_ENV === 'production';
 
 export default defineConfig({
@@ -144,6 +168,7 @@ export default defineConfig({
     tailwindcss,
     react(),
     preloadPrimaryFont(),
+    offlineFileList(),
     VitePWA({
       registerType: 'prompt',
       includeAssets: [
