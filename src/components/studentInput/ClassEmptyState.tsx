@@ -60,7 +60,7 @@ export default function ClassEmptyState({
             </p>
             <ol className="space-y-2">
               <li className="flex items-start gap-2">
-                <span className="mt-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-(--surface-option-selected) text-xs font-semibold text-(--text-badge)">
+                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-(--surface-option-selected) text-xs font-semibold text-(--text-badge)">
                   1
                 </span>
                 <span>
@@ -72,7 +72,7 @@ export default function ClassEmptyState({
                 </span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="mt-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-(--surface-option-selected) text-xs font-semibold text-(--text-badge)">
+                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-(--surface-option-selected) text-xs font-semibold text-(--text-badge)">
                   2
                 </span>
                 <span>{t('classActions.emptyState.step2')}</span>
