@@ -490,3 +490,12 @@ export function summarizeNameLabels(
 
   return { lengthened, identical };
 }
+
+/**
+ * Folds case and accents so a typed query matches a name: "jose" finds
+ * "José" — teachers type without diacritics far more often than they type
+ * them. Apply it to both sides of the comparison.
+ */
+export function foldForSearch(value: string): string {
+  return value.toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '');
+}

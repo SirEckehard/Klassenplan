@@ -15,6 +15,7 @@ const setup = ({
     clearSelection: vi.fn(),
     setDrawerOpen: vi.fn(),
     unfoldInspector: vi.fn(),
+    onRoomReplaced: vi.fn(),
   };
   const hook = renderHook(
     (props: { isRoomEmpty: boolean; isDesktop: boolean }) =>
@@ -52,6 +53,32 @@ describe('useRoomSetup', () => {
     expect(snapshot.mock.invocationCallOrder[0]).toBeLessThan(
       onTemplateChange.mock.invocationCallOrder[0],
     );
+  });
+
+  // The same class in a lab is another plan: a save after the room was
+  // replaced must not write the lab over the plan that was open.
+  it('lets go of the open plan when the room is set up anew or loaded', () => {
+    const { result, snapshot, onRoomReplaced, onTemplateChange } = setup();
+
+    act(() => result.current.setUpRoom('double'));
+    expect(onRoomReplaced).toHaveBeenCalledTimes(1);
+    expect(snapshot.mock.invocationCallOrder[0]).toBeLessThan(
+      onRoomReplaced.mock.invocationCallOrder[0],
+    );
+
+    act(() => result.current.loadTemplate(4));
+    expect(onRoomReplaced).toHaveBeenCalledTimes(2);
+    expect(onRoomReplaced.mock.invocationCallOrder[1]).toBeLessThan(
+      onTemplateChange.mock.invocationCallOrder[1],
+    );
+  });
+
+  it('keeps the open plan while the setup is only shown', () => {
+    const { result, onRoomReplaced } = setup();
+
+    act(() => result.current.revealSetup());
+
+    expect(onRoomReplaced).not.toHaveBeenCalled();
   });
 
   it('leaves the drawer alone from lg up, where the inspector is a column', () => {

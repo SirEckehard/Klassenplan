@@ -466,6 +466,7 @@ export function useSeatingPlanViewLogic({
         onFeatureContextMenuSetterChange={registerFeatureContextMenuSetter}
         onTableTypeChange={handleTypeChange}
         onTemplateChange={handleTemplateChangeWrapper}
+        onRoomReplaced={seatingPlanActions?.releaseOpenPlan}
       />
     );
 

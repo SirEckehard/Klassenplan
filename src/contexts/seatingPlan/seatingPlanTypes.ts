@@ -142,6 +142,11 @@ export interface SeatingPlanActions {
   ) => Promise<{ success: boolean; error?: 'empty' | 'duplicate' | 'storage' }>;
   handleHistoryLoad: (p: SavedPlan) => void;
   deleteSeatingPlan: (id: string) => void;
+  /**
+   * Lets go of the open plan, name and all, so the next save starts a new
+   * entry — what replacing the room as a whole calls for.
+   */
+  releaseOpenPlan: () => void;
   renameSeatingPlan: (id: string, name: string) => boolean;
   handleMixLoad: (r: MixResult) => void;
   deleteMixResult: (id: number) => void;

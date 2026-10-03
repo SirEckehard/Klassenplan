@@ -19,6 +19,11 @@ interface UseRoomSetupParams {
   setDrawerOpen: (open: boolean) => void;
   /** From `lg` up: brings a folded column back (`InspectorContext.folded`). */
   unfoldInspector: () => void;
+  /**
+   * The room was replaced as a whole: what is on screen is another plan now,
+   * so the open one is let go and no save writes the new room over it.
+   */
+  onRoomReplaced?: () => void;
 }
 
 /**
@@ -31,8 +36,9 @@ interface UseRoomSetupParams {
  * — and hands the panel a request to take the focus.
  *
  * Setting up and loading a template replace the room in one go, so both take
- * an undo snapshot first; below `lg` the drawer then steps aside to show the
- * result. An empty room has one thing to do, so its panel shows by itself —
+ * an undo snapshot first and let go of the open plan — the same class in
+ * another room is another plan, and saving must not write it over the first;
+ * below `lg` the drawer then steps aside to show the result. An empty room has one thing to do, so its panel shows by itself —
  * below `lg` the drawer opens, from `lg` up a folded column unfolds — as the
  * setup used to open over the canvas.
  */
@@ -45,6 +51,7 @@ export function useRoomSetup({
   clearSelection,
   setDrawerOpen,
   unfoldInspector,
+  onRoomReplaced,
 }: UseRoomSetupParams) {
   const [setupFocusRequest, setSetupFocusRequest] = React.useState(0);
 
@@ -71,6 +78,7 @@ export function useRoomSetup({
   const setUpRoom = React.useCallback(
     (type: TableTemplateType) => {
       snapshot();
+      onRoomReplaced?.();
       onTemplateChange(null);
       // Forced: the template just let go of is still selected in this render.
       onTableTypeChange(type, true);
@@ -78,18 +86,26 @@ export function useRoomSetup({
         setDrawerOpen(false);
       }
     },
-    [isDesktop, onTableTypeChange, onTemplateChange, setDrawerOpen, snapshot],
+    [
+      isDesktop,
+      onRoomReplaced,
+      onTableTypeChange,
+      onTemplateChange,
+      setDrawerOpen,
+      snapshot,
+    ],
   );
 
   const loadTemplate = React.useCallback(
     (templateId: number) => {
       snapshot();
+      onRoomReplaced?.();
       onTemplateChange(templateId);
       if (!isDesktop) {
         setDrawerOpen(false);
       }
     },
-    [isDesktop, onTemplateChange, setDrawerOpen, snapshot],
+    [isDesktop, onRoomReplaced, onTemplateChange, setDrawerOpen, snapshot],
   );
 
   return { setupFocusRequest, revealSetup, setUpRoom, loadTemplate };

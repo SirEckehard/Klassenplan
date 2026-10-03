@@ -150,7 +150,8 @@
     "selectPartner": "Select preferred partner",
     "none": "None",
     "noWishPartner": "No preferred partner",
-    "noPartnerSelected": "No partner selected"
+    "noPartnerSelected": "No partner selected",
+    "noMatches": "Nobody matches this search."
   },
   "distance": {
     "noDistancePartner": "No distance partner",

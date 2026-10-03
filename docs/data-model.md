@@ -81,7 +81,11 @@ interface ClassRecord {
   `autoSaved: true`; the next silent auto-save overwrites it. Names are unique
   within a class: a save writes to the open plan when the name is its own or
   the save renames it (`SaveSeatingPlanOptions.rename`), and otherwise starts a
-  new entry (`resolvePlanSlot`).
+  new entry (`resolvePlanSlot`). Every entry keeps its own copy of the room
+  (`SavedPlan.scene`), so one class can hold a plan per room; loading a template
+  or setting the room up anew clears `activePlanId` and the plan name
+  (`releaseOpenPlan`), so the next save starts a new entry instead of writing
+  the new room over the open one.
 - **`SavedPlan.date`** is an ISO date (`YYYY-MM-DD`). Older entries hold a
   pre-formatted German string; render both through `formatStoredDate`.
 - **`mixHistory`** keeps the last `MIX_HISTORY_LIMIT` (20) shuffle results, each

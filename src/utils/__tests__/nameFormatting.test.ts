@@ -7,6 +7,7 @@ import {
   getDisplayName,
   getDisplayNameForMode,
   getTooltipName,
+  foldForSearch,
 } from '../nameFormatting';
 import { describe, it, expect } from 'vitest';
 
@@ -432,5 +433,17 @@ describe('nameFormatting utilities', () => {
         ).toBe('Maximilian Schneider');
       });
     });
+  });
+});
+
+describe('foldForSearch', () => {
+  it('folds case and accents so a plain query finds the name', () => {
+    expect(foldForSearch('José')).toBe('jose');
+    expect(foldForSearch('ÇAĞLA Öztürk')).toBe('cagla ozturk');
+    expect(foldForSearch('Zoë')).toContain(foldForSearch('zoe'));
+  });
+
+  it('leaves a name without accents as it reads, in lower case', () => {
+    expect(foldForSearch('Anna Schmidt')).toBe('anna schmidt');
   });
 });

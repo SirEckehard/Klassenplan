@@ -607,6 +607,20 @@ export function useSeatingPersistence(state: SeatingState) {
     [activePlanId, setSeatingHistory, setActivePlanId, setPlanName],
   );
 
+  // Replacing the room as a whole — a template loaded, the room set up anew —
+  // makes what is on screen a different plan, often the same class in another
+  // room (a lab, a gym). Let go of the open one, name and all, so no save, the
+  // one before export and present included, writes the new room over it: a
+  // save then starts a new entry, and a name that stayed would be refused as
+  // taken. An undo of the room brings the room back but not this link; the
+  // next save starts a new plan rather than updating the old one, which loses
+  // nothing.
+  const releaseOpenPlan = useCallback(() => {
+    if (activePlanId === null) return;
+    setActivePlanId(null);
+    setPlanName('');
+  }, [activePlanId, setActivePlanId, setPlanName]);
+
   const renameSeatingPlan = useCallback(
     (id: string, name: string): boolean => {
       const trimmed = (name ?? '').trim();
@@ -1006,6 +1020,7 @@ export function useSeatingPersistence(state: SeatingState) {
     saveSeatingPlan,
     loadSeatingPlan,
     deleteSeatingPlan,
+    releaseOpenPlan,
     renameSeatingPlan,
     saveTemplate,
     updateTemplate,

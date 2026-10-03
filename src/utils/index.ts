@@ -195,6 +195,7 @@ export {
   getTooltipName,
   isNameTruncated,
   getNamePreview,
+  foldForSearch,
 } from './nameFormatting';
 export type { NameDisplayMode, NameLabels } from './nameFormatting';
 

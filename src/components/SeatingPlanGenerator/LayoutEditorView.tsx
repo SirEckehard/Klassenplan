@@ -137,6 +137,8 @@ type Props = {
   // Setting the room up from one kind of table, or from a template
   onTableTypeChange: (type: TableTemplateType, force?: boolean) => void;
   onTemplateChange: (templateId: number | null) => void;
+  /** Either of the two replaced the room as a whole; lets go of the open plan. */
+  onRoomReplaced?: () => void;
 };
 
 /**
@@ -194,6 +196,7 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
   onFeatureContextMenuSetterChange,
   onTableTypeChange,
   onTemplateChange,
+  onRoomReplaced,
 }: Props) {
   const { t } = useTranslation('generator');
   const {
@@ -396,6 +399,7 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
       clearSelection: clearCanvasSelection,
       setDrawerOpen,
       unfoldInspector,
+      onRoomReplaced,
     });
 
   // Tables and room elements turn together, by either handle, Q/E or the

@@ -150,7 +150,8 @@
     "selectPartner": "Wunschpartner auswählen",
     "none": "Keiner",
     "noWishPartner": "Kein Wunschpartner",
-    "noPartnerSelected": "Kein Partner ausgewählt"
+    "noPartnerSelected": "Kein Partner ausgewählt",
+    "noMatches": "Niemand passt zu dieser Suche."
   },
   "distance": {
     "noDistancePartner": "Kein Distanzpartner",

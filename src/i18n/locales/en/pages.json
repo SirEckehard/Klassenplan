@@ -309,6 +309,10 @@
       "limits": {
         "q": "Are there limits on students and seats?",
         "a": "Yes. Klassenplan is designed for a maximum of 36 students. In the room, the status bar shows whether there are seats for everyone."
+      },
+      "rooms": {
+        "q": "Can a class have several seating plans – say, one for the science lab?",
+        "a": "Yes. Every saved seating plan keeps its own room. For the lab, rearrange the tables in the room or load a lab you kept under “Templates”, mix, and save it under a name of its own with “Save Plan”, such as “7b Chemistry”. If the plan for the classroom is still open, choose “Save as new plan” so that one stays as it is. Under “Plans & history” you switch between the two plans; the room, the seating and the locked seats switch with them. Klassenplan counts who has already sat side by side across both rooms."
       }
     },
     "settings": {

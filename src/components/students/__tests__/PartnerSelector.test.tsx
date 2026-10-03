@@ -7,6 +7,7 @@ import userEvent from '@testing-library/user-event';
 import { createRef, useRef, useState } from 'react';
 import '@/i18n'; // Initialize i18n for tests
 import PartnerSelector from '../PartnerSelector';
+import AvoidPartnerSelector from '../AvoidPartnerSelector';
 import type { Student } from '../../../types';
 import { getButton } from '../../../__tests__/utils';
 
@@ -244,6 +245,129 @@ describe('PartnerSelector', () => {
     fireEvent.keyDown(focusedElement() as HTMLElement, { key: 'Escape' });
     expect(trigger).toHaveAttribute('aria-expanded', 'false');
     expect(trigger).toHaveFocus();
+  });
+});
+
+describe('PartnerSelector search', () => {
+  const student = createMockStudent();
+  const jose = createMockStudent({ id: '2', name: 'José Ortega' });
+  const anna = createMockStudent({ id: '3', name: 'Anna Schmidt' });
+  const ben = createMockStudent({ id: '4', name: 'Ben Annaberg' });
+
+  const renderOpen = (
+    updateStudent = vi.fn(),
+    Selector = PartnerSelector,
+    current = student,
+  ) =>
+    render(
+      <Selector
+        student={current}
+        allStudents={[current, jose, anna, ben]}
+        updateStudent={updateStudent}
+        showDropdown={true}
+        setShowDropdown={vi.fn()}
+        dropdownRef={createRef<HTMLDivElement>()}
+      />,
+    );
+
+  const searchBox = () =>
+    screen.getByRole('searchbox', { name: /Schüler suchen|Search students/i });
+
+  it('narrows the list as the teacher types, ignoring case and accents', async () => {
+    const user = userEvent.setup();
+    renderOpen();
+
+    await user.type(searchBox(), 'jose');
+
+    expect(getButton(/José Ortega/)).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /Anna Schmidt/ }),
+    ).not.toBeInTheDocument();
+    // Clearing the relation stays in reach while searching.
+    expect(
+      getButton(/Kein Wunschpartner|No preferred partner/i),
+    ).toBeInTheDocument();
+  });
+
+  it('says so when nobody matches', async () => {
+    const user = userEvent.setup();
+    renderOpen();
+
+    await user.type(searchBox(), 'zzz');
+
+    expect(
+      screen.getByText(
+        /Niemand passt zu dieser Suche|Nobody matches this search/i,
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it('picks the first match on Enter', async () => {
+    const user = userEvent.setup();
+    const updateStudent = vi.fn();
+    renderOpen(updateStudent);
+
+    await user.type(searchBox(), 'anna{Enter}');
+
+    expect(updateStudent).toHaveBeenCalledTimes(1);
+    expect(updateStudent).toHaveBeenCalledWith('1', {
+      wishPartnerIds: ['3'],
+      wishPartnerId: '3',
+    });
+  });
+
+  it('picks nobody on Enter while nothing is typed', async () => {
+    const user = userEvent.setup();
+    const updateStudent = vi.fn();
+    renderOpen(updateStudent);
+
+    await user.type(searchBox(), '{Enter}');
+
+    expect(updateStudent).not.toHaveBeenCalled();
+  });
+
+  it('steps from the field into the matches with the down arrow', async () => {
+    const user = userEvent.setup();
+    renderOpen();
+
+    await user.type(searchBox(), 'anna{ArrowDown}');
+
+    expect(getButton(/Anna Schmidt/)).toHaveFocus();
+  });
+
+  it('skips a match that cannot be chosen any more', async () => {
+    const user = userEvent.setup();
+    const full = createMockStudent({
+      wishPartnerIds: ['2', '5', '6'],
+      wishPartnerId: '2',
+    });
+    renderOpen(vi.fn(), PartnerSelector, full);
+
+    await user.type(searchBox(), 'ann{ArrowDown}');
+
+    // Both match; neither is chosen and three wishes are set, so there is
+    // nothing to step to.
+    expect(getButton(/Anna Schmidt/)).toBeDisabled();
+    expect(searchBox()).toHaveFocus();
+  });
+
+  it('searches the distance partners the same way', async () => {
+    const user = userEvent.setup();
+    const updateStudent = vi.fn();
+    renderOpen(updateStudent, AvoidPartnerSelector);
+
+    await user.type(searchBox(), 'josé{Enter}');
+
+    expect(
+      screen.queryByRole('button', { name: /Anna Schmidt/ }),
+    ).not.toBeInTheDocument();
+    expect(
+      getButton(/Kein Distanzpartner|No distance partner/i),
+    ).toBeInTheDocument();
+    expect(updateStudent).toHaveBeenCalledWith('1', {
+      avoidPartnerIds: ['2'],
+      avoidPartnerId: '2',
+    });
   });
 });
 

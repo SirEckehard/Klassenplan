@@ -3,7 +3,7 @@
 import React from 'react';
 import type { Student } from '@/types';
 import usePersistentState from '@/hooks/usePersistentState';
-import { LOCAL_STORAGE_KEYS } from '@/utils';
+import { foldForSearch, LOCAL_STORAGE_KEYS } from '@/utils';
 
 /** Sort orders offered above the list. `manual` keeps the insertion order. */
 export type StudentSortMode = 'manual' | 'name-asc' | 'name-desc';
@@ -55,13 +55,6 @@ const FILTER_PREDICATES: Record<
   withoutPhoto: (student) => !student.hasPhoto,
 };
 
-/**
- * Fold accents and case so "Jose" finds "José" — teachers type without
- * diacritics far more often than they type them.
- */
-const normalize = (value: string): string =>
-  value.toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '');
-
 export interface StudentListView {
   query: string;
   setQuery: (value: string) => void;
@@ -100,12 +93,12 @@ export function useStudentListView(students: Student[]): StudentListView {
   const [filterMode, setFilterMode] = React.useState<StudentFilterMode>('all');
 
   const visibleStudents = React.useMemo(() => {
-    const needle = normalize(query.trim());
+    const needle = foldForSearch(query.trim());
     let result = students;
 
     if (needle) {
       result = result.filter((student) =>
-        normalize(student.name).includes(needle),
+        foldForSearch(student.name).includes(needle),
       );
     }
 

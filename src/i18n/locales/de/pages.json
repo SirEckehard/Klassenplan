@@ -309,6 +309,10 @@
       "limits": {
         "q": "Gibt es Grenzen bei Schülern und Sitzplätzen?",
         "a": "Ja. Klassenplan ist auf maximal 36 Schüler ausgelegt. Die Statusleiste zeigt im Raum, ob die Plätze für alle reichen."
+      },
+      "rooms": {
+        "q": "Kann ich für eine Klasse mehrere Sitzpläne haben – etwa für den Fachraum?",
+        "a": "Ja. Jeder gespeicherte Sitzplan bringt seinen eigenen Raum mit. Für den Fachraum stellst du im Raum die Tische um oder lädst unter „Vorlagen“ einen aufgehobenen Fachraum, mischst und speicherst mit „Plan speichern“ unter einem eigenen Namen, etwa „7b Chemie“. Ist dabei noch der Plan für den Klassenraum offen, wählst du „Als neuen Plan speichern“, damit er bleibt, wie er ist. Unter „Pläne & Verlauf“ wechselst du zwischen beiden Plänen; Raum, Sitzordnung und gesperrte Plätze wechseln mit. Wer schon nebeneinander saß, zählt Klassenplan über beide Räume hinweg."
       }
     },
     "settings": {
