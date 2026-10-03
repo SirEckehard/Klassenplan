@@ -14,13 +14,15 @@ describe('ToastProvider', () => {
     act(() => dismissAllToasts());
   });
 
-  // Top right, messages lay over Help, the gear and the inspector's head.
-  it('stacks messages at the bottom centre', () => {
+  // Top right, but under the header: in its corner messages lay over Help
+  // and the gear.
+  it('stacks messages at the top right, under the header', () => {
     render(<ToastProvider>{null}</ToastProvider>);
 
     expect(screen.getByTestId('toast-container')).toHaveClass(
-      'bottom-18',
-      'items-center',
+      'top-18',
+      'items-end',
+      'sm:right-6',
     );
   });
 

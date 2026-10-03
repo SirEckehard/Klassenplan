@@ -201,7 +201,10 @@
   "planUsage": {
     "recorded": "Als genutzter Sitzplan vermerkt – das verbessert die Wiederholungsvermeidung.",
     "recordedAction": "War nur ein Test",
-    "dismissed": "Dieser Sitzplan wird nicht gewertet."
+    "dismissed": "Dieser Sitzplan wird nicht gewertet.",
+    "reset": "Nachbarschaften zurückgesetzt – ab jetzt wird neu gezählt.",
+    "resetAction": "Rückgängig",
+    "resetUndone": "Nachbarschaften wiederhergestellt."
   },
   "room": {
     "noFreeSpot": "Im Raum ist kein Platz mehr frei – ziehe es an eine Stelle deiner Wahl."

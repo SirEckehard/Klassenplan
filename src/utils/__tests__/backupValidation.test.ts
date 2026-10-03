@@ -217,3 +217,27 @@ describe('backupValidation: partner id lists', () => {
     );
   });
 });
+
+describe('backupValidation: neighbourhood resets', () => {
+  it('accepts when each class was reset', () => {
+    const json = JSON.stringify({
+      ...baseBundle,
+      version: 2,
+      planUsageResetAt: { 'class-1': '2026-10-03T08:00:00.000Z' },
+    });
+
+    expect(parseExportBundle(json).planUsageResetAt).toEqual({
+      'class-1': '2026-10-03T08:00:00.000Z',
+    });
+  });
+
+  it('rejects a reset that is no point in time', () => {
+    const json = JSON.stringify({
+      ...baseBundle,
+      version: 2,
+      planUsageResetAt: { 'class-1': 'gestern' },
+    });
+
+    expect(() => parseExportBundle(json)).toThrow(BackupValidationError);
+  });
+});

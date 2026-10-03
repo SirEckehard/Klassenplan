@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
@@ -156,7 +156,19 @@ export default function Present() {
 
   // "Who's next?" draws without replacement, so every student gets a turn
   // before anyone repeats.
-  const picker = useRandomStudentPicker(currentSeating);
+  // The circle draws from its own order: it takes every student, a seat at a
+  // table or not. Switching the shape starts a new round.
+  const circleSeating = useMemo(
+    () => [
+      (circleLayout?.students ?? []).map(
+        (position) => position?.student ?? null,
+      ),
+    ],
+    [circleLayout],
+  );
+  const picker = useRandomStudentPicker(
+    mode === 'circle' ? circleSeating : currentSeating,
+  );
 
   const zoomBy = useCallback(
     (delta: number) =>
@@ -187,10 +199,6 @@ export default function Present() {
     navigate('/gruppen');
   };
 
-  const seatedCount = currentSeating.reduce(
-    (count, table) => count + table.filter(Boolean).length,
-    0,
-  );
   const hasPlan = classroomScene.tables.length > 0 && currentSeating.length > 0;
   const hasCircle = !!circleLayout && circleLayout.students.length > 0;
   const hasContent = mode === 'circle' ? hasCircle : hasPlan;
@@ -240,11 +248,6 @@ export default function Present() {
           </div>
 
           <div className="flex items-center gap-2">
-            {seatedCount > 0 && (
-              <span className="hidden text-sm tabular-nums text-(--text-muted) sm:inline">
-                {t('present.seats', { count: seatedCount })}
-              </span>
-            )}
             <AppearanceControls />
             <HelpButton
               faqSection="unterricht"
@@ -346,8 +349,10 @@ export default function Present() {
       >
         {hasContent && isCircle && circleLayout ? (
           <div className="flex h-full items-center justify-center">
+            {/* The ring fills the wall, framed on itself as the table plan is
+                framed on its furniture; 100 % is the whole screen. */}
             <div
-              className="w-full max-w-5xl"
+              className="h-full w-full"
               style={{
                 transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
                 transformOrigin: 'center',
@@ -364,6 +369,8 @@ export default function Present() {
                 connectionMode="off"
                 badgeView={PRESENT_CIRCLE_BADGE_VIEW}
                 transparentBackground
+                fit
+                spotlightStudentId={picker.picked?.student.id ?? null}
               />
             </div>
           </div>
@@ -450,7 +457,7 @@ export default function Present() {
             onToggleContrast={() => setContrast((value) => !value)}
             nameDisplay={currentNameDisplay}
             onCycleNameDisplay={cycleNameDisplay}
-            onPick={!isCircle && picker.total > 0 ? picker.pick : undefined}
+            onPick={picker.total > 0 ? picker.pick : undefined}
             onOpenGroups={openGroups}
             zoom={zoom}
             minZoom={PRESENT_MIN_ZOOM}

@@ -3,6 +3,13 @@
 import { describe, it, expect, afterEach, beforeEach, vi } from 'vitest';
 import { act, render, screen, cleanup } from '@testing-library/react';
 import OfflineIndicator from '../OfflineIndicator';
+import { useRegisterStatusBar } from '@/hooks/ui/statusBarPresence';
+
+/** Stands in for a status bar, which says "offline" itself. */
+function StatusBarStandIn() {
+  useRegisterStatusBar();
+  return null;
+}
 
 /** jsdom reports `navigator.onLine` as true and never fires the events itself. */
 const setOnline = (value: boolean) => {
@@ -69,5 +76,18 @@ describe('OfflineIndicator', () => {
 
     setOnline(true);
     expect(screen.queryByRole('status')).not.toBeInTheDocument();
+  });
+
+  // The workspace and the export page say it in their status bar, where the
+  // badge used to cover the toolbar's switch.
+  it('stands down while a status bar is on screen', () => {
+    const bar = render(<StatusBarStandIn />);
+    render(<OfflineIndicator />);
+
+    setOnline(false);
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+
+    bar.unmount();
+    expect(screen.getByRole('status')).toHaveTextContent(/Offline/i);
   });
 });

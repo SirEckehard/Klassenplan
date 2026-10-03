@@ -40,6 +40,8 @@ export type AlgorithmWorkerRequestMap = {
       mixHistory: MixResult[];
       /** Records of plans that were really in use; see `buildPreviousPairs`. */
       planUsage?: PlanUsage[];
+      /** When the neighbourhoods were last reset; see `buildPreviousPairs`. */
+      planUsageSince?: string | null;
       lockedPositions: LockedPositions;
       classroomScene: ClassroomScene;
       mixSettings: Partial<MixSettings>;
@@ -60,6 +62,8 @@ export type AlgorithmWorkerRequestMap = {
       seatingHistory: SavedPlan[];
       /** Records of plans that were really in use; see `buildPreviousPairs`. */
       planUsage?: PlanUsage[];
+      /** When the neighbourhoods were last reset; see `buildPreviousPairs`. */
+      planUsageSince?: string | null;
       lockedPositions: LockedPositions;
       options?: { triesPerPass?: number; passes?: number };
       start?: SeatingArrangement | null;

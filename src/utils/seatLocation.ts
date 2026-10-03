@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import type { ClassroomScene, SeatingArrangement, Student } from '@/types';
+import type { CircleLayout } from '@/types/Circle';
 import { getSeatPositions, partnerSeat } from './math/seatGeometry';
 import { determineFrontDirection } from './algorithm/orientationUtils';
 import { getFeatureDistanceMaps } from './algorithm/featureDistances';
@@ -111,4 +112,43 @@ export function findSeatLocation(
     landmark,
     neighbors: partner ? [partner] : [],
   };
+}
+
+/**
+ * Where a student sits in the seating circle: there is no table, no front and
+ * no window to name, only who sits on either side — which is what a class in a
+ * circle looks at anyway.
+ */
+export type CircleLocation = {
+  kind: 'circle';
+  /** One-based place round the circle, in the order it is drawn. */
+  position: number;
+  /** The students left and right of them; one in a circle of two. */
+  neighbors: Student[];
+};
+
+export function findCircleLocation(
+  layout: CircleLayout,
+  studentId: string,
+): CircleLocation | null {
+  const places = layout.students;
+  const index = places.findIndex((place) => place?.student?.id === studentId);
+  if (index < 0) {
+    return null;
+  }
+
+  const neighbors: Student[] = [];
+  for (const offset of [-1, 1]) {
+    const neighbor =
+      places[(index + offset + places.length) % places.length]?.student;
+    if (
+      neighbor &&
+      neighbor.id !== studentId &&
+      !neighbors.some((known) => known.id === neighbor.id)
+    ) {
+      neighbors.push(neighbor);
+    }
+  }
+
+  return { kind: 'circle', position: index + 1, neighbors };
 }

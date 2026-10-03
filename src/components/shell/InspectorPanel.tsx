@@ -72,6 +72,7 @@ export function InspectorSection({
   family,
   title,
   tourAnchor,
+  actions,
   children,
 }: {
   /** Pedagogical family the group speaks for; neutral where it has none. */
@@ -79,18 +80,33 @@ export function InspectorSection({
   title: string;
   /** The coach mark that points at this group, if one does. */
   tourAnchor?: string;
+  /**
+   * What acts on every row of the group at once — a switch for all of them —
+   * beside the heading, as the criteria's switch sits beside the panel's.
+   */
+  actions?: React.ReactNode;
   children: React.ReactNode;
 }) {
+  const heading = (
+    <h3
+      className={`${dataHeadingClass} ${family ? dataFamilyClass[family] : 'text-(--text-muted)'}`}
+    >
+      {title}
+    </h3>
+  );
   return (
     <section
       data-tour={tourAnchor}
       className="flex flex-col gap-2 border-t border-(--border-card) pt-3 pb-3 first:border-t-0 first:pt-0 last:pb-0"
     >
-      <h3
-        className={`${dataHeadingClass} ${family ? dataFamilyClass[family] : 'text-(--text-muted)'}`}
-      >
-        {title}
-      </h3>
+      {actions ? (
+        <div className="flex items-center justify-between gap-2">
+          {heading}
+          {actions}
+        </div>
+      ) : (
+        heading
+      )}
       <div className="flex flex-col gap-2">{children}</div>
     </section>
   );

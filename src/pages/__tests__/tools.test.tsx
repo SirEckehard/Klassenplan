@@ -21,6 +21,7 @@ const seatingState = vi.hoisted(() => ({
     classroomScene: { tables: [] as unknown[], totalStudents: 0, features: [] },
     students: [] as unknown[],
     circleLayout: null as unknown,
+    seatingMode: 'table' as 'table' | 'circle',
     activeClass: { id: 'class-1', name: '7b' },
   },
 }));
@@ -52,6 +53,7 @@ const withPlan = () => {
     },
     students: [ada, ben, cem],
     circleLayout: null,
+    seatingMode: 'table',
     activeClass: { id: 'class-1', name: '7b' },
   };
 };
@@ -66,6 +68,7 @@ beforeEach(() => {
     classroomScene: { tables: [], totalStudents: 0, features: [] },
     students: [],
     circleLayout: null,
+    seatingMode: 'table',
     activeClass: { id: 'class-1', name: '7b' },
   };
 });
@@ -120,6 +123,30 @@ describe('Wer kommt dran?', () => {
 
     // Whoever was drawn, their table is part of the answer.
     expect(screen.getByRole('status')).toHaveTextContent(/Tisch \d|Table \d/);
+  });
+
+  // In the circle there is no table to name: the answer is who sits on
+  // either side, and everybody in the circle is drawn, a table seat or not.
+  it('names the neighbours in the circle while the class sits in one', () => {
+    withPlan();
+    seatingState.current = {
+      ...seatingState.current,
+      seatingMode: 'circle',
+      circleLayout: {
+        students: [ada, ben, cem].map((student, index) => ({
+          student,
+          position: index,
+        })),
+      },
+    };
+
+    renderPage(<WhoIsNext />);
+    fireEvent.click(screen.getByRole('button', { name: /Ziehen|Draw/ }));
+
+    const status = screen.getByRole('status');
+    expect(status).toHaveTextContent(/im Sitzkreis|in the circle/);
+    expect(status).toHaveTextContent(/zwischen .+ und |between .+ and /);
+    expect(status).not.toHaveTextContent(/Tisch \d|Table \d/);
   });
 });
 

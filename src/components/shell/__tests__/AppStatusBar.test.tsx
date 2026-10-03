@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import '@testing-library/jest-dom/vitest';
-import { render, screen, cleanup } from '@testing-library/react';
+import { render, screen, cleanup, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
 import '@/i18n';
@@ -114,6 +114,9 @@ describe('AppStatusBar', () => {
       screen.getByTitle(/Alle Namen gesetzt|All names set/i),
     ).toBeInTheDocument();
     expect(proceed()).not.toHaveAttribute('aria-disabled');
+    // It reads "Weiter" on every layer; the name says where it leads.
+    expect(proceed()).toHaveTextContent(/^(Weiter|Next)$/);
+    expect(proceed()).toHaveAccessibleName(/Weiter zum Raum|to the room/i);
   });
 
   it('explains at the button why an unnamed class blocks the way on', () => {
@@ -222,8 +225,10 @@ describe('AppStatusBar', () => {
     expect(button).toHaveAttribute('aria-describedby', tooltip.id);
   });
 
-  it('reports how full the plan is and offers no action of its own yet', () => {
-    const students = named(3);
+  // The plan says whether it is there and its criteria have their figures in
+  // the inspector, so the line has nothing left to state on the plan layer.
+  it('states nothing about the table plan and offers no way on', () => {
+    const students = named(5);
     setState({
       step: 3,
       students,
@@ -235,67 +240,14 @@ describe('AppStatusBar', () => {
     });
     render(<AppStatusBar />);
 
-    expect(status()).toHaveTextContent(
-      /3 von 4 Plätzen besetzt|3 of 4 seats taken/i,
-    );
-    expect(
-      screen.getByTitle(
-        /Alle Schüler haben einen Platz|Every student has a seat/i,
-      ),
-    ).toBeInTheDocument();
+    expect(status()).not.toHaveTextContent(/Plätzen|seats|Platz|seat/i);
+    expect(screen.queryByTitle(/ohne Platz|without a seat/i)).toBeNull();
     expect(
       screen.queryByRole('button', { name: /Weiter|Next|Proceed/i }),
     ).not.toBeInTheDocument();
   });
 
-  it('crosses the plan off while students are left without a seat', () => {
-    const students = named(5);
-    setState({
-      step: 3,
-      students,
-      classroomScene: createMockClassroomScene(2), // 4 seats
-      currentSeating: [
-        [students[0], students[1]],
-        [students[2], null],
-      ],
-    });
-    render(<AppStatusBar />);
-
-    expect(
-      screen.getByTitle(/2 Schüler ohne Platz|2 students without a seat/i),
-    ).toBeInTheDocument();
-  });
-
-  // The circle takes every student, a seat at a table or not: while it is on
-  // the stage the line counts the circle, and two students without a table
-  // seat are no reason for a red cross.
-  it('counts the circle while the circle is on the stage', () => {
-    const students = named(5);
-    setState({
-      step: 3,
-      students,
-      classroomScene: createMockClassroomScene(2), // 4 seats
-      currentSeating: [
-        [students[0], students[1]],
-        [students[2], null],
-      ],
-      seatingMode: 'circle',
-      circleLayout: circleOf(students),
-    });
-    render(<AppStatusBar />);
-
-    expect(status()).toHaveTextContent(
-      /5 Schüler im Kreis|5 students in the circle/i,
-    );
-    expect(status()).not.toHaveTextContent(/Plätzen|seats/i);
-    expect(
-      screen.getByTitle(
-        /Alle Schüler sitzen im Kreis|Every student sits in the circle/i,
-      ),
-    ).toBeInTheDocument();
-  });
-
-  it('crosses the circle off while students are missing from it', () => {
+  it('states nothing about the circle either', () => {
     const students = named(4);
     setState({
       step: 3,
@@ -305,20 +257,8 @@ describe('AppStatusBar', () => {
     });
     render(<AppStatusBar />);
 
-    expect(
-      screen.getByTitle(
-        /1 Schüler fehlt im Kreis|1 student missing from the circle/i,
-      ),
-    ).toBeInTheDocument();
-  });
-
-  it('says so before there is a circle', () => {
-    setState({ step: 3, students: named(3), seatingMode: 'circle' });
-    render(<AppStatusBar />);
-
-    expect(status()).toHaveTextContent(
-      /Noch kein Sitzkreis|No seating circle yet/i,
-    );
+    expect(status()).not.toHaveTextContent(/Kreis|circle/i);
+    expect(screen.queryByTitle(/Kreis|circle/i)).toBeNull();
   });
 
   // The plan layer is the last one: its way on leads out of the workspace.
@@ -373,6 +313,45 @@ describe('AppStatusBar', () => {
     expect(mix.compareDocumentPosition(back())).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING,
     );
+  });
+
+  // The class list's jump to its ends stands over the stage but belongs to
+  // the bar: measured from the window's edge, it slid into the bar on an
+  // iPhone.
+  it('hangs a floating control above the bar, inside it', () => {
+    setState({ step: 1, students: named(2) });
+    render(
+      <StatusBarSlotProvider>
+        <AppStatusBar />
+        <StatusBarPortal slot="float">
+          <button type="button">Zum Listenanfang</button>
+        </StatusBarPortal>
+      </StatusBarSlotProvider>,
+    );
+
+    const jump = getButton('Zum Listenanfang');
+    expect(status()).toContainElement(jump);
+    expect(jump.parentElement).toHaveClass('absolute', 'bottom-full');
+  });
+
+  it('notes being offline beside the switches', () => {
+    setState({ step: 1, students: named(2) });
+    Object.defineProperty(window.navigator, 'onLine', {
+      configurable: true,
+      value: false,
+    });
+    try {
+      render(<AppStatusBar />);
+      expect(within(status()).getByRole('status')).toHaveTextContent(
+        /Offline/i,
+      );
+      expect(status().querySelector('[title="Offline"]')).not.toBeNull();
+    } finally {
+      Object.defineProperty(window.navigator, 'onLine', {
+        configurable: true,
+        value: true,
+      });
+    }
   });
 
   // The settings hang in the header beside Help; the bar keeps to where the

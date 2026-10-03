@@ -57,4 +57,11 @@ export interface PlanUsageData {
   byClass: Record<string, PlanUsage[]>;
   /** Classes already seeded from their saved plans, so it happens only once. */
   backfilledClassIds: string[];
+  /**
+   * When the teacher last reset a class's neighbourhoods (ISO 8601, per class
+   * id). The reset empties the class's records; saved plans and mixes from
+   * before it no longer count either (`buildPreviousPairs`' `since`). Absent
+   * in data written before the reset existed.
+   */
+  resetAtByClass?: Record<string, string>;
 }

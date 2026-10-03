@@ -43,11 +43,13 @@ export interface AlgorithmRunOptions {
  * Provide algorithms to generate and refine seating arrangements.
  * @param state Shared seating state
  * @param planUsage Records of plans that were really in use; see `buildPreviousPairs`
+ * @param planUsageSince When the neighbourhoods were last reset, if ever
  * @returns Functions for generating and refining plans
  */
 export function useSeatingAlgorithm(
   state: SeatingState,
   planUsage: PlanUsage[] = [],
+  planUsageSince: string | null = null,
 ) {
   const {
     studentState: { students },
@@ -60,6 +62,7 @@ export function useSeatingAlgorithm(
   // Held in a ref like the mix history: the records change on signals raised
   // from other routes, and that must not rebuild the algorithm callbacks.
   const planUsageRef = useRef(planUsage);
+  const planUsageSinceRef = useRef(planUsageSince);
   const recentSeatingRef = useRef<SeatingArrangement | null>(
     currentSeating.length > 0 ? currentSeating : null,
   );
@@ -80,6 +83,10 @@ export function useSeatingAlgorithm(
   useEffect(() => {
     planUsageRef.current = planUsage;
   }, [planUsage]);
+
+  useEffect(() => {
+    planUsageSinceRef.current = planUsageSince;
+  }, [planUsageSince]);
 
   useEffect(() => {
     recentSeatingRef.current =
@@ -196,6 +203,7 @@ export function useSeatingAlgorithm(
             seatingHistory,
             mixHistory: historyForPairs,
             planUsage: planUsageRef.current,
+            planUsageSince: planUsageSinceRef.current,
             lockedPositions,
             classroomScene: scene,
             mixSettings: normalizedSettings,
@@ -246,7 +254,10 @@ export function useSeatingAlgorithm(
             seatingHistory,
             scene,
             historyForPairs,
-            { planUsage: planUsageRef.current },
+            {
+              planUsage: planUsageRef.current,
+              planUsageSince: planUsageSinceRef.current,
+            },
           );
           setLastStatistics(topCriteria);
 
@@ -289,6 +300,7 @@ export function useSeatingAlgorithm(
             seatingHistory,
             mixHistory: mixHistoryRef.current,
             planUsage: planUsageRef.current,
+            planUsageSince: planUsageSinceRef.current,
             lockedPositions,
             classroomScene: scene,
             currentSeating,

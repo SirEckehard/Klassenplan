@@ -74,7 +74,12 @@ function notifyListeners(): void {
 }
 
 function emptyData(): PlanUsageData {
-  return { version: 1, byClass: {}, backfilledClassIds: [] };
+  return {
+    version: 1,
+    byClass: {},
+    backfilledClassIds: [],
+    resetAtByClass: {},
+  };
 }
 
 async function readData(): Promise<PlanUsageData> {
@@ -96,6 +101,7 @@ async function readData(): Promise<PlanUsageData> {
     version: 1,
     byClass: stored.byClass ?? {},
     backfilledClassIds: stored.backfilledClassIds ?? [],
+    resetAtByClass: stored.resetAtByClass ?? {},
   };
 }
 
@@ -138,6 +144,95 @@ export async function loadPlanUsage(
   if (!classId) return [];
   const data = await readData();
   return data.byClass[classId] ?? [];
+}
+
+/** When the class's neighbourhoods were last reset, or null if never. */
+export async function loadPlanUsageResetAt(
+  classId: string | null | undefined,
+): Promise<string | null> {
+  if (!classId) return null;
+  const data = await readData();
+  return data.resetAtByClass?.[classId] ?? null;
+}
+
+/** What a reset took away, so "Rückgängig" can put it back. */
+export interface PlanUsageResetSnapshot {
+  records: PlanUsage[];
+  resetAt: string | null;
+}
+
+/**
+ * Start a class's neighbourhoods afresh: its records go, and from now on
+ * saved plans and mixes from before this moment no longer count either.
+ *
+ * The class stays among the backfilled ones — otherwise the next load would
+ * seed it from its saved plans again and undo the reset.
+ *
+ * @param classId Class to reset
+ * @param now The moment of the reset, injected for tests
+ * @returns What was taken away, for `undoPlanUsageReset`; null if nothing
+ *   could be written
+ */
+export async function resetPlanUsage(
+  classId: string | null | undefined,
+  now: Date = new Date(),
+): Promise<PlanUsageResetSnapshot | null> {
+  if (!classId || !hasIndexedDB()) return null;
+
+  let snapshot: PlanUsageResetSnapshot | null = null;
+  await mutate((data) => {
+    snapshot = {
+      records: data.byClass[classId] ?? [],
+      resetAt: data.resetAtByClass?.[classId] ?? null,
+    };
+    return {
+      ...data,
+      byClass: { ...data.byClass, [classId]: [] },
+      backfilledClassIds: data.backfilledClassIds.includes(classId)
+        ? data.backfilledClassIds
+        : [...data.backfilledClassIds, classId],
+      resetAtByClass: {
+        ...data.resetAtByClass,
+        [classId]: now.toISOString(),
+      },
+    };
+  });
+  return snapshot;
+}
+
+/**
+ * Take a reset back. Records that arrived since the reset stay: a plan
+ * presented in the meantime was really in use either way.
+ *
+ * @param classId Class the reset was made for
+ * @param snapshot What `resetPlanUsage` returned
+ */
+export async function undoPlanUsageReset(
+  classId: string | null | undefined,
+  snapshot: PlanUsageResetSnapshot,
+): Promise<void> {
+  if (!classId || !hasIndexedDB()) return;
+
+  await mutate((data) => {
+    const since = data.byClass[classId] ?? [];
+    const restored = snapshot.records.filter(
+      (entry) => !since.some((kept) => kept.fingerprint === entry.fingerprint),
+    );
+    const resetAtByClass = { ...data.resetAtByClass };
+    if (snapshot.resetAt) {
+      resetAtByClass[classId] = snapshot.resetAt;
+    } else {
+      delete resetAtByClass[classId];
+    }
+    return {
+      ...data,
+      byClass: {
+        ...data.byClass,
+        [classId]: trimPlanUsage([...restored, ...since]),
+      },
+      resetAtByClass,
+    };
+  });
 }
 
 /** Every class's usage records, for embedding in a backup. */
@@ -335,7 +430,18 @@ export async function sweepOrphanPlanUsage(
       changed = true;
     }
 
-    return changed ? { ...data, byClass, backfilledClassIds } : null;
+    const resetAtByClass: Record<string, string> = {};
+    for (const [classId, at] of Object.entries(data.resetAtByClass ?? {})) {
+      if (studentIdsByClass.has(classId)) {
+        resetAtByClass[classId] = at;
+      } else {
+        changed = true;
+      }
+    }
+
+    return changed
+      ? { ...data, byClass, backfilledClassIds, resetAtByClass }
+      : null;
   });
 }
 
@@ -346,23 +452,31 @@ export async function sweepOrphanPlanUsage(
  * applied. A merge only adds classes that have no records yet: reconciling two
  * histories of the same class would have to guess which arrangement came first,
  * and guessing wrong would corrupt the very data this record exists to protect.
+ * A class's reset travels with its records.
  *
  * @param byClass Usage records per class from the backup
- * @param options `merge` keeps existing records; otherwise the store is replaced
+ * @param options `merge` keeps existing records; otherwise the store is
+ *   replaced. `resetAtByClass` holds the resets the backup carries.
  */
 export async function restorePlanUsage(
   byClass: Record<string, PlanUsage[]> | undefined,
-  options?: { merge?: boolean },
+  options?: { merge?: boolean; resetAtByClass?: Record<string, string> },
 ): Promise<void> {
   if (!hasIndexedDB()) return;
 
   const restored = byClass ?? {};
+  const restoredResets = options?.resetAtByClass ?? {};
 
   if (!options?.merge) {
     await mutate(() => ({
       version: 1,
       byClass: restored,
-      backfilledClassIds: Object.keys(restored),
+      // A class reset with no record since has an empty bucket — or none in
+      // an older backup — and must not be seeded from its saved plans again.
+      backfilledClassIds: [
+        ...new Set([...Object.keys(restored), ...Object.keys(restoredResets)]),
+      ],
+      resetAtByClass: { ...restoredResets },
     }));
     return;
   }
@@ -372,13 +486,25 @@ export async function restorePlanUsage(
     if (added.length === 0) return null;
 
     const byClassNext = { ...data.byClass };
+    const resetsNext = { ...data.resetAtByClass };
     for (const id of added) {
       byClassNext[id] = restored[id];
+      if (restoredResets[id]) resetsNext[id] = restoredResets[id];
     }
     return {
       ...data,
       byClass: byClassNext,
       backfilledClassIds: [...data.backfilledClassIds, ...added],
+      resetAtByClass: resetsNext,
     };
   });
+}
+
+/** Every class's reset, for embedding in a backup. */
+export async function getAllPlanUsageResets(): Promise<
+  Record<string, string> | undefined
+> {
+  const data = await readData();
+  const resets = data.resetAtByClass ?? {};
+  return Object.keys(resets).length > 0 ? resets : undefined;
 }

@@ -25,6 +25,7 @@ import {
   pillTabInactiveClass,
   segmentedTrackClass,
   formatTime,
+  logError,
 } from '@/utils';
 import { showToast } from '@/utils/ui/toast';
 import type { SavedPlan, MixResult } from '@/types';
@@ -60,7 +61,46 @@ export default function StorageHistoryModal({
   } = useSeatingAlgorithmContext();
   const { students } = useStudentManagementContext();
   const { activeClass } = useClassManagementContext();
-  const { planUsage, setUsageConfirmed } = usePlanUsageRecords(activeClass.id);
+  const {
+    planUsage,
+    planUsageSince,
+    setUsageConfirmed,
+    resetUsage,
+    undoReset,
+  } = usePlanUsageRecords(activeClass.id);
+
+  // One click, no question asked: the toast takes it back, the way the
+  // withdrawn single plan is taken back.
+  const handleNeighborhoodReset = useCallback(() => {
+    resetUsage()
+      .then((snapshot) => {
+        if (!snapshot) return;
+        showToast('info', 'toast:planUsage.reset', {
+          duration: 8000,
+          action: {
+            label: t('toast:planUsage.resetAction'),
+            onClick: () => {
+              undoReset(snapshot)
+                .then(() => showToast('success', 'toast:planUsage.resetUndone'))
+                .catch((error: unknown) => {
+                  logError(
+                    'Undoing the neighbourhood reset failed',
+                    { error },
+                    'StorageHistoryModal',
+                  );
+                });
+            },
+          },
+        });
+      })
+      .catch((error: unknown) => {
+        logError(
+          'Resetting the neighbourhoods failed',
+          { error },
+          'StorageHistoryModal',
+        );
+      });
+  }, [resetUsage, t, undoReset]);
 
   // Plan handlers
   const handlePlanLoad = useCallback(
@@ -266,6 +306,8 @@ export default function StorageHistoryModal({
             planUsage={planUsage}
             students={students}
             onSetConfirmed={setUsageConfirmed}
+            resetAt={planUsageSince}
+            onReset={handleNeighborhoodReset}
           />
         </div>
       </div>

@@ -3,6 +3,7 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
 import { useInspector } from '@/contexts/InspectorContext';
+import { isBreakpointUp } from '@/hooks/ui/useBreakpoint';
 
 /**
  * Renders a layer's own panel content into the shell's inspector frame.
@@ -21,22 +22,23 @@ import { useInspector } from '@/contexts/InspectorContext';
  */
 export default function InspectorPortal({
   label,
-  foldable = false,
+  reveal = false,
   children,
 }: {
   /** Names the inspector column while this content fills it. */
   label?: string;
   /**
-   * The column may fold away from `lg` up, so the stage beside it — a room,
-   * a plan, a sheet — takes the width (`InspectorContext.folded`).
+   * Unfolds a folded column from `lg` up when this content arrives: the
+   * class layer's ticked students are edited nowhere else there. The room,
+   * the plan and the sheet leave the column as the teacher left it.
    */
-  foldable?: boolean;
+  reveal?: boolean;
   children: React.ReactNode;
 }) {
-  const { slotNode, mountPortal } = useInspector();
-  React.useLayoutEffect(
-    () => mountPortal(label, foldable),
-    [foldable, label, mountPortal],
-  );
+  const { slotNode, mountPortal, setFolded } = useInspector();
+  React.useLayoutEffect(() => mountPortal(label), [label, mountPortal]);
+  React.useLayoutEffect(() => {
+    if (reveal && isBreakpointUp('lg')) setFolded(false);
+  }, [reveal, setFolded]);
   return slotNode ? createPortal(children, slotNode) : null;
 }

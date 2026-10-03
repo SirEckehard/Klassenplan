@@ -43,6 +43,7 @@ import StudentListToolsRow from '@/components/studentInput/StudentListToolsRow';
 import StudentBulkInspector from '@/components/students/StudentBulkInspector';
 import StudentInspectorPanel from '@/components/students/StudentInspectorPanel';
 import InspectorPortal from '@/components/shell/InspectorPortal';
+import StatusBarPortal from '@/components/shell/StatusBarPortal';
 import { useInspector } from '@/contexts/InspectorContext';
 import AttributeFocusMode from '@/components/studentInput/AttributeFocusMode';
 import ListScrollFab from '@/components/studentInput/ListScrollFab';
@@ -91,7 +92,6 @@ function StudentInput({
     listEndRef,
     scrollHint,
     handleScrollHint,
-    floatingActionOffsets,
   } = useStudentListLayout({
     isMobile: !isLgUp,
     studentCount: students.length,
@@ -105,7 +105,7 @@ function StudentInput({
     handleAddStudent,
     isAddDisabled,
   } = useStudentManagement({ students, addStudent });
-  const { selectStudent } = useInspector();
+  const { selectStudent, setSuspended } = useInspector();
   const { activeClass } = useClassManagementContext();
   const { triggerImport } = useSeatingPlanActions();
   const { loadDemoClass, isLoadingDemoClass, hasDemoClass, isDemoClassActive } =
@@ -116,6 +116,13 @@ function StudentInput({
     });
   }, [loadDemoClass]);
   const hasActiveClass = Boolean(activeClass.id);
+  // Without a class there is nobody to inspect: the column would only say
+  // "Kein Schüler ausgewählt" beside the card that asks for a class.
+  React.useEffect(() => {
+    if (hasActiveClass) return undefined;
+    setSuspended(true);
+    return () => setSuspended(false);
+  }, [hasActiveClass, setSuspended]);
   const formatClassName = (name?: string | null) =>
     name && name.trim().length > 0
       ? t('common:quoted', { text: name.trim() })
@@ -267,14 +274,52 @@ function StudentInput({
     showToast('success', t('bulkEdit.deleted', { count: ids.length }));
   }, [selection, removeStudents, setBulkDeleteOpen, t]);
 
+  // The same toolbar with or without a class: without one, what needs a class
+  // is greyed out, and the foot — the class tools, the plans, the backup —
+  // stays in reach.
+  const toolbar = (
+    <SmartSidebar tourAnchor={TOUR_ANCHORS.classToolbar}>
+      {({ isExpanded }) => (
+        <ClassToolPanel
+          density={isExpanded ? 'comfortable' : 'compact'}
+          hasActiveClass={hasActiveClass}
+          studentCount={students.length}
+          view={listMode}
+          onViewChange={setListMode}
+          newStudentName={newStudentName}
+          onNewStudentNameChange={setNewStudentName}
+          onAddStudent={handleAddStudent}
+          isAddStudentDisabled={isAddDisabled}
+          placeholderCount={placeholderCount}
+          onPlaceholderCountChange={setPlaceholderCount}
+          onCreatePlaceholders={handleCreatePlaceholders}
+          onImportCsv={analyzeCsvFile}
+          onExportCsv={downloadStudentsCsv}
+          onLoadDemoClass={isDemoClassActive ? undefined : handleLoadDemoClass}
+          isDemoClassLoading={isLoadingDemoClass}
+          hasDemoClass={hasDemoClass}
+        />
+      )}
+    </SmartSidebar>
+  );
+
   if (!hasActiveClass) {
     return (
-      <ClassEmptyState
-        onImportBackup={triggerImport}
-        onLoadDemoClass={isDemoClassActive ? undefined : handleLoadDemoClass}
-        isDemoClassLoading={isLoadingDemoClass}
-        hasDemoClass={hasDemoClass}
-      />
+      <div className={workspaceLayerClass}>
+        {toolbar}
+        <div
+          className={`${workspaceStageClass} flex items-center justify-center`}
+        >
+          <ClassEmptyState
+            onImportBackup={triggerImport}
+            onLoadDemoClass={
+              isDemoClassActive ? undefined : handleLoadDemoClass
+            }
+            isDemoClassLoading={isLoadingDemoClass}
+            hasDemoClass={hasDemoClass}
+          />
+        </div>
+      </div>
     );
   }
 
@@ -282,31 +327,7 @@ function StudentInput({
     // The direction comes from the same hook that decides whether the toolbar
     // is a rail or a phone sheet, exactly as in the room and plan layers.
     <div className={workspaceLayerClass}>
-      <SmartSidebar tourAnchor={TOUR_ANCHORS.classToolbar}>
-        {({ isExpanded }) => (
-          <ClassToolPanel
-            density={isExpanded ? 'comfortable' : 'compact'}
-            hasActiveClass={hasActiveClass}
-            studentCount={students.length}
-            view={listMode}
-            onViewChange={setListMode}
-            newStudentName={newStudentName}
-            onNewStudentNameChange={setNewStudentName}
-            onAddStudent={handleAddStudent}
-            isAddStudentDisabled={isAddDisabled}
-            placeholderCount={placeholderCount}
-            onPlaceholderCountChange={setPlaceholderCount}
-            onCreatePlaceholders={handleCreatePlaceholders}
-            onImportCsv={analyzeCsvFile}
-            onExportCsv={downloadStudentsCsv}
-            onLoadDemoClass={
-              isDemoClassActive ? undefined : handleLoadDemoClass
-            }
-            isDemoClassLoading={isLoadingDemoClass}
-            hasDemoClass={hasDemoClass}
-          />
-        )}
-      </SmartSidebar>
+      {toolbar}
 
       {/* The scroll anchor sits on the stage root: the list toolbar only
           appears from `STUDENT_LIST_TOOLS_THRESHOLD` students up, and the way
@@ -328,6 +349,7 @@ function StudentInput({
             label={
               singleSelected ? t('inspector.title') : t('bulkEdit.regionLabel')
             }
+            reveal
           >
             {singleSelected ? (
               <StudentInspectorPanel
@@ -478,11 +500,9 @@ function StudentInput({
       {/* The attribute pass keeps its way on stuck to the bottom edge, where
           this button would lie on top of it. */}
       {students.length > 0 && listMode !== 'focus' && (
-        <ListScrollFab
-          hint={scrollHint}
-          onScroll={handleScrollHint}
-          offsets={floatingActionOffsets}
-        />
+        <StatusBarPortal slot="float">
+          <ListScrollFab hint={scrollHint} onScroll={handleScrollHint} />
+        </StatusBarPortal>
       )}
 
       <ConfirmDialog

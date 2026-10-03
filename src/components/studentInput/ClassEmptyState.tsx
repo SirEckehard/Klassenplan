@@ -21,8 +21,9 @@ type Props = {
 };
 
 /**
- * The very first screen: no class exists yet, so the toolbar has nothing to
- * insert into and the list has nothing to show.
+ * The very first screen: no class exists yet, so the list has nothing to show
+ * and the toolbar beside it offers only what needs no class — the entries
+ * that fill one are greyed out until there is one.
  *
  * It states the two steps ahead and offers the three ways in — a class of
  * one's own first, then the sample class and a backup. The class switcher in
@@ -40,10 +41,9 @@ export default function ClassEmptyState({
 
   return (
     <div
-      // Without a class there is no toolbar, so the card is alone on the stage:
-      // from `lg` up the shell has no padding of its own, and a card as wide as
-      // the window is not a card any more.
-      className={`${cardSurfaceClass} border border-(--border-card) p-6 lg:m-5 lg:max-w-3xl`}
+      // Centred on the stage it stands on: a card as wide as the stage is not
+      // a card any more.
+      className={`${cardSurfaceClass} w-full max-w-3xl border border-(--border-card) p-6`}
       data-tour={TOUR_ANCHORS.classEmptyState}
     >
       <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">

@@ -197,6 +197,8 @@ type Props = {
   mixHistory?: MixResult[];
   /** Records of plans that were really in use; see `buildPreviousPairs`. */
   planUsage?: PlanUsage[];
+  /** When the neighbourhoods were last reset; see `buildPreviousPairs`. */
+  planUsageSince?: string | null;
 };
 
 export default function SeatingPlanEditorView({
@@ -254,6 +256,7 @@ export default function SeatingPlanEditorView({
   seatingHistory = [],
   mixHistory = [],
   planUsage = [],
+  planUsageSince = null,
 }: Props) {
   const isDark = useIsDarkMode();
   const { t } = useTranslation('generator');
@@ -503,8 +506,16 @@ export default function SeatingPlanEditorView({
         seatingHistory,
         mixHistory,
         planUsage,
+        planUsageSince,
       }),
-    [classroomScene, effectiveSeating, mixHistory, planUsage, seatingHistory],
+    [
+      classroomScene,
+      effectiveSeating,
+      mixHistory,
+      planUsage,
+      planUsageSince,
+      seatingHistory,
+    ],
   );
 
   const handleCriterionHover = React.useCallback(
@@ -784,7 +795,7 @@ export default function SeatingPlanEditorView({
 
         {/* Why the plan looks like this is a property of the plan, so the
             criteria belong in the inspector — not in the toolbar opposite. */}
-        <InspectorPortal label={t('mix.title')} foldable>
+        <InspectorPortal label={t('mix.title')}>
           {/* The heading names the panel once, and the switch beside it acts
               on every criterion under it. */}
           <InspectorHeader

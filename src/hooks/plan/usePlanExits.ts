@@ -53,10 +53,12 @@ export function usePlanExits() {
     }
   }, [classroomScene, handleSaveSeatingPlan, hasUnsavedChanges, planName]);
 
+  // Both leave with the arrangement on the stage, so the sheet and the wall
+  // open on the circle when the circle is what the teacher was looking at.
   const exportPlan = useCallback(() => {
     saveIfNeeded();
-    navigate('/export');
-  }, [navigate, saveIfNeeded]);
+    navigate('/export', { state: { mode: seatingMode } });
+  }, [navigate, saveIfNeeded, seatingMode]);
 
   const presentPlan = useCallback(() => {
     saveIfNeeded();

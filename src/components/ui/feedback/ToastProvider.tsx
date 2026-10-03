@@ -192,14 +192,13 @@ export function ToastProvider({
   return (
     <>
       {children}
-      {/* Bottom centre, just above the workspace's status bar: in the top
-          right corner messages lay over Help, the gear and the inspector's
-          head with its arrows and close button. The newest is nearest the
-          bar; the stack grows upwards. */}
+      {/* Top right, just under the header: in its corner they lay over Help
+          and the gear, at the bottom they read as part of the status bar. On
+          a phone they take the width. The stack grows downwards. */}
       <div
         aria-live="polite"
         aria-atomic="false"
-        className="pointer-events-none fixed inset-x-4 bottom-18 z-9999 mx-auto flex max-h-svh flex-col items-center justify-end gap-3"
+        className="pointer-events-none fixed inset-x-4 top-18 z-9999 flex max-h-svh flex-col items-end gap-3 sm:inset-x-auto sm:right-6"
         data-testid="toast-container"
       >
         {toasts.map((toast) => (

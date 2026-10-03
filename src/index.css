@@ -1467,6 +1467,17 @@ body {
   color: var(--text-page);
 }
 
+/*
+ * `viewport-fit=cover` (index.html) lets the page reach under Safari's
+ * toolbar and the home bar, so the status bar's paper can meet the screen's
+ * bottom edge instead of ending above a strip of page. The sides keep their
+ * distance from the notch of a phone held sideways, as they did before.
+ */
+body {
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
 html {
   color-scheme: light;
 }

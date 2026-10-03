@@ -150,7 +150,12 @@ export function calculateSeatingStatistics(
   settings: Partial<MixSettings>,
   seatingHistory: SavedPlan[],
   scene: ClassroomScene,
-  options?: { mixHistory?: MixResult[]; planUsage?: PlanUsage[] },
+  options?: {
+    mixHistory?: MixResult[];
+    planUsage?: PlanUsage[];
+    /** When the neighbourhoods were last reset; see `buildPreviousPairs`. */
+    planUsageSince?: string | null;
+  },
 ): SeatingStatistics {
   const totalStudents = students.length;
   const totalSeats = arrangement.reduce((sum, table) => sum + table.length, 0);
@@ -164,6 +169,7 @@ export function calculateSeatingStatistics(
     ? buildPreviousPairs(seatingHistory, {
         mixHistory: mixHistoryExcludingCurrent,
         planUsage: options?.planUsage,
+        since: options?.planUsageSince,
         studentCount: students.length,
       })
     : new Map<string, number>();

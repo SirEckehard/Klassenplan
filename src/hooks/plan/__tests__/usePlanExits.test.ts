@@ -74,7 +74,21 @@ describe('usePlanExits', () => {
     act(() => result.current.exportPlan());
 
     expect(mocks.handleSaveSeatingPlan).not.toHaveBeenCalled();
-    expect(mocks.navigate).toHaveBeenCalledWith('/export');
+    expect(mocks.navigate).toHaveBeenCalledWith('/export', {
+      state: { mode: 'table' },
+    });
+  });
+
+  // The sheet opens on what the stage showed: from the circle, the circle.
+  it('takes the circle along to the export', () => {
+    mocks.state.seatingMode = 'circle';
+
+    const { result } = renderHook(() => usePlanExits());
+    act(() => result.current.exportPlan());
+
+    expect(mocks.navigate).toHaveBeenCalledWith('/export', {
+      state: { mode: 'circle' },
+    });
   });
 
   it('saves first when the plan was never saved, whatever its name', () => {

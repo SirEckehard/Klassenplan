@@ -148,8 +148,13 @@ export {
 export type { MixRecipe, MixRecipeId } from './mixRecipes';
 
 // ===== Where a student sits, in words =====
-export { findSeatLocation } from './seatLocation';
-export type { SeatDepth, SeatLandmark, SeatLocation } from './seatLocation';
+export { findCircleLocation, findSeatLocation } from './seatLocation';
+export type {
+  CircleLocation,
+  SeatDepth,
+  SeatLandmark,
+  SeatLocation,
+} from './seatLocation';
 
 // ===== Drawing groups out of a class =====
 export { buildGroups, planGroupSizes } from './groupDraw';

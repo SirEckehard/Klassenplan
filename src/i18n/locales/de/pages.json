@@ -377,7 +377,7 @@
         "usage4": "Plätze im Sitzplan von Hand tauschen",
         "usageOutro": "Gespeichert werden dabei nur die Sitznachbarschaften und ein Zeitstempel, ausschließlich lokal auf deinem Gerät – ohne Cloud, ohne Statistik-Dienst. Beim ersten starken Signal fragt ein kurzer Hinweis nach: Wenn es doch nur ein Test war, nimmst du den Plan mit einem Klick wieder aus der Wertung.",
         "weightNote": "Für die Wiederholungsvermeidung zählen diese echten Sitzpläne zuerst; reine Mischungen aus der laufenden Sitzung gehen nur noch halb so stark ein. So kann eine lange Probier-Runde das Ergebnis nicht mehr überlagern.",
-        "viewNote": "Unter „Pläne & Verlauf“ in der Werkzeugleiste zeigt der Reiter „Nachbarschaften“, wer schon wie oft nebeneinander saß – samt Datengrundlage, aus der du einzelne Pläne herausnehmen kannst."
+        "viewNote": "Unter „Pläne & Verlauf“ in der Werkzeugleiste zeigt der Reiter „Nachbarschaften“, wer schon wie oft nebeneinander saß – samt Datengrundlage, aus der du einzelne Pläne herausnehmen kannst. „Zurücksetzen“ vergisst alle bisherigen Nachbarschaften auf einmal, etwa zum neuen Schuljahr."
       }
     },
     "tipps": {
@@ -397,7 +397,7 @@
       "description": "Digitale Tafel, Sitzkreis, Ausdruck und die drei Werkzeuge für den Unterricht.",
       "present": {
         "q": "Wie funktioniert der Präsentiermodus?",
-        "a": "„Präsentieren“ rechts in der Statusleiste zeigt den Sitzplan oder Sitzkreis groß an der digitalen Tafel. Alle Bedienelemente liegen in einer Leiste unter dem Plan: Lehrer- oder Schüleransicht (sie dreht den Plan aus Sicht der Klasse), Plan oder Kreis, Fotos, Farben, Raumelemente, ein Kontrastmodus für helle Räume und die Größe. An der Tafel stehen Vornamen, unabhängig davon, wie du die Namen im Editor zeigst. Im Vollbild (Taste F) verschwindet die Leiste und erscheint wieder, sobald du mit dem Zeiger an den unteren Rand fährst oder dort tippst."
+        "a": "„Präsentieren“ rechts in der Statusleiste – auf dem Handy in der Werkzeugleiste – zeigt den Sitzplan oder Sitzkreis groß an der digitalen Tafel. Alle Bedienelemente liegen in einer Leiste unter dem Plan: Lehrer- oder Schüleransicht (sie dreht den Plan aus Sicht der Klasse), Plan oder Kreis, Fotos, Farben, Raumelemente, ein Kontrastmodus für helle Räume und die Größe. An der Tafel stehen Vornamen, unabhängig davon, wie du die Namen im Editor zeigst. Im Vollbild (Taste F) verschwindet die Leiste und erscheint wieder, sobald du mit dem Zeiger an den unteren Rand fährst oder dort tippst."
       },
       "tools": {
         "q": "Was sind „Wer kommt dran?“, „Wo sitzt wer?“ und „Gruppen bilden“?",

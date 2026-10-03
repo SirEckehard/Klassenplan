@@ -1,6 +1,6 @@
 # Data Model
 
-> **Status:** current · **Last reviewed:** 2026-09-28 · **Source of truth:**
+> **Status:** current · **Last reviewed:** 2026-10-03 · **Source of truth:**
 > `src/utils/data/storageKeys.ts`, `src/types/`, `src/repositories/`
 
 Everything Klassenplan stores lives in the teacher's browser. This document
@@ -134,6 +134,7 @@ interface PlanUsageData {
   version: 1;
   byClass: Record<string, PlanUsage[]>; // class id → records
   backfilledClassIds: string[];
+  resetAtByClass?: Record<string, string>; // class id → ISO 8601 of the last reset
 }
 ```
 
@@ -148,6 +149,11 @@ undefined until they give one. It never holds a full arrangement. Semantics are 
 - Writes are chained so interleaving signals cannot overwrite each other.
   Failures are logged and swallowed; subscribers (`subscribeToPlanUsage`) are
   notified after every change.
+- "Zurücksetzen" in the neighbourhood view (`resetPlanUsage`) empties a class's
+  bucket, keeps it among `backfilledClassIds` so its saved plans do not seed it
+  again, and stamps `resetAtByClass`. The field is additive; data written
+  before it reads as never reset. `undoPlanUsageReset` puts the records back
+  beside any that arrived since ([decision 0023](decisions/0023-neighbourhood-reset.md)).
 - A stored value with a version other than 1 is read as empty.
 
 ### Name game statistics

@@ -11,8 +11,10 @@ import React from 'react';
  * the plan layer's "Mischen", which needs the view's mix handler. Both
  * render into the slots below through `StatusBarPortal` — the same trade as
  * the inspector's, markup travelling down instead of state travelling up.
+ * The class list's jump to its ends hangs above the bar's right end the same
+ * way (`float`).
  */
-export type StatusBarSlot = 'history' | 'action';
+export type StatusBarSlot = 'history' | 'action' | 'float';
 
 type StatusBarSlotContextValue = {
   /** The middle of the bar, under the stage: the layer's own history. */
@@ -24,6 +26,13 @@ type StatusBarSlotContextValue = {
    */
   actionNode: HTMLElement | null;
   setActionNode: (node: HTMLElement | null) => void;
+  /**
+   * Above the bar's right end: a control that stands over the stage but
+   * belongs to the bar, so it moves with it — a `fixed` one measured from the
+   * window's edge slid into the bar wherever Safari ends the window below it.
+   */
+  floatNode: HTMLElement | null;
+  setFloatNode: (node: HTMLElement | null) => void;
 };
 
 const StatusBarSlotContext =
@@ -38,9 +47,17 @@ export function StatusBarSlotProvider({
     null,
   );
   const [actionNode, setActionNode] = React.useState<HTMLElement | null>(null);
+  const [floatNode, setFloatNode] = React.useState<HTMLElement | null>(null);
   const value = React.useMemo(
-    () => ({ historyNode, setHistoryNode, actionNode, setActionNode }),
-    [actionNode, historyNode],
+    () => ({
+      historyNode,
+      setHistoryNode,
+      actionNode,
+      setActionNode,
+      floatNode,
+      setFloatNode,
+    }),
+    [actionNode, floatNode, historyNode],
   );
   return (
     <StatusBarSlotContext.Provider value={value}>
@@ -59,4 +76,6 @@ const FALLBACK: StatusBarSlotContextValue = {
   setHistoryNode: () => {},
   actionNode: null,
   setActionNode: () => {},
+  floatNode: null,
+  setFloatNode: () => {},
 };

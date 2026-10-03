@@ -912,7 +912,7 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
     <div className="space-y-6 lg:flex lg:min-h-0 lg:flex-1 lg:flex-col lg:space-y-0">
       {/* The shell owns the panel; the selection and its mutators live here,
           so this is where its content is rendered from. */}
-      <InspectorPortal label={t('sceneInspector.title')} foldable>
+      <InspectorPortal label={t('sceneInspector.title')}>
         <SceneInspector
           tables={sceneTables}
           features={sceneFeatures}

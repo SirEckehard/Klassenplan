@@ -27,7 +27,11 @@ export function calculateCurrentStatistics(
   seatingHistory: SavedPlan[],
   scene: ClassroomScene,
   mixHistory: MixResult[],
-  options?: { topN?: number; planUsage?: PlanUsage[] },
+  options?: {
+    topN?: number;
+    planUsage?: PlanUsage[];
+    planUsageSince?: string | null;
+  },
 ): CriterionFulfillment[] {
   const stats = calculateSeatingStatistics(
     arrangement,
@@ -35,7 +39,11 @@ export function calculateCurrentStatistics(
     settings,
     seatingHistory,
     scene,
-    { mixHistory, planUsage: options?.planUsage },
+    {
+      mixHistory,
+      planUsage: options?.planUsage,
+      planUsageSince: options?.planUsageSince,
+    },
   );
   return getTopFulfilledCriteria(stats, settings, options?.topN);
 }
@@ -48,6 +56,8 @@ interface UseSeatingStatisticsUpdaterParams {
   mixHistory: MixResult[];
   /** Records of plans that were really in use; see `buildPreviousPairs`. */
   planUsage: PlanUsage[];
+  /** When the neighbourhoods were last reset; see `buildPreviousPairs`. */
+  planUsageSince?: string | null;
   classroomScene: ClassroomScene;
   setLastStatistics: (stats: CriterionFulfillment[] | null) => void;
   enabled?: boolean;
@@ -65,6 +75,7 @@ export function useSeatingStatisticsUpdater({
   seatingHistory,
   mixHistory,
   planUsage,
+  planUsageSince = null,
   classroomScene,
   setLastStatistics,
   enabled = true,
@@ -83,7 +94,7 @@ export function useSeatingStatisticsUpdater({
       seatingHistory,
       classroomScene,
       mixHistory,
-      { planUsage },
+      { planUsage, planUsageSince },
     );
   }, [
     enabled,
@@ -93,6 +104,7 @@ export function useSeatingStatisticsUpdater({
     seatingHistory,
     mixHistory,
     planUsage,
+    planUsageSince,
     classroomScene,
   ]);
 

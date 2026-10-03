@@ -17,7 +17,7 @@ import { LOCAL_STORAGE_KEYS } from '@/utils';
  */
 export type InspectorSelection = { kind: 'student'; id: string } | null;
 
-/** The inspector's element, for the status bar switch that opens its drawer. */
+/** The inspector's element, for the switches that fold or open it. */
 export const INSPECTOR_DRAWER_ID = 'shell-inspector';
 
 type InspectorContextValue = {
@@ -52,30 +52,31 @@ type InspectorContextValue = {
    * leaves the name to the layer.
    */
   portalLabel: string | null;
-  /**
-   * Whether the mounted portal lets the column fold away from `lg` up — the
-   * room, the plan, the circle and the export sheet do; the class layer's
-   * ticked students do not, since only the column shows them there.
-   */
-  portalFoldable: boolean;
   /** Called by `InspectorPortal` on mount; returns the release for unmount. */
-  mountPortal: (label?: string, foldable?: boolean) => () => void;
+  mountPortal: (label?: string) => () => void;
   /**
-   * From `lg` up the column of a foldable panel can be folded away, so the
-   * stage takes its width: on an iPad in landscape the toolbar and a 320px
-   * column left the plan barely 500px. The switch at the right end of the
-   * status bar folds it, remembered per device. A touch screen narrower than
-   * `xl` starts folded, anything else with the column shown.
+   * From `lg` up the column can be folded away on every layer, so the stage
+   * takes its width: on an iPad in landscape the toolbar and a 320px column
+   * left the plan barely 500px. The button in the panel's head folds it, a
+   * narrow strip at the window's right edge brings it back, remembered per
+   * device. A touch screen narrower than `xl` starts folded, anything else
+   * with the column shown. Opening a student unfolds it: the column is where
+   * a student is edited.
    */
   folded: boolean;
   setFolded: (folded: boolean) => void;
   /**
    * Below `lg` there is no room for the inspector's column, so what a layer
-   * portals in opens as a drawer over the stage — from the status bar
-   * (`StatusBarFrame`), which is where this is switched.
+   * portals in opens as a drawer over the stage — from the strip at the right
+   * edge on a tablet, from the button beside the toolbar's on a phone.
    */
   drawerOpen: boolean;
   setDrawerOpen: (open: boolean) => void;
+  /**
+   * True inside the shell's provider. A panel rendered on its own — in a
+   * test, or anywhere without the shell — has no column to fold.
+   */
+  inShell: boolean;
 };
 
 const InspectorContext = React.createContext<InspectorContextValue | null>(
@@ -101,26 +102,17 @@ function foldsByDefault(): boolean {
 
 export function InspectorProvider({ children }: { children: React.ReactNode }) {
   const [selection, setSelection] = React.useState<InspectorSelection>(null);
-
-  const selectStudent = React.useCallback((id: string) => {
-    setSelection({ kind: 'student', id });
-  }, []);
-
-  const toggleStudent = React.useCallback((id: string) => {
-    setSelection((current) =>
-      current?.kind === 'student' && current.id === id
-        ? null
-        : { kind: 'student', id },
-    );
-  }, []);
-
-  const clear = React.useCallback(() => setSelection(null), []);
+  // What `toggleStudent` compares against, without re-creating it on every
+  // selection.
+  const selectionRef = React.useRef<InspectorSelection>(null);
+  React.useLayoutEffect(() => {
+    selectionRef.current = selection;
+  }, [selection]);
 
   const [suspended, setSuspended] = React.useState(false);
   const [slotNode, setSlotNode] = React.useState<HTMLElement | null>(null);
   const [portalCount, setPortalCount] = React.useState(0);
   const [portalLabel, setPortalLabel] = React.useState<string | null>(null);
-  const [portalFoldable, setPortalFoldable] = React.useState(false);
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   // Read once, on the first render: the default decides how a device starts,
   // the stored choice everything after.
@@ -130,14 +122,42 @@ export function InspectorProvider({ children }: { children: React.ReactNode }) {
     defaultFolded,
   );
 
-  const mountPortal = React.useCallback((label?: string, foldable = false) => {
+  // A student opened from `lg` up is to be edited in the column, so a folded
+  // one comes back. Below `lg` the drawer and the sheet open on their own,
+  // and the stored choice stays the teacher's for the wider window.
+  const revealColumn = React.useCallback(() => {
+    if (isBreakpointUp('lg')) setFolded(false);
+  }, [setFolded]);
+
+  const selectStudent = React.useCallback(
+    (id: string) => {
+      setSelection({ kind: 'student', id });
+      revealColumn();
+    },
+    [revealColumn],
+  );
+
+  const toggleStudent = React.useCallback(
+    (id: string) => {
+      const current = selectionRef.current;
+      if (current?.kind === 'student' && current.id === id) {
+        setSelection(null);
+        return;
+      }
+      setSelection({ kind: 'student', id });
+      revealColumn();
+    },
+    [revealColumn],
+  );
+
+  const clear = React.useCallback(() => setSelection(null), []);
+
+  const mountPortal = React.useCallback((label?: string) => {
     setPortalCount((count) => count + 1);
     setPortalLabel(label ?? null);
-    setPortalFoldable(foldable);
     return () => {
       setPortalCount((count) => count - 1);
       setPortalLabel(null);
-      setPortalFoldable(false);
     };
   }, []);
 
@@ -153,12 +173,12 @@ export function InspectorProvider({ children }: { children: React.ReactNode }) {
       setSlotNode,
       portalMounted: portalCount > 0,
       portalLabel,
-      portalFoldable,
       mountPortal,
       folded,
       setFolded,
       drawerOpen,
       setDrawerOpen,
+      inShell: true,
     }),
     [
       clear,
@@ -166,7 +186,6 @@ export function InspectorProvider({ children }: { children: React.ReactNode }) {
       folded,
       mountPortal,
       portalCount,
-      portalFoldable,
       portalLabel,
       selectStudent,
       selection,
@@ -207,10 +226,10 @@ const FALLBACK: InspectorContextValue = {
   setSlotNode: noop,
   portalMounted: false,
   portalLabel: null,
-  portalFoldable: false,
   mountPortal: () => noop,
   folded: false,
   setFolded: noop,
   drawerOpen: false,
   setDrawerOpen: noop,
+  inShell: false,
 };

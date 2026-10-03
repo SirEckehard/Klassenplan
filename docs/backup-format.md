@@ -29,6 +29,10 @@ Optional fields (version ≥ 2):
   arrangement). Absent when nothing has been recorded yet. A full import
   replaces the stored record; a merge only adds classes that have none yet.
   See [ALGORITHM.md](ALGORITHM.md#plan-usage-record).
+- `planUsageResetAt` – map of class id → ISO 8601 timestamp of the class's last
+  neighbourhood reset. Absent when no class was reset; older backups without
+  it restore as never reset. It travels with `planUsage` on a full import and
+  with a class's records on a merge.
 
 Inside the nested objects, the same structures apply as in the application's
 TypeScript types (`Student`, `SavedPlan`, `MixResult`,
@@ -50,7 +54,8 @@ import (see `BACKUP_LIMITS` in
 - At most **150** tables per `classroomScene` with at most **12** seats each.
 - At most **2,000** entries in `studentPhotos`, each Data URL at most **96 KB**.
 - At most **200** classes in `planUsage`, **200** records each, with at most
-  **1,000** pair keys per record.
+  **1,000** pair keys per record; at most **200** classes in `planUsageResetAt`,
+  each a parseable timestamp.
 
 ## Encryption
 

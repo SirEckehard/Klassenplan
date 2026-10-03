@@ -201,7 +201,10 @@
   "planUsage": {
     "recorded": "Noted as a seating chart in use – this improves repeat avoidance.",
     "recordedAction": "Just a test",
-    "dismissed": "This seating chart will not be counted."
+    "dismissed": "This seating chart will not be counted.",
+    "reset": "Neighbourhoods reset – counting starts afresh now.",
+    "resetAction": "Undo",
+    "resetUndone": "Neighbourhoods restored."
   },
   "room": {
     "noFreeSpot": "There is no free space left in the room – drag it to a spot of your choice."

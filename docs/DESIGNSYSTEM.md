@@ -56,7 +56,7 @@ The look is called **Papier & Werkzeug**: the interface is a passepartout in war
 | `touchMenuSurfaceClass`  | `touch-menu-surface`  | Touch-optimized menus                                   |
 | `floatingStatusClass`    | `floating-status`     | Floating badges                                         |
 | `canvasFrameClass`       | `canvas-frame`        | Canvas frame                                            |
-| `toastSurfaceClass`      | `toast-surface`       | Toast, stacked bottom centre above the status bar       |
+| `toastSurfaceClass`      | `toast-surface`       | Toast, stacked top right under the header               |
 | `toastAccentClass`       | `toast-accent`        | Toast accent bar                                        |
 | `toastIconClass`         | `toast-icon`          | Toast icon                                              |
 
@@ -270,12 +270,15 @@ strip of 44px media, an `h2` and a subtitle above a hairline; sections carry a
 selection, destructive last. A panel that needs a new group adds a section —
 not a card, not a heading of its own invention.
 
-From `lg` up the column of the room, the plan, the circle and the export sheet
-folds away from the switch at the right end of the status bar — the one that
-opens the drawer below `lg` — so the stage takes the width. The switch is
-highlighted while the column shows, as it is while the drawer is open. A touch
-screen narrower than `xl` starts with the column folded. The class layer's
-column stays: it is where a student is edited.
+From `lg` up the column folds away on every layer — the class, the room, the
+plan, the circle and the export sheet — from the switch at the right end of
+the status bar, so the stage takes the width. The switch is a quiet arrow, the
+mirror of the toolbar's at the left end: towards the edge while the column
+shows, away from it while it is folded, named for what it does ("Inspektor
+ausblenden", "Mischkriterien einblenden"). It is also the one that opens the
+drawer below `lg`. A touch screen narrower than `xl` starts with the column
+folded; opening a student or ticking several unfolds it, since the class
+layer's column is where a student is edited.
 
 A row that holds a single switch is its `<label>` (`labelsControl`): a tap on
 the name works the switch, and on a touch screen the row is at least 44px tall,
@@ -299,7 +302,8 @@ not modal: the stage beside it stays in reach, and Escape closes it.
 
 The toolbar loses its column on a phone as well. There it is a drawer from the
 left, the mirror of the inspector's, and the same place at the left end of the
-status bar opens it — a wrench on a secondary button, since the bar's blue
+status bar opens it — a wrench on a secondary button, mirrored by the
+inspector's sliders at the right end, since the bar's blue
 button is the layer's own action and a second one floating over the stage
 would compete with it. The two drawers take turns; an action taken in the
 toolbar's closes it, so the stage shows what the action did, while an entry

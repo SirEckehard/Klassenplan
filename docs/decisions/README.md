@@ -35,6 +35,7 @@ it says so instead of reconstructing one.
 | [0020](0020-gender-tint-on-seats.md)               | Seats carry a quiet gender tint again                      |
 | [0021](0021-seat-badges-explained.md)              | The badges on a seat explain themselves                    |
 | [0022](0022-one-drag-for-plan-and-circle.md)       | One drag for the plan and the circle, locks in the circle  |
+| [0023](0023-neighbourhood-reset.md)                | The neighbourhoods can be reset in one click               |
 
 ## Reasons still to be recorded
 

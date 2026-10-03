@@ -267,6 +267,35 @@ describe('StudentInput', () => {
     ).toBeInTheDocument();
   });
 
+  // The first screen wears the same toolbar as every other: what needs a
+  // class is greyed out, and the card sits in the middle of the stage.
+  it('keeps the toolbar without a class and greys out what needs one', () => {
+    const props = createMockStudentInputProps({ students: [] });
+    renderWithClassContext(<StudentInput {...props} />, {
+      activeClass: { id: '', name: '', label: '', notes: '' },
+    });
+
+    expect(
+      screen.getByRole('complementary', { name: /Werkzeugleiste|Toolbar/i }),
+    ).toBeInTheDocument();
+    for (const name of [
+      /^(Liste|List)$/i,
+      /Schüler hinzufügen|Add student/i,
+      /Platzhalter erstellen|Create placeholders/i,
+      /Klassenliste importieren|Import class list/i,
+      /Klassenliste exportieren|Export class list/i,
+    ]) {
+      expect(getButton(name)).toBeDisabled();
+    }
+    // The foot needs no class.
+    expect(getButton(/^Backup$/i)).toBeEnabled();
+
+    const card = getButton(/Neue Klasse|New class/i).closest(
+      '[data-tour="class-empty-state"]',
+    );
+    expect(card?.parentElement).toHaveClass('items-center', 'justify-center');
+  });
+
   it('nutzt importCsv für CSV-Uploads', async () => {
     const importCsvMock = vi
       .fn()

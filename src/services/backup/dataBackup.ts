@@ -42,6 +42,7 @@ import {
 } from '@/utils/data/classCollection';
 import {
   getAllPlanUsage,
+  getAllPlanUsageResets,
   restorePlanUsage,
 } from '@/repositories/planUsageStore';
 import { normalizeSeatingHistory } from '@/utils/data/planNormalization';
@@ -219,6 +220,9 @@ export async function exportAllAsJson(
     // year and cannot be rebuilt from anything else, so a backup that skipped
     // them would silently lose the history on a device change.
     const planUsage = await getAllPlanUsage();
+    // A reset says what no longer counts; without it a restored device would
+    // count the saved plans and mixes from before it again.
+    const planUsageResetAt = await getAllPlanUsageResets();
     const bundle: ExportBundle = {
       version: CURRENT_EXPORT_VERSION,
       students: data.students,
@@ -233,6 +237,7 @@ export async function exportAllAsJson(
       classCollection: data.classCollection ?? null,
       ...(studentPhotos ? { studentPhotos } : {}),
       ...(planUsage ? { planUsage } : {}),
+      ...(planUsageResetAt ? { planUsageResetAt } : {}),
     };
     return JSON.stringify(bundle, null, 2);
   } catch (e) {
@@ -397,7 +402,10 @@ export async function importAllFromJson(
 
     // Plan usage records (export version ≥ 2). Absent in older backups, which
     // simply leaves the store as it is.
-    await restorePlanUsage(data.planUsage, { merge });
+    await restorePlanUsage(data.planUsage, {
+      merge,
+      resetAtByClass: data.planUsageResetAt,
+    });
   } catch (error) {
     logError('Import failed while applying backup', { error }, 'dataBackup');
     if (error instanceof BackupValidationError) {

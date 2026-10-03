@@ -2,7 +2,11 @@
 // Copyright (C) 2026 Eike Schäfer
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { MagnifyingGlassIcon, UsersThreeIcon } from '@phosphor-icons/react';
+import {
+  ArrowCounterClockwiseIcon,
+  MagnifyingGlassIcon,
+  UsersThreeIcon,
+} from '@phosphor-icons/react';
 import type { PlanUsage, Student } from '@/types';
 import { buildNeighborhoodStats, isCountedUsage } from '@/utils/data/planUsage';
 import {
@@ -17,6 +21,13 @@ interface NeighborhoodMatrixProps {
   planUsage: PlanUsage[];
   students: Student[];
   onSetConfirmed: (usageId: string, confirmed: boolean) => void;
+  /** When the neighbourhoods were last reset, or null if never. */
+  resetAt?: string | null;
+  /**
+   * Forgets every neighbourhood so far, in one click: a new school year, a
+   * class that was mixed up anew. The toast after it takes it back.
+   */
+  onReset?: () => void;
 }
 
 /**
@@ -30,6 +41,8 @@ export default function NeighborhoodMatrix({
   planUsage,
   students,
   onSetConfirmed,
+  resetAt = null,
+  onReset,
 }: NeighborhoodMatrixProps) {
   const { t } = useTranslation('generator');
   const [query, setQuery] = useState('');
@@ -86,20 +99,40 @@ export default function NeighborhoodMatrix({
         <p className="mx-auto mt-1 max-w-md text-xs text-(--text-muted)">
           {t('storage.neighbors.emptyHint')}
         </p>
+        {resetAt && (
+          <p className="mt-2 text-xs text-(--text-muted)">
+            {t('storage.neighbors.countingSince', {
+              date: formatLongDate(resetAt),
+            })}
+          </p>
+        )}
       </div>
     );
   }
 
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-xs text-(--text-muted)">
-        {t('storage.neighbors.basis', { count: counted.length })}
-        {since
-          ? ` ${t('storage.neighbors.basisSince', {
-              date: formatLongDate(since),
-            })}`
-          : ''}
-      </p>
+      <div className="flex items-start justify-between gap-3">
+        <p className="text-xs text-(--text-muted)">
+          {t('storage.neighbors.basis', { count: counted.length })}
+          {since
+            ? ` ${t('storage.neighbors.basisSince', {
+                date: formatLongDate(since),
+              })}`
+            : ''}
+        </p>
+        {onReset && (
+          <button
+            type="button"
+            onClick={onReset}
+            title={t('storage.neighbors.resetTitle')}
+            className={`${neutralButtonClass} shrink-0 gap-1.5 px-2.5 py-1 text-xs`}
+          >
+            <ArrowCounterClockwiseIcon size={14} aria-hidden="true" />
+            {t('storage.neighbors.reset')}
+          </button>
+        )}
+      </div>
 
       <label className="relative block">
         <span className="sr-only">{t('storage.neighbors.searchLabel')}</span>
@@ -119,7 +152,11 @@ export default function NeighborhoodMatrix({
 
       {filtered.length === 0 ? (
         <p className="py-4 text-center text-sm text-(--text-muted)">
-          {t('storage.neighbors.noMatches')}
+          {/* With every plan taken out of the count there is nothing to
+              search; the basis below still lets one back in. */}
+          {stats.length === 0
+            ? t('storage.neighbors.empty')
+            : t('storage.neighbors.noMatches')}
         </p>
       ) : (
         <ul className="max-h-96 space-y-1 overflow-y-auto pr-1">

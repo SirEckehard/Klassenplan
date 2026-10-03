@@ -19,6 +19,7 @@ import StatusBarFrame, {
   statusBarBackButtonClass,
   statusBarHistoryButtonClass,
   statusBarHistoryGroupClass,
+  statusBarWordClass,
 } from '@/components/shell/StatusBarFrame';
 import PlanExits from '@/components/shell/PlanExits';
 import { countSeats, primaryButtonClass } from '@/utils';
@@ -47,14 +48,7 @@ import { TOUR_ANCHORS } from '@/components/onboarding/tours';
  */
 export default function AppStatusBar() {
   const { t } = useTranslation(['generator', 'students']);
-  const {
-    step,
-    students,
-    classroomScene,
-    currentSeating,
-    seatingMode,
-    circleLayout,
-  } = useSeatingPlanState();
+  const { step, students, classroomScene } = useSeatingPlanState();
   const { handleStepChange } = useSeatingPlanActions();
   const { setHistoryNode, setActionNode } = useStatusBarSlot();
   const hintId = React.useId();
@@ -66,35 +60,6 @@ export default function AppStatusBar() {
     () => validateStudentsComplete(students).emptyNameCount,
     [students],
   );
-  const { occupiedSeats, unseatedCount } = React.useMemo(() => {
-    const seatedIds = new Set<string>();
-    for (const table of currentSeating) {
-      for (const seat of table) {
-        if (seat) seatedIds.add(seat.id);
-      }
-    }
-    return {
-      occupiedSeats: seatedIds.size,
-      unseatedCount: students.filter((student) => !seatedIds.has(student.id))
-        .length,
-    };
-  }, [currentSeating, students]);
-
-  // The circle takes every student, with a seat at a table or without, so
-  // while it is on the stage the line counts the circle, not the tables.
-  const showsCircle = step === 3 && seatingMode === 'circle';
-  const circleCounts = React.useMemo(() => {
-    if (!showsCircle || !circleLayout) return null;
-    const inCircle = new Set<string>();
-    for (const position of circleLayout.students) {
-      if (position?.student) inCircle.add(position.student.id);
-    }
-    return {
-      inCircle: inCircle.size,
-      missing: students.filter((student) => !inCircle.has(student.id)).length,
-    };
-  }, [circleLayout, showsCircle, students]);
-
   /**
    * The status line, as segments joined by a middot, and the verdict on it.
    * The verdict is a green check or a red cross with its words for the screen
@@ -103,9 +68,9 @@ export default function AppStatusBar() {
    * with nothing on it yet has nothing to judge and shows no icon.
    *
    * `short` is what the line says below `xl`, where the bar shares a tablet's
-   * width with "Zurück", the way on and the inspector's switch: "24 von 24
-   * Plätzen besetzt" came out as "24 von 24 Plätz…". The full line stays in
-   * the tooltip, and the verdict says the rest.
+   * width with "Zurück" and the way on: "24 Plätze für 24 Schüler" came out
+   * cut off. The full line stays in the tooltip, and the verdict says the
+   * rest.
    */
   const { segments, short, verdict } = React.useMemo((): {
     segments: string[];
@@ -167,65 +132,11 @@ export default function AppStatusBar() {
       };
     }
 
-    if (showsCircle) {
-      if (!circleCounts || circleCounts.inCircle === 0) {
-        return {
-          segments: [t('generator:shell.status.noCircle')],
-          verdict: null,
-        };
-      }
-      return {
-        segments: [
-          t('generator:shell.status.inCircle', {
-            count: circleCounts.inCircle,
-          }),
-        ],
-        verdict: {
-          fits: circleCounts.missing === 0,
-          label:
-            circleCounts.missing > 0
-              ? t('generator:shell.status.notInCircle', {
-                  count: circleCounts.missing,
-                })
-              : t('generator:shell.status.allInCircle'),
-        },
-      };
-    }
-
-    if (occupiedSeats === 0) {
-      return { segments: [t('generator:shell.status.noPlan')], verdict: null };
-    }
-    return {
-      segments: [
-        t('generator:shell.status.occupied', {
-          filled: occupiedSeats,
-          seats: seatCount,
-        }),
-      ],
-      short: t('generator:shell.status.occupiedShort', {
-        filled: occupiedSeats,
-        seats: seatCount,
-      }),
-      verdict: {
-        fits: unseatedCount === 0,
-        label:
-          unseatedCount > 0
-            ? t('generator:shell.status.unseated', { count: unseatedCount })
-            : t('generator:shell.status.allSeated'),
-      },
-    };
-  }, [
-    circleCounts,
-    missingNameCount,
-    occupiedSeats,
-    seatCount,
-    showsCircle,
-    step,
-    studentsCount,
-    t,
-    tableCount,
-    unseatedCount,
-  ]);
+    // The plan layer states nothing: the plan on the stage says whether it
+    // is there, and its criteria have their figures in the inspector. "24 von
+    // 24 Plätzen besetzt" only repeated what the plan shows.
+    return { segments: [], verdict: null };
+  }, [missingNameCount, seatCount, step, studentsCount, t, tableCount]);
   const VerdictIcon = verdict?.fits ? CheckCircleIcon : XCircleIcon;
 
   /** The way back to the previous layer; the class list is the first. */
@@ -290,32 +201,36 @@ export default function AppStatusBar() {
   return (
     <StatusBarFrame
       start={
-        <p
-          data-tour={step === 2 ? TOUR_ANCHORS.layoutStatus : undefined}
-          className="flex min-w-0 items-center gap-1.5 text-xs tabular-nums text-(--text-muted) sm:text-sm"
-        >
-          {short ? (
-            <span className="min-w-0 truncate" title={segments.join(' · ')}>
-              <span className="xl:hidden">{short}</span>
-              <span className="hidden xl:inline">{segments.join(' · ')}</span>
-            </span>
-          ) : (
-            <span className="min-w-0 truncate">{segments.join(' · ')}</span>
-          )}
-          {verdict && (
-            <span className="inline-flex shrink-0" title={verdict.label}>
-              <VerdictIcon
-                size={16}
-                weight="fill"
-                aria-hidden="true"
-                className={
-                  verdict.fits ? 'text-(--status-ok)' : 'text-(--status-alert)'
-                }
-              />
-              <span className="sr-only">{verdict.label}</span>
-            </span>
-          )}
-        </p>
+        segments.length > 0 && (
+          <p
+            data-tour={step === 2 ? TOUR_ANCHORS.layoutStatus : undefined}
+            className="flex min-w-0 items-center gap-1.5 text-xs tabular-nums text-(--text-muted) sm:text-sm"
+          >
+            {short ? (
+              <span className="min-w-0 truncate" title={segments.join(' · ')}>
+                <span className="xl:hidden">{short}</span>
+                <span className="hidden xl:inline">{segments.join(' · ')}</span>
+              </span>
+            ) : (
+              <span className="min-w-0 truncate">{segments.join(' · ')}</span>
+            )}
+            {verdict && (
+              <span className="inline-flex shrink-0" title={verdict.label}>
+                <VerdictIcon
+                  size={16}
+                  weight="fill"
+                  aria-hidden="true"
+                  className={
+                    verdict.fits
+                      ? 'text-(--status-ok)'
+                      : 'text-(--status-alert)'
+                  }
+                />
+                <span className="sr-only">{verdict.label}</span>
+              </span>
+            )}
+          </p>
+        )
       }
       middle={
         // Undo/redo sit in the middle, under the stage, on every layer. Two
@@ -351,14 +266,14 @@ export default function AppStatusBar() {
             <button
               type="button"
               onClick={() => void handleStepChange(back.target)}
-              // Only the word "Zurück" is visible, and on a phone only the
-              // arrow; the accessible name says where it leads.
+              // Only the word "Zurück" is visible, and on a phone or a
+              // tablet only the arrow; the accessible name says where it leads.
               aria-label={back.label}
               title={back.title}
               className={statusBarBackButtonClass}
             >
               <ArrowLeftIcon className="h-4 w-4" aria-hidden="true" />
-              <span className="hidden sm:inline">
+              <span className={statusBarWordClass}>
                 {t('generator:wizard.back')}
               </span>
             </button>
@@ -373,8 +288,9 @@ export default function AppStatusBar() {
                 type="button"
                 data-tour={action.anchor}
                 onClick={() => void handleStepChange(action.target)}
-                // The visible label shortens on a phone; the accessible name
-                // must not, so it is spelled out here once and for all widths.
+                // The visible word is "Weiter" on every layer, and on a phone
+                // or a tablet only the arrow; the accessible name says where
+                // it leads, so it is spelled out here once for all widths.
                 aria-label={action.label}
                 aria-disabled={action.hint ? true : undefined}
                 aria-describedby={action.hint ? hintId : undefined}
@@ -383,8 +299,9 @@ export default function AppStatusBar() {
                   action.hint ? 'cursor-not-allowed opacity-60' : ''
                 }`}
               >
-                <span className="hidden sm:inline">{action.label}</span>
-                <span className="sm:hidden">{t('generator:shell.next')}</span>
+                <span className={statusBarWordClass}>
+                  {t('generator:shell.next')}
+                </span>
                 <ArrowRightIcon className="h-4 w-4" aria-hidden="true" />
               </button>
               {action.hint && <HintTooltip id={hintId} hint={action.hint} />}

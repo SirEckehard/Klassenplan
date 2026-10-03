@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CloudSlashIcon } from '@phosphor-icons/react';
 import { useOnlineStatus } from '@/hooks/ui/useOnlineStatus';
+import { useStatusBarMounted } from '@/hooks/ui/statusBarPresence';
 import { useFloatingActionOffset } from '@/hooks/ui/useFloatingActionOffset';
 import { floatingStatusClass } from '@/utils';
 
@@ -18,12 +19,15 @@ const COLLAPSE_DELAY_MS = 5000;
  * the icon alone, because the state can last a whole lesson and a permanent
  * pill would only take up room. The label stays available to screen readers.
  * Rendered app-wide (including the fullscreen surfaces, which hide the footer)
- * and anchored bottom-left so it never sits on the floating actions.
+ * and anchored bottom-left so it never sits on the floating actions — except
+ * where a status bar is on screen: the workspace and the export page say it
+ * there, beside the toolbar's switch, which the badge used to cover.
  */
 export default function OfflineIndicator() {
   const isOnline = useOnlineStatus();
+  const statusBarMounted = useStatusBarMounted();
 
-  if (isOnline) {
+  if (isOnline || statusBarMounted) {
     return null;
   }
 

@@ -204,3 +204,79 @@ describe('buildPreviousPairs mit Nutzungsaufzeichnung', () => {
     expect(result.get('3::4')).toBeCloseTo(0.25, 5);
   });
 });
+
+// "Nachbarschaften zurücksetzen": what came before the reset no longer
+// counts — saved plans dated up to that day and mixes before that moment.
+describe('buildPreviousPairs nach dem Zurücksetzen', () => {
+  // Mid-morning of 3 October wherever the test runs: saved plans carry a
+  // local day.
+  const resetAt = new Date(2026, 9, 3, 10, 0).toISOString();
+  const minutesFromReset = (minutes: number) =>
+    new Date(Date.parse(resetAt) + minutes * 60_000).toISOString();
+  const datedPlan = (date: string, seating: SavedPlan['seating']): SavedPlan =>
+    ({ ...planOf(seating), date }) as SavedPlan;
+
+  it('übergeht gespeicherte Pläne bis zum Tag des Zurücksetzens', () => {
+    const history = [
+      datedPlan('2026-09-01', [[alice, bob]]),
+      datedPlan('2026-10-03', [[alice, carol]]),
+      datedPlan('2026-10-04', [[carol, dave]]),
+    ];
+
+    const result = buildPreviousPairs(history, {
+      since: resetAt,
+      studentCount: 4,
+    });
+
+    expect(result.get('1::2')).toBeUndefined();
+    expect(result.get('1::3')).toBeUndefined();
+    expect(result.get('3::4')).toBe(1);
+  });
+
+  it('übergeht Mischungen vor dem Zurücksetzen', () => {
+    const result = buildPreviousPairs([], {
+      mixHistory: [
+        createMockMixResult({
+          id: 1,
+          seating: [[alice, bob]],
+          timestamp: minutesFromReset(-1),
+        }),
+        createMockMixResult({
+          id: 2,
+          seating: [[carol, dave]],
+          timestamp: minutesFromReset(1),
+        }),
+      ],
+      since: resetAt,
+      studentCount: 4,
+    });
+
+    expect(result.get('1::2')).toBeUndefined();
+    expect(result.get('3::4')).toBeCloseTo(0.5, 5);
+  });
+
+  it('zählt die Sitzordnung auf dem Bildschirm weiter', () => {
+    const result = buildPreviousPairs([], {
+      currentSeating: [[alice, bob]],
+      since: resetAt,
+      studentCount: 4,
+    });
+
+    expect(result.get('1::2')).toBe(1);
+  });
+
+  it('ändert ohne Zurücksetzen nichts', () => {
+    const history = [datedPlan('2026-09-01', [[alice, bob]])];
+    const mixHistory = [
+      createMockMixResult({
+        id: 1,
+        seating: [[carol, dave]],
+        timestamp: '2026-09-01T07:00:00.000Z',
+      }),
+    ];
+
+    expect(
+      buildPreviousPairs(history, { mixHistory, since: null, studentCount: 4 }),
+    ).toEqual(buildPreviousPairs(history, { mixHistory, studentCount: 4 }));
+  });
+});

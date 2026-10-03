@@ -10,20 +10,20 @@ import { getButton } from '@/__tests__/utils';
 describe('ListScrollFab', () => {
   it('renders nothing while both ends of the list are within reach', () => {
     const { container } = render(
-      <ListScrollFab hint={null} onScroll={vi.fn()} offsets={{}} />,
+      <ListScrollFab hint={null} onScroll={vi.fn()} />,
     );
 
     expect(container).toBeEmptyDOMElement();
   });
 
   it('offers the way down to the action row', () => {
-    render(<ListScrollFab hint="down" onScroll={vi.fn()} offsets={{}} />);
+    render(<ListScrollFab hint="down" onScroll={vi.fn()} />);
 
     expect(getButton(/Zum Ende der Liste|Jump to end of list/i)).toBeVisible();
   });
 
   it('offers the way back to the top of the list', () => {
-    render(<ListScrollFab hint="up" onScroll={vi.fn()} offsets={{}} />);
+    render(<ListScrollFab hint="up" onScroll={vi.fn()} />);
 
     expect(getButton(/Zum Listenanfang|Jump to top of list/i)).toBeVisible();
     expect(
@@ -35,7 +35,7 @@ describe('ListScrollFab', () => {
 
   it('scrolls on click', () => {
     const onScroll = vi.fn();
-    render(<ListScrollFab hint="down" onScroll={onScroll} offsets={{}} />);
+    render(<ListScrollFab hint="down" onScroll={onScroll} />);
 
     fireEvent.click(getButton(/Zum Ende der Liste|Jump to end of list/i));
 

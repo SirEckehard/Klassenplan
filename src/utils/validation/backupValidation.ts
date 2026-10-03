@@ -907,6 +907,26 @@ function validatePlanUsage(value: unknown): void {
   }
 }
 
+/** When each class's neighbourhoods were reset: class id → ISO timestamp. */
+function validatePlanUsageResets(value: unknown): void {
+  if (!isObject(value)) {
+    throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
+  }
+  const entries = Object.entries(value);
+  if (entries.length > BACKUP_LIMITS.maxPlanUsageClasses) {
+    throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
+  }
+  for (const [classId, at] of entries) {
+    if (
+      !assertString(classId, { maxLength: BACKUP_LIMITS.maxIdLength }) ||
+      !assertString(at, { maxLength: BACKUP_LIMITS.maxTimestampLength }) ||
+      Number.isNaN(Date.parse(at))
+    ) {
+      throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
+    }
+  }
+}
+
 function validateExportBundleStructure(
   value: unknown,
 ): asserts value is ExportBundle {
@@ -942,6 +962,9 @@ function validateExportBundleStructure(
   }
   if ('planUsage' in value && value.planUsage) {
     validatePlanUsage(value.planUsage);
+  }
+  if ('planUsageResetAt' in value && value.planUsageResetAt) {
+    validatePlanUsageResets(value.planUsageResetAt);
   }
 }
 

@@ -37,6 +37,7 @@ import { useCircleDragDrop } from '@/hooks/circle/useCircleDragDrop';
 import { useCircleKeyboardMove } from '@/hooks/circle/useCircleKeyboardMove';
 import { useHasHoverPointer } from '@/hooks/ui/useHasHoverPointer';
 import DragGhost from '@/components/scene/DragGhost';
+import CircleSpotlight from '@/components/circle/CircleSpotlight';
 import { useLayoutMode } from '@/hooks/ui/useLayoutMode';
 import { useIsCoarsePointer } from '@/hooks/ui/useCoarsePointer';
 import { useStudentPhotoUrls } from '@/hooks/student/useStudentPhoto';
@@ -74,7 +75,19 @@ type SimpleCircleViewProps = {
   showBadgeTooltip?: boolean;
   /** Locks a student to their place, or lets them go (editable circle only). */
   onToggleLock?: (studentId: string) => void;
+  /**
+   * Frames the drawing on the ring rather than on the 900×600 room and fills
+   * the box it is given, as the projection's table plan is framed on its
+   * furniture. Without it the circle keeps the room's shape the editor and
+   * the exports share.
+   */
+  fit?: boolean;
+  /** The student "Wer kommt dran?" drew: lit, the rest dimmed. */
+  spotlightStudentId?: string | null;
 };
+
+/** Room around the framed ring, beyond the tokens and their photos. */
+const FIT_MARGIN = 12;
 
 /**
  * Simplified circle view with real drag-and-drop like table seating
@@ -97,6 +110,8 @@ function SimpleCircleView({
   onBadgeFocusChange,
   showBadgeTooltip = true,
   onToggleLock,
+  fit = false,
+  spotlightStudentId = null,
 }: SimpleCircleViewProps) {
   const { t } = useTranslation('generator');
   const layoutMode = useLayoutMode();
@@ -201,7 +216,9 @@ function SimpleCircleView({
   // a small padding. With no photos the layout is left untouched.
   const renderRadius = React.useMemo(() => {
     const anyPhoto = allStudents.some((s) => s.hasPhoto);
-    if (!anyPhoto) return layout.radius;
+    // A framed circle takes its box from the ring, photos included, so the
+    // ring keeps its size.
+    if (!anyPhoto || fit) return layout.radius;
     const VIEWBOX_WIDTH = 900;
     const VIEWBOX_HEIGHT = 600;
     const photoReach = seatRadius + 2 * 18 + 6; // max circle avatar r = 18
@@ -221,7 +238,7 @@ function SimpleCircleView({
       horizontal: layout.radius.horizontal * scale,
       vertical: layout.radius.vertical * scale,
     };
-  }, [allStudents, layout.radius, layout.center]);
+  }, [allStudents, fit, layout.radius, layout.center]);
 
   // Where every place is drawn. The drag finds its target among these, so it
   // agrees with the drawing — also when photos make the circle smaller.
@@ -234,6 +251,33 @@ function SimpleCircleView({
       }),
     [layout.students.length, layout.center, renderRadius],
   );
+
+  // The framed drawing's box: the ring's tokens, the photos docked outside
+  // them where any show, and a margin. The projection fills the wall with it
+  // instead of with the empty room around the ring.
+  const viewBox = React.useMemo(() => {
+    if (!fit || studentSlots.length === 0) {
+      return { x: 0, y: 0, width: 900, height: 600 };
+    }
+    const showsPhotos =
+      photoMode !== 'off' && allStudents.some((student) => student.hasPhoto);
+    const reach =
+      (showsPhotos ? seatRadius + 2 * 18 + 6 : seatRadius) + FIT_MARGIN;
+    const xs = studentSlots.map((slot) => slot.x);
+    const ys = studentSlots.map((slot) => slot.y);
+    const minX = Math.min(...xs) - reach;
+    const minY = Math.min(...ys) - reach;
+    return {
+      x: minX,
+      y: minY,
+      width: Math.max(...xs) + reach - minX,
+      height: Math.max(...ys) + reach - minY,
+    };
+  }, [allStudents, fit, photoMode, studentSlots]);
+  const spotlightSlot =
+    spotlightStudentId === null
+      ? null
+      : (studentSlots[slotIndexById.get(spotlightStudentId) ?? -1] ?? null);
 
   // Held places: they neither give their student away nor take another. Only
   // the editable circle knows about them — the projection shows a circle.
@@ -430,7 +474,7 @@ function SimpleCircleView({
     getDisplayNameForMode(student.name, 'circle', nameDisplay, nameLabels);
 
   return (
-    <div className="relative w-full">
+    <div className={`relative w-full ${fit ? 'h-full' : ''}`}>
       {/* CSS Animations */}
       <style>{`
         @keyframes drag-feedback {
@@ -456,15 +500,17 @@ function SimpleCircleView({
       <svg
         ref={svgRef}
         width="100%"
-        viewBox="0 0 900 600"
-        className="block h-auto w-full"
+        height={fit ? '100%' : undefined}
+        viewBox={`${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`}
+        preserveAspectRatio={fit ? 'xMidYMid meet' : undefined}
+        className={fit ? 'block h-full w-full' : 'block h-auto w-full'}
         // Focusable tokens need a group: an image hides its children.
         role={editable ? 'group' : 'img'}
         aria-label={t('circleView.canvasLabel', {
           count: layout.students.length,
         })}
         style={{
-          aspectRatio: '3 / 2',
+          aspectRatio: fit ? undefined : '3 / 2',
           backgroundColor: transparentBackground
             ? 'transparent'
             : 'var(--canvas-bg)',
@@ -904,6 +950,14 @@ function SimpleCircleView({
             </g>
           );
         })}
+        {spotlightSlot && (
+          <CircleSpotlight
+            cx={spotlightSlot.x}
+            cy={spotlightSlot.y}
+            tokenRadius={seatRadius}
+            viewBox={viewBox}
+          />
+        )}
       </svg>
       <BadgeTooltipLayer
         svgRef={svgRef}

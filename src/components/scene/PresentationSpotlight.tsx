@@ -14,16 +14,16 @@ import {
  * so a constant radius large enough for a group table swallowed the neighbours
  * above and below and pointed at three students at once.
  */
-const SPOTLIGHT_MARGIN = 10;
+export const SPOTLIGHT_MARGIN = 10;
 
 /** How far the surrounding classroom is darkened (0 = untouched, 1 = black). */
-const DIM_STRENGTH = 0.55;
+export const DIM_STRENGTH = 0.55;
 
 /**
  * The ink the dimming is mixed from — the interface's own, as in `--scrim`,
  * rather than a blue-black that reads as a tinted box on the neutral page.
  */
-const DIM_COLOR = '#17181a';
+export const DIM_COLOR = '#17181a';
 
 /**
  * How far the dimming reaches past the viewBox, in scene units. The SVG keeps
@@ -31,7 +31,10 @@ const DIM_COLOR = '#17181a';
  * space beyond the viewBox on two sides; stopping at the viewBox left those
  * bands undimmed and the plan sitting in a dark rectangle of its own.
  */
-const DIM_BLEED = 10000;
+export const DIM_BLEED = 10000;
+
+/** The ring round the drawn seat: amber, lit, never the interface's blue. */
+export const SPOTLIGHT_RING_COLOR = '#f59e0b';
 
 export interface SpotlightTarget {
   tableIndex: number;
@@ -134,7 +137,7 @@ export default function PresentationSpotlight({
           ry={seat.radiusY}
           transform={seatTransform}
           fill="none"
-          stroke="#f59e0b"
+          stroke={SPOTLIGHT_RING_COLOR}
           strokeWidth={4}
         />
       </g>

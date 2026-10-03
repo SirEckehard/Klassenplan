@@ -24,6 +24,22 @@ const actions = vi.hoisted(() => ({
   triggerImport: vi.fn(),
 }));
 
+const layout = vi.hoisted(() => ({ isPhone: false }));
+
+vi.mock('@/hooks/ui/useLayoutMode', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/hooks/ui/useLayoutMode')>()),
+  useIsPhone: () => layout.isPhone,
+}));
+
+// The exits save and navigate; here only where they sit matters.
+vi.mock('@/hooks/plan/usePlanExits', () => ({
+  usePlanExits: () => ({
+    exportPlan: vi.fn(),
+    presentPlan: vi.fn(),
+    canExit: true,
+  }),
+}));
+
 vi.mock('@/contexts/SeatingPlanContext', () => ({
   useSeatingPlanActions: () => actions,
 }));
@@ -37,16 +53,20 @@ vi.mock('@/components/ui/navigation/StorageHistoryModal', () => ({
 afterEach(() => {
   cleanup();
   vi.clearAllMocks();
+  layout.isPhone = false;
 });
 
-const renderRail = (density: ToolRailDensity = 'comfortable') =>
+const renderRail = (
+  density: ToolRailDensity = 'comfortable',
+  planPresent = false,
+) =>
   render(
     <MemoryRouter initialEntries={['/generator']}>
       <Routes>
         <Route
           path="/generator"
           element={
-            <ToolRail density={density}>
+            <ToolRail density={density} planPresent={planPresent}>
               <ToolRailGroup title="Ansicht">
                 <ToolRailButton
                   icon={<span />}
@@ -86,6 +106,33 @@ describe('ToolRail', () => {
       ]);
     },
   );
+
+  // A phone's status bar keeps exporting and has no room left for presenting,
+  // so the plan layer's sheet starts its foot with it — and only that layer.
+  it('starts a phone’s foot with presenting on the plan layer alone', () => {
+    layout.isPhone = true;
+    const plan = renderRail('comfortable', true);
+    expect(entryNames(plan.container).slice(1, 3)).toEqual([
+      expect.stringMatching(/Präsentieren|Present/),
+      expect.stringMatching(/Klassenwerkzeuge|Class tools/),
+    ]);
+    expect(
+      screen.queryByRole('button', { name: /^(Exportieren|Export)$/i }),
+    ).toBeNull();
+    plan.unmount();
+
+    const other = renderRail('comfortable', false);
+    expect(entryNames(other.container)).not.toContainEqual(
+      expect.stringMatching(/Präsentieren|Present/),
+    );
+  });
+
+  it('leaves presenting to the status bar from a tablet up', () => {
+    const { container } = renderRail('comfortable', true);
+    expect(entryNames(container)).not.toContainEqual(
+      expect.stringMatching(/Präsentieren|Present/),
+    );
+  });
 
   // A tour mark that explains a switch has to frame all of it, not the first
   // entry — the tour's spotlight is the anchor's box.

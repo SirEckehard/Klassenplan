@@ -130,4 +130,55 @@ describe('NeighborhoodMatrix', () => {
 
     expect(onSetConfirmed).toHaveBeenCalledExactlyOnceWith('u1', true);
   });
+
+  // A new school year, a class mixed up anew: one click forgets every
+  // neighbourhood so far; the toast after it is the way back.
+  it('resets every neighbourhood with one click', async () => {
+    const onReset = vi.fn();
+    render(
+      <NeighborhoodMatrix
+        planUsage={[record('u1', ['a::b'], '2026-08-01T00:00:00.000Z')]}
+        students={students}
+        onSetConfirmed={vi.fn()}
+        onReset={onReset}
+      />,
+    );
+
+    await userEvent.click(getButton(/^(Zurücksetzen|Reset)$/i));
+
+    expect(onReset).toHaveBeenCalledTimes(1);
+  });
+
+  it('says since when it counts after a reset', () => {
+    render(
+      <NeighborhoodMatrix
+        planUsage={[]}
+        students={students}
+        onSetConfirmed={vi.fn()}
+        resetAt="2026-10-03T10:00:00.000Z"
+        onReset={vi.fn()}
+      />,
+    );
+
+    expect(
+      screen.getByText(/Gezählt wird seit|Counting since/i),
+    ).toHaveTextContent(/2026/);
+    // Nothing left to reset.
+    expect(
+      screen.queryByRole('button', { name: /^(Zurücksetzen|Reset)$/i }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('says there is nothing to evaluate while every plan is taken out', () => {
+    renderMatrix([
+      record('u1', ['a::b'], '2026-08-01T00:00:00.000Z', { confirmed: false }),
+    ]);
+
+    expect(
+      screen.getByText(/Noch keine Auswertung|Nothing to evaluate/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText(/Keine Nachbarschaft passt|No neighbourhood matches/i),
+    ).not.toBeInTheDocument();
+  });
 });

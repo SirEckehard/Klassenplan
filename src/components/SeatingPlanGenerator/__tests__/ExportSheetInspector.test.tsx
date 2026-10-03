@@ -83,3 +83,48 @@ describe('ExportSheetInspector badge families', () => {
     ).not.toBeInTheDocument();
   });
 });
+
+describe('ExportSheetInspector room elements', () => {
+  const allRoom =
+    /^(Alle Raumelemente ein- oder ausblenden|Show or hide all room elements)/;
+
+  // A plan for the class often wants the tables alone: one switch takes
+  // every room element off the sheet, and back.
+  it('switches every room element the room has at once', () => {
+    const onFeatureToggle = vi.fn();
+    renderInspector({
+      featureAvailability: { window: true, door: true, board: true },
+      featureVisibility: { window: true, door: true, board: true },
+      onFeatureToggle,
+    });
+
+    const all = screen.getByRole('switch', { name: allRoom });
+    expect(all).toBeChecked();
+
+    fireEvent.click(all);
+    expect(onFeatureToggle).toHaveBeenCalledTimes(3);
+    expect(onFeatureToggle.mock.calls.map(([, next]) => next)).toEqual([
+      false,
+      false,
+      false,
+    ]);
+    // Only what the room has: no cabinet that is not there.
+    expect(onFeatureToggle).not.toHaveBeenCalledWith('cabinet', false);
+  });
+
+  it('rests in the middle while only some are shown and turns them all on', () => {
+    const onFeatureToggle = vi.fn();
+    renderInspector({
+      featureAvailability: { window: true, door: true },
+      featureVisibility: { window: true, door: false },
+      onFeatureToggle,
+    });
+
+    const all = screen.getByRole('switch', { name: allRoom });
+    expect(all).toHaveAccessibleName(/einige sichtbar|some shown/);
+
+    fireEvent.click(all);
+    expect(onFeatureToggle).toHaveBeenCalledWith('window', true);
+    expect(onFeatureToggle).toHaveBeenCalledWith('door', true);
+  });
+});

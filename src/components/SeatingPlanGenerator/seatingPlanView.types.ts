@@ -68,6 +68,8 @@ export type SeatingPlanViewProps = {
   mixHistory?: MixResult[];
   /** Records of plans that were really in use; see `buildPreviousPairs`. */
   planUsage?: PlanUsage[];
+  /** When the neighbourhoods were last reset; see `buildPreviousPairs`. */
+  planUsageSince?: string | null;
   autoMixing?: boolean;
   autoMixError?: string | null;
 };

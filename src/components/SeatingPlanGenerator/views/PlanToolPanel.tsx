@@ -81,7 +81,7 @@ export default function PlanToolPanel({
   const groups = settingsGroups.filter((group) => group.options.length > 0);
 
   return (
-    <ToolRail density={density}>
+    <ToolRail density={density} planPresent>
       {showModeToggle && onModeChange && (
         // The tour explains the switch, so it frames both of its entries.
         <ToolRailGroup

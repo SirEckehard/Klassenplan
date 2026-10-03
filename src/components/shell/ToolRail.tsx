@@ -7,7 +7,6 @@ import {
   ChalkboardTeacherIcon,
   ClockCounterClockwiseIcon,
   DownloadIcon,
-  ExportIcon,
   GameControllerIcon,
   HandHeartIcon,
   HandPointingIcon,
@@ -112,15 +111,16 @@ function ToolRailPanel({
 
 export function ToolRail({
   density,
-  planExits = true,
+  planPresent = false,
   children,
 }: {
   density: ToolRailDensity;
   /**
-   * Whether a phone finds exporting and presenting at the foot. The export
-   * page is one of the two ways out and leaves them off.
+   * Whether a phone finds presenting at the foot: the plan layer's status bar
+   * keeps exporting there and has no room left for presenting. Only the plan
+   * layer — table plan and circle — has a plan to present.
    */
-  planExits?: boolean;
+  planPresent?: boolean;
   children: React.ReactNode;
 }) {
   const isCompact = density === 'compact';
@@ -148,7 +148,7 @@ export function ToolRail({
           >
             {children}
           </div>
-          <ToolRailFoot planExits={planExits && isPhone} />
+          <ToolRailFoot planPresent={planPresent && isPhone} />
         </div>
       </RailScrollsContext.Provider>
     </DensityContext.Provider>
@@ -166,11 +166,11 @@ const footMenuIconClass = 'h-4 w-4 shrink-0 text-(--text-muted)';
  * earlier plan or saves a backup from wherever they are, so these entries sit
  * in the same place on every layer rather than on the one they were first
  * built for. The class tools stay routes of their own (decision 0019) — what
- * they share is the way in, one menu instead of an entry per tool. A phone
- * finds exporting and presenting on top of them, since its status bar has no
- * room.
+ * they share is the way in, one menu instead of an entry per tool. On the
+ * plan layer a phone finds presenting on top of them, since its status bar
+ * has room for exporting alone.
  */
-function ToolRailFoot({ planExits }: { planExits: boolean }) {
+function ToolRailFoot({ planPresent }: { planPresent: boolean }) {
   const { t } = useTranslation(['generator', 'pages']);
   const isCompact = React.useContext(DensityContext) === 'compact';
   const navigate = useLocalizedNavigate();
@@ -211,7 +211,7 @@ function ToolRailFoot({ planExits }: { planExits: boolean }) {
       {isCompact && (
         <div aria-hidden="true" className="mb-1 h-px w-7 bg-(--border-card)" />
       )}
-      {planExits && <ToolRailPlanExits />}
+      {planPresent && <ToolRailPresent />}
       {/* Each tool opens its own page and explains there what it still
           needs — a plan, names, photos — so none of them is held back here. */}
       <ToolRailButton
@@ -286,26 +286,19 @@ function ToolRailFoot({ planExits }: { planExits: boolean }) {
 }
 
 /**
- * Exporting and presenting, on a phone only: from `md` up they sit at the end
- * of the plan layer's status bar, and a phone's has no room left for them.
+ * Presenting, on a phone's plan layer only: from `md` up it sits at the outer
+ * end of the status bar, and a phone's bar keeps exporting there instead.
  */
-function ToolRailPlanExits() {
+function ToolRailPresent() {
   const { t } = useTranslation('generator');
-  const { onExport, onPresent } = useGuardedPlanExits();
+  const { onPresent } = useGuardedPlanExits();
 
   return (
-    <>
-      <ToolRailButton
-        icon={<ExportIcon size={18} />}
-        label={t('actions.export')}
-        onClick={onExport}
-      />
-      <ToolRailButton
-        icon={<ChalkboardTeacherIcon size={18} />}
-        label={t('present.button')}
-        onClick={onPresent}
-      />
-    </>
+    <ToolRailButton
+      icon={<ChalkboardTeacherIcon size={18} />}
+      label={t('present.button')}
+      onClick={onPresent}
+    />
   );
 }
 

@@ -127,8 +127,7 @@
     "end": "End",
     "exit": "End the presentation",
     "groups": "Build groups",
-    "groupsTitle": "Draw groups from this class",
-    "seats": "{{count}} seats"
+    "groupsTitle": "Draw groups from this class"
   },
   "mode": {
     "table": "Seating Plan",
@@ -258,7 +257,10 @@
         "exported": "exported",
         "saved": "saved",
         "edited": "rearranged by hand"
-      }
+      },
+      "reset": "Reset",
+      "resetTitle": "Forget all neighbourhoods so far and count afresh from now",
+      "countingSince": "Counting since {{date}}."
     }
   },
   "classActions": {
@@ -453,6 +455,7 @@
     "backTitle": "Back (Alt/⌥+←)",
     "preview": "Preview",
     "roomElements": "Room Elements",
+    "roomElementsToggleAllMixed": "Show or hide all room elements (some shown)",
     "showConnections": "Show connections",
     "showBoard": "Show board",
     "showNeeds": "Show special needs",
@@ -848,6 +851,9 @@
     "layerSwitchLabel": "Switch layer",
     "statusBarLabel": "Status bar",
     "next": "Next",
+    "inspectorHide": "Hide inspector",
+    "inspectorShow": "Show inspector",
+    "inspectorShowNamed": "Show {{name}}",
     "status": {
       "noStudents": "No students yet",
       "students_one": "{{count}} student",
@@ -864,18 +870,7 @@
       "seatsMissing_other": "{{count}} seats short",
       "seatsSpare_one": "{{count}} seat spare",
       "seatsSpare_other": "{{count}} seats spare",
-      "noPlan": "No seating plan yet",
-      "occupied": "{{filled}} of {{seats}} seats taken",
-      "occupiedShort": "{{filled}}/{{seats}}",
-      "allSeated": "Every student has a seat",
-      "unseated_one": "{{count}} student without a seat",
-      "unseated_other": "{{count}} students without a seat",
-      "noCircle": "No seating circle yet",
-      "inCircle_one": "{{count}} student in the circle",
-      "inCircle_other": "{{count}} students in the circle",
-      "allInCircle": "Every student sits in the circle",
-      "notInCircle_one": "{{count}} student missing from the circle",
-      "notInCircle_other": "{{count}} students missing from the circle"
+      "noPlan": "No seating plan yet"
     }
   },
   "sceneInspector": {
@@ -957,7 +952,9 @@
         "window": "by the window",
         "door": "by the door"
       },
-      "nextTo": "next to {{name}}"
+      "nextTo": "next to {{name}}",
+      "circle": "in the circle",
+      "between": "between {{first}} and {{second}}"
     },
     "whoIsNext": {
       "title": "Who's next?",

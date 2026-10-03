@@ -43,12 +43,16 @@ const inspectorDrawerClass =
  * opened one gets, several in the bulk panel. The slot takes the opened
  * student's place until the selection is let go.
  *
+ * From `lg` up the column folds away on every layer, from the switch at the
+ * right end of the status bar — the mirror of the toolbar's at the left end
+ * (`StatusBarFrame`). Opening a student unfolds it again.
+ *
  * Below `lg` there is no column. A phone shows an opened student as a sheet
  * from the bottom; a tablet as a drawer on the right. What a layer portals in
  * — the room's properties, the plan's criteria, the circle's summary — opens
- * as the same drawer, from the switch in the status bar. Before, all of it was
- * a column that stayed hidden below `lg`, and an iPad in portrait could
- * neither name a student nor set a criterion.
+ * as the same drawer, from the same switch. Before, all of it was a column
+ * that stayed hidden below `lg`, and an iPad in portrait could neither name a
+ * student nor set a criterion.
  */
 export default function Inspector() {
   const { t } = useTranslation(['students', 'generator']);
@@ -62,7 +66,6 @@ export default function Inspector() {
     setSlotNode,
     portalMounted,
     portalLabel,
-    portalFoldable,
     folded,
     drawerOpen,
     setDrawerOpen,
@@ -70,10 +73,9 @@ export default function Inspector() {
   const layoutMode = useLayoutMode();
   const isPhone = layoutMode === 'phone';
   const isDesktop = layoutMode === 'desktop';
-  // From `lg` up the room, the plan, the circle and the export sheet can have
-  // their column folded away, so the stage takes the width; the switch sits
-  // at the right end of the status bar (`StatusBarFrame`).
-  const columnFolded = isDesktop && portalFoldable && folded;
+  // From `lg` up every layer's column can be folded away, so the stage takes
+  // the width; the switch sits at the right end of the status bar.
+  const columnFolded = isDesktop && folded;
 
   const student = React.useMemo(
     () =>
@@ -229,8 +231,14 @@ export default function Inspector() {
     );
   }
 
+  if (columnFolded) return null;
+
   return (
-    <aside aria-label={t('students:inspector.title')} className={columnClass}>
+    <aside
+      id={INSPECTOR_DRAWER_ID}
+      aria-label={t('students:inspector.title')}
+      className={columnClass}
+    >
       {body}
     </aside>
   );

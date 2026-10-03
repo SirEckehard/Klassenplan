@@ -2,7 +2,6 @@
 // Copyright (C) 2026 Eike Schäfer
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAdaptiveViewportHeight } from '@/hooks/ui/useAdaptiveViewportHeight';
-import { useFloatingActionOffset } from '@/hooks/ui/useFloatingActionOffset';
 import { useCookieBannerOffset } from '@/hooks/ui/useCookieBannerOffset';
 import { usePrefersReducedMotion } from '@/hooks/ui/usePrefersReducedMotion';
 import { getViewportMetrics, onVisualViewport } from '@/utils';
@@ -42,9 +41,6 @@ export const useStudentListLayout = ({
   // be the Namensspiel button; that moved to the toolbar, so what is left is
   // an empty sentinel element.
   const listEndRef = useRef<HTMLDivElement | null>(null);
-  // The right edge, where a thumb reaches it: the left one belongs to the
-  // offline notice (`OfflineIndicator`), and the two must not stack.
-  const floatingActionOffsets = useFloatingActionOffset();
   const { containerRef: listContainerRef, maxHeight: listMaxHeight } =
     useAdaptiveViewportHeight<HTMLDivElement>({
       disabled: isMobile,
@@ -142,6 +138,5 @@ export const useStudentListLayout = ({
     listEndRef,
     scrollHint,
     handleScrollHint,
-    floatingActionOffsets,
   };
 };

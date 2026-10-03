@@ -15,6 +15,7 @@ import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import {
   dataChipClass,
   dataFamilyClass,
+  findCircleLocation,
   findSeatLocation,
   primaryButtonClass,
   secondaryButtonClass,
@@ -32,19 +33,41 @@ import { getStudentBadges, sortBadges } from '@/utils/ui/studentAppearance';
  */
 export default function WhoIsNext() {
   const { t } = useTranslation('generator');
-  const { students, currentSeating, classroomScene, activeClass } =
-    useSeatingPlanState();
+  const {
+    students,
+    currentSeating,
+    classroomScene,
+    activeClass,
+    seatingMode,
+    circleLayout,
+  } = useSeatingPlanState();
 
-  const picker = useRandomStudentPicker(currentSeating, students);
+  // While the class sits in the circle, the draw comes from the circle — it
+  // takes every student, a seat at a table or not — and says who sits on
+  // either side instead of naming a table.
+  const usesCircle =
+    seatingMode === 'circle' &&
+    Boolean(circleLayout?.students.some((place) => place?.student));
+  const circleSeating = React.useMemo(
+    () => [
+      (circleLayout?.students ?? []).map((place) => place?.student ?? null),
+    ],
+    [circleLayout],
+  );
+
+  const picker = useRandomStudentPicker(
+    usesCircle ? circleSeating : currentSeating,
+    students,
+  );
   const picked = picker.picked;
 
-  const location = React.useMemo(
-    () =>
-      picked && picked.tableIndex >= 0
-        ? findSeatLocation(currentSeating, classroomScene, picked.student.id)
-        : null,
-    [classroomScene, currentSeating, picked],
-  );
+  const location = React.useMemo(() => {
+    if (!picked || picked.tableIndex < 0) return null;
+    if (usesCircle && circleLayout) {
+      return findCircleLocation(circleLayout, picked.student.id);
+    }
+    return findSeatLocation(currentSeating, classroomScene, picked.student.id);
+  }, [circleLayout, classroomScene, currentSeating, picked, usesCircle]);
 
   const badges = React.useMemo(
     () => (picked ? sortBadges(getStudentBadges(picked.student, true)) : []),

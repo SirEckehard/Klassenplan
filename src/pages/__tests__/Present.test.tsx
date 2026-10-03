@@ -28,7 +28,19 @@ vi.mock('@/components/scene/PresentationScene', () => ({
   default: () => <div data-testid="presentation-scene" />,
 }));
 vi.mock('@/components/circle/SimpleCircleView', () => ({
-  default: () => <div data-testid="circle-view" />,
+  default: ({
+    fit,
+    spotlightStudentId,
+  }: {
+    fit?: boolean;
+    spotlightStudentId?: string | null;
+  }) => (
+    <div
+      data-testid="circle-view"
+      data-fit={fit ? 'true' : 'false'}
+      data-spotlight={spotlightStudentId ?? ''}
+    />
+  ),
 }));
 
 const student = { id: 's1', name: 'Mara' };
@@ -291,5 +303,60 @@ describe('Present', () => {
 
     expect(screen.getByTestId('circle-view')).toBeInTheDocument();
     expect(screen.queryByTestId('presentation-scene')).not.toBeInTheDocument();
+  });
+
+  // The wall shows the circle as large as it goes, framed on the ring, and
+  // "Wer kommt dran?" works there as on the tables: the drawn place is lit.
+  it('fills the wall with the circle and draws from it', () => {
+    const other = { id: 's2', name: 'Nils' };
+    seatingState.current = {
+      currentSeating: [[student]],
+      classroomScene: {
+        tables: [{ x: 0, y: 0, width: 10, height: 10, seatCount: 2 }],
+        totalStudents: 1,
+      },
+      // Nils sits in the circle without a seat at a table.
+      students: [student, other],
+      circleLayout: {
+        students: [
+          { student, angle: 0, x: 0, y: 0 },
+          { student: other, angle: 180, x: 0, y: 0 },
+        ],
+        neighborhoodPairs: [],
+        mode: 'preserve-neighbors',
+        timestamp: 1,
+      },
+      activeClass: { id: 'class-1', name: '5a' },
+    };
+
+    renderPresent({ mode: 'circle' });
+    const circle = screen.getByTestId('circle-view');
+    expect(circle).toHaveAttribute('data-fit', 'true');
+    expect(circle).toHaveAttribute('data-spotlight', '');
+
+    fireEvent.click(
+      screen.getByRole('button', { name: /Wer kommt dran|Who's next/i }),
+    );
+
+    expect(['s1', 's2']).toContain(
+      screen.getByTestId('circle-view').getAttribute('data-spotlight'),
+    );
+  });
+
+  it('leaves the number of seats off the strip on top', () => {
+    seatingState.current = {
+      currentSeating: [[student]],
+      classroomScene: {
+        tables: [{ x: 0, y: 0, width: 10, height: 10, seatCount: 2 }],
+        totalStudents: 1,
+      },
+      students: [student],
+      circleLayout: null,
+      activeClass: { id: 'class-1', name: '5a' },
+    };
+
+    renderPresent();
+
+    expect(screen.queryByText(/\d+ (Plätze|seats)/)).not.toBeInTheDocument();
   });
 });

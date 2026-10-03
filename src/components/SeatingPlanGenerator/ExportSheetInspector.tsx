@@ -111,6 +111,9 @@ export default function ExportSheetInspector({
   const availableFeatures = FEATURE_TYPES.filter(
     (type) => featureAvailability[type] === true,
   );
+  const shownFeatures = availableFeatures.filter(
+    (type) => featureVisibility[type] !== false,
+  ).length;
 
   const switchRow = (label: string, toggle: Toggle) => (
     <InspectorRow label={label} labelsControl>
@@ -250,7 +253,30 @@ export default function ExportSheetInspector({
         </InspectorSection>
 
         {isTable && availableFeatures.length > 0 && (
-          <InspectorSection title={t('export.roomElements')}>
+          <InspectorSection
+            title={t('export.roomElements')}
+            actions={
+              // One switch for all of them: a plan for the class often wants
+              // the tables alone. Half on, its knob rests in the middle.
+              <ToggleSwitch
+                checked={shownFeatures === availableFeatures.length}
+                mixed={
+                  shownFeatures > 0 && shownFeatures < availableFeatures.length
+                }
+                onChange={(next) =>
+                  availableFeatures.forEach((type) =>
+                    onFeatureToggle(type, next),
+                  )
+                }
+                label={
+                  shownFeatures > 0 && shownFeatures < availableFeatures.length
+                    ? t('export.roomElementsToggleAllMixed')
+                    : t('layout.roomElementsToggleAll')
+                }
+                size="sm"
+              />
+            }
+          >
             {availableFeatures.map((type) => (
               <React.Fragment key={type}>
                 {switchRow(t(FEATURE_TYPE_LABEL_KEYS[type]), {

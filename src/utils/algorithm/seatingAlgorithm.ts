@@ -248,12 +248,14 @@ export function initializeAssignment(
   currentSeating?: SeatingArrangement,
   rng: RandomSource = Math.random,
   planUsage?: PlanUsage[],
+  planUsageSince?: string | null,
 ): AssignmentContext {
   const previousPairs = settings.avoidPreviousPairs
     ? buildPreviousPairs(seatingHistory, {
         mixHistory,
         currentSeating,
         planUsage,
+        since: planUsageSince,
         studentCount: students.length,
       })
     : new Map<string, number>();
@@ -581,6 +583,8 @@ export function generateSeatingPlan(
     rng?: RandomSource;
     /** Records of plans that were really in use; see `buildPreviousPairs`. */
     planUsage?: PlanUsage[];
+    /** When the neighbourhoods were last reset; see `buildPreviousPairs`. */
+    planUsageSince?: string | null;
   },
 ): SeatingArrangement {
   const startTime = performance.now();
@@ -603,6 +607,7 @@ export function generateSeatingPlan(
     currentSeating,
     options?.rng,
     options?.planUsage,
+    options?.planUsageSince,
   );
   runPass(ctx);
 
@@ -667,6 +672,8 @@ export function refineSeatingLocal(
     rng?: RandomSource;
     /** Records of plans that were really in use; see `buildPreviousPairs`. */
     planUsage?: PlanUsage[];
+    /** When the neighbourhoods were last reset; see `buildPreviousPairs`. */
+    planUsageSince?: string | null;
     /**
      * Called with a 0..1 fraction as the refinement advances. Injected by the
      * worker layer, never sent through the request payload — a function does
@@ -699,6 +706,7 @@ export function refineSeatingLocal(
         mixHistory,
         currentSeating: referenceSeating,
         planUsage: options?.planUsage,
+        since: options?.planUsageSince,
         studentCount: students.length,
       })
     : new Map<string, number>();

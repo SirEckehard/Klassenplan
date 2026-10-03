@@ -9,7 +9,7 @@ import type {
   Student,
 } from '@/types';
 import { MIX_HISTORY_LIMIT } from './constants';
-import { isCountedUsage } from './data/planUsage';
+import { isCountedUsage, storedPlanDateToTimestamp } from './data/planUsage';
 
 export type PreviousPairWeights = Map<string, number>;
 
@@ -39,6 +39,22 @@ type BuildPreviousPairsOptions = {
    * the saved plans as the history of record — see the module comment.
    */
   planUsage?: PlanUsage[];
+  /**
+   * When the teacher last reset the neighbourhoods of this class (ISO 8601).
+   * What came before — saved plans dated up to that day, mixes before that
+   * moment — no longer counts; the reset emptied the usage records already.
+   */
+  since?: string | null;
+};
+
+/**
+ * Whether something stamped `at` happened after a reset. An unreadable stamp
+ * counts as before: the reset was asked for to start afresh.
+ */
+const isAfterReset = (at: string | null, since: number): boolean => {
+  if (!at) return false;
+  const time = Date.parse(at);
+  return Number.isFinite(time) && time >= since;
 };
 
 const MIN_HISTORY_WINDOW = 5;
@@ -158,6 +174,21 @@ export function buildPreviousPairs(
     studentCountFromOptions ?? fallbackStudentCount,
   );
 
+  const since = options?.since ? Date.parse(options.since) : Number.NaN;
+  const hasReset = Number.isFinite(since);
+  // A saved plan carries its day, not its moment: one from the day of the
+  // reset was saved before it or got a usage record of its own when it was.
+  const savedPlans = hasReset
+    ? history.filter((plan) =>
+        isAfterReset(storedPlanDateToTimestamp(plan?.date ?? ''), since),
+      )
+    : history;
+  const mixHistory = hasReset
+    ? (options?.mixHistory ?? []).filter((mix) =>
+        isAfterReset(mix?.timestamp ?? null, since),
+      )
+    : (options?.mixHistory ?? []);
+
   const realPlans: WeightedPairSource[] = [];
 
   if (options?.currentSeating) {
@@ -181,10 +212,10 @@ export function buildPreviousPairs(
       realPlans.push({ keys: entry.pairs, factor: entry.confidence });
     }
   } else {
-    for (let i = history.length - 1; i >= 0; i--) {
+    for (let i = savedPlans.length - 1; i >= 0; i--) {
       if (realPlans.length >= windowSize) break;
       realPlans.push({
-        keys: pairKeysOfSeating(history[i]?.seating),
+        keys: pairKeysOfSeating(savedPlans[i]?.seating),
         factor: 1,
       });
     }
@@ -192,7 +223,7 @@ export function buildPreviousPairs(
 
   applyDecayedSources(realPlans, pairWeights);
 
-  const mixes = (options?.mixHistory ?? [])
+  const mixes = mixHistory
     .slice(-windowSize)
     .reverse()
     .map((mix) => ({

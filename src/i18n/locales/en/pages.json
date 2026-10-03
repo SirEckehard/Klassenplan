@@ -377,7 +377,7 @@
         "usage4": "Swapping seats by hand",
         "usageOutro": "Only the seating neighbourhoods and a timestamp are stored, entirely on your own device – no cloud, no analytics service. On the first strong signal a short notice asks: if it really was just a test, one click takes the chart back out of the count.",
         "weightNote": "For repeat avoidance these real seating charts are read first; mixes from the running session now weigh only half as much. A long session of trying things out can no longer drown out the result.",
-        "viewNote": "Under “Plans & history” in the toolbar, the “Neighbourhoods” tab shows who has sat next to whom and how often – including the data it rests on, from which you can remove individual plans."
+        "viewNote": "Under “Plans & history” in the toolbar, the “Neighbourhoods” tab shows who has sat next to whom and how often – including the data it rests on, from which you can remove individual plans. “Reset” forgets every neighbourhood so far at once, say for a new school year."
       }
     },
     "tipps": {
@@ -397,7 +397,7 @@
       "description": "Interactive whiteboard, seating circle, printing and the three classroom tools.",
       "present": {
         "q": "How does presentation mode work?",
-        "a": "“Present” at the right of the status bar shows the seating plan or circle large on the interactive whiteboard. Every control sits in one bar below the plan: teacher or student view (which turns the plan to the class’s point of view), plan or circle, photos, colours, room elements, a contrast mode for bright rooms and the size. The board shows first names, whatever the editor shows. In fullscreen (key F) the bar disappears and comes back as soon as the pointer nears the bottom edge or you tap there."
+        "a": "“Present” at the right of the status bar – on a phone in the toolbar – shows the seating plan or circle large on the interactive whiteboard. Every control sits in one bar below the plan: teacher or student view (which turns the plan to the class’s point of view), plan or circle, photos, colours, room elements, a contrast mode for bright rooms and the size. The board shows first names, whatever the editor shows. In fullscreen (key F) the bar disappears and comes back as soon as the pointer nears the bottom edge or you tap there."
       },
       "tools": {
         "q": "What are “Who’s next?”, “Where does who sit?” and “Build groups”?",

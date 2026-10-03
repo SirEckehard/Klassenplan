@@ -50,14 +50,15 @@ export default function AppShell({
               its labels: the status bar carries the switch, the layer's
               toolbar reads it. */}
           <ToolRailProvider>
-            {/* The status bar's height, for the floating controls inside the
-                workspace that must stay clear of it
-                (`useFloatingActionOffset`). */}
+            {/* The status bar's height, for what stands above it — the
+                drawers, the focus mode's thumb bar, the floating controls
+                (`useFloatingActionOffset`). The bar reaches into the bottom
+                safe area, so that is part of its height. */}
             <div
               className="flex min-h-screen flex-col lg:h-dvh lg:min-h-0 lg:overflow-hidden"
               style={
                 {
-                  '--shell-bottom-inset': `${SHELL_STATUS_BAR_HEIGHT}px`,
+                  '--shell-bottom-inset': `calc(${SHELL_STATUS_BAR_HEIGHT}px + env(safe-area-inset-bottom))`,
                 } as React.CSSProperties
               }
             >

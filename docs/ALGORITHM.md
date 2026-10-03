@@ -138,6 +138,17 @@ same load, and a pending `edited` signal is dropped when the class changes.
 nobody from the class they sit under, which also repairs buckets contaminated by
 earlier versions.
 
+**Starting afresh.** "Zurücksetzen" in the neighbourhood view forgets a class's
+neighbourhoods in one click — a new school year, a class mixed up anew.
+`resetPlanUsage` empties the bucket and stamps the moment; `buildPreviousPairs`
+receives it as `since` and from then on leaves out what came before it: saved
+plans dated up to the day of the reset (they carry a day, not a moment) and
+mixes from before it. Without that, the empty bucket would make the saved plans
+the history of record again. What is presented, exported or saved afterwards
+counts as usual, and so does the arrangement on screen. A class that was never
+reset produces exactly the plans it did before
+([decision 0023](decisions/0023-neighbourhood-reset.md)).
+
 ### Confirmation
 
 The signals are cheap because they are read from what the teacher does anyway —

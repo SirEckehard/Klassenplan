@@ -133,6 +133,11 @@ export interface ExportBundleV1 {
    * yet, and for backups written before the record existed.
    */
   planUsage?: Record<string, PlanUsage[]>;
+  /**
+   * When each class's neighbourhoods were last reset (ISO 8601 per class id).
+   * Absent when no class was ever reset, and in older backups.
+   */
+  planUsageResetAt?: Record<string, string>;
 }
 
 export type ExportBundle = ExportBundleV1; // Alias for the current version

@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - An error screen offers a prepared email with a reference code; nothing is sent automatically
 - A browser too old for Klassenplan – often the built-in one of an interactive whiteboard – shows a notice with the versions it needs instead of a blank page: Chrome or Edge 111, Safari 16.4, Firefox 128
 - Shortcuts on a single key – "?", P, F, 1–3, Q/E and others – can be switched off in the settings menu, so speech input cannot set them off by mistake
+- "Reset" in the "Neighbourhoods" tab of "Plans & history" forgets every neighbourhood of a class in one click – for a new school year, say: earlier saved plans and mixes no longer count either, and the message after it takes it back
 
 ### Improved
 
@@ -28,7 +29,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - A plan is named where it is saved, and "Mix" and the two ways out – present and export – sit in the status bar
 - Menus and panels of the header and the toolbar can be reached, used and closed with the keyboard
 - Creating placeholders adds as many as the class has room for, says in one message how many there are, and opens the first of them for its name
-- With the seating circle on the stage, the status bar counts the circle instead of the table seats
 - On a phone the toolbar opens as a drawer from the left end of the status bar, where a tablet has its switch, the mirror of the inspector on the right; the blue "Options" button that floated over the stage is gone. On a phone the header shows the open class as a mark, so all three layers stay in reach
 - In the seating plan the arrow keys move from seat to seat, as they do round the circle: Enter picks a student up, the arrows choose the seat, Enter puts them down
 - Ticking several students who differ in gender, height, language level or role shows the values some of them have, outlined in dashes, instead of looking as if nothing were set
@@ -38,13 +38,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - The changelog's texts load with the changelog, and more than 200 texts nothing used any more are gone: the first visit downloads about 7 KB less
 - Attribute mode on a phone and a tablet: the question takes the whole width, the way on to the next attribute stays in reach above the status bar instead of hiding behind it, and every row shows the student's photo or initial. Its buttons are grey, so the status bar's "Next" stays the one blue button
 - On a phone the criteria live only in the drawer from the status bar, and the room's setup only in the inspector; "Mix" and "Sync with Plan" show their icon alone, so the toolbar's switch stays in reach
-- The ways between the layers are named after them: "Back to Class", "Back to Room", "Proceed to Room"
-- The inspector's column folds away from the switch at the right end of the status bar on the room, the plan, the circle and the export page, so the plan gets the width; an iPad in landscape starts with it folded, and the choice is kept per device
+- The way on reads "Next" on every layer; its tooltip and its name for screen readers say where it leads. On a desktop and an interactive whiteboard the buttons at the right of the status bar carry their words, on a phone and a tablet their icons alone
+- The inspector's column folds away on every layer, the class included, from a small switch at the right end of the status bar – the mirror of the toolbar's at the left end – so the plan gets the width; an iPad in landscape starts with it folded, opening or ticking a student brings it back, and the choice is kept per device
 - On a tablet or an interactive whiteboard the room's toolbar scrolls with a finger where it is taller than the screen
 - On a touch screen the controls are a fingertip's size: switches in the inspector and on the export page work from their name as well, value chips, the class list's checkboxes, "Remove photo", the size slider of the projection, the room's locks and rotation handle grow to about 44px, and a tap explains the nearest badge on a seat instead of having to land on its few pixels
-- On an interactive whiteboard the toolbar starts with its labels, on a touch screen "Export" and "Present" carry their words from tablet width up, and every button of the projection's bar names itself under its icon; a touch screen shows no tooltip to explain an icon
+- On an interactive whiteboard the toolbar starts with its labels, and every button of the projection's bar names itself under its icon; a touch screen shows no tooltip to explain an icon
 - The projection frames the tables: the board, the windows and the door come in from their walls to just beside them, and furniture far from them stays out, so on an interactive whiteboard the names come out about twice as large. After a tap its bar stays up for five seconds
-- Messages appear at the bottom centre, above the status bar, instead of over Help, the settings and the head of the inspector; the projection shows no success messages
+- Messages appear at the top right, just under the header, instead of over Help and the settings; the projection shows no success messages
+- In the seating plan the status bar carries "Export" and, at its outer end, "Present", on a phone "Export" alone, with "Present" at the foot of the toolbar. The line on the left says nothing there any more – the plan shows whether it is there and the inspector its figures – and the projection's top strip no longer counts the seats
+- Offline, a small cloud beside the toolbar's switch says so instead of a badge covering that switch, and on a phone the jump to the ends of the class list hangs above the status bar instead of slipping into it
+- The first screen, before there is a class, has the toolbar too, with what needs a class greyed out, and the card asking for a class in the middle of the stage
+- The seating circle fills the interactive whiteboard in the projection, and "Who's next?" draws from the circle there and on its own screen, naming who sits on either side
+- On the export page one switch shows or hides all room elements at once, and a plan exported from the circle opens with the circle on the sheet
 - On a tablet the status bar says the number alone where the full line did not fit
 - The room selects in the one blue of the interface; guides and collision marks follow light and dark mode
 - The photo setting "Hover" now reads "On hover" and is left out on a touch screen, where it showed a photo only while a finger rested on the seat

@@ -57,10 +57,14 @@ export function useSeatingGenerator() {
   // Records of the plans that were really in use. They feed the repetition
   // scoring, so they are loaded once here and handed to everything that needs
   // them rather than being read per consumer.
-  const { planUsage } = usePlanUsageRecords(
+  const { planUsage, planUsageSince } = usePlanUsageRecords(
     seatingState.classState.activeClass.id,
   );
-  const algorithm = useSeatingAlgorithm(seatingState, planUsage);
+  const algorithm = useSeatingAlgorithm(
+    seatingState,
+    planUsage,
+    planUsageSince,
+  );
 
   // Destructure all needed values from the composed hooks
   const {
@@ -482,6 +486,7 @@ export function useSeatingGenerator() {
     seatingHistory,
     mixHistory,
     planUsage,
+    planUsageSince,
     classroomScene,
     setLastStatistics,
     enabled: step === 3 && currentSeating.length > 0,
@@ -566,6 +571,7 @@ export function useSeatingGenerator() {
       classSummaries,
       activeClass,
       planUsage,
+      planUsageSince,
       canUndoSeating,
       canRedoSeating,
       canUndoStudents,
@@ -602,6 +608,7 @@ export function useSeatingGenerator() {
       classSummaries,
       activeClass,
       planUsage,
+      planUsageSince,
       canUndoSeating,
       canRedoSeating,
       canUndoStudents,

@@ -19,10 +19,14 @@ import {
   setPlanUsageConfirmed,
   subscribeToPlanUsage,
   getAllPlanUsage,
+  getAllPlanUsageResets,
   loadPlanUsage,
+  loadPlanUsageResetAt,
   recordPlanUsage,
+  resetPlanUsage,
   restorePlanUsage,
   sweepOrphanPlanUsage,
+  undoPlanUsageReset,
 } from '../planUsageStore';
 import type { SavedPlan, SeatingArrangement, Student } from '@/types';
 
@@ -351,5 +355,65 @@ describe('subscribeToPlanUsage', () => {
     expect(listener).not.toHaveBeenCalled();
 
     unsubscribe();
+  });
+});
+
+describe('resetPlanUsage', () => {
+  const at = new Date('2026-10-03T08:00:00.000Z');
+
+  it('empties the class and notes when, leaving other classes alone', async () => {
+    await recordPlanUsage('c1', seatingOf([['a', 'b']]), 'presented');
+    await recordPlanUsage('c2', seatingOf([['x', 'y']]), 'presented');
+
+    const snapshot = await resetPlanUsage('c1', at);
+
+    expect(snapshot?.records).toHaveLength(1);
+    expect(snapshot?.resetAt).toBeNull();
+    expect(await loadPlanUsage('c1')).toEqual([]);
+    expect(await loadPlanUsageResetAt('c1')).toBe(at.toISOString());
+    expect(await loadPlanUsage('c2')).toHaveLength(1);
+    expect(await loadPlanUsageResetAt('c2')).toBeNull();
+  });
+
+  // Seeding from the saved plans again would undo the reset on the next load.
+  it('keeps the class from being seeded from its saved plans again', async () => {
+    await resetPlanUsage('c1', at);
+    await backfillPlanUsage('c1', [planOf('p1', '2026-09-01', [['a', 'b']])]);
+
+    expect(await loadPlanUsage('c1')).toEqual([]);
+  });
+
+  it('counts what comes after it', async () => {
+    await resetPlanUsage('c1', at);
+    await recordPlanUsage('c1', seatingOf([['a', 'b']]), 'presented');
+
+    expect(await loadPlanUsage('c1')).toHaveLength(1);
+  });
+
+  it('is taken back with what came after it kept', async () => {
+    await recordPlanUsage('c1', seatingOf([['a', 'b']]), 'presented');
+    const snapshot = await resetPlanUsage('c1', at);
+    await recordPlanUsage('c1', seatingOf([['c', 'd']]), 'exported');
+
+    await undoPlanUsageReset('c1', snapshot!);
+
+    const pairs = (await loadPlanUsage('c1')).map((entry) => entry.pairs);
+    expect(pairs).toEqual([['a::b'], ['c::d']]);
+    expect(await loadPlanUsageResetAt('c1')).toBeNull();
+  });
+
+  it('leaves the reset of a class that no longer exists behind', async () => {
+    await resetPlanUsage('gone', at);
+    await sweepOrphanPlanUsage(new Map([['c1', new Set(['a'])]]));
+
+    expect(await getAllPlanUsageResets()).toBeUndefined();
+  });
+
+  it('travels with a full import and keeps the class unseeded', async () => {
+    await restorePlanUsage({}, { resetAtByClass: { c1: at.toISOString() } });
+    await backfillPlanUsage('c1', [planOf('p1', '2026-09-01', [['a', 'b']])]);
+
+    expect(await loadPlanUsageResetAt('c1')).toBe(at.toISOString());
+    expect(await loadPlanUsage('c1')).toEqual([]);
   });
 });

@@ -57,6 +57,8 @@ export interface SeatingPlanState {
   activeClass: ActiveClassState;
   /** Records of plans that were really in use; see `buildPreviousPairs`. */
   planUsage: PlanUsage[];
+  /** When the class's neighbourhoods were last reset; null if never. */
+  planUsageSince: string | null;
   statisticsHighlight: StatisticHighlightState | null;
   /** Seating-plan undo/redo availability (mixing, drag swaps, locks, circle). */
   canUndoSeating: boolean;

@@ -43,14 +43,25 @@ const setWidth = (width: number) => {
 /** A layer that fills the inspector the way the plan layer does. */
 const renderLayer = () =>
   render(
-    <InspectorProvider>
-      <InspectorPortal label="Mischkriterien">
-        <button type="button">Kriterium</button>
-      </InspectorPortal>
-      <Inspector />
-      <StatusBarFrame start={<span>Status</span>} />
-    </InspectorProvider>,
+    <ToolRailProvider>
+      <InspectorProvider>
+        <InspectorPortal label="Mischkriterien">
+          <button type="button">Kriterium</button>
+        </InspectorPortal>
+        <Inspector />
+        <StatusBarFrame
+          start={<span>Status</span>}
+          end={<button>Weiter</button>}
+        />
+      </InspectorProvider>
+    </ToolRailProvider>,
   );
+
+/** The inspector's switch, whichever way it points just now. */
+const inspectorSwitch = () =>
+  screen.getByRole('button', {
+    name: /Inspektor ausblenden|Hide inspector|einblenden|Show /i,
+  });
 
 const Picker = () => {
   const { selectStudent } = useInspector();
@@ -119,6 +130,8 @@ describe('Inspector below lg', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
+  // The switch closes the bar on the right, the mirror of the toolbar's on
+  // the left, beyond the way on.
   it('opens a layer’s panel from the status bar and closes it on Escape', () => {
     setWidth(820);
     renderLayer();
@@ -127,7 +140,15 @@ describe('Inspector below lg', () => {
       name: 'Mischkriterien',
       hidden: true,
     });
-    const toggle = screen.getByRole('button', { name: 'Mischkriterien' });
+    const toggle = inspectorSwitch();
+    expect(toggle).toHaveAccessibleName(
+      /Mischkriterien einblenden|Show Mischkriterien/i,
+    );
+    expect(
+      screen
+        .getByRole('button', { name: 'Weiter' })
+        .compareDocumentPosition(toggle),
+    ).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
     expect(aside).toHaveClass('hidden');
     expect(toggle).toHaveAttribute('aria-expanded', 'false');
 
@@ -135,6 +156,7 @@ describe('Inspector below lg', () => {
     expect(aside).toHaveClass('fixed');
     expect(aside).not.toHaveClass('hidden');
     expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    expect(toggle).toHaveAccessibleName(/Inspektor ausblenden|Hide inspector/i);
     expect(aside).toHaveFocus();
 
     fireEvent.keyDown(window, { key: 'Escape' });
@@ -144,18 +166,8 @@ describe('Inspector below lg', () => {
 
   it('lets the toolbar’s drawer and the inspector’s take turns on a phone', () => {
     setWidth(390);
-    render(
-      <ToolRailProvider>
-        <InspectorProvider>
-          <InspectorPortal label="Mischkriterien">
-            <button type="button">Kriterium</button>
-          </InspectorPortal>
-          <Inspector />
-          <StatusBarFrame start={<span>Status</span>} />
-        </InspectorProvider>
-      </ToolRailProvider>,
-    );
-    const criteria = screen.getByRole('button', { name: 'Mischkriterien' });
+    renderLayer();
+    const criteria = inspectorSwitch();
     const toolbar = screen.getByRole('button', { name: 'Werkzeugleiste' });
 
     fireEvent.click(criteria);
@@ -171,7 +183,7 @@ describe('Inspector below lg', () => {
   it('closes the panel again from the same switch', () => {
     setWidth(500);
     renderLayer();
-    const toggle = screen.getByRole('button', { name: 'Mischkriterien' });
+    const toggle = inspectorSwitch();
 
     fireEvent.click(toggle);
     fireEvent.click(toggle);
@@ -179,33 +191,26 @@ describe('Inspector below lg', () => {
     expect(toggle).toHaveAttribute('aria-expanded', 'false');
   });
 
-  it('needs no switch where the column stands', () => {
-    setWidth(1280);
-    renderLayer();
+  it('offers no switch below lg where a layer has no panel', () => {
+    setWidth(820);
+    mocks.state.step = 1;
+    render(
+      <InspectorProvider>
+        <Inspector />
+        <StatusBarFrame start={<span>Status</span>} />
+      </InspectorProvider>,
+    );
 
     expect(
-      screen.queryByRole('button', { name: 'Mischkriterien' }),
+      screen.queryByRole('button', {
+        name: /einblenden|ausblenden|Show|Hide/i,
+      }),
     ).not.toBeInTheDocument();
-    expect(
-      screen.getByRole('complementary', { name: 'Mischkriterien' }),
-    ).toHaveClass('lg:flex');
   });
 });
 
 describe('Inspector from lg up', () => {
   const FOLDED_KEY = 'spg.inspectorFolded';
-
-  /** A layer whose column may fold away, as the room and the plan do. */
-  const renderFoldableLayer = () =>
-    render(
-      <InspectorProvider>
-        <InspectorPortal label="Mischkriterien" foldable>
-          <button type="button">Kriterium</button>
-        </InspectorPortal>
-        <Inspector />
-        <StatusBarFrame start={<span>Status</span>} />
-      </InspectorProvider>,
-    );
 
   const pointerIs = (coarse: boolean) =>
     Object.defineProperty(window, 'matchMedia', {
@@ -232,19 +237,23 @@ describe('Inspector from lg up', () => {
   // barely 500px; the stage gets the width when the column folds away.
   it('folds the column away from the status bar and brings it back', () => {
     setWidth(1280);
-    renderFoldableLayer();
+    renderLayer();
     const aside = screen.getByRole('complementary', {
       name: 'Mischkriterien',
       hidden: true,
     });
-    const toggle = screen.getByRole('button', { name: 'Mischkriterien' });
+    const toggle = inspectorSwitch();
     expect(aside).toHaveClass('lg:flex');
     expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    expect(toggle).toHaveAccessibleName(/Inspektor ausblenden|Hide inspector/i);
 
     fireEvent.click(toggle);
     expect(aside).toHaveClass('hidden');
     expect(aside).not.toHaveClass('lg:flex');
     expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    expect(toggle).toHaveAccessibleName(
+      /Mischkriterien einblenden|Show Mischkriterien/i,
+    );
     // The portal keeps its slot while the column is out of sight.
     expect(
       screen.getByRole('button', { name: 'Kriterium', hidden: true }),
@@ -260,7 +269,7 @@ describe('Inspector from lg up', () => {
   it('keeps a folded column folded on the next visit', () => {
     localStorage.setItem(FOLDED_KEY, 'true');
     setWidth(1280);
-    renderFoldableLayer();
+    renderLayer();
 
     expect(
       screen.getByRole('complementary', {
@@ -273,35 +282,63 @@ describe('Inspector from lg up', () => {
   it('starts folded on a touch screen narrower than xl', () => {
     pointerIs(true);
     setWidth(1180);
-    renderFoldableLayer();
+    renderLayer();
 
-    expect(
-      screen.getByRole('button', { name: 'Mischkriterien' }),
-    ).toHaveAttribute('aria-expanded', 'false');
+    expect(inspectorSwitch()).toHaveAttribute('aria-expanded', 'false');
   });
 
   it('starts with the column shown on a wide touch screen', () => {
     pointerIs(true);
     setWidth(1920);
-    renderFoldableLayer();
-
-    expect(
-      screen.getByRole('button', { name: 'Mischkriterien' }),
-    ).toHaveAttribute('aria-expanded', 'true');
-  });
-
-  // The class layer's column is where a student is edited; its ticked
-  // students' panel does not fold, whatever another layer left behind.
-  it('never folds a panel that does not allow it', () => {
-    localStorage.setItem(FOLDED_KEY, 'true');
-    setWidth(1280);
     renderLayer();
 
+    expect(inspectorSwitch()).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  // The class layer's column folds too, from the same switch — but it is
+  // where a student is edited: opening one brings it back.
+  it('folds the class layer’s column and unfolds it for an opened student', () => {
+    setWidth(1280);
+    mocks.state.step = 1;
+    mocks.state.students = [createMockStudent({ id: 'g', name: 'Grace' })];
+    render(
+      <InspectorProvider>
+        <Picker />
+        <Inspector />
+        <StatusBarFrame start={<span>Status</span>} />
+      </InspectorProvider>,
+    );
+
+    fireEvent.click(inspectorSwitch());
     expect(
-      screen.getByRole('complementary', { name: 'Mischkriterien' }),
-    ).toHaveClass('lg:flex');
-    expect(
-      screen.queryByRole('button', { name: 'Mischkriterien' }),
+      screen.queryByRole('complementary', { name: /Merkmale|Attributes/i }),
     ).not.toBeInTheDocument();
+    expect(localStorage.getItem(FOLDED_KEY)).toBe('true');
+
+    fireEvent.click(screen.getByRole('button', { name: 'pick' }));
+
+    expect(
+      screen.getByRole('complementary', { name: /Merkmale|Attributes/i }),
+    ).toHaveClass('lg:flex');
+    expect(screen.getByRole('heading', { name: 'Grace' })).toBeInTheDocument();
+    expect(localStorage.getItem(FOLDED_KEY)).toBe('false');
+  });
+
+  // Ticked students are edited in the column alone, so they bring it back.
+  it('unfolds for a portal that asks to be seen', () => {
+    localStorage.setItem(FOLDED_KEY, 'true');
+    setWidth(1280);
+    render(
+      <InspectorProvider>
+        <InspectorPortal label="Mehrfachauswahl" reveal>
+          <p>Auswahl</p>
+        </InspectorPortal>
+        <Inspector />
+      </InspectorProvider>,
+    );
+
+    expect(
+      screen.getByRole('complementary', { name: 'Mehrfachauswahl' }),
+    ).toHaveClass('lg:flex');
   });
 });

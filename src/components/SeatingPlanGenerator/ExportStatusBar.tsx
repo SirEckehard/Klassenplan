@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { ArrowLeftIcon, PrinterIcon } from '@phosphor-icons/react';
 import StatusBarFrame, {
   statusBarBackButtonClass,
+  statusBarWordClass,
 } from '@/components/shell/StatusBarFrame';
 import {
   formatPercent,
@@ -87,7 +88,7 @@ export default function ExportStatusBar({
               className={statusBarBackButtonClass}
             >
               <ArrowLeftIcon className="h-4 w-4" aria-hidden="true" />
-              <span className="hidden sm:inline">{t('wizard.back')}</span>
+              <span className={statusBarWordClass}>{t('wizard.back')}</span>
             </button>
           )}
           {hasPlan && (
@@ -95,10 +96,12 @@ export default function ExportStatusBar({
               type="button"
               onClick={onPrint}
               title={t('export.printShortcut')}
+              // A phone and a tablet show the printer alone; the name stays.
+              aria-label={t('actions.print')}
               className={`${primaryButtonClass} flex items-center gap-2 whitespace-nowrap`}
             >
               <PrinterIcon className="h-4 w-4" aria-hidden="true" />
-              {t('actions.print')}
+              <span className={statusBarWordClass}>{t('actions.print')}</span>
             </button>
           )}
         </>

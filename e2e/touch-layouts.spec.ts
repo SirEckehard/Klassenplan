@@ -152,9 +152,10 @@ async function mixThePlan(page: Page): Promise<void> {
   await expectCanvasInSight(page);
 
   // The criteria have no column here: the switch at the right end of the
-  // status bar opens them.
+  // status bar opens them. It names what it shows, and once open what it
+  // hides.
   const criteriaSwitch = statusBar(page).getByRole('button', {
-    name: 'Mischkriterien',
+    name: /^(Mischkriterien einblenden|Inspektor ausblenden)$/,
   });
   await criteriaSwitch.click();
   await expect(criteriaSwitch).toHaveAttribute('aria-expanded', 'true');
@@ -239,7 +240,7 @@ test(
     await test.step('a table is tapped and copied in the inspector', async () => {
       await tables.first().tap();
       const drawerSwitch = statusBar(page).getByRole('button', {
-        name: 'Eigenschaften',
+        name: /^(Eigenschaften einblenden|Inspektor ausblenden)$/,
       });
       await drawerSwitch.click();
       await page

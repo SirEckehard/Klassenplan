@@ -466,4 +466,47 @@ describe('SimpleCircleView', () => {
 
     getItemSpy.mockRestore();
   });
+
+  // The editor and the exports share the room's 900×600; the projection
+  // frames the drawing on the ring so it fills the wall.
+  it('frames the ring itself when asked to fit', () => {
+    const { container, rerender } = render(
+      <SimpleCircleView layout={mockLayout} photoMode="off" />,
+    );
+    const svg = () => container.querySelector('svg[viewBox]') as SVGElement;
+    expect(svg().getAttribute('viewBox')).toBe('0 0 900 600');
+
+    rerender(<SimpleCircleView layout={mockLayout} photoMode="off" fit />);
+    const [x, y, width, height] = svg()
+      .getAttribute('viewBox')!
+      .split(' ')
+      .map(Number);
+    // The ring is 300×200 here, so the frame is far smaller than the room
+    // and still holds every token whole.
+    expect(width).toBeLessThan(450);
+    expect(height).toBeLessThan(300);
+    const tokens = Array.from(container.querySelectorAll('circle[r="30"]'));
+    expect(tokens).toHaveLength(3);
+    for (const token of tokens) {
+      const cx = Number(token.getAttribute('cx'));
+      const cy = Number(token.getAttribute('cy'));
+      expect(cx - 30).toBeGreaterThanOrEqual(x);
+      expect(cy - 30).toBeGreaterThanOrEqual(y);
+      expect(cx + 30).toBeLessThanOrEqual(x + width);
+      expect(cy + 30).toBeLessThanOrEqual(y + height);
+    }
+    expect(svg()).toHaveAttribute('preserveAspectRatio', 'xMidYMid meet');
+  });
+
+  it('lights the drawn student and dims the rest', () => {
+    const { container, rerender } = render(
+      <SimpleCircleView layout={mockLayout} fit />,
+    );
+    expect(container.querySelector('[data-circle-spotlight]')).toBeNull();
+
+    rerender(
+      <SimpleCircleView layout={mockLayout} fit spotlightStudentId="2" />,
+    );
+    expect(container.querySelector('[data-circle-spotlight]')).not.toBeNull();
+  });
 });

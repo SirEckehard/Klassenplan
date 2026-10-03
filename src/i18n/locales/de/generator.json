@@ -127,8 +127,7 @@
     "end": "Beenden",
     "exit": "Präsentation beenden",
     "groups": "Gruppen bilden",
-    "groupsTitle": "Aus dieser Klasse Gruppen ziehen",
-    "seats": "{{count}} Plätze"
+    "groupsTitle": "Aus dieser Klasse Gruppen ziehen"
   },
   "mode": {
     "table": "Sitzplan",
@@ -258,7 +257,10 @@
         "exported": "exportiert",
         "saved": "gespeichert",
         "edited": "von Hand angepasst"
-      }
+      },
+      "reset": "Zurücksetzen",
+      "resetTitle": "Alle bisherigen Nachbarschaften vergessen und ab jetzt neu zählen",
+      "countingSince": "Gezählt wird seit {{date}}."
     }
   },
   "classActions": {
@@ -453,6 +455,7 @@
     "backTitle": "Zurück (Alt/⌥+←)",
     "preview": "Vorschau",
     "roomElements": "Raumelemente",
+    "roomElementsToggleAllMixed": "Alle Raumelemente ein- oder ausblenden (einige sichtbar)",
     "showConnections": "Verbindungen anzeigen",
     "showBoard": "Tafel anzeigen",
     "showNeeds": "Bedürfnisse anzeigen",
@@ -848,6 +851,9 @@
     "layerSwitchLabel": "Ebene wechseln",
     "statusBarLabel": "Statusleiste",
     "next": "Weiter",
+    "inspectorHide": "Inspektor ausblenden",
+    "inspectorShow": "Inspektor einblenden",
+    "inspectorShowNamed": "{{name}} einblenden",
     "status": {
       "noStudents": "Noch keine Schüler",
       "students_one": "{{count}} Schüler",
@@ -864,18 +870,7 @@
       "seatsMissing_other": "{{count}} Plätze fehlen",
       "seatsSpare_one": "{{count}} Platz frei",
       "seatsSpare_other": "{{count}} Plätze frei",
-      "noPlan": "Noch kein Sitzplan gemischt",
-      "occupied": "{{filled}} von {{seats}} Plätzen besetzt",
-      "occupiedShort": "{{filled}}/{{seats}}",
-      "allSeated": "Alle Schüler haben einen Platz",
-      "unseated_one": "{{count}} Schüler ohne Platz",
-      "unseated_other": "{{count}} Schüler ohne Platz",
-      "noCircle": "Noch kein Sitzkreis",
-      "inCircle_one": "{{count}} Schüler im Kreis",
-      "inCircle_other": "{{count}} Schüler im Kreis",
-      "allInCircle": "Alle Schüler sitzen im Kreis",
-      "notInCircle_one": "{{count}} Schüler fehlt im Kreis",
-      "notInCircle_other": "{{count}} Schüler fehlen im Kreis"
+      "noPlan": "Noch kein Sitzplan gemischt"
     }
   },
   "sceneInspector": {
@@ -957,7 +952,9 @@
         "window": "am Fenster",
         "door": "an der Tür"
       },
-      "nextTo": "neben {{name}}"
+      "nextTo": "neben {{name}}",
+      "circle": "im Sitzkreis",
+      "between": "zwischen {{first}} und {{second}}"
     },
     "whoIsNext": {
       "title": "Wer kommt dran?",

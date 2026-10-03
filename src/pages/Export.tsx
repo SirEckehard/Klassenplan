@@ -143,6 +143,8 @@ export default function Export() {
     seating?: SeatingArrangement;
     planName?: string;
     circleLayout?: CircleLayout;
+    /** The arrangement the plan layer showed: the sheet starts with it. */
+    mode?: SeatingMode;
   };
   const {
     currentSeating,
@@ -188,7 +190,14 @@ export default function Export() {
   const [previewSvg, setPreviewSvg] = useState('');
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const isLgUp = useIsLgUp();
-  const [previewMode, setPreviewMode] = useState<SeatingMode>('table');
+  // Opened from the circle, the sheet shows the circle — where there is one
+  // to show; the toolbar switches as before.
+  const [previewMode, setPreviewMode] = useState<SeatingMode>(() =>
+    navigationState.mode === 'circle' &&
+    (circleLayout ?? navigationState.circleLayout)
+      ? 'circle'
+      : 'table',
+  );
   // Persisted like every other display option on this page: a teacher who
   // never wants needs or connection lines on the printout should not have to
   // switch them off again on each visit.
@@ -1042,7 +1051,7 @@ export default function Export() {
           </div>
 
           {isLgUp && (
-            <InspectorPortal label={t('export.sheet')} foldable>
+            <InspectorPortal label={t('export.sheet')}>
               {sheetInspector}
             </InspectorPortal>
           )}

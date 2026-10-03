@@ -40,12 +40,41 @@ describe('PlanExits', () => {
     const presentButton = getButton(/^(Präsentieren|Present)$/i);
     // Blue is the layer's own action in the status bar; the exits are never it.
     expect(exportButton).toHaveClass('secondary-button');
-    expect(presentButton.className).toBe(exportButton.className);
+    expect(presentButton).toHaveClass('secondary-button');
+    // Presenting closes the bar, exporting comes before it.
+    expect(exportButton.compareDocumentPosition(presentButton)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
 
     await userEvent.click(exportButton);
     await userEvent.click(presentButton);
     expect(mocks.exits.exportPlan).toHaveBeenCalledTimes(1);
     expect(mocks.exits.presentPlan).toHaveBeenCalledTimes(1);
+  });
+
+  // A phone's bar has room for one exit: exporting stays, presenting moves to
+  // the foot of the tool sheet.
+  it('keeps exporting on a phone and leaves presenting to tablets and up', () => {
+    render(<PlanExits />);
+
+    const exportButton = getButton(/^(Exportieren|Export)$/i);
+    const presentButton = getButton(/^(Präsentieren|Present)$/i);
+    expect(exportButton).not.toHaveClass('hidden');
+    expect(presentButton).toHaveClass('hidden', 'md:inline-flex');
+  });
+
+  // The words belong to a desktop and a whiteboard; the names stay on the
+  // buttons at every width.
+  it('shows the words only where a desktop or a whiteboard has room', () => {
+    render(<PlanExits />);
+
+    for (const name of [
+      /^(Exportieren|Export)$/i,
+      /^(Präsentieren|Present)$/i,
+    ]) {
+      const word = getButton(name).querySelector('span');
+      expect(word).toHaveClass('hidden', 'lg:pointer-fine:inline', 'xl:inline');
+    }
   });
 
   it('keeps the exits clickable without a plan but does not leave', async () => {

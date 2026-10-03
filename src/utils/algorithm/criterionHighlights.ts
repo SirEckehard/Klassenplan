@@ -33,6 +33,8 @@ type HighlightParams = {
   mixHistory?: MixResult[];
   /** Records of plans that were really in use; see `buildPreviousPairs`. */
   planUsage?: PlanUsage[];
+  /** When the neighbourhoods were last reset; see `buildPreviousPairs`. */
+  planUsageSince?: string | null;
 };
 
 const calculateProximityScore = (distance: number, maxDistance: number) => {
@@ -69,6 +71,7 @@ export function buildCriterionHighlightEntries({
   seatingHistory,
   mixHistory,
   planUsage,
+  planUsageSince,
 }: HighlightParams): StatisticHighlightEntry[] {
   const entries: StatisticHighlightEntry[] = [];
   const seatPositions = getSeatPositions(scene);
@@ -117,6 +120,7 @@ export function buildCriterionHighlightEntries({
       ? buildPreviousPairs(seatingHistory, {
           mixHistory,
           planUsage,
+          since: planUsageSince,
           studentCount: seatedCount,
         })
       : null;

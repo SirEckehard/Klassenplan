@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import type { CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ArrowDownIcon, ArrowUpIcon } from '@phosphor-icons/react';
 import { mutedIconButtonClass } from '@/utils';
@@ -10,8 +9,6 @@ type ListScrollFabProps = {
   /** Which way to jump, or `null` to render nothing. */
   hint: ListScrollHint;
   onScroll: () => void;
-  /** Safe-area and cookie-banner aware offsets from `useFloatingActionOffset`. */
-  offsets: CSSProperties;
 };
 
 /**
@@ -25,14 +22,12 @@ type ListScrollFabProps = {
  * has the least of it, and the direction is unambiguous from the scroll
  * position anyway.
  *
- * `z-40` matches the other floating control (the offline badge)
- * and stays below modals and toasts.
+ * It hangs above the status bar's right end (`StatusBarPortal`, slot
+ * `float`) and moves with the bar. Measured from the window's bottom edge
+ * instead, it slid into the bar on an iPhone, where Safari ends the window
+ * below the bar's sticky edge.
  */
-export default function ListScrollFab({
-  hint,
-  onScroll,
-  offsets,
-}: ListScrollFabProps) {
+export default function ListScrollFab({ hint, onScroll }: ListScrollFabProps) {
   const { t } = useTranslation('students');
 
   if (!hint) {
@@ -49,8 +44,7 @@ export default function ListScrollFab({
     <button
       type="button"
       onClick={onScroll}
-      style={offsets}
-      className={`${mutedIconButtonClass} fixed z-40 h-12 w-12 shadow-lg lg:hidden`}
+      className={`${mutedIconButtonClass} h-12 w-12 shadow-lg lg:hidden`}
       aria-label={label}
       title={label}
     >
