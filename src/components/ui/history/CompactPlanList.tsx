@@ -24,6 +24,7 @@ import {
   seatsPerTable,
   tableCount,
   formatStoredDate,
+  MAX_NAME_LENGTH,
 } from '@/utils';
 
 interface CompactPlanListProps {
@@ -101,6 +102,7 @@ function CompactPlanItem({
               <input
                 autoFocus
                 value={draftName}
+                maxLength={MAX_NAME_LENGTH}
                 onChange={(e) => setDraftName(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {

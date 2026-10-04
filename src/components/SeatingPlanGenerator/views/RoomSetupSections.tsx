@@ -167,6 +167,7 @@ function TemplateRenameRow({
       <input
         type="text"
         value={draft}
+        maxLength={MAX_NAME_LENGTH}
         autoFocus
         onFocus={(event) => event.currentTarget.select()}
         onChange={(event) => setDraft(event.target.value)}

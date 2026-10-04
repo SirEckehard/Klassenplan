@@ -11,6 +11,7 @@ import {
   successButtonClass,
 } from '@/utils/ui/designTokens';
 import { getTemplateNameSuggestion } from '@/hooks/template/useTemplateService';
+import { MAX_NAME_LENGTH } from '@/utils';
 
 type Props = {
   /**
@@ -157,6 +158,7 @@ export default function SaveTemplateModal({
             ref={inputRef}
             id="template-name"
             type="text"
+            maxLength={MAX_NAME_LENGTH}
             value={name}
             onChange={(e) => setName(e.target.value)}
             onKeyDown={(e) => {

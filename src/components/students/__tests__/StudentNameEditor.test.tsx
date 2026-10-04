@@ -152,6 +152,8 @@ describe('StudentNameEditor', () => {
     const input = screen.getByDisplayValue('Alice');
     expect(input).toBeInTheDocument();
     expect(input).toHaveFocus();
+    // As long as the backup import lets a name be (MAX_STUDENT_NAME_LENGTH).
+    expect(input).toHaveAttribute('maxlength', '120');
   });
 
   // An iPad's keyboard showed "Return" although Enter steps to the next one.

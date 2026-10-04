@@ -232,4 +232,12 @@ describe('PlanSavePanel', () => {
 
     expect(screen.getByText(/Chemie-Fachraum/)).toBeInTheDocument();
   });
+
+  // The backup import holds a plan's name to 120 characters; a longer one
+  // made the whole backup unreadable.
+  it('takes no longer a name than a backup can read back', () => {
+    renderPanel();
+
+    expect(field()).toHaveAttribute('maxlength', '120');
+  });
 });

@@ -21,6 +21,7 @@ import {
 } from '@/components/shell/ToolRail';
 import {
   MAX_STUDENTS,
+  MAX_STUDENT_NAME_LENGTH,
   inputFieldClass,
   menuItemClass,
   menuSurfaceClass,
@@ -146,6 +147,7 @@ export default function ClassToolPanel({
                   <input
                     type="text"
                     value={newStudentName}
+                    maxLength={MAX_STUDENT_NAME_LENGTH}
                     onChange={(event) =>
                       onNewStudentNameChange(event.target.value)
                     }

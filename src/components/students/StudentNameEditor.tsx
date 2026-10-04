@@ -12,6 +12,7 @@ import {
   mutedIconButtonClass,
   successIconButtonClass,
   dangerIconButtonClass,
+  MAX_STUDENT_NAME_LENGTH,
 } from '@/utils';
 
 type Props = {
@@ -135,6 +136,8 @@ export default function StudentNameEditor({
           <input
             type="text"
             value={draftName}
+            // As long as the backup import lets a name be.
+            maxLength={MAX_STUDENT_NAME_LENGTH}
             onChange={(e) => setDraftName(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {

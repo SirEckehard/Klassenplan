@@ -9,7 +9,12 @@ import {
 } from '@/contexts/SeatingPlanContext';
 import { useIsCoarsePointer } from '@/hooks/ui/useCoarsePointer';
 import { useOpenPlan } from '@/hooks/plan/useOpenPlan';
-import { inputFieldClass, menuItemClass, menuSurfaceClass } from '@/utils';
+import {
+  inputFieldClass,
+  MAX_NAME_LENGTH,
+  menuItemClass,
+  menuSurfaceClass,
+} from '@/utils';
 
 const iconClass = 'h-4 w-4 shrink-0 text-(--text-muted)';
 
@@ -97,6 +102,8 @@ export default function PlanSavePanel({ onDone }: { onDone: () => void }) {
           id={fieldId}
           type="text"
           value={draft}
+          // As long as the backup import lets a plan's name be.
+          maxLength={MAX_NAME_LENGTH}
           onChange={(event) => setDraft(event.target.value)}
           onKeyDown={(event) => {
             const isSaveShortcut =
