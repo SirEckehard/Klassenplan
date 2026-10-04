@@ -588,21 +588,6 @@
     "defaultClassName": "Meine Klasse",
     "newClassName": "Neue Klasse"
   },
-  "planCard": {
-    "planAriaLabel": "Sitzplan {{name}}",
-    "loadPlan": "Sitzplan laden",
-    "loadPlanAriaLabel": "Sitzplan {{name}} laden",
-    "deletePlan": "Sitzplan löschen",
-    "deletePlanAriaLabel": "Sitzplan {{name}} löschen",
-    "deleteDialogTitle": "Sitzplan löschen",
-    "deleteDialogMessage": "Möchtest du den Sitzplan „{{name}}“ wirklich löschen?",
-    "studentsBadge": "{{count}} Schüler",
-    "tablesBadge": "{{count}} Tische",
-    "seatsPerTableBadge": "{{count}} / Tisch",
-    "load": "Laden",
-    "editName": "Namen bearbeiten",
-    "editNameAriaLabel": "Namen von {{name}} bearbeiten"
-  },
   "mixHistory": {
     "loadTitle": "Mischergebnis laden",
     "loadAriaLabel": "Mischergebnis vom {{time}} laden",

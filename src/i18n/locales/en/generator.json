@@ -588,21 +588,6 @@
     "defaultClassName": "My Class",
     "newClassName": "New Class"
   },
-  "planCard": {
-    "planAriaLabel": "Seating plan {{name}}",
-    "loadPlan": "Load seating plan",
-    "loadPlanAriaLabel": "Load seating plan {{name}}",
-    "deletePlan": "Delete seating plan",
-    "deletePlanAriaLabel": "Delete seating plan {{name}}",
-    "deleteDialogTitle": "Delete Seating Plan",
-    "deleteDialogMessage": "Do you really want to delete the seating plan “{{name}}”?",
-    "studentsBadge": "{{count}} students",
-    "tablesBadge": "{{count}} tables",
-    "seatsPerTableBadge": "{{count}} / table",
-    "load": "Load",
-    "editName": "Edit name",
-    "editNameAriaLabel": "Rename {{name}}"
-  },
   "mixHistory": {
     "loadTitle": "Load mix result",
     "loadAriaLabel": "Load mix result from {{time}}",
