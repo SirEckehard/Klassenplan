@@ -70,6 +70,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- Opening a saved plan that has no seating circle left the circle of the plan before on screen; the plan then counted as changed at once, and exporting or presenting from the circle saved that foreign circle into it
 - After opening another class, Ctrl/⌘+Z in the room or the plan could bring back the room and the plan of the class left behind, students and all; and a mix still running when another class opened was written into that class. The room and the plan now start afresh with each class, and such a mix is dropped
 - Restoring a backup with "Merge" replaced every class and every template on the device with the backup's, although it promised to add them. It now adds the backup's classes – a name that is taken gets a number, "7b (2)" – and the templates whose name is free, leaves every class that is there as it was, and says what came
 - The space bar draws a student and + zooms in presentation mode, and the space bar draws on "Who's next?" – the help promised all three

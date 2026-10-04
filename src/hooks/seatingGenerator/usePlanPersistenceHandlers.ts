@@ -112,9 +112,11 @@ export function usePlanPersistenceHandlers({
       recordSeatingSnapshot();
       loadSeatingPlan(plan, { replaceStudents: false });
       updateClassroomScene(plan.scene);
-      if (plan.circleLayout) {
-        setCircleLayout(plan.circleLayout);
-      }
+      // A plan without a circle takes the one on screen away too: that one
+      // belongs to another plan, and the exits would save it into this one.
+      // In the circle view a new one is drawn from the plan
+      // (`useEnsureCircleLayout`).
+      setCircleLayout(plan.circleLayout ?? null);
       if (step !== 3) {
         setStep(3);
       }
