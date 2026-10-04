@@ -8,7 +8,12 @@
  * ever lives in one chunk, so importing these from the validator module would
  * pull all of it into the initial bundle.
  */
-import { MAX_NAME_LENGTH, MAX_NOTE_LENGTH, MAX_STUDENTS } from '../constants';
+import {
+  MAX_NAME_LENGTH,
+  MAX_NOTE_LENGTH,
+  MAX_ROOMS_PER_CLASS,
+  MAX_STUDENTS,
+} from '../constants';
 
 // Hard limits that incoming backups must respect to be accepted.
 // Raised for export version 2: backups may embed downscaled student photos as
@@ -32,6 +37,8 @@ export const BACKUP_LIMITS = {
   // Class notes are free text and were checked against the name limit, so a
   // note longer than 120 characters made the whole backup unreadable.
   maxNoteLength: MAX_NOTE_LENGTH,
+  // The rooms of a class (decision 0024), held to what the app allows.
+  maxRoomsPerClass: MAX_ROOMS_PER_CLASS,
   maxTimestampLength: 64,
   maxDateLength: 64,
   maxCoordinateValue: 10000,
@@ -73,6 +80,7 @@ export const BACKUP_ERROR_MESSAGES = {
   tooManyTemplates: 'toast:backupValidation.tooManyTemplates',
   tooManyLocks: 'toast:backupValidation.tooManyLocks',
   tooManyCircleLayouts: 'toast:backupValidation.tooManyCircleLayouts',
+  tooManyRooms: 'toast:backupValidation.tooManyRooms',
   invalidCircleData: 'toast:backupValidation.invalidCircleData',
   invalidPhotoData: 'toast:backupValidation.invalidPhotoData',
   tooManyPhotos: 'toast:backupValidation.tooManyPhotos',

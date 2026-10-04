@@ -14,6 +14,34 @@ import type {
   MixResult,
 } from './SeatingPlan';
 
+/**
+ * How a room was left: the working state of a class while another of its rooms
+ * is open (decision 0024). Opening the room again puts it back as it was.
+ */
+export interface RoomWorkingState {
+  /** `null` stands for the default room, as `ClassRecord.classroomScene`. */
+  scene: ClassroomScene | null;
+  seating: SeatingArrangement;
+  lockedPositions: LockedPositions;
+  circleLayout: CircleLayout | null;
+  activePlanId: string | null;
+}
+
+/**
+ * A room of a class — its classroom, a lab — where its plans and mixes were
+ * made (decision 0024). The room is a name and an identity; its tables are
+ * the class's working scene while it is open, `parked.scene` while not.
+ */
+export interface RoomRecord {
+  id: string;
+  /** Unique within the class, case ignored (`isSameName`). */
+  name: string;
+  /** ISO 8601 */
+  createdAt: string;
+  /** How the room was left. Only while another room of the class is open. */
+  parked?: RoomWorkingState;
+}
+
 export interface ClassRecord {
   id: string;
   name: string;
@@ -31,6 +59,13 @@ export interface ClassRecord {
   classroomScene: ClassroomScene | null;
   circleLayout: CircleLayout | null;
   activePlanId?: string | null;
+  /**
+   * The class's rooms. Absent in data written before rooms existed; reading
+   * gives such a class one room that holds every plan (`ensureClassRooms`).
+   */
+  rooms?: RoomRecord[];
+  /** The open room: the one whose state the working fields above hold. */
+  activeRoomId?: string | null;
 }
 
 // Re-export with proper ClassRecord[] typing

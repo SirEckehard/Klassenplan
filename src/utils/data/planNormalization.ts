@@ -38,13 +38,19 @@ export type ResolvePlanSlotParams = {
   autoSave: boolean;
   /** Keep the active plan's entry under a new name: a rename, not a copy. */
   rename?: boolean;
+  /**
+   * The open room. Each room has a slot of its own for the silent auto-save,
+   * so the one in the lab never takes the classroom's (decision 0024).
+   */
+  roomId?: string | null;
 };
 
 /**
  * Decides which history entry a save writes to.
  *
  * Three outcomes: update the active plan when the name is unchanged or the
- * save renames it, recycle the single auto-save slot, or append a new entry.
+ * save renames it, recycle the open room's auto-save slot, or append a new
+ * entry.
  * Returns `null` when another plan already carries the name — the caller then
  * rejects the save.
  */
@@ -54,9 +60,12 @@ export function resolvePlanSlot({
   name,
   autoSave,
   rename = false,
+  roomId = null,
 }: ResolvePlanSlotParams): { planId: string } | null {
   const previousAutoSave = autoSave
-    ? history.find((plan) => plan.autoSaved)
+    ? history.find(
+        (plan) => plan.autoSaved && (roomId === null || plan.roomId === roomId),
+      )
     : undefined;
 
   const nameTaken = history.some(

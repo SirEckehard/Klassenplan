@@ -489,8 +489,22 @@ function validateSavedPlans(value: unknown): asserts value is SavedPlan[] {
     if ('locks' in record && record.locks !== undefined) {
       validateLockedPositions(record.locks);
     }
+    validateRoomReference(record.roomId);
     validateSeatingArrangement(record.seating);
     validateClassroomScene(record.scene);
+  }
+}
+
+/** A plan's or mix's `roomId` (decision 0024): absent, or an id. */
+function validateRoomReference(value: unknown): void {
+  if (value === undefined) return;
+  if (
+    !assertString(value, {
+      allowEmpty: false,
+      maxLength: BACKUP_LIMITS.maxIdLength,
+    })
+  ) {
+    throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
   }
 }
 
@@ -517,6 +531,7 @@ function validateMixResults(value: unknown): asserts value is MixResult[] {
     ) {
       throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
     }
+    validateRoomReference(record.roomId);
     validateSeatingArrangement(record.seating);
     validateMixSettings(record.mixSettings);
   }
@@ -704,6 +719,65 @@ function validateCircleLayouts(
   value.forEach(validateCircleExportData);
 }
 
+/** How a room that is not open was left: the parts of a class's working state. */
+function validateRoomWorkingState(value: unknown): void {
+  if (!isObject(value)) {
+    throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
+  }
+  if (value.scene !== null) {
+    validateClassroomScene(value.scene);
+  }
+  validateSeatingArrangement(value.seating);
+  validateLockedPositions(value.lockedPositions);
+  if (value.circleLayout !== null) {
+    validateCircleLayout(value.circleLayout);
+  }
+  if (
+    value.activePlanId !== null &&
+    !assertString(value.activePlanId, {
+      allowEmpty: false,
+      maxLength: BACKUP_LIMITS.maxIdLength,
+    })
+  ) {
+    throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
+  }
+}
+
+/** A class's rooms (decision 0024); absent in backups from before them. */
+function validateRooms(value: unknown): void {
+  if (value === undefined) return;
+  if (!Array.isArray(value)) {
+    throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
+  }
+  if (value.length > BACKUP_LIMITS.maxRoomsPerClass) {
+    throw new BackupValidationError(BACKUP_ERROR_MESSAGES.tooManyRooms);
+  }
+  for (const room of value) {
+    if (!isObject(room)) {
+      throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
+    }
+    if (
+      !assertString(room.id, {
+        allowEmpty: false,
+        maxLength: BACKUP_LIMITS.maxIdLength,
+      }) ||
+      !assertString(room.name, {
+        allowEmpty: false,
+        maxLength: BACKUP_LIMITS.maxNameLength,
+      }) ||
+      !assertOptionalString(room.createdAt, {
+        allowEmpty: false,
+        maxLength: BACKUP_LIMITS.maxTimestampLength,
+      })
+    ) {
+      throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
+    }
+    if (room.parked !== undefined) {
+      validateRoomWorkingState(room.parked);
+    }
+  }
+}
+
 function validateClassRecord(value: unknown) {
   if (!isObject(value)) {
     throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
@@ -769,6 +843,15 @@ function validateClassRecord(value: unknown) {
   }
   if (value.circleLayout) {
     validateCircleLayout(value.circleLayout);
+  }
+  validateRooms(value.rooms);
+  if (
+    !assertOptionalString(value.activeRoomId, {
+      allowEmpty: false,
+      maxLength: BACKUP_LIMITS.maxIdLength,
+    })
+  ) {
+    throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
   }
 }
 

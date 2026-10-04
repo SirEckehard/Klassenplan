@@ -993,5 +993,8 @@
       "swapped": "{{name}} und {{other}} haben die Plätze getauscht.",
       "moved": "{{name}} sitzt jetzt an Tisch {{table}}, Platz {{seat}}."
     }
+  },
+  "rooms": {
+    "defaultName": "Klassenraum"
   }
 }

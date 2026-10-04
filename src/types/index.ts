@@ -61,6 +61,8 @@ export type ScalarMixSettingKey = ScalarMixSettingKeyT;
 export type PhotoDisplayMode = PhotoDisplayModeT;
 export type {
   ClassRecord,
+  RoomRecord,
+  RoomWorkingState,
   ClassCollectionState,
   ClassSummary,
   CreateClassPayload,

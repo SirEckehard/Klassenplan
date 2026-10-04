@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import type { LockedPositions, SeatingArrangement } from '@/types';
+import type { LockedPositions, RoomRecord, SeatingArrangement } from '@/types';
 import { resetStudentStore } from '@/stores/studentsStore';
 import { resetAlgorithmStore } from '@/stores/algorithmStore';
 import { resetLayoutStore } from '@/stores/layoutStore';
@@ -15,6 +15,8 @@ export interface ApplicationStateResetHandlers {
   setCurrentSeating?: (value: SeatingArrangement) => void;
   setActivePlanId?: (value: string | null) => void;
   setLockedPositions?: (value: LockedPositions) => void;
+  setRooms?: (value: RoomRecord[]) => void;
+  setActiveRoomId?: (value: string | null) => void;
 }
 
 const defaultMixSettings = normalizeMixSettings(
@@ -57,4 +59,6 @@ export function resetApplicationState(
   handlers.setCurrentSeating?.([]);
   handlers.setActivePlanId?.(null);
   handlers.setLockedPositions?.({});
+  handlers.setRooms?.([]);
+  handlers.setActiveRoomId?.(null);
 }

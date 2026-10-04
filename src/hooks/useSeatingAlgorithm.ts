@@ -46,13 +46,17 @@ export interface AlgorithmRunOptions {
 }
 
 /**
- * A run that outlived its class: another class opened while the worker was
- * busy. Its arrangement was made for the class it started in, so it is dropped
- * the way an aborted run's is — writing it would put one class's students
- * into the other's plan and mix history.
+ * A run that outlived its class or room: another one opened while the worker
+ * was busy. Its arrangement was made for the tables and students it started
+ * with, so it is dropped the way an aborted run's is — writing it would put
+ * it into the plan and the mix history of what is open now.
  */
-const classChangedError = () =>
-  new DOMException('Another class opened during the run', 'AbortError');
+type OpenScope = { classId: string | null; roomId: string | null };
+const isSameScope = (a: OpenScope, b: OpenScope) =>
+  a.classId === b.classId && a.roomId === b.roomId;
+
+const scopeChangedError = () =>
+  new DOMException('Another class or room opened during the run', 'AbortError');
 
 /**
  * Provide algorithms to generate and refine seating arrangements.
@@ -71,15 +75,19 @@ export function useSeatingAlgorithm(
     historyState: { seatingHistory, mixHistory, addMixResult, setMixHistory },
     algorithmState: { lockedPositions, setLastStatistics },
     planState: { currentSeating, setCurrentSeating },
+    roomState: { activeRoomId },
     classState: { activeClass },
   } = state;
 
-  // Read when a run ends, so it is current by then: a class switch commits in
-  // `flushSync`, and layout effects run inside that commit.
-  const activeClassIdRef = useRef(activeClass.id);
+  // What is open, read when a run ends — current by then: a class or room
+  // switch commits in `flushSync`, and layout effects run inside that commit.
+  const openScopeRef = useRef<OpenScope>({
+    classId: activeClass.id,
+    roomId: activeRoomId,
+  });
   useLayoutEffect(() => {
-    activeClassIdRef.current = activeClass.id;
-  }, [activeClass.id]);
+    openScopeRef.current = { classId: activeClass.id, roomId: activeRoomId };
+  }, [activeClass.id, activeRoomId]);
 
   const mixHistoryRef = useRef(mixHistory);
   // Held in a ref like the mix history: the records change on signals raised
@@ -218,7 +226,7 @@ export function useSeatingAlgorithm(
         }
       }
 
-      const classId = activeClassIdRef.current;
+      const scope = openScopeRef.current;
       return algorithmWorkerClient
         .callOperation(
           'mix:generate',
@@ -237,8 +245,8 @@ export function useSeatingAlgorithm(
           { signal: run?.signal, onProgress: run?.onProgress },
         )
         .then(({ seating: arrangement }) => {
-          if (activeClassIdRef.current !== classId) {
-            throw classChangedError();
+          if (!isSameScope(openScopeRef.current, scope)) {
+            throw scopeChangedError();
           }
           // Cache the result only for non-forced generations
           if (!forceNew) {
@@ -264,6 +272,8 @@ export function useSeatingAlgorithm(
             timestamp: new Date().toISOString(),
             seating: arrangement,
             mixSettings: persistedSettings,
+            // The room the mix was made for (decision 0024).
+            ...(scope.roomId && { roomId: scope.roomId }),
           };
           const updatedMixHistory = [...historyForPairs, result];
           mixHistoryRef.current =
@@ -319,7 +329,7 @@ export function useSeatingAlgorithm(
         ),
       };
 
-      const classId = activeClassIdRef.current;
+      const scope = openScopeRef.current;
       return algorithmWorkerClient
         .callOperation(
           'mix:refine',
@@ -339,8 +349,8 @@ export function useSeatingAlgorithm(
           { signal: run?.signal, onProgress: run?.onProgress },
         )
         .then(({ seating: arrangement }) => {
-          if (activeClassIdRef.current !== classId) {
-            throw classChangedError();
+          if (!isSameScope(openScopeRef.current, scope)) {
+            throw scopeChangedError();
           }
           recentSeatingRef.current =
             arrangement.length > 0 ? arrangement : null;

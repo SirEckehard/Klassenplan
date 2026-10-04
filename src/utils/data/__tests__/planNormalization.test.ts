@@ -150,6 +150,41 @@ describe('resolvePlanSlot', () => {
 
     expect(slot).toEqual({ planId: 'auto-1' });
   });
+
+  it('recycles the auto-save slot of the open room only', () => {
+    const classroomAuto = createPlan({
+      id: 'auto-classroom',
+      name: 'Plan 30.9.2026, 08:00:00',
+      autoSaved: true,
+      roomId: 'classroom',
+    });
+    const labAuto = createPlan({
+      id: 'auto-lab',
+      name: 'Plan 1.10.2026, 10:00:00',
+      autoSaved: true,
+      roomId: 'lab',
+    });
+
+    expect(
+      resolvePlanSlot({
+        history: [classroomAuto, labAuto],
+        activePlanId: null,
+        name: 'Plan 4.10.2026, 09:00:00',
+        autoSave: true,
+        roomId: 'lab',
+      }),
+    ).toEqual({ planId: 'auto-lab' });
+
+    const gym = resolvePlanSlot({
+      history: [classroomAuto, labAuto],
+      activePlanId: null,
+      name: 'Plan 4.10.2026, 09:00:00',
+      autoSave: true,
+      roomId: 'gym',
+    });
+    expect(gym?.planId).not.toBe('auto-classroom');
+    expect(gym?.planId).not.toBe('auto-lab');
+  });
 });
 
 describe('upsertPlan', () => {

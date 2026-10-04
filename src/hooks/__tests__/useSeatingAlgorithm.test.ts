@@ -37,7 +37,7 @@ const refineOptions = { triesPerPass: 600, passes: 2 };
 const setup = () => {
   let mixHistory: MixResult[] = [];
   const setCurrentSeating = vi.fn();
-  const stateFor = (classId: string) =>
+  const stateFor = (classId: string, roomId = 'room-1') =>
     ({
       studentState: { students: [ada, ben] },
       historyState: {
@@ -54,16 +54,18 @@ const setup = () => {
       },
       algorithmState: { lockedPositions: {}, setLastStatistics: vi.fn() },
       planState: { currentSeating: [], setCurrentSeating },
+      roomState: { activeRoomId: roomId },
       classState: { activeClass: { id: classId, name: classId } },
     }) as unknown as SeatingState;
 
   const { result, rerender } = renderHook(
-    ({ classId }) => useSeatingAlgorithm(stateFor(classId)),
-    { initialProps: { classId: 'class-a' } },
+    ({ classId, roomId }) => useSeatingAlgorithm(stateFor(classId, roomId)),
+    { initialProps: { classId: 'class-a', roomId: 'room-1' } },
   );
   return {
     result,
-    openClass: (classId: string) => rerender({ classId }),
+    openClass: (classId: string) => rerender({ classId, roomId: 'room-1' }),
+    openRoom: (roomId: string) => rerender({ classId: 'class-a', roomId }),
     setCurrentSeating,
     getMixHistory: () => mixHistory,
   };
@@ -107,6 +109,37 @@ describe('useSeatingAlgorithm mix history', () => {
 
     expect(getMixHistory()).toHaveLength(1);
     expect(getMixHistory()[0]?.seating).toBe(constructed);
+  });
+});
+
+describe('useSeatingAlgorithm and rooms', () => {
+  it('notes the room a mix was made in', async () => {
+    const { result, getMixHistory } = setup();
+
+    await act(async () => {
+      await result.current.generateSeatingPlan(settings, scene);
+    });
+
+    expect(getMixHistory()[0]?.roomId).toBe('room-1');
+  });
+
+  it('drops a mix that ends after another room opened', async () => {
+    let finish: (value: { seating: SeatingArrangement }) => void = () => {};
+    callOperation.mockReset();
+    callOperation.mockReturnValueOnce(
+      new Promise((resolve) => {
+        finish = resolve;
+      }),
+    );
+    const { result, openRoom, setCurrentSeating, getMixHistory } = setup();
+
+    const run = result.current.generateSeatingPlan(settings, scene);
+    openRoom('room-2');
+    finish({ seating: constructed });
+
+    await expect(run).rejects.toMatchObject({ name: 'AbortError' });
+    expect(setCurrentSeating).not.toHaveBeenCalled();
+    expect(getMixHistory()).toEqual([]);
   });
 });
 

@@ -16,6 +16,7 @@ import type {
   LockedPositions,
   MixSettings,
   MixResult,
+  RoomRecord,
   SavedPlan,
   SeatingArrangement,
   Student,
@@ -36,6 +37,8 @@ export interface ClassDataState {
   classroomScene: ClassroomScene;
   circleLayout: CircleLayout | null;
   activePlanId: string | null;
+  rooms: RoomRecord[];
+  activeRoomId: string | null;
   activeClassId: string | null;
   hasActiveClass: boolean;
 }
@@ -68,6 +71,8 @@ export interface LoadedSnapshot {
       mixHistory?: MixResult[];
       mixSettings?: MixSettings | null;
       classroomScene?: ClassroomScene | null;
+      rooms?: RoomRecord[];
+      activeRoomId?: string | null;
     };
     error?: { type?: string; message?: string };
   };
@@ -100,6 +105,8 @@ export function useClassDataPersistence(
     classroomScene,
     circleLayout,
     activePlanId,
+    rooms,
+    activeRoomId,
     activeClassId,
     hasActiveClass,
   } = state;
@@ -140,6 +147,8 @@ export function useClassDataPersistence(
       classroomScene,
       circleLayout,
       activePlanId,
+      rooms,
+      activeRoomId,
     }),
     [
       students,
@@ -151,6 +160,8 @@ export function useClassDataPersistence(
       classroomScene,
       circleLayout,
       activePlanId,
+      rooms,
+      activeRoomId,
     ],
   );
 

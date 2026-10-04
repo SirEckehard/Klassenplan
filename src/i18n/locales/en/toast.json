@@ -69,6 +69,7 @@
     "tooManyTemplates": "Import failed. Limit for templates exceeded.",
     "tooManyLocks": "Import failed. Limit for locked seats exceeded.",
     "tooManyCircleLayouts": "Import failed. Limit for circle layouts exceeded.",
+    "tooManyRooms": "Import failed. Limit for rooms per class exceeded.",
     "invalidCircleData": "Import failed. Circle data is invalid.",
     "invalidPhotoData": "Import failed. Photo data is invalid.",
     "tooManyPhotos": "Import failed. Limit for student photos exceeded.",

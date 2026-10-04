@@ -18,6 +18,7 @@ import type {
   SaveSeatingPlanOptions,
   SaveTemplateResult,
   PlanUsage,
+  RoomRecord,
 } from '@/types';
 import type { CircleLayout, CircleGenerationStatus } from '@/types/Circle';
 import type { CriterionFulfillment } from '@/utils/algorithm/seatingStatistics';
@@ -37,6 +38,10 @@ export interface SeatingPlanState {
   planName: string;
   /** The saved plan on screen, or null while it has never been saved. */
   activePlanId: string | null;
+  /** The rooms of the open class (decision 0024). */
+  rooms: RoomRecord[];
+  /** The open room, whose tables, seating and plan are on screen. */
+  activeRoomId: string | null;
   planNameError: boolean;
   planNameInputRef: React.RefObject<HTMLInputElement | null>;
   autoMixing: boolean;

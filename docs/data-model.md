@@ -1,6 +1,6 @@
 # Data Model
 
-> **Status:** current · **Last reviewed:** 2026-10-03 · **Source of truth:**
+> **Status:** current · **Last reviewed:** 2026-10-04 · **Source of truth:**
 > `src/utils/data/storageKeys.ts`, `src/types/`, `src/repositories/`
 
 Everything Klassenplan stores lives in the teacher's browser. This document
@@ -44,7 +44,7 @@ when they are empty too.
 
 ```ts
 interface ClassCollectionState {
-  version: number; // CLASS_COLLECTION_VERSION, currently 1
+  version: number; // CLASS_COLLECTION_VERSION, currently 2
   activeClassId: string | null;
   classes: ClassRecord[];
 }
@@ -66,7 +66,26 @@ interface ClassRecord {
   classroomScene: ClassroomScene | null;
   circleLayout: CircleLayout | null;
   activePlanId?: string | null;
+  rooms?: RoomRecord[]; // decision 0024
+  activeRoomId?: string | null;
 }
+
+interface RoomRecord {
+  id: string;
+  name: string; // unique within the class, case ignored
+  createdAt: string; // ISO 8601
+  parked?: RoomWorkingState; // only while another room is open
+}
+
+interface RoomWorkingState {
+  scene: ClassroomScene | null;
+  seating: SeatingArrangement;
+  lockedPositions: LockedPositions;
+  circleLayout: CircleLayout | null;
+  activePlanId: string | null;
+}
+
+// SavedPlan and MixResult carry `roomId?: string`.
 ```
 
 - **One record per class.** A class's students, plans, room and weights all
@@ -77,8 +96,23 @@ interface ClassRecord {
   This is also why photos have a store of their own.
 - **`activeClassId` repairs itself on read** (`ensureActiveClass`): an unknown or
   missing id falls back to the first class.
-- **`seatingHistory` holds saved plans**, not a log. At most one entry carries
-  `autoSaved: true`; the next silent auto-save overwrites it. Names are unique
+- **A class keeps its rooms** ([decision 0024](decisions/0024-rooms-of-a-class.md)).
+  The open room (`activeRoomId`) holds its state in the class's working fields —
+  `classroomScene`, `currentSeating`, `lockedPositions`, `circleLayout`,
+  `activePlanId` — and every other room keeps how it was left in `parked`.
+  Every saved plan and mix carries the `roomId` of the room it was made in.
+  Reading repairs the shape, as `ensureActiveClass` does for the collection
+  (`ensureClassRooms` in `src/utils/data/classRooms.ts`, applied on every read,
+  when a class is created and when a collection is saved as a whole): a class
+  without a room gets one named `generator:rooms.defaultName` ("Klassenraum");
+  plans and mixes without a room of the class go into the open room; the open
+  room is the open plan's; it parks nothing; a parked open plan lies in its own
+  room. A record that needs nothing comes back unchanged, so a read writes only
+  when there was something to repair. Writes of the live state are never
+  repaired: the live state keeps itself consistent.
+- **`seatingHistory` holds saved plans**, not a log. At most one entry per room
+  carries `autoSaved: true`; the next silent auto-save in that room overwrites
+  it. Names are unique
   within a class: a save writes to the open plan when the name is its own or
   the save renames it (`SaveSeatingPlanOptions.rename`), and otherwise starts a
   new entry (`resolvePlanSlot`). Every entry keeps its own copy of the room
@@ -107,10 +141,10 @@ interface ClassRecord {
 ### How changes reach storage
 
 State is not written where it changes. `useClassDataPersistence` compares the
-nine persistable fields of the active class — `students`, `seatingHistory`,
+eleven persistable fields of the active class — `students`, `seatingHistory`,
 `mixHistory`, `currentSeating`, `lockedPositions`, `mixSettings`,
-`classroomScene`, `circleLayout`, `activePlanId` — on every render and queues the
-ones that changed. `usePersistQueue` then:
+`classroomScene`, `circleLayout`, `activePlanId`, `rooms`, `activeRoomId` — on
+every render and queues the ones that changed. `usePersistQueue` then:
 
 1. keeps only the newest job per key, each tagged with a version and the class
    it belongs to;
@@ -226,7 +260,7 @@ list is `PROJECT_LOCAL_STORAGE_KEYS` in `storageKeys.ts`. Groups:
 
 | What                     | Version                           | Stored in                                    | Behaviour                                                                                                                                                                                               |
 | ------------------------ | --------------------------------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Class collection         | `CLASS_COLLECTION_VERSION` = 1    | `version` field                              | Stamped on every write                                                                                                                                                                                  |
+| Class collection         | `CLASS_COLLECTION_VERSION` = 2    | `version` field                              | Stamped on every write. Version 1 has no rooms; reading repairs it (`ensureClassRooms`), and an older build passes over the rooms it does not know                                                      |
 | Pre-collection storage   | —                                 | legacy `spg.*` keys                          | Read into a first class when no collection exists                                                                                                                                                       |
 | Table template migration | `CURRENT_MIGRATION_VERSION` = 1   | `spg.migrationVersion` + localStorage mirror | `runMigration()` in `src/index.tsx`, before the first render: migrates the room scene, templates and saved plans (`utils/migration/tableMigration.ts`). A failure is logged and does not block start-up |
 | App data stamp           | `APP_DATA_VERSION` = 2            | `spg.version`                                | Stamped on every load                                                                                                                                                                                   |

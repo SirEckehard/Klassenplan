@@ -55,6 +55,8 @@ export interface MixResult {
   timestamp: string;
   seating: SeatingArrangement;
   mixSettings: MixSettings;
+  /** The room of the class the mix was made in (decision 0024). */
+  roomId?: string;
 }
 
 // Map of studentId -> fixed position
@@ -72,6 +74,8 @@ export interface SavedPlan {
   scene: ClassroomScene;
   locks?: LockedPositions; // Optional persisted locks
   circleLayout?: CircleLayout; // Optional circle layout
+  /** The room of the class the plan belongs to (decision 0024). */
+  roomId?: string;
   /**
    * Set when the plan was written by a silent auto-save (leaving step 3
    * without naming it). At most one such entry exists: the next auto-save

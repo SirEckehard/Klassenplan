@@ -69,6 +69,7 @@
     "tooManyTemplates": "Import fehlgeschlagen. Limit für Vorlagen überschritten.",
     "tooManyLocks": "Import fehlgeschlagen. Limit für feste Plätze überschritten.",
     "tooManyCircleLayouts": "Import fehlgeschlagen. Limit für Sitzkreis-Layouts überschritten.",
+    "tooManyRooms": "Import fehlgeschlagen. Limit für Räume einer Klasse überschritten.",
     "invalidCircleData": "Import fehlgeschlagen. Sitzkreis-Daten sind ungültig.",
     "invalidPhotoData": "Import fehlgeschlagen. Foto-Daten sind ungültig.",
     "tooManyPhotos": "Import fehlgeschlagen. Limit für Schülerfotos überschritten.",

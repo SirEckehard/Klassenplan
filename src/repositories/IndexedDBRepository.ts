@@ -38,6 +38,10 @@ import {
   ensureActiveClass,
   summarizeClass,
 } from '@/utils/data/classCollection';
+import {
+  ensureClassRooms,
+  ensureCollectionRooms,
+} from '@/utils/data/classRooms';
 import { normalizeSeatingHistory } from '@/utils/data/planNormalization';
 
 const REPOSITORY_LOG_SOURCE = 'IndexedDBRepository';
@@ -142,8 +146,11 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
 
     const stored = await idbGet<ClassCollectionState>(DB_KEYS.classCollection);
     if (stored) {
-      const ensured = ensureActiveClass(stored);
-      if (ensured.activeClassId !== stored.activeClassId) {
+      // Data from before rooms existed — or from an older build — gets them
+      // here, once, and is written back so the ids it got stay (decision
+      // 0024).
+      const ensured = ensureCollectionRooms(ensureActiveClass(stored));
+      if (ensured !== stored) {
         await idbSet(DB_KEYS.classCollection, ensured);
       }
       this.classCollectionCache = ensured;
@@ -344,6 +351,15 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
     }
     if (hasOwn.call(snapshot, 'activePlanId')) {
       record.activePlanId = cloneValue(snapshot.activePlanId ?? null);
+    }
+    // Written as the live state has them, never repaired here: the live state
+    // is kept consistent by its own actions, and a repair on a partial write
+    // would work against it.
+    if (hasOwn.call(snapshot, 'rooms')) {
+      record.rooms = cloneValue(snapshot.rooms ?? []);
+    }
+    if (hasOwn.call(snapshot, 'activeRoomId')) {
+      record.activeRoomId = cloneValue(snapshot.activeRoomId ?? null);
     }
   }
 
@@ -564,7 +580,7 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
   ): Promise<Result<void>> {
     return this.withErrorHandling(
       async () => {
-        const ensured = ensureActiveClass(collection);
+        const ensured = ensureCollectionRooms(ensureActiveClass(collection));
         await this.persistCollection(ensured);
         return undefined;
       },
@@ -577,19 +593,26 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
 
   async loadActiveClassSnapshot(): Promise<Result<ActiveClassSnapshot>> {
     return this.withActiveClassRead(
-      (record) => ({
-        students: record.students ?? [],
-        seatingHistory: normalizeRepositorySeatingHistory(
-          record.seatingHistory ?? [],
-        ),
-        mixHistory: record.mixHistory ?? [],
-        currentSeating: record.currentSeating ?? [],
-        lockedPositions: record.lockedPositions ?? {},
-        mixSettings: record.mixSettings ?? null,
-        classroomScene: record.classroomScene ?? null,
-        circleLayout: record.circleLayout ?? null,
-        activePlanId: record.activePlanId ?? null,
-      }),
+      (stored) => {
+        // Repaired on the way out as well, not written: whatever the record
+        // holds, the live state starts consistent.
+        const record = ensureClassRooms(stored);
+        return {
+          students: record.students ?? [],
+          seatingHistory: normalizeRepositorySeatingHistory(
+            record.seatingHistory ?? [],
+          ),
+          mixHistory: record.mixHistory ?? [],
+          currentSeating: record.currentSeating ?? [],
+          lockedPositions: record.lockedPositions ?? {},
+          mixSettings: record.mixSettings ?? null,
+          classroomScene: record.classroomScene ?? null,
+          circleLayout: record.circleLayout ?? null,
+          activePlanId: record.activePlanId ?? null,
+          rooms: record.rooms ?? [],
+          activeRoomId: record.activeRoomId ?? null,
+        };
+      },
       {
         logMessage: 'Failed to load active class snapshot from class storage',
         errorMessage: 'Failed to load active class snapshot',

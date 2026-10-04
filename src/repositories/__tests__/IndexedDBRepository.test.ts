@@ -29,8 +29,14 @@ vi.mock('idb-keyval', () => ({
 
 import { IndexedDBRepository } from '../IndexedDBRepository';
 import { RepositoryErrorType, type Result } from '../types';
-import { createMockStudent, createMockClassroomScene } from '@/__tests__/utils';
-import type { ClassroomTemplate } from '@/types';
+import {
+  createMockStudent,
+  createMockClassroomScene,
+  createMockSavedPlan,
+} from '@/__tests__/utils';
+import type { ClassCollectionState, ClassroomTemplate } from '@/types';
+import { DB_KEYS } from '@/utils/data/storageKeys';
+import { set as idbSetMock } from 'idb-keyval';
 
 /** Unwraps a successful Result, failing the test when it is a Failure. */
 const expectData = <T>(result: Result<T>): T => {
@@ -233,6 +239,118 @@ describe('active class snapshot', () => {
 
     const healed = expectData(await repository.loadClassCollection());
     expect(healed.activeClassId).toBe(healed.classes[0]?.id);
+  });
+});
+
+describe('rooms of a class', () => {
+  const classFromBefore = (): ClassCollectionState => ({
+    version: 1,
+    activeClassId: 'class-1',
+    classes: [
+      {
+        id: 'class-1',
+        name: '7b',
+        createdAt: '2026-10-04T08:00:00.000Z',
+        updatedAt: '2026-10-04T08:00:00.000Z',
+        students: [],
+        seatingHistory: [
+          createMockSavedPlan({ id: 'plan-1', name: 'September' }),
+        ],
+        mixHistory: [],
+        currentSeating: [],
+        lockedPositions: {},
+        mixSettings: null,
+        classroomScene: null,
+        circleLayout: null,
+        activePlanId: 'plan-1',
+      },
+    ],
+  });
+
+  it('gives data from before rooms one room and writes it back once', async () => {
+    memory.set(DB_KEYS.classCollection, classFromBefore());
+    vi.mocked(idbSetMock).mockClear();
+
+    const collection = expectData(await repository.loadClassCollection());
+    const [record] = collection.classes;
+
+    expect(record?.rooms).toHaveLength(1);
+    expect(record?.activeRoomId).toBe(record?.rooms?.[0]?.id);
+    expect(record?.seatingHistory[0]?.roomId).toBe(record?.activeRoomId);
+    expect(vi.mocked(idbSetMock)).toHaveBeenCalledTimes(1);
+
+    // Read back by a fresh repository: the room keeps its id, nothing is
+    // written again.
+    vi.mocked(idbSetMock).mockClear();
+    const again = expectData(
+      await new IndexedDBRepository().loadClassCollection(),
+    );
+    expect(again.classes[0]?.activeRoomId).toBe(record?.activeRoomId);
+    expect(vi.mocked(idbSetMock)).not.toHaveBeenCalled();
+  });
+
+  it('creates a class with a room of its own', async () => {
+    const record = expectData(
+      await repository.createClass({ name: '5a' }, { activate: true }),
+    );
+
+    expect(record.rooms).toHaveLength(1);
+    expect(record.activeRoomId).toBe(record.rooms?.[0]?.id);
+    const snapshot = expectData(await repository.loadActiveClassSnapshot());
+    expect(snapshot.rooms).toEqual(record.rooms);
+    expect(snapshot.activeRoomId).toBe(record.activeRoomId);
+  });
+
+  it('duplicates a class with its rooms', async () => {
+    const source = expectData(
+      await repository.createClass({ name: 'Source' }, { activate: true }),
+    );
+
+    const copy = expectData(
+      await repository.duplicateClass(source.id, { name: 'Copy' }),
+    );
+
+    expect(copy.rooms).toEqual(source.rooms);
+    expect(copy.activeRoomId).toBe(source.activeRoomId);
+  });
+
+  it('writes the rooms a snapshot carries and reads them back', async () => {
+    expectData(
+      await repository.createClass({ name: '6c' }, { activate: true }),
+    );
+    const rooms = [
+      { id: 'room-a', name: 'Klassenraum', createdAt: '2026-10-04T08:00:00Z' },
+      {
+        id: 'room-b',
+        name: 'Labor',
+        createdAt: '2026-10-04T09:00:00Z',
+        parked: {
+          scene: createMockClassroomScene(2),
+          seating: [],
+          lockedPositions: {},
+          circleLayout: null,
+          activePlanId: null,
+        },
+      },
+    ];
+
+    expectData(
+      await repository.saveActiveClassSnapshot({
+        rooms,
+        activeRoomId: 'room-a',
+      }),
+    );
+
+    const snapshot = expectData(await repository.loadActiveClassSnapshot());
+    expect(snapshot.rooms).toEqual(rooms);
+    expect(snapshot.activeRoomId).toBe('room-a');
+  });
+
+  it('repairs a collection saved as a whole, as an import does', async () => {
+    expectData(await repository.saveClassCollection(classFromBefore()));
+
+    const collection = expectData(await repository.loadClassCollection());
+    expect(collection.classes[0]?.rooms).toHaveLength(1);
   });
 });
 

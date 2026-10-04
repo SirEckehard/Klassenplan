@@ -289,3 +289,134 @@ describe('backupValidation: class notes', () => {
     );
   });
 });
+
+describe('backupValidation: rooms of a class', () => {
+  const withClass = (extra: Record<string, unknown>) =>
+    JSON.stringify({
+      ...baseBundle,
+      version: 2,
+      classCollection: {
+        version: 2,
+        activeClassId: 'class-1',
+        classes: [
+          {
+            id: 'class-1',
+            name: '7b',
+            createdAt: '2026-10-04T08:00:00.000Z',
+            updatedAt: '2026-10-04T08:00:00.000Z',
+            students: [],
+            seatingHistory: [],
+            mixHistory: [],
+            currentSeating: [],
+            lockedPositions: {},
+            mixSettings: null,
+            classroomScene: null,
+            circleLayout: null,
+            ...extra,
+          },
+        ],
+      },
+    });
+  const room = (id: string, extra: Record<string, unknown> = {}) => ({
+    id,
+    name: `Raum ${id}`,
+    createdAt: '2026-10-04T08:00:00.000Z',
+    ...extra,
+  });
+  const parked = {
+    scene: { tables: [], totalStudents: 0 },
+    seating: [],
+    lockedPositions: {},
+    circleLayout: null,
+    activePlanId: 'plan-1',
+  };
+  const expectInvalid = (
+    json: string,
+    message: string = BACKUP_ERROR_MESSAGES.invalidData,
+  ) =>
+    expect(() => parseExportBundle(json)).toThrowError(
+      new BackupValidationError(message),
+    );
+
+  it('accepts a class from before rooms', () => {
+    expect(() => parseExportBundle(withClass({}))).not.toThrow();
+  });
+
+  it('accepts rooms, a parked room and the room ids of plans and mixes', () => {
+    const bundle = parseExportBundle(
+      withClass({
+        rooms: [room('a'), room('b', { parked })],
+        activeRoomId: 'a',
+        seatingHistory: [
+          {
+            id: 'plan-1',
+            name: 'Labor',
+            date: '2026-10-04',
+            seating: [],
+            scene: { tables: [], totalStudents: 0 },
+            roomId: 'b',
+          },
+        ],
+        mixHistory: [
+          {
+            id: 1,
+            timestamp: '2026-10-04T08:00:00.000Z',
+            seating: [],
+            mixSettings: baseMixSettings,
+            roomId: 'a',
+          },
+        ],
+      }),
+    );
+
+    expect(bundle.classCollection?.classes[0]).toMatchObject({
+      rooms: [{ id: 'a' }, { id: 'b' }],
+    });
+  });
+
+  it('rejects rooms that are no list, or a room without an id or a name', () => {
+    expectInvalid(withClass({ rooms: { a: room('a') } }));
+    expectInvalid(withClass({ rooms: [{ name: 'Labor' }] }));
+    expectInvalid(withClass({ rooms: [room('a', { name: '' })] }));
+    expectInvalid(
+      withClass({
+        rooms: [
+          room('a', { name: 'x'.repeat(BACKUP_LIMITS.maxNameLength + 1) }),
+        ],
+      }),
+    );
+  });
+
+  it('rejects more rooms than a class may keep', () => {
+    const rooms = Array.from(
+      { length: BACKUP_LIMITS.maxRoomsPerClass + 1 },
+      (_, index) => room(`r${index}`),
+    );
+    expectInvalid(withClass({ rooms }), BACKUP_ERROR_MESSAGES.tooManyRooms);
+  });
+
+  it('rejects a parked room whose seating is broken', () => {
+    expectInvalid(
+      withClass({
+        rooms: [room('a', { parked: { ...parked, seating: 'x' } })],
+      }),
+    );
+  });
+
+  it('rejects a room id that is no string', () => {
+    expectInvalid(withClass({ activeRoomId: 7 }));
+    expectInvalid(
+      withClass({
+        mixHistory: [
+          {
+            id: 1,
+            timestamp: '2026-10-04T08:00:00.000Z',
+            seating: [],
+            mixSettings: baseMixSettings,
+            roomId: 3,
+          },
+        ],
+      }),
+    );
+  });
+});

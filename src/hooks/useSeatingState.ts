@@ -25,6 +25,7 @@ import type {
   StatisticHighlightMode,
   StatisticHighlightState,
   ActiveClassState,
+  RoomRecord,
 } from '@/types';
 import { DEFAULT_ACTIVE_CLASS } from '@/types';
 import type { CircleLayout, CircleGenerationStatus } from '@/types/Circle';
@@ -130,6 +131,13 @@ export type SeatingState = {
     activePlanId: string | null;
     setActivePlanId: React.Dispatch<React.SetStateAction<string | null>>;
   };
+  /** The rooms of the open class and which one is open (decision 0024). */
+  roomState: {
+    rooms: RoomRecord[];
+    setRooms: React.Dispatch<React.SetStateAction<RoomRecord[]>>;
+    activeRoomId: string | null;
+    setActiveRoomId: React.Dispatch<React.SetStateAction<string | null>>;
+  };
   classState: {
     classSummaries: ClassSummary[];
     setClassSummaries: React.Dispatch<React.SetStateAction<ClassSummary[]>>;
@@ -193,6 +201,8 @@ export function useSeatingState(): SeatingState {
   );
   const [currentSeating, setCurrentSeating] = useState<SeatingArrangement>([]);
   const [activePlanId, setActivePlanId] = useState<string | null>(null);
+  const [rooms, setRooms] = useState<RoomRecord[]>([]);
+  const [activeRoomId, setActiveRoomId] = useState<string | null>(null);
   const [classSummaries, setClassSummaries] = useState<ClassSummary[]>([]);
   const [activeClass, setActiveClass] =
     useState<ActiveClassState>(DEFAULT_ACTIVE_CLASS);
@@ -460,6 +470,12 @@ export function useSeatingState(): SeatingState {
         activePlanId,
         setActivePlanId,
       },
+      roomState: {
+        rooms,
+        setRooms,
+        activeRoomId,
+        setActiveRoomId,
+      },
       classState: {
         classSummaries,
         setClassSummaries,
@@ -525,6 +541,10 @@ export function useSeatingState(): SeatingState {
       setPlanNameError,
       activePlanId,
       setActivePlanId,
+      rooms,
+      setRooms,
+      activeRoomId,
+      setActiveRoomId,
       classSummaries,
       setClassSummaries,
       activeClass,

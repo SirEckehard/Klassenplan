@@ -18,6 +18,7 @@ import type {
   CreateClassPayload,
   UpdateClassMetadataPayload,
   ActiveClassState,
+  RoomRecord,
 } from '../../types';
 import type { CircleLayout } from '../../types/Circle';
 import type { CriterionFulfillment } from '../../utils/algorithm/seatingStatistics';
@@ -58,6 +59,8 @@ interface MockSeatingGeneratorState {
   hasPendingStudentUpdates: boolean;
   classSummaries: ClassSummary[];
   activeClass: ActiveClassState;
+  rooms: RoomRecord[];
+  activeRoomId: string | null;
 }
 
 interface MockSeatingGeneratorActions {
@@ -191,6 +194,8 @@ const createDefaultMockState = (): MockSeatingGeneratorState => ({
   hasPendingStudentUpdates: false,
   classSummaries: [],
   activeClass: { id: null, name: 'Mock-Klasse' },
+  rooms: [],
+  activeRoomId: null,
 });
 
 const createDefaultMockActions = (): MockSeatingGeneratorActions => {

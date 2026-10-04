@@ -14,6 +14,7 @@ import type {
   ClassRecord,
   CreateClassPayload,
   UpdateClassMetadataPayload,
+  RoomRecord,
 } from '@/types';
 import type { CircleLayout, CircleExportData } from '@/types/Circle';
 import type { Result } from './types';
@@ -28,6 +29,8 @@ export type ActiveClassSnapshot = {
   classroomScene?: ClassroomScene | null;
   circleLayout?: CircleLayout | null;
   activePlanId?: string | null;
+  rooms?: RoomRecord[];
+  activeRoomId?: string | null;
 };
 
 /**

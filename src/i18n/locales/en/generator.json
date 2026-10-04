@@ -993,5 +993,8 @@
       "swapped": "{{name}} and {{other}} swapped places.",
       "moved": "{{name}} now sits at table {{table}}, seat {{seat}}."
     }
+  },
+  "rooms": {
+    "defaultName": "Classroom"
   }
 }

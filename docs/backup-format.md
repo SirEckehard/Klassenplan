@@ -23,7 +23,9 @@ Optional fields (version ≥ 2):
 - `studentPhotos` – map of student id → downscaled photo as `data:image/…`
   Data URL (each at most 96 KB, at most 2,000 entries).
 - `classCollection`, `circleLayouts`, `currentCircleLayout` – multi-class and
-  seating-circle state.
+  seating-circle state. A class may carry `rooms` and `activeRoomId`, and its
+  plans and mixes a `roomId` ([decision 0024](decisions/0024-rooms-of-a-class.md));
+  a class without them is given one room holding every plan as it is read.
 - `planUsage` – map of class id → `PlanUsage[]`, the record of which seating
   plans were actually in use (pair keys and timestamps only, never a full
   arrangement). Absent when nothing has been recorded yet. A full import
@@ -74,6 +76,9 @@ import (see `BACKUP_LIMITS` in
 - At most **100** entries in `classroomTemplates`.
 - At most **500** entries in `lockedPositions`.
 - At most **150** tables per `classroomScene` with at most **12** seats each.
+- At most **30** `rooms` per class (`MAX_ROOMS_PER_CLASS`), each with an id and
+  a name of at most 120 characters; a parked room is checked like the working
+  state it stands for.
 - At most **2,000** entries in `studentPhotos`, each Data URL at most **96 KB**.
 - At most **200** classes in `planUsage`, **200** records each, with at most
   **1,000** pair keys per record; at most **200** classes in `planUsageResetAt`,

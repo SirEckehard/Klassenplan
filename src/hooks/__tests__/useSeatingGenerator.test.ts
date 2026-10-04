@@ -208,6 +208,12 @@ describe('useSeatingGenerator', () => {
         activePlanId: null,
         setActivePlanId: vi.fn(),
       },
+      roomState: {
+        rooms: [],
+        setRooms: vi.fn(),
+        activeRoomId: null,
+        setActiveRoomId: vi.fn(),
+      },
       classState: {
         classSummaries: [],
         setClassSummaries: vi.fn(),
@@ -227,6 +233,7 @@ describe('useSeatingGenerator', () => {
       },
       historyState: { ...baseState.historyState, ...overrides.historyState },
       planState: { ...baseState.planState, ...overrides.planState },
+      roomState: { ...baseState.roomState, ...overrides.roomState },
       classState: { ...baseState.classState, ...overrides.classState },
     };
   };

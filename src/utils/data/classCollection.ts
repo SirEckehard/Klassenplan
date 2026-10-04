@@ -8,8 +8,11 @@ import type {
   CreateClassPayload,
 } from '@/types';
 import i18n from '@/i18n';
+import { ensureClassRooms } from './classRooms';
 
-export const CLASS_COLLECTION_VERSION = 1;
+// 2: classes keep their rooms (decision 0024); version 1 data is repaired as
+// it is read (`ensureClassRooms`).
+export const CLASS_COLLECTION_VERSION = 2;
 
 export function createClassRecord(
   payload?: Partial<CreateClassPayload> & Partial<ClassRecord>,
@@ -17,7 +20,7 @@ export function createClassRecord(
   const timestamp = new Date().toISOString();
   const baseName =
     payload?.name?.trim() || i18n.t('generator:common.newClassName');
-  return {
+  return ensureClassRooms({
     id: payload?.id ?? generateId(),
     name: baseName,
     label: payload?.label,
@@ -33,7 +36,9 @@ export function createClassRecord(
     mixSettings: payload?.mixSettings ?? null,
     classroomScene: payload?.classroomScene ?? null,
     circleLayout: payload?.circleLayout ?? null,
-  };
+    ...(payload?.rooms && { rooms: payload.rooms }),
+    ...(payload?.activeRoomId && { activeRoomId: payload.activeRoomId }),
+  });
 }
 
 export function createClassCollection(

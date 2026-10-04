@@ -115,6 +115,7 @@ export function useSeatingPersistence(state: SeatingState) {
       setClassroomScene,
       setCircleLayout,
     },
+    roomState: { rooms, setRooms, activeRoomId, setActiveRoomId },
     classState: { activeClass, setClassSummaries, setActiveClass },
   } = state;
 
@@ -324,6 +325,8 @@ export function useSeatingPersistence(state: SeatingState) {
             classroomScene: snapshotClassroomScene = null,
             circleLayout: snapshotCircleLayout = null,
             activePlanId: snapshotActivePlanId = null,
+            rooms: snapshotRooms = [],
+            activeRoomId: snapshotActiveRoomId = null,
           } = data;
 
           // Only update state if content actually changed to prevent infinite loops
@@ -379,6 +382,18 @@ export function useSeatingPersistence(state: SeatingState) {
             return next;
           });
 
+          setRooms((prev) => {
+            if (stableStringify(prev) === stableStringify(snapshotRooms))
+              return prev;
+            return snapshotRooms;
+          });
+
+          setActiveRoomId((prev) => {
+            const next = snapshotActiveRoomId ?? null;
+            if (prev === next) return prev;
+            return next;
+          });
+
           const nextPlanName =
             snapshotActivePlanId !== null
               ? (snapshotSeatingHistory.find(
@@ -400,6 +415,8 @@ export function useSeatingPersistence(state: SeatingState) {
           applyClassroomScene(null);
           setCircleLayout(null);
           setActivePlanId(null);
+          setRooms([]);
+          setActiveRoomId(null);
           setPlanName('');
         }
 
@@ -436,6 +453,8 @@ export function useSeatingPersistence(state: SeatingState) {
       setCurrentSeating,
       setCircleLayout,
       setActivePlanId,
+      setRooms,
+      setActiveRoomId,
       setPlanName,
       queue,
     ],
@@ -474,6 +493,8 @@ export function useSeatingPersistence(state: SeatingState) {
       classroomScene,
       circleLayout,
       activePlanId,
+      rooms,
+      activeRoomId,
       activeClassId: activeClass.id,
       hasActiveClass,
     },
@@ -502,12 +523,16 @@ export function useSeatingPersistence(state: SeatingState) {
         name: trimmed,
         autoSave,
         rename: options?.rename === true,
+        roomId: activeRoomId,
       });
       if (!slot) return false;
 
       const base: SavedPlan = {
         id: slot.planId,
         name: trimmed,
+        // The room the plan was made in (decision 0024). Without an open room
+        // — never once a class is read — the next read places it.
+        ...(activeRoomId && { roomId: activeRoomId }),
         // ISO 8601, formatted for display via `formatStoredDate`. Plans saved
         // before this change hold a German display string and keep rendering
         // as-is — see the legacy branch in `formatStoredDate`.
@@ -546,6 +571,7 @@ export function useSeatingPersistence(state: SeatingState) {
       lockedPositions,
       seatingHistory,
       activePlanId,
+      activeRoomId,
       activeClass.id,
       setSeatingHistory,
       setActivePlanId,
@@ -846,7 +872,13 @@ export function useSeatingPersistence(state: SeatingState) {
     }
 
     await clearAllDataUtil(
-      { setCurrentSeating, setActivePlanId, setLockedPositions },
+      {
+        setCurrentSeating,
+        setActivePlanId,
+        setLockedPositions,
+        setRooms,
+        setActiveRoomId,
+      },
       // repository.clearAll() already removed the DB_KEYS; the helper still
       // wipes the separate photo database.
       { skipIndexedDBClear: true },
@@ -857,9 +889,11 @@ export function useSeatingPersistence(state: SeatingState) {
     repository,
     setActivePlanId,
     setActiveClass,
+    setActiveRoomId,
     setClassSummaries,
     setCurrentSeating,
     setLockedPositions,
+    setRooms,
   ]);
 
   const downloadCsvFile = useDownloadFile({

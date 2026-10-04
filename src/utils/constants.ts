@@ -69,6 +69,11 @@ export const MAX_NAME_LENGTH = 120;
 // Longest free-text note (the class notes); same reason as MAX_NAME_LENGTH.
 export const MAX_NOTE_LENGTH = 2000;
 
+// Most rooms one class keeps (decision 0024): its classroom, the labs, the
+// gym and the odd exam hall, with room to spare. The backup import holds to
+// it too, for the reason given at MAX_NAME_LENGTH.
+export const MAX_ROOMS_PER_CLASS = 30;
+
 // The name-game quiz needs 4 answer options, so 4 students with photos is the minimum
 export const NAME_GAME_MIN_PHOTOS = 4;
 

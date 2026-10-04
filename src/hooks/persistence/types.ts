@@ -13,6 +13,7 @@ import type {
   LockedPositions,
   MixSettings,
   ClassroomScene,
+  RoomRecord,
 } from '@/types';
 import type { CircleLayout } from '@/types/Circle';
 
@@ -28,7 +29,9 @@ export type PersistKey =
   | 'mixSettings'
   | 'classroomScene'
   | 'circleLayout'
-  | 'activePlanId';
+  | 'activePlanId'
+  | 'rooms'
+  | 'activeRoomId';
 
 /**
  * Mapping from PersistKey to the corresponding payload type.
@@ -43,6 +46,8 @@ export type PersistPayloadMap = {
   classroomScene: ClassroomScene;
   circleLayout: CircleLayout | null;
   activePlanId: string | null;
+  rooms: RoomRecord[];
+  activeRoomId: string | null;
 };
 
 /**
@@ -100,6 +105,8 @@ export const PERSIST_CONTEXT_LABELS: Record<PersistKey, string> = {
   classroomScene: 'classroom scene',
   circleLayout: 'circle layout',
   activePlanId: 'active plan',
+  rooms: 'rooms',
+  activeRoomId: 'active room',
 };
 
 /**
@@ -115,4 +122,6 @@ export const INITIAL_PERSIST_VERSIONS: Record<PersistKey, number> = {
   classroomScene: 0,
   circleLayout: 0,
   activePlanId: 0,
+  rooms: 0,
+  activeRoomId: 0,
 };
