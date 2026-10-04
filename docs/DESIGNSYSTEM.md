@@ -1,6 +1,6 @@
 # Design System – Klassenplan
 
-> **Status:** current · **Last reviewed:** 2026-10-03 · **Maintainer:** Eike
+> **Status:** current · **Last reviewed:** 2026-10-04 · **Maintainer:** Eike
 > Schäfer · **Describes:** Klassenplan 2.2.0
 
 This document describes the binding design tokens for Klassenplan. All values live in `src/index.css` and are reachable from TypeScript through `src/utils/ui/designTokens.ts`.
@@ -206,8 +206,9 @@ What is left in `src/components/students/studentStyleTokens.ts`:
 
 - **Partner / avoid partner** (`partnerButtonTokens`, `avoidPartnerButtonTokens`):
   the button that opens the list of classmates. Both wear the **Soziales**
-  family when they are set — a wish and a distance wish are told apart by their
-  icon and the row's name, not by two different colours.
+  family when they are set — a wish and a distance wish are told apart by the
+  icon before the row's name, not by two different colours; the button itself
+  carries only who it points at.
 - **Bulk bar chips** (`specialNeedsButtonTokens`): setting a flag for twelve
   students at once is an action, so the chip takes the blue accent, and the
   mixed state (some of them carry it) is the same chip with a dashed border.
@@ -265,10 +266,12 @@ finger, never under it (`placeTouchMenu`), as a list with words
 
 ## 6b. The inspector
 
-The right-hand panel is a wall, not a stack of cards. A setting inside it is a row — `InspectorRow` with its name and, on the right, a `ToggleSwitch` for a yes/no or `InspectorChoice` chips for a handful of values; pressing the chip a value already has clears it, so "not decided" stays reachable. Several students who disagree show that too: a switch with its knob in the middle, and the chips of the values some of them have outlined in dashes (`aria-pressed="mixed"`) — otherwise a mixed selection looks like one where nothing is set. `InspectorHeader`,
+The right-hand panel is a wall, not a stack of cards. A setting inside it is a row — `InspectorRow` with its name and, on the right, a `ToggleSwitch` for a yes/no or `InspectorChoice` chips for a handful of values; pressing the chip a value already has clears it, so "not decided" stays reachable. More values than fit beside the name in one line — the five language levels, the four social roles, the export's name rule — stand as a list under it instead (`stacked` row, `layout="list"`): one bordered column of rows, a check at the end of the chosen one, because a run of chips wrapping onto a second line reads as a scatter rather than a scale. Every attribute that has a seat badge shows that badge's icon in its family's ink (`InspectorIcon`, icons from `STUDENT_ATTRIBUTE_ICONS` and `STUDENT_FLAGS`) — before the row's name for a flag or a partner, inside the option for a value — so the symbol on the plan is one the teacher has seen beside its word. An attribute's name starts with a capital in both languages ("Unruhig", "Restless"), wherever it stands as a label. Several students who disagree show that too: a switch with its knob in the middle, and the chips of the values some of them have outlined in dashes (`aria-pressed="mixed"`), a list row a dash where the check would be — otherwise a mixed selection looks like one where nothing is set. `InspectorHeader`,
 `InspectorBody`, `InspectorSection` and `InspectorFooter`
 (`src/components/shell/InspectorPanel.tsx`) are its only parts: the header is a
-strip of 44px media, an `h2` and a subtitle above a hairline; sections carry a
+strip of 44px media, an `h2` and a subtitle above a hairline — the `h2` wraps
+rather than truncates, and a student's arrows to the neighbours sit in the
+subtitle beside the position, so the name keeps the width; sections carry a
 `data-heading` in their family's colour and are separated by `border-t` with
 `first:border-t-0`, never by a gap; the footer holds what acts on the whole
 selection, destructive last. A panel that needs a new group adds a section —

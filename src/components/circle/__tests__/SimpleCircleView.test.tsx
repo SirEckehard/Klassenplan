@@ -42,8 +42,8 @@ vi.mock('@phosphor-icons/react', () => ({
   ArrowDownIcon: () => <div data-testid="arrow-down-icon" />,
   ArrowUpIcon: () => <div data-testid="arrow-up-icon" />,
   // Environment badges
-  SidebarSimpleIcon: () => <div data-testid="panel-left-icon" />,
-  DoorOpenIcon: () => <div data-testid="door-open-icon" />,
+  PanoramaIcon: () => <div data-testid="panorama-icon" />,
+  DoorIcon: () => <div data-testid="door-icon" />,
   // Language skill icons
   ChatCircleIcon: () => <div data-testid="message-circle-icon" />,
   ChatDotsIcon: () => <div data-testid="speech-icon" />,

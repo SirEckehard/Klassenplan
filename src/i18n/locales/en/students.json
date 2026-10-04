@@ -47,27 +47,27 @@
   },
   "studentFlags": {
     "restless": {
-      "label": "restless",
+      "label": "Restless",
       "tooltip": "Restless behavior"
     },
     "shy": {
-      "label": "shy",
+      "label": "Shy",
       "tooltip": "Withdrawn behavior"
     },
     "concentrationIssues": {
-      "label": "easily distracted",
+      "label": "Easily distracted",
       "tooltip": "Easily distracted"
     },
     "needsFrontSeat": {
-      "label": "front seat",
+      "label": "Front seat",
       "tooltip": "Needs a front seat"
     },
     "performanceStrong": {
-      "label": "high performer",
+      "label": "High performer",
       "tooltip": "Particular strengths"
     },
     "performanceWeak": {
-      "label": "needs support",
+      "label": "Needs support",
       "tooltip": "Needs support"
     }
   },

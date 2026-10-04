@@ -105,41 +105,46 @@ export default function StudentInspector({
             onSubmit={onNext}
           />
         }
-        subtitle={t('inspector.position', {
-          index: position.index,
-          total: position.total,
-        })}
-        actions={
-          <>
+        // The arrows step through the list, so they sit with the position in
+        // it rather than beside the name — which needs the width more: three
+        // buttons beside it cut "Lina Schneider" to "Lina Schneid…".
+        subtitle={
+          <span className="flex items-center gap-1">
+            {t('inspector.position', {
+              index: position.index,
+              total: position.total,
+            })}
             <button
               type="button"
               onClick={onPrevious}
               disabled={!onPrevious}
-              className={`${quietIconButtonClass} h-8 w-8`}
+              className={`${quietIconButtonClass} ml-1 h-6 w-6 pointer-coarse:h-10 pointer-coarse:w-10`}
               aria-label={t('inspector.previousStudent')}
             >
-              <CaretLeftIcon size={16} aria-hidden="true" />
+              <CaretLeftIcon size={14} aria-hidden="true" />
             </button>
             <button
               type="button"
               onClick={onNext}
               disabled={!onNext}
-              className={`${quietIconButtonClass} h-8 w-8`}
+              className={`${quietIconButtonClass} h-6 w-6 pointer-coarse:h-10 pointer-coarse:w-10`}
               aria-label={t('inspector.nextStudent')}
             >
-              <CaretRightIcon size={16} aria-hidden="true" />
+              <CaretRightIcon size={14} aria-hidden="true" />
             </button>
-            {onClose && (
-              <button
-                type="button"
-                onClick={onClose}
-                className={`${quietIconButtonClass} h-8 w-8`}
-                aria-label={t('inspector.close')}
-              >
-                <XIcon size={16} aria-hidden="true" />
-              </button>
-            )}
-          </>
+          </span>
+        }
+        actions={
+          onClose && (
+            <button
+              type="button"
+              onClick={onClose}
+              className={`${quietIconButtonClass} h-8 w-8`}
+              aria-label={t('inspector.close')}
+            >
+              <XIcon size={16} aria-hidden="true" />
+            </button>
+          )
         }
       />
       <InspectorBody>

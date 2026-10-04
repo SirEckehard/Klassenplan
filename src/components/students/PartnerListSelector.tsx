@@ -2,12 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  CaretDownIcon,
-  HeartBreakIcon,
-  HeartIcon,
-  MagnifyingGlassIcon,
-} from '@phosphor-icons/react';
+import { CaretDownIcon, MagnifyingGlassIcon } from '@phosphor-icons/react';
 import type { Student } from '@/types';
 import { useClickOutside } from '@/hooks/ui/useClickOutside';
 import { usePopoverFocus } from '@/hooks/ui/usePopoverFocus';
@@ -19,12 +14,13 @@ import {
   menuSurfaceClass,
   MAX_PARTNER_WISHES,
 } from '@/utils';
+import { STUDENT_ATTRIBUTE_ICONS } from '@/utils/ui/studentAppearance';
 import {
   avoidPartnerButtonTokens,
   partnerButtonTokens,
 } from './studentStyleTokens';
 import FloatingDropdown from './FloatingDropdown';
-import { InspectorRow } from '@/components/shell/InspectorPanel';
+import { InspectorIcon, InspectorRow } from '@/components/shell/InspectorPanel';
 
 export type PartnerListSelectorProps = {
   student: Student;
@@ -43,7 +39,7 @@ export type PartnerListSelectorProps = {
  */
 const PARTNER_KINDS = {
   wish: {
-    Icon: HeartIcon,
+    Icon: STUDENT_ATTRIBUTE_ICONS.wishPartner,
     tokens: partnerButtonTokens,
     rankClass: 'bg-(--data-social-surface) text-(--data-social-text)',
     getIds: getWishPartnerIds,
@@ -58,7 +54,7 @@ const PARTNER_KINDS = {
     summaryKey: 'partners.wishPartners',
   },
   avoid: {
-    Icon: HeartBreakIcon,
+    Icon: STUDENT_ATTRIBUTE_ICONS.avoidPartner,
     tokens: avoidPartnerButtonTokens,
     rankClass: 'bg-(--button-icon-danger-bg) text-(--button-icon-danger-text)',
     getIds: getAvoidPartnerIds,
@@ -183,7 +179,6 @@ export default function PartnerListSelector({
         aria-expanded={showDropdown}
         aria-label={hasPartners ? tooltip : t(config.noneSelectedKey)}
       >
-        <Icon size={12} className={tokens.iconClass} aria-hidden="true" />
         <span className="truncate">{displayLabel}</span>
         <CaretDownIcon
           size={10}
@@ -217,7 +212,16 @@ export default function PartnerListSelector({
     </div>
   );
 
-  return <InspectorRow label={t(config.labelKey)}>{control}</InspectorRow>;
+  // The heart stands before the relation's name, as on the seat; the button
+  // carries only who it points at.
+  return (
+    <InspectorRow
+      label={t(config.labelKey)}
+      icon={<InspectorIcon icon={Icon} family="social" />}
+    >
+      {control}
+    </InspectorRow>
+  );
 }
 
 /**

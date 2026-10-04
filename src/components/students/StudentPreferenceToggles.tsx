@@ -3,7 +3,8 @@
 import { useTranslation } from 'react-i18next';
 import type { Student } from '@/types';
 import ToggleSwitch from '@/components/ui/controls/ToggleSwitch';
-import { InspectorRow } from '@/components/shell/InspectorPanel';
+import { STUDENT_ATTRIBUTE_ICONS } from '@/utils/ui/studentAppearance';
+import { InspectorIcon, InspectorRow } from '@/components/shell/InspectorPanel';
 
 type PreferenceKey = 'prefersWindow' | 'prefersDoor';
 
@@ -51,6 +52,12 @@ export default function StudentPreferenceToggles({
             key={option.key}
             label={label}
             hint={t(option.tooltip)}
+            icon={
+              <InspectorIcon
+                icon={STUDENT_ATTRIBUTE_ICONS[option.key]}
+                family="space"
+              />
+            }
             labelsControl
           >
             <ToggleSwitch

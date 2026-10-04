@@ -44,22 +44,22 @@
   },
   "quoted": "“{{text}}”",
   "gender": {
-    "male": "male",
-    "female": "female",
-    "diverse": "diverse"
+    "male": "Male",
+    "female": "Female",
+    "diverse": "Diverse"
   },
   "studentFlags": {
-    "restless": "restless",
-    "shy": "shy",
-    "concentrationIssues": "easily distracted",
-    "needsFrontSeat": "front seat",
-    "performanceStrong": "high performer",
-    "performanceWeak": "needs support"
+    "restless": "Restless",
+    "shy": "Shy",
+    "concentrationIssues": "Easily distracted",
+    "needsFrontSeat": "Front seat",
+    "performanceStrong": "High performer",
+    "performanceWeak": "Needs support"
   },
   "heightCategories": {
-    "small": "short",
-    "medium": "medium",
-    "tall": "tall"
+    "small": "Short",
+    "medium": "Medium",
+    "tall": "Tall"
   },
   "theme": {
     "toggle": "Toggle theme"

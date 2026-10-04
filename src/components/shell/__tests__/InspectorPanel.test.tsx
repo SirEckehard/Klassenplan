@@ -3,7 +3,10 @@
 import React from 'react';
 import { describe, expect, it } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { InspectorRow } from '@/components/shell/InspectorPanel';
+import {
+  InspectorChoice,
+  InspectorRow,
+} from '@/components/shell/InspectorPanel';
 import ToggleSwitch from '@/components/ui/controls/ToggleSwitch';
 
 function SwitchRow({ labelsControl }: { labelsControl?: boolean }) {
@@ -36,6 +39,52 @@ describe('InspectorRow', () => {
     expect(screen.getByRole('switch', { name: 'Unruhig' })).toHaveAttribute(
       'aria-checked',
       'false',
+    );
+  });
+});
+
+function RoleList({ mixed }: { mixed?: ReadonlySet<string> }) {
+  const [value, setValue] = React.useState<string | undefined>();
+  return (
+    <InspectorRow label="Soziale Rolle" stacked>
+      <InspectorChoice
+        label="Soziale Rolle"
+        layout="list"
+        value={value}
+        onChange={setValue}
+        mixedValues={mixed}
+        options={[
+          { value: 'mediator', label: 'Mediator' },
+          { value: 'leader', label: 'Anführer' },
+        ]}
+      />
+    </InspectorRow>
+  );
+}
+
+describe('InspectorChoice as a list', () => {
+  it('presses an option and lets it go on a second press', () => {
+    render(<RoleList />);
+    const leader = screen.getByRole('button', { name: /Anführer/ });
+
+    fireEvent.click(leader);
+    expect(leader).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: /Mediator/ })).toHaveAttribute(
+      'aria-pressed',
+      'false',
+    );
+
+    // "Not decided" stays reachable, as with the chips.
+    fireEvent.click(leader);
+    expect(leader).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  it('announces what only some of a selection have as half pressed', () => {
+    render(<RoleList mixed={new Set(['mediator'])} />);
+
+    expect(screen.getByRole('button', { name: /Mediator/ })).toHaveAttribute(
+      'aria-pressed',
+      'mixed',
     );
   });
 });

@@ -126,7 +126,7 @@ export default function StudentNameEditor({
   };
 
   // The whole width of the inspector's title, so a long name fits its field
-  // and the field fits the panel — the heading would clip anything wider.
+  // and the field fits the panel; a name wider than that wraps, never cut.
   return (
     <div className="flex min-w-0 items-center gap-1">
       {/* Name Field or Input */}
@@ -189,7 +189,7 @@ export default function StudentNameEditor({
                 startEditing();
               }
             }}
-            className="student-name-editable block min-w-0 truncate cursor-text select-text rounded-xl border border-(--border-card) bg-(--surface-card) px-3 py-1 text-sm font-medium text-(--text-page) shadow-sm transition-colors hover:bg-(--surface-option-selected) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:border-(--border-option-selected)"
+            className="student-name-editable block min-w-0 wrap-break-word cursor-text select-text rounded-xl border border-(--border-card) bg-(--surface-card) px-3 py-1 text-sm font-medium text-(--text-page) shadow-sm transition-colors hover:bg-(--surface-option-selected) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:border-(--border-option-selected)"
             tabIndex={0}
             role="button"
             aria-label={t('nameEditor.editName', { name: student.name })}

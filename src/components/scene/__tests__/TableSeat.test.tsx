@@ -385,7 +385,7 @@ describe('TableSeat component', () => {
       ).container.querySelector('rect[role="button"]');
 
     expect(seat()?.getAttribute('aria-label')).toMatch(
-      /(Merkmale|Markers): unruhig, Vordere Plätze$/,
+      /(Merkmale|Markers): Unruhig, Vordere Plätze$/,
     );
     expect(
       seat({ filter: (badge) => badge.family === 'space' })?.getAttribute(

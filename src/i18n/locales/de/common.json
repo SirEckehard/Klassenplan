@@ -44,22 +44,22 @@
   },
   "quoted": "„{{text}}“",
   "gender": {
-    "male": "männlich",
-    "female": "weiblich",
-    "diverse": "divers"
+    "male": "Männlich",
+    "female": "Weiblich",
+    "diverse": "Divers"
   },
   "studentFlags": {
-    "restless": "unruhig",
-    "shy": "schüchtern",
-    "concentrationIssues": "ablenkbar",
+    "restless": "Unruhig",
+    "shy": "Schüchtern",
+    "concentrationIssues": "Ablenkbar",
     "needsFrontSeat": "Vordere Plätze",
-    "performanceStrong": "leistungsstark",
-    "performanceWeak": "leistungsschwach"
+    "performanceStrong": "Leistungsstark",
+    "performanceWeak": "Leistungsschwach"
   },
   "heightCategories": {
-    "small": "klein",
-    "medium": "mittel",
-    "tall": "groß"
+    "small": "Klein",
+    "medium": "Mittel",
+    "tall": "Groß"
   },
   "theme": {
     "toggle": "Design wechseln"

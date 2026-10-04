@@ -2,6 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { CheckIcon, MinusIcon, type Icon } from '@phosphor-icons/react';
 import { dataFamilyClass, dataHeadingClass } from '@/utils';
 
 /**
@@ -36,8 +37,9 @@ export function InspectorHeader({
           the heading's truncation. */}
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
         {/* A heading, so the panel has a place in the document outline and a
-            test can ask for what is selected by name. */}
-        <h2 className="truncate text-[17px] font-semibold text-(--text-page)">
+            test can ask for what is selected by name. It wraps rather than
+            truncates: a student's name cut to "Lina Schneid…" names nobody. */}
+        <h2 className="min-w-0 wrap-break-word text-[17px] font-semibold text-(--text-page)">
           {title}
         </h2>
         {subtitle && (
@@ -113,6 +115,27 @@ export function InspectorSection({
 }
 
 /**
+ * The symbol an attribute wears on a seat, in its family's ink, beside the
+ * control that sets it — so the icon on the plan is one the teacher has
+ * already seen next to its word.
+ */
+export function InspectorIcon({
+  icon: IconComponent,
+  family,
+}: {
+  icon: Icon;
+  family: keyof typeof dataFamilyClass;
+}) {
+  return (
+    <IconComponent
+      size={14}
+      aria-hidden="true"
+      className={`${dataFamilyClass[family]} shrink-0 text-(--data-chip-text)`}
+    />
+  );
+}
+
+/**
  * One setting: what it is on the left, what it is set to on the right.
  *
  * The inspector used to stack 44px icon tiles with a word underneath, which
@@ -122,10 +145,14 @@ export function InspectorSection({
 export function InspectorRow({
   label,
   hint,
+  icon,
   labelsControl = false,
+  stacked = false,
   children,
 }: {
   label: string;
+  /** The attribute's badge icon before its name (`InspectorIcon`). */
+  icon?: React.ReactNode;
   /** A word on what the setting does, where the label cannot carry it. */
   hint?: string;
   /**
@@ -135,16 +162,32 @@ export function InspectorRow({
    * row of chips, whose first chip the label would press.
    */
   labelsControl?: boolean;
+  /**
+   * The name above the value, the value the row's full width: for a choice
+   * among more options than fit beside a name (`InspectorChoice` as a list).
+   */
+  stacked?: boolean;
   children: React.ReactNode;
 }) {
-  const rowClass =
-    'flex w-full flex-wrap items-center justify-between gap-x-3 gap-y-1.5';
+  const rowClass = stacked
+    ? 'flex w-full flex-col gap-1.5'
+    : 'flex w-full flex-wrap items-center justify-between gap-x-3 gap-y-1.5';
   const content = (
     <>
-      <span className="text-[13px] text-(--text-page)" title={hint}>
+      <span
+        className="flex min-w-0 items-center gap-2 text-[13px] text-(--text-page)"
+        title={hint}
+      >
+        {icon}
         {label}
       </span>
-      <span className="flex flex-wrap items-center gap-1">{children}</span>
+      <span
+        className={
+          stacked ? 'flex w-full' : 'flex flex-wrap items-center gap-1'
+        }
+      >
+        {children}
+      </span>
     </>
   );
   return labelsControl ? (
@@ -156,13 +199,18 @@ export function InspectorRow({
   );
 }
 
-/** The value of a setting with a handful of options, as chips. */
+/**
+ * The value of a setting with a handful of options: as chips beside the name
+ * where three short words fit, as a list under it where more do not — a run
+ * of chips wrapping onto a second line reads as a scatter, not as a scale.
+ */
 export function InspectorChoice<T extends string>({
   value,
   options,
   onChange,
   label,
   mixedValues,
+  layout = 'chips',
 }: {
   value: T | undefined;
   options: ReadonlyArray<{
@@ -181,8 +229,64 @@ export function InspectorChoice<T extends string>({
    * sets it for all, as pressing any other chip does.
    */
   mixedValues?: ReadonlySet<string>;
+  /** `list` stacks the options as rows, for a row set `stacked`. */
+  layout?: 'chips' | 'list';
 }) {
   const { t } = useTranslation('students');
+  if (layout === 'list') {
+    return (
+      <span
+        role="group"
+        aria-label={label}
+        className="flex w-full flex-col divide-y divide-(--border-card) overflow-hidden rounded-md border border-(--border-card) bg-(--surface-card)"
+      >
+        {options.map((option) => {
+          const isActive = value === option.value;
+          const isMixed =
+            !isActive && (mixedValues?.has(option.value) ?? false);
+          const title = option.title ?? option.label;
+          return (
+            <button
+              key={option.value}
+              type="button"
+              // Pressing the value it already has clears it, as with a chip.
+              onClick={() => onChange(isActive ? undefined : option.value)}
+              aria-pressed={isActive ? true : isMixed ? 'mixed' : false}
+              title={
+                isMixed ? t('bulkEdit.choiceMixed', { label: title }) : title
+              }
+              className={`flex w-full cursor-pointer items-center gap-2 px-2.5 py-1.5 text-left text-[13px] transition pointer-coarse:min-h-11 focus-visible:relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-(--focus-ring-primary) ${
+                isActive
+                  ? 'bg-(--surface-option-selected) font-medium text-(--text-page)'
+                  : 'text-(--text-page) hover:bg-(--surface-sunken)'
+              }`}
+            >
+              {option.icon}
+              <span className="min-w-0 flex-1">{option.label}</span>
+              {isActive && (
+                <CheckIcon
+                  size={14}
+                  weight="bold"
+                  aria-hidden="true"
+                  className="shrink-0 text-(--button-primary-bg)"
+                />
+              )}
+              {/* Some of the selection have it: a dash where the check of
+                  "all of them" would stand. */}
+              {isMixed && (
+                <MinusIcon
+                  size={14}
+                  weight="bold"
+                  aria-hidden="true"
+                  className="shrink-0 text-(--text-muted)"
+                />
+              )}
+            </button>
+          );
+        })}
+      </span>
+    );
+  }
   return (
     <span role="group" aria-label={label} className="flex flex-wrap gap-1">
       {options.map((option) => {

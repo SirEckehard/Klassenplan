@@ -2,15 +2,18 @@
 // Copyright (C) 2026 Eike Schäfer
 import { useTranslation } from 'react-i18next';
 import type { Student } from '@/types';
+import { STUDENT_ATTRIBUTE_ICONS } from '@/utils/ui/studentAppearance';
 import {
   InspectorChoice,
+  InspectorIcon,
   InspectorRow,
 } from '@/components/shell/InspectorPanel';
 
 /**
  * Body height as one inspector row. Only "klein" and "groß" carry weight in
- * the plan; "mittel" is the middle of the class and the value a student keeps
- * until somebody decides otherwise.
+ * the plan, so only they carry the arrow their seat badge shows; "mittel" is
+ * the middle of the class and the value a student keeps until somebody
+ * decides otherwise.
  */
 export default function HeightSelector({
   student,
@@ -32,9 +35,33 @@ export default function HeightSelector({
         mixedValues={mixedValues}
         onChange={(next) => updateStudent(student.id, { height: next })}
         options={[
-          { value: 'small', label: t('height.small') },
-          { value: 'medium', label: t('height.medium') },
-          { value: 'tall', label: t('height.tall') },
+          {
+            value: 'small',
+            label: t('height.small'),
+            title: t('height.smallTooltip'),
+            icon: (
+              <InspectorIcon
+                icon={STUDENT_ATTRIBUTE_ICONS.height.small}
+                family="space"
+              />
+            ),
+          },
+          {
+            value: 'medium',
+            label: t('height.medium'),
+            title: t('height.mediumTooltip'),
+          },
+          {
+            value: 'tall',
+            label: t('height.tall'),
+            title: t('height.tallTooltip'),
+            icon: (
+              <InspectorIcon
+                icon={STUDENT_ATTRIBUTE_ICONS.height.tall}
+                family="space"
+              />
+            ),
+          },
         ]}
       />
     </InspectorRow>

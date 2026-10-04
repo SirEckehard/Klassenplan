@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import type { Student } from '@/types';
 import { STUDENT_FLAGS } from '@/utils';
 import ToggleSwitch from '@/components/ui/controls/ToggleSwitch';
-import { InspectorRow } from '@/components/shell/InspectorPanel';
+import { InspectorIcon, InspectorRow } from '@/components/shell/InspectorPanel';
 
 type StudentFlagKey = (typeof STUDENT_FLAGS)[number]['key'];
 
@@ -58,6 +58,8 @@ export default function SpecialNeedsToggles({
           key,
           tooltip: defaultTooltip,
           label: defaultLabel,
+          icon,
+          family,
           exclusiveWith,
         }) => {
           const label = t(`studentFlags.${key}.label`, defaultLabel);
@@ -67,6 +69,7 @@ export default function SpecialNeedsToggles({
               key={key}
               label={label}
               hint={t(`studentFlags.${key}.tooltip`, defaultTooltip)}
+              icon={<InspectorIcon icon={icon} family={family} />}
               labelsControl
             >
               <ToggleSwitch

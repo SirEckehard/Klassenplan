@@ -22,7 +22,6 @@ const partnerControl = {
     'border-(--data-chip-accent) bg-(--data-chip-surface) font-semibold text-(--data-chip-text)',
   inactiveStateClass:
     'border-(--border-card) bg-(--surface-card) text-(--text-muted) hover:border-(--border-option-hover)',
-  iconClass: 'shrink-0 text-(--data-chip-accent)',
   caretClass: 'shrink-0 opacity-70',
   dropdownResetClass:
     'flex w-full cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-xs text-(--text-muted) transition hover:bg-(--surface-sunken)',

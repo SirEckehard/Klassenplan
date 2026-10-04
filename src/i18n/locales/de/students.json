@@ -47,15 +47,15 @@
   },
   "studentFlags": {
     "restless": {
-      "label": "unruhig",
+      "label": "Unruhig",
       "tooltip": "Unruhiges Verhalten"
     },
     "shy": {
-      "label": "schüchtern",
+      "label": "Schüchtern",
       "tooltip": "Zurückhaltendes Verhalten"
     },
     "concentrationIssues": {
-      "label": "ablenkbar",
+      "label": "Ablenkbar",
       "tooltip": "Leicht ablenkbar"
     },
     "needsFrontSeat": {
@@ -63,11 +63,11 @@
       "tooltip": "Braucht vorderen Platz"
     },
     "performanceStrong": {
-      "label": "leistungsstark",
+      "label": "Leistungsstark",
       "tooltip": "Besondere Stärken"
     },
     "performanceWeak": {
-      "label": "leistungsschwach",
+      "label": "Leistungsschwach",
       "tooltip": "Förderbedarf"
     }
   },

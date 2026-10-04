@@ -30,6 +30,37 @@ import {
   type Icon,
 } from '@phosphor-icons/react';
 
+/**
+ * The icons of the attributes that are not yes/no flags (those carry theirs in
+ * `STUDENT_FLAGS`). One table for the seat badges and the controls that set
+ * them, so the inspector shows the symbol the plan will draw.
+ */
+export const STUDENT_ATTRIBUTE_ICONS = {
+  height: { small: ArrowDownIcon, tall: ArrowUpIcon },
+  prefersWindow: PanoramaIcon,
+  prefersDoor: DoorIcon,
+  wishPartner: HeartIcon,
+  avoidPartner: HeartBreakIcon,
+  languageSkill: {
+    native: ChatCircleIcon,
+    fluent: ChatDotsIcon,
+    intermediate: BookOpenIcon,
+    beginner: StudentIcon,
+    daz: RocketIcon,
+  },
+  socialRole: {
+    mediator: HandshakeIcon,
+    leader: CrownIcon,
+    loner: SignpostIcon,
+    socialHub: SparkleIcon,
+  },
+} as const satisfies {
+  height: Record<'small' | 'tall', Icon>;
+  languageSkill: Record<LanguageSkillLevel, Icon>;
+  socialRole: Record<SocialRole, Icon>;
+  [key: string]: Icon | Record<string, Icon>;
+};
+
 // Badge labels/tooltips are user-facing and must follow the active language
 // (they end up in SVG <title> elements and exports). Fallbacks keep the badge
 // readable if a key is ever missing.
@@ -593,7 +624,7 @@ export function getPartnerBadges(
     badges.push({
       key: 'wishPartner',
       label,
-      icon: HeartIcon,
+      icon: STUDENT_ATTRIBUTE_ICONS.wishPartner,
       tooltip: `${label}: ${wishNames.join(', ')}`,
       family: 'social',
       names: wishNames,
@@ -606,7 +637,7 @@ export function getPartnerBadges(
     badges.push({
       key: 'avoidPartner',
       label,
-      icon: HeartBreakIcon,
+      icon: STUDENT_ATTRIBUTE_ICONS.avoidPartner,
       tooltip: `${label}: ${avoidNames.join(', ')}`,
       family: 'social',
       names: avoidNames,
@@ -640,7 +671,7 @@ export function getHeightBadge(student: Student | null): HeightBadge | null {
     return {
       key: 'heightSmall',
       label,
-      icon: ArrowDownIcon,
+      icon: STUDENT_ATTRIBUTE_ICONS.height.small,
       tooltip: `${heightTitle}: ${label}`,
       family: 'space',
     };
@@ -651,7 +682,7 @@ export function getHeightBadge(student: Student | null): HeightBadge | null {
   return {
     key: 'heightTall',
     label,
-    icon: ArrowUpIcon,
+    icon: STUDENT_ATTRIBUTE_ICONS.height.tall,
     tooltip: `${heightTitle}: ${label}`,
     family: 'space',
   };
@@ -671,7 +702,7 @@ export function getEnvironmentBadges(
     badges.push({
       key: 'prefersWindow',
       label: ts('listHeader.windowFull', 'Fensterplatz'),
-      icon: PanoramaIcon,
+      icon: STUDENT_ATTRIBUTE_ICONS.prefersWindow,
       tooltip: ts('environment.windowTooltip', 'Bevorzugt Plätze am Fenster'),
       family: 'space',
     });
@@ -681,7 +712,7 @@ export function getEnvironmentBadges(
     badges.push({
       key: 'prefersDoor',
       label: ts('listHeader.doorFull', 'Türnähe'),
-      icon: DoorIcon,
+      icon: STUDENT_ATTRIBUTE_ICONS.prefersDoor,
       tooltip: ts('environment.doorTooltip', 'Bevorzugt Plätze in Türnähe'),
       family: 'space',
     });
@@ -697,11 +728,26 @@ const LANGUAGE_SKILL_CONFIG: Record<
   LanguageSkillLevel,
   { icon: Icon; label: string }
 > = {
-  native: { icon: ChatCircleIcon, label: 'Muttersprache' },
-  fluent: { icon: ChatDotsIcon, label: 'Fließend' },
-  intermediate: { icon: BookOpenIcon, label: 'Fortgeschritten' },
-  beginner: { icon: StudentIcon, label: 'Anfänger' },
-  daz: { icon: RocketIcon, label: 'DaZ-Förderung' },
+  native: {
+    icon: STUDENT_ATTRIBUTE_ICONS.languageSkill.native,
+    label: 'Muttersprache',
+  },
+  fluent: {
+    icon: STUDENT_ATTRIBUTE_ICONS.languageSkill.fluent,
+    label: 'Fließend',
+  },
+  intermediate: {
+    icon: STUDENT_ATTRIBUTE_ICONS.languageSkill.intermediate,
+    label: 'Fortgeschritten',
+  },
+  beginner: {
+    icon: STUDENT_ATTRIBUTE_ICONS.languageSkill.beginner,
+    label: 'Anfänger',
+  },
+  daz: {
+    icon: STUDENT_ATTRIBUTE_ICONS.languageSkill.daz,
+    label: 'DaZ-Förderung',
+  },
 };
 
 /**
@@ -730,10 +776,22 @@ export function getLanguageSkillBadge(
  * Social role configuration with icons
  */
 const SOCIAL_ROLE_CONFIG: Record<SocialRole, { icon: Icon; label: string }> = {
-  mediator: { icon: HandshakeIcon, label: 'Mediator' },
-  leader: { icon: CrownIcon, label: 'Anführer' },
-  loner: { icon: SignpostIcon, label: 'Einzelgänger' },
-  socialHub: { icon: SparkleIcon, label: 'Mittelpunkt' },
+  mediator: {
+    icon: STUDENT_ATTRIBUTE_ICONS.socialRole.mediator,
+    label: 'Mediator',
+  },
+  leader: {
+    icon: STUDENT_ATTRIBUTE_ICONS.socialRole.leader,
+    label: 'Anführer',
+  },
+  loner: {
+    icon: STUDENT_ATTRIBUTE_ICONS.socialRole.loner,
+    label: 'Einzelgänger',
+  },
+  socialHub: {
+    icon: STUDENT_ATTRIBUTE_ICONS.socialRole.socialHub,
+    label: 'Mittelpunkt',
+  },
 };
 
 /**

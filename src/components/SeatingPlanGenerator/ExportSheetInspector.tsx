@@ -244,8 +244,11 @@ export default function ExportSheetInspector({
         </InspectorSection>
 
         <InspectorSection title={t('editor.nameDisplay.label')}>
+          {/* Three rules, one of them a phrase: a list, as the language
+              levels are in the student inspector, not chips that wrap. */}
           <InspectorChoice
             label={t('editor.nameDisplay.label')}
+            layout="list"
             value={nameDisplay}
             onChange={(next) => next && onNameDisplayChange(next)}
             options={NAME_DISPLAY_MODES.map((rule) => ({
