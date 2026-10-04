@@ -5,7 +5,13 @@
  * Internal hook used by useSeatingGenerator. Do not import directly.
  * Use SeatingPlanGeneratorProvider context hooks instead.
  */
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+} from 'react';
 import type {
   MixSettings,
   ClassroomScene,
@@ -40,6 +46,15 @@ export interface AlgorithmRunOptions {
 }
 
 /**
+ * A run that outlived its class: another class opened while the worker was
+ * busy. Its arrangement was made for the class it started in, so it is dropped
+ * the way an aborted run's is — writing it would put one class's students
+ * into the other's plan and mix history.
+ */
+const classChangedError = () =>
+  new DOMException('Another class opened during the run', 'AbortError');
+
+/**
  * Provide algorithms to generate and refine seating arrangements.
  * @param state Shared seating state
  * @param planUsage Records of plans that were really in use; see `buildPreviousPairs`
@@ -56,7 +71,15 @@ export function useSeatingAlgorithm(
     historyState: { seatingHistory, mixHistory, addMixResult, setMixHistory },
     algorithmState: { lockedPositions, setLastStatistics },
     planState: { currentSeating, setCurrentSeating },
+    classState: { activeClass },
   } = state;
+
+  // Read when a run ends, so it is current by then: a class switch commits in
+  // `flushSync`, and layout effects run inside that commit.
+  const activeClassIdRef = useRef(activeClass.id);
+  useLayoutEffect(() => {
+    activeClassIdRef.current = activeClass.id;
+  }, [activeClass.id]);
 
   const mixHistoryRef = useRef(mixHistory);
   // Held in a ref like the mix history: the records change on signals raised
@@ -195,6 +218,7 @@ export function useSeatingAlgorithm(
         }
       }
 
+      const classId = activeClassIdRef.current;
       return algorithmWorkerClient
         .callOperation(
           'mix:generate',
@@ -213,6 +237,9 @@ export function useSeatingAlgorithm(
           { signal: run?.signal, onProgress: run?.onProgress },
         )
         .then(({ seating: arrangement }) => {
+          if (activeClassIdRef.current !== classId) {
+            throw classChangedError();
+          }
           // Cache the result only for non-forced generations
           if (!forceNew) {
             algorithmCache.set(cacheKey, arrangement);
@@ -292,6 +319,7 @@ export function useSeatingAlgorithm(
         ),
       };
 
+      const classId = activeClassIdRef.current;
       return algorithmWorkerClient
         .callOperation(
           'mix:refine',
@@ -311,6 +339,9 @@ export function useSeatingAlgorithm(
           { signal: run?.signal, onProgress: run?.onProgress },
         )
         .then(({ seating: arrangement }) => {
+          if (activeClassIdRef.current !== classId) {
+            throw classChangedError();
+          }
           recentSeatingRef.current =
             arrangement.length > 0 ? arrangement : null;
           setCurrentSeating(arrangement);

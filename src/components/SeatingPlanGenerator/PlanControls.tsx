@@ -23,6 +23,7 @@ const EnhancedSeatingPlanView = lazy(
 export default function PlanControls() {
   const {
     step,
+    activeClass,
     students,
     classroomScene,
     currentSeating,
@@ -159,6 +160,10 @@ export default function PlanControls() {
     planUsage,
     planUsageSince,
   };
+  // A class's room and plan views start afresh when another class opens: their
+  // undo history, selection and canvas belong to the class they were made for,
+  // and an undo must never bring the other class's room or plan back.
+  const classViewKey = activeClass.id ?? 'no-class';
   const studentBoundaryResetKeys: ReadonlyArray<number> = [students.length];
   const layoutBoundaryResetKeys: ReadonlyArray<number> = [
     classroomScene.tables.length,
@@ -208,7 +213,11 @@ export default function PlanControls() {
               />
             )}
           >
-            <EnhancedSeatingPlanView {...seatingViewProps} step={2} />
+            <EnhancedSeatingPlanView
+              key={classViewKey}
+              {...seatingViewProps}
+              step={2}
+            />
           </SectionErrorBoundary>
         </Suspense>
       )}
@@ -225,7 +234,11 @@ export default function PlanControls() {
               />
             )}
           >
-            <EnhancedSeatingPlanView {...seatingViewProps} step={3} />
+            <EnhancedSeatingPlanView
+              key={classViewKey}
+              {...seatingViewProps}
+              step={3}
+            />
           </SectionErrorBoundary>
         </Suspense>
       )}

@@ -258,6 +258,10 @@ export function useSeatingWizard(
           await generateSeatingPlan(autoSettings, classroomScene, true);
           setAutoMixError(null);
         } catch (error) {
+          // Dropped because another class opened meanwhile: nothing failed.
+          if (error instanceof DOMException && error.name === 'AbortError') {
+            return;
+          }
           logError(
             'Automatic seating plan generation failed on step entry',
             { error },

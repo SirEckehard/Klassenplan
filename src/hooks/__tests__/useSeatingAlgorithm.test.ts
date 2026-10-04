@@ -36,26 +36,37 @@ const refineOptions = { triesPerPass: 600, passes: 2 };
 
 const setup = () => {
   let mixHistory: MixResult[] = [];
-  const state = {
-    studentState: { students: [ada, ben] },
-    historyState: {
-      seatingHistory: [],
-      mixHistory: [],
-      addMixResult: (result: MixResult) => {
-        mixHistory = [...mixHistory, result];
+  const setCurrentSeating = vi.fn();
+  const stateFor = (classId: string) =>
+    ({
+      studentState: { students: [ada, ben] },
+      historyState: {
+        seatingHistory: [],
+        mixHistory: [],
+        addMixResult: (result: MixResult) => {
+          mixHistory = [...mixHistory, result];
+        },
+        setMixHistory: (
+          next: MixResult[] | ((prev: MixResult[]) => MixResult[]),
+        ) => {
+          mixHistory = typeof next === 'function' ? next(mixHistory) : next;
+        },
       },
-      setMixHistory: (
-        next: MixResult[] | ((prev: MixResult[]) => MixResult[]),
-      ) => {
-        mixHistory = typeof next === 'function' ? next(mixHistory) : next;
-      },
-    },
-    algorithmState: { lockedPositions: {}, setLastStatistics: vi.fn() },
-    planState: { currentSeating: [], setCurrentSeating: vi.fn() },
-  } as unknown as SeatingState;
+      algorithmState: { lockedPositions: {}, setLastStatistics: vi.fn() },
+      planState: { currentSeating: [], setCurrentSeating },
+      classState: { activeClass: { id: classId, name: classId } },
+    }) as unknown as SeatingState;
 
-  const { result } = renderHook(() => useSeatingAlgorithm(state));
-  return { result, getMixHistory: () => mixHistory };
+  const { result, rerender } = renderHook(
+    ({ classId }) => useSeatingAlgorithm(stateFor(classId)),
+    { initialProps: { classId: 'class-a' } },
+  );
+  return {
+    result,
+    openClass: (classId: string) => rerender({ classId }),
+    setCurrentSeating,
+    getMixHistory: () => mixHistory,
+  };
 };
 
 beforeEach(() => {
@@ -96,5 +107,48 @@ describe('useSeatingAlgorithm mix history', () => {
 
     expect(getMixHistory()).toHaveLength(1);
     expect(getMixHistory()[0]?.seating).toBe(constructed);
+  });
+});
+
+describe('useSeatingAlgorithm across a class switch', () => {
+  it('drops a mix that ends after another class opened', async () => {
+    let finish: (value: { seating: SeatingArrangement }) => void = () => {};
+    callOperation.mockReset();
+    callOperation.mockReturnValueOnce(
+      new Promise((resolve) => {
+        finish = resolve;
+      }),
+    );
+    const { result, openClass, setCurrentSeating, getMixHistory } = setup();
+
+    const run = result.current.generateSeatingPlan(settings, scene);
+    openClass('class-b');
+    finish({ seating: constructed });
+
+    await expect(run).rejects.toMatchObject({ name: 'AbortError' });
+    expect(setCurrentSeating).not.toHaveBeenCalled();
+    expect(getMixHistory()).toEqual([]);
+  });
+
+  it('drops a refinement that ends after another class opened', async () => {
+    let finish: (value: { seating: SeatingArrangement }) => void = () => {};
+    callOperation.mockReset();
+    callOperation.mockReturnValueOnce(
+      new Promise((resolve) => {
+        finish = resolve;
+      }),
+    );
+    const { result, openClass, setCurrentSeating } = setup();
+
+    const run = result.current.refineSeatingLocal(
+      settings,
+      scene,
+      refineOptions,
+    );
+    openClass('class-b');
+    finish({ seating: refined });
+
+    await expect(run).rejects.toMatchObject({ name: 'AbortError' });
+    expect(setCurrentSeating).not.toHaveBeenCalled();
   });
 });

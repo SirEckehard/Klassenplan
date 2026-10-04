@@ -96,6 +96,10 @@ export function useAutoMixTrigger(
             passes: DEFAULT_PASSES,
           });
         } catch (error) {
+          // Dropped because another class opened meanwhile: nothing failed.
+          if (error instanceof DOMException && error.name === 'AbortError') {
+            return;
+          }
           logError(
             'Automatic seating refinement failed',
             { error },
