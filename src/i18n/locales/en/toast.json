@@ -190,7 +190,8 @@
   },
   "mix": {
     "deleted": "Mix result deleted",
-    "noneAvailable": "No mix result available"
+    "noneAvailable": "No mix result available",
+    "doesNotFit": "This mix no longer fits the tables of its room."
   },
   "data": {
     "deleted": "All data has been deleted",
@@ -214,5 +215,10 @@
   },
   "room": {
     "noFreeSpot": "There is no free space left in the room – drag it to a spot of your choice."
+  },
+  "rooms": {
+    "limit": "A class has at most {{max}} rooms.",
+    "createdFromTemplate": "New room “{{name}}” opened.",
+    "undoCreate": "Undo"
   }
 }

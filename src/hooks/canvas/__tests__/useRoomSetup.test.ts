@@ -11,6 +11,7 @@ const setup = ({
   const handlers = {
     snapshot: vi.fn(),
     onTemplateChange: vi.fn(),
+    onLoadTemplateAsRoom: vi.fn(),
     onTableTypeChange: vi.fn(),
     clearSelection: vi.fn(),
     setDrawerOpen: vi.fn(),
@@ -44,32 +45,35 @@ describe('useRoomSetup', () => {
     );
   });
 
-  it('keeps the room in the undo history before loading a template', () => {
-    const { result, snapshot, onTemplateChange } = setup();
+  // A template is a room of its own (decision 0024): the room that was open
+  // stays as it was, so there is nothing to keep in its undo history and no
+  // plan to let go of.
+  it('loads a template as a room of its own and leaves the open one alone', () => {
+    const {
+      result,
+      snapshot,
+      onTemplateChange,
+      onLoadTemplateAsRoom,
+      onRoomReplaced,
+    } = setup();
 
     act(() => result.current.loadTemplate(4));
 
-    expect(onTemplateChange).toHaveBeenCalledWith(4);
-    expect(snapshot.mock.invocationCallOrder[0]).toBeLessThan(
-      onTemplateChange.mock.invocationCallOrder[0],
-    );
+    expect(onLoadTemplateAsRoom).toHaveBeenCalledWith(4);
+    expect(onTemplateChange).not.toHaveBeenCalled();
+    expect(snapshot).not.toHaveBeenCalled();
+    expect(onRoomReplaced).not.toHaveBeenCalled();
   });
 
-  // The same class in a lab is another plan: a save after the room was
-  // replaced must not write the lab over the plan that was open.
-  it('lets go of the open plan when the room is set up anew or loaded', () => {
-    const { result, snapshot, onRoomReplaced, onTemplateChange } = setup();
+  // The next save after a room was set up anew must not write the new tables
+  // over the plan that was open.
+  it('lets go of the open plan when the room is set up anew', () => {
+    const { result, snapshot, onRoomReplaced } = setup();
 
     act(() => result.current.setUpRoom('double'));
     expect(onRoomReplaced).toHaveBeenCalledTimes(1);
     expect(snapshot.mock.invocationCallOrder[0]).toBeLessThan(
       onRoomReplaced.mock.invocationCallOrder[0],
-    );
-
-    act(() => result.current.loadTemplate(4));
-    expect(onRoomReplaced).toHaveBeenCalledTimes(2);
-    expect(onRoomReplaced.mock.invocationCallOrder[1]).toBeLessThan(
-      onTemplateChange.mock.invocationCallOrder[1],
     );
   });
 

@@ -12,7 +12,7 @@ import { useClassroomSceneState } from './state/useClassroomSceneState';
 import { useAutoMixSettings } from './domains/useAutoMixSettings';
 import { useAlgorithmStore } from '@/stores/algorithmStore';
 import { shallow } from 'zustand/shallow';
-import { createStudentSyncMap, syncStudentReference } from '@/utils';
+import { syncSeatingWithStudents } from '@/utils';
 import type {
   Student,
   SavedPlan,
@@ -224,44 +224,9 @@ export function useSeatingState(): SeatingState {
 
   useEffect(() => {
     queueMicrotask(() => {
-      setCurrentSeating((prev: SeatingArrangement) => {
-        if (prev.length === 0) {
-          return prev;
-        }
-
-        const syncMap = createStudentSyncMap(students);
-        let hasChanges = false;
-
-        const next = prev.map((table) => {
-          if (!table || table.length === 0) {
-            return table;
-          }
-
-          let tableChanged = false;
-          const updatedSeats = table.map((seat) => {
-            if (!seat) {
-              return seat;
-            }
-
-            const { nextStudent, hasChanged } = syncStudentReference(
-              seat,
-              syncMap,
-            );
-
-            if (!hasChanged) {
-              return seat;
-            }
-
-            hasChanges = true;
-            tableChanged = true;
-            return nextStudent;
-          });
-
-          return tableChanged ? updatedSeats : table;
-        });
-
-        return hasChanges ? next : prev;
-      });
+      setCurrentSeating((prev: SeatingArrangement) =>
+        syncSeatingWithStudents(prev, students),
+      );
     });
   }, [students, setCurrentSeating]);
 

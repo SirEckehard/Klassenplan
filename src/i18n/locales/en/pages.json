@@ -312,7 +312,7 @@
       },
       "rooms": {
         "q": "Can a class have several seating plans – say, one for the science lab?",
-        "a": "Yes. Every saved seating plan keeps its own room. For the lab, rearrange the tables in the room or load a lab you kept under “Templates”, mix, and save it under a name of its own with “Save Plan”, such as “7b Chemistry”. If the plan for the classroom is still open, choose “Save as new plan” so that one stays as it is. Under “Plans & history” you switch between the two plans; the room, the seating and the locked seats switch with them. Klassenplan counts who has already sat side by side across both rooms."
+        "a": "Yes. A class can have several rooms, and every room keeps its own tables and plans. For the lab, add a new room under “Rooms” in the room view, such as “Chemistry”, or open a lab you kept under “Templates” – it becomes a room of the class. Set up the tables there, mix, and save with “Save Plan”. Under “Rooms” you switch between the rooms; each opens as you left it, with its seating and locked seats. A saved plan opens its room along with it. Klassenplan counts who has already sat side by side across all rooms."
       }
     },
     "settings": {

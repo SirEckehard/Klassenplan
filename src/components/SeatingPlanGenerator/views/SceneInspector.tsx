@@ -27,9 +27,11 @@ import {
 } from '@/components/shell/InspectorPanel';
 import ToggleSwitch from '@/components/ui/controls/ToggleSwitch';
 import {
+  RoomListSection,
   RoomSetupSection,
   RoomTemplatesSection,
 } from '@/components/SeatingPlanGenerator/views/RoomSetupSections';
+import { useOptionalSeatingPlanState } from '@/contexts/seatingPlan/seatingPlanSelectors';
 import type { SceneTransactionRunner } from '@/hooks/scene/useSceneManager';
 import {
   DEFAULT_ROTATION_SNAP_STEP,
@@ -234,6 +236,11 @@ export default function SceneInspector({
   canPaste,
 }: Props) {
   const { t } = useTranslation('generator');
+  // The room is named where it is edited (decision 0024).
+  const seatingPlanState = useOptionalSeatingPlanState();
+  const openRoomName = seatingPlanState?.rooms.find(
+    (room) => room.id === seatingPlanState.activeRoomId,
+  )?.name;
 
   const selectedTables = selectedTableIds
     .map((index) => ({ index, table: tables[index] }))
@@ -380,13 +387,14 @@ export default function SceneInspector({
       </InspectorSection>
     ) : null;
 
-  // Nothing selected: the room itself. Seats and students are the status
-  // bar's to state; what the panel adds is how a room is set up or kept.
+  // Nothing selected: the room itself, by its name. Seats and students are
+  // the status bar's to state; what the panel adds is how a room is set up,
+  // which other rooms the class has, and how a room is kept for others.
   if (selectionSize === 0) {
     return (
       <>
         <InspectorHeader
-          title={t('sceneInspector.room')}
+          title={openRoomName ?? t('sceneInspector.room')}
           subtitle={
             tables.length > 0
               ? t('sceneInspector.tables', { count: tables.length })
@@ -400,6 +408,7 @@ export default function SceneInspector({
             onSetUp={onSetUpRoom}
             focusRequest={setupFocusRequest}
           />
+          <RoomListSection />
           <RoomTemplatesSection
             templates={templates}
             onSave={onSaveTemplate}

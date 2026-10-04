@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import type { Student } from '@/types';
+import type { SeatingArrangement, Student } from '@/types';
 import { stableStringify } from './jsonUtils';
 import { getWishPartnerIds, getAvoidPartnerIds } from './student/partnerUtils';
 
@@ -96,4 +96,49 @@ export const syncStudentReference = (
     nextStudent: entry.student,
     hasChanged: true,
   };
+};
+
+/**
+ * The seating with every seat brought up to date with `students`: a student
+ * whose details changed sits there as they are now, one who left the class
+ * leaves the seat empty. Tables and the arrangement itself come back as they
+ * were wherever nothing changed, so a caller can tell by reference.
+ */
+export const syncSeatingWithStudents = (
+  seating: SeatingArrangement,
+  students: Student[],
+): SeatingArrangement => {
+  if (seating.length === 0) {
+    return seating;
+  }
+
+  const syncMap = createStudentSyncMap(students);
+  let hasChanges = false;
+
+  const next = seating.map((table) => {
+    if (!table || table.length === 0) {
+      return table;
+    }
+
+    let tableChanged = false;
+    const updatedSeats = table.map((seat) => {
+      if (!seat) {
+        return seat;
+      }
+
+      const { nextStudent, hasChanged } = syncStudentReference(seat, syncMap);
+
+      if (!hasChanged) {
+        return seat;
+      }
+
+      hasChanges = true;
+      tableChanged = true;
+      return nextStudent;
+    });
+
+    return tableChanged ? updatedSeats : table;
+  });
+
+  return hasChanges ? next : seating;
 };

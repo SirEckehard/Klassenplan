@@ -312,7 +312,7 @@
       },
       "rooms": {
         "q": "Kann ich für eine Klasse mehrere Sitzpläne haben – etwa für den Fachraum?",
-        "a": "Ja. Jeder gespeicherte Sitzplan bringt seinen eigenen Raum mit. Für den Fachraum stellst du im Raum die Tische um oder lädst unter „Vorlagen“ einen aufgehobenen Fachraum, mischst und speicherst mit „Plan speichern“ unter einem eigenen Namen, etwa „7b Chemie“. Ist dabei noch der Plan für den Klassenraum offen, wählst du „Als neuen Plan speichern“, damit er bleibt, wie er ist. Unter „Pläne & Verlauf“ wechselst du zwischen beiden Plänen; Raum, Sitzordnung und gesperrte Plätze wechseln mit. Wer schon nebeneinander saß, zählt Klassenplan über beide Räume hinweg."
+        "a": "Ja. Eine Klasse kann mehrere Räume haben, und jeder Raum behält seine eigenen Tische und Pläne. Für den Fachraum legst du im Raum unter „Räume“ einen neuen Raum an, etwa „Chemie“, oder öffnest unter „Vorlagen“ einen aufgehobenen Fachraum – er wird ein eigener Raum der Klasse. Dort stellst du die Tische, mischst und speicherst mit „Plan speichern“. Unter „Räume“ wechselst du zwischen den Räumen; jeder öffnet sich so, wie du ihn verlassen hast, mit Sitzordnung und gesperrten Plätzen. Ein gespeicherter Plan öffnet seinen Raum mit. Wer schon nebeneinander saß, zählt Klassenplan über alle Räume hinweg."
       }
     },
     "settings": {

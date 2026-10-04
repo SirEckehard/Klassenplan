@@ -190,7 +190,8 @@
   },
   "mix": {
     "deleted": "Misch-Ergebnis gelöscht",
-    "noneAvailable": "Kein Misch-Ergebnis vorhanden"
+    "noneAvailable": "Kein Misch-Ergebnis vorhanden",
+    "doesNotFit": "Diese Mischung passt nicht mehr zu den Tischen ihres Raums."
   },
   "data": {
     "deleted": "Alle Daten wurden gelöscht",
@@ -214,5 +215,10 @@
   },
   "room": {
     "noFreeSpot": "Im Raum ist kein Platz mehr frei – ziehe es an eine Stelle deiner Wahl."
+  },
+  "rooms": {
+    "limit": "Eine Klasse hat höchstens {{max}} Räume.",
+    "createdFromTemplate": "Neuer Raum „{{name}}“ geöffnet.",
+    "undoCreate": "Rückgängig"
   }
 }

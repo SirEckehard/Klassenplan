@@ -7,13 +7,15 @@ import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
 import '@/i18n';
 import PlanSavePanel from '@/components/SeatingPlanGenerator/views/PlanSavePanel';
 import { getButton } from '@/__tests__/utils';
-import type { SavedPlan } from '@/types';
+import type { RoomRecord, SavedPlan } from '@/types';
 
 const mocks = vi.hoisted(() => ({
   planName: '',
   activePlanId: null as string | null,
   seatingHistory: [] as SavedPlan[],
   classroomScene: { tables: [], features: [] },
+  rooms: [] as RoomRecord[],
+  activeRoomId: null as string | null,
   handleSaveSeatingPlan: vi.fn((..._args: unknown[]) => true),
   isCoarsePointer: false,
 }));
@@ -24,6 +26,8 @@ vi.mock('@/contexts/SeatingPlanContext', () => ({
     activePlanId: mocks.activePlanId,
     seatingHistory: mocks.seatingHistory,
     classroomScene: mocks.classroomScene,
+    rooms: mocks.rooms,
+    activeRoomId: mocks.activeRoomId,
   }),
   useSeatingPlanActions: () => ({
     handleSaveSeatingPlan: mocks.handleSaveSeatingPlan,
@@ -56,6 +60,8 @@ beforeEach(() => {
   mocks.activePlanId = 'id-Deutsch';
   mocks.seatingHistory = [savedPlan('Deutsch'), savedPlan('Mathe')];
   mocks.isCoarsePointer = false;
+  mocks.rooms = [{ id: 'classroom', name: 'Klassenraum', createdAt: '' }];
+  mocks.activeRoomId = 'classroom';
   mocks.handleSaveSeatingPlan.mockReturnValue(true);
 });
 
@@ -208,5 +214,22 @@ describe('PlanSavePanel', () => {
 
     expect(mocks.handleSaveSeatingPlan).toHaveBeenCalled();
     expect(onDone).not.toHaveBeenCalled();
+  });
+
+  // With one room there is nothing to tell apart; with more the panel says
+  // where the plan goes (decision 0024).
+  it('names the room the plan goes into once the class has more than one', () => {
+    renderPanel();
+    expect(screen.queryByText(/Klassenraum/)).toBeNull();
+    cleanup();
+
+    mocks.rooms = [
+      { id: 'classroom', name: 'Klassenraum', createdAt: '' },
+      { id: 'lab', name: 'Chemie-Fachraum', createdAt: '' },
+    ];
+    mocks.activeRoomId = 'lab';
+    renderPanel();
+
+    expect(screen.getByText(/Chemie-Fachraum/)).toBeInTheDocument();
   });
 });

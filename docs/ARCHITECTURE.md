@@ -1,6 +1,6 @@
 # Architecture
 
-> **Status:** current · **Last reviewed:** 2026-10-03 · **Maintainer:** Eike
+> **Status:** current · **Last reviewed:** 2026-10-04 · **Maintainer:** Eike
 > Schäfer · **Describes:** Klassenplan 2.2.0
 
 This is the entry point for anyone who wants to understand _why_ Klassenplan is
@@ -278,6 +278,25 @@ gate keeps the freshly loaded data from being queued again. Work that needs the
 class id and its data together — such as the plan usage backfill — runs inside
 `applyPersistedState`.
 
+### Switching rooms
+
+A class keeps the rooms its plans were made in — its classroom, a lab
+([decision 0024](decisions/0024-rooms-of-a-class.md)). Only one is open; its
+state is the class's working state. Opening another room, in the room
+inspector's "Räume" or by opening a plan or mix of it, works like opening
+another class without the reload: `useRoomManagement` parks the working state
+in the room left (`switchRoomState`) and puts the other room's parked state on
+screen — tables, seating, locks, circle and open plan — inside one `flushSync`,
+for the reason given above: tables in a Zustand store and seating in React
+state must not arrive in different renders, or the plan view takes the room
+for one its seating no longer fits and mixes anew. The views are keyed by
+class and room, so their undo histories, selection and canvas start afresh,
+and `useSeatingAlgorithm` drops a mix that ends after another room opened.
+Nothing is saved on the way: the room left keeps what it had, unsaved changes
+included. A template loaded from "Vorlagen" opens as a room of its own named
+after it, and the message after it offers the way back to the room that was
+open.
+
 ### Where data lives
 
 | Data                                                                                              | Where                                                 | Notes                                                                          |
@@ -384,31 +403,32 @@ because a report endpoint is a server receiving data from visitors' browsers.
 The UI speaks German, the code English. These are the terms that do not
 translate one to one.
 
-| UI (German)                               | Code                                                         | Meaning                                                                                                                 |
-| ----------------------------------------- | ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------- |
-| Klasse                                    | class, `activeClass`, `ClassCollectionState`                 | A group of up to 36 students with its own plans, room and weights                                                       |
-| Klassenliste (step 1)                     | `students`, `Student`                                        | The students of the active class                                                                                        |
-| Merkmal                                   | `restless`, `shy`, `concentrationIssues`, … on `Student`     | Contextual description of current behaviour, not a diagnosis                                                            |
-| Klassenraum (step 2)                      | `ClassroomScene`, "scene"                                    | The 900 × 600 room: tables and room elements                                                                            |
-| Einzelplatz, Doppelplatz, 4er-/6er-Gruppe | `TableTemplateType` (`single`, `double`, `group4`, `group6`) | Table types placed from the toolbar                                                                                     |
-| Klassenraum-Vorlage                       | `ClassroomTemplate`                                          | A saved room layout — not to be confused with the table types above                                                     |
-| Raumelement: Fenster, Tür, Tafel, Pult    | `ClassroomFeature` (`window`, `door`, `board`, `podium`)     | Fixed parts of the room that criteria can refer to                                                                      |
-| Sitzplan (step 3)                         | `SeatingArrangement`, `currentSeating`                       | Tables × seats → student or empty                                                                                       |
-| Mischen                                   | mix, shuffle, `mix:generate`                                 | Build a new arrangement (and refine it when criteria are active)                                                        |
-| Kriterium, Wichtigkeit                    | `MixSettings`                                                | Weights 0–10 per criterion, set as four named levels; defaults in [PEDAGOGY.md](PEDAGOGY.md)                            |
-| Rezept                                    | `MixRecipe`, `mixRecipes.ts`                                 | A named set of all sixteen weights for a kind of lesson                                                                 |
-| Gesperrter Platz                          | `lockedPositions`, `isSeatLocked`                            | A seat the algorithm must not change                                                                                    |
-| Gespeicherter Plan                        | `SavedPlan` in `seatingHistory`                              | A plan saved under a name. Despite its name, `seatingHistory` holds saved plans, not a log                              |
-| Mischung                                  | `MixResult` in `mixHistory`                                  | One shuffle result, kept for the last 20                                                                                |
-| Nachbarschaften                           | plan usage record, `PlanUsage`                               | Which plans were really used, and who sat next to whom                                                                  |
-| Sitzkreis                                 | circle mode, `CircleLayout`, `seatingMode: 'circle'`         | Seating in a circle instead of tables                                                                                   |
-| Präsentation                              | `/present`                                                   | Full-screen view for projector and whiteboard                                                                           |
-| Namensspiel                               | `/namensspiel`                                               | Photo quiz and memory for learning students' names                                                                      |
-| Wer kommt dran?                           | `/wer-kommt-dran`, `useRandomStudentPicker`                  | Draws a student without replacement — everybody before anybody twice                                                    |
-| Wo sitzt wer?                             | `/wo-sitzt-wer`, `findSeatLocation`                          | Looks a seat up: table, depth, landmark, neighbour                                                                      |
-| Gruppen bilden                            | `/gruppen`, `buildGroups`                                    | Draws groups out of the class; not the seating algorithm ([decision 0019](decisions/0019-classroom-tools-as-routes.md)) |
-| Kontrastmodus                             | `contrast` on `PresentationScene`                            | The projection in black on white for a bright room                                                                      |
-| Backup                                    | `ExportBundle`, encrypted envelope                           | The one way data leaves the browser                                                                                     |
+| UI (German)                               | Code                                                         | Meaning                                                                                                                                |
+| ----------------------------------------- | ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
+| Klasse                                    | class, `activeClass`, `ClassCollectionState`                 | A group of up to 36 students with its own plans, room and weights                                                                      |
+| Klassenliste (step 1)                     | `students`, `Student`                                        | The students of the active class                                                                                                       |
+| Merkmal                                   | `restless`, `shy`, `concentrationIssues`, … on `Student`     | Contextual description of current behaviour, not a diagnosis                                                                           |
+| Klassenraum (step 2)                      | `ClassroomScene`, "scene"                                    | The 900 × 600 room: tables and room elements                                                                                           |
+| Raum                                      | `RoomRecord` in `ClassRecord.rooms`, `activeRoomId`          | A room of the class — its classroom, a lab — with the plans and mixes made in it ([decision 0024](decisions/0024-rooms-of-a-class.md)) |
+| Einzelplatz, Doppelplatz, 4er-/6er-Gruppe | `TableTemplateType` (`single`, `double`, `group4`, `group6`) | Table types placed from the toolbar                                                                                                    |
+| Klassenraum-Vorlage                       | `ClassroomTemplate`                                          | A saved room layout — not to be confused with the table types above                                                                    |
+| Raumelement: Fenster, Tür, Tafel, Pult    | `ClassroomFeature` (`window`, `door`, `board`, `podium`)     | Fixed parts of the room that criteria can refer to                                                                                     |
+| Sitzplan (step 3)                         | `SeatingArrangement`, `currentSeating`                       | Tables × seats → student or empty                                                                                                      |
+| Mischen                                   | mix, shuffle, `mix:generate`                                 | Build a new arrangement (and refine it when criteria are active)                                                                       |
+| Kriterium, Wichtigkeit                    | `MixSettings`                                                | Weights 0–10 per criterion, set as four named levels; defaults in [PEDAGOGY.md](PEDAGOGY.md)                                           |
+| Rezept                                    | `MixRecipe`, `mixRecipes.ts`                                 | A named set of all sixteen weights for a kind of lesson                                                                                |
+| Gesperrter Platz                          | `lockedPositions`, `isSeatLocked`                            | A seat the algorithm must not change                                                                                                   |
+| Gespeicherter Plan                        | `SavedPlan` in `seatingHistory`                              | A plan saved under a name. Despite its name, `seatingHistory` holds saved plans, not a log                                             |
+| Mischung                                  | `MixResult` in `mixHistory`                                  | One shuffle result, kept for the last 20                                                                                               |
+| Nachbarschaften                           | plan usage record, `PlanUsage`                               | Which plans were really used, and who sat next to whom                                                                                 |
+| Sitzkreis                                 | circle mode, `CircleLayout`, `seatingMode: 'circle'`         | Seating in a circle instead of tables                                                                                                  |
+| Präsentation                              | `/present`                                                   | Full-screen view for projector and whiteboard                                                                                          |
+| Namensspiel                               | `/namensspiel`                                               | Photo quiz and memory for learning students' names                                                                                     |
+| Wer kommt dran?                           | `/wer-kommt-dran`, `useRandomStudentPicker`                  | Draws a student without replacement — everybody before anybody twice                                                                   |
+| Wo sitzt wer?                             | `/wo-sitzt-wer`, `findSeatLocation`                          | Looks a seat up: table, depth, landmark, neighbour                                                                                     |
+| Gruppen bilden                            | `/gruppen`, `buildGroups`                                    | Draws groups out of the class; not the seating algorithm ([decision 0019](decisions/0019-classroom-tools-as-routes.md))                |
+| Kontrastmodus                             | `contrast` on `PresentationScene`                            | The projection in black on white for a bright room                                                                                     |
+| Backup                                    | `ExportBundle`, encrypted envelope                           | The one way data leaves the browser                                                                                                    |
 
 The English interface keeps one word per German term, so a teacher never
 wonders whether two words mean two things. _Mischen_ is **mix** throughout —

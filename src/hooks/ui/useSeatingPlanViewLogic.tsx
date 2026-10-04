@@ -228,6 +228,17 @@ export function useSeatingPlanViewLogic({
     [setSelectedTemplateId, handleTemplateChange],
   );
 
+  // A template is a room of its own (decision 0024): it opens as a new room
+  // of the class, and this view starts afresh for it.
+  const createRoomFromTemplate = seatingPlanActions?.createRoomFromTemplate;
+  const handleLoadTemplateAsRoom = React.useCallback(
+    (templateId: number) => {
+      const template = templates.find((entry) => entry.id === templateId);
+      if (template) createRoomFromTemplate?.(template);
+    },
+    [templates, createRoomFromTemplate],
+  );
+
   // Drag & Drop State Management
   const {
     dragPreview,
@@ -466,6 +477,7 @@ export function useSeatingPlanViewLogic({
         onFeatureContextMenuSetterChange={registerFeatureContextMenuSetter}
         onTableTypeChange={handleTypeChange}
         onTemplateChange={handleTemplateChangeWrapper}
+        onLoadTemplateAsRoom={handleLoadTemplateAsRoom}
         onRoomReplaced={seatingPlanActions?.releaseOpenPlan}
       />
     );

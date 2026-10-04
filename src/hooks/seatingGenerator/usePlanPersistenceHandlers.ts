@@ -5,17 +5,24 @@ import type React from 'react';
 import {
   announcePlanSaved,
   createTimestampPlanName,
+  DEFAULT_CLASSROOM_SCENE,
   showToast,
+  syncSeatingWithStudents,
   TOAST_MESSAGES,
 } from '@/utils';
+import { hasShapeMismatch } from '@/utils/math/scene';
+import { roomStateToOpen, workingStateFromPlan } from '@/utils/data/classRooms';
 import type { CircleLayout } from '@/types/Circle';
 import type {
   ClassroomScene,
   MixResult,
+  RoomRecord,
+  RoomWorkingState,
   SavedPlan,
   SaveSeatingPlanOptions,
   SeatingArrangement,
   MixSettings,
+  Student,
 } from '@/types';
 import type { StateUpdater } from '@/stores/featureStores';
 import type { SyncSnapshotOptions } from './useUnsavedSeatingTracker';
@@ -46,6 +53,15 @@ type UsePlanPersistenceHandlersParams = {
   syncSeatingSnapshot: (options?: SyncSnapshotOptions) => void;
   /** Record the pre-load state so loading a plan or mix stays undoable. */
   recordSeatingSnapshot: () => void;
+  /** The scene on screen, which a mix of the open room has to fit. */
+  classroomScene: ClassroomScene;
+  students: Student[];
+  /** The rooms of the class and the open one (decision 0024). */
+  rooms: RoomRecord[];
+  activeRoomId: string | null;
+  seatingHistory: SavedPlan[];
+  /** Opens another room, with `incoming` on screen in place of its own state. */
+  switchRoom: (roomId: string, incoming?: RoomWorkingState) => boolean;
 };
 
 export function usePlanPersistenceHandlers({
@@ -64,6 +80,12 @@ export function usePlanPersistenceHandlers({
   markClassroomSynced,
   syncSeatingSnapshot,
   recordSeatingSnapshot,
+  classroomScene,
+  students,
+  rooms,
+  activeRoomId,
+  seatingHistory,
+  switchRoom,
 }: UsePlanPersistenceHandlersParams) {
   // Reports whether the plan was saved, so a form that asked for the name
   // can stay open when it was not.
@@ -109,6 +131,18 @@ export function usePlanPersistenceHandlers({
 
   const handleHistoryLoad = useCallback(
     (plan: SavedPlan) => {
+      // A plan of another room opens that room, with the plan on screen; the
+      // room left parks what it had.
+      if (
+        plan.roomId &&
+        plan.roomId !== activeRoomId &&
+        switchRoom(plan.roomId, workingStateFromPlan(plan))
+      ) {
+        if (step !== 3) {
+          setStep(3);
+        }
+        return;
+      }
       recordSeatingSnapshot();
       loadSeatingPlan(plan, { replaceStudents: false });
       updateClassroomScene(plan.scene);
@@ -129,6 +163,8 @@ export function usePlanPersistenceHandlers({
       });
     },
     [
+      activeRoomId,
+      switchRoom,
       loadSeatingPlan,
       setCircleLayout,
       setStep,
@@ -140,16 +176,49 @@ export function usePlanPersistenceHandlers({
     ],
   );
 
+  /**
+   * Puts a mix back on screen, in the room it was made in. A mix keeps no
+   * tables of its own, so one that no longer fits that room's tables is
+   * refused (`false`) rather than mixed over by the plan view.
+   */
   const handleMixLoad = useCallback(
-    (result: MixResult) => {
-      recordSeatingSnapshot();
-      setCurrentSeating(result.seating);
+    (result: MixResult): boolean => {
+      const targetRoom =
+        result.roomId && result.roomId !== activeRoomId
+          ? rooms.find((room) => room.id === result.roomId)
+          : undefined;
+      const targetScene = targetRoom
+        ? (roomStateToOpen(targetRoom, seatingHistory).scene ??
+          DEFAULT_CLASSROOM_SCENE)
+        : classroomScene;
+      if (hasShapeMismatch(targetScene, result.seating)) {
+        return false;
+      }
+      if (targetRoom) {
+        switchRoom(targetRoom.id);
+      } else {
+        recordSeatingSnapshot();
+      }
+      setCurrentSeating(syncSeatingWithStudents(result.seating, students));
       setMixSettings(result.mixSettings);
       if (step !== 3) {
         setStep(3);
       }
+      return true;
     },
-    [setCurrentSeating, setMixSettings, setStep, step, recordSeatingSnapshot],
+    [
+      activeRoomId,
+      rooms,
+      seatingHistory,
+      classroomScene,
+      students,
+      switchRoom,
+      setCurrentSeating,
+      setMixSettings,
+      setStep,
+      step,
+      recordSeatingSnapshot,
+    ],
   );
 
   return { handleSaveSeatingPlan, handleHistoryLoad, handleMixLoad } as const;

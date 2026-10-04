@@ -535,3 +535,25 @@ export function uniqueName(
     if (isFree(candidate)) return candidate;
   }
 }
+
+/** Why a name cannot be given: nothing typed, too long, or taken. */
+export type NameProblem = 'empty' | 'too-long' | 'taken';
+
+/**
+ * Whether `name` may be given beside `taken` — the names of the others of its
+ * kind, the one renamed left out. Names are unique, case ignored
+ * (`isSameName`), and no longer than `maxLength`.
+ */
+export function checkName(
+  name: string,
+  taken: Iterable<string>,
+  maxLength = Number.POSITIVE_INFINITY,
+): NameProblem | null {
+  const trimmed = name.trim();
+  if (trimmed === '') return 'empty';
+  if (trimmed.length > maxLength) return 'too-long';
+  for (const other of taken) {
+    if (isSameName(other, trimmed)) return 'taken';
+  }
+  return null;
+}

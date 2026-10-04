@@ -13,7 +13,16 @@ import {
   createMockMixResult,
   createMockSavedPlan,
 } from '@/__tests__/utils';
-import { ensureClassRooms, ensureCollectionRooms } from '../classRooms';
+import {
+  checkRoomName,
+  EMPTY_ROOM_STATE,
+  ensureClassRooms,
+  ensureCollectionRooms,
+  fittingLocks,
+  roomStateToOpen,
+  switchRoomState,
+  workingStateFromPlan,
+} from '../classRooms';
 
 const room = (id: string, extra: Partial<RoomRecord> = {}): RoomRecord => ({
   id,
@@ -210,5 +219,102 @@ describe('ensureCollectionRooms', () => {
 
     expect(repaired).not.toBe(collection);
     expect(repaired.classes[0]?.rooms).toHaveLength(1);
+  });
+});
+
+describe('opening another room', () => {
+  const working = {
+    scene: createMockClassroomScene(2),
+    seating: [],
+    lockedPositions: {},
+    circleLayout: null,
+    activePlanId: 'p-a',
+  };
+  const labState = {
+    scene: createMockClassroomScene(3),
+    seating: [],
+    lockedPositions: {},
+    circleLayout: null,
+    activePlanId: null,
+  };
+  const rooms = [room('a'), room('b', { parked: labState }), room('c')];
+
+  it('parks the room left and opens the other as it was left', () => {
+    const next = switchRoomState(
+      { rooms, activeRoomId: 'a', working, plans: [] },
+      'b',
+    );
+
+    expect(next?.activeRoomId).toBe('b');
+    expect(next?.working).toBe(labState);
+    expect(next?.rooms[0]?.parked).toBe(working);
+    expect(next?.rooms[1]).not.toHaveProperty('parked');
+  });
+
+  it("takes what is opened in place of the room's own state", () => {
+    const plan = createMockSavedPlan({ id: 'p-b', roomId: 'b' });
+
+    const next = switchRoomState(
+      { rooms, activeRoomId: 'a', working, plans: [plan] },
+      'b',
+      workingStateFromPlan(plan),
+    );
+
+    expect(next?.working.activePlanId).toBe('p-b');
+    expect(next?.working.scene).toBe(plan.scene);
+  });
+
+  it('opens a room that parked nothing with its last plan, or empty', () => {
+    const older = createMockSavedPlan({ id: 'old', roomId: 'c' });
+    const newer = createMockSavedPlan({ id: 'new', roomId: 'c' });
+
+    expect(roomStateToOpen(room('c'), [older, newer]).activePlanId).toBe('new');
+    expect(roomStateToOpen(room('c'), [])).toBe(EMPTY_ROOM_STATE);
+  });
+
+  it("opens nothing for a room that is open or not the class's", () => {
+    const scope = { rooms, activeRoomId: 'a', working, plans: [] };
+
+    expect(switchRoomState(scope, 'a')).toBeNull();
+    expect(switchRoomState(scope, 'elsewhere')).toBeNull();
+  });
+});
+
+describe('checkRoomName', () => {
+  const rooms = [
+    room('a', { name: 'Klassenraum' }),
+    room('b', { name: 'Labor' }),
+  ];
+
+  it('refuses an empty name, one too long and one another room carries', () => {
+    expect(checkRoomName(rooms, '  ')).toBe('empty');
+    expect(checkRoomName(rooms, 'x'.repeat(121))).toBe('too-long');
+    expect(checkRoomName(rooms, 'labor')).toBe('taken');
+  });
+
+  it('lets a room keep its own name and take a free one', () => {
+    expect(checkRoomName(rooms, 'Labor', 'b')).toBeNull();
+    expect(checkRoomName(rooms, 'Turnhalle')).toBeNull();
+  });
+});
+
+describe('fittingLocks', () => {
+  it('keeps locks of students in the class on seats the seating has', () => {
+    const seating = [
+      [null, null],
+      [null, null, null],
+    ];
+    const locks = fittingLocks(
+      {
+        ada: { table: 1, seat: 2 },
+        gone: { table: 0, seat: 0 },
+        off: { table: 2, seat: 0 },
+        beyond: { table: 0, seat: 2 },
+      },
+      seating,
+      new Set(['ada', 'off', 'beyond']),
+    );
+
+    expect(locks).toEqual({ ada: { table: 1, seat: 2 } });
   });
 });

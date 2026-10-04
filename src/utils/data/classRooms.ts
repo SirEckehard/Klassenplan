@@ -6,8 +6,17 @@
  * fields, every other room parks its own. Data written before rooms existed —
  * by an older build, in a backup — is brought into that shape as it is read.
  */
-import { generateId } from '@/utils';
-import type { ClassCollectionState, ClassRecord, RoomRecord } from '@/types';
+import { checkName, generateId, MAX_NAME_LENGTH } from '@/utils';
+import type { NameProblem } from '@/utils';
+import type {
+  ClassCollectionState,
+  ClassRecord,
+  LockedPositions,
+  RoomRecord,
+  RoomWorkingState,
+  SavedPlan,
+  SeatingArrangement,
+} from '@/types';
 import i18n from '@/i18n';
 
 /**
@@ -139,4 +148,122 @@ export function ensureCollectionRooms(
   return classes === collection.classes
     ? collection
     : { ...collection, classes };
+}
+
+/** A room nobody has set up yet: the default room, no seating, no plan. */
+export const EMPTY_ROOM_STATE: RoomWorkingState = {
+  scene: null,
+  seating: [],
+  lockedPositions: {},
+  circleLayout: null,
+  activePlanId: null,
+};
+
+/** What opening a saved plan puts on screen, the plan itself open. */
+export function workingStateFromPlan(plan: SavedPlan): RoomWorkingState {
+  return {
+    scene: plan.scene,
+    seating: plan.seating,
+    lockedPositions: plan.locks ?? {},
+    circleLayout: plan.circleLayout ?? null,
+    activePlanId: plan.id,
+  };
+}
+
+/**
+ * How a room opens: as it was left, or — for a room that parked nothing,
+ * which only a repair leaves behind — with the last plan saved in it, or
+ * empty.
+ */
+export function roomStateToOpen(
+  room: RoomRecord,
+  plans: SavedPlan[],
+): RoomWorkingState {
+  if (room.parked) return room.parked;
+  const own = plans.filter((plan) => plan.roomId === room.id);
+  const last = own[own.length - 1];
+  return last ? workingStateFromPlan(last) : EMPTY_ROOM_STATE;
+}
+
+/**
+ * Opening another room of a class, as data: the open room parks the working
+ * state, and the room opened gives up its parked state — or takes `incoming`
+ * instead, when a plan of it is being opened. `null` when the room is not
+ * one of the class or is open already.
+ */
+export function switchRoomState(
+  {
+    rooms,
+    activeRoomId,
+    working,
+    plans,
+  }: {
+    rooms: RoomRecord[];
+    activeRoomId: string | null;
+    working: RoomWorkingState;
+    plans: SavedPlan[];
+  },
+  targetRoomId: string,
+  incoming?: RoomWorkingState,
+): {
+  rooms: RoomRecord[];
+  activeRoomId: string;
+  working: RoomWorkingState;
+} | null {
+  const target = rooms.find((room) => room.id === targetRoomId);
+  if (!target || targetRoomId === activeRoomId) return null;
+  const next = incoming ?? roomStateToOpen(target, plans);
+  return {
+    rooms: rooms.map((room) => {
+      if (room.id === activeRoomId) return { ...room, parked: working };
+      if (room.id === targetRoomId) {
+        const open = { ...room };
+        delete open.parked;
+        return open;
+      }
+      return room;
+    }),
+    activeRoomId: targetRoomId,
+    working: next,
+  };
+}
+
+/** Why a name cannot be a room's: nothing typed, too long, or taken. */
+export type RoomNameProblem = NameProblem;
+
+/**
+ * Whether `name` may be the name of a room of the class — of `roomId` when it
+ * renames one, which may keep its own name. Names are unique within a class,
+ * case ignored, and as long as a name may be (`checkName`).
+ */
+export function checkRoomName(
+  rooms: RoomRecord[],
+  name: string,
+  roomId?: string,
+): RoomNameProblem | null {
+  return checkName(
+    name,
+    rooms.filter((room) => room.id !== roomId).map((room) => room.name),
+    MAX_NAME_LENGTH,
+  );
+}
+
+/**
+ * The locks that still fit: a student of the class on a table and seat the
+ * seating has. Opening a plan or a room keeps those and lets the rest go.
+ */
+export function fittingLocks(
+  locks: LockedPositions,
+  seating: SeatingArrangement,
+  studentIds: ReadonlySet<string>,
+): LockedPositions {
+  const fitting: LockedPositions = {};
+  for (const [studentId, position] of Object.entries(locks)) {
+    if (!studentIds.has(studentId)) continue;
+    if (position.table < 0 || position.table >= seating.length) continue;
+    const seats = seating[position.table]?.length ?? 0;
+    if (position.seat < 0 || position.seat >= seats) continue;
+    fitting[studentId] = { table: position.table, seat: position.seat };
+  }
+  return fitting;
 }

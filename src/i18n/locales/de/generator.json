@@ -900,14 +900,22 @@
     "templates": "Vorlagen",
     "templatesHint": "Speichere diesen Raum als Vorlage, um ihn auch für weitere Klassen zu nutzen.",
     "saveAsTemplate": "Diesen Raum als Vorlage speichern",
-    "loadTemplate": "Vorlage „{{name}}“ laden – ersetzt den Raum",
+    "loadTemplate": "Vorlage „{{name}}“ als neuen Raum öffnen",
     "templateName": "Name der Vorlage",
     "renameTemplate": "Umbenennen",
     "renameTemplateNamed": "„{{name}}“ umbenennen",
     "deleteTemplate": "Löschen",
     "deleteTemplateNamed": "„{{name}}“ löschen",
     "deleteTemplateTitle": "Vorlage löschen",
-    "deleteTemplateMessage": "Möchtest du die Vorlage „{{name}}“ wirklich löschen? Das lässt sich nicht rückgängig machen."
+    "deleteTemplateMessage": "Möchtest du die Vorlage „{{name}}“ wirklich löschen? Das lässt sich nicht rückgängig machen.",
+    "rooms": "Räume",
+    "roomsHint": "Für Fachräume legst du einen eigenen Raum an. Jeder Raum behält seine Tische und Pläne.",
+    "newRoom": "Neuer Raum",
+    "openRoom": "„{{name}}“ öffnen",
+    "roomName": "Name des Raums",
+    "renameRoom": "Umbenennen",
+    "renameRoomNamed": "„{{name}}“ umbenennen",
+    "roomNameTaken": "Diesen Namen trägt schon ein Raum der Klasse."
   },
   "toolRail": {
     "add": "Hinzufügen",
@@ -922,7 +930,8 @@
     "nameTaken": "Diesen Namen trägt schon ein anderer Plan.",
     "save": "Speichern",
     "rename": "Umbenennen und speichern",
-    "saveAsNew": "Als neuen Plan speichern"
+    "saveAsNew": "Als neuen Plan speichern",
+    "room": "Im Raum „{{name}}“"
   },
   "tools": {
     "toClass": "Zur Klasse",
@@ -995,6 +1004,7 @@
     }
   },
   "rooms": {
-    "defaultName": "Klassenraum"
+    "defaultName": "Klassenraum",
+    "newName": "Neuer Raum"
   }
 }

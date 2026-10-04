@@ -172,6 +172,7 @@ export {
   createStudentSignature,
   createStudentSyncMap,
   syncStudentReference,
+  syncSeatingWithStudents,
 } from './studentSync';
 export type { StudentSyncMap, StudentSyncEntry } from './studentSync';
 
@@ -201,8 +202,13 @@ export {
   foldForSearch,
   isSameName,
   uniqueName,
+  checkName,
 } from './nameFormatting';
-export type { NameDisplayMode, NameLabels } from './nameFormatting';
+export type {
+  NameDisplayMode,
+  NameLabels,
+  NameProblem,
+} from './nameFormatting';
 
 // ===== Plan Names =====
 export { createTimestampPlanName } from './planNames';

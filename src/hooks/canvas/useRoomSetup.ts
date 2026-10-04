@@ -10,8 +10,13 @@ interface UseRoomSetupParams {
   isDesktop: boolean;
   /** Takes an undo snapshot of the room as it stands. */
   snapshot: () => void;
-  /** Loads a template into the room, or lets the loaded one go (`null`). */
+  /** Lets a loaded template go (`null`), before the room is set up anew. */
   onTemplateChange: (templateId: number | null) => void;
+  /**
+   * Loads a template as a room of its own, which opens (decision 0024); the
+   * room that was open keeps its plan.
+   */
+  onLoadTemplateAsRoom: (templateId: number) => void;
   /** Rebuilds the tables from one kind; `force` ignores a loaded template. */
   onTableTypeChange: (type: TableTemplateType, force?: boolean) => void;
   /** Lets the canvas selection go, tables and room elements alike. */
@@ -20,8 +25,8 @@ interface UseRoomSetupParams {
   /** From `lg` up: brings a folded column back (`InspectorContext.folded`). */
   unfoldInspector: () => void;
   /**
-   * The room was replaced as a whole: what is on screen is another plan now,
-   * so the open one is let go and no save writes the new room over it.
+   * The room was set up anew: what is on screen is another plan now, so the
+   * open one is let go and no save writes the new tables over it.
    */
   onRoomReplaced?: () => void;
 }
@@ -35,18 +40,21 @@ interface UseRoomSetupParams {
  * drawer where there is one — or unfolds the column where it was folded away
  * — and hands the panel a request to take the focus.
  *
- * Setting up and loading a template replace the room in one go, so both take
- * an undo snapshot first and let go of the open plan — the same class in
- * another room is another plan, and saving must not write it over the first;
- * below `lg` the drawer then steps aside to show the result. An empty room has one thing to do, so its panel shows by itself —
- * below `lg` the drawer opens, from `lg` up a folded column unfolds — as the
- * setup used to open over the canvas.
+ * Setting up replaces the tables of the open room in one go, so it takes an
+ * undo snapshot first and lets go of the open plan — the next save starts a
+ * new plan in this room rather than writing the new tables over the old one.
+ * A template is a room of its own: loading one opens it as a new room of the
+ * class (decision 0024), and the room left keeps its plan. Below `lg` the
+ * drawer then steps aside to show the result. An empty room has one thing to
+ * do, so its panel shows by itself — below `lg` the drawer opens, from `lg`
+ * up a folded column unfolds — as the setup used to open over the canvas.
  */
 export function useRoomSetup({
   isRoomEmpty,
   isDesktop,
   snapshot,
   onTemplateChange,
+  onLoadTemplateAsRoom,
   onTableTypeChange,
   clearSelection,
   setDrawerOpen,
@@ -98,14 +106,12 @@ export function useRoomSetup({
 
   const loadTemplate = React.useCallback(
     (templateId: number) => {
-      snapshot();
-      onRoomReplaced?.();
-      onTemplateChange(templateId);
+      onLoadTemplateAsRoom(templateId);
       if (!isDesktop) {
         setDrawerOpen(false);
       }
     },
-    [isDesktop, onRoomReplaced, onTemplateChange, setDrawerOpen, snapshot],
+    [isDesktop, onLoadTemplateAsRoom, setDrawerOpen],
   );
 
   return { setupFocusRequest, revealSetup, setUpRoom, loadTemplate };

@@ -3,21 +3,30 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
+  CheckIcon,
   FloppyDiskIcon,
   PencilLineIcon,
+  PlusIcon,
   TrashIcon,
 } from '@phosphor-icons/react';
 import type { ClassroomTemplate, TableTemplateType } from '@/types';
 import { InspectorSection } from '@/components/shell/InspectorPanel';
+import {
+  useOptionalSeatingPlanActions,
+  useOptionalSeatingPlanState,
+} from '@/contexts/seatingPlan/seatingPlanSelectors';
 import TablePreview from '@/components/TablePreview';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 import { confirmDialog } from '@/services/ui/dialogs';
 import {
+  checkName,
   getTablePresets,
   inputFieldClass,
+  MAX_NAME_LENGTH,
   menuItemClass,
   quietDangerIconButtonClass,
   quietIconButtonClass,
+  uniqueName,
 } from '@/utils';
 
 /** The four kinds of table a room can be set up with, smallest first. */
@@ -310,6 +319,192 @@ export function RoomTemplatesSection({
                 className={`${quietDangerIconButtonClass} h-9 w-9 shrink-0`}
               >
                 <TrashIcon className="h-4 w-4" aria-hidden="true" />
+              </button>
+            </div>
+          );
+        })}
+      </div>
+    </InspectorSection>
+  );
+}
+
+/**
+ * A room's name in its own row: Enter keeps it, Escape or leaving the field
+ * without a change drops it. A name another room of the class carries is
+ * refused here, as a template's is.
+ */
+function RoomNameRow({
+  initialName,
+  roomId,
+  onCommit,
+  onDone,
+}: {
+  initialName: string;
+  /** The room renamed; none while a new one is named. */
+  roomId?: string;
+  onCommit: (name: string) => void;
+  onDone: () => void;
+}) {
+  const { t } = useTranslation('generator');
+  const state = useOptionalSeatingPlanState();
+  const [draft, setDraft] = React.useState(initialName);
+  const errorId = React.useId();
+  const otherNames = (state?.rooms ?? [])
+    .filter((room) => room.id !== roomId)
+    .map((room) => room.name);
+  const problem = checkName(draft, otherNames, MAX_NAME_LENGTH);
+  const taken = problem === 'taken';
+
+  const commit = () => {
+    if (draft.trim() === '' || (roomId && draft.trim() === initialName)) {
+      onDone();
+      return;
+    }
+    if (problem) return;
+    onCommit(draft.trim());
+    onDone();
+  };
+
+  return (
+    <div className="flex flex-col gap-1 px-3 py-1">
+      <input
+        type="text"
+        value={draft}
+        maxLength={MAX_NAME_LENGTH}
+        autoFocus
+        onFocus={(event) => event.currentTarget.select()}
+        onChange={(event) => setDraft(event.target.value)}
+        onBlur={() => {
+          // A new room is made only on purpose: leaving the field drops it.
+          if (roomId) commit();
+          else onDone();
+        }}
+        onKeyDown={(event) => {
+          if (event.key === 'Enter') {
+            event.preventDefault();
+            commit();
+          } else if (event.key === 'Escape') {
+            // Only "not this name" — the canvas would take Escape as
+            // clearing its selection.
+            event.preventDefault();
+            event.stopPropagation();
+            onDone();
+          }
+        }}
+        aria-label={t('sceneInspector.roomName')}
+        aria-invalid={taken || undefined}
+        aria-describedby={taken ? errorId : undefined}
+        className={`${inputFieldClass} h-8 w-full py-0 text-sm`}
+      />
+      {taken && (
+        <p id={errorId} className="text-xs text-(--status-alert-text)">
+          {t('sceneInspector.roomNameTaken')}
+        </p>
+      )}
+    </div>
+  );
+}
+
+/**
+ * The rooms of the class (decision 0024): a new one on top, as "Neue Klasse"
+ * leads the class menu, then every room, the open one checked. A click opens
+ * a room as it was left; a room is renamed in its row, as a template is. A
+ * new room is named before it is made, since making it opens it. Removing a
+ * room, with its plans, belongs to "Pläne & Verlauf".
+ */
+export function RoomListSection() {
+  const { t } = useTranslation('generator');
+  const state = useOptionalSeatingPlanState();
+  const actions = useOptionalSeatingPlanActions();
+  const [renamingId, setRenamingId] = React.useState<string | null>(null);
+  const [naming, setNaming] = React.useState(false);
+  if (!state || !actions) return null;
+  const { rooms, activeRoomId } = state;
+
+  return (
+    <InspectorSection title={t('sceneInspector.rooms')}>
+      {rooms.length <= 1 && (
+        <p className="text-xs leading-relaxed text-(--text-muted)">
+          {t('sceneInspector.roomsHint')}
+        </p>
+      )}
+      <div className="-mx-3 flex flex-col">
+        {naming ? (
+          <RoomNameRow
+            initialName={uniqueName(
+              t('rooms.newName'),
+              rooms.map((room) => room.name),
+              MAX_NAME_LENGTH,
+            )}
+            onCommit={(name) => {
+              actions.createRoom({ name });
+            }}
+            onDone={() => setNaming(false)}
+          />
+        ) : (
+          <button
+            type="button"
+            onClick={() => setNaming(true)}
+            className={menuItemClass}
+          >
+            <PlusIcon
+              size={16}
+              aria-hidden="true"
+              className="shrink-0 text-(--text-muted)"
+            />
+            {t('sceneInspector.newRoom')}
+          </button>
+        )}
+        <div className="mx-3 my-1 h-px bg-(--border-card)" aria-hidden="true" />
+        {rooms.map((room) => {
+          if (room.id === renamingId) {
+            return (
+              <RoomNameRow
+                key={room.id}
+                roomId={room.id}
+                initialName={room.name}
+                onCommit={(name) => {
+                  actions.renameRoom(room.id, name);
+                }}
+                onDone={() => setRenamingId(null)}
+              />
+            );
+          }
+          const isOpen = room.id === activeRoomId;
+          return (
+            <div key={room.id} className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => {
+                  if (!isOpen) actions.openRoom(room.id);
+                }}
+                aria-current={isOpen ? 'true' : undefined}
+                title={
+                  isOpen
+                    ? undefined
+                    : t('sceneInspector.openRoom', { name: room.name })
+                }
+                className={`${menuItemClass} min-w-0 flex-1`}
+              >
+                <span className="min-w-0 flex-1 truncate">{room.name}</span>
+                {isOpen && (
+                  <CheckIcon
+                    size={16}
+                    aria-hidden="true"
+                    className="shrink-0 text-(--text-muted)"
+                  />
+                )}
+              </button>
+              <button
+                type="button"
+                onClick={() => setRenamingId(room.id)}
+                title={t('sceneInspector.renameRoom')}
+                aria-label={t('sceneInspector.renameRoomNamed', {
+                  name: room.name,
+                })}
+                className={`${quietIconButtonClass} h-9 w-9 shrink-0`}
+              >
+                <PencilLineIcon className="h-4 w-4" aria-hidden="true" />
               </button>
             </div>
           );

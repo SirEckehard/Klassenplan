@@ -15,7 +15,6 @@ import {
   type ClassroomScene,
   type ClassroomTemplate,
   type ClassRecord,
-  type LockedPositions,
   type MixSettings,
   type SaveTemplateError,
   type SaveTemplateResult,
@@ -43,6 +42,7 @@ import type { SeatingState } from './useSeatingState';
 import { DB_KEYS } from '@/utils/data/storageKeys';
 import { APP_DATA_VERSION } from '@/utils/data/indexedDb';
 import { resolvePlanSlot, upsertPlan } from '@/utils/data/planNormalization';
+import { fittingLocks } from '@/utils/data/classRooms';
 import {
   buildStudentsCsvFilename,
   exportStudentsToCsv,
@@ -595,19 +595,7 @@ export function useSeatingPersistence(state: SeatingState) {
         setLockedPositions({});
       } else {
         const ids = new Set(students.map((s) => s.id));
-        const next: LockedPositions = {};
-        const seatCounts = plan.seating.map((t) => t.length);
-        const tableCount = seatCounts.length;
-        if (plan.locks) {
-          for (const [sid, pos] of Object.entries(plan.locks)) {
-            if (!ids.has(sid)) continue;
-            if (pos.table < 0 || pos.table >= tableCount) continue;
-            const seats = seatCounts[pos.table] ?? 0;
-            if (pos.seat < 0 || pos.seat >= seats) continue;
-            next[sid] = { table: pos.table, seat: pos.seat };
-          }
-        }
-        setLockedPositions(next);
+        setLockedPositions(fittingLocks(plan.locks ?? {}, plan.seating, ids));
       }
       setPlanName(plan.name);
       setActivePlanId(plan.id);
@@ -629,8 +617,18 @@ export function useSeatingPersistence(state: SeatingState) {
         setActivePlanId(null);
         setPlanName('');
       }
+      // A room left with this plan open keeps its state, without the plan.
+      setRooms((prev) =>
+        prev.some((room) => room.parked?.activePlanId === id)
+          ? prev.map((room) =>
+              room.parked?.activePlanId === id
+                ? { ...room, parked: { ...room.parked, activePlanId: null } }
+                : room,
+            )
+          : prev,
+      );
     },
-    [activePlanId, setSeatingHistory, setActivePlanId, setPlanName],
+    [activePlanId, setSeatingHistory, setActivePlanId, setPlanName, setRooms],
   );
 
   // Replacing the room as a whole — a template loaded, the room set up anew —

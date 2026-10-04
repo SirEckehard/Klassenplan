@@ -19,6 +19,7 @@ import { useGeneratorWizardOrchestration } from './seatingGenerator/useGenerator
 import { useGeneratorCircleOrchestration } from './seatingGenerator/useGeneratorCircleOrchestration';
 import { useGeneratorBackupOrchestration } from './seatingGenerator/useGeneratorBackupOrchestration';
 import { useClassManagement } from './domains/useClassManagement';
+import { useRoomManagement } from './domains/useRoomManagement';
 import {
   useSeatingHistory,
   type SeatingSnapshot,
@@ -433,6 +434,23 @@ export function useSeatingGenerator() {
     setShouldRegenerateCircle,
   } = wizardOrchestration;
 
+  // The rooms of the open class: opening one, a new one, a template as one.
+  const {
+    switchRoom,
+    openRoom,
+    createRoom,
+    createRoomFromTemplate,
+    renameRoom,
+    deleteRoom,
+    movePlanToRoom,
+  } = useRoomManagement({
+    seatingState,
+    resetSeatingHistory,
+    syncSeatingSnapshot,
+    markClassroomSceneSynced,
+    setShouldRegenerateCircle,
+  });
+
   // Rearranging seats by hand is the step teachers take on the plan they mean
   // to use, so it feeds the usage record — see `usePlanUsageTracking`.
   const { noteSeatingEdited } = usePlanUsageTracking({
@@ -523,6 +541,12 @@ export function useSeatingGenerator() {
       markClassroomSynced: markClassroomSceneSynced,
       syncSeatingSnapshot,
       recordSeatingSnapshot,
+      classroomScene,
+      students,
+      rooms,
+      activeRoomId,
+      seatingHistory,
+      switchRoom,
     });
 
   // Aggregate state for consumers
@@ -645,6 +669,12 @@ export function useSeatingGenerator() {
       deleteSeatingPlan,
       releaseOpenPlan,
       renameSeatingPlan,
+      openRoom,
+      createRoom,
+      createRoomFromTemplate,
+      renameRoom,
+      deleteRoom,
+      movePlanToRoom,
       handleMixLoad,
       deleteMixResult,
       setMixSettings,
@@ -714,6 +744,12 @@ export function useSeatingGenerator() {
       deleteSeatingPlan,
       releaseOpenPlan,
       renameSeatingPlan,
+      openRoom,
+      createRoom,
+      createRoomFromTemplate,
+      renameRoom,
+      deleteRoom,
+      movePlanToRoom,
       handleMixLoad,
       deleteMixResult,
       setMixSettings,

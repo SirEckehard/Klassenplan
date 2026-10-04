@@ -19,12 +19,18 @@ import type {
   SaveTemplateResult,
   PlanUsage,
   RoomRecord,
+  RoomWorkingState,
 } from '@/types';
 import type { CircleLayout, CircleGenerationStatus } from '@/types/Circle';
 import type { CriterionFulfillment } from '@/utils/algorithm/seatingStatistics';
 import type { LatestChangelogEntry } from '@/utils';
 import type { SeatingPlanStore } from '@/hooks/useSeatingState';
 import type { CsvImportSelection } from '@/utils/data/csvUtils';
+import type { RoomNameProblem } from '@/utils/data/classRooms';
+import type {
+  PlanMoveTarget,
+  RoomRemovalProblem,
+} from '@/hooks/domains/useRoomManagement';
 
 export interface SeatingPlanState {
   students: Student[];
@@ -153,7 +159,26 @@ export interface SeatingPlanActions {
    */
   releaseOpenPlan: () => void;
   renameSeatingPlan: (id: string, name: string) => boolean;
-  handleMixLoad: (r: MixResult) => void;
+  /**
+   * Puts a mix back on screen in the room it was made in; `false` when it no
+   * longer fits that room's tables.
+   */
+  handleMixLoad: (r: MixResult) => boolean;
+  /** Opens a room of the class as it was left (decision 0024). */
+  openRoom: (roomId: string) => boolean;
+  /** Makes a room — empty, or with a given state — and opens it. */
+  createRoom: (options?: {
+    name?: string;
+    state?: RoomWorkingState;
+  }) => RoomRecord | null;
+  /** A template loaded as a room of its own; the message offers the way back. */
+  createRoomFromTemplate: (template: ClassroomTemplate) => string | null;
+  renameRoom: (roomId: string, name: string) => RoomNameProblem | null;
+  deleteRoom: (roomId: string) => RoomRemovalProblem | null;
+  movePlanToRoom: (
+    planId: string,
+    target: PlanMoveTarget,
+  ) => RoomNameProblem | 'not-found' | 'room-limit' | null;
   deleteMixResult: (id: number) => void;
   setMixSettings: React.Dispatch<React.SetStateAction<MixSettings>>;
   importInputRef: React.RefObject<HTMLInputElement | null>;

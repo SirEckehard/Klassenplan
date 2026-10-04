@@ -10,6 +10,7 @@ import {
   foldForSearch,
   isSameName,
   uniqueName,
+  checkName,
 } from '../nameFormatting';
 import { describe, it, expect } from 'vitest';
 
@@ -472,5 +473,17 @@ describe('uniqueName', () => {
     const name = uniqueName(base, [base], 10);
     expect(name).toBe('xxxxxx (2)');
     expect(name).toHaveLength(10);
+  });
+});
+
+describe('checkName', () => {
+  it('says why a name cannot be given', () => {
+    expect(checkName(' ', [])).toBe('empty');
+    expect(checkName('abcdef', [], 5)).toBe('too-long');
+    expect(checkName('Labor ', ['labor'])).toBe('taken');
+  });
+
+  it('lets a free name through', () => {
+    expect(checkName('Turnhalle', ['Labor'], 120)).toBeNull();
   });
 });

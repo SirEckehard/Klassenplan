@@ -900,14 +900,22 @@
     "templates": "Templates",
     "templatesHint": "Save this room as a template to use it for other classes as well.",
     "saveAsTemplate": "Save this room as a template",
-    "loadTemplate": "Load template “{{name}}” – replaces the room",
+    "loadTemplate": "Open template “{{name}}” as a new room",
     "templateName": "Template name",
     "renameTemplate": "Rename",
     "renameTemplateNamed": "Rename “{{name}}”",
     "deleteTemplate": "Delete",
     "deleteTemplateNamed": "Delete “{{name}}”",
     "deleteTemplateTitle": "Delete template",
-    "deleteTemplateMessage": "Do you really want to delete the template “{{name}}”? This cannot be undone."
+    "deleteTemplateMessage": "Do you really want to delete the template “{{name}}”? This cannot be undone.",
+    "rooms": "Rooms",
+    "roomsHint": "For the lab, add a room of its own. Every room keeps its tables and plans.",
+    "newRoom": "New room",
+    "openRoom": "Open “{{name}}”",
+    "roomName": "Name of the room",
+    "renameRoom": "Rename",
+    "renameRoomNamed": "Rename “{{name}}”",
+    "roomNameTaken": "A room of this class already has this name."
   },
   "toolRail": {
     "add": "Add",
@@ -922,7 +930,8 @@
     "nameTaken": "Another plan already has this name.",
     "save": "Save",
     "rename": "Rename and save",
-    "saveAsNew": "Save as new plan"
+    "saveAsNew": "Save as new plan",
+    "room": "In the room “{{name}}”"
   },
   "tools": {
     "toClass": "To the class",
@@ -995,6 +1004,7 @@
     }
   },
   "rooms": {
-    "defaultName": "Classroom"
+    "defaultName": "Classroom",
+    "newName": "New room"
   }
 }

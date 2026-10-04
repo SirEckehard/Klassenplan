@@ -44,8 +44,9 @@ vi.mock('idb-keyval', () => {
 });
 
 import '@/i18n';
-import { createMockStudent } from '@/__tests__/utils';
-import type { ClassCollectionState } from '@/types';
+import { createMockClassroomScene, createMockStudent } from '@/__tests__/utils';
+import type { ClassCollectionState, ClassroomTemplate } from '@/types';
+import { subscribeToToasts, type ToastInstance } from '@/utils/ui/toast';
 import {
   SeatingPlanGeneratorProvider,
   useSeatingPlanActions,
@@ -159,5 +160,125 @@ describe('useSeatingGenerator rooms', () => {
     );
     expect(second.current().state.activeRoomId).toBe(roomId);
     expect(second.current().state.seatingHistory[0]?.roomId).toBe(roomId);
+  });
+
+  /** A class with a saved plan "September" open in its first room. */
+  const classWithPlan = async () => {
+    const { current } = await renderGenerator();
+    await createClassWithSeating(current);
+    act(() => {
+      current().actions.handleSaveSeatingPlan(
+        'September',
+        current().state.classroomScene,
+      );
+    });
+    await waitFor(() => expect(current().state.planName).toBe('September'));
+    return current;
+  };
+
+  it('opens a new room empty and the first one again as it was left', async () => {
+    const current = await classWithPlan();
+    const first = current().state;
+    const firstRoomId = first.activeRoomId!;
+
+    act(() => {
+      current().actions.createRoom({ name: 'Labor' });
+    });
+    await waitFor(() => expect(current().state.rooms).toHaveLength(2));
+    const lab = current().state;
+    expect(lab.rooms.map((room) => room.name)).toEqual([
+      expect.stringMatching(/Klassenraum|Classroom/),
+      'Labor',
+    ]);
+    expect(lab.activeRoomId).not.toBe(firstRoomId);
+    expect(lab.currentSeating).toEqual([]);
+    expect(lab.activePlanId).toBeNull();
+    expect(lab.planName).toBe('');
+
+    act(() => {
+      current().actions.openRoom(firstRoomId);
+    });
+    await waitFor(() => expect(current().state.activeRoomId).toBe(firstRoomId));
+    const back = current().state;
+    expect(back.currentSeating).toEqual(first.currentSeating);
+    expect(back.classroomScene).toEqual(first.classroomScene);
+    expect(back.activePlanId).toBe(first.activePlanId);
+    expect(back.planName).toBe('September');
+    // The undo history belonged to the room that was open.
+    expect(back.canUndoSeating).toBe(false);
+  });
+
+  it('opens the room of a plan from another room, with the plan on screen', async () => {
+    const current = await classWithPlan();
+    const september = current().state.seatingHistory[0]!;
+
+    act(() => {
+      current().actions.createRoom({ name: 'Labor' });
+    });
+    await waitFor(() => expect(current().state.rooms).toHaveLength(2));
+
+    act(() => current().actions.handleHistoryLoad(september));
+
+    await waitFor(() =>
+      expect(current().state.activeRoomId).toBe(september.roomId),
+    );
+    expect(current().state.activePlanId).toBe(september.id);
+    expect(current().state.planName).toBe('September');
+    // The lab parks what it had: nothing, and no plan.
+    const lab = current().state.rooms.find((room) => room.name === 'Labor');
+    expect(lab?.parked).toMatchObject({ seating: [], activePlanId: null });
+  });
+
+  it('loads a template as a room of its own and offers the way back', async () => {
+    const toasts: ToastInstance[] = [];
+    const unsubscribe = subscribeToToasts((event) => {
+      if (event.action === 'add') toasts.push(event.toast);
+    });
+    const current = await classWithPlan();
+    const classroomId = current().state.activeRoomId;
+    const template: ClassroomTemplate = {
+      id: 7,
+      name: 'Chemie-Fachraum',
+      scene: createMockClassroomScene(3),
+    };
+
+    act(() => {
+      current().actions.createRoomFromTemplate(template);
+    });
+    await waitFor(() => expect(current().state.rooms).toHaveLength(2));
+    expect(current().state.classroomScene.tables).toHaveLength(3);
+    expect(current().state.rooms[1]?.name).toBe('Chemie-Fachraum');
+    // The classroom keeps its plan, parked.
+    expect(current().state.rooms[0]?.parked?.activePlanId).toBe(
+      current().state.seatingHistory[0]?.id,
+    );
+
+    const message = toasts.find((toast) => toast.action);
+    expect(message?.message).toMatch(/Chemie-Fachraum/);
+    act(() => message?.action?.onClick());
+
+    await waitFor(() => expect(current().state.activeRoomId).toBe(classroomId));
+    expect(current().state.rooms).toHaveLength(1);
+    expect(current().state.planName).toBe('September');
+    unsubscribe();
+  });
+
+  it('refuses a mix that no longer fits the tables of its room', async () => {
+    const current = await classWithPlan();
+    const mix = {
+      id: 1,
+      timestamp: '2026-10-04T08:00:00.000Z',
+      seating: [[null], [null], [null]],
+      mixSettings: current().state.mixSettings,
+      roomId: current().state.activeRoomId ?? undefined,
+    };
+
+    let loaded = true;
+    act(() => {
+      loaded = current().actions.handleMixLoad(mix);
+    });
+
+    expect(loaded).toBe(false);
+    expect(current().state.currentSeating).toHaveLength(2);
   });
 });

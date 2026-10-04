@@ -134,10 +134,12 @@ type Props = {
       React.SetStateAction<FeatureContextMenuState | null>
     > | null,
   ) => void;
-  // Setting the room up from one kind of table, or from a template
+  // Setting the room up from one kind of table, or loading a template as a
+  // room of its own
   onTableTypeChange: (type: TableTemplateType, force?: boolean) => void;
   onTemplateChange: (templateId: number | null) => void;
-  /** Either of the two replaced the room as a whole; lets go of the open plan. */
+  onLoadTemplateAsRoom: (templateId: number) => void;
+  /** The room was set up anew; lets go of the open plan. */
   onRoomReplaced?: () => void;
 };
 
@@ -196,6 +198,7 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
   onFeatureContextMenuSetterChange,
   onTableTypeChange,
   onTemplateChange,
+  onLoadTemplateAsRoom,
   onRoomReplaced,
 }: Props) {
   const { t } = useTranslation('generator');
@@ -395,6 +398,7 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
       isDesktop,
       snapshot,
       onTemplateChange,
+      onLoadTemplateAsRoom,
       onTableTypeChange,
       clearSelection: clearCanvasSelection,
       setDrawerOpen,

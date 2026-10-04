@@ -141,7 +141,10 @@ export default function StorageHistoryModal({
   // Mix handlers
   const handleMixLoadAction = useCallback(
     (result: MixResult) => {
-      handleMixLoad(result);
+      if (!handleMixLoad(result)) {
+        showToast('warning', 'toast:mix.doesNotFit');
+        return;
+      }
       const date = formatTime(result.timestamp);
       showToast(
         'success',

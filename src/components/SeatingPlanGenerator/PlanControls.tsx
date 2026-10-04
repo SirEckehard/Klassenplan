@@ -24,6 +24,7 @@ export default function PlanControls() {
   const {
     step,
     activeClass,
+    activeRoomId,
     students,
     classroomScene,
     currentSeating,
@@ -160,10 +161,10 @@ export default function PlanControls() {
     planUsage,
     planUsageSince,
   };
-  // A class's room and plan views start afresh when another class opens: their
-  // undo history, selection and canvas belong to the class they were made for,
-  // and an undo must never bring the other class's room or plan back.
-  const classViewKey = activeClass.id ?? 'no-class';
+  // The room and plan views start afresh when another class or another room
+  // opens: their undo history, selection and canvas belong to what they were
+  // made for, and an undo must never bring another room or plan back.
+  const classViewKey = `${activeClass.id ?? 'no-class'}:${activeRoomId ?? 'no-room'}`;
   const studentBoundaryResetKeys: ReadonlyArray<number> = [students.length];
   const layoutBoundaryResetKeys: ReadonlyArray<number> = [
     classroomScene.tables.length,

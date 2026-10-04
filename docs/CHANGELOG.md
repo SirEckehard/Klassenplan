@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- A class keeps its rooms – the classroom, the lab – each with its own tables and plans. The room inspector names the open room and lists the class's rooms under "Rooms": a new one is named and made there, another opens as it was left, seating, locked seats and open plan included, and each is renamed in its row. A saved plan or a mix opens the room it was made in; a template opens as a room of its own, and the message after it offers the way back. "Save plan" says which room the plan goes into once a class has more than one
 - A new workspace around the three layers of a class – Class, Room, Plan: the open class is named in the header, the toolbar sits on the left, the stage in the middle and the inspector on the right. A status bar under the stage says where things stand, carries undo and redo, and leads back and on. On a desktop the window no longer scrolls as a page; the toolbar, the stage and the inspector scroll on their own
 - The inspector: whatever is selected – a student, a table, a room element, several ticked students – is edited in one panel on the right instead of in the list rows. On a tablet in portrait it opens as a drawer from the status bar, on a phone as a sheet
 - "Attribute mode" asks one question of the whole class at once – "Who is restless?" – with one tap per student, and "Relationships" shows who wants to sit next to whom
@@ -22,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### Improved
 
 - The toolbar has the same shape on every layer: the view first, then what can be added, the view settings and managing the class, and at its foot the class tools, "Plans & history", the backup and support
-- The room is set up from the inspector while nothing is selected: "Set up from scratch" places as many tables of one kind as the class needs, "Templates" keeps the room for other classes and loads a kept one. It replaces the dialog that covered the room, and Ctrl/⌘+Z brings back what stood there
+- The room is set up from the inspector while nothing is selected: "Set up from scratch" places as many tables of one kind as the class needs, and Ctrl/⌘+Z brings back what stood there; "Templates" keeps the room for other classes and opens a kept one as a room of the class. It replaces the dialog that covered the room
 - Tables and room elements are added with a click or Enter as well as by dragging: they land on the free spot nearest the middle of the room, and a window or a door on the first free stretch of wall. The arrow keys move room elements too – along their wall if they hang on one – a key held down is one undo step, and deleting, cutting, pasting or duplicating tables and room elements together is one undo step as well
 - The markers on a seat explain themselves: pointing at one names it and marks the seats it concerns. Dragging works the same in the plan and the circle, with a ring on the target and a confirmation after the drop
 - The projection has one bar under the plan, a contrast mode for bright rooms and its own name rule (first names)

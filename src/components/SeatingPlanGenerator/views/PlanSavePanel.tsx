@@ -30,7 +30,8 @@ const iconClass = 'h-4 w-4 shrink-0 text-(--text-muted)';
  * gets a timestamp, as it always has.
  */
 export default function PlanSavePanel({ onDone }: { onDone: () => void }) {
-  const { planName, seatingHistory, classroomScene } = useSeatingPlanState();
+  const { planName, seatingHistory, classroomScene, rooms, activeRoomId } =
+    useSeatingPlanState();
   const { handleSaveSeatingPlan } = useSeatingPlanActions();
   const { t } = useTranslation('generator');
   const isCoarsePointer = useIsCoarsePointer();
@@ -59,6 +60,13 @@ export default function PlanSavePanel({ onDone }: { onDone: () => void }) {
     );
   const renames =
     openPlan !== undefined && name !== '' && name !== openPlan.name;
+
+  // Once the class has more than one room, the panel says which one the plan
+  // goes into (decision 0024).
+  const roomName =
+    rooms.length > 1
+      ? rooms.find((room) => room.id === activeRoomId)?.name
+      : undefined;
 
   const save = () => {
     if (nameTaken) return;
@@ -111,6 +119,11 @@ export default function PlanSavePanel({ onDone }: { onDone: () => void }) {
         {nameTaken && (
           <p id={hintId} className="text-xs text-(--status-alert-text)">
             {t('planSave.nameTaken')}
+          </p>
+        )}
+        {roomName && (
+          <p className="text-xs text-(--text-muted)">
+            {t('planSave.room', { name: roomName })}
           </p>
         )}
       </div>
