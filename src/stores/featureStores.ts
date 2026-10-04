@@ -186,5 +186,4 @@ export interface GeneratorUtilityActions {
   handleExportAll: () => void;
   handleImportFile: React.ChangeEventHandler<HTMLInputElement>;
   clearAllData: () => Promise<void>;
-  handleHomeClick: React.MouseEventHandler<HTMLAnchorElement>;
 }

@@ -130,7 +130,6 @@ describe('SeatingPlanContext', () => {
       expect(result.current).toHaveProperty('handleMixLoad');
       expect(result.current).toHaveProperty('deleteMixResult');
       expect(result.current).toHaveProperty('setMixSettings');
-      expect(result.current).toHaveProperty('handleHomeClick');
       expect(result.current).toHaveProperty('importInputRef');
       expect(result.current).toHaveProperty('triggerImport');
       expect(result.current).toHaveProperty('handleExportAll');
@@ -487,7 +486,6 @@ describe('SeatingPlanContext', () => {
         'handleMixLoad',
         'deleteMixResult',
         'setMixSettings',
-        'handleHomeClick',
         'importInputRef',
         'triggerImport',
         'handleExportAll',

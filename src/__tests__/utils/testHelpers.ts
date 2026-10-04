@@ -116,7 +116,6 @@ interface MockSeatingGeneratorActions {
   deleteMixResult: (id: number) => void;
   setMixSettings: React.Dispatch<React.SetStateAction<MixSettings>>;
   setCurrentSeating: React.Dispatch<React.SetStateAction<SeatingArrangement>>;
-  handleHomeClick: React.MouseEventHandler<HTMLAnchorElement>;
   importInputRef: React.RefObject<HTMLInputElement | null>;
   triggerImport: () => void;
   handleExportAll: () => void;
@@ -245,8 +244,6 @@ const createDefaultMockActions = (): MockSeatingGeneratorActions => {
       createMockFn<MockSeatingGeneratorActions['setMixSettings']>(),
     setCurrentSeating:
       createMockFn<MockSeatingGeneratorActions['setCurrentSeating']>(),
-    handleHomeClick:
-      createMockFn<MockSeatingGeneratorActions['handleHomeClick']>(),
     importInputRef: React.createRef<HTMLInputElement>(),
     triggerImport: createMockFn<MockSeatingGeneratorActions['triggerImport']>(),
     handleExportAll:

@@ -7,14 +7,12 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useSeatingState } from './useSeatingState';
 import { useSeatingPersistence } from './useSeatingPersistence';
 import { useSeatingAlgorithm } from './useSeatingAlgorithm';
 import { useSeatingStatisticsUpdater } from './useSeatingStatisticsUpdater';
 import { useSeatingRepository } from './useSeatingRepository';
 import { usePlanPersistenceHandlers } from './seatingGenerator/usePlanPersistenceHandlers';
-import { useHomeNavigationHandler } from './seatingGenerator/useHomeNavigationHandler';
 import { usePostUpdateNotice } from './seatingGenerator/usePostUpdateNotice';
 import { useUnsavedSeatingTracker } from './seatingGenerator/useUnsavedSeatingTracker';
 import { useGeneratorWizardOrchestration } from './seatingGenerator/useGeneratorWizardOrchestration';
@@ -41,7 +39,6 @@ import { hasSeatedStudent } from '@/utils';
  * actions.generateSeatingPlan(state.mixSettings, state.classroomScene);
  */
 export function useSeatingGenerator() {
-  const navigate = useNavigate();
   const [isClassReloading, setIsClassReloading] = useState(false);
   const {
     currentAppVersion,
@@ -527,18 +524,6 @@ export function useSeatingGenerator() {
       recordSeatingSnapshot,
     });
 
-  // Home navigation handler
-  const handleHomeClick = useHomeNavigationHandler({
-    step,
-    currentSeatingLength: currentSeating.length,
-    planName,
-    saveSeatingPlan,
-    classroomScene,
-    navigate,
-    hasUnsavedSeatingChanges,
-    syncSeatingSnapshot,
-  });
-
   // Aggregate state for consumers
   const generatorState = useMemo(
     () => ({
@@ -659,7 +644,6 @@ export function useSeatingGenerator() {
       deleteMixResult,
       setMixSettings,
       setCurrentSeating,
-      handleHomeClick,
       importInputRef,
       triggerImport,
       handleExportAll,
@@ -729,7 +713,6 @@ export function useSeatingGenerator() {
       deleteMixResult,
       setMixSettings,
       setCurrentSeating,
-      handleHomeClick,
       importInputRef,
       triggerImport,
       handleExportAll,

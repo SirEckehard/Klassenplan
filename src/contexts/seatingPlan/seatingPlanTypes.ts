@@ -151,7 +151,6 @@ export interface SeatingPlanActions {
   handleMixLoad: (r: MixResult) => void;
   deleteMixResult: (id: number) => void;
   setMixSettings: React.Dispatch<React.SetStateAction<MixSettings>>;
-  handleHomeClick: React.MouseEventHandler<HTMLAnchorElement>;
   importInputRef: React.RefObject<HTMLInputElement | null>;
   triggerImport: () => void;
   handleExportAll: () => Promise<void>;
