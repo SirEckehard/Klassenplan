@@ -138,9 +138,9 @@
     "title": "Restore backup",
     "subtitle": "How should the data from the backup be applied?",
     "replaceLabel": "Replace everything",
-    "replaceHint": "Existing students, seating plans and templates are replaced by the backup. This action cannot be undone.",
+    "replaceHint": "Existing classes, seating plans and templates are replaced by the backup. This action cannot be undone.",
     "mergeLabel": "Merge",
-    "mergeHint": "Students and seating plans from the backup are added to the existing ones. Classroom and settings come from the backup.",
+    "mergeHint": "The classes from the backup are added to the existing ones, and so are missing templates. Existing classes stay as they are.",
     "submit": "Restore"
   },
   "password": {

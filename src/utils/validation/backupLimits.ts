@@ -66,8 +66,6 @@ export const BACKUP_ERROR_MESSAGES = {
   unsupportedVersion: 'toast:backupValidation.unsupportedVersion',
   invalidEncryptedPayload: 'toast:backupValidation.invalidEncryptedPayload',
   invalidData: 'toast:backupValidation.invalidData',
-  mergeStudentIdConflict: 'toast:backupValidation.mergeStudentIdConflict',
-  mergeInvalidLocks: 'toast:backupValidation.mergeInvalidLocks',
   mergeStateUnavailable: 'toast:backupValidation.mergeStateUnavailable',
   tooManyStudents: 'toast:backupValidation.tooManyStudents',
   tooManySeatingPlans: 'toast:backupValidation.tooManySeatingPlans',

@@ -3,6 +3,7 @@
 import { useCallback } from 'react';
 import useDataBackup from '../useDataBackup';
 import type { AutoMixTriggerHandler } from '../algorithm/useAutoMixTriggers';
+import type { BackupImportOutcome } from '@/services/backup/dataBackup';
 
 /**
  * Parameters for the backup orchestration hook
@@ -12,7 +13,7 @@ interface BackupOrchestrationParams {
   importAllFromJson: (
     payload: string,
     opts?: { merge?: boolean },
-  ) => Promise<void>;
+  ) => Promise<BackupImportOutcome>;
   triggerAutoMixEvent: AutoMixTriggerHandler;
 }
 
@@ -29,8 +30,9 @@ export interface BackupOrchestrationReturn {
 /**
  * Orchestrates backup import/export with auto-mix trigger coordination.
  *
- * Wraps useDataBackup and injects auto-mix trigger on successful import
- * to refresh the seating arrangement.
+ * Wraps useDataBackup and injects auto-mix trigger after a backup replaced
+ * everything, to refresh the seating arrangement. A merge leaves the open
+ * class as it was, so its plan is not mixed again.
  *
  * @param params - Export/import functions and auto-mix trigger
  * @returns Backup actions
@@ -40,11 +42,14 @@ export function useGeneratorBackupOrchestration(
 ): BackupOrchestrationReturn {
   const { exportAllAsJson, importAllFromJson, triggerAutoMixEvent } = params;
 
-  // Wrap import to trigger auto-mix after successful import
+  // Wrap import to trigger auto-mix after a successful full import
   const importAllFromJsonWithTrigger = useCallback(
     async (payload: string, opts?: { merge?: boolean }) => {
-      await importAllFromJson(payload, opts);
-      triggerAutoMixEvent('ci-import', { source: 'backup-import' });
+      const outcome = await importAllFromJson(payload, opts);
+      if (!outcome.merge) {
+        triggerAutoMixEvent('ci-import', { source: 'backup-import' });
+      }
+      return outcome;
     },
     [importAllFromJson, triggerAutoMixEvent],
   );

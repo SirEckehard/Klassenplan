@@ -9,6 +9,8 @@ import {
   BackupValidationError,
 } from '@/utils/validation/backupLimits';
 import type { EncryptedBackupPayload } from '@/utils/validation/backupValidation';
+import type { BackupImportOutcome } from '@/services/backup/dataBackup';
+import i18n from '@/i18n';
 import {
   logError,
   webCrypto,
@@ -147,7 +149,32 @@ interface Options {
   importAllFromJson: (
     text: string,
     opts?: { merge?: boolean },
-  ) => Promise<void>;
+  ) => Promise<BackupImportOutcome>;
+}
+
+/**
+ * What a merge says it did: the classes that came, else the templates, else
+ * that the backup held nothing this device lacks — a merge of a device's own
+ * backup adds nothing, and a plain "imported" would hide that.
+ */
+function showMergeOutcome(
+  outcome: Extract<BackupImportOutcome, { merge: true }>,
+) {
+  if (outcome.addedClasses > 0) {
+    showToast(
+      'success',
+      i18n.t('toast:backup.mergedClasses', { count: outcome.addedClasses }),
+    );
+  } else if (outcome.addedTemplates > 0) {
+    showToast(
+      'success',
+      i18n.t('toast:backup.mergedTemplates', {
+        count: outcome.addedTemplates,
+      }),
+    );
+  } else {
+    showToast('info', 'toast:backup.mergedNothing');
+  }
 }
 
 export default function useDataBackup({
@@ -254,10 +281,14 @@ export default function useDataBackup({
         const restoreMode = await dialogs.promptBackupRestoreMode();
         if (!restoreMode) return;
 
-        await importAllFromJson(decrypted, {
+        const outcome = await importAllFromJson(decrypted, {
           merge: restoreMode === 'merge',
         });
-        showToast('success', TOAST_MESSAGES.BACKUP_IMPORT_SUCCESS);
+        if (outcome.merge) {
+          showMergeOutcome(outcome);
+        } else {
+          showToast('success', TOAST_MESSAGES.BACKUP_IMPORT_SUCCESS);
+        }
       } catch (err) {
         if (err instanceof WebCryptoUnavailableError) {
           handleWebCryptoUnavailable('import', err);

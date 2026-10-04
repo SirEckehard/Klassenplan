@@ -39,6 +39,7 @@ import {
 import {
   createClassCollection,
   createClassRecord,
+  mergeClassCollections,
 } from '@/utils/data/classCollection';
 import {
   getAllPlanUsage,
@@ -66,46 +67,29 @@ const BACKUP_LOG_SOURCE = 'dataBackup';
 const BACKUP_LOG_MESSAGE = 'Normalized seating plan IDs during import/export';
 
 const hasOwn = Object.prototype.hasOwnProperty;
-const isValidSeatIndex = (seat: number, seatCount: number) =>
-  Number.isInteger(seat) && seat >= 0 && seat < seatCount;
 const normalizeBackupSeatingHistory = (plans: SavedPlan[]): SavedPlan[] =>
   normalizeSeatingHistory(plans, {
     logSource: BACKUP_LOG_SOURCE,
     logMessage: BACKUP_LOG_MESSAGE,
   });
 
-function findStudentIdConflicts(
-  existing: Student[],
-  incoming: Student[],
-): string[] {
-  const knownIds = new Set(existing.map((student) => student.id));
-  const collisions = new Set<string>();
-  for (const student of incoming) {
-    if (knownIds.has(student.id)) {
-      collisions.add(student.id);
-    }
-  }
-  return [...collisions];
-}
-
-function mergeLockedPositionsWithValidation(
-  existing: LockedPositions,
-  incoming: LockedPositions,
-  scene: ClassroomScene,
-): LockedPositions {
-  const merged: LockedPositions = { ...existing, ...incoming };
-  const tables = Array.isArray(scene.tables) ? scene.tables : [];
-  for (const { table, seat } of Object.values(merged)) {
-    const tableConfig = tables[table];
-    if (
-      !tableConfig ||
-      !Number.isInteger(table) ||
-      !isValidSeatIndex(seat, tableConfig.seatCount)
-    ) {
-      throw new BackupValidationError(BACKUP_ERROR_MESSAGES.mergeInvalidLocks);
-    }
-  }
-  return merged;
+/**
+ * The templates a merge keeps: all that are here, and those of the backup
+ * neither the id nor the name of which is taken — template names are unique.
+ */
+function mergeTemplates(
+  existing: ClassroomTemplate[],
+  incoming: ClassroomTemplate[],
+): ClassroomTemplate[] {
+  const ids = new Set(existing.map((template) => template.id));
+  const names = new Set(existing.map((template) => template.name));
+  const added = incoming.filter((template) => {
+    if (ids.has(template.id) || names.has(template.name)) return false;
+    ids.add(template.id);
+    names.add(template.name);
+    return true;
+  });
+  return added.length > 0 ? [...existing, ...added] : existing;
 }
 
 function createLegacyClassCollection(
@@ -246,8 +230,19 @@ export async function exportAllAsJson(
   }
 }
 
+/** What an import did, for the message after it. */
+export type BackupImportOutcome =
+  | { merge: false }
+  | { merge: true; addedClasses: number; addedTemplates: number };
+
 /**
  * Import all data from a JSON string.
+ *
+ * Replacing puts the backup in place of everything stored. Merging adds the
+ * backup's classes to the ones here, and its templates where the name is
+ * free, and leaves every class that is here as it is — the open one too, so
+ * it touches no live state: the stored collection is merged, saved and read
+ * back (`setClassCollection`).
  */
 export async function importAllFromJson(
   json: string,
@@ -271,11 +266,16 @@ export async function importAllFromJson(
     setClassCollection?: (value: ClassCollectionState) => void | Promise<void>;
     setCircleLayouts?: (value: CircleExportData[]) => void | Promise<void>;
     setTemplates?: (value: ClassroomTemplate[]) => void | Promise<void>;
-    getStudents?: () => Student[];
-    getLockedPositions?: () => LockedPositions;
+    /**
+     * The stored collection with every pending edit written, for a merge;
+     * `null` when it cannot be read.
+     */
+    loadClassCollection?: () => Promise<ClassCollectionState | null>;
+    /** The stored templates, for a merge; `null` when they cannot be read. */
+    loadTemplates?: () => Promise<ClassroomTemplate[] | null>;
   },
   opts?: { merge?: boolean },
-): Promise<void> {
+): Promise<BackupImportOutcome> {
   const merge = opts?.merge ?? false;
   let data: ExportBundle;
   try {
@@ -310,43 +310,19 @@ export async function importAllFromJson(
           normalizedMixSettings,
         )
       : null;
+    // Type assertion safe: parseExportBundle validates structure, legacy
+    // collection is correctly typed
+    const incomingCollection = (data.classCollection ??
+      legacyClassCollection) as ClassCollectionState | null;
 
     if (merge) {
-      if (!setters.getStudents || !setters.getLockedPositions) {
-        throw new BackupValidationError(
-          BACKUP_ERROR_MESSAGES.mergeStateUnavailable,
-        );
-      }
-      const existingStudents = setters.getStudents();
-      const existingLocks = setters.getLockedPositions();
-      const nextCount = existingStudents.length + importedStudentCount;
-      if (nextCount > MAX_STUDENTS) {
-        throw new BackupValidationError(BACKUP_ERROR_MESSAGES.tooManyStudents);
-      }
-      const collisions = findStudentIdConflicts(
-        existingStudents,
-        data.students,
-      );
-      if (collisions.length > 0) {
-        throw new BackupValidationError(
-          BACKUP_ERROR_MESSAGES.mergeStudentIdConflict,
-        );
-      }
-      const mergedLocks = mergeLockedPositionsWithValidation(
-        existingLocks,
-        data.lockedPositions,
-        data.classroomScene,
-      );
-      setters.setStudents([...existingStudents, ...data.students]);
-      setters.setSeatingHistory((prev) => [...prev, ...seatingHistory]);
-      setters.setMixHistory((prev) => [...prev, ...data.mixHistory]);
-      setters.setLockedPositions(mergedLocks);
-    } else {
-      setters.setStudents(data.students);
-      setters.setSeatingHistory(seatingHistory);
-      setters.setMixHistory(data.mixHistory);
-      setters.setLockedPositions(data.lockedPositions);
+      return await mergeIntoStored(data, incomingCollection, setters);
     }
+
+    setters.setStudents(data.students);
+    setters.setSeatingHistory(seatingHistory);
+    setters.setMixHistory(data.mixHistory);
+    setters.setLockedPositions(data.lockedPositions);
     setters.setMixSettings(normalizedMixSettings);
     setters.setClassroomScene(data.classroomScene);
 
@@ -372,40 +348,27 @@ export async function importAllFromJson(
       await idbSet(DB_KEYS.classroomTemplates, data.classroomTemplates);
     }
 
-    if (setters.setClassCollection) {
-      const collectionToPersist = data.classCollection ?? legacyClassCollection;
-      if (collectionToPersist) {
-        // Type assertion safe: parseExportBundle validates structure, legacy collection is correctly typed
-        await setters.setClassCollection(
-          collectionToPersist as ClassCollectionState,
-        );
-      }
+    if (setters.setClassCollection && incomingCollection) {
+      await setters.setClassCollection(incomingCollection);
     }
 
     if (setters.setCircleLayouts && data.circleLayouts) {
       await setters.setCircleLayouts(data.circleLayouts);
     }
 
-    // Student photos (export version ≥ 2). On a full import we replace the photo
-    // store entirely; on a merge we only add photos for the imported students.
-    if (merge) {
-      await restoreStudentPhotos(
-        data.studentPhotos,
-        new Set(data.students.map((student) => student.id)),
-      );
-    } else {
-      await clearAllPhotos();
-      clearPhotoCache();
-      clearPhotoTrash();
-      await restoreStudentPhotos(data.studentPhotos);
-    }
+    // A full import replaces the photo store entirely.
+    await clearAllPhotos();
+    clearPhotoCache();
+    clearPhotoTrash();
+    await restoreStudentPhotos(data.studentPhotos);
 
     // Plan usage records (export version ≥ 2). Absent in older backups, which
     // simply leaves the store as it is.
     await restorePlanUsage(data.planUsage, {
-      merge,
+      merge: false,
       resetAtByClass: data.planUsageResetAt,
     });
+    return { merge: false };
   } catch (error) {
     logError('Import failed while applying backup', { error }, 'dataBackup');
     if (error instanceof BackupValidationError) {
@@ -413,6 +376,82 @@ export async function importAllFromJson(
     }
     throw new BackupValidationError(BACKUP_ERROR_MESSAGES.processingFailed);
   }
+}
+
+/**
+ * The merge half of `importAllFromJson`: the backup's classes and free-named
+ * templates join what is stored, with the photos and the plan usage of the
+ * classes that came, and the collection is read back. Nothing here goes
+ * through the live setters — they belong to the open class, which a merge
+ * leaves alone.
+ */
+async function mergeIntoStored(
+  data: ExportBundle,
+  incoming: ClassCollectionState | null,
+  setters: Parameters<typeof importAllFromJson>[1],
+): Promise<BackupImportOutcome> {
+  if (!setters.loadClassCollection || !setters.setClassCollection) {
+    throw new BackupValidationError(
+      BACKUP_ERROR_MESSAGES.mergeStateUnavailable,
+    );
+  }
+  const existing = await setters.loadClassCollection();
+  if (!existing) {
+    throw new BackupValidationError(
+      BACKUP_ERROR_MESSAGES.mergeStateUnavailable,
+    );
+  }
+
+  let addedTemplates = 0;
+  if (setters.loadTemplates && setters.setTemplates) {
+    const templates = await setters.loadTemplates();
+    if (!templates) {
+      throw new BackupValidationError(
+        BACKUP_ERROR_MESSAGES.mergeStateUnavailable,
+      );
+    }
+    const merged = mergeTemplates(templates, data.classroomTemplates);
+    addedTemplates = merged.length - templates.length;
+    if (addedTemplates > 0) {
+      await setters.setTemplates(merged);
+    }
+  }
+
+  const { collection, addedClassIds } = incoming
+    ? mergeClassCollections(existing, incoming)
+    : { collection: existing, addedClassIds: [] };
+  if (addedClassIds.length === 0) {
+    return { merge: true, addedClasses: 0, addedTemplates };
+  }
+
+  await setters.setClassCollection(collection);
+
+  // Photos belong to students; only those of the classes that came are new
+  // here, and a student this device knows keeps the photo it has.
+  const added = new Set(addedClassIds);
+  const knownStudentIds = new Set(
+    existing.classes.flatMap((entry) =>
+      entry.students.map((student) => student.id),
+    ),
+  );
+  const newStudentIds = new Set(
+    collection.classes
+      .filter((entry) => added.has(entry.id))
+      .flatMap((entry) => entry.students.map((student) => student.id))
+      .filter((id) => !knownStudentIds.has(id)),
+  );
+  await restoreStudentPhotos(data.studentPhotos, newStudentIds);
+
+  // A merge only adds the records of classes that have none yet.
+  await restorePlanUsage(data.planUsage, {
+    merge: true,
+    resetAtByClass: data.planUsageResetAt,
+  });
+  return {
+    merge: true,
+    addedClasses: addedClassIds.length,
+    addedTemplates,
+  };
 }
 
 /**

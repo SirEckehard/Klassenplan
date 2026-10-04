@@ -742,6 +742,8 @@ export function useSeatingPersistence(state: SeatingState) {
         }
       };
 
+      // Throws when the collection cannot be saved: the import then reports
+      // a failure instead of a success that did not happen.
       const persistClassCollection = async (
         collection: ClassCollectionState,
       ) => {
@@ -752,9 +754,22 @@ export function useSeatingPersistence(state: SeatingState) {
             { error: result.error },
             'useSeatingPersistence',
           );
-          return;
+          throw new Error(result.error.message);
         }
         await reloadCurrentClassData();
+      };
+
+      // A merge builds on what is stored, so whatever the open class still
+      // has queued is written first.
+      const loadStoredClassCollection = async () => {
+        await queue.flushPersistQueue();
+        const result = await repository.loadClassCollection();
+        return result.success ? result.data : null;
+      };
+
+      const loadStoredTemplates = async () => {
+        const result = await repository.loadTemplates();
+        return result.success ? result.data : null;
       };
 
       const persistCircleLayouts = async (layouts: CircleExportData[]) => {
@@ -780,7 +795,7 @@ export function useSeatingPersistence(state: SeatingState) {
         }
       };
 
-      await importAllFromJsonUtil(
+      return importAllFromJsonUtil(
         json,
         {
           setStudents,
@@ -796,13 +811,14 @@ export function useSeatingPersistence(state: SeatingState) {
           setActivePlanId,
           setClassCollection: persistClassCollection,
           setTemplates: persistTemplates,
-          getStudents: () => students,
-          getLockedPositions: () => lockedPositions,
+          loadClassCollection: loadStoredClassCollection,
+          loadTemplates: loadStoredTemplates,
         },
         opts,
       );
     },
     [
+      queue,
       repository,
       setStudents,
       setSeatingHistory,
@@ -814,8 +830,6 @@ export function useSeatingPersistence(state: SeatingState) {
       setPlanName,
       setActivePlanId,
       reloadCurrentClassData,
-      students,
-      lockedPositions,
     ],
   );
 

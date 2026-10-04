@@ -39,6 +39,28 @@ TypeScript types (`Student`, `SavedPlan`, `MixResult`,
 `ClassroomScene`, `MixSettings`, `LockedPositions`, `ClassroomTemplate`,
 `PlanUsage`).
 
+## Replacing or merging
+
+Once the password is accepted, the restore asks how the backup applies
+(`BackupRestoreModeModal`):
+
+- **Replace** puts the backup in place of everything stored: the classes, the
+  templates, the photos and the plan usage. A backup without `classCollection`
+  (version 1) becomes one class, "Importierte Klasse".
+- **Merge** adds the backup's classes – its `classCollection`, or the one class
+  made from a version 1 backup – to the stored ones and leaves those as they
+  are, the open class included (`mergeClassCollections` in
+  `src/utils/data/classCollection.ts`):
+  - a class whose id is stored already is the same class from an earlier
+    backup and is left out;
+  - a class whose name is taken gets a free one, `7b (2)`;
+  - a template is added where neither its id nor its name is taken;
+  - photos come back only for students no stored class has;
+  - plan usage is added for classes that have no records yet.
+
+  The message after a merge says how many classes came, else how many
+  templates, else that the backup held nothing new.
+
 ## Size limits
 
 To detect malicious or corrupted backups, the following upper limits apply on

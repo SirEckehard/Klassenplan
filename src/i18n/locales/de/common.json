@@ -138,9 +138,9 @@
     "title": "Backup wiederherstellen",
     "subtitle": "Wie sollen die Daten aus dem Backup übernommen werden?",
     "replaceLabel": "Alles ersetzen",
-    "replaceHint": "Vorhandene Schüler, Sitzpläne und Vorlagen werden durch das Backup ersetzt. Diese Aktion kann nicht rückgängig gemacht werden.",
+    "replaceHint": "Vorhandene Klassen, Sitzpläne und Vorlagen werden durch das Backup ersetzt. Diese Aktion kann nicht rückgängig gemacht werden.",
     "mergeLabel": "Zusammenführen",
-    "mergeHint": "Schüler und Sitzpläne aus dem Backup werden zu den vorhandenen hinzugefügt. Klassenraum und Einstellungen kommen aus dem Backup.",
+    "mergeHint": "Die Klassen aus dem Backup kommen zu den vorhandenen hinzu, ebenso fehlende Vorlagen. Vorhandene Klassen bleiben, wie sie sind.",
     "submit": "Wiederherstellen"
   },
   "password": {

@@ -8,6 +8,8 @@ import {
   getDisplayNameForMode,
   getTooltipName,
   foldForSearch,
+  isSameName,
+  uniqueName,
 } from '../nameFormatting';
 import { describe, it, expect } from 'vitest';
 
@@ -445,5 +447,30 @@ describe('foldForSearch', () => {
 
   it('leaves a name without accents as it reads, in lower case', () => {
     expect(foldForSearch('Anna Schmidt')).toBe('anna schmidt');
+  });
+});
+
+describe('isSameName', () => {
+  it('tells names apart by their letters, not by case or surrounding spaces', () => {
+    expect(isSameName('7b', ' 7B ')).toBe(true);
+    expect(isSameName('Klassenraum', 'Klassenraum 2')).toBe(false);
+  });
+});
+
+describe('uniqueName', () => {
+  it('keeps a free name as it is, trimmed', () => {
+    expect(uniqueName(' Labor ', ['Klassenraum'])).toBe('Labor');
+  });
+
+  it('numbers a taken name the way a file manager names a second copy', () => {
+    expect(uniqueName('Labor', ['labor'])).toBe('Labor (2)');
+    expect(uniqueName('Labor', ['Labor', 'Labor (2)'])).toBe('Labor (3)');
+  });
+
+  it('shortens the base so the numbered name still fits', () => {
+    const base = 'x'.repeat(10);
+    const name = uniqueName(base, [base], 10);
+    expect(name).toBe('xxxxxx (2)');
+    expect(name).toHaveLength(10);
   });
 });

@@ -70,6 +70,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- Restoring a backup with "Merge" replaced every class and every template on the device with the backup's, although it promised to add them. It now adds the backup's classes – a name that is taken gets a number, "7b (2)" – and the templates whose name is free, leaves every class that is there as it was, and says what came
 - The space bar draws a student and + zooms in presentation mode, and the space bar draws on "Who's next?" – the help promised all three
 - Ctrl/⌘+S in the seating circle opened the browser's own save dialog
 - A typed angle wraps round as a turn does: 360° is 0°, −90° is 270°

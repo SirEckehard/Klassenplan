@@ -2,14 +2,20 @@
 // Copyright (C) 2026 Eike Schäfer
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { set as idbSet } from 'idb-keyval';
-import type { ExportBundle, Student, LockedPositions } from '@/types';
+import type {
+  ClassCollectionState,
+  ClassRecord,
+  ClassroomTemplate,
+  ExportBundle,
+  Student,
+} from '@/types';
 import { clearAllData, importAllFromJson } from '../dataBackup';
 import {
   BACKUP_ERROR_MESSAGES,
   BackupValidationError,
 } from '@/utils/validation/backupValidation';
 import { DB_KEYS, PROJECT_LOCAL_STORAGE_KEYS } from '@/utils/data/storageKeys';
-import { MAX_STUDENTS, neutralSettings, normalizeMixSettings } from '@/utils';
+import { neutralSettings, normalizeMixSettings } from '@/utils';
 
 const { delMock, setMock } = vi.hoisted(() => ({
   delMock: vi.fn().mockResolvedValue(undefined),
@@ -17,10 +23,12 @@ const { delMock, setMock } = vi.hoisted(() => ({
 }));
 const resetApplicationStateMock = vi.hoisted(() => vi.fn());
 // jsdom has no IndexedDB, so the photo wipe is only reached with both mocked.
-const { clearAllPhotosMock, hasIndexedDBMock } = vi.hoisted(() => ({
-  clearAllPhotosMock: vi.fn(),
-  hasIndexedDBMock: vi.fn(() => false),
-}));
+const { clearAllPhotosMock, hasIndexedDBMock, setStudentPhotoMock } =
+  vi.hoisted(() => ({
+    clearAllPhotosMock: vi.fn(),
+    hasIndexedDBMock: vi.fn(() => false),
+    setStudentPhotoMock: vi.fn(),
+  }));
 
 vi.mock('idb-keyval', () => ({
   del: delMock,
@@ -35,6 +43,7 @@ vi.mock('@/repositories/studentPhotoStore', async (importOriginal) => ({
     typeof import('@/repositories/studentPhotoStore')
   >()),
   clearAllPhotos: clearAllPhotosMock,
+  setStudentPhoto: setStudentPhotoMock,
 }));
 vi.mock('@/utils/data/indexedDb', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@/utils/data/indexedDb')>()),
@@ -269,99 +278,49 @@ describe('importAllFromJson', () => {
     );
   });
 
-  it('imports data with merge', async () => {
-    const existingStudents: Student[] = [
-      {
-        id: 'existing-1',
-        name: 'Existing',
-        restless: false,
-        shy: false,
-        concentrationIssues: false,
-        needsFrontSeat: false,
-      },
-    ];
-    const existingLocks: LockedPositions = {
-      'existing-1': { table: 0, seat: 0 },
-    };
-    const setters = {
-      setStudents: vi.fn(),
-      setSeatingHistory: vi.fn(),
-      setMixHistory: vi.fn(),
-      setLockedPositions: vi.fn(),
-      setMixSettings: vi.fn(),
-      setClassroomScene: vi.fn(),
-      setCircleLayout: vi.fn(),
-      setCurrentSeating: vi.fn(),
-      setPlanName: vi.fn(),
-      setActivePlanId: vi.fn(),
-      getStudents: vi.fn(() => existingStudents),
-      getLockedPositions: vi.fn(() => existingLocks),
-    };
-    const sceneWithSeat: ExportBundle = {
-      ...bundle,
-      classroomScene: {
-        tables: [
-          {
-            x: 0,
-            y: 0,
-            width: 100,
-            height: 50,
-            rotation: 0,
-            seatCount: 2,
-            locked: false,
-            zIndex: 0,
-          },
-        ],
-        totalStudents: 2,
-      },
-    };
-    await importAllFromJson(JSON.stringify(sceneWithSeat), setters, {
-      merge: true,
+  describe('merge', () => {
+    const timestamp = '2026-10-04T08:00:00.000Z';
+    const student = (id: string, name: string): Student => ({
+      id,
+      name,
+      restless: false,
+      shy: false,
+      concentrationIssues: false,
+      needsFrontSeat: false,
     });
-    expect(setters.setStudents).toHaveBeenCalledWith([
-      ...existingStudents,
-      ...sceneWithSeat.students,
-    ]);
-    expect(setters.setLockedPositions).toHaveBeenCalledWith({
-      ...existingLocks,
-      ...sceneWithSeat.lockedPositions,
+    const classRecord = (
+      id: string,
+      name: string,
+      students: Student[] = [],
+    ): ClassRecord => ({
+      id,
+      name,
+      createdAt: timestamp,
+      updatedAt: timestamp,
+      lastUsedAt: timestamp,
+      students,
+      seatingHistory: [],
+      mixHistory: [],
+      currentSeating: [],
+      lockedPositions: {},
+      mixSettings: null,
+      classroomScene: null,
+      circleLayout: null,
     });
-  });
+    const collectionOf = (
+      classes: ClassRecord[],
+      activeClassId: string | null = classes[0]?.id ?? null,
+    ): ClassCollectionState => ({ version: 1, activeClassId, classes });
+    const template = (id: number, name: string): ClassroomTemplate => ({
+      id,
+      name,
+      scene: { tables: [], totalStudents: 0 },
+    });
 
-  it('rejects merge when combined students exceed the limit', async () => {
-    const existingStudents: Student[] = Array.from(
-      { length: MAX_STUDENTS - 1 },
-      (_, index) => ({
-        id: `existing-${index}`,
-        name: `Existing ${index}`,
-        restless: false,
-        shy: false,
-        concentrationIssues: false,
-        needsFrontSeat: false,
-      }),
-    );
-    const mergeBundle: ExportBundle = {
-      ...bundle,
-      students: [
-        {
-          id: 'new-1',
-          name: 'New 1',
-          restless: false,
-          shy: false,
-          concentrationIssues: false,
-          needsFrontSeat: false,
-        },
-        {
-          id: 'new-2',
-          name: 'New 2',
-          restless: false,
-          shy: false,
-          concentrationIssues: false,
-          needsFrontSeat: false,
-        },
-      ],
-    };
-    const setters = {
+    const mergeSetters = (
+      existing: ClassCollectionState | null,
+      templates: ClassroomTemplate[] | null = [],
+    ) => ({
       setStudents: vi.fn(),
       setSeatingHistory: vi.fn(),
       setMixHistory: vi.fn(),
@@ -372,94 +331,179 @@ describe('importAllFromJson', () => {
       setCurrentSeating: vi.fn(),
       setPlanName: vi.fn(),
       setActivePlanId: vi.fn(),
-      getStudents: vi.fn(() => existingStudents),
-      getLockedPositions: vi.fn(() => ({}) as LockedPositions),
+      setCircleLayouts: vi.fn(),
+      setClassCollection: vi.fn(),
+      setTemplates: vi.fn(),
+      loadClassCollection: vi.fn().mockResolvedValue(existing),
+      loadTemplates: vi.fn().mockResolvedValue(templates),
+    });
+
+    const expectLiveStateUntouched = (
+      setters: ReturnType<typeof mergeSetters>,
+    ) => {
+      expect(setters.setStudents).not.toHaveBeenCalled();
+      expect(setters.setSeatingHistory).not.toHaveBeenCalled();
+      expect(setters.setMixHistory).not.toHaveBeenCalled();
+      expect(setters.setLockedPositions).not.toHaveBeenCalled();
+      expect(setters.setMixSettings).not.toHaveBeenCalled();
+      expect(setters.setClassroomScene).not.toHaveBeenCalled();
+      expect(setters.setCircleLayout).not.toHaveBeenCalled();
+      expect(setters.setCurrentSeating).not.toHaveBeenCalled();
+      expect(setters.setPlanName).not.toHaveBeenCalled();
+      expect(setters.setActivePlanId).not.toHaveBeenCalled();
+      expect(setters.setCircleLayouts).not.toHaveBeenCalled();
     };
 
-    await expect(
-      importAllFromJson(JSON.stringify(mergeBundle), setters, { merge: true }),
-    ).rejects.toThrowError(
-      new BackupValidationError(BACKUP_ERROR_MESSAGES.tooManyStudents),
-    );
-    expect(setters.setStudents).not.toHaveBeenCalled();
-    expect(setters.setSeatingHistory).not.toHaveBeenCalled();
-    expect(setters.setMixHistory).not.toHaveBeenCalled();
-    expect(setters.setLockedPositions).not.toHaveBeenCalled();
-  });
+    it('adds the classes of the backup and keeps every class here as it is', async () => {
+      const here = classRecord('class-a', '7a', [student('a-1', 'Anna')]);
+      const sameClassFromBackup = classRecord('class-a', '7a', []);
+      const newClass = classRecord('class-b', '8c', [student('b-1', 'Ben')]);
+      const setters = mergeSetters(collectionOf([here]));
+      const backup: ExportBundle = {
+        ...bundle,
+        classCollection: collectionOf(
+          [sameClassFromBackup, newClass],
+          'class-b',
+        ),
+      };
 
-  it('rejects merge when student IDs collide', async () => {
-    const setters = {
-      setStudents: vi.fn(),
-      setSeatingHistory: vi.fn(),
-      setMixHistory: vi.fn(),
-      setLockedPositions: vi.fn(),
-      setMixSettings: vi.fn(),
-      setClassroomScene: vi.fn(),
-      setCircleLayout: vi.fn(),
-      setCurrentSeating: vi.fn(),
-      setPlanName: vi.fn(),
-      setActivePlanId: vi.fn(),
-      getStudents: vi.fn(() => bundle.students),
-      getLockedPositions: vi.fn(() => ({}) as LockedPositions),
-    };
-
-    await expect(
-      importAllFromJson(JSON.stringify(bundle), setters, { merge: true }),
-    ).rejects.toThrowError(
-      new BackupValidationError(BACKUP_ERROR_MESSAGES.mergeStudentIdConflict),
-    );
-    expect(setters.setStudents).not.toHaveBeenCalled();
-    expect(setters.setLockedPositions).not.toHaveBeenCalled();
-  });
-
-  it('rejects merge when merged locks reference invalid seats', async () => {
-    const existingLocks: LockedPositions = {
-      orphan: {
-        table: 2,
-        seat: 0,
-      },
-    };
-    const setters = {
-      setStudents: vi.fn(),
-      setSeatingHistory: vi.fn(),
-      setMixHistory: vi.fn(),
-      setLockedPositions: vi.fn(),
-      setMixSettings: vi.fn(),
-      setClassroomScene: vi.fn(),
-      setCircleLayout: vi.fn(),
-      setCurrentSeating: vi.fn(),
-      setPlanName: vi.fn(),
-      setActivePlanId: vi.fn(),
-      getStudents: vi.fn(() => []),
-      getLockedPositions: vi.fn(() => existingLocks),
-    };
-    const sceneWithSingleTable: ExportBundle = {
-      ...bundle,
-      classroomScene: {
-        tables: [
-          {
-            x: 0,
-            y: 0,
-            width: 100,
-            height: 50,
-            rotation: 0,
-            seatCount: 2,
-            locked: false,
-            zIndex: 0,
-          },
-        ],
-        totalStudents: 0,
-      },
-    };
-
-    await expect(
-      importAllFromJson(JSON.stringify(sceneWithSingleTable), setters, {
+      const outcome = await importAllFromJson(JSON.stringify(backup), setters, {
         merge: true,
-      }),
-    ).rejects.toThrowError(
-      new BackupValidationError(BACKUP_ERROR_MESSAGES.mergeInvalidLocks),
-    );
-    expect(setters.setLockedPositions).not.toHaveBeenCalled();
+      });
+
+      expect(outcome).toEqual({
+        merge: true,
+        addedClasses: 1,
+        addedTemplates: 0,
+      });
+      expect(setters.setClassCollection).toHaveBeenCalledTimes(1);
+      const [merged] = setters.setClassCollection.mock.calls[0];
+      // The open class stays open, and its students stay its own.
+      expect(merged.activeClassId).toBe('class-a');
+      expect(merged.classes).toEqual([here, newClass]);
+      expectLiveStateUntouched(setters);
+    });
+
+    it('gives a class whose name is taken a free one', async () => {
+      const setters = mergeSetters(collectionOf([classRecord('here', '7b')]));
+      const backup: ExportBundle = {
+        ...bundle,
+        classCollection: collectionOf([classRecord('there', '7B')]),
+      };
+
+      await importAllFromJson(JSON.stringify(backup), setters, { merge: true });
+
+      const [merged] = setters.setClassCollection.mock.calls[0];
+      expect(merged.classes.map((entry: ClassRecord) => entry.name)).toEqual([
+        '7b',
+        '7B (2)',
+      ]);
+    });
+
+    it('adds the class of a backup that predates class management', async () => {
+      const setters = mergeSetters(collectionOf([classRecord('here', '7b')]));
+
+      await importAllFromJson(JSON.stringify(bundle), setters, { merge: true });
+
+      const [merged] = setters.setClassCollection.mock.calls[0];
+      expect(merged.classes).toHaveLength(2);
+      expect(merged.classes[1].students).toEqual(bundle.students);
+      expect(merged.activeClassId).toBe('here');
+    });
+
+    it("opens the backup's open class on a device without a class", async () => {
+      const setters = mergeSetters(collectionOf([]));
+      const backup: ExportBundle = {
+        ...bundle,
+        classCollection: collectionOf(
+          [classRecord('first', '5a'), classRecord('second', '5b')],
+          'second',
+        ),
+      };
+
+      await importAllFromJson(JSON.stringify(backup), setters, { merge: true });
+
+      const [merged] = setters.setClassCollection.mock.calls[0];
+      expect(merged.activeClassId).toBe('second');
+    });
+
+    it('writes nothing when every class of the backup is here already', async () => {
+      const here = classRecord('class-a', '7a');
+      const setters = mergeSetters(collectionOf([here]));
+      const backup: ExportBundle = {
+        ...bundle,
+        classCollection: collectionOf([here]),
+      };
+
+      const outcome = await importAllFromJson(JSON.stringify(backup), setters, {
+        merge: true,
+      });
+
+      expect(outcome).toEqual({
+        merge: true,
+        addedClasses: 0,
+        addedTemplates: 0,
+      });
+      expect(setters.setClassCollection).not.toHaveBeenCalled();
+      expect(setters.setTemplates).not.toHaveBeenCalled();
+      expectLiveStateUntouched(setters);
+    });
+
+    it('keeps the templates here and adds those whose name is free', async () => {
+      const lab = template(1, 'Labor');
+      const setters = mergeSetters(collectionOf([classRecord('here', '7b')]), [
+        lab,
+      ]);
+      const backup: ExportBundle = {
+        ...bundle,
+        classroomTemplates: [template(2, 'Labor'), template(3, 'Turnhalle')],
+        classCollection: collectionOf([classRecord('here', '7b')]),
+      };
+
+      const outcome = await importAllFromJson(JSON.stringify(backup), setters, {
+        merge: true,
+      });
+
+      expect(setters.setTemplates).toHaveBeenCalledWith([
+        lab,
+        template(3, 'Turnhalle'),
+      ]);
+      expect(outcome).toMatchObject({ addedClasses: 0, addedTemplates: 1 });
+    });
+
+    it('restores only the photos of the students the merge brought', async () => {
+      setStudentPhotoMock.mockClear();
+      const known = student('known', 'Anna');
+      const setters = mergeSetters(
+        collectionOf([classRecord('here', '7a', [known])]),
+      );
+      const photo = 'data:image/jpeg;base64,AAAA';
+      const backup: ExportBundle = {
+        ...bundle,
+        classCollection: collectionOf([
+          classRecord('here', '7a', [known]),
+          classRecord('there', '8c', [known, student('new', 'Ben')]),
+        ]),
+        studentPhotos: { known: photo, new: photo },
+      };
+
+      await importAllFromJson(JSON.stringify(backup), setters, { merge: true });
+
+      expect(setStudentPhotoMock).toHaveBeenCalledTimes(1);
+      expect(setStudentPhotoMock).toHaveBeenCalledWith('new', expect.any(Blob));
+    });
+
+    it('refuses to merge when the stored classes cannot be read', async () => {
+      const setters = mergeSetters(null);
+
+      await expect(
+        importAllFromJson(JSON.stringify(bundle), setters, { merge: true }),
+      ).rejects.toThrowError(
+        new BackupValidationError(BACKUP_ERROR_MESSAGES.mergeStateUnavailable),
+      );
+      expect(setters.setClassCollection).not.toHaveBeenCalled();
+      expectLiveStateUntouched(setters);
+    });
   });
 
   it('throws on invalid JSON', async () => {

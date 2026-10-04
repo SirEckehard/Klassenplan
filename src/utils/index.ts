@@ -198,6 +198,8 @@ export {
   isNameTruncated,
   getNamePreview,
   foldForSearch,
+  isSameName,
+  uniqueName,
 } from './nameFormatting';
 export type { NameDisplayMode, NameLabels } from './nameFormatting';
 

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import '@/types/file-system-access.d.ts';
-import { renderHook, act } from '@testing-library/react';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import type { MockInstance } from 'vitest';
 import useDataBackup from '../useDataBackup';
@@ -17,6 +17,7 @@ import { setupLocalStorageMock } from '../../__tests__/utils';
 import * as toastModule from '../../utils/ui/toast';
 import { TOAST_MESSAGES } from '../../utils/ui/toast';
 import * as utilsModule from '@/utils';
+import type { BackupImportOutcome } from '@/services/backup/dataBackup';
 
 vi.mock('../../services/ui/backupDialogs', () => ({
   promptBackupPassword: vi.fn(),
@@ -205,7 +206,10 @@ describe('useDataBackup', () => {
     );
   });
 
-  type ImportFn = (text: string, opts?: { merge?: boolean }) => Promise<void>;
+  type ImportFn = (
+    text: string,
+    opts?: { merge?: boolean },
+  ) => Promise<BackupImportOutcome>;
 
   const runImport = async (importFn: ImportFn): Promise<void> => {
     const { result } = renderHook(() =>
@@ -242,7 +246,7 @@ describe('useDataBackup', () => {
   };
 
   it('replaces existing data when the restore dialog returns "replace"', async () => {
-    const importFn = vi.fn().mockResolvedValue(undefined);
+    const importFn = vi.fn().mockResolvedValue({ merge: false });
     mockPromptRestoreMode.mockResolvedValue('replace');
 
     await runImport(importFn);
@@ -250,19 +254,70 @@ describe('useDataBackup', () => {
     expect(importFn).toHaveBeenCalledWith(expect.any(String), {
       merge: false,
     });
+    await waitFor(() =>
+      expect(showToastMock).toHaveBeenCalledWith(
+        'success',
+        TOAST_MESSAGES.BACKUP_IMPORT_SUCCESS,
+      ),
+    );
   });
 
   it('merges into existing data when the restore dialog returns "merge"', async () => {
-    const importFn = vi.fn().mockResolvedValue(undefined);
+    const importFn = vi
+      .fn()
+      .mockResolvedValue({ merge: true, addedClasses: 2, addedTemplates: 1 });
     mockPromptRestoreMode.mockResolvedValue('merge');
 
     await runImport(importFn);
 
     expect(importFn).toHaveBeenCalledWith(expect.any(String), { merge: true });
+    // The classes that came are what the message counts.
+    await waitFor(() =>
+      expect(showToastMock).toHaveBeenCalledWith(
+        'success',
+        expect.stringMatching(/2 Klassen|2 classes/),
+      ),
+    );
+  });
+
+  it('names the templates when a merge brought templates but no class', async () => {
+    const importFn = vi
+      .fn()
+      .mockResolvedValue({ merge: true, addedClasses: 0, addedTemplates: 1 });
+    mockPromptRestoreMode.mockResolvedValue('merge');
+
+    await runImport(importFn);
+
+    await waitFor(() =>
+      expect(showToastMock).toHaveBeenCalledWith(
+        'success',
+        expect.stringMatching(/1 Vorlage|1 template/),
+      ),
+    );
+  });
+
+  it('says so when a merge found nothing this device lacks', async () => {
+    const importFn = vi
+      .fn()
+      .mockResolvedValue({ merge: true, addedClasses: 0, addedTemplates: 0 });
+    mockPromptRestoreMode.mockResolvedValue('merge');
+
+    await runImport(importFn);
+
+    await waitFor(() =>
+      expect(showToastMock).toHaveBeenCalledWith(
+        'info',
+        'toast:backup.mergedNothing',
+      ),
+    );
+    expect(showToastMock).not.toHaveBeenCalledWith(
+      'success',
+      TOAST_MESSAGES.BACKUP_IMPORT_SUCCESS,
+    );
   });
 
   it('does not import when the restore dialog is cancelled', async () => {
-    const importFn = vi.fn().mockResolvedValue(undefined);
+    const importFn = vi.fn().mockResolvedValue({ merge: false });
     mockPromptRestoreMode.mockResolvedValue(null);
 
     await runImport(importFn);

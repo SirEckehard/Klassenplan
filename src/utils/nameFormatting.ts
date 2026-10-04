@@ -499,3 +499,39 @@ export function summarizeNameLabels(
 export function foldForSearch(value: string): string {
   return value.toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '');
 }
+
+/**
+ * Whether two names of the same kind — two classes, two rooms — count as one:
+ * surrounding spaces and case do not tell them apart, as the class repository
+ * has it ("7b" and "7B " are one class).
+ */
+export function isSameName(a: string, b: string): boolean {
+  return a.trim().toLowerCase() === b.trim().toLowerCase();
+}
+
+/**
+ * A name none of `taken` carries yet (`isSameName`): `base` itself while it is
+ * free, else `base (2)`, `base (3)` … — the way a file manager names a second
+ * copy. The base is shortened where the suffix would push the name past
+ * `maxLength`, so the result always fits where the base was allowed.
+ */
+export function uniqueName(
+  base: string,
+  taken: Iterable<string>,
+  maxLength = Number.POSITIVE_INFINITY,
+): string {
+  const takenKeys = new Set(
+    Array.from(taken, (name) => name.trim().toLowerCase()),
+  );
+  const stem = base.trim();
+  const fit = (suffix: string) =>
+    `${stem.slice(0, Math.max(0, maxLength - suffix.length)).trimEnd()}${suffix}`;
+  const isFree = (candidate: string) => !takenKeys.has(candidate.toLowerCase());
+
+  const plain = fit('');
+  if (isFree(plain)) return plain;
+  for (let copy = 2; ; copy += 1) {
+    const candidate = fit(` (${copy})`);
+    if (isFree(candidate)) return candidate;
+  }
+}

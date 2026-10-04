@@ -22,8 +22,9 @@ type BackupRestoreModeModalProps = {
 };
 
 /**
- * Asks how a decrypted backup should be applied. `importAllFromJson` has always
- * supported merging; this dialog is what finally exposes it.
+ * Asks how a decrypted backup should be applied: in place of everything
+ * stored, or merged — the backup's classes added to the ones here, which stay
+ * as they are (`importAllFromJson`).
  */
 export default function BackupRestoreModeModal({
   open,
@@ -37,18 +38,12 @@ export default function BackupRestoreModeModal({
     {
       value: 'replace' as const,
       label: t('backupRestore.replaceLabel', 'Alles ersetzen'),
-      hint: t(
-        'backupRestore.replaceHint',
-        'Vorhandene Schüler, Sitzpläne und Vorlagen werden durch das Backup ersetzt. Diese Aktion kann nicht rückgängig gemacht werden.',
-      ),
+      hint: t('backupRestore.replaceHint'),
     },
     {
       value: 'merge' as const,
       label: t('backupRestore.mergeLabel', 'Zusammenführen'),
-      hint: t(
-        'backupRestore.mergeHint',
-        'Schüler und Sitzpläne aus dem Backup werden zu den vorhandenen hinzugefügt. Klassenraum und Einstellungen kommen aus dem Backup.',
-      ),
+      hint: t('backupRestore.mergeHint'),
     },
   ];
 
