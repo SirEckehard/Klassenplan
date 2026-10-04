@@ -171,6 +171,10 @@ export interface SeatingPlanActions {
     name?: string;
     state?: RoomWorkingState;
   }) => RoomRecord | null;
+  /** Adds a room without opening it; the room, or what speaks against it. */
+  addRoom: (name: string) => RoomRecord | RoomNameProblem | 'room-limit';
+  /** A copy of a saved plan beside it, under a free name. */
+  duplicateSeatingPlan: (id: string) => SavedPlan | null;
   /** A template loaded as a room of its own; the message offers the way back. */
   createRoomFromTemplate: (template: ClassroomTemplate) => string | null;
   renameRoom: (roomId: string, name: string) => RoomNameProblem | null;

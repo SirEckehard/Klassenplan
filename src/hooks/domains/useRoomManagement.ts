@@ -321,6 +321,26 @@ export function useRoomManagement({
     [activeRoomId, createRoom, t],
   );
 
+  /**
+   * Adds a room to the class without opening it, as a file manager makes a
+   * folder; it opens empty later. What speaks against the name, or the room.
+   */
+  const addRoom = useCallback(
+    (name: string): RoomRecord | RoomNameProblem | 'room-limit' => {
+      if (rooms.length >= MAX_ROOMS_PER_CLASS) return 'room-limit';
+      const problem = checkRoomName(rooms, name);
+      if (problem) return problem;
+      const room: RoomRecord = {
+        id: generateId(),
+        name: name.trim(),
+        createdAt: new Date().toISOString(),
+      };
+      setRooms((prev) => [...prev, room]);
+      return room;
+    },
+    [rooms, setRooms],
+  );
+
   /** Renames a room; what speaks against the name, or `null` when done. */
   const renameRoom = useCallback(
     (roomId: string, name: string): RoomNameProblem | null => {
@@ -453,6 +473,7 @@ export function useRoomManagement({
     switchRoom,
     openRoom,
     createRoom,
+    addRoom,
     createRoomFromTemplate,
     renameRoom,
     deleteRoom,

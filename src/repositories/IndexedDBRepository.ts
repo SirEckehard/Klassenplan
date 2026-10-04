@@ -23,6 +23,7 @@ import type {
 import type { CircleLayout, CircleExportData } from '@/types/Circle';
 import type {
   ActiveClassSnapshot,
+  ClassEditOutcome,
   ISeatingPlanRepository,
 } from './ISeatingPlanRepository';
 import type { Result } from './types';
@@ -39,8 +40,10 @@ import {
   summarizeClass,
 } from '@/utils/data/classCollection';
 import {
+  applyClassEdit,
   ensureClassRooms,
   ensureCollectionRooms,
+  type ClassEdit,
 } from '@/utils/data/classRooms';
 import { normalizeSeatingHistory } from '@/utils/data/planNormalization';
 
@@ -646,6 +649,71 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
       {
         logMessage: `Failed to save snapshot for class ${classId} in IndexedDB`,
         errorMessage: 'Failed to save class snapshot',
+      },
+    );
+  }
+
+  async loadClassRecord(classId: string): Promise<Result<ClassRecord>> {
+    return this.withErrorHandling(
+      async () => {
+        const collection = await this.loadClassCollectionState();
+        const record = collection.classes.find((entry) => entry.id === classId);
+        if (!record) {
+          return ResultHelpers.failure({
+            type: RepositoryErrorType.NOT_FOUND,
+            message: 'Class not found',
+          });
+        }
+        return cloneValue(ensureClassRooms(record));
+      },
+      {
+        logMessage: `Failed to load class ${classId} from IndexedDB`,
+        errorMessage: 'Failed to load class',
+      },
+    );
+  }
+
+  async editInactiveClass(
+    classId: string,
+    edit: ClassEdit,
+  ): Promise<Result<ClassEditOutcome>> {
+    return this.withErrorHandling(
+      async () => {
+        const collection = await this.loadClassCollectionState();
+        // The open class lives in the live state, which this record lags
+        // behind while edits wait in the persist queue; a change here would
+        // be overwritten by the next of them.
+        if (collection.activeClassId === classId) {
+          return ResultHelpers.failure({
+            type: RepositoryErrorType.VALIDATION_ERROR,
+            message: 'class-is-open',
+          });
+        }
+        const index = collection.classes.findIndex(
+          (entry) => entry.id === classId,
+        );
+        if (index === -1) {
+          return ResultHelpers.failure({
+            type: RepositoryErrorType.NOT_FOUND,
+            message: 'Class not found',
+          });
+        }
+        const applied = applyClassEdit(
+          ensureClassRooms(collection.classes[index]),
+          edit,
+        );
+        if ('problem' in applied) {
+          return { ok: false, reason: applied.problem } as ClassEditOutcome;
+        }
+        const next = cloneValue(applied.record);
+        this.touchClass(next);
+        collection.classes[index] = next;
+        await this.persistCollection(collection);
+        return { ok: true } as ClassEditOutcome;
+      },
+      {
+        logMessage: `Failed to change class ${classId} in IndexedDB`,
+        errorMessage: 'Failed to change class',
       },
     );
   }

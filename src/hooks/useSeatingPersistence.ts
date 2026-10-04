@@ -36,6 +36,8 @@ import {
   neutralSettings,
   normalizeMixSettings,
   toIsoDate,
+  uniqueName,
+  MAX_NAME_LENGTH,
 } from '@/utils';
 import { RepositoryErrorType, type ActiveClassSnapshot } from '@/repositories';
 import type { SeatingState } from './useSeatingState';
@@ -645,6 +647,29 @@ export function useSeatingPersistence(state: SeatingState) {
     setPlanName('');
   }, [activePlanId, setActivePlanId, setPlanName]);
 
+  // A copy of a saved plan beside it, under a free name ("September (2)"),
+  // dated today; the open plan stays the one that was open.
+  const duplicateSeatingPlan = useCallback(
+    (id: string): SavedPlan | null => {
+      const plan = seatingHistory.find((entry) => entry.id === id);
+      if (!plan) return null;
+      const copy: SavedPlan = {
+        ...plan,
+        id: generateId(),
+        name: uniqueName(
+          plan.name,
+          seatingHistory.map((entry) => entry.name),
+          MAX_NAME_LENGTH,
+        ),
+        date: toIsoDate(),
+      };
+      delete copy.autoSaved;
+      setSeatingHistory((prev) => [...prev, copy]);
+      return copy;
+    },
+    [seatingHistory, setSeatingHistory],
+  );
+
   const renameSeatingPlan = useCallback(
     (id: string, name: string): boolean => {
       const trimmed = (name ?? '').trim();
@@ -1067,6 +1092,7 @@ export function useSeatingPersistence(state: SeatingState) {
     loadSeatingPlan,
     deleteSeatingPlan,
     releaseOpenPlan,
+    duplicateSeatingPlan,
     renameSeatingPlan,
     saveTemplate,
     updateTemplate,

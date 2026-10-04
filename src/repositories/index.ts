@@ -8,6 +8,7 @@ export { IndexedDBRepository } from './IndexedDBRepository';
 export type {
   ISeatingPlanRepository,
   ActiveClassSnapshot,
+  ClassEditOutcome,
 } from './ISeatingPlanRepository';
 export type { Result, Success, Failure, RepositoryError } from './types';
 export { ResultHelpers, RepositoryErrorType } from './types';

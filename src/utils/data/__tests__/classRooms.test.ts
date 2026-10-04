@@ -14,6 +14,8 @@ import {
   createMockSavedPlan,
 } from '@/__tests__/utils';
 import {
+  applyClassEdit,
+  checkPlanName,
   checkRoomName,
   EMPTY_ROOM_STATE,
   ensureClassRooms,
@@ -316,5 +318,153 @@ describe('fittingLocks', () => {
     );
 
     expect(locks).toEqual({ ada: { table: 1, seat: 2 } });
+  });
+});
+
+describe('applyClassEdit', () => {
+  const lab = room('lab', { name: 'Labor' });
+  const classroom = room('classroom', { name: 'Klassenraum' });
+  const base = () =>
+    classRecord({
+      rooms: [classroom, lab],
+      activeRoomId: 'classroom',
+      seatingHistory: [
+        plan('sept', 'classroom'),
+        plan('oct', 'classroom'),
+        plan('chem', 'lab'),
+      ],
+      mixHistory: [mix(1, 'classroom'), mix(2, 'lab')],
+      activePlanId: 'oct',
+      classroomScene: createMockClassroomScene(2),
+    });
+  const apply = (edit: Parameters<typeof applyClassEdit>[1]) => {
+    const result = applyClassEdit(base(), edit);
+    if (!('record' in result)) throw new Error(result.problem);
+    return result.record;
+  };
+  const problemOf = (edit: Parameters<typeof applyClassEdit>[1]) => {
+    const result = applyClassEdit(base(), edit);
+    return 'problem' in result ? result.problem : null;
+  };
+
+  it('renames a plan and refuses a name another plan carries', () => {
+    expect(
+      apply({ kind: 'renamePlan', planId: 'sept', name: ' Woche 1 ' })
+        .seatingHistory[0]?.name,
+    ).toBe('Woche 1');
+    expect(problemOf({ kind: 'renamePlan', planId: 'sept', name: 'oct' })).toBe(
+      'taken',
+    );
+    expect(problemOf({ kind: 'renamePlan', planId: 'gone', name: 'Neu' })).toBe(
+      'not-found',
+    );
+  });
+
+  it('deletes a plan and lets go of it where it was open', () => {
+    const record = apply({ kind: 'deletePlan', planId: 'oct' });
+
+    expect(record.seatingHistory.map((entry) => entry.id)).toEqual([
+      'sept',
+      'chem',
+    ]);
+    expect(record.activePlanId).toBeNull();
+  });
+
+  it('duplicates a plan beside it, under the name and date given', () => {
+    const record = apply({
+      kind: 'duplicatePlan',
+      planId: 'chem',
+      newId: 'copy',
+      name: 'chem (2)',
+      date: '2026-10-04',
+    });
+
+    expect(record.seatingHistory[3]).toMatchObject({
+      id: 'copy',
+      name: 'chem (2)',
+      date: '2026-10-04',
+      roomId: 'lab',
+    });
+  });
+
+  it('moves a plan that is not open to another room, and nothing else', () => {
+    const record = apply({ kind: 'movePlan', planId: 'sept', roomId: 'lab' });
+
+    expect(record.seatingHistory[0]?.roomId).toBe('lab');
+    expect(record.activeRoomId).toBe('classroom');
+  });
+
+  it('moves the open plan with the working state, its room opening', () => {
+    const record = apply({
+      kind: 'movePlanToNewRoom',
+      planId: 'oct',
+      room: room('gym', { name: 'Turnhalle' }),
+    });
+
+    expect(record.activeRoomId).toBe('gym');
+    expect(record.rooms?.map((entry) => entry.name)).toEqual([
+      'Klassenraum',
+      'Labor',
+      'Turnhalle',
+    ]);
+    // The classroom parks its last remaining plan.
+    expect(record.rooms?.[0]?.parked?.activePlanId).toBe('sept');
+    expect(record.rooms?.[2]).not.toHaveProperty('parked');
+  });
+
+  it('opens a new room with the plan moved into it', () => {
+    const record = apply({
+      kind: 'movePlanToNewRoom',
+      planId: 'sept',
+      room: room('gym', { name: 'Turnhalle' }),
+    });
+
+    expect(record.rooms?.[2]?.parked?.activePlanId).toBe('sept');
+    expect(record.activeRoomId).toBe('classroom');
+  });
+
+  it('adds, renames and removes rooms by the rules of a class', () => {
+    expect(
+      apply({ kind: 'createRoom', room: room('gym', { name: 'Turnhalle' }) })
+        .rooms,
+    ).toHaveLength(3);
+    expect(
+      problemOf({ kind: 'createRoom', room: room('x', { name: 'labor' }) }),
+    ).toBe('taken');
+    expect(
+      apply({ kind: 'renameRoom', roomId: 'lab', name: 'Chemie' }).rooms?.[1]
+        ?.name,
+    ).toBe('Chemie');
+
+    const removed = apply({ kind: 'deleteRoom', roomId: 'lab' });
+    expect(removed.rooms?.map((entry) => entry.id)).toEqual(['classroom']);
+    expect(removed.seatingHistory.map((entry) => entry.id)).toEqual([
+      'sept',
+      'oct',
+    ]);
+    expect(removed.mixHistory.map((entry) => entry.id)).toEqual([1]);
+    expect(problemOf({ kind: 'deleteRoom', roomId: 'classroom' })).toBe(
+      'room-open',
+    );
+  });
+
+  it('removes a mix', () => {
+    expect(
+      apply({ kind: 'deleteMix', mixId: 2 }).mixHistory.map(
+        (entry) => entry.id,
+      ),
+    ).toEqual([1]);
+    expect(problemOf({ kind: 'deleteMix', mixId: 9 })).toBe('not-found');
+  });
+});
+
+describe('checkPlanName', () => {
+  it("holds plan names to saving's rule: exact, given, not too long", () => {
+    const plans = [plan('a'), plan('B')];
+    expect(checkPlanName(plans, 'b')).toBeNull();
+    expect(checkPlanName(plans, 'B')).toBe('taken');
+    expect(checkPlanName(plans, 'B', 'B')).toBeNull();
+    expect(checkPlanName(plans, '')).toBe('empty');
+    expect(checkPlanName(plans, 'x'.repeat(121))).toBe('too-long');
   });
 });

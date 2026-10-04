@@ -17,7 +17,12 @@ import type {
   RoomRecord,
 } from '@/types';
 import type { CircleLayout, CircleExportData } from '@/types/Circle';
+import type { ClassEdit, ClassEditProblem } from '@/utils/data/classRooms';
 import type { Result } from './types';
+
+/** What a change to a class that is not open came to. */
+export type ClassEditOutcome =
+  { ok: true } | { ok: false; reason: ClassEditProblem };
 
 export type ActiveClassSnapshot = {
   students?: Student[];
@@ -62,6 +67,16 @@ export interface ISeatingPlanRepository {
     classId: string,
     snapshot: ActiveClassSnapshot,
   ): Promise<Result<void>>;
+  /** One class's record, repaired (`ensureClassRooms`), as a copy. */
+  loadClassRecord(classId: string): Promise<Result<ClassRecord>>;
+  /**
+   * Changes a class that is not open (`applyClassEdit`); the open one is
+   * changed through the live state, which the stored record lags behind.
+   */
+  editInactiveClass(
+    classId: string,
+    edit: ClassEdit,
+  ): Promise<Result<ClassEditOutcome>>;
 
   // Student operations
   loadStudents(): Promise<Result<Student[]>>;

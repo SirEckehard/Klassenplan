@@ -354,6 +354,77 @@ describe('rooms of a class', () => {
   });
 });
 
+describe('classes that are not open', () => {
+  const twoClasses = async () => {
+    const open = expectData(
+      await repository.createClass({ name: '7a' }, { activate: true }),
+    );
+    const other = expectData(await repository.createClass({ name: '8c' }));
+    return { open, other };
+  };
+
+  it('reads one class as a repaired copy', async () => {
+    const { other } = await twoClasses();
+
+    const record = expectData(await repository.loadClassRecord(other.id));
+
+    expect(record.name).toBe('8c');
+    expect(record.rooms).toHaveLength(1);
+    record.name = 'mutated';
+    const again = expectData(await repository.loadClassRecord(other.id));
+    expect(again.name).toBe('8c');
+  });
+
+  it('changes a class that is not open and writes it once', async () => {
+    const { other } = await twoClasses();
+    vi.mocked(idbSetMock).mockClear();
+
+    const outcome = expectData(
+      await repository.editInactiveClass(other.id, {
+        kind: 'createRoom',
+        room: { id: 'lab', name: 'Labor', createdAt: '2026-10-04' },
+      }),
+    );
+
+    expect(outcome).toEqual({ ok: true });
+    expect(vi.mocked(idbSetMock)).toHaveBeenCalledTimes(1);
+    const record = expectData(await repository.loadClassRecord(other.id));
+    expect(record.rooms?.map((room) => room.name)).toEqual([
+      expect.stringMatching(/Klassenraum|Classroom/),
+      'Labor',
+    ]);
+  });
+
+  it('says why a change cannot be made and writes nothing', async () => {
+    const { other } = await twoClasses();
+    vi.mocked(idbSetMock).mockClear();
+    const record = expectData(await repository.loadClassRecord(other.id));
+
+    const outcome = expectData(
+      await repository.editInactiveClass(other.id, {
+        kind: 'deleteRoom',
+        roomId: record.rooms![0]!.id,
+      }),
+    );
+
+    expect(outcome).toEqual({ ok: false, reason: 'room-open' });
+    expect(vi.mocked(idbSetMock)).not.toHaveBeenCalled();
+  });
+
+  it('refuses to change the open class, which lives in the live state', async () => {
+    const { open } = await twoClasses();
+
+    const error = expectFailure(
+      await repository.editInactiveClass(open.id, {
+        kind: 'deleteMix',
+        mixId: 1,
+      }),
+    );
+
+    expect(error.type).toBe(RepositoryErrorType.VALIDATION_ERROR);
+  });
+});
+
 describe('class isolation', () => {
   it('keeps each class snapshot to itself', async () => {
     const a = expectData(

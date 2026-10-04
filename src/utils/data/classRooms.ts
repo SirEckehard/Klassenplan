@@ -6,7 +6,12 @@
  * fields, every other room parks its own. Data written before rooms existed —
  * by an older build, in a backup — is brought into that shape as it is read.
  */
-import { checkName, generateId, MAX_NAME_LENGTH } from '@/utils';
+import {
+  checkName,
+  generateId,
+  MAX_NAME_LENGTH,
+  MAX_ROOMS_PER_CLASS,
+} from '@/utils';
 import type { NameProblem } from '@/utils';
 import type {
   ClassCollectionState,
@@ -266,4 +271,252 @@ export function fittingLocks(
     fitting[studentId] = { table: position.table, seat: position.seat };
   }
   return fitting;
+}
+
+/**
+ * A change to a class's plans, mixes and rooms, made on its record — how
+ * "Pläne & Verlauf" changes a class that is not open (decision 0024). The open
+ * class takes the same changes through its live actions, by the same rules.
+ */
+export type ClassEdit =
+  | { kind: 'renamePlan'; planId: string; name: string }
+  | { kind: 'deletePlan'; planId: string }
+  | {
+      kind: 'duplicatePlan';
+      planId: string;
+      newId: string;
+      name: string;
+      date: string;
+    }
+  | { kind: 'movePlan'; planId: string; roomId: string }
+  | { kind: 'movePlanToNewRoom'; planId: string; room: RoomRecord }
+  | { kind: 'deleteMix'; mixId: number }
+  | { kind: 'createRoom'; room: RoomRecord }
+  | { kind: 'renameRoom'; roomId: string; name: string }
+  | { kind: 'deleteRoom'; roomId: string };
+
+/** Why a change cannot be made. */
+export type ClassEditProblem =
+  NameProblem | 'not-found' | 'room-open' | 'last-room' | 'room-limit';
+
+/**
+ * Whether `name` may be a plan's: given, not too long, and no other plan of
+ * the class carries it — exactly, as saving holds it (`resolvePlanSlot`).
+ */
+export function checkPlanName(
+  plans: SavedPlan[],
+  name: string,
+  planId?: string,
+): NameProblem | null {
+  const trimmed = name.trim();
+  if (trimmed === '') return 'empty';
+  if (trimmed.length > MAX_NAME_LENGTH) return 'too-long';
+  return plans.some((plan) => plan.id !== planId && plan.name === trimmed)
+    ? 'taken'
+    : null;
+}
+
+/** The rooms with no parked state left pointing at `planId`. */
+function withoutParkedPlan(rooms: RoomRecord[], planId: string): RoomRecord[] {
+  return mapIfChanged(rooms, (room) =>
+    room.parked?.activePlanId === planId
+      ? { ...room, parked: { ...room.parked, activePlanId: null } }
+      : room,
+  );
+}
+
+/**
+ * Moves a plan to `target`, a room of the class. A plan that is not open only
+ * changes its room — a room just made opens with it later; the open plan
+ * takes the working state along, its new room becomes the open one, and the
+ * room it left parks its last remaining plan, or its tables without one.
+ */
+function movePlan(
+  record: ClassRecord,
+  plan: SavedPlan,
+  target: RoomRecord,
+  isNewRoom: boolean,
+): ClassRecord {
+  const rooms = record.rooms ?? [];
+  const moved: SavedPlan = { ...plan, roomId: target.id };
+  delete moved.autoSaved;
+  const plans = record.seatingHistory.map((entry) =>
+    entry.id === plan.id ? moved : entry,
+  );
+  const listed = isNewRoom ? [...rooms, target] : rooms;
+
+  if (plan.id !== record.activePlanId) {
+    // The room the plan left no longer has it open; a room just made opens
+    // with it.
+    return {
+      ...record,
+      seatingHistory: plans,
+      rooms: withoutParkedPlan(listed, plan.id).map((room) =>
+        isNewRoom && room.id === target.id
+          ? { ...room, parked: workingStateFromPlan(moved) }
+          : room,
+      ),
+    };
+  }
+
+  const remaining = plans.filter(
+    (entry) => entry.roomId === record.activeRoomId,
+  );
+  const last = remaining[remaining.length - 1];
+  const parkedLeft: RoomWorkingState = last
+    ? workingStateFromPlan(last)
+    : { ...EMPTY_ROOM_STATE, scene: record.classroomScene };
+  return {
+    ...record,
+    seatingHistory: plans,
+    activeRoomId: target.id,
+    rooms: listed.map((room) => {
+      if (room.id === record.activeRoomId) {
+        return { ...room, parked: parkedLeft };
+      }
+      if (room.id === target.id) {
+        const open = { ...room };
+        delete open.parked;
+        return open;
+      }
+      return room;
+    }),
+  };
+}
+
+/**
+ * Applies `edit` to a class's record, which should be repaired already
+ * (`ensureClassRooms`): the changed record, or why the change cannot be made.
+ * Pure — ids and dates come with the edit — so the repository can apply it
+ * and a test can predict it.
+ */
+export function applyClassEdit(
+  record: ClassRecord,
+  edit: ClassEdit,
+): { record: ClassRecord } | { problem: ClassEditProblem } {
+  const rooms = record.rooms ?? [];
+  const plans = record.seatingHistory;
+  const findPlan = (planId: string) => plans.find((plan) => plan.id === planId);
+
+  switch (edit.kind) {
+    case 'renamePlan': {
+      if (!findPlan(edit.planId)) return { problem: 'not-found' };
+      const problem = checkPlanName(plans, edit.name, edit.planId);
+      if (problem) return { problem };
+      return {
+        record: {
+          ...record,
+          seatingHistory: plans.map((plan) =>
+            plan.id === edit.planId
+              ? { ...plan, name: edit.name.trim() }
+              : plan,
+          ),
+        },
+      };
+    }
+    case 'deletePlan': {
+      if (!findPlan(edit.planId)) return { problem: 'not-found' };
+      return {
+        record: {
+          ...record,
+          seatingHistory: plans.filter((plan) => plan.id !== edit.planId),
+          activePlanId:
+            record.activePlanId === edit.planId ? null : record.activePlanId,
+          rooms: withoutParkedPlan(rooms, edit.planId),
+        },
+      };
+    }
+    case 'duplicatePlan': {
+      const plan = findPlan(edit.planId);
+      if (!plan) return { problem: 'not-found' };
+      const problem = checkPlanName(plans, edit.name);
+      if (problem) return { problem };
+      const copy: SavedPlan = {
+        ...plan,
+        id: edit.newId,
+        name: edit.name.trim(),
+        date: edit.date,
+      };
+      delete copy.autoSaved;
+      return { record: { ...record, seatingHistory: [...plans, copy] } };
+    }
+    case 'movePlan': {
+      const plan = findPlan(edit.planId);
+      const target = rooms.find((room) => room.id === edit.roomId);
+      if (!plan || !target) return { problem: 'not-found' };
+      if (plan.roomId === target.id) return { record };
+      return { record: movePlan(record, plan, target, false) };
+    }
+    case 'movePlanToNewRoom': {
+      const plan = findPlan(edit.planId);
+      if (!plan) return { problem: 'not-found' };
+      if (rooms.length >= MAX_ROOMS_PER_CLASS) return { problem: 'room-limit' };
+      const problem = checkRoomName(rooms, edit.room.name);
+      if (problem) return { problem };
+      return {
+        record: movePlan(
+          record,
+          plan,
+          { ...edit.room, name: edit.room.name.trim() },
+          true,
+        ),
+      };
+    }
+    case 'deleteMix': {
+      if (!record.mixHistory.some((mix) => mix.id === edit.mixId)) {
+        return { problem: 'not-found' };
+      }
+      return {
+        record: {
+          ...record,
+          mixHistory: record.mixHistory.filter((mix) => mix.id !== edit.mixId),
+        },
+      };
+    }
+    case 'createRoom': {
+      if (rooms.length >= MAX_ROOMS_PER_CLASS) return { problem: 'room-limit' };
+      const problem = checkRoomName(rooms, edit.room.name);
+      if (problem) return { problem };
+      return {
+        record: {
+          ...record,
+          rooms: [...rooms, { ...edit.room, name: edit.room.name.trim() }],
+        },
+      };
+    }
+    case 'renameRoom': {
+      if (!rooms.some((room) => room.id === edit.roomId)) {
+        return { problem: 'not-found' };
+      }
+      const problem = checkRoomName(rooms, edit.name, edit.roomId);
+      if (problem) return { problem };
+      return {
+        record: {
+          ...record,
+          rooms: rooms.map((room) =>
+            room.id === edit.roomId
+              ? { ...room, name: edit.name.trim() }
+              : room,
+          ),
+        },
+      };
+    }
+    case 'deleteRoom': {
+      if (!rooms.some((room) => room.id === edit.roomId)) {
+        return { problem: 'not-found' };
+      }
+      if (edit.roomId === record.activeRoomId) return { problem: 'room-open' };
+      if (rooms.length <= 1) return { problem: 'last-room' };
+      return {
+        record: {
+          ...record,
+          rooms: rooms.filter((room) => room.id !== edit.roomId),
+          seatingHistory: plans.filter((plan) => plan.roomId !== edit.roomId),
+          mixHistory: record.mixHistory.filter(
+            (mix) => mix.roomId !== edit.roomId,
+          ),
+        },
+      };
+    }
+  }
 }
