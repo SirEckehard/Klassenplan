@@ -36,6 +36,7 @@ it says so instead of reconstructing one.
 | [0021](0021-seat-badges-explained.md)              | The badges on a seat explain themselves                    |
 | [0022](0022-one-drag-for-plan-and-circle.md)       | One drag for the plan and the circle, locks in the circle  |
 | [0023](0023-neighbourhood-reset.md)                | The neighbourhoods can be reset in one click               |
+| [0024](0024-rooms-of-a-class.md)                   | A class keeps its rooms, and "Pläne & Verlauf" shows them  |
 
 ## Reasons still to be recorded
 
