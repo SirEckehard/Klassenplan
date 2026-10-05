@@ -35,7 +35,7 @@ describe('AttributeFocusMode', () => {
 
     expect(
       screen.getByRole('heading', {
-        name: /Wer zeigt Unruhe\?|Who is restless\?/i,
+        name: /Wer zeigt aktuell Unruhe\?|Who is currently restless\?/i,
       }),
     ).toBeVisible();
     expect(tile('Ada')).toHaveAttribute('aria-pressed', 'false');

@@ -50,7 +50,7 @@ export default function AppStatusBar() {
   const { t } = useTranslation(['generator', 'students']);
   const { step, students, classroomScene } = useSeatingPlanState();
   const { handleStepChange } = useSeatingPlanActions();
-  const { setHistoryNode, setActionNode } = useStatusBarSlot();
+  const { setHistoryNode, setActionNode, setStatusNode } = useStatusBarSlot();
   const hintId = React.useId();
 
   const studentsCount = students.length;
@@ -132,9 +132,10 @@ export default function AppStatusBar() {
       };
     }
 
-    // The plan layer states nothing: the plan on the stage says whether it
-    // is there, and its criteria have their figures in the inspector. "24 von
-    // 24 Plätzen besetzt" only repeated what the plan shows.
+    // The plan layer states no count: the plan on the stage says whether it
+    // is there — "24 von 24 Plätzen besetzt" only repeated what it shows. It
+    // states how well it meets the criteria instead, through the `status`
+    // slot, since the figure lives with the view that mixes.
     return { segments: [], verdict: null };
   }, [missingNameCount, seatCount, step, studentsCount, t, tableCount]);
   const VerdictIcon = verdict?.fits ? CheckCircleIcon : XCircleIcon;
@@ -201,36 +202,45 @@ export default function AppStatusBar() {
   return (
     <StatusBarFrame
       start={
-        segments.length > 0 && (
-          <p
-            data-tour={step === 2 ? TOUR_ANCHORS.layoutStatus : undefined}
-            className="flex min-w-0 items-center gap-1.5 text-xs tabular-nums text-(--text-muted) sm:text-sm"
-          >
-            {short ? (
-              <span className="min-w-0 truncate" title={segments.join(' · ')}>
-                <span className="xl:hidden">{short}</span>
-                <span className="hidden xl:inline">{segments.join(' · ')}</span>
-              </span>
-            ) : (
-              <span className="min-w-0 truncate">{segments.join(' · ')}</span>
-            )}
-            {verdict && (
-              <span className="inline-flex shrink-0" title={verdict.label}>
-                <VerdictIcon
-                  size={16}
-                  weight="fill"
-                  aria-hidden="true"
-                  className={
-                    verdict.fits
-                      ? 'text-(--status-ok)'
-                      : 'text-(--status-alert)'
-                  }
-                />
-                <span className="sr-only">{verdict.label}</span>
-              </span>
-            )}
-          </p>
-        )
+        <>
+          {/* What a view states itself: the plan layer's fulfilment. */}
+          <span
+            ref={setStatusNode}
+            className="flex min-w-0 items-center empty:hidden"
+          />
+          {segments.length > 0 && (
+            <p
+              data-tour={step === 2 ? TOUR_ANCHORS.layoutStatus : undefined}
+              className="flex min-w-0 items-center gap-1.5 text-xs tabular-nums text-(--text-muted) sm:text-sm"
+            >
+              {short ? (
+                <span className="min-w-0 truncate" title={segments.join(' · ')}>
+                  <span className="xl:hidden">{short}</span>
+                  <span className="hidden xl:inline">
+                    {segments.join(' · ')}
+                  </span>
+                </span>
+              ) : (
+                <span className="min-w-0 truncate">{segments.join(' · ')}</span>
+              )}
+              {verdict && (
+                <span className="inline-flex shrink-0" title={verdict.label}>
+                  <VerdictIcon
+                    size={16}
+                    weight="fill"
+                    aria-hidden="true"
+                    className={
+                      verdict.fits
+                        ? 'text-(--status-ok)'
+                        : 'text-(--status-alert)'
+                    }
+                  />
+                  <span className="sr-only">{verdict.label}</span>
+                </span>
+              )}
+            </p>
+          )}
+        </>
       }
       middle={
         // Undo/redo sit in the middle, under the stage, on every layer. Two

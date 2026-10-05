@@ -10,7 +10,8 @@ import {
 /**
  * Renders a layer's own controls into the shell's status bar: `history` for
  * the layer's undo/redo, `action` for its one primary action beside them —
- * both in the middle — and `float` above the bar's right end.
+ * both in the middle — `float` above the bar's right end and `status` at its
+ * left end.
  */
 export default function StatusBarPortal({
   slot = 'history',
@@ -19,8 +20,14 @@ export default function StatusBarPortal({
   slot?: StatusBarSlot;
   children: React.ReactNode;
 }) {
-  const { historyNode, actionNode, floatNode } = useStatusBarSlot();
+  const { historyNode, actionNode, floatNode, statusNode } = useStatusBarSlot();
   const target =
-    slot === 'action' ? actionNode : slot === 'float' ? floatNode : historyNode;
+    slot === 'action'
+      ? actionNode
+      : slot === 'float'
+        ? floatNode
+        : slot === 'status'
+          ? statusNode
+          : historyNode;
   return target ? createPortal(children, target) : null;
 }

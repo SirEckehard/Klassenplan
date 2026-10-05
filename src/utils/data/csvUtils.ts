@@ -720,7 +720,14 @@ const parseHeightCell = (value: unknown): HeightCategory | undefined => {
  * Recognizes German and English labels.
  */
 const LANGUAGE_SKILL_PATTERNS: Record<LanguageSkillLevel, string[]> = {
-  native: ['muttersprache', 'native', 'muttersprachlich', 'deutsch'],
+  native: [
+    'erstsprache',
+    'first language',
+    'muttersprache',
+    'native',
+    'muttersprachlich',
+    'deutsch',
+  ],
   fluent: ['fliessend', 'fließend', 'fluent', 'c1', 'c2'],
   intermediate: ['fortgeschritten', 'intermediate', 'b1', 'b2'],
   beginner: ['anfanger', 'anfänger', 'beginner', 'a1', 'a2'],

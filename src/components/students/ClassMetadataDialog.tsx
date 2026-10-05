@@ -150,7 +150,7 @@ export default function ClassMetadataDialog({
               maxLength={MAX_NAME_LENGTH}
               placeholder={t(
                 'classDialog.schoolYearPlaceholder',
-                'z. B. 2025/26',
+                'z. B. 2026/27',
               )}
             />
           </div>

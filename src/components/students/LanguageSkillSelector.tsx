@@ -30,7 +30,7 @@ const LANGUAGE_SKILL_OPTIONS: LanguageSkillLevel[] = [
  * criterion, which seats a strong level beside a beginner — so the value is
  * about what a table can carry, not about where anybody is from.
  *
- * Five levels from Muttersprache down are a scale, so they stand as a list in
+ * Five levels from Erstsprache down are a scale, so they stand as a list in
  * that order, each with the icon its seat badge shows.
  */
 export default function LanguageSkillSelector({

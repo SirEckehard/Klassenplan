@@ -163,14 +163,14 @@
     },
     "klassenliste": {
       "title": "Class list & class management",
-      "description": "Multiple classes, CSV import, photos, attribute mode and the name game.",
+      "description": "Multiple classes, CSV import, photos, the “Attributes” view and the name game.",
       "classes": {
         "q": "Can I manage several classes?",
         "a": "Yes. The class switcher at the top left of the header lets you create as many classes as you like, rename them, switch between them or delete them. Each class keeps its own students, classroom layouts, seating plans and recent mixes. Deleting a class also deletes its seating plans – so a backup beforehand is worth it."
       },
       "csv": {
         "q": "How do I import an existing class list?",
-        "a": "Use \"Import class list\" to upload a CSV file, the kind you can save from Excel, LibreOffice, Numbers or Google Sheets. A list from your school administration software – WebUntis, Schulmanager or SchILD, say – can usually be uploaded as it is: Klassenplan recognises the usual column names and skips a title line above the headers. The only requirement is a name column – \"Name\", \"First name\" or \"Last name\"; every other possible column such as gender, restless, window seat or preferred partner is optional, and unknown columns are simply ignored. Click \"What the file looks like\" to see an example, or download the CSV template and fill it in. If your file contains several name columns or several classes, Klassenplan asks what to import."
+        "a": "Use \"Import class list\" to upload a CSV file, the kind you can save from Excel, LibreOffice, Numbers or Google Sheets. A list from your school administration software – WebUntis, Schulmanager or SchILD, say – can usually be uploaded as it is: Klassenplan recognises the usual column names and skips a title line above the headers. The only requirement is a name column – \"Name\", \"First name\" or \"Last name\"; every other possible column such as gender, restless, window seat or preferred partner is optional, and unknown columns are simply ignored. Click \"What the CSV file must look like\" to see an example, or download the CSV template and fill it in. If your file contains several name columns or several classes, Klassenplan asks what to import."
       },
       "photos": {
         "q": "Can I store photos of my students?",
@@ -178,7 +178,7 @@
       },
       "focusMode": {
         "q": "How do I set an attribute for the whole class quickly?",
-        "a": "With attribute mode, under “View” in the toolbar. It asks everyone one question – “Who is restless?”, for instance – and you tap the students it currently applies to. Then it moves on to the next attribute until every yes/no attribute of the class is set."
+        "a": "With “Attributes”, under “View” in the toolbar. The view asks everyone one question – “Who is currently restless?”, for instance – and you tap the students it currently applies to. Then it moves on to the next attribute until every yes/no attribute of the class is set."
       },
       "bulk": {
         "q": "How do I edit several students at once?",
@@ -196,7 +196,7 @@
     "eigenschaften": {
       "title": "Student Properties & Criteria",
       "description": "Overview of all properties and how the algorithm uses them.",
-      "intro": "On the class layer you record properties for every student – in the inspector, or faster in attribute mode. When you mix the seating plan, they come into play through the criteria selected there. This overview shows every property, what it means and what the algorithm does with it.",
+      "intro": "On the class layer you record properties for every student – in the inspector, or faster in the “Attributes” view. When you mix the seating plan, they come into play through the criteria selected there. This overview shows every property, what it means and what the algorithm does with it.",
       "algorithmLabel": "When mixing:",
       "props": {
         "gender": {

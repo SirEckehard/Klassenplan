@@ -147,7 +147,9 @@ export legend names it. The tones are washes of the canvas (light fills around
 `#f3effc`, dark fills around `#2d2b3f`) with a mid-tone contour, and the seat's
 text keeps at least 12:1 on each. Only seats carry it; avatars and cards stay
 paper, the projection's colour switch removes it and its contrast mode never
-shows it. Decision 0020 holds the reasons.
+shows it. The one control that carries it is the inspector's gender choice:
+its pressed chip wears the tint its seats will wear, so the choice says what
+it comes to. Decision 0020 holds the reasons.
 
 `warning-button` is the one leftover: it carried the old amber "back / side trip" accent and is used for navigation (Namensspiel, Zurück zum Klassenraum), not for warnings. Its tokens (`--button-warning-*`) now render neutral; the call sites move to `secondary-button` and the token disappears with them.
 
@@ -170,9 +172,11 @@ while the projection belongs to the room — the contrast mode's white wall
 changes the wall, not the bar. In fullscreen the room gets the wall to itself:
 the strip on top is gone, and the bar slides away until the pointer comes near
 the bottom edge (a tap there on a touch screen) or the keyboard moves into it.
-Every button on it carries a word — under the icon, so the bar stays narrow
-enough for a laptop — since at the board no tooltip explains an icon to a
-finger. After a tap it stays up five seconds, as a teacher at the board steps back to
+Every button on it carries a word — under the icon, the size slider's name and
+value under the slider, so the bar stays on one line — since at the board no
+tooltip explains an icon to a finger. A setting that is on (badges, photos,
+room, colours, contrast) reads as a selection, light blue with a blue hairline;
+the solid blue marks whose view is on the wall, teacher's or students'. After a tap it stays up five seconds, as a teacher at the board steps back to
 look before the second tap. The plan is framed on the tables: the board, the
 windows and the door come in from their walls to just beside them, so the room
 keeps its front and its sides while the names grow to the wall's size, and

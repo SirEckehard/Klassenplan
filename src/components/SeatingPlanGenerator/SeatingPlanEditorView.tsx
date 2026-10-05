@@ -21,6 +21,9 @@ import {
   InspectorHeader,
 } from '@/components/shell/InspectorPanel';
 import StatusBarPortal from '@/components/shell/StatusBarPortal';
+import { statusBarWordClass } from '@/components/shell/StatusBarFrame';
+import { useInspector } from '@/contexts/InspectorContext';
+import { isBreakpointUp } from '@/hooks/ui/useBreakpoint';
 import { useCanvasPreferences } from '@/contexts/seatingPlan/CanvasPreferencesContext';
 import SeatingPlanCanvas from '@/components/SeatingPlanGenerator/SeatingPlanCanvas';
 import SeatingStatisticsBadge from '@/components/ui/feedback/SeatingStatisticsBadge';
@@ -605,6 +608,24 @@ export default function SeatingPlanEditorView({
     ],
   );
 
+  // The fulfilment in the status bar leads to the values per criterion: it
+  // turns them on and brings the inspector into view — the column from `lg`
+  // up, the drawer on a tablet. A phone shows them over the plan instead, and
+  // a drawer would cover that.
+  const { setFolded, setDrawerOpen } = useInspector();
+  const handleShowFulfillment = React.useCallback(() => {
+    if (!showStatisticsBadge) onOpenStatistics?.();
+    if (isPhone) return;
+    if (isBreakpointUp('lg')) setFolded(false);
+    else setDrawerOpen(true);
+  }, [
+    isPhone,
+    onOpenStatistics,
+    setDrawerOpen,
+    setFolded,
+    showStatisticsBadge,
+  ]);
+
   const handleStatisticsToggle = React.useCallback(() => {
     if (!hasStatistics) {
       return;
@@ -868,6 +889,29 @@ export default function SeatingPlanEditorView({
             <span className="hidden sm:inline">{t('actions.mixAgain')}</span>
           </button>
         </StatusBarPortal>
+
+        {/* How well the plan meets the criteria, at the bar's left end where
+            the other layers state their numbers; the word goes where the bar
+            is narrow, the figure stays. */}
+        {hasStatistics && onOpenStatistics && (
+          <StatusBarPortal slot="status">
+            <button
+              type="button"
+              onClick={handleShowFulfillment}
+              aria-label={`${t('editor.fulfillmentLabel')} ${formatPercent(statisticsScore)}`}
+              title={t('editor.showFulfillment')}
+              className="inline-flex min-w-0 shrink-0 cursor-pointer items-center gap-1.5 rounded-md px-1.5 py-1 text-xs tabular-nums text-(--text-muted) transition hover:bg-(--surface-sunken) hover:text-(--text-page) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) pointer-coarse:min-h-11 sm:text-sm"
+            >
+              <ChartBarIcon size={16} aria-hidden="true" />
+              <span className={statusBarWordClass}>
+                {t('editor.fulfillmentLabel')}
+              </span>
+              <span className="font-semibold text-(--text-page)">
+                {formatPercent(statisticsScore)}
+              </span>
+            </button>
+          </StatusBarPortal>
+        )}
 
         <div className={`${workspaceStageClass} relative flex flex-col`}>
           <div className="flex min-w-0 flex-col gap-4 lg:min-h-0 lg:flex-1">

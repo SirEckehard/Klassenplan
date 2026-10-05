@@ -279,7 +279,7 @@ describe('StudentInput', () => {
       screen.getByRole('complementary', { name: /Werkzeugleiste|Toolbar/i }),
     ).toBeInTheDocument();
     for (const name of [
-      /^(Liste|List)$/i,
+      /^(Klassenliste|Class list)$/i,
       /Schüler hinzufügen|Add student/i,
       /Platzhalter erstellen|Create placeholders/i,
       /Klassenliste importieren|Import class list/i,

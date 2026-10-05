@@ -218,6 +218,11 @@ export function InspectorChoice<T extends string>({
     label: string;
     title?: string;
     icon?: React.ReactNode;
+    /**
+     * Colours the chip takes while it is pressed, in place of the selection
+     * blue — for a value the plan itself draws in a colour of its own.
+     */
+    tint?: { fill: string; stroke: string };
   }>;
   onChange: (value: T | undefined) => void;
   /** Names the group for a screen reader; the row's label repeats it on screen. */
@@ -304,13 +309,23 @@ export function InspectorChoice<T extends string>({
             title={
               isMixed ? t('bulkEdit.choiceMixed', { label: title }) : title
             }
+            style={
+              isActive && option.tint
+                ? {
+                    backgroundColor: option.tint.fill,
+                    borderColor: option.tint.stroke,
+                  }
+                : undefined
+            }
             // A fingertip needs 44px; with the mouse the chips stay compact.
             className={`inline-flex cursor-pointer items-center gap-1 rounded-md border px-2 py-1 text-xs transition pointer-coarse:min-h-11 pointer-coarse:px-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) ${
-              isActive
-                ? 'border-(--border-option-selected) bg-(--surface-option-selected) text-(--text-badge)'
-                : isMixed
-                  ? 'border-dashed border-(--border-option-selected) bg-(--surface-card) text-(--text-page) hover:bg-(--surface-option-selected)'
-                  : 'border-(--border-card) bg-(--surface-card) text-(--text-muted) hover:border-(--border-option-hover)'
+              isActive && option.tint
+                ? 'font-medium text-(--text-page)'
+                : isActive
+                  ? 'border-(--border-option-selected) bg-(--surface-option-selected) text-(--text-badge)'
+                  : isMixed
+                    ? 'border-dashed border-(--border-option-selected) bg-(--surface-card) text-(--text-page) hover:bg-(--surface-option-selected)'
+                    : 'border-(--border-card) bg-(--surface-card) text-(--text-muted) hover:border-(--border-option-hover)'
             }`}
           >
             {option.icon}

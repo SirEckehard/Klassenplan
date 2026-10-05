@@ -163,14 +163,14 @@
     },
     "klassenliste": {
       "title": "Klassenliste & Klassenverwaltung",
-      "description": "Mehrere Klassen, CSV-Import, Fotos, Merkmal-Modus und Namensspiel.",
+      "description": "Mehrere Klassen, CSV-Import, Fotos, die Ansicht „Merkmale“ und Namensspiel.",
       "classes": {
         "q": "Kann ich mehrere Klassen verwalten?",
         "a": "Ja. Über die Klassenauswahl oben links in der Kopfzeile legst du beliebig viele Klassen an, benennst sie um, wechselst zwischen ihnen oder löschst sie. Jede Klasse hat ihre eigenen Schüler, Klassenraum-Layouts, Sitzpläne und letzten Mischungen. Löschst du eine Klasse, werden auch deren Sitzpläne gelöscht – ein Backup vorher lohnt sich."
       },
       "csv": {
         "q": "Wie importiere ich eine bestehende Klassenliste?",
-        "a": "Über „Klassenliste importieren“ lädst du eine CSV-Datei hoch, wie du sie aus Excel, LibreOffice, Numbers oder Google Tabellen speichern kannst. Eine Liste aus deinem Schulverwaltungsprogramm – etwa WebUntis, Schulmanager oder SchILD – kannst du meist unverändert hochladen: Klassenplan erkennt die üblichen Spaltennamen und überspringt eine Titelzeile über den Überschriften. Pflicht ist nur eine Namensspalte – „Name“, „Vorname“ oder „Nachname“; alle weiteren möglichen Spalten wie Geschlecht, Unruhig, Fensterplatz oder Wunschpartner sind freiwillig, unbekannte Spalten werden ignoriert. Klicke auf „So sieht die Datei aus“, um ein Beispiel zu sehen, oder lade die CSV-Vorlage herunter, die du zum Ausfüllen nutzen kannst. Enthält deine Datei mehrere Namensspalten oder mehrere Klassen, fragt Klassenplan vor dem Import, was übernommen werden soll."
+        "a": "Über „Klassenliste importieren“ lädst du eine CSV-Datei hoch, wie du sie aus Excel, LibreOffice, Numbers oder Google Tabellen speichern kannst. Eine Liste aus deinem Schulverwaltungsprogramm – etwa WebUntis, Schulmanager oder SchILD – kannst du meist unverändert hochladen: Klassenplan erkennt die üblichen Spaltennamen und überspringt eine Titelzeile über den Überschriften. Pflicht ist nur eine Namensspalte – „Name“, „Vorname“ oder „Nachname“; alle weiteren möglichen Spalten wie Geschlecht, Unruhig, Fensterplatz oder Wunschpartner sind freiwillig, unbekannte Spalten werden ignoriert. Klicke auf „So muss die CSV-Datei aussehen“, um ein Beispiel zu sehen, oder lade die CSV-Vorlage herunter, die du zum Ausfüllen nutzen kannst. Enthält deine Datei mehrere Namensspalten oder mehrere Klassen, fragt Klassenplan vor dem Import, was übernommen werden soll."
       },
       "photos": {
         "q": "Kann ich Fotos meiner Schüler hinterlegen?",
@@ -178,7 +178,7 @@
       },
       "focusMode": {
         "q": "Wie setze ich ein Merkmal schnell für die ganze Klasse?",
-        "a": "Mit dem Merkmal-Modus in der Werkzeugleiste unter „Ansicht“. Er stellt eine Frage an alle – etwa „Wer zeigt Unruhe?“ – und du tippst die Schüler an, auf die das aktuell zutrifft. Danach geht es zum nächsten Merkmal, bis alle Ja/Nein-Merkmale der Klasse gesetzt sind."
+        "a": "Mit „Merkmale“ in der Werkzeugleiste unter „Ansicht“. Die Ansicht stellt eine Frage an alle – etwa „Wer zeigt aktuell Unruhe?“ – und du tippst die Schüler an, auf die das aktuell zutrifft. Danach geht es zum nächsten Merkmal, bis alle Ja/Nein-Merkmale der Klasse gesetzt sind."
       },
       "bulk": {
         "q": "Wie bearbeite ich mehrere Schüler auf einmal?",
@@ -196,7 +196,7 @@
     "eigenschaften": {
       "title": "Schülereigenschaften & Kriterien",
       "description": "Übersicht aller Eigenschaften und wie der Algorithmus sie verwendet.",
-      "intro": "Für jeden Schüler hinterlegst du in der Klasse Eigenschaften – im Inspektor oder schneller im Merkmal-Modus. Beim Mischen im Sitzplan fließen sie über die dort ausgewählten Kriterien ein. Die Übersicht zeigt alle Eigenschaften, was sie bedeuten und was der Algorithmus daraus macht.",
+      "intro": "Für jeden Schüler hinterlegst du in der Klasse Eigenschaften – im Inspektor oder schneller in der Ansicht „Merkmale“. Beim Mischen im Sitzplan fließen sie über die dort ausgewählten Kriterien ein. Die Übersicht zeigt alle Eigenschaften, was sie bedeuten und was der Algorithmus daraus macht.",
       "algorithmLabel": "Beim Mischen:",
       "props": {
         "gender": {

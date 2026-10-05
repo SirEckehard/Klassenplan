@@ -730,7 +730,7 @@ const LANGUAGE_SKILL_CONFIG: Record<
 > = {
   native: {
     icon: STUDENT_ATTRIBUTE_ICONS.languageSkill.native,
-    label: 'Muttersprache',
+    label: 'Erstsprache',
   },
   fluent: {
     icon: STUDENT_ATTRIBUTE_ICONS.languageSkill.fluent,

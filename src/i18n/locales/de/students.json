@@ -96,10 +96,10 @@
     "export": "Klassenliste exportieren",
     "templateLink": "CSV-Vorlage",
     "downloadTemplate": "CSV-Vorlage herunterladen",
-    "formatHelp": "So sieht die Datei aus"
+    "formatHelp": "So muss die CSV-Datei aussehen"
   },
   "csvHelp": {
-    "title": "So sieht eine Klassenliste aus",
+    "title": "So sieht eine Klassenliste im CSV-Format aus",
     "subtitle": "Eine CSV ist nichts weiter als eine einfache Tabelle. Du kannst sie in Excel, LibreOffice, Numbers oder Google Tabellen anlegen und dort als CSV speichern.",
     "tableCaption": "Beispiel für eine Klassenliste. Die erste Zeile enthält die Spaltenüberschriften, danach steht pro Zeile ein Schüler.",
     "requiredBadge": "Pflicht",
@@ -176,14 +176,14 @@
   "languageSkill": {
     "title": "Sprachniveau",
     "short": "Sprache",
-    "native": "Muttersprache",
+    "native": "Erstsprache",
     "fluent": "Fließend",
     "intermediate": "Fortgeschritten",
     "beginner": "Anfänger",
     "daz": "DaZ-Förderung",
     "notSet": "Nicht angegeben",
     "tooltip": {
-      "native": "Deutsch ist Muttersprache",
+      "native": "Deutsch ist Erstsprache",
       "fluent": "Fließend (C1/C2)",
       "intermediate": "Fortgeschritten (B1/B2)",
       "beginner": "Anfänger (A1/A2)",
@@ -226,7 +226,7 @@
     "className": "Klassenname",
     "classNamePlaceholder": "z. B. Klasse 7b",
     "schoolYear": "Schuljahr",
-    "schoolYearPlaceholder": "z. B. 2025/26",
+    "schoolYearPlaceholder": "z. B. 2026/27",
     "notes": "Notizen",
     "notesPlaceholder": "Besonderheiten, Schwerpunkt, etc.",
     "createButton": "Klasse anlegen"
@@ -361,9 +361,9 @@
     }
   },
   "focusMode": {
-    "title": "Merkmal-Modus",
-    "listMode": "Liste",
-    "hint": "Tippe alle an, auf die es zutrifft. Der Rest bleibt, wie er ist.",
+    "title": "Merkmale",
+    "listMode": "Klassenliste",
+    "hint": "Wähle alle Schüler aus, auf die das gerade zutrifft. Überdenke die Zuschreibungen immer wieder und passe sie bei Bedarf an.",
     "selected_one": "{{count}} ausgewählt",
     "selected_other": "{{count}} ausgewählt",
     "clear": "Auswahl leeren",
@@ -374,11 +374,11 @@
     "finish": "Durchgang beenden",
     "empty": "Füge zuerst Schüler hinzu.",
     "questions": {
-      "restless": "Wer zeigt Unruhe?",
-      "concentrationIssues": "Wer lässt sich leicht ablenken?",
-      "shy": "Wer ist eher zurückhaltend?",
-      "performanceStrong": "Wer ist leistungsstark?",
-      "performanceWeak": "Wer braucht Unterstützung?",
+      "restless": "Wer zeigt aktuell Unruhe?",
+      "concentrationIssues": "Wer lässt sich aktuell leicht ablenken?",
+      "shy": "Wer ist aktuell eher zurückhaltend?",
+      "performanceStrong": "Wer ist aktuell leistungsstark?",
+      "performanceWeak": "Wer braucht aktuell Unterstützung?",
       "needsFrontSeat": "Wer sollte möglichst vorne sitzen?",
       "prefersWindow": "Wer sitzt gern am Fenster?",
       "prefersDoor": "Wer sitzt gern nah an der Tür?"
@@ -388,17 +388,21 @@
     "avoidHeading": "Distanzpartner",
     "countAvoids_one": "{{count}} Distanzwunsch",
     "countAvoids_other": "{{count}} Distanzwünsche",
+    "countMutual_one": "davon {{count}} gegenseitig",
+    "countMutual_other": "davon {{count}} gegenseitig",
     "countWishes_one": "{{count}} Wunsch",
     "countWishes_other": "{{count}} Wünsche",
-    "description": "Wer möchte neben wem sitzen – und wer lieber nicht. Ein Klick auf einen Namen öffnet ihn rechts.",
+    "description": "Wer möchte neben wem sitzen – und wer lieber nicht. Wähle einen Schüler aus und passe die Wünsche an.",
     "mutual": "gegenseitig",
     "noRelations": "Für diese Klasse ist noch kein Wunsch und kein Distanzpartner eingetragen.",
-    "noRelationsHint": "Wünsche trägst du rechts im Merkmale-Panel unter „Soziales“ ein.",
+    "noRelationsHint": "Wünsche kannst du für jeden Schüler im Inspektor unter „Soziales“ hinzufügen.",
     "noneInGroup": "Nichts eingetragen.",
     "oneSided": "einseitig",
     "title": "Beziehungen",
     "unknownStudent": "Unbekannt",
-    "wishHeading": "Wunschpartner"
+    "wishHeading": "Wunschpartner",
+    "withoutWishHeading": "Noch ohne Wunsch",
+    "withoutWishHint": "Frage bei Bedarf deine Schüler nach einem Wunsch."
   },
   "listStatus": {
     "openStudent": "{{name}} im Inspektor öffnen"

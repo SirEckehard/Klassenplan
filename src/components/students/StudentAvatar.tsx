@@ -48,7 +48,7 @@ function StudentAvatar({ student, size = 32, className = '' }: Props) {
         />
       ) : initial ? (
         <span
-          className="text-xs font-semibold"
+          className={`${size >= 48 ? 'text-lg' : 'text-xs'} font-semibold`}
           style={{ color: appearance.text }}
         >
           {initial}

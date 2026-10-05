@@ -41,7 +41,9 @@ on all of them. A student without a gender stays paper.
   `getStudentAppearance`, `showGenderColors` on `SceneTable`, `SeatGrid`,
   `TableSeat` and `SimpleCircleView`). Avatars, the inspector's photo frame,
   the attribute focus mode's cards and the name game stay paper — they show a
-  person, not a seat.
+  person, not a seat. The inspector's gender choice is the one control that
+  wears it: its pressed chip takes the seat's fill and contour, so setting a
+  gender shows the colour it comes to (added 2026-10-06).
 - The two states of a seat keep outranking it: a held seat is blue, an empty
   one sunken. The projection's contrast mode stays black on white.
 - The export legend lists the genders present in the class again

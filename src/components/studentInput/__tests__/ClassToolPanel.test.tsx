@@ -74,7 +74,7 @@ describe('ClassToolPanel', () => {
   it('switches between the three ways of looking at the class', () => {
     const handlers = renderPanel();
 
-    fireEvent.click(getButton(/Merkmal-Modus|Attribute mode/i));
+    fireEvent.click(getButton(/^(Merkmale|Attributes)$/i));
     expect(handlers.onViewChange).toHaveBeenCalledWith('focus');
 
     fireEvent.click(getButton(/Beziehungen|Relationships/i));
@@ -88,7 +88,7 @@ describe('ClassToolPanel', () => {
       'aria-pressed',
       'true',
     );
-    expect(getButton(/^(Liste|List)$/i)).toHaveAttribute(
+    expect(getButton(/^(Klassenliste|Class list)$/i)).toHaveAttribute(
       'aria-pressed',
       'false',
     );
@@ -102,7 +102,7 @@ describe('ClassToolPanel', () => {
   it('holds back what an empty class cannot use yet', () => {
     renderPanel({ studentCount: 0 });
 
-    expect(getButton(/Merkmal-Modus|Attribute mode/i)).toBeDisabled();
+    expect(getButton(/^(Merkmale|Attributes)$/i)).toBeDisabled();
     expect(
       getButton(/Klassenliste exportieren|Export class list/i),
     ).toBeDisabled();

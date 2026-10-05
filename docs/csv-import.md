@@ -114,7 +114,7 @@ error.
   `normal`, `m` → medium; `groß`, `tall`, `lang`, `hoch`, `l`, `xl` → tall.
 - **Language level:** matched by substring, checking the levels in this order:
   DaZ support (`daz`, `daf`, `zweitsprache`, `fremdsprache`, `forderung`,
-  `language support`), native (`muttersprache`, `native`, `deutsch`), fluent
+  `language support`), native (`erstsprache`, `first language`, `muttersprache`, `native`, `deutsch`), fluent
   (`fliessend`, `fluent`, `c1`, `c2`), intermediate (`fortgeschritten`,
   `intermediate`, `b1`, `b2`), beginner (`anfanger`, `beginner`, `a1`, `a2`).
   The first match wins. Support comes first because its markers are more

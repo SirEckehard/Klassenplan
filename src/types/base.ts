@@ -19,7 +19,7 @@ export type HeightCategory = 'small' | 'medium' | 'tall';
  * Language skill level for students (affects partner pairing)
  */
 export type LanguageSkillLevel =
-  | 'native' // Muttersprache Deutsch
+  | 'native' // German as first language (Erstsprache)
   | 'fluent' // Fließend (C1/C2)
   | 'intermediate' // Fortgeschritten (B1/B2)
   | 'beginner' // Anfänger (A1/A2)

@@ -82,14 +82,14 @@ export const CSV_LANGUAGE_SKILL_LABELS: Record<
   Record<NonNullable<Student['languageSkill']>, string>
 > = {
   de: {
-    native: 'Muttersprache',
+    native: 'Erstsprache',
     fluent: 'Fließend',
     intermediate: 'Fortgeschritten',
     beginner: 'Anfänger',
     daz: 'DaZ-Förderung',
   },
   en: {
-    native: 'Native',
+    native: 'First language',
     fluent: 'Fluent',
     intermediate: 'Intermediate',
     beginner: 'Beginner',

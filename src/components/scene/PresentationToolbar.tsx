@@ -40,20 +40,25 @@ import {
 const barBaseClass =
   'inline-flex h-11 cursor-pointer items-center justify-center rounded-[10px] border-0 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:ring-offset-2 focus-visible:ring-offset-(--present-bar-bg)';
 
-/** A button that says what it does in a word beside its icon. */
-const barButtonClass = `${barBaseClass} gap-2 px-3 text-sm font-semibold`;
-
 /**
- * A button with its word under the icon. At the board no tooltip explains an
- * icon to a finger, and words beside every icon would make the bar too wide
- * for a laptop; under it, a button grows from 44 to about 60px.
+ * Every button carries its word under the icon. At the board no tooltip
+ * explains an icon to a finger, and words beside the icons made the bar too
+ * wide for one line even on a wide screen; under it, a button grows from 44
+ * to about 60px.
  */
 const barIconButtonClass = `${barBaseClass} min-w-14 flex-col gap-1 px-2 text-xs font-medium leading-none`;
 
 const quietClass =
   'bg-(--present-bar-surface) text-(--present-bar-text) hover:bg-(--present-bar-surface-hover)';
 
-const pressedClass = 'bg-(--button-primary-bg) text-(--button-primary-text)';
+/**
+ * A view setting that is on reads as a selection, not as the solid blue —
+ * that marks whose view is on the wall, the one choice the whole bar hangs on.
+ */
+const pressedClass =
+  'bg-(--surface-option-selected) text-(--text-badge) ring-1 ring-inset ring-(--border-option-selected)';
+
+const primaryClass = 'bg-(--button-primary-bg) text-(--button-primary-text)';
 
 function BarSeparator() {
   return (
@@ -70,7 +75,7 @@ function BarSegment<T extends string>({
   value,
   options,
   onChange,
-  wordsBelow = false,
+  primary = false,
 }: {
   label: string;
   value: T;
@@ -83,8 +88,8 @@ function BarSegment<T extends string>({
     icon: Icon;
   }>;
   onChange: (value: T) => void;
-  /** The word under the icon, as on the bar's other icons, not beside it. */
-  wordsBelow?: boolean;
+  /** The chosen option in solid blue rather than ink. */
+  primary?: boolean;
 }) {
   return (
     <div
@@ -102,18 +107,16 @@ function BarSegment<T extends string>({
             aria-pressed={isActive}
             aria-label={option.label}
             title={option.title}
-            className={`${wordsBelow ? barIconButtonClass : barButtonClass} h-10 ${
+            className={`${barIconButtonClass} h-10 ${
               isActive
-                ? 'bg-(--present-bar-text) text-(--present-bar-bg)'
+                ? primary
+                  ? primaryClass
+                  : 'bg-(--present-bar-text) text-(--present-bar-bg)'
                 : 'bg-transparent text-(--present-bar-muted) hover:bg-(--present-bar-surface)'
             }`}
           >
             <option.icon size={18} aria-hidden />
-            {wordsBelow ? (
-              <span>{option.short ?? option.label}</span>
-            ) : (
-              <span className="hidden sm:inline">{option.label}</span>
-            )}
+            <span>{option.short ?? option.label}</span>
           </button>
         );
       })}
@@ -226,6 +229,7 @@ export default function PresentationToolbar({
           label={t('present.perspective')}
           value={perspective}
           onChange={onPerspectiveChange}
+          primary
           options={[
             {
               value: 'teacher',
@@ -246,7 +250,6 @@ export default function PresentationToolbar({
           label={t('mode.label')}
           value={mode}
           onChange={onModeChange}
-          wordsBelow
           options={[
             {
               value: 'table',
@@ -272,10 +275,10 @@ export default function PresentationToolbar({
             type="button"
             onClick={onPick}
             title={t('present.pickTitle')}
-            className={`${barButtonClass} ${pressedClass} px-4`}
+            className={`${barIconButtonClass} ${quietClass} px-3`}
           >
             <HandPointingIcon size={18} aria-hidden />
-            {t('present.pick')}
+            <span>{t('present.pick')}</span>
           </button>
         )}
         {onOpenGroups && (
@@ -283,10 +286,10 @@ export default function PresentationToolbar({
             type="button"
             onClick={onOpenGroups}
             title={t('present.groupsTitle')}
-            className={`${barButtonClass} ${quietClass} px-4`}
+            className={`${barIconButtonClass} ${quietClass} px-3`}
           >
             <UsersThreeIcon size={18} aria-hidden />
-            {t('present.groups')}
+            <span>{t('present.groups')}</span>
           </button>
         )}
 
@@ -346,13 +349,9 @@ export default function PresentationToolbar({
 
         <BarSeparator />
 
-        <div className="flex h-11 shrink-0 items-center gap-2 rounded-[10px] bg-(--present-bar-surface) px-3">
-          <label
-            htmlFor="present-zoom"
-            className="text-xs font-medium text-(--present-bar-muted)"
-          >
-            {t('present.size')}
-          </label>
+        {/* The slider on top and its name with the value under it, the way
+            the buttons beside it carry their word. */}
+        <div className="flex h-11 shrink-0 flex-col items-center justify-center gap-1 rounded-[10px] bg-(--present-bar-surface) px-3">
           <input
             id="present-zoom"
             type="range"
@@ -362,12 +361,20 @@ export default function PresentationToolbar({
             value={zoom}
             onChange={(event) => onZoomChange(Number(event.target.value))}
             title={t('present.zoomTitle')}
-            // As tall as the bar on a touch screen, so a finger finds the
-            // track and not only its 16px thumb.
-            className="w-24 cursor-pointer accent-(--button-primary-bg) sm:w-28 pointer-coarse:h-11 pointer-coarse:w-32"
+            // Taller on a touch screen, so a finger finds the track and not
+            // only its 16px thumb.
+            className="h-4 w-28 cursor-pointer accent-(--button-primary-bg) pointer-coarse:h-6 pointer-coarse:w-32"
           />
-          <span className="w-11 text-right text-xs font-semibold tabular-nums text-(--present-bar-text)">
-            {formatPercent(zoom * 100)}
+          <span className="flex items-center gap-1.5 text-xs leading-none">
+            <label
+              htmlFor="present-zoom"
+              className="font-medium text-(--present-bar-muted)"
+            >
+              {t('present.size')}
+            </label>
+            <span className="font-semibold tabular-nums text-(--present-bar-text)">
+              {formatPercent(zoom * 100)}
+            </span>
           </span>
         </div>
         <button

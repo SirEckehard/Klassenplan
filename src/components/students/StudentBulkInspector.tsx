@@ -166,17 +166,6 @@ export default function StudentBulkInspector({
         </InspectorSection>
 
         <InspectorSection
-          family="language"
-          title={t('inspector.groups.language')}
-        >
-          <LanguageSkillSelector
-            student={student}
-            updateStudent={update}
-            mixedValues={mixedChoices.languageSkill}
-          />
-        </InspectorSection>
-
-        <InspectorSection
           family="behavior"
           title={t('inspector.groups.behavior')}
         >
@@ -213,6 +202,17 @@ export default function StudentBulkInspector({
             student={student}
             updateStudent={update}
             mixed={mixed}
+          />
+        </InspectorSection>
+
+        <InspectorSection
+          family="language"
+          title={t('inspector.groups.language')}
+        >
+          <LanguageSkillSelector
+            student={student}
+            updateStudent={update}
+            mixedValues={mixedChoices.languageSkill}
           />
         </InspectorSection>
       </InspectorBody>

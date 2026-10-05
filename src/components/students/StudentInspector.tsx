@@ -165,16 +165,6 @@ export default function StudentInspector({
         </InspectorSection>
 
         <InspectorSection
-          family="language"
-          title={t('inspector.groups.language')}
-        >
-          <LanguageSkillSelector
-            student={student}
-            updateStudent={updateStudent}
-          />
-        </InspectorSection>
-
-        <InspectorSection
           family="behavior"
           title={t('inspector.groups.behavior')}
         >
@@ -186,12 +176,6 @@ export default function StudentInspector({
         </InspectorSection>
 
         <InspectorSection family="social" title={t('inspector.groups.social')}>
-          <SpecialNeedsToggles
-            student={student}
-            updateStudent={updateStudent}
-            keys={['shy']}
-          />
-          <SocialRoleSelector student={student} updateStudent={updateStudent} />
           <PartnerSelector
             student={student}
             allStudents={allStudents}
@@ -208,6 +192,12 @@ export default function StudentInspector({
             setShowDropdown={rowState.setShowAvoidDropdown}
             dropdownRef={rowState.avoidDropdownRef}
           />
+          <SpecialNeedsToggles
+            student={student}
+            updateStudent={updateStudent}
+            keys={['shy']}
+          />
+          <SocialRoleSelector student={student} updateStudent={updateStudent} />
         </InspectorSection>
 
         <InspectorSection family="space" title={t('inspector.groups.space')}>
@@ -217,6 +207,16 @@ export default function StudentInspector({
             keys={['needsFrontSeat']}
           />
           <StudentPreferenceToggles
+            student={student}
+            updateStudent={updateStudent}
+          />
+        </InspectorSection>
+
+        <InspectorSection
+          family="language"
+          title={t('inspector.groups.language')}
+        >
+          <LanguageSkillSelector
             student={student}
             updateStudent={updateStudent}
           />

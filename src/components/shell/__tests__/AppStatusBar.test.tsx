@@ -315,6 +315,26 @@ describe('AppStatusBar', () => {
     );
   });
 
+  // The plan layer's fulfilment stands where the other layers state their
+  // numbers: at the left end, before undo/redo and the way back.
+  it('states what a view puts at its left end before the middle', () => {
+    setState({ step: 3, students: named(2) });
+    render(
+      <StatusBarSlotProvider>
+        <AppStatusBar />
+        <StatusBarPortal slot="status">
+          <button type="button">Erfüllung 55 %</button>
+        </StatusBarPortal>
+      </StatusBarSlotProvider>,
+    );
+
+    const fulfilment = getButton('Erfüllung 55 %');
+    expect(status()).toContainElement(fulfilment);
+    expect(
+      fulfilment.compareDocumentPosition(getButton(/rückgängig|undo/i)),
+    ).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+  });
+
   // The class list's jump to its ends stands over the stage but belongs to
   // the bar: measured from the window's edge, it slid into the bar on an
   // iPhone.
