@@ -380,7 +380,7 @@
         "usage4": "Plätze im Sitzplan von Hand tauschen",
         "usageOutro": "Gespeichert werden dabei nur die Sitznachbarschaften und ein Zeitstempel, ausschließlich lokal auf deinem Gerät. Beim ersten starken Signal fragt ein kurzer Hinweis nach: Wenn es doch nur ein Test war, nimmst du den Plan mit einem Klick wieder aus der Wertung.",
         "weightNote": "Für die Wiederholungsvermeidung zählen diese echten Sitzpläne zuerst; reine Mischungen aus der laufenden Sitzung gehen nur noch halb so stark ein. So sollte eine lange Probier-Runde das Ergebnis nicht mehr überlagern.",
-        "viewNote": "Unter „Pläne & Verlauf“ in der Werkzeugleiste zeigt der Reiter „Nachbarschaften“, wer schon wie oft nebeneinander saß – samt Datengrundlage, aus der du einzelne Pläne herausnehmen kannst. „Zurücksetzen“ vergisst alle bisherigen Nachbarschaften auf einmal, etwa zum neuen Schuljahr."
+        "viewNote": "Unter „Pläne & Verlauf“ in der Werkzeugleiste zeigt der Eintrag „Nachbarschaften“ einer Klasse, wer schon wie oft nebeneinander saß – samt Datengrundlage, aus der du einzelne Pläne herausnehmen kannst. „Zurücksetzen“ vergisst alle bisherigen Nachbarschaften auf einmal, etwa zum neuen Schuljahr."
       }
     },
     "tipps": {
@@ -392,7 +392,7 @@
         "li1": "Wichtige Kriterien auf „Wichtig“ oder „Sehr wichtig“ stellen – oder ein passendes Rezept wählen",
         "li2": "Mehrfach mischen, um unterschiedliche Zufallsstarts zu nutzen",
         "li3": "Einzelne Plätze manuell via Drag & Drop anpassen und bei Bedarf sperren, sodass der Algorithmus diese nicht mehr verändert.",
-        "li4": "Eine misslungene Mischung mit „Rückgängig“ (Strg/⌘+Z) zurücknehmen oder unter „Pläne & Verlauf“ ein früheres Ergebnis laden"
+        "li4": "Eine misslungene Mischung mit „Rückgängig“ (Strg/⌘+Z) zurücknehmen oder unter „Pläne & Verlauf“ bei „Letzte Mischungen“ ein früheres Ergebnis öffnen"
       }
     },
     "unterricht": {

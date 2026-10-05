@@ -20,12 +20,6 @@ vi.mock('@/hooks/useInstallPrompt', () => ({
   dismissInstallPrompt: vi.fn(),
 }));
 
-// The real dialog reads the whole seating plan; here it only has to open.
-vi.mock('@/components/ui/navigation/StorageHistoryModal', () => ({
-  default: ({ open }: { open: boolean }) =>
-    open ? <div role="dialog" aria-label="Pläne & Verlauf" /> : null,
-}));
-
 const renderFooter = () =>
   render(
     <BrowserRouter>
@@ -80,9 +74,9 @@ describe('Footer', () => {
     expect(installPromptMock.triggerInstall).toHaveBeenCalledTimes(1);
   });
 
-  // Choosing an entry closes the menu. The dialogs used to live inside it and
-  // closed with it before anybody saw them.
-  it('opens the plans and their history once the menu has closed', async () => {
+  // "Pläne & Verlauf" is a page of the workspace (decision 0024); choosing it
+  // closes the menu and goes there.
+  it('goes to the plans and their history, closing the menu', async () => {
     renderFooter();
     const user = await openSettingsMenu();
 
@@ -93,9 +87,7 @@ describe('Footer', () => {
     );
 
     expect(screen.queryByRole('menu')).not.toBeInTheDocument();
-    expect(
-      await screen.findByRole('dialog', { name: 'Pläne & Verlauf' }),
-    ).toBeInTheDocument();
+    expect(window.location.pathname).toBe('/plaene');
   });
 
   it('asks before wiping everything once the menu has closed', async () => {

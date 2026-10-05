@@ -45,12 +45,6 @@ vi.mock('@/contexts/SeatingPlanContext', () => ({
   useSeatingPlanActions: () => actions,
 }));
 
-// The real modal reads the whole seating plan; here it only has to open.
-vi.mock('@/components/ui/navigation/StorageHistoryModal', () => ({
-  default: ({ open }: { open: boolean }) =>
-    open ? <div role="dialog" aria-label="Pläne & Verlauf" /> : null,
-}));
-
 afterEach(() => {
   cleanup();
   vi.clearAllMocks();
@@ -92,6 +86,7 @@ const renderRail = (
         />
         <Route path="/wer-kommt-dran" element={<p>Seite: Wer kommt dran</p>} />
         <Route path="/namensspiel" element={<p>Seite: Namensspiel</p>} />
+        <Route path="/plaene" element={<p>Seite: Pläne & Verlauf</p>} />
       </Routes>
     </MemoryRouter>,
   );
@@ -221,17 +216,19 @@ describe('ToolRail', () => {
     expect(screen.getByText('Seite: Namensspiel')).toBeInTheDocument();
   });
 
-  it('opens the plans and their history as a dialog', async () => {
+  // "Pläne & Verlauf" is a page of the workspace (decision 0024), reached
+  // by a link like any other page.
+  it('leads to the plans and their history, a page of their own', () => {
     renderRail();
 
-    const entry = getButton(/Pläne & Verlauf|Plans & history/i);
-    expect(entry).toHaveAttribute('aria-haspopup', 'dialog');
-    expect(entry).not.toHaveAttribute('aria-pressed');
+    const entry = screen.getByRole('link', {
+      name: /Pläne & Verlauf|Plans & history/i,
+    });
+    expect(entry).not.toHaveAttribute('aria-haspopup');
+    expect(entry).not.toHaveAttribute('aria-current');
 
     fireEvent.click(entry);
-    expect(
-      await screen.findByRole('dialog', { name: 'Pläne & Verlauf' }),
-    ).toBeInTheDocument();
+    expect(screen.getByText('Seite: Pläne & Verlauf')).toBeInTheDocument();
   });
 
   it('keeps both ways a backup travels behind one entry', () => {

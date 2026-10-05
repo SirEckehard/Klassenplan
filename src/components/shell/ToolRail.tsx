@@ -2,6 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { useLocation } from 'react-router-dom';
 import {
   ArchiveIcon,
   ChalkboardTeacherIcon,
@@ -18,7 +19,6 @@ import {
 import FloatingDropdown from '@/components/students/FloatingDropdown';
 import { LocalizedLink } from '@/components/LocalizedLink';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
-import { useStorageHistoryModal } from '@/components/ui/navigation/useStorageHistoryModal';
 import { useSeatingPlanActions } from '@/contexts/SeatingPlanContext';
 import { APP_RETURN_STATE } from '@/hooks/useReturnToApp';
 import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';
@@ -177,8 +177,6 @@ function ToolRailFoot({ planPresent }: { planPresent: boolean }) {
   const isCompact = React.useContext(DensityContext) === 'compact';
   const navigate = useLocalizedNavigate();
   const { handleExportAll, triggerImport } = useSeatingPlanActions();
-  // Fetched while the workspace is idle, so it opens offline too.
-  const history = useStorageHistoryModal({ preloadWhenIdle: true });
 
   const classTools = [
     {
@@ -239,12 +237,7 @@ function ToolRailFoot({ planPresent }: { planPresent: boolean }) {
           </div>
         )}
       />
-      <ToolRailButton
-        icon={<ClockCounterClockwiseIcon size={18} />}
-        label={t('generator:storage.historyTitle')}
-        opensDialog
-        onClick={history.show}
-      />
+      <ToolRailLibrary />
       {/* The data lives in this browser only; both ways a backup travels
           sit behind one entry. */}
       <ToolRailButton
@@ -283,7 +276,6 @@ function ToolRailFoot({ planPresent }: { planPresent: boolean }) {
         )}
       />
       <ToolRailSupport />
-      {history.modal}
     </div>
   );
 }
@@ -302,6 +294,37 @@ function ToolRailPresent() {
       label={t('present.button')}
       onClick={onPresent}
     />
+  );
+}
+
+/**
+ * "Pläne & Verlauf", a page of the workspace (decision 0024): the classes,
+ * their rooms and plans. On that page the entry is where the teacher is.
+ */
+function ToolRailLibrary() {
+  const { t } = useTranslation('generator');
+  const isCompact = React.useContext(DensityContext) === 'compact';
+  const { pathname } = useLocation();
+  const label = t('storage.historyTitle');
+  const isHere = /^(\/en)?\/plaene\/?$/.test(pathname);
+
+  return (
+    <LocalizedLink
+      to="/plaene"
+      title={label}
+      aria-label={isCompact ? label : undefined}
+      aria-current={isHere ? 'page' : undefined}
+      className={
+        isCompact
+          ? `inline-flex size-11 shrink-0 items-center justify-center rounded-lg ${entryStateClass(isHere, false)}`
+          : `flex h-9 w-full items-center gap-2.5 rounded-lg px-2 text-left text-[13px] ${entryStateClass(isHere, false)}`
+      }
+    >
+      <span className="shrink-0 text-(--text-muted)" aria-hidden="true">
+        <ClockCounterClockwiseIcon size={18} />
+      </span>
+      {!isCompact && <span className="min-w-0 flex-1 truncate">{label}</span>}
+    </LocalizedLink>
   );
 }
 

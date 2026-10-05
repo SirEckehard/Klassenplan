@@ -61,6 +61,14 @@
       "item6": "„Wer kommt dran?“ zieht einen zufälligen Schüler und hebt seinen Platz hervor – jeder kommt einmal dran, bevor sich jemand wiederholt.",
       "item7": "Tastatur: F Vollbild, Leertaste zieht einen Schüler, Esc setzt die Auswahl zurück, + / − zoomen, 0 zentriert.",
       "itemFullscreen": "Im Vollbild gehört die Wand dem Plan: Die Leiste oben verschwindet, die Leiste unten erscheint, sobald du mit dem Zeiger an den unteren Rand fährst oder dort tippst, und blendet sich kurz danach wieder aus."
+    },
+    "library": {
+      "title": "Pläne & Verlauf",
+      "item1": "Links stehen deine Klassen, daneben die Räume der gewählten Klasse und darin ihre Pläne – wie Ordner in einem Dateimanager.",
+      "item2": "Was du auswählst, zeigt der Inspektor: Dort benennst du es um, verschiebst einen Plan in einen anderen Raum oder löschst es.",
+      "item3": "„Öffnen“ unten rechts holt die Auswahl in die Arbeitsfläche: einen Plan auf die Ebene Plan, einen Raum auf die Ebene Raum, eine Klasse auf die Ebene Klasse.",
+      "item4": "„Letzte Mischungen“ und „Nachbarschaften“ gehören zur Klasse: die letzten 20 Mischungen und wer schon nebeneinander saß, über alle Räume hinweg.",
+      "item5": "„Raumvorlagen“ gelten für alle Klassen. Geöffnet wird eine Vorlage als neuer Raum der offenen Klasse."
     }
   },
   "sidebar": {
@@ -225,15 +233,11 @@
     "importBackup": "Backup importieren",
     "backupExported": "Backup exportiert.",
     "historyTitle": "Pläne & Verlauf",
-    "savedPlans": "Gespeicherte Pläne",
     "mixHistory": "Letzte Mischungen",
-    "noPlans": "Keine gespeicherten Pläne vorhanden.",
-    "noMixes": "Keine Misch-Ergebnisse vorhanden.",
     "planLoaded": "Plan „{{name}}“ geladen.",
     "planDeleted": "Plan „{{name}}“ gelöscht.",
     "mixLoaded": "Mischergebnis von {{time}} geladen.",
     "mixDeleted": "Mischergebnis gelöscht.",
-    "historyTabs": "Verlauf",
     "neighbors": {
       "tab": "Nachbarschaften",
       "empty": "Noch keine Auswertung möglich.",
@@ -589,26 +593,12 @@
     "newClassName": "Neue Klasse"
   },
   "mixHistory": {
-    "loadTitle": "Mischergebnis laden",
-    "loadAriaLabel": "Mischergebnis vom {{time}} laden",
-    "deleteTitle": "Mischergebnis löschen",
-    "deleteAriaLabel": "Mischergebnis vom {{time}} löschen",
     "deleteDialogTitle": "Mischergebnis löschen",
-    "deleteDialogMessage": "Möchtest du das Mischergebnis vom {{time}} wirklich löschen?",
-    "emptyTitle": "Noch keine Mischungen erstellt",
-    "emptyHint": "Erstelle deinen ersten Sitzplan"
+    "deleteDialogMessage": "Möchtest du das Mischergebnis vom {{time}} wirklich löschen?"
   },
   "planList": {
-    "editNameAriaLabel": "Sitzplan-Namen bearbeiten: {{name}}",
-    "editNameTitle": "Klick oder Eingabetaste zum Bearbeiten",
-    "loadTitle": "Sitzplan laden",
-    "loadAriaLabel": "Sitzplan {{name}} laden",
-    "deleteTitle": "Sitzplan löschen",
-    "deleteAriaLabel": "Sitzplan {{name}} löschen",
     "deleteDialogTitle": "Sitzplan löschen",
-    "deleteDialogMessage": "Möchtest du den Sitzplan „{{name}}“ wirklich löschen?",
-    "emptyTitle": "Noch keine Pläne gespeichert",
-    "emptyHint": "Speichere deinen ersten Plan mit „Plan speichern“ auf der Ebene Plan."
+    "deleteDialogMessage": "Möchtest du den Sitzplan „{{name}}“ wirklich löschen?"
   },
   "circleStatus": {
     "preparing": "Sitzkreis wird vorbereitet…",
@@ -634,7 +624,8 @@
       "layout": "Raum",
       "plan": "Sitzplan",
       "circle": "Sitzkreis",
-      "export": "Export"
+      "export": "Export",
+      "library": "Pläne & Verlauf"
     },
     "descriptions": {
       "global_toggleHelp": "Tastenkürzel anzeigen",
@@ -671,7 +662,13 @@
       "students_undo": "Änderung an der Klassenliste rückgängig machen",
       "students_redo": "Änderung an der Klassenliste wiederherstellen",
       "layout_redo": "Letzte Änderung wiederherstellen",
-      "global_switchLayer": "Zwischen Klasse, Raum und Sitzplan wechseln"
+      "global_switchLayer": "Zwischen Klasse, Raum und Sitzplan wechseln",
+      "library_choose": "In einer Spalte auswählen",
+      "library_folders": "In einen Ordner hinein und wieder heraus",
+      "library_open": "Auswahl öffnen",
+      "library_rename": "Auswahl umbenennen",
+      "library_delete": "Auswahl löschen",
+      "library_back": "Zurück, wo du herkamst"
     },
     "keys": {
       "global_toggleHelp": "?",
@@ -708,7 +705,13 @@
       "students_undo": "Strg/⌘+Z",
       "students_redo": "Strg/⌘+Umschalt+Z",
       "layout_redo": "Strg/⌘+Umschalt+Z",
-      "global_switchLayer": "1 / 2 / 3"
+      "global_switchLayer": "1 / 2 / 3",
+      "library_choose": "↑ / ↓",
+      "library_folders": "→ / ←",
+      "library_open": "Eingabetaste",
+      "library_rename": "F2",
+      "library_delete": "Entf / Rücktaste",
+      "library_back": "Alt/⌥+←"
     }
   },
   "tableType": {
@@ -819,7 +822,7 @@
       },
       "sidebar": {
         "title": "Werkzeuge",
-        "body": "Hier wechselst du zwischen Sitzplan und Sitzkreis, legst fest, was der Plan zeigt, und sicherst den Plan. Ganz unten steht auf jeder Ebene dasselbe: die Klassenwerkzeuge, „Pläne & Verlauf“ mit früheren Plänen und Nachbarschaften und das Backup."
+        "body": "Hier wechselst du zwischen Sitzplan und Sitzkreis, legst fest, was der Plan zeigt, und sicherst den Plan. Ganz unten steht auf jeder Ebene dasselbe: die Klassenwerkzeuge, „Pläne & Verlauf“ mit deinen Klassen, ihren Räumen und Plänen und das Backup."
       },
       "sidebarToggle": {
         "title": "Werkzeugleiste erweitern und minimieren",
@@ -1006,5 +1009,84 @@
   "rooms": {
     "defaultName": "Klassenraum",
     "newName": "Neuer Raum"
+  },
+  "library": {
+    "classes": "Klassen",
+    "templates": "Raumvorlagen",
+    "rooms": "Räume",
+    "history": "Verlauf",
+    "loading": "Wird geladen …",
+    "path": "Pfad",
+    "open": "Öffnen",
+    "openAsRoom": "Als Raum öffnen",
+    "openTitle": "Öffnen (Eingabetaste)",
+    "openHintNothing": "Wähle eine Klasse, einen Raum, einen Plan oder eine Mischung.",
+    "openHintFolder": "Wähle darin aus, was du öffnen willst.",
+    "openHintNeighbours": "Die Nachbarschaften liest du im Inspektor.",
+    "openHintNoClass": "Lege zuerst eine Klasse an.",
+    "backTitle": "Zurück (Alt/⌥+←)",
+    "renameShortcut": "Bearbeiten (F2)",
+    "chipOpen": "geöffnet",
+    "chipAutoSaved": "automatisch gesichert",
+    "plans_one": "{{count}} Plan",
+    "plans_other": "{{count}} Pläne",
+    "mixesCount_one": "{{count}} Mischung",
+    "mixesCount_other": "{{count}} Mischungen",
+    "templatesCount_one": "{{count}} Vorlage",
+    "templatesCount_other": "{{count}} Vorlagen",
+    "emptyClasses": "Noch keine Klasse.",
+    "emptyRoom": "Noch kein Plan in diesem Raum.",
+    "emptyMixes": "Noch keine Mischung.",
+    "emptyTemplates": "Noch keine Vorlage. Im Raum speicherst du einen Raum als Vorlage.",
+    "nothingSelected": "Wähle links eine Klasse, einen Raum oder einen Plan.",
+    "mixesHint": "Klassenplan behält die letzten 20 Mischungen einer Klasse. Jede nennt den Raum, in dem sie entstand.",
+    "templatesHint": "Vorlagen gelten für alle Klassen. Geöffnet wird eine Vorlage als neuer Raum der offenen Klasse.",
+    "contents": "Inhalt",
+    "actions": "Aktionen",
+    "class": {
+      "section": "Klasse",
+      "schoolYear": "Schuljahr",
+      "edit": "Name, Schuljahr und Notizen bearbeiten",
+      "students": "Schüler",
+      "plans": "Pläne",
+      "lastUsed": "Zuletzt geöffnet",
+      "delete": "Klasse löschen"
+    },
+    "room": {
+      "section": "Raum",
+      "tables": "Tische",
+      "elements": "Raumelemente",
+      "saveAsTemplate": "Als Vorlage für andere Klassen speichern",
+      "delete": "Raum löschen",
+      "deleteOpenHint": "Den offenen Raum kannst du nicht löschen. Öffne zuerst einen anderen.",
+      "deleteLastHint": "Eine Klasse behält mindestens einen Raum.",
+      "deleteMessage_one": "„{{name}}“ und sein gespeicherter Plan werden gelöscht. Das lässt sich nicht rückgängig machen.",
+      "deleteMessage_other": "„{{name}}“ und seine {{count}} gespeicherten Pläne werden gelöscht. Das lässt sich nicht rückgängig machen.",
+      "deleteMessageEmpty": "Soll der Raum „{{name}}“ gelöscht werden?",
+      "deleted": "Raum „{{name}}“ gelöscht."
+    },
+    "plan": {
+      "section": "Plan",
+      "room": "Raum",
+      "toNewRoom": "In einen neuen Raum verschieben",
+      "newRoomName": "Name des neuen Raums",
+      "seated": "Schüler im Plan",
+      "seatedValue": "{{seated}} von {{total}}",
+      "circleKept": "gespeichert",
+      "locks": "Feste Plätze",
+      "used": "Benutzt",
+      "notUsed": "noch nicht",
+      "delete": "Plan löschen"
+    },
+    "mix": {
+      "criteria": "Kriterien",
+      "random": "Rein zufällig gemischt.",
+      "delete": "Mischung löschen"
+    },
+    "template": {
+      "section": "Vorlage",
+      "hint": "„Als Raum öffnen“ unten rechts legt diese Vorlage als neuen Raum der offenen Klasse an.",
+      "delete": "Vorlage löschen"
+    }
   }
 }

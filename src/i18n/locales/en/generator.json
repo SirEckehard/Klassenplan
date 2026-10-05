@@ -61,6 +61,14 @@
       "item6": "\"Who's next?\" draws a random student and spotlights their seat – everyone gets a turn before anyone repeats.",
       "item7": "Keyboard: F fullscreen, Space draws a student, Esc resets the draw, + / − zoom, 0 recenters.",
       "itemFullscreen": "In fullscreen the wall belongs to the plan: the strip on top goes away, and the bar at the bottom appears when the pointer nears the bottom edge or you tap there, then slides away again shortly after."
+    },
+    "library": {
+      "title": "Plans & history",
+      "item1": "Your classes are on the left, beside them the rooms of the chosen class and inside those its plans – like folders in a file manager.",
+      "item2": "What you choose is shown in the inspector: rename it there, move a plan to another room or delete it.",
+      "item3": "“Open” at the bottom right takes the choice into the workspace: a plan to the plan layer, a room to the room layer, a class to the class layer.",
+      "item4": "“Recent mixes” and “Neighbourhoods” belong to the class: its last 20 mixes and who has already sat side by side, across all rooms.",
+      "item5": "“Room templates” belong to every class. A template opens as a new room of the open class."
     }
   },
   "sidebar": {
@@ -225,15 +233,11 @@
     "importBackup": "Import backup",
     "backupExported": "Backup exported.",
     "historyTitle": "Plans & history",
-    "savedPlans": "Saved Plans",
     "mixHistory": "Recent mixes",
-    "noPlans": "No saved plans available.",
-    "noMixes": "No mix results available.",
     "planLoaded": "Plan “{{name}}” loaded.",
     "planDeleted": "Plan “{{name}}” deleted.",
     "mixLoaded": "Mix result from {{time}} loaded.",
     "mixDeleted": "Mix result deleted.",
-    "historyTabs": "History",
     "neighbors": {
       "tab": "Neighbourhoods",
       "empty": "Nothing to evaluate yet.",
@@ -589,26 +593,12 @@
     "newClassName": "New Class"
   },
   "mixHistory": {
-    "loadTitle": "Load mix result",
-    "loadAriaLabel": "Load mix result from {{time}}",
-    "deleteTitle": "Delete mix result",
-    "deleteAriaLabel": "Delete mix result from {{time}}",
     "deleteDialogTitle": "Delete Mix Result",
-    "deleteDialogMessage": "Do you really want to delete the mix result from {{time}}?",
-    "emptyTitle": "No mixes created yet",
-    "emptyHint": "Create your first seating plan"
+    "deleteDialogMessage": "Do you really want to delete the mix result from {{time}}?"
   },
   "planList": {
-    "editNameAriaLabel": "Edit seating plan name: {{name}}",
-    "editNameTitle": "Click or press Enter to edit",
-    "loadTitle": "Load seating plan",
-    "loadAriaLabel": "Load seating plan {{name}}",
-    "deleteTitle": "Delete seating plan",
-    "deleteAriaLabel": "Delete seating plan {{name}}",
     "deleteDialogTitle": "Delete Seating Plan",
-    "deleteDialogMessage": "Do you really want to delete the seating plan “{{name}}”?",
-    "emptyTitle": "No plans saved yet",
-    "emptyHint": "Save your first plan with “Save plan” on the Plan layer."
+    "deleteDialogMessage": "Do you really want to delete the seating plan “{{name}}”?"
   },
   "circleStatus": {
     "preparing": "Preparing seating circle…",
@@ -634,7 +624,8 @@
       "layout": "Room",
       "plan": "Seating Plan",
       "circle": "Seating Circle",
-      "export": "Export"
+      "export": "Export",
+      "library": "Plans & history"
     },
     "descriptions": {
       "global_toggleHelp": "Show keyboard shortcuts",
@@ -671,7 +662,13 @@
       "students_undo": "Undo a change to the class list",
       "students_redo": "Redo a change to the class list",
       "layout_redo": "Redo the last change",
-      "global_switchLayer": "Switch between class, room and seating plan"
+      "global_switchLayer": "Switch between class, room and seating plan",
+      "library_choose": "Choose within a column",
+      "library_folders": "Into a folder and out again",
+      "library_open": "Open the choice",
+      "library_rename": "Rename the choice",
+      "library_delete": "Delete the choice",
+      "library_back": "Back to where you came from"
     },
     "keys": {
       "global_toggleHelp": "?",
@@ -708,7 +705,13 @@
       "students_undo": "Ctrl/⌘+Z",
       "students_redo": "Ctrl/⌘+Shift+Z",
       "layout_redo": "Ctrl/⌘+Shift+Z",
-      "global_switchLayer": "1 / 2 / 3"
+      "global_switchLayer": "1 / 2 / 3",
+      "library_choose": "↑ / ↓",
+      "library_folders": "→ / ←",
+      "library_open": "Enter",
+      "library_rename": "F2",
+      "library_delete": "Del / Backspace",
+      "library_back": "Alt/⌥+←"
     }
   },
   "tableType": {
@@ -819,7 +822,7 @@
       },
       "sidebar": {
         "title": "Tools",
-        "body": "Switch between seating plan and circle, set what the plan shows and save the plan. The very bottom is the same on every layer: the class tools, \"Plans & history\" with earlier plans and neighbourhoods, and the backup."
+        "body": "Switch between seating plan and circle, set what the plan shows and save the plan. The very bottom is the same on every layer: the class tools, \"Plans & history\" with your classes, their rooms and plans, and the backup."
       },
       "sidebarToggle": {
         "title": "Expand and collapse the toolbar",
@@ -1006,5 +1009,84 @@
   "rooms": {
     "defaultName": "Classroom",
     "newName": "New room"
+  },
+  "library": {
+    "classes": "Classes",
+    "templates": "Room templates",
+    "rooms": "Rooms",
+    "history": "History",
+    "loading": "Loading …",
+    "path": "Path",
+    "open": "Open",
+    "openAsRoom": "Open as a room",
+    "openTitle": "Open (Enter)",
+    "openHintNothing": "Choose a class, a room, a plan or a mix.",
+    "openHintFolder": "Choose what to open inside it.",
+    "openHintNeighbours": "The neighbourhoods are read in the inspector.",
+    "openHintNoClass": "Add a class first.",
+    "backTitle": "Back (Alt/⌥+←)",
+    "renameShortcut": "Edit (F2)",
+    "chipOpen": "open",
+    "chipAutoSaved": "saved automatically",
+    "plans_one": "{{count}} plan",
+    "plans_other": "{{count}} plans",
+    "mixesCount_one": "{{count}} mix",
+    "mixesCount_other": "{{count}} mixes",
+    "templatesCount_one": "{{count}} template",
+    "templatesCount_other": "{{count}} templates",
+    "emptyClasses": "No class yet.",
+    "emptyRoom": "No plan in this room yet.",
+    "emptyMixes": "No mix yet.",
+    "emptyTemplates": "No template yet. In the room view you save a room as a template.",
+    "nothingSelected": "Choose a class, a room or a plan on the left.",
+    "mixesHint": "Klassenplan keeps the last 20 mixes of a class. Each names the room it was made in.",
+    "templatesHint": "Templates belong to every class. A template opens as a new room of the open class.",
+    "contents": "Contents",
+    "actions": "Actions",
+    "class": {
+      "section": "Class",
+      "schoolYear": "School year",
+      "edit": "Edit name, school year and notes",
+      "students": "Students",
+      "plans": "Plans",
+      "lastUsed": "Last opened",
+      "delete": "Delete class"
+    },
+    "room": {
+      "section": "Room",
+      "tables": "Tables",
+      "elements": "Room elements",
+      "saveAsTemplate": "Save as a template for other classes",
+      "delete": "Delete room",
+      "deleteOpenHint": "The open room cannot be deleted. Open another one first.",
+      "deleteLastHint": "A class keeps at least one room.",
+      "deleteMessage_one": "“{{name}}” and its saved plan will be deleted. This cannot be undone.",
+      "deleteMessage_other": "“{{name}}” and its {{count}} saved plans will be deleted. This cannot be undone.",
+      "deleteMessageEmpty": "Delete the room “{{name}}”?",
+      "deleted": "Room “{{name}}” deleted."
+    },
+    "plan": {
+      "section": "Plan",
+      "room": "Room",
+      "toNewRoom": "Move to a new room",
+      "newRoomName": "Name of the new room",
+      "seated": "Students in the plan",
+      "seatedValue": "{{seated}} of {{total}}",
+      "circleKept": "saved",
+      "locks": "Locked seats",
+      "used": "Used",
+      "notUsed": "not yet",
+      "delete": "Delete plan"
+    },
+    "mix": {
+      "criteria": "Criteria",
+      "random": "Mixed purely at random.",
+      "delete": "Delete mix"
+    },
+    "template": {
+      "section": "Template",
+      "hint": "“Open as a room” at the bottom right adds this template as a new room of the open class.",
+      "delete": "Delete template"
+    }
   }
 }

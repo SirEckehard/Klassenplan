@@ -40,7 +40,7 @@ describe('warmOfflineFiles', () => {
   // hold every part of it, or whatever was not opened yet fails offline.
   it('loads every listed file once', async () => {
     const fetchMock = serve([
-      'chunks/StorageHistoryModal-a1.js',
+      'chunks/PlanLibrary-a1.js',
       'workers/algorithmWorker-b2.js',
       'css/index-c3.css',
     ]);
@@ -50,7 +50,7 @@ describe('warmOfflineFiles', () => {
 
     expect(requested(fetchMock).sort()).toEqual(
       [
-        '/chunks/StorageHistoryModal-a1.js',
+        '/chunks/PlanLibrary-a1.js',
         '/css/index-c3.css',
         '/offline-files.json',
         '/workers/algorithmWorker-b2.js',

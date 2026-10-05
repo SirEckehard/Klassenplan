@@ -264,6 +264,18 @@ the touch screen's right-click — opens its menu above, beside or below the
 finger, never under it (`placeTouchMenu`), as a list with words
 (`touchMenuSurfaceClass`).
 
+"Pläne & Verlauf" puts folders on its stage instead of a room: one card
+(`cardSurfaceClass`) holding columns of 16rem (`ColumnBrowser`), each divided
+from the next by a hairline and scrolling on its own; a new column scrolls into
+view. A row is a list option, not a card: an icon or a room's thumbnail
+(`RoomThumbnail`, ink on paper), the name with a quiet line under it, chips of
+one quiet word ("geöffnet", "automatisch gesichert") and a caret for a folder.
+Hover is `--surface-sunken`; the rows on the selected path are sunken, and the
+deepest one — the entry the inspector shows — carries the blue bar at its edge,
+as an opened student does. Groups within a column ("Räume", "Verlauf") are
+titled in small caps and set off by a hairline. On a phone only the last column
+shows, the full width.
+
 ## 6b. The inspector
 
 The right-hand panel is a wall, not a stack of cards. A setting inside it is a row — `InspectorRow` with its name and, on the right, a `ToggleSwitch` for a yes/no or `InspectorChoice` chips for a handful of values; pressing the chip a value already has clears it, so "not decided" stays reachable. More values than fit beside the name in one line — the five language levels, the four social roles, the export's name rule — stand as a list under it instead (`stacked` row, `layout="list"`): one bordered column of rows, a check at the end of the chosen one, because a run of chips wrapping onto a second line reads as a scatter rather than a scale. Every attribute that has a seat badge shows that badge's icon in its family's ink (`InspectorIcon`, icons from `STUDENT_ATTRIBUTE_ICONS` and `STUDENT_FLAGS`) — before the row's name for a flag or a partner, inside the option for a value — so the symbol on the plan is one the teacher has seen beside its word. An attribute's name starts with a capital in both languages ("Unruhig", "Restless"), wherever it stands as a label. Several students who disagree show that too: a switch with its knob in the middle, and the chips of the values some of them have outlined in dashes (`aria-pressed="mixed"`), a list row a dash where the check would be — otherwise a mixed selection looks like one where nothing is set. `InspectorHeader`,

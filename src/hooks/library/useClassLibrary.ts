@@ -70,7 +70,8 @@ export type LibraryEdit =
   | { kind: 'deleteRoom'; roomId: string };
 
 export type LibraryEditOutcome =
-  { ok: true } | { ok: false; reason: ClassEditProblem };
+  | { ok: true; /** The room a `createRoom` made. */ roomId?: string }
+  | { ok: false; reason: ClassEditProblem };
 
 const done: LibraryEditOutcome = { ok: true };
 const refused = (reason: ClassEditProblem): LibraryEditOutcome => ({
@@ -278,7 +279,9 @@ export function useClassLibrary(selectedClassId: string | null) {
           return done;
         case 'createRoom': {
           const result = actions.addRoom(edit.name);
-          return typeof result === 'string' ? refused(result) : done;
+          return typeof result === 'string'
+            ? refused(result)
+            : { ok: true, roomId: result.id };
         }
         case 'renameRoom': {
           const problem = actions.renameRoom(edit.roomId, edit.name);
@@ -336,6 +339,8 @@ export function useClassLibrary(selectedClassId: string | null) {
       }
 
       const result = await repository.editInactiveClass(classId, change);
+      const madeRoomId =
+        change.kind === 'createRoom' ? change.room.id : undefined;
       if (!result.success) {
         logError(
           'Failed to change a class from the library',
@@ -344,10 +349,9 @@ export function useClassLibrary(selectedClassId: string | null) {
         );
         return refused('not-found');
       }
-      if (result.data.ok) {
-        setRevision((count) => count + 1);
-      }
-      return result.data;
+      if (!result.data.ok) return result.data;
+      setRevision((count) => count + 1);
+      return madeRoomId ? { ok: true, roomId: madeRoomId } : done;
     },
     [repository, stored],
   );

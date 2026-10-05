@@ -22,7 +22,7 @@ const unreachablePage = () =>
   lazyWithRetry(() =>
     Promise.reject(
       new TypeError(
-        'error loading dynamically imported module: http://x/chunks/StorageHistoryModal.js',
+        'error loading dynamically imported module: http://x/chunks/PlanLibrary.js',
       ),
     ),
   );

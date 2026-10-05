@@ -6,7 +6,7 @@ export type Shortcut = {
 };
 
 export type ShortcutContext =
-  'students' | 'layout' | 'plan' | 'circle' | 'export' | 'global';
+  'students' | 'layout' | 'plan' | 'circle' | 'export' | 'library' | 'global';
 
 export const shortcutContextLabels: Record<ShortcutContext, string> = {
   global: 'shortcuts.labels.global',
@@ -15,6 +15,7 @@ export const shortcutContextLabels: Record<ShortcutContext, string> = {
   plan: 'shortcuts.labels.plan',
   circle: 'shortcuts.labels.circle',
   export: 'shortcuts.labels.export',
+  library: 'shortcuts.labels.library',
 };
 
 export const shortcutMap: Record<ShortcutContext, Shortcut[]> = {
@@ -176,6 +177,32 @@ export const shortcutMap: Record<ShortcutContext, Shortcut[]> = {
     {
       keysKey: 'shortcuts.keys.export_print',
       descriptionKey: 'shortcuts.descriptions.export_print',
+    },
+  ],
+  library: [
+    {
+      keysKey: 'shortcuts.keys.library_choose',
+      descriptionKey: 'shortcuts.descriptions.library_choose',
+    },
+    {
+      keysKey: 'shortcuts.keys.library_folders',
+      descriptionKey: 'shortcuts.descriptions.library_folders',
+    },
+    {
+      keysKey: 'shortcuts.keys.library_open',
+      descriptionKey: 'shortcuts.descriptions.library_open',
+    },
+    {
+      keysKey: 'shortcuts.keys.library_rename',
+      descriptionKey: 'shortcuts.descriptions.library_rename',
+    },
+    {
+      keysKey: 'shortcuts.keys.library_delete',
+      descriptionKey: 'shortcuts.descriptions.library_delete',
+    },
+    {
+      keysKey: 'shortcuts.keys.library_back',
+      descriptionKey: 'shortcuts.descriptions.library_back',
     },
   ],
 };

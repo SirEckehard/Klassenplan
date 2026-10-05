@@ -13,6 +13,8 @@ export const SeatingPlanGenerator = lazyWithRetry(
   () => import('@/components/SeatingPlanGenerator/SeatingPlanGenerator'),
 );
 export const Export = lazyWithRetry(() => import('@/pages/Export'));
+// "Pläne & Verlauf": classes, rooms and plans as folders (decision 0024).
+export const PlanLibrary = lazyWithRetry(() => import('@/pages/PlanLibrary'));
 export const Present = lazyWithRetry(() => import('@/pages/Present'));
 export const NameGame = lazyWithRetry(() => import('@/pages/NameGame'));
 // The three classroom tools: one screen, one job, used standing up.
@@ -37,6 +39,7 @@ export const routeComponents = {
   startpage: StartPage,
   generator: SeatingPlanGenerator,
   export: Export,
+  plaene: PlanLibrary,
   present: Present,
   namensspiel: NameGame,
   'wer-kommt-dran': WhoIsNext,

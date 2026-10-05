@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- "Plans & history" is a page of its own, laid out as a file manager shows folders: the classes, a class's rooms with its recent mixes and neighbourhoods, a room's plans, and the room templates, side by side in columns. It opens on the plan that is open, in its room, in its class. What is chosen is read and changed in the inspector – renamed, moved to another room or a new one, duplicated, deleted – the path stands in the status bar, and "Open" takes the choice into the workspace: a plan, a room, a class, a mix, or a template as a new room. Another class can be looked through without opening it. Arrow keys, Enter, F2 and Delete work as in a file manager; on a phone the columns follow one another
 - A class keeps its rooms – the classroom, the lab – each with its own tables and plans. The room inspector names the open room and lists the class's rooms under "Rooms": a new one is named and made there, another opens as it was left, seating, locked seats and open plan included, and each is renamed in its row. A saved plan or a mix opens the room it was made in; a template opens as a room of its own, and the message after it offers the way back. "Save plan" says which room the plan goes into once a class has more than one
 - A new workspace around the three layers of a class – Class, Room, Plan: the open class is named in the header, the toolbar sits on the left, the stage in the middle and the inspector on the right. A status bar under the stage says where things stand, carries undo and redo, and leads back and on. On a desktop the window no longer scrolls as a page; the toolbar, the stage and the inspector scroll on their own
 - The inspector: whatever is selected – a student, a table, a room element, several ticked students – is edited in one panel on the right instead of in the list rows. On a tablet in portrait it opens as a drawer from the status bar, on a phone as a sheet
@@ -18,7 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - An error screen offers a prepared email with a reference code; nothing is sent automatically
 - A browser too old for Klassenplan – often the built-in one of an interactive whiteboard – shows a notice with the versions it needs instead of a blank page: Chrome or Edge 111, Safari 16.4, Firefox 128
 - Shortcuts on a single key – "?", P, F, 1–3, Q/E and others – can be switched off in the settings menu, so speech input cannot set them off by mistake
-- "Reset" in the "Neighbourhoods" tab of "Plans & history" forgets every neighbourhood of a class in one click – for a new school year, say: earlier saved plans and mixes no longer count either, and the message after it takes it back
+- "Reset" in a class's "Neighbourhoods" in "Plans & history" forgets every neighbourhood of the class in one click – for a new school year, say: earlier saved plans and mixes no longer count either, and the message after it takes it back
 
 ### Improved
 

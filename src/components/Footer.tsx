@@ -19,7 +19,6 @@ import { LegalPageLink } from './LegalPageLink';
 import { menuSurfaceClass } from '@/utils';
 import { GITHUB_REPO_URL } from '@/config/links';
 import { appSettingsItems } from '@/components/ui/navigation/appSettingsItemsModule';
-import { useStorageHistoryModal } from '@/components/ui/navigation/useStorageHistoryModal';
 import { reportChunkLoadFailure } from '@/utils/performance/chunkLoad';
 import { getAppVersion } from '@/utils/version';
 import { useDialogLayer } from '@/hooks/ui/useDialogLayer';
@@ -33,7 +32,6 @@ const Footer: React.FC = () => {
   // The dialogs the entries open live beside the menu, not in it: choosing an
   // entry closes the menu, and a dialog inside it would close with it.
   const [clearAllOpen, setClearAllOpen] = useState(false);
-  const history = useStorageHistoryModal();
   // The settings menu owns Escape while it is open; the views underneath check
   // the layer registry before acting on it.
   useDialogLayer(menuOpen);
@@ -212,12 +210,10 @@ const Footer: React.FC = () => {
             >
               <SettingsItems
                 onDone={() => setMenuOpen(false)}
-                onShowHistory={history.show}
                 onClearAllData={() => setClearAllOpen(true)}
               />
             </div>
           )}
-          {history.modal}
           {ClearAllDataDialog && (
             <ClearAllDataDialog
               open={clearAllOpen}

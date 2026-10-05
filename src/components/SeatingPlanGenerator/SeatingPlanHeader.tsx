@@ -32,17 +32,19 @@ import { KpLockup } from '@/components/KpLockup';
  * and presenting are the plan layer's way on, at the end of its status bar
  * (`PlanExits`).
  *
- * The export page wears the same header (`view="export"`). No layer is current
- * there, so every one of the three leads back into the workspace, and there is
- * no tour to run.
+ * The export page and "Pläne & Verlauf" wear the same header (`view="export"`,
+ * `view="library"`). No layer is current there, so every one of the three
+ * leads back into the workspace, and there is no tour to run.
  */
 export default function SeatingPlanHeader({
   view = 'workspace',
 }: {
-  view?: 'workspace' | 'export';
+  view?: 'workspace' | 'export' | 'library';
 }) {
   const { t } = useTranslation(['generator', 'common']);
   const isExport = view === 'export';
+  // A page beside the layers: none of them is current.
+  const isOutside = view !== 'workspace';
   const navigate = useLocalizedNavigate();
   const { step } = useSeatingAlgorithmContext();
   const { seatingMode } = useClassroomLayoutContext();
@@ -50,13 +52,13 @@ export default function SeatingPlanHeader({
   const { activeClass } = useClassManagementContext();
   const { requestTour } = useOnboardingTour();
   const autoMixing = useSeatingPlanSelector(({ state }) => state.autoMixing);
-  const tourId = isExport
+  const tourId = isOutside
     ? null
     : resolveTourId(step, Boolean(activeClass.id), seatingMode, autoMixing);
 
   // Handle layer changes
   const onStepChange = (targetStep: number) => {
-    if (isExport) {
+    if (isOutside) {
       navigate('/generator', { state: { step: targetStep } });
       return;
     }
@@ -75,6 +77,21 @@ export default function SeatingPlanHeader({
         ))}
       </ul>
     );
+
+    if (view === 'library') {
+      return {
+        title: t('help.library.title'),
+        instructions: list([
+          'help.library.item1',
+          'help.library.item2',
+          'help.library.item3',
+          'help.library.item4',
+          'help.library.item5',
+        ]),
+        contexts: ['library'] as ShortcutContext[],
+        faqSection: 'layout',
+      };
+    }
 
     if (isExport) {
       return {
@@ -182,7 +199,7 @@ export default function SeatingPlanHeader({
 
         {/* Centre - the three layers of the classroom */}
         <LayerSwitcher
-          currentStep={isExport ? 0 : step}
+          currentStep={isOutside ? 0 : step}
           onStepChange={onStepChange}
           seatingMode={seatingMode}
         />
@@ -205,7 +222,7 @@ export default function SeatingPlanHeader({
         </div>
       </div>
 
-      {!isExport && <OnboardingTour tourId={tourId} />}
+      {!isOutside && <OnboardingTour tourId={tourId} />}
     </header>
   );
 }

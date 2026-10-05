@@ -380,7 +380,7 @@
         "usage4": "Swapping seats by hand",
         "usageOutro": "Only the seating neighbourhoods and a timestamp are stored, entirely on your own device. On the first strong signal a short notice asks: if it really was just a test, one click takes the chart back out of the count.",
         "weightNote": "For repeat avoidance these real seating charts are read first; mixes from the running session now weigh only half as much. A long session of trying things out should no longer drown out the result.",
-        "viewNote": "Under “Plans & history” in the toolbar, the “Neighbourhoods” tab shows who has sat next to whom and how often – including the data it rests on, from which you can remove individual plans. “Reset” forgets every neighbourhood so far at once, say for a new school year."
+        "viewNote": "Under “Plans & history” in the toolbar, a class’s “Neighbourhoods” entry shows who has sat next to whom and how often – including the data it rests on, from which you can remove individual plans. “Reset” forgets every neighbourhood so far at once, say for a new school year."
       }
     },
     "tipps": {
@@ -392,7 +392,7 @@
         "li1": "Set the criteria that matter to “Important” or “Very important” – or pick a fitting recipe",
         "li2": "Mix multiple times to use different random starts",
         "li3": "Adjust individual seats manually via drag & drop and lock them if necessary so that the algorithm no longer changes them.",
-        "li4": "Take back a poor mix with “Undo” (Ctrl/⌘+Z) or load an earlier result under “Plans & history”"
+        "li4": "Take back a poor mix with “Undo” (Ctrl/⌘+Z) or open an earlier result under “Recent mixes” in “Plans & history”"
       }
     },
     "unterricht": {

@@ -12,6 +12,7 @@ import {
 import ConfirmDialog from '@/components/ui/modals/ConfirmDialog';
 import { useSeatingPlanActions } from '@/contexts/SeatingPlanContext';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
+import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';
 import {
   logError,
   menuItemClass,
@@ -33,14 +34,11 @@ import {
  */
 export default function AppSettingsItems({
   onDone,
-  onShowHistory,
   onClearAllData,
   storage = true,
   menuItems = true,
 }: {
   onDone: () => void;
-  /** Opens "Pläne & Verlauf"; goes with `storage`. */
-  onShowHistory?: () => void;
   /** Opens {@link ClearAllDataDialog}, which asks before anything is wiped. */
   onClearAllData: () => void;
   /**
@@ -62,10 +60,13 @@ export default function AppSettingsItems({
   // Dismissing the install toast is permanent; this entry stays as the way
   // back in for as long as the browser reports the app as installable.
   const { isInstallable, triggerInstall } = useInstallPrompt();
+  const navigate = useLocalizedNavigate();
 
+  // "Pläne & Verlauf" is a page of the workspace (decision 0024); its way
+  // back leads here again.
   const handleShowHistory = () => {
     onDone();
-    onShowHistory?.();
+    navigate('/plaene');
   };
 
   const handleExportBackup = () => {

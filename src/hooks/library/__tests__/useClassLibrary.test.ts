@@ -142,7 +142,7 @@ describe('useClassLibrary', () => {
       });
     });
 
-    expect(outcome).toEqual({ ok: true });
+    expect(outcome).toEqual({ ok: true, roomId: 'r3' });
     expect(mocks.actions.addRoom).toHaveBeenCalledWith('Turnhalle');
     expect(mocks.repository.editInactiveClass).not.toHaveBeenCalled();
   });

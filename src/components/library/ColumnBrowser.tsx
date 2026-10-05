@@ -37,6 +37,11 @@ export interface BrowserColumn {
 interface ColumnBrowserProps {
   columns: BrowserColumn[];
   onSelect: (columnIndex: number, key: string) => void;
+  /**
+   * A click or a tap, after the selection: where a pointer chose rather than
+   * the arrow keys — a tablet then shows the entry's inspector.
+   */
+  onItemClick?: (columnIndex: number, key: string) => void;
   /** Enter or a double click. */
   onOpen?: (columnIndex: number, key: string) => void;
   /** F2. */
@@ -67,6 +72,7 @@ const itemsOf = (column: BrowserColumn) =>
 export default function ColumnBrowser({
   columns,
   onSelect,
+  onItemClick,
   onOpen,
   onRename,
   onDelete,
@@ -248,6 +254,7 @@ export default function ColumnBrowser({
                           onClick={() => {
                             onSelect(columnIndex, item.key);
                             focusItem(item.key);
+                            onItemClick?.(columnIndex, item.key);
                           }}
                           onDoubleClick={() => onOpen?.(columnIndex, item.key)}
                           onKeyDown={(event) =>
