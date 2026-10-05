@@ -1,13 +1,17 @@
 # 0024 – A class keeps its rooms, and "Pläne & Verlauf" shows them
 
-- **Status:** proposed
-- **In place since:** —
+- **Status:** accepted
+- **In place since:** unreleased (2026-10-05)
 - **Sources:** maintainer decisions of 2026-10-04 (rooms as folders of a
   class; every existing plan into one room "Klassenraum"; "Neu einrichten"
   stays in the room; a loaded template makes a room of its own; the name
   "Pläne & Verlauf" on a page of its own at `/plaene`), a teacher's feedback
   of 2026-10-03 (several plans per class were there but not found), commit
-  `790dc794` (`releaseOpenPlan`), [data-model.md](../data-model.md)
+  `790dc794` (`releaseOpenPlan`), [data-model.md](../data-model.md),
+  `src/utils/data/classRooms.ts` (`ensureClassRooms`, `switchRoomState`,
+  `applyClassEdit`), `src/hooks/domains/useRoomManagement.ts`,
+  `src/hooks/library/useClassLibrary.ts`, `src/pages/PlanLibrary.tsx`,
+  `src/components/library/`
 
 ## Context
 
@@ -43,9 +47,12 @@ who asked for a plan per room did not find that it was possible.
    exists per room.
 5. **"Pläne & Verlauf" is a page of the workspace** at `/plaene` (noindex), in
    columns as a file manager shows folders: the classes, a class's rooms with
-   its recent mixes and neighbourhoods, a room's plans. What is selected is
-   edited in the inspector; the status bar carries its path and "Öffnen". The
-   page replaces the dialog.
+   its recent mixes and neighbourhoods, a room's plans, the room templates.
+   What is selected is read and changed in the inspector — a class's name,
+   school year and notes in the class dialog the header's menu opens too —
+   and the status bar carries its path and "Öffnen". A class that is not open
+   is browsed without being opened and changed in storage; opening something
+   of it opens the class first. The page replaces the dialog.
 
 ## Alternatives considered
 

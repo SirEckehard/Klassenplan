@@ -28,17 +28,17 @@ it for Antigravity — edit this file, never those two.
 - Docs consistency: `npm run check:docs` (relative links, heading anchors and `src/…`-style paths in Markdown resolve; `docs/CHANGELOG.md` is skipped)
 - Algorithm runtime: `npm run bench` (by hand, not in CI; figures in `docs/PERFORMANCE.md`)
 
-**Current Code Quality Status (2026-10-03):**
+**Current Code Quality Status (2026-10-05):**
 
 - ✅ ESLint: 0 errors, 0 warnings
 - ✅ TypeScript: 0 compilation errors (strict mode)
-- ✅ Tests: 2825 unit tests (290 test files) + 13 Playwright tests (3 smoke + 2 core flow + 4 onboarding + 2 tablet + 1 phone + 1 whiteboard), 100% passing
+- ✅ Tests: 2913 unit tests (297 test files) + 14 Playwright tests (3 smoke + 2 core flow + 1 rooms + 4 onboarding + 2 tablet + 1 phone + 1 whiteboard), 100% passing
 - 📊 Coverage: 76.0 % lines / 75.2 % statements / 66.3 % branches (`npm run test:coverage`, v8 provider, no thresholds enforced)
 - ⚠️ Unused Exports: 52 modules ignoring type-only exports, held by a ratchet (`npm run check:unused`); the remainder are re-export barrels, `lazyWithRetry` default exports and shared test helpers
 - ✅ Test Infrastructure: Centralized accessibility helpers and toast matchers for robust testing
 - ✅ Architecture: Repository Pattern implemented, UI components reorganized into logical subdirectories
-- ✅ i18n: Bilingual support (German/English) fully implemented, DE/EN key parity 1:1 (1956 keys per language, none unused)
-- 📦 Bundle: initial payload 198 KB brotli / 748 KB raw over 28 files (the browser check included), largest chunk 60 KB brotli, CSS 14 KB brotli
+- ✅ i18n: Bilingual support (German/English) fully implemented, DE/EN key parity 1:1 (2031 keys per language, none unused)
+- 📦 Bundle: initial payload 204 KB brotli / 768 KB raw over 28 files (the browser check included), largest chunk 61 KB brotli, CSS 14 KB brotli
 
 ## Logging
 

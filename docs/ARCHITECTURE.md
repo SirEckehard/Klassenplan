@@ -1,6 +1,6 @@
 # Architecture
 
-> **Status:** current · **Last reviewed:** 2026-10-04 · **Maintainer:** Eike
+> **Status:** current · **Last reviewed:** 2026-10-05 · **Maintainer:** Eike
 > Schäfer · **Describes:** Klassenplan 2.2.0
 
 This is the entry point for anyone who wants to understand _why_ Klassenplan is
