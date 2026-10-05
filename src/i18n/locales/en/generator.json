@@ -1076,7 +1076,8 @@
       "locks": "Locked seats",
       "used": "Used",
       "notUsed": "not yet",
-      "delete": "Delete plan"
+      "delete": "Delete plan",
+      "otherTables": "This plan has other tables than “{{room}}”. Does it belong in a room of its own?"
     },
     "mix": {
       "criteria": "Criteria",

@@ -342,4 +342,28 @@ describe('PlanLibrary', () => {
     // Made for a table of two in the lab, whose three tables it no longer fits.
     expect(openButton()).toHaveAttribute('aria-disabled', 'true');
   });
+
+  // Before rooms existed every plan went into one room; a lab plan stands
+  // out by its tables, and the inspector says so.
+  it('suggests a room of its own for a plan with other tables', async () => {
+    const lab = createMockSavedPlan({
+      id: 'chem',
+      name: 'Chemie',
+      roomId: 'classroom',
+      date: '2026-10-01',
+      seating: [[ada], [ben], [null]],
+      scene: createMockClassroomScene(3),
+    });
+    mocks.library['7b'] = { ...sevenB(), plans: [september, october, lab] };
+    const user = userEvent.setup();
+    renderPage();
+
+    await user.click(await screen.findByRole('option', { name: /^Chemie/ }));
+
+    expect(
+      screen.getByText(
+        /andere Tische als „Klassenraum“|other tables than “Klassenraum”/,
+      ),
+    ).toBeInTheDocument();
+  });
 });

@@ -25,6 +25,7 @@ import {
   collectSeatingPairKeys,
   computePlanFingerprint,
 } from '@/utils/data/planUsage';
+import { hasShapeMismatch } from '@/utils/math/scene';
 import RoomThumbnail from '../RoomThumbnail';
 import NameField from './NameField';
 import { ActionRow, DeleteFooter, ValueRow } from './panelParts';
@@ -74,6 +75,10 @@ export default function PlanPanel({
     0,
   );
   const locks = Object.keys(plan.locks ?? {}).length;
+  // A plan whose tables are not its room's was likely made in another room —
+  // what every plan from before rooms existed was put into one room for.
+  const room = rooms.find((entry) => entry.id === plan.roomId);
+  const otherTables = room ? hasShapeMismatch(room.scene, plan.seating) : false;
   // Plan names are held exactly, as saving holds them.
   const problemFor = (draft: string): NameProblem | null => {
     const trimmed = draft.trim();
@@ -138,6 +143,11 @@ export default function PlanPanel({
               }}
             />
           </InspectorRow>
+          {otherTables && room && !namingRoom && (
+            <p className="text-xs leading-relaxed text-(--text-muted)">
+              {t('library.plan.otherTables', { room: room.name })}
+            </p>
+          )}
           {namingRoom ? (
             <NameField
               key="new-room"

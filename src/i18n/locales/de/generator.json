@@ -1076,7 +1076,8 @@
       "locks": "Feste Plätze",
       "used": "Benutzt",
       "notUsed": "noch nicht",
-      "delete": "Plan löschen"
+      "delete": "Plan löschen",
+      "otherTables": "Dieser Plan hat andere Tische als „{{room}}“. Gehört er in einen eigenen Raum?"
     },
     "mix": {
       "criteria": "Kriterien",
