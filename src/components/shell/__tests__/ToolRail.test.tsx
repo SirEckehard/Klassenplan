@@ -86,7 +86,7 @@ const renderRail = (
         />
         <Route path="/wer-kommt-dran" element={<p>Seite: Wer kommt dran</p>} />
         <Route path="/namensspiel" element={<p>Seite: Namensspiel</p>} />
-        <Route path="/plaene" element={<p>Seite: Pläne & Verlauf</p>} />
+        <Route path="/bibliothek" element={<p>Seite: Bibliothek</p>} />
       </Routes>
     </MemoryRouter>,
   );
@@ -107,7 +107,7 @@ describe('ToolRail', () => {
       expect(entryNames(container)).toEqual([
         'Liste',
         expect.stringMatching(/Klassenwerkzeuge|Class tools/),
-        expect.stringMatching(/Pläne & Verlauf|Plans & history/),
+        expect.stringMatching(/Bibliothek|Library/),
         'Backup',
         expect.stringMatching(/Unterstützen|Support/),
       ]);
@@ -216,19 +216,19 @@ describe('ToolRail', () => {
     expect(screen.getByText('Seite: Namensspiel')).toBeInTheDocument();
   });
 
-  // "Pläne & Verlauf" is a page of the workspace (decision 0024), reached
+  // "Bibliothek" is a page of the workspace (decision 0024), reached
   // by a link like any other page.
-  it('leads to the plans and their history, a page of their own', () => {
+  it('leads to the library, a page of its own', () => {
     renderRail();
 
     const entry = screen.getByRole('link', {
-      name: /Pläne & Verlauf|Plans & history/i,
+      name: /Bibliothek|Library/i,
     });
     expect(entry).not.toHaveAttribute('aria-haspopup');
     expect(entry).not.toHaveAttribute('aria-current');
 
     fireEvent.click(entry);
-    expect(screen.getByText('Seite: Pläne & Verlauf')).toBeInTheDocument();
+    expect(screen.getByText('Seite: Bibliothek')).toBeInTheDocument();
   });
 
   it('keeps both ways a backup travels behind one entry', () => {

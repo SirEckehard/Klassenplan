@@ -89,8 +89,8 @@ export function preloadLikelyRoutes(currentPath: string): void {
         preloadRoute('export');
         preloadRoute('present');
         preloadRoute('startpage');
-        // "Pläne & Verlauf" at the foot of every toolbar
-        preloadRoute('plaene');
+        // "Bibliothek" at the foot of every toolbar
+        preloadRoute('bibliothek');
         // The class tools at the foot of every toolbar
         preloadRoute('wer-kommt-dran');
         preloadRoute('wo-sitzt-wer');
@@ -103,9 +103,9 @@ export function preloadLikelyRoutes(currentPath: string): void {
         addPrefetchHint('/', { as: 'document', importance: 'low' });
         preloadRoute('generator');
         preloadRoute('startpage');
-        preloadRoute('plaene');
+        preloadRoute('bibliothek');
         break;
-      case 'plaene':
+      case 'bibliothek':
         // What is opened from it opens in the workspace.
         preloadRoute('generator');
         preloadRoute('export');

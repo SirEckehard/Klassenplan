@@ -7,15 +7,18 @@ import {
   GridNineIcon,
   ShuffleIcon,
   SquaresFourIcon,
+  UserIcon,
   UsersThreeIcon,
 } from '@phosphor-icons/react';
-import type { ClassroomTemplate, ClassSummary } from '@/types';
+import type { ClassroomTemplate, ClassSummary, PlanUsage } from '@/types';
 import type { LibraryClass } from '@/hooks/library/useClassLibrary';
-import { formatDateAndTime, formatStoredDate } from '@/utils';
+import { formatDate, formatDateAndTime, formatStoredDate } from '@/utils';
+import { buildNeighborhoodStats, isCountedUsage } from '@/utils/data/planUsage';
+import StudentAvatar from '@/components/students/StudentAvatar';
 import RoomThumbnail from './RoomThumbnail';
 import type { BrowserColumn, BrowserItem } from './ColumnBrowser';
 
-/** What an entry of "Pläne & Verlauf" stands for. */
+/** What an entry of "Bibliothek" stands for. */
 export type LibraryNode =
   | { kind: 'class'; classId: string }
   | { kind: 'templates' }
@@ -24,6 +27,13 @@ export type LibraryNode =
   | { kind: 'mixes'; classId: string }
   | { kind: 'mix'; classId: string; mixId: number }
   | { kind: 'neighbours'; classId: string }
+  | { kind: 'neighbourStudent'; classId: string; studentId: string }
+  | {
+      kind: 'neighbourPair';
+      classId: string;
+      studentId: string;
+      neighbourId: string;
+    }
   | { kind: 'plan'; classId: string; planId: string };
 
 /** The key of an entry, unique across all columns. */
@@ -43,6 +53,10 @@ export function libraryKey(node: LibraryNode): string {
       return `mix:${node.classId}:${node.mixId}`;
     case 'neighbours':
       return `neighbours:${node.classId}`;
+    case 'neighbourStudent':
+      return `neighbourStudent:${node.classId}:${node.studentId}`;
+    case 'neighbourPair':
+      return `neighbourPair:${node.classId}:${node.studentId}:${node.neighbourId}`;
     case 'plan':
       return `plan:${node.classId}:${node.planId}`;
   }
@@ -68,6 +82,40 @@ export function defaultLibraryPath(
   return path;
 }
 
+/** Someone a student sat next to, in the plans that count. */
+export interface Neighbour {
+  studentId: string;
+  /** In how many of those plans. */
+  count: number;
+  lastSeenAt: string;
+}
+
+/**
+ * Who sat next to whom, per student: the pairs of the plans that count
+ * (decision 0010), each neighbour once, most often first, then most recently.
+ */
+export function neighboursByStudent(
+  planUsage: readonly PlanUsage[],
+): Map<string, Neighbour[]> {
+  const byStudent = new Map<string, Neighbour[]>();
+  const add = (studentId: string, neighbour: Neighbour) => {
+    const list = byStudent.get(studentId);
+    if (list) list.push(neighbour);
+    else byStudent.set(studentId, [neighbour]);
+  };
+  for (const stat of buildNeighborhoodStats(planUsage)) {
+    const { count, lastSeenAt } = stat;
+    add(stat.studentIdA, { studentId: stat.studentIdB, count, lastSeenAt });
+    add(stat.studentIdB, { studentId: stat.studentIdA, count, lastSeenAt });
+  }
+  for (const list of byStudent.values()) {
+    list.sort(
+      (a, b) => b.count - a.count || b.lastSeenAt.localeCompare(a.lastSeenAt),
+    );
+  }
+  return byStudent;
+}
+
 /** A quiet word after a name: what is open, what was saved by itself. */
 function LibraryChip({ children }: { children: React.ReactNode }) {
   return (
@@ -91,9 +139,10 @@ export interface LibraryColumns {
 }
 
 /**
- * The columns of "Pläne & Verlauf" for a path (decision 0024): the classes
+ * The columns of "Bibliothek" for a path (decision 0024): the classes
  * and the templates; a class's rooms, its recent mixes and neighbourhoods; a
- * room's plans or the mixes; the templates. A key of the path that names an
+ * room's plans, the mixes or the students; a student's neighbours; the
+ * templates. A key of the path that names an
  * entry no longer there — deleted, or of another class — ends it.
  */
 export function buildLibraryColumns({
@@ -103,6 +152,7 @@ export function buildLibraryColumns({
   selected,
   loadingClass,
   templates,
+  planUsage,
   t,
 }: {
   path: string[];
@@ -112,6 +162,8 @@ export function buildLibraryColumns({
   selected: LibraryClass | null;
   loadingClass: boolean;
   templates: ClassroomTemplate[];
+  /** The plan usage record of the class the path goes into. */
+  planUsage: readonly PlanUsage[];
   t: TFunction;
 }): LibraryColumns {
   const nodes = new Map<string, LibraryNode>();
@@ -252,7 +304,11 @@ export function buildLibraryColumns({
       { kind: 'neighbours', classId },
       {
         label: t('storage.neighbors.tab'),
+        meta: t('library.neighboursCount', {
+          count: planUsage.filter(isCountedUsage).length,
+        }),
         leading: <UsersThreeIcon size={iconSize} />,
+        isFolder: true,
       },
     ),
   ];
@@ -329,6 +385,88 @@ export function buildLibraryColumns({
       groups: [{ key: 'mixes', items }],
     });
     if (third) resolved.push(path[2]);
+  } else if (second.kind === 'neighbours') {
+    // A student per entry and their neighbours in the next column: a pair
+    // of two full names does not fit a column, one name does.
+    const neighbours = neighboursByStudent(planUsage);
+    const studentById = new Map(
+      library.students.map((student) => [student.id, student]),
+    );
+    const nameOf = (id: string) =>
+      studentById.get(id)?.name || t('storage.neighbors.unknownStudent');
+    // A face where the class has one, the plain figure otherwise.
+    const studentLeading = (id: string) => {
+      const student = studentById.get(id);
+      return student?.hasPhoto ? (
+        <StudentAvatar student={student} size={24} />
+      ) : (
+        <UserIcon size={iconSize} />
+      );
+    };
+    const students = library.students
+      .slice()
+      .sort((a, b) => a.name.localeCompare(b.name));
+    const items = students.map((student) => {
+      const count = neighbours.get(student.id)?.length ?? 0;
+      return add(
+        { kind: 'neighbourStudent', classId, studentId: student.id },
+        {
+          label: nameOf(student.id),
+          meta:
+            count > 0
+              ? t('storage.neighbors.studentMeta', { count })
+              : t('storage.neighbors.studentNone'),
+          leading: studentLeading(student.id),
+          isFolder: true,
+        },
+      );
+    });
+    const third = path[2] ? nodes.get(path[2]) : undefined;
+    columns.push({
+      key: path[1],
+      label: t('storage.neighbors.tab'),
+      selectedKey: third ? path[2] : null,
+      emptyText: t('library.emptyNeighbours'),
+      groups: [{ key: 'students', items }],
+    });
+    if (third?.kind !== 'neighbourStudent') {
+      return { columns, nodes, path: resolved, labels };
+    }
+    resolved.push(path[2]);
+
+    const pairItems = (neighbours.get(third.studentId) ?? []).map((neighbour) =>
+      add(
+        {
+          kind: 'neighbourPair',
+          classId,
+          studentId: third.studentId,
+          neighbourId: neighbour.studentId,
+        },
+        {
+          label: nameOf(neighbour.studentId),
+          meta: t('storage.neighbors.lastSeen', {
+            date: formatDate(neighbour.lastSeenAt),
+          }),
+          leading: studentLeading(neighbour.studentId),
+          badges: (
+            <LibraryChip>
+              {t('storage.neighbors.times', { count: neighbour.count })}
+            </LibraryChip>
+          ),
+        },
+      ),
+    );
+    const fourth = path[3] ? nodes.get(path[3]) : undefined;
+    columns.push({
+      key: path[2],
+      label: nameOf(third.studentId),
+      selectedKey: fourth ? path[3] : null,
+      emptyText: t('storage.neighbors.emptyStudent', {
+        name: nameOf(third.studentId),
+      }),
+      groups: [{ key: 'neighbours', items: pairItems }],
+    });
+    if (fourth) resolved.push(path[3]);
   }
 
   return { columns, nodes, path: resolved, labels };

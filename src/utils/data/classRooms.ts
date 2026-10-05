@@ -275,7 +275,7 @@ export function fittingLocks(
 
 /**
  * A change to a class's plans, mixes and rooms, made on its record — how
- * "Pläne & Verlauf" changes a class that is not open (decision 0024). The open
+ * "Bibliothek" changes a class that is not open (decision 0024). The open
  * class takes the same changes through its live actions, by the same rules.
  */
 export type ClassEdit =

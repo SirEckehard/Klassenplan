@@ -74,20 +74,20 @@ describe('Footer', () => {
     expect(installPromptMock.triggerInstall).toHaveBeenCalledTimes(1);
   });
 
-  // "Pläne & Verlauf" is a page of the workspace (decision 0024); choosing it
+  // "Bibliothek" is a page of the workspace (decision 0024); choosing it
   // closes the menu and goes there.
-  it('goes to the plans and their history, closing the menu', async () => {
+  it('goes to the library, closing the menu', async () => {
     renderFooter();
     const user = await openSettingsMenu();
 
     await user.click(
       screen.getByRole('menuitem', {
-        name: /pläne & verlauf|plans & history/i,
+        name: /bibliothek|library/i,
       }),
     );
 
     expect(screen.queryByRole('menu')).not.toBeInTheDocument();
-    expect(window.location.pathname).toBe('/plaene');
+    expect(window.location.pathname).toBe('/bibliothek');
   });
 
   it('asks before wiping everything once the menu has closed', async () => {

@@ -7,8 +7,9 @@ import {
   ClockCounterClockwiseIcon,
   FolderOpenIcon,
   SquaresFourIcon,
+  UserIcon,
 } from '@phosphor-icons/react';
-import AppShell from '@/components/shell/AppShell';
+import AppShell, { ShellProviders } from '@/components/shell/AppShell';
 import InspectorPortal from '@/components/shell/InspectorPortal';
 import {
   workspaceLayerClass,
@@ -29,12 +30,14 @@ import {
 import ClassPanel from '@/components/library/inspectors/ClassPanel';
 import FolderPanel from '@/components/library/inspectors/FolderPanel';
 import MixPanel from '@/components/library/inspectors/MixPanel';
+import NeighbourPairPanel from '@/components/library/inspectors/NeighbourPairPanel';
 import NeighboursPanel from '@/components/library/inspectors/NeighboursPanel';
 import PlanPanel, {
   type PlanMove,
 } from '@/components/library/inspectors/PlanPanel';
 import RoomPanel from '@/components/library/inspectors/RoomPanel';
 import TemplatePanel from '@/components/library/inspectors/TemplatePanel';
+import StudentAvatar from '@/components/students/StudentAvatar';
 import { useInspector } from '@/contexts/InspectorContext';
 import { useClassDialogs } from '@/contexts/ClassDialogsContext';
 import {
@@ -47,6 +50,7 @@ import {
   type LibraryEdit,
   type LibraryEditOutcome,
 } from '@/hooks/library/useClassLibrary';
+import { usePlanUsageRecords } from '@/hooks/plan/usePlanUsageRecords';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';
 import { usePageSeo } from '@/hooks/usePageSeo';
@@ -76,7 +80,7 @@ const toProblem = (outcome: LibraryEditOutcome): NameProblem | null =>
       : null;
 
 /**
- * "Pläne & Verlauf": the classes, their rooms and plans, their recent mixes
+ * "Bibliothek": the classes, their rooms and plans, their recent mixes
  * and neighbourhoods, and the room templates, as folders in columns
  * (decision 0024). It wears the workspace's shell — header, toolbar,
  * inspector, status bar — as the export page does; what is selected is read
@@ -86,10 +90,21 @@ const toProblem = (outcome: LibraryEditOutcome): NameProblem | null =>
  * It opens on the plan that is open, in its room, in its class, so the room a
  * plan belongs to is the first thing to see. Another class is browsed without
  * being opened; opening something of it opens the class first.
+ *
+ * The page reads the shell's inspector and class dialogs itself, so it stands
+ * inside the shell's providers rather than above them.
  */
 export default function PlanLibrary() {
+  return (
+    <ShellProviders>
+      <PlanLibraryPage />
+    </ShellProviders>
+  );
+}
+
+function PlanLibraryPage() {
   const { t } = useTranslation('generator');
-  const metadata = usePageSeo('/plaene');
+  const metadata = usePageSeo('/bibliothek');
   const navigate = useLocalizedNavigate();
   const location = useLocation();
   const state = useSeatingPlanState();
@@ -114,6 +129,7 @@ export default function PlanLibrary() {
     ? firstKey.slice('class:'.length)
     : null;
   const library = useClassLibrary(selectedClassId);
+  const usageRecords = usePlanUsageRecords(selectedClassId);
 
   const [templates, setTemplates] = React.useState<ClassroomTemplate[]>([]);
   const [templatesRevision, setTemplatesRevision] = React.useState(0);
@@ -139,6 +155,7 @@ export default function PlanLibrary() {
     selected: library.selected,
     loadingClass: library.loading,
     templates,
+    planUsage: usageRecords.planUsage,
     t,
   });
   const path = built.path;
@@ -295,6 +312,8 @@ export default function PlanLibrary() {
               hint: t('library.openHintNoClass'),
             };
       case 'neighbours':
+      case 'neighbourStudent':
+      case 'neighbourPair':
         return { label: open, hint: t('library.openHintNeighbours') };
       default:
         return { label: open, hint: t('library.openHintFolder') };
@@ -470,6 +489,26 @@ export default function PlanLibrary() {
     }
   };
 
+  const studentOf = (studentId: string) =>
+    classLibrary?.students.find((student) => student.id === studentId);
+  const studentName = (studentId: string) =>
+    studentOf(studentId)?.name || t('storage.neighbors.unknownStudent');
+  // Faces where the class has them; the icon tile otherwise.
+  const photoMedia = (studentIds: string[]) => {
+    const withPhoto = studentIds.flatMap((id) => {
+      const student = studentOf(id);
+      return student?.hasPhoto ? [student] : [];
+    });
+    if (withPhoto.length === 0) return undefined;
+    return (
+      <span className="flex shrink-0 -space-x-3">
+        {withPhoto.map((student) => (
+          <StudentAvatar key={student.id} student={student} size={40} />
+        ))}
+      </span>
+    );
+  };
+
   const inspector = (() => {
     if (!current) {
       return (
@@ -641,11 +680,34 @@ export default function PlanLibrary() {
       case 'neighbours':
         return classLibrary ? (
           <NeighboursPanel
-            classId={classLibrary.id}
             className={classLibrary.name}
-            students={classLibrary.students}
+            records={usageRecords}
           />
         ) : null;
+      case 'neighbourStudent':
+        return (
+          <FolderPanel
+            icon={UserIcon}
+            title={studentName(current.studentId)}
+            subtitle={t('storage.neighbors.tab')}
+            media={photoMedia([current.studentId])}
+            hint={t('library.neighbourStudentHint', {
+              name: studentName(current.studentId),
+            })}
+          />
+        );
+      case 'neighbourPair':
+        return (
+          <NeighbourPairPanel
+            studentId={current.studentId}
+            neighbourId={current.neighbourId}
+            studentName={studentName(current.studentId)}
+            neighbourName={studentName(current.neighbourId)}
+            planUsage={usageRecords.planUsage}
+            onSetConfirmed={usageRecords.setUsageConfirmed}
+            media={photoMedia([current.studentId, current.neighbourId])}
+          />
+        );
       case 'templates':
         return (
           <FolderPanel
@@ -761,6 +823,8 @@ function isFolder(node: LibraryNode) {
     node.kind === 'class' ||
     node.kind === 'templates' ||
     node.kind === 'room' ||
-    node.kind === 'mixes'
+    node.kind === 'mixes' ||
+    node.kind === 'neighbours' ||
+    node.kind === 'neighbourStudent'
   );
 }

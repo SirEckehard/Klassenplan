@@ -6,7 +6,7 @@ import { CLASSROOM_HEIGHT, CLASSROOM_WIDTH } from '@/utils';
 
 /**
  * A room at a glance: its outline, its tables and its room elements, drawn in
- * ink on paper at any size — how "Pläne & Verlauf" tells a classroom from a
+ * ink on paper at any size — how "Bibliothek" tells a classroom from a
  * lab (decision 0024). Only a picture: it takes no pointer and is hidden from
  * screen readers, since the name and the numbers beside it say what it shows.
  */

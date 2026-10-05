@@ -142,7 +142,7 @@ Set `"noindex": true` on a route in `seoRoutes.json`. The route is then:
 browser they render only an empty state ("Noch kein Sitzplan zum
 Präsentieren"), which has no business in the index
 ([decision 0019](decisions/0019-classroom-tools-as-routes.md)). So is
-`/plaene`, "Pläne & Verlauf", which lists what this browser keeps and nothing
+`/bibliothek`, "Bibliothek", which lists what this browser keeps and nothing
 else ([decision 0024](decisions/0024-rooms-of-a-class.md)).
 
 ## Sitemap `lastmod`

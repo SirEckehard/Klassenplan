@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 /**
- * "Pläne & Verlauf" (decision 0024): the open plan stands in its room in its
+ * "Bibliothek" (decision 0024): the open plan stands in its room in its
  * class from the first moment, what is selected is read in the inspector, and
  * the status bar opens it in the workspace or says why it cannot.
  */
@@ -147,9 +147,12 @@ const sevenB = (): LibraryClass => ({
 
 const renderPage = () =>
   render(
-    <MemoryRouter initialEntries={['/generator', '/plaene']} initialIndex={1}>
+    <MemoryRouter
+      initialEntries={['/generator', '/bibliothek']}
+      initialIndex={1}
+    >
       <Routes>
-        <Route path="/plaene" element={<PlanLibrary />} />
+        <Route path="/bibliothek" element={<PlanLibrary />} />
         <Route path="/generator" element={<p>Arbeitsfläche</p>} />
       </Routes>
     </MemoryRouter>,

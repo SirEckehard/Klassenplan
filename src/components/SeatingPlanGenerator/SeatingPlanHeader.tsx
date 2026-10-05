@@ -32,7 +32,7 @@ import { KpLockup } from '@/components/KpLockup';
  * and presenting are the plan layer's way on, at the end of its status bar
  * (`PlanExits`).
  *
- * The export page and "Pläne & Verlauf" wear the same header (`view="export"`,
+ * The export page and "Bibliothek" wear the same header (`view="export"`,
  * `view="library"`). No layer is current there, so every one of the three
  * leads back into the workspace, and there is no tour to run.
  */

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 /**
- * A class keeps its rooms, and "Pläne & Verlauf" shows which room a plan
+ * A class keeps its rooms, and "Bibliothek" shows which room a plan
  * belongs to (decision 0024): a plan saved in the classroom, a lab made as a
  * room of its own with a plan of its own, both found again as folders in
  * columns — after a reload too — and a plan opened from there in the
@@ -85,8 +85,8 @@ const statusBar = (page: Page) =>
   page.getByRole('region', { name: 'Statusleiste' });
 
 async function openLibrary(page: Page): Promise<void> {
-  await page.getByRole('link', { name: 'Pläne & Verlauf' }).click();
-  await expect(page).toHaveURL(/\/plaene$/);
+  await page.getByRole('link', { name: 'Bibliothek' }).click();
+  await expect(page).toHaveURL(/\/bibliothek$/);
 }
 
 test('a plan is found in its room, and a lab is a room of its own', async ({
@@ -105,7 +105,7 @@ test('a plan is found in its room, and a lab is a room of its own', async ({
     await mixAndSave(page, 'Woche 1');
   });
 
-  await test.step('"Pläne & Verlauf" opens on it, in its room', async () => {
+  await test.step('"Bibliothek" opens on it, in its room', async () => {
     await openLibrary(page);
 
     await expect(

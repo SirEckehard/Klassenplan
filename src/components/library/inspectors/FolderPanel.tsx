@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
+import type React from 'react';
 import type { Icon } from '@phosphor-icons/react';
 import {
   InspectorBody,
@@ -16,16 +17,19 @@ export default function FolderPanel({
   title,
   subtitle,
   hint,
+  media,
 }: {
   icon: Icon;
   title: string;
   subtitle?: string;
   hint: string;
+  /** What stands for the entry in place of the icon: a student's photo. */
+  media?: React.ReactNode;
 }) {
   return (
     <>
       <InspectorHeader
-        media={<IconTile icon={icon} />}
+        media={media ?? <IconTile icon={icon} />}
         title={title}
         subtitle={subtitle}
       />

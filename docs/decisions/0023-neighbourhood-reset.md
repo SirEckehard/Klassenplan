@@ -6,11 +6,12 @@
   [ALGORITHM.md](../ALGORITHM.md#plan-usage-record),
   `src/repositories/planUsageStore.ts` (`resetPlanUsage`,
   `undoPlanUsageReset`), `src/utils/pairs.ts` (`buildPreviousPairs`' `since`),
-  `src/components/ui/history/NeighborhoodMatrix.tsx`
+  `src/components/library/inspectors/NeighboursPanel.tsx` (until 2026-10-06
+  `NeighborhoodMatrix.tsx`, the list of pairs it replaced)
 
 ## Context
 
-The neighbourhood view under "Pläne & Verlauf" shows who has sat next to whom,
+The neighbourhood view under "Bibliothek" shows who has sat next to whom,
 from the plans that were really in use ([decision 0010](0010-plan-usage-from-actions.md)).
 A teacher could only take plans out of the count one at a time. At the start of
 a school year, or with a class that was mixed up anew, the whole history is

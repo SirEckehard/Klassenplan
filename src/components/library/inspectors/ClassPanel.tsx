@@ -12,7 +12,7 @@ import { formatStoredDate } from '@/utils';
 import { ActionRow, DeleteFooter, IconTile, ValueRow } from './panelParts';
 
 /**
- * A class in "Pläne & Verlauf": what it is called and what it holds. Its name,
+ * A class in "Bibliothek": what it is called and what it holds. Its name,
  * school year and notes are changed in the class dialog the header's class
  * menu opens too — one form for them, with its checks — and the class goes
  * with everything in it only after the question that dialog asks.

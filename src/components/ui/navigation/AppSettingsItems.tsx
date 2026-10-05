@@ -2,9 +2,9 @@
 // Copyright (C) 2026 Eike Schäfer
 import { useTranslation } from 'react-i18next';
 import {
-  ClockCounterClockwiseIcon,
   DeviceMobileIcon,
   DownloadIcon,
+  FoldersIcon,
   HardDrivesIcon,
   TrashIcon,
   UploadIcon,
@@ -48,7 +48,7 @@ export default function AppSettingsItems({
    */
   menuItems?: boolean;
   /**
-   * "Pläne & Verlauf" and the backup. The workspace leaves them out: the foot
+   * "Bibliothek" and the backup. The workspace leaves them out: the foot
    * of every toolbar carries them, on every layer and on the export page, so
    * its gear keeps only what no toolbar holds.
    */
@@ -62,11 +62,11 @@ export default function AppSettingsItems({
   const { isInstallable, triggerInstall } = useInstallPrompt();
   const navigate = useLocalizedNavigate();
 
-  // "Pläne & Verlauf" is a page of the workspace (decision 0024); its way
+  // "Bibliothek" is a page of the workspace (decision 0024); its way
   // back leads here again.
   const handleShowHistory = () => {
     onDone();
-    navigate('/plaene');
+    navigate('/bibliothek');
   };
 
   const handleExportBackup = () => {
@@ -106,10 +106,7 @@ export default function AppSettingsItems({
             onClick={handleShowHistory}
             className={menuItemClass}
           >
-            <ClockCounterClockwiseIcon
-              className={iconClass}
-              aria-hidden="true"
-            />
+            <FoldersIcon className={iconClass} aria-hidden="true" />
             {t('generator:storage.historyTitle')}
           </button>
           <button

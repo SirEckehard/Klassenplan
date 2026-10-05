@@ -141,9 +141,9 @@ deletes the sample class
 ```mermaid
 flowchart TD
   subgraph ui["UI — src/pages, src/components"]
-    wizard["Shell layers 1–3 + export + Pläne & Verlauf"]
+    wizard["Shell layers 1–3 + export + Bibliothek"]
     canvas["Classroom canvas"]
-    present["/present, /export, /plaene"]
+    present["/present, /export, /bibliothek"]
   end
 
   subgraph ctx["Contexts — src/contexts/seatingPlan"]
@@ -176,9 +176,9 @@ flowchart TD
 ```
 
 - **UI** components read trimmed state and actions from the domain contexts, not
-  from the generator directly. `/present`, `/export` and `/plaene` sit inside
+  from the generator directly. `/present`, `/export` and `/bibliothek` sit inside
   the same provider tree, so they show exactly what the workspace shows;
-  "Pläne & Verlauf" reads the classes that are not open from the repository
+  "Bibliothek" reads the classes that are not open from the repository
   (`useClassLibrary`), never the open one.
 - **`useSeatingGenerator`** composes state, persistence, algorithm calls, class
   management and the plan usage record into one snapshot. The contexts slice
@@ -423,7 +423,7 @@ translate one to one.
 | Gespeicherter Plan                        | `SavedPlan` in `seatingHistory`                              | A plan saved under a name. Despite its name, `seatingHistory` holds saved plans, not a log                                             |
 | Mischung                                  | `MixResult` in `mixHistory`                                  | One shuffle result, kept for the last 20                                                                                               |
 | Nachbarschaften                           | plan usage record, `PlanUsage`                               | Which plans were really used, and who sat next to whom                                                                                 |
-| Pläne & Verlauf                           | `/plaene`, `PlanLibrary`, `ColumnBrowser`                    | Classes, rooms, plans, recent mixes and templates as folders in columns ([decision 0024](decisions/0024-rooms-of-a-class.md))          |
+| Bibliothek                                | `/bibliothek`, `PlanLibrary`, `ColumnBrowser`                | Classes, rooms, plans, recent mixes and templates as folders in columns ([decision 0024](decisions/0024-rooms-of-a-class.md))          |
 | Sitzkreis                                 | circle mode, `CircleLayout`, `seatingMode: 'circle'`         | Seating in a circle instead of tables                                                                                                  |
 | Präsentation                              | `/present`                                                   | Full-screen view for projector and whiteboard                                                                                          |
 | Namensspiel                               | `/namensspiel`                                               | Photo quiz and memory for learning students' names                                                                                     |

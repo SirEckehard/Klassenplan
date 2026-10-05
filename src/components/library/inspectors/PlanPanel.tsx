@@ -33,7 +33,7 @@ import { ActionRow, DeleteFooter, ValueRow } from './panelParts';
 export type PlanMove = { roomId: string } | { newRoomName: string };
 
 /**
- * A saved plan in "Pläne & Verlauf": its name, renamed here; the room it
+ * A saved plan in "Bibliothek": its name, renamed here; the room it
  * belongs to, which it can leave for another or a new one (decision 0024);
  * what it holds; whether it was really in use; a copy beside it; and removing
  * it.

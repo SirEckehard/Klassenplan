@@ -73,7 +73,7 @@ function AppRoutes() {
       <Route index element={<StartPage />} />
       <Route path="generator" element={<SeatingPlanGenerator />} />
       <Route path="export" element={<Export />} />
-      <Route path="plaene" element={<PlanLibrary />} />
+      <Route path="bibliothek" element={<PlanLibrary />} />
       <Route path="present" element={<Present />} />
       <Route path="namensspiel" element={<NameGame />} />
       <Route path="wer-kommt-dran" element={<WhoIsNext />} />
@@ -96,7 +96,7 @@ export default function App() {
 
   // Surfaces that carry no page footer: the fullscreen ones (presentation,
   // name game), where the footer and its "clear all data" action are out of
-  // place, and the workspace, the export page and "Pläne & Verlauf", which
+  // place, and the workspace, the export page and "Bibliothek", which
   // share its shell, run at
   // viewport height from `lg` up and offer the same entries in the settings
   // menu of their header (`AppSettingsMenu`). A prerendered route is a
@@ -112,9 +112,9 @@ export default function App() {
     '/en/generator',
     '/export',
     '/en/export',
-    // "Pläne & Verlauf" wears the workspace's shell, as the export does.
-    '/plaene',
-    '/en/plaene',
+    // "Bibliothek" wears the workspace's shell, as the export does.
+    '/bibliothek',
+    '/en/bibliothek',
     // The classroom tools are full-height screens of their own.
     '/wer-kommt-dran',
     '/en/wer-kommt-dran',

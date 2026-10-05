@@ -10,7 +10,7 @@ import {
 } from '@/components/shell/ToolRail';
 
 /**
- * The toolbar of "Pläne & Verlauf", in the shape every layer's has: what can
+ * The toolbar of "Bibliothek", in the shape every layer's has: what can
  * be added — a class, a room of the class that is chosen — above the foot
  * every rail shares. Plans are made where they are mixed, on the plan layer.
  */

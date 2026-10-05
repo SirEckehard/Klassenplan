@@ -63,7 +63,7 @@
       "itemFullscreen": "Im Vollbild gehört die Wand dem Plan: Die Leiste oben verschwindet, die Leiste unten erscheint, sobald du mit dem Zeiger an den unteren Rand fährst oder dort tippst, und blendet sich kurz danach wieder aus."
     },
     "library": {
-      "title": "Pläne & Verlauf",
+      "title": "Bibliothek",
       "item1": "Links stehen deine Klassen, daneben die Räume der gewählten Klasse und darin ihre Pläne – wie Ordner in einem Dateimanager.",
       "item2": "Was du auswählst, zeigt der Inspektor: Dort benennst du es um, verschiebst einen Plan in einen anderen Raum oder löschst es.",
       "item3": "„Öffnen“ unten rechts holt die Auswahl in die Arbeitsfläche: einen Plan auf die Ebene Plan, einen Raum auf die Ebene Raum, eine Klasse auf die Ebene Klasse.",
@@ -232,7 +232,7 @@
     "exportBackup": "Backup exportieren",
     "importBackup": "Backup importieren",
     "backupExported": "Backup exportiert.",
-    "historyTitle": "Pläne & Verlauf",
+    "historyTitle": "Bibliothek",
     "mixHistory": "Letzte Mischungen",
     "planLoaded": "Plan „{{name}}“ geladen.",
     "planDeleted": "Plan „{{name}}“ gelöscht.",
@@ -245,14 +245,9 @@
       "basis_one": "Beruht auf {{count}} gewertetem Sitzplan",
       "basis_other": "Beruht auf {{count}} gewerteten Sitzplänen",
       "basisSince": "seit {{date}}.",
-      "searchLabel": "Nach Schüler filtern",
-      "searchPlaceholder": "Name eingeben …",
-      "noMatches": "Keine Nachbarschaft passt zu dieser Suche.",
       "times_one": "{{count}}×",
       "times_other": "{{count}}×",
       "lastSeen": "zuletzt {{date}}",
-      "showBasis": "Datengrundlage anzeigen",
-      "hideBasis": "Datengrundlage ausblenden",
       "recordLabel": "Sitzplan vom {{date}}",
       "exclude": "Nicht werten",
       "include": "Wieder werten",
@@ -265,7 +260,16 @@
       },
       "reset": "Zurücksetzen",
       "resetTitle": "Alle bisherigen Nachbarschaften vergessen und ab jetzt neu zählen",
-      "countingSince": "Gezählt wird seit {{date}}."
+      "countingSince": "Gezählt wird seit {{date}}.",
+      "basisTitle": "Datengrundlage",
+      "studentMeta_one": "neben {{count}} Mitschüler",
+      "studentMeta_other": "neben {{count}} Mitschülern",
+      "studentNone": "noch neben niemandem",
+      "emptyStudent": "{{name}} saß in den gewerteten Plänen noch neben niemandem.",
+      "pair": "{{a}} & {{b}}",
+      "pairSection": "Nachbarschaft",
+      "together": "Nebeneinander",
+      "lastTogether": "Zuletzt"
     }
   },
   "classActions": {
@@ -625,7 +629,7 @@
       "plan": "Sitzplan",
       "circle": "Sitzkreis",
       "export": "Export",
-      "library": "Pläne & Verlauf"
+      "library": "Bibliothek"
     },
     "descriptions": {
       "global_toggleHelp": "Tastenkürzel anzeigen",
@@ -822,7 +826,7 @@
       },
       "sidebar": {
         "title": "Werkzeuge",
-        "body": "Hier wechselst du zwischen Sitzplan und Sitzkreis, legst fest, was der Plan zeigt, und sicherst den Plan. Ganz unten steht auf jeder Ebene dasselbe: die Klassenwerkzeuge, „Pläne & Verlauf“ mit deinen Klassen, ihren Räumen und Plänen und das Backup."
+        "body": "Hier wechselst du zwischen Sitzplan und Sitzkreis, legst fest, was der Plan zeigt, und sicherst den Plan. Ganz unten steht auf jeder Ebene dasselbe: die Klassenwerkzeuge, die „Bibliothek“ mit deinen Klassen, ihren Räumen und Plänen und das Backup."
       },
       "sidebarToggle": {
         "title": "Werkzeugleiste erweitern und minimieren",
@@ -918,6 +922,7 @@
     "roomName": "Name des Raums",
     "renameRoom": "Umbenennen",
     "renameRoomNamed": "„{{name}}“ umbenennen",
+    "deleteRoomNamed": "„{{name}}“ löschen",
     "roomNameTaken": "Diesen Namen trägt schon ein Raum der Klasse."
   },
   "toolRail": {
@@ -1022,7 +1027,7 @@
     "openTitle": "Öffnen (Eingabetaste)",
     "openHintNothing": "Wähle eine Klasse, einen Raum, einen Plan oder eine Mischung.",
     "openHintFolder": "Wähle darin aus, was du öffnen willst.",
-    "openHintNeighbours": "Die Nachbarschaften liest du im Inspektor.",
+    "openHintNeighbours": "Nachbarschaften lassen sich nur ansehen, nicht öffnen.",
     "openHintNoClass": "Lege zuerst eine Klasse an.",
     "backTitle": "Zurück (Alt/⌥+←)",
     "renameShortcut": "Bearbeiten (F2)",
@@ -1038,6 +1043,11 @@
     "emptyRoom": "Noch kein Plan in diesem Raum.",
     "emptyMixes": "Noch keine Mischung.",
     "emptyTemplates": "Noch keine Vorlage. Im Raum speicherst du einen Raum als Vorlage.",
+    "emptyNeighbours": "Noch keine Schüler in dieser Klasse.",
+    "neighboursCount_one": "{{count}} gewerteter Plan",
+    "neighboursCount_other": "{{count}} gewertete Pläne",
+    "neighboursHint": "Wähle einen Schüler: Die nächste Spalte zeigt, neben wem er saß – wer am häufigsten, zuerst.",
+    "neighbourStudentHint": "Die nächste Spalte zeigt, neben wem {{name}} saß – wer am häufigsten, zuerst.",
     "nothingSelected": "Wähle links eine Klasse, einen Raum oder einen Plan.",
     "mixesHint": "Klassenplan behält die letzten 20 Mischungen einer Klasse. Jede nennt den Raum, in dem sie entstand.",
     "templatesHint": "Vorlagen gelten für alle Klassen. Geöffnet wird eine Vorlage als neuer Raum der offenen Klasse.",

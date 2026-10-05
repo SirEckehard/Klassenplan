@@ -29,7 +29,7 @@ import {
   type ClassEditProblem,
 } from '@/utils/data/classRooms';
 
-/** A room as "Pläne & Verlauf" shows it. */
+/** A room as "Bibliothek" shows it. */
 export interface LibraryRoom {
   id: string;
   name: string;
@@ -38,7 +38,7 @@ export interface LibraryRoom {
   isOpen: boolean;
 }
 
-/** A class with everything "Pläne & Verlauf" shows of it. */
+/** A class with everything "Bibliothek" shows of it. */
 export interface LibraryClass {
   id: string;
   name: string;
@@ -57,7 +57,7 @@ export interface LibraryClass {
   mixes: MixResult[];
 }
 
-/** A change "Pläne & Verlauf" asks for; ids and dates are made here. */
+/** A change "Bibliothek" asks for; ids and dates are made here. */
 export type LibraryEdit =
   | { kind: 'renamePlan'; planId: string; name: string }
   | { kind: 'deletePlan'; planId: string }
@@ -100,7 +100,7 @@ function libraryRooms(
 }
 
 /**
- * Everything "Pläne & Verlauf" shows, and the changes it makes (decision
+ * Everything "Bibliothek" shows, and the changes it makes (decision
  * 0024): every class by its summary, and the class `selectedClassId` names
  * with its rooms, plans and mixes.
  *

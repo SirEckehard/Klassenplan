@@ -63,7 +63,7 @@
       "itemFullscreen": "In fullscreen the wall belongs to the plan: the strip on top goes away, and the bar at the bottom appears when the pointer nears the bottom edge or you tap there, then slides away again shortly after."
     },
     "library": {
-      "title": "Plans & history",
+      "title": "Library",
       "item1": "Your classes are on the left, beside them the rooms of the chosen class and inside those its plans – like folders in a file manager.",
       "item2": "What you choose is shown in the inspector: rename it there, move a plan to another room or delete it.",
       "item3": "“Open” at the bottom right takes the choice into the workspace: a plan to the plan layer, a room to the room layer, a class to the class layer.",
@@ -232,7 +232,7 @@
     "exportBackup": "Export backup",
     "importBackup": "Import backup",
     "backupExported": "Backup exported.",
-    "historyTitle": "Plans & history",
+    "historyTitle": "Library",
     "mixHistory": "Recent mixes",
     "planLoaded": "Plan “{{name}}” loaded.",
     "planDeleted": "Plan “{{name}}” deleted.",
@@ -245,14 +245,9 @@
       "basis_one": "Based on {{count}} counted seating chart",
       "basis_other": "Based on {{count}} counted seating charts",
       "basisSince": "since {{date}}.",
-      "searchLabel": "Filter by student",
-      "searchPlaceholder": "Enter a name …",
-      "noMatches": "No neighbourhood matches this search.",
       "times_one": "{{count}}×",
       "times_other": "{{count}}×",
       "lastSeen": "last {{date}}",
-      "showBasis": "Show the data behind this",
-      "hideBasis": "Hide the data behind this",
       "recordLabel": "Seating chart of {{date}}",
       "exclude": "Don't count",
       "include": "Count again",
@@ -265,7 +260,16 @@
       },
       "reset": "Reset",
       "resetTitle": "Forget all neighbourhoods so far and count afresh from now",
-      "countingSince": "Counting since {{date}}."
+      "countingSince": "Counting since {{date}}.",
+      "basisTitle": "Data behind this",
+      "studentMeta_one": "next to {{count}} classmate",
+      "studentMeta_other": "next to {{count}} classmates",
+      "studentNone": "next to nobody yet",
+      "emptyStudent": "{{name}} has not sat next to anyone in the counted plans yet.",
+      "pair": "{{a}} & {{b}}",
+      "pairSection": "Neighbourhood",
+      "together": "Side by side",
+      "lastTogether": "Last"
     }
   },
   "classActions": {
@@ -625,7 +629,7 @@
       "plan": "Seating Plan",
       "circle": "Seating Circle",
       "export": "Export",
-      "library": "Plans & history"
+      "library": "Library"
     },
     "descriptions": {
       "global_toggleHelp": "Show keyboard shortcuts",
@@ -822,7 +826,7 @@
       },
       "sidebar": {
         "title": "Tools",
-        "body": "Switch between seating plan and circle, set what the plan shows and save the plan. The very bottom is the same on every layer: the class tools, \"Plans & history\" with your classes, their rooms and plans, and the backup."
+        "body": "Switch between seating plan and circle, set what the plan shows and save the plan. The very bottom is the same on every layer: the class tools, the \"Library\" with your classes, their rooms and plans, and the backup."
       },
       "sidebarToggle": {
         "title": "Expand and collapse the toolbar",
@@ -918,6 +922,7 @@
     "roomName": "Name of the room",
     "renameRoom": "Rename",
     "renameRoomNamed": "Rename “{{name}}”",
+    "deleteRoomNamed": "Delete “{{name}}”",
     "roomNameTaken": "A room of this class already has this name."
   },
   "toolRail": {
@@ -1022,7 +1027,7 @@
     "openTitle": "Open (Enter)",
     "openHintNothing": "Choose a class, a room, a plan or a mix.",
     "openHintFolder": "Choose what to open inside it.",
-    "openHintNeighbours": "The neighbourhoods are read in the inspector.",
+    "openHintNeighbours": "Neighbourhoods can only be read, not opened.",
     "openHintNoClass": "Add a class first.",
     "backTitle": "Back (Alt/⌥+←)",
     "renameShortcut": "Edit (F2)",
@@ -1038,6 +1043,11 @@
     "emptyRoom": "No plan in this room yet.",
     "emptyMixes": "No mix yet.",
     "emptyTemplates": "No template yet. In the room view you save a room as a template.",
+    "emptyNeighbours": "No students in this class yet.",
+    "neighboursCount_one": "{{count}} counted plan",
+    "neighboursCount_other": "{{count}} counted plans",
+    "neighboursHint": "Choose a student: the next column shows whom they sat next to, most often first.",
+    "neighbourStudentHint": "The next column shows whom {{name}} sat next to, most often first.",
     "nothingSelected": "Choose a class, a room or a plan on the left.",
     "mixesHint": "Klassenplan keeps the last 20 mixes of a class. Each names the room it was made in.",
     "templatesHint": "Templates belong to every class. A template opens as a new room of the open class.",

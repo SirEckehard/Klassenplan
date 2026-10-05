@@ -6,8 +6,8 @@ import { useLocation } from 'react-router-dom';
 import {
   ArchiveIcon,
   ChalkboardTeacherIcon,
-  ClockCounterClockwiseIcon,
   DownloadIcon,
+  FoldersIcon,
   GameControllerIcon,
   HandHeartIcon,
   HandPointingIcon,
@@ -298,7 +298,7 @@ function ToolRailPresent() {
 }
 
 /**
- * "Pläne & Verlauf", a page of the workspace (decision 0024): the classes,
+ * "Bibliothek", a page of the workspace (decision 0024): the classes,
  * their rooms and plans. On that page the entry is where the teacher is.
  */
 function ToolRailLibrary() {
@@ -306,11 +306,11 @@ function ToolRailLibrary() {
   const isCompact = React.useContext(DensityContext) === 'compact';
   const { pathname } = useLocation();
   const label = t('storage.historyTitle');
-  const isHere = /^(\/en)?\/plaene\/?$/.test(pathname);
+  const isHere = /^(\/en)?\/bibliothek\/?$/.test(pathname);
 
   return (
     <LocalizedLink
-      to="/plaene"
+      to="/bibliothek"
       title={label}
       aria-label={isCompact ? label : undefined}
       aria-current={isHere ? 'page' : undefined}
@@ -321,7 +321,7 @@ function ToolRailLibrary() {
       }
     >
       <span className="shrink-0 text-(--text-muted)" aria-hidden="true">
-        <ClockCounterClockwiseIcon size={18} />
+        <FoldersIcon size={18} />
       </span>
       {!isCompact && <span className="min-w-0 flex-1 truncate">{label}</span>}
     </LocalizedLink>

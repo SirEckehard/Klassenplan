@@ -18,6 +18,7 @@ import {
 import TablePreview from '@/components/TablePreview';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 import { confirmDialog } from '@/services/ui/dialogs';
+import { showToast } from '@/utils/ui/toast';
 import {
   checkName,
   getTablePresets,
@@ -409,9 +410,10 @@ function RoomNameRow({
 /**
  * The rooms of the class (decision 0024): a new one on top, as "Neue Klasse"
  * leads the class menu, then every room, the open one checked. A click opens
- * a room as it was left; a room is renamed in its row, as a template is. A
- * new room is named before it is made, since making it opens it. Removing a
- * room, with its plans, belongs to "Pläne & Verlauf".
+ * a room as it was left; a room is renamed and removed in its row, as a
+ * template is. A new room is named before it is made, since making it opens
+ * it. Removing takes the room's plans and mixes along, so it asks first; the
+ * open room and the last one stay, and their bin says why.
  */
 export function RoomListSection() {
   const { t } = useTranslation('generator');
@@ -420,7 +422,32 @@ export function RoomListSection() {
   const [renamingId, setRenamingId] = React.useState<string | null>(null);
   const [naming, setNaming] = React.useState(false);
   if (!state || !actions) return null;
-  const { rooms, activeRoomId } = state;
+  const { rooms, activeRoomId, seatingHistory } = state;
+
+  // Not part of the room's undo history, so it asks — as "Bibliothek"
+  // does, in the same words.
+  const requestDelete = async (room: { id: string; name: string }) => {
+    if (room.id === activeRoomId) {
+      showToast('info', t('library.room.deleteOpenHint'));
+      return;
+    }
+    const count = seatingHistory.filter(
+      (plan) => plan.roomId === room.id,
+    ).length;
+    const confirmed = await confirmDialog(
+      count === 0
+        ? t('library.room.deleteMessageEmpty', { name: room.name })
+        : t('library.room.deleteMessage', { name: room.name, count }),
+      {
+        title: t('library.room.delete'),
+        confirmLabel: t('common.delete'),
+      },
+    );
+    if (!confirmed) return;
+    if (actions.deleteRoom(room.id) === null) {
+      showToast('success', t('library.room.deleted', { name: room.name }));
+    }
+  };
 
   return (
     <InspectorSection title={t('sceneInspector.rooms')}>
@@ -507,6 +534,29 @@ export function RoomListSection() {
               >
                 <PencilLineIcon className="h-4 w-4" aria-hidden="true" />
               </button>
+              {/* A class keeps one room at least: with one, there is no bin. */}
+              {rooms.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    void requestDelete(room);
+                  }}
+                  aria-disabled={isOpen || undefined}
+                  title={
+                    isOpen
+                      ? t('library.room.deleteOpenHint')
+                      : t('library.room.delete')
+                  }
+                  aria-label={t('sceneInspector.deleteRoomNamed', {
+                    name: room.name,
+                  })}
+                  className={`${quietDangerIconButtonClass} h-9 w-9 shrink-0 ${
+                    isOpen ? 'cursor-not-allowed opacity-40' : ''
+                  }`}
+                >
+                  <TrashIcon className="h-4 w-4" aria-hidden="true" />
+                </button>
+              )}
             </div>
           );
         })}

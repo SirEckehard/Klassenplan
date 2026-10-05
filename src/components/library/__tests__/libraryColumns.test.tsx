@@ -2,18 +2,20 @@
 // Copyright (C) 2026 Eike Schäfer
 import { describe, expect, it } from 'vitest';
 import i18n from '@/i18n';
-import type { ClassSummary, MixResult, SavedPlan } from '@/types';
+import type { ClassSummary, MixResult, PlanUsage, SavedPlan } from '@/types';
 import type { LibraryClass } from '@/hooks/library/useClassLibrary';
 import {
   createMockClassroomScene,
   createMockMixResult,
   createMockSavedPlan,
+  createMockStudent,
   createMockTemplate,
 } from '@/__tests__/utils';
 import {
   buildLibraryColumns,
   defaultLibraryPath,
   libraryKey,
+  neighboursByStudent,
 } from '../libraryColumns';
 
 const t = i18n.getFixedT('de', 'generator');
@@ -32,11 +34,31 @@ const plan = (id: string, roomId: string, extra: Partial<SavedPlan> = {}) =>
 const mix = (id: number, timestamp: string): MixResult =>
   createMockMixResult({ id, timestamp, roomId: 'lab' });
 
+const record = (
+  id: string,
+  pairs: string[],
+  lastSeenAt: string,
+  overrides: Partial<PlanUsage> = {},
+): PlanUsage => ({
+  id,
+  fingerprint: `f-${id}`,
+  pairs,
+  firstSeenAt: lastSeenAt,
+  lastSeenAt,
+  sources: ['presented'],
+  confidence: 1,
+  ...overrides,
+});
+
 const library: LibraryClass = {
   id: '7b',
   name: '7b',
   isOpen: true,
-  students: [],
+  students: [
+    createMockStudent({ id: 'c', name: 'Carla' }),
+    createMockStudent({ id: 'a', name: 'Anna' }),
+    createMockStudent({ id: 'b', name: 'Ben' }),
+  ],
   rooms: [
     {
       id: 'classroom',
@@ -65,7 +87,17 @@ const library: LibraryClass = {
   ],
 };
 
-const build = (path: string[], selected: LibraryClass | null = library) =>
+const usage = [
+  record('u1', ['a::b', 'a::c'], '2026-09-01T08:00:00.000Z'),
+  record('u2', ['a::b'], '2026-10-01T08:00:00.000Z'),
+  record('u3', ['b::c'], '2026-10-02T08:00:00.000Z', { confirmed: false }),
+];
+
+const build = (
+  path: string[],
+  selected: LibraryClass | null = library,
+  planUsage: PlanUsage[] = usage,
+) =>
   buildLibraryColumns({
     path,
     classes: [summary('7b', '7b'), summary('8c', '8c')],
@@ -73,6 +105,7 @@ const build = (path: string[], selected: LibraryClass | null = library) =>
     selected,
     loadingClass: false,
     templates: [createMockTemplate({ id: 5, name: 'Turnhalle' })],
+    planUsage,
     t,
   });
 
@@ -135,6 +168,57 @@ describe('buildLibraryColumns', () => {
     expect(items[0]!.meta).toBe('Labor');
   });
 
+  // A pair of two full names does not fit a column: the students stand in
+  // one, a student's neighbours in the next.
+  it('lists the students under the neighbourhoods, by name', () => {
+    const neighboursKey = libraryKey({ kind: 'neighbours', classId: '7b' });
+
+    const { columns } = build([classKey, neighboursKey]);
+
+    const folder = columns[1]!.groups[1]!.items[1]!;
+    expect(folder.isFolder).toBe(true);
+    expect(folder.meta).toBe('2 gewertete Pläne');
+    expect(labelsOf(columns, 2)).toEqual(['Anna', 'Ben', 'Carla']);
+    expect(columns[2]!.groups[0]!.items.map((item) => item.meta)).toEqual([
+      'neben 2 Mitschülern',
+      'neben 1 Mitschüler',
+      'neben 1 Mitschüler',
+    ]);
+  });
+
+  it('lists a student’s neighbours, most often first', () => {
+    const { columns, path } = build([
+      classKey,
+      libraryKey({ kind: 'neighbours', classId: '7b' }),
+      libraryKey({ kind: 'neighbourStudent', classId: '7b', studentId: 'a' }),
+      libraryKey({
+        kind: 'neighbourPair',
+        classId: '7b',
+        studentId: 'a',
+        neighbourId: 'b',
+      }),
+    ]);
+
+    expect(path).toHaveLength(4);
+    expect(labelsOf(columns, 3)).toEqual(['Ben', 'Carla']);
+  });
+
+  it('says so when a student sat next to nobody yet', () => {
+    const { columns } = build(
+      [
+        classKey,
+        libraryKey({ kind: 'neighbours', classId: '7b' }),
+        libraryKey({ kind: 'neighbourStudent', classId: '7b', studentId: 'c' }),
+      ],
+      library,
+      [],
+    );
+
+    expect(columns[2]!.groups[0]!.items[2]!.meta).toBe('noch neben niemandem');
+    expect(labelsOf(columns, 3)).toEqual([]);
+    expect(columns[3]!.emptyText).toMatch(/Carla/);
+  });
+
   it('lists the templates under their folder', () => {
     const { columns } = build(['templates']);
 
@@ -158,11 +242,26 @@ describe('buildLibraryColumns', () => {
       selected: null,
       loadingClass: true,
       templates: [],
+      planUsage: [],
       t,
     });
 
     expect(columns[1]!.groups).toEqual([]);
     expect(columns[1]!.emptyText).toMatch(/geladen/);
+  });
+});
+
+describe('neighboursByStudent', () => {
+  it('counts each pair from both sides and leaves withdrawn plans out', () => {
+    const byStudent = neighboursByStudent(usage);
+
+    expect(byStudent.get('a')).toEqual([
+      { studentId: 'b', count: 2, lastSeenAt: '2026-10-01T08:00:00.000Z' },
+      { studentId: 'c', count: 1, lastSeenAt: '2026-09-01T08:00:00.000Z' },
+    ]);
+    expect(byStudent.get('c')).toEqual([
+      { studentId: 'a', count: 1, lastSeenAt: '2026-09-01T08:00:00.000Z' },
+    ]);
   });
 });
 

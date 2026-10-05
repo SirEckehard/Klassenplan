@@ -1,11 +1,13 @@
-# 0024 – A class keeps its rooms, and "Pläne & Verlauf" shows them
+# 0024 – A class keeps its rooms, and "Bibliothek" shows them
 
 - **Status:** accepted
 - **In place since:** unreleased (2026-10-05)
 - **Sources:** maintainer decisions of 2026-10-04 (rooms as folders of a
   class; every existing plan into one room "Klassenraum"; "Neu einrichten"
   stays in the room; a loaded template makes a room of its own; the name
-  "Pläne & Verlauf" on a page of its own at `/plaene`), a teacher's feedback
+  "Pläne & Verlauf" on a page of its own at `/plaene`, renamed on 2026-10-06
+  to "Bibliothek" at `/bibliothek` before it was released, since "Pläne &
+  Verlauf" named neither the classes nor the folders), a teacher's feedback
   of 2026-10-03 (several plans per class were there but not found), commit
   `790dc794` (`releaseOpenPlan`), [data-model.md](../data-model.md),
   `src/utils/data/classRooms.ts` (`ensureClassRooms`, `switchRoomState`,
@@ -22,8 +24,8 @@ plan, so that the next save does not write the lab over the classroom's plan.
 
 Nothing stores a room as such. The scene is copied into the class's working
 state, into every plan and into every template, which belong to all classes; no
-plan refers to a template, and a mix carries no scene at all. "Pläne & Verlauf"
-listed the plans of the open class flat, without their room, and the teacher
+plan refers to a template, and a mix carries no scene at all. The dialog
+"Pläne & Verlauf" listed the plans of the open class flat, without their room, and the teacher
 who asked for a plan per room did not find that it was possible.
 
 ## Decision
@@ -41,13 +43,17 @@ who asked for a plan per room did not find that it was possible.
    that is gone, go into the open room.
 3. **"Neu einrichten" changes the open room**; loading a template makes a new
    room named after it; "Neuer Raum" makes an empty one. A plan moves to
-   another room from the inspector.
+   another room from the inspector. A room is removed in its row of the room
+   inspector as in "Bibliothek", after the same question; the open room
+   and the last one stay.
 4. **Names:** room names are unique within a class, case ignored; plan names
    stay unique within the class. The one slot for an automatically saved plan
    exists per room.
-5. **"Pläne & Verlauf" is a page of the workspace** at `/plaene` (noindex), in
+5. **"Bibliothek" is a page of the workspace** at `/bibliothek` (noindex), in
    columns as a file manager shows folders: the classes, a class's rooms with
    its recent mixes and neighbourhoods, a room's plans, the room templates.
+   The neighbourhoods list the students, and a student's neighbours the
+   column after, since two full names do not fit one.
    What is selected is read and changed in the inspector — a class's name,
    school year and notes in the class dialog the header's menu opens too —
    and the status bar carries its path and "Öffnen". A class that is not open
@@ -90,5 +96,5 @@ who asked for a plan per room did not find that it was possible.
   opening another class does.
 - Deleting a room deletes its plans and mixes; the neighbourhoods, which belong
   to the class, stay.
-- The route `/plaene` (and `/en/plaene`) is new and kept out of search engines;
-  the dialog and its card lists are gone.
+- The route `/bibliothek` (and `/en/bibliothek`) is new and kept out of search engines;
+  the dialog "Pläne & Verlauf" and its card lists are gone.

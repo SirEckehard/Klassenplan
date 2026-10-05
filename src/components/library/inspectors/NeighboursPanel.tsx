@@ -2,31 +2,95 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { UsersThreeIcon } from '@phosphor-icons/react';
+import {
+  ArrowCounterClockwiseIcon,
+  UsersThreeIcon,
+} from '@phosphor-icons/react';
 import {
   InspectorBody,
   InspectorHeader,
+  InspectorSection,
 } from '@/components/shell/InspectorPanel';
-import NeighborhoodMatrix from '@/components/ui/history/NeighborhoodMatrix';
-import { usePlanUsageRecords } from '@/hooks/plan/usePlanUsageRecords';
-import type { Student } from '@/types';
-import { logError } from '@/utils';
+import type { PlanUsageRecordsReturn } from '@/hooks/plan/usePlanUsageRecords';
+import type { PlanUsage } from '@/types';
+import {
+  formatDate,
+  formatLongDate,
+  logError,
+  neutralButtonClass,
+} from '@/utils';
+import { isCountedUsage } from '@/utils/data/planUsage';
 import { showToast } from '@/utils/ui/toast';
 import { IconTile } from './panelParts';
 
 /**
+ * The plans a neighbourhood rests on, each one taken out of the count or let
+ * back in by hand (decision 0010).
+ */
+export function UsageRecordList({
+  records,
+  onSetConfirmed,
+}: {
+  records: readonly PlanUsage[];
+  onSetConfirmed: (usageId: string, confirmed: boolean) => void;
+}) {
+  const { t } = useTranslation('generator');
+  return (
+    <ul className="flex flex-col divide-y divide-(--border-card)">
+      {records.map((entry) => {
+        const excluded = !isCountedUsage(entry);
+        return (
+          <li
+            key={entry.id}
+            className="flex items-center justify-between gap-3 py-2 text-xs"
+          >
+            <span className="flex min-w-0 flex-col">
+              <span
+                className={
+                  excluded
+                    ? 'text-(--text-muted) line-through'
+                    : 'text-(--text-page)'
+                }
+              >
+                {t('storage.neighbors.recordLabel', {
+                  date: formatDate(entry.lastSeenAt),
+                })}
+              </span>
+              <span className="text-(--text-muted)">
+                {entry.sources
+                  .map((source) => t(`storage.neighbors.sources.${source}`))
+                  .join(', ')}
+              </span>
+            </span>
+            <button
+              type="button"
+              onClick={() => onSetConfirmed(entry.id, excluded)}
+              className={`${neutralButtonClass} shrink-0 text-xs`}
+            >
+              {excluded
+                ? t('storage.neighbors.include')
+                : t('storage.neighbors.exclude')}
+            </button>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+/**
  * Who has sat next to whom in a class, across all its rooms — the plans that
- * were really in use (decision 0010). "Zurücksetzen" starts afresh in one
+ * were really in use (decision 0010). The pairs themselves stand in the
+ * columns, a student and then their neighbours, where a name fits whole; the
+ * inspector says what they rest on. "Zurücksetzen" starts afresh in one
  * click, and the message after it takes it back (decision 0023).
  */
 export default function NeighboursPanel({
-  classId,
   className,
-  students,
+  records,
 }: {
-  classId: string;
   className: string;
-  students: Student[];
+  records: PlanUsageRecordsReturn;
 }) {
   const { t } = useTranslation('generator');
   const {
@@ -35,7 +99,23 @@ export default function NeighboursPanel({
     setUsageConfirmed,
     resetUsage,
     undoReset,
-  } = usePlanUsageRecords(classId);
+  } = records;
+
+  const counted = React.useMemo(
+    () => planUsage.filter(isCountedUsage),
+    [planUsage],
+  );
+  const since = React.useMemo(
+    () =>
+      counted.reduce<string | null>(
+        (earliest, entry) =>
+          earliest === null || entry.firstSeenAt < earliest
+            ? entry.firstSeenAt
+            : earliest,
+        null,
+      ),
+    [counted],
+  );
 
   const handleReset = React.useCallback(() => {
     resetUsage()
@@ -76,13 +156,54 @@ export default function NeighboursPanel({
         subtitle={className}
       />
       <InspectorBody>
-        <NeighborhoodMatrix
-          planUsage={planUsage}
-          students={students}
-          onSetConfirmed={setUsageConfirmed}
-          resetAt={planUsageSince}
-          onReset={handleReset}
-        />
+        {planUsage.length === 0 ? (
+          <div className="flex flex-col gap-2 text-[13px] leading-relaxed text-(--text-muted)">
+            <p>{t('storage.neighbors.empty')}</p>
+            <p>{t('storage.neighbors.emptyHint')}</p>
+            {planUsageSince && (
+              <p>
+                {t('storage.neighbors.countingSince', {
+                  date: formatLongDate(planUsageSince),
+                })}
+              </p>
+            )}
+          </div>
+        ) : (
+          <>
+            <div className="flex flex-col gap-3 pb-4">
+              <div className="flex items-start justify-between gap-3">
+                <p className="text-[13px] leading-relaxed text-(--text-muted)">
+                  {t('storage.neighbors.basis', { count: counted.length })}
+                  {since
+                    ? ` ${t('storage.neighbors.basisSince', {
+                        date: formatLongDate(since),
+                      })}`
+                    : ''}
+                </p>
+                <button
+                  type="button"
+                  onClick={handleReset}
+                  title={t('storage.neighbors.resetTitle')}
+                  className={`${neutralButtonClass} shrink-0 gap-1.5 px-2.5 py-1 text-xs`}
+                >
+                  <ArrowCounterClockwiseIcon size={14} aria-hidden="true" />
+                  {t('storage.neighbors.reset')}
+                </button>
+              </div>
+              <p className="text-[13px] leading-relaxed text-(--text-muted)">
+                {counted.length === 0
+                  ? t('storage.neighbors.empty')
+                  : t('library.neighboursHint')}
+              </p>
+            </div>
+            <InspectorSection title={t('storage.neighbors.basisTitle')}>
+              <UsageRecordList
+                records={planUsage}
+                onSetConfirmed={setUsageConfirmed}
+              />
+            </InspectorSection>
+          </>
+        )}
       </InspectorBody>
     </>
   );

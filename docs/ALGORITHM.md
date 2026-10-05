@@ -156,8 +156,9 @@ which also means they can be wrong. So the record is written first and a toast
 offers to take it back: doing nothing keeps the plan counted, one click marks it
 `confirmed: false`. The prompt appears on the **first strong signal** for an
 arrangement, never again for the same one, and never for a hand edit. The
-neighbourhood view (third tab of the history modal) lists every counted plan and
-lets one be withdrawn or restored later.
+neighbourhoods in "Bibliothek" list every counted plan and let one be
+withdrawn or restored later — in the folder's inspector, and for a pair of
+students in theirs.
 
 `isCountedUsage()` in `src/utils/data/planUsage.ts` is the single definition of
 what counts, shared by the evaluation and the scoring, so the number a teacher

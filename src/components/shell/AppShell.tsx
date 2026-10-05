@@ -10,6 +10,36 @@ import { StatusBarSlotProvider } from '@/contexts/StatusBarSlotContext';
 import { ToolRailProvider } from '@/contexts/ToolRailContext';
 import { SHELL_STATUS_BAR_HEIGHT } from '@/components/shell/shellTokens';
 
+/** Set by `ShellProviders`, so `AppShell` inside them does not nest a second set. */
+const ShellProvidedContext = React.createContext(false);
+
+/**
+ * What the shell provides — the inspector, the class dialogs, the status
+ * bar's slots, the toolbar's density — without the frame. A page that reads
+ * them itself, as "Bibliothek" does, wraps itself in these and renders
+ * `AppShell` inside; otherwise its hooks would run above the providers and
+ * get their inert fallbacks.
+ */
+export function ShellProviders({ children }: { children: React.ReactNode }) {
+  return (
+    <ShellProvidedContext.Provider value>
+      <InspectorProvider>
+        {/* Creating, renaming and deleting a class is reachable from the
+            header on every layer, so the dialogs live above the layer, not
+            inside it. */}
+        <ClassDialogsProvider>
+          <StatusBarSlotProvider>
+            {/* One answer for the whole workspace on whether the toolbar
+                shows its labels: the status bar carries the switch, the
+                layer's toolbar reads it. */}
+            <ToolRailProvider>{children}</ToolRailProvider>
+          </StatusBarSlotProvider>
+        </ClassDialogsProvider>
+      </InspectorProvider>
+    </ShellProvidedContext.Provider>
+  );
+}
+
 /**
  * The workspace frame: one header on top, one status bar at the bottom, the
  * active layer in the middle and the inspector beside it.
@@ -40,44 +70,33 @@ export default function AppShell({
   statusBar?: React.ReactNode;
   children: React.ReactNode;
 }) {
-  return (
-    <InspectorProvider>
-      {/* Creating, renaming and deleting a class is reachable from the header
-          on every layer, so the dialogs live above the layer, not inside it. */}
-      <ClassDialogsProvider>
-        <StatusBarSlotProvider>
-          {/* One answer for the whole workspace on whether the toolbar shows
-              its labels: the status bar carries the switch, the layer's
-              toolbar reads it. */}
-          <ToolRailProvider>
-            {/* The status bar's height, for what stands above it — the
-                drawers, the focus mode's thumb bar, the floating controls
-                (`useFloatingActionOffset`). The bar reaches into the bottom
-                safe area, so that is part of its height. */}
-            <div
-              className="flex min-h-screen flex-col lg:h-dvh lg:min-h-0 lg:overflow-hidden"
-              style={
-                {
-                  '--shell-bottom-inset': `calc(${SHELL_STATUS_BAR_HEIGHT}px + env(safe-area-inset-bottom))`,
-                } as React.CSSProperties
-              }
-            >
-              {header}
-              <main
-                id="main"
-                tabIndex={-1}
-                className="flex flex-1 flex-col px-4 py-6 lg:min-h-0 lg:flex-row lg:p-0"
-              >
-                <div className="flex min-w-0 flex-1 flex-col lg:min-h-0">
-                  {children}
-                </div>
-                <Inspector />
-              </main>
-              {statusBar}
-            </div>
-          </ToolRailProvider>
-        </StatusBarSlotProvider>
-      </ClassDialogsProvider>
-    </InspectorProvider>
+  const provided = React.useContext(ShellProvidedContext);
+  const frame = (
+    // The status bar's height, for what stands above it — the drawers, the
+    // focus mode's thumb bar, the floating controls
+    // (`useFloatingActionOffset`). The bar reaches into the bottom safe area,
+    // so that is part of its height.
+    <div
+      className="flex min-h-screen flex-col lg:h-dvh lg:min-h-0 lg:overflow-hidden"
+      style={
+        {
+          '--shell-bottom-inset': `calc(${SHELL_STATUS_BAR_HEIGHT}px + env(safe-area-inset-bottom))`,
+        } as React.CSSProperties
+      }
+    >
+      {header}
+      <main
+        id="main"
+        tabIndex={-1}
+        className="flex flex-1 flex-col px-4 py-6 lg:min-h-0 lg:flex-row lg:p-0"
+      >
+        <div className="flex min-w-0 flex-1 flex-col lg:min-h-0">
+          {children}
+        </div>
+        <Inspector />
+      </main>
+      {statusBar}
+    </div>
   );
+  return provided ? frame : <ShellProviders>{frame}</ShellProviders>;
 }

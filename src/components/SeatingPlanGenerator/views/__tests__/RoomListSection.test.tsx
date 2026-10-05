@@ -5,7 +5,8 @@ import { cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import '@/i18n';
-import type { RoomRecord } from '@/types';
+import type { RoomRecord, SavedPlan } from '@/types';
+import { createMockSavedPlan } from '@/__tests__/utils';
 import { RoomListSection } from '../RoomSetupSections';
 
 const mocks = vi.hoisted(() => ({
@@ -14,19 +15,29 @@ const mocks = vi.hoisted(() => ({
   openRoom: vi.fn(),
   createRoom: vi.fn(),
   renameRoom: vi.fn(),
+  deleteRoom: vi.fn(),
+  seatingHistory: [] as SavedPlan[],
+  confirmDialog: vi.fn(),
+  showToast: vi.fn(),
 }));
 
 vi.mock('@/contexts/seatingPlan/seatingPlanSelectors', () => ({
   useOptionalSeatingPlanState: () => ({
     rooms: mocks.rooms,
     activeRoomId: mocks.activeRoomId,
+    seatingHistory: mocks.seatingHistory,
   }),
   useOptionalSeatingPlanActions: () => ({
     openRoom: mocks.openRoom,
     createRoom: mocks.createRoom,
     renameRoom: mocks.renameRoom,
+    deleteRoom: mocks.deleteRoom,
   }),
 }));
+vi.mock('@/services/ui/dialogs', () => ({
+  confirmDialog: mocks.confirmDialog,
+}));
+vi.mock('@/utils/ui/toast', () => ({ showToast: mocks.showToast }));
 
 const room = (id: string, name: string): RoomRecord => ({
   id,
@@ -37,6 +48,8 @@ const room = (id: string, name: string): RoomRecord => ({
 beforeEach(() => {
   mocks.rooms = [room('a', 'Klassenraum'), room('b', 'Labor')];
   mocks.activeRoomId = 'a';
+  mocks.seatingHistory = [];
+  mocks.deleteRoom.mockReturnValue(null);
 });
 
 afterEach(() => {
@@ -120,6 +133,70 @@ describe('RoomListSection', () => {
     await user.clear(field);
     await user.type(field, 'Chemie{Enter}');
     expect(mocks.renameRoom).toHaveBeenCalledWith('b', 'Chemie');
+  });
+
+  it('deletes a room with its plans after asking', async () => {
+    const user = userEvent.setup();
+    mocks.seatingHistory = [
+      createMockSavedPlan({ id: 'p1', roomId: 'b' }),
+      createMockSavedPlan({ id: 'p2', roomId: 'b' }),
+      createMockSavedPlan({ id: 'p3', roomId: 'a' }),
+    ];
+    mocks.confirmDialog.mockResolvedValue(true);
+    render(<RoomListSection />);
+
+    await user.click(
+      screen.getByRole('button', { name: /„Labor“ löschen|Delete “Labor”/ }),
+    );
+
+    expect(mocks.confirmDialog).toHaveBeenCalledWith(
+      expect.stringMatching(/2/),
+      expect.anything(),
+    );
+    expect(mocks.deleteRoom).toHaveBeenCalledWith('b');
+    expect(mocks.showToast).toHaveBeenCalledWith(
+      'success',
+      expect.stringMatching(/Labor/),
+    );
+  });
+
+  it('keeps a room when the question is declined', async () => {
+    const user = userEvent.setup();
+    mocks.confirmDialog.mockResolvedValue(false);
+    render(<RoomListSection />);
+
+    await user.click(
+      screen.getByRole('button', { name: /„Labor“ löschen|Delete “Labor”/ }),
+    );
+
+    expect(mocks.deleteRoom).not.toHaveBeenCalled();
+  });
+
+  it('says why the open room cannot be deleted', async () => {
+    const user = userEvent.setup();
+    render(<RoomListSection />);
+
+    const bin = screen.getByRole('button', {
+      name: /„Klassenraum“ löschen|Delete “Klassenraum”/,
+    });
+    expect(bin).toHaveAttribute('aria-disabled', 'true');
+    await user.click(bin);
+
+    expect(mocks.confirmDialog).not.toHaveBeenCalled();
+    expect(mocks.deleteRoom).not.toHaveBeenCalled();
+    expect(mocks.showToast).toHaveBeenCalledWith(
+      'info',
+      expect.stringMatching(/offenen Raum|open room/),
+    );
+  });
+
+  it('offers no bin while the class has one room', () => {
+    mocks.rooms = [room('a', 'Klassenraum')];
+    render(<RoomListSection />);
+
+    expect(
+      screen.queryByRole('button', { name: /löschen|Delete/ }),
+    ).not.toBeInTheDocument();
   });
 
   it('suggests rooms of their own for specialist rooms while the class has one', () => {

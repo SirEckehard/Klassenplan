@@ -30,10 +30,10 @@
     "ogType": "article"
   },
   {
-    "path": "/plaene",
-    "title": "Pläne & Verlauf | Klassenplan",
+    "path": "/bibliothek",
+    "title": "Bibliothek | Klassenplan",
     "description": "Deine Klassen, ihre Räume und Sitzpläne auf einen Blick – wie Ordner in einem Dateimanager.",
-    "titleEn": "Plans & history | Klassenplan",
+    "titleEn": "Library | Klassenplan",
     "descriptionEn": "Your classes, their rooms and seating plans at a glance – like folders in a file manager.",
     "changefreq": "monthly",
     "priority": 0.5,

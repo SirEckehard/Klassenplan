@@ -20,7 +20,7 @@ export interface LibraryCrumb {
 }
 
 /**
- * The status bar of "Pläne & Verlauf": where the selection is, as a file
+ * The status bar of "Bibliothek": where the selection is, as a file
  * manager's path bar has it — each step a way back up — and what to do with
  * it: back where the page was opened from, and the one blue button that
  * opens it. A selection that cannot be opened keeps the button in its place
