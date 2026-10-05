@@ -19,12 +19,16 @@ import {
   setPlanUsageConfirmed,
   subscribeToPlanUsage,
   getAllPlanUsage,
+  getAllPlanUsageManualClassIds,
   getAllPlanUsageResets,
   loadPlanUsage,
+  loadPlanUsageManual,
   loadPlanUsageResetAt,
+  markPlanUsed,
   recordPlanUsage,
   resetPlanUsage,
   restorePlanUsage,
+  setPlanUsageManual,
   sweepOrphanPlanUsage,
   undoPlanUsageReset,
 } from '../planUsageStore';
@@ -415,5 +419,111 @@ describe('resetPlanUsage', () => {
 
     expect(await loadPlanUsageResetAt('c1')).toBe(at.toISOString());
     expect(await loadPlanUsage('c1')).toEqual([]);
+  });
+});
+
+describe('setPlanUsageManual', () => {
+  it('switches the detection of one class off and back on', async () => {
+    await setPlanUsageManual('c1', true);
+
+    expect(await loadPlanUsageManual('c1')).toBe(true);
+    expect(await loadPlanUsageManual('c2')).toBe(false);
+
+    await setPlanUsageManual('c1', false);
+    expect(await loadPlanUsageManual('c1')).toBe(false);
+  });
+
+  it('records no signal while the class marks its plans by hand', async () => {
+    await setPlanUsageManual('c1', true);
+    const outcome = await recordPlanUsage(
+      'c1',
+      seatingOf([['a', 'b']]),
+      'presented',
+    );
+
+    expect(outcome).toBeNull();
+    expect(await loadPlanUsage('c1')).toEqual([]);
+  });
+
+  it('keeps what was detected before', async () => {
+    await recordPlanUsage('c1', seatingOf([['a', 'b']]), 'presented');
+    await setPlanUsageManual('c1', true);
+
+    expect(await loadPlanUsage('c1')).toHaveLength(1);
+  });
+
+  it('seeds the class only once the detection is back on', async () => {
+    const plans = [planOf('p1', '2026-09-01', [['a', 'b']])];
+    await setPlanUsageManual('c1', true);
+    await backfillPlanUsage('c1', plans);
+    expect(await loadPlanUsage('c1')).toEqual([]);
+
+    await setPlanUsageManual('c1', false);
+    await backfillPlanUsage('c1', plans);
+    expect(await loadPlanUsage('c1')).toHaveLength(1);
+  });
+
+  it('leaves a class that no longer exists behind', async () => {
+    await setPlanUsageManual('gone', true);
+    await setPlanUsageManual('c1', true);
+    await sweepOrphanPlanUsage(new Map([['c1', new Set(['a'])]]));
+
+    expect(await getAllPlanUsageManualClassIds()).toEqual(['c1']);
+  });
+
+  it('travels with a full import and with a merge for a new class', async () => {
+    await restorePlanUsage({}, { manualClassIds: ['c1'] });
+    expect(await loadPlanUsageManual('c1')).toBe(true);
+
+    await restorePlanUsage({}, { merge: true, manualClassIds: ['c2'] });
+    expect(await getAllPlanUsageManualClassIds()).toEqual(['c1', 'c2']);
+  });
+});
+
+describe('markPlanUsed', () => {
+  it('marks a plan without a record as used, dated by the plan', async () => {
+    await markPlanUsed(
+      'c1',
+      seatingOf([['a', 'b']]),
+      true,
+      '2026-07-01T00:00:00.000Z',
+    );
+
+    const [entry] = await loadPlanUsage('c1');
+    expect(entry).toMatchObject({
+      pairs: ['a::b'],
+      sources: ['marked'],
+      confirmed: true,
+      lastSeenAt: '2026-07-01T00:00:00.000Z',
+    });
+  });
+
+  it('answers the record a detected plan already has', async () => {
+    await recordPlanUsage('c1', seatingOf([['a', 'b']]), 'exported');
+    await markPlanUsed(
+      'c1',
+      seatingOf([['b', 'a']]),
+      false,
+      '2026-10-03T08:00:00.000Z',
+    );
+
+    const entries = await loadPlanUsage('c1');
+    expect(entries).toHaveLength(1);
+    expect(entries[0]).toMatchObject({
+      sources: ['exported'],
+      confirmed: false,
+    });
+  });
+
+  it('works while the class marks its plans by hand', async () => {
+    await setPlanUsageManual('c1', true);
+    await markPlanUsed(
+      'c1',
+      seatingOf([['a', 'b']]),
+      true,
+      '2026-10-03T08:00:00.000Z',
+    );
+
+    expect(await loadPlanUsage('c1')).toHaveLength(1);
   });
 });

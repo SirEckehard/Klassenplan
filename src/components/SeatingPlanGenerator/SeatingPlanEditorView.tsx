@@ -202,6 +202,8 @@ type Props = {
   planUsage?: PlanUsage[];
   /** When the neighbourhoods were last reset; see `buildPreviousPairs`. */
   planUsageSince?: string | null;
+  /** Whether the class marks its plans by hand; see `buildPreviousPairs`. */
+  planUsageManual?: boolean;
 };
 
 export default function SeatingPlanEditorView({
@@ -260,6 +262,7 @@ export default function SeatingPlanEditorView({
   mixHistory = [],
   planUsage = [],
   planUsageSince = null,
+  planUsageManual = false,
 }: Props) {
   const isDark = useIsDarkMode();
   const { t } = useTranslation('generator');
@@ -510,6 +513,7 @@ export default function SeatingPlanEditorView({
         mixHistory,
         planUsage,
         planUsageSince,
+        planUsageManual,
       }),
     [
       classroomScene,
@@ -517,6 +521,7 @@ export default function SeatingPlanEditorView({
       mixHistory,
       planUsage,
       planUsageSince,
+      planUsageManual,
       seatingHistory,
     ],
   );

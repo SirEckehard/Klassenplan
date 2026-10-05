@@ -240,6 +240,28 @@ describe('backupValidation: neighbourhood resets', () => {
 
     expect(() => parseExportBundle(json)).toThrow(BackupValidationError);
   });
+
+  it('accepts the classes that mark their plans by hand', () => {
+    const json = JSON.stringify({
+      ...baseBundle,
+      version: 2,
+      planUsageManualClassIds: ['class-1'],
+    });
+
+    expect(parseExportBundle(json).planUsageManualClassIds).toEqual([
+      'class-1',
+    ]);
+  });
+
+  it('rejects a list of classes that holds something else', () => {
+    const json = JSON.stringify({
+      ...baseBundle,
+      version: 2,
+      planUsageManualClassIds: [42],
+    });
+
+    expect(() => parseExportBundle(json)).toThrow(BackupValidationError);
+  });
 });
 
 describe('backupValidation: class notes', () => {

@@ -31,6 +31,8 @@ export function calculateCurrentStatistics(
     topN?: number;
     planUsage?: PlanUsage[];
     planUsageSince?: string | null;
+    /** Whether the class marks its plans by hand; see `buildPreviousPairs`. */
+    planUsageManual?: boolean;
   },
 ): CriterionFulfillment[] {
   const stats = calculateSeatingStatistics(
@@ -43,6 +45,7 @@ export function calculateCurrentStatistics(
       mixHistory,
       planUsage: options?.planUsage,
       planUsageSince: options?.planUsageSince,
+      planUsageManual: options?.planUsageManual,
     },
   );
   return getTopFulfilledCriteria(stats, settings, options?.topN);
@@ -58,6 +61,8 @@ interface UseSeatingStatisticsUpdaterParams {
   planUsage: PlanUsage[];
   /** When the neighbourhoods were last reset; see `buildPreviousPairs`. */
   planUsageSince?: string | null;
+  /** Whether the class marks its plans by hand; see `buildPreviousPairs`. */
+  planUsageManual?: boolean;
   classroomScene: ClassroomScene;
   setLastStatistics: (stats: CriterionFulfillment[] | null) => void;
   enabled?: boolean;
@@ -76,6 +81,7 @@ export function useSeatingStatisticsUpdater({
   mixHistory,
   planUsage,
   planUsageSince = null,
+  planUsageManual = false,
   classroomScene,
   setLastStatistics,
   enabled = true,
@@ -94,7 +100,7 @@ export function useSeatingStatisticsUpdater({
       seatingHistory,
       classroomScene,
       mixHistory,
-      { planUsage, planUsageSince },
+      { planUsage, planUsageSince, planUsageManual },
     );
   }, [
     enabled,
@@ -105,6 +111,7 @@ export function useSeatingStatisticsUpdater({
     mixHistory,
     planUsage,
     planUsageSince,
+    planUsageManual,
     classroomScene,
   ]);
 

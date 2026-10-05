@@ -2,6 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import { describe, it, expect } from 'vitest';
 import type {
+  MixResult,
   PlanUsage,
   SavedPlan,
   SeatingArrangement,
@@ -10,7 +11,10 @@ import type {
 import {
   buildBackfillUsage,
   buildNeighborhoodStats,
+  buildUsageOrigins,
   isCountedUsage,
+  markPlanUsage,
+  resolvePlanUsageMode,
   usageBelongsToClass,
   collectSeatingPairKeys,
   computePlanFingerprint,
@@ -392,6 +396,80 @@ describe('isCountedUsage', () => {
   });
 });
 
+describe('markPlanUsage', () => {
+  const record: PlanUsage = {
+    id: 'u1',
+    fingerprint: 'f1',
+    pairs: ['a::b'],
+    firstSeenAt: '2026-08-01T00:00:00.000Z',
+    lastSeenAt: '2026-08-01T00:00:00.000Z',
+    sources: ['presented'],
+    confidence: 1,
+  };
+  const mark = {
+    pairs: ['c::d'],
+    fingerprint: 'f2',
+    at: '2026-07-01T00:00:00.000Z',
+    id: 'u2',
+  };
+
+  it('answers an existing record and keeps what was detected', () => {
+    const next = markPlanUsage([record], { ...mark, fingerprint: 'f1' }, false);
+
+    expect(next).toEqual([{ ...record, confirmed: false }]);
+  });
+
+  it('creates a record dated by the plan for an arrangement without one', () => {
+    const next = markPlanUsage([record], mark, true);
+
+    expect(next).toHaveLength(2);
+    expect(next[1]).toEqual({
+      id: 'u2',
+      fingerprint: 'f2',
+      pairs: ['c::d'],
+      firstSeenAt: '2026-07-01T00:00:00.000Z',
+      lastSeenAt: '2026-07-01T00:00:00.000Z',
+      sources: ['marked'],
+      confidence: 1,
+      confirmed: true,
+    });
+  });
+
+  it('adds nothing when a plan without a record is marked as not used', () => {
+    expect(markPlanUsage([record], mark, false)).toEqual([record]);
+  });
+});
+
+describe('resolvePlanUsageMode', () => {
+  const detected: PlanUsage = {
+    id: 'u1',
+    fingerprint: 'f1',
+    pairs: ['a::b'],
+    firstSeenAt: '2026-08-01T00:00:00.000Z',
+    lastSeenAt: '2026-08-01T00:00:00.000Z',
+    sources: ['presented'],
+    confidence: 1,
+  };
+  const marked: PlanUsage = {
+    ...detected,
+    id: 'u2',
+    fingerprint: 'f2',
+    confirmed: true,
+  };
+
+  it('leaves the records alone while the class detects its plans', () => {
+    const entries = [detected, marked];
+    expect(resolvePlanUsageMode(entries, false)).toBe(entries);
+  });
+
+  it('counts only what was marked as used when the class marks by hand', () => {
+    const resolved = resolvePlanUsageMode([detected, marked], true);
+
+    expect(resolved.map(isCountedUsage)).toEqual([false, true]);
+    expect(resolved[0]).toEqual({ ...detected, confirmed: false });
+  });
+});
+
 describe('buildNeighborhoodStats', () => {
   const record = (
     id: string,
@@ -485,5 +563,78 @@ describe('usageBelongsToClass', () => {
     expect(usageBelongsToClass(record(['a:1::b:2']), new Set(['b:2']))).toBe(
       true,
     );
+  });
+});
+
+describe('buildUsageOrigins', () => {
+  const rooms = [
+    { id: 'r1', name: 'Klassenraum' },
+    { id: 'r2', name: 'Physik' },
+  ];
+  const fingerprintOf = (tables: string[][]) =>
+    computePlanFingerprint(collectSeatingPairKeys(seatingOf(tables)));
+  const planIn = (
+    name: string,
+    roomId: string | undefined,
+    tables: string[][],
+  ) => ({ name, seating: seatingOf(tables), roomId }) as unknown as SavedPlan;
+  const mixIn = (roomId: string, tables: string[][]) =>
+    ({ seating: seatingOf(tables), roomId }) as unknown as MixResult;
+
+  it('reads name and room from the saved plan with the same neighbours', () => {
+    const origins = buildUsageOrigins(
+      [planIn('Herbst', 'r2', [['a', 'b']])],
+      [],
+      rooms,
+    );
+
+    expect(origins.get(fingerprintOf([['b', 'a']]))).toEqual({
+      planNames: ['Herbst'],
+      roomNames: ['Physik'],
+    });
+  });
+
+  it('falls back to a mix, for the room alone, where no plan holds it', () => {
+    const origins = buildUsageOrigins(
+      [planIn('Herbst', 'r1', [['a', 'b']])],
+      [mixIn('r2', [['a', 'b']]), mixIn('r2', [['c', 'd']])],
+      rooms,
+    );
+
+    expect(origins.get(fingerprintOf([['a', 'b']]))).toEqual({
+      planNames: ['Herbst'],
+      roomNames: ['Klassenraum'],
+    });
+    expect(origins.get(fingerprintOf([['c', 'd']]))).toEqual({
+      planNames: [],
+      roomNames: ['Physik'],
+    });
+  });
+
+  it('names every plan and room an arrangement was found in once', () => {
+    const origins = buildUsageOrigins(
+      [
+        planIn('Herbst', 'r1', [['a', 'b']]),
+        planIn('Herbst', 'r1', [['a', 'b']]),
+        planIn('Physik', 'r2', [['a', 'b']]),
+      ],
+      [],
+      rooms,
+    );
+
+    expect(origins.get(fingerprintOf([['a', 'b']]))).toEqual({
+      planNames: ['Herbst', 'Physik'],
+      roomNames: ['Klassenraum', 'Physik'],
+    });
+  });
+
+  it('leaves out a room the class does not have', () => {
+    const origins = buildUsageOrigins(
+      [planIn('Herbst', 'gone', [['a', 'b']])],
+      [],
+      rooms,
+    );
+
+    expect(origins.get(fingerprintOf([['a', 'b']]))?.roomNames).toEqual([]);
   });
 });

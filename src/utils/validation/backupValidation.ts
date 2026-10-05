@@ -920,6 +920,7 @@ const PLAN_USAGE_SOURCES = new Set<string>([
   'exported',
   'saved',
   'edited',
+  'marked',
 ]);
 
 function validatePlanUsageRecord(value: unknown): void {
@@ -1010,6 +1011,19 @@ function validatePlanUsageResets(value: unknown): void {
   }
 }
 
+/** Classes that mark their plans by hand: a list of class ids. */
+function validatePlanUsageManualClassIds(value: unknown): void {
+  if (
+    !Array.isArray(value) ||
+    value.length > BACKUP_LIMITS.maxPlanUsageClasses ||
+    !value.every((id) =>
+      assertString(id, { maxLength: BACKUP_LIMITS.maxIdLength }),
+    )
+  ) {
+    throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
+  }
+}
+
 function validateExportBundleStructure(
   value: unknown,
 ): asserts value is ExportBundle {
@@ -1048,6 +1062,9 @@ function validateExportBundleStructure(
   }
   if ('planUsageResetAt' in value && value.planUsageResetAt) {
     validatePlanUsageResets(value.planUsageResetAt);
+  }
+  if ('planUsageManualClassIds' in value && value.planUsageManualClassIds) {
+    validatePlanUsageManualClassIds(value.planUsageManualClassIds);
   }
 }
 

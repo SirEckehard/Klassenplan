@@ -24,7 +24,10 @@ import {
 import {
   collectSeatingPairKeys,
   computePlanFingerprint,
+  isCountedUsage,
+  storedPlanDateToTimestamp,
 } from '@/utils/data/planUsage';
+import ToggleSwitch from '@/components/ui/controls/ToggleSwitch';
 import { hasShapeMismatch } from '@/utils/math/scene';
 import RoomThumbnail from '../RoomThumbnail';
 import NameField from './NameField';
@@ -35,8 +38,9 @@ export type PlanMove = { roomId: string } | { newRoomName: string };
 /**
  * A saved plan in "Bibliothek": its name, renamed here; the room it
  * belongs to, which it can leave for another or a new one (decision 0024);
- * what it holds; whether it was really in use; a copy beside it; and removing
- * it.
+ * what it holds; whether it was really in use — marked here by hand, and
+ * whether the class detects that on its own (decision 0025); a copy beside
+ * it; and removing it.
  */
 export default function PlanPanel({
   plan,
@@ -64,7 +68,8 @@ export default function PlanPanel({
 }) {
   const { t } = useTranslation('generator');
   const [namingRoom, setNamingRoom] = React.useState(false);
-  const { planUsage } = usePlanUsageRecords(classId);
+  const { planUsage, planUsageManual, setUsageManual, markUsed } =
+    usePlanUsageRecords(classId);
 
   const seated = plan.seating.reduce(
     (sum, table) => sum + table.filter(Boolean).length,
@@ -99,6 +104,15 @@ export default function PlanPanel({
   const usageSources = usage
     ? [...new Set(usage.sources.filter((source) => source !== 'edited'))]
     : [];
+  // The records come resolved for the class's mode, so this is what counts.
+  const used = usage ? isCountedUsage(usage) : false;
+  const handleUsedChange = (next: boolean) => {
+    // A record this creates is dated the day the plan was made, so marking an
+    // old plan does not make it the most recent one.
+    const at =
+      storedPlanDateToTimestamp(plan.date ?? '') ?? new Date().toISOString();
+    markUsed(plan.seating, next, at);
+  };
 
   return (
     <>
@@ -198,13 +212,42 @@ export default function PlanPanel({
             {plan.circleLayout ? t('library.plan.circleKept') : '–'}
           </ValueRow>
           <ValueRow label={t('library.plan.locks')}>{locks}</ValueRow>
-          <ValueRow label={t('library.plan.used')}>
-            {usageSources.length > 0 && usage
-              ? `${usageSources
-                  .map((source) => t(`storage.neighbors.sources.${source}`))
-                  .join(', ')} · ${formatLongDate(usage.lastSeenAt)}`
-              : t('library.plan.notUsed')}
-          </ValueRow>
+        </InspectorSection>
+
+        <InspectorSection title={t('library.plan.usage')}>
+          <InspectorRow
+            label={t('library.plan.used')}
+            hint={t('library.plan.usedHint')}
+            labelsControl
+          >
+            <ToggleSwitch
+              checked={used}
+              onChange={handleUsedChange}
+              label={t('library.plan.used')}
+              disabled={seated === 0}
+              size="sm"
+            />
+          </InspectorRow>
+          {usageSources.length > 0 && usage && (
+            <p className="text-xs leading-relaxed text-(--text-muted)">
+              {`${usageSources
+                .map((source) => t(`storage.neighbors.sources.${source}`))
+                .join(', ')} · ${formatLongDate(usage.lastSeenAt)}`}
+            </p>
+          )}
+          <InspectorRow label={t('library.plan.detect')} labelsControl>
+            <ToggleSwitch
+              checked={!planUsageManual}
+              onChange={(detect) => setUsageManual(!detect)}
+              label={t('library.plan.detect')}
+              size="sm"
+            />
+          </InspectorRow>
+          <p className="text-xs leading-relaxed text-(--text-muted)">
+            {planUsageManual
+              ? t('library.plan.detectOff')
+              : t('library.plan.detectOn')}
+          </p>
         </InspectorSection>
 
         <InspectorSection title={t('library.actions')}>

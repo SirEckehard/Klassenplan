@@ -63,12 +63,14 @@ const scopeChangedError = () =>
  * @param state Shared seating state
  * @param planUsage Records of plans that were really in use; see `buildPreviousPairs`
  * @param planUsageSince When the neighbourhoods were last reset, if ever
+ * @param planUsageManual Whether the class marks its plans by hand
  * @returns Functions for generating and refining plans
  */
 export function useSeatingAlgorithm(
   state: SeatingState,
   planUsage: PlanUsage[] = [],
   planUsageSince: string | null = null,
+  planUsageManual = false,
 ) {
   const {
     studentState: { students },
@@ -94,6 +96,7 @@ export function useSeatingAlgorithm(
   // from other routes, and that must not rebuild the algorithm callbacks.
   const planUsageRef = useRef(planUsage);
   const planUsageSinceRef = useRef(planUsageSince);
+  const planUsageManualRef = useRef(planUsageManual);
   const recentSeatingRef = useRef<SeatingArrangement | null>(
     currentSeating.length > 0 ? currentSeating : null,
   );
@@ -118,6 +121,10 @@ export function useSeatingAlgorithm(
   useEffect(() => {
     planUsageSinceRef.current = planUsageSince;
   }, [planUsageSince]);
+
+  useEffect(() => {
+    planUsageManualRef.current = planUsageManual;
+  }, [planUsageManual]);
 
   useEffect(() => {
     recentSeatingRef.current =
@@ -236,6 +243,7 @@ export function useSeatingAlgorithm(
             mixHistory: historyForPairs,
             planUsage: planUsageRef.current,
             planUsageSince: planUsageSinceRef.current,
+            planUsageManual: planUsageManualRef.current,
             lockedPositions,
             classroomScene: scene,
             mixSettings: normalizedSettings,
@@ -294,6 +302,7 @@ export function useSeatingAlgorithm(
             {
               planUsage: planUsageRef.current,
               planUsageSince: planUsageSinceRef.current,
+              planUsageManual: planUsageManualRef.current,
             },
           );
           setLastStatistics(topCriteria);
@@ -339,6 +348,7 @@ export function useSeatingAlgorithm(
             mixHistory: mixHistoryRef.current,
             planUsage: planUsageRef.current,
             planUsageSince: planUsageSinceRef.current,
+            planUsageManual: planUsageManualRef.current,
             lockedPositions,
             classroomScene: scene,
             currentSeating,

@@ -19,22 +19,38 @@ import {
   logError,
   neutralButtonClass,
 } from '@/utils';
-import { isCountedUsage } from '@/utils/data/planUsage';
+import { isCountedUsage, type UsageOrigin } from '@/utils/data/planUsage';
 import { showToast } from '@/utils/ui/toast';
 import { IconTile } from './panelParts';
 
 /**
- * The plans a neighbourhood rests on, each one taken out of the count or let
- * back in by hand (decision 0010).
+ * The plans a neighbourhood rests on, each named by its saved plan and room
+ * where the class still has them, and each taken out of the count or let back in by hand
+ * (decision 0010).
  */
 export function UsageRecordList({
   records,
+  origins,
   onSetConfirmed,
 }: {
   records: readonly PlanUsage[];
+  /** Saved plans and rooms by fingerprint (`buildUsageOrigins`). */
+  origins?: ReadonlyMap<string, UsageOrigin>;
   onSetConfirmed: (usageId: string, confirmed: boolean) => void;
 }) {
   const { t } = useTranslation('generator');
+  // The saved plan's name where one holds the arrangement, the date it was
+  // last used and the room it was made in.
+  const recordLabel = (entry: PlanUsage) => {
+    const origin = origins?.get(entry.fingerprint);
+    const date = formatDate(entry.lastSeenAt);
+    return [
+      origin?.planNames.length
+        ? `${origin.planNames.join(', ')} · ${date}`
+        : t('storage.neighbors.recordLabel', { date }),
+      ...(origin?.roomNames ?? []),
+    ].join(' · ');
+  };
   return (
     <ul className="flex flex-col divide-y divide-(--border-card)">
       {records.map((entry) => {
@@ -52,9 +68,7 @@ export function UsageRecordList({
                     : 'text-(--text-page)'
                 }
               >
-                {t('storage.neighbors.recordLabel', {
-                  date: formatDate(entry.lastSeenAt),
-                })}
+                {recordLabel(entry)}
               </span>
               <span className="text-(--text-muted)">
                 {entry.sources
@@ -88,14 +102,18 @@ export function UsageRecordList({
 export default function NeighboursPanel({
   className,
   records,
+  origins,
 }: {
   className: string;
   records: PlanUsageRecordsReturn;
+  /** Saved plans and rooms by fingerprint (`buildUsageOrigins`). */
+  origins?: ReadonlyMap<string, UsageOrigin>;
 }) {
   const { t } = useTranslation('generator');
   const {
     planUsage,
     planUsageSince,
+    planUsageManual,
     setUsageConfirmed,
     resetUsage,
     undoReset,
@@ -159,7 +177,11 @@ export default function NeighboursPanel({
         {planUsage.length === 0 ? (
           <div className="flex flex-col gap-2 text-[13px] leading-relaxed text-(--text-muted)">
             <p>{t('storage.neighbors.empty')}</p>
-            <p>{t('storage.neighbors.emptyHint')}</p>
+            <p>
+              {planUsageManual
+                ? t('storage.neighbors.emptyHintManual')
+                : t('storage.neighbors.emptyHint')}
+            </p>
             {planUsageSince && (
               <p>
                 {t('storage.neighbors.countingSince', {
@@ -199,6 +221,7 @@ export default function NeighboursPanel({
             <InspectorSection title={t('storage.neighbors.basisTitle')}>
               <UsageRecordList
                 records={planUsage}
+                origins={origins}
                 onSetConfirmed={setUsageConfirmed}
               />
             </InspectorSection>

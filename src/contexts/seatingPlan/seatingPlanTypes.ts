@@ -70,6 +70,8 @@ export interface SeatingPlanState {
   planUsage: PlanUsage[];
   /** When the class's neighbourhoods were last reset; null if never. */
   planUsageSince: string | null;
+  /** Whether the class marks its plans by hand; see `buildPreviousPairs`. */
+  planUsageManual: boolean;
   statisticsHighlight: StatisticHighlightState | null;
   /** Seating-plan undo/redo availability (mixing, drag swaps, locks, circle). */
   canUndoSeating: boolean;

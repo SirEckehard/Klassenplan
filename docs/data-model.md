@@ -1,6 +1,6 @@
 # Data Model
 
-> **Status:** current · **Last reviewed:** 2026-10-04 · **Source of truth:**
+> **Status:** current · **Last reviewed:** 2026-10-06 · **Source of truth:**
 > `src/utils/data/storageKeys.ts`, `src/types/`, `src/repositories/`
 
 Everything Klassenplan stores lives in the teacher's browser. This document
@@ -173,6 +173,7 @@ interface PlanUsageData {
   byClass: Record<string, PlanUsage[]>; // class id → records
   backfilledClassIds: string[];
   resetAtByClass?: Record<string, string>; // class id → ISO 8601 of the last reset
+  manualClassIds?: string[]; // classes that mark the plans in use by hand
 }
 ```
 
@@ -192,6 +193,15 @@ undefined until they give one. It never holds a full arrangement. Semantics are 
   again, and stamps `resetAtByClass`. The field is additive; data written
   before it reads as never reset. `undoPlanUsageReset` puts the records back
   beside any that arrived since ([decision 0023](decisions/0023-neighbourhood-reset.md)).
+- A class in `manualClassIds` has its detection switched off
+  (`setPlanUsageManual`): `recordPlanUsage` and the backfill write nothing for
+  it, and only records with `confirmed: true` count — `usePlanUsageRecords`
+  resolves the others as not counted on reading (`resolvePlanUsageMode`), so
+  the stored records are kept and count again once the detection is back on.
+  `markPlanUsed` answers a plan's record or, for a plan without one, writes a
+  record with the source `marked`, dated the day the plan was made. The field
+  is additive; data written before it reads as detecting
+  ([decision 0025](decisions/0025-plan-usage-marked-by-hand.md)).
 - A stored value with a version other than 1 is read as empty.
 
 ### Name game statistics

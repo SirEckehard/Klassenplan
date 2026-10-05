@@ -38,7 +38,10 @@ const records = (
 ): PlanUsageRecordsReturn => ({
   planUsage,
   planUsageSince: null,
+  planUsageManual: false,
   setUsageConfirmed: vi.fn(),
+  setUsageManual: vi.fn(),
+  markUsed: vi.fn(),
   resetUsage: vi.fn().mockResolvedValue(null),
   undoReset: vi.fn().mockResolvedValue(undefined),
   ...overrides,
@@ -53,6 +56,21 @@ describe('NeighboursPanel', () => {
     ).toBeInTheDocument();
   });
 
+  it('says how a plan comes to count while the detection is off', () => {
+    render(
+      <NeighboursPanel
+        className="7b"
+        records={records([], { planUsageManual: true })}
+      />,
+    );
+
+    expect(
+      screen.getByText(
+        /automatische Erkennung ist|Automatic detection is off/i,
+      ),
+    ).toBeInTheDocument();
+  });
+
   it('names the data the neighbourhoods rest on', () => {
     render(
       <NeighboursPanel
@@ -63,6 +81,29 @@ describe('NeighboursPanel', () => {
 
     expect(
       screen.getByText(/Beruht auf 1 gewertetem|Based on 1 counted/i),
+    ).toBeInTheDocument();
+  });
+
+  it('names each plan by its saved plan, date and room', () => {
+    render(
+      <NeighboursPanel
+        className="7b"
+        records={records([
+          record('u1', ['a::b'], '2026-08-01T10:00:00.000Z'),
+          record('u2', ['c::d'], '2026-08-02T10:00:00.000Z'),
+        ])}
+        origins={
+          new Map([
+            ['f-u1', { planNames: ['Herbst'], roomNames: ['Raum 104'] }],
+          ])
+        }
+      />,
+    );
+
+    expect(screen.getByText(/^Herbst · .+ · Raum 104$/)).toBeInTheDocument();
+    // A plan the class no longer holds keeps its date.
+    expect(
+      screen.getByText(/^(Sitzplan vom|Seating plan of) /),
     ).toBeInTheDocument();
   });
 

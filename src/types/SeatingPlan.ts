@@ -142,6 +142,11 @@ export interface ExportBundleV1 {
    * Absent when no class was ever reset, and in older backups.
    */
   planUsageResetAt?: Record<string, string>;
+  /**
+   * Classes that mark the plans in use by hand instead of having them
+   * detected. Absent when every class detects them, and in older backups.
+   */
+  planUsageManualClassIds?: string[];
 }
 
 export type ExportBundle = ExportBundleV1; // Alias for the current version

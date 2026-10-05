@@ -37,6 +37,7 @@ it says so instead of reconstructing one.
 | [0022](0022-one-drag-for-plan-and-circle.md)       | One drag for the plan and the circle, locks in the circle  |
 | [0023](0023-neighbourhood-reset.md)                | The neighbourhoods can be reset in one click               |
 | [0024](0024-rooms-of-a-class.md)                   | A class keeps its rooms, and "Bibliothek" shows them       |
+| [0025](0025-plan-usage-marked-by-hand.md)          | The plans in use can be marked by hand instead of detected |
 
 ## Reasons still to be recorded
 

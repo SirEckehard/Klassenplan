@@ -19,7 +19,9 @@ export type PlanUsageSource =
   /** Saved under a name the teacher chose (not a silent auto-save). */
   | 'saved'
   /** Seats rearranged by hand — on its own only a provisional signal. */
-  | 'edited';
+  | 'edited'
+  /** Marked as used by the teacher in "Bibliothek". */
+  | 'marked';
 
 /** One seating plan that was in use, with the evidence backing that claim. */
 export interface PlanUsage {
@@ -64,4 +66,11 @@ export interface PlanUsageData {
    * in data written before the reset existed.
    */
   resetAtByClass?: Record<string, string>;
+  /**
+   * Classes whose teacher switched the detection off and marks the plans in
+   * use by hand. No signal is recorded for them, and only records marked as
+   * used count (`resolvePlanUsageMode`). Absent in data written before the
+   * switch existed.
+   */
+  manualClassIds?: string[];
 }

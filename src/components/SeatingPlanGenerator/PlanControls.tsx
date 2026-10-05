@@ -36,6 +36,7 @@ export default function PlanControls() {
     mixHistory,
     planUsage,
     planUsageSince,
+    planUsageManual,
     lastStatistics,
     showStatisticsBadge,
     seatingMode,
@@ -160,6 +161,7 @@ export default function PlanControls() {
     mixHistory,
     planUsage,
     planUsageSince,
+    planUsageManual,
   };
   // The room and plan views start afresh when another class or another room
   // opens: their undo history, selection and canvas belong to what they were

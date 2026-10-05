@@ -89,6 +89,7 @@ export async function executeAlgorithmOperation<
         mixHistory,
         planUsage,
         planUsageSince,
+        planUsageManual,
         lockedPositions,
         classroomScene,
         mixSettings,
@@ -106,7 +107,7 @@ export async function executeAlgorithmOperation<
         mixSettings,
         classroomScene,
         lastSeating ?? undefined,
-        { planUsage, planUsageSince },
+        { planUsage, planUsageSince, planUsageManual },
       );
       reportProgress(1, 'arranging');
       return { seating } as Result;
@@ -121,6 +122,7 @@ export async function executeAlgorithmOperation<
         mixHistory,
         planUsage,
         planUsageSince,
+        planUsageManual,
         lockedPositions,
         classroomScene,
         currentSeating,
@@ -142,6 +144,7 @@ export async function executeAlgorithmOperation<
           ...options,
           planUsage,
           planUsageSince,
+          planUsageManual,
           // Injected here, not carried in the payload: a callback cannot be
           // structured-cloned into the worker.
           onProgress: throttleFraction((fraction) =>

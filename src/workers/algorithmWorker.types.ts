@@ -42,6 +42,8 @@ export type AlgorithmWorkerRequestMap = {
       planUsage?: PlanUsage[];
       /** When the neighbourhoods were last reset; see `buildPreviousPairs`. */
       planUsageSince?: string | null;
+      /** Whether the class marks its plans by hand; see `buildPreviousPairs`. */
+      planUsageManual?: boolean;
       lockedPositions: LockedPositions;
       classroomScene: ClassroomScene;
       mixSettings: Partial<MixSettings>;
@@ -64,6 +66,8 @@ export type AlgorithmWorkerRequestMap = {
       planUsage?: PlanUsage[];
       /** When the neighbourhoods were last reset; see `buildPreviousPairs`. */
       planUsageSince?: string | null;
+      /** Whether the class marks its plans by hand; see `buildPreviousPairs`. */
+      planUsageManual?: boolean;
       lockedPositions: LockedPositions;
       options?: { triesPerPass?: number; passes?: number };
       start?: SeatingArrangement | null;

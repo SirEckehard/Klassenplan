@@ -21,6 +21,7 @@ import {
   buildBackfillUsage,
   collectSeatingPairKeys,
   computePlanFingerprint,
+  markPlanUsage,
   mergePlanUsageSignal,
   trimPlanUsage,
   usageBelongsToClass,
@@ -79,6 +80,7 @@ function emptyData(): PlanUsageData {
     byClass: {},
     backfilledClassIds: [],
     resetAtByClass: {},
+    manualClassIds: [],
   };
 }
 
@@ -102,7 +104,12 @@ async function readData(): Promise<PlanUsageData> {
     byClass: stored.byClass ?? {},
     backfilledClassIds: stored.backfilledClassIds ?? [],
     resetAtByClass: stored.resetAtByClass ?? {},
+    manualClassIds: stored.manualClassIds ?? [],
   };
+}
+
+function isManual(data: PlanUsageData, classId: string): boolean {
+  return data.manualClassIds?.includes(classId) ?? false;
 }
 
 async function writeData(data: PlanUsageData): Promise<void> {
@@ -153,6 +160,77 @@ export async function loadPlanUsageResetAt(
   if (!classId) return null;
   const data = await readData();
   return data.resetAtByClass?.[classId] ?? null;
+}
+
+/**
+ * Whether the class marks the plans in use by hand instead of having them
+ * detected.
+ */
+export async function loadPlanUsageManual(
+  classId: string | null | undefined,
+): Promise<boolean> {
+  if (!classId) return false;
+  return isManual(await readData(), classId);
+}
+
+/**
+ * Switch the detection of a class off (`manual`) or back on. The records stay
+ * either way; what counts is resolved on reading (`resolvePlanUsageMode`).
+ *
+ * @param classId Class to switch
+ * @param manual Whether the teacher marks the plans in use by hand
+ */
+export async function setPlanUsageManual(
+  classId: string | null | undefined,
+  manual: boolean,
+): Promise<void> {
+  if (!classId || !hasIndexedDB()) return;
+
+  await mutate((data) => {
+    const current = data.manualClassIds ?? [];
+    if (current.includes(classId) === manual) return null;
+    return {
+      ...data,
+      manualClassIds: manual
+        ? [...current, classId]
+        : current.filter((id) => id !== classId),
+    };
+  });
+}
+
+/**
+ * Mark a seating plan as used, or as not used, by hand — in "Bibliothek",
+ * whether the class detects its plans or not.
+ *
+ * @param classId Class the plan belongs to
+ * @param seating The plan's arrangement
+ * @param used Whether the plan was really in use
+ * @param at When the plan was made (ISO 8601); dates a record it creates
+ */
+export async function markPlanUsed(
+  classId: string | null | undefined,
+  seating: SeatingArrangement | null | undefined,
+  used: boolean,
+  at: string,
+): Promise<void> {
+  if (!classId || !hasIndexedDB()) return;
+
+  const pairs = collectSeatingPairKeys(seating);
+  if (pairs.length === 0) return;
+  const signal = {
+    pairs,
+    fingerprint: computePlanFingerprint(pairs),
+    at,
+    id: generateId(),
+  };
+
+  await mutate((data) => ({
+    ...data,
+    byClass: {
+      ...data.byClass,
+      [classId]: markPlanUsage(data.byClass[classId] ?? [], signal, used),
+    },
+  }));
 }
 
 /** What a reset took away, so "Rückgängig" can put it back. */
@@ -264,7 +342,8 @@ export interface RecordPlanUsageOutcome {
  * Note that a seating plan was in use.
  *
  * Safe to call on every occurrence of a signal: an arrangement that already has
- * a record extends it rather than adding a second one.
+ * a record extends it rather than adding a second one. A class that marks its
+ * plans by hand records nothing.
  *
  * @param classId Active class; the call is a no-op without one
  * @param seating Arrangement that was presented, exported, saved or edited
@@ -293,6 +372,7 @@ export async function recordPlanUsage(
   let outcome: RecordPlanUsageOutcome | null = null;
 
   await mutate((data) => {
+    if (isManual(data, classId)) return null;
     const entries = data.byClass[classId] ?? [];
     const existing = entries.find((entry) => entry.fingerprint === fingerprint);
     const merged = mergePlanUsageSignal(entries, signal);
@@ -353,7 +433,8 @@ export async function setPlanUsageConfirmed(
 /**
  * Seed a class from the plans it saved before the signals existed, so the
  * record is not empty for teachers who have been using the app all along.
- * Runs at most once per class.
+ * Runs at most once per class, and not while the class marks its plans by
+ * hand — switching the detection back on seeds it on the next load.
  *
  * @param classId Class to seed
  * @param plans That class's saved plans
@@ -366,6 +447,7 @@ export async function backfillPlanUsage(
 
   await mutate((data) => {
     if (data.backfilledClassIds.includes(classId)) return null;
+    if (isManual(data, classId)) return null;
 
     const seeded = buildBackfillUsage(plans, generateId);
     const existing = data.byClass[classId] ?? [];
@@ -439,8 +521,21 @@ export async function sweepOrphanPlanUsage(
       }
     }
 
+    const manualClassIds = (data.manualClassIds ?? []).filter((id) =>
+      studentIdsByClass.has(id),
+    );
+    if (manualClassIds.length !== (data.manualClassIds ?? []).length) {
+      changed = true;
+    }
+
     return changed
-      ? { ...data, byClass, backfilledClassIds, resetAtByClass }
+      ? {
+          ...data,
+          byClass,
+          backfilledClassIds,
+          resetAtByClass,
+          manualClassIds,
+        }
       : null;
   });
 }
@@ -452,20 +547,27 @@ export async function sweepOrphanPlanUsage(
  * applied. A merge only adds classes that have no records yet: reconciling two
  * histories of the same class would have to guess which arrangement came first,
  * and guessing wrong would corrupt the very data this record exists to protect.
- * A class's reset travels with its records.
+ * A class's reset and whether it marks its plans by hand travel with its
+ * records.
  *
  * @param byClass Usage records per class from the backup
  * @param options `merge` keeps existing records; otherwise the store is
- *   replaced. `resetAtByClass` holds the resets the backup carries.
+ *   replaced. `resetAtByClass` holds the resets the backup carries,
+ *   `manualClassIds` the classes that mark their plans by hand.
  */
 export async function restorePlanUsage(
   byClass: Record<string, PlanUsage[]> | undefined,
-  options?: { merge?: boolean; resetAtByClass?: Record<string, string> },
+  options?: {
+    merge?: boolean;
+    resetAtByClass?: Record<string, string>;
+    manualClassIds?: string[];
+  },
 ): Promise<void> {
   if (!hasIndexedDB()) return;
 
   const restored = byClass ?? {};
   const restoredResets = options?.resetAtByClass ?? {};
+  const restoredManual = options?.manualClassIds ?? [];
 
   if (!options?.merge) {
     await mutate(() => ({
@@ -477,13 +579,20 @@ export async function restorePlanUsage(
         ...new Set([...Object.keys(restored), ...Object.keys(restoredResets)]),
       ],
       resetAtByClass: { ...restoredResets },
+      manualClassIds: [...new Set(restoredManual)],
     }));
     return;
   }
 
   await mutate((data) => {
     const added = Object.keys(restored).filter((id) => !data.byClass[id]);
-    if (added.length === 0) return null;
+    // A class that marks by hand may have no records yet; it is new here as
+    // long as it has none on this device either.
+    const current = data.manualClassIds ?? [];
+    const addedManual = restoredManual.filter(
+      (id) => !data.byClass[id] && !current.includes(id),
+    );
+    if (added.length === 0 && addedManual.length === 0) return null;
 
     const byClassNext = { ...data.byClass };
     const resetsNext = { ...data.resetAtByClass };
@@ -496,6 +605,7 @@ export async function restorePlanUsage(
       byClass: byClassNext,
       backfilledClassIds: [...data.backfilledClassIds, ...added],
       resetAtByClass: resetsNext,
+      manualClassIds: [...current, ...addedManual],
     };
   });
 }
@@ -507,4 +617,13 @@ export async function getAllPlanUsageResets(): Promise<
   const data = await readData();
   const resets = data.resetAtByClass ?? {};
   return Object.keys(resets).length > 0 ? resets : undefined;
+}
+
+/** Every class that marks its plans by hand, for embedding in a backup. */
+export async function getAllPlanUsageManualClassIds(): Promise<
+  string[] | undefined
+> {
+  const data = await readData();
+  const manual = data.manualClassIds ?? [];
+  return manual.length > 0 ? manual : undefined;
 }

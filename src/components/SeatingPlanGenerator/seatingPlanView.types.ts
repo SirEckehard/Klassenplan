@@ -70,6 +70,8 @@ export type SeatingPlanViewProps = {
   planUsage?: PlanUsage[];
   /** When the neighbourhoods were last reset; see `buildPreviousPairs`. */
   planUsageSince?: string | null;
+  /** Whether the class marks its plans by hand; see `buildPreviousPairs`. */
+  planUsageManual?: boolean;
   autoMixing?: boolean;
   autoMixError?: string | null;
 };

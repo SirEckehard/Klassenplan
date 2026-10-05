@@ -242,6 +242,7 @@
       "tab": "Neighbourhoods",
       "empty": "Nothing to evaluate yet.",
       "emptyHint": "As soon as you present, print, export or name-save a seating chart, it is counted here. Mixing alone does not count.",
+      "emptyHintManual": "Automatic detection is off for this class. Mark a plan as used in the library, and it counts here.",
       "basis_one": "Based on {{count}} counted seating chart",
       "basis_other": "Based on {{count}} counted seating charts",
       "basisSince": "since {{date}}.",
@@ -256,7 +257,8 @@
         "presented": "presented",
         "exported": "exported",
         "saved": "saved",
-        "edited": "rearranged by hand"
+        "edited": "rearranged by hand",
+        "marked": "marked by hand"
       },
       "reset": "Reset",
       "resetTitle": "Forget all neighbourhoods so far and count afresh from now",
@@ -1085,7 +1087,11 @@
       "circleKept": "saved",
       "locks": "Locked seats",
       "used": "Used",
-      "notUsed": "not yet",
+      "usage": "Use",
+      "usedHint": "A plan in use counts towards the neighbourhoods: who sat next to each other in it is kept apart when mixing, as far as possible.",
+      "detect": "Detect automatically",
+      "detectOn": "Applies to every plan of this class: a plan counts as used as soon as you present it, export it or save it under a name of its own.",
+      "detectOff": "Applies to every plan of this class: only the plans you mark as used yourself count.",
       "delete": "Delete plan",
       "otherTables": "This plan has other tables than “{{room}}”. Does it belong in a room of its own?"
     },

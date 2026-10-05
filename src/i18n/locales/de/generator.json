@@ -242,6 +242,7 @@
       "tab": "Nachbarschaften",
       "empty": "Noch keine Auswertung möglich.",
       "emptyHint": "Sobald du einen Sitzplan präsentierst, druckst, exportierst oder unter eigenem Namen speicherst, wird er hier gewertet. Mischen allein zählt nicht.",
+      "emptyHintManual": "Die automatische Erkennung ist für diese Klasse aus. Markiere einen Plan in der Bibliothek als genutzt, dann wird er hier gewertet.",
       "basis_one": "Beruht auf {{count}} gewertetem Sitzplan",
       "basis_other": "Beruht auf {{count}} gewerteten Sitzplänen",
       "basisSince": "seit {{date}}.",
@@ -256,7 +257,8 @@
         "presented": "präsentiert",
         "exported": "exportiert",
         "saved": "gespeichert",
-        "edited": "von Hand angepasst"
+        "edited": "von Hand angepasst",
+        "marked": "von Hand markiert"
       },
       "reset": "Zurücksetzen",
       "resetTitle": "Alle bisherigen Nachbarschaften vergessen und ab jetzt neu zählen",
@@ -1084,8 +1086,12 @@
       "seatedValue": "{{seated}} von {{total}}",
       "circleKept": "gespeichert",
       "locks": "Feste Plätze",
-      "used": "Benutzt",
-      "notUsed": "noch nicht",
+      "used": "Genutzt",
+      "usage": "Nutzung",
+      "usedHint": "Ein genutzter Plan zählt für die Nachbarschaften: Wer darin nebeneinandersaß, wird beim Mischen möglichst nicht wieder zusammengesetzt.",
+      "detect": "Automatisch erkennen",
+      "detectOn": "Gilt für alle Pläne dieser Klasse: Ein Plan zählt als genutzt, sobald du ihn präsentierst, exportierst oder unter eigenem Namen speicherst.",
+      "detectOff": "Gilt für alle Pläne dieser Klasse: Es zählen nur Pläne, die du selbst als genutzt markierst.",
       "delete": "Plan löschen",
       "otherTables": "Dieser Plan hat andere Tische als „{{room}}“. Gehört er in einen eigenen Raum?"
     },

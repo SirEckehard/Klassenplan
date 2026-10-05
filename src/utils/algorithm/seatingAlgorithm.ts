@@ -249,6 +249,7 @@ export function initializeAssignment(
   rng: RandomSource = Math.random,
   planUsage?: PlanUsage[],
   planUsageSince?: string | null,
+  planUsageManual?: boolean,
 ): AssignmentContext {
   const previousPairs = settings.avoidPreviousPairs
     ? buildPreviousPairs(seatingHistory, {
@@ -256,6 +257,7 @@ export function initializeAssignment(
         currentSeating,
         planUsage,
         since: planUsageSince,
+        manual: planUsageManual,
         studentCount: students.length,
       })
     : new Map<string, number>();
@@ -585,6 +587,8 @@ export function generateSeatingPlan(
     planUsage?: PlanUsage[];
     /** When the neighbourhoods were last reset; see `buildPreviousPairs`. */
     planUsageSince?: string | null;
+    /** Whether the class marks its plans by hand; see `buildPreviousPairs`. */
+    planUsageManual?: boolean;
   },
 ): SeatingArrangement {
   const startTime = performance.now();
@@ -608,6 +612,7 @@ export function generateSeatingPlan(
     options?.rng,
     options?.planUsage,
     options?.planUsageSince,
+    options?.planUsageManual,
   );
   runPass(ctx);
 
@@ -674,6 +679,8 @@ export function refineSeatingLocal(
     planUsage?: PlanUsage[];
     /** When the neighbourhoods were last reset; see `buildPreviousPairs`. */
     planUsageSince?: string | null;
+    /** Whether the class marks its plans by hand; see `buildPreviousPairs`. */
+    planUsageManual?: boolean;
     /**
      * Called with a 0..1 fraction as the refinement advances. Injected by the
      * worker layer, never sent through the request payload — a function does
@@ -707,6 +714,7 @@ export function refineSeatingLocal(
         currentSeating: referenceSeating,
         planUsage: options?.planUsage,
         since: options?.planUsageSince,
+        manual: options?.planUsageManual,
         studentCount: students.length,
       })
     : new Map<string, number>();

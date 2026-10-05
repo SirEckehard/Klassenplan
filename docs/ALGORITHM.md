@@ -104,6 +104,7 @@ the UI:
 | `exported`  | print, PDF, PNG or SVG export of a table plan   |        1.0 |
 | `saved`     | a plan saved under a name the teacher chose     |        0.8 |
 | `edited`    | seats rearranged by hand (debounced 4 s)        |        0.3 |
+| `marked`    | "Genutzt" in a plan's inspector, "Bibliothek"   |        1.0 |
 
 A record is rated by its **strongest** signal, never by their sum: presenting a
 plan twice is not better evidence than presenting it once.
@@ -158,7 +159,32 @@ offers to take it back: doing nothing keeps the plan counted, one click marks it
 arrangement, never again for the same one, and never for a hand edit. The
 neighbourhoods in "Bibliothek" list every counted plan and let one be
 withdrawn or restored later — in the folder's inspector, and for a pair of
-students in theirs.
+students in theirs. Each plan there is named by the saved plan that seats the same people side
+by side, the date it was last used and the room it was made in
+(`buildUsageOrigins`); one the class no longer holds keeps "Sitzplan vom" and
+its date.
+
+### Marking by hand
+
+A teacher who does not want the plans detected switches "Automatisch erkennen"
+off in a plan's inspector in "Bibliothek" — for the whole class, since the
+neighbourhoods are the class's. From then on no signal is recorded for it, not
+even the one-time backfill, and only what is marked as used counts: "Genutzt"
+in the same inspector answers the plan's record (`confirmed: true` or `false`)
+or, for a plan nobody detected, creates one with the source `marked`, dated the
+day the plan was made so that marking an old plan does not make it the most
+recent one. The switch works with the detection on as well, where it does what
+the toast's correction does, at any time.
+
+The detected records are kept while the class marks by hand.
+`usePlanUsageRecords` resolves them for the mode (`resolvePlanUsageMode`): an
+unanswered record reads as not counted, so the neighbourhood view and the
+algorithm see only the marked plans, and switching the detection back on lets
+the detected ones count again. `buildPreviousPairs` receives the mode as
+`manual` (carried as `planUsageManual` beside `planUsageSince`, into the worker
+too) and then never falls back to the saved plans — a class that marked
+nothing has no history of real plans, only the arrangement on screen and the
+mixes ([decision 0025](decisions/0025-plan-usage-marked-by-hand.md)).
 
 `isCountedUsage()` in `src/utils/data/planUsage.ts` is the single definition of
 what counts, shared by the evaluation and the scoring, so the number a teacher
@@ -168,10 +194,10 @@ reads and the number the algorithm optimizes cannot drift apart.
 
 `buildPreviousPairs()` sums two independent histories per pair, capped at 1:
 
-| History              | Source                                                                                           | Factor                           |
-| :------------------- | :----------------------------------------------------------------------------------------------- | :------------------------------- |
-| What was really used | the arrangement on screen, then the usage records — or the saved plans when no record exists yet | `entry.confidence`               |
-| The running session  | recent mixes                                                                                     | `MIX_HISTORY_CONTRIBUTION` = 0.5 |
+| History              | Source                                                                                                                       | Factor                           |
+| :------------------- | :--------------------------------------------------------------------------------------------------------------------------- | :------------------------------- |
+| What was really used | the arrangement on screen, then the usage records — or the saved plans when no record counts and the class detects its plans | `entry.confidence`               |
+| The running session  | recent mixes                                                                                                                 | `MIX_HISTORY_CONTRIBUTION` = 0.5 |
 
 Both decay with recency within themselves: the newest entry counts fully, the
 oldest down to `MIN_DECAY_WEIGHT`.

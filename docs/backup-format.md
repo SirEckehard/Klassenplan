@@ -35,6 +35,12 @@ Optional fields (version ≥ 2):
   neighbourhood reset. Absent when no class was reset; older backups without
   it restore as never reset. It travels with `planUsage` on a full import and
   with a class's records on a merge.
+- `planUsageManualClassIds` – the ids of the classes that mark the plans in use
+  by hand instead of having them detected
+  ([decision 0025](decisions/0025-plan-usage-marked-by-hand.md)). Absent when
+  every class detects them; older backups restore as detecting. A full import
+  replaces the list; a merge adds the classes that have no records on this
+  device yet.
 
 Inside the nested objects, the same structures apply as in the application's
 TypeScript types (`Student`, `SavedPlan`, `MixResult`,
@@ -82,7 +88,8 @@ import (see `BACKUP_LIMITS` in
 - At most **2,000** entries in `studentPhotos`, each Data URL at most **96 KB**.
 - At most **200** classes in `planUsage`, **200** records each, with at most
   **1,000** pair keys per record; at most **200** classes in `planUsageResetAt`,
-  each a parseable timestamp.
+  each a parseable timestamp; at most **200** class ids in
+  `planUsageManualClassIds`.
 
 ## Encryption
 

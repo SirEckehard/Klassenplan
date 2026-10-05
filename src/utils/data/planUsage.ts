@@ -8,6 +8,7 @@
  * exactly instead of statistically.
  */
 import type {
+  MixResult,
   PlanUsage,
   PlanUsageSource,
   SavedPlan,
@@ -25,6 +26,7 @@ const PLAN_USAGE_SOURCE_CONFIDENCE: Record<PlanUsageSource, number> = {
   exported: 1,
   saved: 0.8,
   edited: 0.3,
+  marked: 1,
 };
 
 /**
@@ -163,6 +165,72 @@ export function mergePlanUsageSignal(
 }
 
 /**
+ * Mark the plan with these pairs as used, or as not used, by hand.
+ *
+ * An arrangement that has a record keeps it and only takes the answer, so
+ * what was detected for it stays readable. One that has none gets a record of
+ * its own, dated `at` — the day the plan was made, so marking an old plan does
+ * not make it the most recent one. Marking a plan without a record as not used
+ * changes nothing: no record already means it does not count.
+ */
+export function markPlanUsage(
+  entries: readonly PlanUsage[],
+  {
+    pairs,
+    fingerprint,
+    at,
+    id,
+  }: Pick<PlanUsageSignal, 'pairs' | 'fingerprint' | 'at' | 'id'>,
+  used: boolean,
+): PlanUsage[] {
+  const index = entries.findIndex((entry) => entry.fingerprint === fingerprint);
+
+  if (index !== -1) {
+    const next = [...entries];
+    next[index] = { ...entries[index], confirmed: used };
+    return next;
+  }
+  if (!used) return [...entries];
+
+  return trimPlanUsage([
+    ...entries,
+    {
+      id,
+      fingerprint,
+      pairs: [...pairs],
+      firstSeenAt: at,
+      lastSeenAt: at,
+      sources: ['marked'],
+      confidence: confidenceForSources(['marked']),
+      confirmed: true,
+    },
+  ]);
+}
+
+/**
+ * The records as they count for a class. With the detection switched off only
+ * what the teacher marked as used counts: every record that was never
+ * answered reads as not used. The stored records stay as they are, so
+ * switching the detection back on lets them count again.
+ *
+ * Resolving the records once, where they are loaded, keeps every reader —
+ * the neighbourhood view, the statistics, the repetition scoring — on the same
+ * {@link isCountedUsage}.
+ *
+ * @param entries Stored records of one class
+ * @param manual Whether the class marks its plans by hand
+ */
+export function resolvePlanUsageMode(
+  entries: PlanUsage[],
+  manual: boolean,
+): PlanUsage[] {
+  if (!manual) return entries;
+  return entries.map((entry) =>
+    entry.confirmed === true ? entry : { ...entry, confirmed: false },
+  );
+}
+
+/**
  * Whether a record counts towards the neighbourhood evaluation and the
  * repetition scoring. One definition for both, so the number a teacher reads
  * and the number the algorithm optimizes cannot drift apart.
@@ -259,6 +327,62 @@ export function buildNeighborhoodStats(
       b.lastSeenAt.localeCompare(a.lastSeenAt) ||
       a.key.localeCompare(b.key),
   );
+}
+
+/** Where a record's arrangement came from, as far as the class still knows. */
+export interface UsageOrigin {
+  /** Names of the saved plans that seat the same people side by side. */
+  planNames: string[];
+  /** Names of the rooms those plans — or, without one, a mix — were made in. */
+  roomNames: string[];
+}
+
+/**
+ * The saved plans and rooms behind each record, by fingerprint.
+ *
+ * A record holds pairs, not a plan, so plan and room are read from the plans
+ * and mixes of the class that seat the same people side by side — the saved
+ * plans first, a mix only for an arrangement no saved plan holds, which gives
+ * its room but no name. Each name appears once; an arrangement found nowhere
+ * (its plan deleted, its mix trimmed) has no entry.
+ *
+ * @param plans Saved plans of one class
+ * @param mixes Recent mixes of that class
+ * @param rooms The class's rooms, for their names
+ */
+export function buildUsageOrigins(
+  plans: readonly SavedPlan[],
+  mixes: readonly MixResult[],
+  rooms: readonly { id: string; name: string }[],
+): Map<string, UsageOrigin> {
+  const roomNames = new Map(rooms.map((room) => [room.id, room.name]));
+  const origins = new Map<string, UsageOrigin>();
+  const addOnce = (list: string[], value: string | undefined) => {
+    if (value && !list.includes(value)) list.push(value);
+  };
+
+  const note = (
+    seating: SeatingArrangement,
+    roomId: string | undefined,
+    planName: string | undefined,
+  ) => {
+    const pairs = collectSeatingPairKeys(seating);
+    if (pairs.length === 0) return;
+    const fingerprint = computePlanFingerprint(pairs);
+    const origin = origins.get(fingerprint) ?? { planNames: [], roomNames: [] };
+    addOnce(origin.planNames, planName);
+    addOnce(origin.roomNames, roomId ? roomNames.get(roomId) : undefined);
+    origins.set(fingerprint, origin);
+  };
+
+  for (const plan of plans) note(plan.seating, plan.roomId, plan.name);
+  const fromPlans = new Set(origins.keys());
+  for (const mix of mixes) {
+    const pairs = collectSeatingPairKeys(mix.seating);
+    if (fromPlans.has(computePlanFingerprint(pairs))) continue;
+    note(mix.seating, mix.roomId, undefined);
+  }
+  return origins;
 }
 
 const LEGACY_DATE_PATTERN = /^(\d{2})\.(\d{2})\.(\d{4})$/;

@@ -155,6 +155,8 @@ export function calculateSeatingStatistics(
     planUsage?: PlanUsage[];
     /** When the neighbourhoods were last reset; see `buildPreviousPairs`. */
     planUsageSince?: string | null;
+    /** Whether the class marks its plans by hand; see `buildPreviousPairs`. */
+    planUsageManual?: boolean;
   },
 ): SeatingStatistics {
   const totalStudents = students.length;
@@ -170,6 +172,7 @@ export function calculateSeatingStatistics(
         mixHistory: mixHistoryExcludingCurrent,
         planUsage: options?.planUsage,
         since: options?.planUsageSince,
+        manual: options?.planUsageManual,
         studentCount: students.length,
       })
     : new Map<string, number>();

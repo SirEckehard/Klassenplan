@@ -43,6 +43,7 @@ import {
 } from '@/utils/data/classCollection';
 import {
   getAllPlanUsage,
+  getAllPlanUsageManualClassIds,
   getAllPlanUsageResets,
   restorePlanUsage,
 } from '@/repositories/planUsageStore';
@@ -207,6 +208,9 @@ export async function exportAllAsJson(
     // A reset says what no longer counts; without it a restored device would
     // count the saved plans and mixes from before it again.
     const planUsageResetAt = await getAllPlanUsageResets();
+    // Without it a restored device would detect the plans of a class whose
+    // teacher marks them by hand.
+    const planUsageManualClassIds = await getAllPlanUsageManualClassIds();
     const bundle: ExportBundle = {
       version: CURRENT_EXPORT_VERSION,
       students: data.students,
@@ -222,6 +226,7 @@ export async function exportAllAsJson(
       ...(studentPhotos ? { studentPhotos } : {}),
       ...(planUsage ? { planUsage } : {}),
       ...(planUsageResetAt ? { planUsageResetAt } : {}),
+      ...(planUsageManualClassIds ? { planUsageManualClassIds } : {}),
     };
     return JSON.stringify(bundle, null, 2);
   } catch (e) {
@@ -367,6 +372,7 @@ export async function importAllFromJson(
     await restorePlanUsage(data.planUsage, {
       merge: false,
       resetAtByClass: data.planUsageResetAt,
+      manualClassIds: data.planUsageManualClassIds,
     });
     return { merge: false };
   } catch (error) {
@@ -446,6 +452,7 @@ async function mergeIntoStored(
   await restorePlanUsage(data.planUsage, {
     merge: true,
     resetAtByClass: data.planUsageResetAt,
+    manualClassIds: data.planUsageManualClassIds,
   });
   return {
     merge: true,

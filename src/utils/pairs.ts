@@ -45,6 +45,12 @@ type BuildPreviousPairsOptions = {
    * moment — no longer counts; the reset emptied the usage records already.
    */
   since?: string | null;
+  /**
+   * The class marks its plans in use by hand. The records are the history of
+   * record then even when none of them counts: the saved plans never stand in,
+   * or plans the teacher did not mark would count after all.
+   */
+  manual?: boolean;
 };
 
 /**
@@ -147,8 +153,9 @@ const applyDecayedSources = (
  * Two histories contribute independently and are summed per pair (capped at 1):
  *
  * 1. **What was really in use** — the arrangement on screen, then the plan
- *    usage records, or the saved plans when no records exist yet. This history
- *    is read first and can never be crowded out.
+ *    usage records, or the saved plans when no records exist yet and the class
+ *    detects its plans. This history is read first and can never be crowded
+ *    out.
  * 2. **The running session** — the recent mixes, scaled by
  *    `MIX_HISTORY_CONTRIBUTION` so a long shuffling session cannot outweigh a
  *    plan that a class actually sat in.
@@ -205,7 +212,7 @@ export function buildPreviousPairs(
     .filter(isCountedUsage)
     .sort((a, b) => b.lastSeenAt.localeCompare(a.lastSeenAt));
 
-  if (countedUsage.length > 0) {
+  if (countedUsage.length > 0 || options?.manual) {
     for (const entry of countedUsage) {
       if (realPlans.length >= windowSize) break;
       // Weaker evidence contributes less; see PLAN_USAGE_SOURCE_CONFIDENCE.

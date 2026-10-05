@@ -166,6 +166,27 @@ describe('buildPreviousPairs mit Nutzungsaufzeichnung', () => {
     expect(result.get('3::4')).toBe(1);
   });
 
+  it('greift von Hand markierend nie auf die gespeicherten Pläne zurück', () => {
+    const result = buildPreviousPairs([planOf([[carol, dave]])], {
+      planUsage: [usageOf({ confirmed: false })],
+      manual: true,
+      studentCount: 4,
+    });
+
+    expect(result.get('1::2')).toBeUndefined();
+    expect(result.get('3::4')).toBeUndefined();
+  });
+
+  it('wertet von Hand markierend auch ohne jeden Datensatz keinen gespeicherten Plan', () => {
+    const result = buildPreviousPairs([planOf([[carol, dave]])], {
+      planUsage: [],
+      manual: true,
+      studentCount: 4,
+    });
+
+    expect(result.size).toBe(0);
+  });
+
   it('ignoriert reine Handanpassungen ohne Bestätigung', () => {
     const result = buildPreviousPairs([], {
       planUsage: [usageOf({ sources: ['edited'], confidence: 0.3 })],

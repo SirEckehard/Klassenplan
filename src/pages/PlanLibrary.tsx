@@ -67,6 +67,7 @@ import {
   uniqueName,
   type NameProblem,
 } from '@/utils';
+import { buildUsageOrigins } from '@/utils/data/planUsage';
 import { hasShapeMismatch } from '@/utils/math/scene';
 import { showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
 
@@ -164,6 +165,18 @@ function PlanLibraryPage() {
     ? built.nodes.get(currentKey)
     : undefined;
   const classLibrary = library.selected;
+  // The saved plan and the room behind each plan the neighbourhoods rest on.
+  const usageOrigins = React.useMemo(
+    () =>
+      classLibrary
+        ? buildUsageOrigins(
+            classLibrary.plans,
+            classLibrary.mixes,
+            classLibrary.rooms,
+          )
+        : undefined,
+    [classLibrary],
+  );
 
   // The state and actions after an await — a class opened meanwhile.
   const latestRef = React.useRef({ state, actions });
@@ -682,6 +695,7 @@ function PlanLibraryPage() {
           <NeighboursPanel
             className={classLibrary.name}
             records={usageRecords}
+            origins={usageOrigins}
           />
         ) : null;
       case 'neighbourStudent':
@@ -704,6 +718,7 @@ function PlanLibraryPage() {
             studentName={studentName(current.studentId)}
             neighbourName={studentName(current.neighbourId)}
             planUsage={usageRecords.planUsage}
+            origins={usageOrigins}
             onSetConfirmed={usageRecords.setUsageConfirmed}
             media={photoMedia([current.studentId, current.neighbourId])}
           />

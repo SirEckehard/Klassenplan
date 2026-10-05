@@ -10,7 +10,7 @@ import {
 } from '@/components/shell/InspectorPanel';
 import type { PlanUsage } from '@/types';
 import { formatDate } from '@/utils';
-import { isCountedUsage } from '@/utils/data/planUsage';
+import { isCountedUsage, type UsageOrigin } from '@/utils/data/planUsage';
 import { seatPairKey } from '@/utils/pairs';
 import { IconTile, ValueRow } from './panelParts';
 import { UsageRecordList } from './NeighboursPanel';
@@ -26,6 +26,7 @@ export default function NeighbourPairPanel({
   studentId,
   neighbourId,
   planUsage,
+  origins,
   onSetConfirmed,
   media,
 }: {
@@ -34,6 +35,8 @@ export default function NeighbourPairPanel({
   studentId: string;
   neighbourId: string;
   planUsage: readonly PlanUsage[];
+  /** Saved plans and rooms by fingerprint (`buildUsageOrigins`). */
+  origins?: ReadonlyMap<string, UsageOrigin>;
   onSetConfirmed: (usageId: string, confirmed: boolean) => void;
   /** What stands for the pair in place of the icon: their photos. */
   media?: React.ReactNode;
@@ -73,6 +76,7 @@ export default function NeighbourPairPanel({
           <InspectorSection title={t('storage.neighbors.basisTitle')}>
             <UsageRecordList
               records={records}
+              origins={origins}
               onSetConfirmed={onSetConfirmed}
             />
           </InspectorSection>
