@@ -1,9 +1,11 @@
 # 0025 – The plans in use can be marked by hand instead of detected
 
-- **Status:** proposed
+- **Status:** accepted
 - **In place since:** unreleased (2026-10-06)
 - **Sources:** maintainer request of 2026-10-06 (the detection switched off,
   the plans marked as "genutzt" in the inspector of a plan in "Bibliothek"),
+  its open points — per class, records kept, no fallback, "Genutzt" —
+  confirmed the same day,
   [ALGORITHM.md](../ALGORITHM.md#marking-by-hand),
   `src/repositories/planUsageStore.ts` (`setPlanUsageManual`, `markPlanUsed`),
   `src/utils/data/planUsage.ts` (`markPlanUsage`, `resolvePlanUsageMode`),
