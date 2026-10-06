@@ -5,6 +5,12 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+- The export sheet's inspector switches the gender colours off: "Gender colours", for the seating plan and the circle alike, leaves the seats in paper and the legend without the genders – for a plan that hangs on the classroom wall
+
 ## [3.0.0] - 2026-10-06
 
 ### Added

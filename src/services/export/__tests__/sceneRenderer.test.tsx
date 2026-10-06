@@ -9,6 +9,7 @@ import { createMockStudent } from '@/__tests__/utils';
 import { buildDemoClassroomScene } from '@/utils/demo/demoClass';
 import type { ClassroomScene, SeatingArrangement, Student } from '@/types';
 import type { CircleLayout } from '@/types/Circle';
+import { STUDENT_COLORS } from '@/utils/ui/studentAppearance';
 
 const scene: ClassroomScene = {
   tables: [
@@ -229,6 +230,69 @@ describe('renderSceneSvg', () => {
       const svg = await renderSceneSvg(empty, [], 'Test');
       expect(svg).not.toContain(outline);
       expect(scaleOf(svg)).toBeGreaterThan(0.5);
+    });
+  });
+
+  describe('gender colours', () => {
+    const girl = createMockStudent({ id: 'g1', name: 'Anna', gender: 'girl' });
+    const boy = createMockStudent({ id: 'b1', name: 'Ben', gender: 'boy' });
+    const girlFill = STUDENT_COLORS.girl.fill.light;
+    const boyFill = STUDENT_COLORS.boy.fill.light;
+    const circle: CircleLayout = {
+      students: [girl, boy].map((student, index) => ({
+        student,
+        angle: index * 180,
+        x: 0,
+        y: 0,
+        preservedNeighbors: [],
+        lostNeighbors: [],
+        newNeighbors: [],
+      })),
+      radius: { horizontal: 200, vertical: 150 },
+      center: { x: 450, y: 300 },
+      preservedNeighborhoods: 0,
+      totalOriginalNeighborhoods: 0,
+      newNeighborhoods: 0,
+      preservationRate: 0,
+      mode: 'preserve-neighbors',
+      timestamp: 0,
+      neighborhoodPairs: [],
+    };
+
+    it('tints the seats and explains the tint in the legend by default', async () => {
+      const svg = await renderSceneSvg(scene, [[girl, boy]], 'Test', {
+        allStudents: [girl, boy],
+        showLegend: true,
+      });
+
+      expect(svg).toContain(girlFill);
+      expect(svg).toContain(boyFill);
+      expect(svg).toMatch(/Weiblich|Female|genderGirl/);
+    });
+
+    it('leaves the seats and the legend without it when switched off', async () => {
+      const svg = await renderSceneSvg(scene, [[girl, boy]], 'Test', {
+        allStudents: [girl, boy],
+        showLegend: true,
+        showGenderColors: false,
+      });
+
+      expect(svg).not.toContain(girlFill);
+      expect(svg).not.toContain(boyFill);
+      expect(svg).not.toMatch(/Weiblich|Female|genderGirl/);
+    });
+
+    it('leaves the circle without it when switched off', async () => {
+      const tinted = await renderCircleSvg(circle, 'Test');
+      expect(tinted).toContain(girlFill);
+
+      const plain = await renderCircleSvg(circle, 'Test', {
+        showLegend: true,
+        showGenderColors: false,
+      });
+      expect(plain).not.toContain(girlFill);
+      expect(plain).not.toContain(boyFill);
+      expect(plain).not.toMatch(/Weiblich|Female|genderGirl/);
     });
   });
 

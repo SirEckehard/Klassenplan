@@ -50,6 +50,8 @@ export type ExportOptions = {
   showPhotos?: boolean;
   /** Append a legend (badge icons + gender colours) to the exported page. */
   showLegend?: boolean;
+  /** Tint the occupied seats by gender (default true). */
+  showGenderColors?: boolean;
   orientation?: 'landscape' | 'portrait';
   /**
    * Table export only: rotate the classroom 180° while names stay upright, for
@@ -85,6 +87,7 @@ export async function exportTableLayoutToPdf(
     nameDisplay: options?.nameDisplay,
     photoDisplayMode: (options?.showPhotos ?? true) ? 'all' : 'off',
     showLegend: options?.showLegend ?? false,
+    showGenderColors: options?.showGenderColors ?? true,
     classMetadata: options?.classMetadata,
     hiddenBadgeFamilies: options?.hiddenBadgeFamilies,
   });
@@ -118,6 +121,7 @@ export async function exportCircleLayoutToPdf(
     photoDataUrls,
     photoDisplayMode: (options?.showPhotos ?? true) ? 'all' : 'off',
     showLegend: options?.showLegend ?? false,
+    showGenderColors: options?.showGenderColors ?? true,
     hiddenBadgeFamilies: options?.hiddenBadgeFamilies,
   });
 

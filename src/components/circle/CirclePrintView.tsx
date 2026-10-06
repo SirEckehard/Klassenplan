@@ -55,6 +55,8 @@ interface CirclePrintViewProps {
   photoDisplayMode?: 'all' | 'off';
   /** When true, append a legend (badge icons + gender colours) in the footer. */
   showLegend?: boolean;
+  /** Tint the occupied places by gender (decision 0020); off, they are paper. */
+  showGenderColors?: boolean;
   /** Badge families the sheet leaves out, on the tokens and in the legend. */
   hiddenBadgeFamilies?: readonly DataFamily[];
 }
@@ -75,6 +77,7 @@ export default function CirclePrintView({
   photoDataUrls,
   photoDisplayMode = 'all',
   showLegend = false,
+  showGenderColors = true,
   hiddenBadgeFamilies,
 }: CirclePrintViewProps) {
   const badgeFilter = createHiddenFamiliesFilter(hiddenBadgeFamilies);
@@ -105,6 +108,7 @@ export default function CirclePrintView({
           iconSize: legendIconSize,
           showSpecialNeeds,
           badgeFilter,
+          showGenderColors,
           genderLabels: {
             girl: t('legend.genderGirl'),
             boy: t('legend.genderBoy'),
@@ -208,7 +212,13 @@ export default function CirclePrintView({
   // Helper to get student appearance for PDF export (light mode only)
   const getStudentColors = (student: Student) => {
     // PDF always uses light mode; the legend explains the gender tint.
-    const appearance = getStudentAppearance(student, false, false, false, true);
+    const appearance = getStudentAppearance(
+      student,
+      false,
+      false,
+      false,
+      showGenderColors,
+    );
     return {
       fill: appearance.fill,
       stroke: appearance.stroke,

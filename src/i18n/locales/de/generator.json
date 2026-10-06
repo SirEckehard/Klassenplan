@@ -503,6 +503,7 @@
     "content": "Auf dem Blatt",
     "rows": {
       "needs": "Bedürfnisse",
+      "genderColors": "Geschlechterfarben",
       "photos": "Fotos",
       "legend": "Legende",
       "classInfo": "Klasseninfos",

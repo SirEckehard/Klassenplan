@@ -272,6 +272,12 @@ export default function Export() {
     LOCAL_STORAGE_KEYS.exportShowLegend,
     false,
   );
+  // The gender tint on the seats (decision 0020). A plan that hangs on the
+  // classroom wall need not be a map of who is a boy and who a girl.
+  const [showGenderColors, setShowGenderColors] = usePersistentState<boolean>(
+    LOCAL_STORAGE_KEYS.exportShowGenderColors,
+    true,
+  );
   // Table export only: rotates the classroom 180° with upright names, for a
   // sheet that is read from the opposite side of the room (e.g. a teacher's
   // desk at the back) without turning the page and its header upside down.
@@ -363,6 +369,10 @@ export default function Export() {
   const handleToggleLegend = useCallback(
     (checked: boolean) => setShowLegend(() => checked),
     [setShowLegend],
+  );
+  const handleToggleGenderColors = useCallback(
+    (checked: boolean) => setShowGenderColors(() => checked),
+    [setShowGenderColors],
   );
   const handleToggleFlipView = useCallback(
     (checked: boolean) => setFlipView(() => checked),
@@ -613,6 +623,7 @@ export default function Export() {
             photoDataUrls: circlePhotoUrls,
             photoDisplayMode: showPhotos ? 'all' : 'off',
             showLegend,
+            showGenderColors,
             hiddenBadgeFamilies,
           });
           if (!isCancelled) {
@@ -635,6 +646,7 @@ export default function Export() {
           nameDisplay: effectiveNameDisplay,
           photoDisplayMode: showPhotos ? 'all' : 'off',
           showLegend,
+          showGenderColors,
           classMetadata: classMetadataForExport,
           hiddenBadgeFamilies,
         });
@@ -683,6 +695,7 @@ export default function Export() {
     effectiveNameDisplay,
     showPhotos,
     showLegend,
+    showGenderColors,
     classMetadataForExport,
     hiddenBadgeFamilies,
   ]);
@@ -782,6 +795,7 @@ export default function Export() {
         nameDisplay: effectiveNameDisplay,
         showPhotos,
         showLegend,
+        showGenderColors,
         orientation: tableOrientation,
         flipped: flipView,
         frameOnTables,
@@ -808,6 +822,7 @@ export default function Export() {
     effectiveNameDisplay,
     showPhotos,
     showLegend,
+    showGenderColors,
     tableOrientation,
     flipView,
     frameOnTables,
@@ -831,6 +846,7 @@ export default function Export() {
         nameDisplay: effectiveNameDisplay,
         showPhotos,
         showLegend,
+        showGenderColors,
         classMetadata: classMetadataForExport,
         hiddenBadgeFamilies,
       });
@@ -852,6 +868,7 @@ export default function Export() {
     effectiveNameDisplay,
     showPhotos,
     showLegend,
+    showGenderColors,
     classMetadataForExport,
     hiddenBadgeFamilies,
     exportError,
@@ -987,6 +1004,10 @@ export default function Export() {
         present: presentBadgeFamilies,
         hidden: hiddenBadgeFamilies,
         onToggle: handleToggleBadgeFamily,
+      }}
+      genderColors={{
+        checked: showGenderColors,
+        onChange: handleToggleGenderColors,
       }}
       photos={{ checked: showPhotos, onChange: handleTogglePhotos }}
       legend={{ checked: showLegend, onChange: handleToggleLegend }}

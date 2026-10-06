@@ -31,6 +31,7 @@ const renderInspector = (
         hidden: ['space'],
         onToggle: () => {},
       }}
+      genderColors={{ checked: true, onChange: () => {} }}
       photos={off}
       legend={off}
       classInfo={off}
@@ -160,5 +161,24 @@ describe('ExportSheetInspector framing', () => {
   it('leaves the switch out for the circle, whose sheet shows no room', () => {
     renderInspector({ mode: 'circle' });
     expect(frameSwitch()).not.toBeInTheDocument();
+  });
+});
+
+describe('ExportSheetInspector gender colours', () => {
+  const genderSwitch = () =>
+    screen.getByRole('switch', {
+      name: /^(Geschlechterfarben|Gender colors)$/,
+    });
+
+  it('switches the tint off for both arrangements', () => {
+    for (const mode of ['table', 'circle'] as const) {
+      const onChange = vi.fn();
+      renderInspector({ mode, genderColors: { checked: true, onChange } });
+
+      expect(genderSwitch()).toBeChecked();
+      fireEvent.click(genderSwitch());
+      expect(onChange).toHaveBeenCalledWith(false);
+      cleanup();
+    }
   });
 });

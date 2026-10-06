@@ -60,6 +60,8 @@ export async function renderSceneSvg(
     nameDisplay?: NameDisplayMode;
     photoDisplayMode?: 'all' | 'off';
     showLegend?: boolean;
+    /** Tint the occupied seats by gender (default true). */
+    showGenderColors?: boolean;
     classMetadata?: ExportClassMetadata;
     hiddenBadgeFamilies?: readonly DataFamily[];
   },
@@ -83,6 +85,7 @@ export async function renderSceneSvg(
         nameDisplay={options?.nameDisplay}
         photoDisplayMode={options?.photoDisplayMode}
         showLegend={options?.showLegend}
+        showGenderColors={options?.showGenderColors}
         hiddenBadgeFamilies={options?.hiddenBadgeFamilies}
       />
     </div>,
@@ -104,6 +107,8 @@ export async function renderCircleSvg(
     photoDataUrls?: ReadonlyMap<string, string>;
     photoDisplayMode?: 'all' | 'off';
     showLegend?: boolean;
+    /** Tint the occupied places by gender (default true). */
+    showGenderColors?: boolean;
     hiddenBadgeFamilies?: readonly DataFamily[];
   },
 ): Promise<string> {
@@ -120,6 +125,7 @@ export async function renderCircleSvg(
         photoDataUrls={options?.photoDataUrls}
         photoDisplayMode={options?.photoDisplayMode}
         showLegend={options?.showLegend}
+        showGenderColors={options?.showGenderColors}
         hiddenBadgeFamilies={options?.hiddenBadgeFamilies}
       />
     </div>,

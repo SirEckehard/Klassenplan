@@ -136,6 +136,8 @@ export interface LegendLayoutParams {
   showSpecialNeeds?: boolean;
   /** Leaves out the badges the sheet does not draw (see `getPresentBadgeLegend`). */
   badgeFilter?: BadgeFilter;
+  /** False when the seats carry no gender tint: then there is none to explain. */
+  showGenderColors?: boolean;
   /** Translated gender labels keyed by {@link LegendGenderEntry.key}. */
   genderLabels: Record<LegendGenderEntry['key'], string>;
 }
@@ -157,10 +159,11 @@ export function buildLegendLayout(params: LegendLayoutParams): LegendLayout {
     iconSize,
     showSpecialNeeds,
     badgeFilter,
+    showGenderColors = true,
     genderLabels,
   } = params;
 
-  const genders = getPresentGenderLegend(students);
+  const genders = showGenderColors ? getPresentGenderLegend(students) : [];
   const badges = getPresentBadgeLegend(
     students,
     {

@@ -91,6 +91,8 @@ export const STORAGE_KEYS = {
     // Whether the table plan's sheet is framed on the tables (the default) or
     // shows the whole room with its outline.
     exportFrameOnTables: 'spg.export.frameOnTables',
+    // Whether the sheet tints the occupied seats by gender (decision 0020).
+    exportShowGenderColors: 'spg.export.showGenderColors',
   },
   indexedDB: {
     students: 'spg.students',
@@ -222,6 +224,7 @@ export const PROJECT_LOCAL_STORAGE_KEYS = [
   STORAGE_KEYS.localStorage.exportFlipView,
   STORAGE_KEYS.localStorage.exportHiddenBadgeFamilies,
   STORAGE_KEYS.localStorage.exportFrameOnTables,
+  STORAGE_KEYS.localStorage.exportShowGenderColors,
   LEGACY_EXPORT_KEYS.showFullNames,
   LEGACY_EXPORT_KEYS.pageOrientation,
   LEGACY_LANGUAGE_KEY,

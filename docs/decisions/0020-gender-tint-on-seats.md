@@ -51,6 +51,10 @@ on all of them. A student without a gender stays paper.
 - The projection's colour switch (`showColors`, stored as
   `spg.present.showColors`, on by default) takes the tint off the seats along
   with the room colours it already greyed.
+- The export sheet's inspector has a switch of its own, "Geschlechterfarben"
+  (`showGenderColors`, stored as `spg.export.showGenderColors`, on by
+  default), for the table plan and the circle alike; off, the seats are paper
+  and the legend lists no genders (added 2026-10-06).
 
 ## Alternatives considered
 

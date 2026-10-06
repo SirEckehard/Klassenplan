@@ -60,6 +60,8 @@ type Props = {
     hidden: readonly DataFamily[];
     onToggle: (family: DataFamily, visible: boolean) => void;
   };
+  /** The gender tint on the occupied seats (decision 0020). */
+  genderColors: Toggle;
   photos: Toggle;
   legend: Toggle;
   classInfo: Toggle;
@@ -94,6 +96,7 @@ export default function ExportSheetInspector({
   frameOnTables,
   needs,
   badgeFamilies,
+  genderColors,
   photos,
   legend,
   classInfo,
@@ -237,6 +240,7 @@ export default function ExportSheetInspector({
               ))}
             </div>
           )}
+          {switchRow(t('export.rows.genderColors'), genderColors)}
           {switchRow(t('export.rows.photos'), photos)}
           {switchRow(t('export.rows.legend'), legend)}
           {switchRow(t('export.rows.classInfo'), classInfo)}

@@ -242,7 +242,9 @@ list is `PROJECT_LOCAL_STORAGE_KEYS` in `storageKeys.ts`. Groups:
   lists the badge families a printout leaves out
   ([decision 0021](decisions/0021-seat-badges-explained.md)), and
   `spg.export.frameOnTables` is `false` once the table plan's sheet shows the
-  whole room instead of being framed on the tables.
+  whole room instead of being framed on the tables, and
+  `spg.export.showGenderColors` is `false` once the sheet leaves the gender
+  tint off its seats ([decision 0020](decisions/0020-gender-tint-on-seats.md)).
 - **Keyboard:** `spg.characterKeyShortcuts` — `false` once the teacher has
   switched off the shortcuts on a single character key ("?", P, F, 1–3, Q/E …)
   in the settings menu, for speech input (WCAG 2.1.4, `utils/characterKeys.ts`).

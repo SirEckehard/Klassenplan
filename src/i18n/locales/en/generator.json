@@ -503,6 +503,7 @@
     "content": "On the sheet",
     "rows": {
       "needs": "Special needs",
+      "genderColors": "Gender colors",
       "photos": "Photos",
       "legend": "Legend",
       "classInfo": "Class info",

@@ -82,6 +82,8 @@ type SceneSvgProps = {
   photoDisplayMode?: 'all' | 'off';
   /** When true, append a legend (badge icons + gender colours) in the footer. */
   showLegend?: boolean;
+  /** Tint the occupied seats by gender (decision 0020); off, they are paper. */
+  showGenderColors?: boolean;
   /** Badge families the sheet leaves out, on the seats and in the legend. */
   hiddenBadgeFamilies?: readonly DataFamily[];
   /**
@@ -109,6 +111,7 @@ export default function SceneSvg({
   nameDisplay,
   photoDisplayMode = 'all',
   showLegend = false,
+  showGenderColors = true,
   hiddenBadgeFamilies,
   frameOnTables = true,
 }: SceneSvgProps) {
@@ -145,6 +148,7 @@ export default function SceneSvg({
           iconSize: legendIconSize,
           showSpecialNeeds,
           badgeFilter: badgeView.filter,
+          showGenderColors,
           genderLabels: {
             girl: t('legend.genderGirl'),
             boy: t('legend.genderBoy'),
@@ -332,6 +336,7 @@ export default function SceneSvg({
             nameLabels={nameLabels}
             nameFontSize={nameFontSize}
             photoDisplayMode={photoDisplayMode}
+            showGenderColors={showGenderColors}
           />
         ))}
       </g>
