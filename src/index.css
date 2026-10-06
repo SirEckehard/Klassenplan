@@ -884,6 +884,34 @@
   opacity: 0.6;
 }
 
+/*
+ * In a modal dialog the focused button is the one Enter presses, so it must
+ * be seen. A dialog focuses its button by script (ConfirmDialog takes
+ * "Abbrechen"), which `:focus-visible` ignores after a mouse click, so the
+ * ring follows `:focus` here — and stands 2px off the button, where it reads
+ * against the card in both themes rather than melting into the button's edge.
+ */
+[aria-modal='true']
+  :is(
+    .primary-button,
+    .secondary-button,
+    .neutral-button,
+    .warning-button,
+    .danger-button,
+    .success-button
+  ):focus {
+  outline: 2px solid var(--focus-ring-primary);
+  outline-offset: 2px;
+}
+
+[aria-modal='true'] .danger-button:focus {
+  outline-color: var(--focus-ring-danger);
+}
+
+[aria-modal='true'] .success-button:focus {
+  outline-color: var(--focus-ring-success);
+}
+
 @utility icon-button {
   display: inline-flex;
   align-items: center;
