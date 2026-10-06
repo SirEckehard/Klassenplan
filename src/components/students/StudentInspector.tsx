@@ -40,6 +40,11 @@ type Props = {
   onPrevious?: () => void;
   onNext?: () => void;
   position: { index: number; total: number };
+  /**
+   * Whether an unnamed student's name field takes the focus as it opens.
+   * Not when the student was reached by the keyboard's arrows.
+   */
+  autoFocusName?: boolean;
 };
 
 /**
@@ -59,6 +64,7 @@ export default function StudentInspector({
   onPrevious,
   onNext,
   position,
+  autoFocusName = true,
 }: Props) {
   const { t } = useTranslation('students');
   const rowState = useStudentRowState();
@@ -103,6 +109,7 @@ export default function StudentInspector({
             setDraftName={rowState.setDraftName}
             showEditButton={false}
             onSubmit={onNext}
+            autoFocus={autoFocusName}
           />
         }
         // The arrows step through the list, so they sit with the position in
@@ -120,6 +127,7 @@ export default function StudentInspector({
               disabled={!onPrevious}
               className={`${quietIconButtonClass} ml-1 h-6 w-6 pointer-coarse:h-10 pointer-coarse:w-10`}
               aria-label={t('inspector.previousStudent')}
+              title={t('inspector.previousStudentHint')}
             >
               <CaretLeftIcon size={14} aria-hidden="true" />
             </button>
@@ -129,6 +137,7 @@ export default function StudentInspector({
               disabled={!onNext}
               className={`${quietIconButtonClass} h-6 w-6 pointer-coarse:h-10 pointer-coarse:w-10`}
               aria-label={t('inspector.nextStudent')}
+              title={t('inspector.nextStudentHint')}
             >
               <CaretRightIcon size={14} aria-hidden="true" />
             </button>

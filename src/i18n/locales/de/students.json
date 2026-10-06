@@ -345,6 +345,8 @@
     "position": "Schüler {{index}} von {{total}}",
     "previousStudent": "Vorheriger Schüler",
     "nextStudent": "Nächster Schüler",
+    "previousStudentHint": "Vorheriger Schüler (Alt/⌥+↑)",
+    "nextStudentHint": "Nächster Schüler (Alt/⌥+↓)",
     "empty": {
       "title": "Kein Schüler ausgewählt",
       "body": "Wähle jemanden in der Liste aus, um Merkmale zu setzen."

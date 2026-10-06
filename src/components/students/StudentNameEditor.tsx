@@ -15,6 +15,12 @@ import {
   MAX_STUDENT_NAME_LENGTH,
 } from '@/utils';
 
+/**
+ * Marks the name field, so Alt/⌥+↑/↓ may step on from it
+ * (`StudentInspectorPanel`).
+ */
+export const STUDENT_NAME_INPUT_ATTRIBUTE = 'data-student-name-input';
+
 type Props = {
   student: Student;
   allStudents: Student[];
@@ -32,6 +38,8 @@ type Props = {
    * class of placeholders can be named without touching the mouse.
    */
   onSubmit?: () => void;
+  /** Whether the field takes the focus as it opens (default: true). */
+  autoFocus?: boolean;
 };
 
 /**
@@ -62,6 +70,7 @@ export default function StudentNameEditor({
   onEditStart,
   onEditEnd,
   onSubmit,
+  autoFocus = true,
 }: Props) {
   const { t } = useTranslation('students');
 
@@ -75,18 +84,19 @@ export default function StudentNameEditor({
     if (isEditing) setDraftName(student.name);
   }, [isEditing, setDraftName, student.id, student.name]);
 
-  const saveName = ({ advance = false } = {}) => {
+  /** Saves the draft; false when it was refused, which a toast explains. */
+  const saveName = ({ advance = false } = {}): boolean => {
     const trimmedName = draftName.trim();
 
     if (!trimmedName) {
       showToast('error', TOAST_MESSAGES.STUDENT_NAME_EMPTY);
-      return;
+      return false;
     }
 
     const nameValidation = stringValidation.validateStudentName(trimmedName);
     if (!nameValidation.isValid) {
       showToast('error', TOAST_MESSAGES.STUDENT_NAME_INVALID);
-      return;
+      return false;
     }
 
     // Check if name already exists (excluding current student)
@@ -98,7 +108,7 @@ export default function StudentNameEditor({
 
     if (nameExists) {
       showToast('error', TOAST_MESSAGES.STUDENT_NAME_EXISTS);
-      return;
+      return false;
     }
 
     updateStudent(student.id, { name: trimmedName });
@@ -106,12 +116,13 @@ export default function StudentNameEditor({
     if (advance && onSubmit) {
       // Stay open: the effect above seeds the draft from whoever arrives next.
       onSubmit();
-      return;
+      return true;
     }
 
     setIsEditing(false);
     setDraftName('');
     onEditEnd?.(); // Notify that editing ended
+    return true;
   };
 
   const startEditing = () => {
@@ -146,6 +157,19 @@ export default function StudentNameEditor({
               } else if (e.key === 'Escape') {
                 e.preventDefault();
                 cancelEditing();
+              } else if (
+                e.altKey &&
+                (e.key === 'ArrowUp' || e.key === 'ArrowDown') &&
+                draftName.trim() !== student.name.trim()
+              ) {
+                // Alt/⌥+↑/↓ steps on to a neighbour from here too. A changed
+                // name is saved first, and a refused one keeps the step from
+                // happening, or the draft would be lost under the next
+                // student.
+                if (!saveName()) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }
               }
             }}
             onBlur={() => saveName()}
@@ -153,7 +177,8 @@ export default function StudentNameEditor({
             // the next student while there is one, done at the last.
             enterKeyHint={onSubmit ? 'next' : 'done'}
             className={`${inputFieldClass} w-full px-3 py-1.5 pr-14`}
-            autoFocus
+            autoFocus={autoFocus}
+            data-student-name-input=""
           />
           <div className="absolute inset-y-0 right-1 flex items-center gap-0.5">
             <button

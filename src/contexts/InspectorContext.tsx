@@ -15,16 +15,35 @@ import { LOCAL_STORAGE_KEYS } from '@/utils';
  * Only students are selected here. The room, the plan and the circle fill
  * the panel through `InspectorPortal` from where their own state lives.
  */
-export type InspectorSelection = { kind: 'student'; id: string } | null;
+export type InspectorSelection = {
+  kind: 'student';
+  id: string;
+  /**
+   * Opened by stepping through the list with the keyboard. The focus stays
+   * where it is, so the next arrow key still steps: an unnamed student's
+   * name field opens without taking it.
+   */
+  keepFocus?: boolean;
+} | null;
+
+/** How a student is opened; see `InspectorSelection`. */
+export type SelectStudentOptions = { keepFocus?: boolean };
 
 /** The inspector's element, for the switches that fold or open it. */
 export const INSPECTOR_DRAWER_ID = 'shell-inspector';
 
 type InspectorContextValue = {
   selection: InspectorSelection;
-  selectStudent: (id: string) => void;
+  selectStudent: (id: string, options?: SelectStudentOptions) => void;
   toggleStudent: (id: string) => void;
   clear: () => void;
+  /**
+   * The order the class list shows — searched, filtered and sorted — as ids,
+   * so the inspector's arrows step through the students in the order the
+   * list numbers them. Null where no list publishes one: the class order.
+   */
+  studentOrder: readonly string[] | null;
+  setStudentOrder: (order: readonly string[] | null) => void;
   /**
    * True while the active view has nothing for the inspector to show and
    * wants the width instead — the attribute focus mode asks one question of
@@ -110,6 +129,9 @@ export function InspectorProvider({ children }: { children: React.ReactNode }) {
   }, [selection]);
 
   const [suspended, setSuspended] = React.useState(false);
+  const [studentOrder, setStudentOrder] = React.useState<
+    readonly string[] | null
+  >(null);
   const [slotNode, setSlotNode] = React.useState<HTMLElement | null>(null);
   const [portalCount, setPortalCount] = React.useState(0);
   const [portalLabel, setPortalLabel] = React.useState<string | null>(null);
@@ -130,8 +152,12 @@ export function InspectorProvider({ children }: { children: React.ReactNode }) {
   }, [setFolded]);
 
   const selectStudent = React.useCallback(
-    (id: string) => {
-      setSelection({ kind: 'student', id });
+    (id: string, options?: SelectStudentOptions) => {
+      setSelection(
+        options?.keepFocus
+          ? { kind: 'student', id, keepFocus: true }
+          : { kind: 'student', id },
+      );
       revealColumn();
     },
     [revealColumn],
@@ -167,6 +193,8 @@ export function InspectorProvider({ children }: { children: React.ReactNode }) {
       selectStudent,
       toggleStudent,
       clear,
+      studentOrder,
+      setStudentOrder,
       suspended,
       setSuspended,
       slotNode,
@@ -191,6 +219,7 @@ export function InspectorProvider({ children }: { children: React.ReactNode }) {
       selection,
       setFolded,
       slotNode,
+      studentOrder,
       suspended,
       toggleStudent,
     ],
@@ -220,6 +249,8 @@ const FALLBACK: InspectorContextValue = {
   selectStudent: noop,
   toggleStudent: noop,
   clear: noop,
+  studentOrder: null,
+  setStudentOrder: noop,
   suspended: false,
   setSuspended: noop,
   slotNode: null,

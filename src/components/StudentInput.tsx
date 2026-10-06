@@ -105,7 +105,7 @@ function StudentInput({
     handleAddStudent,
     isAddDisabled,
   } = useStudentManagement({ students, addStudent });
-  const { selectStudent, setSuspended } = useInspector();
+  const { selectStudent, setSuspended, setStudentOrder } = useInspector();
   const { activeClass } = useClassManagementContext();
   const { triggerImport } = useSeatingPlanActions();
   const { loadDemoClass, isLoadingDemoClass, hasDemoClass, isDemoClassActive } =
@@ -200,6 +200,17 @@ function StudentInput({
   // the focus mode answers "who is restless" for everyone at once.
   const [listMode, setListMode] = useState<ClassViewMode>('list');
   const listView = useStudentListView(students);
+  // The inspector's arrows step through the list as it is shown — searched,
+  // filtered and sorted — so they agree with its numbers and with the arrow
+  // keys in it. A string key, so editing a student does not publish anew.
+  const visibleOrderKey = listView.visibleStudents
+    .map((student) => student.id)
+    .join('\n');
+  React.useEffect(() => {
+    if (listMode !== 'list') return undefined;
+    setStudentOrder(visibleOrderKey ? visibleOrderKey.split('\n') : []);
+    return () => setStudentOrder(null);
+  }, [listMode, setStudentOrder, visibleOrderKey]);
   const selection = useStudentSelection(students, listView.visibleStudents);
   const showListTools = students.length >= STUDENT_LIST_TOOLS_THRESHOLD;
   const selectionActive =
@@ -359,6 +370,7 @@ function StudentInput({
               <StudentInspectorPanel
                 student={singleSelected}
                 students={students}
+                order={listView.visibleStudents}
                 updateStudent={updateStudent}
                 removeStudent={removeStudent}
                 onOpen={selection.selectOnly}

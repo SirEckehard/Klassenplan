@@ -345,6 +345,8 @@
     "position": "Student {{index}} of {{total}}",
     "previousStudent": "Previous student",
     "nextStudent": "Next student",
+    "previousStudentHint": "Previous student (Alt/⌥+↑)",
+    "nextStudentHint": "Next student (Alt/⌥+↓)",
     "empty": {
       "title": "No student selected",
       "body": "Pick someone in the list to set their attributes."

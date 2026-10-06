@@ -10,11 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### Added
 
 - The export sheet's inspector switches the gender colours off: "Gender colours", for the seating plan and the circle alike
+- The class list is walked with the keyboard: ↑ and ↓ go from student to student and open each in the inspector, Home and End go to the ends, and the focus stays in the list. From the inspector, Alt/⌥+↑ and Alt/⌥+↓ go on to the previous or next student
 
 ### Improved
 
 - Height is small, tall or not set – "Medium" is gone, since it never changed a seat. A class list that says "Medium" still imports, as no height
 - On a phone the status bar states the class layer's count as a bare number, as on the room layer; the plan layer's fulfilment no longer carries an icon
+- The inspector's arrows go through the students in the order the class list shows them – sorted, searched and filtered – and its "Student 2 of 5" counts the same way as the list's numbers
 
 ### Fixed
 

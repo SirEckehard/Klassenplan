@@ -64,6 +64,7 @@ export default function Inspector() {
     selection,
     selectStudent,
     clear,
+    studentOrder,
     suspended,
     setSlotNode,
     portalMounted,
@@ -86,6 +87,13 @@ export default function Inspector() {
         : null,
     [selection, students],
   );
+
+  // The arrows step through the students as the list shows them.
+  const order = React.useMemo(() => {
+    if (!studentOrder) return undefined;
+    const byId = new Map(students.map((entry) => [entry.id, entry]));
+    return studentOrder.flatMap((id) => byId.get(id) ?? []);
+  }, [studentOrder, students]);
 
   // A student removed while the inspector is open leaves a dangling selection.
   React.useEffect(() => {
@@ -211,6 +219,8 @@ export default function Inspector() {
     <StudentInspectorPanel
       student={student}
       students={students}
+      order={order}
+      keepFocus={selection?.kind === 'student' && selection.keepFocus === true}
       updateStudent={updateStudent}
       removeStudent={removeStudent}
       onOpen={selectStudent}

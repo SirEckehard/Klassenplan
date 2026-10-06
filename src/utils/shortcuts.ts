@@ -43,6 +43,14 @@ export const shortcutMap: Record<ShortcutContext, Shortcut[]> = {
       descriptionKey: 'shortcuts.descriptions.students_addStudent',
     },
     {
+      keysKey: 'shortcuts.keys.students_browse',
+      descriptionKey: 'shortcuts.descriptions.students_browse',
+    },
+    {
+      keysKey: 'shortcuts.keys.students_step',
+      descriptionKey: 'shortcuts.descriptions.students_step',
+    },
+    {
       keysKey: 'shortcuts.keys.students_toClassroom',
       descriptionKey: 'shortcuts.descriptions.students_toClassroom',
     },

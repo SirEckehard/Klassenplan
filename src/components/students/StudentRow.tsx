@@ -56,6 +56,13 @@ function StudentRow({
   const isInspected =
     !ticks && selection?.kind === 'student' && selection.id === student.id;
 
+  // A student opened from elsewhere — the inspector's arrows, Alt/⌥+↑/↓ —
+  // comes into view in the list, so the list still shows where one is.
+  const rowRef = React.useRef<HTMLDivElement>(null);
+  React.useEffect(() => {
+    if (isInspected) rowRef.current?.scrollIntoView?.({ block: 'nearest' });
+  }, [isInspected]);
+
   const displayName = student.name || t('studentList.newStudent');
   const hasName = student.name.trim().length > 0;
 
@@ -71,10 +78,15 @@ function StudentRow({
       : '';
 
   return (
+    // The scroll margins keep a row that scrolls into view clear of the
+    // list's sticky head, and below `lg`, where the page scrolls, of the
+    // shell's header and status bar.
     <div
+      ref={rowRef}
       id={`student-${student.id}`}
+      data-student-row
       data-tour={TOUR_ANCHORS.studentRow}
-      className={`relative flex items-center gap-3 border-b border-(--border-card) px-3 last:border-b-0 ${stateClass}`}
+      className={`relative flex scroll-mt-24 scroll-mb-16 items-center gap-3 border-b border-(--border-card) px-3 last:border-b-0 lg:scroll-mt-8 lg:scroll-mb-0 ${stateClass}`}
     >
       {isInspected && (
         <span
@@ -91,6 +103,7 @@ function StudentRow({
             type="checkbox"
             checked={Boolean(selected)}
             onChange={() => onToggleSelected(student.id)}
+            data-row-part="tick"
             className="h-4 w-4 shrink-0 cursor-pointer accent-(--accent-option) pointer-coarse:h-5 pointer-coarse:w-5"
             aria-label={t('listToolbar.selectStudent', { name: displayName })}
           />
@@ -98,6 +111,8 @@ function StudentRow({
       )}
       <button
         type="button"
+        data-row-part="open"
+        data-student-id={student.id}
         onClick={() =>
           ticks ? onToggleSelected(student.id) : selectStudent(student.id)
         }
