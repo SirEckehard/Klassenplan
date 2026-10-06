@@ -5,17 +5,21 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [3.0.0] - 2026-10-06
 
 ### Added
 
-- The "Library" takes the place of the "Plans & history" dialog: a page of its own, laid out as a file manager shows folders: the classes, a class's rooms with its recent mixes and neighbourhoods, a room's plans, and the room templates, side by side in columns. It opens on the plan that is open, in its room, in its class. What is chosen is read and changed in the inspector – renamed, moved to another room or a new one, duplicated, deleted – the path stands in the status bar, and "Open" takes the choice into the workspace: a plan, a room, a class, a mix, or a template as a new room. Another class can be looked through without opening it. A class's "Neighbourhoods" list its students, and a student's neighbours in the next column, most often first and with their photos. Arrow keys, Enter, F2 and Delete work as in a file manager; on a phone the columns follow one another
+- The "Library" takes the place of the "Plans, mixes & neighbourhoods" dialog: a page of its own, laid out as a file manager shows folders: the classes, a class's rooms with its recent mixes and neighbourhoods, a room's plans, and the room templates, side by side in columns. It opens on the plan that is open, in its room, in its class. What is chosen is read and changed in the inspector – renamed, moved to another room or a new one, duplicated, deleted – the path stands in the status bar, and "Open" takes the choice into the workspace: a plan, a room, a class, a mix, or a template as a new room. Another class can be looked through without opening it. A class's "Neighbourhoods" list its students, and a student's neighbours in the next column, most often first and with their photos. Arrow keys, Enter, F2 and Delete work as in a file manager; on a phone the columns follow one another
 - A class keeps its rooms – the classroom, the lab – each with its own tables and plans. The room inspector names the open room and lists the class's rooms under "Rooms": a new one is named and made there, another opens as it was left, seating, locked seats and open plan included, and each is renamed and removed in its row. A saved plan or a mix opens the room it was made in; a template opens as a room of its own, and the message after it offers the way back. "Save plan" says which room the plan goes into once a class has more than one
 - A new workspace around the three layers of a class – Class, Room, Plan: the open class is named in the header, the toolbar sits on the left, the stage in the middle and the inspector on the right. A status bar under the stage says where things stand, carries undo and redo, and leads back and on. On a desktop the window no longer scrolls as a page; the toolbar, the stage and the inspector scroll on their own
 - The inspector: whatever is selected – a student, a table, a room element, several ticked students – is edited in one panel on the right instead of in the list rows. On a tablet in portrait it opens as a drawer from the status bar, on a phone as a sheet
-- "Attribute mode" asks one question of the whole class at once – "Who is restless?" – with one tap per student, and "Relationships" shows who wants to sit next to whom
+- Plans in use can be marked by hand: in a plan's inspector in the "Library", "Used" says whether it counts for the neighbourhoods, and "Detect automatically", switched off, leaves the class to that mark alone – presenting, exporting and saving no longer note anything. Switched back on, the plans detected before count again. The neighbourhoods name each plan they rest on by its name, date and room
+- "Attributes" asks one question of the whole class at once – "Who is currently restless?" – with one tap per student, and "Relationships" shows who wants to sit next to whom: a card per pair with both faces, the pairs who named each other first and marked, and under "No wish yet" who has named nobody
+- In the seating circle the inspector says how many table neighbours still sit side by side and names the pairs the circle split up
+- Coming from an earlier version, a short summary shows once what the new design changed – the three layers, the rooms and the "Library" – and starts the tour on request. The "Library" has a tour of its own, and the class layer's tour points out its three views and the "Library"
 - Criteria are set in words – Off, Consider, Important, Very important – and recipes set all sixteen at once, "Recommended mix" among them
 - Three class tools, each a screen of its own: "Who's next?", "Where does who sit?" and "Build groups", reachable from "Class tools" at the foot of every toolbar
+- The settings menu in the header – the same place on every layer – holds theme and language, the update check and clearing all data, then feedback, the changelog with the running version, the GitHub repository and the legal pages; the workspace has no page footer any more. Every help dialog ends with a link to the part of the FAQ that answers the screen it was opened on
 - An error screen offers a prepared email with a reference code; nothing is sent automatically
 - A browser too old for Klassenplan – often the built-in one of an interactive whiteboard – shows a notice with the versions it needs instead of a blank page: Chrome or Edge 111, Safari 16.4, Firefox 128
 - Shortcuts on a single key – "?", P, F, 1–3, Q/E and others – can be switched off in the settings menu, so speech input cannot set them off by mistake
@@ -23,7 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Improved
 
-- The toolbar has the same shape on every layer: the view first, then what can be added, the view settings and managing the class, and at its foot the class tools, the "Library", the backup and support
+- The toolbar has the same shape on every layer: the view first, then what can be added, the view settings and managing the class, and at its foot the "Library", the class tools, the backup and support
 - The room is set up from the inspector while nothing is selected: "Set up from scratch" places as many tables of one kind as the class needs, and Ctrl/⌘+Z brings back what stood there; "Templates" keeps the room for other classes and opens a kept one as a room of the class. It replaces the dialog that covered the room
 - Tables and room elements are added with a click or Enter as well as by dragging: they land on the free spot nearest the middle of the room, and a window or a door on the first free stretch of wall. The arrow keys move room elements too – along their wall if they hang on one – a key held down is one undo step, and deleting, cutting, pasting or duplicating tables and room elements together is one undo step as well
 - The markers on a seat explain themselves: pointing at one names it and marks the seats it concerns. Dragging works the same in the plan and the circle, with a ring on the target and a confirmation after the drop
@@ -38,7 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - English says "mix" throughout – only the circle's purely random shuffle is still called "shuffle" – and names and percentages are written as each language writes them
 - The browser bar and the installed app's splash screen take the page's own paper colour
 - The changelog's texts load with the changelog, and more than 200 texts nothing used any more are gone: the first visit downloads about 7 KB less
-- Attribute mode on a phone and a tablet: the question takes the whole width, the way on to the next attribute stays in reach above the status bar instead of hiding behind it, and every row shows the student's photo or initial. Its buttons are grey, so the status bar's "Next" stays the one blue button
+- "Attributes" on a phone and a tablet: the question takes the whole width, the way on to the next attribute stays in reach above the status bar instead of hiding behind it, and every row shows the student's photo or initial. Its buttons are grey, so the status bar's "Next" stays the one blue button
 - On a phone the criteria live only in the drawer from the status bar, and the room's setup only in the inspector; "Mix", "Align" and "Shuffle" show their icon alone, so the toolbar's switch stays in reach
 - The way on reads "Next" on every layer; its tooltip and its name for screen readers say where it leads. On a desktop and an interactive whiteboard the buttons at the right of the status bar carry their words, on a phone and a tablet their icons alone
 - The inspector's column folds away on every layer, the class included, from a small switch at the right end of the status bar – the mirror of the toolbar's at the left end – so the plan gets the width; an iPad in landscape starts with it folded, opening or ticking a student brings it back, and the choice is kept per device
@@ -47,7 +51,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - On an interactive whiteboard the toolbar starts with its labels, and every button of the projection's bar names itself under its icon; a touch screen shows no tooltip to explain an icon
 - The projection frames the tables: the board, the windows and the door come in from their walls to just beside them, and furniture far from them stays out, so on an interactive whiteboard the names come out about twice as large. After a tap its bar stays up for five seconds
 - Messages appear at the top right, just under the header, instead of over Help and the settings; the projection shows no success messages
-- In the seating plan the status bar carries "Present" and, at its outer end, "Export", on a narrow phone "Export" alone, with "Present" at the foot of the toolbar. The line on the left says nothing there any more – the plan shows whether it is there and the inspector its figures – and the projection's top strip no longer counts the seats
+- In the seating plan the status bar carries "Present" and, at its outer end, "Export", on a narrow phone "Export" alone, with "Present" at the foot of the toolbar. The line on the left no longer counts the seats – the plan shows whether it is there – and neither does the projection's top strip
 - Offline, a small cloud beside the toolbar's switch says so instead of a badge covering that switch, and on a phone the jump to the ends of the class list hangs above the status bar instead of slipping into it
 - The first screen, before there is a class, has the toolbar too, with what needs a class greyed out, and the card asking for a class in the middle of the stage
 - The seating circle fills the interactive whiteboard in the projection, and "Who's next?" draws from the circle there and on its own screen, naming who sits on either side
@@ -62,6 +66,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - In the seating circle "Shuffle" is the blue button of the status bar, beside "Sync with Plan", now the quiet "Align", instead of an entry in the toolbar
 - On a phone and a tablet the export page's settings open as a drawer from the status bar, as a layer's do, instead of under the sheet
 - A tap beside the toolbar's or the inspector's drawer, or beside a student opened on a phone, closes it
+- At the left of its status bar the seating plan says how well it meets the criteria – "Fulfilment 55 %"; pressing it shows the value of each criterion and brings the inspector into view, on a phone over the plan
+- The student inspector reads Person, Learning, Behaviour, Social, Seat & room and Language, with the partners first under Social. Every attribute that has a marker on the seat shows that marker's icon, language level and social role stand as a list under their name, a long name wraps in the header instead of being cut off, and the arrows to the previous and next student sit beside the position
+- The lists of preferred and avoided partners take a search that ignores case and accents; Enter takes the first match. The list is taller and stays open when the page scrolls – on a tablet the on-screen keyboard scrolled it away from under the finger
+- "Native" is now "First language" – in the inspector, on the seat's marker and in the CSV export and its template; the import reads the old words and the new ones
+- The seats' colours for gender – green, lilac and blue – come in quieter tones that suit light and dark mode, the export's legend explains them, and the gender chosen in the inspector shows the colour it gives the seat
+- "Repetition" no longer splits up a pair that wants to sit together while preferred partners are considered – a wish in either direction is enough
+- A plan whose tables differ from those of its room – a lab plan saved before there were rooms, say – asks in the "Library" whether it belongs in a room of its own, right above the way to move it there
+- The start page, the FAQ, the support page and the legal pages wear the new design
+- Saving a large backup no longer holds up the page for seconds
+- Updated dependencies
 - On an iPad mini in portrait the header shows the open class as a mark, as on a phone, so it no longer slides under the layer switch
 
 ### Removed
@@ -73,6 +87,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### Fixed
 
 - A student's, a plan's or a template's name longer than 120 characters made the next backup unreadable on import; the name fields now take no more than a backup reads back, as the class dialog's do
+- A class note longer than 120 characters made the next backup unreadable on import; a note now takes up to 2,000 characters, and backups written before read back
+- Loading a room template or "Set up from scratch" left the open plan open, and the next save – the one before exporting or presenting included – wrote the new room over that plan with no way back. Replacing the room now lets go of the plan, and the next save starts a new one
+- Preferred partners entered as a list – in the sample class, for one – counted as none: both partner criteria disappeared and the mix ignored the wishes. And a mutual wish further down a student's list lost out to a one-sided one higher up
+- A photo replaced or removed while it was still loading could come back
 - Opening a saved plan that has no seating circle left the circle of the plan before on screen; the plan then counted as changed at once, and exporting or presenting from the circle saved that foreign circle into it
 - After opening another class, Ctrl/⌘+Z in the room or the plan could bring back the room and the plan of the class left behind, students and all; and a mix still running when another class opened was written into that class. The room and the plan now start afresh with each class, and such a mix is dropped
 - Restoring a backup with "Merge" replaced every class and every template on the device with the backup's, although it promised to add them. It now adds the backup's classes – a name that is taken gets a number, "7b (2)" – and the templates whose name is free, leaves every class that is there as it was, and says what came

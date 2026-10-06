@@ -1,6 +1,6 @@
 # Klassenplan
 
-A web-based tool for creating seating plans and seating circles for teachers. Klassenplan combines a multi-step wizard, a constraint-based shuffle algorithm, and an SVG-based classroom editor.
+A web-based tool for creating seating plans and seating circles for teachers. Klassenplan combines a workspace of three layers – class, room, plan – with a constraint-based mixing algorithm and an SVG-based classroom editor.
 
 **100 % local** – no accounts, no server, all data stays in the browser. Optionally installable as a PWA and usable offline.
 
@@ -8,16 +8,19 @@ A web-based tool for creating seating plans and seating circles for teachers. Kl
 
 ## Features
 
-- **Class management** for any number of classes, each with its own seating plans and shuffle history
+- **Class management** for any number of classes, each with its own rooms – the classroom, the lab – and the plans and mixes made in them
+- **Library** that shows classes, rooms, plans, recent mixes, neighbourhoods and room templates as folders in columns
+- **Inspector** in which a student, several ticked students, a table or a room element is edited; an attribute mode asks one question of the whole class at once
 - **CSV import** for class lists, including the exports of WebUntis, Schulmanager Online and SchILD-NRW
 - **Classroom editor** with drag-and-drop, grid, multi-select, keyboard control, and touch optimization
-- **Constraint-based shuffle algorithm** with weighted criteria, locked seats, distance and preferred-partner logic
-- **Seating circle mode** with its own export view and synchronization from the table layout
-- **Presentation mode** for smartboards and projectors with teacher/student perspective, pan & zoom, and pinch gestures
+- **Constraint-based mixing algorithm** with sixteen criteria set in words and recipes, locked seats, distance and preferred-partner logic, and the plans already used kept apart – detected or marked by hand
+- **Seating circle mode** with its own export view and alignment with the table layout
+- **Presentation mode** for interactive whiteboards and projectors with teacher/student perspective, a contrast mode, pan & zoom, and pinch gestures
+- **Class tools** – "Who's next?", "Where does who sit?", "Build groups" and a name game – each a screen of its own
 - **Optional student photos** — stored locally only, automatically downscaled with metadata (EXIF/GPS) stripped
 - **Backup & restore** in encrypted JSON format (AES-GCM, password-protected) for moving between devices
 - **Bilingual** (German/English) with full i18n coverage
-- **Accessible** with full keyboard control, screen-reader support, focus management, and responsive layout
+- **Accessible** with full keyboard control, screen-reader support, focus management, and layouts for desktop, tablet, phone and interactive whiteboard
 
 ## Prerequisites
 
@@ -58,7 +61,7 @@ A production-ready [`Dockerfile`](Dockerfile) (multi-stage build with nginx) shi
 docker pull ghcr.io/sireckehard/klassenplan:latest
 ```
 
-Tags follow the release: `2.2.0` and `2.2` pin a version, `latest` always tracks the newest release. The easiest way to run it is via [`docker-compose.yml`](docker-compose.yml):
+Tags follow the release: `3.0.0` and `3.0` pin a version, `latest` always tracks the newest release. The easiest way to run it is via [`docker-compose.yml`](docker-compose.yml):
 
 ```bash
 docker compose up -d           # uses the published image, serves on port 8080
@@ -70,7 +73,7 @@ The compose file reads these optional variables from a `.env` file next to it (s
 
 | Variable                     | Default                  | Effect                                                                                           |
 | ---------------------------- | ------------------------ | ------------------------------------------------------------------------------------------------ |
-| `KLASSENPLAN_VERSION`        | `latest`                 | Pins the image tag, e.g. `2.2.0`                                                                 |
+| `KLASSENPLAN_VERSION`        | `latest`                 | Pins the image tag, e.g. `3.0.0`                                                                 |
 | `KLASSENPLAN_PORT`           | `8080`                   | Host port the container is published on                                                          |
 | `SITE_URL`                   | `https://klassenplan.de` | Baked into canonical/hreflang/og:url — only used by `--build`                                    |
 | `IMPRINT_URL`, `PRIVACY_URL` | empty                    | Your own Impressum and Datenschutzerklärung instead of klassenplan.de's — only used by `--build` |
