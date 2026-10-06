@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 
-- The export sheet's inspector switches the gender colours off: "Gender colours", for the seating plan and the circle alike, leaves the seats in paper and the legend without the genders – for a plan that hangs on the classroom wall
+- The export sheet's inspector switches the gender colours off: "Gender colours", for the seating plan and the circle alike
 
 ## [3.0.0] - 2026-10-06
 
