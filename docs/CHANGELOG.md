@@ -118,6 +118,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Served over plain HTTP – on a school's own server, say – or in a private window, where the browser allows no service worker, Klassenplan works offline as a whole again: once it has loaded, it keeps all its parts in the browser's cache instead of only those already opened
 - "Clear all data" in the settings menu and the "Library" in the footer's menu closed together with the menu and did nothing
 - Once Klassenplan had been opened in a browser, `/robots.txt`, `/sitemap.xml` or `/.well-known/security.txt` opened there showed the app's "page not found" instead of the file
+- A dialog opened with the mouse did not show which of its buttons Enter would press – in "Delete class", "Cancel" was chosen without looking chosen. The chosen button now wears a ring a little off its edge, in light and dark mode
 
 ## [2.2.0] - 2026-09-17
 
