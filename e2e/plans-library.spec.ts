@@ -152,10 +152,9 @@ test('a plan is found in its room, and a lab is a room of its own', async ({
     await expect(
       page.getByRole('option', { name: /^Klassenraum/ }),
     ).toBeVisible();
-    await expect(page.getByRole('option', { name: /^Labor/ })).toHaveAttribute(
-      'aria-selected',
-      'true',
-    );
+    await expect(
+      page.getByRole('option', { name: /^Labor\b/ }),
+    ).toHaveAttribute('aria-selected', 'true');
     await expect(
       page.getByRole('option', { name: /^Laborplan/ }),
     ).toBeVisible();
