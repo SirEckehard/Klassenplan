@@ -274,5 +274,30 @@
     "intro": "Klassenplan wurde aktualisiert. Hier sind die wichtigsten Verbesserungen auf einen Blick.",
     "dismiss": "Verstanden",
     "link": "Gesamtes Changelog"
+  },
+  "redesign": {
+    "title": "Willkommen im neuen Klassenplan",
+    "subtitle": "Version {{version}} ist neu aufgebaut. Deine Klassen und Pläne sind alle noch da – nur übersichtlicher geordnet.",
+    "layout": {
+      "title": "Ein Aufbau für alles",
+      "body": "Oben wechselst du zwischen den Ebenen Klasse, Raum und Plan. Jede Ebene ist gleich aufgebaut: links die Werkzeugleiste, in der Mitte die Arbeitsfläche, rechts der Inspektor – dort bearbeitest du, was ausgewählt ist – und unten die Statusleiste mit Rückgängig, Mischen und dem Weg weiter. Einstellungen und Hilfe findest du oben rechts.",
+      "header": "Kopfzeile: Klasse · Raum · Plan",
+      "toolbar": "Werkzeugleiste",
+      "stage": "Arbeitsfläche",
+      "inspector": "Inspektor",
+      "statusBar": "Statusleiste"
+    },
+    "rooms": {
+      "title": "Pläne gehören jetzt zu einem Raum",
+      "body": "Eine Klasse kann mehrere Räume haben – etwa Klassenraum und Fachraum –, jeder mit eigenen Tischen, Plänen und Mischungen. Deine bisherigen Pläne liegen im Raum „Klassenraum“. Ein Plan wird in dem Raum gespeichert, in dem du ihn gemischt hast; seinen Namen gibst du ihm beim Speichern in der Werkzeugleiste."
+    },
+    "library": {
+      "title": "„Bibliothek“ statt „Pläne, Mischungen & Nachbarschaften“",
+      "body": "Ganz unten in der Werkzeugleiste findest du die Bibliothek: Klassen, Räume, Pläne, Mischungen, Nachbarschaften und Vorlagen als Ordner in Spalten. Dort öffnest, verschiebst und löschst du Pläne und legst fest, welche als genutzt zählen."
+    },
+    "tourHint": "Die Tour zeigt dir auf jeder Ebene und in der Bibliothek die wichtigsten Stellen. Über „Hilfe“ oben rechts startest du sie jederzeit neu.",
+    "tour": "Tour starten",
+    "later": "Selbst entdecken",
+    "changelog": "Alle Änderungen"
   }
 }

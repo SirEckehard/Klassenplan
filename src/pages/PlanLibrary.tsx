@@ -21,6 +21,7 @@ import Seo from '@/components/Seo';
 import ColumnBrowser from '@/components/library/ColumnBrowser';
 import LibraryStatusBar from '@/components/library/LibraryStatusBar';
 import LibraryToolPanel from '@/components/library/LibraryToolPanel';
+import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 import {
   buildLibraryColumns,
   defaultLibraryPath,
@@ -787,7 +788,7 @@ function PlanLibraryPage() {
         }}
       />
       <div className={workspaceLayerClass}>
-        <SmartSidebar>
+        <SmartSidebar tourAnchor={TOUR_ANCHORS.libraryToolbar}>
           {({ isExpanded }) => (
             <LibraryToolPanel
               density={isExpanded ? 'comfortable' : 'compact'}
@@ -801,6 +802,7 @@ function PlanLibraryPage() {
             the export page; nothing floats over them. */}
         <div className={`${workspaceStageClass} flex flex-col`}>
           <div
+            data-tour={TOUR_ANCHORS.libraryColumns}
             className={`${cardSurfaceClass} flex min-h-96 flex-1 overflow-hidden lg:min-h-0`}
           >
             <ColumnBrowser

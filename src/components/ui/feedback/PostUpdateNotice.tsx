@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { MegaphoneIcon, ArrowRightIcon } from '@phosphor-icons/react';
 import {
   useSeatingPlanActions,
@@ -8,17 +8,40 @@ import {
 } from '@/contexts/SeatingPlanContext';
 import { LocalizedLink } from '@/components/LocalizedLink';
 import { APP_RETURN_STATE } from '@/hooks/useReturnToApp';
-import { CHANGELOG_ROUTE, formatLongDate, logInfo } from '@/utils';
+import {
+  CHANGELOG_ROUTE,
+  formatLongDate,
+  isRedesignUpgrade,
+  LOCAL_STORAGE_KEYS,
+  logInfo,
+} from '@/utils';
 import { useTranslation } from 'react-i18next';
 import { useChangelogReady } from '@/hooks/useChangelogReady';
+import RedesignWelcome from '@/components/onboarding/RedesignWelcome';
 
 const MAX_HIGHLIGHTS = 3;
+
+/**
+ * The version the teacher saw last, as it stood when the page opened. It only
+ * changes when the notice is acknowledged, and the notice is gone by then.
+ */
+function readLastSeenVersion(): string {
+  try {
+    const raw = localStorage.getItem(LOCAL_STORAGE_KEYS.lastSeenVersion);
+    if (raw === null) return '';
+    const parsed: unknown = JSON.parse(raw);
+    return typeof parsed === 'string' ? parsed : '';
+  } catch {
+    return '';
+  }
+}
 
 export default function PostUpdateNotice() {
   const { t } = useTranslation('changelog');
   const { showPostUpdateNotice, latestChangelogEntry, currentAppVersion } =
     useSeatingPlanState();
   const { acknowledgePostUpdateNotice } = useSeatingPlanActions();
+  const [lastSeenVersion] = useState(readLastSeenVersion);
   // Its texts come from the changelog, which is fetched only when asked for.
   const textsReady = useChangelogReady(
     showPostUpdateNotice && latestChangelogEntry !== null,
@@ -49,6 +72,17 @@ export default function PostUpdateNotice() {
 
   if (!showPostUpdateNotice || !latestChangelogEntry || !textsReady) {
     return null;
+  }
+
+  // Coming from before the redesign, the teacher needs to know where things
+  // went rather than three lines of the changelog.
+  if (isRedesignUpgrade(lastSeenVersion, currentAppVersion)) {
+    return (
+      <RedesignWelcome
+        version={currentAppVersion}
+        onDone={acknowledgePostUpdateNotice}
+      />
+    );
   }
 
   return (

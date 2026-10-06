@@ -105,7 +105,10 @@ export default function ClassToolPanel({
 
   return (
     <ToolRail density={density}>
-      <ToolRailGroup title={t('generator:toolRail.view')}>
+      <ToolRailGroup
+        title={t('generator:toolRail.view')}
+        data-tour={TOUR_ANCHORS.classViews}
+      >
         <ToolRailButton
           icon={<ListBulletsIcon size={18} />}
           label={t('students:focusMode.listMode')}

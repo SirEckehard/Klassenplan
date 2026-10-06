@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 /**
- * The coach-mark tours of the wizard.
+ * The coach-mark tours of the workspace and of "Bibliothek".
  *
  * A mark points at an element tagged `data-tour="…"`. The attribute is the only
  * coupling between a tour and the view it explains: a mark whose element is not
@@ -21,11 +21,14 @@ export const TOUR_ANCHORS = {
   classEmptyState: 'class-empty-state',
   classSwitcher: 'class-switcher',
   classToolbar: 'class-toolbar',
+  classViews: 'class-views',
   addStudents: 'add-students',
   studentRow: 'student-row',
   proceedToLayout: 'proceed-layout',
+  library: 'library',
   backup: 'backup',
   help: 'help',
+  inspector: 'inspector',
   layoutCanvas: 'layout-canvas',
   canvasSettings: 'canvas-settings',
   layoutSidebar: 'layout-sidebar',
@@ -39,6 +42,10 @@ export const TOUR_ANCHORS = {
   planFulfillment: 'plan-fulfillment',
   seatingModeToggle: 'seating-mode-toggle',
   planExits: 'plan-exits',
+  libraryToolbar: 'library-toolbar',
+  libraryColumns: 'library-columns',
+  libraryPath: 'library-path',
+  libraryOpen: 'library-open',
 } as const;
 
 type TourAnchor = (typeof TOUR_ANCHORS)[keyof typeof TOUR_ANCHORS];
@@ -60,9 +67,13 @@ export const TOURS: Record<TourId, readonly TourMark[]> = {
       anchor: TOUR_ANCHORS.classSwitcher,
       textKey: 'tour.students.classSwitcher',
     },
+    // List, attributes and relationships: three ways into the same data.
+    { anchor: TOUR_ANCHORS.classViews, textKey: 'tour.students.views' },
     { anchor: TOUR_ANCHORS.addStudents, textKey: 'tour.students.addStudents' },
     { anchor: TOUR_ANCHORS.studentRow, textKey: 'tour.students.studentRow' },
     { anchor: TOUR_ANCHORS.proceedToLayout, textKey: 'tour.students.proceed' },
+    // The foot of every toolbar, first entry: where saved plans are found.
+    { anchor: TOUR_ANCHORS.library, textKey: 'tour.students.library' },
     // The data lives in this browser only, so the backup gets its own mark
     // before anything could be lost.
     { anchor: TOUR_ANCHORS.backup, textKey: 'tour.students.backup' },
@@ -93,6 +104,15 @@ export const TOURS: Record<TourId, readonly TourMark[]> = {
     { anchor: TOUR_ANCHORS.planFulfillment, textKey: 'tour.plan.fulfillment' },
     { anchor: TOUR_ANCHORS.seatingModeToggle, textKey: 'tour.plan.circle' },
     { anchor: TOUR_ANCHORS.planExits, textKey: 'tour.plan.exits' },
+  ],
+  library: [
+    { anchor: TOUR_ANCHORS.libraryColumns, textKey: 'tour.library.columns' },
+    // The column, from `lg` up; folded or in a closed drawer it is skipped.
+    { anchor: TOUR_ANCHORS.inspector, textKey: 'tour.library.inspector' },
+    { anchor: TOUR_ANCHORS.libraryPath, textKey: 'tour.library.path' },
+    { anchor: TOUR_ANCHORS.libraryOpen, textKey: 'tour.library.open' },
+    { anchor: TOUR_ANCHORS.libraryToolbar, textKey: 'tour.library.toolbar' },
+    { anchor: TOUR_ANCHORS.help, textKey: 'tour.help' },
   ],
 };
 

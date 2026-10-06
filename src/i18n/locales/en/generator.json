@@ -749,7 +749,7 @@
     "startButton": "Start tour",
     "help": {
       "title": "Help and tour",
-      "body": "Instructions and keyboard shortcuts for every step are here – and this is where you start the tour again at any time."
+      "body": "Here you find instructions for every layer and the Library, the shortcuts and the way to the FAQ – and you can restart this tour at any time."
     },
     "welcome": {
       "emptyState": {
@@ -776,7 +776,15 @@
       },
       "studentRow": {
         "title": "Edit students",
-        "body": "Clicking the row opens the student in the inspector. There you set attributes such as restless, shy, language level, social role or preferred and distance partners, and even upload a photo via the portrait."
+        "body": "Clicking a row opens the student in the inspector on the right. There you set attributes such as restlessness, shyness, language level, social role or preferred and avoided partners, and add a photo."
+      },
+      "views": {
+        "title": "Three views",
+        "body": "\"Class list\" shows every student, \"Attributes\" asks the whole class at once – \"Who is currently restless?\", say – and \"Relationships\" shows who wants to sit next to whom."
+      },
+      "library": {
+        "title": "Library",
+        "body": "At the very bottom of every toolbar: your classes with their rooms, plans, mixes and neighbourhoods – arranged like folders in a file manager."
       }
     },
     "layout": {
@@ -798,7 +806,7 @@
       },
       "setup": {
         "title": "Set up the room",
-        "body": "While nothing is selected, the inspector belongs to the room: “Set up from scratch” places as many tables as your class needs, and under “Templates” you load saved rooms or keep this one for other classes."
+        "body": "While nothing is selected, the inspector belongs to the room: \"Set up from scratch\" places as many tables as your class needs, under \"Rooms\" you add further rooms – a lab with plans of its own, say – and under \"Templates\" you keep this room for other classes or open a saved one."
       },
       "status": {
         "title": "Seats at a glance",
@@ -820,7 +828,7 @@
       },
       "fulfillment": {
         "title": "Criteria and fulfilment",
-        "body": "On the right you set which criteria count when mixing and how much they weigh. The button above shows in per cent how well the plan meets them and puts a bar under each criterion — hover it and the seats it concerns are marked, click it to keep the marking."
+        "body": "In the inspector on the right you choose which criteria count when mixing and how important they are. The button above them – and at the left of the status bar – shows in percent how well the plan meets them and adds a bar under each criterion: point at it to mark the seats concerned, click to keep the marking."
       },
       "mix": {
         "title": "Mix",
@@ -828,11 +836,33 @@
       },
       "sidebar": {
         "title": "Tools",
-        "body": "Switch between seating plan and circle, set what the plan shows and save the plan. The very bottom is the same on every layer: the class tools, the \"Library\" with your classes, their rooms and plans, and the backup."
+        "body": "Switch between seating plan and circle, set what the plan shows and save the plan. The very bottom is the same on every layer: the \"Library\" with your classes, rooms and plans, the class tools, the backup and \"Support\"."
       },
       "sidebarToggle": {
         "title": "Expand and collapse the toolbar",
         "body": "This button expands or collapses the toolbar (Ctrl/⌘+B). Collapsed, it shows its functions as icons and leaves more room for the plan."
+      }
+    },
+    "library": {
+      "columns": {
+        "title": "Everything in one place",
+        "body": "Your classes, their rooms with plans, the recent mixes and neighbourhoods, and the room templates lie here as folders in columns. Move through them with the arrow keys; F2 renames, Delete removes."
+      },
+      "inspector": {
+        "title": "Look and change",
+        "body": "Whatever you select is shown in the inspector: rename it, move a plan to another room, duplicate or delete – and say for a plan whether it counts as used."
+      },
+      "path": {
+        "title": "Where you are",
+        "body": "The path in the status bar shows where the selection lies. Each step in it leads one level up."
+      },
+      "open": {
+        "title": "Open",
+        "body": "The blue button takes the selection into the workspace: a plan onto the seating plan, a room into the room, a class into the class list – and a template as a new room of the class."
+      },
+      "toolbar": {
+        "title": "New classes and rooms",
+        "body": "In the toolbar you create a new class or add a room to the selected class – a lab with tables and plans of its own, say."
       }
     }
   },

@@ -12,6 +12,7 @@ import StatusBarFrame, {
   statusBarWordClass,
 } from '@/components/shell/StatusBarFrame';
 import HintTooltip from '@/components/ui/feedback/HintTooltip';
+import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 import { primaryButtonClass } from '@/utils';
 
 export interface LibraryCrumb {
@@ -55,6 +56,7 @@ export default function LibraryStatusBar({
       start={
         <nav
           aria-label={t('library.path')}
+          data-tour={TOUR_ANCHORS.libraryPath}
           className="flex min-w-0 items-center gap-1 text-xs text-(--text-muted) sm:text-sm"
         >
           <button
@@ -112,7 +114,10 @@ export default function LibraryStatusBar({
             <ArrowLeftIcon className="h-4 w-4" aria-hidden="true" />
             <span className={statusBarWordClass}>{t('wizard.back')}</span>
           </button>
-          <div className="group relative shrink-0">
+          <div
+            data-tour={TOUR_ANCHORS.libraryOpen}
+            className="group relative shrink-0"
+          >
             <button
               type="button"
               onClick={open.hint ? undefined : open.onOpen}

@@ -60,6 +60,7 @@ export {
 export { getAppVersion } from './version';
 export {
   getLatestChangelogEntry,
+  isRedesignUpgrade,
   CHANGELOG_ROUTE,
   type LatestChangelogEntry,
   type ChangelogSection,

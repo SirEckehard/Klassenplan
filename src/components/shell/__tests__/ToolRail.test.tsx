@@ -106,8 +106,8 @@ describe('ToolRail', () => {
 
       expect(entryNames(container)).toEqual([
         'Liste',
-        expect.stringMatching(/Klassenwerkzeuge|Class tools/),
         expect.stringMatching(/Bibliothek|Library/),
+        expect.stringMatching(/Klassenwerkzeuge|Class tools/),
         'Backup',
         expect.stringMatching(/Unterstützen|Support/),
       ]);
@@ -123,7 +123,7 @@ describe('ToolRail', () => {
     const plan = renderRail('comfortable', true);
     expect(entryNames(plan.container).slice(1, 3)).toEqual([
       expect.stringMatching(/Präsentieren|Present/),
-      expect.stringMatching(/Klassenwerkzeuge|Class tools/),
+      expect.stringMatching(/Bibliothek|Library/),
     ]);
     expect(
       screen.queryByRole('button', { name: /^(Exportieren|Export)$/i }),

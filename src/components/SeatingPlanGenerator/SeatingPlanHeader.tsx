@@ -34,7 +34,7 @@ import { KpLockup } from '@/components/KpLockup';
  *
  * The export page and "Bibliothek" wear the same header (`view="export"`,
  * `view="library"`). No layer is current there, so every one of the three
- * leads back into the workspace, and there is no tour to run.
+ * leads back into the workspace; "Bibliothek" runs a tour of its own.
  */
 export default function SeatingPlanHeader({
   view = 'workspace',
@@ -52,9 +52,13 @@ export default function SeatingPlanHeader({
   const { activeClass } = useClassManagementContext();
   const { requestTour } = useOnboardingTour();
   const autoMixing = useSeatingPlanSelector(({ state }) => state.autoMixing);
-  const tourId = isOutside
-    ? null
-    : resolveTourId(step, Boolean(activeClass.id), seatingMode, autoMixing);
+  // "Bibliothek" has a tour of its own; the export page has none.
+  const tourId =
+    view === 'library'
+      ? 'library'
+      : isOutside
+        ? null
+        : resolveTourId(step, Boolean(activeClass.id), seatingMode, autoMixing);
 
   // Handle layer changes
   const onStepChange = (targetStep: number) => {
@@ -222,7 +226,7 @@ export default function SeatingPlanHeader({
         </div>
       </div>
 
-      {!isOutside && <OnboardingTour tourId={tourId} />}
+      {!isExport && <OnboardingTour tourId={tourId} />}
     </header>
   );
 }

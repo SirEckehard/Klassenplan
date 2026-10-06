@@ -167,7 +167,7 @@ const footMenuIconClass = 'h-4 w-4 shrink-0 text-(--text-muted)';
  * None of it belongs to a layer: a teacher calls on somebody, looks up an
  * earlier plan or saves a backup from wherever they are, so these entries sit
  * in the same place on every layer rather than on the one they were first
- * built for. The class tools stay routes of their own (decision 0019) — what
+ * built for — "Bibliothek" first, then the class tools, the backup and support. The class tools stay routes of their own (decision 0019) — what
  * they share is the way in, one menu instead of an entry per tool. On the
  * plan layer a narrow phone finds presenting on top of them, since its status
  * bar has room for exporting alone.
@@ -213,6 +213,7 @@ function ToolRailFoot({ planPresent }: { planPresent: boolean }) {
         <div aria-hidden="true" className="mb-1 h-px w-7 bg-(--border-card)" />
       )}
       {planPresent && <ToolRailPresent />}
+      <ToolRailLibrary />
       {/* Each tool opens its own page and explains there what it still
           needs — a plan, names, photos — so none of them is held back here. */}
       <ToolRailButton
@@ -237,7 +238,6 @@ function ToolRailFoot({ planPresent }: { planPresent: boolean }) {
           </div>
         )}
       />
-      <ToolRailLibrary />
       {/* The data lives in this browser only; both ways a backup travels
           sit behind one entry. */}
       <ToolRailButton
@@ -311,6 +311,7 @@ function ToolRailLibrary() {
   return (
     <LocalizedLink
       to="/bibliothek"
+      data-tour={TOUR_ANCHORS.library}
       title={label}
       aria-label={isCompact ? label : undefined}
       aria-current={isHere ? 'page' : undefined}

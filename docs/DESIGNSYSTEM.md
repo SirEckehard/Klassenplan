@@ -1,7 +1,7 @@
 # Design System – Klassenplan
 
-> **Status:** current · **Last reviewed:** 2026-10-05 · **Maintainer:** Eike
-> Schäfer · **Describes:** Klassenplan 2.2.0
+> **Status:** current · **Last reviewed:** 2026-10-06 · **Maintainer:** Eike
+> Schäfer · **Describes:** Klassenplan 3.0.0
 
 This document describes the binding design tokens for Klassenplan. All values live in `src/index.css` and are reachable from TypeScript through `src/utils/ui/designTokens.ts`.
 
@@ -239,7 +239,7 @@ Drag indicators use `--button-primary-bg` for a table template and `--text-muted
 
 Every layer's toolbar is a `ToolRail` (`src/components/shell/ToolRail.tsx`) inside `SmartSidebar`. An entry adds layout classes only; its two densities — the 208px labelled column and the 60px icon rail — come from the rail, so a new tool cannot invent a look of its own. An entry is a row, not a card: 36px tall, `rounded-lg`, paper on hover (`--surface-sunken`) and `--surface-option-selected` when it is the view on screen, with the icon taking `--text-badge` so the state has a second channel.
 
-The rail has two parts. On top the layer's own groups, in an order no layer changes — **Ansicht**, **Hinzufügen**, **Ansichtseinstellungen**, **Verwalten** — each titled in small caps in the labelled column and set off by a hairline on the icon rail; a layer leaves out what it has nothing for. Inside a group a shorter hairline (`ToolRailDivider`) separates two kinds of one thing, the room's tables and its elements. At the foot, under a full-width hairline and without a title, the entries every layer shares, drawn by the rail rather than the layer and identical on every layer and on the export page: "Klassenwerkzeuge", "Bibliothek", "Backup" and, last, "Unterstützen". Only the layer's part scrolls on a short window; the foot stays in view.
+The rail has two parts. On top the layer's own groups, in an order no layer changes — **Ansicht**, **Hinzufügen**, **Ansichtseinstellungen**, **Verwalten** — each titled in small caps in the labelled column and set off by a hairline on the icon rail; a layer leaves out what it has nothing for. Inside a group a shorter hairline (`ToolRailDivider`) separates two kinds of one thing, the room's tables and its elements. At the foot, under a full-width hairline and without a title, the entries every layer shares, drawn by the rail rather than the layer and identical on every layer and on the export page: "Bibliothek", "Klassenwerkzeuge", "Backup" and, last, "Unterstützen". Only the layer's part scrolls on a short window; the foot stays in view.
 
 From `lg` up `SmartSidebar` drops that panel surface: on the desktop shell it is not a card but the window's left edge, one hairline (`border-r`) of `--border-card` against the sunken stage. Below `lg` the layer is still a scrolling document, where a panel needs a frame of its own to read as one. On a tablet that card stands beside the stage, sticks under the header while the page scrolls and ends above the status bar; a phone opens it as a drawer.
 

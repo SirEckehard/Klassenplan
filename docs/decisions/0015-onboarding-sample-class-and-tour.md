@@ -35,7 +35,9 @@ points at elements tagged `data-tour`; marks whose element is not on screen are
 skipped:
 
 - welcome (no class yet): the empty state;
-- class list: class switcher, add menu, student row, "Weiter", the backup (first
+- class list: class switcher, the "Ansicht" group (list, attributes,
+  relationships; since 2026-10-06), add menu, student row, "Weiter",
+  "Bibliothek" at the foot of the toolbar (since 2026-10-06), the backup (first
   the settings gear, since 2026-09-21 the "Backup" entry of the class toolbar,
   since 2026-09-26 the same entry at the foot of every toolbar), the Help
   button;
@@ -47,7 +49,10 @@ skipped:
   group since 2026-09-26), save/present/export (present and export beside
   Help in the header since 2026-09-26; from 2026-09-21 they sat in the middle
   of the status bar, which now carries undo/redo). This tour waits until the
-  automatic first shuffle has finished, so the statistics exist when it starts.
+  automatic first shuffle has finished, so the statistics exist when it starts;
+- "Bibliothek" (since 2026-10-06, the one page outside the layers with a tour):
+  the columns, the inspector, the path in the status bar, "Öffnen", the
+  toolbar, the Help button.
 
 A tour counts as seen the moment it appears, "Nicht mehr zeigen" switches all
 tours off, and the Help dialog starts the current step's tour again. The record
@@ -55,6 +60,14 @@ is `spg.onboardingTour` in localStorage: `{ version: 1, seen, skipped }`. When
 the record is first created on an installation where `spg.hasVisitedApp` is
 already set, it starts with `skipped: true`. The tour never blocks the page and
 steps aside while any other overlay is open (`useOtherDialogLayerOpen`).
+
+**The update to 3.0** (added 2026-10-06). A teacher whose last seen version
+(`spg.lastSeenVersion`) predates 3.0 gets `RedesignWelcome` in place of the
+post-update notice, once: the layers, the rooms and "Bibliothek" in three
+points. Its "Tour starten" resets the record to `{ seen: [], skipped: false }`
+(`restartTours`), so every tour runs again — the current layer's as soon as the
+dialog closes, the others when their view opens; any way of closing it
+acknowledges the update. Without that, tours stay skipped for them as before.
 
 ## Alternatives considered
 

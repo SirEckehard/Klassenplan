@@ -749,7 +749,7 @@
     "startButton": "Tour starten",
     "help": {
       "title": "Hilfe und Tour",
-      "body": "Hier findest du zu jedem Schritt eine Anleitung und die Tastenkürzel – und startest diese Tour jederzeit neu."
+      "body": "Hier findest du zu jeder Ebene und zur Bibliothek eine Anleitung, die Tastenkürzel und den Weg in die FAQ – und startest diese Tour jederzeit neu."
     },
     "welcome": {
       "emptyState": {
@@ -776,7 +776,15 @@
       },
       "studentRow": {
         "title": "Schüler bearbeiten",
-        "body": "Ein Klick auf die Zeile öffnet den Schüler im Inspektor. Dort legst du Merkmale wie unruhig, schüchtern, Sprachniveau, soziale Rolle oder Wunsch- und Distanzpartner fest und lädst über sein Porträt sogar ein Foto hoch."
+        "body": "Ein Klick auf die Zeile öffnet den Schüler rechts im Inspektor. Dort legst du Merkmale wie Unruhe, Schüchternheit, Sprachstand, soziale Rolle oder Wunsch- und Distanzpartner fest und fügst ein Foto hinzu."
+      },
+      "views": {
+        "title": "Drei Ansichten",
+        "body": "„Klassenliste“ zeigt alle Schüler, „Merkmale“ fragt die ganze Klasse auf einmal – etwa „Wer zeigt aktuell Unruhe?“ –, und „Beziehungen“ zeigt, wer neben wem sitzen möchte."
+      },
+      "library": {
+        "title": "Bibliothek",
+        "body": "Ganz unten in jeder Werkzeugleiste: Hier liegen deine Klassen mit ihren Räumen, Plänen, Mischungen und Nachbarschaften – geordnet wie Ordner in einem Dateimanager."
       }
     },
     "layout": {
@@ -798,7 +806,7 @@
       },
       "setup": {
         "title": "Raum einrichten",
-        "body": "Solange nichts ausgewählt ist, gehört der Inspektor dem Raum: „Neu einrichten“ stellt so viele Tische auf, wie deine Klasse braucht, und unter „Vorlagen“ lädst du gespeicherte Räume oder hebst diesen für andere Klassen auf."
+        "body": "Solange nichts ausgewählt ist, gehört der Inspektor dem Raum: „Neu einrichten“ stellt so viele Tische auf, wie deine Klasse braucht, unter „Räume“ legst du weitere Räume an – etwa einen Fachraum mit eigenen Plänen –, und unter „Vorlagen“ hebst du den Raum für andere Klassen auf oder öffnest einen gespeicherten."
       },
       "status": {
         "title": "Plätze im Blick",
@@ -820,7 +828,7 @@
       },
       "fulfillment": {
         "title": "Kriterien und Erfüllung",
-        "body": "Rechts stellst du ein, welche Kriterien beim Mischen zählen und wie schwer sie wiegen. Der Knopf darüber zeigt in Prozent, wie gut der Plan sie erfüllt, und blendet unter jedem Kriterium eine Leiste ein – fährst du über sie, werden die betroffenen Plätze markiert, ein Klick hält die Markierung fest."
+        "body": "Rechts im Inspektor stellst du ein, welche Kriterien beim Mischen zählen und wie wichtig sie sind. Der Knopf darüber – und links in der Statusleiste – zeigt in Prozent, wie gut der Plan sie erfüllt, und blendet unter jedem Kriterium eine Leiste ein: Zeigst du auf sie, werden die betroffenen Plätze markiert, ein Klick hält die Markierung fest."
       },
       "mix": {
         "title": "Mischen",
@@ -828,11 +836,33 @@
       },
       "sidebar": {
         "title": "Werkzeuge",
-        "body": "Hier wechselst du zwischen Sitzplan und Sitzkreis, legst fest, was der Plan zeigt, und sicherst den Plan. Ganz unten steht auf jeder Ebene dasselbe: die Klassenwerkzeuge, die „Bibliothek“ mit deinen Klassen, ihren Räumen und Plänen und das Backup."
+        "body": "Hier wechselst du zwischen Sitzplan und Sitzkreis, legst fest, was der Plan zeigt, und sicherst den Plan. Ganz unten steht auf jeder Ebene dasselbe: die „Bibliothek“ mit deinen Klassen, Räumen und Plänen, die Klassenwerkzeuge, das Backup und „Unterstützen“."
       },
       "sidebarToggle": {
         "title": "Werkzeugleiste erweitern und minimieren",
         "body": "Mit diesem Knopf erweiterst oder minimierst du die Werkzeugleiste (Strg/⌘+B). Minimiert zeigt sie ihre Funktionen als Symbole und lässt dem Plan mehr Platz."
+      }
+    },
+    "library": {
+      "columns": {
+        "title": "Alles an einem Ort",
+        "body": "Deine Klassen, ihre Räume mit Plänen, den letzten Mischungen und Nachbarschaften sowie die Raumvorlagen liegen hier als Ordner in Spalten. Mit den Pfeiltasten wanderst du hindurch, F2 benennt um, Entf löscht."
+      },
+      "inspector": {
+        "title": "Ansehen und ändern",
+        "body": "Was du auswählst, zeigt der Inspektor: Hier benennst du um, verschiebst einen Plan in einen anderen Raum, duplizierst oder löschst – und legst bei einem Plan fest, ob er als genutzt zählt."
+      },
+      "path": {
+        "title": "Wo du gerade bist",
+        "body": "Der Pfad in der Statusleiste zeigt, wo die Auswahl liegt. Jeder Schritt darin führt eine Ebene nach oben."
+      },
+      "open": {
+        "title": "Öffnen",
+        "body": "Der blaue Knopf holt die Auswahl in den Arbeitsbereich: einen Plan in den Sitzplan, einen Raum in den Raum, eine Klasse in die Klassenliste – und eine Vorlage als neuen Raum der Klasse."
+      },
+      "toolbar": {
+        "title": "Neue Klassen und Räume",
+        "body": "In der Werkzeugleiste legst du eine neue Klasse an oder fügst der ausgewählten Klasse einen Raum hinzu – etwa einen Fachraum mit eigenen Tischen und Plänen."
       }
     }
   },

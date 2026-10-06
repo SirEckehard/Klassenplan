@@ -3,7 +3,8 @@
 /**
  * Which coach-mark tours a teacher has already seen.
  *
- * There is one tour per wizard context (`components/onboarding/tours.ts`); the
+ * There is one tour per wizard context and one for "Bibliothek"
+ * (`components/onboarding/tours.ts`); the
  * record lives in localStorage under `spg.onboardingTour`. A tour counts as
  * seen the moment it appears, not when it is finished: a teacher who clicks on
  * into the app halfway through has seen enough, and a tour that returns on every
@@ -26,9 +27,15 @@
 import { useCallback, useEffect, useMemo, useSyncExternalStore } from 'react';
 import { LOCAL_STORAGE_KEYS, logDebug } from '@/utils';
 
-export type TourId = 'welcome' | 'students' | 'layout' | 'plan';
+export type TourId = 'welcome' | 'students' | 'layout' | 'plan' | 'library';
 
-const TOUR_IDS: readonly TourId[] = ['welcome', 'students', 'layout', 'plan'];
+const TOUR_IDS: readonly TourId[] = [
+  'welcome',
+  'students',
+  'layout',
+  'plan',
+  'library',
+];
 const TOUR_RECORD_VERSION = 1;
 
 interface TourRecord {
@@ -175,6 +182,21 @@ function requestTour(id: TourId): void {
   update({ ...getSnapshot(), requested: id }, false);
 }
 
+/**
+ * Every tour becomes due again, as on a first visit — the welcome to a
+ * redesigned version offers this to teachers whose tours were skipped or
+ * seen in the old layout. `start` runs at once where it applies.
+ */
+function restartTours(start: TourId | null): void {
+  update(
+    {
+      record: { version: TOUR_RECORD_VERSION, seen: [], skipped: false },
+      requested: start,
+    },
+    true,
+  );
+}
+
 /** Test seam: the record outlives a single render tree. */
 export function resetOnboardingTourForTests(): void {
   snapshot = null;
@@ -202,7 +224,7 @@ export function useOnboardingTour() {
   );
 
   return useMemo(
-    () => ({ isTourDue, markTourSeen, skipTours, requestTour }),
+    () => ({ isTourDue, markTourSeen, skipTours, requestTour, restartTours }),
     [isTourDue],
   );
 }

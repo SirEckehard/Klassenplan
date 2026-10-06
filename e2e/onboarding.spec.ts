@@ -106,9 +106,11 @@ test('a first visitor tries the sample class with the tours as a guide', async (
   await test.step('step 1 — the class list tour ends with backup and help', async () => {
     expect(await walkTour(page)).toEqual([
       'Deine Klassen',
+      'Drei Ansichten',
       'Schüler hinzufügen',
       'Schüler bearbeiten',
       'Weiter zum Raum',
+      'Bibliothek',
       'Daten sichern',
       'Hilfe und Tour',
     ]);
@@ -146,6 +148,20 @@ test('a first visitor tries the sample class with the tours as a guide', async (
       'Kriterien und Erfüllung',
       'Sitzkreis',
       'Präsentieren und exportieren',
+    ]);
+  });
+
+  await test.step('"Bibliothek" — its own tour, from the foot of the toolbar', async () => {
+    await page.getByRole('link', { name: 'Bibliothek' }).first().click();
+    await expect(page).toHaveURL(/\/bibliothek$/);
+
+    expect(await walkTour(page)).toEqual([
+      'Alles an einem Ort',
+      'Ansehen und ändern',
+      'Wo du gerade bist',
+      'Öffnen',
+      'Neue Klassen und Räume',
+      'Hilfe und Tour',
     ]);
   });
 

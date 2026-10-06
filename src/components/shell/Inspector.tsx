@@ -17,6 +17,7 @@ import {
   useDialogLayer,
 } from '@/hooks/ui/useDialogLayer';
 import StudentInspectorPanel from '@/components/students/StudentInspectorPanel';
+import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 
 /** The column from `lg` up; `hidden` below, where the drawer takes over. */
 const columnClass =
@@ -181,6 +182,7 @@ export default function Inspector() {
       <aside
         id={INSPECTOR_DRAWER_ID}
         ref={drawerRef}
+        data-tour={TOUR_ANCHORS.inspector}
         tabIndex={showsDrawer ? -1 : undefined}
         aria-label={
           portalLabel ??

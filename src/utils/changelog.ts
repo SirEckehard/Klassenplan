@@ -18,6 +18,32 @@ export interface LatestChangelogEntry {
 
 export const CHANGELOG_ROUTE = '/changelog';
 
+/**
+ * The release that rebuilt the app around three layers, rooms and
+ * "Bibliothek". A teacher arriving from an earlier one gets a summary of the
+ * new layout instead of the usual post-update notice.
+ */
+const REDESIGN_MAJOR = 3;
+
+const majorOf = (version: string): number =>
+  Number.parseInt(version.split('.')[0] ?? '', 10);
+
+/**
+ * Whether the step from `previous` to `current` crosses the redesign — the
+ * last version seen predates it, the running one has it. An empty or unreadable
+ * `previous` is a first visit, which has nothing to compare with.
+ */
+export function isRedesignUpgrade(previous: string, current: string): boolean {
+  const from = majorOf(previous);
+  const to = majorOf(current);
+  return (
+    Number.isFinite(from) &&
+    Number.isFinite(to) &&
+    from < REDESIGN_MAJOR &&
+    to >= REDESIGN_MAJOR
+  );
+}
+
 let cachedLatestEntry: LatestChangelogEntry | null | undefined;
 const SECTION_TITLES: Record<ChangeCategory, string> = {
   feature: 'types.feature',

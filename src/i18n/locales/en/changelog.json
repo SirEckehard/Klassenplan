@@ -274,5 +274,30 @@
     "intro": "Klassenplan has been updated. Here are the key improvements at a glance.",
     "dismiss": "Got it",
     "link": "Full Changelog"
+  },
+  "redesign": {
+    "title": "Welcome to the new Klassenplan",
+    "subtitle": "Version {{version}} has been rebuilt. Your classes and plans are all still there – just arranged more clearly.",
+    "layout": {
+      "title": "One layout for everything",
+      "body": "At the top you switch between the layers Class, Room and Plan. Every layer is built the same way: the toolbar on the left, the stage in the middle, the inspector on the right – where you edit whatever is selected – and the status bar at the bottom with undo, mixing and the way on. Settings and Help are at the top right.",
+      "header": "Header: Class · Room · Plan",
+      "toolbar": "Toolbar",
+      "stage": "Stage",
+      "inspector": "Inspector",
+      "statusBar": "Status bar"
+    },
+    "rooms": {
+      "title": "Plans now belong to a room",
+      "body": "A class can have several rooms – the classroom and the lab, say – each with its own tables, plans and mixes. Your plans so far are in the room \"Classroom\". A plan is saved in the room you mixed it in; you name it when you save it from the toolbar."
+    },
+    "library": {
+      "title": "\"Library\" instead of \"Plans, mixes & neighbourhoods\"",
+      "body": "At the very bottom of the toolbar you find the Library: classes, rooms, plans, mixes, neighbourhoods and templates as folders in columns. There you open, move and delete plans and choose which ones count as used."
+    },
+    "tourHint": "The tour shows you the most important places on every layer and in the Library. Start it again at any time from \"Help\" at the top right.",
+    "tour": "Start tour",
+    "later": "Explore on my own",
+    "changelog": "All changes"
   }
 }
