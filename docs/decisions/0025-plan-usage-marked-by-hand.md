@@ -1,7 +1,7 @@
 # 0025 – The plans in use can be marked by hand instead of detected
 
 - **Status:** accepted
-- **In place since:** unreleased (2026-10-06)
+- **In place since:** v3.0.0 (2026-10-06)
 - **Sources:** maintainer request of 2026-10-06 (the detection switched off,
   the plans marked as "genutzt" in the inspector of a plan in "Bibliothek"),
   its open points — per class, records kept, no fallback, "Genutzt" —

@@ -1,7 +1,7 @@
 # Architecture
 
-> **Status:** current · **Last reviewed:** 2026-10-05 · **Maintainer:** Eike
-> Schäfer · **Describes:** Klassenplan 2.2.0
+> **Status:** current · **Last reviewed:** 2026-10-06 · **Maintainer:** Eike
+> Schäfer · **Describes:** Klassenplan 3.0.0
 
 This is the entry point for anyone who wants to understand _why_ Klassenplan is
 built the way it is. The documents linked at the end explain the individual
@@ -74,10 +74,11 @@ v1.2.0 and has been open source since v1.6.0 (June 2026);
 ## Scenarios
 
 **1. A new class at the start of the school year.** A teacher exports the class
-list from WebUntis and drops the CSV into step 1. The import runs in its own
+list from WebUntis and drops the CSV onto the class layer. The import runs in its own
 worker, detects the encoding and the WebUntis columns, and names the format it
-found. In step 2 the teacher places tables from the toolbar and marks window,
-door and board. In step 3 they set a few weights and press _Mischen_: the
+found. On the room layer the teacher places tables from the toolbar and marks
+window, door and board. On the plan layer they set a few criteria and press
+_Mischen_: the
 arrangement is constructed and then refined in the algorithm worker, so the UI
 stays responsive. They swap two students by hand, lock one seat and save the
 plan under a name — which the plan usage record notes as a plan that is really
@@ -93,7 +94,9 @@ in the middle of a lesson.
 "avoid previous pairs" criterion reads the plans that were really used —
 presented, exported, saved — instead of the dozens of experiments from the
 afternoon the first plan was made. A plan that was counted by mistake can be
-withdrawn in the neighbourhood tab.
+withdrawn in the neighbourhoods of "Bibliothek" — or the teacher switches the
+detection off there and marks the plans in use by hand
+([decision 0025](decisions/0025-plan-usage-marked-by-hand.md)).
 
 **4. Moving to another device.** The teacher exports an encrypted backup with a
 password of at least eight characters, copies the file to the school laptop and
@@ -116,8 +119,8 @@ laden_ in the empty class list. Klassenplan creates an ordinary class with 24
 invented students, drawn pictures and a furnished room. A short tour points out
 the class switcher, the add menu, the attributes and the backup at the foot of
 the toolbar; the room and the seating plan get a tour of their
-own when they first open, including the sidebar, the statistics and the seating
-circle. Convinced, the teacher imports the real list into a new class and
+own when they first open, including the criteria in the inspector, the
+statistics and the seating circle. Convinced, the teacher imports the real list into a new class and
 deletes the sample class
 ([decision 0015](decisions/0015-onboarding-sample-class-and-tour.md)).
 
@@ -329,7 +332,7 @@ behaviour more easily than it looks.
 | `src/pages/Export.tsx` (1,317)                                   | Export page: settings seeded from the editor, the preview document, print, PDF, PNG and SVG                | Toolbar, sheet inspector and status bar → `src/components/SeatingPlanGenerator/Export*.tsx`       | The four output handlers into one hook; they share preview state, so it needs tests first                                                   |
 | `src/hooks/canvas/useFeaturePaletteDrag.ts` (1,238)              | Room elements on the canvas: palette drag and drop, dragging, rotating, group drag with tables, long press | Placement math → `src/utils/canvas/featurePlacement.ts`                                           | Splitting the interaction paths needs the shared drag model missing from [canvas-interactions.md](canvas-interactions.md#known-pain-points) |
 | `src/hooks/useSeatingPersistence.ts` (1,005)                     | Loading and applying a class, saved plans, backups, "delete all data", room templates                      | CSV export → `src/utils/csv/csvExport.ts`                                                         | Backup and template operations as hooks of their own                                                                                        |
-| `src/components/SeatingPlanGenerator/LayoutEditorView.tsx` (986) | Step 2: state and wiring of canvas, palette, context menus, shortcuts and room setup                       | Canvas column rendering → `src/components/SeatingPlanGenerator/views/LayoutEditorMainSection.tsx` | —                                                                                                                                           |
+| `src/components/SeatingPlanGenerator/LayoutEditorView.tsx` (986) | Room layer: state and wiring of canvas, palette, context menus, shortcuts and room setup                   | Canvas column rendering → `src/components/SeatingPlanGenerator/views/LayoutEditorMainSection.tsx` | —                                                                                                                                           |
 
 `src/utils/data/csvUtils.ts`, `SeatingPlanEditorView.tsx`,
 `src/utils/validation/backupValidation.ts` and
@@ -408,14 +411,14 @@ translate one to one.
 | UI (German)                               | Code                                                         | Meaning                                                                                                                                |
 | ----------------------------------------- | ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
 | Klasse                                    | class, `activeClass`, `ClassCollectionState`                 | A group of up to 36 students with its own plans, room and weights                                                                      |
-| Klassenliste (step 1)                     | `students`, `Student`                                        | The students of the active class                                                                                                       |
+| Klassenliste (layer Klasse)               | `students`, `Student`                                        | The students of the active class                                                                                                       |
 | Merkmal                                   | `restless`, `shy`, `concentrationIssues`, … on `Student`     | Contextual description of current behaviour, not a diagnosis                                                                           |
-| Klassenraum (step 2)                      | `ClassroomScene`, "scene"                                    | The 900 × 600 room: tables and room elements                                                                                           |
+| Klassenraum (layer Raum)                  | `ClassroomScene`, "scene"                                    | The 900 × 600 room: tables and room elements                                                                                           |
 | Raum                                      | `RoomRecord` in `ClassRecord.rooms`, `activeRoomId`          | A room of the class — its classroom, a lab — with the plans and mixes made in it ([decision 0024](decisions/0024-rooms-of-a-class.md)) |
 | Einzelplatz, Doppelplatz, 4er-/6er-Gruppe | `TableTemplateType` (`single`, `double`, `group4`, `group6`) | Table types placed from the toolbar                                                                                                    |
 | Klassenraum-Vorlage                       | `ClassroomTemplate`                                          | A saved room layout — not to be confused with the table types above                                                                    |
 | Raumelement: Fenster, Tür, Tafel, Pult    | `ClassroomFeature` (`window`, `door`, `board`, `podium`)     | Fixed parts of the room that criteria can refer to                                                                                     |
-| Sitzplan (step 3)                         | `SeatingArrangement`, `currentSeating`                       | Tables × seats → student or empty                                                                                                      |
+| Sitzplan (layer Plan)                     | `SeatingArrangement`, `currentSeating`                       | Tables × seats → student or empty                                                                                                      |
 | Mischen                                   | mix, shuffle, `mix:generate`                                 | Build a new arrangement (and refine it when criteria are active)                                                                       |
 | Kriterium, Wichtigkeit                    | `MixSettings`                                                | Weights 0–10 per criterion, set as four named levels; defaults in [PEDAGOGY.md](PEDAGOGY.md)                                           |
 | Rezept                                    | `MixRecipe`, `mixRecipes.ts`                                 | A named set of all sixteen weights for a kind of lesson                                                                                |

@@ -1,7 +1,7 @@
 # 0024 – A class keeps its rooms, and "Bibliothek" shows them
 
 - **Status:** accepted
-- **In place since:** unreleased (2026-10-05)
+- **In place since:** v3.0.0 (2026-10-06)
 - **Sources:** maintainer decisions of 2026-10-04 (rooms as folders of a
   class; every existing plan into one room "Klassenraum"; "Neu einrichten"
   stays in the room; a loaded template makes a room of its own; the name

@@ -246,7 +246,7 @@ list is `PROJECT_LOCAL_STORAGE_KEYS` in `storageKeys.ts`. Groups:
 - **Keyboard:** `spg.characterKeyShortcuts` — `false` once the teacher has
   switched off the shortcuts on a single character key ("?", P, F, 1–3, Q/E …)
   in the settings menu, for speech input (WCAG 2.1.4, `utils/characterKeys.ts`).
-- **Workflow:** sidebar state, whether the inspector's column is folded away
+- **Workflow:** the toolbar's density (`spg.sidebarExpanded`), whether the inspector's column is folded away
   from `lg` up (`spg.inspectorFolded`), class list sort order, first visit, onboarding
   tours seen or switched off (`spg.onboardingTour`,
   [decision 0015](decisions/0015-onboarding-sample-class-and-tour.md)), last

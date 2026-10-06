@@ -17,7 +17,7 @@ Which phases run depends on the UI action:
 | "Mischen" / shuffle, all weights at 0       | `mix:generate`                | construction only, with `neutralSettings` — a purely random arrangement |
 | Automatic plan in the wizard                | `mix:generate`                | construction only (`useSeatingWizard`)                                  |
 
-The auto-mix in step 3 goes through the same handler as the button.
+The auto-mix on the plan layer goes through the same handler as the button.
 `generateSeatingPlan()` itself is `initializeAssignment` → `runPass` →
 `finalize` and never calls `refineSeatingLocal()`; the chaining happens in the
 hook. The mix history first records the constructed arrangement; once the

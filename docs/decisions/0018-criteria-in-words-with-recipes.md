@@ -1,7 +1,7 @@
 # 0018 – The criteria are set in words, and a recipe sets them all
 
 - **Status:** accepted
-- **In place since:** unreleased (2026-09-20)
+- **In place since:** v3.0.0 (2026-10-06)
 - **Sources:** maintainer decision of 2026-09-20, the redesign concept
   "Papier & Werkzeug" (stage 4, "Rezepte & Gründe"), `src/utils/mixImportance.ts`,
   `src/utils/mixRecipes.ts`; revised by the maintainer's review of 2026-09-21

@@ -265,7 +265,8 @@ at least 8 characters with confirmation — see
 [backup-format.md](backup-format.md)).
 
 **Plan usage record:** Klassenplan notes which seating plans were actually in
-use (presented, exported, saved under a chosen name, rearranged by hand) so the
+use (presented, exported, saved under a chosen name, rearranged by hand — or,
+with the detection switched off, marked as used in "Bibliothek") so the
 repetition scoring can tell real plans from experiments. Only the seating
 neighbourhoods — pairs of student ids already stored elsewhere — and timestamps
 are kept, never a full arrangement. It lives in the same local IndexedDB, is

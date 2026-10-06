@@ -73,7 +73,7 @@ The weights in [`src/utils/mixSettings.ts`](../src/utils/mixSettings.ts) are nor
 
 ### A weight only acts where the class has the data
 
-A criterion is offered only when the class carries the data it needs – no preferred partner, no `considerWishPartners`. Weights for criteria the sidebar does not show are set to 0 rather than left in place, so a plan is never built on a criterion the teacher cannot see or change ([decision 0016](decisions/0016-hidden-criteria-carry-no-weight.md)). Distractibility is available for two distractible students **or** for one distractible student and at least one restless classmate, because it governs both distances; its two weights (`avoidConcentrationTogether`, `avoidConcentrationNearRestless`) move as one.
+A criterion is offered only when the class carries the data it needs – no preferred partner, no `considerWishPartners`. Weights for criteria the inspector does not show are set to 0 rather than left in place, so a plan is never built on a criterion the teacher cannot see or change ([decision 0016](decisions/0016-hidden-criteria-carry-no-weight.md)). Distractibility is available for two distractible students **or** for one distractible student and at least one restless classmate, because it governs both distances; its two weights (`avoidConcentrationTogether`, `avoidConcentrationNearRestless`) move as one.
 
 ### Tension between `peerTutoring` and `homogeneousPerformanceGroups`
 

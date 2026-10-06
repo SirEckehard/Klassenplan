@@ -1,7 +1,7 @@
 # 0020 – Seats carry a quiet gender tint again
 
 - **Status:** accepted
-- **In place since:** unreleased (2026-09-22)
+- **In place since:** v3.0.0 (2026-10-06)
 - **Sources:** maintainer decision of 2026-09-22, which reverses
   [0017](0017-seats-are-paper-and-ink.md); `src/utils/ui/studentAppearance.ts`,
   `src/utils/ui/classBadgeLegend.ts`, `src/components/scene/PresentationScene.tsx`

@@ -1,7 +1,7 @@
 # 0023 – The neighbourhoods can be reset in one click
 
 - **Status:** accepted
-- **In place since:** unreleased (2026-10-03)
+- **In place since:** v3.0.0 (2026-10-06)
 - **Sources:** maintainer decision of 2026-10-03 ("Neuanfang ab heute"),
   [ALGORITHM.md](../ALGORITHM.md#plan-usage-record),
   `src/repositories/planUsageStore.ts` (`resetPlanUsage`,

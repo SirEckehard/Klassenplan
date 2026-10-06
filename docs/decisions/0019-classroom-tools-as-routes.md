@@ -1,7 +1,7 @@
 # 0019 – The three classroom tools are routes, not panels
 
 - **Status:** accepted
-- **In place since:** unreleased (2026-09-21)
+- **In place since:** v3.0.0 (2026-10-06)
 - **Sources:** maintainer decision of 2026-09-20, the redesign concept
   "Papier & Werkzeug" (stage 5, "Beamer & Handy"), `src/pages/WhoIsNext.tsx`,
   `src/pages/SeatFinder.tsx`, `src/pages/Groups.tsx`,

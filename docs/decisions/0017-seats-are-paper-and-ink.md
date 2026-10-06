@@ -1,7 +1,7 @@
 # 0017 – A seat is paper and ink, not a gender colour
 
 - **Status:** superseded by 0020
-- **In place since:** unreleased (2026-09-20)
+- **In place since:** never released (2026-09-20 to 2026-09-22, replaced by 0020 before v3.0.0)
 - **Sources:** maintainer decision of 2026-09-20, the redesign concept
   "Papier & Werkzeug", `src/utils/ui/studentAppearance.ts`,
   `docs/DESIGNSYSTEM.md` § 4

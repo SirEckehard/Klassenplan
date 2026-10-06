@@ -1,7 +1,7 @@
 # 0021 – The badges on a seat explain themselves, and a sheet says only what it should
 
 - **Status:** accepted
-- **In place since:** unreleased (2026-09-26)
+- **In place since:** v3.0.0 (2026-10-06)
 - **Sources:** maintainer requests of 2026-09-26 (the icons still in their old
   colours; "beim Hover über das jeweilige Icon auch anzeigen, was das Icon
   genau bedeutet"; all of the proposed improvements, "Merkmale am Platz"

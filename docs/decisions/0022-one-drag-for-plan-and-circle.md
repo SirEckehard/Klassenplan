@@ -1,7 +1,7 @@
 # 0022 – One drag for the plan and the circle, and locks in the circle
 
 - **Status:** accepted
-- **In place since:** unreleased (2026-09-26)
+- **In place since:** v3.0.0 (2026-10-06)
 - **Sources:** maintainer requests of 2026-09-26 (the drop marking in the plan
   cut off and on the wrong seat; "setze es so um" for the proposed alignment of
   both views; the target in blue, green only after a drop; locks in the circle,
