@@ -659,6 +659,10 @@ const findHeightCellValue = (
   return undefined;
 };
 
+/**
+ * Only the two ends count: a middle height — "mittel", or 151 to 174 cm —
+ * needs no particular seat and comes in as no height at all.
+ */
 const parseHeightCell = (value: unknown): HeightCategory | undefined => {
   const raw = String(value ?? '').trim();
   if (!raw) {
@@ -682,7 +686,7 @@ const parseHeightCell = (value: unknown): HeightCategory | undefined => {
     if (centimeters > 30) {
       if (centimeters <= 150) return 'small';
       if (centimeters >= 175) return 'tall';
-      return 'medium';
+      return undefined;
     }
   }
 
@@ -697,11 +701,12 @@ const parseHeightCell = (value: unknown): HeightCategory | undefined => {
     return 'small';
   }
 
+  // Before the words for tall, which "mittelgroß" contains.
   if (
     normalized === 'm' ||
     includes(['mittel', 'medium', 'average', 'normal'])
   ) {
-    return 'medium';
+    return undefined;
   }
 
   if (

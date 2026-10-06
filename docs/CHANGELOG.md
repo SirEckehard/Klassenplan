@@ -11,6 +11,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - The export sheet's inspector switches the gender colours off: "Gender colours", for the seating plan and the circle alike
 
+### Improved
+
+- Height is small, tall or not set – "Medium" is gone, since it never changed a seat. A class list that says "Medium" still imports, as no height
+- On a phone the status bar states the class layer's count as a bare number, as on the room layer; the plan layer's fulfilment no longer carries an icon
+
+### Fixed
+
+- On an iPhone the plan layer's status bar covered the fulfilment
+- In dark mode the browser's bar above the start page and the other pages stayed white when the phone itself was set to light
+- The focus ring of a row in a dropdown – the partner list, the menus, the "Library" – was cut off at the edges
+
 ## [3.0.0] - 2026-10-06
 
 ### Added

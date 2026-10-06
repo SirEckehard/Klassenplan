@@ -49,13 +49,13 @@ describe.each(['de', 'en'] as const)('CSV template (%s)', (language) => {
 
     expect(byName.get(names.max)).toMatchObject({
       gender: 'boy',
-      height: 'medium',
       languageSkill: 'native',
       restless: true,
       concentrationIssues: true,
       prefersWindow: true,
       performanceWeak: true,
     });
+    expect(byName.get(names.max)?.height).toBeUndefined();
     expect(byName.get(names.anna)).toMatchObject({
       gender: 'girl',
       height: 'small',

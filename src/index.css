@@ -1294,6 +1294,9 @@
  * (`hover:bg-blue-50 dark:hover:bg-blue-950/40`), which put a second blue into
  * a surface that is meant to be paper — blue says "you can act here", and a
  * hovered row is not an action, it is a pointer.
+ *
+ * The focus ring lies inside the row: a menu that scrolls clips whatever
+ * stands outside its rows.
  */
 @utility menu-item {
   display: flex;
@@ -1318,7 +1321,7 @@
 
 .menu-item:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--focus-ring-primary);
+  box-shadow: inset 0 0 0 2px var(--focus-ring-primary);
 }
 
 .menu-item:disabled {
@@ -1351,7 +1354,7 @@
 
 .menu-item-danger:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--focus-ring-danger);
+  box-shadow: inset 0 0 0 2px var(--focus-ring-danger);
 }
 
 @utility floating-status {

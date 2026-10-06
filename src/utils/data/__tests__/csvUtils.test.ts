@@ -133,6 +133,7 @@ describe('csvUtils', () => {
       });
     });
 
+    // Only the two ends count; a middle height comes in as none.
     test('parses textual height categories', async () => {
       const csv =
         'Name,Körpergröße\nAnna,klein\nBen,Mittelgroß\nCarl,groß\nDana,small\n';
@@ -141,7 +142,7 @@ describe('csvUtils', () => {
 
       expect(students.map((student: Student) => student.height)).toEqual([
         'small',
-        'medium',
+        undefined,
         'tall',
         'small',
       ]);
@@ -153,7 +154,7 @@ describe('csvUtils', () => {
       const students = await parseCsvFlexible(file);
 
       expect(students[0].height).toBe('small');
-      expect(students[1].height).toBe('medium');
+      expect(students[1].height).toBeUndefined();
       expect(students[2].height).toBe('tall');
     });
 

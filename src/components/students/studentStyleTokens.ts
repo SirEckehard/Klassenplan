@@ -24,9 +24,9 @@ const partnerControl = {
     'border-(--border-card) bg-(--surface-card) text-(--text-muted) hover:border-(--border-option-hover)',
   caretClass: 'shrink-0 opacity-70',
   dropdownResetClass:
-    'flex w-full cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-xs text-(--text-muted) transition hover:bg-(--surface-sunken)',
+    'flex w-full cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-xs text-(--text-muted) transition hover:bg-(--surface-sunken) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-(--focus-ring-primary)',
   dropdownOptionBaseClass:
-    'flex w-full cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-xs transition hover:bg-(--surface-sunken)',
+    'flex w-full cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-xs transition hover:bg-(--surface-sunken) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-(--focus-ring-primary)',
   dropdownActiveClass: 'bg-(--data-chip-surface) text-(--data-chip-text)',
   dropdownInactiveClass: 'text-(--text-page)',
 } as const;

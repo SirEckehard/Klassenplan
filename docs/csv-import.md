@@ -1,6 +1,6 @@
 # CSV Import Format
 
-> **Status:** current · **Last reviewed:** 2026-09-14 · **Source of truth:**
+> **Status:** current · **Last reviewed:** 2026-10-06 · **Source of truth:**
 > `src/utils/csv/`, `src/utils/data/csvUtils.ts`, `src/services/csvImportService.ts`
 
 Which files the class list import accepts, how it recognises columns, and how
@@ -108,10 +108,12 @@ error.
   value starting with `w` → girl; `junge`, `boy`, `male`, `m`, `männlich`,
   `mann` → boy; `divers`, `diverse`, `d`, `non-binary`, `nonbinary`, `nb` →
   diverse.
-- **Height:** a number is read as centimetres (values up to 3.5 as metres):
-  up to 150 → small, 175 and above → tall, otherwise medium. Words: `klein`,
-  `kurz`, `short`, `small`, `s`, `xs` → small; `mittel`, `medium`, `average`,
-  `normal`, `m` → medium; `groß`, `tall`, `lang`, `hoch`, `l`, `xl` → tall.
+- **Height:** only the two ends count. A number is read as centimetres
+  (values up to 3.5 as metres): up to 150 → small, 175 and above → tall,
+  anything between → no height. Words: `klein`, `kurz`, `short`, `small`, `s`,
+  `xs` → small; `groß`, `tall`, `lang`, `hoch`, `l`, `xl` → tall; `mittel`,
+  `medium`, `average`, `normal`, `m` → no height (a class list of an earlier
+  version that says "Mittel" still imports).
 - **Language level:** matched by substring, checking the levels in this order:
   DaZ support (`daz`, `daf`, `zweitsprache`, `fremdsprache`, `forderung`,
   `language support`), native (`erstsprache`, `first language`, `muttersprache`, `native`, `deutsch`), fluent

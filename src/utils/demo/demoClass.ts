@@ -62,7 +62,6 @@ const DEMO_STUDENTS: readonly DemoStudentBlueprint[] = [
   {
     names: { de: 'Emma Becker', en: 'Olivia Carter' },
     gender: 'girl',
-    height: 'medium',
     performance: 'strong',
     socialRole: 'mediator',
     wishes: [8],
@@ -86,7 +85,6 @@ const DEMO_STUDENTS: readonly DemoStudentBlueprint[] = [
   {
     names: { de: 'Noah Wagner', en: 'Noah Bennett' },
     gender: 'boy',
-    height: 'medium',
     concentrationIssues: true,
     performance: 'weak',
   },
@@ -100,7 +98,6 @@ const DEMO_STUDENTS: readonly DemoStudentBlueprint[] = [
   {
     names: { de: 'Elias Hoffmann', en: 'Ethan Brooks' },
     gender: 'boy',
-    height: 'medium',
     restless: true,
     wishes: [1],
   },
@@ -121,21 +118,18 @@ const DEMO_STUDENTS: readonly DemoStudentBlueprint[] = [
   {
     names: { de: 'Hannah Krüger', en: 'Grace Kim' },
     gender: 'girl',
-    height: 'medium',
     performance: 'strong',
     wishes: [0],
   },
   {
     names: { de: 'Jonas Richter', en: 'Oscar Hughes' },
     gender: 'boy',
-    height: 'medium',
     restless: true,
     avoids: [1],
   },
   {
     names: { de: 'Zeynep Kaya', en: 'Priya Shah' },
     gender: 'girl',
-    height: 'medium',
     shy: true,
     languageSkill: 'fluent',
   },
@@ -156,7 +150,6 @@ const DEMO_STUDENTS: readonly DemoStudentBlueprint[] = [
   {
     names: { de: 'Luca Bianchi', en: 'Luca Rossi' },
     gender: 'boy',
-    height: 'medium',
     languageSkill: 'beginner',
     wishes: [7],
   },
@@ -177,14 +170,12 @@ const DEMO_STUDENTS: readonly DemoStudentBlueprint[] = [
   {
     names: { de: 'Nele Braun', en: 'Chloe Turner' },
     gender: 'girl',
-    height: 'medium',
     performance: 'weak',
     wishes: [12],
   },
   {
     names: { de: 'Yusuf Aydın', en: 'Yusuf Aydin' },
     gender: 'boy',
-    height: 'medium',
     socialRole: 'socialHub',
   },
   {
@@ -204,14 +195,12 @@ const DEMO_STUDENTS: readonly DemoStudentBlueprint[] = [
   {
     names: { de: 'Ida Nowak', en: 'Ava Nowak' },
     gender: 'girl',
-    height: 'medium',
     shy: true,
     socialRole: 'loner',
   },
   {
     names: { de: 'Mats Jansen', en: 'Theo Clarke' },
     gender: 'boy',
-    height: 'medium',
     performance: 'weak',
     wishes: [17],
   },
@@ -223,7 +212,6 @@ const DEMO_STUDENTS: readonly DemoStudentBlueprint[] = [
   {
     names: { de: 'Alex Kowalski', en: 'Alex Rivera' },
     gender: 'diverse',
-    height: 'medium',
     socialRole: 'mediator',
   },
 ];

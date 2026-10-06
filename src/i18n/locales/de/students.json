@@ -166,11 +166,9 @@
   "height": {
     "title": "Körpergröße",
     "small": "Klein",
-    "medium": "Mittel",
     "tall": "Groß",
     "noHeight": "Keine Angabe",
     "smallTooltip": "Kleinere Schüler werden bevorzugt vorne platziert",
-    "mediumTooltip": "Mittlere Größe - keine Bevorzugung",
     "tallTooltip": "Größere Schüler werden bevorzugt hinten platziert"
   },
   "languageSkill": {

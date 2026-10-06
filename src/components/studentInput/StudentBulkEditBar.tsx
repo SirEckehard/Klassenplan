@@ -72,7 +72,7 @@ const EXCLUSIVE_FLAGS: Partial<Record<BulkFlag, BulkFlag>> = {
 type FlagState = 'on' | 'off' | 'mixed';
 
 const GENDERS: Gender[] = ['boy', 'girl', 'diverse'];
-const HEIGHTS: HeightCategory[] = ['small', 'medium', 'tall'];
+const HEIGHTS: HeightCategory[] = ['small', 'tall'];
 const LANGUAGE_LEVELS: LanguageSkillLevel[] = [
   'native',
   'fluent',

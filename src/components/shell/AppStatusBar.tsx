@@ -69,7 +69,7 @@ export default function AppStatusBar() {
    *
    * `short` is what the line says below `xl`, where the bar shares a tablet's
    * width with "Zurück" and the way on: "24 Plätze für 24 Schüler" came out
-   * cut off. The full line stays in the tooltip, and the verdict says the
+   * cut off, and on a phone "24 Schüler" did too — the bare number. The full line stays in the tooltip, and the verdict says the
    * rest.
    */
   const { segments, short, verdict } = React.useMemo((): {
@@ -88,6 +88,9 @@ export default function AppStatusBar() {
         segments: [
           t('generator:shell.status.students', { count: studentsCount }),
         ],
+        short: t('generator:shell.status.studentsShort', {
+          count: studentsCount,
+        }),
         verdict: {
           fits: missingNameCount === 0,
           label:

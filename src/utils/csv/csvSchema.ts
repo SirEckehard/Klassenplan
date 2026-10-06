@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import i18n from '@/i18n';
-import type { Student } from '@/types';
+import type { HeightCategory, Student } from '@/types';
 
 /**
  * Shared column contract for the CSV import template and the student export.
@@ -71,10 +71,10 @@ export const CSV_GENDER_LABELS: Record<
 
 export const CSV_HEIGHT_LABELS: Record<
   CsvLanguage,
-  Record<NonNullable<Student['height']>, string>
+  Record<HeightCategory, string>
 > = {
-  de: { small: 'Klein', medium: 'Mittel', tall: 'Groß' },
-  en: { small: 'Small', medium: 'Medium', tall: 'Tall' },
+  de: { small: 'Klein', tall: 'Groß' },
+  en: { small: 'Small', tall: 'Tall' },
 };
 
 export const CSV_LANGUAGE_SKILL_LABELS: Record<

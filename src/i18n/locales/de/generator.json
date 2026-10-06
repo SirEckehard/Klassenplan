@@ -884,6 +884,8 @@
       "noStudents": "Noch keine Schüler",
       "students_one": "{{count}} Schüler",
       "students_other": "{{count}} Schüler",
+      "studentsShort_one": "{{count}}",
+      "studentsShort_other": "{{count}}",
       "namesComplete": "Alle Namen gesetzt",
       "missingNames_one": "{{count}} Name fehlt",
       "missingNames_other": "{{count}} Namen fehlen",

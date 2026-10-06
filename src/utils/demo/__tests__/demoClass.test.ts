@@ -97,7 +97,9 @@ describe('buildDemoStudents', () => {
     expect(
       count((student) => student.socialRole !== undefined),
     ).toBeGreaterThan(0);
-    expect(count((student) => student.height !== undefined)).toBe(24);
+    expect(count((student) => student.height === 'small')).toBeGreaterThan(0);
+    expect(count((student) => student.height === 'tall')).toBeGreaterThan(0);
+    expect(count((student) => student.height === 'medium')).toBe(0);
     expect(new Set(students.map((student) => student.gender))).toEqual(
       new Set(['girl', 'boy', 'diverse']),
     );

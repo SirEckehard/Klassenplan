@@ -52,7 +52,7 @@ export default function PlanExits() {
   const { t } = useTranslation('generator');
   const { onExport, onPresent, canExit } = useGuardedPlanExits();
 
-  const buttonClass = `${secondaryButtonClass} h-9 shrink-0 gap-2 px-2.5 text-sm whitespace-nowrap lg:pointer-fine:px-3 xl:px-3 ${
+  const buttonClass = `${secondaryButtonClass} h-9 shrink-0 gap-2 px-2.5 text-sm whitespace-nowrap max-sm:w-9 max-sm:px-0 lg:pointer-fine:px-3 xl:px-3 ${
     canExit ? '' : 'opacity-60'
   }`;
 

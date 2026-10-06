@@ -166,11 +166,9 @@
   "height": {
     "title": "Height",
     "small": "Short",
-    "medium": "Medium",
     "tall": "Tall",
     "noHeight": "Not specified",
     "smallTooltip": "Shorter students are preferably placed at the front",
-    "mediumTooltip": "Medium height - no preference",
     "tallTooltip": "Taller students are preferably placed at the back"
   },
   "languageSkill": {

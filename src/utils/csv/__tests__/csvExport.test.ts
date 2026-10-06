@@ -174,7 +174,8 @@ describe('exportStudentsToCsv', () => {
       [
         'Tom Neutral',
         'Männlich',
-        'Mittel',
+        // A legacy 'medium' is no height at all.
+        '',
         '',
         '',
         '',

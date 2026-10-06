@@ -63,7 +63,10 @@ export const exportStudentsToCsv = (
     const cells = [
       s.name,
       s.gender ? (CSV_GENDER_LABELS[language][s.gender] ?? '') : '',
-      s.height ? (CSV_HEIGHT_LABELS[language][s.height] ?? '') : '',
+      // A legacy 'medium' is no height at all.
+      s.height && s.height !== 'medium'
+        ? (CSV_HEIGHT_LABELS[language][s.height] ?? '')
+        : '',
       s.languageSkill
         ? CSV_LANGUAGE_SKILL_LABELS[language][s.languageSkill]
         : '',

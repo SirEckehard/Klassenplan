@@ -30,6 +30,7 @@ import type {
 export type {
   Gender,
   HeightCategory,
+  StoredHeightCategory,
   LanguageSkillLevel,
   SocialRole,
   Student,

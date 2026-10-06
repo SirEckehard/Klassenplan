@@ -33,14 +33,18 @@ const statusBarPressedClass =
  * beside the toolbar's switch were easy to miss and far from the stage; drawn
  * like the secondary buttons at the right end, the pair reads as a control of
  * its own, right under the thing it takes back.
+ *
+ * Below `sm` its buttons, the way back, the exits and "Mischen" are squares
+ * of 36px and the bar drops its hairlines: a 402px iPhone otherwise had to
+ * fit ~460px, and the middle covered the plan's fulfilment at the left end.
  */
 export const statusBarHistoryGroupClass =
   'flex items-center divide-x divide-(--button-secondary-border) overflow-hidden rounded-full border border-(--button-secondary-border) bg-(--button-secondary-bg) shadow-(--button-secondary-shadow)';
 export const statusBarHistoryButtonClass =
-  'inline-flex h-9 w-11 cursor-pointer items-center justify-center text-(--button-secondary-text) transition hover:not-disabled:bg-(--button-secondary-bg-hover) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-(--focus-ring-primary) disabled:cursor-not-allowed disabled:text-(--text-muted) disabled:opacity-50';
+  'inline-flex h-9 w-9 cursor-pointer items-center justify-center sm:w-11 text-(--button-secondary-text) transition hover:not-disabled:bg-(--button-secondary-bg-hover) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-(--focus-ring-primary) disabled:cursor-not-allowed disabled:text-(--text-muted) disabled:opacity-50';
 
 /** The way back to the previous layer, beside the way on. */
-export const statusBarBackButtonClass = `${secondaryButtonClass} h-9 shrink-0 gap-2 px-3 whitespace-nowrap`;
+export const statusBarBackButtonClass = `${secondaryButtonClass} h-9 shrink-0 gap-2 px-3 whitespace-nowrap max-sm:w-9 max-sm:px-0`;
 
 /**
  * The word beside a button's icon at the right end of a status bar. A desktop
@@ -144,8 +148,8 @@ export default function StatusBarFrame({
         ref={setFloatNode}
         className="pointer-events-none absolute right-4 bottom-full mb-3 flex flex-col items-end gap-2 empty:hidden *:pointer-events-auto"
       />
-      <div className="flex min-h-11 items-center gap-2 px-4 py-2 sm:gap-4">
-        <div className="flex min-w-0 flex-1 items-center gap-3">
+      <div className="flex min-h-11 items-center gap-2 px-3 py-2 sm:gap-4 sm:px-4">
+        <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
           {/* The toolbar's switch belongs to the workspace, not to a surface,
               so it leads the bar — right under the toolbar it concerns. */}
           {toolRail && isPhone && (
@@ -168,7 +172,7 @@ export default function StatusBarFrame({
               </button>
               <span
                 aria-hidden="true"
-                className="h-4 w-px bg-(--border-card)"
+                className="h-4 w-px bg-(--border-card) max-sm:hidden"
               />
             </>
           )}
@@ -200,7 +204,7 @@ export default function StatusBarFrame({
               </button>
               <span
                 aria-hidden="true"
-                className="h-4 w-px bg-(--border-card)"
+                className="h-4 w-px bg-(--border-card) max-sm:hidden"
               />
             </>
           )}
@@ -229,7 +233,7 @@ export default function StatusBarFrame({
             <>
               <span
                 aria-hidden="true"
-                className="h-4 w-px bg-(--border-card)"
+                className="h-4 w-px bg-(--border-card) max-sm:hidden"
               />
               {isPhone ? (
                 <button

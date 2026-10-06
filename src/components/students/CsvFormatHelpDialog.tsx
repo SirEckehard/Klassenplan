@@ -31,7 +31,7 @@ const PREVIEW_COLUMN_COUNT = 4;
  * example row `i` of the downloadable template.
  */
 const EXAMPLE_ATTRIBUTES = [
-  { gender: 'boy', height: 'medium', languageSkill: 'native' },
+  { gender: 'boy', height: null, languageSkill: 'native' },
   { gender: 'girl', height: 'small', languageSkill: 'fluent' },
   { gender: 'boy', height: 'tall', languageSkill: 'beginner' },
 ] as const;
@@ -45,7 +45,7 @@ const buildExampleTable = (
     rows: EXAMPLE_ATTRIBUTES.map((attributes, index) => [
       names[index] ?? '',
       CSV_GENDER_LABELS[language][attributes.gender],
-      CSV_HEIGHT_LABELS[language][attributes.height],
+      attributes.height ? CSV_HEIGHT_LABELS[language][attributes.height] : '',
       CSV_LANGUAGE_SKILL_LABELS[language][attributes.languageSkill],
     ]),
   };

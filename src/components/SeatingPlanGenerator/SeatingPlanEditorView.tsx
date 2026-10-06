@@ -886,7 +886,7 @@ export default function SeatingPlanEditorView({
             disabled={mixingLocked}
             title={t('mixButton.shortcut')}
             aria-label={t('actions.mixAgain')}
-            className={`${primaryButtonClass} flex items-center gap-2 whitespace-nowrap ${
+            className={`${primaryButtonClass} flex items-center gap-2 whitespace-nowrap max-sm:w-9 max-sm:px-0 ${
               mixingLocked ? 'cursor-not-allowed opacity-60' : ''
             }`}
           >
@@ -897,7 +897,7 @@ export default function SeatingPlanEditorView({
 
         {/* How well the plan meets the criteria, at the bar's left end where
             the other layers state their numbers; the word goes where the bar
-            is narrow, the figure stays. */}
+            is narrow, the figure stays — alone, without an icon to crowd it. */}
         {hasStatistics && onOpenStatistics && (
           <StatusBarPortal slot="status">
             <button
@@ -905,9 +905,8 @@ export default function SeatingPlanEditorView({
               onClick={handleShowFulfillment}
               aria-label={`${t('editor.fulfillmentLabel')} ${formatPercent(statisticsScore)}`}
               title={t('editor.showFulfillment')}
-              className="inline-flex min-w-0 shrink-0 cursor-pointer items-center gap-1.5 rounded-md px-1.5 py-1 text-xs tabular-nums text-(--text-muted) transition hover:bg-(--surface-sunken) hover:text-(--text-page) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) pointer-coarse:min-h-11 sm:text-sm"
+              className="inline-flex min-w-0 shrink-0 cursor-pointer items-center gap-1 rounded-md px-1 py-1 text-xs tabular-nums text-(--text-muted) transition hover:bg-(--surface-sunken) hover:text-(--text-page) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) pointer-coarse:min-h-11 sm:gap-1.5 sm:px-1.5 sm:text-sm"
             >
-              <ChartBarIcon size={16} aria-hidden="true" />
               <span className={statusBarWordClass}>
                 {t('editor.fulfillmentLabel')}
               </span>

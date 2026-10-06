@@ -13,7 +13,6 @@ import { i18nReady } from '@/i18n';
 import RootErrorBoundary from '@/components/RootErrorBoundary';
 import { ToastProvider } from '@/components/ui/feedback/ToastProvider';
 import { SeatingPlanGeneratorProvider } from '@/contexts/SeatingPlanContext';
-import { LOCAL_STORAGE_KEYS } from '@/utils/data/storageKeys';
 import { preloadRoute, routeNameForPath } from '@/pages/routePreloader';
 import { runMigration } from '@/services/migration/migrationService';
 import { scheduleIdleTask } from '@/utils/performance/idleTasks';
@@ -25,13 +24,12 @@ import {
 // the barrel re-exports the algorithm, schema and design-token modules, which
 // would anchor them all in the entry chunk and delay the first paint.
 import { logInfo, logWarn, logError } from '@/utils/logging/logger.client';
+import { applyInitialTheme, syncThemeColor } from '@/utils/ui/themeColor';
 import App from './App';
 
-// Apply stored theme preference on load
-const storedTheme = localStorage.getItem(LOCAL_STORAGE_KEYS.theme);
-if (storedTheme === 'dark') {
-  document.documentElement.classList.add('dark');
-}
+// Apply the theme on load and keep the browser's bar on its paper
+applyInitialTheme(document.documentElement);
+syncThemeColor(document.documentElement);
 
 // Registers the Core Web Vitals listeners once the app has rendered.
 //

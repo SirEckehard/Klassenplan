@@ -11,9 +11,17 @@
 export type Gender = 'boy' | 'girl' | 'diverse';
 
 /**
- * Height category for students (affects front/back placement)
+ * Height category for students (affects front/back placement). Only the two
+ * ends count: everybody else needs no particular seat, so there is no middle.
  */
-export type HeightCategory = 'small' | 'medium' | 'tall';
+export type HeightCategory = 'small' | 'tall';
+
+/**
+ * What `Student.height` may hold. Classes and backups from before 3.0.1 can
+ * still carry 'medium', which was never weighed and reads as no height at
+ * all; nothing sets it any more.
+ */
+export type StoredHeightCategory = HeightCategory | 'medium';
 
 /**
  * Language skill level for students (affects partner pairing)
@@ -41,7 +49,7 @@ interface StudentBase {
   id: string;
   name: string;
   gender?: Gender;
-  height?: HeightCategory;
+  height?: StoredHeightCategory;
   restless: boolean;
   shy: boolean;
   concentrationIssues: boolean;

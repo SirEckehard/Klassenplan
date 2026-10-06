@@ -47,11 +47,6 @@ export default function HeightSelector({
             ),
           },
           {
-            value: 'medium',
-            label: t('height.medium'),
-            title: t('height.mediumTooltip'),
-          },
-          {
             value: 'tall',
             label: t('height.tall'),
             title: t('height.tallTooltip'),
