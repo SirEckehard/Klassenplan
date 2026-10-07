@@ -92,6 +92,7 @@ const hashScene = (scene: ClassroomScene): number => {
   let hash = FNV_OFFSET_BASIS;
   hash = mixNumber(hash, scene.totalStudents);
   hash = mixInt(hash, scene.tables.length);
+  hash = mixBoolean(hash, scene.fillFromFront);
 
   scene.tables.forEach((table) => {
     hash = mixNumber(hash, table.x);
@@ -103,6 +104,7 @@ const hashScene = (scene: ClassroomScene): number => {
     hash = mixBoolean(hash, table.locked);
     hash = mixNumber(hash, table.zIndex);
     hash = mixString(hash, table.templateType);
+    hash = mixBoolean(hash, table.inactive);
   });
 
   const features = scene.features ?? [];

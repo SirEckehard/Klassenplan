@@ -22,7 +22,7 @@ import StatusBarFrame, {
   statusBarWordClass,
 } from '@/components/shell/StatusBarFrame';
 import PlanExits from '@/components/shell/PlanExits';
-import { countSeats, primaryButtonClass } from '@/utils';
+import { countActiveSeats, countSeats, primaryButtonClass } from '@/utils';
 import { validateStudentsComplete } from '@/utils/validation';
 import HintTooltip from '@/components/ui/feedback/HintTooltip';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
@@ -54,7 +54,10 @@ export default function AppStatusBar() {
   const hintId = React.useId();
 
   const studentsCount = students.length;
-  const seatCount = countSeats(classroomScene);
+  // A table taken out of the mix seats nobody, so it does not count towards
+  // the room fitting the class; the line names its seats apart.
+  const seatCount = countActiveSeats(classroomScene);
+  const seatsOutOfMix = countSeats(classroomScene) - seatCount;
   const tableCount = classroomScene.tables.length;
   const missingNameCount = React.useMemo(
     () => validateStudentsComplete(students).emptyNameCount,
@@ -117,6 +120,13 @@ export default function AppStatusBar() {
             seats: seatCount,
             students: studentsCount,
           }),
+          ...(seatsOutOfMix > 0
+            ? [
+                t('generator:shell.status.seatsOutOfMix', {
+                  count: seatsOutOfMix,
+                }),
+              ]
+            : []),
         ],
         short: t('generator:shell.status.seatsForShort', { count: seatCount }),
         verdict: {
@@ -140,7 +150,15 @@ export default function AppStatusBar() {
     // states how well it meets the criteria instead, through the `status`
     // slot, since the figure lives with the view that mixes.
     return { segments: [], verdict: null };
-  }, [missingNameCount, seatCount, step, studentsCount, t, tableCount]);
+  }, [
+    missingNameCount,
+    seatCount,
+    seatsOutOfMix,
+    step,
+    studentsCount,
+    t,
+    tableCount,
+  ]);
   const VerdictIcon = verdict?.fits ? CheckCircleIcon : XCircleIcon;
 
   /** The way back to the previous layer; the class list is the first. */

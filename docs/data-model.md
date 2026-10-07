@@ -1,6 +1,6 @@
 # Data Model
 
-> **Status:** current · **Last reviewed:** 2026-10-06 · **Source of truth:**
+> **Status:** current · **Last reviewed:** 2026-10-07 · **Source of truth:**
 > `src/utils/data/storageKeys.ts`, `src/types/`, `src/repositories/`
 
 Everything Klassenplan stores lives in the teacher's browser. This document
@@ -126,6 +126,11 @@ interface RoomWorkingState {
   as the arrangement after refinement
   ([decision 0014](decisions/0014-mix-history-records-refined-plan.md)).
 - **`lockedPositions`** maps a student id to `{ table, seat }`.
+- **`classroomScene`** is the open room: its tables and room elements. A table
+  with `inactive: true` stays out of the mix, and `fillFromFront: true` fills
+  the room from the board backwards
+  ([decision 0026](decisions/0026-tables-out-of-the-mix.md)). Both are absent
+  rather than `false` when off, so rooms from before them read unchanged.
 - **`circleLayout.lockedStudentIds`** (optional) lists the students held in
   their place in the circle; a regenerated circle puts them back
   ([decision 0022](decisions/0022-one-drag-for-plan-and-circle.md)). Circles

@@ -62,6 +62,11 @@ export interface ClassroomTable {
   zIndex: number;
   /** Table template type */
   templateType?: TableTemplateType;
+  /**
+   * Taken out of the mix: the table stays in the room, but mixing leaves its
+   * seats empty. Absent means in the mix — every table was, before the flag.
+   */
+  inactive?: boolean;
 }
 
 /**
@@ -72,4 +77,10 @@ export interface ClassroomScene {
   totalStudents: number;
   /** Optional structural features such as windows or doors */
   features?: ClassroomFeature[];
+  /**
+   * With more seats than students, mixing fills the tables from the board
+   * backwards, so the empty seats are at the back. Absent means the students
+   * are spread evenly over all tables, as before the option.
+   */
+  fillFromFront?: boolean;
 }

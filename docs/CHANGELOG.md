@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### Added
 
 - The export sheet's inspector switches the gender colours off: "Gender colours", for the seating plan and the circle alike
+- A table can be taken out of the mix: in the inspector of a table, or of several, keeps it in the room but leaves it empty when mixing – drawn with a dashed edge. A student can still be put there by hand. The room's status bar counts only the seats in the mix
+- A room can be filled from the front: with more seats than students, in the room's inspector seats the class from the board backwards, so the spare seats are at the back
 - The class list is walked with the keyboard: ↑ and ↓ go from student to student and open each in the inspector, Home and End go to the ends, and the focus stays in the list. From the inspector, Alt/⌥+↑ and Alt/⌥+↓ go on to the previous or next student
 
 ### Improved

@@ -25,6 +25,29 @@ refinement that follows has finished, the entry holds the refined one, so the
 history keeps the plans the teacher actually got
 ([decision 0014](decisions/0014-mix-history-records-refined-plan.md)).
 
+## How many students a table takes
+
+Before a student is placed, `seatTargetsFor()`
+(`src/utils/algorithm/seatTargets.ts`) decides how many students each table
+takes. A seat at or beyond its table's target stays empty: the construction
+skips it, and both refinement strategies refuse a swap that would fill it. Two
+properties of the room change the targets
+([decision 0026](decisions/0026-tables-out-of-the-mix.md)):
+
+- **A table out of the mix** (`ClassroomTable.inactive`) takes nobody. A
+  student locked to one of its seats stays there and needs no other seat; the
+  students needing a front seat only get seats of the mix.
+- **Filling from the front** (`ClassroomScene.fillFromFront`) fills the tables
+  of the mix to the brim one after the other: row by row away from the board
+  (tables less than `FRONT_ROW_TOLERANCE` apart count as one row) and, within a
+  row, from the board's middle outwards (`frontToBackTableOrder`). Locked
+  students keep their tables first. The order is fixed, so construction and
+  refinement agree on which tables stay empty.
+
+Without either, the students spread evenly over all tables from a random one
+on (`evenTargetsFor`) — the same call as before the two options, so a room that
+uses neither gets the same plans for the same seed.
+
 ---
 
 ## Refinement Strategies

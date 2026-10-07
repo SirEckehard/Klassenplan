@@ -36,3 +36,27 @@ export function countSeats(
     : sceneOrTables.tables;
   return tables.reduce((sum, t) => sum + t.seatCount, 0);
 }
+
+/**
+ * Whether mixing seats students at this table. A table taken out of the mix
+ * stays in the room — a student can still be put there by hand.
+ */
+export function isTableActive(table: ClassroomTable): boolean {
+  return table.inactive !== true;
+}
+
+/**
+ * Counts the seats mixing fills: those of the tables in the mix. Every check
+ * of whether a class fits its room asks this, not `countSeats`.
+ */
+export function countActiveSeats(
+  sceneOrTables: ClassroomScene | ClassroomTable[],
+): number {
+  const tables = Array.isArray(sceneOrTables)
+    ? sceneOrTables
+    : sceneOrTables.tables;
+  return tables.reduce(
+    (sum, t) => (isTableActive(t) ? sum + t.seatCount : sum),
+    0,
+  );
+}

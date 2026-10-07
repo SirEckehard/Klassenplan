@@ -41,7 +41,7 @@ vi.mock('../../../utils/math/tablePositioning', () => ({
 
 // Mock math utilities
 vi.mock('../../../utils/math/scene', () => ({
-  countSeats: vi.fn((tables: ClassroomTable[]) =>
+  countActiveSeats: vi.fn((tables: ClassroomTable[]) =>
     tables.reduce((sum, table) => sum + table.seatCount, 0),
   ),
 }));

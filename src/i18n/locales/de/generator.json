@@ -902,7 +902,9 @@
       "seatsMissing_other": "{{count}} Plätze fehlen",
       "seatsSpare_one": "{{count}} Platz frei",
       "seatsSpare_other": "{{count}} Plätze frei",
-      "noPlan": "Noch kein Sitzplan gemischt"
+      "noPlan": "Noch kein Sitzplan gemischt",
+      "seatsOutOfMix_one": "{{count}} Platz nicht in der Mischung",
+      "seatsOutOfMix_other": "{{count}} Plätze nicht in der Mischung"
     }
   },
   "sceneInspector": {
@@ -962,7 +964,14 @@
     "renameRoom": "Umbenennen",
     "renameRoomNamed": "„{{name}}“ umbenennen",
     "deleteRoomNamed": "„{{name}}“ löschen",
-    "roomNameTaken": "Diesen Namen trägt schon ein Raum der Klasse."
+    "roomNameTaken": "Diesen Namen trägt schon ein Raum der Klasse.",
+    "mixing": "Mischen",
+    "inMix": "In der Mischung",
+    "inMixMixed": "In der Mischung – nur ein Teil der Auswahl",
+    "inMixOffHint_one": "Bleibt beim Mischen leer. Von Hand kannst du trotzdem jemanden hierhin setzen.",
+    "inMixOffHint_other": "Bleiben beim Mischen leer. Von Hand kannst du trotzdem jemanden hierhin setzen.",
+    "fillFromFront": "Von vorne besetzen",
+    "fillFromFrontHint": "Gibt es mehr Plätze als Schüler, bleiben die hinteren frei, statt dass sich die Lücken im Raum verteilen."
   },
   "toolRail": {
     "add": "Hinzufügen",

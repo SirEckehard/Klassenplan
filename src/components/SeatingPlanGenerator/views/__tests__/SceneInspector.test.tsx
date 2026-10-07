@@ -720,4 +720,92 @@ describe('SceneInspector', () => {
     // Showing a window moves nobody.
     expect(options).toEqual({ skipSeatingUpdate: true });
   });
+
+  it('takes a table out of the mix and back in', () => {
+    const tables = [table(), table({ x: 400, seatCount: 2 })];
+    const { runSceneTransaction, snapshot } = renderInspector({
+      tables,
+      selectedTableIds: [1],
+    });
+
+    const inMix = screen.getByRole('switch', {
+      name: /In der Mischung|In the mix/i,
+    });
+    expect(inMix).toBeChecked();
+    fireEvent.click(inMix);
+
+    expect(snapshot).toHaveBeenCalledTimes(1);
+    const { result, options } = applyTransaction(runSceneTransaction, {
+      tables,
+    });
+    expect(result.tables?.map((entry) => entry.inactive)).toEqual([
+      undefined,
+      true,
+    ]);
+    expect(options).toEqual({ skipSeatingUpdate: true });
+  });
+
+  it('says that a table out of the mix stays empty, and takes it back in', () => {
+    const tables = [table({ inactive: true })];
+    const { runSceneTransaction } = renderInspector({
+      tables,
+      selectedTableIds: [0],
+    });
+
+    expect(
+      screen.getByText(/beim Mischen leer|empty when mixing/i),
+    ).toBeVisible();
+    const inMix = screen.getByRole('switch', {
+      name: /In der Mischung|In the mix/i,
+    });
+    expect(inMix).not.toBeChecked();
+    fireEvent.click(inMix);
+
+    const { result } = applyTransaction(runSceneTransaction, { tables });
+    // In the mix is the absent flag, not `inactive: false`.
+    expect(result.tables?.[0]).not.toHaveProperty('inactive');
+  });
+
+  it('takes a selection of both kinds into the mix at one press', () => {
+    const tables = [table({ inactive: true }), table({ x: 400 })];
+    const { runSceneTransaction } = renderInspector({
+      tables,
+      selectedTableIds: [0, 1],
+    });
+
+    const inMix = screen.getByRole('switch', {
+      name: /nur ein Teil|only part/i,
+    });
+    fireEvent.click(inMix);
+
+    const { result } = applyTransaction(runSceneTransaction, { tables });
+    expect(result.tables?.map((entry) => entry.inactive)).toEqual([
+      undefined,
+      undefined,
+    ]);
+  });
+
+  it('switches the room to filling from the front', () => {
+    const { runSceneTransaction, snapshot } = renderInspector();
+
+    const fill = screen.getByRole('switch', {
+      name: /Von vorne besetzen|Fill from the front/i,
+    });
+    expect(fill).not.toBeChecked();
+    fireEvent.click(fill);
+
+    expect(snapshot).toHaveBeenCalledTimes(1);
+    const tables = [table()];
+    const { result, options } = applyTransaction(runSceneTransaction, {
+      scene: { tables, features: [], totalStudents: 4 },
+      tables,
+    });
+    expect(result.scene).toEqual({
+      tables,
+      features: [],
+      totalStudents: 4,
+      fillFromFront: true,
+    });
+    expect(options).toEqual({ skipSeatingUpdate: true });
+  });
 });

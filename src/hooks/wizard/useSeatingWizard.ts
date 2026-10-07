@@ -11,7 +11,7 @@ import {
 } from '@/utils';
 import { confirmDialog } from '@/services/ui/dialogs';
 import i18n from '@/i18n';
-import { countSeats } from '@/utils/math/scene';
+import { countActiveSeats } from '@/utils/math/scene';
 import { triggerScrollToTop } from '@/utils/ui/scroll';
 import {
   validateStudentsComplete,
@@ -303,7 +303,7 @@ export function useSeatingWizard(
       return false;
     }
 
-    const currentSeatCount = countSeats(classroomScene);
+    const currentSeatCount = countActiveSeats(classroomScene);
     if (currentSeatCount < students.length) {
       showToast('error', TOAST_MESSAGES.SEATS_INSUFFICIENT);
       return false;

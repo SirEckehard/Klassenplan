@@ -356,6 +356,9 @@ function validateClassroomTable(value: unknown): void {
       throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
     }
   }
+  if (record.inactive !== undefined && typeof record.inactive !== 'boolean') {
+    throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
+  }
 }
 
 function validateClassroomScene(
@@ -378,6 +381,12 @@ function validateClassroomScene(
   }
   const total = record.totalStudents as number;
   if (total < 0 || total > BACKUP_LIMITS.maxStudents) {
+    throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
+  }
+  if (
+    record.fillFromFront !== undefined &&
+    typeof record.fillFromFront !== 'boolean'
+  ) {
     throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
   }
 }

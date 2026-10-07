@@ -41,6 +41,7 @@ import {
   rotationsChangeTargets,
   dangerButtonClass,
   inputFieldClass,
+  isTableActive,
   menuItemClass,
   type SceneRotations,
   quietIconButtonClass,
@@ -262,6 +263,79 @@ export default function SceneInspector({
       : t('sceneInspector.table');
   };
 
+  /**
+   * Takes tables into the mix or out of it. In the mix is the absent flag, so
+   * a table taken back in compares equal to one that was never out.
+   */
+  const setTablesActive = (indices: number[], active: boolean) => {
+    const chosen = new Set(indices);
+    snapshot();
+    runSceneTransaction(
+      ({ tables: current }) => ({
+        tables: current.map((table, index) => {
+          if (!chosen.has(index)) return table;
+          const next = { ...table };
+          if (active) delete next.inactive;
+          else next.inactive = true;
+          return next;
+        }),
+      }),
+      { skipSeatingUpdate: true },
+    );
+  };
+
+  const fillFromFront = seatingPlanState?.classroomScene.fillFromFront === true;
+  const setFillFromFront = (on: boolean) => {
+    snapshot();
+    runSceneTransaction(
+      ({ scene, tables: current, features: currentFeatures }) => {
+        const next = { ...scene, tables: current, features: currentFeatures };
+        if (on) next.fillFromFront = true;
+        else delete next.fillFromFront;
+        return { scene: next };
+      },
+      { skipSeatingUpdate: true },
+    );
+  };
+
+  /**
+   * Whether mixing seats students at the selected tables. A table taken out
+   * stays in the room and in the plan — empty, unless somebody is put there
+   * by hand. A selection of both kinds shows the switch in the middle; a
+   * press takes them all in.
+   */
+  const mixSection = (entries: { index: number; table: ClassroomTable }[]) => {
+    if (entries.length === 0) return null;
+    const activeCount = entries.filter(({ table }) =>
+      isTableActive(table),
+    ).length;
+    const allActive = activeCount === entries.length;
+    const mixed = activeCount > 0 && !allActive;
+    const label = t('sceneInspector.inMix');
+    return (
+      <InspectorSection title={t('sceneInspector.mixing')}>
+        <InspectorRow label={label} labelsControl>
+          <ToggleSwitch
+            checked={allActive}
+            mixed={mixed}
+            onChange={(active) =>
+              setTablesActive(
+                entries.map(({ index }) => index),
+                active,
+              )
+            }
+            label={mixed ? t('sceneInspector.inMixMixed') : label}
+          />
+        </InspectorRow>
+        {activeCount === 0 && (
+          <p className="pt-1 text-xs leading-relaxed text-(--text-muted)">
+            {t('sceneInspector.inMixOffHint', { count: entries.length })}
+          </p>
+        )}
+      </InspectorSection>
+    );
+  };
+
   const patchFeature = (id: string, patch: Partial<ClassroomFeature>) => {
     snapshot();
     runSceneTransaction(
@@ -408,6 +482,23 @@ export default function SceneInspector({
             onSetUp={onSetUpRoom}
             focusRequest={setupFocusRequest}
           />
+          {tables.length > 0 && (
+            <InspectorSection title={t('sceneInspector.mixing')}>
+              <InspectorRow
+                label={t('sceneInspector.fillFromFront')}
+                labelsControl
+              >
+                <ToggleSwitch
+                  checked={fillFromFront}
+                  onChange={setFillFromFront}
+                  label={t('sceneInspector.fillFromFront')}
+                />
+              </InspectorRow>
+              <p className="pt-1 text-xs leading-relaxed text-(--text-muted)">
+                {t('sceneInspector.fillFromFrontHint')}
+              </p>
+            </InspectorSection>
+          )}
           <RoomListSection />
           <RoomTemplatesSection
             templates={templates}
@@ -442,6 +533,7 @@ export default function SceneInspector({
               {t('sceneInspector.selectedSeats', { count: selectedSeats })}
             </p>
           )}
+          {mixSection(selectedTables)}
           {orientationSection()}
           {clipboardSection(true)}
         </InspectorBody>
@@ -471,6 +563,7 @@ export default function SceneInspector({
           })} · ${t('sceneInspector.seats', { count: table.seatCount })}`}
         />
         <InspectorBody>
+          {mixSection(selectedTables)}
           {orientationSection()}
           {clipboardSection(true)}
         </InspectorBody>

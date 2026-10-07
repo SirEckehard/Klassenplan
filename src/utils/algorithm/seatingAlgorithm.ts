@@ -10,7 +10,6 @@ import type {
   NeighborWeightSettings,
   PlanUsage,
 } from '@/types';
-import { evenTargetsFor } from '@/utils/distribution';
 import { shuffleArray } from './shuffle';
 import { buildPreviousPairs } from '@/utils/pairs';
 import { getWishPartnerIds } from '@/utils/student/partnerUtils';
@@ -27,6 +26,8 @@ import {
   type SeatNeighborDirection,
 } from '../math/seatGeometry';
 import { getFeatureDistanceMaps } from './featureDistances';
+import { seatTargetsFor } from './seatTargets';
+import { isTableActive } from '../math/scene';
 import { randomInt, type RandomSource } from './rng';
 import {
   scoreTable,
@@ -84,6 +85,31 @@ const buildDirectionalWeights = (
     DEFAULT_NEIGHBOR_WEIGHTS[category].back ??
     1,
 });
+
+/**
+ * The extent of the seats mixing fills. Tables taken out of the mix are left
+ * out, or "at the back" would mean a row nobody can be seated in. A room with
+ * every table out of the mix falls back to all seats.
+ */
+const activeSeatBounds = (
+  scene: ClassroomScene,
+  seatPositions: Map<string, { x: number; y: number }>,
+): { minX: number; maxX: number; minY: number; maxY: number } => {
+  const entries = Array.from(seatPositions.entries());
+  const inMix = entries.filter(([key]) => {
+    const table = scene.tables[Number(key.split('-')[0])];
+    return table ? isTableActive(table) : false;
+  });
+  const points = (inMix.length > 0 ? inMix : entries).map(([, p]) => p);
+  const xs = points.map((p) => p.x);
+  const ys = points.map((p) => p.y);
+  return {
+    minX: Math.min(...xs),
+    maxX: Math.max(...xs),
+    minY: Math.min(...ys),
+    maxY: Math.max(...ys),
+  };
+};
 
 /**
  * Carries shared state across the four phases of `generateSeatingPlan`
@@ -290,12 +316,7 @@ export function initializeAssignment(
     maxWindowDistance,
     maxDoorDistance,
   } = getFeatureDistanceMaps(scene, seatPositions);
-  const xs = Array.from(seatPositions.values()).map((p) => p.x);
-  const ys = Array.from(seatPositions.values()).map((p) => p.y);
-  const minX = Math.min(...xs);
-  const maxX = Math.max(...xs);
-  const minY = Math.min(...ys);
-  const maxY = Math.max(...ys);
+  const { minX, maxX, minY, maxY } = activeSeatBounds(scene, seatPositions);
 
   const orientation = determineFrontDirection(scene);
 
@@ -328,15 +349,21 @@ export function initializeAssignment(
   if (frontStudents.length > 0) {
     // Sort seats by front position (respecting board orientation and dominant axis).
     // Random tie-breaker keeps fair distribution among equidistant seats.
-    const sortedSeats = Array.from(seatPositions.entries()).sort((a, b) => {
-      let diff: number;
-      if (orientation.dominantAxis === 'x') {
-        diff = orientation.frontIsHighX ? b[1].x - a[1].x : a[1].x - b[1].x;
-      } else {
-        diff = orientation.frontIsHighY ? b[1].y - a[1].y : a[1].y - b[1].y;
-      }
-      return diff !== 0 ? diff : rng() - 0.5;
-    });
+    // Only seats of the mix: a table taken out of it stays empty.
+    const sortedSeats = Array.from(seatPositions.entries())
+      .filter(([key]) => {
+        const table = scene.tables[Number(key.split('-')[0])];
+        return table ? isTableActive(table) : false;
+      })
+      .sort((a, b) => {
+        let diff: number;
+        if (orientation.dominantAxis === 'x') {
+          diff = orientation.frontIsHighX ? b[1].x - a[1].x : a[1].x - b[1].x;
+        } else {
+          diff = orientation.frontIsHighY ? b[1].y - a[1].y : a[1].y - b[1].y;
+        }
+        return diff !== 0 ? diff : rng() - 0.5;
+      });
     let idx = 0;
     for (const fs of frontStudents) {
       while (idx < sortedSeats.length) {
@@ -353,8 +380,7 @@ export function initializeAssignment(
     }
   }
 
-  const total = students.length;
-  const targets = evenTargetsFor(total, seatCounts, rng);
+  const targets = seatTargetsFor(students, scene, lockedPositions, rng);
 
   const orderedAll: Student[] = [
     ...shuffleArray(frontRow, rng),
@@ -705,8 +731,7 @@ export function refineSeatingLocal(
 
   const seatCounts = scene.tables.map((t) => t.seatCount);
   const tableCount = seatCounts.length;
-  const total = students.length;
-  const targets = evenTargetsFor(total, seatCounts, rng);
+  const targets = seatTargetsFor(students, scene, lockedPositions, rng);
   const referenceSeating = start ?? currentSeating;
   const previousPairs = settings.avoidPreviousPairs
     ? buildPreviousPairs(seatingHistory, {
@@ -727,12 +752,7 @@ export function refineSeatingLocal(
   const genderNeighborWeights = buildDirectionalWeights(settings, 'gender');
   const seatPositions = getSeatPositions(scene);
   const featureDistances = getFeatureDistanceMaps(scene, seatPositions);
-  const xs = Array.from(seatPositions.values()).map((p) => p.x);
-  const ys = Array.from(seatPositions.values()).map((p) => p.y);
-  const minX = Math.min(...xs);
-  const maxX = Math.max(...xs);
-  const minY = Math.min(...ys);
-  const maxY = Math.max(...ys);
+  const { minX, maxX, minY, maxY } = activeSeatBounds(scene, seatPositions);
 
   // Determine front direction based on board position
   const orientation = determineFrontDirection(scene);

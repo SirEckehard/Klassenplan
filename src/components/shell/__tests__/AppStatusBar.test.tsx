@@ -182,6 +182,23 @@ describe('AppStatusBar', () => {
     expect(proceed()).not.toHaveAttribute('aria-disabled');
   });
 
+  it('counts only the seats of the mix, and names the rest apart', () => {
+    // 3 double tables, one out of the mix: 4 of 6 seats for 5 students.
+    const scene = createMockClassroomScene(3);
+    scene.tables[2] = { ...scene.tables[2]!, inactive: true };
+    setState({ step: 2, students: named(5), classroomScene: scene });
+    render(<AppStatusBar />);
+
+    expect(status()).toHaveTextContent(
+      /4 Plätze für 5 Schüler|4 seats for 5 students/i,
+    );
+    expect(status()).toHaveTextContent(
+      /2 Plätze nicht in der Mischung|2 seats out of the mix/i,
+    );
+    expect(screen.getByTitle(/1 Platz fehlt|1 seat short/i)).toBeVisible();
+    expect(proceed()).toHaveAttribute('aria-disabled', 'true');
+  });
+
   it('leads back one layer at a time', async () => {
     setState({
       step: 2,

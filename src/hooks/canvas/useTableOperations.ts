@@ -9,7 +9,7 @@ import {
   positionTablesRelative,
   calculateTableGroupBounds,
 } from '@/utils';
-import { countSeats } from '@/utils/math/scene';
+import { countActiveSeats } from '@/utils/math/scene';
 import { addSeatingForTables } from '@/utils/seating/seatingOperations';
 import type { SceneTransactionRunner } from '@/hooks/scene/useSceneManager';
 
@@ -110,7 +110,7 @@ export function useTableOperations({
     const updatedTables = transactionOutcome.tables ?? [];
     removeTables(sorted, { skipSeatingUpdate: true });
     setSelectedTableIds([]);
-    const totalSeats = countSeats(updatedTables);
+    const totalSeats = countActiveSeats(updatedTables);
     if (totalSeats < studentsCount) {
       showToast('error', TOAST_MESSAGES.SEATS_INSUFFICIENT);
     }

@@ -442,3 +442,42 @@ describe('backupValidation: rooms of a class', () => {
     );
   });
 });
+
+describe('backupValidation: tables out of the mix', () => {
+  const table = {
+    x: 100,
+    y: 100,
+    width: 120,
+    height: 60,
+    rotation: 0,
+    seatCount: 2,
+    locked: false,
+    zIndex: 0,
+    templateType: 'double',
+  };
+  const withScene = (scene: Record<string, unknown>) =>
+    JSON.stringify({
+      ...baseBundle,
+      classroomScene: { tables: [], totalStudents: 0, ...scene },
+    });
+
+  it('accepts a table out of the mix and a room filled from the front', () => {
+    const parsed = parseExportBundle(
+      withScene({
+        tables: [table, { ...table, inactive: true }],
+        fillFromFront: true,
+      }),
+    );
+    expect(parsed.classroomScene.tables[1]?.inactive).toBe(true);
+    expect(parsed.classroomScene.fillFromFront).toBe(true);
+  });
+
+  it('rejects flags that are no booleans', () => {
+    expect(() =>
+      parseExportBundle(withScene({ tables: [{ ...table, inactive: 'yes' }] })),
+    ).toThrow(BackupValidationError);
+    expect(() => parseExportBundle(withScene({ fillFromFront: 1 }))).toThrow(
+      BackupValidationError,
+    );
+  });
+});

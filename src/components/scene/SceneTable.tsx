@@ -306,6 +306,12 @@ function SceneTable({
 
   const baseTableStrokeOpacity = 1;
   const baseTableStrokeWidth = contrast ? 2.5 : selected ? 2.4 : 1;
+  // A table taken out of the mix keeps its place in the room, drawn with a
+  // dashed edge — and faint while nobody sits there, so a student put there
+  // by hand stays as legible as anywhere else.
+  const outOfMix = table.inactive === true;
+  const outOfMixOpacity =
+    outOfMix && !students.some(Boolean) ? 0.45 : undefined;
 
   return (
     <g
@@ -336,6 +342,8 @@ function SceneTable({
       style={{
         touchAction: 'none',
       }}
+      opacity={outOfMixOpacity}
+      data-out-of-mix={outOfMix || undefined}
     >
       <defs>
         <clipPath id={clipPathId}>
@@ -509,6 +517,7 @@ function SceneTable({
         pointerEvents="none"
         strokeLinejoin="round"
         strokeLinecap="round"
+        strokeDasharray={outOfMix ? '5 4' : undefined}
         opacity={baseTableStrokeOpacity}
       />
       {!table.locked && editable && (selected || isHovered) && (

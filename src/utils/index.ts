@@ -229,7 +229,12 @@ export {
 export { formatPercent } from './numberFormat';
 
 // ===== Math Utilities =====
-export { countSeats, hasSeatedStudent } from './math/scene';
+export {
+  countActiveSeats,
+  countSeats,
+  hasSeatedStudent,
+  isTableActive,
+} from './math/scene';
 export { hasShapeMismatch } from './math/scene';
 export { angleToPosition } from './math/circleGeometry';
 export {

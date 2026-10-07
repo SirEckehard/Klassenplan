@@ -902,7 +902,9 @@
       "seatsMissing_other": "{{count}} seats short",
       "seatsSpare_one": "{{count}} seat spare",
       "seatsSpare_other": "{{count}} seats spare",
-      "noPlan": "No seating plan yet"
+      "noPlan": "No seating plan yet",
+      "seatsOutOfMix_one": "{{count}} seat out of the mix",
+      "seatsOutOfMix_other": "{{count}} seats out of the mix"
     }
   },
   "sceneInspector": {
@@ -962,7 +964,14 @@
     "renameRoom": "Rename",
     "renameRoomNamed": "Rename “{{name}}”",
     "deleteRoomNamed": "Delete “{{name}}”",
-    "roomNameTaken": "A room of this class already has this name."
+    "roomNameTaken": "A room of this class already has this name.",
+    "mixing": "Mixing",
+    "inMix": "In the mix",
+    "inMixMixed": "In the mix – only part of the selection",
+    "inMixOffHint_one": "Stays empty when mixing. You can still seat someone here by hand.",
+    "inMixOffHint_other": "Stay empty when mixing. You can still seat someone here by hand.",
+    "fillFromFront": "Fill from the front",
+    "fillFromFrontHint": "With more seats than students, the seats at the back stay free instead of gaps spreading across the room."
   },
   "toolRail": {
     "add": "Add",
