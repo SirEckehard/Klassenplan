@@ -19,6 +19,25 @@ function hasGlobalPrivacyControl(): boolean {
   );
 }
 
+/**
+ * Take the banner's room off the body. The banner is the only writer of the
+ * body's bottom padding, so there is no earlier value to restore — and
+ * restoring one went wrong: a prerendered page arrives with the banner's
+ * padding already in its markup (the body lies outside #root), and a visitor
+ * who had acknowledged the notice kept 72px of scrollable void under the
+ * workspace's viewport-high shell.
+ */
+function clearBodyOffset() {
+  document.body.classList.remove('cookie-banner-visible');
+  document.body.style.removeProperty('--cookie-banner-offset');
+  document.body.style.removeProperty('padding-bottom');
+  window.dispatchEvent(
+    new CustomEvent(COOKIE_BANNER_OFFSET_EVENT, {
+      detail: { offset: 0, visible: false },
+    }),
+  );
+}
+
 // Display information banner about local storage usage
 const CookieConsent: React.FC = () => {
   const { t } = useTranslation('generator');
@@ -41,10 +60,6 @@ const CookieConsent: React.FC = () => {
     }
   });
   const bannerRef = useRef<HTMLDivElement | null>(null);
-  const previousBodyPaddingRef = useRef<{
-    value: string;
-    hadInline: boolean;
-  } | null>(null);
 
   function handleAccept() {
     // Store acknowledgment and hide the banner
@@ -58,34 +73,8 @@ const CookieConsent: React.FC = () => {
     }
 
     if (!isVisible) {
-      document.body.classList.remove('cookie-banner-visible');
-      document.body.style.removeProperty('--cookie-banner-offset');
-
-      if (previousBodyPaddingRef.current) {
-        if (previousBodyPaddingRef.current.hadInline) {
-          document.body.style.paddingBottom =
-            previousBodyPaddingRef.current.value;
-        } else {
-          document.body.style.removeProperty('padding-bottom');
-        }
-      }
-
-      previousBodyPaddingRef.current = null;
-
-      window.dispatchEvent(
-        new CustomEvent(COOKIE_BANNER_OFFSET_EVENT, {
-          detail: { offset: 0, visible: false },
-        }),
-      );
-
+      clearBodyOffset();
       return undefined;
-    }
-
-    if (!previousBodyPaddingRef.current) {
-      previousBodyPaddingRef.current = {
-        value: document.body.style.paddingBottom,
-        hadInline: document.body.style.paddingBottom.length > 0,
-      };
     }
 
     document.body.classList.add('cookie-banner-visible');
@@ -125,25 +114,7 @@ const CookieConsent: React.FC = () => {
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('orientationchange', handleResize);
       resizeObserver?.disconnect();
-      document.body.classList.remove('cookie-banner-visible');
-      document.body.style.removeProperty('--cookie-banner-offset');
-
-      if (previousBodyPaddingRef.current) {
-        if (previousBodyPaddingRef.current.hadInline) {
-          document.body.style.paddingBottom =
-            previousBodyPaddingRef.current.value;
-        } else {
-          document.body.style.removeProperty('padding-bottom');
-        }
-      }
-
-      previousBodyPaddingRef.current = null;
-
-      window.dispatchEvent(
-        new CustomEvent(COOKIE_BANNER_OFFSET_EVENT, {
-          detail: { offset: 0, visible: false },
-        }),
-      );
+      clearBodyOffset();
     };
   }, [isVisible]);
 
