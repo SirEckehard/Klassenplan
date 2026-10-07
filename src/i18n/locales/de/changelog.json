@@ -1,4 +1,17 @@
 {
+  "v3_1_0": {
+    "0": "Im Inspektor des Exportblatts lassen sich die Geschlechterfarben ausschalten – für Sitzplan und Sitzkreis gleichermaßen",
+    "1": "Ein Tisch lässt sich aus der Mischung nehmen: Im Inspektor eines Tisches oder mehrerer bleibt er im Raum, wird beim Mischen aber nicht besetzt und gestrichelt gezeichnet. Von Hand kannst du trotzdem jemanden dorthin setzen. Die Statusleiste des Raums zählt nur die Plätze in der Mischung",
+    "2": "Ein Raum lässt sich von vorne besetzen: Hat der Raum mehr Plätze als die Klasse Schüler, setzt der Inspektor des Raums die Klasse von der Tafel aus nach hinten, sodass die freien Plätze hinten liegen",
+    "3": "Die Klassenliste lässt sich mit der Tastatur durchgehen: ↑ und ↓ wechseln von Schüler zu Schüler und öffnen jeden im Inspektor, Pos1 und Ende springen ans Ende der Liste, und der Fokus bleibt in der Liste. Aus dem Inspektor gehen Alt/⌥+↑ und Alt/⌥+↓ zum vorigen oder nächsten Schüler",
+    "4": "Die Körpergröße ist klein, groß oder nicht gesetzt – „Mittel“ entfällt, da es nie einen Platz verändert hat. Eine Klassenliste mit „Mittel“ lässt sich weiterhin importieren, dann ohne Größe",
+    "5": "Auf dem Handy nennt die Statusleiste der Klassenebene die Anzahl als bloße Zahl, wie auf der Raumebene; die Erfüllung der Planebene trägt kein Symbol mehr",
+    "6": "Die Pfeile des Inspektors gehen die Schüler in der Reihenfolge der Klassenliste durch – sortiert, durchsucht und gefiltert",
+    "7": "Auf dem iPhone verdeckte die Statusleiste der Planebene die Erfüllung",
+    "8": "Im Dunkelmodus blieb die Browserleiste über der Startseite und den übrigen Seiten weiß, wenn das Handy selbst auf hell stand",
+    "9": "Der Fokusring einer Zeile in einem Dropdown – Partnerliste, Menüs, „Bibliothek“ – wurde an den Rändern abgeschnitten",
+    "10": "Nach dem Bestätigen des Hinweises zur lokalen Speicherung blieb unter dem Arbeitsbereich ein schwarzer Streifen, der sich scrollen ließ"
+  },
   "v3_0_0": {
     "0": "Die „Bibliothek“ ersetzt „Pläne, Mischungen & Nachbarschaften“ und ist aufgebaut wie ein Dateimanager: Dort findest du alle Klassen, ihre Räume und Pläne, die letzten Mischungen und die Nachbarschaften. Ändern kannst du alles direkt im Inspektor",
     "1": "Eine Klasse kann mehrere Räume nutzen – z. B. den Klassenraum und den Fachraum –, jeder Raum mit eigenen Tischen und Plänen. Räume lassen sich auch als Vorlage speichern und für andere Klassen nutzen",

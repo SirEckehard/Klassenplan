@@ -32,12 +32,12 @@ it for Antigravity — edit this file, never those two.
 
 - ✅ ESLint: 0 errors, 0 warnings
 - ✅ TypeScript: 0 compilation errors (strict mode)
-- ✅ Tests: 2960 unit tests (301 test files) + 14 Playwright tests (3 smoke + 2 core flow + 1 rooms + 4 onboarding + 2 tablet + 1 phone + 1 whiteboard), 100% passing
+- ✅ Tests: 2995 unit tests (305 test files) + 14 Playwright tests (3 smoke + 2 core flow + 1 rooms + 4 onboarding + 2 tablet + 1 phone + 1 whiteboard), 100% passing
 - 📊 Coverage: 76.0 % lines / 75.2 % statements / 66.3 % branches (`npm run test:coverage`, v8 provider, no thresholds enforced)
 - ⚠️ Unused Exports: 52 modules ignoring type-only exports, held by a ratchet (`npm run check:unused`); the remainder are re-export barrels, `lazyWithRetry` default exports and shared test helpers
 - ✅ Test Infrastructure: Centralized accessibility helpers and toast matchers for robust testing
 - ✅ Architecture: Repository Pattern implemented, UI components reorganized into logical subdirectories
-- ✅ i18n: Bilingual support (German/English) fully implemented, DE/EN key parity 1:1 (2114 keys per language, none unused)
+- ✅ i18n: Bilingual support (German/English) fully implemented, DE/EN key parity 1:1 (2139 keys per language, none unused)
 - 📦 Bundle: initial payload 205 KB brotli / 775 KB raw over 28 files (the browser check included), largest chunk 61 KB brotli, CSS 14 KB brotli
 
 ## Logging

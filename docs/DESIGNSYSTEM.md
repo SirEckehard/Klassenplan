@@ -1,7 +1,7 @@
 # Design System – Klassenplan
 
 > **Status:** current · **Last reviewed:** 2026-10-06 · **Maintainer:** Eike
-> Schäfer · **Describes:** Klassenplan 3.0.0
+> Schäfer · **Describes:** Klassenplan 3.1.0
 
 This document describes the binding design tokens for Klassenplan. All values live in `src/index.css` and are reachable from TypeScript through `src/utils/ui/designTokens.ts`.
 

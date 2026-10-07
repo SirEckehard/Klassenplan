@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.1.0] - 2026-10-07
+
 ### Added
 
 - The export sheet's inspector switches the gender colours off: "Gender colours", for the seating plan and the circle alike
@@ -25,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - On an iPhone the plan layer's status bar covered the fulfilment
 - In dark mode the browser's bar above the start page and the other pages stayed white when the phone itself was set to light
 - The focus ring of a row in a dropdown – the partner list, the menus, the "Library" – was cut off at the edges
+- After the notice about local storage was acknowledged, a black strip that could be scrolled stayed under the workspace
 
 ## [3.0.0] - 2026-10-06
 

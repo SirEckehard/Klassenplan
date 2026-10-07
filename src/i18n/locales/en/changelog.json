@@ -1,4 +1,17 @@
 {
+  "v3_1_0": {
+    "0": "The export sheet's inspector switches the gender colours off – for the seating plan and the circle alike",
+    "1": "A table can be taken out of the mix: in the inspector of a table, or of several, it stays in the room but is left empty when mixing and drawn with a dashed edge. You can still put a student there by hand. The room's status bar counts only the seats in the mix",
+    "2": "A room can be filled from the front: with more seats than students, the room's inspector seats the class from the board backwards, so the spare seats are at the back",
+    "3": "The class list is walked with the keyboard: ↑ and ↓ go from student to student and open each in the inspector, Home and End go to the ends, and the focus stays in the list. From the inspector, Alt/⌥+↑ and Alt/⌥+↓ go on to the previous or next student",
+    "4": "Height is small, tall or not set – 'Medium' is gone, since it never changed a seat. A class list that says 'Medium' still imports, as no height",
+    "5": "On a phone the status bar states the class layer's count as a bare number, as on the room layer; the plan layer's fulfilment no longer carries an icon",
+    "6": "The inspector's arrows go through the students in the order the class list shows them – sorted, searched and filtered",
+    "7": "On an iPhone the plan layer's status bar covered the fulfilment",
+    "8": "In dark mode the browser's bar above the start page and the other pages stayed white when the phone itself was set to light",
+    "9": "The focus ring of a row in a dropdown – the partner list, the menus, the 'Library' – was cut off at the edges",
+    "10": "After the notice about local storage was acknowledged, a black strip that could be scrolled stayed under the workspace"
+  },
   "v3_0_0": {
     "0": "The 'Library' replaces 'Plans, mixes & neighbourhoods' and is laid out like a file manager: there you find every class, its rooms and plans, the recent mixes and the neighbourhoods. Everything can be changed right in the inspector",
     "1": "A class can use several rooms – the classroom and the lab, say – each with its own tables and plans. Rooms can also be saved as a template and used for other classes",
