@@ -364,6 +364,7 @@ export default function FAQ() {
           'circle',
           'exportFormats',
           'print',
+          'noteList',
           'names',
         ].map((key) => ({
           question: t(`faq.unterricht.${key}.q`),

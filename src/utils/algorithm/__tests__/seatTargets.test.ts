@@ -9,6 +9,7 @@ import { createRng } from '../rng';
 import {
   frontToBackTableOrder,
   seatTargetsFor,
+  tableRowsFromFront,
   swapOverfillsTable,
   tablesHeldByCount,
 } from '../seatTargets';
@@ -222,6 +223,31 @@ describe('swapOverfillsTable', () => {
     expect(swapOverfillsTable(arrangement, targets, held, 0, 0, 1, 1)).toBe(
       false,
     );
+  });
+});
+
+describe('tableRowsFromFront', () => {
+  it('cuts the tables into rows away from the board', () => {
+    const rows = tableRowsFromFront(buildScene());
+
+    expect(rows.map((row) => row.map(({ index }) => index))).toEqual([
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+    ]);
+  });
+
+  it('takes the tables the caller picks, a table out of the mix included', () => {
+    const scene = buildScene((_, index) =>
+      index === 4 ? { inactive: true } : {},
+    );
+
+    expect(tableRowsFromFront(scene)[1]!.map(({ index }) => index)).toEqual([
+      3, 5,
+    ]);
+    expect(
+      tableRowsFromFront(scene, () => true)[1]!.map(({ index }) => index),
+    ).toEqual([3, 4, 5]);
   });
 });
 

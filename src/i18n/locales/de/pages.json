@@ -412,11 +412,15 @@
       },
       "exportFormats": {
         "q": "In welchen Formaten kann ich den Sitzplan exportieren?",
-        "a": "Die Exportseite speichert PDF, PNG und SVG und druckt direkt – praktisch für Elternbriefe, Vertretungsmappen oder das Schulportal. Sitzplan oder Sitzkreis wählst du in der Werkzeugleiste unter „Ansicht“, die Darstellung passt du im Inspektor an."
+        "a": "Die Exportseite speichert PDF, PNG und SVG und druckt direkt – praktisch für Elternbriefe, Vertretungsmappen oder das Schulportal. Sitzplan, Sitzkreis oder Liste wählst du in der Werkzeugleiste unter „Ansicht“, die Darstellung passt du im Inspektor an."
       },
       "print": {
         "q": "Ich möchte den Sitzplan ausdrucken und die Tafel als Orientierungshilfe unten angezeigt haben. Geht das?",
         "a": "Ja. Stelle auf der Exportseite rechts unter „Seitenformat“ die Ausrichtung auf „Hochformat“ und lass unter „Raumelemente“ die Tafel eingeschaltet. Sitzt dein Pult hinten im Raum, stellst du die Blickrichtung auf „Von hinten“. So behältst du auch auf dem Ausdruck die Orientierung im Klassenraum."
+      },
+      "noteList": {
+        "q": "Kann ich eine Klassenliste zum Notieren ausdrucken?",
+        "a": "Ja. Wähle auf der Exportseite unter „Ansicht“ die „Liste“. Neben jedem Namen ist Platz zum Schreiben: Notizzeilen für Beobachtungen oder ein Raster mit leeren Spalten zum Abhaken, dessen Köpfe du selbst mit Datum oder Thema beschriftest. Die Reihenfolge folgt den Tischen wie im Plan – so findest du beim Gang durch den Raum die richtige Zeile –, dem Sitzkreis oder dem Alphabet."
       },
       "names": {
         "q": "Die Namen sind auf dem Plan zu lang und zu klein – was kann ich tun?",

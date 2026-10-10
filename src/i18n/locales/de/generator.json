@@ -511,7 +511,35 @@
       "frameOnTables": "Anzeige vergrößern"
     },
     "badgeFamilies": "Merkmale auf dem Blatt",
-    "frameOnTablesHint": "Tafel, Fenster und Tür rücken an die Tische heran, ferne Möbel entfallen."
+    "frameOnTablesHint": "Tafel, Fenster und Tür rücken an die Tische heran, ferne Möbel entfallen.",
+    "noteList": {
+      "view": "Liste",
+      "section": "Liste",
+      "form": "Form",
+      "formLines": "Notizzeilen",
+      "formGrid": "Raster",
+      "lineCount": "Zeilen",
+      "columnCount": "Spalten",
+      "order": "Reihenfolge",
+      "orderTables": "Nach Tischen",
+      "orderCircle": "Im Sitzkreis",
+      "orderAlphabetical": "Alphabetisch",
+      "pdfShortcut": "Liste als PDF exportieren (P)",
+      "pdfOnly": "Die Liste gibt es nur als PDF",
+      "defaultTitle": "Notizliste",
+      "columns": {
+        "table": "Tisch",
+        "number": "Nr.",
+        "name": "Name",
+        "notes": "Notizen"
+      },
+      "pageOf": "Seite {{page}} von {{count}}",
+      "pages_one": "{{count}} Seite",
+      "pages_other": "{{count}} Seiten",
+      "errors": {
+        "pdfFailed": "Listen-PDF-Export fehlgeschlagen. Bitte versuche es erneut."
+      }
+    }
   },
   "wizard": {
     "back": "Zurück",

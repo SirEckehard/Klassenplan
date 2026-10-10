@@ -3,8 +3,13 @@
 import { describe, expect, it } from 'vitest';
 import {
   renderCircleSvg,
+  renderNoteListSvgPages,
   renderSceneSvg,
 } from '@/services/export/sceneRenderer';
+import {
+  buildNoteListEntries,
+  DEFAULT_NOTE_LIST_SETTINGS,
+} from '@/utils/ui/noteList';
 import { createMockStudent } from '@/__tests__/utils';
 import { buildDemoClassroomScene } from '@/utils/demo/demoClass';
 import type { ClassroomScene, SeatingArrangement, Student } from '@/types';
@@ -341,5 +346,65 @@ describe('renderSceneSvg', () => {
       // Classroom at 180° → every seat label rotates back by the same amount.
       expect(svg).toContain('rotate(-180');
     });
+  });
+});
+
+describe('renderNoteListSvgPages', () => {
+  const classOf = (count: number) =>
+    Array.from({ length: count }, (_, index) =>
+      createMockStudent({
+        id: `s${index}`,
+        name: `Kind${index} Muster`,
+        restless: index === 0,
+      }),
+    );
+  const input = (count: number, patch = {}) => {
+    const students = classOf(count);
+    return {
+      students,
+      entries: buildNoteListEntries(students, { order: 'alphabetical' }),
+      settings: { ...DEFAULT_NOTE_LIST_SETTINGS, ...patch },
+      title: 'Klasse 7b',
+    };
+  };
+
+  it('fits a full class onto one page as a grid', async () => {
+    const pages = await renderNoteListSvgPages(input(36, { form: 'grid' }));
+
+    expect(pages).toHaveLength(1);
+    expect(pages[0]).toContain('Kind35 Muster');
+    expect(pages[0]).not.toContain('Seite 1');
+  });
+
+  it('runs ruled lines over several pages, each with the header and its number', async () => {
+    const pages = await renderNoteListSvgPages(input(36, { lines: 3 }));
+
+    expect(pages.length).toBeGreaterThan(1);
+    pages.forEach((page, index) => {
+      expect(page).toContain('Klasse 7b');
+      expect(page).toContain('Notizen');
+      expect(page).toContain(`Seite ${index + 1} von ${pages.length}`);
+    });
+  });
+
+  it('prints no badges unless asked to', async () => {
+    const [plain] = await renderNoteListSvgPages(input(3));
+    const [withBadges] = await renderNoteListSvgPages(
+      input(3, { showBadges: true }),
+    );
+
+    expect(plain).not.toContain('data-badge-pill');
+    expect(withBadges).toContain('data-badge-pill="s0"');
+  });
+
+  it('names the class under a title that does not', async () => {
+    const [page] = await renderNoteListSvgPages({
+      ...input(2),
+      title: 'Plan nach den Ferien',
+      classMetadata: { name: 'Klasse 7b' },
+    });
+
+    expect(page).toContain('Plan nach den Ferien');
+    expect(page).toContain('Klasse 7b');
   });
 });

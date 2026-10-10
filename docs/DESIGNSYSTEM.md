@@ -195,7 +195,10 @@ shows there — the wall faces the class. The exported sheet is framed the same
 way (`SceneSvg`), within margins of 10 mm and a header of one line — brand,
 title, date — in both orientations (`ExportPageFrame`); its switch "Anzeige
 vergrößern", switched off, brings back the whole room in its outline, everything
-where it stands.
+where it stands. The note list ("Liste", `NoteListSheet`) wears the same frame
+on every page it runs to: grey rules on paper, no colour but a badge's ink when
+switched on, a stronger rule where a table begins, and the room to write —
+ruled lines at 22pt (about 8 mm), or a grid whose empty heads take a date.
 
 Its contrast mode goes the other way: black on white whatever the theme, with
 thicker contours and the seat names bolder (`SEAT_CONTRAST_COLORS`). Those are

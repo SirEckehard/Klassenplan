@@ -7,6 +7,10 @@ import type { FeatureVisibilityFlags } from '@/utils/ui';
 import type { DataFamily, NameDisplayMode } from '@/utils';
 import SceneSvg from '@/components/scene/SceneSvg';
 import CirclePrintView from '@/components/circle/CirclePrintView';
+import NoteListSheet, {
+  planNoteList,
+  type NoteListInput,
+} from '@/components/scene/NoteListSheet';
 
 export type ExportClassMetadata = {
   name?: string | null;
@@ -129,5 +133,23 @@ export async function renderCircleSvg(
         hiddenBadgeFamilies={options?.hiddenBadgeFamilies}
       />
     </div>,
+  );
+}
+
+/**
+ * Render the note list, one SVG document per page.
+ */
+export async function renderNoteListSvgPages(
+  input: NoteListInput,
+): Promise<string[]> {
+  const plan = planNoteList(input);
+  return Promise.all(
+    plan.pages.map((_, pageIndex) =>
+      renderMarkup(
+        <div style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
+          <NoteListSheet {...input} plan={plan} pageIndex={pageIndex} />
+        </div>,
+      ),
+    ),
   );
 }

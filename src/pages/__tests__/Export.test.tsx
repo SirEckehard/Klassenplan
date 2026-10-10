@@ -19,11 +19,15 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import i18n from '@/i18n';
 import Export from '../Export';
 import {
+  exportNoteListToPdf,
   exportTableLayoutToPdf,
   generatePdfBlob,
   openPdfForPrinting,
 } from '@/services/export/pdfExportFunctions';
-import { renderSceneSvg } from '@/services/export/sceneRenderer';
+import {
+  renderNoteListSvgPages,
+  renderSceneSvg,
+} from '@/services/export/sceneRenderer';
 import { createMockClassroomScene, createMockStudent } from '@/__tests__/utils';
 import {
   LEGACY_EXPORT_KEYS,
@@ -57,6 +61,10 @@ vi.mock('@/contexts/ClassDialogsContext', async (importOriginal) => ({
 vi.mock('@/services/export/sceneRenderer', () => ({
   renderSceneSvg: vi.fn(async () => '<svg data-testid="scene"></svg>'),
   renderCircleSvg: vi.fn(async () => '<svg data-testid="circle"></svg>'),
+  renderNoteListSvgPages: vi.fn(async () => [
+    '<svg data-testid="list-1"></svg>',
+    '<svg data-testid="list-2"></svg>',
+  ]),
   preloadRenderer: vi.fn(() => Promise.resolve()),
 }));
 
@@ -67,6 +75,7 @@ vi.mock('@/services/export/pdfExportFunctions', () => ({
   downloadPdfBlob: vi.fn(),
   exportTableLayoutToPdf: vi.fn(),
   exportCircleLayoutToPdf: vi.fn(),
+  exportNoteListToPdf: vi.fn(),
 }));
 
 const students = [
@@ -292,6 +301,87 @@ describe('Export page', () => {
       );
 
       await waitFor(() => expect(exportTableLayoutToPdf).toHaveBeenCalled());
+    });
+  });
+
+  describe('note list', () => {
+    const openList = async () => {
+      renderExport();
+      await userEvent.click(screen.getByRole('button', { name: 'Liste' }));
+    };
+
+    it('shows every page of the list, one under the other', async () => {
+      await openList();
+
+      const iframe = await screen.findByTitle('Vorschau');
+      await waitFor(
+        () =>
+          expect(iframe.getAttribute('srcdoc') ?? '').toContain(
+            'data-testid="list-2"',
+          ),
+        { timeout: 4000 },
+      );
+      expect(iframe.getAttribute('srcdoc')).toContain('class="pages"');
+      expect(renderNoteListSvgPages).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: 'Plan A',
+          classMetadata: expect.objectContaining({ name: 'Klasse 7b' }),
+        }),
+      );
+    });
+
+    it('prints all its pages and saves them as one PDF only', async () => {
+      await openList();
+      const iframe = await screen.findByTitle('Vorschau');
+      await waitFor(
+        () =>
+          expect(iframe.getAttribute('srcdoc') ?? '').toContain(
+            'data-testid="list-2"',
+          ),
+        { timeout: 4000 },
+      );
+
+      expect(screen.getByRole('button', { name: 'PNG-Bild' })).toBeDisabled();
+      expect(screen.getByRole('button', { name: 'SVG-Grafik' })).toBeDisabled();
+
+      await userEvent.click(screen.getByRole('button', { name: 'Drucken' }));
+      await waitFor(() =>
+        expect(generatePdfBlob).toHaveBeenCalledWith(
+          [
+            '<svg data-testid="list-1"></svg>',
+            '<svg data-testid="list-2"></svg>',
+          ],
+          'portrait',
+        ),
+      );
+
+      await userEvent.click(
+        screen.getByRole('button', { name: 'PDF-Dokument' }),
+      );
+      await waitFor(() =>
+        expect(exportNoteListToPdf).toHaveBeenCalledWith(
+          expect.objectContaining({ title: 'Plan A' }),
+          'Notizliste_Klasse 7b',
+        ),
+      );
+      expect(exportTableLayoutToPdf).not.toHaveBeenCalled();
+    });
+
+    it('remembers its settings, badges off until asked for', async () => {
+      await openList();
+
+      expect(
+        await screen.findByRole('switch', { name: 'Bedürfnisse' }),
+      ).not.toBeChecked();
+      await userEvent.click(screen.getByRole('button', { name: 'Raster' }));
+
+      await waitFor(() =>
+        expect(
+          JSON.parse(
+            localStorage.getItem(LOCAL_STORAGE_KEYS.exportNoteList) ?? '{}',
+          ),
+        ).toMatchObject({ form: 'grid', showBadges: false }),
+      );
     });
   });
 

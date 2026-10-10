@@ -6,6 +6,7 @@ import {
   FileImageIcon,
   FilePdfIcon,
   GridNineIcon,
+  ListChecksIcon,
   VectorTwoIcon,
 } from '@phosphor-icons/react';
 import {
@@ -15,11 +16,14 @@ import {
   type ToolRailDensity,
 } from '@/components/shell/ToolRail';
 
+/** What the sheet shows: the plan, the circle or the note list. */
+export type ExportView = 'table' | 'circle' | 'list';
+
 type Props = {
   density: ToolRailDensity;
-  /** Which arrangement the sheet shows. */
-  mode: 'table' | 'circle';
-  onModeChange: (mode: 'table' | 'circle') => void;
+  /** What the sheet shows. */
+  mode: ExportView;
+  onModeChange: (mode: ExportView) => void;
   /** While the circle is still being built there is nothing to switch to. */
   modeDisabled?: boolean;
   onPdf: () => void;
@@ -32,10 +36,11 @@ type Props = {
  * what to do with it below, and the foot every rail shares (`ToolRail`).
  *
  * The view is the plan layer's own pair of entries, so the sheet is switched
- * the way the plan is. The files save the sheet as it stands — the PDF of
- * whichever arrangement is shown, which is why there is one PDF entry rather
- * than one per arrangement. Printing is the page's primary action and lives at
- * the end of the status bar.
+ * the way the plan is, and the note list beside them — the class with room
+ * to write. The files save the sheet as it stands — the PDF of whatever is
+ * shown, which is why there is one PDF entry rather than one per view. The
+ * list may run to several pages, so it is a PDF only. Printing is the page's
+ * primary action and lives at the end of the status bar.
  */
 export default function ExportToolPanel({
   density,
@@ -47,6 +52,7 @@ export default function ExportToolPanel({
   onSvg,
 }: Props) {
   const { t } = useTranslation('generator');
+  const isList = mode === 'list';
 
   return (
     <ToolRail density={density}>
@@ -65,6 +71,13 @@ export default function ExportToolPanel({
           disabled={modeDisabled}
           onClick={() => onModeChange('circle')}
         />
+        <ToolRailButton
+          icon={<ListChecksIcon size={18} />}
+          label={t('export.noteList.view')}
+          active={mode === 'list'}
+          disabled={modeDisabled}
+          onClick={() => onModeChange('list')}
+        />
       </ToolRailGroup>
 
       <ToolRailGroup title={t('export.saveAs')}>
@@ -74,20 +87,24 @@ export default function ExportToolPanel({
           title={
             mode === 'circle'
               ? t('export.circlePdfShortcut')
-              : t('export.tablePdfShortcut')
+              : mode === 'list'
+                ? t('export.noteList.pdfShortcut')
+                : t('export.tablePdfShortcut')
           }
           onClick={onPdf}
         />
         <ToolRailButton
           icon={<FileImageIcon size={18} />}
           label={t('export.pngButton')}
-          title={t('export.pngTitle')}
+          title={isList ? t('export.noteList.pdfOnly') : t('export.pngTitle')}
+          disabled={isList}
           onClick={onPng}
         />
         <ToolRailButton
           icon={<VectorTwoIcon size={18} />}
           label={t('export.svgButton')}
-          title={t('export.svgTitle')}
+          title={isList ? t('export.noteList.pdfOnly') : t('export.svgTitle')}
+          disabled={isList}
           onClick={onSvg}
         />
       </ToolRailGroup>

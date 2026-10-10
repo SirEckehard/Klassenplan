@@ -6,6 +6,10 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import '@/i18n';
 import ExportSheetInspector from '../ExportSheetInspector';
+import {
+  DEFAULT_NOTE_LIST_SETTINGS,
+  type NoteListSettings,
+} from '@/utils/ui/noteList';
 
 afterEach(() => {
   cleanup();
@@ -180,5 +184,72 @@ describe('ExportSheetInspector gender colours', () => {
       expect(onChange).toHaveBeenCalledWith(false);
       cleanup();
     }
+  });
+});
+
+describe('ExportSheetInspector note list', () => {
+  const noteList = (
+    patch: Partial<NoteListSettings> = {},
+    circleAvailable = false,
+  ) => ({
+    settings: { ...DEFAULT_NOTE_LIST_SETTINGS, ...patch },
+    onChange: vi.fn(),
+    circleAvailable,
+  });
+
+  it('sets the form, the lines and the order of the list', () => {
+    const list = noteList();
+    renderInspector({ mode: 'list', noteList: list });
+
+    fireEvent.click(screen.getByRole('button', { name: /^(Raster|Grid)$/ }));
+    expect(list.onChange).toHaveBeenCalledWith({ form: 'grid' });
+
+    fireEvent.click(screen.getByRole('button', { name: '3' }));
+    expect(list.onChange).toHaveBeenCalledWith({ lines: 3 });
+
+    fireEvent.click(
+      screen.getByRole('button', { name: /^(Alphabetisch|Alphabetical)$/ }),
+    );
+    expect(list.onChange).toHaveBeenCalledWith({ order: 'alphabetical' });
+  });
+
+  it('asks for columns instead of lines on a grid', () => {
+    const list = noteList({ form: 'grid' });
+    renderInspector({ mode: 'list', noteList: list });
+
+    fireEvent.click(screen.getByRole('button', { name: '12' }));
+    expect(list.onChange).toHaveBeenCalledWith({ columns: 12 });
+  });
+
+  it('offers the circle order only where there is a circle', () => {
+    renderInspector({ mode: 'list', noteList: noteList() });
+    expect(
+      screen.queryByRole('button', { name: /Im Sitzkreis|Round the circle/ }),
+    ).not.toBeInTheDocument();
+
+    cleanup();
+    renderInspector({ mode: 'list', noteList: noteList({}, true) });
+    expect(
+      screen.getByRole('button', { name: /Im Sitzkreis|Round the circle/ }),
+    ).toBeInTheDocument();
+  });
+
+  it('leaves out what a list of names has no use for', () => {
+    renderInspector({ mode: 'list', noteList: noteList() });
+
+    for (const name of [
+      /^(Geschlechterfarben|Gender colours|Gender colors)$/,
+      /^(Legende|Legend)$/,
+      /^(Verbindungen|Connections)$/,
+      /^(Anzeige vergrößern|Enlarge view|Zoom in)$/i,
+    ]) {
+      expect(screen.queryByRole('switch', { name })).not.toBeInTheDocument();
+    }
+  });
+
+  it('counts the pages in its heading', () => {
+    renderInspector({ mode: 'list', noteList: noteList(), pageCount: 3 });
+
+    expect(screen.getByText(/3 (Seiten|pages)/)).toBeInTheDocument();
   });
 });

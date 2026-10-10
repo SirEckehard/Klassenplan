@@ -511,7 +511,35 @@
       "frameOnTables": "Enlarge the plan"
     },
     "badgeFamilies": "Markers on the sheet",
-    "frameOnTablesHint": "The board, windows and door move up to the tables; furniture far from them is left out."
+    "frameOnTablesHint": "The board, windows and door move up to the tables; furniture far from them is left out.",
+    "noteList": {
+      "view": "List",
+      "section": "List",
+      "form": "Layout",
+      "formLines": "Ruled lines",
+      "formGrid": "Grid",
+      "lineCount": "Lines",
+      "columnCount": "Columns",
+      "order": "Order",
+      "orderTables": "By table",
+      "orderCircle": "Round the circle",
+      "orderAlphabetical": "Alphabetical",
+      "pdfShortcut": "Export list as PDF (P)",
+      "pdfOnly": "The list is available as PDF only",
+      "defaultTitle": "Note list",
+      "columns": {
+        "table": "Table",
+        "number": "No.",
+        "name": "Name",
+        "notes": "Notes"
+      },
+      "pageOf": "Page {{page}} of {{count}}",
+      "pages_one": "{{count}} page",
+      "pages_other": "{{count}} pages",
+      "errors": {
+        "pdfFailed": "List PDF export failed. Please try again."
+      }
+    }
   },
   "wizard": {
     "back": "Back",

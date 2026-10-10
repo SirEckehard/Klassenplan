@@ -5,7 +5,9 @@ import { useTranslation } from 'react-i18next';
 import {
   ArrowDownIcon,
   ArrowUpIcon,
+  GridFourIcon,
   RectangleIcon,
+  RowsIcon,
 } from '@phosphor-icons/react';
 import type { ClassroomFeatureType } from '@/types';
 import {
@@ -33,6 +35,13 @@ import {
   NAME_DISPLAY_MODES,
   nameDisplayLabelKey,
 } from '@/components/SeatingPlanGenerator/canvas/nameDisplayGroup';
+import type { ExportView } from '@/components/SeatingPlanGenerator/ExportToolPanel';
+import {
+  NOTE_LIST_COLUMN_COUNTS,
+  NOTE_LIST_LINE_COUNTS,
+  type NoteListOrder,
+  type NoteListSettings,
+} from '@/utils/ui/noteList';
 
 type PageOrientation = 'landscape' | 'portrait';
 
@@ -40,8 +49,17 @@ type PageOrientation = 'landscape' | 'portrait';
 type Toggle = { checked: boolean; onChange: (next: boolean) => void };
 
 type Props = {
-  /** Which arrangement the sheet shows; some settings only apply to one. */
-  mode: 'table' | 'circle';
+  /** What the sheet shows; some settings only apply to one view. */
+  mode: ExportView;
+  /** The note list's own settings; read while the list is on the sheet. */
+  noteList?: {
+    settings: NoteListSettings;
+    onChange: (patch: Partial<NoteListSettings>) => void;
+    /** "Im Sitzkreis" is offered only where there is a circle to follow. */
+    circleAvailable: boolean;
+  };
+  /** How many pages the sheet runs to, where that is more than one. */
+  pageCount?: number;
   title: string;
   onTitleChange: (title: string) => void;
   orientation: PageOrientation;
@@ -88,6 +106,8 @@ type Props = {
  */
 export default function ExportSheetInspector({
   mode,
+  noteList,
+  pageCount = 1,
   title,
   onTitleChange,
   orientation,
@@ -111,8 +131,25 @@ export default function ExportSheetInspector({
   const { t } = useTranslation('generator');
   const titleId = React.useId();
   const isTable = mode === 'table';
+  const isList = mode === 'list';
   const orientationLabel =
     orientation === 'landscape' ? t('export.landscape') : t('export.portrait');
+  const sheetSubtitle =
+    pageCount > 1
+      ? `${t('export.sheetFormat', { orientation: orientationLabel })} · ${t(
+          'export.noteList.pages',
+          { count: pageCount },
+        )}`
+      : t('export.sheetFormat', { orientation: orientationLabel });
+  const listSettings = isList ? noteList?.settings : undefined;
+  const orderOptions: NoteListOrder[] = noteList?.circleAvailable
+    ? ['tables', 'circle', 'alphabetical']
+    : ['tables', 'alphabetical'];
+  const orderLabelKey: Record<NoteListOrder, string> = {
+    tables: 'export.noteList.orderTables',
+    circle: 'export.noteList.orderCircle',
+    alphabetical: 'export.noteList.orderAlphabetical',
+  };
   const nameHint = buildNameDisplayHint(nameDisplay, names, t);
   const availableFeatures = FEATURE_TYPES.filter(
     (type) => featureAvailability[type] === true,
@@ -134,10 +171,7 @@ export default function ExportSheetInspector({
 
   return (
     <>
-      <InspectorHeader
-        title={t('export.sheet')}
-        subtitle={t('export.sheetFormat', { orientation: orientationLabel })}
-      />
+      <InspectorHeader title={t('export.sheet')} subtitle={sheetSubtitle} />
       <InspectorBody>
         <InspectorSection title={t('export.pageFormat')}>
           <div className="flex flex-col gap-1.5">
@@ -214,6 +248,81 @@ export default function ExportSheetInspector({
           )}
         </InspectorSection>
 
+        {listSettings && noteList && (
+          <InspectorSection title={t('export.noteList.section')}>
+            <InspectorRow label={t('export.noteList.form')}>
+              <InspectorChoice
+                label={t('export.noteList.form')}
+                value={listSettings.form}
+                onChange={(next) => next && noteList.onChange({ form: next })}
+                options={[
+                  {
+                    value: 'lines',
+                    label: t('export.noteList.formLines'),
+                    icon: <RowsIcon size={14} aria-hidden="true" />,
+                  },
+                  {
+                    value: 'grid',
+                    label: t('export.noteList.formGrid'),
+                    icon: <GridFourIcon size={14} aria-hidden="true" />,
+                  },
+                ]}
+              />
+            </InspectorRow>
+            {listSettings.form === 'lines' ? (
+              <InspectorRow label={t('export.noteList.lineCount')}>
+                <InspectorChoice
+                  label={t('export.noteList.lineCount')}
+                  value={String(listSettings.lines)}
+                  onChange={(next) =>
+                    next &&
+                    noteList.onChange({
+                      lines: Number(next) as NoteListSettings['lines'],
+                    })
+                  }
+                  options={NOTE_LIST_LINE_COUNTS.map((count) => ({
+                    value: String(count),
+                    label: String(count),
+                  }))}
+                />
+              </InspectorRow>
+            ) : (
+              <InspectorRow label={t('export.noteList.columnCount')}>
+                <InspectorChoice
+                  label={t('export.noteList.columnCount')}
+                  value={String(listSettings.columns)}
+                  onChange={(next) =>
+                    next &&
+                    noteList.onChange({
+                      columns: Number(next) as NoteListSettings['columns'],
+                    })
+                  }
+                  options={NOTE_LIST_COLUMN_COUNTS.map((count) => ({
+                    value: String(count),
+                    label: String(count),
+                  }))}
+                />
+              </InspectorRow>
+            )}
+            <InspectorRow label={t('export.noteList.order')} stacked>
+              <InspectorChoice
+                label={t('export.noteList.order')}
+                layout="list"
+                value={
+                  orderOptions.includes(listSettings.order)
+                    ? listSettings.order
+                    : 'tables'
+                }
+                onChange={(next) => next && noteList.onChange({ order: next })}
+                options={orderOptions.map((order) => ({
+                  value: order,
+                  label: t(orderLabelKey[order]),
+                }))}
+              />
+            </InspectorRow>
+          </InspectorSection>
+        )}
+
         <InspectorSection title={t('export.content')}>
           {switchRow(t('export.rows.needs'), needs)}
           {needs.checked && badgeFamilies.present.length > 0 && (
@@ -243,11 +352,12 @@ export default function ExportSheetInspector({
               ))}
             </div>
           )}
-          {switchRow(t('export.rows.genderColors'), genderColors)}
+          {!isList && switchRow(t('export.rows.genderColors'), genderColors)}
           {switchRow(t('export.rows.photos'), photos)}
-          {switchRow(t('export.rows.legend'), legend)}
+          {!isList && switchRow(t('export.rows.legend'), legend)}
           {switchRow(t('export.rows.classInfo'), classInfo)}
-          {!isTable && switchRow(t('export.rows.connections'), connections)}
+          {mode === 'circle' &&
+            switchRow(t('export.rows.connections'), connections)}
         </InspectorSection>
 
         <InspectorSection title={t('editor.nameDisplay.label')}>

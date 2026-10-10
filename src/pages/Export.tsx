@@ -37,9 +37,17 @@ import {
 } from '@/contexts/SeatingPlanContext';
 import {
   renderCircleSvg,
+  renderNoteListSvgPages,
   renderSceneSvg,
   preloadRenderer,
 } from '@/services/export/sceneRenderer';
+import {
+  buildNoteListEntries,
+  DEFAULT_NOTE_LIST_SETTINGS,
+  normalizeNoteListSettings,
+  type NoteListSettings,
+} from '@/utils/ui/noteList';
+import type { NoteListInput } from '@/components/scene/NoteListSheet';
 import { buildPhotoDataUrlMap } from '@/services/export/pdfExportFunctions';
 import type { PhotoDisplayMode, SeatingArrangement, Student } from '@/types';
 import usePersistentState from '@/hooks/usePersistentState';
@@ -60,7 +68,9 @@ import {
 } from '@/components/shell/shellTokens';
 import SeatingPlanHeader from '@/components/SeatingPlanGenerator/SeatingPlanHeader';
 import ExportStatusBar from '@/components/SeatingPlanGenerator/ExportStatusBar';
-import ExportToolPanel from '@/components/SeatingPlanGenerator/ExportToolPanel';
+import ExportToolPanel, {
+  type ExportView,
+} from '@/components/SeatingPlanGenerator/ExportToolPanel';
 import ExportSheetInspector from '@/components/SeatingPlanGenerator/ExportSheetInspector';
 import SmartSidebar from '@/components/ui/panels/SmartSidebar';
 import { useInspector } from '@/contexts/InspectorContext';
@@ -136,7 +146,7 @@ function ExportEmptyState({ onBack }: { onBack: () => void }) {
 }
 
 export default function Export() {
-  const { t } = useTranslation('generator');
+  const { t, i18n } = useTranslation('generator');
   const metadata = usePageSeo('/export');
   const location = useLocation();
   const navigate = useLocalizedNavigate();
@@ -190,11 +200,14 @@ export default function Export() {
     lastPlanNameRef.current = planNameForTitle;
     setTitle((current) => (current === previous ? planNameForTitle : current));
   }, [planNameForTitle]);
-  const [previewSvg, setPreviewSvg] = useState('');
+  // One SVG document per page: the plan and the circle are one page, the
+  // note list may run to several.
+  const [previewPages, setPreviewPages] = useState<string[]>([]);
+  const previewSvg = previewPages[0] ?? '';
   const iframeRef = useRef<HTMLIFrameElement>(null);
   // Opened from the circle, the sheet shows the circle — where there is one
   // to show; the toolbar switches as before.
-  const [previewMode, setPreviewMode] = useState<SeatingMode>(() =>
+  const [previewMode, setPreviewMode] = useState<ExportView>(() =>
     navigationState.mode === 'circle' &&
     (circleLayout ?? navigationState.circleLayout)
       ? 'circle'
@@ -291,6 +304,24 @@ export default function Export() {
   const [frameOnTables, setFrameOnTables] = usePersistentState<boolean>(
     LOCAL_STORAGE_KEYS.exportFrameOnTables,
     true,
+  );
+
+  // The note list keeps its settings in one object; a stored value is read
+  // field by field, so a setting added later starts at its default.
+  const [storedNoteList, setStoredNoteList] = usePersistentState<
+    Partial<NoteListSettings>
+  >(LOCAL_STORAGE_KEYS.exportNoteList, DEFAULT_NOTE_LIST_SETTINGS);
+  const noteListSettings = useMemo(
+    () => normalizeNoteListSettings(storedNoteList),
+    [storedNoteList],
+  );
+  const updateNoteList = useCallback(
+    (patch: Partial<NoteListSettings>) =>
+      setStoredNoteList((current) => ({
+        ...normalizeNoteListSettings(current),
+        ...patch,
+      })),
+    [setStoredNoteList],
   );
 
   const studentNames = useMemo(
@@ -403,7 +434,69 @@ export default function Export() {
     }
   }, []);
   const activeOrientation =
-    previewMode === 'circle' ? circleOrientation : tableOrientation;
+    previewMode === 'list'
+      ? noteListSettings.orientation
+      : previewMode === 'circle'
+        ? circleOrientation
+        : tableOrientation;
+
+  // The note list follows the circle only where there is one.
+  const noteListOrder =
+    noteListSettings.order === 'circle' && !circleLayout
+      ? 'tables'
+      : noteListSettings.order;
+  const noteListEntries = useMemo(
+    () =>
+      buildNoteListEntries(students, {
+        order: noteListOrder,
+        seating,
+        scene: classroomScene,
+        circleLayout,
+        locale: i18n.language,
+      }),
+    [
+      students,
+      noteListOrder,
+      seating,
+      classroomScene,
+      circleLayout,
+      i18n.language,
+    ],
+  );
+  const className = activeClass.name?.trim() || '';
+  const noteListTitle =
+    title.trim() || className || t('export.noteList.defaultTitle');
+  const noteListInput = useMemo<NoteListInput>(
+    () => ({
+      students,
+      entries: noteListEntries,
+      settings: noteListSettings,
+      title: noteListTitle,
+      // The list names its class even without a label: a plan's name alone
+      // may not say which class the list is for.
+      classMetadata: showClassInfo
+        ? {
+            name: className || undefined,
+            label: activeClass.label?.trim() || undefined,
+            notes: activeClass.notes?.trim() || undefined,
+          }
+        : undefined,
+      nameDisplay: effectiveNameDisplay,
+      hiddenBadgeFamilies,
+    }),
+    [
+      students,
+      noteListEntries,
+      noteListSettings,
+      noteListTitle,
+      showClassInfo,
+      className,
+      activeClass.label,
+      activeClass.notes,
+      effectiveNameDisplay,
+      hiddenBadgeFamilies,
+    ],
+  );
 
   // From `lg` up the stage is a size container (`canvas-stage`): the sheet
   // takes whichever of width and height binds first, like the plan's canvas.
@@ -474,6 +567,26 @@ export default function Export() {
         height: 100%;
         display: block;
       }
+      /* Several pages stand one under the other on grey, the first filling
+         the frame, the rest a scroll away. Printing goes through the PDF. */
+      body.pages {
+        display: block;
+        overflow-y: auto;
+        background: #e7e5e4;
+      }
+      body.pages #print-root {
+        height: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      body.pages #print-root > .sheet {
+        height: auto;
+        max-height: none;
+        aspect-ratio: ${pageWidthMm} / ${pageHeightMm};
+        flex: none;
+        background: #fff;
+      }
       @media print {
         * {
           margin: 0 !important;
@@ -516,8 +629,13 @@ export default function Export() {
     // active language rather than sitting on a hardcoded "de".
     const documentTitle = t('export.printDocumentTitle');
 
-    return `<!DOCTYPE html><html lang="${metadata.lang}"><head><meta charset="utf-8" /><title>${documentTitle}</title><style>${styles}</style></head><body><div id="print-root">${previewSvg}</div></body></html>`;
-  }, [activeOrientation, previewSvg, metadata.lang, t]);
+    const multiPage = previewPages.length > 1;
+    const content = multiPage
+      ? previewPages.map((page) => `<div class="sheet">${page}</div>`).join('')
+      : (previewPages[0] ?? '');
+
+    return `<!DOCTYPE html><html lang="${metadata.lang}"><head><meta charset="utf-8" /><title>${documentTitle}</title><style>${styles}</style></head><body${multiPage ? ' class="pages"' : ''}><div id="print-root">${content}</div></body></html>`;
+  }, [activeOrientation, previewPages, metadata.lang, t]);
 
   useEffect(() => {
     if (stateCircleLayout && circleLayout !== stateCircleLayout) {
@@ -571,7 +689,7 @@ export default function Export() {
   }, [cancelCircleGeneration]);
 
   const handleModeChange = useCallback(
-    (mode: SeatingMode) => {
+    (mode: ExportView) => {
       if (mode === 'circle') {
         void (async () => {
           try {
@@ -608,6 +726,20 @@ export default function Export() {
       if (isCancelled) return;
 
       try {
+        if (previewMode === 'list') {
+          const pages = await renderNoteListSvgPages({
+            ...noteListInput,
+            photoDataUrls: noteListSettings.showPhotos
+              ? await buildPhotoDataUrlMap(students)
+              : undefined,
+          });
+          if (!isCancelled) {
+            setPreviewPages(pages);
+            setIsGenerating(false);
+          }
+          return;
+        }
+
         if (previewMode === 'circle' && circleLayout) {
           const circlePhotoUrls = await buildPhotoDataUrlMap(
             circleLayout.students
@@ -627,7 +759,7 @@ export default function Export() {
             hiddenBadgeFamilies,
           });
           if (!isCancelled) {
-            setPreviewSvg(svg);
+            setPreviewPages([svg]);
             setIsGenerating(false);
           }
           return;
@@ -651,7 +783,7 @@ export default function Export() {
           hiddenBadgeFamilies,
         });
         if (!isCancelled) {
-          setPreviewSvg(svg);
+          setPreviewPages([svg]);
           setIsGenerating(false);
         }
       } catch (error) {
@@ -698,6 +830,8 @@ export default function Export() {
     showGenderColors,
     classMetadataForExport,
     hiddenBadgeFamilies,
+    noteListInput,
+    noteListSettings.showPhotos,
   ]);
 
   useEffect(() => {
@@ -714,11 +848,17 @@ export default function Export() {
   }, [recordUsage, seating]);
 
   // Circle exports are deliberately not recorded: the usage record tracks who
-  // sat next to whom at the tables, which a circle says nothing about.
+  // sat next to whom at the tables, which a circle says nothing about. Nor is
+  // the note list: it is a list of names, not the plan.
   const recordPreviewExport = useCallback(() => {
-    if (previewMode === 'circle') return;
+    if (previewMode !== 'table') return;
     recordTablePlanExport();
   }, [previewMode, recordTablePlanExport]);
+
+  // "Notizliste_7b": the list's file names the class, whatever its title.
+  const noteListFilename = [t('export.noteList.defaultTitle'), className]
+    .filter(Boolean)
+    .join('_');
 
   // Print via PDF - opens generated PDF in new tab for consistent cross-browser printing
   // Falls back to PDF download if popup is blocked
@@ -738,11 +878,10 @@ export default function Export() {
       const { generatePdfBlob, openPdfForPrinting, downloadPdfBlob } =
         await import('@/services/export/pdfExportFunctions');
 
-      // Use the correct orientation based on preview mode
-      const orientation =
-        previewMode === 'circle' ? circleOrientation : tableOrientation;
-
-      const pdfBlob = await generatePdfBlob(previewSvg, orientation);
+      const pdfBlob = await generatePdfBlob(
+        previewPages.length > 1 ? previewPages : previewSvg,
+        activeOrientation,
+      );
 
       // Try to open in new tab - if blocked, download as fallback
       const opened = openPdfForPrinting(pdfBlob);
@@ -750,10 +889,12 @@ export default function Export() {
       if (!opened) {
         // Popup was blocked - download the PDF instead
         const filename =
-          title ||
-          (previewMode === 'circle'
-            ? t('export.circleDefaultFilename', 'Sitzkreis')
-            : t('export.tableDefaultFilename', 'Sitzplan'));
+          previewMode === 'list'
+            ? noteListFilename
+            : title ||
+              (previewMode === 'circle'
+                ? t('export.circleDefaultFilename', 'Sitzkreis')
+                : t('export.tableDefaultFilename', 'Sitzplan'));
         downloadPdfBlob(pdfBlob, filename);
         showToast(
           'info',
@@ -775,9 +916,10 @@ export default function Export() {
   }, [
     recordPreviewExport,
     previewSvg,
+    previewPages,
     previewMode,
-    circleOrientation,
-    tableOrientation,
+    activeOrientation,
+    noteListFilename,
     title,
     exportError,
     t,
@@ -875,6 +1017,16 @@ export default function Export() {
     t,
   ]);
 
+  const handleNoteListPdf = useCallback(async () => {
+    try {
+      const { exportNoteListToPdf } =
+        await import('@/services/export/pdfExportFunctions');
+      await exportNoteListToPdf(noteListInput, noteListFilename);
+    } catch (error) {
+      exportError(error as Error, t('export.noteList.errors.pdfFailed'));
+    }
+  }, [noteListInput, noteListFilename, exportError, t]);
+
   // Image exports reuse the rendered preview markup (WYSIWYG) instead of
   // re-rendering, so they always match what the user is looking at.
   const imageExportBaseName =
@@ -952,12 +1104,16 @@ export default function Export() {
 
   // The toolbar has one PDF entry: the file of the arrangement on the sheet.
   const handlePdf = useCallback(() => {
+    if (previewMode === 'list') {
+      void handleNoteListPdf();
+      return;
+    }
     if (previewMode === 'circle') {
       void handleCirclePdf();
       return;
     }
     void handleTablePdf();
-  }, [previewMode, handleCirclePdf, handleTablePdf]);
+  }, [previewMode, handleNoteListPdf, handleCirclePdf, handleTablePdf]);
 
   const backToPlan = useCallback(
     () => navigate('/generator', { state: { step: 3 } }),
@@ -978,28 +1134,53 @@ export default function Export() {
     { condition: () => !isAnyDialogOpen() },
   );
 
-  const sheetLabel = t('export.sheetFormat', {
+  const pageCount = previewMode === 'list' ? previewPages.length : 1;
+  const sheetFormat = t('export.sheetFormat', {
     orientation:
       activeOrientation === 'landscape'
         ? t('export.landscape')
         : t('export.portrait'),
   });
+  const sheetLabel =
+    pageCount > 1
+      ? `${sheetFormat} · ${t('export.noteList.pages', { count: pageCount })}`
+      : sheetFormat;
+  const isList = previewMode === 'list';
 
   const sheetInspector = (
     <ExportSheetInspector
       mode={previewMode}
+      noteList={{
+        settings: noteListSettings,
+        onChange: updateNoteList,
+        circleAvailable: Boolean(circleLayout),
+      }}
+      pageCount={pageCount}
       title={title}
       onTitleChange={setTitle}
       orientation={activeOrientation}
       onOrientationChange={
-        previewMode === 'circle' ? setCircleOrientation : setTableOrientation
+        isList
+          ? (orientation) => updateNoteList({ orientation })
+          : previewMode === 'circle'
+            ? setCircleOrientation
+            : setTableOrientation
       }
       flipView={{ checked: flipView, onChange: handleToggleFlipView }}
       frameOnTables={{
         checked: frameOnTables,
         onChange: handleToggleFrameOnTables,
       }}
-      needs={{ checked: showNeeds, onChange: handleToggleNeeds }}
+      // The list keeps its own badges and photos, both off by default: a
+      // list left on a desk should not say who is restless.
+      needs={
+        isList
+          ? {
+              checked: noteListSettings.showBadges,
+              onChange: (showBadges) => updateNoteList({ showBadges }),
+            }
+          : { checked: showNeeds, onChange: handleToggleNeeds }
+      }
       badgeFamilies={{
         present: presentBadgeFamilies,
         hidden: hiddenBadgeFamilies,
@@ -1009,7 +1190,14 @@ export default function Export() {
         checked: showGenderColors,
         onChange: handleToggleGenderColors,
       }}
-      photos={{ checked: showPhotos, onChange: handleTogglePhotos }}
+      photos={
+        isList
+          ? {
+              checked: noteListSettings.showPhotos,
+              onChange: (next) => updateNoteList({ showPhotos: next }),
+            }
+          : { checked: showPhotos, onChange: handleTogglePhotos }
+      }
       legend={{ checked: showLegend, onChange: handleToggleLegend }}
       classInfo={{ checked: showClassInfo, onChange: handleToggleClassInfo }}
       connections={{

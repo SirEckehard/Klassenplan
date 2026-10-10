@@ -1,6 +1,6 @@
 # Privacy
 
-> **Status:** current · **Last reviewed:** 2026-10-06 · **For:** developers,
+> **Status:** current · **Last reviewed:** 2026-10-10 · **For:** developers,
 > self-hosting operators and schools evaluating Klassenplan
 
 This document describes what personal data Klassenplan handles, where it goes and
@@ -62,7 +62,10 @@ any other class
   an image or a CSV export is readable by whoever holds it — and a CSV export
   contains every attribute. The export page chooses per family which attributes
   a sheet carries, so a plan for the classroom wall can leave out behaviour and
-  learning ([decision 0021](decisions/0021-seat-badges-explained.md)).
+  learning ([decision 0021](decisions/0021-seat-badges-explained.md)). The
+  note list prints names alone until badges or photos are switched on, and
+  what a teacher writes on it stays on paper: the app has no note field on a
+  student.
 - **Nobody else.** Neither klassenplan.de nor a self-hosting operator receives
   student data.
 

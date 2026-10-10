@@ -4,9 +4,11 @@ import type { CircleLayout } from '@/types/Circle';
 import type { ClassroomScene, SeatingArrangement, Student } from '@/types';
 import {
   renderCircleSvg,
+  renderNoteListSvgPages,
   renderSceneSvg,
   type ExportClassMetadata,
 } from '@/services/export/sceneRenderer';
+import type { NoteListInput } from '@/components/scene/NoteListSheet';
 import { logError, toIsoDate } from '@/utils';
 import type { DataFamily, NameDisplayMode } from '@/utils';
 import { confirmDownload } from '@/utils/ui/downloadConfirmation';
@@ -132,6 +134,20 @@ export async function exportCircleLayoutToPdf(
   );
 }
 
+/**
+ * Export the note list as PDF, one page per page of the list.
+ */
+export async function exportNoteListToPdf(
+  input: NoteListInput,
+  filename: string,
+): Promise<void> {
+  const photoDataUrls = input.settings.showPhotos
+    ? await buildPhotoDataUrlMap(input.students)
+    : undefined;
+  const pages = await renderNoteListSvgPages({ ...input, photoDataUrls });
+  await exportSvgToPdf(pages, filename, input.settings.orientation);
+}
+
 const PDF_PAGE_DIMENSIONS: Record<
   'portrait' | 'landscape',
   { width: number; height: number }
@@ -157,10 +173,10 @@ const PDF_IMAGE_COMPRESSION = 'MEDIUM' as const;
 const PDF_PAGE_BACKGROUND = '#ffffff';
 
 /**
- * Rasterize the export markup and place it on a fresh A4 page.
+ * Rasterize each page's export markup onto a page of its own, A4 throughout.
  */
-async function renderPdfPage(
-  svgMarkup: string,
+async function renderPdfPages(
+  pages: readonly string[],
   orientation: 'landscape' | 'portrait',
 ): Promise<import('jspdf').jsPDF> {
   const { jsPDF } = await import('jspdf');
@@ -171,44 +187,54 @@ async function renderPdfPage(
     compress: true,
   });
 
-  const svgElement = extractSvgElement(svgMarkup);
   const { width, height } = PDF_PAGE_DIMENSIONS[orientation];
   const widthPx = Math.round(width * PIXELS_PER_MM);
   const heightPx = Math.round(height * PIXELS_PER_MM);
-  svgElement.setAttribute('width', `${widthPx}px`);
-  svgElement.setAttribute('height', `${heightPx}px`);
-  svgElement.setAttribute('preserveAspectRatio', 'xMidYMid meet');
 
-  const serializedSvg = new XMLSerializer().serializeToString(svgElement);
-  const imageDataUrl = await renderSvgToPngDataUrl(
-    serializedSvg,
-    widthPx,
-    heightPx,
-    PDF_PAGE_BACKGROUND,
-  );
+  for (const [index, svgMarkup] of pages.entries()) {
+    const svgElement = extractSvgElement(svgMarkup);
+    svgElement.setAttribute('width', `${widthPx}px`);
+    svgElement.setAttribute('height', `${heightPx}px`);
+    svgElement.setAttribute('preserveAspectRatio', 'xMidYMid meet');
 
-  pdf.addImage(
-    imageDataUrl,
-    'PNG',
-    0,
-    0,
-    width,
-    height,
-    undefined,
-    PDF_IMAGE_COMPRESSION,
-  );
+    const serializedSvg = new XMLSerializer().serializeToString(svgElement);
+    const imageDataUrl = await renderSvgToPngDataUrl(
+      serializedSvg,
+      widthPx,
+      heightPx,
+      PDF_PAGE_BACKGROUND,
+    );
+
+    if (index > 0) {
+      pdf.addPage('a4', orientation);
+    }
+    pdf.addImage(
+      imageDataUrl,
+      'PNG',
+      0,
+      0,
+      width,
+      height,
+      undefined,
+      PDF_IMAGE_COMPRESSION,
+    );
+  }
 
   return pdf;
 }
 
 /**
- * Generate a PDF blob from SVG markup (for printing or preview)
+ * Generate a PDF blob from SVG markup (for printing or preview): one page, or
+ * one per entry of a list of pages.
  */
 export async function generatePdfBlob(
-  svgMarkup: string,
+  svgMarkup: string | readonly string[],
   orientation: 'landscape' | 'portrait',
 ): Promise<Blob> {
-  const pdf = await renderPdfPage(svgMarkup, orientation);
+  const pdf = await renderPdfPages(
+    typeof svgMarkup === 'string' ? [svgMarkup] : svgMarkup,
+    orientation,
+  );
   return pdf.output('blob');
 }
 
@@ -250,7 +276,7 @@ export function downloadPdfBlob(blob: Blob, filename: string): void {
 }
 
 async function exportSvgToPdf(
-  svgMarkup: string,
+  svgMarkup: string | readonly string[],
   filename: string,
   orientation: 'landscape' | 'portrait',
 ): Promise<void> {
@@ -264,7 +290,10 @@ async function exportSvgToPdf(
   }
 
   try {
-    const pdf = await renderPdfPage(svgMarkup, orientation);
+    const pdf = await renderPdfPages(
+      typeof svgMarkup === 'string' ? [svgMarkup] : svgMarkup,
+      orientation,
+    );
     pdf.save(pdfFilename);
   } catch (error) {
     logError('PDF export failed', { error, filename }, 'pdfExportFunctions');

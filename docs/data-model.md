@@ -273,6 +273,10 @@ list is `PROJECT_LOCAL_STORAGE_KEYS` in `storageKeys.ts`. Groups:
   whole room instead of being framed on the tables, and
   `spg.export.showGenderColors` is `false` once the sheet leaves the gender
   tint off its seats ([decision 0020](decisions/0020-gender-tint-on-seats.md)).
+  `spg.export.noteList` holds the note list's settings in one object
+  (`NoteListSettings`: form, lines, columns, order, orientation, photos,
+  badges), read field by field (`normalizeNoteListSettings`) so a field added
+  later starts at its default.
 - **Keyboard:** `spg.characterKeyShortcuts` — `false` once the teacher has
   switched off the shortcuts on a single character key ("?", P, F, 1–3, Q/E …)
   in the settings menu, for speech input (WCAG 2.1.4, `utils/characterKeys.ts`).

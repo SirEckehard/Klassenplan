@@ -93,6 +93,9 @@ export const STORAGE_KEYS = {
     exportFrameOnTables: 'spg.export.frameOnTables',
     // Whether the sheet tints the occupied seats by gender (decision 0020).
     exportShowGenderColors: 'spg.export.showGenderColors',
+    // The note list's form, order, orientation and what it shows, in one
+    // object (`NoteListSettings`).
+    exportNoteList: 'spg.export.noteList',
   },
   indexedDB: {
     students: 'spg.students',
@@ -225,6 +228,7 @@ export const PROJECT_LOCAL_STORAGE_KEYS = [
   STORAGE_KEYS.localStorage.exportHiddenBadgeFamilies,
   STORAGE_KEYS.localStorage.exportFrameOnTables,
   STORAGE_KEYS.localStorage.exportShowGenderColors,
+  STORAGE_KEYS.localStorage.exportNoteList,
   LEGACY_EXPORT_KEYS.showFullNames,
   LEGACY_EXPORT_KEYS.pageOrientation,
   LEGACY_LANGUAGE_KEY,

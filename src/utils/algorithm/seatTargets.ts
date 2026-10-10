@@ -38,14 +38,26 @@ const countLockedPerTable = (
   return counts;
 };
 
+/** A table in a row of {@link tableRowsFromFront}. */
+export type TableInRow = {
+  table: ClassroomTable;
+  index: number;
+  /** Distance of its centre from the front wall. */
+  depth: number;
+  /** Its centre along the front wall, as drawn (x, or y with the board at a side). */
+  lateral: number;
+};
+
 /**
- * The tables of the mix in the order they are filled from the front: row by
- * row away from the board, and within a row from the board's middle outwards,
- * so the students of a half-filled row sit where they see best. Ties fall to
- * the table index — the order is the same on every run, so a plan and its
- * refinement agree on which tables stay empty.
+ * The tables cut into rows away from the board: a row starts at its
+ * front-most table and takes every table up to `FRONT_ROW_TOLERANCE` behind
+ * it. Within a row the tables keep the order of their depth, ties by index.
+ * `include` picks the tables (by default those in the mix).
  */
-export function frontToBackTableOrder(scene: ClassroomScene): number[] {
+export function tableRowsFromFront(
+  scene: ClassroomScene,
+  include: (table: ClassroomTable) => boolean = isTableActive,
+): TableInRow[][] {
   const orientation = determineFrontDirection(scene);
   const alongX = orientation.dominantAxis === 'x';
   const centre = (table: ClassroomTable) => ({
@@ -57,6 +69,36 @@ export function frontToBackTableOrder(scene: ClassroomScene): number[] {
     if (alongX) return orientation.frontIsHighX ? CLASSROOM_WIDTH - x : x;
     return orientation.frontIsHighY ? CLASSROOM_HEIGHT - y : y;
   };
+
+  const byDepth = scene.tables
+    .map((table, index) => {
+      const { x, y } = centre(table);
+      return { table, index, depth: depthOf(table), lateral: alongX ? y : x };
+    })
+    .filter(({ table }) => include(table))
+    .sort((a, b) => a.depth - b.depth || a.index - b.index);
+
+  const rows: TableInRow[][] = [];
+  for (const entry of byDepth) {
+    const row = rows[rows.length - 1];
+    if (row && entry.depth - row[0]!.depth <= FRONT_ROW_TOLERANCE) {
+      row.push(entry);
+    } else {
+      rows.push([entry]);
+    }
+  }
+  return rows;
+}
+
+/**
+ * The tables of the mix in the order they are filled from the front: row by
+ * row away from the board, and within a row from the board's middle outwards,
+ * so the students of a half-filled row sit where they see best. Ties fall to
+ * the table index — the order is the same on every run, so a plan and its
+ * refinement agree on which tables stay empty.
+ */
+export function frontToBackTableOrder(scene: ClassroomScene): number[] {
+  const alongX = determineFrontDirection(scene).dominantAxis === 'x';
   const board = (scene.features ?? [])
     .filter((f) => f.type === 'board')
     .sort((a, b) => a.id.localeCompare(b.id))[0];
@@ -67,33 +109,11 @@ export function frontToBackTableOrder(scene: ClassroomScene): number[] {
     : alongX
       ? CLASSROOM_HEIGHT / 2
       : CLASSROOM_WIDTH / 2;
-  const offCentre = (table: ClassroomTable) => {
-    const { x, y } = centre(table);
-    return Math.abs((alongX ? y : x) - middle);
-  };
+  const offCentre = (entry: TableInRow) => Math.abs(entry.lateral - middle);
 
-  const byDepth = scene.tables
-    .map((table, index) => ({ table, index, depth: depthOf(table) }))
-    .filter(({ table }) => isTableActive(table))
-    .sort((a, b) => a.depth - b.depth || a.index - b.index);
-
-  // Cut the tables into rows: a row starts at its front-most table and takes
-  // every table up to the tolerance behind it.
-  const rows: (typeof byDepth)[] = [];
-  for (const entry of byDepth) {
-    const row = rows[rows.length - 1];
-    if (row && entry.depth - row[0]!.depth <= FRONT_ROW_TOLERANCE) {
-      row.push(entry);
-    } else {
-      rows.push([entry]);
-    }
-  }
-
-  return rows.flatMap((row) =>
+  return tableRowsFromFront(scene).flatMap((row) =>
     row
-      .sort(
-        (a, b) => offCentre(a.table) - offCentre(b.table) || a.index - b.index,
-      )
+      .sort((a, b) => offCentre(a) - offCentre(b) || a.index - b.index)
       .map(({ index }) => index),
   );
 }

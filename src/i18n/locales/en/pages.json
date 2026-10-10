@@ -412,11 +412,15 @@
       },
       "exportFormats": {
         "q": "In which formats can I export the seating plan?",
-        "a": "The export page saves PDF, PNG and SVG and prints directly – handy for letters to parents, cover folders or the school portal. You choose the seating plan or the circle under “View” in the toolbar, and adjust how it looks in the inspector."
+        "a": "The export page saves PDF, PNG and SVG and prints directly – handy for letters to parents, cover folders or the school portal. You choose the seating plan, the circle or the list under “View” in the toolbar, and adjust how it looks in the inspector."
       },
       "print": {
         "q": "I want to print the seating plan and have the blackboard shown at the bottom as orientation. Is that possible?",
         "a": "Yes. On the export page, set the orientation to “Portrait” under “Page Format” on the right and leave the blackboard switched on under “Room Elements”. If your desk is at the back of the room, set the viewing direction to “From the back”. That way the printout keeps the same orientation as the classroom."
+      },
+      "noteList": {
+        "q": "Can I print a class list to take notes on?",
+        "a": "Yes. On the export page, choose “List” under “View”. Every name has room to write beside it: ruled lines for observations, or a grid of empty columns to tick off, whose heads you label yourself with a date or a topic. The order follows the tables as in the plan – so you find the right row as you walk round the room –, the circle or the alphabet."
       },
       "names": {
         "q": "The names on the plan are too long and too small – what can I do?",
