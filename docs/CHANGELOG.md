@@ -37,6 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - An image or PDF exported between midnight and two in the morning carried the previous day's date in its file name
 - In an exported image or PDF, letters such as ğ, ş, ł or ő in a name were drawn in another font than the rest
 - A student who was removed stayed in the others' wish and distance lists, unseen: the place counted against the limit of three, and the fulfilment of the wishes could never reach 100 %
+- On a large screen a long class list had a second scrollbar beside its own, which moved the whole class layer by a few pixels. Only the list scrolls now
 
 ## [3.1.0] - 2026-10-07
 

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import type { KeyboardEvent, MutableRefObject } from 'react';
+import type { KeyboardEvent } from 'react';
 import { useInspector } from '@/contexts/InspectorContext';
 import { useIsPhone } from '@/hooks/ui/useLayoutMode';
 import StudentRow from '@/components/students/StudentRow';
@@ -17,8 +17,6 @@ type StudentListProps = {
    */
   allStudents?: Student[];
   lastAddedId: string | null;
-  listContainerRef: MutableRefObject<HTMLDivElement | null>;
-  maxHeight: number | null;
   /** Multi-select for bulk edits; omitted hides the row checkboxes. */
   isSelected?: (studentId: string) => boolean;
   onToggleSelected?: (studentId: string) => void;
@@ -41,8 +39,6 @@ const StudentList = ({
   students,
   allStudents,
   lastAddedId,
-  listContainerRef,
-  maxHeight,
   isSelected,
   onToggleSelected,
   allVisibleSelected,
@@ -103,18 +99,18 @@ const StudentList = ({
   }
 
   // From `lg` up the list scrolls inside its card; below it flows in the page.
+  // There the stage is a column the card shrinks into (`StudentInput`), so
+  // its height follows the stage by CSS and the stage itself never scrolls.
   // The card is a size container: whether a row's chips stand beside the
   // name or under it depends on how wide the list is, not the window — the
   // toolbar and the inspector take their share of a wide one.
   return (
     <div
-      className={`${listContainerClass} @container relative mb-4 overflow-hidden`}
+      className={`${listContainerClass} @container relative mb-4 overflow-hidden lg:mb-0 lg:flex lg:min-h-0 lg:flex-col`}
     >
       <div
-        ref={listContainerRef}
         onKeyDown={handleKeyDown}
-        className="grid content-start lg:overflow-y-auto"
-        style={maxHeight ? { maxHeight: `${maxHeight}px` } : undefined}
+        className="grid content-start lg:min-h-0 lg:overflow-y-auto"
       >
         <StudentListHeader
           allVisibleSelected={allVisibleSelected}

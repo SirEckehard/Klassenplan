@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useAdaptiveViewportHeight } from '@/hooks/ui/useAdaptiveViewportHeight';
-import { useCookieBannerOffset } from '@/hooks/ui/useCookieBannerOffset';
 import { usePrefersReducedMotion } from '@/hooks/ui/usePrefersReducedMotion';
 import { getViewportMetrics, onVisualViewport } from '@/utils';
 import { SHELL_STATUS_BAR_HEIGHT } from '@/components/shell/shellTokens';
@@ -11,12 +9,6 @@ type UseStudentListLayoutOptions = {
   isMobile: boolean;
   studentCount: number;
 };
-
-// Space kept free below the list so the action row (name game / proceed
-// buttons) stays visible: collapsed list/action-row margin (24px), the button
-// row itself (~36px) and a small bottom margin matching the step-2 footer
-// buttons, so the action row shares their baseline on desktop viewports.
-const ACTION_ROW_RESERVED_PX = 76;
 
 /**
  * Which way the floating scroll button points, or `null` while both ends of the
@@ -33,22 +25,10 @@ export const useStudentListLayout = ({
   isMobile,
   studentCount,
 }: UseStudentListLayoutOptions) => {
-  const cookieBannerOffset = useCookieBannerOffset();
   // Marks the end of the list for the phone's scroll affordance. It used to
   // be the Namensspiel button; that moved to the toolbar, so what is left is
   // an empty sentinel element.
   const listEndRef = useRef<HTMLDivElement | null>(null);
-  const { containerRef: listContainerRef, maxHeight: listMaxHeight } =
-    useAdaptiveViewportHeight<HTMLDivElement>({
-      disabled: isMobile,
-      reservedBottom: ACTION_ROW_RESERVED_PX + cookieBannerOffset,
-      minHeight: 280,
-      fallbackHeight: 448,
-      includeViewportOffset: true,
-      changeThreshold: 50,
-      debounceMs: 300,
-      dependencies: [studentCount, cookieBannerOffset],
-    });
   const listTopRef = useRef<HTMLDivElement | null>(null);
   const prefersReducedMotion = usePrefersReducedMotion();
   const [scrollHint, setScrollHint] = useState<ListScrollHint>(null);
@@ -134,8 +114,6 @@ export const useStudentListLayout = ({
   }, [prefersReducedMotion, scrollHint]);
 
   return {
-    listContainerRef,
-    listMaxHeight,
     listTopRef,
     listEndRef,
     scrollHint,

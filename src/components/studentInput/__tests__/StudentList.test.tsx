@@ -39,13 +39,7 @@ const renderList = (
   render(
     <InspectorProvider>
       <Probe />
-      <StudentList
-        students={students}
-        lastAddedId={null}
-        listContainerRef={{ current: null }}
-        maxHeight={null}
-        {...props}
-      />
+      <StudentList students={students} lastAddedId={null} {...props} />
     </InspectorProvider>,
   );
 

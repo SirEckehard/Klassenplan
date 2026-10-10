@@ -84,20 +84,14 @@ function StudentInput({
   const navigate = useLocalizedNavigate();
   const [placeholderCount, setPlaceholderCount] = useState('10');
 
-  // Below `lg` the list flows in the page scroll (no inner scroll container);
-  // at `lg+` the adaptive-viewport hook caps the inner scroll height.
+  // Below `lg` the list flows in the page scroll and the phone gets a scroll
+  // affordance; at `lg+` the list scrolls inside its card (`StudentList`).
   const isLgUp = useIsLgUp();
-  const {
-    listContainerRef,
-    listMaxHeight,
-    listTopRef,
-    listEndRef,
-    scrollHint,
-    handleScrollHint,
-  } = useStudentListLayout({
-    isMobile: !isLgUp,
-    studentCount: students.length,
-  });
+  const { listTopRef, listEndRef, scrollHint, handleScrollHint } =
+    useStudentListLayout({
+      isMobile: !isLgUp,
+      studentCount: students.length,
+    });
 
   // Student management hook
   const {
@@ -353,10 +347,12 @@ function StudentInput({
       {/* The scroll anchor sits on the stage root: the list toolbar only
           appears from `STUDENT_LIST_TOOLS_THRESHOLD` students up, and the way
           back should land above the list either way — below the sticky
-          header, not under it (`scroll-mt-20`). */}
+          header, not under it (`scroll-mt-20`). From `lg` up the list's
+          stage is a column the list card shrinks into, so only the list
+          scrolls; the focus mode and the relations keep the stage's scroll. */}
       <div
         ref={listTopRef}
-        className={`${workspaceStageClass} scroll-mt-20 space-y-4`}
+        className={`${workspaceStageClass} scroll-mt-20 space-y-4 ${listMode === 'list' ? 'lg:flex lg:flex-col' : ''}`}
       >
         {showListTools && listMode === 'list' && (
           <StudentListToolsRow
@@ -505,8 +501,6 @@ function StudentInput({
               students={listView.visibleStudents}
               allStudents={students}
               lastAddedId={lastAddedId}
-              listContainerRef={listContainerRef}
-              maxHeight={listMaxHeight}
               isSelected={showListTools ? selection.isSelected : undefined}
               onToggleSelected={showListTools ? selection.toggle : undefined}
               selectionActive={selectionActive}
@@ -520,7 +514,7 @@ function StudentInput({
         {/* The mobile scroll affordance uses this to mean "the end of the
             list"; the Namensspiel button it used to hang on now sits in the
             toolbar with the rest of what a whole class can undergo. */}
-        <div ref={listEndRef} aria-hidden="true" />
+        <div ref={listEndRef} aria-hidden="true" className="lg:hidden" />
       </div>
 
       {/* The attribute pass keeps its way on stuck to the bottom edge, where
