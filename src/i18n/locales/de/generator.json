@@ -884,6 +884,8 @@
     "inspectorHide": "Inspektor ausblenden",
     "inspectorShow": "Inspektor einblenden",
     "inspectorShowNamed": "{{name}} einblenden",
+    "unsaved": "Nicht gespeichert",
+    "unsavedRetry": "Änderungen nicht gespeichert – jetzt erneut versuchen",
     "status": {
       "noStudents": "Noch keine Schüler",
       "students_one": "{{count}} Schüler",

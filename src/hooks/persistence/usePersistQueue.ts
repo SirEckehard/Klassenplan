@@ -24,7 +24,22 @@ import type {
   PersistQueueRefs,
 } from './types';
 import { INITIAL_PERSIST_VERSIONS } from './types';
-import type { PersistErrorHandlingReturn } from './usePersistErrorHandling';
+import {
+  isMissingClassPersistError,
+  type PersistErrorHandlingReturn,
+} from './usePersistErrorHandling';
+import { registerPersistRetry } from './persistStatus';
+
+/** The first attempt after a failed write waits this long… */
+const PERSIST_RETRY_BASE_MS = 1000;
+/** …and every further one twice as long, up to this. */
+const PERSIST_RETRY_MAX_MS = 30_000;
+/**
+ * Attempts the queue makes on its own, about three minutes' worth. A store
+ * that stays full would otherwise be rewritten every half minute for good;
+ * after them the next edit or the status bar's button tries again.
+ */
+const PERSIST_RETRY_LIMIT = 8;
 
 export interface PersistQueueReturn {
   /** Add a job to the persist queue */
@@ -45,6 +60,12 @@ export interface PersistQueueReturn {
 /**
  * Hook for managing the persistence queue.
  *
+ * A write that fails puts its jobs back, unless a newer one for the same key
+ * arrived meanwhile, and the queue tries again — after a second, then twice as
+ * long each time up to half a minute, and right away when the teacher asks
+ * from the status bar (`retryPersistNow`). Before, a failed job was dropped
+ * and its data stayed unsaved until the same field happened to change again.
+ *
  * @param repository - Repository for saving data
  * @param errorHandling - Error handling utilities
  * @param activeClassIdRef - Ref to current active class ID
@@ -57,7 +78,7 @@ export function usePersistQueue(
   activeClassIdRef: MutableRefObject<string | null>,
   isRestoringRef: MutableRefObject<boolean>,
 ): PersistQueueReturn {
-  const { persistSnapshotResult, tryDisplayPersistError } = errorHandling;
+  const { persistSnapshotResult, reportPersistFailure } = errorHandling;
 
   // Queue state refs
   const persistVersionsRef = useRef<Record<PersistKey, number>>({
@@ -67,6 +88,16 @@ export function usePersistQueue(
   const flushScheduledRef = useRef(false);
   const isFlushingRef = useRef(false);
   const lastPersistedSnapshotRef = useRef<PersistSnapshot>({});
+  // Failed writes in a row, and the attempt waiting for its turn.
+  const failureCountRef = useRef(0);
+  const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const cancelRetry = useCallback(() => {
+    if (retryTimerRef.current !== null) {
+      clearTimeout(retryTimerRef.current);
+      retryTimerRef.current = null;
+    }
+  }, []);
 
   const clearQueue = useCallback(() => {
     persistQueueRef.current = {};
@@ -74,7 +105,10 @@ export function usePersistQueue(
     if (flushScheduledRef.current) {
       flushScheduledRef.current = false;
     }
-  }, []);
+    // What failed belonged to the queue just emptied.
+    cancelRetry();
+    failureCountRef.current = 0;
+  }, [cancelRetry]);
 
   const incrementAllVersions = useCallback(() => {
     (Object.keys(persistVersionsRef.current) as PersistKey[]).forEach((key) => {
@@ -84,18 +118,57 @@ export function usePersistQueue(
 
   const flushPersistQueueRef = useRef<() => Promise<void>>(async () => {});
 
-  // eslint-disable-next-line react-hooks/immutability -- errorHandling.refs contains a ref object; mutation is intentional
+  const runFlush = useCallback(() => {
+    flushPersistQueueRef.current().catch((error: unknown) => {
+      logError('Persist flush failed', { error }, 'usePersistQueue');
+    });
+  }, []);
+
+  /**
+   * Puts the jobs of a failed write back, each unless a newer job for its
+   * key was queued or versioned meanwhile — the newer one carries the data.
+   */
+  const requeue = useCallback((jobs: PersistJobMap, keys: PersistKey[]) => {
+    for (const key of keys) {
+      const job = jobs[key];
+      if (!job || persistVersionsRef.current[key] !== job.version) continue;
+      if (persistQueueRef.current[key]) continue;
+      (
+        persistQueueRef.current as Record<
+          PersistKey,
+          PersistJob<PersistKey> | undefined
+        >
+      )[key] = job as PersistJob<PersistKey>;
+    }
+  }, []);
+
+  const scheduleRetry = useCallback(() => {
+    failureCountRef.current += 1;
+    if (retryTimerRef.current !== null) return;
+    if (failureCountRef.current > PERSIST_RETRY_LIMIT) return;
+    const delay = Math.min(
+      PERSIST_RETRY_MAX_MS,
+      PERSIST_RETRY_BASE_MS * 2 ** (failureCountRef.current - 1),
+    );
+    retryTimerRef.current = setTimeout(() => {
+      retryTimerRef.current = null;
+      runFlush();
+    }, delay);
+  }, [runFlush]);
+
   const flushPersistQueue = useCallback(async () => {
     if (isFlushingRef.current) {
       return;
     }
 
     isFlushingRef.current = true;
+    const queuedJobs = persistQueueRef.current;
+    persistQueueRef.current = {};
+    // Whether a write of this flush failed: then the retry, the next edit or
+    // the status bar's button go on, not an immediate second round.
+    let failed = false;
 
     try {
-      const queuedJobs = persistQueueRef.current;
-      persistQueueRef.current = {};
-
       // Capture current class ID at flush time to detect stale jobs
       const currentClassId = activeClassIdRef.current;
 
@@ -186,40 +259,77 @@ export function usePersistQueue(
             // Log error for background saves too
             persistSnapshotResult(result, changedKeys);
           }
+
+          if (result.success) {
+            if (isActiveClass) {
+              failureCountRef.current = 0;
+              cancelRetry();
+            }
+          } else if (
+            isActiveClass &&
+            !isMissingClassPersistError(result.error)
+          ) {
+            failed = true;
+            requeue(classJobs, changedKeys);
+            scheduleRetry();
+          }
         }
       }
     } catch (error) {
-      logError('Persist snapshot threw', { error }, 'usePersistQueue');
-      errorHandling.refs.pendingPersistErrorRef.current = true; // eslint-disable-line react-hooks/immutability -- writing to a ref, not state
-      tryDisplayPersistError();
+      // The repository returns its failures; a throw is unexpected, so every
+      // job of this flush that is still current goes back for the next try.
+      failed = true;
+      requeue(queuedJobs, Object.keys(queuedJobs) as PersistKey[]);
+      reportPersistFailure(error);
+      scheduleRetry();
     } finally {
       isFlushingRef.current = false;
     }
 
+    // What arrived during the write goes next — unless a write failed: the
+    // retry takes it along, and storage that just refused gets no second
+    // round at once.
     if (
       Object.keys(persistQueueRef.current).length > 0 &&
-      !flushScheduledRef.current
+      !flushScheduledRef.current &&
+      !failed
     ) {
       flushScheduledRef.current = true;
       scheduleIdleTask(
         () => {
           flushScheduledRef.current = false;
-          void flushPersistQueueRef.current();
+          runFlush();
         },
         { timeout: 250, fallbackDelay: 80 },
       );
     }
   }, [
     activeClassIdRef,
-    errorHandling.refs.pendingPersistErrorRef,
+    cancelRetry,
     persistSnapshotResult,
+    reportPersistFailure,
     repository,
-    tryDisplayPersistError,
+    requeue,
+    runFlush,
+    scheduleRetry,
   ]);
 
   useLayoutEffect(() => {
     flushPersistQueueRef.current = flushPersistQueue;
   });
+
+  // The status bar's "Nicht gespeichert" writes what failed right away.
+  useEffect(
+    () =>
+      registerPersistRetry(() => {
+        cancelRetry();
+        runFlush();
+      }),
+    [cancelRetry, runFlush],
+  );
+
+  // A retry must not outlive the queue it belongs to.
+  useEffect(() => cancelRetry, [cancelRetry]);
 
   // Queued writes wait for an idle callback that never arrives once the tab is
   // hidden or torn down, so the last edit before closing would be lost. Both
@@ -292,12 +402,12 @@ export function usePersistQueue(
       scheduleIdleTask(
         () => {
           flushScheduledRef.current = false;
-          void flushPersistQueueRef.current();
+          runFlush();
         },
         { timeout: 250, fallbackDelay: 80 },
       );
     },
-    [activeClassIdRef, isRestoringRef],
+    [activeClassIdRef, isRestoringRef, runFlush],
   );
 
   const refs = useMemo(

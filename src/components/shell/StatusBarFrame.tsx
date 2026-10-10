@@ -7,6 +7,7 @@ import {
   ArrowLineRightIcon,
   CloudSlashIcon,
   SlidersHorizontalIcon,
+  WarningCircleIcon,
   WrenchIcon,
 } from '@phosphor-icons/react';
 import {
@@ -18,6 +19,10 @@ import { useStatusBarSlot } from '@/contexts/StatusBarSlotContext';
 import { useLayoutMode } from '@/hooks/ui/useLayoutMode';
 import { useOnlineStatus } from '@/hooks/ui/useOnlineStatus';
 import { useRegisterStatusBar } from '@/hooks/ui/statusBarPresence';
+import {
+  retryPersistNow,
+  usePersistStatus,
+} from '@/hooks/persistence/persistStatus';
 import { quietIconButtonClass, secondaryButtonClass } from '@/utils';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 
@@ -79,6 +84,10 @@ export const statusBarWordClass = 'hidden lg:pointer-fine:inline xl:inline';
  * Offline, a small cloud beside the switches says so — the app goes on
  * working, so it is a note, not a warning — in place of the floating badge
  * the pages without a bar keep (`OfflineIndicator`).
+ *
+ * When writes to storage fail, "Nicht gespeichert" stands in the same place
+ * until one succeeds (`persistStatus`): that is a warning, so it is a button
+ * in the alert's ink that tries again at once.
  */
 export default function StatusBarFrame({
   start,
@@ -108,6 +117,7 @@ export default function StatusBarFrame({
   } = useInspector();
   const { setFloatNode } = useStatusBarSlot();
   const isOnline = useOnlineStatus();
+  const unsaved = usePersistStatus() === 'failed';
   useRegisterStatusBar();
   const isDesktop = layoutMode === 'desktop';
   // From `lg` up every layer's column folds; below it there is a drawer only
@@ -217,8 +227,21 @@ export default function StatusBarFrame({
               <CloudSlashIcon size={16} />
             </span>
           )}
+          {unsaved && (
+            <button
+              type="button"
+              onClick={retryPersistNow}
+              aria-label={t('shell.unsavedRetry')}
+              title={t('shell.unsavedRetry')}
+              className={`${secondaryButtonClass} h-9 shrink-0 gap-2 px-3 text-(--status-alert-text) max-sm:w-9 max-sm:px-0`}
+            >
+              <WarningCircleIcon size={16} aria-hidden="true" />
+              <span className={statusBarWordClass}>{t('shell.unsaved')}</span>
+            </button>
+          )}
           {/* A polite status of its own, out of the flow, so going offline is
-              said once while the bar as a whole stays quiet. */}
+              said once while the bar as a whole stays quiet. The failed write
+              announces itself through its toast. */}
           <span role="status" className="sr-only">
             {isOnline ? '' : t('common:offline.badge')}
           </span>

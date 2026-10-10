@@ -289,6 +289,22 @@ describe('rooms of a class', () => {
     expect(vi.mocked(idbSetMock)).not.toHaveBeenCalled();
   });
 
+  it('repairs data from before rooms once when two reads come at once', async () => {
+    memory.set(DB_KEYS.classCollection, classFromBefore());
+    vi.mocked(idbSetMock).mockClear();
+
+    // Start-up asks for the collection and the open class in the same tick.
+    const [collection, snapshot] = await Promise.all([
+      repository.loadClassCollection(),
+      repository.loadActiveClassSnapshot(),
+    ]);
+
+    expect(expectData(snapshot).rooms).toEqual(
+      expectData(collection).classes[0]?.rooms,
+    );
+    expect(vi.mocked(idbSetMock)).toHaveBeenCalledTimes(1);
+  });
+
   it('creates a class with a room of its own', async () => {
     const record = expectData(
       await repository.createClass({ name: '5a' }, { activate: true }),
@@ -534,6 +550,63 @@ describe('clearAll', () => {
 });
 
 describe('storage failures', () => {
+  it('runs two calls made in the same tick one after the other', async () => {
+    const idb = await import('idb-keyval');
+    let running = 0;
+    let mostAtOnce = 0;
+    vi.mocked(idb.get).mockImplementation(async (key) => {
+      running += 1;
+      mostAtOnce = Math.max(mostAtOnce, running);
+      await new Promise((resolve) => setTimeout(resolve, 5));
+      running -= 1;
+      return memory.get(String(key));
+    });
+
+    try {
+      await Promise.all([
+        repository.loadTemplates(),
+        repository.loadTemplates(),
+      ]);
+    } finally {
+      vi.mocked(idb.get).mockImplementation(async (key) =>
+        memory.get(String(key)),
+      );
+    }
+
+    expect(mostAtOnce).toBe(1);
+  });
+
+  it('forgets a class whose creation could not be stored', async () => {
+    const idb = await import('idb-keyval');
+    // IndexedDB stores a clone: what failed to reach it is not in it.
+    vi.mocked(idb.get).mockImplementation(async (key) =>
+      structuredClone(memory.get(String(key))),
+    );
+    vi.mocked(idb.set).mockImplementation(async (key, value) => {
+      memory.set(String(key), structuredClone(value));
+    });
+
+    try {
+      expectData(await repository.loadClassCollection());
+      vi.mocked(idb.set).mockRejectedValueOnce(new Error('quota exceeded'));
+
+      expectFailure(await repository.createClass({ name: '8b' }));
+
+      expect(expectData(await repository.listClasses())).toEqual([]);
+      // Nothing of the first attempt is left to collide with the second.
+      expect(
+        expectData(await repository.createClass({ name: '8b' })).name,
+      ).toBe('8b');
+    } finally {
+      vi.mocked(idb.get).mockImplementation(async (key) =>
+        memory.get(String(key)),
+      );
+      vi.mocked(idb.set).mockImplementation(async (key, value) => {
+        memory.set(String(key), value);
+      });
+    }
+  });
+
   it('turns a rejecting driver into a Result failure', async () => {
     const idb = await import('idb-keyval');
     vi.mocked(idb.set).mockRejectedValueOnce(new Error('quota exceeded'));

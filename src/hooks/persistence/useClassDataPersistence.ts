@@ -43,9 +43,19 @@ export interface ClassDataState {
   hasActiveClass: boolean;
 }
 
+export interface ReloadClassDataOptions {
+  /**
+   * Drop what is queued instead of writing it first. A class switch writes
+   * the edits of the class left; a restored backup replaced everything they
+   * belonged to, and writing them would put them into the class of the backup
+   * that carries the same id.
+   */
+  discardPending?: boolean;
+}
+
 export interface ClassDataPersistenceReturn {
   /** Reload current class data from storage */
-  reloadCurrentClassData: () => Promise<{
+  reloadCurrentClassData: (options?: ReloadClassDataOptions) => Promise<{
     currentSeating: SeatingArrangement;
     circleLayout: CircleLayout | null;
     lockedPositions: LockedPositions;
@@ -199,45 +209,50 @@ export function useClassDataPersistence(
     });
   }, [hasActiveClass, queuePersist, persistableData]);
 
-  const reloadCurrentClassData = useCallback(async () => {
-    try {
-      // Flush any pending persist operations before loading new class data
-      // to prevent data loss during class switches
-      await flushPersistQueue();
+  const reloadCurrentClassData = useCallback(
+    async (options?: ReloadClassDataOptions) => {
+      try {
+        // Flush any pending persist operations before loading new class data
+        // to prevent data loss during class switches
+        if (!options?.discardPending) {
+          await flushPersistQueue();
+        }
 
-      // CRITICAL: Clear queue again after flush to prevent any jobs
-      // that were added during flush from being written
-      clearQueue();
+        // CRITICAL: Clear queue again after flush to prevent any jobs
+        // that were added during flush from being written
+        clearQueue();
 
-      const snapshot = await fetchPersistedState();
-      applyPersistedState(snapshot);
-      const activeSnapshot = snapshot.activeClassSnapshotResult.success
-        ? snapshot.activeClassSnapshotResult.data
-        : null;
-      return {
-        currentSeating: activeSnapshot?.currentSeating ?? [],
-        circleLayout: activeSnapshot?.circleLayout ?? null,
-        lockedPositions: activeSnapshot?.lockedPositions ?? {},
-        planName:
-          activeSnapshot?.seatingHistory?.find(
-            (p) => p.id === activeSnapshot.activePlanId,
-          )?.name ?? '',
-      };
-    } finally {
-      // Fallback: ensure we never leave persistence locked if loading fails
-      if (isRestoringRef.current) {
-        setTimeout(() => {
-          isRestoringRef.current = false;
-        }, 0);
+        const snapshot = await fetchPersistedState();
+        applyPersistedState(snapshot);
+        const activeSnapshot = snapshot.activeClassSnapshotResult.success
+          ? snapshot.activeClassSnapshotResult.data
+          : null;
+        return {
+          currentSeating: activeSnapshot?.currentSeating ?? [],
+          circleLayout: activeSnapshot?.circleLayout ?? null,
+          lockedPositions: activeSnapshot?.lockedPositions ?? {},
+          planName:
+            activeSnapshot?.seatingHistory?.find(
+              (p) => p.id === activeSnapshot.activePlanId,
+            )?.name ?? '',
+        };
+      } finally {
+        // Fallback: ensure we never leave persistence locked if loading fails
+        if (isRestoringRef.current) {
+          setTimeout(() => {
+            isRestoringRef.current = false;
+          }, 0);
+        }
       }
-    }
-  }, [
-    applyPersistedState,
-    clearQueue,
-    fetchPersistedState,
-    flushPersistQueue,
-    isRestoringRef,
-  ]);
+    },
+    [
+      applyPersistedState,
+      clearQueue,
+      fetchPersistedState,
+      flushPersistQueue,
+      isRestoringRef,
+    ],
+  );
 
   return {
     reloadCurrentClassData,

@@ -1,6 +1,6 @@
 # Data Model
 
-> **Status:** current · **Last reviewed:** 2026-10-07 · **Source of truth:**
+> **Status:** current · **Last reviewed:** 2026-10-10 · **Source of truth:**
 > `src/utils/data/storageKeys.ts`, `src/types/`, `src/repositories/`
 
 Everything Klassenplan stores lives in the teacher's browser. This document
@@ -92,8 +92,10 @@ interface RoomWorkingState {
   live inside its record; switching classes means reading a different record.
 - **The whole collection is one value.** Every write replaces
   `spg.classCollection` as a whole. `IndexedDBRepository` serialises its
-  operations through a promise chain and keeps the collection cached in memory.
-  This is also why photos have a store of their own.
+  operations through a promise chain — extended before anything awaits, so two
+  calls in the same tick queue up — and keeps the collection cached in memory;
+  a write that fails drops the cache, so the next read starts again from
+  storage. This is also why photos have a store of their own.
 - **`activeClassId` repairs itself on read** (`ensureActiveClass`): an unknown or
   missing id falls back to the first class.
 - **A class keeps its rooms** ([decision 0024](decisions/0024-rooms-of-a-class.md)).
@@ -162,8 +164,23 @@ every render and queues the ones that changed. `usePersistQueue` then:
 On a class switch, the reload first writes what is still queued for the class
 that was open, then loads the new class and bumps every version, so a job queued
 before the load is discarded; see
-[ARCHITECTURE.md](ARCHITECTURE.md#switching-classes). Write failures reach the
-teacher as a toast through `usePersistErrorHandling`.
+[ARCHITECTURE.md](ARCHITECTURE.md#switching-classes). A restore that replaces
+everything writes what is queued first, then holds the queue shut
+(`isRestoringRef`) and reloads without writing
+(`reloadCurrentClassData({ discardPending: true })`): the backup's top-level
+fields go on screen during the import, and queued for the class open then,
+they used to land in that class of the restored collection.
+
+A write that fails is said at once, one toast per run of failures
+(`usePersistErrorHandling`). Its jobs go back into the queue unless a newer job
+for the same key arrived, and the queue tries again after one second, then
+twice as long each time up to half a minute, eight times on its own; the next
+edit and the status bar's "Nicht gespeichert" — a button, shown until a write
+succeeds (`hooks/persistence/persistStatus.ts`) — try again at once. While
+writes fail, leaving the page asks first. When the browser closed the
+database connection under the page — Safari does after a while in the
+background — `idbClient` opens the default store anew and repeats the call
+once.
 
 Once a class is active, `ensureStoragePersistence()` asks the browser once per
 page load to exempt the site from storage eviction (`navigator.storage.persist`;

@@ -884,6 +884,8 @@
     "inspectorHide": "Hide inspector",
     "inspectorShow": "Show inspector",
     "inspectorShowNamed": "Show {{name}}",
+    "unsaved": "Not saved",
+    "unsavedRetry": "Changes not saved – try again now",
     "status": {
       "noStudents": "No students yet",
       "students_one": "{{count}} student",

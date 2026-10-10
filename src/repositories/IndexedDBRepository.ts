@@ -81,17 +81,20 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
   private classCollectionCache: ClassCollectionState | null = null;
   private _lock: Promise<void> = Promise.resolve();
 
-  private async synchronized<T>(action: () => Promise<T>): Promise<T> {
-    // Wait for the previous operation to complete (success or failure)
-    await this._lock.catch(() => {});
-
-    // Create a new promise for the current operation
-    const promise = action();
-
-    // Update the lock to wait for the current operation
-    this._lock = promise.then(() => {}).catch(() => {});
-
-    return promise;
+  /**
+   * Runs `action` after every operation that was asked for before it. The
+   * chain is extended before anything awaits: when the lock was set only after
+   * an `await`, two calls in the same tick both waited for the same finished
+   * lock and ran side by side — at start-up, the collection and the open class
+   * were each repaired on their own and handed out different room ids.
+   */
+  private synchronized<T>(action: () => Promise<T>): Promise<T> {
+    const run = this._lock.then(action);
+    this._lock = run.then(
+      () => undefined,
+      () => undefined,
+    );
+    return run;
   }
 
   private checkAvailability(): Result<void> {
@@ -133,6 +136,11 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
       }
       return ResultHelpers.success(result);
     } catch (error) {
+      // The operations change the cached collection in place before they
+      // write it. A write that failed leaves the cache ahead of what is
+      // stored — a class whose creation failed would still be listed — so the
+      // next read starts again from storage.
+      this.classCollectionCache = null;
       logError(options.logMessage, { error }, REPOSITORY_LOG_SOURCE);
       return ResultHelpers.fromError(
         error,

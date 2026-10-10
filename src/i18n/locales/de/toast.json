@@ -1,7 +1,8 @@
 {
   "save": {
     "success": "Erfolgreich gespeichert.",
-    "error": "Speichern fehlgeschlagen. Bitte versuche es erneut.",
+    "error": "Deine Änderungen konnten nicht gespeichert werden. Klassenplan versucht es weiter – schließe die Seite noch nicht.",
+    "recovered": "Speichern klappt wieder.",
     "templateSuccess": "Vorlage erfolgreich gespeichert.",
     "templateError": "Fehler beim Speichern der Vorlage."
   },

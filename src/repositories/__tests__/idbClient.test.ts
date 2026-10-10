@@ -159,3 +159,44 @@ describe('Result variants', () => {
     expect((await tryClearStore()).success).toBe(false);
   });
 });
+
+describe('a lost connection', () => {
+  // The reopened store is module state: each test loads its own module.
+  const freshClient = async () => {
+    vi.resetModules();
+    return import('../idbClient');
+  };
+
+  it('reopens the default store once and tries again', async () => {
+    const client = await freshClient();
+    idbMocks.set.mockRejectedValueOnce(
+      new DOMException(
+        'Connection to Indexed Database server lost. Refresh the page to try again',
+        'UnknownError',
+      ),
+    );
+
+    await client.writeValue('a', 1);
+
+    expect(idbMocks.createStore).toHaveBeenCalledWith('keyval-store', 'keyval');
+    expect(idbMocks.set).toHaveBeenCalledTimes(2);
+    expect(idbMocks.set).toHaveBeenLastCalledWith('a', 1, {
+      token: 'custom-store',
+    });
+    // Later calls stay on the reopened connection.
+    await expect(client.readValue('a')).resolves.toBe(1);
+    expect(idbMocks.get).toHaveBeenLastCalledWith('a', {
+      token: 'custom-store',
+    });
+  });
+
+  it('leaves every other failure to the caller', async () => {
+    const client = await freshClient();
+    idbMocks.set.mockRejectedValueOnce(new Error('quota exceeded'));
+
+    await expect(client.writeValue('a', 1)).rejects.toThrow('quota exceeded');
+
+    expect(idbMocks.createStore).not.toHaveBeenCalled();
+    expect(idbMocks.set).toHaveBeenCalledTimes(1);
+  });
+});

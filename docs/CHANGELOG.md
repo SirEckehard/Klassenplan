@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- Restoring a backup with "Replace" while another class was open than when the backup was made overwrote the open class with the other one – its students, plans, mixes and room. It happened on an iPad and in Safari every time. Each class now comes back as the backup holds it
+- A save that failed was only reported once the tab was left, and was not tried again, so changes could be lost without notice. It is now said at once, "Not saved" stays in the status bar until a save works – a click there tries again – saving is retried on its own, and leaving the page asks first
+- After Safari closed the database connection in the background, every later save failed until the page was reloaded. The connection is now reopened
+- A class whose creation could not be saved still appeared in the class list, and a second attempt was refused as a duplicate name
+- A backup made right after an edit could miss that edit
+
 ## [3.1.0] - 2026-10-07
 
 ### Added

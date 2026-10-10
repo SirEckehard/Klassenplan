@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 /**
- * Hook for handling persistence errors and navigation-aware error display.
+ * Hook for handling persistence errors.
  * Extracted from useSeatingPersistence for better separation of concerns.
  */
 import { useCallback, useEffect, useRef } from 'react';
@@ -11,10 +11,12 @@ import {
   type RepositoryError,
   type Result,
 } from '@/repositories';
-import type { PersistKey, PersistErrorRefs } from './types';
+import type { PersistKey } from './types';
 import { PERSIST_CONTEXT_LABELS } from './types';
+import { getPersistStatus, setPersistStatus } from './persistStatus';
 
-const PERSIST_ERROR_NAVIGATION_WINDOW_MS = 6000;
+/** At most one error toast in this time, however many writes fail. */
+const PERSIST_ERROR_TOAST_INTERVAL_MS = 4000;
 
 /**
  * Check if an error indicates a missing class (used to suppress expected errors).
@@ -30,76 +32,58 @@ export const isMissingClassPersistError = (
   );
 
 export interface PersistErrorHandlingReturn {
-  /** Show error toast with rate limiting */
-  showPersistErrorToast: () => void;
-  /** Try to display pending error if within navigation window */
-  tryDisplayPersistError: () => void;
-  /** Mark navigation intent timestamp */
-  markNavigationIntent: () => void;
   /** Process persist result and handle errors */
   persistSnapshotResult: (
     result: Result<unknown>,
     contexts: PersistKey[],
   ) => void;
-  /** Refs for error state */
-  refs: PersistErrorRefs;
+  /** A write that threw instead of returning a failure. */
+  reportPersistFailure: (error: unknown) => void;
 }
 
 /**
  * Hook for managing persistence error handling and display.
  *
+ * A failed write is said the moment it happens — once per run of failures,
+ * not per attempt — and the status bar keeps saying it ("Nicht gespeichert")
+ * until a write succeeds, which the queue keeps trying. Before, the message
+ * waited for the tab to be hidden and then showed for five seconds in a tab
+ * nobody looked at, so a teacher went on working on data that never reached
+ * storage. While writes fail, leaving the page asks first.
+ *
  * @param hasActiveClass - Whether there is an active class selected
- * @returns Error handling functions and refs
+ * @returns Error handling functions
  */
 export function usePersistErrorHandling(
   hasActiveClass: boolean,
 ): PersistErrorHandlingReturn {
-  const pendingPersistErrorRef = useRef(false);
-  const navigationIntentRef = useRef(0);
   const lastPersistErrorToastRef = useRef(0);
 
-  const showPersistErrorToast = useCallback(() => {
-    if (!hasActiveClass) {
-      pendingPersistErrorRef.current = false;
-      return;
-    }
+  const markFailed = useCallback(() => {
+    if (!hasActiveClass) return;
+    const firstFailure = getPersistStatus() !== 'failed';
+    setPersistStatus('failed');
     const now = Date.now();
-    if (now - lastPersistErrorToastRef.current < 4000) {
-      return;
-    }
-    lastPersistErrorToastRef.current = now;
-    pendingPersistErrorRef.current = false;
-    showToast('error', TOAST_MESSAGES.SAVE_ERROR);
-  }, [hasActiveClass]);
-
-  const tryDisplayPersistError = useCallback(() => {
-    if (!pendingPersistErrorRef.current) {
-      return;
-    }
-    const lastNavigationIntent = navigationIntentRef.current;
-    if (!lastNavigationIntent) {
-      return;
-    }
     if (
-      Date.now() - lastNavigationIntent >
-      PERSIST_ERROR_NAVIGATION_WINDOW_MS
+      !firstFailure ||
+      now - lastPersistErrorToastRef.current < PERSIST_ERROR_TOAST_INTERVAL_MS
     ) {
       return;
     }
-    showPersistErrorToast();
-  }, [showPersistErrorToast]);
+    lastPersistErrorToastRef.current = now;
+    showToast('error', TOAST_MESSAGES.SAVE_ERROR);
+  }, [hasActiveClass]);
 
-  const markNavigationIntent = useCallback(() => {
-    navigationIntentRef.current = Date.now();
-    tryDisplayPersistError();
-  }, [tryDisplayPersistError]);
+  const markSaved = useCallback(() => {
+    if (getPersistStatus() !== 'failed') return;
+    setPersistStatus('saved');
+    showToast('success', TOAST_MESSAGES.SAVE_RECOVERED);
+  }, []);
 
   const persistSnapshotResult = useCallback(
     (result: Result<unknown>, contexts: PersistKey[]) => {
       if (result.success) {
-        if (pendingPersistErrorRef.current) {
-          pendingPersistErrorRef.current = false;
-        }
+        markSaved();
         return;
       }
 
@@ -121,47 +105,38 @@ export function usePersistErrorHandling(
         { error: result.error },
         'usePersistErrorHandling',
       );
-      pendingPersistErrorRef.current = true;
-      tryDisplayPersistError();
+      markFailed();
     },
-    [tryDisplayPersistError],
+    [markFailed, markSaved],
   );
 
-  // Set up navigation event listeners
+  const reportPersistFailure = useCallback(
+    (error: unknown) => {
+      logError('Persist snapshot threw', { error }, 'usePersistErrorHandling');
+      markFailed();
+    },
+    [markFailed],
+  );
+
+  // Changes that never reached storage are lost with the page: the browser
+  // asks before leaving while writes fail. Its own wording, which a page
+  // cannot replace.
   useEffect(() => {
-    if (typeof window === 'undefined' || typeof document === 'undefined') {
-      return;
-    }
-
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'hidden') {
-        markNavigationIntent();
-      }
+    if (typeof window === 'undefined') return undefined;
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (getPersistStatus() !== 'failed') return;
+      event.preventDefault();
+      // Older browsers only ask when a return value is set.
+      event.returnValue = '';
     };
-    const handleNavigationIntent = () => {
-      markNavigationIntent();
-    };
-
-    window.addEventListener('visibilitychange', handleVisibilityChange);
-    window.addEventListener('pagehide', handleNavigationIntent);
-    window.addEventListener('beforeunload', handleNavigationIntent);
-
+    window.addEventListener('beforeunload', handleBeforeUnload);
     return () => {
-      window.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('pagehide', handleNavigationIntent);
-      window.removeEventListener('beforeunload', handleNavigationIntent);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
     };
-  }, [markNavigationIntent]);
+  }, []);
 
   return {
-    showPersistErrorToast,
-    tryDisplayPersistError,
-    markNavigationIntent,
     persistSnapshotResult,
-    refs: {
-      pendingPersistErrorRef,
-      navigationIntentRef,
-      lastPersistErrorToastRef,
-    },
+    reportPersistFailure,
   };
 }

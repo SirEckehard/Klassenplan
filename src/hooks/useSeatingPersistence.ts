@@ -689,6 +689,9 @@ export function useSeatingPersistence(state: SeatingState) {
 
   const exportAllAsJson = useCallback(async () => {
     const { exportAllAsJson: exportAllAsJsonUtil } = await loadDataBackup();
+    // The backup reads the classes from storage: the open class's last edits,
+    // still waiting for an idle moment, are written first.
+    await queue.flushPersistQueue();
     // Load circle data and templates from storage using repository
     let currentCircleLayout: CircleLayout | null = null;
     let circleLayouts: CircleExportData[] = [];
@@ -765,6 +768,7 @@ export function useSeatingPersistence(state: SeatingState) {
       loadTemplate,
     );
   }, [
+    queue,
     repository,
     students,
     seatingHistory,
@@ -778,6 +782,21 @@ export function useSeatingPersistence(state: SeatingState) {
     async (json: string, opts?: { merge?: boolean }) => {
       const { importAllFromJson: importAllFromJsonUtil } =
         await loadDataBackup();
+
+      // Replacing puts the backup in place of everything stored. What the
+      // open class still has queued is written first, where it belongs. Then
+      // the restore gate holds the queue shut: the live setters below put the
+      // backup's top-level class — the one open when it was made — on screen.
+      // Without the gate it was queued for the class open now and written
+      // into that class of the restored collection, wherever the backup held
+      // it too; and the reload after the collection drops rather than writes
+      // what is queued.
+      const replacing = opts?.merge !== true;
+      if (replacing) {
+        await queue.flushPersistQueue();
+        queue.incrementAllVersions();
+        isRestoringRef.current = true;
+      }
 
       // Create setter for circle layout using repository
       const persistCircleLayout = async (layout: CircleLayout | null) => {
@@ -805,7 +824,7 @@ export function useSeatingPersistence(state: SeatingState) {
           );
           throw new Error(result.error.message);
         }
-        await reloadCurrentClassData();
+        await reloadCurrentClassData({ discardPending: replacing });
       };
 
       // A merge builds on what is stored, so whatever the open class still
@@ -844,27 +863,50 @@ export function useSeatingPersistence(state: SeatingState) {
         }
       };
 
-      return importAllFromJsonUtil(
-        json,
-        {
-          setStudents,
-          setSeatingHistory,
-          setMixHistory,
-          setLockedPositions,
-          setMixSettings,
-          setClassroomScene,
-          setCircleLayout: persistCircleLayout,
-          setCircleLayouts: persistCircleLayouts,
-          setCurrentSeating,
-          setPlanName,
-          setActivePlanId,
-          setClassCollection: persistClassCollection,
-          setTemplates: persistTemplates,
-          loadClassCollection: loadStoredClassCollection,
-          loadTemplates: loadStoredTemplates,
-        },
-        opts,
-      );
+      try {
+        return await importAllFromJsonUtil(
+          json,
+          {
+            setStudents,
+            setSeatingHistory,
+            setMixHistory,
+            setLockedPositions,
+            setMixSettings,
+            setClassroomScene,
+            setCircleLayout: persistCircleLayout,
+            setCircleLayouts: persistCircleLayouts,
+            setCurrentSeating,
+            setPlanName,
+            setActivePlanId,
+            setClassCollection: persistClassCollection,
+            setTemplates: persistTemplates,
+            loadClassCollection: loadStoredClassCollection,
+            loadTemplates: loadStoredTemplates,
+          },
+          opts,
+        );
+      } catch (error) {
+        // A restore that broke off may have left the backup's class on
+        // screen; what is stored is what counts.
+        if (replacing) {
+          await reloadCurrentClassData({ discardPending: true }).catch(
+            (reloadError: unknown) => {
+              logError(
+                'Failed to reload the class after a failed restore',
+                { error: reloadError },
+                'useSeatingPersistence',
+              );
+            },
+          );
+        }
+        throw error;
+      } finally {
+        if (replacing) {
+          setTimeout(() => {
+            isRestoringRef.current = false;
+          }, 0);
+        }
+      }
     },
     [
       queue,

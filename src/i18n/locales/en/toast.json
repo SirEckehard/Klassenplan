@@ -1,7 +1,8 @@
 {
   "save": {
     "success": "Saved successfully.",
-    "error": "Save failed. Please try again.",
+    "error": "Your changes could not be saved. Klassenplan keeps trying – don't close the page yet.",
+    "recovered": "Saving works again.",
     "templateSuccess": "Template saved successfully.",
     "templateError": "Error saving template."
   },

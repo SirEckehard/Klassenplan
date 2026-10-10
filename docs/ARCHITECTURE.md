@@ -1,6 +1,6 @@
 # Architecture
 
-> **Status:** current · **Last reviewed:** 2026-10-06 · **Maintainer:** Eike
+> **Status:** current · **Last reviewed:** 2026-10-10 · **Maintainer:** Eike
 > Schäfer · **Describes:** Klassenplan 3.1.0
 
 This is the entry point for anyone who wants to understand _why_ Klassenplan is
@@ -282,6 +282,14 @@ persist versions, so a job from before the load is discarded, and the restore
 gate keeps the freshly loaded data from being queued again. Work that needs the
 class id and its data together — such as the plan usage backfill — runs inside
 `applyPersistedState`.
+
+Restoring a backup that replaces everything takes the same reload with one
+difference: what is queued is dropped, not written
+(`reloadCurrentClassData({ discardPending: true })`). The import writes the
+open class's pending edits before it starts and holds the restore gate shut
+while it puts the backup's top-level fields on screen; written after the new
+collection, those fields — the class open when the backup was made — went into
+whichever class carried the open class's id there.
 
 ### Switching rooms
 

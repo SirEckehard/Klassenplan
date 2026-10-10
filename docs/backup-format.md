@@ -54,7 +54,11 @@ Once the password is accepted, the restore asks how the backup applies
 
 - **Replace** puts the backup in place of everything stored: the classes, the
   templates, the photos and the plan usage. A backup without `classCollection`
-  (version 1) becomes one class, "Importierte Klasse".
+  (version 1) becomes one class, "Importierte Klasse". Edits of the open class
+  that were still waiting to be saved are written first; nothing the restore
+  shows on the way is written into the restored classes, and the class open
+  when the backup was made opens afterwards. A restore that breaks off reloads
+  the open class as it is stored.
 - **Merge** adds the backup's classes – its `classCollection`, or the one class
   made from a version 1 backup – to the stored ones and leaves those as they
   are, the open class included (`mergeClassCollections` in

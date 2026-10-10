@@ -7,41 +7,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const { memory } = vi.hoisted(() => ({ memory: new Map<string, unknown>() }));
 
-vi.mock('idb-keyval', () => {
-  type Store = { name: string } | undefined;
-  const prefix = (store: Store) => `${store?.name ?? 'default'}::`;
-  const toKey = (key: IDBValidKey, store: Store) =>
-    `${prefix(store)}${String(key)}`;
-  const own = (store: Store) =>
-    [...memory.entries()].filter(([key]) => key.startsWith(prefix(store)));
-  return {
-    createStore: vi.fn((db: string, name: string) => ({
-      name: `${db}/${name}`,
-    })),
-    get: vi.fn(async (key: IDBValidKey, store?: Store) => {
-      const value = memory.get(toKey(key, store));
-      return value === undefined ? undefined : structuredClone(value);
-    }),
-    set: vi.fn(async (key: IDBValidKey, value: unknown, store?: Store) => {
-      memory.set(toKey(key, store), structuredClone(value));
-    }),
-    del: vi.fn(async (key: IDBValidKey, store?: Store) => {
-      memory.delete(toKey(key, store));
-    }),
-    keys: vi.fn(async (store?: Store) =>
-      own(store).map(([key]) => key.slice(prefix(store).length)),
-    ),
-    entries: vi.fn(async (store?: Store) =>
-      own(store).map(([key, value]) => [
-        key.slice(prefix(store).length),
-        value,
-      ]),
-    ),
-    clear: vi.fn(async (store?: Store) => {
-      own(store).forEach(([key]) => memory.delete(key));
-    }),
-  };
-});
+vi.mock('idb-keyval', async () =>
+  (await import('@/__tests__/utils/memoryIdbKeyval')).createMemoryIdbKeyval(
+    memory,
+  ),
+);
 
 import '@/i18n';
 import { createMockClassroomScene, createMockStudent } from '@/__tests__/utils';

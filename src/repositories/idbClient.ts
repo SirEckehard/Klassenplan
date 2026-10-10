@@ -29,12 +29,55 @@ import {
 } from 'idb-keyval';
 import type { Result } from './types';
 import { ResultHelpers, RepositoryErrorType } from './types';
-import { logError } from '@/utils';
+import { logError, logWarn } from '@/utils';
 
 const LOG_SOURCE = 'idbClient';
 
 /** Handle for a non-default object store, created by {@link createIdbStore}. */
 export type IdbStore = ReturnType<typeof createStore>;
+
+/** Where idb-keyval keeps its default store: the class collection and more. */
+const DEFAULT_DATABASE = 'keyval-store';
+const DEFAULT_OBJECT_STORE = 'keyval';
+
+/**
+ * A handle of our own for the default store, made once its connection was
+ * lost. Until then every call goes through idb-keyval's own default.
+ */
+let reopenedDefaultStore: IdbStore | undefined;
+
+/**
+ * Whether the database connection closed under the page. Safari does this
+ * after a tab sat in the background ("Connection to Indexed Database server
+ * lost", "The database connection is closing") and does not always tell
+ * idb-keyval, which then hands out the dead connection to every later call.
+ */
+const isConnectionLost = (error: unknown): boolean =>
+  typeof DOMException !== 'undefined' &&
+  error instanceof DOMException &&
+  (error.name === 'InvalidStateError' || error.name === 'UnknownError');
+
+/**
+ * Runs `operation` on the default store, and once more on a freshly opened
+ * connection when the first one was lost. Each operation is a single
+ * transaction, which either happened or did not, so trying it again is safe.
+ */
+async function onDefaultStore<T>(
+  operation: (store: IdbStore | undefined) => Promise<T>,
+): Promise<T> {
+  try {
+    return await operation(reopenedDefaultStore);
+  } catch (error) {
+    if (!isConnectionLost(error)) throw error;
+    logWarn(
+      'IndexedDB connection lost, reopening the database',
+      { error },
+      LOG_SOURCE,
+    );
+    reopenedDefaultStore = createStore(DEFAULT_DATABASE, DEFAULT_OBJECT_STORE);
+    return operation(reopenedDefaultStore);
+  }
+}
 
 /**
  * Creates a handle for a dedicated object store (e.g. student photos), so its
@@ -50,20 +93,31 @@ export const createIdbStore = (dbName: string, storeName: string): IdbStore =>
 export const readValue = <T>(
   key: IDBValidKey,
   store?: IdbStore,
-): Promise<T | undefined> => (store ? idbGet<T>(key, store) : idbGet<T>(key));
+): Promise<T | undefined> =>
+  store
+    ? idbGet<T>(key, store)
+    : onDefaultStore((own) => (own ? idbGet<T>(key, own) : idbGet<T>(key)));
 
 /** Write a value, replacing any existing one. */
 export const writeValue = <T>(
   key: IDBValidKey,
   value: T,
   store?: IdbStore,
-): Promise<void> => (store ? idbSet(key, value, store) : idbSet(key, value));
+): Promise<void> =>
+  store
+    ? idbSet(key, value, store)
+    : onDefaultStore((own) =>
+        own ? idbSet(key, value, own) : idbSet(key, value),
+      );
 
 /** Delete a key (no-op when it does not exist). */
 export const deleteValue = (
   key: IDBValidKey,
   store?: IdbStore,
-): Promise<void> => (store ? idbDel(key, store) : idbDel(key));
+): Promise<void> =>
+  store
+    ? idbDel(key, store)
+    : onDefaultStore((own) => (own ? idbDel(key, own) : idbDel(key)));
 
 /** Delete several keys in parallel. */
 export const deleteValues = async (
@@ -75,17 +129,25 @@ export const deleteValues = async (
 
 /** All keys of the store, as strings. */
 export const listKeys = async (store?: IdbStore): Promise<string[]> => {
-  const keys = store ? await idbKeys(store) : await idbKeys();
+  const keys = store
+    ? await idbKeys(store)
+    : await onDefaultStore((own) => (own ? idbKeys(own) : idbKeys()));
   return keys.map((key) => String(key));
 };
 
 /** All key/value pairs of the store. */
 export const listEntries = <T>(store?: IdbStore): Promise<[string, T][]> =>
-  store ? idbEntries<string, T>(store) : idbEntries<string, T>();
+  store
+    ? idbEntries<string, T>(store)
+    : onDefaultStore((own) =>
+        own ? idbEntries<string, T>(own) : idbEntries<string, T>(),
+      );
 
 /** Remove everything from the store. */
 export const clearStore = (store?: IdbStore): Promise<void> =>
-  store ? idbClear(store) : idbClear();
+  store
+    ? idbClear(store)
+    : onDefaultStore((own) => (own ? idbClear(own) : idbClear()));
 
 const toStorageFailure = (error: unknown, operation: string) => {
   logError(`IndexedDB ${operation} failed`, { error }, LOG_SOURCE);

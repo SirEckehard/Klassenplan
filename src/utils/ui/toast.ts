@@ -11,6 +11,7 @@ export const TOAST_MESSAGES = {
   // Save operations
   SAVE_SUCCESS: 'toast:save.success',
   SAVE_ERROR: 'toast:save.error',
+  SAVE_RECOVERED: 'toast:save.recovered',
   SAVE_TEMPLATE_SUCCESS: 'toast:save.templateSuccess',
   SAVE_TEMPLATE_ERROR: 'toast:save.templateError',
 

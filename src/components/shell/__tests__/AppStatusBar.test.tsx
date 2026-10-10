@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import '@testing-library/jest-dom/vitest';
-import { render, screen, cleanup, within } from '@testing-library/react';
+import { act, render, screen, cleanup, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
 import '@/i18n';
@@ -16,6 +16,10 @@ import {
 } from '@/__tests__/utils';
 import type { ClassroomScene, SeatingArrangement, Student } from '@/types';
 import type { CircleLayout } from '@/types/Circle';
+import {
+  registerPersistRetry,
+  setPersistStatus,
+} from '@/hooks/persistence/persistStatus';
 
 const mocks = vi.hoisted(() => ({
   state: {
@@ -388,6 +392,30 @@ describe('AppStatusBar', () => {
         configurable: true,
         value: true,
       });
+    }
+  });
+
+  it('says what failed to save and tries again on a click', async () => {
+    setState({ step: 1, students: named(2) });
+    const retry = vi.fn();
+    const unregister = registerPersistRetry(retry);
+    try {
+      render(<AppStatusBar />);
+      expect(
+        within(status()).queryByRole('button', { name: /gespeichert|saved/i }),
+      ).toBeNull();
+
+      act(() => setPersistStatus('failed'));
+      await userEvent.click(
+        within(status()).getByRole('button', {
+          name: /nicht gespeichert|not saved/i,
+        }),
+      );
+
+      expect(retry).toHaveBeenCalledTimes(1);
+    } finally {
+      unregister();
+      act(() => setPersistStatus('saved'));
     }
   });
 

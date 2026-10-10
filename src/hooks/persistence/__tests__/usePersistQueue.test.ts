@@ -12,6 +12,7 @@ import { useRef } from 'react';
 import type { MutableRefObject } from 'react';
 import { usePersistQueue } from '../usePersistQueue';
 import type { PersistErrorHandlingReturn } from '../usePersistErrorHandling';
+import { retryPersistNow } from '../persistStatus';
 import type { ISeatingPlanRepository } from '@/repositories';
 import { createMockStudent } from '@/__tests__/utils';
 
@@ -28,17 +29,15 @@ vi.mock('@/utils/performance/idleTasks', () => ({
   },
 }));
 
-const createErrorHandling = (): PersistErrorHandlingReturn =>
-  ({
-    markNavigationIntent: vi.fn(),
-    persistSnapshotResult: vi.fn(),
-    tryDisplayPersistError: vi.fn(),
-    refs: {
-      pendingPersistErrorRef: { current: false },
-      navigationIntentRef: { current: 0 },
-      lastPersistErrorToastRef: { current: 0 },
-    },
-  }) as unknown as PersistErrorHandlingReturn;
+const createErrorHandling = (): PersistErrorHandlingReturn => ({
+  persistSnapshotResult: vi.fn(),
+  reportPersistFailure: vi.fn(),
+});
+
+const storageFailure = {
+  success: false,
+  error: { type: 'STORAGE_ERROR', message: 'disk full' },
+} as const;
 
 type Harness = {
   repository: { saveClassSnapshot: ReturnType<typeof vi.fn> };
@@ -189,12 +188,13 @@ describe('class switch', () => {
 });
 
 describe('error handling', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it('reports a failed write through the error handler', async () => {
     const { result, harness } = renderQueue();
-    harness.repository.saveClassSnapshot.mockResolvedValueOnce({
-      success: false,
-      error: { type: 'STORAGE_ERROR', message: 'disk full' },
-    });
+    harness.repository.saveClassSnapshot.mockResolvedValueOnce(storageFailure);
 
     await act(async () => {
       result.current.queuePersist('students', []);
@@ -208,18 +208,124 @@ describe('error handling', () => {
 
   it('surfaces a throwing repository instead of losing the error', async () => {
     const { result, harness } = renderQueue();
-    harness.repository.saveClassSnapshot.mockRejectedValueOnce(
-      new Error('connection lost'),
-    );
+    const error = new Error('connection lost');
+    harness.repository.saveClassSnapshot.mockRejectedValueOnce(error);
 
     await act(async () => {
       result.current.queuePersist('students', []);
     });
 
-    expect(harness.errorHandling.tryDisplayPersistError).toHaveBeenCalled();
-    expect(harness.errorHandling.refs.pendingPersistErrorRef.current).toBe(
-      true,
+    expect(harness.errorHandling.reportPersistFailure).toHaveBeenCalledWith(
+      error,
     );
+  });
+
+  it('writes a failed job again after a second', async () => {
+    vi.useFakeTimers();
+    const { result, harness } = renderQueue();
+    const students = [createMockStudent({ name: 'Ada' })];
+    harness.repository.saveClassSnapshot.mockResolvedValueOnce(storageFailure);
+
+    await act(async () => {
+      result.current.queuePersist('students', students);
+    });
+    expect(harness.repository.saveClassSnapshot).toHaveBeenCalledTimes(1);
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1000);
+    });
+
+    expect(harness.repository.saveClassSnapshot).toHaveBeenCalledTimes(2);
+    expect(harness.repository.saveClassSnapshot).toHaveBeenLastCalledWith(
+      'class-1',
+      { students },
+    );
+  });
+
+  it('writes the newer payload rather than the failed one', async () => {
+    vi.useFakeTimers();
+    const { result, harness } = renderQueue();
+    const first = [createMockStudent({ name: 'First' })];
+    const second = [createMockStudent({ name: 'Second' })];
+    let finishWrite: (value: typeof storageFailure) => void = () => {};
+    harness.repository.saveClassSnapshot.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          finishWrite = resolve;
+        }),
+    );
+
+    await act(async () => {
+      result.current.queuePersist('students', first);
+    });
+    // A newer edit arrives while the first write is still under way, which
+    // then fails: the failed payload must not come back over the newer one.
+    await act(async () => {
+      result.current.queuePersist('students', second);
+      finishWrite(storageFailure);
+    });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1000);
+    });
+
+    expect(harness.repository.saveClassSnapshot).toHaveBeenLastCalledWith(
+      'class-1',
+      { students: second },
+    );
+  });
+
+  it('waits twice as long after every failure and stops trying on its own', async () => {
+    vi.useFakeTimers();
+    const { result, harness } = renderQueue();
+    harness.repository.saveClassSnapshot.mockResolvedValue(storageFailure);
+
+    await act(async () => {
+      result.current.queuePersist('students', []);
+    });
+    // 1 + 2 + 4 + 8 + 16 + 30 + 30 + 30 seconds: eight attempts of its own.
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(10 * 60_000);
+    });
+
+    expect(harness.repository.saveClassSnapshot).toHaveBeenCalledTimes(9);
+  });
+
+  it('tries again at once when asked from the status bar', async () => {
+    vi.useFakeTimers();
+    const { result, harness } = renderQueue();
+    harness.repository.saveClassSnapshot.mockResolvedValueOnce(storageFailure);
+
+    await act(async () => {
+      result.current.queuePersist('students', []);
+    });
+    await act(async () => {
+      retryPersistNow();
+    });
+
+    expect(harness.repository.saveClassSnapshot).toHaveBeenCalledTimes(2);
+    // The scheduled attempt was taken over, not added on top.
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(60_000);
+    });
+    expect(harness.repository.saveClassSnapshot).toHaveBeenCalledTimes(2);
+  });
+
+  it('does not retry a write for a class that no longer exists', async () => {
+    vi.useFakeTimers();
+    const { result, harness } = renderQueue();
+    harness.repository.saveClassSnapshot.mockResolvedValueOnce({
+      success: false,
+      error: { type: 'NOT_FOUND', message: 'Class not found' },
+    });
+
+    await act(async () => {
+      result.current.queuePersist('students', []);
+    });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(60_000);
+    });
+
+    expect(harness.repository.saveClassSnapshot).toHaveBeenCalledTimes(1);
   });
 });
 

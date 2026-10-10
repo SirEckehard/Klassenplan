@@ -84,15 +84,6 @@ export interface PersistQueueRefs {
 }
 
 /**
- * Refs used by error handling.
- */
-export interface PersistErrorRefs {
-  pendingPersistErrorRef: MutableRefObject<boolean>;
-  navigationIntentRef: MutableRefObject<number>;
-  lastPersistErrorToastRef: MutableRefObject<number>;
-}
-
-/**
  * Human-readable labels for persist context logging.
  */
 export const PERSIST_CONTEXT_LABELS: Record<PersistKey, string> = {
