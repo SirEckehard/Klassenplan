@@ -20,7 +20,7 @@ klassenplan-brand/
 │   ├── klassenplan-mark.svg         Reine Bildmarke ohne Geistraster
 │   └── klassenplan-mark-dark.svg    Dark-Variante mit festem Hintergrund (#1B4965)
 ├── wordmark/
-│   ├── klassenplan-wordmark.svg     Wortmarke (DM Sans Medium, Pfade eingebettet)
+│   ├── klassenplan-wordmark.svg     Wortmarke (Onest Bold, Pfade eingebettet)
 │   └── klassenplan-wordmark.png     Rasterisierte Wortmarke (für E-Mail, Slides etc.)
 ├── lockup/
 │   ├── klassenplan-lockup.svg       Marke + Wortmarke horizontal
@@ -54,17 +54,36 @@ Favicon-PNGs (`favicon-16-dark.png`, `favicon-32-dark.png`, `favicon-48-dark.png
 
 ```html
 <!-- Standard-Favicon -->
-<link rel="icon" type="image/svg+xml" href="/master/klassenplan-mark.svg">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32.png">
-<link rel="icon" type="image/png" sizes="48x48" href="/favicon/favicon-48.png">
-<link rel="shortcut icon" href="/favicon/favicon.ico">
+<link rel="icon" type="image/svg+xml" href="/master/klassenplan-mark.svg" />
+<link
+  rel="icon"
+  type="image/png"
+  sizes="16x16"
+  href="/favicon/favicon-16.png"
+/>
+<link
+  rel="icon"
+  type="image/png"
+  sizes="32x32"
+  href="/favicon/favicon-32.png"
+/>
+<link
+  rel="icon"
+  type="image/png"
+  sizes="48x48"
+  href="/favicon/favicon-48.png"
+/>
+<link rel="shortcut icon" href="/favicon/favicon.ico" />
 
 <!-- iOS -->
-<link rel="apple-touch-icon" sizes="180x180" href="/ios/apple-touch-icon-180.png">
+<link
+  rel="apple-touch-icon"
+  sizes="180x180"
+  href="/ios/apple-touch-icon-180.png"
+/>
 
 <!-- Web App Manifest (siehe manifest.webmanifest) -->
-<link rel="manifest" href="/manifest.webmanifest">
+<link rel="manifest" href="/manifest.webmanifest" />
 ```
 
 ## Web App Manifest
@@ -96,12 +115,15 @@ Favicon-PNGs (`favicon-16-dark.png`, `favicon-32-dark.png`, `favicon-48-dark.png
 
 ## Wortmarke
 
-- Schrift: DM Sans Variable (Achse `wght`, instanziiert auf 700 / Bold)
-- Optical Size: 17 (entspricht der `opsz`-Achseneinstellung für mittlere Display-Größen)
-- Letter-Spacing: −1.5 % (leicht verdichtet, üblich für Logos)
+- Schrift: Onest Variable (Achse `wght`, instanziiert auf 700 / Bold)
+- Letter-Spacing: −1.5 % (leicht verdichtet, üblich für Logos), Kerning aus der Schrift
+- Das „l“ steht auf Höhe des „K“: Versal- und Oberlängenhöhe sind in Onest gleich (708 von 1000 Einheiten)
 - Glyphen sind im SVG als Pfade eingebettet – die Datei rendert ohne installierte Schrift identisch.
+- Die App zeichnet dieselben Umrisse inline (`src/components/kpWordmarkPaths.ts`, `KpLockup`), damit die Wortmarke nicht der Oberflächenschrift folgt.
 
-Die App selbst setzt seit dem Redesign „Papier & Werkzeug“ Instrument Sans. Die Wortmarke bleibt in DM Sans: Sie ist als Pfade eingefroren und hängt an keiner Schrift der App.
+Die App selbst setzt Atkinson Hyperlegible Next (seit dem Redesign „Papier & Werkzeug“ zunächst Instrument Sans). Die Wortmarke steht in Onest und hängt an keiner Schrift der App. Bis zur Onest-Wortmarke war sie in DM Sans gesetzt.
+
+Neu erzeugen: [`scripts/generate-wordmark.py`](../../scripts/generate-wordmark.py) instanziiert Onest auf `wght` 700, setzt den Text mit HarfBuzz (Kerning), schreibt Wortmarke und Lockup als SVG, rastert sie mit `rsvg-convert` und erzeugt `src/components/kpWordmarkPaths.ts`. Die Schrift ist keine Abhängigkeit der App (`npm install --no-save @fontsource-variable/onest`); der Aufruf steht im Kopf des Skripts. Ändert sich die Lockup-Höhe, gehört die Höhe des Open-Graph-Bildes in `index.html` und `Seo.tsx` mit.
 
 ## Maskable-Hinweis
 
@@ -133,4 +155,4 @@ rsvg-convert -w 48 -h 48     public/brand/_sources/icon-favicon-dark.svg    -o p
 
 ## Lizenz / Hinweis
 
-Alle Markenelemente (Bildmarke, Wortmarke, Lockup) sind eure Schöpfung. DM Sans steht unter der SIL Open Font License 1.1 und darf frei in Apps und Markenanwendungen verwendet werden.
+Alle Markenelemente (Bildmarke, Wortmarke, Lockup) sind eure Schöpfung. Onest steht unter der SIL Open Font License 1.1 und darf frei in Apps und Markenanwendungen verwendet werden.

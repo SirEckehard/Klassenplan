@@ -7,7 +7,7 @@
 // rendered text: the same layout has to come out of jsdom, of
 // renderToStaticMarkup for the export and of the browser. So the advance width
 // of every character a name is likely to hold is measured here once, in
-// Chromium with Instrument Sans loaded from the installed @fontsource package,
+// Chromium with Atkinson Hyperlegible Next loaded from the installed @fontsource package,
 // at the two weights a seat uses (400, and 700 for the projection's contrast
 // mode), and written to src/data/nameGlyphWidths.json as a fraction of the
 // font size. src/utils/ui/seatLabelLayout.ts reads the table.
@@ -32,7 +32,7 @@ const fontDir = path.join(
   projectRoot,
   'node_modules',
   '@fontsource-variable',
-  'instrument-sans',
+  'atkinson-hyperlegible-next',
 );
 const outputFile = path.join(
   projectRoot,
@@ -41,7 +41,7 @@ const outputFile = path.join(
   'nameGlyphWidths.json',
 );
 
-const FONT_FAMILY = 'Instrument Sans Variable';
+const FONT_FAMILY = 'Atkinson Hyperlegible Next Variable';
 const WEIGHTS = [400, 700];
 /** Large enough that rounding to three places is exact for the table. */
 const MEASURE_SIZE = 1000;
@@ -120,9 +120,11 @@ async function main() {
     );
 
     // A sanity check that the font, not a fallback, was measured: in
-    // Instrument Sans an "m" is far wider than an "i".
+    // Atkinson Hyperlegible Next an "m" is far wider than an "i".
     if (!(widths[400].m > widths[400].i * 2.5)) {
-      throw new Error('The measured widths do not look like Instrument Sans');
+      throw new Error(
+        'The measured widths do not look like Atkinson Hyperlegible Next',
+      );
     }
 
     const output = {

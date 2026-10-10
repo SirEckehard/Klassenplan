@@ -12,7 +12,7 @@
  *
  * The text is measured by arithmetic, not in the DOM, so jsdom, the export's
  * `renderToStaticMarkup` and the browser arrive at the same layout: the widths
- * of Instrument Sans — the font every view and every export draws in — are
+ * of Atkinson Hyperlegible Next — the font every view and every export draws in — are
  * measured once by `scripts/generate-name-glyph-widths.mjs`.
  *
  * A plan's names share one size (`planNameFontSize`): as large as the great

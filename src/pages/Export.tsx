@@ -60,7 +60,7 @@ import { usePlanUsagePrompt } from '@/hooks/plan/usePlanUsagePrompt';
 import Seo from '@/components/Seo';
 import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';
 import { usePageSeo } from '@/hooks/usePageSeo';
-import primaryFontWoff2Url from '@fontsource-variable/instrument-sans/files/instrument-sans-latin-wght-normal.woff2?url';
+import primaryFontWoff2Url from '@fontsource-variable/atkinson-hyperlegible-next/files/atkinson-hyperlegible-next-latin-wght-normal.woff2?url';
 import AppShell from '@/components/shell/AppShell';
 import InspectorPortal from '@/components/shell/InspectorPortal';
 import {
@@ -547,7 +547,7 @@ export default function Export() {
     // Print mode has aggressive Safari-specific overrides
     const fontUrl = new URL(primaryFontWoff2Url, window.location.href).href;
     const styles =
-      `@font-face{font-family:'Instrument Sans Variable';src:url('${fontUrl}') format('woff2');font-weight:400 700;font-style:normal;}
+      `@font-face{font-family:'Atkinson Hyperlegible Next Variable';src:url('${fontUrl}') format('woff2');font-weight:400 700;font-style:normal;}
 
       :root { color-scheme: light; }
       @page {

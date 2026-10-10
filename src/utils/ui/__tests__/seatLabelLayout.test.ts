@@ -22,7 +22,7 @@ const SEAT = { seatWidth: 55, seatHeight: 65 };
 const maxFont = seatNameMaxFontSize(SEAT.seatWidth, SEAT.seatHeight);
 
 describe('measureNameWidth', () => {
-  it('measures each character of Instrument Sans', () => {
+  it('measures each character of Atkinson Hyperlegible Next', () => {
     // A wide "m" against a narrow "i": the old flat estimate took both alike.
     expect(measureNameWidth('m')).toBeGreaterThan(measureNameWidth('i') * 3);
     expect(measureNameWidth('Anna', 10)).toBeCloseTo(

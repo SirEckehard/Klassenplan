@@ -16,7 +16,7 @@ interface SeoProps {
 
 // Dimensions of the default Open-Graph lockup image (brand/lockup PNG).
 const DEFAULT_IMAGE_WIDTH = '1200';
-const DEFAULT_IMAGE_HEIGHT = '226';
+const DEFAULT_IMAGE_HEIGHT = '230';
 
 const DEFAULT_SITE_NAME = 'Klassenplan';
 const FALLBACK_SITE_URL = 'https://klassenplan.de';

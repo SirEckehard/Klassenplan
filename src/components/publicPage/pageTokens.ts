@@ -12,7 +12,7 @@ export const pageEyebrowClass =
   'text-xs font-semibold uppercase tracking-wider text-(--text-muted)';
 
 export const pageTitleClass =
-  'mt-3 font-serif text-5xl tracking-tight text-balance text-(--text-page) sm:text-6xl';
+  'mt-3 font-serif text-5xl leading-tight text-balance text-(--text-page) sm:text-6xl';
 
 export const pageSectionTitleClass =
   'font-serif text-3xl leading-tight text-balance text-(--text-page) sm:text-4xl';

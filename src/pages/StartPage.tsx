@@ -189,7 +189,7 @@ export default function StartPage() {
               <KpLockup size="md" />
             </LocalizedLink>
 
-            <h1 className="mt-10 font-serif text-5xl tracking-tight text-balance text-(--text-page) sm:text-6xl">
+            <h1 className="mt-10 font-serif text-5xl leading-tight text-balance text-(--text-page) sm:text-6xl">
               {t('startPage.heroTitle')}
             </h1>
 

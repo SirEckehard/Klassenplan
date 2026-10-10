@@ -20,7 +20,7 @@ vi.mock('@/utils/export/svgRasterizer', async () => {
     ...actual,
     getEmbeddedFontCss: vi.fn(
       async () =>
-        "@font-face{font-family:'Instrument Sans Variable';src:url('data:font/woff2;base64,Zm9udA==');}",
+        "@font-face{font-family:'Atkinson Hyperlegible Next Variable';src:url('data:font/woff2;base64,Zm9udA==');}",
     ),
     renderSvgToPngBlob: renderSvgToPngBlobMock,
   };

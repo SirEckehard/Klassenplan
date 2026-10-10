@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import latinFontUrl from '@fontsource-variable/instrument-sans/files/instrument-sans-latin-wght-normal.woff2?url';
-import latinExtFontUrl from '@fontsource-variable/instrument-sans/files/instrument-sans-latin-ext-wght-normal.woff2?url';
+import latinFontUrl from '@fontsource-variable/atkinson-hyperlegible-next/files/atkinson-hyperlegible-next-latin-wght-normal.woff2?url';
+import latinExtFontUrl from '@fontsource-variable/atkinson-hyperlegible-next/files/atkinson-hyperlegible-next-latin-ext-wght-normal.woff2?url';
 
 /**
  * Shared SVG → raster pipeline for every file export.
@@ -50,7 +50,7 @@ export async function getEmbeddedFontCss(): Promise<string> {
   const faces = await Promise.all(
     FONT_SUBSETS.map(
       async ({ url, unicodeRange }) =>
-        `@font-face{font-family:'Instrument Sans Variable';src:url('data:font/woff2;base64,${await fetchAsBase64(url)}');font-weight:400 700;font-style:normal;unicode-range:${unicodeRange};}`,
+        `@font-face{font-family:'Atkinson Hyperlegible Next Variable';src:url('data:font/woff2;base64,${await fetchAsBase64(url)}');font-weight:400 700;font-style:normal;unicode-range:${unicodeRange};}`,
     ),
   );
   cachedFontCss = faces.join('');

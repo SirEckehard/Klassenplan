@@ -6,7 +6,7 @@
  * the stack is spelled out here once instead of in every `<text>` element.
  */
 export const svgFontFamily =
-  "'Instrument Sans Variable', system-ui, sans-serif";
+  "'Atkinson Hyperlegible Next Variable', system-ui, sans-serif";
 
 export const panelSurfaceClass = 'panel-surface';
 

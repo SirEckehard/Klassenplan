@@ -98,7 +98,7 @@ const resolveTailwindcssPlugin = async (): Promise<PluginOption> => {
 const tailwindcss = await resolveTailwindcssPlugin();
 
 /**
- * Preloads the Latin subset of Instrument Sans, the only font file a German or English
+ * Preloads the Latin subset of Atkinson Hyperlegible Next, the only font file a German or English
  * page needs. The stylesheet reveals it only once the CSS has been downloaded
  * and parsed, which queued the font behind the stylesheet (PageSpeed Insights:
  * network dependency tree) and let the swap land after the first paint. The
@@ -111,13 +111,13 @@ const preloadPrimaryFont = (): PluginOption => ({
     order: 'post',
     handler(_html, ctx) {
       const font = Object.keys(ctx.bundle ?? {}).find((fileName) =>
-        /^assets\/instrument-sans-latin-wght-normal-[^/]+\.woff2$/.test(
+        /^assets\/atkinson-hyperlegible-next-latin-wght-normal-[^/]+\.woff2$/.test(
           fileName,
         ),
       );
       if (!font) {
         throw new Error(
-          'The Instrument Sans Latin font is missing from the bundle; update ' +
+          'The Atkinson Hyperlegible Next Latin font is missing from the bundle; update ' +
             'preloadPrimaryFont in vite.config.ts to the new file name.',
         );
       }

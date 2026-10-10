@@ -1,5 +1,13 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
+import {
+  WORDMARK_GLYPHS,
+  WORDMARK_GLYPH_PATHS,
+  WORDMARK_TOP,
+  WORDMARK_UNITS_PER_EM,
+  WORDMARK_WIDTH,
+} from './kpWordmarkPaths';
+
 const MARK_CLASS: Record<'xs' | 'sm' | 'md', string> = {
   xs: 'kp-mark w-6 h-6',
   sm: 'kp-mark w-9 h-9',
@@ -85,7 +93,26 @@ export function KpLockup({
       </svg>
       {!markOnly && (
         <span className={textClass} aria-hidden="true">
-          Klassenplan
+          {/* Drawn from outlines, not set in the interface font: the brand
+              name keeps its own letterforms. The box is the cap height, so
+              the letters centre against the mark and the "p" hangs below. */}
+          <svg
+            viewBox={`0 ${-WORDMARK_TOP} ${WORDMARK_WIDTH} ${WORDMARK_TOP}`}
+            className="kp-wordmark-svg"
+            style={{
+              width: `${WORDMARK_WIDTH / WORDMARK_UNITS_PER_EM}em`,
+              height: `${WORDMARK_TOP / WORDMARK_UNITS_PER_EM}em`,
+            }}
+            fill="currentColor"
+          >
+            {WORDMARK_GLYPHS.map(({ char, x }, index) => (
+              <path
+                key={index}
+                d={WORDMARK_GLYPH_PATHS[char]}
+                transform={`translate(${x} 0) scale(1 -1)`}
+              />
+            ))}
+          </svg>
         </span>
       )}
     </>
