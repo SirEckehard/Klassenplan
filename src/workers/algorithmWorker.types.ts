@@ -13,11 +13,7 @@ import type {
 import type { CircleLayout } from '@/types/Circle';
 
 export type AlgorithmWorkerOperation =
-  | 'mix:generate'
-  | 'mix:refine'
-  | 'circle:generate'
-  | 'circle:optimized'
-  | 'worker:warmup';
+  'mix:run' | 'circle:generate' | 'circle:optimized' | 'worker:warmup';
 
 export interface WorkerErrorPayload {
   name?: string;
@@ -33,7 +29,7 @@ export interface WorkerProgressPayload {
 }
 
 export type AlgorithmWorkerRequestMap = {
-  'mix:generate': {
+  'mix:run': {
     payload: {
       students: Student[];
       seatingHistory: SavedPlan[];
@@ -47,29 +43,13 @@ export type AlgorithmWorkerRequestMap = {
       lockedPositions: LockedPositions;
       classroomScene: ClassroomScene;
       mixSettings: Partial<MixSettings>;
+      /** The plan on screen before mixing; it counts as the newest in use. */
       lastSeating?: SeatingArrangement | null;
-    };
-    result: {
-      seating: SeatingArrangement;
-    };
-  };
-  'mix:refine': {
-    payload: {
-      students: Student[];
-      classroomScene: ClassroomScene;
-      currentSeating: SeatingArrangement;
-      mixSettings: Partial<MixSettings>;
-      mixHistory: MixResult[];
-      seatingHistory: SavedPlan[];
-      /** Records of plans that were really in use; see `buildPreviousPairs`. */
-      planUsage?: PlanUsage[];
-      /** When the neighbourhoods were last reset; see `buildPreviousPairs`. */
-      planUsageSince?: string | null;
-      /** Whether the class marks its plans by hand; see `buildPreviousPairs`. */
-      planUsageManual?: boolean;
-      lockedPositions: LockedPositions;
-      options?: { triesPerPass?: number; passes?: number };
-      start?: SeatingArrangement | null;
+      /**
+       * The refinement after the construction, while a criterion is on;
+       * `null` lets the construction stand (decision 0027).
+       */
+      refine?: { triesPerPass?: number; passes?: number } | null;
     };
     result: {
       seating: SeatingArrangement;

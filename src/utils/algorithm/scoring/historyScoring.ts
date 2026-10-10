@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import type { ScoringContext } from './scoringContext';
-import { seatPairKey } from '@/utils/pairs';
+import { seatPairKey, seatStudentIdentifier } from '@/utils/pairs';
 import { isWishPair } from '@/utils/student/partnerUtils';
 
 /**
@@ -24,7 +24,10 @@ export const scorePreviousPairs = (context: ScoringContext): number => {
   for (const other of t) {
     if (!other) continue;
 
-    const key = seatPairKey(student.id, other.id);
+    const key = seatPairKey(
+      seatStudentIdentifier(student),
+      seatStudentIdentifier(other),
+    );
     const wishPair =
       settings.considerWishPartners && isWishPair(student, other);
     const pairPenalty = previousPairs.get(key) ?? 0;

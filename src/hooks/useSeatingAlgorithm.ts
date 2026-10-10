@@ -18,6 +18,9 @@ import { calculateCurrentStatistics } from './useSeatingStatisticsUpdater';
 import {
   DEFAULT_MIX_WEIGHTS,
   DEFAULT_NEIGHBOR_WEIGHTS,
+  DEFAULT_PASSES,
+  DEFAULT_TRIES_PER_PASS,
+  hasActiveWeights,
   MIX_HISTORY_LIMIT,
   mergeNeighborWeights,
   normalizeMixSettings,
@@ -52,12 +55,12 @@ const scopeChangedError = () =>
   new DOMException('Another class or room opened during the run', 'AbortError');
 
 /**
- * Provide algorithms to generate and refine seating arrangements.
+ * Provides "Mischen": one mix session in the worker (decision 0027).
  * @param state Shared seating state
  * @param planUsage Records of plans that were really in use; see `buildPreviousPairs`
  * @param planUsageSince When the neighbourhoods were last reset, if ever
  * @param planUsageManual Whether the class marks its plans by hand
- * @returns Functions for generating and refining plans
+ * @returns The function that mixes a plan
  */
 export function useSeatingAlgorithm(
   state: SeatingState,
@@ -67,7 +70,7 @@ export function useSeatingAlgorithm(
 ) {
   const {
     studentState: { students },
-    historyState: { seatingHistory, mixHistory, addMixResult, setMixHistory },
+    historyState: { seatingHistory, mixHistory, addMixResult },
     algorithmState: { lockedPositions, setLastStatistics },
     planState: { currentSeating, setCurrentSeating },
     roomState: { activeRoomId },
@@ -93,15 +96,6 @@ export function useSeatingAlgorithm(
   const recentSeatingRef = useRef<SeatingArrangement | null>(
     currentSeating.length > 0 ? currentSeating : null,
   );
-  // The entry `generateSeatingPlan` recorded last, with the arrangement it
-  // holds. When the refinement after a mix starts from exactly that
-  // arrangement, its result replaces the entry, so the history keeps the plan
-  // the teacher got (decision 0014).
-  const pendingMixResultRef = useRef<{
-    id: number;
-    seating: SeatingArrangement;
-  } | null>(null);
-
   // Update refs in effect to avoid writing during render
   useEffect(() => {
     mixHistoryRef.current = mixHistory;
@@ -124,6 +118,12 @@ export function useSeatingAlgorithm(
       currentSeating.length > 0 ? currentSeating : null;
   }, [currentSeating]);
 
+  /**
+   * Mixes the plan: the construction and — while a criterion carries weight —
+   * its refinement run as one session in the worker, which weighs the plan on
+   * screen as the newest one in use. The mix history gains the arrangement the
+   * session settled on, which is the one on screen (decision 0014).
+   */
   const generateSeatingPlan = useCallback(
     (
       settings: Partial<MixSettings>,
@@ -140,11 +140,14 @@ export function useSeatingAlgorithm(
 
       const historyForPairs = mixHistoryRef.current;
       const lastSeating = recentSeatingRef.current ?? undefined;
+      const refine = hasActiveWeights(normalizedSettings)
+        ? { triesPerPass: DEFAULT_TRIES_PER_PASS, passes: DEFAULT_PASSES }
+        : null;
 
       const scope = openScopeRef.current;
       return algorithmWorkerClient
         .callOperation(
-          'mix:generate',
+          'mix:run',
           {
             students,
             seatingHistory,
@@ -156,6 +159,7 @@ export function useSeatingAlgorithm(
             classroomScene: scene,
             mixSettings: normalizedSettings,
             lastSeating: lastSeating ?? null,
+            refine,
           },
           { signal: run?.signal, onProgress: run?.onProgress },
         )
@@ -184,16 +188,16 @@ export function useSeatingAlgorithm(
               ? updatedMixHistory.slice(-MIX_HISTORY_LIMIT)
               : updatedMixHistory;
           addMixResult(result);
-          pendingMixResultRef.current = { id: result.id, seating: arrangement };
 
-          // Calculate statistics using shared utility
+          // Calculate statistics using shared utility. The history ends with
+          // this mix, which the statistics leave out, as they do on screen.
           const topCriteria = calculateCurrentStatistics(
             arrangement,
             students,
             normalizedSettings,
             seatingHistory,
             scene,
-            historyForPairs,
+            mixHistoryRef.current,
             {
               planUsage: planUsageRef.current,
               planUsageSince: planUsageSinceRef.current,
@@ -215,74 +219,5 @@ export function useSeatingAlgorithm(
     ],
   );
 
-  const refineSeatingLocal = useCallback(
-    (
-      settings: Partial<MixSettings>,
-      scene: ClassroomScene,
-      options?: { triesPerPass?: number; passes?: number },
-      start?: SeatingArrangement,
-      run?: AlgorithmRunOptions,
-    ): Promise<SeatingArrangement> => {
-      const normalizedSettings: Partial<MixSettings> = {
-        ...settings,
-        neighborWeights: mergeNeighborWeights(
-          settings.neighborWeights,
-          DEFAULT_NEIGHBOR_WEIGHTS,
-        ),
-      };
-
-      const scope = openScopeRef.current;
-      return algorithmWorkerClient
-        .callOperation(
-          'mix:refine',
-          {
-            students,
-            seatingHistory,
-            mixHistory: mixHistoryRef.current,
-            planUsage: planUsageRef.current,
-            planUsageSince: planUsageSinceRef.current,
-            planUsageManual: planUsageManualRef.current,
-            lockedPositions,
-            classroomScene: scene,
-            currentSeating,
-            mixSettings: normalizedSettings,
-            options,
-            start: start ?? null,
-          },
-          { signal: run?.signal, onProgress: run?.onProgress },
-        )
-        .then(({ seating: arrangement }) => {
-          if (!isSameScope(openScopeRef.current, scope)) {
-            throw scopeChangedError();
-          }
-          recentSeatingRef.current =
-            arrangement.length > 0 ? arrangement : null;
-          setCurrentSeating(arrangement);
-
-          const pending = pendingMixResultRef.current;
-          if (pending && start && start === pending.seating) {
-            pendingMixResultRef.current = null;
-            const withRefinedSeating = (entries: MixResult[]) =>
-              entries.map((entry) =>
-                entry.id === pending.id
-                  ? { ...entry, seating: arrangement }
-                  : entry,
-              );
-            mixHistoryRef.current = withRefinedSeating(mixHistoryRef.current);
-            setMixHistory(withRefinedSeating);
-          }
-          return arrangement;
-        });
-    },
-    [
-      students,
-      seatingHistory,
-      lockedPositions,
-      currentSeating,
-      setCurrentSeating,
-      setMixHistory,
-    ],
-  );
-
-  return { generateSeatingPlan, refineSeatingLocal };
+  return { generateSeatingPlan };
 }

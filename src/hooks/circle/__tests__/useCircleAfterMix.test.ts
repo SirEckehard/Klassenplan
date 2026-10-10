@@ -10,14 +10,15 @@ import {
   type Mock,
 } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import { useAutoMixTrigger, type AutoMixConfig } from '../useAutoMixTrigger';
-import type { Student, ClassroomScene, MixSettings } from '../../../types';
-import type { CircleLayout } from '../../../types/Circle';
+import { useCircleAfterMix } from '../useCircleAfterMix';
+import type { Student } from '@/types';
+import type { CircleLayout } from '@/types/Circle';
 
-describe('useAutoMixTrigger', () => {
-  let mockConfig: AutoMixConfig;
-  let mockRefineSeatingLocal: Mock<AutoMixConfig['refineSeatingLocal']>;
-  let mockRegenerateCircle: Mock<AutoMixConfig['regenerateCircle']>;
+type CircleAfterMixConfig = Parameters<typeof useCircleAfterMix>[0];
+
+describe('useCircleAfterMix', () => {
+  let mockConfig: CircleAfterMixConfig;
+  let mockRegenerateCircle: Mock<CircleAfterMixConfig['regenerateCircle']>;
 
   const createMockStudent = (id: string, name: string): Student => ({
     id,
@@ -30,22 +31,6 @@ describe('useAutoMixTrigger', () => {
     performanceStrong: false,
     performanceWeak: false,
     wishPartnerId: null,
-  });
-
-  const createMockScene = (): ClassroomScene => ({
-    totalStudents: 4,
-    tables: [
-      {
-        x: 100,
-        y: 100,
-        width: 100,
-        height: 60,
-        rotation: 0,
-        seatCount: 4,
-        locked: false,
-        zIndex: 0,
-      },
-    ],
   });
 
   const createMockCircleLayout = (): CircleLayout => ({
@@ -75,27 +60,11 @@ describe('useAutoMixTrigger', () => {
     vi.clearAllMocks();
     vi.useFakeTimers();
 
-    mockRefineSeatingLocal = vi.fn();
     mockRegenerateCircle = vi.fn().mockResolvedValue(null);
 
     mockConfig = {
-      step: 3,
       currentSeating: [[createMockStudent('1', 'Alice'), null]],
-      classroomScene: createMockScene(),
-      mixSettings: {
-        avoidPreviousPairs: 0,
-        avoidRestlessTogether: 0,
-        avoidConcentrationTogether: 0,
-        avoidConcentrationNearRestless: 0,
-        avoidShyAlone: 0,
-        preferGenderMix: 0,
-        considerWishPartners: 0,
-        peerTutoring: 0,
-        preferFrontForNeedsFrontSeat: 0,
-      } as MixSettings,
-      intelligentMix: true,
       circleLayout: createMockCircleLayout(),
-      refineSeatingLocal: mockRefineSeatingLocal,
       regenerateCircle: mockRegenerateCircle,
     };
   });
@@ -107,7 +76,7 @@ describe('useAutoMixTrigger', () => {
   describe('Timeout Cleanup', () => {
     it('clears timeout when component unmounts before timeout completes', async () => {
       const { result, unmount } = renderHook(() =>
-        useAutoMixTrigger(mockConfig),
+        useCircleAfterMix(mockConfig),
       );
 
       // Trigger circle regeneration
@@ -130,7 +99,7 @@ describe('useAutoMixTrigger', () => {
     });
 
     it('allows timeout to complete if component stays mounted', async () => {
-      const { result } = renderHook(() => useAutoMixTrigger(mockConfig));
+      const { result } = renderHook(() => useCircleAfterMix(mockConfig));
 
       // Trigger circle regeneration
       act(() => {
@@ -151,7 +120,7 @@ describe('useAutoMixTrigger', () => {
 
     it('clears timeout when dependencies change before timeout completes', async () => {
       const { result, rerender } = renderHook(
-        (props) => useAutoMixTrigger(props),
+        (props) => useCircleAfterMix(props),
         { initialProps: mockConfig },
       );
 
@@ -179,7 +148,7 @@ describe('useAutoMixTrigger', () => {
     });
 
     it('only triggers timeout when all conditions are met', async () => {
-      renderHook(() => useAutoMixTrigger(mockConfig));
+      renderHook(() => useCircleAfterMix(mockConfig));
 
       // Trigger WITHOUT circle layout
       const configNoCircle = {
@@ -188,7 +157,7 @@ describe('useAutoMixTrigger', () => {
       };
 
       const { result: resultNoCircle } = renderHook(() =>
-        useAutoMixTrigger(configNoCircle),
+        useCircleAfterMix(configNoCircle),
       );
 
       act(() => {
@@ -204,7 +173,7 @@ describe('useAutoMixTrigger', () => {
     });
 
     it('resets shouldRegenerateCircle flag after timeout completes', () => {
-      const { result } = renderHook(() => useAutoMixTrigger(mockConfig));
+      const { result } = renderHook(() => useCircleAfterMix(mockConfig));
 
       // Initial state
       expect(result.current.shouldRegenerateCircle).toBe(false);
@@ -226,47 +195,9 @@ describe('useAutoMixTrigger', () => {
     });
   });
 
-  describe('Auto-Refine', () => {
-    it('triggers refine when pending and all conditions are met', async () => {
-      const { result } = renderHook(() => useAutoMixTrigger(mockConfig));
-
-      await act(async () => {
-        result.current.requestAutoRefine();
-      });
-
-      // Check that refineSeatingLocal was called (synchronous with fake timers)
-      expect(mockRefineSeatingLocal).toHaveBeenCalledWith(
-        mockConfig.mixSettings,
-        mockConfig.classroomScene,
-        {
-          triesPerPass: 600,
-          passes: 2,
-        },
-      );
-    });
-
-    it('does not trigger refine when intelligentMix is false', async () => {
-      const configNoIntelligent = {
-        ...mockConfig,
-        intelligentMix: false,
-      };
-
-      const { result } = renderHook(() =>
-        useAutoMixTrigger(configNoIntelligent),
-      );
-
-      await act(async () => {
-        result.current.requestAutoRefine();
-      });
-
-      // Should not call refineSeatingLocal
-      expect(mockRefineSeatingLocal).not.toHaveBeenCalled();
-    });
-  });
-
   describe('handleMix', () => {
     it('sets shouldRegenerateCircle when circle layout exists', () => {
-      const { result } = renderHook(() => useAutoMixTrigger(mockConfig));
+      const { result } = renderHook(() => useCircleAfterMix(mockConfig));
 
       expect(result.current.shouldRegenerateCircle).toBe(false);
 
@@ -283,7 +214,7 @@ describe('useAutoMixTrigger', () => {
         circleLayout: null,
       };
 
-      const { result } = renderHook(() => useAutoMixTrigger(configNoCircle));
+      const { result } = renderHook(() => useCircleAfterMix(configNoCircle));
 
       expect(result.current.shouldRegenerateCircle).toBe(false);
 

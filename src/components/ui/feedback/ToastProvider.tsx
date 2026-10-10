@@ -60,7 +60,7 @@ function ToastItem({ toast }: { toast: ToastInstance }): React.JSX.Element {
         {toast.action && (
           <button
             type="button"
-            className="mt-2 block rounded-md bg-white/20 px-3 py-1.5 text-xs font-semibold hover:bg-white/30 focus:outline text-inherit dark:bg-white/10 dark:hover:bg-white/20"
+            className="mt-2 block rounded-md bg-(--toast-action-bg) px-3 py-1.5 text-xs font-semibold hover:bg-(--toast-action-bg-hover) focus:outline text-inherit"
             onClick={(e) => {
               e.stopPropagation();
               toast.action?.onClick();

@@ -10,9 +10,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### Improved
 
 - Klassenplan installed as an app opens on the class instead of the start page, and its shortcuts lead to the "Library" and to exporting
+- The small print of the toolbar, the inspector and the menus grows with the text size set in the browser
+- "Mix" takes about half as long: the plan is refined once instead of twice
+- "Mix" weighs earlier neighbours alike in every step: recent plans more than old ones, plans in use more than mixes that were only tried. The arrangement a mix builds is no longer broken up for its own pairs
 
 ### Fixed
 
+- After restoring a backup with "Replace", the seating plan was rearranged as soon as it was opened. It now stays as it was saved
+- After every mix, the "Recent mixes" held a different plan from the one on screen
 - Restoring a backup with "Replace" while another class was open than when the backup was made overwrote the open class with the other one – its students, plans, mixes and room. It happened on an iPad and in Safari every time. Each class now comes back as the backup holds it
 - A save that failed was only reported once the tab was left, and was not tried again, so changes could be lost without notice. It is now said at once, "Not saved" stays in the status bar until a save works – a click there tries again – saving is retried on its own, and leaving the page asks first
 - After Safari closed the database connection in the background, every later save failed until the page was reloaded. The connection is now reopened

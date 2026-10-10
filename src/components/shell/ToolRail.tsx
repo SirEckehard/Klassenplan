@@ -318,7 +318,7 @@ function ToolRailLibrary() {
       className={
         isCompact
           ? `inline-flex size-11 shrink-0 items-center justify-center rounded-lg ${entryStateClass(isHere, false)}`
-          : `flex h-9 w-full items-center gap-2.5 rounded-lg px-2 text-left text-[13px] ${entryStateClass(isHere, false)}`
+          : `flex h-9 w-full items-center gap-2.5 rounded-lg px-2 text-left text-control ${entryStateClass(isHere, false)}`
       }
     >
       <span className="shrink-0 text-(--text-muted)" aria-hidden="true">
@@ -347,7 +347,7 @@ function ToolRailSupport() {
       className={
         isCompact
           ? `inline-flex size-11 shrink-0 items-center justify-center rounded-lg ${entryStateClass(false, false)}`
-          : `flex h-9 w-full items-center gap-2.5 rounded-lg px-2 text-left text-[13px] ${entryStateClass(false, false)}`
+          : `flex h-9 w-full items-center gap-2.5 rounded-lg px-2 text-left text-control ${entryStateClass(false, false)}`
       }
     >
       <span className="shrink-0 text-(--text-muted)" aria-hidden="true">
@@ -396,7 +396,7 @@ export function ToolRailGroup({
       data-tour={dataTour}
       className="border-t border-(--border-card) pt-2 first:border-t-0 first:pt-0"
     >
-      <h3 className="px-2 pb-1 text-[11px] font-semibold tracking-wider text-(--text-muted) uppercase">
+      <h3 className="px-2 pb-1 text-caption font-semibold tracking-wider text-(--text-muted) uppercase">
         {title}
       </h3>
       <div className="flex flex-col gap-0.5">{children}</div>
@@ -523,7 +523,7 @@ export function ToolRailButton({
               isActive,
               disabled,
             )} ${onPointerDown && !disabled ? 'cursor-grab active:cursor-grabbing' : ''}`
-          : `flex h-9 w-full items-center gap-2.5 rounded-lg px-2 text-left text-[13px] ${entryStateClass(
+          : `flex h-9 w-full items-center gap-2.5 rounded-lg px-2 text-left text-control ${entryStateClass(
               isActive,
               disabled,
             )} ${onPointerDown && !disabled ? 'cursor-grab active:cursor-grabbing' : ''}`

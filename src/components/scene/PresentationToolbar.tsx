@@ -38,7 +38,7 @@ import {
  */
 
 const barBaseClass =
-  'inline-flex h-11 cursor-pointer items-center justify-center rounded-[10px] border-0 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:ring-offset-2 focus-visible:ring-offset-(--present-bar-bg)';
+  'inline-flex h-11 cursor-pointer items-center justify-center rounded-card border-0 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:ring-offset-2 focus-visible:ring-offset-(--present-bar-bg)';
 
 /**
  * Every button carries its word under the icon. At the board no tooltip
@@ -95,7 +95,7 @@ function BarSegment<T extends string>({
     <div
       role="group"
       aria-label={label}
-      className="flex shrink-0 items-center gap-0.5 rounded-[10px] bg-(--present-bar-bg) p-0.5"
+      className="flex shrink-0 items-center gap-0.5 rounded-card bg-(--present-bar-bg) p-0.5"
     >
       {options.map((option) => {
         const isActive = option.value === value;
@@ -351,7 +351,7 @@ export default function PresentationToolbar({
 
         {/* The slider on top and its name with the value under it, the way
             the buttons beside it carry their word. */}
-        <div className="flex h-11 shrink-0 flex-col items-center justify-center gap-1 rounded-[10px] bg-(--present-bar-surface) px-3">
+        <div className="flex h-11 shrink-0 flex-col items-center justify-center gap-1 rounded-card bg-(--present-bar-surface) px-3">
           <input
             id="present-zoom"
             type="range"

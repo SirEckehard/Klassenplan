@@ -32,7 +32,7 @@ function RootErrorFallback({ error }: { error: Error }) {
           <summary className="cursor-pointer font-medium select-none">
             {t('common.errorDetails', 'Fehlerdetails')}
           </summary>
-          <pre className="mt-2 whitespace-pre-wrap wrap-break-word rounded-lg bg-(--surface-card) p-3 text-[11px] leading-relaxed">
+          <pre className="mt-2 whitespace-pre-wrap wrap-break-word rounded-lg bg-(--surface-card) p-3 text-caption leading-relaxed">
             {error.message}
           </pre>
         </details>

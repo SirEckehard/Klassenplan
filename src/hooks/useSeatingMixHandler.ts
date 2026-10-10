@@ -7,14 +7,7 @@ import type {
   ClassroomScene,
   SeatingArrangement,
 } from '@/types';
-import {
-  showToast,
-  TOAST_MESSAGES,
-  neutralSettings,
-  DEFAULT_TRIES_PER_PASS,
-  DEFAULT_PASSES,
-  logError,
-} from '@/utils';
+import { showToast, TOAST_MESSAGES, neutralSettings, logError } from '@/utils';
 import type { AlgorithmRunOptions } from '@/hooks/useSeatingAlgorithm';
 
 interface SeatingMixHandlerConfig {
@@ -26,13 +19,6 @@ interface SeatingMixHandlerConfig {
     scene: ClassroomScene,
     run?: AlgorithmRunOptions,
   ) => Promise<SeatingArrangement>;
-  refineSeatingLocal?: (
-    settings: MixSettings,
-    scene: ClassroomScene,
-    options: { triesPerPass: number; passes: number },
-    arrangement: SeatingArrangement,
-    run?: AlgorithmRunOptions,
-  ) => Promise<SeatingArrangement>;
   onMix?: () => void;
 }
 
@@ -40,12 +26,12 @@ const isAbortError = (error: unknown): boolean =>
   error instanceof DOMException && error.name === 'AbortError';
 
 /**
- * Hook for handling seating plan mix operations with validation and refinement.
+ * Hook for handling seating plan mix operations with validation.
  *
  * Provides a unified handler for the "Mix" button that:
  * - Decides between intelligent mixing (with criteria) or neutral random placement
- * - Generates initial seating arrangement
- * - Optionally refines the arrangement using local optimization
+ * - Runs the mix, which refines the arrangement in the same session while a
+ *   criterion is on (decision 0027)
  * - Triggers post-mix callbacks
  *
  * The run is short enough that the spinner in the mix button is the whole
@@ -58,7 +44,6 @@ export const useSeatingMixHandler = ({
   settings,
   classroomScene,
   generateSeatingPlan,
-  refineSeatingLocal,
   onMix,
 }: SeatingMixHandlerConfig) => {
   const [isMixing, setIsMixing] = React.useState(false);
@@ -91,20 +76,10 @@ export const useSeatingMixHandler = ({
     setIsMixing(true);
 
     try {
-      const arrangement = await generateSeatingPlan(active, classroomScene, {
+      // One session: the construction, refined while a criterion is on.
+      await generateSeatingPlan(active, classroomScene, {
         signal: abortController.signal,
       });
-
-      // Refine arrangement if criteria are active and refinement is available
-      if (hasCriteria && refineSeatingLocal) {
-        await refineSeatingLocal(
-          active,
-          classroomScene,
-          { triesPerPass: DEFAULT_TRIES_PER_PASS, passes: DEFAULT_PASSES },
-          arrangement,
-          { signal: abortController.signal },
-        );
-      }
     } catch (error) {
       // An unmount aborts the run; the arrangement built so far simply stays
       // where it is, there is nothing left to report to.
@@ -140,7 +115,6 @@ export const useSeatingMixHandler = ({
     settings,
     generateSeatingPlan,
     classroomScene,
-    refineSeatingLocal,
     onMix,
     isMixing,
   ]);

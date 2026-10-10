@@ -119,7 +119,7 @@ export function neighboursByStudent(
 /** A quiet word after a name: what is open, what was saved by itself. */
 function LibraryChip({ children }: { children: React.ReactNode }) {
   return (
-    <span className="shrink-0 rounded-full border border-(--border-card) px-1.5 py-px text-[11px] text-(--text-muted)">
+    <span className="shrink-0 rounded-full border border-(--border-card) px-1.5 py-px text-caption text-(--text-muted)">
       {children}
     </span>
   );

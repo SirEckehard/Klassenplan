@@ -2,8 +2,9 @@
 // Copyright (C) 2026 Eike Schäfer
 /**
  * The mix history feeds "avoid previous pairs" and can be loaded back onto the
- * screen, so it has to hold the plan the teacher actually got: after a mix and
- * its refinement, that is the refined arrangement (decision 0014).
+ * screen, so it has to hold the plan the teacher actually got (decision 0014).
+ * A mix is one session in the worker — construction and refinement — and its
+ * entry is the arrangement the session settled on (decision 0027).
  */
 import { act, renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -24,15 +25,13 @@ vi.mock('../useSeatingStatisticsUpdater', () => ({
 
 const ada = createMockStudent({ id: 'ada', name: 'Ada' });
 const ben = createMockStudent({ id: 'ben', name: 'Ben' });
-const constructed: SeatingArrangement = [[ada, ben]];
-const refined: SeatingArrangement = [[ben, ada]];
+const mixed: SeatingArrangement = [[ben, ada]];
 
 const settings = normalizeMixSettings(
   { avoidRestlessTogether: 5 },
   neutralSettings,
 );
 const scene = createMockClassroomScene(2);
-const refineOptions = { triesPerPass: 600, passes: 2 };
 
 const setup = () => {
   let mixHistory: MixResult[] = [];
@@ -45,11 +44,6 @@ const setup = () => {
         mixHistory: [],
         addMixResult: (result: MixResult) => {
           mixHistory = [...mixHistory, result];
-        },
-        setMixHistory: (
-          next: MixResult[] | ((prev: MixResult[]) => MixResult[]),
-        ) => {
-          mixHistory = typeof next === 'function' ? next(mixHistory) : next;
         },
       },
       algorithmState: { lockedPositions: {}, setLastStatistics: vi.fn() },
@@ -73,42 +67,40 @@ const setup = () => {
 
 beforeEach(() => {
   callOperation.mockReset();
-  callOperation
-    .mockResolvedValueOnce({ seating: constructed })
-    .mockResolvedValueOnce({ seating: refined });
+  callOperation.mockResolvedValueOnce({ seating: mixed });
 });
 
 describe('useSeatingAlgorithm mix history', () => {
-  it('replaces the mix result with the refined arrangement', async () => {
-    const { result, getMixHistory } = setup();
-
-    await act(async () => {
-      const arrangement = await result.current.generateSeatingPlan(
-        settings,
-        scene,
-      );
-      await result.current.refineSeatingLocal(
-        settings,
-        scene,
-        refineOptions,
-        arrangement,
-      );
-    });
-
-    expect(getMixHistory()).toHaveLength(1);
-    expect(getMixHistory()[0]?.seating).toBe(refined);
-  });
-
-  it('leaves the entry alone when a refinement starts elsewhere', async () => {
-    const { result, getMixHistory } = setup();
+  it('records the arrangement the session settled on, once', async () => {
+    const { result, getMixHistory, setCurrentSeating } = setup();
 
     await act(async () => {
       await result.current.generateSeatingPlan(settings, scene);
-      await result.current.refineSeatingLocal(settings, scene, refineOptions);
     });
 
+    expect(callOperation).toHaveBeenCalledTimes(1);
     expect(getMixHistory()).toHaveLength(1);
-    expect(getMixHistory()[0]?.seating).toBe(constructed);
+    expect(getMixHistory()[0]?.seating).toBe(mixed);
+    expect(setCurrentSeating).toHaveBeenCalledWith(mixed);
+  });
+
+  it('asks the session to refine while a criterion is on, and only then', async () => {
+    const { result } = setup();
+
+    await act(async () => {
+      await result.current.generateSeatingPlan(settings, scene);
+    });
+    callOperation.mockResolvedValueOnce({ seating: mixed });
+    await act(async () => {
+      await result.current.generateSeatingPlan(neutralSettings, scene);
+    });
+
+    const [first, second] = callOperation.mock.calls;
+    expect(first?.[0]).toBe('mix:run');
+    expect(first?.[1]).toMatchObject({
+      refine: { triesPerPass: expect.any(Number), passes: expect.any(Number) },
+    });
+    expect(second?.[1]).toMatchObject({ refine: null });
   });
 });
 
@@ -135,7 +127,7 @@ describe('useSeatingAlgorithm and rooms', () => {
 
     const run = result.current.generateSeatingPlan(settings, scene);
     openRoom('room-2');
-    finish({ seating: constructed });
+    finish({ seating: mixed });
 
     await expect(run).rejects.toMatchObject({ name: 'AbortError' });
     expect(setCurrentSeating).not.toHaveBeenCalled();
@@ -156,32 +148,10 @@ describe('useSeatingAlgorithm across a class switch', () => {
 
     const run = result.current.generateSeatingPlan(settings, scene);
     openClass('class-b');
-    finish({ seating: constructed });
+    finish({ seating: mixed });
 
     await expect(run).rejects.toMatchObject({ name: 'AbortError' });
     expect(setCurrentSeating).not.toHaveBeenCalled();
     expect(getMixHistory()).toEqual([]);
-  });
-
-  it('drops a refinement that ends after another class opened', async () => {
-    let finish: (value: { seating: SeatingArrangement }) => void = () => {};
-    callOperation.mockReset();
-    callOperation.mockReturnValueOnce(
-      new Promise((resolve) => {
-        finish = resolve;
-      }),
-    );
-    const { result, openClass, setCurrentSeating } = setup();
-
-    const run = result.current.refineSeatingLocal(
-      settings,
-      scene,
-      refineOptions,
-    );
-    openClass('class-b');
-    finish({ seating: refined });
-
-    await expect(run).rejects.toMatchObject({ name: 'AbortError' });
-    expect(setCurrentSeating).not.toHaveBeenCalled();
   });
 });

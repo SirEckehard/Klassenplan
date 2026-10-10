@@ -103,7 +103,7 @@ function ImportanceChoice({
               level: levelLabel,
             })}
             title={t(`mix.importance.${level}Hint`)}
-            className={`flex-1 cursor-pointer rounded-md border px-1 py-1 text-[11px] leading-tight transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) ${
+            className={`flex-1 cursor-pointer rounded-md border px-1 py-1 text-caption leading-tight transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) ${
               isActive
                 ? 'border-(--border-option-selected) bg-(--surface-option-selected) font-medium text-(--text-badge)'
                 : 'border-(--border-card) bg-(--surface-card) text-(--text-muted) hover:border-(--border-option-hover)'

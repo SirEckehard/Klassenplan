@@ -96,7 +96,7 @@ export default function AppSettingsItems({
     <>
       {storage && (
         <>
-          <div className="flex items-center gap-2 px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-(--text-muted)">
+          <div className="flex items-center gap-2 px-3 py-2 text-caption font-semibold uppercase tracking-wider text-(--text-muted)">
             <HardDrivesIcon className="h-4 w-4" aria-hidden="true" />
             {t('generator:storage.sectionTitle')}
           </div>

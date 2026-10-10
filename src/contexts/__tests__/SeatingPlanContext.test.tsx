@@ -78,7 +78,6 @@ describe('SeatingPlanContext', () => {
       expect(result.current).toHaveProperty('currentSeating');
       expect(result.current).toHaveProperty('mixSettings');
       expect(result.current).toHaveProperty('step');
-      expect(result.current).toHaveProperty('seatCount');
       expect(result.current).toHaveProperty('classroomEdited');
       expect(result.current).toHaveProperty('planName');
       expect(result.current).toHaveProperty('planNameError');
@@ -114,7 +113,6 @@ describe('SeatingPlanContext', () => {
       expect(result.current).toHaveProperty('removeTables');
       expect(result.current).toHaveProperty('generateSeatingPlan');
       expect(result.current).toHaveProperty('moveStudent');
-      expect(result.current).toHaveProperty('refineSeatingLocal');
       expect(result.current).toHaveProperty('onMix');
       expect(result.current).toHaveProperty('setPlanName');
       expect(result.current).toHaveProperty('setPlanNameError');
@@ -445,7 +443,6 @@ describe('SeatingPlanContext', () => {
         'currentSeating',
         'mixSettings',
         'step',
-        'seatCount',
         'classroomEdited',
         'planName',
         'planNameError',
@@ -470,7 +467,6 @@ describe('SeatingPlanContext', () => {
         'removeTables',
         'generateSeatingPlan',
         'moveStudent',
-        'refineSeatingLocal',
         'onMix',
         'setPlanName',
         'setPlanNameError',

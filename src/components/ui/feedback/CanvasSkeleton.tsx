@@ -30,7 +30,7 @@ export default function CanvasSkeleton() {
 
       {/* Canvas area skeleton */}
       <div className="flex-1">
-        <div className="card-surface aspect-[3/2] w-full p-6">
+        <div className="card-surface aspect-3/2 w-full p-6">
           {/* Canvas grid simulation */}
           <div className="grid h-full grid-cols-4 grid-rows-3 gap-4">
             {Array.from({ length: 12 }).map((_, index) => (

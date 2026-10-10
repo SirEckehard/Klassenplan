@@ -108,7 +108,7 @@ const MobileTableTemplates: React.FC<MobileTableTemplatesProps> = ({
                 <TablePreview type={template.type} fixedSize={true} />
               </div>
             </div>
-            <span className="text-[10px] font-medium text-(--text-muted)">
+            <span className="text-micro font-medium text-(--text-muted)">
               {template.seatCount} {t('common.pl', 'Pl.')}
             </span>
 
@@ -131,7 +131,7 @@ const MobileTableTemplates: React.FC<MobileTableTemplatesProps> = ({
                   onFeaturePointerDown?.(feature.type, event)
                 }
                 onClick={() => onFeatureAdd?.(feature.type)}
-                className={`${cardSurfaceClass} flex h-14 min-w-0 cursor-grab flex-col items-center justify-center gap-0.5 border-2 border-(--border-card) p-1 text-[10px] font-medium text-(--text-muted) transition hover:border-(--border-option-selected) hover:bg-(--surface-option-selected) active:scale-95 active:cursor-grabbing`}
+                className={`${cardSurfaceClass} flex h-14 min-w-0 cursor-grab flex-col items-center justify-center gap-0.5 border-2 border-(--border-card) p-1 text-micro font-medium text-(--text-muted) transition hover:border-(--border-option-selected) hover:bg-(--surface-option-selected) active:scale-95 active:cursor-grabbing`}
                 style={{ touchAction: 'none' }}
                 title={`${feature.label} – ${t('layout.dragDropHint')}`}
               >

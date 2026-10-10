@@ -26,7 +26,7 @@ it says so instead of reconstructing one.
 | [0011](0011-english-under-en-on-de-domain.md)      | English under `/en` on the `.de` domain                       |
 | [0012](0012-legal-pages-for-self-hosted-builds.md) | Operators link their own legal pages at build time            |
 | [0013](0013-one-performance-criterion.md)          | One performance criterion at a time                           |
-| [0014](0014-mix-history-records-refined-plan.md)   | The mix history records the refined plan                      |
+| [0014](0014-mix-history-records-refined-plan.md)   | The mix history records the refined plan (superseded)         |
 | [0015](0015-onboarding-sample-class-and-tour.md)   | A sample class and coach marks for the first visit            |
 | [0016](0016-hidden-criteria-carry-no-weight.md)    | Criteria the class has no data for carry no weight            |
 | [0017](0017-seats-are-paper-and-ink.md)            | A seat is paper and ink, not a gender colour (superseded)     |
@@ -39,6 +39,7 @@ it says so instead of reconstructing one.
 | [0024](0024-rooms-of-a-class.md)                   | A class keeps its rooms, and "Bibliothek" shows them          |
 | [0025](0025-plan-usage-marked-by-hand.md)          | The plans in use can be marked by hand instead of detected    |
 | [0026](0026-tables-out-of-the-mix.md)              | Tables can be taken out of the mix, rooms fill from the front |
+| [0027](0027-one-mix-session.md)                    | A mix is one session: construction and refinement agree       |
 
 ## Reasons still to be recorded
 

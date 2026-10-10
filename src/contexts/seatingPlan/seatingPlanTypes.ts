@@ -118,12 +118,6 @@ export interface SeatingPlanActions {
     toTable: number,
     toSeat: number,
   ) => boolean;
-  refineSeatingLocal: (
-    settings: Partial<MixSettings>,
-    scene: ClassroomScene,
-    options?: { triesPerPass?: number; passes?: number },
-    start?: SeatingArrangement,
-  ) => Promise<SeatingArrangement>;
   onMix: () => void;
   undoSeating: () => void;
   redoSeating: () => void;

@@ -231,7 +231,7 @@ export default function ColumnBrowser({
                     {group.label && (
                       <div
                         aria-hidden="true"
-                        className="px-4 pt-2 pb-1 text-[11px] font-semibold tracking-wider text-(--text-muted) uppercase"
+                        className="px-4 pt-2 pb-1 text-caption font-semibold tracking-wider text-(--text-muted) uppercase"
                       >
                         {group.label}
                       </div>

@@ -42,12 +42,6 @@ export type SeatingPlanViewProps = {
   isSeatLocked?: (table: number, seat: number) => boolean;
   toggleLock?: (studentId: string, table: number, seat: number) => void;
   onMix?: () => void;
-  refineSeatingLocal?: (
-    settings: Partial<MixSettings>,
-    scene: ClassroomScene,
-    options?: { triesPerPass?: number; passes?: number },
-    start?: SeatingArrangement,
-  ) => Promise<SeatingArrangement>;
   step: number;
   seatingMode?: 'table' | 'circle';
   onModeChange?: (mode: 'table' | 'circle') => void;

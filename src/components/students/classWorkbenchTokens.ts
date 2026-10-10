@@ -15,7 +15,7 @@
  * and any disabled handling are the caller's to add.
  */
 export const workbenchPillClass =
-  'h-9 rounded-lg border border-(--border-card) bg-(--surface-card) px-3 text-[13px] text-(--text-page) transition hover:border-(--border-option-hover) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)';
+  'h-9 rounded-lg border border-(--border-card) bg-(--surface-card) px-3 text-control text-(--text-page) transition hover:border-(--border-option-hover) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)';
 
 /**
  * The caret that closes a workbench field opening a menu. Absolutely placed,

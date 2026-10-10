@@ -137,7 +137,7 @@ function StudentRow({
         </span>
         <StudentAvatar student={student} size={32} />
         <span
-          className={`shrink-0 truncate text-[15px] @2xl:w-44 ${
+          className={`shrink-0 truncate text-[0.9375rem] @2xl:w-44 ${
             hasName ? 'text-(--text-page)' : 'text-(--text-muted) italic'
           }`}
         >

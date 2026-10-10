@@ -165,11 +165,12 @@ export function seatTargetsFor(
  * second student at a table out of the mix, or behind the rows a room fills
  * from the front (decision 0026).
  *
+ * This is for a refinement run on its own, which draws targets of its own.
  * With `fillFromFront` every table is held: those targets do not depend on
- * the draw, so the construction and the refinement agree on them. Otherwise
- * only the tables out of the mix are — the refinement draws its even spread
- * anew, and holding the others to that draw would only narrow its search. A
- * room without either option keeps the index check alone, and so its plans.
+ * the draw. Otherwise only the tables out of the mix are — holding the others
+ * to a draw of its own would only narrow its search. A room without either
+ * option keeps the index check alone. Within a mix the refinement takes the
+ * construction's targets and holds every table (decision 0027).
  */
 export function tablesHeldByCount(scene: ClassroomScene): boolean[] | null {
   if (scene.fillFromFront) return scene.tables.map(() => true);

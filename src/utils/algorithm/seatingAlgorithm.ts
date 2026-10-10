@@ -11,7 +11,7 @@ import type {
   PlanUsage,
 } from '@/types';
 import { shuffleArray } from './shuffle';
-import { buildPreviousPairs } from '@/utils/pairs';
+import { buildPreviousPairs, type PreviousPairWeights } from '@/utils/pairs';
 import { getWishPartnerIds } from '@/utils/student/partnerUtils';
 import {
   DEFAULT_TRIES_PER_PASS,
@@ -655,6 +655,121 @@ export function generateSeatingPlan(
 }
 
 /**
+ * One "Mischen": the construction and, while a criterion asks for it, its
+ * refinement, as one session that decides by one set of facts (decision
+ * 0027). Both phases take the tables' targets the construction drew, and both
+ * weigh the pairs of what came before this mix — the plan on screen
+ * (`lastSeating`), the plans in use, the earlier mixes — by recency and by
+ * kind, never the pairs the construction itself just made.
+ *
+ * The refinement used to run as a call of its own after the construction had
+ * entered the mix history and the plan on screen: it held the construction's
+ * pairs against it, counted every earlier pair at full weight and drew the
+ * targets anew.
+ *
+ * @param lastSeating - The plan on screen before mixing
+ * @param options.refine - The refinement to run; without it the construction
+ *   stands
+ * @returns The arrangement the session settled on
+ */
+export function runMixSession(
+  students: Student[],
+  seatingHistory: SavedPlan[],
+  mixHistory: MixResult[],
+  lockedPositions: Record<string, { table: number; seat: number }>,
+  settings: Partial<MixSettings>,
+  scene: ClassroomScene,
+  lastSeating?: SeatingArrangement,
+  options?: {
+    rng?: RandomSource;
+    /** Records of plans that were really in use; see `buildPreviousPairs`. */
+    planUsage?: PlanUsage[];
+    /** When the neighbourhoods were last reset; see `buildPreviousPairs`. */
+    planUsageSince?: string | null;
+    /** Whether the class marks its plans by hand; see `buildPreviousPairs`. */
+    planUsageManual?: boolean;
+    refine?: Pick<
+      RefineOptions,
+      'triesPerPass' | 'passes' | 'useAnnealing' | 'annealingConfig'
+    > | null;
+    /** The refinement's progress; see `RefineOptions.onProgress`. */
+    onProgress?: RefinementProgressReporter;
+  },
+): SeatingArrangement {
+  const rng = options?.rng ?? Math.random;
+  const ctx = initializeAssignment(
+    students,
+    seatingHistory,
+    mixHistory,
+    lockedPositions,
+    settings,
+    scene,
+    lastSeating,
+    rng,
+    options?.planUsage,
+    options?.planUsageSince,
+    options?.planUsageManual,
+  );
+  runPass(ctx);
+  const constructed = finalize(ctx.arrangement);
+  if (!options?.refine) return constructed;
+
+  return refineSeatingLocal(
+    students,
+    seatingHistory,
+    mixHistory,
+    lockedPositions,
+    constructed,
+    settings,
+    scene,
+    {
+      ...options.refine,
+      rng,
+      onProgress: options.onProgress,
+      session: { targets: ctx.targets, previousPairs: ctx.previousPairs },
+    },
+  );
+}
+
+/**
+ * What the two phases of a mix session share: the students each table takes
+ * and the weights of the pairs that sat together before (`runMixSession`).
+ */
+export interface MixSessionContext {
+  targets: number[];
+  previousPairs: PreviousPairWeights;
+}
+
+/** How `refineSeatingLocal` runs. */
+export interface RefineOptions {
+  triesPerPass?: number;
+  passes?: number;
+  /** Use Simulated Annealing instead of greedy refinement */
+  useAnnealing?: boolean;
+  /** Custom Simulated Annealing configuration */
+  annealingConfig?: Partial<AnnealingConfig>;
+  /** Random source; pass a seeded one for reproducible refinement */
+  rng?: RandomSource;
+  /** Records of plans that were really in use; see `buildPreviousPairs`. */
+  planUsage?: PlanUsage[];
+  /** When the neighbourhoods were last reset; see `buildPreviousPairs`. */
+  planUsageSince?: string | null;
+  /** Whether the class marks its plans by hand; see `buildPreviousPairs`. */
+  planUsageManual?: boolean;
+  /**
+   * Called with a 0..1 fraction as the refinement advances. Injected by the
+   * worker layer, never sent through the request payload — a function does
+   * not survive structured cloning.
+   */
+  onProgress?: RefinementProgressReporter;
+  /**
+   * What the construction of the same mix decided by, to refine by the same:
+   * its targets and its earlier pairs (decision 0027).
+   */
+  session?: MixSessionContext;
+}
+
+/**
  * Refines an existing seating arrangement through targeted swap heuristics to reduce constraint violations.
  *
  * This function supports two optimization strategies:
@@ -696,28 +811,7 @@ export function refineSeatingLocal(
   currentSeating: SeatingArrangement,
   settings: Partial<MixSettings>,
   scene: ClassroomScene,
-  options?: {
-    triesPerPass?: number;
-    passes?: number;
-    /** Use Simulated Annealing instead of greedy refinement */
-    useAnnealing?: boolean;
-    /** Custom Simulated Annealing configuration */
-    annealingConfig?: Partial<AnnealingConfig>;
-    /** Random source; pass a seeded one for reproducible refinement */
-    rng?: RandomSource;
-    /** Records of plans that were really in use; see `buildPreviousPairs`. */
-    planUsage?: PlanUsage[];
-    /** When the neighbourhoods were last reset; see `buildPreviousPairs`. */
-    planUsageSince?: string | null;
-    /** Whether the class marks its plans by hand; see `buildPreviousPairs`. */
-    planUsageManual?: boolean;
-    /**
-     * Called with a 0..1 fraction as the refinement advances. Injected by the
-     * worker layer, never sent through the request payload — a function does
-     * not survive structured cloning.
-     */
-    onProgress?: RefinementProgressReporter;
-  },
+  options?: RefineOptions,
   start?: SeatingArrangement,
 ): SeatingArrangement {
   const refineStartTime = performance.now();
@@ -735,19 +829,29 @@ export function refineSeatingLocal(
 
   const seatCounts = scene.tables.map((t) => t.seatCount);
   const tableCount = seatCounts.length;
-  const targets = seatTargetsFor(students, scene, lockedPositions, rng);
-  const heldTables = tablesHeldByCount(scene);
-  const referenceSeating = start ?? currentSeating;
-  const previousPairs = settings.avoidPreviousPairs
-    ? buildPreviousPairs(seatingHistory, {
-        mixHistory,
-        currentSeating: referenceSeating,
-        planUsage: options?.planUsage,
-        since: options?.planUsageSince,
-        manual: options?.planUsageManual,
-        studentCount: students.length,
-      })
-    : new Map<string, number>();
+  const session = options?.session;
+  const targets =
+    session?.targets ?? seatTargetsFor(students, scene, lockedPositions, rng);
+  // In a session the targets are the construction's, so every table is held
+  // to its count as the construction held it; on its own the refinement drew
+  // targets of its own and holds only where the index check falls short.
+  const heldTables = session
+    ? scene.tables.map(() => true)
+    : tablesHeldByCount(scene);
+  // The arrangement being refined is no earlier plan of its own: its pairs
+  // are what the refinement weighs, not history to stay away from (decision
+  // 0027). A mix hands over the plan on screen before it with its session.
+  const previousPairs =
+    session?.previousPairs ??
+    (settings.avoidPreviousPairs
+      ? buildPreviousPairs(seatingHistory, {
+          mixHistory,
+          planUsage: options?.planUsage,
+          since: options?.planUsageSince,
+          manual: options?.planUsageManual,
+          studentCount: students.length,
+        })
+      : new Map<string, number>());
   const arr: SeatingArrangement = base.map((t) => [...t]);
   const seatNeighborhoods = getSeatNeighborhoods(scene);
   const behavioralNeighborWeights = buildDirectionalWeights(

@@ -143,8 +143,7 @@ export function useSeatingGenerator() {
     reloadCurrentClassData,
   } = persistence;
 
-  const { generateSeatingPlan: generateSeatingPlanBase, refineSeatingLocal } =
-    algorithm;
+  const { generateSeatingPlan: generateSeatingPlanBase } = algorithm;
 
   const handleSeatingModeChange = useCallback(
     (mode: 'table' | 'circle') => {
@@ -410,7 +409,6 @@ export function useSeatingGenerator() {
     hasUnsavedSeatingChanges,
     saveSeatingPlan,
     generateSeatingPlan,
-    refineSeatingLocal,
     regenerateCircle,
     setPlanName,
     setMixSettings,
@@ -429,8 +427,7 @@ export function useSeatingGenerator() {
     handleStepChange,
     setStep,
     setPlanNameError,
-    handleMixWithAutoRefine,
-    triggerAutoMixEvent,
+    handleMix,
     setShouldRegenerateCircle,
   } = wizardOrchestration;
 
@@ -486,11 +483,10 @@ export function useSeatingGenerator() {
     ],
   );
 
-  // Backup orchestration (import/export with auto-mix trigger)
+  // Backup orchestration (import/export)
   const backupOrchestration = useGeneratorBackupOrchestration({
     exportAllAsJson,
     importAllFromJson,
-    triggerAutoMixEvent,
   });
 
   const { importInputRef, triggerImport, handleExportAll, handleImportFile } =
@@ -653,8 +649,7 @@ export function useSeatingGenerator() {
       removeTables,
       generateSeatingPlan,
       moveStudent: handleStudentMove,
-      refineSeatingLocal,
-      onMix: handleMixWithAutoRefine,
+      onMix: handleMix,
       undoSeating,
       redoSeating,
       setPlanName,
@@ -729,8 +724,7 @@ export function useSeatingGenerator() {
       removeTables,
       generateSeatingPlan,
       handleStudentMove,
-      refineSeatingLocal,
-      handleMixWithAutoRefine,
+      handleMix,
       undoSeating,
       redoSeating,
       setPlanName,

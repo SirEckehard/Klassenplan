@@ -13,7 +13,7 @@ it for Antigravity — edit this file, never those two.
 - Write all code comments in English
 - Use `camelCase` for variables, `PascalCase` for React components
 - Run `npm run format` for files under `src/`; format other files manually with `npx prettier <file>` if needed
-- Tailwind: prefer canonical utility classes over arbitrary values (`max-h-96` instead of `max-h-[24rem]`, never `min-w-[200px]`-style values when a scale step exists); important modifier is postfix in Tailwind 4 (`p-0!`, not `!p-0`)
+- Tailwind: prefer canonical utility classes over arbitrary values (`max-h-96` instead of `max-h-[24rem]`, never `min-w-[200px]`-style values when a scale step exists); important modifier is postfix in Tailwind 4 (`p-0!`, not `!p-0`). Text between the scale's steps takes `text-micro` (10 px), `text-caption` (11 px) or `text-control` (13 px) from `@theme`, never a pixel value (`docs/DESIGNSYSTEM.md` § 3)
 
 ## Tests & Quality Checks
 
@@ -32,7 +32,7 @@ it for Antigravity — edit this file, never those two.
 
 - ✅ ESLint: 0 errors, 0 warnings
 - ✅ TypeScript: 0 compilation errors (strict mode)
-- ✅ Tests: 3043 unit tests (309 test files) + 14 Playwright tests (3 smoke + 2 core flow + 1 rooms + 4 onboarding + 2 tablet + 1 phone + 1 whiteboard), 100% passing
+- ✅ Tests: 3035 unit tests (309 test files) + 14 Playwright tests (3 smoke + 2 core flow + 1 rooms + 4 onboarding + 2 tablet + 1 phone + 1 whiteboard), 100% passing
 - 📊 Coverage: 76.0 % lines / 75.2 % statements / 66.3 % branches (`npm run test:coverage`, v8 provider, no thresholds enforced)
 - ⚠️ Unused Exports: 52 modules ignoring type-only exports, held by a ratchet (`npm run check:unused`); the remainder are re-export barrels, `lazyWithRetry` default exports and shared test helpers
 - ✅ Test Infrastructure: Centralized accessibility helpers and toast matchers for robust testing
@@ -163,7 +163,11 @@ the old notations; the changelog is exempt, since it quotes earlier versions.
 
 A shortcut never takes a key the browser or the system keeps for itself —
 Ctrl/⌘+Shift+T reopens a tab, Ctrl/⌘+Shift+C and +I open the developer tools,
-⌘+M minimises the window on a Mac. The plan layer's keys (save, export, mix
+⌘+M minimises the window on a Mac. A key the browser only lends while the page
+has the focus may be taken, with `preventDefault`, as an editor takes Ctrl+B
+for bold: Ctrl/⌘+E exports on the plan layer and opens the room's own panel
+on the room layer (otherwise the address bar's search on Windows), Ctrl/⌘+B
+folds the toolbar (otherwise Firefox's bookmarks). The plan layer's keys (save, export, mix
 with Ctrl/⌘+Enter) live in `usePlanShortcuts`, which the table plan and the
 circle share; every shortcut the help lists (`utils/shortcuts.ts`) must be
 registered wherever the help lists it. `useKeyboardShortcuts` accepts `+` and
@@ -285,7 +289,7 @@ Consumers import dedicated hooks (e.g. `useClassroomLayoutContext`) to minimize 
 - Randomness is injectable: every entry point accepts an `rng` (`algorithm/rng.ts`), defaulting to `Math.random`. Production behaviour is unchanged; tests pass `createRng(seed)` for exact assertions.
 - Runs in a web worker; `src/workers/algorithmOperations.ts` holds the single implementation that both the worker and the main-thread fallback call, so defaults (e.g. simulated annealing) cannot diverge. `algorithmWorkerClient.ts` owns transport: aborted and timed-out requests reject instead of silently re-running inline. The worker reports progress **stages**, never text — it cannot know the UI language.
 - CSV parsing has its own worker (one dedicated instance per parse, cancelled by terminating it).
-- Multi-pass refinement via `refineSeatingLocal` supports configurable tries/passes and reuses immutable scene snapshots.
+- A mix is one session in one worker call (`mix:run`, `runMixSession`): the construction, then — while a criterion carries weight — `refineSeatingLocal`, deciding by the construction's tables' targets and the same earlier pairs, weighed by recency and kind in both phases and never counting the construction's own. The mix history records its result once, and nothing refines outside a mix — a restored plan stays as it was saved (decision 0027). After a mix the circle follows (`useCircleAfterMix`).
 - Circle mode stays in sync through `generateCircleSeating`, `regenerateCircle`, and `syncCircleFromTable` actions.
 - Template system (`single`, `double`, `group4`, `group6`) defaults to 0° rotation and feeds drag-and-drop operations.
 

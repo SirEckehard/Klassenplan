@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
-import type { AutoMixTriggerHandler } from '../algorithm/useAutoMixTriggers';
 import { renderHook, act } from '@testing-library/react';
 import { useSeatingGenerator } from '../useSeatingGenerator';
 import { useSeatingState } from '../useSeatingState';
@@ -10,8 +9,7 @@ import { useSeatingAlgorithm } from '../useSeatingAlgorithm';
 import useDataBackup from '../useDataBackup';
 import { useCircleActions } from '../useCircleSeating';
 import { useSeatingWizard } from '../wizard/useSeatingWizard';
-import { useAutoMixTrigger } from '../wizard/useAutoMixTrigger';
-import { useAutoMixTriggers } from '../algorithm/useAutoMixTriggers';
+import { useCircleAfterMix } from '../circle/useCircleAfterMix';
 import { useSeatingStatisticsUpdater } from '../useSeatingStatisticsUpdater';
 import { neutralSettings, normalizeMixSettings } from '../../utils';
 import type { Student, ClassroomScene, MixSettings } from '../../types';
@@ -47,12 +45,8 @@ vi.mock('../wizard/useSeatingWizard', () => ({
   useSeatingWizard: vi.fn(),
 }));
 
-vi.mock('../wizard/useAutoMixTrigger', () => ({
-  useAutoMixTrigger: vi.fn(),
-}));
-
-vi.mock('../algorithm/useAutoMixTriggers', () => ({
-  useAutoMixTriggers: vi.fn(),
+vi.mock('../circle/useCircleAfterMix', () => ({
+  useCircleAfterMix: vi.fn(),
 }));
 
 vi.mock('../useSeatingStatisticsUpdater', () => ({
@@ -120,17 +114,14 @@ describe('useSeatingGenerator', () => {
   const mockedUseDataBackup = vi.mocked(useDataBackup);
   const mockedUseCircleActions = vi.mocked(useCircleActions);
   const mockedUseSeatingWizard = vi.mocked(useSeatingWizard);
-  const mockedUseAutoMixTrigger = vi.mocked(useAutoMixTrigger);
-  const mockedUseAutoMixTriggers = vi.mocked(useAutoMixTriggers);
+  const mockedUseCircleAfterMix = vi.mocked(useCircleAfterMix);
   const mockedUseSeatingStatisticsUpdater = vi.mocked(
     useSeatingStatisticsUpdater,
   );
 
   let mockMoveStudent: ReturnType<typeof vi.fn>;
   let mockSetShouldRegenerateCircle: Mock<(should: boolean) => void>;
-  let mockRequestAutoRefine: Mock<() => void>;
   let mockHandleMix: Mock<() => void>;
-  let mockTriggerAutoMixEvent: Mock<AutoMixTriggerHandler>;
   let circleLayout: CircleLayout | null;
 
   type SeatingStateSlice = ReturnType<typeof useSeatingState>;
@@ -243,9 +234,7 @@ describe('useSeatingGenerator', () => {
 
     mockMoveStudent = vi.fn().mockReturnValue(true);
     mockSetShouldRegenerateCircle = vi.fn();
-    mockRequestAutoRefine = vi.fn();
     mockHandleMix = vi.fn();
-    mockTriggerAutoMixEvent = vi.fn();
     circleLayout = circleLayoutTemplate;
 
     // Mock useSeatingState
@@ -276,7 +265,6 @@ describe('useSeatingGenerator', () => {
     // Mock useSeatingAlgorithm
     mockedUseSeatingAlgorithm.mockReturnValue({
       generateSeatingPlan: vi.fn(),
-      refineSeatingLocal: vi.fn(),
     } as unknown as ReturnType<typeof useSeatingAlgorithm>);
 
     mockedUseDataBackup.mockReturnValue({
@@ -313,16 +301,11 @@ describe('useSeatingGenerator', () => {
       setPlanNameError: vi.fn(),
     }));
 
-    mockedUseAutoMixTrigger.mockReturnValue({
-      pendingRefine: false,
+    mockedUseCircleAfterMix.mockReturnValue({
       shouldRegenerateCircle: false,
-      requestAutoRefine: mockRequestAutoRefine,
       setShouldRegenerateCircle: mockSetShouldRegenerateCircle,
       handleMix: mockHandleMix,
-      triggerAutoMixEvent: mockTriggerAutoMixEvent,
     });
-
-    mockedUseAutoMixTriggers.mockReturnValue(mockTriggerAutoMixEvent);
     mockedUseSeatingStatisticsUpdater.mockImplementation(() => undefined);
   });
 
@@ -384,39 +367,18 @@ describe('useSeatingGenerator', () => {
     expect(mockSetShouldRegenerateCircle).not.toHaveBeenCalled();
   });
 
-  it('plant nach Mix-Aktion automatisch eine Nachverfeinerung', () => {
+  it('zeichnet nach dem Mischen nur den Sitzkreis neu, ohne nachzuverfeinern', () => {
     const { result } = renderHook(() => useSeatingGenerator());
 
     act(() => {
       result.current.onMix();
     });
 
-    expect(mockTriggerAutoMixEvent).toHaveBeenCalledTimes(1);
-    expect(mockTriggerAutoMixEvent).toHaveBeenCalledWith(
-      'manual-mix',
-      expect.objectContaining({ source: 'manual-mix' }),
-    );
     expect(mockHandleMix).toHaveBeenCalledTimes(1);
-  });
-
-  it('reicht Auto-Mix-Trigger weiter, um Nachverfeinerungen zu starten', () => {
-    renderHook(() => useSeatingGenerator());
-
-    const lastWizardCall =
-      mockedUseSeatingWizard.mock.calls[
-        mockedUseSeatingWizard.mock.calls.length - 1
-      ];
-    const wizardArgs = lastWizardCall?.[0];
-    expect(wizardArgs?.onAutoMixTriggered).toBeTypeOf('function');
-
-    act(() => {
-      wizardArgs?.onAutoMixTriggered?.();
-    });
-
-    expect(mockTriggerAutoMixEvent).toHaveBeenCalledWith(
-      'wizard-auto-mix',
-      expect.objectContaining({ source: 'wizard' }),
-    );
+    // A mix refines in its own session (decision 0027); the wizard's own mix
+    // gets no hook to start a second refinement either.
+    const wizardArgs = mockedUseSeatingWizard.mock.calls.at(-1)?.[0];
+    expect(wizardArgs).not.toHaveProperty('onAutoMixTriggered');
   });
 
   it('setzt Pending-Updates nicht bei reiner Namensänderung', () => {

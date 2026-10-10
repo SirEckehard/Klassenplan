@@ -4,15 +4,13 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { ClassroomScene, Student } from '@/types';
 
 const algorithmMocks = vi.hoisted(() => ({
-  generateSeatingPlan: vi.fn(() => [[null]]),
-  refineSeatingLocal: vi.fn(() => [[null]]),
+  runMixSession: vi.fn(() => [[null]]),
   generateCircleLayout: vi.fn(() => ({ students: [] })),
   generateOptimizedCircleLayout: vi.fn(() => ({ students: [] })),
 }));
 
 vi.mock('@/utils/algorithm/seatingAlgorithm', () => ({
-  generateSeatingPlan: algorithmMocks.generateSeatingPlan,
-  refineSeatingLocal: algorithmMocks.refineSeatingLocal,
+  runMixSession: algorithmMocks.runMixSession,
 }));
 vi.mock('@/utils/algorithm/circleArrangement', () => ({
   generateCircleLayout: algorithmMocks.generateCircleLayout,
@@ -39,11 +37,11 @@ describe('executeAlgorithmOperation', () => {
     const result = await executeAlgorithmOperation('worker:warmup', {});
 
     expect(result).toEqual({ ready: true });
-    expect(algorithmMocks.generateSeatingPlan).not.toHaveBeenCalled();
+    expect(algorithmMocks.runMixSession).not.toHaveBeenCalled();
   });
 
-  it('forwards mix:generate arguments in the documented order', async () => {
-    await executeAlgorithmOperation('mix:generate', {
+  it('forwards mix:run arguments in the documented order', async () => {
+    await executeAlgorithmOperation('mix:run', {
       students,
       seatingHistory: [],
       mixHistory: [],
@@ -51,9 +49,10 @@ describe('executeAlgorithmOperation', () => {
       classroomScene: scene,
       mixSettings: { preferGenderMix: 3 },
       lastSeating: null,
+      refine: null,
     });
 
-    expect(algorithmMocks.generateSeatingPlan).toHaveBeenCalledWith(
+    expect(algorithmMocks.runMixSession).toHaveBeenCalledWith(
       students,
       [],
       [],
@@ -61,58 +60,42 @@ describe('executeAlgorithmOperation', () => {
       { preferGenderMix: 3 },
       scene,
       undefined,
-      { planUsage: undefined },
+      // `onProgress` is injected here rather than carried in the payload.
+      { refine: null, onProgress: expect.any(Function) },
     );
   });
 
-  it('enables simulated annealing by default for mix:refine', async () => {
-    await executeAlgorithmOperation('mix:refine', {
+  it('refines with simulated annealing by default', async () => {
+    await executeAlgorithmOperation('mix:run', {
       students,
       seatingHistory: [],
       mixHistory: [],
       lockedPositions: {},
       classroomScene: scene,
-      currentSeating: [],
       mixSettings: {},
-      start: null,
+      refine: {},
     });
 
-    expect(algorithmMocks.refineSeatingLocal).toHaveBeenCalledWith(
-      students,
-      [],
-      [],
-      {},
-      [],
-      {},
-      scene,
-      // `onProgress` is injected here rather than carried in the payload, so it
-      // rides along with the defaults.
-      { ...DEFAULT_REFINE_OPTIONS, onProgress: expect.any(Function) },
-      undefined,
-    );
+    const call = algorithmMocks.runMixSession.mock.calls[0] as
+      unknown[] | undefined;
+    expect(call?.[7]).toMatchObject({ refine: DEFAULT_REFINE_OPTIONS });
   });
 
   it('lets explicit refine options override the defaults', async () => {
-    await executeAlgorithmOperation('mix:refine', {
+    await executeAlgorithmOperation('mix:run', {
       students,
       seatingHistory: [],
       mixHistory: [],
       lockedPositions: {},
       classroomScene: scene,
-      currentSeating: [],
       mixSettings: {},
-      options: { triesPerPass: 42, passes: 7 },
-      start: null,
+      refine: { triesPerPass: 42, passes: 7 },
     });
 
-    const call = algorithmMocks.refineSeatingLocal.mock.calls[0] as
+    const call = algorithmMocks.runMixSession.mock.calls[0] as
       unknown[] | undefined;
-    const options = call?.[7];
-    expect(options).toEqual({
-      useAnnealing: true,
-      triesPerPass: 42,
-      passes: 7,
-      onProgress: expect.any(Function),
+    expect(call?.[7]).toMatchObject({
+      refine: { useAnnealing: true, triesPerPass: 42, passes: 7 },
     });
   });
 
@@ -120,7 +103,7 @@ describe('executeAlgorithmOperation', () => {
     const stages: AlgorithmProgressStage[] = [];
 
     await executeAlgorithmOperation(
-      'mix:generate',
+      'mix:run',
       {
         students,
         seatingHistory: [],
@@ -133,30 +116,9 @@ describe('executeAlgorithmOperation', () => {
       (_progress, stage) => stages.push(stage),
     );
 
+    // The mocked session never calls its own reporter, so this pins the
+    // stages the operation layer itself emits around the call.
     expect(stages).toEqual(['initializing', 'arranging', 'arranging']);
-  });
-
-  it('reports progress stages for a refinement', async () => {
-    const stages: AlgorithmProgressStage[] = [];
-
-    await executeAlgorithmOperation(
-      'mix:refine',
-      {
-        students,
-        seatingHistory: [],
-        mixHistory: [],
-        lockedPositions: {},
-        classroomScene: scene,
-        currentSeating: [],
-        mixSettings: {},
-        start: null,
-      },
-      (_progress, stage) => stages.push(stage),
-    );
-
-    // The mocked refine never calls its own reporter, so this pins the stages
-    // the operation layer itself emits around the call.
-    expect(stages).toEqual(['initializing', 'arranging']);
   });
 
   it('reports progress stages for circle generation', async () => {
@@ -191,7 +153,7 @@ describe('executeAlgorithmOperation', () => {
 
   it('rejects an unknown operation', async () => {
     await expect(
-      executeAlgorithmOperation('mix:unknown' as 'mix:generate', {} as never),
+      executeAlgorithmOperation('mix:unknown' as 'mix:run', {} as never),
     ).rejects.toThrow(/Unsupported operation/);
   });
 });

@@ -141,7 +141,10 @@ export default function ExportSheetInspector({
       <InspectorBody>
         <InspectorSection title={t('export.pageFormat')}>
           <div className="flex flex-col gap-1.5">
-            <label htmlFor={titleId} className="text-[13px] text-(--text-page)">
+            <label
+              htmlFor={titleId}
+              className="text-control text-(--text-page)"
+            >
               {t('export.title')}
             </label>
             <input

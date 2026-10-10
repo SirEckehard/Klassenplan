@@ -34,7 +34,11 @@ import {
   MIX_HISTORY_LIMIT,
 } from '@/utils';
 import { createRng } from '../rng';
-import { generateSeatingPlan, refineSeatingLocal } from '../seatingAlgorithm';
+import {
+  generateSeatingPlan,
+  refineSeatingLocal,
+  runMixSession,
+} from '../seatingAlgorithm';
 
 const CLASS_SIZES = [12, 24, 36] as const;
 
@@ -212,7 +216,7 @@ for (const size of CLASS_SIZES) {
 
   test(`${size} students`, async ({ bench }) => {
     await bench.compare(
-      bench('construct (mix:generate)', () => {
+      bench('construct (mix:run, no criterion)', () => {
         generateSeatingPlan(
           fixture.students,
           fixture.seatingHistory,
@@ -222,6 +226,25 @@ for (const size of CLASS_SIZES) {
           fixture.scene,
           undefined,
           { rng: nextRng() },
+        );
+      }),
+      bench('"Mischen" (mix:run): construction and annealing', () => {
+        runMixSession(
+          fixture.students,
+          fixture.seatingHistory,
+          fixture.mixHistory,
+          fixture.lockedPositions,
+          DEFAULT_MIX_WEIGHTS,
+          fixture.scene,
+          fixture.start,
+          {
+            rng: nextRng(),
+            refine: {
+              triesPerPass: DEFAULT_TRIES_PER_PASS,
+              passes: DEFAULT_PASSES,
+              useAnnealing: true,
+            },
+          },
         );
       }),
       bench('refine, annealing, "Mischen" tries/passes', () => {

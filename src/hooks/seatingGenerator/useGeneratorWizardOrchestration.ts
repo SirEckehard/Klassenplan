@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useMemo } from 'react';
 import { useSeatingWizard } from '../wizard/useSeatingWizard';
-import { useAutoMixTrigger } from '../wizard/useAutoMixTrigger';
-import type { AutoMixTriggerHandler } from '../algorithm/useAutoMixTriggers';
+import { useCircleAfterMix } from '../circle/useCircleAfterMix';
 import { neutralSettings, SCALAR_MIX_SETTING_KEYS } from '@/utils';
 import type {
   ClassroomScene,
@@ -42,11 +41,6 @@ interface WizardOrchestrationParams {
     settings: MixSettings,
     scene: ClassroomScene,
   ) => Promise<SeatingArrangement>;
-  refineSeatingLocal: (
-    settings: MixSettings,
-    scene: ClassroomScene,
-    options: { triesPerPass: number; passes: number },
-  ) => Promise<SeatingArrangement>;
   regenerateCircle: () => Promise<CircleLayout | null>;
 
   // Setters
@@ -76,8 +70,8 @@ export interface WizardOrchestrationReturn {
   setPlanNameError: (error: boolean) => void;
 
   // Mix actions
-  handleMixWithAutoRefine: () => void;
-  triggerAutoMixEvent: AutoMixTriggerHandler;
+  /** What a mix calls when it is done: the circle follows the new plan. */
+  handleMix: () => void;
   setShouldRegenerateCircle: (value: boolean) => void;
 
   // Derived state
@@ -86,13 +80,14 @@ export interface WizardOrchestrationReturn {
 }
 
 /**
- * Orchestrates wizard navigation and auto-mix trigger coordination.
+ * Orchestrates wizard navigation and what follows a mix.
  *
- * Extracts wizard + auto-mix logic from useSeatingGenerator for better
- * testability and separation of concerns.
+ * Extracts wizard logic from useSeatingGenerator for better testability and
+ * separation of concerns. A mix refines within its own session (decision
+ * 0027), so nothing here refines afterwards.
  *
  * @param params - State and actions needed for wizard orchestration
- * @returns Wizard state, actions, and auto-mix handlers
+ * @returns Wizard state, actions, and the mix's follow-up
  */
 export function useGeneratorWizardOrchestration(
   params: WizardOrchestrationParams,
@@ -109,7 +104,6 @@ export function useGeneratorWizardOrchestration(
     hasUnsavedSeatingChanges,
     saveSeatingPlan,
     generateSeatingPlan,
-    refineSeatingLocal,
     regenerateCircle,
     setPlanName,
     setMixSettings,
@@ -117,10 +111,6 @@ export function useGeneratorWizardOrchestration(
     markClassroomSynced,
     syncSeatingSnapshot,
   } = params;
-
-  // Track current step for auto-mix trigger context
-  const latestStepRef = useRef(1);
-  const autoMixTriggerHandlerRef = useRef<AutoMixTriggerHandler>(() => false);
 
   // Derived state: check if any intelligent mix setting is enabled
   const intelligentMix = useMemo(
@@ -133,14 +123,6 @@ export function useGeneratorWizardOrchestration(
     () => (intelligentMix ? mixSettings : neutralSettings),
     [intelligentMix, mixSettings],
   );
-
-  // Callback for wizard to trigger auto-mix
-  const handleAutoMixTriggered = useCallback(() => {
-    autoMixTriggerHandlerRef.current('wizard-auto-mix', {
-      source: 'wizard',
-      step: latestStepRef.current,
-    });
-  }, []);
 
   // Wizard navigation hook
   const {
@@ -165,54 +147,17 @@ export function useGeneratorWizardOrchestration(
     setPlanName,
     setMixSettings,
     generateSeatingPlan,
-    onAutoMixTriggered: handleAutoMixTriggered,
     classroomEdited,
     setClassroomEdited,
     markClassroomSynced,
     syncSeatingSnapshot,
   });
 
-  useEffect(() => {
-    latestStepRef.current = step;
-  }, [step]);
-
-  // Auto-mix trigger hook for handling refine requests
-  const autoMixTriggerOverrides = useMemo(
-    () => ({
-      'ci-import': { enabled: true, requireIntelligentMix: false },
-    }),
-    [],
-  );
-
-  const autoMixTrigger = useAutoMixTrigger(
-    {
-      step,
-      currentSeating,
-      classroomScene,
-      mixSettings: settingsForRun,
-      intelligentMix,
-      circleLayout,
-      refineSeatingLocal,
-      regenerateCircle,
-    },
-    {
-      loggerContext: 'useGeneratorWizardOrchestration',
-      triggerOverrides: autoMixTriggerOverrides,
-    },
-  );
-
-  const { setShouldRegenerateCircle, handleMix, triggerAutoMixEvent } =
-    autoMixTrigger;
-
-  useEffect(() => {
-    autoMixTriggerHandlerRef.current = triggerAutoMixEvent;
-  }, [triggerAutoMixEvent]);
-
-  // Combined mix handler that triggers auto-refine
-  const handleMixWithAutoRefine = useCallback(() => {
-    triggerAutoMixEvent('manual-mix', { source: 'manual-mix' });
-    handleMix();
-  }, [handleMix, triggerAutoMixEvent]);
+  const { setShouldRegenerateCircle, handleMix } = useCircleAfterMix({
+    currentSeating,
+    circleLayout,
+    regenerateCircle,
+  });
 
   return {
     // Wizard state
@@ -228,8 +173,7 @@ export function useGeneratorWizardOrchestration(
     setPlanNameError,
 
     // Mix actions
-    handleMixWithAutoRefine,
-    triggerAutoMixEvent,
+    handleMix,
     setShouldRegenerateCircle,
 
     // Derived state

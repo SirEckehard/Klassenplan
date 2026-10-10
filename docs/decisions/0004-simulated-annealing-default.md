@@ -14,8 +14,9 @@ which accepts some worse swaps early on to leave local optima behind.
 
 Every refinement the app runs uses simulated annealing:
 `executeAlgorithmOperation` merges `DEFAULT_REFINE_OPTIONS = { useAnnealing: true }`
-into the options of `mix:refine`. `refineSeatingLocal()` called directly — in a
-test, say — still defaults to the greedy search.
+into the refinement of `mix:run`, the one call a mix makes
+([decision 0027](0027-one-mix-session.md)). `refineSeatingLocal()` called
+directly — in a test, say — still defaults to the greedy search.
 
 ## Alternatives considered
 

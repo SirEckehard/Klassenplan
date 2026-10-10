@@ -34,7 +34,7 @@ export default function FolderPanel({
         subtitle={subtitle}
       />
       <InspectorBody>
-        <p className="text-[13px] leading-relaxed text-(--text-muted)">
+        <p className="text-control leading-relaxed text-(--text-muted)">
           {hint}
         </p>
       </InspectorBody>

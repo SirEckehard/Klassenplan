@@ -158,7 +158,7 @@ export default function ErrorReportLink({
         <pre
           tabIndex={0}
           aria-label={t('errors.report.detailsLabel')}
-          className={`mt-3 max-h-40 overflow-auto rounded-lg bg-(--surface-card) p-2 font-mono text-[11px] leading-relaxed whitespace-pre-wrap select-all ${styles.body}`}
+          className={`mt-3 max-h-40 overflow-auto rounded-lg bg-(--surface-card) p-2 font-mono text-caption leading-relaxed whitespace-pre-wrap select-all ${styles.body}`}
         >
           {report.details}
         </pre>

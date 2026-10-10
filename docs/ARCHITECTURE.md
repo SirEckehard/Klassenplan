@@ -213,26 +213,22 @@ sequenceDiagram
   teacher->>view: Mischen
   view->>mix: handleMix()
   mix->>algo: generateSeatingPlan(settings, scene, signal)
-  algo->>client: callOperation mix:generate
+  algo->>client: callOperation mix:run (refine while a criterion is on)
   client->>worker: postMessage
+  Note over worker: runMixSession: construction, then refinement by the same targets and earlier pairs
   worker-->>client: seating, progress stages
   client-->>algo: seating
   algo->>state: set current seating, add mix result, set statistics
-  opt at least one criterion active
-    mix->>algo: refineSeatingLocal(start = constructed seating)
-    algo->>client: callOperation mix:refine
-    client->>worker: postMessage
-    worker-->>client: refined seating
-    algo->>state: set current seating, replace seating of the mix result
-  end
+  mix->>view: onMix() — the circle follows
   Note over state: queued write to IndexedDB
 ```
 
-With every weight at 0 the handler uses neutral settings and skips the
-refinement — the result is a purely random plan. After a refinement the mix
-history holds the refined arrangement
-([decision 0014](decisions/0014-mix-history-records-refined-plan.md)). Details
-in [ALGORITHM.md](ALGORITHM.md).
+With every weight at 0 the handler uses neutral settings and the session
+skips the refinement — the result is a purely random plan. Construction and
+refinement are one worker call that decides by one set of facts, and the mix
+history records its result once
+([decision 0027](decisions/0027-one-mix-session.md)). Nothing refines outside a
+mix, a restored backup included. Details in [ALGORITHM.md](ALGORITHM.md).
 
 ### Setting the criteria, and reading the result
 
@@ -427,7 +423,7 @@ translate one to one.
 | Klassenraum-Vorlage                       | `ClassroomTemplate`                                          | A saved room layout — not to be confused with the table types above                                                                    |
 | Raumelement: Fenster, Tür, Tafel, Pult    | `ClassroomFeature` (`window`, `door`, `board`, `podium`)     | Fixed parts of the room that criteria can refer to                                                                                     |
 | Sitzplan (layer Plan)                     | `SeatingArrangement`, `currentSeating`                       | Tables × seats → student or empty                                                                                                      |
-| Mischen                                   | mix, shuffle, `mix:generate`                                 | Build a new arrangement (and refine it when criteria are active)                                                                       |
+| Mischen                                   | mix, shuffle, `mix:run`                                      | Build a new arrangement (and refine it when criteria are active)                                                                       |
 | Kriterium, Wichtigkeit                    | `MixSettings`                                                | Weights 0–10 per criterion, set as four named levels; defaults in [PEDAGOGY.md](PEDAGOGY.md)                                           |
 | Rezept                                    | `MixRecipe`, `mixRecipes.ts`                                 | A named set of all sixteen weights for a kind of lesson                                                                                |
 | Gesperrter Platz                          | `lockedPositions`, `isSeatLocked`                            | A seat the algorithm must not change                                                                                                   |
@@ -484,7 +480,17 @@ With criteria active, _Mischen_ refined after the result was added to the
 history, so "avoid previous pairs" counted pairs the teacher never saw, and
 loading an entry brought back the plan from before refinement. _Decision:_ the
 refinement that follows a mix replaces the entry's seating
-([decision 0014](decisions/0014-mix-history-records-refined-plan.md)).
+([decision 0014](decisions/0014-mix-history-records-refined-plan.md)), since
+2026-10-10 one mix session instead (below).
+
+**Construction and refinement decided by different facts** (resolved
+2026-10-10). The refinement ran as a call of its own after the construction
+had entered the mix history: it held the construction's own pairs against it,
+charged every earlier pair in full, drew its own tables' targets — and a
+second refinement followed every mix without reaching the history, so history
+and screen never agreed. _Decision:_ a mix is one session in one worker call,
+and nothing refines outside a mix
+([decision 0027](decisions/0027-one-mix-session.md)).
 
 **The two performance criteria were either/or in the UI, not in the data**
 (resolved 2026-09-14). Settings could carry both weights; construction and

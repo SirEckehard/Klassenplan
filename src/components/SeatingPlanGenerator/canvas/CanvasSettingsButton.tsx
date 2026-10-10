@@ -325,7 +325,7 @@ export function CanvasSettingsGroups({
 
 /** The small caps above a group of rows, as in the header's own menus. */
 export const menuHeadingClass =
-  'text-[11px] font-semibold uppercase tracking-wider text-(--text-muted)';
+  'text-caption font-semibold uppercase tracking-wider text-(--text-muted)';
 
 /**
  * A setting with a handful of values as rows of the menu, the chosen one

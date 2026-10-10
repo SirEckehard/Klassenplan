@@ -38,11 +38,13 @@ Both work through the number of students each table takes (`targets`), which
 construction, greedy refinement and Simulated Annealing honour: a table out of
 the mix takes none, filling from the front fills the targets in that order.
 The construction counts a table's students against its target; the
-refinements check the seat a student moves to and, at the tables they hold
-(`tablesHeldByCount`: every table when filling from the front, otherwise the
-tables out of the mix), count as well — a lock on a back seat leaves the seats
-before it open to the index alone, and in v3.1.0 the refinement still seated a
-second student beside such a lock. Absent means the old behaviour, and a room
+refinements check the seat a student moves to and, at the tables they hold,
+count as well — a lock on a back seat leaves the seats before it open to the
+index alone, and in v3.1.0 the refinement still seated a second student beside
+such a lock. Within a mix every table is held, by the construction's targets
+([decision 0027](0027-one-mix-session.md)); a refinement on its own holds the
+tables `tablesHeldByCount` names — every table when filling from the front,
+otherwise the tables out of the mix. Absent means the old behaviour, and a room
 with neither flag takes the same call with the same draw from `rng` as before,
 so its plans do not change.
 

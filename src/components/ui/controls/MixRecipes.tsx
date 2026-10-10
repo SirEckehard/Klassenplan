@@ -45,7 +45,7 @@ function MixRecipeList({
               {isActive && <CheckIcon size={16} />}
             </span>
             <span className="min-w-0 flex-1">
-              <span className="block text-[13px] font-medium">
+              <span className="block text-control font-medium">
                 {t(`mix.recipes.${recipe.id}.label`)}
               </span>
               <span className="block text-xs text-(--text-muted)">
@@ -81,7 +81,7 @@ export function MixRecipePanel({
 
   return (
     <div className="px-2">
-      <div className="px-1 pb-1 text-[10px] font-semibold tracking-wider text-(--text-muted) uppercase">
+      <div className="px-1 pb-1 text-micro font-semibold tracking-wider text-(--text-muted) uppercase">
         {t('mix.recipes.title')}
       </div>
       <button

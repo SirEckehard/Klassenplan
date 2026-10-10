@@ -62,7 +62,7 @@ export default function StudentListHeader({
       {/* The captions describe controls that carry their own accessible names,
           so they are decoration for the eye only. */}
       <div
-        className="flex min-w-0 flex-1 items-center gap-3 text-[11px] font-semibold tracking-wider text-(--text-muted) uppercase"
+        className="flex min-w-0 flex-1 items-center gap-3 text-caption font-semibold tracking-wider text-(--text-muted) uppercase"
         aria-hidden="true"
       >
         <span className="w-6 shrink-0">{t('listHeader.number')}</span>

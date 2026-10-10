@@ -19,7 +19,7 @@ export function ValueRow({
 }) {
   return (
     <InspectorRow label={label}>
-      <span className="text-right text-[13px] tabular-nums text-(--text-muted)">
+      <span className="text-right text-control tabular-nums text-(--text-muted)">
         {children}
       </span>
     </InspectorRow>

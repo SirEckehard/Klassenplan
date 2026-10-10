@@ -41,7 +41,7 @@ export default function ClassPanel({
             {library.label || '–'}
           </ValueRow>
           {library.notes && (
-            <p className="text-[13px] leading-relaxed whitespace-pre-line text-(--text-page)">
+            <p className="text-control leading-relaxed whitespace-pre-line text-(--text-page)">
               {library.notes}
             </p>
           )}

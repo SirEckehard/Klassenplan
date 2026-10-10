@@ -347,7 +347,7 @@ function PartnerList({
               <span className="flex items-center gap-2">
                 {isSelected && (
                   <span
-                    className={`inline-flex items-center justify-center w-4 h-4 rounded-full text-[10px] font-semibold ${config.rankClass}`}
+                    className={`inline-flex items-center justify-center w-4 h-4 rounded-full text-micro font-semibold ${config.rankClass}`}
                   >
                     {priorityIdx + 1}
                   </span>

@@ -23,7 +23,7 @@ import {
 function ShellSketch() {
   const { t } = useTranslation('changelog');
   const cell =
-    'flex items-center justify-center rounded-md border border-(--border-card) px-1 text-center text-[11px] leading-tight text-(--text-muted)';
+    'flex items-center justify-center rounded-md border border-(--border-card) px-1 text-center text-caption leading-tight text-(--text-muted)';
 
   return (
     <div

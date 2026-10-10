@@ -75,9 +75,8 @@ describe('useSeatingMixHandler', () => {
     expect(result.current.isMixing).toBe(false);
   });
 
-  it('runs both phases and reports the mix as finished', async () => {
+  it('runs the mix as one session and reports it as finished', async () => {
     const generate = deferredCall();
-    const refine = deferredCall();
     const onMix = vi.fn();
 
     const { result } = renderHook(() =>
@@ -86,7 +85,6 @@ describe('useSeatingMixHandler', () => {
         students,
         classroomScene: scene,
         generateSeatingPlan: generate.fn,
-        refineSeatingLocal: refine.fn,
         onMix,
       }),
     );
@@ -100,13 +98,10 @@ describe('useSeatingMixHandler', () => {
     act(() => {
       generate.calls[0]!.resolve(arrangement);
     });
-    await waitFor(() => expect(refine.calls).toHaveLength(1));
-
-    act(() => {
-      refine.calls[0]!.resolve(arrangement);
-    });
 
     await waitFor(() => expect(result.current.isMixing).toBe(false));
+    // The session refined within it; nothing runs after it but the callback.
+    expect(generate.fn).toHaveBeenCalledTimes(1);
     expect(onMix).toHaveBeenCalledTimes(1);
   });
 
@@ -159,16 +154,15 @@ describe('useSeatingMixHandler', () => {
     await waitFor(() => expect(onMix).not.toHaveBeenCalled());
   });
 
-  it('skips refinement when no criterion is active', async () => {
-    const refine = vi.fn(async () => arrangement);
+  it('mixes with the neutral settings when no criterion is active', async () => {
+    const generate = vi.fn(async () => arrangement);
 
     const { result } = renderHook(() =>
       useSeatingMixHandler({
-        settings: neutralSettings as MixSettings,
+        settings: { ...withCriteria, ...neutralSettings } as MixSettings,
         students,
         classroomScene: scene,
-        generateSeatingPlan: vi.fn(async () => arrangement),
-        refineSeatingLocal: refine,
+        generateSeatingPlan: generate,
       }),
     );
 
@@ -176,7 +170,11 @@ describe('useSeatingMixHandler', () => {
       await result.current.handleMix();
     });
 
-    expect(refine).not.toHaveBeenCalled();
+    expect(generate).toHaveBeenCalledWith(
+      neutralSettings,
+      scene,
+      expect.objectContaining({ signal: expect.any(AbortSignal) }),
+    );
   });
 
   it('aborts an in-flight mix when the component goes away', async () => {

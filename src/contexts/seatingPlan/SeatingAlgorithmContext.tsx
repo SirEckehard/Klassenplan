@@ -13,7 +13,6 @@ export interface SeatingAlgorithmContextValue {
   mixSettings: SeatingPlanSnapshot['state']['mixSettings'];
   setMixSettings: SeatingPlanSnapshot['actions']['setMixSettings'];
   generateSeatingPlan: SeatingPlanSnapshot['actions']['generateSeatingPlan'];
-  refineSeatingLocal: SeatingPlanSnapshot['actions']['refineSeatingLocal'];
   onMix: SeatingPlanSnapshot['actions']['onMix'];
   undoSeating: SeatingPlanSnapshot['actions']['undoSeating'];
   redoSeating: SeatingPlanSnapshot['actions']['redoSeating'];
@@ -61,7 +60,6 @@ export const selectSeatingAlgorithmContext = ({
   mixSettings: state.mixSettings,
   setMixSettings: actions.setMixSettings,
   generateSeatingPlan: actions.generateSeatingPlan,
-  refineSeatingLocal: actions.refineSeatingLocal,
   onMix: actions.onMix,
   undoSeating: actions.undoSeating,
   redoSeating: actions.redoSeating,

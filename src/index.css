@@ -45,6 +45,15 @@
     'Instrument Sans Variable', 'Instrument Sans Fallback', sans-serif;
   --font-serif: 'Instrument Serif', 'Instrument Serif Fallback', serif;
 
+  /* Three sizes between Tailwind's steps, each for one role (DESIGNSYSTEM.md
+     § 3): counters and the smallest captions, group headings and small print,
+     the rows and entries of toolbar, inspector and menus. In rem, so they
+     grow with the browser's text size; they set no line height, as the
+     pixel values they replace did not. */
+  --text-micro: 0.625rem;
+  --text-caption: 0.6875rem;
+  --text-control: 0.8125rem;
+
   /* Paper and ink — light */
   --surface-page: #fcfbf8;
   --surface-sunken: #f3f1ec;
@@ -157,6 +166,8 @@
   --toast-bg: #ffffff;
   --toast-border: #e3dfd6;
   --toast-text: #17181a;
+  --toast-action-bg: rgb(255 255 255 / 0.2);
+  --toast-action-bg-hover: rgb(255 255 255 / 0.3);
   --toast-shadow: 0 8px 24px -12px rgba(23, 24, 26, 0.22);
   --toast-accent-success: #15803d;
   --toast-accent-error: #be123c;
@@ -375,6 +386,8 @@
     --toast-bg: #1c1f23;
     --toast-border: #2a2d31;
     --toast-text: #f2f1ee;
+    --toast-action-bg: rgb(255 255 255 / 0.1);
+    --toast-action-bg-hover: rgb(255 255 255 / 0.2);
     --toast-shadow: 0 12px 32px -16px rgba(0, 0, 0, 0.8);
     --toast-accent-success: #5ec07f;
     --toast-accent-error: #f87a96;

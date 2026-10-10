@@ -175,7 +175,7 @@ export default function NeighboursPanel({
       />
       <InspectorBody>
         {planUsage.length === 0 ? (
-          <div className="flex flex-col gap-2 text-[13px] leading-relaxed text-(--text-muted)">
+          <div className="flex flex-col gap-2 text-control leading-relaxed text-(--text-muted)">
             <p>{t('storage.neighbors.empty')}</p>
             <p>
               {planUsageManual
@@ -194,7 +194,7 @@ export default function NeighboursPanel({
           <>
             <div className="flex flex-col gap-3 pb-4">
               <div className="flex items-start justify-between gap-3">
-                <p className="text-[13px] leading-relaxed text-(--text-muted)">
+                <p className="text-control leading-relaxed text-(--text-muted)">
                   {t('storage.neighbors.basis', { count: counted.length })}
                   {since
                     ? ` ${t('storage.neighbors.basisSince', {
@@ -212,7 +212,7 @@ export default function NeighboursPanel({
                   {t('storage.neighbors.reset')}
                 </button>
               </div>
-              <p className="text-[13px] leading-relaxed text-(--text-muted)">
+              <p className="text-control leading-relaxed text-(--text-muted)">
                 {counted.length === 0
                   ? t('storage.neighbors.empty')
                   : t('library.neighboursHint')}

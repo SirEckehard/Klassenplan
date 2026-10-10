@@ -63,7 +63,6 @@ export interface WizardConfig {
     settings: MixSettings,
     scene: ClassroomScene,
   ) => Promise<SeatingArrangement>;
-  onAutoMixTriggered?: () => void;
   setClassroomEdited: (edited: boolean) => void;
   markClassroomSynced: (scene: ClassroomScene) => void;
   syncSeatingSnapshot: () => void;
@@ -97,7 +96,6 @@ export function useSeatingWizard(
     setPlanName,
     setMixSettings,
     generateSeatingPlan,
-    onAutoMixTriggered,
     setClassroomEdited,
     markClassroomSynced,
     syncSeatingSnapshot,
@@ -234,7 +232,8 @@ export function useSeatingWizard(
   }, [students, setStep]);
 
   /**
-   * Trigger automatic seating plan generation on first entry to step 3.
+   * Trigger automatic seating plan generation on first entry to step 3 — a
+   * mix like any other, refined in its own session while a criterion is on.
    */
   const triggerAutoMix = useCallback(() => {
     const hasNeedsFrontSeatImpairment = students.some((s) => s.needsFrontSeat);
@@ -261,7 +260,6 @@ export function useSeatingWizard(
 
     autoMixTimeoutRef.current = setTimeout(() => {
       setAutoMixing(true);
-      onAutoMixTriggered?.();
       void (async () => {
         try {
           await generateSeatingPlan(autoSettings, classroomScene);
@@ -294,7 +292,6 @@ export function useSeatingWizard(
     classroomScene,
     setMixSettings,
     generateSeatingPlan,
-    onAutoMixTriggered,
   ]);
 
   /**

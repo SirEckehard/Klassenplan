@@ -39,7 +39,7 @@ export function InspectorHeader({
         {/* A heading, so the panel has a place in the document outline and a
             test can ask for what is selected by name. It wraps rather than
             truncates: a student's name cut to "Lina Schneid…" names nobody. */}
-        <h2 className="min-w-0 wrap-break-word text-[17px] font-semibold text-(--text-page)">
+        <h2 className="min-w-0 wrap-break-word text-[1.0625rem] font-semibold text-(--text-page)">
           {title}
         </h2>
         {subtitle && (
@@ -175,7 +175,7 @@ export function InspectorRow({
   const content = (
     <>
       <span
-        className="flex min-w-0 items-center gap-2 text-[13px] text-(--text-page)"
+        className="flex min-w-0 items-center gap-2 text-control text-(--text-page)"
         title={hint}
       >
         {icon}
@@ -260,7 +260,7 @@ export function InspectorChoice<T extends string>({
               title={
                 isMixed ? t('bulkEdit.choiceMixed', { label: title }) : title
               }
-              className={`flex w-full cursor-pointer items-center gap-2 px-2.5 py-1.5 text-left text-[13px] transition pointer-coarse:min-h-11 focus-visible:relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-(--focus-ring-primary) ${
+              className={`flex w-full cursor-pointer items-center gap-2 px-2.5 py-1.5 text-left text-control transition pointer-coarse:min-h-11 focus-visible:relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-(--focus-ring-primary) ${
                 isActive
                   ? 'bg-(--surface-option-selected) font-medium text-(--text-page)'
                   : 'text-(--text-page) hover:bg-(--surface-sunken)'

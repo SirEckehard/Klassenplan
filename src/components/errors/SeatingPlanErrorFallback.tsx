@@ -70,7 +70,7 @@ export default function SeatingPlanErrorFallback({
         <summary className="cursor-pointer font-medium">
           {t('common.errorDetails', 'Fehlerdetails')}
         </summary>
-        <pre className="mt-2 whitespace-pre-wrap wrap-break-word rounded bg-(--surface-card) p-3 text-[11px] leading-relaxed text-(--text-muted) shadow-inner">
+        <pre className="mt-2 whitespace-pre-wrap wrap-break-word rounded bg-(--surface-card) p-3 text-caption leading-relaxed text-(--text-muted) shadow-inner">
           {error.message}
         </pre>
       </details>

@@ -117,10 +117,10 @@ describe('without worker support', () => {
 
     try {
       const { algorithmWorkerClient } = await loadClient();
-      await algorithmWorkerClient.callOperation('mix:generate', mixPayload);
+      await algorithmWorkerClient.callOperation('mix:run', mixPayload);
 
       expect(operationMocks.executeAlgorithmOperation).toHaveBeenCalledWith(
-        'mix:generate',
+        'mix:run',
         mixPayload,
       );
     } finally {
@@ -133,16 +133,13 @@ describe('with a working worker', () => {
   it('resolves from the worker response without touching the fallback', async () => {
     const { algorithmWorkerClient } = await loadClient();
 
-    const pending = algorithmWorkerClient.callOperation(
-      'mix:generate',
-      mixPayload,
-    );
+    const pending = algorithmWorkerClient.callOperation('mix:run', mixPayload);
     await flush();
 
     const worker = FakeWorker.instances[0]!;
     worker.emit('message', {
       requestId: worker.lastRequestId,
-      operation: 'mix:generate',
+      operation: 'mix:run',
       status: 'success',
       result: { seating: [['from-worker']] },
     });
@@ -186,16 +183,13 @@ describe('with a working worker', () => {
   it('falls back to the main thread when the worker reports an error', async () => {
     const { algorithmWorkerClient } = await loadClient();
 
-    const pending = algorithmWorkerClient.callOperation(
-      'mix:generate',
-      mixPayload,
-    );
+    const pending = algorithmWorkerClient.callOperation('mix:run', mixPayload);
     await flush();
 
     const worker = FakeWorker.instances[0]!;
     worker.emit('message', {
       requestId: worker.lastRequestId,
-      operation: 'mix:generate',
+      operation: 'mix:run',
       status: 'error',
       error: { message: 'boom' },
     });
@@ -210,11 +204,9 @@ describe('cancellation and timeouts', () => {
     const { algorithmWorkerClient } = await loadClient();
     const controller = new AbortController();
 
-    const pending = algorithmWorkerClient.callOperation(
-      'mix:generate',
-      mixPayload,
-      { signal: controller.signal },
-    );
+    const pending = algorithmWorkerClient.callOperation('mix:run', mixPayload, {
+      signal: controller.signal,
+    });
     await flush();
 
     controller.abort();
@@ -229,20 +221,20 @@ describe('cancellation and timeouts', () => {
     const controller = new AbortController();
 
     const pending = algorithmWorkerClient.callOperation(
-      'mix:refine',
-      { ...mixPayload, currentSeating: [], options: {}, start: null },
+      'mix:run',
+      { ...mixPayload, refine: {} },
       { signal: controller.signal },
     );
     await flush();
 
     const worker = FakeWorker.instances[0]!;
-    // Refinement reports progress for the whole run, so the cancel button is
+    // A mix reports progress for the whole refinement, so the cancel button is
     // only ever pressed *after* the first update. The listener has to survive
     // it — this used to be torn down on the first progress message, leaving
     // "Abbrechen" silently inert.
     worker.emit('message', {
       requestId: worker.lastRequestId,
-      operation: 'mix:refine',
+      operation: 'mix:run',
       status: 'progress',
       progress: { progress: 0.4, stage: 'arranging' },
     });
@@ -259,8 +251,8 @@ describe('cancellation and timeouts', () => {
       await loadClient();
 
     const pending = algorithmWorkerClient.callOperation(
-      'mix:refine',
-      { ...mixPayload, currentSeating: [], options: {}, start: null },
+      'mix:run',
+      { ...mixPayload, refine: {} },
       { timeoutMs: 50 },
     );
     const rejection = expect(pending).rejects.toBeInstanceOf(
@@ -276,7 +268,7 @@ describe('cancellation and timeouts', () => {
       await vi.advanceTimersByTimeAsync(40);
       worker.emit('message', {
         requestId: worker.lastRequestId,
-        operation: 'mix:refine',
+        operation: 'mix:run',
         status: 'progress',
         progress: { progress: 0.5, stage: 'arranging' },
       });
@@ -294,11 +286,9 @@ describe('cancellation and timeouts', () => {
     const { algorithmWorkerClient, AlgorithmWorkerTimeoutError } =
       await loadClient();
 
-    const pending = algorithmWorkerClient.callOperation(
-      'mix:generate',
-      mixPayload,
-      { timeoutMs: 50 },
-    );
+    const pending = algorithmWorkerClient.callOperation('mix:run', mixPayload, {
+      timeoutMs: 50,
+    });
     // Attach the expectation before the timer fires, otherwise the rejection
     // is reported as unhandled.
     const rejection = expect(pending).rejects.toBeInstanceOf(

@@ -1,6 +1,6 @@
 # 0014 – The mix history records the refined plan
 
-- **Status:** accepted
+- **Status:** superseded by [0027](0027-one-mix-session.md)
 - **In place since:** v2.1.0 (2026-09-16)
 - **Sources:** [ALGORITHM.md](../ALGORITHM.md), maintainer decision of
   2026-09-14, `src/hooks/useSeatingAlgorithm.ts`, `src/utils/pairs.ts`
@@ -41,3 +41,8 @@ timestamp and settings stay. Any other refinement leaves the history alone.
   — which is also what stays on screen.
 - The refinement itself still reads the history with its own constructed entry
   in it, as before.
+
+**Superseded.** Since [decision 0027](0027-one-mix-session.md) a mix is one
+worker call that constructs and refines, and the mix history records its
+result once. The entry no longer has to be replaced afterwards, and the
+refinement no longer reads the history with its own construction in it.

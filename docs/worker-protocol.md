@@ -12,17 +12,18 @@ file and closes. Why the algorithm runs off the main thread is recorded in
 
 ### Operations
 
-| Operation          | Payload                                                                                                                                                                                     | Result            | Used for                                             |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------- | ---------------------------------------------------- |
-| `mix:generate`     | `students`, `seatingHistory`, `mixHistory`, `planUsage?`, `planUsageSince?`, `planUsageManual?`, `lockedPositions`, `classroomScene`, `mixSettings`, `lastSeating?`                         | `{ seating }`     | Constructing an arrangement ("Mischen")              |
-| `mix:refine`       | `students`, `classroomScene`, `currentSeating`, `mixSettings`, `mixHistory`, `seatingHistory`, `planUsage?`, `planUsageSince?`, `planUsageManual?`, `lockedPositions`, `options?`, `start?` | `{ seating }`     | "Verfeinern", and "Mischen" when criteria are active |
-| `circle:generate`  | `students`, `classroomScene`, `currentSeating?`                                                                                                                                             | `{ layout }`      | Seating circle                                       |
-| `circle:optimized` | `students`, `classroomScene`, `mixSettings`, `seatingHistory`, `currentSeating?`                                                                                                            | `{ layout }`      | Seating circle with criteria                         |
-| `worker:warmup`    | `{}`                                                                                                                                                                                        | `{ ready: true }` | Checking that a fresh worker answers                 |
+| Operation          | Payload                                                                                                                                                                        | Result            | Used for                                                 |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------- | -------------------------------------------------------- |
+| `mix:run`          | `students`, `seatingHistory`, `mixHistory`, `planUsage?`, `planUsageSince?`, `planUsageManual?`, `lockedPositions`, `classroomScene`, `mixSettings`, `lastSeating?`, `refine?` | `{ seating }`     | "Mischen": construction, refined while a criterion is on |
+| `circle:generate`  | `students`, `classroomScene`, `currentSeating?`                                                                                                                                | `{ layout }`      | Seating circle                                           |
+| `circle:optimized` | `students`, `classroomScene`, `mixSettings`, `seatingHistory`, `currentSeating?`                                                                                               | `{ layout }`      | Seating circle with criteria                             |
+| `worker:warmup`    | `{}`                                                                                                                                                                           | `{ ready: true }` | Checking that a fresh worker answers                     |
 
-Types: `AlgorithmWorkerRequestMap` in `algorithmWorker.types.ts`. `options` for
-`mix:refine` are `{ triesPerPass?, passes? }`; the refinement defaults
-(simulated annealing on) are merged in by `executeAlgorithmOperation`.
+Types: `AlgorithmWorkerRequestMap` in `algorithmWorker.types.ts`. `refine` of
+`mix:run` is `{ triesPerPass?, passes? }`, or `null` to let the construction
+stand; the refinement defaults (simulated annealing on) are merged in by
+`executeAlgorithmOperation`. Construction and refinement share one session
+([decision 0027](decisions/0027-one-mix-session.md)), so a mix is one request.
 
 ### Messages
 

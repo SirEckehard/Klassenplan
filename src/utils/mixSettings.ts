@@ -172,8 +172,9 @@ export const areMixSettingsEqual = (
   );
 
 /** Whether any criterion carries weight — with none, shuffling is random. */
-export const hasActiveWeights = (settings: Readonly<MixSettings>): boolean =>
-  SCALAR_MIX_SETTING_KEYS.some((key) => settings[key] > 0);
+export const hasActiveWeights = (
+  settings: Readonly<Partial<MixSettings>>,
+): boolean => SCALAR_MIX_SETTING_KEYS.some((key) => (settings[key] ?? 0) > 0);
 
 /**
  * One criterion's weight together with the weights tied to it: both

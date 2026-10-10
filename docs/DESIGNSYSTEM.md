@@ -1,6 +1,6 @@
 # Design System – Klassenplan
 
-> **Status:** current · **Last reviewed:** 2026-10-06 · **Maintainer:** Eike
+> **Status:** current · **Last reviewed:** 2026-10-10 · **Maintainer:** Eike
 > Schäfer · **Describes:** Klassenplan 3.1.0
 
 This document describes the binding design tokens for Klassenplan. All values live in `src/index.css` and are reachable from TypeScript through `src/utils/ui/designTokens.ts`.
@@ -79,16 +79,26 @@ SVG `font-family` attributes are not reached by the `@theme` token, so the scene
 
 Numbers that sit in columns or get compared — counts, percentages, times — are set with `tabular-nums`.
 
+**Sizes.** Text takes Tailwind's scale (`text-xs` 12 px, `text-sm` 14 px, …) and, between its steps, three tokens from `@theme`, each for one role:
+
+| Token          | Size                | Used for                                                                                        |
+| -------------- | ------------------- | ----------------------------------------------------------------------------------------------- |
+| `text-micro`   | `0.625rem` (10 px)  | A counter on a button, the smallest captions (the phone's table templates, a recipe group)      |
+| `text-caption` | `0.6875rem` (11 px) | Uppercase group headings in the toolbar, menus and lists; small print such as an error's report |
+| `text-control` | `0.8125rem` (13 px) | Rows and entries of the toolbar, the inspector and the menus, and their fields                  |
+
+They set no line height, so a row keeps the one it inherits, and they grow with the browser's text size, as rem does. A size used once — a student's name in the class list, an inspector's title — stays where it is, in rem; the lockup's sizes belong to the logo.
+
 The central radii live in `@theme`:
 
-| Variable                   | Value (light)      | Used for                                    |
-| -------------------------- | ------------------ | ------------------------------------------- |
-| `--radius-panel`           | `0.875rem` (14 px) | `panel-surface`, `canvas-frame`             |
-| `--radius-card`            | `0.625rem` (10 px) | `card-surface`, `list-container`, menus     |
-| `--radius-list`            | `0.625rem` (10 px) | History panels                              |
-| `--radius-pill`            | `0.5rem` (8 px)    | Buttons, tabs, toast icon                   |
-| `--radius-floating-status` | `0.5rem` (8 px)    | `floating-status`                           |
-| `--radius-badge`           | `9999px`           | `badge-surface` — the only round shape left |
+| Variable                   | Value (light)      | Used for                                                              |
+| -------------------------- | ------------------ | --------------------------------------------------------------------- |
+| `--radius-panel`           | `0.875rem` (14 px) | `panel-surface`, `canvas-frame`                                       |
+| `--radius-card`            | `0.625rem` (10 px) | `card-surface`, `list-container`, menus, the projection bar's buttons |
+| `--radius-list`            | `0.625rem` (10 px) | History panels                                                        |
+| `--radius-pill`            | `0.5rem` (8 px)    | Buttons, tabs, toast icon                                             |
+| `--radius-floating-status` | `0.5rem` (8 px)    | `floating-status`                                                     |
+| `--radius-badge`           | `9999px`           | `badge-surface` — the only round shape left                           |
 
 `--radius-pill` keeps its name for compatibility; controls stopped being pills. Only badges and avatars stay circular.
 

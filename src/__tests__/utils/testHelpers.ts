@@ -39,7 +39,6 @@ interface MockSeatingGeneratorState {
   currentSeating: SeatingArrangement;
   mixSettings: MixSettings;
   step: number;
-  seatCount: number;
   classroomEdited: boolean;
   planName: string;
   planNameError: boolean;
@@ -95,12 +94,6 @@ interface MockSeatingGeneratorActions {
     toTable: number,
     toSeat: number,
   ) => boolean;
-  refineSeatingLocal: (
-    settings: Partial<MixSettings>,
-    scene: ClassroomScene,
-    options?: { triesPerPass?: number; passes?: number },
-    start?: SeatingArrangement,
-  ) => Promise<SeatingArrangement>;
   onMix: () => void;
   setPlanName: (value: string) => void;
   setPlanNameError: (value: boolean) => void;
@@ -170,7 +163,6 @@ const createDefaultMockState = (): MockSeatingGeneratorState => ({
   currentSeating: [],
   mixSettings: neutralSettings,
   step: 1,
-  seatCount: 0,
   classroomEdited: false,
   planName: '',
   planNameError: false,
@@ -214,8 +206,6 @@ const createDefaultMockActions = (): MockSeatingGeneratorActions => {
     generateSeatingPlan:
       createMockFn<MockSeatingGeneratorActions['generateSeatingPlan']>(),
     moveStudent: createMockFn<MockSeatingGeneratorActions['moveStudent']>(),
-    refineSeatingLocal:
-      createMockFn<MockSeatingGeneratorActions['refineSeatingLocal']>(),
     onMix: createMockFn<MockSeatingGeneratorActions['onMix']>(),
     setPlanName: createMockFn<MockSeatingGeneratorActions['setPlanName']>(),
     setPlanNameError:
@@ -307,9 +297,6 @@ const createDefaultMockActions = (): MockSeatingGeneratorActions => {
   );
   toMock(actions.importCsv).mockResolvedValue([]);
   toMock(actions.generateSeatingPlan).mockResolvedValue(
-    [] as SeatingArrangement,
-  );
-  toMock(actions.refineSeatingLocal).mockResolvedValue(
     [] as SeatingArrangement,
   );
   toMock(actions.isSeatLocked).mockReturnValue(false);
@@ -664,8 +651,6 @@ export const createMockSeatingPlanViewProps = (
     isSeatLocked:
       createMockFn<NonNullable<SeatingPlanViewProps['isSeatLocked']>>(),
     toggleLock: createMockFn<NonNullable<SeatingPlanViewProps['toggleLock']>>(),
-    refineSeatingLocal:
-      createMockFn<NonNullable<SeatingPlanViewProps['refineSeatingLocal']>>(),
     onMix: createMockFn<NonNullable<SeatingPlanViewProps['onMix']>>(),
     seatingMode: 'table',
     onModeChange:
@@ -694,11 +679,6 @@ export const createMockSeatingPlanViewProps = (
   }
   if (defaultProps.isSeatLocked) {
     toMock(defaultProps.isSeatLocked).mockReturnValue(false);
-  }
-  if (defaultProps.refineSeatingLocal) {
-    toMock(defaultProps.refineSeatingLocal).mockResolvedValue(
-      [] as SeatingArrangement,
-    );
   }
 
   return {

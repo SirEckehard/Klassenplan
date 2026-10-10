@@ -55,7 +55,6 @@ export function useSeatingPlanViewLogic({
   isSeatLocked,
   toggleLock,
   onMix,
-  refineSeatingLocal,
   step,
   seatingMode,
   onModeChange,
@@ -309,7 +308,6 @@ export function useSeatingPlanViewLogic({
     students,
     classroomScene,
     generateSeatingPlan,
-    refineSeatingLocal,
     onMix,
   });
   const mixingInProgress = isMixing || autoMixing;

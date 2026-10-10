@@ -6,7 +6,7 @@ Klassenplan approaches performance from two angles: Core Web Vitals at runtime, 
 
 ## Budgets
 
-Klassenplan has no server, so there are no service level objectives in the usual sense. These budgets take their place. Figures from 2026-09-14; initial payload and algorithm runtime from 2026-09-16.
+Klassenplan has no server, so there are no service level objectives in the usual sense. These budgets take their place. Figures from 2026-09-14; initial payload from 2026-09-16, algorithm runtime from 2026-10-10.
 
 | Area                                 | Budget                                                        | Current                                                                   | Checked by                                                  |
 | ------------------------------------ | ------------------------------------------------------------- | ------------------------------------------------------------------------- | ----------------------------------------------------------- |
@@ -14,22 +14,24 @@ Klassenplan has no server, so there are no service level objectives in the usual
 | Largest chunk                        | ≤ 78 KB brotli, ≤ 330 KB raw                                  | 64.2 KB brotli, 276.3 KB raw                                              | same                                                        |
 | CSS                                  | ≤ 24 KB brotli, ≤ 200 KB raw                                  | 19.1 KB brotli, 171.4 KB raw                                              | same                                                        |
 | Core Web Vitals                      | "good": LCP ≤ 2.5 s, INP ≤ 200 ms, CLS ≤ 0.1                  | Start page CLS 0.067 after prerendering ([SEO.md](SEO.md)); no field data | Logged in the browser only (`webVitals.ts`)                 |
-| "Mischen" with criteria, 36 students | ≤ 500 ms on the slowest supported device                      | ≈ 109 ms under Vitest 5 (≈ 66 ms under Vitest 4), Apple M1 Pro            | `npm run bench`, by hand                                    |
+| "Mischen" with criteria, 36 students | ≤ 500 ms on the slowest supported device                      | ≈ 120 ms under Vitest 5, Apple M1 Pro                                     | `npm run bench`, by hand                                    |
 | Offline use                          | The generator works without a connection after the first load | Since v1.2.0                                                              | Not tested automatically                                    |
 
 The runtime budget is deliberately not a CI check: timings on a shared runner vary too much for a fixed ceiling. It is re-measured with `npm run bench` when the algorithm changes.
 
 ## Algorithm runtime
 
-`src/utils/algorithm/__tests__/seatingAlgorithm.bench.ts` measures the calls the app sends to the worker, for a class with every attribute set, a full mix history, two saved plans and two locked seats, on double tables. All inputs come from fixed seeds.
+`src/utils/algorithm/__tests__/seatingAlgorithm.bench.ts` measures what the app asks of the worker — "Mischen" as one session of construction and annealing (`mix:run`, [decision 0027](decisions/0027-one-mix-session.md)) — and its phases on their own, for a class with every attribute set, a full mix history, two saved plans and two locked seats, on double tables. All inputs come from fixed seeds.
 
-Mean time per call in milliseconds, Apple M1 Pro, Node 24, Vitest 5.0.1, median of three runs, 2026-09-16:
+Mean time per call in milliseconds, Apple M1 Pro, Node 24, Vitest 5.0.3, median of three runs, 2026-10-10:
 
-| Students | Construction | Refinement, annealing ("Mischen" 600 × 2) | Refinement, greedy (600 × 2) |
-| -------: | -----------: | ----------------------------------------: | ---------------------------: |
-|       12 |         0.15 |                                        94 |                            9 |
-|       24 |         0.66 |                                       102 |                           16 |
-|       36 |         1.45 |                                       107 |                           21 |
+| Students | Construction | "Mischen": construction and annealing | Refinement, annealing (600 × 2) | Refinement, greedy (600 × 2) |
+| -------: | -----------: | ------------------------------------: | ------------------------------: | ---------------------------: |
+|       12 |         0.16 |                                   109 |                             109 |                            9 |
+|       24 |         0.67 |                                   116 |                             115 |                           15 |
+|       36 |         1.49 |                                   120 |                             119 |                           20 |
+
+On 2026-09-16 (Vitest 5.0.1) the annealing measured 94 / 102 / 107 ms. Since decision 0027 the refinement weighs every earlier pair through `seatPairKey`, which costs about a tenth under Vitest — mostly the module runner's getters on the shared key functions, which it warns about — and little in the bundled app.
 
 `npm run bench` passes `--reporter=verbose`: Vitest 5's default reporter prints no result table.
 
@@ -37,7 +39,7 @@ Mean time per call in milliseconds, Apple M1 Pro, Node 24, Vitest 5.0.1, median 
 
 What the numbers show:
 
-- **Refinement dominates.** "Mischen" with criteria is construction plus annealing, about 109 ms for a full class under Vitest 5 (66 ms under Vitest 4).
+- **Refinement dominates.** "Mischen" with criteria is construction plus annealing, about 120 ms for a full class under Vitest 5. Until decision 0027 a second annealing followed every mix — an automatic refinement left over from v1.5.0 — so the teacher waited about twice as long.
 - **Annealing hardly depends on class size.** It runs a fixed cooling schedule (see [ALGORITHM.md](ALGORITHM.md#configuration)).
 - **`triesPerPass` and `passes` do not reach annealing.** They only apply to the greedy search, which the app does not use. The "Verfeinern" button, which passed 1,800 × 4, therefore did the same refinement work as "Mischen"; it measured 56 / 59 / 62 ms under Vitest 4 as well and was removed on 2026-09-14.
 - **Class size is not what limits the algorithm up to 36 students.** Larger classes were not measured.
@@ -57,7 +59,7 @@ Checked on 2026-09-14 with a temporary experiment on the same fixture, timed und
 | "Verfeinern" as greedy search, 1,800 tries × 4 passes |      61.1 % |      60.4 % |             71 ms |
 
 - **The refinement inside "Mischen" is what matters:** five to seven points over construction alone.
-- **A second refinement is a coin toss.** It gains one to two points for 24 students and loses up to one point for 36, where more runs got worse than better.
+- **A second refinement is a coin toss.** It gains one to two points for 24 students and loses up to one point for 36, where more runs got worse than better. The automatic second refinement after every "Mischen", which outlived the button until decision 0027, was the same coin toss.
 - **Longer schedules do not pay off.** They take three to nine times as long without a consistent gain, so the app's schedule stays as it is.
 - **Annealing optimises the internal table score, not the badge's percentage.** The two do not always move together, which is how a refinement can lower the value a teacher sees.
 - **Consequence:** the "Verfeinern" button was removed on 2026-09-14. The rows above keep its name for the record.

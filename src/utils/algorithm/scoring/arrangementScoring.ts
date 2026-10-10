@@ -6,7 +6,11 @@ import type {
   SeatingArrangement,
   Student,
 } from '@/types';
-import type { PreviousPairWeights } from '@/utils/pairs';
+import {
+  seatPairKey,
+  seatStudentIdentifier,
+  type PreviousPairWeights,
+} from '@/utils/pairs';
 import type { SeatNeighborhoodMap } from '@/utils/math/seatGeometry';
 import { seatPairsFor } from '@/utils/math/seatGeometry';
 import { TABLE_SCORE_WEIGHTS } from '@/utils';
@@ -261,7 +265,11 @@ const scoreNeighborRelations = (
   return score;
 };
 
-/** Penalise pairs that already sat together in an earlier plan. */
+/**
+ * Penalise pairs that already sat together in an earlier plan, by the weight
+ * that history gives them — recent plans more than old ones, mixes less than
+ * plans in use — as the construction does (`scoreHistory`, decision 0027).
+ */
 const scorePreviousPairs = (
   ctx: ArrangementScoringContext,
   members: Student[],
@@ -274,10 +282,14 @@ const scorePreviousPairs = (
     const mi = members[i]!;
     for (let j = i + 1; j < members.length; j++) {
       const mj = members[j]!;
-      const pairKey = [mi.id, mj.id].sort().join('::');
+      const weight =
+        previousPairs.get(
+          seatPairKey(seatStudentIdentifier(mi), seatStudentIdentifier(mj)),
+        ) ?? 0;
+      if (weight === 0) continue;
       const wishPair = settings.considerWishPartners && isWishPair(mi, mj);
-      if (!wishPair && previousPairs.has(pairKey)) {
-        score += settings.avoidPreviousPairs;
+      if (!wishPair) {
+        score += settings.avoidPreviousPairs * weight;
       }
     }
   }

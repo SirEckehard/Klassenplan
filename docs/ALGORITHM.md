@@ -9,21 +9,22 @@ The seating plan generation is a two-phased process:
 1.  **Construction (Greedy)**: A valid initial arrangement is built by placing students one-by-one into the best available seats.
 2.  **Refinement (Iterative)**: An existing arrangement is improved by swapping students to reduce constraint violations (score).
 
-Which phases run depends on the UI action:
+Both run as one session, in one worker call (`mix:run`, `runMixSession`), and
+decide by the same facts ([decision 0027](decisions/0027-one-mix-session.md)):
+the tables' targets the construction draws, and the earlier pairs of what came
+before this mix — the plan on screen, the plans in use, the earlier mixes —
+weighed alike in both phases, never the pairs the construction itself just
+made.
 
-| UI action                                   | Worker operations             | Runs                                                                    |
-| :------------------------------------------ | :---------------------------- | :---------------------------------------------------------------------- |
-| "Mischen" / shuffle, at least one criterion | `mix:generate` → `mix:refine` | construction, then refinement of the result (`useSeatingMixHandler`)    |
-| "Mischen" / shuffle, all weights at 0       | `mix:generate`                | construction only, with `neutralSettings` — a purely random arrangement |
-| Automatic plan in the wizard                | `mix:generate`                | construction only (`useSeatingWizard`)                                  |
+| UI action                                   | Runs                                                                           |
+| :------------------------------------------ | :----------------------------------------------------------------------------- |
+| "Mischen" / shuffle, at least one criterion | construction, then refinement of the result (`useSeatingMixHandler`)           |
+| "Mischen" / shuffle, all weights at 0       | construction only, with `neutralSettings` — a purely random arrangement        |
+| The first plan on the plan layer            | the same as "Mischen", with the settings the wizard chose (`useSeatingWizard`) |
 
-The auto-mix on the plan layer goes through the same handler as the button.
-`generateSeatingPlan()` itself is `initializeAssignment` → `runPass` →
-`finalize` and never calls `refineSeatingLocal()`; the chaining happens in the
-hook. The mix history first records the constructed arrangement; once the
-refinement that follows has finished, the entry holds the refined one, so the
-history keeps the plans the teacher actually got
-([decision 0014](decisions/0014-mix-history-records-refined-plan.md)).
+Nothing refines outside a mix: a restored backup keeps its plan as it was
+saved. The mix history gains one entry per mix, the arrangement the session
+settled on — the one on screen, the plan the teacher actually got.
 
 ## How many students a table takes
 
@@ -31,12 +32,13 @@ Before a student is placed, `seatTargetsFor()`
 (`src/utils/algorithm/seatTargets.ts`) decides how many students each table
 takes. A seat at or beyond its table's target stays empty: the construction
 skips it, and both refinement strategies refuse a swap that would fill it. The
-construction also stops at a table that has its count; the refinements count
-only the tables they hold (`tablesHeldByCount`: every table when filling from
-the front, otherwise the tables out of the mix), because a student locked to a
-back seat leaves the seats before it open to the index check — and a refinement
-that counted every table would only be held to its own draw of the even spread,
-which differs from the construction's. Two properties of the room change the
+construction also stops at a table that has its count, and so does the
+refinement of a mix, by the construction's targets — a student locked to a
+back seat leaves the seats before it open to the index check. A refinement run
+on its own draws targets of its own and counts only the tables
+`tablesHeldByCount` names (every table when filling from the front, otherwise
+the tables out of the mix), since holding the rest to its own draw would only
+narrow its search. Two properties of the room change the
 targets ([decision 0026](decisions/0026-tables-out-of-the-mix.md)):
 
 - **A table out of the mix** (`ClassroomTable.inactive`) takes nobody. A
@@ -62,7 +64,7 @@ We provide two distinct strategies for the refinement phase. The choice of strat
 > **Default:** The two layers disagree on purpose, so read both:
 >
 > - `refineSeatingLocal()` on its own falls back to **Greedy** — Simulated Annealing needs `useAnnealing: true` in its options (see `src/utils/algorithm/seatingAlgorithm.ts`). This is what a direct caller (a test, say) gets.
-> - Every call **the app** makes goes through `executeAlgorithmOperation('mix:refine', …)`, which merges in `DEFAULT_REFINE_OPTIONS = { useAnnealing: true }` (see `src/workers/algorithmOperations.ts`). **The "Verfeinern" button therefore runs Simulated Annealing**, unless a caller explicitly passes `useAnnealing: false`.
+> - Every mix **the app** runs goes through `executeAlgorithmOperation('mix:run', …)`, which merges `DEFAULT_REFINE_OPTIONS = { useAnnealing: true }` into its refinement (see `src/workers/algorithmOperations.ts`). **"Mischen" therefore refines with Simulated Annealing**, unless a caller explicitly passes `useAnnealing: false`.
 >
 > That constant lives in `algorithmOperations.ts` and nowhere else, so the worker and the main-thread fallback cannot drift apart on it.
 
@@ -231,7 +233,9 @@ reads and the number the algorithm optimizes cannot drift apart.
 | The running session  | recent mixes                                                                                                                 | `MIX_HISTORY_CONTRIBUTION` = 0.5 |
 
 Both decay with recency within themselves: the newest entry counts fully, the
-oldest down to `MIN_DECAY_WEIGHT`.
+oldest down to `MIN_DECAY_WEIGHT`. The construction and the refinement charge a
+pair `avoidPreviousPairs` times its weight alike; until decision 0027 the
+refinement charged every earlier pair in full.
 
 Two properties matter here:
 

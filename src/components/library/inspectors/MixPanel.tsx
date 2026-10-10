@@ -56,7 +56,7 @@ export default function MixPanel({
         )}
         <InspectorSection title={t('library.mix.criteria')}>
           {active.length === 0 ? (
-            <p className="text-[13px] text-(--text-muted)">
+            <p className="text-control text-(--text-muted)">
               {t('library.mix.random')}
             </p>
           ) : (
@@ -66,7 +66,7 @@ export default function MixPanel({
                 return (
                   <li
                     key={key}
-                    className="flex items-center gap-2 text-[13px] text-(--text-page)"
+                    className="flex items-center gap-2 text-control text-(--text-page)"
                   >
                     <Icon
                       size={14}

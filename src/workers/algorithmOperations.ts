@@ -80,9 +80,9 @@ export async function executeAlgorithmOperation<
   type Result = AlgorithmWorkerRequestMap[T]['result'];
 
   switch (operation) {
-    case 'mix:generate': {
+    case 'mix:run': {
       reportProgress(0.05, 'initializing');
-      const { generateSeatingPlan } = await loadSeatingAlgorithmModule();
+      const { runMixSession } = await loadSeatingAlgorithmModule();
       const {
         students,
         seatingHistory,
@@ -94,12 +94,14 @@ export async function executeAlgorithmOperation<
         classroomScene,
         mixSettings,
         lastSeating,
-      } = payload as AlgorithmWorkerRequestMap['mix:generate']['payload'];
+        refine,
+      } = payload as AlgorithmWorkerRequestMap['mix:run']['payload'];
 
-      // Construction is a single greedy pass with no inner loop to sample, so
-      // this stays a stage marker rather than a fabricated percentage.
-      reportProgress(0.3, 'arranging');
-      const seating = generateSeatingPlan(
+      // The construction is a single greedy pass with no inner loop to
+      // sample, so it stays a stage marker; the refinement after it reports
+      // its own fraction of the rest.
+      reportProgress(0.1, 'arranging');
+      const seating = runMixSession(
         students,
         seatingHistory,
         mixHistory,
@@ -107,51 +109,17 @@ export async function executeAlgorithmOperation<
         mixSettings,
         classroomScene,
         lastSeating ?? undefined,
-        { planUsage, planUsageSince, planUsageManual },
-      );
-      reportProgress(1, 'arranging');
-      return { seating } as Result;
-    }
-
-    case 'mix:refine': {
-      reportProgress(0.05, 'initializing');
-      const { refineSeatingLocal } = await loadSeatingAlgorithmModule();
-      const {
-        students,
-        seatingHistory,
-        mixHistory,
-        planUsage,
-        planUsageSince,
-        planUsageManual,
-        lockedPositions,
-        classroomScene,
-        currentSeating,
-        mixSettings,
-        options,
-        start,
-      } = payload as AlgorithmWorkerRequestMap['mix:refine']['payload'];
-
-      const seating = refineSeatingLocal(
-        students,
-        seatingHistory,
-        mixHistory,
-        lockedPositions,
-        currentSeating,
-        mixSettings,
-        classroomScene,
         {
-          ...DEFAULT_REFINE_OPTIONS,
-          ...options,
           planUsage,
           planUsageSince,
           planUsageManual,
+          refine: refine ? { ...DEFAULT_REFINE_OPTIONS, ...refine } : null,
           // Injected here, not carried in the payload: a callback cannot be
           // structured-cloned into the worker.
           onProgress: throttleFraction((fraction) =>
-            reportProgress(fraction, 'arranging'),
+            reportProgress(0.1 + fraction * 0.9, 'arranging'),
           ),
         },
-        start ?? undefined,
       );
       reportProgress(1, 'arranging');
       return { seating } as Result;

@@ -18,7 +18,7 @@ describe('isAlgorithmWorkerRequest', () => {
     expect(
       isAlgorithmWorkerRequest({
         requestId: 'r1',
-        operation: 'mix:generate',
+        operation: 'mix:run',
         payload: {},
       }),
     ).toBe(true);
@@ -27,9 +27,9 @@ describe('isAlgorithmWorkerRequest', () => {
   it.each([
     ['null', null],
     ['a primitive', 'nope'],
-    ['a missing request id', { operation: 'mix:generate', payload: {} }],
+    ['a missing request id', { operation: 'mix:run', payload: {} }],
     ['a missing operation', { requestId: 'r1', payload: {} }],
-    ['a missing payload', { requestId: 'r1', operation: 'mix:generate' }],
+    ['a missing payload', { requestId: 'r1', operation: 'mix:run' }],
   ])('rejects %s', (_label, message) => {
     expect(isAlgorithmWorkerRequest(message)).toBe(false);
   });
