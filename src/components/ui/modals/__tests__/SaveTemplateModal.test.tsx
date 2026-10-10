@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
+import { useState } from 'react';
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -354,6 +355,45 @@ describe('SaveTemplateModal', () => {
     await user.type(input, 'New Template{Enter}');
 
     expect(onSave).toHaveBeenCalledWith('New Template');
+  });
+
+  it('stays closed after Enter saved, though the focus returns to its button', async () => {
+    const user = userEvent.setup();
+    const onSave = vi.fn();
+    function Harness() {
+      const [open, setOpen] = useState(false);
+      return (
+        <>
+          <button type="button" onClick={() => setOpen(true)}>
+            Als Vorlage speichern
+          </button>
+          <SaveTemplateModal
+            open={open}
+            onClose={() => setOpen(false)}
+            onSave={(name) => {
+              onSave(name);
+              setOpen(false);
+            }}
+            existingTemplates={mockTemplates}
+            tableCount={5}
+            seatCount={20}
+          />
+        </>
+      );
+    }
+
+    render(<Harness />);
+    await user.click(
+      screen.getByRole('button', { name: /als vorlage speichern/i }),
+    );
+    const input = screen.getByRole('textbox', {
+      name: /vorlagenname eingeben|enter template name/i,
+    });
+    await waitFor(() => expect(input).toHaveValue('Klassenraum 3'));
+    await user.type(input, '{Enter}');
+
+    expect(onSave).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
   it('closes on Escape key', async () => {

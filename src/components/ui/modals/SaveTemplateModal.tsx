@@ -163,6 +163,11 @@ export default function SaveTemplateModal({
             onChange={(e) => setName(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !isDuplicate) {
+                // Saving closes the modal and hands the focus back to the
+                // button that opened it while this key is still down; left
+                // alone, the key's keypress pressed that button and the
+                // modal came straight back.
+                e.preventDefault();
                 handleSave();
               } else if (e.key === 'Escape') {
                 onClose();

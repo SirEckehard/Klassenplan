@@ -65,6 +65,33 @@ describe('featuresForTableFrame', () => {
     expect(door).toMatchObject({ x: 524, y: 370 });
   });
 
+  it('cuts a window front along the whole wall to the tables', () => {
+    const [front] = featuresForTableFrame(tables, [
+      feature('front', 'left', { x: 0, y: 0, width: 10, height: 600 }),
+    ]);
+
+    // Beside the rows from y 200 to 400, not along the room's full depth.
+    expect(front).toMatchObject({ x: 266, y: 200, height: 200 });
+  });
+
+  it('boxes a wall element upright, as it is drawn, whatever turn it stores', () => {
+    // A drop on the front wall stores a quarter turn with the width already
+    // laid along the wall.
+    const front = {
+      ...feature('front', 'top', { x: 0, y: 0, width: 900, height: 10 }),
+      rotation: -90,
+    };
+    const drawn = featuresForTableFrame(tables, [front]);
+
+    expect(drawn[0]).toMatchObject({ x: 300, y: 166, width: 200, height: 10 });
+    expect(frameContentBounds(tables, drawn)).toEqual({
+      minX: 300,
+      minY: 166,
+      maxX: 500,
+      maxY: 400,
+    });
+  });
+
   it('leaves a wall element already beside the tables where it is', () => {
     const near = feature('near', 'top', {
       x: 350,
