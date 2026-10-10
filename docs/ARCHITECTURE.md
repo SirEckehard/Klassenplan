@@ -212,7 +212,7 @@ sequenceDiagram
 
   teacher->>view: Mischen
   view->>mix: handleMix()
-  mix->>algo: generateSeatingPlan(settings, scene, forceNew)
+  mix->>algo: generateSeatingPlan(settings, scene, signal)
   algo->>client: callOperation mix:generate
   client->>worker: postMessage
   worker-->>client: seating, progress stages

@@ -229,6 +229,22 @@ describe('useSeatingWizard', () => {
       expect(syncSeatingSnapshotMock).toHaveBeenCalled();
     });
 
+    it('keeps saving into the auto-save while the plan carries only its generated name', async () => {
+      mockConfig.planName = 'Plan 10.10.2026, 11:30:00';
+      mockConfig.openPlanIsAutoSave = true;
+
+      const { result } = renderHook(() => useSeatingWizard(mockConfig));
+      act(() => {
+        result.current.setStep(3);
+      });
+      await act(async () => {
+        await result.current.handleStepChange(2);
+      });
+
+      const [, , , options] = mockSaveSeatingPlanWithCircle.mock.calls[0];
+      expect(options).toEqual({ autoSave: true });
+    });
+
     it('saves null when circle layout is not present', async () => {
       mockConfig.circleLayout = null;
 
@@ -457,7 +473,6 @@ describe('useSeatingWizard', () => {
       expect(mockConfig.generateSeatingPlan).toHaveBeenCalledWith(
         expect.any(Object),
         mockConfig.classroomScene,
-        true,
       );
     });
 

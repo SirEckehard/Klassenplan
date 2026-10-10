@@ -7,7 +7,7 @@ import {
   renderSceneSvg,
   type ExportClassMetadata,
 } from '@/services/export/sceneRenderer';
-import { logError } from '@/utils';
+import { logError, toIsoDate } from '@/utils';
 import type { DataFamily, NameDisplayMode } from '@/utils';
 import { confirmDownload } from '@/utils/ui/downloadConfirmation';
 import type { FeatureVisibilityFlags } from '@/utils/ui/featureStyles';
@@ -242,7 +242,7 @@ export function downloadPdfBlob(blob: Blob, filename: string): void {
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
-  link.download = `${filename}_${new Date().toISOString().split('T')[0]}.pdf`;
+  link.download = `${filename}_${toIsoDate()}.pdf`;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
@@ -254,7 +254,8 @@ async function exportSvgToPdf(
   filename: string,
   orientation: 'landscape' | 'portrait',
 ): Promise<void> {
-  const pdfFilename = `${filename}_${new Date().toISOString().split('T')[0]}.pdf`;
+  // The local date: an export just after midnight carries the new day.
+  const pdfFilename = `${filename}_${toIsoDate()}.pdf`;
 
   // Ask the user before generating and saving the file (declined = no-op).
   const confirmed = await confirmDownload(pdfFilename);

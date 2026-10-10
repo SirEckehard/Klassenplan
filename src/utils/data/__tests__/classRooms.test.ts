@@ -12,6 +12,7 @@ import {
   createMockClassroomScene,
   createMockMixResult,
   createMockSavedPlan,
+  createMockStudent,
 } from '@/__tests__/utils';
 import {
   applyClassEdit,
@@ -21,6 +22,7 @@ import {
   ensureClassRooms,
   ensureCollectionRooms,
   fittingLocks,
+  keepParkedWork,
   roomStateToOpen,
   switchRoomState,
   workingStateFromPlan,
@@ -321,6 +323,100 @@ describe('fittingLocks', () => {
   });
 });
 
+const ada = createMockStudent({ id: 'ada', name: 'Ada' });
+/** A room left with Ada seated, which its plan `planId` does not hold. */
+const unsavedWork = (planId: string | null) => ({
+  scene: createMockClassroomScene(1),
+  seating: [[ada, null]],
+  lockedPositions: {},
+  circleLayout: null,
+  activePlanId: planId,
+});
+const keep = { id: 'kept', name: 'Plan 10.10.2026', date: '2026-10-10' };
+
+describe('keepParkedWork', () => {
+  it('writes the work into the plan the room was left on', () => {
+    const plans = [plan('chem', 'lab')];
+
+    const kept = keepParkedWork(
+      plans,
+      room('lab', { parked: unsavedWork('chem') }),
+      keep,
+      'oct',
+    );
+
+    expect(kept).toHaveLength(1);
+    expect(kept[0]).toMatchObject({
+      id: 'chem',
+      name: 'chem',
+      seating: [[ada, null]],
+      date: '2026-10-10',
+    });
+    expect(kept[0]).not.toHaveProperty('autoSaved');
+  });
+
+  it("keeps work never named in the room's auto-save", () => {
+    const plans = [
+      plan('chem', 'lab'),
+      { ...plan('auto', 'lab'), autoSaved: true as const },
+    ];
+
+    const kept = keepParkedWork(
+      plans,
+      room('lab', { parked: unsavedWork(null) }),
+      keep,
+      'oct',
+    );
+
+    expect(kept.map((entry) => entry.id)).toEqual(['chem', 'auto']);
+    expect(kept[1]).toMatchObject({
+      autoSaved: true,
+      roomId: 'lab',
+      seating: [[ada, null]],
+    });
+  });
+
+  it('starts the auto-save when the room has none', () => {
+    const kept = keepParkedWork(
+      [],
+      room('lab', { parked: unsavedWork(null) }),
+      keep,
+      'oct',
+    );
+
+    expect(kept).toEqual([
+      expect.objectContaining({
+        id: 'kept',
+        name: 'Plan 10.10.2026',
+        roomId: 'lab',
+        autoSaved: true,
+      }),
+    ]);
+  });
+
+  it('changes nothing for a room left as its plan holds it, or with nobody seated', () => {
+    const chem = plan('chem', 'lab');
+    const plans = [chem];
+
+    expect(
+      keepParkedWork(
+        plans,
+        room('lab', { parked: workingStateFromPlan(chem) }),
+        keep,
+        'oct',
+      ),
+    ).toBe(plans);
+    expect(
+      keepParkedWork(
+        plans,
+        room('lab', { parked: { ...unsavedWork(null), seating: [[null]] } }),
+        keep,
+        'oct',
+      ),
+    ).toBe(plans);
+  });
+});
+
 describe('applyClassEdit', () => {
   const lab = room('lab', { name: 'Labor' });
   const classroom = room('classroom', { name: 'Klassenraum' });
@@ -388,10 +484,34 @@ describe('applyClassEdit', () => {
   });
 
   it('moves a plan that is not open to another room, and nothing else', () => {
-    const record = apply({ kind: 'movePlan', planId: 'sept', roomId: 'lab' });
+    const record = apply({
+      kind: 'movePlan',
+      planId: 'sept',
+      roomId: 'lab',
+      keep,
+    });
 
     expect(record.seatingHistory[0]?.roomId).toBe('lab');
     expect(record.activeRoomId).toBe('classroom');
+  });
+
+  it('keeps what the room the open plan moves into was left with', () => {
+    const record = applyClassEdit(
+      {
+        ...base(),
+        rooms: [
+          classroom,
+          room('lab', { name: 'Labor', parked: unsavedWork('chem') }),
+        ],
+      },
+      { kind: 'movePlan', planId: 'oct', roomId: 'lab', keep },
+    );
+    if (!('record' in record)) throw new Error(record.problem);
+
+    expect(record.record.activeRoomId).toBe('lab');
+    expect(record.record.seatingHistory.find((p) => p.id === 'chem')).toEqual(
+      expect.objectContaining({ seating: unsavedWork('chem').seating }),
+    );
   });
 
   it('moves the open plan with the working state, its room opening', () => {

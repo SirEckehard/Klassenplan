@@ -54,10 +54,6 @@ export interface ISeatingPlanRepository {
     classId: string,
     patch: UpdateClassMetadataPayload,
   ): Promise<Result<ClassRecord>>;
-  duplicateClass(
-    classId: string,
-    overrides?: UpdateClassMetadataPayload & { name?: string },
-  ): Promise<Result<ClassRecord>>;
   setActiveClass(classId: string): Promise<Result<ClassRecord>>;
   deleteClass(classId: string): Promise<Result<void>>;
   saveClassCollection(collection: ClassCollectionState): Promise<Result<void>>;

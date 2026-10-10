@@ -14,7 +14,6 @@ export interface ClassManagementContextValue {
   selectClass: SeatingPlanSnapshot['actions']['selectClass'];
   createClass: SeatingPlanSnapshot['actions']['createClass'];
   updateClassMetadata: SeatingPlanSnapshot['actions']['updateClassMetadata'];
-  duplicateClass: SeatingPlanSnapshot['actions']['duplicateClass'];
   deleteClass: SeatingPlanSnapshot['actions']['deleteClass'];
 }
 
@@ -30,7 +29,6 @@ export const selectClassManagementContext = ({
   selectClass: actions.selectClass,
   createClass: actions.createClass,
   updateClassMetadata: actions.updateClassMetadata,
-  duplicateClass: actions.duplicateClass,
   deleteClass: actions.deleteClass,
 });
 

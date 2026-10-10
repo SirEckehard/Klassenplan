@@ -18,7 +18,10 @@ vi.mock('@/utils/export/svgRasterizer', async () => {
   >('@/utils/export/svgRasterizer');
   return {
     ...actual,
-    getPrimaryFontBase64: vi.fn(async () => 'Zm9udA=='),
+    getEmbeddedFontCss: vi.fn(
+      async () =>
+        "@font-face{font-family:'Instrument Sans Variable';src:url('data:font/woff2;base64,Zm9udA==');}",
+    ),
     renderSvgToPngBlob: renderSvgToPngBlobMock,
   };
 });
@@ -67,6 +70,19 @@ describe('exportSvgAsPng', () => {
     expect(blob).toBeInstanceOf(Blob);
     expect(filename).toBe('Klasse 5a_2026-07-31.png');
     expect(mimeType).toBe('image/png');
+  });
+
+  it('dates the file by the local day, also just after midnight', async () => {
+    // Half past midnight on 1 August here — still 31 July in UTC east of it.
+    vi.setSystemTime(new Date(2026, 7, 1, 0, 30));
+
+    await exportSvgAsPng(SVG, 'Klasse 5a', 'landscape');
+
+    const [, filename] = downloadBlobMock.mock.calls[0] as unknown as [
+      Blob,
+      string,
+    ];
+    expect(filename).toBe('Klasse 5a_2026-08-01.png');
   });
 
   it('reports a wrapped error when the markup is not valid SVG', async () => {

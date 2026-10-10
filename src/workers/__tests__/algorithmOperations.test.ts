@@ -129,7 +129,6 @@ describe('executeAlgorithmOperation', () => {
         classroomScene: scene,
         mixSettings: {},
         lastSeating: null,
-        forceNew: true,
       },
       (_progress, stage) => stages.push(stage),
     );

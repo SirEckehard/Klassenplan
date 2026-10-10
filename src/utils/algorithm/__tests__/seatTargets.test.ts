@@ -4,8 +4,14 @@ import { describe, it, expect } from 'vitest';
 import type { ClassroomScene, ClassroomTable, Student } from '@/types';
 import { createMockStudent, createMockTable } from '@/__tests__/utils';
 import { evenTargetsFor } from '@/utils/distribution';
+import { DEFAULT_MIX_WEIGHTS } from '@/utils';
 import { createRng } from '../rng';
-import { frontToBackTableOrder, seatTargetsFor } from '../seatTargets';
+import {
+  frontToBackTableOrder,
+  seatTargetsFor,
+  swapOverfillsTable,
+  tablesHeldByCount,
+} from '../seatTargets';
 import { generateSeatingPlan, refineSeatingLocal } from '../seatingAlgorithm';
 
 /**
@@ -151,6 +157,74 @@ describe('seatTargetsFor', () => {
   });
 });
 
+describe('tablesHeldByCount', () => {
+  it('holds no table in a room without either option', () => {
+    expect(tablesHeldByCount(buildScene())).toBeNull();
+  });
+
+  it('holds the tables out of the mix', () => {
+    const held = tablesHeldByCount(
+      buildScene((_, index) => (index === 8 ? { inactive: true } : {})),
+    );
+
+    expect(held).toEqual([
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+    ]);
+  });
+
+  it('holds every table when filling from the front', () => {
+    const held = tablesHeldByCount(
+      buildScene(undefined, { fillFromFront: true }),
+    );
+
+    expect(held).toEqual(Array(9).fill(true));
+  });
+});
+
+describe('swapOverfillsTable', () => {
+  const [anna, ben, cem] = buildStudents(3);
+  const arrangement = [
+    [anna!, null],
+    [null, ben!],
+    [cem!, null],
+  ];
+  const targets = [2, 1, 1];
+  const held = [true, true, false];
+
+  it('refuses a student onto a held table that has its count', () => {
+    // Anna to the free front seat of table 1, beside Ben's locked back seat.
+    expect(swapOverfillsTable(arrangement, targets, held, 0, 0, 1, 0)).toBe(
+      true,
+    );
+  });
+
+  it('lets a student onto a held table below its count', () => {
+    expect(swapOverfillsTable(arrangement, targets, held, 1, 1, 0, 1)).toBe(
+      false,
+    );
+  });
+
+  it('leaves a table that is not held to the seat index', () => {
+    expect(swapOverfillsTable(arrangement, targets, held, 0, 0, 2, 1)).toBe(
+      false,
+    );
+  });
+
+  it('lets two students trade seats', () => {
+    expect(swapOverfillsTable(arrangement, targets, held, 0, 0, 1, 1)).toBe(
+      false,
+    );
+  });
+});
+
 describe('frontToBackTableOrder', () => {
   it('goes row by row, from the middle of the board outwards', () => {
     expect(frontToBackTableOrder(buildScene())).toEqual([
@@ -276,6 +350,78 @@ describe('mixing with tables out of the mix', () => {
 
     for (const seating of [plan, refined]) {
       expect(seatedTables(seating)).toEqual([2, 2, 2, 2, 2, 1, 0, 0, 0]);
+    }
+  });
+
+  // A spare seat is worth a lot to restless students who want to sit apart,
+  // which is what drew the refinement to the seat beside a back-seat lock.
+  const restlessApart = { ...DEFAULT_MIX_WEIGHTS, avoidRestlessTogether: 10 };
+  const restlessClass = (count: number): Student[] =>
+    buildStudents(count).map((student, index) => ({
+      ...student,
+      restless: index % 2 === 1,
+    }));
+
+  it('seats nobody beside a student locked to the back seat of a table out of the mix', () => {
+    const scene = buildScene((_, index) =>
+      index === 8 ? { inactive: true } : {},
+    );
+    const students = restlessClass(16);
+    const locks = { s0: { table: 8, seat: 1 } };
+
+    const plan = generateSeatingPlan(
+      students,
+      [],
+      [],
+      locks,
+      restlessApart,
+      scene,
+      undefined,
+      { rng: createRng(1) },
+    );
+
+    for (const useAnnealing of [true, false]) {
+      const refined = refineSeatingLocal(
+        students,
+        [],
+        [],
+        locks,
+        plan,
+        restlessApart,
+        scene,
+        { rng: createRng(2), useAnnealing },
+      );
+      expect(refined[8]!.map((student) => student?.id ?? null)).toEqual([
+        null,
+        's0',
+      ]);
+    }
+  });
+
+  it('seats nobody beside a student locked at the back when filling from the front', () => {
+    const scene = buildScene(undefined, { fillFromFront: true });
+    const students = restlessClass(11);
+    const locks = { s3: { table: 7, seat: 1 } };
+
+    const plan = generateSeatingPlan(
+      students,
+      [],
+      [],
+      locks,
+      restlessApart,
+      scene,
+      undefined,
+      { rng: createRng(1) },
+    );
+    const refinements = [true, false].map((useAnnealing) =>
+      refineSeatingLocal(students, [], [], locks, plan, restlessApart, scene, {
+        rng: createRng(2),
+        useAnnealing,
+      }),
+    );
+
+    for (const seating of [plan, ...refinements]) {
+      expect(seatedTables(seating)).toEqual([2, 2, 2, 2, 2, 0, 0, 1, 0]);
     }
   });
 });

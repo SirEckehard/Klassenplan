@@ -14,6 +14,7 @@ import {
   CLASSROOM_WIDTH,
   CLASSROOM_HEIGHT,
   createStudentSyncMap,
+  resolveLocale,
   syncStudentReference,
 } from '@/utils';
 import i18n from '@/i18n';
@@ -468,7 +469,7 @@ function useCircleSeatingInternal(
 
     if (missingStudents.length) {
       const sortedMissing = [...missingStudents].sort((a, b) =>
-        a.name.localeCompare(b.name, 'de', { sensitivity: 'base' }),
+        a.name.localeCompare(b.name, resolveLocale(), { sensitivity: 'base' }),
       );
       orderedList.push(...sortedMissing);
     }

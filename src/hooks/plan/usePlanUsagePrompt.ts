@@ -8,7 +8,7 @@
  * written first and the toast is the correction, not the confirmation: doing
  * nothing keeps the plan counted.
  */
-import { useCallback } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { PlanUsageSource, SeatingArrangement } from '@/types';
 import { logError, showToast } from '@/utils';
@@ -29,12 +29,53 @@ export type RecordUsageWithPrompt = (
 
 /**
  * @param classId Active class; without one nothing is recorded
+ * @param options.holdUntilLeft Keep the prompt until the page using the hook
+ *   is left: the projection faces the class, and the question is for the
+ *   teacher back at the desk
  * @returns Fire-and-forget recorder that prompts on the first strong signal
  */
 export function usePlanUsagePrompt(
   classId: string | null,
+  options?: { holdUntilLeft?: boolean },
 ): RecordUsageWithPrompt {
   const { t } = useTranslation();
+  const holdUntilLeft = options?.holdUntilLeft === true;
+  const heldPromptRef = useRef<(() => void) | null>(null);
+  const leftRef = useRef(false);
+
+  useEffect(() => {
+    leftRef.current = false;
+    return () => {
+      leftRef.current = true;
+      heldPromptRef.current?.();
+      heldPromptRef.current = null;
+    };
+  }, []);
+
+  const promptToTakeBack = useCallback(
+    (usageId: string) => {
+      showToast('info', 'toast:planUsage.recorded', {
+        duration: PROMPT_DURATION_MS,
+        action: {
+          label: t('toast:planUsage.recordedAction'),
+          onClick: () => {
+            setPlanUsageConfirmed(classId, usageId, false)
+              .then(() => {
+                showToast('success', 'toast:planUsage.dismissed');
+              })
+              .catch((error) => {
+                logError(
+                  'Failed to withdraw plan usage record',
+                  { error },
+                  LOG_SOURCE,
+                );
+              });
+          },
+        },
+      });
+    },
+    [classId, t],
+  );
 
   return useCallback(
     (seating, source) => {
@@ -45,25 +86,12 @@ export function usePlanUsagePrompt(
           if (!outcome?.firstStrongSignal) return;
           if (outcome.confirmed !== undefined) return;
 
-          showToast('info', 'toast:planUsage.recorded', {
-            duration: PROMPT_DURATION_MS,
-            action: {
-              label: t('toast:planUsage.recordedAction'),
-              onClick: () => {
-                setPlanUsageConfirmed(classId, outcome.id, false)
-                  .then(() => {
-                    showToast('success', 'toast:planUsage.dismissed');
-                  })
-                  .catch((error) => {
-                    logError(
-                      'Failed to withdraw plan usage record',
-                      { error },
-                      LOG_SOURCE,
-                    );
-                  });
-              },
-            },
-          });
+          const prompt = () => promptToTakeBack(outcome.id);
+          if (holdUntilLeft && !leftRef.current) {
+            heldPromptRef.current = prompt;
+          } else {
+            prompt();
+          }
         })
         .catch((error) => {
           logError(
@@ -73,6 +101,6 @@ export function usePlanUsagePrompt(
           );
         });
     },
-    [classId, t],
+    [classId, holdUntilLeft, promptToTakeBack],
   );
 }

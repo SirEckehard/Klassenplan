@@ -16,6 +16,7 @@
 import type { SeatingArrangement, MixSettings, ClassroomScene } from '@/types';
 import { logDebug } from '@/utils';
 import { randomInt, type RandomSource } from './rng';
+import { swapOverfillsTable } from './seatTargets';
 
 /**
  * Configuration for Simulated Annealing algorithm.
@@ -117,6 +118,11 @@ export interface AnnealingContext {
   scoreTable: (tableIndex: number) => number;
   /** Function to check if a seat is locked */
   isLocked: (table: number, seat: number) => boolean;
+  /**
+   * The tables a swap must also keep within their target by count; see
+   * `tablesHeldByCount`. Absent, the seat index alone is checked.
+   */
+  heldTables?: boolean[] | null;
   /** Random source of the run; defaults to `Math.random` when omitted */
   rng?: RandomSource;
 }
@@ -155,6 +161,12 @@ export const generateRandomSwap = (
 
     // Check target constraints
     if ((B && s1 >= targets[t1]!) || (A && s2 >= targets[t2]!)) {
+      continue;
+    }
+    if (
+      ctx.heldTables &&
+      swapOverfillsTable(arrangement, targets, ctx.heldTables, t1, s1, t2, s2)
+    ) {
       continue;
     }
 

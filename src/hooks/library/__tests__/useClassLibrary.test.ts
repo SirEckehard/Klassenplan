@@ -192,4 +192,23 @@ describe('useClassLibrary', () => {
       expect(mocks.repository.loadClassRecord).toHaveBeenCalledWith('other'),
     );
   });
+
+  it('tells a change storage refused from one that found nothing', async () => {
+    mocks.repository.editInactiveClass.mockResolvedValue({
+      success: false,
+      error: { type: 'STORAGE_ERROR', message: 'quota exceeded' },
+    });
+    const { result } = renderHook(() => useClassLibrary('other'));
+    await waitFor(() => expect(result.current.selected?.name).toBe('8c'));
+
+    let outcome: unknown;
+    await act(async () => {
+      outcome = await result.current.edit('other', {
+        kind: 'deletePlan',
+        planId: 'other-plan',
+      });
+    });
+
+    expect(outcome).toEqual({ ok: false, reason: 'storage' });
+  });
 });

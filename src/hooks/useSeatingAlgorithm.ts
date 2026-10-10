@@ -5,13 +5,7 @@
  * Internal hook used by useSeatingGenerator. Do not import directly.
  * Use SeatingPlanGeneratorProvider context hooks instead.
  */
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-} from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 import type {
   MixSettings,
   ClassroomScene,
@@ -22,7 +16,6 @@ import type {
 import type { SeatingState } from './useSeatingState';
 import { calculateCurrentStatistics } from './useSeatingStatisticsUpdater';
 import {
-  logDebug,
   DEFAULT_MIX_WEIGHTS,
   DEFAULT_NEIGHBOR_WEIGHTS,
   MIX_HISTORY_LIMIT,
@@ -131,68 +124,10 @@ export function useSeatingAlgorithm(
       currentSeating.length > 0 ? currentSeating : null;
   }, [currentSeating]);
 
-  // Note: studentById and lockedPositionIds could be used for further optimizations
-  // in the seating algorithm utils, but are currently prepared for future use
-
-  // Cache for algorithm results to avoid repeated calculations
-  const algorithmCache = useMemo(
-    () => new Map<string, SeatingArrangement>(),
-    [],
-  );
-
-  const lockedCount = useMemo(
-    () => Object.keys(lockedPositions).length,
-    [lockedPositions],
-  );
-
-  const lockedSignature = useMemo(() => {
-    const entries = Object.entries(lockedPositions).map(
-      ([studentId, position]) =>
-        `${studentId}:${position.table}:${position.seat}`,
-    );
-    entries.sort();
-    return entries.join('|');
-  }, [lockedPositions]);
-
-  // Create cache key for algorithm parameters
-  const createCacheKey = useCallback(
-    (
-      settings: Partial<MixSettings>,
-      scene: ClassroomScene,
-      studentIds: string[],
-      historyLength: number,
-      mixHistoryLength: number,
-      mixSignature: number[],
-      forceNew = false,
-    ): string => {
-      return JSON.stringify({
-        settings,
-        tables: scene.tables.map((t) => ({
-          x: t.x,
-          y: t.y,
-          width: t.width,
-          height: t.height,
-          seatCount: t.seatCount,
-          rotation: t.rotation,
-        })),
-        studentIds: studentIds.sort(),
-        historyLength,
-        mixHistoryLength,
-        mixSignature,
-        lockedCount,
-        lockedSignature,
-        // Add timestamp for fresh generation requests
-        timestamp: forceNew ? Date.now() : undefined,
-      });
-    },
-    [lockedCount, lockedSignature],
-  );
-
   const generateSeatingPlan = useCallback(
     (
       settings: Partial<MixSettings>,
       scene: ClassroomScene,
-      forceNew = true, // Default to force new for actual generation
       run?: AlgorithmRunOptions,
     ): Promise<SeatingArrangement> => {
       const normalizedSettings: Partial<MixSettings> = {
@@ -203,35 +138,8 @@ export function useSeatingAlgorithm(
         ),
       };
 
-      // Check cache first only if not forcing new generation
       const historyForPairs = mixHistoryRef.current;
       const lastSeating = recentSeatingRef.current ?? undefined;
-      const mixSignature = historyForPairs.slice(-3).map((mix) => mix.id);
-
-      const cacheKey = createCacheKey(
-        normalizedSettings,
-        scene,
-        students.map((s) => s.id),
-        seatingHistory.length,
-        historyForPairs.length,
-        mixSignature,
-        forceNew,
-      );
-
-      if (!forceNew) {
-        const cached = algorithmCache.get(cacheKey);
-        if (cached) {
-          logDebug(
-            'Using cached seating arrangement',
-            { cacheKey },
-            'useSeatingAlgorithm',
-          );
-          setCurrentSeating(cached);
-          // A cached plan records no entry, so there is nothing to replace.
-          pendingMixResultRef.current = null;
-          return Promise.resolve(cached);
-        }
-      }
 
       const scope = openScopeRef.current;
       return algorithmWorkerClient
@@ -248,7 +156,6 @@ export function useSeatingAlgorithm(
             classroomScene: scene,
             mixSettings: normalizedSettings,
             lastSeating: lastSeating ?? null,
-            forceNew,
           },
           { signal: run?.signal, onProgress: run?.onProgress },
         )
@@ -256,18 +163,6 @@ export function useSeatingAlgorithm(
           if (!isSameScope(openScopeRef.current, scope)) {
             throw scopeChangedError();
           }
-          // Cache the result only for non-forced generations
-          if (!forceNew) {
-            algorithmCache.set(cacheKey, arrangement);
-            // Limit cache size to prevent memory issues
-            if (algorithmCache.size > 50) {
-              const firstKey = algorithmCache.keys().next().value;
-              if (firstKey) {
-                algorithmCache.delete(firstKey);
-              }
-            }
-          }
-
           const persistedSettings = normalizeMixSettings(
             normalizedSettings,
             DEFAULT_MIX_WEIGHTS,
@@ -311,8 +206,6 @@ export function useSeatingAlgorithm(
         });
     },
     [
-      createCacheKey,
-      algorithmCache,
       students,
       seatingHistory,
       lockedPositions,

@@ -6,7 +6,9 @@
  */
 import type { Student } from '@/types';
 import {
+  CSV_BYTE_ORDER_MARK,
   CSV_COLUMN_HEADERS,
+  CSV_DELIMITER,
   CSV_GENDER_LABELS,
   CSV_HEIGHT_LABELS,
   CSV_LANGUAGE_SKILL_LABELS,
@@ -21,30 +23,38 @@ export const buildStudentsCsvFilename = (className: string): string => {
   return sanitized ? `${sanitized}.csv` : 'students.csv';
 };
 
+/**
+ * One cell as the files hold it: quoted where it carries the delimiter, a
+ * comma (the partner lists), a quote or a line break, and with a leading
+ * formula sign defused so a spreadsheet does not run it.
+ */
+export const escapeCsvCell = (value: unknown, delimiter: string): string => {
+  const str = String(value ?? '');
+  const trimmed = str.trimStart();
+  const originalFirst = str.charAt(0);
+  const trimmedFirst = trimmed.charAt(0);
+  // Prefix dangerous spreadsheet formula indicators to prevent CSV injection.
+  const dangerousLeading =
+    (trimmedFirst !== '' && ['=', '+', '-', '@'].includes(trimmedFirst)) ||
+    ['\t', '\r', '\n'].includes(originalFirst);
+  const sanitized = dangerousLeading ? `'${str}` : str;
+  return sanitized.includes(delimiter) ||
+    sanitized.includes(',') ||
+    sanitized.includes('"') ||
+    sanitized.includes('\n')
+    ? `"${sanitized.replace(/"/g, '""')}"`
+    : sanitized;
+};
+
 export const exportStudentsToCsv = (
   students: Student[],
   language: CsvLanguage = resolveCsvLanguage(),
 ): string => {
   // Columns and labels come from csvSchema so an export → import round trip
   // preserves every column, in either language.
-  const header = `${CSV_COLUMN_HEADERS[language].join(',')}\n`;
+  const delimiter = CSV_DELIMITER[language];
+  const header = `${CSV_BYTE_ORDER_MARK}${CSV_COLUMN_HEADERS[language].join(delimiter)}\n`;
   const yes = CSV_TRUE_VALUE[language];
-  const escapeCsvCell = (value: unknown) => {
-    const str = String(value ?? '');
-    const trimmed = str.trimStart();
-    const originalFirst = str.charAt(0);
-    const trimmedFirst = trimmed.charAt(0);
-    // Prefix dangerous spreadsheet formula indicators to prevent CSV injection.
-    const dangerousLeading =
-      (trimmedFirst !== '' && ['=', '+', '-', '@'].includes(trimmedFirst)) ||
-      ['\t', '\r', '\n'].includes(originalFirst);
-    const sanitized = dangerousLeading ? `'${str}` : str;
-    return sanitized.includes(',') ||
-      sanitized.includes('"') ||
-      sanitized.includes('\n')
-      ? `"${sanitized.replace(/"/g, '""')}"`
-      : sanitized;
-  };
   const studentNameMap = students.reduce<Record<string, string>>((acc, s) => {
     acc[s.id] = s.name;
     return acc;
@@ -82,7 +92,9 @@ export const exportStudentsToCsv = (
       partnerNames(s.wishPartnerIds, s.wishPartnerId),
       partnerNames(s.avoidPartnerIds, s.avoidPartnerId),
     ];
-    return cells.map((value) => escapeCsvCell(value)).join(',');
+    return cells
+      .map((value) => escapeCsvCell(value, delimiter))
+      .join(delimiter);
   });
   return header + rows.join('\n');
 };

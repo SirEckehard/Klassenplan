@@ -13,7 +13,8 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import '@/i18n';
 import type { LibraryClass } from '@/hooks/library/useClassLibrary';
-import type { ClassSummary } from '@/types';
+import type { ClassSummary, ClassroomTemplate } from '@/types';
+import { subscribeToToasts, type ToastInstance } from '@/utils/ui/toast';
 import {
   createMockClassroomScene,
   createMockMixResult,
@@ -368,5 +369,65 @@ describe('PlanLibrary', () => {
         /andere Tische als „Klassenraum“|other tables than “Klassenraum”/,
       ),
     ).toBeInTheDocument();
+  });
+});
+
+describe('PlanLibrary when a change is not made', () => {
+  let toasts: ToastInstance[] = [];
+  let stopListening = () => {};
+
+  beforeEach(() => {
+    toasts = [];
+    stopListening = subscribeToToasts((event) => {
+      if (event.action === 'add') toasts.push(event.toast);
+    });
+  });
+
+  afterEach(() => {
+    stopListening();
+  });
+
+  it('says that storage refused to delete a plan', async () => {
+    const user = userEvent.setup();
+    mocks.edit.mockResolvedValue({ ok: false, reason: 'storage' });
+    renderPage();
+
+    await user.click(await screen.findByRole('option', { name: /^September/ }));
+    await user.click(
+      screen.getByRole('button', { name: /Plan löschen|Delete plan/ }),
+    );
+
+    await waitFor(() =>
+      expect(toasts.map((toast) => toast.type)).toEqual(['error']),
+    );
+  });
+
+  it('says a template is deleted only when it was', async () => {
+    const user = userEvent.setup();
+    const template: ClassroomTemplate = {
+      id: 4,
+      name: 'Hufeisen',
+      scene: createMockClassroomScene(4),
+    };
+    mocks.actions.loadTemplate = vi.fn(async () => [template]);
+    mocks.actions.deleteTemplate = vi.fn(async () => false);
+    renderPage();
+
+    await user.click(
+      await screen.findByRole('option', {
+        name: /^(Raumvorlagen|Room templates)/,
+      }),
+    );
+    await user.click(await screen.findByRole('option', { name: /^Hufeisen/ }));
+    await user.click(
+      screen.getByRole('button', { name: /Vorlage löschen|Delete template/ }),
+    );
+
+    await waitFor(() =>
+      expect(mocks.actions.deleteTemplate).toHaveBeenCalledWith(4),
+    );
+    await waitFor(() =>
+      expect(toasts.map((toast) => toast.type)).toEqual(['error']),
+    );
   });
 });

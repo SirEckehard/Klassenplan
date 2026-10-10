@@ -15,6 +15,7 @@ vi.mock('idb-keyval', async () =>
 
 import '@/i18n';
 import { createMockClassroomScene, createMockStudent } from '@/__tests__/utils';
+import { resetSeatingRepository } from '@/__tests__/utils/resetSeatingRepository';
 import type { ClassCollectionState, ClassroomTemplate } from '@/types';
 import { subscribeToToasts, type ToastInstance } from '@/utils/ui/toast';
 import {
@@ -44,9 +45,10 @@ const storedCollection = () =>
   )?.[1] as ClassCollectionState | undefined;
 
 describe('useSeatingGenerator rooms', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     memory.clear();
     vi.stubGlobal('indexedDB', {});
+    await resetSeatingRepository();
     return () => vi.unstubAllGlobals();
   });
 
@@ -197,6 +199,46 @@ describe('useSeatingGenerator rooms', () => {
     // The lab parks what it had: nothing, and no plan.
     const lab = current().state.rooms.find((room) => room.name === 'Labor');
     expect(lab?.parked).toMatchObject({ seating: [], activePlanId: null });
+  });
+
+  it('keeps what a room was left with when the open plan moves into it', async () => {
+    const current = await classWithPlan();
+    const september = current().state.seatingHistory[0]!;
+    const classroomId = current().state.activeRoomId!;
+    const [ada, ben] = current().state.students;
+
+    act(() => {
+      current().actions.createRoom({ name: 'Labor' });
+    });
+    await waitFor(() => expect(current().state.rooms).toHaveLength(2));
+    const labId = current().state.activeRoomId!;
+    // Work in the lab that nobody saved, parked as the classroom opens again.
+    act(() => current().actions.setCurrentSeating([[ada!, ben!]]));
+    await waitFor(() => expect(current().state.currentSeating).toHaveLength(1));
+    act(() => {
+      current().actions.openRoom(classroomId);
+    });
+    await waitFor(() => expect(current().state.activeRoomId).toBe(classroomId));
+
+    act(() => {
+      current().actions.movePlanToRoom(september.id, { roomId: labId });
+    });
+
+    await waitFor(() => expect(current().state.activeRoomId).toBe(labId));
+    const plans = current().state.seatingHistory;
+    expect(plans.find((plan) => plan.id === september.id)?.roomId).toBe(labId);
+    const kept = plans.find((plan) => plan.id !== september.id);
+    expect(kept).toMatchObject({ roomId: labId, autoSaved: true });
+    expect(kept?.seating[0]?.map((student) => student?.id)).toEqual([
+      ada!.id,
+      ben!.id,
+    ]);
+    // Storage holds it too — and no write is left to land in the next test.
+    await waitFor(() => {
+      const stored = storedCollection()?.classes[0];
+      expect(stored?.seatingHistory).toHaveLength(2);
+      expect(stored?.activeRoomId).toBe(labId);
+    });
   });
 
   it('loads a template as a room of its own and offers the way back', async () => {

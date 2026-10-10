@@ -41,6 +41,11 @@ export interface WizardConfig {
   students: Student[];
   currentSeating: SeatingArrangement;
   planName: string;
+  /**
+   * Whether the open plan is the room's auto-save, still under the name the
+   * auto-save gave it — a name the teacher did not choose.
+   */
+  openPlanIsAutoSave?: boolean;
   hasUnsavedSeatingChanges: boolean;
   classroomScene: ClassroomScene;
   classroomEdited: boolean;
@@ -57,7 +62,6 @@ export interface WizardConfig {
   generateSeatingPlan: (
     settings: MixSettings,
     scene: ClassroomScene,
-    isAutoMix?: boolean,
   ) => Promise<SeatingArrangement>;
   onAutoMixTriggered?: () => void;
   setClassroomEdited: (edited: boolean) => void;
@@ -83,6 +87,7 @@ export function useSeatingWizard(
     students,
     currentSeating,
     planName,
+    openPlanIsAutoSave = false,
     hasUnsavedSeatingChanges,
     classroomScene,
     classroomEdited,
@@ -158,7 +163,10 @@ export function useSeatingWizard(
       if (step === 3 && currentSeating.length > 0 && hasUnsavedSeatingChanges) {
         setPlanNameError(false);
         const trimmed = planName.trim();
-        const hasCustomName = trimmed.length > 0;
+        // The name the last auto-save generated is no name either: the plan
+        // stays in the room's auto-save slot until it is named, saved on
+        // purpose or used — exporting and presenting keep it as a plan.
+        const hasCustomName = trimmed.length > 0 && !openPlanIsAutoSave;
         const finalName = hasCustomName ? trimmed : createTimestampPlanName();
 
         if (!hasCustomName) {
@@ -193,6 +201,7 @@ export function useSeatingWizard(
       currentSeating.length,
       hasUnsavedSeatingChanges,
       planName,
+      openPlanIsAutoSave,
       classroomScene,
       circleLayout,
       saveSeatingPlan,
@@ -255,7 +264,7 @@ export function useSeatingWizard(
       onAutoMixTriggered?.();
       void (async () => {
         try {
-          await generateSeatingPlan(autoSettings, classroomScene, true);
+          await generateSeatingPlan(autoSettings, classroomScene);
           setAutoMixError(null);
         } catch (error) {
           // Dropped because another class opened meanwhile: nothing failed.

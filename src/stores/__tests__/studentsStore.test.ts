@@ -103,6 +103,19 @@ describe('studentsStore', () => {
       expect(studentStore.getState().students.map((s) => s.id)).toEqual([b.id]);
     });
 
+    it("takes the student out of the others' wishes", () => {
+      const a = studentStore.getState().addStudent('A');
+      const b = studentStore.getState().addStudent('B');
+      studentStore.getState().updateStudent(b.id, {
+        wishPartnerIds: [a.id],
+        wishPartnerId: a.id,
+      });
+
+      studentStore.getState().removeStudent(a.id);
+
+      expect(studentStore.getState().students[0]!.wishPartnerIds).toEqual([]);
+    });
+
     it('is a no-op when the id is unknown', () => {
       const a = studentStore.getState().addStudent('A');
 
@@ -134,6 +147,28 @@ describe('studentsStore', () => {
       studentStore.getState().removeStudents(['nope']);
 
       expect(studentStore.getState().students.map((s) => s.id)).toEqual([a.id]);
+    });
+
+    it("takes the removed students out of the others' wish and distance lists", () => {
+      const a = studentStore.getState().addStudent('A');
+      const b = studentStore.getState().addStudent('B');
+      const c = studentStore.getState().addStudent('C');
+      studentStore.getState().updateStudent(a.id, {
+        wishPartnerIds: [b.id, c.id],
+        wishPartnerId: b.id,
+      });
+      studentStore.getState().updateStudent(c.id, {
+        avoidPartnerIds: [b.id],
+        avoidPartnerId: b.id,
+      });
+
+      studentStore.getState().removeStudents([b.id]);
+      const [after, other] = studentStore.getState().students;
+
+      expect(after!.wishPartnerIds).toEqual([c.id]);
+      expect(after!.wishPartnerId).toBe(c.id);
+      expect(other!.avoidPartnerIds).toEqual([]);
+      expect(other!.avoidPartnerId).toBeNull();
     });
 
     it('schedules the photos of removed students instead of deleting them', () => {

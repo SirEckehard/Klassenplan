@@ -166,6 +166,36 @@ describe('seatingStatistics', () => {
         expect(stats.wishPartnersFulfilled).toBe(0);
         expect(stats.wishPartnersPercentage).toBe(100);
       });
+
+      it('leaves out a wish for a student no longer in the class', () => {
+        const students: Student[] = [
+          createMockStudent({
+            id: 's1',
+            name: 'Anna',
+            wishPartnerIds: ['gone', 's2'],
+            avoidPartnerIds: ['gone'],
+          }),
+          createMockStudent({ id: 's2', name: 'Ben', wishPartnerId: 's1' }),
+        ];
+
+        const arrangement: SeatingArrangement = [
+          [students[0]!, students[1]!],
+          [null, null],
+          [null, null],
+        ];
+
+        const stats = calculateSeatingStatistics(
+          arrangement,
+          students,
+          settings,
+          seatingHistory,
+          scene,
+        );
+
+        expect(stats.wishPartnersTotal).toBe(2);
+        expect(stats.wishPartnersPercentage).toBe(100);
+        expect(stats.avoidPartnersTotal).toBe(0);
+      });
     });
 
     describe('Previous Pairs Avoidance', () => {

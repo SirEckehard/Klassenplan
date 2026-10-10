@@ -78,7 +78,10 @@ export default function Present() {
   // Generate the circle layout on demand when switching to circle presentation.
   useEnsureCircleLayout(mode, { enabled: mode === 'circle' });
 
-  const recordUsage = usePlanUsagePrompt(activeClass.id);
+  // Its question waits for the way back: the wall faces the class.
+  const recordUsage = usePlanUsagePrompt(activeClass.id, {
+    holdUntilLeft: true,
+  });
 
   // The wall faces the class: the plan's "saved" from the way here, or any
   // other success, is not for the room to read (`quietSuccessToasts`).

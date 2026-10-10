@@ -6,6 +6,7 @@ import { DownloadSimpleIcon, TableIcon } from '@phosphor-icons/react';
 import Modal from '@/components/ui/modals/Modal';
 import {
   CSV_COLUMN_HEADERS,
+  CSV_DELIMITER,
   CSV_GENDER_LABELS,
   CSV_HEIGHT_LABELS,
   CSV_LANGUAGE_SKILL_LABELS,
@@ -71,8 +72,9 @@ export default function CsvFormatHelpDialog({
     [language],
   );
   const rawLines = useMemo(
-    () => [headers, ...rows].map((cells) => cells.join(',')),
-    [headers, rows],
+    () =>
+      [headers, ...rows].map((cells) => cells.join(CSV_DELIMITER[language])),
+    [headers, rows, language],
   );
 
   return (

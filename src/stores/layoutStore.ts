@@ -9,7 +9,6 @@ import {
   getBrowserWindow,
   logDebug,
 } from '@/utils';
-import { countSeats } from '@/utils/math/scene';
 import { LOCAL_STORAGE_KEYS } from '@/utils/data/storageKeys';
 import type {
   LayoutStore,
@@ -29,7 +28,6 @@ export const createLayoutStore = (
   const initialSeatingMode = initialState?.seatingMode ?? readSeatingMode();
   const baseState: LayoutStoreState = {
     classroomScene: initialScene,
-    seatCount: countSeats(initialScene),
     classroomEdited: initialState?.classroomEdited ?? false,
     seatingMode: initialSeatingMode,
     circleLayout: initialState?.circleLayout ?? null,
@@ -49,7 +47,6 @@ export const createLayoutStore = (
       set((state) => ({
         ...state,
         classroomScene: updated,
-        seatCount: countSeats(updated),
         classroomEdited: true,
       }));
       logger.debug('Classroom scene updated');
@@ -57,7 +54,6 @@ export const createLayoutStore = (
     resetClassroomScene: () => {
       set({
         classroomScene: DEFAULT_CLASSROOM_SCENE,
-        seatCount: countSeats(DEFAULT_CLASSROOM_SCENE),
         classroomEdited: false,
       });
       logger.debug('Classroom scene reset to default');
@@ -135,7 +131,6 @@ export function resetLayoutStore(state?: Partial<LayoutStoreState>) {
   layoutStore.setState({
     ...layoutStore.getState(),
     classroomScene: state?.classroomScene ?? DEFAULT_CLASSROOM_SCENE,
-    seatCount: countSeats(state?.classroomScene ?? DEFAULT_CLASSROOM_SCENE),
     classroomEdited: state?.classroomEdited ?? false,
     seatingMode: state?.seatingMode ?? readSeatingMode(),
     circleLayout: state?.circleLayout ?? null,

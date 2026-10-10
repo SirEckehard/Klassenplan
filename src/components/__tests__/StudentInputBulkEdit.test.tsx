@@ -102,7 +102,6 @@ const classContext = (): ClassManagementContextValue =>
     selectClass: vi.fn(),
     createClass: vi.fn(),
     updateClassMetadata: vi.fn(),
-    duplicateClass: vi.fn(),
     deleteClass: vi.fn(),
   }) as unknown as ClassManagementContextValue;
 

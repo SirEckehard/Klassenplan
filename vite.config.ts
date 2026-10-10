@@ -205,17 +205,19 @@ export default defineConfig({
         background_color: '#fcfbf8',
         display: 'standalone',
         orientation: 'any',
-        start_url: '/',
+        // The installed app is the workspace: it opens on the open class, not
+        // on the start page that introduces it. The id keeps it the same app.
+        start_url: '/generator',
         scope: '/',
         lang: 'de',
         dir: 'ltr',
         categories: ['education', 'productivity'],
         shortcuts: [
           {
-            name: 'Generator',
-            short_name: 'Generator',
-            description: 'Direkt zum Sitzplan-Generator',
-            url: '/generator',
+            name: 'Bibliothek',
+            short_name: 'Bibliothek',
+            description: 'Klassen, Räume und Sitzpläne',
+            url: '/bibliothek',
             icons: [
               {
                 src: 'brand/android/android-chrome-maskable-192.png',
@@ -225,9 +227,9 @@ export default defineConfig({
             ],
           },
           {
-            name: 'Export',
-            short_name: 'Export',
-            description: 'Sitzplan exportieren und drucken',
+            name: 'Exportieren',
+            short_name: 'Exportieren',
+            description: 'Den Sitzplan drucken oder als PDF speichern',
             url: '/export',
             icons: [
               {

@@ -80,7 +80,6 @@ describe('StudentInput', () => {
     selectClass: vi.fn().mockResolvedValue(true),
     createClass: vi.fn().mockResolvedValue(true),
     updateClassMetadata: vi.fn().mockResolvedValue(true),
-    duplicateClass: vi.fn().mockResolvedValue(true),
     deleteClass: vi.fn().mockResolvedValue(true),
     ...overrides,
   });

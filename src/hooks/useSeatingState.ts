@@ -76,7 +76,6 @@ export type SeatingState = {
     setClassroomScene: React.Dispatch<React.SetStateAction<ClassroomScene>>;
     classroomEdited: boolean;
     setClassroomEdited: (edited: boolean) => void;
-    seatCount: number;
     removeTables: (
       indices: number[],
       options?: { skipSeatingUpdate?: boolean },
@@ -241,7 +240,6 @@ export function useSeatingState(): SeatingState {
 
   const {
     classroomScene,
-    seatCount,
     classroomEdited,
     setClassroomScene,
     resetClassroomScene,
@@ -389,7 +387,6 @@ export function useSeatingState(): SeatingState {
         setClassroomScene,
         classroomEdited,
         setClassroomEdited,
-        seatCount,
         removeTables,
         seatingMode,
         setSeatingMode,
@@ -467,7 +464,6 @@ export function useSeatingState(): SeatingState {
       setClassroomScene,
       classroomEdited,
       setClassroomEdited,
-      seatCount,
       removeTables,
       seatingMode,
       setSeatingMode,

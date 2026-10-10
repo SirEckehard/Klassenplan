@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import primaryFontWoff2Url from '@fontsource-variable/instrument-sans/files/instrument-sans-latin-wght-normal.woff2?url';
+import latinFontUrl from '@fontsource-variable/instrument-sans/files/instrument-sans-latin-wght-normal.woff2?url';
+import latinExtFontUrl from '@fontsource-variable/instrument-sans/files/instrument-sans-latin-ext-wght-normal.woff2?url';
 
 /**
  * Shared SVG → raster pipeline for every file export.
@@ -9,28 +10,56 @@ import primaryFontWoff2Url from '@fontsource-variable/instrument-sans/files/inst
  * font embedding and rasterization live here once instead of in each exporter.
  */
 
-let cachedFontBase64: string | null = null;
-
 /**
- * The UI font as base64. The rasterizing browser resolves no external requests
- * for the detached SVG image, so the font has to travel inside the markup.
+ * The subsets of the UI font a file carries, with the ranges fontsource
+ * declares for them (`wght.css`): Latin, and Latin Extended for names such as
+ * Gülşen, Łukasz or Ödön, whose letters fell back to a system font without it.
  */
-export async function getPrimaryFontBase64(): Promise<string> {
-  if (cachedFontBase64) return cachedFontBase64;
-  const res = await fetch(primaryFontWoff2Url);
-  const buf = await res.arrayBuffer();
-  const bytes = new Uint8Array(buf);
+const FONT_SUBSETS = [
+  {
+    url: latinExtFontUrl,
+    unicodeRange:
+      'U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF',
+  },
+  {
+    url: latinFontUrl,
+    unicodeRange:
+      'U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD',
+  },
+] as const;
+
+let cachedFontCss: string | null = null;
+
+const fetchAsBase64 = async (url: string): Promise<string> => {
+  const res = await fetch(url);
+  const bytes = new Uint8Array(await res.arrayBuffer());
   let binary = '';
   for (let i = 0; i < bytes.byteLength; i++) {
     binary += String.fromCharCode(bytes[i]);
   }
-  cachedFontBase64 = btoa(binary);
-  return cachedFontBase64;
+  return btoa(binary);
+};
+
+/**
+ * The UI font as `@font-face` rules with the files inlined. The rasterizing
+ * browser resolves no external requests for the detached SVG image, so the
+ * font has to travel inside the markup.
+ */
+export async function getEmbeddedFontCss(): Promise<string> {
+  if (cachedFontCss) return cachedFontCss;
+  const faces = await Promise.all(
+    FONT_SUBSETS.map(
+      async ({ url, unicodeRange }) =>
+        `@font-face{font-family:'Instrument Sans Variable';src:url('data:font/woff2;base64,${await fetchAsBase64(url)}');font-weight:400 700;font-style:normal;unicode-range:${unicodeRange};}`,
+    ),
+  );
+  cachedFontCss = faces.join('');
+  return cachedFontCss;
 }
 
-/** Inline an `@font-face` rule carrying the embedded font into the SVG. */
-export function injectFontIntoSvg(svg: string, base64: string): string {
-  const style = `<defs><style>@font-face{font-family:'Instrument Sans Variable';src:url('data:font/woff2;base64,${base64}');font-weight:400 700;font-style:normal;}</style></defs>`;
+/** Inline the embedded font's `@font-face` rules into the SVG. */
+export function injectFontIntoSvg(svg: string, fontCss: string): string {
+  const style = `<defs><style>${fontCss}</style></defs>`;
   return svg.replace(/(<svg[^>]*>)/, `$1${style}`);
 }
 
@@ -75,8 +104,8 @@ async function drawSvgToCanvas(
   heightPx: number,
   background?: string,
 ): Promise<HTMLCanvasElement> {
-  const fontBase64 = await getPrimaryFontBase64();
-  const svgWithFont = injectFontIntoSvg(svgMarkup, fontBase64);
+  const fontCss = await getEmbeddedFontCss();
+  const svgWithFont = injectFontIntoSvg(svgMarkup, fontCss);
 
   return new Promise((resolve, reject) => {
     const blob = new Blob([svgWithFont], {

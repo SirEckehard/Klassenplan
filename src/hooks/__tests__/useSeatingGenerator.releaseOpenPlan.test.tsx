@@ -15,6 +15,7 @@ vi.mock('idb-keyval', async () =>
 
 import '@/i18n';
 import { createMockStudent } from '@/__tests__/utils';
+import { resetSeatingRepository } from '@/__tests__/utils/resetSeatingRepository';
 import {
   SeatingPlanGeneratorProvider,
   useSeatingPlanActions,
@@ -38,9 +39,10 @@ function Probe({ onRender }: { onRender: (snapshot: Snapshot) => void }) {
  * present cannot write the lab over the plan for the home room.
  */
 describe('useSeatingGenerator releaseOpenPlan', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     memory.clear();
     vi.stubGlobal('indexedDB', {});
+    await resetSeatingRepository();
     return () => vi.unstubAllGlobals();
   });
 

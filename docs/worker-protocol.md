@@ -1,6 +1,6 @@
 # Worker Protocol
 
-> **Status:** current · **Last reviewed:** 2026-10-06 · **Source of truth:**
+> **Status:** current · **Last reviewed:** 2026-10-10 · **Source of truth:**
 > `src/workers/`, `src/utils/data/csvUtils.ts`
 
 Klassenplan runs two kinds of web workers: a long-lived **algorithm worker**
@@ -14,7 +14,7 @@ file and closes. Why the algorithm runs off the main thread is recorded in
 
 | Operation          | Payload                                                                                                                                                                                     | Result            | Used for                                             |
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------- | ---------------------------------------------------- |
-| `mix:generate`     | `students`, `seatingHistory`, `mixHistory`, `planUsage?`, `planUsageSince?`, `planUsageManual?`, `lockedPositions`, `classroomScene`, `mixSettings`, `forceNew?`, `lastSeating?`            | `{ seating }`     | Constructing an arrangement ("Mischen")              |
+| `mix:generate`     | `students`, `seatingHistory`, `mixHistory`, `planUsage?`, `planUsageSince?`, `planUsageManual?`, `lockedPositions`, `classroomScene`, `mixSettings`, `lastSeating?`                         | `{ seating }`     | Constructing an arrangement ("Mischen")              |
 | `mix:refine`       | `students`, `classroomScene`, `currentSeating`, `mixSettings`, `mixHistory`, `seatingHistory`, `planUsage?`, `planUsageSince?`, `planUsageManual?`, `lockedPositions`, `options?`, `start?` | `{ seating }`     | "Verfeinern", and "Mischen" when criteria are active |
 | `circle:generate`  | `students`, `classroomScene`, `currentSeating?`                                                                                                                                             | `{ layout }`      | Seating circle                                       |
 | `circle:optimized` | `students`, `classroomScene`, `mixSettings`, `seatingHistory`, `currentSeating?`                                                                                                            | `{ layout }`      | Seating circle with criteria                         |

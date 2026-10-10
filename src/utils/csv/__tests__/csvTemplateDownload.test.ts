@@ -110,3 +110,13 @@ describe.each(['de', 'en'] as const)('CSV template (%s)', (language) => {
     ]);
   });
 });
+
+describe('CSV template in a spreadsheet', () => {
+  test('separates with the delimiter Excel uses in the language', () => {
+    const firstLine = (language: CsvLanguage) =>
+      buildCsvTemplate(language).split('\n')[0] ?? '';
+
+    expect(firstLine('de').startsWith('﻿Name;Geschlecht;')).toBe(true);
+    expect(firstLine('en').startsWith('﻿Name,Gender,')).toBe(true);
+  });
+});

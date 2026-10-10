@@ -28,8 +28,8 @@ const readFirstCell = (row: string): string => {
     }
     return value;
   }
-  const commaIndex = row.indexOf(',');
-  return commaIndex === -1 ? row : row.slice(0, commaIndex);
+  const end = row.search(/[;,]/);
+  return end === -1 ? row : row.slice(0, end);
 };
 
 const collectNameCells = (csv: string): string[] =>
@@ -124,7 +124,7 @@ describe('exportStudentsToCsv', () => {
 
     // Check header includes all columns (must match the import template)
     expect(lines[0]).toBe(
-      'Name,Geschlecht,Körpergröße,Sprachniveau,Soziale Rolle,Unruhig,Schüchtern,Ablenkbarkeit,Vordere Plätze,Fensterplatz,Türplatz,Leistungsstark,Leistungsschwach,Wunschpartner,Distanzwunsch',
+      '\uFEFFName;Geschlecht;Körpergröße;Sprachniveau;Soziale Rolle;Unruhig;Schüchtern;Ablenkbarkeit;Vordere Plätze;Fensterplatz;Türplatz;Leistungsstark;Leistungsschwach;Wunschpartner;Distanzwunsch',
     );
 
     // Check Max Strong - performanceStrong=true
@@ -145,7 +145,7 @@ describe('exportStudentsToCsv', () => {
         '',
         'Anna Weak',
         '',
-      ].join(','),
+      ].join(';'),
     );
 
     // Check Anna Weak - performanceWeak=true, restless=true
@@ -166,7 +166,7 @@ describe('exportStudentsToCsv', () => {
         'ja',
         '',
         'Max Strong',
-      ].join(','),
+      ].join(';'),
     );
 
     // Check Tom Neutral - no performance flags, but other attributes
@@ -188,7 +188,7 @@ describe('exportStudentsToCsv', () => {
         '',
         '',
         '',
-      ].join(','),
+      ].join(';'),
     );
   });
 
@@ -228,7 +228,7 @@ describe('exportStudentsToCsv', () => {
         '',
         '',
         '',
-      ].join(','),
+      ].join(';'),
     );
   });
 
@@ -246,7 +246,7 @@ describe('exportStudentsToCsv', () => {
     );
 
     const [, line] = csv.split('\n');
-    const cells = line?.split(',') ?? [];
+    const cells = line?.split(';') ?? [];
 
     expect(cells[9]).toBe('ja');
     expect(cells[10]).toBe('ja');
@@ -266,7 +266,7 @@ describe('exportStudentsToCsv', () => {
     );
 
     const [, line] = csv.split('\n');
-    const cells = line?.split(',') ?? [];
+    const cells = line?.split(';') ?? [];
 
     expect(cells[3]).toBe('DaZ-Förderung');
     expect(cells[4]).toBe('Anführer');
@@ -287,7 +287,7 @@ describe('exportStudentsToCsv', () => {
 
     const [, line] = csv.split('\n');
     expect(line).toContain('"Ben, Cem, Dana"');
-    expect(line?.endsWith(',Cem')).toBe(true);
+    expect(line?.endsWith(';Cem')).toBe(true);
   });
 
   test('exports English headers and labels for the English UI language', () => {
@@ -309,7 +309,7 @@ describe('exportStudentsToCsv', () => {
     const [header, line] = csv.split('\n');
 
     expect(header).toBe(
-      'Name,Gender,Height,Language level,Social role,Restless,Shy,Distracted,Front row,Window seat,Door seat,High performer,Low performer,Wish partner,Avoid partner',
+      '\uFEFFName,Gender,Height,Language level,Social role,Restless,Shy,Distracted,Front row,Window seat,Door seat,High performer,Low performer,Wish partner,Avoid partner',
     );
     expect(line?.split(',')).toEqual([
       'Kim Fisher',

@@ -179,34 +179,6 @@ export function useClassManagement({
     [applyClassReload, formatClassLabel, repository, t],
   );
 
-  const duplicateClass = useCallback(
-    async (
-      classId: string,
-      overrides?: UpdateClassMetadataPayload & { name?: string },
-    ) => {
-      const result = await repository.duplicateClass(classId, overrides);
-      if (!result.success) {
-        logError(
-          'Failed to duplicate class',
-          { error: result.error, classId },
-          'useClassManagement',
-        );
-        showToast('error', TOAST_MESSAGES.CLASS_DUPLICATE_ERROR);
-        return false;
-      }
-      // The copy joins the class list; the class that was open stays active.
-      await applyClassReload();
-      showToast(
-        'success',
-        t('toast:class.duplicatedName', {
-          name: formatClassLabel(result.data.name),
-        }),
-      );
-      return true;
-    },
-    [applyClassReload, formatClassLabel, repository, t],
-  );
-
   const deleteClass = useCallback(
     async (classId: string) => {
       const target = classSummaries.find((entry) => entry.id === classId);
@@ -242,7 +214,6 @@ export function useClassManagement({
     selectClass,
     createClass,
     updateClassMetadata,
-    duplicateClass,
     deleteClass,
   };
 }

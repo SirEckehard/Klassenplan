@@ -1,6 +1,6 @@
 # CSV Import Format
 
-> **Status:** current · **Last reviewed:** 2026-10-06 · **Source of truth:**
+> **Status:** current · **Last reviewed:** 2026-10-10 · **Source of truth:**
 > `src/utils/csv/`, `src/utils/data/csvUtils.ts`, `src/services/csvImportService.ts`
 
 Which files the class list import accepts, how it recognises columns, and how
@@ -172,7 +172,12 @@ confirms the headings is a data change in `csvPresets.ts`, not a code change.
 
 `csvSchema.ts` is the shared column contract: the downloadable template
 (`klassenliste_vorlage.csv` / `class_list_template.csv`, headings in the UI
-language, comma-separated, five example rows) and the student export
-(`src/utils/csv/csvExport.ts`) both use it. Its values are plain strings, not translation keys, because they are part
+language, five example rows) and the student export
+(`src/utils/csv/csvExport.ts`) both use it. Both are written for a double click
+in Excel: a semicolon between the cells in German and a comma in English
+(`CSV_DELIMITER`, what Excel splits on in that language), and a UTF-8 byte
+order mark in front, without which Excel reads the umlauts in its legacy
+encoding. The import guesses the delimiter and drops the mark, so it reads
+either. Its values are plain strings, not translation keys, because they are part
 of the file format. Tests round-trip the template through the parser, so a
 heading or value that the import cannot read fails the build.

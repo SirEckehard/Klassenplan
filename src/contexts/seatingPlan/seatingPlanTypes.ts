@@ -38,7 +38,6 @@ export interface SeatingPlanState {
   currentSeating: SeatingArrangement;
   mixSettings: MixSettings;
   step: number;
-  seatCount: number;
   classroomEdited: boolean;
   hasUnsavedSeatingChanges: boolean;
   planName: string;
@@ -148,7 +147,7 @@ export interface SeatingPlanActions {
   ) => Promise<SaveTemplateResult>;
   loadTemplate: () => Promise<ClassroomTemplate[]>;
   updateTemplate: (id: number, scene: ClassroomScene) => Promise<boolean>;
-  deleteTemplate: (id: number) => Promise<void>;
+  deleteTemplate: (id: number) => Promise<boolean>;
   renameTemplate: (
     id: number,
     newName: string,
@@ -227,10 +226,6 @@ export interface SeatingPlanActions {
   updateClassMetadata: (
     classId: string,
     patch: UpdateClassMetadataPayload,
-  ) => Promise<boolean>;
-  duplicateClass: (
-    classId: string,
-    overrides?: UpdateClassMetadataPayload & { name?: string },
   ) => Promise<boolean>;
   deleteClass: (classId: string) => Promise<boolean>;
   setCurrentSeating: React.Dispatch<React.SetStateAction<SeatingArrangement>>;

@@ -110,7 +110,7 @@ interface MockSeatingGeneratorActions {
   saveTemplate: (name: string, scene: ClassroomScene) => Promise<boolean>;
   updateTemplate: (id: number, scene: ClassroomScene) => Promise<boolean>;
   loadTemplate: () => Promise<ClassroomTemplate[]>;
-  deleteTemplate: (id: number) => Promise<void>;
+  deleteTemplate: (id: number) => Promise<boolean>;
   renameTemplate: (id: number, newName: string) => Promise<boolean>;
   handleHistoryLoad: (plan: SavedPlan) => void;
   deleteSeatingPlan: (id: string) => void;
@@ -147,10 +147,6 @@ interface MockSeatingGeneratorActions {
   updateClassMetadata: (
     classId: string,
     patch: UpdateClassMetadataPayload,
-  ) => Promise<boolean>;
-  duplicateClass: (
-    classId: string,
-    overrides?: UpdateClassMetadataPayload & { name?: string },
   ) => Promise<boolean>;
   deleteClass: (classId: string) => Promise<boolean>;
 }
@@ -285,8 +281,6 @@ const createDefaultMockActions = (): MockSeatingGeneratorActions => {
     createClass: createMockFn<MockSeatingGeneratorActions['createClass']>(),
     updateClassMetadata:
       createMockFn<MockSeatingGeneratorActions['updateClassMetadata']>(),
-    duplicateClass:
-      createMockFn<MockSeatingGeneratorActions['duplicateClass']>(),
     deleteClass: createMockFn<MockSeatingGeneratorActions['deleteClass']>(),
   };
 
@@ -322,7 +316,7 @@ const createDefaultMockActions = (): MockSeatingGeneratorActions => {
   toMock(actions.saveTemplate).mockResolvedValue(true);
   toMock(actions.updateTemplate).mockResolvedValue(true);
   toMock(actions.loadTemplate).mockResolvedValue([]);
-  toMock(actions.deleteTemplate).mockResolvedValue(undefined);
+  toMock(actions.deleteTemplate).mockResolvedValue(true);
   toMock(actions.renameTemplate).mockResolvedValue(true);
   toMock(actions.renameSeatingPlan).mockReturnValue(true);
   toMock(actions.generateCircleSeating).mockResolvedValue({
@@ -353,7 +347,6 @@ const createDefaultMockActions = (): MockSeatingGeneratorActions => {
   toMock(actions.selectClass).mockResolvedValue(true);
   toMock(actions.createClass).mockResolvedValue(true);
   toMock(actions.updateClassMetadata).mockResolvedValue(true);
-  toMock(actions.duplicateClass).mockResolvedValue(true);
   toMock(actions.deleteClass).mockResolvedValue(true);
   toMock(actions.addBulkPlaceholderStudents).mockImplementation(
     (count: number) => createMockStudents(count),

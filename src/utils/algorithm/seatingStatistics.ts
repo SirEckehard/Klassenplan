@@ -210,10 +210,18 @@ export function calculateSeatingStatistics(
   let doorPreferenceTotal = 0;
   let doorPreferenceScoreSum = 0;
 
+  // A wish or distance wish counts only while its classmate is in the class:
+  // a student removed from it is no wish the plan can fulfil.
+  const classIds = new Set(students.map((s) => s.id));
+  const wishIdsOf = (s: Student) =>
+    getWishIds(s).filter((id) => classIds.has(id));
+  const avoidIdsOf = (s: Student) =>
+    getAvoidIds(s).filter((id) => classIds.has(id));
+
   // Count students with specific attributes - now counts all wishes
   students.forEach((s) => {
-    wishPartnersTotal += getWishIds(s).length;
-    avoidPartnersTotal += getAvoidIds(s).length;
+    wishPartnersTotal += wishIdsOf(s).length;
+    avoidPartnersTotal += avoidIdsOf(s).length;
     if (s.restless) restlessTotalCount++;
     if (s.concentrationIssues) concentrationTotalCount++;
     if (s.shy) shyTotalCount++;
@@ -287,7 +295,7 @@ export function calculateSeatingStatistics(
       const partner = partnerIdx !== null ? table[partnerIdx] : null;
 
       // Wish partners - now checks all wish partners with priority weighting
-      const wishIds = getWishIds(student);
+      const wishIds = wishIdsOf(student);
       const seatKey = buildSeatKey(tIdx, sIdx);
       const neighbors = seatNeighborhoods.get(seatKey) ?? [];
 
@@ -319,7 +327,7 @@ export function calculateSeatingStatistics(
       }
 
       // Avoid partners - now checks all avoid partners
-      const avoidIds = getAvoidIds(student);
+      const avoidIds = avoidIdsOf(student);
       for (const avoidId of avoidIds) {
         // Direct partner = not fulfilled
         if (partner && partner.id === avoidId) {

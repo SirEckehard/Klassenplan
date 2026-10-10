@@ -1,6 +1,6 @@
 # Module Boundaries – Utils API & Import Guidelines
 
-> **Status:** current · **Last reviewed:** 2026-09-26
+> **Status:** current · **Last reviewed:** 2026-10-10
 
 ## Goal & background
 
@@ -10,15 +10,15 @@ The boundary that matters most runs between the UI and those namespaces: compone
 
 ## Public utils API (`@/utils`)
 
-| Category                   | Example exports                                                                          | Typical consumers                              | Notes                                                                                                      |
-| -------------------------- | ---------------------------------------------------------------------------------------- | ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| Core helpers               | `generateId`, `deepClone`, `shuffleArray`                                                | UI components, hooks                           | Always import via `@/utils`, never directly from `./id` etc.                                               |
-| Storage keys               | `LOCAL_STORAGE_KEYS`, `LEGACY_EXPORT_KEYS`                                               | UI components, hooks                           | Dependency-free constants from `utils/data/storageKeys.ts`; the rest of `@/utils/data` stays out of the UI |
-| Logging & errors           | `logInfo`, `logWarn`, `logError`, `errorHandlers`                                        | Services, hooks, workers                       | Logging goes exclusively through these functions.                                                          |
-| Constants & mix settings   | `MAX_STUDENTS`, `TABLE_PRESETS`, `DEFAULT_MIX_WEIGHTS`, `normalizeMixSettings`           | Algorithm, UI, and form hooks                  | Constants live in a single place and stay in sync with tests.                                              |
-| Seating & layout utilities | `countStudents`, `addSeatingForTables`, `calculateTableGroupBounds`, `getWishPartnerIds` | Canvas / scene components, drag-and-drop hooks | Only functions exported through the index count as public API.                                             |
-| UI & feedback              | `showToast`, `TOAST_MESSAGES`, `announcePlanSaved`, `panelSurfaceClass`                  | UI components, toast system                    | UI-specific tokens and toasts originate in `@/utils/ui` exports, but are surfaced through the main index.  |
-| Validation & shortcuts     | `stringValidation`, `shortcutMap`, `type Shortcut`                                       | Forms, keyboard hooks                          | Types are intentionally exported alongside, so TS checks stay centralized.                                 |
+| Category                   | Example exports                                                                             | Typical consumers                              | Notes                                                                                                      |
+| -------------------------- | ------------------------------------------------------------------------------------------- | ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Core helpers               | `generateId`, `deepClone`, `shuffleArray`                                                   | UI components, hooks                           | Always import via `@/utils`, never directly from `./id` etc.                                               |
+| Storage keys               | `LOCAL_STORAGE_KEYS`, `LEGACY_EXPORT_KEYS`                                                  | UI components, hooks                           | Dependency-free constants from `utils/data/storageKeys.ts`; the rest of `@/utils/data` stays out of the UI |
+| Logging & errors           | `logInfo`, `logWarn`, `logError`, `errorHandlers`                                           | Services, hooks, workers                       | Logging goes exclusively through these functions.                                                          |
+| Constants & mix settings   | `MAX_STUDENTS`, `TABLE_PRESETS`, `DEFAULT_MIX_WEIGHTS`, `normalizeMixSettings`              | Algorithm, UI, and form hooks                  | Constants live in a single place and stay in sync with tests.                                              |
+| Seating & layout utilities | `countActiveSeats`, `addSeatingForTables`, `calculateTableGroupBounds`, `getWishPartnerIds` | Canvas / scene components, drag-and-drop hooks | Only functions exported through the index count as public API.                                             |
+| UI & feedback              | `showToast`, `TOAST_MESSAGES`, `announcePlanSaved`, `panelSurfaceClass`                     | UI components, toast system                    | UI-specific tokens and toasts originate in `@/utils/ui` exports, but are surfaced through the main index.  |
+| Validation & shortcuts     | `stringValidation`, `shortcutMap`, `type Shortcut`                                          | Forms, keyboard hooks                          | Types are intentionally exported alongside, so TS checks stay centralized.                                 |
 
 > **Rule of thumb:** If a function is exported from `src/utils/index.ts`, it is public for the app. Anything else stays internal.
 
@@ -35,7 +35,7 @@ A few areas intentionally stay outside the central API to optimize bundle size a
 - `@/utils/ui`: UI-adjacent helpers (toasts, scroll, design tokens, feature styles) with no component imports. Stays optionally loadable and is re-exported through the central index when needed.
 - `@/services/export`: Modules that render React components to SVG/PDF (`sceneRenderer`, `pdfExportFunctions`). Anything that instantiates components at runtime belongs here – which is why it cannot live in `utils/`.
 - `@/services/backup`, `@/services/migration`: Backup export and import, "delete all data", and the start-up migration. They work through repositories and the photo cache, which utils may not reach.
-- `@/services/ui`: Imperative UI wrappers (e.g. `dialogs` for `confirmDialog` / `promptDialog`) that render components dynamically via `createRoot`. Consumers are hooks and pages, not other utils.
+- `@/services/ui`: Imperative UI wrappers (`dialogs` for `confirmDialog`, `backupDialogs` for `promptBackupPassword` / `promptBackupRestoreMode`) that render components dynamically via `createRoot`. Consumers are hooks and pages, not other utils.
 
 ## Who may import what
 

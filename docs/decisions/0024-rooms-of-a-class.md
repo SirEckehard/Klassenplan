@@ -43,7 +43,10 @@ who asked for a plan per room did not find that it was possible.
    that is gone, go into the open room.
 3. **"Neu einrichten" changes the open room**; loading a template makes a new
    room named after it; "Neuer Raum" makes an empty one. A plan moves to
-   another room from the inspector. A room is removed in its row of the room
+   another room from the inspector; the open plan takes the screen along, and
+   what the room it moves into was left with goes into a plan first — the
+   plan it was left on, or the room's automatic save (`keepParkedWork`), as
+   leaving the plan layer keeps it. A room is removed in its row of the room
    inspector as in "Bibliothek", after the same question; the open room
    and the last one stay.
 4. **Names:** room names are unique within a class, case ignored; plan names

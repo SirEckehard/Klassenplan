@@ -100,7 +100,6 @@ export type StudentStore = FeatureStoreApi<StudentStoreSlice>;
  */
 export interface LayoutStoreState {
   classroomScene: ClassroomScene;
-  seatCount: number;
   classroomEdited: boolean;
   seatingMode: 'table' | 'circle';
   circleLayout: CircleLayout | null;

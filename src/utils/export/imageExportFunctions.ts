@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import { downloadBlob, logError } from '@/utils';
+import { downloadBlob, logError, toIsoDate } from '@/utils';
 import {
   extractSvgElement,
-  getPrimaryFontBase64,
+  getEmbeddedFontCss,
   injectFontIntoSvg,
   renderSvgToPngBlob,
 } from '@/utils/export/svgRasterizer';
@@ -36,8 +36,9 @@ const PNG_DIMENSIONS: Record<
   },
 };
 
+// The local date: an export just after midnight carries the new day.
 const withDateSuffix = (filename: string, extension: string): string =>
-  `${filename}_${new Date().toISOString().split('T')[0]}.${extension}`;
+  `${filename}_${toIsoDate()}.${extension}`;
 
 /**
  * Rasterize the export markup and download it as PNG.
@@ -90,8 +91,8 @@ export async function exportSvgAsFile(
   try {
     // Validate before writing: a broken SVG should fail here, not on the disk.
     extractSvgElement(svgMarkup);
-    const fontBase64 = await getPrimaryFontBase64();
-    const withFont = injectFontIntoSvg(svgMarkup, fontBase64);
+    const fontCss = await getEmbeddedFontCss();
+    const withFont = injectFontIntoSvg(svgMarkup, fontCss);
 
     await downloadBlob(
       withFont,

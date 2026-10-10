@@ -2,10 +2,10 @@
 // Copyright (C) 2026 Eike Schäfer
 // src/utils/distribution.ts
 /**
- * Compute how many seats per table should be filled, distributing as evenly as possible
- * and never exceeding the individual capacity of each table. Remainder is given to the
- * first tables, which leads to top tables being fuller (for UIs where lower seats should
- * stay empty).
+ * How many students each table takes when the class spreads evenly: one at a
+ * time round the tables, never past a table's capacity, starting at a random
+ * table. What is left after the last full round goes to the tables from that
+ * start on, so the fuller tables are not always the same ones.
  *
  * @param total - Total number of students to distribute
  * @param seatCounts - Array of seat capacities for each table
@@ -14,8 +14,9 @@
  *
  * @example
  * ```typescript
- * evenTargetsFor(27, [6,6,6,6,6,6]) // Returns [5,5,5,4,4,4]
- * evenTargetsFor(14, [4,4,4,4]) // Returns [4,4,3,3]
+ * // Three tables get a fifth student — from the start on, wherever it falls:
+ * // [5,5,5,4,4,4], [4,5,5,5,4,4], …, [5,5,4,4,4,5]
+ * evenTargetsFor(27, [6, 6, 6, 6, 6, 6]);
  * ```
  */
 export function evenTargetsFor(

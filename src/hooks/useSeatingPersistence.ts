@@ -1066,7 +1066,7 @@ export function useSeatingPersistence(state: SeatingState) {
   }, [repository]);
 
   const deleteTemplate = useCallback(
-    async (id: number): Promise<void> => {
+    async (id: number): Promise<boolean> => {
       const result = await repository.deleteTemplate(id);
       if (!result.success) {
         logError(
@@ -1075,6 +1075,7 @@ export function useSeatingPersistence(state: SeatingState) {
           'useSeatingPersistence',
         );
       }
+      return result.success;
     },
     [repository],
   );

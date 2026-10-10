@@ -15,18 +15,21 @@ import type {
   SavedPlan,
 } from '@/types';
 import {
+  createTimestampPlanName,
   DEFAULT_CLASSROOM_SCENE,
   generateId,
   MAX_NAME_LENGTH,
   MAX_ROOMS_PER_CLASS,
   showToast,
   syncSeatingWithStudents,
+  toIsoDate,
   uniqueName,
 } from '@/utils';
 import {
   checkRoomName,
   EMPTY_ROOM_STATE,
   fittingLocks,
+  keepParkedWork,
   switchRoomState,
   workingStateFromPlan,
   type RoomNameProblem,
@@ -435,9 +438,20 @@ export function useRoomManagement({
         return null;
       }
 
-      // The open plan: its working state goes with it, and the room it left
-      // parks its last remaining plan, or its tables without one.
-      const remaining = nextPlans.filter(
+      // The open plan: its working state goes with it, what the room it moves
+      // into was left with goes into a plan of that room, and the room it
+      // left parks its last remaining plan, or its tables without one.
+      const keptPlans = keepParkedWork(
+        nextPlans,
+        targetRoom,
+        {
+          id: generateId(),
+          name: createTimestampPlanName(),
+          date: toIsoDate(),
+        },
+        planId,
+      );
+      const remaining = keptPlans.filter(
         (entry) => entry.roomId === activeRoomId,
       );
       const last = remaining[remaining.length - 1];
@@ -453,7 +467,7 @@ export function useRoomManagement({
         }
         return room;
       });
-      applyOpenRoom(roomsAfter, targetRoom.id, working, nextPlans);
+      applyOpenRoom(roomsAfter, targetRoom.id, working, keptPlans);
       return null;
     },
     [

@@ -110,7 +110,6 @@ export function useSeatingGenerator() {
     },
     sceneState: {
       classroomScene,
-      seatCount,
       classroomEdited,
       setClassroomEdited,
       seatingMode,
@@ -249,14 +248,10 @@ export function useSeatingGenerator() {
     async (
       settings: Parameters<typeof generateSeatingPlanBase>[0],
       scene: Parameters<typeof generateSeatingPlanBase>[1],
-      forceNew: Parameters<typeof generateSeatingPlanBase>[2] = true,
+      run?: Parameters<typeof generateSeatingPlanBase>[2],
     ) => {
       recordSeatingSnapshot();
-      const arrangement = await generateSeatingPlanBase(
-        settings,
-        scene,
-        forceNew,
-      );
+      const arrangement = await generateSeatingPlanBase(settings, scene, run);
       acknowledgeStudentUpdates();
       return arrangement;
     },
@@ -308,20 +303,15 @@ export function useSeatingGenerator() {
   ]);
 
   // Class management
-  const {
-    selectClass,
-    createClass,
-    updateClassMetadata,
-    duplicateClass,
-    deleteClass,
-  } = useClassManagement({
-    repository,
-    classSummaries,
-    activeClass,
-    hasPendingStudentUpdates,
-    hasUnsavedSeatingChanges,
-    applyClassReload,
-  });
+  const { selectClass, createClass, updateClassMetadata, deleteClass } =
+    useClassManagement({
+      repository,
+      classSummaries,
+      activeClass,
+      hasPendingStudentUpdates,
+      hasUnsavedSeatingChanges,
+      applyClassReload,
+    });
 
   // Ref for scene sync callback
   const markClassroomSceneSyncedRef = useRef<
@@ -401,6 +391,13 @@ export function useSeatingGenerator() {
   );
 
   // Wizard orchestration (step navigation, auto-mix)
+  const openPlanIsAutoSave = useMemo(() => {
+    const open = activePlanId
+      ? seatingHistory.find((plan) => plan.id === activePlanId)
+      : undefined;
+    return open?.autoSaved === true && open.name === planName.trim();
+  }, [activePlanId, seatingHistory, planName]);
+
   const wizardOrchestration = useGeneratorWizardOrchestration({
     students,
     currentSeating,
@@ -408,6 +405,7 @@ export function useSeatingGenerator() {
     mixSettings,
     circleLayout,
     planName,
+    openPlanIsAutoSave,
     classroomEdited,
     hasUnsavedSeatingChanges,
     saveSeatingPlan,
@@ -561,7 +559,6 @@ export function useSeatingGenerator() {
       currentSeating,
       mixSettings,
       step,
-      seatCount,
       classroomEdited,
       hasUnsavedSeatingChanges,
       planName,
@@ -601,7 +598,6 @@ export function useSeatingGenerator() {
       currentSeating,
       mixSettings,
       step,
-      seatCount,
       classroomEdited,
       hasUnsavedSeatingChanges,
       planName,
@@ -713,7 +709,6 @@ export function useSeatingGenerator() {
       selectClass,
       createClass,
       updateClassMetadata,
-      duplicateClass,
       deleteClass,
     }),
     [
@@ -790,7 +785,6 @@ export function useSeatingGenerator() {
       selectClass,
       createClass,
       updateClassMetadata,
-      duplicateClass,
       deleteClass,
     ],
   );

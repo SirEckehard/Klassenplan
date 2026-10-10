@@ -26,7 +26,11 @@ import {
   type SeatNeighborDirection,
 } from '../math/seatGeometry';
 import { getFeatureDistanceMaps } from './featureDistances';
-import { seatTargetsFor } from './seatTargets';
+import {
+  seatTargetsFor,
+  swapOverfillsTable,
+  tablesHeldByCount,
+} from './seatTargets';
 import { isTableActive } from '../math/scene';
 import { randomInt, type RandomSource } from './rng';
 import {
@@ -732,6 +736,7 @@ export function refineSeatingLocal(
   const seatCounts = scene.tables.map((t) => t.seatCount);
   const tableCount = seatCounts.length;
   const targets = seatTargetsFor(students, scene, lockedPositions, rng);
+  const heldTables = tablesHeldByCount(scene);
   const referenceSeating = start ?? currentSeating;
   const previousPairs = settings.avoidPreviousPairs
     ? buildPreviousPairs(seatingHistory, {
@@ -826,6 +831,7 @@ export function refineSeatingLocal(
       lockedPositions,
       scoreTable: tableScore,
       isLocked: seatHasLocked,
+      heldTables,
     };
 
     const result = runSimulatedAnnealing(
@@ -903,6 +909,12 @@ export function refineSeatingLocal(
       const globalBefore = settings.preferGenderMix ? globalGenderDiff() : 0;
 
       if ((B && s1 >= targets[t1]!) || (A && s2 >= targets[t2]!)) {
+        continue;
+      }
+      if (
+        heldTables &&
+        swapOverfillsTable(arr, targets, heldTables, t1, s1, t2, s2)
+      ) {
         continue;
       }
 

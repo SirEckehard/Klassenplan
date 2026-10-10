@@ -15,6 +15,7 @@ import type {
   Student,
 } from '@/types';
 import {
+  createTimestampPlanName,
   DEFAULT_CLASSROOM_SCENE,
   generateId,
   logError,
@@ -69,12 +70,15 @@ export type LibraryEdit =
   | { kind: 'renameRoom'; roomId: string; name: string }
   | { kind: 'deleteRoom'; roomId: string };
 
+/** Why a change was not made: the class's own rule, or storage failing. */
+export type LibraryEditProblem = ClassEditProblem | 'storage';
+
 export type LibraryEditOutcome =
   | { ok: true; /** The room a `createRoom` made. */ roomId?: string }
-  | { ok: false; reason: ClassEditProblem };
+  | { ok: false; reason: LibraryEditProblem };
 
 const done: LibraryEditOutcome = { ok: true };
-const refused = (reason: ClassEditProblem): LibraryEditOutcome => ({
+const refused = (reason: LibraryEditProblem): LibraryEditOutcome => ({
   ok: false,
   reason,
 });
@@ -315,6 +319,15 @@ export function useClassLibrary(selectedClassId: string | null) {
           ),
           date: toIsoDate(),
         };
+      } else if (edit.kind === 'movePlan') {
+        change = {
+          ...edit,
+          keep: {
+            id: generateId(),
+            name: createTimestampPlanName(),
+            date: toIsoDate(),
+          },
+        };
       } else if (edit.kind === 'movePlanToNewRoom') {
         change = {
           kind: 'movePlanToNewRoom',
@@ -347,7 +360,7 @@ export function useClassLibrary(selectedClassId: string | null) {
           { error: result.error, classId, kind: edit.kind },
           'useClassLibrary',
         );
-        return refused('not-found');
+        return refused('storage');
       }
       if (!result.data.ok) return result.data;
       setRevision((count) => count + 1);

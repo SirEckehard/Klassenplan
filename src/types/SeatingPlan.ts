@@ -80,7 +80,7 @@ export interface SavedPlan {
    * Set when the plan was written by a silent auto-save (leaving step 3
    * without naming it). At most one such entry exists: the next auto-save
    * overwrites it instead of filling the history with timestamps.
-   * Cleared as soon as the user saves the plan explicitly.
+   * Cleared as soon as the plan is saved on purpose, exported or presented.
    */
   autoSaved?: boolean;
 }

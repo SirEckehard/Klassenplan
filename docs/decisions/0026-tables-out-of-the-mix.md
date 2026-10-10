@@ -1,13 +1,13 @@
 # 0026 – Tables can be taken out of the mix, and a room can fill from the front
 
 - **Status:** accepted
-- **In place since:** unreleased
+- **In place since:** v3.1.0 (2026-10-07)
 - **Sources:** maintainer request of 2026-10-07 (every table of the room kept,
   but only the wanted ones used; spare seats at the back instead of the front),
   [ALGORITHM.md](../ALGORITHM.md#how-many-students-a-table-takes),
   [data-model.md](../data-model.md#class-collection),
   `src/utils/algorithm/seatTargets.ts` (`seatTargetsFor`,
-  `frontToBackTableOrder`),
+  `frontToBackTableOrder`, `tablesHeldByCount`),
   `src/components/SeatingPlanGenerator/views/SceneInspector.tsx`
 
 ## Context
@@ -35,11 +35,16 @@ Both are properties of the room, stored in its `ClassroomScene`:
   middle outwards. The room's own inspector carries it ("Von vorne besetzen").
 
 Both work through the number of students each table takes (`targets`), which
-construction, greedy refinement and Simulated Annealing already honour: a
-table out of the mix takes none, filling from the front fills the targets in
-that order. Absent means the old behaviour, and a room with neither flag takes
-the same call with the same draw from `rng` as before, so its plans do not
-change.
+construction, greedy refinement and Simulated Annealing honour: a table out of
+the mix takes none, filling from the front fills the targets in that order.
+The construction counts a table's students against its target; the
+refinements check the seat a student moves to and, at the tables they hold
+(`tablesHeldByCount`: every table when filling from the front, otherwise the
+tables out of the mix), count as well — a lock on a back seat leaves the seats
+before it open to the index alone, and in v3.1.0 the refinement still seated a
+second student beside such a lock. Absent means the old behaviour, and a room
+with neither flag takes the same call with the same draw from `rng` as before,
+so its plans do not change.
 
 ## Alternatives considered
 

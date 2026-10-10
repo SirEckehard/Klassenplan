@@ -24,7 +24,6 @@ interface SeatingMixHandlerConfig {
   generateSeatingPlan: (
     settings: MixSettings,
     scene: ClassroomScene,
-    forceNew?: boolean,
     run?: AlgorithmRunOptions,
   ) => Promise<SeatingArrangement>;
   refineSeatingLocal?: (
@@ -92,12 +91,9 @@ export const useSeatingMixHandler = ({
     setIsMixing(true);
 
     try {
-      const arrangement = await generateSeatingPlan(
-        active,
-        classroomScene,
-        true,
-        { signal: abortController.signal },
-      );
+      const arrangement = await generateSeatingPlan(active, classroomScene, {
+        signal: abortController.signal,
+      });
 
       // Refine arrangement if criteria are active and refinement is available
       if (hasCriteria && refineSeatingLocal) {

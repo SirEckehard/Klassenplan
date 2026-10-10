@@ -85,8 +85,6 @@ export const TOAST_MESSAGES = {
   CLASS_NAME_EXISTS: 'toast:class.nameExists',
   CLASS_UPDATE_SUCCESS: 'toast:class.updateSuccess',
   CLASS_UPDATE_ERROR: 'toast:class.updateError',
-  CLASS_DUPLICATE_SUCCESS: 'toast:class.duplicateSuccess',
-  CLASS_DUPLICATE_ERROR: 'toast:class.duplicateError',
   CLASS_DELETE_SUCCESS: 'toast:class.deleteSuccess',
   CLASS_DELETE_ERROR: 'toast:class.deleteError',
   CLASS_SWITCH_SUCCESS: 'toast:class.switchSuccess',

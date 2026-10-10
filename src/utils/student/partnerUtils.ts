@@ -125,3 +125,64 @@ export const hasWishAvoidConflict = (
   studentB: Student,
 ): boolean =>
   wishesToSitWith(studentA, studentB) && wantsToAvoid(studentB, studentA);
+
+/**
+ * Takes the given students out of everyone's wish and distance lists — the
+ * list and the legacy single field alike. A student whose lists do not name
+ * one of them keeps their object, and a class where nobody does comes back as
+ * the same array.
+ *
+ * @param students - The class list
+ * @param goneIds - The students who are no longer in the class
+ * @returns The class list without links to them
+ */
+export const withoutPartners = (
+  students: Student[],
+  goneIds: ReadonlySet<string>,
+): Student[] => {
+  if (goneIds.size === 0) return students;
+  let changed = false;
+  const next = students.map((student) => {
+    const wish = getWishPartnerIds(student);
+    const avoid = getAvoidPartnerIds(student);
+    const keptWish = wish.filter((id) => !goneIds.has(id));
+    const keptAvoid = avoid.filter((id) => !goneIds.has(id));
+    if (keptWish.length === wish.length && keptAvoid.length === avoid.length) {
+      return student;
+    }
+    changed = true;
+    return {
+      ...student,
+      ...(keptWish.length !== wish.length && {
+        wishPartnerIds: keptWish,
+        wishPartnerId: keptWish[0] ?? null,
+      }),
+      ...(keptAvoid.length !== avoid.length && {
+        avoidPartnerIds: keptAvoid,
+        avoidPartnerId: keptAvoid[0] ?? null,
+      }),
+    };
+  });
+  return changed ? next : students;
+};
+
+/**
+ * Drops the wish and distance links to students no longer in the class —
+ * left behind by a removal before removals took them along.
+ *
+ * @param students - The class list
+ * @returns The class list with links only to its own students
+ */
+export const dropMissingPartners = (students: Student[]): Student[] => {
+  const present = new Set(students.map((student) => student.id));
+  const missing = new Set<string>();
+  for (const student of students) {
+    for (const id of [
+      ...getWishPartnerIds(student),
+      ...getAvoidPartnerIds(student),
+    ]) {
+      if (!present.has(id)) missing.add(id);
+    }
+  }
+  return withoutPartners(students, missing);
+};

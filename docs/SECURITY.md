@@ -84,7 +84,7 @@ volumes:
 
 Keep the other headers of the copy as they are; only the HSTS line differs (`max-age=31536000` alone is a sound default).
 
-**Brand files are cached for a day:** `/brand/` keeps its file names across releases, so it gets `max-age=86400, must-revalidate` rather than the year of `immutable` that hashed chunks get (`nginx.conf`). Preview screenshots carry `?v=…` and stay immutable.
+**Brand files are cached for a day:** `/brand/` keeps its file names across releases, so it gets `max-age=86400, must-revalidate` rather than the year of `immutable` that hashed chunks get (`nginx.conf`); so does `/browser-check.js`, the one script without a hash in its name. Preview screenshots carry `?v=…` and stay immutable.
 
 **nginx `add_header` inheritance pitfall:** nginx does _not_ inherit server-level `add_header` directives into a `location` block that declares its own `add_header` (e.g. for `Cache-Control`). The security headers therefore live in [`nginx-security-headers.conf`](../nginx-security-headers.conf), which every such location `include`s again. When adding a new `location` with its own `add_header`, always re-include the snippet — otherwise those responses (including `index.html`) would be served without CSP/HSTS.
 

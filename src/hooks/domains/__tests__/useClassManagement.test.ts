@@ -39,10 +39,6 @@ const setup = () => {
       calls.push('createClass');
       return ResultHelpers.success(record('class-new', 'Neue Klasse'));
     }),
-    duplicateClass: vi.fn(async () => {
-      calls.push('duplicateClass');
-      return ResultHelpers.success(record('class-copy', 'Klasse A Kopie'));
-    }),
   } as unknown as ISeatingPlanRepository;
   const applyClassReload = vi.fn(async () => {
     calls.push('reload');
@@ -95,16 +91,5 @@ describe('useClassManagement', () => {
       { activate: true },
     );
     expect(calls).toEqual(['createClass', 'reload']);
-  });
-
-  it('keeps the open class active after duplicating it', async () => {
-    const { result, repository, calls } = setup();
-
-    await act(async () => {
-      await result.current.duplicateClass('class-a');
-    });
-
-    expect(calls).toEqual(['duplicateClass', 'reload']);
-    expect(repository.setActiveClass).not.toHaveBeenCalled();
   });
 });

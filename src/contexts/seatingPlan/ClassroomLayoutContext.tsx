@@ -9,7 +9,6 @@ import {
 
 export interface ClassroomLayoutContextValue {
   classroomScene: SeatingPlanSnapshot['state']['classroomScene'];
-  seatCount: SeatingPlanSnapshot['state']['seatCount'];
   classroomEdited: SeatingPlanSnapshot['state']['classroomEdited'];
   updateClassroomScene: SeatingPlanSnapshot['actions']['updateClassroomScene'];
   removeTables: SeatingPlanSnapshot['actions']['removeTables'];
@@ -45,7 +44,6 @@ export const selectClassroomLayoutContext = ({
   actions,
 }: SeatingPlanSnapshot): ClassroomLayoutContextValue => ({
   classroomScene: state.classroomScene,
-  seatCount: state.seatCount,
   classroomEdited: state.classroomEdited,
   updateClassroomScene: actions.updateClassroomScene,
   removeTables: actions.removeTables,

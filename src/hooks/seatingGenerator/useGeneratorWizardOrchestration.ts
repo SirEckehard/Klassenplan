@@ -26,6 +26,8 @@ interface WizardOrchestrationParams {
   mixSettings: MixSettings;
   circleLayout: CircleLayout | null;
   planName: string;
+  /** See `WizardConfig.openPlanIsAutoSave`. */
+  openPlanIsAutoSave: boolean;
   classroomEdited: boolean;
   hasUnsavedSeatingChanges: boolean;
 
@@ -39,7 +41,6 @@ interface WizardOrchestrationParams {
   generateSeatingPlan: (
     settings: MixSettings,
     scene: ClassroomScene,
-    forceNew?: boolean,
   ) => Promise<SeatingArrangement>;
   refineSeatingLocal: (
     settings: MixSettings,
@@ -103,6 +104,7 @@ export function useGeneratorWizardOrchestration(
     mixSettings,
     circleLayout,
     planName,
+    openPlanIsAutoSave,
     classroomEdited,
     hasUnsavedSeatingChanges,
     saveSeatingPlan,
@@ -154,6 +156,7 @@ export function useGeneratorWizardOrchestration(
     students,
     currentSeating,
     planName,
+    openPlanIsAutoSave,
     hasUnsavedSeatingChanges,
     classroomScene,
     mixSettings,

@@ -149,22 +149,6 @@ describe('class collection', () => {
     const summaries = expectData(await repository.listClasses());
     expect(summaries.find((entry) => entry.id === record.id)?.name).toBe('New');
   });
-
-  it('duplicates a class including its students', async () => {
-    const source = expectData(
-      await repository.createClass(
-        { name: 'Source', students: [createMockStudent({ name: 'Ada' })] },
-        { activate: true },
-      ),
-    );
-
-    const copy = expectData(
-      await repository.duplicateClass(source.id, { name: 'Copy' }),
-    );
-
-    expect(copy.id).not.toBe(source.id);
-    expect(copy.students?.map((s) => s.name)).toEqual(['Ada']);
-  });
 });
 
 describe('active class snapshot', () => {
@@ -198,6 +182,27 @@ describe('active class snapshot', () => {
     const snapshot = expectData(await repository.loadActiveClassSnapshot());
     expect(snapshot.students?.map((s) => s.name)).toEqual(['Ada']);
     expect(snapshot.classroomScene?.tables).toHaveLength(2);
+  });
+
+  it('hands out no wish for a student who left the class', async () => {
+    expectData(
+      await repository.saveStudents([
+        createMockStudent({
+          id: 'ada',
+          name: 'Ada',
+          wishPartnerIds: ['gone', 'ben'],
+          wishPartnerId: 'gone',
+        }),
+        createMockStudent({ id: 'ben', name: 'Ben' }),
+      ]),
+    );
+
+    const snapshot = expectData(await repository.loadActiveClassSnapshot());
+
+    expect(snapshot.students?.[0]).toMatchObject({
+      wishPartnerIds: ['ben'],
+      wishPartnerId: 'ben',
+    });
   });
 
   it('stores a copy, so a later mutation by the caller cannot leak in', async () => {
@@ -315,19 +320,6 @@ describe('rooms of a class', () => {
     const snapshot = expectData(await repository.loadActiveClassSnapshot());
     expect(snapshot.rooms).toEqual(record.rooms);
     expect(snapshot.activeRoomId).toBe(record.activeRoomId);
-  });
-
-  it('duplicates a class with its rooms', async () => {
-    const source = expectData(
-      await repository.createClass({ name: 'Source' }, { activate: true }),
-    );
-
-    const copy = expectData(
-      await repository.duplicateClass(source.id, { name: 'Copy' }),
-    );
-
-    expect(copy.rooms).toEqual(source.rooms);
-    expect(copy.activeRoomId).toBe(source.activeRoomId);
   });
 
   it('writes the rooms a snapshot carries and reads them back', async () => {

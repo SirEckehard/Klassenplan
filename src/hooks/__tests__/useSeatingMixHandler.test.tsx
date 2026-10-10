@@ -129,7 +129,6 @@ describe('useSeatingMixHandler', () => {
     expect(generate).toHaveBeenCalledWith(
       withCriteria,
       scene,
-      true,
       expect.objectContaining({ signal: expect.any(AbortSignal) }),
     );
   });

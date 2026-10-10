@@ -37,14 +37,15 @@ describe('CsvFormatHelpDialog', () => {
     }
   });
 
-  test('repeats the example as plain text, comma separated', () => {
+  test("repeats the example as plain text, with the template's delimiter", () => {
     render(<CsvFormatHelpDialog open onClose={vi.fn()} />);
 
     // The modal renders through a portal, so query the dialog, not the container.
     const raw =
       screen.getByRole('dialog').querySelector('pre')?.textContent ?? '';
     expect(raw.split('\n')).toHaveLength(4);
-    expect(raw.split('\n')[0].split(',')).toHaveLength(4);
+    // German, the language tests render in, separates with a semicolon.
+    expect(raw.split('\n')[0].split(';')).toHaveLength(4);
   });
 
   test('offers the template download as a second route', async () => {

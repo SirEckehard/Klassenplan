@@ -46,6 +46,7 @@ import {
   type ClassEdit,
 } from '@/utils/data/classRooms';
 import { normalizeSeatingHistory } from '@/utils/data/planNormalization';
+import { dropMissingPartners } from '@/utils/student/partnerUtils';
 
 const REPOSITORY_LOG_SOURCE = 'IndexedDBRepository';
 
@@ -492,46 +493,6 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
     );
   }
 
-  async duplicateClass(
-    classId: string,
-    overrides?: UpdateClassMetadataPayload & { name?: string },
-  ): Promise<Result<ClassRecord>> {
-    return this.withErrorHandling(
-      async () => {
-        const collection = await this.loadClassCollectionState();
-        const source = collection.classes.find((entry) => entry.id === classId);
-        if (!source) {
-          return ResultHelpers.failure({
-            type: RepositoryErrorType.NOT_FOUND,
-            message: 'Class not found',
-          });
-        }
-        const duplicated = createClassRecord({
-          ...source,
-          id: undefined,
-          name: overrides?.name?.trim() || `${source.name} Kopie`,
-          label: overrides?.label ?? source.label,
-          notes: overrides?.notes ?? source.notes,
-          students: cloneValue(source.students),
-          seatingHistory: cloneValue(source.seatingHistory),
-          mixHistory: cloneValue(source.mixHistory),
-          currentSeating: cloneValue(source.currentSeating),
-          lockedPositions: cloneValue(source.lockedPositions),
-          mixSettings: cloneValue(source.mixSettings),
-          classroomScene: cloneValue(source.classroomScene),
-          circleLayout: cloneValue(source.circleLayout),
-        });
-        collection.classes.push(duplicated);
-        await this.persistCollection(collection);
-        return cloneValue(duplicated);
-      },
-      {
-        logMessage: 'Failed to duplicate class in IndexedDB',
-        errorMessage: 'Failed to duplicate class',
-      },
-    );
-  }
-
   async setActiveClass(classId: string): Promise<Result<ClassRecord>> {
     return this.withErrorHandling(
       async () => {
@@ -606,10 +567,11 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
     return this.withActiveClassRead(
       (stored) => {
         // Repaired on the way out as well, not written: whatever the record
-        // holds, the live state starts consistent.
+        // holds, the live state starts consistent — links to students removed
+        // before removals took them along included.
         const record = ensureClassRooms(stored);
         return {
-          students: record.students ?? [],
+          students: dropMissingPartners(record.students ?? []),
           seatingHistory: normalizeRepositorySeatingHistory(
             record.seatingHistory ?? [],
           ),

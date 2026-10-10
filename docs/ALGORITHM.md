@@ -30,9 +30,14 @@ history keeps the plans the teacher actually got
 Before a student is placed, `seatTargetsFor()`
 (`src/utils/algorithm/seatTargets.ts`) decides how many students each table
 takes. A seat at or beyond its table's target stays empty: the construction
-skips it, and both refinement strategies refuse a swap that would fill it. Two
-properties of the room change the targets
-([decision 0026](decisions/0026-tables-out-of-the-mix.md)):
+skips it, and both refinement strategies refuse a swap that would fill it. The
+construction also stops at a table that has its count; the refinements count
+only the tables they hold (`tablesHeldByCount`: every table when filling from
+the front, otherwise the tables out of the mix), because a student locked to a
+back seat leaves the seats before it open to the index check — and a refinement
+that counted every table would only be held to its own draw of the even spread,
+which differs from the construction's. Two properties of the room change the
+targets ([decision 0026](decisions/0026-tables-out-of-the-mix.md)):
 
 - **A table out of the mix** (`ClassroomTable.inactive`) takes nobody. A
   student locked to one of its seats stays there and needs no other seat; the
@@ -180,6 +185,9 @@ which also means they can be wrong. So the record is written first and a toast
 offers to take it back: doing nothing keeps the plan counted, one click marks it
 `confirmed: false`. The prompt appears on the **first strong signal** for an
 arrangement, never again for the same one, and never for a hand edit. The
+projection keeps it until it is left (`usePlanUsagePrompt`'s
+`holdUntilLeft`): the wall faces the class, the question is for the teacher.
+The
 neighbourhoods in "Bibliothek" list every counted plan and let one be
 withdrawn or restored later — in the folder's inspector, and for a pair of
 students in theirs. Each plan there is named by the saved plan that seats the same people side

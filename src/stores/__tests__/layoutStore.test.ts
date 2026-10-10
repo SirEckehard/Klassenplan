@@ -32,14 +32,13 @@ describe('layoutStore', () => {
   });
 
   describe('setClassroomScene', () => {
-    it('updates scene, recalculates seatCount, and flips classroomEdited (happy path)', () => {
+    it('updates the scene and flips classroomEdited (happy path)', () => {
       const scene = sceneWithTables(4);
 
       layoutStore.getState().setClassroomScene(scene);
 
       const state = layoutStore.getState();
       expect(state.classroomScene).toEqual(scene);
-      expect(state.seatCount).toBe(4);
       expect(state.classroomEdited).toBe(true);
     });
 
@@ -50,7 +49,7 @@ describe('layoutStore', () => {
 
       // Reference of state may differ but classroomEdited stays false (no-op short-circuit).
       expect(layoutStore.getState().classroomEdited).toBe(false);
-      expect(layoutStore.getState().seatCount).toBe(before.seatCount);
+      expect(layoutStore.getState().classroomScene).toBe(before.classroomScene);
     });
 
     it('accepts a functional updater that derives next scene from previous', () => {
@@ -60,7 +59,9 @@ describe('layoutStore', () => {
         tables: prev.tables.map((t) => ({ ...t, seatCount: t.seatCount + 1 })),
       }));
 
-      expect(layoutStore.getState().seatCount).toBe(3);
+      expect(
+        layoutStore.getState().classroomScene.tables.map((t) => t.seatCount),
+      ).toEqual([3]);
     });
   });
 
@@ -75,7 +76,6 @@ describe('layoutStore', () => {
         DEFAULT_CLASSROOM_SCENE,
       );
       expect(layoutStore.getState().classroomEdited).toBe(false);
-      expect(layoutStore.getState().seatCount).toBe(0);
     });
   });
 

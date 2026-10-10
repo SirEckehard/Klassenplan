@@ -114,7 +114,9 @@ interface RoomWorkingState {
   repaired: the live state keeps itself consistent.
 - **`seatingHistory` holds saved plans**, not a log. At most one entry per room
   carries `autoSaved: true`; the next silent auto-save in that room overwrites
-  it. Names are unique
+  it. The name an auto-save generated is no name the teacher chose: leaving the
+  plan layer again writes to the same entry, and only a save on purpose, an
+  export or a projection make it a plan of its own. Names are unique
   within a class: a save writes to the open plan when the name is its own or
   the save renames it (`SaveSeatingPlanOptions.rename`), and otherwise starts a
   new entry (`resolvePlanSlot`). Every entry keeps its own copy of the room
@@ -142,7 +144,11 @@ interface RoomWorkingState {
   still written by the editors and the CSV import for compatibility. Records
   are not rewritten on load: every reader normalizes both shapes through
   `getWishPartnerIds` / `getAvoidPartnerIds` (`src/utils/student/partnerUtils.ts`),
-  which is the only place allowed to know about the legacy fields.
+  which is the only place allowed to know about the legacy fields. Removing a
+  student takes them out of everyone's lists (`withoutPartners`); links left
+  behind by a removal before that are dropped when the open class is read
+  (`dropMissingPartners` in `loadActiveClassSnapshot`), not written, and the
+  statistics count only the classmates still in the class.
 - **Photos are not part of the record.** A student only carries `hasPhoto`.
 
 ### How changes reach storage

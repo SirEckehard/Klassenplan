@@ -6,11 +6,15 @@
  * fields, every other room parks its own. Data written before rooms existed —
  * by an older build, in a backup — is brought into that shape as it is read.
  */
+import equal from 'fast-deep-equal';
 import {
   checkName,
+  DEFAULT_CLASSROOM_SCENE,
   generateId,
+  hasSeatedStudent,
   MAX_NAME_LENGTH,
   MAX_ROOMS_PER_CLASS,
+  uniqueName,
 } from '@/utils';
 import type { NameProblem } from '@/utils';
 import type {
@@ -288,7 +292,13 @@ export type ClassEdit =
       name: string;
       date: string;
     }
-  | { kind: 'movePlan'; planId: string; roomId: string }
+  | {
+      kind: 'movePlan';
+      planId: string;
+      roomId: string;
+      /** Where the room's unsaved work goes; see `keepParkedWork`. */
+      keep: ParkedWorkSlot;
+    }
   | { kind: 'movePlanToNewRoom'; planId: string; room: RoomRecord }
   | { kind: 'deleteMix'; mixId: number }
   | { kind: 'createRoom'; room: RoomRecord }
@@ -317,6 +327,66 @@ export function checkPlanName(
 }
 
 /** The rooms with no parked state left pointing at `planId`. */
+/**
+ * The id, name and date a room's unsaved work is kept under when it needs a
+ * plan of its own.
+ */
+export interface ParkedWorkSlot {
+  id: string;
+  name: string;
+  date: string;
+}
+
+/**
+ * The plans with what `room` was left with kept in one, before another plan
+ * takes its place on screen: written into the plan it was left on, or —
+ * never named — into the room's auto-save, the way leaving the plan layer
+ * keeps it. Nothing changes while nobody sits in the parked seating or it is
+ * what its plan holds already. `movingPlanId`, the plan taking the room's
+ * place, is never written over.
+ */
+export function keepParkedWork(
+  plans: SavedPlan[],
+  room: RoomRecord,
+  slot: ParkedWorkSlot,
+  movingPlanId: string,
+): SavedPlan[] {
+  const parked = room.parked;
+  if (!parked || !hasSeatedStudent(parked.seating)) return plans;
+  const own =
+    parked.activePlanId && parked.activePlanId !== movingPlanId
+      ? plans.find((plan) => plan.id === parked.activePlanId)
+      : undefined;
+  if (own && equal(workingStateFromPlan(own), parked)) return plans;
+
+  const autoSave = plans.find(
+    (plan) =>
+      plan.autoSaved && plan.roomId === room.id && plan.id !== movingPlanId,
+  );
+  const target = own ?? autoSave;
+  const id = target?.id ?? slot.id;
+  const work: SavedPlan = {
+    id,
+    name:
+      own?.name ??
+      uniqueName(
+        slot.name,
+        plans.filter((plan) => plan.id !== id).map((plan) => plan.name),
+        MAX_NAME_LENGTH,
+      ),
+    roomId: room.id,
+    date: slot.date,
+    seating: parked.seating,
+    scene: parked.scene ?? target?.scene ?? DEFAULT_CLASSROOM_SCENE,
+    locks: parked.lockedPositions,
+    ...(parked.circleLayout && { circleLayout: parked.circleLayout }),
+    ...((own ? own.autoSaved : true) && { autoSaved: true as const }),
+  };
+  return target
+    ? plans.map((plan) => (plan.id === id ? work : plan))
+    : [...plans, work];
+}
+
 function withoutParkedPlan(rooms: RoomRecord[], planId: string): RoomRecord[] {
   return mapIfChanged(rooms, (room) =>
     room.parked?.activePlanId === planId
@@ -328,21 +398,27 @@ function withoutParkedPlan(rooms: RoomRecord[], planId: string): RoomRecord[] {
 /**
  * Moves a plan to `target`, a room of the class. A plan that is not open only
  * changes its room — a room just made opens with it later; the open plan
- * takes the working state along, its new room becomes the open one, and the
- * room it left parks its last remaining plan, or its tables without one.
+ * takes the working state along, its new room becomes the open one — what
+ * that room was left with kept in a plan (`keepParkedWork`) — and the room it
+ * left parks its last remaining plan, or its tables without one.
  */
 function movePlan(
   record: ClassRecord,
   plan: SavedPlan,
   target: RoomRecord,
   isNewRoom: boolean,
+  keep?: ParkedWorkSlot,
 ): ClassRecord {
   const rooms = record.rooms ?? [];
   const moved: SavedPlan = { ...plan, roomId: target.id };
   delete moved.autoSaved;
-  const plans = record.seatingHistory.map((entry) =>
+  const moves = record.seatingHistory.map((entry) =>
     entry.id === plan.id ? moved : entry,
   );
+  const plans =
+    keep && plan.id === record.activePlanId
+      ? keepParkedWork(moves, target, keep, plan.id)
+      : moves;
   const listed = isNewRoom ? [...rooms, target] : rooms;
 
   if (plan.id !== record.activePlanId) {
@@ -445,7 +521,7 @@ export function applyClassEdit(
       const target = rooms.find((room) => room.id === edit.roomId);
       if (!plan || !target) return { problem: 'not-found' };
       if (plan.roomId === target.id) return { record };
-      return { record: movePlan(record, plan, target, false) };
+      return { record: movePlan(record, plan, target, false, edit.keep) };
     }
     case 'movePlanToNewRoom': {
       const plan = findPlan(edit.planId);

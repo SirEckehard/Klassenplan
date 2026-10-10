@@ -119,8 +119,6 @@
     "nameExists": "Eine Klasse mit diesem Namen existiert bereits",
     "updateSuccess": "Klasse aktualisiert",
     "updateError": "Klasse konnte nicht aktualisiert werden",
-    "duplicateSuccess": "Klasse dupliziert",
-    "duplicateError": "Klasse konnte nicht dupliziert werden",
     "deleteSuccess": "Klasse gelöscht",
     "deleteError": "Klasse konnte nicht gelöscht werden",
     "switchSuccess": "Klasse gewechselt",
@@ -131,7 +129,6 @@
     "createdActivatedName": "Klasse {{name}} erstellt und aktiviert",
     "createdName": "Klasse {{name}} erstellt",
     "updatedName": "Klasseninfos für {{name}} aktualisiert",
-    "duplicatedName": "Klasse {{name}} dupliziert",
     "deletedName": "Klasse {{name}} gelöscht"
   },
   "network": {
@@ -221,5 +218,8 @@
     "limit": "Eine Klasse hat höchstens {{max}} Räume.",
     "createdFromTemplate": "Neuer Raum „{{name}}“ geöffnet.",
     "undoCreate": "Rückgängig"
+  },
+  "library": {
+    "gone": "Das gibt es nicht mehr. Vielleicht wurde es in einem anderen Tab gelöscht."
   }
 }

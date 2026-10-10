@@ -230,8 +230,29 @@ function PlanLibraryPage() {
     classId === latestRef.current.state.activeClass.id ||
     (await selectClass(classId));
 
-  const edit = (classId: string, change: LibraryEdit) =>
-    library.edit(classId, change);
+  // A change that was not made says why — unless the inspector's name field
+  // does (a name taken, empty or too long), or a hint said it before the
+  // change was asked for (the open room, the last room).
+  const edit = async (classId: string, change: LibraryEdit) => {
+    const outcome = await library.edit(classId, change);
+    if (outcome.ok) return outcome;
+    switch (outcome.reason) {
+      case 'storage':
+        showToast('error', 'toast:errors.storage');
+        break;
+      case 'not-found':
+        showToast('error', 'toast:library.gone');
+        break;
+      case 'room-limit':
+        showToast(
+          'warning',
+          t('toast:rooms.limit', { max: MAX_ROOMS_PER_CLASS }),
+        );
+        break;
+      default:
+    }
+    return outcome;
+  };
 
   // A mix keeps no tables of its own: one that no longer fits its room's
   // cannot be opened.
@@ -450,7 +471,10 @@ function PlanLibraryPage() {
           },
         );
         if (!confirmed) return;
-        await actions.deleteTemplate(template.id);
+        if (!(await actions.deleteTemplate(template.id))) {
+          showToast('error', TOAST_MESSAGES.DELETE_TEMPLATE_ERROR);
+          return;
+        }
         showToast('success', TOAST_MESSAGES.DELETE_TEMPLATE_SUCCESS);
         setTemplatesRevision((count) => count + 1);
         setChosenPath(path.slice(0, -1));
@@ -480,15 +504,7 @@ function PlanLibraryPage() {
         MAX_NAME_LENGTH,
       ),
     });
-    if (!outcome.ok) {
-      if (outcome.reason === 'room-limit') {
-        showToast(
-          'warning',
-          t('toast:rooms.limit', { max: MAX_ROOMS_PER_CLASS }),
-        );
-      }
-      return;
-    }
+    if (!outcome.ok) return;
     if (outcome.roomId) {
       setChosenPath([
         libraryKey({ kind: 'class', classId: classLibrary.id }),

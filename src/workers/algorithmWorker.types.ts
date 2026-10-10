@@ -47,7 +47,6 @@ export type AlgorithmWorkerRequestMap = {
       lockedPositions: LockedPositions;
       classroomScene: ClassroomScene;
       mixSettings: Partial<MixSettings>;
-      forceNew?: boolean;
       lastSeating?: SeatingArrangement | null;
     };
     result: {

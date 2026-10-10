@@ -15,6 +15,7 @@ import type {
 import { createFeatureStoreLogger } from './featureStores';
 import { evaluateStateUpdater } from './storeUtils';
 import { schedulePhotoDeletion } from '@/hooks/student/studentPhotoTrash';
+import { withoutPartners } from '@/utils/student/partnerUtils';
 
 /**
  * Apply a patch to a single student, keeping the two performance flags
@@ -151,10 +152,17 @@ export const createStudentsStore = (
         });
         return placeholders;
       },
+      // A removed student leaves everyone's wish and distance lists too, or
+      // a name nobody sees would count against the limit of three and as a
+      // wish no plan fulfils. The undo step holds the whole list, so undoing
+      // brings the links back with the student.
       removeStudent: (id: string) => {
         const target = get().students.find((student) => student.id === id);
         setStudentsInternal((prev) =>
-          prev.filter((student) => student.id !== id),
+          withoutPartners(
+            prev.filter((student) => student.id !== id),
+            new Set([id]),
+          ),
         );
         // The removal is undoable, so the blob only goes once no undo step can
         // bring the student back (see studentPhotoTrash).
@@ -173,7 +181,10 @@ export const createStudentsStore = (
           (student) => doomed.has(student.id) && student.hasPhoto,
         );
         setStudentsInternal((prev) =>
-          prev.filter((student) => !doomed.has(student.id)),
+          withoutPartners(
+            prev.filter((student) => !doomed.has(student.id)),
+            doomed,
+          ),
         );
         for (const student of withPhotos) {
           schedulePhotoDeletion(student.id);

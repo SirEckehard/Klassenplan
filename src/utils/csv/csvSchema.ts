@@ -56,6 +56,24 @@ export const CSV_COLUMN_HEADERS: Record<CsvLanguage, readonly string[]> = {
 };
 
 /** Cell value marking a boolean column as set. */
+/**
+ * The delimiter the template and the export write. Excel set to German splits
+ * a file on the semicolon and shows a comma-separated one as a single column;
+ * set to English it splits on the comma. The import guesses the delimiter, so
+ * it reads either.
+ */
+export const CSV_DELIMITER: Record<CsvLanguage, string> = {
+  de: ';',
+  en: ',',
+};
+
+/**
+ * Starts every file the app writes: without it, Excel reads UTF-8 in the
+ * system's legacy encoding and "Müller" opens as "MÃ¼ller". The import drops
+ * it again.
+ */
+export const CSV_BYTE_ORDER_MARK = '\uFEFF';
+
 export const CSV_TRUE_VALUE: Record<CsvLanguage, string> = {
   de: 'ja',
   en: 'yes',

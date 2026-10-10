@@ -75,7 +75,7 @@ All classes in the table automatically read the variables defined in `@theme`. D
 
 Both fallbacks are metric-matched `@font-face` stand-ins calculated from `@capsizecss/metrics` the way `next/font` does (`xWidthAvg` against the fallback), so the swap does not move text: Instrument Sans over Arial, Instrument Serif over Times New Roman. Only the Latin Instrument Sans file is preloaded; the serif carries headings and swaps in.
 
-SVG `font-family` attributes are not reached by the `@theme` token, so the scene, the presentation and the circle print view take `svgFontFamily` from `designTokens.ts`. The image and PDF exporters embed the same Latin woff2 as base64 (`getPrimaryFontBase64` in `utils/export/svgRasterizer.ts`), so an exported file renders identically on a machine that has neither font installed.
+SVG `font-family` attributes are not reached by the `@theme` token, so the scene, the presentation and the circle print view take `svgFontFamily` from `designTokens.ts`. The image and PDF exporters embed the same woff2 files as base64, the Latin and the Latin Extended subset with the ranges the UI loads them for (`getEmbeddedFontCss` in `utils/export/svgRasterizer.ts`), so an exported file renders identically on a machine that has neither font installed — "Gülşen" and "Łukasz" included.
 
 Numbers that sit in columns or get compared — counts, percentages, times — are set with `tabular-nums`.
 

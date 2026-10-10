@@ -3,10 +3,12 @@
 import { describe, it, expect } from 'vitest';
 import { createMockStudent } from '@/__tests__/utils';
 import {
+  dropMissingPartners,
   getWishPartnerIds,
   getAvoidPartnerIds,
   isWishPair,
   isMutualWish,
+  withoutPartners,
 } from '../partnerUtils';
 
 describe('partnerUtils', () => {
@@ -72,6 +74,58 @@ describe('partnerUtils', () => {
     it('is wider than a mutual wish', () => {
       expect(isMutualWish(alice, bob)).toBe(false);
       expect(isWishPair(alice, bob)).toBe(true);
+    });
+  });
+
+  describe('withoutPartners', () => {
+    it('takes the gone students out of both lists, the legacy fields too', () => {
+      const anna = createMockStudent({
+        id: 'anna',
+        wishPartnerIds: ['ben', 'cem'],
+        wishPartnerId: 'ben',
+        avoidPartnerIds: ['ben'],
+        avoidPartnerId: 'ben',
+      });
+
+      const [after] = withoutPartners([anna], new Set(['ben']));
+
+      expect(after).toMatchObject({
+        wishPartnerIds: ['cem'],
+        wishPartnerId: 'cem',
+        avoidPartnerIds: [],
+        avoidPartnerId: null,
+      });
+    });
+
+    it('clears a link kept only in the legacy field', () => {
+      const anna = createMockStudent({ id: 'anna', wishPartnerId: 'ben' });
+
+      const [after] = withoutPartners([anna], new Set(['ben']));
+
+      expect(getWishPartnerIds(after!)).toEqual([]);
+    });
+
+    it('returns the same list when nobody named them', () => {
+      const students = [
+        createMockStudent({ id: 'anna', wishPartnerIds: ['cem'] }),
+        createMockStudent({ id: 'cem' }),
+      ];
+
+      expect(withoutPartners(students, new Set(['ben']))).toBe(students);
+    });
+  });
+
+  describe('dropMissingPartners', () => {
+    it('drops the links to students no longer in the class', () => {
+      const students = [
+        createMockStudent({ id: 'anna', wishPartnerIds: ['gone', 'cem'] }),
+        createMockStudent({ id: 'cem', avoidPartnerIds: ['gone'] }),
+      ];
+
+      const after = dropMissingPartners(students);
+
+      expect(getWishPartnerIds(after[0]!)).toEqual(['cem']);
+      expect(getAvoidPartnerIds(after[1]!)).toEqual([]);
     });
   });
 });

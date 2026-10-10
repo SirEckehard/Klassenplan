@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Improved
+
+- Klassenplan installed as an app opens on the class instead of the start page, and its shortcuts lead to the "Library" and to exporting
+
 ### Fixed
 
 - Restoring a backup with "Replace" while another class was open than when the backup was made overwrote the open class with the other one – its students, plans, mixes and room. It happened on an iPad and in Safari every time. Each class now comes back as the backup holds it
@@ -14,6 +18,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - After Safari closed the database connection in the background, every later save failed until the page was reloaded. The connection is now reopened
 - A class whose creation could not be saved still appeared in the class list, and a second attempt was refused as a duplicate name
 - A backup made right after an edit could miss that edit
+- A student locked to a back seat of a table taken out of the mix – or of a table at the back while the room fills from the front – got a neighbour when mixing. Mixing now seats nobody there
+- In the "Library", deleting or changing a plan, mix or room of another class said nothing when it could not be saved, and "Template deleted" appeared even when the template was not
+- Leaving the seating plan a second time without naming it turned the automatic save into a plan of its own, so the "Library" filled up with plans named after a date and time
+- The class list template and the exported class list opened in Excel set to German as a single column, with the umlauts garbled. In German they are now separated by semicolons and open as a table
+- Moving the open plan into another room of the class in the "Library" threw away what was not saved in that room yet. It is now kept in a plan of that room
+- Half a minute into the projection, the question whether the plan was only a test appeared on the wall in front of the class. It now waits until the projection is left
+- The check that tells an old browser why the page stays empty was kept by the browser for a year after an update
+- An image or PDF exported between midnight and two in the morning carried the previous day's date in its file name
+- In an exported image or PDF, letters such as ğ, ş, ł or ő in a name were drawn in another font than the rest
+- A student who was removed stayed in the others' wish and distance lists, unseen: the place counted against the limit of three, and the fulfilment of the wishes could never reach 100 %
 
 ## [3.1.0] - 2026-10-07
 

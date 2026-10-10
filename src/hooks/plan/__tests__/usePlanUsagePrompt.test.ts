@@ -65,6 +65,26 @@ describe('usePlanUsagePrompt', () => {
     unsubscribe();
   });
 
+  it('keeps the question for the way back when the page faces the class', async () => {
+    const { toasts, unsubscribe } = collectToasts();
+    const { result, unmount } = renderHook(() =>
+      usePlanUsagePrompt('c1', { holdUntilLeft: true }),
+    );
+
+    act(() => {
+      result.current(seating, 'presented');
+    });
+    await waitFor(() => expect(recordPlanUsage).toHaveBeenCalled());
+    await act(async () => {});
+    expect(toasts).toHaveLength(0);
+
+    unmount();
+
+    expect(toasts).toHaveLength(1);
+    expect(toasts[0].action?.label).toMatch(/War nur ein Test|Just a test/i);
+    unsubscribe();
+  });
+
   it('withdraws the record when the teacher says it was a test', async () => {
     const { toasts, unsubscribe } = collectToasts();
     const { result } = renderHook(() => usePlanUsagePrompt('c1'));

@@ -119,8 +119,6 @@
     "nameExists": "A class with this name already exists",
     "updateSuccess": "Class updated",
     "updateError": "Could not update class",
-    "duplicateSuccess": "Class duplicated",
-    "duplicateError": "Could not duplicate class",
     "deleteSuccess": "Class deleted",
     "deleteError": "Could not delete class",
     "switchSuccess": "Class switched",
@@ -131,7 +129,6 @@
     "createdActivatedName": "Class {{name}} created and activated",
     "createdName": "Class {{name}} created",
     "updatedName": "Class info for {{name}} updated",
-    "duplicatedName": "Class {{name}} duplicated",
     "deletedName": "Class {{name}} deleted"
   },
   "network": {
@@ -221,5 +218,8 @@
     "limit": "A class has at most {{max}} rooms.",
     "createdFromTemplate": "New room “{{name}}” opened.",
     "undoCreate": "Undo"
+  },
+  "library": {
+    "gone": "That no longer exists. It may have been deleted in another tab."
   }
 }
