@@ -55,8 +55,11 @@ type Props = {
   noteList?: {
     settings: NoteListSettings;
     onChange: (patch: Partial<NoteListSettings>) => void;
-    /** "Im Sitzkreis" is offered only where there is a circle to follow. */
-    circleAvailable: boolean;
+    /**
+     * The orders there is something to follow for: by table only with a
+     * plan, round the circle only with a circle; by name always.
+     */
+    orders: readonly NoteListOrder[];
   };
   /** How many pages the sheet runs to, where that is more than one. */
   pageCount?: number;
@@ -142,9 +145,9 @@ export default function ExportSheetInspector({
         )}`
       : t('export.sheetFormat', { orientation: orientationLabel });
   const listSettings = isList ? noteList?.settings : undefined;
-  const orderOptions: NoteListOrder[] = noteList?.circleAvailable
-    ? ['tables', 'circle', 'alphabetical']
-    : ['tables', 'alphabetical'];
+  const orderOptions: readonly NoteListOrder[] = noteList?.orders ?? [
+    'alphabetical',
+  ];
   const orderLabelKey: Record<NoteListOrder, string> = {
     tables: 'export.noteList.orderTables',
     circle: 'export.noteList.orderCircle',
@@ -304,22 +307,27 @@ export default function ExportSheetInspector({
                 />
               </InspectorRow>
             )}
-            <InspectorRow label={t('export.noteList.order')} stacked>
-              <InspectorChoice
-                label={t('export.noteList.order')}
-                layout="list"
-                value={
-                  orderOptions.includes(listSettings.order)
-                    ? listSettings.order
-                    : 'tables'
-                }
-                onChange={(next) => next && noteList.onChange({ order: next })}
-                options={orderOptions.map((order) => ({
-                  value: order,
-                  label: t(orderLabelKey[order]),
-                }))}
-              />
-            </InspectorRow>
+            {/* Without a plan the list goes by name: one order is no choice. */}
+            {orderOptions.length > 1 && (
+              <InspectorRow label={t('export.noteList.order')} stacked>
+                <InspectorChoice
+                  label={t('export.noteList.order')}
+                  layout="list"
+                  value={
+                    orderOptions.includes(listSettings.order)
+                      ? listSettings.order
+                      : orderOptions[0]
+                  }
+                  onChange={(next) =>
+                    next && noteList.onChange({ order: next })
+                  }
+                  options={orderOptions.map((order) => ({
+                    value: order,
+                    label: t(orderLabelKey[order]),
+                  }))}
+                />
+              </InspectorRow>
+            )}
           </InspectorSection>
         )}
 

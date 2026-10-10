@@ -539,7 +539,9 @@
       "errors": {
         "pdfFailed": "List PDF export failed. Please try again."
       }
-    }
+    },
+    "backToClass": "Back to the class",
+    "backToClassShortcut": "Back to the class (Alt/⌥+←)"
   },
   "wizard": {
     "back": "Back",

@@ -36,6 +36,7 @@ const renderPanel = (
     onCreatePlaceholders: vi.fn(),
     onImportCsv: vi.fn().mockResolvedValue(undefined),
     onExportCsv: vi.fn(),
+    onPrintList: vi.fn(),
   };
   render(
     <ClassToolPanel
@@ -57,6 +58,17 @@ const renderPanel = (
 };
 
 describe('ClassToolPanel', () => {
+  it('prints the class list from "Verwalten", once there is someone on it', () => {
+    const handlers = renderPanel();
+
+    fireEvent.click(getButton(/^(Liste drucken|Print list)$/));
+    expect(handlers.onPrintList).toHaveBeenCalled();
+
+    cleanup();
+    renderPanel({ studentCount: 0 });
+    expect(getButton(/^(Liste drucken|Print list)$/)).toBeDisabled();
+  });
+
   it('asks for a name in a panel instead of keeping a field on screen', () => {
     const handlers = renderPanel();
 
@@ -132,6 +144,7 @@ describe('ClassToolPanel', () => {
       expect.stringMatching(/Platzhalter erstellen|Create placeholders/),
       expect.stringMatching(/Klassenliste importieren|Import class list/),
       expect.stringMatching(/Klassenliste exportieren|Export class list/),
+      expect.stringMatching(/Liste drucken|Print list/),
     ]);
   });
 

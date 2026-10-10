@@ -14,7 +14,7 @@ import '@testing-library/jest-dom/vitest';
 import type React from 'react';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import i18n from '@/i18n';
 import Export from '../Export';
@@ -365,6 +365,47 @@ describe('Export page', () => {
         ),
       );
       expect(exportTableLayoutToPdf).not.toHaveBeenCalled();
+    });
+
+    it('opens from the class layer without a plan, by name, and leads back there', async () => {
+      seatingState.current = withoutPlan();
+      const Generator = () => (
+        <p>generator step {String(useLocation().state?.step)}</p>
+      );
+      render(
+        <MemoryRouter
+          initialEntries={[
+            { pathname: '/export', state: { mode: 'list', returnStep: 1 } },
+          ]}
+        >
+          <Routes>
+            <Route path="/export" element={<Export />} />
+            <Route path="/generator" element={<Generator />} />
+          </Routes>
+        </MemoryRouter>,
+      );
+
+      await waitFor(() =>
+        expect(renderNoteListSvgPages).toHaveBeenCalledWith(
+          expect.objectContaining({
+            entries: [
+              expect.objectContaining({ number: 1, groupStart: false }),
+              expect.objectContaining({ number: 2, groupStart: false }),
+            ],
+          }),
+        ),
+      );
+      expect(
+        screen.queryByText('Noch kein Sitzplan zum Exportieren.'),
+      ).not.toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Sitzplan' })).toBeDisabled();
+      expect(screen.getByRole('button', { name: 'Sitzkreis' })).toBeDisabled();
+      expect(screen.getByRole('button', { name: 'Drucken' })).toBeEnabled();
+
+      await userEvent.click(
+        screen.getByRole('button', { name: 'Zurück zur Klasse' }),
+      );
+      expect(await screen.findByText('generator step 1')).toBeInTheDocument();
     });
 
     it('remembers its settings, badges off until asked for', async () => {

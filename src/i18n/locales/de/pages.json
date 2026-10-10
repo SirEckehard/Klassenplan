@@ -420,7 +420,7 @@
       },
       "noteList": {
         "q": "Kann ich eine Klassenliste zum Notieren ausdrucken?",
-        "a": "Ja. Wähle auf der Exportseite unter „Ansicht“ die „Liste“. Neben jedem Namen ist Platz zum Schreiben: Notizzeilen für Beobachtungen oder ein Raster mit leeren Spalten zum Abhaken, dessen Köpfe du selbst mit Datum oder Thema beschriftest. Die Reihenfolge folgt den Tischen wie im Plan – so findest du beim Gang durch den Raum die richtige Zeile –, dem Sitzkreis oder dem Alphabet."
+        "a": "Ja. „Liste drucken“ in der Werkzeugleiste der Klasse öffnet sie direkt, auch ohne gemischten Plan; auf der Exportseite findest du sie unter „Ansicht“ als „Liste“. Neben jedem Namen ist Platz zum Schreiben: Notizzeilen für Beobachtungen oder ein Raster mit leeren Spalten zum Abhaken, dessen Köpfe du selbst mit Datum oder Thema beschriftest. Die Reihenfolge folgt den Tischen wie im Plan – so findest du beim Gang durch den Raum die richtige Zeile –, dem Sitzkreis oder dem Alphabet."
       },
       "names": {
         "q": "Die Namen sind auf dem Plan zu lang und zu klein – was kann ich tun?",

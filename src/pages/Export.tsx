@@ -45,6 +45,7 @@ import {
   buildNoteListEntries,
   DEFAULT_NOTE_LIST_SETTINGS,
   normalizeNoteListSettings,
+  type NoteListOrder,
   type NoteListSettings,
 } from '@/utils/ui/noteList';
 import type { NoteListInput } from '@/components/scene/NoteListSheet';
@@ -157,7 +158,12 @@ export default function Export() {
     planName?: string;
     circleLayout?: CircleLayout;
     /** The arrangement the plan layer showed: the sheet starts with it. */
-    mode?: SeatingMode;
+    mode?: SeatingMode | 'list';
+    /**
+     * The layer "Zurück" leads to: the plan (3) unless the page was opened
+     * from elsewhere — the class layer's "Liste drucken" passes 1.
+     */
+    returnStep?: number;
   };
   const {
     currentSeating,
@@ -178,6 +184,10 @@ export default function Export() {
   // Get circle layout from navigation state if available, or auto-generate one
   const seating = navigationState.seating || currentSeating;
   const hasPlan = classroomScene.tables.length > 0 && seating.length > 0;
+  const returnStep =
+    typeof navigationState.returnStep === 'number'
+      ? navigationState.returnStep
+      : 3;
   const stateCircleLayout = navigationState.circleLayout || null;
   const circleLayoutPromiseRef = useRef<Promise<CircleLayout | null> | null>(
     null,
@@ -206,13 +216,19 @@ export default function Export() {
   const previewSvg = previewPages[0] ?? '';
   const iframeRef = useRef<HTMLIFrameElement>(null);
   // Opened from the circle, the sheet shows the circle — where there is one
-  // to show; the toolbar switches as before.
+  // to show; opened from the class layer, the note list. The toolbar
+  // switches as before.
   const [previewMode, setPreviewMode] = useState<ExportView>(() =>
-    navigationState.mode === 'circle' &&
-    (circleLayout ?? navigationState.circleLayout)
-      ? 'circle'
-      : 'table',
+    navigationState.mode === 'list'
+      ? 'list'
+      : navigationState.mode === 'circle' &&
+          (circleLayout ?? navigationState.circleLayout)
+        ? 'circle'
+        : 'table',
   );
+  // The note list needs students, not a plan: it can be printed before the
+  // first mix, by name.
+  const hasSheet = hasPlan || (previewMode === 'list' && students.length > 0);
   // Persisted like every other display option on this page: a teacher who
   // never wants needs or connection lines on the printout should not have to
   // switch them off again on each visit.
@@ -440,11 +456,21 @@ export default function Export() {
         ? circleOrientation
         : tableOrientation;
 
-  // The note list follows the circle only where there is one.
-  const noteListOrder =
-    noteListSettings.order === 'circle' && !circleLayout
-      ? 'tables'
-      : noteListSettings.order;
+  // The orders there is something to follow for: the tables only once
+  // someone sits at one, the circle only where there is one. A stored order
+  // with nothing to follow falls back to the first that has.
+  const someoneSeated = seating.some((table) => table.some(Boolean));
+  const noteListOrders = useMemo<NoteListOrder[]>(
+    () => [
+      ...(someoneSeated ? (['tables'] as const) : []),
+      ...(circleLayout ? (['circle'] as const) : []),
+      'alphabetical',
+    ],
+    [someoneSeated, circleLayout],
+  );
+  const noteListOrder = noteListOrders.includes(noteListSettings.order)
+    ? noteListSettings.order
+    : noteListOrders[0]!;
   const noteListEntries = useMemo(
     () =>
       buildNoteListEntries(students, {
@@ -1116,8 +1142,8 @@ export default function Export() {
   }, [previewMode, handleNoteListPdf, handleCirclePdf, handleTablePdf]);
 
   const backToPlan = useCallback(
-    () => navigate('/generator', { state: { step: 3 } }),
-    [navigate],
+    () => navigate('/generator', { state: { step: returnStep } }),
+    [navigate, returnStep],
   );
 
   // P saves the PDF of whatever the sheet shows, as the toolbar's one PDF
@@ -1153,7 +1179,7 @@ export default function Export() {
       noteList={{
         settings: noteListSettings,
         onChange: updateNoteList,
-        circleAvailable: Boolean(circleLayout),
+        orders: noteListOrders,
       }}
       pageCount={pageCount}
       title={title}
@@ -1218,7 +1244,7 @@ export default function Export() {
       header={<SeatingPlanHeader view="export" />}
       statusBar={
         <ExportStatusBar
-          hasPlan={hasPlan}
+          hasPlan={hasSheet}
           sheetLabel={sheetLabel}
           studentCount={students.length}
           circleGeneration={
@@ -1231,7 +1257,8 @@ export default function Export() {
               : null
           }
           onPrint={() => void handlePrint()}
-          onBack={hasPlan ? backToPlan : undefined}
+          onBack={hasSheet ? backToPlan : undefined}
+          backTarget={returnStep === 1 ? 'class' : 'plan'}
         />
       }
     >
@@ -1243,7 +1270,7 @@ export default function Export() {
           description: metadata.description,
         }}
       />
-      {!hasPlan ? (
+      {!hasSheet ? (
         <ExportEmptyState onBack={backToPlan} />
       ) : (
         <div className={workspaceLayerClass}>
@@ -1254,6 +1281,7 @@ export default function Export() {
                 mode={previewMode}
                 onModeChange={handleModeChange}
                 modeDisabled={circleGenerationInProgress}
+                planViewsDisabled={!hasPlan}
                 onPdf={handlePdf}
                 onPng={() => void handlePngExport()}
                 onSvg={() => void handleSvgExport()}

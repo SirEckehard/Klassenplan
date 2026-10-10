@@ -26,6 +26,11 @@ type Props = {
   onModeChange: (mode: ExportView) => void;
   /** While the circle is still being built there is nothing to switch to. */
   modeDisabled?: boolean;
+  /**
+   * Without a plan only the note list has something to show; the table plan
+   * and the circle stay greyed out.
+   */
+  planViewsDisabled?: boolean;
   onPdf: () => void;
   onPng: () => void;
   onSvg: () => void;
@@ -47,6 +52,7 @@ export default function ExportToolPanel({
   mode,
   onModeChange,
   modeDisabled = false,
+  planViewsDisabled = false,
   onPdf,
   onPng,
   onSvg,
@@ -61,14 +67,14 @@ export default function ExportToolPanel({
           icon={<GridNineIcon size={18} />}
           label={t('shell.layers.plan')}
           active={mode === 'table'}
-          disabled={modeDisabled}
+          disabled={modeDisabled || planViewsDisabled}
           onClick={() => onModeChange('table')}
         />
         <ToolRailButton
           icon={<CircleDashedIcon size={18} />}
           label={t('shell.layers.circle')}
           active={mode === 'circle'}
-          disabled={modeDisabled}
+          disabled={modeDisabled || planViewsDisabled}
           onClick={() => onModeChange('circle')}
         />
         <ToolRailButton

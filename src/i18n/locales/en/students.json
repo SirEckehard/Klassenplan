@@ -89,7 +89,9 @@
     "newStudent": "New Student",
     "createPlaceholders": "Create placeholders",
     "delete": "Delete",
-    "placeholderCountPlaceholder": "Count"
+    "placeholderCountPlaceholder": "Count",
+    "printList": "Print list",
+    "printListTitle": "Print the class list with room for notes"
   },
   "csv": {
     "import": "Import class list",

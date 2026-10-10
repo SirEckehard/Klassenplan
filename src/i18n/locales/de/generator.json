@@ -539,7 +539,9 @@
       "errors": {
         "pdfFailed": "Listen-PDF-Export fehlgeschlagen. Bitte versuche es erneut."
       }
-    }
+    },
+    "backToClass": "Zurück zur Klasse",
+    "backToClassShortcut": "Zurück zur Klasse (Alt/⌥+←)"
   },
   "wizard": {
     "back": "Zurück",

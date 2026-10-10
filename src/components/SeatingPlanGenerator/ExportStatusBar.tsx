@@ -29,6 +29,11 @@ type Props = {
    * plan: the empty page is that one button already.
    */
   onBack?: () => void;
+  /**
+   * Where "Zurück" leads, for its accessible name and tooltip: the plan, or
+   * the class when the list was opened from the class layer.
+   */
+  backTarget?: 'plan' | 'class';
 };
 
 /**
@@ -48,6 +53,7 @@ export default function ExportStatusBar({
   circleGeneration,
   onPrint,
   onBack,
+  backTarget = 'plan',
 }: Props) {
   const { t } = useTranslation('generator');
 
@@ -83,8 +89,16 @@ export default function ExportStatusBar({
             <button
               type="button"
               onClick={onBack}
-              aria-label={t('export.backToSeating')}
-              title={t('export.backToSeatingShortcut')}
+              aria-label={
+                backTarget === 'class'
+                  ? t('export.backToClass')
+                  : t('export.backToSeating')
+              }
+              title={
+                backTarget === 'class'
+                  ? t('export.backToClassShortcut')
+                  : t('export.backToSeatingShortcut')
+              }
               className={statusBarBackButtonClass}
             >
               <ArrowLeftIcon className="h-4 w-4" aria-hidden="true" />

@@ -8,6 +8,7 @@ import {
   FileArrowUpIcon,
   GraphIcon,
   ListBulletsIcon,
+  PrinterIcon,
   SquaresFourIcon,
   TableIcon,
   UserPlusIcon,
@@ -54,6 +55,8 @@ type Props = {
   onCreatePlaceholders: () => boolean;
   onImportCsv: (file: File) => Promise<unknown>;
   onExportCsv: () => void;
+  /** Opens the export page on the note list: the class with room to write. */
+  onPrintList: () => void;
   onLoadDemoClass?: () => void;
   isDemoClassLoading?: boolean;
   hasDemoClass?: boolean;
@@ -68,7 +71,8 @@ const menuIconClass = 'h-4 w-4 shrink-0 text-(--text-muted)';
 
 /**
  * The class layer's toolbar: how to look at the students, and who is in the
- * class — added one by one or as placeholders, and the class list as a file.
+ * class — added one by one or as placeholders, the class list as a file, and
+ * the class on paper with room to write (the export page's note list).
  * The backup and the class tools are in the foot every rail shares
  * (`ToolRail`).
  *
@@ -93,6 +97,7 @@ export default function ClassToolPanel({
   onCreatePlaceholders,
   onImportCsv,
   onExportCsv,
+  onPrintList,
   onLoadDemoClass,
   isDemoClassLoading = false,
   hasDemoClass = false,
@@ -332,6 +337,13 @@ export default function ClassToolPanel({
           label={t('students:csv.export')}
           disabled={!hasStudents}
           onClick={onExportCsv}
+        />
+        <ToolRailButton
+          icon={<PrinterIcon size={18} />}
+          label={t('students:studentList.printList')}
+          title={t('students:studentList.printListTitle')}
+          disabled={!hasStudents}
+          onClick={onPrintList}
         />
       </ToolRailGroup>
     </ToolRail>

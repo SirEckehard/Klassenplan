@@ -89,7 +89,9 @@
     "newStudent": "Neuer Schüler",
     "createPlaceholders": "Platzhalter erstellen",
     "delete": "Löschen",
-    "placeholderCountPlaceholder": "Anzahl"
+    "placeholderCountPlaceholder": "Anzahl",
+    "printList": "Liste drucken",
+    "printListTitle": "Klassenliste mit Platz für Notizen drucken"
   },
   "csv": {
     "import": "Klassenliste importieren",

@@ -8,6 +8,7 @@ import '@/i18n';
 import ExportSheetInspector from '../ExportSheetInspector';
 import {
   DEFAULT_NOTE_LIST_SETTINGS,
+  type NoteListOrder,
   type NoteListSettings,
 } from '@/utils/ui/noteList';
 
@@ -190,11 +191,11 @@ describe('ExportSheetInspector gender colours', () => {
 describe('ExportSheetInspector note list', () => {
   const noteList = (
     patch: Partial<NoteListSettings> = {},
-    circleAvailable = false,
+    orders: NoteListOrder[] = ['tables', 'alphabetical'],
   ) => ({
     settings: { ...DEFAULT_NOTE_LIST_SETTINGS, ...patch },
     onChange: vi.fn(),
-    circleAvailable,
+    orders,
   });
 
   it('sets the form, the lines and the order of the list', () => {
@@ -221,17 +222,28 @@ describe('ExportSheetInspector note list', () => {
     expect(list.onChange).toHaveBeenCalledWith({ columns: 12 });
   });
 
-  it('offers the circle order only where there is a circle', () => {
+  it('offers the orders there is something to follow for', () => {
     renderInspector({ mode: 'list', noteList: noteList() });
     expect(
       screen.queryByRole('button', { name: /Im Sitzkreis|Round the circle/ }),
     ).not.toBeInTheDocument();
 
     cleanup();
-    renderInspector({ mode: 'list', noteList: noteList({}, true) });
+    renderInspector({
+      mode: 'list',
+      noteList: noteList({}, ['tables', 'circle', 'alphabetical']),
+    });
     expect(
       screen.getByRole('button', { name: /Im Sitzkreis|Round the circle/ }),
     ).toBeInTheDocument();
+  });
+
+  it('asks for no order where only the alphabet is left', () => {
+    renderInspector({ mode: 'list', noteList: noteList({}, ['alphabetical']) });
+
+    expect(
+      screen.queryByRole('group', { name: /^(Reihenfolge|Order)$/ }),
+    ).not.toBeInTheDocument();
   });
 
   it('leaves out what a list of names has no use for', () => {

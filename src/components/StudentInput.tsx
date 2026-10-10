@@ -6,6 +6,7 @@ import { InfoIcon, TableIcon } from '@phosphor-icons/react';
 
 import { useStudentManagement } from '@/hooks/student/useStudentManagement';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
+import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';
 import { downloadCsvTemplate } from '@/utils/csv/csvTemplateDownload';
 import { openCsvFormatHelp } from '@/utils/ui/csvFormatHelp';
 import ConfirmDialog from '@/components/ui/modals/ConfirmDialog';
@@ -80,6 +81,7 @@ function StudentInput({
   downloadStudentsCsv,
 }: StudentInputProps) {
   const { t } = useTranslation('students');
+  const navigate = useLocalizedNavigate();
   const [placeholderCount, setPlaceholderCount] = useState('10');
 
   // Below `lg` the list flows in the page scroll (no inner scroll container);
@@ -285,6 +287,13 @@ function StudentInput({
     showToast('success', t('bulkEdit.deleted', { count: ids.length }));
   }, [selection, removeStudents, setBulkDeleteOpen, t]);
 
+  // The note list needs no plan: it opens on the list, and its way back leads
+  // here rather than to the plan.
+  const handlePrintList = useCallback(
+    () => navigate('/export', { state: { mode: 'list', returnStep: 1 } }),
+    [navigate],
+  );
+
   // The same toolbar with or without a class: without one, what needs a class
   // is greyed out, and the foot — the class tools, the plans, the backup —
   // stays in reach.
@@ -306,6 +315,7 @@ function StudentInput({
           onCreatePlaceholders={handleCreatePlaceholders}
           onImportCsv={analyzeCsvFile}
           onExportCsv={downloadStudentsCsv}
+          onPrintList={handlePrintList}
           onLoadDemoClass={isDemoClassActive ? undefined : handleLoadDemoClass}
           isDemoClassLoading={isLoadingDemoClass}
           hasDemoClass={hasDemoClass}
