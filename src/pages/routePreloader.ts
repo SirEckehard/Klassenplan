@@ -95,6 +95,7 @@ export function preloadLikelyRoutes(currentPath: string): void {
         preloadRoute('wer-kommt-dran');
         preloadRoute('wo-sitzt-wer');
         preloadRoute('gruppen');
+        preloadRoute('dienste');
         preloadRoute('namensspiel');
         break;
       case 'export':
@@ -111,8 +112,9 @@ export function preloadLikelyRoutes(currentPath: string): void {
         preloadRoute('export');
         break;
       case 'present':
-        // "Gruppen bilden" sits in the projection's bar
+        // "Gruppen bilden" and "Dienste verteilen" sit in the projection's bar
         preloadRoute('gruppen');
+        preloadRoute('dienste');
         preloadRoute('generator');
         break;
       default:

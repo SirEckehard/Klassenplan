@@ -437,6 +437,7 @@ translate one to one.
 | Wer kommt dran?                           | `/wer-kommt-dran`, `useRandomStudentPicker`                  | Draws a student without replacement — everybody before anybody twice                                                                   |
 | Wo sitzt wer?                             | `/wo-sitzt-wer`, `findSeatLocation`                          | Looks a seat up: table, depth, landmark, neighbour                                                                                     |
 | Gruppen bilden                            | `/gruppen`, `buildGroups`                                    | Draws groups out of the class; not the seating algorithm ([decision 0019](decisions/0019-classroom-tools-as-routes.md))                |
+| Dienste verteilen                         | `/dienste`, `drawDuties`, `dutyStore`                        | Hands out named duties in fair turns, remembered per class ([decision 0028](decisions/0028-duties-remembered-per-class.md))            |
 | Kontrastmodus                             | `contrast` on `PresentationScene`                            | The projection in black on white for a bright room                                                                                     |
 | Backup                                    | `ExportBundle`, encrypted envelope                           | The one way data leaves the browser                                                                                                    |
 

@@ -54,6 +54,7 @@ import { useDownloadFile } from './useDownloadFile';
 import { summarizeClass } from '@/utils/data/classCollection';
 import { sweepOrphanPhotos } from '@/repositories/studentPhotoStore';
 import { sweepOrphanNameGameStats } from '@/repositories/nameGameStatsStore';
+import { sweepOrphanDuties } from '@/repositories/dutyStore';
 import {
   backfillPlanUsage,
   recordPlanUsage,
@@ -178,8 +179,8 @@ export function useSeatingPersistence(state: SeatingState) {
         ) ?? collection.classes[0];
       setActiveClass(mapActiveClass(activeRecord));
 
-      // Remove photos, name-game stats and plan usage records whose student or
-      // class no longer exists (e.g. after a class was deleted).
+      // Remove photos, name-game stats, plan usage records and duties whose
+      // student or class no longer exists (e.g. after a class was deleted).
       // Fire-and-forget; failures are handled internally.
       const knownStudentIds = new Set<string>();
       // Per class, ids and names alike: pair keys written before students
@@ -197,6 +198,7 @@ export function useSeatingPersistence(state: SeatingState) {
       void sweepOrphanPhotos(knownStudentIds);
       void sweepOrphanNameGameStats(knownStudentIds);
       void sweepOrphanPlanUsage(studentIdsByClass);
+      void sweepOrphanDuties(studentIdsByClass);
     },
     [mapActiveClass, setActiveClass, setClassSummaries],
   );

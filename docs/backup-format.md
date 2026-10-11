@@ -41,6 +41,10 @@ Optional fields (version ≥ 2):
   every class detects them; older backups restore as detecting. A full import
   replaces the list; a merge adds the classes that have no records on this
   device yet.
+- `duties` – map of class id → `ClassDuties`: the class's duties and the rounds
+  they were handed out in ([decision 0028](decisions/0028-duties-remembered-per-class.md)).
+  Absent when no class has duties. A full import replaces the stored duties; a
+  merge only adds classes that have none yet.
 
 Inside the nested objects, the same structures apply as in the application's
 TypeScript types (`Student`, `SavedPlan`, `MixResult`,

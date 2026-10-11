@@ -15,9 +15,10 @@ import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';
 import { primaryButtonClass, quietIconButtonClass } from '@/utils';
 
 /**
- * The frame the three classroom tools share: one screen, one job, one thumb.
+ * The frame the classroom tools share: one screen, one job, one thumb.
  *
- * "Wer kommt dran?", "Wo sitzt wer?" and "Gruppen bilden" are used standing up
+ * "Wer kommt dran?", "Wo sitzt wer?", "Gruppen bilden" and "Dienste
+ * verteilen" are used standing up
  * — in the doorway, between two desks, in front of the class — so each of them
  * is its own page instead of a panel inside the workspace: a phone is held in
  * one hand, and what it shows has to be the whole answer. The action sits at

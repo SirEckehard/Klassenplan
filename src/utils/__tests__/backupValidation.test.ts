@@ -264,6 +264,59 @@ describe('backupValidation: neighbourhood resets', () => {
   });
 });
 
+describe('backupValidation: class duties', () => {
+  const classDuties = {
+    duties: [{ id: 'board', name: 'Tafeldienst', count: 2 }],
+    current: {
+      at: '2026-10-11T08:00:00.000Z',
+      assignments: { board: ['s1', 's2'] },
+    },
+    rounds: [],
+  };
+
+  it('accepts the duties and rounds of every class', () => {
+    const json = JSON.stringify({
+      ...baseBundle,
+      version: 2,
+      duties: { 'class-1': classDuties },
+    });
+
+    expect(parseExportBundle(json).duties).toEqual({
+      'class-1': classDuties,
+    });
+  });
+
+  it('rejects a duty that takes more students than the tool allows', () => {
+    const json = JSON.stringify({
+      ...baseBundle,
+      version: 2,
+      duties: {
+        'class-1': {
+          ...classDuties,
+          duties: [{ id: 'board', name: 'Tafeldienst', count: 99 }],
+        },
+      },
+    });
+
+    expect(() => parseExportBundle(json)).toThrow(BackupValidationError);
+  });
+
+  it('rejects a round that is no point in time', () => {
+    const json = JSON.stringify({
+      ...baseBundle,
+      version: 2,
+      duties: {
+        'class-1': {
+          ...classDuties,
+          rounds: [{ at: 'letzte Woche', assignments: {} }],
+        },
+      },
+    });
+
+    expect(() => parseExportBundle(json)).toThrow(BackupValidationError);
+  });
+});
+
 describe('backupValidation: class notes', () => {
   const withClassNotes = (notes: string) =>
     JSON.stringify({

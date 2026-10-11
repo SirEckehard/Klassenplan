@@ -406,6 +406,10 @@
         "q": "Was sind „Wer kommt dran?“, „Wo sitzt wer?“ und „Gruppen bilden“?",
         "a": "Drei Werkzeuge für den Unterricht, die sich auch gut am Tablet oder Handy bedienen lassen. „Wer kommt dran?“ zieht zufällig einen Schüler, wobei jeder einmal drankommt, bevor sich jemand wiederholt. „Wo sitzt wer?“ findet einen Schüler im Raum. „Gruppen bilden“ lost Gruppen aus der Klasse aus und trennt dabei nach Möglichkeit Distanzwünsche. Du öffnest sie in der Werkzeugleiste unter „Klassenwerkzeuge“."
       },
+      "duties": {
+        "q": "Wie verteile ich Klassendienste?",
+        "a": "Unter „Klassenwerkzeuge“ öffnet „Dienste verteilen“ eine Liste, in der du Dienste wie Tafeldienst oder Fegedienst benennst und festlegst, wie viele Schüler jeder braucht. „Dienste verteilen“ lost sie aus: Wer bisher die wenigsten Dienste hatte, kommt zuerst dran, und niemand bekommt zwei auf einmal. Fällt jemand aus, ersetzt du nur diese Person. Die Dienste und die letzten 20 Runden bleiben bei der Klasse gespeichert, die Verteilung lässt sich als PDF für den Aushang speichern."
+      },
       "circle": {
         "q": "Wie funktioniert der Sitzkreis-Modus?",
         "a": "Im Sitzplan wählst du in der Werkzeugleiste unter „Ansicht“ den „Sitzkreis“. Klassenplan erstellt automatisch einen passenden Kreis und koppelt ihn an deinen aktuellen Sitzplan. Du kannst die Plätze im Sitzkreis per Drag & Drop anpassen, ohne den Sitzplan zu verändern, und ihn separat präsentieren oder exportieren."

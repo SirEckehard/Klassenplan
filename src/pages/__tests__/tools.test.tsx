@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 /**
- * The three classroom tools are used standing up, in front of a class, so the
- * thing they promise has to be on screen in one step: a name, a seat, a set of
- * groups. These tests hold each of them to that first screen.
+ * The classroom tools are used standing up, in front of a class, so the thing
+ * they promise has to be on screen in one step: a name, a seat, a set of
+ * groups, who does which duty. These tests hold each of them to that first
+ * screen.
  */
 import '@testing-library/jest-dom/vitest';
 import { fireEvent, render, screen, within } from '@testing-library/react';
@@ -11,6 +12,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import '@/i18n';
 import Groups from '../Groups';
+import Duties from '../Duties';
 import WhoIsNext from '../WhoIsNext';
 import SeatFinder from '../SeatFinder';
 import { setupLocalStorageMock } from '@/__tests__/utils';
@@ -28,6 +30,21 @@ const seatingState = vi.hoisted(() => ({
 
 vi.mock('@/contexts/SeatingPlanContext', () => ({
   useSeatingPlanState: () => seatingState.current,
+}));
+// The duties are stored per class; here in a map that each test starts empty.
+const dutyMemory = vi.hoisted(() => new Map<string, unknown>());
+vi.mock('@/repositories/dutyStore', () => ({
+  emptyClassDuties: () => ({ duties: [], current: null, rounds: [] }),
+  loadClassDuties: async (classId: string) =>
+    dutyMemory.get(classId) ?? { duties: [], current: null, rounds: [] },
+  saveClassDuties: async (classId: string, duties: unknown) => {
+    dutyMemory.set(classId, duties);
+    return true;
+  },
+}));
+const exportDutyRosterToPdf = vi.hoisted(() => vi.fn(async () => {}));
+vi.mock('@/services/export/pdfExportFunctions', () => ({
+  exportDutyRosterToPdf,
 }));
 vi.mock('@/components/scene/PresentationScene', () => ({
   default: () => <div data-testid="presentation-scene" />,
@@ -63,6 +80,7 @@ const renderPage = (page: React.ReactNode) =>
 
 beforeEach(() => {
   setupLocalStorageMock();
+  dutyMemory.clear();
   seatingState.current = {
     currentSeating: [],
     classroomScene: { tables: [], totalStudents: 0, features: [] },
@@ -186,6 +204,104 @@ describe('Wo sitzt wer?', () => {
     expect(
       screen.getByText(/Niemand in diesem Plan|Nobody in this plan/),
     ).toBeInTheDocument();
+  });
+});
+
+describe('Dienste verteilen', () => {
+  it('says what it needs when there is no class', () => {
+    renderPage(<Duties />);
+
+    expect(
+      screen.getByText(/Keine Klasse für Dienste|No class for duties/),
+    ).toBeInTheDocument();
+  });
+
+  it('hands out a suggested duty and keeps it for the class', async () => {
+    seatingState.current = {
+      ...seatingState.current,
+      students: [ada, ben, cem],
+    };
+
+    renderPage(<Duties />);
+    fireEvent.click(
+      await screen.findByRole('button', { name: /Tafeldienst|Board duty/ }),
+    );
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: /^(Dienste verteilen|Hand out duties)$/,
+      }),
+    );
+
+    const card = screen
+      .getAllByRole('listitem')
+      .find((item) => /Tafeldienst|Board duty/.test(item.textContent ?? ''));
+    expect(card).toBeDefined();
+    expect(
+      [ada, ben, cem].filter((student) =>
+        within(card!).queryByText(student.name),
+      ),
+    ).toHaveLength(1);
+    await vi.waitFor(() =>
+      expect(dutyMemory.get('class-1')).toMatchObject({
+        duties: [{ name: expect.stringMatching(/Tafeldienst|Board duty/) }],
+        current: { assignments: expect.any(Object) },
+      }),
+    );
+  });
+
+  it('stands someone else in for a student who cannot do it', async () => {
+    seatingState.current = {
+      ...seatingState.current,
+      students: [ada, ben],
+    };
+    dutyMemory.set('class-1', {
+      duties: [{ id: 'board', name: 'Tafeldienst', count: 1 }],
+      current: {
+        at: '2026-10-11T08:00:00.000Z',
+        assignments: { board: ['ada'] },
+      },
+      rounds: [],
+    });
+
+    renderPage(<Duties />);
+    fireEvent.click(
+      await screen.findByRole('button', {
+        name: /Ada Lovelace durch jemand anderen ersetzen|Replace Ada Lovelace/,
+      }),
+    );
+
+    expect(screen.getByText(ben.name)).toBeInTheDocument();
+    expect(screen.queryByText(ada.name)).not.toBeInTheDocument();
+  });
+});
+
+describe('Dienste verteilen: the rota as a PDF', () => {
+  it('hands the round to the PDF export', async () => {
+    seatingState.current = {
+      ...seatingState.current,
+      students: [ada, ben],
+    };
+    dutyMemory.set('class-1', {
+      duties: [{ id: 'bins', name: 'Mülldienst', count: 2 }],
+      current: {
+        at: '2026-10-11T08:00:00.000Z',
+        assignments: { bins: ['ben'] },
+      },
+      rounds: [],
+    });
+
+    renderPage(<Duties />);
+    fireEvent.click(await screen.findByRole('button', { name: /^PDF$/ }));
+
+    await vi.waitFor(() =>
+      expect(exportDutyRosterToPdf).toHaveBeenCalledWith(
+        expect.objectContaining({
+          at: '2026-10-11T08:00:00.000Z',
+          rows: [{ name: 'Mülldienst', holders: [ben.name], open: 1 }],
+        }),
+        expect.stringMatching(/_7b$/),
+      ),
+    );
   });
 });
 

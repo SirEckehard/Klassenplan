@@ -96,6 +96,17 @@
     "noindex": true
   },
   {
+    "path": "/dienste",
+    "title": "Dienste verteilen – Klassendienste fair rotieren | Klassenplan",
+    "description": "Tafeldienst, Fegedienst, Mülldienst: Dienste benennen, Anzahl wählen und reihum fair verteilen – wer lange keinen Dienst hatte, kommt zuerst dran.",
+    "titleEn": "Hand Out Duties – Rotate Class Jobs Fairly | Klassenplan",
+    "descriptionEn": "Board duty, sweeping, bin duty: name the duties, set how many each needs and hand them out in fair turns – whoever had none for longest goes first.",
+    "changefreq": "monthly",
+    "priority": 0.5,
+    "ogType": "article",
+    "noindex": true
+  },
+  {
     "path": "/impressum",
     "title": "Impressum | Klassenplan",
     "description": "Kontaktdaten, Verantwortliche und rechtliche Angaben zum Projekt Klassenplan.",

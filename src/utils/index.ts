@@ -111,6 +111,10 @@ export {
   MAX_NAME_LENGTH,
   MAX_NOTE_LENGTH,
   MAX_ROOMS_PER_CLASS,
+  MAX_DUTIES,
+  MAX_DUTY_NAME_LENGTH,
+  MAX_DUTY_COUNT,
+  MAX_DUTY_ROUNDS,
   getTablePresets,
   TABLE_PRESETS,
   STUDENT_FLAGS,
@@ -163,6 +167,9 @@ export type {
 // ===== Drawing groups out of a class =====
 export { buildGroups, planGroupSizes } from './groupDraw';
 export type { GroupDrawOptions, GroupDrawResult } from './groupDraw';
+
+// ===== Handing out class duties =====
+export { drawDuties, pickForDuty, startDutyRound, trimRound } from './dutyDraw';
 
 // ===== Seating Utilities =====
 export { addSeatingForTables } from './seating/seatingOperations';

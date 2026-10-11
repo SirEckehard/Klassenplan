@@ -135,7 +135,9 @@
     "end": "End",
     "exit": "End the presentation",
     "groups": "Build groups",
-    "groupsTitle": "Draw groups from this class"
+    "groupsTitle": "Draw groups from this class",
+    "duties": "Duties",
+    "dutiesTitle": "Hand out this class’s duties"
   },
   "mode": {
     "table": "Seating Plan",
@@ -1080,6 +1082,47 @@
       "help1": "The groups are drawn afresh every time and are not stored anywhere.",
       "help2": "Students with a distance wish stay out of the same group where the sizes allow it.",
       "help3": "The seating plan is untouched — a group is for one lesson, a seat for the term."
+    },
+    "duties": {
+      "title": "Hand out duties",
+      "listHeading": "Duties",
+      "namePlaceholder": "Name of the duty",
+      "nameLabel": "Name of duty {{number}}",
+      "unnamed": "Duty {{number}}",
+      "countLabel": "Number for {{name}}",
+      "fewer": "{{name}}: one person fewer",
+      "more": "{{name}}: one person more",
+      "remove": "Remove {{name}}",
+      "add": "Add a duty",
+      "suggestion": {
+        "board": "Board duty",
+        "sweeping": "Sweeping",
+        "bins": "Bin duty",
+        "tidying": "Tidying up"
+      },
+      "roundHeading": "Handed out on {{date}}",
+      "roundEmptyHeading": "Rota",
+      "hint": "From {{total}} students — tap “Hand out duties” below.",
+      "draw": "Hand out duties",
+      "again": "Hand out again",
+      "replace": "Replace {{name}} with someone else",
+      "open": "Open",
+      "fill": "Draw someone",
+      "shortfall_one": "The class has {{total}} students — {{count}} place stays open.",
+      "shortfall_other": "The class has {{total}} students — {{count}} places stay open.",
+      "pdf": "PDF",
+      "pdfTitle": "Save the rota as a PDF – a notice to print",
+      "sheet": {
+        "title": "Duties",
+        "duty": "Duty",
+        "holders": "Responsible"
+      },
+      "emptyTitle": "No class for duties",
+      "emptyBody": "Create a class with names first; this view then hands out the duties.",
+      "help1": "Whoever has had the fewest duties so far goes first; on a tie, whoever has had this duty less often.",
+      "help2": "Each person gets at most one duty per round.",
+      "help3": "If someone drops out, the arrows beside the name replace just that person.",
+      "help4": "The duties and the last 20 rounds are kept with the class and are part of the backup."
     },
     "back": "Back",
     "backTitle": "Back (Alt/⌥+←)"

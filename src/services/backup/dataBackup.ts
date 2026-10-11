@@ -47,6 +47,7 @@ import {
   getAllPlanUsageResets,
   restorePlanUsage,
 } from '@/repositories/planUsageStore';
+import { getAllDuties, restoreDuties } from '@/repositories/dutyStore';
 import { normalizeSeatingHistory } from '@/utils/data/planNormalization';
 import {
   getAllPhotos,
@@ -211,6 +212,9 @@ export async function exportAllAsJson(
     // Without it a restored device would detect the plans of a class whose
     // teacher marks them by hand.
     const planUsageManualClassIds = await getAllPlanUsageManualClassIds();
+    // The rounds are what makes the rotation fair; a backup without them would
+    // start every class's duties from scratch on a new device.
+    const duties = await getAllDuties();
     const bundle: ExportBundle = {
       version: CURRENT_EXPORT_VERSION,
       students: data.students,
@@ -227,6 +231,7 @@ export async function exportAllAsJson(
       ...(planUsage ? { planUsage } : {}),
       ...(planUsageResetAt ? { planUsageResetAt } : {}),
       ...(planUsageManualClassIds ? { planUsageManualClassIds } : {}),
+      ...(duties ? { duties } : {}),
     };
     return JSON.stringify(bundle, null, 2);
   } catch (e) {
@@ -374,6 +379,7 @@ export async function importAllFromJson(
       resetAtByClass: data.planUsageResetAt,
       manualClassIds: data.planUsageManualClassIds,
     });
+    await restoreDuties(data.duties, { merge: false });
     return { merge: false };
   } catch (error) {
     logError('Import failed while applying backup', { error }, 'dataBackup');
@@ -454,6 +460,7 @@ async function mergeIntoStored(
     resetAtByClass: data.planUsageResetAt,
     manualClassIds: data.planUsageManualClassIds,
   });
+  await restoreDuties(data.duties, { merge: true });
   return {
     merge: true,
     addedClasses: addedClassIds.length,

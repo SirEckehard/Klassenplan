@@ -74,6 +74,14 @@ export const MAX_NOTE_LENGTH = 2000;
 // it too, for the reason given at MAX_NAME_LENGTH.
 export const MAX_ROOMS_PER_CLASS = 30;
 
+// Class duties (decision 0028): how many a class names, how long a name may
+// be, how many students one duty takes and how many past rounds the rotation
+// remembers. The backup import holds to them too.
+export const MAX_DUTIES = 12;
+export const MAX_DUTY_NAME_LENGTH = 40;
+export const MAX_DUTY_COUNT = 10;
+export const MAX_DUTY_ROUNDS = 20;
+
 // The name-game quiz needs 4 answer options, so 4 students with photos is the minimum
 export const NAME_GAME_MIN_PHOTOS = 4;
 

@@ -85,3 +85,4 @@ export type {
   NameGameData,
 } from './NameGame';
 export type { PlanUsage, PlanUsageSource, PlanUsageData } from './PlanUsage';
+export type { ClassDuties, Duty, DutyData, DutyRound } from './Duties';

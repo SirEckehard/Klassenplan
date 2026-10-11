@@ -38,7 +38,9 @@ that also opens the name game (`/namensspiel`), on every layer and on the
 export page; until then only the plan layer's toolbar listed them. What is
 shared is the way in, not the page: each tool keeps its own route. Nothing
 about them is stored: the draw, the search and the groups live for as long as
-the screen is open.
+the screen is open. "Dienste verteilen" (`/dienste`), added later, is a tool of
+the same kind that does keep its duties and rounds, because a rota is fair only
+across rounds ([decision 0028](0028-duties-remembered-per-class.md)).
 
 ## Alternatives considered
 

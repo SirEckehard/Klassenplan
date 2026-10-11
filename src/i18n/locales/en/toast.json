@@ -221,5 +221,11 @@
   },
   "library": {
     "gone": "That no longer exists. It may have been deleted in another tab."
+  },
+  "duties": {
+    "saveFailed": "The duties could not be saved.",
+    "redistributed": "Duties handed out again.",
+    "redistributedAction": "Undo",
+    "nobodyLeft": "Nobody left – everyone else already has a duty."
   }
 }

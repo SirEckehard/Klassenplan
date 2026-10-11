@@ -11,11 +11,11 @@ document: [backup-format.md](backup-format.md).
 
 ## Overview
 
-| Store           | Location                                                                  | Holds                                                                                |
-| --------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| Key-value store | IndexedDB, idb-keyval's default database (`keyval-store`, store `keyval`) | Class collection, room templates, circle exports, plan usage record, name game stats |
-| Photo store     | IndexedDB database `spg-student-photos`, object store `photos`            | One image blob per student                                                           |
-| localStorage    | The origin's localStorage                                                 | UI preferences, backup reminder state, a migration mirror — no student data          |
+| Store           | Location                                                                  | Holds                                                                                        |
+| --------------- | ------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| Key-value store | IndexedDB, idb-keyval's default database (`keyval-store`, store `keyval`) | Class collection, room templates, circle exports, plan usage record, name game stats, duties |
+| Photo store     | IndexedDB database `spg-student-photos`, object store `photos`            | One image blob per student                                                                   |
+| localStorage    | The origin's localStorage                                                 | UI preferences, backup reminder state, a migration mirror — no student data                  |
 
 All IndexedDB access goes through `src/repositories/idbClient.ts`, the only
 module that imports `idb-keyval` ([decision 0002](decisions/0002-single-indexeddb-entry-point.md)).
@@ -29,6 +29,7 @@ module that imports `idb-keyval` ([decision 0002](decisions/0002-single-indexedd
 | `spg.circleLayouts`      | `CircleExportData[]`   | Circle layouts kept for export, shared by all classes   |
 | `spg.planUsage`          | `PlanUsageData`        | Plan usage record, one bucket per class                 |
 | `spg.nameGameStats`      | `NameGameData`         | Name game statistics per student                        |
+| `spg.duties`             | `DutyData`             | Class duties and their rounds, one entry per class      |
 | `spg.migrationVersion`   | `number`               | Version of the last completed table migration           |
 | `spg.version`            | `number`               | `APP_DATA_VERSION` (currently 2), stamped on every load |
 
@@ -237,6 +238,20 @@ undefined until they give one. It never holds a full arrangement. Semantics are 
 A single `NameGameData` value (`version: 1`) with per-student quiz statistics
 and the best memory results per round size.
 
+### Class duties
+
+A single `DutyData` value (`version: 1`), `byClass` mapping a class id to its
+`ClassDuties` ([decision 0028](decisions/0028-duties-remembered-per-class.md)):
+
+- `duties` – `{ id, name, count }`, at most 12 (`MAX_DUTIES`), a name of up to
+  40 characters, 1 to 10 students each.
+- `current` – the round on the wall, `null` before the first draw.
+- `rounds` – up to 20 earlier rounds (`MAX_DUTY_ROUNDS`), oldest first.
+
+A round is `{ at, assignments }`: an ISO 8601 timestamp and duty id → student
+ids. A round may name a student who has since left or a duty since removed;
+`trimRound` leaves both out when it is shown or changed.
+
 ## Photo store
 
 - Database `spg-student-photos`, object store `photos`. Key: the student id.
@@ -310,6 +325,7 @@ list is `PROJECT_LOCAL_STORAGE_KEYS` in `storageKeys.ts`. Groups:
 | App data stamp           | `APP_DATA_VERSION` = 2            | `spg.version`                                | Stamped on every load                                                                                                                                                                                   |
 | Plan usage record        | 1                                 | `version` field                              | Other versions read as empty                                                                                                                                                                            |
 | Name game statistics     | 1                                 | `version` field                              |                                                                                                                                                                                                         |
+| Class duties             | 1                                 | `version` field                              | Other versions read as empty                                                                                                                                                                            |
 | Photo store              | `STUDENT_PHOTO_STORE_VERSION` = 1 | `__photoStoreVersion` key                    | Stamped by the start-up sweep                                                                                                                                                                           |
 | Backup file              | 2                                 | `version` in the bundle                      | Version 1 files stay importable ([backup-format.md](backup-format.md))                                                                                                                                  |
 
@@ -332,10 +348,11 @@ list is `PROJECT_LOCAL_STORAGE_KEYS` in `storageKeys.ts`. Groups:
 | Saved plans          | none                  | The teacher deletes them                                                                 |
 | Student photos       | one per student       | The deletion is committed after undo can no longer reach it; orphans are swept on load   |
 | Name game statistics | one entry per student | Orphans are swept on load                                                                |
+| Duty rounds          | 20 per class          | A new round pushes out the oldest; students no longer in the class are swept on load     |
 | A whole class        | —                     | The teacher deletes it; its photos, statistics and usage records go with the next sweep  |
 
 The orphan sweeps (`sweepOrphanPhotos`, `sweepOrphanNameGameStats`,
-`sweepOrphanPlanUsage`) run whenever `useSeatingPersistence` applies a loaded
+`sweepOrphanPlanUsage`, `sweepOrphanDuties`) run whenever `useSeatingPersistence` applies a loaded
 class collection. Nothing expires by age.
 
 ### "Delete all data"

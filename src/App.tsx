@@ -19,6 +19,7 @@ import { logWarn } from '@/utils';
 import {
   Changelog,
   Datenschutz,
+  Duties,
   Export,
   FAQ,
   Feedback,
@@ -79,6 +80,7 @@ function AppRoutes() {
       <Route path="wer-kommt-dran" element={<WhoIsNext />} />
       <Route path="wo-sitzt-wer" element={<SeatFinder />} />
       <Route path="gruppen" element={<Groups />} />
+      <Route path="dienste" element={<Duties />} />
       <Route path="impressum" element={<Impressum />} />
       <Route path="datenschutz" element={<Datenschutz />} />
       <Route path="feedback" element={<Feedback />} />
@@ -122,6 +124,8 @@ export default function App() {
     '/en/wo-sitzt-wer',
     '/gruppen',
     '/en/gruppen',
+    '/dienste',
+    '/en/dienste',
   ].includes(routePath);
 
   // Route preloading for better perceived performance

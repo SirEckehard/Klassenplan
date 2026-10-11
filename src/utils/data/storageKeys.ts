@@ -111,6 +111,7 @@ export const STORAGE_KEYS = {
     classCollection: 'spg.classCollection',
     nameGameStats: 'spg.nameGameStats',
     planUsage: 'spg.planUsage',
+    duties: 'spg.duties',
     version: 'spg.version',
   },
 } as const;

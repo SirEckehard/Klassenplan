@@ -14,6 +14,7 @@ vi.mock('@/pages/lazyPages', () => {
     'wer-kommt-dran',
     'wo-sitzt-wer',
     'gruppen',
+    'dienste',
     'impressum',
     'datenschutz',
     'feedback',
@@ -51,6 +52,7 @@ describe('preloadLikelyRoutes', () => {
     expect(routeComponents['wer-kommt-dran'].preload).toHaveBeenCalled();
     expect(routeComponents['wo-sitzt-wer'].preload).toHaveBeenCalled();
     expect(routeComponents.gruppen.preload).toHaveBeenCalled();
+    expect(routeComponents.dienste.preload).toHaveBeenCalled();
     expect(routeComponents.namensspiel.preload).toHaveBeenCalled();
   });
 });

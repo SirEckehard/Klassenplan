@@ -4,11 +4,13 @@ import type { CircleLayout } from '@/types/Circle';
 import type { ClassroomScene, SeatingArrangement, Student } from '@/types';
 import {
   renderCircleSvg,
+  renderDutyRosterSvg,
   renderNoteListSvgPages,
   renderSceneSvg,
   type ExportClassMetadata,
 } from '@/services/export/sceneRenderer';
 import type { NoteListInput } from '@/components/scene/NoteListSheet';
+import type { DutyRosterInput } from '@/components/scene/DutyRosterSheet';
 import { logError, toIsoDate } from '@/utils';
 import type { DataFamily, NameDisplayMode } from '@/utils';
 import { confirmDownload } from '@/utils/ui/downloadConfirmation';
@@ -146,6 +148,17 @@ export async function exportNoteListToPdf(
     : undefined;
   const pages = await renderNoteListSvgPages({ ...input, photoDataUrls });
   await exportSvgToPdf(pages, filename, input.settings.orientation);
+}
+
+/**
+ * Export the duty rota as a one-page PDF in portrait, framed as every sheet.
+ */
+export async function exportDutyRosterToPdf(
+  input: DutyRosterInput,
+  filename: string,
+): Promise<void> {
+  const svg = await renderDutyRosterSvg(input);
+  await exportSvgToPdf(svg, filename, 'portrait');
 }
 
 const PDF_PAGE_DIMENSIONS: Record<

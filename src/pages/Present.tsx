@@ -195,11 +195,12 @@ export default function Present() {
     '0': reset,
   });
 
-  // "Gruppen bilden" goes back through the history, so this entry is where
-  // its way back lands: it is brought up to the view on screen first.
-  const openGroups = () => {
+  // "Gruppen bilden" and "Dienste verteilen" go back through the history, so
+  // this entry is where their way back lands: it is brought up to the view on
+  // screen first.
+  const openTool = (route: '/gruppen' | '/dienste') => {
     navigate('/present', { replace: true, state: { mode, perspective } });
-    navigate('/gruppen');
+    navigate(route);
   };
 
   const hasPlan = classroomScene.tables.length > 0 && currentSeating.length > 0;
@@ -469,7 +470,8 @@ export default function Present() {
             nameDisplay={currentNameDisplay}
             onCycleNameDisplay={cycleNameDisplay}
             onPick={picker.total > 0 ? picker.pick : undefined}
-            onOpenGroups={openGroups}
+            onOpenGroups={() => openTool('/gruppen')}
+            onOpenDuties={() => openTool('/dienste')}
             zoom={zoom}
             minZoom={PRESENT_MIN_ZOOM}
             maxZoom={PRESENT_MAX_ZOOM}

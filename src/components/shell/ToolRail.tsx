@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import {
   ArchiveIcon,
+  BroomIcon,
   ChalkboardTeacherIcon,
   DownloadIcon,
   FoldersIcon,
@@ -193,6 +194,11 @@ function ToolRailFoot({ planPresent }: { planPresent: boolean }) {
       route: '/gruppen',
       Icon: UsersThreeIcon,
       label: t('generator:tools.groups.title'),
+    },
+    {
+      route: '/dienste',
+      Icon: BroomIcon,
+      label: t('generator:tools.duties.title'),
     },
     {
       route: '/namensspiel',

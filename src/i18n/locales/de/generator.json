@@ -135,7 +135,9 @@
     "end": "Beenden",
     "exit": "Präsentation beenden",
     "groups": "Gruppen bilden",
-    "groupsTitle": "Aus dieser Klasse Gruppen ziehen"
+    "groupsTitle": "Aus dieser Klasse Gruppen ziehen",
+    "duties": "Dienste",
+    "dutiesTitle": "Die Dienste dieser Klasse verteilen"
   },
   "mode": {
     "table": "Sitzplan",
@@ -1080,6 +1082,47 @@
       "help1": "Die Gruppen werden jedes Mal neu gezogen und nirgends gespeichert.",
       "help2": "Wer einen Distanzwunsch hat, landet nach Möglichkeit nicht in derselben Gruppe.",
       "help3": "Der Sitzplan bleibt unberührt — eine Gruppe gilt für eine Stunde, ein Platz für das Halbjahr."
+    },
+    "duties": {
+      "title": "Dienste verteilen",
+      "listHeading": "Dienste",
+      "namePlaceholder": "Name des Dienstes",
+      "nameLabel": "Name von Dienst {{number}}",
+      "unnamed": "Dienst {{number}}",
+      "countLabel": "Anzahl für {{name}}",
+      "fewer": "{{name}}: eine Person weniger",
+      "more": "{{name}}: eine Person mehr",
+      "remove": "{{name}} entfernen",
+      "add": "Dienst hinzufügen",
+      "suggestion": {
+        "board": "Tafeldienst",
+        "sweeping": "Fegedienst",
+        "bins": "Mülldienst",
+        "tidying": "Ordnungsdienst"
+      },
+      "roundHeading": "Verteilt am {{date}}",
+      "roundEmptyHeading": "Verteilung",
+      "hint": "Aus {{total}} Schülern — tippe unten auf „Dienste verteilen“.",
+      "draw": "Dienste verteilen",
+      "again": "Neu verteilen",
+      "replace": "{{name}} durch jemand anderen ersetzen",
+      "open": "Frei",
+      "fill": "Jemanden ziehen",
+      "shortfall_one": "Die Klasse hat {{total}} Schüler — {{count}} Platz bleibt frei.",
+      "shortfall_other": "Die Klasse hat {{total}} Schüler — {{count}} Plätze bleiben frei.",
+      "pdf": "PDF",
+      "pdfTitle": "Verteilung als PDF speichern – als Aushang zum Drucken",
+      "sheet": {
+        "title": "Dienste",
+        "duty": "Dienst",
+        "holders": "Zuständig"
+      },
+      "emptyTitle": "Keine Klasse für Dienste",
+      "emptyBody": "Lege zuerst eine Klasse mit Namen an; danach verteilt diese Ansicht die Dienste.",
+      "help1": "Wer bisher die wenigsten Dienste hatte, kommt zuerst dran; bei Gleichstand, wer diesen Dienst seltener hatte.",
+      "help2": "Jede Person bekommt pro Runde höchstens einen Dienst.",
+      "help3": "Fällt jemand aus, ersetzen die Pfeile neben dem Namen nur diese Person.",
+      "help4": "Die Dienste und die letzten 20 Runden bleiben bei der Klasse gespeichert und sind Teil des Backups."
     },
     "back": "Zurück",
     "backTitle": "Zurück (Alt/⌥+←)"

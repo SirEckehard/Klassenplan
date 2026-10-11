@@ -11,6 +11,9 @@ import NoteListSheet, {
   planNoteList,
   type NoteListInput,
 } from '@/components/scene/NoteListSheet';
+import DutyRosterSheet, {
+  type DutyRosterInput,
+} from '@/components/scene/DutyRosterSheet';
 
 export type ExportClassMetadata = {
   name?: string | null;
@@ -151,5 +154,18 @@ export async function renderNoteListSvgPages(
         </div>,
       ),
     ),
+  );
+}
+
+/**
+ * Render the duty rota (decision 0028) as one SVG page.
+ */
+export async function renderDutyRosterSvg(
+  input: DutyRosterInput,
+): Promise<string> {
+  return renderMarkup(
+    <div style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
+      <DutyRosterSheet {...input} />
+    </div>,
   );
 }

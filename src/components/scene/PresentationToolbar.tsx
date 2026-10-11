@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import {
   ArrowsInIcon,
   ArrowsOutIcon,
+  BroomIcon,
   ChalkboardTeacherIcon,
   CircleDashedIcon,
   CornersInIcon,
@@ -177,6 +178,8 @@ type PresentationToolbarProps = {
   onPick?: () => void;
   /** Absent until the groups view exists for this class. */
   onOpenGroups?: () => void;
+  /** Absent until the duties view exists for this class. */
+  onOpenDuties?: () => void;
   zoom: number;
   minZoom: number;
   maxZoom: number;
@@ -208,6 +211,7 @@ export default function PresentationToolbar({
   onCycleNameDisplay,
   onPick,
   onOpenGroups,
+  onOpenDuties,
   zoom,
   minZoom,
   maxZoom,
@@ -290,6 +294,17 @@ export default function PresentationToolbar({
           >
             <UsersThreeIcon size={18} aria-hidden />
             <span>{t('present.groups')}</span>
+          </button>
+        )}
+        {onOpenDuties && (
+          <button
+            type="button"
+            onClick={onOpenDuties}
+            title={t('present.dutiesTitle')}
+            className={`${barIconButtonClass} ${quietClass} px-3`}
+          >
+            <BroomIcon size={18} aria-hidden />
+            <span>{t('present.duties')}</span>
           </button>
         )}
 

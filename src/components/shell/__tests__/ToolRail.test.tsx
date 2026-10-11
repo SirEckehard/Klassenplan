@@ -183,7 +183,7 @@ describe('ToolRail', () => {
     },
   );
 
-  it('opens the four class tools from one menu', () => {
+  it('opens the five class tools from one menu', () => {
     renderRail();
 
     fireEvent.click(getButton(/Klassenwerkzeuge|Class tools/i));
@@ -198,6 +198,7 @@ describe('ToolRail', () => {
       expect.stringMatching(/Wer kommt dran\?|Who.s next\?/),
       expect.stringMatching(/Wo sitzt wer\?|Where does who sit\?/),
       expect.stringMatching(/Gruppen bilden|Build groups/),
+      expect.stringMatching(/Dienste verteilen|Hand out duties/),
       expect.stringMatching(/Namensspiel|Name Game/),
     ]);
 

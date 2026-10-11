@@ -17,10 +17,11 @@ export const Export = lazyWithRetry(() => import('@/pages/Export'));
 export const PlanLibrary = lazyWithRetry(() => import('@/pages/PlanLibrary'));
 export const Present = lazyWithRetry(() => import('@/pages/Present'));
 export const NameGame = lazyWithRetry(() => import('@/pages/NameGame'));
-// The three classroom tools: one screen, one job, used standing up.
+// The classroom tools: one screen, one job, used standing up.
 export const WhoIsNext = lazyWithRetry(() => import('@/pages/WhoIsNext'));
 export const SeatFinder = lazyWithRetry(() => import('@/pages/SeatFinder'));
 export const Groups = lazyWithRetry(() => import('@/pages/Groups'));
+export const Duties = lazyWithRetry(() => import('@/pages/Duties'));
 // A build with IMPRINT_URL / PRIVACY_URL aliases these two modules to forwarding
 // pages (vite.config.ts), which keeps klassenplan.de's texts out of that build.
 export const Impressum = lazyWithRetry(() => import('@/pages/Impressum'));
@@ -45,6 +46,7 @@ export const routeComponents = {
   'wer-kommt-dran': WhoIsNext,
   'wo-sitzt-wer': SeatFinder,
   gruppen: Groups,
+  dienste: Duties,
   impressum: Impressum,
   datenschutz: Datenschutz,
   feedback: Feedback,

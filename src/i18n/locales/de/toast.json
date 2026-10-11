@@ -221,5 +221,11 @@
   },
   "library": {
     "gone": "Das gibt es nicht mehr. Vielleicht wurde es in einem anderen Tab gelöscht."
+  },
+  "duties": {
+    "saveFailed": "Die Dienste konnten nicht gespeichert werden.",
+    "redistributed": "Dienste neu verteilt.",
+    "redistributedAction": "Rückgängig",
+    "nobodyLeft": "Niemand mehr frei – alle anderen haben schon einen Dienst."
   }
 }

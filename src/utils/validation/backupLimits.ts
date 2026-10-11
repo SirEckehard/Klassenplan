@@ -9,6 +9,10 @@
  * pull all of it into the initial bundle.
  */
 import {
+  MAX_DUTIES,
+  MAX_DUTY_COUNT,
+  MAX_DUTY_NAME_LENGTH,
+  MAX_DUTY_ROUNDS,
   MAX_NAME_LENGTH,
   MAX_NOTE_LENGTH,
   MAX_ROOMS_PER_CLASS,
@@ -57,6 +61,12 @@ export const BACKUP_LIMITS = {
   maxPlanUsageClasses: 200,
   maxPlanUsageRecords: 200,
   maxPlanUsagePairs: 1000,
+  // Class duties (decision 0028), held to what the tool allows.
+  maxDutyClasses: 200,
+  maxDuties: MAX_DUTIES,
+  maxDutyNameLength: MAX_DUTY_NAME_LENGTH,
+  maxDutyCount: MAX_DUTY_COUNT,
+  maxDutyRounds: MAX_DUTY_ROUNDS,
   // Bounds for KDF iteration counts declared in the encrypted envelope: the
   // lower bound rejects deliberately weakened files, the upper bound prevents
   // a tampered envelope from stalling the browser during key derivation.

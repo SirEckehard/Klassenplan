@@ -406,6 +406,10 @@
         "q": "What are “Who’s next?”, “Where does who sit?” and “Build groups”?",
         "a": "Three tools for the lesson that also work well on a tablet or phone. “Who’s next?” draws a random student, and everyone gets a turn before anyone comes up twice. “Where does who sit?” finds a student in the room. “Build groups” draws groups from the class and keeps distance wishes apart where it can. You open them from “Class tools” in the toolbar."
       },
+      "duties": {
+        "q": "How do I hand out class duties?",
+        "a": "Under “Class tools”, “Hand out duties” opens a list where you name duties such as board duty or sweeping and set how many students each needs. “Hand out duties” then draws them: whoever has had the fewest duties so far goes first, and nobody gets two at once. If someone drops out, you replace just that person. The duties and the last 20 rounds are kept with the class, and the rota saves as a PDF to put up."
+      },
       "circle": {
         "q": "How does the seating circle mode work?",
         "a": "On the seating plan, choose “Circle” under “View” in the toolbar. Klassenplan creates a suitable circle automatically and links it to your current seating plan. You can adjust the seats in the circle by drag & drop without changing the seating plan, and present or export it separately."

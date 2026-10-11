@@ -1075,6 +1075,82 @@ function validateExportBundleStructure(
   if ('planUsageManualClassIds' in value && value.planUsageManualClassIds) {
     validatePlanUsageManualClassIds(value.planUsageManualClassIds);
   }
+  if ('duties' in value && value.duties) {
+    validateDuties(value.duties);
+  }
+}
+
+/** One round of duties: a timestamp and duty id → student ids. */
+function validateDutyRound(value: unknown): void {
+  if (
+    !isObject(value) ||
+    !assertString(value.at, { maxLength: BACKUP_LIMITS.maxTimestampLength }) ||
+    Number.isNaN(Date.parse(value.at)) ||
+    !isObject(value.assignments)
+  ) {
+    throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
+  }
+  const entries = Object.entries(value.assignments);
+  if (entries.length > BACKUP_LIMITS.maxDuties) {
+    throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
+  }
+  for (const [dutyId, ids] of entries) {
+    if (
+      !assertString(dutyId, { maxLength: BACKUP_LIMITS.maxIdLength }) ||
+      !Array.isArray(ids) ||
+      ids.length > BACKUP_LIMITS.maxDutyCount ||
+      !ids.every((id) =>
+        assertString(id, { maxLength: BACKUP_LIMITS.maxIdLength }),
+      )
+    ) {
+      throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
+    }
+  }
+}
+
+/** Every class's duties (decision 0028): class id → duties and rounds. */
+function validateDuties(value: unknown): void {
+  if (!isObject(value)) {
+    throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
+  }
+  const entries = Object.entries(value);
+  if (entries.length > BACKUP_LIMITS.maxDutyClasses) {
+    throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
+  }
+  for (const [classId, entry] of entries) {
+    if (
+      !assertString(classId, { maxLength: BACKUP_LIMITS.maxIdLength }) ||
+      !isObject(entry) ||
+      !Array.isArray(entry.duties) ||
+      entry.duties.length > BACKUP_LIMITS.maxDuties ||
+      !Array.isArray(entry.rounds) ||
+      entry.rounds.length > BACKUP_LIMITS.maxDutyRounds
+    ) {
+      throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
+    }
+    for (const duty of entry.duties as unknown[]) {
+      if (
+        !isObject(duty) ||
+        !assertString(duty.id, { maxLength: BACKUP_LIMITS.maxIdLength }) ||
+        // A duty is named after it is added, so a backup may hold one
+        // that has no name yet.
+        !assertString(duty.name, {
+          allowEmpty: true,
+          maxLength: BACKUP_LIMITS.maxDutyNameLength,
+        }) ||
+        typeof duty.count !== 'number' ||
+        !Number.isInteger(duty.count) ||
+        duty.count < 1 ||
+        duty.count > BACKUP_LIMITS.maxDutyCount
+      ) {
+        throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
+      }
+    }
+    if (entry.current !== null && entry.current !== undefined) {
+      validateDutyRound(entry.current);
+    }
+    (entry.rounds as unknown[]).forEach(validateDutyRound);
+  }
 }
 
 function assertEncryptedBackupPayload(
