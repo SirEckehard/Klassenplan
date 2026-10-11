@@ -70,6 +70,27 @@ describe('StudentList keyboard', () => {
     expect(screen.getByTestId('inspected')).toHaveTextContent('a keepFocus');
   });
 
+  it('quiets the focus ring of a row the arrows opened until it loses focus', () => {
+    renderList();
+    row('Anna').focus();
+    expect(row('Anna')).not.toHaveAttribute('data-quiet-focus');
+
+    fireEvent.keyDown(row('Anna'), { key: 'ArrowDown' });
+    expect(row('Ben')).toHaveAttribute('data-quiet-focus');
+
+    row('Ben').blur();
+    expect(row('Ben')).not.toHaveAttribute('data-quiet-focus');
+  });
+
+  it('keeps the focus ring where the arrows only move the focus', () => {
+    layout.isPhone = true;
+    renderList();
+    row('Anna').focus();
+
+    fireEvent.keyDown(row('Anna'), { key: 'ArrowDown' });
+    expect(row('Ben')).not.toHaveAttribute('data-quiet-focus');
+  });
+
   it('goes to the ends with Home and End and stops there', () => {
     renderList();
     row('Anna').focus();

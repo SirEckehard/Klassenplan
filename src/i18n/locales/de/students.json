@@ -198,6 +198,7 @@
     "loner": "Einzelgänger",
     "socialHub": "Mittelpunkt",
     "neutral": "Neutral",
+    "notSet": "Keine",
     "tooltip": {
       "mediator": "Wirkt beruhigend auf Mitschüler, kann Konflikte entschärfen",
       "leader": "Übernimmt gerne Führung, starke Persönlichkeit",
@@ -312,6 +313,7 @@
       "mixed": "gemischt"
     },
     "choiceMixed": "{{label}} (bei einigen)",
+    "valueMixed": "Gemischt",
     "flagSetHint": "Klicken, um es bei allen Ausgewählten zu setzen",
     "flagClearHint": "Klicken, um es bei allen Ausgewählten zu entfernen",
     "clearValue": "— entfernen —",

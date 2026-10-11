@@ -547,7 +547,13 @@ describe('StudentInput bulk editing in the inspector', () => {
       name: /Mehrfachbearbeitung|Bulk editing/i,
     });
     await user.click(
-      within(panel).getByRole('button', { name: /^(Fließend|Fluent)$/i }),
+      within(panel).getByRole('button', {
+        name: /^(Sprachniveau|Language level):/i,
+      }),
+    );
+    // The menu is portalled to the end of the page, outside the panel.
+    await user.click(
+      await screen.findByRole('button', { name: /^(Fließend|Fluent)$/i }),
     );
 
     expect(updateStudents).toHaveBeenCalledExactlyOnceWith(['1', '2'], {

@@ -116,7 +116,7 @@ export default function StudentInspector({
         // it rather than beside the name — which needs the width more: three
         // buttons beside it cut "Lina Schneider" to "Lina Schneid…".
         subtitle={
-          <span className="flex items-center gap-1">
+          <span className="flex items-center gap-1 text-control">
             {t('inspector.position', {
               index: position.index,
               total: position.total,
@@ -125,30 +125,34 @@ export default function StudentInspector({
               type="button"
               onClick={onPrevious}
               disabled={!onPrevious}
-              className={`${quietIconButtonClass} ml-1 h-6 w-6 pointer-coarse:h-10 pointer-coarse:w-10`}
+              className={`${quietIconButtonClass} ml-1 h-8 w-8 pointer-coarse:h-10 pointer-coarse:w-10`}
               aria-label={t('inspector.previousStudent')}
               title={t('inspector.previousStudentHint')}
             >
-              <CaretLeftIcon size={14} aria-hidden="true" />
+              <CaretLeftIcon size={16} aria-hidden="true" />
             </button>
             <button
               type="button"
               onClick={onNext}
               disabled={!onNext}
-              className={`${quietIconButtonClass} h-6 w-6 pointer-coarse:h-10 pointer-coarse:w-10`}
+              className={`${quietIconButtonClass} h-8 w-8 pointer-coarse:h-10 pointer-coarse:w-10`}
               aria-label={t('inspector.nextStudent')}
               title={t('inspector.nextStudentHint')}
             >
-              <CaretRightIcon size={14} aria-hidden="true" />
+              <CaretRightIcon size={16} aria-hidden="true" />
             </button>
           </span>
         }
+        // Only the phone's sheet and the tablet's drawer close from here: a
+        // finger needs a way out it can see. From `lg` up putting the student
+        // away would only leave the column's empty notice — the column folds
+        // from the status bar, and its width goes to the name.
         actions={
           onClose && (
             <button
               type="button"
               onClick={onClose}
-              className={`${quietIconButtonClass} h-8 w-8`}
+              className={`${quietIconButtonClass} h-8 w-8 pointer-coarse:h-10 pointer-coarse:w-10 lg:hidden`}
               aria-label={t('inspector.close')}
             >
               <XIcon size={16} aria-hidden="true" />

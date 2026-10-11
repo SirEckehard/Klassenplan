@@ -129,8 +129,10 @@ function StudentRow({
         // The chips stand beside the name where the list is wide enough
         // (`@2xl`, the list card being the container) and under it where it
         // is not. At least 60px, not exactly: a row of fixed height spilled
-        // chips that wrapped over the rows below.
-        className="flex min-w-0 flex-1 cursor-pointer flex-wrap items-center gap-x-3 gap-y-1 py-2 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) @2xl:min-h-15 @2xl:flex-nowrap"
+        // chips that wrapped over the rows below. A row the list's arrows
+        // opened drops its ring (`data-quiet-focus`, set by `StudentList`):
+        // the blue bar marks it already.
+        className="flex min-w-0 flex-1 cursor-pointer flex-wrap items-center gap-x-3 gap-y-1 py-2 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) data-quiet-focus:focus-visible:ring-0 @2xl:min-h-15 @2xl:flex-nowrap"
       >
         <span className="w-6 shrink-0 text-xs tabular-nums text-(--text-muted)">
           {index + 1}.

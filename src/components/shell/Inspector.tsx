@@ -19,9 +19,14 @@ import {
 import StudentInspectorPanel from '@/components/students/StudentInspectorPanel';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 
-/** The column from `lg` up; `hidden` below, where the drawer takes over. */
+/**
+ * The column from `lg` up; `hidden` below, where the drawer takes over. Like
+ * the toolbar it is the window's edge, not a card, so it takes the page's
+ * paper — the drawers below keep the card surface, since they lie over the
+ * stage.
+ */
 const columnClass =
-  'hidden w-80 shrink-0 flex-col overflow-hidden border-l border-(--border-card) bg-(--surface-card) lg:flex';
+  'hidden w-80 shrink-0 flex-col overflow-hidden border-l border-(--border-card) bg-(--surface-page) lg:flex';
 
 /**
  * Below `lg` the inspector has no column of its own: it opens as a drawer

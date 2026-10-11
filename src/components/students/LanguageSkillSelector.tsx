@@ -3,11 +3,9 @@
 import { useTranslation } from 'react-i18next';
 import type { LanguageSkillLevel, Student } from '@/types';
 import { STUDENT_ATTRIBUTE_ICONS } from '@/utils/ui/studentAppearance';
-import {
-  InspectorChoice,
-  InspectorIcon,
-  InspectorRow,
-} from '@/components/shell/InspectorPanel';
+import { CRITERIA_ICON_MAP } from '@/utils/ui/criteriaIcons';
+import { InspectorIcon } from '@/components/shell/InspectorPanel';
+import InspectorSelect from './InspectorSelect';
 
 const LANGUAGE_SKILL_LABELS = {
   native: 'languageSkill.native',
@@ -30,8 +28,8 @@ const LANGUAGE_SKILL_OPTIONS: LanguageSkillLevel[] = [
  * criterion, which seats a strong level beside a beginner — so the value is
  * about what a table can carry, not about where anybody is from.
  *
- * Five levels from Erstsprache down are a scale, so they stand as a list in
- * that order, each with the icon its seat badge shows.
+ * Five levels from Erstsprache down are a scale, so the menu the row opens
+ * lists them in that order, each with the icon its seat badge shows.
  */
 export default function LanguageSkillSelector({
   student,
@@ -46,25 +44,30 @@ export default function LanguageSkillSelector({
   const { t } = useTranslation('students');
 
   return (
-    <InspectorRow label={t('languageSkill.title')} stacked>
-      <InspectorChoice
-        label={t('languageSkill.title')}
-        layout="list"
-        value={student.languageSkill}
-        mixedValues={mixedValues}
-        onChange={(next) => updateStudent(student.id, { languageSkill: next })}
-        options={LANGUAGE_SKILL_OPTIONS.map((level) => ({
-          value: level,
-          label: t(LANGUAGE_SKILL_LABELS[level]),
-          title: t(`languageSkill.tooltip.${level}`),
-          icon: (
-            <InspectorIcon
-              icon={STUDENT_ATTRIBUTE_ICONS.languageSkill[level]}
-              family="language"
-            />
-          ),
-        }))}
-      />
-    </InspectorRow>
+    <InspectorSelect
+      label={t('languageSkill.title')}
+      icon={
+        <InspectorIcon
+          icon={CRITERIA_ICON_MAP.preferLanguageMixing}
+          family="language"
+        />
+      }
+      family="language"
+      notSetLabel={t('languageSkill.notSet')}
+      value={student.languageSkill}
+      mixedValues={mixedValues}
+      onChange={(next) => updateStudent(student.id, { languageSkill: next })}
+      options={LANGUAGE_SKILL_OPTIONS.map((level) => ({
+        value: level,
+        label: t(LANGUAGE_SKILL_LABELS[level]),
+        title: t(`languageSkill.tooltip.${level}`),
+        icon: (
+          <InspectorIcon
+            icon={STUDENT_ATTRIBUTE_ICONS.languageSkill[level]}
+            family="language"
+          />
+        ),
+      }))}
+    />
   );
 }

@@ -198,6 +198,7 @@
     "loner": "Loner",
     "socialHub": "Social Hub",
     "neutral": "Neutral",
+    "notSet": "None",
     "tooltip": {
       "mediator": "Has calming effect on classmates, can defuse conflicts",
       "leader": "Likes to take charge, strong personality",
@@ -312,6 +313,7 @@
       "mixed": "mixed"
     },
     "choiceMixed": "{{label}} (some of them)",
+    "valueMixed": "Mixed",
     "flagSetHint": "Click to set it for everyone selected",
     "flagClearHint": "Click to clear it for everyone selected",
     "clearValue": "— clear —",

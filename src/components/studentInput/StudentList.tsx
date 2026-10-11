@@ -28,6 +28,18 @@ type StudentListProps = {
   selectionActive?: boolean;
 };
 
+/** Hides the focus ring (`data-quiet-focus`) until the element loses focus. */
+const quietFocusRing = (element: HTMLElement) => {
+  element.dataset.quietFocus = '';
+  element.addEventListener(
+    'blur',
+    () => {
+      delete element.dataset.quietFocus;
+    },
+    { once: true },
+  );
+};
+
 /**
  * The class list: one card of rows, the header with select-all on top.
  *
@@ -86,12 +98,16 @@ const StudentList = ({
     const next = parts[nextIndex];
     if (!next || next === target) return;
 
+    const studentId = next.dataset.studentId;
+    const opens = part === 'open' && studentId && !selectionActive && !isPhone;
+    // A row the arrows open carries the opened row's blue bar, which already
+    // says where the focus is; the ring would say it twice. It comes back
+    // when the focus arrives another way — by Tab, or by an arrow that only
+    // moves it.
+    if (opens) quietFocusRing(next);
     next.focus({ preventScroll: true });
     next.closest('[data-student-row]')?.scrollIntoView?.({ block: 'nearest' });
-    const studentId = next.dataset.studentId;
-    if (part === 'open' && studentId && !selectionActive && !isPhone) {
-      selectStudent(studentId, { keepFocus: true });
-    }
+    if (opens) selectStudent(studentId, { keepFocus: true });
   };
 
   if (students.length === 0) {

@@ -11,8 +11,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - "Hand out duties" among the class tools: name duties such as board duty or sweeping, set how many students each needs, and draw them in fair turns – whoever has had the fewest duties so far goes first, and nobody gets two at once. Someone who drops out is replaced on their own. The duties and the last 20 rounds are kept with the class, and the rota saves as a PDF to put up
 
+### Improved
+
+- In the student inspector, social role and language level take one row each instead of a list of four or five: the value stands on a button that opens the choices as a menu, with "None" or "Not specified" first to take it back. Both rows carry the icon of their criterion before their name
+- On a wide screen the student inspector no longer has a close button – its column folds away from the status bar. The name gets the room, and "Student 1 of 24" with the arrows beside it is larger. On a phone and a tablet the button stays
+- Stepping through the class list with the arrow keys no longer draws a blue frame round the row, since the opened row's bar already shows where you are; reaching a row with Tab still shows it
+
 ### Fixed
 
+- In dark mode the inspector's column was a lighter shade than the toolbar; both edges of the workspace now share the same one
 - In the seating plan editor, names on turned tables came out smaller than the rest, because room was kept on every seat for the lock that only appears under the mouse. That lock now lies over the name while it shows, and where a lock is always drawn – on a touch screen, or once a seat is locked – the name moves aside from it instead of shrinking, so the names are as large as on the exported sheet
 - The narrow toolbar could be scrolled sideways
 
