@@ -285,8 +285,10 @@
     "sortLabel": "Sorting",
     "sort": {
       "manual": "Own order",
-      "nameAsc": "Name A–Z",
-      "nameDesc": "Name Z–A"
+      "nameAsc": "First name A–Z",
+      "nameDesc": "First name Z–A",
+      "lastNameAsc": "Last name A–Z",
+      "lastNameDesc": "Last name Z–A"
     },
     "selectAll": "Select all",
     "filterPopover": "Search and filter",

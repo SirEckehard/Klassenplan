@@ -7,16 +7,17 @@ import { workbenchPillClass } from '@/components/students/classWorkbenchTokens';
 import WorkbenchSelect from '@/components/students/WorkbenchSelect';
 import {
   STUDENT_FILTER_MODES,
+  STUDENT_SORT_MODES,
   type StudentFilterMode,
   type StudentSortMode,
 } from '@/components/studentInput/hooks/useStudentListView';
-
-const SORT_MODES: StudentSortMode[] = ['manual', 'name-asc', 'name-desc'];
 
 const SORT_LABEL_KEYS: Record<StudentSortMode, string> = {
   manual: 'listToolbar.sort.manual',
   'name-asc': 'listToolbar.sort.nameAsc',
   'name-desc': 'listToolbar.sort.nameDesc',
+  'lastName-asc': 'listToolbar.sort.lastNameAsc',
+  'lastName-desc': 'listToolbar.sort.lastNameDesc',
 };
 
 interface StudentListFilterControlsProps {
@@ -71,7 +72,7 @@ export default function StudentListFilterControls({
     value: mode,
     label: t(`listToolbar.filters.${mode}`),
   }));
-  const sortOptions = SORT_MODES.map((mode) => ({
+  const sortOptions = STUDENT_SORT_MODES.map((mode) => ({
     value: mode,
     label: t(SORT_LABEL_KEYS[mode]),
   }));

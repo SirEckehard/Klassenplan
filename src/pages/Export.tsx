@@ -465,6 +465,7 @@ export default function Export() {
       ...(someoneSeated ? (['tables'] as const) : []),
       ...(circleLayout ? (['circle'] as const) : []),
       'alphabetical',
+      'lastName',
     ],
     [someoneSeated, circleLayout],
   );

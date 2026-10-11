@@ -8,6 +8,7 @@ import {
   getDisplayNameForMode,
   getTooltipName,
   foldForSearch,
+  compareByLastName,
   isSameName,
   uniqueName,
   checkName,
@@ -448,6 +449,39 @@ describe('foldForSearch', () => {
 
   it('leaves a name without accents as it reads, in lower case', () => {
     expect(foldForSearch('Anna Schmidt')).toBe('anna schmidt');
+  });
+});
+
+describe('compareByLastName', () => {
+  const sorted = (names: string[]) =>
+    [...names].sort((a, b) => compareByLastName(a, b, 'de'));
+
+  it('reads the last word as the last name', () => {
+    expect(
+      sorted(['Anna Zander', 'Ben Albers', 'Anna Maria Meier', 'Ömer Öztürk']),
+    ).toEqual(['Ben Albers', 'Anna Maria Meier', 'Ömer Öztürk', 'Anna Zander']);
+  });
+
+  it('lets the first name decide between equal last names', () => {
+    expect(sorted(['Ben Meier', 'anna meier', 'Clara Meier'])).toEqual([
+      'anna meier',
+      'Ben Meier',
+      'Clara Meier',
+    ]);
+  });
+
+  it('sorts a particle under the name and keeps a double name whole', () => {
+    expect(
+      sorted(['Anna von Berg', 'Tim Bauer', 'Lea Ahrens-Wolf', 'Kai Bz']),
+    ).toEqual(['Lea Ahrens-Wolf', 'Tim Bauer', 'Anna von Berg', 'Kai Bz']);
+  });
+
+  it('takes a single word as its own last name', () => {
+    expect(sorted(['Mia Klein', 'Jonas', 'Ali Abbas'])).toEqual([
+      'Ali Abbas',
+      'Jonas',
+      'Mia Klein',
+    ]);
   });
 });
 

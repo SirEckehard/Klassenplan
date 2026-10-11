@@ -191,7 +191,7 @@ describe('ExportSheetInspector gender colours', () => {
 describe('ExportSheetInspector note list', () => {
   const noteList = (
     patch: Partial<NoteListSettings> = {},
-    orders: NoteListOrder[] = ['tables', 'alphabetical'],
+    orders: NoteListOrder[] = ['tables', 'alphabetical', 'lastName'],
   ) => ({
     settings: { ...DEFAULT_NOTE_LIST_SETTINGS, ...patch },
     onChange: vi.fn(),
@@ -209,9 +209,14 @@ describe('ExportSheetInspector note list', () => {
     expect(list.onChange).toHaveBeenCalledWith({ lines: 3 });
 
     fireEvent.click(
-      screen.getByRole('button', { name: /^(Alphabetisch|Alphabetical)$/ }),
+      screen.getByRole('button', { name: /^(Nach Vorname|By first name)$/ }),
     );
     expect(list.onChange).toHaveBeenCalledWith({ order: 'alphabetical' });
+
+    fireEvent.click(
+      screen.getByRole('button', { name: /^(Nach Nachname|By last name)$/ }),
+    );
+    expect(list.onChange).toHaveBeenCalledWith({ order: 'lastName' });
   });
 
   it('asks for columns instead of lines on a grid', () => {
@@ -231,18 +236,27 @@ describe('ExportSheetInspector note list', () => {
     cleanup();
     renderInspector({
       mode: 'list',
-      noteList: noteList({}, ['tables', 'circle', 'alphabetical']),
+      noteList: noteList({}, ['tables', 'circle', 'alphabetical', 'lastName']),
     });
     expect(
       screen.getByRole('button', { name: /Im Sitzkreis|Round the circle/ }),
     ).toBeInTheDocument();
   });
 
-  it('asks for no order where only the alphabet is left', () => {
-    renderInspector({ mode: 'list', noteList: noteList({}, ['alphabetical']) });
+  it('offers first and last name where there is no plan to follow', () => {
+    renderInspector({
+      mode: 'list',
+      noteList: noteList({}, ['alphabetical', 'lastName']),
+    });
 
     expect(
-      screen.queryByRole('group', { name: /^(Reihenfolge|Order)$/ }),
+      screen.getByRole('button', { name: /^(Nach Vorname|By first name)$/ }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /^(Nach Nachname|By last name)$/ }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /^(Nach Tischen|By table)$/ }),
     ).not.toBeInTheDocument();
   });
 

@@ -3,6 +3,7 @@
 import type { ClassroomScene, SeatingArrangement, Student } from '@/types';
 import type { CircleLayout } from '@/types/Circle';
 import { tableRowsFromFront } from '@/utils/algorithm/seatTargets';
+import { compareByLastName } from '@/utils';
 
 /**
  * The note list: the class on paper, with room for handwriting beside every
@@ -16,9 +17,17 @@ export type NoteListForm = 'lines' | 'grid';
 
 /**
  * Who comes first: by table as in the plan (front to back, then along the
- * board), round the circle, or by name.
+ * board), round the circle, by the whole name (`alphabetical`, so the first
+ * name leads) or by last name.
  */
-export type NoteListOrder = 'tables' | 'circle' | 'alphabetical';
+export type NoteListOrder = 'tables' | 'circle' | 'alphabetical' | 'lastName';
+
+const NOTE_LIST_ORDERS: readonly NoteListOrder[] = [
+  'tables',
+  'circle',
+  'alphabetical',
+  'lastName',
+];
 
 export const NOTE_LIST_LINE_COUNTS = [1, 2, 3] as const;
 export const NOTE_LIST_COLUMN_COUNTS = [5, 8, 12] as const;
@@ -61,11 +70,7 @@ export function normalizeNoteListSettings(stored: unknown): NoteListSettings {
     form: pick(source.form, ['lines', 'grid'] as const, d.form),
     lines: pick(source.lines, NOTE_LIST_LINE_COUNTS, d.lines),
     columns: pick(source.columns, NOTE_LIST_COLUMN_COUNTS, d.columns),
-    order: pick(
-      source.order,
-      ['tables', 'circle', 'alphabetical'] as const,
-      d.order,
-    ),
+    order: pick(source.order, NOTE_LIST_ORDERS, d.order),
     orientation: pick(
       source.orientation,
       ['portrait', 'landscape'] as const,
@@ -118,10 +123,12 @@ export function buildNoteListEntries(
     locale?: string;
   },
 ): NoteListEntry[] {
-  if (order === 'alphabetical') {
+  if (order === 'alphabetical' || order === 'lastName') {
     return [...students]
       .sort((a, b) =>
-        a.name.localeCompare(b.name, locale, { sensitivity: 'base' }),
+        order === 'lastName'
+          ? compareByLastName(a.name, b.name, locale)
+          : a.name.localeCompare(b.name, locale, { sensitivity: 'base' }),
       )
       .map((student, index) => ({
         student,

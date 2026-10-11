@@ -3,15 +3,22 @@
 import React from 'react';
 import type { Student } from '@/types';
 import usePersistentState from '@/hooks/usePersistentState';
-import { foldForSearch, LOCAL_STORAGE_KEYS } from '@/utils';
+import { compareByLastName, foldForSearch, LOCAL_STORAGE_KEYS } from '@/utils';
 
-/** Sort orders offered above the list. `manual` keeps the insertion order. */
-export type StudentSortMode = 'manual' | 'name-asc' | 'name-desc';
+/**
+ * Sort orders offered above the list. `manual` keeps the insertion order,
+ * `name-*` reads the whole name (so the first name leads), `lastName-*` the
+ * last name (`compareByLastName`).
+ */
+export type StudentSortMode =
+  'manual' | 'name-asc' | 'name-desc' | 'lastName-asc' | 'lastName-desc';
 
-const STUDENT_SORT_MODES: StudentSortMode[] = [
+export const STUDENT_SORT_MODES: StudentSortMode[] = [
   'manual',
   'name-asc',
   'name-desc',
+  'lastName-asc',
+  'lastName-desc',
 ];
 
 /**
@@ -107,12 +114,12 @@ export function useStudentListView(students: Student[]): StudentListView {
     }
 
     if (sortMode !== 'manual') {
-      const direction = sortMode === 'name-asc' ? 1 : -1;
-      result = [...result].sort(
-        (a, b) =>
-          direction *
-          a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }),
-      );
+      const direction = sortMode.endsWith('-asc') ? 1 : -1;
+      const compare = sortMode.startsWith('lastName')
+        ? (a: Student, b: Student) => compareByLastName(a.name, b.name)
+        : (a: Student, b: Student) =>
+            a.name.localeCompare(b.name, undefined, { sensitivity: 'base' });
+      result = [...result].sort((a, b) => direction * compare(a, b));
     }
 
     return result;

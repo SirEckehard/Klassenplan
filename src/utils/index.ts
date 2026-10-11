@@ -207,6 +207,7 @@ export {
   isNameTruncated,
   getNamePreview,
   foldForSearch,
+  compareByLastName,
   isSameName,
   uniqueName,
   checkName,

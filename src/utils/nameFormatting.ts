@@ -492,6 +492,26 @@ export function summarizeNameLabels(
 }
 
 /**
+ * Orders two names by last name, the way a class register runs: the last
+ * whitespace-separated token is read as the last name, as
+ * {@link splitStudentName} has it, so a particle sorts under the name it
+ * belongs to ("Anna von Berg" under B) and a double name joined by a hyphen
+ * stays one. Equal last names fall back to the whole name, so the first name
+ * decides between two Meiers; a single-word name is its own last name.
+ */
+export function compareByLastName(
+  a: string,
+  b: string,
+  locale?: string,
+): number {
+  const lastName = (name: string) => name.trim().split(/\s+/).pop() ?? '';
+  return (
+    lastName(a).localeCompare(lastName(b), locale, { sensitivity: 'base' }) ||
+    a.trim().localeCompare(b.trim(), locale, { sensitivity: 'base' })
+  );
+}
+
+/**
  * Folds case and accents so a typed query matches a name: "jose" finds
  * "José" — teachers type without diacritics far more often than they type
  * them. Apply it to both sides of the comparison.

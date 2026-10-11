@@ -147,11 +147,13 @@ export default function ExportSheetInspector({
   const listSettings = isList ? noteList?.settings : undefined;
   const orderOptions: readonly NoteListOrder[] = noteList?.orders ?? [
     'alphabetical',
+    'lastName',
   ];
   const orderLabelKey: Record<NoteListOrder, string> = {
     tables: 'export.noteList.orderTables',
     circle: 'export.noteList.orderCircle',
     alphabetical: 'export.noteList.orderAlphabetical',
+    lastName: 'export.noteList.orderLastName',
   };
   const nameHint = buildNameDisplayHint(nameDisplay, names, t);
   const availableFeatures = FEATURE_TYPES.filter(
@@ -307,27 +309,22 @@ export default function ExportSheetInspector({
                 />
               </InspectorRow>
             )}
-            {/* Without a plan the list goes by name: one order is no choice. */}
-            {orderOptions.length > 1 && (
-              <InspectorRow label={t('export.noteList.order')} stacked>
-                <InspectorChoice
-                  label={t('export.noteList.order')}
-                  layout="list"
-                  value={
-                    orderOptions.includes(listSettings.order)
-                      ? listSettings.order
-                      : orderOptions[0]
-                  }
-                  onChange={(next) =>
-                    next && noteList.onChange({ order: next })
-                  }
-                  options={orderOptions.map((order) => ({
-                    value: order,
-                    label: t(orderLabelKey[order]),
-                  }))}
-                />
-              </InspectorRow>
-            )}
+            <InspectorRow label={t('export.noteList.order')} stacked>
+              <InspectorChoice
+                label={t('export.noteList.order')}
+                layout="list"
+                value={
+                  orderOptions.includes(listSettings.order)
+                    ? listSettings.order
+                    : orderOptions[0]
+                }
+                onChange={(next) => next && noteList.onChange({ order: next })}
+                options={orderOptions.map((order) => ({
+                  value: order,
+                  label: t(orderLabelKey[order]),
+                }))}
+              />
+            </InspectorRow>
           </InspectorSection>
         )}
 

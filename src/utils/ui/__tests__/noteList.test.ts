@@ -149,6 +149,26 @@ describe('buildNoteListEntries', () => {
       'Zoe',
     ]);
   });
+
+  it('sorts by last name, the first name deciding between equal ones', () => {
+    const entries = buildNoteListEntries(
+      [
+        student('1', 'Zoe Albers'),
+        student('2', 'Ben Meier'),
+        student('3', 'Anna Meier'),
+        student('4', 'Ali Öztürk'),
+      ],
+      { order: 'lastName', locale: 'de' },
+    );
+
+    expect(entries.map((entry) => entry.student.name)).toEqual([
+      'Zoe Albers',
+      'Anna Meier',
+      'Ben Meier',
+      'Ali Öztürk',
+    ]);
+    expect(entries.map((entry) => entry.number)).toEqual([1, 2, 3, 4]);
+  });
 });
 
 describe('normalizeNoteListSettings', () => {

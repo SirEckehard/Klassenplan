@@ -93,6 +93,24 @@ describe('useStudentListView', () => {
     expect(names(result.current.visibleStudents)).toEqual(['Anna Beispiel']);
   });
 
+  it('sorts by last name in both directions', () => {
+    const { result } = renderHook(() => useStudentListView(students));
+
+    act(() => result.current.setSortMode('lastName-asc'));
+    expect(names(result.current.visibleStudents).slice(1)).toEqual([
+      'José Alvarez',
+      'Anna Beispiel',
+      'Zoë Meier',
+    ]);
+
+    act(() => result.current.setSortMode('lastName-desc'));
+    expect(names(result.current.visibleStudents).slice(0, 3)).toEqual([
+      'Zoë Meier',
+      'Anna Beispiel',
+      'José Alvarez',
+    ]);
+  });
+
   it('clear resets search and filter but keeps the sorting', () => {
     const { result } = renderHook(() => useStudentListView(students));
 
