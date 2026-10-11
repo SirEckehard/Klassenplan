@@ -244,7 +244,7 @@ export default function SmartSidebar({
       style={sidebarStyle}
       className={`
         ${isStickyColumn ? 'sticky top-20' : 'relative'} shrink-0 border-0
-        ${isExpanded ? 'overflow-hidden' : 'overflow-y-auto'}
+        ${isExpanded ? 'overflow-hidden' : 'overflow-x-hidden overflow-y-auto'}
         transition-[width] duration-100 ease-out
         ${isExpanded ? expandedWidth : collapsedWidth}
         ${isExpanded ? expandedContainerClass : collapsedContainerClass}
@@ -295,7 +295,7 @@ export default function SmartSidebar({
             measured against (`ToolRail`). The rail's scrolling part reaches
             back into this padding with negative margins, so change the two
             together. */}
-        <div className="min-h-0 flex-1 overflow-x-visible overflow-y-auto">
+        <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
           <div className="flex h-full flex-col px-2 py-3">
             {renderedChildren}
           </div>
