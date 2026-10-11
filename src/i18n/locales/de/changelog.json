@@ -1,4 +1,20 @@
 {
+  "v3_1_1": {
+    "0": "Eine Notizliste zum Ausdrucken: „Liste“ auf der Exportseite bringt die Klasse aufs Papier, mit Platz zum Schreiben neben jedem Namen – Notizzeilen für Beobachtungen oder ein Raster leerer Spalten zum Abhaken, deren Köpfe du mit Datum oder Thema beschriftest. Sie folgt den Tischen wie im Plan, dem Sitzkreis oder dem Alphabet, läuft über so viele Seiten wie nötig und wird als ein PDF gespeichert. „Liste drucken“ in der Werkzeugleiste der Klasse öffnet sie direkt, auch vor dem ersten Mischen",
+    "1": "„Mischen“ dauert etwa halb so lange und gewichtet frühere Nachbarn in jedem Schritt gleich: neuere Pläne mehr als alte, genutzte Pläne mehr als nur ausprobierte Mischungen",
+    "2": "Die Oberfläche ist in Atkinson Hyperlegible Next gesetzt, einer Schrift für gute Lesbarkeit: Ähnliche Zeichen wie I, l und 1 oder O und 0 sind klar zu unterscheiden – hilfreich am Beamer und für Namen auf kleinen Plätzen. Überschriften in Source Serif 4 sind auch klein nicht mehr dünn",
+    "3": "Als App installiert öffnet Klassenplan die Klasse statt der Startseite, und seine Verknüpfungen führen zur „Bibliothek“ und zum Export",
+    "4": "Die kleine Schrift in Werkzeugleiste, Inspektor und Menüs wächst mit der im Browser eingestellten Textgröße",
+    "5": "Ein Backup mit „Alles ersetzen“ wiederherzustellen, während eine andere Klasse offen war als beim Erstellen, überschrieb die offene Klasse mit der anderen – auf dem iPad und in Safari jedes Mal. Jede Klasse kommt jetzt so zurück, wie das Backup sie enthält, und ihr Sitzplan bleibt, wie er gespeichert wurde",
+    "6": "Ein fehlgeschlagenes Speichern wurde erst beim Verlassen gemeldet und nicht wiederholt. Jetzt erscheint sofort ein Hinweis, „Nicht gespeichert“ bleibt in der Statusleiste, bis das Speichern klappt, und es wird von selbst erneut versucht. Nach einer Pause im Hintergrund speichert Safari wieder, ohne dass die Seite neu geladen werden muss",
+    "7": "Nach jedem Mischen stand unter „Letzte Mischungen“ ein anderer Plan als auf dem Bildschirm",
+    "8": "Wer an einen hinteren Platz eines Tisches außerhalb der Mischung gesperrt war, bekam beim Mischen trotzdem einen Nachbarn",
+    "9": "Ein entfernter Schüler blieb unsichtbar in den Wunsch- und Distanzlisten der anderen: Er zählte gegen die Grenze von drei, und die Erfüllung der Wünsche erreichte nie 100 %",
+    "10": "Die Klassenliste und ihre Vorlage öffneten sich in deutschem Excel als eine einzige Spalte mit verstümmelten Umlauten. Jetzt öffnen sie sich als Tabelle",
+    "11": "Wer den Sitzplan zum zweiten Mal ohne Namen verließ, bekam aus dem automatischen Speichern einen eigenen Plan – die „Bibliothek“ füllte sich mit Plänen, die nach Datum und Uhrzeit benannt waren",
+    "12": "Eine halbe Minute nach Beginn der Projektion erschien die Frage, ob der Plan nur ein Test war, an der Wand vor der Klasse. Sie wartet jetzt, bis die Projektion verlassen wird",
+    "13": "In exportierten Bildern und PDFs standen Buchstaben wie ğ, ş, ł oder ő in einer anderen Schrift, und zwischen Mitternacht und zwei Uhr trug der Dateiname das Datum des Vortags"
+  },
   "v3_1_0": {
     "0": "Im Inspektor des Exportblatts lassen sich die Geschlechterfarben ausschalten – für Sitzplan und Sitzkreis gleichermaßen",
     "1": "Ein Tisch lässt sich aus der Mischung nehmen: Im Inspektor eines Tisches oder mehrerer bleibt er im Raum, wird beim Mischen aber nicht besetzt und gestrichelt gezeichnet. Von Hand kannst du trotzdem jemanden dorthin setzen. Die Statusleiste des Raums zählt nur die Plätze in der Mischung",

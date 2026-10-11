@@ -1,4 +1,20 @@
 {
+  "v3_1_1": {
+    "0": "A note list to print: \"List\" on the export page puts the class on paper with room to write beside every name – ruled lines for observations, or a grid of empty columns to tick off whose heads you label with a date or a topic. It follows the tables as in the plan, the circle or the alphabet, runs to as many pages as it needs and is saved as one PDF. \"Print list\" in the class's toolbar opens it straight away, even before the first mix",
+    "1": "\"Mix\" takes about half as long and weighs earlier neighbours alike in every step: recent plans more than old ones, plans in use more than mixes that were only tried",
+    "2": "The interface is set in Atkinson Hyperlegible Next, a typeface drawn for legibility: similar characters such as I, l and 1 or O and 0 are told apart clearly – which helps on a projector and for names on small seats. Headings in Source Serif 4 are no longer thin at small sizes",
+    "3": "Installed as an app, Klassenplan opens on the class instead of the start page, and its shortcuts lead to the \"Library\" and to exporting",
+    "4": "The small print in the toolbar, the inspector and the menus grows with the text size set in the browser",
+    "5": "Restoring a backup with \"Replace everything\" while another class was open than when the backup was made overwrote the open class with the other one – on an iPad and in Safari every time. Each class now comes back as the backup holds it, and its seating plan stays as it was saved",
+    "6": "A save that failed was only reported once the page was left, and was not tried again. It is now said at once, \"Not saved\" stays in the status bar until a save works, and saving is retried on its own. After a pause in the background, Safari saves again without the page being reloaded",
+    "7": "After every mix, \"Recent mixes\" held a different plan from the one on screen",
+    "8": "A student locked to a back seat of a table taken out of the mix still got a neighbour when mixing",
+    "9": "A student who was removed stayed in the others' wish and distance lists, unseen: they counted against the limit of three, and the fulfilment of the wishes could never reach 100 %",
+    "10": "The class list and its template opened in Excel set to German as a single column, with the umlauts garbled. They now open as a table",
+    "11": "Leaving the seating plan a second time without naming it turned the automatic save into a plan of its own, so the \"Library\" filled up with plans named after a date and time",
+    "12": "Half a minute into the projection, the question whether the plan was only a test appeared on the wall in front of the class. It now waits until the projection is left",
+    "13": "In exported images and PDFs, letters such as ğ, ş, ł or ő were drawn in another font, and between midnight and two in the morning the file name carried the previous day's date"
+  },
   "v3_1_0": {
     "0": "The export sheet's inspector switches the gender colours off – for the seating plan and the circle alike",
     "1": "A table can be taken out of the mix: in the inspector of a table, or of several, it stays in the room but is left empty when mixing and drawn with a dashed edge. You can still put a student there by hand. The room's status bar counts only the seats in the mix",

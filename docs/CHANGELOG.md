@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.1.1] - 2026-10-11
+
 ### Added
 
 - A note list to print: "List" on the export page puts the class on paper with room to write beside every name – ruled lines for observations, or a grid of empty columns to tick off whose heads take a date or a topic. It goes by table as in the plan, round the circle or by name, runs to as many pages as it needs and is saved as one PDF. "Print list" in the class's toolbar opens it straight away, even before the first mix.
