@@ -17,6 +17,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - The small print of the toolbar, the inspector and the menus grows with the text size set in the browser
 - "Mix" takes about half as long: the plan is refined once instead of twice
 - "Mix" weighs earlier neighbours alike in every step: recent plans more than old ones, plans in use more than mixes that were only tried. The arrangement a mix builds is no longer broken up for its own pairs
+- The interface is set in Atkinson Hyperlegible Next, a typeface drawn for legibility: similar letters such as I, l and 1 or O and 0 are told apart, which helps on a projector and for names on small seats. Headings in Source Serif 4 replace Instrument Serif and are no longer thin at small sizes
+- The "Klassenplan" wordmark is set in Onest, where the "l" stands level with the "K", and is drawn from outlines, so it keeps its letterforms in the app, in the files of the brand kit and on the signature of every exported sheet ("Klassenplan.de") instead of following the interface font
+- The start page's hero title and the page titles get more line spacing, so the descenders of one line no longer touch the next
 
 ### Fixed
 

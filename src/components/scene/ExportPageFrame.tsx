@@ -1,5 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
+import {
+  WORDMARK_DOMAIN_GLYPHS,
+  WORDMARK_DOMAIN_WIDTH,
+  WORDMARK_GLYPH_PATHS,
+  WORDMARK_UNITS_PER_EM,
+} from '@/components/kpWordmarkPaths';
 import { measureNameWidth } from '@/utils/ui/seatLabelLayout';
 import { svgFontFamily } from '@/utils';
 
@@ -29,7 +35,8 @@ const METADATA_GAP = 4;
 const BAND_GAP = 12;
 /** The logo mark's edge length. */
 const LOGO_SIZE = 12;
-const BRAND = 'Klassenplan.de';
+/** Font size the signature's outlines are scaled to, in points. */
+const BRAND_SIZE = SMALL_SIZE;
 
 export type ExportClassInfo = {
   name?: string | null;
@@ -105,6 +112,30 @@ export function getExportPageLayout({
   };
 }
 
+/**
+ * The signature "Klassenplan.de" in the brand's own letterforms (Onest Bold),
+ * drawn from outlines so the sheet does not depend on the interface font.
+ */
+function BrandWordmark({ x, y }: { x: number; y: number }) {
+  const scale = BRAND_SIZE / WORDMARK_UNITS_PER_EM;
+  return (
+    <g
+      role="img"
+      aria-label="Klassenplan.de"
+      transform={`translate(${x} ${y}) scale(${scale} ${-scale})`}
+      fill="#2563EB"
+    >
+      {WORDMARK_DOMAIN_GLYPHS.map(({ char, x: glyphX }, index) => (
+        <path
+          key={index}
+          d={WORDMARK_GLYPH_PATHS[char]}
+          transform={`translate(${glyphX} 0)`}
+        />
+      ))}
+    </g>
+  );
+}
+
 /** The logo: the Klassenplan.de mark, drawn at `LOGO_SIZE`. */
 function LogoMark() {
   return (
@@ -144,7 +175,10 @@ export function ExportPageHeader({
 }) {
   const { pageWidth, margin } = layout;
   const baseline = margin + 11;
-  const brandWidth = LOGO_SIZE + 4 + measureNameWidth(BRAND, SMALL_SIZE, 700);
+  const brandWidth =
+    LOGO_SIZE +
+    4 +
+    (WORDMARK_DOMAIN_WIDTH * BRAND_SIZE) / WORDMARK_UNITS_PER_EM;
   const dateWidth = measureNameWidth(dateLabel, SMALL_SIZE);
   // The title is centred on the page, so it has twice the wider side's
   // clearance less than the page between the margins.
@@ -162,15 +196,7 @@ export function ExportPageHeader({
       <g transform={`translate(${margin} ${baseline - LOGO_SIZE + 2})`}>
         <LogoMark />
       </g>
-      <text
-        x={margin + LOGO_SIZE + 4}
-        y={baseline}
-        fontSize={SMALL_SIZE}
-        fontWeight="bold"
-        fill="#2563EB"
-      >
-        {BRAND}
-      </text>
+      <BrandWordmark x={margin + LOGO_SIZE + 4} y={baseline} />
       <text
         x={pageWidth / 2}
         y={baseline + 1}

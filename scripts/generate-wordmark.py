@@ -11,7 +11,8 @@ instead of live text, so the name does not follow the interface font.
 Writes:
   public/brand/wordmark/klassenplan-wordmark.svg   (+ .png at 2x the viewBox)
   public/brand/lockup/klassenplan-lockup.svg       (+ .png, 1200 px wide)
-  src/components/kpWordmarkPaths.ts                (outlines for KpLockup)
+  src/components/kpWordmarkPaths.ts                (outlines for KpLockup and
+                                                    the export sheet's header)
 
 The lockup keeps its mark: only the wordmark group of the existing SVG is
 replaced, and the viewBox widened or narrowed to the new text width.
@@ -49,6 +50,8 @@ DEFAULT_FONT = (
     / 'node_modules/@fontsource-variable/onest/files/onest-latin-wght-normal.woff2'
 )
 TEXT = 'Klassenplan'
+# The export sheet's header signs with the domain, in the same letters.
+DOMAIN_TEXT = 'Klassenplan.de'
 WEIGHT = 700
 LETTER_SPACING_EM = -0.015
 FILL = '#2563EB'
@@ -72,8 +75,8 @@ def number(value: float) -> str:
     return ('%.3f' % value).rstrip('0').rstrip('.')
 
 
-def shape(font_path: Path):
-    """Instantiate the font at the wordmark's weight and set the text."""
+def shape(font_path: Path, texts):
+    """Instantiate the font at the wordmark's weight and set each text."""
     source = TTFont(str(font_path))
     static = instancer.instantiateVariableFont(source, {'wght': WEIGHT})
     static.flavor = None
@@ -81,46 +84,49 @@ def shape(font_path: Path):
         ttf = Path(tmp) / 'onest.ttf'
         static.save(str(ttf))
         font = TTFont(str(ttf))
-        buffer = hb.Buffer()
-        buffer.add_str(TEXT)
-        buffer.guess_segment_properties()
-        hb.shape(hb.Font(hb.Face(hb.Blob.from_file_path(str(ttf)))), buffer, {'kern': True, 'liga': False})
+        face = hb.Font(hb.Face(hb.Blob.from_file_path(str(ttf))))
         units = font['head'].unitsPerEm
         spacing = LETTER_SPACING_EM * units
         order = font.getGlyphOrder()
         glyph_set = font.getGlyphSet()
-        placed, cursor = [], 0.0
-        for info, position in zip(buffer.glyph_infos, buffer.glyph_positions):
-            placed.append((order[info.codepoint], cursor + position.x_offset))
-            cursor += position.x_advance + spacing
-        total = cursor - spacing  # no trailing letter-spacing
-        outlines = {}
-        for name, _ in placed:
-            if name in outlines:
-                continue
-            pen = SVGPathPen(glyph_set, ntos=lambda v: number(v))
-            glyph_set[name].draw(pen)
-            outlines[name] = pen.getCommands()
         cmap = font.getBestCmap()
-        tops = {}
-        for char in 'Kl':
-            bounds = BoundsPen(glyph_set)
-            glyph_set[cmap[ord(char)]].draw(bounds)
-            tops[char] = bounds.bounds[3]
-        top = 0
-        for char in TEXT:
-            bounds = BoundsPen(glyph_set)
-            glyph_set[cmap[ord(char)]].draw(bounds)
-            top = max(top, bounds.bounds[3])
-    return {
-        'units': units,
-        'total': total,
-        'placed': placed,
-        'outlines': outlines,
-        'chars': [(char, name) for char, (name, _) in zip(TEXT, placed)],
-        'top': top,
-        'tops': tops,
-    }
+        outlines = {}
+        results = {}
+        for text in texts:
+            buffer = hb.Buffer()
+            buffer.add_str(text)
+            buffer.guess_segment_properties()
+            hb.shape(face, buffer, {'kern': True, 'liga': False})
+            placed, cursor = [], 0.0
+            for info, position in zip(buffer.glyph_infos, buffer.glyph_positions):
+                placed.append((order[info.codepoint], cursor + position.x_offset))
+                cursor += position.x_advance + spacing
+            total = cursor - spacing  # no trailing letter-spacing
+            top = 0
+            for name, _ in placed:
+                if name not in outlines:
+                    pen = SVGPathPen(glyph_set, ntos=lambda v: number(v))
+                    glyph_set[name].draw(pen)
+                    outlines[name] = pen.getCommands()
+            for char in text:
+                bounds = BoundsPen(glyph_set)
+                glyph_set[cmap[ord(char)]].draw(bounds)
+                top = max(top, bounds.bounds[3])
+            tops = {}
+            for char in 'Kl':
+                bounds = BoundsPen(glyph_set)
+                glyph_set[cmap[ord(char)]].draw(bounds)
+                tops[char] = bounds.bounds[3]
+            results[text] = {
+                'units': units,
+                'total': total,
+                'placed': placed,
+                'outlines': outlines,
+                'chars': [(char, name) for char, (name, _) in zip(text, placed)],
+                'top': top,
+                'tops': tops,
+            }
+    return results
 
 
 def path_elements(data, scale: float, baseline: float, indent: str):
@@ -166,7 +172,7 @@ def write_lockup(data):
     return width, float(re.search(r'viewBox="0 0 [\d.]+ ([\d.]+)"', head).group(1))
 
 
-def write_typescript(data):
+def write_typescript(data, domain):
     def g(value):
         return '%g' % value
 
@@ -178,6 +184,7 @@ def write_typescript(data):
         '// 1.1), kerned and set with -1.5 % letter-spacing, in font units (1000 per em,',
         '// y up). The same outlines are in public/brand/wordmark; the app draws them',
         '// instead of live text so the brand name does not follow the interface font.',
+        '// "Klassenplan.de" is the export sheet\'s signature, set the same way.',
         '// Generated by scripts/generate-wordmark.py — do not edit by hand.',
         '',
         f'export const WORDMARK_UNITS_PER_EM = {data["units"]};',
@@ -185,15 +192,18 @@ def write_typescript(data):
         f'export const WORDMARK_WIDTH = {g(data["total"])};',
         '/** Highest point above the baseline (cap height and ascender coincide). */',
         f'export const WORDMARK_TOP = {g(data["top"])};',
+        '/** Total advance of "Klassenplan.de", without trailing letter-spacing. */',
+        f'export const WORDMARK_DOMAIN_WIDTH = {g(domain["total"])};',
         '',
         'export const WORDMARK_GLYPH_PATHS: Record<string, string> = {',
     ]
     seen = set()
-    for char, name in data['chars']:
-        if char in seen:
-            continue
-        seen.add(char)
-        lines.append(f"  {char}: '{data['outlines'][name]}',")
+    for source in (data, domain):
+        for char, name in source['chars']:
+            if char in seen:
+                continue
+            seen.add(char)
+            lines.append(f"  '{char}': '{source['outlines'][name]}',")
     lines += [
         '};',
         '',
@@ -201,6 +211,14 @@ def write_typescript(data):
         'export const WORDMARK_GLYPHS: readonly { char: string; x: number }[] = [',
     ]
     for (char, _), (_, x) in zip(data['chars'], data['placed']):
+        lines.append(f"  {{ char: '{char}', x: {g(round(x, 1))} }},")
+    lines += [
+        '];',
+        '',
+        '/** Glyphs of "Klassenplan.de", same shape. */',
+        'export const WORDMARK_DOMAIN_GLYPHS: readonly { char: string; x: number }[] = [',
+    ]
+    for (char, _), (_, x) in zip(domain['chars'], domain['placed']):
         lines.append(f"  {{ char: '{char}', x: {g(round(x, 1))} }},")
     lines += ['];', '']
     PATHS_TS.write_text('\n'.join(lines), encoding='utf-8')
@@ -220,11 +238,12 @@ def main():
     if not args.font.exists():
         sys.exit(f'Font not found: {args.font}\nInstall it with: npm install --no-save @fontsource-variable/onest')
 
-    data = shape(args.font)
+    shaped = shape(args.font, [TEXT, DOMAIN_TEXT])
+    data, domain = shaped[TEXT], shaped[DOMAIN_TEXT]
     print(f'K top {data["tops"]["K"]:g}, l top {data["tops"]["l"]:g} (units of {data["units"]})')
     wordmark_width = write_wordmark(data)
     lockup_width, lockup_height = write_lockup(data)
-    write_typescript(data)
+    write_typescript(data, domain)
     rasterize(WORDMARK_SVG, WORDMARK_PNG, round(wordmark_width * 2), round(WORDMARK_HEIGHT * 2))
     rasterize(LOCKUP_SVG, LOCKUP_PNG, LOCKUP_PNG_WIDTH, round(LOCKUP_PNG_WIDTH * lockup_height / lockup_width))
     print(f'Lockup is {lockup_width:.2f} x {lockup_height:g}: keep og:image:height in index.html and Seo.tsx at '
