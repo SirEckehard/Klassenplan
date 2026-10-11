@@ -64,7 +64,7 @@ const SEAT_LOCK_SIZE = 20;
 /** Clearance a name keeps from the lock, beyond its outline. */
 const LOCK_CLEARANCE = 1;
 
-/** How far a name may step aside from the lock on a seat turned at a slant. */
+/** How far a name may step aside from the lock beside it. */
 const SIDE_STEPS = [0, 2, 4, 6, 8, 10, 12];
 
 /** A name steps aside only when that makes it this much larger. */
@@ -386,6 +386,20 @@ export function seatLockOffset(
   return { x: resolve(seatWidth), y: resolve(seatHeight) };
 }
 
+/**
+ * Whether a seat's name keeps clear of its lock toggle: where the lock is
+ * always drawn — on a touch screen, and a closed lock everywhere. The open
+ * lock a mouse reveals on hover lies over the name for that moment instead
+ * of taking its room on every seat of the plan.
+ */
+export function seatLockReservesRoom(
+  hasLock: boolean,
+  revealOnHover: boolean,
+  locked: boolean,
+): boolean {
+  return hasLock && (!revealOnHover || locked);
+}
+
 /** A seat as its name sees it. */
 export type SeatShape = {
   seatWidth: number;
@@ -525,9 +539,11 @@ export function placeSeatBadgePill(
  * every corner of every line on the seat, the last line above the pill — less
  * the stretches where a line would run into the lock. The block takes the
  * point of that set nearest the seat's centre, so names line up across seats
- * and move only as far as they must. On a seat turned at a slant the lock sits
- * where the seat is widest, so there the name may also step aside from it,
- * when that makes it clearly larger.
+ * and move only as far as they must. Where the lock sits beside the name — on
+ * a seat turned at a slant, where the seat is widest, and on one turned a
+ * quarter, where the name runs along the seat and the lock takes a corner of
+ * its height — the name may also step aside from it, when that makes it
+ * clearly larger.
  */
 export function fitNameOnSeat(
   label: string,
@@ -632,7 +648,7 @@ export function fitNameOnSeat(
   };
 
   const centred = fitWith([0]);
-  if (!lock || isQuarterTurn(shape.rotation)) {
+  if (!lock) {
     return centred;
   }
   // Away from the lock: it lies on the left or the right of the upright name.

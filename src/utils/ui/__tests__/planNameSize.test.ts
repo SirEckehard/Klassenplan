@@ -80,6 +80,17 @@ describe('computePlanNameFontSize', () => {
     expect(locked).toBeLessThanOrEqual(free!);
   });
 
+  it('keeps clear of the lock only on the seats that ask for it', () => {
+    const noah = plain('Noah', 'a');
+    // Turned a quarter, a seat with its lock loses height beside it.
+    const tables = [desk(100, 90)];
+    const free = sizeOf(tables, [[noah, null]]);
+    const perSeat = sizeOf(tables, [[noah, null]], {
+      lock: (_table, seat) => seat === 1,
+    });
+    expect(perSeat).toBeCloseTo(free!);
+  });
+
   it('measures full names broken in two, as the seats set them', () => {
     const mia = plain('Mia Wolf', 'a');
     const auto = sizeOf([desk(100)], [[mia, null]]);

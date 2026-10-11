@@ -1,6 +1,6 @@
 # Design System – Klassenplan
 
-> **Status:** current · **Last reviewed:** 2026-10-10 · **Maintainer:** Eike
+> **Status:** current · **Last reviewed:** 2026-10-11 · **Maintainer:** Eike
 > Schäfer · **Describes:** Klassenplan 3.1.1
 
 This document describes the binding design tokens for Klassenplan. All values live in `src/index.css` and are reachable from TypeScript through `src/utils/ui/designTokens.ts`.
@@ -366,7 +366,7 @@ The word a chip carries comes three other ways: a tooltip on hover or tap (`Badg
 
 A screen keeps icons at `LEGIBLE_BADGE_ICON_SIZE` or larger and the pill below the name; what does not fit becomes the "+N", whose tooltip lists the rest, and badges whose criterion the mix weighs keep their place first (`fitSeatBadges`). Paper cannot be hovered: an export shrinks the icons until every one fits. Decision 0021 holds the reasons.
 
-The name above the pill takes what the seat has left. Name and pill are fitted against the seat as it stands under the upright name — at a quarter turn, on a plan turned for its board, a 55 × 65 seat gives the name 65 across; a seat turned at a slant is widest across its middle, the pill sits as low as the outline allows and the name may step aside from the editor's lock. A name breaks into two lines where that makes it larger, between words or after a hyphen, never inside a word ("Paul" over "Zimmermann"); full names always break, so a plan reads alike. A plan's names share one size: as large as the great majority of seats allow, while a conspicuously long name shrinks on its own seat (`seatLabelLayout`, `computePlanNameFontSize`, `SeatNameText`). The circle does the same inside its round places. The text is measured by arithmetic from the advance widths of Atkinson Hyperlegible Next (`src/data/nameGlyphWidths.json`, written by `npm run generate:glyph-widths`), so the editor, the projection and every export arrive at the same layout.
+The name above the pill takes what the seat has left. Name and pill are fitted against the seat as it stands under the upright name — at a quarter turn, on a plan turned for its board, a 55 × 65 seat gives the name 65 across; a seat turned at a slant is widest across its middle and the pill sits as low as the outline allows; on both the name may step aside from the editor's lock. The lock takes room only where it is always drawn — on a touch screen, and a closed lock everywhere; the open lock a mouse reveals on hover lies over the name for that moment, so the editor's names come out as large as the export's. A name breaks into two lines where that makes it larger, between words or after a hyphen, never inside a word ("Paul" over "Zimmermann"); full names always break, so a plan reads alike. A plan's names share one size: as large as the great majority of seats allow, while a conspicuously long name shrinks on its own seat (`seatLabelLayout`, `computePlanNameFontSize`, `SeatNameText`). The circle does the same inside its round places. The text is measured by arithmetic from the advance widths of Atkinson Hyperlegible Next (`src/data/nameGlyphWidths.json`, written by `npm run generate:glyph-widths`), so the editor, the projection and every export arrive at the same layout.
 
 ## 6d. The start page and the pages beside it
 

@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- "Hand out duties" among the class tools: name duties such as board duty or sweeping, set how many students each needs, and draw them in fair turns – whoever has had the fewest duties so far goes first, and nobody gets two at once. Someone who drops out is replaced on their own. The duties and the last 20 rounds are kept with the class, and the rota saves as a PDF to put up
+
+### Fixed
+
+- In the seating plan editor, names on turned tables came out smaller than the rest, because room was kept on every seat for the lock that only appears under the mouse. That lock now lies over the name while it shows, and where a lock is always drawn – on a touch screen, or once a seat is locked – the name moves aside from it instead of shrinking, so the names are as large as on the exported sheet
+- The narrow toolbar could be scrolled sideways
+
 ## [3.1.1] - 2026-10-11
 
 ### Added

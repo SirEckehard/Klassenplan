@@ -14,6 +14,8 @@ import type { BadgeFocus, SeatBadgeView } from '@/utils/ui/seatBadges';
 import { getDisplayNameForMode, GRID_SIZE } from '@/utils';
 import { getFeatureStyles } from '@/utils/ui';
 import { computePlanNameFontSize } from '@/utils/ui/planNameSize';
+import { seatLockReservesRoom } from '@/utils/ui/seatLabelLayout';
+import { useHasHoverPointer } from '@/hooks/ui/useHasHoverPointer';
 import type { FeatureVisibilityFlags } from '@/utils/ui';
 import type { TemplateDragPreview } from '@/types/templateDrag';
 import {
@@ -133,6 +135,8 @@ const SeatingPlanCanvas = React.memo(
     const canvasRef = React.useRef<SVGSVGElement | null>(null);
     const photoUrls = useStudentPhotoUrls(allStudents ?? []);
     const nameLabels = useNameLabels(allStudents ?? [], nameDisplay);
+    // `SceneTable` reveals the open lock on hover where the pointer can hover.
+    const lockRevealOnHover = useHasHoverPointer();
     // One name size for the whole plan, so the seats read alike; only a
     // conspicuously long name shrinks on its own seat.
     const nameFontSize = React.useMemo(
@@ -149,7 +153,12 @@ const SeatingPlanCanvas = React.memo(
             ),
           allStudents: allStudents ?? [],
           badgeView,
-          lock: Boolean(toggleLock),
+          lock: (tableIndex, seatIndex) =>
+            seatLockReservesRoom(
+              Boolean(toggleLock),
+              lockRevealOnHover,
+              isSeatLocked?.(tableIndex, seatIndex) ?? false,
+            ),
           split: nameDisplay === 'full',
         }),
       [
@@ -160,6 +169,8 @@ const SeatingPlanCanvas = React.memo(
         allStudents,
         badgeView,
         toggleLock,
+        lockRevealOnHover,
+        isSeatLocked,
       ],
     );
 

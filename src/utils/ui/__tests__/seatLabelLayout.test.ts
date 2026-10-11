@@ -12,6 +12,7 @@ import {
   nameLineOffsets,
   placeSeatBadgePill,
   planNameFontSize,
+  seatLockReservesRoom,
   seatNameMaxFontSize,
   tokenNameMaxFontSize,
   type SeatShape,
@@ -217,6 +218,19 @@ describe('fitNameOnSeat', () => {
     expect(fit.centerX).toBeGreaterThan(0);
   });
 
+  it('steps aside from the lock on a seat turned a quarter', () => {
+    // A horizontal double desk: the name runs along the seat, the lock sits
+    // in its upper right corner and leaves too little height beside the pill.
+    const shape: SeatShape = { ...SEAT, rotation: -90, lock: true };
+    const pill = placeSeatBadgePill(shape, 50, 14);
+    const fit = fitNameOnSeat('Noah', shape, pill, { maxFont });
+    const free = fitNameOnSeat('Noah', { ...shape, lock: false }, pill, {
+      maxFont,
+    });
+    expect(fit.centerX).toBeLessThan(0);
+    expect(fit.fontSize).toBeGreaterThan(free.fontSize * 0.95);
+  });
+
   it('gives a name turned a quarter against its seat the seat height across', () => {
     const turned = fitNameOnSeat(
       'Paul Zimmermann',
@@ -340,5 +354,18 @@ describe('planNameFontSize', () => {
   it('is the only size of a plan with one name, and undefined without', () => {
     expect(planNameFontSize([9])).toBe(9);
     expect(planNameFontSize([])).toBeUndefined();
+  });
+});
+
+describe('seatLockReservesRoom', () => {
+  it('keeps room for a lock that is always drawn', () => {
+    // A touch screen shows every lock; a closed lock shows everywhere.
+    expect(seatLockReservesRoom(true, false, false)).toBe(true);
+    expect(seatLockReservesRoom(true, true, true)).toBe(true);
+  });
+
+  it('lets an open lock revealed on hover lie over the name', () => {
+    expect(seatLockReservesRoom(true, true, false)).toBe(false);
+    expect(seatLockReservesRoom(false, false, true)).toBe(false);
   });
 });

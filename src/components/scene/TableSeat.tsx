@@ -18,6 +18,7 @@ import {
 } from '@/utils/ui/seatBadges';
 import {
   fitNameOnSeat,
+  seatLockReservesRoom,
   seatLockOffset,
   seatNameMaxFontSize,
 } from '@/utils/ui/seatLabelLayout';
@@ -375,7 +376,11 @@ function TableSeat({
       seatWidth,
       seatHeight,
       rotation: labelRotation,
-      lock: Boolean(toggleLock),
+      lock: seatLockReservesRoom(
+        Boolean(toggleLock),
+        lockRevealOnHover,
+        locked,
+      ),
     };
     const pill = layoutSeatBadgePill(flags, shape, badgeView);
     return fitNameOnSeat(displayName, shape, pill?.rect ?? null, {
@@ -394,6 +399,8 @@ function TableSeat({
     flags,
     badgeView,
     toggleLock,
+    lockRevealOnHover,
+    locked,
     displayName,
     contrast,
     nameFontSize,
