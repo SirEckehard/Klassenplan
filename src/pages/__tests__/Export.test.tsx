@@ -28,6 +28,7 @@ import {
   renderNoteListSvgPages,
   renderSceneSvg,
 } from '@/services/export/sceneRenderer';
+import { printSheets } from '@/services/export/printSheets';
 import { createMockClassroomScene, createMockStudent } from '@/__tests__/utils';
 import {
   LEGACY_EXPORT_KEYS,
@@ -66,6 +67,10 @@ vi.mock('@/services/export/sceneRenderer', () => ({
     '<svg data-testid="list-2"></svg>',
   ]),
   preloadRenderer: vi.fn(() => Promise.resolve()),
+}));
+
+vi.mock('@/services/export/printSheets', () => ({
+  printSheets: vi.fn(async () => true),
 }));
 
 vi.mock('@/services/export/pdfExportFunctions', () => ({
@@ -286,6 +291,31 @@ describe('Export page', () => {
 
       await userEvent.click(screen.getByRole('button', { name: 'Drucken' }));
 
+      await waitFor(() =>
+        expect(printSheets).toHaveBeenCalledWith(
+          ['<svg data-testid="scene"></svg>'],
+          'portrait',
+          expect.objectContaining({ lang: 'de', title: 'Plan A' }),
+        ),
+      );
+      expect(generatePdfBlob).not.toHaveBeenCalled();
+      expect(openPdfForPrinting).not.toHaveBeenCalled();
+    });
+
+    it('opens the PDF in a tab where the browser cannot print the sheet itself', async () => {
+      vi.mocked(printSheets).mockResolvedValueOnce(false);
+      renderExport();
+      const iframe = await screen.findByTitle('Vorschau');
+      await waitFor(
+        () =>
+          expect(iframe.getAttribute('srcdoc') ?? '').toContain(
+            'data-testid="scene"',
+          ),
+        { timeout: 4000 },
+      );
+
+      await userEvent.click(screen.getByRole('button', { name: 'Drucken' }));
+
       await waitFor(() => expect(openPdfForPrinting).toHaveBeenCalled());
       expect(generatePdfBlob).toHaveBeenCalledWith(
         expect.stringContaining('data-testid="scene"'),
@@ -346,12 +376,13 @@ describe('Export page', () => {
 
       await userEvent.click(screen.getByRole('button', { name: 'Drucken' }));
       await waitFor(() =>
-        expect(generatePdfBlob).toHaveBeenCalledWith(
+        expect(printSheets).toHaveBeenCalledWith(
           [
             '<svg data-testid="list-1"></svg>',
             '<svg data-testid="list-2"></svg>',
           ],
           'portrait',
+          expect.objectContaining({ title: 'Notizliste_Klasse 7b' }),
         ),
       );
 

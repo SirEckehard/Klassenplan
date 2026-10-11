@@ -594,7 +594,7 @@ export default function Export() {
         display: block;
       }
       /* Several pages stand one under the other on grey, the first filling
-         the frame, the rest a scroll away. Printing goes through the PDF. */
+         the frame, the rest a scroll away. Printing has its own document. */
       body.pages {
         display: block;
         overflow-y: auto;
@@ -649,8 +649,8 @@ export default function Export() {
       }
     `.trim();
 
-    // Preview-only document (the print button goes through generatePdfBlob),
-    // but it is still a real document with its own root element: `lang` is what
+    // Preview-only document (the print button prints from a frame of its own,
+    // `printSheets`), but it is still a real document with its own root element: `lang` is what
     // a screen reader announces the iframe content in, so it has to follow the
     // active language rather than sitting on a hardcoded "de".
     const documentTitle = t('export.printDocumentTitle');
@@ -886,8 +886,17 @@ export default function Export() {
     .filter(Boolean)
     .join('_');
 
-  // Print via PDF - opens generated PDF in new tab for consistent cross-browser printing
-  // Falls back to PDF download if popup is blocked
+  const printFilename =
+    previewMode === 'list'
+      ? noteListFilename
+      : title ||
+        (previewMode === 'circle'
+          ? t('export.circleDefaultFilename', 'Sitzkreis')
+          : t('export.tableDefaultFilename', 'Sitzplan'));
+
+  // Printing opens the browser's dialog on the preview's own sheets, one per
+  // page. Where a browser cannot print from a frame (iOS) the PDF opens in a
+  // tab of its own, and where that tab is blocked it is downloaded.
   const handlePrint = useCallback(async () => {
     if (!previewSvg) {
       exportError(
@@ -901,6 +910,16 @@ export default function Export() {
     }
 
     try {
+      const { printSheets } = await import('@/services/export/printSheets');
+      const printed = await printSheets(previewPages, activeOrientation, {
+        lang: metadata.lang,
+        title: printFilename,
+      });
+      if (printed) {
+        recordPreviewExport();
+        return;
+      }
+
       const { generatePdfBlob, openPdfForPrinting, downloadPdfBlob } =
         await import('@/services/export/pdfExportFunctions');
 
@@ -913,15 +932,7 @@ export default function Export() {
       const opened = openPdfForPrinting(pdfBlob);
       recordPreviewExport();
       if (!opened) {
-        // Popup was blocked - download the PDF instead
-        const filename =
-          previewMode === 'list'
-            ? noteListFilename
-            : title ||
-              (previewMode === 'circle'
-                ? t('export.circleDefaultFilename', 'Sitzkreis')
-                : t('export.tableDefaultFilename', 'Sitzplan'));
-        downloadPdfBlob(pdfBlob, filename);
+        downloadPdfBlob(pdfBlob, printFilename);
         showToast(
           'info',
           t(
@@ -943,10 +954,9 @@ export default function Export() {
     recordPreviewExport,
     previewSvg,
     previewPages,
-    previewMode,
     activeOrientation,
-    noteListFilename,
-    title,
+    metadata.lang,
+    printFilename,
     exportError,
     t,
   ]);

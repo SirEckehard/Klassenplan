@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - In the student inspector, social role and language level take one row each instead of a list of four or five: the value stands on a button that opens the choices as a menu, with "None" or "Not specified" first to take it back. Both rows carry the icon of their criterion before their name
 - On a wide screen the student inspector no longer has a close button – its column folds away from the status bar. The name gets the room, and "Student 1 of 24" with the arrows beside it is larger. On a phone and a tablet the button stays
 - Stepping through the class list with the arrow keys no longer draws a blue frame round the row, since the opened row's bar already shows where you are; reaching a row with Tab still shows it
+- "Print" on the export page now opens the browser's print dialog straight away instead of a PDF in a new tab. Paper size, orientation and margins are set already, every page of a list goes on a sheet of its own, and the printout matches the preview – sharper, too, since the plan is no longer printed as an image. On an iPhone and an iPad the PDF still opens in a tab
 
 ### Fixed
 
