@@ -28,17 +28,17 @@ it for Antigravity — edit this file, never those two.
 - Docs consistency: `npm run check:docs` (relative links, heading anchors and `src/…`-style paths in Markdown resolve; `docs/CHANGELOG.md` is skipped)
 - Algorithm runtime: `npm run bench` (by hand, not in CI; figures in `docs/PERFORMANCE.md`)
 
-**Current Code Quality Status (2026-10-11):**
+**Current Code Quality Status (2026-10-12):**
 
 - ✅ ESLint: 0 errors, 0 warnings
 - ✅ TypeScript: 0 compilation errors (strict mode)
-- ✅ Tests: 3072 unit tests (311 test files) + 14 Playwright tests (3 smoke + 2 core flow + 1 rooms + 4 onboarding + 2 tablet + 1 phone + 1 whiteboard), 100% passing
+- ✅ Tests: 3121 unit tests (317 test files) + 14 Playwright tests (3 smoke + 2 core flow + 1 rooms + 4 onboarding + 2 tablet + 1 phone + 1 whiteboard), 100% passing
 - 📊 Coverage: 76.0 % lines / 75.2 % statements / 66.3 % branches (`npm run test:coverage`, v8 provider, no thresholds enforced)
 - ⚠️ Unused Exports: 52 modules ignoring type-only exports, held by a ratchet (`npm run check:unused`); the remainder are re-export barrels, `lazyWithRetry` default exports and shared test helpers
 - ✅ Test Infrastructure: Centralized accessibility helpers and toast matchers for robust testing
 - ✅ Architecture: Repository Pattern implemented, UI components reorganized into logical subdirectories
-- ✅ i18n: Bilingual support (German/English) fully implemented, DE/EN key parity 1:1 (2182 keys per language, none unused)
-- 📦 Bundle: initial payload 205 KB brotli / 775 KB raw over 28 files (the browser check included), largest chunk 61 KB brotli, CSS 14 KB brotli
+- ✅ i18n: Bilingual support (German/English) fully implemented, DE/EN key parity 1:1 (2239 keys per language, none unused)
+- 📦 Bundle: initial payload 206 KB brotli / 780 KB raw over 26 files (the browser check included), largest chunk 61 KB brotli, CSS 14 KB brotli
 
 ## Logging
 
@@ -75,7 +75,14 @@ the image for both architectures, pushes the multi-arch manifest to GHCR as
    at the top only — dependencies share the version string), `README.md` (image
    tag + `KLASSENPLAN_VERSION` example), `docker-compose.yml` (the example in
    the comment), `docs/CHANGELOG.md`, `src/data/changelogEntries.ts` and
-   `src/i18n/locales/{de,en}/changelog.json`
+   `src/i18n/locales/{de,en}/changelog.json`. The release notes, the
+   post-update notice and `/changelog` say the same: every item of the
+   `## [X.Y.Z]` section is one entry in `changelogEntries.ts`, in the same
+   order, its English text in `en/changelog.json` word for word (a trailing
+   full stop aside) and the German one its translation — never a shorter or
+   merged in-app version. Write them sorted Added → Improved → Fixed, most
+   notable first, since the notice shows the first three.
+   `src/data/__tests__/changelogParity.test.ts` fails on any drift
 3. `git checkout main && git merge --ff-only update`
 4. `git push origin main` and `git push origin update`
 5. `git tag -a vX.Y.Z -m vX.Y.Z <bump-commit>` — annotated, on the bump commit,
