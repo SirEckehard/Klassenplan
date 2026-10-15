@@ -41,6 +41,7 @@ it says so instead of reconstructing one.
 | [0026](0026-tables-out-of-the-mix.md)              | Tables can be taken out of the mix, rooms fill from the front |
 | [0027](0027-one-mix-session.md)                    | A mix is one session: construction and refinement agree       |
 | [0028](0028-duties-remembered-per-class.md)        | Class duties go round and are remembered per class            |
+| [0029](0029-one-address-per-page.md)               | One address per page, every other spelling redirects for good |
 
 ## Reasons still to be recorded
 

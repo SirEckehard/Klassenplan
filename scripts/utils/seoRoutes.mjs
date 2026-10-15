@@ -110,8 +110,16 @@ export function expandRoutes(routes) {
 }
 
 /**
+ * The "not found" page nginx answers every unknown address with, status 404
+ * (decision 0029). Rendered from an address no route matches.
+ */
+export const NOT_FOUND_PATH = '/404';
+export const NOT_FOUND_FILE = '404.html';
+
+/**
  * Output file for a localized path, relative to dist/.
- * `/` → index.html, `/en` → en/index.html, `/faq` → faq/index.html.
+ * `/` → index.html, `/en` → en/index.html, `/faq` → faq/index.html — served
+ * for `/faq` itself, without a redirect to `/faq/` (decision 0029).
  */
 export function outputFileFor(localizedPath) {
   const trimmed = localizedPath.replace(/^\/+|\/+$/g, '');

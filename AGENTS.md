@@ -25,6 +25,7 @@ it for Antigravity — edit this file, never those two.
 - E2E: Playwright specs live in `e2e/` — smoke, the core flow, the rooms of a class in "Bibliothek" (`plans-library.spec.ts`) and the first-visit onboarding (sample class and tours) on a desktop, the tablet and phone layouts and the desktop layout worked by a finger on an interactive whiteboard (`touch-layouts.spec.ts`, projects `tablet`, `phone` and `whiteboard`, picked by the tags `@tablet` / `@phone` / `@whiteboard`) (`npm run test:e2e`; needs `npx playwright install chromium`)
 - i18n consistency: `npm run check:i18n` (DE/EN key parity + every `t(key, 'default')` resolves to a real key + no key that no code refers to)
 - Bundle budgets: `npm run check:bundle` (after a build; part of `npm run build:static`)
+- Live addressing: `npm run check:live-seo` (after a deploy, by hand: every sitemap address answers 200 and is its own canonical, slash/`http://`/`www.` spellings redirect permanently, unknown addresses are 404; decision 0029)
 - Docs consistency: `npm run check:docs` (relative links, heading anchors and `src/…`-style paths in Markdown resolve; `docs/CHANGELOG.md` is skipped)
 - Algorithm runtime: `npm run bench` (by hand, not in CI; figures in `docs/PERFORMANCE.md`)
 
@@ -96,8 +97,11 @@ hyphen in the tag (`v2.1.0-rc.1`) marks a pre-release and keeps it off
 `latest`.
 
 Build artefacts are not part of a release commit: `npm run build` rewrites the
-`lastmod` stamps in `public/sitemap.xml` from the last commit touching each
-route — discard that unless the sitemap itself is the change.
+`lastmod` stamps in `public/sitemap.xml` from the last commit that changed what
+each route shows — discard that unless the sitemap itself is the change. When a
+release changed a page's content, regenerate it (`npm run generate:sitemap`) and
+commit it before the bump: the Docker build has no git and serves the committed
+file.
 
 ## Special Instructions
 
@@ -253,6 +257,7 @@ import { generateId, logError, errorHandlers } from '@/utils';
 - `npm run check:bundle` - Enforce bundle size budgets against `dist/` (run after a build)
 - `npm run check:unused` - Unused-export ratchet (baseline in `scripts/check-unused-exports.mjs`)
 - `npm run check:docs` - Links, heading anchors and repository paths in the Markdown docs resolve
+- `npm run check:live-seo` - The deployed site's addresses: one per page, permanent redirects, real 404 (`SITE_URL`, needs the network)
 - `npm run bench` - Seating algorithm runtime benchmark (by hand)
 - `vitest run --reporter=verbose` - Run tests with detailed output
 - `vitest run src/path/to/test.test.ts` - Run single test file
@@ -345,6 +350,7 @@ Consumers import dedicated hooks (e.g. `useClassroomLayoutContext`) to minimize 
 - The app is a CSR SPA; `npm run build:static` prerenders all routes × languages into `dist/<path>/index.html` so crawlers see real content and per-route canonical/hreflang/JSON-LD. See `docs/SEO.md`.
 - `src/data/seoRoutes.json` is the single source of truth for route metadata (titles, descriptions, `noindex`). Shared script helpers live in `scripts/utils/seoRoutes.mjs`.
 - Canonical URLs come from the build-time `SITE_URL` (`define` in `vite.config.ts`), **never** from `window.location.origin`.
+- **One address per page, no trailing slash** (decision 0029). nginx serves `dist/<path>/index.html` for `/<path>` through the named location `@page` — never `try_files … $uri/`, which answers `/faq` with a 301 to `/faq/` and puts every sitemap address under "Seite mit Weiterleitung" — redirects `/<path>/` to `/<path>`, and answers unknown addresses with the prerendered `404.html` and status 404. `http://` and `www.` are the reverse proxy's to redirect, permanently.
 - **Never let `vite-plugin-compression` precompress HTML** — nginx's `brotli_static on` would serve the stale pre-prerender shell.
 - Route components live in `src/pages/lazyPages.ts` and are shared by the router and `routePreloader`, so `preload()` warms the instance the router renders. Do not re-declare them with `lazyWithRetry` in `App.tsx`.
 - Legal pages: `IMPRINT_URL` / `PRIVACY_URL` at build time replace `/impressum` and `/datenschutz` with forwarding pages (alias in `vite.config.ts`, validation in `src/config/legalPageUrls.ts`). Link to the legal pages only through `LegalPageLink`, never a plain `LocalizedLink`.

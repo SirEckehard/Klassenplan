@@ -25,26 +25,56 @@ const sitemapPath = path.resolve(publicDir, 'sitemap.xml');
 // a commit. A build for any other site rewrites both for its SITE_URL.
 const onlyForOtherSites = process.argv.includes('--only-for-other-sites');
 
-// Source files whose last commit determines a route's <lastmod>. seoRoutes.json
-// is added to every route so metadata edits move the date too.
+// What a route's <lastmod> is dated by: the last commit that changed what the
+// page shows. A string is a file or a directory; `{ locale, key }` is one
+// subtree of a translation file, in both languages — `pages.json` holds the
+// copy of several pages, so dating by the whole file would move them all
+// together. The route's own entry in seoRoutes.json (title, description) is
+// added to every route. Shared chrome (header, footer, page frame) is left out
+// on purpose: it is on every page and changes none of them.
 const ROUTE_SOURCES = {
-  '/': ['src/pages/StartPage.tsx'],
-  '/generator': [
-    'src/components/SeatingPlanGenerator/SeatingPlanGenerator.tsx',
+  '/': [
+    'src/pages/StartPage.tsx',
+    'src/components/HeroMockup.tsx',
+    'src/data/previewImages.json',
+    { locale: 'pages', key: 'startPage' },
   ],
-  '/export': ['src/pages/Export.tsx'],
+  '/generator': [
+    'src/components/SeatingPlanGenerator',
+    'src/components/shell',
+    { locale: 'generator' },
+    { locale: 'pages', key: 'generator' },
+  ],
+  '/export': [
+    'src/pages/Export.tsx',
+    'src/components/SeatingPlanGenerator/ExportToolPanel.tsx',
+    'src/components/SeatingPlanGenerator/ExportSheetInspector.tsx',
+    'src/components/SeatingPlanGenerator/ExportStatusBar.tsx',
+    { locale: 'generator', key: 'export' },
+  ],
   '/present': ['src/pages/Present.tsx'],
-  '/impressum': ['src/pages/Impressum.tsx'],
-  '/datenschutz': ['src/pages/Datenschutz.tsx'],
-  '/feedback': ['src/pages/Feedback.tsx'],
-  '/faq': ['src/pages/FAQ.tsx'],
+  '/impressum': ['src/pages/Impressum.tsx', { locale: 'pages', key: 'legal' }],
+  '/datenschutz': [
+    'src/pages/Datenschutz.tsx',
+    { locale: 'pages', key: 'legal' },
+  ],
+  '/feedback': ['src/pages/Feedback.tsx', { locale: 'pages', key: 'feedback' }],
+  '/faq': [
+    'src/pages/FAQ.tsx',
+    'src/components/FAQ',
+    { locale: 'pages', key: 'faq' },
+  ],
   '/changelog': [
     'src/pages/Changelog.tsx',
-    'src/i18n/locales/de/changelog.json',
+    'src/data/changelogEntries.ts',
+    { locale: 'changelog' },
   ],
-  '/support': ['src/pages/Support.tsx'],
+  '/support': ['src/pages/Support.tsx', { locale: 'pages', key: 'support' }],
 };
-const SHARED_SOURCES = ['src/data/seoRoutes.json'];
+const SEO_ROUTES_FILE = 'src/data/seoRoutes.json';
+// The fields of a route's entry that show on the page or in the results;
+// changefreq and priority change nothing a visitor sees.
+const SEO_CONTENT_FIELDS = ['title', 'description', 'titleEn', 'descriptionEn'];
 
 /** The Docker build context excludes .git (see .dockerignore). */
 async function isGitAvailable() {
@@ -58,21 +88,112 @@ async function isGitAvailable() {
   }
 }
 
+async function git(args) {
+  const { stdout } = await execFileAsync('git', args, {
+    cwd: projectRoot,
+    maxBuffer: 64 * 1024 * 1024,
+  });
+  return stdout;
+}
+
+/** Date of the last commit touching any of the paths, or null. */
+async function lastCommitTouching(paths) {
+  return (
+    (await git(['log', '-1', '--format=%cI', '--', ...paths])).trim() || null
+  );
+}
+
+const contentAtRevision = new Map();
+
+/** A file's content at a revision, or null where it did not exist. */
+async function readAtRevision(revision, file) {
+  const cacheKey = `${revision}:${file}`;
+  if (!contentAtRevision.has(cacheKey)) {
+    contentAtRevision.set(
+      cacheKey,
+      git(['show', `${revision}:${file}`]).catch(() => null),
+    );
+  }
+  return contentAtRevision.get(cacheKey);
+}
+
 /**
- * ISO date of the last commit touching a route's sources, or null when git
- * knows nothing about them. Google discounts <lastmod> once it looks
- * unreliable, so a missing date beats an invented one — which is exactly what a
- * single build timestamp shared by every URL would be.
+ * Date of the last commit that changed `select(content)` of a file — a part of
+ * it rather than the whole. Walks the file's history from the newest commit
+ * and compares each version with its parent's.
+ */
+async function lastChangeOf(file, select) {
+  const log = (await git(['log', '--format=%H %cI', '--', file]))
+    .split('\n')
+    .filter(Boolean);
+  for (const line of log) {
+    const [hash, date] = line.split(' ');
+    const after = select(await readAtRevision(hash, file));
+    const before = select(await readAtRevision(`${hash}^`, file));
+    if (after !== before) return date;
+  }
+  return null;
+}
+
+function parseJson(content) {
+  try {
+    return content === null ? null : JSON.parse(content);
+  } catch {
+    return null;
+  }
+}
+
+function selectKey(key) {
+  return (content) =>
+    JSON.stringify(
+      key.split('.').reduce((value, part) => value?.[part], parseJson(content)),
+    ) ?? null;
+}
+
+function selectRouteEntry(basePath) {
+  return (content) => {
+    const routes = parseJson(content);
+    const entry = Array.isArray(routes)
+      ? routes.find((route) => route.path === basePath)
+      : undefined;
+    return entry
+      ? JSON.stringify(SEO_CONTENT_FIELDS.map((field) => entry[field]))
+      : null;
+  };
+}
+
+function latest(dates) {
+  const known = dates.filter(Boolean);
+  if (known.length === 0) return null;
+  return known.reduce((a, b) => (Date.parse(b) > Date.parse(a) ? b : a));
+}
+
+/**
+ * ISO date of the last commit that changed what a route shows, or null when
+ * git knows nothing about it. Google discounts <lastmod> once it looks
+ * unreliable, so a missing date beats an invented one — and one date shared by
+ * every URL, which dating by shared files produced, is exactly that.
  */
 async function getLastModified(basePath) {
-  const files = [...(ROUTE_SOURCES[basePath] ?? []), ...SHARED_SOURCES];
+  const sources = ROUTE_SOURCES[basePath] ?? [];
   try {
-    const { stdout } = await execFileAsync(
-      'git',
-      ['log', '-1', '--format=%cI', '--', ...files],
-      { cwd: projectRoot },
-    );
-    return stdout.trim() || null;
+    const paths = sources.filter((source) => typeof source === 'string');
+    const dates = [
+      paths.length > 0 ? await lastCommitTouching(paths) : null,
+      await lastChangeOf(SEO_ROUTES_FILE, selectRouteEntry(basePath)),
+    ];
+    for (const source of sources) {
+      if (typeof source === 'string') continue;
+      for (const lang of LANGUAGES) {
+        const file = `src/i18n/locales/${lang}/${source.locale}.json`;
+        dates.push(
+          source.key
+            ? await lastChangeOf(file, selectKey(source.key))
+            : await lastCommitTouching([file]),
+        );
+      }
+    }
+    return latest(dates);
   } catch {
     return null;
   }

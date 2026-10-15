@@ -9,8 +9,10 @@
 // canonicalise themselves onto `/`.
 //
 // Here we render each route in a real browser and write the resulting DOM to
-// dist/<path>/index.html. nginx picks those up through the `$uri/` branch of
-// its try_files directive; no server change is required.
+// dist/<path>/index.html, plus the "not found" page to dist/404.html. nginx
+// serves <path>/index.html for /<path> itself — no redirect to a trailing
+// slash — and 404.html with status 404 for every other address (decision
+// 0029).
 //
 // Run via `npm run build:static` (never as a postbuild hook — plain
 // `vite build` must stay usable without a Chromium install).
@@ -23,6 +25,8 @@ import {
   distDir,
   expandRoutes,
   getSiteUrl,
+  NOT_FOUND_FILE,
+  NOT_FOUND_PATH,
   outputFileFor,
   readRoutes,
 } from './utils/seoRoutes.mjs';
@@ -156,6 +160,20 @@ async function run() {
 
   const captures = [];
   try {
+    // NotFound declares the address it was asked for as its canonical, so the
+    // probe waits for that one; the page is noindex either way.
+    captures.push({
+      file: NOT_FOUND_FILE,
+      html: await capture(
+        browser,
+        baseUrl,
+        siteUrl,
+        { localizedPath: NOT_FOUND_PATH, lang: 'de' },
+        shellPreloads,
+      ),
+    });
+    logInfo('Rendered not-found page', { path: NOT_FOUND_PATH }, SOURCE);
+
     for (const entry of entries) {
       const html = await capture(
         browser,

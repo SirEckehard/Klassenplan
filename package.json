@@ -52,6 +52,7 @@
     "check:bundle": "node scripts/check-bundle.mjs",
     "check:docs": "node scripts/check-docs.mjs",
     "check:i18n": "node scripts/check-i18n.mjs",
+    "check:live-seo": "node scripts/check-live-seo.mjs",
     "check:unused": "node scripts/check-unused-exports.mjs"
   },
   "overrides": {

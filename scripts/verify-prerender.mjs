@@ -14,6 +14,7 @@ import {
   expandRoutes,
   getLocalizedPath,
   getSiteUrl,
+  NOT_FOUND_FILE,
   outputFileFor,
   readRoutes,
 } from './utils/seoRoutes.mjs';
@@ -144,6 +145,28 @@ function checkEntry(html, entry, siteUrl) {
   return errors;
 }
 
+/**
+ * nginx answers every unknown address with this file and status 404. It must
+ * be the rendered "not found" page and stay out of the index — a copy of the
+ * start page here would be the soft 404 it replaced (decision 0029).
+ */
+function checkNotFound(html, siteUrl) {
+  const errors = [];
+  if (metaContent(html, 'name', 'robots') !== 'noindex,follow') {
+    errors.push('meta[robots] must be noindex,follow');
+  }
+  if (linkHref(html, 'canonical') === new URL('/', siteUrl).toString()) {
+    errors.push('canonical points at the start page — not the not-found page');
+  }
+  if (!rootIsPopulated(html)) {
+    errors.push('#root is empty — the page was not actually prerendered');
+  }
+  if (/localhost|127\.0\.0\.1/.test(html)) {
+    errors.push('preview origin leaked into the output (localhost URLs)');
+  }
+  return errors;
+}
+
 async function run() {
   const siteUrl = getSiteUrl();
   const entries = expandRoutes(await readRoutes());
@@ -167,10 +190,23 @@ async function run() {
     }
   }
 
+  try {
+    const html = await fs.readFile(
+      path.resolve(distDir, NOT_FOUND_FILE),
+      'utf-8',
+    );
+    const errors = checkNotFound(html, siteUrl);
+    if (errors.length > 0) {
+      failures.push(`${NOT_FOUND_FILE}\n    - ${errors.join('\n    - ')}`);
+    }
+  } catch {
+    failures.push(`${NOT_FOUND_FILE}\n    - file missing`);
+  }
+
   if (failures.length > 0) {
     logError(
       'Prerender verification failed',
-      { failedPages: failures.length, totalPages: entries.length },
+      { failedPages: failures.length, totalPages: entries.length + 1 },
       SOURCE,
     );
     for (const failure of failures) {
@@ -180,7 +216,11 @@ async function run() {
     return;
   }
 
-  logInfo('Prerender verified', { pages: entries.length, siteUrl }, SOURCE);
+  logInfo(
+    'Prerender verified',
+    { pages: entries.length, notFound: NOT_FOUND_FILE, siteUrl },
+    SOURCE,
+  );
 }
 
 run().catch((error) => {
