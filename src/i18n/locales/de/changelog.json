@@ -1,4 +1,7 @@
 {
+  "v3_1_3": {
+    "0": "Interne Verbesserungen"
+  },
   "v3_1_2": {
     "0": "„Dienste verteilen“ unter den Klassenwerkzeugen: Benenne Dienste wie Tafeldienst oder Fegedienst, lege fest, wie viele Schüler jeder braucht, und lose sie gerecht reihum aus – wer bisher die wenigsten Dienste hatte, kommt zuerst dran, und niemand bekommt zwei auf einmal. Fällt jemand aus, ersetzt du nur diese Person. Die Dienste und die letzten 20 Runden bleiben bei der Klasse gespeichert, und die Verteilung lässt sich als PDF für den Aushang speichern",
     "1": "„Drucken“ auf der Exportseite öffnet jetzt direkt den Druckdialog des Browsers statt eines PDFs in einem neuen Tab. Papierformat, Ausrichtung und Ränder sind schon eingestellt, jede Seite einer Liste kommt auf ein eigenes Blatt, und der Ausdruck entspricht der Vorschau – und ist schärfer, weil der Plan nicht mehr als Bild gedruckt wird. Auf iPhone und iPad öffnet sich das PDF weiterhin in einem Tab",

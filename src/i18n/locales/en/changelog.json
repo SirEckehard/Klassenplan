@@ -1,4 +1,7 @@
 {
+  "v3_1_3": {
+    "0": "Internal improvements"
+  },
   "v3_1_2": {
     "0": "\"Hand out duties\" among the class tools: name duties such as board duty or sweeping, set how many students each needs, and draw them in fair turns – whoever has had the fewest duties so far goes first, and nobody gets two at once. If someone drops out, you replace just that person. The duties and the last 20 rounds are kept with the class, and the rota saves as a PDF to put up",
     "1": "\"Print\" on the export page now opens the browser's print dialog straight away instead of a PDF in a new tab. Paper size, orientation and margins are set already, every page of a list goes on a sheet of its own, and the printout matches the preview – sharper, too, since the plan is no longer printed as an image. On an iPhone and an iPad the PDF still opens in a tab",
