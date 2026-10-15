@@ -132,7 +132,7 @@
     "description": "Nimm direkt Kontakt mit dem Klassenplan-Team per E-Mail auf.",
     "titleEn": "Contact | Klassenplan",
     "descriptionEn": "Get in touch with the Klassenplan team directly by email.",
-    "changefreq": "quarterly",
+    "changefreq": "monthly",
     "priority": 0.6,
     "ogType": "article"
   },
@@ -162,7 +162,7 @@
     "description": "Unterstütze die Weiterentwicklung von Klassenplan mit einer freiwilligen Spende via PayPal.",
     "titleEn": "Support | Klassenplan",
     "descriptionEn": "Support the continued development of Klassenplan with a voluntary donation via PayPal.",
-    "changefreq": "quarterly",
+    "changefreq": "monthly",
     "priority": 0.5,
     "ogType": "article"
   }

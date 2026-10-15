@@ -94,7 +94,7 @@
     <url>
       <loc>https://klassenplan.de/feedback</loc>
       <lastmod>2026-09-23T00:45:54+02:00</lastmod>
-      <changefreq>quarterly</changefreq>
+      <changefreq>monthly</changefreq>
       <priority>0.6</priority>
       <xhtml:link rel="alternate" hreflang="de" href="https://klassenplan.de/feedback"/>
       <xhtml:link rel="alternate" hreflang="en" href="https://klassenplan.de/en/feedback"/>
@@ -103,7 +103,7 @@
     <url>
       <loc>https://klassenplan.de/en/feedback</loc>
       <lastmod>2026-09-23T00:45:54+02:00</lastmod>
-      <changefreq>quarterly</changefreq>
+      <changefreq>monthly</changefreq>
       <priority>0.6</priority>
       <xhtml:link rel="alternate" hreflang="de" href="https://klassenplan.de/feedback"/>
       <xhtml:link rel="alternate" hreflang="en" href="https://klassenplan.de/en/feedback"/>
@@ -148,7 +148,7 @@
     <url>
       <loc>https://klassenplan.de/support</loc>
       <lastmod>2026-10-03T16:21:21+02:00</lastmod>
-      <changefreq>quarterly</changefreq>
+      <changefreq>monthly</changefreq>
       <priority>0.5</priority>
       <xhtml:link rel="alternate" hreflang="de" href="https://klassenplan.de/support"/>
       <xhtml:link rel="alternate" hreflang="en" href="https://klassenplan.de/en/support"/>
@@ -157,7 +157,7 @@
     <url>
       <loc>https://klassenplan.de/en/support</loc>
       <lastmod>2026-10-03T16:21:21+02:00</lastmod>
-      <changefreq>quarterly</changefreq>
+      <changefreq>monthly</changefreq>
       <priority>0.5</priority>
       <xhtml:link rel="alternate" hreflang="de" href="https://klassenplan.de/support"/>
       <xhtml:link rel="alternate" hreflang="en" href="https://klassenplan.de/en/support"/>

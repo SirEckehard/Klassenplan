@@ -71,6 +71,16 @@ const ROUTE_SOURCES = {
   ],
   '/support': ['src/pages/Support.tsx', { locale: 'pages', key: 'support' }],
 };
+// The values the sitemap protocol allows (sitemaps.org).
+const CHANGEFREQ_VALUES = new Set([
+  'always',
+  'hourly',
+  'daily',
+  'weekly',
+  'monthly',
+  'yearly',
+  'never',
+]);
 const SEO_ROUTES_FILE = 'src/data/seoRoutes.json';
 // The fields of a route's entry that show on the page or in the results;
 // changefreq and priority change nothing a visitor sees.
@@ -234,6 +244,12 @@ async function toXml(routes, siteUrl) {
 
     const lastmod = await getLastModified(route.path);
     const changefreq = route.changefreq || 'monthly';
+    // Search Console rejects any other value ("Ungültiger Tag-Wert").
+    if (!CHANGEFREQ_VALUES.has(changefreq)) {
+      throw new Error(
+        `Invalid changefreq "${changefreq}" for ${route.path} — allowed: ${[...CHANGEFREQ_VALUES].join(', ')}`,
+      );
+    }
     const priority =
       typeof route.priority === 'number' ? route.priority.toFixed(1) : '0.5';
     const hreflangLinks = generateHreflangLinks(route.path, siteUrl);
