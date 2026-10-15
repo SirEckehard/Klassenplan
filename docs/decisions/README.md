@@ -42,6 +42,7 @@ it says so instead of reconstructing one.
 | [0027](0027-one-mix-session.md)                    | A mix is one session: construction and refinement agree       |
 | [0028](0028-duties-remembered-per-class.md)        | Class duties go round and are remembered per class            |
 | [0029](0029-one-address-per-page.md)               | One address per page, every other spelling redirects for good |
+| [0030](0030-class-file.md)                         | A class can be saved to a file and opened from one (proposed) |
 
 ## Reasons still to be recorded
 
