@@ -1,6 +1,6 @@
 {
   "name": "klassenplan",
-  "version": "3.1.3",
+  "version": "3.1.4",
   "license": "AGPL-3.0-or-later",
   "type": "module",
   "private": true,
