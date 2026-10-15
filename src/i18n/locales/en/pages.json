@@ -456,7 +456,13 @@
       },
       "pwa": {
         "q": "Can I install Klassenplan like an app?",
-        "a": "Yes! Klassenplan is a Progressive Web App (PWA) and can be installed directly on your device. In Chrome, Edge, or Safari, look for \"Add to Home Screen\" or \"Install App\" in the browser menu. After that, Klassenplan launches like a standalone app from the dock or start menu – faster, with its own icon, and without the browser bar."
+        "a": "Yes. Klassenplan is a Progressive Web App and installs straight from the browser: in Chrome and Edge through the icon at the right of the address bar, in Safari on the Mac through “File” → “Add to Dock”, on iPad and iPhone through “Share” → “Add to Home Screen”, in Firefox on Windows through the web app icon in the address bar. “Install as App” in the gear menu shows you the steps for your browser. Afterwards Klassenplan opens in a window of its own from the Start menu or the Dock and works offline. In Chrome and Edge, double-clicking a backup (.klassenplan) also opens the app and restores it."
+      },
+      "schoolIt": {
+        "q": "Can our school's IT set Klassenplan up on every computer?",
+        "a": "Yes. Edge and Chrome install Klassenplan by policy on every managed computer, without a teacher having to do anything. A school can also host Klassenplan itself – it is a set of static files without a database. Either way, the data stays on each computer.",
+        "linkPrefix": "The guide for administrators is",
+        "link": "in the project on GitHub"
       }
     },
     "backups": {

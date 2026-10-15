@@ -456,7 +456,13 @@
       },
       "pwa": {
         "q": "Kann ich Klassenplan wie eine App installieren?",
-        "a": "Ja! Klassenplan ist eine Progressive Web App (PWA) und kann direkt auf deinem Gerät installiert werden. In Chrome, Edge oder Safari findest du im Browser-Menü die Option \"Zum Startbildschirm hinzufügen\" oder \"App installieren\". Danach startet Klassenplan wie eine eigenständige App aus dem Dock oder dem Startmenü – schneller, mit eigenem Icon und ohne Browserleiste."
+        "a": "Ja. Klassenplan ist eine Progressive Web App und lässt sich direkt aus dem Browser installieren: in Chrome und Edge über das Symbol rechts in der Adressleiste, in Safari auf dem Mac über „Ablage“ → „Zum Dock hinzufügen“, auf iPad und iPhone über „Teilen“ → „Zum Home-Bildschirm“, in Firefox unter Windows über das Web-App-Symbol in der Adressleiste. „Als App installieren“ im Zahnrad-Menü zeigt dir die Schritte für deinen Browser. Danach startet Klassenplan in einem eigenen Fenster aus dem Startmenü oder dem Dock und funktioniert offline. In Chrome und Edge öffnet außerdem ein Doppelklick auf ein Backup (.klassenplan) die App und stellt es wieder her."
+      },
+      "schoolIt": {
+        "q": "Kann die Schul-IT Klassenplan auf allen Rechnern einrichten?",
+        "a": "Ja. Edge und Chrome installieren Klassenplan per Richtlinie auf allen verwalteten Rechnern, ohne dass eine Lehrkraft etwas tun muss. Eine Schule kann Klassenplan auch selbst hosten – es ist eine Sammlung statischer Dateien ohne Datenbank. Die Daten bleiben dabei immer auf dem einzelnen Rechner.",
+        "linkPrefix": "Die Anleitung für Administratorinnen und Administratoren steht",
+        "link": "im Projekt auf GitHub"
       }
     },
     "backups": {

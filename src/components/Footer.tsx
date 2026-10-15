@@ -32,6 +32,7 @@ const Footer: React.FC = () => {
   // The dialogs the entries open live beside the menu, not in it: choosing an
   // entry closes the menu, and a dialog inside it would close with it.
   const [clearAllOpen, setClearAllOpen] = useState(false);
+  const [installGuideOpen, setInstallGuideOpen] = useState(false);
   // The settings menu owns Escape while it is open; the views underneath check
   // the layer registry before acting on it.
   useDialogLayer(menuOpen);
@@ -79,6 +80,7 @@ const Footer: React.FC = () => {
   };
   const SettingsItems = settingsItems?.default;
   const ClearAllDataDialog = settingsItems?.ClearAllDataDialog;
+  const InstallGuideDialog = settingsItems?.InstallGuideDialog;
 
   const linkClass =
     'inline-flex min-h-9 sm:min-h-11 items-center gap-1 text-(--text-badge) hover:text-(--text-badge) font-medium transition px-1.5 py-1 sm:px-3 sm:py-2 text-xs sm:text-sm rounded whitespace-nowrap';
@@ -211,6 +213,7 @@ const Footer: React.FC = () => {
               <SettingsItems
                 onDone={() => setMenuOpen(false)}
                 onClearAllData={() => setClearAllOpen(true)}
+                onShowInstallGuide={() => setInstallGuideOpen(true)}
               />
             </div>
           )}
@@ -218,6 +221,12 @@ const Footer: React.FC = () => {
             <ClearAllDataDialog
               open={clearAllOpen}
               onClose={() => setClearAllOpen(false)}
+            />
+          )}
+          {InstallGuideDialog && (
+            <InstallGuideDialog
+              open={installGuideOpen}
+              onClose={() => setInstallGuideOpen(false)}
             />
           )}
         </div>

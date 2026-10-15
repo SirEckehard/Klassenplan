@@ -10,18 +10,23 @@ import { ClassroomLayoutProvider } from '@/contexts/seatingPlan/ClassroomLayoutC
 import { SeatingAlgorithmProvider } from '@/contexts/seatingPlan/SeatingAlgorithmContext';
 import { ClassManagementProvider } from '@/contexts/seatingPlan/ClassManagementContext';
 import { CanvasPreferencesProvider } from '@/contexts/seatingPlan/CanvasPreferencesContext';
+import { BACKUP_FILE_ACCEPT } from '@/config/backupFile';
+import { useBackupFileLaunch } from '@/hooks/pwa/useBackupFileLaunch';
 
 /**
- * Hidden file input for backup import.
- * Must be rendered inside the provider tree to access the context.
+ * Hidden file input for backup import, and the way in for a backup the
+ * installed app was opened with. Must be rendered inside the provider tree to
+ * access the context.
  */
 function BackupFileInput() {
-  const { importInputRef, handleImportFile } = useSeatingPlanActions();
+  const { importInputRef, handleImportFile, importBackupFile } =
+    useSeatingPlanActions();
+  useBackupFileLaunch(importBackupFile);
   return (
     <input
       ref={importInputRef}
       type="file"
-      accept=".json"
+      accept={BACKUP_FILE_ACCEPT}
       onChange={handleImportFile}
       className="hidden"
       aria-hidden="true"

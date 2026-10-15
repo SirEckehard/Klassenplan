@@ -38,7 +38,7 @@ import {
 } from '@/utils';
 import { usePageSeo } from '@/hooks/usePageSeo';
 import { useTranslation } from 'react-i18next';
-import { GITHUB_REPO_URL } from '@/config/links';
+import { GITHUB_REPO_URL, SCHOOL_DEPLOYMENT_GUIDE_URL } from '@/config/links';
 
 interface FaqItem {
   question: string;
@@ -377,12 +377,34 @@ export default function FAQ() {
         title: t('faq.oberflaeche.title'),
         description: t('faq.oberflaeche.description'),
         icon: DesktopIcon,
-        items: ['undo', 'shortcuts', 'tour', 'dark', 'tablet', 'pwa'].map(
-          (key) => ({
-            question: t(`faq.oberflaeche.${key}.q`),
-            answer: <p>{t(`faq.oberflaeche.${key}.a`)}</p>,
-          }),
-        ),
+        items: [
+          ...['undo', 'shortcuts', 'tour', 'dark', 'tablet', 'pwa'].map(
+            (key) => ({
+              question: t(`faq.oberflaeche.${key}.q`),
+              answer: <p>{t(`faq.oberflaeche.${key}.a`)}</p>,
+            }),
+          ),
+          {
+            question: t('faq.oberflaeche.schoolIt.q'),
+            answer: (
+              <>
+                <p>{t('faq.oberflaeche.schoolIt.a')}</p>
+                <p>
+                  {t('faq.oberflaeche.schoolIt.linkPrefix')}{' '}
+                  <a
+                    href={SCHOOL_DEPLOYMENT_GUIDE_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={pageInlineLinkClass}
+                  >
+                    {t('faq.oberflaeche.schoolIt.link')}
+                  </a>
+                  .
+                </p>
+              </>
+            ),
+          },
+        ],
       },
       {
         id: 'backups',

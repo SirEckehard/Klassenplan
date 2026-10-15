@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- Backups are saved as `.klassenplan` files, and in Chrome and Edge a double-click on one opens the installed app and restores it; older `.json` backups still import
+- "Als App installieren" in the gear menu shows how to install Klassenplan in the browser it is open in – Safari, Firefox and a Chrome or Edge that has not offered it yet included
+- A guide for a school's IT: installing Klassenplan on every computer by policy, hosting it, and keeping the data across sign-outs
+
+### Improved
+
+- The FAQ explains installing the app browser by browser
+
 ## [3.1.4] - 2026-10-15
 
 ### Improved

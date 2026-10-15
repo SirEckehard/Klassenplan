@@ -272,6 +272,7 @@ describe('useSeatingGenerator', () => {
       triggerImport: vi.fn(),
       handleExportAll: vi.fn(),
       handleImportFile: vi.fn(),
+      importBackupFile: vi.fn(),
     });
 
     mockedUseCircleActions.mockImplementation(() => ({

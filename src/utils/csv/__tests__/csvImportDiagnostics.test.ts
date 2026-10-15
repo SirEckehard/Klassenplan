@@ -42,6 +42,7 @@ describe('diagnoseUnsupportedFile', () => {
     ['liste.ods', 'toast:csv.fileTypeSpreadsheet'],
     ['liste.numbers', 'toast:csv.fileTypeSpreadsheet'],
     ['backup.json', 'toast:csv.fileTypeBackup'],
+    ['backup-2026-10-15.klassenplan', 'toast:csv.fileTypeBackup'],
     ['liste.txt', 'toast:csv.fileTypeText'],
     ['liste.pdf', 'toast:csv.fileTypeDocument'],
     ['foto.HEIC', 'toast:csv.fileTypeImage'],

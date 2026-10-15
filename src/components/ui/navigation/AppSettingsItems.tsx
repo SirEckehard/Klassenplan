@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   DeviceMobileIcon,
@@ -13,6 +14,7 @@ import ConfirmDialog from '@/components/ui/modals/ConfirmDialog';
 import { useSeatingPlanActions } from '@/contexts/SeatingPlanContext';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
 import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';
+import { isRunningInstalled } from '@/utils/ui/installGuide';
 import {
   logError,
   menuItemClass,
@@ -20,6 +22,9 @@ import {
   showToast,
   TOAST_MESSAGES,
 } from '@/utils';
+
+// Opened beside the menu like the confirm dialog below, and loaded with it.
+export { default as InstallGuideDialog } from '@/components/pwa/InstallGuideDialog';
 
 /**
  * What every settings menu offers: what is stored, how it leaves the device,
@@ -35,12 +40,18 @@ import {
 export default function AppSettingsItems({
   onDone,
   onClearAllData,
+  onShowInstallGuide,
   storage = true,
   menuItems = true,
 }: {
   onDone: () => void;
   /** Opens {@link ClearAllDataDialog}, which asks before anything is wiped. */
   onClearAllData: () => void;
+  /**
+   * Opens {@link InstallGuideDialog}, for a browser that offers no install
+   * prompt of its own. Without it the entry shows only where one is offered.
+   */
+  onShowInstallGuide?: () => void;
   /**
    * Whether the rows are items of a `role="menu"` (the footer's gear). The
    * header's gear is a dialog that also holds the theme and language
@@ -58,8 +69,13 @@ export default function AppSettingsItems({
   const itemRole = menuItems ? 'menuitem' : undefined;
   const { handleExportAll, triggerImport } = useSeatingPlanActions();
   // Dismissing the install toast is permanent; this entry stays as the way
-  // back in for as long as the browser reports the app as installable.
+  // back in. Where the browser offers no prompt — Safari, Firefox, a Chrome
+  // that has not offered it yet — it opens the guide instead, and it goes
+  // away once the page runs as the installed app.
   const { isInstallable, triggerInstall } = useInstallPrompt();
+  const installed = useMemo(() => isRunningInstalled(), []);
+  const showInstall =
+    !installed && (isInstallable || onShowInstallGuide !== undefined);
   const navigate = useLocalizedNavigate();
 
   // "Bibliothek" is a page of the workspace (decision 0024); its way
@@ -85,6 +101,10 @@ export default function AppSettingsItems({
 
   const handleInstallApp = () => {
     onDone();
+    if (!isInstallable) {
+      onShowInstallGuide?.();
+      return;
+    }
     triggerInstall().catch((error: unknown) => {
       logError('PWA install prompt failed', { error }, 'AppSettingsItems');
     });
@@ -129,7 +149,7 @@ export default function AppSettingsItems({
           </button>
         </>
       )}
-      {isInstallable && (
+      {showInstall && (
         <button
           type="button"
           role={itemRole}
@@ -140,7 +160,7 @@ export default function AppSettingsItems({
           {t('common:pwa.install')}
         </button>
       )}
-      {(storage || isInstallable) && (
+      {(storage || showInstall) && (
         <div className="my-1 h-px bg-(--border-card)" aria-hidden="true" />
       )}
       <button

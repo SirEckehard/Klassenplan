@@ -184,6 +184,7 @@ export interface SeatingPlanActions {
   triggerImport: () => void;
   handleExportAll: () => Promise<void>;
   handleImportFile: React.ChangeEventHandler<HTMLInputElement>;
+  importBackupFile: (file: File) => void;
   clearAllData: () => Promise<void>;
   generateCircleSeating: () => Promise<CircleLayout | null>;
   regenerateCircle: () => Promise<CircleLayout | null>;

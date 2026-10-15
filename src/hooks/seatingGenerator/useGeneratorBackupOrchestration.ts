@@ -22,6 +22,7 @@ export interface BackupOrchestrationReturn {
   triggerImport: () => void;
   handleExportAll: () => Promise<void>;
   handleImportFile: React.ChangeEventHandler<HTMLInputElement>;
+  importBackupFile: (file: File) => void;
 }
 
 /**
@@ -35,13 +36,19 @@ export function useGeneratorBackupOrchestration(
   params: BackupOrchestrationParams,
 ): BackupOrchestrationReturn {
   const { exportAllAsJson, importAllFromJson } = params;
-  const { importInputRef, triggerImport, handleExportAll, handleImportFile } =
-    useDataBackup({ exportAllAsJson, importAllFromJson });
+  const {
+    importInputRef,
+    triggerImport,
+    handleExportAll,
+    handleImportFile,
+    importBackupFile,
+  } = useDataBackup({ exportAllAsJson, importAllFromJson });
 
   return {
     importInputRef,
     triggerImport,
     handleExportAll,
     handleImportFile,
+    importBackupFile,
   };
 }

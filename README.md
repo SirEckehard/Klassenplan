@@ -105,6 +105,7 @@ Further details in the [`docs/`](docs/) folder:
 - [PRIVACY.md](docs/PRIVACY.md) – Personal data: inventory, visibility, self-hosting obligations
 - [data-model.md](docs/data-model.md) – Stored data: keys, shapes, versions, retention
 - [backup-format.md](docs/backup-format.md) – Backup file format & encryption
+- [school-deployment.md](docs/school-deployment.md) – For a school's IT: central installation, self-hosting, keeping the data
 - [csv-import.md](docs/csv-import.md) – Class list import: columns, values, school software exports
 - [worker-protocol.md](docs/worker-protocol.md) – Messages between the app and its web workers
 - [decisions/](docs/decisions/) – Recorded design decisions and their reasons

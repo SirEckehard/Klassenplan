@@ -5,6 +5,9 @@ import { DEFAULT_CONTACT_EMAIL } from './contactEmail';
 // Central place for external project links so they stay in sync across pages.
 export const GITHUB_REPO_URL = 'https://github.com/SirEckehard/Klassenplan';
 
+/** The guide for a school's IT: central installation and self-hosting. */
+export const SCHOOL_DEPLOYMENT_GUIDE_URL = `${GITHUB_REPO_URL}/blob/main/docs/school-deployment.md`;
+
 /**
  * Where the contact page and the error reports write to. `vite.config.ts`
  * validates `CONTACT_EMAIL` and bakes it in through `define`; an instance that

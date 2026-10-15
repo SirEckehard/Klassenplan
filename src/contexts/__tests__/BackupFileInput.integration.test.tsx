@@ -48,7 +48,7 @@ describe('BackupFileInput integration', () => {
     expect(fileInput).toBeInTheDocument();
   });
 
-  it('file input accepts .json files only', () => {
+  it('file input accepts backups, old (.json) and new (.klassenplan)', () => {
     render(
       <SeatingPlanGeneratorProvider>
         <div>Children</div>
@@ -58,7 +58,7 @@ describe('BackupFileInput integration', () => {
     const fileInput = document.querySelector(
       'input[type="file"]',
     ) as HTMLInputElement;
-    expect(fileInput).toHaveAttribute('accept', '.json');
+    expect(fileInput).toHaveAttribute('accept', '.klassenplan,.json');
   });
 
   it('file input is hidden for accessibility', () => {

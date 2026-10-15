@@ -13,6 +13,10 @@ import { fileURLToPath } from 'node:url';
 import type { Alias, PluginOption } from 'vite';
 import { readLegalPageUrls } from './src/config/legalPageUrls.ts';
 import { readContactEmail } from './src/config/contactEmail.ts';
+import {
+  BACKUP_FILE_EXTENSION,
+  BACKUP_FILE_MEDIA_TYPE,
+} from './src/config/backupFile.ts';
 
 const rootDir = fileURLToPath(new URL('.', import.meta.url));
 
@@ -212,6 +216,17 @@ export default defineConfig({
         lang: 'de',
         dir: 'ltr',
         categories: ['education', 'productivity'],
+        // A double-click on a backup opens it in the installed app (Chrome and
+        // Edge on the desktop), which restores it (`useBackupFileLaunch`).
+        file_handlers: [
+          {
+            action: '/generator',
+            accept: { [BACKUP_FILE_MEDIA_TYPE]: [BACKUP_FILE_EXTENSION] },
+          },
+        ],
+        // In the window that is already open rather than a second one: two
+        // windows would write the same storage side by side.
+        launch_handler: { client_mode: ['focus-existing', 'auto'] },
         shortcuts: [
           {
             name: 'Bibliothek',

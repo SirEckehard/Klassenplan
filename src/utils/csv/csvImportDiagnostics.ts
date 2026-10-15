@@ -57,7 +57,10 @@ const FILE_TYPE_HINTS: ReadonlyArray<{
     extensions: ['ods', 'numbers', 'gsheet', 'fods'],
     messageKey: 'toast:csv.fileTypeSpreadsheet',
   },
-  { extensions: ['json'], messageKey: 'toast:csv.fileTypeBackup' },
+  {
+    extensions: ['klassenplan', 'json'],
+    messageKey: 'toast:csv.fileTypeBackup',
+  },
   { extensions: ['txt', 'tsv', 'tab'], messageKey: 'toast:csv.fileTypeText' },
   {
     extensions: ['pdf', 'doc', 'docx', 'odt', 'rtf', 'pages'],

@@ -12,6 +12,11 @@ import type { EncryptedBackupPayload } from '@/utils/validation/backupValidation
 import type { BackupImportOutcome } from '@/services/backup/dataBackup';
 import i18n from '@/i18n';
 import {
+  BACKUP_FILE_EXTENSION,
+  BACKUP_FILE_MEDIA_TYPE,
+  backupFileName,
+} from '@/config/backupFile';
+import {
   logError,
   webCrypto,
   isWebCryptoAvailable,
@@ -188,15 +193,14 @@ export default function useDataBackup({
     importInputRef.current?.click();
   };
 
-  // Export all data as downloadable JSON file
+  // Export all data as an encrypted backup file
   const handleExportAll = async () => {
     try {
       if (!isWebCryptoAvailable()) {
         handleWebCryptoUnavailable('export');
         return;
       }
-      const stamp = new Date().toISOString().replace(/[:.]/g, '-');
-      const filename = `klassenplan-backup-${stamp}.json`;
+      const filename = backupFileName();
 
       // Ask for password first (before file dialog). The dialog enforces the
       // minimum length and the confirmation match itself.
@@ -208,15 +212,22 @@ export default function useDataBackup({
       const json = await exportAllAsJson();
       const output = await encryptJson(json, password);
 
-      const saved = await downloadBlob(output, filename, 'application/json', {
-        logContext: 'useDataBackup',
-        filePickerTypes: [
-          {
-            description: 'JSON Files',
-            accept: { 'application/json': ['.json'] },
-          },
-        ],
-      });
+      // A neutral blob type: Safari names a download after its type and
+      // would turn an unknown one into `….klassenplan.json`.
+      const saved = await downloadBlob(
+        output,
+        filename,
+        'application/octet-stream',
+        {
+          logContext: 'useDataBackup',
+          filePickerTypes: [
+            {
+              description: 'Klassenplan Backup',
+              accept: { [BACKUP_FILE_MEDIA_TYPE]: [BACKUP_FILE_EXTENSION] },
+            },
+          ],
+        },
+      );
       // Confirm only once the file was actually written — the password prompt
       // and the save dialog both come after the click.
       if (saved) {
@@ -233,11 +244,12 @@ export default function useDataBackup({
     }
   };
 
-  // Handle import from selected JSON file
-  const handleImportFile: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-    const file = e.target.files?.[0];
-    e.currentTarget.value = '';
-    if (!file) return;
+  /**
+   * Restores a backup file: asks for its password, then how it applies. The
+   * file comes from the file input or, in the installed app, from the system
+   * when a backup was opened with it (`useBackupFileLaunch`).
+   */
+  const importBackupFile = (file: File) => {
     if (file.size > BACKUP_LIMITS.encryptedFileBytes) {
       showToast('error', TOAST_MESSAGES.VALIDATION_FILE_TOO_LARGE);
       return;
@@ -309,5 +321,17 @@ export default function useDataBackup({
     reader.readAsText(file);
   };
 
-  return { importInputRef, triggerImport, handleExportAll, handleImportFile };
+  const handleImportFile: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+    const file = e.target.files?.[0];
+    e.currentTarget.value = '';
+    if (file) importBackupFile(file);
+  };
+
+  return {
+    importInputRef,
+    triggerImport,
+    handleExportAll,
+    handleImportFile,
+    importBackupFile,
+  };
 }

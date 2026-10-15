@@ -262,6 +262,43 @@ describe('useDataBackup', () => {
     );
   });
 
+  it('restores a file handed over directly, as the installed app does', async () => {
+    const importFn = vi.fn().mockResolvedValue({ merge: false });
+    const { result } = renderHook(() =>
+      useDataBackup({
+        exportAllAsJson: vi.fn(),
+        importAllFromJson: importFn,
+      }),
+    );
+    class FileReaderMock {
+      onload: null | (() => void) = null;
+      result = JSON.stringify({
+        encrypted: true,
+        kdf: { name: 'PBKDF2', hash: 'SHA-256', iterations: 600000 },
+        iv: 'AA==',
+        salt: 'AA==',
+        data: 'AA==',
+      });
+      readAsText = vi.fn().mockImplementation(function (this: FileReaderMock) {
+        this.onload?.();
+      });
+    }
+    vi.stubGlobal('FileReader', FileReaderMock);
+
+    await act(async () => {
+      result.current.importBackupFile(
+        new File(['{}'], 'backup-2026-10-15.klassenplan'),
+      );
+      await Promise.resolve();
+    });
+
+    await waitFor(() =>
+      expect(importFn).toHaveBeenCalledWith(expect.any(String), {
+        merge: false,
+      }),
+    );
+  });
+
   it('merges into existing data when the restore dialog returns "merge"', async () => {
     const importFn = vi
       .fn()
@@ -361,9 +398,15 @@ describe('useDataBackup', () => {
     expect(downloadSpy).toHaveBeenCalledTimes(1);
     const [payload, filename, mimeType, options] = downloadSpy.mock.calls[0];
     expect(typeof payload).toBe('string');
-    expect(filename).toMatch(/^klassenplan-backup-.*\.json$/);
-    expect(mimeType).toBe('application/json');
-    expect(options).toMatchObject({ logContext: 'useDataBackup' });
+    expect(filename).toMatch(/^backup-.*\.klassenplan$/);
+    // Neutral, so Safari keeps the extension instead of appending its own.
+    expect(mimeType).toBe('application/octet-stream');
+    expect(options).toMatchObject({
+      logContext: 'useDataBackup',
+      filePickerTypes: [
+        { accept: { 'application/x-klassenplan': ['.klassenplan'] } },
+      ],
+    });
 
     downloadSpy.mockRestore();
   });

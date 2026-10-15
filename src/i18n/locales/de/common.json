@@ -163,7 +163,50 @@
     "checking": "Suche nach Updates …",
     "upToDate": "Du hast bereits die neueste Version (v{{version}})",
     "updateCheckFailed": "Update-Prüfung fehlgeschlagen. Bist du online?",
-    "updateCheckOffline": "Ohne Internetverbindung lässt sich nicht nach Updates suchen."
+    "updateCheckOffline": "Ohne Internetverbindung lässt sich nicht nach Updates suchen.",
+    "guide": {
+      "title": "Klassenplan als App installieren",
+      "intro": "Als App startet Klassenplan in einem eigenen Fenster aus dem Startmenü, dem Dock oder vom Home-Bildschirm und funktioniert offline. Ist sie schon installiert, bietet der Browser an derselben Stelle an, sie zu öffnen.",
+      "here": "In {{browser}}",
+      "others": "Andere Browser",
+      "opensBackups": "Danach öffnet ein Doppelklick auf ein Backup (.klassenplan) die App und stellt es wieder her.",
+      "insecure": "Diese Adresse läuft ohne verschlüsselte Verbindung (https). Ohne sie lässt sich Klassenplan in keinem Browser installieren – offline funktioniert es trotzdem. Die Schul-IT kann die Instanz auf https umstellen.",
+      "browsers": {
+        "edge": {
+          "name": "Microsoft Edge",
+          "step1": "Klicke rechts in der Adressleiste auf das Symbol zum Installieren der App.",
+          "step2": "Fehlt es, öffne das Menü „…“ und wähle „Apps“ → „Diese Website als App installieren“."
+        },
+        "chrome": {
+          "name": "Google Chrome",
+          "step1": "Klicke rechts in der Adressleiste auf das Symbol „Installieren“.",
+          "step2": "Fehlt es, öffne das Menü ⋮ und wähle „Streamen, speichern und teilen“ → „Seite als App installieren“."
+        },
+        "safariMac": {
+          "name": "Safari auf dem Mac",
+          "step1": "Wähle in der Menüleiste „Ablage“ → „Zum Dock hinzufügen“.",
+          "step2": "Bestätige mit „Hinzufügen“. Das geht ab macOS Sonoma."
+        },
+        "ios": {
+          "name": "iPad und iPhone",
+          "step1": "Tippe auf das Teilen-Symbol (Quadrat mit Pfeil nach oben).",
+          "step2": "Wähle „Zum Home-Bildschirm“ und bestätige mit „Hinzufügen“."
+        },
+        "android": {
+          "name": "Android",
+          "step1": "Öffne das Menü des Browsers (⋮).",
+          "step2": "Wähle „App installieren“ oder „Zum Startbildschirm hinzufügen“."
+        },
+        "firefoxWindows": {
+          "name": "Firefox unter Windows",
+          "step1": "Klicke in der Adressleiste auf das Symbol, das die Seite als Web-App zur Taskleiste hinzufügt. Das geht ab Firefox 143."
+        },
+        "firefox": {
+          "name": "Firefox auf Mac und Linux",
+          "note": "Hier kann Firefox keine Website als App installieren. Nimm dafür Chrome oder Edge – im Browser funktioniert Klassenplan in Firefox genauso, auch offline."
+        }
+      }
+    }
   },
   "offline": {
     "badge": "Offline",

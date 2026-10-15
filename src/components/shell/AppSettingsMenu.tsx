@@ -65,6 +65,7 @@ export default function AppSettingsMenu() {
   );
   // Beside the menu, not in it: choosing the entry closes the menu.
   const [clearAllOpen, setClearAllOpen] = React.useState(false);
+  const [installGuideOpen, setInstallGuideOpen] = React.useState(false);
   const [characterKeys, setCharacterKeys] = React.useState(
     characterKeyShortcutsEnabled,
   );
@@ -112,6 +113,7 @@ export default function AppSettingsMenu() {
   const iconClass = 'h-4 w-4 shrink-0 text-(--text-muted)';
   const SettingsItems = settingsItems?.default;
   const ClearAllDataDialog = settingsItems?.ClearAllDataDialog;
+  const InstallGuideDialog = settingsItems?.InstallGuideDialog;
 
   return (
     <div className="relative" ref={containerRef}>
@@ -167,6 +169,7 @@ export default function AppSettingsMenu() {
                 <SettingsItems
                   onDone={close}
                   onClearAllData={() => setClearAllOpen(true)}
+                  onShowInstallGuide={() => setInstallGuideOpen(true)}
                   storage={false}
                   menuItems={false}
                 />
@@ -243,6 +246,12 @@ export default function AppSettingsMenu() {
         <ClearAllDataDialog
           open={clearAllOpen}
           onClose={() => setClearAllOpen(false)}
+        />
+      )}
+      {InstallGuideDialog && (
+        <InstallGuideDialog
+          open={installGuideOpen}
+          onClose={() => setInstallGuideOpen(false)}
         />
       )}
     </div>

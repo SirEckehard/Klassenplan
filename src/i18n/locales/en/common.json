@@ -163,7 +163,50 @@
     "checking": "Checking for updates …",
     "upToDate": "You already have the latest version (v{{version}})",
     "updateCheckFailed": "Update check failed. Are you online?",
-    "updateCheckOffline": "Checking for updates needs an internet connection."
+    "updateCheckOffline": "Checking for updates needs an internet connection.",
+    "guide": {
+      "title": "Install Klassenplan as an app",
+      "intro": "As an app, Klassenplan opens in a window of its own from the Start menu, the Dock or the home screen, and works offline. Once it is installed, the browser offers to open it in the same place.",
+      "here": "In {{browser}}",
+      "others": "Other browsers",
+      "opensBackups": "Afterwards, double-clicking a backup (.klassenplan) opens the app and restores it.",
+      "insecure": "This address runs without an encrypted connection (https). Without one, Klassenplan cannot be installed in any browser – it still works offline. Your school's IT can move the instance to https.",
+      "browsers": {
+        "edge": {
+          "name": "Microsoft Edge",
+          "step1": "Click the icon for installing the app at the right of the address bar.",
+          "step2": "If it is not there, open the “…” menu and choose “Apps” → “Install this site as an app”."
+        },
+        "chrome": {
+          "name": "Google Chrome",
+          "step1": "Click the “Install” icon at the right of the address bar.",
+          "step2": "If it is not there, open the ⋮ menu and choose “Cast, save, and share” → “Install page as app”."
+        },
+        "safariMac": {
+          "name": "Safari on the Mac",
+          "step1": "In the menu bar, choose “File” → “Add to Dock”.",
+          "step2": "Confirm with “Add”. This needs macOS Sonoma or later."
+        },
+        "ios": {
+          "name": "iPad and iPhone",
+          "step1": "Tap the Share icon (a square with an arrow pointing up).",
+          "step2": "Choose “Add to Home Screen” and confirm with “Add”."
+        },
+        "android": {
+          "name": "Android",
+          "step1": "Open the browser's menu (⋮).",
+          "step2": "Choose “Install app” or “Add to Home screen”."
+        },
+        "firefoxWindows": {
+          "name": "Firefox on Windows",
+          "step1": "Click the icon in the address bar that adds the page to the taskbar as a web app. This needs Firefox 143 or later."
+        },
+        "firefox": {
+          "name": "Firefox on Mac and Linux",
+          "note": "Here Firefox cannot install a website as an app. Use Chrome or Edge for that – in the browser, Klassenplan works just the same in Firefox, offline included."
+        }
+      }
+    }
   },
   "offline": {
     "badge": "Offline",

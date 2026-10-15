@@ -107,7 +107,38 @@ describe('Footer', () => {
     ).toBeInTheDocument();
   });
 
-  it('hides the install entry when the app cannot be installed', async () => {
+  it('shows how to install where the browser offers no prompt', async () => {
+    renderFooter();
+    const user = await openSettingsMenu();
+
+    await user.click(
+      screen.getByRole('menuitem', {
+        name: /als app installieren|install as app/i,
+      }),
+    );
+
+    expect(installPromptMock.triggerInstall).not.toHaveBeenCalled();
+    expect(
+      await screen.findByRole('dialog', {
+        name: /klassenplan als app installieren|install klassenplan as an app/i,
+      }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+  });
+
+  it('hides the install entry inside the installed app', async () => {
+    vi.stubGlobal(
+      'matchMedia',
+      (query: string) =>
+        ({
+          matches: query === '(display-mode: standalone)',
+          media: query,
+          addEventListener: vi.fn(),
+          removeEventListener: vi.fn(),
+          addListener: vi.fn(),
+          removeListener: vi.fn(),
+        }) as unknown as MediaQueryList,
+    );
     renderFooter();
     await openSettingsMenu();
 
@@ -116,5 +147,6 @@ describe('Footer', () => {
         name: /als app installieren|install as app/i,
       }),
     ).not.toBeInTheDocument();
+    vi.unstubAllGlobals();
   });
 });

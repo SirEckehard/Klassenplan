@@ -3,6 +3,27 @@
 This document describes the structure of JSON backups and the limits that apply
 when importing them into Klassenplan.
 
+## The file
+
+A backup is saved as `backup-<timestamp>.klassenplan`, for example
+`backup-2026-10-15T08-30-00-000Z.klassenplan`. The content is JSON — the
+encrypted envelope described under [Encryption](#encryption) — and only the
+extension is the app's own, so an installed app can register itself for these
+files without claiming every JSON file. Name, extension and media type are set
+in `src/config/backupFile.ts`.
+
+- **Import** accepts `.klassenplan` and, for backups made before the extension
+  existed, `.json` (`klassenplan-backup-<timestamp>.json`). Both go the same
+  way; the extension is not checked beyond the file dialog.
+- **Opening a backup with the installed app** (Chrome and Edge on the desktop):
+  the manifest lists the extension under `file_handlers` (`vite.config.ts`),
+  and `src/hooks/pwa/useBackupFileLaunch.ts` hands the file from
+  `window.launchQueue` to the same restore as the file dialog — password, then
+  replace or merge. `launch_handler` keeps it in a window that is already open.
+- The download is written as `application/octet-stream`, so Safari keeps the
+  extension instead of appending one of its own; the save dialog pairs the
+  extension with `application/x-klassenplan`.
+
 ## Structure overview
 
 A backup (`ExportBundle`) contains the following required fields:

@@ -489,8 +489,13 @@ export function useSeatingGenerator() {
     importAllFromJson,
   });
 
-  const { importInputRef, triggerImport, handleExportAll, handleImportFile } =
-    backupOrchestration;
+  const {
+    importInputRef,
+    triggerImport,
+    handleExportAll,
+    handleImportFile,
+    importBackupFile,
+  } = backupOrchestration;
 
   // Auto-update statistics when seating changes
   useSeatingStatisticsUpdater({
@@ -682,6 +687,7 @@ export function useSeatingGenerator() {
       triggerImport,
       handleExportAll,
       handleImportFile,
+      importBackupFile,
       clearAllData,
       generateCircleSeating,
       regenerateCircle,
@@ -757,6 +763,7 @@ export function useSeatingGenerator() {
       triggerImport,
       handleExportAll,
       handleImportFile,
+      importBackupFile,
       clearAllData,
       generateCircleSeating,
       regenerateCircle,

@@ -184,5 +184,6 @@ export interface GeneratorUtilityActions {
   triggerImport: () => void;
   handleExportAll: () => void;
   handleImportFile: React.ChangeEventHandler<HTMLInputElement>;
+  importBackupFile: (file: File) => void;
   clearAllData: () => Promise<void>;
 }
