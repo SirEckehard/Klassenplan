@@ -58,7 +58,7 @@ describe('the guide', () => {
 
 describe('isRunningInstalled', () => {
   const win = (standaloneQuery: string | null, standalone?: boolean) => ({
-    navigator: { standalone } as Navigator,
+    navigator: { standalone } as unknown as Navigator,
     matchMedia: (query: string) =>
       ({ matches: query === standaloneQuery }) as MediaQueryList,
   });

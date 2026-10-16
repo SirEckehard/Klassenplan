@@ -48,6 +48,35 @@ describe('StudentInspector', () => {
     }
   });
 
+  // The rows stood at different pitches on an iPad: the partners' buttons
+  // stayed small while the chips, the switches and the role's menu took a
+  // fingertip's 44px. Every value is one size now, and so is every row.
+  it('gives every value and every row one height', () => {
+    renderInspector();
+
+    const values = [
+      ...screen.getAllByRole('button', { pressed: false }),
+      ...screen
+        .getAllByRole('button')
+        .filter((button) => button.getAttribute('aria-haspopup') === 'dialog'),
+    ].filter((button) => button.closest('section'));
+    // Gender and height chips, two partner buttons, the role, the language.
+    expect(values.length).toBeGreaterThanOrEqual(9);
+    for (const value of values) {
+      expect(value).toHaveClass(
+        'min-h-7',
+        'pointer-coarse:min-h-11',
+        'pointer-coarse:px-2.5',
+      );
+    }
+    for (const toggle of screen.getAllByRole('switch')) {
+      expect(toggle.closest('label')).toHaveClass(
+        'min-h-7',
+        'pointer-coarse:min-h-11',
+      );
+    }
+  });
+
   it('sets the gender from its row of choices', () => {
     const updateStudent = vi.fn();
     renderInspector({ updateStudent });

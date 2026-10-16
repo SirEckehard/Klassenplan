@@ -23,7 +23,6 @@
     "feedback": "Feedback",
     "github": "GitHub",
     "titles": {
-      "home": "Zur Startseite",
       "impressum": "Impressum & rechtliche Angaben",
       "datenschutz": "Datenschutzerklärung",
       "faq": "Häufige Fragen & Hilfe",
@@ -101,6 +100,7 @@
     "dismissToast": "Meldung schließen"
   },
   "footer": {
+    "navLabel": "Weitere Seiten",
     "settings": "Einstellungen",
     "clearAllData": "Alle Daten löschen"
   },

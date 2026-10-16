@@ -33,11 +33,11 @@ import {
 import { scheduleIdleTask } from '@/utils/performance/idleTasks';
 import { appSettingsItems } from '@/components/ui/navigation/appSettingsItemsModule';
 
-// Shared with the footer's gear and kept out of the cold-start payload with
-// the dialog it brings. Here it is fetched while the workspace is idle rather
-// than on the first open: arriving after the menu, it made the menu grow past
-// a place that had been worked out for the smaller one. Fetched early, it is
-// there offline as well, where no service worker has cached it.
+// Kept out of the cold-start payload with the dialog it brings, and fetched
+// while the page is idle rather than on the first open: arriving after the
+// menu, it made the menu grow past a place that had been worked out for the
+// smaller one. Fetched early, it is there offline as well, where no service
+// worker has cached it.
 const preloadSettingsItems = appSettingsItems.preload;
 
 /**
@@ -53,6 +53,12 @@ const preloadSettingsItems = appSettingsItems.preload;
  *
  * It sits in the header beside Help, the same place on every layer, on the
  * export page and on the first screen, which has no toolbar yet.
+ *
+ * The start page and the pages beside the app carry the same menu at the
+ * right of their head, in place of the gear their footer used to hold, which
+ * broke the footer onto a second line on an iPad: one gear, the same rows,
+ * wherever it stands. The footer repeats the two legal pages as words — an
+ * imprint behind a gear alone would not be "easily recognisable" (§ 5 DDG).
  */
 export default function AppSettingsMenu() {
   const { t } = useTranslation('common');
@@ -170,8 +176,6 @@ export default function AppSettingsMenu() {
                   onDone={close}
                   onClearAllData={() => setClearAllOpen(true)}
                   onShowInstallGuide={() => setInstallGuideOpen(true)}
-                  storage={false}
-                  menuItems={false}
                 />
               </>
             )}

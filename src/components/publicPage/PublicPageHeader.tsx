@@ -4,10 +4,12 @@ import { useTranslation } from 'react-i18next';
 import { LocalizedLink } from '@/components/LocalizedLink';
 import { KpLockup } from '@/components/KpLockup';
 import ReturnToAppLink from '@/components/ReturnToAppLink';
+import AppSettingsMenu from '@/components/shell/AppSettingsMenu';
 
 /**
- * The top of a page outside the workspace: the lockup leading home, and —
- * when the app opened the page — the way back to it.
+ * The top of a page outside the workspace: the lockup leading home, and on
+ * the right — when the app opened the page — the way back to it, beside the
+ * settings gear the workspace carries in the same place.
  */
 export default function PublicPageHeader({
   bannerLabel,
@@ -30,7 +32,10 @@ export default function PublicPageHeader({
       >
         <KpLockup size="md" />
       </LocalizedLink>
-      <ReturnToAppLink />
+      <div className="flex items-center gap-4">
+        <ReturnToAppLink />
+        <AppSettingsMenu />
+      </div>
     </header>
   );
 }

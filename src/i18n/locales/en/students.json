@@ -411,6 +411,7 @@
     "withoutWishHint": "Ask your students for a wish if needed."
   },
   "listStatus": {
-    "openStudent": "Open {{name}} in the inspector"
+    "openStudent": "Open {{name}} in the inspector",
+    "closeStudent": "Close {{name}} in the inspector"
   }
 }

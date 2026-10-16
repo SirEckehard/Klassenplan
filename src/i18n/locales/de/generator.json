@@ -229,7 +229,6 @@
     "accept": "Verstanden"
   },
   "storage": {
-    "sectionTitle": "Speicher & Backup",
     "backup": "Backup",
     "exportBackup": "Backup exportieren",
     "importBackup": "Backup importieren",

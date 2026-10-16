@@ -28,17 +28,25 @@ export default function InspectorPortal({
   /** Names the inspector column while this content fills it. */
   label?: string;
   /**
-   * Unfolds a folded column from `lg` up when this content arrives: the
-   * class layer's ticked students are edited nowhere else there. The room,
-   * the plan and the sheet leave the column as the teacher left it.
+   * Brings the inspector into view when this content arrives — the column
+   * from `lg` up, unfolded, the drawer below it — and closes the drawer again
+   * when it leaves: the class layer's ticked students are edited nowhere else
+   * there. The room, the plan and the sheet leave the inspector as the
+   * teacher left it.
    */
   reveal?: boolean;
   children: React.ReactNode;
 }) {
-  const { slotNode, mountPortal, setFolded } = useInspector();
+  const { slotNode, mountPortal, setFolded, setDrawerOpen } = useInspector();
   React.useLayoutEffect(() => mountPortal(label), [label, mountPortal]);
   React.useLayoutEffect(() => {
-    if (reveal && isBreakpointUp('lg')) setFolded(false);
-  }, [reveal, setFolded]);
+    if (!reveal) return undefined;
+    if (isBreakpointUp('lg')) {
+      setFolded(false);
+      return undefined;
+    }
+    setDrawerOpen(true);
+    return () => setDrawerOpen(false);
+  }, [reveal, setDrawerOpen, setFolded]);
   return slotNode ? createPortal(children, slotNode) : null;
 }

@@ -110,7 +110,7 @@ export default function InspectorSelect<T extends string>({
         <button
           type="button"
           ref={triggerRef}
-          className={`${tokens.baseClass} ${stateClass} pointer-coarse:min-h-11 pointer-coarse:px-3`}
+          className={`${tokens.baseClass} ${stateClass}`}
           title={active?.title ?? label}
           onClick={() => setOpen((previous) => !previous)}
           aria-haspopup="dialog"

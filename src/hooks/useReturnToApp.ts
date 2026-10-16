@@ -4,8 +4,9 @@ import { useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 /**
- * Router state a link out of the app carries — the help dialog's FAQ link, the
- * toolbar's support entry — so the page it opens can offer the way back.
+ * Router state a link inside the site carries — the help dialog's FAQ link,
+ * the toolbar's support entry, the settings gear, the start page's and the
+ * footer's links — so the page it opens can offer the way back.
  *
  * A visitor who arrives from a search engine carries no such state and sees no
  * back link: going back would lead them out of the site.
@@ -13,8 +14,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 export const APP_RETURN_STATE = { fromApp: true } as const;
 
 /**
- * Goes back to where the app was left, or null when the page was not opened
- * from the app. History rather than a fixed route: the workspace keeps its
+ * Goes back to where the visitor came from, or null when the page was not
+ * opened from inside the site. History rather than a fixed route: the workspace keeps its
  * layer across the trip, and the projection or a classroom tool are just as
  * likely to be where the teacher came from.
  */

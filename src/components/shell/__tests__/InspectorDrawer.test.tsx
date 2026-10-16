@@ -73,6 +73,21 @@ const Picker = () => {
   );
 };
 
+/** A row of the class list, as far as the inspector is concerned. */
+const Row = () => {
+  const { toggleStudent } = useInspector();
+  return (
+    <button
+      type="button"
+      data-row-part="open"
+      data-student-id="g"
+      onClick={() => toggleStudent('g')}
+    >
+      row
+    </button>
+  );
+};
+
 beforeEach(() => {
   mocks.state.step = 3;
   mocks.state.students = [];
@@ -135,6 +150,28 @@ describe('Inspector below lg', () => {
     expect(drawer()).toBeInTheDocument();
 
     await userEvent.click(screen.getByText('Liste'));
+    expect(drawer()).not.toBeInTheDocument();
+  });
+
+  // Tapping the opened student's row again closed the drawer on the tap
+  // beside it, and the row's click opened it straight back.
+  it('puts the student away on a second tap on its row', async () => {
+    setWidth(820);
+    mocks.state.step = 1;
+    mocks.state.students = [createMockStudent({ id: 'g', name: 'Grace' })];
+    render(
+      <InspectorProvider>
+        <Row />
+        <Inspector />
+      </InspectorProvider>,
+    );
+    const drawer = () =>
+      screen.queryByRole('complementary', { name: /Merkmale|Attributes/i });
+
+    await userEvent.click(screen.getByRole('button', { name: 'row' }));
+    expect(drawer()).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: 'row' }));
     expect(drawer()).not.toBeInTheDocument();
   });
 
@@ -394,6 +431,72 @@ describe('Inspector from lg up', () => {
     ).toHaveClass('lg:flex');
     expect(screen.getByRole('heading', { name: 'Grace' })).toBeInTheDocument();
     expect(localStorage.getItem(FOLDED_KEY)).toBe('false');
+  });
+
+  // An iPad in landscape starts folded: the column a student unfolded folds
+  // back when the student is put away, and one the teacher keeps open stays.
+  it('folds the column back when the student who unfolded it is put away', () => {
+    localStorage.setItem(FOLDED_KEY, 'true');
+    setWidth(1280);
+    mocks.state.step = 1;
+    mocks.state.students = [createMockStudent({ id: 'g', name: 'Grace' })];
+    render(
+      <InspectorProvider>
+        <Row />
+        <Inspector />
+        <StatusBarFrame start={<span>Status</span>} />
+      </InspectorProvider>,
+    );
+    const column = () =>
+      screen.queryByRole('complementary', { name: /Merkmale|Attributes/i });
+
+    fireEvent.click(screen.getByRole('button', { name: 'row' }));
+    expect(column()).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'row' }));
+    expect(column()).not.toBeInTheDocument();
+    expect(localStorage.getItem(FOLDED_KEY)).toBe('true');
+
+    // Unfolded by hand, the column stays when the student goes.
+    fireEvent.click(inspectorSwitch());
+    fireEvent.click(screen.getByRole('button', { name: 'row' }));
+    fireEvent.click(screen.getByRole('button', { name: 'row' }));
+    expect(column()).toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', { name: 'Grace' }),
+    ).not.toBeInTheDocument();
+  });
+
+  // On a tablet the ticked students open the drawer, and take it along when
+  // they are let go.
+  it('opens the drawer for a portal that asks to be seen on a tablet', () => {
+    setWidth(820);
+    mocks.state.step = 1;
+    const { rerender } = render(
+      <InspectorProvider>
+        <Inspector />
+      </InspectorProvider>,
+    );
+    rerender(
+      <InspectorProvider>
+        <Inspector />
+        <InspectorPortal label="Mehrfachauswahl" reveal>
+          <p>Auswahl</p>
+        </InspectorPortal>
+      </InspectorProvider>,
+    );
+
+    expect(
+      screen.getByRole('complementary', { name: 'Mehrfachauswahl' }),
+    ).toHaveClass('fixed');
+
+    rerender(
+      <InspectorProvider>
+        <Inspector />
+      </InspectorProvider>,
+    );
+    expect(
+      screen.queryByRole('complementary', { name: 'Mehrfachauswahl' }),
+    ).not.toBeInTheDocument();
   });
 
   // Ticked students are edited in the column alone, so they bring it back.

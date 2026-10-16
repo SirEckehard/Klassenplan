@@ -16,6 +16,7 @@ import { getFeatureStyles } from '@/utils/ui';
 import { computePlanNameFontSize } from '@/utils/ui/planNameSize';
 import { seatLockReservesRoom } from '@/utils/ui/seatLabelLayout';
 import { useHasHoverPointer } from '@/hooks/ui/useHasHoverPointer';
+import { useTouchScrollLock } from '@/hooks/ui/useTouchScrollLock';
 import type { FeatureVisibilityFlags } from '@/utils/ui';
 import type { TemplateDragPreview } from '@/types/templateDrag';
 import {
@@ -133,6 +134,8 @@ const SeatingPlanCanvas = React.memo(
   }: SeatingPlanCanvasProps) => {
     const { t } = useTranslation('generator');
     const canvasRef = React.useRef<SVGSVGElement | null>(null);
+    // A finger dragging a student must not scroll the page instead.
+    useTouchScrollLock(canvasRef);
     const photoUrls = useStudentPhotoUrls(allStudents ?? []);
     const nameLabels = useNameLabels(allStudents ?? [], nameDisplay);
     // `SceneTable` reveals the open lock on hover where the pointer can hover.

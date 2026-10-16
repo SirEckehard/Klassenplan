@@ -27,8 +27,13 @@ vi.mock('@/contexts/SeatingPlanContext', () => ({
   }),
 }));
 
+const installPromptMock = vi.hoisted(() => ({
+  isInstallable: false,
+  triggerInstall: vi.fn(async () => {}),
+}));
+
 vi.mock('@/hooks/useInstallPrompt', () => ({
-  useInstallPrompt: () => ({ isInstallable: false, triggerInstall: vi.fn() }),
+  useInstallPrompt: () => installPromptMock,
 }));
 
 const renderMenu = () =>
@@ -48,7 +53,11 @@ const openMenu = async () => {
   return user;
 };
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  installPromptMock.isInstallable = false;
+  installPromptMock.triggerInstall.mockClear();
+});
 
 describe('AppSettingsMenu', () => {
   it('carries what the workspace loses with the footer', async () => {
@@ -224,6 +233,42 @@ describe('AppSettingsMenu', () => {
       await user.tab();
       expect(dialog).toContainElement(focused());
     }
+  });
+});
+
+// The install entry: the browser's own prompt where it offers one, the steps
+// for this browser where it does not.
+describe('AppSettingsMenu installing the app', () => {
+  it('offers the install entry once the browser reports installability', async () => {
+    installPromptMock.isInstallable = true;
+    renderMenu();
+    const user = await openMenu();
+
+    await user.click(
+      screen.getByRole('button', {
+        name: /als app installieren|install as app/i,
+      }),
+    );
+
+    expect(installPromptMock.triggerInstall).toHaveBeenCalledTimes(1);
+  });
+
+  it('shows how to install where the browser offers no prompt', async () => {
+    renderMenu();
+    const user = await openMenu();
+
+    await user.click(
+      screen.getByRole('button', {
+        name: /als app installieren|install as app/i,
+      }),
+    );
+
+    expect(installPromptMock.triggerInstall).not.toHaveBeenCalled();
+    expect(
+      await screen.findByRole('dialog', {
+        name: /klassenplan als app installieren|install klassenplan as an app/i,
+      }),
+    ).toBeInTheDocument();
   });
 });
 

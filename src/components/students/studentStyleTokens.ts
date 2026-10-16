@@ -22,7 +22,10 @@ import {
  */
 export const familyValueControl = (family: DataFamily) =>
   ({
-    baseClass: `${dataFamilyClass[family]} inline-flex max-w-44 cursor-pointer items-center gap-1 rounded-md border px-2 py-1 text-xs transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)`,
+    // As tall and as padded as `InspectorChoice`'s chips, under a mouse and
+    // under a finger: every value of the student inspector — chip, partner,
+    // role, language — is one size.
+    baseClass: `${dataFamilyClass[family]} inline-flex min-h-7 max-w-44 cursor-pointer items-center gap-1 rounded-md border px-2 py-1 text-xs transition pointer-coarse:min-h-11 pointer-coarse:px-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)`,
     activeStateClass:
       'border-(--data-chip-accent) bg-(--data-chip-surface) font-semibold text-(--data-chip-text)',
     inactiveStateClass:

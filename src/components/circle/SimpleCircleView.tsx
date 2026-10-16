@@ -42,6 +42,7 @@ import { computeTokenPhotoLayout } from '@/utils/ui/studentTokenLayout';
 import { useCircleDragDrop } from '@/hooks/circle/useCircleDragDrop';
 import { useCircleKeyboardMove } from '@/hooks/circle/useCircleKeyboardMove';
 import { useHasHoverPointer } from '@/hooks/ui/useHasHoverPointer';
+import { useTouchScrollLock } from '@/hooks/ui/useTouchScrollLock';
 import DragGhost from '@/components/scene/DragGhost';
 import CircleSpotlight from '@/components/circle/CircleSpotlight';
 import { useLayoutMode } from '@/hooks/ui/useLayoutMode';
@@ -360,6 +361,8 @@ function SimpleCircleView({
     isPositionLocked,
     onMoved: handlePointerMoved,
   });
+  // A finger dragging a student must not scroll the page instead.
+  useTouchScrollLock(svgRef, editable);
 
   // One origin and one target, whichever of pointer and keyboard moves.
   const originPosition = dragState.draggedPosition ?? keyboard.keyboardOrigin;

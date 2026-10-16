@@ -37,6 +37,7 @@ import {
   STATISTIC_STATUS_THRESHOLDS,
 } from '@/utils';
 import { usePageSeo } from '@/hooks/usePageSeo';
+import { APP_RETURN_STATE } from '@/hooks/useReturnToApp';
 import { useTranslation } from 'react-i18next';
 import { GITHUB_REPO_URL, SCHOOL_DEPLOYMENT_GUIDE_URL } from '@/config/links';
 
@@ -692,6 +693,7 @@ export default function FAQ() {
                 </LocalizedLink>
                 <LocalizedLink
                   to="/feedback"
+                  state={APP_RETURN_STATE}
                   className={`${secondaryButtonClass} px-5 py-2.5 text-base font-semibold`}
                 >
                   {t('faq.footer.contactBtn')}

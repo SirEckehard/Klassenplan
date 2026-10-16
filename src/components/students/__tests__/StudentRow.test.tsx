@@ -35,7 +35,7 @@ test('shows a chip for every attribute that is set, and none for the rest', () =
   ).not.toBeInTheDocument();
 });
 
-test('the whole row opens its student in the inspector', () => {
+test('the whole row opens its student in the inspector, and closes it again', () => {
   const Probe = () => {
     const { selection } = useInspector();
     return (
@@ -65,10 +65,14 @@ test('the whole row opens its student in the inspector', () => {
   expect(screen.getByRole('status')).toHaveTextContent('1');
   expect(row).toHaveAttribute('aria-current', 'true');
 
-  // Pressing the row that is already showing keeps it, rather than shutting
-  // the panel the teacher is working in.
+  // Pressing the row that is already showing puts the student away again,
+  // and its name says so beforehand.
+  expect(row).toHaveAccessibleName(
+    /Alice im Inspektor schließen|Close Alice in the inspector/i,
+  );
   fireEvent.click(row);
-  expect(screen.getByRole('status')).toHaveTextContent('1');
+  expect(screen.getByRole('status')).toHaveTextContent('none');
+  expect(row).not.toHaveAttribute('aria-current');
 });
 
 test('while students are ticked, the row ticks instead of opening', () => {

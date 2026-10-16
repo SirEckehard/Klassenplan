@@ -2,18 +2,10 @@
 // Copyright (C) 2026 Eike Schäfer
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  DeviceMobileIcon,
-  DownloadIcon,
-  FoldersIcon,
-  HardDrivesIcon,
-  TrashIcon,
-  UploadIcon,
-} from '@phosphor-icons/react';
+import { DeviceMobileIcon, TrashIcon } from '@phosphor-icons/react';
 import ConfirmDialog from '@/components/ui/modals/ConfirmDialog';
 import { useSeatingPlanActions } from '@/contexts/SeatingPlanContext';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
-import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';
 import { isRunningInstalled } from '@/utils/ui/installGuide';
 import {
   logError,
@@ -27,22 +19,19 @@ import {
 export { default as InstallGuideDialog } from '@/components/pwa/InstallGuideDialog';
 
 /**
- * What every settings menu offers: what is stored, how it leaves the device,
- * and the way to wipe it.
+ * The settings gear's rows about the app on this device: installing it, and
+ * the way to wipe what it stored. "Bibliothek" and the backup are not among
+ * them — the foot of every toolbar carries those.
  *
- * Two menus show these rows — the footer's gear on the public pages, and the
- * header's on the workspace, which runs at viewport height and has no footer
- * to fall back on. The rows and their toasts live here once so the two cannot
- * drift apart; the caller brings the container, and the dialogs the rows open
- * beside it: choosing a row closes the menu, and a dialog inside the menu
- * would close with it before anybody saw it.
+ * Apart from the menu (`AppSettingsMenu`) so they load on demand with the
+ * dialogs they open. The menu renders those dialogs beside itself: choosing
+ * a row closes the menu, and a dialog inside it would close with it before
+ * anybody saw it.
  */
 export default function AppSettingsItems({
   onDone,
   onClearAllData,
   onShowInstallGuide,
-  storage = true,
-  menuItems = true,
 }: {
   onDone: () => void;
   /** Opens {@link ClearAllDataDialog}, which asks before anything is wiped. */
@@ -52,22 +41,8 @@ export default function AppSettingsItems({
    * prompt of its own. Without it the entry shows only where one is offered.
    */
   onShowInstallGuide?: () => void;
-  /**
-   * Whether the rows are items of a `role="menu"` (the footer's gear). The
-   * header's gear is a dialog that also holds the theme and language
-   * switches, which a menu may not contain, so its rows are plain buttons.
-   */
-  menuItems?: boolean;
-  /**
-   * "Bibliothek" and the backup. The workspace leaves them out: the foot
-   * of every toolbar carries them, on every layer and on the export page, so
-   * its gear keeps only what no toolbar holds.
-   */
-  storage?: boolean;
 }) {
-  const { t } = useTranslation(['common', 'generator']);
-  const itemRole = menuItems ? 'menuitem' : undefined;
-  const { handleExportAll, triggerImport } = useSeatingPlanActions();
+  const { t } = useTranslation('common');
   // Dismissing the install toast is permanent; this entry stays as the way
   // back in. Where the browser offers no prompt — Safari, Firefox, a Chrome
   // that has not offered it yet — it opens the guide instead, and it goes
@@ -76,28 +51,6 @@ export default function AppSettingsItems({
   const installed = useMemo(() => isRunningInstalled(), []);
   const showInstall =
     !installed && (isInstallable || onShowInstallGuide !== undefined);
-  const navigate = useLocalizedNavigate();
-
-  // "Bibliothek" is a page of the workspace (decision 0024); its way
-  // back leads here again.
-  const handleShowHistory = () => {
-    onDone();
-    navigate('/bibliothek');
-  };
-
-  const handleExportBackup = () => {
-    onDone();
-    // The success toast is fired by the export itself, once the password has
-    // been confirmed and the file has been written.
-    handleExportAll().catch((error: unknown) => {
-      logError('Backup export failed', { error }, 'AppSettingsItems');
-    });
-  };
-
-  const handleImportBackup = () => {
-    onDone();
-    triggerImport();
-  };
 
   const handleInstallApp = () => {
     onDone();
@@ -114,58 +67,21 @@ export default function AppSettingsItems({
 
   return (
     <>
-      {storage && (
-        <>
-          <div className="flex items-center gap-2 px-3 py-2 text-caption font-semibold uppercase tracking-wider text-(--text-muted)">
-            <HardDrivesIcon className="h-4 w-4" aria-hidden="true" />
-            {t('generator:storage.sectionTitle')}
-          </div>
-          <button
-            type="button"
-            role={itemRole}
-            onClick={handleShowHistory}
-            className={menuItemClass}
-          >
-            <FoldersIcon className={iconClass} aria-hidden="true" />
-            {t('generator:storage.historyTitle')}
-          </button>
-          <button
-            type="button"
-            role={itemRole}
-            onClick={handleExportBackup}
-            className={menuItemClass}
-          >
-            <DownloadIcon className={iconClass} aria-hidden="true" />
-            {t('generator:storage.exportBackup')}
-          </button>
-          <button
-            type="button"
-            role={itemRole}
-            onClick={handleImportBackup}
-            className={menuItemClass}
-          >
-            <UploadIcon className={iconClass} aria-hidden="true" />
-            {t('generator:storage.importBackup')}
-          </button>
-        </>
-      )}
       {showInstall && (
         <button
           type="button"
-          role={itemRole}
           onClick={handleInstallApp}
           className={menuItemClass}
         >
           <DeviceMobileIcon className={iconClass} aria-hidden="true" />
-          {t('common:pwa.install')}
+          {t('pwa.install')}
         </button>
       )}
-      {(storage || showInstall) && (
+      {showInstall && (
         <div className="my-1 h-px bg-(--border-card)" aria-hidden="true" />
       )}
       <button
         type="button"
-        role={itemRole}
         onClick={() => {
           onDone();
           onClearAllData();
@@ -173,7 +89,7 @@ export default function AppSettingsItems({
         className={menuItemDangerClass}
       >
         <TrashIcon className={iconClass} aria-hidden="true" />
-        {t('common:footer.clearAllData')}
+        {t('footer.clearAllData')}
       </button>
     </>
   );

@@ -21,6 +21,7 @@ import {
   secondaryButtonClass,
 } from '@/utils';
 import { usePageSeo } from '@/hooks/usePageSeo';
+import { APP_RETURN_STATE } from '@/hooks/useReturnToApp';
 import { useChangelogReady } from '@/hooks/useChangelogReady';
 import { changelogVersions, type ChangeItem } from '@/data/changelogEntries';
 import { useTranslation } from 'react-i18next';
@@ -158,6 +159,7 @@ function ChangelogContent() {
                 </LocalizedLink>
                 <LocalizedLink
                   to="/feedback"
+                  state={APP_RETURN_STATE}
                   className={`${secondaryButtonClass} px-5 py-2.5 text-base font-semibold`}
                 >
                   {t('footer.feedbackBtn')}

@@ -129,8 +129,10 @@ export default function Inspector() {
 
   // A tap beside the phone's sheet or the tablet's drawer puts the student
   // away, as Escape does; a tap on another row opens that one, since the row's
-  // click arrives after the panel closed. The sheet is an overlay itself, so
-  // it asks whether one is open above it instead of whether any is.
+  // click arrives after the panel closed. The row of the student shown is left
+  // to its own click, which puts the student away — closing first, the click
+  // would open it straight back. The sheet is an overlay itself, so it asks
+  // whether one is open above it instead of whether any is.
   const studentPanelRef = React.useRef<HTMLElement | null>(null);
   const setStudentPanel = React.useCallback((node: HTMLElement | null) => {
     studentPanelRef.current = node;
@@ -140,6 +142,9 @@ export default function Inspector() {
     clear,
     isOpen && !isDesktop && !hasPortal && !suspended,
     {
+      ignoreSelector: student
+        ? `[data-row-part="open"][data-student-id="${student.id.replace(/["\\]/g, '\\$&')}"]`
+        : undefined,
       isBlocked: () =>
         isPhone ? !isTopDialogLayer(sheetLayer) : isAnyDialogOpen(),
     },
@@ -163,7 +168,9 @@ export default function Inspector() {
       document.activeElement instanceof HTMLElement
         ? document.activeElement
         : null;
-    drawerRef.current?.focus();
+    // Ticking a student in the class list opens it too; the focus stays on
+    // the checkbox there, so the arrow keys still step to the next one.
+    if (!opener?.closest('[data-student-list]')) drawerRef.current?.focus();
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key !== 'Escape' || isAnyDialogOpen()) return;
       // First in line, so the stage underneath does not also take Escape as
@@ -177,13 +184,14 @@ export default function Inspector() {
   }, [setDrawerOpen, showsDrawer]);
 
   // A tap beside the drawer closes it as well; the switch that opens it keeps
-  // its own tap.
+  // its own tap, and so does the class list while its ticked students fill
+  // the drawer — ticking one more must not put the panel away.
   const closeDrawer = React.useCallback(
     () => setDrawerOpen(false),
     [setDrawerOpen],
   );
   useOutsideTap(drawerRef, closeDrawer, showsDrawer, {
-    ignoreSelector: `[aria-controls="${INSPECTOR_DRAWER_ID}"]`,
+    ignoreSelector: `[aria-controls="${INSPECTOR_DRAWER_ID}"], [data-student-list]`,
   });
 
   if (suspended) return null;

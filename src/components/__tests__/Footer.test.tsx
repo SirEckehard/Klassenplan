@@ -3,150 +3,64 @@
 import '@testing-library/jest-dom/vitest';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { BrowserRouter } from 'react-router-dom';
-import { describe, it, expect, vi, afterEach } from 'vitest';
+import { BrowserRouter, MemoryRouter, Route, Routes } from 'react-router-dom';
+import { describe, it, expect } from 'vitest';
 import '@/i18n'; // Initialize i18n for tests
 import Footer from '../Footer';
-import { SeatingPlanGeneratorProvider } from '@/contexts/SeatingPlanContext';
-
-const installPromptMock = vi.hoisted(() => ({
-  isInstallable: false,
-  triggerInstall: vi.fn(async () => {}),
-}));
-
-vi.mock('@/hooks/useInstallPrompt', () => ({
-  useInstallPrompt: () => installPromptMock,
-  isInstallPromptDismissed: () => false,
-  dismissInstallPrompt: vi.fn(),
-}));
+import ReturnToAppLink from '@/components/ReturnToAppLink';
 
 const renderFooter = () =>
   render(
     <BrowserRouter>
-      <SeatingPlanGeneratorProvider>
-        <Footer />
-      </SeatingPlanGeneratorProvider>
+      <Footer />
     </BrowserRouter>,
   );
 
-const openSettingsMenu = async () => {
-  const user = userEvent.setup();
-  await user.click(
-    screen.getByRole('button', { name: /einstellungen|settings/i }),
-  );
-  // The menu's entries are loaded on first open, so waiting for one that is
-  // always there keeps the checks below from passing on an empty menu.
-  await screen.findByRole('menuitem', {
-    name: /backup exportieren|export backup/i,
-  });
-  return user;
-};
+describe('Footer', () => {
+  // One line of words: the gear moved to the page's head.
+  it('is one row of plain links, the legal pages among them', () => {
+    renderFooter();
+    const nav = screen.getByRole('navigation', {
+      name: /weitere seiten|more pages/i,
+    });
 
-afterEach(() => {
-  installPromptMock.isInstallable = false;
-  installPromptMock.triggerInstall.mockClear();
+    const names = within(nav)
+      .getAllByRole('link')
+      .map((link) => link.textContent);
+    expect(names).toHaveLength(6);
+    for (const name of [
+      /faq/i,
+      /feedback/i,
+      /unterstützen|support/i,
+      /changelog v\d+\.\d+\.\d+/i,
+      /datenschutz|privacy/i,
+      /impressum|legal notice/i,
+    ]) {
+      expect(within(nav).getByRole('link', { name })).toBeInTheDocument();
+    }
+    expect(
+      screen.queryByRole('button', { name: /einstellungen|settings/i }),
+    ).not.toBeInTheDocument();
+  });
 });
 
-describe('Footer', () => {
-  it('renders navigation links', () => {
-    renderFooter();
-    // Navigation links should be rendered with translated text
-    expect(screen.getByRole('link', { name: /home/i })).toBeInTheDocument();
-    expect(
-      screen.getByRole('link', { name: /impressum|legal notice/i }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('link', { name: /datenschutz|privacy/i }),
-    ).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /feedback/i })).toBeInTheDocument();
-  });
-
-  it('offers the install entry again once the browser reports installability', async () => {
-    installPromptMock.isInstallable = true;
-    renderFooter();
-    const user = await openSettingsMenu();
-
-    const installItem = screen.getByRole('menuitem', {
-      name: /als app installieren|install as app/i,
-    });
-    await user.click(installItem);
-
-    expect(installPromptMock.triggerInstall).toHaveBeenCalledTimes(1);
-  });
-
-  // "Bibliothek" is a page of the workspace (decision 0024); choosing it
-  // closes the menu and goes there.
-  it('goes to the library, closing the menu', async () => {
-    renderFooter();
-    const user = await openSettingsMenu();
-
-    await user.click(
-      screen.getByRole('menuitem', {
-        name: /bibliothek|library/i,
-      }),
+describe('Footer links', () => {
+  // A visitor who went from the start page to the FAQ finds the way back,
+  // as one who came from inside the app does.
+  it('opens a page with the way back', async () => {
+    render(
+      <MemoryRouter initialEntries={['/']}>
+        <Routes>
+          <Route path="/" element={<Footer />} />
+          <Route path="/faq" element={<ReturnToAppLink />} />
+        </Routes>
+      </MemoryRouter>,
     );
 
-    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
-    expect(window.location.pathname).toBe('/bibliothek');
-  });
+    await userEvent.click(screen.getByRole('link', { name: /^faq$/i }));
 
-  it('asks before wiping everything once the menu has closed', async () => {
-    renderFooter();
-    const user = await openSettingsMenu();
-
-    await user.click(
-      screen.getByRole('menuitem', { name: /alle daten löschen|clear all/i }),
-    );
-
-    const dialog = await screen.findByRole('dialog', {
-      name: /alle daten löschen|clear all/i,
-    });
-    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
     expect(
-      within(dialog).getByRole('button', { name: /^(abbrechen|cancel)$/i }),
+      await screen.findByRole('button', { name: /^(Zurück|Back)$/ }),
     ).toBeInTheDocument();
-  });
-
-  it('shows how to install where the browser offers no prompt', async () => {
-    renderFooter();
-    const user = await openSettingsMenu();
-
-    await user.click(
-      screen.getByRole('menuitem', {
-        name: /als app installieren|install as app/i,
-      }),
-    );
-
-    expect(installPromptMock.triggerInstall).not.toHaveBeenCalled();
-    expect(
-      await screen.findByRole('dialog', {
-        name: /klassenplan als app installieren|install klassenplan as an app/i,
-      }),
-    ).toBeInTheDocument();
-    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
-  });
-
-  it('hides the install entry inside the installed app', async () => {
-    vi.stubGlobal(
-      'matchMedia',
-      (query: string) =>
-        ({
-          matches: query === '(display-mode: standalone)',
-          media: query,
-          addEventListener: vi.fn(),
-          removeEventListener: vi.fn(),
-          addListener: vi.fn(),
-          removeListener: vi.fn(),
-        }) as unknown as MediaQueryList,
-    );
-    renderFooter();
-    await openSettingsMenu();
-
-    expect(
-      screen.queryByRole('menuitem', {
-        name: /als app installieren|install as app/i,
-      }),
-    ).not.toBeInTheDocument();
-    vi.unstubAllGlobals();
   });
 });

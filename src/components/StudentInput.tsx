@@ -49,6 +49,7 @@ import { useInspector } from '@/contexts/InspectorContext';
 import AttributeFocusMode from '@/components/studentInput/AttributeFocusMode';
 import ListScrollFab from '@/components/studentInput/ListScrollFab';
 import { useIsLgUp } from '@/hooks/ui/useIsLgUp';
+import { useBreakpointUp } from '@/hooks/ui/useBreakpoint';
 import { useCsvImportWithDialog } from '@/hooks/csv/useCsvImportWithDialog';
 import { isAnyDialogOpen } from '@/hooks/ui/useDialogLayer';
 import { useDemoClass } from '@/hooks/onboarding/useDemoClass';
@@ -87,6 +88,7 @@ function StudentInput({
   // Below `lg` the list flows in the page scroll and the phone gets a scroll
   // affordance; at `lg+` the list scrolls inside its card (`StudentList`).
   const isLgUp = useIsLgUp();
+  const isMdUp = useBreakpointUp('md');
   const { listTopRef, listEndRef, scrollHint, handleScrollHint } =
     useStudentListLayout({
       isMobile: !isLgUp,
@@ -212,9 +214,10 @@ function StudentInput({
   const selectionActive =
     showListTools && listMode === 'list' && selection.selectedCount > 0;
   // From `lg` up the inspector column is on screen, so the bulk controls take
-  // its place for as long as students are ticked; below it they stay the row
-  // above the list.
-  const bulkInInspector = isLgUp;
+  // its place for as long as students are ticked; on a tablet they open as
+  // the inspector's drawer, which leaves the list's checkboxes in reach. A
+  // phone keeps them in the row above the list, its sheet would cover it.
+  const bulkInInspector = isMdUp;
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
 
   // The bulk bar needs the students themselves, not just the count: its flag

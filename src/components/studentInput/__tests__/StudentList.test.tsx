@@ -43,10 +43,11 @@ const renderList = (
     </InspectorProvider>,
   );
 
+// The opened row is named for closing it, every other one for opening.
 const row = (name: string) =>
   screen.getByRole('button', {
     name: new RegExp(
-      `${name} im Inspektor öffnen|Open ${name} in the inspector`,
+      `${name} im Inspektor (öffnen|schließen)|(Open|Close) ${name} in the inspector`,
       'i',
     ),
   });

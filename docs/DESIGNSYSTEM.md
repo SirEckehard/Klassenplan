@@ -1,6 +1,6 @@
 # Design System – Klassenplan
 
-> **Status:** current · **Last reviewed:** 2026-10-11 · **Maintainer:** Eike
+> **Status:** current · **Last reviewed:** 2026-10-16 · **Maintainer:** Eike
 > Schäfer · **Describes:** Klassenplan 3.1.2
 
 This document describes the binding design tokens for Klassenplan. All values live in `src/index.css` and are reachable from TypeScript through `src/utils/ui/designTokens.ts`.
@@ -317,9 +317,14 @@ folded; opening a student or ticking several unfolds it, since the class
 layer's column is where a student is edited.
 
 A row that holds a single switch is its `<label>` (`labelsControl`): a tap on
-the name works the switch, and on a touch screen the row is at least 44px tall,
-where the switch alone is 28×16px. Chips grow to 44px on a touch screen too
-(`pointer-coarse:`); with a mouse the inspector stays compact.
+the name works the switch, where the switch alone is 28×16px. Every row is at
+least 28px tall under a mouse and 44px on a touch screen (`pointer-coarse:`),
+whatever it holds, and every value in it — a chip, or a button that opens a
+menu (the partners, the social role, the language level;
+`familyValueControl`) — is as tall and as padded as the next, so the rows of
+a panel stand at one pitch. On an iPad the partners' buttons stayed small
+while the rest grew to 44px, and their rows huddled together between rows
+spread wide.
 
 A panel with nothing selected belongs to what the layer shows as a whole. The
 room's names its tables in the header and offers what concerns the room
@@ -394,7 +399,10 @@ own out of the stage.
 The pages beside it — FAQ, support, contact, changelog, Impressum,
 Datenschutzerklärung and the 404 page — share its type
 (`components/publicPage/pageTokens.ts`) and a header of their own
-(`PublicPageHeader`: the lockup, and "Zurück" when the app opened the page).
+(`PublicPageHeader`: the lockup, and on the right "Zurück" when the visitor
+came from inside the site — the app, the start page, the footer, another of
+these pages — beside the settings gear, the workspace's own `AppSettingsMenu`
+row for row; the start page carries the same gear beside its lockup).
 Each opens with small caps, a serif title and a muted lead; what follows is
 divided by hairlines, never framed in cards, and a page has at most one blue
 button — the donation, the mail address, the way to the generator, the way
@@ -408,7 +416,15 @@ gives them no colour: none of them is something to act on.
 
 None of these pages sets a minimum height. `App.tsx` makes the page a column
 at least as tall as the window, so the footer sits on the bottom edge however
-short the page is.
+short the page is. The footer is one line of words — FAQ, feedback, support,
+the changelog with the running version, Datenschutz, Impressum — without
+icons, separators or controls: the theme, the language, the update check and
+wiping the data live in the gear at the top, the same menu in the same place
+as in the workspace.
+With all of that in it, the footer broke onto a second line on an iPad. The
+two legal pages stay words in the footer rather than rows in the gear, where
+a visitor looks for them and where an imprint is "easily recognisable"
+(§ 5 DDG).
 
 ## 7. Extensions & maintenance
 

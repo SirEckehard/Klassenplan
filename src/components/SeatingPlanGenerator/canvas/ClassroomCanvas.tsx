@@ -28,6 +28,7 @@ import type { TemplateDragPreview } from '@/types/templateDrag';
 import type { FeatureDragPreview } from '@/hooks/canvas/useFeaturePaletteDrag';
 import type { RotationGestureHandler } from '@/hooks/canvas/useSelectionRotation';
 import { useIsDarkMode } from '@/hooks/useIsDarkMode';
+import { useTouchScrollLock } from '@/hooks/ui/useTouchScrollLock';
 import type { SelectionBox } from '@/types/canvas';
 
 // Template labels will be translated in component using useTranslation
@@ -116,6 +117,8 @@ const ClassroomCanvas = React.memo<ClassroomCanvasProps>(
   }) => {
     const { t } = useTranslation('generator');
     const isDark = useIsDarkMode();
+    // A finger drawing a selection box must not scroll the page instead.
+    useTouchScrollLock(canvasRef);
     // Rotate handles only appear on the selected or hovered element.
     const [hoveredFeatureId, setHoveredFeatureId] = React.useState<
       string | null

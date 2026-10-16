@@ -19,6 +19,7 @@ import {
 import { primaryButtonClass, quietLinkClass } from '@/utils';
 import { GITHUB_REPO_URL } from '@/config/links';
 import { usePageSeo } from '@/hooks/usePageSeo';
+import { APP_RETURN_STATE } from '@/hooks/useReturnToApp';
 
 const DONATION_URL =
   'https://www.paypal.com/donate/?hosted_button_id=995GP57S2EA9G';
@@ -32,7 +33,11 @@ export default function Support() {
       key: 'feedback',
       icon: ChatCircleTextIcon,
       link: (
-        <LocalizedLink to="/feedback" className={`${quietLinkClass} text-sm`}>
+        <LocalizedLink
+          to="/feedback"
+          state={APP_RETURN_STATE}
+          className={`${quietLinkClass} text-sm`}
+        >
           {t('support.other.feedback.link')}
           <ArrowRightIcon size={14} aria-hidden="true" />
         </LocalizedLink>

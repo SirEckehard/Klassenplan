@@ -169,9 +169,12 @@ export function InspectorRow({
   stacked?: boolean;
   children: React.ReactNode;
 }) {
+  // Every row is as tall as the controls in it — a switch, a row of chips,
+  // a button that opens a menu — so the rows of a panel stand at one pitch
+  // whatever they hold: 28px under a mouse, 44px where a finger taps.
   const rowClass = stacked
     ? 'flex w-full flex-col gap-1.5'
-    : 'flex w-full flex-wrap items-center justify-between gap-x-3 gap-y-1.5';
+    : 'flex min-h-7 w-full flex-wrap items-center justify-between gap-x-3 gap-y-1.5 pointer-coarse:min-h-11';
   const content = (
     <>
       <span
@@ -191,9 +194,7 @@ export function InspectorRow({
     </>
   );
   return labelsControl ? (
-    <label className={`${rowClass} cursor-pointer pointer-coarse:min-h-11`}>
-      {content}
-    </label>
+    <label className={`${rowClass} cursor-pointer`}>{content}</label>
   ) : (
     <div className={rowClass}>{content}</div>
   );
@@ -318,7 +319,9 @@ export function InspectorChoice<T extends string>({
                 : undefined
             }
             // A fingertip needs 44px; with the mouse the chips stay compact.
-            className={`inline-flex cursor-pointer items-center gap-1 rounded-md border px-2 py-1 text-xs transition pointer-coarse:min-h-11 pointer-coarse:px-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) ${
+            // The same height and padding as the buttons that open a menu
+            // (`familyValueControl`), so chips and menus line up.
+            className={`inline-flex min-h-7 cursor-pointer items-center gap-1 rounded-md border px-2 py-1 text-xs transition pointer-coarse:min-h-11 pointer-coarse:px-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) ${
               isActive && option.tint
                 ? 'font-medium text-(--text-page)'
                 : isActive

@@ -122,6 +122,7 @@ const StudentList = ({
   // toolbar and the inspector take their share of a wide one.
   return (
     <div
+      data-student-list
       className={`${listContainerClass} @container relative mb-4 overflow-hidden lg:mb-0 lg:flex lg:min-h-0 lg:flex-col`}
     >
       <div

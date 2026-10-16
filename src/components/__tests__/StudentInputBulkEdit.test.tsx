@@ -44,7 +44,9 @@ vi.mock('@/components/studentInput/StudentList', () => ({
     allVisibleSelected?: boolean;
     onToggleAllVisible?: () => void;
   }) => (
-    <div>
+    // Marked as the real list's card is: a tap in it is not a tap beside
+    // the inspector's drawer.
+    <div data-student-list>
       {onToggleSelected && onToggleAllVisible && (
         <label>
           <input
@@ -162,10 +164,10 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
-// Below `lg` there is no inspector column, so the bulk controls take over the
-// row above the list.
+// A phone has neither the column nor the drawer for them, so the bulk
+// controls take over the row above the list.
 describe('StudentInput list tools', () => {
-  beforeEach(() => setWidth(900));
+  beforeEach(() => setWidth(600));
   afterEach(() => setWidth(LG_WIDTH));
 
   it('hides the toolbar for a class below the threshold', () => {
@@ -514,6 +516,38 @@ describe('StudentInput bulk editing in the inspector', () => {
       await user.click(checkboxes[row]);
     }
   };
+
+  it('opens the bulk controls as the drawer on a tablet, and closes it with the selection', async () => {
+    setWidth(900);
+    try {
+      renderWithInspector();
+      const user = userEvent.setup();
+
+      await tick(user, 1, 2);
+
+      const panel = await screen.findByRole('complementary', {
+        name: /Mehrfachbearbeitung|Bulk editing/i,
+      });
+      // The drawer, not the column that is out of sight below `lg`.
+      expect(panel).toHaveAttribute('tabindex', '-1');
+      expect(
+        within(panel).getByRole('heading', {
+          name: /2 ausgewählt|2 selected/i,
+        }),
+      ).toBeInTheDocument();
+      // Ticking another student leaves the drawer open, and the focus on the
+      // list's checkbox.
+      await tick(user, 3);
+      expect(selectionPanel()).toHaveAttribute('tabindex', '-1');
+      expect(screen.getAllByRole('checkbox')[3]).toHaveFocus();
+
+      await user.keyboard('{Escape}');
+      await user.keyboard('{Escape}');
+      expect(selectionPanel()).not.toBeInTheDocument();
+    } finally {
+      setWidth(LG_WIDTH);
+    }
+  });
 
   it('moves the bulk controls into the inspector and keeps the row for browsing', async () => {
     renderWithInspector();

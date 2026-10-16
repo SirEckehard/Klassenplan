@@ -411,6 +411,7 @@
     "withoutWishHint": "Frage bei Bedarf deine Schüler nach einem Wunsch."
   },
   "listStatus": {
-    "openStudent": "{{name}} im Inspektor öffnen"
+    "openStudent": "{{name}} im Inspektor öffnen",
+    "closeStudent": "{{name}} im Inspektor schließen"
   }
 }

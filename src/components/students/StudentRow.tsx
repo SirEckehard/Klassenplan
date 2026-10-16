@@ -51,7 +51,7 @@ function StudentRow({
   selectionActive = false,
 }: Props) {
   const { t } = useTranslation('students');
-  const { selection, selectStudent } = useInspector();
+  const { selection, toggleStudent } = useInspector();
   const ticks = selectionActive && onToggleSelected !== undefined;
   const isInspected =
     !ticks && selection?.kind === 'student' && selection.id === student.id;
@@ -113,18 +113,20 @@ function StudentRow({
         type="button"
         data-row-part="open"
         data-student-id={student.id}
+        // Pressing the student already open puts it away: on an iPad the
+        // drawer or the column it unfolded closes again, and nobody is left
+        // opened. Its name says so, since it no longer opens.
         onClick={() =>
-          ticks ? onToggleSelected(student.id) : selectStudent(student.id)
+          ticks ? onToggleSelected(student.id) : toggleStudent(student.id)
         }
-        // Opening is not a toggle: pressing the one already showing must not
-        // shut the inspector, which is what `aria-pressed` would promise.
-        // Ticking is, and says so.
         aria-current={isInspected ? 'true' : undefined}
         aria-pressed={ticks ? Boolean(selected) : undefined}
         aria-label={
           ticks
             ? t('listToolbar.selectStudent', { name: displayName })
-            : t('listStatus.openStudent', { name: displayName })
+            : isInspected
+              ? t('listStatus.closeStudent', { name: displayName })
+              : t('listStatus.openStudent', { name: displayName })
         }
         // The chips stand beside the name where the list is wide enough
         // (`@2xl`, the list card being the container) and under it where it

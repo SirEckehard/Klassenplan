@@ -18,6 +18,7 @@ import {
 } from '@/components/publicPage/pageTokens';
 import { primaryButtonClass, quietLinkClass } from '@/utils';
 import { usePageSeo } from '@/hooks/usePageSeo';
+import { APP_RETURN_STATE } from '@/hooks/useReturnToApp';
 import { CONTACT_EMAIL, GITHUB_REPO_URL } from '@/config/links';
 
 // Contact page that points users to email instead of a form
@@ -31,7 +32,11 @@ export default function Feedback() {
       key: 'faq',
       icon: QuestionIcon,
       link: (
-        <LocalizedLink to="/faq" className={`${quietLinkClass} text-sm`}>
+        <LocalizedLink
+          to="/faq"
+          state={APP_RETURN_STATE}
+          className={`${quietLinkClass} text-sm`}
+        >
           {t('feedback.notes.faq.link')}
           <ArrowRightIcon size={14} aria-hidden="true" />
         </LocalizedLink>

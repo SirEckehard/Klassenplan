@@ -30,6 +30,8 @@ import {
   CRITERIA_ICON_MAP,
 } from '@/utils/ui/criteriaIcons';
 import { KpLockup } from '@/components/KpLockup';
+import AppSettingsMenu from '@/components/shell/AppSettingsMenu';
+import { APP_RETURN_STATE } from '@/hooks/useReturnToApp';
 import { usePageSeo } from '@/hooks/usePageSeo';
 import HeroMockup from '@/components/HeroMockup';
 import type { ScalarMixSettingKey } from '@/types';
@@ -178,9 +180,11 @@ export default function StartPage() {
         <header
           role="banner"
           aria-label={t('header.banner.start')}
-          className="grid items-center gap-10 py-10 lg:grid-cols-12 lg:gap-12 lg:py-16"
+          className="py-10 lg:py-16"
         >
-          <div className="flex flex-col items-start lg:col-span-5">
+          {/* The lockup and the settings gear on one line, as on the other
+              pages beside the app and in the workspace. */}
+          <div className="flex items-center justify-between gap-4">
             <LocalizedLink
               to="/"
               className="kp-lockup focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:ring-offset-2"
@@ -188,50 +192,64 @@ export default function StartPage() {
             >
               <KpLockup size="md" />
             </LocalizedLink>
-
-            <h1 className="mt-10 font-serif text-5xl leading-tight text-balance text-(--text-page) sm:text-6xl">
-              {t('startPage.heroTitle')}
-            </h1>
-
-            <p className="mt-5 max-w-md text-lg text-pretty text-(--text-muted)">
-              {t('startPage.heroDescription')}
-            </p>
-
-            <LocalizedLink
-              to="/generator"
-              className={`mt-8 w-full sm:w-auto ${primaryButtonClass} px-6 py-3 text-center text-base font-semibold`}
-            >
-              {t('startPage.ctaButton')}
-            </LocalizedLink>
-
-            <ul className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
-              <li>
-                <LocalizedLink
-                  to="/support"
-                  title={t('startPage.heroBadgeTooltip')}
-                  className={quietLinkClass}
-                >
-                  <HandHeartIcon size={16} aria-hidden="true" />
-                  <span>{t('startPage.heroBadge')}</span>
-                </LocalizedLink>
-              </li>
-              <li>
-                <LocalizedLink to="/faq" className={quietLinkClass}>
-                  <QuestionIcon size={16} aria-hidden="true" />
-                  <span>{t('startPage.faqLink')}</span>
-                </LocalizedLink>
-              </li>
-              <li>
-                <LocalizedLink to="/feedback" className={quietLinkClass}>
-                  <MailboxIcon size={16} aria-hidden="true" />
-                  <span>{t('startPage.contactLink')}</span>
-                </LocalizedLink>
-              </li>
-            </ul>
+            <AppSettingsMenu />
           </div>
 
-          <div className="min-w-0 lg:col-span-7">
-            <HeroMockup />
+          <div className="mt-10 grid items-center gap-10 lg:grid-cols-12 lg:gap-12">
+            <div className="flex flex-col items-start lg:col-span-5">
+              <h1 className="font-serif text-5xl leading-tight text-balance text-(--text-page) sm:text-6xl">
+                {t('startPage.heroTitle')}
+              </h1>
+
+              <p className="mt-5 max-w-md text-lg text-pretty text-(--text-muted)">
+                {t('startPage.heroDescription')}
+              </p>
+
+              <LocalizedLink
+                to="/generator"
+                className={`mt-8 w-full sm:w-auto ${primaryButtonClass} px-6 py-3 text-center text-base font-semibold`}
+              >
+                {t('startPage.ctaButton')}
+              </LocalizedLink>
+
+              <ul className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
+                <li>
+                  <LocalizedLink
+                    to="/support"
+                    state={APP_RETURN_STATE}
+                    title={t('startPage.heroBadgeTooltip')}
+                    className={quietLinkClass}
+                  >
+                    <HandHeartIcon size={16} aria-hidden="true" />
+                    <span>{t('startPage.heroBadge')}</span>
+                  </LocalizedLink>
+                </li>
+                <li>
+                  <LocalizedLink
+                    to="/faq"
+                    state={APP_RETURN_STATE}
+                    className={quietLinkClass}
+                  >
+                    <QuestionIcon size={16} aria-hidden="true" />
+                    <span>{t('startPage.faqLink')}</span>
+                  </LocalizedLink>
+                </li>
+                <li>
+                  <LocalizedLink
+                    to="/feedback"
+                    state={APP_RETURN_STATE}
+                    className={quietLinkClass}
+                  >
+                    <MailboxIcon size={16} aria-hidden="true" />
+                    <span>{t('startPage.contactLink')}</span>
+                  </LocalizedLink>
+                </li>
+              </ul>
+            </div>
+
+            <div className="min-w-0 lg:col-span-7">
+              <HeroMockup />
+            </div>
           </div>
         </header>
 
