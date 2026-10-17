@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### Fixed
 
 - On an iPad, drawing a selection box across the room or dragging a student scrolled the page instead
+- Turning a table by its handle follows the pointer again – it turned around a point beside the table, so a small table jumped or turned the wrong way
 - Students' photos show on the plan and in the circle from the start – they used to appear only on hover, which a finger on a touch screen cannot do. The setting starts at "On" once on every device; "On hover" can still be chosen
 
 ## [3.1.4] - 2026-10-15

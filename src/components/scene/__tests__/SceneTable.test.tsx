@@ -383,6 +383,84 @@ describe('SceneTable rotation with parent updates', () => {
       boundingSpy.mockRestore();
     }
   });
+
+  it('turns around the table centre, not the centre of its bounding box', async () => {
+    // The handle and the chair dots stretch the group's box to one side; the
+    // table's own centre sits at (150, 130) on screen.
+    const lopsidedBox = vi
+      .spyOn(SVGElement.prototype, 'getBoundingClientRect')
+      .mockImplementation(
+        () =>
+          ({
+            left: 120,
+            top: 100,
+            width: 300,
+            height: 260,
+            right: 420,
+            bottom: 360,
+            x: 120,
+            y: 100,
+            toJSON: () => ({}),
+          }) as DOMRect,
+      );
+    const original = Object.getOwnPropertyDescriptor(
+      SVGElement.prototype,
+      'getScreenCTM',
+    );
+    // Maps the table's local centre (width/2, height/2) to (150, 130).
+    Object.defineProperty(SVGElement.prototype, 'getScreenCTM', {
+      configurable: true,
+      value: () => ({
+        a: 1,
+        b: 0,
+        c: 0,
+        d: 1,
+        e: 150 - baseTable.width / 2,
+        f: 130 - baseTable.height / 2,
+      }),
+    });
+
+    try {
+      const { container } = render(<RotatingScene />);
+      const rotationHandle = container.querySelector('circle[r="10"]')
+        ?.parentElement as Element | null;
+      expect(rotationHandle).toBeTruthy();
+      if (!rotationHandle) return;
+
+      const pointerId = 11;
+      fireEvent.pointerDown(rotationHandle, {
+        pointerId,
+        clientX: 200,
+        clientY: 130,
+      });
+      // A quarter turn clockwise around (150, 130).
+      fireEvent(
+        window,
+        new PointerEvent('pointermove', {
+          pointerId,
+          clientX: 150,
+          clientY: 180,
+        }),
+      );
+
+      await waitFor(() => {
+        const tableNode = container.querySelector('g[data-table-index="0"]');
+        expect(tableNode?.getAttribute('transform') ?? '').toMatch(
+          /rotate\(90(\.0+\d*)?\)/,
+        );
+      });
+
+      fireEvent(window, new PointerEvent('pointerup', { pointerId }));
+    } finally {
+      lopsidedBox.mockRestore();
+      if (original) {
+        Object.defineProperty(SVGElement.prototype, 'getScreenCTM', original);
+      } else {
+        delete (SVGElement.prototype as { getScreenCTM?: unknown })
+          .getScreenCTM;
+      }
+    }
+  });
 });
 
 describe('SceneTable drag cleanup', () => {

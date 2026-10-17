@@ -159,7 +159,12 @@ function SceneTable({
       `table-seat-clip-${index}-${Math.round(table.x)}-${Math.round(table.y)}`,
     [index, table.x, table.y],
   );
-  const { handleRotate } = useTableRotation({ tableRef, onRotate });
+  const { handleRotate } = useTableRotation({
+    tableRef,
+    width: table.width,
+    height: table.height,
+    onRotate,
+  });
 
   const { handleSeatPointerDown, handleSeatPointerUp } = useSeatDrag({
     draggable,
