@@ -20,7 +20,10 @@ import {
 import StudentPhotoCropModal from './StudentPhotoCropModal';
 import StudentPhotoConsentDialog from './StudentPhotoConsentDialog';
 import { confirmDialog } from '@/services/ui/dialogs';
-import { getStudentAppearance } from '@/utils/ui/studentAppearance';
+import {
+  getAvatarFrame,
+  getStudentAppearance,
+} from '@/utils/ui/studentAppearance';
 import { LOCAL_STORAGE_KEYS, logError, withBrowserLocalStorage } from '@/utils';
 import { showToast } from '@/utils/ui/toast';
 
@@ -222,52 +225,52 @@ function StudentPhotoButton({ student, updateStudent }: Props) {
           disabled={busy}
           title={`${uploadLabel} – ${privacyHint}`}
           aria-label={`${uploadLabel} – ${student.name || ''}`.trim()}
-          className="group relative flex h-10 w-10 cursor-pointer items-center justify-center overflow-hidden rounded-full border border-(--border-card) bg-(--surface-card) transition hover:border-(--border-option-selected) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) disabled:opacity-60"
-          style={
-            objectUrl
-              ? undefined
-              : {
-                  backgroundColor: appearance.fill,
-                  borderColor: appearance.stroke,
-                }
-          }
+          className="group flex h-10 w-10 cursor-pointer rounded-full border-solid bg-(--surface-card) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) disabled:opacity-60"
+          // The frame the student's photo wears on the plan; the camera badge
+          // is what answers a hover.
+          style={getAvatarFrame(student, isDark, 40)}
         >
-          {objectUrl ? (
-            <img
-              src={objectUrl}
-              alt=""
-              className="h-full w-full object-cover"
-              draggable={false}
-            />
-          ) : initial ? (
-            <span
-              className="text-sm font-semibold"
-              style={{ color: appearance.text }}
-            >
-              {initial}
-            </span>
-          ) : (
-            <CameraIcon size={16} className="text-(--text-muted)" />
-          )}
-
-          {busy ? (
-            <span className="absolute inset-0 flex items-center justify-center bg-(--surface-card)">
-              <SpinnerGapIcon
-                size={16}
-                className="animate-spin text-(--text-badge)"
+          <span
+            className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-full"
+            style={{ backgroundColor: objectUrl ? undefined : appearance.fill }}
+          >
+            {objectUrl ? (
+              <img
+                src={objectUrl}
+                alt=""
+                className="h-full w-full object-cover"
+                draggable={false}
               />
-            </span>
-          ) : (
-            /* Camera badge: permanently visible while no photo exists (upload
-               affordance), hover-only once a photo is set so it stays clear. */
-            <span
-              className={`absolute inset-x-0 bottom-0 items-center justify-center bg-black/45 py-0.5 ${
-                objectUrl ? 'hidden group-hover:flex' : 'flex'
-              }`}
-            >
-              <CameraIcon size={11} className="text-white" />
-            </span>
-          )}
+            ) : initial ? (
+              <span
+                className="text-sm font-semibold"
+                style={{ color: appearance.text }}
+              >
+                {initial}
+              </span>
+            ) : (
+              <CameraIcon size={16} className="text-(--text-muted)" />
+            )}
+
+            {busy ? (
+              <span className="absolute inset-0 flex items-center justify-center bg-(--surface-card)">
+                <SpinnerGapIcon
+                  size={16}
+                  className="animate-spin text-(--text-badge)"
+                />
+              </span>
+            ) : (
+              /* Camera badge: permanently visible while no photo exists (upload
+                 affordance), hover-only once a photo is set so it stays clear. */
+              <span
+                className={`absolute inset-x-0 bottom-0 items-center justify-center bg-black/45 py-0.5 ${
+                  objectUrl ? 'hidden group-hover:flex' : 'flex'
+                }`}
+              >
+                <CameraIcon size={11} className="text-white" />
+              </span>
+            )}
+          </span>
         </button>
 
         {student.hasPhoto && !busy && (

@@ -5,7 +5,10 @@ import { UserIcon } from '@phosphor-icons/react';
 import type { Student } from '@/types';
 import { useIsDarkMode } from '@/hooks/useIsDarkMode';
 import { useStudentPhoto } from '@/hooks/student/useStudentPhoto';
-import { getStudentAppearance } from '@/utils/ui/studentAppearance';
+import {
+  getAvatarFrame,
+  getStudentAppearance,
+} from '@/utils/ui/studentAppearance';
 
 type Props = {
   student: Student;
@@ -20,7 +23,8 @@ type Props = {
  * The class list used to put `StudentPhotoButton` in every row, which made the
  * avatar a control in a row that is itself one thing to click. Uploading and
  * cropping belong to the one student the inspector is showing; the list only
- * has to say who this is.
+ * has to say who this is. Its frame is the one the student's photo wears on
+ * the plan, in the gender's contour (`getAvatarFrame`).
  */
 function StudentAvatar({ student, size = 32, className = '' }: Props) {
   const isDark = useIsDarkMode();
@@ -31,34 +35,38 @@ function StudentAvatar({ student, size = 32, className = '' }: Props) {
   return (
     <span
       aria-hidden="true"
-      className={`flex shrink-0 items-center justify-center overflow-hidden rounded-full border ${className}`}
+      className={`flex shrink-0 rounded-full border-solid bg-(--surface-card) ${className}`}
       style={{
         width: size,
         height: size,
-        backgroundColor: objectUrl ? undefined : appearance.fill,
-        borderColor: appearance.stroke,
+        ...getAvatarFrame(student, isDark, size),
       }}
     >
-      {objectUrl ? (
-        <img
-          src={objectUrl}
-          alt=""
-          className="h-full w-full object-cover"
-          draggable={false}
-        />
-      ) : initial ? (
-        <span
-          className={`${size >= 48 ? 'text-lg' : 'text-xs'} font-semibold`}
-          style={{ color: appearance.text }}
-        >
-          {initial}
-        </span>
-      ) : (
-        <UserIcon
-          size={Math.round(size * 0.5)}
-          className="text-(--text-muted)"
-        />
-      )}
+      <span
+        className="flex h-full w-full items-center justify-center overflow-hidden rounded-full"
+        style={{ backgroundColor: objectUrl ? undefined : appearance.fill }}
+      >
+        {objectUrl ? (
+          <img
+            src={objectUrl}
+            alt=""
+            className="h-full w-full object-cover"
+            draggable={false}
+          />
+        ) : initial ? (
+          <span
+            className={`${size >= 48 ? 'text-lg' : 'text-xs'} font-semibold`}
+            style={{ color: appearance.text }}
+          >
+            {initial}
+          </span>
+        ) : (
+          <UserIcon
+            size={Math.round(size * 0.5)}
+            className="text-(--text-muted)"
+          />
+        )}
+      </span>
     </span>
   );
 }

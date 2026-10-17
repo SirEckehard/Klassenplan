@@ -357,7 +357,9 @@ export default function ExportSheetInspector({
               ))}
             </div>
           )}
-          {!isList && switchRow(t('export.rows.genderColors'), genderColors)}
+          {/* On the list the colours only frame the photos. */}
+          {(!isList || photos.checked) &&
+            switchRow(t('export.rows.genderColors'), genderColors)}
           {switchRow(t('export.rows.photos'), photos)}
           {!isList && switchRow(t('export.rows.legend'), legend)}
           {switchRow(t('export.rows.classInfo'), classInfo)}

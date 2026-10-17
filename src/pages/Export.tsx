@@ -510,6 +510,7 @@ export default function Export() {
         : undefined,
       nameDisplay: effectiveNameDisplay,
       hiddenBadgeFamilies,
+      showGenderColors,
     }),
     [
       students,
@@ -522,6 +523,7 @@ export default function Export() {
       activeClass.notes,
       effectiveNameDisplay,
       hiddenBadgeFamilies,
+      showGenderColors,
     ],
   );
 

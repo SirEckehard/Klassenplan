@@ -39,9 +39,16 @@ on all of them. A student without a gender stays paper.
 
 - Only seat renderers ask for the tint (`genderColors` on
   `getStudentAppearance`, `showGenderColors` on `SceneTable`, `SeatGrid`,
-  `TableSeat` and `SimpleCircleView`). Avatars, the inspector's photo frame,
-  the attribute focus mode's cards and the name game stay paper — they show a
-  person, not a seat. The inspector's gender choice is the one control that
+  `TableSeat` and `SimpleCircleView`). The face of an avatar, the attribute
+  focus mode's cards and the name game stay paper — they show a person, not a
+  seat. Since 2026-10-18 the _frame_ round an avatar (`StudentAvatar` in the
+  class list, the focus mode, the relations view and "Bibliothek",
+  `StudentPhotoButton` in the inspector) takes the gender's contour, the ring
+  a seat's photo already wore on the plan (`getAvatarFrame`), at the
+  maintainer's request: the student reads the same in the list as on the
+  plan. The editor has no switch for the tint, so neither do the avatars; the
+  export's note list frames its photos the same way and follows the export's
+  switch. The inspector's gender choice is the one control that
   wears it: its pressed chip takes the seat's fill and contour, so setting a
   gender shows the colour it comes to (added 2026-10-06).
 - The two states of a seat keep outranking it: a held seat is blue, an empty

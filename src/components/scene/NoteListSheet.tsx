@@ -16,6 +16,7 @@ import {
   type SeatBadgeFit,
 } from '@/utils/ui/seatBadges';
 import { measureNameWidth } from '@/utils/ui/seatLabelLayout';
+import { getStudentAppearance } from '@/utils/ui/studentAppearance';
 import {
   NOTE_LIST_METRICS,
   noteListRowHeight,
@@ -62,6 +63,8 @@ export type NoteListInput = {
   nameDisplay?: NameDisplayMode;
   photoDataUrls?: ReadonlyMap<string, string>;
   hiddenBadgeFamilies?: readonly DataFamily[];
+  /** Frame a photo in its gender's contour, as on the plan (default on). */
+  showGenderColors?: boolean;
 };
 
 export type NoteListPlan = {
@@ -131,6 +134,7 @@ export default function NoteListSheet({
   nameDisplay,
   photoDataUrls,
   hiddenBadgeFamilies,
+  showGenderColors = true,
   plan,
   pageIndex,
 }: Props) {
@@ -342,6 +346,23 @@ export default function NoteListSheet({
                   height={photoSize}
                   preserveAspectRatio="xMidYMid slice"
                   clipPath={`url(#${clipId})`}
+                />
+                {/* The ring a seat's photo wears on the plan. */}
+                <circle
+                  cx={photoX + photoSize / 2}
+                  cy={middle}
+                  r={photoSize / 2}
+                  fill="none"
+                  stroke={
+                    getStudentAppearance(
+                      student,
+                      false,
+                      false,
+                      false,
+                      showGenderColors,
+                    ).stroke
+                  }
+                  strokeWidth={1.25}
                 />
               </>
             )}

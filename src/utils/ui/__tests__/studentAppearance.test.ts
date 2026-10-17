@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, it, expect } from 'vitest';
 import {
+  getAvatarFrame,
   getStudentAppearance,
   getStudentBadges,
   getCompleteStudentAppearance,
@@ -45,6 +46,34 @@ describe('studentAppearance', () => {
       expect(getBadgeColor({ family: 'behavior' }, true)).toBe(
         DATA_FAMILY_TEXT_COLORS.behavior.dark,
       );
+    });
+  });
+
+  describe('getAvatarFrame', () => {
+    it("frames an avatar in the contour its seat's photo wears", () => {
+      const girl = { id: 'g', name: 'Amira', gender: 'girl' } as Student;
+      expect(getAvatarFrame(girl, false, 32).borderColor).toBe(
+        STUDENT_COLORS.girl.stroke.light,
+      );
+      expect(getAvatarFrame(girl, true, 32).borderColor).toBe(
+        STUDENT_COLORS.girl.stroke.dark,
+      );
+    });
+
+    it('keeps the paper contour for a student without a gender', () => {
+      const student = { id: 's', name: 'Sam' } as Student;
+      expect(getAvatarFrame(student, false, 32).borderColor).toBe(
+        STUDENT_COLORS.neutral.stroke.light,
+      );
+    });
+
+    it('grows the ring with the avatar, never below 1.5px', () => {
+      const student = { id: 's', name: 'Sam', gender: 'boy' } as Student;
+      expect(getAvatarFrame(student, false, 24).borderWidth).toBe(1.5);
+      expect(getAvatarFrame(student, false, 40)).toMatchObject({
+        borderWidth: 2,
+        padding: 1,
+      });
     });
   });
 

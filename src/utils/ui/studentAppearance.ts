@@ -78,9 +78,10 @@ const tStudents = (key: string) => i18n.t(key, { ns: 'students' });
  * guess — so a plan shows the gender mix at a glance. The tints are washes of
  * the canvas rather than colours of their own: pale in light mode, a dark
  * glaze in dark mode, each with a mid-tone contour, and the seat's text keeps
- * at least 12:1 on all of them. Only seats ask for them (`genderColors`); an
- * avatar, a photo frame or a card stays paper. A legend explains them in every
- * export, and the projection's colour switch takes them off the wall.
+ * at least 12:1 on all of them. Seats ask for them (`genderColors`), and the
+ * frame round an avatar takes the contour (`getAvatarFrame`); the avatar's
+ * face and every card stay paper. A legend explains them in every export, and
+ * the projection's colour switch takes them off the wall.
  *
  * The four student buckets are kept apart from `empty` and `locked` on purpose:
  * those two are states of the seat, not of a person, and they stay tellable.
@@ -299,6 +300,28 @@ export function getStudentAppearance(
     fill: colors.fill[mode],
     stroke: colors.stroke[mode],
     text: SEAT_UI_COLORS.text[mode],
+  };
+}
+
+/**
+ * The frame round a student's photo or initial outside the seats — the class
+ * list, the inspector, "Bibliothek": the contour a seat's photo wears on the
+ * plan (`SceneTable`), its gender's when there is one, paper's when not, with
+ * a gap of paper between it and the face. Only the frame is tinted; the face
+ * behind an initial stays paper. The ring grows with the avatar so a 24px
+ * avatar and a 56px one read alike.
+ */
+export function getAvatarFrame(
+  student: Student,
+  isDark: boolean,
+  size: number,
+): { borderColor: string; borderWidth: number; padding: number } {
+  const borderWidth = Math.max(1.5, size / 20);
+  return {
+    borderColor: getStudentAppearance(student, isDark, false, false, true)
+      .stroke,
+    borderWidth,
+    padding: borderWidth / 2,
   };
 }
 

@@ -1,6 +1,6 @@
 # Design System – Klassenplan
 
-> **Status:** current · **Last reviewed:** 2026-10-16 · **Maintainer:** Eike
+> **Status:** current · **Last reviewed:** 2026-10-18 · **Maintainer:** Eike
 > Schäfer · **Describes:** Klassenplan 3.1.2
 
 This document describes the binding design tokens for Klassenplan. All values live in `src/index.css` and are reachable from TypeScript through `src/utils/ui/designTokens.ts`.
@@ -155,9 +155,10 @@ for a non-binary student, paper when nobody said — in `STUDENT_COLORS`
 exception to rule 2: on screen the tint stands without a word, and only the
 export legend names it. The tones are washes of the canvas (light fills around
 `#f3effc`, dark fills around `#2d2b3f`) with a mid-tone contour, and the seat's
-text keeps at least 12:1 on each. Only seats carry it; avatars and cards stay
-paper, the projection's colour switch removes it and its contrast mode never
-shows it. The one control that carries it is the inspector's gender choice:
+text keeps at least 12:1 on each. Only seats carry the fill; an avatar's frame
+takes the contour (`getAvatarFrame`) — the ring a seat's photo wears — while
+the face behind an initial and every card stay paper. The projection's colour
+switch removes it and its contrast mode never shows it. The one control that carries it is the inspector's gender choice:
 its pressed chip wears the tint its seats will wear, so the choice says what
 it comes to. Decision 0020 holds the reasons.
 

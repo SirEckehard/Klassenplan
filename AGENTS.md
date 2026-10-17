@@ -503,7 +503,9 @@ gender as a quiet tint — green for a boy, lilac for a girl, blue for a
 non-binary student, paper when nobody said — in `STUDENT_COLORS`
 (`utils/ui/studentAppearance.ts`), and only seat renderers ask for it
 (`genderColors`) — besides the inspector's gender choice, whose pressed chip
-wears it (`InspectorChoice`'s `tint`); avatars, photo frames and cards stay
+wears it (`InspectorChoice`'s `tint`), and the frame round an avatar, which
+takes the seat's contour as a seat's photo does (`getAvatarFrame`; the export's
+note list frames its photos so too); the avatar's face and the cards stay
 paper. Exports explain
 the tint in their legend and switch it off in the sheet's inspector
 ("Geschlechterfarben"), the projection's colour switch takes it off the wall,
