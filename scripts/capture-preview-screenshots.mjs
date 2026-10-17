@@ -622,7 +622,7 @@ async function main() {
         if (localStorage.getItem('cookieConsent')) return;
         localStorage.setItem('cookieConsent', 'true');
         localStorage.setItem('theme', 'light');
-        localStorage.setItem('spg.photoDisplayMode', JSON.stringify('all'));
+        localStorage.setItem('spg.photos', JSON.stringify('all'));
         localStorage.setItem(
           'spg.onboardingTour',
           JSON.stringify({ version: 1, seen: [], skipped: true }),

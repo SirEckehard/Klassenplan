@@ -13,7 +13,10 @@ export const STORAGE_KEYS = {
     alignmentGuides: 'spg.alignmentGuides',
     featureVisibility: 'spg.featureVisibility',
     seatingMode: 'spg.seatingMode',
-    photoDisplayMode: 'spg.photoDisplayMode',
+    // How photos show on the seats: `all`, `hover` or `off`. Replaced
+    // `spg.photoDisplayMode` when the default became `all`, so every device
+    // starts with the photos on once (see `legacyPhotoDisplayMode`).
+    photoDisplayMode: 'spg.photos',
     nameDisplay: 'spg.nameDisplay',
     // Which badges the seats of the plan and the circle show: all of them,
     // only those whose mix criterion is on, or none.
@@ -21,8 +24,13 @@ export const STORAGE_KEYS = {
     // What pointing at a badge on a seat does: `{ tooltip, highlight }`.
     badgeHover: 'spg.badgeHover',
     photoOverlapWarning: 'spg.photoOverlapWarning',
+    // Retired: the photo setting while its default was `hover`. Most devices
+    // held that default rather than a choice (`usePersistentState` writes its
+    // default at once), so it is no longer read and the photos start on
+    // everywhere; it stays listed so a wipe still removes what it held.
+    legacyPhotoDisplayMode: 'spg.photoDisplayMode',
     // Retired: the circle's own photo setting. The circle now shares
-    // `spg.photoDisplayMode` with the table plan; nothing reads or writes this,
+    // `spg.photos` with the table plan; nothing reads or writes this,
     // and it stays listed so a wipe still removes what older versions wrote.
     circlePhotoMode: 'circle-photo-mode',
     lockSeatLabelOrientation: 'lockSeatLabelOrientation',
@@ -190,6 +198,7 @@ export const PROJECT_LOCAL_STORAGE_KEYS = [
   STORAGE_KEYS.localStorage.badgeDisplay,
   STORAGE_KEYS.localStorage.badgeHover,
   STORAGE_KEYS.localStorage.photoOverlapWarning,
+  STORAGE_KEYS.localStorage.legacyPhotoDisplayMode,
   STORAGE_KEYS.localStorage.circlePhotoMode,
   STORAGE_KEYS.localStorage.lockSeatLabelOrientation,
   STORAGE_KEYS.localStorage.seatLabelRotation,

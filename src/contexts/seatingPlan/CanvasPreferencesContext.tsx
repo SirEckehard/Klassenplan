@@ -78,7 +78,7 @@ export function CanvasPreferencesProvider({
   const [storedPhotoDisplayMode, setPhotoDisplayMode] =
     usePersistentState<PhotoDisplayMode>(
       LOCAL_STORAGE_KEYS.photoDisplayMode,
-      'hover',
+      'all',
     );
   const [nameDisplay, setNameDisplay] = usePersistentState<NameDisplayMode>(
     LOCAL_STORAGE_KEYS.nameDisplay,
@@ -95,10 +95,12 @@ export function CanvasPreferencesProvider({
       DEFAULT_BADGE_HOVER,
     );
 
+  // Photos are on by default: whoever adds them wants to see them on the
+  // plan, and "on hover" is a choice for those who look for it.
   // A value from an older or a hand-edited store falls back to the default.
   const photoDisplayMode = PHOTO_DISPLAY_MODES.includes(storedPhotoDisplayMode)
     ? storedPhotoDisplayMode
-    : 'hover';
+    : 'all';
   const badgeDisplay = BADGE_DISPLAY_MODES.includes(storedBadgeDisplay)
     ? storedBadgeDisplay
     : 'all';

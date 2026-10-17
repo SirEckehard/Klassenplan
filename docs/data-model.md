@@ -1,6 +1,6 @@
 # Data Model
 
-> **Status:** current · **Last reviewed:** 2026-10-10 · **Source of truth:**
+> **Status:** current · **Last reviewed:** 2026-10-17 · **Source of truth:**
 > `src/utils/data/storageKeys.ts`, `src/types/`, `src/repositories/`
 
 Everything Klassenplan stores lives in the teacher's browser. This document
@@ -271,12 +271,14 @@ Only preferences and small bits of workflow state; no student data. The full
 list is `PROJECT_LOCAL_STORAGE_KEYS` in `storageKeys.ts`. Groups:
 
 - **Appearance:** `theme`, `showGrid`, `spg.alignmentGuides`,
-  `spg.featureVisibility`, `spg.nameDisplay`, `spg.photoDisplayMode`,
+  `spg.featureVisibility`, `spg.nameDisplay`, `spg.photos`,
   `spg.badgeDisplay` (which badges the seats show: `all`, `active`, `off`),
   `spg.badgeHover` (`{ tooltip, highlight }`: what pointing at one does), …
   The table plan and the circle share photos, names and badges through
   `CanvasPreferencesContext`; the circle's own `circle-photo-mode` is retired
-  and only still listed so a wipe removes it.
+  and only still listed so a wipe removes it, as is `spg.photoDisplayMode`,
+  which `spg.photos` replaced so that every device starts with the photos on
+  once — most held the old default `hover` rather than a choice.
 - **Presentation and export:** `spg.present.*`, `export.*` — the export keys
   predate the `spg.` prefix and keep their names so existing preferences
   survive. The projection keeps its own contrast mode and name rule

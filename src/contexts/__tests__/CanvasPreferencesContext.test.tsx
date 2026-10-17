@@ -137,10 +137,35 @@ describe('CanvasPreferencesContext view settings', () => {
     const { result } = renderPreferences();
 
     expect(result.current.badgeDisplay).toBe('all');
-    expect(result.current.photoDisplayMode).toBe('hover');
+    expect(result.current.photoDisplayMode).toBe('all');
     expect(result.current.badgeHover).toEqual({
       tooltip: true,
       highlight: true,
+    });
+  });
+
+  describe('photos', () => {
+    it('are on by default', () => {
+      const { result } = renderPreferences();
+
+      expect(result.current.photoDisplayMode).toBe('all');
+    });
+
+    it('keep a choice made under the current key', () => {
+      localStorage.setItem(LOCAL_STORAGE_KEYS.photoDisplayMode, '"hover"');
+      const { result } = renderPreferences();
+
+      expect(result.current.photoDisplayMode).toBe('hover');
+    });
+
+    it('start on once, whatever the retired key held', () => {
+      localStorage.setItem(
+        LOCAL_STORAGE_KEYS.legacyPhotoDisplayMode,
+        '"hover"',
+      );
+      const { result } = renderPreferences();
+
+      expect(result.current.photoDisplayMode).toBe('all');
     });
   });
 });
