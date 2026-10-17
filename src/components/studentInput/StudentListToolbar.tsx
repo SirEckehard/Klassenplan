@@ -12,6 +12,7 @@ import type {
 interface StudentListToolbarProps {
   query: string;
   onQueryChange: (value: string) => void;
+  onQuerySubmit?: () => void;
   sortMode: StudentSortMode;
   onSortModeChange: (mode: StudentSortMode) => void;
   filterMode: StudentFilterMode;
@@ -37,6 +38,7 @@ interface StudentListToolbarProps {
 export default function StudentListToolbar({
   query,
   onQueryChange,
+  onQuerySubmit,
   sortMode,
   onSortModeChange,
   filterMode,
@@ -53,6 +55,7 @@ export default function StudentListToolbar({
       <StudentListFilterControls
         query={query}
         onQueryChange={onQueryChange}
+        onQuerySubmit={onQuerySubmit}
         filterMode={filterMode}
         onFilterModeChange={onFilterModeChange}
         sortMode={sortMode}

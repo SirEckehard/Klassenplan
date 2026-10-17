@@ -23,6 +23,8 @@ const SORT_LABEL_KEYS: Record<StudentSortMode, string> = {
 interface StudentListFilterControlsProps {
   query: string;
   onQueryChange: (value: string) => void;
+  /** Enter in the search field: opens the student the search found. */
+  onQuerySubmit?: () => void;
   filterMode: StudentFilterMode;
   onFilterModeChange: (mode: StudentFilterMode) => void;
   sortMode: StudentSortMode;
@@ -48,6 +50,7 @@ interface StudentListFilterControlsProps {
 export default function StudentListFilterControls({
   query,
   onQueryChange,
+  onQuerySubmit,
   filterMode,
   onFilterModeChange,
   sortMode,
@@ -94,6 +97,11 @@ export default function StudentListFilterControls({
           type="search"
           value={query}
           onChange={(event) => onQueryChange(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key !== 'Enter' || !onQuerySubmit) return;
+            event.preventDefault();
+            onQuerySubmit();
+          }}
           placeholder={t('listToolbar.searchPlaceholder', 'Name suchen…')}
           className={
             stacked

@@ -50,6 +50,7 @@ import AttributeFocusMode from '@/components/studentInput/AttributeFocusMode';
 import ListScrollFab from '@/components/studentInput/ListScrollFab';
 import { useIsLgUp } from '@/hooks/ui/useIsLgUp';
 import { useBreakpointUp } from '@/hooks/ui/useBreakpoint';
+import { useIsPhone } from '@/hooks/ui/useLayoutMode';
 import { useCsvImportWithDialog } from '@/hooks/csv/useCsvImportWithDialog';
 import { isAnyDialogOpen } from '@/hooks/ui/useDialogLayer';
 import { useDemoClass } from '@/hooks/onboarding/useDemoClass';
@@ -103,7 +104,13 @@ function StudentInput({
     handleAddStudent,
     isAddDisabled,
   } = useStudentManagement({ students, addStudent });
-  const { selectStudent, setSuspended, setStudentOrder } = useInspector();
+  const {
+    selection: inspectorSelection,
+    selectStudent,
+    setSuspended,
+    setStudentOrder,
+  } = useInspector();
+  const isPhone = useIsPhone();
   const { activeClass } = useClassManagementContext();
   const { triggerImport } = useSeatingPlanActions();
   const { loadDemoClass, isLoadingDemoClass, hasDemoClass, isDemoClassActive } =
@@ -197,7 +204,28 @@ function StudentInput({
   // Two ways into the same data: the roster answers "who is in this class",
   // the focus mode answers "who is restless" for everyone at once.
   const [listMode, setListMode] = useState<ClassViewMode>('list');
-  const listView = useStudentListView(students);
+  // A search that clearly means one student opens that student as the
+  // teacher types, as a step with the arrows does: the focus stays in the
+  // field, so the next letter still types. Not while students are ticked —
+  // the inspector shows them then — and not on a phone, whose sheet would
+  // cover the list and take the focus; there Enter opens the student.
+  const tickedCountRef = React.useRef(0);
+  const handleSearchMatch = useCallback(
+    (student: Student) => {
+      if (isPhone || tickedCountRef.current > 0) return;
+      if (
+        inspectorSelection?.kind === 'student' &&
+        inspectorSelection.id === student.id
+      ) {
+        return;
+      }
+      selectStudent(student.id, { keepFocus: true });
+    },
+    [inspectorSelection, isPhone, selectStudent],
+  );
+  const listView = useStudentListView(students, {
+    onSearchMatch: handleSearchMatch,
+  });
   // The inspector's arrows step through the list as it is shown — searched,
   // filtered and sorted — so they agree with its numbers and with the arrow
   // keys in it. A string key, so editing a student does not publish anew.
@@ -210,6 +238,23 @@ function StudentInput({
     return () => setStudentOrder(null);
   }, [listMode, setStudentOrder, visibleOrderKey]);
   const selection = useStudentSelection(students, listView.visibleStudents);
+  React.useLayoutEffect(() => {
+    tickedCountRef.current = selection.selectedCount;
+  }, [selection.selectedCount]);
+  // Enter in the search field opens the student it clearly means, or else
+  // the first one it found.
+  const { query: searchQuery, searchMatch, visibleStudents } = listView;
+  const handleSearchSubmit = useCallback(() => {
+    if (!searchQuery.trim() || selection.selectedCount > 0) return;
+    const target = searchMatch ?? visibleStudents[0];
+    if (target) selectStudent(target.id);
+  }, [
+    searchMatch,
+    searchQuery,
+    selectStudent,
+    selection.selectedCount,
+    visibleStudents,
+  ]);
   const showListTools = students.length >= STUDENT_LIST_TOOLS_THRESHOLD;
   const selectionActive =
     showListTools && listMode === 'list' && selection.selectedCount > 0;
@@ -365,6 +410,7 @@ function StudentInput({
             totalCount={students.length}
             onBulkApply={handleBulkApply}
             onDeleteSelected={() => setBulkDeleteOpen(true)}
+            onSearchSubmit={handleSearchSubmit}
             bulkInInspector={bulkInInspector}
           />
         )}

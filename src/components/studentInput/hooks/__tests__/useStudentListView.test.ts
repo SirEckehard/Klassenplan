@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useStudentListView } from '@/components/studentInput/hooks/useStudentListView';
 import { createMockStudent } from '@/__tests__/utils';
@@ -144,5 +144,100 @@ describe('useStudentListView', () => {
 
     expect(result.current.sortMode).toBe('manual');
     expect(names(result.current.visibleStudents)).toEqual(names(students));
+  });
+
+  describe('search match', () => {
+    const roster = [
+      createMockStudent({ id: 'a', name: 'Anna Schmidt', shy: true }),
+      createMockStudent({ id: 'j', name: 'Jan Hannover' }),
+      createMockStudent({ id: 'h', name: 'Hannah Berg' }),
+      createMockStudent({ id: 'm', name: 'Max Müller' }),
+      createMockStudent({ id: 'x', name: 'Maximilian (Max) Schulz' }),
+      createMockStudent({ id: 'l', name: 'Lea Maier' }),
+    ];
+    const matchFor = (query: string, filter?: 'shy', list = roster) => {
+      const { result } = renderHook(() => useStudentListView(list));
+      if (filter) act(() => result.current.setFilterMode(filter));
+      act(() => result.current.setQuery(query));
+      return result.current.searchMatch?.id ?? null;
+    };
+
+    it('is the only student found', () => {
+      expect(matchFor('lea')).toBe('l');
+      expect(matchFor('schu')).toBe('x');
+    });
+
+    it('is the only student whose name is the search', () => {
+      const withNamesake = [
+        ...roster,
+        createMockStudent({ id: 'lh', name: 'Lea Maierhofer' }),
+      ];
+      expect(matchFor(' lea  maier ', undefined, withNamesake)).toBe('l');
+    });
+
+    it('is the only student with a word that is the search', () => {
+      expect(matchFor('anna')).toBe('a');
+    });
+
+    it('is the only student with a word starting with the search', () => {
+      // "an" is in Jan, Hannover and Hannah too, but starts only Anna.
+      expect(matchFor('an')).toBe('a');
+      expect(matchFor('anna s')).toBe('a');
+    });
+
+    it('stays empty while the search could mean several', () => {
+      // A first name both carry, one of them as the name called by.
+      expect(matchFor('max')).toBeNull();
+      expect(matchFor('ma')).toBeNull();
+      expect(matchFor('ha')).toBeNull();
+    });
+
+    it('needs two letters before a word start decides', () => {
+      // "a" starts Anna alone, but also stands in every other name.
+      expect(matchFor('a')).toBeNull();
+    });
+
+    it('stays empty without a search', () => {
+      expect(matchFor('')).toBeNull();
+      expect(matchFor('   ')).toBeNull();
+    });
+
+    it('only looks at the students the filter leaves', () => {
+      expect(matchFor('a', 'shy')).toBe('a');
+    });
+
+    it('reports the match as the teacher types', () => {
+      const onSearchMatch = vi.fn();
+      const { result } = renderHook(() =>
+        useStudentListView(roster, { onSearchMatch }),
+      );
+
+      act(() => result.current.setQuery('m'));
+      act(() => result.current.setQuery('ma'));
+      expect(onSearchMatch).not.toHaveBeenCalled();
+
+      act(() => result.current.setQuery('mai'));
+      expect(onSearchMatch).toHaveBeenCalledTimes(1);
+      expect(onSearchMatch.mock.calls[0][0].id).toBe('l');
+    });
+
+    it('does not report it when only the students change', () => {
+      const onSearchMatch = vi.fn();
+      const { result, rerender } = renderHook(
+        ({ list }) => useStudentListView(list, { onSearchMatch }),
+        { initialProps: { list: roster } },
+      );
+      act(() => result.current.setQuery('ma'));
+
+      // Max Müller renamed: "ma" now clearly means Maximilian.
+      rerender({
+        list: roster.map((student) =>
+          student.id === 'm' ? { ...student, name: 'Moritz Müller' } : student,
+        ),
+      });
+
+      expect(result.current.searchMatch?.id).toBeUndefined();
+      expect(onSearchMatch).not.toHaveBeenCalled();
+    });
   });
 });

@@ -62,9 +62,85 @@ const FILTER_PREDICATES: Record<
   withoutPhoto: (student) => !student.hasPhoto,
 };
 
+/** A run of characters that is not part of a word — space, hyphen, bracket. */
+const WORD_SEPARATOR = /[^\p{L}\p{N}]+/u;
+
+/** Lower case, accents gone, spaces collapsed: what search compares. */
+function foldName(value: string): string {
+  return foldForSearch(value).replace(/\s+/g, ' ').trim();
+}
+
+/** Whether `needle` occurs in `haystack` where a word begins. */
+function startsAtWord(haystack: string, needle: string): boolean {
+  let index = haystack.indexOf(needle);
+  while (index !== -1) {
+    if (index === 0 || WORD_SEPARATOR.test(haystack[index - 1])) return true;
+    index = haystack.indexOf(needle, index + 1);
+  }
+  return false;
+}
+
+/**
+ * The student a search clearly means, or null while it could mean several.
+ *
+ * Clear is: the only one found; else the only one whose whole name is the
+ * search; else the only one with a word that is the search ("Max" among
+ * "Max Müller" and "Maximilian Schulz"); else, from two letters on, the only
+ * one with a word that starts with it ("an" for "Anna" beside "Jan" and
+ * "Hannah"). `candidates` are the students the search and the filter left.
+ */
+function findSearchMatch(candidates: Student[], query: string): Student | null {
+  const needle = foldName(query);
+  if (!needle || candidates.length === 0) return null;
+  if (candidates.length === 1) return candidates[0];
+
+  const only = (test: (name: string) => boolean): Student | null => {
+    const hits = candidates.filter((student) => test(foldName(student.name)));
+    return hits.length === 1 ? hits[0] : null;
+  };
+  return (
+    only((name) => name === needle) ??
+    only((name) => name.split(WORD_SEPARATOR).includes(needle)) ??
+    (needle.length >= 2 ? only((name) => startsAtWord(name, needle)) : null)
+  );
+}
+
+/** The students a search and a filter leave, in the class order. */
+function narrowStudents(
+  students: Student[],
+  query: string,
+  filterMode: StudentFilterMode,
+): Student[] {
+  const needle = foldName(query);
+  let result = students;
+
+  if (needle) {
+    result = result.filter((student) =>
+      foldName(student.name).includes(needle),
+    );
+  }
+
+  if (filterMode !== 'all') {
+    result = result.filter(FILTER_PREDICATES[filterMode]);
+  }
+
+  return result;
+}
+
+export interface StudentListViewOptions {
+  /**
+   * Called as the teacher types when the search clearly means one student
+   * (`findSearchMatch`) — only then, so a student renamed in the inspector
+   * while a search stands never moves the inspector on.
+   */
+  onSearchMatch?: (student: Student) => void;
+}
+
 export interface StudentListView {
   query: string;
   setQuery: (value: string) => void;
+  /** The student the search clearly means, if it means one. */
+  searchMatch: Student | null;
   sortMode: StudentSortMode;
   setSortMode: (mode: StudentSortMode) => void;
   filterMode: StudentFilterMode;
@@ -87,8 +163,11 @@ export interface StudentListView {
  * and filter stay component state on purpose: they hide students, and a hidden
  * class on return would read as data loss.
  */
-export function useStudentListView(students: Student[]): StudentListView {
-  const [query, setQuery] = React.useState('');
+export function useStudentListView(
+  students: Student[],
+  { onSearchMatch }: StudentListViewOptions = {},
+): StudentListView {
+  const [query, setQueryState] = React.useState('');
   const [storedSortMode, setSortMode] = usePersistentState<StudentSortMode>(
     LOCAL_STORAGE_KEYS.studentSortMode,
     'manual',
@@ -99,19 +178,31 @@ export function useStudentListView(students: Student[]): StudentListView {
     : 'manual';
   const [filterMode, setFilterMode] = React.useState<StudentFilterMode>('all');
 
-  const visibleStudents = React.useMemo(() => {
-    const needle = foldForSearch(query.trim());
-    let result = students;
+  const narrowedStudents = React.useMemo(
+    () => narrowStudents(students, query, filterMode),
+    [students, query, filterMode],
+  );
 
-    if (needle) {
-      result = result.filter((student) =>
-        foldForSearch(student.name).includes(needle),
+  const searchMatch = React.useMemo(
+    () => findSearchMatch(narrowedStudents, query),
+    [narrowedStudents, query],
+  );
+
+  const setQuery = React.useCallback(
+    (value: string) => {
+      setQueryState(value);
+      if (!onSearchMatch) return;
+      const match = findSearchMatch(
+        narrowStudents(students, value, filterMode),
+        value,
       );
-    }
+      if (match) onSearchMatch(match);
+    },
+    [filterMode, onSearchMatch, students],
+  );
 
-    if (filterMode !== 'all') {
-      result = result.filter(FILTER_PREDICATES[filterMode]);
-    }
+  const visibleStudents = React.useMemo(() => {
+    let result = narrowedStudents;
 
     if (sortMode !== 'manual') {
       const direction = sortMode.endsWith('-asc') ? 1 : -1;
@@ -123,16 +214,17 @@ export function useStudentListView(students: Student[]): StudentListView {
     }
 
     return result;
-  }, [students, query, filterMode, sortMode]);
+  }, [narrowedStudents, sortMode]);
 
   const clear = React.useCallback(() => {
-    setQuery('');
+    setQueryState('');
     setFilterMode('all');
   }, []);
 
   return {
     query,
     setQuery,
+    searchMatch,
     sortMode,
     setSortMode,
     filterMode,

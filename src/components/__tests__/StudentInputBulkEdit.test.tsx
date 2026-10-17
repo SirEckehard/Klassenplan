@@ -18,7 +18,7 @@ import {
   type ClassManagementContextValue,
 } from '@/contexts/seatingPlan/ClassManagementContext';
 import { SeatingPlanGeneratorProvider } from '@/contexts/SeatingPlanContext';
-import { InspectorProvider } from '@/contexts/InspectorContext';
+import { InspectorProvider, useInspector } from '@/contexts/InspectorContext';
 import Inspector from '@/components/shell/Inspector';
 import { STUDENT_LIST_TOOLS_THRESHOLD } from '@/utils';
 import type { Student } from '@/types';
@@ -804,5 +804,97 @@ describe('StudentInput with a single ticked student', () => {
     await waitFor(() =>
       expect(removeStudents).toHaveBeenCalledExactlyOnceWith(['1']),
     );
+  });
+});
+
+describe('StudentInput search opening a student', () => {
+  /**
+   * The shell's inspector reads the students from the seating-plan store,
+   * which these props do not fill, so the probe reports what it was asked
+   * to open instead.
+   */
+  const SelectionProbe = () => {
+    const { selection } = useInspector();
+    return (
+      <output data-testid="inspector-selection">
+        {selection?.kind === 'student'
+          ? `${selection.id}${selection.keepFocus ? ' keepFocus' : ''}`
+          : ''}
+      </output>
+    );
+  };
+  const renderWithProbe = () =>
+    render(
+      <MemoryRouter>
+        <SeatingPlanGeneratorProvider>
+          <ClassManagementContext.Provider value={classContext()}>
+            <InspectorProvider>
+              <StudentInput
+                {...createMockStudentInputProps({ students: makeStudents() })}
+              />
+              <SelectionProbe />
+            </InspectorProvider>
+          </ClassManagementContext.Provider>
+        </SeatingPlanGeneratorProvider>
+      </MemoryRouter>,
+    );
+  const opened = () => screen.getByTestId('inspector-selection').textContent;
+  const searchBox = () =>
+    screen.getByRole('searchbox', { name: /suchen|search/i });
+
+  it('opens the student a search clearly means and keeps typing', async () => {
+    renderWithProbe();
+    const user = userEvent.setup();
+
+    // "an" is in Anna and Dana, but starts only Anna.
+    await user.type(searchBox(), 'an');
+
+    expect(opened()).toBe('1 keepFocus');
+    expect(searchBox()).toHaveFocus();
+  });
+
+  it('opens nothing while the search could mean several', async () => {
+    renderWithProbe();
+    const user = userEvent.setup();
+
+    await user.type(searchBox(), 'e');
+
+    expect(opened()).toBe('');
+  });
+
+  it('opens the first student found on Enter', async () => {
+    renderWithProbe();
+    const user = userEvent.setup();
+
+    // Ben, Emil, Greta and Jonas carry an "e"; Ben comes first.
+    await user.type(searchBox(), 'e{Enter}');
+
+    expect(opened()).toBe('2');
+  });
+
+  it('opens nothing while students are ticked', async () => {
+    renderWithProbe();
+    const user = userEvent.setup();
+
+    await user.click(screen.getAllByRole('checkbox')[1]);
+    await user.type(searchBox(), 'gre{Enter}');
+
+    expect(opened()).toBe('');
+  });
+
+  it('leaves a phone to Enter, whose sheet takes the focus', async () => {
+    setWidth(600);
+    try {
+      renderWithProbe();
+      const user = userEvent.setup();
+
+      await user.type(searchBox(), 'gre');
+      expect(opened()).toBe('');
+
+      await user.type(searchBox(), '{Enter}');
+      expect(opened()).toBe('7');
+    } finally {
+      setWidth(LG_WIDTH);
+    }
   });
 });

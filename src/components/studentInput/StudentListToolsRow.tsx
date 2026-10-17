@@ -21,6 +21,8 @@ interface StudentListToolsRowProps {
   totalCount: number;
   onBulkApply: (patch: Partial<Student>) => void;
   onDeleteSelected: () => void;
+  /** Enter in the search field; see `StudentListFilterControls`. */
+  onSearchSubmit?: () => void;
   /**
    * The inspector carries the bulk controls (`StudentBulkInspector`, from `lg`
    * up), so the row keeps search, filter and sort while students are ticked.
@@ -45,6 +47,7 @@ export default function StudentListToolsRow({
   totalCount,
   onBulkApply,
   onDeleteSelected,
+  onSearchSubmit,
   bulkInInspector = false,
 }: StudentListToolsRowProps) {
   const { t } = useTranslation('students');
@@ -57,6 +60,7 @@ export default function StudentListToolsRow({
       <StudentListToolbar
         query={listView.query}
         onQueryChange={listView.setQuery}
+        onQuerySubmit={onSearchSubmit}
         sortMode={listView.sortMode}
         onSortModeChange={listView.setSortMode}
         filterMode={listView.filterMode}
