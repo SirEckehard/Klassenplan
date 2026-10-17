@@ -7,7 +7,8 @@
   `src/utils/mixRecipes.ts`; revised by the maintainer's review of 2026-09-21
   (fine tuning removed, fulfilment in per cent) and the maintainer's decision
   of 2026-09-26 ("Warum dieser Plan" removed before it was released; no reason
-  recorded)
+  recorded); the levels shown as a scale by the maintainer's decision of
+  2026-10-18
 
 ## Context
 
@@ -84,4 +85,19 @@ read on one scale.
   presses "Wichtig" gets 5 — the level is a decision, and it overwrites.
 - The recommended weights now also have a name ("Empfohlene Mischung"), so
   `withDefaultWeights` has a second way in through the recipe list.
-- Adding a criterion needs nothing beyond its level chips, which come for free.
+- Adding a criterion needs nothing beyond its scale, which comes for free.
+
+## Revision of 2026-10-18: the levels as a scale
+
+Four word chips took a line of their own under every criterion, and with its
+name, its explanation and its fulfilment a criterion stood 110px tall — sixteen
+of them three screens of scrolling in a column 320px wide. The panel now reads
+as the student inspector does: a row per criterion under its family's heading,
+and the four levels as a scale at the row's end — a dash on the baseline for "Aus" and three
+rising bars filled in the family's ink (`ImportanceScale`). The words are not
+gone: every step carries its level and what it means as a tooltip, and its
+accessible name is "Unruhe: Wichtig" as before, so a screen reader and speech
+input hear the four words. The explanation stays visible under the name. The
+recipe opens as a menu instead of folding out above the criteria, and the
+count of active criteria moved under the inspector's heading. Weights, bands
+and recipes are unchanged.

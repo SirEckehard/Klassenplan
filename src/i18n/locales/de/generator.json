@@ -865,7 +865,7 @@
       },
       "fulfillment": {
         "title": "Kriterien und Erfüllung",
-        "body": "Rechts im Inspektor stellst du ein, welche Kriterien beim Mischen zählen und wie wichtig sie sind. Der Knopf darüber – und links in der Statusleiste – zeigt in Prozent, wie gut der Plan sie erfüllt, und blendet unter jedem Kriterium eine Leiste ein: Zeigst du auf sie, werden die betroffenen Plätze markiert, ein Klick hält die Markierung fest."
+        "body": "Rechts im Inspektor stellst du ein, welche Kriterien beim Mischen zählen und wie wichtig sie sind. Die Zeile „Erfüllung“ darüber – und links die Statusleiste – zeigt in Prozent, wie gut der Plan sie erfüllt; ihr Schalter blendet unter jedem Kriterium eine Leiste ein: Zeigst du auf sie, werden die betroffenen Plätze markiert, ein Klick hält die Markierung fest."
       },
       "mix": {
         "title": "Mischen",

@@ -159,11 +159,12 @@ async function mixThePlan(page: Page): Promise<void> {
   });
   await criteriaSwitch.click();
   await expect(criteriaSwitch).toHaveAttribute('aria-expanded', 'true');
-  // The recipe above the criteria says how many of them carry weight.
+  // The heading says how many of the criteria carry weight, the recipe
+  // under it what they add up to.
+  const criteria = page.getByRole('complementary', { name: 'Mischkriterien' });
+  await expect(criteria.getByText(/Kriterien aktiv/)).toBeVisible();
   await expect(
-    page
-      .getByRole('complementary', { name: 'Mischkriterien' })
-      .getByRole('button', { name: /Kriterien aktiv/ }),
+    criteria.getByRole('button', { name: /^Rezept:/ }),
   ).toBeVisible();
   await criteriaSwitch.click();
   await expect(criteriaSwitch).toHaveAttribute('aria-expanded', 'false');

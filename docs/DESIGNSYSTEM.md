@@ -305,7 +305,13 @@ subtitle beside the position, so the name keeps the width; sections carry a
 `data-heading` in their family's colour and are separated by `border-t` with
 `first:border-t-0`, never by a gap; the footer holds what acts on the whole
 selection, destructive last. A panel that needs a new group adds a section —
-not a card, not a heading of its own invention.
+not a card, not a heading of its own invention. The plan's criteria are read
+the same way: a row per criterion under the family it acts on, its importance
+a scale at the row's end — a dash on the baseline for "Aus", three rising bars in the
+family's ink, the level's word in the tooltip and the accessible name — since
+four word chips took a line of their own and sixteen criteria three screens of
+scrolling; the explanation stays under the name
+([decision 0018](decisions/0018-criteria-in-words-with-recipes.md)).
 
 From `lg` up the column folds away on every layer — the class, the room, the
 plan, the circle and the export sheet — from the switch at the right end of

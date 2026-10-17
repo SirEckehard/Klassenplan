@@ -12,13 +12,16 @@ import {
 } from '@phosphor-icons/react';
 import SmartSidebar from '@/components/ui/panels/SmartSidebar';
 import SmartMixControls, {
+  MixCriteriaCount,
   MixCriteriaSwitch,
 } from '@/components/ui/controls/SmartMixControls';
+import ToggleSwitch from '@/components/ui/controls/ToggleSwitch';
 import PlanToolPanel from '@/components/SeatingPlanGenerator/views/PlanToolPanel';
 import InspectorPortal from '@/components/shell/InspectorPortal';
 import {
   InspectorBody,
   InspectorHeader,
+  InspectorRow,
 } from '@/components/shell/InspectorPanel';
 import StatusBarPortal from '@/components/shell/StatusBarPortal';
 import { statusBarWordClass } from '@/components/shell/StatusBarFrame';
@@ -613,18 +616,24 @@ export default function SeatingPlanEditorView({
     ],
   );
 
-  // The fulfilment in the status bar leads to the values per criterion: it
-  // turns them on and brings the inspector into view — the column from `lg`
-  // up, the drawer on a tablet. A phone shows them over the plan instead, and
-  // a drawer would cover that.
+  // The fulfilment in the status bar switches the values per criterion, as
+  // the inspector's "Erfüllung" row does. Turning them on brings the
+  // inspector into view — the column from `lg` up, the drawer on a tablet; a
+  // phone shows them over the plan instead, and a drawer would cover that.
+  // Turning them off leaves the inspector as it is.
   const { setFolded, setDrawerOpen } = useInspector();
-  const handleShowFulfillment = React.useCallback(() => {
-    if (!showStatisticsBadge) onOpenStatistics?.();
+  const handleFulfillmentToggle = React.useCallback(() => {
+    if (showStatisticsBadge) {
+      onCloseStatistics?.();
+      return;
+    }
+    onOpenStatistics?.();
     if (isPhone) return;
     if (isBreakpointUp('lg')) setFolded(false);
     else setDrawerOpen(true);
   }, [
     isPhone,
+    onCloseStatistics,
     onOpenStatistics,
     setDrawerOpen,
     setFolded,
@@ -822,10 +831,18 @@ export default function SeatingPlanEditorView({
         {/* Why the plan looks like this is a property of the plan, so the
             criteria belong in the inspector — not in the toolbar opposite. */}
         <InspectorPortal label={t('mix.title')}>
-          {/* The heading names the panel once, and the switch beside it acts
-              on every criterion under it. */}
+          {/* The heading names the panel once, says how many criteria carry
+              weight, and the switch beside it acts on every one of them. */}
           <InspectorHeader
             title={t('mix.title')}
+            subtitle={
+              <MixCriteriaCount
+                settings={settings}
+                setMixSettings={setMixSettings}
+                students={students}
+                suspendedWeights={suspendedWeights}
+              />
+            }
             actions={
               <MixCriteriaSwitch
                 settings={settings}
@@ -839,29 +856,37 @@ export default function SeatingPlanEditorView({
             {/* How well the plan meets the criteria, above the criteria it is
               about; the button shows or hides the value beside each one. */}
             {hasStatistics && (onOpenStatistics || onCloseStatistics) && (
-              <button
-                type="button"
-                onClick={handleStatisticsToggle}
-                data-tour={TOUR_ANCHORS.planFulfillment}
-                // Named by what it shows — "Erfüllung 85 %" — so speech
-                // input finds it by its words; whether the values are on is
-                // the pressed state alone.
-                aria-pressed={showStatisticsBadge}
-                title={
-                  showStatisticsBadge
-                    ? t('editor.hideFulfillment')
-                    : t('editor.showFulfillment')
-                }
-                className={`${secondaryButtonClass} mb-3 flex w-full items-center justify-between gap-2 px-3 py-2 text-sm`}
-              >
-                <span className="flex items-center gap-2">
-                  <ChartBarIcon size={18} aria-hidden="true" />
-                  {t('editor.fulfillmentLabel')}
-                </span>
-                <span className="font-semibold tabular-nums">
-                  {formatPercent(statisticsScore)}
-                </span>
-              </button>
+              <div data-tour={TOUR_ANCHORS.planFulfillment}>
+                {/* A row of the panel like every other: the whole row is the
+                    switch's label. Named by what it shows — "Erfüllung 85 %" —
+                    so speech input finds it by its words. */}
+                <InspectorRow
+                  label={t('editor.fulfillmentLabel')}
+                  icon={
+                    <ChartBarIcon
+                      size={14}
+                      aria-hidden="true"
+                      className="shrink-0 text-(--text-muted)"
+                    />
+                  }
+                  labelsControl
+                >
+                  <span className="text-control font-semibold tabular-nums text-(--text-page)">
+                    {formatPercent(statisticsScore)}
+                  </span>
+                  <ToggleSwitch
+                    size="sm"
+                    checked={Boolean(showStatisticsBadge)}
+                    onChange={handleStatisticsToggle}
+                    label={`${t('editor.fulfillmentLabel')} ${formatPercent(statisticsScore)}`}
+                    title={
+                      showStatisticsBadge
+                        ? t('editor.hideFulfillment')
+                        : t('editor.showFulfillment')
+                    }
+                  />
+                </InspectorRow>
+              </div>
             )}
             <SmartMixControls
               settings={settings}
@@ -902,9 +927,14 @@ export default function SeatingPlanEditorView({
           <StatusBarPortal slot="status">
             <button
               type="button"
-              onClick={handleShowFulfillment}
+              onClick={handleFulfillmentToggle}
+              aria-pressed={Boolean(showStatisticsBadge)}
               aria-label={`${t('editor.fulfillmentLabel')} ${formatPercent(statisticsScore)}`}
-              title={t('editor.showFulfillment')}
+              title={
+                showStatisticsBadge
+                  ? t('editor.hideFulfillment')
+                  : t('editor.showFulfillment')
+              }
               className="inline-flex min-w-0 shrink-0 cursor-pointer items-center gap-1 rounded-md px-1 py-1 text-xs tabular-nums text-(--text-muted) transition hover:bg-(--surface-sunken) hover:text-(--text-page) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) pointer-coarse:min-h-11 sm:gap-1.5 sm:px-1.5 sm:text-sm"
             >
               <span className={statusBarWordClass}>

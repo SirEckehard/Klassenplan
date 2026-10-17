@@ -122,15 +122,22 @@ export function InspectorSection({
 export function InspectorIcon({
   icon: IconComponent,
   family,
+  muted = false,
 }: {
   icon: Icon;
   family: keyof typeof dataFamilyClass;
+  /** Grey instead of the family's ink — a criterion that is switched off. */
+  muted?: boolean;
 }) {
   return (
     <IconComponent
       size={14}
       aria-hidden="true"
-      className={`${dataFamilyClass[family]} shrink-0 text-(--data-chip-text)`}
+      className={
+        muted
+          ? 'shrink-0 text-(--text-muted)'
+          : `${dataFamilyClass[family]} shrink-0 text-(--data-chip-text)`
+      }
     />
   );
 }

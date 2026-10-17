@@ -358,6 +358,7 @@
       "body": "Pick someone in the list to set their attributes."
     },
     "groups": {
+      "history": "History",
       "person": "Person",
       "learning": "Learning",
       "language": "Language",

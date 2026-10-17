@@ -13,6 +13,7 @@ import {
   withDefaultWeights,
   withWeightsFrom,
   withoutWeights,
+  type DataFamily,
   type MixImportance,
 } from '@/utils';
 import { isCriterionAvailable } from '@/utils/criteriaValidation';
@@ -25,8 +26,8 @@ export interface MixCriterion {
 }
 
 export interface MixCriteriaCategory {
-  id: string;
-  /** Empty for the leading category, which is shown without a heading. */
+  /** The data family the category speaks for; it colours its heading. */
+  id: DataFamily;
   label: string;
   criteria: MixCriterion[];
 }
@@ -70,12 +71,12 @@ type UseMixCriteriaOptions = {
  * a criterion stands under the same word — and in the same colour
  * (`CRITERIA_FAMILY_MAP`) — as the attribute it acts on. Repetition is about the
  * plans already used rather than an attribute: it has a family of its own
- * (`history`) and leads without a heading.
+ * (`history`) and leads under a heading of its own.
  */
 const buildCategories = (t: TFunction<'generator'>): MixCriteriaCategory[] => [
   {
     id: 'history',
-    label: '',
+    label: t('students:inspector.groups.history'),
     criteria: [
       {
         key: 'avoidPreviousPairs',

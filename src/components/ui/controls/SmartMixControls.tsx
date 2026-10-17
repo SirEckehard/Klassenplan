@@ -14,6 +14,7 @@ import {
   dataFamilyClass,
   formatPercent,
   getStatisticStatusMeta,
+  type DataFamily,
   type MixImportance,
 } from '@/utils';
 import type { CriterionFulfillment } from '@/utils/algorithm/seatingStatistics';
@@ -23,7 +24,11 @@ import {
   type SuspendedWeights,
 } from '@/hooks/ui/useMixCriteria';
 import { useMixRecipes } from '@/hooks/ui/useMixRecipes';
-import SectionSeparator from '../feedback/SectionSeparator';
+import {
+  InspectorIcon,
+  InspectorRow,
+  InspectorSection,
+} from '@/components/shell/InspectorPanel';
 import { MixRecipePanel } from './MixRecipes';
 import ToggleSwitch from './ToggleSwitch';
 
@@ -63,53 +68,74 @@ type CriterionFulfillmentProps = Omit<
 };
 
 /**
- * How important a criterion is, in the four words a teacher can decide
- * between. The weight behind them is still there for the algorithm, but
- * nobody has to think in tenths to set a plan up — so the panel no longer
- * offers them at all.
+ * How tall each level's bar stands. "Off" is the step before the first: a
+ * dash on the baseline, so the scale reads as one run from nothing to much —
+ * and "Beachten" stands taller than wide, or it reads as a dot.
  */
-function ImportanceChoice({
+const LEVEL_BAR_CLASS: Record<MixImportance, string> = {
+  off: 'h-0.5',
+  consider: 'h-2',
+  important: 'h-3',
+  essential: 'h-4',
+};
+
+/**
+ * How important a criterion is, as a scale beside its name: a dash on the
+ * baseline for "Aus" and three bars rising to "Sehr wichtig", filled up to the
+ * level in the criterion's family ink — the dash dark while it is the level. The four words a teacher decides between are still
+ * there — on every step's tooltip and in its accessible name — but the scale
+ * fits the criterion's own line, where four word chips took a second one, and
+ * sixteen criteria read as one list as the student inspector's do.
+ */
+function ImportanceScale({
   label,
+  family,
   value,
   onChange,
 }: {
   label: string;
+  family: DataFamily;
   value: MixImportance;
   onChange: (level: MixImportance) => void;
 }) {
   const { t } = useTranslation('generator');
+  const valueIndex = MIX_IMPORTANCE_LEVELS.indexOf(value);
 
   return (
     <div
       role="group"
       aria-label={t('mix.importance.groupLabel', { label })}
-      className="flex gap-1"
+      className={`${dataFamilyClass[family]} flex items-stretch`}
     >
-      {MIX_IMPORTANCE_LEVELS.map((level) => {
+      {MIX_IMPORTANCE_LEVELS.map((level, index) => {
         const isActive = value === level;
         const levelLabel = t(`mix.importance.${level}`);
+        const isFilled = index > 0 && index <= valueIndex;
         return (
           <button
             key={level}
             type="button"
-            // Inside a card whose own press would switch the criterion.
-            onClick={(event) => {
-              event.stopPropagation();
-              onChange(level);
-            }}
+            onClick={() => onChange(level)}
             aria-pressed={isActive}
             aria-label={t('mix.importance.optionLabel', {
               label,
               level: levelLabel,
             })}
-            title={t(`mix.importance.${level}Hint`)}
-            className={`flex-1 cursor-pointer rounded-md border px-1 py-1 text-caption leading-tight transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) ${
-              isActive
-                ? 'border-(--border-option-selected) bg-(--surface-option-selected) font-medium text-(--text-badge)'
-                : 'border-(--border-card) bg-(--surface-card) text-(--text-muted) hover:border-(--border-option-hover)'
-            }`}
+            title={`${levelLabel} – ${t(`mix.importance.${level}Hint`)}`}
+            // Bars share a baseline, as a signal meter's do. A finger gets
+            // the 44px of every inspector control.
+            className="flex h-7 w-4.5 cursor-pointer items-end justify-center rounded-sm pb-1.5 transition hover:bg-(--surface-sunken) pointer-coarse:h-11 pointer-coarse:w-7 pointer-coarse:pb-3.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)"
           >
-            {levelLabel}
+            <span
+              aria-hidden="true"
+              className={`block w-1.5 rounded-xs ${LEVEL_BAR_CLASS[level]} ${
+                isFilled
+                  ? 'bg-(--data-chip-accent)'
+                  : level === 'off' && isActive
+                    ? 'bg-(--text-page)'
+                    : 'bg-(--border-card)'
+              }`}
+            />
           </button>
         );
       })}
@@ -154,7 +180,7 @@ function FulfillmentBadge({
   const { status, dotClass } = getStatisticStatusMeta(criterion.percentage);
   const statusLabel = t(`statisticsBadge.status.${status}`);
   const value = formatPercent(percentage);
-  const shapeClass = `flex w-full items-center gap-2 rounded-md px-1 py-1 text-xs tabular-nums ${
+  const shapeClass = `flex w-full items-center gap-2 rounded-md px-1 py-0.5 text-xs tabular-nums ${
     pinned ? 'bg-(--surface-option-selected)' : ''
   } ${className}`;
   const body = (
@@ -206,44 +232,16 @@ function FulfillmentBadge({
   );
 }
 
-/** Name, explanation and importance of one criterion: the body of its card. */
-function CriterionWeight({
-  criterion,
-  importance,
-  onImportanceChange,
-}: {
-  criterion: MixCriterion;
-  importance: MixImportance;
-  onImportanceChange: (level: MixImportance) => void;
-}) {
-  return (
-    <div>
-      {/* A block, so the card's accessible name reads "Restlessness Separate
-          students…", not one run-on word. */}
-      <div className="mb-1 text-sm font-medium text-(--text-page)">
-        {criterion.label}
-      </div>
-      <div className="mb-2 text-xs text-(--text-muted)">
-        {criterion.description}
-      </div>
-      <ImportanceChoice
-        label={criterion.label}
-        value={importance}
-        onChange={onImportanceChange}
-      />
-    </div>
-  );
-}
-
 /**
- * One criterion in the inspector: what it is, what it does, how important it
- * is — and, once the plan has been mixed, how far it got.
+ * One criterion in the inspector, read as the student inspector's attributes
+ * are: its icon and name on the left, how important it is on the right — then
+ * what it does, and, once the plan has been mixed, how far it got, both on the
+ * name's edge.
  *
- * The card is paper, not a button: the four levels inside it are the controls,
- * and a criterion that is off wears a grey icon instead of its family's colour,
- * so the list says at a glance what is acting on the plan.
+ * A criterion that is off wears a grey icon instead of its family's ink, so
+ * the list says at a glance what is acting on the plan.
  */
-function CriterionCard({
+function CriterionRow({
   criterion,
   value,
   importance,
@@ -259,36 +257,33 @@ function CriterionCard({
   importance: MixImportance;
   onImportanceChange: (level: MixImportance) => void;
 }) {
-  const isActive = value > 0;
-  const Icon = CRITERIA_ICON_MAP[criterion.key];
-  const family = dataFamilyClass[CRITERIA_FAMILY_MAP[criterion.key]];
+  const family = CRITERIA_FAMILY_MAP[criterion.key];
 
   return (
-    <div data-criterion={criterion.key} className="rounded-lg px-2.5 py-2">
-      <div className="flex items-start gap-2.5">
-        {/* The family's colour, always with its icon beside the name — a
-            criterion is pedagogy, so it is not chrome-coloured. */}
-        <span
-          className={`${
-            isActive
-              ? `${family} bg-(--data-chip-surface) text-(--data-chip-text)`
-              : 'bg-(--surface-sunken) text-(--text-muted)'
-          } mt-0.5 inline-flex size-5.5 shrink-0 items-center justify-center rounded-md`}
-          aria-hidden="true"
-        >
-          <Icon size={13} />
-        </span>
-        <div className="min-w-0 flex-1">
-          <CriterionWeight
-            criterion={criterion}
-            importance={importance}
-            onImportanceChange={onImportanceChange}
+    <div data-criterion={criterion.key} className="flex flex-col">
+      <InspectorRow
+        label={criterion.label}
+        icon={
+          <InspectorIcon
+            icon={CRITERIA_ICON_MAP[criterion.key]}
+            family={family}
+            muted={value <= 0}
           />
-        </div>
-      </div>
-      {/* Under the levels that caused it, indented to their line. */}
+        }
+      >
+        <ImportanceScale
+          label={criterion.label}
+          family={family}
+          value={importance}
+          onChange={onImportanceChange}
+        />
+      </InspectorRow>
+      {/* On the name's edge: the icon's 14px and the row's gap. */}
+      <p className="pl-5.5 text-xs text-(--text-muted)">
+        {criterion.description}
+      </p>
       {fulfillment && (
-        <div className="mt-1.5 pl-8">
+        <div className="pt-0.5 pl-4.5">
           {/* The seats are marked while the pointer or the focus rests on
               this bar, and only then: the levels above it are pressed on
               the way through, and a plan lighting up under every pass was
@@ -309,30 +304,13 @@ function CriterionCard({
   );
 }
 
-/** A category: a labelled group of cards. */
-function CriteriaGroup({
-  label,
-  isFirst,
-  children,
-}: {
-  label: string;
-  isFirst: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <div>
-      {label && !isFirst && <div className="py-1" />}
-      {label && <SectionSeparator label={label} />}
-      <div className="space-y-3 px-2 pt-2">{children}</div>
-    </div>
-  );
-}
-
 /**
  * The mixing criteria as the inspector shows them — on a phone and a tablet in
- * its drawer: the recipes, then every criterion as a card with its four levels
- * and, once the plan has been mixed, how far it got. The switch for all
- * criteria lives apart, beside the inspector's heading (`MixCriteriaSwitch`).
+ * its drawer: the recipe, then every criterion as a row with its scale under
+ * the family it acts on, headed as in the student inspector, and, once the plan
+ * has been mixed, how far it got. The switch for all criteria and their count
+ * live apart, in the inspector's heading (`MixCriteriaSwitch`,
+ * `MixCriteriaCount`).
  */
 function SmartMixControls({
   settings,
@@ -355,15 +333,6 @@ function SmartMixControls({
   });
   const recipes = useMixRecipes({ settings, setMixSettings, students });
 
-  const criteria = React.useMemo(
-    () => mix.categories.flatMap((category) => category.criteria),
-    [mix.categories],
-  );
-  // Of the criteria this class has data for — the ones the panel shows.
-  const activeCriteriaCount = criteria.filter(
-    (criterion) => mix.weightOf(criterion.key) > 0,
-  ).length;
-
   // The statistics carry only the criteria the mix scored, in the order of the
   // categories above — a lookup keeps the two lists from having to line up.
   const fulfillmentByKey = React.useMemo(() => {
@@ -377,40 +346,36 @@ function SmartMixControls({
     activeHighlightMode === 'persistent' ? activeHighlightKey : null;
 
   return (
-    <div className="space-y-4 pb-2">
+    <>
       {/* The inspector's heading already names the panel and carries the
           switch for all criteria (`MixCriteriaSwitch`); what is left up here
-          is the one thing that switch cannot say by itself. */}
-      {mix.isRandom && (
-        <div
-          role="status"
-          className="mx-2 flex items-center gap-2 rounded-lg border border-(--border-card) bg-(--surface-sunken) px-3 py-2 text-xs font-medium text-(--text-page)"
-        >
-          <WarningIcon
-            size={16}
-            aria-hidden="true"
-            className="shrink-0 text-(--status-warn)"
-          />
-          {t('mix.randomWarning')}
-        </div>
-      )}
+          is what the plan is for and the one thing that switch cannot say by
+          itself. */}
+      <div className="flex flex-col gap-2 pb-3">
+        <MixRecipePanel activeId={recipes.activeId} onSelect={recipes.apply} />
+        {mix.isRandom && (
+          <div
+            role="status"
+            className="flex items-center gap-2 rounded-md border border-(--border-card) bg-(--surface-sunken) px-2.5 py-1.5 text-xs font-medium text-(--text-page)"
+          >
+            <WarningIcon
+              size={16}
+              aria-hidden="true"
+              className="shrink-0 text-(--status-warn)"
+            />
+            {t('mix.randomWarning')}
+          </div>
+        )}
+      </div>
 
-      {/* What the plan is for, above the criteria it sets. */}
-      <MixRecipePanel
-        activeId={recipes.activeId}
-        activeCount={activeCriteriaCount}
-        total={criteria.length}
-        onSelect={recipes.apply}
-      />
-
-      {mix.categories.map((category, categoryIndex) => (
-        <CriteriaGroup
+      {mix.categories.map((category) => (
+        <InspectorSection
           key={category.id}
-          label={category.label}
-          isFirst={categoryIndex === 0}
+          family={category.id}
+          title={category.label}
         >
           {category.criteria.map((criterion) => (
-            <CriterionCard
+            <CriterionRow
               key={criterion.key}
               criterion={criterion}
               value={mix.weightOf(criterion.key)}
@@ -425,9 +390,40 @@ function SmartMixControls({
               }
             />
           ))}
-        </CriteriaGroup>
+        </InspectorSection>
       ))}
-    </div>
+    </>
+  );
+}
+
+/**
+ * How many of the criteria this class has data for carry weight — under the
+ * inspector's heading, as the student inspector states the position in the
+ * list there. It reads the weights itself, as `MixCriteriaSwitch` does.
+ */
+export function MixCriteriaCount({
+  settings,
+  setMixSettings,
+  students,
+  suspendedWeights,
+}: Pick<
+  SmartMixControlsProps,
+  'settings' | 'setMixSettings' | 'students' | 'suspendedWeights'
+>) {
+  const { t } = useTranslation('generator');
+  const mix = useMixCriteria({
+    settings,
+    setMixSettings,
+    students,
+    suspendedWeights,
+  });
+  const criteria = mix.categories.flatMap((category) => category.criteria);
+  const active = criteria.filter(
+    (criterion) => mix.weightOf(criterion.key) > 0,
+  ).length;
+
+  return (
+    <>{t('mix.recipes.activeCount', { active, total: criteria.length })}</>
   );
 }
 

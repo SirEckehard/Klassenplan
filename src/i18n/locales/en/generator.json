@@ -865,7 +865,7 @@
       },
       "fulfillment": {
         "title": "Criteria and fulfilment",
-        "body": "In the inspector on the right you choose which criteria count when mixing and how important they are. The button above them – and at the left of the status bar – shows in percent how well the plan meets them and adds a bar under each criterion: point at it to mark the seats concerned, click to keep the marking."
+        "body": "In the inspector on the right you choose which criteria count when mixing and how important they are. The “Fulfilment” row above them – and the left of the status bar – shows in percent how well the plan meets them; its switch adds a bar under each criterion: point at it to mark the seats concerned, click to keep the marking."
       },
       "mix": {
         "title": "Mix",

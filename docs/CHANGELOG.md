@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Improved
 
+- The mixing criteria in the inspector are laid out like the student inspector: one row per criterion under the same headings, its importance as a short scale beside the name – the level's word shows on hover – so the list takes about half the scrolling. The recipe opens as a menu, and the number of active criteria sits under the heading
 - Searching the class list opens the student the search clearly means in the inspector while you type – the only one found, or the only one whose name or first name it is or starts with. Enter opens the first student found
 - On an iPad in portrait, ticking several students opens their shared settings in the inspector, as on a larger screen
 - Tapping the student who is open in the class list again closes the inspector – on an iPad in landscape the column folds away again
@@ -22,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - The frame round a student's photo or initial in the class list, the inspector and "Bibliothek" shows the gender's colour, as on the seating plan; on the export's note list it does so too, and the export's "Gender colors" switch turns it off there
 - Every row of the student inspector is the same height, whether it holds a switch, choices or a menu, and so is every button in it
 - The FAQ explains installing the app browser by browser
+- "Fulfilment" in the status bar of the seating plan switches the values per criterion off again, as the switch in the inspector does
 
 ### Fixed
 

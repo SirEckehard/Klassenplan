@@ -2,7 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import '@testing-library/jest-dom/vitest';
 import React from 'react';
-import { screen, act } from '@testing-library/react';
+import { screen, act, fireEvent, within } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import '@/i18n/i18n';
 import SeatingPlanView, {
@@ -36,8 +36,13 @@ function WithStatusBar({ children }: { children: React.ReactNode }) {
 }
 
 function StatusBarSlot() {
-  const { setActionNode } = useStatusBarSlot();
-  return <div ref={setActionNode} />;
+  const { setActionNode, setStatusNode } = useStatusBarSlot();
+  return (
+    <>
+      <div ref={setStatusNode} data-testid="status-slot" />
+      <div ref={setActionNode} />
+    </>
+  );
 }
 
 /** Stands in for the shell's inspector column, which the plan portals into. */
@@ -179,7 +184,7 @@ describe('SeatingPlanView', () => {
 
   // Speech input says what it sees: "Erfüllung 85 %". The name is the
   // visible words; whether the values are on is the pressed state alone.
-  it('names the fulfilment button by what it shows', async () => {
+  it('names the fulfilment switch by what it shows', async () => {
     const renderPlan = (showStatisticsBadge: boolean) =>
       renderWithProvidersAndRouter(
         <WithInspector>
@@ -207,10 +212,10 @@ describe('SeatingPlanView', () => {
     await act(async () => {
       view = renderPlan(false);
     });
-    const hidden = screen.getByRole('button', {
+    const hidden = screen.getByRole('switch', {
       name: /^(Erfüllung|Fulfilment)\s*85\s?%$/,
     });
-    expect(hidden).toHaveAttribute('aria-pressed', 'false');
+    expect(hidden).toHaveAttribute('aria-checked', 'false');
     expect(hidden).toHaveAttribute(
       'title',
       expect.stringMatching(/zeigen|Show/),
@@ -220,14 +225,63 @@ describe('SeatingPlanView', () => {
     await act(async () => {
       renderPlan(true);
     });
-    const shown = screen.getByRole('button', {
+    const shown = screen.getByRole('switch', {
       name: /^(Erfüllung|Fulfilment)\s*85\s?%$/,
     });
-    expect(shown).toHaveAttribute('aria-pressed', 'true');
+    expect(shown).toHaveAttribute('aria-checked', 'true');
     expect(shown).toHaveAttribute(
       'title',
       expect.stringMatching(/ausblenden|Hide/),
     );
+  });
+
+  it('switches the values per criterion from the status bar, both ways', async () => {
+    const onOpenStatistics = vi.fn();
+    const onCloseStatistics = vi.fn();
+    const renderPlan = (showStatisticsBadge: boolean) =>
+      renderWithProvidersAndRouter(
+        <WithStatusBar>
+          <SeatingPlanView
+            {...createMockSeatingPlanViewProps({
+              step: 3,
+              lastStatistics: [
+                {
+                  key: 'preferGenderMix',
+                  label: 'Geschlechtermischung',
+                  percentage: 85,
+                  weight: 5,
+                  active: true,
+                },
+              ],
+              showStatisticsBadge,
+              onOpenStatistics,
+              onCloseStatistics,
+            })}
+          />
+        </WithStatusBar>,
+      );
+    const statusButton = () =>
+      within(screen.getByTestId('status-slot')).getByRole('button', {
+        name: /^(Erfüllung|Fulfilment)\s*85\s?%$/,
+      });
+
+    let view!: ReturnType<typeof renderPlan>;
+    await act(async () => {
+      view = renderPlan(false);
+    });
+    expect(statusButton()).toHaveAttribute('aria-pressed', 'false');
+    fireEvent.click(statusButton());
+    expect(onOpenStatistics).toHaveBeenCalledTimes(1);
+    expect(onCloseStatistics).not.toHaveBeenCalled();
+
+    view.unmount();
+    await act(async () => {
+      renderPlan(true);
+    });
+    expect(statusButton()).toHaveAttribute('aria-pressed', 'true');
+    fireEvent.click(statusButton());
+    expect(onCloseStatistics).toHaveBeenCalledTimes(1);
+    expect(onOpenStatistics).toHaveBeenCalledTimes(1);
   });
 
   it('renders auto-mix error banner with retry button', async () => {

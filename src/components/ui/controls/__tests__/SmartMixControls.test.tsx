@@ -2,10 +2,13 @@
 // Copyright (C) 2026 Eike Schäfer
 import '@testing-library/jest-dom/vitest';
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import '@/i18n/i18n';
-import SmartMixControls, { MixCriteriaSwitch } from '../SmartMixControls';
+import SmartMixControls, {
+  MixCriteriaCount,
+  MixCriteriaSwitch,
+} from '../SmartMixControls';
 import { createSuspendedWeights } from '@/hooks/ui/useMixCriteria';
 import { useAutoMixSettings } from '@/hooks/domains/useAutoMixSettings';
 import { createMockStudent } from '@/__tests__/utils';
@@ -92,8 +95,12 @@ function Harness({
 
   return (
     <>
-      {/* The inspector puts the switch for all criteria into its header. */}
+      {/* The inspector puts the switch for all criteria and their count into
+          its header. */}
       <MixCriteriaSwitch {...controls} />
+      <span data-testid="criteria-count">
+        <MixCriteriaCount {...controls} />
+      </span>
       <SmartMixControls {...controls} />
       {SCALAR_MIX_SETTING_KEYS.map((key) => (
         <span key={key} hidden data-testid={key}>
@@ -107,7 +114,7 @@ function Harness({
 const weightOf = (key: ScalarMixSettingKey) =>
   Number(screen.getByTestId(key).textContent);
 
-/** One of the four named levels inside a criterion's card. */
+/** One of the four levels on a criterion's scale. */
 const levelChip = (label: RegExp, level: RegExp) =>
   screen.getByRole('button', {
     name: new RegExp(`^(${label.source}): (${level.source})$`),
@@ -131,14 +138,14 @@ describe('SmartMixControls — comfortable density', () => {
   it('shows the criteria in their categories, each with its explanation', () => {
     render(<Harness initial={DEFAULT_MIX_WEIGHTS} />);
 
-    // The class list's families in its order; language drops out because
-    // nobody in the harness has a language level.
+    // Repetition first, then the class list's families in its order;
+    // language drops out because nobody in the harness has a language level.
     const headings = screen
-      .getAllByRole('separator')
-      .map((separator) => separator.getAttribute('aria-label'))
-      .filter(Boolean);
-    expect(headings).toHaveLength(5);
+      .getAllByRole('heading', { level: 3 })
+      .map((heading) => heading.textContent);
+    expect(headings).toHaveLength(6);
     [
+      /^(Verlauf|History)$/,
       /^(Person)$/,
       /^(Lernen|Learning)$/,
       /^(Verhalten|Behaviour)$/,
@@ -277,11 +284,9 @@ describe('SmartMixControls — comfortable density', () => {
       }),
     ).not.toBeInTheDocument();
 
+    fireEvent.click(screen.getByRole('button', { name: /^(Rezept|Recipe):/ }));
     fireEvent.click(
-      screen.getByRole('button', { name: /Kriterien aktiv|criteria active/ }),
-    );
-    fireEvent.click(
-      screen.getByRole('button', {
+      within(screen.getByRole('dialog')).getByRole('button', {
         name: /Empfohlene Mischung|Recommended mix/,
       }),
     );
@@ -294,13 +299,13 @@ describe('SmartMixControls — comfortable density', () => {
 
 describe('SmartMixControls — recipes', () => {
   const recipeButton = () =>
-    screen.getByRole('button', {
-      name: new RegExp('(Kriterien aktiv|criteria active)'),
-    });
+    screen.getByRole('button', { name: /^(Rezept|Recipe):/ });
 
   const chooseRecipe = (name: RegExp) => {
     fireEvent.click(recipeButton());
-    fireEvent.click(screen.getByRole('button', { name }));
+    fireEvent.click(
+      within(screen.getByRole('dialog')).getByRole('button', { name }),
+    );
   };
 
   it('sets every weight at once and names the recipe it is on', () => {
@@ -337,7 +342,9 @@ describe('SmartMixControls — recipes', () => {
     // Language levels and social roles are missing from this class, so its
     // panel shows 13 criteria; the homogeneous groups stay off beside the
     // heterogeneous ones (decision 0013), which leaves 12 of them active.
-    expect(recipeButton()).toHaveTextContent(/12 (von|of) 13/);
+    expect(screen.getByTestId('criteria-count')).toHaveTextContent(
+      /12 (von|of) 13/,
+    );
   });
 });
 

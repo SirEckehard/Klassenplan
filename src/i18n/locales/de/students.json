@@ -358,6 +358,7 @@
       "body": "Wähle jemanden in der Liste aus, um Merkmale zu setzen."
     },
     "groups": {
+      "history": "Verlauf",
       "person": "Person",
       "learning": "Lernen",
       "language": "Sprache",
