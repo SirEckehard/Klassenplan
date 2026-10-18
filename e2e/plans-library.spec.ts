@@ -33,11 +33,12 @@ const STUDENTS = [
 ];
 
 async function createClassWithStudents(page: Page): Promise<void> {
-  await page.getByRole('button', { name: 'Neue Klasse' }).click();
-  const dialog = page.getByRole('dialog', { name: 'Neue Klasse erstellen' });
-  await dialog.getByRole('textbox', { name: /Klassenname/ }).fill('E2E Räume');
-  await dialog.getByRole('button', { name: 'Klasse anlegen' }).click();
-  await expect(dialog).toBeHidden();
+  const classField = page.getByRole('textbox', {
+    name: 'Name der neuen Klasse',
+  });
+  await classField.fill('E2E Räume');
+  await page.getByRole('button', { name: 'Klasse anlegen' }).click();
+  await expect(classField).toBeHidden();
 
   await page.getByRole('button', { name: 'Schüler hinzufügen' }).click();
   const popover = page.getByRole('dialog', { name: 'Schüler hinzufügen' });

@@ -41,7 +41,7 @@ export default function HeaderClassMenu() {
   const { t } = useTranslation(['students', 'generator']);
   const { classSummaries, activeClass, selectClass, updateClassMetadata } =
     useClassManagementContext();
-  const { openCreate, requestDelete, isBusy } = useClassDialogs();
+  const { create, requestDelete, isBusy } = useClassDialogs();
   const { students } = useSeatingPlanState();
 
   const anchorRef = React.useRef<HTMLButtonElement | null>(null);
@@ -50,12 +50,15 @@ export default function HeaderClassMenu() {
   const [open, setOpen] = React.useState(false);
   // The class renamed in place, in its own row of the menu.
   const [renamingId, setRenamingId] = React.useState<string | null>(null);
+  // A new class is named in the menu before it is made, as a new room is.
+  const [naming, setNaming] = React.useState(false);
 
   const hasActiveClass = Boolean(activeClass.id);
 
   const close = React.useCallback(() => {
     setOpen(false);
     setRenamingId(null);
+    setNaming(false);
   }, []);
   useClickOutside([containerRef, contentRef], close, open);
   // Focus lands on the open class, Tab and the arrow keys stay in the list,
@@ -165,21 +168,36 @@ export default function HeaderClassMenu() {
           >
             {/* Creating a class is offered above the existing ones, so the
                 switcher answers both "which class?" and "a new one". */}
-            <button
-              type="button"
-              onClick={() => {
-                setOpen(false);
-                openCreate();
-              }}
-              disabled={isBusy}
-              className={menuItemClass}
-            >
-              <PlusIcon
-                className="h-4 w-4 shrink-0 text-(--text-muted)"
-                aria-hidden="true"
+            {naming ? (
+              <ClassNameRow
+                isNew
+                initialName=""
+                otherNames={summaries.map((entry) => entry.name)}
+                onCommit={async (name) => {
+                  // Making it opens it, so the menu has done its job.
+                  if ((await create(name)) === null) return false;
+                  close();
+                  return true;
+                }}
+                onDone={() => setNaming(false)}
               />
-              {t('students:classManagement.newClass')}
-            </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  setRenamingId(null);
+                  setNaming(true);
+                }}
+                disabled={isBusy}
+                className={menuItemClass}
+              >
+                <PlusIcon
+                  className="h-4 w-4 shrink-0 text-(--text-muted)"
+                  aria-hidden="true"
+                />
+                {t('students:classManagement.newClass')}
+              </button>
+            )}
             <div className="my-1 h-px bg-(--border-card)" role="separator" />
 
             <div
@@ -236,7 +254,10 @@ export default function HeaderClassMenu() {
                     </button>
                     <button
                       type="button"
-                      onClick={() => setRenamingId(entry.id)}
+                      onClick={() => {
+                        setNaming(false);
+                        setRenamingId(entry.id);
+                      }}
                       disabled={isBusy}
                       title={t('students:classManagement.editClass')}
                       aria-label={`${t('students:classManagement.editClass')} ${entry.name}`}
@@ -280,19 +301,23 @@ const optionDeleteClass = `${quietDangerIconButtonClass} h-9 w-9 shrink-0`;
  * menu, keeps it; Escape or a click beside the menu closes the menu without
  * it, as it closes any menu without a choice. A name another class carries is
  * refused under the field as it is typed — the repository would refuse it
- * too, but only after the fact.
+ * too, but only after the fact. A new class is made only by Enter: leaving
+ * the field drops it.
  */
 function ClassNameRow({
   initialName,
   otherNames,
   onCommit,
   onDone,
+  isNew = false,
 }: {
   initialName: string;
   otherNames: string[];
   /** Gives the name; resolves with whether it was kept. */
   onCommit: (name: string) => Promise<boolean>;
   onDone: () => void;
+  /** Names a class still to be made, rather than renaming one. */
+  isNew?: boolean;
 }) {
   const { t } = useTranslation('generator');
   const [draft, setDraft] = React.useState(initialName);
@@ -305,6 +330,7 @@ function ClassNameRow({
   const commit = async () => {
     if (committingRef.current) return;
     const trimmed = draft.trim();
+    if (isNew && trimmed === '') return;
     if (trimmed === '' || trimmed === initialName) {
       onDone();
       return;
@@ -328,7 +354,8 @@ function ClassNameRow({
         onFocus={(event) => event.currentTarget.select()}
         onChange={(event) => setDraft(event.target.value)}
         onBlur={() => {
-          void commit();
+          if (isNew) onDone();
+          else void commit();
         }}
         onKeyDown={(event) => {
           if (event.key === 'Enter') {
@@ -336,7 +363,8 @@ function ClassNameRow({
             void commit();
           }
         }}
-        aria-label={t('classPanel.name')}
+        placeholder={isNew ? t('classPanel.namePlaceholder') : undefined}
+        aria-label={isNew ? t('classPanel.newName') : t('classPanel.name')}
         aria-invalid={taken || undefined}
         aria-describedby={taken ? errorId : undefined}
         className={`${inputFieldClass} h-9 w-full py-0 text-sm`}

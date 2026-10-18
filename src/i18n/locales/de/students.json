@@ -219,26 +219,12 @@
     "editButton": "Namen bearbeiten",
     "editTitle": "Klick oder Eingabetaste zum Bearbeiten"
   },
-  "classDialog": {
-    "createTitle": "Neue Klasse erstellen",
-    "editTitle": "Klasse bearbeiten",
-    "createSubtitle": "Füge einen Namen und optional das Schuljahr und weitere Notizen hinzu.",
-    "editSubtitle": "Passe Name, Schuljahr oder Notizen an.",
-    "className": "Klassenname",
-    "classNamePlaceholder": "z. B. Klasse 7b",
-    "schoolYear": "Schuljahr",
-    "schoolYearPlaceholder": "z. B. 2026/27",
-    "notes": "Notizen",
-    "notesPlaceholder": "Besonderheiten, Schwerpunkt, etc.",
-    "createButton": "Klasse anlegen"
-  },
   "quickClass": {
     "invalidCount": "Bitte gib eine Zahl zwischen 1 und {{max}} ein."
   },
   "common": {
     "save": "Speichern",
-    "cancel": "Abbrechen",
-    "optional": "optional"
+    "cancel": "Abbrechen"
   },
   "validation": {
     "missingNames_one": "Bitte ergänze den fehlenden Namen.",

@@ -48,7 +48,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   mocks.classSummaries.length = 0;
   mocks.activeClass.id = null;
-  mocks.createClass.mockResolvedValue(true);
+  mocks.createClass.mockResolvedValue('class-demo');
   mocks.selectClass.mockResolvedValue(true);
   mocks.saveStudentPhoto.mockResolvedValue(undefined);
   mocks.removeStudentPhoto.mockResolvedValue(undefined);
@@ -160,7 +160,7 @@ describe('useDemoClass', () => {
   });
 
   it('removes the pictures again when the class is not created', async () => {
-    mocks.createClass.mockResolvedValue(false);
+    mocks.createClass.mockResolvedValue(null);
     const { result } = renderHook(() => useDemoClass());
 
     await expect(load(result)).resolves.toBe(false);

@@ -102,11 +102,14 @@ export function useClassManagement({
   );
 
   const createClass = useCallback(
-    async (payload: CreateClassPayload, options?: { activate?: boolean }) => {
+    async (
+      payload: CreateClassPayload,
+      options?: { activate?: boolean },
+    ): Promise<string | null> => {
       const trimmedName = payload.name.trim();
       if (!trimmedName) {
         showToast('warning', TOAST_MESSAGES.VALIDATION_NAME_REQUIRED);
-        return false;
+        return null;
       }
       const shouldActivate = options?.activate ?? true;
       const pendingChanges =
@@ -123,7 +126,7 @@ export function useClassManagement({
           result.error.type === RepositoryErrorType.DUPLICATE_KEY;
         if (isDuplicate) {
           showToast('warning', TOAST_MESSAGES.CLASS_NAME_EXISTS);
-          return false;
+          return null;
         }
         logError(
           'Failed to create class',
@@ -131,7 +134,7 @@ export function useClassManagement({
           'useClassManagement',
         );
         showToast('error', TOAST_MESSAGES.CLASS_CREATE_ERROR);
-        return false;
+        return null;
       }
       await applyClassReload();
       const message = shouldActivate
@@ -145,7 +148,7 @@ export function useClassManagement({
       if (pendingChanges) {
         showToast('info', TOAST_MESSAGES.CLASS_SWITCH_UNSAVED);
       }
-      return true;
+      return result.data.id;
     },
     [
       applyClassReload,

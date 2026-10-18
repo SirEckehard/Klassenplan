@@ -26,6 +26,7 @@ import {
 } from '@/contexts/seatingPlan/ClassManagementContext';
 import { SeatingPlanGeneratorProvider } from '@/contexts/SeatingPlanContext';
 import { InspectorProvider, useInspector } from '@/contexts/InspectorContext';
+import { ClassDialogsProvider } from '@/contexts/ClassDialogsContext';
 import { subscribeToToasts } from '@/utils/ui/toast';
 import { MAX_STUDENTS } from '@/utils';
 
@@ -78,7 +79,7 @@ describe('StudentInput', () => {
       notes: 'Testnotiz',
     },
     selectClass: vi.fn().mockResolvedValue(true),
-    createClass: vi.fn().mockResolvedValue(true),
+    createClass: vi.fn().mockResolvedValue('class-new'),
     updateClassMetadata: vi.fn().mockResolvedValue(true),
     deleteClass: vi.fn().mockResolvedValue(true),
     ...overrides,
@@ -289,10 +290,40 @@ describe('StudentInput', () => {
     // The foot needs no class.
     expect(getButton(/^Backup$/i)).toBeEnabled();
 
-    const card = getButton(/Neue Klasse|New class/i).closest(
+    const card = getButton(/Klasse anlegen|Create class/i).closest(
       '[data-tour="class-empty-state"]',
     );
     expect(card?.parentElement).toHaveClass('items-center', 'justify-center');
+  });
+
+  // The first class is named on the card itself, not in a dialog.
+  it('makes the first class from the name typed on the card', async () => {
+    const props = createMockStudentInputProps({ students: [] });
+    const createClass = vi.fn().mockResolvedValue('class-new');
+    renderWithClassContext(
+      <ClassDialogsProvider>
+        <StudentInput {...props} />
+      </ClassDialogsProvider>,
+      { activeClass: { id: '', name: '', label: '', notes: '' }, createClass },
+    );
+
+    const create = getButton(/Klasse anlegen|Create class/i);
+    expect(create).toBeDisabled();
+
+    fireEvent.change(
+      screen.getByRole('textbox', {
+        name: /Name der neuen Klasse|Name of the new class/i,
+      }),
+      { target: { value: ' 7b ' } },
+    );
+    fireEvent.click(create);
+
+    await waitFor(() =>
+      expect(createClass).toHaveBeenCalledWith(
+        { name: '7b' },
+        { activate: true },
+      ),
+    );
   });
 
   it('nutzt importCsv für CSV-Uploads', async () => {

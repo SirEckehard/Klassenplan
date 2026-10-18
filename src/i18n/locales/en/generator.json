@@ -279,9 +279,9 @@
     "emptyState": {
       "title": "Add a Class!",
       "description": "After adding a class, you can use all actions to manage students.",
-      "step1": "Start with <strong>\"New Class\"</strong> and enter name, school year or notes.",
-      "step2": "After saving, you can add students.",
-      "createButton": "New Class",
+      "step1": "Give your class a name – you can add the school year and notes in the inspector afterwards.",
+      "step2": "Then you can add students.",
+      "createButton": "Create class",
       "hint": "You can create as many classes as you like and switch between them.",
       "importButton": "Import Backup",
       "importHint": "Restore previously backed up classes, students, and seating plans."
@@ -297,6 +297,8 @@
   "classPanel": {
     "name": "Name",
     "nameTaken": "A class already has this name.",
+    "newName": "Name of the new class",
+    "namePlaceholder": "e.g. Class 7b",
     "schoolYear": "School year",
     "schoolYearPlaceholder": "e.g. 2026/27",
     "notes": "Notes",

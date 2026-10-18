@@ -358,7 +358,7 @@ itself — "Neu einrichten" and "Vorlagen", as menu rows — rather than repeati
 seats and students the status bar already states. That is also why the room
 has no dialog over its canvas: rebuilding a room happens in the panel, and an
 empty room says so in words on the drawing. A name is asked for there too — a
-new room's, a template's — in a row that opens under the entry: Enter keeps
+new room's, a template's, and in the header's class menu a new class's — in a row that opens under the entry: Enter keeps
 it, Escape or leaving the row drops it, and a name that is taken is said under
 the field as it is typed; replacing the template that carries it is a row of
 its own, never what Enter does.

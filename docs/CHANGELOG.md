@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Improved
 
-- While no student is open, the inspector of the class layer shows the class itself: its name, school year and notes are changed right there – as in "Bibliothek" – and the class menu in the header renames a class in place. The dialog for editing a class is gone, and so is the message after every change
+- Classes no longer open a dialog: a new class is named right in the class menu of the header – or, the very first one, on the start card – and Enter creates and opens it. While no student is open, the inspector of the class layer shows the class itself, where its name, school year and notes are changed, as in "Bibliothek"; the class menu renames a class in place, and a change no longer brings a message
 - A room is saved as a template in the room's inspector instead of a dialog: the name – the room's own to begin with – is typed in place, and a name a template already carries offers to replace that template
 - Every inspector – criteria, room, export sheet and "Bibliothek" – is laid out like the student inspector: one row per setting with its icon and its explanation under the name, fewer and more logically ordered sections, a short scale for a criterion's importance, and menus instead of long lists for the recipe, a plan's room, and the room's rooms, templates and – once its tables stand – its setup
 - Searching the class list opens the student the search clearly means in the inspector while you type – the only one found, or the only one whose name or first name it is or starts with. Enter opens the first student found

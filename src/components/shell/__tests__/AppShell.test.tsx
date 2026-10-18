@@ -26,11 +26,11 @@ vi.mock('@/contexts/seatingPlan/ClassManagementContext', () => ({
 vi.mock('@/components/shell/Inspector', () => ({ default: () => null }));
 
 function Page() {
-  const { openCreate } = useClassDialogs();
+  const { requestDelete } = useClassDialogs();
   return (
     <AppShell header={null} statusBar={null}>
-      <button type="button" onClick={openCreate}>
-        Klasse hinzufügen
+      <button type="button" onClick={() => requestDelete('class-1')}>
+        Klasse löschen
       </button>
     </AppShell>
   );
@@ -45,7 +45,7 @@ describe('ShellProviders', () => {
     );
 
     await userEvent.click(
-      screen.getByRole('button', { name: 'Klasse hinzufügen' }),
+      screen.getByRole('button', { name: 'Klasse löschen' }),
     );
 
     expect(await screen.findByRole('dialog')).toBeInTheDocument();

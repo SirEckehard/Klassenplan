@@ -39,12 +39,12 @@ const STUDENTS = [
   'Edsger Dijkstra',
 ];
 
+// The first class is named on the card of the first screen.
 async function createClass(page: Page, name: string): Promise<void> {
-  await page.getByRole('button', { name: 'Neue Klasse' }).click();
-  const dialog = page.getByRole('dialog', { name: 'Neue Klasse erstellen' });
-  await dialog.getByRole('textbox', { name: /Klassenname/ }).fill(name);
-  await dialog.getByRole('button', { name: 'Klasse anlegen' }).click();
-  await expect(dialog).toBeHidden();
+  const field = page.getByRole('textbox', { name: 'Name der neuen Klasse' });
+  await field.fill(name);
+  await page.getByRole('button', { name: 'Klasse anlegen' }).click();
+  await expect(field).toBeHidden();
 }
 
 async function addStudents(page: Page, names: string[]): Promise<void> {

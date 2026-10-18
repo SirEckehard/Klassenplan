@@ -214,10 +214,11 @@ export interface SeatingPlanActions {
   acknowledgePostUpdateNotice: () => void;
   acknowledgeStudentUpdates: () => void;
   selectClass: (classId: string) => Promise<boolean>;
+  /** Resolves with the new class's id, or null when it was not made. */
   createClass: (
     payload: CreateClassPayload,
     options?: { activate?: boolean },
-  ) => Promise<boolean>;
+  ) => Promise<string | null>;
   updateClassMetadata: (
     classId: string,
     patch: UpdateClassMetadataPayload,

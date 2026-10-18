@@ -219,26 +219,12 @@
     "editButton": "Edit name",
     "editTitle": "Click or press Enter to edit"
   },
-  "classDialog": {
-    "createTitle": "Create New Class",
-    "editTitle": "Edit Class",
-    "createSubtitle": "Add a name and optionally the school year and other notes.",
-    "editSubtitle": "Adjust name, school year, or notes.",
-    "className": "Class Name",
-    "classNamePlaceholder": "e.g. Class 7B",
-    "schoolYear": "School Year",
-    "schoolYearPlaceholder": "e.g. 2026/27",
-    "notes": "Notes",
-    "notesPlaceholder": "Details, focus, etc.",
-    "createButton": "Create Class"
-  },
   "quickClass": {
     "invalidCount": "Please enter a number between 1 and {{max}}."
   },
   "common": {
     "save": "Save",
-    "cancel": "Cancel",
-    "optional": "optional"
+    "cancel": "Cancel"
   },
   "validation": {
     "missingNames_one": "Please add the missing name.",

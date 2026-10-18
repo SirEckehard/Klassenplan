@@ -136,7 +136,7 @@ interface MockSeatingGeneratorActions {
   createClass: (
     payload: CreateClassPayload,
     options?: { activate?: boolean },
-  ) => Promise<boolean>;
+  ) => Promise<string | null>;
   updateClassMetadata: (
     classId: string,
     patch: UpdateClassMetadataPayload,
@@ -332,7 +332,7 @@ const createDefaultMockActions = (): MockSeatingGeneratorActions => {
   toMock(actions.handleStepChange).mockImplementation(() => undefined);
   toMock(actions.acknowledgeStudentUpdates).mockImplementation(() => undefined);
   toMock(actions.selectClass).mockResolvedValue(true);
-  toMock(actions.createClass).mockResolvedValue(true);
+  toMock(actions.createClass).mockResolvedValue('class-new');
   toMock(actions.updateClassMetadata).mockResolvedValue(true);
   toMock(actions.deleteClass).mockResolvedValue(true);
   toMock(actions.addBulkPlaceholderStudents).mockImplementation(

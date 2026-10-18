@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import { useTranslation, Trans } from 'react-i18next';
+import React from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   PlusIcon,
   SparkleIcon,
@@ -10,7 +11,15 @@ import {
 } from '@phosphor-icons/react';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 import { useClassDialogs } from '@/contexts/ClassDialogsContext';
-import { cardSurfaceClass, primaryButtonClass } from '@/utils';
+import { useClassManagementContext } from '@/contexts/seatingPlan/ClassManagementContext';
+import {
+  cardSurfaceClass,
+  checkName,
+  inputFieldClass,
+  logError,
+  MAX_NAME_LENGTH,
+  primaryButtonClass,
+} from '@/utils';
 
 type Props = {
   onImportBackup?: () => void;
@@ -26,7 +35,8 @@ type Props = {
  * that fill one are greyed out until there is one.
  *
  * It states the two steps ahead and offers the three ways in — a class of
- * one's own first, then the sample class and a backup. The class switcher in
+ * one's own first, named right on the card, then the sample class and a
+ * backup. The class switcher in
  * the header offers the same "new class", but a beginner should not have to
  * find a dropdown to start.
  */
@@ -37,7 +47,27 @@ export default function ClassEmptyState({
   hasDemoClass = false,
 }: Props) {
   const { t } = useTranslation('generator');
-  const { openCreate } = useClassDialogs();
+  const { create, isBusy } = useClassDialogs();
+  const { classSummaries } = useClassManagementContext();
+  const [name, setName] = React.useState('');
+  const fieldId = React.useId();
+  const errorId = React.useId();
+  const problem = checkName(
+    name,
+    classSummaries.map((entry) => entry.name),
+    MAX_NAME_LENGTH,
+  );
+  const taken = problem === 'taken';
+
+  // The class is named here and made at once; its school year and notes
+  // wait in its inspector, where the class layer shows the class.
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (problem || isBusy) return;
+    create(name.trim()).catch((error: unknown) => {
+      logError('Failed to create a class', { error }, 'ClassEmptyState');
+    });
+  };
 
   return (
     <div
@@ -63,13 +93,7 @@ export default function ClassEmptyState({
                 <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-(--surface-option-selected) text-xs font-semibold text-(--text-badge)">
                   1
                 </span>
-                <span>
-                  <Trans
-                    i18nKey="classActions.emptyState.step1"
-                    ns="generator"
-                    components={{ strong: <strong /> }}
-                  />
-                </span>
+                <span>{t('classActions.emptyState.step1')}</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-(--surface-option-selected) text-xs font-semibold text-(--text-badge)">
@@ -81,14 +105,39 @@ export default function ClassEmptyState({
           </div>
         </div>
         <div className="flex w-full flex-col gap-2 rounded-xl bg-(--surface-sunken) p-4 text-sm sm:w-auto">
-          <button
-            type="button"
-            onClick={openCreate}
-            className={`${primaryButtonClass} justify-center gap-2`}
-          >
-            <PlusIcon className="h-4 w-4" aria-hidden="true" />
-            {t('classActions.emptyState.createButton')}
-          </button>
+          <form className="flex flex-col gap-2" onSubmit={handleSubmit}>
+            <label
+              htmlFor={fieldId}
+              className="text-xs font-medium text-(--text-muted)"
+            >
+              {t('classPanel.newName')}
+            </label>
+            <input
+              id={fieldId}
+              type="text"
+              value={name}
+              maxLength={MAX_NAME_LENGTH}
+              onChange={(event) => setName(event.target.value)}
+              placeholder={t('classPanel.namePlaceholder')}
+              aria-invalid={taken || undefined}
+              aria-describedby={taken ? errorId : undefined}
+              className={inputFieldClass}
+            />
+            {taken && (
+              <p id={errorId} className="text-xs text-(--status-alert-text)">
+                {t('classPanel.nameTaken')}
+              </p>
+            )}
+            <button
+              type="submit"
+              disabled={problem !== null || isBusy}
+              aria-busy={isBusy || undefined}
+              className={`${primaryButtonClass} justify-center gap-2`}
+            >
+              <PlusIcon className="h-4 w-4" aria-hidden="true" />
+              {t('classActions.emptyState.createButton')}
+            </button>
+          </form>
           <p className="text-center text-xs text-(--text-muted)">
             {t('classActions.emptyState.hint')}
           </p>

@@ -2,25 +2,29 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import ClassMetadataDialog, {
-  type ClassMetadataFormValues,
-} from '@/components/students/ClassMetadataDialog';
 import ConfirmDialog from '@/components/ui/modals/ConfirmDialog';
 import { useClassManagementContext } from '@/contexts/seatingPlan/ClassManagementContext';
 
 /**
- * Creating and deleting a class — the dialogs, in one place. A class is
- * renamed where it is read: in its inspector, in "Bibliothek" and in the
- * header's class menu.
+ * Creating and deleting a class, in one place.
  *
- * Two very different spots ask for them: the class menu in the header, which is
- * where a teacher with classes works, and the empty state of the class layer,
- * which is the first screen of all. Keeping one copy of the dialogs here means
- * the empty state can offer "create a class" without owning a second dialog
- * whose state could drift from the header's.
+ * A class is named before it is made, where it is asked for — a row of the
+ * header's class menu, the first screen's card, "Bibliothek" — and renamed
+ * where it is read. What those places share is here: the creation with its
+ * busy state, which keeps the header's button from switching classes while
+ * one is being written, and the question before a class goes, a dialog of
+ * its own.
  */
 type ClassDialogsContextValue = {
-  openCreate: () => void;
+  /**
+   * Makes a class of that name — opening it unless `activate` is false —
+   * and resolves with its id, or null when it was not made (the reason has
+   * been said).
+   */
+  create: (
+    name: string,
+    options?: { activate?: boolean },
+  ) => Promise<string | null>;
   requestDelete: (classId: string) => void;
   /** True while a class action is being written to the repository. */
   isBusy: boolean;
@@ -28,12 +32,6 @@ type ClassDialogsContextValue = {
 
 const ClassDialogsContext =
   React.createContext<ClassDialogsContextValue | null>(null);
-
-const defaultValues: ClassMetadataFormValues = {
-  name: '',
-  label: '',
-  notes: '',
-};
 
 export function ClassDialogsProvider({
   children,
@@ -44,11 +42,10 @@ export function ClassDialogsProvider({
   const { classSummaries, activeClass, createClass, deleteClass } =
     useClassManagementContext();
 
-  const [createOpen, setCreateOpen] = React.useState(false);
   const [deleteTarget, setDeleteTarget] = React.useState<string | null>(null);
   const [isBusy, setIsBusy] = React.useState(false);
 
-  const run = React.useCallback(async (handler: () => Promise<boolean>) => {
+  const run = React.useCallback(async <T,>(handler: () => Promise<T>) => {
     setIsBusy(true);
     try {
       return await handler();
@@ -57,13 +54,9 @@ export function ClassDialogsProvider({
     }
   }, []);
 
-  const openCreate = React.useCallback(() => setCreateOpen(true), []);
-
-  const handleSubmit = React.useCallback(
-    async (values: ClassMetadataFormValues) => {
-      const ok = await run(() => createClass(values, { activate: true }));
-      if (ok) setCreateOpen(false);
-    },
+  const create = React.useCallback(
+    (name: string, options?: { activate?: boolean }) =>
+      run(() => createClass({ name }, { activate: options?.activate ?? true })),
     [createClass, run],
   );
 
@@ -88,24 +81,16 @@ export function ClassDialogsProvider({
 
   const value = React.useMemo(
     () => ({
-      openCreate,
+      create,
       requestDelete: setDeleteTarget,
       isBusy,
     }),
-    [isBusy, openCreate],
+    [create, isBusy],
   );
 
   return (
     <ClassDialogsContext.Provider value={value}>
       {children}
-      <ClassMetadataDialog
-        open={createOpen}
-        mode="create"
-        initialValues={defaultValues}
-        isSubmitting={isBusy}
-        onClose={() => setCreateOpen(false)}
-        onSubmit={handleSubmit}
-      />
       <ConfirmDialog
         open={deleteTarget !== null}
         title={t('classActions.deleteDialog.title')}
@@ -131,7 +116,7 @@ export function useClassDialogs(): ClassDialogsContextValue {
 
 const noop = () => {};
 const FALLBACK: ClassDialogsContextValue = {
-  openCreate: noop,
+  create: () => Promise.resolve(null),
   requestDelete: noop,
   isBusy: false,
 };

@@ -124,7 +124,7 @@ export function useDemoClass() {
         if (!created) {
           discardPhotos(savedPhotoIds);
         }
-        return created;
+        return created !== null;
       } catch (error) {
         logError('Failed to load the sample class', { error }, LOG_SOURCE);
         showToast('error', TOAST_MESSAGES.CLASS_CREATE_ERROR);

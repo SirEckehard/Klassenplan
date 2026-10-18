@@ -15,7 +15,7 @@ import { getButton } from '@/__tests__/utils';
 
 const mocks = vi.hoisted(() => ({
   selectClass: vi.fn(),
-  openCreate: vi.fn(),
+  create: vi.fn(() => Promise.resolve('class-new' as string | null)),
   updateClassMetadata: vi.fn(() => Promise.resolve(true)),
   requestDelete: vi.fn(),
   activeClassId: 'class-1' as string | null,
@@ -35,7 +35,7 @@ vi.mock('@/contexts/seatingPlan/ClassManagementContext', () => ({
 
 vi.mock('@/contexts/ClassDialogsContext', () => ({
   useClassDialogs: () => ({
-    openCreate: mocks.openCreate,
+    create: mocks.create,
     requestDelete: mocks.requestDelete,
     isBusy: false,
   }),
@@ -135,7 +135,56 @@ describe('HeaderClassMenu', () => {
       await screen.findByRole('button', { name: /Neue Klasse|New class/i }),
     );
 
-    expect(mocks.openCreate).toHaveBeenCalledTimes(1);
+    expect(
+      screen.getByRole('textbox', {
+        name: /Name der neuen Klasse|Name of the new class/i,
+      }),
+    ).toBeInTheDocument();
+  });
+
+  // Named in the menu before it is made, as a new room is.
+  it('makes a new class from its name in the menu and closes it', async () => {
+    render(<HeaderClassMenu />);
+    openMenu();
+    fireEvent.click(
+      await screen.findByRole('button', { name: /Neue Klasse|New class/i }),
+    );
+    const field = screen.getByRole('textbox', {
+      name: /Name der neuen Klasse|Name of the new class/i,
+    });
+
+    fireEvent.keyDown(field, { key: 'Enter' });
+    expect(mocks.create).not.toHaveBeenCalled();
+
+    fireEvent.change(field, { target: { value: 'Testklasse' } });
+    fireEvent.keyDown(field, { key: 'Enter' });
+    expect(field).toHaveAttribute('aria-invalid', 'true');
+    expect(mocks.create).not.toHaveBeenCalled();
+
+    fireEvent.change(field, { target: { value: '9a' } });
+    fireEvent.keyDown(field, { key: 'Enter' });
+    expect(mocks.create).toHaveBeenCalledWith('9a');
+    await waitFor(() =>
+      expect(
+        screen.queryByRole('dialog', { name: /Klasse wechseln|Switch class/i }),
+      ).not.toBeInTheDocument(),
+    );
+  });
+
+  it('drops the new class when its name field is left', async () => {
+    render(<HeaderClassMenu />);
+    openMenu();
+    fireEvent.click(
+      await screen.findByRole('button', { name: /Neue Klasse|New class/i }),
+    );
+    const field = screen.getByRole('textbox', {
+      name: /Name der neuen Klasse|Name of the new class/i,
+    });
+    fireEvent.change(field, { target: { value: '9a' } });
+    fireEvent.blur(field);
+
+    expect(field).not.toBeInTheDocument();
+    expect(mocks.create).not.toHaveBeenCalled();
   });
 
   // The list is portalled to the end of the page; the keyboard used to tab

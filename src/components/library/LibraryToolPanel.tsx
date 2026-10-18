@@ -11,8 +11,9 @@ import {
 
 /**
  * The toolbar of "Bibliothek", in the shape every layer's has: what can
- * be added — a class, a room of the class that is chosen — above the foot
- * every rail shares. Plans are made where they are mixed, on the plan layer.
+ * be added — a class, a room of the class that is chosen, each under a free
+ * name that the inspector then offers to type over — above the foot every
+ * rail shares. Plans are made where they are mixed, on the plan layer.
  */
 export default function LibraryToolPanel({
   density,
@@ -32,7 +33,6 @@ export default function LibraryToolPanel({
         <ToolRailButton
           icon={<GraduationCapIcon size={18} />}
           label={t('common.newClassName')}
-          opensDialog
           onClick={onNewClass}
         />
         <ToolRailButton

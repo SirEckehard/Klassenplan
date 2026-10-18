@@ -29,8 +29,8 @@ const mocks = vi.hoisted(() => ({
   library: {} as Record<string, LibraryClass | null>,
   edit: vi.fn(),
   selectClass: vi.fn(),
-  openCreate: vi.fn(),
-  openEdit: vi.fn(),
+  create: vi.fn(),
+  updateClassMetadata: vi.fn(),
   requestDelete: vi.fn(),
   confirmDialog: vi.fn(),
 }));
@@ -40,14 +40,16 @@ vi.mock('@/contexts/SeatingPlanContext', () => ({
   useSeatingPlanActions: () => mocks.actions,
 }));
 vi.mock('@/contexts/seatingPlan/ClassManagementContext', () => ({
-  useClassManagementContext: () => ({ selectClass: mocks.selectClass }),
+  useClassManagementContext: () => ({
+    selectClass: mocks.selectClass,
+    updateClassMetadata: mocks.updateClassMetadata,
+  }),
 }));
 vi.mock('@/contexts/ClassDialogsContext', () => ({
   ClassDialogsProvider: ({ children }: { children: React.ReactNode }) =>
     children,
   useClassDialogs: () => ({
-    openCreate: mocks.openCreate,
-    openEdit: mocks.openEdit,
+    create: mocks.create,
     requestDelete: mocks.requestDelete,
     isBusy: false,
   }),
@@ -331,6 +333,25 @@ describe('PlanLibrary', () => {
         kind: 'createRoom',
         name: expect.stringMatching(/Neuer Raum|New room/),
       }),
+    );
+  });
+
+  // As a room is added: under a free name, without opening it.
+  it('adds a class from the toolbar without opening it', async () => {
+    const user = userEvent.setup();
+    mocks.create.mockResolvedValue(null);
+    renderPage();
+
+    await screen.findByRole('option', { name: /^Oktober/ });
+    await user.click(
+      screen.getByRole('button', { name: /^(Neue Klasse|New class)$/ }),
+    );
+
+    await waitFor(() =>
+      expect(mocks.create).toHaveBeenCalledWith(
+        expect.stringMatching(/Neue Klasse|New class/),
+        { activate: false },
+      ),
     );
   });
 

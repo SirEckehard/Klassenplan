@@ -279,9 +279,9 @@
     "emptyState": {
       "title": "Füge eine Klasse hinzu!",
       "description": "Nachdem du eine Klasse hinzugefügt hast, stehen dir alle weiteren Aktionen zum Verwalten von Schülern zur Verfügung.",
-      "step1": "Starte mit <strong>„Neue Klasse\"</strong> und gib Name, Schuljahr oder Notizen ein.",
-      "step2": "Nach dem Speichern kannst du Schüler hinzufügen.",
-      "createButton": "Neue Klasse",
+      "step1": "Gib deiner Klasse einen Namen – Schuljahr und Notizen ergänzt du danach im Inspektor.",
+      "step2": "Danach kannst du Schüler hinzufügen.",
+      "createButton": "Klasse anlegen",
       "hint": "Du kannst später beliebig viele Klassen anlegen und zwischen ihnen wechseln.",
       "importButton": "Backup importieren",
       "importHint": "Stelle zuvor gesicherte Klassen, Schüler und Sitzpläne wieder her."
@@ -297,6 +297,8 @@
   "classPanel": {
     "name": "Name",
     "nameTaken": "Eine Klasse heißt schon so.",
+    "newName": "Name der neuen Klasse",
+    "namePlaceholder": "z. B. Klasse 7b",
     "schoolYear": "Schuljahr",
     "schoolYearPlaceholder": "z. B. 2026/27",
     "notes": "Notizen",

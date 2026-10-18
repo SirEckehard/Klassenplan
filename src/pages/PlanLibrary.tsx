@@ -112,7 +112,7 @@ function PlanLibraryPage() {
   const state = useSeatingPlanState();
   const actions = useSeatingPlanActions();
   const { selectClass, updateClassMetadata } = useClassManagementContext();
-  const { openCreate, requestDelete } = useClassDialogs();
+  const { create, requestDelete } = useClassDialogs();
   const { setDrawerOpen, setFolded } = useInspector();
   const layoutMode = useLayoutMode();
   const isDesktop = layoutMode === 'desktop';
@@ -491,6 +491,23 @@ function PlanLibraryPage() {
     return null;
   };
 
+  // As a room is added: under a free name, without opening it, chosen in
+  // the columns with its name ready to be typed over.
+  const addClass = async () => {
+    const classId = await create(
+      uniqueName(
+        t('common.newClassName'),
+        library.classes.map((entry) => entry.name),
+        MAX_NAME_LENGTH,
+      ),
+      { activate: false },
+    );
+    if (!classId) return;
+    setChosenPath([libraryKey({ kind: 'class', classId })]);
+    showInspector();
+    setRenameRequest((count) => count + 1);
+  };
+
   const addRoom = async () => {
     if (!classLibrary) return;
     const outcome = await edit(classLibrary.id, {
@@ -815,7 +832,7 @@ function PlanLibraryPage() {
           {({ isExpanded }) => (
             <LibraryToolPanel
               density={isExpanded ? 'comfortable' : 'compact'}
-              onNewClass={openCreate}
+              onNewClass={() => void addClass()}
               onNewRoom={classLibrary ? () => void addRoom() : undefined}
             />
           )}

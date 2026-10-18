@@ -188,11 +188,12 @@ test('the sample class exists only once — asking again switches to it', async 
 
   await test.step('a class of the teacher’s own becomes active', async () => {
     await activeClassButton(page, 'Beispielklasse').click();
+    // Named in the menu before it is made; Enter makes and opens it.
     await page.getByRole('button', { name: 'Neue Klasse' }).click();
-    const dialog = page.getByRole('dialog', { name: 'Neue Klasse erstellen' });
-    await dialog.getByRole('textbox', { name: /Klassenname/ }).fill('7b');
-    await dialog.getByRole('button', { name: 'Klasse anlegen' }).click();
-    await expect(dialog).toBeHidden();
+    const field = page.getByRole('textbox', { name: 'Name der neuen Klasse' });
+    await field.fill('7b');
+    await field.press('Enter');
+    await expect(field).toBeHidden();
     await expect(activeClassButton(page, '7b')).toBeVisible();
   });
 
