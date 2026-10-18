@@ -29,17 +29,17 @@ it for Antigravity — edit this file, never those two.
 - Docs consistency: `npm run check:docs` (relative links, heading anchors and `src/…`-style paths in Markdown resolve; `docs/CHANGELOG.md` is skipped)
 - Algorithm runtime: `npm run bench` (by hand, not in CI; figures in `docs/PERFORMANCE.md`)
 
-**Current Code Quality Status (2026-10-12):**
+**Current Code Quality Status (2026-10-18):**
 
 - ✅ ESLint: 0 errors, 0 warnings
 - ✅ TypeScript: 0 compilation errors (strict mode)
-- ✅ Tests: 3152 unit tests (320 test files) + 14 Playwright tests (3 smoke + 2 core flow + 1 rooms + 4 onboarding + 2 tablet + 1 phone + 1 whiteboard), 100% passing
-- 📊 Coverage: 76.0 % lines / 75.2 % statements / 66.3 % branches (`npm run test:coverage`, v8 provider, no thresholds enforced)
+- ✅ Tests: 3186 unit tests (320 test files), 100% passing + 14 Playwright tests (3 smoke + 2 core flow + 1 rooms + 4 onboarding + 2 tablet + 1 phone + 1 whiteboard); their steps that create a class changed on 2026-10-18 (no dialog any more) and have not been run since
+- 📊 Coverage: 81.0 % lines / 80.0 % statements / 71.8 % branches (`npm run test:coverage`, v8 provider, no thresholds enforced)
 - ⚠️ Unused Exports: 52 modules ignoring type-only exports, held by a ratchet (`npm run check:unused`); the remainder are re-export barrels, `lazyWithRetry` default exports and shared test helpers
 - ✅ Test Infrastructure: Centralized accessibility helpers and toast matchers for robust testing
 - ✅ Architecture: Repository Pattern implemented, UI components reorganized into logical subdirectories
-- ✅ i18n: Bilingual support (German/English) fully implemented, DE/EN key parity 1:1 (2239 keys per language, none unused)
-- 📦 Bundle: initial payload 206 KB brotli / 780 KB raw over 26 files (the browser check included), largest chunk 61 KB brotli, CSS 14 KB brotli
+- ✅ i18n: Bilingual support (German/English) fully implemented, DE/EN key parity 1:1 (2247 keys per language, none unused)
+- 📦 Bundle: initial payload 195 KB brotli / 725 KB raw over 25 files (the browser check included), largest chunk 59 KB brotli, CSS 14 KB brotli
 
 ## Logging
 

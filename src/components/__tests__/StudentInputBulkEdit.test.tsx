@@ -899,3 +899,58 @@ describe('StudentInput search opening a student', () => {
     }
   });
 });
+
+// While no student is open, the class layer's inspector is the class itself,
+// as the room's is the room while nothing is selected.
+describe('StudentInput showing the class in the inspector', () => {
+  /**
+   * Stands in for the shell's inspector: its slot, and the two ways a student
+   * is opened and put away.
+   */
+  const Shell = () => {
+    const { setSlotNode, selectStudent, clear } = useInspector();
+    return (
+      <>
+        <div ref={setSlotNode} data-testid="inspector-slot" />
+        <button type="button" onClick={() => selectStudent('1')}>
+          open Anna
+        </button>
+        <button type="button" onClick={clear}>
+          put away
+        </button>
+      </>
+    );
+  };
+  const slot = () => screen.getByTestId('inspector-slot');
+
+  it('hands the slot to an opened student and takes it back after', async () => {
+    render(
+      <MemoryRouter>
+        <SeatingPlanGeneratorProvider>
+          <ClassManagementContext.Provider value={classContext()}>
+            <InspectorProvider>
+              <StudentInput
+                {...createMockStudentInputProps({ students: makeStudents() })}
+              />
+              <Shell />
+            </InspectorProvider>
+          </ClassManagementContext.Provider>
+        </SeatingPlanGeneratorProvider>
+      </MemoryRouter>,
+    );
+    const user = userEvent.setup();
+    const className = () =>
+      within(slot()).queryByRole('heading', { name: '5a' });
+
+    expect(className()).toBeInTheDocument();
+    expect(within(slot()).getByRole('textbox', { name: /^Name$/ })).toHaveValue(
+      '5a',
+    );
+
+    await user.click(screen.getByRole('button', { name: 'open Anna' }));
+    expect(className()).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'put away' }));
+    expect(className()).toBeInTheDocument();
+  });
+});
