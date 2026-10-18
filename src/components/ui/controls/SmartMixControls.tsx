@@ -303,11 +303,11 @@ function CriterionRow({
 
 /**
  * The mixing criteria as the inspector shows them — on a phone and a tablet in
- * its drawer: the recipe, then every criterion as a row with its scale under
- * the family it acts on, headed as in the student inspector, and, once the plan
- * has been mixed, how far it got. The switch for all criteria and their count
- * live apart, in the inspector's heading (`MixCriteriaSwitch`,
- * `MixCriteriaCount`).
+ * its drawer: every criterion as a row with its scale under the family it acts
+ * on, headed as in the student inspector, and, once the plan has been mixed,
+ * how far it got. The switch for all criteria and their count live apart, in
+ * the inspector's heading (`MixCriteriaSwitch`, `MixCriteriaCount`), and the
+ * recipe right under it (`MixRecipeSection`), above the plan's fulfilment.
  */
 function SmartMixControls({
   settings,
@@ -321,14 +321,12 @@ function SmartMixControls({
   activeHighlightKey = null,
   activeHighlightMode = null,
 }: SmartMixControlsProps) {
-  const { t } = useTranslation('generator');
   const mix = useMixCriteria({
     settings,
     setMixSettings,
     students,
     suspendedWeights,
   });
-  const recipes = useMixRecipes({ settings, setMixSettings, students });
 
   // The statistics carry only the criteria the mix scored, in the order of the
   // categories above — a lookup keeps the two lists from having to line up.
@@ -344,27 +342,6 @@ function SmartMixControls({
 
   return (
     <>
-      {/* The inspector's heading already names the panel and carries the
-          switch for all criteria (`MixCriteriaSwitch`); what is left up here
-          is what the plan is for and the one thing that switch cannot say by
-          itself. */}
-      <div className="flex flex-col gap-2 pb-3">
-        <MixRecipePanel activeId={recipes.activeId} onSelect={recipes.apply} />
-        {mix.isRandom && (
-          <div
-            role="status"
-            className="flex items-center gap-2 rounded-md border border-(--border-card) bg-(--surface-sunken) px-2.5 py-1.5 text-xs font-medium text-(--text-page)"
-          >
-            <WarningIcon
-              size={16}
-              aria-hidden="true"
-              className="shrink-0 text-(--status-warn)"
-            />
-            {t('mix.randomWarning')}
-          </div>
-        )}
-      </div>
-
       {mix.categories.map((category) => (
         <InspectorSection
           key={category.id}
@@ -390,6 +367,51 @@ function SmartMixControls({
         </InspectorSection>
       ))}
     </>
+  );
+}
+
+/**
+ * What the plan is being mixed for — the recipe, under a heading of its own,
+ * right below the inspector's heading and the count of active criteria, since
+ * it sets all of them at once — and the one thing the switch for all criteria
+ * cannot say by itself: that nothing is weighed. It reads the weights itself,
+ * as `MixCriteriaSwitch` does.
+ */
+export function MixRecipeSection({
+  settings,
+  setMixSettings,
+  students,
+  suspendedWeights,
+}: Pick<
+  SmartMixControlsProps,
+  'settings' | 'setMixSettings' | 'students' | 'suspendedWeights'
+>) {
+  const { t } = useTranslation('generator');
+  const mix = useMixCriteria({
+    settings,
+    setMixSettings,
+    students,
+    suspendedWeights,
+  });
+  const recipes = useMixRecipes({ settings, setMixSettings, students });
+
+  return (
+    <InspectorSection title={t('mix.recipes.title')}>
+      <MixRecipePanel activeId={recipes.activeId} onSelect={recipes.apply} />
+      {mix.isRandom && (
+        <div
+          role="status"
+          className="flex items-center gap-2 rounded-md border border-(--border-card) bg-(--surface-sunken) px-2.5 py-1.5 text-xs font-medium text-(--text-page)"
+        >
+          <WarningIcon
+            size={16}
+            aria-hidden="true"
+            className="shrink-0 text-(--status-warn)"
+          />
+          {t('mix.randomWarning')}
+        </div>
+      )}
+    </InspectorSection>
   );
 }
 

@@ -99,5 +99,7 @@ gone: every step carries its level and what it means as a tooltip, and its
 accessible name is "Unruhe: Wichtig" as before, so a screen reader and speech
 input hear the four words. The explanation stays visible under the name. The
 recipe opens as a menu instead of folding out above the criteria, and the
-count of active criteria moved under the inspector's heading. Weights, bands
-and recipes are unchanged.
+count of active criteria moved under the inspector's heading. The recipe
+stands right under that heading, as a section of its own ("Rezept"), since it
+sets every criterion at once; the plan's fulfilment follows it, above the
+criteria it sums up. Weights, bands and recipes are unchanged.

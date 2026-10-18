@@ -14,6 +14,7 @@ import SmartSidebar from '@/components/ui/panels/SmartSidebar';
 import SmartMixControls, {
   MixCriteriaCount,
   MixCriteriaSwitch,
+  MixRecipeSection,
 } from '@/components/ui/controls/SmartMixControls';
 import ToggleSwitch from '@/components/ui/controls/ToggleSwitch';
 import PlanToolPanel from '@/components/SeatingPlanGenerator/views/PlanToolPanel';
@@ -853,10 +854,22 @@ export default function SeatingPlanEditorView({
             }
           />
           <InspectorBody>
+            {/* The recipe first: it sets every criterion below at once. */}
+            <MixRecipeSection
+              settings={settings}
+              setMixSettings={setMixSettings}
+              students={students}
+              suspendedWeights={suspendedWeights}
+            />
             {/* How well the plan meets the criteria, above the criteria it is
-              about; the button shows or hides the value beside each one. */}
+              about; the switch shows or hides the value beside each one.
+              Between hairlines, as a section without a heading: its row
+              names it. */}
             {hasStatistics && (onOpenStatistics || onCloseStatistics) && (
-              <div data-tour={TOUR_ANCHORS.planFulfillment}>
+              <div
+                data-tour={TOUR_ANCHORS.planFulfillment}
+                className="border-t border-(--border-card) py-3"
+              >
                 {/* A row of the panel like every other: the whole row is the
                     switch's label. Named by what it shows — "Erfüllung 85 %" —
                     so speech input finds it by its words. */}

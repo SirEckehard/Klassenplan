@@ -8,6 +8,7 @@ import '@/i18n/i18n';
 import SmartMixControls, {
   MixCriteriaCount,
   MixCriteriaSwitch,
+  MixRecipeSection,
 } from '../SmartMixControls';
 import { createSuspendedWeights } from '@/hooks/ui/useMixCriteria';
 import { useAutoMixSettings } from '@/hooks/domains/useAutoMixSettings';
@@ -101,6 +102,8 @@ function Harness({
       <span data-testid="criteria-count">
         <MixCriteriaCount {...controls} />
       </span>
+      {/* And the recipe right under that heading. */}
+      <MixRecipeSection {...controls} />
       <SmartMixControls {...controls} />
       {SCALAR_MIX_SETTING_KEYS.map((key) => (
         <span key={key} hidden data-testid={key}>
@@ -138,13 +141,15 @@ describe('SmartMixControls — comfortable density', () => {
   it('shows the criteria in their categories, each with its explanation', () => {
     render(<Harness initial={DEFAULT_MIX_WEIGHTS} />);
 
-    // Repetition first, then the class list's families in its order;
-    // language drops out because nobody in the harness has a language level.
+    // The recipe under its own heading, then repetition, then the class
+    // list's families in its order; language drops out because nobody in
+    // the harness has a language level.
     const headings = screen
       .getAllByRole('heading', { level: 3 })
       .map((heading) => heading.textContent);
-    expect(headings).toHaveLength(6);
+    expect(headings).toHaveLength(7);
     [
+      /^(Rezept|Recipe)$/,
       /^(Verlauf|History)$/,
       /^(Person)$/,
       /^(Lernen|Learning)$/,
