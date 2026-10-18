@@ -6,7 +6,6 @@ import CanvasInteractionLayer, {
   type CanvasInteractionHandlers,
 } from '@/components/SeatingPlanGenerator/canvas/CanvasInteractionLayer';
 import SeatingPlanEditorView from '@/components/SeatingPlanGenerator/SeatingPlanEditorView';
-import SaveTemplateModal from '@/components/ui/modals/SaveTemplateModal';
 
 type LayoutEditorSectionProps = {
   canvasProps: Omit<CanvasInteractionLayerProps, 'children'>;
@@ -19,29 +18,25 @@ type SeatingPlanViewContentProps = {
   seatingEditorProps?: React.ComponentProps<
     typeof SeatingPlanEditorView
   > | null;
-  saveTemplateModalProps: React.ComponentProps<typeof SaveTemplateModal>;
 };
 
 const SeatingPlanViewContent = React.memo(function SeatingPlanViewContent({
   step,
   layoutEditorSection = null,
   seatingEditorProps = null,
-  saveTemplateModalProps,
 }: SeatingPlanViewContentProps) {
   const shouldShowLayoutEditor = step === 2 && layoutEditorSection;
 
-  return (
-    <>
-      {shouldShowLayoutEditor && layoutEditorSection ? (
-        <CanvasInteractionLayer {...layoutEditorSection.canvasProps}>
-          {(handlers) => layoutEditorSection.renderLayoutEditor(handlers)}
-        </CanvasInteractionLayer>
-      ) : seatingEditorProps ? (
-        <SeatingPlanEditorView {...seatingEditorProps} />
-      ) : null}
-      <SaveTemplateModal {...saveTemplateModalProps} />
-    </>
-  );
+  if (shouldShowLayoutEditor && layoutEditorSection) {
+    return (
+      <CanvasInteractionLayer {...layoutEditorSection.canvasProps}>
+        {(handlers) => layoutEditorSection.renderLayoutEditor(handlers)}
+      </CanvasInteractionLayer>
+    );
+  }
+  return seatingEditorProps ? (
+    <SeatingPlanEditorView {...seatingEditorProps} />
+  ) : null;
 });
 
 export type { LayoutEditorSectionProps };

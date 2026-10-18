@@ -441,8 +441,6 @@
     "resize": "Adjust size",
     "resizeWidth": "Adjust width",
     "resizeHeight": "Adjust height",
-    "overwriteTemplateMessage": "The current template has been modified. Do you want to overwrite it?",
-    "overwrite": "Overwrite",
     "dragDropHint": "Click or drag into the room"
   },
   "export": {
@@ -559,17 +557,7 @@
     "seatsMissing_other": "{{count}} seats are still missing for {{students}} students."
   },
   "template": {
-    "saveTitle": "Save Classroom Template",
-    "tables": "Tables",
-    "seats": "Seats",
-    "nameLabel": "Template Name",
-    "namePlaceholder": "e.g. Classroom 1a",
-    "nameAriaLabel": "Enter template name",
-    "duplicateWarning": "A template with this name already exists.",
-    "overwriteLabel": "Or overwrite existing template",
-    "noSelection": "-- No selection (new template) --",
-    "overwrite": "Overwrite",
-    "overwriteSelect": "Select a template to overwrite"
+    "duplicateWarning": "A template with this name already exists."
   },
   "circle": {
     "date": "Date"
@@ -981,6 +969,7 @@
     "templatesHint": "Save this room as a template to use it for other classes as well.",
     "saveAsTemplate": "Save this room as a template",
     "templateName": "Template name",
+    "replaceTemplate": "Replace template “{{name}}”",
     "deleteTemplateTitle": "Delete template",
     "deleteTemplateMessage": "Do you really want to delete the template “{{name}}”? This cannot be undone.",
     "rooms": "Rooms",

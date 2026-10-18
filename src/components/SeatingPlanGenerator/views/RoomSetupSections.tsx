@@ -2,7 +2,11 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { FloppyDiskIcon, PlusIcon } from '@phosphor-icons/react';
+import {
+  ArrowsClockwiseIcon,
+  FloppyDiskIcon,
+  PlusIcon,
+} from '@phosphor-icons/react';
 import type { ClassroomTemplate, TableTemplateType } from '@/types';
 import {
   InspectorActionRow,
@@ -227,10 +231,111 @@ function TemplateRenameRow({
 }
 
 /**
- * Rooms kept for other classes: this one saved as a template, and the kept
- * ones in a menu shaped as the header's class menu — a click opens one as a
- * room of its own, the pencil renames it here in the panel, the bin removes
- * it after asking.
+ * Naming this room as a template, in its own row: Enter keeps it as a new
+ * one. A name a template already carries is not saved over by Enter — the
+ * row says so and offers the replacement as a step of its own. Escape, or
+ * leaving the row, drops it.
+ */
+function TemplateSaveRow({
+  initialName,
+  templates,
+  onSave,
+  onDone,
+}: {
+  initialName: string;
+  templates: ClassroomTemplate[];
+  onSave: (name: string, overwriteId?: number) => Promise<boolean>;
+  onDone: () => void;
+}) {
+  const { t } = useTranslation('generator');
+  const [draft, setDraft] = React.useState(initialName);
+  const rowRef = React.useRef<HTMLDivElement | null>(null);
+  // Enter and the replacement can both ask while the save is on its way.
+  const savingRef = React.useRef(false);
+  const hintId = React.useId();
+  const trimmed = draft.trim();
+  // The same rule the template service applies to a new name.
+  const existing = templates.find((template) => template.name === trimmed);
+
+  const save = async (overwriteId?: number) => {
+    if (savingRef.current || trimmed === '') return;
+    savingRef.current = true;
+    try {
+      if (await onSave(trimmed, overwriteId)) onDone();
+    } finally {
+      savingRef.current = false;
+    }
+  };
+
+  return (
+    <div
+      ref={rowRef}
+      className="flex flex-col gap-1 px-3 py-1"
+      onBlur={(event) => {
+        // Leaving the row drops it; moving to its replacement does not.
+        if (!rowRef.current?.contains(event.relatedTarget as Node | null)) {
+          onDone();
+        }
+      }}
+    >
+      <input
+        type="text"
+        value={draft}
+        maxLength={MAX_NAME_LENGTH}
+        autoFocus
+        onFocus={(event) => event.currentTarget.select()}
+        onChange={(event) => setDraft(event.target.value)}
+        onKeyDown={(event) => {
+          if (event.key === 'Enter') {
+            event.preventDefault();
+            if (!existing) void save();
+          } else if (event.key === 'Escape') {
+            // Only "not this name" — the canvas would take Escape as
+            // clearing its selection.
+            event.preventDefault();
+            event.stopPropagation();
+            onDone();
+          }
+        }}
+        aria-label={t('sceneInspector.templateName')}
+        aria-describedby={existing ? hintId : undefined}
+        className={`${inputFieldClass} h-8 w-full py-0 text-sm`}
+      />
+      {existing && (
+        <>
+          <p id={hintId} className="text-xs text-(--text-muted)">
+            {t('template.duplicateWarning')}
+          </p>
+          <button
+            type="button"
+            // Keeps the focus in the field, so a tap — which does not focus
+            // a button in Safari — does not drop the row before it lands.
+            onMouseDown={(event) => event.preventDefault()}
+            onClick={() => {
+              void save(existing.id);
+            }}
+            className={`${menuItemClass} pointer-coarse:min-h-11`}
+          >
+            <ArrowsClockwiseIcon
+              size={16}
+              aria-hidden="true"
+              className="shrink-0 text-(--text-muted)"
+            />
+            <span className="min-w-0 flex-1 truncate">
+              {t('sceneInspector.replaceTemplate', { name: existing.name })}
+            </span>
+          </button>
+        </>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Rooms kept for other classes: this one saved as a template — named in the
+ * panel, after the room — and the kept ones in a menu shaped as the header's
+ * class menu — a click opens one as a room of its own, the pencil renames it
+ * here in the panel, the bin removes it after asking.
  */
 export function RoomTemplatesSection({
   templates,
@@ -240,8 +345,11 @@ export function RoomTemplatesSection({
   onDelete,
 }: {
   templates: ClassroomTemplate[];
-  /** Opens the dialog that names this room as a new template or an old one. */
-  onSave: () => void;
+  /**
+   * Keeps this room as a new template, or over the one `overwriteId` names;
+   * resolves with whether it was kept.
+   */
+  onSave: (name: string, overwriteId?: number) => Promise<boolean>;
   onLoad: (id: number) => void;
   onRename: (
     id: number,
@@ -250,8 +358,15 @@ export function RoomTemplatesSection({
   onDelete: (id: number) => void;
 }) {
   const { t } = useTranslation('generator');
+  const state = useOptionalSeatingPlanState();
   const [renamingId, setRenamingId] = React.useState<number | null>(null);
+  const [saving, setSaving] = React.useState(false);
   const renaming = templates.find((template) => template.id === renamingId);
+  // A room opened from a template carries its name, so saving it again
+  // offers to replace that template.
+  const roomName =
+    state?.rooms.find((room) => room.id === state.activeRoomId)?.name ??
+    t('sceneInspector.room');
 
   // Deleting a template is not part of the room's undo history, so it asks.
   const requestDelete = async (template: ClassroomTemplate) => {
@@ -275,8 +390,22 @@ export function RoomTemplatesSection({
       <InspectorActionRow
         icon={FloppyDiskIcon}
         label={t('sceneInspector.saveAsTemplate')}
-        onClick={onSave}
+        expanded={saving}
+        onClick={() => {
+          setRenamingId(null);
+          setSaving((previous) => !previous);
+        }}
       />
+      {saving && (
+        <div className="-mx-3">
+          <TemplateSaveRow
+            initialName={roomName}
+            templates={templates}
+            onSave={onSave}
+            onDone={() => setSaving(false)}
+          />
+        </div>
+      )}
       {templates.length > 0 && (
         <InspectorMenuButton
           label={t('sceneInspector.openTemplate')}
@@ -297,7 +426,10 @@ export function RoomTemplatesSection({
                 label: t('sceneInspector.renameTemplateNamed', {
                   name: template.name,
                 }),
-                onSelect: () => setRenamingId(template.id),
+                onSelect: () => {
+                  setSaving(false);
+                  setRenamingId(template.id);
+                },
               },
               remove: {
                 label: t('sceneInspector.deleteTemplateNamed', {

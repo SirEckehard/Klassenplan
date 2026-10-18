@@ -16,13 +16,11 @@ import {
 import useTableSelection from '@/hooks/useTableSelection';
 import useFeatureSelection from '@/hooks/useFeatureSelection';
 import useTableInteraction from '@/hooks/useTableInteraction';
-import { countSeats } from '@/utils/math/scene';
 import useTemplateManager from '@/hooks/template/useTemplateManager';
 import { useSeatingMixHandler } from '@/hooks/useSeatingMixHandler';
 import { useClassroomSetup } from '@/hooks/classroom/useClassroomSetup';
 import LayoutEditorView from '@/components/SeatingPlanGenerator/LayoutEditorView';
 import SeatingPlanEditorView from '@/components/SeatingPlanGenerator/SeatingPlanEditorView';
-import SaveTemplateModal from '@/components/ui/modals/SaveTemplateModal';
 import { useCanvasPreferences } from '@/contexts/seatingPlan/CanvasPreferencesContext';
 import { useOptionalSeatingPlanActions } from '@/contexts/SeatingPlanContext';
 import { useSceneHistory } from '@/hooks/scene/useSceneHistory';
@@ -102,7 +100,6 @@ export function useSeatingPlanViewLogic({
     updateClassroomScene,
     setCurrentSeating: setCurrentSeatingDispatch,
   });
-  const seatCount = countSeats(sceneTables);
 
   const {
     selectedTables: selectedTableIds,
@@ -204,10 +201,7 @@ export function useSeatingPlanViewLogic({
     handleSaveTemplate,
     handleDeleteTemplate,
     handleRenameTemplate,
-    isSaveModalOpen,
-    openSaveModal,
-    closeSaveModal,
-  } = useTemplateManager(classroomScene, updateClassroomScene);
+  } = useTemplateManager(classroomScene);
 
   // Builds the room from one kind of table or from a template
   const { handleTemplateChange, handleTypeChange } = useClassroomSetup({
@@ -444,7 +438,7 @@ export function useSeatingPlanViewLogic({
         historyLength={history.length}
         students={students}
         templates={templates}
-        handleSaveTemplate={openSaveModal}
+        handleSaveTemplate={handleSaveTemplate}
         handleDeleteTemplate={handleDeleteTemplate}
         handleRenameTemplate={handleRenameTemplate}
         canvasWidth={canvasWidth}
@@ -549,22 +543,8 @@ export function useSeatingPlanViewLogic({
         } satisfies React.ComponentProps<typeof SeatingPlanEditorView>)
       : null;
 
-  const saveTemplateModalProps: React.ComponentProps<typeof SaveTemplateModal> =
-    {
-      open: isSaveModalOpen,
-      onClose: closeSaveModal,
-      onSave: (name, overwriteId) => {
-        handleSaveTemplate(name, overwriteId);
-        closeSaveModal();
-      },
-      existingTemplates: templates,
-      tableCount: sceneTables.length,
-      seatCount,
-    };
-
   return {
     layoutEditorSection,
     seatingEditorProps,
-    saveTemplateModalProps,
   };
 }

@@ -87,8 +87,11 @@ type Props = {
     name: string,
   ) => Promise<{ success: boolean; error?: string }>;
   onDeleteTemplate: (id: number) => void;
-  /** Opens the dialog that keeps this room as a template. */
-  onSaveTemplate: () => void;
+  /**
+   * Keeps this room as a new template, or over the one `overwriteId` names;
+   * resolves with whether it was kept.
+   */
+  onSaveTemplate: (name: string, overwriteId?: number) => Promise<boolean>;
   /** Takes an undo snapshot before a change lands. */
   snapshot: () => void;
   /** Sets rotations of tables and room elements and commits the scene. */

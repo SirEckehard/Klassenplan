@@ -441,8 +441,6 @@
     "resize": "Größe anpassen",
     "resizeWidth": "Breite anpassen",
     "resizeHeight": "Höhe anpassen",
-    "overwriteTemplateMessage": "Die aktuelle Vorlage wurde verändert. Soll sie überschrieben werden?",
-    "overwrite": "Überschreiben",
     "dragDropHint": "Klicken oder in den Raum ziehen"
   },
   "export": {
@@ -559,17 +557,7 @@
     "seatsMissing_other": "Es fehlen noch {{count}} Sitzplätze für {{students}} Schüler."
   },
   "template": {
-    "saveTitle": "Klassenraum-Vorlage speichern",
-    "tables": "Tische",
-    "seats": "Plätze",
-    "nameLabel": "Vorlagenname",
-    "namePlaceholder": "z.B. Klassenraum 1a",
-    "nameAriaLabel": "Vorlagenname eingeben",
-    "duplicateWarning": "Eine Vorlage mit diesem Namen existiert bereits.",
-    "overwriteLabel": "Oder bestehende Vorlage überschreiben",
-    "noSelection": "-- Keine Auswahl (neue Vorlage) --",
-    "overwrite": "Überschreiben",
-    "overwriteSelect": "Vorlage zum Überschreiben auswählen"
+    "duplicateWarning": "Eine Vorlage mit diesem Namen existiert bereits."
   },
   "circle": {
     "date": "Datum"
@@ -981,6 +969,7 @@
     "templatesHint": "Speichere diesen Raum als Vorlage, um ihn auch für weitere Klassen zu nutzen.",
     "saveAsTemplate": "Diesen Raum als Vorlage speichern",
     "templateName": "Name der Vorlage",
+    "replaceTemplate": "Vorlage „{{name}}“ ersetzen",
     "deleteTemplateTitle": "Vorlage löschen",
     "deleteTemplateMessage": "Möchtest du die Vorlage „{{name}}“ wirklich löschen? Das lässt sich nicht rückgängig machen.",
     "rooms": "Räume",

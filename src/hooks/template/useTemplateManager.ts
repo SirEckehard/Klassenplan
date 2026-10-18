@@ -1,24 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
-import deepEqual from 'fast-deep-equal';
-import { useTranslation } from 'react-i18next';
-import { confirmDialog } from '@/services/ui/dialogs';
 import type { ClassroomTemplate, ClassroomScene } from '@/types';
 import { showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
 import { logError } from '@/utils';
 import { useTemplateService } from './useTemplateService';
 import type { TemplateServiceError } from './useTemplateService';
-
-/**
- * Handle classroom template state and persistence helpers.
- */
-function cloneScene(scene: ClassroomScene): ClassroomScene {
-  return {
-    ...scene,
-    tables: scene.tables.map((table) => ({ ...table })),
-  };
-}
 
 /**
  * Map service errors to user-facing toast messages
@@ -39,13 +26,10 @@ function getToastMessageForError(error: TemplateServiceError): string {
 }
 
 /**
- * UI Orchestration Layer for Template Management
+ * The room templates of the room layer: the list, and keeping, renaming and
+ * removing one — with the message each outcome gets.
  */
-export default function useTemplateManager(
-  classroomScene: ClassroomScene,
-  updateClassroomScene: (next: React.SetStateAction<ClassroomScene>) => void,
-) {
-  const { t } = useTranslation('generator');
+export default function useTemplateManager(classroomScene: ClassroomScene) {
   const {
     loadTemplates: loadTemplatesService,
     saveTemplate: saveTemplateService,
@@ -58,11 +42,6 @@ export default function useTemplateManager(
   const [selectedTemplateId, setSelectedTemplateId] = React.useState<
     number | null
   >(null);
-  const [isSaveModalOpen, setIsSaveModalOpen] = React.useState(false);
-  const lastLoadedTemplateRef = React.useRef<{
-    id: number;
-    scene: ClassroomScene;
-  } | null>(null);
 
   // Load templates on mount
   React.useEffect(() => {
@@ -81,16 +60,6 @@ export default function useTemplateManager(
     })();
   }, [loadTemplatesService]);
 
-  // Clear lastLoadedTemplate if it was deleted
-  React.useEffect(() => {
-    if (
-      lastLoadedTemplateRef.current &&
-      !templates.some((t) => t.id === lastLoadedTemplateRef.current?.id)
-    ) {
-      lastLoadedTemplateRef.current = null;
-    }
-  }, [templates]);
-
   /**
    * Reload templates from storage
    */
@@ -104,38 +73,32 @@ export default function useTemplateManager(
   }, [loadTemplatesService]);
 
   /**
-   * Save or overwrite template
+   * Keeps the room as a new template, or over the one `overwriteId` names.
+   * Resolves with whether it was kept, so the row that named it can close.
    */
   const handleSaveTemplate = React.useCallback(
-    async (name: string, overwriteId?: number): Promise<void> => {
-      // Overwrite existing template
+    async (name: string, overwriteId?: number): Promise<boolean> => {
       if (overwriteId !== undefined) {
         const result = await updateTemplateService(overwriteId, classroomScene);
-        if (result.success) {
-          showToast('success', TOAST_MESSAGES.TEMPLATE_UPDATE_SUCCESS);
-          await reloadTemplates();
-          setSelectedTemplateId(overwriteId);
-          lastLoadedTemplateRef.current = {
-            id: overwriteId,
-            scene: cloneScene(classroomScene),
-          };
-        } else {
+        if (!result.success) {
           showToast('error', getToastMessageForError(result.error));
+          return false;
         }
-        return;
+        showToast('success', TOAST_MESSAGES.TEMPLATE_UPDATE_SUCCESS);
+        await reloadTemplates();
+        setSelectedTemplateId(overwriteId);
+        return true;
       }
 
-      // Save as new template
       const result = await saveTemplateService(name, classroomScene);
-      if (result.success) {
-        showToast('success', TOAST_MESSAGES.SAVE_TEMPLATE_SUCCESS);
-        await reloadTemplates();
-        // Select the newly created template
-        setSelectedTemplateId(result.data.id);
-        lastLoadedTemplateRef.current = null;
-      } else {
+      if (!result.success) {
         showToast('error', getToastMessageForError(result.error));
+        return false;
       }
+      showToast('success', TOAST_MESSAGES.SAVE_TEMPLATE_SUCCESS);
+      await reloadTemplates();
+      setSelectedTemplateId(result.data.id);
+      return true;
     },
     [
       classroomScene,
@@ -144,73 +107,6 @@ export default function useTemplateManager(
       updateTemplateService,
     ],
   );
-
-  /**
-   * Open save modal
-   */
-  const openSaveModal = React.useCallback(() => {
-    setIsSaveModalOpen(true);
-  }, []);
-
-  /**
-   * Close save modal
-   */
-  const closeSaveModal = React.useCallback(() => {
-    setIsSaveModalOpen(false);
-  }, []);
-
-  /**
-   * Quick save: Show overwrite dialog if template was changed
-   */
-  const handleQuickSave = React.useCallback(async () => {
-    const lastLoaded = lastLoadedTemplateRef.current;
-    const selectedTemplate = templates.find((t) => t.id === selectedTemplateId);
-    const canOverwrite =
-      selectedTemplateId !== null &&
-      lastLoaded?.id === selectedTemplateId &&
-      !deepEqual(lastLoaded.scene, classroomScene);
-
-    if (canOverwrite && selectedTemplate) {
-      const overwrite = await confirmDialog(
-        t(
-          'layout.overwriteTemplateMessage',
-          'Die aktuelle Vorlage wurde verändert. Soll sie überschrieben werden?',
-        ),
-        {
-          confirmLabel: t('layout.overwrite', 'Überschreiben'),
-          cancelLabel: t('common.cancel', 'Abbrechen'),
-        },
-      );
-      if (overwrite) {
-        await handleSaveTemplate(selectedTemplate.name, selectedTemplateId);
-      }
-    } else {
-      // No loaded template or no changes - show save modal
-      openSaveModal();
-    }
-  }, [
-    templates,
-    selectedTemplateId,
-    classroomScene,
-    handleSaveTemplate,
-    openSaveModal,
-    t,
-  ]);
-
-  /**
-   * Load a template into the scene
-   */
-  const handleLoadTemplate = React.useCallback(() => {
-    const tpl = templates.find((t) => t.id === selectedTemplateId);
-    if (!tpl) return;
-    const clonedScene = cloneScene(tpl.scene);
-    updateClassroomScene(clonedScene);
-    lastLoadedTemplateRef.current = {
-      id: tpl.id,
-      scene: cloneScene(tpl.scene),
-    };
-    showToast('success', TOAST_MESSAGES.LOAD_TEMPLATE_SUCCESS);
-  }, [templates, selectedTemplateId, updateClassroomScene]);
 
   /**
    * Delete a template
@@ -231,11 +127,6 @@ export default function useTemplateManager(
           setSelectedTemplateId(
             newTemplates.length > 0 ? newTemplates[0].id : null,
           );
-        }
-
-        // Clear lastLoaded if it was deleted
-        if (lastLoadedTemplateRef.current?.id === templateId) {
-          lastLoadedTemplateRef.current = null;
         }
       } else {
         showToast('error', getToastMessageForError(result.error));
@@ -270,12 +161,7 @@ export default function useTemplateManager(
     selectedTemplateId,
     setSelectedTemplateId,
     handleSaveTemplate,
-    handleLoadTemplate,
     handleDeleteTemplate,
     handleRenameTemplate,
-    isSaveModalOpen,
-    openSaveModal,
-    closeSaveModal,
-    handleQuickSave,
   };
 }

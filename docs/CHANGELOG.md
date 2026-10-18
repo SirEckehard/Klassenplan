@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Improved
 
+- A room is saved as a template in the room's inspector instead of a dialog: the name – the room's own to begin with – is typed in place, and a name a template already carries offers to replace that template
 - Every inspector – criteria, room, export sheet and "Bibliothek" – is laid out like the student inspector: one row per setting with its icon and its explanation under the name, fewer and more logically ordered sections, a short scale for a criterion's importance, and menus instead of long lists for the recipe, a plan's room, and the room's rooms, templates and – once its tables stand – its setup
 - Searching the class list opens the student the search clearly means in the inspector while you type – the only one found, or the only one whose name or first name it is or starts with. Enter opens the first student found
 - On an iPad in portrait, ticking several students opens their shared settings in the inspector, as on a larger screen

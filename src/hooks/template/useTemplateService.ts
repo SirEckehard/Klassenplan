@@ -37,30 +37,12 @@ function failure<T>(
 }
 
 /**
- * Generate the first available template name suggestion.
- */
-export function getTemplateNameSuggestion(
-  existingTemplates: ClassroomTemplate[],
-): string {
-  const baseNames = ['Klassenraum', 'Layout', 'Vorlage'];
-  for (const base of baseNames) {
-    let num = 1;
-    while (existingTemplates.some((t) => t.name === `${base} ${num}`)) {
-      num++;
-    }
-    return `${base} ${num}`;
-  }
-  return `Vorlage ${Date.now()}`;
-}
-
-/**
  * Service layer for classroom template management
  * Pure business logic without UI dependencies (no toast, no dialogs)
  *
  * This hook provides:
  * - Template CRUD operations
  * - Validation (name, duplicates)
- * - Name suggestion generation
  * - Type-safe error handling with Result pattern
  */
 export function useTemplateService() {
@@ -107,16 +89,6 @@ export function useTemplateService() {
 
       return success(undefined);
     },
-    [],
-  );
-
-  /**
-   * Generate smart name suggestions
-   * Returns first available name like "Klassenraum 1", "Layout 1", etc.
-   */
-  const generateNameSuggestion = useCallback(
-    (existingTemplates: ClassroomTemplate[]): string =>
-      getTemplateNameSuggestion(existingTemplates),
     [],
   );
 
@@ -264,7 +236,6 @@ export function useTemplateService() {
     deleteTemplate,
     renameTemplate,
     validateName,
-    generateNameSuggestion,
     checkNameExists,
   };
 }

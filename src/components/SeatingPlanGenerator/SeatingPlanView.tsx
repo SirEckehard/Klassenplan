@@ -11,7 +11,7 @@ export type Props = SeatingPlanViewProps;
 const SeatingPlanViewInner = React.memo(function SeatingPlanViewInner(
   props: Props,
 ) {
-  const { layoutEditorSection, seatingEditorProps, saveTemplateModalProps } =
+  const { layoutEditorSection, seatingEditorProps } =
     useSeatingPlanViewLogic(props);
 
   return (
@@ -19,7 +19,6 @@ const SeatingPlanViewInner = React.memo(function SeatingPlanViewInner(
       step={props.step}
       layoutEditorSection={layoutEditorSection}
       seatingEditorProps={seatingEditorProps}
-      saveTemplateModalProps={saveTemplateModalProps}
     />
   );
 });

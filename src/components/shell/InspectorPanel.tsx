@@ -433,12 +433,15 @@ export function InspectorActionRow({
   title,
   onClick,
   to,
+  expanded,
 }: {
   icon: Icon;
   label: string;
   /** Tooltip — the keyboard shortcut, where there is one. */
   title?: string;
   onClick?: () => void;
+  /** Whether what the row unfolds below it is open. */
+  expanded?: boolean;
   /** A page to go to instead — the row is then a link. */
   to?: string;
 }) {
@@ -465,6 +468,7 @@ export function InspectorActionRow({
       type="button"
       onClick={onClick}
       title={title ?? label}
+      aria-expanded={expanded}
       className={className}
     >
       {content}

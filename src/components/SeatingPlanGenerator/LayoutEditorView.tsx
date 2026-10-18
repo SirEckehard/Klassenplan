@@ -82,7 +82,7 @@ type Props = {
   historyLength: number;
   students: Student[];
   templates: ClassroomTemplate[];
-  handleSaveTemplate: () => void;
+  handleSaveTemplate: (name: string, overwriteId?: number) => Promise<boolean>;
   handleDeleteTemplate: (id?: number) => void;
   handleRenameTemplate: (
     id: number,

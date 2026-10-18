@@ -2,13 +2,11 @@
 // Copyright (C) 2026 Eike Schäfer
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import type { SetStateAction } from 'react';
 import type { ClassroomScene, ClassroomTemplate } from '@/types';
 import useTemplateManager from '@/hooks/template/useTemplateManager';
 import type { TemplateServiceResult } from '@/hooks/template/useTemplateService';
 
 const {
-  confirmDialogMock,
   showToastMock,
   mockLoadTemplates,
   mockSaveTemplate,
@@ -17,7 +15,6 @@ const {
   mockRenameTemplate,
   logErrorMock,
 } = vi.hoisted(() => ({
-  confirmDialogMock: vi.fn(),
   showToastMock: vi.fn(),
   mockLoadTemplates:
     vi.fn<() => Promise<TemplateServiceResult<ClassroomTemplate[]>>>(),
@@ -42,10 +39,6 @@ const {
       (id: number, newName: string) => Promise<TemplateServiceResult<void>>
     >(),
   logErrorMock: vi.fn(),
-}));
-
-vi.mock('@/services/ui/dialogs', () => ({
-  confirmDialog: confirmDialogMock,
 }));
 
 vi.mock('@/utils/ui/toast', () => ({
@@ -103,7 +96,6 @@ function createScene(offset = 0): ClassroomScene {
 describe('useTemplateManager', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    confirmDialogMock.mockReset();
     showToastMock.mockReset();
     mockLoadTemplates.mockReset();
     mockSaveTemplate.mockReset();
@@ -112,140 +104,72 @@ describe('useTemplateManager', () => {
     mockRenameTemplate.mockReset();
   });
 
-  test('overwrites existing template when confirmed', async () => {
-    const templateScene = createScene(10);
+  test('keeps the room as a new template and reports it kept', async () => {
+    const scene = createScene(4);
+    mockLoadTemplates.mockResolvedValue(successResult([]));
+    mockSaveTemplate.mockResolvedValue(
+      successResult({ id: 7, name: 'Raum 104', scene }),
+    );
+
+    const { result } = renderHook(() => useTemplateManager(scene));
+    await waitFor(() => expect(mockLoadTemplates).toHaveBeenCalled());
+
+    let kept = false;
+    await act(async () => {
+      kept = await result.current.handleSaveTemplate('Raum 104');
+    });
+
+    expect(kept).toBe(true);
+    expect(mockSaveTemplate).toHaveBeenCalledWith('Raum 104', scene);
+    expect(mockUpdateTemplate).not.toHaveBeenCalled();
+    expect(showToastMock).toHaveBeenCalledWith(
+      'success',
+      'SAVE_TEMPLATE_SUCCESS',
+    );
+    expect(result.current.selectedTemplateId).toBe(7);
+  });
+
+  test('replaces the template it is told to with the room', async () => {
+    const scene = createScene(10);
     const templates: ClassroomTemplate[] = [
-      { id: 1, name: 'Beste Vorlage', scene: templateScene },
+      { id: 1, name: 'Rochen', scene: createScene(0) },
     ];
     mockLoadTemplates.mockResolvedValue(successResult(templates));
     mockUpdateTemplate.mockResolvedValue(successResult(undefined));
 
-    const initialScene = createScene(0);
-    let currentScene: ClassroomScene = initialScene;
-    let rerenderHook: ((props: { scene: ClassroomScene }) => void) | null =
-      null;
-
-    const updateClassroomScene = (next: SetStateAction<ClassroomScene>) => {
-      const nextScene =
-        typeof next === 'function'
-          ? (next as (prev: ClassroomScene) => ClassroomScene)(currentScene)
-          : next;
-      currentScene = nextScene;
-      rerenderHook?.({ scene: currentScene });
-    };
-
-    const { result, rerender } = renderHook(
-      ({ scene }: { scene: ClassroomScene }) =>
-        useTemplateManager(scene, updateClassroomScene),
-      { initialProps: { scene: currentScene } },
-    );
-    rerenderHook = rerender;
-
+    const { result } = renderHook(() => useTemplateManager(scene));
     await waitFor(() => expect(result.current.templates).toHaveLength(1));
-    // Default: No template selected (Standard-Layout)
-    expect(result.current.selectedTemplateId).toBe(null);
 
-    // Select template first (since default is null)
-    act(() => {
-      result.current.setSelectedTemplateId(1);
-    });
-
-    act(() => {
-      result.current.handleLoadTemplate();
-    });
-
-    act(() => {
-      updateClassroomScene((prev) => ({
-        ...prev,
-        tables: prev.tables.map((table, index) =>
-          index === 0 ? { ...table, x: table.x + 20 } : table,
-        ),
-      }));
-    });
-
-    confirmDialogMock.mockResolvedValueOnce(true);
-
+    let kept = false;
     await act(async () => {
-      await result.current.handleQuickSave();
+      kept = await result.current.handleSaveTemplate('Rochen', 1);
     });
 
-    expect(confirmDialogMock).toHaveBeenCalledWith(
-      'Die aktuelle Vorlage wurde verändert. Soll sie überschrieben werden?',
-      {
-        confirmLabel: 'Überschreiben',
-        cancelLabel: 'Abbrechen',
-      },
-    );
-    expect(mockUpdateTemplate).toHaveBeenCalledWith(1, currentScene);
+    expect(kept).toBe(true);
+    expect(mockUpdateTemplate).toHaveBeenCalledWith(1, scene);
     expect(mockSaveTemplate).not.toHaveBeenCalled();
+    expect(showToastMock).toHaveBeenCalledWith(
+      'success',
+      'TEMPLATE_UPDATE_SUCCESS',
+    );
   });
 
-  test('skips overwrite when confirmation is declined', async () => {
-    const templateScene = createScene(5);
-    const templates: ClassroomTemplate[] = [
-      { id: 2, name: 'Erste Vorlage', scene: templateScene },
-    ];
-    mockLoadTemplates.mockResolvedValue(successResult(templates));
-    mockSaveTemplate.mockResolvedValue(
-      successResult({ id: 3, name: 'Neue Vorlage', scene: createScene(2) }),
-    );
-
-    const initialScene = createScene(0);
-    let currentScene: ClassroomScene = initialScene;
-    let rerenderHook: ((props: { scene: ClassroomScene }) => void) | null =
-      null;
-
-    const updateClassroomScene = (next: SetStateAction<ClassroomScene>) => {
-      const nextScene =
-        typeof next === 'function'
-          ? (next as (prev: ClassroomScene) => ClassroomScene)(currentScene)
-          : next;
-      currentScene = nextScene;
-      rerenderHook?.({ scene: currentScene });
-    };
-
-    const { result, rerender } = renderHook(
-      ({ scene }: { scene: ClassroomScene }) =>
-        useTemplateManager(scene, updateClassroomScene),
-      { initialProps: { scene: currentScene } },
-    );
-    rerenderHook = rerender;
-
-    await waitFor(() => expect(result.current.templates).toHaveLength(1));
-    // Default: No template selected (Standard-Layout)
-    expect(result.current.selectedTemplateId).toBe(null);
-
-    // Select template first
-    act(() => {
-      result.current.setSelectedTemplateId(2);
+  test('reports a refused name as not kept', async () => {
+    mockLoadTemplates.mockResolvedValue(successResult([]));
+    mockSaveTemplate.mockResolvedValue({
+      success: false,
+      error: 'duplicate-name',
     });
 
-    act(() => {
-      result.current.handleLoadTemplate();
-    });
+    const { result } = renderHook(() => useTemplateManager(createScene()));
+    await waitFor(() => expect(mockLoadTemplates).toHaveBeenCalled());
 
-    act(() => {
-      updateClassroomScene((prev) => ({
-        ...prev,
-        totalStudents: prev.totalStudents + 2,
-      }));
-    });
-
-    confirmDialogMock.mockResolvedValueOnce(false);
-
+    let kept = true;
     await act(async () => {
-      await result.current.handleQuickSave();
+      kept = await result.current.handleSaveTemplate('Rochen');
     });
 
-    expect(confirmDialogMock).toHaveBeenCalledWith(
-      'Die aktuelle Vorlage wurde verändert. Soll sie überschrieben werden?',
-      {
-        confirmLabel: 'Überschreiben',
-        cancelLabel: 'Abbrechen',
-      },
-    );
-    expect(mockUpdateTemplate).not.toHaveBeenCalled();
-    // No modal open because we keep legacy behavior (openSaveModal is only triggered when no overwrite is possible)
-    expect(result.current.isSaveModalOpen).toBe(false);
+    expect(kept).toBe(false);
+    expect(showToastMock).toHaveBeenCalledWith('error', 'TEMPLATE_NAME_EXISTS');
   });
 });

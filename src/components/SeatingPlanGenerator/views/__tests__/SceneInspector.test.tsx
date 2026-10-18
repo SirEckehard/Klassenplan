@@ -100,7 +100,7 @@ const renderInspector = (
   const onLoadTemplate = vi.fn();
   const onRenameTemplate = vi.fn(() => Promise.resolve({ success: true }));
   const onDeleteTemplate = vi.fn();
-  const onSaveTemplate = vi.fn();
+  const onSaveTemplate = vi.fn(() => Promise.resolve(true));
   const element = (
     overrides: Partial<React.ComponentProps<typeof SceneInspector>>,
   ) => (
@@ -290,9 +290,41 @@ describe('SceneInspector', () => {
     );
   });
 
-  it('keeps this room as a template and loads a saved one', () => {
-    const { onSaveTemplate, onLoadTemplate } = renderInspector({
+  it('loads a saved template from the menu', () => {
+    const { onLoadTemplate } = renderInspector({
       templates: [template(7, 'Raum 104', [table(), table({ seatCount: 2 })])],
+    });
+
+    fireEvent.click(templateMenu());
+    const saved = screen.getByRole('button', { name: /^Raum 104/ });
+    expect(saved).toHaveTextContent(/2 (Tische|tables) · 6 (Plätze|seats)/);
+    fireEvent.click(saved);
+    expect(onLoadTemplate).toHaveBeenCalledWith(7);
+  });
+
+  // Named in the panel, not in a dialog over the canvas.
+  it('keeps this room as a new template under the name typed', async () => {
+    const { onSaveTemplate } = renderInspector({});
+    const saveRow = screen.getByRole('button', {
+      name: /Diesen Raum als Vorlage speichern|Save this room as a template/,
+    });
+
+    fireEvent.click(saveRow);
+    expect(saveRow).toHaveAttribute('aria-expanded', 'true');
+    const field = screen.getByRole('textbox', {
+      name: /Name der Vorlage|Template name/,
+    });
+    fireEvent.change(field, { target: { value: 'Physikraum' } });
+    fireEvent.keyDown(field, { key: 'Enter' });
+
+    expect(onSaveTemplate).toHaveBeenCalledWith('Physikraum', undefined);
+    await waitFor(() => expect(field).not.toBeInTheDocument());
+  });
+
+  // A taken name is not saved over by Enter: replacing is a step of its own.
+  it('replaces a template only from its own row', async () => {
+    const { onSaveTemplate } = renderInspector({
+      templates: [template(7, 'Raum 104', [])],
     });
 
     fireEvent.click(
@@ -300,17 +332,36 @@ describe('SceneInspector', () => {
         name: /Diesen Raum als Vorlage speichern|Save this room as a template/,
       }),
     );
-    expect(onSaveTemplate).toHaveBeenCalledTimes(1);
+    const field = screen.getByRole('textbox', {
+      name: /Name der Vorlage|Template name/,
+    });
+    fireEvent.change(field, { target: { value: 'Raum 104' } });
+    fireEvent.keyDown(field, { key: 'Enter' });
+    expect(onSaveTemplate).not.toHaveBeenCalled();
 
     fireEvent.click(
       screen.getByRole('button', {
-        name: /Vorlage öffnen|Open a template/,
+        name: /Vorlage „Raum 104“ ersetzen|Replace template “Raum 104”/,
       }),
     );
-    const saved = screen.getByRole('button', { name: /^Raum 104/ });
-    expect(saved).toHaveTextContent(/2 (Tische|tables) · 6 (Plätze|seats)/);
-    fireEvent.click(saved);
-    expect(onLoadTemplate).toHaveBeenCalledWith(7);
+    expect(onSaveTemplate).toHaveBeenCalledWith('Raum 104', 7);
+    await waitFor(() => expect(field).not.toBeInTheDocument());
+  });
+
+  it('drops the name on Escape without saving', () => {
+    const { onSaveTemplate } = renderInspector({});
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: /Diesen Raum als Vorlage speichern|Save this room as a template/,
+      }),
+    );
+    const field = screen.getByRole('textbox', {
+      name: /Name der Vorlage|Template name/,
+    });
+    fireEvent.keyDown(field, { key: 'Escape' });
+
+    expect(field).not.toBeInTheDocument();
+    expect(onSaveTemplate).not.toHaveBeenCalled();
   });
 
   // As the header's class menu: a pencil and a bin beside every template.
