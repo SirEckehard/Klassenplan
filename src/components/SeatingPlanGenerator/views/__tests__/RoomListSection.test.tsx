@@ -57,25 +57,37 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 
-describe('RoomListSection', () => {
-  it('lists the rooms of the class and marks the open one', () => {
-    render(<RoomListSection />);
-
-    expect(
-      screen.getByRole('button', { name: /^Klassenraum$/ }),
-    ).toHaveAttribute('aria-current', 'true');
-    expect(screen.getByRole('button', { name: /^Labor$/ })).not.toHaveAttribute(
-      'aria-current',
-    );
+/** The button that names the open room and opens the others. */
+const roomMenu = () =>
+  screen.getByRole('button', {
+    name: /^(Geöffneter Raum|Open room): Klassenraum$/,
   });
 
-  it('opens another room in a click and leaves the open one alone', async () => {
+describe('RoomListSection', () => {
+  it('names the open room and marks it in the menu', async () => {
     const user = userEvent.setup();
     render(<RoomListSection />);
 
+    await user.click(roomMenu());
+
+    expect(
+      screen.getByRole('button', { name: /^Klassenraum$/ }),
+    ).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: /^Labor$/ })).toHaveAttribute(
+      'aria-pressed',
+      'false',
+    );
+  });
+
+  it('opens another room from the menu and leaves the open one alone', async () => {
+    const user = userEvent.setup();
+    render(<RoomListSection />);
+
+    await user.click(roomMenu());
     await user.click(screen.getByRole('button', { name: /^Klassenraum$/ }));
     expect(mocks.openRoom).not.toHaveBeenCalled();
 
+    await user.click(roomMenu());
     await user.click(screen.getByRole('button', { name: /^Labor$/ }));
     expect(mocks.openRoom).toHaveBeenCalledWith('b');
   });
@@ -84,6 +96,7 @@ describe('RoomListSection', () => {
     const user = userEvent.setup();
     render(<RoomListSection />);
 
+    await user.click(roomMenu());
     await user.click(
       screen.getByRole('button', { name: /Neuer Raum|New room/ }),
     );
@@ -99,10 +112,11 @@ describe('RoomListSection', () => {
     expect(mocks.createRoom).toHaveBeenCalledWith({ name: 'Turnhalle' });
   });
 
-  it('makes no room when the name is left or dropped', async () => {
+  it('makes no room when the name is dropped', async () => {
     const user = userEvent.setup();
     render(<RoomListSection />);
 
+    await user.click(roomMenu());
     await user.click(
       screen.getByRole('button', { name: /Neuer Raum|New room/ }),
     );
@@ -110,20 +124,25 @@ describe('RoomListSection', () => {
 
     expect(mocks.createRoom).not.toHaveBeenCalled();
     expect(
-      screen.getByRole('button', { name: /Neuer Raum|New room/ }),
-    ).toBeInTheDocument();
+      screen.queryByRole('textbox', {
+        name: /Name des Raums|Name of the room/,
+      }),
+    ).not.toBeInTheDocument();
   });
 
-  it('refuses a name another room carries', async () => {
+  // As the header's class menu: a pencil and a bin beside every room.
+  it('renames a room from the menu, refusing a name another room carries', async () => {
     const user = userEvent.setup();
     render(<RoomListSection />);
 
+    await user.click(roomMenu());
     await user.click(
       screen.getByRole('button', { name: /„Labor“ umbenennen|Rename “Labor”/ }),
     );
     const field = screen.getByRole('textbox', {
       name: /Name des Raums|Name of the room/,
     });
+    expect(field).toHaveValue('Labor');
     await user.clear(field);
     await user.type(field, 'klassenraum{Enter}');
 
@@ -145,6 +164,7 @@ describe('RoomListSection', () => {
     mocks.confirmDialog.mockResolvedValue(true);
     render(<RoomListSection />);
 
+    await user.click(roomMenu());
     await user.click(
       screen.getByRole('button', { name: /„Labor“ löschen|Delete “Labor”/ }),
     );
@@ -165,6 +185,7 @@ describe('RoomListSection', () => {
     mocks.confirmDialog.mockResolvedValue(false);
     render(<RoomListSection />);
 
+    await user.click(roomMenu());
     await user.click(
       screen.getByRole('button', { name: /„Labor“ löschen|Delete “Labor”/ }),
     );
@@ -172,28 +193,31 @@ describe('RoomListSection', () => {
     expect(mocks.deleteRoom).not.toHaveBeenCalled();
   });
 
-  it('says why the open room cannot be deleted', async () => {
+  it('keeps the bin of the open room in place but unusable, and says why', async () => {
     const user = userEvent.setup();
     render(<RoomListSection />);
 
+    await user.click(roomMenu());
     const bin = screen.getByRole('button', {
       name: /„Klassenraum“ löschen|Delete “Klassenraum”/,
     });
     expect(bin).toHaveAttribute('aria-disabled', 'true');
+    expect(bin).toHaveAttribute(
+      'title',
+      expect.stringMatching(/offenen Raum|open room/),
+    );
     await user.click(bin);
 
     expect(mocks.confirmDialog).not.toHaveBeenCalled();
     expect(mocks.deleteRoom).not.toHaveBeenCalled();
-    expect(mocks.showToast).toHaveBeenCalledWith(
-      'info',
-      expect.stringMatching(/offenen Raum|open room/),
-    );
   });
 
-  it('offers no bin while the class has one room', () => {
+  it('offers no bin while the class has one room', async () => {
+    const user = userEvent.setup();
     mocks.rooms = [room('a', 'Klassenraum')];
     render(<RoomListSection />);
 
+    await user.click(roomMenu());
     expect(
       screen.queryByRole('button', { name: /löschen|Delete/ }),
     ).not.toBeInTheDocument();

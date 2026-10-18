@@ -2,15 +2,13 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  CheckIcon,
-  FloppyDiskIcon,
-  PencilLineIcon,
-  PlusIcon,
-  TrashIcon,
-} from '@phosphor-icons/react';
+import { FloppyDiskIcon, PlusIcon } from '@phosphor-icons/react';
 import type { ClassroomTemplate, TableTemplateType } from '@/types';
-import { InspectorSection } from '@/components/shell/InspectorPanel';
+import {
+  InspectorActionRow,
+  InspectorMenuButton,
+  InspectorSection,
+} from '@/components/shell/InspectorPanel';
 import {
   useOptionalSeatingPlanActions,
   useOptionalSeatingPlanState,
@@ -25,8 +23,6 @@ import {
   inputFieldClass,
   MAX_NAME_LENGTH,
   menuItemClass,
-  quietDangerIconButtonClass,
-  quietIconButtonClass,
   uniqueName,
 } from '@/utils';
 
@@ -66,6 +62,14 @@ export function RoomSetupSection({
     group4: t('sceneInspector.setupGroup4'),
     group6: t('sceneInspector.setupGroup6'),
   };
+  const tableCount = (type: TableTemplateType) =>
+    t('sceneInspector.tables', {
+      count: Math.ceil(studentsCount / presets[type].seatCount),
+    });
+  // A room that has its tables is seldom set up again, so the four kinds
+  // fold into a menu there; in an empty room they are the first step and
+  // stand as rows.
+  const asMenu = hasTables && studentsCount > 0;
 
   React.useEffect(() => {
     if (focusRequest === 0) return undefined;
@@ -87,36 +91,57 @@ export function RoomSetupSection({
       title={t('sceneInspector.setup')}
       tourAnchor={TOUR_ANCHORS.layoutSetup}
     >
-      <p id={hintId} className="text-xs leading-relaxed text-(--text-muted)">
-        {hint}
-      </p>
-      {/* The rows carry their own padding, as in a menu; the section's edge
-          stays in line with the heading. */}
-      <div className="-mx-3 flex flex-col">
-        {SETUP_TYPES.map((type, index) => (
-          <button
-            key={type}
-            ref={index === 0 ? firstRowRef : undefined}
-            type="button"
-            onClick={() => onSetUp(type)}
-            disabled={studentsCount === 0}
-            aria-describedby={hintId}
-            className={menuItemClass}
-          >
-            <span aria-hidden="true" className="flex shrink-0">
-              <TablePreview type={type} iconSize={20} />
-            </span>
-            <span className="min-w-0 flex-1 truncate">{labels[type]}</span>
-            {studentsCount > 0 && (
-              <span className="shrink-0 text-xs tabular-nums text-(--text-muted)">
-                {t('sceneInspector.tables', {
-                  count: Math.ceil(studentsCount / presets[type].seatCount),
-                })}
-              </span>
-            )}
-          </button>
-        ))}
-      </div>
+      {asMenu ? (
+        <>
+          <InspectorMenuButton
+            label={t('sceneInspector.setupChoose')}
+            menuLabel={t('sceneInspector.setup')}
+            focusRequest={focusRequest}
+            describedBy={hintId}
+            rows={SETUP_TYPES.map((type) => ({
+              key: type,
+              label: labels[type],
+              icon: <TablePreview type={type} iconSize={20} />,
+              meta: tableCount(type),
+              onSelect: () => onSetUp(type),
+            }))}
+          />
+          <p id={hintId} className="text-xs text-(--text-muted)">
+            {hint}
+          </p>
+        </>
+      ) : (
+        <>
+          <p id={hintId} className="text-xs text-(--text-muted)">
+            {hint}
+          </p>
+          {/* The rows carry their own padding, as in a menu; the section's
+              edge stays in line with the heading. */}
+          <div className="-mx-3 flex flex-col">
+            {SETUP_TYPES.map((type, index) => (
+              <button
+                key={type}
+                ref={index === 0 ? firstRowRef : undefined}
+                type="button"
+                onClick={() => onSetUp(type)}
+                disabled={studentsCount === 0}
+                aria-describedby={hintId}
+                className={menuItemClass}
+              >
+                <span aria-hidden="true" className="flex shrink-0">
+                  <TablePreview type={type} iconSize={20} />
+                </span>
+                <span className="min-w-0 flex-1 truncate">{labels[type]}</span>
+                {studentsCount > 0 && (
+                  <span className="shrink-0 text-xs tabular-nums text-(--text-muted)">
+                    {tableCount(type)}
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
     </InspectorSection>
   );
 }
@@ -202,10 +227,10 @@ function TemplateRenameRow({
 }
 
 /**
- * Rooms kept for other classes: this one saved as a template, and every saved
- * one loaded in a click — replacing the room, tables and elements alike, with
- * the undo history holding the old one. Renaming and removing sit beside each
- * row, as a class's do in the class menu.
+ * Rooms kept for other classes: this one saved as a template, and the kept
+ * ones in a menu shaped as the header's class menu — a click opens one as a
+ * room of its own, the pencil renames it here in the panel, the bin removes
+ * it after asking.
  */
 export function RoomTemplatesSection({
   templates,
@@ -226,6 +251,7 @@ export function RoomTemplatesSection({
 }) {
   const { t } = useTranslation('generator');
   const [renamingId, setRenamingId] = React.useState<number | null>(null);
+  const renaming = templates.find((template) => template.id === renamingId);
 
   // Deleting a template is not part of the room's undo history, so it asks.
   const requestDelete = async (template: ClassroomTemplate) => {
@@ -242,90 +268,60 @@ export function RoomTemplatesSection({
   return (
     <InspectorSection title={t('sceneInspector.templates')}>
       {templates.length === 0 && (
-        <p className="text-xs leading-relaxed text-(--text-muted)">
+        <p className="text-xs text-(--text-muted)">
           {t('sceneInspector.templatesHint')}
         </p>
       )}
-      <div className="-mx-3 flex flex-col">
-        {/* Keeping this room comes first, above the kept ones, as "Neue
-            Klasse" leads the class menu. */}
-        <button type="button" onClick={onSave} className={menuItemClass}>
-          <FloppyDiskIcon
-            size={16}
-            aria-hidden="true"
-            className="shrink-0 text-(--text-muted)"
-          />
-          {t('sceneInspector.saveAsTemplate')}
-        </button>
-        {templates.length > 0 && (
-          <div
-            className="mx-3 my-1 h-px bg-(--border-card)"
-            aria-hidden="true"
-          />
-        )}
-        {templates.map((template) => {
-          if (template.id === renamingId) {
-            return (
-              <TemplateRenameRow
-                key={template.id}
-                template={template}
-                templates={templates}
-                onRename={onRename}
-                onDone={() => setRenamingId(null)}
-              />
+      <InspectorActionRow
+        icon={FloppyDiskIcon}
+        label={t('sceneInspector.saveAsTemplate')}
+        onClick={onSave}
+      />
+      {templates.length > 0 && (
+        <InspectorMenuButton
+          label={t('sceneInspector.openTemplate')}
+          menuLabel={t('sceneInspector.templates')}
+          rows={templates.map((template) => {
+            const seatCount = template.scene.tables.reduce(
+              (sum, table) => sum + table.seatCount,
+              0,
             );
-          }
-          const tableCount = template.scene.tables.length;
-          const seatCount = template.scene.tables.reduce(
-            (sum, table) => sum + table.seatCount,
-            0,
-          );
-          return (
-            <div key={template.id} className="flex items-center gap-1">
-              <button
-                type="button"
-                onClick={() => onLoad(template.id)}
-                title={t('sceneInspector.loadTemplate', {
+            return {
+              key: String(template.id),
+              label: template.name,
+              description: `${t('sceneInspector.tables', {
+                count: template.scene.tables.length,
+              })} · ${t('sceneInspector.seats', { count: seatCount })}`,
+              onSelect: () => onLoad(template.id),
+              rename: {
+                label: t('sceneInspector.renameTemplateNamed', {
                   name: template.name,
-                })}
-                className={`${menuItemClass} min-w-0 flex-1`}
-              >
-                <span className="flex min-w-0 flex-1 flex-col">
-                  <span className="truncate">{template.name}</span>
-                  <span className="text-xs tabular-nums text-(--text-muted)">
-                    {t('sceneInspector.tables', { count: tableCount })} ·{' '}
-                    {t('sceneInspector.seats', { count: seatCount })}
-                  </span>
-                </span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setRenamingId(template.id)}
-                title={t('sceneInspector.renameTemplate')}
-                aria-label={t('sceneInspector.renameTemplateNamed', {
+                }),
+                onSelect: () => setRenamingId(template.id),
+              },
+              remove: {
+                label: t('sceneInspector.deleteTemplateNamed', {
                   name: template.name,
-                })}
-                className={`${quietIconButtonClass} h-9 w-9 shrink-0`}
-              >
-                <PencilLineIcon className="h-4 w-4" aria-hidden="true" />
-              </button>
-              <button
-                type="button"
-                onClick={() => {
+                }),
+                onSelect: () => {
                   void requestDelete(template);
-                }}
-                title={t('sceneInspector.deleteTemplate')}
-                aria-label={t('sceneInspector.deleteTemplateNamed', {
-                  name: template.name,
-                })}
-                className={`${quietDangerIconButtonClass} h-9 w-9 shrink-0`}
-              >
-                <TrashIcon className="h-4 w-4" aria-hidden="true" />
-              </button>
-            </div>
-          );
-        })}
-      </div>
+                },
+              },
+            };
+          })}
+        />
+      )}
+      {renaming && (
+        <div className="-mx-3">
+          <TemplateRenameRow
+            key={renaming.id}
+            template={renaming}
+            templates={templates}
+            onRename={onRename}
+            onDone={() => setRenamingId(null)}
+          />
+        </div>
+      )}
     </InspectorSection>
   );
 }
@@ -408,12 +404,13 @@ function RoomNameRow({
 }
 
 /**
- * The rooms of the class (decision 0024): a new one on top, as "Neue Klasse"
- * leads the class menu, then every room, the open one checked. A click opens
- * a room as it was left; a room is renamed and removed in its row, as a
- * template is. A new room is named before it is made, since making it opens
- * it. Removing takes the room's plans and mixes along, so it asks first; the
- * open room and the last one stay, and their bin says why.
+ * The rooms of the class (decision 0024), shaped as the header's class menu:
+ * the open one named on a button that opens the menu — "Neuer Raum" on top,
+ * named before it is made, since making it opens it; then every room, the
+ * open one checked, a click opening a room as it was left, a pencil renaming
+ * it here in the panel and a bin removing it. Removing takes the room's plans
+ * and mixes along, so it asks first; the open room and the last one stay,
+ * and their bin says why.
  */
 export function RoomListSection() {
   const { t } = useTranslation('generator');
@@ -423,14 +420,12 @@ export function RoomListSection() {
   const [naming, setNaming] = React.useState(false);
   if (!state || !actions) return null;
   const { rooms, activeRoomId, seatingHistory } = state;
+  const openRoom = rooms.find((room) => room.id === activeRoomId);
+  const renaming = rooms.find((room) => room.id === renamingId);
 
   // Not part of the room's undo history, so it asks — as "Bibliothek"
   // does, in the same words.
   const requestDelete = async (room: { id: string; name: string }) => {
-    if (room.id === activeRoomId) {
-      showToast('info', t('library.room.deleteOpenHint'));
-      return;
-    }
     const count = seatingHistory.filter(
       (plan) => plan.roomId === room.id,
     ).length;
@@ -452,12 +447,60 @@ export function RoomListSection() {
   return (
     <InspectorSection title={t('sceneInspector.rooms')}>
       {rooms.length <= 1 && (
-        <p className="text-xs leading-relaxed text-(--text-muted)">
+        <p className="text-xs text-(--text-muted)">
           {t('sceneInspector.roomsHint')}
         </p>
       )}
-      <div className="-mx-3 flex flex-col">
-        {naming ? (
+      <InspectorMenuButton
+        label={openRoom?.name ?? t('sceneInspector.room')}
+        ariaLabel={t('sceneInspector.roomMenu', {
+          name: openRoom?.name ?? t('sceneInspector.room'),
+        })}
+        menuLabel={t('sceneInspector.rooms')}
+        action={{
+          label: t('sceneInspector.newRoom'),
+          icon: PlusIcon,
+          onSelect: () => {
+            setRenamingId(null);
+            setNaming(true);
+          },
+        }}
+        rows={rooms.map((room) => {
+          const isOpen = room.id === activeRoomId;
+          return {
+            key: room.id,
+            label: room.name,
+            checked: isOpen,
+            onSelect: () => {
+              if (!isOpen) actions.openRoom(room.id);
+            },
+            rename: {
+              label: t('sceneInspector.renameRoomNamed', { name: room.name }),
+              onSelect: () => {
+                setNaming(false);
+                setRenamingId(room.id);
+              },
+            },
+            // A class keeps one room at least: with one, there is no bin.
+            remove:
+              rooms.length > 1
+                ? {
+                    label: t('sceneInspector.deleteRoomNamed', {
+                      name: room.name,
+                    }),
+                    blockedHint: isOpen
+                      ? t('library.room.deleteOpenHint')
+                      : undefined,
+                    onSelect: () => {
+                      void requestDelete(room);
+                    },
+                  }
+                : undefined,
+          };
+        })}
+      />
+      {naming && (
+        <div className="-mx-3">
           <RoomNameRow
             initialName={uniqueName(
               t('rooms.newName'),
@@ -469,98 +512,21 @@ export function RoomListSection() {
             }}
             onDone={() => setNaming(false)}
           />
-        ) : (
-          <button
-            type="button"
-            onClick={() => setNaming(true)}
-            className={menuItemClass}
-          >
-            <PlusIcon
-              size={16}
-              aria-hidden="true"
-              className="shrink-0 text-(--text-muted)"
-            />
-            {t('sceneInspector.newRoom')}
-          </button>
-        )}
-        <div className="mx-3 my-1 h-px bg-(--border-card)" aria-hidden="true" />
-        {rooms.map((room) => {
-          if (room.id === renamingId) {
-            return (
-              <RoomNameRow
-                key={room.id}
-                roomId={room.id}
-                initialName={room.name}
-                onCommit={(name) => {
-                  actions.renameRoom(room.id, name);
-                }}
-                onDone={() => setRenamingId(null)}
-              />
-            );
-          }
-          const isOpen = room.id === activeRoomId;
-          return (
-            <div key={room.id} className="flex items-center gap-1">
-              <button
-                type="button"
-                onClick={() => {
-                  if (!isOpen) actions.openRoom(room.id);
-                }}
-                aria-current={isOpen ? 'true' : undefined}
-                title={
-                  isOpen
-                    ? undefined
-                    : t('sceneInspector.openRoom', { name: room.name })
-                }
-                className={`${menuItemClass} min-w-0 flex-1`}
-              >
-                <span className="min-w-0 flex-1 truncate">{room.name}</span>
-                {isOpen && (
-                  <CheckIcon
-                    size={16}
-                    aria-hidden="true"
-                    className="shrink-0 text-(--text-muted)"
-                  />
-                )}
-              </button>
-              <button
-                type="button"
-                onClick={() => setRenamingId(room.id)}
-                title={t('sceneInspector.renameRoom')}
-                aria-label={t('sceneInspector.renameRoomNamed', {
-                  name: room.name,
-                })}
-                className={`${quietIconButtonClass} h-9 w-9 shrink-0`}
-              >
-                <PencilLineIcon className="h-4 w-4" aria-hidden="true" />
-              </button>
-              {/* A class keeps one room at least: with one, there is no bin. */}
-              {rooms.length > 1 && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    void requestDelete(room);
-                  }}
-                  aria-disabled={isOpen || undefined}
-                  title={
-                    isOpen
-                      ? t('library.room.deleteOpenHint')
-                      : t('library.room.delete')
-                  }
-                  aria-label={t('sceneInspector.deleteRoomNamed', {
-                    name: room.name,
-                  })}
-                  className={`${quietDangerIconButtonClass} h-9 w-9 shrink-0 ${
-                    isOpen ? 'cursor-not-allowed opacity-40' : ''
-                  }`}
-                >
-                  <TrashIcon className="h-4 w-4" aria-hidden="true" />
-                </button>
-              )}
-            </div>
-          );
-        })}
-      </div>
+        </div>
+      )}
+      {renaming && (
+        <div className="-mx-3">
+          <RoomNameRow
+            key={renaming.id}
+            roomId={renaming.id}
+            initialName={renaming.name}
+            onCommit={(name) => {
+              actions.renameRoom(renaming.id, name);
+            }}
+            onDone={() => setRenamingId(null)}
+          />
+        </div>
+      )}
     </InspectorSection>
   );
 }

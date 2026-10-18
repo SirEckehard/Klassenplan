@@ -3,17 +3,26 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
+  CaretDownIcon,
   CheckIcon,
   MinusIcon,
+  PencilLineIcon,
   TrashIcon,
   type Icon,
 } from '@phosphor-icons/react';
 import HintTooltip from '@/components/ui/feedback/HintTooltip';
+import { LocalizedLink } from '@/components/LocalizedLink';
+import FloatingDropdown from '@/components/students/FloatingDropdown';
+import { useClickOutside } from '@/hooks/ui/useClickOutside';
+import { usePopoverFocus } from '@/hooks/ui/usePopoverFocus';
 import {
   dangerButtonClass,
   dataFamilyClass,
   dataHeadingClass,
   menuItemClass,
+  menuSurfaceClass,
+  quietDangerIconButtonClass,
+  quietIconButtonClass,
 } from '@/utils';
 
 /**
@@ -423,26 +432,42 @@ export function InspectorActionRow({
   label,
   title,
   onClick,
+  to,
 }: {
   icon: Icon;
   label: string;
   /** Tooltip — the keyboard shortcut, where there is one. */
   title?: string;
-  onClick: () => void;
+  onClick?: () => void;
+  /** A page to go to instead — the row is then a link. */
+  to?: string;
 }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      title={title ?? label}
-      className={`${menuItemClass} -mx-3 pointer-coarse:min-h-11`}
-    >
+  const content = (
+    <>
       <IconComponent
         size={16}
         aria-hidden="true"
         className="shrink-0 text-(--text-muted)"
       />
       {label}
+    </>
+  );
+  const className = `${menuItemClass} -mx-3 pointer-coarse:min-h-11`;
+  if (to) {
+    return (
+      <LocalizedLink to={to} title={title ?? label} className={className}>
+        {content}
+      </LocalizedLink>
+    );
+  }
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={title ?? label}
+      className={className}
+    >
+      {content}
     </button>
   );
 }
@@ -480,5 +505,247 @@ export function InspectorDeleteFooter({
         {blockedHint && <HintTooltip id={hintId} hint={blockedHint} />}
       </div>
     </InspectorFooter>
+  );
+}
+
+/** One row of an {@link InspectorMenuButton}'s menu. */
+export type InspectorMenuRow = {
+  key: string;
+  label: string;
+  /** A line under the label: what a recipe is for. */
+  description?: string;
+  /** A shape or an icon before the label. */
+  icon?: React.ReactNode;
+  /** A number at the row's end: how many tables a kind of table takes. */
+  meta?: string;
+  /**
+   * The row is what is chosen now — the open room, the recipe the weights
+   * match — and wears a check. Leave it out on a menu of actions, whose rows
+   * then announce no pressed state at all.
+   */
+  checked?: boolean;
+  onSelect: () => void;
+  /**
+   * Renaming the entry, as a pencil beside it — as the header's class menu
+   * offers it. Choosing it closes the menu; the name is typed in the panel.
+   */
+  rename?: { label: string; onSelect: () => void };
+  /**
+   * Removing the entry, as a bin beside it. `blockedHint` keeps the bin in
+   * its place but says why it cannot be used — the open room.
+   */
+  remove?: { label: string; onSelect: () => void; blockedHint?: string };
+};
+
+/**
+ * A choice among several that would take a column of rows if they stood in
+ * the panel — the recipe, the open room, a kind of table, a template — as one
+ * button the inspector's width that opens them as a menu over the panel. The
+ * button names what is chosen, or what the menu is for; choosing a row closes
+ * the menu with the focus back on the button. Shaped as the header's class
+ * menu: `action` — "Neuer Raum" — leads above a hairline, and a row may carry
+ * a pencil and a bin beside it (`rename`, `remove`).
+ */
+export function InspectorMenuButton({
+  label,
+  ariaLabel,
+  menuLabel,
+  rows,
+  action,
+  focusRequest = 0,
+  describedBy,
+}: {
+  /** The word on the button. */
+  label: string;
+  /** The button's accessible name, where the word alone does not say enough. */
+  ariaLabel?: string;
+  /** Names the menu for a screen reader. */
+  menuLabel: string;
+  rows: readonly InspectorMenuRow[];
+  action?: { label: string; icon: Icon; onSelect: () => void };
+  /** Counts up whenever the focus is asked onto the button (Ctrl/⌘+E). */
+  focusRequest?: number;
+  /** The id of a hint under the button that says what choosing does. */
+  describedBy?: string;
+}) {
+  const [open, setOpen] = React.useState(false);
+  const anchorRef = React.useRef<HTMLDivElement | null>(null);
+  const triggerRef = React.useRef<HTMLButtonElement | null>(null);
+  const contentRef = React.useRef<HTMLDivElement | null>(null);
+  const outsideRefs = React.useMemo(() => [anchorRef, contentRef], []);
+  const close = React.useCallback(() => setOpen(false), []);
+  useClickOutside(outsideRefs, close, open);
+  // Portalled to the end of the page: the focus moves in onto the row that
+  // is chosen, the arrow keys step through the rows, Escape closes the menu
+  // with the focus back on the button.
+  usePopoverFocus({
+    open,
+    contentRef,
+    anchorRef: triggerRef,
+    onClose: close,
+    initialFocusSelector: '[aria-pressed="true"]',
+  });
+
+  React.useEffect(() => {
+    if (focusRequest === 0) return undefined;
+    // A frame later, so a drawer that opened for it has taken the focus for
+    // itself first and this lands inside it.
+    const frame = requestAnimationFrame(() => triggerRef.current?.focus());
+    return () => cancelAnimationFrame(frame);
+  }, [focusRequest]);
+
+  const choose = (onSelect: () => void) => {
+    setOpen(false);
+    triggerRef.current?.focus();
+    onSelect();
+  };
+
+  return (
+    <div className="relative" ref={anchorRef}>
+      <button
+        type="button"
+        ref={triggerRef}
+        onClick={() => setOpen((previous) => !previous)}
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        aria-label={ariaLabel}
+        aria-describedby={describedBy}
+        className="flex min-h-7 w-full cursor-pointer items-center gap-2 rounded-md border border-(--border-card) bg-(--surface-card) px-2 py-1 text-left text-control text-(--text-page) transition hover:border-(--border-option-hover) pointer-coarse:min-h-11 pointer-coarse:px-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)"
+      >
+        <span className="min-w-0 flex-1 truncate">{label}</span>
+        <CaretDownIcon
+          size={10}
+          aria-hidden="true"
+          className="shrink-0 text-(--text-muted)"
+        />
+      </button>
+
+      {open && (
+        <FloatingDropdown
+          anchorRef={anchorRef}
+          portalRef={contentRef}
+          matchAnchorWidth
+          className="z-50"
+        >
+          <div
+            role="dialog"
+            aria-label={menuLabel}
+            className={menuSurfaceClass}
+          >
+            {action && (
+              <>
+                <button
+                  type="button"
+                  className={menuItemClass}
+                  onClick={() => {
+                    setOpen(false);
+                    action.onSelect();
+                  }}
+                >
+                  <action.icon
+                    size={16}
+                    aria-hidden="true"
+                    className="shrink-0 text-(--text-muted)"
+                  />
+                  <span className="min-w-0 flex-1">{action.label}</span>
+                </button>
+                <div
+                  aria-hidden="true"
+                  className="my-1 h-px bg-(--border-card)"
+                />
+              </>
+            )}
+            {rows.map((row) => {
+              const main = (
+                <button
+                  type="button"
+                  className={
+                    row.rename || row.remove
+                      ? `${menuItemClass} min-w-0 flex-1`
+                      : menuItemClass
+                  }
+                  onClick={() => choose(row.onSelect)}
+                  aria-pressed={row.checked}
+                >
+                  {row.icon && (
+                    <span aria-hidden="true" className="flex shrink-0">
+                      {row.icon}
+                    </span>
+                  )}
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate">{row.label}</span>
+                    {row.description && (
+                      <span className="block text-xs text-(--text-muted)">
+                        {row.description}
+                      </span>
+                    )}
+                  </span>
+                  {row.meta && (
+                    <span className="shrink-0 text-xs tabular-nums text-(--text-muted)">
+                      {row.meta}
+                    </span>
+                  )}
+                  {row.checked !== undefined && (
+                    // Kept invisible on the other rows, so the names and the
+                    // icons beside them line up.
+                    <CheckIcon
+                      size={14}
+                      weight="bold"
+                      aria-hidden="true"
+                      className={`shrink-0 text-(--button-primary-bg) ${
+                        row.checked ? '' : 'invisible'
+                      }`}
+                    />
+                  )}
+                </button>
+              );
+              if (!row.rename && !row.remove) {
+                return <React.Fragment key={row.key}>{main}</React.Fragment>;
+              }
+              const { rename, remove } = row;
+              return (
+                <div key={row.key} className="flex items-center gap-1">
+                  {main}
+                  {rename && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setOpen(false);
+                        rename.onSelect();
+                      }}
+                      title={rename.label}
+                      aria-label={rename.label}
+                      className={`${quietIconButtonClass} h-9 w-9 shrink-0`}
+                    >
+                      <PencilLineIcon className="h-4 w-4" aria-hidden="true" />
+                    </button>
+                  )}
+                  {remove && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (remove.blockedHint) return;
+                        setOpen(false);
+                        remove.onSelect();
+                      }}
+                      aria-disabled={remove.blockedHint ? true : undefined}
+                      title={remove.blockedHint ?? remove.label}
+                      aria-label={remove.label}
+                      className={`${quietDangerIconButtonClass} h-9 w-9 shrink-0 ${
+                        remove.blockedHint
+                          ? 'cursor-not-allowed opacity-40'
+                          : ''
+                      }`}
+                    >
+                      <TrashIcon className="h-4 w-4" aria-hidden="true" />
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </FloatingDropdown>
+      )}
+    </div>
   );
 }

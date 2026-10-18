@@ -299,9 +299,14 @@ shows, the full width.
 The right-hand panel is a wall, not a stack of cards. A setting inside it is a row — `InspectorRow` with its name and, on the right, a `ToggleSwitch` for a yes/no or `InspectorChoice` chips for a handful of values; pressing the chip a value already has clears it, so "not decided" stays reachable. A student attribute with more values than fit beside the name in one line — the five language levels, the four social roles — keeps its row and shows its value as a button in the family's colour that opens the values as a menu (`InspectorSelect`): rows of icon and word, a check at the end of the chosen one, "Keine" or "Nicht angegeben" first to take it back. Stacked as a list, the two took nine rows of a panel for what most students leave unset, and a teacher stepping through the class read the value off a column of rows. A plan's room in "Bibliothek" is the same kind of menu without a family's colour, since a class may have many rooms, and its last row, below a hairline, moves the plan into a new one (`InspectorSelect`'s `action`). Where the choice is the content rather than one attribute among many — the export's name rule, the note list's order — the values stand as a list under the name instead (`stacked` row, `layout="list"`): one bordered column of rows, a check at the end of the chosen one, because a run of chips wrapping onto a second line reads as a scatter rather than a scale. Every attribute that has a seat badge shows that badge's icon in its family's ink (`InspectorIcon`, icons from `STUDENT_ATTRIBUTE_ICONS` and `STUDENT_FLAGS`) — before the row's name for a flag or a partner, inside the option for a value, and on the menu's button once one is set; language level and social role carry their criterion's icon before the name (`CRITERIA_ICON_MAP`), since their values each bring one of their own — so the symbol on the plan is one the teacher has seen beside its word. An attribute's name starts with a capital in both languages ("Unruhig", "Restless"), wherever it stands as a label. Several students who disagree show that too: a switch with its knob in the middle, and the chips of the values some of them have outlined in dashes (`aria-pressed="mixed"`), a list or menu row a dash where the check would be, and a menu's button "Gemischt" — otherwise a mixed selection looks like one where nothing is set. `InspectorHeader`,
 `InspectorBody`, `InspectorSection` and `InspectorDeleteFooter`
 (`src/components/shell/InspectorPanel.tsx`) are its only parts, with
-`InspectorMediaTile` for the header's media where there is no photo and
-`InspectorActionRow` for an action — shared by the student, the room, the
-plan and every panel of "Bibliothek": the header is a
+`InspectorMediaTile` for the header's media where there is no photo,
+`InspectorActionRow` for an action and `InspectorMenuButton` for a choice
+among more entries than the panel should list — the recipe, a kind of table,
+the rooms, the templates: one button the panel's width that opens them as a
+menu, shaped as the header's class menu (an action such as "Neuer Raum" on
+top, a check at the chosen entry, a pencil and a bin beside it where an entry
+can be renamed and removed) — shared by the student, the room, the plan and
+every panel of "Bibliothek": the header is a
 strip of 44px media, an `h2` and a subtitle above a hairline — the `h2` wraps
 rather than truncates, and a student's arrows to the neighbours sit in the
 subtitle beside the position, so the name keeps the width; sections carry a

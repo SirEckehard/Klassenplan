@@ -129,7 +129,13 @@ test('a plan is found in its room, and a lab is a room of its own', async ({
 
   await test.step('a lab, made as a room of its own, with its own plan', async () => {
     await page.getByRole('button', { name: 'Raum', exact: true }).click();
+    // The rooms are a menu under the open room's name, "Neuer Raum" at
+    // its end; the menu is portalled to the end of the page.
     await roomInspector(page)
+      .getByRole('button', { name: /^Geöffneter Raum:/ })
+      .click();
+    await page
+      .getByRole('dialog', { name: 'Räume' })
       .getByRole('button', { name: 'Neuer Raum' })
       .click();
     const name = roomInspector(page).getByRole('textbox', {

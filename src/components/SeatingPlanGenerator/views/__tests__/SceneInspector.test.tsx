@@ -159,6 +159,14 @@ const turned = (
   features: Array<[string, number]> = [],
 ) => ({ tables: new Map(tables), features: new Map(features) });
 
+/** The button that opens the kept templates. */
+const templateMenu = () =>
+  screen.getByRole('button', { name: /Vorlage öffnen|Open a template/ });
+
+/** The button that opens the four kinds of table, once tables stand. */
+const setupButton = () =>
+  screen.getByRole('button', { name: /Tischart wählen|Choose a table type/ });
+
 const angleField = () =>
   screen.getByRole('textbox', { name: /Drehung in Grad|Rotation in/i });
 
@@ -204,14 +212,16 @@ describe('SceneInspector', () => {
     ).toBeInTheDocument();
   });
 
+  // A room that has its tables keeps the four kinds in a menu.
   it('sets the room up with as many tables as the class needs', () => {
     const { onSetUpRoom } = renderInspector({ studentsCount: 25 });
 
+    fireEvent.click(setupButton());
     // 25 students: 25 single seats, 13 doubles, 7 groups of 4, 5 of 6.
-    const setup = screen.getByRole('heading', {
+    const menu = screen.getByRole('dialog', {
       name: /^(Neu einrichten|Set up from scratch)$/,
-    }).parentElement as HTMLElement;
-    const rows = within(setup).getAllByRole('button');
+    });
+    const rows = within(menu).getAllByRole('button');
     expect(rows.map((row) => row.textContent)).toEqual([
       expect.stringMatching(/^(Einzelplätze|Single seats)25 (Tische|tables)$/),
       expect.stringMatching(/^(Doppelplätze|Double seats)13 (Tische|tables)$/),
@@ -223,15 +233,32 @@ describe('SceneInspector', () => {
     expect(onSetUpRoom).toHaveBeenCalledWith('double');
   });
 
+  // In an empty room the kinds are the first step and stand as rows.
+  it('offers the four kinds as rows in an empty room', () => {
+    const { onSetUpRoom } = renderInspector({ tables: [] });
+
+    fireEvent.click(
+      screen.getByRole('button', { name: /^(Doppelplätze|Double seats)/ }),
+    );
+    expect(onSetUpRoom).toHaveBeenCalledWith('double');
+    expect(
+      screen.queryByRole('button', {
+        name: /Tischart wählen|Choose a table type/,
+      }),
+    ).not.toBeInTheDocument();
+  });
+
   // The setup replaces what stands there, and the hint says so.
   it('warns that setting up replaces the tables, but not in an empty room', () => {
     const { rerender } = renderInspector();
-    const row = () =>
-      screen.getByRole('button', { name: /^(Doppelplätze|Double seats)/ });
-    expect(row()).toHaveAccessibleDescription(/komplett neu|from scratch/);
+    expect(setupButton()).toHaveAccessibleDescription(
+      /komplett neu|from scratch/,
+    );
 
     rerender({ tables: [] });
-    expect(row()).not.toHaveAccessibleDescription(/komplett neu|from scratch/);
+    expect(
+      screen.getByRole('button', { name: /^(Doppelplätze|Double seats)/ }),
+    ).not.toHaveAccessibleDescription(/komplett neu|from scratch/);
   });
 
   it('offers no setup to a class without students', () => {
@@ -245,6 +272,14 @@ describe('SceneInspector', () => {
 
   it('moves the focus to the setup when it is asked for', async () => {
     const { rerender } = renderInspector();
+
+    rerender({ setupFocusRequest: 1 });
+
+    await waitFor(() => expect(setupButton()).toHaveFocus());
+  });
+
+  it('moves the focus to the first kind in an empty room', async () => {
+    const { rerender } = renderInspector({ tables: [] });
 
     rerender({ setupFocusRequest: 1 });
 
@@ -267,27 +302,24 @@ describe('SceneInspector', () => {
     );
     expect(onSaveTemplate).toHaveBeenCalledTimes(1);
 
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: /Vorlage öffnen|Open a template/,
+      }),
+    );
     const saved = screen.getByRole('button', { name: /^Raum 104/ });
     expect(saved).toHaveTextContent(/2 (Tische|tables) · 6 (Plätze|seats)/);
     fireEvent.click(saved);
     expect(onLoadTemplate).toHaveBeenCalledWith(7);
   });
 
-  it('explains templates before there is one', () => {
-    renderInspector();
-
-    expect(
-      screen.getByText(
-        /für weitere Klassen zu nutzen|for other classes as well/,
-      ),
-    ).toBeInTheDocument();
-  });
-
-  it('renames a template in its row, refusing a name another one carries', async () => {
+  // As the header's class menu: a pencil and a bin beside every template.
+  it('renames a template from the menu, refusing a name another one carries', async () => {
     const { onRenameTemplate } = renderInspector({
       templates: [template(1, 'Raum 104', []), template(2, 'Raum 105', [])],
     });
 
+    fireEvent.click(templateMenu());
     fireEvent.click(
       screen.getByRole('button', {
         name: /„Raum 104“ umbenennen|Rename “Raum 104”/,
@@ -315,41 +347,24 @@ describe('SceneInspector', () => {
     );
   });
 
-  it('drops a rename on Escape', () => {
-    const { onRenameTemplate } = renderInspector({
-      templates: [template(1, 'Raum 104', [])],
-    });
-
-    fireEvent.click(
-      screen.getByRole('button', {
-        name: /„Raum 104“ umbenennen|Rename “Raum 104”/,
-      }),
-    );
-    const field = screen.getByRole('textbox', {
-      name: /Name der Vorlage|Template name/,
-    });
-    fireEvent.change(field, { target: { value: 'Anders' } });
-    fireEvent.keyDown(field, { key: 'Escape' });
-
-    expect(field).not.toBeInTheDocument();
-    expect(onRenameTemplate).not.toHaveBeenCalled();
-  });
-
   // A template is not part of the room's undo history, so removing one asks.
-  it('deletes a template only once that is confirmed', async () => {
+  it('deletes a template from the menu only once that is confirmed', async () => {
     const { onDeleteTemplate } = renderInspector({
       templates: [template(3, 'Raum 104', [])],
     });
-    const deleteButton = screen.getByRole('button', {
-      name: /„Raum 104“ löschen|Delete “Raum 104”/,
-    });
+    const binOf = () =>
+      screen.getByRole('button', {
+        name: /„Raum 104“ löschen|Delete “Raum 104”/,
+      });
 
     vi.mocked(confirmDialog).mockResolvedValueOnce(false);
-    fireEvent.click(deleteButton);
+    fireEvent.click(templateMenu());
+    fireEvent.click(binOf());
     await waitFor(() => expect(confirmDialog).toHaveBeenCalledTimes(1));
     expect(onDeleteTemplate).not.toHaveBeenCalled();
 
-    fireEvent.click(deleteButton);
+    fireEvent.click(templateMenu());
+    fireEvent.click(binOf());
     await waitFor(() => expect(onDeleteTemplate).toHaveBeenCalledWith(3));
   });
 
