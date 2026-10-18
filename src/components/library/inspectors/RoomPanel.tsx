@@ -12,7 +12,7 @@ import {
 import type { LibraryRoom } from '@/hooks/library/useClassLibrary';
 import { checkName, MAX_NAME_LENGTH, type NameProblem } from '@/utils';
 import RoomThumbnail from '../RoomThumbnail';
-import NameField from './NameField';
+import NameField from '@/components/shell/NameField';
 import { ValueRow } from './panelParts';
 
 /**

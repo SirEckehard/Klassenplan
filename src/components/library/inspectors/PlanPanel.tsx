@@ -38,7 +38,7 @@ import ToggleSwitch from '@/components/ui/controls/ToggleSwitch';
 import InspectorSelect from '@/components/students/InspectorSelect';
 import { hasShapeMismatch } from '@/utils/math/scene';
 import RoomThumbnail from '../RoomThumbnail';
-import NameField from './NameField';
+import NameField from '@/components/shell/NameField';
 import { ValueRow } from './panelParts';
 
 export type PlanMove = { roomId: string } | { newRoomName: string };

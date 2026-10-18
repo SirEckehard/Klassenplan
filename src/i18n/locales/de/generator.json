@@ -294,6 +294,14 @@
       "fallbackName": "die aktuelle Klasse"
     }
   },
+  "classPanel": {
+    "name": "Name",
+    "nameTaken": "Eine Klasse heißt schon so.",
+    "schoolYear": "Schuljahr",
+    "schoolYearPlaceholder": "z. B. 2026/27",
+    "notes": "Notizen",
+    "notesPlaceholder": "Besonderheiten, Schwerpunkt …"
+  },
   "mix": {
     "title": "Mischkriterien",
     "recipes": {
@@ -1138,7 +1146,6 @@
     "openHintNeighbours": "Nachbarschaften lassen sich nur ansehen, nicht öffnen.",
     "openHintNoClass": "Lege zuerst eine Klasse an.",
     "backTitle": "Zurück (Alt/⌥+←)",
-    "renameShortcut": "Bearbeiten (F2)",
     "chipOpen": "geöffnet",
     "chipAutoSaved": "automatisch gesichert",
     "plans_one": "{{count}} Plan",
@@ -1162,7 +1169,6 @@
     "contents": "Inhalt",
     "class": {
       "section": "Klasse",
-      "edit": "Name, Schuljahr und Notizen bearbeiten",
       "students": "Schüler",
       "plans": "Pläne",
       "lastUsed": "Zuletzt geöffnet",

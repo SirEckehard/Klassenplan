@@ -18,6 +18,9 @@ import { useClassManagementContext } from '@/contexts/seatingPlan/ClassManagemen
 import { useSeatingPlanState } from '@/contexts/SeatingPlanContext';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 import {
+  checkName,
+  inputFieldClass,
+  MAX_NAME_LENGTH,
   menuItemClass,
   menuSurfaceClass,
   quietDangerIconButtonClass,
@@ -36,19 +39,24 @@ import {
  */
 export default function HeaderClassMenu() {
   const { t } = useTranslation(['students', 'generator']);
-  const { classSummaries, activeClass, selectClass } =
+  const { classSummaries, activeClass, selectClass, updateClassMetadata } =
     useClassManagementContext();
-  const { openCreate, openEdit, requestDelete, isBusy } = useClassDialogs();
+  const { openCreate, requestDelete, isBusy } = useClassDialogs();
   const { students } = useSeatingPlanState();
 
   const anchorRef = React.useRef<HTMLButtonElement | null>(null);
   const containerRef = React.useRef<HTMLDivElement | null>(null);
   const contentRef = React.useRef<HTMLDivElement | null>(null);
   const [open, setOpen] = React.useState(false);
+  // The class renamed in place, in its own row of the menu.
+  const [renamingId, setRenamingId] = React.useState<string | null>(null);
 
   const hasActiveClass = Boolean(activeClass.id);
 
-  const close = React.useCallback(() => setOpen(false), []);
+  const close = React.useCallback(() => {
+    setOpen(false);
+    setRenamingId(null);
+  }, []);
   useClickOutside([containerRef, contentRef], close, open);
   // Focus lands on the open class, Tab and the arrow keys stay in the list,
   // Escape closes it with the focus back on this button.
@@ -180,10 +188,37 @@ export default function HeaderClassMenu() {
             >
               {summaries.map((entry) => {
                 const isSelected = entry.id === activeClass.id;
+                if (entry.id === renamingId) {
+                  return (
+                    <ClassNameRow
+                      key={entry.id}
+                      initialName={entry.name}
+                      otherNames={summaries
+                        .filter((other) => other.id !== entry.id)
+                        .map((other) => other.name)}
+                      onCommit={(name) =>
+                        updateClassMetadata(entry.id, { name })
+                      }
+                      onDone={() => {
+                        setRenamingId(null);
+                        // Back on the class just renamed, so the keyboard
+                        // stays in the menu.
+                        requestAnimationFrame(() => {
+                          contentRef.current
+                            ?.querySelector<HTMLElement>(
+                              `[data-class-id="${CSS.escape(entry.id)}"]`,
+                            )
+                            ?.focus();
+                        });
+                      }}
+                    />
+                  );
+                }
                 return (
                   <div key={entry.id} className="flex items-center gap-1">
                     <button
                       type="button"
+                      data-class-id={entry.id}
                       onClick={() => handleSelect(entry.id)}
                       disabled={isBusy}
                       aria-current={isSelected ? 'true' : undefined}
@@ -201,10 +236,7 @@ export default function HeaderClassMenu() {
                     </button>
                     <button
                       type="button"
-                      onClick={() => {
-                        setOpen(false);
-                        openEdit(entry.id);
-                      }}
+                      onClick={() => setRenamingId(entry.id)}
                       disabled={isBusy}
                       title={t('students:classManagement.editClass')}
                       aria-label={`${t('students:classManagement.editClass')} ${entry.name}`}
@@ -242,3 +274,78 @@ export default function HeaderClassMenu() {
 // destructive row does (`menu-item-danger`).
 const optionActionClass = `${quietIconButtonClass} h-9 w-9 shrink-0`;
 const optionDeleteClass = `${quietDangerIconButtonClass} h-9 w-9 shrink-0`;
+
+/**
+ * A class's name in its own row of the menu: Enter, or moving on within the
+ * menu, keeps it; Escape or a click beside the menu closes the menu without
+ * it, as it closes any menu without a choice. A name another class carries is
+ * refused under the field as it is typed — the repository would refuse it
+ * too, but only after the fact.
+ */
+function ClassNameRow({
+  initialName,
+  otherNames,
+  onCommit,
+  onDone,
+}: {
+  initialName: string;
+  otherNames: string[];
+  /** Gives the name; resolves with whether it was kept. */
+  onCommit: (name: string) => Promise<boolean>;
+  onDone: () => void;
+}) {
+  const { t } = useTranslation('generator');
+  const [draft, setDraft] = React.useState(initialName);
+  // Enter and leaving the field can both ask while the rename is on its way.
+  const committingRef = React.useRef(false);
+  const errorId = React.useId();
+  const problem = checkName(draft, otherNames, MAX_NAME_LENGTH);
+  const taken = problem === 'taken';
+
+  const commit = async () => {
+    if (committingRef.current) return;
+    const trimmed = draft.trim();
+    if (trimmed === '' || trimmed === initialName) {
+      onDone();
+      return;
+    }
+    if (problem) return;
+    committingRef.current = true;
+    try {
+      if (await onCommit(trimmed)) onDone();
+    } finally {
+      committingRef.current = false;
+    }
+  };
+
+  return (
+    <div className="flex flex-col gap-1 px-2 py-1">
+      <input
+        type="text"
+        value={draft}
+        maxLength={MAX_NAME_LENGTH}
+        autoFocus
+        onFocus={(event) => event.currentTarget.select()}
+        onChange={(event) => setDraft(event.target.value)}
+        onBlur={() => {
+          void commit();
+        }}
+        onKeyDown={(event) => {
+          if (event.key === 'Enter') {
+            event.preventDefault();
+            void commit();
+          }
+        }}
+        aria-label={t('classPanel.name')}
+        aria-invalid={taken || undefined}
+        aria-describedby={taken ? errorId : undefined}
+        className={`${inputFieldClass} h-9 w-full py-0 text-sm`}
+      />
+      {taken && (
+        <p id={errorId} className="text-xs text-(--status-alert-text)">
+          {t('classPanel.nameTaken')}
+        </p>
+      )}
+    </div>
+  );
+}

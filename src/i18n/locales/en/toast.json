@@ -128,7 +128,6 @@
     "activatedName": "Class {{name}} activated",
     "createdActivatedName": "Class {{name}} created and activated",
     "createdName": "Class {{name}} created",
-    "updatedName": "Class info for {{name}} updated",
     "deletedName": "Class {{name}} deleted"
   },
   "network": {

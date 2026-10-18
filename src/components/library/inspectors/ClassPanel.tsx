@@ -1,34 +1,52 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import { useTranslation } from 'react-i18next';
-import { GraduationCapIcon, PencilLineIcon } from '@phosphor-icons/react';
+import { GraduationCapIcon } from '@phosphor-icons/react';
 import {
-  InspectorActionRow,
   InspectorBody,
   InspectorDeleteFooter,
   InspectorHeader,
   InspectorMediaTile,
   InspectorSection,
 } from '@/components/shell/InspectorPanel';
-import type { LibraryClass } from '@/hooks/library/useClassLibrary';
+import ClassMetadataFields from '@/components/students/ClassMetadataFields';
+import type { UpdateClassMetadataPayload } from '@/types';
 import { formatStoredDate } from '@/utils';
 import { ValueRow } from './panelParts';
 
 /**
- * A class in "Bibliothek": what it is called and what it holds. Its school
- * year is the header's subtitle and not repeated in a row. Its name,
- * school year and notes are changed in the class dialog the header's class
- * menu opens too — one form for them, with its checks — and the class goes
- * with everything in it only after the question that dialog asks.
+ * A class: what it is called and what it holds — in "Bibliothek", and in the
+ * class layer's inspector while no student is open there. Its school year is
+ * the header's subtitle. Name, school year and notes are changed in the panel
+ * itself, and the class goes with everything in it only after the question
+ * the delete asks.
  */
 export default function ClassPanel({
-  library,
-  onEdit,
+  name,
+  label,
+  notes,
+  studentCount,
+  roomCount,
+  planCount,
+  lastUsedAt,
+  otherNames,
+  onCommit,
   onDelete,
+  renameRequest,
 }: {
-  library: LibraryClass;
-  onEdit: () => void;
+  name: string;
+  label?: string;
+  notes?: string;
+  studentCount: number;
+  roomCount: number;
+  planCount: number;
+  lastUsedAt?: string;
+  /** The names of the other classes, which this one may not take. */
+  otherNames: string[];
+  onCommit: (patch: UpdateClassMetadataPayload) => Promise<boolean>;
   onDelete: () => void;
+  /** Counts up whenever the name is asked for (F2), to take the focus. */
+  renameRequest?: number;
 }) {
   const { t } = useTranslation('generator');
 
@@ -36,34 +54,29 @@ export default function ClassPanel({
     <>
       <InspectorHeader
         media={<InspectorMediaTile icon={GraduationCapIcon} />}
-        title={library.name}
-        subtitle={library.label || undefined}
+        title={name}
+        subtitle={label || undefined}
       />
       <InspectorBody>
         <InspectorSection title={t('library.class.section')}>
-          {library.notes && (
-            <p className="text-control leading-relaxed whitespace-pre-line text-(--text-page)">
-              {library.notes}
-            </p>
-          )}
-          <InspectorActionRow
-            icon={PencilLineIcon}
-            label={t('library.class.edit')}
-            title={t('library.renameShortcut')}
-            onClick={onEdit}
+          <ClassMetadataFields
+            name={name}
+            label={label}
+            notes={notes}
+            otherNames={otherNames}
+            onCommit={onCommit}
+            focusRequest={renameRequest}
           />
         </InspectorSection>
         <InspectorSection title={t('library.contents')}>
           <ValueRow label={t('library.class.students')}>
-            {library.students.length}
+            {studentCount}
           </ValueRow>
-          <ValueRow label={t('library.rooms')}>{library.rooms.length}</ValueRow>
-          <ValueRow label={t('library.class.plans')}>
-            {library.plans.length}
-          </ValueRow>
-          {library.lastUsedAt && (
+          <ValueRow label={t('library.rooms')}>{roomCount}</ValueRow>
+          <ValueRow label={t('library.class.plans')}>{planCount}</ValueRow>
+          {lastUsedAt && (
             <ValueRow label={t('library.class.lastUsed')}>
-              {formatStoredDate(library.lastUsedAt.slice(0, 10))}
+              {formatStoredDate(lastUsedAt.slice(0, 10))}
             </ValueRow>
           )}
         </InspectorSection>

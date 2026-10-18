@@ -16,7 +16,7 @@ import { getButton } from '@/__tests__/utils';
 const mocks = vi.hoisted(() => ({
   selectClass: vi.fn(),
   openCreate: vi.fn(),
-  openEdit: vi.fn(),
+  updateClassMetadata: vi.fn(() => Promise.resolve(true)),
   requestDelete: vi.fn(),
   activeClassId: 'class-1' as string | null,
 }));
@@ -29,13 +29,13 @@ vi.mock('@/contexts/seatingPlan/ClassManagementContext', () => ({
     ],
     activeClass: { id: mocks.activeClassId, name: 'Testklasse' },
     selectClass: mocks.selectClass,
+    updateClassMetadata: mocks.updateClassMetadata,
   }),
 }));
 
 vi.mock('@/contexts/ClassDialogsContext', () => ({
   useClassDialogs: () => ({
     openCreate: mocks.openCreate,
-    openEdit: mocks.openEdit,
     requestDelete: mocks.requestDelete,
     isBusy: false,
   }),
@@ -90,7 +90,37 @@ describe('HeaderClassMenu', () => {
         name: /Klasse bearbeiten Testklasse|Edit class Testklasse/i,
       }),
     );
-    expect(mocks.openEdit).toHaveBeenCalledWith('class-1');
+    expect(screen.getByRole('textbox', { name: /^Name$/ })).toHaveValue(
+      'Testklasse',
+    );
+  });
+
+  // Renamed in the menu, not in a dialog over the page.
+  it('renames a class in its row, refusing a name another class carries', async () => {
+    render(<HeaderClassMenu />);
+    openMenu();
+    fireEvent.click(
+      await screen.findByRole('button', {
+        name: /Klasse bearbeiten Testklasse|Edit class Testklasse/i,
+      }),
+    );
+    const field = screen.getByRole('textbox', { name: /^Name$/ });
+
+    fireEvent.change(field, { target: { value: 'parallelklasse' } });
+    fireEvent.keyDown(field, { key: 'Enter' });
+    expect(field).toHaveAttribute('aria-invalid', 'true');
+    expect(mocks.updateClassMetadata).not.toHaveBeenCalled();
+
+    fireEvent.change(field, { target: { value: '7b' } });
+    fireEvent.keyDown(field, { key: 'Enter' });
+    expect(mocks.updateClassMetadata).toHaveBeenCalledWith('class-1', {
+      name: '7b',
+    });
+    await waitFor(() => expect(field).not.toBeInTheDocument());
+    // The menu stays open on its classes.
+    expect(
+      screen.getByRole('dialog', { name: /Klasse wechseln|Switch class/i }),
+    ).toBeInTheDocument();
   });
 
   // Without a class the button keeps its shape; creating the first one is in

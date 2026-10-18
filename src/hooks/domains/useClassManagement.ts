@@ -4,6 +4,7 @@ import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { logError, showToast, TOAST_MESSAGES } from '@/utils';
 import type {
+  ClassRecord,
   CreateClassPayload,
   UpdateClassMetadataPayload,
   ClassSummary,
@@ -28,6 +29,12 @@ type UseClassManagementProps = {
    * "Switching classes").
    */
   applyClassReload: () => Promise<void>;
+  /**
+   * Puts a class's new name, school year or notes into the summaries and,
+   * for the open class, into the active class — nothing else about a class
+   * changes with them, so they need no reload, and the undo history stays.
+   */
+  applyClassMetadata: (record: ClassRecord) => void;
 };
 
 export function useClassManagement({
@@ -37,6 +44,7 @@ export function useClassManagement({
   hasPendingStudentUpdates,
   hasUnsavedSeatingChanges,
   applyClassReload,
+  applyClassMetadata,
 }: UseClassManagementProps) {
   const { t } = useTranslation();
   // Classes carry a name, but a record written by an older build may not — and
@@ -149,6 +157,8 @@ export function useClassManagement({
     ],
   );
 
+  // Edited where they are read, field by field, so a change says nothing:
+  // the field shows it. Only a refusal speaks.
   const updateClassMetadata = useCallback(
     async (classId: string, patch: UpdateClassMetadataPayload) => {
       const result = await repository.updateClassMetadata(classId, patch);
@@ -167,16 +177,10 @@ export function useClassManagement({
         showToast('error', TOAST_MESSAGES.CLASS_UPDATE_ERROR);
         return false;
       }
-      await applyClassReload();
-      showToast(
-        'success',
-        t('toast:class.updatedName', {
-          name: formatClassLabel(result.data.name),
-        }),
-      );
+      applyClassMetadata(result.data);
       return true;
     },
-    [applyClassReload, formatClassLabel, repository, t],
+    [applyClassMetadata, repository],
   );
 
   const deleteClass = useCallback(

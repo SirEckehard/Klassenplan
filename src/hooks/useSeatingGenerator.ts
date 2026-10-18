@@ -27,7 +27,11 @@ import {
 import { usePlanUsageTracking } from './plan/usePlanUsageTracking';
 import { usePlanUsageRecords } from './plan/usePlanUsageRecords';
 import { useStudentHistory } from './student/useStudentHistory';
-import type { ClassroomScene as ClassroomSceneT, Student } from '@/types';
+import type {
+  ClassRecord,
+  ClassroomScene as ClassroomSceneT,
+  Student,
+} from '@/types';
 import { hasSeatedStudent } from '@/utils';
 
 /**
@@ -121,7 +125,12 @@ export function useSeatingGenerator() {
       setClassroomScene,
       removeTables,
     },
-    classState: { classSummaries, activeClass },
+    classState: {
+      classSummaries,
+      activeClass,
+      setClassSummaries,
+      setActiveClass,
+    },
   } = seatingState;
 
   const {
@@ -301,6 +310,25 @@ export function useSeatingGenerator() {
     resetStudentHistory,
   ]);
 
+  const applyClassMetadata = useCallback(
+    (record: ClassRecord) => {
+      const { name, label, notes, updatedAt } = record;
+      setClassSummaries((previous) =>
+        previous.map((entry) =>
+          entry.id === record.id
+            ? { ...entry, name, label, notes, updatedAt }
+            : entry,
+        ),
+      );
+      setActiveClass((previous) =>
+        previous.id === record.id
+          ? { ...previous, name, label, notes }
+          : previous,
+      );
+    },
+    [setActiveClass, setClassSummaries],
+  );
+
   // Class management
   const { selectClass, createClass, updateClassMetadata, deleteClass } =
     useClassManagement({
@@ -310,6 +338,7 @@ export function useSeatingGenerator() {
       hasPendingStudentUpdates,
       hasUnsavedSeatingChanges,
       applyClassReload,
+      applyClassMetadata,
     });
 
   // Ref for scene sync callback

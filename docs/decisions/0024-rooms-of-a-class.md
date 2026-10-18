@@ -58,7 +58,8 @@ who asked for a plan per room did not find that it was possible.
    The neighbourhoods list the students, and a student's neighbours the
    column after, since two full names do not fit one.
    What is selected is read and changed in the inspector — a class's name,
-   school year and notes in the class dialog the header's menu opens too —
+   school year and notes too, in the same panel the class layer's inspector
+   shows while no student is open —
    and the status bar carries its path and "Öffnen". A class that is not open
    is browsed without being opened and changed in storage; opening something
    of it opens the class first. The page replaces the dialog.

@@ -44,6 +44,7 @@ import StudentListToolsRow from '@/components/studentInput/StudentListToolsRow';
 import StudentBulkInspector from '@/components/students/StudentBulkInspector';
 import StudentInspectorPanel from '@/components/students/StudentInspectorPanel';
 import InspectorPortal from '@/components/shell/InspectorPortal';
+import ClassInspector from '@/components/students/ClassInspector';
 import StatusBarPortal from '@/components/shell/StatusBarPortal';
 import { useInspector } from '@/contexts/InspectorContext';
 import AttributeFocusMode from '@/components/studentInput/AttributeFocusMode';
@@ -276,6 +277,10 @@ function StudentInput({
   // along, and its close button lets the selection go, as the bulk one does.
   const singleSelected =
     selectedStudents.length === 1 ? selectedStudents[0] : null;
+  const showsClassInspector =
+    hasActiveClass &&
+    inspectorSelection?.kind !== 'student' &&
+    !(selectionActive && bulkInInspector);
   const removeStudent = useCallback(
     (id: string) => removeStudents([id]),
     [removeStudents],
@@ -439,6 +444,14 @@ function StudentInput({
                 onClear={selection.clear}
               />
             )}
+          </InspectorPortal>
+        )}
+        {/* With no student open, the inspector shows the class itself, as
+            the room's shows the room; below `lg` it is the drawer the status
+            bar's switch opens. */}
+        {showsClassInspector && (
+          <InspectorPortal label={t('generator:library.class.section')}>
+            <ClassInspector />
           </InspectorPortal>
         )}
         <>

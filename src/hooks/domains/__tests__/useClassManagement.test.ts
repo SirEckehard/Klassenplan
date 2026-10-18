@@ -39,7 +39,17 @@ const setup = () => {
       calls.push('createClass');
       return ResultHelpers.success(record('class-new', 'Neue Klasse'));
     }),
+    updateClassMetadata: vi.fn(async (classId: string) => {
+      calls.push(`updateClassMetadata:${classId}`);
+      return ResultHelpers.success({
+        ...record(classId, 'Klasse A'),
+        label: '2026/27',
+      });
+    }),
   } as unknown as ISeatingPlanRepository;
+  const applyClassMetadata = vi.fn((entry: ClassRecord) => {
+    calls.push(`apply:${entry.id}`);
+  });
   const applyClassReload = vi.fn(async () => {
     calls.push('reload');
   });
@@ -52,10 +62,11 @@ const setup = () => {
       hasPendingStudentUpdates: false,
       hasUnsavedSeatingChanges: false,
       applyClassReload,
+      applyClassMetadata,
     }),
   );
 
-  return { result, repository, calls };
+  return { result, repository, calls, applyClassMetadata };
 };
 
 describe('useClassManagement', () => {
@@ -91,5 +102,25 @@ describe('useClassManagement', () => {
       { activate: true },
     );
     expect(calls).toEqual(['createClass', 'reload']);
+  });
+
+  // Name, school year and notes change nothing else about a class: no reload,
+  // which would also drop the undo history, and no message — the field shows
+  // the change.
+  it('applies a changed school year without reloading the class', async () => {
+    const { result, calls, applyClassMetadata } = setup();
+    let kept = false;
+
+    await act(async () => {
+      kept = await result.current.updateClassMetadata('class-a', {
+        label: '2026/27',
+      });
+    });
+
+    expect(kept).toBe(true);
+    expect(calls).toEqual(['updateClassMetadata:class-a', 'apply:class-a']);
+    expect(applyClassMetadata).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'class-a', label: '2026/27' }),
+    );
   });
 });

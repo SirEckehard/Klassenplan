@@ -9,7 +9,9 @@ import ConfirmDialog from '@/components/ui/modals/ConfirmDialog';
 import { useClassManagementContext } from '@/contexts/seatingPlan/ClassManagementContext';
 
 /**
- * Creating, renaming and deleting a class — the dialogs, in one place.
+ * Creating and deleting a class — the dialogs, in one place. A class is
+ * renamed where it is read: in its inspector, in "Bibliothek" and in the
+ * header's class menu.
  *
  * Two very different spots ask for them: the class menu in the header, which is
  * where a teacher with classes works, and the empty state of the class layer,
@@ -19,7 +21,6 @@ import { useClassManagementContext } from '@/contexts/seatingPlan/ClassManagemen
  */
 type ClassDialogsContextValue = {
   openCreate: () => void;
-  openEdit: (classId?: string) => void;
   requestDelete: (classId: string) => void;
   /** True while a class action is being written to the repository. */
   isBusy: boolean;
@@ -34,27 +35,16 @@ const defaultValues: ClassMetadataFormValues = {
   notes: '',
 };
 
-type DialogState = {
-  mode: 'create' | 'edit';
-  classId?: string | null;
-  initialValues: ClassMetadataFormValues;
-};
-
 export function ClassDialogsProvider({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const { t } = useTranslation('generator');
-  const {
-    classSummaries,
-    activeClass,
-    createClass,
-    updateClassMetadata,
-    deleteClass,
-  } = useClassManagementContext();
+  const { classSummaries, activeClass, createClass, deleteClass } =
+    useClassManagementContext();
 
-  const [dialog, setDialog] = React.useState<DialogState | null>(null);
+  const [createOpen, setCreateOpen] = React.useState(false);
   const [deleteTarget, setDeleteTarget] = React.useState<string | null>(null);
   const [isBusy, setIsBusy] = React.useState(false);
 
@@ -67,43 +57,14 @@ export function ClassDialogsProvider({
     }
   }, []);
 
-  const openCreate = React.useCallback(() => {
-    setDialog({ mode: 'create', initialValues: defaultValues });
-  }, []);
-
-  const openEdit = React.useCallback(
-    (classId?: string) => {
-      const targetId = classId ?? activeClass.id;
-      if (!targetId) return;
-      const target =
-        classSummaries.find((entry) => entry.id === targetId) ?? activeClass;
-      setDialog({
-        mode: 'edit',
-        classId: targetId,
-        initialValues: {
-          name: target.name ?? '',
-          label: target.label ?? '',
-          notes: target.notes ?? '',
-        },
-      });
-    },
-    [activeClass, classSummaries],
-  );
+  const openCreate = React.useCallback(() => setCreateOpen(true), []);
 
   const handleSubmit = React.useCallback(
     async (values: ClassMetadataFormValues) => {
-      if (!dialog) return;
-      if (dialog.mode === 'create') {
-        const ok = await run(() => createClass(values, { activate: true }));
-        if (ok) setDialog(null);
-        return;
-      }
-      const targetId = dialog.classId ?? activeClass.id;
-      if (!targetId) return;
-      const ok = await run(() => updateClassMetadata(targetId, values));
-      if (ok) setDialog(null);
+      const ok = await run(() => createClass(values, { activate: true }));
+      if (ok) setCreateOpen(false);
     },
-    [activeClass.id, createClass, dialog, run, updateClassMetadata],
+    [createClass, run],
   );
 
   const handleDeleteConfirmed = React.useCallback(async () => {
@@ -128,22 +89,21 @@ export function ClassDialogsProvider({
   const value = React.useMemo(
     () => ({
       openCreate,
-      openEdit,
       requestDelete: setDeleteTarget,
       isBusy,
     }),
-    [isBusy, openCreate, openEdit],
+    [isBusy, openCreate],
   );
 
   return (
     <ClassDialogsContext.Provider value={value}>
       {children}
       <ClassMetadataDialog
-        open={Boolean(dialog)}
-        mode={dialog?.mode ?? 'create'}
-        initialValues={dialog?.initialValues ?? defaultValues}
+        open={createOpen}
+        mode="create"
+        initialValues={defaultValues}
         isSubmitting={isBusy}
-        onClose={() => setDialog(null)}
+        onClose={() => setCreateOpen(false)}
         onSubmit={handleSubmit}
       />
       <ConfirmDialog
@@ -172,7 +132,6 @@ export function useClassDialogs(): ClassDialogsContextValue {
 const noop = () => {};
 const FALLBACK: ClassDialogsContextValue = {
   openCreate: noop,
-  openEdit: noop,
   requestDelete: noop,
   isBusy: false,
 };

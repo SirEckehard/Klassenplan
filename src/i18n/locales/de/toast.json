@@ -128,7 +128,6 @@
     "activatedName": "Klasse {{name}} aktiviert",
     "createdActivatedName": "Klasse {{name}} erstellt und aktiviert",
     "createdName": "Klasse {{name}} erstellt",
-    "updatedName": "Klasseninfos für {{name}} aktualisiert",
     "deletedName": "Klasse {{name}} gelöscht"
   },
   "network": {

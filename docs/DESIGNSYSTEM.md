@@ -350,7 +350,9 @@ a panel stand at one pitch. On an iPad the partners' buttons stayed small
 while the rest grew to 44px, and their rows huddled together between rows
 spread wide.
 
-A panel with nothing selected belongs to what the layer shows as a whole. The
+A panel with nothing selected belongs to what the layer shows as a whole: the
+class layer's, while no student is open, is the class — its name, school year
+and notes, what it holds, its removal — the panel "Bibliothek" shows for it. The
 room's names its tables in the header and offers what concerns the room
 itself — "Neu einrichten" and "Vorlagen", as menu rows — rather than repeating the
 seats and students the status bar already states. That is also why the room

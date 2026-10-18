@@ -111,8 +111,8 @@ function PlanLibraryPage() {
   const location = useLocation();
   const state = useSeatingPlanState();
   const actions = useSeatingPlanActions();
-  const { selectClass } = useClassManagementContext();
-  const { openCreate, openEdit, requestDelete } = useClassDialogs();
+  const { selectClass, updateClassMetadata } = useClassManagementContext();
+  const { openCreate, requestDelete } = useClassDialogs();
   const { setDrawerOpen, setFolded } = useInspector();
   const layoutMode = useLayoutMode();
   const isDesktop = layoutMode === 'desktop';
@@ -357,11 +357,8 @@ function PlanLibraryPage() {
 
   const requestRename = (node: LibraryNode | undefined) => {
     if (!node) return;
-    if (node.kind === 'class') {
-      openEdit(node.classId);
-      return;
-    }
     if (
+      node.kind === 'class' ||
       node.kind === 'room' ||
       node.kind === 'plan' ||
       node.kind === 'template'
@@ -553,9 +550,19 @@ function PlanLibraryPage() {
       case 'class':
         return classLibrary ? (
           <ClassPanel
-            library={classLibrary}
-            onEdit={() => openEdit(current.classId)}
+            name={classLibrary.name}
+            label={classLibrary.label}
+            notes={classLibrary.notes}
+            studentCount={classLibrary.students.length}
+            roomCount={classLibrary.rooms.length}
+            planCount={classLibrary.plans.length}
+            lastUsedAt={classLibrary.lastUsedAt}
+            otherNames={library.classes
+              .filter((entry) => entry.id !== classLibrary.id)
+              .map((entry) => entry.name)}
+            onCommit={(patch) => updateClassMetadata(classLibrary.id, patch)}
             onDelete={() => requestDelete(current.classId)}
+            renameRequest={renameRequest}
           />
         ) : null;
       case 'room': {

@@ -699,7 +699,8 @@ describe('StudentInput bulk editing in the inspector', () => {
     expect(removeStudents).toHaveBeenCalledExactlyOnceWith(['1', '2']);
   });
 
-  it('hands the inspector back when the selection is dropped', async () => {
+  // With no student open, the inspector shows the class itself.
+  it('hands the inspector back to the class when the selection is dropped', async () => {
     renderWithInspector();
     const user = userEvent.setup();
 
@@ -712,7 +713,7 @@ describe('StudentInput bulk editing in the inspector', () => {
 
     await waitFor(() => expect(selectionPanel()).not.toBeInTheDocument());
     expect(
-      screen.getByRole('complementary', { name: /Merkmale|Attributes/i }),
+      screen.getByRole('complementary', { name: /^(Klasse|Class)$/i }),
     ).toBeInTheDocument();
   });
 });
@@ -779,7 +780,7 @@ describe('StudentInput with a single ticked student', () => {
 
     expect(screen.getAllByRole('checkbox')[1]).not.toBeChecked();
     expect(
-      await screen.findByText(/Kein Schüler ausgewählt|No student selected/i),
+      await screen.findByRole('complementary', { name: /^(Klasse|Class)$/i }),
     ).toBeInTheDocument();
   });
 
