@@ -17,7 +17,7 @@ import type {
 } from '@/types';
 import { createRng } from '../rng';
 import { generateSeatingPlan, refineSeatingLocal } from '../seatingAlgorithm';
-import { generateCircleLayout } from '../circleArrangement';
+import { generateOptimizedCircleLayout } from '../CircleSeatingAlgorithm';
 
 /** Strong and weak performance are mutually exclusive in the type. */
 const performanceFlags = (index: number) => {
@@ -205,33 +205,6 @@ describe('refineSeatingLocal determinism', () => {
       rng: createRng(1234),
     });
 
-  it('refines greedily to the same result for the same seed', () => {
-    const start = baseline();
-
-    const first = refineSeatingLocal(
-      students,
-      [],
-      [],
-      {},
-      start,
-      settings,
-      scene,
-      { triesPerPass: 40, passes: 2, rng: createRng(555) },
-    );
-    const second = refineSeatingLocal(
-      students,
-      [],
-      [],
-      {},
-      start,
-      settings,
-      scene,
-      { triesPerPass: 40, passes: 2, rng: createRng(555) },
-    );
-
-    expect(asNames(first)).toEqual(asNames(second));
-  });
-
   it('refines with simulated annealing to the same result for the same seed', () => {
     const start = baseline();
 
@@ -243,7 +216,7 @@ describe('refineSeatingLocal determinism', () => {
       start,
       settings,
       scene,
-      { useAnnealing: true, rng: createRng(808) },
+      { rng: createRng(808) },
     );
     const second = refineSeatingLocal(
       students,
@@ -253,7 +226,7 @@ describe('refineSeatingLocal determinism', () => {
       start,
       settings,
       scene,
-      { useAnnealing: true, rng: createRng(808) },
+      { rng: createRng(808) },
     );
 
     expect(asNames(first)).toEqual(asNames(second));
@@ -268,7 +241,7 @@ describe('refineSeatingLocal determinism', () => {
       baseline(),
       settings,
       scene,
-      { triesPerPass: 100, passes: 3, rng: createRng(9) },
+      { rng: createRng(9) },
     );
 
     const ids = refined
@@ -279,21 +252,37 @@ describe('refineSeatingLocal determinism', () => {
   });
 });
 
-describe('generateCircleLayout determinism', () => {
+describe('generateOptimizedCircleLayout determinism', () => {
   it('returns the identical circle for the same seed', () => {
     const students = buildStudents(10);
     const scene = buildScene(6);
-
-    const first = generateCircleLayout(
+    const plan = generateSeatingPlan(
       students,
+      [],
+      [],
+      {},
+      settings,
       scene,
       undefined,
+      {
+        rng: createRng(3),
+      },
+    );
+
+    const first = generateOptimizedCircleLayout(
+      students,
+      scene,
+      settings,
+      [],
+      plan,
       createRng(31),
     );
-    const second = generateCircleLayout(
+    const second = generateOptimizedCircleLayout(
       students,
       scene,
-      undefined,
+      settings,
+      [],
+      plan,
       createRng(31),
     );
 

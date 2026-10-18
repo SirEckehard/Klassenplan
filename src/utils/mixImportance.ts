@@ -1,7 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import type { MixSettings, ScalarMixSettingKey } from '@/types';
-import { criterionWeight } from './mixSettings';
+import {
+  DEFAULT_MIX_WEIGHTS,
+  MIX_CRITERIA_VERSION,
+  criterionWeight,
+} from './mixSettings';
 
 /**
  * How important a criterion is, in words. The algorithm keeps working in
@@ -72,3 +76,34 @@ export const criterionImportance = (
   settings: Readonly<MixSettings>,
   key: ScalarMixSettingKey,
 ): MixImportance => importanceOfWeight(criterionWeight(settings, key));
+
+/**
+ * Brings stored weights to what they mean now (`MIX_CRITERIA_VERSION`).
+ * Before decision 0031 every level of "Vordere Plätze" kept the students
+ * needing a front seat in the front rows; now only "Sehr wichtig" does. A
+ * stored level below it is lifted to the recommended weight once, so a class
+ * keeps the plans it had — the teacher can lower it again afterwards. Runs
+ * where stored settings come in: the browser's last settings, a class
+ * opened, a backup restored, a mix of the history opened.
+ */
+export const migrateStoredMixSettings = <
+  T extends Partial<MixSettings> | null | undefined,
+>(
+  stored: T,
+): T => {
+  if (!stored || typeof stored !== 'object') return stored;
+  if ((stored.criteriaVersion ?? 1) >= MIX_CRITERIA_VERSION) return stored;
+  const front = stored.preferFrontForNeedsFrontSeat;
+  const lift =
+    typeof front === 'number' &&
+    front > 0 &&
+    importanceOfWeight(front) !== 'essential';
+  return {
+    ...stored,
+    ...(lift && {
+      preferFrontForNeedsFrontSeat:
+        DEFAULT_MIX_WEIGHTS.preferFrontForNeedsFrontSeat,
+    }),
+    criteriaVersion: MIX_CRITERIA_VERSION,
+  };
+};

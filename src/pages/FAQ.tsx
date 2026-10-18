@@ -113,6 +113,7 @@ export default function FAQ() {
                   <li>{t('faq.allgemein.algo_neighbors.li1')}</li>
                   <li>{t('faq.allgemein.algo_neighbors.li2')}</li>
                   <li>{t('faq.allgemein.algo_neighbors.li3')}</li>
+                  <li>{t('faq.allgemein.algo_neighbors.li4')}</li>
                 </ul>
                 <p>{t('faq.allgemein.algo_neighbors.outro')}</p>
               </>
@@ -274,6 +275,7 @@ export default function FAQ() {
                   <li>{t('faq.settings.percent.li1')}</li>
                   <li>{t('faq.settings.percent.li2')}</li>
                   <li>{t('faq.settings.percent.li3')}</li>
+                  <li>{t('faq.settings.percent.li4')}</li>
                 </ul>
                 <p>{t('faq.settings.percent.example')}</p>
               </>
@@ -296,6 +298,10 @@ export default function FAQ() {
                 </ul>
               </>
             ),
+          },
+          {
+            question: t('faq.settings.hints.q'),
+            answer: <p>{t('faq.settings.hints.a')}</p>,
           },
           {
             question: t('faq.settings.repeat.q'),

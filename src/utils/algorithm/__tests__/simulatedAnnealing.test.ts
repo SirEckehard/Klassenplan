@@ -6,33 +6,40 @@ import {
   countCoolingSteps,
   runSimulatedAnnealing,
   DEFAULT_ANNEALING_CONFIG,
-  type AnnealingContext,
+  type AnnealingProblem,
   type AnnealingConfig,
 } from '../simulatedAnnealing';
+import { createRng } from '../rng';
 import { createMockStudent, createMockClassroomScene } from '@/__tests__/utils';
 
 describe('simulatedAnnealing', () => {
-  const createMockContext = (): AnnealingContext => {
-    const scene = createMockClassroomScene(4, { totalStudents: 4 });
-    const students = [
-      createMockStudent({ id: '1', name: 'Alice' }),
-      createMockStudent({ id: '2', name: 'Bob' }),
-      createMockStudent({ id: '3', name: 'Charlie' }),
-      createMockStudent({ id: '4', name: 'Diana' }),
-    ];
-
-    const arrangement = scene.tables.map((_, idx) => [students[idx] ?? null]);
-
+  /**
+   * Four students on four seats, reversed: student `i` belongs on seat `i`,
+   * and every step away costs its square. The optimum is 0.
+   */
+  const createMockProblem = (
+    start: number[] = [3, 2, 1, 0],
+    overrides: Partial<AnnealingProblem> = {},
+  ): AnnealingProblem => {
+    const occupants = Int32Array.from(start);
+    const cost = (student: number, seat: number) =>
+      student < 0 ? 0 : (student - seat) ** 2;
     return {
-      arrangement,
-      seatCounts: scene.tables.map((t) => t.seatCount),
-      tableCount: scene.tables.length,
-      targets: [1, 1, 1, 1],
-      settings: {},
-      scene,
-      lockedPositions: {},
-      scoreTable: () => Math.random() * 10, // Random scores for testing
-      isLocked: () => false,
+      occupants,
+      movers: [0, 1, 2, 3],
+      canSwap: (a, b) => a !== b,
+      delta: (a, b) =>
+        cost(occupants[b]!, a) +
+        cost(occupants[a]!, b) -
+        cost(occupants[a]!, a) -
+        cost(occupants[b]!, b),
+      score: () =>
+        Array.from(occupants).reduce(
+          (sum, student, seat) => sum + cost(student, seat),
+          0,
+        ),
+      rng: createRng(7),
+      ...overrides,
     };
   };
 
@@ -68,17 +75,16 @@ describe('simulatedAnnealing', () => {
   });
 
   describe('runSimulatedAnnealing', () => {
-    it('returns a valid arrangement', () => {
-      const ctx = createMockContext();
-      const result = runSimulatedAnnealing(ctx);
+    it('returns an arrangement of the same seats', () => {
+      const problem = createMockProblem();
+      const result = runSimulatedAnnealing(problem);
 
-      expect(result.arrangement).toBeDefined();
-      expect(result.arrangement.length).toBe(ctx.tableCount);
+      expect(result.occupants).toHaveLength(4);
+      expect([...result.occupants].sort()).toEqual([0, 1, 2, 3]);
     });
 
     it('returns statistics about the run', () => {
-      const ctx = createMockContext();
-      const result = runSimulatedAnnealing(ctx);
+      const result = runSimulatedAnnealing(createMockProblem());
 
       expect(result.iterations).toBeGreaterThan(0);
       expect(result.acceptedSwaps).toBeGreaterThanOrEqual(0);
@@ -89,7 +95,6 @@ describe('simulatedAnnealing', () => {
     });
 
     it('respects custom configuration', () => {
-      const ctx = createMockContext();
       const fastConfig: AnnealingConfig = {
         initialTemp: 5.0,
         coolingRate: 0.9,
@@ -97,7 +102,7 @@ describe('simulatedAnnealing', () => {
         iterationsPerTemp: 10,
       };
 
-      const result = runSimulatedAnnealing(ctx, fastConfig);
+      const result = runSimulatedAnnealing(createMockProblem(), fastConfig);
 
       // Should complete with fewer iterations due to fast cooling
       expect(result.finalTemp).toBeGreaterThanOrEqual(
@@ -105,19 +110,39 @@ describe('simulatedAnnealing', () => {
       );
     });
 
-    it('finds a solution with non-negative score', () => {
-      const ctx = createMockContext();
-      // Use a consistent scoring function
-      ctx.scoreTable = (idx) => idx * 2; // Simple deterministic score
+    it('finds the optimum of a small problem, and its score is exact', () => {
+      const problem = createMockProblem();
+      const result = runSimulatedAnnealing(problem);
 
-      const result = runSimulatedAnnealing(ctx);
+      expect(Array.from(result.occupants)).toEqual([0, 1, 2, 3]);
+      expect(result.score).toBe(0);
+      expect(problem.score()).toBe(result.score);
+    });
 
-      expect(result.score).toBeGreaterThanOrEqual(0);
+    it('never hands back a worse arrangement than it started from', () => {
+      // Every swap the problem allows makes it worse: the start stays.
+      const problem = createMockProblem([0, 1, 2, 3]);
+      const start = Array.from(problem.occupants);
+      const result = runSimulatedAnnealing(problem);
+
+      expect(Array.from(result.occupants)).toEqual(start);
+      expect(result.score).toBe(0);
+    });
+
+    it('tries no swap the problem refuses', () => {
+      const problem = createMockProblem();
+      const refused = (a: number, b: number) => a === 0 || b === 0;
+      problem.canSwap = (a, b) => a !== b && !refused(a, b);
+      const result = runSimulatedAnnealing(problem);
+
+      // Seat 0 keeps its student; the others take the seats that cost least.
+      expect(result.occupants[0]).toBe(3);
+      expect(Array.from(result.occupants.slice(1))).toEqual([0, 1, 2]);
     });
   });
 
   describe('integration with refineSeatingLocal', () => {
-    it('can be used via useAnnealing option', async () => {
+    it('refines an arrangement on its own', async () => {
       // Import dynamically to avoid circular dependencies
       const { refineSeatingLocal } = await import('../seatingAlgorithm');
 
@@ -141,7 +166,7 @@ describe('simulatedAnnealing', () => {
         initialArrangement,
         {},
         scene,
-        { useAnnealing: true },
+        { rng: createRng(3) },
       );
 
       expect(result).toBeDefined();
@@ -175,7 +200,7 @@ describe('simulatedAnnealing', () => {
     });
 
     it('advances monotonically and finishes at 1', () => {
-      const ctx = createMockContext();
+      const problem = createMockProblem();
       const config: AnnealingConfig = {
         initialTemp: 2,
         coolingRate: 0.8,
@@ -184,7 +209,7 @@ describe('simulatedAnnealing', () => {
       };
       const fractions: number[] = [];
 
-      runSimulatedAnnealing(ctx, config, (fraction) =>
+      runSimulatedAnnealing(problem, config, (fraction) =>
         fractions.push(fraction),
       );
 
@@ -198,9 +223,7 @@ describe('simulatedAnnealing', () => {
     });
 
     it('runs unchanged without a reporter', () => {
-      const ctx = createMockContext();
-
-      expect(() => runSimulatedAnnealing(ctx)).not.toThrow();
+      expect(() => runSimulatedAnnealing(createMockProblem())).not.toThrow();
     });
   });
 });

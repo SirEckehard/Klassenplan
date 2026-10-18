@@ -33,6 +33,7 @@ import {
   showToast,
   TOAST_MESSAGES,
   stableStringify,
+  migrateStoredMixSettings,
   neutralSettings,
   normalizeMixSettings,
   toIsoDate,
@@ -295,7 +296,9 @@ export function useSeatingPersistence(state: SeatingState) {
       // Only ever called after an await, so never during a render or an effect.
       flushSync(() => {
         const applyMixSettings = (next: MixSettings | null) => {
-          const resolved = next ?? DEFAULT_CLASS_MIX_SETTINGS;
+          const resolved = next
+            ? migrateStoredMixSettings(next)
+            : DEFAULT_CLASS_MIX_SETTINGS;
           setMixSettings((prev) => {
             if (stableStringify(prev) === stableStringify(resolved)) {
               return prev;

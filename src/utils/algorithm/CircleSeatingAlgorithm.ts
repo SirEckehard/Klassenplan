@@ -27,6 +27,23 @@ import {
 } from '@/utils/math/circleGeometry';
 import { shuffleArray } from './shuffle';
 import { logDebug } from '@/utils';
+import {
+  pairTerm,
+  resolveCriterionWeights,
+  studentFacts,
+  type CriterionWeights,
+  type StudentFacts,
+} from './model/criteria';
+import { kindIndex } from './model/seatRelations';
+
+/**
+ * Side by side in the circle is as close as two students can sit: it weighs
+ * like a seat partner.
+ */
+const RING_NEIGHBOUR = kindIndex('partner');
+
+/** The circle is no repetition of earlier plans: it carries no history. */
+const NO_HISTORY = new Map<string, number>();
 
 /**
  * Simplified circle seating algorithm focusing on neighborhood preservation
@@ -38,11 +55,18 @@ export class CircleSeatingAlgorithm {
   private neighborhoodAnalysis: NeighborhoodAnalysis;
   private circleDimensions: ReturnType<typeof calculateCircleDimensions>;
   private rng: RandomSource;
+  /**
+   * The weights of the criteria a ring neighbour can break — distance wishes,
+   * restless and distractible students side by side — and nothing else: the
+   * circle follows the table plan, which already weighed the rest.
+   */
+  private ringWeights: CriterionWeights;
+  private facts: Map<string, StudentFacts>;
 
   constructor(
     students: Student[],
     scene: ClassroomScene,
-    _mixSettings?: Partial<MixSettings>,
+    mixSettings: Partial<MixSettings> = {},
     _seatingHistory?: SavedPlan[],
     currentSeating?: SeatingArrangement,
     rng: RandomSource = Math.random,
@@ -50,6 +74,17 @@ export class CircleSeatingAlgorithm {
     this.students = students;
     this.scene = scene;
     this.rng = rng;
+    const weights = resolveCriterionWeights(mixSettings);
+    this.ringWeights = {
+      ...resolveCriterionWeights({}),
+      avoid: weights.avoid,
+      restless: weights.restless,
+      concentration: weights.concentration,
+      concentrationNearRestless: weights.concentrationNearRestless,
+    };
+    this.facts = new Map(
+      students.map((student) => [student.id, studentFacts(student)]),
+    );
     // Initialize analysis
     this.neighborhoodAnalysis = analyzeNeighborhoods(
       scene,
@@ -74,7 +109,7 @@ export class CircleSeatingAlgorithm {
     const initialLayout = this.generateNeighborhoodPreservingLayout();
 
     // Apply optimization with simple swapping
-    const optimizedLayout = this.optimizeLayout(initialLayout, 30);
+    const optimizedLayout = this.optimizeLayout(initialLayout, 200);
 
     const endTime = performance.now();
     logDebug(
@@ -152,6 +187,7 @@ export class CircleSeatingAlgorithm {
     // Phase 2: Place remaining students randomly
     const remainingStudents = shuffleArray(
       this.students.filter((s) => !placedStudents.has(s.id)),
+      this.rng,
     );
     for (const student of remainingStudents) {
       const pos = angleToPosition(
@@ -204,14 +240,23 @@ export class CircleSeatingAlgorithm {
   }
 
   /**
-   * Tries a random student swap and returns new layout
+   * Tries a random student swap and returns new layout: two students anywhere,
+   * or — every other try — two side by side, which turns a pair of table
+   * neighbours round without parting them.
    */
   private tryRandomSwap(layout: CircleLayout): CircleLayout {
     const newPositions = [...layout.students];
+    const byAngle = newPositions
+      .map((position, index) => ({ angle: position.angle, index }))
+      .sort((a, b) => a.angle - b.angle);
 
     // Pick two random positions to swap students
     const pos1 = randomInt(this.rng, newPositions.length);
-    const pos2 = randomInt(this.rng, newPositions.length);
+    let pos2 = randomInt(this.rng, newPositions.length);
+    if (this.rng() < 0.5 && byAngle.length > 1) {
+      const at = byAngle.findIndex((entry) => entry.index === pos1);
+      pos2 = byAngle[(at + 1) % byAngle.length]!.index;
+    }
 
     if (pos1 !== pos2) {
       // Swap the students but keep their circle positions
@@ -235,33 +280,29 @@ export class CircleSeatingAlgorithm {
     // Primary score: neighborhood preservation (heavily weighted)
     score += layout.preservationRate * 1000;
 
-    // Penalty for problematic adjacencies (restless students next to each other)
-    score -= this.scoreProblematicAdjacencies(layout) * 50;
+    // What the ring neighbours cost, by the criterion model's pair terms
+    score -= this.scoreRingNeighbours(layout);
 
     return score;
   }
 
   /**
-   * Penalizes problematic adjacencies (restless students next to each other)
+   * The pair terms of every two students side by side in the circle: a
+   * distance wish, two restless or distractible students, a distractible one
+   * beside a restless one — each as the mix weighs it, nothing while off.
    */
-  private scoreProblematicAdjacencies(layout: CircleLayout): number {
-    const circleNeighborMap = calculateCircleNeighbors(layout.students);
-    let problematicPairs = 0;
-
-    for (const position of layout.students) {
-      if (position.student.restless) {
-        const neighbors = circleNeighborMap.get(position.student.id) || [];
-
-        for (const neighborId of neighbors) {
-          const neighbor = this.students.find((s) => s.id === neighborId);
-          if (neighbor?.restless) {
-            problematicPairs++;
-          }
-        }
-      }
+  private scoreRingNeighbours(layout: CircleLayout): number {
+    const ring = [...layout.students].sort((a, b) => a.angle - b.angle);
+    if (ring.length < 2) return 0;
+    const pairs = ring.length === 2 ? 1 : ring.length;
+    let cost = 0;
+    for (let index = 0; index < pairs; index++) {
+      const a = this.facts.get(ring[index]!.student.id);
+      const b = this.facts.get(ring[(index + 1) % ring.length]!.student.id);
+      if (!a || !b) continue;
+      cost += pairTerm(this.ringWeights, NO_HISTORY, a, b, RING_NEIGHBOUR);
     }
-
-    return problematicPairs / 2; // Divide by 2 to avoid double counting
+    return cost;
   }
 
   /**

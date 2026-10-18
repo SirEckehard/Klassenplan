@@ -64,12 +64,42 @@ The weights in [`src/utils/mixSettings.ts`](../src/utils/mixSettings.ts) are nor
 | `preferLanguageMixing`                  | 4       | Language support through proximity is pedagogically plausible, but not a direct language-support measure (Gogolin & Lange 2011) |
 | `peerTutoring`                          | 3       | Effective (Hattie d ≈ 0.55), but only with didactic framing; spatial proximity alone does not create peer tutoring              |
 | `homogeneousPerformanceGroups`          | 3       | Weak evidence (Hattie d ≈ 0.12); parity with `peerTutoring` is deliberate, as both approaches are legitimate                    |
-| `preferFrontForNeedsFrontSeat`          | 5       | Important accessibility measure; higher weight is justified                                                                     |
+| `preferFrontForNeedsFrontSeat`          | 8       | Accessibility measure: "Sehr wichtig" is the only level that guarantees the front row, and the recommendation keeps it there    |
 | `preferFrontForSmallerStudents`         | 3       | Visibility heuristic; pragmatic, but no research backing                                                                        |
 | `preferGenderMix`                       | 2       | Deliberately low weight; gender categories are complex (Butler 1990); the default signals optionality                           |
 | `avoidShyAlone`                         | 2       | Social inclusion matters; low weight because it is hard to operationalize                                                       |
 | `preferWindowSeats` / `preferDoorSeats` | 3 / 2   | Individual spatial preferences; no pedagogical evidence, but high subjective relevance                                          |
 | `distributeSocialRoles`                 | 3       | Balanced table composition as a general heuristic                                                                               |
+
+### What "next to" means
+
+Every criterion about who sits near whom reads the same relations
+([decision 0031](decisions/0031-one-criterion-model.md)): the seat partner
+counts fully, the rest of a group table strongly, and at another table only
+the seat directly beside, in front or behind — relative to the board, with no
+aisle in between — less. Restless and distractible students are kept apart in
+that sense, wishes are met in it and distance wishes kept, and the fulfilment
+a teacher reads counts the same: a restless classmate directly behind is a
+smaller lapse than a restless seat partner, one across the aisle none.
+
+### Levels
+
+A criterion is set on one of four levels, and the mix weighs it accordingly —
+a criterion at "Beachten" gives way to one at "Wichtig". "Vordere Plätze" is
+the one criterion whose top level is a rule rather than a weight: at "Sehr
+wichtig" the students needing a front seat stay in the front rows whatever
+else the mix weighs; below it the front seat is a preference like any other.
+A student who needs it for hearing or seeing should be at "Sehr wichtig",
+which is why the recommendation sets it.
+
+### Gender
+
+Boys, girls and diverse students are three genders of their own; a student
+without a stated gender counts for none. A table counts as mixed while no
+gender holds more than half of it, so one diverse student at a table of six
+leaves it as mixed as it was, and two diverse students at one double desk are
+as unmixed as two boys. The criterion is offered once two different genders
+are in the class.
 
 ### A weight only acts where the class has the data
 
@@ -77,7 +107,7 @@ A criterion is offered only when the class carries the data it needs – no pref
 
 ### Tension between `peerTutoring` and `homogeneousPerformanceGroups`
 
-Both criteria carry the same recommended weight. This is intentional: both approaches are legitimate and teachers should choose. They are either/or: the controls set the other one to 0, settings hold only one of the two, and construction, refinement and the table score all apply the same one — the higher weight, `peerTutoring` on a tie ([decision 0013](decisions/0013-one-performance-criterion.md)).
+Both criteria carry the same recommended weight. This is intentional: both approaches are legitimate and teachers should choose. They are either/or: the controls set the other one to 0, settings hold only one of the two, and the mixing and the fulfilment apply the same one — the higher weight, `peerTutoring` on a tie ([decision 0013](decisions/0013-one-performance-criterion.md)). A strong or weak student beside a student of neither level costs nothing: peer tutoring rewards a strong and a weak student at one table and keeps two weak (or two strong) students apart, nothing else.
 
 ---
 

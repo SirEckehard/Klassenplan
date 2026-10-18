@@ -67,6 +67,14 @@ const MIN_HISTORY_WINDOW = 5;
 const MIN_DECAY_WEIGHT = 0.25;
 
 /**
+ * The most a pair can weigh. A pair that sat together in several plans weighs
+ * more than one that sat together once, up to twice a single plan's weight:
+ * frequency counts, without one long-standing pair drowning every other
+ * criterion (decision 0031).
+ */
+export const MAX_PAIR_WEIGHT = 2;
+
+/**
  * How much a mix from the running session weighs against a plan that was
  * really in use.
  *
@@ -107,7 +115,7 @@ const addPairKeys = (
 
   for (const key of keys) {
     const accumulated = target.get(key) ?? 0;
-    target.set(key, Math.min(1, accumulated + contribution));
+    target.set(key, Math.min(MAX_PAIR_WEIGHT, accumulated + contribution));
   }
 };
 
@@ -135,22 +143,28 @@ type WeightedPairSource = { keys: string[]; factor: number };
 
 /**
  * Apply one history to the weights, newest entry first, with a recency decay
- * across that history.
+ * over the window: an entry's weight depends on its rank alone, so last
+ * week's plan weighs the same whether three plans or twelve came before it.
  */
 const applyDecayedSources = (
   sources: readonly WeightedPairSource[],
   target: PreviousPairWeights,
+  windowSize: number,
 ) => {
-  const span = Math.max(1, sources.length);
   sources.forEach(({ keys, factor }, index) => {
-    addPairKeys(keys, calculateDecayContribution(index, span) * factor, target);
+    addPairKeys(
+      keys,
+      calculateDecayContribution(index, windowSize) * factor,
+      target,
+    );
   });
 };
 
 /**
  * Build a weighted map of student pairs that recently sat together.
  *
- * Two histories contribute independently and are summed per pair (capped at 1):
+ * Two histories contribute independently and are summed per pair (capped at
+ * `MAX_PAIR_WEIGHT`):
  *
  * 1. **What was really in use** — the arrangement on screen, then the plan
  *    usage records, or the saved plans when no records exist yet and the class
@@ -160,12 +174,13 @@ const applyDecayedSources = (
  *    `MIX_HISTORY_CONTRIBUTION` so a long shuffling session cannot outweigh a
  *    plan that a class actually sat in.
  *
- * Both decay with recency: within each history the newest entry counts fully
- * and the oldest one down to `MIN_DECAY_WEIGHT`.
+ * Both decay with recency over the window: within each history the newest
+ * entry counts fully and the last one the window holds `MIN_DECAY_WEIGHT`.
  *
  * @param history Saved plans, used when no usage records are available
  * @param options Current arrangement, usage records, mixes and class size
- * @returns Map of pairs encoded as "idA::idB" to a weight between 0 and 1
+ * @returns Map of pairs encoded as "idA::idB" to a weight between 0 and
+ *   `MAX_PAIR_WEIGHT`
  */
 export function buildPreviousPairs(
   history: SavedPlan[] = [],
@@ -219,16 +234,29 @@ export function buildPreviousPairs(
       realPlans.push({ keys: entry.pairs, factor: entry.confidence });
     }
   } else {
-    for (let i = savedPlans.length - 1; i >= 0; i--) {
+    // Newest first by the day a plan carries; a plan saved again keeps its
+    // place in the list, so the list's order is no age.
+    const byDate = savedPlans
+      .map((plan, index) => ({
+        plan,
+        index,
+        time: Date.parse(storedPlanDateToTimestamp(plan?.date ?? '') ?? ''),
+      }))
+      .sort(
+        (a, b) =>
+          (Number.isFinite(b.time) ? b.time : -Infinity) -
+            (Number.isFinite(a.time) ? a.time : -Infinity) || b.index - a.index,
+      );
+    for (const { plan } of byDate) {
       if (realPlans.length >= windowSize) break;
       realPlans.push({
-        keys: pairKeysOfSeating(savedPlans[i]?.seating),
+        keys: pairKeysOfSeating(plan?.seating),
         factor: 1,
       });
     }
   }
 
-  applyDecayedSources(realPlans, pairWeights);
+  applyDecayedSources(realPlans, pairWeights, windowSize);
 
   const mixes = mixHistory
     .slice(-windowSize)
@@ -238,7 +266,7 @@ export function buildPreviousPairs(
       factor: MIX_HISTORY_CONTRIBUTION,
     }));
 
-  applyDecayedSources(mixes, pairWeights);
+  applyDecayedSources(mixes, pairWeights, windowSize);
 
   return pairWeights;
 }

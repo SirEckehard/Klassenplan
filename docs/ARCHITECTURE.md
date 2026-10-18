@@ -1,6 +1,6 @@
 # Architecture
 
-> **Status:** current · **Last reviewed:** 2026-10-10 · **Maintainer:** Eike
+> **Status:** current · **Last reviewed:** 2026-10-18 · **Maintainer:** Eike
 > Schäfer · **Describes:** Klassenplan 3.1.2
 
 This is the entry point for anyone who wants to understand _why_ Klassenplan is
@@ -224,10 +224,11 @@ sequenceDiagram
 ```
 
 With every weight at 0 the handler uses neutral settings and the session
-skips the refinement — the result is a purely random plan. Construction and
-refinement are one worker call that decides by one set of facts, and the mix
-history records its result once
-([decision 0027](decisions/0027-one-mix-session.md)). Nothing refines outside a
+skips the refinement — the students are dealt onto the seats at random.
+Construction and refinement are one worker call that decides by one set of
+facts and one score, three starts of it with criteria, and the mix history
+records its result once ([decisions 0027](decisions/0027-one-mix-session.md)
+and [0031](decisions/0031-one-criterion-model.md)). Nothing refines outside a
 mix, a restored backup included. Details in [ALGORITHM.md](ALGORITHM.md).
 
 ### Setting the criteria, and reading the result
@@ -492,6 +493,14 @@ second refinement followed every mix without reaching the history, so history
 and screen never agreed. _Decision:_ a mix is one session in one worker call,
 and nothing refines outside a mix
 ([decision 0027](decisions/0027-one-mix-session.md)).
+
+**Every criterion was defined four times** (resolved 2026-10-18). The
+construction, the refinement, the fulfilment and the highlights each kept a
+definition of their own, and they disagreed: the refinement's running score
+drifted, single desks hid wishes and distance wishes from it, students needing
+a front seat were frozen side by side, and the fulfilment counted what nothing
+optimised. _Decision:_ one criterion model the four read
+([decision 0031](decisions/0031-one-criterion-model.md)).
 
 **The two performance criteria were either/or in the UI, not in the data**
 (resolved 2026-09-14). Settings could carry both weights; construction and

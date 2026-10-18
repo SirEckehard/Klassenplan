@@ -6,6 +6,7 @@ import {
   announcePlanSaved,
   createTimestampPlanName,
   DEFAULT_CLASSROOM_SCENE,
+  migrateStoredMixSettings,
   showToast,
   syncSeatingWithStudents,
   TOAST_MESSAGES,
@@ -200,7 +201,7 @@ export function usePlanPersistenceHandlers({
         recordSeatingSnapshot();
       }
       setCurrentSeating(syncSeatingWithStudents(result.seating, students));
-      setMixSettings(result.mixSettings);
+      setMixSettings(migrateStoredMixSettings(result.mixSettings));
       if (step !== 3) {
         setStep(3);
       }

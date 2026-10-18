@@ -6,42 +6,44 @@ Klassenplan approaches performance from two angles: Core Web Vitals at runtime, 
 
 ## Budgets
 
-Klassenplan has no server, so there are no service level objectives in the usual sense. These budgets take their place. Figures from 2026-09-14; initial payload from 2026-09-16, algorithm runtime from 2026-10-10.
+Klassenplan has no server, so there are no service level objectives in the usual sense. These budgets take their place. Bundle and algorithm figures from 2026-10-18, Core Web Vitals from 2026-09-14.
 
 | Area                                 | Budget                                                        | Current                                                                   | Checked by                                                  |
 | ------------------------------------ | ------------------------------------------------------------- | ------------------------------------------------------------------------- | ----------------------------------------------------------- |
-| Initial payload                      | ≤ 220 KB brotli, ≤ 840 KB raw                                 | 195.4 KB brotli, 749.6 KB raw                                             | `npm run check:bundle`, part of `build:static` (CI, Docker) |
-| Largest chunk                        | ≤ 78 KB brotli, ≤ 330 KB raw                                  | 64.2 KB brotli, 276.3 KB raw                                              | same                                                        |
-| CSS                                  | ≤ 24 KB brotli, ≤ 200 KB raw                                  | 19.1 KB brotli, 171.4 KB raw                                              | same                                                        |
+| Initial payload                      | ≤ 220 KB brotli, ≤ 840 KB raw                                 | 201.2 KB brotli, 735.6 KB raw                                             | `npm run check:bundle`, part of `build:static` (CI, Docker) |
+| Largest chunk                        | ≤ 78 KB brotli, ≤ 330 KB raw                                  | 57.3 KB brotli, 226.5 KB raw                                              | same                                                        |
+| CSS                                  | ≤ 24 KB brotli, ≤ 200 KB raw                                  | 14.2 KB brotli, 95.2 KB raw                                               | same                                                        |
 | Core Web Vitals                      | "good": LCP ≤ 2.5 s, INP ≤ 200 ms, CLS ≤ 0.1                  | Start page CLS 0.067 after prerendering ([SEO.md](SEO.md)); no field data | Logged in the browser only (`webVitals.ts`)                 |
-| "Mischen" with criteria, 36 students | ≤ 500 ms on the slowest supported device                      | ≈ 120 ms under Vitest 5, Apple M1 Pro                                     | `npm run bench`, by hand                                    |
+| "Mischen" with criteria, 36 students | ≤ 500 ms on the slowest supported device                      | ≈ 72 ms under Vitest 5, Apple M1 Pro (three starts)                       | `npm run bench`, by hand                                    |
 | Offline use                          | The generator works without a connection after the first load | Since v1.2.0                                                              | Not tested automatically                                    |
 
 The runtime budget is deliberately not a CI check: timings on a shared runner vary too much for a fixed ceiling. It is re-measured with `npm run bench` when the algorithm changes.
 
+The initial payload grew by 6 KB brotli on 2026-10-18 while its raw size fell: the fulfilment beside the criteria reads the criterion model of the mixing ([decision 0031](decisions/0031-one-criterion-model.md)), whose modules are split into chunks of their own that the worker shares.
+
 ## Algorithm runtime
 
-`src/utils/algorithm/__tests__/seatingAlgorithm.bench.ts` measures what the app asks of the worker — "Mischen" as one session of construction and annealing (`mix:run`, [decision 0027](decisions/0027-one-mix-session.md)) — and its phases on their own, for a class with every attribute set, a full mix history, two saved plans and two locked seats, on double tables. All inputs come from fixed seeds.
+`src/utils/algorithm/__tests__/seatingAlgorithm.bench.ts` measures what the app asks of the worker — "Mischen" as one session of three starts of construction and annealing (`mix:run`, [decisions 0027](decisions/0027-one-mix-session.md) and [0031](decisions/0031-one-criterion-model.md)) — and its phases on their own, for a class with every attribute set, a full mix history, two saved plans and two locked seats, on double tables. All inputs come from fixed seeds.
 
-Mean time per call in milliseconds, Apple M1 Pro, Node 24, Vitest 5.0.3, median of three runs, 2026-10-10:
+Mean time per call in milliseconds, Apple M1 Pro, Node 24, Vitest 5.0.5, 2026-10-18:
 
-| Students | Construction | "Mischen": construction and annealing | Refinement, annealing (600 × 2) | Refinement, greedy (600 × 2) |
-| -------: | -----------: | ------------------------------------: | ------------------------------: | ---------------------------: |
-|       12 |         0.16 |                                   109 |                             109 |                            9 |
-|       24 |         0.67 |                                   116 |                             115 |                           15 |
-|       36 |         1.49 |                                   120 |                             119 |                           20 |
+| Students | Construction | "Mischen": three starts of construction and annealing | Refinement, one annealing |
+| -------: | -----------: | ----------------------------------------------------: | ------------------------: |
+|       12 |         0.16 |                                                    63 |                        21 |
+|       24 |         0.60 |                                                    70 |                        24 |
+|       36 |         1.30 |                                                    72 |                        24 |
 
-On 2026-09-16 (Vitest 5.0.1) the annealing measured 94 / 102 / 107 ms. Since decision 0027 the refinement weighs every earlier pair through `seatPairKey`, which costs about a tenth under Vitest — mostly the module runner's getters on the shared key functions, which it warns about — and little in the bundled app.
+Before the criterion model (2026-10-10, Vitest 5.0.3) one annealing took 109 / 115 / 119 ms and "Mischen", with one start, 109 / 116 / 120 ms; on 2026-09-16 (Vitest 5.0.1) the annealing measured 94 / 102 / 107 ms.
 
 `npm run bench` passes `--reporter=verbose`: Vitest 5's default reporter prints no result table.
 
-**Vitest 5 measures about 60 % more than Vitest 4 for the same code.** On the same machine and day, Vitest 4.1.11 measured 0.10 / 0.41 / 0.90 ms for construction, 59 / 61 / 65 ms for annealing and 5 / 10 / 13 ms for the greedy search — in line with its figures from 2026-09-14. Vite's module runner turns every imported binding into a getter, and the algorithm calls helpers such as `isRestless` often enough for that to show; Vitest warns about it on every run. The bundled app has no such getters, so the Vitest 4 figures are the closer estimate of what a teacher waits for. Switching the runner off (`experimental.viteModuleRunner: false`) would avoid the overhead but leaves the `@/` alias unresolved. Compare runs under the same Vitest major only.
+**Vitest 5 measures about 60 % more than Vitest 4 for the same code.** On 2026-10-10, on the same machine, Vitest 4.1.11 measured 0.10 / 0.41 / 0.90 ms for construction, 59 / 61 / 65 ms for annealing and 5 / 10 / 13 ms for the greedy search the app has since dropped — in line with its figures from 2026-09-14. Vite's module runner turns every imported binding into a getter, and the algorithm calls helpers such as `isRestless` often enough for that to show; Vitest warns about it on every run. The bundled app has no such getters, so the Vitest 4 figures are the closer estimate of what a teacher waits for. Switching the runner off (`experimental.viteModuleRunner: false`) would avoid the overhead but leaves the `@/` alias unresolved. Compare runs under the same Vitest major only.
 
 What the numbers show:
 
-- **Refinement dominates.** "Mischen" with criteria is construction plus annealing, about 120 ms for a full class under Vitest 5. Until decision 0027 a second annealing followed every mix — an automatic refinement left over from v1.5.0 — so the teacher waited about twice as long.
+- **Refinement dominates.** "Mischen" with criteria is three starts of construction plus annealing, about 72 ms for a full class under Vitest 5. Until decision 0027 a second annealing followed every mix — an automatic refinement left over from v1.5.0 — so the teacher waited about twice as long.
+- **One annealing takes a fifth of what it did.** Since decision 0031 a swap is computed exactly from the relations of the two seats (`swapDelta`) instead of scoring both tables anew, which is what pays for the three starts.
 - **Annealing hardly depends on class size.** It runs a fixed cooling schedule (see [ALGORITHM.md](ALGORITHM.md#configuration)).
-- **`triesPerPass` and `passes` do not reach annealing.** They only apply to the greedy search, which the app does not use. The "Verfeinern" button, which passed 1,800 × 4, therefore did the same refinement work as "Mischen"; it measured 56 / 59 / 62 ms under Vitest 4 as well and was removed on 2026-09-14.
 - **Class size is not what limits the algorithm up to 36 students.** Larger classes were not measured.
 
 ### Does a longer refinement help?
@@ -61,10 +63,24 @@ Checked on 2026-09-14 with a temporary experiment on the same fixture, timed und
 - **The refinement inside "Mischen" is what matters:** five to seven points over construction alone.
 - **A second refinement is a coin toss.** It gains one to two points for 24 students and loses up to one point for 36, where more runs got worse than better. The automatic second refinement after every "Mischen", which outlived the button until decision 0027, was the same coin toss.
 - **Longer schedules do not pay off.** They take three to nine times as long without a consistent gain, so the app's schedule stays as it is.
-- **Annealing optimises the internal table score, not the badge's percentage.** The two do not always move together, which is how a refinement can lower the value a teacher sees.
+- **Annealing optimised the internal table score, not the badge's percentage.** The two did not always move together, which is how a refinement could lower the value a teacher saw. Since decision 0031 both read the same terms.
 - **Consequence:** the "Verfeinern" button was removed on 2026-09-14. The rows above keep its name for the record.
 
 The fixture is one synthetic class in one room; differences of one or two points are small.
+
+### The criterion model
+
+`src/utils/algorithm/__tests__/mixQuality.test.ts` measures what a mix comes to by the fulfilment a teacher reads — five rooms, 30 seeds each, every criterion's mean percentage and the weighted whole — and runs only on request (`MIX_QUALITY=1 npx vitest run mixQuality`). On 2026-10-18, before and after [decision 0031](decisions/0031-one-criterion-model.md), both read by the new fulfilment:
+
+| Room                                       | Before |  After | Time per mix, Vitest 5 |
+| ------------------------------------------ | -----: | -----: | ---------------------: |
+| Single desks close together                | 76.9 % | 87.0 % |             22 → 22 ms |
+| Double desks as "Neu einrichten" sets them | 84.2 % | 88.1 % |             50 → 29 ms |
+| Group tables of four                       | 85.1 % | 88.8 % |            105 → 42 ms |
+| Mixed and turned tables                    | 82.0 % | 86.7 % |             53 → 41 ms |
+| Double desks with history and locks        | 83.4 % | 84.9 % |             62 → 27 ms |
+
+The schedule was checked again on the score itself, 20 seeds of 26 students at double desks: the default reached −173.5 (90.1 % fulfilment, 18 ms), cooling at 0.99 −176.1 (90.1 %, 48 ms), at 0.995 with 200 swaps per step −179.8 (91.0 %, 384 ms). One annealing comes close to its best, so the schedule stays and "Mischen" takes three starts instead, which settle what one leaves to chance for little time.
 
 ## Core Web Vitals monitoring
 

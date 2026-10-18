@@ -6,7 +6,8 @@ import {
   refineSeatingLocal,
   reorderByWishPartners,
 } from '../seatingAlgorithm';
-import * as genderBalance from '../genderBalance';
+import { genderExcess, GENDER_COUNT } from '../model/criteria';
+import { createRng } from '../rng';
 import type {
   Student,
   ClassroomScene,
@@ -1100,15 +1101,6 @@ describe('seatingAlgorithm', () => {
         ],
       ];
 
-      const imbalanceSpy = vi.spyOn(genderBalance, 'calculateGenderImbalance');
-      const randomSpy = vi.spyOn(Math, 'random');
-      randomSpy
-        .mockReturnValueOnce(0)
-        .mockReturnValueOnce(0)
-        .mockReturnValueOnce(0.6)
-        .mockReturnValueOnce(0)
-        .mockReturnValue(0.9);
-
       const refined = refineSeatingLocal(
         genderStudents,
         [],
@@ -1117,29 +1109,20 @@ describe('seatingAlgorithm', () => {
         arrangement,
         { preferGenderMix: 10 },
         genderScene,
-        { triesPerPass: 1, passes: 1 },
+        { rng: createRng(1) },
         arrangement,
       );
 
-      const balancedCallIndex = imbalanceSpy.mock.calls.findIndex(
-        ([counts]) =>
-          counts.boy === 2 && counts.girl === 2 && counts.diverse === 0,
-      );
-
-      expect(balancedCallIndex).toBeGreaterThanOrEqual(0);
-      expect(imbalanceSpy.mock.results[balancedCallIndex]?.value).toBe(0);
-
+      // Balanced tables stay balanced: no gender holds more than half.
+      const codes = { boy: 0, girl: 1, diverse: 2 } as const;
       refined.forEach((table: SeatingTable) => {
-        const counts = genderBalance.createGenderCounts();
+        const counts = new Array<number>(GENDER_COUNT).fill(0);
         table.forEach((seat: SeatingSeat) => {
           if (!seat || !seat.gender) return;
-          counts[seat.gender]++;
+          counts[codes[seat.gender]]!++;
         });
-        expect(genderBalance.calculateGenderImbalance(counts)).toBe(0);
+        expect(genderExcess(counts)).toBe(0);
       });
-
-      imbalanceSpy.mockRestore();
-      randomSpy.mockRestore();
     });
   });
 
@@ -1263,7 +1246,7 @@ describe('seatingAlgorithm', () => {
     });
 
     it('returns the same arrangement when no improvements are possible', () => {
-      const options = { triesPerPass: 1, passes: 1 };
+      const options = { rng: createRng(1) };
 
       const refined = refineSeatingLocal(
         students,
@@ -1285,7 +1268,7 @@ describe('seatingAlgorithm', () => {
         s1: { table: 0, seat: 0 }, // Anna locked at table 0, seat 0
       };
 
-      const options = { triesPerPass: 100, passes: 1 };
+      const options = { rng: createRng(2) };
 
       const refined = refineSeatingLocal(
         students,
@@ -1323,7 +1306,7 @@ describe('seatingAlgorithm', () => {
         preferGenderMix: 10,
       };
 
-      const options = { triesPerPass: 100, passes: 5 };
+      const options = { rng: createRng(3) };
 
       const refined = refineSeatingLocal(
         genderStudents,
@@ -1366,7 +1349,10 @@ describe('seatingAlgorithm', () => {
     });
 
     it('uses custom refinement options', () => {
-      const customOptions = { triesPerPass: 5, passes: 2 };
+      const customOptions = {
+        rng: createRng(4),
+        annealingConfig: { initialTemp: 2, coolingRate: 0.8 },
+      };
 
       const refined = refineSeatingLocal(
         students,
@@ -1402,7 +1388,7 @@ describe('seatingAlgorithm', () => {
         preferFrontForNeedsFrontSeat: 10,
       };
 
-      const options = { triesPerPass: 100, passes: 5 };
+      const options = { rng: createRng(3) };
 
       const refined = refineSeatingLocal(
         studentsWithFront,
@@ -1470,7 +1456,7 @@ describe('seatingAlgorithm', () => {
         windowArrangement,
         { preferWindowSeats: 10 },
         windowScene,
-        { triesPerPass: 400, passes: 5 },
+        { rng: createRng(5) },
       );
 
       const windowTableIndex = refined.findIndex((table: SeatingTable) =>
@@ -1526,7 +1512,7 @@ describe('seatingAlgorithm', () => {
         doorArrangement,
         { preferDoorSeats: 10 },
         doorScene,
-        { triesPerPass: 400, passes: 5 },
+        { rng: createRng(5) },
       );
 
       const doorTableIndex = refined.findIndex((table: SeatingTable) =>
@@ -1570,7 +1556,7 @@ describe('seatingAlgorithm', () => {
         heightArrangement,
         { preferFrontForSmallerStudents: 8 },
         scene,
-        { triesPerPass: 400, passes: 4 },
+        { rng: createRng(6) },
       );
 
       const frontIndex = getFrontTableIndex(scene);
@@ -1607,7 +1593,7 @@ describe('seatingAlgorithm', () => {
         preferGenderMix: 10,
       };
 
-      const options = { triesPerPass: 100, passes: 5 };
+      const options = { rng: createRng(3) };
 
       const refined = refineSeatingLocal(
         optimalStudents,

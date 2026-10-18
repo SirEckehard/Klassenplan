@@ -8,9 +8,9 @@
  * random on a busy runner. The figures in docs/PERFORMANCE.md come from here.
  *
  * All inputs derive from fixed seeds, so every run measures the same work. The
- * calls mirror what the app sends to the worker: "Mischen" with criteria
- * constructs and then refines with the default tries and passes, and the app
- * always refines with annealing.
+ * calls mirror what the app sends to the worker: "Mischen" with criteria takes
+ * three starts of construction and annealing on the criterion model (decision
+ * 0031), and without one the construction alone.
  *
  * Vitest runs this through Vite's module runner, which turns every imported
  * binding into a getter. The algorithm calls its helpers often enough that the
@@ -27,12 +27,7 @@ import type {
   SeatingArrangement,
   Student,
 } from '@/types';
-import {
-  DEFAULT_MIX_WEIGHTS,
-  DEFAULT_PASSES,
-  DEFAULT_TRIES_PER_PASS,
-  MIX_HISTORY_LIMIT,
-} from '@/utils';
+import { DEFAULT_MIX_WEIGHTS, MIX_HISTORY_LIMIT } from '@/utils';
 import { createRng } from '../rng';
 import {
   generateSeatingPlan,
@@ -198,10 +193,7 @@ const nextRng = () => createRng(seed++);
 for (const size of CLASS_SIZES) {
   const fixture = buildFixture(size);
 
-  const refine = (
-    options: { triesPerPass: number; passes: number },
-    useAnnealing: boolean,
-  ) =>
+  const refine = () =>
     refineSeatingLocal(
       fixture.students,
       fixture.seatingHistory,
@@ -210,7 +202,7 @@ for (const size of CLASS_SIZES) {
       fixture.start,
       DEFAULT_MIX_WEIGHTS,
       fixture.scene,
-      { ...options, useAnnealing, rng: nextRng() },
+      { rng: nextRng() },
       fixture.start,
     );
 
@@ -228,36 +220,23 @@ for (const size of CLASS_SIZES) {
           { rng: nextRng() },
         );
       }),
-      bench('"Mischen" (mix:run): construction and annealing', () => {
-        runMixSession(
-          fixture.students,
-          fixture.seatingHistory,
-          fixture.mixHistory,
-          fixture.lockedPositions,
-          DEFAULT_MIX_WEIGHTS,
-          fixture.scene,
-          fixture.start,
-          {
-            rng: nextRng(),
-            refine: {
-              triesPerPass: DEFAULT_TRIES_PER_PASS,
-              passes: DEFAULT_PASSES,
-              useAnnealing: true,
-            },
-          },
-        );
-      }),
-      bench('refine, annealing, "Mischen" tries/passes', () => {
-        refine(
-          { triesPerPass: DEFAULT_TRIES_PER_PASS, passes: DEFAULT_PASSES },
-          true,
-        );
-      }),
-      bench('refine, greedy, "Mischen" tries/passes', () => {
-        refine(
-          { triesPerPass: DEFAULT_TRIES_PER_PASS, passes: DEFAULT_PASSES },
-          false,
-        );
+      bench(
+        '"Mischen" (mix:run): three starts of construction and annealing',
+        () => {
+          runMixSession(
+            fixture.students,
+            fixture.seatingHistory,
+            fixture.mixHistory,
+            fixture.lockedPositions,
+            DEFAULT_MIX_WEIGHTS,
+            fixture.scene,
+            fixture.start,
+            { rng: nextRng(), refine: true },
+          );
+        },
+      ),
+      bench('refine, one annealing', () => {
+        refine();
       }),
       BENCH_OPTIONS,
     );

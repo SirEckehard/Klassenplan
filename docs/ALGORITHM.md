@@ -1,37 +1,90 @@
 # Algorithm Documentation
 
+> **Status:** current · **Last reviewed:** 2026-10-18
+
 This document describes the algorithms used in the Klassenplan seating generator.
 
 ## Overview
 
-The seating plan generation is a two-phased process:
+A plan is mixed in two phases that decide by one score:
 
-1.  **Construction (Greedy)**: A valid initial arrangement is built by placing students one-by-one into the best available seats.
-2.  **Refinement (Iterative)**: An existing arrangement is improved by swapping students to reduce constraint violations (score).
+1.  **Construction**: the students are placed one by one, each on the seat that costs the plan least so far.
+2.  **Refinement**: simulated annealing swaps students to lower the score.
 
 Both run as one session, in one worker call (`mix:run`, `runMixSession`), and
 decide by the same facts ([decision 0027](decisions/0027-one-mix-session.md)):
 the tables' targets the construction draws, and the earlier pairs of what came
 before this mix — the plan on screen, the plans in use, the earlier mixes —
 weighed alike in both phases, never the pairs the construction itself just
-made.
+made. They also decide by the same **criterion model**
+([decision 0031](decisions/0031-one-criterion-model.md)), which the
+fulfilment beside each criterion and the highlights on the seats read too: a
+criterion is written down once, so what a teacher reads is what was optimised.
 
-| UI action                                   | Runs                                                                           |
-| :------------------------------------------ | :----------------------------------------------------------------------------- |
-| "Mischen" / shuffle, at least one criterion | construction, then refinement of the result (`useSeatingMixHandler`)           |
-| "Mischen" / shuffle, all weights at 0       | construction only, with `neutralSettings` — a purely random arrangement        |
-| The first plan on the plan layer            | the same as "Mischen", with the settings the wizard chose (`useSeatingWizard`) |
+| UI action                                   | Runs                                                                         |
+| :------------------------------------------ | :--------------------------------------------------------------------------- |
+| "Mischen" / shuffle, at least one criterion | three starts of construction and refinement, the best plan by the score wins |
+| "Mischen" / shuffle, all weights at 0       | the students dealt onto the seats at random (Fisher–Yates), nothing else     |
+| The first plan on the plan layer            | the same as "Mischen", with the teacher's weights (`useSeatingWizard`)       |
 
 Nothing refines outside a mix: a restored backup keeps its plan as it was
 saved. The mix history gains one entry per mix, the arrangement the session
 settled on — the one on screen, the plan the teacher actually got.
+
+## The criterion model
+
+`src/utils/algorithm/model/` holds it:
+
+- **`seatRelations.ts`** relates every two seats of a scene once: `partner`
+  (the seat pair by index — (0,1), (2,3), (4,5)), `table` (the rest of the
+  same table) and, at another table, only the nearest seat in each direction
+  — `beside` along the board, `ahead` towards it, `behind` away from it. The
+  directions are read relative to the board (`determineFrontDirection`), not
+  the screen, and a turned table meets its neighbours where it is drawn. A gap
+  of more than `ADJACENT_GAP` (40 px, about 45 cm) along the board is an
+  aisle; the next row counts while the gap is at most `ROW_GAP` (70 px, the
+  room a chair takes). Diagonal seats and a seat beyond a seat are no
+  neighbours. "Neu einrichten" leaves 60 px between desks along the board, so
+  there the desks of a row are apart and the row behind is close.
+- **`criteria.ts`** writes every criterion down once, as a `pair` term (two
+  students in a relation), a `seat` term (a student on a seat), a `table`
+  term (who shares a table) or the language term (who sits around a student
+  needing support). A relation weighs by `RELATION_WEIGHTS` — partner 1, table
+  0.6, beside 0.5, ahead and behind 0.3 — and a criterion by its weight and
+  the multipliers in `CRITERION_WEIGHTS`.
+- **`objective.ts`** builds a context once per mix and sums the terms
+  (`scoreArrangement`); `swapDelta` computes what a swap changes exactly, by
+  every relation the two seats take part in; `placementCost` what placing a
+  student adds.
+- **`fulfilment.ts`** turns the same terms into the cases the fulfilment and
+  the highlights read (see [Fulfilment](#fulfilment)).
+
+What each criterion counts:
+
+| Criterion                                 | Term                                                                                    | Relations              |
+| :---------------------------------------- | :-------------------------------------------------------------------------------------- | :--------------------- |
+| Wunschpartner                             | reward per directed wish, by its place in the list (1 / 0.85 / 0.7)                     | all                    |
+| Distanzwünsche                            | penalty per directed distance wish, twice a wish's weight (1 / 0.9 / 0.8)               | all                    |
+| Unruhe, Ablenkbarkeit                     | penalty for two restless or two distractible students, by the larger special weight     | all                    |
+| Ablenkbar neben Unruhig                   | penalty when one is distractible and the other restless, either way round               | all                    |
+| Wiederholung                              | penalty by the history's weight of the pair; none for a wish pair while wishes count    | partner, table         |
+| Geschlechter                              | per table the students by which a gender holds more than half; same gender side by side | partner, beside; table |
+| Fördern (heterogen / homogen)             | reward for a strong and a weak student (or two of one level), penalty for the other     | partner, table         |
+| Schüchternheit                            | penalty for a shy student with no taken seat close by                                   | partner, table, beside |
+| Sprachförderung                           | reward for a student needing support by the closest strong speaker                      | partner, table, beside |
+| Soziale Rollen                            | per table: the same role twice, loners and mediators, a leader beside a mediator        | table                  |
+| Vordere Plätze, Körpergröße, Fenster, Tür | by the seat's depth (0 at the back, 1 at the front) or distance to window and door      | —                      |
+
+Boys, girls and diverse students are three genders of their own; "not stated"
+counts for none. A criterion off costs nothing, and only one performance
+criterion applies ([decision 0013](decisions/0013-one-performance-criterion.md)).
 
 ## How many students a table takes
 
 Before a student is placed, `seatTargetsFor()`
 (`src/utils/algorithm/seatTargets.ts`) decides how many students each table
 takes. A seat at or beyond its table's target stays empty: the construction
-skips it, and both refinement strategies refuse a swap that would fill it. The
+skips it, and the refinement refuses a swap that would fill it. The
 construction also stops at a table that has its count, and so does the
 refinement of a mix, by the construction's targets — a student locked to a
 back seat leaves the seats before it open to the index check. A refinement run
@@ -52,38 +105,52 @@ targets ([decision 0026](decisions/0026-tables-out-of-the-mix.md)):
   refinement agree on which tables stay empty.
 
 Without either, the students spread evenly over all tables from a random one
-on (`evenTargetsFor`) — the same call as before the two options, so a room that
-uses neither gets the same plans for the same seed.
+on (`evenTargetsFor`).
 
----
+## Front seats
+
+"Vordere Plätze" acts by its level ([decision 0031](decisions/0031-one-criterion-model.md)):
+
+- **"Sehr wichtig"** keeps every student needing a front seat within the front
+  pool (`model/frontPool.ts`): row by row away from the board, as "Von vorne
+  besetzen" counts rows, the seats the tables take until all of them fit. A
+  table set a few pixels forward by hand is no row of its own. Who sits beside
+  whom in the pool is up to every other criterion; the refinement may swap
+  such students within it, never out of it. A lock wins.
+- **"Wichtig" and "Beachten"** make the front seat a weight like any other: a
+  seat term by the seat's depth, which a stronger criterion can outweigh.
+
+The recommended weight and the recipes set "Sehr wichtig". Settings stored
+before carry no `criteriaVersion`; a level below "Sehr wichtig" is lifted to
+it once (`migrateStoredMixSettings`) where stored settings come in, since
+until then every level kept the students in the front row.
+
+## Construction
+
+Locked students take their seats first. Without a criterion that is all the
+construction knows: the other students are dealt onto the seats the tables
+take in a random order, every order equally likely — no hidden order, no
+seat preferred.
+
+With criteria, the students needing a front seat "Sehr wichtig" are placed
+first, within the pool; then the others, the most bound first (how many of
+the active criteria ask something of them), wish partners right after each
+other (`reorderByWishPartners`). Each takes the seat with the lowest
+`placementCost`, plus what the seat still promises: a student whose wish or
+tutoring partner is not seated yet prefers a seat with room beside it. A tie
+falls to each tied seat alike — the n-th tie replaces the choice with
+probability 1/n.
 
 ## Refinement Strategies
 
-We provide two distinct strategies for the refinement phase. The choice of strategy depends on the complexity of the constraints and the desired balance between speed and quality.
+The refinement is **simulated annealing** on the score of the criterion model
+([decision 0004](decisions/0004-simulated-annealing-default.md)). The greedy
+refinement that once stood beside it never ran in the app and is gone, with
+its tries, passes and table selection
+([decision 0031](decisions/0031-one-criterion-model.md)).
 
-> **Default:** The two layers disagree on purpose, so read both:
->
-> - `refineSeatingLocal()` on its own falls back to **Greedy** — Simulated Annealing needs `useAnnealing: true` in its options (see `src/utils/algorithm/seatingAlgorithm.ts`). This is what a direct caller (a test, say) gets.
-> - Every mix **the app** runs goes through `executeAlgorithmOperation('mix:run', …)`, which merges `DEFAULT_REFINE_OPTIONS = { useAnnealing: true }` into its refinement (see `src/workers/algorithmOperations.ts`). **"Mischen" therefore refines with Simulated Annealing**, unless a caller explicitly passes `useAnnealing: false`.
->
-> That constant lives in `algorithmOperations.ts` and nowhere else, so the worker and the main-thread fallback cannot drift apart on it.
-
-### Strategy A: Greedy Refinement (Local Search)
-
-**Concept**: A "Hill Climbing" approach. The algorithm looks for swaps that _immediately_ improve the total score (lower is better). It never accepts a swap that makes the arrangement worse.
-
-- **Pros**:
-  - **Fast**: 5–13 ms for 12–36 students with the default tries and passes on an Apple M1 Pro ([PERFORMANCE.md](PERFORMANCE.md#algorithm-runtime)).
-  - **Deterministic**: Running it twice on the same input usually yields similar results.
-- **Cons**:
-  - **Local Optima**: Can get "stuck". For example, if swapping Student A and Student B makes things worse temporarily but allows for a perfect arrangement 2 moves later, Greedy will never find it.
-- **Best for**:
-  - Standard classrooms with few heavy constraints.
-  - Minor adjustments to an already good plan.
-
-### Strategy B: Simulated Annealing (SA)
-
-**Concept**: Probabilistic optimization inspired by metallurgy. The algorithm explores the solution space by trying random swaps.
+**Concept**: The algorithm explores the solution space by trying random swaps
+— a student who may move, picked evenly, and any seat.
 
 - If a swap improves the score, it is **always accepted**.
 - If a swap _worsens_ the score, it is **accepted with a probability** that depends on:
@@ -92,16 +159,18 @@ We provide two distinct strategies for the refinement phase. The choice of strat
 
 **Formula**: $P(accept) = e^{(currentScore - newScore) / temperature}$
 
-- **Pros**:
-  - **Global Optima**: Can escape local traps by temporarily accepting worse states to find a better global configuration.
-  - **Robustness**: Handles complex, conflicting constraints (e.g., "A needs front", "B avoids C", "C needs double table") much better than Greedy.
-- **Cons**:
-  - **Slower**: Runs a fixed cooling schedule (see [Configuration](#configuration)) — about 60 ms for 12–36 students on an Apple M1 Pro, almost independent of class size ([PERFORMANCE.md](PERFORMANCE.md#algorithm-runtime)). `triesPerPass` and `passes` do not apply to it.
-  - **Non-deterministic**: Different runs can produce different layouts.
-- **Best for**:
-  - Complex scenarios with many constraints.
-  - "Locked" seats that fragment the solution space.
-  - When the "Greedy" result is unsatisfactory.
+The difference a swap makes comes from `swapDelta`, exactly: the running score
+is what decides which arrangement counts as the best one seen, and the
+arrangement handed back is never worse than the one the refinement started
+from. A swap keeps the seats beyond a table's target empty, holds every table
+of a mix to the construction's count, never moves a locked student and keeps
+a student needing a front seat "Sehr wichtig" in the pool.
+
+"Mischen" runs **three starts** of construction and annealing, each from a
+random stream of its own, and keeps the best plan by the score — never one
+worse than a construction. One annealing comes close to its best; the starts
+settle what one leaves to chance
+([PERFORMANCE.md](PERFORMANCE.md#algorithm-runtime)).
 
 ## Configuration
 
@@ -113,6 +182,40 @@ The **Simulated Annealing** process is controlled by these parameters:
 | `coolingRate`       | `0.97`  | How fast the system cools down (0-1). closer to 1 = slower cooling, more thorough search. |
 | `iterationsPerTemp` | `50`    | Number of swap attempts at each temperature step.                                         |
 | `minTemp`           | `0.01`  | When to stop.                                                                             |
+
+## Fulfilment
+
+The percentage beside a criterion and the highlights on the seats come from
+`model/fulfilment.ts`, by the same relations and terms the mixing weighs. A
+criterion is a set of cases — a student, a wish, a table — and every case gets
+a credit from 0 to 1: a restless student with a restless seat partner 0, with
+a restless classmate directly behind 0.7, with none close 1. The percentage is
+the mean credit, the highlight of a seat the lowest credit of the cases it
+takes part in.
+
+The cases are counted against what the room and the class allow, so 100 % is a
+plan the mixing could not improve on that criterion:
+
+- A student with wishes counts once, by the wish met best — one seat partner
+  cannot meet two wishes — and a wish met as well as the room allows is met:
+  at single desks the seat beside.
+- Tutoring and same-level pairs count against the pairs the class and the
+  tables can hold; at single desks there is none.
+- Gender counts against the tables the class's make-up can balance: with 20
+  boys and 8 girls at 14 double desks, 8 mixed desks are all there can be.
+- A wish the wished classmate answers with a distance wish is the distance
+  wish's case while distance wishes count.
+- A plan is no repetition of itself: when it is the newest mix, that mix is no
+  history, and the mix before it counts as the plan that was on screen.
+
+## Hints
+
+`model/feasibility.ts` names in the plan's inspector what the mixing cannot
+meet, while there is something to say: more students needing a front seat
+"Sehr wichtig" than the front row holds, a group of students avoiding each
+other larger than the tables in the mix, a wish answered with a distance wish,
+and a student wished for by more classmates than can sit around anybody in
+the room.
 
 ---
 
@@ -225,17 +328,26 @@ reads and the number the algorithm optimizes cannot drift apart.
 
 ### How the weights are built
 
-`buildPreviousPairs()` sums two independent histories per pair, capped at 1:
+`buildPreviousPairs()` sums two independent histories per pair, capped at
+`MAX_PAIR_WEIGHT` = 2:
 
 | History              | Source                                                                                                                       | Factor                           |
 | :------------------- | :--------------------------------------------------------------------------------------------------------------------------- | :------------------------------- |
 | What was really used | the arrangement on screen, then the usage records — or the saved plans when no record counts and the class detects its plans | `entry.confidence`               |
 | The running session  | recent mixes                                                                                                                 | `MIX_HISTORY_CONTRIBUTION` = 0.5 |
 
-Both decay with recency within themselves: the newest entry counts fully, the
-oldest down to `MIN_DECAY_WEIGHT`. The construction and the refinement charge a
-pair `avoidPreviousPairs` times its weight alike; until decision 0027 the
-refinement charged every earlier pair in full.
+Both decay with recency over the window (`5 + ⌈students / 3⌉` entries, at
+most 20): the newest entry counts fully, the last the window holds
+`MIN_DECAY_WEIGHT`, and an entry weighs by its rank alone — last week's plan
+weighs the same whether three plans or twelve came before it. A pair that sat
+together in several plans adds up, to at most twice a single plan's weight, so
+the most frequent pairs are parted first
+([decision 0031](decisions/0031-one-criterion-model.md)). The saved plans that
+stand in when no usage record counts are ranked by their date. The
+construction and the refinement charge a pair `avoidPreviousPairs` times its
+weight alike, at the seat partner fully and at the rest of a table by the
+table's relation weight; the fulfilment counts a pair as repeated up to its
+first full weight.
 
 Two properties matter here:
 
@@ -254,8 +366,8 @@ vary too much or too little.
 
 A pair the class asked for is not a repetition worth breaking up: while
 `considerWishPartners` is active, `avoidPreviousPairs` skips its penalty for a
-wish pair — in construction (`src/utils/algorithm/scoring/historyScoring.ts`) as
-in refinement (`src/utils/algorithm/scoring/arrangementScoring.ts`). A wish in
+wish pair — in the one pair term the construction, the refinement and the
+fulfilment share (`historyCounts` in `src/utils/algorithm/model/criteria.ts`). A wish in
 **either** direction is enough, because the wish belongs to the pair rather than
 to whoever wrote it down, and every wish of the list counts, not only the first
-one (`isWishPair` in `src/utils/student/partnerUtils.ts`).
+one.

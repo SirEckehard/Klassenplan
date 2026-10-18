@@ -55,7 +55,7 @@ export const DEFAULT_MIX_WEIGHTS: Readonly<MixSettings> = {
   preferGenderMix: 2,
   peerTutoring: 3,
   homogeneousPerformanceGroups: 3,
-  preferFrontForNeedsFrontSeat: 5,
+  preferFrontForNeedsFrontSeat: 8,
   preferFrontForSmallerStudents: 3,
   preferWindowSeats: 3,
   preferDoorSeats: 2,
@@ -63,6 +63,13 @@ export const DEFAULT_MIX_WEIGHTS: Readonly<MixSettings> = {
   distributeSocialRoles: 3,
   neighborWeights: DEFAULT_NEIGHBOR_WEIGHTS,
 };
+
+/**
+ * What the weights mean. 2 since decision 0031: only "Sehr wichtig" keeps the
+ * students needing a front seat in the front rows. Settings stored before
+ * carry no version; `migrateStoredMixSettings` brings them to this one.
+ */
+export const MIX_CRITERIA_VERSION = 2;
 
 // Neutral settings to disable all mixing criteria
 export const neutralSettings: Readonly<MixSettings> = {
@@ -154,6 +161,7 @@ export const normalizeMixSettings = (
     ...base,
     ...mergedScalars,
     neighborWeights,
+    criteriaVersion: MIX_CRITERIA_VERSION,
   };
 };
 

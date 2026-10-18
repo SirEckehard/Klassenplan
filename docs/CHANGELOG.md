@@ -9,12 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- "Notes" in the seating plan's inspector name what a class and its room cannot meet: more students needing a front seat than the front row holds, students who all keep a distance from each other with fewer tables than they are, a wish answered with a distance request, a student wished for by more classmates than can sit around anybody
 - Backups are saved as `.klassenplan` files, and in Chrome and Edge a double-click on one opens the installed app and restores it; older `.json` backups still import
 - "Als App installieren" in the gear menu shows how to install Klassenplan in the browser it is open in – Safari, Firefox and a Chrome or Edge that has not offered it yet included
 - A guide for a school's IT: installing Klassenplan on every computer by policy, hosting it, and keeping the data across sign-outs
 
 ### Improved
 
+- Mixing weighs every criterion the way the inspector shows it: who sits next to whom counts at the seat partner, at the same table and at the seat directly beside, in front of or behind at the next table – seen from the board, with no aisle in between – and the fulfilment beside each criterion counts the same, against what the class and the room allow. Plans meet preferred partners and distance requests far better, above all at single desks, and the percentages mean what they say: 100 % is as good as the class and the room allow
+- "Mix" tries three starts and keeps the best plan – and still takes less time than one took before
+- "Front seats" at "Very important" keeps the students needing one in the front row, and who sits beside whom there follows the other criteria; at the levels below, a front seat is a preference that a criterion weighed more can outweigh. The recommendation and the recipes set "Very important", and a class keeps the front row it had
+- "Gender" counts diverse as a gender of its own and a table as mixed while no gender holds more than half of it; it is offered once two different genders are in the class
+- "Repetition" weighs a plan by how recent it is, whatever the number of plans, and parts the pairs who sat together most often first
+- The seating circle keeps students with a distance request, restless and distractible students apart where it can, as weighted for the mix
+- The FAQ explains how the mixing reads neighbours and how the fulfilment is counted
 - The inspector of the seating plan and the circle shows the plan itself: its name, whether it is saved, saving it under its name or as a new plan, and opening another plan of the room – the mixing criteria follow below. Saving is no longer an entry of the toolbar, as a room's template already was not; Ctrl/⌘+S still saves straight away
 - The room's inspector renames the open room in a field of its own, as the class's does, and "Bibliothek" asks for a template's name as the room's inspector does instead of adding a number to a name that is taken
 - "Add student" and "Create placeholders" stand under "Add" in the class's toolbar, as the room's tables do; "Manage" keeps the class list's import, export and printing
@@ -32,6 +40,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- "Mix" with every criterion off was not random: restless students always sat apart and at the tables added last. Now every arrangement is equally likely
+- Two students needing a front seat could be seated at one desk even when they keep a distance from each other or are both restless
+- The refinement after the construction could hand back a plan worse than the one it started from, paired the weak students left over when "Support (heterogeneous)" was on, and read a distractible student beside a restless one in one direction only
+- The first plan of a class set the weights of "Front seats" and "Support (heterogeneous)" itself instead of mixing by the teacher's
+- Highlighting "Repetition" right after a mix marked every pair as repeated
 - On an iPad, drawing a selection box across the room or dragging a student scrolled the page instead
 - Turning a table by its handle follows the pointer again – it turned around a point beside the table, so a small table jumped or turned the wrong way
 - Students' photos show on the plan and in the circle from the start – they used to appear only on hover, which a finger on a touch screen cannot do. The setting starts at "On" once on every device; "On hover" can still be chosen

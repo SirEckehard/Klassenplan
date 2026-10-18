@@ -44,11 +44,16 @@ export interface MixSettings {
   preferFrontForSmallerStudents: number;
   preferWindowSeats: number;
   preferDoorSeats: number;
-  /** Pair language-strong with language-weak students (0-100) */
+  /** Pair language-strong with language-weak students (0-10) */
   preferLanguageMixing: number;
-  /** Distribute social roles evenly across tables (0-100) */
+  /** Distribute social roles evenly across tables (0-10) */
   distributeSocialRoles: number;
   neighborWeights: NeighborWeightSettings;
+  /**
+   * What the weights mean, `MIX_CRITERIA_VERSION`; absent in settings stored
+   * before decision 0031, which `migrateStoredMixSettings` brings up to date.
+   */
+  criteriaVersion?: number;
 }
 
 export interface MixResult {
@@ -157,4 +162,7 @@ export interface ExportBundleV1 {
 
 export type ExportBundle = ExportBundleV1; // Alias for the current version
 
-export type ScalarMixSettingKey = Exclude<keyof MixSettings, 'neighborWeights'>;
+export type ScalarMixSettingKey = Exclude<
+  keyof MixSettings,
+  'neighborWeights' | 'criteriaVersion'
+>;

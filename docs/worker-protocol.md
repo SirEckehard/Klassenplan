@@ -1,6 +1,6 @@
 # Worker Protocol
 
-> **Status:** current · **Last reviewed:** 2026-10-10 · **Source of truth:**
+> **Status:** current · **Last reviewed:** 2026-10-18 · **Source of truth:**
 > `src/workers/`, `src/utils/data/csvUtils.ts`
 
 Klassenplan runs two kinds of web workers: a long-lived **algorithm worker**
@@ -15,15 +15,17 @@ file and closes. Why the algorithm runs off the main thread is recorded in
 | Operation          | Payload                                                                                                                                                                        | Result            | Used for                                                 |
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------- | -------------------------------------------------------- |
 | `mix:run`          | `students`, `seatingHistory`, `mixHistory`, `planUsage?`, `planUsageSince?`, `planUsageManual?`, `lockedPositions`, `classroomScene`, `mixSettings`, `lastSeating?`, `refine?` | `{ seating }`     | "Mischen": construction, refined while a criterion is on |
-| `circle:generate`  | `students`, `classroomScene`, `currentSeating?`                                                                                                                                | `{ layout }`      | Seating circle                                           |
 | `circle:optimized` | `students`, `classroomScene`, `mixSettings`, `seatingHistory`, `currentSeating?`                                                                                               | `{ layout }`      | Seating circle with criteria                             |
 | `worker:warmup`    | `{}`                                                                                                                                                                           | `{ ready: true }` | Checking that a fresh worker answers                     |
 
 Types: `AlgorithmWorkerRequestMap` in `algorithmWorker.types.ts`. `refine` of
-`mix:run` is `{ triesPerPass?, passes? }`, or `null` to let the construction
-stand; the refinement defaults (simulated annealing on) are merged in by
-`executeAlgorithmOperation`. Construction and refinement share one session
-([decision 0027](decisions/0027-one-mix-session.md)), so a mix is one request.
+`mix:run` is a flag: while a criterion is on, the session takes three starts
+of construction and simulated annealing and keeps the best plan; without it
+the construction stands. Construction and refinement share one session
+([decision 0027](decisions/0027-one-mix-session.md)) and one score
+([decision 0031](decisions/0031-one-criterion-model.md)), so a mix is one
+request. The plain circle of `circle:generate` is gone: nothing could reach
+it.
 
 ### Messages
 

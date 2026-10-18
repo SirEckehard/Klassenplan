@@ -98,9 +98,9 @@ describe('useSeatingAlgorithm mix history', () => {
     const [first, second] = callOperation.mock.calls;
     expect(first?.[0]).toBe('mix:run');
     expect(first?.[1]).toMatchObject({
-      refine: { triesPerPass: expect.any(Number), passes: expect.any(Number) },
+      refine: true,
     });
-    expect(second?.[1]).toMatchObject({ refine: null });
+    expect(second?.[1]).toMatchObject({ refine: false });
   });
 });
 

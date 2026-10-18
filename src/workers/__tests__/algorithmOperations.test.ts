@@ -5,15 +5,11 @@ import type { ClassroomScene, Student } from '@/types';
 
 const algorithmMocks = vi.hoisted(() => ({
   runMixSession: vi.fn(() => [[null]]),
-  generateCircleLayout: vi.fn(() => ({ students: [] })),
   generateOptimizedCircleLayout: vi.fn(() => ({ students: [] })),
 }));
 
 vi.mock('@/utils/algorithm/seatingAlgorithm', () => ({
   runMixSession: algorithmMocks.runMixSession,
-}));
-vi.mock('@/utils/algorithm/circleArrangement', () => ({
-  generateCircleLayout: algorithmMocks.generateCircleLayout,
 }));
 vi.mock('@/utils/algorithm/CircleSeatingAlgorithm', () => ({
   generateOptimizedCircleLayout: algorithmMocks.generateOptimizedCircleLayout,
@@ -21,7 +17,6 @@ vi.mock('@/utils/algorithm/CircleSeatingAlgorithm', () => ({
 
 import {
   executeAlgorithmOperation,
-  DEFAULT_REFINE_OPTIONS,
   type AlgorithmProgressStage,
 } from '../algorithmOperations';
 
@@ -49,7 +44,7 @@ describe('executeAlgorithmOperation', () => {
       classroomScene: scene,
       mixSettings: { preferGenderMix: 3 },
       lastSeating: null,
-      refine: null,
+      refine: false,
     });
 
     expect(algorithmMocks.runMixSession).toHaveBeenCalledWith(
@@ -61,11 +56,11 @@ describe('executeAlgorithmOperation', () => {
       scene,
       undefined,
       // `onProgress` is injected here rather than carried in the payload.
-      { refine: null, onProgress: expect.any(Function) },
+      { refine: false, onProgress: expect.any(Function) },
     );
   });
 
-  it('refines with simulated annealing by default', async () => {
+  it('passes on whether the session refines', async () => {
     await executeAlgorithmOperation('mix:run', {
       students,
       seatingHistory: [],
@@ -73,30 +68,12 @@ describe('executeAlgorithmOperation', () => {
       lockedPositions: {},
       classroomScene: scene,
       mixSettings: {},
-      refine: {},
+      refine: true,
     });
 
     const call = algorithmMocks.runMixSession.mock.calls[0] as
       unknown[] | undefined;
-    expect(call?.[7]).toMatchObject({ refine: DEFAULT_REFINE_OPTIONS });
-  });
-
-  it('lets explicit refine options override the defaults', async () => {
-    await executeAlgorithmOperation('mix:run', {
-      students,
-      seatingHistory: [],
-      mixHistory: [],
-      lockedPositions: {},
-      classroomScene: scene,
-      mixSettings: {},
-      refine: { triesPerPass: 42, passes: 7 },
-    });
-
-    const call = algorithmMocks.runMixSession.mock.calls[0] as
-      unknown[] | undefined;
-    expect(call?.[7]).toMatchObject({
-      refine: { useAnnealing: true, triesPerPass: 42, passes: 7 },
-    });
+    expect(call?.[7]).toMatchObject({ refine: true });
   });
 
   it('reports progress stages for a mix', async () => {
@@ -119,18 +96,6 @@ describe('executeAlgorithmOperation', () => {
     // The mocked session never calls its own reporter, so this pins the
     // stages the operation layer itself emits around the call.
     expect(stages).toEqual(['initializing', 'arranging', 'arranging']);
-  });
-
-  it('reports progress stages for circle generation', async () => {
-    const stages: AlgorithmProgressStage[] = [];
-
-    await executeAlgorithmOperation(
-      'circle:generate',
-      { students, classroomScene: scene },
-      (_progress, stage) => stages.push(stage),
-    );
-
-    expect(stages).toEqual(['initializing', 'arranging']);
   });
 
   it('reports progress stages for the optimized circle', async () => {

@@ -18,8 +18,6 @@ import { calculateCurrentStatistics } from './useSeatingStatisticsUpdater';
 import {
   DEFAULT_MIX_WEIGHTS,
   DEFAULT_NEIGHBOR_WEIGHTS,
-  DEFAULT_PASSES,
-  DEFAULT_TRIES_PER_PASS,
   hasActiveWeights,
   MIX_HISTORY_LIMIT,
   mergeNeighborWeights,
@@ -140,9 +138,7 @@ export function useSeatingAlgorithm(
 
       const historyForPairs = mixHistoryRef.current;
       const lastSeating = recentSeatingRef.current ?? undefined;
-      const refine = hasActiveWeights(normalizedSettings)
-        ? { triesPerPass: DEFAULT_TRIES_PER_PASS, passes: DEFAULT_PASSES }
-        : null;
+      const refine = hasActiveWeights(normalizedSettings);
 
       const scope = openScopeRef.current;
       return algorithmWorkerClient

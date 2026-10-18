@@ -91,7 +91,7 @@ describe('runMixSession', () => {
         settings,
         scene,
         undefined,
-        { rng: createRng(seed), refine: { useAnnealing: true } },
+        { rng: createRng(seed), refine: true },
       );
 
       const count = (seating: (Student | null)[][]) =>
@@ -124,7 +124,7 @@ describe('runMixSession', () => {
         { avoidPreviousPairs: 10 },
         room(2),
         onScreen,
-        { rng: createRng(seed), refine: { useAnnealing: true } },
+        { rng: createRng(seed), refine: true },
       );
 
       expect(tableIds(mixed)).not.toContain('ada+ben');
@@ -154,9 +154,6 @@ describe('refineSeatingLocal with a session', () => {
       { avoidPreviousPairs: 10, preferGenderMix: 1 },
       room(2),
       {
-        // As the app refines: the greedy pass refuses any swap that unmixes
-        // the room's genders, whatever the pairs.
-        useAnnealing: true,
         rng: createRng(7),
         session: {
           targets: [2, 2],

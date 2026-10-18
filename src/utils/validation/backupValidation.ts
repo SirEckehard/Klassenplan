@@ -263,6 +263,15 @@ function validateMixSettings(value: unknown): asserts value is MixSettings {
     }
   }
 
+  // What the weights mean (decision 0031); absent in older backups, which
+  // `migrateStoredMixSettings` brings up to date on import.
+  if (
+    record.criteriaVersion !== undefined &&
+    (!ensureFiniteNumber(record.criteriaVersion) || record.criteriaVersion < 0)
+  ) {
+    throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
+  }
+
   const neighborWeights = record.neighborWeights;
   if (neighborWeights === undefined) {
     return; // Backwards compatibility: older backups may not include this field

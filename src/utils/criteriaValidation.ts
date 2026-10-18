@@ -86,9 +86,13 @@ export function isCriterionAvailable(
       };
     }
 
+    // Mixing needs two genders to mix — any two of the three: divers is a
+    // gender of its own (decision 0031), "not stated" is none.
     case 'preferGenderMix': {
-      const genderCount = students.filter((s) => s.gender !== undefined).length;
-      const available = genderCount >= 2;
+      const genders = new Set(
+        students.flatMap((s) => (s.gender ? [s.gender] : [])),
+      );
+      const available = genders.size >= 2;
       return {
         key,
         available,

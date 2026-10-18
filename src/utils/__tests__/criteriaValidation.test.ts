@@ -188,12 +188,27 @@ describe('criteriaValidation', () => {
       );
     });
 
-    test('preferGenderMix is available when at least two students have gender set', () => {
-      const students = [createStudent('1'), createStudent('2')];
+    test('preferGenderMix is available with two different genders, divers among them', () => {
+      const students = [
+        createStudent('1', { gender: 'boy' }),
+        createStudent('2', { gender: 'diverse' }),
+      ];
 
       const result = isCriterionAvailable('preferGenderMix', students);
       expect(result.available).toBe(true);
       expect(result.reason).toBeUndefined();
+    });
+
+    test('preferGenderMix is unavailable when every student has the same gender', () => {
+      const students = [
+        createStudent('1', { gender: 'girl' }),
+        createStudent('2', { gender: 'girl' }),
+        createStudent('3', { gender: undefined }),
+      ];
+
+      const result = isCriterionAvailable('preferGenderMix', students);
+      expect(result.available).toBe(false);
+      expect(result.reason).toBe('generator:mix.unavailable.preferGenderMix');
     });
 
     test('preferGenderMix is unavailable with fewer than two gender entries', () => {
@@ -358,7 +373,7 @@ describe('criteriaValidation', () => {
           prefersDoor: true,
           languageSkill: 'beginner',
         }),
-        createStudent('3'),
+        createStudent('3', { gender: 'girl' }),
       ];
 
       const result = getAllCriteriaAvailability(students);
@@ -401,9 +416,11 @@ describe('criteriaValidation', () => {
         false,
       );
 
-      // These should always be available
+      // Both are divers: one gender is nothing to mix.
+      expect(result.get('preferGenderMix')?.available).toBe(false);
+
+      // This one is always available
       expect(result.get('avoidPreviousPairs')?.available).toBe(true);
-      expect(result.get('preferGenderMix')?.available).toBe(true);
     });
 
     test('marks preferGenderMix unavailable when fewer than two genders provided', () => {

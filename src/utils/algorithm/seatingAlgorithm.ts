@@ -7,148 +7,195 @@ import type {
   Student,
   SavedPlan,
   MixResult,
-  NeighborWeightSettings,
   PlanUsage,
 } from '@/types';
 import { shuffleArray } from './shuffle';
 import { buildPreviousPairs, type PreviousPairWeights } from '@/utils/pairs';
 import { getWishPartnerIds } from '@/utils/student/partnerUtils';
-import {
-  DEFAULT_TRIES_PER_PASS,
-  DEFAULT_PASSES,
-  DEFAULT_NEIGHBOR_WEIGHTS,
-  REFINEMENT_TABLE_SELECTION,
-  logDebug,
-} from '@/utils';
-import {
-  getSeatPositions,
-  getSeatNeighborhoods,
-  type SeatNeighborDirection,
-} from '../math/seatGeometry';
-import { getFeatureDistanceMaps } from './featureDistances';
-import {
-  seatTargetsFor,
-  swapOverfillsTable,
-  tablesHeldByCount,
-} from './seatTargets';
+import { hasActiveWeights, logDebug, logWarn } from '@/utils';
+import { importanceOfWeight } from '@/utils/mixImportance';
+import { seatTargetsFor, tablesHeldByCount } from './seatTargets';
 import { isTableActive } from '../math/scene';
-import { randomInt, type RandomSource } from './rng';
-import {
-  scoreTable,
-  scoreTablePair,
-  globalGenderDiff as globalArrangementGenderDiff,
-  type ArrangementScoringContext,
-} from './scoring/arrangementScoring';
+import { createRng, type RandomSource } from './rng';
 import {
   runSimulatedAnnealing,
   type AnnealingConfig,
-  type AnnealingContext,
   type RefinementProgressReporter,
   DEFAULT_ANNEALING_CONFIG,
 } from './simulatedAnnealing';
 import {
-  type ScoringContext,
-  scoreGenderMix,
-  scorePartners,
-  scoreSpecialNeeds,
-  scoreHistory,
-  scorePerformance,
-  scoreHeightPlacement,
-  scoreEnvironment,
-  scoreLanguageMixing,
-  scoreSocialRoles,
-  isRestless,
-  isShy,
-  requiresFront,
-  countSpecialFlags,
-  emptyCounts,
-  isSeatAvailable,
-  isTableFull,
-  tableStats as getTableStats,
-} from './scoring';
-import { determineFrontDirection } from './orientationUtils';
-
-const buildDirectionalWeights = (
-  settings: Partial<MixSettings>,
-  category: keyof NeighborWeightSettings,
-): Record<SeatNeighborDirection, number> => ({
-  direct:
-    settings.neighborWeights?.[category]?.direct ??
-    DEFAULT_NEIGHBOR_WEIGHTS[category].direct ??
-    1,
-  side:
-    settings.neighborWeights?.[category]?.side ??
-    DEFAULT_NEIGHBOR_WEIGHTS[category].side ??
-    1,
-  front:
-    settings.neighborWeights?.[category]?.front ??
-    DEFAULT_NEIGHBOR_WEIGHTS[category].front ??
-    1,
-  back:
-    settings.neighborWeights?.[category]?.back ??
-    DEFAULT_NEIGHBOR_WEIGHTS[category].back ??
-    1,
-});
+  arrangementOf,
+  buildModelContext,
+  occupantsOf,
+  placementCost,
+  scoreArrangement,
+  swapDelta,
+  type ModelContext,
+  type Occupants,
+} from './model/objective';
+import { frontSeatPool } from './model/frontPool';
 
 /**
- * The extent of the seats mixing fills. Tables taken out of the mix are left
- * out, or "at the back" would mean a row nobody can be seated in. A room with
- * every table out of the mix falls back to all seats.
+ * Everything one mix decides by (decisions 0027, 0031): the criterion model
+ * of the class in this room, how many students every table takes, who is
+ * locked where and which seats the students needing a front seat "Sehr
+ * wichtig" are kept to.
  */
-const activeSeatBounds = (
-  scene: ClassroomScene,
-  seatPositions: Map<string, { x: number; y: number }>,
-): { minX: number; maxX: number; minY: number; maxY: number } => {
-  const entries = Array.from(seatPositions.entries());
-  const inMix = entries.filter(([key]) => {
-    const table = scene.tables[Number(key.split('-')[0])];
-    return table ? isTableActive(table) : false;
+interface MixProblem {
+  context: ModelContext;
+  settings: Partial<MixSettings>;
+  /** The students of the class: the first `classSize` of the context */
+  classSize: number;
+  targets: number[];
+  /** Locked students by seat, those of the class whose lock fits the room */
+  locks: Map<number, number>;
+  /** Students who may sit only in the front pool */
+  hardFront: Uint8Array;
+  pool: Uint8Array;
+  rng: RandomSource;
+}
+
+/**
+ * The locks that hold: a student of the class, a seat the room has, and the
+ * first lock on a seat — a second student locked to the same seat is mixed.
+ */
+const validLocks = (
+  context: ModelContext,
+  classSize: number,
+  lockedPositions: Record<string, { table: number; seat: number }>,
+): Map<number, number> => {
+  const { scene, layout } = context;
+  const locks = new Map<number, number>();
+  const lockedStudents = new Set<number>();
+  for (const [id, position] of Object.entries(lockedPositions)) {
+    const student = context.students.findIndex((entry) => entry.id === id);
+    if (student < 0 || student >= classSize || lockedStudents.has(student)) {
+      continue;
+    }
+    const table = scene.tables[position.table];
+    if (!table || position.seat < 0 || position.seat >= table.seatCount) {
+      continue;
+    }
+    const seat = layout.offsets[position.table]! + position.seat;
+    if (locks.has(seat)) continue;
+    locks.set(seat, student);
+    lockedStudents.add(student);
+  }
+  return locks;
+};
+
+/**
+ * Builds what a mix decides by. A seat counts as taken when the model asks
+ * who sits alone if it lies within its table's target: those are the seats
+ * the mix fills.
+ */
+const buildMixProblem = ({
+  students,
+  scene,
+  settings,
+  previousPairs,
+  targets,
+  lockedPositions,
+  rng,
+  arrangement,
+}: {
+  students: Student[];
+  scene: ClassroomScene;
+  settings: Partial<MixSettings>;
+  previousPairs: PreviousPairWeights;
+  targets: number[];
+  lockedPositions: Record<string, { table: number; seat: number }>;
+  rng: RandomSource;
+  /** A plan to refine, whose students are taken in as they are seated */
+  arrangement?: SeatingArrangement;
+}): MixProblem => {
+  const context = buildModelContext({
+    scene,
+    students,
+    settings,
+    previousPairs,
+    usable: (table, seat) => seat < (targets[table] ?? 0),
+    arrangement,
   });
-  const points = (inMix.length > 0 ? inMix : entries).map(([, p]) => p);
-  const xs = points.map((p) => p.x);
-  const ys = points.map((p) => p.y);
+  const classSize = students.length;
+  const locks = validLocks(context, classSize, lockedPositions);
+  const { layout } = context;
+  const usable = (seat: number) =>
+    layout.seatOf[seat]! < (targets[layout.tableOf[seat]!] ?? 0);
+
+  // Only "Sehr wichtig" holds a student to the front rows (decision 0031);
+  // below it the front seat is a weight like any other. A lock wins.
+  const hardFront = new Uint8Array(context.students.length);
+  const lockedStudents = new Set(locks.values());
+  if (
+    importanceOfWeight(settings.preferFrontForNeedsFrontSeat ?? 0) ===
+    'essential'
+  ) {
+    context.facts.forEach((facts, student) => {
+      if (
+        student < classSize &&
+        facts.needsFront &&
+        !lockedStudents.has(student)
+      ) {
+        hardFront[student] = 1;
+      }
+    });
+  }
+  const pool = frontSeatPool(
+    scene,
+    layout,
+    hardFront.reduce((sum, flag) => sum + flag, 0),
+    usable,
+    (seat) => usable(seat) && !locks.has(seat),
+  );
+
   return {
-    minX: Math.min(...xs),
-    maxX: Math.max(...xs),
-    minY: Math.min(...ys),
-    maxY: Math.max(...ys),
+    context,
+    settings,
+    classSize,
+    targets,
+    locks,
+    hardFront,
+    pool,
+    rng,
   };
 };
 
 /**
- * Carries shared state across the four phases of `generateSeatingPlan`
- * (`initializeAssignment` → `runPass` → `finalize`). Created in phase 1
- * and mutated in place by phase 2.
+ * How bound a student is in this mix: how many of the active criteria ask
+ * something of them. The construction seats the most bound students first,
+ * while most seats are still open to them.
  */
-export type AssignmentContext = {
-  students: Student[];
-  scene: ClassroomScene;
-  settings: Partial<MixSettings>;
-  lockedPositions: Record<string, { table: number; seat: number }>;
-  arrangement: SeatingArrangement;
-  ordered: Student[];
-  validLockedIds: Set<string>;
-  seatCounts: number[];
-  tableCount: number;
-  seatNeighborhoods: ReturnType<typeof getSeatNeighborhoods>;
-  behavioralNeighborWeights: Record<SeatNeighborDirection, number>;
-  genderNeighborWeights: Record<SeatNeighborDirection, number>;
-  seatPositions: Map<string, { x: number; y: number }>;
-  windowSeatDistances: Map<string, number>;
-  doorSeatDistances: Map<string, number>;
-  maxWindowDistance: number;
-  maxDoorDistance: number;
-  minX: number;
-  maxX: number;
-  minY: number;
-  maxY: number;
-  orientation: ReturnType<typeof determineFrontDirection>;
-  studentById: Map<string, Student>;
-  previousPairs: Map<string, number>;
-  targets: number[];
-  globalCounts: ReturnType<typeof emptyCounts>;
-  /** Random source of this run; seeded in tests, `Math.random` in production */
-  rng: RandomSource;
+const constraintDegree = (problem: MixProblem, student: number): number => {
+  const weights = problem.context.weights;
+  const facts = problem.context.facts[student]!;
+  let degree = 0;
+  if (weights.wish > 0) degree += facts.wishRank.size;
+  if (weights.avoid > 0) degree += facts.avoidRank.size;
+  if (
+    facts.restless &&
+    (weights.restless > 0 || weights.concentrationNearRestless > 0)
+  ) {
+    degree++;
+  }
+  if (
+    facts.concentration &&
+    (weights.concentration > 0 || weights.concentrationNearRestless > 0)
+  ) {
+    degree++;
+  }
+  if (facts.shy && weights.shy > 0) degree++;
+  if (facts.needsFront && weights.front > 0) degree++;
+  if (
+    (facts.strong || facts.weak) &&
+    (weights.peerTutoring > 0 || weights.homogeneous > 0)
+  ) {
+    degree++;
+  }
+  if (facts.languageNeedsSupport && weights.language > 0) degree++;
+  if (facts.role && weights.roles > 0) degree++;
+  if (facts.height && weights.height > 0) degree++;
+  return degree;
 };
 
 /**
@@ -262,322 +309,336 @@ export function reorderByWishPartners(
   return reordered;
 }
 
+/** Ties within this distance count as one score. */
+const SCORE_EPSILON = 1e-9;
+
 /**
- * Phase 1 — Build the assignment context, classify students, place locked and
- * front-row students into the empty arrangement, and compute the processing
- * order including wish-partner reordering. Returns a fresh `AssignmentContext`
- * ready for `runPass`.
+ * How many starts a mix with criteria takes. One annealing comes close to its
+ * best; three from different starts settle what one leaves to chance, at a
+ * time a teacher does not notice (docs/PERFORMANCE.md).
  */
-export function initializeAssignment(
-  students: Student[],
-  seatingHistory: SavedPlan[],
-  mixHistory: MixResult[],
-  lockedPositions: Record<string, { table: number; seat: number }>,
-  settings: Partial<MixSettings>,
-  scene: ClassroomScene,
-  currentSeating?: SeatingArrangement,
-  rng: RandomSource = Math.random,
-  planUsage?: PlanUsage[],
-  planUsageSince?: string | null,
-  planUsageManual?: boolean,
-): AssignmentContext {
-  const previousPairs = settings.avoidPreviousPairs
-    ? buildPreviousPairs(seatingHistory, {
-        mixHistory,
-        currentSeating,
-        planUsage,
-        since: planUsageSince,
-        manual: planUsageManual,
-        studentCount: students.length,
-      })
-    : new Map<string, number>();
+const MIX_STARTS = 3;
 
-  const frontRow: Student[] = [];
-  const restless: Student[] = [];
-  const shy: Student[] = [];
-  const rest: Student[] = [];
-
-  students.forEach((s) => {
-    if (countSpecialFlags(s) > 1) frontRow.push(s);
-    else if (isRestless(s)) restless.push(s);
-    else if (isShy(s)) shy.push(s);
-    else if (requiresFront(s, settings)) frontRow.push(s);
-    else rest.push(s);
-  });
-
-  const seatCounts = scene.tables.map((t) => t.seatCount);
-  const tableCount = seatCounts.length;
-  const seatNeighborhoods = getSeatNeighborhoods(scene);
-  const behavioralNeighborWeights = buildDirectionalWeights(
-    settings,
-    'behavioral',
-  );
-  const genderNeighborWeights = buildDirectionalWeights(settings, 'gender');
-  const seatPositions = getSeatPositions(scene);
-  const {
-    window: windowSeatDistances,
-    door: doorSeatDistances,
-    maxWindowDistance,
-    maxDoorDistance,
-  } = getFeatureDistanceMaps(scene, seatPositions);
-  const { minX, maxX, minY, maxY } = activeSeatBounds(scene, seatPositions);
-
-  const orientation = determineFrontDirection(scene);
-
-  const arrangement: SeatingArrangement = Array.from(
-    { length: tableCount },
-    (_, t) => Array.from({ length: seatCounts[t] ?? 0 }, () => null),
-  );
-
-  const studentById = new Map(students.map((s) => [s.id, s] as const));
-  const studentIdSet = new Set(students.map((s) => s.id));
-  const validLockedIds: Set<string> = new Set();
-  for (const [sid, pos] of Object.entries(lockedPositions)) {
-    if (!studentIdSet.has(sid)) continue;
-    const stu = studentById.get(sid)!;
-    if (
-      pos.table < 0 ||
-      pos.table >= tableCount ||
-      pos.seat < 0 ||
-      pos.seat >= seatCounts[pos.table]!
-    )
-      continue;
-    if (arrangement[pos.table]![pos.seat] !== null) continue;
-    arrangement[pos.table]![pos.seat] = stu;
-    validLockedIds.add(sid);
+/**
+ * Seats a student on the seat `accept` allows that costs the least, a tie
+ * falling to each tied seat alike: the n-th tie replaces the choice with
+ * probability 1/n. Picking the last tie half the time put the first students
+ * at the tables added last. `lookahead` adds what a seat still promises for
+ * the students to come.
+ */
+const placeBest = (
+  problem: MixProblem,
+  occupants: Occupants,
+  student: number,
+  accept: (seat: number) => boolean,
+  lookahead: (student: number, seat: number) => number = () => 0,
+): number => {
+  const { context, rng } = problem;
+  let best = -1;
+  let bestCost = Number.POSITIVE_INFINITY;
+  let ties = 0;
+  for (let seat = 0; seat < context.layout.size; seat++) {
+    if (!accept(seat)) continue;
+    const cost =
+      placementCost(context, occupants, student, seat) +
+      lookahead(student, seat);
+    if (cost < bestCost - SCORE_EPSILON) {
+      best = seat;
+      bestCost = cost;
+      ties = 1;
+    } else if (cost <= bestCost + SCORE_EPSILON) {
+      ties += 1;
+      if (rng() * ties < 1) best = seat;
+    }
   }
+  return best;
+};
 
-  const frontStudents = students.filter(
-    (s) => requiresFront(s, settings) && !validLockedIds.has(s.id),
-  );
-  if (frontStudents.length > 0) {
-    // Sort seats by front position (respecting board orientation and dominant axis).
-    // Random tie-breaker keeps fair distribution among equidistant seats.
-    // Only seats of the mix: a table taken out of it stays empty.
-    const sortedSeats = Array.from(seatPositions.entries())
-      .filter(([key]) => {
-        const table = scene.tables[Number(key.split('-')[0])];
-        return table ? isTableActive(table) : false;
-      })
-      .sort((a, b) => {
-        let diff: number;
-        if (orientation.dominantAxis === 'x') {
-          diff = orientation.frontIsHighX ? b[1].x - a[1].x : a[1].x - b[1].x;
-        } else {
-          diff = orientation.frontIsHighY ? b[1].y - a[1].y : a[1].y - b[1].y;
-        }
-        return diff !== 0 ? diff : rng() - 0.5;
-      });
-    let idx = 0;
-    for (const fs of frontStudents) {
-      while (idx < sortedSeats.length) {
-        const [key] = sortedSeats[idx++];
-        const [tStr, sStr] = key.split('-');
-        const t = Number(tStr);
-        const seat = Number(sStr);
-        if (arrangement[t]![seat] === null) {
-          arrangement[t]![seat] = fs;
-          validLockedIds.add(fs.id);
+/**
+ * The construction: locked students first, then — while no criterion carries
+ * weight — everybody else spread over the seats the tables take at random,
+ * every order equally likely; otherwise the students needing a front seat
+ * "Sehr wichtig" within the front rows, then the others, the most bound
+ * first, each on the seat that costs the plan least so far.
+ */
+const construct = (problem: MixProblem): Occupants => {
+  const { context, targets, rng } = problem;
+  const { layout } = context;
+  const occupants: Occupants = new Int32Array(layout.size).fill(-1);
+  const seated = new Int32Array(context.scene.tables.length);
+  const place = (seat: number, student: number) => {
+    occupants[seat] = student;
+    seated[layout.tableOf[seat]!]! += 1;
+  };
+  for (const [seat, student] of problem.locks) place(seat, student);
+
+  const lockedStudents = new Set(problem.locks.values());
+  const waiting: number[] = [];
+  for (let student = 0; student < problem.classSize; student++) {
+    if (!lockedStudents.has(student)) waiting.push(student);
+  }
+  const open = (seat: number) => {
+    const table = layout.tableOf[seat]!;
+    return (
+      occupants[seat]! < 0 &&
+      layout.seatOf[seat]! < (targets[table] ?? 0) &&
+      seated[table]! < (targets[table] ?? 0)
+    );
+  };
+
+  // The students still to come whom a student would gladly sit with: a wish
+  // either way, a tutoring or a same-level pair. The first of two is seated
+  // where the other still finds room beside them — the score cannot see a
+  // classmate who is not seated yet.
+  const n = context.facts.length;
+  const nn = n * n;
+  const kinds = context.pair.length / Math.max(1, nn);
+  const attracted: number[][] = context.facts.map((_, i) => {
+    const partners: number[] = [];
+    for (let j = 0; j < problem.classSize; j++) {
+      if (j === i) continue;
+      for (let kind = 0; kind < kinds; kind++) {
+        if (context.pair[kind * nn + i * n + j]! < 0) {
+          partners.push(j);
           break;
         }
       }
     }
-  }
-
-  const targets = seatTargetsFor(students, scene, lockedPositions, rng);
-
-  const orderedAll: Student[] = [
-    ...shuffleArray(frontRow, rng),
-    ...shuffleArray(restless, rng),
-    ...shuffleArray(shy, rng),
-    ...shuffleArray(rest, rng),
-  ];
-  const orderedFiltered = orderedAll.filter((s) => !validLockedIds.has(s.id));
-  const ordered = reorderByWishPartners(orderedFiltered, settings);
-
-  const globalCounts = emptyCounts();
-  for (let i = 0; i < arrangement.length; i++) {
-    const t = arrangement[i]!;
-    for (let j = 0; j < t.length; j++) {
-      const s = t[j];
-      if (s?.gender) {
-        globalCounts[s.gender]++;
+    return partners;
+  });
+  const waitingFlag = new Uint8Array(n);
+  const lookahead = (student: number, seat: number) => {
+    const table = layout.tableOf[seat]!;
+    let promise = 0;
+    for (const relation of layout.relations[seat]!) {
+      const other = relation.seat;
+      const otherTable = layout.tableOf[other]!;
+      const room =
+        occupants[other]! < 0 &&
+        layout.seatOf[other]! < (targets[otherTable] ?? 0) &&
+        seated[otherTable]! + (otherTable === table ? 1 : 0) <
+          (targets[otherTable] ?? 0);
+      if (!room) continue;
+      const base = relation.kind * nn + student * n;
+      for (const partner of attracted[student]!) {
+        if (waitingFlag[partner] !== 1) continue;
+        const value = context.pair[base + partner]!;
+        if (value < promise) promise = value;
       }
+    }
+    return promise;
+  };
+
+  if (!hasActiveWeights(problem.settings)) {
+    // The seats a table takes, its lowest ones; the students in a random
+    // order onto them — so nobody is placed by anything but chance.
+    const slots: number[] = [];
+    context.scene.tables.forEach((_, table) => {
+      let room = (targets[table] ?? 0) - seated[table]!;
+      for (
+        let seat = layout.offsets[table]!;
+        seat < layout.offsets[table + 1]! && room > 0;
+        seat++
+      ) {
+        if (open(seat)) {
+          slots.push(seat);
+          room -= 1;
+        }
+      }
+    });
+    shuffleArray(waiting, rng).forEach((student, index) => {
+      const seat = slots[index];
+      if (seat !== undefined) place(seat, student);
+    });
+  } else {
+    for (const student of waiting) waitingFlag[student] = 1;
+    const seatStudent = (student: number, seat: number) => {
+      if (seat < 0) return;
+      place(seat, student);
+      waitingFlag[student] = 0;
+    };
+    const hard = shuffleArray(
+      waiting.filter((student) => problem.hardFront[student] === 1),
+      rng,
+    );
+    for (const student of hard) {
+      waitingFlag[student] = 0;
+      const inPool = placeBest(
+        problem,
+        occupants,
+        student,
+        (candidate) => problem.pool[candidate] === 1 && open(candidate),
+        lookahead,
+      );
+      seatStudent(
+        student,
+        inPool >= 0
+          ? inPool
+          : placeBest(problem, occupants, student, open, lookahead),
+      );
+    }
+
+    const others = shuffleArray(
+      waiting.filter((student) => problem.hardFront[student] !== 1),
+      rng,
+    )
+      .map((student, position) => ({
+        student,
+        position,
+        degree: constraintDegree(problem, student),
+      }))
+      .sort((a, b) => b.degree - a.degree || a.position - b.position)
+      .map(({ student }) => context.students[student]!);
+    for (const student of reorderByWishPartners(others, problem.settings)) {
+      const index = context.students.indexOf(student);
+      waitingFlag[index] = 0;
+      seatStudent(index, placeBest(problem, occupants, index, open, lookahead));
     }
   }
 
-  return {
-    students,
-    scene,
-    settings,
-    lockedPositions,
-    arrangement,
-    ordered,
-    validLockedIds,
-    seatCounts,
-    tableCount,
-    seatNeighborhoods,
-    behavioralNeighborWeights,
-    genderNeighborWeights,
-    seatPositions,
-    windowSeatDistances,
-    doorSeatDistances,
-    maxWindowDistance,
-    maxDoorDistance,
-    minX,
-    maxX,
-    minY,
-    maxY,
-    orientation,
-    studentById,
-    previousPairs,
-    targets,
-    globalCounts,
-    rng,
-  };
-}
+  // Nobody is left without a seat: past the targets if it has to be.
+  const placed = new Set(occupants);
+  const unplaced = waiting.filter((student) => !placed.has(student));
+  if (unplaced.length > 0) {
+    logWarn(
+      'Students left over after the construction; seating them past the targets',
+      { count: unplaced.length },
+      'seatingAlgorithm',
+    );
+    const inMix = (seat: number) => {
+      const table = context.scene.tables[layout.tableOf[seat]!];
+      return table ? isTableActive(table) : false;
+    };
+    for (const student of unplaced) {
+      let seat = -1;
+      for (let candidate = 0; candidate < layout.size; candidate++) {
+        if (occupants[candidate]! >= 0) continue;
+        if (inMix(candidate)) {
+          seat = candidate;
+          break;
+        }
+        if (seat < 0) seat = candidate;
+      }
+      if (seat >= 0) place(seat, student);
+    }
+  }
+  return occupants;
+};
 
-/** Build the per-seat scoring context for a candidate placement. */
-function buildScoringContext(
-  ctx: AssignmentContext,
-  stu: Student,
-  tIdx: number,
-  seatIdx: number,
-): ScoringContext {
-  return {
-    student: stu,
-    tableIndex: tIdx,
-    seatIndex: seatIdx,
-    arrangement: ctx.arrangement,
-    settings: ctx.settings,
-    scene: ctx.scene,
-    seatCounts: ctx.seatCounts,
-    targets: ctx.targets,
-    seatNeighborhoods: ctx.seatNeighborhoods,
-    seatPositions: ctx.seatPositions,
-    minX: ctx.minX,
-    maxX: ctx.maxX,
-    minY: ctx.minY,
-    maxY: ctx.maxY,
-    frontIsHighX: ctx.orientation.frontIsHighX,
-    frontIsHighY: ctx.orientation.frontIsHighY,
-    dominantAxis: ctx.orientation.dominantAxis,
-    globalCounts: ctx.globalCounts,
-    studentById: ctx.studentById,
-    validLockedIds: ctx.validLockedIds,
-    previousPairs: ctx.previousPairs,
-    lockedPositions: ctx.lockedPositions,
-    behavioralNeighborWeights: ctx.behavioralNeighborWeights,
-    genderNeighborWeights: ctx.genderNeighborWeights,
-    featureDistances: {
-      window: ctx.windowSeatDistances,
-      door: ctx.doorSeatDistances,
+/**
+ * The refinement: Simulated Annealing over the occupants, by the exact swap
+ * delta of the model. A swap keeps every seat at or beyond its table's target
+ * empty and — on the tables `held` names — no table above its count, never
+ * moves a locked student, and keeps a student needing a front seat "Sehr
+ * wichtig" within the front pool.
+ */
+const refine = (
+  problem: MixProblem,
+  occupants: Occupants,
+  fixed: Uint8Array,
+  held: boolean[] | null,
+  config: AnnealingConfig,
+  onProgress?: RefinementProgressReporter,
+): Occupants => {
+  const { context, targets, hardFront, pool, rng } = problem;
+  const { layout } = context;
+  const seated = new Int32Array(context.scene.tables.length);
+  const movers: number[] = [];
+  for (let seat = 0; seat < layout.size; seat++) {
+    const student = occupants[seat]!;
+    if (student < 0) continue;
+    seated[layout.tableOf[seat]!]! += 1;
+    if (fixed[seat] !== 1) movers.push(student);
+  }
+
+  const canSwap = (a: number, b: number): boolean => {
+    if (a === b || fixed[a] === 1 || fixed[b] === 1) return false;
+    const A = occupants[a]!;
+    const B = occupants[b]!;
+    if (A < 0 && B < 0) return false;
+    const tableA = layout.tableOf[a]!;
+    const tableB = layout.tableOf[b]!;
+    if (B >= 0 && layout.seatOf[a]! >= (targets[tableA] ?? 0)) return false;
+    if (A >= 0 && layout.seatOf[b]! >= (targets[tableB] ?? 0)) return false;
+    if (tableA !== tableB && A < 0 !== B < 0) {
+      // One student moves onto an empty seat of another table; a table
+      // already above its count (a student put there by hand) may lose one.
+      const destination = A >= 0 ? tableB : tableA;
+      if (
+        held?.[destination] &&
+        seated[destination]! >= targets[destination]!
+      ) {
+        return false;
+      }
+    }
+    if (A >= 0 && hardFront[A] === 1 && pool[b] !== 1) return false;
+    if (B >= 0 && hardFront[B] === 1 && pool[a] !== 1) return false;
+    return true;
+  };
+
+  const onSwap = (a: number, b: number) => {
+    const tableA = layout.tableOf[a]!;
+    const tableB = layout.tableOf[b]!;
+    if (tableA === tableB) return;
+    // After the swap: the seat holding a student gained one.
+    if (occupants[a]! >= 0 && occupants[b]! < 0) {
+      seated[tableA]! += 1;
+      seated[tableB]! -= 1;
+    } else if (occupants[b]! >= 0 && occupants[a]! < 0) {
+      seated[tableB]! += 1;
+      seated[tableA]! -= 1;
+    }
+  };
+
+  const result = runSimulatedAnnealing(
+    {
+      occupants,
+      movers,
+      canSwap,
+      delta: (a, b) => swapDelta(context, occupants, a, b),
+      onSwap,
+      score: () => scoreArrangement(context, occupants),
+      rng,
     },
-    maxWindowDistance: ctx.maxWindowDistance,
-    maxDoorDistance: ctx.maxDoorDistance,
-  };
-}
-
-/**
- * Score a seat placement using all modular scoring strategies.
- * Returns `POSITIVE_INFINITY` when the seat is unavailable or the table is full.
- */
-function scorePlacement(
-  ctx: AssignmentContext,
-  stu: Student,
-  tIdx: number,
-  seatIdx: number,
-): number {
-  const context = buildScoringContext(ctx, stu, tIdx, seatIdx);
-
-  if (!isSeatAvailable(context)) {
-    return Number.POSITIVE_INFINITY;
-  }
-  if (isTableFull(context)) {
-    return Number.POSITIVE_INFINITY;
-  }
-
-  return (
-    scoreGenderMix(context) +
-    scorePartners(context) +
-    scoreSpecialNeeds(context) +
-    scoreHistory(context) +
-    scorePerformance(context) +
-    scoreHeightPlacement(context) +
-    scoreEnvironment(context) +
-    scoreLanguageMixing(context) +
-    scoreSocialRoles(context)
+    config,
+    onProgress,
   );
-}
+  return result.occupants;
+};
+
+const previousPairsFor = (
+  students: Student[],
+  seatingHistory: SavedPlan[],
+  mixHistory: MixResult[],
+  settings: Partial<MixSettings>,
+  options: {
+    currentSeating?: SeatingArrangement;
+    planUsage?: PlanUsage[];
+    planUsageSince?: string | null;
+    planUsageManual?: boolean;
+  },
+): PreviousPairWeights =>
+  settings.avoidPreviousPairs
+    ? buildPreviousPairs(seatingHistory, {
+        mixHistory,
+        currentSeating: options.currentSeating,
+        planUsage: options.planUsage,
+        since: options.planUsageSince,
+        manual: options.planUsageManual,
+        studentCount: students.length,
+      })
+    : new Map<string, number>();
+
+const lockSeats = (problem: MixProblem): Uint8Array => {
+  const fixed = new Uint8Array(problem.context.layout.size);
+  for (const seat of problem.locks.keys()) fixed[seat] = 1;
+  return fixed;
+};
 
 /**
- * Phase 2 — Greedy placement pass: for each ordered student, find the best-
- * scoring open seat across all tables. Falls back to round-robin filling when
- * no seat scores finitely. Mutates `ctx.arrangement` and `ctx.globalCounts`
- * in place and returns the same context for chaining.
- */
-export function runPass(ctx: AssignmentContext): AssignmentContext {
-  const tableStats = (tIdx: number) => getTableStats(tIdx, ctx.arrangement);
-
-  for (const stu of ctx.ordered) {
-    let best: { t: number; s: number; score: number } | null = null;
-
-    for (let t = 0; t < ctx.tableCount; t++) {
-      for (let s = 0; s < ctx.seatCounts[t]!; s++) {
-        const sc = scorePlacement(ctx, stu, t, s);
-        if (!Number.isFinite(sc)) continue;
-        if (
-          best === null ||
-          sc < best.score ||
-          (sc === best.score && ctx.rng() < 0.5)
-        ) {
-          best = { t, s, score: sc };
-        }
-      }
-    }
-
-    if (best) {
-      ctx.arrangement[best.t]![best.s] = stu;
-      if (stu.gender) {
-        ctx.globalCounts[stu.gender]++;
-      }
-    } else {
-      outer: for (let t = 0; t < ctx.tableCount; t++) {
-        const { seated } = tableStats(t);
-        if (seated >= ctx.targets[t]!) continue;
-        for (
-          let s = 0;
-          s < Math.min(ctx.seatCounts[t]!, ctx.targets[t]!);
-          s++
-        ) {
-          if (ctx.arrangement[t]![s] === null) {
-            ctx.arrangement[t]![s] = stu;
-            if (stu.gender) {
-              ctx.globalCounts[stu.gender]++;
-            }
-            break outer;
-          }
-        }
-      }
-    }
-  }
-
-  return ctx;
-}
-
-/** Phase 3 — Trivial finalize hook for the four-phase pipeline. */
-export function finalize(arrangement: SeatingArrangement): SeatingArrangement {
-  return arrangement;
-}
-
-/**
- * Generates an optimized seating arrangement that balances behavioral, social, and spatial constraints.
- *
- * Internally chains four phases:
- * 1. {@link initializeAssignment} — build context, classify students, place locked + front-row
- * 2. {@link reorderByWishPartners} — wish-partner reordering (called from phase 1)
- * 3. {@link runPass} — greedy score-based placement
- * 4. {@link finalize} — trailing hook (currently identity)
+ * Generates a seating arrangement by the construction alone: the students
+ * placed one by one, each on the seat that costs the plan least so far — or,
+ * while no criterion carries weight, spread at random.
  *
  * @param students - Current student roster that needs to be seated
  * @param seatingHistory - Previously saved plans used to avoid repeating pairings
@@ -585,23 +646,9 @@ export function finalize(arrangement: SeatingArrangement): SeatingArrangement {
  * @param lockedPositions - Mapping of student ids to fixed table/seat positions
  * @param settings - Mix settings controlling weights for every constraint
  * @param scene - Classroom layout including tables, seats, and geometry helpers
- * @param currentSeating - Optional reference arrangement to warm-start the algorithm
+ * @param currentSeating - The plan on screen, which counts as the newest in use
  * @param options - Optional overrides; `rng` seeds the run for reproducible output
- * @returns Optimized seating arrangement with per-table assignments
- *
- * @complexity O(n^2 * passes * tries) with n = students.length
- * @performance Typical: 50-200 ms for 30 students across 5 passes and 8 tries per pass
- *
- * @example
- * const arrangement = generateSeatingPlan(
- *   students,
- *   seatingHistory,
- *   mixHistory,
- *   lockedPositions,
- *   { preferGenderMix: 6, avoidRestlessTogether: 4 },
- *   classroomScene,
- *   currentSeating,
- * );
+ * @returns Seating arrangement with per-table assignments
  */
 export function generateSeatingPlan(
   students: Student[],
@@ -622,54 +669,47 @@ export function generateSeatingPlan(
   },
 ): SeatingArrangement {
   const startTime = performance.now();
+  const rng = options?.rng ?? Math.random;
+  const problem = buildMixProblem({
+    students,
+    scene,
+    settings,
+    previousPairs: previousPairsFor(
+      students,
+      seatingHistory,
+      mixHistory,
+      settings,
+      { ...options, currentSeating },
+    ),
+    targets: seatTargetsFor(students, scene, lockedPositions, rng),
+    lockedPositions,
+    rng,
+  });
+  const arrangement = arrangementOf(problem.context, construct(problem));
   logDebug(
-    'Starting seating plan generation',
+    'Seating plan generation completed',
     {
       studentCount: students.length,
-      lockedCount: Object.keys(lockedPositions).length,
+      duration: `${(performance.now() - startTime).toFixed(1)}ms`,
     },
     'seatingAlgorithm',
   );
-
-  const ctx = initializeAssignment(
-    students,
-    seatingHistory,
-    mixHistory,
-    lockedPositions,
-    settings,
-    scene,
-    currentSeating,
-    options?.rng,
-    options?.planUsage,
-    options?.planUsageSince,
-    options?.planUsageManual,
-  );
-  runPass(ctx);
-
-  logDebug(
-    'Seating plan generation completed',
-    { duration: `${(performance.now() - startTime).toFixed(1)}ms` },
-    'seatingAlgorithm',
-  );
-  return finalize(ctx.arrangement);
+  return arrangement;
 }
 
 /**
  * One "Mischen": the construction and, while a criterion asks for it, its
  * refinement, as one session that decides by one set of facts (decision
- * 0027). Both phases take the tables' targets the construction drew, and both
- * weigh the pairs of what came before this mix — the plan on screen
- * (`lastSeating`), the plans in use, the earlier mixes — by recency and by
- * kind, never the pairs the construction itself just made.
- *
- * The refinement used to run as a call of its own after the construction had
- * entered the mix history and the plan on screen: it held the construction's
- * pairs against it, counted every earlier pair at full weight and drew the
- * targets anew.
+ * 0027) and one score (decision 0031). Both phases take the tables' targets
+ * the construction drew, and both weigh the pairs of what came before this
+ * mix — the plan on screen (`lastSeating`), the plans in use, the earlier
+ * mixes — by recency and by kind, never the pairs the construction itself
+ * just made. Within the session every table is held to the construction's
+ * count.
  *
  * @param lastSeating - The plan on screen before mixing
- * @param options.refine - The refinement to run; without it the construction
- *   stands
+ * @param options.refine - Whether the refinement runs; without it the
+ *   construction stands
  * @returns The arrangement the session settled on
  */
 export function runMixSession(
@@ -688,47 +728,68 @@ export function runMixSession(
     planUsageSince?: string | null;
     /** Whether the class marks its plans by hand; see `buildPreviousPairs`. */
     planUsageManual?: boolean;
-    refine?: Pick<
-      RefineOptions,
-      'triesPerPass' | 'passes' | 'useAnnealing' | 'annealingConfig'
-    > | null;
+    refine?: boolean;
+    /** Custom Simulated Annealing configuration */
+    annealingConfig?: Partial<AnnealingConfig>;
     /** The refinement's progress; see `RefineOptions.onProgress`. */
     onProgress?: RefinementProgressReporter;
   },
 ): SeatingArrangement {
   const rng = options?.rng ?? Math.random;
-  const ctx = initializeAssignment(
+  const problem = buildMixProblem({
     students,
-    seatingHistory,
-    mixHistory,
-    lockedPositions,
-    settings,
     scene,
-    lastSeating,
+    settings,
+    previousPairs: previousPairsFor(
+      students,
+      seatingHistory,
+      mixHistory,
+      settings,
+      { ...options, currentSeating: lastSeating },
+    ),
+    targets: seatTargetsFor(students, scene, lockedPositions, rng),
+    lockedPositions,
     rng,
-    options?.planUsage,
-    options?.planUsageSince,
-    options?.planUsageManual,
-  );
-  runPass(ctx);
-  const constructed = finalize(ctx.arrangement);
-  if (!options?.refine) return constructed;
+  });
+  if (!options?.refine) {
+    return arrangementOf(problem.context, construct(problem));
+  }
 
-  return refineSeatingLocal(
-    students,
-    seatingHistory,
-    mixHistory,
-    lockedPositions,
-    constructed,
-    settings,
-    scene,
-    {
-      ...options.refine,
-      rng,
-      onProgress: options.onProgress,
-      session: { targets: ctx.targets, previousPairs: ctx.previousPairs },
-    },
-  );
+  // Several starts, each a construction and its refinement from a random
+  // stream of its own, and the best plan by the one score wins — never one
+  // worse than a construction (decision 0031).
+  const fixed = lockSeats(problem);
+  const held = scene.tables.map(() => true);
+  const config = { ...DEFAULT_ANNEALING_CONFIG, ...options.annealingConfig };
+  let best: Occupants | null = null;
+  let bestScore = Number.POSITIVE_INFINITY;
+  for (let start = 0; start < MIX_STARTS; start++) {
+    const startProblem = {
+      ...problem,
+      rng: createRng(Math.floor(rng() * 0x100000000)),
+    };
+    const constructed = construct(startProblem);
+    const constructedScore = scoreArrangement(problem.context, constructed);
+    const refined = refine(
+      startProblem,
+      constructed.slice(),
+      fixed,
+      held,
+      config,
+      options.onProgress &&
+        ((fraction) => options.onProgress!((start + fraction) / MIX_STARTS)),
+    );
+    const refinedScore = scoreArrangement(problem.context, refined);
+    const [candidate, score] =
+      refinedScore <= constructedScore
+        ? [refined, refinedScore]
+        : [constructed, constructedScore];
+    if (score < bestScore - SCORE_EPSILON) {
+      best = candidate;
+      bestScore = score;
+    }
+  }
+  return arrangementOf(problem.context, best!);
 }
 
 /**
@@ -742,10 +803,6 @@ export interface MixSessionContext {
 
 /** How `refineSeatingLocal` runs. */
 export interface RefineOptions {
-  triesPerPass?: number;
-  passes?: number;
-  /** Use Simulated Annealing instead of greedy refinement */
-  useAnnealing?: boolean;
   /** Custom Simulated Annealing configuration */
   annealingConfig?: Partial<AnnealingConfig>;
   /** Random source; pass a seeded one for reproducible refinement */
@@ -770,15 +827,15 @@ export interface RefineOptions {
 }
 
 /**
- * Refines an existing seating arrangement through targeted swap heuristics to reduce constraint violations.
+ * Refines an existing seating arrangement by Simulated Annealing on the score
+ * of the criterion model (decision 0031).
  *
- * This function supports two optimization strategies:
- * 1. **Greedy Refinement (Default)**: Fast, deterministic, hill-climbing approach. Accepts only improvements.
- *    Good for standard cases and minor adjustments.
- * 2. **Simulated Annealing**: Probabilistic approach that can escape local optima.
- *    Good for complex constraints and heavily locked layouts.
- *
- * @see {@link ../../../docs/ALGORITHM.md} for detailed strategy comparison.
+ * The app refines only within "Mischen" (`runMixSession`); this is the same
+ * refinement for an arrangement on its own — a test, the benchmark. It does
+ * not count the arrangement it refines as an earlier plan (decision 0027),
+ * and draws targets of its own unless a session hands over the
+ * construction's: then every table is held to its count, otherwise only the
+ * tables `tablesHeldByCount` names.
  *
  * @param students - Students contained in the active seating arrangement
  * @param seatingHistory - Previously persisted plans for pair avoidance checks
@@ -787,21 +844,10 @@ export interface RefineOptions {
  * @param currentSeating - Active arrangement that should be improved
  * @param settings - Mix settings that define scoring weights for refinement
  * @param scene - Classroom layout describing seat geometry and adjacency
- * @param options - Configuration options including strategy selection (Greedy vs SA)
+ * @param options - Random source, history and progress
  * @param start - Optional custom arrangement to use as the refinement baseline
- * @returns Enhanced seating arrangement attempting to improve the provided baseline
- *
- * @complexity Greedy: O(n * passes * tries), SA: O(iterations * cooling_steps)
- *
- * @example
- * // Standard Greedy Refinement
- * const fast = refineSeatingLocal(students, ..., { triesPerPass: 5 });
- *
- * // Deep Optimization with Simulated Annealing
- * const best = refineSeatingLocal(students, ..., {
- *   useAnnealing: true,
- *   annealingConfig: { initialTemp: 15, coolingRate: 0.98 }
- * });
+ * @returns Enhanced seating arrangement, never worse by the score than the
+ *   baseline
  */
 export function refineSeatingLocal(
   students: Student[],
@@ -815,232 +861,61 @@ export function refineSeatingLocal(
   start?: SeatingArrangement,
 ): SeatingArrangement {
   const refineStartTime = performance.now();
-  logDebug(
-    'Starting seating refinement',
-    { triesPerPass: options?.triesPerPass, passes: options?.passes },
-    'seatingAlgorithm',
-  );
-  const triesPerPass = options?.triesPerPass ?? DEFAULT_TRIES_PER_PASS;
-  const passes = options?.passes ?? DEFAULT_PASSES;
-  const rng = options?.rng ?? Math.random;
-
   const base = start ?? currentSeating;
   if (!base || base.length === 0) return base;
 
-  const seatCounts = scene.tables.map((t) => t.seatCount);
-  const tableCount = seatCounts.length;
+  const rng = options?.rng ?? Math.random;
   const session = options?.session;
-  const targets =
-    session?.targets ?? seatTargetsFor(students, scene, lockedPositions, rng);
-  // In a session the targets are the construction's, so every table is held
-  // to its count as the construction held it; on its own the refinement drew
-  // targets of its own and holds only where the index check falls short.
-  const heldTables = session
-    ? scene.tables.map(() => true)
-    : tablesHeldByCount(scene);
-  // The arrangement being refined is no earlier plan of its own: its pairs
-  // are what the refinement weighs, not history to stay away from (decision
-  // 0027). A mix hands over the plan on screen before it with its session.
-  const previousPairs =
-    session?.previousPairs ??
-    (settings.avoidPreviousPairs
-      ? buildPreviousPairs(seatingHistory, {
-          mixHistory,
-          planUsage: options?.planUsage,
-          since: options?.planUsageSince,
-          manual: options?.planUsageManual,
-          studentCount: students.length,
-        })
-      : new Map<string, number>());
-  const arr: SeatingArrangement = base.map((t) => [...t]);
-  const seatNeighborhoods = getSeatNeighborhoods(scene);
-  const behavioralNeighborWeights = buildDirectionalWeights(
+  const problem = buildMixProblem({
+    students,
+    scene,
     settings,
-    'behavioral',
-  );
-  const genderNeighborWeights = buildDirectionalWeights(settings, 'gender');
-  const seatPositions = getSeatPositions(scene);
-  const featureDistances = getFeatureDistanceMaps(scene, seatPositions);
-  const { minX, maxX, minY, maxY } = activeSeatBounds(scene, seatPositions);
+    previousPairs:
+      session?.previousPairs ??
+      previousPairsFor(students, seatingHistory, mixHistory, settings, {
+        planUsage: options?.planUsage,
+        planUsageSince: options?.planUsageSince,
+        planUsageManual: options?.planUsageManual,
+      }),
+    targets:
+      session?.targets ?? seatTargetsFor(students, scene, lockedPositions, rng),
+    lockedPositions,
+    rng,
+    arrangement: base,
+  });
+  const occupants = occupantsOf(problem.context, base);
 
-  // Determine front direction based on board position
-  const orientation = determineFrontDirection(scene);
-
-  // Table scoring lives in `scoring/arrangementScoring`. The context holds
-  // `arr` by reference, so a candidate swap is evaluated by mutating the
-  // arrangement and re-reading the two affected tables — no rebuild per try.
-  const scoringContext: ArrangementScoringContext = {
-    arrangement: arr,
-    settings,
-    seatCounts,
-    targets,
-    seatNeighborhoods,
-    seatPositions,
-    minX,
-    maxX,
-    minY,
-    maxY,
-    orientation,
-    previousPairs,
-    featureDistances,
-    behavioralNeighborWeights,
-    genderNeighborWeights,
-  };
-
-  const tableScore = (tableIndex: number): number =>
-    scoreTable(scoringContext, tableIndex);
-  const globalGenderDiff = (): number =>
-    globalArrangementGenderDiff(scoringContext);
-  const tablesScore = (a: number, b: number): number =>
-    scoreTablePair(scoringContext, a, b);
-
-  const frontRequired = students.filter((s) => requiresFront(s, settings));
-  const sortedSeatEntries = Array.from(seatPositions.entries()).sort(
-    (a, b) => b[1].x - a[1].x,
-  );
-  const frontSeatSet = new Set<string>();
-  for (const [key] of sortedSeatEntries) {
-    if (frontSeatSet.size >= frontRequired.length) break;
-    const [tStr, sStr] = key.split('-');
-    const t = Number(tStr);
-    const seat = Number(sStr);
-    const occupant = arr[t]?.[seat];
-    if (occupant && requiresFront(occupant, settings)) frontSeatSet.add(key);
-  }
-
-  const seatHasLocked = (t: number, s: number): boolean => {
-    const stu = arr[t]?.[s] as Student | null | undefined;
-    if (!stu) return false;
-    const lp = lockedPositions[stu.id];
-    if (lp && lp.table === t && lp.seat === s) return true;
-    return requiresFront(stu, settings) && frontSeatSet.has(`${t}-${s}`);
-  };
-
-  // MT-1: Simulated Annealing mode (optional)
-  // If enabled, use SA instead of greedy refinement for better global optimization
-  if (options?.useAnnealing) {
-    const annealingConfig: AnnealingConfig = {
-      ...DEFAULT_ANNEALING_CONFIG,
-      ...options.annealingConfig,
-    };
-
-    const annealingContext: AnnealingContext = {
-      rng,
-      arrangement: arr,
-      seatCounts,
-      tableCount,
-      targets,
-      settings,
-      scene,
-      lockedPositions,
-      scoreTable: tableScore,
-      isLocked: seatHasLocked,
-      heldTables,
-    };
-
-    const result = runSimulatedAnnealing(
-      annealingContext,
-      annealingConfig,
-      options.onProgress,
-    );
-
-    const refineEndTime = performance.now();
-    logDebug(
-      'Seating refinement (SA) completed',
-      {
-        duration: `${(refineEndTime - refineStartTime).toFixed(1)}ms`,
-        iterations: result.iterations,
-        improvements: result.improvements,
-      },
-      'seatingAlgorithm',
-    );
-
-    return result.arrangement;
-  }
-
-  // Greedy refinement (default)
-  const reportPassProgress = options?.onProgress;
-  for (let p = 0; p < passes; p++) {
-    // QW-2: Calculate table scores and identify problem tables
-    // This allows us to prioritize swaps from tables with worst scores
-    const tableScores: { index: number; score: number }[] = [];
-    for (let t = 0; t < tableCount; t++) {
-      tableScores.push({ index: t, score: tableScore(t) });
+  // A student counts as locked where the lock and the seat agree.
+  const fixed = new Uint8Array(problem.context.layout.size);
+  for (let seat = 0; seat < fixed.length; seat++) {
+    const student = occupants[seat]!;
+    if (student < 0) continue;
+    const position = lockedPositions[problem.context.students[student]!.id];
+    const table = position ? scene.tables[position.table] : undefined;
+    if (
+      position &&
+      table &&
+      position.seat >= 0 &&
+      position.seat < table.seatCount &&
+      problem.context.layout.offsets[position.table]! + position.seat === seat
+    ) {
+      fixed[seat] = 1;
     }
-
-    // Sort by score descending (worst/highest score first)
-    tableScores.sort((a, b) => b.score - a.score);
-
-    // Pick a table, biased towards the worst-scoring ones — a uniform pick
-    // would spend most tries on tables that are already fine.
-    const pickProblemBiasedTable = (): number => {
-      const {
-        problemTableBias,
-        candidateCount,
-        firstChoiceThreshold,
-        secondChoiceThreshold,
-      } = REFINEMENT_TABLE_SELECTION;
-      if (rng() < problemTableBias && tableScores.length > 0) {
-        const r = rng();
-        const worstCount = Math.min(candidateCount, tableScores.length);
-        if (r < firstChoiceThreshold || worstCount === 1) {
-          return tableScores[0]!.index;
-        } else if (r < secondChoiceThreshold || worstCount === 2) {
-          return tableScores[1]!.index;
-        } else {
-          return tableScores[2]!.index;
-        }
-      }
-      return randomInt(rng, tableCount);
-    };
-
-    for (let k = 0; k < triesPerPass; k++) {
-      // Use heuristic: first table from problem bias, second table random
-      // This targets improvements for the worst tables
-      const t1 = pickProblemBiasedTable();
-      const s1 = randomInt(rng, seatCounts[t1]!);
-      const t2 = randomInt(rng, tableCount);
-      const s2 = randomInt(rng, seatCounts[t2]!);
-
-      if (t1 === t2 && s1 === s2) continue;
-      const A = arr[t1]?.[s1] as Student | null | undefined;
-      const B = arr[t2]?.[s2] as Student | null | undefined;
-      if (!A && !B) continue;
-
-      if (seatHasLocked(t1, s1) || seatHasLocked(t2, s2)) continue;
-
-      const before = tablesScore(t1, t2);
-      const globalBefore = settings.preferGenderMix ? globalGenderDiff() : 0;
-
-      if ((B && s1 >= targets[t1]!) || (A && s2 >= targets[t2]!)) {
-        continue;
-      }
-      if (
-        heldTables &&
-        swapOverfillsTable(arr, targets, heldTables, t1, s1, t2, s2)
-      ) {
-        continue;
-      }
-
-      arr[t1]![s1] = B ?? null;
-      arr[t2]![s2] = A ?? null;
-
-      const after = tablesScore(t1, t2);
-      const globalAfter = settings.preferGenderMix ? globalGenderDiff() : 0;
-      if (after > before || globalAfter > globalBefore) {
-        arr[t1]![s1] = A ?? null;
-        arr[t2]![s2] = B ?? null;
-      }
-    }
-
-    reportPassProgress?.((p + 1) / passes);
   }
 
-  const refineEndTime = performance.now();
+  const refined = refine(
+    problem,
+    occupants,
+    fixed,
+    session ? scene.tables.map(() => true) : tablesHeldByCount(scene),
+    { ...DEFAULT_ANNEALING_CONFIG, ...options?.annealingConfig },
+    options?.onProgress,
+  );
+
   logDebug(
     'Seating refinement completed',
-    { duration: `${(refineEndTime - refineStartTime).toFixed(1)}ms` },
+    { duration: `${(performance.now() - refineStartTime).toFixed(1)}ms` },
     'seatingAlgorithm',
   );
-  return arr;
+  return arrangementOf(problem.context, refined);
 }

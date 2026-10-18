@@ -8,7 +8,8 @@
   [ALGORITHM.md](../ALGORITHM.md#overview),
   [PERFORMANCE.md](../PERFORMANCE.md#algorithm-runtime),
   `src/utils/algorithm/seatingAlgorithm.ts` (`runMixSession`,
-  `RefineOptions.session`), `src/utils/algorithm/scoring/arrangementScoring.ts`,
+  `RefineOptions.session`), `scoring/arrangementScoring.ts` (since decision
+  0031 the criterion model, `src/utils/algorithm/model/`),
   `src/workers/algorithmOperations.ts` (`mix:run`),
   `src/hooks/useSeatingAlgorithm.ts`, `src/hooks/circle/useCircleAfterMix.ts`
 

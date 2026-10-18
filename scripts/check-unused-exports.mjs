@@ -33,6 +33,10 @@ const rootDir = path.resolve(
  * Lower it whenever a cleanup drops the real count — that is what makes the
  * ratchet tighten. Raising it needs a reason in the same commit.
  *
+ * 50 (2026-10-18): the scorers of `utils/algorithm/scoring/` and their unused
+ * helpers (`getLanguageSkillDifference`, `hasPositiveSocialRole`, …) went with
+ * the criterion model (decision 0031), and with them `circleArrangement.ts`.
+ *
  * 52 (2026-10-03): `ClearAllDataDialog` in
  * `components/ui/navigation/AppSettingsItems.tsx` is reached only through the
  * module that `loadOnDemand` imports for both settings menus, and the tool
@@ -51,7 +55,7 @@ const rootDir = path.resolve(
  * import to leave the initial bundle, and the tool does not follow `import()`;
  * `exportAllAsJson` is the one export of it no test imports statically.
  */
-const BASELINE = 52;
+const BASELINE = 50;
 
 const IGNORE_FILES = 'vite-env.d.ts|index.tsx|App.tsx';
 

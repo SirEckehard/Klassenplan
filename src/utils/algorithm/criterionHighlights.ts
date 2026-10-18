@@ -10,25 +10,18 @@ import type {
   Student,
 } from '@/types';
 import type { StatisticHighlightEntry } from '@/types/StatisticsHighlight';
-import { getStatisticStatus } from '@/utils';
-import { buildPreviousPairs } from '@/utils/pairs';
-import { getAvoidPartnerIds, getWishPartnerIds } from '@/utils/student';
-import {
-  getSeatNeighborhoods,
-  getSeatPositions,
-  partnerSeat,
-} from '@/utils/math/seatGeometry';
-import { getFeatureDistanceMaps } from './featureDistances';
-import { createGenderCounts, calculateGenderImbalance } from './genderBalance';
-import { determineFrontDirection } from './orientationUtils';
-
-const buildSeatKey = (tableIndex: number, seatIndex: number) =>
-  `${tableIndex}-${seatIndex}`;
+import { getStatisticStatus } from '@/utils/ui/statisticsStatus';
+import { evaluateCriteria, type CriteriaCases } from './model/fulfilment';
+import { readPlan } from './model/readPlan';
 
 type HighlightParams = {
   criterionKey: keyof MixSettings;
   arrangement: SeatingArrangement;
   scene: ClassroomScene;
+  /** The class, as the fulfilment reads it */
+  students: Student[];
+  /** The weights the plan is read by, as the fulfilment reads them */
+  settings: Partial<MixSettings>;
   seatingHistory?: SavedPlan[];
   mixHistory?: MixResult[];
   /** Records of plans that were really in use; see `buildPreviousPairs`. */
@@ -39,504 +32,80 @@ type HighlightParams = {
   planUsageManual?: boolean;
 };
 
-const calculateProximityScore = (distance: number, maxDistance: number) => {
-  if (!Number.isFinite(distance) || maxDistance <= 0) {
-    return 0;
+/**
+ * The criteria a highlight shows: distractibility is one criterion with two
+ * weights, so its highlight marks both of its cases where they carry weight.
+ */
+const highlightedKeys = (
+  criterionKey: keyof MixSettings,
+  settings: Partial<MixSettings>,
+): Array<keyof CriteriaCases> => {
+  if (criterionKey === 'avoidConcentrationTogether') {
+    return (
+      ['avoidConcentrationTogether', 'avoidConcentrationNearRestless'] as const
+    ).filter((key) => (settings[key] ?? 0) > 0);
   }
-  const normalized = Math.min(distance / maxDistance, 1);
-  return 1 - normalized;
+  return criterionKey === 'neighborWeights' ||
+    criterionKey === 'criteriaVersion'
+    ? []
+    : [criterionKey];
 };
 
-const addEntry = (
-  entries: StatisticHighlightEntry[],
-  tableIndex: number,
-  seatIndex: number,
-  studentId: string | null | undefined,
-  percentage: number,
-) => {
-  entries.push({
-    target: {
-      type: 'seat',
-      tableIndex,
-      seatIndex,
-      studentId: studentId ?? null,
-    },
-    percentage,
-    status: getStatisticStatus(percentage),
-  });
-};
-
+/**
+ * The seats a criterion is about, each with how well it is met there: the
+ * cases the fulfilment counts (decision 0031), so a marking never disagrees
+ * with the percentage it explains.
+ */
 export function buildCriterionHighlightEntries({
   criterionKey,
   arrangement,
   scene,
+  students,
+  settings,
   seatingHistory,
   mixHistory,
   planUsage,
   planUsageSince,
   planUsageManual,
 }: HighlightParams): StatisticHighlightEntry[] {
-  const entries: StatisticHighlightEntry[] = [];
-  const seatPositions = getSeatPositions(scene);
-  const seatNeighborhoods = getSeatNeighborhoods(scene, {
-    directions: ['direct', 'front', 'back', 'side'],
+  const keys = highlightedKeys(criterionKey, settings);
+  if (keys.length === 0) return [];
+  const { context, occupants } = readPlan({
+    arrangement,
+    students,
+    settings,
+    scene,
+    seatingHistory,
+    mixHistory,
+    planUsage,
+    planUsageSince,
+    planUsageManual,
   });
-  const seatMap = new Map<string, Student | null>();
-  arrangement.forEach((table, tIdx) => {
-    table.forEach((seat, sIdx) => {
-      seatMap.set(buildSeatKey(tIdx, sIdx), seat);
-    });
-  });
+  const cases = evaluateCriteria(context, occupants);
 
-  // Thresholds and helper data
-  const allX = Array.from(seatPositions.values()).map((p) => p.x);
-  const allY = Array.from(seatPositions.values()).map((p) => p.y);
-  const maxX = Math.max(...allX);
-  const minX = Math.min(...allX);
-  const maxY = Math.max(...allY);
-  const minY = Math.min(...allY);
-
-  // Determine front direction based on board position
-  const orientation = determineFrontDirection(scene);
-
-  // Front threshold: 30% of seats closest to front
-  const frontThresholdX = orientation.frontIsHighX
-    ? maxX - (maxX - minX) * 0.3
-    : minX + (maxX - minX) * 0.3;
-  const frontThresholdY = orientation.frontIsHighY
-    ? maxY - (maxY - minY) * 0.3
-    : minY + (maxY - minY) * 0.3;
-
-  const {
-    window: windowDistances,
-    door: doorDistances,
-    maxWindowDistance,
-    maxDoorDistance,
-  } = getFeatureDistanceMaps(scene, seatPositions);
-  const seatedCount = arrangement.reduce(
-    (count, table) => count + table.filter(Boolean).length,
-    0,
-  );
-
-  const previousPairs =
-    criterionKey === 'avoidPreviousPairs' && seatingHistory
-      ? buildPreviousPairs(seatingHistory, {
-          mixHistory,
-          planUsage,
-          since: planUsageSince,
-          manual: planUsageManual,
-          studentCount: seatedCount,
-        })
-      : null;
-
-  const tableCount = scene.tables.length;
-
-  const getNeighbors = (tableIndex: number, seatIndex: number) => {
-    const key = buildSeatKey(tableIndex, seatIndex);
-    return seatNeighborhoods.get(key) ?? [];
-  };
-
-  const forEachSeat = (
-    callback: (
-      student: Student | null,
-      tableIndex: number,
-      seatIndex: number,
-      seatCount: number,
-      table: (Student | null)[],
-    ) => void,
-  ) => {
-    arrangement.forEach((table, tIdx) => {
-      const seatCount = table.length;
-      for (let sIdx = 0; sIdx < seatCount; sIdx++) {
-        callback(table[sIdx], tIdx, sIdx, seatCount, table);
-      }
-    });
-  };
-
-  switch (criterionKey) {
-    case 'considerWishPartners': {
-      forEachSeat((student, tIdx, sIdx, seatCount, table) => {
-        if (!student) return;
-        // Every wish counts, not just the first: the scoring in
-        // `arrangementScoring` reads the whole list, and a highlight that
-        // disagreed with the score it explains would be worse than none.
-        const wishIds = getWishPartnerIds(student);
-        if (wishIds.length === 0) return;
-        const partnerIdx = partnerSeat(seatCount, sIdx);
-        const partner =
-          partnerIdx !== null ? (table[partnerIdx] ?? null) : null;
-        if (partner && wishIds.includes(partner.id)) {
-          addEntry(entries, tIdx, sIdx, student.id, 100);
-          if (partnerIdx !== null) {
-            addEntry(entries, tIdx, partnerIdx, partner.id, 100);
-          }
-        } else if (partner) {
-          addEntry(entries, tIdx, sIdx, student.id, 0);
-          addEntry(entries, tIdx, partnerIdx ?? sIdx, partner.id, 0);
-        } else {
-          addEntry(entries, tIdx, sIdx, student.id, 60);
-        }
-      });
-      break;
+  const credits = new Map<number, number>();
+  for (const key of keys) {
+    for (const [seat, credit] of cases[key]?.seats ?? []) {
+      const known = credits.get(seat);
+      credits.set(seat, known === undefined ? credit : Math.min(known, credit));
     }
-    case 'avoidConflictPartners': {
-      forEachSeat((student, tIdx, sIdx, seatCount, table) => {
-        if (!student) return;
-        const avoidIds = getAvoidPartnerIds(student);
-        if (avoidIds.length === 0) return;
-        const partnerIdx = partnerSeat(seatCount, sIdx);
-        const partner =
-          partnerIdx !== null ? (table[partnerIdx] ?? null) : null;
-        if (partner && avoidIds.includes(partner.id)) {
-          addEntry(entries, tIdx, sIdx, student.id, 0);
-          addEntry(entries, tIdx, partnerIdx ?? sIdx, partner.id, 0);
-        } else {
-          addEntry(entries, tIdx, sIdx, student.id, 100);
-        }
-      });
-      break;
-    }
-    case 'avoidPreviousPairs': {
-      if (!previousPairs || previousPairs.size === 0) break;
-      forEachSeat((student, tIdx, sIdx, seatCount, table) => {
-        if (!student) return;
-        const partnerIdx = partnerSeat(seatCount, sIdx);
-        const partner =
-          partnerIdx !== null ? (table[partnerIdx] ?? null) : null;
-        if (!partner || sIdx > (partnerIdx ?? sIdx)) return;
-        const pairKey = [student.id, partner.id].sort().join('::');
-        if (previousPairs.has(pairKey)) {
-          addEntry(entries, tIdx, sIdx, student.id, 0);
-          addEntry(entries, tIdx, partnerIdx ?? sIdx, partner.id, 0);
-        } else {
-          addEntry(entries, tIdx, sIdx, student.id, 100);
-          addEntry(entries, tIdx, partnerIdx ?? sIdx, partner.id, 100);
-        }
-      });
-      break;
-    }
-    case 'avoidRestlessTogether': {
-      forEachSeat((student, tIdx, sIdx) => {
-        if (!student?.restless) return;
-        const neighbors = getNeighbors(tIdx, sIdx);
-        const hasRestlessNeighbor = neighbors.some((neighbor) => {
-          const neighborStudent = seatMap.get(
-            buildSeatKey(neighbor.tableIndex, neighbor.seatIndex),
-          );
-          return neighborStudent?.restless;
-        });
-        addEntry(
-          entries,
-          tIdx,
-          sIdx,
-          student.id,
-          hasRestlessNeighbor ? 0 : 100,
-        );
-      });
-      break;
-    }
-    case 'avoidConcentrationTogether': {
-      forEachSeat((student, tIdx, sIdx) => {
-        if (!student?.concentrationIssues) return;
-        const neighbors = getNeighbors(tIdx, sIdx);
-        const hasConcentrationNeighbor = neighbors.some((neighbor) => {
-          const neighborStudent = seatMap.get(
-            buildSeatKey(neighbor.tableIndex, neighbor.seatIndex),
-          );
-          return neighborStudent?.concentrationIssues;
-        });
-        addEntry(
-          entries,
-          tIdx,
-          sIdx,
-          student.id,
-          hasConcentrationNeighbor ? 0 : 100,
-        );
-      });
-      break;
-    }
-    case 'avoidConcentrationNearRestless': {
-      forEachSeat((student, tIdx, sIdx) => {
-        if (!student?.concentrationIssues) return;
-        const neighbors = getNeighbors(tIdx, sIdx);
-        const nearRestless = neighbors.some((neighbor) => {
-          const neighborStudent = seatMap.get(
-            buildSeatKey(neighbor.tableIndex, neighbor.seatIndex),
-          );
-          return neighborStudent?.restless;
-        });
-        addEntry(entries, tIdx, sIdx, student.id, nearRestless ? 0 : 100);
-      });
-      break;
-    }
-    case 'preferGenderMix': {
-      for (let tIdx = 0; tIdx < tableCount; tIdx++) {
-        const table = arrangement[tIdx] ?? [];
-        const occupied = table.filter(Boolean) as Student[];
-        if (occupied.length < 2) continue;
-        const genderCounts = createGenderCounts();
-        occupied.forEach((student) => {
-          if (student.gender) genderCounts[student.gender]++;
-        });
-        const imbalance = calculateGenderImbalance(genderCounts);
-        const percentage =
-          imbalance <= 1
-            ? 100
-            : imbalance === 2
-              ? 65
-              : Math.max(0, 50 - imbalance * 5);
-        table.forEach((seat, sIdx) => {
-          if (!seat) return;
-          addEntry(entries, tIdx, sIdx, seat.id, percentage);
-        });
-      }
-      break;
-    }
-    case 'avoidShyAlone': {
-      forEachSeat((student, tIdx, sIdx, seatCount, table) => {
-        if (!student?.shy) return;
-        const partnerIdx = partnerSeat(seatCount, sIdx);
-        const partner =
-          partnerIdx !== null ? (table[partnerIdx] ?? null) : null;
-        addEntry(entries, tIdx, sIdx, student.id, partner ? 100 : 0);
-        if (partner) {
-          addEntry(entries, tIdx, partnerIdx ?? sIdx, partner.id, 100);
-        }
-      });
-      break;
-    }
-    case 'peerTutoring': {
-      forEachSeat((student, tIdx, sIdx, seatCount, table) => {
-        if (!student) return;
-        const hasPerformance =
-          student.performanceStrong || student.performanceWeak;
-        if (!hasPerformance) return;
-        const partnerIdx = partnerSeat(seatCount, sIdx);
-        const partner =
-          partnerIdx !== null ? (table[partnerIdx] ?? null) : null;
-        const partnerHasPerformance =
-          partner?.performanceStrong || partner?.performanceWeak;
-        if (!partner || !partnerHasPerformance) {
-          addEntry(entries, tIdx, sIdx, student.id, 0);
-          return;
-        }
-        const heteroPair =
-          (student.performanceStrong && partner.performanceWeak) ||
-          (student.performanceWeak && partner.performanceStrong);
-        const percentage = heteroPair ? 100 : 0;
-        addEntry(entries, tIdx, sIdx, student.id, percentage);
-        addEntry(entries, tIdx, partnerIdx ?? sIdx, partner.id, percentage);
-      });
-      break;
-    }
-    case 'homogeneousPerformanceGroups': {
-      forEachSeat((student, tIdx, sIdx, seatCount, table) => {
-        if (!student) return;
-        const hasPerformance =
-          student.performanceStrong || student.performanceWeak;
-        if (!hasPerformance) return;
-        const partnerIdx = partnerSeat(seatCount, sIdx);
-        const partner =
-          partnerIdx !== null ? (table[partnerIdx] ?? null) : null;
-        const partnerHasPerformance =
-          partner?.performanceStrong || partner?.performanceWeak;
-        if (!partner || !partnerHasPerformance) {
-          addEntry(entries, tIdx, sIdx, student.id, 0);
-          return;
-        }
-        const homogeneousPair =
-          (student.performanceStrong && partner.performanceStrong) ||
-          (student.performanceWeak && partner.performanceWeak);
-        const percentage = homogeneousPair ? 100 : 0;
-        addEntry(entries, tIdx, sIdx, student.id, percentage);
-        addEntry(entries, tIdx, partnerIdx ?? sIdx, partner.id, percentage);
-      });
-      break;
-    }
-    case 'preferFrontForNeedsFrontSeat': {
-      forEachSeat((student, tIdx, sIdx) => {
-        if (!student?.needsFrontSeat) return;
-        const pos = seatPositions.get(buildSeatKey(tIdx, sIdx));
-        if (!pos) return;
-        // Check if seat is in front (respecting dominant axis)
-        const isFront =
-          orientation.dominantAxis === 'x'
-            ? orientation.frontIsHighX
-              ? pos.x >= frontThresholdX
-              : pos.x <= frontThresholdX
-            : orientation.frontIsHighY
-              ? pos.y >= frontThresholdY
-              : pos.y <= frontThresholdY;
-        addEntry(entries, tIdx, sIdx, student.id, isFront ? 100 : 0);
-      });
-      break;
-    }
-    case 'preferFrontForSmallerStudents': {
-      forEachSeat((student, tIdx, sIdx) => {
-        if (
-          !student ||
-          (student.height !== 'small' && student.height !== 'tall')
-        )
-          return;
-        const pos = seatPositions.get(buildSeatKey(tIdx, sIdx));
-        if (!pos) return;
-        // Calculate relative position (0 = back, 1 = front), respecting dominant axis
-        let relativePosition = 0.5;
-        if (orientation.dominantAxis === 'x' && maxX > minX) {
-          const rawPosition = (pos.x - minX) / (maxX - minX);
-          relativePosition = orientation.frontIsHighX
-            ? rawPosition
-            : 1 - rawPosition;
-        } else if (orientation.dominantAxis === 'y' && maxY > minY) {
-          const rawPosition = (pos.y - minY) / (maxY - minY);
-          relativePosition = orientation.frontIsHighY
-            ? rawPosition
-            : 1 - rawPosition;
-        }
-        if (student.height === 'small') {
-          addEntry(
-            entries,
-            tIdx,
-            sIdx,
-            student.id,
-            relativePosition > 0.5 ? 100 : 0,
-          );
-        } else if (student.height === 'tall') {
-          addEntry(
-            entries,
-            tIdx,
-            sIdx,
-            student.id,
-            relativePosition < 0.5 ? 100 : 0,
-          );
-        }
-      });
-      break;
-    }
-    case 'preferWindowSeats': {
-      forEachSeat((student, tIdx, sIdx) => {
-        if (!student?.prefersWindow) return;
-        const seatKey = buildSeatKey(tIdx, sIdx);
-        const distance =
-          windowDistances.get(seatKey) ?? Number.POSITIVE_INFINITY;
-        const proximity = calculateProximityScore(distance, maxWindowDistance);
-        addEntry(entries, tIdx, sIdx, student.id, proximity * 100);
-      });
-      break;
-    }
-    case 'preferDoorSeats': {
-      forEachSeat((student, tIdx, sIdx) => {
-        if (!student?.prefersDoor) return;
-        const seatKey = buildSeatKey(tIdx, sIdx);
-        const distance = doorDistances.get(seatKey) ?? Number.POSITIVE_INFINITY;
-        const proximity = calculateProximityScore(distance, maxDoorDistance);
-        addEntry(entries, tIdx, sIdx, student.id, proximity * 100);
-      });
-      break;
-    }
-    case 'preferLanguageMixing': {
-      // Highlight students with language skills based on table composition
-      for (let tIdx = 0; tIdx < tableCount; tIdx++) {
-        const table = arrangement[tIdx] ?? [];
-        const occupied = table.filter(Boolean) as Student[];
-        const languageLevels = occupied
-          .map((s) => s.languageSkill)
-          .filter(Boolean);
-
-        if (languageLevels.length < 2) continue;
-
-        const hasStrong = languageLevels.some(
-          (l) => l === 'native' || l === 'fluent',
-        );
-        const hasWeak = languageLevels.some(
-          (l) => l === 'beginner' || l === 'daz',
-        );
-        const isHeterogeneous = hasStrong && hasWeak;
-
-        table.forEach((seat, sIdx) => {
-          if (!seat?.languageSkill) return;
-          const isStrong =
-            seat.languageSkill === 'native' || seat.languageSkill === 'fluent';
-          const isWeak =
-            seat.languageSkill === 'beginner' || seat.languageSkill === 'daz';
-
-          if (isHeterogeneous) {
-            // Table is well mixed
-            addEntry(entries, tIdx, sIdx, seat.id, 100);
-          } else if (isWeak && !hasStrong) {
-            // Weak student without strong support - not ideal
-            addEntry(entries, tIdx, sIdx, seat.id, 30);
-          } else if (isStrong && !hasWeak) {
-            // Strong student without anyone to help - neutral
-            addEntry(entries, tIdx, sIdx, seat.id, 60);
-          } else {
-            addEntry(entries, tIdx, sIdx, seat.id, 50);
-          }
-        });
-      }
-      break;
-    }
-    case 'distributeSocialRoles': {
-      // Highlight students with social roles based on table distribution
-      for (let tIdx = 0; tIdx < tableCount; tIdx++) {
-        const table = arrangement[tIdx] ?? [];
-        const occupied = table.filter(Boolean) as Student[];
-        const roles = occupied.map((s) => s.socialRole).filter(Boolean);
-
-        if (roles.length === 0) continue;
-
-        // Count roles at this table
-        const roleCounts = new Map<string, number>();
-        for (const role of roles) {
-          roleCounts.set(role!, (roleCounts.get(role!) ?? 0) + 1);
-        }
-
-        table.forEach((seat, sIdx) => {
-          if (!seat?.socialRole) return;
-          const role = seat.socialRole;
-          const roleCount = roleCounts.get(role) ?? 0;
-
-          // Loner clustering is bad
-          if (role === 'loner') {
-            const lonerCount = roleCounts.get('loner') ?? 0;
-            const hasMediator = roleCounts.has('mediator');
-            const hasSocialHub = roleCounts.has('socialHub');
-            if (lonerCount > 1) {
-              addEntry(entries, tIdx, sIdx, seat.id, 0); // Multiple loners - bad
-            } else if (hasMediator || hasSocialHub) {
-              addEntry(entries, tIdx, sIdx, seat.id, 100); // Good support
-            } else {
-              addEntry(entries, tIdx, sIdx, seat.id, 50); // Alone but not paired
-            }
-          } else if (role === 'leader') {
-            const leaderCount = roleCounts.get('leader') ?? 0;
-            if (leaderCount > 1) {
-              addEntry(entries, tIdx, sIdx, seat.id, 30); // Multiple leaders - conflict potential
-            } else {
-              addEntry(entries, tIdx, sIdx, seat.id, 100);
-            }
-          } else if (role === 'mediator') {
-            // Mediators are good everywhere, but penalize clustering
-            if (roleCount > 1) {
-              addEntry(entries, tIdx, sIdx, seat.id, 60); // Spread mediators out
-            } else {
-              addEntry(entries, tIdx, sIdx, seat.id, 100);
-            }
-          } else {
-            // socialHub and others
-            if (roleCount > 1) {
-              addEntry(entries, tIdx, sIdx, seat.id, 50);
-            } else {
-              addEntry(entries, tIdx, sIdx, seat.id, 100);
-            }
-          }
-        });
-      }
-      break;
-    }
-    default:
-      break;
   }
 
-  return entries;
+  const { layout, students: seated } = context;
+  return [...credits.entries()]
+    .sort(([a], [b]) => a - b)
+    .map(([seat, credit]) => {
+      const student = occupants[seat]!;
+      const percentage = credit * 100;
+      return {
+        target: {
+          type: 'seat' as const,
+          tableIndex: layout.tableOf[seat]!,
+          seatIndex: layout.seatOf[seat]!,
+          studentId: student >= 0 ? seated[student]!.id : null,
+        },
+        percentage,
+        status: getStatisticStatus(percentage),
+      };
+    });
 }

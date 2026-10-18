@@ -313,9 +313,7 @@ function useCircleSeatingInternal(
     );
 
     try {
-      // There is one arrangement (neighbourhood-preserving); the plain
-      // `circle:generate` path stays available to the worker API but is not
-      // reachable from the UI.
+      // There is one arrangement: neighbourhood-preserving.
       const { layout } = await algorithmWorkerClient.callOperation(
         'circle:optimized',
         {

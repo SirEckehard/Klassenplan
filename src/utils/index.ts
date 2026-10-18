@@ -85,11 +85,10 @@ export {
   WINDOW_HEIGHT,
   DOOR_WIDTH,
   DOOR_HEIGHT,
-  DEFAULT_TRIES_PER_PASS,
-  DEFAULT_PASSES,
-  PLACEMENT_SCORE_WEIGHTS,
-  TABLE_SCORE_WEIGHTS,
-  REFINEMENT_TABLE_SELECTION,
+  RELATION_WEIGHTS,
+  ADJACENT_GAP,
+  ROW_GAP,
+  CRITERION_WEIGHTS,
   DEFAULT_CLASSROOM_SCENE,
   DEFAULT_WINDOW_FEATURES,
   DEFAULT_DOOR_FEATURES,
@@ -144,6 +143,7 @@ export {
   MIX_IMPORTANCE_WEIGHTS,
   criterionImportance,
   importanceOfWeight,
+  migrateStoredMixSettings,
   weightForImportance,
 } from './mixImportance';
 export type { MixImportance } from './mixImportance';

@@ -21,6 +21,7 @@ import {
   PlanSection,
 } from '@/components/SeatingPlanGenerator/views/PlanInspectorParts';
 import InspectorPortal from '@/components/shell/InspectorPortal';
+import MixHintsSection from '@/components/SeatingPlanGenerator/views/MixHintsSection';
 import { InspectorBody, InspectorRow } from '@/components/shell/InspectorPanel';
 import StatusBarPortal from '@/components/shell/StatusBarPortal';
 import { statusBarWordClass } from '@/components/shell/StatusBarFrame';
@@ -510,6 +511,8 @@ export default function SeatingPlanEditorView({
         criterionKey: criterion.key,
         arrangement: effectiveSeating,
         scene: classroomScene,
+        students,
+        settings,
         seatingHistory,
         mixHistory,
         planUsage,
@@ -519,6 +522,8 @@ export default function SeatingPlanEditorView({
     [
       classroomScene,
       effectiveSeating,
+      students,
+      settings,
       mixHistory,
       planUsage,
       planUsageSince,
@@ -879,6 +884,14 @@ export default function SeatingPlanEditorView({
                 </InspectorRow>
               </div>
             )}
+            {/* What the mixing cannot meet in this class and room, there
+                only while there is something to say. */}
+            <MixHintsSection
+              students={students}
+              scene={classroomScene}
+              settings={settings}
+              nameDisplay={nameDisplay}
+            />
             <SmartMixControls
               settings={settings}
               setMixSettings={setMixSettings}

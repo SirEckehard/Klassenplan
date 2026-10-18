@@ -348,6 +348,17 @@
       "pinLabel": "Erfüllung {{label}}: {{value}} – betroffene Plätze markieren",
       "unpinLabel": "Erfüllung {{label}}: {{value}} – Markierung aufheben"
     },
+    "hints": {
+      "title": "Hinweise",
+      "frontRow_one": "{{count}} Schüler braucht einen vorderen Platz, die vorderste Reihe hat {{seats}} Plätze: Wer nicht hineinpasst, sitzt in der Reihe dahinter.",
+      "frontRow_other": "{{count}} Schüler brauchen einen vorderen Platz, die vorderste Reihe hat {{seats}} Plätze: Wer nicht hineinpasst, sitzt in der Reihe dahinter.",
+      "avoidGroup_one": "{{names}} haben Distanzwünsche untereinander, aber es gibt nur {{count}} Tisch in der Mischung: Nicht alle können getrennt sitzen.",
+      "avoidGroup_other": "{{names}} haben Distanzwünsche untereinander, aber es gibt nur {{count}} Tische in der Mischung: Nicht alle können getrennt sitzen.",
+      "wishMeetsAvoid": "{{wisher}} wünscht sich {{avoider}}, {{avoider}} hat aber einen Distanzwunsch zu {{wisher}}: Der Distanzwunsch geht vor.",
+      "wishedOften_one": "{{name}} wird von {{count}} Mitschüler gewünscht, im Raum sitzen aber höchstens {{room}} direkt um jemanden herum.",
+      "wishedOften_other": "{{name}} wird von {{count}} Mitschülern gewünscht, im Raum sitzen aber höchstens {{room}} direkt um jemanden herum.",
+      "andMore": "{{names}} und {{more}} weitere"
+    },
     "randomWarning": "Mischen ist zufällig!",
     "criteria": {
       "avoidPreviousPairs": {
@@ -418,7 +429,7 @@
       "avoidRestlessTogether": "Weniger als 2 Schüler sind als unruhig markiert",
       "avoidConcentrationTogether": "Funktioniert erst ab 2 Schülern mit Konzentrationsproblemen – oder ab einem, wenn mindestens ein Schüler unruhig ist",
       "avoidConcentrationNearRestless": "Funktioniert nur mit mindestens einem unruhigen und einem konzentrationsschwächeren Schüler",
-      "preferGenderMix": "Mindestens zwei Geschlechtsangaben erforderlich",
+      "preferGenderMix": "Mindestens zwei verschiedene Geschlechter erforderlich",
       "avoidShyAlone": "Kein Schüler ist als schüchtern markiert",
       "performanceLevels": "Keine Schüler mit Leistungseinstufung vorhanden",
       "preferFrontForNeedsFrontSeat": "Kein Schüler benötigt einen vorderen Platz",

@@ -8,6 +8,7 @@ import {
   showToast,
   TOAST_MESSAGES,
   logError,
+  withoutUnavailableWeights,
 } from '@/utils';
 import { confirmDialog } from '@/services/ui/dialogs';
 import i18n from '@/i18n';
@@ -234,24 +235,17 @@ export function useSeatingWizard(
   /**
    * Trigger automatic seating plan generation on first entry to step 3 — a
    * mix like any other, refined in its own session while a criterion is on.
+   * It mixes by the teacher's weights as they are; which criteria the class
+   * has data for is `useAutoMixSettings`' business, and the weights of the
+   * others are cleared here as everywhere (decision 0016).
    */
   const triggerAutoMix = useCallback(() => {
-    const hasNeedsFrontSeatImpairment = students.some((s) => s.needsFrontSeat);
-    const hasPeerTutoring = students.some(
-      (s) => s.performanceStrong || s.performanceWeak,
+    const autoSettings: MixSettings = withoutUnavailableWeights(
+      mixSettings,
+      students,
     );
 
-    const autoSettings: MixSettings = {
-      ...mixSettings,
-      preferFrontForNeedsFrontSeat: hasNeedsFrontSeatImpairment ? 5 : 0,
-      // Homogeneous groups the teacher already chose stay (decision 0013).
-      peerTutoring:
-        hasPeerTutoring && mixSettings.homogeneousPerformanceGroups === 0
-          ? 3
-          : 0,
-    };
-
-    setMixSettings(autoSettings);
+    if (autoSettings !== mixSettings) setMixSettings(autoSettings);
     setAutoMixError(null);
 
     if (autoMixTimeoutRef.current) {

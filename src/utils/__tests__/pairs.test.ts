@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import { describe, it, expect } from 'vitest';
-import { buildPreviousPairs } from '../pairs';
+import { buildPreviousPairs, MAX_PAIR_WEIGHT } from '../pairs';
 import { createMockMixResult } from '@/__tests__/utils';
 import type { PlanUsage, SavedPlan, Student } from '../../types';
 
@@ -69,10 +69,66 @@ describe('buildPreviousPairs', () => {
       },
     ];
     const result = buildPreviousPairs(history, { studentCount: 4 });
-    expect(result.get('1::2')).toBe(1);
-    expect(result.get('1::3')).toBeCloseTo(0.25, 5);
-    expect(result.get('2::3')).toBeCloseTo(0.25, 5);
+    // Four students keep a window of seven plans: the plan before the newest
+    // weighs 0.25^(1/6), whatever the number of plans, and a pair that sat
+    // together in both adds up (decision 0031).
+    const second = 0.25 ** (1 / 6);
+    expect(result.get('1::2')).toBeCloseTo(1 + second, 5);
+    expect(result.get('1::3')).toBeCloseTo(second, 5);
+    expect(result.get('2::3')).toBeCloseTo(second, 5);
     expect(result.get('3::4')).toBe(1);
+  });
+
+  it('gewichtet einen Plan nach seinem Rang, nicht nach der Zahl der Pläne', () => {
+    const plan = (id: string, seating: SavedPlan['seating']): SavedPlan => ({
+      id,
+      name: id,
+      date: `2024-01-0${id}`,
+      seating,
+      scene: { tables: [], totalStudents: 0 },
+    });
+    const lastWeek = plan('2', [[alice, bob]]);
+    const newest = plan('3', [[carol, dave]]);
+    const few = buildPreviousPairs([lastWeek, newest], { studentCount: 4 });
+    const many = buildPreviousPairs(
+      [plan('1', [[alice, dave]]), lastWeek, newest],
+      { studentCount: 4 },
+    );
+    expect(few.get('1::2')).toBeCloseTo(many.get('1::2')!, 10);
+  });
+
+  it('lässt häufige Paare schwerer wiegen, bis zur Obergrenze', () => {
+    const history: SavedPlan[] = [1, 2, 3, 4, 5].map((day) => ({
+      id: `${day}`,
+      name: `Plan${day}`,
+      date: `2024-01-0${day}`,
+      seating: [[alice, bob]],
+      scene: { tables: [], totalStudents: 0 },
+    }));
+    const result = buildPreviousPairs(history, { studentCount: 4 });
+    expect(result.get('1::2')).toBe(MAX_PAIR_WEIGHT);
+  });
+
+  it('ordnet gespeicherte Pläne nach ihrem Datum, nicht nach der Liste', () => {
+    const history: SavedPlan[] = [
+      {
+        id: 'newest',
+        name: 'Neu',
+        date: '2024-03-01',
+        seating: [[alice, bob]],
+        scene: { tables: [], totalStudents: 0 },
+      },
+      {
+        id: 'older',
+        name: 'Alt',
+        date: '2024-01-01',
+        seating: [[carol, dave]],
+        scene: { tables: [], totalStudents: 0 },
+      },
+    ];
+    const result = buildPreviousPairs(history, { studentCount: 4 });
+    expect(result.get('1::2')).toBe(1);
+    expect(result.get('3::4')).toBeCloseTo(0.25 ** (1 / 6), 5);
   });
 
   it('ignoriert leere Plätze', () => {
@@ -220,9 +276,9 @@ describe('buildPreviousPairs mit Nutzungsaufzeichnung', () => {
       studentCount: 4,
     });
 
-    // The newer record counts fully, the older one decays.
+    // The newer record counts fully, the older one by its rank.
     expect(result.get('1::2')).toBe(1);
-    expect(result.get('3::4')).toBeCloseTo(0.25, 5);
+    expect(result.get('3::4')).toBeCloseTo(0.25 ** (1 / 6), 5);
   });
 });
 

@@ -13,7 +13,7 @@ import type {
 import type { CircleLayout } from '@/types/Circle';
 
 export type AlgorithmWorkerOperation =
-  'mix:run' | 'circle:generate' | 'circle:optimized' | 'worker:warmup';
+  'mix:run' | 'circle:optimized' | 'worker:warmup';
 
 export interface WorkerErrorPayload {
   name?: string;
@@ -46,23 +46,13 @@ export type AlgorithmWorkerRequestMap = {
       /** The plan on screen before mixing; it counts as the newest in use. */
       lastSeating?: SeatingArrangement | null;
       /**
-       * The refinement after the construction, while a criterion is on;
-       * `null` lets the construction stand (decision 0027).
+       * Whether the refinement follows the construction — while a criterion
+       * is on; without it the construction stands (decision 0027).
        */
-      refine?: { triesPerPass?: number; passes?: number } | null;
+      refine?: boolean;
     };
     result: {
       seating: SeatingArrangement;
-    };
-  };
-  'circle:generate': {
-    payload: {
-      students: Student[];
-      classroomScene: ClassroomScene;
-      currentSeating?: SeatingArrangement;
-    };
-    result: {
-      layout: CircleLayout;
     };
   };
   'circle:optimized': {

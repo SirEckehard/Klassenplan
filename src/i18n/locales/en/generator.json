@@ -348,6 +348,17 @@
       "pinLabel": "Fulfilment {{label}}: {{value}} – mark the seats concerned",
       "unpinLabel": "Fulfilment {{label}}: {{value}} – clear the marking"
     },
+    "hints": {
+      "title": "Notes",
+      "frontRow_one": "{{count}} student needs a front seat, the front row has {{seats}} seats: whoever does not fit sits in the row behind.",
+      "frontRow_other": "{{count}} students need a front seat, the front row has {{seats}} seats: whoever does not fit sits in the row behind.",
+      "avoidGroup_one": "{{names}} have distance requests among each other, but there is only {{count}} table in the mix: not all of them can sit apart.",
+      "avoidGroup_other": "{{names}} have distance requests among each other, but there are only {{count}} tables in the mix: not all of them can sit apart.",
+      "wishMeetsAvoid": "{{wisher}} wishes for {{avoider}}, but {{avoider}} has a distance request for {{wisher}}: the distance request comes first.",
+      "wishedOften_one": "{{name}} is wished for by {{count}} classmate, but in this room at most {{room}} sit directly around anyone.",
+      "wishedOften_other": "{{name}} is wished for by {{count}} classmates, but in this room at most {{room}} sit directly around anyone.",
+      "andMore": "{{names}} and {{more}} more"
+    },
     "randomWarning": "Mixing is purely random!",
     "criteria": {
       "avoidPreviousPairs": {
@@ -418,7 +429,7 @@
       "avoidRestlessTogether": "Fewer than 2 students are marked as restless",
       "avoidConcentrationTogether": "Only works from 2 students with concentration issues – or from one, if at least one student is restless",
       "avoidConcentrationNearRestless": "Only works with at least one restless and one easily distracted student",
-      "preferGenderMix": "At least two gender entries required",
+      "preferGenderMix": "At least two different genders required",
       "avoidShyAlone": "No student is marked as shy",
       "performanceLevels": "No students with a performance level",
       "preferFrontForNeedsFrontSeat": "No student needs a front seat",

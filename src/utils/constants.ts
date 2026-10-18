@@ -285,87 +285,66 @@ export const MIX_HISTORY_LIMIT = 20;
  */
 export const STUDENT_LIST_TOOLS_THRESHOLD = 8;
 
-// Default number of swap attempts per refinement pass
-export const DEFAULT_TRIES_PER_PASS = 600;
-
-// Default number of refinement passes
-export const DEFAULT_PASSES = 2;
+/**
+ * How closely two seats are related, for every criterion that asks who sits
+ * near whom (decision 0031): the seat partner fully, the rest of a group table
+ * strongly, the seat directly beside at the next table less, and the seat
+ * directly in front or behind least. One table, read by the mixing and by the
+ * fulfilment the teacher sees, so the two cannot disagree.
+ */
+export const RELATION_WEIGHTS = {
+  partner: 1,
+  table: 0.6,
+  beside: 0.5,
+  ahead: 0.3,
+  behind: 0.3,
+} as const;
 
 /**
- * Scoring multipliers of the seating algorithm.
- *
- * Two scorers exist by design and both are needed:
- * - `PLACEMENT_SCORE_WEIGHTS` drives `scoring/*`, which rates a *candidate
- *   placement* ("what does it cost to seat this student here?") while the plan
- *   is being built up seat by seat.
- * - `TABLE_SCORE_WEIGHTS` drives `scoring/arrangementScoring`, which rates a
- *   *finished table* while an existing plan is refined by swapping seats.
- *
- * They express the same pedagogy on different units, which is why several
- * multipliers differ between them. Listing both here side by side is the point:
- * a change to one should never be made without seeing the other.
+ * Widest gap, in pixels of the 900×600 room, between seats of two tables that
+ * still counts as "directly beside": about 45 cm, as a double desk is 55 px
+ * deep. A wider gap is an aisle. "Neu einrichten" leaves 15 to 60 px.
  */
-export const PLACEMENT_SCORE_WEIGHTS = {
-  language: {
-    /** Reward when a student needing support joins a table with a strong speaker */
-    strongSpeakerNearby: 0.5,
-    /** Penalty per further student needing support at a table without a strong speaker */
-    needsSupportCluster: 0.3,
-    /** Reward when a strong speaker joins a table with students needing support */
-    peerTutoringOpportunity: 0.5,
+export const ADJACENT_GAP = 40;
+
+/**
+ * Widest gap between a seat and the seat directly in front of or behind it at
+ * the next table that still counts as the next row: the room a chair takes,
+ * about 75 cm.
+ */
+export const ROW_GAP = 70;
+
+/**
+ * Multipliers of the criterion model (`utils/algorithm/model`), on top of the
+ * weight a criterion is set to. The construction, the refinement and the
+ * fulfilment all read them, so a change here changes all three alike.
+ */
+export const CRITERION_WEIGHTS = {
+  /** Factor per place in a wish list: the first wish counts most */
+  wishRank: [1, 0.85, 0.7],
+  /** Factor per place in a distance list */
+  avoidRank: [1, 0.9, 0.8],
+  /** A distance wish weighs twice a wish of the same level: avoid wins */
+  avoid: 2,
+  gender: {
+    /** Per student by which a gender holds more than half of a table */
+    tableExcess: 2,
+    /** Two of the same gender as seat partners or directly beside */
+    samePair: 0.5,
   },
+  /** Small students to the front, tall ones to the back */
+  height: 3,
+  /** A student needing language support beside a strong speaker */
+  languageSupport: 0.5,
   socialRole: {
-    /** Penalty per student that already carries the same role (mediators exempt) */
-    sameRoleCluster: 0.5,
-    /** Reward when a loner joins a table with a mediator or social hub */
-    lonerSupport: 0.4,
-    /** Penalty when loners would sit together */
+    /** Per further student of the same role at a table */
+    leaderCluster: 0.5,
+    socialHubCluster: 0.5,
     lonerCluster: 0.6,
-    /** Reward when a leader joins a table with a mediator */
-    leaderWithMediator: 0.3,
-    /** Penalty when leaders would sit together */
-    leaderConflict: 0.5,
-    /** Penalty for stacking mediators instead of spreading them */
     mediatorSpread: 0.3,
-    /** Reward when a mediator joins loners or leaders */
-    mediatorComplement: 0.4,
-  },
-} as const;
-
-export const TABLE_SCORE_WEIGHTS = {
-  /** Penalty per student seated beyond the table's even-distribution target */
-  seatOverflow: 0.5,
-  /** Multiplier on `avoidConflictPartners` when two avoid-partners share a seat pair */
-  avoidPartnerTogether: 2,
-  language: {
-    /** Reward when strong speakers and students needing support share a table */
-    heterogeneousMix: 0.5,
-    /** Penalty per extra student needing support without a strong speaker present */
-    needsSupportCluster: 0.4,
-  },
-  socialRole: {
-    /** Penalty per duplicate of the same role at a table (mediators exempt) */
-    sameRoleCluster: 0.5,
-    /** Penalty per extra loner at the same table */
-    lonerCluster: 0.6,
-    /** Reward when a loner shares the table with a mediator or social hub */
+    /** A loner at a table with a mediator or a social hub */
     lonerSupport: 0.4,
+    /** A leader at a table with a mediator */
+    leaderWithMediator: 0.3,
   },
-} as const;
-
-/**
- * Table selection heuristic of the greedy refinement pass.
- *
- * Swaps are biased towards the tables that currently score worst, because a
- * purely uniform pick wastes most tries on tables that are already fine.
- */
-export const REFINEMENT_TABLE_SELECTION = {
-  /** Probability of picking from the worst tables at all (otherwise uniform) */
-  problemTableBias: 0.7,
-  /** Number of worst-scoring tables considered as candidates */
-  candidateCount: 3,
-  /** Cumulative probability boundary for the worst table */
-  firstChoiceThreshold: 0.5,
-  /** Cumulative probability boundary for the second-worst table */
-  secondChoiceThreshold: 0.8,
 } as const;

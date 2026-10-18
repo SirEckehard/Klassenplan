@@ -40,20 +40,8 @@ const throttleFraction = (
   };
 };
 
-/**
- * Refinement defaults applied when the caller does not specify otherwise.
- *
- * Simulated Annealing is on by default because it escapes local optima the
- * greedy pass gets stuck in. This lives here, and only here, so worker and
- * main-thread fallback can never disagree about it.
- */
-export const DEFAULT_REFINE_OPTIONS = { useAnnealing: true } as const;
-
 const loadSeatingAlgorithmModule = () =>
   import('@/utils/algorithm/seatingAlgorithm');
-
-const loadCircleArrangementModule = () =>
-  import('@/utils/algorithm/circleArrangement');
 
 const loadCircleOptimizedModule = () =>
   import('@/utils/algorithm/CircleSeatingAlgorithm');
@@ -113,7 +101,7 @@ export async function executeAlgorithmOperation<
           planUsage,
           planUsageSince,
           planUsageManual,
-          refine: refine ? { ...DEFAULT_REFINE_OPTIONS, ...refine } : null,
+          refine: Boolean(refine),
           // Injected here, not carried in the payload: a callback cannot be
           // structured-cloned into the worker.
           onProgress: throttleFraction((fraction) =>
@@ -123,22 +111,6 @@ export async function executeAlgorithmOperation<
       );
       reportProgress(1, 'arranging');
       return { seating } as Result;
-    }
-
-    case 'circle:generate': {
-      const { generateCircleLayout } = await loadCircleArrangementModule();
-      const { students, classroomScene, currentSeating } =
-        payload as AlgorithmWorkerRequestMap['circle:generate']['payload'];
-
-      reportProgress(0.15, 'initializing');
-      const layout = generateCircleLayout(
-        students,
-        classroomScene,
-        currentSeating ?? undefined,
-      );
-      reportProgress(0.65, 'arranging');
-
-      return { layout } as Result;
     }
 
     case 'circle:optimized': {

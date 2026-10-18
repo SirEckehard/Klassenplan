@@ -138,15 +138,16 @@
       "description": "Algorithmus, Datenschutz und Offline-Nutzung im Überblick.",
       "algo_intro": {
         "q": "Was macht der Mischalgorithmus überhaupt?",
-        "a": "Der Algorithmus verteilt deine Klasse anhand gewichteter Kriterien auf alle verfügbaren Plätze. Er startet mit einer heuristischen Erstbelegung und verfeinert sie in mehreren Durchläufen. Dabei berücksichtigt er die ausgewählten Kriterien, wie Wunsch- und Distanzpartner, besondere Bedürfnisse, Körpergrößen, Fenster-/Türpräferenzen & Weiteres."
+        "a": "Der Algorithmus verteilt deine Klasse anhand gewichteter Kriterien auf alle verfügbaren Plätze. Er setzt die Schüler zuerst nacheinander auf den jeweils günstigsten Platz und verbessert die Verteilung dann durch viele Tausche – dreimal von verschiedenen Startpunkten aus, der beste Plan zählt. Dabei berücksichtigt er die ausgewählten Kriterien, wie Wunsch- und Distanzpartner, besondere Bedürfnisse, Körpergrößen, Fenster-/Türpräferenzen & Weiteres. Sind alle Kriterien aus, verteilt er die Klasse rein zufällig."
       },
       "algo_neighbors": {
         "q": "Wie bewertet der Algorithmus Nachbarn?",
-        "intro": "Es gibt drei Abstufungen von Nachbarschaften, die unterschiedlich stark gewichtet werden:",
-        "li1": "direkte Sitznachbarn (höchstes Gewicht)",
-        "li2": "seitliche Nachbartische (mittlere Gewichtung)",
-        "li3": "gegenüberliegende Nachbarn (geringere Gewichtung)",
-        "outro": "Diese Abstufungen helfen, freie Layouts möglichst realistisch abzubilden und Konflikte gezielt zu vermeiden."
+        "intro": "Wer neben wem sitzt, liest der Algorithmus in vier Abstufungen, immer von der Tafel aus gesehen:",
+        "li1": "Tischpartner am selben Doppeltisch oder Sitzpaar (volles Gewicht)",
+        "li2": "die übrigen Plätze am selben Gruppentisch (starkes Gewicht)",
+        "li3": "der Platz direkt daneben am Nachbartisch, ohne Gang dazwischen (mittleres Gewicht)",
+        "li4": "der Platz direkt davor oder dahinter in der nächsten Reihe (geringeres Gewicht)",
+        "outro": "Schräg versetzte Plätze und Plätze jenseits eines Gangs zählen nicht als Nachbarn. Dieselben Abstufungen gelten beim Mischen und in der Erfüllung, die dir der Inspektor zeigt."
       },
       "no_account": {
         "q": "Brauche ich ein Konto oder Internet?",
@@ -154,7 +155,7 @@
       },
       "imperfect": {
         "q": "Warum arbeitet der Algorithmus nicht \"perfekt\"?",
-        "a": "Der Algorithmus bewertet Tischgruppen im Kontext des gesamten Raums. Ein Tausch kann an einer Stelle helfen, an anderer Stelle aber größere Konflikte erzeugen. Eine perfekte Lösung müsste alle Kombinationen prüfen und wäre nicht praktikabel. Mit dem heuristischen Ansatz erzielt Klassenplan schnelle, nachvollziehbare Ergebnisse, die du per Drag & Drop weiter verfeinern kannst."
+        "a": "Der Algorithmus bewertet jeden Plan mit einer einzigen Punktzahl aus allen Kriterien. Ein Tausch kann an einer Stelle helfen, an anderer Stelle aber größere Konflikte erzeugen; eine perfekte Lösung müsste alle Kombinationen prüfen und wäre nicht praktikabel. Klassenplan findet deshalb in kurzer Zeit eine sehr gute Lösung, die du per Drag & Drop weiter verfeinern kannst. Was sich in deiner Klasse und deinem Raum gar nicht erfüllen lässt, nennt der Inspektor unter „Hinweise“."
       },
       "gender_language": {
         "q": "Warum wird das generische Maskulinum verwendet?",
@@ -202,7 +203,7 @@
         "gender": {
           "label": "Geschlecht",
           "description": "Männlich, Weiblich oder Divers – optionale Angabe.",
-          "algorithm": "Sorgt für geschlechtergemischte Tischgruppen."
+          "algorithm": "Sorgt für gemischte Tische: Kein Geschlecht stellt mehr als die Hälfte eines Tisches. Divers zählt als eigenes Geschlecht."
         },
         "height": {
           "label": "Körpergröße",
@@ -212,7 +213,7 @@
         "languageSkill": {
           "label": "Sprachkenntnisse",
           "description": "Von Muttersprachler bis DaZ-Förderung.",
-          "algorithm": "Setzt sprachstarke Schüler neben Anfänger zur gegenseitigen Unterstützung."
+          "algorithm": "Setzt sprachstarke Schüler neben Anfänger und DaZ-Schüler zur gegenseitigen Unterstützung."
         },
         "performanceStrong": {
           "label": "Leistungsstark",
@@ -227,22 +228,22 @@
         "needsFrontSeat": {
           "label": "Vorderer Platz",
           "description": "Dieser Schüler benötigt einen vorderen Platz.",
-          "algorithm": "Platziert bevorzugt in den vorderen Reihen."
+          "algorithm": "Auf „Sehr wichtig“ sitzt der Schüler sicher in der vordersten Reihe, auf den Stufen darunter bevorzugt weiter vorne."
         },
         "restless": {
           "label": "Unruhig",
           "description": "Zeigt aktuell unruhiges Verhalten im Unterricht.",
-          "algorithm": "Trennt Schüler mit Unruheverhalten voneinander."
+          "algorithm": "Trennt Schüler mit Unruheverhalten voneinander, auch über die Tischgrenze hinweg."
         },
         "shy": {
           "label": "Schüchtern",
           "description": "Zeigt aktuell zurückhaltendes Verhalten im Unterricht.",
-          "algorithm": "Platziert Schüler mit zurückhaltendem Verhalten neben ruhigeren Mitschülern."
+          "algorithm": "Achtet darauf, dass Schüler mit zurückhaltendem Verhalten nicht allein sitzen."
         },
         "concentrationIssues": {
           "label": "Ablenkbar",
           "description": "Zeigt aktuell Konzentrationsschwierigkeiten im Unterricht.",
-          "algorithm": "Verteilt Schüler mit Konzentrationsschwierigkeiten im Raum und trennt sie von Schülern mit Unruheverhalten."
+          "algorithm": "Hält Schüler mit Konzentrationsschwierigkeiten voneinander und von Schülern mit Unruheverhalten fern."
         },
         "socialRole": {
           "label": "Soziale Rolle",
@@ -252,12 +253,12 @@
         "wishPartner": {
           "label": "Wunschpartner",
           "description": "Bis zu 3 priorisierte Partner, mit denen das Kind gern sitzt.",
-          "algorithm": "Platziert Wunschpartner am selben Tisch, Priorität 1 zählt stärker."
+          "algorithm": "Setzt Wunschpartner als Tischpartner, an denselben Tisch oder direkt daneben; Priorität 1 zählt stärker."
         },
         "avoidPartner": {
           "label": "Distanzwunsch",
           "description": "Bis zu 3 Schüler, von denen Abstand gehalten werden soll.",
-          "algorithm": "Platziert diese Schüler an verschiedenen Tischen."
+          "algorithm": "Setzt diese Schüler weder an denselben Tisch noch direkt nebeneinander, davor oder dahinter."
         },
         "prefersWindow": {
           "label": "Fensterplatz",
@@ -280,15 +281,15 @@
       },
       "multi": {
         "q": "Wie funktionieren mehrere Wunsch- und Distanzpartner?",
-        "a": "Pro Schüler kannst du bis zu 3 Wunsch- und Distanzpartner wählen. Die Reihenfolge bestimmt die Priorität – der erste gewählte Partner wird stärker gewichtet als der dritte. Der Algorithmus versucht, möglichst viele Wünsche zu erfüllen, wobei Priorität 1 Vorrang hat."
+        "a": "Pro Schüler kannst du bis zu 3 Wunsch- und Distanzpartner wählen. Die Reihenfolge bestimmt die Priorität – der erste gewählte Partner wird stärker gewichtet als der dritte. Der Algorithmus versucht, möglichst viele Wünsche zu erfüllen, wobei Priorität 1 Vorrang hat. Weil jeder nur einen Tischpartner hat, zählt in der Erfüllung für jeden Schüler sein am besten erfüllter Wunsch."
       },
       "force": {
         "q": "Werden Wunschpartner immer berücksichtigt?",
-        "a": "Steht das Kriterium „Wunschpartner“ auf „Beachten“ oder höher, setzt der Algorithmus Paare zusammen, sofern andere Kriterien nicht stärker dagegen sprechen. Bei Gruppentischen (4er/6er) zählt auch ein Platz am selben Tisch als teilweise erfüllt."
+        "a": "Steht das Kriterium „Wunschpartner“ auf „Beachten“ oder höher, setzt der Algorithmus Paare zusammen, sofern andere Kriterien nicht stärker dagegen sprechen. Hat der gewünschte Mitschüler einen Distanzwunsch zum Wünschenden, geht der Distanzwunsch vor. Ein Platz am selben Gruppentisch oder direkt am Nachbartisch zählt als teilweise erfüllt."
       },
       "needs": {
         "q": "Wie geht das System mit Unruheverhalten, Konzentrationsschwierigkeiten und Distanzwunsch um?",
-        "a": "Für Unruhe, Ablenkbarkeit und Distanzwünsche gibt es eigene Kriterien. Schüler mit Unruheverhalten erhalten Abstand zueinander, ablenkbare Schüler werden im Raum verteilt und Distanzwünsche werden respektiert, solange genug Plätze verfügbar sind."
+        "a": "Für Unruhe, Ablenkbarkeit und Distanzwünsche gibt es eigene Kriterien. Betroffene Schüler sitzen weder am selben Tisch noch direkt nebeneinander, davor oder dahinter, soweit der Raum es zulässt – ein Gang dazwischen trennt sie."
       },
       "height": {
         "q": "Wie berücksichtigt Klassenplan Körpergrößen und Raumpräferenzen?",
@@ -304,7 +305,7 @@
       },
       "measure": {
         "q": "Wie werden Abstände gemessen?",
-        "a": "Die Sitzpositionen werden als Pixelkoordinaten gespeichert. Direkte Nachbarn liegen innerhalb der Tischbreite und -höhe plus Puffer, seitliche und frontale Nachbarn dürfen etwas weiter entfernt sein, bis sie nicht mehr als relevant gelten."
+        "a": "Die Sitzpositionen werden als Pixelkoordinaten gespeichert, und Nachbarschaften liest Klassenplan von der Tafel aus. Am Nachbartisch gilt nur der nächste Platz in jeder Richtung als Nachbar: daneben, solange die Lücke höchstens etwa 45 cm (40 Pixel) beträgt – mehr ist ein Gang –, davor oder dahinter, solange die nächste Reihe höchstens etwa 75 cm (70 Pixel) entfernt ist. Schräg versetzte Plätze zählen nicht."
       },
       "limits": {
         "q": "Gibt es Grenzen bei Schülern und Sitzplätzen?",
@@ -326,7 +327,7 @@
       "weights": {
         "q": "Was bedeuten Aus, Beachten, Wichtig und Sehr wichtig?",
         "intro": "Jedes Kriterium stellst du im Inspektor rechts neben dem Sitzplan auf eine von vier Stufen:",
-        "outro": "Kriterien, für die deine Klasse keine Daten hat, bleiben ausgeblendet."
+        "outro": "Kriterien, für die deine Klasse keine Daten hat, bleiben ausgeblendet. Bei „Vordere Plätze“ ist „Sehr wichtig“ eine feste Regel: Die Schüler sitzen dann sicher in der vordersten Reihe. Auf den Stufen darunter ist ein vorderer Platz ein Wunsch wie jeder andere."
       },
       "check": {
         "q": "Wie erkenne ich, dass eine Mischung den Kriterien entspricht?",
@@ -344,34 +345,39 @@
         "a": "Fahre mit der Maus über den Balken eines Kriteriums: Die betroffenen Plätze werden im Sitzplan markiert. Ein Klick hält die Markierung fest, ein zweiter hebt sie wieder auf. So erkennst du schnell, wo ein Tausch von Hand das Ergebnis verbessern könnte."
       },
       "percent": {
-        "q": "Wie werden Prozentwerte bei mehreren Wunschpartnern berechnet?",
-        "intro": "Jeder Wunschpartner zählt einzeln in die Statistik:",
-        "li1": "Direkter Sitznachbar = 100% erfüllt",
-        "li2": "Am selben Gruppentisch (4er/6er) = 50% erfüllt",
-        "li3": "Anderer Tisch = 0% erfüllt",
-        "example": "Beispiel: 3 Wunschpartner, davon 1 daneben (100%) + 1 am Tisch (50%) + 1 woanders (0%) = (100+50+0) / 3 = 50%"
+        "q": "Wie werden Prozentwerte bei Wunschpartnern berechnet?",
+        "intro": "Jeder Schüler mit Wünschen zählt einmal, mit seinem am besten erfüllten Wunsch:",
+        "li1": "Tischpartner = 100 % erfüllt",
+        "li2": "Am selben Gruppentisch (4er/6er) = 60 % erfüllt",
+        "li3": "Direkt daneben am Nachbartisch = 50 %, direkt davor oder dahinter = 30 % erfüllt",
+        "li4": "Weiter entfernt = 0 % erfüllt",
+        "example": "An Einzeltischen gibt es keinen Tischpartner: Dort ist „direkt daneben“ das Beste, was der Raum zulässt, und zählt als 100 %. Beispiel an Doppeltischen: Von 3 Schülern mit Wünschen sitzt einer neben seinem Wunschpartner (100 %), einer hat ihn direkt hinter sich (30 %), einer gar nicht in der Nähe (0 %) = (100 + 30 + 0) / 3 ≈ 43 %."
       },
       "values": {
         "q": "Was zeigen die einzelnen Statistik-Werte an?",
-        "intro": "Jedes Kriterium hat seinen eigenen Erfüllungsgrad, z.B.:",
+        "intro": "Jedes Kriterium hat seinen eigenen Erfüllungsgrad, gemessen an dem, was Klasse und Raum zulassen – 100 % heißt: besser geht es in diesem Punkt nicht. Zum Beispiel:",
         "li1_b": "Wunschpartner:",
-        "li1": "Anteil erfüllter Wünsche (direkter Partner oder am Tisch)",
+        "li1": "Anteil der Schüler, deren Wunsch erfüllt ist (siehe oben)",
         "li2_b": "Distanzwünsche:",
-        "li2": "Anteil eingehaltener Distanzwünsche (nicht am selben Tisch)",
+        "li2": "Anteil eingehaltener Distanzwünsche (nicht am selben Tisch und nicht direkt nebeneinander, davor oder dahinter)",
         "li3_b": "Wiederholung:",
-        "li3": "Anteil neuer Paare (keine Wiederholung aus vorherigen Plänen)",
+        "li3": "Anteil neuer Tischpaare (keine Wiederholung aus vorherigen Plänen; Wunschpaare zählen nicht als Wiederholung)",
         "li4_b": "Unruheverhalten/Konzentration:",
-        "li4": "Anteil der betroffenen Schüler, die voneinander getrennt sind",
+        "li4": "Anteil der betroffenen Schüler ohne einen ebenso betroffenen Nachbarn",
         "li5_b": "Geschlechter:",
-        "li5": "Anteil der Tische mit ausgewogener Verteilung"
+        "li5": "Anteil der gemischten Tische, gemessen an den Tischen, die bei der Zusammensetzung der Klasse gemischt sein können"
+      },
+      "hints": {
+        "q": "Was bedeuten die Hinweise im Inspektor?",
+        "a": "Unter „Erfüllung“ nennt der Inspektor, was sich in deiner Klasse und deinem Raum gar nicht erfüllen lässt: mehr Schüler mit vorderem Platz („Sehr wichtig“), als die vorderste Reihe Plätze hat, eine Gruppe mit Distanzwünschen untereinander, die größer ist als die Zahl der Tische, ein Wunsch, auf den der Gewünschte mit einem Distanzwunsch antwortet, oder ein Schüler, den sich mehr Mitschüler wünschen, als um ihn herum sitzen können. Dann liegt es nicht an der Mischung: Ein umgestellter Tisch oder ein geänderter Wunsch hilft."
       },
       "repeat": {
         "q": "Wie funktioniert die Wiederholungsvermeidung?",
         "intro": "Die Wiederholungsbewertung berücksichtigt sowohl gespeicherte Sitzpläne als auch die letzten Mischungen der Sitzung:",
         "li1_b": "Gespeicherte Pläne:",
-        "li1": "Paare aus älteren Plänen erhalten abnehmende Gewichtung (neuere zählen stärker)",
+        "li1": "Paare aus älteren Plänen zählen nach Alter abnehmend; wer öfter zusammensaß, zählt mehr",
         "li2_b": "Aktuelle Session:",
-        "li2": "Die letzten Mischungen werden stärker gewichtet, damit sich Paare nicht sofort wiederholen",
+        "li2": "Die letzten Mischungen zählen mit, damit sich Paare nicht sofort wiederholen",
         "outro": "So wird vermieden, dass dieselben Schüler ständig nebeneinander sitzen, wenn du mehrfach hintereinander mischst. Nicht jede Mischung wird aber auch wirklich umgesetzt – und genau da stoßen die letzten Mischungen allein an ihre Grenzen.",
         "usageIntro": "Klassenplan merkt sich deshalb im Hintergrund, welche Sitzpläne tatsächlich im Einsatz waren. Wenn du die automatische Erkennung nutzt, achtet Klassenplan auf folgende Aktionen:",
         "usage1": "Einen Sitzplan im Präsentationsmodus zeigen",
@@ -390,7 +396,7 @@
         "q": "Wie kann ich das Ergebnis verbessern?",
         "intro": "Nutze eine Kombination aus folgenden Strategien:",
         "li1": "Wichtige Kriterien auf „Wichtig“ oder „Sehr wichtig“ stellen – oder ein passendes Rezept für die Klasse wählen",
-        "li2": "Mehrfach mischen, um unterschiedliche Zufallsstarts zu nutzen",
+        "li2": "Erneut mischen: Jede Mischung probiert schon mehrere Zufallsstarts aus, eine neue Mischung bringt trotzdem einen anderen Plan",
         "li3": "Einzelne Plätze manuell via Drag & Drop anpassen und bei Bedarf sperren, sodass der Algorithmus diese nicht mehr verändert.",
         "li4": "Eine misslungene Mischung mit „Rückgängig“ (Strg/⌘+Z) zurücknehmen oder in der „Bibliothek“ unter „Letzte Mischungen“ ein früheres Ergebnis öffnen"
       }

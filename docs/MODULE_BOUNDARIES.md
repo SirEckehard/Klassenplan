@@ -1,6 +1,6 @@
 # Module Boundaries – Utils API & Import Guidelines
 
-> **Status:** current · **Last reviewed:** 2026-10-10
+> **Status:** current · **Last reviewed:** 2026-10-18
 
 ## Goal & background
 
@@ -50,7 +50,7 @@ A few areas intentionally stay outside the central API to optimize bundle size a
 ### Why the UI exceptions
 
 - **Type imports** carry no runtime code, so they cannot pull a namespace into a component's chunk.
-- **`seatingStatistics`, `criterionHighlights`, `circleSummary`, `planUsage`** are pure, synchronous derivations of what is on screen: the fulfilment beside each criterion, the criterion highlights on the seats, the circle's inspector and the arcs between its table neighbours, and the neighbourhood view. They have to show exactly what the algorithm scores – `isCountedUsage()` is shared by the evaluation and the scoring for precisely that reason ([ALGORITHM.md](ALGORITHM.md#confirmation)). Wrapping them in hooks would add a layer without protecting anything.
+- **`seatingStatistics`, `criterionHighlights`, `circleSummary`, `planUsage`** are pure, synchronous derivations of what is on screen: the fulfilment beside each criterion, the criterion highlights on the seats, the circle's inspector and the arcs between its table neighbours, and the neighbourhood view. They have to show exactly what the algorithm scores – the fulfilment and the highlights read the criterion model the mixing optimises (`utils/algorithm/model/`, [decision 0031](decisions/0031-one-criterion-model.md)), and `isCountedUsage()` is shared by the evaluation and the scoring for the same reason ([ALGORITHM.md](ALGORITHM.md#confirmation)). Wrapping them in hooks would add a layer without protecting anything. The mix hints in the plan's inspector are no such derivation: the UI reaches `model/feasibility.ts` through `hooks/plan/useMixHints.ts`.
 
 Adding an exception means extending the allow-list in `eslint.config.js` and the table above in the same commit, with the reason.
 

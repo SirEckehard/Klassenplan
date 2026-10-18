@@ -153,8 +153,13 @@ describe('with a working worker', () => {
     const onProgress = vi.fn();
 
     const pending = algorithmWorkerClient.callOperation(
-      'circle:generate',
-      { students: [], classroomScene: scene },
+      'circle:optimized',
+      {
+        students: [],
+        classroomScene: scene,
+        mixSettings: {},
+        seatingHistory: [],
+      },
       { onProgress },
     );
     await flush();
@@ -162,13 +167,13 @@ describe('with a working worker', () => {
     const worker = FakeWorker.instances[0]!;
     worker.emit('message', {
       requestId: worker.lastRequestId,
-      operation: 'circle:generate',
+      operation: 'circle:optimized',
       status: 'progress',
       progress: { progress: 0.5, stage: 'arranging' },
     });
     worker.emit('message', {
       requestId: worker.lastRequestId,
-      operation: 'circle:generate',
+      operation: 'circle:optimized',
       status: 'success',
       result: { layout: { students: [] } },
     });
@@ -222,7 +227,7 @@ describe('cancellation and timeouts', () => {
 
     const pending = algorithmWorkerClient.callOperation(
       'mix:run',
-      { ...mixPayload, refine: {} },
+      { ...mixPayload, refine: true },
       { signal: controller.signal },
     );
     await flush();
@@ -252,7 +257,7 @@ describe('cancellation and timeouts', () => {
 
     const pending = algorithmWorkerClient.callOperation(
       'mix:run',
-      { ...mixPayload, refine: {} },
+      { ...mixPayload, refine: true },
       { timeoutMs: 50 },
     );
     const rejection = expect(pending).rejects.toBeInstanceOf(

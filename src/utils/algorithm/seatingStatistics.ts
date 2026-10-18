@@ -9,140 +9,34 @@ import type {
   MixResult,
   PlanUsage,
 } from '@/types';
-import { buildPreviousPairs } from '@/utils/pairs';
 import { resolvePerformanceCriterion } from '../mixSettings';
 import {
-  partnerSeat,
-  getSeatPositions,
-  getSeatNeighborhoods,
-} from '@/utils/math/seatGeometry';
-import { getFeatureDistanceMaps } from './featureDistances';
-import { createGenderCounts, calculateGenderImbalance } from './genderBalance';
-import { determineFrontDirection } from './orientationUtils';
-import {
-  getWishPartnerIds as getWishIds,
-  getAvoidPartnerIds as getAvoidIds,
-} from '@/utils/student/partnerUtils';
-
-// Seat is considered "fulfilled" for environmental preference if it is within
-// the closest 40% of all available distances relative to the farthest seat.
-const PROXIMITY_SATISFIED_THRESHOLD = 0.6;
-
-const buildSeatKey = (tableIndex: number, seatIndex: number) =>
-  `${tableIndex}-${seatIndex}`;
-
-const calculateProximityScore = (distance: number, maxDistance: number) => {
-  if (!Number.isFinite(distance) || maxDistance <= 0) {
-    return 0;
-  }
-  const normalized = Math.min(distance / maxDistance, 1);
-  return 1 - normalized;
-};
+  evaluateCriteria,
+  type CriteriaCases,
+  type CriterionCases,
+} from './model/fulfilment';
+import { readPlan } from './model/readPlan';
 
 /**
- * Statistics about how well a seating arrangement fulfills the mix criteria
+ * How well a seating arrangement meets the mix criteria: the cases of every
+ * criterion (`model/fulfilment.ts`), read by the terms the mixing optimises
+ * (decision 0031).
  */
 export interface SeatingStatistics {
-  // Total counts
   totalStudents: number;
   totalSeats: number;
-
-  // Wish partners
-  wishPartnersFulfilled: number;
-  wishPartnersTotal: number;
-  wishPartnersPercentage: number;
-
-  // Avoid partners (Distanzwünsche)
-  avoidPartnersFulfilled: number;
-  avoidPartnersTotal: number;
-  avoidPartnersPercentage: number;
-
-  // Previous pairs avoidance
-  previousPairsAvoided: number;
-  previousPairsTotal: number;
-  previousPairsPercentage: number;
-
-  // Restless students
-  restlessPairCount: number;
-  restlessTotalCount: number;
-  restlessAvoidedPercentage: number;
-
-  // Concentration issues
-  concentrationPairCount: number;
-  concentrationTotalCount: number;
-  concentrationAvoidedPercentage: number;
-  concentrationNearRestlessCount: number;
-  concentrationNearRestlessPercentage: number;
-
-  // Gender mix
-  genderMixScore: number; // 0-100, higher is better
-  genderBalancedTables: number;
-  genderTotalTables: number; // Tables with at least two occupied seats evaluated for gender mix
-
-  // Shy students
-  shyAloneCount: number;
-  shyTotalCount: number;
-  shyAlonePercentage: number;
-
-  // Performance pairing
-  peerTutoringPairs: number; // Heterogeneous: strong+weak pairs
-  sameLevelPairs: number; // Homogeneous: strong+strong or weak+weak pairs
-  peerTutoringPercentage: number; // For heterogeneous mode (peerTutoring)
-  homogeneousPerformancePercentage: number; // For homogeneous mode (homogeneousPerformanceGroups)
-
-  // Front seat need
-  frontSeatInFrontCount: number;
-  frontSeatTotalCount: number;
-  frontSeatFrontPercentage: number;
-
-  // Environmental preferences
-  windowPreferenceFulfilled: number;
-  windowPreferenceTotal: number;
-  windowPreferencePercentage: number;
-  doorPreferenceFulfilled: number;
-  doorPreferenceTotal: number;
-  doorPreferencePercentage: number;
-
-  // Height placement (smaller students front, taller students back)
-  heightPlacementScore: number; // 0-100, overall score
-  smallInFrontCount: number;
-  smallTotalCount: number;
-  tallInBackCount: number;
-  tallTotalCount: number;
-  heightPlacementPercentage: number; // Combined: correctly placed / total
-
-  // Language skill mixing
-  languageMixingScore: number; // 0-100, heterogeneous mixing score
-  languageMixedTables: number;
-  languageTotalRelevantTables: number;
-  languageMixingPercentage: number;
-
-  // Social role distribution
-  socialRoleDistributionScore: number; // 0-100, balanced distribution
-  socialRoleBalancedTables: number;
-  socialRoleTotalRelevantTables: number;
-  socialRoleDistributionPercentage: number;
+  criteria: CriteriaCases;
 }
 
 /**
  * Calculate statistics for a seating arrangement.
- *
- * This function analyzes how well a seating arrangement fulfills various mix criteria:
- * - Wish partners: Students sitting with their desired partners
- * - Previous pairs: Avoiding seat neighbors from previous plans
- * - Restless students: Separating students with restlessness issues
- * - Concentration issues: Separating students with concentration problems and keeping them away from restless students
- * - Gender mix: Balanced distribution of genders across tables
- * - Shy students: Ensuring shy students are not alone
- * - Peer tutoring: Pairing strong and weak performers for mutual support
- * - Front seat need: Placing students with front seat needs in front seats
  *
  * @param arrangement Current seating arrangement to analyze
  * @param students Full list of students
  * @param settings Mix criteria weights (0-10)
  * @param seatingHistory Previous seating plans for repetition avoidance
  * @param scene Classroom layout for position calculations
- * @returns Statistics object with counts and percentages for each criterion
+ * @returns The cases of every criterion, with their credits
  */
 export function calculateSeatingStatistics(
   arrangement: SeatingArrangement,
@@ -151,6 +45,7 @@ export function calculateSeatingStatistics(
   seatingHistory: SavedPlan[],
   scene: ClassroomScene,
   options?: {
+    /** The mix history as stored, the plan's own mix last when it is one */
     mixHistory?: MixResult[];
     planUsage?: PlanUsage[];
     /** When the neighbourhoods were last reset; see `buildPreviousPairs`. */
@@ -159,578 +54,24 @@ export function calculateSeatingStatistics(
     planUsageManual?: boolean;
   },
 ): SeatingStatistics {
-  const totalStudents = students.length;
-  const totalSeats = arrangement.reduce((sum, table) => sum + table.length, 0);
-
-  // Previous pairs
-  const mixHistoryExcludingCurrent = options?.mixHistory?.length
-    ? options.mixHistory.slice(0, -1)
-    : options?.mixHistory;
-
-  const previousPairs = settings.avoidPreviousPairs
-    ? buildPreviousPairs(seatingHistory, {
-        mixHistory: mixHistoryExcludingCurrent,
-        planUsage: options?.planUsage,
-        since: options?.planUsageSince,
-        manual: options?.planUsageManual,
-        studentCount: students.length,
-      })
-    : new Map<string, number>();
-
-  let wishPartnersFulfilled = 0;
-  let wishPartnersTotal = 0;
-  let avoidPartnersFulfilled = 0;
-  let avoidPartnersTotal = 0;
-  let previousPairsAvoided = 0;
-  let previousPairsTotal = 0;
-  let restlessPairCount = 0;
-  let restlessTotalCount = 0;
-  let concentrationPairCount = 0;
-  let concentrationTotalCount = 0;
-  let concentrationNearRestlessCount = 0;
-  let shyAloneCount = 0;
-  let shyTotalCount = 0;
-  let peerTutoringPairs = 0;
-  let sameLevelPairs = 0;
-  let frontSeatInFrontCount = 0;
-  let frontSeatTotalCount = 0;
-  let genderBalancedTables = 0;
-  let genderEvaluatedTables = 0;
-
-  // Height placement counters
-  let smallInFrontCount = 0;
-  let smallTotalCount = 0;
-  let tallInBackCount = 0;
-  let tallTotalCount = 0;
-
-  let windowPreferenceFulfilled = 0;
-  let windowPreferenceTotal = 0;
-  let windowPreferenceScoreSum = 0;
-  let doorPreferenceFulfilled = 0;
-  let doorPreferenceTotal = 0;
-  let doorPreferenceScoreSum = 0;
-
-  // A wish or distance wish counts only while its classmate is in the class:
-  // a student removed from it is no wish the plan can fulfil.
-  const classIds = new Set(students.map((s) => s.id));
-  const wishIdsOf = (s: Student) =>
-    getWishIds(s).filter((id) => classIds.has(id));
-  const avoidIdsOf = (s: Student) =>
-    getAvoidIds(s).filter((id) => classIds.has(id));
-
-  // Count students with specific attributes - now counts all wishes
-  students.forEach((s) => {
-    wishPartnersTotal += wishIdsOf(s).length;
-    avoidPartnersTotal += avoidIdsOf(s).length;
-    if (s.restless) restlessTotalCount++;
-    if (s.concentrationIssues) concentrationTotalCount++;
-    if (s.shy) shyTotalCount++;
-    if (s.needsFrontSeat) frontSeatTotalCount++;
-    if (s.prefersWindow) windowPreferenceTotal++;
-    if (s.prefersDoor) doorPreferenceTotal++;
+  const { context, occupants } = readPlan({
+    arrangement,
+    students,
+    settings,
+    scene,
+    seatingHistory,
+    mixHistory: options?.mixHistory,
+    planUsage: options?.planUsage,
+    planUsageSince: options?.planUsageSince,
+    planUsageManual: options?.planUsageManual,
   });
-
-  // Get accurate seat positions (not just table centers)
-  const seatPositions = getSeatPositions(scene);
-  const seatNeighborhoods = getSeatNeighborhoods(scene, {
-    directions: ['direct', 'front', 'back', 'side'],
-  });
-  const {
-    window: windowSeatDistances,
-    door: doorSeatDistances,
-    maxWindowDistance,
-    maxDoorDistance,
-  } = getFeatureDistanceMaps(scene, seatPositions);
-
-  const countedRestlessPairs = new Set<string>();
-  const countedConcentrationPairs = new Set<string>();
-  const concentrationNearRestlessPairs = new Set<string>();
-
-  // Calculate front threshold based on board orientation
-  const allX = Array.from(seatPositions.values()).map((p) => p.x);
-  const allY = Array.from(seatPositions.values()).map((p) => p.y);
-  const maxX = Math.max(...allX);
-  const minX = Math.min(...allX);
-  const maxY = Math.max(...allY);
-  const minY = Math.min(...allY);
-
-  // Determine front direction based on board position
-  const orientation = determineFrontDirection(scene);
-
-  // Front threshold: 30% of seats closest to front (used for sensory)
-  // If dominantAxis is 'x': use X-based threshold
-  // If dominantAxis is 'y': use Y-based threshold
-  const frontThresholdX = orientation.frontIsHighX
-    ? maxX - (maxX - minX) * 0.3
-    : minX + (maxX - minX) * 0.3;
-  const frontThresholdY = orientation.frontIsHighY
-    ? maxY - (maxY - minY) * 0.3
-    : minY + (maxY - minY) * 0.3;
-
-  // Analyze each table
-  arrangement.forEach((table, tIdx) => {
-    const seatCount = table.length;
-    const occupiedSeats = table.filter(Boolean) as Student[];
-    const tableStudentIds = new Set(occupiedSeats.map((s) => s.id));
-
-    // Gender balance
-    if (occupiedSeats.length >= 2) {
-      genderEvaluatedTables++;
-      const genderCounts = createGenderCounts();
-      occupiedSeats.forEach((s) => {
-        if (s.gender) genderCounts[s.gender]++;
-      });
-      const genderImbalance = calculateGenderImbalance(genderCounts);
-      if (genderImbalance <= 1) {
-        genderBalancedTables++;
-      }
-    }
-
-    // Analyze pairs
-    for (let sIdx = 0; sIdx < seatCount; sIdx++) {
-      const student = table[sIdx];
-      if (!student) continue;
-
-      const partnerIdx = partnerSeat(seatCount, sIdx);
-      const partner = partnerIdx !== null ? table[partnerIdx] : null;
-
-      // Wish partners - now checks all wish partners with priority weighting
-      const wishIds = wishIdsOf(student);
-      const seatKey = buildSeatKey(tIdx, sIdx);
-      const neighbors = seatNeighborhoods.get(seatKey) ?? [];
-
-      for (let i = 0; i < wishIds.length; i++) {
-        const wishId = wishIds[i]!;
-        // Direct partner = 100% fulfilled
-        if (partner && partner.id === wishId) {
-          wishPartnersFulfilled += 1;
-        }
-        // Same table but not direct partner = 50% fulfilled (group tables)
-        else if (tableStudentIds.has(wishId) && seatCount > 2) {
-          wishPartnersFulfilled += 0.5;
-        }
-        // NEW: Spatial neighbor = 50% fulfilled (for Single tables or adjacent tables)
-        else if (!partner || seatCount === 1) {
-          // Check if wish partner is a spatial neighbor
-          for (const neighborInfo of neighbors) {
-            const neighborStudent =
-              arrangement[neighborInfo.tableIndex]?.[neighborInfo.seatIndex];
-            if (neighborStudent && neighborStudent.id === wishId) {
-              // Neighbor fulfillment: 50% (same as same-table, non-partner)
-              wishPartnersFulfilled += 0.5;
-              break; // Only count once per wish partner
-            }
-          }
-        }
-        // Priority bonus: first wish partner fulfilled counts more
-        // (handled by order in array - first listed = most important)
-      }
-
-      // Avoid partners - now checks all avoid partners
-      const avoidIds = avoidIdsOf(student);
-      for (const avoidId of avoidIds) {
-        // Direct partner = not fulfilled
-        if (partner && partner.id === avoidId) {
-          // 0% fulfilled - sitting directly with avoided partner
-        }
-        // Same table but not direct partner = 50% fulfilled (better than direct)
-        else if (tableStudentIds.has(avoidId) && seatCount > 2) {
-          avoidPartnersFulfilled += 0.5;
-        }
-        // Different table = 100% fulfilled
-        else {
-          avoidPartnersFulfilled += 1;
-        }
-      }
-
-      // Previous pairs (only count once per pair)
-      if (partner && sIdx < (partnerIdx ?? seatCount)) {
-        const pairKey = [student.id, partner.id].sort().join('::');
-        const previousWeight = previousPairs.get(pairKey) ?? 0;
-        const isRepeat = previousWeight > 0;
-        const repeatContribution = isRepeat ? previousWeight : 0;
-        previousPairsTotal += repeatContribution;
-        previousPairsAvoided += 1 - repeatContribution;
-      }
-
-      if (student.restless) {
-        for (const neighborInfo of neighbors) {
-          const neighbor =
-            arrangement[neighborInfo.tableIndex]?.[neighborInfo.seatIndex];
-          if (!neighbor || !neighbor.restless) continue;
-          const pairKey = [student.id, neighbor.id].sort().join('::');
-          if (countedRestlessPairs.has(pairKey)) continue;
-          countedRestlessPairs.add(pairKey);
-          restlessPairCount++;
-        }
-      }
-
-      if (student.concentrationIssues) {
-        for (const neighborInfo of neighbors) {
-          const neighbor =
-            arrangement[neighborInfo.tableIndex]?.[neighborInfo.seatIndex];
-          if (!neighbor) continue;
-
-          if (neighbor.restless) {
-            const concentrationRestlessKey = [student.id, neighbor.id]
-              .sort()
-              .join('::');
-            if (!concentrationNearRestlessPairs.has(concentrationRestlessKey)) {
-              concentrationNearRestlessPairs.add(concentrationRestlessKey);
-              concentrationNearRestlessCount++;
-            }
-          }
-
-          if (!neighbor.concentrationIssues) continue;
-          const pairKey = [student.id, neighbor.id].sort().join('::');
-          if (countedConcentrationPairs.has(pairKey)) continue;
-          countedConcentrationPairs.add(pairKey);
-          concentrationPairCount++;
-        }
-      }
-
-      // Shy alone
-      if (student.shy && !partner) {
-        shyAloneCount++;
-      }
-
-      // Peer tutoring
-      if (partner && sIdx < (partnerIdx ?? seatCount)) {
-        const stuStrong = student.performanceStrong;
-        const stuWeak = student.performanceWeak;
-        const partnerStrong = partner.performanceStrong;
-        const partnerWeak = partner.performanceWeak;
-
-        if ((stuStrong && partnerWeak) || (stuWeak && partnerStrong)) {
-          peerTutoringPairs++;
-        } else if ((stuStrong && partnerStrong) || (stuWeak && partnerWeak)) {
-          sameLevelPairs++;
-        }
-      }
-
-      if (student.prefersWindow) {
-        const distance = windowSeatDistances.get(seatKey);
-        const proximity = calculateProximityScore(
-          distance ?? Number.POSITIVE_INFINITY,
-          maxWindowDistance,
-        );
-        windowPreferenceScoreSum += proximity;
-        if (proximity >= PROXIMITY_SATISFIED_THRESHOLD) {
-          windowPreferenceFulfilled++;
-        }
-      }
-
-      if (student.prefersDoor) {
-        const distance = doorSeatDistances.get(seatKey);
-        const proximity = calculateProximityScore(
-          distance ?? Number.POSITIVE_INFINITY,
-          maxDoorDistance,
-        );
-        doorPreferenceScoreSum += proximity;
-        if (proximity >= PROXIMITY_SATISFIED_THRESHOLD) {
-          doorPreferenceFulfilled++;
-        }
-      }
-
-      // Front seat need in front
-      if (student.needsFrontSeat) {
-        const pos = seatPositions.get(seatKey);
-        if (pos) {
-          // Check if seat is in front (respecting dominant axis)
-          const isFront =
-            orientation.dominantAxis === 'x'
-              ? orientation.frontIsHighX
-                ? pos.x >= frontThresholdX
-                : pos.x <= frontThresholdX
-              : orientation.frontIsHighY
-                ? pos.y >= frontThresholdY
-                : pos.y <= frontThresholdY;
-          if (isFront) {
-            frontSeatInFrontCount++;
-          }
-        }
-      }
-
-      // Height placement - smaller students front, taller students back
-      if (student.height === 'small') {
-        smallTotalCount++;
-        const pos = seatPositions.get(seatKey);
-        if (pos) {
-          // Calculate relative position (0 = back, 1 = front), respecting dominant axis
-          let relativePosition = 0.5;
-          if (orientation.dominantAxis === 'x' && maxX > minX) {
-            const rawPosition = (pos.x - minX) / (maxX - minX);
-            relativePosition = orientation.frontIsHighX
-              ? rawPosition
-              : 1 - rawPosition;
-          } else if (orientation.dominantAxis === 'y' && maxY > minY) {
-            const rawPosition = (pos.y - minY) / (maxY - minY);
-            relativePosition = orientation.frontIsHighY
-              ? rawPosition
-              : 1 - rawPosition;
-          }
-          // Front half = relativePosition > 0.5
-          if (relativePosition > 0.5) {
-            smallInFrontCount++;
-          }
-        }
-      } else if (student.height === 'tall') {
-        tallTotalCount++;
-        const pos = seatPositions.get(seatKey);
-        if (pos) {
-          // Calculate relative position (0 = back, 1 = front), respecting dominant axis
-          let relativePosition = 0.5;
-          if (orientation.dominantAxis === 'x' && maxX > minX) {
-            const rawPosition = (pos.x - minX) / (maxX - minX);
-            relativePosition = orientation.frontIsHighX
-              ? rawPosition
-              : 1 - rawPosition;
-          } else if (orientation.dominantAxis === 'y' && maxY > minY) {
-            const rawPosition = (pos.y - minY) / (maxY - minY);
-            relativePosition = orientation.frontIsHighY
-              ? rawPosition
-              : 1 - rawPosition;
-          }
-          // Back half = relativePosition < 0.5
-          if (relativePosition < 0.5) {
-            tallInBackCount++;
-          }
-        }
-      }
-    }
-  });
-
-  // Calculate percentages
-  const wishPartnersPercentage =
-    wishPartnersTotal > 0
-      ? (wishPartnersFulfilled / wishPartnersTotal) * 100
-      : 100;
-
-  const avoidPartnersPercentage =
-    avoidPartnersTotal > 0
-      ? (avoidPartnersFulfilled / avoidPartnersTotal) * 100
-      : 100;
-
-  const previousPairsPercentage =
-    previousPairsTotal + previousPairsAvoided > 0
-      ? (previousPairsAvoided / (previousPairsTotal + previousPairsAvoided)) *
-        100
-      : 100;
-
-  // Restless: 0 pairs = 100%, all paired = 0%
-  // Formula: percentage of pairs that were successfully avoided
-  const restlessAvoidedPercentage =
-    restlessTotalCount >= 2
-      ? Math.max(
-          0,
-          100 - (restlessPairCount / Math.floor(restlessTotalCount / 2)) * 100,
-        )
-      : 100;
-
-  // Concentration: Same calculation as restless
-  // 0 pairs together = 100%, all paired together = 0%
-  const concentrationAvoidedPercentage =
-    concentrationTotalCount >= 2
-      ? Math.max(
-          0,
-          100 -
-            (concentrationPairCount / Math.floor(concentrationTotalCount / 2)) *
-              100,
-        )
-      : 100;
-
-  // Concentration near restless: 0 adjacencies = 100%, all adjacent = 0%
-  // We want concentration students NOT near restless students
-  const maxConcentrationNearRestless = concentrationTotalCount; // Each concentration student could be near restless
-  const concentrationNearRestlessPercentage =
-    concentrationTotalCount > 0 && restlessTotalCount > 0
-      ? Math.max(
-          0,
-          100 -
-            (concentrationNearRestlessCount / maxConcentrationNearRestless) *
-              100,
-        )
-      : 100;
-
-  // Only evaluate tables with at least two occupied seats for gender mix
-  const genderMixScore =
-    genderEvaluatedTables > 0
-      ? (genderBalancedTables / genderEvaluatedTables) * 100
-      : 100;
-
-  const shyAlonePercentage =
-    shyTotalCount > 0
-      ? Math.max(0, 100 - (shyAloneCount / shyTotalCount) * 100)
-      : 100;
-
-  // Performance pairing percentages
-  const totalPerformancePairs = peerTutoringPairs + sameLevelPairs;
-  const peerTutoringPercentage =
-    totalPerformancePairs > 0
-      ? (peerTutoringPairs / totalPerformancePairs) * 100
-      : 0;
-
-  const homogeneousPerformancePercentage =
-    totalPerformancePairs > 0
-      ? (sameLevelPairs / totalPerformancePairs) * 100
-      : 0;
-
-  const frontSeatFrontPercentage =
-    frontSeatTotalCount > 0
-      ? (frontSeatInFrontCount / frontSeatTotalCount) * 100
-      : 100;
-
-  // Height placement percentage
-  const heightPlacementTotalCount = smallTotalCount + tallTotalCount;
-  const heightPlacementCorrectCount = smallInFrontCount + tallInBackCount;
-  const heightPlacementPercentage =
-    heightPlacementTotalCount > 0
-      ? (heightPlacementCorrectCount / heightPlacementTotalCount) * 100
-      : 100; // Default 100% if no small/tall students
-
-  const heightPlacementScore = heightPlacementPercentage;
-
-  const windowPreferencePercentage =
-    windowPreferenceTotal > 0
-      ? (windowPreferenceScoreSum / windowPreferenceTotal) * 100
-      : 100;
-
-  const doorPreferencePercentage =
-    doorPreferenceTotal > 0
-      ? (doorPreferenceScoreSum / doorPreferenceTotal) * 100
-      : 100;
-
-  // Language skill mixing statistics
-  // Count tables with heterogeneous language levels (strong + weak)
-  let languageMixedTables = 0;
-  let languageTotalRelevantTables = 0;
-
-  arrangement.forEach((table) => {
-    const occupiedSeats = table.filter(Boolean) as Student[];
-    const languageLevels = occupiedSeats
-      .map((s) => s.languageSkill)
-      .filter(Boolean);
-
-    if (languageLevels.length >= 2) {
-      languageTotalRelevantTables++;
-      const hasStrong = languageLevels.some(
-        (l) => l === 'native' || l === 'fluent',
-      );
-      const hasWeak = languageLevels.some(
-        (l) => l === 'beginner' || l === 'daz',
-      );
-      if (hasStrong && hasWeak) {
-        languageMixedTables++;
-      }
-    }
-  });
-
-  const languageMixingPercentage =
-    languageTotalRelevantTables > 0
-      ? (languageMixedTables / languageTotalRelevantTables) * 100
-      : 100;
-  const languageMixingScore = languageMixingPercentage;
-
-  // Social role distribution statistics
-  // Count tables where social roles are well distributed (no clustering of same roles)
-  let socialRoleBalancedTables = 0;
-  let socialRoleTotalRelevantTables = 0;
-
-  arrangement.forEach((table) => {
-    const occupiedSeats = table.filter(Boolean) as Student[];
-    const roles = occupiedSeats.map((s) => s.socialRole).filter(Boolean);
-
-    if (roles.length >= 1) {
-      socialRoleTotalRelevantTables++;
-      // Check for role clustering (same role appearing more than once)
-      const roleCounts = new Map<string, number>();
-      for (const role of roles) {
-        roleCounts.set(role!, (roleCounts.get(role!) ?? 0) + 1);
-      }
-      // Table is balanced if no non-mediator role appears more than once
-      // and loners are not paired together
-      let isBalanced = true;
-      for (const [role, count] of roleCounts) {
-        if (count > 1 && role !== 'mediator') {
-          isBalanced = false;
-          break;
-        }
-        if (role === 'loner' && count > 1) {
-          isBalanced = false;
-          break;
-        }
-      }
-      if (isBalanced) {
-        socialRoleBalancedTables++;
-      }
-    }
-  });
-
-  const socialRoleDistributionPercentage =
-    socialRoleTotalRelevantTables > 0
-      ? (socialRoleBalancedTables / socialRoleTotalRelevantTables) * 100
-      : 100;
-  const socialRoleDistributionScore = socialRoleDistributionPercentage;
-
   return {
-    totalStudents,
-    totalSeats,
-    wishPartnersFulfilled,
-    wishPartnersTotal,
-    wishPartnersPercentage,
-    avoidPartnersFulfilled,
-    avoidPartnersTotal,
-    avoidPartnersPercentage,
-    previousPairsAvoided,
-    previousPairsTotal,
-    previousPairsPercentage,
-    restlessPairCount,
-    restlessTotalCount,
-    restlessAvoidedPercentage,
-    concentrationPairCount,
-    concentrationTotalCount,
-    concentrationAvoidedPercentage,
-    concentrationNearRestlessCount,
-    concentrationNearRestlessPercentage,
-    genderMixScore,
-    genderBalancedTables,
-    genderTotalTables: genderEvaluatedTables,
-    shyAloneCount,
-    shyTotalCount,
-    shyAlonePercentage,
-    peerTutoringPairs,
-    sameLevelPairs,
-    peerTutoringPercentage,
-    homogeneousPerformancePercentage,
-    frontSeatInFrontCount,
-    frontSeatTotalCount,
-    frontSeatFrontPercentage,
-    windowPreferenceFulfilled,
-    windowPreferenceTotal,
-    windowPreferencePercentage,
-    doorPreferenceFulfilled,
-    doorPreferenceTotal,
-    doorPreferencePercentage,
-    heightPlacementScore,
-    smallInFrontCount,
-    smallTotalCount,
-    tallInBackCount,
-    tallTotalCount,
-    heightPlacementPercentage,
-    languageMixingScore,
-    languageMixedTables,
-    languageTotalRelevantTables,
-    languageMixingPercentage,
-    socialRoleDistributionScore,
-    socialRoleBalancedTables,
-    socialRoleTotalRelevantTables,
-    socialRoleDistributionPercentage,
+    totalStudents: students.length,
+    totalSeats: arrangement.reduce((sum, table) => sum + table.length, 0),
+    criteria: evaluateCriteria(context, occupants),
   };
 }
 
-/**
- * Represents a single criterion's fulfillment status
- */
 /**
  * How many of the cases a criterion is about came out right — the plain
  * counting behind the percentage, where there is one to do. Window and door
@@ -742,6 +83,9 @@ export interface CriterionCount {
   total: number;
 }
 
+/**
+ * Represents a single criterion's fulfillment status
+ */
 export interface CriterionFulfillment {
   key: keyof MixSettings;
   label: string;
@@ -774,54 +118,77 @@ export function calculateCriteriaWeightedScore(
   return weightedSum / totalWeight;
 }
 
+const hasCases = (cases: CriterionCases | undefined): cases is CriterionCases =>
+  (cases?.total ?? 0) > 0;
+
+/** The mean credit as a percentage; 100 where there is nothing to meet. */
+const percentageOf = (cases: CriterionCases | undefined): number =>
+  hasCases(cases) ? (cases.credit / cases.total) * 100 : 100;
+
+const countOf = (
+  cases: CriterionCases | undefined,
+): CriterionCount | undefined =>
+  hasCases(cases) && !cases.measured
+    ? { fulfilled: cases.full, total: cases.total }
+    : undefined;
+
 /**
  * Get top fulfilled criteria sorted by importance and fulfillment.
  *
- * This function filters active criteria (weight > 0 and relevant students exist)
- * and returns the top N criteria sorted by:
- * 1. Weight (higher weight = higher priority)
- * 2. Percentage (higher fulfillment = higher priority)
+ * A criterion is listed while it carries weight and the plan has a case of it
+ * — a class without a restless pair has no "Unruhe" to meet — in the fixed
+ * order of the inspector.
  *
  * @param stats Statistics from calculateSeatingStatistics
  * @param settings Current mix criteria weights
- * @param limit Maximum number of criteria to return (default: 5)
- * @returns Array of active criteria sorted by importance
+ * @param limit Maximum number of criteria to return (default: all)
+ * @returns Array of active criteria
  */
 export function getTopFulfilledCriteria(
   stats: SeatingStatistics,
   settings: Partial<MixSettings>,
   limit?: number,
 ): CriterionFulfillment[] {
+  const { criteria: cases } = stats;
+  const performance = resolvePerformanceCriterion(settings);
+
+  const criterion = (
+    key: keyof MixSettings & keyof CriteriaCases,
+    label: string,
+    active = true,
+  ): CriterionFulfillment => {
+    const weight = (settings[key] as number | undefined) ?? 0;
+    const count = countOf(cases[key]);
+    return {
+      key,
+      label,
+      percentage: percentageOf(cases[key]),
+      weight,
+      ...(count && { count }),
+      active: active && weight > 0 && hasCases(cases[key]),
+    };
+  };
+
+  // Distractibility is one criterion with two weights: apart from each other
+  // and away from restless neighbours, each counted where it has a case.
+  const concentrationMetrics = (
+    [
+      ['avoidConcentrationTogether', settings.avoidConcentrationTogether],
+      [
+        'avoidConcentrationNearRestless',
+        settings.avoidConcentrationNearRestless,
+      ],
+    ] as const
+  ).flatMap(([key, weight]) =>
+    (weight ?? 0) > 0 && hasCases(cases[key])
+      ? [{ percentage: percentageOf(cases[key]), weight: weight ?? 0 }]
+      : [],
+  );
   const concentrationWeight = Math.max(
     settings.avoidConcentrationTogether ?? 0,
     settings.avoidConcentrationNearRestless ?? 0,
   );
-
-  const concentrationMetrics: Array<{ percentage: number; weight: number }> =
-    [];
-
-  if (
-    (settings.avoidConcentrationTogether ?? 0) > 0 &&
-    stats.concentrationTotalCount >= 2
-  ) {
-    concentrationMetrics.push({
-      percentage: stats.concentrationAvoidedPercentage,
-      weight: settings.avoidConcentrationTogether ?? 0,
-    });
-  }
-
-  if (
-    (settings.avoidConcentrationNearRestless ?? 0) > 0 &&
-    stats.concentrationTotalCount > 0 &&
-    stats.restlessTotalCount > 0
-  ) {
-    concentrationMetrics.push({
-      percentage: stats.concentrationNearRestlessPercentage,
-      weight: settings.avoidConcentrationNearRestless ?? 0,
-    });
-  }
-
-  const combinedConcentrationPercentage =
+  const concentrationPercentage =
     concentrationMetrics.length > 0
       ? concentrationMetrics.reduce(
           (sum, metric) => sum + metric.percentage * metric.weight,
@@ -829,186 +196,41 @@ export function getTopFulfilledCriteria(
         ) / concentrationMetrics.reduce((sum, metric) => sum + metric.weight, 0)
       : 0;
 
-  const concentrationActive =
-    concentrationWeight > 0 && concentrationMetrics.length > 0;
-
-  /** Rounded, because half a fulfilled wish is not something to read. */
-  const counted = (fulfilled: number, total: number): CriterionCount => ({
-    fulfilled: Math.round(fulfilled),
-    total: Math.round(total),
-  });
-
-  // Pairs of restless students that could be sitting together at worst.
-  const restlessPairsPossible = Math.floor(stats.restlessTotalCount / 2);
-  const performancePairs = stats.peerTutoringPairs + stats.sameLevelPairs;
-
   // Criteria ordered by Option A: Wiederholung → Identität → Fähigkeiten → Verhalten → Soziales → Raum
-  const criteria: CriterionFulfillment[] = [
-    // Wiederholung (ganz oben, ohne Kategorie)
-    {
-      key: 'avoidPreviousPairs',
-      label: 'Wiederholung',
-      percentage: stats.previousPairsPercentage,
-      weight: settings.avoidPreviousPairs ?? 0,
-      count: counted(
-        stats.previousPairsAvoided,
-        stats.previousPairsAvoided + stats.previousPairsTotal,
-      ),
-      active:
-        (settings.avoidPreviousPairs ?? 0) > 0 &&
-        stats.previousPairsTotal + stats.previousPairsAvoided > 0,
-    },
-    // Identität
-    {
-      key: 'preferGenderMix',
-      label: 'Geschlechter',
-      percentage: stats.genderMixScore,
-      weight: settings.preferGenderMix ?? 0,
-      count: counted(stats.genderBalancedTables, stats.genderTotalTables),
-      active: (settings.preferGenderMix ?? 0) > 0,
-    },
-    {
-      key: 'preferFrontForSmallerStudents',
-      label: 'Körpergröße',
-      percentage: stats.heightPlacementPercentage,
-      weight: settings.preferFrontForSmallerStudents ?? 0,
-      count: counted(
-        stats.smallInFrontCount + stats.tallInBackCount,
-        stats.smallTotalCount + stats.tallTotalCount,
-      ),
-      active:
-        (settings.preferFrontForSmallerStudents ?? 0) > 0 &&
-        (stats.smallTotalCount > 0 || stats.tallTotalCount > 0),
-    },
-    // Fähigkeiten
-    {
-      key: 'preferLanguageMixing',
-      label: 'Sprachförderung',
-      percentage: stats.languageMixingPercentage,
-      weight: settings.preferLanguageMixing ?? 0,
-      count: counted(
-        stats.languageMixedTables,
-        stats.languageTotalRelevantTables,
-      ),
-      active:
-        (settings.preferLanguageMixing ?? 0) > 0 &&
-        stats.languageTotalRelevantTables > 0,
-    },
-    {
-      key: 'peerTutoring',
-      label: 'Fördern (heterogen)',
-      percentage: stats.peerTutoringPercentage,
-      weight: settings.peerTutoring ?? 0,
-      count: counted(stats.peerTutoringPairs, performancePairs),
-      active: resolvePerformanceCriterion(settings) === 'peerTutoring',
-    },
-    {
-      key: 'homogeneousPerformanceGroups',
-      label: 'Fördern (homogen)',
-      percentage: stats.homogeneousPerformancePercentage,
-      weight: settings.homogeneousPerformanceGroups ?? 0,
-      count: counted(stats.sameLevelPairs, performancePairs),
-      active:
-        resolvePerformanceCriterion(settings) ===
-        'homogeneousPerformanceGroups',
-    },
-    {
-      key: 'preferFrontForNeedsFrontSeat',
-      label: 'Vordere Plätze',
-      percentage: stats.frontSeatFrontPercentage,
-      weight: settings.preferFrontForNeedsFrontSeat ?? 0,
-      count: counted(stats.frontSeatInFrontCount, stats.frontSeatTotalCount),
-      active:
-        (settings.preferFrontForNeedsFrontSeat ?? 0) > 0 &&
-        stats.frontSeatTotalCount > 0,
-    },
-    // Verhalten
-    {
-      key: 'avoidRestlessTogether',
-      label: 'Unruhe',
-      percentage: stats.restlessAvoidedPercentage,
-      weight: settings.avoidRestlessTogether ?? 0,
-      count: counted(
-        Math.max(0, restlessPairsPossible - stats.restlessPairCount),
-        restlessPairsPossible,
-      ),
-      active:
-        (settings.avoidRestlessTogether ?? 0) > 0 &&
-        stats.restlessTotalCount >= 2,
-    },
-    {
-      key: 'avoidShyAlone',
-      label: 'Schüchternheit',
-      percentage: stats.shyAlonePercentage,
-      weight: settings.avoidShyAlone ?? 0,
-      count: counted(
-        stats.shyTotalCount - stats.shyAloneCount,
-        stats.shyTotalCount,
-      ),
-      active: (settings.avoidShyAlone ?? 0) > 0 && stats.shyTotalCount > 0,
-    },
+  const list: CriterionFulfillment[] = [
+    criterion('avoidPreviousPairs', 'Wiederholung'),
+    criterion('preferGenderMix', 'Geschlechter'),
+    criterion('preferFrontForSmallerStudents', 'Körpergröße'),
+    criterion('preferLanguageMixing', 'Sprachförderung'),
+    criterion(
+      'peerTutoring',
+      'Fördern (heterogen)',
+      performance === 'peerTutoring',
+    ),
+    criterion(
+      'homogeneousPerformanceGroups',
+      'Fördern (homogen)',
+      performance === 'homogeneousPerformanceGroups',
+    ),
+    criterion('preferFrontForNeedsFrontSeat', 'Vordere Plätze'),
+    criterion('avoidRestlessTogether', 'Unruhe'),
+    criterion('avoidShyAlone', 'Schüchternheit'),
     {
       key: 'avoidConcentrationTogether',
       label: 'Ablenkbarkeit',
-      percentage: combinedConcentrationPercentage,
+      percentage: concentrationPercentage,
       weight: concentrationWeight,
-      active: concentrationActive,
+      active: concentrationWeight > 0 && concentrationMetrics.length > 0,
     },
-    // Soziales
-    {
-      key: 'distributeSocialRoles',
-      label: 'Soziale Rollen',
-      percentage: stats.socialRoleDistributionPercentage,
-      weight: settings.distributeSocialRoles ?? 0,
-      count: counted(
-        stats.socialRoleBalancedTables,
-        stats.socialRoleTotalRelevantTables,
-      ),
-      active:
-        (settings.distributeSocialRoles ?? 0) > 0 &&
-        stats.socialRoleTotalRelevantTables > 0,
-    },
-    {
-      key: 'considerWishPartners',
-      label: 'Wunschpartner erfüllt',
-      percentage: stats.wishPartnersPercentage,
-      weight: settings.considerWishPartners ?? 0,
-      count: counted(stats.wishPartnersFulfilled, stats.wishPartnersTotal),
-      active:
-        (settings.considerWishPartners ?? 0) > 0 && stats.wishPartnersTotal > 0,
-    },
-    {
-      key: 'avoidConflictPartners',
-      label: 'Distanzwünsche',
-      percentage: stats.avoidPartnersPercentage,
-      weight: settings.avoidConflictPartners ?? 0,
-      count: counted(stats.avoidPartnersFulfilled, stats.avoidPartnersTotal),
-      active:
-        (settings.avoidConflictPartners ?? 0) > 0 &&
-        stats.avoidPartnersTotal > 0,
-    },
-    // Raum
-    {
-      key: 'preferWindowSeats',
-      label: 'Fensterplätze',
-      percentage: stats.windowPreferencePercentage,
-      weight: settings.preferWindowSeats ?? 0,
-      active:
-        (settings.preferWindowSeats ?? 0) > 0 &&
-        stats.windowPreferenceTotal > 0,
-    },
-    {
-      key: 'preferDoorSeats',
-      label: 'Türnähe',
-      percentage: stats.doorPreferencePercentage,
-      weight: settings.preferDoorSeats ?? 0,
-      active:
-        (settings.preferDoorSeats ?? 0) > 0 && stats.doorPreferenceTotal > 0,
-    },
+    criterion('distributeSocialRoles', 'Soziale Rollen'),
+    criterion('considerWishPartners', 'Wunschpartner erfüllt'),
+    criterion('avoidConflictPartners', 'Distanzwünsche'),
+    criterion('preferWindowSeats', 'Fensterplätze'),
+    criterion('preferDoorSeats', 'Türnähe'),
   ];
 
   // Filter active criteria - preserve fixed Option A order (no sorting)
-  const filtered = criteria.filter((c) => c.active);
+  const filtered = list.filter((entry) => entry.active);
 
   return typeof limit === 'number' ? filtered.slice(0, limit) : filtered;
 }

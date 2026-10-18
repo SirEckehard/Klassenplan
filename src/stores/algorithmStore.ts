@@ -17,6 +17,7 @@ import { LOCAL_STORAGE_KEYS } from '@/utils/data/storageKeys';
 import {
   DEFAULT_MIX_WEIGHTS,
   areMixSettingsEqual,
+  migrateStoredMixSettings,
   neutralSettings,
   normalizeMixSettings,
   MIX_HISTORY_LIMIT,
@@ -47,7 +48,7 @@ function loadMixSettings(): MixSettings {
       return defaultMixSettings;
     }
     return normalizeMixSettings(
-      JSON.parse(stored) as MixSettings,
+      migrateStoredMixSettings(JSON.parse(stored) as MixSettings),
       neutralSettings,
     );
   } catch (error) {

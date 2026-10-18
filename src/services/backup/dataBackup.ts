@@ -22,6 +22,7 @@ import { hasIndexedDB } from '@/utils/data/indexedDb';
 import {
   logError,
   MAX_STUDENTS,
+  migrateStoredMixSettings,
   neutralSettings,
   normalizeMixSettings,
 } from '@/utils';
@@ -309,7 +310,7 @@ export async function importAllFromJson(
     }
 
     const normalizedMixSettings = normalizeMixSettings(
-      data.mixSettings,
+      migrateStoredMixSettings(data.mixSettings),
       neutralSettings,
     );
     const shouldCreateLegacyClassCollection =

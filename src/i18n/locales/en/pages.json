@@ -138,15 +138,16 @@
       "description": "Overview of algorithm, privacy, and offline usage.",
       "algo_intro": {
         "q": "What does the mixing algorithm actually do?",
-        "a": "The algorithm distributes your class to all available seats based on weighted criteria. It starts with a heuristic initial placement and refines it in several passes. It takes into account the criteria you have selected, such as preferred and distant partners, special needs, body heights, window/door preferences & more."
+        "a": "The algorithm distributes your class across all available seats based on weighted criteria. It first places the students one by one on the best seat left and then improves the arrangement through many swaps – three times from different starting points, and the best plan counts. It takes the selected criteria into account, such as preferred and distance partners, special needs, body heights, window/door preferences and more. With every criterion off, it distributes the class purely at random."
       },
       "algo_neighbors": {
         "q": "How does the algorithm evaluate neighbors?",
-        "intro": "There are three gradations of neighborhoods that are weighted differently:",
-        "li1": "direct neighbors (highest weight)",
-        "li2": "side neighbors (medium weight)",
-        "li3": "neighbors across/opposite (lower weight)",
-        "outro": "These gradations help to represent free layouts as realistically as possible and to avoid conflicts in a targeted way."
+        "intro": "The algorithm reads who sits next to whom in four steps, always as seen from the board:",
+        "li1": "the seat partner at the same double desk or seat pair (full weight)",
+        "li2": "the other seats at the same group table (strong weight)",
+        "li3": "the seat directly beside at the next table, with no aisle in between (medium weight)",
+        "li4": "the seat directly in front or behind in the next row (lower weight)",
+        "outro": "Seats offset diagonally and seats across an aisle do not count as neighbors. The same steps apply when mixing and in the fulfilment the inspector shows you."
       },
       "no_account": {
         "q": "Do I need an account or internet?",
@@ -154,7 +155,7 @@
       },
       "imperfect": {
         "q": "Why doesn't the algorithm work \"perfectly\"?",
-        "a": "The algorithm evaluates table groups in the context of the entire room. A swap can help in one place but create bigger conflicts elsewhere. A perfect solution would have to check every combination and would not be practical. With its heuristic approach, Klassenplan achieves fast, comprehensible results that you can further refine via drag & drop."
+        "a": "The algorithm rates every plan with one score from all criteria. A swap can help in one place but create bigger conflicts elsewhere; a perfect solution would have to check every combination and would not be practical. Klassenplan therefore finds a very good solution in a short time, which you can refine further by drag and drop. What cannot be met at all in your class and room, the inspector names under “Notes”."
       },
       "gender_language": {
         "q": "Why is the generic masculine form used?",
@@ -202,7 +203,7 @@
         "gender": {
           "label": "Gender",
           "description": "Male, female or diverse – optional information.",
-          "algorithm": "Creates gender-mixed table groups."
+          "algorithm": "Makes for mixed tables: no gender holds more than half of a table. Diverse counts as a gender of its own."
         },
         "height": {
           "label": "Height",
@@ -212,7 +213,7 @@
         "languageSkill": {
           "label": "Language Skills",
           "description": "From native speaker to ESL support.",
-          "algorithm": "Pairs language-strong students with beginners for mutual support."
+          "algorithm": "Seats strong speakers next to beginners and language learners for mutual support."
         },
         "performanceStrong": {
           "label": "High Performer",
@@ -227,22 +228,22 @@
         "needsFrontSeat": {
           "label": "Front seat",
           "description": "This student needs a front seat.",
-          "algorithm": "Places this student preferably in the front rows."
+          "algorithm": "At “Very important” the student is sure to sit in the front row; at the levels below, preferably further forward."
         },
         "restless": {
           "label": "Restless",
           "description": "Currently showing restless behavior in class.",
-          "algorithm": "Separates students with restless behavior from each other."
+          "algorithm": "Separates students with restless behavior from each other, across the edge of a table as well."
         },
         "shy": {
           "label": "Shy",
           "description": "Currently showing reserved behavior in class.",
-          "algorithm": "Places students with reserved behavior next to quieter classmates."
+          "algorithm": "Makes sure students with reserved behavior do not sit alone."
         },
         "concentrationIssues": {
           "label": "Easily Distracted",
           "description": "Currently showing concentration difficulties in class.",
-          "algorithm": "Distributes students with concentration difficulties in the room and separates them from students with restless behavior."
+          "algorithm": "Keeps students with concentration difficulties away from each other and from students with restless behavior."
         },
         "socialRole": {
           "label": "Social Role",
@@ -252,12 +253,12 @@
         "wishPartner": {
           "label": "Preferred Partner",
           "description": "Up to 3 prioritized partners the student wants to sit with.",
-          "algorithm": "Places preferred partners at the same table, priority 1 counts more."
+          "algorithm": "Seats preferred partners as seat partners, at the same table or directly beside; priority 1 counts more."
         },
         "avoidPartner": {
           "label": "Distance Request",
           "description": "Up to 3 students to keep distance from.",
-          "algorithm": "Places these students at different tables."
+          "algorithm": "Seats these students neither at the same table nor directly beside, in front of or behind each other."
         },
         "prefersWindow": {
           "label": "Window Seat",
@@ -280,15 +281,15 @@
       },
       "multi": {
         "q": "How do multiple preferred and distant partners work?",
-        "a": "You can select up to 3 preferred and distant partners per student. The order determines the priority – the first selected partner is weighted more heavily than the third. The algorithm tries to fulfill as many wishes as possible, with Priority 1 taking precedence."
+        "a": "You can choose up to 3 preferred and distance partners per student. The order sets the priority – the first partner chosen weighs more than the third. The algorithm tries to meet as many wishes as possible, with priority 1 taking precedence. Since everybody has only one seat partner, the fulfilment counts each student by the wish met best."
       },
       "force": {
         "q": "Are preferred partners always considered?",
-        "a": "If the “Preferred Partners” criterion is set to “Consider” or higher, the algorithm seats pairs together unless other criteria weigh more heavily against it. At group tables (4/6), a seat at the same table counts as partially fulfilled."
+        "a": "With the “Preferred Partners” criterion at “Consider” or higher, the algorithm seats pairs together unless other criteria speak more strongly against it. If the wished classmate has a distance request for the one wishing, the distance request comes first. A seat at the same group table or directly at the next table counts as partly met."
       },
       "needs": {
         "q": "How does the system handle restless behavior, concentration difficulties, and distance wishes?",
-        "a": "Restlessness, distractibility and distance wishes each have a criterion of their own. Restless students are kept apart, easily distracted students are spread across the room, and distance wishes are respected as long as enough seats are available."
+        "a": "Restlessness, distractibility and distance requests have criteria of their own. The students concerned sit neither at the same table nor directly beside, in front of or behind each other, as far as the room allows – an aisle in between separates them."
       },
       "height": {
         "q": "How does Klassenplan consider body heights and room preferences?",
@@ -304,7 +305,7 @@
       },
       "measure": {
         "q": "How are distances measured?",
-        "a": "Seat positions are stored as pixel coordinates. Direct neighbors lie within the table width and height plus buffer; side and frontal neighbors may be slightly further away until they are no longer considered relevant."
+        "a": "Seat positions are stored as pixel coordinates, and Klassenplan reads neighborhoods as seen from the board. At the next table only the nearest seat in each direction counts as a neighbor: beside, while the gap is at most about 45 cm (40 pixels) – more is an aisle – and in front or behind, while the next row is at most about 75 cm (70 pixels) away. Seats offset diagonally do not count."
       },
       "limits": {
         "q": "Are there limits on students and seats?",
@@ -326,7 +327,7 @@
       "weights": {
         "q": "What do Off, Consider, Important and Very important mean?",
         "intro": "You set every criterion to one of four levels in the inspector to the right of the seating plan:",
-        "outro": "Criteria your class has no data for stay hidden."
+        "outro": "Criteria your class has no data for stay hidden. For “Front seats”, “Very important” is a fixed rule: the students are then sure to sit in the front row. At the levels below, a front seat is a wish like any other."
       },
       "check": {
         "q": "How do I recognize that a mix meets the criteria?",
@@ -344,34 +345,39 @@
         "a": "Move the mouse over a criterion’s bar: the seats it affects are marked in the seating plan. A click keeps the marking, a second click removes it. That way you quickly see where swapping seats by hand could improve the result."
       },
       "percent": {
-        "q": "How are percentages calculated for multiple preferred partners?",
-        "intro": "Each preferred partner counts individually in the statistics:",
-        "li1": "Direct neighbor = 100% fulfilled",
-        "li2": "At the same group table (4/6) = 50% fulfilled",
-        "li3": "Different table = 0% fulfilled",
-        "example": "Example: 3 partners, 1 adjacent (100%) + 1 at table (50%) + 1 elsewhere (0%) = (100+50+0) / 3 = 50%"
+        "q": "How are percentages for preferred partners calculated?",
+        "intro": "Every student with wishes counts once, by the wish met best:",
+        "li1": "Seat partner = 100% fulfilled",
+        "li2": "At the same group table (4/6) = 60% fulfilled",
+        "li3": "Directly beside at the next table = 50%, directly in front or behind = 30% fulfilled",
+        "li4": "Further away = 0% fulfilled",
+        "example": "At single desks there is no seat partner: there, “directly beside” is the best the room allows and counts as 100%. Example at double desks: of 3 students with wishes, one sits beside their preferred partner (100%), one has them directly behind (30%), one has them nowhere near (0%) = (100 + 30 + 0) / 3 ≈ 43%."
       },
       "values": {
         "q": "What do the individual statistics values indicate?",
-        "intro": "Each criterion has its own degree of fulfillment, e.g.:",
+        "intro": "Each criterion has its own degree of fulfilment, measured against what the class and the room allow – 100% means it cannot get better on that point. For example:",
         "li1_b": "Preferred partners:",
-        "li1": "Share of fulfilled wishes (direct partner or at table)",
+        "li1": "Share of students whose wish is met (see above)",
         "li2_b": "Distance wishes:",
-        "li2": "Share of respected distance wishes (not at the same table)",
+        "li2": "Share of distance requests kept (not at the same table and not directly beside, in front or behind)",
         "li3_b": "Repetition:",
-        "li3": "Share of new pairs (no repetition from previous plans)",
+        "li3": "Share of new table pairs (no repetition from earlier plans; wish pairs do not count as repetition)",
         "li4_b": "Restless Behavior/Concentration:",
-        "li4": "Share of affected students who are separated from each other",
+        "li4": "Share of the students concerned without a neighbor concerned as well",
         "li5_b": "Genders:",
-        "li5": "Share of tables with balanced distribution"
+        "li5": "Share of mixed tables, measured against the tables the class's make-up allows to be mixed"
+      },
+      "hints": {
+        "q": "What do the notes in the inspector mean?",
+        "a": "Under “Fulfilment” the inspector names what cannot be met at all in your class and room: more students needing a front seat (“Very important”) than the front row has seats, a group with distance requests among each other larger than the number of tables, a wish answered with a distance request, or a student wished for by more classmates than can sit around them. Then it is not the mix: moving a desk or changing a wish helps."
       },
       "repeat": {
         "q": "How does repeat avoidance work?",
         "intro": "The repetition evaluation considers both saved seating plans and the recent mixes of the session:",
         "li1_b": "Saved plans:",
-        "li1": "Pairs from older plans receive decreasing weight (newer ones count more)",
+        "li1": "Pairs from older plans count less with age; who sat together more often counts more",
         "li2_b": "Current Session:",
-        "li2": "The last mixes are weighted more heavily so that pairs do not repeat immediately",
+        "li2": "The latest mixes count as well, so that pairs do not repeat straight away",
         "outro": "This avoids the same students sitting next to each other constantly when you mix several times in a row. Not every mix is actually put into practice, though – and that is exactly where the recent mixes on their own reach their limits.",
         "usageIntro": "Klassenplan therefore keeps track of which seating charts were really in use. If you use automatic detection, Klassenplan watches for the following actions:",
         "usage1": "Showing a seating chart in presentation mode",
@@ -390,7 +396,7 @@
         "q": "How can I improve the result?",
         "intro": "Use a combination of the following strategies:",
         "li1": "Set the criteria that matter to “Important” or “Very important” – or pick a recipe that fits the class",
-        "li2": "Mix multiple times to use different random starts",
+        "li2": "Mix again: every mix already tries several random starts, but a new mix still brings a different plan",
         "li3": "Adjust individual seats manually via drag & drop and lock them if necessary so that the algorithm no longer changes them.",
         "li4": "Take back a poor mix with “Undo” (Ctrl/⌘+Z) or open an earlier result under “Recent mixes” in the “Library”"
       }

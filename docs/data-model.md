@@ -1,6 +1,6 @@
 # Data Model
 
-> **Status:** current · **Last reviewed:** 2026-10-17 · **Source of truth:**
+> **Status:** current · **Last reviewed:** 2026-10-18 · **Source of truth:**
 > `src/utils/data/storageKeys.ts`, `src/types/`, `src/repositories/`
 
 Everything Klassenplan stores lives in the teacher's browser. This document
@@ -88,6 +88,15 @@ interface RoomWorkingState {
 
 // SavedPlan and MixResult carry `roomId?: string`.
 ```
+
+`MixSettings` carries `criteriaVersion` (`MIX_CRITERIA_VERSION`, currently 2)
+since [decision 0031](decisions/0031-one-criterion-model.md): from version 2
+only "Sehr wichtig" keeps students needing a front seat in the front rows.
+Settings stored without it — a class's `mixSettings`, the browser's last
+weights under `spg.mixSettings`, a backup's, a mix of the history — are
+brought up to it where they come in (`migrateStoredMixSettings`): a level of
+`preferFrontForNeedsFrontSeat` below "Sehr wichtig" is lifted to the
+recommended 8 once. `neighborWeights` is still stored but no longer read.
 
 - **One record per class.** A class's students, plans, room and weights all
   live inside its record; switching classes means reading a different record.

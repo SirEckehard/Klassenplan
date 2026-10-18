@@ -1,1533 +1,540 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import { describe, it, expect, beforeEach } from 'vitest';
+/**
+ * The fulfilment the teacher reads (decision 0031): every criterion counted
+ * by the same relations the mixing weighs — the seat partner, the same table,
+ * and at another table only the seat directly beside, in front or behind — and
+ * against what the room and the class allow, so a plan the mixing could not
+ * improve on reads as 100 %.
+ */
+import { describe, it, expect } from 'vitest';
+import type {
+  ClassroomFeature,
+  ClassroomScene,
+  ClassroomTable,
+  MixResult,
+  MixSettings,
+  SavedPlan,
+  SeatingArrangement,
+  Student,
+} from '@/types';
+import { neutralSettings } from '../../mixSettings';
 import {
   calculateSeatingStatistics,
   getTopFulfilledCriteria,
 } from '../seatingStatistics';
-import type {
-  Student,
-  ClassroomScene,
-  MixSettings,
-  SavedPlan,
-  SeatingArrangement,
-  MixResult,
-  SeatingStatistics,
-} from '../../../types';
-import {
-  createMockStudent,
-  createMockClassroomScene,
-  createMockSavedPlan,
-  createMockMixResult,
-  createMockTable,
-} from '../../../__tests__/utils';
+
+const boardRight: ClassroomFeature = {
+  id: 'board',
+  type: 'board',
+  x: 880,
+  y: 200,
+  width: 20,
+  height: 200,
+  anchor: 'right',
+  movable: false,
+};
+const windowLeft: ClassroomFeature = {
+  id: 'window',
+  type: 'window',
+  x: 0,
+  y: 100,
+  width: 20,
+  height: 160,
+  anchor: 'left',
+  movable: false,
+};
+
+const table = (
+  x: number,
+  y: number,
+  templateType: ClassroomTable['templateType'] = 'double',
+): ClassroomTable => {
+  const size = {
+    single: { width: 55, height: 65, seatCount: 1 },
+    double: { width: 55, height: 130, seatCount: 2 },
+    group4: { width: 110, height: 130, seatCount: 4 },
+    group6: { width: 165, height: 130, seatCount: 6 },
+  }[templateType];
+  return { x, y, rotation: 0, locked: false, zIndex: 0, templateType, ...size };
+};
+
+const room = (tables: ClassroomTable[]): ClassroomScene => ({
+  totalStudents: 0,
+  tables,
+  features: [boardRight, windowLeft],
+});
+
+/** Three double desks along the board's wall, with aisles between them. */
+const DESKS_IN_A_ROW = room([table(600, 60), table(600, 250), table(600, 440)]);
+/** A desk and the desk directly behind it, one row further from the board. */
+const DESK_BEHIND_DESK = room([table(600, 100), table(485, 100)]);
+/** Three single desks along the wall, directly beside each other. */
+const SINGLES_SIDE_BY_SIDE = room([
+  table(600, 100, 'single'),
+  table(600, 195, 'single'),
+  table(600, 290, 'single'),
+]);
+
+const student = (id: string, extra: Partial<Student> = {}): Student =>
+  ({
+    id,
+    name: id,
+    restless: false,
+    shy: false,
+    concentrationIssues: false,
+    needsFrontSeat: false,
+    ...extra,
+  }) as Student;
+
+const studentsOf = (arrangement: SeatingArrangement): Student[] =>
+  arrangement.flat().filter((seat): seat is Student => Boolean(seat));
+
+const fulfilment = (
+  scene: ClassroomScene,
+  arrangement: SeatingArrangement,
+  weights: Partial<MixSettings>,
+  extras: {
+    students?: Student[];
+    seatingHistory?: SavedPlan[];
+    mixHistory?: MixResult[];
+  } = {},
+) => {
+  const settings = { ...neutralSettings, ...weights };
+  const stats = calculateSeatingStatistics(
+    arrangement,
+    extras.students ?? studentsOf(arrangement),
+    settings,
+    extras.seatingHistory ?? [],
+    scene,
+    { mixHistory: extras.mixHistory },
+  );
+  const criteria = getTopFulfilledCriteria(stats, settings);
+  return {
+    stats,
+    criteria,
+    percentage: (key: keyof MixSettings) =>
+      criteria.find((criterion) => criterion.key === key)?.percentage,
+  };
+};
 
 describe('seatingStatistics', () => {
-  let scene: ClassroomScene;
-  let settings: Partial<MixSettings>;
-  let seatingHistory: SavedPlan[];
-  let mixHistory: MixResult[];
-
-  beforeEach(() => {
-    // 3 tables with 2 seats each
-    scene = createMockClassroomScene(3, {
-      tables: [
-        {
-          x: 100,
-          y: 100,
-          width: 55,
-          height: 130,
-          seatCount: 2,
-          templateType: 'double',
-          rotation: 0,
-          zIndex: 0,
-          locked: false,
-        },
-        {
-          x: 200,
-          y: 100,
-          width: 55,
-          height: 130,
-          seatCount: 2,
-          templateType: 'double',
-          rotation: 0,
-          zIndex: 1,
-          locked: false,
-        },
-        {
-          x: 300,
-          y: 100,
-          width: 55,
-          height: 130,
-          seatCount: 2,
-          templateType: 'double',
-          rotation: 0,
-          zIndex: 2,
-          locked: false,
-        },
-      ],
-      totalStudents: 6,
+  describe('wish partners', () => {
+    it('counts a wish fully at the seat partner', () => {
+      const ada = student('ada', { wishPartnerIds: ['grace'] });
+      const grace = student('grace');
+      const { percentage } = fulfilment(
+        DESKS_IN_A_ROW,
+        [[ada, grace], [student('x'), null], []],
+        { considerWishPartners: 8 },
+      );
+      expect(percentage('considerWishPartners')).toBe(100);
     });
 
-    settings = {
-      avoidPreviousPairs: 5,
-      avoidRestlessTogether: 5,
-      avoidConcentrationTogether: 5,
-      avoidConcentrationNearRestless: 5,
-      avoidShyAlone: 5,
-      preferGenderMix: 5,
-      considerWishPartners: 5,
-      peerTutoring: 5,
-      preferFrontForNeedsFrontSeat: 5,
-    };
+    it('counts the rest of a group table less, the desk behind least', () => {
+      const ada = student('ada', { wishPartnerIds: ['grace'] });
+      const grace = student('grace');
+      const group = room([table(600, 100, 'group4')]);
+      expect(
+        fulfilment(group, [[ada, student('x'), grace, null]], {
+          considerWishPartners: 8,
+        }).percentage('considerWishPartners'),
+      ).toBeCloseTo(60, 5);
+      expect(
+        fulfilment(
+          DESK_BEHIND_DESK,
+          [
+            [grace, null],
+            [ada, null],
+          ],
+          {
+            considerWishPartners: 8,
+          },
+        ).percentage('considerWishPartners'),
+      ).toBeCloseTo(30, 5);
+    });
 
-    seatingHistory = [];
-    mixHistory = [];
+    it('counts the wish met best: one seat partner cannot meet two wishes', () => {
+      const ada = student('ada', { wishPartnerIds: ['grace', 'alan'] });
+      const { percentage } = fulfilment(
+        DESKS_IN_A_ROW,
+        [[ada, student('alan')], [student('grace'), null], []],
+        { considerWishPartners: 8 },
+      );
+      expect(percentage('considerWishPartners')).toBe(100);
+    });
+
+    it('counts a neighbour at single desks as all the room can give', () => {
+      const ada = student('ada', { wishPartnerIds: ['grace'] });
+      const { percentage } = fulfilment(
+        SINGLES_SIDE_BY_SIDE,
+        [[ada], [student('grace')], [student('x')]],
+        { considerWishPartners: 8 },
+      );
+      expect(percentage('considerWishPartners')).toBe(100);
+    });
+
+    it('leaves out a wish answered with a distance wish while those count', () => {
+      const ada = student('ada', { wishPartnerIds: ['grace'] });
+      const grace = student('grace', { avoidPartnerIds: ['ada'] });
+      const { percentage, criteria } = fulfilment(
+        DESKS_IN_A_ROW,
+        [[ada, null], [grace, null], []],
+        { considerWishPartners: 8, avoidConflictPartners: 7 },
+      );
+      expect(
+        criteria.some((criterion) => criterion.key === 'considerWishPartners'),
+      ).toBe(false);
+      expect(percentage('avoidConflictPartners')).toBe(100);
+    });
+
+    it('leaves out a wish for a student no longer in the class', () => {
+      const ada = student('ada', { wishPartnerIds: ['gone'] });
+      const { criteria } = fulfilment(DESKS_IN_A_ROW, [[ada, null], [], []], {
+        considerWishPartners: 8,
+      });
+      expect(criteria).toEqual([]);
+    });
   });
 
-  describe('calculateSeatingStatistics', () => {
-    describe('Wish Partners', () => {
-      it('should calculate 100% when all wish partners are fulfilled', () => {
-        const students: Student[] = [
-          createMockStudent({ id: 's1', name: 'Anna', wishPartnerId: 's2' }),
-          createMockStudent({ id: 's2', name: 'Ben', wishPartnerId: 's1' }),
-          createMockStudent({ id: 's3', name: 'Clara', wishPartnerId: 's4' }),
-          createMockStudent({ id: 's4', name: 'David', wishPartnerId: 's3' }),
-        ];
-
-        const arrangement: SeatingArrangement = [
-          [students[0]!, students[1]!], // Table 0: Anna + Ben (mutual wish ✓)
-          [students[2]!, students[3]!], // Table 1: Clara + David (mutual wish ✓)
-          [null, null], // Table 2: empty
-        ];
-
-        const stats = calculateSeatingStatistics(
-          arrangement,
-          students,
-          settings,
-          seatingHistory,
-          scene,
-        );
-
-        expect(stats.wishPartnersTotal).toBe(4);
-        expect(stats.wishPartnersFulfilled).toBe(4);
-        expect(stats.wishPartnersPercentage).toBe(100);
-      });
-
-      it('should partially fulfill when wish partners at adjacent tables', () => {
-        const students: Student[] = [
-          createMockStudent({ id: 's1', name: 'Anna', wishPartnerId: 's2' }),
-          createMockStudent({ id: 's2', name: 'Ben', wishPartnerId: 's1' }),
-          createMockStudent({ id: 's3', name: 'Clara', wishPartnerId: 's4' }),
-          createMockStudent({ id: 's4', name: 'David', wishPartnerId: 's3' }),
-        ];
-
-        const arrangement: SeatingArrangement = [
-          [students[0]!, students[1]!], // Anna + Ben (mutual wish ✓ = 2)
-          [students[2]!, null], // Clara alone (wish partner at adjacent table = 0.5)
-          [students[3]!, null], // David alone (wish partner at adjacent table = 0.5)
-        ];
-
-        const stats = calculateSeatingStatistics(
-          arrangement,
-          students,
-          settings,
-          seatingHistory,
-          scene,
-        );
-
-        expect(stats.wishPartnersTotal).toBe(4);
-        // Anna+Ben = 2 (direct partners), Clara+David = 1 (0.5 each as neighbors)
-        expect(stats.wishPartnersFulfilled).toBe(3);
-        expect(stats.wishPartnersPercentage).toBe(75);
-      });
-
-      it('should return 100% when no students have wish partners', () => {
-        const students: Student[] = [
-          createMockStudent({ id: 's1', name: 'Anna' }),
-          createMockStudent({ id: 's2', name: 'Ben' }),
-        ];
-
-        const arrangement: SeatingArrangement = [
-          [students[0]!, students[1]!],
-          [null, null],
-          [null, null],
-        ];
-
-        const stats = calculateSeatingStatistics(
-          arrangement,
-          students,
-          settings,
-          seatingHistory,
-          scene,
-        );
-
-        expect(stats.wishPartnersTotal).toBe(0);
-        expect(stats.wishPartnersFulfilled).toBe(0);
-        expect(stats.wishPartnersPercentage).toBe(100);
-      });
-
-      it('leaves out a wish for a student no longer in the class', () => {
-        const students: Student[] = [
-          createMockStudent({
-            id: 's1',
-            name: 'Anna',
-            wishPartnerIds: ['gone', 's2'],
-            avoidPartnerIds: ['gone'],
-          }),
-          createMockStudent({ id: 's2', name: 'Ben', wishPartnerId: 's1' }),
-        ];
-
-        const arrangement: SeatingArrangement = [
-          [students[0]!, students[1]!],
-          [null, null],
-          [null, null],
-        ];
-
-        const stats = calculateSeatingStatistics(
-          arrangement,
-          students,
-          settings,
-          seatingHistory,
-          scene,
-        );
-
-        expect(stats.wishPartnersTotal).toBe(2);
-        expect(stats.wishPartnersPercentage).toBe(100);
-        expect(stats.avoidPartnersTotal).toBe(0);
-      });
+  describe('distance wishes', () => {
+    it('counts the seat partner as unmet and a desk across the aisle as met', () => {
+      const ada = student('ada', { avoidPartnerIds: ['alan'] });
+      const alan = student('alan');
+      expect(
+        fulfilment(DESKS_IN_A_ROW, [[ada, alan], [], []], {
+          avoidConflictPartners: 7,
+        }).percentage('avoidConflictPartners'),
+      ).toBe(0);
+      expect(
+        fulfilment(DESKS_IN_A_ROW, [[ada, null], [alan, null], []], {
+          avoidConflictPartners: 7,
+        }).percentage('avoidConflictPartners'),
+      ).toBe(100);
     });
 
-    describe('Previous Pairs Avoidance', () => {
-      it('should calculate 100% when all previous pairs are avoided', () => {
-        const students: Student[] = [
-          createMockStudent({ id: 's1', name: 'Anna' }),
-          createMockStudent({ id: 's2', name: 'Ben' }),
-          createMockStudent({ id: 's3', name: 'Clara' }),
-          createMockStudent({ id: 's4', name: 'David' }),
-        ];
-
-        // Previous plan: Anna + Ben, Clara + David
-        const previousArrangement: SeatingArrangement = [
-          [students[0]!, students[1]!],
-          [students[2]!, students[3]!],
-          [null, null],
-        ];
-        seatingHistory = [
-          createMockSavedPlan({
-            name: 'Plan 1',
-            seating: previousArrangement,
-            scene,
-          }),
-        ];
-
-        // New plan: Anna + Clara, Ben + David (all new pairs!)
-        const arrangement: SeatingArrangement = [
-          [students[0]!, students[2]!], // Anna + Clara (new ✓)
-          [students[1]!, students[3]!], // Ben + David (new ✓)
-          [null, null],
-        ];
-
-        const stats = calculateSeatingStatistics(
-          arrangement,
-          students,
-          settings,
-          seatingHistory,
-          scene,
-        );
-
-        expect(stats.previousPairsAvoided).toBe(2);
-        expect(stats.previousPairsTotal).toBe(0);
-        expect(stats.previousPairsPercentage).toBe(100);
-      });
-
-      it('detects repeats based on recent mix history', () => {
-        const students: Student[] = [
-          createMockStudent({ id: 's1', name: 'Anna' }),
-          createMockStudent({ id: 's2', name: 'Ben' }),
-          createMockStudent({ id: 's3', name: 'Clara' }),
-          createMockStudent({ id: 's4', name: 'David' }),
-        ];
-
-        const previousArrangement: SeatingArrangement = [
-          [students[0]!, students[1]!],
-          [students[2]!, students[3]!],
-          [null, null],
-        ];
-
-        mixHistory = [
-          createMockMixResult({ id: 77, seating: previousArrangement }),
-          createMockMixResult({ id: 78, seating: previousArrangement }),
-        ];
-
-        const arrangement: SeatingArrangement = [
-          [students[0]!, students[1]!],
-          [students[2]!, students[3]!],
-          [null, null],
-        ];
-
-        const stats = calculateSeatingStatistics(
-          arrangement,
-          students,
-          settings,
-          seatingHistory,
-          scene,
-          { mixHistory },
-        );
-
-        // Both pairs repeat, but a mix from the running session weighs half of
-        // a plan that was really in use (MIX_HISTORY_CONTRIBUTION): 2 × 0.5.
-        expect(stats.previousPairsTotal).toBe(1);
-        expect(stats.previousPairsAvoided).toBe(1);
-        expect(stats.previousPairsPercentage).toBe(50);
-      });
-
-      it('should calculate 0% when all pairs are repeated', () => {
-        const students: Student[] = [
-          createMockStudent({ id: 's1', name: 'Anna' }),
-          createMockStudent({ id: 's2', name: 'Ben' }),
-          createMockStudent({ id: 's3', name: 'Clara' }),
-          createMockStudent({ id: 's4', name: 'David' }),
-        ];
-
-        // Previous plan: Anna + Ben, Clara + David
-        const previousArrangement: SeatingArrangement = [
-          [students[0]!, students[1]!],
-          [students[2]!, students[3]!],
-          [null, null],
-        ];
-        seatingHistory = [
-          createMockSavedPlan({
-            name: 'Plan 1',
-            seating: previousArrangement,
-            scene,
-          }),
-        ];
-
-        // New plan: Same pairs!
-        const arrangement: SeatingArrangement = [
-          [students[0]!, students[1]!], // Anna + Ben (repeat ✗)
-          [students[2]!, students[3]!], // Clara + David (repeat ✗)
-          [null, null],
-        ];
-
-        const stats = calculateSeatingStatistics(
-          arrangement,
-          students,
-          { ...settings, avoidPreviousPairs: 5 },
-          seatingHistory,
-          scene,
-        );
-
-        expect(stats.previousPairsTotal).toBe(2);
-        expect(stats.previousPairsAvoided).toBe(0);
-        expect(stats.previousPairsPercentage).toBe(0);
-      });
-
-      it('weights older repeated pairs by default (decayed history)', () => {
-        const students: Student[] = [
-          createMockStudent({ id: 's1', name: 'Anna' }),
-          createMockStudent({ id: 's2', name: 'Ben' }),
-        ];
-
-        // Most recent mix: no pair together
-        const recentArrangement: SeatingArrangement = [
-          [students[0]!, null],
-          [students[1]!, null],
-          [null, null],
-        ];
-
-        // Older mix: pair together once (decayed weight)
-        const olderArrangement: SeatingArrangement = [
-          [students[0]!, students[1]!],
-          [null, null],
-          [null, null],
-        ];
-
-        const arrangement: SeatingArrangement = [
-          [students[0]!, students[1]!],
-          [null, null],
-          [null, null],
-        ];
-
-        mixHistory = [
-          createMockMixResult({ id: 1, seating: olderArrangement }),
-          createMockMixResult({ id: 2, seating: recentArrangement }),
-          createMockMixResult({ id: 3, seating: arrangement }), // current (excluded)
-        ];
-
-        const stats = calculateSeatingStatistics(
-          arrangement,
-          students,
-          settings,
-          seatingHistory,
-          scene,
-          { mixHistory },
-        );
-
-        // Decayed to 0.25 by age, then halved because it is a mix rather than
-        // a plan that was in use.
-        expect(stats.previousPairsTotal).toBeCloseTo(0.125, 5);
-        expect(stats.previousPairsAvoided).toBeCloseTo(0.875, 5);
-        expect(Math.round(stats.previousPairsPercentage)).toBe(88);
-      });
+    it('does not count single desks directly beside each other as apart', () => {
+      const ada = student('ada', { avoidPartnerIds: ['alan'] });
+      const { percentage } = fulfilment(
+        SINGLES_SIDE_BY_SIDE,
+        [[ada], [student('alan')], [student('x')]],
+        { avoidConflictPartners: 7 },
+      );
+      expect(percentage('avoidConflictPartners')).toBe(50);
     });
-
-    describe('Restless Students', () => {
-      it('should calculate 100% when restless students are separated', () => {
-        const students: Student[] = [
-          createMockStudent({ id: 's1', name: 'Anna', restless: true }),
-          createMockStudent({ id: 's2', name: 'Ben' }),
-          createMockStudent({ id: 's3', name: 'Clara', restless: true }),
-          createMockStudent({ id: 's4', name: 'David' }),
-        ];
-
-        const wideScene = createMockClassroomScene(0, {
-          totalStudents: 6,
-          tables: [
-            createMockTable({ x: 100, y: 100, seatCount: 2, zIndex: 0 }),
-            createMockTable({ x: 420, y: 100, seatCount: 2, zIndex: 1 }),
-            createMockTable({ x: 740, y: 100, seatCount: 2, zIndex: 2 }),
-          ],
-        });
-
-        const arrangement: SeatingArrangement = [
-          [students[0]!, students[1]!], // Anna (restless) + Ben (calm)
-          [students[2]!, students[3]!], // Clara (restless) + David (calm)
-          [null, null],
-        ];
-
-        const stats = calculateSeatingStatistics(
-          arrangement,
-          students,
-          settings,
-          seatingHistory,
-          wideScene,
-        );
-
-        expect(stats.restlessTotalCount).toBe(2);
-        expect(stats.restlessPairCount).toBe(0);
-        expect(stats.restlessAvoidedPercentage).toBe(100);
-      });
-
-      it('should calculate 0% when all restless students are paired together', () => {
-        const students: Student[] = [
-          createMockStudent({ id: 's1', name: 'Anna', restless: true }),
-          createMockStudent({ id: 's2', name: 'Ben', restless: true }),
-          createMockStudent({ id: 's3', name: 'Clara' }),
-          createMockStudent({ id: 's4', name: 'David' }),
-        ];
-
-        const arrangement: SeatingArrangement = [
-          [students[0]!, students[1]!], // Anna + Ben (both restless ✗)
-          [students[2]!, students[3]!],
-          [null, null],
-        ];
-
-        const stats = calculateSeatingStatistics(
-          arrangement,
-          students,
-          settings,
-          seatingHistory,
-          scene,
-        );
-
-        expect(stats.restlessTotalCount).toBe(2);
-        expect(stats.restlessPairCount).toBe(1);
-        expect(stats.restlessAvoidedPercentage).toBe(0);
-      });
-
-      it('should detect restless neighbors placed front-to-back across tables', () => {
-        const stackedScene = createMockClassroomScene(0, {
-          totalStudents: 2,
-          tables: [
-            createMockTable({ x: 160, y: 100, seatCount: 2, zIndex: 0 }),
-            createMockTable({ x: 160, y: 250, seatCount: 2, zIndex: 1 }),
-          ],
-        });
-
-        const students: Student[] = [
-          createMockStudent({ id: 's1', name: 'Anna', restless: true }),
-          createMockStudent({ id: 's2', name: 'Ben', restless: true }),
-        ];
-
-        const arrangement: SeatingArrangement = [
-          [students[0]!, null],
-          [students[1]!, null],
-        ];
-
-        const stats = calculateSeatingStatistics(
-          arrangement,
-          students,
-          settings,
-          seatingHistory,
-          stackedScene,
-        );
-
-        expect(stats.restlessTotalCount).toBe(2);
-        expect(stats.restlessPairCount).toBe(1);
-        expect(stats.restlessAvoidedPercentage).toBe(0);
-      });
-
-      it('should return 100% when only one restless student exists', () => {
-        const students: Student[] = [
-          createMockStudent({ id: 's1', name: 'Anna', restless: true }),
-          createMockStudent({ id: 's2', name: 'Ben' }),
-        ];
-
-        const arrangement: SeatingArrangement = [
-          [students[0]!, students[1]!],
-          [null, null],
-          [null, null],
-        ];
-
-        const stats = calculateSeatingStatistics(
-          arrangement,
-          students,
-          settings,
-          seatingHistory,
-          scene,
-        );
-
-        expect(stats.restlessTotalCount).toBe(1);
-        expect(stats.restlessPairCount).toBe(0);
-        expect(stats.restlessAvoidedPercentage).toBe(100);
-      });
-    });
-
-    describe('Concentration Issues', () => {
-      it('should calculate 100% when concentration students are separated', () => {
-        const students: Student[] = [
-          createMockStudent({
-            id: 's1',
-            name: 'Anna',
-            concentrationIssues: true,
-          }),
-          createMockStudent({ id: 's2', name: 'Ben' }),
-          createMockStudent({
-            id: 's3',
-            name: 'Clara',
-            concentrationIssues: true,
-          }),
-          createMockStudent({ id: 's4', name: 'David' }),
-        ];
-
-        const wideScene = createMockClassroomScene(0, {
-          totalStudents: 6,
-          tables: [
-            createMockTable({ x: 100, y: 100, seatCount: 2, zIndex: 0 }),
-            createMockTable({ x: 420, y: 100, seatCount: 2, zIndex: 1 }),
-            createMockTable({ x: 740, y: 100, seatCount: 2, zIndex: 2 }),
-          ],
-        });
-
-        const arrangement: SeatingArrangement = [
-          [students[0]!, students[1]!], // Anna (concentration) + Ben
-          [students[2]!, students[3]!], // Clara (concentration) + David
-          [null, null],
-        ];
-
-        const stats = calculateSeatingStatistics(
-          arrangement,
-          students,
-          settings,
-          seatingHistory,
-          wideScene,
-        );
-
-        expect(stats.concentrationTotalCount).toBe(2);
-        expect(stats.concentrationPairCount).toBe(0);
-        expect(stats.concentrationAvoidedPercentage).toBe(100);
-      });
-
-      it('should calculate 0% when concentration students are paired together', () => {
-        const students: Student[] = [
-          createMockStudent({
-            id: 's1',
-            name: 'Anna',
-            concentrationIssues: true,
-          }),
-          createMockStudent({
-            id: 's2',
-            name: 'Ben',
-            concentrationIssues: true,
-          }),
-        ];
-
-        const arrangement: SeatingArrangement = [
-          [students[0]!, students[1]!], // Both have concentration issues
-          [null, null],
-          [null, null],
-        ];
-
-        const stats = calculateSeatingStatistics(
-          arrangement,
-          students,
-          settings,
-          seatingHistory,
-          scene,
-        );
-
-        expect(stats.concentrationTotalCount).toBe(2);
-        expect(stats.concentrationPairCount).toBe(1);
-        expect(stats.concentrationAvoidedPercentage).toBe(0);
-      });
-
-      it('should detect concentration neighbors placed front-to-back across tables', () => {
-        const stackedScene = createMockClassroomScene(0, {
-          totalStudents: 2,
-          tables: [
-            createMockTable({ x: 180, y: 100, seatCount: 2, zIndex: 0 }),
-            createMockTable({ x: 180, y: 250, seatCount: 2, zIndex: 1 }),
-          ],
-        });
-
-        const students: Student[] = [
-          createMockStudent({
-            id: 's1',
-            name: 'Anna',
-            concentrationIssues: true,
-          }),
-          createMockStudent({
-            id: 's2',
-            name: 'Ben',
-            concentrationIssues: true,
-          }),
-        ];
-
-        const arrangement: SeatingArrangement = [
-          [students[0]!, null],
-          [students[1]!, null],
-        ];
-
-        const stats = calculateSeatingStatistics(
-          arrangement,
-          students,
-          settings,
-          seatingHistory,
-          stackedScene,
-        );
-
-        expect(stats.concentrationTotalCount).toBe(2);
-        expect(stats.concentrationPairCount).toBe(1);
-        expect(stats.concentrationAvoidedPercentage).toBe(0);
-      });
-
-      it('should track concentration students near restless students', () => {
-        const students: Student[] = [
-          createMockStudent({
-            id: 's1',
-            name: 'Anna',
-            concentrationIssues: true,
-          }),
-          createMockStudent({ id: 's2', name: 'Ben', restless: true }),
-          createMockStudent({ id: 's3', name: 'Clara' }),
-          createMockStudent({ id: 's4', name: 'David' }),
-        ];
-
-        const arrangement: SeatingArrangement = [
-          [students[0]!, students[1]!], // Anna (concentration) next to Ben (restless)
-          [students[2]!, students[3]!],
-          [null, null],
-        ];
-
-        const stats = calculateSeatingStatistics(
-          arrangement,
-          students,
-          settings,
-          seatingHistory,
-          scene,
-        );
-
-        expect(stats.concentrationTotalCount).toBe(1);
-        expect(stats.concentrationNearRestlessCount).toBeGreaterThan(0);
-        expect(stats.concentrationNearRestlessPercentage).toBeLessThan(100);
-      });
-    });
-
-    describe('Shy Students', () => {
-      it('should calculate 100% when no shy students are alone', () => {
-        const students: Student[] = [
-          createMockStudent({ id: 's1', name: 'Anna', shy: true }),
-          createMockStudent({ id: 's2', name: 'Ben' }),
-          createMockStudent({ id: 's3', name: 'Clara', shy: true }),
-          createMockStudent({ id: 's4', name: 'David' }),
-        ];
-
-        const arrangement: SeatingArrangement = [
-          [students[0]!, students[1]!], // Anna (shy) + partner
-          [students[2]!, students[3]!], // Clara (shy) + partner
-          [null, null],
-        ];
-
-        const stats = calculateSeatingStatistics(
-          arrangement,
-          students,
-          settings,
-          seatingHistory,
-          scene,
-        );
-
-        expect(stats.shyTotalCount).toBe(2);
-        expect(stats.shyAloneCount).toBe(0);
-        expect(stats.shyAlonePercentage).toBe(100);
-      });
-
-      it('should calculate 0% when all shy students are alone', () => {
-        const students: Student[] = [
-          createMockStudent({ id: 's1', name: 'Anna', shy: true }),
-          createMockStudent({ id: 's2', name: 'Ben' }),
-        ];
-
-        const arrangement: SeatingArrangement = [
-          [students[0]!, null], // Anna (shy) alone
-          [students[1]!, null],
-          [null, null],
-        ];
-
-        const stats = calculateSeatingStatistics(
-          arrangement,
-          students,
-          settings,
-          seatingHistory,
-          scene,
-        );
-
-        expect(stats.shyTotalCount).toBe(1);
-        expect(stats.shyAloneCount).toBe(1);
-        expect(stats.shyAlonePercentage).toBe(0);
-      });
-    });
-
-    describe('Peer Tutoring', () => {
-      it('should calculate 100% when all pairs are strong/weak combinations', () => {
-        const students: Student[] = [
-          createMockStudent({
-            id: 's1',
-            name: 'Anna',
-            performanceStrong: true,
-          }),
-          createMockStudent({ id: 's2', name: 'Ben', performanceWeak: true }),
-          createMockStudent({
-            id: 's3',
-            name: 'Clara',
-            performanceStrong: true,
-          }),
-          createMockStudent({ id: 's4', name: 'David', performanceWeak: true }),
-        ];
-
-        const arrangement: SeatingArrangement = [
-          [students[0]!, students[1]!], // Strong + Weak (tutoring ✓)
-          [students[2]!, students[3]!], // Strong + Weak (tutoring ✓)
-          [null, null],
-        ];
-
-        const stats = calculateSeatingStatistics(
-          arrangement,
-          students,
-          settings,
-          seatingHistory,
-          scene,
-        );
-
-        expect(stats.peerTutoringPairs).toBe(2);
-        expect(stats.sameLevelPairs).toBe(0);
-        expect(stats.peerTutoringPercentage).toBe(100);
-      });
-
-      it('should calculate 0% when all pairs are same level', () => {
-        const students: Student[] = [
-          createMockStudent({
-            id: 's1',
-            name: 'Anna',
-            performanceStrong: true,
-          }),
-          createMockStudent({
-            id: 's2',
-            name: 'Ben',
-            performanceStrong: true,
-          }),
-          createMockStudent({ id: 's3', name: 'Clara', performanceWeak: true }),
-          createMockStudent({ id: 's4', name: 'David', performanceWeak: true }),
-        ];
-
-        const arrangement: SeatingArrangement = [
-          [students[0]!, students[1]!], // Strong + Strong (same level ✗)
-          [students[2]!, students[3]!], // Weak + Weak (same level ✗)
-          [null, null],
-        ];
-
-        const stats = calculateSeatingStatistics(
-          arrangement,
-          students,
-          settings,
-          seatingHistory,
-          scene,
-        );
-
-        expect(stats.peerTutoringPairs).toBe(0);
-        expect(stats.sameLevelPairs).toBe(2);
-        expect(stats.peerTutoringPercentage).toBe(0);
-      });
-
-      it('should return 0% when no performance students exist', () => {
-        const students: Student[] = [
-          createMockStudent({ id: 's1', name: 'Anna' }),
-          createMockStudent({ id: 's2', name: 'Ben' }),
-        ];
-
-        const arrangement: SeatingArrangement = [
-          [students[0]!, students[1]!],
-          [null, null],
-          [null, null],
-        ];
-
-        const stats = calculateSeatingStatistics(
-          arrangement,
-          students,
-          settings,
-          seatingHistory,
-          scene,
-        );
-
-        expect(stats.peerTutoringPairs).toBe(0);
-        expect(stats.sameLevelPairs).toBe(0);
-        expect(stats.peerTutoringPercentage).toBe(0);
-      });
-    });
-
-    describe('Front Seat Need Front Placement', () => {
-      it('should calculate 100% when all sensory students are in front', () => {
-        const students: Student[] = [
-          createMockStudent({
-            id: 's1',
-            name: 'Anna',
-            needsFrontSeat: true,
-          }),
-          createMockStudent({ id: 's2', name: 'Ben' }),
-        ];
-
-        // Table at x=300 is rightmost = "front"
-        const arrangement: SeatingArrangement = [
-          [null, null], // x=100
-          [null, null], // x=200
-          [students[0]!, students[1]!], // x=300 (front)
-        ];
-
-        const stats = calculateSeatingStatistics(
-          arrangement,
-          students,
-          settings,
-          seatingHistory,
-          scene,
-        );
-
-        expect(stats.frontSeatTotalCount).toBe(1);
-        expect(stats.frontSeatInFrontCount).toBe(1);
-        expect(stats.frontSeatFrontPercentage).toBe(100);
-      });
-
-      it('should calculate 0% when sensory students are in back', () => {
-        const students: Student[] = [
-          createMockStudent({
-            id: 's1',
-            name: 'Anna',
-            needsFrontSeat: true,
-          }),
-          createMockStudent({ id: 's2', name: 'Ben' }),
-        ];
-
-        // Table at x=100 is leftmost = "back"
-        const arrangement: SeatingArrangement = [
-          [students[0]!, students[1]!], // x=100 (back)
-          [null, null],
-          [null, null],
-        ];
-
-        const stats = calculateSeatingStatistics(
-          arrangement,
-          students,
-          settings,
-          seatingHistory,
-          scene,
-        );
-
-        expect(stats.frontSeatTotalCount).toBe(1);
-        expect(stats.frontSeatInFrontCount).toBe(0);
-        expect(stats.frontSeatFrontPercentage).toBe(0);
-      });
-    });
-    describe('Gender mix', () => {
-      it('recognizes balanced gender mix on group tables without diverse students', () => {
-        scene = createMockClassroomScene(2, {
-          totalStudents: 10,
-          tables: [
-            createMockTable({
-              x: 100,
-              y: 100,
-              width: 130,
-              height: 120,
-              seatCount: 4,
-              templateType: 'group4',
-              zIndex: 0,
-            }),
-            createMockTable({
-              x: 250,
-              y: 100,
-              width: 180,
-              height: 120,
-              seatCount: 6,
-              templateType: 'group6',
-              zIndex: 1,
-            }),
-          ],
-        });
-
-        const students: Student[] = [
-          createMockStudent({ id: 's1', name: 'Anna', gender: 'girl' }),
-          createMockStudent({ id: 's2', name: 'Ben', gender: 'boy' }),
-          createMockStudent({ id: 's3', name: 'Clara', gender: 'girl' }),
-          createMockStudent({ id: 's4', name: 'David', gender: 'boy' }),
-          createMockStudent({ id: 's5', name: 'Emma', gender: 'girl' }),
-          createMockStudent({ id: 's6', name: 'Finn', gender: 'boy' }),
-          createMockStudent({ id: 's7', name: 'Greta', gender: 'girl' }),
-          createMockStudent({ id: 's8', name: 'Henry', gender: 'boy' }),
-          createMockStudent({ id: 's9', name: 'Isabell', gender: 'girl' }),
-          createMockStudent({ id: 's10', name: 'Jonas', gender: 'boy' }),
-        ];
-
-        const arrangement: SeatingArrangement = [
-          [students[0]!, students[1]!, students[2]!, students[3]!],
+  });
+
+  describe('restless and distractible students', () => {
+    it('counts restless seat partners as unmet for both', () => {
+      const { percentage } = fulfilment(
+        DESKS_IN_A_ROW,
+        [
           [
-            students[4]!,
-            students[5]!,
-            students[6]!,
-            students[7]!,
-            students[8]!,
-            students[9]!,
+            student('r1', { restless: true }),
+            student('r2', { restless: true }),
           ],
-        ];
+          [student('x'), student('y')],
+          [],
+        ],
+        { avoidRestlessTogether: 5 },
+      );
+      expect(percentage('avoidRestlessTogether')).toBe(0);
+    });
 
-        const stats = calculateSeatingStatistics(
-          arrangement,
-          students,
-          settings,
-          seatingHistory,
-          scene,
-        );
+    it('counts a restless classmate directly behind as partly unmet', () => {
+      const { percentage } = fulfilment(
+        DESK_BEHIND_DESK,
+        [
+          [student('r1', { restless: true }), student('x')],
+          [student('r2', { restless: true }), student('y')],
+        ],
+        { avoidRestlessTogether: 5 },
+      );
+      expect(percentage('avoidRestlessTogether')).toBeCloseTo(70, 5);
+    });
 
-        expect(stats.genderBalancedTables).toBe(2);
-        expect(stats.genderMixScore).toBe(100);
-      });
+    it('counts restless students across an aisle as apart', () => {
+      const { percentage } = fulfilment(
+        DESKS_IN_A_ROW,
+        [
+          [student('r1', { restless: true }), student('x')],
+          [student('r2', { restless: true }), student('y')],
+          [],
+        ],
+        { avoidRestlessTogether: 5 },
+      );
+      expect(percentage('avoidRestlessTogether')).toBe(100);
+    });
 
-      it('treats single-seat tables as neutral for gender mix statistics', () => {
-        scene = createMockClassroomScene(3, {
-          totalStudents: 3,
-          tables: [
-            createMockTable({
-              x: 100,
-              y: 100,
-              width: 55,
-              height: 70,
-              seatCount: 1,
-              templateType: 'single',
-            }),
-            createMockTable({
-              x: 200,
-              y: 100,
-              width: 55,
-              height: 70,
-              seatCount: 1,
-              templateType: 'single',
-            }),
-            createMockTable({
-              x: 300,
-              y: 100,
-              width: 55,
-              height: 70,
-              seatCount: 1,
-              templateType: 'single',
-            }),
+    it('reads both distractibility weights as one criterion', () => {
+      const distractible = student('c', { concentrationIssues: true });
+      const restless = student('r', { restless: true });
+      const { criteria } = fulfilment(
+        DESKS_IN_A_ROW,
+        [
+          [distractible, restless],
+          [student('c2', { concentrationIssues: true }), null],
+          [],
+        ],
+        { avoidConcentrationTogether: 5, avoidConcentrationNearRestless: 5 },
+      );
+      const concentration = criteria.find(
+        (criterion) => criterion.key === 'avoidConcentrationTogether',
+      );
+      // Apart from each other: 100 %; beside a restless one: 50 % of the two.
+      expect(concentration?.percentage).toBeCloseTo(75, 5);
+      expect(
+        criteria.some(
+          (criterion) => criterion.key === 'avoidConcentrationNearRestless',
+        ),
+      ).toBe(false);
+    });
+  });
+
+  describe('shy students', () => {
+    it('counts a shy student without anybody close as alone', () => {
+      const shy = student('s', { shy: true });
+      expect(
+        fulfilment(DESKS_IN_A_ROW, [[shy, null], [student('x'), null], []], {
+          avoidShyAlone: 2,
+        }).percentage('avoidShyAlone'),
+      ).toBe(0);
+    });
+
+    it('does not count a shy student at a group table as alone', () => {
+      const shy = student('s', { shy: true });
+      expect(
+        fulfilment(
+          room([table(600, 100, 'group4')]),
+          [[shy, null, student('x'), null]],
+          { avoidShyAlone: 2 },
+        ).percentage('avoidShyAlone'),
+      ).toBe(100);
+    });
+  });
+
+  describe('repetition', () => {
+    const ada = student('ada');
+    const alan = student('alan');
+    const mix = (seating: SeatingArrangement, id: number): MixResult => ({
+      id,
+      timestamp: `2026-10-0${id}T08:00:00.000Z`,
+      seating,
+      mixSettings: { ...neutralSettings },
+    });
+
+    it('does not count the plan as its own repetition', () => {
+      const plan: SeatingArrangement = [[ada, alan], [], []];
+      const { percentage } = fulfilment(
+        DESKS_IN_A_ROW,
+        plan,
+        {
+          avoidPreviousPairs: 6,
+        },
+        { mixHistory: [mix(plan, 1)] },
+      );
+      expect(percentage('avoidPreviousPairs')).toBe(100);
+    });
+
+    it('counts a pair of the mix before', () => {
+      const before: SeatingArrangement = [[ada, alan], [], []];
+      const plan: SeatingArrangement = [[alan, ada], [], []];
+      const { percentage } = fulfilment(
+        DESKS_IN_A_ROW,
+        plan,
+        {
+          avoidPreviousPairs: 6,
+        },
+        { mixHistory: [mix(before, 1), mix(plan, 2)] },
+      );
+      // The mix before was the plan on screen: as the mix weighed it.
+      expect(percentage('avoidPreviousPairs')).toBe(0);
+    });
+
+    it('exempts a wish pair while wishes count', () => {
+      const wisher = student('ada', { wishPartnerIds: ['alan'] });
+      const before: SeatingArrangement = [[wisher, alan], [], []];
+      const plan: SeatingArrangement = [[alan, wisher], [], []];
+      const { criteria } = fulfilment(
+        DESKS_IN_A_ROW,
+        plan,
+        { avoidPreviousPairs: 6, considerWishPartners: 8 },
+        { mixHistory: [mix(before, 1), mix(plan, 2)] },
+      );
+      expect(
+        criteria.some((criterion) => criterion.key === 'avoidPreviousPairs'),
+      ).toBe(false);
+    });
+  });
+
+  describe('gender', () => {
+    const boy = (id: string) => student(id, { gender: 'boy' });
+    const girl = (id: string) => student(id, { gender: 'girl' });
+    const diverse = (id: string) => student(id, { gender: 'diverse' });
+
+    it('reads a plan as balanced as the class allows as 100 %', () => {
+      // Three boys and one girl: one desk can be mixed, the other cannot.
+      const { percentage } = fulfilment(
+        DESKS_IN_A_ROW,
+        [[boy('b1'), girl('g1')], [boy('b2'), boy('b3')], []],
+        { preferGenderMix: 2 },
+      );
+      expect(percentage('preferGenderMix')).toBe(100);
+    });
+
+    it('counts two diverse students at a desk like two boys', () => {
+      const { percentage } = fulfilment(
+        DESKS_IN_A_ROW,
+        [[diverse('d1'), diverse('d2')], [boy('b1'), girl('g1')], []],
+        { preferGenderMix: 2 },
+      );
+      expect(percentage('preferGenderMix')).toBe(50);
+    });
+
+    it('lets one diverse student leave a group table balanced', () => {
+      const { percentage } = fulfilment(
+        room([table(600, 100, 'group6')]),
+        [
+          [
+            boy('b1'),
+            boy('b2'),
+            boy('b3'),
+            girl('g1'),
+            girl('g2'),
+            diverse('d'),
           ],
-        });
+        ],
+        { preferGenderMix: 2 },
+      );
+      expect(percentage('preferGenderMix')).toBe(100);
+    });
+  });
 
-        const students: Student[] = [
-          createMockStudent({ id: 's1', name: 'Anna', gender: 'girl' }),
-          createMockStudent({ id: 's2', name: 'Ben', gender: 'boy' }),
-          createMockStudent({ id: 's3', name: 'Clara', gender: 'girl' }),
-        ];
+  describe('performance', () => {
+    const strong = (id: string) => student(id, { performanceStrong: true });
+    const weak = (id: string) => student(id, { performanceWeak: true });
 
-        const arrangement: SeatingArrangement = [
-          [students[0]!],
-          [students[1]!],
-          [students[2]!],
-        ];
+    it('counts tutoring pairs against the pairs the class has in it', () => {
+      // One strong, two weak: one tutoring pair is all there can be.
+      const { percentage } = fulfilment(
+        DESKS_IN_A_ROW,
+        [[strong('s'), weak('w1')], [weak('w2'), student('n')], []],
+        { peerTutoring: 3 },
+      );
+      expect(percentage('peerTutoring')).toBe(100);
+    });
 
-        const stats = calculateSeatingStatistics(
-          arrangement,
-          students,
-          settings,
-          seatingHistory,
-          scene,
-        );
+    it('has no case at single desks, where no pair can sit', () => {
+      const { criteria } = fulfilment(
+        SINGLES_SIDE_BY_SIDE,
+        [[strong('s')], [weak('w')], [student('n')]],
+        { peerTutoring: 3 },
+      );
+      expect(criteria).toEqual([]);
+    });
+  });
 
-        expect(stats.genderBalancedTables).toBe(0);
-        expect(stats.genderTotalTables).toBe(0);
-        expect(stats.genderMixScore).toBe(100);
-      });
+  describe('language support', () => {
+    it('reads every student needing support beside a strong speaker as 100 %', () => {
+      const daz = (id: string) => student(id, { languageSkill: 'daz' });
+      const native = (id: string) => student(id, { languageSkill: 'native' });
+      const { percentage } = fulfilment(
+        DESKS_IN_A_ROW,
+        [
+          [daz('d1'), native('n1')],
+          [native('n2'), native('n3')],
+          [native('n4'), native('n5')],
+        ],
+        { preferLanguageMixing: 4 },
+      );
+      expect(percentage('preferLanguageMixing')).toBe(100);
+    });
+  });
+
+  describe('front seats', () => {
+    it('counts the front rows that hold every student needing one', () => {
+      const front = (id: string) => student(id, { needsFrontSeat: true });
+      // The front row has two seats for three students: the row behind it
+      // is as far forward as the third can sit.
+      const { percentage } = fulfilment(
+        DESK_BEHIND_DESK,
+        [
+          [front('f1'), front('f2')],
+          [front('f3'), student('x')],
+        ],
+        { preferFrontForNeedsFrontSeat: 8 },
+      );
+      expect(percentage('preferFrontForNeedsFrontSeat')).toBe(100);
+    });
+
+    it('counts a student needing a front seat at the back as unmet', () => {
+      const { percentage } = fulfilment(
+        DESK_BEHIND_DESK,
+        [
+          [student('x'), student('y')],
+          [student('f', { needsFrontSeat: true }), null],
+        ],
+        { preferFrontForNeedsFrontSeat: 8 },
+      );
+      expect(percentage('preferFrontForNeedsFrontSeat')).toBe(0);
     });
   });
 
   describe('getTopFulfilledCriteria', () => {
-    it('should return only active criteria', () => {
-      const students: Student[] = [
-        createMockStudent({ id: 's1', name: 'Anna', wishPartnerId: 's2' }),
-        createMockStudent({ id: 's2', name: 'Ben', wishPartnerId: 's1' }),
-      ];
-
-      const arrangement: SeatingArrangement = [
-        [students[0]!, students[1]!],
-        [null, null],
-        [null, null],
-      ];
-
-      const stats = calculateSeatingStatistics(
-        arrangement,
-        students,
-        { considerWishPartners: 5, avoidRestlessTogether: 0 }, // Only wish partners active
-        seatingHistory,
-        scene,
+    it('lists a criterion only while it carries weight and has a case', () => {
+      const { criteria } = fulfilment(
+        DESKS_IN_A_ROW,
+        [[student('x'), student('y')], [], []],
+        { avoidRestlessTogether: 5, considerWishPartners: 8 },
       );
-
-      const criteria = getTopFulfilledCriteria(
-        stats,
-        { considerWishPartners: 5, avoidRestlessTogether: 0 },
-        10,
-      );
-
-      expect(criteria.length).toBeGreaterThan(0);
-      expect(criteria.every((c) => c.active)).toBe(true);
-      expect(criteria.some((c) => c.key === 'avoidRestlessTogether')).toBe(
-        false,
-      );
+      expect(criteria).toEqual([]);
     });
 
-    it('should sort by weight then percentage', () => {
-      const students: Student[] = [
-        createMockStudent({ id: 's1', name: 'Anna', wishPartnerId: 's2' }),
-        createMockStudent({ id: 's2', name: 'Ben', wishPartnerId: 's1' }),
-        createMockStudent({ id: 's3', name: 'Clara', restless: true }),
-        createMockStudent({ id: 's4', name: 'David', restless: true }),
-      ];
-
-      const arrangement: SeatingArrangement = [
-        [students[0]!, students[1]!], // Wish partners fulfilled (100%)
-        [students[2]!, students[3]!], // Restless together (0%)
-        [null, null],
-      ];
-
-      const stats = calculateSeatingStatistics(
-        arrangement,
-        students,
-        {
-          considerWishPartners: 5, // Weight 5, 100%
-          avoidRestlessTogether: 10, // Weight 10, 0%
-        },
-        seatingHistory,
-        scene,
+    it('measures window seats without a count', () => {
+      const { criteria } = fulfilment(
+        DESKS_IN_A_ROW,
+        [[student('w', { prefersWindow: true }), null], [], []],
+        { preferWindowSeats: 3 },
       );
-
-      const criteria = getTopFulfilledCriteria(
-        stats,
-        {
-          considerWishPartners: 5,
-          avoidRestlessTogether: 10,
-        },
-        10,
-      );
-
-      // First criterion should be highest weight (10)
-      expect(criteria[0]!.key).toBe('avoidRestlessTogether');
-      expect(criteria[0]!.weight).toBe(10);
-    });
-
-    it('should limit results to specified count', () => {
-      const students: Student[] = [
-        createMockStudent({ id: 's1', name: 'Anna' }),
-        createMockStudent({ id: 's2', name: 'Ben' }),
-      ];
-
-      const arrangement: SeatingArrangement = [
-        [students[0]!, students[1]!],
-        [null, null],
-        [null, null],
-      ];
-
-      const stats = calculateSeatingStatistics(
-        arrangement,
-        students,
-        settings,
-        seatingHistory,
-        scene,
-      );
-
-      const criteria = getTopFulfilledCriteria(stats, settings, 3);
-
-      expect(criteria.length).toBeLessThanOrEqual(3);
-    });
-
-    it('combines concentration metrics into a single criterion', () => {
-      const stats: SeatingStatistics = {
-        totalStudents: 4,
-        totalSeats: 4,
-        wishPartnersFulfilled: 0,
-        wishPartnersTotal: 0,
-        wishPartnersPercentage: 0,
-        avoidPartnersFulfilled: 0,
-        avoidPartnersTotal: 0,
-        avoidPartnersPercentage: 100,
-        previousPairsAvoided: 0,
-        previousPairsTotal: 0,
-        previousPairsPercentage: 100,
-        restlessPairCount: 0,
-        restlessTotalCount: 2,
-        restlessAvoidedPercentage: 100,
-        concentrationPairCount: 1,
-        concentrationTotalCount: 2,
-        concentrationAvoidedPercentage: 20,
-        concentrationNearRestlessCount: 1,
-        concentrationNearRestlessPercentage: 60,
-        genderMixScore: 0,
-        genderBalancedTables: 0,
-        genderTotalTables: 0,
-        shyAloneCount: 0,
-        shyTotalCount: 0,
-        shyAlonePercentage: 100,
-        peerTutoringPairs: 0,
-        sameLevelPairs: 0,
-        peerTutoringPercentage: 0,
-        homogeneousPerformancePercentage: 0,
-        frontSeatInFrontCount: 0,
-        frontSeatTotalCount: 0,
-        frontSeatFrontPercentage: 100,
-        windowPreferenceFulfilled: 0,
-        windowPreferenceTotal: 0,
-        windowPreferencePercentage: 100,
-        doorPreferenceFulfilled: 0,
-        doorPreferenceTotal: 0,
-        doorPreferencePercentage: 100,
-        heightPlacementScore: 0,
-        smallInFrontCount: 0,
-        smallTotalCount: 0,
-        tallInBackCount: 0,
-        tallTotalCount: 0,
-        heightPlacementPercentage: 100,
-        languageMixingScore: 0,
-        languageMixedTables: 0,
-        languageTotalRelevantTables: 0,
-        languageMixingPercentage: 0,
-        socialRoleDistributionScore: 0,
-        socialRoleBalancedTables: 0,
-        socialRoleTotalRelevantTables: 0,
-        socialRoleDistributionPercentage: 0,
-      };
-
-      const criteria = getTopFulfilledCriteria(stats, {
-        avoidConcentrationTogether: 8,
-        avoidConcentrationNearRestless: 8,
-      });
-
-      expect(criteria).toHaveLength(1);
-      expect(criteria[0]!.key).toBe('avoidConcentrationTogether');
-      expect(criteria[0]!.label).toBe('Ablenkbarkeit');
-      expect(criteria[0]!.percentage).toBeCloseTo(40);
-      expect(criteria[0]!.weight).toBe(8);
-    });
-
-    it('includes window and door preferences when active', () => {
-      const sceneWithFeatures = createMockClassroomScene(2, {
-        totalStudents: 2,
-        tables: [
-          createMockTable({
-            x: 80,
-            y: 120,
-            width: 55,
-            height: 130,
-            seatCount: 2,
-            zIndex: 0,
-          }),
-          createMockTable({
-            x: 700,
-            y: 120,
-            width: 55,
-            height: 130,
-            seatCount: 2,
-            zIndex: 1,
-          }),
-        ],
-        features: [
-          {
-            id: 'window-left',
-            type: 'window',
-            x: 0,
-            y: 0,
-            width: 40,
-            height: 600,
-            anchor: 'left',
-            movable: false,
-            visible: true,
-            label: 'Fenster',
-          },
-          {
-            id: 'door-right',
-            type: 'door',
-            x: 860,
-            y: 0,
-            width: 40,
-            height: 200,
-            anchor: 'right',
-            movable: false,
-            visible: true,
-            label: 'Tür',
-          },
-        ],
-      });
-
-      const students: Student[] = [
-        createMockStudent({
-          id: 's1',
-          name: 'Fenster-Fan',
-          prefersWindow: true,
-        }),
-        createMockStudent({
-          id: 's2',
-          name: 'Tür-Fan',
-          prefersDoor: true,
-        }),
-      ];
-
-      const arrangement: SeatingArrangement = [
-        [students[0]!, null],
-        [students[1]!, null],
-      ];
-
-      const stats = calculateSeatingStatistics(
-        arrangement,
-        students,
-        { preferWindowSeats: 7, preferDoorSeats: 6 },
-        [],
-        sceneWithFeatures,
-      );
-
-      const criteria = getTopFulfilledCriteria(
-        stats,
-        { preferWindowSeats: 7, preferDoorSeats: 6 },
-        10,
-      );
-
-      const windowCriterion = criteria.find(
+      const windows = criteria.find(
         (criterion) => criterion.key === 'preferWindowSeats',
       );
-      const doorCriterion = criteria.find(
-        (criterion) => criterion.key === 'preferDoorSeats',
-      );
-
-      expect(windowCriterion).toBeDefined();
-      expect(windowCriterion!.percentage).toBeGreaterThan(80);
-      expect(doorCriterion).toBeDefined();
-      expect(doorCriterion!.percentage).toBeGreaterThan(80);
-    });
-  });
-
-  describe('Environmental preferences', () => {
-    it('tracks window and door proximity fulfillment', () => {
-      const sceneWithFeatures = createMockClassroomScene(2, {
-        totalStudents: 2,
-        tables: [
-          createMockTable({
-            x: 80,
-            y: 120,
-            width: 55,
-            height: 130,
-            seatCount: 2,
-            zIndex: 0,
-          }),
-          createMockTable({
-            x: 700,
-            y: 120,
-            width: 55,
-            height: 130,
-            seatCount: 2,
-            zIndex: 1,
-          }),
-        ],
-        features: [
-          {
-            id: 'window-left',
-            type: 'window',
-            x: 0,
-            y: 0,
-            width: 40,
-            height: 600,
-            anchor: 'left',
-            movable: false,
-            visible: true,
-            label: 'Fenster',
-          },
-          {
-            id: 'door-right',
-            type: 'door',
-            x: 860,
-            y: 0,
-            width: 40,
-            height: 200,
-            anchor: 'right',
-            movable: false,
-            visible: true,
-            label: 'Tür',
-          },
-        ],
-      });
-
-      const students: Student[] = [
-        createMockStudent({
-          id: 's1',
-          name: 'Fenster-Fan',
-          prefersWindow: true,
-        }),
-        createMockStudent({
-          id: 's2',
-          name: 'Tür-Fan',
-          prefersDoor: true,
-        }),
-      ];
-
-      const arrangement: SeatingArrangement = [
-        [students[0]!, null],
-        [students[1]!, null],
-      ];
-
-      const stats = calculateSeatingStatistics(
-        arrangement,
-        students,
-        { preferWindowSeats: 8, preferDoorSeats: 8 },
-        [],
-        sceneWithFeatures,
-      );
-
-      expect(stats.windowPreferenceTotal).toBe(1);
-      expect(stats.windowPreferenceFulfilled).toBe(1);
-      expect(stats.windowPreferencePercentage).toBeGreaterThan(80);
-      expect(stats.doorPreferenceTotal).toBe(1);
-      expect(stats.doorPreferenceFulfilled).toBe(1);
-      expect(stats.doorPreferencePercentage).toBeGreaterThan(80);
-    });
-  });
-
-  describe('Height placement statistics', () => {
-    it('calculates height placement percentage correctly', () => {
-      const scene = createMockClassroomScene(4, {
-        tables: [
-          // Back row (x=100)
-          {
-            x: 100,
-            y: 100,
-            width: 55,
-            height: 130,
-            seatCount: 2,
-            templateType: 'double',
-            rotation: 0,
-            zIndex: 0,
-            locked: false,
-          },
-          {
-            x: 100,
-            y: 250,
-            width: 55,
-            height: 130,
-            seatCount: 2,
-            templateType: 'double',
-            rotation: 0,
-            zIndex: 1,
-            locked: false,
-          },
-          // Front row (x=300)
-          {
-            x: 300,
-            y: 100,
-            width: 55,
-            height: 130,
-            seatCount: 2,
-            templateType: 'double',
-            rotation: 0,
-            zIndex: 2,
-            locked: false,
-          },
-          {
-            x: 300,
-            y: 250,
-            width: 55,
-            height: 130,
-            seatCount: 2,
-            templateType: 'double',
-            rotation: 0,
-            zIndex: 3,
-            locked: false,
-          },
-        ],
-        totalStudents: 8,
-      });
-
-      const students = [
-        createMockStudent({ id: 's1', name: 'Klein1', height: 'small' }),
-        createMockStudent({ id: 's2', name: 'Klein2', height: 'small' }),
-        createMockStudent({ id: 's3', name: 'Groß1', height: 'tall' }),
-        createMockStudent({ id: 's4', name: 'Groß2', height: 'tall' }),
-        createMockStudent({ id: 's5', name: 'Mittel1', height: 'medium' }),
-        createMockStudent({ id: 's6', name: 'Mittel2', height: 'medium' }),
-        createMockStudent({ id: 's7', name: 'Klein3', height: 'small' }),
-        createMockStudent({ id: 's8', name: 'Groß3', height: 'tall' }),
-      ];
-
-      // Optimal arrangement: small students front (x=300), tall students back (x=100)
-      const arrangement: SeatingArrangement = [
-        [students[3], students[4]], // Tall back left
-        [students[2], students[5]], // Tall back right
-        [students[0], students[6]], // Small front left (both small)
-        [students[1], students[7]], // Small + Tall front right (suboptimal)
-      ];
-
-      const stats = calculateSeatingStatistics(
-        arrangement,
-        students,
-        { preferFrontForSmallerStudents: 5 },
-        [],
-        scene,
-      );
-
-      expect(stats.smallTotalCount).toBe(3);
-      expect(stats.tallTotalCount).toBe(3);
-      expect(stats.smallInFrontCount).toBe(3); // s0, s1, s6 all in front
-      expect(stats.tallInBackCount).toBe(2); // s2, s3 in back
-      expect(stats.heightPlacementPercentage).toBeCloseTo((5 / 6) * 100, 1); // 83.33%
-      expect(stats.heightPlacementScore).toBeCloseTo((5 / 6) * 100, 1);
+      expect(windows?.percentage).toBeGreaterThan(0);
+      expect(windows?.count).toBeUndefined();
     });
 
-    it('returns 100% when no small/tall students', () => {
-      const scene = createMockClassroomScene(2, {
-        tables: [
-          {
-            x: 100,
-            y: 100,
-            width: 55,
-            height: 130,
-            seatCount: 2,
-            templateType: 'double',
-            rotation: 0,
-            zIndex: 0,
-            locked: false,
-          },
-          {
-            x: 300,
-            y: 100,
-            width: 55,
-            height: 130,
-            seatCount: 2,
-            templateType: 'double',
-            rotation: 0,
-            zIndex: 1,
-            locked: false,
-          },
-        ],
-        totalStudents: 4,
+    it('keeps the inspector order and honours a limit', () => {
+      const ada = student('ada', {
+        wishPartnerIds: ['alan'],
+        restless: true,
+        gender: 'girl',
       });
-
-      const students = [
-        createMockStudent({ id: 's1', name: 'M1', height: 'medium' }),
-        createMockStudent({ id: 's2', name: 'M2', height: 'medium' }),
-        createMockStudent({ id: 's3', name: 'M3' }), // undefined height
-        createMockStudent({ id: 's4', name: 'M4' }),
-      ];
-
-      const arrangement: SeatingArrangement = [
-        [students[0], students[1]],
-        [students[2], students[3]],
-      ];
-
+      const alan = student('alan', { restless: true, gender: 'boy' });
+      const settings = {
+        considerWishPartners: 8,
+        avoidRestlessTogether: 5,
+        preferGenderMix: 2,
+      };
+      const { criteria } = fulfilment(
+        DESKS_IN_A_ROW,
+        [[ada, alan], [], []],
+        settings,
+      );
+      expect(criteria.map((criterion) => criterion.key)).toEqual([
+        'preferGenderMix',
+        'avoidRestlessTogether',
+        'considerWishPartners',
+      ]);
       const stats = calculateSeatingStatistics(
-        arrangement,
-        students,
-        { preferFrontForSmallerStudents: 5 },
+        [[ada, alan], [], []],
+        [ada, alan],
+        { ...neutralSettings, ...settings },
         [],
-        scene,
+        DESKS_IN_A_ROW,
       );
-
-      expect(stats.smallTotalCount).toBe(0);
-      expect(stats.tallTotalCount).toBe(0);
-      expect(stats.heightPlacementPercentage).toBe(100); // Default 100%
-    });
-
-    it('includes height criterion in getCriteriaFulfillment when active', () => {
-      const scene = createMockClassroomScene(2, {
-        tables: [
-          {
-            x: 100,
-            y: 100,
-            width: 55,
-            height: 130,
-            seatCount: 2,
-            templateType: 'double',
-            rotation: 0,
-            zIndex: 0,
-            locked: false,
-          },
-          {
-            x: 300,
-            y: 100,
-            width: 55,
-            height: 130,
-            seatCount: 2,
-            templateType: 'double',
-            rotation: 0,
-            zIndex: 1,
-            locked: false,
-          },
-        ],
-        totalStudents: 4,
-      });
-
-      const students = [
-        createMockStudent({ id: 's1', height: 'small' }),
-        createMockStudent({ id: 's2', height: 'tall' }),
-        createMockStudent({ id: 's3', height: 'small' }),
-        createMockStudent({ id: 's4', height: 'tall' }),
-      ];
-
-      const arrangement: SeatingArrangement = [
-        [students[1], students[3]], // Tall in back (correct)
-        [students[0], students[2]], // Small in front (correct)
-      ];
-
-      const stats = calculateSeatingStatistics(
-        arrangement,
-        students,
-        { preferFrontForSmallerStudents: 8 },
-        [],
-        scene,
-      );
-
-      const criteria = getTopFulfilledCriteria(stats, {
-        preferFrontForSmallerStudents: 8,
-      });
-
-      expect(criteria.length).toBeGreaterThan(0);
-      const heightCriterion = criteria.find(
-        (c) => c.key === 'preferFrontForSmallerStudents',
-      );
-      expect(heightCriterion).toBeDefined();
-      expect(heightCriterion!.label).toBe('Körpergröße');
-      expect(heightCriterion!.percentage).toBe(100); // All correctly placed
-      expect(heightCriterion!.weight).toBe(8);
+      expect(
+        getTopFulfilledCriteria(stats, { ...neutralSettings, ...settings }, 1),
+      ).toHaveLength(1);
     });
   });
 });

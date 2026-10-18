@@ -314,7 +314,7 @@ describe('mixing with tables out of the mix', () => {
       plan,
       settings,
       scene,
-      { rng: createRng(12), useAnnealing: true },
+      { rng: createRng(12) },
     );
 
     for (const seating of [plan, refined]) {
@@ -371,7 +371,7 @@ describe('mixing with tables out of the mix', () => {
       plan,
       settings,
       scene,
-      { rng: createRng(3), useAnnealing: true },
+      { rng: createRng(3) },
     );
 
     for (const seating of [plan, refined]) {
@@ -406,7 +406,7 @@ describe('mixing with tables out of the mix', () => {
       { rng: createRng(1) },
     );
 
-    for (const useAnnealing of [true, false]) {
+    for (const seed of [2, 3]) {
       const refined = refineSeatingLocal(
         students,
         [],
@@ -415,7 +415,7 @@ describe('mixing with tables out of the mix', () => {
         plan,
         restlessApart,
         scene,
-        { rng: createRng(2), useAnnealing },
+        { rng: createRng(seed) },
       );
       expect(refined[8]!.map((student) => student?.id ?? null)).toEqual([
         null,
@@ -439,10 +439,9 @@ describe('mixing with tables out of the mix', () => {
       undefined,
       { rng: createRng(1) },
     );
-    const refinements = [true, false].map((useAnnealing) =>
+    const refinements = [2, 3].map((seed) =>
       refineSeatingLocal(students, [], [], locks, plan, restlessApart, scene, {
-        rng: createRng(2),
-        useAnnealing,
+        rng: createRng(seed),
       }),
     );
 
