@@ -6,8 +6,13 @@ import {
   ArrowDownIcon,
   ArrowUpIcon,
   GridFourIcon,
+  InfoIcon,
+  ListBulletsIcon,
+  MagnifyingGlassPlusIcon,
+  PaletteIcon,
   RectangleIcon,
   RowsIcon,
+  type Icon,
 } from '@phosphor-icons/react';
 import type { ClassroomFeatureType } from '@/types';
 import {
@@ -19,6 +24,7 @@ import {
 import { badgeFamilyLabelKey } from '@/components/scene/BadgeTooltip';
 import {
   FEATURE_TYPES,
+  FEATURE_TYPE_ICONS,
   FEATURE_TYPE_LABEL_KEYS,
   type FeatureVisibilityFlags,
 } from '@/utils/ui';
@@ -26,9 +32,11 @@ import {
   InspectorBody,
   InspectorChoice,
   InspectorHeader,
+  InspectorIcon,
   InspectorRow,
   InspectorSection,
 } from '@/components/shell/InspectorPanel';
+import { VIEW_SETTING_ICONS } from '@/components/SeatingPlanGenerator/canvas/viewSettingIcons';
 import ToggleSwitch from '@/components/ui/controls/ToggleSwitch';
 import {
   buildNameDisplayHint,
@@ -103,9 +111,12 @@ type Props = {
  *
  * It replaces a card-per-setting sidebar and a gear floating over the preview:
  * the sheet is the thing selected on this page, so its settings are read the
- * way a student's or a table's are — a row per setting, its value on the right.
- * Settings an arrangement has no use for are left out rather than disabled,
- * and so are room elements the room does not have.
+ * way a student's or a table's are — a row per setting, its value on the right,
+ * a switch with its icon before the name. They run from the sheet as a whole
+ * to its details: the page, the header line on it, the list's own form, the
+ * names, what the seats carry — the legend last, after what it explains — and
+ * the room elements. Settings an arrangement has no use for are left out
+ * rather than disabled, and so are room elements the room does not have.
  */
 export default function ExportSheetInspector({
   mode,
@@ -163,8 +174,18 @@ export default function ExportSheetInspector({
     (type) => featureVisibility[type] !== false,
   ).length;
 
-  const switchRow = (label: string, toggle: Toggle) => (
-    <InspectorRow label={label} labelsControl>
+  const switchRow = (
+    label: string,
+    toggle: Toggle,
+    icon?: React.ReactNode,
+    description?: React.ReactNode,
+  ) => (
+    <InspectorRow
+      label={label}
+      icon={icon}
+      description={description}
+      labelsControl
+    >
       <ToggleSwitch
         checked={toggle.checked}
         onChange={toggle.onChange}
@@ -174,27 +195,13 @@ export default function ExportSheetInspector({
     </InspectorRow>
   );
 
+  const rowIcon = (icon: Icon) => <InspectorIcon icon={icon} />;
+
   return (
     <>
       <InspectorHeader title={t('export.sheet')} subtitle={sheetSubtitle} />
       <InspectorBody>
         <InspectorSection title={t('export.pageFormat')}>
-          <div className="flex flex-col gap-1.5">
-            <label
-              htmlFor={titleId}
-              className="text-control text-(--text-page)"
-            >
-              {t('export.title')}
-            </label>
-            <input
-              id={titleId}
-              type="text"
-              value={title}
-              onChange={(event) => onTitleChange(event.target.value)}
-              placeholder={t('export.titlePlaceholder')}
-              className={`${inputFieldClass} w-full`}
-            />
-          </div>
           <InspectorRow label={t('export.orientation')}>
             <InspectorChoice
               label={t('export.orientation')}
@@ -245,12 +252,35 @@ export default function ExportSheetInspector({
               />
             </InspectorRow>
           )}
-          {isTable && switchRow(t('export.rows.frameOnTables'), frameOnTables)}
-          {isTable && frameOnTables.checked && (
-            <p className="text-xs text-(--text-muted)">
-              {t('export.frameOnTablesHint')}
-            </p>
-          )}
+          {isTable &&
+            switchRow(
+              t('export.rows.frameOnTables'),
+              frameOnTables,
+              rowIcon(MagnifyingGlassPlusIcon),
+              frameOnTables.checked ? t('export.frameOnTablesHint') : undefined,
+            )}
+        </InspectorSection>
+
+        {/* What the line on top of the sheet says: the title, and under it
+            the class's label and notes. */}
+        <InspectorSection title={t('export.headerSection')}>
+          <div className="flex flex-col gap-1.5">
+            <label
+              htmlFor={titleId}
+              className="text-control text-(--text-page)"
+            >
+              {t('export.title')}
+            </label>
+            <input
+              id={titleId}
+              type="text"
+              value={title}
+              onChange={(event) => onTitleChange(event.target.value)}
+              placeholder={t('export.titlePlaceholder')}
+              className={`${inputFieldClass} w-full`}
+            />
+          </div>
+          {switchRow(t('export.rows.classInfo'), classInfo, rowIcon(InfoIcon))}
         </InspectorSection>
 
         {listSettings && noteList && (
@@ -328,45 +358,6 @@ export default function ExportSheetInspector({
           </InspectorSection>
         )}
 
-        <InspectorSection title={t('export.content')}>
-          {switchRow(t('export.rows.needs'), needs)}
-          {needs.checked && badgeFamilies.present.length > 0 && (
-            // The families under the switch they belong to: what a printout
-            // on the classroom wall should not say is left out here.
-            <div
-              role="group"
-              aria-label={t('export.badgeFamilies')}
-              className="flex flex-col gap-2 border-l border-(--border-card) pl-3"
-            >
-              {badgeFamilies.present.map((family) => (
-                <div
-                  key={family}
-                  className={`${dataFamilyClass[family]} flex items-center gap-2`}
-                >
-                  <span
-                    aria-hidden="true"
-                    className="size-2 shrink-0 rounded-full bg-(--data-chip-accent)"
-                  />
-                  <div className="min-w-0 flex-1">
-                    {switchRow(t(badgeFamilyLabelKey(family)), {
-                      checked: !badgeFamilies.hidden.includes(family),
-                      onChange: (next) => badgeFamilies.onToggle(family, next),
-                    })}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-          {/* On the list the colours only frame the photos. */}
-          {(!isList || photos.checked) &&
-            switchRow(t('export.rows.genderColors'), genderColors)}
-          {switchRow(t('export.rows.photos'), photos)}
-          {!isList && switchRow(t('export.rows.legend'), legend)}
-          {switchRow(t('export.rows.classInfo'), classInfo)}
-          {mode === 'circle' &&
-            switchRow(t('export.rows.connections'), connections)}
-        </InspectorSection>
-
         <InspectorSection title={t('editor.nameDisplay.label')}>
           {/* Three rules, one of them a phrase: a list, as the language
               levels are in the student inspector, not chips that wrap. */}
@@ -383,6 +374,65 @@ export default function ExportSheetInspector({
           {nameHint && (
             <p className="text-xs text-(--text-muted)">{nameHint}</p>
           )}
+        </InspectorSection>
+
+        <InspectorSection title={t('export.content')}>
+          {switchRow(
+            t('export.rows.photos'),
+            photos,
+            rowIcon(VIEW_SETTING_ICONS.photos),
+          )}
+          {/* After the photos: on the list the colours only frame them. */}
+          {(!isList || photos.checked) &&
+            switchRow(
+              t('export.rows.genderColors'),
+              genderColors,
+              rowIcon(PaletteIcon),
+            )}
+          {switchRow(
+            t('export.rows.needs'),
+            needs,
+            rowIcon(VIEW_SETTING_ICONS.badges),
+          )}
+          {needs.checked && badgeFamilies.present.length > 0 && (
+            // The families under the switch they belong to, on its name's
+            // edge: what a printout on the classroom wall should not say is
+            // left out here.
+            <div
+              role="group"
+              aria-label={t('export.badgeFamilies')}
+              className="flex flex-col gap-2 pl-5.5"
+            >
+              {badgeFamilies.present.map((family) => (
+                <React.Fragment key={family}>
+                  {switchRow(
+                    t(badgeFamilyLabelKey(family)),
+                    {
+                      checked: !badgeFamilies.hidden.includes(family),
+                      onChange: (next) => badgeFamilies.onToggle(family, next),
+                    },
+                    <span
+                      aria-hidden="true"
+                      className={`${dataFamilyClass[family]} size-2 shrink-0 rounded-full bg-(--data-chip-accent)`}
+                    />,
+                  )}
+                </React.Fragment>
+              ))}
+            </div>
+          )}
+          {mode === 'circle' &&
+            switchRow(
+              t('export.rows.connections'),
+              connections,
+              rowIcon(VIEW_SETTING_ICONS.connections),
+            )}
+          {/* Last: it explains the tint and the badges above it. */}
+          {!isList &&
+            switchRow(
+              t('export.rows.legend'),
+              legend,
+              rowIcon(ListBulletsIcon),
+            )}
         </InspectorSection>
 
         {isTable && availableFeatures.length > 0 && (
@@ -412,10 +462,14 @@ export default function ExportSheetInspector({
           >
             {availableFeatures.map((type) => (
               <React.Fragment key={type}>
-                {switchRow(t(FEATURE_TYPE_LABEL_KEYS[type]), {
-                  checked: featureVisibility[type] !== false,
-                  onChange: (next) => onFeatureToggle(type, next),
-                })}
+                {switchRow(
+                  t(FEATURE_TYPE_LABEL_KEYS[type]),
+                  {
+                    checked: featureVisibility[type] !== false,
+                    onChange: (next) => onFeatureToggle(type, next),
+                  },
+                  rowIcon(FEATURE_TYPE_ICONS[type]),
+                )}
               </React.Fragment>
             ))}
           </InspectorSection>

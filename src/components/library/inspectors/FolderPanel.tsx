@@ -5,8 +5,8 @@ import type { Icon } from '@phosphor-icons/react';
 import {
   InspectorBody,
   InspectorHeader,
+  InspectorMediaTile,
 } from '@/components/shell/InspectorPanel';
-import { IconTile } from './panelParts';
 
 /**
  * A folder that is only a list — the recent mixes, the templates — or no
@@ -29,7 +29,7 @@ export default function FolderPanel({
   return (
     <>
       <InspectorHeader
-        media={media ?? <IconTile icon={icon} />}
+        media={media ?? <InspectorMediaTile icon={icon} />}
         title={title}
         subtitle={subtitle}
       />

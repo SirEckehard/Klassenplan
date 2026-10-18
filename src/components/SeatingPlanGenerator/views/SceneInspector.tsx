@@ -5,11 +5,13 @@ import { useTranslation } from 'react-i18next';
 import {
   ArrowArcLeftIcon,
   ArrowArcRightIcon,
+  ArrowLineUpIcon,
   ClipboardTextIcon,
   CopyIcon,
   CopySimpleIcon,
+  EyeIcon,
   ScissorsIcon,
-  type Icon,
+  ShuffleIcon,
 } from '@phosphor-icons/react';
 import type {
   ClassroomFeature,
@@ -20,12 +22,16 @@ import type {
 } from '@/types';
 import {
   InspectorBody,
-  InspectorFooter,
+  InspectorActionRow,
+  InspectorDeleteFooter,
   InspectorHeader,
+  InspectorIcon,
+  InspectorMediaTile,
   InspectorRow,
   InspectorSection,
 } from '@/components/shell/InspectorPanel';
 import ToggleSwitch from '@/components/ui/controls/ToggleSwitch';
+import TablePreview from '@/components/TablePreview';
 import {
   RoomListSection,
   RoomSetupSection,
@@ -39,13 +45,12 @@ import {
   hasRotationTargets,
   rotateTargets,
   rotationsChangeTargets,
-  dangerButtonClass,
   inputFieldClass,
   isTableActive,
-  menuItemClass,
   type SceneRotations,
   quietIconButtonClass,
 } from '@/utils';
+import { FEATURE_TYPE_ICONS } from '@/utils/ui';
 
 /**
  * The arrows turn as far as Q/E do on the canvas, whose shortcut their
@@ -99,36 +104,6 @@ type Props = {
   onPasteSelection: () => void;
   canPaste: boolean;
 };
-
-/** One thing to do with the selection: an icon and a word, as in a menu. */
-function ActionRow({
-  icon: RowIcon,
-  label,
-  title,
-  onClick,
-}: {
-  icon: Icon;
-  label: string;
-  /** Tooltip with the keyboard shortcut, where there is one. */
-  title?: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      title={title ?? label}
-      className={menuItemClass}
-    >
-      <RowIcon
-        size={16}
-        aria-hidden="true"
-        className="shrink-0 text-(--text-muted)"
-      />
-      {label}
-    </button>
-  );
-}
 
 /**
  * The angle as a field: it shows the rotation as it is — live while a
@@ -185,7 +160,7 @@ function RotationField({
           }
         }}
         aria-label={label}
-        className={`${inputFieldClass} h-8 w-16 py-0 pr-5 pl-2 text-right tabular-nums`}
+        className={`${inputFieldClass} h-7 w-16 py-0 pr-5 pl-2 text-right tabular-nums pointer-coarse:h-11`}
       />
       <span
         aria-hidden="true"
@@ -304,7 +279,7 @@ export default function SceneInspector({
    * by hand. A selection of both kinds shows the switch in the middle; a
    * press takes them all in.
    */
-  const mixSection = (entries: { index: number; table: ClassroomTable }[]) => {
+  const mixRow = (entries: { index: number; table: ClassroomTable }[]) => {
     if (entries.length === 0) return null;
     const activeCount = entries.filter(({ table }) =>
       isTableActive(table),
@@ -313,26 +288,29 @@ export default function SceneInspector({
     const mixed = activeCount > 0 && !allActive;
     const label = t('sceneInspector.inMix');
     return (
-      <InspectorSection title={t('sceneInspector.mixing')}>
-        <InspectorRow label={label} labelsControl>
-          <ToggleSwitch
-            checked={allActive}
-            mixed={mixed}
-            onChange={(active) =>
-              setTablesActive(
-                entries.map(({ index }) => index),
-                active,
-              )
-            }
-            label={mixed ? t('sceneInspector.inMixMixed') : label}
-          />
-        </InspectorRow>
-        {activeCount === 0 && (
-          <p className="pt-1 text-xs leading-relaxed text-(--text-muted)">
-            {t('sceneInspector.inMixOffHint', { count: entries.length })}
-          </p>
-        )}
-      </InspectorSection>
+      <InspectorRow
+        label={label}
+        icon={<InspectorIcon icon={ShuffleIcon} />}
+        description={
+          activeCount === 0
+            ? t('sceneInspector.inMixOffHint', { count: entries.length })
+            : undefined
+        }
+        labelsControl
+      >
+        <ToggleSwitch
+          checked={allActive}
+          mixed={mixed}
+          onChange={(active) =>
+            setTablesActive(
+              entries.map(({ index }) => index),
+              active,
+            )
+          }
+          label={mixed ? t('sceneInspector.inMixMixed') : label}
+          size="sm"
+        />
+      </InspectorRow>
     );
   };
 
@@ -367,7 +345,7 @@ export default function SceneInspector({
     onRotateSelection(rotations);
   };
 
-  const orientationSection = () => {
+  const rotationRow = () => {
     if (!hasRotationTargets(rotatable)) return null;
     const angles = new Set(
       [...rotatable.tables, ...rotatable.features].map(({ rotation }) =>
@@ -379,44 +357,61 @@ export default function SceneInspector({
       applyRotation((rotation) => Math.round(rotation) + delta);
 
     return (
-      <InspectorSection title={t('sceneInspector.orientation')}>
-        <InspectorRow label={t('sceneInspector.rotation')}>
-          <button
-            type="button"
-            onClick={() => turnBy(-ROTATION_STEP)}
-            className={`${quietIconButtonClass} h-8 w-8`}
-            title={`${t('sceneInspector.rotateLeft')} (Q)`}
-            aria-label={t('sceneInspector.rotateLeft')}
-          >
-            <ArrowArcLeftIcon size={16} aria-hidden="true" />
-          </button>
-          <RotationField
-            // A new selection starts without a draft.
-            key={[
-              ...rotatable.tables.map(({ index }) => index),
-              ...rotatable.features.map(({ id }) => id),
-            ].join(',')}
-            value={sharedAngle}
-            label={t('sceneInspector.rotationAngle')}
-            mixedHint={t('sceneInspector.rotationMixed')}
-            onCommit={(degrees) => applyRotation(() => degrees)}
-          />
-          <button
-            type="button"
-            onClick={() => turnBy(ROTATION_STEP)}
-            className={`${quietIconButtonClass} h-8 w-8`}
-            title={`${t('sceneInspector.rotateRight')} (E)`}
-            aria-label={t('sceneInspector.rotateRight')}
-          >
-            <ArrowArcRightIcon size={16} aria-hidden="true" />
-          </button>
-        </InspectorRow>
+      <InspectorRow label={t('sceneInspector.rotation')}>
+        <button
+          type="button"
+          onClick={() => turnBy(-ROTATION_STEP)}
+          className={`${quietIconButtonClass} h-7 w-7 pointer-coarse:h-11 pointer-coarse:w-11`}
+          title={`${t('sceneInspector.rotateLeft')} (Q)`}
+          aria-label={t('sceneInspector.rotateLeft')}
+        >
+          <ArrowArcLeftIcon size={16} aria-hidden="true" />
+        </button>
+        <RotationField
+          // A new selection starts without a draft.
+          key={[
+            ...rotatable.tables.map(({ index }) => index),
+            ...rotatable.features.map(({ id }) => id),
+          ].join(',')}
+          value={sharedAngle}
+          label={t('sceneInspector.rotationAngle')}
+          mixedHint={t('sceneInspector.rotationMixed')}
+          onCommit={(degrees) => applyRotation(() => degrees)}
+        />
+        <button
+          type="button"
+          onClick={() => turnBy(ROTATION_STEP)}
+          className={`${quietIconButtonClass} h-7 w-7 pointer-coarse:h-11 pointer-coarse:w-11`}
+          title={`${t('sceneInspector.rotateRight')} (E)`}
+          aria-label={t('sceneInspector.rotateRight')}
+        >
+          <ArrowArcRightIcon size={16} aria-hidden="true" />
+        </button>
+      </InspectorRow>
+    );
+  };
+
+  /**
+   * What the selection is — its angle first, since tables and room elements
+   * share it and it stays in its place as the selection changes, then whether
+   * the tables take part in the mix or the element is drawn. One section
+   * rather than one per row: a heading over a single row only repeated it.
+   */
+  const propertiesSection = (extra?: React.ReactNode) => {
+    const rotation = rotationRow();
+    const mix = mixRow(selectedTables);
+    if (!rotation && !mix && !extra) return null;
+    return (
+      <InspectorSection title={t('sceneInspector.title')}>
+        {rotation}
+        {mix}
+        {extra}
       </InspectorSection>
     );
   };
 
   const pasteRow = canPaste && (
-    <ActionRow
+    <InspectorActionRow
       icon={ClipboardTextIcon}
       label={t('canvas.paste')}
       title={t('sceneInspector.pasteShortcut')}
@@ -432,23 +427,21 @@ export default function SceneInspector({
   const clipboardSection = (copyable: boolean) =>
     copyable || canPaste ? (
       <InspectorSection title={t('sceneInspector.edit')}>
-        {/* The rows carry their own padding, as in a menu; the section's
-            edge stays in line with the heading. */}
-        <div className="-mx-3 flex flex-col">
+        <div className="flex flex-col">
           {copyable && (
             <>
-              <ActionRow
+              <InspectorActionRow
                 icon={CopySimpleIcon}
                 label={t('sceneInspector.duplicate')}
                 onClick={onDuplicateSelection}
               />
-              <ActionRow
+              <InspectorActionRow
                 icon={CopyIcon}
                 label={t('common.copy')}
                 title={t('sceneInspector.copyShortcut')}
                 onClick={onCopySelection}
               />
-              <ActionRow
+              <InspectorActionRow
                 icon={ScissorsIcon}
                 label={t('common.cut')}
                 title={t('sceneInspector.cutShortcut')}
@@ -463,7 +456,9 @@ export default function SceneInspector({
 
   // Nothing selected: the room itself, by its name. Seats and students are
   // the status bar's to state; what the panel adds is how a room is set up,
-  // which other rooms the class has, and how a room is kept for others.
+  // which other rooms the class has, and how a room is kept for others —
+  // first what concerns this room, then what leads to another one: a
+  // template opens as a room of its own, so it stands beside the rooms.
   if (selectionSize === 0) {
     return (
       <>
@@ -486,19 +481,20 @@ export default function SceneInspector({
             <InspectorSection title={t('sceneInspector.mixing')}>
               <InspectorRow
                 label={t('sceneInspector.fillFromFront')}
+                icon={<InspectorIcon icon={ArrowLineUpIcon} />}
+                description={t('sceneInspector.fillFromFrontHint')}
                 labelsControl
               >
                 <ToggleSwitch
                   checked={fillFromFront}
                   onChange={setFillFromFront}
                   label={t('sceneInspector.fillFromFront')}
+                  size="sm"
                 />
               </InspectorRow>
-              <p className="pt-1 text-xs leading-relaxed text-(--text-muted)">
-                {t('sceneInspector.fillFromFrontHint')}
-              </p>
             </InspectorSection>
           )}
+          {clipboardSection(false)}
           <RoomListSection />
           <RoomTemplatesSection
             templates={templates}
@@ -507,7 +503,6 @@ export default function SceneInspector({
             onRename={onRenameTemplate}
             onDelete={onDeleteTemplate}
           />
-          {clipboardSection(false)}
         </InspectorBody>
       </>
     );
@@ -518,34 +513,31 @@ export default function SceneInspector({
       (sum, entry) => sum + entry.table.seatCount,
       0,
     );
+    // "2 Tische · 1 Raumelement · 8 Plätze": what is not there is not said.
+    const summary = [
+      selectedTables.length > 0 &&
+        t('sceneInspector.tables', { count: selectedTables.length }),
+      selectedFeatures.length > 0 &&
+        t('sceneInspector.features', { count: selectedFeatures.length }),
+      selectedTables.length > 0 &&
+        t('sceneInspector.seats', { count: selectedSeats }),
+    ]
+      .filter(Boolean)
+      .join(' · ');
     return (
       <>
         <InspectorHeader
           title={t('sceneInspector.selection')}
-          subtitle={t('sceneInspector.multiSelection', {
-            tables: selectedTables.length,
-            features: selectedFeatures.length,
-          })}
+          subtitle={summary}
         />
         <InspectorBody>
-          {selectedTables.length > 0 && (
-            <p className="pb-3 text-sm tabular-nums text-(--text-muted)">
-              {t('sceneInspector.selectedSeats', { count: selectedSeats })}
-            </p>
-          )}
-          {mixSection(selectedTables)}
-          {orientationSection()}
+          {propertiesSection()}
           {clipboardSection(true)}
         </InspectorBody>
-        <InspectorFooter>
-          <button
-            type="button"
-            onClick={onDeleteSelection}
-            className={`${dangerButtonClass} h-8 px-3 text-xs`}
-          >
-            {t('sceneInspector.deleteSelection')}
-          </button>
-        </InspectorFooter>
+        <InspectorDeleteFooter
+          label={t('sceneInspector.deleteSelection')}
+          onDelete={onDeleteSelection}
+        />
       </>
     );
   }
@@ -556,6 +548,13 @@ export default function SceneInspector({
     return (
       <>
         <InspectorHeader
+          media={
+            table.templateType && (
+              <InspectorMediaTile>
+                <TablePreview type={table.templateType} iconSize={24} />
+              </InspectorMediaTile>
+            )
+          }
           title={tableTypeLabel(table)}
           subtitle={`${t('sceneInspector.tablePosition', {
             index: index + 1,
@@ -563,19 +562,13 @@ export default function SceneInspector({
           })} · ${t('sceneInspector.seats', { count: table.seatCount })}`}
         />
         <InspectorBody>
-          {mixSection(selectedTables)}
-          {orientationSection()}
+          {propertiesSection()}
           {clipboardSection(true)}
         </InspectorBody>
-        <InspectorFooter>
-          <button
-            type="button"
-            onClick={onDeleteSelection}
-            className={`${dangerButtonClass} h-8 px-3 text-xs`}
-          >
-            {t('sceneInspector.deleteTable')}
-          </button>
-        </InspectorFooter>
+        <InspectorDeleteFooter
+          label={t('sceneInspector.deleteTable')}
+          onDelete={onDeleteSelection}
+        />
       </>
     );
   }
@@ -583,35 +576,44 @@ export default function SceneInspector({
   const feature = selectedFeatures[0];
   const paletteItem = featurePalette.find((item) => item.type === feature.type);
   const featureLabel = paletteItem?.label ?? feature.type;
+  const FeatureIcon = FEATURE_TYPE_ICONS[feature.type];
   // The board is one of a kind: copying it would only produce a toast saying
   // so, so the rows are not offered.
   const copyable = paletteItem?.allowMultiple ?? true;
 
   return (
     <>
-      <InspectorHeader title={featureLabel} />
+      <InspectorHeader
+        media={
+          FeatureIcon && (
+            <InspectorMediaTile>
+              <FeatureIcon size={22} />
+            </InspectorMediaTile>
+          )
+        }
+        title={featureLabel}
+      />
       <InspectorBody>
-        {orientationSection()}
-        <InspectorSection title={t('sceneInspector.display')}>
-          <InspectorRow label={t('sceneInspector.visible')} labelsControl>
+        {propertiesSection(
+          <InspectorRow
+            label={t('sceneInspector.visible')}
+            icon={<InspectorIcon icon={EyeIcon} />}
+            labelsControl
+          >
             <ToggleSwitch
               checked={feature.visible !== false}
               onChange={(visible) => patchFeature(feature.id, { visible })}
               label={t('sceneInspector.visible')}
+              size="sm"
             />
-          </InspectorRow>
-        </InspectorSection>
+          </InspectorRow>,
+        )}
         {clipboardSection(copyable)}
       </InspectorBody>
-      <InspectorFooter>
-        <button
-          type="button"
-          onClick={onDeleteSelection}
-          className={`${dangerButtonClass} h-8 px-3 text-xs`}
-        >
-          {t('sceneInspector.deleteFeature')}
-        </button>
-      </InspectorFooter>
+      <InspectorDeleteFooter
+        label={t('sceneInspector.deleteFeature')}
+        onDelete={onDeleteSelection}
+      />
     </>
   );
 }

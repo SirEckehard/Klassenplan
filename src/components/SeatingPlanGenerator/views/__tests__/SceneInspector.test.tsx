@@ -671,11 +671,11 @@ describe('SceneInspector', () => {
   it('summarises a multi-selection instead of editing one of them', () => {
     renderInspector({ selectedTableIds: [0, 1], selectedFeatureIds: ['f1'] });
 
+    // One line under the heading, each count in its own plural.
     expect(
-      screen.getByText(/2 Tische und 1 Raummerkmale|2 tables and 1 room/i),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(/6 Plätze ausgewählt|6 seats selected/i),
+      screen.getByText(
+        /^(2 Tische · 1 Raumelement · 6 Plätze|2 tables · 1 room element · 6 seats)$/,
+      ),
     ).toBeInTheDocument();
     // What acts on the whole selection: the clipboard and removing it.
     expect(
@@ -686,6 +686,53 @@ describe('SceneInspector', () => {
         name: /Auswahl löschen|Delete selection/i,
       }),
     ).toBeInTheDocument();
+  });
+
+  it('leaves out of the summary what the selection does not hold', () => {
+    renderInspector({
+      features: [window_, lectern()],
+      selectedFeatureIds: ['f1', 'p1'],
+    });
+
+    expect(
+      screen.getByText(/^(2 Raumelemente|2 room elements)$/),
+    ).toBeInTheDocument();
+  });
+
+  // A heading over a single row only repeated it: the angle and the mix
+  // share one section, the angle first.
+  it('reads the angle and the mix of a table in one section', () => {
+    renderInspector({ selectedTableIds: [0] });
+
+    const section = screen
+      .getByRole('heading', { name: /^(Eigenschaften|Properties)$/ })
+      .closest('section') as HTMLElement;
+    const angle = within(section).getByRole('textbox', {
+      name: /Drehung|Rotation/i,
+    });
+    const mix = within(section).getByRole('switch', {
+      name: /In der Mischung|In the mix/i,
+    });
+    expect(
+      angle.compareDocumentPosition(mix) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(
+      screen.queryByRole('heading', { name: /^(Ausrichtung|Orientation)$/ }),
+    ).not.toBeInTheDocument();
+  });
+
+  // What concerns this room comes before what leads to another one.
+  it('offers the paste before the templates', () => {
+    renderInspector({ canPaste: true });
+
+    const paste = screen.getByRole('button', { name: /Einfügen|Paste/i });
+    const templates = screen.getByRole('heading', {
+      name: /^(Vorlagen|Templates)$/,
+    });
+    expect(
+      paste.compareDocumentPosition(templates) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
   });
 
   it('offers no copy of the one-of-a-kind board', () => {

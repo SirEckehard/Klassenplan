@@ -2,12 +2,12 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { TrashIcon, XIcon } from '@phosphor-icons/react';
+import { XIcon } from '@phosphor-icons/react';
 import type { Student } from '@/types';
-import { dangerButtonClass, quietIconButtonClass } from '@/utils';
+import { quietIconButtonClass } from '@/utils';
 import {
   InspectorBody,
-  InspectorFooter,
+  InspectorDeleteFooter,
   InspectorHeader,
   InspectorSection,
 } from '@/components/shell/InspectorPanel';
@@ -217,16 +217,10 @@ export default function StudentBulkInspector({
         </InspectorSection>
       </InspectorBody>
 
-      <InspectorFooter>
-        <button
-          type="button"
-          onClick={onRemove}
-          className={`${dangerButtonClass} h-8 gap-2 px-3 text-xs`}
-        >
-          <TrashIcon size={14} aria-hidden="true" />
-          {t('bulkEdit.deleteSelected')}
-        </button>
-      </InspectorFooter>
+      <InspectorDeleteFooter
+        label={t('bulkEdit.deleteSelected')}
+        onDelete={onRemove}
+      />
     </>
   );
 }

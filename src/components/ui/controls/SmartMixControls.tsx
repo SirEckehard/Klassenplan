@@ -270,6 +270,7 @@ function CriterionRow({
             muted={value <= 0}
           />
         }
+        description={criterion.description}
       >
         <ImportanceScale
           label={criterion.label}
@@ -278,10 +279,6 @@ function CriterionRow({
           onChange={onImportanceChange}
         />
       </InspectorRow>
-      {/* On the name's edge: the icon's 14px and the row's gap. */}
-      <p className="pl-5.5 text-xs text-(--text-muted)">
-        {criterion.description}
-      </p>
       {fulfillment && (
         <div className="pt-0.5 pl-4.5">
           {/* The seats are marked while the pointer or the focus rests on

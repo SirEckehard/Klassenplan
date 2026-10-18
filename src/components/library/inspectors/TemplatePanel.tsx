@@ -3,6 +3,7 @@
 import { useTranslation } from 'react-i18next';
 import {
   InspectorBody,
+  InspectorDeleteFooter,
   InspectorHeader,
   InspectorSection,
 } from '@/components/shell/InspectorPanel';
@@ -10,7 +11,7 @@ import type { ClassroomTemplate } from '@/types';
 import type { NameProblem } from '@/utils';
 import RoomThumbnail from '../RoomThumbnail';
 import NameField from './NameField';
-import { DeleteFooter, ValueRow } from './panelParts';
+import { ValueRow } from './panelParts';
 
 /**
  * A room kept for every class: its name, renamed here, its tables, and
@@ -42,7 +43,7 @@ export default function TemplatePanel({
         media={
           <RoomThumbnail
             scene={template.scene}
-            className="h-10 w-15 shrink-0"
+            className="h-11 w-16.5 shrink-0"
           />
         }
         title={template.name}
@@ -76,12 +77,16 @@ export default function TemplatePanel({
               t('sceneInspector.seats', { count: seats }),
             ].join(' · ')}
           </ValueRow>
+          {/* In the section it speaks of, not loose under the panel. */}
+          <p className="text-xs text-(--text-muted)">
+            {t('library.template.hint')}
+          </p>
         </InspectorSection>
-        <p className="text-xs leading-relaxed text-(--text-muted)">
-          {t('library.template.hint')}
-        </p>
       </InspectorBody>
-      <DeleteFooter label={t('library.template.delete')} onDelete={onDelete} />
+      <InspectorDeleteFooter
+        label={t('library.template.delete')}
+        onDelete={onDelete}
+      />
     </>
   );
 }

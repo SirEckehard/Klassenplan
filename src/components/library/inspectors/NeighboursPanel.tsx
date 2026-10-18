@@ -9,6 +9,7 @@ import {
 import {
   InspectorBody,
   InspectorHeader,
+  InspectorMediaTile,
   InspectorSection,
 } from '@/components/shell/InspectorPanel';
 import type { PlanUsageRecordsReturn } from '@/hooks/plan/usePlanUsageRecords';
@@ -21,7 +22,6 @@ import {
 } from '@/utils';
 import { isCountedUsage, type UsageOrigin } from '@/utils/data/planUsage';
 import { showToast } from '@/utils/ui/toast';
-import { IconTile } from './panelParts';
 
 /**
  * The plans a neighbourhood rests on, each named by its saved plan and room
@@ -169,7 +169,7 @@ export default function NeighboursPanel({
   return (
     <>
       <InspectorHeader
-        media={<IconTile icon={UsersThreeIcon} />}
+        media={<InspectorMediaTile icon={UsersThreeIcon} />}
         title={t('storage.neighbors.tab')}
         subtitle={className}
       />

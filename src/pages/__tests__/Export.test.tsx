@@ -195,7 +195,9 @@ describe('Export page', () => {
       screen.findByRole('complementary', { name: 'Blatt' });
 
     const needsSwitch = async () =>
-      within(await sheetPanel()).getByRole('switch', { name: 'Bedürfnisse' });
+      within(await sheetPanel()).getByRole('switch', {
+        name: /^(Merkmale|Markers)$/,
+      });
 
     // Below `lg` the settings no longer follow the sheet down the page: they
     // open from the status bar's switch as a drawer, as a layer's panel does.
@@ -443,7 +445,7 @@ describe('Export page', () => {
       await openList();
 
       expect(
-        await screen.findByRole('switch', { name: 'Bedürfnisse' }),
+        await screen.findByRole('switch', { name: /^(Merkmale|Markers)$/ }),
       ).not.toBeChecked();
       await userEvent.click(screen.getByRole('button', { name: 'Raster' }));
 

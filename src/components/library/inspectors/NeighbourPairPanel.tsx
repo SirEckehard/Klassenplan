@@ -6,13 +6,14 @@ import { UsersIcon } from '@phosphor-icons/react';
 import {
   InspectorBody,
   InspectorHeader,
+  InspectorMediaTile,
   InspectorSection,
 } from '@/components/shell/InspectorPanel';
 import type { PlanUsage } from '@/types';
 import { formatDate } from '@/utils';
 import { isCountedUsage, type UsageOrigin } from '@/utils/data/planUsage';
 import { seatPairKey } from '@/utils/pairs';
-import { IconTile, ValueRow } from './panelParts';
+import { ValueRow } from './panelParts';
 import { UsageRecordList } from './NeighboursPanel';
 
 /**
@@ -54,7 +55,7 @@ export default function NeighbourPairPanel({
   return (
     <>
       <InspectorHeader
-        media={media ?? <IconTile icon={UsersIcon} />}
+        media={media ?? <InspectorMediaTile icon={UsersIcon} />}
         title={t('storage.neighbors.pair', {
           a: studentName,
           b: neighbourName,

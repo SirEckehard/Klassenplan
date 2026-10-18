@@ -2,12 +2,17 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { CaretDownIcon, CheckIcon, MinusIcon } from '@phosphor-icons/react';
+import {
+  CaretDownIcon,
+  CheckIcon,
+  MinusIcon,
+  type Icon,
+} from '@phosphor-icons/react';
 import { useClickOutside } from '@/hooks/ui/useClickOutside';
 import { usePopoverFocus } from '@/hooks/ui/usePopoverFocus';
 import { menuItemClass, menuSurfaceClass, type DataFamily } from '@/utils';
 import { InspectorRow } from '@/components/shell/InspectorPanel';
-import { familyValueControl } from './studentStyleTokens';
+import { familyValueControl, neutralValueControl } from './studentStyleTokens';
 import FloatingDropdown from './FloatingDropdown';
 
 type InspectorSelectOption<T extends string> = {
@@ -25,12 +30,14 @@ type InspectorSelectOption<T extends string> = {
  * the left, the value on the right as a button that opens the values as a
  * menu. Four or five values stacked as a list took nine rows of a panel for
  * what most students leave unset; the row keeps the value readable while a
- * teacher steps through the class with Alt/⌥+↑/↓.
+ * teacher steps through the class with Alt/⌥+↑/↓. A plan's room in
+ * "Bibliothek" is chosen the same way, without a family's colour.
  *
- * The menu's first row is "not set", so a value can be taken back. Choosing
- * a row sets it and closes the menu. Several students who do not agree
- * (`mixedValues`) read "Gemischt" on the button and a dash beside the values
- * some of them have, as `InspectorChoice` does with its chips.
+ * The menu's first row is "not set", so a value can be taken back — where
+ * there is such a thing (`notSetLabel`). Choosing a row sets it and closes the
+ * menu. Several students who do not agree (`mixedValues`) read "Gemischt" on
+ * the button and a dash beside the values some of them have, as
+ * `InspectorChoice` does with its chips.
  */
 export default function InspectorSelect<T extends string>({
   label,
@@ -41,6 +48,8 @@ export default function InspectorSelect<T extends string>({
   onChange,
   notSetLabel,
   mixedValues,
+  action,
+  description,
 }: {
   label: string;
   /**
@@ -48,15 +57,28 @@ export default function InspectorSelect<T extends string>({
    * criterion wears, since the values each bring an icon of their own.
    */
   icon?: React.ReactNode;
-  /** The family the attribute belongs to; the button wears it while set. */
-  family: DataFamily;
+  /**
+   * The family the attribute belongs to; the button wears it while set.
+   * Without one the button stays paper — a room is no pedagogy.
+   */
+  family?: DataFamily;
   value: T | undefined;
   options: ReadonlyArray<InspectorSelectOption<T>>;
   onChange: (value: T | undefined) => void;
-  /** The button's word, and the menu's first row, while nothing is set. */
-  notSetLabel: string;
+  /**
+   * The button's word, and the menu's first row, while nothing is set.
+   * Without it there is no such row: the value cannot be taken back.
+   */
+  notSetLabel?: string;
   /** Values only some of a multi-selection have; see `InspectorChoice`. */
   mixedValues?: ReadonlySet<string>;
+  /**
+   * Something to do instead of choosing a value — "Neuer Raum …" — as the
+   * menu's last row, below a hairline.
+   */
+  action?: { label: string; icon: Icon; onSelect: () => void };
+  /** What the setting means, under its name (`InspectorRow`). */
+  description?: React.ReactNode;
 }) {
   const { t } = useTranslation('students');
   const [open, setOpen] = React.useState(false);
@@ -77,14 +99,14 @@ export default function InspectorSelect<T extends string>({
     initialFocusSelector: '[aria-pressed="true"]',
   });
 
-  const tokens = familyValueControl(family);
+  const tokens = family ? familyValueControl(family) : neutralValueControl;
   const active = options.find((option) => option.value === value);
   const isMixed = !active && (mixedValues?.size ?? 0) > 0;
   const shownLabel = active
     ? active.label
     : isMixed
       ? t('bulkEdit.valueMixed')
-      : notSetLabel;
+      : (notSetLabel ?? '');
   const stateClass = active
     ? tokens.activeStateClass
     : isMixed
@@ -102,10 +124,16 @@ export default function InspectorSelect<T extends string>({
     label: string;
     title?: string;
     icon?: React.ReactNode;
-  }> = [{ value: undefined, label: notSetLabel }, ...options];
+  }> =
+    notSetLabel === undefined
+      ? options
+      : [{ value: undefined, label: notSetLabel }, ...options];
+  // Without a "not set" row no option starts empty-handed, so none keeps the
+  // icon's room either.
+  const reserveIcon = rows.some((row) => row.icon);
 
   return (
-    <InspectorRow label={label} icon={icon}>
+    <InspectorRow label={label} icon={icon} description={description}>
       <div className="relative" ref={anchorRef}>
         <button
           type="button"
@@ -159,9 +187,10 @@ export default function InspectorSelect<T extends string>({
                     }
                   >
                     {/* "Not set" keeps the icon's room, so the words line up. */}
-                    {row.icon ?? (
-                      <span aria-hidden="true" className="w-3.5 shrink-0" />
-                    )}
+                    {row.icon ??
+                      (reserveIcon && (
+                        <span aria-hidden="true" className="w-3.5 shrink-0" />
+                      ))}
                     <span
                       className={`min-w-0 flex-1 ${row.value === undefined ? 'text-(--text-muted)' : ''}`}
                     >
@@ -188,6 +217,29 @@ export default function InspectorSelect<T extends string>({
                   </button>
                 );
               })}
+              {action && (
+                <>
+                  <div
+                    aria-hidden="true"
+                    className="mx-3 my-1 h-px bg-(--border-card)"
+                  />
+                  <button
+                    type="button"
+                    className={menuItemClass}
+                    onClick={() => {
+                      setOpen(false);
+                      action.onSelect();
+                    }}
+                  >
+                    <action.icon
+                      size={14}
+                      aria-hidden="true"
+                      className="shrink-0 text-(--text-muted)"
+                    />
+                    <span className="min-w-0 flex-1">{action.label}</span>
+                  </button>
+                </>
+              )}
             </div>
           </FloatingDropdown>
         )}

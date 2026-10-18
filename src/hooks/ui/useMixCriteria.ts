@@ -73,7 +73,9 @@ type UseMixCriteriaOptions = {
  * plans already used rather than an attribute: it has a family of its own
  * (`history`) and leads under a heading of its own.
  */
-const buildCategories = (t: TFunction<'generator'>): MixCriteriaCategory[] => [
+export const buildMixCriteriaCategories = (
+  t: TFunction<'generator'>,
+): MixCriteriaCategory[] => [
   {
     id: 'history',
     label: t('students:inspector.groups.history'),
@@ -271,7 +273,7 @@ export function useMixCriteria({
 
   const categories = React.useMemo(
     () =>
-      buildCategories(t)
+      buildMixCriteriaCategories(t)
         .map((category) => ({
           ...category,
           criteria: category.criteria.filter(

@@ -217,7 +217,7 @@ describe('PlanLibrary', () => {
       screen.getByRole('heading', { level: 2, name: 'Oktober' }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: 'Klassenraum', pressed: true }),
+      screen.getByRole('button', { name: /^(Raum|Room): Klassenraum$/ }),
     ).toBeInTheDocument();
     // The path says the same.
     expect(

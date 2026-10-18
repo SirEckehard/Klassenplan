@@ -2,8 +2,19 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { CheckIcon, MinusIcon, type Icon } from '@phosphor-icons/react';
-import { dataFamilyClass, dataHeadingClass } from '@/utils';
+import {
+  CheckIcon,
+  MinusIcon,
+  TrashIcon,
+  type Icon,
+} from '@phosphor-icons/react';
+import HintTooltip from '@/components/ui/feedback/HintTooltip';
+import {
+  dangerButtonClass,
+  dataFamilyClass,
+  dataHeadingClass,
+  menuItemClass,
+} from '@/utils';
 
 /**
  * The three parts every inspector is built from, so a student, a table and a
@@ -54,6 +65,28 @@ export function InspectorHeader({
         </div>
       )}
     </div>
+  );
+}
+
+/**
+ * What stands for the selected thing in the header where it has no photo of
+ * its own: a tile the size of a student's photo with an icon — a class, a
+ * mix, a room element — or a shape such as a table's.
+ */
+export function InspectorMediaTile({
+  icon: IconComponent,
+  children,
+}: {
+  icon?: Icon;
+  children?: React.ReactNode;
+}) {
+  return (
+    <span
+      aria-hidden="true"
+      className="flex size-11 shrink-0 items-center justify-center rounded-md bg-(--surface-sunken) text-(--text-muted)"
+    >
+      {IconComponent ? <IconComponent size={20} /> : children}
+    </span>
   );
 }
 
@@ -117,7 +150,9 @@ export function InspectorSection({
 /**
  * The symbol an attribute wears on a seat, in its family's ink, beside the
  * control that sets it — so the icon on the plan is one the teacher has
- * already seen next to its word.
+ * already seen next to its word. Without a family it is grey: a switch of the
+ * room or the sheet, which describes no pedagogy, still wears an icon, as
+ * every switch row does.
  */
 export function InspectorIcon({
   icon: IconComponent,
@@ -125,7 +160,7 @@ export function InspectorIcon({
   muted = false,
 }: {
   icon: Icon;
-  family: keyof typeof dataFamilyClass;
+  family?: keyof typeof dataFamilyClass;
   /** Grey instead of the family's ink — a criterion that is switched off. */
   muted?: boolean;
 }) {
@@ -134,7 +169,7 @@ export function InspectorIcon({
       size={14}
       aria-hidden="true"
       className={
-        muted
+        muted || !family
           ? 'shrink-0 text-(--text-muted)'
           : `${dataFamilyClass[family]} shrink-0 text-(--data-chip-text)`
       }
@@ -153,15 +188,25 @@ export function InspectorRow({
   label,
   hint,
   icon,
+  description,
   labelsControl = false,
   stacked = false,
   children,
 }: {
   label: string;
-  /** The attribute's badge icon before its name (`InspectorIcon`). */
+  /**
+   * The icon before the name: an attribute's badge icon (`InspectorIcon`),
+   * or a neutral one for a switch that is not about pedagogy.
+   */
   icon?: React.ReactNode;
   /** A word on what the setting does, where the label cannot carry it. */
   hint?: string;
+  /**
+   * What the setting does, in a sentence under its name — on the name's edge,
+   * past the icon. Outside a `labelsControl` row's label, so a tap on the
+   * sentence does not flip the switch.
+   */
+  description?: React.ReactNode;
   /**
    * The row holds a single switch, and the whole row is its label: a tap on
    * the name operates it as well. On a touch screen that makes the row the
@@ -200,10 +245,20 @@ export function InspectorRow({
       </span>
     </>
   );
-  return labelsControl ? (
+  const row = labelsControl ? (
     <label className={`${rowClass} cursor-pointer`}>{content}</label>
   ) : (
     <div className={rowClass}>{content}</div>
+  );
+  if (!description) return row;
+  return (
+    <div className="flex flex-col">
+      {row}
+      {/* On the name's edge: the icon's 14px and the row's gap. */}
+      <p className={`text-xs text-(--text-muted) ${icon ? 'pl-5.5' : ''}`}>
+        {description}
+      </p>
+    </div>
   );
 }
 
@@ -348,10 +403,82 @@ export function InspectorChoice<T extends string>({
 }
 
 /** The bottom strip: what acts on the whole selection, destructive last. */
-export function InspectorFooter({ children }: { children: React.ReactNode }) {
+function InspectorFooter({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex shrink-0 items-center justify-end gap-2 border-t border-(--border-card) px-4 py-3">
       {children}
     </div>
+  );
+}
+
+/**
+ * Something the selection can do — duplicate, copy, keep as a template — as
+ * a row of a menu: an icon and a word. Actions are not settings, so they are
+ * not `InspectorRow`s; the row carries its own padding, as in a menu, and
+ * stands out of the section by as much, so its icon lines up with the
+ * section's heading.
+ */
+export function InspectorActionRow({
+  icon: IconComponent,
+  label,
+  title,
+  onClick,
+}: {
+  icon: Icon;
+  label: string;
+  /** Tooltip — the keyboard shortcut, where there is one. */
+  title?: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={title ?? label}
+      className={`${menuItemClass} -mx-3 pointer-coarse:min-h-11`}
+    >
+      <IconComponent
+        size={16}
+        aria-hidden="true"
+        className="shrink-0 text-(--text-muted)"
+      />
+      {label}
+    </button>
+  );
+}
+
+/**
+ * The one destructive action, pinned to the inspector's foot — a student, a
+ * table, a plan alike. Where it cannot be taken, it stays in its place and
+ * says why on hover and focus.
+ */
+export function InspectorDeleteFooter({
+  label,
+  onDelete,
+  blockedHint,
+}: {
+  label: string;
+  onDelete: () => void;
+  blockedHint?: string | null;
+}) {
+  const hintId = React.useId();
+  return (
+    <InspectorFooter>
+      <div className="group relative">
+        <button
+          type="button"
+          onClick={blockedHint ? undefined : onDelete}
+          aria-disabled={blockedHint ? true : undefined}
+          aria-describedby={blockedHint ? hintId : undefined}
+          className={`${dangerButtonClass} h-8 gap-2 px-3 text-xs ${
+            blockedHint ? 'cursor-not-allowed opacity-60' : ''
+          }`}
+        >
+          <TrashIcon size={14} aria-hidden="true" />
+          {label}
+        </button>
+        {blockedHint && <HintTooltip id={hintId} hint={blockedHint} />}
+      </div>
+    </InspectorFooter>
   );
 }

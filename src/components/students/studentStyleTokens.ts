@@ -39,6 +39,20 @@ export const familyValueControl = (family: DataFamily) =>
     dropdownInactiveClass: 'text-(--text-page)',
   }) as const;
 
+/**
+ * The same value button without a family: paper with ink once a value is
+ * chosen — for a choice that describes no pedagogy, such as a plan's room.
+ */
+export const neutralValueControl = {
+  baseClass:
+    'inline-flex min-h-7 max-w-44 cursor-pointer items-center gap-1 rounded-md border px-2 py-1 text-xs transition pointer-coarse:min-h-11 pointer-coarse:px-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)',
+  activeStateClass:
+    'border-(--border-card) bg-(--surface-card) text-(--text-page) hover:border-(--border-option-hover)',
+  inactiveStateClass:
+    'border-(--border-card) bg-(--surface-card) text-(--text-muted) hover:border-(--border-option-hover)',
+  caretClass: 'shrink-0 opacity-70',
+} as const;
+
 const partnerControl = familyValueControl('social');
 
 export const partnerButtonTokens = partnerControl;

@@ -5,7 +5,8 @@
  * by hand, and the class's detection is switched off or on beside it.
  */
 import '@testing-library/jest-dom/vitest';
-import { render, screen } from '@testing-library/react';
+import type React from 'react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import '@/i18n';
@@ -72,7 +73,9 @@ const recordOf = (overrides: Partial<PlanUsage> = {}): PlanUsage => {
   };
 };
 
-const renderPanel = () =>
+const renderPanel = (
+  overrides: Partial<React.ComponentProps<typeof PlanPanel>> = {},
+) =>
   render(
     <PlanPanel
       plan={plan}
@@ -92,6 +95,7 @@ const renderPanel = () =>
       onDuplicate={vi.fn()}
       onDelete={vi.fn()}
       renameRequest={0}
+      {...overrides}
     />,
   );
 
@@ -154,6 +158,49 @@ describe('PlanPanel', () => {
     expect(detectSwitch()).toHaveAttribute('aria-checked', 'false');
     expect(
       screen.getByText(/nur Pläne, die du selbst|only the plans you mark/i),
+    ).toBeInTheDocument();
+  });
+
+  // A class may have many rooms: the plan's room is a menu, as a student's
+  // language level is, not a list that grows with every room.
+  it('moves the plan to another room from the menu', async () => {
+    const user = userEvent.setup();
+    const onMove = vi.fn().mockReturnValue(null);
+    renderPanel({
+      onMove,
+      rooms: [
+        { id: 'r1', name: 'Klassenraum', scene: plan.scene, isOpen: true },
+        { id: 'r2', name: 'Fachraum', scene: plan.scene, isOpen: false },
+      ],
+    });
+
+    await user.click(
+      screen.getByRole('button', { name: /^(Raum|Room): Klassenraum$/ }),
+    );
+    const menu = screen.getByRole('dialog', { name: /^(Raum|Room)$/ });
+    await user.click(within(menu).getByRole('button', { name: 'Fachraum' }));
+
+    expect(onMove).toHaveBeenCalledWith({ roomId: 'r2' });
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('names a new room for the plan from the end of the menu', async () => {
+    const user = userEvent.setup();
+    renderPanel();
+
+    await user.click(
+      screen.getByRole('button', { name: /^(Raum|Room): Klassenraum$/ }),
+    );
+    await user.click(
+      screen.getByRole('button', {
+        name: /In einen neuen Raum verschieben|Move to a new room/i,
+      }),
+    );
+
+    expect(
+      screen.getByRole('textbox', {
+        name: /Name des neuen Raums|Name of the new room/i,
+      }),
     ).toBeInTheDocument();
   });
 });

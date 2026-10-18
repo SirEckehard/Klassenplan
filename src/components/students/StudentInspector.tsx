@@ -2,18 +2,13 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  CaretLeftIcon,
-  CaretRightIcon,
-  TrashIcon,
-  XIcon,
-} from '@phosphor-icons/react';
+import { CaretLeftIcon, CaretRightIcon, XIcon } from '@phosphor-icons/react';
 import type { Student } from '@/types';
 import { useStudentRowState } from '@/hooks/ui/useStudentRowState';
-import { quietIconButtonClass, dangerButtonClass } from '@/utils';
+import { quietIconButtonClass } from '@/utils';
 import {
   InspectorBody,
-  InspectorFooter,
+  InspectorDeleteFooter,
   InspectorHeader,
   InspectorSection,
 } from '@/components/shell/InspectorPanel';
@@ -239,16 +234,10 @@ export default function StudentInspector({
       {/* Removing a student left the list with its rows; this is where it
           landed, next to everything else that acts on this one student. */}
       {onRemove && (
-        <InspectorFooter>
-          <button
-            type="button"
-            onClick={onRemove}
-            className={`${dangerButtonClass} h-8 gap-2 px-3 text-xs`}
-          >
-            <TrashIcon size={14} aria-hidden="true" />
-            {t('studentList.delete')}
-          </button>
-        </InspectorFooter>
+        <InspectorDeleteFooter
+          label={t('studentList.delete')}
+          onDelete={onRemove}
+        />
       )}
     </>
   );

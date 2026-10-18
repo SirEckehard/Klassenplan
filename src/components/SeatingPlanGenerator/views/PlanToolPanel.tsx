@@ -3,15 +3,10 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  ArmchairIcon,
   CircleDashedIcon,
   FloppyDiskIcon,
   GridNineIcon,
-  ImageIcon,
-  LinkSimpleIcon,
   SlidersHorizontalIcon,
-  TextAaIcon,
-  UserSquareIcon,
 } from '@phosphor-icons/react';
 import {
   ToolRail,
@@ -23,6 +18,7 @@ import {
   CanvasSettingsGroups,
   type CanvasSettingsGroup,
 } from '@/components/SeatingPlanGenerator/canvas/CanvasSettingsButton';
+import { VIEW_SETTING_ICONS } from '@/components/SeatingPlanGenerator/canvas/viewSettingIcons';
 import PlanSavePanel from '@/components/SeatingPlanGenerator/views/PlanSavePanel';
 import { menuSurfaceClass } from '@/utils';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
@@ -40,16 +36,23 @@ type Props = {
 };
 
 /** One icon per settings group, so the rail stays readable without labels. */
+const {
+  photos: PhotosIcon,
+  names: NamesIcon,
+  badges: BadgesIcon,
+  features: FeaturesIcon,
+  connections: ConnectionsIcon,
+} = VIEW_SETTING_ICONS;
 const GROUP_ICONS: Record<string, React.ReactNode> = {
   'editor-canvas': <GridNineIcon size={18} />,
-  'editor-photos': <ImageIcon size={18} />,
-  'editor-names': <TextAaIcon size={18} />,
-  'editor-badges': <UserSquareIcon size={18} />,
-  'editor-features': <ArmchairIcon size={18} />,
-  'circle-connections': <LinkSimpleIcon size={18} />,
-  'circle-photos': <ImageIcon size={18} />,
-  'circle-names': <TextAaIcon size={18} />,
-  'circle-badges': <UserSquareIcon size={18} />,
+  'editor-photos': <PhotosIcon size={18} />,
+  'editor-names': <NamesIcon size={18} />,
+  'editor-badges': <BadgesIcon size={18} />,
+  'editor-features': <FeaturesIcon size={18} />,
+  'circle-connections': <ConnectionsIcon size={18} />,
+  'circle-photos': <PhotosIcon size={18} />,
+  'circle-names': <NamesIcon size={18} />,
+  'circle-badges': <BadgesIcon size={18} />,
 };
 
 /**

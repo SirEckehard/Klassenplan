@@ -2,7 +2,13 @@
 // Copyright (C) 2026 Eike Schäfer
 import '@testing-library/jest-dom/vitest';
 import React from 'react';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  within,
+} from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import '@/i18n';
 import ExportSheetInspector from '../ExportSheetInspector';
@@ -277,5 +283,62 @@ describe('ExportSheetInspector note list', () => {
     renderInspector({ mode: 'list', noteList: noteList(), pageCount: 3 });
 
     expect(screen.getByText(/3 (Seiten|pages)/)).toBeInTheDocument();
+  });
+});
+
+describe('ExportSheetInspector order', () => {
+  const headings = () =>
+    screen.getAllByRole('heading', { level: 3 }).map((h) => h.textContent);
+
+  // From the sheet as a whole to its details.
+  it('runs from the page to the room elements', () => {
+    renderInspector({
+      featureAvailability: { board: true },
+      featureVisibility: { board: true },
+    });
+
+    expect(headings()).toEqual([
+      expect.stringMatching(/^(Seitenformat|Page Format)$/),
+      expect.stringMatching(/^(Kopfzeile|Header)$/),
+      expect.stringMatching(/^(Namen|Names)$/),
+      expect.stringMatching(/^(Auf dem Blatt|On the sheet)$/),
+      expect.stringMatching(/^(Raumelemente|Room Elements)$/),
+    ]);
+  });
+
+  it('puts the title and the class info in the header section', () => {
+    renderInspector();
+
+    const section = screen
+      .getByRole('heading', { name: /^(Kopfzeile|Header)$/ })
+      .closest('section') as HTMLElement;
+    expect(
+      within(section).getByRole('textbox', { name: /^(Titel|Title)$/ }),
+    ).toBeInTheDocument();
+    expect(
+      within(section).getByRole('switch', {
+        name: /^(Klasseninfos|Class info)$/,
+      }),
+    ).toBeInTheDocument();
+  });
+
+  // The colours follow the photos they frame on the list, and the legend
+  // follows what it explains.
+  it('lists photos, colours, markers and the legend in that order', () => {
+    renderInspector();
+
+    const names = screen
+      .getAllByRole('switch')
+      .map((element) => element.getAttribute('aria-label') ?? '');
+    const position = (pattern: RegExp) =>
+      names.findIndex((name) => pattern.test(name));
+    const photos = position(/^(Fotos|Photos)$/);
+    const colours = position(/^(Geschlechterfarben|Gender colors)$/);
+    const markers = position(/^(Merkmale|Markers)$/);
+    const legend = position(/^(Legende|Legend)$/);
+    expect(photos).toBeGreaterThanOrEqual(0);
+    expect(photos).toBeLessThan(colours);
+    expect(colours).toBeLessThan(markers);
+    expect(markers).toBeLessThan(legend);
   });
 });

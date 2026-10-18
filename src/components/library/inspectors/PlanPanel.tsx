@@ -2,11 +2,18 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { CopyIcon, FolderPlusIcon } from '@phosphor-icons/react';
 import {
+  CheckCircleIcon,
+  CopyIcon,
+  FolderPlusIcon,
+  MagicWandIcon,
+} from '@phosphor-icons/react';
+import {
+  InspectorActionRow,
   InspectorBody,
-  InspectorChoice,
+  InspectorDeleteFooter,
   InspectorHeader,
+  InspectorIcon,
   InspectorRow,
   InspectorSection,
 } from '@/components/shell/InspectorPanel';
@@ -28,19 +35,22 @@ import {
   storedPlanDateToTimestamp,
 } from '@/utils/data/planUsage';
 import ToggleSwitch from '@/components/ui/controls/ToggleSwitch';
+import InspectorSelect from '@/components/students/InspectorSelect';
 import { hasShapeMismatch } from '@/utils/math/scene';
 import RoomThumbnail from '../RoomThumbnail';
 import NameField from './NameField';
-import { ActionRow, DeleteFooter, ValueRow } from './panelParts';
+import { ValueRow } from './panelParts';
 
 export type PlanMove = { roomId: string } | { newRoomName: string };
 
 /**
  * A saved plan in "Bibliothek": its name, renamed here; the room it
- * belongs to, which it can leave for another or a new one (decision 0024);
- * what it holds; whether it was really in use — marked here by hand, and
- * whether the class detects that on its own (decision 0025); a copy beside
- * it; and removing it.
+ * belongs to, which it can leave for another or a new one (decision 0024) —
+ * a menu, as a student's language level is, since a class may have many
+ * rooms; what it holds; whether it was really in use — marked here by hand,
+ * and whether the class detects that on its own (decision 0025); a copy
+ * beside it; and removing it. What the plan is and where it belongs share
+ * one section: a heading over the room's single row only repeated it.
  */
 export default function PlanPanel({
   plan,
@@ -118,7 +128,7 @@ export default function PlanPanel({
     <>
       <InspectorHeader
         media={
-          <RoomThumbnail scene={plan.scene} className="h-10 w-15 shrink-0" />
+          <RoomThumbnail scene={plan.scene} className="h-11 w-16.5 shrink-0" />
         }
         title={plan.name}
         subtitle={[
@@ -138,43 +148,42 @@ export default function PlanPanel({
             takenMessage={t('planSave.nameTaken')}
             focusRequest={renameRequest}
           />
-        </InspectorSection>
-
-        <InspectorSection title={t('library.plan.room')}>
-          <InspectorRow label={t('library.plan.room')} stacked>
-            <InspectorChoice
-              layout="list"
-              label={t('library.plan.room')}
-              value={plan.roomId}
-              options={rooms.map((room) => ({
-                value: room.id,
-                label: room.name,
-              }))}
-              onChange={(roomId) => {
-                if (roomId && roomId !== plan.roomId) {
-                  void onMove({ roomId });
-                }
-              }}
-            />
-          </InspectorRow>
-          {otherTables && room && !namingRoom && (
-            <p className="text-xs leading-relaxed text-(--text-muted)">
-              {t('library.plan.otherTables', { room: room.name })}
-            </p>
-          )}
-          {namingRoom ? (
+          <InspectorSelect
+            label={t('library.plan.room')}
+            value={plan.roomId}
+            options={rooms.map((entry) => ({
+              value: entry.id,
+              label: entry.name,
+            }))}
+            onChange={(roomId) => {
+              if (roomId && roomId !== plan.roomId) {
+                void onMove({ roomId });
+              }
+            }}
+            action={{
+              label: t('library.plan.toNewRoom'),
+              icon: FolderPlusIcon,
+              onSelect: () => setNamingRoom(true),
+            }}
+            description={
+              otherTables && room && !namingRoom
+                ? t('library.plan.otherTables', { room: room.name })
+                : undefined
+            }
+          />
+          {namingRoom && (
             <NameField
               key="new-room"
               label={t('library.plan.newRoomName')}
               value={uniqueName(
                 t('rooms.newName'),
-                rooms.map((room) => room.name),
+                rooms.map((entry) => entry.name),
                 MAX_NAME_LENGTH,
               )}
               problemFor={(draft) =>
                 checkName(
                   draft,
-                  rooms.map((room) => room.name),
+                  rooms.map((entry) => entry.name),
                   MAX_NAME_LENGTH,
                 )
               }
@@ -186,16 +195,7 @@ export default function PlanPanel({
               takenMessage={t('sceneInspector.roomNameTaken')}
               focusRequest={1}
             />
-          ) : (
-            <ActionRow
-              icon={FolderPlusIcon}
-              label={t('library.plan.toNewRoom')}
-              onClick={() => setNamingRoom(true)}
-            />
           )}
-        </InspectorSection>
-
-        <InspectorSection title={t('library.contents')}>
           <ValueRow label={t('library.plan.seated')}>
             {t('library.plan.seatedValue', {
               seated,
@@ -218,6 +218,14 @@ export default function PlanPanel({
           <InspectorRow
             label={t('library.plan.used')}
             hint={t('library.plan.usedHint')}
+            icon={<InspectorIcon icon={CheckCircleIcon} />}
+            description={
+              usageSources.length > 0 && usage
+                ? `${usageSources
+                    .map((source) => t(`storage.neighbors.sources.${source}`))
+                    .join(', ')} · ${formatLongDate(usage.lastSeenAt)}`
+                : undefined
+            }
             labelsControl
           >
             <ToggleSwitch
@@ -228,14 +236,16 @@ export default function PlanPanel({
               size="sm"
             />
           </InspectorRow>
-          {usageSources.length > 0 && usage && (
-            <p className="text-xs leading-relaxed text-(--text-muted)">
-              {`${usageSources
-                .map((source) => t(`storage.neighbors.sources.${source}`))
-                .join(', ')} · ${formatLongDate(usage.lastSeenAt)}`}
-            </p>
-          )}
-          <InspectorRow label={t('library.plan.detect')} labelsControl>
+          <InspectorRow
+            label={t('library.plan.detect')}
+            icon={<InspectorIcon icon={MagicWandIcon} />}
+            description={
+              planUsageManual
+                ? t('library.plan.detectOff')
+                : t('library.plan.detectOn')
+            }
+            labelsControl
+          >
             <ToggleSwitch
               checked={!planUsageManual}
               onChange={(detect) => setUsageManual(!detect)}
@@ -243,22 +253,20 @@ export default function PlanPanel({
               size="sm"
             />
           </InspectorRow>
-          <p className="text-xs leading-relaxed text-(--text-muted)">
-            {planUsageManual
-              ? t('library.plan.detectOff')
-              : t('library.plan.detectOn')}
-          </p>
         </InspectorSection>
 
-        <InspectorSection title={t('library.actions')}>
-          <ActionRow
+        <InspectorSection title={t('sceneInspector.edit')}>
+          <InspectorActionRow
             icon={CopyIcon}
             label={t('sceneInspector.duplicate')}
             onClick={onDuplicate}
           />
         </InspectorSection>
       </InspectorBody>
-      <DeleteFooter label={t('library.plan.delete')} onDelete={onDelete} />
+      <InspectorDeleteFooter
+        label={t('library.plan.delete')}
+        onDelete={onDelete}
+      />
     </>
   );
 }

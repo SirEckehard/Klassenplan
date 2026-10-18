@@ -3,7 +3,9 @@
 import { useTranslation } from 'react-i18next';
 import { FloppyDiskIcon } from '@phosphor-icons/react';
 import {
+  InspectorActionRow,
   InspectorBody,
+  InspectorDeleteFooter,
   InspectorHeader,
   InspectorSection,
 } from '@/components/shell/InspectorPanel';
@@ -11,7 +13,7 @@ import type { LibraryRoom } from '@/hooks/library/useClassLibrary';
 import { checkName, MAX_NAME_LENGTH, type NameProblem } from '@/utils';
 import RoomThumbnail from '../RoomThumbnail';
 import NameField from './NameField';
-import { ActionRow, DeleteFooter, ValueRow } from './panelParts';
+import { ValueRow } from './panelParts';
 
 /**
  * A room of a class (decision 0024): its name, renamed here; its tables and
@@ -51,7 +53,7 @@ export default function RoomPanel({
     <>
       <InspectorHeader
         media={
-          <RoomThumbnail scene={room.scene} className="h-10 w-15 shrink-0" />
+          <RoomThumbnail scene={room.scene} className="h-11 w-16.5 shrink-0" />
         }
         title={room.name}
         subtitle={t('library.plans', { count: planCount })}
@@ -77,14 +79,14 @@ export default function RoomPanel({
           <ValueRow label={t('library.room.elements')}>{elements}</ValueRow>
         </InspectorSection>
         <InspectorSection title={t('sceneInspector.templates')}>
-          <ActionRow
+          <InspectorActionRow
             icon={FloppyDiskIcon}
             label={t('library.room.saveAsTemplate')}
             onClick={onSaveAsTemplate}
           />
         </InspectorSection>
       </InspectorBody>
-      <DeleteFooter
+      <InspectorDeleteFooter
         label={t('library.room.delete')}
         onDelete={onDelete}
         blockedHint={deleteBlockedHint}
