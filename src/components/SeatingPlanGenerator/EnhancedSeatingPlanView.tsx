@@ -28,7 +28,6 @@ import {
   canvasFrameClass,
   canvasStageClass,
   canvasFitClass,
-  hasSeatedStudent,
   primaryButtonClass,
   secondaryButtonClass,
 } from '@/utils';
@@ -273,7 +272,6 @@ export default function EnhancedSeatingPlanView(
                 onModeChange={handleModeChange}
                 showModeToggle={showModeToggle}
                 settingsGroups={circleSettingsGroups}
-                canSavePlan={hasSeatedStudent(props.currentSeating)}
               />
             )}
           </SmartSidebar>

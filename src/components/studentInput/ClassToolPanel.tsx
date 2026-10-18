@@ -70,9 +70,10 @@ const menuClass = `${menuSurfaceClass} p-1`;
 const menuIconClass = 'h-4 w-4 shrink-0 text-(--text-muted)';
 
 /**
- * The class layer's toolbar: how to look at the students, and who is in the
- * class — added one by one or as placeholders, the class list as a file, and
- * the class on paper with room to write (the export page's note list).
+ * The class layer's toolbar: how to look at the students, who joins the class
+ * — added one by one or as placeholders — and, under "Verwalten", the class
+ * list as a file and the class on paper with room to write (the export page's
+ * note list).
  * The backup and the class tools are in the foot every rail shares
  * (`ToolRail`).
  *
@@ -137,9 +138,9 @@ export default function ClassToolPanel({
         />
       </ToolRailGroup>
 
-      {/* Who is in the class: one at a time, as placeholders, or as a file —
-          and the class list goes in and out side by side. */}
-      <ToolRailGroup title={t('generator:toolRail.manage')}>
+      {/* Who joins the class, one at a time or as placeholders — as the
+          room adds its tables and "Bibliothek" its classes. */}
+      <ToolRailGroup title={t('generator:toolRail.add')}>
         <ToolRailButton
           icon={<UserPlusIcon size={18} />}
           label={t('students:studentList.addStudent')}
@@ -238,7 +239,10 @@ export default function ClassToolPanel({
             </div>
           )}
         />
+      </ToolRailGroup>
 
+      {/* The class list as a file, in and out side by side, and on paper. */}
+      <ToolRailGroup title={t('generator:toolRail.manage')}>
         <ToolRailButton
           icon={<FileArrowUpIcon size={18} />}
           label={t('students:csv.import')}

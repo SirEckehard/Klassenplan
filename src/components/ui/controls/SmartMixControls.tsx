@@ -305,9 +305,8 @@ function CriterionRow({
  * The mixing criteria as the inspector shows them — on a phone and a tablet in
  * its drawer: every criterion as a row with its scale under the family it acts
  * on, headed as in the student inspector, and, once the plan has been mixed,
- * how far it got. The switch for all criteria and their count live apart, in
- * the inspector's heading (`MixCriteriaSwitch`, `MixCriteriaCount`), and the
- * recipe right under it (`MixRecipeSection`), above the plan's fulfilment.
+ * how far it got. The switch for all criteria and their count live apart, with
+ * the recipe (`MixRecipeSection`), above the plan's fulfilment.
  */
 function SmartMixControls({
   settings,
@@ -371,11 +370,13 @@ function SmartMixControls({
 }
 
 /**
- * What the plan is being mixed for — the recipe, under a heading of its own,
- * right below the inspector's heading and the count of active criteria, since
- * it sets all of them at once — and the one thing the switch for all criteria
- * cannot say by itself: that nothing is weighed. It reads the weights itself,
- * as `MixCriteriaSwitch` does.
+ * What the plan is being mixed for — the recipe, the first section of the
+ * mixing under the plan's own, since it sets every criterion below at once.
+ * Beside its heading the one control that acts on all of them, "Alle
+ * Kriterien" as a switch — the way back to the recommended weights is the
+ * recipe of that name — and under the recipe how many of the criteria this
+ * class has data for carry weight, and, when none does, that nothing is
+ * weighed.
  */
 export function MixRecipeSection({
   settings,
@@ -394,10 +395,28 @@ export function MixRecipeSection({
     suspendedWeights,
   });
   const recipes = useMixRecipes({ settings, setMixSettings, students });
+  const criteria = mix.categories.flatMap((category) => category.criteria);
+  const active = criteria.filter(
+    (criterion) => mix.weightOf(criterion.key) > 0,
+  ).length;
 
   return (
-    <InspectorSection title={t('mix.recipes.title')}>
+    <InspectorSection
+      title={t('mix.recipes.title')}
+      actions={
+        <ToggleSwitch
+          checked={!mix.isRandom}
+          onChange={(on) => (on ? mix.enableAll() : mix.disableAll())}
+          label={t('mix.toggleAll')}
+          title={mix.isRandom ? t('mix.enableAll') : t('mix.disableAll')}
+          size="sm"
+        />
+      }
+    >
       <MixRecipePanel activeId={recipes.activeId} onSelect={recipes.apply} />
+      <p className="text-xs tabular-nums text-(--text-muted)">
+        {t('mix.recipes.activeCount', { active, total: criteria.length })}
+      </p>
       {mix.isRandom && (
         <div
           role="status"
@@ -412,71 +431,6 @@ export function MixRecipeSection({
         </div>
       )}
     </InspectorSection>
-  );
-}
-
-/**
- * How many of the criteria this class has data for carry weight — under the
- * inspector's heading, as the student inspector states the position in the
- * list there. It reads the weights itself, as `MixCriteriaSwitch` does.
- */
-export function MixCriteriaCount({
-  settings,
-  setMixSettings,
-  students,
-  suspendedWeights,
-}: Pick<
-  SmartMixControlsProps,
-  'settings' | 'setMixSettings' | 'students' | 'suspendedWeights'
->) {
-  const { t } = useTranslation('generator');
-  const mix = useMixCriteria({
-    settings,
-    setMixSettings,
-    students,
-    suspendedWeights,
-  });
-  const criteria = mix.categories.flatMap((category) => category.criteria);
-  const active = criteria.filter(
-    (criterion) => mix.weightOf(criterion.key) > 0,
-  ).length;
-
-  return (
-    <>{t('mix.recipes.activeCount', { active, total: criteria.length })}</>
-  );
-}
-
-/**
- * "Alle Kriterien" as a switch beside the inspector's heading: the one control
- * that acts on every criterion sits above all of them, where the heading names
- * what it switches. It reads the weights itself, so the header strip and the
- * panel under it stay two separate pieces of the inspector. The way back to
- * the recommended weights is the recipe of that name.
- */
-export function MixCriteriaSwitch({
-  settings,
-  setMixSettings,
-  students,
-  suspendedWeights,
-}: Pick<
-  SmartMixControlsProps,
-  'settings' | 'setMixSettings' | 'students' | 'suspendedWeights'
->) {
-  const { t } = useTranslation('generator');
-  const mix = useMixCriteria({
-    settings,
-    setMixSettings,
-    students,
-    suspendedWeights,
-  });
-
-  return (
-    <ToggleSwitch
-      checked={!mix.isRandom}
-      onChange={(on) => (on ? mix.enableAll() : mix.disableAll())}
-      label={t('mix.toggleAll')}
-      title={mix.isRandom ? t('mix.enableAll') : t('mix.disableAll')}
-    />
   );
 }
 

@@ -4,7 +4,6 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   CircleDashedIcon,
-  FloppyDiskIcon,
   GridNineIcon,
   SlidersHorizontalIcon,
 } from '@phosphor-icons/react';
@@ -19,7 +18,6 @@ import {
   type CanvasSettingsGroup,
 } from '@/components/SeatingPlanGenerator/canvas/CanvasSettingsButton';
 import { VIEW_SETTING_ICONS } from '@/components/SeatingPlanGenerator/canvas/viewSettingIcons';
-import PlanSavePanel from '@/components/SeatingPlanGenerator/views/PlanSavePanel';
 import { menuSurfaceClass } from '@/utils';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 
@@ -31,8 +29,6 @@ type Props = {
   showModeToggle?: boolean;
   /** What the canvas shows: names, photos, room elements, the grid. */
   settingsGroups: CanvasSettingsGroup[];
-  /** False while there is no plan on screen to save. */
-  canSavePlan: boolean;
 };
 
 /** One icon per settings group, so the rail stays readable without labels. */
@@ -56,17 +52,14 @@ const GROUP_ICONS: Record<string, React.ReactNode> = {
 };
 
 /**
- * The plan layer's toolbar: which view of the plan is on the stage, what it
- * shows, and what to do with the finished plan.
+ * The plan layer's toolbar: which view of the plan is on the stage and what
+ * it shows — the same two groups as the room's.
  *
- * The criteria are not here — they answer "why does the plan look like this",
- * which is a property of the plan and so belongs in the inspector. The class
- * tools and the plans' history are not here either: every layer needs them,
- * so they sit in the foot every rail shares (`ToolRail`).
- *
- * Saving asks for the plan's name, so it opens a panel (`PlanSavePanel`) —
- * the name is set, changed and saved in one place. Ctrl/⌘+S still saves
- * straight away under the name the plan has.
+ * The plan itself is the inspector's, as the room is: its name, saving it
+ * and opening another (`PlanSection`), then the criteria, which answer "why
+ * does the plan look like this". The class tools and "Bibliothek" are not
+ * here either: every layer needs them, so they sit in the foot every rail
+ * shares (`ToolRail`). Ctrl/⌘+S saves straight away under the plan's name.
  */
 export default function PlanToolPanel({
   density,
@@ -74,7 +67,6 @@ export default function PlanToolPanel({
   onModeChange,
   showModeToggle = false,
   settingsGroups,
-  canSavePlan,
 }: Props) {
   const { t } = useTranslation('generator');
 
@@ -119,16 +111,6 @@ export default function PlanToolPanel({
             )}
           />
         ))}
-      </ToolRailGroup>
-
-      <ToolRailGroup title={t('toolRail.manage')}>
-        <ToolRailButton
-          icon={<FloppyDiskIcon size={18} />}
-          label={t('actions.savePlan')}
-          title={t('actions.saveShortcut')}
-          disabled={!canSavePlan}
-          panel={(close) => <PlanSavePanel onDone={close} />}
-        />
       </ToolRailGroup>
     </ToolRail>
   );

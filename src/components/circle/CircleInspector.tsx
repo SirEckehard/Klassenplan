@@ -20,21 +20,25 @@ import { useNameLabels } from '@/hooks/student/useNameLabels';
 import InspectorPortal from '@/components/shell/InspectorPortal';
 import {
   InspectorBody,
-  InspectorHeader,
   InspectorSection,
 } from '@/components/shell/InspectorPanel';
+import {
+  PlanInspectorHeader,
+  PlanSection,
+} from '@/components/SeatingPlanGenerator/views/PlanInspectorParts';
 
 /** More than three names stop being a line and start being a list. */
 const MAX_ITEMS = 3;
 
 /**
- * What the circle came to, in the panel the table plan fills with its
- * criteria.
+ * The circle's inspector: the plan it belongs to — named, saved and opened as
+ * in the table plan (`PlanSection`), since the circle is saved with it — and
+ * what the circle came to where the table plan shows its criteria.
  *
  * The circle is not built from the criteria — it keeps table neighbours side
  * by side and restless students apart, nothing else — so this panel sets
- * nothing. It says how many table neighbours stayed together, which is what
- * the circle aims for.
+ * nothing of it. It says how many table neighbours stayed together, which is
+ * what the circle aims for.
  */
 export default function CircleInspector({
   layout,
@@ -71,12 +75,15 @@ export default function CircleInspector({
     [i18n.language],
   );
 
-  const title = t('circleView.title');
+  const label = t('planSave.section');
 
   if (!summary) {
     return (
-      <InspectorPortal label={title}>
-        <InspectorHeader title={title} />
+      <InspectorPortal label={label}>
+        <PlanInspectorHeader />
+        <InspectorBody>
+          <PlanSection />
+        </InspectorBody>
       </InspectorPortal>
     );
   }
@@ -105,9 +112,10 @@ export default function CircleInspector({
     );
 
   return (
-    <InspectorPortal label={title}>
-      <InspectorHeader title={title} />
+    <InspectorPortal label={label}>
+      <PlanInspectorHeader />
       <InspectorBody>
+        <PlanSection />
         <InspectorSection
           title={t('circleView.inspector.tableNeighbors.title')}
         >

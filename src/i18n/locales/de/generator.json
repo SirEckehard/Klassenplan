@@ -34,7 +34,7 @@
       "item1": "Ziehe Schüler auf andere Plätze im Kreis – die beiden tauschen. Esc bricht das Ziehen ab.",
       "item2": "Grüne Linien zeigen Verbindungen zu Tischnachbarn im Sitzplan.",
       "item3": "Blende Verbindungen in der Werkzeugleiste unter „Ansichtseinstellungen“ ein oder aus.",
-      "item4": "Der Sitzkreis entsteht aus dem Sitzplan und lässt sich verändern. „Plan speichern“ sichert ihn zusammen mit dem Plan; exportieren und präsentieren kannst du ihn für sich.",
+      "item4": "Der Sitzkreis entsteht aus dem Sitzplan und lässt sich verändern. „Speichern“ im Inspektor unter „Plan“ sichert ihn zusammen mit dem Plan; exportieren und präsentieren kannst du ihn für sich.",
       "item5": "Fahre über ein Icon auf einem Platz oder tippe darauf, um zu sehen, was es bedeutet – die Plätze aller, die es teilen, werden dabei markiert. Unter „Merkmale“ in der Werkzeugleiste findest du die Legende, wählst, welche Icons die Plätze zeigen, und schaltest Erklärung und Markieren ab.",
       "item6": "Mit dem Schloss hält ein Schüler seinen Platz im Kreis: Ziehen, Mischen und Neu-Erzeugen lassen ihn dort. Mit der Tastatur nimmt die Eingabetaste einen Schüler auf, die Pfeiltasten wählen den Platz, die Eingabetaste setzt ihn ab.",
       "item7": "Änderungen am Sitzkreis kannst du über die entsprechenden Icons in der Statusleiste rückgängig machen und wiederherstellen."
@@ -93,7 +93,6 @@
     "mixNow": "Jetzt neu mischen",
     "print": "Drucken",
     "retryMix": "Erneut mischen",
-    "savePlan": "Plan speichern",
     "saveShortcut": "Plan speichern (Strg/⌘+S)"
   },
   "present": {
@@ -154,7 +153,6 @@
     "genderNeutral": "Ohne Angabe"
   },
   "circleView": {
-    "title": "Sitzkreis",
     "syncTitle": "Sitzkreis an Sitzplan angleichen",
     "syncButton": "Angleichen",
     "shuffleTitle": "Sitzkreis zufällig anordnen",
@@ -305,7 +303,6 @@
     "notesPlaceholder": "Besonderheiten, Schwerpunkt …"
   },
   "mix": {
-    "title": "Mischkriterien",
     "recipes": {
       "title": "Rezept",
       "custom": "Eigene Mischung",
@@ -856,7 +853,7 @@
       },
       "circle": {
         "title": "Sitzkreis",
-        "body": "Hier wechselst du zwischen Sitzplan und Sitzkreis. Der Sitzkreis entsteht aus dem aktuellen Sitzplan und zeigt Tischnachbarn als Verbindungen. Du kannst ihn verändern; „Plan speichern“ sichert ihn zusammen mit dem Plan."
+        "body": "Hier wechselst du zwischen Sitzplan und Sitzkreis. Der Sitzkreis entsteht aus dem aktuellen Sitzplan und zeigt Tischnachbarn als Verbindungen. Du kannst ihn verändern; „Speichern“ im Inspektor unter „Plan“ sichert ihn zusammen mit dem Plan."
       },
       "exits": {
         "title": "Präsentieren und exportieren",
@@ -977,13 +974,13 @@
     "noTables": "Noch keine Tische",
     "templates": "Vorlagen",
     "templatesHint": "Speichere diesen Raum als Vorlage, um ihn auch für weitere Klassen zu nutzen.",
-    "saveAsTemplate": "Diesen Raum als Vorlage speichern",
+    "saveAsTemplate": "Raum als Vorlage speichern",
     "templateName": "Name der Vorlage",
     "replaceTemplate": "Vorlage „{{name}}“ ersetzen",
     "deleteTemplateTitle": "Vorlage löschen",
     "deleteTemplateMessage": "Möchtest du die Vorlage „{{name}}“ wirklich löschen? Das lässt sich nicht rückgängig machen.",
     "rooms": "Räume",
-    "roomsHint": "Für Fachräume legst du einen eigenen Raum an. Jeder Raum behält seine Tische und Pläne.",
+    "roomsHint": "Wähle einen Raum oder lege weitere Räume an.",
     "newRoom": "Neuer Raum",
     "roomName": "Name des Raums",
     "roomNameTaken": "Diesen Namen trägt schon ein Raum der Klasse.",
@@ -993,7 +990,7 @@
     "inMixOffHint_one": "Bleibt beim Mischen leer. Von Hand kannst du trotzdem jemanden hierhin setzen.",
     "inMixOffHint_other": "Bleiben beim Mischen leer. Von Hand kannst du trotzdem jemanden hierhin setzen.",
     "fillFromFront": "Von vorne besetzen",
-    "fillFromFrontHint": "Gibt es mehr Plätze als Schüler, bleiben die hinteren frei, statt dass sich die Lücken im Raum verteilen.",
+    "fillFromFrontHint": "Gibt es mehr Plätze als Schüler, bleiben die hinteren frei.",
     "setupChoose": "Tischart wählen …",
     "openTemplate": "Vorlage öffnen …",
     "roomMenu": "Geöffneter Raum: {{name}}",
@@ -1010,13 +1007,23 @@
     "classTools": "Klassenwerkzeuge"
   },
   "planSave": {
+    "section": "Plan",
     "nameLabel": "Name des Sitzplans",
     "namePlaceholder": "z. B. Deutsch ab Oktober",
     "nameTaken": "Diesen Namen trägt schon ein anderer Plan.",
     "save": "Speichern",
     "rename": "Umbenennen und speichern",
     "saveAsNew": "Als neuen Plan speichern",
-    "room": "Im Raum „{{name}}“"
+    "room": "Im Raum „{{name}}“",
+    "untitled": "Neuer Plan",
+    "open": "Plan öffnen …",
+    "plans": "Pläne dieses Raums",
+    "state": {
+      "saved": "Gespeichert am {{date}}",
+      "autoSaved": "Automatisch gesichert",
+      "changed": "Änderungen noch nicht gespeichert",
+      "new": "Noch nicht gespeichert"
+    }
   },
   "tools": {
     "toClass": "Zur Klasse",

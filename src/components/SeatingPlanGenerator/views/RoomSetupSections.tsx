@@ -231,12 +231,12 @@ function TemplateRenameRow({
 }
 
 /**
- * Naming this room as a template, in its own row: Enter keeps it as a new
- * one. A name a template already carries is not saved over by Enter — the
- * row says so and offers the replacement as a step of its own. Escape, or
- * leaving the row, drops it.
+ * Naming a room as a template, in its own row: Enter keeps it as a new one.
+ * A name a template already carries is not saved over by Enter — the row
+ * says so and offers the replacement as a step of its own. Escape, or
+ * leaving the row, drops it. The room's inspector and "Bibliothek" share it.
  */
-function TemplateSaveRow({
+export function TemplateSaveRow({
   initialName,
   templates,
   onSave,

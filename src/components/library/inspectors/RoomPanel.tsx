@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { FloppyDiskIcon } from '@phosphor-icons/react';
 import {
@@ -10,6 +11,8 @@ import {
   InspectorSection,
 } from '@/components/shell/InspectorPanel';
 import type { LibraryRoom } from '@/hooks/library/useClassLibrary';
+import type { ClassroomTemplate } from '@/types';
+import { TemplateSaveRow } from '@/components/SeatingPlanGenerator/views/RoomSetupSections';
 import { checkName, MAX_NAME_LENGTH, type NameProblem } from '@/utils';
 import RoomThumbnail from '../RoomThumbnail';
 import NameField from '@/components/shell/NameField';
@@ -17,13 +20,15 @@ import { ValueRow } from './panelParts';
 
 /**
  * A room of a class (decision 0024): its name, renamed here; its tables and
- * room elements; keeping it as a template for other classes; and removing it
- * with the plans made in it — never the open room, never the last one.
+ * room elements; keeping it as a template for other classes — named in a row
+ * of the panel, as in the room's own inspector; and removing it with the
+ * plans made in it — never the open room, never the last one.
  */
 export default function RoomPanel({
   room,
   otherRoomNames,
   planCount,
+  templates,
   onRename,
   onSaveAsTemplate,
   onDelete,
@@ -34,13 +39,20 @@ export default function RoomPanel({
   /** The names of the class's other rooms, which this one may not take. */
   otherRoomNames: string[];
   planCount: number;
+  /** The kept templates, whose names a new one is checked against. */
+  templates: ClassroomTemplate[];
   onRename: (name: string) => Promise<NameProblem | null> | NameProblem | null;
-  onSaveAsTemplate: () => void;
+  /**
+   * Keeps the room as a new template, or over the one `overwriteId` names;
+   * resolves with whether it was kept.
+   */
+  onSaveAsTemplate: (name: string, overwriteId?: number) => Promise<boolean>;
   onDelete: () => void;
   deleteBlockedHint: string | null;
   renameRequest: number;
 }) {
   const { t } = useTranslation('generator');
+  const [savingTemplate, setSavingTemplate] = React.useState(false);
   const seats = room.scene.tables.reduce(
     (sum, table) => sum + table.seatCount,
     0,
@@ -82,8 +94,19 @@ export default function RoomPanel({
           <InspectorActionRow
             icon={FloppyDiskIcon}
             label={t('library.room.saveAsTemplate')}
-            onClick={onSaveAsTemplate}
+            expanded={savingTemplate}
+            onClick={() => setSavingTemplate((previous) => !previous)}
           />
+          {savingTemplate && (
+            <div className="-mx-3">
+              <TemplateSaveRow
+                initialName={room.name}
+                templates={templates}
+                onSave={onSaveAsTemplate}
+                onDone={() => setSavingTemplate(false)}
+              />
+            </div>
+          )}
         </InspectorSection>
       </InspectorBody>
       <InspectorDeleteFooter

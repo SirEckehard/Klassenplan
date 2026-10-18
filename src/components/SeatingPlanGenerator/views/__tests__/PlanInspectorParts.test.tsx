@@ -1,23 +1,30 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import '@testing-library/jest-dom/vitest';
-import { render, screen, cleanup } from '@testing-library/react';
+import { render, screen, cleanup, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
 import '@/i18n';
-import PlanSavePanel from '@/components/SeatingPlanGenerator/views/PlanSavePanel';
+import {
+  PlanInspectorHeader,
+  PlanSection,
+} from '@/components/SeatingPlanGenerator/views/PlanInspectorParts';
 import { getButton } from '@/__tests__/utils';
-import type { RoomRecord, SavedPlan } from '@/types';
+import type { RoomRecord, SavedPlan, SeatingArrangement } from '@/types';
+
+const SEATED = [[{ id: 'anna', name: 'Anna' }]] as SeatingArrangement;
 
 const mocks = vi.hoisted(() => ({
   planName: '',
   activePlanId: null as string | null,
   seatingHistory: [] as SavedPlan[],
   classroomScene: { tables: [], features: [] },
+  currentSeating: [] as SeatingArrangement,
   rooms: [] as RoomRecord[],
   activeRoomId: null as string | null,
   handleSaveSeatingPlan: vi.fn((..._args: unknown[]) => true),
-  isCoarsePointer: false,
+  handleHistoryLoad: vi.fn(),
+  showToast: vi.fn(),
 }));
 
 vi.mock('@/contexts/SeatingPlanContext', () => ({
@@ -26,19 +33,31 @@ vi.mock('@/contexts/SeatingPlanContext', () => ({
     activePlanId: mocks.activePlanId,
     seatingHistory: mocks.seatingHistory,
     classroomScene: mocks.classroomScene,
+    currentSeating: mocks.currentSeating,
+    circleLayout: null,
+    seatingMode: 'table',
     rooms: mocks.rooms,
     activeRoomId: mocks.activeRoomId,
   }),
   useSeatingPlanActions: () => ({
     handleSaveSeatingPlan: mocks.handleSaveSeatingPlan,
+    handleHistoryLoad: mocks.handleHistoryLoad,
   }),
 }));
 
-vi.mock('@/hooks/ui/useCoarsePointer', () => ({
-  useIsCoarsePointer: () => mocks.isCoarsePointer,
-}));
+vi.mock('@/utils/ui/toast', () => ({ showToast: mocks.showToast }));
 
-const savedPlan = (name: string) => ({ id: `id-${name}`, name }) as SavedPlan;
+/** A plan saved as the stage shows it, in the open room. */
+const savedPlan = (name: string, extra: Partial<SavedPlan> = {}) =>
+  ({
+    id: `id-${name}`,
+    name,
+    date: '2026-10-12',
+    roomId: 'classroom',
+    seating: SEATED,
+    scene: mocks.classroomScene,
+    ...extra,
+  }) as SavedPlan;
 
 const field = () =>
   screen.getByRole('textbox', {
@@ -48,18 +67,14 @@ const saveAsNewButton = () =>
   screen.queryByRole('button', {
     name: /Als neuen Plan speichern|Save as new plan/i,
   });
-
-const renderPanel = () => {
-  const onDone = vi.fn();
-  render(<PlanSavePanel onDone={onDone} />);
-  return onDone;
-};
+const openMenuButton = () =>
+  screen.queryByRole('button', { name: /Plan öffnen|Open a plan/i });
 
 beforeEach(() => {
   mocks.planName = 'Deutsch';
   mocks.activePlanId = 'id-Deutsch';
   mocks.seatingHistory = [savedPlan('Deutsch'), savedPlan('Mathe')];
-  mocks.isCoarsePointer = false;
+  mocks.currentSeating = SEATED;
   mocks.rooms = [{ id: 'classroom', name: 'Klassenraum', createdAt: '' }];
   mocks.activeRoomId = 'classroom';
   mocks.handleSaveSeatingPlan.mockReturnValue(true);
@@ -70,26 +85,17 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 
-describe('PlanSavePanel', () => {
-  it('opens on the plan’s name, ready to be typed over', () => {
-    renderPanel();
+describe('PlanSection', () => {
+  it('shows the plan’s name without taking the focus', () => {
+    render(<PlanSection />);
 
     expect(field()).toHaveValue('Deutsch');
-    expect(field()).toHaveFocus();
-    expect(field()).toHaveProperty('selectionStart', 0);
-    expect(field()).toHaveProperty('selectionEnd', 'Deutsch'.length);
-  });
-
-  it('leaves a finger without the keyboard until it asks for it', () => {
-    mocks.isCoarsePointer = true;
-    renderPanel();
-
     expect(field()).not.toHaveFocus();
   });
 
-  it('saves the open plan under its name and closes', async () => {
+  it('saves the open plan under its name', async () => {
     const user = userEvent.setup();
-    const onDone = renderPanel();
+    render(<PlanSection />);
 
     await user.click(getButton(/^(Speichern|Save)$/));
 
@@ -98,14 +104,13 @@ describe('PlanSavePanel', () => {
       mocks.classroomScene,
       { rename: true },
     );
-    expect(onDone).toHaveBeenCalled();
     // Without a new name there is nothing a new plan could be called.
     expect(saveAsNewButton()).not.toBeInTheDocument();
   });
 
   it('renames the open plan on Enter once the name is new', async () => {
     const user = userEvent.setup();
-    renderPanel();
+    render(<PlanSection />);
 
     await user.clear(field());
     await user.type(field(), 'Deutsch ab Oktober');
@@ -125,7 +130,7 @@ describe('PlanSavePanel', () => {
 
   it('keeps the open plan when the new name starts another', async () => {
     const user = userEvent.setup();
-    const onDone = renderPanel();
+    render(<PlanSection />);
 
     await user.clear(field());
     await user.type(field(), 'Deutsch II');
@@ -135,12 +140,22 @@ describe('PlanSavePanel', () => {
       'Deutsch II',
       mocks.classroomScene,
     );
-    expect(onDone).toHaveBeenCalled();
+  });
+
+  it('takes a typed name back on Escape', async () => {
+    const user = userEvent.setup();
+    render(<PlanSection />);
+
+    await user.clear(field());
+    await user.type(field(), 'Entwurf{Escape}');
+
+    expect(field()).toHaveValue('Deutsch');
+    expect(mocks.handleSaveSeatingPlan).not.toHaveBeenCalled();
   });
 
   it('refuses a name another plan carries', async () => {
     const user = userEvent.setup();
-    const onDone = renderPanel();
+    render(<PlanSection />);
 
     await user.clear(field());
     await user.type(field(), 'Mathe{Enter}');
@@ -152,12 +167,11 @@ describe('PlanSavePanel', () => {
     ).toBeDisabled();
     expect(saveAsNewButton()).not.toBeInTheDocument();
     expect(mocks.handleSaveSeatingPlan).not.toHaveBeenCalled();
-    expect(onDone).not.toHaveBeenCalled();
   });
 
   it('keeps the open plan’s name when the field is emptied', async () => {
     const user = userEvent.setup();
-    renderPanel();
+    render(<PlanSection />);
 
     await user.clear(field());
     expect(field()).toHaveAttribute('placeholder', 'Deutsch');
@@ -175,7 +189,7 @@ describe('PlanSavePanel', () => {
     mocks.planName = '';
     mocks.activePlanId = null;
     const user = userEvent.setup();
-    renderPanel();
+    render(<PlanSection />);
 
     expect(field()).toHaveValue('');
     await user.type(field(), 'Englisch{Enter}');
@@ -193,8 +207,9 @@ describe('PlanSavePanel', () => {
     // open: offering a rename here would end in a refused save.
     mocks.activePlanId = null;
     const user = userEvent.setup();
-    renderPanel();
+    render(<PlanSection />);
 
+    await user.click(field());
     await user.keyboard('{Enter}');
 
     expect(mocks.handleSaveSeatingPlan).not.toHaveBeenCalled();
@@ -205,21 +220,107 @@ describe('PlanSavePanel', () => {
     ).toBeInTheDocument();
   });
 
-  it('stays open when the plan could not be saved', async () => {
-    mocks.handleSaveSeatingPlan.mockReturnValue(false);
-    const user = userEvent.setup();
-    const onDone = renderPanel();
+  it('offers nothing to save while nobody is seated', () => {
+    mocks.currentSeating = [];
+    render(<PlanSection />);
 
-    await user.keyboard('{Enter}');
-
-    expect(mocks.handleSaveSeatingPlan).toHaveBeenCalled();
-    expect(onDone).not.toHaveBeenCalled();
+    expect(field()).toBeDisabled();
+    expect(getButton(/^(Speichern|Save)$/)).toBeDisabled();
   });
 
-  // With one room there is nothing to tell apart; with more the panel says
-  // where the plan goes (decision 0024).
-  it('names the room the plan goes into once the class has more than one', () => {
-    renderPanel();
+  // The backup import holds a plan's name to 120 characters; a longer one
+  // made the whole backup unreadable.
+  it('takes no longer a name than a backup can read back', () => {
+    render(<PlanSection />);
+
+    expect(field()).toHaveAttribute('maxlength', '120');
+  });
+
+  it('opens another plan of this room from its menu', async () => {
+    mocks.seatingHistory = [
+      savedPlan('Deutsch'),
+      savedPlan('Mathe'),
+      savedPlan('Chemie', { roomId: 'lab' }),
+    ];
+    const user = userEvent.setup();
+    render(<PlanSection />);
+
+    await user.click(openMenuButton() as HTMLElement);
+    const menu = screen.getByRole('dialog', {
+      name: /Pläne dieses Raums|Plans of this room/i,
+    });
+    // The open plan is checked; a plan of another room is not offered.
+    expect(
+      within(menu).getByRole('button', { name: /Deutsch/ }),
+    ).toHaveAttribute('aria-pressed', 'true');
+    expect(within(menu).queryByRole('button', { name: /Chemie/ })).toBeNull();
+
+    await user.click(within(menu).getByRole('button', { name: /Mathe/ }));
+
+    expect(mocks.handleHistoryLoad).toHaveBeenCalledWith(
+      mocks.seatingHistory[1],
+    );
+    expect(mocks.showToast).toHaveBeenCalledWith(
+      'success',
+      expect.stringMatching(/Mathe/),
+    );
+  });
+
+  it('leaves the menu out while the open plan is the room’s only one', () => {
+    mocks.seatingHistory = [savedPlan('Deutsch')];
+    render(<PlanSection />);
+
+    expect(openMenuButton()).toBeNull();
+  });
+});
+
+describe('PlanInspectorHeader', () => {
+  const subtitle = () => screen.getByRole('heading', { level: 2 }).nextSibling;
+
+  it('names the open plan and says it is saved', () => {
+    render(<PlanInspectorHeader />);
+
+    expect(
+      screen.getByRole('heading', { level: 2, name: 'Deutsch' }),
+    ).toBeInTheDocument();
+    expect(subtitle()).toHaveTextContent(/Gespeichert am|Saved on/);
+  });
+
+  it('says when the stage differs from the saved plan', () => {
+    mocks.currentSeating = [[{ id: 'ben', name: 'Ben' }]] as SeatingArrangement;
+    render(<PlanInspectorHeader />);
+
+    expect(subtitle()).toHaveTextContent(
+      /Änderungen noch nicht gespeichert|Changes not saved yet/,
+    );
+  });
+
+  it('calls a plan never saved new', () => {
+    mocks.planName = '';
+    mocks.activePlanId = null;
+    render(<PlanInspectorHeader />);
+
+    expect(
+      screen.getByRole('heading', { level: 2, name: /Neuer Plan|New plan/ }),
+    ).toBeInTheDocument();
+    expect(subtitle()).toHaveTextContent(
+      /Noch nicht gespeichert|Not saved yet/,
+    );
+  });
+
+  it('says that nothing is mixed yet while nobody is seated', () => {
+    mocks.currentSeating = [];
+    render(<PlanInspectorHeader />);
+
+    expect(subtitle()).toHaveTextContent(
+      /Noch kein Sitzplan gemischt|No seating plan/,
+    );
+  });
+
+  // With one room there is nothing to tell apart; with more the heading says
+  // where the plan belongs (decision 0024).
+  it('names the room once the class has more than one', () => {
+    render(<PlanInspectorHeader />);
     expect(screen.queryByText(/Klassenraum/)).toBeNull();
     cleanup();
 
@@ -228,16 +329,8 @@ describe('PlanSavePanel', () => {
       { id: 'lab', name: 'Chemie-Fachraum', createdAt: '' },
     ];
     mocks.activeRoomId = 'lab';
-    renderPanel();
+    render(<PlanInspectorHeader />);
 
-    expect(screen.getByText(/Chemie-Fachraum/)).toBeInTheDocument();
-  });
-
-  // The backup import holds a plan's name to 120 characters; a longer one
-  // made the whole backup unreadable.
-  it('takes no longer a name than a backup can read back', () => {
-    renderPanel();
-
-    expect(field()).toHaveAttribute('maxlength', '120');
+    expect(subtitle()).toHaveTextContent(/Chemie-Fachraum/);
   });
 });

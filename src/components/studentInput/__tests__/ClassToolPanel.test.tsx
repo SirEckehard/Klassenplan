@@ -121,9 +121,10 @@ describe('ClassToolPanel', () => {
     expect(getButton(/Schüler hinzufügen|Add student/i)).toBeEnabled();
   });
 
-  // The view comes first on every layer; who is in the class is managing it,
-  // with the class list's import and export side by side.
-  it('puts the view on top and everything about who is in the class under one heading', () => {
+  // The view comes first on every layer; who joins the class is added, as
+  // the room adds tables, and the class list's import and export side by side
+  // are managing it.
+  it('puts the view on top, then adding students, then managing the list', () => {
     renderPanel();
 
     const headings = screen
@@ -131,17 +132,22 @@ describe('ClassToolPanel', () => {
       .map((heading) => heading.textContent);
     expect(headings).toEqual([
       expect.stringMatching(/^(Ansicht|View)$/),
+      expect.stringMatching(/^(Hinzufügen|Add)$/),
       expect.stringMatching(/^(Verwalten|Manage)$/),
     ]);
 
-    const manage = screen.getByRole('heading', { name: /Verwalten|Manage/ })
-      .parentElement as HTMLElement;
-    const entries = within(manage)
-      .getAllByRole('button')
-      .map((button) => button.textContent);
-    expect(entries).toEqual([
+    const entriesUnder = (heading: RegExp) =>
+      within(
+        screen.getByRole('heading', { name: heading })
+          .parentElement as HTMLElement,
+      )
+        .getAllByRole('button')
+        .map((button) => button.textContent);
+    expect(entriesUnder(/^(Hinzufügen|Add)$/)).toEqual([
       expect.stringMatching(/Schüler hinzufügen|Add student/),
       expect.stringMatching(/Platzhalter erstellen|Create placeholders/),
+    ]);
+    expect(entriesUnder(/^(Verwalten|Manage)$/)).toEqual([
       expect.stringMatching(/Klassenliste importieren|Import class list/),
       expect.stringMatching(/Klassenliste exportieren|Export class list/),
       expect.stringMatching(/Liste drucken|Print list/),

@@ -223,10 +223,12 @@ describe('RoomListSection', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('suggests rooms of their own for specialist rooms while the class has one', () => {
+  it('suggests adding rooms while the class has one', () => {
     mocks.rooms = [room('a', 'Klassenraum')];
     render(<RoomListSection />);
 
-    expect(screen.getByText(/Fachräume|the lab/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/weitere Räume an|add more rooms/),
+    ).toBeInTheDocument();
   });
 });

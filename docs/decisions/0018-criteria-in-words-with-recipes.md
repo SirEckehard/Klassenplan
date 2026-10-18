@@ -103,3 +103,8 @@ count of active criteria moved under the inspector's heading. The recipe
 stands right under that heading, as a section of its own ("Rezept"), since it
 sets every criterion at once; the plan's fulfilment follows it, above the
 criteria it sums up. Weights, bands and recipes are unchanged.
+
+Since the plan layer's inspector became the plan itself (2026-10-18) — its
+name, saving it, opening another — the inspector's heading names the plan,
+and the switch for all criteria and their count moved to the recipe's
+section, which opens the mixing below the plan's own section.

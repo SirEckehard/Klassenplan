@@ -73,7 +73,7 @@ async function mixAndSave(page: Page, name: string): Promise<void> {
     page.getByRole('group', { name: /^Sitzplan:/ }),
   ).toHaveAccessibleName('Sitzplan: 4 von 4 Plätzen belegt');
 
-  await page.getByRole('button', { name: 'Plan speichern' }).click();
+  // The plan's name and its saving are the inspector's "Plan" section.
   const field = page.getByRole('textbox', { name: 'Name des Sitzplans' });
   await field.fill(name);
   await field.press('Enter');

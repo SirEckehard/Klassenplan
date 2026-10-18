@@ -5,11 +5,7 @@ import React from 'react';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import '@/i18n/i18n';
-import SmartMixControls, {
-  MixCriteriaCount,
-  MixCriteriaSwitch,
-  MixRecipeSection,
-} from '../SmartMixControls';
+import SmartMixControls, { MixRecipeSection } from '../SmartMixControls';
 import { createSuspendedWeights } from '@/hooks/ui/useMixCriteria';
 import { useAutoMixSettings } from '@/hooks/domains/useAutoMixSettings';
 import { createMockStudent } from '@/__tests__/utils';
@@ -96,13 +92,7 @@ function Harness({
 
   return (
     <>
-      {/* The inspector puts the switch for all criteria and their count into
-          its header. */}
-      <MixCriteriaSwitch {...controls} />
-      <span data-testid="criteria-count">
-        <MixCriteriaCount {...controls} />
-      </span>
-      {/* And the recipe right under that heading. */}
+      {/* The recipe carries the switch for all criteria and their count. */}
       <MixRecipeSection {...controls} />
       <SmartMixControls {...controls} />
       {SCALAR_MIX_SETTING_KEYS.map((key) => (
@@ -347,9 +337,7 @@ describe('SmartMixControls — recipes', () => {
     // Language levels and social roles are missing from this class, so its
     // panel shows 13 criteria; the homogeneous groups stay off beside the
     // heterogeneous ones (decision 0013), which leaves 12 of them active.
-    expect(screen.getByTestId('criteria-count')).toHaveTextContent(
-      /12 (von|of) 13/,
-    );
+    expect(screen.getByText(/12 (von|of) 13/)).toBeInTheDocument();
   });
 });
 

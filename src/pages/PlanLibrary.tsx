@@ -607,30 +607,36 @@ function PlanLibraryPage() {
                 }),
               )
             }
-            onSaveAsTemplate={() => {
-              // A template's name is unique: a taken one gets a number.
-              const name = uniqueName(
-                room.name,
-                templates.map((entry) => entry.name),
-                MAX_NAME_LENGTH,
-              );
-              actions
-                .saveTemplate(name, room.scene)
-                .then((result) => {
-                  if (result.success) {
-                    showToast('success', TOAST_MESSAGES.SAVE_TEMPLATE_SUCCESS);
-                    setTemplatesRevision((count) => count + 1);
-                  } else {
-                    showToast('error', TOAST_MESSAGES.SAVE_TEMPLATE_ERROR);
-                  }
-                })
-                .catch((error: unknown) => {
-                  logError(
-                    'Failed to keep a room as a template',
-                    { error },
-                    'PlanLibrary',
-                  );
-                });
+            templates={templates}
+            onSaveAsTemplate={async (name, overwriteId) => {
+              try {
+                // A name a template carries is replaced only from the row's
+                // own step, as in the room's inspector.
+                const kept =
+                  overwriteId !== undefined
+                    ? await actions.updateTemplate(overwriteId, room.scene)
+                    : (await actions.saveTemplate(name, room.scene)).success;
+                if (!kept) {
+                  showToast('error', TOAST_MESSAGES.SAVE_TEMPLATE_ERROR);
+                  return false;
+                }
+                showToast(
+                  'success',
+                  overwriteId !== undefined
+                    ? TOAST_MESSAGES.TEMPLATE_UPDATE_SUCCESS
+                    : TOAST_MESSAGES.SAVE_TEMPLATE_SUCCESS,
+                );
+                setTemplatesRevision((count) => count + 1);
+                return true;
+              } catch (error: unknown) {
+                logError(
+                  'Failed to keep a room as a template',
+                  { error },
+                  'PlanLibrary',
+                );
+                showToast('error', TOAST_MESSAGES.SAVE_TEMPLATE_ERROR);
+                return false;
+              }
             }}
             onDelete={() => void requestRemoval(current)}
             deleteBlockedHint={roomRemovalHint(current)}

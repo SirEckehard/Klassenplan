@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Improved
 
+- The inspector of the seating plan and the circle shows the plan itself: its name, whether it is saved, saving it under its name or as a new plan, and opening another plan of the room – the mixing criteria follow below. Saving is no longer an entry of the toolbar, as a room's template already was not; Ctrl/⌘+S still saves straight away
+- The room's inspector renames the open room in a field of its own, as the class's does, and "Bibliothek" asks for a template's name as the room's inspector does instead of adding a number to a name that is taken
+- "Add student" and "Create placeholders" stand under "Add" in the class's toolbar, as the room's tables do; "Manage" keeps the class list's import, export and printing
 - Classes no longer open a dialog: a new class is named right in the class menu of the header – or, the very first one, on the start card – and Enter creates and opens it. While no student is open, the inspector of the class layer shows the class itself, where its name, school year and notes are changed, as in "Bibliothek"; the class menu renames a class in place, and a change no longer brings a message
 - A room is saved as a template in the room's inspector instead of a dialog: the name – the room's own to begin with – is typed in place, and a name a template already carries offers to replace that template
 - Every inspector – criteria, room, export sheet and "Bibliothek" – is laid out like the student inspector: one row per setting with its icon and its explanation under the name, fewer and more logically ordered sections, a short scale for a criterion's importance, and menus instead of long lists for the recipe, a plan's room, and the room's rooms, templates and – once its tables stand – its setup

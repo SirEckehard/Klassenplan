@@ -434,6 +434,7 @@ export function InspectorActionRow({
   onClick,
   to,
   expanded,
+  disabled = false,
 }: {
   icon: Icon;
   label: string;
@@ -442,6 +443,8 @@ export function InspectorActionRow({
   onClick?: () => void;
   /** Whether what the row unfolds below it is open. */
   expanded?: boolean;
+  /** Nothing to act on yet — a plan with nobody seated. */
+  disabled?: boolean;
   /** A page to go to instead — the row is then a link. */
   to?: string;
 }) {
@@ -455,24 +458,30 @@ export function InspectorActionRow({
       {label}
     </>
   );
-  const className = `${menuItemClass} -mx-3 pointer-coarse:min-h-11`;
-  if (to) {
-    return (
-      <LocalizedLink to={to} title={title ?? label} className={className}>
-        {content}
-      </LocalizedLink>
-    );
-  }
+  const className = `${menuItemClass} pointer-coarse:min-h-11`;
+  // The wrapper stands out of the section on both sides and the row fills
+  // it: on the row itself, the negative margin only shifted a box that is
+  // `menu-item`'s full width, so its hover fill hung out on the left and
+  // stopped short on the right.
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      title={title ?? label}
-      aria-expanded={expanded}
-      className={className}
-    >
-      {content}
-    </button>
+    <div className="-mx-3 flex flex-col">
+      {to ? (
+        <LocalizedLink to={to} title={title ?? label} className={className}>
+          {content}
+        </LocalizedLink>
+      ) : (
+        <button
+          type="button"
+          onClick={onClick}
+          disabled={disabled}
+          title={title ?? label}
+          aria-expanded={expanded}
+          className={className}
+        >
+          {content}
+        </button>
+      )}
+    </div>
   );
 }
 

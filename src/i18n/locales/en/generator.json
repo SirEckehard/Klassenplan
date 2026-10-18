@@ -34,7 +34,7 @@
       "item1": "Drag students to other places in the circle – the two swap. Esc cancels the drag.",
       "item2": "Green lines show connections to table neighbors in the seating plan.",
       "item3": "Show or hide connections in the toolbar under “View settings”.",
-      "item4": "The circle is built from the seating plan and can be changed. “Save plan” keeps it together with the plan; you can export and present it on its own.",
+      "item4": "The circle is built from the seating plan and can be changed. “Save” in the inspector under “Plan” keeps it together with the plan; you can export and present it on its own.",
       "item5": "Hover over or tap an icon on a seat to see what it means – the seats of everyone who shares it are marked. Under “Markers” in the toolbar you find the legend, choose which icons the seats show and switch the explanation and the marking off.",
       "item6": "The lock keeps a student in their place in the circle: dragging, shuffling and regenerating leave them there. With the keyboard, Enter picks a student up, the arrow keys choose the place, Enter puts them down.",
       "item7": "Undo and redo changes to the seating circle with the corresponding icons in the status bar."
@@ -93,7 +93,6 @@
     "mixNow": "Mix again now",
     "print": "Print",
     "retryMix": "Try again",
-    "savePlan": "Save Plan",
     "saveShortcut": "Save Plan (Ctrl/⌘+S)"
   },
   "present": {
@@ -154,7 +153,6 @@
     "genderNeutral": "Unspecified"
   },
   "circleView": {
-    "title": "Seating Circle",
     "syncTitle": "Align circle with seating plan",
     "syncButton": "Align",
     "shuffleTitle": "Randomly shuffle circle",
@@ -305,7 +303,6 @@
     "notesPlaceholder": "Particulars, focus …"
   },
   "mix": {
-    "title": "Mix Criteria",
     "recipes": {
       "title": "Recipe",
       "custom": "Your own mix",
@@ -856,7 +853,7 @@
       },
       "circle": {
         "title": "Seating circle",
-        "body": "Switch between seating plan and seating circle here. The circle is built from the current seating plan and shows table neighbors as connections. You can change it; “Save plan” keeps it together with the plan."
+        "body": "Switch between seating plan and seating circle here. The circle is built from the current seating plan and shows table neighbors as connections. You can change it; “Save” in the inspector under “Plan” keeps it together with the plan."
       },
       "exits": {
         "title": "Present and export",
@@ -977,13 +974,13 @@
     "noTables": "No tables yet",
     "templates": "Templates",
     "templatesHint": "Save this room as a template to use it for other classes as well.",
-    "saveAsTemplate": "Save this room as a template",
+    "saveAsTemplate": "Save room as a template",
     "templateName": "Template name",
     "replaceTemplate": "Replace template “{{name}}”",
     "deleteTemplateTitle": "Delete template",
     "deleteTemplateMessage": "Do you really want to delete the template “{{name}}”? This cannot be undone.",
     "rooms": "Rooms",
-    "roomsHint": "For the lab, add a room of its own. Every room keeps its tables and plans.",
+    "roomsHint": "Choose a room or add more rooms.",
     "newRoom": "New room",
     "roomName": "Name of the room",
     "roomNameTaken": "A room of this class already has this name.",
@@ -993,7 +990,7 @@
     "inMixOffHint_one": "Stays empty when mixing. You can still seat someone here by hand.",
     "inMixOffHint_other": "Stay empty when mixing. You can still seat someone here by hand.",
     "fillFromFront": "Fill from the front",
-    "fillFromFrontHint": "With more seats than students, the seats at the back stay free instead of gaps spreading across the room.",
+    "fillFromFrontHint": "With more seats than students, the seats at the back stay free.",
     "setupChoose": "Choose a table type …",
     "openTemplate": "Open a template …",
     "roomMenu": "Open room: {{name}}",
@@ -1010,13 +1007,23 @@
     "classTools": "Class tools"
   },
   "planSave": {
+    "section": "Plan",
     "nameLabel": "Seating plan name",
     "namePlaceholder": "e.g. German from October",
     "nameTaken": "Another plan already has this name.",
     "save": "Save",
     "rename": "Rename and save",
     "saveAsNew": "Save as new plan",
-    "room": "In the room “{{name}}”"
+    "room": "In the room “{{name}}”",
+    "untitled": "New plan",
+    "open": "Open a plan …",
+    "plans": "Plans of this room",
+    "state": {
+      "saved": "Saved on {{date}}",
+      "autoSaved": "Saved automatically",
+      "changed": "Changes not saved yet",
+      "new": "Not saved yet"
+    }
   },
   "tools": {
     "toClass": "To the class",

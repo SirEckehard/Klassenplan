@@ -209,7 +209,7 @@ export default function Inspector() {
           portalLabel ??
           (step === 2
             ? t('generator:sceneInspector.title')
-            : t('generator:mix.title'))
+            : t('generator:planSave.section'))
         }
         // Folded, the column stays in the page as the portal's slot, only
         // out of sight.

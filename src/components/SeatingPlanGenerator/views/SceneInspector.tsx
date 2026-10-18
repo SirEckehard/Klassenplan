@@ -32,15 +32,21 @@ import {
 } from '@/components/shell/InspectorPanel';
 import ToggleSwitch from '@/components/ui/controls/ToggleSwitch';
 import TablePreview from '@/components/TablePreview';
+import NameField from '@/components/shell/NameField';
 import {
   RoomListSection,
   RoomSetupSection,
   RoomTemplatesSection,
 } from '@/components/SeatingPlanGenerator/views/RoomSetupSections';
-import { useOptionalSeatingPlanState } from '@/contexts/seatingPlan/seatingPlanSelectors';
+import {
+  useOptionalSeatingPlanActions,
+  useOptionalSeatingPlanState,
+} from '@/contexts/seatingPlan/seatingPlanSelectors';
 import type { SceneTransactionRunner } from '@/hooks/scene/useSceneManager';
 import {
+  checkName,
   DEFAULT_ROTATION_SNAP_STEP,
+  MAX_NAME_LENGTH,
   collectRotationTargets,
   hasRotationTargets,
   rotateTargets,
@@ -217,9 +223,14 @@ export default function SceneInspector({
   const { t } = useTranslation('generator');
   // The room is named where it is edited (decision 0024).
   const seatingPlanState = useOptionalSeatingPlanState();
+  const seatingPlanActions = useOptionalSeatingPlanActions();
+  const activeRoomId = seatingPlanState?.activeRoomId;
   const openRoomName = seatingPlanState?.rooms.find(
-    (room) => room.id === seatingPlanState.activeRoomId,
+    (room) => room.id === activeRoomId,
   )?.name;
+  const otherRoomNames = (seatingPlanState?.rooms ?? [])
+    .filter((room) => room.id !== activeRoomId)
+    .map((room) => room.name);
 
   const selectedTables = selectedTableIds
     .map((index) => ({ index, table: tables[index] }))
@@ -457,11 +468,12 @@ export default function SceneInspector({
       </InspectorSection>
     ) : null;
 
-  // Nothing selected: the room itself, by its name. Seats and students are
-  // the status bar's to state; what the panel adds is how a room is set up,
-  // which other rooms the class has, and how a room is kept for others —
-  // first what concerns this room, then what leads to another one: a
-  // template opens as a room of its own, so it stands beside the rooms.
+  // Nothing selected: the room itself, by its name — renamed in its own
+  // section, as the class is in the class layer's inspector. Seats and
+  // students are the status bar's to state; what the panel adds is how a
+  // room is set up, which other rooms the class has, and how a room is kept
+  // for others — first what concerns this room, then what leads to another
+  // one: a template opens as a room of its own, so it stands beside the rooms.
   if (selectionSize === 0) {
     return (
       <>
@@ -474,6 +486,21 @@ export default function SceneInspector({
           }
         />
         <InspectorBody>
+          {openRoomName !== undefined && activeRoomId && seatingPlanActions && (
+            <InspectorSection title={t('sceneInspector.room')}>
+              <NameField
+                label={t('sceneInspector.roomName')}
+                value={openRoomName}
+                problemFor={(draft) =>
+                  checkName(draft, otherRoomNames, MAX_NAME_LENGTH)
+                }
+                onCommit={(name) =>
+                  seatingPlanActions.renameRoom(activeRoomId, name)
+                }
+                takenMessage={t('sceneInspector.roomNameTaken')}
+              />
+            </InspectorSection>
+          )}
           <RoomSetupSection
             studentsCount={studentsCount}
             hasTables={tables.length > 0}

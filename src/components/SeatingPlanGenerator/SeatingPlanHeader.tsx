@@ -28,7 +28,7 @@ import { KpLockup } from '@/components/KpLockup';
  * long student list, and it hosts the onboarding tour: the header knows the
  * step and class that decide which tour applies, and the Help button that
  * restarts it lives here. The plan itself is not here: its name is set where
- * it is saved, in the plan layer's toolbar (`PlanSavePanel`), and exporting
+ * it is saved, in the plan layer's inspector (`PlanSection`), and exporting
  * and presenting are the plan layer's way on, at the end of its status bar
  * (`PlanExits`).
  *

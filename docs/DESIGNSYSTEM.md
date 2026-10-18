@@ -253,7 +253,7 @@ Drag indicators use `--button-primary-bg` for a table template and `--text-muted
 
 Every layer's toolbar is a `ToolRail` (`src/components/shell/ToolRail.tsx`) inside `SmartSidebar`. An entry adds layout classes only; its two densities — the 208px labelled column and the 60px icon rail — come from the rail, so a new tool cannot invent a look of its own. An entry is a row, not a card: 36px tall, `rounded-lg`, paper on hover (`--surface-sunken`) and `--surface-option-selected` when it is the view on screen, with the icon taking `--text-badge` so the state has a second channel.
 
-The rail has two parts. On top the layer's own groups, in an order no layer changes — **Ansicht**, **Hinzufügen**, **Ansichtseinstellungen**, **Verwalten** — each titled in small caps in the labelled column and set off by a hairline on the icon rail; a layer leaves out what it has nothing for. Inside a group a shorter hairline (`ToolRailDivider`) separates two kinds of one thing, the room's tables and its elements. At the foot, under a full-width hairline and without a title, the entries every layer shares, drawn by the rail rather than the layer and identical on every layer and on the export page: "Bibliothek", "Klassenwerkzeuge", "Backup" and, last, "Unterstützen". Only the layer's part scrolls on a short window; the foot stays in view.
+The rail has two parts. On top the layer's own groups, in an order no layer changes — **Ansicht**, **Hinzufügen**, **Ansichtseinstellungen**, **Verwalten** — each titled in small caps in the labelled column and set off by a hairline on the icon rail; a layer leaves out what it has nothing for. Inside a group a shorter hairline (`ToolRailDivider`) separates two kinds of one thing, the room's tables and its elements. What is added goes under Hinzufügen on every layer — the class's students and placeholders as the room's tables and "Bibliothek"'s classes; Verwalten holds what acts on what is there, such as the class list as a file. At the foot, under a full-width hairline and without a title, the entries every layer shares, drawn by the rail rather than the layer and identical on every layer and on the export page: "Bibliothek", "Klassenwerkzeuge", "Backup" and, last, "Unterstützen". Only the layer's part scrolls on a short window; the foot stays in view.
 
 From `lg` up `SmartSidebar` drops that panel surface: on the desktop shell it is not a card but the window's left edge, one hairline (`border-r`) of `--border-card` against the sunken stage. The inspector's column is its mirror on the right — `--surface-page`, one `border-l` — so the two edges of the window are the same paper, between the header and the status bar on `--surface-card`; the drawers below `lg` lie over the stage and keep the card surface with its shadow. Below `lg` the layer is still a scrolling document, where a panel needs a frame of its own to read as one. On a tablet that card stands beside the stage, sticks under the header while the page scrolls and ends above the status bar; a phone opens it as a drawer.
 
@@ -335,7 +335,7 @@ plan, the circle and the export sheet — from the switch at the right end of
 the status bar, so the stage takes the width. The switch is a quiet arrow, the
 mirror of the toolbar's at the left end: towards the edge while the column
 shows, away from it while it is folded, named for what it does ("Inspektor
-ausblenden", "Mischkriterien einblenden"). It is also the one that opens the
+ausblenden", "Plan einblenden"). It is also the one that opens the
 drawer below `lg`. A touch screen narrower than `xl` starts with the column
 folded; opening a student or ticking several unfolds it, since the class
 layer's column is where a student is edited.
@@ -353,12 +353,19 @@ spread wide.
 A panel with nothing selected belongs to what the layer shows as a whole: the
 class layer's, while no student is open, is the class — its name, school year
 and notes, what it holds, its removal — the panel "Bibliothek" shows for it. The
-room's names its tables in the header and offers what concerns the room
-itself — "Neu einrichten" and "Vorlagen", as menu rows — rather than repeating the
-seats and students the status bar already states. That is also why the room
+room's names its tables in the header, its name in a field of its own as the
+class's, and offers what concerns the room itself — "Neu einrichten" and
+"Vorlagen", as menu rows — rather than repeating the seats and students the
+status bar already states. The plan layer's is the plan: its name and whether
+the stage is what was saved under it in the header, then "Plan" — the name,
+"Speichern", "Als neuen Plan speichern" once the name is new, "Plan öffnen …"
+for another plan of the room — and only below it the mixing; the circle's
+leads with the same section. Saving the plan is therefore no entry of the
+toolbar: the toolbar holds what goes onto the stage and how it looks, the
+panel names, keeps, opens and removes what the stage shows. That is also why the room
 has no dialog over its canvas: rebuilding a room happens in the panel, and an
 empty room says so in words on the drawing. A name is asked for there too — a
-new room's, a template's, and in the header's class menu a new class's — in a row that opens under the entry: Enter keeps
+new room's, a template's (in "Bibliothek" as in the room's panel), and in the header's class menu a new class's — in a row that opens under the entry: Enter keeps
 it, Escape or leaving the row drops it, and a name that is taken is said under
 the field as it is typed; replacing the template that carries it is a row of
 its own, never what Enter does.

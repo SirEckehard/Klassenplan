@@ -70,6 +70,24 @@ const board: ClassroomFeature = {
   anchor: 'top',
 };
 
+// Without the seating plan's state the panel names no room and lists none —
+// as the tests below mostly want; a test sets `seatingPlan` to have one.
+const seatingPlan = vi.hoisted(() => ({
+  state: null as null | {
+    rooms: Array<{ id: string; name: string; createdAt: string }>;
+    activeRoomId: string;
+    seatingHistory: [];
+    classroomScene: { tables: []; features: [] };
+  },
+  renameRoom: vi.fn((..._args: unknown[]) => null),
+}));
+
+vi.mock('@/contexts/seatingPlan/seatingPlanSelectors', () => ({
+  useOptionalSeatingPlanState: () => seatingPlan.state,
+  useOptionalSeatingPlanActions: () =>
+    seatingPlan.state ? { renameRoom: seatingPlan.renameRoom } : null,
+}));
+
 // Deleting a template asks first; the dialog itself is not this panel's.
 vi.mock('@/services/ui/dialogs', () => ({
   confirmDialog: vi.fn(() => Promise.resolve(true)),
@@ -186,9 +204,48 @@ const applyTransaction = (
   return { result: mutator(base) ?? {}, options };
 };
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  seatingPlan.state = null;
+  seatingPlan.renameRoom.mockClear();
+});
 
 describe('SceneInspector', () => {
+  // The room is renamed where it is read, as the class is in the class
+  // layer's inspector; a name another room of the class carries is refused.
+  it('renames the open room in a field of its own', () => {
+    seatingPlan.state = {
+      rooms: [
+        { id: 'classroom', name: 'Klassenraum', createdAt: '' },
+        { id: 'lab', name: 'Chemie', createdAt: '' },
+      ],
+      activeRoomId: 'classroom',
+      seatingHistory: [],
+      classroomScene: { tables: [], features: [] },
+    };
+    renderInspector();
+
+    expect(
+      screen.getByRole('heading', { level: 2, name: 'Klassenraum' }),
+    ).toBeInTheDocument();
+    const field = screen.getByRole('textbox', {
+      name: /Name des Raums|Room name/i,
+    });
+    expect(field).toHaveValue('Klassenraum');
+
+    fireEvent.change(field, { target: { value: 'Chemie' } });
+    expect(field).toHaveAttribute('aria-invalid', 'true');
+    fireEvent.keyDown(field, { key: 'Enter' });
+    expect(seatingPlan.renameRoom).not.toHaveBeenCalled();
+
+    fireEvent.change(field, { target: { value: 'Raum 104' } });
+    fireEvent.keyDown(field, { key: 'Enter' });
+    expect(seatingPlan.renameRoom).toHaveBeenCalledWith(
+      'classroom',
+      'Raum 104',
+    );
+  });
+
   // Seats and students are the status bar's to state; the room panel only
   // names how many tables stand there.
   it('names the room and its tables while nothing is selected', () => {
@@ -306,7 +363,7 @@ describe('SceneInspector', () => {
   it('keeps this room as a new template under the name typed', async () => {
     const { onSaveTemplate } = renderInspector({});
     const saveRow = screen.getByRole('button', {
-      name: /Diesen Raum als Vorlage speichern|Save this room as a template/,
+      name: /^(Raum als Vorlage speichern|Save room as a template)$/,
     });
 
     fireEvent.click(saveRow);
@@ -329,7 +386,7 @@ describe('SceneInspector', () => {
 
     fireEvent.click(
       screen.getByRole('button', {
-        name: /Diesen Raum als Vorlage speichern|Save this room as a template/,
+        name: /^(Raum als Vorlage speichern|Save room as a template)$/,
       }),
     );
     const field = screen.getByRole('textbox', {
@@ -352,7 +409,7 @@ describe('SceneInspector', () => {
     const { onSaveTemplate } = renderInspector({});
     fireEvent.click(
       screen.getByRole('button', {
-        name: /Diesen Raum als Vorlage speichern|Save this room as a template/,
+        name: /^(Raum als Vorlage speichern|Save room as a template)$/,
       }),
     );
     const field = screen.getByRole('textbox', {

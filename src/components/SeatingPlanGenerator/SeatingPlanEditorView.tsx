@@ -12,18 +12,16 @@ import {
 } from '@phosphor-icons/react';
 import SmartSidebar from '@/components/ui/panels/SmartSidebar';
 import SmartMixControls, {
-  MixCriteriaCount,
-  MixCriteriaSwitch,
   MixRecipeSection,
 } from '@/components/ui/controls/SmartMixControls';
 import ToggleSwitch from '@/components/ui/controls/ToggleSwitch';
 import PlanToolPanel from '@/components/SeatingPlanGenerator/views/PlanToolPanel';
-import InspectorPortal from '@/components/shell/InspectorPortal';
 import {
-  InspectorBody,
-  InspectorHeader,
-  InspectorRow,
-} from '@/components/shell/InspectorPanel';
+  PlanInspectorHeader,
+  PlanSection,
+} from '@/components/SeatingPlanGenerator/views/PlanInspectorParts';
+import InspectorPortal from '@/components/shell/InspectorPortal';
+import { InspectorBody, InspectorRow } from '@/components/shell/InspectorPanel';
 import StatusBarPortal from '@/components/shell/StatusBarPortal';
 import { statusBarWordClass } from '@/components/shell/StatusBarFrame';
 import { useInspector } from '@/contexts/InspectorContext';
@@ -48,7 +46,6 @@ import {
   getTooltipName,
   withoutUnavailableWeights,
   formatPercent,
-  hasSeatedStudent,
 } from '@/utils';
 import {
   buildBadgeHighlightLookup,
@@ -824,36 +821,17 @@ export default function SeatingPlanEditorView({
               onModeChange={onModeChange}
               showModeToggle={showModeToggle}
               settingsGroups={seatingSettingsGroups}
-              canSavePlan={hasSeatedStudent(currentSeating)}
             />
           )}
         </SmartSidebar>
 
-        {/* Why the plan looks like this is a property of the plan, so the
-            criteria belong in the inspector — not in the toolbar opposite. */}
-        <InspectorPortal label={t('mix.title')}>
-          {/* The heading names the panel once, says how many criteria carry
-              weight, and the switch beside it acts on every one of them. */}
-          <InspectorHeader
-            title={t('mix.title')}
-            subtitle={
-              <MixCriteriaCount
-                settings={settings}
-                setMixSettings={setMixSettings}
-                students={students}
-                suspendedWeights={suspendedWeights}
-              />
-            }
-            actions={
-              <MixCriteriaSwitch
-                settings={settings}
-                setMixSettings={setMixSettings}
-                students={students}
-                suspendedWeights={suspendedWeights}
-              />
-            }
-          />
+        {/* The plan is the inspector's, as the room is the room's: its name,
+            saving it and opening another first, then why it looks like this
+            — the recipe and the criteria — not in the toolbar opposite. */}
+        <InspectorPortal label={t('planSave.section')}>
+          <PlanInspectorHeader />
           <InspectorBody>
+            <PlanSection />
             {/* The recipe first: it sets every criterion below at once. */}
             <MixRecipeSection
               settings={settings}

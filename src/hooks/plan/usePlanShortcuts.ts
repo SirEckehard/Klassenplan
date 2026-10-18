@@ -24,7 +24,7 @@ type PlanShortcutHandlers = {
  * on a Mac before the page ever sees the key.
  *
  * A dialog owns the keyboard while it is up, and a text field keeps its keys:
- * the plan's name field saves on Ctrl/⌘+S by itself (`PlanSavePanel`).
+ * the plan's name field saves on Ctrl/⌘+S by itself (`PlanSection`).
  */
 export function usePlanShortcuts({
   enabled = true,

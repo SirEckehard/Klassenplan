@@ -12,10 +12,24 @@ import type { Student } from '@/types';
 import type { CircleLayout } from '@/types/Circle';
 
 vi.mock('@/contexts/SeatingPlanContext', () => ({
-  useSeatingPlanState: () => ({ step: 3, students: [] }),
+  useSeatingPlanState: () => ({
+    step: 3,
+    students: [],
+    planName: 'Deutsch',
+    activePlanId: null,
+    seatingHistory: [],
+    classroomScene: { tables: [], features: [] },
+    currentSeating: [[{ id: 'anna', name: 'Anna' }]],
+    circleLayout: null,
+    seatingMode: 'circle',
+    rooms: [],
+    activeRoomId: null,
+  }),
   useSeatingPlanActions: () => ({
     updateStudent: vi.fn(),
     removeStudent: vi.fn(),
+    handleSaveSeatingPlan: vi.fn(),
+    handleHistoryLoad: vi.fn(),
   }),
 }));
 
@@ -79,15 +93,20 @@ afterEach(() => {
 });
 
 describe('CircleInspector', () => {
-  it('names the inspector column after the circle', () => {
+  // The circle is saved with its plan, so its inspector is the plan's, as
+  // the table plan's is.
+  it('heads the inspector column with the plan it belongs to', () => {
     renderPanel(classCircle);
-    const panel = screen.getByRole('complementary', {
-      name: /Sitzkreis|Seating Circle/i,
-    });
+    const panel = screen.getByRole('complementary', { name: /^Plan$/ });
     expect(
-      within(panel).getByRole('heading', {
-        level: 2,
-        name: /Sitzkreis|Seating Circle/i,
+      within(panel).getByRole('heading', { level: 2, name: 'Deutsch' }),
+    ).toBeInTheDocument();
+    expect(
+      within(panel).getByText(/Noch nicht gespeichert|Not saved yet/),
+    ).toBeInTheDocument();
+    expect(
+      within(panel).getByRole('textbox', {
+        name: /Name des Sitzplans|Seating plan name/i,
       }),
     ).toBeInTheDocument();
   });
@@ -102,8 +121,15 @@ describe('CircleInspector', () => {
     expect(
       screen.getByText(/(Getrennt|Split up): Cem & Emil/),
     ).toBeInTheDocument();
-    // The table neighbours are all the panel reports.
-    expect(screen.getAllByRole('heading', { level: 3 })).toHaveLength(1);
+    // Beside the plan, the table neighbours are all the panel reports.
+    expect(
+      screen
+        .getAllByRole('heading', { level: 3 })
+        .map((heading) => heading.textContent),
+    ).toEqual([
+      expect.stringMatching(/^Plan$/),
+      expect.stringMatching(/Tischnachbarn|Table neighbours/i),
+    ]);
   });
 
   it('says so when the seating plan had no table neighbours', () => {
@@ -113,9 +139,13 @@ describe('CircleInspector', () => {
     ).toBeInTheDocument();
   });
 
-  it('shows only its heading while the circle is still being built', () => {
+  it('shows only the plan while the circle is still being built', () => {
     renderPanel(null);
-    getHeading(/Sitzkreis|Seating Circle/i, 2);
-    expect(screen.queryByRole('heading', { level: 3 })).not.toBeInTheDocument();
+    getHeading('Deutsch', 2);
+    expect(
+      screen
+        .getAllByRole('heading', { level: 3 })
+        .map((heading) => heading.textContent),
+    ).toEqual([expect.stringMatching(/^Plan$/)]);
   });
 });

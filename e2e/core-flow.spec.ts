@@ -131,9 +131,8 @@ test('a teacher can go from an empty app to an exportable seating plan', async (
   });
 
   await test.step('step 3 — save the plan under a name', async () => {
-    // The plan is named where it is saved: the toolbar's entry opens a panel
-    // with its name, and Enter saves under it.
-    await page.getByRole('button', { name: 'Plan speichern' }).click();
+    // The plan is named where it is saved: the inspector's "Plan" section
+    // holds its name, and Enter saves under it.
     const name = page.getByRole('textbox', { name: 'Name des Sitzplans' });
     await name.fill('E2E Plan');
     await name.press('Enter');
