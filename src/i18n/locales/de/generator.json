@@ -2,7 +2,7 @@
   "help": {
     "students": {
       "title": "Klassenliste",
-      "item1": "Lege in der Klassenverwaltung beliebig viele Klassen an und wechsle zwischen ihnen – jede Klasse hat eigene Schüler und Sitzpläne.",
+      "item1": "Lege in der Klassenverwaltung beliebig viele Klassen an und wechsle zwischen ihnen – jede Klasse hat eigene Schüler, Klassenräume und Sitzpläne.",
       "item2": "Füge Schüler einzeln hinzu, erzeuge Platzhalter für eine ganze Klasse oder importiere eine CSV-Datei – „So muss die CSV-Datei aussehen“ zeigt dir den nötigen Aufbau.",
       "item3": "Wähle bis zu 3 Wunsch- und Distanzpartner pro Schüler – die Reihenfolge bestimmt die Priorität.",
       "item4": "Mit Suche, Filter und Sortierung findest du einzelne Schüler; über die Auswahlkästchen bearbeitest du mehrere Schüler gleichzeitig.",
@@ -21,33 +21,33 @@
     },
     "plan": {
       "title": "Sitzplan",
-      "item1": "Rechts im Inspektor stellst du für jedes Kriterium ein, wie wichtig es ist – Aus, Beachten, Wichtig oder Sehr wichtig –, oder du wählst ein Rezept, das alle auf einmal setzt.",
-      "item2": "Ziehe Schüler auf andere Plätze – auf einem besetzten Platz tauschen die beiden. Esc bricht das Ziehen ab. Mit der Tastatur nimmt die Eingabetaste einen Schüler auf, die Pfeiltasten wählen den Platz, die Eingabetaste setzt ihn ab.",
+      "item1": "Rechts im Inspektor benennst du den Sitzplan, speicherst ihn und stellst für jedes Kriterium ein, wie wichtig es ist, oder du wählst ein Rezept wie z. B. „Klassenarbeit“, das eine vordefinierte Auswahl setzt.",
+      "item2": "Ziehe Schüler auf andere Plätze. Esc bricht das Ziehen ab. Mit der Tastatur wählt die Eingabetaste einen Schüler aus, die Pfeiltasten wählen den Platz, die Eingabetaste setzt ihn dorthin.",
       "item3": "Klicke auf das Schloss-Symbol, um einen Platz beim nächsten Mischen zu sperren.",
       "item4": "Der Knopf über den Kriterien zeigt in Prozent, wie gut der Plan sie erfüllt, und blendet unter jedem Kriterium eine Leiste ein – fährst du über sie, werden die betroffenen Plätze markiert.",
-      "item5": "In den Ansichtseinstellungen legst du fest, wie Namen erscheinen sollen (nur Vorname, Vorname + Initial oder Vor- und Nachname) und ob Fotos angezeigt werden.",
+      "item5": "In den Ansichtseinstellungen legst du unter anderem fest, wie Namen erscheinen sollen (nur Vorname, Vorname + Initial oder Vor- und Nachname) und ob Fotos angezeigt werden.",
       "item6": "Änderungen am Sitzplan kannst du über die entsprechenden Icons in der Statusleiste rückgängig machen und wiederherstellen.",
       "item7": "Fahre über ein Icon auf einem Platz oder tippe darauf, um zu sehen, was es bedeutet – die Plätze aller, die es teilen, werden dabei markiert. Unter „Merkmale“ in der Werkzeugleiste findest du die Legende, wählst, welche Icons die Plätze zeigen, und schaltest Erklärung und Markieren ab."
     },
     "circle": {
       "title": "Sitzkreis",
-      "item1": "Ziehe Schüler auf andere Plätze im Kreis – die beiden tauschen. Esc bricht das Ziehen ab.",
+      "item1": "Ziehe Schüler auf andere Plätze im Kreis. Esc bricht das Ziehen ab.",
       "item2": "Grüne Linien zeigen Verbindungen zu Tischnachbarn im Sitzplan.",
       "item3": "Blende Verbindungen in der Werkzeugleiste unter „Ansichtseinstellungen“ ein oder aus.",
-      "item4": "Der Sitzkreis entsteht aus dem Sitzplan und lässt sich verändern. „Speichern“ im Inspektor unter „Plan“ sichert ihn zusammen mit dem Plan; exportieren und präsentieren kannst du ihn für sich.",
+      "item4": "Der Sitzkreis entsteht aus dem Sitzplan und lässt sich verändern. „Speichern“ im Inspektor unter „Plan“ sichert ihn zusammen mit dem Plan; du kannst ihn auch einzeln exportieren und präsentieren.",
       "item5": "Fahre über ein Icon auf einem Platz oder tippe darauf, um zu sehen, was es bedeutet – die Plätze aller, die es teilen, werden dabei markiert. Unter „Merkmale“ in der Werkzeugleiste findest du die Legende, wählst, welche Icons die Plätze zeigen, und schaltest Erklärung und Markieren ab.",
-      "item6": "Mit dem Schloss hält ein Schüler seinen Platz im Kreis: Ziehen, Mischen und Neu-Erzeugen lassen ihn dort. Mit der Tastatur nimmt die Eingabetaste einen Schüler auf, die Pfeiltasten wählen den Platz, die Eingabetaste setzt ihn ab.",
+      "item6": "Mit dem Schloss behält ein Schüler seinen Platz im Kreis: Ziehen, Mischen und Neu-Erzeugen lassen ihn dort.",
       "item7": "Änderungen am Sitzkreis kannst du über die entsprechenden Icons in der Statusleiste rückgängig machen und wiederherstellen."
     },
     "export": {
       "title": "Export",
-      "item1": "Passe den Namen deines Sitzplans an.",
+      "item1": "Passe den Namen deines Sitzplans an, ohne den gespeicherten Plan umzubenennen.",
       "item2": "Wechsel zwischen Hochformat und Querformat für den PDF-Export.",
-      "itemFlip": "Lege im Seitenformat die Blickrichtung fest: „Von hinten“ dreht den Raum um 180° für ein Pult hinten im Raum, sodass Namen lesbar bleiben.",
-      "item3": "Lege rechts im Inspektor fest, was auf dem Blatt steht: Klasseninfos, Fotos, Merkmale, Legende und Raumelemente.",
+      "itemFlip": "Lege im Seitenformat die Blickrichtung fest: „Von hinten“ dreht den Raum um 180° für ein Pult im hinteren Teil des Raums, sodass Namen lesbar bleiben.",
+      "item3": "Lege rechts im Inspektor fest, was auf dem Blatt zu sehen sein soll: Klasseninfos, Fotos, Farben, Merkmale, Legende und Raumelemente.",
       "itemNames": "Wähle, wie Namen erscheinen: nur Vorname, Vorname + Initial des Nachnamens oder Vor- und Nachname.",
       "item4": "Wechsle in der Werkzeugleiste links zwischen Sitzplan und Sitzkreis.",
-      "item5": "Neben PDF und Druck kannst du die Ansicht auch als PNG-Bild oder SVG-Vektorgrafik speichern."
+      "item5": "Neben PDF und Druck kannst du den Plan über die Werkzeugleiste auch als PNG-Bild oder SVG-Vektorgrafik speichern."
     },
     "present": {
       "title": "Präsentiermodus",
@@ -55,20 +55,20 @@
       "item2": "Die Schüleransicht zeigt den Plan aus Sicht der Klasse – ohne Merkmale und Fotos.",
       "item3": "Blende über die Leiste unten Merkmale, Fotos, Farben und Raumelemente ein oder aus.",
       "itemNames": "Der Button „Namen“ schaltet die Anzeige zwischen Vorname, Vorname + Initial des Nachnamens sowie Vor- und Nachname um.",
-      "itemContrast": "Der Kontrastmodus zeigt den Plan schwarz auf weiß mit dickeren Konturen – so bleibt er an der Tafel auch in hellen Räumen gut lesbar.",
+      "itemContrast": "Der Kontrastmodus zeigt den Plan schwarz auf weiß mit dickeren Konturen – so bleibt er auch in hellen Räumen gut lesbar.",
       "item4": "Stelle die Größe mit dem Regler, dem Mausrad oder zwei Fingern ein und verschiebe die Ansicht durch Ziehen; das Zentrieren-Symbol setzt sie zurück.",
       "item5": "Mit Alt/⌥+← kehrst du zum Generator zurück.",
       "item6": "„Wer kommt dran?“ zieht einen zufälligen Schüler und hebt seinen Platz hervor – jeder kommt einmal dran, bevor sich jemand wiederholt.",
-      "item7": "Tastatur: F Vollbild, Leertaste zieht einen Schüler, Esc setzt die Auswahl zurück, + / − zoomen, 0 zentriert.",
-      "itemFullscreen": "Im Vollbild gehört die Wand dem Plan: Die Leiste oben verschwindet, die Leiste unten erscheint, sobald du mit dem Zeiger an den unteren Rand fährst oder dort tippst, und blendet sich kurz danach wieder aus."
+      "item7": "Tastatur: F für Vollbild, Leertaste wählt einen zufälligen Schüler, Esc setzt die Auswahl zurück, + / − zoomen, 0 zentriert den Sitzplan.",
+      "itemFullscreen": "Im Vollbild verschwindet die Leiste oben, die Leiste unten erscheint, sobald du mit dem Zeiger an den unteren Rand fährst oder dort tippst, und blendet sich kurz danach wieder aus."
     },
     "library": {
       "title": "Bibliothek",
-      "item1": "Links stehen deine Klassen, daneben die Räume der gewählten Klasse und darin ihre Pläne – wie Ordner in einem Dateimanager.",
+      "item1": "Links stehen deine Klassen, daneben die Räume der gewählten Klasse und darin ihre Pläne.",
       "item2": "Was du auswählst, zeigt der Inspektor: Dort benennst du es um, verschiebst einen Plan in einen anderen Raum oder löschst es.",
-      "item3": "„Öffnen“ unten rechts holt die Auswahl in die Arbeitsfläche: einen Plan auf die Ebene Plan, einen Raum auf die Ebene Raum, eine Klasse auf die Ebene Klasse.",
-      "item4": "„Letzte Mischungen“ und „Nachbarschaften“ gehören zur Klasse: die letzten 20 Mischungen und wer schon nebeneinander saß, über alle Räume hinweg.",
-      "item5": "„Raumvorlagen“ gelten für alle Klassen. Geöffnet wird eine Vorlage als neuer Raum der offenen Klasse."
+      "item3": "„Öffnen“ unten rechts holt die Auswahl in die Arbeitsfläche.",
+      "item4": "„Letzte Mischungen“ und „Nachbarschaften“ gehören zur Klasse: die letzten 20 Mischungen und wer schon nebeneinander saß, über alle Räume der Klasse hinweg.",
+      "item5": "„Raumvorlagen“ können von allen Klassen geöffnet werden. Wenn du die Vorlage öffnest, wird sie ein neuer Raum der aktuellen Klasse."
     }
   },
   "sidebar": {
@@ -125,7 +125,7 @@
     "fullscreenExitTitle": "Vollbild beenden (F)",
     "perspective": "Ansicht",
     "contrast": "Kontrast",
-    "contrastTitle": "Kontrastmodus: schwarz auf weiß, dickere Konturen — für helle Räume",
+    "contrastTitle": "Kontrastmodus: schwarz auf weiß, dickere Konturen",
     "size": "Größe",
     "planShort": "Plan",
     "circleShort": "Kreis",
@@ -136,7 +136,7 @@
     "groups": "Gruppen bilden",
     "groupsTitle": "Aus dieser Klasse Gruppen ziehen",
     "duties": "Dienste",
-    "dutiesTitle": "Die Dienste dieser Klasse verteilen"
+    "dutiesTitle": "Dienste dieser Klasse verteilen"
   },
   "mode": {
     "table": "Sitzplan",
@@ -198,7 +198,7 @@
       "moved": "{{name}} auf Tisch {{table}}, Platz {{seat}} abgesetzt.",
       "cancelled": "Umsetzen abgebrochen.",
       "lockedTarget": "Tisch {{table}}, Platz {{seat}} ist gesperrt. Bitte anderen Platz wählen.",
-      "sourceLocked": "Dieser Platz ist gesperrt und kann nicht aufgenommen werden.",
+      "sourceLocked": "Dieser Platz ist gesperrt und kann nicht verschoben werden.",
       "moveFailed": "Umsetzen nicht möglich."
     },
     "ariaBadges": "Merkmale: {{list}}",
@@ -212,7 +212,7 @@
     "aged_one": "Dein letztes Backup ist {{count}} Tag alt.",
     "aged_other": "Dein letztes Backup ist {{count}} Tage alt.",
     "never": "Du hast noch kein Backup erstellt.",
-    "why": "Klassenplan speichert alles nur in diesem Browser. Wenn du den Browser-Speicher leerst, das Gerät wechselst oder die Seite mehrere Wochen nicht besuchst, können die Daten verloren gehen. Ein Backup ist die einzige Kopie.",
+    "why": "Klassenplan speichert die Daten nur in diesem Browser. Wenn du den Browser-Speicher leerst, das Gerät wechselst oder die Seite mehrere Wochen nicht besuchst, können die Daten verloren gehen. Ein Backup ist die einzige Kopie.",
     "create": "Backup erstellen",
     "later": "Später erinnern",
     "neverAgain": "Nicht mehr erinnern",
@@ -241,7 +241,7 @@
       "tab": "Nachbarschaften",
       "empty": "Noch keine Auswertung möglich.",
       "emptyHint": "Sobald du einen Sitzplan präsentierst, druckst, exportierst oder unter eigenem Namen speicherst, wird er hier gewertet. Mischen allein zählt nicht.",
-      "emptyHintManual": "Die automatische Erkennung ist für diese Klasse aus. Markiere einen Plan in der Bibliothek als genutzt, dann wird er hier gewertet.",
+      "emptyHintManual": "Die automatische Erkennung ist für diese Klasse aus. Markiere einen Plan in der Bibliothek als genutzt, dann wird er gewertet.",
       "basis_one": "Beruht auf {{count}} gewertetem Sitzplan",
       "basis_other": "Beruht auf {{count}} gewerteten Sitzplänen",
       "basisSince": "seit {{date}}.",
@@ -256,8 +256,8 @@
         "presented": "präsentiert",
         "exported": "exportiert",
         "saved": "gespeichert",
-        "edited": "von Hand angepasst",
-        "marked": "von Hand markiert"
+        "edited": "von dir angepasst",
+        "marked": "von dir markiert"
       },
       "reset": "Zurücksetzen",
       "resetTitle": "Alle bisherigen Nachbarschaften vergessen und ab jetzt neu zählen",
@@ -294,7 +294,7 @@
   },
   "classPanel": {
     "name": "Name",
-    "nameTaken": "Eine Klasse heißt schon so.",
+    "nameTaken": "Eine andere Klasse heißt schon so.",
     "newName": "Name der neuen Klasse",
     "namePlaceholder": "z. B. Klasse 7b",
     "schoolYear": "Schuljahr",
@@ -313,7 +313,7 @@
       },
       "quietWork": {
         "label": "Ruhige Arbeitsphase",
-        "desc": "Trennt, was stört: Unruhe, Ablenkbarkeit, Distanzwünsche. Vordere Plätze zählen."
+        "desc": "Trennt störende Faktoren: Unruhe, Ablenkbarkeit, Distanzwünsche."
       },
       "groupWork": {
         "label": "Gruppenarbeit",
@@ -321,11 +321,11 @@
       },
       "exam": {
         "label": "Klassenarbeit",
-        "desc": "Größtmöglicher Abstand: Wünsche zählen nicht, neue Nachbarn schon."
+        "desc": "Größtmöglicher Abstand: Wünsche zählen nicht."
       },
       "newClass": {
         "label": "Neue Klasse",
-        "desc": "Weit mischen, niemanden allein sitzen lassen, Rollen verteilen."
+        "desc": "Viel mischen, niemanden allein sitzen lassen, Rollen im Raum verteilen."
       }
     },
     "enableAll": "Alle Kriterien aktivieren",
@@ -352,7 +352,7 @@
     "criteria": {
       "avoidPreviousPairs": {
         "label": "Wiederholung",
-        "desc": "Schüler, die zuletzt nebeneinander gemischt wurden, trennen"
+        "desc": "Schüler, die zuletzt nebeneinander saßen, trennen"
       },
       "avoidRestlessTogether": {
         "label": "Unruhe",
@@ -368,7 +368,7 @@
       },
       "preferGenderMix": {
         "label": "Geschlechter",
-        "desc": "Geschlechter mischen für ausgewogene Tischbesetzung"
+        "desc": "Geschlechter an den Tischen mischen"
       },
       "considerWishPartners": {
         "label": "Wunschpartner",
@@ -384,7 +384,7 @@
       },
       "homogeneousPerformanceGroups": {
         "label": "Fördern (homogen)",
-        "desc": "Schüler mit ähnlichem Förderstand zusammen"
+        "desc": "Schüler mit ähnlichem Leistungsniveau zusammen"
       },
       "preferFrontForNeedsFrontSeat": {
         "label": "Vordere Plätze",
@@ -396,11 +396,11 @@
       },
       "preferWindowSeats": {
         "label": "Fensterplätze",
-        "desc": "Schüler mit Fenster-Präferenz näher am Fenster platzieren"
+        "desc": "Schüler mit Wunsch nach Fensterplatz näher am Fenster platzieren"
       },
       "preferDoorSeats": {
         "label": "Türnähe",
-        "desc": "Schüler mit Tür-Präferenz nahe am Eingang platzieren"
+        "desc": "Schüler mit Wunsch nach Türnähe nahe an einer Tür platzieren"
       },
       "preferLanguageMixing": {
         "label": "Sprachförderung",
@@ -408,7 +408,7 @@
       },
       "distributeSocialRoles": {
         "label": "Soziale Rollen",
-        "desc": "Mediatoren, Anführer und Einzelgänger verteilen"
+        "desc": "Soziale Rollen an den Tischen verteilen"
       }
     },
     "criterionNotAvailable": "Kriterium nicht verfügbar",
@@ -416,9 +416,9 @@
       "considerWishPartners": "Kein Schüler hat einen Wunschpartner",
       "avoidConflictPartners": "Kein Schüler hat einen Distanzwunsch",
       "avoidRestlessTogether": "Weniger als 2 Schüler sind als unruhig markiert",
-      "avoidConcentrationTogether": "Benötigt 2 Schüler mit Konzentrationsproblemen – oder einen und mindestens einen unruhigen Schüler",
-      "avoidConcentrationNearRestless": "Benötigt unruhige und konzentrationsschwächere Schüler",
-      "preferGenderMix": "Mindestens zwei Geschlechtsangaben erforderlich, um dieses Kriterium zu nutzen",
+      "avoidConcentrationTogether": "Funktioniert erst ab 2 Schülern mit Konzentrationsproblemen – oder ab einem, wenn mindestens ein Schüler unruhig ist",
+      "avoidConcentrationNearRestless": "Funktioniert nur mit mindestens einem unruhigen und einem konzentrationsschwächeren Schüler",
+      "preferGenderMix": "Mindestens zwei Geschlechtsangaben erforderlich",
       "avoidShyAlone": "Kein Schüler ist als schüchtern markiert",
       "performanceLevels": "Keine Schüler mit Leistungseinstufung vorhanden",
       "preferFrontForNeedsFrontSeat": "Kein Schüler benötigt einen vorderen Platz",
@@ -459,9 +459,9 @@
     "portrait": "Hochformat",
     "viewDirection": "Blickrichtung",
     "viewFromFront": "Von vorn",
-    "viewFromFrontTitle": "Der Plan wird von vorn gelesen, also mit Blick auf die Klasse.",
+    "viewFromFrontTitle": "Plan mit Blick auf die Klasse.",
     "viewFromBack": "Von hinten",
-    "viewFromBackTitle": "Der Raum wird um 180° gedreht, sodass Namen lesbar bleiben.",
+    "viewFromBackTitle": "Der Raum wird um 180° gedreht.",
     "printDocumentTitle": "Klassenplan",
     "printShortcut": "Drucken (Strg/⌘+P)",
     "tablePdfShortcut": "Sitzplan als PDF exportieren (P)",
@@ -473,7 +473,7 @@
     "backTitle": "Zurück (Alt/⌥+←)",
     "preview": "Vorschau",
     "roomElements": "Raumelemente",
-    "roomElementsToggleAllMixed": "Alle Raumelemente ein- oder ausblenden (einige sichtbar)",
+    "roomElementsToggleAllMixed": "Alle Raumelemente ein- oder ausblenden",
     "showConnections": "Verbindungen anzeigen",
     "showBoard": "Tafel anzeigen",
     "showNeeds": "Bedürfnisse anzeigen",
@@ -575,7 +575,7 @@
     "autoMixRunning": "Automatisches Mischen läuft",
     "canvasLabel": "Sitzplan: {{occupied}} von {{total}} Plätzen belegt",
     "classDataChanged": "Klassendaten wurden geändert",
-    "classDataChangedHint": "Deine Anpassungen sind sichtbar. Mische den Plan neu, damit der Algorithmus darauf reagieren kann.",
+    "classDataChangedHint": "Mische den Plan neu, damit die Änderungen in den Sitzplan übernommen werden.",
     "fulfillmentLabel": "Erfüllung",
     "hideNotice": "Hinweis ausblenden",
     "nameDisplay": {
@@ -762,15 +762,15 @@
   "demoClass": {
     "className": "Beispielklasse",
     "label": "Zum Ausprobieren",
-    "notes": "Erfundene Schüler mit Fotos – zum Ausprobieren. Du kannst die Klasse jederzeit über die Klassenauswahl löschen.",
+    "notes": "Erfundene Schüler mit Fotos. Du kannst die Klasse jederzeit über die Klassenauswahl löschen.",
     "button": "Beispielklasse laden",
     "switchButton": "Zur Beispielklasse wechseln",
     "loading": "Beispielklasse wird angelegt …",
     "hint": "24 erfundene Schüler mit Fotos und ein eingerichteter Klassenraum zum Ausprobieren.",
-    "emptyClassPrompt": "Lieber erst ausprobieren? Die Beispielklasse kommt als eigene Klasse dazu.",
-    "emptyClassSwitchPrompt": "Lieber erst ausprobieren? Die Beispielklasse ist schon angelegt.",
-    "addMenuHint": "Legt eine eigene Klasse mit 24 erfundenen Schülern an – diese Klasse bleibt, wie sie ist.",
-    "addMenuSwitchHint": "Öffnet die Beispielklasse – diese Klasse bleibt, wie sie ist."
+    "emptyClassPrompt": "Lieber erst ausprobieren? Lade die Beispielklasse.",
+    "emptyClassSwitchPrompt": "Die Beispielklasse ist schon angelegt.",
+    "addMenuHint": "Legt eine eigene Klasse mit 24 erfundenen Schülern an – deine Klasse bleibt, wie sie ist.",
+    "addMenuSwitchHint": "Öffnet die Beispielklasse – deine Klasse bleibt, wie sie ist."
   },
   "tour": {
     "stepCounter": "{{current}} von {{total}}",
@@ -797,7 +797,7 @@
       },
       "classSwitcher": {
         "title": "Deine Klassen",
-        "body": "Oben in der Kopfzeile steht, welche Klasse offen ist. Hier wechselst du zwischen deinen Klassen, legst neue an oder benennst sie um. Jede Klasse hat eigene Schüler, Räume und Sitzpläne."
+        "body": "Oben in der Kopfzeile steht, welche Klasse gerade geöffnet ist. Hier wechselst du zwischen deinen Klassen, legst neue an oder benennst sie um. Jede Klasse hat eigene Schüler, Räume und Sitzpläne."
       },
       "backup": {
         "title": "Daten sichern",
@@ -809,15 +809,15 @@
       },
       "studentRow": {
         "title": "Schüler bearbeiten",
-        "body": "Ein Klick auf die Zeile öffnet den Schüler rechts im Inspektor. Dort legst du Merkmale wie Unruhe, Schüchternheit, Sprachstand, soziale Rolle oder Wunsch- und Distanzpartner fest und fügst ein Foto hinzu."
+        "body": "Ein Klick auf die Zeile öffnet den Schüler rechts im Inspektor. Dort legst du Merkmale wie Unruhe, Schüchternheit, Sprachstand, soziale Rolle oder Wunsch- und Distanzpartner fest und fügst bei Bedarf ein Foto hinzu."
       },
       "views": {
         "title": "Drei Ansichten",
-        "body": "„Klassenliste“ zeigt alle Schüler, „Merkmale“ fragt die ganze Klasse auf einmal – etwa „Wer zeigt aktuell Unruhe?“ –, und „Beziehungen“ zeigt, wer neben wem sitzen möchte."
+        "body": "„Klassenliste“ zeigt alle Schüler, unter „Merkmale“ fügst du ganz leicht Merkmale für die ganze Klasse hinzu – etwa „Wer zeigt aktuell Unruhe?“ –, und „Beziehungen“ zeigt, wer neben wem sitzen möchte oder nicht."
       },
       "library": {
         "title": "Bibliothek",
-        "body": "Ganz unten in jeder Werkzeugleiste: Hier liegen deine Klassen mit ihren Räumen, Plänen, Mischungen und Nachbarschaften – geordnet wie Ordner in einem Dateimanager."
+        "body": "Hier liegen deine Klassen mit ihren Räumen, Plänen, Mischungen und Nachbarschaften."
       }
     },
     "layout": {
@@ -827,7 +827,7 @@
       },
       "canvasSettings": {
         "title": "Ansichtseinstellungen",
-        "body": "Unter „Ansichtseinstellungen“ in der Werkzeugleiste passt du an, was der Raum zeigt – in jeder Ebene mit eigenen Optionen. Hier schaltest du Einrasten am Raster, Raster, Ausrichtungshilfen, Fotokollisionen und Raumelemente ein oder aus. Im Sitzplan wählst du, ob Fotos erscheinen und wie Namen abgekürzt werden, im Sitzkreis außerdem, ob Verbindungen sichtbar sind."
+        "body": "Unter „Ansichtseinstellungen“ in der Werkzeugleiste passt du an, was der Raum zeigt – in jeder Ebene mit eigenen Optionen. Hier schaltest du Einrasten am Raster, Raster, Ausrichtungshilfen, Fotokollisionen und Raumelemente ein oder aus. Im Sitzplan wählst du z. B., ob Fotos erscheinen und wie Namen abgekürzt werden, im Sitzkreis außerdem, ob Verbindungen sichtbar sein sollen."
       },
       "proceed": {
         "title": "Weiter zum Sitzplan",
@@ -839,7 +839,7 @@
       },
       "setup": {
         "title": "Raum einrichten",
-        "body": "Solange nichts ausgewählt ist, gehört der Inspektor dem Raum: „Neu einrichten“ stellt so viele Tische auf, wie deine Klasse braucht, unter „Räume“ legst du weitere Räume an – etwa einen Fachraum mit eigenen Plänen –, und unter „Vorlagen“ hebst du den Raum für andere Klassen auf oder öffnest einen gespeicherten."
+        "body": "„Neu einrichten“ stellt so viele der ausgewählten Tische auf, wie deine Klasse braucht, unter „Räume“ legst du weitere Räume an – etwa einen Fachraum mit eigenen Plänen –, und unter „Vorlagen“ speicherst du den Raum auch für andere Klassen oder öffnest einen der gespeicherten Räume in der aktuellen Klasse."
       },
       "status": {
         "title": "Plätze im Blick",
@@ -853,15 +853,15 @@
       },
       "circle": {
         "title": "Sitzkreis",
-        "body": "Hier wechselst du zwischen Sitzplan und Sitzkreis. Der Sitzkreis entsteht aus dem aktuellen Sitzplan und zeigt Tischnachbarn als Verbindungen. Du kannst ihn verändern; „Speichern“ im Inspektor unter „Plan“ sichert ihn zusammen mit dem Plan."
+        "body": "Hier wechselst du zwischen Sitzplan und Sitzkreis. Der Sitzkreis entsteht aus dem aktuellen Sitzplan und zeigt dir über die grünen Linien die Tischnachbarn. Du kannst ihn verändern, ohne dass der Sitzplan geändert wird; „Speichern“ sichert ihn immer zusammen mit dem Sitzplan."
       },
       "exits": {
         "title": "Präsentieren und exportieren",
-        "body": "Unten rechts in der Statusleiste zeigst du den Plan an der Tafel oder exportierst ihn als PDF. Beides sichert den Plan vorher, wenn du etwas geändert hast."
+        "body": "Unten rechts in der Statusleiste kannst du den Plan an der Tafel präsentieren oder ihn als PDF exportieren. Beides sichert den Plan automatisch, wenn du noch etwas geändert hast."
       },
       "fulfillment": {
         "title": "Kriterien und Erfüllung",
-        "body": "Rechts im Inspektor stellst du ein, welche Kriterien beim Mischen zählen und wie wichtig sie sind. Die Zeile „Erfüllung“ darüber – und links die Statusleiste – zeigt in Prozent, wie gut der Plan sie erfüllt; ihr Schalter blendet unter jedem Kriterium eine Leiste ein: Zeigst du auf sie, werden die betroffenen Plätze markiert, ein Klick hält die Markierung fest."
+        "body": "Rechts im Inspektor stellst du ein, welche Kriterien beim Mischen beachtet werden und wie wichtig sie sind. Die Zeile „Erfüllung“ darüber – und unten links in der Statusleiste – zeigt in Prozent, wie gut der Plan sie erfüllt; ihr Schalter blendet unter jedem Kriterium eine Leiste ein: Zeigst du auf sie, werden die betroffenen Plätze markiert, ein Klick lässt die Markierung für eine bessere Übersicht stehen."
       },
       "mix": {
         "title": "Mischen",
@@ -869,25 +869,21 @@
       },
       "sidebar": {
         "title": "Werkzeuge",
-        "body": "Hier wechselst du zwischen Sitzplan und Sitzkreis, legst fest, was der Plan zeigt, und sicherst den Plan. Ganz unten steht auf jeder Ebene dasselbe: die „Bibliothek“ mit deinen Klassen, Räumen und Plänen, die Klassenwerkzeuge, das Backup und „Unterstützen“."
+        "body": "Hier wechselst du zwischen Sitzplan und Sitzkreis und legst fest, was der Plan zeigt. Unten findest du wie überall die „Bibliothek“ mit deinen Klassen, Räumen und Plänen, die Klassenwerkzeuge, das Backup und „Unterstützen“."
       },
       "sidebarToggle": {
         "title": "Werkzeugleiste erweitern und minimieren",
-        "body": "Mit diesem Knopf erweiterst oder minimierst du die Werkzeugleiste (Strg/⌘+B). Minimiert zeigt sie ihre Funktionen als Symbole und lässt dem Plan mehr Platz."
+        "body": "Mit diesem Knopf erweiterst oder minimierst du die Werkzeugleiste (Strg/⌘+B). Minimiert zeigt sie ihre Funktionen als Symbole."
       }
     },
     "library": {
       "columns": {
         "title": "Alles an einem Ort",
-        "body": "Deine Klassen, ihre Räume mit Plänen, den letzten Mischungen und Nachbarschaften sowie die Raumvorlagen liegen hier als Ordner in Spalten. Mit den Pfeiltasten wanderst du hindurch, F2 benennt um, Entf löscht."
+        "body": "Deine Klassen, ihre Räume mit Plänen, den letzten Mischungen und Nachbarschaften sowie die Raumvorlagen liegen hier in einer Ordneransicht in Spalten. Mit den Pfeiltasten wechselst du zwischen ihnen, F2 benennt um, Entf löscht."
       },
       "inspector": {
         "title": "Ansehen und ändern",
-        "body": "Was du auswählst, zeigt der Inspektor: Hier benennst du um, verschiebst einen Plan in einen anderen Raum, duplizierst oder löschst – und legst bei einem Plan fest, ob er als genutzt zählt."
-      },
-      "path": {
-        "title": "Wo du gerade bist",
-        "body": "Der Pfad in der Statusleiste zeigt, wo die Auswahl liegt. Jeder Schritt darin führt eine Ebene nach oben."
+        "body": "Was du auswählst, zeigt der Inspektor: Hier verwaltest du die Klassen, Räume und Pläne."
       },
       "open": {
         "title": "Öffnen",
@@ -961,7 +957,7 @@
     "visible": "Sichtbar",
     "setup": "Neu einrichten",
     "setupHint": "Stellt so viele Tische der ausgewählten Art auf, wie deine Klasse braucht.",
-    "setupReplaceHint": "Dein Raum wird komplett neu mit den ausgewählten Tischen eingerichtet.",
+    "setupReplaceHint": "Dein Raum wird komplett neu mit den jeweiligen Tischen eingerichtet.",
     "setupNoStudents": "Lege zuerst Schüler in der Klasse an.",
     "setupSingle": "Einzelplätze",
     "setupDouble": "Doppelplätze",
@@ -1053,7 +1049,7 @@
       "idle": "Tippe auf „Ziehen“ — {{waiting}} Schüler warten.",
       "remaining": "Noch {{remaining}} von {{total}} in dieser Runde",
       "emptyTitle": "Niemand zum Aufrufen",
-      "emptyBody": "Lege zuerst eine Klasse mit Namen an; danach zieht diese Ansicht daraus.",
+      "emptyBody": "Lege zuerst eine Klasse mit Schülern an.",
       "help1": "Jeder kommt einmal dran, bevor sich jemand wiederholt. Ist die Runde durch, beginnt die nächste.",
       "help2": "„Überspringen“ zieht jemand anderen und lässt die übersprungene Person in der Runde.",
       "help3": "Tastatur: Leertaste zieht, Esc beginnt von vorn."
@@ -1066,7 +1062,7 @@
       "emptyTitle": "Noch kein Sitzplan",
       "emptyBody": "Diese Ansicht liest den aktuellen Sitzplan. Misch ihn einmal, dann steht hier, wer wo sitzt.",
       "help1": "Tippe einen Namen; bleibt nur noch einer übrig, öffnet er sich von selbst.",
-      "help2": "Der Plan darunter hebt den Platz hervor, damit sich der Satz im Raum prüfen lässt."
+      "help2": "Der Plan zeigt dir den Platz des Schülers."
     },
     "groups": {
       "title": "Gruppen bilden",
@@ -1078,12 +1074,12 @@
       "memberCount_one": "{{count}} Person",
       "memberCount_other": "{{count}} Personen",
       "hint": "Aus {{total}} Schülern — tippe unten auf „Gruppen ziehen“.",
-      "conflict": "Nicht getrennt zu bekommen: {{names}}. Dafür reichen die Gruppen nicht.",
+      "conflict": "Nicht getrennt: {{names}}. Dafür reicht die Gruppenanzahl nicht.",
       "emptyTitle": "Keine Klasse zum Aufteilen",
-      "emptyBody": "Lege zuerst eine Klasse mit Namen an; danach zieht diese Ansicht daraus Gruppen.",
-      "help1": "Die Gruppen werden jedes Mal neu gezogen und nirgends gespeichert.",
+      "emptyBody": "Lege zuerst eine Klasse mit Schülern an.",
+      "help1": "Die Gruppen werden jedes Mal neu gezogen.",
       "help2": "Wer einen Distanzwunsch hat, landet nach Möglichkeit nicht in derselben Gruppe.",
-      "help3": "Der Sitzplan bleibt unberührt — eine Gruppe gilt für eine Stunde, ein Platz für das Halbjahr."
+      "help3": "Der Sitzplan bleibt unberührt."
     },
     "duties": {
       "title": "Dienste verteilen",
@@ -1113,17 +1109,17 @@
       "shortfall_one": "Die Klasse hat {{total}} Schüler — {{count}} Platz bleibt frei.",
       "shortfall_other": "Die Klasse hat {{total}} Schüler — {{count}} Plätze bleiben frei.",
       "pdf": "PDF",
-      "pdfTitle": "Verteilung als PDF speichern – als Aushang zum Drucken",
+      "pdfTitle": "Dienste als PDF speichern",
       "sheet": {
         "title": "Dienste",
         "duty": "Dienst",
         "holders": "Zuständig"
       },
       "emptyTitle": "Keine Klasse für Dienste",
-      "emptyBody": "Lege zuerst eine Klasse mit Namen an; danach verteilt diese Ansicht die Dienste.",
+      "emptyBody": "Lege zuerst eine Klasse mit Schülern an.",
       "help1": "Wer bisher die wenigsten Dienste hatte, kommt zuerst dran; bei Gleichstand, wer diesen Dienst seltener hatte.",
       "help2": "Jede Person bekommt pro Runde höchstens einen Dienst.",
-      "help3": "Fällt jemand aus, ersetzen die Pfeile neben dem Namen nur diese Person.",
+      "help3": "Fällt jemand aus, kannst du über die Pfeile neben dem Namen den Dienst neu verteilen.",
       "help4": "Die Dienste und die letzten 20 Runden bleiben bei der Klasse gespeichert und sind Teil des Backups."
     },
     "back": "Zurück",
@@ -1207,7 +1203,7 @@
       "locks": "Feste Plätze",
       "used": "Genutzt",
       "usage": "Nutzung",
-      "usedHint": "Ein genutzter Plan zählt für die Nachbarschaften: Wer darin nebeneinandersaß, wird beim Mischen möglichst nicht wieder zusammengesetzt.",
+      "usedHint": "Ein genutzter Plan zählt für die Nachbarschaften: Wer darin nebeneinandersaß, wird beim Mischen mit aktiviertem Kriterium „Wiederholung“ möglichst nicht wieder zusammengesetzt.",
       "detect": "Automatisch erkennen",
       "detectOn": "Gilt für alle Pläne dieser Klasse: Ein Plan zählt als genutzt, sobald du ihn präsentierst, exportierst oder unter eigenem Namen speicherst.",
       "detectOff": "Gilt für alle Pläne dieser Klasse: Es zählen nur Pläne, die du selbst als genutzt markierst.",

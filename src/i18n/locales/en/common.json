@@ -64,7 +64,7 @@
   },
   "settings": {
     "characterKeys": "Single-key shortcuts",
-    "characterKeysHint": "Turn off single-key shortcuts ?, P, F, 1–3, Q/E."
+    "characterKeysHint": "Turn off ?, P, F, 1–3, Q/E."
   },
   "errors": {
     "generic": "An error occurred",
@@ -109,7 +109,7 @@
     "savePlanFailedConfirm": "Seating plan could not be saved. Return anyway?",
     "clearAllData": {
       "title": "Clear all data",
-      "message": "Do you really want to delete all data (including class list, templates, etc.)?",
+      "message": "Do you really want to delete all data (class list, templates, etc.)?",
       "confirm": "Delete",
       "cancel": "Cancel"
     }
@@ -152,7 +152,7 @@
     "shortcuts": "Shortcuts",
     "faq": "FAQ",
     "more": "Detailed answers are in the FAQ.",
-    "moreWithTour": "The tour shows you the most important places on this layer; the FAQ answers the rest."
+    "moreWithTour": "The tour shows you the most important places on this page; the FAQ tries to answer the rest."
   },
   "pwa": {
     "updateAvailable": "New version available",
@@ -166,7 +166,7 @@
     "updateCheckOffline": "Checking for updates needs an internet connection.",
     "guide": {
       "title": "Install Klassenplan as an app",
-      "intro": "As an app, Klassenplan opens in a window of its own from the Start menu, the Dock or the home screen, and works offline. Once it is installed, the browser offers to open it in the same place.",
+      "intro": "As an app, Klassenplan opens in a window of its own from the Start menu, the Dock or the home screen, and works offline.",
       "here": "In {{browser}}",
       "others": "Other browsers",
       "opensBackups": "Afterwards, double-clicking a backup (.klassenplan) opens the app and restores it.",
@@ -203,7 +203,7 @@
         },
         "firefox": {
           "name": "Firefox on Mac and Linux",
-          "note": "Here Firefox cannot install a website as an app. Use Chrome or Edge for that – in the browser, Klassenplan works just the same in Firefox, offline included."
+          "note": "Firefox cannot install a website as an app. Use Chrome or Edge for that – in the browser, Klassenplan works just the same in Firefox, even offline once it has been loaded."
         }
       }
     }
@@ -211,7 +211,7 @@
   "offline": {
     "badge": "Offline",
     "pageTitle": "Not available offline yet",
-    "pageMessage": "This page hasn't been loaded on this device yet. Once you're back online, it will open."
+    "pageMessage": "This page hasn't been loaded on this device yet. Once you're back online, it will open – and after that you can go offline again."
   },
   "loading": {
     "page": "Loading page",

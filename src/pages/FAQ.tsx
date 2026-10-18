@@ -362,7 +362,6 @@ export default function FAQ() {
         items: [
           'present',
           'tools',
-          'duties',
           'circle',
           'exportFormats',
           'print',

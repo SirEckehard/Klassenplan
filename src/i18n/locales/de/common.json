@@ -64,7 +64,7 @@
   },
   "settings": {
     "characterKeys": "Kürzel mit einer Taste",
-    "characterKeysHint": "Kürzel ?, P, F, 1–3, Q/E abschalten."
+    "characterKeysHint": "?, P, F, 1–3, Q/E abschalten."
   },
   "errors": {
     "generic": "Ein Fehler ist aufgetreten",
@@ -109,7 +109,7 @@
     "savePlanFailedConfirm": "Sitzplan konnte nicht gespeichert werden. Trotzdem zurückkehren?",
     "clearAllData": {
       "title": "Alle Daten löschen",
-      "message": "Möchtest du wirklich alle Daten (inkl. Klassenliste, Vorlagen etc.) löschen?",
+      "message": "Möchtest du wirklich alle Daten (Klassenliste, Vorlagen etc.) löschen?",
       "confirm": "Löschen",
       "cancel": "Abbrechen"
     }
@@ -152,7 +152,7 @@
     "shortcuts": "Tastenkürzel",
     "faq": "Häufige Fragen",
     "more": "Ausführliche Antworten stehen in den häufigen Fragen.",
-    "moreWithTour": "Die Tour zeigt dir die wichtigsten Stellen dieser Ebene, die häufigen Fragen beantworten den Rest."
+    "moreWithTour": "Die Tour zeigt dir die wichtigsten Stellen der Seite, die häufigen Fragen versuchen den Rest zu beantworten."
   },
   "pwa": {
     "updateAvailable": "Neue Version verfügbar",
@@ -166,7 +166,7 @@
     "updateCheckOffline": "Ohne Internetverbindung lässt sich nicht nach Updates suchen.",
     "guide": {
       "title": "Klassenplan als App installieren",
-      "intro": "Als App startet Klassenplan in einem eigenen Fenster aus dem Startmenü, dem Dock oder vom Home-Bildschirm und funktioniert offline. Ist sie schon installiert, bietet der Browser an derselben Stelle an, sie zu öffnen.",
+      "intro": "Als App startet Klassenplan in einem eigenen Fenster aus dem Startmenü, dem Dock oder vom Home-Bildschirm und funktioniert offline.",
       "here": "In {{browser}}",
       "others": "Andere Browser",
       "opensBackups": "Danach öffnet ein Doppelklick auf ein Backup (.klassenplan) die App und stellt es wieder her.",
@@ -203,7 +203,7 @@
         },
         "firefox": {
           "name": "Firefox auf Mac und Linux",
-          "note": "Hier kann Firefox keine Website als App installieren. Nimm dafür Chrome oder Edge – im Browser funktioniert Klassenplan in Firefox genauso, auch offline."
+          "note": "Firefox kann keine Website als App installieren. Nimm dafür Chrome oder Edge – im Browser funktioniert Klassenplan in Firefox genauso, nach einmaligem Laden sogar offline."
         }
       }
     }
@@ -211,7 +211,7 @@
   "offline": {
     "badge": "Offline",
     "pageTitle": "Offline noch nicht verfügbar",
-    "pageMessage": "Diese Seite wurde auf diesem Gerät noch nicht geladen. Sobald du wieder online bist, lässt sie sich öffnen."
+    "pageMessage": "Diese Seite wurde auf diesem Gerät noch nicht geladen. Sobald du wieder online bist, lässt sie sich öffnen, dann kannst du auch wieder offline gehen."
   },
   "loading": {
     "page": "Seite wird geladen",

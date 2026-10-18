@@ -143,7 +143,7 @@
     "addFirst": "Bitte zuerst Schüler hinzufügen",
     "incompleteData": "Bitte ergänze die fehlenden Namen.",
     "missingNames": "Bitte ergänze die fehlenden Namen.",
-    "missingGender": "Hinweis: Einige Geschlechtsangaben fehlen. Diese Information ist optional."
+    "missingGender": "Hinweis: Einige Geschlechtsangaben fehlen. Die Angabe ist optional."
   },
   "csv": {
     "parseError": "„{{fileName}}“ konnte nicht gelesen werden. Prüfe, ob die Datei wirklich eine Tabelle mit Kommas als Trennzeichen ist.",
@@ -192,11 +192,11 @@
   },
   "data": {
     "deleted": "Alle Daten wurden gelöscht",
-    "deleteError": "Daten konnten nicht gelöscht werden. Nutze die Löschen-Funktion deines Browsers.",
+    "deleteError": "Daten konnten nicht gelöscht werden. Bitte nutze die Löschen-Funktion deines Browsers.",
     "preferencesReset": "Deine Einstellungen wurden zurückgesetzt, da gespeicherte Daten beschädigt waren."
   },
   "storage": {
-    "quotaLow": "Der Browser-Speicher ist fast voll. Erstelle ein Backup und lösche Klassen, die du nicht mehr brauchst."
+    "quotaLow": "Der Browser-Speicher ist fast voll. Erstelle ein Backup oder lösche Klassen, die du nicht mehr brauchst."
   },
   "feature": {
     "notCopyable": "Die Tafel lässt sich nicht kopieren.",

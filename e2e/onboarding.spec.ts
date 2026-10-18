@@ -158,7 +158,6 @@ test('a first visitor tries the sample class with the tours as a guide', async (
     expect(await walkTour(page)).toEqual([
       'Alles an einem Ort',
       'Ansehen und ändern',
-      'Wo du gerade bist',
       'Öffnen',
       'Neue Klassen und Räume',
       'Hilfe und Tour',

@@ -42,7 +42,7 @@
     "diverse": "Divers",
     "noSelection": "Geschlecht: keine Angabe (optional)",
     "noValue": "Keine Angabe",
-    "hint": "Geschlechtsangaben sind optional, für spezifisches Mischen notwendig.",
+    "hint": "Geschlechtsangaben sind optional.",
     "selection": "Geschlechtsauswahl"
   },
   "studentFlags": {
@@ -98,7 +98,7 @@
     "export": "Klassenliste exportieren",
     "templateLink": "CSV-Vorlage",
     "downloadTemplate": "CSV-Vorlage herunterladen",
-    "formatHelp": "So muss die CSV-Datei aussehen"
+    "formatHelp": "So kann die CSV-Datei aussehen"
   },
   "csvHelp": {
     "title": "So sieht eine Klassenliste im CSV-Format aus",
@@ -238,7 +238,7 @@
     "scrollToActions": "Zum Ende der Liste",
     "scrollToListTop": "Zum Listenanfang",
     "emptyClassTitle": "{{className}} ist noch leer.",
-    "emptyClassHint": "Lege Schüler an, indem du Platzhalter anlegst, sie einzeln hinzufügst oder eine bestehende CSV importierst. Alle Eingaben gelten nur für diese Klasse.",
+    "emptyClassHint": "Lege Schüler an, indem du Platzhalter anlegst, sie einzeln hinzufügst oder eine bestehende CSV-Datei importierst. Alle Eingaben gelten nur für diese Klasse.",
     "emptyClassImportHint": "Hast du schon eine Liste aus deinem Schulverwaltungsprogramm – etwa WebUntis, Schulmanager oder SchILD? Die kannst du meist direkt hochladen: Klassenplan erkennt die üblichen Spaltennamen und Umlaute von selbst, umbenennen musst du nichts.",
     "removeStudentTitle": "Schüler löschen",
     "removeStudentMessage": "Möchtest du {{studentName}} wirklich löschen? Du kannst das mit Strg/⌘+Z rückgängig machen.",

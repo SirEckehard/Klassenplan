@@ -56,7 +56,6 @@ export default function LibraryStatusBar({
       start={
         <nav
           aria-label={t('library.path')}
-          data-tour={TOUR_ANCHORS.libraryPath}
           className="flex min-w-0 items-center gap-1 text-xs text-(--text-muted) sm:text-sm"
         >
           <button

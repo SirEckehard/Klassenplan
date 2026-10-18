@@ -143,7 +143,7 @@
     "addFirst": "Please add students first",
     "incompleteData": "Please complete the missing names.",
     "missingNames": "Please complete the missing names.",
-    "missingGender": "Note: Some gender information is missing. This information is optional."
+    "missingGender": "Note: Some gender information is missing. It is optional."
   },
   "csv": {
     "parseError": "“{{fileName}}” could not be read. Check that the file really is a table with commas as separators.",
@@ -192,11 +192,11 @@
   },
   "data": {
     "deleted": "All data has been deleted",
-    "deleteError": "Could not delete data. Use your browser's delete function.",
+    "deleteError": "Could not delete data. Please use your browser's delete function.",
     "preferencesReset": "Your preferences have been reset because saved data was corrupted."
   },
   "storage": {
-    "quotaLow": "Browser storage is almost full. Create a backup and delete classes you no longer need."
+    "quotaLow": "Browser storage is almost full. Create a backup or delete classes you no longer need."
   },
   "feature": {
     "notCopyable": "The board can't be copied.",

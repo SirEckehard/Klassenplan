@@ -42,7 +42,7 @@
     "diverse": "Diverse",
     "noSelection": "Gender: not specified (optional)",
     "noValue": "Not specified",
-    "hint": "Gender is optional, required for specific mixing.",
+    "hint": "Gender is optional.",
     "selection": "Gender selection"
   },
   "studentFlags": {
@@ -98,7 +98,7 @@
     "export": "Export class list",
     "templateLink": "CSV template",
     "downloadTemplate": "Download CSV template",
-    "formatHelp": "What the CSV file must look like"
+    "formatHelp": "What the CSV file can look like"
   },
   "csvHelp": {
     "title": "What a class list looks like in CSV format",
@@ -238,7 +238,7 @@
     "scrollToActions": "Jump to end of list",
     "scrollToListTop": "Jump to top of list",
     "emptyClassTitle": "{{className}} is still empty.",
-    "emptyClassHint": "Add students by creating placeholders, adding them individually, or importing an existing CSV. All entries apply only to this class.",
+    "emptyClassHint": "Add students by creating placeholders, adding them individually, or importing an existing CSV file. All entries apply only to this class.",
     "emptyClassImportHint": "Already have a list from your school administration software – WebUntis, Schulmanager or SchILD, say? You can usually upload it as it is: Klassenplan recognises the usual column names and accented characters on its own, so there is nothing to rename.",
     "removeStudentTitle": "Delete Student",
     "removeStudentMessage": "Do you really want to delete {{studentName}}? You can undo this with Ctrl/⌘+Z.",

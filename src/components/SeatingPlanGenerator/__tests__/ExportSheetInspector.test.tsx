@@ -125,7 +125,7 @@ describe('ExportSheetInspector room elements', () => {
     expect(onFeatureToggle).not.toHaveBeenCalledWith('cabinet', false);
   });
 
-  it('rests in the middle while only some are shown and turns them all on', () => {
+  it('turns them all on while only some are shown', () => {
     const onFeatureToggle = vi.fn();
     renderInspector({
       featureAvailability: { window: true, door: true },
@@ -134,8 +134,6 @@ describe('ExportSheetInspector room elements', () => {
     });
 
     const all = screen.getByRole('switch', { name: allRoom });
-    expect(all).toHaveAccessibleName(/einige sichtbar|some shown/);
-
     fireEvent.click(all);
     expect(onFeatureToggle).toHaveBeenCalledWith('window', true);
     expect(onFeatureToggle).toHaveBeenCalledWith('door', true);

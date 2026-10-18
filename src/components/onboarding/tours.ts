@@ -44,7 +44,6 @@ export const TOUR_ANCHORS = {
   planExits: 'plan-exits',
   libraryToolbar: 'library-toolbar',
   libraryColumns: 'library-columns',
-  libraryPath: 'library-path',
   libraryOpen: 'library-open',
 } as const;
 
@@ -109,7 +108,6 @@ export const TOURS: Record<TourId, readonly TourMark[]> = {
     { anchor: TOUR_ANCHORS.libraryColumns, textKey: 'tour.library.columns' },
     // The column, from `lg` up; folded or in a closed drawer it is skipped.
     { anchor: TOUR_ANCHORS.inspector, textKey: 'tour.library.inspector' },
-    { anchor: TOUR_ANCHORS.libraryPath, textKey: 'tour.library.path' },
     { anchor: TOUR_ANCHORS.libraryOpen, textKey: 'tour.library.open' },
     { anchor: TOUR_ANCHORS.libraryToolbar, textKey: 'tour.library.toolbar' },
     { anchor: TOUR_ANCHORS.help, textKey: 'tour.help' },
