@@ -1,6 +1,6 @@
 # Algorithm Documentation
 
-> **Status:** current · **Last reviewed:** 2026-10-18
+> **Status:** current · **Last reviewed:** 2026-10-19
 
 This document describes the algorithms used in the Klassenplan seating generator.
 
@@ -13,8 +13,9 @@ A plan is mixed in two phases that decide by one score:
 
 Both run as one session, in one worker call (`mix:run`, `runMixSession`), and
 decide by the same facts ([decision 0027](decisions/0027-one-mix-session.md)):
-the tables' targets the construction draws, and the earlier pairs of what came
-before this mix — the plan on screen, the plans in use, the earlier mixes —
+the tables' targets the construction draws, and the pairs of the plans in use
+— never an earlier mix or the plan on screen as such
+([decision 0032](decisions/0032-repetition-reads-plans-in-use.md)) —
 weighed alike in both phases, never the pairs the construction itself just
 made. They also decide by the same **criterion model**
 ([decision 0031](decisions/0031-one-criterion-model.md)), which the
@@ -222,10 +223,12 @@ the room.
 ## Plan Usage Record
 
 `avoidPreviousPairs` reads pair weights from `buildPreviousPairs()`
-(`src/utils/pairs.ts`). Feeding it the mix history alone had a known weakness:
-teachers shuffle many times before settling, so the mix history is mostly
-experiments, and a pair that happened to come up in a dozen consecutive tries
-looked exactly like a pair that really sat together for a term.
+(`src/utils/pairs.ts`). It once fed on the mix history, which had a known
+weakness: teachers shuffle many times before settling, so the mix history is
+mostly experiments, and a pair that happened to come up in a dozen consecutive
+tries looked exactly like a pair that really sat together for a term. Since
+[decision 0032](decisions/0032-repetition-reads-plans-in-use.md) no mix counts
+at all.
 
 The plan usage record fixes that. It notes which arrangements were **actually in
 use**, derived from actions that only happen for a real plan — no extra step in
@@ -276,10 +279,10 @@ earlier versions.
 neighbourhoods in one click — a new school year, a class mixed up anew.
 `resetPlanUsage` empties the bucket and stamps the moment; `buildPreviousPairs`
 receives it as `since` and from then on leaves out what came before it: saved
-plans dated up to the day of the reset (they carry a day, not a moment) and
-mixes from before it. Without that, the empty bucket would make the saved plans
-the history of record again. What is presented, exported or saved afterwards
-counts as usual, and so does the arrangement on screen. A class that was never
+plans dated up to the day of the reset (they carry a day, not a moment).
+Without that, the empty bucket would make the saved plans the history of
+record again. What is presented, exported or saved afterwards counts as usual.
+A class that was never
 reset produces exactly the plans it did before
 ([decision 0023](decisions/0023-neighbourhood-reset.md)).
 
@@ -319,8 +322,8 @@ algorithm see only the marked plans, and switching the detection back on lets
 the detected ones count again. `buildPreviousPairs` receives the mode as
 `manual` (carried as `planUsageManual` beside `planUsageSince`, into the worker
 too) and then never falls back to the saved plans — a class that marked
-nothing has no history of real plans, only the arrangement on screen and the
-mixes ([decision 0025](decisions/0025-plan-usage-marked-by-hand.md)).
+nothing has no history of real plans
+([decision 0025](decisions/0025-plan-usage-marked-by-hand.md)).
 
 `isCountedUsage()` in `src/utils/data/planUsage.ts` is the single definition of
 what counts, shared by the evaluation and the scoring, so the number a teacher
@@ -328,20 +331,21 @@ reads and the number the algorithm optimizes cannot drift apart.
 
 ### How the weights are built
 
-`buildPreviousPairs()` sums two independent histories per pair, capped at
-`MAX_PAIR_WEIGHT` = 2:
+`buildPreviousPairs()` reads one history, the plans that were really in use
+([decision 0032](decisions/0032-repetition-reads-plans-in-use.md)): the
+counted usage records, weighted by `entry.confidence` — or, when no record
+counts and the class detects its plans, the saved plans the teacher named
+(not the auto-save), each at 1. A mix never counts, neither the mix history
+nor the arrangement on screen: a plan on screen that was in use is in the
+records anyway, and one that was not is an experiment. That two mixes in a
+row turn out differently is left to chance and the other criteria.
 
-| History              | Source                                                                                                                       | Factor                           |
-| :------------------- | :--------------------------------------------------------------------------------------------------------------------------- | :------------------------------- |
-| What was really used | the arrangement on screen, then the usage records — or the saved plans when no record counts and the class detects its plans | `entry.confidence`               |
-| The running session  | recent mixes                                                                                                                 | `MIX_HISTORY_CONTRIBUTION` = 0.5 |
-
-Both decay with recency over the window (`5 + ⌈students / 3⌉` entries, at
-most 20): the newest entry counts fully, the last the window holds
-`MIN_DECAY_WEIGHT`, and an entry weighs by its rank alone — last week's plan
+The plans decay with recency over the window (`5 + ⌈students / 3⌉` plans, at
+most 20): the newest counts fully, the last the window holds
+`MIN_DECAY_WEIGHT`, and a plan weighs by its rank alone — last week's plan
 weighs the same whether three plans or twelve came before it. A pair that sat
-together in several plans adds up, to at most twice a single plan's weight, so
-the most frequent pairs are parted first
+together in several plans adds up, to at most `MAX_PAIR_WEIGHT` = 2, twice a
+single plan's weight, so the most frequent pairs are parted first
 ([decision 0031](decisions/0031-one-criterion-model.md)). The saved plans that
 stand in when no usage record counts are ranked by their date. The
 construction and the refinement charge a pair `avoidPreviousPairs` times its
@@ -349,18 +353,12 @@ weight alike, at the seat partner fully and at the rest of a table by the
 table's relation weight; the fulfilment counts a pair as repeated up to its
 first full weight.
 
-Two properties matter here:
-
-- **Real plans are read first and can never be crowded out.** Before this, all
-  sources shared one window; a full mix history (20 entries) pushed the saved
-  plans out of it entirely, so after a long shuffling session the criterion ran
-  purely on experiments from that one afternoon.
-- **Experiments weigh half.** The mix history still does its job — shuffling
-  twice in a row should not hand back the same neighbours — but it can no longer
-  outweigh an arrangement a class actually sat in.
-
-`MIX_HISTORY_CONTRIBUTION` is the tuning knob if repeated shuffling turns out to
-vary too much or too little.
+**A plan is no repetition of itself.** The fulfilment and the highlights read
+a plan with `buildPreviousPairs`' `plan`: the record with the plan's own
+fingerprint, and a saved plan seating the same pairs, are left out. Otherwise
+presenting, exporting or saving a plan would turn its own pairs into
+repetitions and drop its "Wiederholung" towards 0 %. The mixing passes no
+`plan` — the plan on screen, once in use, is the newest plan to part.
 
 ### Wish pairs are exempt
 

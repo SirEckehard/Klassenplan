@@ -3,7 +3,6 @@
 import type {
   ClassroomScene,
   LockedPositions,
-  MixResult,
   MixSettings,
   PlanUsage,
   SavedPlan,
@@ -33,7 +32,6 @@ export type AlgorithmWorkerRequestMap = {
     payload: {
       students: Student[];
       seatingHistory: SavedPlan[];
-      mixHistory: MixResult[];
       /** Records of plans that were really in use; see `buildPreviousPairs`. */
       planUsage?: PlanUsage[];
       /** When the neighbourhoods were last reset; see `buildPreviousPairs`. */
@@ -43,8 +41,6 @@ export type AlgorithmWorkerRequestMap = {
       lockedPositions: LockedPositions;
       classroomScene: ClassroomScene;
       mixSettings: Partial<MixSettings>;
-      /** The plan on screen before mixing; it counts as the newest in use. */
-      lastSeating?: SeatingArrangement | null;
       /**
        * Whether the refinement follows the construction — while a criterion
        * is on; without it the construction stands (decision 0027).

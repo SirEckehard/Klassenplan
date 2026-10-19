@@ -87,7 +87,8 @@ Measured with fixed seeds before the change:
   genders are in the class.
 - **Repetition** (maintainer): an earlier plan weighs by its rank in a fixed
   window, whatever the number of plans, and a pair that sat together more
-  often weighs more, up to `MAX_PAIR_WEIGHT` = 2.
+  often weighs more, up to `MAX_PAIR_WEIGHT` = 2. _Which plans count:
+  [decision 0032](0032-repetition-reads-plans-in-use.md)._
 - **The refinement** is simulated annealing alone, on the exact delta, with
   students picked evenly. Greedy refinement, which the app never ran, is gone
   with its tries, passes and table selection; so is `circle:generate`, which

@@ -373,19 +373,14 @@
       },
       "repeat": {
         "q": "Wie funktioniert die Wiederholungsvermeidung?",
-        "intro": "Die Wiederholungsbewertung berücksichtigt sowohl gespeicherte Sitzpläne als auch die letzten Mischungen der Sitzung:",
-        "li1_b": "Gespeicherte Pläne:",
-        "li1": "Paare aus älteren Plänen zählen nach Alter abnehmend; wer öfter zusammensaß, zählt mehr",
-        "li2_b": "Aktuelle Session:",
-        "li2": "Die letzten Mischungen zählen mit, damit sich Paare nicht sofort wiederholen",
-        "outro": "So wird vermieden, dass dieselben Schüler ständig nebeneinander sitzen, wenn du mehrfach hintereinander mischst. Nicht jede Mischung wird aber auch wirklich umgesetzt – und genau da stoßen die letzten Mischungen allein an ihre Grenzen.",
-        "usageIntro": "Klassenplan merkt sich deshalb im Hintergrund, welche Sitzpläne tatsächlich im Einsatz waren. Wenn du die automatische Erkennung nutzt, achtet Klassenplan auf folgende Aktionen:",
+        "intro": "Die Wiederholungsvermeidung zählt nur Sitzpläne, die wirklich im Einsatz waren. Paare aus älteren Plänen zählen nach Alter abnehmend; wer öfter zusammensaß, zählt mehr. Bloße Mischungen zählen nicht: Wer mehrfach hintereinander mischt, probiert nur aus, und dass die nächste Mischung anders ausfällt, besorgen der Zufall und die übrigen Kriterien.",
+        "usageIntro": "Welche Sitzpläne im Einsatz waren, merkt sich Klassenplan im Hintergrund. Wenn du die automatische Erkennung nutzt, achtet Klassenplan auf folgende Aktionen:",
         "usage1": "Einen Sitzplan im Präsentationsmodus zeigen",
         "usage2": "Einen Sitzplan drucken oder als PDF, PNG oder SVG exportieren",
         "usage3": "Einen Sitzplan unter einem selbst gewählten Namen speichern",
         "usage4": "Plätze im Sitzplan von Hand tauschen",
         "usageOutro": "Gespeichert werden dabei nur die Sitznachbarschaften und ein Zeitstempel, wie immer ausschließlich lokal auf deinem Gerät.",
-        "weightNote": "Für die Wiederholungsvermeidung zählen diese echten Sitzpläne zuerst; reine Mischungen aus der laufenden Sitzung gehen nur noch halb so stark ein. So sollte eine lange Probier-Runde das Ergebnis nicht mehr überlagern.",
+        "weightNote": "Der Plan, den du gerade ansiehst, zählt dabei nicht gegen sich selbst: Auch nachdem du ihn präsentiert, exportiert oder gespeichert hast, vergleicht „Wiederholung“ ihn nur mit den anderen genutzten Plänen.",
         "viewNote": "In der „Bibliothek“ unten in der Werkzeugleiste zeigt der Ordner „Nachbarschaften“ einer Klasse für jeden Schüler, neben wem er schon wie oft saß – samt Datengrundlage, aus der du einzelne Pläne herausnehmen kannst. „Zurücksetzen“ vergisst alle bisherigen Nachbarschaften auf einmal, etwa zum neuen Schuljahr."
       }
     },

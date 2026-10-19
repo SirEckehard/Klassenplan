@@ -39,22 +39,18 @@ describe('executeAlgorithmOperation', () => {
     await executeAlgorithmOperation('mix:run', {
       students,
       seatingHistory: [],
-      mixHistory: [],
       lockedPositions: {},
       classroomScene: scene,
       mixSettings: { preferGenderMix: 3 },
-      lastSeating: null,
       refine: false,
     });
 
     expect(algorithmMocks.runMixSession).toHaveBeenCalledWith(
       students,
       [],
-      [],
       {},
       { preferGenderMix: 3 },
       scene,
-      undefined,
       // `onProgress` is injected here rather than carried in the payload.
       { refine: false, onProgress: expect.any(Function) },
     );
@@ -64,7 +60,6 @@ describe('executeAlgorithmOperation', () => {
     await executeAlgorithmOperation('mix:run', {
       students,
       seatingHistory: [],
-      mixHistory: [],
       lockedPositions: {},
       classroomScene: scene,
       mixSettings: {},
@@ -73,7 +68,7 @@ describe('executeAlgorithmOperation', () => {
 
     const call = algorithmMocks.runMixSession.mock.calls[0] as
       unknown[] | undefined;
-    expect(call?.[7]).toMatchObject({ refine: true });
+    expect(call?.[5]).toMatchObject({ refine: true });
   });
 
   it('reports progress stages for a mix', async () => {
@@ -84,11 +79,9 @@ describe('executeAlgorithmOperation', () => {
       {
         students,
         seatingHistory: [],
-        mixHistory: [],
         lockedPositions: {},
         classroomScene: scene,
         mixSettings: {},
-        lastSeating: null,
       },
       (_progress, stage) => stages.push(stage),
     );

@@ -308,21 +308,6 @@ export default function FAQ() {
             answer: (
               <>
                 <p>{t('faq.settings.repeat.intro')}</p>
-                <ul className={listClass}>
-                  <li>
-                    <strong className={termClass}>
-                      {t('faq.settings.repeat.li1_b')}
-                    </strong>{' '}
-                    {t('faq.settings.repeat.li1')}
-                  </li>
-                  <li>
-                    <strong className={termClass}>
-                      {t('faq.settings.repeat.li2_b')}
-                    </strong>{' '}
-                    {t('faq.settings.repeat.li2')}
-                  </li>
-                </ul>
-                <p>{t('faq.settings.repeat.outro')}</p>
                 <p>{t('faq.settings.repeat.usageIntro')}</p>
                 <ul className={listClass}>
                   <li>{t('faq.settings.repeat.usage1')}</li>

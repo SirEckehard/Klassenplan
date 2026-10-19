@@ -12,13 +12,17 @@ import type {
   ClassroomFeature,
   ClassroomScene,
   ClassroomTable,
-  MixResult,
   MixSettings,
+  PlanUsage,
   SavedPlan,
   SeatingArrangement,
   Student,
 } from '@/types';
 import { neutralSettings } from '../../mixSettings';
+import {
+  collectSeatingPairKeys,
+  computePlanFingerprint,
+} from '../../data/planUsage';
 import {
   calculateSeatingStatistics,
   getTopFulfilledCriteria,
@@ -97,7 +101,7 @@ const fulfilment = (
   extras: {
     students?: Student[];
     seatingHistory?: SavedPlan[];
-    mixHistory?: MixResult[];
+    planUsage?: PlanUsage[];
   } = {},
 ) => {
   const settings = { ...neutralSettings, ...weights };
@@ -107,7 +111,7 @@ const fulfilment = (
     settings,
     extras.seatingHistory ?? [],
     scene,
-    { mixHistory: extras.mixHistory },
+    { planUsage: extras.planUsage },
   );
   const criteria = getTopFulfilledCriteria(stats, settings);
   return {
@@ -316,50 +320,58 @@ describe('seatingStatistics', () => {
   describe('repetition', () => {
     const ada = student('ada');
     const alan = student('alan');
-    const mix = (seating: SeatingArrangement, id: number): MixResult => ({
-      id,
-      timestamp: `2026-10-0${id}T08:00:00.000Z`,
-      seating,
-      mixSettings: { ...neutralSettings },
-    });
+    const grace = student('grace');
+    const hedy = student('hedy');
+    const used = (seating: SeatingArrangement, day: number): PlanUsage => {
+      const pairs = collectSeatingPairKeys(seating);
+      return {
+        id: `u${day}`,
+        fingerprint: computePlanFingerprint(pairs),
+        pairs,
+        firstSeenAt: `2026-10-0${day}T08:00:00.000Z`,
+        lastSeenAt: `2026-10-0${day}T08:00:00.000Z`,
+        sources: ['presented'],
+        confidence: 1,
+      };
+    };
 
-    it('does not count the plan as its own repetition', () => {
+    it('does not count a plan in use as its own repetition', () => {
       const plan: SeatingArrangement = [[ada, alan], [], []];
       const { percentage } = fulfilment(
         DESKS_IN_A_ROW,
         plan,
-        {
-          avoidPreviousPairs: 6,
-        },
-        { mixHistory: [mix(plan, 1)] },
+        { avoidPreviousPairs: 6 },
+        { planUsage: [used(plan, 1)] },
       );
       expect(percentage('avoidPreviousPairs')).toBe(100);
     });
 
-    it('counts a pair of the mix before', () => {
-      const before: SeatingArrangement = [[ada, alan], [], []];
-      const plan: SeatingArrangement = [[alan, ada], [], []];
+    it('counts a pair of a plan in use', () => {
+      // Another pair in it: a plan with exactly the same pairs is this plan.
+      const before: SeatingArrangement = [[ada, alan], [grace, hedy], []];
+      const plan: SeatingArrangement = [
+        [alan, ada],
+        [grace, null],
+        [hedy, null],
+      ];
       const { percentage } = fulfilment(
         DESKS_IN_A_ROW,
         plan,
-        {
-          avoidPreviousPairs: 6,
-        },
-        { mixHistory: [mix(before, 1), mix(plan, 2)] },
+        { avoidPreviousPairs: 6 },
+        { planUsage: [used(before, 1), used(plan, 2)] },
       );
-      // The mix before was the plan on screen: as the mix weighed it.
       expect(percentage('avoidPreviousPairs')).toBe(0);
     });
 
     it('exempts a wish pair while wishes count', () => {
       const wisher = student('ada', { wishPartnerIds: ['alan'] });
-      const before: SeatingArrangement = [[wisher, alan], [], []];
+      const before: SeatingArrangement = [[wisher, alan], [grace, hedy], []];
       const plan: SeatingArrangement = [[alan, wisher], [], []];
       const { criteria } = fulfilment(
         DESKS_IN_A_ROW,
         plan,
         { avoidPreviousPairs: 6, considerWishPartners: 8 },
-        { mixHistory: [mix(before, 1), mix(plan, 2)] },
+        { planUsage: [used(before, 1)] },
       );
       expect(
         criteria.some((criterion) => criterion.key === 'avoidPreviousPairs'),

@@ -44,6 +44,7 @@ it says so instead of reconstructing one.
 | [0029](0029-one-address-per-page.md)               | One address per page, every other spelling redirects for good |
 | [0030](0030-class-file.md)                         | A class can be saved to a file and opened from one (proposed) |
 | [0031](0031-one-criterion-model.md)                | One criterion model for mixing, fulfilment and highlights     |
+| [0032](0032-repetition-reads-plans-in-use.md)      | Repetition counts the plans in use, never a mix               |
 
 ## Reasons still to be recorded
 

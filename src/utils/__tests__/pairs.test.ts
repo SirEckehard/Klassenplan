@@ -2,7 +2,10 @@
 // Copyright (C) 2026 Eike Schäfer
 import { describe, it, expect } from 'vitest';
 import { buildPreviousPairs, MAX_PAIR_WEIGHT } from '../pairs';
-import { createMockMixResult } from '@/__tests__/utils';
+import {
+  collectSeatingPairKeys,
+  computePlanFingerprint,
+} from '../data/planUsage';
 import type { PlanUsage, SavedPlan, Student } from '../../types';
 
 const alice: Student = {
@@ -165,29 +168,50 @@ const usageOf = (overrides: Partial<PlanUsage> = {}): PlanUsage => ({
   ...overrides,
 });
 
-/** A shuffling session long enough to fill the whole window on its own. */
-const shufflingSession = (seating: SavedPlan['seating']) =>
-  Array.from({ length: 20 }, (_, index) =>
-    createMockMixResult({ id: index, seating }),
-  );
+// Only plans that were really in use count; a mix is an experiment and has
+// no say (decision 0032).
+describe('buildPreviousPairs: nur genutzte Pläne', () => {
+  it('übergeht die automatische Sicherung', () => {
+    const result = buildPreviousPairs(
+      [
+        { ...planOf([[alice, bob]]), id: 'auto', autoSaved: true },
+        { ...planOf([[carol, dave]]), id: 'named' },
+      ],
+      { studentCount: 4 },
+    );
 
-describe('buildPreviousPairs mit Misch-Historie', () => {
-  it('lässt gespeicherte Pläne nicht von einer vollen Misch-Historie verdrängen', () => {
-    const result = buildPreviousPairs([planOf([[alice, bob]])], {
-      mixHistory: shufflingSession([[carol, dave]]),
-      studentCount: 4,
-    });
-
-    expect(result.get('1::2')).toBe(1);
+    expect(result.get('1::2')).toBeUndefined();
+    expect(result.get('3::4')).toBe(1);
   });
 
-  it('gewichtet eine Mischung halb so stark wie einen echten Plan', () => {
+  it('lässt den gelesenen Plan aus seiner eigenen Aufzeichnung heraus', () => {
+    const plan = [[alice, bob]];
+    const pairs = collectSeatingPairKeys(plan);
     const result = buildPreviousPairs([], {
-      mixHistory: [createMockMixResult({ id: 1, seating: [[alice, bob]] })],
+      plan,
+      planUsage: [
+        usageOf({ pairs, fingerprint: computePlanFingerprint(pairs) }),
+        usageOf({ id: 'u2', fingerprint: 'f-other', pairs: ['3::4'] }),
+      ],
       studentCount: 4,
     });
 
-    expect(result.get('1::2')).toBeCloseTo(0.5, 5);
+    expect(result.get('1::2')).toBeUndefined();
+    expect(result.get('3::4')).toBe(1);
+  });
+
+  it('lässt den gelesenen Plan unter den gespeicherten Plänen heraus', () => {
+    const plan = [[alice, bob]];
+    const result = buildPreviousPairs(
+      [
+        { ...planOf(plan), id: 'same' },
+        { ...planOf([[carol, dave]]), id: 'other' },
+      ],
+      { plan, studentCount: 4 },
+    );
+
+    expect(result.get('1::2')).toBeUndefined();
+    expect(result.get('3::4')).toBe(1);
   });
 });
 
@@ -252,16 +276,6 @@ describe('buildPreviousPairs mit Nutzungsaufzeichnung', () => {
     expect(result.get('1::2')).toBeUndefined();
   });
 
-  it('behält die Aufzeichnung neben einer vollen Misch-Historie', () => {
-    const result = buildPreviousPairs([], {
-      planUsage: [usageOf()],
-      mixHistory: shufflingSession([[carol, dave]]),
-      studentCount: 4,
-    });
-
-    expect(result.get('1::2')).toBe(1);
-  });
-
   it('ordnet die Aufzeichnung nach Aktualität', () => {
     const result = buildPreviousPairs([], {
       planUsage: [
@@ -283,13 +297,11 @@ describe('buildPreviousPairs mit Nutzungsaufzeichnung', () => {
 });
 
 // "Nachbarschaften zurücksetzen": what came before the reset no longer
-// counts — saved plans dated up to that day and mixes before that moment.
+// counts — saved plans dated up to that day.
 describe('buildPreviousPairs nach dem Zurücksetzen', () => {
   // Mid-morning of 3 October wherever the test runs: saved plans carry a
   // local day.
   const resetAt = new Date(2026, 9, 3, 10, 0).toISOString();
-  const minutesFromReset = (minutes: number) =>
-    new Date(Date.parse(resetAt) + minutes * 60_000).toISOString();
   const datedPlan = (date: string, seating: SavedPlan['seating']): SavedPlan =>
     ({ ...planOf(seating), date }) as SavedPlan;
 
@@ -310,50 +322,11 @@ describe('buildPreviousPairs nach dem Zurücksetzen', () => {
     expect(result.get('3::4')).toBe(1);
   });
 
-  it('übergeht Mischungen vor dem Zurücksetzen', () => {
-    const result = buildPreviousPairs([], {
-      mixHistory: [
-        createMockMixResult({
-          id: 1,
-          seating: [[alice, bob]],
-          timestamp: minutesFromReset(-1),
-        }),
-        createMockMixResult({
-          id: 2,
-          seating: [[carol, dave]],
-          timestamp: minutesFromReset(1),
-        }),
-      ],
-      since: resetAt,
-      studentCount: 4,
-    });
-
-    expect(result.get('1::2')).toBeUndefined();
-    expect(result.get('3::4')).toBeCloseTo(0.5, 5);
-  });
-
-  it('zählt die Sitzordnung auf dem Bildschirm weiter', () => {
-    const result = buildPreviousPairs([], {
-      currentSeating: [[alice, bob]],
-      since: resetAt,
-      studentCount: 4,
-    });
-
-    expect(result.get('1::2')).toBe(1);
-  });
-
   it('ändert ohne Zurücksetzen nichts', () => {
     const history = [datedPlan('2026-09-01', [[alice, bob]])];
-    const mixHistory = [
-      createMockMixResult({
-        id: 1,
-        seating: [[carol, dave]],
-        timestamp: '2026-09-01T07:00:00.000Z',
-      }),
-    ];
 
     expect(
-      buildPreviousPairs(history, { mixHistory, since: null, studentCount: 4 }),
-    ).toEqual(buildPreviousPairs(history, { mixHistory, studentCount: 4 }));
+      buildPreviousPairs(history, { since: null, studentCount: 4 }),
+    ).toEqual(buildPreviousPairs(history, { studentCount: 4 }));
   });
 });

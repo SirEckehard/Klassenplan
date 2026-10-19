@@ -16,7 +16,7 @@ import type {
   SeatingTable,
   SeatingSeat,
   SeatingArrangement,
-  MixResult,
+  PlanUsage,
 } from '../../../types';
 
 type Position = { table: number; seat: number };
@@ -24,12 +24,15 @@ import {
   createMockStudent,
   createMockClassroomScene,
   createMockSavedPlan,
-  createMockMixResult,
   setupCleanStorage,
   createMockTable,
   createMockStudents,
 } from '../../../__tests__/utils';
 import * as pairUtils from '../../../utils/pairs';
+import {
+  collectSeatingPairKeys,
+  computePlanFingerprint,
+} from '../../data/planUsage';
 
 // Mock the shuffle function to make tests deterministic
 vi.mock('../shuffle', () => ({
@@ -41,7 +44,6 @@ describe('seatingAlgorithm', () => {
   let scene: ClassroomScene;
   let settings: Partial<MixSettings>;
   let seatingHistory: SavedPlan[];
-  let mixHistory: MixResult[];
   let lockedPositions: Record<string, { table: number; seat: number }>;
 
   const getFrontTableIndex = (scene: ClassroomScene): number => {
@@ -123,7 +125,6 @@ describe('seatingAlgorithm', () => {
 
     settings = {};
     seatingHistory = [];
-    mixHistory = [];
     lockedPositions = {};
   });
 
@@ -132,7 +133,6 @@ describe('seatingAlgorithm', () => {
       const arrangement = generateSeatingPlan(
         students,
         seatingHistory,
-        mixHistory,
         lockedPositions,
         settings,
         scene,
@@ -157,7 +157,6 @@ describe('seatingAlgorithm', () => {
       const arrangement = generateSeatingPlan(
         students,
         seatingHistory,
-        mixHistory,
         lockedPositions,
         settings,
         scene,
@@ -177,7 +176,6 @@ describe('seatingAlgorithm', () => {
       const arrangement = generateSeatingPlan(
         students,
         seatingHistory,
-        mixHistory,
         lockedPositions,
         settings,
         scene,
@@ -236,7 +234,6 @@ describe('seatingAlgorithm', () => {
       const arrangement = generateSeatingPlan(
         students,
         seatingHistory,
-        mixHistory,
         lockedPositions,
         settings,
         frontScene,
@@ -275,7 +272,6 @@ describe('seatingAlgorithm', () => {
       const arrangement = generateSeatingPlan(
         conflictStudents,
         seatingHistory,
-        mixHistory,
         lockedPositions,
         conflictSettings,
         conflictScene,
@@ -299,7 +295,6 @@ describe('seatingAlgorithm', () => {
       const arrangement = generateSeatingPlan(
         optionalGenderStudents,
         seatingHistory,
-        mixHistory,
         lockedPositions,
         { preferGenderMix: 6 },
         scene,
@@ -323,7 +318,6 @@ describe('seatingAlgorithm', () => {
       const arrangement = generateSeatingPlan(
         restlessStudents,
         seatingHistory,
-        mixHistory,
         lockedPositions,
         settings,
         scene,
@@ -366,7 +360,6 @@ describe('seatingAlgorithm', () => {
       const arrangement = generateSeatingPlan(
         wishPartnerStudents,
         seatingHistory,
-        mixHistory,
         lockedPositions,
         settings,
         scene,
@@ -408,7 +401,6 @@ describe('seatingAlgorithm', () => {
       const arrangement = generateSeatingPlan(
         mixedWishes,
         seatingHistory,
-        mixHistory,
         lockedPositions,
         settings,
         scene,
@@ -450,7 +442,6 @@ describe('seatingAlgorithm', () => {
       const arrangement = generateSeatingPlan(
         conflictWishes,
         seatingHistory,
-        mixHistory,
         lockedPositions,
         settings,
         scene,
@@ -494,7 +485,6 @@ describe('seatingAlgorithm', () => {
       const arrangement = generateSeatingPlan(
         circularWishes,
         seatingHistory,
-        mixHistory,
         lockedPositions,
         settings,
         scene,
@@ -541,7 +531,6 @@ describe('seatingAlgorithm', () => {
         generateSeatingPlan(
           orphanWishes,
           seatingHistory,
-          mixHistory,
           lockedPositions,
           settings,
           scene,
@@ -616,7 +605,6 @@ describe('seatingAlgorithm', () => {
       const arrangement = generateSeatingPlan(
         singleStudents,
         seatingHistory,
-        mixHistory,
         lockedPositions,
         singleSettings,
         singleTableScene,
@@ -653,7 +641,6 @@ describe('seatingAlgorithm', () => {
       const arrangement = generateSeatingPlan(
         lockedWishes,
         seatingHistory,
-        mixHistory,
         lockedPos,
         settings,
         scene,
@@ -694,7 +681,6 @@ describe('seatingAlgorithm', () => {
       const arrangement = generateSeatingPlan(
         genderMixStudents,
         seatingHistory,
-        mixHistory,
         lockedPositions,
         settings,
         scene,
@@ -735,7 +721,6 @@ describe('seatingAlgorithm', () => {
       const arrangement = generateSeatingPlan(
         previousPairStudents,
         seatingHistory,
-        mixHistory,
         lockedPositions,
         settings,
         scene,
@@ -762,82 +747,45 @@ describe('seatingAlgorithm', () => {
       }
     });
 
-    it('counts current seating pairs when avoiding immediate repeats', () => {
-      const previousSeating: SeatingArrangement = [
+    it('avoids the pairs of the plans in use, never those of a mix', () => {
+      const inUse: SeatingArrangement = [
         [students[0]!, students[1]!],
         [students[2]!, students[3]!],
         [students[4]!, students[5]!],
       ];
+      const pairs = collectSeatingPairKeys(inUse);
+      const planUsage: PlanUsage[] = [
+        {
+          id: 'u1',
+          fingerprint: computePlanFingerprint(pairs),
+          pairs,
+          firstSeenAt: '2026-10-01T08:00:00.000Z',
+          lastSeenAt: '2026-10-01T08:00:00.000Z',
+          sources: ['presented'],
+          confidence: 1,
+        },
+      ];
       const pairSpy = vi.spyOn(pairUtils, 'buildPreviousPairs');
-
-      const avoidSettings: Partial<MixSettings> = {
-        avoidPreviousPairs: 5,
-      };
 
       generateSeatingPlan(
         students,
         seatingHistory,
-        mixHistory,
         lockedPositions,
-        avoidSettings,
+        { avoidPreviousPairs: 5 },
         scene,
-        previousSeating,
+        { planUsage },
       );
 
-      expect(pairSpy).toHaveBeenCalledWith(
-        seatingHistory,
-        expect.objectContaining({
-          mixHistory,
-          currentSeating: previousSeating,
-          studentCount: students.length,
-        }),
-      );
-
+      expect(pairSpy).toHaveBeenCalledWith(seatingHistory, {
+        planUsage,
+        since: undefined,
+        manual: undefined,
+        studentCount: students.length,
+      });
       const returnedPairs = pairSpy.mock.results.at(-1)?.value as
         Map<string, number> | undefined;
-      expect(returnedPairs).toBeDefined();
       const pairKey = [students[0]!.id, students[1]!.id].sort().join('::');
-      expect(returnedPairs?.has(pairKey)).toBe(true);
-
-      pairSpy.mockRestore();
-    });
-
-    it('includes recent mix history in previous pair detection', () => {
-      const previousSeating: SeatingArrangement = [
-        [students[0]!, students[1]!],
-        [students[2]!, students[3]!],
-        [students[4]!, students[5]!],
-      ];
-      mixHistory = [createMockMixResult({ id: 42, seating: previousSeating })];
-
-      const pairSpy = vi.spyOn(pairUtils, 'buildPreviousPairs');
-      const avoidSettings: Partial<MixSettings> = {
-        avoidPreviousPairs: 5,
-      };
-
-      generateSeatingPlan(
-        students,
-        seatingHistory,
-        mixHistory,
-        lockedPositions,
-        avoidSettings,
-        scene,
-      );
-
-      expect(pairSpy).toHaveBeenCalledWith(
-        seatingHistory,
-        expect.objectContaining({
-          mixHistory,
-          currentSeating: undefined,
-          studentCount: students.length,
-        }),
-      );
-
-      const returnedPairs = pairSpy.mock.results.at(-1)?.value as
-        Set<string> | undefined;
-      expect(returnedPairs).toBeDefined();
-      const pairKey = [students[0]!.id, students[1]!.id].sort().join('::');
-      expect(returnedPairs?.has(pairKey)).toBe(true);
+      expect(returnedPairs?.get(pairKey)).toBe(1);
 
       pairSpy.mockRestore();
     });
@@ -846,7 +794,6 @@ describe('seatingAlgorithm', () => {
       const arrangement = generateSeatingPlan(
         [],
         seatingHistory,
-        mixHistory,
         lockedPositions,
         settings,
         scene,
@@ -868,7 +815,6 @@ describe('seatingAlgorithm', () => {
       const arrangement = generateSeatingPlan(
         manyStudents,
         seatingHistory,
-        mixHistory,
         lockedPositions,
         settings,
         scene,
@@ -910,7 +856,6 @@ describe('seatingAlgorithm', () => {
       const arrangement = generateSeatingPlan(
         tutorStudents,
         seatingHistory,
-        mixHistory,
         lockedPositions,
         settings,
         scene,
@@ -966,7 +911,6 @@ describe('seatingAlgorithm', () => {
       const arrangement = generateSeatingPlan(
         homogeneousStudents,
         seatingHistory,
-        mixHistory,
         lockedPositions,
         settings,
         scene,
@@ -1023,7 +967,6 @@ describe('seatingAlgorithm', () => {
       const arrangement = generateSeatingPlan(
         students,
         seatingHistory,
-        mixHistory,
         lockedPositions,
         settings,
         scene,
@@ -1104,7 +1047,6 @@ describe('seatingAlgorithm', () => {
       const refined = refineSeatingLocal(
         genderStudents,
         [],
-        mixHistory,
         {},
         arrangement,
         { preferGenderMix: 10 },
@@ -1130,7 +1072,7 @@ describe('seatingAlgorithm', () => {
     it('places a single student without throwing and leaves other seats null', () => {
       const single = [createMockStudent({ id: 'only', name: 'Solo' })];
 
-      const arrangement = generateSeatingPlan(single, [], [], {}, {}, scene);
+      const arrangement = generateSeatingPlan(single, [], {}, {}, scene);
 
       const placed = arrangement.flat().filter(Boolean);
       expect(placed).toHaveLength(1);
@@ -1141,14 +1083,7 @@ describe('seatingAlgorithm', () => {
       // 36 is MAX_STUDENTS; the algorithm must terminate even when far over capacity.
       const overcapacity = createMockStudents(40);
 
-      const arrangement = generateSeatingPlan(
-        overcapacity,
-        [],
-        [],
-        {},
-        {},
-        scene,
-      );
+      const arrangement = generateSeatingPlan(overcapacity, [], {}, {}, scene);
 
       const placed = arrangement.flat().filter(Boolean);
       // Scene has 3 tables × 2 seats = 6 seats total.
@@ -1173,7 +1108,6 @@ describe('seatingAlgorithm', () => {
       const arrangement = generateSeatingPlan(
         fully,
         [],
-        [],
         lockedPositions,
         {},
         scene,
@@ -1195,7 +1129,6 @@ describe('seatingAlgorithm', () => {
       const arrangement = generateSeatingPlan(
         [a, b],
         [],
-        [],
         {},
         { avoidConflictPartners: 9 },
         tightScene,
@@ -1212,14 +1145,7 @@ describe('seatingAlgorithm', () => {
     it('returns an empty arrangement when the scene has no tables', () => {
       const emptyScene = createMockClassroomScene(0);
 
-      const arrangement = generateSeatingPlan(
-        students,
-        [],
-        [],
-        {},
-        {},
-        emptyScene,
-      );
+      const arrangement = generateSeatingPlan(students, [], {}, {}, emptyScene);
 
       expect(arrangement).toEqual([]);
     });
@@ -1227,7 +1153,7 @@ describe('seatingAlgorithm', () => {
     it('returns an empty arrangement when neither students nor tables exist', () => {
       const emptyScene = createMockClassroomScene(0);
 
-      const arrangement = generateSeatingPlan([], [], [], {}, {}, emptyScene);
+      const arrangement = generateSeatingPlan([], [], {}, {}, emptyScene);
 
       expect(arrangement).toEqual([]);
     });
@@ -1251,7 +1177,6 @@ describe('seatingAlgorithm', () => {
       const refined = refineSeatingLocal(
         students,
         seatingHistory,
-        mixHistory,
         lockedPositions,
         initialArrangement,
         settings,
@@ -1273,7 +1198,6 @@ describe('seatingAlgorithm', () => {
       const refined = refineSeatingLocal(
         students,
         seatingHistory,
-        mixHistory,
         lockedPositions,
         initialArrangement,
         settings,
@@ -1311,7 +1235,6 @@ describe('seatingAlgorithm', () => {
       const refined = refineSeatingLocal(
         genderStudents,
         seatingHistory,
-        mixHistory,
         lockedPositions,
         badGenderArrangement,
         settings,
@@ -1338,7 +1261,6 @@ describe('seatingAlgorithm', () => {
       const refined = refineSeatingLocal(
         students,
         seatingHistory,
-        mixHistory,
         lockedPositions,
         emptyArrangement,
         settings,
@@ -1357,7 +1279,6 @@ describe('seatingAlgorithm', () => {
       const refined = refineSeatingLocal(
         students,
         seatingHistory,
-        mixHistory,
         lockedPositions,
         initialArrangement,
         settings,
@@ -1393,7 +1314,6 @@ describe('seatingAlgorithm', () => {
       const refined = refineSeatingLocal(
         studentsWithFront,
         seatingHistory,
-        mixHistory,
         lockedPositions,
         arrangementWithFront,
         settings,
@@ -1451,7 +1371,6 @@ describe('seatingAlgorithm', () => {
       const refined = refineSeatingLocal(
         windowStudents,
         [],
-        [],
         {},
         windowArrangement,
         { preferWindowSeats: 10 },
@@ -1507,7 +1426,6 @@ describe('seatingAlgorithm', () => {
       const refined = refineSeatingLocal(
         doorStudents,
         [],
-        [],
         {},
         doorArrangement,
         { preferDoorSeats: 10 },
@@ -1551,7 +1469,6 @@ describe('seatingAlgorithm', () => {
       const refined = refineSeatingLocal(
         heightStudents,
         seatingHistory,
-        mixHistory,
         lockedPositions,
         heightArrangement,
         { preferFrontForSmallerStudents: 8 },
@@ -1598,7 +1515,6 @@ describe('seatingAlgorithm', () => {
       const refined = refineSeatingLocal(
         optimalStudents,
         seatingHistory,
-        mixHistory,
         lockedPositions,
         optimalArrangement,
         settings,

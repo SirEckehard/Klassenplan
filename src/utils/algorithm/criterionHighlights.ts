@@ -2,7 +2,6 @@
 // Copyright (C) 2026 Eike Schäfer
 import type {
   ClassroomScene,
-  MixResult,
   PlanUsage,
   MixSettings,
   SavedPlan,
@@ -23,7 +22,6 @@ type HighlightParams = {
   /** The weights the plan is read by, as the fulfilment reads them */
   settings: Partial<MixSettings>;
   seatingHistory?: SavedPlan[];
-  mixHistory?: MixResult[];
   /** Records of plans that were really in use; see `buildPreviousPairs`. */
   planUsage?: PlanUsage[];
   /** When the neighbourhoods were last reset; see `buildPreviousPairs`. */
@@ -63,7 +61,6 @@ export function buildCriterionHighlightEntries({
   students,
   settings,
   seatingHistory,
-  mixHistory,
   planUsage,
   planUsageSince,
   planUsageManual,
@@ -76,7 +73,6 @@ export function buildCriterionHighlightEntries({
     settings,
     scene,
     seatingHistory,
-    mixHistory,
     planUsage,
     planUsageSince,
     planUsageManual,

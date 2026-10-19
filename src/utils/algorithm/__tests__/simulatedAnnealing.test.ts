@@ -161,7 +161,6 @@ describe('simulatedAnnealing', () => {
       const result = refineSeatingLocal(
         students,
         [],
-        [],
         {},
         initialArrangement,
         {},

@@ -2,14 +2,18 @@
 // Copyright (C) 2026 Eike Schäfer
 // src/utils/pairs.ts
 import type {
-  MixResult,
   PlanUsage,
   SavedPlan,
   SeatingArrangement,
   Student,
 } from '@/types';
 import { MIX_HISTORY_LIMIT } from './constants';
-import { isCountedUsage, storedPlanDateToTimestamp } from './data/planUsage';
+import {
+  collectSeatingPairKeys,
+  computePlanFingerprint,
+  isCountedUsage,
+  storedPlanDateToTimestamp,
+} from './data/planUsage';
 
 export type PreviousPairWeights = Map<string, number>;
 
@@ -31,8 +35,6 @@ export function seatPairKey(a: string, b: string): string {
 }
 
 type BuildPreviousPairsOptions = {
-  mixHistory?: MixResult[];
-  currentSeating?: SeatingArrangement | null;
   studentCount?: number;
   /**
    * Records of the plans that were really in use. When present these replace
@@ -41,8 +43,8 @@ type BuildPreviousPairsOptions = {
   planUsage?: PlanUsage[];
   /**
    * When the teacher last reset the neighbourhoods of this class (ISO 8601).
-   * What came before — saved plans dated up to that day, mixes before that
-   * moment — no longer counts; the reset emptied the usage records already.
+   * Saved plans dated up to that day no longer count; the reset emptied the
+   * usage records already.
    */
   since?: string | null;
   /**
@@ -51,6 +53,11 @@ type BuildPreviousPairsOptions = {
    * or plans the teacher did not mark would count after all.
    */
   manual?: boolean;
+  /**
+   * The plan being read: a plan in use is not a repetition of itself, so its
+   * own record — and a saved plan with the same pairs — is left out.
+   */
+  plan?: SeatingArrangement | null;
 };
 
 /**
@@ -73,19 +80,6 @@ const MIN_DECAY_WEIGHT = 0.25;
  * criterion (decision 0031).
  */
 export const MAX_PAIR_WEIGHT = 2;
-
-/**
- * How much a mix from the running session weighs against a plan that was
- * really in use.
- *
- * Teachers shuffle many times before settling, so the mix history is mostly
- * experiments. It still has a job — shuffling twice in a row should not hand
- * back the same neighbours — but a pair that happened to come up in a dozen
- * consecutive tries must not end up looking like a pair that sat together for a
- * term. Halving is the compromise: session variety survives, experiments no
- * longer outweigh reality.
- */
-const MIX_HISTORY_CONTRIBUTION = 0.5;
 
 const calculatePairHistoryWindowSize = (studentCount?: number): number => {
   const safeCount =
@@ -138,11 +132,14 @@ const pairKeysOfSeating = (
   return keys;
 };
 
-/** One entry of a history, already reduced to pair keys. */
+const fingerprintOf = (seating: SeatingArrangement | null | undefined) =>
+  computePlanFingerprint(collectSeatingPairKeys(seating));
+
+/** One plan of the history, already reduced to pair keys. */
 type WeightedPairSource = { keys: string[]; factor: number };
 
 /**
- * Apply one history to the weights, newest entry first, with a recency decay
+ * Apply the plans to the weights, newest first, with a recency decay
  * over the window: an entry's weight depends on its rank alone, so last
  * week's plan weighs the same whether three plans or twelve came before it.
  */
@@ -161,24 +158,18 @@ const applyDecayedSources = (
 };
 
 /**
- * Build a weighted map of student pairs that recently sat together.
+ * Build a weighted map of student pairs that sat together in plans that were
+ * really in use (decision 0032): the plan usage records, or the saved plans
+ * the teacher named when no record counts yet and the class detects its
+ * plans. A mix is an experiment and never counts — neither the mix history
+ * nor the plan on screen, which is in the records once it was in use.
  *
- * Two histories contribute independently and are summed per pair (capped at
- * `MAX_PAIR_WEIGHT`):
- *
- * 1. **What was really in use** — the arrangement on screen, then the plan
- *    usage records, or the saved plans when no records exist yet and the class
- *    detects its plans. This history is read first and can never be crowded
- *    out.
- * 2. **The running session** — the recent mixes, scaled by
- *    `MIX_HISTORY_CONTRIBUTION` so a long shuffling session cannot outweigh a
- *    plan that a class actually sat in.
- *
- * Both decay with recency over the window: within each history the newest
- * entry counts fully and the last one the window holds `MIN_DECAY_WEIGHT`.
+ * The plans decay with recency over the window: the newest counts fully and
+ * the last one the window holds `MIN_DECAY_WEIGHT`. A pair that sat together
+ * in several plans adds up to `MAX_PAIR_WEIGHT`.
  *
  * @param history Saved plans, used when no usage records are available
- * @param options Current arrangement, usage records, mixes and class size
+ * @param options Usage records, reset, the plan being read and class size
  * @returns Map of pairs encoded as "idA::idB" to a weight between 0 and
  *   `MAX_PAIR_WEIGHT`
  */
@@ -195,36 +186,19 @@ export function buildPreviousPairs(
   const windowSize = calculatePairHistoryWindowSize(
     studentCountFromOptions ?? fallbackStudentCount,
   );
+  const ownFingerprint = options?.plan ? fingerprintOf(options.plan) : null;
 
   const since = options?.since ? Date.parse(options.since) : Number.NaN;
   const hasReset = Number.isFinite(since);
-  // A saved plan carries its day, not its moment: one from the day of the
-  // reset was saved before it or got a usage record of its own when it was.
-  const savedPlans = hasReset
-    ? history.filter((plan) =>
-        isAfterReset(storedPlanDateToTimestamp(plan?.date ?? ''), since),
-      )
-    : history;
-  const mixHistory = hasReset
-    ? (options?.mixHistory ?? []).filter((mix) =>
-        isAfterReset(mix?.timestamp ?? null, since),
-      )
-    : (options?.mixHistory ?? []);
 
   const realPlans: WeightedPairSource[] = [];
-
-  if (options?.currentSeating) {
-    realPlans.push({
-      keys: pairKeysOfSeating(options.currentSeating),
-      factor: 1,
-    });
-  }
 
   // Records of plans that were really in use take precedence over the saved
   // plans: a plan can be saved and never used, and every record that exists was
   // presented, exported or deliberately named.
   const countedUsage = (options?.planUsage ?? [])
     .filter(isCountedUsage)
+    .filter((entry) => entry.fingerprint !== ownFingerprint)
     .sort((a, b) => b.lastSeenAt.localeCompare(a.lastSeenAt));
 
   if (countedUsage.length > 0 || options?.manual) {
@@ -234,6 +208,18 @@ export function buildPreviousPairs(
       realPlans.push({ keys: entry.pairs, factor: entry.confidence });
     }
   } else {
+    // Only plans the teacher named: the auto-save is written when leaving
+    // the plan layer and says nothing about the plan being used. A saved plan
+    // carries its day, not its moment: one from the day of a reset was saved
+    // before it or got a usage record of its own when it was.
+    const savedPlans = history.filter(
+      (plan) =>
+        plan?.autoSaved !== true &&
+        (!hasReset ||
+          isAfterReset(storedPlanDateToTimestamp(plan?.date ?? ''), since)) &&
+        (ownFingerprint === null ||
+          fingerprintOf(plan?.seating) !== ownFingerprint),
+    );
     // Newest first by the day a plan carries; a plan saved again keeps its
     // place in the list, so the list's order is no age.
     const byDate = savedPlans
@@ -257,16 +243,6 @@ export function buildPreviousPairs(
   }
 
   applyDecayedSources(realPlans, pairWeights, windowSize);
-
-  const mixes = mixHistory
-    .slice(-windowSize)
-    .reverse()
-    .map((mix) => ({
-      keys: pairKeysOfSeating(mix?.seating),
-      factor: MIX_HISTORY_CONTRIBUTION,
-    }));
-
-  applyDecayedSources(mixes, pairWeights, windowSize);
 
   return pairWeights;
 }

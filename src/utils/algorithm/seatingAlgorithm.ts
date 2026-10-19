@@ -6,7 +6,6 @@ import type {
   SeatingArrangement,
   Student,
   SavedPlan,
-  MixResult,
   PlanUsage,
 } from '@/types';
 import { shuffleArray } from './shuffle';
@@ -606,13 +605,12 @@ const refine = (
   return result.occupants;
 };
 
+/** The pairs of the plans in use, which a mix avoids (decision 0032). */
 const previousPairsFor = (
   students: Student[],
   seatingHistory: SavedPlan[],
-  mixHistory: MixResult[],
   settings: Partial<MixSettings>,
   options: {
-    currentSeating?: SeatingArrangement;
     planUsage?: PlanUsage[];
     planUsageSince?: string | null;
     planUsageManual?: boolean;
@@ -620,8 +618,6 @@ const previousPairsFor = (
 ): PreviousPairWeights =>
   settings.avoidPreviousPairs
     ? buildPreviousPairs(seatingHistory, {
-        mixHistory,
-        currentSeating: options.currentSeating,
         planUsage: options.planUsage,
         since: options.planUsageSince,
         manual: options.planUsageManual,
@@ -641,23 +637,20 @@ const lockSeats = (problem: MixProblem): Uint8Array => {
  * while no criterion carries weight, spread at random.
  *
  * @param students - Current student roster that needs to be seated
- * @param seatingHistory - Previously saved plans used to avoid repeating pairings
- * @param mixHistory - Last algorithm runs for cache-aware adjacency penalties
+ * @param seatingHistory - Saved plans, read for repetition while no usage
+ *   record counts
  * @param lockedPositions - Mapping of student ids to fixed table/seat positions
  * @param settings - Mix settings controlling weights for every constraint
  * @param scene - Classroom layout including tables, seats, and geometry helpers
- * @param currentSeating - The plan on screen, which counts as the newest in use
  * @param options - Optional overrides; `rng` seeds the run for reproducible output
  * @returns Seating arrangement with per-table assignments
  */
 export function generateSeatingPlan(
   students: Student[],
   seatingHistory: SavedPlan[],
-  mixHistory: MixResult[],
   lockedPositions: Record<string, { table: number; seat: number }>,
   settings: Partial<MixSettings>,
   scene: ClassroomScene,
-  currentSeating?: SeatingArrangement,
   options?: {
     rng?: RandomSource;
     /** Records of plans that were really in use; see `buildPreviousPairs`. */
@@ -677,9 +670,8 @@ export function generateSeatingPlan(
     previousPairs: previousPairsFor(
       students,
       seatingHistory,
-      mixHistory,
       settings,
-      { ...options, currentSeating },
+      options ?? {},
     ),
     targets: seatTargetsFor(students, scene, lockedPositions, rng),
     lockedPositions,
@@ -701,13 +693,11 @@ export function generateSeatingPlan(
  * One "Mischen": the construction and, while a criterion asks for it, its
  * refinement, as one session that decides by one set of facts (decision
  * 0027) and one score (decision 0031). Both phases take the tables' targets
- * the construction drew, and both weigh the pairs of what came before this
- * mix — the plan on screen (`lastSeating`), the plans in use, the earlier
- * mixes — by recency and by kind, never the pairs the construction itself
- * just made. Within the session every table is held to the construction's
- * count.
+ * the construction drew, and both weigh the pairs of the plans in use — never
+ * an earlier mix, never the plan on screen as such (decision 0032), never the
+ * pairs the construction itself just made — by recency and by kind. Within
+ * the session every table is held to the construction's count.
  *
- * @param lastSeating - The plan on screen before mixing
  * @param options.refine - Whether the refinement runs; without it the
  *   construction stands
  * @returns The arrangement the session settled on
@@ -715,11 +705,9 @@ export function generateSeatingPlan(
 export function runMixSession(
   students: Student[],
   seatingHistory: SavedPlan[],
-  mixHistory: MixResult[],
   lockedPositions: Record<string, { table: number; seat: number }>,
   settings: Partial<MixSettings>,
   scene: ClassroomScene,
-  lastSeating?: SeatingArrangement,
   options?: {
     rng?: RandomSource;
     /** Records of plans that were really in use; see `buildPreviousPairs`. */
@@ -743,9 +731,8 @@ export function runMixSession(
     previousPairs: previousPairsFor(
       students,
       seatingHistory,
-      mixHistory,
       settings,
-      { ...options, currentSeating: lastSeating },
+      options ?? {},
     ),
     targets: seatTargetsFor(students, scene, lockedPositions, rng),
     lockedPositions,
@@ -838,8 +825,8 @@ export interface RefineOptions {
  * tables `tablesHeldByCount` names.
  *
  * @param students - Students contained in the active seating arrangement
- * @param seatingHistory - Previously persisted plans for pair avoidance checks
- * @param mixHistory - History of mix operations for recent pairing penalties
+ * @param seatingHistory - Saved plans, read for repetition while no usage
+ *   record counts
  * @param lockedPositions - Students that must keep their current seat assignment
  * @param currentSeating - Active arrangement that should be improved
  * @param settings - Mix settings that define scoring weights for refinement
@@ -852,7 +839,6 @@ export interface RefineOptions {
 export function refineSeatingLocal(
   students: Student[],
   seatingHistory: SavedPlan[],
-  mixHistory: MixResult[],
   lockedPositions: Record<string, { table: number; seat: number }>,
   currentSeating: SeatingArrangement,
   settings: Partial<MixSettings>,
@@ -872,7 +858,7 @@ export function refineSeatingLocal(
     settings,
     previousPairs:
       session?.previousPairs ??
-      previousPairsFor(students, seatingHistory, mixHistory, settings, {
+      previousPairsFor(students, seatingHistory, settings, {
         planUsage: options?.planUsage,
         planUsageSince: options?.planUsageSince,
         planUsageManual: options?.planUsageManual,

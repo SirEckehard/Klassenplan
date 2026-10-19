@@ -48,7 +48,9 @@ was restored, which rearranged the restored plan as the plan layer opened.
   construction decided by (`RefineOptions.session`). Those earlier pairs are
   what came before this mix: the plan on screen, the plans in use (or the
   saved plans), the earlier mixes — never the construction's own. Within the
-  session every table is held to the construction's count.
+  session every table is held to the construction's count. _Since
+  [decision 0032](0032-repetition-reads-plans-in-use.md) only the plans in
+  use count; the plan on screen and the earlier mixes do not._
 - **The refinement weighs an earlier pair** by the weight `buildPreviousPairs`
   gives it, as the construction does, and keys pairs through `seatPairKey` and
   `seatStudentIdentifier`.

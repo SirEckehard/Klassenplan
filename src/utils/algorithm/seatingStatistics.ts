@@ -6,7 +6,6 @@ import type {
   MixSettings,
   SavedPlan,
   ClassroomScene,
-  MixResult,
   PlanUsage,
 } from '@/types';
 import { resolvePerformanceCriterion } from '../mixSettings';
@@ -34,7 +33,8 @@ export interface SeatingStatistics {
  * @param arrangement Current seating arrangement to analyze
  * @param students Full list of students
  * @param settings Mix criteria weights (0-10)
- * @param seatingHistory Previous seating plans for repetition avoidance
+ * @param seatingHistory Saved plans, read for repetition while no usage
+ *   record counts
  * @param scene Classroom layout for position calculations
  * @returns The cases of every criterion, with their credits
  */
@@ -45,8 +45,7 @@ export function calculateSeatingStatistics(
   seatingHistory: SavedPlan[],
   scene: ClassroomScene,
   options?: {
-    /** The mix history as stored, the plan's own mix last when it is one */
-    mixHistory?: MixResult[];
+    /** Records of plans that were really in use; see `buildPreviousPairs`. */
     planUsage?: PlanUsage[];
     /** When the neighbourhoods were last reset; see `buildPreviousPairs`. */
     planUsageSince?: string | null;
@@ -60,7 +59,6 @@ export function calculateSeatingStatistics(
     settings,
     scene,
     seatingHistory,
-    mixHistory: options?.mixHistory,
     planUsage: options?.planUsage,
     planUsageSince: options?.planUsageSince,
     planUsageManual: options?.planUsageManual,

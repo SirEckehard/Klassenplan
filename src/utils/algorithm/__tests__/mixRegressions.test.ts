@@ -100,16 +100,10 @@ const mix = (
   refine = true,
   lockedPositions: Record<string, { table: number; seat: number }> = {},
 ) =>
-  runMixSession(
-    students,
-    [],
-    [],
-    lockedPositions,
-    settings(weights),
-    scene,
-    undefined,
-    { rng: createRng(seed), refine },
-  );
+  runMixSession(students, [], lockedPositions, settings(weights), scene, {
+    rng: createRng(seed),
+    refine,
+  });
 
 const seatOf = (arrangement: SeatingArrangement, id: string) => {
   for (let tableIndex = 0; tableIndex < arrangement.length; tableIndex++) {

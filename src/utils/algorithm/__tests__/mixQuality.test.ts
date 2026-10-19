@@ -13,7 +13,6 @@ import type {
   ClassroomFeature,
   ClassroomScene,
   ClassroomTable,
-  MixResult,
   MixSettings,
   SavedPlan,
   SeatingArrangement,
@@ -228,14 +227,6 @@ describe.skipIf(!process.env.MIX_QUALITY)('mix quality', () => {
             scene: fixture.room,
           }))
         : [];
-      const mixHistory: MixResult[] = fixture.history
-        ? [0, 1, 2, 3, 4].map((index) => ({
-            id: index,
-            timestamp: `2026-10-0${index + 1}T08:00:00.000Z`,
-            seating: randomArrangement(fixture.room, students, classRng),
-            mixSettings: settings,
-          }))
-        : [];
       const lockedPositions: Record<string, { table: number; seat: number }> =
         fixture.locks
           ? { s5: { table: 7, seat: 0 }, s11: { table: 2, seat: 1 } }
@@ -249,11 +240,9 @@ describe.skipIf(!process.env.MIX_QUALITY)('mix quality', () => {
         const seating = runMixSession(
           students,
           seatingHistory,
-          mixHistory,
           lockedPositions,
           settings,
           fixture.room,
-          mixHistory[mixHistory.length - 1]?.seating,
           { rng: createRng(seed), refine: true },
         );
         time += performance.now() - started;
@@ -264,17 +253,6 @@ describe.skipIf(!process.env.MIX_QUALITY)('mix quality', () => {
             settings,
             seatingHistory,
             fixture.room,
-            {
-              mixHistory: [
-                ...mixHistory,
-                {
-                  id: 99,
-                  timestamp: '2026-10-18T08:00:00.000Z',
-                  seating,
-                  mixSettings: settings,
-                },
-              ],
-            },
           ),
           settings,
         );

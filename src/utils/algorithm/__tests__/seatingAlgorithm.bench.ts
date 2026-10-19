@@ -22,12 +22,16 @@ import type {
   ClassroomFeature,
   ClassroomScene,
   LockedPositions,
-  MixResult,
+  PlanUsage,
   SavedPlan,
   SeatingArrangement,
   Student,
 } from '@/types';
 import { DEFAULT_MIX_WEIGHTS, MIX_HISTORY_LIMIT } from '@/utils';
+import {
+  collectSeatingPairKeys,
+  computePlanFingerprint,
+} from '@/utils/data/planUsage';
 import { createRng } from '../rng';
 import {
   generateSeatingPlan,
@@ -132,14 +136,15 @@ interface Fixture {
   students: Student[];
   scene: ClassroomScene;
   seatingHistory: SavedPlan[];
-  mixHistory: MixResult[];
+  planUsage: PlanUsage[];
   lockedPositions: LockedPositions;
   start: SeatingArrangement;
 }
 
 /**
- * A class in the middle of a school year: a full mix history, two saved plans
- * and two locked seats, so the repetition and lock handling do real work.
+ * A class in the middle of a school year: a window full of plans in use, two
+ * saved plans and two locked seats, so the repetition and lock handling do
+ * real work.
  */
 const buildFixture = (size: number): Fixture => {
   const students = buildStudents(size);
@@ -148,26 +153,31 @@ const buildFixture = (size: number): Fixture => {
     s0: { table: 0, seat: 0 },
     s1: { table: 1, seat: 1 },
   };
-  const construct = (seed: number, mixHistory: MixResult[] = []) =>
+  const construct = (seed: number) =>
     generateSeatingPlan(
       students,
       [],
-      mixHistory,
       lockedPositions,
       DEFAULT_MIX_WEIGHTS,
       scene,
-      undefined,
       { rng: createRng(seed) },
     );
 
-  const mixHistory: MixResult[] = Array.from(
+  const planUsage: PlanUsage[] = Array.from(
     { length: MIX_HISTORY_LIMIT },
-    (_, index) => ({
-      id: index,
-      timestamp: `2026-09-01T08:${String(index).padStart(2, '0')}:00.000Z`,
-      seating: construct(1000 + index),
-      mixSettings: DEFAULT_MIX_WEIGHTS,
-    }),
+    (_, index) => {
+      const pairs = collectSeatingPairKeys(construct(1000 + index));
+      const at = `2026-09-01T08:${String(index).padStart(2, '0')}:00.000Z`;
+      return {
+        id: `u${index}`,
+        fingerprint: computePlanFingerprint(pairs),
+        pairs,
+        firstSeenAt: at,
+        lastSeenAt: at,
+        sources: ['presented'],
+        confidence: 1,
+      };
+    },
   );
   const seatingHistory: SavedPlan[] = [0, 1].map((index) => ({
     id: `p${index}`,
@@ -181,9 +191,9 @@ const buildFixture = (size: number): Fixture => {
     students,
     scene,
     seatingHistory,
-    mixHistory,
+    planUsage,
     lockedPositions,
-    start: construct(3000, mixHistory),
+    start: construct(3000),
   };
 };
 
@@ -197,12 +207,11 @@ for (const size of CLASS_SIZES) {
     refineSeatingLocal(
       fixture.students,
       fixture.seatingHistory,
-      fixture.mixHistory,
       fixture.lockedPositions,
       fixture.start,
       DEFAULT_MIX_WEIGHTS,
       fixture.scene,
-      { rng: nextRng() },
+      { rng: nextRng(), planUsage: fixture.planUsage },
       fixture.start,
     );
 
@@ -212,12 +221,10 @@ for (const size of CLASS_SIZES) {
         generateSeatingPlan(
           fixture.students,
           fixture.seatingHistory,
-          fixture.mixHistory,
           fixture.lockedPositions,
           DEFAULT_MIX_WEIGHTS,
           fixture.scene,
-          undefined,
-          { rng: nextRng() },
+          { rng: nextRng(), planUsage: fixture.planUsage },
         );
       }),
       bench(
@@ -226,12 +233,10 @@ for (const size of CLASS_SIZES) {
           runMixSession(
             fixture.students,
             fixture.seatingHistory,
-            fixture.mixHistory,
             fixture.lockedPositions,
             DEFAULT_MIX_WEIGHTS,
             fixture.scene,
-            fixture.start,
-            { rng: nextRng(), refine: true },
+            { rng: nextRng(), refine: true, planUsage: fixture.planUsage },
           );
         },
       ),

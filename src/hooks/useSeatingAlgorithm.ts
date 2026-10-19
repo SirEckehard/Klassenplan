@@ -19,7 +19,6 @@ import {
   DEFAULT_MIX_WEIGHTS,
   DEFAULT_NEIGHBOR_WEIGHTS,
   hasActiveWeights,
-  MIX_HISTORY_LIMIT,
   mergeNeighborWeights,
   normalizeMixSettings,
 } from '@/utils';
@@ -68,9 +67,9 @@ export function useSeatingAlgorithm(
 ) {
   const {
     studentState: { students },
-    historyState: { seatingHistory, mixHistory, addMixResult },
+    historyState: { seatingHistory, addMixResult },
     algorithmState: { lockedPositions, setLastStatistics },
-    planState: { currentSeating, setCurrentSeating },
+    planState: { setCurrentSeating },
     roomState: { activeRoomId },
     classState: { activeClass },
   } = state;
@@ -85,19 +84,12 @@ export function useSeatingAlgorithm(
     openScopeRef.current = { classId: activeClass.id, roomId: activeRoomId };
   }, [activeClass.id, activeRoomId]);
 
-  const mixHistoryRef = useRef(mixHistory);
-  // Held in a ref like the mix history: the records change on signals raised
-  // from other routes, and that must not rebuild the algorithm callbacks.
+  // Held in refs: the records change on signals raised from other routes, and
+  // that must not rebuild the algorithm callbacks. Updated in effects to avoid
+  // writing during render.
   const planUsageRef = useRef(planUsage);
   const planUsageSinceRef = useRef(planUsageSince);
   const planUsageManualRef = useRef(planUsageManual);
-  const recentSeatingRef = useRef<SeatingArrangement | null>(
-    currentSeating.length > 0 ? currentSeating : null,
-  );
-  // Update refs in effect to avoid writing during render
-  useEffect(() => {
-    mixHistoryRef.current = mixHistory;
-  }, [mixHistory]);
 
   useEffect(() => {
     planUsageRef.current = planUsage;
@@ -111,16 +103,12 @@ export function useSeatingAlgorithm(
     planUsageManualRef.current = planUsageManual;
   }, [planUsageManual]);
 
-  useEffect(() => {
-    recentSeatingRef.current =
-      currentSeating.length > 0 ? currentSeating : null;
-  }, [currentSeating]);
-
   /**
    * Mixes the plan: the construction and — while a criterion carries weight —
-   * its refinement run as one session in the worker, which weighs the plan on
-   * screen as the newest one in use. The mix history gains the arrangement the
-   * session settled on, which is the one on screen (decision 0014).
+   * its refinement run as one session in the worker, which avoids the pairs
+   * of the plans in use, never those of an earlier mix (decision 0032). The
+   * mix history gains the arrangement the session settled on, which is the
+   * one on screen (decision 0014).
    */
   const generateSeatingPlan = useCallback(
     (
@@ -136,8 +124,6 @@ export function useSeatingAlgorithm(
         ),
       };
 
-      const historyForPairs = mixHistoryRef.current;
-      const lastSeating = recentSeatingRef.current ?? undefined;
       const refine = hasActiveWeights(normalizedSettings);
 
       const scope = openScopeRef.current;
@@ -147,14 +133,12 @@ export function useSeatingAlgorithm(
           {
             students,
             seatingHistory,
-            mixHistory: historyForPairs,
             planUsage: planUsageRef.current,
             planUsageSince: planUsageSinceRef.current,
             planUsageManual: planUsageManualRef.current,
             lockedPositions,
             classroomScene: scene,
             mixSettings: normalizedSettings,
-            lastSeating: lastSeating ?? null,
             refine,
           },
           { signal: run?.signal, onProgress: run?.onProgress },
@@ -169,7 +153,6 @@ export function useSeatingAlgorithm(
           );
 
           setCurrentSeating(arrangement);
-          recentSeatingRef.current = arrangement;
           const result: MixResult = {
             id: Date.now(),
             timestamp: new Date().toISOString(),
@@ -178,22 +161,14 @@ export function useSeatingAlgorithm(
             // The room the mix was made for (decision 0024).
             ...(scope.roomId && { roomId: scope.roomId }),
           };
-          const updatedMixHistory = [...historyForPairs, result];
-          mixHistoryRef.current =
-            updatedMixHistory.length > MIX_HISTORY_LIMIT
-              ? updatedMixHistory.slice(-MIX_HISTORY_LIMIT)
-              : updatedMixHistory;
           addMixResult(result);
 
-          // Calculate statistics using shared utility. The history ends with
-          // this mix, which the statistics leave out, as they do on screen.
           const topCriteria = calculateCurrentStatistics(
             arrangement,
             students,
             normalizedSettings,
             seatingHistory,
             scene,
-            mixHistoryRef.current,
             {
               planUsage: planUsageRef.current,
               planUsageSince: planUsageSinceRef.current,

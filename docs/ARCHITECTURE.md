@@ -1,6 +1,6 @@
 # Architecture
 
-> **Status:** current · **Last reviewed:** 2026-10-18 · **Maintainer:** Eike
+> **Status:** current · **Last reviewed:** 2026-10-19 · **Maintainer:** Eike
 > Schäfer · **Describes:** Klassenplan 3.1.2
 
 This is the entry point for anyone who wants to understand _why_ Klassenplan is
@@ -131,7 +131,7 @@ deletes the sample class
 | No server                 | static files only                         | Follows from goal 2. Consequences: no telemetry, prerendering for SEO, canonical URLs from the build-time `SITE_URL`, backups as files                                             |
 | Students per class        | 36 (`MAX_STUDENTS`)                       | Documented both as algorithm cost ([AGENTS.md](../AGENTS.md)) and as a cap on imported data ([SECURITY.md](SECURITY.md)); the original reason is not recorded — see open questions |
 | Room                      | 900 × 600 scene                           | Sized for up to 36 students (`constants.ts`); editor, export and presentation share one coordinate system                                                                          |
-| Mix history               | 20 entries (`MIX_HISTORY_LIMIT`)          | Bounds memory and storage; also the window of recent shuffles the repetition criterion looks at                                                                                    |
+| Mix history               | 20 entries (`MIX_HISTORY_LIMIT`)          | Bounds memory and storage; also the most plans in use the repetition criterion looks at, which reads no mix ([decision 0032](decisions/0032-repetition-reads-plans-in-use.md))     |
 | Backup files              | 16 MB encrypted, 12 MB decrypted          | Rejects corrupted or malicious files before parsing ([backup-format.md](backup-format.md))                                                                                         |
 | Student photos            | 20 MB input, stored as ~160 px JPEG       | Keeps IndexedDB small and strips EXIF/GPS by re-encoding                                                                                                                           |
 | Content Security Policy   | `script-src 'self'`, `connect-src 'self'` | No inline scripts, no third-party requests; speculation rules come as an HTTP header                                                                                               |

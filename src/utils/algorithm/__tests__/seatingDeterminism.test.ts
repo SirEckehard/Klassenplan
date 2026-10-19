@@ -100,45 +100,20 @@ describe('generateSeatingPlan determinism', () => {
   const scene = buildScene(10);
 
   it('returns the identical plan for the same seed', () => {
-    const first = generateSeatingPlan(
-      students,
-      [],
-      [],
-      {},
-      settings,
-      scene,
-      undefined,
-      {
-        rng: createRng(4711),
-      },
-    );
-    const second = generateSeatingPlan(
-      students,
-      [],
-      [],
-      {},
-      settings,
-      scene,
-      undefined,
-      { rng: createRng(4711) },
-    );
+    const first = generateSeatingPlan(students, [], {}, settings, scene, {
+      rng: createRng(4711),
+    });
+    const second = generateSeatingPlan(students, [], {}, settings, scene, {
+      rng: createRng(4711),
+    });
 
     expect(asNames(first)).toEqual(asNames(second));
   });
 
   it('seats every student exactly once', () => {
-    const plan = generateSeatingPlan(
-      students,
-      [],
-      [],
-      {},
-      settings,
-      scene,
-      undefined,
-      {
-        rng: createRng(1),
-      },
-    );
+    const plan = generateSeatingPlan(students, [], {}, settings, scene, {
+      rng: createRng(1),
+    });
 
     const seatedIds = plan
       .flat()
@@ -149,30 +124,12 @@ describe('generateSeatingPlan determinism', () => {
   });
 
   it('produces different plans for different seeds', () => {
-    const a = generateSeatingPlan(
-      students,
-      [],
-      [],
-      {},
-      settings,
-      scene,
-      undefined,
-      {
-        rng: createRng(1),
-      },
-    );
-    const b = generateSeatingPlan(
-      students,
-      [],
-      [],
-      {},
-      settings,
-      scene,
-      undefined,
-      {
-        rng: createRng(2),
-      },
-    );
+    const a = generateSeatingPlan(students, [], {}, settings, scene, {
+      rng: createRng(1),
+    });
+    const b = generateSeatingPlan(students, [], {}, settings, scene, {
+      rng: createRng(2),
+    });
 
     // Not a hard guarantee in theory, but with 16 students over 10 tables an
     // identical result would mean the seed is not reaching the algorithm.
@@ -181,16 +138,9 @@ describe('generateSeatingPlan determinism', () => {
 
   it('keeps locked students on their seat', () => {
     const locked = { s3: { table: 2, seat: 1 } };
-    const plan = generateSeatingPlan(
-      students,
-      [],
-      [],
-      locked,
-      settings,
-      scene,
-      undefined,
-      { rng: createRng(77) },
-    );
+    const plan = generateSeatingPlan(students, [], locked, settings, scene, {
+      rng: createRng(77),
+    });
 
     expect(plan[2]?.[1]?.id).toBe('s3');
   });
@@ -201,26 +151,18 @@ describe('refineSeatingLocal determinism', () => {
   const scene = buildScene(8);
 
   const baseline = () =>
-    generateSeatingPlan(students, [], [], {}, settings, scene, undefined, {
+    generateSeatingPlan(students, [], {}, settings, scene, {
       rng: createRng(1234),
     });
 
   it('refines with simulated annealing to the same result for the same seed', () => {
     const start = baseline();
 
-    const first = refineSeatingLocal(
-      students,
-      [],
-      [],
-      {},
-      start,
-      settings,
-      scene,
-      { rng: createRng(808) },
-    );
+    const first = refineSeatingLocal(students, [], {}, start, settings, scene, {
+      rng: createRng(808),
+    });
     const second = refineSeatingLocal(
       students,
-      [],
       [],
       {},
       start,
@@ -235,7 +177,6 @@ describe('refineSeatingLocal determinism', () => {
   it('never loses or duplicates a student', () => {
     const refined = refineSeatingLocal(
       students,
-      [],
       [],
       {},
       baseline(),
@@ -256,18 +197,9 @@ describe('generateOptimizedCircleLayout determinism', () => {
   it('returns the identical circle for the same seed', () => {
     const students = buildStudents(10);
     const scene = buildScene(6);
-    const plan = generateSeatingPlan(
-      students,
-      [],
-      [],
-      {},
-      settings,
-      scene,
-      undefined,
-      {
-        rng: createRng(3),
-      },
-    );
+    const plan = generateSeatingPlan(students, [], {}, settings, scene, {
+      rng: createRng(3),
+    });
 
     const first = generateOptimizedCircleLayout(
       students,

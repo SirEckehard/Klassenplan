@@ -296,19 +296,11 @@ describe('mixing with tables out of the mix', () => {
     );
     const students = buildStudents(14);
 
-    const plan = generateSeatingPlan(
-      students,
-      [],
-      [],
-      {},
-      settings,
-      scene,
-      undefined,
-      { rng: createRng(11) },
-    );
+    const plan = generateSeatingPlan(students, [], {}, settings, scene, {
+      rng: createRng(11),
+    });
     const refined = refineSeatingLocal(
       students,
-      [],
       [],
       {},
       plan,
@@ -336,11 +328,9 @@ describe('mixing with tables out of the mix', () => {
     const plan = generateSeatingPlan(
       students,
       [],
-      [],
       {},
       { preferFrontForNeedsFrontSeat: 5 },
       scene,
-      undefined,
       { rng: createRng(5) },
     );
 
@@ -353,19 +343,11 @@ describe('mixing with tables out of the mix', () => {
     const scene = buildScene(undefined, { fillFromFront: true });
     const students = buildStudents(11);
 
-    const plan = generateSeatingPlan(
-      students,
-      [],
-      [],
-      {},
-      settings,
-      scene,
-      undefined,
-      { rng: createRng(2) },
-    );
+    const plan = generateSeatingPlan(students, [], {}, settings, scene, {
+      rng: createRng(2),
+    });
     const refined = refineSeatingLocal(
       students,
-      [],
       [],
       {},
       plan,
@@ -398,18 +380,15 @@ describe('mixing with tables out of the mix', () => {
     const plan = generateSeatingPlan(
       students,
       [],
-      [],
       locks,
       restlessApart,
       scene,
-      undefined,
       { rng: createRng(1) },
     );
 
     for (const seed of [2, 3]) {
       const refined = refineSeatingLocal(
         students,
-        [],
         [],
         locks,
         plan,
@@ -432,15 +411,13 @@ describe('mixing with tables out of the mix', () => {
     const plan = generateSeatingPlan(
       students,
       [],
-      [],
       locks,
       restlessApart,
       scene,
-      undefined,
       { rng: createRng(1) },
     );
     const refinements = [2, 3].map((seed) =>
-      refineSeatingLocal(students, [], [], locks, plan, restlessApart, scene, {
+      refineSeatingLocal(students, [], locks, plan, restlessApart, scene, {
         rng: createRng(seed),
       }),
     );

@@ -70,7 +70,6 @@ import type {
   ClassroomFeatureType,
   Student,
   SavedPlan,
-  MixResult,
   PlanUsage,
   PhotoDisplayMode,
 } from '@/types';
@@ -199,7 +198,6 @@ type Props = {
   ) => void;
   clearStatisticsHighlight?: () => void;
   seatingHistory?: SavedPlan[];
-  mixHistory?: MixResult[];
   /** Records of plans that were really in use; see `buildPreviousPairs`. */
   planUsage?: PlanUsage[];
   /** When the neighbourhoods were last reset; see `buildPreviousPairs`. */
@@ -261,7 +259,6 @@ export default function SeatingPlanEditorView({
   setStatisticsHighlightMode,
   clearStatisticsHighlight,
   seatingHistory = [],
-  mixHistory = [],
   planUsage = [],
   planUsageSince = null,
   planUsageManual = false,
@@ -514,7 +511,6 @@ export default function SeatingPlanEditorView({
         students,
         settings,
         seatingHistory,
-        mixHistory,
         planUsage,
         planUsageSince,
         planUsageManual,
@@ -524,7 +520,6 @@ export default function SeatingPlanEditorView({
       effectiveSeating,
       students,
       settings,
-      mixHistory,
       planUsage,
       planUsageSince,
       planUsageManual,

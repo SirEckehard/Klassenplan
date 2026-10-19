@@ -74,14 +74,12 @@ export async function executeAlgorithmOperation<
       const {
         students,
         seatingHistory,
-        mixHistory,
         planUsage,
         planUsageSince,
         planUsageManual,
         lockedPositions,
         classroomScene,
         mixSettings,
-        lastSeating,
         refine,
       } = payload as AlgorithmWorkerRequestMap['mix:run']['payload'];
 
@@ -92,11 +90,9 @@ export async function executeAlgorithmOperation<
       const seating = runMixSession(
         students,
         seatingHistory,
-        mixHistory,
         lockedPositions,
         mixSettings,
         classroomScene,
-        lastSeating ?? undefined,
         {
           planUsage,
           planUsageSince,

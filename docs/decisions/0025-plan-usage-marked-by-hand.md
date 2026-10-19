@@ -67,6 +67,8 @@ too) and then never falls back to the saved plans.
 - A class that detects its plans produces exactly the plans it did before. A
   class that marks by hand produces different ones as soon as the switch goes
   off: only the marked plans push pairs apart, and with none marked only the
-  arrangement on screen and the recent mixes do.
+  arrangement on screen and the recent mixes do. _Since
+  [decision 0032](0032-repetition-reads-plans-in-use.md) neither counts: with
+  none marked, nothing does._
 - While the detection is off, the toast after presenting or exporting no
   longer appears for the class, since nothing is recorded to take back.

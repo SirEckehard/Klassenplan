@@ -16,13 +16,17 @@ import type {
   ClassroomFeature,
   ClassroomScene,
   ClassroomTable,
-  MixResult,
   MixSettings,
+  PlanUsage,
   SeatingArrangement,
   Student,
 } from '@/types';
 import type { StatisticHighlightEntry } from '@/types/StatisticsHighlight';
 import { neutralSettings } from '../../mixSettings';
+import {
+  collectSeatingPairKeys,
+  computePlanFingerprint,
+} from '../../data/planUsage';
 
 const boardRight: ClassroomFeature = {
   id: 'board',
@@ -75,7 +79,7 @@ const build = (
   criterionKey: keyof MixSettings,
   arrangement: SeatingArrangement,
   weights: Partial<MixSettings> = { [criterionKey]: 5 },
-  mixHistory: MixResult[] = [],
+  planUsage: PlanUsage[] = [],
 ) =>
   buildCriterionHighlightEntries({
     criterionKey,
@@ -85,7 +89,7 @@ const build = (
       .flat()
       .filter((seat): seat is Student => Boolean(seat)),
     settings: { ...neutralSettings, ...weights },
-    mixHistory,
+    planUsage,
   });
 
 describe('buildCriterionHighlightEntries', () => {
@@ -224,28 +228,42 @@ describe('buildCriterionHighlightEntries', () => {
   describe('avoidPreviousPairs', () => {
     const ada = student('ada');
     const alan = student('alan');
-    const mix = (seating: SeatingArrangement, id: number): MixResult => ({
-      id,
-      timestamp: `2026-10-0${id}T08:00:00.000Z`,
-      seating,
-      mixSettings: { ...neutralSettings },
-    });
+    const used = (seating: SeatingArrangement, day: number): PlanUsage => {
+      const pairs = collectSeatingPairKeys(seating);
+      return {
+        id: `u${day}`,
+        fingerprint: computePlanFingerprint(pairs),
+        pairs,
+        firstSeenAt: `2026-10-0${day}T08:00:00.000Z`,
+        lastSeenAt: `2026-10-0${day}T08:00:00.000Z`,
+        sources: ['presented'],
+        confidence: 1,
+      };
+    };
 
-    it('flags a pair of the plan before', () => {
-      const before: SeatingArrangement = [[ada, alan], []];
-      const plan: SeatingArrangement = [[alan, ada], []];
+    it('flags a pair of a plan in use', () => {
+      // Another pair in it: a plan with exactly the same pairs is this plan.
+      const grace = student('grace');
+      const before: SeatingArrangement = [
+        [ada, alan],
+        [grace, student('hedy')],
+      ];
+      const plan: SeatingArrangement = [
+        [alan, ada],
+        [grace, null],
+      ];
 
       const entries = build(
         'avoidPreviousPairs',
         plan,
         { avoidPreviousPairs: 6 },
-        [mix(before, 1), mix(plan, 2)],
+        [used(before, 1)],
       );
 
       expect(entryFor(entries, 'ada')?.percentage).toBe(0);
     });
 
-    it('does not flag the plan as a repetition of its own mix', () => {
+    it('does not flag a plan in use as a repetition of itself', () => {
       const plan: SeatingArrangement = [[ada, alan], []];
 
       const entries = build(
@@ -254,7 +272,7 @@ describe('buildCriterionHighlightEntries', () => {
         {
           avoidPreviousPairs: 6,
         },
-        [mix(plan, 1)],
+        [used(plan, 1)],
       );
 
       expect(entryFor(entries, 'ada')?.percentage).toBe(100);

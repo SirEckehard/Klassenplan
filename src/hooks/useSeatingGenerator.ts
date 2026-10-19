@@ -532,7 +532,6 @@ export function useSeatingGenerator() {
     students,
     mixSettings,
     seatingHistory,
-    mixHistory,
     planUsage,
     planUsageSince,
     planUsageManual,

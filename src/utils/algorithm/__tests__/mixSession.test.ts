@@ -2,13 +2,17 @@
 // Copyright (C) 2026 Eike Schäfer
 /**
  * A mix is one session (decision 0027): the construction and its refinement
- * decide by the same tables' targets and the same earlier pairs, weighed by
- * recency and kind.
+ * decide by the same tables' targets and the same pairs of the plans in use
+ * (decision 0032), weighed by recency and kind.
  */
 import { describe, expect, it } from 'vitest';
-import type { ClassroomScene, MixResult, Student } from '@/types';
+import type { ClassroomScene, PlanUsage, Student } from '@/types';
 import { createMockStudent, createMockTable } from '@/__tests__/utils';
 import { DEFAULT_MIX_WEIGHTS } from '@/utils';
+import {
+  collectSeatingPairKeys,
+  computePlanFingerprint,
+} from '@/utils/data/planUsage';
 import { createRng } from '../rng';
 import {
   generateSeatingPlan,
@@ -76,23 +80,15 @@ describe('runMixSession', () => {
       const constructed = generateSeatingPlan(
         students,
         [],
-        [],
         {},
         settings,
         scene,
-        undefined,
         { rng: createRng(seed) },
       );
-      const mixed = runMixSession(
-        students,
-        [],
-        [],
-        {},
-        settings,
-        scene,
-        undefined,
-        { rng: createRng(seed), refine: true },
-      );
+      const mixed = runMixSession(students, [], {}, settings, scene, {
+        rng: createRng(seed),
+        refine: true,
+      });
 
       const count = (seating: (Student | null)[][]) =>
         seating.map((table) => table.filter(Boolean).length);
@@ -100,31 +96,32 @@ describe('runMixSession', () => {
     }
   });
 
-  it('keeps the pairs of the plan on screen apart in both phases', () => {
+  it('keeps the pairs of a plan in use apart in both phases', () => {
     const [ada, ben, cem, dua] = ['ada', 'ben', 'cem', 'dua'].map((id) =>
       createMockStudent({ id, name: id }),
     );
-    const onScreen = [
+    const pairs = collectSeatingPairKeys([
       [ada!, ben!],
       [cem!, dua!],
-    ];
-    const lastMix: MixResult = {
-      id: 1,
-      timestamp: '2026-10-10T08:00:00.000Z',
-      seating: onScreen,
-      mixSettings: DEFAULT_MIX_WEIGHTS,
+    ]);
+    const inUse: PlanUsage = {
+      id: 'u1',
+      fingerprint: computePlanFingerprint(pairs),
+      pairs,
+      firstSeenAt: '2026-10-10T08:00:00.000Z',
+      lastSeenAt: '2026-10-10T08:00:00.000Z',
+      sources: ['presented'],
+      confidence: 1,
     };
 
     for (const seed of [1, 2, 3]) {
       const mixed = runMixSession(
         [ada!, ben!, cem!, dua!],
         [],
-        [lastMix],
         {},
         { avoidPreviousPairs: 10 },
         room(2),
-        onScreen,
-        { rng: createRng(seed), refine: true },
+        { rng: createRng(seed), refine: true, planUsage: [inUse] },
       );
 
       expect(tableIds(mixed)).not.toContain('ada+ben');
@@ -147,7 +144,6 @@ describe('refineSeatingLocal with a session', () => {
   const refineWith = (adaBen: number) =>
     refineSeatingLocal(
       [ada, ben, cem, dua],
-      [],
       [],
       {},
       start,
