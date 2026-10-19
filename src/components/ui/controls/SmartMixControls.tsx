@@ -73,19 +73,24 @@ type CriterionFulfillmentProps = Omit<
  * and "Beachten" stands taller than wide, or it reads as a dot.
  */
 const LEVEL_BAR_CLASS: Record<MixImportance, string> = {
-  off: 'h-0.5',
-  consider: 'h-2',
-  important: 'h-3',
-  essential: 'h-4',
+  off: 'h-1',
+  consider: 'h-2.5',
+  important: 'h-3.5',
+  essential: 'h-4.5',
 };
 
 /**
  * How important a criterion is, as a scale beside its name: a dash on the
  * baseline for "Aus" and three bars rising to "Sehr wichtig", filled up to the
- * level in the criterion's family ink — the dash dark while it is the level. The four words a teacher decides between are still
- * there — on every step's tooltip and in its accessible name — but the scale
- * fits the criterion's own line, where four word chips took a second one, and
- * sixteen criteria read as one list as the student inspector's do.
+ * level in the criterion's family ink — the dash dark while it is the level.
+ * Empty steps take `--scale-empty`, not a hairline's colour, so the scale
+ * stands out against the page in both themes. Under a mouse the steps show
+ * the level the pointer rests on before it is pressed: the bars it would add
+ * half-filled, the ones it would take away already empty. The four words a
+ * teacher decides between are still there — on every step's tooltip and in
+ * its accessible name — but the scale fits the criterion's own line, where
+ * four word chips took a second one, and sixteen criteria read as one list as
+ * the student inspector's do.
  */
 function ImportanceScale({
   label,
@@ -100,21 +105,43 @@ function ImportanceScale({
 }) {
   const { t } = useTranslation('generator');
   const valueIndex = MIX_IMPORTANCE_LEVELS.indexOf(value);
+  // The step under the mouse. A finger's tap would leave it behind, since a
+  // touch screen sends no leave until the next touch elsewhere.
+  const [previewIndex, setPreviewIndex] = React.useState<number | null>(null);
+  const targetIndex = previewIndex ?? valueIndex;
 
   return (
     <div
       role="group"
       aria-label={t('mix.importance.groupLabel', { label })}
       className={`${dataFamilyClass[family]} flex items-stretch`}
+      onPointerLeave={() => setPreviewIndex(null)}
     >
       {MIX_IMPORTANCE_LEVELS.map((level, index) => {
         const isActive = value === level;
         const levelLabel = t(`mix.importance.${level}`);
-        const isFilled = index > 0 && index <= valueIndex;
+        let barColorClass = 'bg-(--scale-empty)';
+        if (index === 0) {
+          if (targetIndex === 0) {
+            barColorClass = isActive
+              ? 'bg-(--text-page)'
+              : 'bg-(--text-page)/50';
+          }
+        } else if (index <= targetIndex) {
+          barColorClass =
+            index <= valueIndex
+              ? 'bg-(--data-chip-accent)'
+              : 'bg-(--data-chip-accent)/50';
+        }
         return (
           <button
             key={level}
             type="button"
+            onPointerEnter={(event) => {
+              if (event.pointerType === 'mouse') {
+                setPreviewIndex(index);
+              }
+            }}
             onClick={() => onChange(level)}
             aria-pressed={isActive}
             aria-label={t('mix.importance.optionLabel', {
@@ -128,13 +155,7 @@ function ImportanceScale({
           >
             <span
               aria-hidden="true"
-              className={`block w-1.5 rounded-xs ${LEVEL_BAR_CLASS[level]} ${
-                isFilled
-                  ? 'bg-(--data-chip-accent)'
-                  : level === 'off' && isActive
-                    ? 'bg-(--text-page)'
-                    : 'bg-(--border-card)'
-              }`}
+              className={`block w-2 rounded-xs ${LEVEL_BAR_CLASS[level]} ${barColorClass}`}
             />
           </button>
         );

@@ -109,6 +109,9 @@
   --shadow-list: 0 1px 2px rgba(23, 24, 26, 0.05);
   --radius-list: 0.625rem;
   --border-option-hover: #cec8bb;
+  /* An empty step of a scale (a criterion's importance): quiet, yet 3:1
+     against the page, as a control's state must be (WCAG 1.4.11). */
+  --scale-empty: #8f897c;
   --surface-option-selected: #eaf0fe;
   --border-option-selected: #2563eb;
   --accent-option: #2563eb;
@@ -338,6 +341,7 @@
     --border-list: #2a2d31;
     --shadow-list: 0 1px 2px rgba(0, 0, 0, 0.4);
     --border-option-hover: #3a3d42;
+    --scale-empty: #6b7078;
     --surface-option-selected: #16243f;
     --scrim: rgba(0, 0, 0, 0.65);
     --border-option-selected: #4f86f7;

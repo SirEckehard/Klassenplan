@@ -183,6 +183,37 @@ describe('SmartMixControls — comfortable density', () => {
     expect(weightOf('avoidRestlessTogether')).toBe(6);
   });
 
+  it('shows the level under the mouse before it is pressed, not under a finger', () => {
+    render(
+      <Harness
+        initial={{ avoidRestlessTogether: MIX_IMPORTANCE_WEIGHTS.important }}
+      />,
+    );
+    const bar = (level: RegExp) =>
+      restlessLevel(level).querySelector('span')!.className;
+    const CONSIDER = /Beachten|Consider/;
+
+    // The bar it would add is half-filled …
+    fireEvent.pointerEnter(restlessLevel(ESSENTIAL), { pointerType: 'mouse' });
+    expect(bar(ESSENTIAL)).toContain('bg-(--data-chip-accent)/50');
+    expect(bar(IMPORTANT)).toMatch(/bg-\(--data-chip-accent\)(\s|$)/);
+
+    // … the one it would take away already empty.
+    fireEvent.pointerEnter(restlessLevel(CONSIDER), { pointerType: 'mouse' });
+    expect(bar(IMPORTANT)).toContain('bg-(--scale-empty)');
+    expect(bar(ESSENTIAL)).toContain('bg-(--scale-empty)');
+
+    fireEvent.pointerLeave(restlessLevel(CONSIDER).parentElement!);
+    expect(bar(IMPORTANT)).toMatch(/bg-\(--data-chip-accent\)(\s|$)/);
+
+    fireEvent.pointerEnter(restlessLevel(OFF), { pointerType: 'touch' });
+    expect(bar(IMPORTANT)).toMatch(/bg-\(--data-chip-accent\)(\s|$)/);
+    expect(bar(OFF)).toContain('bg-(--scale-empty)');
+    expect(weightOf('avoidRestlessTogether')).toBe(
+      MIX_IMPORTANCE_WEIGHTS.important,
+    );
+  });
+
   // The fine tuning is gone: four words, and no weights from 0 to 10.
   it('sets a criterion in words only', () => {
     render(<Harness initial={{ avoidRestlessTogether: 5 }} />);

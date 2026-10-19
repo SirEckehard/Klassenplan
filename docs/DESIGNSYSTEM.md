@@ -1,6 +1,6 @@
 # Design System – Klassenplan
 
-> **Status:** current · **Last reviewed:** 2026-10-18 · **Maintainer:** Eike
+> **Status:** current · **Last reviewed:** 2026-10-19 · **Maintainer:** Eike
 > Schäfer · **Describes:** Klassenplan 3.1.2
 
 This document describes the binding design tokens for Klassenplan. All values live in `src/index.css` and are reachable from TypeScript through `src/utils/ui/designTokens.ts`.
@@ -120,6 +120,7 @@ A segmented control is `SegmentedControl` (`components/ui/controls/`), which wra
 | Page       | `#fcfbf8` | `#101113` | `--surface-page`            |
 | Surface    | `#ffffff` | `#181a1d` | `--surface-card` / `-panel` |
 | Line       | `#e3dfd6` | `#2a2d31` | `--border-card`             |
+| Empty step | `#8f897c` | `#6b7078` | `--scale-empty`             |
 | Muted text | `#54565a` | `#a9acb1` | `--text-muted`              |
 | Ink        | `#17181a` | `#f2f1ee` | `--text-page`               |
 | Accent     | `#2563eb` | `#2563eb` | `--button-primary-bg`       |
@@ -328,7 +329,11 @@ a scale at the row's end — a dash on the baseline for "Aus", three rising bars
 family's ink, the level's word in the tooltip and the accessible name — since
 four word chips took a line of their own and sixteen criteria three screens of
 scrolling; the explanation stays under the name
-([decision 0018](decisions/0018-criteria-in-words-with-recipes.md)).
+([decision 0018](decisions/0018-criteria-in-words-with-recipes.md)). Its empty
+steps take `--scale-empty`, 3:1 against the page in both themes, since a line's
+colour left the scale and above all its "Aus" dash out of sight; under a mouse
+the steps show the level the pointer rests on before it is pressed — the bars
+it would add half-filled, the ones it would take away already empty.
 
 From `lg` up the column folds away on every layer — the class, the room, the
 plan, the circle and the export sheet — from the switch at the right end of
