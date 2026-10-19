@@ -7,6 +7,7 @@ import {
   createTimestampPlanName,
   showToast,
   TOAST_MESSAGES,
+  hasPlanForScene,
   logError,
   withoutUnavailableWeights,
 } from '@/utils';
@@ -159,7 +160,13 @@ export function useSeatingWizard(
    */
   const handleBackwardNavigation = useCallback(
     async (targetStep: number): Promise<boolean> => {
-      if (step === 3 && currentSeating.length > 0 && hasUnsavedSeatingChanges) {
+      // A plan made for other tables is not saved: it would store the seats
+      // of tables that are gone under the room as it now stands.
+      if (
+        step === 3 &&
+        hasPlanForScene(classroomScene, currentSeating) &&
+        hasUnsavedSeatingChanges
+      ) {
         setPlanNameError(false);
         const trimmed = planName.trim();
         // The name the last auto-save generated is no name either: the plan
@@ -197,7 +204,7 @@ export function useSeatingWizard(
     },
     [
       step,
-      currentSeating.length,
+      currentSeating,
       hasUnsavedSeatingChanges,
       planName,
       openPlanIsAutoSave,
@@ -252,8 +259,11 @@ export function useSeatingWizard(
       clearTimeout(autoMixTimeoutRef.current);
     }
 
+    // Set with the step, not when the timer fires: the plan view mixes a
+    // stale arrangement on its own and stands aside only while this runs —
+    // otherwise both mix the first plan, and the second overwrites the first.
+    setAutoMixing(true);
     autoMixTimeoutRef.current = setTimeout(() => {
-      setAutoMixing(true);
       void (async () => {
         try {
           await generateSeatingPlan(autoSettings, classroomScene);

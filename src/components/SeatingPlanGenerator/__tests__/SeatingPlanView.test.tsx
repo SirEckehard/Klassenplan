@@ -11,6 +11,7 @@ import SeatingPlanView, {
 import type { ClassroomScene, SeatingArrangement } from '@/types';
 import { DEFAULT_MIX_WEIGHTS, canvasFitClass } from '@/utils';
 import {
+  getButton,
   renderWithProvidersAndRouter,
   createMockSeatingPlanViewProps,
   createMockClassroomScene,
@@ -339,6 +340,114 @@ describe('SeatingPlanView', () => {
         swap(twoTables, [[students[0], students[1]]]);
       });
 
+      expect(generateSeatingPlan).toHaveBeenCalledTimes(1);
+    });
+
+    // An unmount aborts a run in flight. Under React's StrictMode the mount
+    // is tried twice: the simulated unmount aborted the first run, and the
+    // second found the room already noted — the old arrangement stayed on
+    // the new tables.
+    it('mixes again when the automatic mix was aborted', async () => {
+      const generateSeatingPlan = vi
+        .fn()
+        .mockRejectedValueOnce(new DOMException('Aborted', 'AbortError'))
+        .mockResolvedValue(undefined);
+
+      await act(async () => {
+        renderWithProvidersAndRouter(
+          <SeatingPlanView
+            {...createMockSeatingPlanViewProps({
+              step: 3,
+              students,
+              studentsCount: students.length,
+              classroomScene: twoTables,
+              currentSeating: [[students[0], students[1]]],
+              generateSeatingPlan,
+            })}
+          />,
+        );
+      });
+
+      expect(generateSeatingPlan).toHaveBeenCalledTimes(2);
+    });
+
+    it('leaves a failed automatic mix to the toast and the button', async () => {
+      const generateSeatingPlan = vi
+        .fn()
+        .mockRejectedValue(new Error('Worker exploded'));
+
+      await act(async () => {
+        renderWithProvidersAndRouter(
+          <SeatingPlanView
+            {...createMockSeatingPlanViewProps({
+              step: 3,
+              students,
+              studentsCount: students.length,
+              classroomScene: twoTables,
+              currentSeating: [[students[0], students[1]]],
+              generateSeatingPlan,
+            })}
+          />,
+        );
+      });
+
+      expect(generateSeatingPlan).toHaveBeenCalledTimes(1);
+    });
+
+    // Where the plan layer cannot mix on its own — here a student without a
+    // gender — the old arrangement is neither drawn nor scored.
+    it('leaves the tables empty and says why when it cannot mix over a stale arrangement', async () => {
+      const generateSeatingPlan = vi.fn().mockResolvedValue(undefined);
+      const withoutGender = [
+        students[0],
+        createMockStudent({ id: 's3', gender: undefined }),
+      ];
+
+      await act(async () => {
+        renderWithProvidersAndRouter(
+          <WithStatusBar>
+            <SeatingPlanView
+              {...createMockSeatingPlanViewProps({
+                step: 3,
+                students: withoutGender,
+                studentsCount: withoutGender.length,
+                classroomScene: twoTables,
+                currentSeating: [[withoutGender[0], withoutGender[1]]],
+                generateSeatingPlan,
+                lastStatistics: [
+                  {
+                    key: 'preferGenderMix',
+                    label: 'Geschlechtermischung',
+                    percentage: 85,
+                    weight: 5,
+                    active: true,
+                  },
+                ],
+                onOpenStatistics: vi.fn(),
+                onCloseStatistics: vi.fn(),
+              })}
+            />
+          </WithStatusBar>,
+        );
+      });
+
+      expect(generateSeatingPlan).not.toHaveBeenCalled();
+      expect(
+        screen.getByText(
+          /Die Tische haben sich geändert|The tables have changed/,
+        ),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('group', { name: /^(Sitzplan|Seating plan):/ }),
+      ).toHaveAccessibleName(/0 (von|of) 4/);
+      expect(
+        within(screen.getByTestId('status-slot')).queryByRole('button', {
+          name: /^(Erfüllung|Fulfilment)/,
+        }),
+      ).not.toBeInTheDocument();
+
+      fireEvent.click(getButton(/Jetzt neu mischen|Mix again now/));
+      await act(async () => {});
       expect(generateSeatingPlan).toHaveBeenCalledTimes(1);
     });
   });

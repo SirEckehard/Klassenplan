@@ -14,7 +14,7 @@ vi.mock('idb-keyval', async () =>
 );
 
 import '@/i18n';
-import { createMockStudent } from '@/__tests__/utils';
+import { createMockClassroomScene, createMockStudent } from '@/__tests__/utils';
 import { resetSeatingRepository } from '@/__tests__/utils/resetSeatingRepository';
 import {
   SeatingPlanGeneratorProvider,
@@ -72,6 +72,10 @@ describe('useSeatingGenerator releaseOpenPlan', () => {
       ),
     );
     await waitFor(() => expect(current().state.students).toHaveLength(4));
+    // Two double desks: a plan is a plan for the tables it stands on.
+    act(() =>
+      current().actions.updateClassroomScene(createMockClassroomScene(2)),
+    );
     act(() =>
       current().actions.setCurrentSeating([
         [students[0], students[1]],

@@ -16,6 +16,7 @@ import {
   canvasFrameClass,
   canvasStageClass,
   errorHandlers,
+  hasShapeMismatch,
   LEGACY_EXPORT_KEYS,
   LOCAL_STORAGE_KEYS,
   logError,
@@ -183,7 +184,12 @@ export default function Export() {
   const { exportError } = errorHandlers;
   // Get circle layout from navigation state if available, or auto-generate one
   const seating = navigationState.seating || currentSeating;
-  const hasPlan = classroomScene.tables.length > 0 && seating.length > 0;
+  // A plan made for other tables — the room set up anew under it — is no
+  // plan for this room: its seats would land beside the tables on the sheet.
+  const hasPlan =
+    classroomScene.tables.length > 0 &&
+    seating.length > 0 &&
+    !hasShapeMismatch(classroomScene, seating);
   const returnStep =
     typeof navigationState.returnStep === 'number'
       ? navigationState.returnStep

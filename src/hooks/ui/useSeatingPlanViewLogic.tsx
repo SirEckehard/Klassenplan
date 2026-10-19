@@ -9,6 +9,7 @@ import {
   CLASSROOM_WIDTH,
   CLASSROOM_HEIGHT,
   BOARD_WIDTH,
+  hasSeatedStudent,
   hasShapeMismatch,
   createClientToSceneConverter,
   type AlignmentGuide,
@@ -341,7 +342,20 @@ export function useSeatingPlanViewLogic({
     });
   }, [sceneTables, classroomScene.features]);
 
+  // The canvas draws the arrangement only where it fits the tables on it: one
+  // made for other tables would put its seats beside the tables and on top of
+  // each other, so they stand empty until it is mixed again.
+  const seatingFitsCanvas = !hasShapeMismatch(sceneForCheck, currentSeating);
+  // Stale only when it fits neither the canvas nor the scene itself: the
+  // canvas takes the scene's tables an effect later, so a plan opened with
+  // other tables — scene and seating arriving together — would otherwise
+  // read as stale for one render and be mixed over.
+  const seatingStale =
+    !seatingFitsCanvas && hasShapeMismatch(classroomScene, currentSeating);
+
   const lastAutoMixSceneRef = React.useRef<string | null>(null);
+  // Bumped when an automatic mix was aborted, so the effect below tries again.
+  const [autoMixRetry, setAutoMixRetry] = React.useState(0);
 
   const canAutoMixNow = React.useMemo(() => {
     if (step !== 3 || mixingInProgress) {
@@ -350,29 +364,14 @@ export function useSeatingPlanViewLogic({
     if (students.length === 0 || sceneTables.length === 0) {
       return false;
     }
-    // Stale only when it fits neither the canvas nor the scene itself: the
-    // canvas takes the scene's tables an effect later, so a plan opened with
-    // other tables — scene and seating arriving together — would otherwise
-    // read as stale for one render and be mixed over.
-    if (
-      !hasShapeMismatch(sceneForCheck, currentSeating) ||
-      !hasShapeMismatch(classroomScene, currentSeating)
-    ) {
+    if (!seatingStale) {
       return false;
     }
     if (students.some((student) => !student.gender)) {
       return false;
     }
     return true;
-  }, [
-    step,
-    mixingInProgress,
-    students,
-    sceneTables.length,
-    sceneForCheck,
-    classroomScene,
-    currentSeating,
-  ]);
+  }, [step, mixingInProgress, students, sceneTables.length, seatingStale]);
 
   const willAutoMixThisRender =
     canAutoMixNow && lastAutoMixSceneRef.current !== sceneSignature;
@@ -390,8 +389,21 @@ export function useSeatingPlanViewLogic({
     }
 
     lastAutoMixSceneRef.current = sceneSignature;
-    void handleMix();
-  }, [canAutoMixNow, sceneSignature, handleMix]);
+    void handleMix().then((outcome) => {
+      // An aborted run mixed nothing — the view was taken down under it, or
+      // React's StrictMode tried the effect twice, whose second run found the
+      // scene already noted and left the old arrangement on the new tables.
+      // Forget the scene so this or the next mount tries again. A failed run
+      // stays noted: its toast says so, and "Mischen" tries again.
+      if (
+        outcome === 'aborted' &&
+        lastAutoMixSceneRef.current === sceneSignature
+      ) {
+        lastAutoMixSceneRef.current = null;
+        setAutoMixRetry((count) => count + 1);
+      }
+    });
+  }, [canAutoMixNow, sceneSignature, handleMix, autoMixRetry]);
 
   // Layout Editor Props Construction
   let layoutEditorSection: LayoutEditorSectionProps | null = null;
@@ -510,7 +522,8 @@ export function useSeatingPlanViewLogic({
           badgeHover,
           setBadgeHover,
           sceneTables,
-          currentSeating,
+          currentSeating: seatingFitsCanvas ? currentSeating : emptySeating,
+          seatingStale: seatingStale && hasSeatedStudent(currentSeating),
           students,
           emptySeating,
           moveStudent,

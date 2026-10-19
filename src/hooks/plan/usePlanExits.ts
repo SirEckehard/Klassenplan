@@ -7,7 +7,7 @@ import {
 } from '@/contexts/SeatingPlanContext';
 import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';
 import { usePlanSaveState } from '@/hooks/plan/usePlanSaveState';
-import { hasSeatedStudent } from '@/utils';
+import { hasPlanForScene } from '@/utils';
 
 /**
  * The two ways a finished plan leaves the workspace: the export page and the
@@ -18,9 +18,10 @@ import { hasSeatedStudent } from '@/utils';
  * will see. The check is `usePlanSaveState`'s, which the plan's inspector
  * reads too.
  *
- * `canExit` is false while there is no plan at all (`hasSeatedStudent`):
- * exporting an empty room would produce an empty sheet and presenting it an
- * empty board.
+ * `canExit` is false while there is no plan for these tables
+ * (`hasPlanForScene`): exporting an empty room would produce an empty sheet
+ * and presenting it an empty board, and a plan made for other tables would
+ * put its seats beside the ones in the room.
  */
 export function usePlanExits() {
   const { planName, classroomScene, currentSeating, seatingMode } =
@@ -50,6 +51,6 @@ export function usePlanExits() {
   return {
     exportPlan,
     presentPlan,
-    canExit: hasSeatedStudent(currentSeating),
+    canExit: hasPlanForScene(classroomScene, currentSeating),
   };
 }

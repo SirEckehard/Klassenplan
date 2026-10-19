@@ -589,6 +589,8 @@
     "classDataChangedHint": "Mix the plan again so the changes make it into the seating plan.",
     "fulfillmentLabel": "Fulfilment",
     "hideNotice": "Hide notice",
+    "tablesChanged": "The tables have changed",
+    "tablesChangedHint": "This plan was mixed for other tables. Mix again to seat the class at the tables in the room.",
     "nameDisplay": {
       "label": "Names",
       "firstName": "First name",

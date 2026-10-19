@@ -73,20 +73,20 @@ describe('useSeatingWizard', () => {
     ...overrides,
   });
 
+  // Two double desks, the shape of the seating below: a plan is saved only
+  // for the tables it stands on.
   const createMockScene = (): ClassroomScene => ({
     totalStudents: 4,
-    tables: [
-      {
-        x: 100,
-        y: 100,
-        width: 100,
-        height: 60,
-        rotation: 0,
-        seatCount: 4,
-        locked: false,
-        zIndex: 0,
-      },
-    ],
+    tables: [0, 1].map((index) => ({
+      x: 100 + index * 150,
+      y: 100,
+      width: 100,
+      height: 60,
+      rotation: 0,
+      seatCount: 2,
+      locked: false,
+      zIndex: index,
+    })),
   });
 
   const createMockCircleLayout = (): CircleLayout => ({
@@ -455,7 +455,10 @@ describe('useSeatingWizard', () => {
       await act(async () => {
         await result.current.handleStepChange(3);
       });
-      expect(result.current.autoMixing).toBe(false);
+      // Set with the step, before the run starts, so the plan view does not
+      // mix the first plan as well.
+      expect(result.current.autoMixing).toBe(true);
+      expect(mockConfig.generateSeatingPlan).not.toHaveBeenCalled();
 
       act(() => {
         vi.runAllTimers();

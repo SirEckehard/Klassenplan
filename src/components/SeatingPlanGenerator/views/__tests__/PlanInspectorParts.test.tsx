@@ -18,7 +18,8 @@ const mocks = vi.hoisted(() => ({
   planName: '',
   activePlanId: null as string | null,
   seatingHistory: [] as SavedPlan[],
-  classroomScene: { tables: [], features: [] },
+  // One seat, the shape of `SEATED`: a plan is a plan for these tables.
+  classroomScene: { tables: [{ seatCount: 1 }], features: [] },
   currentSeating: [] as SeatingArrangement,
   rooms: [] as RoomRecord[],
   activeRoomId: null as string | null,

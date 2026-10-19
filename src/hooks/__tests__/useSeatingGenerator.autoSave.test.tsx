@@ -14,7 +14,7 @@ vi.mock('idb-keyval', async () =>
 );
 
 import '@/i18n';
-import { createMockStudent } from '@/__tests__/utils';
+import { createMockClassroomScene, createMockStudent } from '@/__tests__/utils';
 import {
   SeatingPlanGeneratorProvider,
   useSeatingPlanActions,
@@ -77,6 +77,10 @@ describe('useSeatingGenerator auto-save on leaving the plan layer', () => {
       ),
     );
     await waitFor(() => expect(current().state.students).toHaveLength(4));
+    // Two double desks: a plan is a plan for the tables it stands on.
+    act(() =>
+      current().actions.updateClassroomScene(createMockClassroomScene(2)),
+    );
     // The first seating after a class opens is what the tracker compares to.
     act(() =>
       current().actions.setCurrentSeating([

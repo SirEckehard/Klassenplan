@@ -77,6 +77,7 @@ import {
 } from '@/utils/algorithm/seatingStatistics';
 import { useIsDarkMode } from '@/hooks/useIsDarkMode';
 import { usePlanExits } from '@/hooks/plan/usePlanExits';
+import type { MixOutcome } from '@/hooks/useSeatingMixHandler';
 import { usePlanShortcuts } from '@/hooks/plan/usePlanShortcuts';
 import { useFirstVisit } from '@/hooks/ui/useFirstVisit';
 import { useIsPhone } from '@/hooks/ui/useLayoutMode';
@@ -135,7 +136,7 @@ const planNoticeActionClass = `${secondaryButtonClass} h-8 shrink-0 px-3 text-xs
 type Props = {
   settings: MixSettings;
   setMixSettings: React.Dispatch<React.SetStateAction<MixSettings>>;
-  handleMix: () => Promise<void>;
+  handleMix: () => Promise<MixOutcome>;
   isMixing: boolean;
   autoMixing?: boolean;
   autoMixError?: string | null;
@@ -154,7 +155,14 @@ type Props = {
   badgeHover: BadgeHoverSettings;
   setBadgeHover: React.Dispatch<React.SetStateAction<BadgeHoverSettings>>;
   sceneTables: ClassroomTable[];
+  /** What the canvas draws: the arrangement, or empty seats where it does not fit. */
   currentSeating: SeatingArrangement;
+  /**
+   * A plan made for other tables is in the state — the room was set up anew
+   * under it — and nothing has mixed it over yet. Its statistics describe
+   * tables that are gone.
+   */
+  seatingStale?: boolean;
   students: Student[];
   emptySeating: SeatingArrangement;
   moveStudent?: (
@@ -225,6 +233,7 @@ export default function SeatingPlanEditorView({
   setBadgeHover,
   sceneTables,
   currentSeating,
+  seatingStale = false,
   students,
   emptySeating,
   moveStudent,
@@ -245,7 +254,7 @@ export default function SeatingPlanEditorView({
   seatingMode,
   onModeChange,
   showModeToggle,
-  lastStatistics,
+  lastStatistics: mixStatistics,
   onCloseStatistics,
   onOpenStatistics,
   showStatisticsBadge,
@@ -391,6 +400,8 @@ export default function SeatingPlanEditorView({
     left: 0,
     top: 0,
   });
+  // The fulfilment of a plan for other tables is not this plan's.
+  const lastStatistics = seatingStale ? null : mixStatistics;
   const hasStatistics = Boolean(lastStatistics && lastStatistics.length > 0);
   const statisticsScore = React.useMemo(() => {
     if (!lastStatistics || lastStatistics.length === 0) {
@@ -929,7 +940,34 @@ export default function SeatingPlanEditorView({
             {/* Grey, not blue: the status bar's "Neu mischen" stays the one
                 primary button, the notice only offers the same step where
                 the reason for it is written. */}
-            {hasPendingStudentUpdates && (
+            {/* Mixing a plan for other tables over is what the plan layer
+                does on its own; this stands in where it could not — a run
+                that failed, a student without a gender. */}
+            {seatingStale && !mixingLocked && (
+              <PlanNotice
+                icon={
+                  <InfoIcon
+                    aria-hidden="true"
+                    className="mt-0.5 h-4 w-4 shrink-0 text-(--text-muted)"
+                  />
+                }
+                action={
+                  <button
+                    type="button"
+                    onClick={() => void handleMix()}
+                    className={planNoticeActionClass}
+                  >
+                    {t('actions.mixNow')}
+                  </button>
+                }
+              >
+                <p className="font-semibold">{t('editor.tablesChanged')}</p>
+                <p className="text-(--text-muted)">
+                  {t('editor.tablesChangedHint')}
+                </p>
+              </PlanNotice>
+            )}
+            {hasPendingStudentUpdates && !seatingStale && (
               <PlanNotice
                 icon={
                   <InfoIcon

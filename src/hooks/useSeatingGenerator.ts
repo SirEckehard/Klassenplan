@@ -32,7 +32,7 @@ import type {
   ClassroomScene as ClassroomSceneT,
   Student,
 } from '@/types';
-import { hasSeatedStudent } from '@/utils';
+import { hasPlanForScene } from '@/utils';
 
 /**
  * Composes seating state, persistence, algorithm utilities, and UI orchestration into a single generator hook.
@@ -557,7 +557,7 @@ export function useSeatingGenerator() {
   // Plan persistence handlers
   const { handleSaveSeatingPlan, handleHistoryLoad, handleMixLoad } =
     usePlanPersistenceHandlers({
-      hasPlan: hasSeatedStudent(currentSeating),
+      hasPlan: hasPlanForScene(classroomScene, currentSeating),
       circleLayout,
       saveSeatingPlan,
       loadSeatingPlan,

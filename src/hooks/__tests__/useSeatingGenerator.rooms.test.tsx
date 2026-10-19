@@ -80,6 +80,10 @@ describe('useSeatingGenerator rooms', () => {
       ),
     );
     await waitFor(() => expect(current().state.students).toHaveLength(4));
+    // Two double desks: a plan is a plan for the tables it stands on.
+    act(() =>
+      current().actions.updateClassroomScene(createMockClassroomScene(2)),
+    );
     act(() =>
       current().actions.setCurrentSeating([
         [students[0], students[1]],

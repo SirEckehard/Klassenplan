@@ -241,6 +241,7 @@ export {
   countActiveSeats,
   countSeats,
   hasSeatedStudent,
+  hasPlanForScene,
   isTableActive,
 } from './math/scene';
 export { hasShapeMismatch } from './math/scene';

@@ -27,6 +27,20 @@ export function hasSeatedStudent(seating: SeatingArrangement): boolean {
   return seating.some((table) => table.some(Boolean));
 }
 
+/**
+ * Whether the seating is a plan for these tables: a student in a seat, and a
+ * row of seats for every table as it stands. An arrangement made for other
+ * tables — the room set up anew under it — is no plan for this room: drawn,
+ * its seats land beside the tables; saved or exported, it carries the seats
+ * of tables that are gone. The plan layer mixes it over.
+ */
+export function hasPlanForScene(
+  scene: ClassroomScene,
+  seating: SeatingArrangement,
+): boolean {
+  return hasSeatedStudent(seating) && !hasShapeMismatch(scene, seating);
+}
+
 // Counts the total number of seats in a classroom scene or table list
 export function countSeats(
   sceneOrTables: ClassroomScene | ClassroomTable[],

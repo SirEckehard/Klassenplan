@@ -17,7 +17,7 @@ import {
 import { showToast } from '@/utils/ui/toast';
 import {
   formatStoredDate,
-  hasSeatedStudent,
+  hasPlanForScene,
   inputFieldClass,
   MAX_NAME_LENGTH,
 } from '@/utils';
@@ -33,12 +33,12 @@ import {
  */
 export function PlanInspectorHeader() {
   const { t } = useTranslation('generator');
-  const { planName, currentSeating, rooms, activeRoomId } =
+  const { planName, classroomScene, currentSeating, rooms, activeRoomId } =
     useSeatingPlanState();
   const { openPlan, hasUnsavedChanges } = usePlanSaveState();
 
   const title = openPlan?.name ?? (planName.trim() || t('planSave.untitled'));
-  const state = !hasSeatedStudent(currentSeating)
+  const state = !hasPlanForScene(classroomScene, currentSeating)
     ? t('shell.status.noPlan')
     : !openPlan
       ? t('planSave.state.new')
@@ -113,7 +113,7 @@ export function PlanSection() {
     setDraft(planName);
   }
 
-  const canSave = hasSeatedStudent(currentSeating);
+  const canSave = hasPlanForScene(classroomScene, currentSeating);
   const name = draft.trim();
   const nameTaken =
     name !== '' &&

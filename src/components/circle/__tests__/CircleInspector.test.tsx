@@ -18,7 +18,8 @@ vi.mock('@/contexts/SeatingPlanContext', () => ({
     planName: 'Deutsch',
     activePlanId: null,
     seatingHistory: [],
-    classroomScene: { tables: [], features: [] },
+    // One seat, the shape of the seating: a plan for these tables.
+    classroomScene: { tables: [{ seatCount: 1 }], features: [] },
     currentSeating: [[{ id: 'anna', name: 'Anna' }]],
     circleLayout: null,
     seatingMode: 'circle',

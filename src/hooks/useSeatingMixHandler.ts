@@ -22,6 +22,13 @@ interface SeatingMixHandlerConfig {
   onMix?: () => void;
 }
 
+/**
+ * How a mix ended: `mixed` with the arrangement on screen, `aborted` when an
+ * unmount stopped it — nothing was mixed and nothing went wrong — `failed`
+ * after the error toast, `busy` when a mix was already running.
+ */
+export type MixOutcome = 'mixed' | 'aborted' | 'failed' | 'busy';
+
 const isAbortError = (error: unknown): boolean =>
   error instanceof DOMException && error.name === 'AbortError';
 
@@ -64,9 +71,9 @@ export const useSeatingMixHandler = ({
     [],
   );
 
-  const handleMix = React.useCallback(async () => {
+  const handleMix = React.useCallback(async (): Promise<MixOutcome> => {
     if (isMixing) {
-      return;
+      return 'busy';
     }
 
     // Use intelligent settings if criteria are set, otherwise use neutral random
@@ -84,7 +91,7 @@ export const useSeatingMixHandler = ({
       // An unmount aborts the run; the arrangement built so far simply stays
       // where it is, there is nothing left to report to.
       if (isAbortError(error)) {
-        return;
+        return 'aborted';
       }
       logError(
         'Failed to generate seating plan via mix handler',
@@ -92,7 +99,7 @@ export const useSeatingMixHandler = ({
         'useSeatingMixHandler',
       );
       showToast('error', TOAST_MESSAGES.GENERATION_ERROR);
-      return;
+      return 'failed';
     } finally {
       if (abortRef.current === abortController) {
         abortRef.current = null;
@@ -110,6 +117,7 @@ export const useSeatingMixHandler = ({
         'useSeatingMixHandler',
       );
     }
+    return 'mixed';
   }, [
     hasCriteria,
     settings,

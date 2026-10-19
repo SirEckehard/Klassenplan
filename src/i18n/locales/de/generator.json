@@ -589,6 +589,8 @@
     "classDataChangedHint": "Mische den Plan neu, damit die Änderungen in den Sitzplan übernommen werden.",
     "fulfillmentLabel": "Erfüllung",
     "hideNotice": "Hinweis ausblenden",
+    "tablesChanged": "Die Tische haben sich geändert",
+    "tablesChangedHint": "Dieser Sitzplan wurde für andere Tische gemischt. Mische neu, um die Klasse auf die Tische im Raum zu verteilen.",
     "nameDisplay": {
       "label": "Namen",
       "firstName": "Vorname",
