@@ -23,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - "Repetition" weighs a plan by how recent it is, whatever the number of plans, and parts the pairs who sat together most often first
 - The seating circle keeps students with a distance request, restless and distractible students apart where it can, as weighted for the mix
 - The FAQ explains how the mixing reads neighbours and how the fulfilment is counted
-- The inspector of the seating plan and the circle shows the plan itself: its name, whether it is saved, saving it under its name or as a new plan, and opening another plan of the room – the mixing criteria follow below. Saving is no longer an entry of the toolbar, as a room's template already was not; Ctrl/⌘+S still saves straight away
+- The inspector of the seating plan and the circle shows the plan itself: its name, whether it is saved, saving it under its name or as a new plan ("Save plan"), and opening another plan of the class – one of another room opens that room – the mixing criteria follow below. Saving is no longer an entry of the toolbar, as a room's template already was not; Ctrl/⌘+S still saves straight away
 - The room's inspector renames the open room in a field of its own, as the class's does, and "Bibliothek" asks for a template's name as the room's inspector does instead of adding a number to a name that is taken
 - "Add student" and "Create placeholders" stand under "Add" in the class's toolbar, as the room's tables do; "Manage" keeps the class list's import, export and printing
 - Classes no longer open a dialog: a new class is named right in the class menu of the header – or, the very first one, on the start card – and Enter creates and opens it. While no student is open, the inspector of the class layer shows the class itself, where its name, school year and notes are changed, as in "Bibliothek"; the class menu renames a class in place, and a change no longer brings a message
@@ -36,7 +36,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - The frame round a student's photo or initial in the class list, the inspector and "Bibliothek" shows the gender's colour, as on the seating plan; on the export's note list it does so too, and the export's "Gender colors" switch turns it off there
 - Every row of the student inspector is the same height, whether it holds a switch, choices or a menu, and so is every button in it
 - The FAQ explains installing the app browser by browser
-- "Fulfilment" in the status bar of the seating plan switches the values per criterion off again, as the switch in the inspector does
+- "Fulfilment" in the status bar of the seating plan switches the values per criterion on and off; the inspector no longer repeats it in a row of its own
+- The room's inspector keeps the class's other rooms under the room's name: "New room" as a button of its own, and "Open a room …" for the others, instead of a section "Rooms" beside the section "Room"
 
 ### Fixed
 

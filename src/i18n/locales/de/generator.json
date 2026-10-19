@@ -34,7 +34,7 @@
       "item1": "Ziehe Schüler auf andere Plätze im Kreis. Esc bricht das Ziehen ab.",
       "item2": "Grüne Linien zeigen Verbindungen zu Tischnachbarn im Sitzplan.",
       "item3": "Blende Verbindungen in der Werkzeugleiste unter „Ansichtseinstellungen“ ein oder aus.",
-      "item4": "Der Sitzkreis entsteht aus dem Sitzplan und lässt sich verändern. „Speichern“ im Inspektor unter „Plan“ sichert ihn zusammen mit dem Plan; du kannst ihn auch einzeln exportieren und präsentieren.",
+      "item4": "Der Sitzkreis entsteht aus dem Sitzplan und lässt sich verändern. „Plan speichern“ im Inspektor sichert ihn zusammen mit dem Plan; du kannst ihn auch einzeln exportieren und präsentieren.",
       "item5": "Fahre über ein Icon auf einem Platz oder tippe darauf, um zu sehen, was es bedeutet – die Plätze aller, die es teilen, werden dabei markiert. Unter „Merkmale“ in der Werkzeugleiste findest du die Legende, wählst, welche Icons die Plätze zeigen, und schaltest Erklärung und Markieren ab.",
       "item6": "Mit dem Schloss behält ein Schüler seinen Platz im Kreis: Ziehen, Mischen und Neu-Erzeugen lassen ihn dort.",
       "item7": "Änderungen am Sitzkreis kannst du über die entsprechenden Icons in der Statusleiste rückgängig machen und wiederherstellen."
@@ -864,7 +864,7 @@
       },
       "circle": {
         "title": "Sitzkreis",
-        "body": "Hier wechselst du zwischen Sitzplan und Sitzkreis. Der Sitzkreis entsteht aus dem aktuellen Sitzplan und zeigt dir über die grünen Linien die Tischnachbarn. Du kannst ihn verändern, ohne dass der Sitzplan geändert wird; „Speichern“ sichert ihn immer zusammen mit dem Sitzplan."
+        "body": "Hier wechselst du zwischen Sitzplan und Sitzkreis. Der Sitzkreis entsteht aus dem aktuellen Sitzplan und zeigt dir über die grünen Linien die Tischnachbarn. Du kannst ihn verändern, ohne dass der Sitzplan geändert wird; „Plan speichern“ sichert ihn immer zusammen mit dem Sitzplan."
       },
       "exits": {
         "title": "Präsentieren und exportieren",
@@ -872,7 +872,7 @@
       },
       "fulfillment": {
         "title": "Kriterien und Erfüllung",
-        "body": "Rechts im Inspektor stellst du ein, welche Kriterien beim Mischen beachtet werden und wie wichtig sie sind. Die Zeile „Erfüllung“ darüber – und unten links in der Statusleiste – zeigt in Prozent, wie gut der Plan sie erfüllt; ihr Schalter blendet unter jedem Kriterium eine Leiste ein: Zeigst du auf sie, werden die betroffenen Plätze markiert, ein Klick lässt die Markierung für eine bessere Übersicht stehen."
+        "body": "Rechts im Inspektor stellst du ein, welche Kriterien beim Mischen beachtet werden und wie wichtig sie sind. „Erfüllung“ hier unten links in der Statusleiste zeigt in Prozent, wie gut der Plan sie erfüllt; ein Klick darauf blendet im Inspektor unter jedem Kriterium eine Leiste ein: Zeigst du auf sie, werden die betroffenen Plätze markiert, ein Klick lässt die Markierung für eine bessere Übersicht stehen."
       },
       "mix": {
         "title": "Mischen",
@@ -987,8 +987,8 @@
     "deleteTemplateTitle": "Vorlage löschen",
     "deleteTemplateMessage": "Möchtest du die Vorlage „{{name}}“ wirklich löschen? Das lässt sich nicht rückgängig machen.",
     "rooms": "Räume",
-    "roomsHint": "Wähle einen Raum oder lege weitere Räume an.",
     "newRoom": "Neuer Raum",
+    "openRoom": "Raum öffnen …",
     "roomName": "Name des Raums",
     "roomNameTaken": "Diesen Namen trägt schon ein Raum der Klasse.",
     "mixing": "Mischen",
@@ -1000,7 +1000,6 @@
     "fillFromFrontHint": "Gibt es mehr Plätze als Schüler, bleiben die hinteren frei.",
     "setupChoose": "Tischart wählen …",
     "openTemplate": "Vorlage öffnen …",
-    "roomMenu": "Geöffneter Raum: {{name}}",
     "renameTemplateNamed": "„{{name}}“ umbenennen",
     "deleteTemplateNamed": "„{{name}}“ löschen",
     "renameRoomNamed": "„{{name}}“ umbenennen",
@@ -1018,13 +1017,13 @@
     "nameLabel": "Name des Sitzplans",
     "namePlaceholder": "z. B. Deutsch ab Oktober",
     "nameTaken": "Diesen Namen trägt schon ein anderer Plan.",
-    "save": "Speichern",
+    "save": "Plan speichern",
     "rename": "Umbenennen und speichern",
     "saveAsNew": "Als neuen Plan speichern",
     "room": "Im Raum „{{name}}“",
     "untitled": "Neuer Plan",
     "open": "Plan öffnen …",
-    "plans": "Pläne dieses Raums",
+    "plans": "Pläne dieser Klasse",
     "state": {
       "saved": "Gespeichert am {{date}}",
       "autoSaved": "Automatisch gesichert",

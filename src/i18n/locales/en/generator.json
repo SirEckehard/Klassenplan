@@ -34,7 +34,7 @@
       "item1": "Drag students to other places in the circle. Esc cancels the drag.",
       "item2": "Green lines show connections to table neighbors in the seating plan.",
       "item3": "Show or hide connections in the toolbar under “View settings”.",
-      "item4": "The circle is built from the seating plan and can be changed. “Save” in the inspector under “Plan” keeps it together with the plan; you can also export and present it on its own.",
+      "item4": "The circle is built from the seating plan and can be changed. “Save plan” in the inspector keeps it together with the plan; you can also export and present it on its own.",
       "item5": "Hover over or tap an icon on a seat to see what it means – the seats of everyone who shares it are marked. Under “Markers” in the toolbar you find the legend, choose which icons the seats show and switch the explanation and the marking off.",
       "item6": "The lock keeps a student in their place in the circle: dragging, shuffling and regenerating leave them there.",
       "item7": "Undo and redo changes to the seating circle with the corresponding icons in the status bar."
@@ -864,7 +864,7 @@
       },
       "circle": {
         "title": "Seating circle",
-        "body": "Switch between seating plan and seating circle here. The circle is built from the current seating plan and shows you the table neighbors through the green lines. You can change it without changing the seating plan; “Save” always keeps it together with the seating plan."
+        "body": "Switch between seating plan and seating circle here. The circle is built from the current seating plan and shows you the table neighbors through the green lines. You can change it without changing the seating plan; “Save plan” always keeps it together with the seating plan."
       },
       "exits": {
         "title": "Present and export",
@@ -872,7 +872,7 @@
       },
       "fulfillment": {
         "title": "Criteria and fulfilment",
-        "body": "In the inspector on the right you choose which criteria are taken into account when mixing and how important they are. The “Fulfilment” row above them – and the bottom left of the status bar – shows in percent how well the plan meets them; its switch adds a bar under each criterion: point at it to mark the seats concerned, click to leave the marking in place for a better overview."
+        "body": "In the inspector on the right you choose which criteria are taken into account when mixing and how important they are. “Fulfilment” here at the bottom left of the status bar shows in percent how well the plan meets them; a click on it adds a bar under each criterion in the inspector: point at it to mark the seats concerned, click to leave the marking in place for a better overview."
       },
       "mix": {
         "title": "Mix",
@@ -987,8 +987,8 @@
     "deleteTemplateTitle": "Delete template",
     "deleteTemplateMessage": "Do you really want to delete the template “{{name}}”? This cannot be undone.",
     "rooms": "Rooms",
-    "roomsHint": "Choose a room or add more rooms.",
     "newRoom": "New room",
+    "openRoom": "Open a room …",
     "roomName": "Name of the room",
     "roomNameTaken": "A room of this class already has this name.",
     "mixing": "Mixing",
@@ -1000,7 +1000,6 @@
     "fillFromFrontHint": "With more seats than students, the seats at the back stay free.",
     "setupChoose": "Choose a table type …",
     "openTemplate": "Open a template …",
-    "roomMenu": "Open room: {{name}}",
     "renameTemplateNamed": "Rename “{{name}}”",
     "deleteTemplateNamed": "Delete “{{name}}”",
     "renameRoomNamed": "Rename “{{name}}”",
@@ -1018,13 +1017,13 @@
     "nameLabel": "Seating plan name",
     "namePlaceholder": "e.g. German from October",
     "nameTaken": "Another plan already has this name.",
-    "save": "Save",
+    "save": "Save plan",
     "rename": "Rename and save",
     "saveAsNew": "Save as new plan",
     "room": "In the room “{{name}}”",
     "untitled": "New plan",
     "open": "Open a plan …",
-    "plans": "Plans of this room",
+    "plans": "Plans of this class",
     "state": {
       "saved": "Saved on {{date}}",
       "autoSaved": "Saved automatically",

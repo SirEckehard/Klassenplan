@@ -331,7 +331,7 @@
       },
       "check": {
         "q": "Wie erkenne ich, dass eine Mischung den Kriterien entspricht?",
-        "a": "Im Sitzplan zeigt der Inspektor die Erfüllung des Plans und unter jedem Kriterium einen Balken mit Prozentwert."
+        "a": "Im Sitzplan zeigt die Statusleiste unten links die Erfüllung des Plans. Ein Klick darauf blendet im Inspektor unter jedem Kriterium einen Balken mit Prozentwert ein."
       },
       "colors": {
         "q": "Was bedeuten die Farben der Erfüllung?",
@@ -369,7 +369,7 @@
       },
       "hints": {
         "q": "Was bedeuten die Hinweise im Inspektor?",
-        "a": "Unter „Erfüllung“ nennt der Inspektor, was sich in deiner Klasse und deinem Raum gar nicht erfüllen lässt: mehr Schüler mit vorderem Platz („Sehr wichtig“), als die vorderste Reihe Plätze hat, eine Gruppe mit Distanzwünschen untereinander, die größer ist als die Zahl der Tische, ein Wunsch, auf den der Gewünschte mit einem Distanzwunsch antwortet, oder ein Schüler, den sich mehr Mitschüler wünschen, als um ihn herum sitzen können. Dann liegt es nicht an der Mischung: Ein umgestellter Tisch oder ein geänderter Wunsch hilft."
+        "a": "Unter „Hinweise“ nennt der Inspektor, was sich in deiner Klasse und deinem Raum gar nicht erfüllen lässt: mehr Schüler mit vorderem Platz („Sehr wichtig“), als die vorderste Reihe Plätze hat, eine Gruppe mit Distanzwünschen untereinander, die größer ist als die Zahl der Tische, ein Wunsch, auf den der Gewünschte mit einem Distanzwunsch antwortet, oder ein Schüler, den sich mehr Mitschüler wünschen, als um ihn herum sitzen können. Dann liegt es nicht an der Mischung: Ein umgestellter Tisch oder ein geänderter Wunsch hilft."
       },
       "repeat": {
         "q": "Wie funktioniert die Wiederholungsvermeidung?",

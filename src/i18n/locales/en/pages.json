@@ -331,7 +331,7 @@
       },
       "check": {
         "q": "How do I recognize that a mix meets the criteria?",
-        "a": "On the seating plan, the inspector shows the fulfilment of the plan and a bar with a percentage under every criterion."
+        "a": "On the seating plan, the status bar shows the fulfilment of the plan at its bottom left. A click on it adds a bar with a percentage under every criterion in the inspector."
       },
       "colors": {
         "q": "What do the fulfilment colours mean?",
@@ -369,7 +369,7 @@
       },
       "hints": {
         "q": "What do the notes in the inspector mean?",
-        "a": "Under “Fulfilment” the inspector names what cannot be met at all in your class and room: more students needing a front seat (“Very important”) than the front row has seats, a group with distance requests among each other larger than the number of tables, a wish answered with a distance request, or a student wished for by more classmates than can sit around them. Then it is not the mix: moving a desk or changing a wish helps."
+        "a": "Under “Notes” the inspector names what cannot be met at all in your class and room: more students needing a front seat (“Very important”) than the front row has seats, a group with distance requests among each other larger than the number of tables, a wish answered with a distance request, or a student wished for by more classmates than can sit around them. Then it is not the mix: moving a desk or changing a wish helps."
       },
       "repeat": {
         "q": "How does repeat avoidance work?",

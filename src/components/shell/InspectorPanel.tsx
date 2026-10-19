@@ -556,15 +556,13 @@ export type InspectorMenuRow = {
  * button the inspector's width that opens them as a menu over the panel. The
  * button names what is chosen, or what the menu is for; choosing a row closes
  * the menu with the focus back on the button. Shaped as the header's class
- * menu: `action` — "Neuer Raum" — leads above a hairline, and a row may carry
- * a pencil and a bin beside it (`rename`, `remove`).
+ * menu: a row may carry a pencil and a bin beside it (`rename`, `remove`).
  */
 export function InspectorMenuButton({
   label,
   ariaLabel,
   menuLabel,
   rows,
-  action,
   focusRequest = 0,
   describedBy,
 }: {
@@ -575,7 +573,6 @@ export function InspectorMenuButton({
   /** Names the menu for a screen reader. */
   menuLabel: string;
   rows: readonly InspectorMenuRow[];
-  action?: { label: string; icon: Icon; onSelect: () => void };
   /** Counts up whenever the focus is asked onto the button (Ctrl/⌘+E). */
   focusRequest?: number;
   /** The id of a hint under the button that says what choosing does. */
@@ -645,29 +642,6 @@ export function InspectorMenuButton({
             aria-label={menuLabel}
             className={menuSurfaceClass}
           >
-            {action && (
-              <>
-                <button
-                  type="button"
-                  className={menuItemClass}
-                  onClick={() => {
-                    setOpen(false);
-                    action.onSelect();
-                  }}
-                >
-                  <action.icon
-                    size={16}
-                    aria-hidden="true"
-                    className="shrink-0 text-(--text-muted)"
-                  />
-                  <span className="min-w-0 flex-1">{action.label}</span>
-                </button>
-                <div
-                  aria-hidden="true"
-                  className="my-1 h-px bg-(--border-card)"
-                />
-              </>
-            )}
             {rows.map((row) => {
               const main = (
                 <button

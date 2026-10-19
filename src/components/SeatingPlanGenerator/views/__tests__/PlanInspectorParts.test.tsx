@@ -97,7 +97,7 @@ describe('PlanSection', () => {
     const user = userEvent.setup();
     render(<PlanSection />);
 
-    await user.click(getButton(/^(Speichern|Save)$/));
+    await user.click(getButton(/^(Plan speichern|Save plan)$/));
 
     expect(mocks.handleSaveSeatingPlan).toHaveBeenCalledWith(
       'Deutsch',
@@ -225,7 +225,7 @@ describe('PlanSection', () => {
     render(<PlanSection />);
 
     expect(field()).toBeDisabled();
-    expect(getButton(/^(Speichern|Save)$/)).toBeDisabled();
+    expect(getButton(/^(Plan speichern|Save plan)$/)).toBeDisabled();
   });
 
   // The backup import holds a plan's name to 120 characters; a longer one
@@ -236,40 +236,61 @@ describe('PlanSection', () => {
     expect(field()).toHaveAttribute('maxlength', '120');
   });
 
-  it('opens another plan of this room from its menu', async () => {
+  it('opens a plan of the class from its menu, the open room’s first', async () => {
     mocks.seatingHistory = [
+      savedPlan('Chemie', { roomId: 'lab' }),
       savedPlan('Deutsch'),
       savedPlan('Mathe'),
-      savedPlan('Chemie', { roomId: 'lab' }),
+    ];
+    mocks.rooms = [
+      { id: 'classroom', name: 'Klassenraum', createdAt: '' },
+      { id: 'lab', name: 'Labor', createdAt: '' },
     ];
     const user = userEvent.setup();
     render(<PlanSection />);
 
     await user.click(openMenuButton() as HTMLElement);
     const menu = screen.getByRole('dialog', {
-      name: /Pläne dieses Raums|Plans of this room/i,
+      name: /Pläne dieser Klasse|Plans of this class/i,
     });
-    // The open plan is checked; a plan of another room is not offered.
-    expect(
-      within(menu).getByRole('button', { name: /Deutsch/ }),
-    ).toHaveAttribute('aria-pressed', 'true');
-    expect(within(menu).queryByRole('button', { name: /Chemie/ })).toBeNull();
+    const rows = within(menu).getAllByRole('button');
+    expect(rows.map((row) => row.textContent)).toEqual([
+      expect.stringMatching(/^Deutsch.*Klassenraum/),
+      expect.stringMatching(/^Mathe.*Klassenraum/),
+      expect.stringMatching(/^Chemie.*Labor/),
+    ]);
+    expect(rows[0]).toHaveAttribute('aria-pressed', 'true');
 
-    await user.click(within(menu).getByRole('button', { name: /Mathe/ }));
+    // A plan of another room is offered too; opening it opens its room.
+    await user.click(within(menu).getByRole('button', { name: /Chemie/ }));
 
     expect(mocks.handleHistoryLoad).toHaveBeenCalledWith(
-      mocks.seatingHistory[1],
+      mocks.seatingHistory[0],
     );
     expect(mocks.showToast).toHaveBeenCalledWith(
       'success',
-      expect.stringMatching(/Mathe/),
+      expect.stringMatching(/Chemie/),
     );
   });
 
-  it('leaves the menu out while the open plan is the room’s only one', () => {
-    mocks.seatingHistory = [savedPlan('Deutsch')];
+  it('names no room while the class has one', async () => {
+    const user = userEvent.setup();
     render(<PlanSection />);
 
+    await user.click(openMenuButton() as HTMLElement);
+    expect(
+      within(screen.getByRole('dialog')).queryByText(/Klassenraum/),
+    ).toBeNull();
+  });
+
+  it('offers the menu once a plan is saved, the open one alone included', () => {
+    mocks.seatingHistory = [savedPlan('Deutsch')];
+    const { unmount } = render(<PlanSection />);
+    expect(openMenuButton()).not.toBeNull();
+    unmount();
+
+    mocks.seatingHistory = [];
+    render(<PlanSection />);
     expect(openMenuButton()).toBeNull();
   });
 });

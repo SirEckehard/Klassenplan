@@ -293,7 +293,7 @@ whichever class carried the open class's id there.
 A class keeps the rooms its plans were made in — its classroom, a lab
 ([decision 0024](decisions/0024-rooms-of-a-class.md)). Only one is open; its
 state is the class's working state. Opening another room, in the room
-inspector's "Räume" or by opening a plan or mix of it, works like opening
+inspector's "Raum öffnen …" or by opening a plan or mix of it, works like opening
 another class without the reload: `useRoomManagement` parks the working state
 in the room left (`switchRoomState`) and puts the other room's parked state on
 screen — tables, seating, locks, circle and open plan — inside one `flushSync`,

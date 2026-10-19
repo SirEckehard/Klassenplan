@@ -536,15 +536,16 @@ function RoomNameRow({
 }
 
 /**
- * The rooms of the class (decision 0024), shaped as the header's class menu:
- * the open one named on a button that opens the menu — "Neuer Raum" on top,
- * named before it is made, since making it opens it; then every room, the
- * open one checked, a click opening a room as it was left, a pencil renaming
- * it here in the panel and a bin removing it. Removing takes the room's plans
- * and mixes along, so it asks first; the open room and the last one stay,
- * and their bin says why.
+ * The rooms of the class (decision 0024), inside the room's own section under
+ * its name: "Neuer Raum" as a row of its own, as "Raum als Vorlage speichern"
+ * is — named before it is made, since making it opens it — and, once the class
+ * has another room, "Raum öffnen …", a menu shaped as the header's class menu:
+ * every room, the open one checked, a click opening a room as it was left, a
+ * pencil renaming it here in the panel and a bin removing it. Removing takes
+ * the room's plans and mixes along, so it asks first; the open room and the
+ * last one stay, and their bin says why.
  */
-export function RoomListSection() {
+export function RoomListControls() {
   const { t } = useTranslation('generator');
   const state = useOptionalSeatingPlanState();
   const actions = useOptionalSeatingPlanActions();
@@ -552,7 +553,6 @@ export function RoomListSection() {
   const [naming, setNaming] = React.useState(false);
   if (!state || !actions) return null;
   const { rooms, activeRoomId, seatingHistory } = state;
-  const openRoom = rooms.find((room) => room.id === activeRoomId);
   const renaming = rooms.find((room) => room.id === renamingId);
 
   // Not part of the room's undo history, so it asks — as "Bibliothek"
@@ -577,59 +577,15 @@ export function RoomListSection() {
   };
 
   return (
-    <InspectorSection title={t('sceneInspector.rooms')}>
-      {rooms.length <= 1 && (
-        <p className="text-xs text-(--text-muted)">
-          {t('sceneInspector.roomsHint')}
-        </p>
-      )}
-      <InspectorMenuButton
-        label={openRoom?.name ?? t('sceneInspector.room')}
-        ariaLabel={t('sceneInspector.roomMenu', {
-          name: openRoom?.name ?? t('sceneInspector.room'),
-        })}
-        menuLabel={t('sceneInspector.rooms')}
-        action={{
-          label: t('sceneInspector.newRoom'),
-          icon: PlusIcon,
-          onSelect: () => {
-            setRenamingId(null);
-            setNaming(true);
-          },
+    <>
+      <InspectorActionRow
+        icon={PlusIcon}
+        label={t('sceneInspector.newRoom')}
+        expanded={naming}
+        onClick={() => {
+          setRenamingId(null);
+          setNaming((previous) => !previous);
         }}
-        rows={rooms.map((room) => {
-          const isOpen = room.id === activeRoomId;
-          return {
-            key: room.id,
-            label: room.name,
-            checked: isOpen,
-            onSelect: () => {
-              if (!isOpen) actions.openRoom(room.id);
-            },
-            rename: {
-              label: t('sceneInspector.renameRoomNamed', { name: room.name }),
-              onSelect: () => {
-                setNaming(false);
-                setRenamingId(room.id);
-              },
-            },
-            // A class keeps one room at least: with one, there is no bin.
-            remove:
-              rooms.length > 1
-                ? {
-                    label: t('sceneInspector.deleteRoomNamed', {
-                      name: room.name,
-                    }),
-                    blockedHint: isOpen
-                      ? t('library.room.deleteOpenHint')
-                      : undefined,
-                    onSelect: () => {
-                      void requestDelete(room);
-                    },
-                  }
-                : undefined,
-          };
-        })}
       />
       {naming && (
         <div className="-mx-3">
@@ -646,6 +602,44 @@ export function RoomListSection() {
           />
         </div>
       )}
+      {/* With one room the menu would only hold the room named above. */}
+      {rooms.length > 1 && (
+        <InspectorMenuButton
+          label={t('sceneInspector.openRoom')}
+          menuLabel={t('sceneInspector.rooms')}
+          rows={rooms.map((room) => {
+            const isOpen = room.id === activeRoomId;
+            return {
+              key: room.id,
+              label: room.name,
+              checked: isOpen,
+              onSelect: () => {
+                if (!isOpen) actions.openRoom(room.id);
+              },
+              rename: {
+                label: t('sceneInspector.renameRoomNamed', {
+                  name: room.name,
+                }),
+                onSelect: () => {
+                  setNaming(false);
+                  setRenamingId(room.id);
+                },
+              },
+              remove: {
+                label: t('sceneInspector.deleteRoomNamed', {
+                  name: room.name,
+                }),
+                blockedHint: isOpen
+                  ? t('library.room.deleteOpenHint')
+                  : undefined,
+                onSelect: () => {
+                  void requestDelete(room);
+                },
+              },
+            };
+          })}
+        />
+      )}
       {renaming && (
         <div className="-mx-3">
           <RoomNameRow
@@ -659,6 +653,6 @@ export function RoomListSection() {
           />
         </div>
       )}
-    </InspectorSection>
+    </>
   );
 }

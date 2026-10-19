@@ -304,9 +304,8 @@ The right-hand panel is a wall, not a stack of cards. A setting inside it is a r
 `InspectorActionRow` for an action and `InspectorMenuButton` for a choice
 among more entries than the panel should list — the recipe, a kind of table,
 the rooms, the templates: one button the panel's width that opens them as a
-menu, shaped as the header's class menu (an action such as "Neuer Raum" on
-top, a check at the chosen entry, a pencil and a bin beside it where an entry
-can be renamed and removed) — shared by the student, the room, the plan and
+menu, shaped as the header's class menu (a check at the chosen entry, a
+pencil and a bin beside it where an entry can be renamed and removed) — shared by the student, the room, the plan and
 every panel of "Bibliothek": the header is a
 strip of 44px media, an `h2` and a subtitle above a hairline — the `h2` wraps
 rather than truncates, and a student's arrows to the neighbours sit in the
@@ -359,12 +358,14 @@ A panel with nothing selected belongs to what the layer shows as a whole: the
 class layer's, while no student is open, is the class — its name, school year
 and notes, what it holds, its removal — the panel "Bibliothek" shows for it. The
 room's names its tables in the header, its name in a field of its own as the
-class's, and offers what concerns the room itself — "Neu einrichten" and
-"Vorlagen", as menu rows — rather than repeating the seats and students the
+class's, with "Neuer Raum" and "Raum öffnen …" under that name, and offers
+what concerns the room itself — "Neu einrichten" and "Vorlagen", as menu
+rows — rather than repeating the seats and students the
 status bar already states. The plan layer's is the plan: its name and whether
 the stage is what was saved under it in the header, then "Plan" — the name,
-"Speichern", "Als neuen Plan speichern" once the name is new, "Plan öffnen …"
-for another plan of the room — and only below it the mixing; the circle's
+"Plan speichern", "Als neuen Plan speichern" once the name is new, "Plan
+öffnen …" for another plan of the class — and only below it the mixing, with
+no row for the fulfilment the status bar states; the circle's
 leads with the same section. Saving the plan is therefore no entry of the
 toolbar: the toolbar holds what goes onto the stage and how it looks, the
 panel names, keeps, opens and removes what the stage shows. That is also why the room

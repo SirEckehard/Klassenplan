@@ -68,7 +68,7 @@ export function PlanInspectorHeader() {
 
 /**
  * The plan's own section, first in its inspector: its name, the ways to keep
- * it, and the other plans of this room to open instead.
+ * it, and the other plans of the class to open instead.
  *
  * The name counts when the plan is saved, not when the field is left: a plan
  * on the stage is a working state, and only saving writes it. What a new name
@@ -81,9 +81,11 @@ export function PlanInspectorHeader() {
  * An emptied field keeps the open plan's name; a plan without one gets a
  * timestamp, as it always has.
  *
- * "Plan öffnen …" is shaped as the room's "Vorlage öffnen …": the saved plans
- * of the open room, the open one checked. Renaming and removing another plan
- * stay in "Bibliothek".
+ * "Plan öffnen …" is shaped as the room's "Raum öffnen …": the saved plans
+ * of the class, the open room's first and the open one checked; once the
+ * class has more than one room, each names its own, and a plan of another
+ * room opens that room (`handleHistoryLoad`). Renaming and removing another
+ * plan stay in "Bibliothek".
  */
 export function PlanSection() {
   const { t } = useTranslation('generator');
@@ -94,6 +96,7 @@ export function PlanSection() {
     currentSeating,
     activePlanId,
     activeRoomId,
+    rooms,
   } = useSeatingPlanState();
   const { handleSaveSeatingPlan, handleHistoryLoad } = useSeatingPlanActions();
   // The saved plan on screen, by the id a save writes to — the section must
@@ -120,10 +123,19 @@ export function PlanSection() {
   const renames =
     openPlan !== undefined && name !== '' && name !== openPlan.name;
 
-  const roomPlans = seatingHistory.filter(
-    (plan) => plan.roomId === activeRoomId,
+  // The open room's plans first, then the others room by room; each keeps
+  // the order it has in the history.
+  const roomOrder = (roomId: string | undefined) =>
+    roomId === activeRoomId
+      ? -1
+      : rooms.findIndex((room) => room.id === roomId);
+  const classPlans = [...seatingHistory].sort(
+    (a, b) => roomOrder(a.roomId) - roomOrder(b.roomId),
   );
-  const hasOtherPlans = roomPlans.some((plan) => plan.id !== activePlanId);
+  const roomNameOf = (roomId: string | undefined) =>
+    rooms.length > 1
+      ? rooms.find((room) => room.id === roomId)?.name
+      : undefined;
 
   const save = () => {
     if (!canSave || nameTaken) return;
@@ -202,14 +214,15 @@ export function PlanSection() {
           />
         )}
       </div>
-      {hasOtherPlans && (
+      {classPlans.length > 0 && (
         <InspectorMenuButton
           label={t('planSave.open')}
           menuLabel={t('planSave.plans')}
-          rows={roomPlans.map((plan) => ({
+          rows={classPlans.map((plan) => ({
             key: plan.id,
             label: plan.name,
             description: [
+              roomNameOf(plan.roomId),
               formatStoredDate(plan.date),
               plan.autoSaved ? t('library.chipAutoSaved') : null,
             ]

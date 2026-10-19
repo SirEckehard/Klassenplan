@@ -34,7 +34,7 @@ import ToggleSwitch from '@/components/ui/controls/ToggleSwitch';
 import TablePreview from '@/components/TablePreview';
 import NameField from '@/components/shell/NameField';
 import {
-  RoomListSection,
+  RoomListControls,
   RoomSetupSection,
   RoomTemplatesSection,
 } from '@/components/SeatingPlanGenerator/views/RoomSetupSections';
@@ -469,11 +469,11 @@ export default function SceneInspector({
     ) : null;
 
   // Nothing selected: the room itself, by its name — renamed in its own
-  // section, as the class is in the class layer's inspector. Seats and
-  // students are the status bar's to state; what the panel adds is how a
-  // room is set up, which other rooms the class has, and how a room is kept
-  // for others — first what concerns this room, then what leads to another
-  // one: a template opens as a room of its own, so it stands beside the rooms.
+  // section, as the class is in the class layer's inspector, and beside the
+  // name the class's other rooms: a new one, and the others to open. Seats
+  // and students are the status bar's to state; what the panel adds is how a
+  // room is set up and how a room is kept for others, which comes last: a
+  // template opens as a room of its own.
   if (selectionSize === 0) {
     return (
       <>
@@ -499,6 +499,7 @@ export default function SceneInspector({
                 }
                 takenMessage={t('sceneInspector.roomNameTaken')}
               />
+              <RoomListControls />
             </InspectorSection>
           )}
           <RoomSetupSection
@@ -525,7 +526,6 @@ export default function SceneInspector({
             </InspectorSection>
           )}
           {clipboardSection(false)}
-          <RoomListSection />
           <RoomTemplatesSection
             templates={templates}
             onSave={onSaveTemplate}

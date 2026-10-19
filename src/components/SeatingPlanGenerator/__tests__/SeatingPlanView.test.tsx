@@ -184,8 +184,9 @@ describe('SeatingPlanView', () => {
 
   // Speech input says what it sees: "Erfüllung 85 %". The name is the
   // visible words; whether the values are on is the pressed state alone.
-  it('names the fulfilment switch by what it shows', async () => {
-    const renderPlan = (showStatisticsBadge: boolean) =>
+  // The status bar states the fulfilment; the inspector does not repeat it.
+  it('leaves the fulfilment out of the inspector', async () => {
+    await act(async () => {
       renderWithProvidersAndRouter(
         <WithInspector>
           <SeatingPlanView
@@ -200,39 +201,18 @@ describe('SeatingPlanView', () => {
                   active: true,
                 },
               ],
-              showStatisticsBadge,
+              showStatisticsBadge: false,
               onOpenStatistics: vi.fn(),
               onCloseStatistics: vi.fn(),
             })}
           />
         </WithInspector>,
       );
+    });
 
-    let view!: ReturnType<typeof renderPlan>;
-    await act(async () => {
-      view = renderPlan(false);
-    });
-    const hidden = screen.getByRole('switch', {
-      name: /^(Erfüllung|Fulfilment)\s*85\s?%$/,
-    });
-    expect(hidden).toHaveAttribute('aria-checked', 'false');
-    expect(hidden).toHaveAttribute(
-      'title',
-      expect.stringMatching(/zeigen|Show/),
-    );
-
-    view.unmount();
-    await act(async () => {
-      renderPlan(true);
-    });
-    const shown = screen.getByRole('switch', {
-      name: /^(Erfüllung|Fulfilment)\s*85\s?%$/,
-    });
-    expect(shown).toHaveAttribute('aria-checked', 'true');
-    expect(shown).toHaveAttribute(
-      'title',
-      expect.stringMatching(/ausblenden|Hide/),
-    );
+    expect(
+      screen.queryByRole('switch', { name: /^(Erfüllung|Fulfilment)/ }),
+    ).not.toBeInTheDocument();
   });
 
   it('switches the values per criterion from the status bar, both ways', async () => {

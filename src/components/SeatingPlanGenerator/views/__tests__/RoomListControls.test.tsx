@@ -7,7 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import '@/i18n';
 import type { RoomRecord, SavedPlan } from '@/types';
 import { createMockSavedPlan } from '@/__tests__/utils';
-import { RoomListSection } from '../RoomSetupSections';
+import { RoomListControls } from '../RoomSetupSections';
 
 const mocks = vi.hoisted(() => ({
   rooms: [] as RoomRecord[],
@@ -57,16 +57,18 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 
-/** The button that names the open room and opens the others. */
+/** The button that opens the other rooms. */
 const roomMenu = () =>
-  screen.getByRole('button', {
-    name: /^(Geöffneter Raum|Open room): Klassenraum$/,
-  });
+  screen.getByRole('button', { name: /^(Raum öffnen|Open a room) …$/ });
 
-describe('RoomListSection', () => {
-  it('names the open room and marks it in the menu', async () => {
+/** The row that names a new room — beside the menu, not in it. */
+const newRoomButton = () =>
+  screen.getByRole('button', { name: /^(Neuer Raum|New room)$/ });
+
+describe('RoomListControls', () => {
+  it('marks the open room in the menu', async () => {
     const user = userEvent.setup();
-    render(<RoomListSection />);
+    render(<RoomListControls />);
 
     await user.click(roomMenu());
 
@@ -81,7 +83,7 @@ describe('RoomListSection', () => {
 
   it('opens another room from the menu and leaves the open one alone', async () => {
     const user = userEvent.setup();
-    render(<RoomListSection />);
+    render(<RoomListControls />);
 
     await user.click(roomMenu());
     await user.click(screen.getByRole('button', { name: /^Klassenraum$/ }));
@@ -94,12 +96,9 @@ describe('RoomListSection', () => {
 
   it('names a new room before making it, with a free name ready', async () => {
     const user = userEvent.setup();
-    render(<RoomListSection />);
+    render(<RoomListControls />);
 
-    await user.click(roomMenu());
-    await user.click(
-      screen.getByRole('button', { name: /Neuer Raum|New room/ }),
-    );
+    await user.click(newRoomButton());
     const field = screen.getByRole('textbox', {
       name: /Name des Raums|Name of the room/,
     });
@@ -114,12 +113,9 @@ describe('RoomListSection', () => {
 
   it('makes no room when the name is dropped', async () => {
     const user = userEvent.setup();
-    render(<RoomListSection />);
+    render(<RoomListControls />);
 
-    await user.click(roomMenu());
-    await user.click(
-      screen.getByRole('button', { name: /Neuer Raum|New room/ }),
-    );
+    await user.click(newRoomButton());
     await user.keyboard('{Escape}');
 
     expect(mocks.createRoom).not.toHaveBeenCalled();
@@ -133,7 +129,7 @@ describe('RoomListSection', () => {
   // As the header's class menu: a pencil and a bin beside every room.
   it('renames a room from the menu, refusing a name another room carries', async () => {
     const user = userEvent.setup();
-    render(<RoomListSection />);
+    render(<RoomListControls />);
 
     await user.click(roomMenu());
     await user.click(
@@ -162,7 +158,7 @@ describe('RoomListSection', () => {
       createMockSavedPlan({ id: 'p3', roomId: 'a' }),
     ];
     mocks.confirmDialog.mockResolvedValue(true);
-    render(<RoomListSection />);
+    render(<RoomListControls />);
 
     await user.click(roomMenu());
     await user.click(
@@ -183,7 +179,7 @@ describe('RoomListSection', () => {
   it('keeps a room when the question is declined', async () => {
     const user = userEvent.setup();
     mocks.confirmDialog.mockResolvedValue(false);
-    render(<RoomListSection />);
+    render(<RoomListControls />);
 
     await user.click(roomMenu());
     await user.click(
@@ -195,7 +191,7 @@ describe('RoomListSection', () => {
 
   it('keeps the bin of the open room in place but unusable, and says why', async () => {
     const user = userEvent.setup();
-    render(<RoomListSection />);
+    render(<RoomListControls />);
 
     await user.click(roomMenu());
     const bin = screen.getByRole('button', {
@@ -212,23 +208,24 @@ describe('RoomListSection', () => {
     expect(mocks.deleteRoom).not.toHaveBeenCalled();
   });
 
-  it('offers no bin while the class has one room', async () => {
-    const user = userEvent.setup();
+  // With one room the menu would hold only the room named above it.
+  it('offers no menu while the class has one room, but a new room', () => {
     mocks.rooms = [room('a', 'Klassenraum')];
-    render(<RoomListSection />);
+    render(<RoomListControls />);
+
+    expect(
+      screen.queryByRole('button', { name: /^(Raum öffnen|Open a room) …$/ }),
+    ).not.toBeInTheDocument();
+    expect(newRoomButton()).toBeInTheDocument();
+  });
+
+  it('keeps "Neuer Raum" out of the menu', async () => {
+    const user = userEvent.setup();
+    render(<RoomListControls />);
 
     await user.click(roomMenu());
     expect(
-      screen.queryByRole('button', { name: /löschen|Delete/ }),
-    ).not.toBeInTheDocument();
-  });
-
-  it('suggests adding rooms while the class has one', () => {
-    mocks.rooms = [room('a', 'Klassenraum')];
-    render(<RoomListSection />);
-
-    expect(
-      screen.getByText(/weitere Räume an|add more rooms/),
-    ).toBeInTheDocument();
+      screen.getAllByRole('button', { name: /^(Neuer Raum|New room)$/ }),
+    ).toHaveLength(1);
   });
 });

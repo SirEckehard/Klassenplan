@@ -327,7 +327,7 @@ function CriterionRow({
  * its drawer: every criterion as a row with its scale under the family it acts
  * on, headed as in the student inspector, and, once the plan has been mixed,
  * how far it got. The switch for all criteria and their count live apart, with
- * the recipe (`MixRecipeSection`), above the plan's fulfilment.
+ * the recipe (`MixRecipeSection`).
  */
 function SmartMixControls({
   settings,

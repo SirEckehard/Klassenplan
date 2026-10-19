@@ -5,7 +5,6 @@ import { useTranslation } from 'react-i18next';
 import {
   WarningIcon,
   InfoIcon,
-  ChartBarIcon,
   GridNineIcon,
   ShuffleIcon,
   SpinnerGapIcon,
@@ -14,7 +13,6 @@ import SmartSidebar from '@/components/ui/panels/SmartSidebar';
 import SmartMixControls, {
   MixRecipeSection,
 } from '@/components/ui/controls/SmartMixControls';
-import ToggleSwitch from '@/components/ui/controls/ToggleSwitch';
 import PlanToolPanel from '@/components/SeatingPlanGenerator/views/PlanToolPanel';
 import {
   PlanInspectorHeader,
@@ -22,7 +20,7 @@ import {
 } from '@/components/SeatingPlanGenerator/views/PlanInspectorParts';
 import InspectorPortal from '@/components/shell/InspectorPortal';
 import MixHintsSection from '@/components/SeatingPlanGenerator/views/MixHintsSection';
-import { InspectorBody, InspectorRow } from '@/components/shell/InspectorPanel';
+import { InspectorBody } from '@/components/shell/InspectorPanel';
 import StatusBarPortal from '@/components/shell/StatusBarPortal';
 import { statusBarWordClass } from '@/components/shell/StatusBarFrame';
 import { useInspector } from '@/contexts/InspectorContext';
@@ -614,9 +612,9 @@ export default function SeatingPlanEditorView({
     ],
   );
 
-  // The fulfilment in the status bar switches the values per criterion, as
-  // the inspector's "Erfüllung" row does. Turning them on brings the
-  // inspector into view — the column from `lg` up, the drawer on a tablet; a
+  // The fulfilment in the status bar switches the values per criterion — the
+  // one place that states it, the inspector repeats it nowhere. Turning them
+  // on brings the inspector into view — the column from `lg` up, the drawer on a tablet; a
   // phone shows them over the plan instead, and a drawer would cover that.
   // Turning them off leaves the inspector as it is.
   const { setFolded, setDrawerOpen } = useInspector();
@@ -637,17 +635,6 @@ export default function SeatingPlanEditorView({
     setFolded,
     showStatisticsBadge,
   ]);
-
-  const handleStatisticsToggle = React.useCallback(() => {
-    if (!hasStatistics) {
-      return;
-    }
-    if (showStatisticsBadge) {
-      onCloseStatistics?.();
-    } else {
-      onOpenStatistics?.();
-    }
-  }, [hasStatistics, onCloseStatistics, onOpenStatistics, showStatisticsBadge]);
 
   React.useEffect(() => {
     if (!statisticsHighlight || !setStatisticsHighlight) {
@@ -827,7 +814,8 @@ export default function SeatingPlanEditorView({
 
         {/* The plan is the inspector's, as the room is the room's: its name,
             saving it and opening another first, then why it looks like this
-            — the recipe and the criteria — not in the toolbar opposite. */}
+            — the recipe and the criteria — not in the toolbar opposite. How
+            well it meets them is the status bar's to state. */}
         <InspectorPortal label={t('planSave.section')}>
           <PlanInspectorHeader />
           <InspectorBody>
@@ -839,46 +827,6 @@ export default function SeatingPlanEditorView({
               students={students}
               suspendedWeights={suspendedWeights}
             />
-            {/* How well the plan meets the criteria, above the criteria it is
-              about; the switch shows or hides the value beside each one.
-              Between hairlines, as a section without a heading: its row
-              names it. */}
-            {hasStatistics && (onOpenStatistics || onCloseStatistics) && (
-              <div
-                data-tour={TOUR_ANCHORS.planFulfillment}
-                className="border-t border-(--border-card) py-3"
-              >
-                {/* A row of the panel like every other: the whole row is the
-                    switch's label. Named by what it shows — "Erfüllung 85 %" —
-                    so speech input finds it by its words. */}
-                <InspectorRow
-                  label={t('editor.fulfillmentLabel')}
-                  icon={
-                    <ChartBarIcon
-                      size={14}
-                      aria-hidden="true"
-                      className="shrink-0 text-(--text-muted)"
-                    />
-                  }
-                  labelsControl
-                >
-                  <span className="text-control font-semibold tabular-nums text-(--text-page)">
-                    {formatPercent(statisticsScore)}
-                  </span>
-                  <ToggleSwitch
-                    size="sm"
-                    checked={Boolean(showStatisticsBadge)}
-                    onChange={handleStatisticsToggle}
-                    label={`${t('editor.fulfillmentLabel')} ${formatPercent(statisticsScore)}`}
-                    title={
-                      showStatisticsBadge
-                        ? t('editor.hideFulfillment')
-                        : t('editor.showFulfillment')
-                    }
-                  />
-                </InspectorRow>
-              </div>
-            )}
             {/* What the mixing cannot meet in this class and room, there
                 only while there is something to say. */}
             <MixHintsSection
@@ -926,6 +874,7 @@ export default function SeatingPlanEditorView({
           <StatusBarPortal slot="status">
             <button
               type="button"
+              data-tour={TOUR_ANCHORS.planFulfillment}
               onClick={handleFulfillmentToggle}
               aria-pressed={Boolean(showStatisticsBadge)}
               aria-label={`${t('editor.fulfillmentLabel')} ${formatPercent(statisticsScore)}`}
