@@ -8,10 +8,13 @@ import '@/i18n/i18n';
 import SeatingPlanView, {
   type Props as SeatingPlanViewProps,
 } from '../SeatingPlanView';
+import type { ClassroomScene, SeatingArrangement } from '@/types';
 import { DEFAULT_MIX_WEIGHTS, canvasFitClass } from '@/utils';
 import {
   renderWithProvidersAndRouter,
   createMockSeatingPlanViewProps,
+  createMockClassroomScene,
+  createMockStudent,
   setupCleanStorage,
   neutralSettings,
 } from '../../../__tests__/utils';
@@ -262,6 +265,82 @@ describe('SeatingPlanView', () => {
     fireEvent.click(statusButton());
     expect(onCloseStatistics).toHaveBeenCalledTimes(1);
     expect(onOpenStatistics).toHaveBeenCalledTimes(1);
+  });
+
+  describe('mixes on its own only for a stale arrangement', () => {
+    const students = [
+      createMockStudent({ id: 's1', gender: 'boy' }),
+      createMockStudent({ id: 's2', gender: 'girl' }),
+    ];
+    const oneTable = createMockClassroomScene(1);
+    const twoTables = createMockClassroomScene(2);
+
+    /** The view under a parent that swaps scene and seating as a load does. */
+    const renderSwappable = () => {
+      const generateSeatingPlan = vi.fn().mockResolvedValue(undefined);
+      const swapRef: {
+        current: (scene: ClassroomScene, seating: SeatingArrangement) => void;
+      } = { current: () => undefined };
+      function Harness() {
+        const [state, setState] = React.useState({
+          scene: oneTable,
+          seating: [[students[0], students[1]]] as SeatingArrangement,
+        });
+        React.useEffect(() => {
+          swapRef.current = (scene, seating) => setState({ scene, seating });
+        }, []);
+        return (
+          <SeatingPlanView
+            {...createMockSeatingPlanViewProps({
+              step: 3,
+              students,
+              studentsCount: students.length,
+              classroomScene: state.scene,
+              currentSeating: state.seating,
+              generateSeatingPlan,
+            })}
+          />
+        );
+      }
+      return {
+        generateSeatingPlan,
+        renderIt: () => renderWithProvidersAndRouter(<Harness />),
+        swap: (scene: ClassroomScene, seating: SeatingArrangement) =>
+          swapRef.current(scene, seating),
+      };
+    };
+
+    // Opening a saved plan brings its tables and its seating in one go; the
+    // canvas takes the tables an effect later, which once read as a stale
+    // arrangement and mixed the plan just opened.
+    it('leaves a plan opened with other tables as it was saved', async () => {
+      const { generateSeatingPlan, renderIt, swap } = renderSwappable();
+      await act(async () => {
+        renderIt();
+      });
+
+      await act(async () => {
+        swap(twoTables, [
+          [students[0], null],
+          [students[1], null],
+        ]);
+      });
+
+      expect(generateSeatingPlan).not.toHaveBeenCalled();
+    });
+
+    it('mixes when the tables change under an arrangement that no longer fits', async () => {
+      const { generateSeatingPlan, renderIt, swap } = renderSwappable();
+      await act(async () => {
+        renderIt();
+      });
+
+      await act(async () => {
+        swap(twoTables, [[students[0], students[1]]]);
+      });
+
+      expect(generateSeatingPlan).toHaveBeenCalledTimes(1);
+    });
   });
 
   it('renders auto-mix error banner with retry button', async () => {

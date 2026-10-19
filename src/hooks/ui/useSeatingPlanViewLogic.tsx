@@ -350,7 +350,14 @@ export function useSeatingPlanViewLogic({
     if (students.length === 0 || sceneTables.length === 0) {
       return false;
     }
-    if (!hasShapeMismatch(sceneForCheck, currentSeating)) {
+    // Stale only when it fits neither the canvas nor the scene itself: the
+    // canvas takes the scene's tables an effect later, so a plan opened with
+    // other tables — scene and seating arriving together — would otherwise
+    // read as stale for one render and be mixed over.
+    if (
+      !hasShapeMismatch(sceneForCheck, currentSeating) ||
+      !hasShapeMismatch(classroomScene, currentSeating)
+    ) {
       return false;
     }
     if (students.some((student) => !student.gender)) {
@@ -363,6 +370,7 @@ export function useSeatingPlanViewLogic({
     students,
     sceneTables.length,
     sceneForCheck,
+    classroomScene,
     currentSeating,
   ]);
 

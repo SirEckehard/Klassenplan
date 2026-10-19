@@ -41,6 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- Opening a saved plan whose tables differ from the ones on screen – another room's plan above all – no longer mixes it over at once; it stays as it was saved
 - "Repetition" counts only the plans that were really in use: its value no longer falls while you mix again and again, and a plan no longer counts as a repetition of itself once it was presented, exported or saved. Mixing no longer avoids the pairs of earlier mixes either – that the next mix turns out differently is left to chance and the other criteria
 - "Mix" with every criterion off was not random: restless students always sat apart and at the tables added last. Now every arrangement is equally likely
 - Two students needing a front seat could be seated at one desk even when they keep a distance from each other or are both restless
