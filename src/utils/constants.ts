@@ -332,6 +332,13 @@ export const CRITERION_WEIGHTS = {
     /** Two of the same gender as seat partners or directly beside */
     samePair: 0.5,
   },
+  /**
+   * A student needing a front seat, by the rows behind the front rows
+   * (`model/frontPool.ts`): the row below "Sehr wichtig" still counts as a
+   * front seat costs `toleratedRow`, the first row that no longer does costs
+   * 1 and every row behind it `furtherRow` more.
+   */
+  front: { toleratedRow: 0.15, furtherRow: 0.25 },
   /** Small students to the front, tall ones to the back */
   height: 3,
   /** A student needing language support beside a strong speaker */

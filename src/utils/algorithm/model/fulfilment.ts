@@ -25,7 +25,7 @@ import {
   relationWeight,
   GENDER_COUNT,
 } from './criteria';
-import { frontSeatPool } from './frontPool';
+import { frontRowsOf, toleratesRowBehind } from './frontPool';
 import {
   strongSpeakerCloseness,
   tableMembers,
@@ -245,18 +245,20 @@ export function evaluateCriteria(
     }
   }
 
-  // Front seats: the front rows that hold every student needing one.
+  // Front seats: the front rows that hold every student needing one, and
+  // below "Sehr wichtig" the row behind them.
   const needFront = seated.filter((student) => facts[student]!.needsFront);
   if (needFront.length > 0) {
-    const zone = frontSeatPool(
+    const rows = frontRowsOf(
       context.scene,
       layout,
       needFront.length,
       (seat) => occupants[seat]! >= 0,
+      toleratesRowBehind(weights.front),
     );
     for (const student of needFront) {
       const seat = seatOf[student]!;
-      front.add(zone[seat] === 1 ? 1 : 0, [seat]);
+      front.add(rows.behind[seat]! <= rows.tolerance ? 1 : 0, [seat]);
     }
   }
 

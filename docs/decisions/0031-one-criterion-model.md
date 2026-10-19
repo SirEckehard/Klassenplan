@@ -75,6 +75,7 @@ Measured with fixed seeds before the change:
   `tableRowsFromFront` counts them); who sits beside whom there is decided by
   every other criterion, and the refinement may swap such students within
   the pool. Below "Sehr wichtig" the front seat is a weight like any other.
+  _How it weighs there: [addendum of 2026-10-19](#addendum-of-2026-10-19-the-row-behind-below-sehr-wichtig)._
   The recommended weight and the recipes set 8; settings stored before carry
   no `criteriaVersion` and are lifted once from a level below to 8
   (`migrateStoredMixSettings`), since every level guaranteed the front row
@@ -153,3 +154,51 @@ Measured with fixed seeds before the change:
   gone; the worker ships with the app, so no stored data is affected.
 - The initial payload grows by 6 KB brotli (195 → 201 KB of 220): the
   fulfilment reads the model.
+
+## Addendum of 2026-10-19: the row behind below "Sehr wichtig"
+
+Below "Sehr wichtig" the front seat was a seat term by the seat's depth, 0 at
+the back to 1 at the front of the room: the second row cost as much more than
+the first as the fifth more than the fourth, and how much a row cost depended
+on how deep the room was — in a room three rows deep the second row was
+halfway to the back. The fulfilment counted only the front rows as met at
+every level, so a student in the second row read as unmet at "Wichtig" too.
+Most students needing a front seat need to be near the teacher, not to read
+the board, and for them the second row is a front seat (maintainer).
+
+- **By rows, not by depth** (`frontRowsOf` in `model/frontPool.ts`): the
+  front rows are the rows of the pool — row by row from the board until every
+  student needing a front seat fits on the seats in use. Below "Sehr
+  wichtig" the row behind them counts as a front seat too
+  (`FRONT_TOLERANCE_ROWS` = 1), while a row of the mix stays behind it: a room
+  two rows deep keeps its back row a back row, and a pool that already takes
+  every row but the last gets no tolerance.
+- **The cost** (`frontSeatCost`, `CRITERION_WEIGHTS.front`): nothing in the
+  front rows, 0.15 in the tolerated row — so the front row still wins when
+  nothing else matters — 1 in the first row that no longer counts and 0.25
+  more per row behind it. "Beachten" and "Wichtig" share the rule and differ
+  by their weight alone.
+- **The fulfilment counts the same**: the front rows and the tolerated row
+  are met, a row further back is not. A hint is not needed: the front rows
+  grow until every student needing one fits, so the soft levels ask nothing
+  the room cannot give.
+- **"Sehr wichtig" is unchanged**: the pool, its fulfilment, and within the
+  pool the seat term by depth, which draws a student to the board's side of
+  a group table. The seed comparison at the recommended weight gives the same
+  plans as before.
+
+The seed comparison with "Vordere Plätze" at "Wichtig" (weight 5, otherwise
+as in `mixQuality`, 30 seeds per room; the fulfilment before counts the
+second row as unmet):
+
+| Room                                       | Front seats before → after | Overall before → after |
+| ------------------------------------------ | -------------------------: | ---------------------: |
+| Single desks close together                |               50.0 → 100 % |          81.6 → 86.9 % |
+| Double desks as "Neu einrichten" sets them |              47.8 → 93.3 % |          83.5 → 87.6 % |
+| Group tables of four                       |              60.0 → 98.9 % |          84.7 → 88.2 % |
+| Mixed and turned tables                    |                100 → 100 % |          85.8 → 86.0 % |
+| Double desks with history and locks        |               66.7 → 100 % |          81.7 → 84.3 % |
+
+Beyond the tolerated row a row costs more than before, so the criterion
+holds harder against the back: wishes at single desks 74.7 → 69.5 %, the
+other criteria within a point.

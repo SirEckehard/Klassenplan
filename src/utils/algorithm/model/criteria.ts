@@ -23,6 +23,7 @@ import {
   getWishPartnerIds,
 } from '@/utils/student/partnerUtils';
 import { resolvePerformanceCriterion } from '../../mixSettings';
+import { toleratesRowBehind } from './frontPool';
 import { SEAT_RELATION_KINDS, kindIndex } from './seatRelations';
 
 /** The weight every criterion carries in a mix; 0 where it is off. */
@@ -289,12 +290,32 @@ export const pairTerm = (
 export interface SeatPlace {
   /** 0 at the back to 1 at the front; see `SeatLayout.depth` */
   depth: number;
+  /** Rows behind the front rows, 0 within them; see `frontRowsOf` */
+  frontRows: number;
+  /** How many of those rows still count as front seats */
+  frontTolerance: number;
   /** Distance to the nearest window and door, scaled to 0..1, or null */
   window: number | null;
   door: number | null;
   /** Whether a seat of the same table or directly beside counts as taken */
   hasCloseNeighbour: boolean;
 }
+
+/**
+ * What a seat costs a student needing a front seat below "Sehr wichtig", by
+ * the rows it lies behind the front rows: nothing within them, a little in
+ * the row that still counts as a front seat, then steeply more.
+ */
+export const frontSeatCost = ({
+  frontRows,
+  frontTolerance,
+}: Pick<SeatPlace, 'frontRows' | 'frontTolerance'>): number => {
+  if (frontRows <= 0) return 0;
+  if (frontRows <= frontTolerance) return CRITERION_WEIGHTS.front.toleratedRow;
+  return (
+    1 + CRITERION_WEIGHTS.front.furtherRow * (frontRows - frontTolerance - 1)
+  );
+};
 
 /**
  * The seat term: what it costs that a student sits on this seat — the front
@@ -307,7 +328,13 @@ export const seatTerm = (
 ): number => {
   let score = 0;
   if (weights.front > 0 && student.needsFront) {
-    score -= weights.front * place.depth * student.special;
+    // "Sehr wichtig" holds the student to the front rows (`frontPool.ts`) and
+    // draws them to the board within them; below it the rows decide.
+    if (toleratesRowBehind(weights.front)) {
+      score += weights.front * frontSeatCost(place) * student.special;
+    } else {
+      score -= weights.front * place.depth * student.special;
+    }
   }
   if (weights.height > 0 && student.height) {
     const towardsTheirEnd =

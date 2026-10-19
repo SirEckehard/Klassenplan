@@ -228,7 +228,7 @@
         "needsFrontSeat": {
           "label": "Front seat",
           "description": "This student needs a front seat.",
-          "algorithm": "At “Very important” the student is sure to sit in the front row; at the levels below, preferably further forward."
+          "algorithm": "At “Very important” the student is sure to sit in the front row; at the levels below, in the front row or the row behind it."
         },
         "restless": {
           "label": "Restless",
@@ -327,7 +327,7 @@
       "weights": {
         "q": "What do Off, Consider, Important and Very important mean?",
         "intro": "You set every criterion to one of four levels in the inspector to the right of the seating plan:",
-        "outro": "Criteria your class has no data for stay hidden. For “Front seats”, “Very important” is a fixed rule: the students are then sure to sit in the front row. At the levels below, a front seat is a wish like any other."
+        "outro": "Criteria your class has no data for stay hidden. For “Front seats”, “Very important” is a fixed rule: the students are then sure to sit in the front row. At the levels below, the row behind it counts as the front too – a student sits further back only when a criterion weighed more asks for it."
       },
       "check": {
         "q": "How do I recognize that a mix meets the criteria?",

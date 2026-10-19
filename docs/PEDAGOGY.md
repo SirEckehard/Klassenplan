@@ -88,9 +88,11 @@ A criterion is set on one of four levels, and the mix weighs it accordingly —
 a criterion at "Beachten" gives way to one at "Wichtig". "Vordere Plätze" is
 the one criterion whose top level is a rule rather than a weight: at "Sehr
 wichtig" the students needing a front seat stay in the front rows whatever
-else the mix weighs; below it the front seat is a preference like any other.
-A student who needs it for hearing or seeing should be at "Sehr wichtig",
-which is why the recommendation sets it.
+else the mix weighs. Below it the row behind them counts as a front seat
+too, and a student sits further back only when a criterion weighed more asks
+for it — enough for a student who needs to be near the teacher rather than to
+read the board. A student who needs it for hearing or seeing should be at
+"Sehr wichtig", which is why the recommendation sets it.
 
 ### Gender
 

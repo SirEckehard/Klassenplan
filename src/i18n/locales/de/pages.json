@@ -228,7 +228,7 @@
         "needsFrontSeat": {
           "label": "Vorderer Platz",
           "description": "Dieser Schüler benötigt einen vorderen Platz.",
-          "algorithm": "Auf „Sehr wichtig“ sitzt der Schüler sicher in der vordersten Reihe, auf den Stufen darunter bevorzugt weiter vorne."
+          "algorithm": "Auf „Sehr wichtig“ sitzt der Schüler sicher in der vordersten Reihe, auf den Stufen darunter in der vordersten Reihe oder der Reihe dahinter."
         },
         "restless": {
           "label": "Unruhig",
@@ -327,7 +327,7 @@
       "weights": {
         "q": "Was bedeuten Aus, Beachten, Wichtig und Sehr wichtig?",
         "intro": "Jedes Kriterium stellst du im Inspektor rechts neben dem Sitzplan auf eine von vier Stufen:",
-        "outro": "Kriterien, für die deine Klasse keine Daten hat, bleiben ausgeblendet. Bei „Vordere Plätze“ ist „Sehr wichtig“ eine feste Regel: Die Schüler sitzen dann sicher in der vordersten Reihe. Auf den Stufen darunter ist ein vorderer Platz ein Wunsch wie jeder andere."
+        "outro": "Kriterien, für die deine Klasse keine Daten hat, bleiben ausgeblendet. Bei „Vordere Plätze“ ist „Sehr wichtig“ eine feste Regel: Die Schüler sitzen dann sicher in der vordersten Reihe. Auf den Stufen darunter zählt auch die Reihe dahinter als vorn – weiter hinten sitzt ein Schüler nur, wenn ein Kriterium mit mehr Gewicht es verlangt."
       },
       "check": {
         "q": "Wie erkenne ich, dass eine Mischung den Kriterien entspricht?",

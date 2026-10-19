@@ -36,6 +36,7 @@ import {
   type SeatPlace,
   type StudentFacts,
 } from './criteria';
+import { frontRowsOf, toleratesRowBehind } from './frontPool';
 import {
   getSeatLayout,
   SEAT_RELATION_KINDS,
@@ -126,12 +127,21 @@ export const buildModelContext = (input: ModelInput): ModelContext => {
         : 0;
   }
 
+  const front = frontRowsOf(
+    scene,
+    layout,
+    facts.filter((fact) => fact.needsFront).length,
+    (seat) => usable[seat] === 1,
+    toleratesRowBehind(weights.front),
+  );
   const distances = getFeatureDistanceMaps(scene, getSeatPositions(scene));
   const places: SeatPlace[] = [];
   for (let seat = 0; seat < size; seat++) {
     const key = layout.keys[seat]!;
     places.push({
       depth: layout.depth[seat]!,
+      frontRows: front.behind[seat]!,
+      frontTolerance: front.tolerance,
       window: scaledDistance(
         distances.window.get(key),
         distances.maxWindowDistance,

@@ -62,19 +62,20 @@ settled on — the one on screen, the plan the teacher actually got.
 
 What each criterion counts:
 
-| Criterion                                 | Term                                                                                    | Relations              |
-| :---------------------------------------- | :-------------------------------------------------------------------------------------- | :--------------------- |
-| Wunschpartner                             | reward per directed wish, by its place in the list (1 / 0.85 / 0.7)                     | all                    |
-| Distanzwünsche                            | penalty per directed distance wish, twice a wish's weight (1 / 0.9 / 0.8)               | all                    |
-| Unruhe, Ablenkbarkeit                     | penalty for two restless or two distractible students, by the larger special weight     | all                    |
-| Ablenkbar neben Unruhig                   | penalty when one is distractible and the other restless, either way round               | all                    |
-| Wiederholung                              | penalty by the history's weight of the pair; none for a wish pair while wishes count    | partner, table         |
-| Geschlechter                              | per table the students by which a gender holds more than half; same gender side by side | partner, beside; table |
-| Fördern (heterogen / homogen)             | reward for a strong and a weak student (or two of one level), penalty for the other     | partner, table         |
-| Schüchternheit                            | penalty for a shy student with no taken seat close by                                   | partner, table, beside |
-| Sprachförderung                           | reward for a student needing support by the closest strong speaker                      | partner, table, beside |
-| Soziale Rollen                            | per table: the same role twice, loners and mediators, a leader beside a mediator        | table                  |
-| Vordere Plätze, Körpergröße, Fenster, Tür | by the seat's depth (0 at the back, 1 at the front) or distance to window and door      | —                      |
+| Criterion                     | Term                                                                                    | Relations              |
+| :---------------------------- | :-------------------------------------------------------------------------------------- | :--------------------- |
+| Wunschpartner                 | reward per directed wish, by its place in the list (1 / 0.85 / 0.7)                     | all                    |
+| Distanzwünsche                | penalty per directed distance wish, twice a wish's weight (1 / 0.9 / 0.8)               | all                    |
+| Unruhe, Ablenkbarkeit         | penalty for two restless or two distractible students, by the larger special weight     | all                    |
+| Ablenkbar neben Unruhig       | penalty when one is distractible and the other restless, either way round               | all                    |
+| Wiederholung                  | penalty by the history's weight of the pair; none for a wish pair while wishes count    | partner, table         |
+| Geschlechter                  | per table the students by which a gender holds more than half; same gender side by side | partner, beside; table |
+| Fördern (heterogen / homogen) | reward for a strong and a weak student (or two of one level), penalty for the other     | partner, table         |
+| Schüchternheit                | penalty for a shy student with no taken seat close by                                   | partner, table, beside |
+| Sprachförderung               | reward for a student needing support by the closest strong speaker                      | partner, table, beside |
+| Soziale Rollen                | per table: the same role twice, loners and mediators, a leader beside a mediator        | table                  |
+| Vordere Plätze                | by the rows behind the front rows (see [Front seats](#front-seats))                     | —                      |
+| Körpergröße, Fenster, Tür     | by the seat's depth (0 at the back, 1 at the front) or distance to window and door      | —                      |
 
 Boys, girls and diverse students are three genders of their own; "not stated"
 counts for none. A criterion off costs nothing, and only one performance
@@ -118,8 +119,17 @@ on (`evenTargetsFor`).
   table set a few pixels forward by hand is no row of its own. Who sits beside
   whom in the pool is up to every other criterion; the refinement may swap
   such students within it, never out of it. A lock wins.
-- **"Wichtig" and "Beachten"** make the front seat a weight like any other: a
-  seat term by the seat's depth, which a stronger criterion can outweigh.
+- **"Wichtig" and "Beachten"** count by rows (`frontRowsOf`): the front rows
+  as above cost nothing, the row behind them still counts as a front seat and
+  costs little (`CRITERION_WEIGHTS.front.toleratedRow`, 0.15), the first row
+  that no longer does costs 1 and every row behind it 0.25 more
+  (`frontSeatCost`). The row behind is granted only while a row of the mix
+  stays behind it, so a room two rows deep keeps its back row a back row. A
+  student needing a front seat therefore takes the front row when nothing
+  else matters, gives way to the second row for a criterion weighed more and
+  reaches the third only for a much heavier one. The fulfilment counts the
+  same: the front rows and the tolerated row are met, a row further back is
+  not.
 
 The recommended weight and the presets set "Sehr wichtig". Settings stored
 before carry no `criteriaVersion`; a level below "Sehr wichtig" is lifted to
