@@ -108,3 +108,9 @@ Since the plan layer's inspector became the plan itself (2026-10-18) — its
 name, saving it, opening another — the inspector's heading names the plan,
 and the switch for all criteria and their count moved to the recipe's
 section, which opens the mixing below the plan's own section.
+
+On 2026-10-19 the recipe was renamed in the interface: "Rezept" asked the
+teacher to translate a metaphor, so the section and its button read
+"Voreinstellung" (English "Preset"), a word known from any device's settings
+for a starting point that can be changed afterwards. The code keeps the name
+(`MixRecipe`, `mixRecipes.ts`, `generator:mix.recipes.*`).

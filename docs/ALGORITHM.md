@@ -121,7 +121,7 @@ on (`evenTargetsFor`).
 - **"Wichtig" and "Beachten"** make the front seat a weight like any other: a
   seat term by the seat's depth, which a stronger criterion can outweigh.
 
-The recommended weight and the recipes set "Sehr wichtig". Settings stored
+The recommended weight and the presets set "Sehr wichtig". Settings stored
 before carry no `criteriaVersion`; a level below "Sehr wichtig" is lifted to
 it once (`migrateStoredMixSettings`) where stored settings come in, since
 until then every level kept the students in the front row.

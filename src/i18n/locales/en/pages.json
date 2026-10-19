@@ -19,7 +19,7 @@
     "criteria": {
       "eyebrow": "What the plan considers",
       "title": "A wide range of criteria for every class",
-      "intro": "Choose the right attributes for each student – and the seating plan takes your preferences into account. Recipes such as {{recipes}} help you find the right seating plan for every situation.",
+      "intro": "Choose the right attributes for each student – and the seating plan takes your preferences into account. Presets such as {{recipes}} help you find the right seating plan for every situation.",
       "historyGroup": "History"
     },
     "why": {
@@ -320,8 +320,8 @@
       "title": "Criteria & fulfilment",
       "description": "How you set the criteria and read how well a plan meets them.",
       "recipes": {
-        "q": "What are recipes?",
-        "intro": "A recipe sets all criteria at once to suit the lesson. You find the recipes above the criteria:",
+        "q": "What are presets?",
+        "intro": "A preset sets all criteria at once to suit the lesson. You find the presets above the criteria:",
         "outro": "If you then change a single criterion, it becomes “Your own mix”. “Recommended mix” takes you back to the defaults at any time."
       },
       "weights": {
@@ -390,7 +390,7 @@
       "improve": {
         "q": "How can I improve the result?",
         "intro": "Use a combination of the following strategies:",
-        "li1": "Set the criteria that matter to “Important” or “Very important” – or pick a recipe that fits the class",
+        "li1": "Set the criteria that matter to “Important” or “Very important” – or pick a preset that fits the class",
         "li2": "Mix again: every mix already tries several random starts, but a new mix still brings a different plan",
         "li3": "Adjust individual seats manually via drag & drop and lock them if necessary so that the algorithm no longer changes them.",
         "li4": "Take back a poor mix with “Undo” (Ctrl/⌘+Z) or open an earlier result under “Recent mixes” in the “Library”"

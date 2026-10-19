@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - Mixing weighs every criterion the way the inspector shows it: who sits next to whom counts at the seat partner, at the same table and at the seat directly beside, in front of or behind at the next table – seen from the board, with no aisle in between – and the fulfilment beside each criterion counts the same, against what the class and the room allow. Plans meet preferred partners and distance requests far better, above all at single desks, and the percentages mean what they say: 100 % is as good as the class and the room allow
 - "Mix" tries three starts and keeps the best plan – and still takes less time than one took before
-- "Front seats" at "Very important" keeps the students needing one in the front row, and who sits beside whom there follows the other criteria; at the levels below, a front seat is a preference that a criterion weighed more can outweigh. The recommendation and the recipes set "Very important", and a class keeps the front row it had
+- "Front seats" at "Very important" keeps the students needing one in the front row, and who sits beside whom there follows the other criteria; at the levels below, a front seat is a preference that a criterion weighed more can outweigh. The recommendation and the presets set "Very important", and a class keeps the front row it had
 - "Gender" counts diverse as a gender of its own and a table as mixed while no gender holds more than half of it; it is offered once two different genders are in the class
 - "Repetition" weighs a plan by how recent it is, whatever the number of plans, and parts the pairs who sat together most often first
 - The seating circle keeps students with a distance request, restless and distractible students apart where it can, as weighted for the mix
@@ -28,7 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - "Add student" and "Create placeholders" stand under "Add" in the class's toolbar, as the room's tables do; "Manage" keeps the class list's import, export and printing
 - Classes no longer open a dialog: a new class is named right in the class menu of the header – or, the very first one, on the start card – and Enter creates and opens it. While no student is open, the inspector of the class layer shows the class itself, where its name, school year and notes are changed, as in "Bibliothek"; the class menu renames a class in place, and a change no longer brings a message
 - A room is saved as a template in the room's inspector instead of a dialog: the name – the room's own to begin with – is typed in place, and a name a template already carries offers to replace that template
-- Every inspector – criteria, room, export sheet and "Bibliothek" – is laid out like the student inspector: one row per setting with its icon and its explanation under the name, fewer and more logically ordered sections, a short scale for a criterion's importance, and menus instead of long lists for the recipe, a plan's room, and the room's rooms, templates and – once its tables stand – its setup
+- Every inspector – criteria, room, export sheet and "Bibliothek" – is laid out like the student inspector: one row per setting with its icon and its explanation under the name, fewer and more logically ordered sections, a short scale for a criterion's importance, and menus instead of long lists for the preset, a plan's room, and the room's rooms, templates and – once its tables stand – its setup
 - Searching the class list opens the student the search clearly means in the inspector while you type – the only one found, or the only one whose name or first name it is or starts with. Enter opens the first student found
 - On an iPad in portrait, ticking several students opens their shared settings in the inspector, as on a larger screen
 - Tapping the student who is open in the class list again closes the inspector – on an iPad in landscape the column folds away again
@@ -38,6 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - The FAQ explains installing the app browser by browser
 - "Fulfilment" in the status bar of the seating plan switches the values per criterion on and off; the inspector no longer repeats it in a row of its own
 - The room's inspector keeps the class's other rooms under the room's name: "New room" as a button of its own, and "Open a room …" for the others, instead of a section "Rooms" beside the section "Room"
+- The "Recipes" that set all criteria at once are called "Presets" now, in the inspector, the FAQ and on the start page
 
 ### Fixed
 

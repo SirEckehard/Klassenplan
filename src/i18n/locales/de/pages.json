@@ -19,7 +19,7 @@
     "criteria": {
       "eyebrow": "Was der Plan beachtet",
       "title": "Eine Vielzahl an Kriterien für jede Klasse",
-      "intro": "Wähle für jeden Schüler die passenden Merkmale aus – und der Sitzplan berücksichtigt deine Präferenzen. Rezepte wie {{recipes}} helfen dir für jede Situation den richtigen Sitzplan zu finden.",
+      "intro": "Wähle für jeden Schüler die passenden Merkmale aus – und der Sitzplan berücksichtigt deine Präferenzen. Voreinstellungen wie {{recipes}} helfen dir, für jede Situation den richtigen Sitzplan zu finden.",
       "historyGroup": "Verlauf"
     },
     "why": {
@@ -320,8 +320,8 @@
       "title": "Kriterien & Erfüllung",
       "description": "Wie du die Kriterien einstellst und abliest, wie gut ein Plan sie erfüllt.",
       "recipes": {
-        "q": "Was sind Rezepte?",
-        "intro": "Ein Rezept stellt alle Kriterien auf einmal passend zur Stunde ein. Du findest die Rezepte über den Kriterien:",
+        "q": "Was sind Voreinstellungen?",
+        "intro": "Eine Voreinstellung setzt alle Kriterien auf einmal passend zur Stunde. Du findest die Voreinstellungen über den Kriterien:",
         "outro": "Änderst du danach ein einzelnes Kriterium, wird daraus eine „Eigene Mischung“. Die „Empfohlene Mischung“ führt jederzeit zu den Standardwerten zurück."
       },
       "weights": {
@@ -390,7 +390,7 @@
       "improve": {
         "q": "Wie kann ich das Ergebnis verbessern?",
         "intro": "Nutze eine Kombination aus folgenden Strategien:",
-        "li1": "Wichtige Kriterien auf „Wichtig“ oder „Sehr wichtig“ stellen – oder ein passendes Rezept für die Klasse wählen",
+        "li1": "Wichtige Kriterien auf „Wichtig“ oder „Sehr wichtig“ stellen – oder eine passende Voreinstellung für die Klasse wählen",
         "li2": "Erneut mischen: Jede Mischung probiert schon mehrere Zufallsstarts aus, eine neue Mischung bringt trotzdem einen anderen Plan",
         "li3": "Einzelne Plätze manuell via Drag & Drop anpassen und bei Bedarf sperren, sodass der Algorithmus diese nicht mehr verändert.",
         "li4": "Eine misslungene Mischung mit „Rückgängig“ (Strg/⌘+Z) zurücknehmen oder in der „Bibliothek“ unter „Letzte Mischungen“ ein früheres Ergebnis öffnen"

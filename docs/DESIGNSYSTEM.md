@@ -83,7 +83,7 @@ Numbers that sit in columns or get compared — counts, percentages, times — a
 
 | Token          | Size                | Used for                                                                                        |
 | -------------- | ------------------- | ----------------------------------------------------------------------------------------------- |
-| `text-micro`   | `0.625rem` (10 px)  | A counter on a button, the smallest captions (the phone's table templates, a recipe group)      |
+| `text-micro`   | `0.625rem` (10 px)  | A counter on a button, the smallest captions (the phone's table templates, a preset group)      |
 | `text-caption` | `0.6875rem` (11 px) | Uppercase group headings in the toolbar, menus and lists; small print such as an error's report |
 | `text-control` | `0.8125rem` (13 px) | Rows and entries of the toolbar, the inspector and the menus, and their fields                  |
 
@@ -302,7 +302,7 @@ The right-hand panel is a wall, not a stack of cards. A setting inside it is a r
 (`src/components/shell/InspectorPanel.tsx`) are its only parts, with
 `InspectorMediaTile` for the header's media where there is no photo,
 `InspectorActionRow` for an action and `InspectorMenuButton` for a choice
-among more entries than the panel should list — the recipe, a kind of table,
+among more entries than the panel should list — the preset, a kind of table,
 the rooms, the templates: one button the panel's width that opens them as a
 menu, shaped as the header's class menu (a check at the chosen entry, a
 pencil and a bin beside it where an entry can be renamed and removed) — shared by the student, the room, the plan and
@@ -429,7 +429,7 @@ The criteria section is the only place on the page with colour, and it may
 have it because every colour there describes pedagogy: each family is a
 `dataHeadingClass` over `dataChipClass` chips, icon and word, in the order and
 with the names the inspector uses (`criteriaIcons.ts`,
-`generator:mix.criteria.*`). The layers, recipes, importance levels and tools
+`generator:mix.criteria.*`). The layers, presets, importance levels and tools
 the page mentions are quoted from the app's own keys, so the page cannot call
 a thing differently from the screen it describes.
 

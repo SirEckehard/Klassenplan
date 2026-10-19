@@ -139,7 +139,7 @@ describe('SmartMixControls — comfortable density', () => {
       .map((heading) => heading.textContent);
     expect(headings).toHaveLength(7);
     [
-      /^(Rezept|Recipe)$/,
+      /^(Voreinstellung|Preset)$/,
       /^(Verlauf|History)$/,
       /^(Person)$/,
       /^(Lernen|Learning)$/,
@@ -310,7 +310,9 @@ describe('SmartMixControls — comfortable density', () => {
       }),
     ).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: /^(Rezept|Recipe):/ }));
+    fireEvent.click(
+      screen.getByRole('button', { name: /^(Voreinstellung|Preset):/ }),
+    );
     fireEvent.click(
       within(screen.getByRole('dialog')).getByRole('button', {
         name: /Empfohlene Mischung|Recommended mix/,
@@ -325,7 +327,7 @@ describe('SmartMixControls — comfortable density', () => {
 
 describe('SmartMixControls — recipes', () => {
   const recipeButton = () =>
-    screen.getByRole('button', { name: /^(Rezept|Recipe):/ });
+    screen.getByRole('button', { name: /^(Voreinstellung|Preset):/ });
 
   const chooseRecipe = (name: RegExp) => {
     fireEvent.click(recipeButton());

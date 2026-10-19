@@ -21,7 +21,7 @@
     },
     "plan": {
       "title": "Sitzplan",
-      "item1": "Rechts im Inspektor benennst du den Sitzplan, speicherst ihn und stellst für jedes Kriterium ein, wie wichtig es ist, oder du wählst ein Rezept wie z. B. „Klassenarbeit“, das eine vordefinierte Auswahl setzt.",
+      "item1": "Rechts im Inspektor benennst du den Sitzplan, speicherst ihn und stellst für jedes Kriterium ein, wie wichtig es ist, oder du wählst eine Voreinstellung wie z. B. „Klassenarbeit“, die alle Kriterien auf einmal setzt.",
       "item2": "Ziehe Schüler auf andere Plätze. Esc bricht das Ziehen ab. Mit der Tastatur wählt die Eingabetaste einen Schüler aus, die Pfeiltasten wählen den Platz, die Eingabetaste setzt ihn dorthin.",
       "item3": "Klicke auf das Schloss-Symbol, um einen Platz beim nächsten Mischen zu sperren.",
       "item4": "Der Knopf über den Kriterien zeigt in Prozent, wie gut der Plan sie erfüllt, und blendet unter jedem Kriterium eine Leiste ein – fährst du über sie, werden die betroffenen Plätze markiert.",
@@ -304,7 +304,7 @@
   },
   "mix": {
     "recipes": {
-      "title": "Rezept",
+      "title": "Voreinstellung",
       "custom": "Eigene Mischung",
       "activeCount": "{{active}} von {{total}} Kriterien aktiv",
       "recommended": {

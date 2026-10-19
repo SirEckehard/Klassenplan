@@ -21,7 +21,7 @@
     },
     "plan": {
       "title": "Seating Plan",
-      "item1": "In the inspector on the right you name the seating plan, save it and set how much each criterion matters, or you pick a recipe such as “Written test” that sets a predefined selection.",
+      "item1": "In the inspector on the right you name the seating plan, save it and set how much each criterion matters, or you pick a preset such as “Written test” that sets all criteria at once.",
       "item2": "Drag students to other seats. Esc cancels the drag. With the keyboard, Enter selects a student, the arrow keys choose the seat, Enter puts them there.",
       "item3": "Click the lock icon to lock a seat for the next mix.",
       "item4": "The button above the criteria shows in per cent how well the plan meets them and puts a bar under each criterion – hover it and the seats it concerns are marked.",
@@ -304,7 +304,7 @@
   },
   "mix": {
     "recipes": {
-      "title": "Recipe",
+      "title": "Preset",
       "custom": "Your own mix",
       "activeCount": "{{active}} of {{total}} criteria active",
       "recommended": {

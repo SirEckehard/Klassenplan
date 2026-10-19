@@ -13,7 +13,7 @@ A web-based tool for creating seating plans and seating circles for teachers. Kl
 - **Inspector** in which a student, several ticked students, a table or a room element is edited; an attribute mode asks one question of the whole class at once
 - **CSV import** for class lists, including the exports of WebUntis, Schulmanager Online and SchILD-NRW
 - **Classroom editor** with drag-and-drop, grid, multi-select, keyboard control, and touch optimization
-- **Constraint-based mixing algorithm** with sixteen criteria set in words and recipes, locked seats, distance and preferred-partner logic, and the plans already used kept apart – detected or marked by hand
+- **Constraint-based mixing algorithm** with sixteen criteria set in words and presets, locked seats, distance and preferred-partner logic, and the plans already used kept apart – detected or marked by hand
 - **Seating circle mode** with its own export view and alignment with the table layout
 - **Presentation mode** for interactive whiteboards and projectors with teacher/student perspective, a contrast mode, pan & zoom, and pinch gestures
 - **Class tools** – "Who's next?", "Where does who sit?", "Build groups" and a name game – each a screen of its own
