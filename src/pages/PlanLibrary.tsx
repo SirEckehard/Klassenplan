@@ -653,7 +653,7 @@ function PlanLibraryPage() {
           <PlanPanel
             key={plan.id}
             plan={plan}
-            classId={classLibrary.id}
+            records={usageRecords}
             rooms={classLibrary.rooms}
             plans={classLibrary.plans}
             studentCount={classLibrary.students.length}

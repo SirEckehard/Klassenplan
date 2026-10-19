@@ -18,7 +18,7 @@ import {
   InspectorSection,
 } from '@/components/shell/InspectorPanel';
 import type { LibraryRoom } from '@/hooks/library/useClassLibrary';
-import { usePlanUsageRecords } from '@/hooks/plan/usePlanUsageRecords';
+import type { PlanUsageRecordsReturn } from '@/hooks/plan/usePlanUsageRecords';
 import type { SavedPlan } from '@/types';
 import {
   checkName,
@@ -54,7 +54,7 @@ export type PlanMove = { roomId: string } | { newRoomName: string };
  */
 export default function PlanPanel({
   plan,
-  classId,
+  records,
   rooms,
   plans,
   studentCount,
@@ -65,7 +65,11 @@ export default function PlanPanel({
   renameRequest,
 }: {
   plan: SavedPlan;
-  classId: string;
+  /**
+   * The class's usage records, held by the page: loaded here, every plan
+   * selected would start from the defaults until its own load resolved.
+   */
+  records: PlanUsageRecordsReturn;
   rooms: LibraryRoom[];
   /** Every plan of the class: a name one of them carries is taken. */
   plans: SavedPlan[];
@@ -78,8 +82,7 @@ export default function PlanPanel({
 }) {
   const { t } = useTranslation('generator');
   const [namingRoom, setNamingRoom] = React.useState(false);
-  const { planUsage, planUsageManual, setUsageManual, markUsed } =
-    usePlanUsageRecords(classId);
+  const { planUsage, planUsageManual, setUsageManual, markUsed } = records;
 
   const seated = plan.seating.reduce(
     (sum, table) => sum + table.filter(Boolean).length,

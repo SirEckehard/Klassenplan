@@ -23,13 +23,9 @@ import {
 } from '@/utils/data/planUsage';
 import PlanPanel from '../PlanPanel';
 
-const usageRecords = vi.hoisted(() => ({
+const usageRecords = {
   current: null as PlanUsageRecordsReturn | null,
-}));
-
-vi.mock('@/hooks/plan/usePlanUsageRecords', () => ({
-  usePlanUsageRecords: () => usageRecords.current,
-}));
+};
 
 const records = (
   overrides: Partial<PlanUsageRecordsReturn> = {},
@@ -79,7 +75,7 @@ const renderPanel = (
   render(
     <PlanPanel
       plan={plan}
-      classId="c1"
+      records={usageRecords.current!}
       rooms={[
         {
           id: 'r1',
