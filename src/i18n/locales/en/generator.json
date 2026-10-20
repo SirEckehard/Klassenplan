@@ -944,7 +944,8 @@
       "noPlan": "No seating plan yet",
       "seatsOutOfMix_one": "{{count}} seat out of the mix",
       "seatsOutOfMix_other": "{{count}} seats out of the mix"
-    }
+    },
+    "teachersDay": "Today is World Teachers' Day: thank you for your work!"
   },
   "sceneInspector": {
     "deleteFeature": "Delete room element",

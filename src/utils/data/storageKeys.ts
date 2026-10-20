@@ -61,6 +61,9 @@ export const STORAGE_KEYS = {
     inspectorFolded: 'spg.inspectorFolded',
     // Whether shortcuts on a single character key fire (`utils/characterKeys`).
     characterKeyShortcuts: 'spg.characterKeyShortcuts',
+    // The year the status bar last thanked the teacher on World Teachers'
+    // Day (5 October), so the greeting shows once a year.
+    teachersDayGreeted: 'spg.teachersDayGreeted',
     sidebarActiveTab: 'spg.sidebarActiveTab',
     // Retired: whether the round criterion buttons had shown, once, that a
     // criterion's weight opens with a right click or a long press. The
@@ -219,6 +222,7 @@ export const PROJECT_LOCAL_STORAGE_KEYS = [
   STORAGE_KEYS.localStorage.sidebarExpanded,
   STORAGE_KEYS.localStorage.inspectorFolded,
   STORAGE_KEYS.localStorage.characterKeyShortcuts,
+  STORAGE_KEYS.localStorage.teachersDayGreeted,
   STORAGE_KEYS.localStorage.sidebarActiveTab,
   STORAGE_KEYS.localStorage.mixWeightHintSeen,
   STORAGE_KEYS.localStorage.mixFineTuning,

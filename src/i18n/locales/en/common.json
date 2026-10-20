@@ -3,9 +3,10 @@
   "notFound": {
     "eyebrow": "Error 404",
     "title": "Page not found",
-    "message": "This page doesn't exist or has been moved.",
+    "message": "This page is absent today – without an excuse. Maybe it moved, or it never existed.",
     "home": "Back to home",
-    "generator": "Go to the seating chart generator"
+    "generator": "Go to the seating chart generator",
+    "registerRemark": "unexcused"
   },
   "language": {
     "de": "Deutsch",
@@ -217,5 +218,11 @@
     "page": "Loading page",
     "studentList": "Loading class list",
     "canvas": "Loading classroom"
+  },
+  "classRegister": {
+    "title": "Class register",
+    "date": "Date",
+    "entry": "Entry",
+    "remark": "Remark"
   }
 }

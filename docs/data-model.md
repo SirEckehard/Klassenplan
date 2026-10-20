@@ -310,7 +310,8 @@ list is `PROJECT_LOCAL_STORAGE_KEYS` in `storageKeys.ts`. Groups:
   from `lg` up (`spg.inspectorFolded`), class list sort order, first visit, onboarding
   tours seen or switched off (`spg.onboardingTour`,
   [decision 0015](decisions/0015-onboarding-sample-class-and-tour.md)), last
-  seen version, PWA install prompt dismissal.
+  seen version, PWA install prompt dismissal, and the year the status bar last
+  greeted on World Teachers' Day (`spg.teachersDayGreeted`).
 - **Backup reminder:** `spg.lastBackupAt`, `spg.backupDataSince`,
   `spg.backupReminderSnoozedUntil`, `spg.backupReminderDisabled`.
 - **Consent:** `cookieConsent`, `spg.photoConsentConfirmed`.

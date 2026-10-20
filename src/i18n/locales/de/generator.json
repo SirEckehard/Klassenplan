@@ -944,7 +944,8 @@
       "noPlan": "Noch kein Sitzplan gemischt",
       "seatsOutOfMix_one": "{{count}} Platz nicht in der Mischung",
       "seatsOutOfMix_other": "{{count}} Plätze nicht in der Mischung"
-    }
+    },
+    "teachersDay": "Heute ist Weltlehrertag: Danke für deine Arbeit!"
   },
   "sceneInspector": {
     "deleteFeature": "Raumelement löschen",

@@ -3,9 +3,10 @@
   "notFound": {
     "eyebrow": "Fehler 404",
     "title": "Seite nicht gefunden",
-    "message": "Diese Seite existiert nicht oder wurde verschoben.",
+    "message": "Diese Seite fehlt heute – unentschuldigt. Vielleicht wurde sie verschoben, oder es hat sie nie gegeben.",
     "home": "Zur Startseite",
-    "generator": "Direkt zum Sitzplan-Generator"
+    "generator": "Direkt zum Sitzplan-Generator",
+    "registerRemark": "unentschuldigt"
   },
   "language": {
     "de": "Deutsch",
@@ -217,5 +218,11 @@
     "page": "Seite wird geladen",
     "studentList": "Klassenliste wird geladen",
     "canvas": "Klassenraum wird geladen"
+  },
+  "classRegister": {
+    "title": "Klassenbuch",
+    "date": "Datum",
+    "entry": "Eintrag",
+    "remark": "Bemerkung"
   }
 }

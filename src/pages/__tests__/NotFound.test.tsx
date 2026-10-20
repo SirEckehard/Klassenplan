@@ -39,4 +39,14 @@ describe('NotFound', () => {
     ).toHaveAttribute('href', '/generator');
     expect(document.body.textContent).not.toMatch(/notFound\.|header\.banner/);
   });
+
+  it('notes the missing page in the class register, unexcused', () => {
+    renderNotFound();
+
+    const register = screen.getByRole('table', {
+      name: /Klassenbuch|Class register/,
+    });
+    expect(register).toHaveTextContent('/gibt-es-nicht');
+    expect(register).toHaveTextContent(/unentschuldigt|unexcused/);
+  });
 });

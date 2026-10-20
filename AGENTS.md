@@ -346,6 +346,17 @@ Consumers import dedicated hooks (e.g. `useClassroomLayoutContext`) to minimize 
 - Components should only add layout classes on top of tokens — no ad-hoc color utilities.
 - Immutable styling patterns ensure Dark/Light parity via CSS variables and prevent component-level drift.
 
+### Easter eggs
+
+Two small surprises wink at a teacher; they are deliberate, not dead code. On
+World Teachers' Day (5 October) the status bar's line thanks the teacher once
+a year (`useTeachersDayGreeting`, `spg.teachersDayGreeted`; switched off for
+every unit test in `setupTests.ts` and under `navigator.webdriver`). The 404
+page notes the missing address in a line of the class register, unexcused
+(`ClassRegisterEntry`; left out of the prerendered `404.html`, so it never
+keeps the build's date). Neither stores more than that year; the greeting's
+fade honours reduced motion, and both speak both languages.
+
 ## SEO & Prerendering
 
 - The app is a CSR SPA; `npm run build:static` prerenders all routes × languages into `dist/<path>/index.html` so crawlers see real content and per-route canonical/hreflang/JSON-LD. See `docs/SEO.md`.

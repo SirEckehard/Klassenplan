@@ -6,6 +6,7 @@ import {
   ArrowLeftIcon,
   ArrowRightIcon,
   CheckCircleIcon,
+  HeartIcon,
   XCircleIcon,
 } from '@phosphor-icons/react';
 import {
@@ -26,6 +27,7 @@ import { countActiveSeats, countSeats, primaryButtonClass } from '@/utils';
 import { validateStudentsComplete } from '@/utils/validation';
 import HintTooltip from '@/components/ui/feedback/HintTooltip';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
+import { useTeachersDayGreeting } from '@/hooks/ui/useTeachersDayGreeting';
 
 /**
  * The one place the app states where it stands, and the one place the layer's
@@ -52,6 +54,8 @@ export default function AppStatusBar() {
   const { handleStepChange } = useSeatingPlanActions();
   const { setHistoryNode, setActionNode, setStatusNode } = useStatusBarSlot();
   const hintId = React.useId();
+  // On 5 October the line thanks the teacher first (an easter egg).
+  const teachersDay = useTeachersDayGreeting();
 
   const studentsCount = students.length;
   // A table taken out of the mix seats nobody, so it does not count towards
@@ -229,7 +233,24 @@ export default function AppStatusBar() {
             ref={setStatusNode}
             className="flex min-w-0 items-center empty:hidden"
           />
-          {segments.length > 0 && (
+          {teachersDay.visible && (
+            <p
+              title={t('generator:shell.teachersDay')}
+              className={`flex min-w-0 items-center gap-1.5 text-xs text-(--text-page) transition-opacity duration-300 sm:text-sm ${
+                teachersDay.fading ? 'opacity-0' : ''
+              }`}
+            >
+              <HeartIcon
+                size={16}
+                aria-hidden="true"
+                className="shrink-0 text-(--text-muted)"
+              />
+              <span className="min-w-0 truncate">
+                {t('generator:shell.teachersDay')}
+              </span>
+            </p>
+          )}
+          {!teachersDay.visible && segments.length > 0 && (
             <p
               data-tour={step === 2 ? TOUR_ANCHORS.layoutStatus : undefined}
               className="flex min-w-0 items-center gap-1.5 text-xs tabular-nums text-(--text-muted) sm:text-sm"
