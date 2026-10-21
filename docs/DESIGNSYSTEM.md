@@ -358,7 +358,7 @@ A panel with nothing selected belongs to what the layer shows as a whole: the
 class layer's, while no student is open, is the class — its name, school year
 and notes, what it holds, its removal — the panel "Bibliothek" shows for it. The
 room's names its tables in the header, its name in a field of its own as the
-class's, with "Neuer Raum" and "Raum öffnen …" under that name, and offers
+class's, with "Raum öffnen …" and "Neuer Raum" under that name, and offers
 what concerns the room itself — "Neu einrichten" and "Vorlagen", as menu
 rows — rather than repeating the seats and students the
 status bar already states. The plan layer's is the plan: its name and whether

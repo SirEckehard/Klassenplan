@@ -537,13 +537,13 @@ function RoomNameRow({
 
 /**
  * The rooms of the class (decision 0024), inside the room's own section under
- * its name: "Neuer Raum" as a row of its own, as "Raum als Vorlage speichern"
- * is — named before it is made, since making it opens it — and, once the class
- * has another room, "Raum öffnen …", a menu shaped as the header's class menu:
- * every room, the open one checked, a click opening a room as it was left, a
- * pencil renaming it here in the panel and a bin removing it. Removing takes
- * the room's plans and mixes along, so it asks first; the open room and the
- * last one stay, and their bin says why.
+ * its name: once the class has another room, "Raum öffnen …", a menu shaped as
+ * the header's class menu: every room, the open one checked, a click opening a
+ * room as it was left, a pencil renaming it here in the panel and a bin
+ * removing it. Removing takes the room's plans and mixes along, so it asks
+ * first; the open room and the last one stay, and their bin says why. Under
+ * it "Neuer Raum" as a row of its own, as "Raum als Vorlage speichern" is —
+ * named before it is made, since making it opens it.
  */
 export function RoomListControls() {
   const { t } = useTranslation('generator');
@@ -578,30 +578,6 @@ export function RoomListControls() {
 
   return (
     <>
-      <InspectorActionRow
-        icon={PlusIcon}
-        label={t('sceneInspector.newRoom')}
-        expanded={naming}
-        onClick={() => {
-          setRenamingId(null);
-          setNaming((previous) => !previous);
-        }}
-      />
-      {naming && (
-        <div className="-mx-3">
-          <RoomNameRow
-            initialName={uniqueName(
-              t('rooms.newName'),
-              rooms.map((room) => room.name),
-              MAX_NAME_LENGTH,
-            )}
-            onCommit={(name) => {
-              actions.createRoom({ name });
-            }}
-            onDone={() => setNaming(false)}
-          />
-        </div>
-      )}
       {/* With one room the menu would only hold the room named above. */}
       {rooms.length > 1 && (
         <InspectorMenuButton
@@ -650,6 +626,30 @@ export function RoomListControls() {
               actions.renameRoom(renaming.id, name);
             }}
             onDone={() => setRenamingId(null)}
+          />
+        </div>
+      )}
+      <InspectorActionRow
+        icon={PlusIcon}
+        label={t('sceneInspector.newRoom')}
+        expanded={naming}
+        onClick={() => {
+          setRenamingId(null);
+          setNaming((previous) => !previous);
+        }}
+      />
+      {naming && (
+        <div className="-mx-3">
+          <RoomNameRow
+            initialName={uniqueName(
+              t('rooms.newName'),
+              rooms.map((room) => room.name),
+              MAX_NAME_LENGTH,
+            )}
+            onCommit={(name) => {
+              actions.createRoom({ name });
+            }}
+            onDone={() => setNaming(false)}
           />
         </div>
       )}

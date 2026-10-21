@@ -113,6 +113,6 @@
     "unrs-resolver@1.12.2": true,
     "fsevents@2.3.2": true,
     "fsevents@2.3.3": true,
-    "core-js@3.50.0": true
+    "core-js@3.51.0": true
   }
 }
