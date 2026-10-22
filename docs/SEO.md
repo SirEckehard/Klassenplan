@@ -209,7 +209,10 @@ browser they render only an empty state ("Noch kein Sitzplan zum
 Präsentieren"), which has no business in the index
 ([decision 0019](decisions/0019-classroom-tools-as-routes.md)). So is
 `/bibliothek`, "Bibliothek", which lists what this browser keeps and nothing
-else ([decision 0024](decisions/0024-rooms-of-a-class.md)).
+else ([decision 0024](decisions/0024-rooms-of-a-class.md)). And so is `/export`:
+the sheet shows the plan this browser keeps, and a crawler meets only "Noch
+kein Sitzplan gemischt" — Search Console listed `/en/export` as "Gecrawlt –
+zurzeit nicht indexiert" while it stood in the sitemap.
 
 ## Sitemap `lastmod`
 

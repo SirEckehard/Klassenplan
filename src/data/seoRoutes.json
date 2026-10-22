@@ -27,7 +27,8 @@
     "descriptionEn": "Export your finished seating chart as a PDF or print it directly from Klassenplan.",
     "changefreq": "monthly",
     "priority": 0.7,
-    "ogType": "article"
+    "ogType": "article",
+    "noindex": true
   },
   {
     "path": "/bibliothek",
