@@ -418,6 +418,8 @@ A toast is a card of the app's paper (`toastSurfaceClass`): `--toast-bg` with a 
 
 They stack at the top right under the header, the newest on top. A new one glides 28 px in from the right and fades in while the older ones move down; one that goes glides out the same way and the stack closes up behind it (`components/ui/feedback/toastMotion.ts`, Web Animations: 380 ms in, 200 ms out). The same id again does not double: the card keeps its place, takes the new text, nudges and starts its time anew. A hairline along the bottom edge (`toastTimelineClass`) shows the time left. Every toast's time stands still while one is pointed at, holds the keyboard focus or is being swiped, and while the page is in the background (WCAG 2.2.1). A swipe to the right puts a toast away as its close button does. With "Reduce motion" set nothing moves: toasts come and go at once and the hairline is not drawn — the global guard in `index.css` reaches CSS only, so `toastMotionEnabled` asks the media query itself.
 
+A control that stays in view answers in its own place rather than with a toast over it: the gear's update check says "Aktuell · v3.2.0" in its row for three seconds.
+
 ## 6e. Badges on a seat
 
 A seat shows a student's badges as icons on a pill (`SeatBadgePill`, the one renderer for the plan, the circle, the projection and both exports): `--surface-card` at 94 % with a `--border-option-hover` hairline, each icon in its family's `--data-<name>-text` ink (`BADGE_PILL_COLORS`, `getBadgeColor`), a "+N" in `--text-muted`. They read in family order — Verhalten, Soziales, Lernen, Sprache, Platz & Raum (`BADGE_ORDER`) — as the chips in the class list and every legend do.

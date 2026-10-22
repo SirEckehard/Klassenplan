@@ -162,7 +162,7 @@
     "installDesc": "Klassenplan als App installieren und offline nutzen!",
     "checkForUpdates": "Auf Updates prüfen",
     "checking": "Suche nach Updates …",
-    "upToDate": "Du hast bereits die neueste Version (v{{version}})",
+    "upToDateShort": "Aktuell · v{{version}}",
     "updateCheckFailed": "Update-Prüfung fehlgeschlagen. Bist du online?",
     "updateCheckOffline": "Ohne Internetverbindung lässt sich nicht nach Updates suchen.",
     "guide": {

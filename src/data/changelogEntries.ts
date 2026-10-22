@@ -51,7 +51,7 @@ export const changelogVersions: ChangelogVersion[] = [
       { textKey: 'v3_2_0.27', type: 'improvement' },
       { textKey: 'v3_2_0.28', type: 'improvement' },
       { textKey: 'v3_2_0.29', type: 'improvement' },
-      { textKey: 'v3_2_0.30', type: 'bugfix' },
+      { textKey: 'v3_2_0.30', type: 'improvement' },
       { textKey: 'v3_2_0.31', type: 'bugfix' },
       { textKey: 'v3_2_0.32', type: 'bugfix' },
       { textKey: 'v3_2_0.33', type: 'bugfix' },
@@ -64,6 +64,7 @@ export const changelogVersions: ChangelogVersion[] = [
       { textKey: 'v3_2_0.40', type: 'bugfix' },
       { textKey: 'v3_2_0.41', type: 'bugfix' },
       { textKey: 'v3_2_0.42', type: 'bugfix' },
+      { textKey: 'v3_2_0.43', type: 'bugfix' },
     ],
   },
   {

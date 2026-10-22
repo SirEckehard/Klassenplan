@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import '@testing-library/jest-dom/vitest';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import '@/i18n'; // Initialize i18n for tests
@@ -44,14 +44,47 @@ afterEach(() => {
 });
 
 describe('UpdateCheckButton', () => {
-  it('confirms the current version when nothing new is deployed', async () => {
+  // The answer stands in the gear's row: a toast lay over the open menu.
+  it('confirms the current version in the row itself, not in a toast', async () => {
     registerController({});
 
     await clickCheck();
 
-    expect(
-      await screen.findByText(/neueste Version|latest version/i),
-    ).toBeInTheDocument();
+    const answer = await screen.findByRole('button', {
+      name: /^(Aktuell|Current) · v\d/,
+    });
+    expect(screen.getByRole('status')).toHaveTextContent(
+      /^(Aktuell|Current) · v\d/,
+    );
+    expect(screen.queryByTestId('toast-item')).toBeNull();
+
+    // Pressing it again checks again.
+    await userEvent.setup().click(answer);
+    await vi.waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: /^(Aktuell|Current) · v\d/ }),
+      ).toBeInTheDocument();
+    });
+  });
+
+  it('goes back to the check after three seconds', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    try {
+      registerController({});
+      await clickCheck();
+      await screen.findByRole('button', { name: /^(Aktuell|Current) · v\d/ });
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(3000);
+      });
+
+      expect(
+        getButton(/Auf Updates prüfen|Check for updates/i),
+      ).toBeInTheDocument();
+      expect(screen.getByRole('status')).toBeEmptyDOMElement();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('offers the reload action when a worker is waiting', async () => {

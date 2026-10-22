@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { showToast } from '@/utils/ui/toast';
+import { dismissToast, showToast } from '@/utils/ui/toast';
 import { logError } from '@/utils';
-import { getAppVersion } from '@/utils/version';
 import { isOffline } from '@/utils/performance/chunkLoad';
 import { applyPendingUpdate, checkForUpdate } from './swUpdateController';
 
@@ -15,14 +14,22 @@ import { applyPendingUpdate, checkForUpdate } from './swUpdateController';
  */
 export const UPDATE_TOAST_ID = 'pwa-update';
 
+/** How long the gear's row says the version is current. */
+const UP_TO_DATE_MS = 3000;
+
 interface UseUpdateCheckResult {
   /** True while a check is in flight; drives the spinner on the trigger. */
   checking: boolean;
+  /**
+   * True for a few seconds after a check found nothing new. The answer stands
+   * in the gear's row itself: a toast lay over the very menu it came from.
+   */
+  upToDate: boolean;
   checkNow: () => void;
 }
 
 /**
- * Explicit update check for the footer button.
+ * Explicit update check for the settings gear.
  *
  * The app runs a service worker in prompt mode, so a plain reload keeps serving
  * the precached shell — the new version only appears after the waiting worker
@@ -31,8 +38,15 @@ interface UseUpdateCheckResult {
 export function useUpdateCheck(): UseUpdateCheckResult {
   const { t } = useTranslation('common');
   const [checking, setChecking] = useState(false);
+  const [upToDate, setUpToDate] = useState(false);
+  const upToDateTimer = useRef<number | undefined>(undefined);
+
+  useEffect(() => () => window.clearTimeout(upToDateTimer.current), []);
 
   const checkNow = useCallback(() => {
+    window.clearTimeout(upToDateTimer.current);
+    setUpToDate(false);
+
     // Nothing to ask without a connection — and the fallback below, a plain
     // reload, would trade the app for the browser's offline page.
     if (isOffline()) {
@@ -63,9 +77,13 @@ export function useUpdateCheck(): UseUpdateCheckResult {
           return;
         }
 
-        showToast('success', t('pwa.upToDate', { version: getAppVersion() }), {
-          id: UPDATE_TOAST_ID,
-        });
+        // An earlier "offline" or "failed" is answered now.
+        dismissToast(UPDATE_TOAST_ID);
+        setUpToDate(true);
+        upToDateTimer.current = window.setTimeout(
+          () => setUpToDate(false),
+          UP_TO_DATE_MS,
+        );
       })
       .catch((error: unknown) => {
         logError('Manual update check failed', { error }, 'PWA');
@@ -76,5 +94,5 @@ export function useUpdateCheck(): UseUpdateCheckResult {
       });
   }, [t]);
 
-  return { checking, checkNow };
+  return { checking, upToDate, checkNow };
 }
