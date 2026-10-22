@@ -151,17 +151,17 @@ async function mixThePlan(page: Page): Promise<void> {
   await expect(plan).toHaveAccessibleName('Sitzplan: 24 von 24 Plätzen belegt');
   await expectCanvasInSight(page);
 
-  // The criteria have no column here: the switch at the right end of the
-  // status bar opens them. It names what it shows, and once open what it
+  // The plan's inspector has no column here: the switch at the right end of
+  // the status bar opens it. It names what it shows, and once open what it
   // hides.
   const criteriaSwitch = statusBar(page).getByRole('button', {
-    name: /^(Mischkriterien einblenden|Inspektor ausblenden)$/,
+    name: /^(Plan einblenden|Inspektor ausblenden)$/,
   });
   await criteriaSwitch.click();
   await expect(criteriaSwitch).toHaveAttribute('aria-expanded', 'true');
   // The heading says how many of the criteria carry weight, the preset
   // under it what they add up to.
-  const criteria = page.getByRole('complementary', { name: 'Mischkriterien' });
+  const criteria = page.getByRole('complementary', { name: 'Plan' });
   await expect(criteria.getByText(/Kriterien aktiv/)).toBeVisible();
   await expect(
     criteria.getByRole('button', { name: /^Voreinstellung:/ }),

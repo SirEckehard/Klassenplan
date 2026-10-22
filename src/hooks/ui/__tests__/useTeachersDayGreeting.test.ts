@@ -6,7 +6,7 @@ import { LOCAL_STORAGE_KEYS } from '@/utils';
 
 // `setupTests.ts` switches the greeting off for every other test.
 vi.unmock('@/hooks/ui/useTeachersDayGreeting');
-const { isTeachersDay, TEACHERS_DAY_GREETING_MS, useTeachersDayGreeting } =
+const { useTeachersDayGreeting } =
   await import('@/hooks/ui/useTeachersDayGreeting');
 
 const teachersDay = () => new Date(2026, 9, 5, 7, 45);
@@ -21,20 +21,21 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-describe('isTeachersDay', () => {
-  it('is 5 October by the local calendar', () => {
-    expect(isTeachersDay(new Date(2026, 9, 5, 23, 59))).toBe(true);
-    expect(isTeachersDay(new Date(2026, 9, 6, 0, 0))).toBe(false);
-    expect(isTeachersDay(new Date(2026, 4, 10))).toBe(false);
-  });
-});
+const greetsOn = (date: Date) => {
+  localStorage.clear();
+  const { result, unmount } = renderHook(() =>
+    useTeachersDayGreeting(() => date),
+  );
+  const { visible } = result.current;
+  unmount();
+  return visible;
+};
 
 describe('useTeachersDayGreeting', () => {
-  it('stays away on any other day', () => {
-    const { result } = renderHook(() =>
-      useTeachersDayGreeting(() => new Date(2026, 9, 6)),
-    );
-    expect(result.current.visible).toBe(false);
+  it('greets on 5 October by the local calendar and on no other day', () => {
+    expect(greetsOn(new Date(2026, 9, 5, 23, 59))).toBe(true);
+    expect(greetsOn(new Date(2026, 9, 6, 0, 0))).toBe(false);
+    expect(greetsOn(new Date(2026, 4, 10))).toBe(false);
   });
 
   it('greets once a year and fades after ten seconds', () => {
@@ -47,7 +48,7 @@ describe('useTeachersDayGreeting', () => {
     );
 
     act(() => {
-      vi.advanceTimersByTime(TEACHERS_DAY_GREETING_MS);
+      vi.advanceTimersByTime(10_000);
     });
     expect(result.current.fading).toBe(true);
     act(() => {

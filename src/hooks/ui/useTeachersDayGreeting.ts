@@ -5,11 +5,11 @@ import { LOCAL_STORAGE_KEYS, withBrowserLocalStorage } from '@/utils';
 import { usePrefersReducedMotion } from '@/hooks/ui/usePrefersReducedMotion';
 
 /** How long the greeting stands unless the teacher gets going first. */
-export const TEACHERS_DAY_GREETING_MS = 10_000;
+const TEACHERS_DAY_GREETING_MS = 10_000;
 const FADE_MS = 300;
 
 /** World Teachers' Day (UNESCO): 5 October, by the local calendar. */
-export function isTeachersDay(date: Date): boolean {
+function isTeachersDay(date: Date): boolean {
   return date.getMonth() === 9 && date.getDate() === 5;
 }
 
