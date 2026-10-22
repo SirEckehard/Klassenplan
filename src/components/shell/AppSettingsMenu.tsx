@@ -3,6 +3,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
+  BookOpenIcon,
   GearIcon,
   GitDiffIcon,
   GithubLogoIcon,
@@ -147,11 +148,13 @@ export default function AppSettingsMenu() {
           portalRef={contentRef}
         >
           {/* A dialog rather than a menu: it holds the theme and language
-              switches beside its rows, which a menu may not contain. */}
+              switches beside its rows, which a menu may not contain. No
+              height of its own: it shows every row, and only a window too
+              short for them makes it scroll (`FloatingDropdown`). */}
           <div
             role="dialog"
             aria-label={t('footer.settings')}
-            className={`${menuSurfaceClass} max-h-96 w-64 overflow-y-auto p-1`}
+            className={`${menuSurfaceClass} w-64 p-1`}
           >
             <div className="flex items-center justify-between gap-2 px-3 py-2">
               <AppearanceControls />
@@ -181,8 +184,20 @@ export default function AppSettingsMenu() {
             )}
 
             <div className="my-1 h-px bg-(--border-card)" aria-hidden="true" />
-            {/* About the app rather than about this class: whom to tell,
-                  what changed, where the code lives. */}
+            {/* About the app rather than about this class: what it answers,
+                  whom to tell, what changed, where the code lives. The FAQ
+                  leads, as it does in the page footer; Help opens it at the
+                  section for the screen it was asked on. */}
+            <LocalizedLink
+              to="/faq"
+              state={APP_RETURN_STATE}
+              title={t('nav.titles.faq')}
+              className={menuItemClass}
+              onClick={close}
+            >
+              <BookOpenIcon className={iconClass} aria-hidden="true" />
+              {t('nav.faq')}
+            </LocalizedLink>
             <LocalizedLink
               to="/feedback"
               state={APP_RETURN_STATE}

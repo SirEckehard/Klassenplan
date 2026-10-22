@@ -33,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Searching the class list opens the student the search clearly means in the inspector while you type – the only one found, or the only one whose name or first name it is or starts with. Enter opens the first student found
 - On an iPad in portrait, ticking several students opens their shared settings in the inspector, as on a larger screen
 - Tapping the student who is open in the class list again closes the inspector – on an iPad in landscape the column folds away again
+- The settings gear lists the FAQ beside feedback and the changelog, and shows all its entries at once – it scrolls only in a window too short for them
 - The settings gear sits at the top right of the start page and of the pages beside the app – the same menu as in the app. The footer is now a single line of links, and every page opened from the start page or the footer offers "Back"
 - The frame round a student's photo or initial in the class list, the inspector and "Bibliothek" shows the gender's colour, as on the seating plan; on the export's note list it does so too, and the export's "Gender colors" switch turns it off there
 - Every row of the student inspector is the same height, whether it holds a switch, choices or a menu, and so is every button in it
