@@ -453,7 +453,7 @@ expectErrorToast(); // Just check toast exists
 
 ## Error Handling Patterns
 
-- Toast notifications (custom toast system) for user feedback; default messages are i18n keys (`toast:errors.*`). They stack at the top right, just under the header — in the corner itself they lay over Help and the gear — and a view that faces a room calls `quietSuccessToasts()` (the projection does)
+- Toast notifications (custom toast system) for user feedback; default messages are i18n keys (`toast:errors.*`). They stack at the top right, just under the header — in the corner itself they lay over Help and the gear — the newest on top, and a view that faces a room calls `quietSuccessToasts()` (the projection does). A toast glides in and out (`components/ui/feedback/toastMotion.ts`; under reduced motion and in jsdom it comes and goes at once), a hairline shows the time it has left, which stands still while a toast is pointed at, holds the focus or is swiped and while the page is in the background, and a swipe to the right puts it away; the same id again keeps its card and starts its time anew.
 - Defensive programming with null checks throughout
 - Graceful degradation when storage is unavailable
 - Validation at data boundaries (imports, user input, backup files)

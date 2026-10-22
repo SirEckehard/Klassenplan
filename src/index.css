@@ -202,24 +202,15 @@
   --toast-bg: #ffffff;
   --toast-border: #e3dfd6;
   --toast-text: #17181a;
-  --toast-action-bg: rgb(255 255 255 / 0.2);
-  --toast-action-bg-hover: rgb(255 255 255 / 0.3);
-  --toast-shadow: 0 8px 24px -12px rgba(23, 24, 26, 0.22);
+  --toast-action-bg: #f3f1ec;
+  --toast-action-border-hover: #c2bdb2;
+  --toast-shadow:
+    0 1px 2px rgba(23, 24, 26, 0.05), 0 10px 28px -14px rgba(23, 24, 26, 0.28);
   --toast-accent-success: #15803d;
   --toast-accent-error: #be123c;
   --toast-accent-info: #2563eb;
   --toast-accent-warning: #b45309;
   --toast-accent-critical: #9f1239;
-  --toast-icon-surface-success: #e6f2ea;
-  --toast-icon-surface-error: #fbe8ec;
-  --toast-icon-surface-info: #eaf0fe;
-  --toast-icon-surface-warning: #fbf0df;
-  --toast-icon-surface-critical: #fbe8ec;
-  --toast-icon-border-success: #c4e0cd;
-  --toast-icon-border-error: #f2cbd5;
-  --toast-icon-border-info: #c7d9fb;
-  --toast-icon-border-warning: #ecd6ae;
-  --toast-icon-border-critical: #e8b6c3;
 
   /*
    * The projector's own control bar follows the theme like the rest of the
@@ -423,24 +414,15 @@
     --toast-bg: #1c1f23;
     --toast-border: #2a2d31;
     --toast-text: #f2f1ee;
-    --toast-action-bg: rgb(255 255 255 / 0.1);
-    --toast-action-bg-hover: rgb(255 255 255 / 0.2);
-    --toast-shadow: 0 12px 32px -16px rgba(0, 0, 0, 0.8);
+    --toast-action-bg: #202327;
+    --toast-action-border-hover: #4a4e54;
+    --toast-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.3), 0 14px 32px -14px rgba(0, 0, 0, 0.75);
     --toast-accent-success: #5ec07f;
     --toast-accent-error: #f87a96;
     --toast-accent-info: #4f86f7;
     --toast-accent-warning: #dd9a4a;
     --toast-accent-critical: #f2607f;
-    --toast-icon-surface-success: rgba(21, 128, 61, 0.2);
-    --toast-icon-surface-error: rgba(190, 18, 60, 0.2);
-    --toast-icon-surface-info: rgba(37, 99, 235, 0.2);
-    --toast-icon-surface-warning: rgba(180, 83, 9, 0.22);
-    --toast-icon-surface-critical: rgba(190, 18, 60, 0.26);
-    --toast-icon-border-success: rgba(94, 192, 127, 0.4);
-    --toast-icon-border-error: rgba(248, 122, 150, 0.4);
-    --toast-icon-border-info: rgba(79, 134, 247, 0.4);
-    --toast-icon-border-warning: rgba(221, 154, 74, 0.4);
-    --toast-icon-border-critical: rgba(242, 96, 127, 0.45);
 
     --status-ok: #5ec07f;
     --status-ok-surface: rgba(21, 128, 61, 0.2);
@@ -1421,74 +1403,117 @@
   backdrop-filter: var(--backdrop-blur-medium);
 }
 
+/*
+ * A toast is a card of the app's paper: its colour is in the icon alone, and
+ * the one button it may carry is a quiet one beside the text — blue stays the
+ * page's primary button. The single line of text, the icon and the close
+ * button share one centre line 14px below the padding. How it moves lives in
+ * `components/ui/feedback/toastMotion.ts`.
+ */
 @utility toast-surface {
   position: relative;
   display: flex;
   align-items: flex-start;
-  gap: 0.75rem;
-  width: min(22rem, calc(100vw - 2rem));
-  border-radius: 0.9rem;
+  gap: 0.625rem;
+  width: min(23rem, calc(100vw - 2rem));
+  border-radius: var(--radius-card);
   border: 1px solid var(--toast-border);
   background: var(--toast-bg);
   color: var(--toast-text);
   box-shadow: var(--toast-shadow);
-  backdrop-filter: var(--backdrop-blur-medium);
-  padding: 0.85rem 0.85rem 0.85rem 0.9rem;
+  padding: 0.625rem 0.5625rem 0.625rem 0.875rem;
+  /* A sideways swipe puts it away; an upright one still scrolls the page. */
+  touch-action: pan-y;
   --toast-accent: var(--toast-accent-info);
-  --toast-icon-surface: var(--toast-icon-surface-info);
-  --toast-icon-border-color: var(--toast-icon-border-info);
-}
-
-@utility toast-accent {
-  flex-shrink: 0;
-  width: 0.25rem;
-  border-radius: 9999px;
-  background-color: var(--toast-accent);
-  box-shadow: 0 0 18px -6px var(--toast-accent);
-  align-self: stretch;
 }
 
 @utility toast-icon {
   display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  border-radius: var(--radius-pill);
-  background-color: var(--toast-icon-surface);
-  border: 1px solid var(--toast-icon-border-color);
-  color: var(--toast-accent);
   flex-shrink: 0;
+  padding-top: 0.3125rem;
+  color: var(--toast-accent);
+}
+
+@utility toast-action {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: 1.75rem;
+  padding: 0 0.625rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--toast-border);
+  background-color: var(--toast-action-bg);
+  color: var(--toast-text);
+  font-size: var(--text-control);
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color 150ms ease;
+}
+
+.toast-action:hover {
+  border-color: var(--toast-action-border-hover);
+}
+
+.toast-action:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--focus-ring-primary);
+}
+
+/* The time a toast has left, as a hairline along its bottom edge. It runs in
+   step with the provider's timer and stands still with it (`data-paused`). */
+@utility toast-timeline {
+  position: absolute;
+  left: 0.75rem;
+  right: 0.75rem;
+  bottom: 0;
+  height: 2px;
+  border-radius: 9999px;
+  background-color: var(--toast-accent);
+  opacity: 0.55;
+  transform-origin: left center;
+  pointer-events: none;
+  animation: toast-timeline var(--toast-duration, 4000ms) linear forwards;
+}
+
+@keyframes toast-timeline {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
+.toast-surface[data-paused] .toast-timeline {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast-timeline {
+    display: none;
+  }
 }
 
 .toast-surface[data-tone='success'] {
   --toast-accent: var(--toast-accent-success);
-  --toast-icon-surface: var(--toast-icon-surface-success);
-  --toast-icon-border-color: var(--toast-icon-border-success);
 }
 
 .toast-surface[data-tone='error'] {
   --toast-accent: var(--toast-accent-error);
-  --toast-icon-surface: var(--toast-icon-surface-error);
-  --toast-icon-border-color: var(--toast-icon-border-error);
 }
 
 .toast-surface[data-tone='info'] {
   --toast-accent: var(--toast-accent-info);
-  --toast-icon-surface: var(--toast-icon-surface-info);
-  --toast-icon-border-color: var(--toast-icon-border-info);
 }
 
 .toast-surface[data-tone='warning'] {
   --toast-accent: var(--toast-accent-warning);
-  --toast-icon-surface: var(--toast-icon-surface-warning);
-  --toast-icon-border-color: var(--toast-icon-border-warning);
 }
 
 .toast-surface[data-tone='critical'] {
   --toast-accent: var(--toast-accent-critical);
-  --toast-icon-surface: var(--toast-icon-surface-critical);
-  --toast-icon-border-color: var(--toast-icon-border-critical);
 }
 
 /*

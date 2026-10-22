@@ -36,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Tapping the student who is open in the class list again closes the inspector – on an iPad in landscape the column folds away again
 - The settings gear sits at the top right of the start page and of the pages beside the app – the same menu as in the app. The footer is now a single line of links, and every page opened from the start page or the footer offers "Back"
 - The settings gear lists the FAQ beside feedback and the changelog, and shows all its entries at once – it scrolls only in a window too short for them
+- Messages glide in at the top right, the newest on top, and glide out again. A message stays while the pointer rests on it, the keyboard is in it or Klassenplan is in the background; a thin line shows how long it remains, and a swipe to the right puts it away. With "Reduce motion" set in the system they come and go without animation
 - The frame round a student's photo or initial in the class list, the inspector and "Bibliothek" shows the gender's colour, as on the seating plan; on the export's note list it does so too, and the export's "Gender colors" switch turns it off there
 - Every row of the student inspector is the same height, whether it holds a switch, choices or a menu, and so is every button in it
 - "Fulfilment" in the status bar of the seating plan switches the values per criterion on and off; the inspector no longer repeats it in a row of its own
@@ -58,6 +59,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - On an iPad, drawing a selection box across the room or dragging a student scrolled the page instead
 - Turning a table by its handle follows the pointer again – it turned around a point beside the table, so a small table jumped or turned the wrong way
 - In "Bibliothek", F2 put the focus in the name of every entry chosen afterwards as well, not only in the one it was pressed on
+- The button in a message – "Update", "Undo" – could hardly be seen in light mode
 
 ## [3.1.4] - 2026-10-15
 

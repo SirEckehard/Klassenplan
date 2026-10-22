@@ -56,9 +56,10 @@ The look is called **Papier & Werkzeug**: the interface is a passepartout in war
 | `touchMenuSurfaceClass`  | `touch-menu-surface`  | Touch-optimized menus                                   |
 | `floatingStatusClass`    | `floating-status`     | Floating badges                                         |
 | `canvasFrameClass`       | `canvas-frame`        | Canvas frame                                            |
-| `toastSurfaceClass`      | `toast-surface`       | Toast, stacked top right under the header               |
-| `toastAccentClass`       | `toast-accent`        | Toast accent bar                                        |
-| `toastIconClass`         | `toast-icon`          | Toast icon                                              |
+| `toastSurfaceClass`      | `toast-surface`       | Toast, stacked top right under the header (§ 6f)        |
+| `toastIconClass`         | `toast-icon`          | Toast icon, the one coloured part of a toast            |
+| `toastActionClass`       | `toast-action`        | The one button a toast may carry                        |
+| `toastTimelineClass`     | `toast-timeline`      | The hairline that shows a toast's time left             |
 
 All classes in the table automatically read the variables defined in `@theme`. Dark-mode variants are embedded inside the utility definitions.
 
@@ -96,7 +97,7 @@ The central radii live in `@theme`:
 | `--radius-panel`           | `0.875rem` (14 px) | `panel-surface`, `canvas-frame`                                       |
 | `--radius-card`            | `0.625rem` (10 px) | `card-surface`, `list-container`, menus, the projection bar's buttons |
 | `--radius-list`            | `0.625rem` (10 px) | History panels                                                        |
-| `--radius-pill`            | `0.5rem` (8 px)    | Buttons, tabs, toast icon                                             |
+| `--radius-pill`            | `0.5rem` (8 px)    | Buttons, tabs, a toast's button                                       |
 | `--radius-floating-status` | `0.5rem` (8 px)    | `floating-status`                                                     |
 | `--radius-badge`           | `9999px`           | `badge-surface` — the only round shape left                           |
 
@@ -107,7 +108,7 @@ A segmented control is `SegmentedControl` (`components/ui/controls/`), which wra
 **Borders & shadows**
 
 - Every surface — panels and the canvas frame included — uses a 1 px border. The 2 px frame is gone; structure is carried by the line, not by the weight.
-- Shadows are for things that genuinely float: `--menu-shadow` and `--toast-shadow` at `0 8px 24px -12px`. Resting surfaces use `0 1px 2px` at 5 % or nothing at all, and every button shadow token is `none`.
+- Shadows are for things that genuinely float: `--menu-shadow` at `0 8px 24px -12px`, `--toast-shadow` a softer `0 10px 28px -14px` over a 1 px contact shadow. Resting surfaces use `0 1px 2px` at 5 % or nothing at all, and every button shadow token is `none`.
 - The glass look is gone: `--backdrop-blur-soft` and `--backdrop-blur-medium` both resolve to `none`. The variables stay so the utilities referencing them keep resolving and a future surface can opt back in.
 - All adjustments go through the variables; never hand a component its own `shadow-*` utility.
 
@@ -410,6 +411,12 @@ A dropdown is a `menuSurfaceClass` box; its rows are `menuItemClass`, and the on
 Whatever opens from a toolbar entry is such a dropdown: a row per choice, an icon and a word. A setting that is on carries a check at the row's end (`CanvasSettingsGroups`), a setting with a handful of values is a group of such rows with the chosen one checked, and small caps above a group name it. There are no cards inside a popover and no icon-only chips whose meaning lives in a tooltip. Only a panel that asks for a value — a name, a number of placeholders — is a small form, on the same surface. What a group only explains goes below its rows (`footer`), after a hairline — the key to the seat badges under "Merkmale" is the one so far.
 
 A dropdown is reached with the keyboard as well as the pointer (`usePopoverFocus`): the focus moves into it when it opens, Tab and the arrow keys stay inside, Escape closes it and gives the focus back to its button. To assistive technology it is a dialog of buttons and links rather than a `menu` — a menu may hold neither the theme switch nor a row's own rename and delete.
+
+## 6f. Messages
+
+A toast is a card of the app's paper (`toastSurfaceClass`): `--toast-bg` with a `--toast-border` hairline, `--radius-card`, `--toast-shadow`, 23 rem wide and as wide as a phone. Its colour is in its icon alone (`toastIconClass`, `--toast-accent-*`): a check for success, a circle for an error, a triangle for a warning, an "i" for information, a shield for the critical. The one button it may carry (`toastActionClass`) is quiet — a hairline on `--toast-action-bg`, beside the text and under it when the text is long — because blue is the screen's primary button. Text, icon and close button share one centre line, and on a touch screen both buttons take a 44 px target around their 28 px.
+
+They stack at the top right under the header, the newest on top. A new one glides 28 px in from the right and fades in while the older ones move down; one that goes glides out the same way and the stack closes up behind it (`components/ui/feedback/toastMotion.ts`, Web Animations: 380 ms in, 200 ms out). The same id again does not double: the card keeps its place, takes the new text, nudges and starts its time anew. A hairline along the bottom edge (`toastTimelineClass`) shows the time left. Every toast's time stands still while one is pointed at, holds the keyboard focus or is being swiped, and while the page is in the background (WCAG 2.2.1). A swipe to the right puts a toast away as its close button does. With "Reduce motion" set nothing moves: toasts come and go at once and the hairline is not drawn — the global guard in `index.css` reaches CSS only, so `toastMotionEnabled` asks the media query itself.
 
 ## 6e. Badges on a seat
 

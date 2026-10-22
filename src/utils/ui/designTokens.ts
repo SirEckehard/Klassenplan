@@ -126,6 +126,10 @@ export const canvasFitClass = 'canvas-fit';
 
 export const toastSurfaceClass = 'toast-surface';
 
-export const toastAccentClass = 'toast-accent';
-
 export const toastIconClass = 'toast-icon';
+
+/** The one button a toast may carry, beside its text. */
+export const toastActionClass = 'toast-action';
+
+/** The hairline along a toast's bottom edge that shows the time it has left. */
+export const toastTimelineClass = 'toast-timeline';

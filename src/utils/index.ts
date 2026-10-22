@@ -410,8 +410,9 @@ export {
   canvasStageClass,
   canvasFitClass,
   toastSurfaceClass,
-  toastAccentClass,
   toastIconClass,
+  toastActionClass,
+  toastTimelineClass,
 } from './ui/designTokens';
 export type { DataFamily } from './ui/designTokens';
 export {
