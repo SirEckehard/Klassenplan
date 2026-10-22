@@ -10,6 +10,7 @@ import {
 } from '../../__tests__/utils/testHelpers';
 import type { CircleStateRequirements } from '../circle/useCircleStateAdapter';
 import type { CircleLayout, CircleStudentPosition } from '../../types/Circle';
+import type { Student } from '../../types';
 import * as utils from '../../utils';
 import { neutralSettings, normalizeMixSettings } from '../../utils';
 import { showToast, TOAST_MESSAGES } from '../../utils/ui/toast';
@@ -731,6 +732,73 @@ describe('useCircleSeating', () => {
       // Should not crash and layout should remain unchanged
       expect(result.current.circleLayout).not.toBeNull();
       expect(result.current.circleLayout!.students).toHaveLength(1);
+    });
+  });
+
+  describe('Following the class list', () => {
+    const layoutOf = (
+      students: Student[],
+      lockedStudentIds?: string[],
+    ): CircleLayout => ({
+      students: students.map((student, index) => ({
+        student,
+        angle: (360 / students.length) * index,
+        x: 450,
+        y: 300,
+        preservedNeighbors: [],
+        lostNeighbors: [],
+        newNeighbors: [],
+      })),
+      radius: { horizontal: 150, vertical: 100 },
+      center: { x: 450, y: 300 },
+      preservedNeighborhoods: 0,
+      totalOriginalNeighborhoods: 0,
+      newNeighborhoods: 0,
+      preservationRate: 1.0,
+      mode: 'preserve-neighbors',
+      timestamp: 1,
+      neighborhoodPairs: [],
+      ...(lockedStudentIds && { lockedStudentIds }),
+    });
+
+    it('takes a renamed student along and lets a removed one leave with their lock', () => {
+      const alice = mockState.students[0]!;
+      const bob = mockState.students[1]!;
+      const charlie = mockState.students[2]!;
+      const { result, rerender } = renderHook(
+        ({ state }) => useCircleSeating(state),
+        { initialProps: { state: mockState } },
+      );
+      act(() => {
+        result.current.setCircleLayout(
+          layoutOf([alice, bob, charlie], [bob.id, charlie.id]),
+        );
+      });
+
+      rerender({
+        state: {
+          ...mockState,
+          students: [{ ...alice, name: 'Alice R.' }, bob],
+        },
+      });
+
+      const layout = result.current.circleLayout!;
+      expect(layout.students.map((position) => position.student.name)).toEqual([
+        'Alice R.',
+        'Bob',
+      ]);
+      expect(layout.lockedStudentIds).toEqual([bob.id]);
+    });
+
+    it('leaves the circle alone while everyone in it is still in the class', () => {
+      const { result } = renderHook(() => useCircleSeating(mockState));
+      const layout = layoutOf(mockState.students.slice(0, 2));
+
+      act(() => {
+        result.current.setCircleLayout(layout);
+      });
+
+      expect(result.current.circleLayout).toEqual(layout);
     });
   });
 });

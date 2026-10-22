@@ -250,7 +250,12 @@ function useCircleSeatingInternal(
     [setCircleGenerationStatus],
   );
 
-  // Setter without direct persistence logic (handled via persistence layer)
+  // The circle follows the class list: a student whose details changed sits
+  // there as they are now, and one who left the class leaves the circle and
+  // its locks, as they leave their seat at the tables. The ring closes up
+  // behind them — it is drawn from the order alone. Students and circle of a
+  // class arrive together (`applyPersistedState`), so a class switch never
+  // matches one class's circle against another's list.
   useEffect(() => {
     if (!circleLayout) {
       return;
@@ -264,33 +269,42 @@ function useCircleSeatingInternal(
       }
 
       let hasChanges = false;
-      const updatedStudents = currentLayout.students.map((position) => {
+      const updatedStudents: CircleStudentPosition[] = [];
+      currentLayout.students.forEach((position) => {
         const { nextStudent, hasChanged } = syncStudentReference(
           position.student,
           syncMap,
-          { removeOnMissing: false },
         );
 
-        if (!hasChanged || !nextStudent) {
-          return position;
+        if (!hasChanged) {
+          updatedStudents.push(position);
+          return;
         }
 
         hasChanges = true;
-        return {
-          ...position,
-          student: nextStudent,
-        };
+        if (nextStudent) {
+          updatedStudents.push({ ...position, student: nextStudent });
+        }
       });
 
       if (!hasChanges) {
         return currentLayout;
       }
 
-      return {
+      const next: CircleLayout = {
         ...currentLayout,
         students: updatedStudents,
         timestamp: currentLayout.timestamp,
       };
+      if (currentLayout.lockedStudentIds) {
+        const remaining = new Set(
+          updatedStudents.map((position) => position.student?.id),
+        );
+        next.lockedStudentIds = currentLayout.lockedStudentIds.filter((id) =>
+          remaining.has(id),
+        );
+      }
+      return next;
     });
   }, [circleLayout, setCircleLayout, state.students]);
 

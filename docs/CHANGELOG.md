@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### Fixed
 
 - A student's photo is no longer deleted when another class is opened after deleting the student and undoing it, after removing the photo and undoing it, or after removing a photo and adding a new one
+- A student deleted from the class leaves the seating circle too: the circle, its export and the projection no longer show them, and "Who's next?" no longer draws them there
 
 ## [3.2.0] - 2026-10-22
 
