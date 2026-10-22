@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- A student's photo is no longer deleted when another class is opened after deleting the student and undoing it, after removing the photo and undoing it, or after removing a photo and adding a new one
+
 ## [3.2.0] - 2026-10-22
 
 ### Added

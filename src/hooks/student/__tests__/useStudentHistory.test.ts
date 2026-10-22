@@ -11,6 +11,8 @@ const sweepPhotoTrash = vi.fn();
 vi.mock('@/hooks/student/studentPhotoTrash', () => ({
   sweepPhotoTrash: (retained: Iterable<string>) =>
     sweepPhotoTrash([...retained]),
+  cancelPhotoDeletions: vi.fn(),
+  schedulePhotoDeletion: vi.fn(),
 }));
 
 /**

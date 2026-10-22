@@ -13,6 +13,12 @@
  * undo shows the photo again without a round-trip to IndexedDB. They are
  * revoked together with the blob when the deletion is finally committed.
  *
+ * A deletion is given up as soon as the photo is back on the class list — a
+ * removal undone, a new photo after the old one was removed
+ * (`cancelPhotoDeletions`). Left pending, it would be committed when the class
+ * is closed: the next class's list does not know the student, so nothing there
+ * says the photo is still in use.
+ *
  * Blobs still pending when the tab closes are not leaked forever: the start-up
  * `sweepOrphanPhotos` pass in `useSeatingPersistence` collects every photo
  * whose student no longer exists in any class.
@@ -59,6 +65,16 @@ export function sweepPhotoTrash(retained: Iterable<string>): void {
         LOG_SOURCE,
       );
     });
+  }
+}
+
+/**
+ * Give up the scheduled deletion of every photo in `shown` — the students the
+ * class list shows with a photo right now.
+ */
+export function cancelPhotoDeletions(shown: Iterable<string>): void {
+  for (const id of shown) {
+    pending.delete(id);
   }
 }
 

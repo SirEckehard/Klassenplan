@@ -9,6 +9,7 @@ vi.mock('@/hooks/student/studentPhotoCache', () => ({
 }));
 
 import {
+  cancelPhotoDeletions,
   clearPhotoTrash,
   schedulePhotoDeletion,
   sweepPhotoTrash,
@@ -79,5 +80,16 @@ describe('studentPhotoTrash', () => {
     sweepPhotoTrash([]);
 
     expect(removeStudentPhoto).not.toHaveBeenCalled();
+  });
+
+  it('cancelPhotoDeletions gives up the deletion of a photo that is shown again', () => {
+    schedulePhotoDeletion('a');
+    schedulePhotoDeletion('b');
+
+    cancelPhotoDeletions(['a']);
+    sweepPhotoTrash([]);
+
+    expect(removeStudentPhoto).toHaveBeenCalledTimes(1);
+    expect(removeStudentPhoto).toHaveBeenCalledWith('b');
   });
 });

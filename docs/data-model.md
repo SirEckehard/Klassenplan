@@ -1,6 +1,6 @@
 # Data Model
 
-> **Status:** current · **Last reviewed:** 2026-10-18 · **Source of truth:**
+> **Status:** current · **Last reviewed:** 2026-10-22 · **Source of truth:**
 > `src/utils/data/storageKeys.ts`, `src/types/`, `src/repositories/`
 
 Everything Klassenplan stores lives in the teacher's browser. This document
@@ -272,7 +272,10 @@ ids. A round may name a student who has since left or a duty since removed;
   collection and lets photos be wiped on their own.
 - Removing a photo or a student is undoable, so the blob is only **scheduled**
   for deletion (`studentPhotoTrash`) and deleted once no undo step can bring the
-  student back. `studentPhotoCache` keeps object URLs in memory.
+  student back. A photo back on the list — an undone removal, a new photo — is
+  never deleted, whatever was scheduled for it, and an undo or redo that takes
+  one off the list schedules it as a removal does. `studentPhotoCache` keeps
+  object URLs in memory.
 
 ## localStorage
 

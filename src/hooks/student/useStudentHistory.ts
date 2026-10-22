@@ -3,7 +3,11 @@
 import React from 'react';
 import type { Student } from '@/types';
 import { createStudentSignature, deepClone } from '@/utils';
-import { sweepPhotoTrash } from './studentPhotoTrash';
+import {
+  cancelPhotoDeletions,
+  schedulePhotoDeletion,
+  sweepPhotoTrash,
+} from './studentPhotoTrash';
 
 /**
  * One reversible step of the class list.
@@ -123,7 +127,9 @@ const collectPhotoIds = (
  *
  * Owns the retention side of the deferred photo deletion: whenever a snapshot
  * leaves the stacks, the blobs no longer reachable by any undo are committed
- * for real.
+ * for real. A photo back on the list is never deleted, whatever was scheduled
+ * for it, and an undo or redo that takes one off the list schedules its
+ * deletion as a removal does.
  */
 export function useStudentHistory({
   getStudents,
@@ -137,13 +143,14 @@ export function useStudentHistory({
   const syncMirrors = React.useCallback(() => {
     setUndoLength(undoStackRef.current.length);
     setRedoLength(redoStackRef.current.length);
+    const live = getStudents();
+    // A photo on the list stays, whatever was scheduled for it. Kept pending,
+    // it would go when the class is closed: the stacks are reset against the
+    // next class's list, which does not know the student.
+    cancelPhotoDeletions(collectPhotoIds(live));
     // A student only vanishes for good once no stack can reach them any more.
     sweepPhotoTrash(
-      collectPhotoIds(
-        getStudents(),
-        undoStackRef.current,
-        redoStackRef.current,
-      ),
+      collectPhotoIds(live, undoStackRef.current, redoStackRef.current),
     );
   }, [getStudents]);
 
@@ -156,7 +163,15 @@ export function useStudentHistory({
   }, [getStudents]);
 
   const restore = React.useCallback(
-    (snapshot: StudentSnapshot) => {
+    (snapshot: StudentSnapshot, current: StudentSnapshot) => {
+      // A photo the step takes off the list is scheduled as a removal's is;
+      // the step back to it is on the other stack now and keeps it.
+      const shown = collectPhotoIds(snapshot.students);
+      current.students.forEach((student) => {
+        if (student.hasPhoto && !shown.has(student.id)) {
+          schedulePhotoDeletion(student.id);
+        }
+      });
       applySnapshot(snapshot.students);
     },
     [applySnapshot],
@@ -211,12 +226,13 @@ export function useStudentHistory({
     }
 
     const target = stack[stack.length - 1];
+    const current = captureCurrent();
     undoStackRef.current = stack.slice(0, -1);
-    redoStackRef.current = [...redoStackRef.current, captureCurrent()].slice(
+    redoStackRef.current = [...redoStackRef.current, current].slice(
       -HISTORY_LIMIT,
     );
 
-    restore(target);
+    restore(target, current);
     syncMirrors();
   }, [captureCurrent, restore, syncMirrors]);
 
@@ -227,12 +243,13 @@ export function useStudentHistory({
     }
 
     const target = stack[stack.length - 1];
+    const current = captureCurrent();
     redoStackRef.current = stack.slice(0, -1);
-    undoStackRef.current = [...undoStackRef.current, captureCurrent()].slice(
+    undoStackRef.current = [...undoStackRef.current, current].slice(
       -HISTORY_LIMIT,
     );
 
-    restore(target);
+    restore(target, current);
     syncMirrors();
   }, [captureCurrent, restore, syncMirrors]);
 
