@@ -10,7 +10,9 @@ vi.mock('idb-keyval', async () =>
   ),
 );
 
+import { get } from 'idb-keyval';
 import {
+  emptyClassDuties,
   getAllDuties,
   loadClassDuties,
   restoreDuties,
@@ -88,5 +90,31 @@ describe('dutyStore', () => {
 
     await restoreDuties(undefined);
     expect(await getAllDuties()).toBeUndefined();
+  });
+});
+
+describe('dutyStore with a record that cannot be read', () => {
+  it('reports the save as failed and keeps the other classes', async () => {
+    await saveClassDuties('class-1', duties({ board: ['a'] }));
+    vi.mocked(get).mockRejectedValueOnce(new Error('read failed'));
+
+    expect(await saveClassDuties('class-2', duties({ board: ['x'] }))).toBe(
+      false,
+    );
+
+    expect((await loadClassDuties('class-1')).current?.assignments).toEqual({
+      board: ['a'],
+    });
+    expect(await loadClassDuties('class-2')).toEqual(emptyClassDuties());
+  });
+
+  it('replaces it on a full restore without reading it first', async () => {
+    await saveClassDuties('class-1', duties({ board: ['a'] }));
+    vi.mocked(get).mockClear();
+
+    await restoreDuties({ 'class-9': duties({ board: ['z'] }) });
+
+    expect(get).not.toHaveBeenCalled();
+    expect(Object.keys((await getAllDuties()) ?? {})).toEqual(['class-9']);
   });
 });

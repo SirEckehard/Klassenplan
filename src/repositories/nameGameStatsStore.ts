@@ -16,7 +16,7 @@
 import { tryReadValue, tryWriteValue, tryDeleteValue } from './idbClient';
 import { DB_KEYS } from '@/utils/data/storageKeys';
 import { hasIndexedDB } from '@/utils/data/indexedDb';
-import { logError } from '@/utils';
+import { logError, logWarn } from '@/utils';
 import type {
   MemoryBestScore,
   NameGameData,
@@ -34,8 +34,12 @@ function emptyData(): NameGameData {
   return { version: 1, stats: {}, memoryBest: {} };
 }
 
-/** Load the stored game data, falling back to an empty record. */
-export async function loadNameGameData(): Promise<NameGameData> {
+/**
+ * The stored game data, or `null` when it cannot be read: the read failed, or
+ * a newer version of the app wrote it. A result must not be added to an empty
+ * record then — written back, it would replace every stored statistic.
+ */
+async function readStoredData(): Promise<NameGameData | null> {
   if (!hasIndexedDB()) return emptyData();
 
   const result = await tryReadValue<NameGameData>(DB_KEYS.nameGameStats);
@@ -45,16 +49,29 @@ export async function loadNameGameData(): Promise<NameGameData> {
       { error: result.error },
       LOG_SOURCE,
     );
-    return emptyData();
+    return null;
   }
 
   const stored = result.data;
+  if (stored && stored.version > 1) {
+    logWarn(
+      'Name game data of a newer version left as it is',
+      { version: stored.version },
+      LOG_SOURCE,
+    );
+    return null;
+  }
   if (!stored || stored.version !== 1) return emptyData();
   return {
     version: 1,
     stats: stored.stats ?? {},
     memoryBest: stored.memoryBest ?? {},
   };
+}
+
+/** Load the stored game data, falling back to an empty record. */
+export async function loadNameGameData(): Promise<NameGameData> {
+  return (await readStoredData()) ?? emptyData();
 }
 
 async function saveNameGameData(data: NameGameData): Promise<void> {
@@ -78,7 +95,8 @@ export async function recordQuizAnswers(
 ): Promise<void> {
   if (!hasIndexedDB() || results.length === 0) return;
   try {
-    const data = await loadNameGameData();
+    const data = await readStoredData();
+    if (!data) return;
     const now = new Date().toISOString();
     for (const { studentId, correct } of results) {
       const stat: NameGameStudentStat = data.stats[studentId] ?? {
@@ -113,7 +131,8 @@ export async function recordMemoryResult(
   };
   if (!hasIndexedDB()) return candidate;
   try {
-    const data = await loadNameGameData();
+    const data = await readStoredData();
+    if (!data) return candidate;
     const best = data.memoryBest[pairs];
     const isImprovement =
       !best ||
@@ -151,7 +170,8 @@ export async function sweepOrphanNameGameStats(
 ): Promise<number> {
   if (!hasIndexedDB()) return 0;
   try {
-    const data = await loadNameGameData();
+    const data = await readStoredData();
+    if (!data) return 0;
     const known = new Set(knownStudentIds);
     const orphans = Object.keys(data.stats).filter((id) => !known.has(id));
     if (orphans.length === 0) return 0;

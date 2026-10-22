@@ -16,7 +16,7 @@
 import { tryReadValue, tryWriteValue } from './idbClient';
 import { DB_KEYS } from '@/utils/data/storageKeys';
 import { hasIndexedDB } from '@/utils/data/indexedDb';
-import { generateId, logError } from '@/utils';
+import { generateId, logError, logWarn } from '@/utils';
 import {
   buildBackfillUsage,
   collectSeatingPairKeys,
@@ -84,7 +84,13 @@ function emptyData(): PlanUsageData {
   };
 }
 
-async function readData(): Promise<PlanUsageData> {
+/**
+ * The stored record, or `null` when it cannot be read: the read failed, or a
+ * newer version of the app wrote it. A change must not start from an empty
+ * record then — written back, it would replace every class's records with the
+ * little it adds.
+ */
+async function readStoredData(): Promise<PlanUsageData | null> {
   if (!hasIndexedDB()) return emptyData();
 
   const result = await tryReadValue<PlanUsageData>(DB_KEYS.planUsage);
@@ -94,10 +100,18 @@ async function readData(): Promise<PlanUsageData> {
       { error: result.error },
       LOG_SOURCE,
     );
-    return emptyData();
+    return null;
   }
 
   const stored = result.data;
+  if (stored && stored.version > 1) {
+    logWarn(
+      'Plan usage data of a newer version left as it is',
+      { version: stored.version },
+      LOG_SOURCE,
+    );
+    return null;
+  }
   if (!stored || stored.version !== 1) return emptyData();
   return {
     version: 1,
@@ -106,6 +120,11 @@ async function readData(): Promise<PlanUsageData> {
     resetAtByClass: stored.resetAtByClass ?? {},
     manualClassIds: stored.manualClassIds ?? [],
   };
+}
+
+/** The stored record to read from; empty when it cannot be read. */
+async function readData(): Promise<PlanUsageData> {
+  return (await readStoredData()) ?? emptyData();
 }
 
 function isManual(data: PlanUsageData, classId: string): boolean {
@@ -124,24 +143,42 @@ async function writeData(data: PlanUsageData): Promise<void> {
   }
 }
 
-/** Run a read-modify-write behind the chain, swallowing and logging failures. */
-async function mutate(
-  change: (data: PlanUsageData) => PlanUsageData | null,
-): Promise<void> {
+/** Run `task` behind the chain, swallowing and logging failures. */
+function enqueue(task: () => Promise<void>): Promise<void> {
   const run = writeChain.then(async () => {
     try {
-      const data = await readData();
-      const next = change(data);
-      if (next) {
-        await writeData(next);
-        notifyListeners();
-      }
+      await task();
     } catch (error) {
       logError('Failed to update plan usage data', { error }, LOG_SOURCE);
     }
   });
   writeChain = run;
   return run;
+}
+
+/**
+ * Run a read-modify-write behind the chain. Nothing is written while the
+ * stored record cannot be read.
+ */
+function mutate(
+  change: (data: PlanUsageData) => PlanUsageData | null,
+): Promise<void> {
+  return enqueue(async () => {
+    const data = await readStoredData();
+    const next = data && change(data);
+    if (next) {
+      await writeData(next);
+      notifyListeners();
+    }
+  });
+}
+
+/** Replace the whole record behind the chain — a full restore reads nothing. */
+function replaceData(next: PlanUsageData): Promise<void> {
+  return enqueue(async () => {
+    await writeData(next);
+    notifyListeners();
+  });
 }
 
 /** Usage records of one class, most recently seen last. */
@@ -570,7 +607,7 @@ export async function restorePlanUsage(
   const restoredManual = options?.manualClassIds ?? [];
 
   if (!options?.merge) {
-    await mutate(() => ({
+    await replaceData({
       version: 1,
       byClass: restored,
       // A class reset with no record since has an empty bucket — or none in
@@ -580,7 +617,7 @@ export async function restorePlanUsage(
       ],
       resetAtByClass: { ...restoredResets },
       manualClassIds: [...new Set(restoredManual)],
-    }));
+    });
     return;
   }
 

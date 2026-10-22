@@ -22,6 +22,7 @@ import {
   sweepOrphanNameGameStats,
 } from '../nameGameStatsStore';
 import { DB_KEYS } from '@/utils/data/storageKeys';
+import { get } from 'idb-keyval';
 
 beforeEach(() => {
   memory.clear();
@@ -151,5 +152,36 @@ describe('clearNameGameData', () => {
     await recordQuizAnswers([{ studentId: 'a', correct: true }]);
     await clearNameGameData();
     expect(memory.has(DB_KEYS.nameGameStats)).toBe(false);
+  });
+});
+
+describe('a record that cannot be read', () => {
+  it('keeps the stored stats when a quiz round cannot read them', async () => {
+    await recordQuizAnswers([{ studentId: 'a', correct: true }]);
+    vi.mocked(get).mockRejectedValueOnce(new Error('read failed'));
+
+    await recordQuizAnswers([{ studentId: 'b', correct: false }]);
+
+    expect(Object.keys((await loadNameGameData()).stats)).toEqual(['a']);
+  });
+
+  it('keeps the stored stats when a memory round cannot read them', async () => {
+    await recordQuizAnswers([{ studentId: 'a', correct: true }]);
+    vi.mocked(get).mockRejectedValueOnce(new Error('read failed'));
+
+    await recordMemoryResult(6, 12, 30000);
+
+    const data = await loadNameGameData();
+    expect(Object.keys(data.stats)).toEqual(['a']);
+    expect(data.memoryBest).toEqual({});
+  });
+
+  it('leaves a record of a newer version alone', async () => {
+    const newer = { version: 2, stats: { a: { asked: 1, correct: 1 } } };
+    memory.set(DB_KEYS.nameGameStats, newer);
+
+    await recordQuizAnswers([{ studentId: 'b', correct: true }]);
+
+    expect(memory.get(DB_KEYS.nameGameStats)).toEqual(newer);
   });
 });

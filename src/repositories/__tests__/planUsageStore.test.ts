@@ -33,6 +33,8 @@ import {
   undoPlanUsageReset,
 } from '../planUsageStore';
 import type { SavedPlan, SeatingArrangement, Student } from '@/types';
+import { get } from 'idb-keyval';
+import { DB_KEYS } from '@/utils/data/storageKeys';
 
 const student = (id: string): Student => ({ id, name: id }) as Student;
 
@@ -525,5 +527,36 @@ describe('markPlanUsed', () => {
     );
 
     expect(await loadPlanUsage('c1')).toHaveLength(1);
+  });
+});
+
+describe('a record that cannot be read', () => {
+  it('is left as it is instead of being replaced by the next signal', async () => {
+    await recordPlanUsage('c1', seatingOf([['a', 'b']]), 'presented');
+    vi.mocked(get).mockRejectedValueOnce(new Error('read failed'));
+
+    await recordPlanUsage('c2', seatingOf([['c', 'd']]), 'presented');
+
+    expect(await loadPlanUsage('c1')).toHaveLength(1);
+    expect(await loadPlanUsage('c2')).toEqual([]);
+  });
+
+  it('is left as it is when a newer version wrote it', async () => {
+    const newer = { version: 2, byClass: { c1: [] } };
+    memory.set(DB_KEYS.planUsage, newer);
+
+    await recordPlanUsage('c2', seatingOf([['c', 'd']]), 'presented');
+
+    expect(memory.get(DB_KEYS.planUsage)).toEqual(newer);
+  });
+
+  it('does not keep a full restore from replacing it', async () => {
+    await recordPlanUsage('c1', seatingOf([['a', 'b']]), 'presented');
+    vi.mocked(get).mockClear();
+
+    await restorePlanUsage({ c9: [] });
+
+    expect(get).not.toHaveBeenCalled();
+    expect(await getAllPlanUsage()).toEqual({ c9: [] });
   });
 });

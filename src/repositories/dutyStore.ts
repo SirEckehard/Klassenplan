@@ -10,12 +10,13 @@
  *
  * Reads that fail are logged and give an empty list; a write that fails is
  * reported to the caller, because the teacher just changed something and has
- * to know it did not stick.
+ * to know it did not stick. A change is not written at all while the stored
+ * record cannot be read, and is reported the same way.
  */
 import { tryReadValue, tryWriteValue } from './idbClient';
 import { DB_KEYS } from '@/utils/data/storageKeys';
 import { hasIndexedDB } from '@/utils/data/indexedDb';
-import { logError } from '@/utils';
+import { logError, logWarn } from '@/utils';
 import type { ClassDuties, DutyData, DutyRound } from '@/types';
 
 const LOG_SOURCE = 'dutyStore';
@@ -40,37 +41,44 @@ function normalizeClassDuties(value: Partial<ClassDuties>): ClassDuties {
   };
 }
 
-async function readData(): Promise<DutyData> {
+/**
+ * The stored record, or `null` when it cannot be read: the read failed, or a
+ * newer version of the app wrote it. A change must not start from an empty
+ * record then — written back, it would drop every other class's duties.
+ */
+async function readStoredData(): Promise<DutyData | null> {
   if (!hasIndexedDB()) return emptyData();
 
   const result = await tryReadValue<DutyData>(DB_KEYS.duties);
   if (!result.success) {
     logError('Failed to load duties', { error: result.error }, LOG_SOURCE);
-    return emptyData();
+    return null;
   }
 
   const stored = result.data;
+  if (stored && stored.version > 1) {
+    logWarn(
+      'Duties of a newer version left as they are',
+      { version: stored.version },
+      LOG_SOURCE,
+    );
+    return null;
+  }
   if (!stored || stored.version !== 1) return emptyData();
   return { version: 1, byClass: stored.byClass ?? {} };
 }
 
-/**
- * Run a read-modify-write behind the chain.
- *
- * @returns Whether the change was written (true when there was nothing to do)
- */
-function mutate(change: (data: DutyData) => DutyData | null): Promise<boolean> {
+/** The stored record to read from; empty when it cannot be read. */
+async function readData(): Promise<DutyData> {
+  return (await readStoredData()) ?? emptyData();
+}
+
+/** Run `task` behind the chain; a failure counts as not written. */
+function enqueue(task: () => Promise<boolean>): Promise<boolean> {
   const run = writeChain.then(async () => {
     if (!hasIndexedDB()) return false;
     try {
-      const next = change(await readData());
-      if (!next) return true;
-      const result = await tryWriteValue(DB_KEYS.duties, next);
-      if (!result.success) {
-        logError('Failed to save duties', { error: result.error }, LOG_SOURCE);
-        return false;
-      }
-      return true;
+      return await task();
     } catch (error) {
       logError('Failed to update duties', { error }, LOG_SOURCE);
       return false;
@@ -78,6 +86,30 @@ function mutate(change: (data: DutyData) => DutyData | null): Promise<boolean> {
   });
   writeChain = run;
   return run;
+}
+
+async function writeData(next: DutyData): Promise<boolean> {
+  const result = await tryWriteValue(DB_KEYS.duties, next);
+  if (!result.success) {
+    logError('Failed to save duties', { error: result.error }, LOG_SOURCE);
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Run a read-modify-write behind the chain. Nothing is written while the
+ * stored record cannot be read.
+ *
+ * @returns Whether the change was written (true when there was nothing to do)
+ */
+function mutate(change: (data: DutyData) => DutyData | null): Promise<boolean> {
+  return enqueue(async () => {
+    const data = await readStoredData();
+    if (!data) return false;
+    const next = change(data);
+    return next ? writeData(next) : true;
+  });
 }
 
 /** A class's duties, or an empty list when it has none yet. */
@@ -174,7 +206,8 @@ export async function restoreDuties(
   const restored = byClass ?? {};
 
   if (!options?.merge) {
-    await mutate(() => ({ version: 1, byClass: restored }));
+    // Replaces the store, so nothing is read first.
+    await enqueue(() => writeData({ version: 1, byClass: restored }));
     return;
   }
 
