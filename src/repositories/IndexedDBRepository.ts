@@ -3,6 +3,7 @@
 import {
   readValue as idbGet,
   writeValue as idbSet,
+  updateValue as idbUpdate,
   deleteValue as idbDel,
 } from './idbClient';
 import type {
@@ -74,12 +75,40 @@ function cloneValue<T>(value: T): T {
   return deepClone(value);
 }
 
+/** The stored collection as every operation works on it: repaired. */
+function repairCollection(stored: ClassCollectionState): ClassCollectionState {
+  return ensureCollectionRooms(ensureActiveClass(stored));
+}
+
+/**
+ * A change that has nothing to write — a class that is not there, a name
+ * that is taken. Thrown inside the transaction, so nothing is written, and
+ * `answer` is what the operation returns instead.
+ */
+class NothingToWrite {
+  constructor(readonly answer: unknown) {}
+}
+
 /**
  * IndexedDB implementation of the seating plan repository
  * Uses idb-keyval for simplified IndexedDB access
+ *
+ * Every tab has its own instance. They share the stored collection, so it is
+ * read anew for every operation and changed in one transaction
+ * (`changeCollection`): a copy kept here went stale with the next write of
+ * another tab, and written back it put that tab's classes back to what they
+ * had been.
  */
 export class IndexedDBRepository implements ISeatingPlanRepository {
-  private classCollectionCache: ClassCollectionState | null = null;
+  /**
+   * The class open in this tab; undefined until the first read takes the
+   * stored one. The stored `activeClassId` only names the class to open next
+   * time, and another tab writes it whenever it opens a class: this tab
+   * reloads and writes its own until it opens another one itself.
+   */
+  private openClassId: string | null | undefined;
+  /** Whether data from before the class collection was looked for yet. */
+  private legacyChecked = false;
   private _lock: Promise<void> = Promise.resolve();
 
   /**
@@ -137,11 +166,6 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
       }
       return ResultHelpers.success(result);
     } catch (error) {
-      // The operations change the cached collection in place before they
-      // write it. A write that failed leaves the cache ahead of what is
-      // stored — a class whose creation failed would still be listed — so the
-      // next read starts again from storage.
-      this.classCollectionCache = null;
       logError(options.logMessage, { error }, REPOSITORY_LOG_SOURCE);
       return ResultHelpers.fromError(
         error,
@@ -151,27 +175,30 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
     }
   }
 
+  /** The stored collection, repaired — read anew every time. */
   private async loadClassCollectionState(): Promise<ClassCollectionState> {
-    if (this.classCollectionCache) {
-      return this.classCollectionCache;
-    }
-
     const stored = await idbGet<ClassCollectionState>(DB_KEYS.classCollection);
-    if (stored) {
-      // Data from before rooms existed — or from an older build — gets them
-      // here, once, and is written back so the ids it got stay (decision
-      // 0024).
-      const ensured = ensureCollectionRooms(ensureActiveClass(stored));
-      if (ensured !== stored) {
-        await idbSet(DB_KEYS.classCollection, ensured);
-      }
-      this.classCollectionCache = ensured;
-      return ensured;
+    if (!stored) {
+      return this.migrateLegacyStorage();
     }
+    this.legacyChecked = true;
 
-    const migrated = await this.migrateLegacyStorage();
-    this.classCollectionCache = migrated;
-    return migrated;
+    // Data from before rooms existed — or from an older build — gets them
+    // here, once, and is written back so the ids it got stay (decision
+    // 0024). Another tab may have repaired it in the meantime; its ids stay.
+    const ensured = repairCollection(stored);
+    if (ensured === stored) {
+      return stored;
+    }
+    let written = ensured;
+    await idbUpdate<ClassCollectionState>(
+      DB_KEYS.classCollection,
+      (current) => {
+        written = current ? repairCollection(current) : ensured;
+        return written;
+      },
+    );
+    return written;
   }
 
   private async migrateLegacyStorage(): Promise<ClassCollectionState> {
@@ -222,27 +249,85 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
     } else {
       collection = createClassCollection();
     }
-    await idbSet(DB_KEYS.classCollection, collection);
-    return collection;
+    // A collection another tab stored in the meantime is kept.
+    let written = collection;
+    await idbUpdate<ClassCollectionState>(
+      DB_KEYS.classCollection,
+      (current) => {
+        written = current ? repairCollection(current) : collection;
+        return written;
+      },
+    );
+    this.legacyChecked = true;
+    return written;
   }
 
-  private getActiveClassRecord(
+  /**
+   * The class open in this tab: its own choice while that class exists,
+   * otherwise the one stored to open next — on the first read, or once the
+   * open class was deleted in another tab.
+   */
+  private resolveOpenClassId(collection: ClassCollectionState): string | null {
+    const open = this.openClassId;
+    const stillThere =
+      open === null
+        ? collection.classes.length === 0
+        : open !== undefined &&
+          collection.classes.some((entry) => entry.id === open);
+    if (!stillThere) {
+      this.openClassId = ensureActiveClass(collection).activeClassId;
+    }
+    return this.openClassId ?? null;
+  }
+
+  private getOpenClassRecord(
     collection: ClassCollectionState,
   ): ClassRecord | null {
-    const ensured = ensureActiveClass(collection);
-    if (!ensured.activeClassId) {
+    const openClassId = this.resolveOpenClassId(collection);
+    if (!openClassId) {
       return null;
     }
-    return (
-      ensured.classes.find((entry) => entry.id === ensured.activeClassId) ??
-      null
-    );
+    return collection.classes.find((entry) => entry.id === openClassId) ?? null;
   }
 
-  private async persistCollection(collection: ClassCollectionState) {
-    collection.version = CLASS_COLLECTION_VERSION;
-    await idbSet(DB_KEYS.classCollection, collection);
-    this.classCollectionCache = collection;
+  /**
+   * Change the stored collection in one transaction: read it, let `change`
+   * work on it, write it back. Another tab's write lands before or after,
+   * never in between, and the change applies to what is stored rather than to
+   * a copy read earlier. `change` throws `NothingToWrite` to write nothing.
+   */
+  private async changeCollection<T>(
+    change: (collection: ClassCollectionState) => T,
+  ): Promise<T | Result<T>> {
+    if (!this.legacyChecked) {
+      // Data from before the class collection becomes one first.
+      await this.loadClassCollectionState();
+    }
+    let outcome: T | undefined;
+    try {
+      await idbUpdate<ClassCollectionState>(
+        DB_KEYS.classCollection,
+        (stored) => {
+          const collection = stored
+            ? repairCollection(stored)
+            : createClassCollection();
+          outcome = change(collection);
+          collection.version = CLASS_COLLECTION_VERSION;
+          return collection;
+        },
+      );
+    } catch (error) {
+      if (error instanceof NothingToWrite) {
+        return error.answer as T | Result<T>;
+      }
+      throw error;
+    }
+    return outcome as T;
+  }
+
+  /** Ends a change with a refusal: nothing is written. */
+  private refuse(type: RepositoryErrorType, message: string): never {
+    throw new NothingToWrite(ResultHelpers.failure({ type, message }));
   }
 
   private touchClass(record: ClassRecord, options?: { lastUsed?: boolean }) {
@@ -263,7 +348,7 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
   ): Promise<Result<T>> {
     return this.withErrorHandling(async () => {
       const collection = await this.loadClassCollectionState();
-      const record = this.getActiveClassRecord(collection);
+      const record = this.getOpenClassRecord(collection);
       if (!record) {
         if (hasOwn.call(options, 'fallback')) {
           return cloneValue(options.fallback as T);
@@ -285,20 +370,22 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
       fallback?: T;
     },
   ): Promise<Result<T>> {
-    return this.withErrorHandling(async () => {
-      const collection = await this.loadClassCollectionState();
-      const record = this.getActiveClassRecord(collection);
-      if (!record) {
-        return ResultHelpers.failure({
-          type: RepositoryErrorType.VALIDATION_ERROR,
-          message: 'No active class selected',
-        });
-      }
-      const result = mutator(record, collection);
-      this.touchClass(record);
-      await this.persistCollection(collection);
-      return result;
-    }, options);
+    return this.withErrorHandling(
+      () =>
+        this.changeCollection((collection) => {
+          const record = this.getOpenClassRecord(collection);
+          if (!record) {
+            this.refuse(
+              RepositoryErrorType.VALIDATION_ERROR,
+              'No active class selected',
+            );
+          }
+          const result = mutator(record, collection);
+          this.touchClass(record);
+          return result;
+        }),
+      options,
+    );
   }
 
   private withClassWrite<T>(
@@ -310,20 +397,21 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
       fallback?: T;
     },
   ): Promise<Result<T>> {
-    return this.withErrorHandling(async () => {
-      const collection = await this.loadClassCollectionState();
-      const record = collection.classes.find((entry) => entry.id === classId);
-      if (!record) {
-        return ResultHelpers.failure({
-          type: RepositoryErrorType.NOT_FOUND,
-          message: 'Class not found',
-        });
-      }
-      const result = mutator(record, collection);
-      this.touchClass(record);
-      await this.persistCollection(collection);
-      return result;
-    }, options);
+    return this.withErrorHandling(
+      () =>
+        this.changeCollection((collection) => {
+          const record = collection.classes.find(
+            (entry) => entry.id === classId,
+          );
+          if (!record) {
+            this.refuse(RepositoryErrorType.NOT_FOUND, 'Class not found');
+          }
+          const result = mutator(record, collection);
+          this.touchClass(record);
+          return result;
+        }),
+      options,
+    );
   }
 
   /**
@@ -380,7 +468,11 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
     return this.withErrorHandling(
       async () => {
         const collection = await this.loadClassCollectionState();
-        return cloneValue(collection);
+        // The class this tab has open, whichever another tab opened since.
+        return cloneValue({
+          ...collection,
+          activeClassId: this.resolveOpenClassId(collection),
+        });
       },
       {
         logMessage: 'Failed to load class collection from IndexedDB',
@@ -409,34 +501,37 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
   ): Promise<Result<ClassRecord>> {
     return this.withErrorHandling(
       async () => {
-        const collection = await this.loadClassCollectionState();
+        const created = await this.changeCollection((collection) => {
+          // Check for duplicate class name (case-insensitive)
+          const trimmedName = payload.name.trim().toLowerCase();
+          const duplicate = collection.classes.find(
+            (entry) => entry.name.trim().toLowerCase() === trimmedName,
+          );
+          if (duplicate) {
+            this.refuse(
+              RepositoryErrorType.DUPLICATE_KEY,
+              'A class with this name already exists',
+            );
+          }
 
-        // Check for duplicate class name (case-insensitive)
-        const trimmedName = payload.name.trim().toLowerCase();
-        const duplicate = collection.classes.find(
-          (entry) => entry.name.trim().toLowerCase() === trimmedName,
-        );
-        if (duplicate) {
-          return ResultHelpers.failure({
-            type: RepositoryErrorType.DUPLICATE_KEY,
-            message: 'A class with this name already exists',
+          const record = createClassRecord({
+            ...payload,
+            students: payload.students ? cloneValue(payload.students) : [],
+            classroomScene: payload.classroomScene
+              ? cloneValue(payload.classroomScene)
+              : null,
           });
-        }
-
-        const record = createClassRecord({
-          ...payload,
-          students: payload.students ? cloneValue(payload.students) : [],
-          classroomScene: payload.classroomScene
-            ? cloneValue(payload.classroomScene)
-            : null,
+          collection.classes.push(record);
+          if (options?.activate) {
+            collection.activeClassId = record.id;
+            this.touchClass(record, { lastUsed: true });
+          }
+          return cloneValue(record);
         });
-        collection.classes.push(record);
-        if (options?.activate) {
-          collection.activeClassId = record.id;
-          this.touchClass(record, { lastUsed: true });
+        if (options?.activate && !isRepositoryResult(created)) {
+          this.openClassId = created.id;
         }
-        await this.persistCollection(collection);
-        return cloneValue(record);
+        return created;
       },
       {
         logMessage: 'Failed to create class in IndexedDB',
@@ -450,42 +545,40 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
     patch: UpdateClassMetadataPayload,
   ): Promise<Result<ClassRecord>> {
     return this.withErrorHandling(
-      async () => {
-        const collection = await this.loadClassCollectionState();
-        const record = collection.classes.find((entry) => entry.id === classId);
-        if (!record) {
-          return ResultHelpers.failure({
-            type: RepositoryErrorType.NOT_FOUND,
-            message: 'Class not found',
-          });
-        }
-
-        // Check for duplicate class name if name is being changed (case-insensitive)
-        if (patch.name) {
-          const trimmedName = patch.name.trim().toLowerCase();
-          const duplicate = collection.classes.find(
-            (entry) =>
-              entry.id !== classId &&
-              entry.name.trim().toLowerCase() === trimmedName,
+      () =>
+        this.changeCollection((collection) => {
+          const record = collection.classes.find(
+            (entry) => entry.id === classId,
           );
-          if (duplicate) {
-            return ResultHelpers.failure({
-              type: RepositoryErrorType.DUPLICATE_KEY,
-              message: 'A class with this name already exists',
-            });
+          if (!record) {
+            this.refuse(RepositoryErrorType.NOT_FOUND, 'Class not found');
           }
-          record.name = patch.name.trim() || record.name;
-        }
-        if (patch.label !== undefined) {
-          record.label = patch.label;
-        }
-        if (patch.notes !== undefined) {
-          record.notes = patch.notes;
-        }
-        this.touchClass(record);
-        await this.persistCollection(collection);
-        return cloneValue(record);
-      },
+
+          // Check for duplicate class name if name is being changed (case-insensitive)
+          if (patch.name) {
+            const trimmedName = patch.name.trim().toLowerCase();
+            const duplicate = collection.classes.find(
+              (entry) =>
+                entry.id !== classId &&
+                entry.name.trim().toLowerCase() === trimmedName,
+            );
+            if (duplicate) {
+              this.refuse(
+                RepositoryErrorType.DUPLICATE_KEY,
+                'A class with this name already exists',
+              );
+            }
+            record.name = patch.name.trim() || record.name;
+          }
+          if (patch.label !== undefined) {
+            record.label = patch.label;
+          }
+          if (patch.notes !== undefined) {
+            record.notes = patch.notes;
+          }
+          this.touchClass(record);
+          return cloneValue(record);
+        }),
       {
         logMessage: 'Failed to update class metadata in IndexedDB',
         errorMessage: 'Failed to update class metadata',
@@ -496,18 +589,22 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
   async setActiveClass(classId: string): Promise<Result<ClassRecord>> {
     return this.withErrorHandling(
       async () => {
-        const collection = await this.loadClassCollectionState();
-        const record = collection.classes.find((entry) => entry.id === classId);
-        if (!record) {
-          return ResultHelpers.failure({
-            type: RepositoryErrorType.NOT_FOUND,
-            message: 'Class not found',
-          });
+        const opened = await this.changeCollection((collection) => {
+          const record = collection.classes.find(
+            (entry) => entry.id === classId,
+          );
+          if (!record) {
+            this.refuse(RepositoryErrorType.NOT_FOUND, 'Class not found');
+          }
+          // Stored as the class to open next time, whichever tab asks.
+          collection.activeClassId = classId;
+          this.touchClass(record, { lastUsed: true });
+          return cloneValue(record);
+        });
+        if (!isRepositoryResult(opened)) {
+          this.openClassId = classId;
         }
-        collection.activeClassId = classId;
-        this.touchClass(record, { lastUsed: true });
-        await this.persistCollection(collection);
-        return cloneValue(record);
+        return opened;
       },
       {
         logMessage: 'Failed to set active class in IndexedDB',
@@ -519,26 +616,32 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
   async deleteClass(classId: string): Promise<Result<void>> {
     return this.withErrorHandling(
       async () => {
-        const collection = await this.loadClassCollectionState();
-        const index = collection.classes.findIndex(
-          (entry) => entry.id === classId,
-        );
-        if (index === -1) {
-          return ResultHelpers.failure({
-            type: RepositoryErrorType.NOT_FOUND,
-            message: 'Class not found',
-          });
-        }
-        const [removed] = collection.classes.splice(index, 1);
-        if (collection.activeClassId === removed.id) {
-          const fallback = collection.classes[0];
-          collection.activeClassId = fallback ? fallback.id : null;
-          if (fallback) {
-            this.touchClass(fallback, { lastUsed: true });
+        let fallbackId: string | null = null;
+        const deleted = await this.changeCollection((collection) => {
+          const index = collection.classes.findIndex(
+            (entry) => entry.id === classId,
+          );
+          if (index === -1) {
+            this.refuse(RepositoryErrorType.NOT_FOUND, 'Class not found');
           }
+          const [removed] = collection.classes.splice(index, 1);
+          const fallback = collection.classes[0];
+          fallbackId = fallback ? fallback.id : null;
+          if (collection.activeClassId === removed.id) {
+            collection.activeClassId = fallbackId;
+            if (fallback) {
+              this.touchClass(fallback, { lastUsed: true });
+            }
+          }
+        });
+        if (isRepositoryResult(deleted)) {
+          return deleted;
         }
-        await this.persistCollection(collection);
-        return ResultHelpers.success(undefined);
+        // The tab whose open class went moves on as the stored one did.
+        if (this.openClassId === classId) {
+          this.openClassId = fallbackId;
+        }
+        return undefined;
       },
       {
         logMessage: 'Failed to delete class in IndexedDB',
@@ -552,8 +655,12 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
   ): Promise<Result<void>> {
     return this.withErrorHandling(
       async () => {
-        const ensured = ensureCollectionRooms(ensureActiveClass(collection));
-        await this.persistCollection(ensured);
+        // Replaces what is stored, so nothing is read first.
+        const ensured = repairCollection(collection);
+        ensured.version = CLASS_COLLECTION_VERSION;
+        await idbSet(DB_KEYS.classCollection, ensured);
+        this.legacyChecked = true;
+        this.openClassId = ensured.activeClassId;
         return undefined;
       },
       {
@@ -648,39 +755,35 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
     edit: ClassEdit,
   ): Promise<Result<ClassEditOutcome>> {
     return this.withErrorHandling(
-      async () => {
-        const collection = await this.loadClassCollectionState();
-        // The open class lives in the live state, which this record lags
-        // behind while edits wait in the persist queue; a change here would
-        // be overwritten by the next of them.
-        if (collection.activeClassId === classId) {
-          return ResultHelpers.failure({
-            type: RepositoryErrorType.VALIDATION_ERROR,
-            message: 'class-is-open',
-          });
-        }
-        const index = collection.classes.findIndex(
-          (entry) => entry.id === classId,
-        );
-        if (index === -1) {
-          return ResultHelpers.failure({
-            type: RepositoryErrorType.NOT_FOUND,
-            message: 'Class not found',
-          });
-        }
-        const applied = applyClassEdit(
-          ensureClassRooms(collection.classes[index]),
-          edit,
-        );
-        if ('problem' in applied) {
-          return { ok: false, reason: applied.problem } as ClassEditOutcome;
-        }
-        const next = cloneValue(applied.record);
-        this.touchClass(next);
-        collection.classes[index] = next;
-        await this.persistCollection(collection);
-        return { ok: true } as ClassEditOutcome;
-      },
+      () =>
+        this.changeCollection((collection) => {
+          // The open class lives in the live state, which this record lags
+          // behind while edits wait in the persist queue; a change here would
+          // be overwritten by the next of them.
+          if (this.resolveOpenClassId(collection) === classId) {
+            this.refuse(RepositoryErrorType.VALIDATION_ERROR, 'class-is-open');
+          }
+          const index = collection.classes.findIndex(
+            (entry) => entry.id === classId,
+          );
+          if (index === -1) {
+            this.refuse(RepositoryErrorType.NOT_FOUND, 'Class not found');
+          }
+          const applied = applyClassEdit(
+            ensureClassRooms(collection.classes[index]),
+            edit,
+          );
+          if ('problem' in applied) {
+            throw new NothingToWrite({
+              ok: false,
+              reason: applied.problem,
+            } as ClassEditOutcome);
+          }
+          const next = cloneValue(applied.record);
+          this.touchClass(next);
+          collection.classes[index] = next;
+          return { ok: true } as ClassEditOutcome;
+        }),
       {
         logMessage: `Failed to change class ${classId} in IndexedDB`,
         errorMessage: 'Failed to change class',
@@ -984,7 +1087,8 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
     return this.withErrorHandling(
       async () => {
         await Promise.all(Object.values(DB_KEYS).map((key) => idbDel(key)));
-        this.classCollectionCache = null;
+        this.openClassId = undefined;
+        this.legacyChecked = false;
         return undefined;
       },
       {

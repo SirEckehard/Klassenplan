@@ -22,6 +22,7 @@ import {
   createStore,
   get as idbGet,
   set as idbSet,
+  update as idbUpdate,
   del as idbDel,
   keys as idbKeys,
   entries as idbEntries,
@@ -108,6 +109,23 @@ export const writeValue = <T>(
     ? idbSet(key, value, store)
     : onDefaultStore((own) =>
         own ? idbSet(key, value, own) : idbSet(key, value),
+      );
+
+/**
+ * Read a value and write what `updater` makes of it, in one transaction: a
+ * write from another tab lands before or after, never in between. `updater`
+ * runs synchronously inside the transaction; whatever it throws rejects the
+ * call, and nothing is written.
+ */
+export const updateValue = <T>(
+  key: IDBValidKey,
+  updater: (current: T | undefined) => T,
+  store?: IdbStore,
+): Promise<void> =>
+  store
+    ? idbUpdate<T>(key, updater, store)
+    : onDefaultStore((own) =>
+        own ? idbUpdate<T>(key, updater, own) : idbUpdate<T>(key, updater),
       );
 
 /** Delete a key (no-op when it does not exist). */

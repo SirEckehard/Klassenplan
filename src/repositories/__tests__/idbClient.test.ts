@@ -7,6 +7,7 @@ const idbMocks = vi.hoisted(() => ({
   createStore: vi.fn(() => ({ token: 'custom-store' })),
   get: vi.fn(),
   set: vi.fn(),
+  update: vi.fn(),
   del: vi.fn(),
   keys: vi.fn(),
   entries: vi.fn(),
@@ -30,6 +31,7 @@ import {
   tryListKeys,
   tryReadValue,
   tryWriteValue,
+  updateValue,
   writeValue,
 } from '../idbClient';
 import { RepositoryErrorType } from '../types';
@@ -44,6 +46,11 @@ beforeEach(() => {
   idbMocks.del.mockImplementation(async (key: string) => {
     memory.delete(key);
   });
+  idbMocks.update.mockImplementation(
+    async (key: string, updater: (current: unknown) => unknown) => {
+      memory.set(key, updater(memory.get(key)));
+    },
+  );
   idbMocks.keys.mockImplementation(async () => [...memory.keys()]);
   idbMocks.entries.mockImplementation(async () => [...memory.entries()]);
   idbMocks.clear.mockImplementation(async () => {
@@ -105,6 +112,15 @@ describe('plain primitives', () => {
   it('rejects when the driver fails', async () => {
     idbMocks.set.mockRejectedValueOnce(new Error('quota exceeded'));
     await expect(writeValue('a', 1)).rejects.toThrow('quota exceeded');
+  });
+
+  it('writes what the updater makes of the stored value', async () => {
+    await writeValue('count', 1);
+
+    await updateValue<number>('count', (current) => (current ?? 0) + 1);
+
+    await expect(readValue('count')).resolves.toBe(2);
+    expect(idbMocks.update).toHaveBeenCalledWith('count', expect.any(Function));
   });
 });
 
@@ -188,6 +204,27 @@ describe('a lost connection', () => {
     expect(idbMocks.get).toHaveBeenLastCalledWith('a', {
       token: 'custom-store',
     });
+  });
+
+  it('tries an update again on the reopened store', async () => {
+    const client = await freshClient();
+    idbMocks.update.mockRejectedValueOnce(
+      new DOMException(
+        'The database connection is closing.',
+        'InvalidStateError',
+      ),
+    );
+
+    await client.updateValue<number>('a', () => 1);
+
+    expect(idbMocks.update).toHaveBeenCalledTimes(2);
+    expect(idbMocks.update).toHaveBeenLastCalledWith(
+      'a',
+      expect.any(Function),
+      {
+        token: 'custom-store',
+      },
+    );
   });
 
   it('leaves every other failure to the caller', async () => {

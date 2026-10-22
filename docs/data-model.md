@@ -101,13 +101,19 @@ recommended 8 once. `neighborWeights` is still stored but no longer read.
 - **One record per class.** A class's students, plans, room and weights all
   live inside its record; switching classes means reading a different record.
 - **The whole collection is one value.** Every write replaces
-  `spg.classCollection` as a whole. `IndexedDBRepository` serialises its
+  `spg.classCollection` as a whole, but reads it in the same transaction and
+  changes only what it is about (`changeCollection`, idb-keyval's `update`):
+  two tabs on one device — or the installed app beside a browser tab — each
+  have a repository of their own, and one that wrote back a copy read earlier
+  put every class the other had changed back. So nothing is kept in memory;
+  every operation reads what is stored. `IndexedDBRepository` serialises its
   operations through a promise chain — extended before anything awaits, so two
-  calls in the same tick queue up — and keeps the collection cached in memory;
-  a write that fails drops the cache, so the next read starts again from
-  storage. This is also why photos have a store of their own.
+  calls in the same tick queue up. This is also why photos have a store of
+  their own.
 - **`activeClassId` repairs itself on read** (`ensureActiveClass`): an unknown or
-  missing id falls back to the first class.
+  missing id falls back to the first class. It names the class the app opens
+  next; each tab keeps the class it has open on its own (`openClassId`), so
+  opening a class in one tab moves neither the other tab nor its writes.
 - **A class keeps its rooms** ([decision 0024](decisions/0024-rooms-of-a-class.md)).
   The open room (`activeRoomId`) holds its state in the class's working fields —
   `classroomScene`, `currentSeating`, `lockedPositions`, `circleLayout`,

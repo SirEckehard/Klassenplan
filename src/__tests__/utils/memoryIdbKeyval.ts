@@ -40,6 +40,21 @@ export function createMemoryIdbKeyval(memory: Map<string, unknown>) {
     set: vi.fn(async (key: IDBValidKey, value: unknown, store?: Store) => {
       memory.set(toKey(key, store), structuredClone(value));
     }),
+    // Read and written in one go, as one IndexedDB transaction does; what the
+    // updater throws leaves the value as it was.
+    update: vi.fn(
+      async (
+        key: IDBValidKey,
+        updater: (current: unknown) => unknown,
+        store?: Store,
+      ) => {
+        const current = memory.get(toKey(key, store));
+        const next = updater(
+          current === undefined ? undefined : structuredClone(current),
+        );
+        memory.set(toKey(key, store), structuredClone(next));
+      },
+    ),
     del: vi.fn(async (key: IDBValidKey, store?: Store) => {
       memory.delete(toKey(key, store));
     }),

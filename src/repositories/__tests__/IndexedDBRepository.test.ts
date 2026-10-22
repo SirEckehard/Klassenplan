@@ -17,6 +17,11 @@ vi.mock('idb-keyval', () => ({
   set: vi.fn(async (key: string, value: unknown) => {
     memory.set(key, value);
   }),
+  // One transaction: the updater gets a copy, and what it throws writes
+  // nothing.
+  update: vi.fn(async (key: string, updater: (current: unknown) => unknown) => {
+    memory.set(key, updater(structuredClone(memory.get(key))));
+  }),
   del: vi.fn(async (key: string) => {
     memory.delete(key);
   }),
@@ -36,7 +41,7 @@ import {
 } from '@/__tests__/utils';
 import type { ClassCollectionState, ClassroomTemplate } from '@/types';
 import { DB_KEYS } from '@/utils/data/storageKeys';
-import { set as idbSetMock } from 'idb-keyval';
+import { update as idbUpdateMock } from 'idb-keyval';
 
 /** Unwraps a successful Result, failing the test when it is a Failure. */
 const expectData = <T>(result: Result<T>): T => {
@@ -274,7 +279,7 @@ describe('rooms of a class', () => {
 
   it('gives data from before rooms one room and writes it back once', async () => {
     memory.set(DB_KEYS.classCollection, classFromBefore());
-    vi.mocked(idbSetMock).mockClear();
+    vi.mocked(idbUpdateMock).mockClear();
 
     const collection = expectData(await repository.loadClassCollection());
     const [record] = collection.classes;
@@ -282,21 +287,21 @@ describe('rooms of a class', () => {
     expect(record?.rooms).toHaveLength(1);
     expect(record?.activeRoomId).toBe(record?.rooms?.[0]?.id);
     expect(record?.seatingHistory[0]?.roomId).toBe(record?.activeRoomId);
-    expect(vi.mocked(idbSetMock)).toHaveBeenCalledTimes(1);
+    expect(vi.mocked(idbUpdateMock)).toHaveBeenCalledTimes(1);
 
     // Read back by a fresh repository: the room keeps its id, nothing is
     // written again.
-    vi.mocked(idbSetMock).mockClear();
+    vi.mocked(idbUpdateMock).mockClear();
     const again = expectData(
       await new IndexedDBRepository().loadClassCollection(),
     );
     expect(again.classes[0]?.activeRoomId).toBe(record?.activeRoomId);
-    expect(vi.mocked(idbSetMock)).not.toHaveBeenCalled();
+    expect(vi.mocked(idbUpdateMock)).not.toHaveBeenCalled();
   });
 
   it('repairs data from before rooms once when two reads come at once', async () => {
     memory.set(DB_KEYS.classCollection, classFromBefore());
-    vi.mocked(idbSetMock).mockClear();
+    vi.mocked(idbUpdateMock).mockClear();
 
     // Start-up asks for the collection and the open class in the same tick.
     const [collection, snapshot] = await Promise.all([
@@ -307,7 +312,7 @@ describe('rooms of a class', () => {
     expect(expectData(snapshot).rooms).toEqual(
       expectData(collection).classes[0]?.rooms,
     );
-    expect(vi.mocked(idbSetMock)).toHaveBeenCalledTimes(1);
+    expect(vi.mocked(idbUpdateMock)).toHaveBeenCalledTimes(1);
   });
 
   it('creates a class with a room of its own', async () => {
@@ -385,7 +390,7 @@ describe('classes that are not open', () => {
 
   it('changes a class that is not open and writes it once', async () => {
     const { other } = await twoClasses();
-    vi.mocked(idbSetMock).mockClear();
+    vi.mocked(idbUpdateMock).mockClear();
 
     const outcome = expectData(
       await repository.editInactiveClass(other.id, {
@@ -395,7 +400,7 @@ describe('classes that are not open', () => {
     );
 
     expect(outcome).toEqual({ ok: true });
-    expect(vi.mocked(idbSetMock)).toHaveBeenCalledTimes(1);
+    expect(vi.mocked(idbUpdateMock)).toHaveBeenCalledTimes(1);
     const record = expectData(await repository.loadClassRecord(other.id));
     expect(record.rooms?.map((room) => room.name)).toEqual([
       expect.stringMatching(/Klassenraum|Classroom/),
@@ -405,8 +410,8 @@ describe('classes that are not open', () => {
 
   it('says why a change cannot be made and writes nothing', async () => {
     const { other } = await twoClasses();
-    vi.mocked(idbSetMock).mockClear();
     const record = expectData(await repository.loadClassRecord(other.id));
+    const stored = structuredClone(memory.get(DB_KEYS.classCollection));
 
     const outcome = expectData(
       await repository.editInactiveClass(other.id, {
@@ -416,7 +421,7 @@ describe('classes that are not open', () => {
     );
 
     expect(outcome).toEqual({ ok: false, reason: 'room-open' });
-    expect(vi.mocked(idbSetMock)).not.toHaveBeenCalled();
+    expect(memory.get(DB_KEYS.classCollection)).toEqual(stored);
   });
 
   it('refuses to change the open class, which lives in the live state', async () => {
@@ -580,7 +585,7 @@ describe('storage failures', () => {
 
     try {
       expectData(await repository.loadClassCollection());
-      vi.mocked(idb.set).mockRejectedValueOnce(new Error('quota exceeded'));
+      vi.mocked(idb.update).mockRejectedValueOnce(new Error('quota exceeded'));
 
       expectFailure(await repository.createClass({ name: '8b' }));
 
