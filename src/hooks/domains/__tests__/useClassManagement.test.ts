@@ -7,6 +7,12 @@ import type { ClassRecord } from '@/types';
 import type { ISeatingPlanRepository } from '@/repositories';
 import { ResultHelpers } from '@/repositories/types';
 import { useClassManagement } from '../useClassManagement';
+import { showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
+
+vi.mock('@/utils/ui/toast', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/utils/ui/toast')>()),
+  showToast: vi.fn(),
+}));
 
 const record = (id: string, name: string): ClassRecord => ({
   id,
@@ -28,7 +34,7 @@ const record = (id: string, name: string): ClassRecord => ({
  * change ahead of the class data: the only way to another class is persisting
  * the choice and reloading, which sets both together.
  */
-const setup = () => {
+const setup = ({ reloadFails = false } = {}) => {
   const calls: string[] = [];
   const repository = {
     setActiveClass: vi.fn(async (classId: string) => {
@@ -52,6 +58,7 @@ const setup = () => {
   });
   const applyClassReload = vi.fn(async () => {
     calls.push('reload');
+    if (reloadFails) throw new Error('load failed');
   });
 
   const { result } = renderHook(() =>
@@ -78,6 +85,22 @@ describe('useClassManagement', () => {
     });
 
     expect(calls).toEqual(['setActiveClass:class-b', 'reload']);
+  });
+
+  it('says so when the class cannot be loaded after switching', async () => {
+    const { result, calls } = setup({ reloadFails: true });
+    let switched: boolean | undefined;
+
+    await act(async () => {
+      switched = await result.current.selectClass('class-b');
+    });
+
+    expect(switched).toBe(false);
+    expect(calls).toEqual(['setActiveClass:class-b', 'reload']);
+    expect(showToast).toHaveBeenLastCalledWith(
+      'error',
+      TOAST_MESSAGES.CLASS_SWITCH_ERROR,
+    );
   });
 
   it('does nothing when the class is already open', async () => {

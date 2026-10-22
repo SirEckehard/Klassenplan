@@ -7,7 +7,7 @@
  */
 import { useCallback, useEffect, useRef } from 'react';
 import { flushSync } from 'react-dom';
-import { writeValue as idbSet } from '@/repositories/idbClient';
+import { tryWriteValue } from '@/repositories/idbClient';
 import {
   DEFAULT_ACTIVE_CLASS,
   type ActiveClassState,
@@ -211,7 +211,16 @@ export function useSeatingPersistence(state: SeatingState) {
         repository.loadActiveClassSnapshot(),
       ]);
 
-    await idbSet(DB_KEYS.version, APP_DATA_VERSION);
+    // Only a stamp: the classes were read already, so a write that fails (a
+    // full disk) must not keep them from loading.
+    const stamped = await tryWriteValue(DB_KEYS.version, APP_DATA_VERSION);
+    if (!stamped.success) {
+      logWarn(
+        'Failed to stamp the data version',
+        { error: stamped.error },
+        'useSeatingPersistence',
+      );
+    }
 
     return {
       classCollectionResult,

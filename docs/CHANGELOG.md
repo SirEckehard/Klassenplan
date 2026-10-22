@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - A student's photo is no longer deleted when another class is opened after deleting the student and undoing it, after removing the photo and undoing it, or after removing a photo and adding a new one
 - A student deleted from the class leaves the seating circle too: the circle, its export and the projection no longer show them, and "Who's next?" no longer draws them there
 - A storage read that fails no longer lets the next change wipe every class's record of the plans in use, its duties or the name game's statistics
+- With the device's storage full, Klassenplan still opens the stored classes instead of its first screen, and a class switch that cannot load the class says so
 
 ## [3.2.0] - 2026-10-22
 

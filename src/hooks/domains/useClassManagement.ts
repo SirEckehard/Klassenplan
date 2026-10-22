@@ -78,7 +78,17 @@ export function useClassManagement({
         return false;
       }
 
-      await applyClassReload();
+      try {
+        await applyClassReload();
+      } catch (error) {
+        logError(
+          'Failed to load the class after switching',
+          { error, classId },
+          'useClassManagement',
+        );
+        showToast('error', TOAST_MESSAGES.CLASS_SWITCH_ERROR);
+        return false;
+      }
       showToast(
         'success',
         t('toast:class.activatedName', {
