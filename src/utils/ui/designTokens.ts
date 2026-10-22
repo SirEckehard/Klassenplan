@@ -80,6 +80,20 @@ export const mutedIconButtonClass = 'muted-icon-button';
 
 export const inputFieldClass = 'input-field';
 
+/**
+ * The type of an inspector's heading — the name of what is selected — which
+ * the name keeps when it opens as a field.
+ */
+export const inspectorTitleTextClass = 'text-[1.0625rem] font-semibold';
+
+/**
+ * A name in an inspector's header that opens as a field when pressed — a
+ * student's, a class's, a room's, a plan's: bordered like the field it turns
+ * into, wrapping rather than cut off, in the heading's own type.
+ */
+export const editableTitleClass =
+  'block min-w-0 wrap-break-word cursor-text select-text rounded-xl border border-(--border-card) bg-(--surface-card) px-3 py-1 text-left text-(--text-page) shadow-sm transition-colors hover:bg-(--surface-option-selected) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:border-(--border-option-selected)';
+
 export const selectFieldClass = inputFieldClass;
 
 export const textareaFieldClass = 'textarea-field';

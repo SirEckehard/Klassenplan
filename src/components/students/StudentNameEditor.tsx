@@ -9,6 +9,8 @@ import {
   showToast,
   TOAST_MESSAGES,
   inputFieldClass,
+  editableTitleClass,
+  inspectorTitleTextClass,
   mutedIconButtonClass,
   successIconButtonClass,
   dangerIconButtonClass,
@@ -176,7 +178,7 @@ export default function StudentNameEditor({
             // The on-screen keyboard's Enter names what it does here: on to
             // the next student while there is one, done at the last.
             enterKeyHint={onSubmit ? 'next' : 'done'}
-            className={`${inputFieldClass} w-full px-3 py-1.5 pr-14`}
+            className={`${inputFieldClass} w-full px-3 py-1 pr-14 ${inspectorTitleTextClass}`}
             autoFocus={autoFocus}
             data-student-name-input=""
           />
@@ -217,7 +219,7 @@ export default function StudentNameEditor({
                 startEditing();
               }
             }}
-            className="student-name-editable block min-w-0 wrap-break-word cursor-text select-text rounded-xl border border-(--border-card) bg-(--surface-card) px-3 py-1 text-sm font-medium text-(--text-page) shadow-sm transition-colors hover:bg-(--surface-option-selected) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:border-(--border-option-selected)"
+            className={`student-name-editable ${editableTitleClass}`}
             tabIndex={0}
             role="button"
             aria-label={t('nameEditor.editName', { name: student.name })}

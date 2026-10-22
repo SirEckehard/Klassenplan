@@ -304,15 +304,43 @@ describe('ExportSheetInspector order', () => {
     ]);
   });
 
-  it('puts the title and the class info in the header section', () => {
+  it('names the sheet by its title in the header, renamed there', () => {
+    const onTitleChange = vi.fn();
+    renderInspector({ title: '7b im September', onTitleChange });
+
+    const heading = screen.getByRole('heading', {
+      level: 2,
+      name: '7b im September',
+    });
+    fireEvent.click(within(heading).getByRole('button'));
+    const field = screen.getByRole('textbox', { name: /^(Titel|Title)$/ });
+    fireEvent.change(field, { target: { value: '7b ab Oktober' } });
+    fireEvent.keyDown(field, { key: 'Enter' });
+
+    expect(onTitleChange).toHaveBeenCalledWith('7b ab Oktober');
+  });
+
+  it('keeps an emptied title empty', () => {
+    const onTitleChange = vi.fn();
+    renderInspector({ title: '7b im September', onTitleChange });
+
+    fireEvent.click(
+      within(screen.getByRole('heading', { level: 2 })).getByRole('button'),
+    );
+    const field = screen.getByRole('textbox', { name: /^(Titel|Title)$/ });
+    fireEvent.change(field, { target: { value: '' } });
+    fireEvent.blur(field);
+
+    expect(onTitleChange).toHaveBeenCalledWith('');
+  });
+
+  it('puts the class info in the header section', () => {
     renderInspector();
 
     const section = screen
       .getByRole('heading', { name: /^(Kopfzeile|Header)$/ })
       .closest('section') as HTMLElement;
-    expect(
-      within(section).getByRole('textbox', { name: /^(Titel|Title)$/ }),
-    ).toBeInTheDocument();
+    expect(within(section).queryByRole('textbox')).toBeNull();
     expect(
       within(section).getByRole('switch', {
         name: /^(Klasseninfos|Class info)$/,

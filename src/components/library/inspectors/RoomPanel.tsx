@@ -15,11 +15,12 @@ import type { ClassroomTemplate } from '@/types';
 import { TemplateSaveRow } from '@/components/SeatingPlanGenerator/views/RoomSetupSections';
 import { checkName, MAX_NAME_LENGTH, type NameProblem } from '@/utils';
 import RoomThumbnail from '../RoomThumbnail';
-import NameField from '@/components/shell/NameField';
+import InspectorTitleField from '@/components/shell/InspectorTitleField';
 import { ValueRow } from './panelParts';
 
 /**
- * A room of a class (decision 0024): its name, renamed here; its tables and
+ * A room of a class (decision 0024): its name, renamed in the header; its
+ * tables and
  * room elements; keeping it as a template for other classes — named in a row
  * of the panel, as in the room's own inspector; and removing it with the
  * plans made in it — never the open room, never the last one.
@@ -67,12 +68,8 @@ export default function RoomPanel({
         media={
           <RoomThumbnail scene={room.scene} className="h-11 w-16.5 shrink-0" />
         }
-        title={room.name}
-        subtitle={t('library.plans', { count: planCount })}
-      />
-      <InspectorBody>
-        <InspectorSection title={t('library.room.section')}>
-          <NameField
+        title={
+          <InspectorTitleField
             label={t('sceneInspector.roomName')}
             value={room.name}
             problemFor={(draft) =>
@@ -82,6 +79,11 @@ export default function RoomPanel({
             takenMessage={t('sceneInspector.roomNameTaken')}
             focusRequest={renameRequest}
           />
+        }
+        subtitle={t('library.plans', { count: planCount })}
+      />
+      <InspectorBody>
+        <InspectorSection title={t('library.room.section')}>
           <ValueRow label={t('library.room.tables')}>
             {[
               t('sceneInspector.tables', { count: room.scene.tables.length }),

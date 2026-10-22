@@ -1,7 +1,13 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import '@testing-library/jest-dom/vitest';
-import { render, screen, cleanup, within } from '@testing-library/react';
+import {
+  render,
+  screen,
+  cleanup,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
 import '@/i18n';
@@ -25,6 +31,8 @@ const mocks = vi.hoisted(() => ({
   activeRoomId: null as string | null,
   handleSaveSeatingPlan: vi.fn((..._args: unknown[]) => true),
   handleHistoryLoad: vi.fn(),
+  renameSeatingPlan: vi.fn((..._args: unknown[]) => true),
+  setPlanName: vi.fn(),
   showToast: vi.fn(),
 }));
 
@@ -43,6 +51,8 @@ vi.mock('@/contexts/SeatingPlanContext', () => ({
   useSeatingPlanActions: () => ({
     handleSaveSeatingPlan: mocks.handleSaveSeatingPlan,
     handleHistoryLoad: mocks.handleHistoryLoad,
+    renameSeatingPlan: mocks.renameSeatingPlan,
+    setPlanName: mocks.setPlanName,
   }),
 }));
 
@@ -64,6 +74,14 @@ const field = () =>
   screen.getByRole('textbox', {
     name: /Name des Sitzplans|Seating plan name/i,
   });
+/** The plan's name in the header, opened as a field. */
+const openNameField = async (user: ReturnType<typeof userEvent.setup>) => {
+  const heading = screen.getByRole('heading', { level: 2 });
+  await user.click(within(heading).getByRole('button'));
+  // The field takes the focus and selects its name a frame later.
+  await waitFor(() => expect(field()).toHaveFocus());
+  return field();
+};
 const saveAsNewButton = () =>
   screen.queryByRole('button', {
     name: /Als neuen Plan speichern|Save as new plan/i,
@@ -87,11 +105,10 @@ afterEach(() => {
 });
 
 describe('PlanSection', () => {
-  it('shows the plan’s name without taking the focus', () => {
+  it('names the plan only in the header, not in a field of its own', () => {
     render(<PlanSection />);
 
-    expect(field()).toHaveValue('Deutsch');
-    expect(field()).not.toHaveFocus();
+    expect(screen.queryByRole('textbox')).toBeNull();
   });
 
   it('saves the open plan under its name', async () => {
@@ -105,115 +122,43 @@ describe('PlanSection', () => {
       mocks.classroomScene,
       { rename: true },
     );
-    // Without a new name there is nothing a new plan could be called.
-    expect(saveAsNewButton()).not.toBeInTheDocument();
   });
 
-  it('renames the open plan on Enter once the name is new', async () => {
+  it('keeps a copy beside the open plan under a free name', async () => {
     const user = userEvent.setup();
     render(<PlanSection />);
 
-    await user.clear(field());
-    await user.type(field(), 'Deutsch ab Oktober');
-
-    expect(
-      getButton(/Umbenennen und speichern|Rename and save/i),
-    ).toBeInTheDocument();
-
-    await user.keyboard('{Enter}');
-
-    expect(mocks.handleSaveSeatingPlan).toHaveBeenCalledWith(
-      'Deutsch ab Oktober',
-      mocks.classroomScene,
-      { rename: true },
-    );
-  });
-
-  it('keeps the open plan when the new name starts another', async () => {
-    const user = userEvent.setup();
-    render(<PlanSection />);
-
-    await user.clear(field());
-    await user.type(field(), 'Deutsch II');
     await user.click(saveAsNewButton() as HTMLElement);
 
     expect(mocks.handleSaveSeatingPlan).toHaveBeenCalledWith(
-      'Deutsch II',
+      'Deutsch (2)',
       mocks.classroomScene,
     );
   });
 
-  it('takes a typed name back on Escape', async () => {
-    const user = userEvent.setup();
-    render(<PlanSection />);
-
-    await user.clear(field());
-    await user.type(field(), 'Entwurf{Escape}');
-
-    expect(field()).toHaveValue('Deutsch');
-    expect(mocks.handleSaveSeatingPlan).not.toHaveBeenCalled();
-  });
-
-  it('refuses a name another plan carries', async () => {
-    const user = userEvent.setup();
-    render(<PlanSection />);
-
-    await user.clear(field());
-    await user.type(field(), 'Mathe{Enter}');
-
-    expect(field()).toHaveAttribute('aria-invalid', 'true');
-    expect(field()).toHaveAccessibleDescription(/anderer Plan|Another plan/i);
-    expect(
-      getButton(/Umbenennen und speichern|Rename and save/i),
-    ).toBeDisabled();
-    expect(saveAsNewButton()).not.toBeInTheDocument();
-    expect(mocks.handleSaveSeatingPlan).not.toHaveBeenCalled();
-  });
-
-  it('keeps the open plan’s name when the field is emptied', async () => {
-    const user = userEvent.setup();
-    render(<PlanSection />);
-
-    await user.clear(field());
-    expect(field()).toHaveAttribute('placeholder', 'Deutsch');
-
-    await user.keyboard('{Control>}s{/Control}');
-
-    expect(mocks.handleSaveSeatingPlan).toHaveBeenCalledWith(
-      'Deutsch',
-      mocks.classroomScene,
-      { rename: true },
-    );
-  });
-
-  it('saves a plan never saved as a new one', async () => {
-    mocks.planName = '';
+  it('saves a plan never saved as a new one, with nothing to copy', async () => {
+    mocks.planName = 'Englisch';
     mocks.activePlanId = null;
     const user = userEvent.setup();
     render(<PlanSection />);
 
-    expect(field()).toHaveValue('');
-    await user.type(field(), 'Englisch{Enter}');
+    expect(saveAsNewButton()).not.toBeInTheDocument();
+    await user.click(getButton(/^(Plan speichern|Save plan)$/));
 
     expect(mocks.handleSaveSeatingPlan).toHaveBeenCalledWith(
       'Englisch',
       mocks.classroomScene,
       { rename: false },
     );
-    expect(saveAsNewButton()).not.toBeInTheDocument();
   });
 
   it('goes by the id a save writes to, not by the name', async () => {
     // A name that matches a saved plan the persistence does not consider
-    // open: offering a rename here would end in a refused save.
+    // open: a save would be refused.
     mocks.activePlanId = null;
-    const user = userEvent.setup();
     render(<PlanSection />);
 
-    await user.click(field());
-    await user.keyboard('{Enter}');
-
-    expect(mocks.handleSaveSeatingPlan).not.toHaveBeenCalled();
+    expect(getButton(/^(Plan speichern|Save plan)$/)).toBeDisabled();
     expect(
       screen.getByText(
         /trägt schon ein anderer Plan|Another plan already has/i,
@@ -225,16 +170,7 @@ describe('PlanSection', () => {
     mocks.currentSeating = [];
     render(<PlanSection />);
 
-    expect(field()).toBeDisabled();
     expect(getButton(/^(Plan speichern|Save plan)$/)).toBeDisabled();
-  });
-
-  // The backup import holds a plan's name to 120 characters; a longer one
-  // made the whole backup unreadable.
-  it('takes no longer a name than a backup can read back', () => {
-    render(<PlanSection />);
-
-    expect(field()).toHaveAttribute('maxlength', '120');
   });
 
   it('opens a plan of the class from its menu, the open room’s first', async () => {
@@ -298,6 +234,119 @@ describe('PlanSection', () => {
 
 describe('PlanInspectorHeader', () => {
   const subtitle = () => screen.getByRole('heading', { level: 2 }).nextSibling;
+
+  it('shows the plan’s name without opening it as a field', () => {
+    render(<PlanInspectorHeader />);
+
+    expect(screen.queryByRole('textbox')).toBeNull();
+  });
+
+  it('renames the open plan at once, leaving what it holds', async () => {
+    const user = userEvent.setup();
+    render(<PlanInspectorHeader />);
+
+    const input = await openNameField(user);
+    expect(input).toHaveValue('Deutsch');
+    await user.clear(input);
+    await user.type(input, 'Deutsch ab Oktober{Enter}');
+
+    expect(mocks.renameSeatingPlan).toHaveBeenCalledWith(
+      'id-Deutsch',
+      'Deutsch ab Oktober',
+    );
+    expect(mocks.handleSaveSeatingPlan).not.toHaveBeenCalled();
+    expect(screen.queryByRole('textbox')).toBeNull();
+  });
+
+  it('refuses a name another plan carries', async () => {
+    const user = userEvent.setup();
+    render(<PlanInspectorHeader />);
+
+    const input = await openNameField(user);
+    await user.clear(input);
+    await user.type(input, 'Mathe{Enter}');
+
+    expect(field()).toHaveAttribute('aria-invalid', 'true');
+    expect(field()).toHaveAccessibleDescription(/anderer Plan|Another plan/i);
+    expect(mocks.renameSeatingPlan).not.toHaveBeenCalled();
+  });
+
+  it('takes a typed name back on Escape', async () => {
+    const user = userEvent.setup();
+    render(<PlanInspectorHeader />);
+
+    const input = await openNameField(user);
+    await user.clear(input);
+    await user.type(input, 'Entwurf{Escape}');
+
+    expect(screen.queryByRole('textbox')).toBeNull();
+    expect(
+      screen.getByRole('heading', { level: 2, name: 'Deutsch' }),
+    ).toBeInTheDocument();
+    expect(mocks.renameSeatingPlan).not.toHaveBeenCalled();
+  });
+
+  it('keeps the open plan’s name when the field is emptied', async () => {
+    const user = userEvent.setup();
+    render(<PlanInspectorHeader />);
+
+    const input = await openNameField(user);
+    await user.clear(input);
+    await user.keyboard('{Enter}');
+
+    expect(mocks.renameSeatingPlan).not.toHaveBeenCalled();
+    expect(
+      screen.getByRole('heading', { level: 2, name: 'Deutsch' }),
+    ).toBeInTheDocument();
+  });
+
+  it('names a plan never saved for its first save', async () => {
+    mocks.planName = '';
+    mocks.activePlanId = null;
+    const user = userEvent.setup();
+    render(<PlanInspectorHeader />);
+
+    const input = await openNameField(user);
+    expect(input).toHaveValue('');
+    await user.type(input, 'Englisch{Enter}');
+
+    expect(mocks.setPlanName).toHaveBeenCalledWith('Englisch');
+    expect(mocks.handleSaveSeatingPlan).not.toHaveBeenCalled();
+  });
+
+  it('saves under the typed name on Ctrl/⌘+S', async () => {
+    const user = userEvent.setup();
+    render(<PlanInspectorHeader />);
+
+    const input = await openNameField(user);
+    await user.clear(input);
+    await user.type(input, 'Deutsch II');
+    await user.keyboard('{Control>}s{/Control}');
+
+    expect(mocks.handleSaveSeatingPlan).toHaveBeenCalledWith(
+      'Deutsch II',
+      mocks.classroomScene,
+      { rename: true },
+    );
+  });
+
+  it('offers no field while nobody is seated', () => {
+    mocks.currentSeating = [];
+    render(<PlanInspectorHeader />);
+
+    expect(
+      within(screen.getByRole('heading', { level: 2 })).queryByRole('button'),
+    ).toBeNull();
+  });
+
+  // The backup import holds a plan's name to 120 characters; a longer one
+  // made the whole backup unreadable.
+  it('takes no longer a name than a backup can read back', async () => {
+    const user = userEvent.setup();
+    render(<PlanInspectorHeader />);
+
+    expect(await openNameField(user)).toHaveAttribute('maxlength', '120');
+  });
 
   it('names the open plan and says it is saved', () => {
     render(<PlanInspectorHeader />);

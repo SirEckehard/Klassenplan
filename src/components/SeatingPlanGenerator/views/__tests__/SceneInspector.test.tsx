@@ -213,7 +213,7 @@ afterEach(() => {
 describe('SceneInspector', () => {
   // The room is renamed where it is read, as the class is in the class
   // layer's inspector; a name another room of the class carries is refused.
-  it('renames the open room in a field of its own', () => {
+  it('renames the open room in its header', () => {
     seatingPlan.state = {
       rooms: [
         { id: 'classroom', name: 'Klassenraum', createdAt: '' },
@@ -225,9 +225,12 @@ describe('SceneInspector', () => {
     };
     renderInspector();
 
-    expect(
-      screen.getByRole('heading', { level: 2, name: 'Klassenraum' }),
-    ).toBeInTheDocument();
+    const heading = screen.getByRole('heading', {
+      level: 2,
+      name: 'Klassenraum',
+    });
+    // Pressed, the name opens as a field.
+    fireEvent.click(within(heading).getByRole('button'));
     const field = screen.getByRole('textbox', {
       name: /Name des Raums|Room name/i,
     });

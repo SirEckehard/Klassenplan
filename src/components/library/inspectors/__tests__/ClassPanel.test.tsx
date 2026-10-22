@@ -5,7 +5,13 @@
  * school year and notes are changed where they are read.
  */
 import '@testing-library/jest-dom/vitest';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  within,
+} from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import '@/i18n';
 import ClassPanel from '../ClassPanel';
@@ -34,8 +40,12 @@ const field = (name: RegExp) => screen.getByRole('textbox', { name });
 afterEach(cleanup);
 
 describe('ClassPanel', () => {
-  it('renames the class on Enter, refusing a name another class carries', () => {
+  it('renames the class in the header on Enter, refusing a name another class carries', () => {
     const { onCommit } = renderPanel();
+    // The name is the header's, opened as a field when pressed.
+    fireEvent.click(
+      within(screen.getByRole('heading', { level: 2 })).getByRole('button'),
+    );
     const name = field(/^Name$/);
 
     fireEvent.change(name, { target: { value: '7A' } });

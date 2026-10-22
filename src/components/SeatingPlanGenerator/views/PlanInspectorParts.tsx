@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { CopyIcon, FloppyDiskIcon } from '@phosphor-icons/react';
 import {
@@ -15,18 +14,71 @@ import {
   InspectorSection,
 } from '@/components/shell/InspectorPanel';
 import { showToast } from '@/utils/ui/toast';
+import InspectorTitleField from '@/components/shell/InspectorTitleField';
 import {
   formatStoredDate,
   hasPlanForScene,
-  inputFieldClass,
   MAX_NAME_LENGTH,
+  uniqueName,
 } from '@/utils';
 
 /**
+ * Saving the plan on the stage, shared by the inspector's heading (Ctrl/⌘+S
+ * in its name) and the plan's section: under the plan's name, into the open
+ * plan — the one `activePlanId` names, never the one that happens to share
+ * the name — or as a copy beside it under a free name ("Deutsch (2)"), which
+ * leaves the open plan as it was saved.
+ */
+function usePlanSave() {
+  const { planName, seatingHistory, classroomScene, currentSeating } =
+    useSeatingPlanState();
+  const { handleSaveSeatingPlan } = useSeatingPlanActions();
+  const { openPlan } = usePlanSaveState();
+
+  const canSave = hasPlanForScene(classroomScene, currentSeating);
+  // Plan names are held exactly, as saving holds them.
+  const nameTaken = (name: string) =>
+    name !== '' &&
+    seatingHistory.some(
+      (plan) => plan.name === name && plan.id !== openPlan?.id,
+    );
+
+  /** An empty name keeps the open plan's; a plan without one gets a date. */
+  const save = (name = planName.trim()) => {
+    const next = name || openPlan?.name || '';
+    if (!canSave || nameTaken(next)) return;
+    handleSaveSeatingPlan(next, classroomScene, {
+      rename: openPlan !== undefined,
+    });
+  };
+
+  const saveAsNew = () => {
+    if (!canSave || !openPlan) return;
+    handleSaveSeatingPlan(
+      uniqueName(
+        openPlan.name,
+        seatingHistory.map((plan) => plan.name),
+        MAX_NAME_LENGTH,
+      ),
+      classroomScene,
+    );
+  };
+
+  return { openPlan, canSave, nameTaken, save, saveAsNew };
+}
+
+/**
  * The plan layer's inspector heading: the plan itself, as the room's names
- * the room and the class layer's the class — its name, and under it whether
- * what is on the stage is what was saved. Shared by the table plan and the
- * circle, which are the same plan seated two ways.
+ * the room and the class layer's the class — its name, renamed here as a
+ * student's is, and under it whether what is on the stage is what was saved.
+ * Shared by the table plan and the circle, which are the same plan seated
+ * two ways.
+ *
+ * A saved plan is renamed at once, as in "Bibliothek" — what it holds stays
+ * as it was saved. A plan never saved takes the name its first save will
+ * use; emptied, it gets a date then, as it always has. A name another plan
+ * carries is refused under the name rather than by a toast after the fact,
+ * and Ctrl/⌘+S in the field saves under the typed name.
  *
  * "Nicht gespeichert" alone is the status bar's word for a write to storage
  * that failed, so the subtitle never says only that.
@@ -35,9 +87,10 @@ export function PlanInspectorHeader() {
   const { t } = useTranslation('generator');
   const { planName, classroomScene, currentSeating, rooms, activeRoomId } =
     useSeatingPlanState();
-  const { openPlan, hasUnsavedChanges } = usePlanSaveState();
+  const { renameSeatingPlan, setPlanName } = useSeatingPlanActions();
+  const { hasUnsavedChanges } = usePlanSaveState();
+  const { openPlan, canSave, nameTaken, save } = usePlanSave();
 
-  const title = openPlan?.name ?? (planName.trim() || t('planSave.untitled'));
   const state = !hasPlanForScene(classroomScene, currentSeating)
     ? t('shell.status.noPlan')
     : !openPlan
@@ -58,7 +111,25 @@ export function PlanInspectorHeader() {
 
   return (
     <InspectorHeader
-      title={title}
+      title={
+        <InspectorTitleField
+          label={t('planSave.nameLabel')}
+          value={openPlan?.name ?? planName.trim()}
+          placeholder={t('planSave.untitled')}
+          optional={!openPlan}
+          disabled={!canSave}
+          problemFor={(draft) => (nameTaken(draft.trim()) ? 'taken' : null)}
+          onCommit={(name) => {
+            if (openPlan) {
+              return renameSeatingPlan(openPlan.id, name) ? null : 'taken';
+            }
+            setPlanName(name);
+            return null;
+          }}
+          takenMessage={t('planSave.nameTaken')}
+          onSaveShortcut={save}
+        />
+      }
       subtitle={[state, roomName && t('planSave.room', { name: roomName })]
         .filter(Boolean)
         .join(' · ')}
@@ -67,19 +138,13 @@ export function PlanInspectorHeader() {
 }
 
 /**
- * The plan's own section, first in its inspector: its name, the ways to keep
- * it, and the other plans of the class to open instead.
+ * The plan's own section, first in its inspector: the ways to keep it, and
+ * the other plans of the class to open instead. Its name is the heading's
+ * (`PlanInspectorHeader`).
  *
- * The name counts when the plan is saved, not when the field is left: a plan
- * on the stage is a working state, and only saving writes it. What a new name
- * does is spelled out — the open plan is renamed ("Umbenennen und speichern"),
- * or it stays as it was and the plan on screen becomes another one ("Als
- * neuen Plan speichern"). A plan never saved has only "Speichern".
- *
- * Enter and Ctrl/⌘+S in the field save, Escape takes the draft back. A name
- * another plan carries is refused here rather than by a toast after the fact.
- * An emptied field keeps the open plan's name; a plan without one gets a
- * timestamp, as it always has.
+ * "Plan speichern" writes the stage into the open plan, or starts the first
+ * one. "Als neuen Plan speichern" leaves the open plan as it was and keeps
+ * the stage beside it under a free name, which the heading then renames.
  *
  * "Plan öffnen …" is shaped as the room's "Raum öffnen …": the saved plans
  * of the class, the open room's first and the open one checked; once the
@@ -89,39 +154,13 @@ export function PlanInspectorHeader() {
  */
 export function PlanSection() {
   const { t } = useTranslation('generator');
-  const {
-    planName,
-    seatingHistory,
-    classroomScene,
-    currentSeating,
-    activePlanId,
-    activeRoomId,
-    rooms,
-  } = useSeatingPlanState();
-  const { handleSaveSeatingPlan, handleHistoryLoad } = useSeatingPlanActions();
-  // The saved plan on screen, by the id a save writes to — the section must
-  // not offer a rename the save would then refuse.
-  const { openPlan } = usePlanSaveState();
-  const [draft, setDraft] = React.useState(planName);
-  const fieldId = React.useId();
-  const hintId = React.useId();
-
-  // A name changed elsewhere — Ctrl/⌘+S, a plan opened — shows here.
-  const [shownName, setShownName] = React.useState(planName);
-  if (shownName !== planName) {
-    setShownName(planName);
-    setDraft(planName);
-  }
-
-  const canSave = hasPlanForScene(classroomScene, currentSeating);
-  const name = draft.trim();
-  const nameTaken =
-    name !== '' &&
-    seatingHistory.some(
-      (plan) => plan.name === name && plan.id !== openPlan?.id,
-    );
-  const renames =
-    openPlan !== undefined && name !== '' && name !== openPlan.name;
+  const { planName, seatingHistory, activePlanId, activeRoomId, rooms } =
+    useSeatingPlanState();
+  const { handleHistoryLoad } = useSeatingPlanActions();
+  const { openPlan, canSave, nameTaken, save, saveAsNew } = usePlanSave();
+  // A name a saved plan carries while the persistence does not hold that
+  // plan open: a save would be refused, so the section says why.
+  const taken = nameTaken(planName.trim());
 
   // The open room's plans first, then the others room by room; each keeps
   // the order it has in the history.
@@ -137,75 +176,23 @@ export function PlanSection() {
       ? rooms.find((room) => room.id === roomId)?.name
       : undefined;
 
-  const save = () => {
-    if (!canSave || nameTaken) return;
-    handleSaveSeatingPlan(name || openPlan?.name || '', classroomScene, {
-      rename: openPlan !== undefined,
-    });
-  };
-
-  const saveAsNew = () => {
-    if (!canSave || !renames || nameTaken) return;
-    handleSaveSeatingPlan(name, classroomScene);
-  };
-
   return (
     <InspectorSection title={t('planSave.section')}>
-      <div className="flex flex-col gap-1">
-        <label
-          htmlFor={fieldId}
-          className="text-xs font-medium text-(--text-muted)"
-        >
-          {t('planSave.nameLabel')}
-        </label>
-        <input
-          id={fieldId}
-          type="text"
-          value={draft}
-          disabled={!canSave}
-          // As long as the backup import lets a plan's name be.
-          maxLength={MAX_NAME_LENGTH}
-          onChange={(event) => setDraft(event.target.value)}
-          onKeyDown={(event) => {
-            const isSaveShortcut =
-              (event.ctrlKey || event.metaKey) &&
-              event.key.toLowerCase() === 's';
-            if (event.key === 'Enter' || isSaveShortcut) {
-              // Ctrl/⌘+S would otherwise open the browser's own save dialog:
-              // the layer's shortcut stands down while a field has focus.
-              event.preventDefault();
-              save();
-            } else if (event.key === 'Escape') {
-              // Only "not this name" — the canvas would take Escape as
-              // clearing its selection.
-              event.preventDefault();
-              event.stopPropagation();
-              setDraft(planName);
-            }
-          }}
-          // An emptied field keeps the open plan's name, so that is what it
-          // shows.
-          placeholder={openPlan?.name ?? t('planSave.namePlaceholder')}
-          aria-invalid={nameTaken || undefined}
-          aria-describedby={nameTaken ? hintId : undefined}
-          className={inputFieldClass}
-        />
-        {nameTaken && (
-          <p id={hintId} className="text-xs text-(--status-alert-text)">
-            {t('planSave.nameTaken')}
-          </p>
-        )}
-      </div>
       <div className="flex flex-col">
         <InspectorActionRow
           icon={FloppyDiskIcon}
-          label={renames ? t('planSave.rename') : t('planSave.save')}
+          label={t('planSave.save')}
           title={t('actions.saveShortcut')}
-          disabled={!canSave || nameTaken}
-          onClick={save}
+          disabled={!canSave || taken}
+          onClick={() => save()}
         />
-        {/* Only a new name can start a new plan, so the way appears with one. */}
-        {renames && !nameTaken && (
+        {taken && (
+          <p className="text-xs text-(--status-alert-text)">
+            {t('planSave.nameTaken')}
+          </p>
+        )}
+        {/* Only a saved plan can be kept as it was beside a new one. */}
+        {openPlan && (
           <InspectorActionRow
             icon={CopyIcon}
             label={t('planSave.saveAsNew')}

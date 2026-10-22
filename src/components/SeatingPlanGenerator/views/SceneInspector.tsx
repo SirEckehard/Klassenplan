@@ -32,7 +32,7 @@ import {
 } from '@/components/shell/InspectorPanel';
 import ToggleSwitch from '@/components/ui/controls/ToggleSwitch';
 import TablePreview from '@/components/TablePreview';
-import NameField from '@/components/shell/NameField';
+import InspectorTitleField from '@/components/shell/InspectorTitleField';
 import {
   RoomListControls,
   RoomSetupSection,
@@ -468,9 +468,9 @@ export default function SceneInspector({
       </InspectorSection>
     ) : null;
 
-  // Nothing selected: the room itself, by its name — renamed in its own
-  // section, as the class is in the class layer's inspector, and beside the
-  // name the class's other rooms: a new one, and the others to open. Seats
+  // Nothing selected: the room itself, by its name — renamed in the header,
+  // as the class is in the class layer's inspector — and in its own section
+  // the class's other rooms: a new one, and the others to open. Seats
   // and students are the status bar's to state; what the panel adds is how a
   // room is set up and how a room is kept for others, which comes last: a
   // template opens as a room of its own.
@@ -478,17 +478,9 @@ export default function SceneInspector({
     return (
       <>
         <InspectorHeader
-          title={openRoomName ?? t('sceneInspector.room')}
-          subtitle={
-            tables.length > 0
-              ? t('sceneInspector.tables', { count: tables.length })
-              : t('sceneInspector.noTables')
-          }
-        />
-        <InspectorBody>
-          {openRoomName !== undefined && activeRoomId && seatingPlanActions && (
-            <InspectorSection title={t('sceneInspector.room')}>
-              <NameField
+          title={
+            openRoomName !== undefined && activeRoomId && seatingPlanActions ? (
+              <InspectorTitleField
                 label={t('sceneInspector.roomName')}
                 value={openRoomName}
                 problemFor={(draft) =>
@@ -499,6 +491,19 @@ export default function SceneInspector({
                 }
                 takenMessage={t('sceneInspector.roomNameTaken')}
               />
+            ) : (
+              (openRoomName ?? t('sceneInspector.room'))
+            )
+          }
+          subtitle={
+            tables.length > 0
+              ? t('sceneInspector.tables', { count: tables.length })
+              : t('sceneInspector.noTables')
+          }
+        />
+        <InspectorBody>
+          {openRoomName !== undefined && activeRoomId && seatingPlanActions && (
+            <InspectorSection title={t('sceneInspector.room')}>
               <RoomListControls />
             </InspectorSection>
           )}

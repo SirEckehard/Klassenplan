@@ -39,12 +39,13 @@ import InspectorSelect from '@/components/students/InspectorSelect';
 import { hasShapeMismatch } from '@/utils/math/scene';
 import RoomThumbnail from '../RoomThumbnail';
 import NameField from '@/components/shell/NameField';
+import InspectorTitleField from '@/components/shell/InspectorTitleField';
 import { ValueRow } from './panelParts';
 
 export type PlanMove = { roomId: string } | { newRoomName: string };
 
 /**
- * A saved plan in "Bibliothek": its name, renamed here; the room it
+ * A saved plan in "Bibliothek": its name, renamed in the header; the room it
  * belongs to, which it can leave for another or a new one (decision 0024) —
  * a menu, as a student's language level is, since a class may have many
  * rooms; what it holds; whether it was really in use — marked here by hand,
@@ -133,7 +134,16 @@ export default function PlanPanel({
         media={
           <RoomThumbnail scene={plan.scene} className="h-11 w-16.5 shrink-0" />
         }
-        title={plan.name}
+        title={
+          <InspectorTitleField
+            label={t('planSave.nameLabel')}
+            value={plan.name}
+            problemFor={problemFor}
+            onCommit={onRename}
+            takenMessage={t('planSave.nameTaken')}
+            focusRequest={renameRequest}
+          />
+        }
         subtitle={[
           formatStoredDate(plan.date),
           plan.autoSaved ? t('library.chipAutoSaved') : null,
@@ -143,14 +153,6 @@ export default function PlanPanel({
       />
       <InspectorBody>
         <InspectorSection title={t('library.plan.section')}>
-          <NameField
-            label={t('planSave.nameLabel')}
-            value={plan.name}
-            problemFor={problemFor}
-            onCommit={onRename}
-            takenMessage={t('planSave.nameTaken')}
-            focusRequest={renameRequest}
-          />
           <InspectorSelect
             label={t('library.plan.room')}
             value={plan.roomId}

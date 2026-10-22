@@ -19,6 +19,7 @@ import {
   dangerButtonClass,
   dataFamilyClass,
   dataHeadingClass,
+  inspectorTitleTextClass,
   menuItemClass,
   menuSurfaceClass,
   quietDangerIconButtonClass,
@@ -59,7 +60,9 @@ export function InspectorHeader({
         {/* A heading, so the panel has a place in the document outline and a
             test can ask for what is selected by name. It wraps rather than
             truncates: a student's name cut to "Lina Schneid…" names nobody. */}
-        <h2 className="min-w-0 wrap-break-word text-[1.0625rem] font-semibold text-(--text-page)">
+        <h2
+          className={`min-w-0 wrap-break-word text-(--text-page) ${inspectorTitleTextClass}`}
+        >
           {title}
         </h2>
         {subtitle && (

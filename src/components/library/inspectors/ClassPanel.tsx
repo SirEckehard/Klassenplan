@@ -9,17 +9,19 @@ import {
   InspectorMediaTile,
   InspectorSection,
 } from '@/components/shell/InspectorPanel';
+import InspectorTitleField from '@/components/shell/InspectorTitleField';
 import ClassMetadataFields from '@/components/students/ClassMetadataFields';
 import type { UpdateClassMetadataPayload } from '@/types';
-import { formatStoredDate } from '@/utils';
+import { checkName, formatStoredDate, MAX_NAME_LENGTH } from '@/utils';
 import { ValueRow } from './panelParts';
 
 /**
  * A class: what it is called and what it holds — in "Bibliothek", and in the
- * class layer's inspector while no student is open there. Its school year is
- * the header's subtitle. Name, school year and notes are changed in the panel
- * itself, and the class goes with everything in it only after the question
- * the delete asks.
+ * class layer's inspector while no student is open there. The name is
+ * changed in the header, as a student's is, the school year and the notes in
+ * the panel — the header does not repeat the school year under the name; a name another class
+ * carries is refused as it is typed. The class goes with everything in it
+ * only after the question the delete asks.
  */
 export default function ClassPanel({
   name,
@@ -54,18 +56,30 @@ export default function ClassPanel({
     <>
       <InspectorHeader
         media={<InspectorMediaTile icon={GraduationCapIcon} />}
-        title={name}
-        subtitle={label || undefined}
+        title={
+          <InspectorTitleField
+            label={t('classPanel.name')}
+            value={name}
+            problemFor={(draft) =>
+              checkName(draft, otherNames, MAX_NAME_LENGTH)
+            }
+            // A refusal the field could not foresee is said by a toast; the
+            // field keeps what was typed.
+            onCommit={async (next) => {
+              await onCommit({ name: next });
+              return null;
+            }}
+            takenMessage={t('classPanel.nameTaken')}
+            focusRequest={renameRequest}
+          />
+        }
       />
       <InspectorBody>
         <InspectorSection title={t('library.class.section')}>
           <ClassMetadataFields
-            name={name}
             label={label}
             notes={notes}
-            otherNames={otherNames}
             onCommit={onCommit}
-            focusRequest={renameRequest}
           />
         </InspectorSection>
         <InspectorSection title={t('library.contents')}>

@@ -1,6 +1,6 @@
 # Design System – Klassenplan
 
-> **Status:** current · **Last reviewed:** 2026-10-19 · **Maintainer:** Eike
+> **Status:** current · **Last reviewed:** 2026-10-22 · **Maintainer:** Eike
 > Schäfer · **Describes:** Klassenplan 3.1.2
 
 This document describes the binding design tokens for Klassenplan. All values live in `src/index.css` and are reachable from TypeScript through `src/utils/ui/designTokens.ts`.
@@ -309,7 +309,12 @@ pencil and a bin beside it where an entry can be renamed and removed) — shared
 every panel of "Bibliothek": the header is a
 strip of 44px media, an `h2` and a subtitle above a hairline — the `h2` wraps
 rather than truncates, and a student's arrows to the neighbours sit in the
-subtitle beside the position, so the name keeps the width; sections carry a
+subtitle beside the position, so the name keeps the width. The name in the
+`h2` is where it is renamed — a student's, a class's, a room's, a plan's, a
+template's, the export sheet's title: a bordered pill (`editableTitleClass`)
+that opens as a field when pressed (`InspectorTitleField`,
+`StudentNameEditor`), so no section repeats it as a field under the heading
+and the body starts with what only the panel holds; sections carry a
 `data-heading` in their family's colour and are separated by `border-t` with
 `first:border-t-0`, never by a gap; the footer holds what acts on the whole
 selection, destructive last. A panel that needs a new group adds a section —

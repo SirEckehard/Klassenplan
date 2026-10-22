@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Improved
 
+- Every inspector is renamed where it names what it shows – in its header, as a student's name already was: a class, a room, a plan, a template and the export sheet's title. A click opens the name as a field, Enter keeps it and Esc takes it back, and no field under the heading repeats it any more. A saved plan is renamed at once, as in "Bibliothek"; "Save as new plan" keeps a copy beside it under a free name, which you then rename
 - Mixing weighs every criterion the way the inspector shows it: who sits next to whom counts at the seat partner, at the same table and at the seat directly beside, in front of or behind at the next table – seen from the board, with no aisle in between – and the fulfilment beside each criterion counts the same, against what the class and the room allow. Plans meet preferred partners and distance requests far better, above all at single desks, and the percentages mean what they say: 100 % is as good as the class and the room allow
 - "Mix" tries three starts and keeps the best plan – and still takes less time than one took before
 - "Front seats" at "Very important" keeps the students needing one in the front row, and who sits beside whom there follows the other criteria; at the levels below, the row behind it counts as a front seat too, and only a criterion weighed more moves a student further back. The recommendation and the presets set "Very important", and a class keeps the front row it had
@@ -23,8 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - "Repetition" weighs a plan by how recent it is, whatever the number of plans, and parts the pairs who sat together most often first
 - The seating circle keeps students with a distance request, restless and distractible students apart where it can, as weighted for the mix
 - The FAQ explains how the mixing reads neighbours and how the fulfilment is counted
-- The inspector of the seating plan and the circle shows the plan itself: its name, whether it is saved, saving it under its name or as a new plan ("Save plan"), and opening another plan of the class – one of another room opens that room – the mixing criteria follow below. Saving is no longer an entry of the toolbar, as a room's template already was not; Ctrl/⌘+S still saves straight away
-- The room's inspector renames the open room in a field of its own, as the class's does, and "Bibliothek" asks for a template's name as the room's inspector does instead of adding a number to a name that is taken
+- The inspector of the seating plan and the circle shows the plan itself: its name, whether it is saved, saving it ("Save plan") or keeping a copy beside it ("Save as new plan"), and opening another plan of the class – one of another room opens that room – the mixing criteria follow below. Saving is no longer an entry of the toolbar, as a room's template already was not; Ctrl/⌘+S still saves straight away
+- "Bibliothek" asks for a template's name as the room's inspector does instead of adding a number to a name that is taken
 - "Add student" and "Create placeholders" stand under "Add" in the class's toolbar, as the room's tables do; "Manage" keeps the class list's import, export and printing
 - Classes no longer open a dialog: a new class is named right in the class menu of the header – or, the very first one, on the start card – and Enter creates and opens it. While no student is open, the inspector of the class layer shows the class itself, where its name, school year and notes are changed, as in "Bibliothek"; the class menu renames a class in place, and a change no longer brings a message
 - A room is saved as a template in the room's inspector instead of a dialog: the name – the room's own to begin with – is typed in place, and a name a template already carries offers to replace that template
@@ -42,6 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- In "Bibliothek", F2 put the focus in the name of every entry chosen afterwards as well, not only in the one it was pressed on
 - Opening a saved plan whose tables differ from the ones on screen – another room's plan above all – no longer mixes it over at once; it stays as it was saved
 - After the room was set up anew with other tables, the seating plan no longer shows the old plan on the new tables, its students beside the tables and on top of each other: it is mixed for the new tables, and where that cannot happen on its own the tables stay empty with a notice and "Mix again now". Such a plan is neither saved, exported nor presented, and its fulfilment is no longer shown
 - "Repetition" counts only the plans that were really in use: its value no longer falls while you mix again and again, and a plan no longer counts as a repetition of itself once it was presented, exported or saved. Mixing no longer avoids the pairs of earlier mixes either – that the next mix turns out differently is left to chance and the other criteria

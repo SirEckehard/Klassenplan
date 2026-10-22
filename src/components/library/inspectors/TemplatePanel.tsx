@@ -10,11 +10,12 @@ import {
 import type { ClassroomTemplate } from '@/types';
 import type { NameProblem } from '@/utils';
 import RoomThumbnail from '../RoomThumbnail';
-import NameField from '@/components/shell/NameField';
+import InspectorTitleField from '@/components/shell/InspectorTitleField';
 import { ValueRow } from './panelParts';
 
 /**
- * A room kept for every class: its name, renamed here, its tables, and
+ * A room kept for every class: its name, renamed in the header, its tables,
+ * and
  * removing it. Opened — from the status bar — it becomes a room of its own of
  * the class that is open (decision 0024).
  */
@@ -46,12 +47,8 @@ export default function TemplatePanel({
             className="h-11 w-16.5 shrink-0"
           />
         }
-        title={template.name}
-        subtitle={t('library.templates')}
-      />
-      <InspectorBody>
-        <InspectorSection title={t('library.template.section')}>
-          <NameField
+        title={
+          <InspectorTitleField
             label={t('sceneInspector.templateName')}
             value={template.name}
             // Template names are held exactly, as saving one holds them.
@@ -69,6 +66,11 @@ export default function TemplatePanel({
             takenMessage={t('template.duplicateWarning')}
             focusRequest={renameRequest}
           />
+        }
+        subtitle={t('library.templates')}
+      />
+      <InspectorBody>
+        <InspectorSection title={t('library.template.section')}>
           <ValueRow label={t('library.room.tables')}>
             {[
               t('sceneInspector.tables', {

@@ -17,7 +17,6 @@ import {
 import type { ClassroomFeatureType } from '@/types';
 import {
   dataFamilyClass,
-  inputFieldClass,
   type DataFamily,
   type NameDisplayMode,
 } from '@/utils';
@@ -28,6 +27,7 @@ import {
   FEATURE_TYPE_LABEL_KEYS,
   type FeatureVisibilityFlags,
 } from '@/utils/ui';
+import InspectorTitleField from '@/components/shell/InspectorTitleField';
 import {
   InspectorBody,
   InspectorChoice,
@@ -143,7 +143,6 @@ export default function ExportSheetInspector({
   onFeatureToggle,
 }: Props) {
   const { t } = useTranslation('generator');
-  const titleId = React.useId();
   const isTable = mode === 'table';
   const isList = mode === 'list';
   const orientationLabel =
@@ -199,7 +198,23 @@ export default function ExportSheetInspector({
 
   return (
     <>
-      <InspectorHeader title={t('export.sheet')} subtitle={sheetSubtitle} />
+      {/* The sheet goes by its title, renamed in the header as a plan's name
+          is; what kind of sheet it is stands under it. */}
+      <InspectorHeader
+        title={
+          <InspectorTitleField
+            label={t('export.title')}
+            value={title}
+            placeholder={t('export.titlePlaceholder')}
+            optional
+            onCommit={(next) => {
+              onTitleChange(next);
+              return null;
+            }}
+          />
+        }
+        subtitle={`${t('export.sheet')} · ${sheetSubtitle}`}
+      />
       <InspectorBody>
         <InspectorSection title={t('export.pageFormat')}>
           <InspectorRow label={t('export.orientation')}>
@@ -261,25 +276,9 @@ export default function ExportSheetInspector({
             )}
         </InspectorSection>
 
-        {/* What the line on top of the sheet says: the title, and under it
-            the class's label and notes. */}
+        {/* What the line on top of the sheet says under its title: the
+            class's label and notes. */}
         <InspectorSection title={t('export.headerSection')}>
-          <div className="flex flex-col gap-1.5">
-            <label
-              htmlFor={titleId}
-              className="text-control text-(--text-page)"
-            >
-              {t('export.title')}
-            </label>
-            <input
-              id={titleId}
-              type="text"
-              value={title}
-              onChange={(event) => onTitleChange(event.target.value)}
-              placeholder={t('export.titlePlaceholder')}
-              className={`${inputFieldClass} w-full`}
-            />
-          </div>
           {switchRow(t('export.rows.classInfo'), classInfo, rowIcon(InfoIcon))}
         </InspectorSection>
 

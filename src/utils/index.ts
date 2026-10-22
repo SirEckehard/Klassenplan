@@ -393,6 +393,8 @@ export {
   loadingIconButtonClass,
   mutedIconButtonClass,
   inputFieldClass,
+  editableTitleClass,
+  inspectorTitleTextClass,
   selectFieldClass,
   textareaFieldClass,
   segmentedTrackClass,

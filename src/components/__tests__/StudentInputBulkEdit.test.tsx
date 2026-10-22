@@ -943,9 +943,10 @@ describe('StudentInput showing the class in the inspector', () => {
       within(slot()).queryByRole('heading', { name: '5a' });
 
     expect(className()).toBeInTheDocument();
-    expect(within(slot()).getByRole('textbox', { name: /^Name$/ })).toHaveValue(
-      '5a',
-    );
+    // The class's name is its header's, renamed there.
+    expect(
+      within(className() as HTMLElement).getByRole('button', { name: '5a' }),
+    ).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'open Anna' }));
     expect(className()).not.toBeInTheDocument();

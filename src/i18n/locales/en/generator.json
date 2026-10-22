@@ -21,7 +21,7 @@
     },
     "plan": {
       "title": "Seating Plan",
-      "item1": "In the inspector on the right you name the seating plan, save it and set how much each criterion matters, or you pick a preset such as “Written test” that sets all criteria at once.",
+      "item1": "In the inspector on the right you name the seating plan with a click on its name, save it and set how much each criterion matters, or you pick a preset such as “Written test” that sets all criteria at once.",
       "item2": "Drag students to other seats. Esc cancels the drag. With the keyboard, Enter selects a student, the arrow keys choose the seat, Enter puts them there.",
       "item3": "Click the lock icon to lock a seat for the next mix.",
       "item4": "The button above the criteria shows in per cent how well the plan meets them and puts a bar under each criterion – hover it and the seats it concerns are marked.",
@@ -41,7 +41,7 @@
     },
     "export": {
       "title": "Export",
-      "item1": "Adjust the name of your seating plan for the export without renaming the saved plan.",
+      "item1": "Click the sheet's title at the top of the inspector to adjust it without renaming the saved plan.",
       "item2": "Switch between portrait and landscape format for PDF export.",
       "itemFlip": "Set the viewing direction under page format: \"From the back\" rotates the room by 180° for a desk in the back part of the room, so names stay readable.",
       "item3": "Choose in the inspector on the right what the sheet should show: class info, photos, colors, markers, legend and room elements.",
@@ -1018,10 +1018,8 @@
   "planSave": {
     "section": "Plan",
     "nameLabel": "Seating plan name",
-    "namePlaceholder": "e.g. German from October",
     "nameTaken": "Another plan already has this name.",
     "save": "Save plan",
-    "rename": "Rename and save",
     "saveAsNew": "Save as new plan",
     "room": "In the room “{{name}}”",
     "untitled": "New plan",

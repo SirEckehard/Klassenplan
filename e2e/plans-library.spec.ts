@@ -73,10 +73,17 @@ async function mixAndSave(page: Page, name: string): Promise<void> {
     page.getByRole('group', { name: /^Sitzplan:/ }),
   ).toHaveAccessibleName('Sitzplan: 4 von 4 Plätzen belegt');
 
-  // The plan's name and its saving are the inspector's "Plan" section.
-  const field = page.getByRole('textbox', { name: 'Name des Sitzplans' });
+  // The plan is named in the inspector's header; saving is the "Plan"
+  // section's.
+  const inspector = page.getByRole('complementary', { name: 'Plan' });
+  await inspector
+    .getByRole('heading', { level: 2 })
+    .getByRole('button')
+    .click();
+  const field = inspector.getByRole('textbox', { name: 'Name des Sitzplans' });
   await field.fill(name);
   await field.press('Enter');
+  await inspector.getByRole('button', { name: 'Plan speichern' }).click();
   await expect(
     page.getByTestId('toast-item').filter({ hasText: name }),
   ).toBeVisible();
@@ -130,13 +137,9 @@ test('a plan is found in its room, and a lab is a room of its own', async ({
 
   await test.step('a lab, made as a room of its own, with its own plan', async () => {
     await page.getByRole('button', { name: 'Raum', exact: true }).click();
-    // The rooms are a menu under the open room's name, "Neuer Raum" at
-    // its end; the menu is portalled to the end of the page.
+    // "Neuer Raum" is a row of the room's section that names the room
+    // before it is made; the open room's own name is the header's.
     await roomInspector(page)
-      .getByRole('button', { name: /^Geöffneter Raum:/ })
-      .click();
-    await page
-      .getByRole('dialog', { name: 'Räume' })
       .getByRole('button', { name: 'Neuer Raum' })
       .click();
     const name = roomInspector(page).getByRole('textbox', {

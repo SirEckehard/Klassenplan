@@ -230,9 +230,11 @@ describe('Export page', () => {
     it('reads the inspector column as the sheet', async () => {
       renderExport();
 
-      expect(
-        within(await sheetPanel()).getByRole('heading', { name: 'Blatt' }),
-      ).toBeInTheDocument();
+      // The sheet goes by its title; what kind of sheet it is stands under
+      // it.
+      const panel = await sheetPanel();
+      expect(within(panel).getByRole('heading', { level: 2 })).toBeVisible();
+      expect(within(panel).getByText(/^Blatt · A4/)).toBeInTheDocument();
     });
 
     it('starts with needs shown', async () => {

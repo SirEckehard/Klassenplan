@@ -3,6 +3,7 @@
 import React from 'react';
 import type { NameProblem } from '@/utils';
 import { inputFieldClass, MAX_NAME_LENGTH } from '@/utils';
+import { useNameDraft } from './useNameDraft';
 
 /**
  * A name in the inspector, renamed where it is read: Enter or leaving the
@@ -42,20 +43,15 @@ export default function NameField({
   placeholder?: string;
   maxLength?: number;
 }) {
-  const [draft, setDraft] = React.useState(value);
-  const [refused, setRefused] = React.useState<NameProblem | null>(null);
+  const { draft, setDraft, reset, taken, commit } = useNameDraft({
+    value,
+    problemFor,
+    onCommit,
+    optional,
+  });
   const fieldRef = React.useRef<HTMLInputElement & HTMLTextAreaElement>(null);
   const fieldId = React.useId();
   const messageId = React.useId();
-  const committingRef = React.useRef(false);
-
-  // A name changed elsewhere — or another entry with its own — shows here.
-  const [shownValue, setShownValue] = React.useState(value);
-  if (shownValue !== value) {
-    setShownValue(value);
-    setDraft(value);
-    setRefused(null);
-  }
 
   React.useEffect(() => {
     if (focusRequest === 0) return undefined;
@@ -67,31 +63,6 @@ export default function NameField({
     return () => cancelAnimationFrame(frame);
   }, [focusRequest]);
 
-  const problem =
-    draft.trim() === value || (optional && draft.trim() === '')
-      ? null
-      : (problemFor?.(draft) ?? null);
-  // Only a taken name needs words: an empty field goes back, and the field
-  // takes no more than a name may have.
-  const taken = refused === 'taken' || problem === 'taken';
-
-  const commit = async () => {
-    const trimmed = draft.trim();
-    if (trimmed === value || committingRef.current) return;
-    if (trimmed === '' && !optional) {
-      setDraft(value);
-      return;
-    }
-    if (problem) return;
-    committingRef.current = true;
-    try {
-      const result = await onCommit(trimmed);
-      setRefused(result);
-    } finally {
-      committingRef.current = false;
-    }
-  };
-
   const handleKeyDown = (
     event: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
@@ -101,8 +72,7 @@ export default function NameField({
     } else if (event.key === 'Escape') {
       event.preventDefault();
       event.stopPropagation();
-      setDraft(value);
-      setRefused(null);
+      reset();
     }
   };
 
@@ -113,10 +83,7 @@ export default function NameField({
     placeholder,
     onChange: (
       event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-    ) => {
-      setDraft(event.target.value);
-      setRefused(null);
-    },
+    ) => setDraft(event.target.value),
     onBlur: () => {
       void commit();
     },

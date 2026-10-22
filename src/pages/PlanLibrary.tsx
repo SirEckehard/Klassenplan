@@ -185,11 +185,29 @@ function PlanLibraryPage() {
     latestRef.current = { state, actions };
   });
 
-  const [renameRequest, setRenameRequest] = React.useState(0);
+  // The entry whose name is asked for (F2, a class or room just added), so
+  // only its panel opens the name — not every panel shown after it. Choosing
+  // another entry lets the request go.
+  const [renameRequest, setRenameRequest] = React.useState<{
+    key: string;
+    count: number;
+  } | null>(null);
+  const requestRenameOf = (key: string) =>
+    setRenameRequest((previous) => ({
+      key,
+      count: (previous?.count ?? 0) + 1,
+    }));
+  const renameRequestCount =
+    renameRequest && renameRequest.key === currentKey ? renameRequest.count : 0;
 
-  const choose = (columnIndex: number, key: string) =>
+  const choose = (columnIndex: number, key: string) => {
+    setRenameRequest(null);
     setChosenPath([...path.slice(0, columnIndex), key]);
-  const goUp = (index: number) => setChosenPath(path.slice(0, index + 1));
+  };
+  const goUp = (index: number) => {
+    setRenameRequest(null);
+    setChosenPath(path.slice(0, index + 1));
+  };
 
   // The inspector is where an entry is read; below `lg` it is a drawer,
   // shown when an entry that opens nothing further is tapped.
@@ -364,7 +382,7 @@ function PlanLibraryPage() {
       node.kind === 'template'
     ) {
       showInspector();
-      setRenameRequest((count) => count + 1);
+      requestRenameOf(libraryKey(node));
     }
   };
 
@@ -503,9 +521,10 @@ function PlanLibraryPage() {
       { activate: false },
     );
     if (!classId) return;
-    setChosenPath([libraryKey({ kind: 'class', classId })]);
+    const key = libraryKey({ kind: 'class', classId });
+    setChosenPath([key]);
     showInspector();
-    setRenameRequest((count) => count + 1);
+    requestRenameOf(key);
   };
 
   const addRoom = async () => {
@@ -520,16 +539,17 @@ function PlanLibraryPage() {
     });
     if (!outcome.ok) return;
     if (outcome.roomId) {
+      const key = libraryKey({
+        kind: 'room',
+        classId: classLibrary.id,
+        roomId: outcome.roomId,
+      });
       setChosenPath([
         libraryKey({ kind: 'class', classId: classLibrary.id }),
-        libraryKey({
-          kind: 'room',
-          classId: classLibrary.id,
-          roomId: outcome.roomId,
-        }),
+        key,
       ]);
       showInspector();
-      setRenameRequest((count) => count + 1);
+      requestRenameOf(key);
     }
   };
 
@@ -579,7 +599,7 @@ function PlanLibraryPage() {
               .map((entry) => entry.name)}
             onCommit={(patch) => updateClassMetadata(classLibrary.id, patch)}
             onDelete={() => requestDelete(current.classId)}
-            renameRequest={renameRequest}
+            renameRequest={renameRequestCount}
           />
         ) : null;
       case 'room': {
@@ -640,7 +660,7 @@ function PlanLibraryPage() {
             }}
             onDelete={() => void requestRemoval(current)}
             deleteBlockedHint={roomRemovalHint(current)}
-            renameRequest={renameRequest}
+            renameRequest={renameRequestCount}
           />
         );
       }
@@ -708,7 +728,7 @@ function PlanLibraryPage() {
               });
             }}
             onDelete={() => void requestRemoval(current)}
-            renameRequest={renameRequest}
+            renameRequest={renameRequestCount}
           />
         );
       }
@@ -797,7 +817,7 @@ function PlanLibraryPage() {
               return result.error === 'duplicate' ? 'taken' : null;
             }}
             onDelete={() => void requestRemoval(current)}
-            renameRequest={renameRequest}
+            renameRequest={renameRequestCount}
           />
         );
       }

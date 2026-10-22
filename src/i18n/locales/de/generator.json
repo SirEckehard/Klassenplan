@@ -21,7 +21,7 @@
     },
     "plan": {
       "title": "Sitzplan",
-      "item1": "Rechts im Inspektor benennst du den Sitzplan, speicherst ihn und stellst für jedes Kriterium ein, wie wichtig es ist, oder du wählst eine Voreinstellung wie z. B. „Klassenarbeit“, die alle Kriterien auf einmal setzt.",
+      "item1": "Rechts im Inspektor benennst du den Sitzplan mit einem Klick auf seinen Namen, speicherst ihn und stellst für jedes Kriterium ein, wie wichtig es ist, oder du wählst eine Voreinstellung wie z. B. „Klassenarbeit“, die alle Kriterien auf einmal setzt.",
       "item2": "Ziehe Schüler auf andere Plätze. Esc bricht das Ziehen ab. Mit der Tastatur wählt die Eingabetaste einen Schüler aus, die Pfeiltasten wählen den Platz, die Eingabetaste setzt ihn dorthin.",
       "item3": "Klicke auf das Schloss-Symbol, um einen Platz beim nächsten Mischen zu sperren.",
       "item4": "Der Knopf über den Kriterien zeigt in Prozent, wie gut der Plan sie erfüllt, und blendet unter jedem Kriterium eine Leiste ein – fährst du über sie, werden die betroffenen Plätze markiert.",
@@ -41,7 +41,7 @@
     },
     "export": {
       "title": "Export",
-      "item1": "Passe den Namen deines Sitzplans an, ohne den gespeicherten Plan umzubenennen.",
+      "item1": "Klicke oben im Inspektor auf den Titel des Blatts, um ihn anzupassen, ohne den gespeicherten Plan umzubenennen.",
       "item2": "Wechsel zwischen Hochformat und Querformat für den PDF-Export.",
       "itemFlip": "Lege im Seitenformat die Blickrichtung fest: „Von hinten“ dreht den Raum um 180° für ein Pult im hinteren Teil des Raums, sodass Namen lesbar bleiben.",
       "item3": "Lege rechts im Inspektor fest, was auf dem Blatt zu sehen sein soll: Klasseninfos, Fotos, Farben, Merkmale, Legende und Raumelemente.",
@@ -1018,10 +1018,8 @@
   "planSave": {
     "section": "Plan",
     "nameLabel": "Name des Sitzplans",
-    "namePlaceholder": "z. B. Deutsch ab Oktober",
     "nameTaken": "Diesen Namen trägt schon ein anderer Plan.",
     "save": "Plan speichern",
-    "rename": "Umbenennen und speichern",
     "saveAsNew": "Als neuen Plan speichern",
     "room": "Im Raum „{{name}}“",
     "untitled": "Neuer Plan",

@@ -99,15 +99,18 @@ describe('CircleInspector', () => {
   it('heads the inspector column with the plan it belongs to', () => {
     renderPanel(classCircle);
     const panel = screen.getByRole('complementary', { name: /^Plan$/ });
-    expect(
-      within(panel).getByRole('heading', { level: 2, name: 'Deutsch' }),
-    ).toBeInTheDocument();
+    const heading = within(panel).getByRole('heading', {
+      level: 2,
+      name: 'Deutsch',
+    });
     expect(
       within(panel).getByText(/Noch nicht gespeichert|Not saved yet/),
     ).toBeInTheDocument();
+    // The plan is named in the header, as in the table plan.
+    expect(within(heading).getByRole('button')).toBeInTheDocument();
     expect(
-      within(panel).getByRole('textbox', {
-        name: /Name des Sitzplans|Seating plan name/i,
+      within(panel).getByRole('button', {
+        name: /^(Plan speichern|Save plan)$/,
       }),
     ).toBeInTheDocument();
   });
