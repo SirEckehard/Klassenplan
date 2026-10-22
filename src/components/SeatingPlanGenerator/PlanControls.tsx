@@ -41,6 +41,7 @@ export default function PlanControls() {
     seatingMode,
     hasPendingStudentUpdates,
     statisticsHighlight,
+    restoreGeneration,
   } = useSeatingPlanState();
 
   const {
@@ -160,9 +161,10 @@ export default function PlanControls() {
     planUsageManual,
   };
   // The room and plan views start afresh when another class or another room
-  // opens: their undo history, selection and canvas belong to what they were
-  // made for, and an undo must never bring another room or plan back.
-  const classViewKey = `${activeClass.id ?? 'no-class'}:${activeRoomId ?? 'no-room'}`;
+  // opens, or a backup replaced everything: their undo history, selection and
+  // canvas belong to what they were made for, and an undo must never bring
+  // another room or plan back.
+  const classViewKey = `${activeClass.id ?? 'no-class'}:${activeRoomId ?? 'no-room'}:${restoreGeneration}`;
   const studentBoundaryResetKeys: ReadonlyArray<number> = [students.length];
   const layoutBoundaryResetKeys: ReadonlyArray<number> = [
     classroomScene.tables.length,

@@ -1,6 +1,6 @@
 # Architecture
 
-> **Status:** current · **Last reviewed:** 2026-10-19 · **Maintainer:** Eike
+> **Status:** current · **Last reviewed:** 2026-10-22 · **Maintainer:** Eike
 > Schäfer · **Describes:** Klassenplan 3.1.2
 
 This is the entry point for anyone who wants to understand _why_ Klassenplan is
@@ -287,7 +287,10 @@ difference: what is queued is dropped, not written
 open class's pending edits before it starts and holds the restore gate shut
 while it puts the backup's top-level fields on screen; written after the new
 collection, those fields — the class open when the backup was made — went into
-whichever class carried the open class's id there.
+whichever class carried the open class's id there. Once it is done, the undo
+histories start afresh, as on a class switch: the class list's and the plan's
+are reset, and the room and plan views remount (`restoreGeneration` in their
+key), since a backup of the open class keeps its id.
 
 ### Switching rooms
 

@@ -78,6 +78,11 @@ export interface SeatingPlanState {
   /** Class-list undo/redo availability (step 1: add, remove, edit, import). */
   canUndoStudents: boolean;
   canRedoStudents: boolean;
+  /**
+   * Counts the restores that replaced everything. The room and plan views
+   * start afresh on each, as when another class opens.
+   */
+  restoreGeneration: number;
 }
 
 export interface SeatingPlanActions {

@@ -45,6 +45,7 @@ import { hasPlanForScene } from '@/utils';
  */
 export function useSeatingGenerator() {
   const [isClassReloading, setIsClassReloading] = useState(false);
+  const [restoreGeneration, setRestoreGeneration] = useState(0);
   const {
     currentAppVersion,
     latestChangelogEntry,
@@ -147,7 +148,7 @@ export function useSeatingGenerator() {
     renameTemplate,
     downloadStudentsCsv,
     exportAllAsJson,
-    importAllFromJson,
+    importAllFromJson: importAllFromJsonBase,
     clearAllData,
     reloadCurrentClassData,
   } = persistence;
@@ -512,6 +513,24 @@ export function useSeatingGenerator() {
     ],
   );
 
+  // A restore that replaces everything puts the backup where the open class
+  // was, as a class switch does: the undo steps from before it would write
+  // the old list and plan into the restored class, so they go, and the room
+  // and plan views start afresh with theirs (`restoreGeneration`). A merge
+  // leaves the open class as it is, and its history with it.
+  const importAllFromJson = useCallback<typeof importAllFromJsonBase>(
+    async (json, options) => {
+      const outcome = await importAllFromJsonBase(json, options);
+      if (!outcome.merge) {
+        resetSeatingHistory();
+        resetStudentHistory();
+        setRestoreGeneration((count) => count + 1);
+      }
+      return outcome;
+    },
+    [importAllFromJsonBase, resetSeatingHistory, resetStudentHistory],
+  );
+
   // Backup orchestration (import/export)
   const backupOrchestration = useGeneratorBackupOrchestration({
     exportAllAsJson,
@@ -620,6 +639,7 @@ export function useSeatingGenerator() {
       canRedoSeating,
       canUndoStudents,
       canRedoStudents,
+      restoreGeneration,
     }),
     [
       students,
@@ -659,6 +679,7 @@ export function useSeatingGenerator() {
       canRedoSeating,
       canUndoStudents,
       canRedoStudents,
+      restoreGeneration,
     ],
   );
 

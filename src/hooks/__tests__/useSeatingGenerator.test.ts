@@ -413,4 +413,64 @@ describe('useSeatingGenerator', () => {
 
     expect(result.current.hasPendingStudentUpdates).toBe(true);
   });
+
+  describe('restoring a backup', () => {
+    /**
+     * A list the mocked actions really change, so the class list's undo
+     * history records a step.
+     */
+    const renderWithEditableList = () => {
+      let list = [...mockStudents];
+      mockedUseSeatingState.mockReturnValue(
+        createSeatingStateMock({
+          studentState: {
+            getStudents: () => list,
+            removeStudent: vi.fn((id: string) => {
+              list = list.filter((entry) => entry.id !== id);
+            }),
+          },
+        }),
+      );
+      const view = renderHook(() => useSeatingGenerator());
+      act(() => {
+        view.result.current.actions.removeStudent('1');
+        view.result.current.moveStudent(0, 0, 0, 1);
+      });
+      expect(view.result.current.state.canUndoStudents).toBe(true);
+      expect(view.result.current.state.canUndoSeating).toBe(true);
+      return view;
+    };
+
+    const restore = async (outcome: { merge: boolean }) => {
+      vi.mocked(
+        mockedUseSeatingPersistence.mock.results.at(-1)!.value
+          .importAllFromJson,
+      ).mockResolvedValue(outcome);
+      const { importAllFromJson } = mockedUseDataBackup.mock.calls.at(-1)![0];
+      await act(async () => {
+        await importAllFromJson('{}', { merge: outcome.merge });
+      });
+    };
+
+    it('drops the undo steps and starts the views afresh when it replaced everything', async () => {
+      const { result } = renderWithEditableList();
+      expect(result.current.state.restoreGeneration).toBe(0);
+
+      await restore({ merge: false });
+
+      expect(result.current.state.canUndoStudents).toBe(false);
+      expect(result.current.state.canUndoSeating).toBe(false);
+      expect(result.current.state.restoreGeneration).toBe(1);
+    });
+
+    it('keeps the open class’s undo steps after a merge', async () => {
+      const { result } = renderWithEditableList();
+
+      await restore({ merge: true });
+
+      expect(result.current.state.canUndoStudents).toBe(true);
+      expect(result.current.state.canUndoSeating).toBe(true);
+      expect(result.current.state.restoreGeneration).toBe(0);
+    });
+  });
 });

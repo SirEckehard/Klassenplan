@@ -35,11 +35,16 @@ vi.mock('@/utils/performance/generatorPrefetch', () => ({
   prefetchGeneratorSteps: vi.fn(),
 }));
 
-const openClass = (id: string, step: number) => {
+const openClass = (id: string, step: number, restoreGeneration = 0) => {
   const mock = createMockSeatingGenerator();
   generator.current = {
     ...mock,
-    state: { ...mock.state, step, activeClass: { id, name: id } },
+    state: {
+      ...mock.state,
+      step,
+      activeClass: { id, name: id },
+      restoreGeneration,
+    },
   };
 };
 
@@ -57,6 +62,21 @@ describe('PlanControls across a class switch', () => {
       expect(mounts.count).toBe(1);
 
       openClass('class-b', step);
+      rerender(<PlanControls />);
+      await screen.findByTestId('layer-view');
+
+      expect(mounts.count).toBe(2);
+    },
+  );
+
+  it.each([2, 3])(
+    'mounts the view of layer %i afresh after a restore of the same class',
+    async (step) => {
+      openClass('class-a', step);
+      const { rerender } = render(<PlanControls />);
+      await screen.findByTestId('layer-view');
+
+      openClass('class-a', step, 1);
       rerender(<PlanControls />);
       await screen.findByTestId('layer-view');
 
