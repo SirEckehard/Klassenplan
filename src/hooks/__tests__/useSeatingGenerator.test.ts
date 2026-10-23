@@ -543,5 +543,32 @@ describe('useSeatingGenerator', () => {
       expect(result.current.state.canUndoSeating).toBe(true);
       expect(result.current.state.reloadGeneration).toBe(0);
     });
+
+    it('reads the restored plan as saved, a backup of the open class too', async () => {
+      const { result } = renderHook(() => useSeatingGenerator());
+      // The backup holds the open class with another seating.
+      const restoredSeating = [[student('2', 'Bob'), student('1', 'Alice')]];
+      vi.mocked(
+        mockedUseSeatingPersistence.mock.results.at(-1)!.value
+          .reloadCurrentClassData,
+      ).mockResolvedValue({
+        classId: 'mock-class',
+        currentSeating: restoredSeating,
+        circleLayout,
+        lockedPositions: {},
+        planName: 'Plan',
+      });
+      mockedUseSeatingState.mockReturnValue(
+        createSeatingStateMock({
+          planState: { currentSeating: restoredSeating },
+        }),
+      );
+
+      await restore({ merge: false });
+      // The tracker settles in a microtask.
+      await act(async () => {});
+
+      expect(result.current.state.hasUnsavedSeatingChanges).toBe(false);
+    });
   });
 });

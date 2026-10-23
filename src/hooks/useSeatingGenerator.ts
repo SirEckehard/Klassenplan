@@ -286,30 +286,44 @@ export function useSeatingGenerator() {
       trackingEnabled: !isClassReloading,
     });
 
-  // Class reload handler
-  const applyClassReload = useCallback(async () => {
-    setIsClassReloading(true);
-    try {
-      const snapshot = await reloadCurrentClassData();
-      // The undo stacks belong to the class that was open — undoing into
-      // another class's seating would write its students into this plan.
-      resetSeatingHistory();
-      resetStudentHistory();
-      syncSeatingSnapshot({
-        seating: snapshot.currentSeating,
-        circleLayout: snapshot.circleLayout,
-        planName: snapshot.planName,
-        lockedPositions: snapshot.lockedPositions,
-      });
-    } finally {
-      setIsClassReloading(false);
-    }
-  }, [
-    reloadCurrentClassData,
-    syncSeatingSnapshot,
-    resetSeatingHistory,
-    resetStudentHistory,
-  ]);
+  /**
+   * Loads the open class anew. `replaced`: what is stored is no longer what
+   * this window showed — another window wrote it.
+   */
+  const applyClassReload = useCallback(
+    async (options?: { replaced?: boolean }) => {
+      const openBefore = activeClass?.id ?? null;
+      setIsClassReloading(true);
+      try {
+        const snapshot = await reloadCurrentClassData();
+        // The same class read back as this window wrote it — another class
+        // was created or deleted beside it — keeps its undo steps and what
+        // is unsaved in it: nothing in it changed.
+        if (!options?.replaced && snapshot.classId === openBefore) {
+          return;
+        }
+        // The undo stacks belong to the class that was open — undoing into
+        // another class's seating would write its students into this plan.
+        resetSeatingHistory();
+        resetStudentHistory();
+        syncSeatingSnapshot({
+          seating: snapshot.currentSeating,
+          circleLayout: snapshot.circleLayout,
+          planName: snapshot.planName,
+          lockedPositions: snapshot.lockedPositions,
+        });
+      } finally {
+        setIsClassReloading(false);
+      }
+    },
+    [
+      activeClass?.id,
+      reloadCurrentClassData,
+      syncSeatingSnapshot,
+      resetSeatingHistory,
+      resetStudentHistory,
+    ],
+  );
 
   // Another window of the app may have changed the open class while this one
   // was away. Coming back, this one loads it anew, so what it shows and writes
@@ -326,7 +340,7 @@ export function useSeatingGenerator() {
         .isOpenClassChangedElsewhere()
         .then(async (changed) => {
           if (changed.success && changed.data) {
-            await applyClassReload();
+            await applyClassReload({ replaced: true });
             setReloadGeneration((count) => count + 1);
           }
         })
@@ -555,21 +569,22 @@ export function useSeatingGenerator() {
   );
 
   // A restore that replaces everything puts the backup where the open class
-  // was, as a class switch does: the undo steps from before it would write
-  // the old list and plan into the restored class, so they go, and the room
-  // and plan views start afresh with theirs (`reloadGeneration`). A merge
-  // leaves the open class as it is, and its history with it.
+  // was, as a class switch does: the open class is loaded as replaced, so the
+  // undo steps from before it go — they would write the old list and plan into
+  // the restored class — the room and plan views start afresh with theirs
+  // (`reloadGeneration`), and the restored plan reads as saved, even when the
+  // backup holds the very class that was open. A merge leaves the open class
+  // as it is, and its history with it.
   const importAllFromJson = useCallback<typeof importAllFromJsonBase>(
     async (json, options) => {
       const outcome = await importAllFromJsonBase(json, options);
       if (!outcome.merge) {
-        resetSeatingHistory();
-        resetStudentHistory();
+        await applyClassReload({ replaced: true });
         setReloadGeneration((count) => count + 1);
       }
       return outcome;
     },
-    [importAllFromJsonBase, resetSeatingHistory, resetStudentHistory],
+    [applyClassReload, importAllFromJsonBase],
   );
 
   // Backup orchestration (import/export)

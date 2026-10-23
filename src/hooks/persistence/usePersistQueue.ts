@@ -156,11 +156,8 @@ export function usePersistQueue(
     }, delay);
   }, [runFlush]);
 
-  const flushPersistQueue = useCallback(async () => {
-    if (isFlushingRef.current) {
-      return;
-    }
-
+  /** Writes what is queued now — one flush; `flushPersistQueue` runs them. */
+  const writeQueuedJobs = useCallback(async () => {
     isFlushingRef.current = true;
     const queuedJobs = persistQueueRef.current;
     persistQueueRef.current = {};
@@ -313,6 +310,27 @@ export function usePersistQueue(
     runFlush,
     scheduleRetry,
   ]);
+
+  // The flush that is writing now, for a caller to wait for.
+  const runningFlushRef = useRef<Promise<void> | null>(null);
+
+  const flushPersistQueue = useCallback(async () => {
+    // A flush is writing: wait for it, then write what arrived meanwhile.
+    // Going on at once, a class switch cleared those jobs unwritten, and a
+    // page being hidden left them behind.
+    while (runningFlushRef.current) {
+      await runningFlushRef.current.catch(() => undefined);
+    }
+    const run = writeQueuedJobs();
+    runningFlushRef.current = run;
+    try {
+      await run;
+    } finally {
+      if (runningFlushRef.current === run) {
+        runningFlushRef.current = null;
+      }
+    }
+  }, [writeQueuedJobs]);
 
   useLayoutEffect(() => {
     flushPersistQueueRef.current = flushPersistQueue;

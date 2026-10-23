@@ -27,6 +27,7 @@ import type {
   SeatingArrangement,
 } from '@/types';
 import type { CircleLayout } from '@/types/Circle';
+import type { SyncSnapshotOptions } from '@/hooks/seatingGenerator/useUnsavedSeatingTracker';
 import { useAlgorithmStore } from '@/stores/algorithmStore';
 import { shallow } from 'zustand/shallow';
 
@@ -67,7 +68,7 @@ export interface WizardConfig {
   ) => Promise<SeatingArrangement>;
   setClassroomEdited: (edited: boolean) => void;
   markClassroomSynced: (scene: ClassroomScene) => void;
-  syncSeatingSnapshot: () => void;
+  syncSeatingSnapshot: (options?: SyncSnapshotOptions) => void;
 }
 
 export interface WizardActions {
@@ -187,7 +188,9 @@ export function useSeatingWizard(
 
         if (ok) {
           announcePlanSaved(finalName);
-          syncSeatingSnapshot();
+          // The name as saved, which the one on screen takes only with the
+          // next render.
+          syncSeatingSnapshot({ planName: finalName });
           markClassroomSynced(classroomScene);
         } else {
           showToast('error', TOAST_MESSAGES.PLAN_SAVE_FAILED);
@@ -220,10 +223,10 @@ export function useSeatingWizard(
   );
 
   /**
-   * Validate and navigate to step 2 (classroom layout).
-   * @returns true if navigation succeeded
+   * Whether the class list is ready for the layers that build on it: there
+   * are students, and every one has a name. Says why not.
    */
-  const validateAndNavigateToStep2 = useCallback((): boolean => {
+  const isClassListReady = useCallback((): boolean => {
     if (students.length === 0) {
       showToast('error', TOAST_MESSAGES.STUDENT_ADD_FIRST);
       return false;
@@ -235,9 +238,20 @@ export function useSeatingWizard(
       showToast('error', nameMessage);
       return false;
     }
+    return true;
+  }, [students]);
+
+  /**
+   * Validate and navigate to step 2 (classroom layout).
+   * @returns true if navigation succeeded
+   */
+  const validateAndNavigateToStep2 = useCallback((): boolean => {
+    if (!isClassListReady()) {
+      return false;
+    }
     setStep(2);
     return true;
-  }, [students, setStep]);
+  }, [isClassListReady, setStep]);
 
   /**
    * Trigger automatic seating plan generation on first entry to step 3 — a
@@ -303,8 +317,9 @@ export function useSeatingWizard(
    * @returns true if navigation succeeded
    */
   const validateAndNavigateToStep3 = useCallback((): boolean => {
-    if (students.length === 0) {
-      showToast('error', TOAST_MESSAGES.STUDENT_ADD_FIRST);
+    // The layer switch leads from the class straight to the plan: the class
+    // list is checked here as on the way to the room.
+    if (!isClassListReady()) {
       return false;
     }
 
@@ -327,6 +342,7 @@ export function useSeatingWizard(
     }
     return true;
   }, [
+    isClassListReady,
     students,
     classroomScene,
     currentSeating.length,

@@ -223,6 +223,65 @@ describe('useCircleSeating', () => {
       callOperationSpy.mockRestore();
     });
 
+    it('drops a circle computed for a class that is no longer open', async () => {
+      const lateLayout: CircleLayout = {
+        students: [],
+        radius: { horizontal: 150, vertical: 100 },
+        center: { x: 450, y: 300 },
+        preservedNeighborhoods: 0,
+        totalOriginalNeighborhoods: 0,
+        newNeighborhoods: 0,
+        preservationRate: 1,
+        mode: 'preserve-neighbors',
+        timestamp: Date.now(),
+        neighborhoodPairs: [],
+      };
+      let resolveOperation!: (value: { layout: CircleLayout }) => void;
+      const callOperationSpy = vi
+        .spyOn(algorithmWorkerClient, 'callOperation')
+        .mockImplementationOnce(
+          () =>
+            new Promise((resolve) => {
+              resolveOperation = resolve;
+            }),
+        );
+
+      const { result, rerender } = renderHook(
+        ({ state }) => useCircleSeating(state),
+        {
+          initialProps: {
+            state: {
+              ...mockState,
+              openScope: { classId: 'class-a', roomId: 'room-1' },
+            },
+          },
+        },
+      );
+      let generation!: Promise<CircleLayout | null>;
+      await act(async () => {
+        generation = result.current.generateCircleSeating();
+      });
+
+      // Another class opens while the worker is busy.
+      rerender({
+        state: {
+          ...mockState,
+          openScope: { classId: 'class-b', roomId: 'room-1' },
+        },
+      });
+      let outcome: CircleLayout | null | undefined;
+      await act(async () => {
+        resolveOperation({ layout: lateLayout });
+        outcome = await generation;
+      });
+
+      expect(outcome).toBeNull();
+      expect(result.current.circleLayout).toBeNull();
+      expect(result.current.circleGenerationInProgress).toBe(false);
+
+      callOperationSpy.mockRestore();
+    });
+
     it('should use optimized algorithm for preserve-neighbors mode', async () => {
       const { result } = renderHook(() => useCircleSeating(mockState));
 

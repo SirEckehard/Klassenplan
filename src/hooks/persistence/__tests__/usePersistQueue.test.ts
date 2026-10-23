@@ -426,6 +426,47 @@ describe('page lifecycle flush', () => {
   });
 });
 
+describe('flushPersistQueue while a write is running', () => {
+  it('waits for it and then writes what arrived meanwhile', async () => {
+    const { result, harness } = renderQueue();
+    let finishFirstWrite!: () => void;
+    harness.repository.saveClassSnapshot.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          finishFirstWrite = () => resolve({ success: true, data: undefined });
+        }),
+    );
+    const first = [createMockStudent({ name: 'First' })];
+    const second = [createMockStudent({ name: 'Second' })];
+
+    // The idle flush starts writing the first edit and is still busy…
+    act(() => {
+      result.current.queuePersist('students', first);
+    });
+    // …when another edit arrives and a class switch asks for everything.
+    act(() => {
+      result.current.queuePersist('students', second);
+    });
+    let flushed = false;
+    const flush = result.current.flushPersistQueue().then(() => {
+      flushed = true;
+    });
+    await act(async () => {});
+    expect(flushed).toBe(false);
+
+    await act(async () => {
+      finishFirstWrite();
+      await flush;
+    });
+
+    expect(harness.repository.saveClassSnapshot).toHaveBeenCalledTimes(2);
+    expect(harness.repository.saveClassSnapshot).toHaveBeenLastCalledWith(
+      'class-1',
+      { students: second },
+    );
+  });
+});
+
 describe('clearQueue', () => {
   it('empties queue and snapshot so the next write is not deduplicated away', async () => {
     const { result, harness } = renderQueue();

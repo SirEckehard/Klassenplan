@@ -84,9 +84,35 @@ describe('Present', () => {
     ).toBeInTheDocument();
   });
 
+  it('shows no plan made for tables the room no longer has', () => {
+    // Two tables now; the seating is still the one for the single table.
+    seatingState.current = {
+      currentSeating: [[student, null]],
+      classroomScene: {
+        tables: [
+          { x: 0, y: 0, width: 10, height: 10, seatCount: 2 },
+          { x: 20, y: 0, width: 10, height: 10, seatCount: 2 },
+        ],
+        totalStudents: 1,
+      },
+      students: [student],
+      circleLayout: null,
+      activeClass: { id: 'class-1', name: '5a' },
+    };
+
+    renderPresent();
+
+    expect(
+      screen.getByText(
+        /Noch kein Sitzplan zum Präsentieren|No seating chart to present/i,
+      ),
+    ).toBeInTheDocument();
+    expect(screen.queryByTestId('presentation-scene')).not.toBeInTheDocument();
+  });
+
   it('renders the presentation scene and controls when a plan exists', () => {
     seatingState.current = {
-      currentSeating: [[student]],
+      currentSeating: [[student, null]],
       classroomScene: {
         tables: [{ x: 0, y: 0, width: 10, height: 10, seatCount: 2 }],
         totalStudents: 1,
@@ -124,7 +150,7 @@ describe('Present', () => {
 
   it('switches to the teacher view and back from the bar', () => {
     seatingState.current = {
-      currentSeating: [[student]],
+      currentSeating: [[student, null]],
       classroomScene: {
         tables: [{ x: 0, y: 0, width: 10, height: 10, seatCount: 2 }],
         totalStudents: 1,
@@ -151,7 +177,7 @@ describe('Present', () => {
 
   it('keeps the contrast mode between visits', () => {
     seatingState.current = {
-      currentSeating: [[student]],
+      currentSeating: [[student, null]],
       classroomScene: {
         tables: [{ x: 0, y: 0, width: 10, height: 10, seatCount: 2 }],
         totalStudents: 1,
@@ -191,7 +217,7 @@ describe('Present', () => {
   // in the view they left, not in the one the projection was opened with.
   it('comes back from "Gruppen bilden" in the view it was left in', () => {
     seatingState.current = {
-      currentSeating: [[student]],
+      currentSeating: [[student, null]],
       classroomScene: {
         tables: [{ x: 0, y: 0, width: 10, height: 10, seatCount: 2 }],
         totalStudents: 1,
@@ -250,7 +276,7 @@ describe('Present', () => {
     // is needed.
     it('drops the strip and keeps the bar below the edge until reached for', () => {
       seatingState.current = {
-        currentSeating: [[student]],
+        currentSeating: [[student, null]],
         classroomScene: {
           tables: [{ x: 0, y: 0, width: 10, height: 10, seatCount: 2 }],
           totalStudents: 1,
@@ -284,7 +310,7 @@ describe('Present', () => {
 
   it('starts in circle mode when navigated with state.mode = circle', () => {
     seatingState.current = {
-      currentSeating: [[student]],
+      currentSeating: [[student, null]],
       classroomScene: {
         tables: [{ x: 0, y: 0, width: 10, height: 10, seatCount: 2 }],
         totalStudents: 1,
@@ -310,7 +336,7 @@ describe('Present', () => {
   it('fills the wall with the circle and draws from it', () => {
     const other = { id: 's2', name: 'Nils' };
     seatingState.current = {
-      currentSeating: [[student]],
+      currentSeating: [[student, null]],
       classroomScene: {
         tables: [{ x: 0, y: 0, width: 10, height: 10, seatCount: 2 }],
         totalStudents: 1,
@@ -345,7 +371,7 @@ describe('Present', () => {
 
   it('leaves the number of seats off the strip on top', () => {
     seatingState.current = {
-      currentSeating: [[student]],
+      currentSeating: [[student, null]],
       classroomScene: {
         tables: [{ x: 0, y: 0, width: 10, height: 10, seatCount: 2 }],
         totalStudents: 1,

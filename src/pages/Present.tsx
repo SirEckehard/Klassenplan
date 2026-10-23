@@ -23,6 +23,7 @@ import { useRandomStudentPicker } from '@/hooks/ui/useRandomStudentPicker';
 import { useEnsureCircleLayout } from '@/hooks/circle/useEnsureCircleLayout';
 import { useSeatingPlanState } from '@/contexts/SeatingPlanContext';
 import {
+  hasPlanForScene,
   iconButtonClass,
   LOCAL_STORAGE_KEYS,
   primaryButtonClass,
@@ -87,18 +88,22 @@ export default function Present() {
   // other success, is not for the room to read (`quietSuccessToasts`).
   useEffect(() => quietSuccessToasts(), []);
 
+  // A plan only for the tables it stands on: one made for tables the room no
+  // longer has is not drawn, and not counted as presented either.
+  const hasPlan = hasPlanForScene(classroomScene, currentSeating);
+
   // Showing a plan on the projector is the clearest evidence that it is the
   // arrangement actually in use, unlike the dozens of mixes tried beforehand.
   // Circle mode is left out: the usage record tracks table neighbourhoods.
   useEffect(() => {
-    if (mode !== 'table' || currentSeating.length === 0) return;
+    if (mode !== 'table' || !hasPlan) return;
 
     const timer = window.setTimeout(() => {
       recordUsage(currentSeating, 'presented');
     }, PRESENT_USAGE_DWELL_MS);
 
     return () => window.clearTimeout(timer);
-  }, [mode, currentSeating, recordUsage]);
+  }, [mode, hasPlan, currentSeating, recordUsage]);
 
   const [perspective, setPerspective] = useState<PresentationPerspective>(
     openedWith?.perspective ?? 'student',
@@ -203,7 +208,6 @@ export default function Present() {
     navigate(route);
   };
 
-  const hasPlan = classroomScene.tables.length > 0 && currentSeating.length > 0;
   const hasCircle = !!circleLayout && circleLayout.students.length > 0;
   const hasContent = mode === 'circle' ? hasCircle : hasPlan;
   const isTeacher = perspective === 'teacher';

@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- Creating a class, or deleting another one, no longer clears the open class's undo
+- Edits made in the moment another class opens or the page is left, while a save was still being written, are no longer lost
+- After restoring a backup of the open class, its plan no longer reads as unsaved
+- Right after "Save as new plan", or saving a plan without a name, the plan no longer reads as unsaved, and leaving the plan layer no longer saves it a second time
+- A seating circle still being worked out when another class or room opens no longer lands in that class or room
+- Rearranging seats by hand and opening another plan, room or mix within a few seconds no longer counts the other one as used
+- The projection no longer shows a plan made for tables the room no longer has, nor counts it as presented
+- The layer switch no longer leads from the class straight to the plan while a student has no name; it says so, as the way to the room does
 - Two windows of Klassenplan – two browser tabs, or the installed app beside a tab – no longer undo each other's work: saving in one put every class the other had changed back to what it had been. Each window now keeps the class it has open, and opening a class reads what the other window saved
 - A window that comes back to the front shows what another window changed in its open class meanwhile and goes on from there, instead of saving its older class list or plan over it later; its undo starts afresh then, as after opening a class
 - A student's photo is no longer deleted when another class is opened after deleting the student and undoing it, after removing the photo and undoing it, or after removing a photo and adding a new one

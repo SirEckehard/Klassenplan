@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 import type {
   CircleLayout,
   CircleStudentPosition,
@@ -190,6 +190,12 @@ function useCircleSeatingInternal(
   useEffect(() => {
     circleLayoutRef.current = circleLayout;
   }, [circleLayout]);
+  // What is open when the worker answers — current by then: a class or room
+  // switch commits in `flushSync`, and layout effects run inside that commit.
+  const openScopeRef = useRef(state.openScope);
+  useLayoutEffect(() => {
+    openScopeRef.current = state.openScope;
+  }, [state.openScope]);
   const setCircleLayoutState = useLayoutStore((store) => store.setCircleLayout);
   const circleGenerationInProgress = useLayoutStore(
     (store) => store.circleGenerationInProgress,
@@ -326,6 +332,7 @@ function useCircleSeatingInternal(
       startedAt,
     );
 
+    const scope = openScopeRef.current;
     try {
       // There is one arrangement: neighbourhood-preserving.
       const { layout } = await algorithmWorkerClient.callOperation(
@@ -342,6 +349,16 @@ function useCircleSeatingInternal(
           onProgress: (payload) => updateGenerationStatus(payload, startedAt),
         },
       );
+
+      // Made for the class and room open when it started: written now, it
+      // would put their students into what opened meanwhile.
+      const current = openScopeRef.current;
+      if (
+        current?.classId !== scope?.classId ||
+        current?.roomId !== scope?.roomId
+      ) {
+        return null;
+      }
 
       // A regenerated circle keeps the students who were locked in place.
       const restored = restoreCircleLocks(layout, circleLayoutRef.current);

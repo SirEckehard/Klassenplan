@@ -113,7 +113,9 @@ export function usePlanPersistenceHandlers({
       if (ok) {
         announcePlanSaved(finalName);
         markClassroomSynced(scene);
-        syncSeatingSnapshot();
+        // The name as saved: the one on screen takes it only with the next
+        // render — a copy's "Deutsch (2)", a date for a plan without one.
+        syncSeatingSnapshot({ planName: finalName });
       } else {
         showToast('error', TOAST_MESSAGES.PLAN_SAVE_FAILED);
       }

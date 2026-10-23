@@ -1,6 +1,6 @@
 # Architecture
 
-> **Status:** current · **Last reviewed:** 2026-10-22 · **Maintainer:** Eike
+> **Status:** current · **Last reviewed:** 2026-10-23 · **Maintainer:** Eike
 > Schäfer · **Describes:** Klassenplan 3.1.2
 
 This is the entry point for anyone who wants to understand _why_ Klassenplan is
@@ -264,7 +264,7 @@ sequenceDiagram
   Note right of queue: writes what is still queued for the class that was open
   pers->>repo: loadClassCollection, loadActiveClassSnapshot
   pers->>pers: applyPersistedState: bump versions, then class data and class id in one flushSync
-  gen->>gen: reset undo stacks, sync snapshot
+  gen->>gen: another class open: reset undo stacks, sync snapshot
 ```
 
 The class id never changes ahead of the class data. `useClassManagement` only
@@ -275,7 +275,12 @@ Zustand stores, which render at once even inside it, while seating and class id
 are React state and would wait — the seating sync then looped and froze the
 tab. Edits still
 queued for the class that was open are written before the load, while the queue
-still points at that class. Two guards remain as a backstop: loading bumps the
+still points at that class — when a write is running already, the flush waits
+for it and then writes what arrived meanwhile. Creating a class beside the open
+one or deleting another takes the same reload, but the open class comes back as
+it was written, so its undo steps and what is unsaved in it stay
+(`applyClassReload` resets them only for another class, or for one replaced
+from outside). Two guards remain as a backstop: loading bumps the
 persist versions, so a job from before the load is discarded, and the restore
 gate keeps the freshly loaded data from being queued again. Work that needs the
 class id and its data together — such as the plan usage backfill — runs inside

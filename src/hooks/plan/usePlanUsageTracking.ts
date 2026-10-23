@@ -43,9 +43,20 @@ export function usePlanUsageTracking({
   const seatingRef = useRef(currentSeating);
   const classIdRef = useRef(classId);
   const timerRef = useRef<number | null>(null);
+  // Set by a swap until the arrangement it made arrives.
+  const swapArrivingRef = useRef(false);
+  // Another arrangement took the swapped one's place while the signal waited —
+  // a plan opened, another room, a mix. Recording it would file that one
+  // under the edit, so the signal is dropped.
+  const replacedRef = useRef(false);
 
   useEffect(() => {
     seatingRef.current = currentSeating;
+    if (swapArrivingRef.current) {
+      swapArrivingRef.current = false;
+    } else if (timerRef.current !== null) {
+      replacedRef.current = true;
+    }
   }, [currentSeating]);
 
   // Switching class drops a pending edit signal. The arrangement is read at
@@ -72,9 +83,16 @@ export function usePlanUsageTracking({
     if (timerRef.current !== null) {
       window.clearTimeout(timerRef.current);
     }
+    // A swap on whatever is on screen now is an edit of its own.
+    swapArrivingRef.current = true;
+    replacedRef.current = false;
 
     timerRef.current = window.setTimeout(() => {
       timerRef.current = null;
+      if (replacedRef.current) {
+        replacedRef.current = false;
+        return;
+      }
       recordPlanUsage(classIdRef.current, seatingRef.current, 'edited').catch(
         (error) => {
           logError(

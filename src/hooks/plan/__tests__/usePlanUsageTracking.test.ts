@@ -121,6 +121,54 @@ describe('usePlanUsageTracking', () => {
     );
   });
 
+  it('drops the signal when another arrangement replaced the edited one', () => {
+    const { result, rerender } = renderHook(
+      ({ seating }: { seating: SeatingArrangement }) =>
+        usePlanUsageTracking({ classId: 'c1', currentSeating: seating }),
+      { initialProps: { seating: seatedWithBen } },
+    );
+
+    // A swap, and the arrangement it made.
+    act(() => {
+      result.current.noteSeatingEdited();
+    });
+    rerender({ seating: seatedWithCarla });
+    // Another plan opens before the drags were recorded.
+    rerender({ seating: [[ben, carla]] });
+
+    act(() => {
+      vi.advanceTimersByTime(4000);
+    });
+    expect(recordPlanUsage).not.toHaveBeenCalled();
+  });
+
+  it('records a swap made on the arrangement that replaced an edited one', () => {
+    const { result, rerender } = renderHook(
+      ({ seating }: { seating: SeatingArrangement }) =>
+        usePlanUsageTracking({ classId: 'c1', currentSeating: seating }),
+      { initialProps: { seating: seatedWithBen } },
+    );
+
+    act(() => {
+      result.current.noteSeatingEdited();
+    });
+    rerender({ seating: seatedWithCarla });
+    rerender({ seating: [[ben, carla]] });
+    act(() => {
+      result.current.noteSeatingEdited();
+    });
+    rerender({ seating: [[carla, ben]] });
+
+    act(() => {
+      vi.advanceTimersByTime(4000);
+    });
+    expect(recordPlanUsage).toHaveBeenCalledExactlyOnceWith(
+      'c1',
+      [[carla, ben]],
+      'edited',
+    );
+  });
+
   it('drops a pending edit when the class is switched', () => {
     const { result, rerender } = renderHook(
       ({ classId }: { classId: string }) =>

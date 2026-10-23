@@ -226,7 +226,9 @@ describe('useSeatingWizard', () => {
       // Generated name ⇒ throwaway auto-save that replaces the previous one.
       expect(options).toEqual({ autoSave: true });
       expect(markClassroomSyncedMock).toHaveBeenCalledWith(scene);
-      expect(syncSeatingSnapshotMock).toHaveBeenCalled();
+      // Saved under the generated name, which the screen takes only with the
+      // next render: the plan must not read as unsaved meanwhile.
+      expect(syncSeatingSnapshotMock).toHaveBeenCalledWith({ planName });
     });
 
     it('keeps saving into the auto-save while the plan carries only its generated name', async () => {
@@ -415,6 +417,25 @@ describe('useSeatingWizard', () => {
 
       expect(result.current.step).toBe(1);
       // The message comes from i18n, so match either locale.
+      expect(showToastMock).toHaveBeenCalledWith(
+        'error',
+        expect.stringMatching(/fehlenden Namen|missing name/i),
+      );
+    });
+
+    it('blocks the jump from the class straight to the plan when a student name is missing', async () => {
+      mockConfig.students = [
+        createMockStudent('1', 'Alice', { name: '' }),
+        createMockStudent('2', 'Bob'),
+      ];
+
+      const { result } = renderHook(() => useSeatingWizard(mockConfig));
+
+      await act(async () => {
+        await result.current.handleStepChange(3);
+      });
+
+      expect(result.current.step).toBe(1);
       expect(showToastMock).toHaveBeenCalledWith(
         'error',
         expect.stringMatching(/fehlenden Namen|missing name/i),

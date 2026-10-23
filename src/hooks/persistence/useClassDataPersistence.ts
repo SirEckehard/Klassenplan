@@ -56,6 +56,8 @@ export interface ReloadClassDataOptions {
 export interface ClassDataPersistenceReturn {
   /** Reload current class data from storage */
   reloadCurrentClassData: (options?: ReloadClassDataOptions) => Promise<{
+    /** The class open after the reload, or null without one. */
+    classId: string | null;
     currentSeating: SeatingArrangement;
     circleLayout: CircleLayout | null;
     lockedPositions: LockedPositions;
@@ -228,6 +230,9 @@ export function useClassDataPersistence(
           ? snapshot.activeClassSnapshotResult.data
           : null;
         return {
+          classId: snapshot.classCollectionResult.success
+            ? (snapshot.classCollectionResult.data?.activeClassId ?? null)
+            : null,
           currentSeating: activeSnapshot?.currentSeating ?? [],
           circleLayout: activeSnapshot?.circleLayout ?? null,
           lockedPositions: activeSnapshot?.lockedPositions ?? {},

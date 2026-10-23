@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import { renderHook } from '@testing-library/react';
+import React from 'react';
+import { act, renderHook } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import type { CircleLayout } from '@/types/Circle';
 import type { RoomRecord } from '@/types';
@@ -11,6 +12,7 @@ import {
   createMockSeatingArrangement,
 } from '@/__tests__/utils';
 import { usePlanPersistenceHandlers } from '../usePlanPersistenceHandlers';
+import { useUnsavedSeatingTracker } from '../useUnsavedSeatingTracker';
 
 const rooms: RoomRecord[] = [
   { id: 'classroom', name: 'Klassenraum', createdAt: '2026-10-04' },
@@ -130,5 +132,58 @@ describe('usePlanPersistenceHandlers across rooms', () => {
     expect(result.current.handleMixLoad(mix)).toBe(false);
     expect(params.setCurrentSeating).not.toHaveBeenCalled();
     expect(params.switchRoom).not.toHaveBeenCalled();
+  });
+});
+
+/**
+ * The save and the tracker of unsaved changes together, the plan's name kept
+ * as state: saving sets the name it saved under, as `useSeatingPersistence`
+ * does, and the screen takes it with the next render.
+ */
+describe('usePlanPersistenceHandlers with the unsaved tracker', () => {
+  const renderSaving = (initialName: string) => {
+    const { params } = setup();
+    const scene = createMockClassroomScene(2);
+    const seating = createMockSeatingArrangement([], scene);
+    return renderHook(() => {
+      const [planName, setPlanName] = React.useState(initialName);
+      const { hasUnsavedSeatingChanges, syncSeatingSnapshot } =
+        useUnsavedSeatingTracker({
+          currentSeating: seating,
+          circleLayout: null,
+          planName,
+          lockedPositions: {},
+          activeClassId: 'class-a',
+        });
+      const { handleSaveSeatingPlan } = usePlanPersistenceHandlers({
+        ...params,
+        saveSeatingPlan: (name: string) => {
+          setPlanName(name);
+          return true;
+        },
+        setPlanName,
+        syncSeatingSnapshot,
+      });
+      return { planName, hasUnsavedSeatingChanges, handleSaveSeatingPlan };
+    });
+  };
+
+  // The tracker settles in a microtask after each render.
+  const settle = () => act(async () => {});
+
+  it.each([
+    ['as a copy under a free name', 'Deutsch', 'Deutsch (2)'],
+    ['without a name', '', ''],
+  ])('reads as saved right after saving %s', async (_, before, name) => {
+    const { result } = renderSaving(before);
+    await settle();
+
+    await act(async () => {
+      result.current.handleSaveSeatingPlan(name, createMockClassroomScene(2));
+    });
+    await settle();
+
+    expect(result.current.planName).not.toBe(before);
+    expect(result.current.hasUnsavedSeatingChanges).toBe(false);
   });
 });

@@ -37,6 +37,13 @@ export interface CircleStateRequirements {
   readonly classroomScene: ClassroomScene;
   readonly mixSettings: MixSettings;
 
+  /**
+   * The class and room open now. A circle the worker computed for another one
+   * — opened while it was busy — is dropped, as a mix's arrangement is.
+   * Optional: without it every circle is taken.
+   */
+  readonly openScope?: { classId: string | null; roomId: string | null };
+
   // Write access: Current seating arrangement
   currentSeating: SeatingArrangement;
   setCurrentSeating: Dispatch<SetStateAction<SeatingArrangement>>;
@@ -115,6 +122,10 @@ export function createCircleStateAdapter(
     mixHistory: store.historyState.mixHistory,
     classroomScene: store.sceneState.classroomScene,
     mixSettings: store.algorithmState.mixSettings,
+    openScope: {
+      classId: store.classState.activeClass.id,
+      roomId: store.roomState.activeRoomId,
+    },
     lastStatistics: store.algorithmState.lastStatistics,
     showStatisticsBadge: store.algorithmState.showStatisticsBadge,
 
