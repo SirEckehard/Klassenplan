@@ -58,6 +58,11 @@ export interface ISeatingPlanRepository {
   deleteClass(classId: string): Promise<Result<void>>;
   saveClassCollection(collection: ClassCollectionState): Promise<Result<void>>;
   loadActiveClassSnapshot(): Promise<Result<ActiveClassSnapshot>>;
+  /**
+   * Whether another window of the app wrote the open class since this one
+   * last read all of it; false while it has not read it yet.
+   */
+  isOpenClassChangedElsewhere(): Promise<Result<boolean>>;
   saveActiveClassSnapshot(snapshot: ActiveClassSnapshot): Promise<Result<void>>;
   saveClassSnapshot(
     classId: string,

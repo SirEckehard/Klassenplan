@@ -107,6 +107,12 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
    * reloads and writes its own until it opens another one itself.
    */
   private openClassId: string | null | undefined;
+  /**
+   * The open class's `updatedAt` as this tab last knew all of it: read in
+   * full, or written by this tab with nothing written elsewhere in between.
+   * Undefined while not known — nothing read yet, another class opening.
+   */
+  private openClassStamp: string | undefined;
   /** Whether data from before the class collection was looked for yet. */
   private legacyChecked = false;
   private _lock: Promise<void> = Promise.resolve();
@@ -304,6 +310,7 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
       await this.loadClassCollectionState();
     }
     let outcome: T | undefined;
+    let openClassStamp = this.openClassStamp;
     try {
       await idbUpdate<ClassCollectionState>(
         DB_KEYS.classCollection,
@@ -311,7 +318,16 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
           const collection = stored
             ? repairCollection(stored)
             : createClassCollection();
+          const stampOfOpenClass = () =>
+            collection.classes.find((entry) => entry.id === this.openClassId)
+              ?.updatedAt;
+          // Only a write onto the open class as this tab knows it keeps the
+          // tab in step; one onto another window's changes leaves it behind.
+          const inStep =
+            this.openClassStamp !== undefined &&
+            stampOfOpenClass() === this.openClassStamp;
           outcome = change(collection);
+          openClassStamp = inStep ? stampOfOpenClass() : this.openClassStamp;
           collection.version = CLASS_COLLECTION_VERSION;
           return collection;
         },
@@ -322,6 +338,7 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
       }
       throw error;
     }
+    this.openClassStamp = openClassStamp;
     return outcome as T;
   }
 
@@ -530,6 +547,7 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
         });
         if (options?.activate && !isRepositoryResult(created)) {
           this.openClassId = created.id;
+          this.openClassStamp = undefined;
         }
         return created;
       },
@@ -603,6 +621,7 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
         });
         if (!isRepositoryResult(opened)) {
           this.openClassId = classId;
+          this.openClassStamp = undefined;
         }
         return opened;
       },
@@ -640,6 +659,7 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
         // The tab whose open class went moves on as the stored one did.
         if (this.openClassId === classId) {
           this.openClassId = fallbackId;
+          this.openClassStamp = undefined;
         }
         return undefined;
       },
@@ -661,6 +681,7 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
         await idbSet(DB_KEYS.classCollection, ensured);
         this.legacyChecked = true;
         this.openClassId = ensured.activeClassId;
+        this.openClassStamp = undefined;
         return undefined;
       },
       {
@@ -673,6 +694,9 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
   async loadActiveClassSnapshot(): Promise<Result<ActiveClassSnapshot>> {
     return this.withActiveClassRead(
       (stored) => {
+        // What the tab shows from now on, and what another window's changes
+        // are told from (`isOpenClassChangedElsewhere`).
+        this.openClassStamp = stored.updatedAt;
         // Repaired on the way out as well, not written: whatever the record
         // holds, the live state starts consistent — links to students removed
         // before removals took them along included.
@@ -696,6 +720,25 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
       {
         logMessage: 'Failed to load active class snapshot from class storage',
         errorMessage: 'Failed to load active class snapshot',
+      },
+    );
+  }
+
+  async isOpenClassChangedElsewhere(): Promise<Result<boolean>> {
+    return this.withErrorHandling(
+      async () => {
+        if (this.openClassStamp === undefined) {
+          return false;
+        }
+        const collection = await this.loadClassCollectionState();
+        // A class deleted elsewhere counts too: the tab moves on to another.
+        return (
+          this.getOpenClassRecord(collection)?.updatedAt !== this.openClassStamp
+        );
+      },
+      {
+        logMessage: 'Failed to check the open class for changes in IndexedDB',
+        errorMessage: 'Failed to check the open class',
       },
     );
   }
@@ -1088,6 +1131,7 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
       async () => {
         await Promise.all(Object.values(DB_KEYS).map((key) => idbDel(key)));
         this.openClassId = undefined;
+        this.openClassStamp = undefined;
         this.legacyChecked = false;
         return undefined;
       },

@@ -35,7 +35,7 @@ vi.mock('@/utils/performance/generatorPrefetch', () => ({
   prefetchGeneratorSteps: vi.fn(),
 }));
 
-const openClass = (id: string, step: number, restoreGeneration = 0) => {
+const openClass = (id: string, step: number, reloadGeneration = 0) => {
   const mock = createMockSeatingGenerator();
   generator.current = {
     ...mock,
@@ -43,7 +43,7 @@ const openClass = (id: string, step: number, restoreGeneration = 0) => {
       ...mock.state,
       step,
       activeClass: { id, name: id },
-      restoreGeneration,
+      reloadGeneration,
     },
   };
 };

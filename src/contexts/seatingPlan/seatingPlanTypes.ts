@@ -79,10 +79,11 @@ export interface SeatingPlanState {
   canUndoStudents: boolean;
   canRedoStudents: boolean;
   /**
-   * Counts the restores that replaced everything. The room and plan views
-   * start afresh on each, as when another class opens.
+   * Counts the times the open class was replaced from outside: a restore that
+   * replaced everything, changes another window of the app made. The room and
+   * plan views start afresh on each, as when another class opens.
    */
-  restoreGeneration: number;
+  reloadGeneration: number;
 }
 
 export interface SeatingPlanActions {

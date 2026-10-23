@@ -1,6 +1,14 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
+import {
+  describe,
+  it,
+  expect,
+  vi,
+  beforeEach,
+  afterEach,
+  type Mock,
+} from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useSeatingGenerator } from '../useSeatingGenerator';
 import { useSeatingState } from '../useSeatingState';
@@ -51,6 +59,16 @@ vi.mock('../circle/useCircleAfterMix', () => ({
 
 vi.mock('../useSeatingStatisticsUpdater', () => ({
   useSeatingStatisticsUpdater: vi.fn(),
+}));
+
+// Asked whether another window changed the open class; nothing else here
+// reaches the repository.
+const { repositoryStub } = vi.hoisted(() => ({
+  repositoryStub: { isOpenClassChangedElsewhere: vi.fn() },
+}));
+
+vi.mock('../useSeatingRepository', () => ({
+  useSeatingRepository: () => repositoryStub,
 }));
 
 describe('useSeatingGenerator', () => {
@@ -239,6 +257,10 @@ describe('useSeatingGenerator', () => {
 
     // Mock useSeatingState
     mockedUseSeatingState.mockReturnValue(createSeatingStateMock());
+    repositoryStub.isOpenClassChangedElsewhere.mockResolvedValue({
+      success: true,
+      data: false,
+    });
 
     // Mock useSeatingPersistence
     mockedUseSeatingPersistence.mockReturnValue({
@@ -414,6 +436,55 @@ describe('useSeatingGenerator', () => {
     expect(result.current.hasPendingStudentUpdates).toBe(true);
   });
 
+  describe('coming back to the window', () => {
+    let visibility: ReturnType<typeof vi.spyOn>;
+
+    beforeEach(() => {
+      visibility = vi
+        .spyOn(document, 'visibilityState', 'get')
+        .mockReturnValue('visible');
+    });
+
+    afterEach(() => {
+      visibility.mockRestore();
+    });
+
+    const comeBack = async () => {
+      await act(async () => {
+        document.dispatchEvent(new Event('visibilitychange'));
+        // The check and the reload settle after the event.
+        await new Promise((resolve) => setTimeout(resolve, 0));
+      });
+    };
+
+    const reloads = () =>
+      mockedUseSeatingPersistence.mock.results.at(-1)!.value
+        .reloadCurrentClassData as Mock;
+
+    it('loads the open class anew when another window changed it', async () => {
+      repositoryStub.isOpenClassChangedElsewhere.mockResolvedValue({
+        success: true,
+        data: true,
+      });
+      const { result } = renderHook(() => useSeatingGenerator());
+
+      await comeBack();
+
+      expect(reloads()).toHaveBeenCalledTimes(1);
+      expect(result.current.state.reloadGeneration).toBe(1);
+    });
+
+    it('leaves the class alone when no other window changed it', async () => {
+      const { result } = renderHook(() => useSeatingGenerator());
+
+      await comeBack();
+
+      expect(repositoryStub.isOpenClassChangedElsewhere).toHaveBeenCalled();
+      expect(reloads()).not.toHaveBeenCalled();
+      expect(result.current.state.reloadGeneration).toBe(0);
+    });
+  });
+
   describe('restoring a backup', () => {
     /**
      * A list the mocked actions really change, so the class list's undo
@@ -454,13 +525,13 @@ describe('useSeatingGenerator', () => {
 
     it('drops the undo steps and starts the views afresh when it replaced everything', async () => {
       const { result } = renderWithEditableList();
-      expect(result.current.state.restoreGeneration).toBe(0);
+      expect(result.current.state.reloadGeneration).toBe(0);
 
       await restore({ merge: false });
 
       expect(result.current.state.canUndoStudents).toBe(false);
       expect(result.current.state.canUndoSeating).toBe(false);
-      expect(result.current.state.restoreGeneration).toBe(1);
+      expect(result.current.state.reloadGeneration).toBe(1);
     });
 
     it('keeps the open class’s undo steps after a merge', async () => {
@@ -470,7 +541,7 @@ describe('useSeatingGenerator', () => {
 
       expect(result.current.state.canUndoStudents).toBe(true);
       expect(result.current.state.canUndoSeating).toBe(true);
-      expect(result.current.state.restoreGeneration).toBe(0);
+      expect(result.current.state.reloadGeneration).toBe(0);
     });
   });
 });

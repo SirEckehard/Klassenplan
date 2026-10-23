@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### Fixed
 
 - Two windows of Klassenplan – two browser tabs, or the installed app beside a tab – no longer undo each other's work: saving in one put every class the other had changed back to what it had been. Each window now keeps the class it has open, and opening a class reads what the other window saved
+- A window that comes back to the front shows what another window changed in its open class meanwhile and goes on from there, instead of saving its older class list or plan over it later; its undo starts afresh then, as after opening a class
 - A student's photo is no longer deleted when another class is opened after deleting the student and undoing it, after removing the photo and undoing it, or after removing a photo and adding a new one
 - A student deleted from the class leaves the seating circle too: the circle, its export and the projection no longer show them, and "Who's next?" no longer draws them there
 - A storage read that fails no longer lets the next change wipe every class's record of the plans in use, its duties or the name game's statistics

@@ -289,8 +289,17 @@ while it puts the backup's top-level fields on screen; written after the new
 collection, those fields — the class open when the backup was made — went into
 whichever class carried the open class's id there. Once it is done, the undo
 histories start afresh, as on a class switch: the class list's and the plan's
-are reset, and the room and plan views remount (`restoreGeneration` in their
+are reset, and the room and plan views remount (`reloadGeneration` in their
 key), since a backup of the open class keeps its id.
+
+Two windows of the app — two tabs, or the installed app beside a tab — share
+the stored classes, and each keeps the class it has open
+(`IndexedDBRepository`, see [data-model.md](data-model.md)). When a window
+comes back to the front (`visibilitychange`, `focus`) and another one wrote
+its open class in the meantime (`isOpenClassChangedElsewhere`, by the class's
+`updatedAt`), it takes the class reload above and starts its views afresh
+(`reloadGeneration`), so it never writes back a class list or plan it read
+before the other window changed them.
 
 ### Switching rooms
 

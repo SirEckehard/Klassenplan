@@ -126,3 +126,98 @@ describe('two tabs on one database', () => {
     );
   });
 });
+
+describe('telling another window’s changes to the open class', () => {
+  // Every write stamps the class; a second apart, two stamps never match by
+  // chance, as two writes within one millisecond would.
+  let now = Date.parse('2026-10-22T08:00:00.000Z');
+  const later = () => {
+    now += 1000;
+    vi.setSystemTime(now);
+  };
+
+  beforeEach(() => {
+    memory.clear();
+    vi.stubGlobal('indexedDB', {});
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(now);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  });
+
+  const changedElsewhere = async (tab: IndexedDBRepository) =>
+    expectData(await tab.isOpenClassChangedElsewhere());
+
+  it('knows of no change before the open class was read', async () => {
+    const { tabA, tabB, sevenA } = await twoTabs();
+    later();
+    await tabA.saveClassSnapshot(sevenA.id, { currentSeating: [] });
+
+    expect(await changedElsewhere(tabB)).toBe(false);
+  });
+
+  it('tells a tab that the other window changed its open class', async () => {
+    const { tabA, tabB, sevenA } = await twoTabs();
+    expectData(await tabB.loadActiveClassSnapshot());
+    later();
+    await tabA.saveClassSnapshot(sevenA.id, {
+      students: [createMockStudent({ name: 'Mia' })],
+    });
+
+    expect(await changedElsewhere(tabB)).toBe(true);
+  });
+
+  it('counts neither its own writes nor another class', async () => {
+    const { tabA, tabB, eightB } = await twoTabs();
+    expectData(await tabB.loadActiveClassSnapshot());
+    later();
+    await tabB.saveActiveClassSnapshot({
+      students: [createMockStudent({ name: 'Mia' })],
+    });
+    later();
+    await tabA.saveClassSnapshot(eightB.id, {
+      students: [createMockStudent({ name: 'Noah' })],
+    });
+
+    expect(await changedElsewhere(tabB)).toBe(false);
+  });
+
+  it('stays behind when it wrote onto the other window’s change', async () => {
+    const { tabA, tabB, sevenA } = await twoTabs();
+    expectData(await tabB.loadActiveClassSnapshot());
+    later();
+    await tabA.saveClassSnapshot(sevenA.id, {
+      students: [createMockStudent({ name: 'Mia' })],
+    });
+    later();
+    await tabB.saveActiveClassSnapshot({ currentSeating: [] });
+
+    expect(await changedElsewhere(tabB)).toBe(true);
+  });
+
+  it('is in step again once it read the class anew', async () => {
+    const { tabA, tabB, sevenA } = await twoTabs();
+    expectData(await tabB.loadActiveClassSnapshot());
+    later();
+    await tabA.saveClassSnapshot(sevenA.id, { currentSeating: [] });
+
+    expectData(await tabB.loadActiveClassSnapshot());
+
+    expect(await changedElsewhere(tabB)).toBe(false);
+  });
+
+  it('counts the open class deleted in the other window', async () => {
+    const { tabA, tabB, sevenA, eightB } = await twoTabs();
+    expectData(await tabB.loadActiveClassSnapshot());
+    later();
+    expectData(await tabA.deleteClass(sevenA.id));
+
+    expect(await changedElsewhere(tabB)).toBe(true);
+    expect(expectData(await tabB.loadClassCollection()).activeClassId).toBe(
+      eightB.id,
+    );
+  });
+});

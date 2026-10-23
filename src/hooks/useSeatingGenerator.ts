@@ -32,7 +32,7 @@ import type {
   ClassroomScene as ClassroomSceneT,
   Student,
 } from '@/types';
-import { hasPlanForScene } from '@/utils';
+import { hasPlanForScene, logError } from '@/utils';
 
 /**
  * Composes seating state, persistence, algorithm utilities, and UI orchestration into a single generator hook.
@@ -45,7 +45,7 @@ import { hasPlanForScene } from '@/utils';
  */
 export function useSeatingGenerator() {
   const [isClassReloading, setIsClassReloading] = useState(false);
-  const [restoreGeneration, setRestoreGeneration] = useState(0);
+  const [reloadGeneration, setReloadGeneration] = useState(0);
   const {
     currentAppVersion,
     latestChangelogEntry,
@@ -311,6 +311,47 @@ export function useSeatingGenerator() {
     resetStudentHistory,
   ]);
 
+  // Another window of the app may have changed the open class while this one
+  // was away. Coming back, this one loads it anew, so what it shows and writes
+  // next is what is stored; its undo starts afresh, the room and plan views
+  // included, as after a restore. What it still had queued is written first.
+  useEffect(() => {
+    let checking = false;
+    const reloadIfChangedElsewhere = () => {
+      if (checking || document.visibilityState !== 'visible') {
+        return;
+      }
+      checking = true;
+      repository
+        .isOpenClassChangedElsewhere()
+        .then(async (changed) => {
+          if (changed.success && changed.data) {
+            await applyClassReload();
+            setReloadGeneration((count) => count + 1);
+          }
+        })
+        .catch((error: unknown) => {
+          logError(
+            'Failed to load a class another window changed',
+            { error },
+            'useSeatingGenerator',
+          );
+        })
+        .finally(() => {
+          checking = false;
+        });
+    };
+    document.addEventListener('visibilitychange', reloadIfChangedElsewhere);
+    window.addEventListener('focus', reloadIfChangedElsewhere);
+    return () => {
+      document.removeEventListener(
+        'visibilitychange',
+        reloadIfChangedElsewhere,
+      );
+      window.removeEventListener('focus', reloadIfChangedElsewhere);
+    };
+  }, [applyClassReload, repository]);
+
   const applyClassMetadata = useCallback(
     (record: ClassRecord) => {
       const { name, label, notes, updatedAt } = record;
@@ -516,7 +557,7 @@ export function useSeatingGenerator() {
   // A restore that replaces everything puts the backup where the open class
   // was, as a class switch does: the undo steps from before it would write
   // the old list and plan into the restored class, so they go, and the room
-  // and plan views start afresh with theirs (`restoreGeneration`). A merge
+  // and plan views start afresh with theirs (`reloadGeneration`). A merge
   // leaves the open class as it is, and its history with it.
   const importAllFromJson = useCallback<typeof importAllFromJsonBase>(
     async (json, options) => {
@@ -524,7 +565,7 @@ export function useSeatingGenerator() {
       if (!outcome.merge) {
         resetSeatingHistory();
         resetStudentHistory();
-        setRestoreGeneration((count) => count + 1);
+        setReloadGeneration((count) => count + 1);
       }
       return outcome;
     },
@@ -639,7 +680,7 @@ export function useSeatingGenerator() {
       canRedoSeating,
       canUndoStudents,
       canRedoStudents,
-      restoreGeneration,
+      reloadGeneration,
     }),
     [
       students,
@@ -679,7 +720,7 @@ export function useSeatingGenerator() {
       canRedoSeating,
       canUndoStudents,
       canRedoStudents,
-      restoreGeneration,
+      reloadGeneration,
     ],
   );
 
