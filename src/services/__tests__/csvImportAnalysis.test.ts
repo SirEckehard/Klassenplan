@@ -6,6 +6,7 @@ import {
   importStudentsFromCsv,
 } from '@/services/csvImportService';
 import { CsvImportError } from '@/utils/csv/csvImportDiagnostics';
+import { MAX_STUDENTS } from '@/utils';
 
 vi.mock('@/utils/ui/toast', () => ({
   showToast: vi.fn(),
@@ -148,6 +149,22 @@ describe('csvImportService.analyzeCsvFile preset and class detection', () => {
     expect(
       mockedShowToast.mock.calls.filter(([type]) => type === 'error'),
     ).toHaveLength(0);
+  });
+});
+
+describe('csvImportService with more students than places', () => {
+  test('keeps no wish for a student cut off with the rest', async () => {
+    const students = await importStudentsFromCsv({
+      file: csvFile('Name,Wunschpartner\nAnna,Cem\nBen,Anna\nCem,Ben\n'),
+      // Two places left: Cem does not come in.
+      currentStudentCount: MAX_STUDENTS - 2,
+    });
+
+    expect(students.map((student) => student.name)).toEqual(['Anna', 'Ben']);
+    const [anna, ben] = students;
+    expect(anna?.wishPartnerIds).toEqual([]);
+    expect(anna?.wishPartnerId).toBeNull();
+    expect(ben?.wishPartnerIds).toEqual([anna?.id]);
   });
 });
 

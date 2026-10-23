@@ -7,7 +7,7 @@ import type {
   ClassroomScene,
   SeatingArrangement,
 } from '@/types';
-import { showToast, TOAST_MESSAGES, neutralSettings, logError } from '@/utils';
+import { showToast, TOAST_MESSAGES, logError } from '@/utils';
 import type { AlgorithmRunOptions } from '@/hooks/useSeatingAlgorithm';
 
 interface SeatingMixHandlerConfig {
@@ -36,7 +36,8 @@ const isAbortError = (error: unknown): boolean =>
  * Hook for handling seating plan mix operations with validation.
  *
  * Provides a unified handler for the "Mix" button that:
- * - Decides between intelligent mixing (with criteria) or neutral random placement
+ * - Mixes with the settings as they are: with no criterion on, the session
+ *   deals the students onto the seats at random (decision 0031)
  * - Runs the mix, which refines the arrangement in the same session while a
  *   criterion is on (decision 0027)
  * - Triggers post-mix callbacks
@@ -45,7 +46,7 @@ const isAbortError = (error: unknown): boolean =>
  * progress story; the abort signal exists only so an unmount can stop it.
  *
  * @param config - Configuration object with settings, students, and callbacks
- * @returns Object with hasCriteria flag and handleMix function
+ * @returns Whether a mix is running, and the function that mixes
  */
 export const useSeatingMixHandler = ({
   settings,
@@ -55,11 +56,6 @@ export const useSeatingMixHandler = ({
 }: SeatingMixHandlerConfig) => {
   const [isMixing, setIsMixing] = React.useState(false);
   const abortRef = React.useRef<AbortController | null>(null);
-
-  const hasCriteria = React.useMemo(
-    () => Object.values(settings).some((v) => v > 0),
-    [settings],
-  );
 
   // Nothing should outlive the component: a run still in flight would keep
   // pushing state updates into an unmounted tree.
@@ -76,15 +72,13 @@ export const useSeatingMixHandler = ({
       return 'busy';
     }
 
-    // Use intelligent settings if criteria are set, otherwise use neutral random
-    const active = hasCriteria ? settings : neutralSettings;
     const abortController = new AbortController();
     abortRef.current = abortController;
     setIsMixing(true);
 
     try {
       // One session: the construction, refined while a criterion is on.
-      await generateSeatingPlan(active, classroomScene, {
+      await generateSeatingPlan(settings, classroomScene, {
         signal: abortController.signal,
       });
     } catch (error) {
@@ -118,17 +112,9 @@ export const useSeatingMixHandler = ({
       );
     }
     return 'mixed';
-  }, [
-    hasCriteria,
-    settings,
-    generateSeatingPlan,
-    classroomScene,
-    onMix,
-    isMixing,
-  ]);
+  }, [settings, generateSeatingPlan, classroomScene, onMix, isMixing]);
 
   return {
-    hasCriteria,
     isMixing,
     handleMix,
   };

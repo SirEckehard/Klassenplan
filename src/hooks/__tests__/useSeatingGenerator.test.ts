@@ -332,7 +332,7 @@ describe('useSeatingGenerator', () => {
     mockedUseSeatingStatisticsUpdater.mockImplementation(() => undefined);
   });
 
-  it('bietet gruppierte state- und action-Objekte für den Kontext', () => {
+  it('bietet gruppierte state- und action-Objekte für den Kontext', async () => {
     const { result } = renderHook(() => useSeatingGenerator());
 
     expect(result.current.state).toBeDefined();
@@ -349,9 +349,13 @@ describe('useSeatingGenerator', () => {
     expect(result.current.actions.handleStepChange).toBe(
       wizardInvocation.value.handleStepChange,
     );
+    // The class data and the plan usage load after mounting; they settle inside act.
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
   });
 
-  it('plant einen Circle-Refresh nach manuellem Verschieben mit Kreislayout', () => {
+  it('plant einen Circle-Refresh nach manuellem Verschieben mit Kreislayout', async () => {
     const { result } = renderHook(() => useSeatingGenerator());
 
     act(() => {
@@ -361,9 +365,13 @@ describe('useSeatingGenerator', () => {
     expect(mockMoveStudent).toHaveBeenCalledWith(0, 0, 0, 1);
     expect(mockSetShouldRegenerateCircle).toHaveBeenCalledTimes(1);
     expect(mockSetShouldRegenerateCircle).toHaveBeenCalledWith(true);
+    // The class data and the plan usage load after mounting; they settle inside act.
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
   });
 
-  it('fordert keinen Circle-Refresh an, wenn das Verschieben blockiert wird', () => {
+  it('fordert keinen Circle-Refresh an, wenn das Verschieben blockiert wird', async () => {
     mockMoveStudent.mockReturnValueOnce(false);
     const { result } = renderHook(() => useSeatingGenerator());
 
@@ -373,9 +381,13 @@ describe('useSeatingGenerator', () => {
 
     expect(mockMoveStudent).toHaveBeenCalledWith(0, 0, 0, 1);
     expect(mockSetShouldRegenerateCircle).not.toHaveBeenCalled();
+    // The class data and the plan usage load after mounting; they settle inside act.
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
   });
 
-  it('löst ohne Kreislayout keinen Circle-Refresh aus', () => {
+  it('löst ohne Kreislayout keinen Circle-Refresh aus', async () => {
     mockedUseSeatingState.mockReturnValueOnce(
       createSeatingStateMock({ sceneState: { circleLayout: null } }),
     );
@@ -388,9 +400,13 @@ describe('useSeatingGenerator', () => {
 
     expect(mockMoveStudent).toHaveBeenCalledWith(0, 0, 0, 1);
     expect(mockSetShouldRegenerateCircle).not.toHaveBeenCalled();
+    // The class data and the plan usage load after mounting; they settle inside act.
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
   });
 
-  it('zeichnet nach dem Mischen nur den Sitzkreis neu, ohne nachzuverfeinern', () => {
+  it('zeichnet nach dem Mischen nur den Sitzkreis neu, ohne nachzuverfeinern', async () => {
     const { result } = renderHook(() => useSeatingGenerator());
 
     act(() => {
@@ -402,9 +418,13 @@ describe('useSeatingGenerator', () => {
     // gets no hook to start a second refinement either.
     const wizardArgs = mockedUseSeatingWizard.mock.calls.at(-1)?.[0];
     expect(wizardArgs).not.toHaveProperty('onAutoMixTriggered');
+    // The class data and the plan usage load after mounting; they settle inside act.
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
   });
 
-  it('setzt Pending-Updates nicht bei reiner Namensänderung', () => {
+  it('setzt Pending-Updates nicht bei reiner Namensänderung', async () => {
     const { result, rerender } = renderHook(() => useSeatingGenerator());
 
     expect(result.current.hasPendingStudentUpdates).toBe(false);
@@ -434,6 +454,10 @@ describe('useSeatingGenerator', () => {
     rerender();
 
     expect(result.current.hasPendingStudentUpdates).toBe(true);
+    // The class data and the plan usage load after mounting; they settle inside act.
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
   });
 
   describe('coming back to the window', () => {

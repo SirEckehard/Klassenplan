@@ -17,6 +17,7 @@ import { sniffCsvEncoding } from '@/utils/csv/csvEncoding';
 import { detectCsvPreset } from '@/utils/csv/csvPresetDetection';
 import type { CsvPreset } from '@/utils/csv/csvPresets';
 import { logError, MAX_STUDENTS } from '@/utils';
+import { dropMissingPartners } from '@/utils/student/partnerUtils';
 import {
   CsvImportError,
   diagnoseCsvStructure,
@@ -250,7 +251,11 @@ export async function importStudentsFromCsv({
       return [];
     }
 
-    const acceptedStudents = parsedStudents.slice(0, availableSlots);
+    // Partners are names of the same file: one cut off with the rest is no
+    // partner of anyone left.
+    const acceptedStudents = dropMissingPartners(
+      parsedStudents.slice(0, availableSlots),
+    );
     if (acceptedStudents.length < parsedStudents.length) {
       showToast(
         'warning',

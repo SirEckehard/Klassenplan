@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import '@testing-library/jest-dom/vitest';
-import { render, screen } from '@testing-library/react';
+import { cleanup, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, describe, it, expect } from 'vitest';
 import i18n, { ensureEnglishLoaded } from '@/i18n/i18n';
@@ -16,6 +16,9 @@ const renderImpressum = (state?: unknown) =>
   );
 
 afterEach(async () => {
+  // Unmounted first: a language switch re-renders a page still on screen
+  // outside act.
+  cleanup();
   await i18n.changeLanguage('de');
 });
 

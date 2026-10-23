@@ -33,11 +33,15 @@ export const useStudentListLayout = ({
   const prefersReducedMotion = usePrefersReducedMotion();
   const [scrollHint, setScrollHint] = useState<ListScrollHint>(null);
 
+  // Off a phone, or with nobody on the list, there is nothing to point to.
+  // Reset while rendering rather than from the effect, which only listens.
+  const tracking = isMobile && studentCount > 0;
+  if (!tracking && scrollHint !== null) {
+    setScrollHint(null);
+  }
+
   useEffect(() => {
-    if (!isMobile || studentCount === 0) {
-      queueMicrotask(() => {
-        setScrollHint(null);
-      });
+    if (!tracking) {
       return;
     }
 
@@ -100,7 +104,8 @@ export const useStudentListLayout = ({
       removeViewportResize();
       removeViewportScroll();
     };
-  }, [isMobile, studentCount]);
+    // A student added or removed moves the list's end: checked anew.
+  }, [tracking, studentCount]);
 
   const handleScrollHint = useCallback(() => {
     const behavior = prefersReducedMotion ? 'auto' : 'smooth';

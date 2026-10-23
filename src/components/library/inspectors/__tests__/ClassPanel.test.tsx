@@ -6,6 +6,7 @@
  */
 import '@testing-library/jest-dom/vitest';
 import {
+  act,
   cleanup,
   fireEvent,
   render,
@@ -40,7 +41,7 @@ const field = (name: RegExp) => screen.getByRole('textbox', { name });
 afterEach(cleanup);
 
 describe('ClassPanel', () => {
-  it('renames the class in the header on Enter, refusing a name another class carries', () => {
+  it('renames the class in the header on Enter, refusing a name another class carries', async () => {
     const { onCommit } = renderPanel();
     // The name is the header's, opened as a field when pressed.
     fireEvent.click(
@@ -56,9 +57,11 @@ describe('ClassPanel', () => {
     fireEvent.change(name, { target: { value: '7c' } });
     fireEvent.keyDown(name, { key: 'Enter' });
     expect(onCommit).toHaveBeenCalledWith({ name: '7c' });
+    // What the commit sets once it resolved settles inside act.
+    await act(async () => {});
   });
 
-  it('keeps the school year when the field is left, an emptied one too', () => {
+  it('keeps the school year when the field is left, an emptied one too', async () => {
     const { onCommit } = renderPanel();
     const schoolYear = field(/^(Schuljahr|School year)$/);
 
@@ -66,9 +69,11 @@ describe('ClassPanel', () => {
     fireEvent.blur(schoolYear);
 
     expect(onCommit).toHaveBeenCalledWith({ label: '' });
+    // What the commit sets once it resolved settles inside act.
+    await act(async () => {});
   });
 
-  it('takes a new line in the notes and keeps them when the field is left', () => {
+  it('takes a new line in the notes and keeps them when the field is left', async () => {
     const { onCommit } = renderPanel();
     const notes = field(/^(Notizen|Notes)$/);
 
@@ -82,6 +87,8 @@ describe('ClassPanel', () => {
     expect(onCommit).toHaveBeenCalledWith({
       notes: 'Montags im Physikraum\nFreitags Sport',
     });
+    // What the commit sets once it resolved settles inside act.
+    await act(async () => {});
   });
 
   it('takes a change back on Escape', () => {

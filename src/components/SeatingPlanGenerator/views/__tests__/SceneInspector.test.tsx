@@ -2,6 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import '@testing-library/jest-dom/vitest';
 import {
+  act,
   render,
   screen,
   fireEvent,
@@ -213,7 +214,7 @@ afterEach(() => {
 describe('SceneInspector', () => {
   // The room is renamed where it is read, as the class is in the class
   // layer's inspector; a name another room of the class carries is refused.
-  it('renames the open room in its header', () => {
+  it('renames the open room in its header', async () => {
     seatingPlan.state = {
       rooms: [
         { id: 'classroom', name: 'Klassenraum', createdAt: '' },
@@ -247,6 +248,8 @@ describe('SceneInspector', () => {
       'classroom',
       'Raum 104',
     );
+    // What the commit sets once it resolved settles inside act.
+    await act(async () => {});
   });
 
   // Seats and students are the status bar's to state; the room panel only

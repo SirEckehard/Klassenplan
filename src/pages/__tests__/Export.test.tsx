@@ -12,7 +12,13 @@
  */
 import '@testing-library/jest-dom/vitest';
 import type React from 'react';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import {
+  cleanup,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
@@ -132,6 +138,9 @@ beforeEach(async () => {
 });
 
 afterEach(async () => {
+  // Unmounted first: a language switch re-renders every translated part of a
+  // page still on screen, outside act.
+  cleanup();
   vi.clearAllMocks();
   await i18n.changeLanguage('de');
 });

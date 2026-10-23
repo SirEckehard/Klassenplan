@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import '@testing-library/jest-dom/vitest';
-import { cleanup, renderHook } from '@testing-library/react';
+import { act, cleanup, renderHook } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useKeyboardInteraction } from '../../../hooks/ui/useKeyboardInteraction';
@@ -311,15 +311,17 @@ describe('useKeyboardInteraction', () => {
     const params = createParams();
     const { unmount } = renderHook(() => useKeyboardInteraction(params));
 
-    window.dispatchEvent(
-      new KeyboardEvent('keydown', { key: 'ArrowRight', repeat: false }),
-    );
-    window.dispatchEvent(
-      new KeyboardEvent('keydown', { key: 'ArrowRight', repeat: true }),
-    );
-    window.dispatchEvent(
-      new KeyboardEvent('keydown', { key: 'ArrowRight', repeat: true }),
-    );
+    act(() => {
+      window.dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'ArrowRight', repeat: false }),
+      );
+      window.dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'ArrowRight', repeat: true }),
+      );
+      window.dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'ArrowRight', repeat: true }),
+      );
+    });
 
     expect(params.updateClassroomScene).toHaveBeenCalledTimes(3);
     expect(params.snapshot).toHaveBeenCalledTimes(1);
@@ -337,7 +339,9 @@ describe('useKeyboardInteraction', () => {
       key: 'ArrowDown',
       cancelable: true,
     });
-    window.dispatchEvent(event);
+    act(() => {
+      window.dispatchEvent(event);
+    });
 
     expect(event.defaultPrevented).toBe(false);
 

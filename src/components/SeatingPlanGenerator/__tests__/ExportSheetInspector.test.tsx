@@ -3,6 +3,7 @@
 import '@testing-library/jest-dom/vitest';
 import React from 'react';
 import {
+  act,
   cleanup,
   fireEvent,
   render,
@@ -304,7 +305,7 @@ describe('ExportSheetInspector order', () => {
     ]);
   });
 
-  it('names the sheet by its title in the header, renamed there', () => {
+  it('names the sheet by its title in the header, renamed there', async () => {
     const onTitleChange = vi.fn();
     renderInspector({ title: '7b im September', onTitleChange });
 
@@ -318,9 +319,11 @@ describe('ExportSheetInspector order', () => {
     fireEvent.keyDown(field, { key: 'Enter' });
 
     expect(onTitleChange).toHaveBeenCalledWith('7b ab Oktober');
+    // What the commit sets once it resolved settles inside act.
+    await act(async () => {});
   });
 
-  it('keeps an emptied title empty', () => {
+  it('keeps an emptied title empty', async () => {
     const onTitleChange = vi.fn();
     renderInspector({ title: '7b im September', onTitleChange });
 
@@ -332,6 +335,8 @@ describe('ExportSheetInspector order', () => {
     fireEvent.blur(field);
 
     expect(onTitleChange).toHaveBeenCalledWith('');
+    // What the commit sets once it resolved settles inside act.
+    await act(async () => {});
   });
 
   it('puts the class info in the header section', () => {

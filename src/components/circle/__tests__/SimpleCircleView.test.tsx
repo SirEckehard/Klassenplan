@@ -10,7 +10,7 @@ import {
   type Mock,
 } from 'vitest';
 import type { ComponentProps } from 'react';
-import { render, screen, cleanup, within } from '@testing-library/react';
+import { act, render, screen, cleanup, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import SimpleCircleView from '../SimpleCircleView';
 import type { CircleLayout } from '../../../types/Circle';
@@ -369,15 +369,19 @@ describe('SimpleCircleView', () => {
       name: /Sitzplatz sperren|Lock seat/,
     });
     expect(openLocks).toHaveLength(2);
-    openLocks[0].focus();
+    act(() => openLocks[0].focus());
     await user.keyboard('{Enter}');
     expect(onToggleLock).toHaveBeenCalledWith('1');
 
     // Bob cannot be picked up, and nobody can be put on his place.
-    screen.getByRole('button', { name: /^Bob – (Platz|place) 2/ }).focus();
+    act(() =>
+      screen.getByRole('button', { name: /^Bob – (Platz|place) 2/ }).focus(),
+    );
     await user.keyboard('{Enter}');
     expect(screen.getByRole('status')).toHaveTextContent(/gesperrt|locked/);
-    screen.getByRole('button', { name: /^Alice – (Platz|place) 1/ }).focus();
+    act(() =>
+      screen.getByRole('button', { name: /^Alice – (Platz|place) 1/ }).focus(),
+    );
     await user.keyboard('{Enter}{ArrowRight}{Enter}');
     expect(mockOnStudentMove).not.toHaveBeenCalled();
   });

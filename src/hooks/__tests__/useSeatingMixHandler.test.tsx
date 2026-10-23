@@ -154,12 +154,14 @@ describe('useSeatingMixHandler', () => {
     await waitFor(() => expect(onMix).not.toHaveBeenCalled());
   });
 
-  it('mixes with the neutral settings when no criterion is active', async () => {
+  it('mixes with the settings as they are when no criterion is on', async () => {
+    // Every criterion "Aus": the session deals the students at random.
+    const allOff = { ...neutralSettings, criteriaVersion: 2 } as MixSettings;
     const generate = vi.fn(async () => arrangement);
 
     const { result } = renderHook(() =>
       useSeatingMixHandler({
-        settings: { ...withCriteria, ...neutralSettings } as MixSettings,
+        settings: allOff,
         students,
         classroomScene: scene,
         generateSeatingPlan: generate,
@@ -171,7 +173,7 @@ describe('useSeatingMixHandler', () => {
     });
 
     expect(generate).toHaveBeenCalledWith(
-      neutralSettings,
+      allOff,
       scene,
       expect.objectContaining({ signal: expect.any(AbortSignal) }),
     );

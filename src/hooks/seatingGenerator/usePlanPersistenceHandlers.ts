@@ -38,10 +38,7 @@ type UsePlanPersistenceHandlersParams = {
     circleLayout?: CircleLayout | null,
     options?: SaveSeatingPlanOptions,
   ) => boolean;
-  loadSeatingPlan: (
-    plan: SavedPlan,
-    options?: { replaceStudents?: boolean },
-  ) => void;
+  loadSeatingPlan: (plan: SavedPlan) => void;
   setPlanName: React.Dispatch<React.SetStateAction<string>>;
   setPlanNameError: (error: boolean) => void;
   updateClassroomScene: (value: React.SetStateAction<ClassroomScene>) => void;
@@ -147,7 +144,7 @@ export function usePlanPersistenceHandlers({
         return;
       }
       recordSeatingSnapshot();
-      loadSeatingPlan(plan, { replaceStudents: false });
+      loadSeatingPlan(plan);
       updateClassroomScene(plan.scene);
       // A plan without a circle takes the one on screen away too: that one
       // belongs to another plan, and the exits would save it into this one.

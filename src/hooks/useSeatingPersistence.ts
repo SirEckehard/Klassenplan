@@ -20,7 +20,6 @@ import {
   type SaveTemplateResult,
   type SavedPlan,
   type SaveSeatingPlanOptions,
-  type Student,
 } from '@/types';
 import type { CircleLayout, CircleExportData } from '@/types/Circle';
 import {
@@ -73,10 +72,6 @@ import {
 // the initial bundle. Each caller loads it before touching any data, so a
 // failed load cannot leave a wipe or an import half done.
 const loadDataBackup = () => import('@/services/backup/dataBackup');
-
-export type LoadOptions = {
-  replaceStudents?: boolean;
-};
 
 /**
  * Persist seating data to IndexedDB and provide load/save utilities.
@@ -596,30 +591,17 @@ export function useSeatingPersistence(state: SeatingState) {
   );
 
   const loadSeatingPlan = useCallback(
-    (plan: SavedPlan, options?: LoadOptions) => {
+    (plan: SavedPlan) => {
       if (!plan || !plan.seating) return;
       setCurrentSeating(plan.seating);
-
-      if (options?.replaceStudents) {
-        const loaded: Student[] = [];
-        plan.seating.forEach((table) =>
-          table.forEach((s) => {
-            if (s) loaded.push({ ...s, id: generateId() });
-          }),
-        );
-        if (loaded.length > 0) setStudents(loaded);
-        setLockedPositions({});
-      } else {
-        const ids = new Set(students.map((s) => s.id));
-        setLockedPositions(fittingLocks(plan.locks ?? {}, plan.seating, ids));
-      }
+      const ids = new Set(students.map((s) => s.id));
+      setLockedPositions(fittingLocks(plan.locks ?? {}, plan.seating, ids));
       setPlanName(plan.name);
       setActivePlanId(plan.id);
     },
     [
       students,
       setCurrentSeating,
-      setStudents,
       setLockedPositions,
       setPlanName,
       setActivePlanId,

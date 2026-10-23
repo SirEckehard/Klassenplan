@@ -7,6 +7,7 @@
  */
 import '@testing-library/jest-dom/vitest';
 import {
+  act,
   cleanup,
   fireEvent,
   render,
@@ -68,7 +69,7 @@ describe('RoomPanel', () => {
     );
   });
 
-  it('replaces a template of the same name only from its own step', () => {
+  it('replaces a template of the same name only from its own step', async () => {
     const { onSaveAsTemplate } = renderPanel([
       { id: 7, name: 'Chemie', scene },
     ]);
@@ -83,5 +84,7 @@ describe('RoomPanel', () => {
       }),
     );
     expect(onSaveAsTemplate).toHaveBeenCalledWith('Chemie', 7);
+    // What the component sets once its work resolved settles inside act.
+    await act(async () => {});
   });
 });

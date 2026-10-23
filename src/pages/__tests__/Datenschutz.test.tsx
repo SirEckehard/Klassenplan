@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import '@testing-library/jest-dom/vitest';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, it, expect, beforeEach } from 'vitest';
 import Datenschutz from '../Datenschutz';
@@ -13,7 +13,7 @@ describe('Datenschutz page', () => {
   beforeEach(() => {
     clearProjectLocalStorage();
   });
-  it('shows heading, logo link and email address', () => {
+  it('shows heading, logo link and email address', async () => {
     render(
       <MemoryRouter>
         <SeatingPlanGeneratorProvider>
@@ -21,6 +21,10 @@ describe('Datenschutz page', () => {
         </SeatingPlanGeneratorProvider>
       </MemoryRouter>,
     );
+    // The provider loads the stored classes once it is mounted.
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
 
     expect(
       screen.getByRole('link', {

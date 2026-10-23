@@ -12,6 +12,7 @@ import {
 import type { NoteListInput } from '@/components/scene/NoteListSheet';
 import type { DutyRosterInput } from '@/components/scene/DutyRosterSheet';
 import { logError, toIsoDate } from '@/utils';
+import i18n from '@/i18n';
 import type { DataFamily, NameDisplayMode } from '@/utils';
 import { confirmDownload } from '@/utils/ui/downloadConfirmation';
 import type { FeatureVisibilityFlags } from '@/utils/ui/featureStyles';
@@ -98,7 +99,8 @@ export async function exportTableLayoutToPdf(
 
   await exportSvgToPdf(
     svgString,
-    title || 'Sitzplan',
+    // A file needs a name where the sheet has no title: the one printing gives.
+    title || i18n.t('generator:export.tableDefaultFilename'),
     options?.orientation ?? 'portrait',
   );
 }
@@ -131,7 +133,7 @@ export async function exportCircleLayoutToPdf(
 
   await exportSvgToPdf(
     svgString,
-    title || 'Sitzkreis',
+    title || i18n.t('generator:export.circleDefaultFilename'),
     options?.orientation ?? 'portrait',
   );
 }
@@ -310,6 +312,7 @@ async function exportSvgToPdf(
     pdf.save(pdfFilename);
   } catch (error) {
     logError('PDF export failed', { error, filename }, 'pdfExportFunctions');
-    throw new Error('PDF-Export fehlgeschlagen', { cause: error });
+    // The page that asked says what failed, in the language it shows.
+    throw new Error('PDF export failed', { cause: error });
   }
 }

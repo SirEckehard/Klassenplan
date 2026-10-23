@@ -7,7 +7,7 @@
  * screen.
  */
 import '@testing-library/jest-dom/vitest';
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import '@/i18n';
@@ -208,12 +208,16 @@ describe('Wo sitzt wer?', () => {
 });
 
 describe('Dienste verteilen', () => {
-  it('says what it needs when there is no class', () => {
+  it('says what it needs when there is no class', async () => {
     renderPage(<Duties />);
 
     expect(
       screen.getByText(/Keine Klasse für Dienste|No class for duties/),
     ).toBeInTheDocument();
+    // The duties load after mounting; they settle inside act.
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
   });
 
   it('hands out a suggested duty and keeps it for the class', async () => {

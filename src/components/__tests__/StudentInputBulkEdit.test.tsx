@@ -170,9 +170,13 @@ describe('StudentInput list tools', () => {
   beforeEach(() => setWidth(600));
   afterEach(() => setWidth(LG_WIDTH));
 
-  it('hides the toolbar for a class below the threshold', () => {
+  it('hides the toolbar for a class below the threshold', async () => {
     renderInput({
       students: makeStudents().slice(0, STUDENT_LIST_TOOLS_THRESHOLD - 1),
+    });
+    // The provider loads the stored classes once it is mounted.
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
     });
 
     expect(

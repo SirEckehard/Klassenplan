@@ -141,7 +141,7 @@ describe('SmartSidebar layout tiers', () => {
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
 
-  it('gives a tablet a real column', () => {
+  it('gives a tablet a real column', async () => {
     setWidth(820);
 
     renderSidebar();
@@ -150,9 +150,11 @@ describe('SmartSidebar layout tiers', () => {
     // and could never see the options and the canvas at once.
     expect(sidebarColumn()).toBeInTheDocument();
     expect(openSheetButton()).not.toBeInTheDocument();
+    // What the component sets once its work resolved settles inside act.
+    await act(async () => {});
   });
 
-  it('starts the tablet column collapsed', () => {
+  it('starts the tablet column collapsed', async () => {
     setWidth(820);
 
     renderSidebar();
@@ -161,9 +163,11 @@ describe('SmartSidebar layout tiers', () => {
     expect(
       screen.getByRole('button', { name: 'Werkzeugleiste erweitern' }),
     ).toBeInTheDocument();
+    // What the component sets once its work resolved settles inside act.
+    await act(async () => {});
   });
 
-  it('ignores a stored desktop preference on a tablet', () => {
+  it('ignores a stored desktop preference on a tablet', async () => {
     localStorage.setItem(LOCAL_STORAGE_KEYS.sidebarExpanded, 'true');
     setWidth(820);
 
@@ -172,6 +176,8 @@ describe('SmartSidebar layout tiers', () => {
     // 288px of sidebar would leave a 900px scene under 500px of width. The
     // stored value was made on a laptop and stays there.
     expect(sidebarColumn()).toHaveAttribute('data-expanded', 'false');
+    // What the component sets once its work resolved settles inside act.
+    await act(async () => {});
   });
 
   it('starts the desktop column collapsed on a first visit', () => {
