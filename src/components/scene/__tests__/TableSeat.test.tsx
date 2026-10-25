@@ -241,10 +241,11 @@ describe('TableSeat component', () => {
     // the table can neither clip nor cover it.
     const drop = container.querySelector('[data-seat-drop]');
     expect(drop).toHaveAttribute('data-seat-drop', 'target');
-    const ring = drop?.querySelectorAll('rect')[1];
+    const ring = drop?.querySelector('path');
     // Blue: where the student can land is where the teacher can act.
     expect(ring?.style.stroke).toBe('var(--border-option-selected)');
-    expect(ring).toHaveAttribute('x', '2');
+    // 2 clear of the outline's inner side: 0.5 + 2 + half the ring's 2.5.
+    expect(ring?.getAttribute('d')).toMatch(/^M[\d.]+ 3\.75H/);
     expect(container.querySelector('g[style*="scale"]')).toBeNull();
   });
 
@@ -476,10 +477,10 @@ describe('TableSeat component', () => {
 
     const warn = seat({ highlightStatus: 'warn', highlightMode: 'persistent' });
     expect(warn).toHaveAttribute('data-seat-highlight', 'warn');
-    const ring = warn?.querySelectorAll('rect')[1];
+    const ring = warn?.querySelector('path');
     expect(ring?.style.stroke).toBe('var(--status-warn)');
     // Inset, so the table's outline cannot clip it.
-    expect(ring).toHaveAttribute('x', '2');
+    expect(ring?.getAttribute('d')).toMatch(/^M[\d.]+ 3\.75H/);
 
     const focus = seat({
       highlightStatus: 'ok',
@@ -487,7 +488,7 @@ describe('TableSeat component', () => {
       highlightTone: 'focus',
     });
     expect(focus).toHaveAttribute('data-seat-highlight', 'focus');
-    expect(focus?.querySelectorAll('rect')[1]?.style.stroke).toBe(
+    expect(focus?.querySelector('path')?.style.stroke).toBe(
       'var(--border-option-selected)',
     );
     // It stands still: a pointed-at badge does not blink.
@@ -542,9 +543,7 @@ describe('TableSeat component', () => {
     });
     const ring = landed.querySelector('[data-seat-highlight="confirm"]');
     expect(ring).toHaveClass('seat-drop-confirm');
-    expect(ring?.querySelectorAll('rect')[1]?.style.stroke).toBe(
-      'var(--status-ok)',
-    );
+    expect(ring?.querySelector('path')?.style.stroke).toBe('var(--status-ok)');
   });
 
   it('calls onSeatPointerDown with correct parameters', () => {
@@ -811,9 +810,76 @@ describe('TableSeat component', () => {
     // A held seat refuses the drop in the alert colour, in both themes.
     const drop = container.querySelector('[data-seat-drop]');
     expect(drop).toHaveAttribute('data-seat-drop', 'blocked');
-    expect(drop?.querySelectorAll('rect')[1]?.style.stroke).toBe(
+    expect(drop?.querySelector('path')?.style.stroke).toBe(
       'var(--status-alert)',
     );
+  });
+
+  it("follows the table's corners with its mark and keeps it clear of a thicker outline", () => {
+    const ring = (props: Partial<React.ComponentProps<typeof TableSeat>>) =>
+      render(
+        <svg>
+          <TableSeat
+            student={baseStudent}
+            seatIndex={0}
+            tableIndex={0}
+            col={0}
+            row={0}
+            seatWidth={55}
+            seatHeight={65}
+            isDark={false}
+            locked={false}
+            isOriginSeat={false}
+            isHoverSeat={true}
+            isHoverLockedSeat={false}
+            isLockedFeedbackSeat={false}
+            showSpecialNeeds={true}
+            lockSeatLabelOrientation={true}
+            seatTextRotation={0}
+            {...props}
+          />
+        </svg>,
+      )
+        .container.querySelector('[data-seat-drop] path')
+        ?.getAttribute('d');
+
+    // The top corners are the table's: radius 8 less the inset of 3.75.
+    expect(ring({ tableCorners: [true, true, false, false] })).toMatch(
+      /^M8 3\.75H47A4\.25 4\.25 0 0 1 51\.25 8V/,
+    );
+    // A selected table's outline is 2.4 wide: the ring moves in with it.
+    expect(ring({ tableEdgeWidth: 2.4 })).toMatch(/^M[\d.]+ 4\.45H/);
+  });
+
+  it("draws a held seat's contour all round, inside the table's outline", () => {
+    const { container } = render(
+      <svg>
+        <TableSeat
+          student={baseStudent}
+          seatIndex={0}
+          tableIndex={0}
+          col={0}
+          row={0}
+          seatWidth={55}
+          seatHeight={65}
+          tableCorners={[true, true, false, false]}
+          isDark={false}
+          locked={true}
+          isOriginSeat={false}
+          isHoverSeat={false}
+          isHoverLockedSeat={false}
+          isLockedFeedbackSeat={false}
+          showSpecialNeeds={true}
+          lockSeatLabelOrientation={true}
+          seatTextRotation={0}
+        />
+      </svg>,
+    );
+
+    const edge = container.querySelector('[data-seat-edge="locked"]');
+    expect(edge).toHaveAttribute('stroke', '#2563eb');
+    // Half the outline's width and a half more: 1 inside the seat's edge.
+    expect(edge?.getAttribute('d')).toMatch(/^M8 1H47A7 7 0 0 1 54 8V/);
   });
 });
 

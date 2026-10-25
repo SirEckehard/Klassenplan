@@ -23,6 +23,7 @@ import type {
   DragSeatConfig,
 } from '@/hooks/ui/useDragDropState';
 import SeatGrid, { type SeatConfig } from '@/components/scene/SeatGrid';
+import { seatTableCorners } from '@/utils/ui/seatMark';
 import RotationHandle from '@/components/scene/RotationHandle';
 import { useSeatDrag } from '@/hooks/scene/useSeatDrag';
 import {
@@ -296,6 +297,7 @@ function SceneTable({
       seatIndex,
       col,
       row,
+      tableCorners: seatTableCorners(col, row, cols, rows),
       locked,
       isOriginSeat,
       isHoverSeat,
@@ -374,6 +376,7 @@ function SceneTable({
         tableIndex={index}
         seatWidth={seatWidth}
         seatHeight={seatHeight}
+        tableEdgeWidth={baseTableStrokeWidth}
         tableRotation={table.rotation}
         allStudents={allStudents}
         showSpecialNeeds={showSpecialNeeds}

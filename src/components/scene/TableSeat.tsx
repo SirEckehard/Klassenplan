@@ -26,6 +26,16 @@ import SeatBadgePill from '@/components/scene/SeatBadgePill';
 import SeatNameText from '@/components/scene/SeatNameText';
 import type { SeatHighlightTone } from '@/utils/ui/statisticsHighlight';
 import {
+  insetSeatPath,
+  SEAT_MARK_COLORS,
+  SEAT_MARK_WIDTH,
+  seatEdgeLineInset,
+  seatFocusInset,
+  seatMarkInset,
+  type SeatCorners,
+  type SeatMarkKind,
+} from '@/utils/ui/seatMark';
+import {
   getDisplayNameForMode,
   getTooltipName,
   getWishPartnerIds,
@@ -43,6 +53,10 @@ interface TableSeatProps {
   row: number;
   seatWidth: number;
   seatHeight: number;
+  /** Which of the seat's corners are its table's, so a mark follows them. */
+  tableCorners?: SeatCorners;
+  /** The width of the table's outline, which a mark keeps clear of. */
+  tableEdgeWidth?: number;
   tableRotation?: number;
   allStudents?: Student[];
   isDark: boolean;
@@ -132,72 +146,36 @@ const matchesFocusVisible = (element: Element): boolean => {
   }
 };
 
-/**
- * A highlighted seat's ring and tint. A criterion's verdict speaks in the
- * status colours the fulfilment in the inspector uses; a badge pointing at a
- * seat is no verdict and takes the selection colour. Tokens, so both themes
- * come from `index.css` — highlights are drawn on screen only, never exported.
- */
-const HIGHLIGHT_COLORS: Record<
-  StatisticStatus | SeatHighlightTone,
-  SeatRingColors
-> = {
-  ok: { ring: 'var(--status-ok)', tint: 'var(--status-ok-surface)' },
-  warn: { ring: 'var(--status-warn)', tint: 'var(--status-warn-surface)' },
-  alert: { ring: 'var(--status-alert)', tint: 'var(--status-alert-surface)' },
-  focus: {
-    ring: 'var(--border-option-selected)',
-    tint: 'var(--surface-option-selected)',
-  },
-  // A student has just landed here: a completed action.
-  confirm: { ring: 'var(--status-ok)', tint: 'var(--status-ok-surface)' },
-};
+/** A seat that is not drawn inside a table's grid keeps its own corners. */
+const OWN_CORNERS: SeatCorners = [false, false, false, false];
 
 /**
- * A seat a dragged student hovers: blue where it can land — the colour of
- * "you can act here" — and rose where the seat is held. The seat it came
- * from is not a target and gets neither.
+ * A seat's mark (see `utils/ui/seatMark`): a tint over the seat and a ring
+ * inside it, clear of the table's outline and concentric with its corners —
+ * the seat's own edge is the table's edge on the outside, where a ring on
+ * the edge is clipped by the table and covered by its outline.
  */
-const DROP_COLORS: Record<'target' | 'blocked', SeatRingColors> = {
-  target: {
-    ring: 'var(--border-option-selected)',
-    tint: 'var(--surface-option-selected)',
-  },
-  blocked: { ring: 'var(--status-alert)', tint: 'var(--status-alert-surface)' },
-};
-
-type SeatRingColors = { ring: string; tint: string };
-
-/** Ring widths and their inset, so the whole ring lies inside the seat. */
-const HIGHLIGHT_RING_WIDTH = 2.5;
-const DROP_RING_WIDTH = 3;
-const SEAT_RING_INSET = 2;
-
-/**
- * A tint under the name and a ring inset into the seat: how a seat is marked,
- * for a highlight and as a drop target alike. Inset, because the seat's own
- * edge is the table's edge on the outside — a contour there is clipped by the
- * table and covered by its outline, and only the line between two seats would
- * be left.
- */
-function SeatRing({
+function SeatMark({
   seatWidth,
   seatHeight,
-  colors,
-  ringWidth,
+  kind,
+  corners,
+  edgeWidth,
   motion,
   title,
   ...dataAttributes
 }: {
   seatWidth: number;
   seatHeight: number;
-  colors: SeatRingColors;
-  ringWidth: number;
-  /** `pulse`: the tint breathes. `confirm`: the whole ring fades once. */
+  kind: SeatMarkKind;
+  corners: SeatCorners;
+  edgeWidth: number;
+  /** `pulse`: the tint breathes. `confirm`: the whole mark fades once. */
   motion?: 'pulse' | 'confirm';
   title?: string;
   [dataAttribute: `data-${string}`]: string;
 }) {
+  const colors = SEAT_MARK_COLORS[kind];
   return (
     <g
       {...dataAttributes}
@@ -211,18 +189,19 @@ function SeatRing({
         className={motion === 'pulse' ? 'animate-pulse' : undefined}
         style={{ fill: colors.tint, transition: 'fill 160ms ease' }}
       />
-      <rect
-        x={SEAT_RING_INSET}
-        y={SEAT_RING_INSET}
-        width={Math.max(seatWidth - SEAT_RING_INSET * 2, 0)}
-        height={Math.max(seatHeight - SEAT_RING_INSET * 2, 0)}
-        rx={3}
+      <path
+        d={insetSeatPath(
+          seatWidth,
+          seatHeight,
+          seatMarkInset(edgeWidth),
+          corners,
+        )}
         fill="none"
-        strokeWidth={ringWidth}
+        strokeWidth={SEAT_MARK_WIDTH}
         style={{ stroke: colors.ring, transition: 'stroke 160ms ease' }}
       >
         {title ? <title>{title}</title> : null}
-      </rect>
+      </path>
     </g>
   );
 }
@@ -248,6 +227,8 @@ function TableSeat({
   row,
   seatWidth,
   seatHeight,
+  tableCorners = OWN_CORNERS,
+  tableEdgeWidth = 1,
   tableRotation = 0,
   allStudents = [],
   isDark,
@@ -328,9 +309,6 @@ function TableSeat({
   const highlightKind = highlightStatus
     ? (highlightTone ?? highlightStatus)
     : null;
-  const highlightColors = highlightKind
-    ? HIGHLIGHT_COLORS[highlightKind]
-    : null;
   const { t } = useTranslation('generator');
 
   const highlightTitle =
@@ -352,7 +330,6 @@ function TableSeat({
   // seat, it shows who would come here instead.
   const showsSwapPreview = isOriginSeat && swapPreviewStudent !== null;
   const seatGroupOpacity = isOriginSeat ? (showsSwapPreview ? 0.6 : 0.35) : 1;
-  const focusInset = dropState ? SEAT_RING_INSET + DROP_RING_WIDTH + 1 : 2.5;
   const dividerStroke = isDark
     ? 'rgba(226, 232, 240, 0.18)'
     : 'rgba(30, 41, 59, 0.12)';
@@ -360,9 +337,12 @@ function TableSeat({
   // neutral fill — no dashed outline or texture, so they stay visually calm and
   // don't clash with the table frame in step 3, the PDF export and presentation.
   // On a wall a 0.75px hairline is not a line; the contrast mode draws the
-  // seat's own contour instead of the table's faint divider.
-  const seatStrokeWidth = contrast ? 1.5 : locked ? 1 : 0.75;
-  const seatStrokeValue = contrast || locked ? seatStroke : dividerStroke;
+  // seat's own contour instead of the table's faint divider. A held seat
+  // keeps the divider and draws its contour inside the table's outline
+  // (below), where the outline cannot cover it.
+  const seatStrokeWidth = contrast ? 1.5 : 0.75;
+  const seatStrokeValue = contrast ? seatStroke : dividerStroke;
+  const showsEdgeLine = locked && !contrast;
   const seatTextOpacity = isOriginSeat ? 0.35 : 1;
   const labelStudent = showsSwapPreview ? swapPreviewStudent : student;
   const displayName = labelStudent
@@ -421,6 +401,16 @@ function TableSeat({
   // seat drag has a keyboard alternative (Enter/Space grab & drop, Escape).
   const keyboardEnabled = Boolean(onSeatKeyDown);
   const [hasVisibleFocus, setHasVisibleFocus] = React.useState(false);
+  // The focus ring lies on the mark's line, and inside a mark where there is
+  // one, so the two never cross.
+  const focusPath = hasVisibleFocus
+    ? insetSeatPath(
+        seatWidth,
+        seatHeight,
+        seatFocusInset(tableEdgeWidth, Boolean(dropState || highlightKind)),
+        tableCorners,
+      )
+    : '';
   const keyboardInfo = React.useMemo<SeatKeyboardEventInfo>(
     () => ({
       tableIndex,
@@ -550,13 +540,14 @@ function TableSeat({
         />
         {/* The highlight, then the drop target on top of it: both on the
             seat itself, never on its table. */}
-        {highlightColors && highlightKind && (
-          <SeatRing
+        {highlightKind && (
+          <SeatMark
             data-seat-highlight={highlightKind}
             seatWidth={seatWidth}
             seatHeight={seatHeight}
-            colors={highlightColors}
-            ringWidth={HIGHLIGHT_RING_WIDTH}
+            kind={highlightKind}
+            corners={tableCorners}
+            edgeWidth={tableEdgeWidth}
             // A passing hover breathes, a pinned highlight stands still, a
             // landing fades out once.
             motion={
@@ -572,41 +563,50 @@ function TableSeat({
           />
         )}
         {dropState && (
-          <SeatRing
+          <SeatMark
             data-seat-drop={dropState}
             seatWidth={seatWidth}
             seatHeight={seatHeight}
-            colors={DROP_COLORS[dropState]}
-            ringWidth={DROP_RING_WIDTH}
+            kind={dropState}
+            corners={tableCorners}
+            edgeWidth={tableEdgeWidth}
+          />
+        )}
+        {/* A held seat's contour: a hairline all round, just inside the
+            table's outline, above a mark's tint. */}
+        {showsEdgeLine && (
+          <path
+            data-seat-edge="locked"
+            d={insetSeatPath(
+              seatWidth,
+              seatHeight,
+              seatEdgeLineInset(tableEdgeWidth),
+              tableCorners,
+            )}
+            fill="none"
+            stroke={seatStroke}
+            strokeWidth={1}
+            vectorEffect="non-scaling-stroke"
+            pointerEvents="none"
           />
         )}
         {/* Keyboard focus ring - drawn manually because SVG outline rendering
-            is inconsistent across browsers. Inset so it stays visible inside
-            the table clip path and is not covered by the table border. Uses a
+            is inconsistent across browsers. Inset on the mark's line, or
+            inside a mark, so the table neither clips nor covers it. Uses a
             two-tone ring (white halo + blue ring, like ring + ring-offset) so
             it stays visible on any seat color in light and dark mode. */}
         {hasVisibleFocus && (
-          // While a keyboard move points here, the drop ring takes the
-          // seat's edge and the focus ring steps inside it.
           <>
-            <rect
-              x={focusInset}
-              y={focusInset}
-              width={Math.max(seatWidth - focusInset * 2, 0)}
-              height={Math.max(seatHeight - focusInset * 2, 0)}
-              rx={3}
+            <path
+              d={focusPath}
               fill="none"
               stroke="#ffffff"
               strokeWidth={4.5}
               vectorEffect="non-scaling-stroke"
               pointerEvents="none"
             />
-            <rect
-              x={focusInset}
-              y={focusInset}
-              width={Math.max(seatWidth - focusInset * 2, 0)}
-              height={Math.max(seatHeight - focusInset * 2, 0)}
-              rx={3}
+            <path
+              d={focusPath}
               fill="none"
               stroke="var(--canvas-selection)"
               strokeWidth={2}
@@ -835,6 +835,16 @@ const MemoizedTableSeat = React.memo(TableSeat, (prevProps, nextProps) => {
     prevProps.row !== nextProps.row ||
     prevProps.seatWidth !== nextProps.seatWidth ||
     prevProps.seatHeight !== nextProps.seatHeight
+  )
+    return false;
+
+  // The table's corners and outline the marks follow
+  if (prevProps.tableEdgeWidth !== nextProps.tableEdgeWidth) return false;
+  if (
+    prevProps.tableCorners !== nextProps.tableCorners &&
+    (prevProps.tableCorners ?? OWN_CORNERS).some(
+      (corner, i) => corner !== (nextProps.tableCorners ?? OWN_CORNERS)[i],
+    )
   )
     return false;
 

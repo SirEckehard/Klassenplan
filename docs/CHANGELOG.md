@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Improved
 
+- The marks on the seats of a plan – where a dragged student would land, the green flash after a drop, the seats a marker or a criterion points at – keep clear of the table's edge and follow its rounded corners, so the table no longer cuts them off; a held seat shows its blue edge all round instead of only towards its neighbour, and the seating circle marks its places the same way
 - On a sheet framed on its tables ("Enlarge the plan"), the board, windows and door are drawn a little lighter, so the seats stand out
 - The export's "Legend" switch is greyed out while the sheet carries neither markers nor gender colours, since the legend would have nothing to explain
 

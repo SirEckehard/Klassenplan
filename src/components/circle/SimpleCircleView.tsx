@@ -39,6 +39,12 @@ import {
 } from '@/utils/ui/seatLabelLayout';
 import BadgeTooltipLayer from '@/components/scene/BadgeTooltip';
 import { computeTokenPhotoLayout } from '@/utils/ui/studentTokenLayout';
+import {
+  SEAT_MARK_COLORS,
+  SEAT_MARK_WIDTH,
+  tokenMarkRadius,
+  type SeatMarkKind,
+} from '@/utils/ui/seatMark';
 import { useCircleDragDrop } from '@/hooks/circle/useCircleDragDrop';
 import { useCircleKeyboardMove } from '@/hooks/circle/useCircleKeyboardMove';
 import { useHasHoverPointer } from '@/hooks/ui/useHasHoverPointer';
@@ -98,6 +104,9 @@ type SimpleCircleViewProps = {
   contrast?: boolean;
 };
 
+/** A student's token on the ring. */
+const TOKEN_RADIUS = 30;
+
 /** Room around the framed ring, beyond the tokens and their photos. */
 const FIT_MARGIN = 12;
 
@@ -134,6 +143,8 @@ function SimpleCircleView({
 }: SimpleCircleViewProps) {
   const { t } = useTranslation('generator');
   const nameWeight = contrast ? 700 : 400;
+  // A wall needs the thicker edge, and a mark keeps clear of it.
+  const tokenEdgeWidth = contrast ? 1.5 : 1;
   const layoutMode = useLayoutMode();
   const isCoarsePointer = useIsCoarsePointer();
   // Connection display mode - with localStorage persistence
@@ -791,10 +802,10 @@ function SimpleCircleView({
                   <circle
                     cx={slot.x}
                     cy={slot.y}
-                    r="30"
+                    r={TOKEN_RADIUS}
                     fill={appearance.fill}
                     stroke={appearance.stroke}
-                    strokeWidth={contrast ? 1.5 : 1}
+                    strokeWidth={tokenEdgeWidth}
                     pointerEvents="none"
                     style={{
                       transition: 'fill 0.2s ease, stroke 0.2s ease',
@@ -805,23 +816,30 @@ function SimpleCircleView({
                       just did: a tint under the name and a ring inside the
                       token, as on a seat of the table plan. */}
                   {isTarget && (
-                    <TokenRing
+                    <TokenMark
                       cx={slot.x}
                       cy={slot.y}
                       kind={targetBlocked ? 'blocked' : 'target'}
+                      edgeWidth={tokenEdgeWidth}
                     />
                   )}
                   {/* A badge being pointed at marks this student: the same
                       steady ring a seat of the table plan wears for it. */}
                   {isBadgeHighlighted && !isTarget && (
-                    <TokenRing cx={slot.x} cy={slot.y} kind="focus" />
+                    <TokenMark
+                      cx={slot.x}
+                      cy={slot.y}
+                      kind="focus"
+                      edgeWidth={tokenEdgeWidth}
+                    />
                   )}
                   {confirmed && !isTarget && (
-                    <TokenRing
+                    <TokenMark
                       key={dropConfirm?.id}
                       cx={slot.x}
                       cy={slot.y}
                       kind="confirm"
+                      edgeWidth={tokenEdgeWidth}
                     />
                   )}
 
@@ -1064,43 +1082,36 @@ function SimpleCircleView({
   );
 }
 
-/** Where a student would land, where one cannot, and where one just did. */
-const TOKEN_RING_COLORS = {
-  target: {
-    ring: 'var(--border-option-selected)',
-    tint: 'var(--surface-option-selected)',
-  },
-  focus: {
-    ring: 'var(--border-option-selected)',
-    tint: 'var(--surface-option-selected)',
-  },
-  blocked: { ring: 'var(--status-alert)', tint: 'var(--status-alert-surface)' },
-  confirm: { ring: 'var(--status-ok)', tint: 'var(--status-ok-surface)' },
-} as const;
-
-function TokenRing({
+/**
+ * Where a student would land, where one cannot, where one just did, and whom
+ * a badge points at: the mark a seat of the table plan wears
+ * (`utils/ui/seatMark`), a tint over the token and a ring inside its edge.
+ */
+function TokenMark({
   cx,
   cy,
   kind,
+  edgeWidth,
 }: {
   cx: number;
   cy: number;
-  kind: keyof typeof TOKEN_RING_COLORS;
+  kind: Extract<SeatMarkKind, 'target' | 'blocked' | 'focus' | 'confirm'>;
+  edgeWidth: number;
 }) {
-  const colors = TOKEN_RING_COLORS[kind];
+  const colors = SEAT_MARK_COLORS[kind];
   return (
     <g
       data-token-ring={kind}
       className={kind === 'confirm' ? 'seat-drop-confirm' : undefined}
       pointerEvents="none"
     >
-      <circle cx={cx} cy={cy} r={30} style={{ fill: colors.tint }} />
+      <circle cx={cx} cy={cy} r={TOKEN_RADIUS} style={{ fill: colors.tint }} />
       <circle
         cx={cx}
         cy={cy}
-        r={27.5}
+        r={tokenMarkRadius(TOKEN_RADIUS, edgeWidth)}
         fill="none"
-        strokeWidth={3}
+        strokeWidth={SEAT_MARK_WIDTH}
         style={{ stroke: colors.ring }}
       />
     </g>

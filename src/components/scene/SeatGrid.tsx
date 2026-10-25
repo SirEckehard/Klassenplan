@@ -6,6 +6,7 @@ import TableSeat, { TableSeatBadgeOverlay } from '@/components/scene/TableSeat';
 import type { NameDisplayMode, NameLabels } from '@/utils';
 import type { SeatBadgeView } from '@/utils/ui/seatBadges';
 import type { SeatHighlightTone } from '@/utils/ui/statisticsHighlight';
+import type { SeatCorners } from '@/utils/ui/seatMark';
 
 type SeatPointerDownHandler = NonNullable<
   React.ComponentProps<typeof TableSeat>['onSeatPointerDown']
@@ -29,6 +30,8 @@ export interface SeatConfig {
   seatIndex: number;
   col: number;
   row: number;
+  /** Which of the seat's corners are its table's (`seatTableCorners`). */
+  tableCorners?: SeatCorners;
   locked: boolean;
   isOriginSeat: boolean;
   isHoverSeat: boolean;
@@ -49,6 +52,8 @@ interface SeatGridProps {
   tableIndex: number;
   seatWidth: number;
   seatHeight: number;
+  /** The width of the table's outline, which a seat's mark keeps clear of. */
+  tableEdgeWidth?: number;
   tableRotation: number;
   allStudents: Student[];
   showSpecialNeeds: boolean;
@@ -89,6 +94,7 @@ function SeatGrid({
   tableIndex,
   seatWidth,
   seatHeight,
+  tableEdgeWidth,
   tableRotation,
   allStudents,
   showSpecialNeeds,
@@ -126,6 +132,8 @@ function SeatGrid({
             row={config.row}
             seatWidth={seatWidth}
             seatHeight={seatHeight}
+            tableCorners={config.tableCorners}
+            tableEdgeWidth={tableEdgeWidth}
             tableRotation={tableRotation}
             allStudents={allStudents}
             isDark={isDark}
