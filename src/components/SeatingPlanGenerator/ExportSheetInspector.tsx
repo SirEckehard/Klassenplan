@@ -54,7 +54,12 @@ import {
 type PageOrientation = 'landscape' | 'portrait';
 
 /** A setting that is on or off. */
-type Toggle = { checked: boolean; onChange: (next: boolean) => void };
+type Toggle = {
+  checked: boolean;
+  onChange: (next: boolean) => void;
+  /** Why the switch is greyed out: there is nothing on the sheet for it. */
+  unavailable?: string;
+};
 
 type Props = {
   /** What the sheet shows; some settings only apply to one view. */
@@ -116,7 +121,9 @@ type Props = {
  * to its details: the page, the header line on it, the list's own form, the
  * names, what the seats carry — the legend last, after what it explains — and
  * the room elements. Settings an arrangement has no use for are left out
- * rather than disabled, and so are room elements the room does not have.
+ * rather than disabled, and so are room elements the room does not have; the
+ * legend alone is greyed out while the sheet carries nothing it explains,
+ * since one switch further up brings that back.
  */
 export default function ExportSheetInspector({
   mode,
@@ -173,22 +180,20 @@ export default function ExportSheetInspector({
     (type) => featureVisibility[type] !== false,
   ).length;
 
-  const switchRow = (
-    label: string,
-    toggle: Toggle,
-    icon?: React.ReactNode,
-    description?: React.ReactNode,
-  ) => (
+  const switchRow = (label: string, toggle: Toggle, icon?: React.ReactNode) => (
     <InspectorRow
       label={label}
       icon={icon}
-      description={description}
       labelsControl
+      disabled={toggle.unavailable !== undefined}
+      hint={toggle.unavailable}
     >
       <ToggleSwitch
-        checked={toggle.checked}
+        checked={toggle.unavailable === undefined && toggle.checked}
         onChange={toggle.onChange}
         label={label}
+        disabled={toggle.unavailable !== undefined}
+        title={toggle.unavailable}
         size="sm"
       />
     </InspectorRow>
@@ -272,7 +277,6 @@ export default function ExportSheetInspector({
               t('export.rows.frameOnTables'),
               frameOnTables,
               rowIcon(MagnifyingGlassPlusIcon),
-              frameOnTables.checked ? t('export.frameOnTablesHint') : undefined,
             )}
         </InspectorSection>
 

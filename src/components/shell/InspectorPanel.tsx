@@ -203,6 +203,7 @@ export function InspectorRow({
   description,
   labelsControl = false,
   stacked = false,
+  disabled = false,
   children,
 }: {
   label: string;
@@ -231,6 +232,11 @@ export function InspectorRow({
    * among more options than fit beside a name (`InspectorChoice` as a list).
    */
   stacked?: boolean;
+  /**
+   * The setting has nothing to act on for now: its name reads muted, and
+   * `hint` says why over the whole row rather than over the name alone.
+   */
+  disabled?: boolean;
   children: React.ReactNode;
 }) {
   // Every row is as tall as the controls in it — a switch, a row of chips,
@@ -242,8 +248,10 @@ export function InspectorRow({
   const content = (
     <>
       <span
-        className="flex min-w-0 items-center gap-2 text-control text-(--text-page)"
-        title={hint}
+        className={`flex min-w-0 items-center gap-2 text-control ${
+          disabled ? 'text-(--text-muted)' : 'text-(--text-page)'
+        }`}
+        title={disabled ? undefined : hint}
       >
         {icon}
         {label}
@@ -257,10 +265,18 @@ export function InspectorRow({
       </span>
     </>
   );
+  const rowTitle = disabled ? hint : undefined;
   const row = labelsControl ? (
-    <label className={`${rowClass} cursor-pointer`}>{content}</label>
+    <label
+      className={`${rowClass} ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+      title={rowTitle}
+    >
+      {content}
+    </label>
   ) : (
-    <div className={rowClass}>{content}</div>
+    <div className={rowClass} title={rowTitle}>
+      {content}
+    </div>
   );
   if (!description) return row;
   return (

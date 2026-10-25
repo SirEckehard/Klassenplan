@@ -226,6 +226,160 @@ describe('renderSceneSvg', () => {
       expect(scaleOf(svg)).toBeGreaterThan(0.757);
     });
 
+    it('draws the room elements lighter only while framed on the tables', async () => {
+      const framed = await renderSceneSvg(sampleRoom, [], 'Test');
+      const whole = await renderSceneSvg(sampleRoom, [], 'Test', {
+        frameOnTables: false,
+      });
+      const lighter = /<g data-feature-id="board-main"[^>]*opacity="0.7"/;
+      expect(framed).toMatch(lighter);
+      expect(whole).not.toMatch(lighter);
+    });
+
+    it('never draws the framed plan smaller than the whole room', async () => {
+      // Tables to the walls and cabinets along them, as in a room that is
+      // furnished throughout: framing gains nothing, and must lose nothing.
+      const full: ClassroomScene = {
+        tables: Array.from({ length: 12 }, (_, index) => ({
+          x: 70 + (index % 4) * 200,
+          y: 70 + Math.floor(index / 4) * 170,
+          width: 120,
+          height: 55,
+          rotation: 0,
+          seatCount: 2,
+          locked: false,
+          zIndex: 0,
+        })),
+        totalStudents: 24,
+        features: [
+          {
+            id: 'cabinet-left',
+            type: 'cabinet',
+            anchor: 'free',
+            x: 0,
+            y: 40,
+            width: 40,
+            height: 540,
+            movable: true,
+            rotation: 0,
+          },
+          {
+            id: 'cabinet-top',
+            type: 'cabinet',
+            anchor: 'free',
+            x: 50,
+            y: 0,
+            width: 600,
+            height: 40,
+            movable: true,
+            rotation: 0,
+          },
+        ],
+      };
+      for (const orientation of ['portrait', 'landscape'] as const) {
+        const framed = await renderSceneSvg(full, [], 'Test', { orientation });
+        const whole = await renderSceneSvg(full, [], 'Test', {
+          orientation,
+          frameOnTables: false,
+        });
+        expect(scaleOf(framed)).toBeGreaterThanOrEqual(scaleOf(whole));
+      }
+    });
+
+    describe('beside the photos', () => {
+      const seatedIn = (room: ClassroomScene) =>
+        room.tables.map((table, tableIndex) =>
+          Array.from({ length: table.seatCount }, (_, seatIndex) =>
+            createMockStudent({
+              id: `s${tableIndex}-${seatIndex}`,
+              name: `S${tableIndex}${seatIndex}`,
+            }),
+          ),
+        );
+      const render = (
+        room: ClassroomScene,
+        withPhotos: boolean,
+        orientation: 'portrait' | 'landscape' = 'portrait',
+      ) => {
+        const seating = seatedIn(room);
+        return renderSceneSvg(room, seating, 'Test', {
+          orientation,
+          allStudents: seating.flat(),
+          ...(withPhotos && {
+            photoDataUrls: new Map(
+              seating.flat().map((s) => [s.id, 'data:image/png;base64,AA']),
+            ),
+            photoDisplayMode: 'all' as const,
+          }),
+        });
+      };
+      const centreOf = (svg: string, id: string) => {
+        const match = new RegExp(
+          `data-feature-id="${id}" transform="translate\\(([\\d.-]+) ([\\d.-]+)\\)`,
+        ).exec(svg);
+        return { x: Number(match?.[1]), y: Number(match?.[2]) };
+      };
+
+      it('moves the windows past the photos where the plan stays as large', async () => {
+        const plain = await render(sampleRoom, false);
+        const photos = await render(sampleRoom, true);
+
+        // The windows on the left wall step out beyond the photos …
+        expect(centreOf(photos, 'window-left-1').x).toBeLessThan(
+          centreOf(plain, 'window-left-1').x,
+        );
+        // … and the names stay the size they were.
+        expect(scaleOf(photos)).toBe(scaleOf(plain));
+      });
+
+      it('leaves the windows beside the tables where that would draw the plan smaller', async () => {
+        // Four rows of three double desks, the windows along one wall and
+        // the board along the other: the height binds, and every unit above
+        // the photos costs scale.
+        const rows: ClassroomScene = {
+          tables: Array.from({ length: 12 }, (_, index) => ({
+            x: 80 + (index % 3) * 280,
+            y: 140 + Math.floor(index / 3) * 110,
+            width: 120,
+            height: 55,
+            rotation: 0,
+            seatCount: 2,
+            locked: false,
+            zIndex: 0,
+          })),
+          totalStudents: 24,
+          features: [
+            {
+              id: 'window-top',
+              type: 'window',
+              anchor: 'top',
+              x: 100,
+              y: 0,
+              width: 260,
+              height: 20,
+              movable: false,
+            },
+            {
+              id: 'board-bottom',
+              type: 'board',
+              anchor: 'bottom',
+              x: 300,
+              y: 580,
+              width: 300,
+              height: 20,
+              movable: false,
+            },
+          ],
+        };
+        const plain = await render(rows, false);
+        const photos = await render(rows, true);
+
+        expect(centreOf(photos, 'window-top')).toEqual(
+          centreOf(plain, 'window-top'),
+        );
+      });
+    });
+
     it('frames the whole room when there is nothing on it', async () => {
       const empty: ClassroomScene = {
         tables: [],

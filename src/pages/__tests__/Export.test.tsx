@@ -278,6 +278,35 @@ describe('Export page', () => {
       expect(await needsSwitch()).toHaveAttribute('aria-checked', 'false');
     });
 
+    // The legend explains the gender tint and the badges: with neither on
+    // the sheet it would be an empty heading.
+    it('greys the legend out while it has nothing to explain', async () => {
+      localStorage.setItem(LOCAL_STORAGE_KEYS.exportShowLegend, 'true');
+      localStorage.setItem(LOCAL_STORAGE_KEYS.exportShowGenderColors, 'false');
+      renderExport();
+
+      const panel = await sheetPanel();
+      const legend = within(panel).getByRole('switch', {
+        name: /^(Legende|Legend)$/,
+      });
+      expect(legend).toBeDisabled();
+      expect(legend).toHaveAttribute('aria-checked', 'false');
+      expect(legend).toHaveAttribute(
+        'title',
+        expect.stringMatching(/Geschlechterfarben|gender colors/),
+      );
+
+      await userEvent.click(
+        within(panel).getByRole('switch', {
+          name: /^(Geschlechterfarben|Gender colors)$/,
+        }),
+      );
+
+      // The stored choice comes back with something to explain.
+      expect(legend).toBeEnabled();
+      expect(legend).toHaveAttribute('aria-checked', 'true');
+    });
+
     it('leaves out the circle connections while the seating plan is shown', async () => {
       renderExport();
 

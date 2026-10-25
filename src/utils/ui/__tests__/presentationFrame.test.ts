@@ -148,6 +148,37 @@ describe('featuresForTableFrame', () => {
   });
 });
 
+describe('featuresForTableFrame with clearance', () => {
+  it('keeps the gap from the photos beyond the tables as well', () => {
+    const board = feature('board', 'top', {
+      x: 350,
+      y: 0,
+      width: 200,
+      height: 12,
+    });
+    // Photos reaching 30 units above the first row.
+    const photos = [{ minX: 300, minY: 170, maxX: 340, maxY: 210 }];
+
+    expect(featuresForTableFrame(tables, [board], photos)[0]).toMatchObject({
+      x: 350,
+      y: 134,
+    });
+  });
+
+  it('frames the same furniture with and without it', () => {
+    const cabinet = feature('cabinet', 'free', {
+      x: 700,
+      y: 260,
+      width: 40,
+      height: 40,
+    });
+    const photos = [{ minX: 500, minY: 260, maxX: 690, maxY: 300 }];
+
+    // Beyond the gangway from the tables, however near the photos.
+    expect(featuresForTableFrame(tables, [cabinet], photos)).toEqual([]);
+  });
+});
+
 describe('frameContentBounds', () => {
   it('boxes the tables, the room elements and any further boxes', () => {
     const board = feature('board', 'top', {

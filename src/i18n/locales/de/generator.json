@@ -529,7 +529,7 @@
       "frameOnTables": "Anzeige vergrößern"
     },
     "badgeFamilies": "Merkmale auf dem Blatt",
-    "frameOnTablesHint": "Tafel, Fenster und Tür rücken an die Tische heran, ferne Möbel entfallen.",
+    "legendUnavailable": "Nur wenn Merkmalen oder Geschlechterfarben angezeigt werden.",
     "noteList": {
       "view": "Liste",
       "section": "Liste",

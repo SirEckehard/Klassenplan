@@ -7,7 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Improved
+
+- On a sheet framed on its tables ("Enlarge the plan"), the board, windows and door are drawn a little lighter, so the seats stand out
+- The export's "Legend" switch is greyed out while the sheet carries neither markers nor gender colours, since the legend would have nothing to explain
+
 ### Fixed
+
+- "Enlarge the plan" no longer draws the plan smaller than the whole room where the tables and cabinets reach to the walls
+- On a sheet framed on its tables, the board, windows and door no longer cover the photos above the seats where moving them aside leaves the plan as large as it was
 
 - Creating a class, or deleting another one, no longer clears the open class's undo
 - Edits made in the moment another class opens or the page is left, while a save was still being written, are no longer lost

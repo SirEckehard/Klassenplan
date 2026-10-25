@@ -118,10 +118,15 @@ const alongWall = (
  * furniture is not moved: within `FURNITURE_REACH` of the tables it is framed
  * with them, farther away it is left out, or a cabinet in a corner would pull
  * the frame back out to the walls. Without tables the room is drawn as it is.
+ *
+ * `clearance` adds boxes the wall elements keep their gap from as well, such
+ * as the photos docked outside the seats; it decides nothing about which
+ * furniture is framed.
  */
 export function featuresForTableFrame(
   tables: readonly ClassroomTable[],
   features: readonly ClassroomFeature[],
+  clearance: readonly FrameBox[] = [],
 ): ClassroomFeature[] {
   const tableBox = boxAround(tables);
   if (!tableBox) {
@@ -138,7 +143,15 @@ export function featuresForTableFrame(
     const box = boxAround([feature]);
     return box !== null && overlaps(box, reach);
   });
-  const furniture = boxAround([...tables, ...furnitureNearby]) ?? tableBox;
+  const furniture = clearance.reduce<Box>(
+    (box, next) => ({
+      minX: Math.min(box.minX, next.minX),
+      minY: Math.min(box.minY, next.minY),
+      maxX: Math.max(box.maxX, next.maxX),
+      maxY: Math.max(box.maxY, next.maxY),
+    }),
+    boxAround([...tables, ...furnitureNearby]) ?? tableBox,
+  );
 
   return features.flatMap((feature) => {
     if (feature.anchor === 'free') {

@@ -529,7 +529,7 @@
       "frameOnTables": "Enlarge the plan"
     },
     "badgeFamilies": "Markers on the sheet",
-    "frameOnTablesHint": "The board, windows and door move up to the tables; furniture far from them is left out.",
+    "legendUnavailable": "Only with markers or gender colors on the sheet",
     "noteList": {
       "view": "List",
       "section": "List",

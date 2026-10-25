@@ -2,7 +2,12 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import type { ClassroomScene, SeatingArrangement, Student } from '@/types';
+import type {
+  ClassroomFeature,
+  ClassroomScene,
+  SeatingArrangement,
+  Student,
+} from '@/types';
 import TableIcon from './SceneTable';
 import FeatureShape from './FeatureShape';
 import {
@@ -49,6 +54,13 @@ const PHOTO_HALO = 3;
  * otherwise fill the page with seats a hand wide.
  */
 const MAX_SCALE = 1.8;
+/** Scales this close count as equal, against floating-point noise. */
+const SCALE_TOLERANCE = 1e-6;
+/**
+ * Framed on the tables, the room elements stand close to them; drawn a little
+ * lighter, they do not compete with the seats.
+ */
+const FRAMED_FEATURE_OPACITY = 0.7;
 const ROOM_BOX: FrameBox = {
   minX: 0,
   minY: 0,
@@ -176,24 +188,6 @@ export default function SceneSvg({
       ),
     [scene.features, featureVisibility],
   );
-  // Framed on the tables, the board, the windows and the door come in from
-  // their walls to just beside them, as on the projection.
-  const drawnFeatures = React.useMemo(
-    () =>
-      frameOnTables
-        ? featuresForTableFrame(scene.tables, visibleFeatures)
-        : visibleFeatures,
-    [frameOnTables, scene.tables, visibleFeatures],
-  );
-  const featureViewModels = React.useMemo(
-    () =>
-      drawnFeatures.map((feature) => ({
-        feature,
-        styles: getFeatureStyles(feature, false, featureVisibility),
-      })),
-    [drawnFeatures, featureVisibility],
-  );
-
   // The photos docked outside the seats, where a student has one: they reach
   // past the tables and, at a wall, past the room.
   const photoBoxes = React.useMemo<FrameBox[]>(() => {
@@ -216,32 +210,65 @@ export default function SceneSvg({
       });
   }, [photoDisplayMode, photoUrls, scene.tables, seating]);
 
-  // What the page frames, in scene units.
-  const content = React.useMemo<FrameBox>(() => {
-    const drawn = frameOnTables
-      ? frameContentBounds(scene.tables, drawnFeatures, photoBoxes)
-      : frameContentBounds([], [], [ROOM_BOX, ...photoBoxes]);
-    const box = drawn ?? ROOM_BOX;
-    const padding = frameOnTables ? FRAME_PADDING : 1;
-    return {
-      minX: box.minX - padding,
-      minY: box.minY - padding,
-      maxX: box.maxX + padding,
-      maxY: box.maxY + padding,
-    };
-  }, [frameOnTables, scene.tables, drawnFeatures, photoBoxes]);
-
-  // The framed content turned with the room, scaled into the plan area and
-  // centred in it.
-  const turned = turnBox(content, classroomRotation, {
-    x: (content.minX + content.maxX) / 2,
-    y: (content.minY + content.maxY) / 2,
+  // What the page frames, in scene units, and the scale that fits it into the
+  // plan area once turned with the room.
+  const padded = (box: FrameBox, padding: number): FrameBox => ({
+    minX: box.minX - padding,
+    minY: box.minY - padding,
+    maxX: box.maxX + padding,
+    maxY: box.maxY + padding,
   });
-  const scale = Math.min(
-    page.area.width / (turned.maxX - turned.minX),
-    page.area.height / (turned.maxY - turned.minY),
-    MAX_SCALE,
+  const wholeRoom = padded(
+    frameContentBounds([], [], [ROOM_BOX, ...photoBoxes]) ?? ROOM_BOX,
+    1,
   );
+  const frameFor = (features: readonly ClassroomFeature[]) => {
+    const drawn = frameContentBounds(scene.tables, features, photoBoxes);
+    // Never beyond the whole room: where the tables and the furniture beside
+    // them fill it, the padding for the chair dots would otherwise draw the
+    // framed plan smaller than the room in its outline.
+    const framed = padded(drawn ?? ROOM_BOX, FRAME_PADDING);
+    const content: FrameBox = frameOnTables
+      ? {
+          minX: Math.max(framed.minX, wholeRoom.minX),
+          minY: Math.max(framed.minY, wholeRoom.minY),
+          maxX: Math.min(framed.maxX, wholeRoom.maxX),
+          maxY: Math.min(framed.maxY, wholeRoom.maxY),
+        }
+      : wholeRoom;
+    const turned = turnBox(content, classroomRotation, {
+      x: (content.minX + content.maxX) / 2,
+      y: (content.minY + content.maxY) / 2,
+    });
+    const scale = Math.min(
+      page.area.width / (turned.maxX - turned.minX),
+      page.area.height / (turned.maxY - turned.minY),
+      MAX_SCALE,
+    );
+    return { features, content, scale };
+  };
+
+  // Framed on the tables, the board, the windows and the door come in from
+  // their walls to just beside them, as on the projection. They keep their
+  // gap from the photos too where that does not draw the plan smaller — a
+  // window over the photos of the first row is a blemish, smaller names on
+  // the whole sheet a loss.
+  const frame = (() => {
+    if (!frameOnTables) return frameFor(visibleFeatures);
+    const beside = frameFor(
+      featuresForTableFrame(scene.tables, visibleFeatures),
+    );
+    if (photoBoxes.length === 0) return beside;
+    const clear = frameFor(
+      featuresForTableFrame(scene.tables, visibleFeatures, photoBoxes),
+    );
+    return clear.scale >= beside.scale - SCALE_TOLERANCE ? clear : beside;
+  })();
+  const { content, scale } = frame;
+  const featureViewModels = frame.features.map((feature) => ({
+    feature,
+    styles: getFeatureStyles(feature, false, featureVisibility),
+  }));
   const classroomTransform =
     `translate(${page.area.x + page.area.width / 2} ${page.area.y + page.area.height / 2}) ` +
     `rotate(${classroomRotation}) scale(${scale}) ` +
@@ -315,6 +342,9 @@ export default function SceneSvg({
             feature={feature}
             styles={styles}
             extraIconRotation={classroomRotation}
+            groupProps={
+              frameOnTables ? { opacity: FRAMED_FEATURE_OPACITY } : undefined
+            }
           />
         ))}
         {scene.tables.map((t, i) => (

@@ -372,6 +372,14 @@ export default function Export() {
     );
     return BADGE_FAMILY_ORDER.filter((family) => families.has(family));
   }, [students]);
+  // The legend explains the gender tint and the badges; with neither on the
+  // sheet it would be an empty heading, so its switch is greyed out.
+  const legendHasEntries =
+    (showGenderColors && students.length > 0) ||
+    (showNeeds &&
+      presentBadgeFamilies.some(
+        (family) => !hiddenBadgeFamilies.includes(family),
+      ));
   const handleToggleBadgeFamily = useCallback(
     (family: DataFamily, visible: boolean) =>
       setHiddenFamilies((current) => {
@@ -1243,7 +1251,13 @@ export default function Export() {
             }
           : { checked: showPhotos, onChange: handleTogglePhotos }
       }
-      legend={{ checked: showLegend, onChange: handleToggleLegend }}
+      legend={{
+        checked: showLegend,
+        onChange: handleToggleLegend,
+        unavailable: legendHasEntries
+          ? undefined
+          : t('export.legendUnavailable'),
+      }}
       classInfo={{ checked: showClassInfo, onChange: handleToggleClassInfo }}
       connections={{
         checked: showConnections,

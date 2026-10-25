@@ -152,20 +152,14 @@ describe('ExportSheetInspector framing', () => {
     renderInspector({ frameOnTables: { checked: true, onChange } });
 
     expect(frameSwitch()).toBeChecked();
-    expect(
-      screen.getByText(/Tafel, Fenster und Tür|The board, windows and door/),
-    ).toBeInTheDocument();
 
     fireEvent.click(frameSwitch()!);
     expect(onChange).toHaveBeenCalledWith(false);
   });
 
-  it('drops the hint while the whole room is shown', () => {
+  it('shows the whole room once switched off', () => {
     renderInspector({ frameOnTables: off });
     expect(frameSwitch()).not.toBeChecked();
-    expect(
-      screen.queryByText(/Tafel, Fenster und Tür|The board, windows and door/),
-    ).not.toBeInTheDocument();
   });
 
   it('leaves the switch out for the circle, whose sheet shows no room', () => {
@@ -371,5 +365,30 @@ describe('ExportSheetInspector order', () => {
     expect(photos).toBeLessThan(colours);
     expect(colours).toBeLessThan(markers);
     expect(markers).toBeLessThan(legend);
+  });
+});
+
+describe('ExportSheetInspector legend', () => {
+  it('greys the legend out, off, with the reason as its tooltip', () => {
+    const onChange = vi.fn();
+    renderInspector({
+      legend: { checked: true, onChange, unavailable: 'Nothing to explain' },
+    });
+
+    const legend = screen.getByRole('switch', { name: /^(Legende|Legend)$/ });
+    expect(legend).toBeDisabled();
+    expect(legend).toHaveAttribute('aria-checked', 'false');
+    expect(legend).toHaveAttribute('title', 'Nothing to explain');
+
+    fireEvent.click(screen.getByText(/^(Legende|Legend)$/));
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it('keeps the legend switch as it is while there is something to explain', () => {
+    renderInspector({ legend: { checked: true, onChange: () => {} } });
+
+    const legend = screen.getByRole('switch', { name: /^(Legende|Legend)$/ });
+    expect(legend).toBeEnabled();
+    expect(legend).toHaveAttribute('aria-checked', 'true');
   });
 });
