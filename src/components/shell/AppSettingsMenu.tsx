@@ -8,6 +8,7 @@ import {
   GitDiffIcon,
   GithubLogoIcon,
   IdentificationCardIcon,
+  CircleHalfIcon,
   KeyboardIcon,
   MailboxIcon,
   ShieldCheckIcon,
@@ -32,6 +33,11 @@ import {
   setCharacterKeyShortcutsEnabled,
 } from '@/utils';
 import { scheduleIdleTask } from '@/utils/performance/idleTasks';
+import {
+  readThemePreference,
+  setThemePreference,
+  subscribeThemePreference,
+} from '@/utils/ui/themePreference';
 import { appSettingsItems } from '@/components/ui/navigation/appSettingsItemsModule';
 
 // Kept out of the cold-start payload with the dialog it brings, and fetched
@@ -79,6 +85,22 @@ export default function AppSettingsMenu() {
   const toggleCharacterKeys = (enabled: boolean) => {
     setCharacterKeyShortcutsEnabled(enabled);
     setCharacterKeys(enabled);
+  };
+  const followsSystem =
+    React.useSyncExternalStore(
+      subscribeThemePreference,
+      readThemePreference,
+      () => 'system' as const,
+    ) === 'system';
+  // Leaving the system keeps the look the page wears now, as a choice.
+  const toggleFollowSystem = (follow: boolean) => {
+    setThemePreference(
+      follow
+        ? 'system'
+        : document.documentElement.classList.contains('dark')
+          ? 'dark'
+          : 'light',
+    );
   };
 
   const close = React.useCallback(() => setOpen(false), []);
@@ -160,6 +182,12 @@ export default function AppSettingsMenu() {
               <AppearanceControls />
               <UpdateCheckButton />
             </div>
+            <MenuCheckRow
+              icon={<CircleHalfIcon size={16} />}
+              label={t('theme.followSystem')}
+              checked={followsSystem}
+              onChange={toggleFollowSystem}
+            />
             {/* Speech input types words as keystrokes, so a shortcut on a
                   single key can fire by mistake (WCAG 2.1.4). */}
             <MenuCheckRow

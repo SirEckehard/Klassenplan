@@ -61,7 +61,8 @@
     "tall": "Tall"
   },
   "theme": {
-    "toggle": "Toggle theme"
+    "toggle": "Toggle theme",
+    "followSystem": "Theme as the system"
   },
   "settings": {
     "characterKeys": "Single-key shortcuts",

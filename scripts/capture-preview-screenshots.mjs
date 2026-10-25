@@ -476,7 +476,7 @@ async function captureTheme(page, output, baseUrl, prefix, lang, theme, t) {
   // its labels: a slide is looked at, not used, and the words say what the
   // icons would leave to a tooltip.
   await page.evaluate((value) => {
-    localStorage.setItem('theme', value);
+    localStorage.setItem('spg.theme', value);
     localStorage.removeItem('spg.seatingMode');
     localStorage.setItem('spg.sidebarExpanded', 'true');
   }, theme);
@@ -621,7 +621,7 @@ async function main() {
       await context.addInitScript(() => {
         if (localStorage.getItem('cookieConsent')) return;
         localStorage.setItem('cookieConsent', 'true');
-        localStorage.setItem('theme', 'light');
+        localStorage.setItem('spg.theme', 'light');
         localStorage.setItem('spg.photos', JSON.stringify('all'));
         localStorage.setItem(
           'spg.onboardingTour',

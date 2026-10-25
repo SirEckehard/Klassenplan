@@ -15,7 +15,7 @@ import '@/i18n';
 import AppSettingsMenu from '@/components/shell/AppSettingsMenu';
 import ReturnToAppLink from '@/components/ReturnToAppLink';
 import { getButton } from '@/__tests__/utils';
-import { characterKeyShortcutsEnabled } from '@/utils';
+import { characterKeyShortcutsEnabled, LOCAL_STORAGE_KEYS } from '@/utils';
 
 const clearAllData = vi.hoisted(() => vi.fn(async () => {}));
 
@@ -205,6 +205,37 @@ describe('AppSettingsMenu', () => {
     await user.click(row);
 
     expect(characterKeyShortcutsEnabled()).toBe(true);
+  });
+
+  // A press of the theme switch is a choice; this row takes it back.
+  it('follows the system until the theme is chosen, and again on request', async () => {
+    localStorage.clear();
+    document.documentElement.classList.remove('dark');
+    renderMenu();
+    const user = await openMenu();
+
+    const row = screen.getByRole('button', {
+      name: /Design wie das System|Theme as the system/i,
+    });
+    expect(row).toHaveAttribute('aria-pressed', 'true');
+
+    await user.click(getButton(/Design wechseln|Toggle theme/i));
+
+    expect(row).toHaveAttribute('aria-pressed', 'false');
+    expect(localStorage.getItem(LOCAL_STORAGE_KEYS.theme)).toBe('dark');
+    expect(document.documentElement).toHaveClass('dark');
+
+    await user.click(row);
+
+    expect(row).toHaveAttribute('aria-pressed', 'true');
+    expect(localStorage.getItem(LOCAL_STORAGE_KEYS.theme)).toBeNull();
+    // jsdom has no matchMedia: the system counts as light.
+    expect(document.documentElement).not.toHaveClass('dark');
+
+    await user.click(row);
+
+    // Leaving the system keeps the look on the page.
+    expect(localStorage.getItem(LOCAL_STORAGE_KEYS.theme)).toBe('light');
   });
 
   it('closes on Escape and hands focus back to the gear', async () => {

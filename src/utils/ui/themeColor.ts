@@ -9,31 +9,17 @@
  * keep their media queries for the moment before the bundle runs; from then on
  * both carry the colour of the theme in use.
  */
-import { LOCAL_STORAGE_KEYS } from '@/utils/data/storageKeys';
+import { readThemePreference, resolvesDark } from './themePreference';
 
 /** `--surface-page` in both themes, as in `index.html`. */
 const THEME_COLORS = { light: '#fcfbf8', dark: '#101113' } as const;
 
-function prefersDark(): boolean {
-  return (
-    typeof window.matchMedia === 'function' &&
-    window.matchMedia('(prefers-color-scheme: dark)').matches
-  );
-}
-
 /**
  * Puts the stored theme — or, with none stored, the system's — on the page
- * before the first render, as `ThemeToggle` would once it mounts.
+ * before the first render.
  */
 export function applyInitialTheme(root: HTMLElement): void {
-  let stored: string | null = null;
-  try {
-    stored = localStorage.getItem(LOCAL_STORAGE_KEYS.theme);
-  } catch {
-    // Storage blocked: the system's preference decides.
-  }
-  const dark = stored ? stored === 'dark' : prefersDark();
-  root.classList.toggle('dark', dark);
+  root.classList.toggle('dark', resolvesDark(readThemePreference()));
 }
 
 /**

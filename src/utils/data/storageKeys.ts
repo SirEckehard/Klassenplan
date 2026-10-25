@@ -7,7 +7,15 @@
 
 export const STORAGE_KEYS = {
   localStorage: {
-    theme: 'theme',
+    // `light` or `dark`, chosen by hand; absent, the page follows the
+    // system's (`utils/ui/themePreference.ts`). Replaced `theme` when the
+    // system became the way back, so every device follows it once.
+    theme: 'spg.theme',
+    // Retired: the theme while one press of the switch tied the page to it for
+    // good. Most devices held a choice made once, perhaps only to try it, so
+    // it is no longer read and every device starts on the system's; it stays
+    // listed so a wipe still removes what it held.
+    legacyTheme: 'theme',
     cookieConsent: 'cookieConsent',
     showGrid: 'showGrid',
     alignmentGuides: 'spg.alignmentGuides',
@@ -190,6 +198,7 @@ export type StorageKey = LocalStorageKey | IndexedDBKey;
 // Project localStorage keys array for cleanup operations
 export const PROJECT_LOCAL_STORAGE_KEYS = [
   STORAGE_KEYS.localStorage.theme,
+  STORAGE_KEYS.localStorage.legacyTheme,
   STORAGE_KEYS.localStorage.cookieConsent,
   STORAGE_KEYS.localStorage.showGrid,
   STORAGE_KEYS.localStorage.alignmentGuides,

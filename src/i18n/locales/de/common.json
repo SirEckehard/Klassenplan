@@ -61,7 +61,8 @@
     "tall": "Groß"
   },
   "theme": {
-    "toggle": "Design wechseln"
+    "toggle": "Design wechseln",
+    "followSystem": "Design wie das System"
   },
   "settings": {
     "characterKeys": "Kürzel mit einer Taste",

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- "Theme as the system" in the settings menu: light or dark follows the device again, also when it turns dark in the evening. Switching the theme by hand still holds whatever the device does; a theme chosen in an earlier version is let go once, so every device starts on its system's
+
 ### Improved
 
 - A locked seat keeps its gender colour: it shows its lock in blue and a blue edge all round instead of a blue fill. The lock is a plain icon without its round plate, and the names beside it have a little more room
@@ -17,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- After switching the theme by hand, a change of the device's theme no longer switches it back
 - Locking or unlocking a seat no longer changes the size of every other name in the plan
 - "Enlarge the plan" no longer draws the plan smaller than the whole room where the tables and cabinets reach to the walls
 - On a sheet framed on its tables, the board, windows and door no longer cover the photos above the seats where moving them aside leaves the plan as large as it was

@@ -25,11 +25,14 @@ import {
 // would anchor them all in the entry chunk and delay the first paint.
 import { logInfo, logWarn, logError } from '@/utils/logging/logger.client';
 import { applyInitialTheme, syncThemeColor } from '@/utils/ui/themeColor';
+import { followSystemTheme } from '@/utils/ui/themePreference';
 import App from './App';
 
-// Apply the theme on load and keep the browser's bar on its paper
+// Apply the theme on load, follow the system's while none is chosen, and keep
+// the browser's bar on its paper
 applyInitialTheme(document.documentElement);
 syncThemeColor(document.documentElement);
+followSystemTheme(document.documentElement);
 
 // Registers the Core Web Vitals listeners once the app has rendered.
 //

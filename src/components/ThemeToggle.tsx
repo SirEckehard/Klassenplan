@@ -1,87 +1,34 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useSyncExternalStore } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MoonIcon, SunIcon } from '@phosphor-icons/react';
-import { LOCAL_STORAGE_KEYS, logDebug } from '@/utils';
+import {
+  setThemePreference,
+  subscribeThemePreference,
+} from '@/utils/ui/themePreference';
 
-// Detect user's system theme preference
-const detectSystemTheme = (): 'light' | 'dark' => {
-  if (typeof window !== 'undefined' && window.matchMedia) {
-    return window.matchMedia('(prefers-color-scheme: dark)').matches
-      ? 'dark'
-      : 'light';
-  }
-  return 'light';
-};
+const isPageDark = () => document.documentElement.classList.contains('dark');
 
-// Toggle between light and dark theme
+/** Whether the page wears the dark theme, kept current by every change. */
+function usePageDark(): boolean {
+  return useSyncExternalStore(
+    subscribeThemePreference,
+    isPageDark,
+    () => false,
+  );
+}
+
+// Toggle between light and dark theme; a press is a choice, which stops the
+// page following the system ("Wie das System" in the settings menu resumes it)
 const ThemeToggle: React.FC = () => {
   const { t } = useTranslation('common');
-  const storedTheme = useMemo(() => {
-    try {
-      return localStorage.getItem(LOCAL_STORAGE_KEYS.theme) as
-        'light' | 'dark' | null;
-    } catch (error) {
-      logDebug('Failed to read theme from localStorage', { error });
-      return null;
-    }
-  }, []);
-  const [isDark, setIsDark] = useState(() => {
-    const initialTheme = storedTheme || detectSystemTheme();
-    return initialTheme === 'dark';
-  });
-
-  useEffect(() => {
-    if (isDark) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [isDark]);
-
-  useEffect(() => {
-    // Listen for system theme changes if no explicit preference is set
-    if (storedTheme || typeof window === 'undefined' || !window.matchMedia) {
-      return;
-    }
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleSystemThemeChange = (e: MediaQueryListEvent) => {
-      setIsDark(e.matches);
-    };
-
-    mediaQuery.addEventListener('change', handleSystemThemeChange);
-    return () =>
-      mediaQuery.removeEventListener('change', handleSystemThemeChange);
-  }, [storedTheme]);
-
-  function toggleTheme() {
-    // Add transition suppression class to prevent layout thrashing
-    document.documentElement.classList.add('theme-switching');
-
-    // Delay the actual theme change to the next frame so CSS applies first
-    requestAnimationFrame(() => {
-      if (isDark) {
-        document.documentElement.classList.remove('dark');
-        localStorage.setItem(LOCAL_STORAGE_KEYS.theme, 'light');
-        setIsDark(false);
-      } else {
-        document.documentElement.classList.add('dark');
-        localStorage.setItem(LOCAL_STORAGE_KEYS.theme, 'dark');
-        setIsDark(true);
-      }
-
-      // Remove transition suppression after the theme switch is complete
-      requestAnimationFrame(() => {
-        document.documentElement.classList.remove('theme-switching');
-      });
-    });
-  }
+  const isDark = usePageDark();
 
   return (
     <button
       type="button"
-      onClick={toggleTheme}
+      onClick={() => setThemePreference(isDark ? 'light' : 'dark')}
       className="group p-1.5 rounded hover:bg-(--surface-option-selected) transition-colors cursor-pointer"
       aria-label={t('theme.toggle')}
       title={t('theme.toggle')}

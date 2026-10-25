@@ -288,7 +288,9 @@ ids. A round may name a student who has since left or a duty since removed;
 Only preferences and small bits of workflow state; no student data. The full
 list is `PROJECT_LOCAL_STORAGE_KEYS` in `storageKeys.ts`. Groups:
 
-- **Appearance:** `theme`, `showGrid`, `spg.alignmentGuides`,
+- **Appearance:** `spg.theme` (`light` or `dark`; absent, the page follows
+  the system's — `utils/ui/themePreference.ts`; the retired `theme` is no
+  longer read), `showGrid`, `spg.alignmentGuides`,
   `spg.featureVisibility`, `spg.nameDisplay`, `spg.photos`,
   `spg.badgeDisplay` (which badges the seats show: `all`, `active`, `off`),
   `spg.badgeHover` (`{ tooltip, highlight }`: what pointing at one does), …
