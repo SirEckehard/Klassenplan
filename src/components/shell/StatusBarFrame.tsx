@@ -162,7 +162,7 @@ export default function StatusBarFrame({
         <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
           {/* The toolbar's switch belongs to the workspace, not to a surface,
               so it leads the bar — right under the toolbar it concerns. */}
-          {toolRail && isPhone && (
+          {toolRail && !toolRail.suspended && isPhone && (
             <>
               <button
                 type="button"
@@ -186,7 +186,7 @@ export default function StatusBarFrame({
               />
             </>
           )}
-          {toolRail && !isPhone && (
+          {toolRail && !toolRail.suspended && !isPhone && (
             <>
               <button
                 type="button"

@@ -33,6 +33,13 @@ export type ToolRailState = {
   /** Whether the phone's drawer is open; meaningless from `md` up. */
   sheetOpen: boolean;
   setSheetOpen: (open: boolean) => void;
+  /**
+   * True while the layer drew no toolbar at all — its view failed and an
+   * error card stands in its place — so the status bar leaves out a switch
+   * that would act on nothing.
+   */
+  suspended: boolean;
+  setSuspended: (suspended: boolean) => void;
 };
 
 const ToolRailContext = React.createContext<ToolRailState | null>(null);
@@ -55,6 +62,7 @@ export function useToolRailState(
   const isTablet = useLayoutMode() === 'tablet';
   const [tabletExpanded, setTabletExpanded] = React.useState(false);
   const [sheetOpen, setSheetOpen] = React.useState(false);
+  const [suspended, setSuspended] = React.useState(false);
 
   const expand = React.useCallback(() => {
     if (isTablet) {
@@ -88,6 +96,8 @@ export function useToolRailState(
       toggle,
       sheetOpen,
       setSheetOpen,
+      suspended,
+      setSuspended,
     }),
     [
       collapse,
@@ -95,6 +105,7 @@ export function useToolRailState(
       isTablet,
       sheetOpen,
       stored.isExpanded,
+      suspended,
       tabletExpanded,
       toggle,
     ],
