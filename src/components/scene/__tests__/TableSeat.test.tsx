@@ -883,6 +883,52 @@ describe('TableSeat component', () => {
   });
 });
 
+describe('TableSeat lock', () => {
+  it('draws the lock as an icon without a plate, ringed when the keyboard reaches it', () => {
+    const { getByRole } = render(
+      <svg>
+        <TableSeat
+          student={baseStudent}
+          seatIndex={0}
+          tableIndex={0}
+          col={0}
+          row={0}
+          seatWidth={55}
+          seatHeight={65}
+          isDark={false}
+          locked={true}
+          isOriginSeat={false}
+          isHoverSeat={false}
+          isHoverLockedSeat={false}
+          isLockedFeedbackSeat={false}
+          showSpecialNeeds={true}
+          lockSeatLabelOrientation={true}
+          seatTextRotation={0}
+          toggleLock={vi.fn()}
+        />
+      </svg>,
+    );
+
+    const lock = getByRole('button', {
+      name: /sitzplatz entsperren|unlock seat/i,
+    });
+    // Its colour comes from `.seat-lock`: blue while pressed, muted while open.
+    expect(lock).toHaveClass('seat-lock');
+    expect(lock).toHaveAttribute('aria-pressed', 'true');
+    expect(lock.querySelector('circle')).toBeNull();
+
+    // jsdom cannot tell a keyboard's focus from a click's: stand in for it.
+    const matches = vi
+      .spyOn(Element.prototype, 'matches')
+      .mockImplementation(() => true);
+    fireEvent.focus(lock);
+    expect(lock.querySelectorAll('circle')).toHaveLength(2);
+    fireEvent.blur(lock);
+    matches.mockRestore();
+    expect(lock.querySelector('circle')).toBeNull();
+  });
+});
+
 describe('TableSeat memoization', () => {
   it('does not re-render when irrelevant props change', () => {
     const renderSpy = vi.fn();

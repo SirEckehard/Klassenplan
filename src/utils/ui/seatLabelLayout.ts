@@ -58,8 +58,14 @@ const BADGE_GAP = 2;
 /** The badge pill's distance from an upright seat's lower edge (`placeSeatBadgePill`). */
 const SEAT_BADGE_BOTTOM_OFFSET = 6;
 
-/** Diameter of the editor's lock toggle on a seat. */
+/** The box of the editor's lock toggle on a seat; its icon sits at the centre. */
 const SEAT_LOCK_SIZE = 20;
+
+/**
+ * The lock's icon, drawn on the seat without a plate of its own (`TableSeat`):
+ * the name keeps clear of the icon, not of the toggle's box around it.
+ */
+export const SEAT_LOCK_ICON_SIZE = 11;
 
 /** Clearance a name keeps from the lock, beyond its outline. */
 const LOCK_CLEARANCE = 1;
@@ -499,7 +505,7 @@ function lockInFrame(shape: SeatShape) {
   return {
     x: cos * x + sin * y,
     y: -sin * x + cos * y,
-    reach: SEAT_LOCK_SIZE / 2 + LOCK_CLEARANCE,
+    reach: SEAT_LOCK_ICON_SIZE / 2 + LOCK_CLEARANCE,
   };
 }
 

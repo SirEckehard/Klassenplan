@@ -122,11 +122,9 @@ export const STUDENT_COLORS = {
       dark: '#2a2d31',
     },
   },
+  // A held seat keeps its fill — the gender tint stays — and takes the
+  // selection's blue as its contour (`TableSeat`'s hairline, the circle's edge).
   locked: {
-    fill: {
-      light: '#eaf0fe', // --surface-option-selected: held by hand
-      dark: '#16243f',
-    },
     stroke: {
       light: '#2563eb', // --border-option-selected
       dark: '#4f86f7',
@@ -208,22 +206,6 @@ export const SEAT_UI_COLORS = {
     light: '#17181a', // --text-page
     dark: '#f2f1ee',
   },
-  lockIcon: {
-    light: '#d97706', // amber-600
-    dark: '#facc15', // yellow-400
-  },
-  unlockIcon: {
-    light: '#6b7280', // gray-500
-    dark: '#e5e7eb', // gray-200
-  },
-  lockButtonBackground: {
-    light: 'rgba(255, 255, 255, 0.7)', // bg-white/70 from muted icon button token
-    dark: 'rgba(3, 7, 18, 0.6)', // dark:bg-gray-950/60 from muted icon button token
-  },
-  lockButtonBorder: {
-    light: '#dbeafe', // border-blue-100
-    dark: 'rgba(29, 78, 216, 0.4)', // dark:border-blue-900/40
-  },
 } as const;
 
 /**
@@ -274,31 +256,16 @@ export function getStudentAppearance(
     };
   }
 
-  // A held seat is a state of the seat, and outranks everything else.
-  if (locked) {
-    return {
-      fill: STUDENT_COLORS.locked.fill[mode],
-      stroke: STUDENT_COLORS.locked.stroke[mode],
-      text: SEAT_UI_COLORS.text[mode],
-    };
-  }
-
-  // Empty seats
-  if (!student) {
-    return {
-      fill: STUDENT_COLORS.empty.fill[mode],
-      stroke: STUDENT_COLORS.empty.stroke[mode],
-      text: SEAT_UI_COLORS.text[mode],
-    };
-  }
-
-  const colors =
-    genderColors && student.gender
+  const colors = !student
+    ? STUDENT_COLORS.empty
+    : genderColors && student.gender
       ? STUDENT_COLORS[student.gender]
       : STUDENT_COLORS.neutral;
   return {
     fill: colors.fill[mode],
-    stroke: colors.stroke[mode],
+    // A held seat is a state of the seat: its contour, never its fill, which
+    // keeps the gender tint.
+    stroke: locked ? STUDENT_COLORS.locked.stroke[mode] : colors.stroke[mode],
     text: SEAT_UI_COLORS.text[mode],
   };
 }

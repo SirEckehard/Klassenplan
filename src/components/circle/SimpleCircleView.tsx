@@ -18,7 +18,6 @@ import { LockIcon, LockOpenIcon } from '@phosphor-icons/react';
 import {
   describeBadge,
   getStudentAppearance,
-  SEAT_UI_COLORS,
   type StudentBadge,
 } from '@/utils/ui/studentAppearance';
 import {
@@ -111,10 +110,17 @@ const TOKEN_RADIUS = 30;
 const FIT_MARGIN = 12;
 
 /**
- * Where a name may begin under the lock in a token's upper left (an 8-unit
- * circle centred 16 above the token's centre).
+ * The lock in a token's upper left, as an offset from the token's centre: its
+ * icon, drawn without a plate, stays inside a mark's ring.
  */
-const LOCK_CLEARANCE_Y = -7;
+const LOCK_OFFSET = { x: -13, y: -15 };
+/** The lock's icon. */
+const LOCK_ICON_SIZE = 9;
+/** The lock's keyboard focus ring, round its icon. */
+const LOCK_FOCUS_RADIUS = 6.5;
+
+/** Where a name may begin under the lock's icon, a unit clear of it. */
+const LOCK_CLEARANCE_Y = LOCK_OFFSET.y + LOCK_ICON_SIZE / 2 + 1;
 
 /**
  * Simplified circle view with real drag-and-drop like table seating
@@ -384,10 +390,10 @@ function SimpleCircleView({
     targetPosition !== null && isPositionLocked(targetPosition);
 
   const hasHoverPointer = useHasHoverPointer();
-  const lockMode = isDark ? 'dark' : 'light';
   const [hoveredToken, setHoveredToken] = useState<number | null>(null);
   const [focusedToken, setFocusedToken] = useState<number | null>(null);
   const [focusedLock, setFocusedLock] = useState<number | null>(null);
+  const [visibleFocusLock, setVisibleFocusLock] = useState<number | null>(null);
 
   const getCircleAppearance = (student: Student | null) => {
     const locked = student ? lockedIds.has(student.id) : false;
@@ -961,12 +967,23 @@ function SimpleCircleView({
                         locked ? t('seat.unlockSeat') : t('seat.lockSeat')
                       }
                       aria-pressed={locked}
-                      onFocus={() => setFocusedLock(slot.position)}
-                      onBlur={() =>
+                      className="seat-lock"
+                      onFocus={(event) => {
+                        setFocusedLock(slot.position);
+                        setVisibleFocusLock(
+                          isFocusVisible(event.currentTarget)
+                            ? slot.position
+                            : null,
+                        );
+                      }}
+                      onBlur={() => {
                         setFocusedLock((current) =>
                           current === slot.position ? null : current,
-                        )
-                      }
+                        );
+                        setVisibleFocusLock((current) =>
+                          current === slot.position ? null : current,
+                        );
+                      }}
                       onPointerDown={(event) => {
                         event.stopPropagation();
                         event.preventDefault();
@@ -990,31 +1007,47 @@ function SimpleCircleView({
                         {locked ? t('seat.unlockSeat') : t('seat.lockSeat')}
                       </title>
                       <circle
-                        cx={slot.x - 14}
-                        cy={slot.y - 16}
+                        cx={slot.x + LOCK_OFFSET.x}
+                        cy={slot.y + LOCK_OFFSET.y}
                         r={12}
                         fill="transparent"
                       />
-                      <circle
-                        cx={slot.x - 14}
-                        cy={slot.y - 16}
-                        r={8}
-                        fill={SEAT_UI_COLORS.lockButtonBackground[lockMode]}
-                        stroke={SEAT_UI_COLORS.lockButtonBorder[lockMode]}
-                        strokeWidth={1}
-                      />
+                      {/* Keyboard focus: the two-tone ring a focused token
+                          wears, round the icon. */}
+                      {visibleFocusLock === slot.position && (
+                        <g pointerEvents="none">
+                          <circle
+                            cx={slot.x + LOCK_OFFSET.x}
+                            cy={slot.y + LOCK_OFFSET.y}
+                            r={LOCK_FOCUS_RADIUS}
+                            fill="none"
+                            stroke="#ffffff"
+                            strokeWidth={4.5}
+                          />
+                          <circle
+                            cx={slot.x + LOCK_OFFSET.x}
+                            cy={slot.y + LOCK_OFFSET.y}
+                            r={LOCK_FOCUS_RADIUS}
+                            fill="none"
+                            strokeWidth={2}
+                            style={{ stroke: 'var(--border-option-selected)' }}
+                          />
+                        </g>
+                      )}
+                      {/* The icon alone, in a held place's blue when closed
+                          (`.seat-lock` in index.css). */}
                       <g
-                        transform={`translate(${slot.x - 18.5} ${slot.y - 20.5})`}
+                        transform={`translate(${slot.x + LOCK_OFFSET.x - LOCK_ICON_SIZE / 2} ${slot.y + LOCK_OFFSET.y - LOCK_ICON_SIZE / 2})`}
                       >
                         {locked ? (
                           <LockIcon
-                            size={9}
-                            color={SEAT_UI_COLORS.lockIcon[lockMode]}
+                            size={LOCK_ICON_SIZE}
+                            color="currentColor"
                           />
                         ) : (
                           <LockOpenIcon
-                            size={9}
-                            color={SEAT_UI_COLORS.unlockIcon[lockMode]}
+                            size={LOCK_ICON_SIZE}
+                            color="currentColor"
                           />
                         )}
                       </g>

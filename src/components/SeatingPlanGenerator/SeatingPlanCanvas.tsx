@@ -141,7 +141,10 @@ const SeatingPlanCanvas = React.memo(
     // `SceneTable` reveals the open lock on hover where the pointer can hover.
     const lockRevealOnHover = useHasHoverPointer();
     // One name size for the whole plan, so the seats read alike; only a
-    // conspicuously long name shrinks on its own seat.
+    // conspicuously long name shrinks on its own seat. Measured with the lock
+    // only where every seat shows it (a touch screen): a closed lock is a
+    // seat's own state, and locking one seat must not shrink every name.
+    // That seat keeps its name clear of the lock itself (`TableSeat`).
     const nameFontSize = React.useMemo(
       () =>
         computePlanNameFontSize({
@@ -156,12 +159,11 @@ const SeatingPlanCanvas = React.memo(
             ),
           allStudents: allStudents ?? [],
           badgeView,
-          lock: (tableIndex, seatIndex) =>
-            seatLockReservesRoom(
-              Boolean(toggleLock),
-              lockRevealOnHover,
-              isSeatLocked?.(tableIndex, seatIndex) ?? false,
-            ),
+          lock: seatLockReservesRoom(
+            Boolean(toggleLock),
+            lockRevealOnHover,
+            false,
+          ),
           split: nameDisplay === 'full',
         }),
       [
@@ -173,7 +175,6 @@ const SeatingPlanCanvas = React.memo(
         badgeView,
         toggleLock,
         lockRevealOnHover,
-        isSeatLocked,
       ],
     );
 

@@ -8,7 +8,6 @@ import type { StatisticHighlightMode, StatisticStatus, Student } from '@/types';
 import {
   describeBadge,
   getStudentAppearance,
-  SEAT_UI_COLORS,
   type StudentBadge,
 } from '@/utils/ui/studentAppearance';
 import {
@@ -18,6 +17,7 @@ import {
 } from '@/utils/ui/seatBadges';
 import {
   fitNameOnSeat,
+  SEAT_LOCK_ICON_SIZE,
   seatLockReservesRoom,
   seatLockOffset,
   seatNameMaxFontSize,
@@ -145,6 +145,11 @@ const matchesFocusVisible = (element: Element): boolean => {
     return true;
   }
 };
+
+/** The lock toggle's box on a seat (`seatLockOffset` places it). */
+const SEAT_LOCK_BOX = 20;
+/** The lock's keyboard focus ring, round its icon. */
+const LOCK_FOCUS_RADIUS = 7.5;
 
 /** A seat that is not drawn inside a table's grid keeps its own corners. */
 const OWN_CORNERS: SeatCorners = [false, false, false, false];
@@ -281,11 +286,6 @@ function TableSeat({
   const seatFill = appearance.fill;
   const seatStroke = appearance.stroke;
   const textColor = appearance.text;
-  const mode = isDark ? 'dark' : 'light';
-  const lockIconColor = SEAT_UI_COLORS.lockIcon[mode];
-  const unlockIconColor = SEAT_UI_COLORS.unlockIcon[mode];
-  const lockButtonBackground = SEAT_UI_COLORS.lockButtonBackground[mode];
-  const lockButtonBorder = SEAT_UI_COLORS.lockButtonBorder[mode];
 
   const seatLabelTransform = lockSeatLabelOrientation
     ? `rotate(${seatTextRotation} ${seatWidth / 2} ${seatHeight / 2})`
@@ -296,13 +296,10 @@ function TableSeat({
   const lockButtonRotationCompensation = lockSeatLabelOrientation
     ? -normalizedTableRotation
     : 0;
-  const lockButtonCircleTransform =
-    lockButtonRotationCompensation !== 0
-      ? `rotate(${lockButtonRotationCompensation} 10 10)`
-      : undefined;
+  const lockIconOffset = (SEAT_LOCK_BOX - SEAT_LOCK_ICON_SIZE) / 2;
   const lockButtonIconTransform =
     lockButtonRotationCompensation !== 0
-      ? `rotate(${lockButtonRotationCompensation} 5 5)`
+      ? `rotate(${lockButtonRotationCompensation} ${SEAT_LOCK_ICON_SIZE / 2} ${SEAT_LOCK_ICON_SIZE / 2})`
       : undefined;
   // The seat itself carries the highlight — never its table, which would
   // mark the neighbours at a double or group table as well.
@@ -391,6 +388,7 @@ function TableSeat({
   // lock always stays visible. Keyboard focus reveals it too, so the toggle
   // remains reachable via Tab. The element stays in the DOM (a11y tree).
   const [lockHasFocus, setLockHasFocus] = React.useState(false);
+  const [lockHasVisibleFocus, setLockHasVisibleFocus] = React.useState(false);
   const lockVisible =
     !lockRevealOnHover || locked || isSeatHovered || lockHasFocus;
   // A fingertip gets a wider margin around the lock than the mouse's 24
@@ -645,10 +643,19 @@ function TableSeat({
                   // No invisible click target while hidden (focus still works)
                   pointerEvents: lockVisible ? 'auto' : 'none',
                 }}
+                className="seat-lock"
                 role="button"
                 tabIndex={0}
-                onFocus={() => setLockHasFocus(true)}
-                onBlur={() => setLockHasFocus(false)}
+                onFocus={(event) => {
+                  setLockHasFocus(true);
+                  setLockHasVisibleFocus(
+                    matchesFocusVisible(event.currentTarget),
+                  );
+                }}
+                onBlur={() => {
+                  setLockHasFocus(false);
+                  setLockHasVisibleFocus(false);
+                }}
                 aria-label={
                   locked
                     ? t('seat.unlockSeat', 'Sitzplatz entsperren')
@@ -673,39 +680,56 @@ function TableSeat({
                     ? t('seat.unlockSeat', 'Sitzplatz entsperren')
                     : t('seat.lockSeat', 'Sitzplatz sperren')}
                 </title>
-                {/* Invisible hit area around the 20-unit circle (24 units,
-                    34 for a finger) so the pointer cursor and click target
-                    cover the whole button, not just the painted circle —
-                    otherwise the seat's grab-cursor touch target wins right
-                    at the edge. */}
+                {/* Invisible hit area over the toggle's 20-unit box (24
+                    units, 34 for a finger): the icon is drawn without a
+                    plate, so the pointer cursor and the click target cover
+                    the whole box, not just the painted glyph — otherwise
+                    the seat's grab-cursor touch target wins right beside it. */}
                 <rect
                   x={-lockHitInset}
                   y={-lockHitInset}
-                  width={20 + lockHitInset * 2}
-                  height={20 + lockHitInset * 2}
+                  width={SEAT_LOCK_BOX + lockHitInset * 2}
+                  height={SEAT_LOCK_BOX + lockHitInset * 2}
                   fill="transparent"
                 />
-                {/* Circular lock toggle surface using muted icon button design token colors */}
-                <circle
-                  cx={10}
-                  cy={10}
-                  r={10}
-                  fill={lockButtonBackground}
-                  stroke={lockButtonBorder}
-                  strokeWidth={1}
-                  transform={lockButtonCircleTransform}
-                  style={{
-                    transition:
-                      'fill 150ms ease, stroke 150ms ease, opacity 150ms ease',
-                    opacity: locked ? 1 : 0.92,
-                  }}
-                />
-                <g transform="translate(5 5)">
+                {/* Keyboard focus: the two-tone ring a focused seat wears,
+                    round the icon. */}
+                {lockHasVisibleFocus && (
+                  <g pointerEvents="none">
+                    <circle
+                      cx={SEAT_LOCK_BOX / 2}
+                      cy={SEAT_LOCK_BOX / 2}
+                      r={LOCK_FOCUS_RADIUS}
+                      fill="none"
+                      stroke="#ffffff"
+                      strokeWidth={4.5}
+                      vectorEffect="non-scaling-stroke"
+                    />
+                    <circle
+                      cx={SEAT_LOCK_BOX / 2}
+                      cy={SEAT_LOCK_BOX / 2}
+                      r={LOCK_FOCUS_RADIUS}
+                      fill="none"
+                      stroke="var(--canvas-selection)"
+                      strokeWidth={2}
+                      vectorEffect="non-scaling-stroke"
+                    />
+                  </g>
+                )}
+                {/* The icon alone, in the colour of a held seat's contour
+                    when closed (`.seat-lock` in index.css). */}
+                <g transform={`translate(${lockIconOffset} ${lockIconOffset})`}>
                   <g transform={lockButtonIconTransform}>
                     {locked ? (
-                      <LockIcon size={10} color={lockIconColor} />
+                      <LockIcon
+                        size={SEAT_LOCK_ICON_SIZE}
+                        color="currentColor"
+                      />
                     ) : (
-                      <LockOpenIcon size={10} color={unlockIconColor} />
+                      <LockOpenIcon
+                        size={SEAT_LOCK_ICON_SIZE}
+                        color="currentColor"
+                      />
                     )}
                   </g>
                 </g>

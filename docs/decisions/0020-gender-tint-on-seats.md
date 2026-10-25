@@ -52,7 +52,10 @@ on all of them. A student without a gender stays paper.
   wears it: its pressed chip takes the seat's fill and contour, so setting a
   gender shows the colour it comes to (added 2026-10-06).
 - The two states of a seat keep outranking it: a held seat is blue, an empty
-  one sunken. The projection's contrast mode stays black on white.
+  one sunken. The projection's contrast mode stays black on white. Since
+  2026-10-25 a held seat keeps its tint: its blue is a hairline all round and
+  its closed lock, never its fill, which overwrote the gender for as long as
+  the seat stayed held.
 - The export legend lists the genders present in the class again
   (`getPresentGenderLegend`), so a printed plan explains its colours.
 - The projection's colour switch (`showColors`, stored as
@@ -81,4 +84,5 @@ on all of them. A student without a gender stays paper.
   gender map on the wall switches colours off once; the choice is kept between
   lessons.
 - The diverse blue and the held seat's blue are neighbours. They stay apart by
-  the held seat's saturated contour and its lock icon.
+  the held seat's saturated contour and its lock icon — since 2026-10-25 the
+  held seat's blue is only that contour and that icon.

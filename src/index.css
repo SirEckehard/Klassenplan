@@ -1764,6 +1764,21 @@ html.dark {
  * and let go. Green is a completed action, never a target — the target of a
  * drag is blue. Without motion the ring simply stands until it is removed.
  */
+/* The editor's lock on a seat or a place of the circle: an icon without a
+   plate, muted while open, in a held seat's blue when closed. */
+.seat-lock {
+  color: var(--text-muted);
+  transition: color 150ms ease;
+}
+
+.seat-lock:hover {
+  color: var(--text-page);
+}
+
+.seat-lock[aria-pressed='true'] {
+  color: var(--border-option-selected);
+}
+
 @keyframes seat-drop-confirm {
   0%,
   55% {
