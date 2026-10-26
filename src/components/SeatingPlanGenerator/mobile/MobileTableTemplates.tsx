@@ -8,31 +8,14 @@ import { cardSurfaceClass } from '@/utils';
 
 interface TemplateConfig {
   type: TableTemplateType;
-  label: string;
   seatCount: number;
 }
 
 const TEMPLATES: TemplateConfig[] = [
-  {
-    type: 'single',
-    label: 'Einzelplatz',
-    seatCount: 1,
-  },
-  {
-    type: 'double',
-    label: 'Doppelplatz',
-    seatCount: 2,
-  },
-  {
-    type: 'group4',
-    label: '4er-Gruppe',
-    seatCount: 4,
-  },
-  {
-    type: 'group6',
-    label: '6er-Gruppe',
-    seatCount: 6,
-  },
+  { type: 'single', seatCount: 1 },
+  { type: 'double', seatCount: 2 },
+  { type: 'group4', seatCount: 4 },
+  { type: 'group6', seatCount: 6 },
 ];
 
 interface MobileTableTemplatesProps {
@@ -84,38 +67,43 @@ const MobileTableTemplates: React.FC<MobileTableTemplatesProps> = ({
         {t('layout.tableTypes', 'Tischtypen')}
       </h3>
       <div className="grid grid-cols-4 gap-1.5">
-        {TEMPLATES.map((template) => (
-          <button
-            key={template.type}
-            type="button"
-            onPointerDown={(e) => onTemplatePointerDown(template.type, e)}
-            onClick={() => onTemplateAdd?.(template.type)}
-            className={`${cardSurfaceClass} group relative flex h-16 min-w-0 cursor-grab flex-col items-center gap-0.5 border-2 border-(--border-card) p-1.5 transition hover:border-(--border-option-selected) hover:bg-(--surface-option-selected) active:scale-95 active:cursor-grabbing`}
-            title={`${TABLE_TEMPLATE_LABELS[template.type]} (${template.seatCount} ${t('common.seats', 'Plätze')}) – ${t('layout.dragDropHint')}`}
-            style={{ touchAction: 'none' }}
-          >
-            {/* TablePreview */}
-            <div className="relative flex h-10 w-full items-center justify-center overflow-hidden">
-              <div
-                className="absolute"
-                style={{
-                  width: '80px',
-                  height: '80px',
-                  transform: 'scale(0.45)',
-                  transformOrigin: 'center center',
-                }}
-              >
-                <TablePreview type={template.type} fixedSize={true} />
+        {TEMPLATES.map((template) => {
+          // The button shows only the seat count; its name says the table.
+          const name = `${TABLE_TEMPLATE_LABELS[template.type]} (${template.seatCount} ${t('common.seats', 'Plätze')})`;
+          return (
+            <button
+              key={template.type}
+              type="button"
+              onPointerDown={(e) => onTemplatePointerDown(template.type, e)}
+              onClick={() => onTemplateAdd?.(template.type)}
+              className={`${cardSurfaceClass} group relative flex h-16 min-w-0 cursor-grab flex-col items-center gap-0.5 border-2 border-(--border-card) p-1.5 transition hover:border-(--border-option-selected) hover:bg-(--surface-option-selected) active:scale-95 active:cursor-grabbing`}
+              aria-label={name}
+              title={`${name} – ${t('layout.dragDropHint')}`}
+              style={{ touchAction: 'none' }}
+            >
+              {/* TablePreview */}
+              <div className="relative flex h-10 w-full items-center justify-center overflow-hidden">
+                <div
+                  className="absolute"
+                  style={{
+                    width: '80px',
+                    height: '80px',
+                    transform: 'scale(0.45)',
+                    transformOrigin: 'center center',
+                  }}
+                >
+                  <TablePreview type={template.type} fixedSize={true} />
+                </div>
               </div>
-            </div>
-            <span className="text-micro font-medium text-(--text-muted)">
-              {template.seatCount} {t('common.pl', 'Pl.')}
-            </span>
+              <span className="text-micro font-medium text-(--text-muted)">
+                {template.seatCount} {t('common.pl', 'Pl.')}
+              </span>
 
-            {/* Drag indicator */}
-            <div className="pointer-events-none absolute inset-0 rounded-2xl border-2 border-dashed border-transparent opacity-0 transition-opacity group-hover:border-(--border-option-selected) group-hover:opacity-60" />
-          </button>
-        ))}
+              {/* Drag indicator */}
+              <div className="pointer-events-none absolute inset-0 rounded-2xl border-2 border-dashed border-transparent opacity-0 transition-opacity group-hover:border-(--border-option-selected) group-hover:opacity-60" />
+            </button>
+          );
+        })}
       </div>
       {featurePalette && featurePalette.length > 0 && (
         <div className="mt-3">

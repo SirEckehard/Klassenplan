@@ -39,10 +39,12 @@ const escapeHtml = (value: string) =>
 
 /**
  * iOS and iPadOS print the top document rather than the frame asked to print,
- * so they keep the PDF in a tab of its own. An iPad asks for the desktop site
- * and names itself a Mac; its touch points give it away.
+ * so they print from the PDF, handed over as a download that iOS opens in
+ * its viewer: a tab opened once the PDF is made comes too long after the tap,
+ * and Safari blocks it. An iPad asks for the desktop site and names itself a
+ * Mac; its touch points give it away.
  */
-function isAppleMobile(): boolean {
+export function isAppleMobile(): boolean {
   if (typeof navigator === 'undefined') return false;
   const userAgent = navigator.userAgent;
   return (

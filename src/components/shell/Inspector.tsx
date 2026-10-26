@@ -257,10 +257,12 @@ export default function Inspector() {
 
   if (isPhone) {
     if (!isOpen) return null;
+    // Clear of the home indicator, as the status bar under it is: in the
+    // installed app the sheet's removal sat on it, where a swipe leaves.
     return (
       <div
         ref={setStudentPanel}
-        className="fixed inset-x-0 bottom-0 z-40 flex max-h-[80vh] flex-col overflow-hidden rounded-t-xl border-t border-(--border-card) bg-(--surface-card) shadow-(--shadow-sheet)"
+        className="fixed inset-x-0 bottom-0 z-40 flex max-h-[80vh] flex-col overflow-hidden rounded-t-xl border-t border-(--border-card) bg-(--surface-card) pb-[env(safe-area-inset-bottom)] shadow-(--shadow-sheet)"
       >
         <div
           ref={sheetRef}

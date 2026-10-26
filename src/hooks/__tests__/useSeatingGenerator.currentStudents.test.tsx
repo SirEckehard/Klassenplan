@@ -230,4 +230,41 @@ describe('useSeatingGenerator puts back seating as the class is now', () => {
       dana: { table: 1, seat: 1 },
     });
   });
+
+  // K13: the swap's answer was set inside the state updater, which React runs
+  // later while other updates are pending — the swap happened, was reported
+  // as refused, and left no undo step.
+  it('reports a swap made while other updates are pending, and records it', async () => {
+    const current = await renderGenerator();
+
+    let moved = false;
+    act(() => {
+      current().actions.setCurrentSeating((seating) => seating);
+      moved = current().actions.moveStudent(0, 0, 1, 0);
+    });
+
+    expect(moved).toBe(true);
+    await waitFor(() =>
+      expect(current().state.currentSeating[0][0]?.id).toBe('cem'),
+    );
+    expect(current().state.canUndoSeating).toBe(true);
+  });
+
+  it('still refuses a swap off a locked seat', async () => {
+    const current = await renderGenerator();
+    act(() => current().actions.toggleLock('anna', 0, 0));
+    await waitFor(() =>
+      expect(current().actions.isSeatLocked(0, 0)).toBe(true),
+    );
+    const undoable = current().state.canUndoSeating;
+
+    let moved = true;
+    act(() => {
+      moved = current().actions.moveStudent(0, 0, 1, 0);
+    });
+
+    expect(moved).toBe(false);
+    expect(current().state.currentSeating[0][0]?.id).toBe('anna');
+    expect(current().state.canUndoSeating).toBe(undoable);
+  });
 });

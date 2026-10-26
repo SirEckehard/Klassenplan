@@ -360,12 +360,13 @@ export default function Present() {
         </div>
       )}
 
-      {/* Scene fills the remaining space */}
+      {/* Scene fills the remaining space. Without a plan there is nothing to
+          pan, and its pointer capture would take the click from "Zurück". */}
       <div
         ref={containerRef}
         className="min-h-0 flex-1 touch-none overflow-hidden px-2"
         style={{ cursor: canPan ? 'grab' : 'default' }}
-        {...pointerHandlers}
+        {...(hasContent ? pointerHandlers : {})}
       >
         {hasContent && isCircle && circleLayout ? (
           <div className="flex h-full items-center justify-center">

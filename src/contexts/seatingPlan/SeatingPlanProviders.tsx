@@ -10,7 +10,7 @@ import { ClassroomLayoutProvider } from '@/contexts/seatingPlan/ClassroomLayoutC
 import { SeatingAlgorithmProvider } from '@/contexts/seatingPlan/SeatingAlgorithmContext';
 import { ClassManagementProvider } from '@/contexts/seatingPlan/ClassManagementContext';
 import { CanvasPreferencesProvider } from '@/contexts/seatingPlan/CanvasPreferencesContext';
-import { BACKUP_FILE_ACCEPT } from '@/config/backupFile';
+import { backupFileAccept } from '@/config/backupFile';
 import { useBackupFileLaunch } from '@/hooks/pwa/useBackupFileLaunch';
 
 /**
@@ -26,7 +26,7 @@ function BackupFileInput() {
     <input
       ref={importInputRef}
       type="file"
-      accept={BACKUP_FILE_ACCEPT}
+      accept={backupFileAccept()}
       onChange={handleImportFile}
       className="hidden"
       aria-hidden="true"

@@ -84,6 +84,24 @@ describe('Present', () => {
     ).toBeInTheDocument();
   });
 
+  // The stage captures a pointer to pan; with nothing to pan it took the
+  // mouse's click from "Zurück" in the empty state.
+  it("leaves the empty state's way back to the pointer", () => {
+    const capture = vi.fn();
+    const original = HTMLElement.prototype.setPointerCapture;
+    HTMLElement.prototype.setPointerCapture = capture;
+    try {
+      renderPresent();
+      const back = screen.getByRole('button', { name: /^(Zurück|Back)$/i });
+
+      fireEvent.pointerDown(back, { pointerId: 1, pointerType: 'mouse' });
+
+      expect(capture).not.toHaveBeenCalled();
+    } finally {
+      HTMLElement.prototype.setPointerCapture = original;
+    }
+  });
+
   it('shows no plan made for tables the room no longer has', () => {
     // Two tables now; the seating is still the one for the single table.
     seatingState.current = {

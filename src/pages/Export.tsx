@@ -925,7 +925,8 @@ export default function Export() {
     }
 
     try {
-      const { printSheets } = await import('@/services/export/printSheets');
+      const { printSheets, isAppleMobile } =
+        await import('@/services/export/printSheets');
       const printed = await printSheets(previewPages, activeOrientation, {
         lang: metadata.lang,
         title: printFilename,
@@ -942,6 +943,14 @@ export default function Export() {
         previewPages.length > 1 ? previewPages : previewSvg,
         activeOrientation,
       );
+
+      // iOS opens the download in its viewer, which prints; a tab would be
+      // blocked this long after the tap, and the message said so needlessly.
+      if (isAppleMobile()) {
+        downloadPdfBlob(pdfBlob, printFilename);
+        recordPreviewExport();
+        return;
+      }
 
       // Try to open in new tab - if blocked, download as fallback
       const opened = openPdfForPrinting(pdfBlob);

@@ -194,6 +194,26 @@ describe('Inspector below lg', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
+  // In the installed app on an iPhone the sheet reached the home indicator,
+  // and its removal sat where a swipe leaves the app.
+  it('keeps a phone’s student sheet clear of the home indicator', () => {
+    setWidth(390);
+    mocks.state.step = 1;
+    mocks.state.students = [createMockStudent({ id: 'g', name: 'Grace' })];
+    render(
+      <InspectorProvider>
+        <Picker />
+        <Inspector />
+      </InspectorProvider>,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'pick' }));
+
+    expect(screen.getByRole('dialog').parentElement).toHaveClass(
+      'pb-[env(safe-area-inset-bottom)]',
+    );
+  });
+
   it('closes a phone’s student sheet on Escape', () => {
     setWidth(390);
     mocks.state.step = 1;

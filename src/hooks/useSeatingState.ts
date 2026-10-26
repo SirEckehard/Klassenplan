@@ -5,7 +5,14 @@
  * Internal hook used by useSeatingGenerator. Do not import directly.
  * Use SeatingPlanGeneratorProvider context hooks instead.
  */
-import { useCallback, useState, useEffect, useMemo } from 'react';
+import {
+  useCallback,
+  useState,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+} from 'react';
 import { useStudentsState } from './state/useStudentsState';
 import { useLockState } from './state/useLockState';
 import { useClassroomSceneState } from './state/useClassroomSceneState';
@@ -303,31 +310,41 @@ export function useSeatingState(): SeatingState {
     setCircleLayout,
   ]);
 
+  // The seating as last committed, for the answer `moveStudent` gives at once.
+  const committedSeatingRef = useRef(currentSeating);
+  useLayoutEffect(() => {
+    committedSeatingRef.current = currentSeating;
+  });
+
   /**
-   * Swap two seat positions unless either is locked.
+   * Swap two seat positions unless either is locked, and report whether they
+   * were swapped. The answer comes from the committed seating: an updater
+   * runs only when React gets to it, which with other updates pending is
+   * after this returns — a swap then reported `false` went without an undo
+   * step.
    */
   const moveStudent = useCallback(
     (fromTable: number, fromSeat: number, toTable: number, toSeat: number) => {
-      let didMove = false;
-      setCurrentSeating((prev) => {
-        const next = prev.map((t) => [...t]);
-        if (!next[fromTable] || !next[toTable]) return prev;
-        const src = next[fromTable]![fromSeat];
-        const dst = next[toTable]![toSeat];
+      const swap = (prev: SeatingArrangement): SeatingArrangement | null => {
+        if (!prev[fromTable] || !prev[toTable]) return null;
+        const src = prev[fromTable]![fromSeat];
+        const dst = prev[toTable]![toSeat];
         if (src) {
           const lp = lockedPositions[src.id];
-          if (lp && lp.table === fromTable && lp.seat === fromSeat) return prev;
+          if (lp && lp.table === fromTable && lp.seat === fromSeat) return null;
         }
         if (dst) {
           const lp = lockedPositions[dst.id];
-          if (lp && lp.table === toTable && lp.seat === toSeat) return prev;
+          if (lp && lp.table === toTable && lp.seat === toSeat) return null;
         }
+        const next = prev.map((t) => [...t]);
         next[fromTable]![fromSeat] = dst ?? null;
         next[toTable]![toSeat] = src ?? null;
-        didMove = true;
         return next;
-      });
-      return didMove;
+      };
+      if (!swap(committedSeatingRef.current)) return false;
+      setCurrentSeating((prev) => swap(prev) ?? prev);
+      return true;
     },
     [lockedPositions, setCurrentSeating],
   );

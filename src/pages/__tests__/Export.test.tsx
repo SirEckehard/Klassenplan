@@ -27,6 +27,7 @@ import Export from '../Export';
 import {
   exportNoteListToPdf,
   exportTableLayoutToPdf,
+  downloadPdfBlob,
   generatePdfBlob,
   openPdfForPrinting,
 } from '@/services/export/pdfExportFunctions';
@@ -34,7 +35,7 @@ import {
   renderNoteListSvgPages,
   renderSceneSvg,
 } from '@/services/export/sceneRenderer';
-import { printSheets } from '@/services/export/printSheets';
+import { isAppleMobile, printSheets } from '@/services/export/printSheets';
 import { createMockClassroomScene, createMockStudent } from '@/__tests__/utils';
 import {
   LEGACY_EXPORT_KEYS,
@@ -77,6 +78,7 @@ vi.mock('@/services/export/sceneRenderer', () => ({
 
 vi.mock('@/services/export/printSheets', () => ({
   printSheets: vi.fn(async () => true),
+  isAppleMobile: vi.fn(() => false),
 }));
 
 vi.mock('@/services/export/pdfExportFunctions', () => ({
@@ -373,6 +375,32 @@ describe('Export page', () => {
         expect.stringContaining('data-testid="scene"'),
         'portrait',
       );
+    });
+
+    // On an iPhone or an iPad a tab opened once the PDF is made is blocked:
+    // the PDF goes to iOS's viewer as a download, with no word of a pop-up.
+    it('hands the PDF to iOS as a download, without a pop-up message', async () => {
+      vi.mocked(printSheets).mockResolvedValueOnce(false);
+      vi.mocked(isAppleMobile).mockReturnValue(true);
+      try {
+        renderExport();
+        const iframe = await screen.findByTitle('Vorschau');
+        await waitFor(
+          () =>
+            expect(iframe.getAttribute('srcdoc') ?? '').toContain(
+              'data-testid="scene"',
+            ),
+          { timeout: 4000 },
+        );
+
+        await userEvent.click(screen.getByRole('button', { name: 'Drucken' }));
+
+        await waitFor(() => expect(downloadPdfBlob).toHaveBeenCalled());
+        expect(openPdfForPrinting).not.toHaveBeenCalled();
+        expect(screen.queryByText(/Pop-up/)).not.toBeInTheDocument();
+      } finally {
+        vi.mocked(isAppleMobile).mockReturnValue(false);
+      }
     });
 
     it('saves the PDF of the arrangement on the sheet from the toolbar', async () => {

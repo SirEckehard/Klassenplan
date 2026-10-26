@@ -14,7 +14,10 @@ in `src/config/backupFile.ts`.
 
 - **Import** accepts `.klassenplan` and, for backups made before the extension
   existed, `.json` (`klassenplan-backup-<timestamp>.json`). Both go the same
-  way; the extension is not checked beyond the file dialog.
+  way; the extension is not checked beyond the file dialog. On an iPhone or an
+  iPad the dialog takes any file (`backupFileAccept`): iOS knows no file type
+  for `.klassenplan` and greyed every backup out, and the restore tells a
+  backup by its content anyway.
 - **Opening a backup with the installed app** (Chrome and Edge on the desktop):
   the manifest lists the extension under `file_handlers` (`vite.config.ts`),
   and `src/hooks/pwa/useBackupFileLaunch.ts` hands the file from

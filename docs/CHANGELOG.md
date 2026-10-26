@@ -52,6 +52,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - A backup from before classes is imported under a name in the language the app shows ("Imported Class")
 - Working out the seating circle anew while it is still being worked out keeps its progress on screen until it is done
 - The export no longer takes a plan of empty seats alone for a plan and prints an empty sheet
+- Swapping two students by hand right after another change no longer goes without an undo step
+- On an iPhone and an iPad a .klassenplan backup can be chosen for restoring; the Files app no longer greys it out
+- "Print" on an iPhone and an iPad opens the PDF without a message about a blocked pop-up
+- "Back" on an empty projection answers a mouse click again
+- On a phone, the iPhone's installed app included, the opened student's panel keeps clear of the home indicator
+- On a phone, the table buttons under the room tell a screen reader which table they add, not only their number of seats
 
 ## [3.2.0] - 2026-10-22
 
