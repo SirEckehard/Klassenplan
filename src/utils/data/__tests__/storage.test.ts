@@ -215,6 +215,16 @@ describe('clearProjectLocalStorage', () => {
     });
   });
 
+  it("clears the circle's arcs setting", () => {
+    // The one key the circle wrote under a name of its own was missing from
+    // the cleanup list.
+    localStorage.setItem('circle-connection-mode', 'off');
+
+    clearProjectLocalStorage();
+
+    expect(localStorage.getItem('circle-connection-mode')).toBeNull();
+  });
+
   it('leaves storage owned by other apps on the origin alone', () => {
     localStorage.setItem('someone-elses-key', 'keep me');
 

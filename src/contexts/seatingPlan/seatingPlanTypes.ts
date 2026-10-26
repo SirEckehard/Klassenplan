@@ -231,6 +231,8 @@ export interface SeatingPlanActions {
   ) => Promise<boolean>;
   deleteClass: (classId: string) => Promise<boolean>;
   setCurrentSeating: React.Dispatch<React.SetStateAction<SeatingArrangement>>;
+  /** Moves each lock to where its student sits in `seating` (room undo). */
+  followLockedStudents: (seating: SeatingArrangement) => void;
 }
 
 export type SeatingPlanSnapshot = {

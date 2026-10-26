@@ -12,10 +12,15 @@ import {
   TOAST_MESSAGES,
 } from '@/utils';
 import { hasShapeMismatch } from '@/utils/math/scene';
-import { roomStateToOpen, workingStateFromPlan } from '@/utils/data/classRooms';
+import {
+  heldLocks,
+  roomStateToOpen,
+  workingStateFromPlan,
+} from '@/utils/data/classRooms';
 import type { CircleLayout } from '@/types/Circle';
 import type {
   ClassroomScene,
+  LockedPositions,
   MixResult,
   RoomRecord,
   RoomWorkingState,
@@ -27,6 +32,7 @@ import type {
 } from '@/types';
 import type { StateUpdater } from '@/stores/featureStores';
 import type { SyncSnapshotOptions } from './useUnsavedSeatingTracker';
+import type { OpenedPlan } from '../useSeatingPersistence';
 
 type UsePlanPersistenceHandlersParams = {
   /** At least one student seated (`hasSeatedStudent`); nothing to save otherwise. */
@@ -38,7 +44,8 @@ type UsePlanPersistenceHandlersParams = {
     circleLayout?: CircleLayout | null,
     options?: SaveSeatingPlanOptions,
   ) => boolean;
-  loadSeatingPlan: (plan: SavedPlan) => void;
+  /** Puts the plan on screen as the class is now; null when it has none. */
+  loadSeatingPlan: (plan: SavedPlan) => OpenedPlan | null;
   setPlanName: React.Dispatch<React.SetStateAction<string>>;
   setPlanNameError: (error: boolean) => void;
   updateClassroomScene: (value: React.SetStateAction<ClassroomScene>) => void;
@@ -46,6 +53,7 @@ type UsePlanPersistenceHandlersParams = {
   setStep: (step: number) => void;
   step: number;
   setCurrentSeating: React.Dispatch<React.SetStateAction<SeatingArrangement>>;
+  setLockedPositions: React.Dispatch<React.SetStateAction<LockedPositions>>;
   setMixSettings: React.Dispatch<React.SetStateAction<MixSettings>>;
   markClassroomSynced: (scene: ClassroomScene) => void;
   syncSeatingSnapshot: (options?: SyncSnapshotOptions) => void;
@@ -74,6 +82,7 @@ export function usePlanPersistenceHandlers({
   setStep,
   step,
   setCurrentSeating,
+  setLockedPositions,
   setMixSettings,
   markClassroomSynced,
   syncSeatingSnapshot,
@@ -144,7 +153,7 @@ export function usePlanPersistenceHandlers({
         return;
       }
       recordSeatingSnapshot();
-      loadSeatingPlan(plan);
+      const opened = loadSeatingPlan(plan);
       updateClassroomScene(plan.scene);
       // A plan without a circle takes the one on screen away too: that one
       // belongs to another plan, and the exits would save it into this one.
@@ -156,10 +165,10 @@ export function usePlanPersistenceHandlers({
       }
       markClassroomSynced(plan.scene);
       syncSeatingSnapshot({
-        seating: plan.seating,
+        seating: opened?.seating ?? plan.seating,
         circleLayout: plan.circleLayout ?? null,
         planName: plan.name,
-        lockedPositions: plan.locks ?? {},
+        lockedPositions: opened?.locks ?? plan.locks ?? {},
       });
     },
     [
@@ -199,7 +208,11 @@ export function usePlanPersistenceHandlers({
       } else {
         recordSeatingSnapshot();
       }
-      setCurrentSeating(syncSeatingWithStudents(result.seating, students));
+      const seating = syncSeatingWithStudents(result.seating, students);
+      setCurrentSeating(seating);
+      // A mix keeps no locks. One whose student sits elsewhere in it would be
+      // drawn nowhere and still pull the student back in the next mix.
+      setLockedPositions((prev) => heldLocks(prev, seating));
       setMixSettings(migrateStoredMixSettings(result.mixSettings));
       if (step !== 3) {
         setStep(3);
@@ -214,6 +227,7 @@ export function usePlanPersistenceHandlers({
       students,
       switchRoom,
       setCurrentSeating,
+      setLockedPositions,
       setMixSettings,
       setStep,
       step,

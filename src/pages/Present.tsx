@@ -37,12 +37,15 @@ import AppearanceControls from '@/components/ui/navigation/AppearanceControls';
 import PresentationScene from '@/components/scene/PresentationScene';
 import PresentationToolbar from '@/components/scene/PresentationToolbar';
 import SimpleCircleView from '@/components/circle/SimpleCircleView';
+import type { SeatingArrangement } from '@/types';
 import type { SeatingMode } from '@/types/Circle';
 import type { PresentationPerspective } from '@/utils/ui/boardOrientation';
 import type { SeatBadgeView } from '@/utils/ui/seatBadges';
 
 /** Legible badges and a "+N" on the tokens, as on the projected table plan. */
 const PRESENT_CIRCLE_BADGE_VIEW: SeatBadgeView = { collapse: true };
+
+const NO_SEATING: SeatingArrangement = [];
 
 const PRESENT_MIN_ZOOM = 0.5;
 const PRESENT_MAX_ZOOM = 3;
@@ -174,8 +177,10 @@ export default function Present() {
     ],
     [circleLayout],
   );
+  // A plan for tables the room no longer has is not drawn, so nobody is
+  // drawn from it either.
   const picker = useRandomStudentPicker(
-    mode === 'circle' ? circleSeating : currentSeating,
+    mode === 'circle' ? circleSeating : hasPlan ? currentSeating : NO_SEATING,
   );
 
   const zoomBy = useCallback(

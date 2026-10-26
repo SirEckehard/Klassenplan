@@ -17,6 +17,7 @@ import type {
   ClassCollectionState,
 } from '@/types';
 import type { CircleLayout, CircleExportData } from '@/types/Circle';
+import i18n from '@/i18n';
 import { DB_KEYS } from '@/utils/data/storageKeys';
 import { hasIndexedDB } from '@/utils/data/indexedDb';
 import {
@@ -65,7 +66,6 @@ import {
   dataUrlToBlob,
 } from '@/utils/image/processStudentPhoto';
 
-const FALLBACK_CLASS_NAME = 'Importierte Klasse';
 const BACKUP_LOG_SOURCE = 'dataBackup';
 const BACKUP_LOG_MESSAGE = 'Normalized seating plan IDs during import/export';
 
@@ -100,7 +100,8 @@ function createLegacyClassCollection(
   normalizedMixSettings: MixSettings,
 ): ClassCollectionState {
   const record = createClassRecord({
-    name: FALLBACK_CLASS_NAME,
+    // A backup from before classes holds one class without a name.
+    name: i18n.t('generator:common.importedClassName'),
     students: data.students,
     seatingHistory: data.seatingHistory,
     mixHistory: data.mixHistory,

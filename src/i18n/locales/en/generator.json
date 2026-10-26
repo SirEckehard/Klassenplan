@@ -638,7 +638,8 @@
     "seats": "Seats",
     "pl": "Seats",
     "defaultClassName": "My Class",
-    "newClassName": "New Class"
+    "newClassName": "New Class",
+    "importedClassName": "Imported Class"
   },
   "mixHistory": {
     "deleteDialogTitle": "Delete Mix Result",

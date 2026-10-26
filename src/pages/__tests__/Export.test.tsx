@@ -146,6 +146,16 @@ afterEach(async () => {
 });
 
 describe('Export page', () => {
+  it('takes a seating of empty seats alone for no plan', () => {
+    seatingState.current = { ...withPlan(), currentSeating: [[null, null]] };
+
+    renderExport();
+
+    expect(
+      screen.getByText('Noch kein Sitzplan zum Exportieren.'),
+    ).toBeInTheDocument();
+  });
+
   it('offers a way back instead of a broken preview when no plan exists', () => {
     seatingState.current = withoutPlan();
 

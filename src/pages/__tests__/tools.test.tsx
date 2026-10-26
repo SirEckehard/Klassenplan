@@ -75,6 +75,19 @@ const withPlan = () => {
   };
 };
 
+// The room set up anew under the plan: one table now, the seating still for
+// the two before it (`hasPlanForScene` is false until the plan layer mixes).
+const withStalePlan = () => {
+  withPlan();
+  seatingState.current = {
+    ...seatingState.current,
+    classroomScene: {
+      ...seatingState.current.classroomScene,
+      tables: seatingState.current.classroomScene.tables.slice(0, 1),
+    },
+  };
+};
+
 const renderPage = (page: React.ReactNode) =>
   render(<MemoryRouter>{page}</MemoryRouter>);
 
@@ -143,6 +156,18 @@ describe('Wer kommt dran?', () => {
     expect(screen.getByRole('status')).toHaveTextContent(/Tisch \d|Table \d/);
   });
 
+  it('draws from the class list while the plan is for tables that are gone', () => {
+    withStalePlan();
+
+    renderPage(<WhoIsNext />);
+    fireEvent.click(screen.getByRole('button', { name: /Ziehen|Draw/ }));
+
+    expect(screen.getByRole('status')).toHaveTextContent(
+      /Ada Lovelace|Ben Berg|Cem Cakir/,
+    );
+    expect(screen.getByRole('status')).not.toHaveTextContent(/Tisch|Table/);
+  });
+
   // In the circle there is no table to name: the answer is who sits on
   // either side, and everybody in the circle is drawn, a table seat or not.
   it('names the neighbours in the circle while the class sits in one', () => {
@@ -177,6 +202,17 @@ describe('Wo sitzt wer?', () => {
     expect(
       screen.getByText(/Noch kein Sitzplan|No seating plan yet/),
     ).toBeInTheDocument();
+  });
+
+  it('asks for a plan while the plan is for tables that are gone', () => {
+    withStalePlan();
+
+    renderPage(<SeatFinder />);
+
+    expect(
+      screen.getByText(/Noch kein Sitzplan|No seating plan yet/),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('searchbox')).not.toBeInTheDocument();
   });
 
   it('answers as soon as one name is left', () => {

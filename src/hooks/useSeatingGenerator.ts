@@ -30,9 +30,11 @@ import { useStudentHistory } from './student/useStudentHistory';
 import type {
   ClassRecord,
   ClassroomScene as ClassroomSceneT,
+  SeatingArrangement,
   Student,
 } from '@/types';
-import { hasPlanForScene, logError } from '@/utils';
+import { hasPlanForScene, logError, syncSeatingWithStudents } from '@/utils';
+import { heldLocks, locksFollowingStudents } from '@/utils/data/classRooms';
 
 /**
  * Composes seating state, persistence, algorithm utilities, and UI orchestration into a single generator hook.
@@ -165,13 +167,26 @@ export function useSeatingGenerator() {
   // Undo/redo for seating actions. Every action below that rewrites who sits
   // where records a snapshot first; the layout editor has its own history
   // (useSceneHistory) for the room itself.
+  // The snapshot as the class is now: a student renamed or deleted since the
+  // step was recorded sits there as they are, or not at all (the circle
+  // follows the list on its own, `useCircleSeating`).
   const applySeatingSnapshot = useCallback(
     (snapshot: SeatingSnapshot) => {
-      setCurrentSeating(snapshot.seating);
-      setLockedPositions(snapshot.lockedPositions);
+      const seating = syncSeatingWithStudents(snapshot.seating, getStudents());
+      setCurrentSeating(seating);
+      setLockedPositions(heldLocks(snapshot.lockedPositions, seating));
       setCircleLayout(snapshot.circleLayout);
     },
-    [setCurrentSeating, setLockedPositions, setCircleLayout],
+    [getStudents, setCurrentSeating, setLockedPositions, setCircleLayout],
+  );
+
+  // An undo or redo of the room puts back the tables and the seating, not the
+  // locks that removing a table shifted; they follow their students instead.
+  const followLockedStudents = useCallback(
+    (seating: SeatingArrangement) => {
+      setLockedPositions((prev) => locksFollowingStudents(prev, seating));
+    },
+    [setLockedPositions],
   );
 
   const {
@@ -643,6 +658,7 @@ export function useSeatingGenerator() {
       setStep,
       step,
       setCurrentSeating,
+      setLockedPositions,
       setMixSettings,
       markClassroomSynced: markClassroomSceneSynced,
       syncSeatingSnapshot,
@@ -788,6 +804,7 @@ export function useSeatingGenerator() {
       deleteMixResult,
       setMixSettings,
       setCurrentSeating,
+      followLockedStudents,
       importInputRef,
       triggerImport,
       handleExportAll,
@@ -864,6 +881,7 @@ export function useSeatingGenerator() {
       deleteMixResult,
       setMixSettings,
       setCurrentSeating,
+      followLockedStudents,
       importInputRef,
       triggerImport,
       handleExportAll,

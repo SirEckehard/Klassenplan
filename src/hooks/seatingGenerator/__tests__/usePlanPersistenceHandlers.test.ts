@@ -43,6 +43,7 @@ const setup = () => {
     setStep: vi.fn(),
     step: 3,
     setCurrentSeating: vi.fn(),
+    setLockedPositions: vi.fn(),
     setMixSettings: vi.fn(),
     markClassroomSynced: vi.fn(),
     syncSeatingSnapshot: vi.fn(),

@@ -43,6 +43,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Undo right after restoring a backup no longer writes the class list, the plan or the room from before the restore into the restored class: a restore that replaces everything starts the undo history afresh, as opening another class does
 - A CSV import cut off at 36 students no longer leaves wish and distance partners pointing at students who did not come in
 - A PDF of a sheet without a title is named in the language the app shows ("Seating Plan", "Circle Plan") instead of always in German
+- Opening a saved plan of the open room, or undoing a step of the plan or the room, no longer brings back students deleted since, nor their old names, markers and photos
+- A seat lock no longer stays hidden yet binding after opening an older mix or undoing the removal of a table: after the undo it follows its student back to their seat, and a mix that seats the student elsewhere lets it go
+- "Where does who sit?" and "Who's next?" no longer answer from a plan made for tables the room no longer has, and the space bar on the projection no longer draws from one
+- A CSV import reads "sehr unruhig" or "sehr schüchtern" as restless or shy instead of asking for a front seat; only an entry about hearing, sight or glasses asks for one, and "gehört" no longer does
+- Taking back a room loaded from a template no longer deletes it when a mix was made in it
+- "Delete all data" also removes the seating circle's setting for its connections
+- A backup from before classes is imported under a name in the language the app shows ("Imported Class")
+- Working out the seating circle anew while it is still being worked out keeps its progress on screen until it is done
+- The export no longer takes a plan of empty seats alone for a plan and prints an empty sheet
 
 ## [3.2.0] - 2026-10-22
 

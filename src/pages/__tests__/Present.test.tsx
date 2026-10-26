@@ -108,6 +108,10 @@ describe('Present', () => {
       ),
     ).toBeInTheDocument();
     expect(screen.queryByTestId('presentation-scene')).not.toBeInTheDocument();
+
+    // Nor is anybody drawn from it.
+    fireEvent.keyDown(window, { key: ' ' });
+    expect(screen.queryByText('Mara')).not.toBeInTheDocument();
   });
 
   it('renders the presentation scene and controls when a plan exists', () => {

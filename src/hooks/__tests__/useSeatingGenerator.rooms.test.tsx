@@ -279,6 +279,46 @@ describe('useSeatingGenerator rooms', () => {
     unsubscribe();
   });
 
+  it('keeps a template room that was mixed in when its way back is taken', async () => {
+    const toasts: ToastInstance[] = [];
+    const unsubscribe = subscribeToToasts((event) => {
+      if (event.action === 'add') toasts.push(event.toast);
+    });
+    const current = await classWithPlan();
+    const classroomId = current().state.activeRoomId;
+    const template: ClassroomTemplate = {
+      id: 7,
+      name: 'Chemie-Fachraum',
+      scene: createMockClassroomScene(3),
+    };
+
+    act(() => {
+      current().actions.createRoomFromTemplate(template);
+    });
+    await waitFor(() => expect(current().state.rooms).toHaveLength(2));
+    const labId = current().state.activeRoomId;
+    await act(async () => {
+      await current().actions.generateSeatingPlan(
+        current().state.mixSettings,
+        current().state.classroomScene,
+      );
+    });
+    await waitFor(() =>
+      expect(
+        current().state.mixHistory.some((mix) => mix.roomId === labId),
+      ).toBe(true),
+    );
+
+    act(() => toasts.find((toast) => toast.action)?.action?.onClick());
+
+    await waitFor(() => expect(current().state.activeRoomId).toBe(classroomId));
+    expect(current().state.rooms.map((room) => room.id)).toContain(labId);
+    expect(current().state.mixHistory.some((mix) => mix.roomId === labId)).toBe(
+      true,
+    );
+    unsubscribe();
+  });
+
   it('refuses a mix that no longer fits the tables of its room', async () => {
     const current = await classWithPlan();
     const mix = {

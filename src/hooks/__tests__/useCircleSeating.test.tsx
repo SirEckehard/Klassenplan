@@ -223,6 +223,62 @@ describe('useCircleSeating', () => {
       callOperationSpy.mockRestore();
     });
 
+    it('keeps showing the progress of a run that replaced an aborted one', async () => {
+      const layout: CircleLayout = {
+        students: [],
+        radius: { horizontal: 150, vertical: 100 },
+        center: { x: 450, y: 300 },
+        preservedNeighborhoods: 0,
+        totalOriginalNeighborhoods: 0,
+        newNeighborhoods: 0,
+        preservationRate: 1,
+        mode: 'preserve-neighbors',
+        timestamp: Date.now(),
+        neighborhoodPairs: [],
+      };
+      // The worker client rejects an aborted call; the second call waits.
+      let resolveSecond!: (value: { layout: CircleLayout }) => void;
+      const callOperationSpy = vi
+        .spyOn(algorithmWorkerClient, 'callOperation')
+        .mockImplementationOnce(
+          (_operation, _payload, options) =>
+            new Promise((_resolve, reject) => {
+              options?.signal?.addEventListener('abort', () =>
+                reject(new DOMException('Aborted', 'AbortError')),
+              );
+            }),
+        )
+        .mockImplementationOnce(
+          () =>
+            new Promise((resolve) => {
+              resolveSecond = resolve;
+            }),
+        );
+
+      const { result } = renderHook(() => useCircleSeating(mockState));
+      let first!: Promise<CircleLayout | null>;
+      let second!: Promise<CircleLayout | null>;
+      await act(async () => {
+        first = result.current.generateCircleSeating();
+      });
+      await act(async () => {
+        second = result.current.generateCircleSeating();
+        await first;
+      });
+
+      expect(result.current.circleGenerationInProgress).toBe(true);
+      expect(result.current.circleGenerationStatus).not.toBeNull();
+
+      await act(async () => {
+        resolveSecond({ layout });
+        await second;
+      });
+      expect(result.current.circleGenerationInProgress).toBe(false);
+      expect(result.current.circleGenerationStatus).toBeNull();
+
+      callOperationSpy.mockRestore();
+    });
+
     it('drops a circle computed for a class that is no longer open', async () => {
       const lateLayout: CircleLayout = {
         students: [],

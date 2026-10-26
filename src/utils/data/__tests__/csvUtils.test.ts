@@ -112,6 +112,35 @@ describe('csvUtils', () => {
       expect(students[0].needsFrontSeat).toBe(true);
     });
 
+    test('reads "sehr …" as the entry it qualifies, not as a front seat', async () => {
+      const csv = [
+        'Name,Besonderheiten',
+        'Ada,sehr unruhig',
+        'Ben,Sehr schüchtern',
+        'Cem,gehört zur Theater-AG',
+        'Dora,Hörgerät',
+        'Emil,"schwerhörig, Lesebrille"',
+        'Finn,Sehschwäche',
+      ].join('\n');
+      const students = await parseCsvFlexible(createCsvFile(csv, 'needs.csv'));
+
+      expect(
+        students.map((student) => [
+          student.name,
+          student.restless,
+          student.shy,
+          student.needsFrontSeat,
+        ]),
+      ).toEqual([
+        ['Ada', true, false, false],
+        ['Ben', false, true, false],
+        ['Cem', false, false, false],
+        ['Dora', false, false, true],
+        ['Emil', false, false, true],
+        ['Finn', false, false, true],
+      ]);
+    });
+
     test('parses dedicated boolean columns', async () => {
       const csv =
         'name,geschlecht,unruhig,schüchtern,ablenkbarkeit,hör- und sehschwäche\nAlice,mädchen,ja,ja,ja,ja\nBob,junge,,,,\n';

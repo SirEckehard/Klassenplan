@@ -542,6 +542,15 @@ export function needsNameColumnSelection(
 }
 
 /**
+ * An entry that asks for a front seat: hearing or sight at the start of a word
+ * ("Hörgerät", "hört schlecht", "Sehschwäche"), hard of hearing or deaf, glasses
+ * ("Lesebrille") or "front". A word only containing "hör" or "seh" does not
+ * count — "gehört", and "sehr" in front of any other entry.
+ */
+const FRONT_SEAT_NEED =
+  /(?:^|[^\p{L}])(?:hör|seh(?!r))|schwerhör|gehörlos|brille|front/u;
+
+/**
  * Convert a CSV "special needs" cell into boolean flags.
  * @param value Raw CSV cell value
  * @returns Object with special need flags
@@ -557,9 +566,16 @@ const mapNeeds = (
   | 'performanceStrong'
   | 'performanceWeak'
 > => {
+  // "sehr unruhig" is still "unruhig": a degree in front of an entry does
+  // not keep it from counting.
   const parts = String(value ?? '')
     .split(',')
-    .map((p) => p.trim().toLowerCase());
+    .map((p) =>
+      p
+        .trim()
+        .toLowerCase()
+        .replace(/^(?:sehr|very)\s+/, ''),
+    );
   const includesAny = (candidates: string[]): boolean =>
     candidates.some((candidate) => parts.includes(candidate));
   return {
@@ -571,13 +587,7 @@ const mapNeeds = (
       'distracted',
       'distractible',
     ]),
-    needsFrontSeat: parts.some(
-      (p) =>
-        p.includes('hör') ||
-        p.includes('seh') ||
-        p.includes('brille') ||
-        p.includes('front'),
-    ),
+    needsFrontSeat: parts.some((p) => FRONT_SEAT_NEED.test(p)),
     performanceStrong: includesAny(['leistungsstark', 'high performer']),
     performanceWeak: includesAny(['leistungsschwach', 'low performer']),
   };

@@ -10,11 +10,14 @@ import { useSeatingPlanState } from '@/contexts/SeatingPlanContext';
 import { useIsDarkMode } from '@/hooks/useIsDarkMode';
 import {
   findSeatLocation,
+  hasPlanForScene,
   inputFieldClass,
   quietIconButtonClass,
   type SeatLocation,
 } from '@/utils';
-import type { Student } from '@/types';
+import type { SeatingArrangement, Student } from '@/types';
+
+const NO_SEATING: SeatingArrangement = [];
 
 /**
  * "Wo sitzt wer?" — the question a substitute teacher has, standing in a room
@@ -26,8 +29,17 @@ import type { Student } from '@/types';
  */
 export default function SeatFinder() {
   const { t } = useTranslation('generator');
-  const { students, currentSeating, classroomScene, activeClass } =
-    useSeatingPlanState();
+  const {
+    students,
+    currentSeating: seating,
+    classroomScene,
+    activeClass,
+  } = useSeatingPlanState();
+  // A plan made for tables the room no longer has (set up anew, not mixed
+  // yet) would name tables that are gone: there is no plan to search then.
+  const currentSeating = hasPlanForScene(classroomScene, seating)
+    ? seating
+    : NO_SEATING;
   const isDark = useIsDarkMode();
   const [query, setQuery] = React.useState('');
   const [selectedId, setSelectedId] = React.useState<string | null>(null);

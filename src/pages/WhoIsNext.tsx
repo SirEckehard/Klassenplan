@@ -17,10 +17,14 @@ import {
   dataFamilyClass,
   findCircleLocation,
   findSeatLocation,
+  hasPlanForScene,
   primaryButtonClass,
   secondaryButtonClass,
 } from '@/utils';
 import { getStudentBadges, sortBadges } from '@/utils/ui/studentAppearance';
+import type { SeatingArrangement } from '@/types';
+
+const NO_SEATING: SeatingArrangement = [];
 
 /**
  * "Wer kommt dran?" without a projector: the phone in the hand, in the middle
@@ -55,8 +59,14 @@ export default function WhoIsNext() {
     [circleLayout],
   );
 
+  // A plan made for tables the room no longer has (set up anew, not mixed
+  // yet) names tables that are gone: the draw takes the class list then, as
+  // before the first plan.
+  const tableSeating = hasPlanForScene(classroomScene, currentSeating)
+    ? currentSeating
+    : NO_SEATING;
   const picker = useRandomStudentPicker(
-    usesCircle ? circleSeating : currentSeating,
+    usesCircle ? circleSeating : tableSeating,
     students,
   );
   const picked = picker.picked;
@@ -66,8 +76,8 @@ export default function WhoIsNext() {
     if (usesCircle && circleLayout) {
       return findCircleLocation(circleLayout, picked.student.id);
     }
-    return findSeatLocation(currentSeating, classroomScene, picked.student.id);
-  }, [circleLayout, classroomScene, currentSeating, picked, usesCircle]);
+    return findSeatLocation(tableSeating, classroomScene, picked.student.id);
+  }, [circleLayout, classroomScene, tableSeating, picked, usesCircle]);
 
   const badges = React.useMemo(
     () => (picked ? sortBadges(getStudentBadges(picked.student, true)) : []),

@@ -11,6 +11,7 @@ import {
   getDisplayNameForMode,
   getTooltipName,
   isSilencedCharacterKey,
+  LOCAL_STORAGE_KEYS,
   logDebug,
   type NameDisplayMode,
 } from '@/utils';
@@ -158,7 +159,9 @@ function SimpleCircleView({
     useState<ConnectionDisplayMode>(() => {
       if (externalConnectionMode) return externalConnectionMode;
       try {
-        const stored = localStorage.getItem('circle-connection-mode');
+        const stored = localStorage.getItem(
+          LOCAL_STORAGE_KEYS.circleConnectionMode,
+        );
         return (stored as ConnectionDisplayMode) || 'subtle';
       } catch (error) {
         logDebug('Failed to read circle connection mode from localStorage', {
@@ -180,7 +183,7 @@ function SimpleCircleView({
     } else {
       setLocalConnectionMode(nextMode);
       try {
-        localStorage.setItem('circle-connection-mode', nextMode);
+        localStorage.setItem(LOCAL_STORAGE_KEYS.circleConnectionMode, nextMode);
       } catch (error) {
         logDebug('Failed to persist circle connection mode to localStorage', {
           error,

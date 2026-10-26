@@ -16,7 +16,7 @@ import {
   canvasFrameClass,
   canvasStageClass,
   errorHandlers,
-  hasShapeMismatch,
+  hasPlanForScene,
   LEGACY_EXPORT_KEYS,
   LOCAL_STORAGE_KEYS,
   logError,
@@ -186,10 +186,8 @@ export default function Export() {
   const seating = navigationState.seating || currentSeating;
   // A plan made for other tables — the room set up anew under it — is no
   // plan for this room: its seats would land beside the tables on the sheet.
-  const hasPlan =
-    classroomScene.tables.length > 0 &&
-    seating.length > 0 &&
-    !hasShapeMismatch(classroomScene, seating);
+  // Nor is a seating of empty seats alone.
+  const hasPlan = hasPlanForScene(classroomScene, seating);
   const returnStep =
     typeof navigationState.returnStep === 'number'
       ? navigationState.returnStep

@@ -376,11 +376,12 @@ function useCircleSeatingInternal(
       showToast('error', TOAST_MESSAGES.GENERATION_ERROR);
       return null;
     } finally {
+      // A run that a newer one aborted leaves the progress to that one.
       if (generationAbortRef.current === abortController) {
         generationAbortRef.current = null;
+        setCircleGenerationInProgress(false);
+        setCircleGenerationStatus(null);
       }
-      setCircleGenerationInProgress(false);
-      setCircleGenerationStatus(null);
     }
   }, [
     currentSeating,

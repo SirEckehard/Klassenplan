@@ -12,6 +12,7 @@ import {
   hasSeatedStudent,
   hasShapeMismatch,
   createClientToSceneConverter,
+  syncSeatingWithStudents,
   type AlignmentGuide,
 } from '@/utils';
 import useTableSelection from '@/hooks/useTableSelection';
@@ -130,15 +131,48 @@ export function useSeatingPlanViewLogic({
     getFeatureVisibility,
   } = useFeatureVisibility();
 
-  // Scene History Management
-  const { history, snapshot, undo, redo, canRedo } = useSceneHistory({
+  // Scene History Management. A step of the room brings back the seating as
+  // it was then; it goes on screen as the class is now — a student renamed
+  // since under the new name, one deleted not at all — and the locks follow
+  // their students, since removing a table shifted them and its undo does not.
+  const runRestoreTransaction = React.useCallback<typeof runSceneTransaction>(
+    (mutator, options) =>
+      runSceneTransaction((state) => {
+        const result = mutator(state);
+        return result?.seating
+          ? {
+              ...result,
+              seating: syncSeatingWithStudents(result.seating, students),
+            }
+          : result;
+      }, options),
+    [runSceneTransaction, students],
+  );
+
+  const {
+    history,
+    snapshot,
+    undo: undoScene,
+    redo: redoScene,
+    canRedo,
+  } = useSceneHistory({
     getCommittedSceneState,
-    runSceneTransaction,
+    runSceneTransaction: runRestoreTransaction,
     getFeatureVisibility,
     setAllFeatureVisibility,
     setSelectedTableIds,
     setSelectedFeatureIds,
   });
+
+  const followLockedStudents = seatingPlanActions?.followLockedStudents;
+  const undo = React.useCallback(() => {
+    undoScene();
+    followLockedStudents?.(getCommittedSceneState().seating);
+  }, [undoScene, followLockedStudents, getCommittedSceneState]);
+  const redo = React.useCallback(() => {
+    redoScene();
+    followLockedStudents?.(getCommittedSceneState().seating);
+  }, [redoScene, followLockedStudents, getCommittedSceneState]);
 
   // The canvas view toggles live in their own context, so the editor views read
   // them where they use them instead of taking eight props for four booleans.

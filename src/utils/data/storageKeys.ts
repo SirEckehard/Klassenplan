@@ -41,6 +41,9 @@ export const STORAGE_KEYS = {
     // `spg.photos` with the table plan; nothing reads or writes this,
     // and it stays listed so a wipe still removes what older versions wrote.
     circlePhotoMode: 'circle-photo-mode',
+    // Whether the circle draws the arcs between table neighbours. It predates
+    // the `spg.` prefix and keeps its name so the choice survives.
+    circleConnectionMode: 'circle-connection-mode',
     lockSeatLabelOrientation: 'lockSeatLabelOrientation',
     seatLabelRotation: 'seatLabelRotation',
     presentShowPhotos: 'spg.present.showPhotos',
@@ -212,6 +215,7 @@ export const PROJECT_LOCAL_STORAGE_KEYS = [
   STORAGE_KEYS.localStorage.photoOverlapWarning,
   STORAGE_KEYS.localStorage.legacyPhotoDisplayMode,
   STORAGE_KEYS.localStorage.circlePhotoMode,
+  STORAGE_KEYS.localStorage.circleConnectionMode,
   STORAGE_KEYS.localStorage.lockSeatLabelOrientation,
   STORAGE_KEYS.localStorage.seatLabelRotation,
   STORAGE_KEYS.localStorage.presentShowPhotos,

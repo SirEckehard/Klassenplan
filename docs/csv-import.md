@@ -1,6 +1,6 @@
 # CSV Import Format
 
-> **Status:** current · **Last reviewed:** 2026-10-10 · **Source of truth:**
+> **Status:** current · **Last reviewed:** 2026-10-26 · **Source of truth:**
 > `src/utils/csv/`, `src/utils/data/csvUtils.ts`, `src/services/csvImportService.ts`
 
 Which files the class list import accepts, how it recognises columns, and how
@@ -130,8 +130,11 @@ error.
 - **Special needs:** a comma-separated list. `unruhig`/`restless`,
   `schüchtern`/`shy`, `konzentration`/`ablenkbarkeit`/`distracted`,
   `leistungsstark`/`high performer`, `leistungsschwach`/`low performer` set the
-  matching flag; any entry containing `hör`, `seh`, `brille` or `front` sets
-  `needsFrontSeat`.
+  matching flag, also after `sehr`/`very` ("sehr unruhig"); an entry with a
+  word starting in `hör` or `seh` (`Hörgerät`, `Sehschwäche`, not `sehr` or
+  `gehört`), or containing `schwerhör`, `gehörlos`, `brille` or `front`, sets
+  `needsFrontSeat`. (Until 2026-10-26 any entry containing `hör` or `seh` did,
+  so "sehr unruhig" asked for a front seat and set no restlessness.)
 - **Partners:** comma-separated names, matched case-insensitively against the
   names **in the same file**. At most three per student; the student's own name
   and unknown names are dropped.

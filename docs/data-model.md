@@ -1,6 +1,6 @@
 # Data Model
 
-> **Status:** current · **Last reviewed:** 2026-10-22 · **Source of truth:**
+> **Status:** current · **Last reviewed:** 2026-10-26 · **Source of truth:**
 > `src/utils/data/storageKeys.ts`, `src/types/`, `src/repositories/`
 
 Everything Klassenplan stores lives in the teacher's browser. This document
@@ -293,7 +293,9 @@ list is `PROJECT_LOCAL_STORAGE_KEYS` in `storageKeys.ts`. Groups:
   longer read), `showGrid`, `spg.alignmentGuides`,
   `spg.featureVisibility`, `spg.nameDisplay`, `spg.photos`,
   `spg.badgeDisplay` (which badges the seats show: `all`, `active`, `off`),
-  `spg.badgeHover` (`{ tooltip, highlight }`: what pointing at one does), …
+  `spg.badgeHover` (`{ tooltip, highlight }`: what pointing at one does),
+  `circle-connection-mode` (whether the circle draws the arcs between table
+  neighbours, `subtle` or `off`; it predates the prefix), …
   The table plan and the circle share photos, names and badges through
   `CanvasPreferencesContext`; the circle's own `circle-photo-mode` is retired
   and only still listed so a wipe removes it, as is `spg.photoDisplayMode`,

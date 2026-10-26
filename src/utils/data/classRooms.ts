@@ -278,6 +278,55 @@ export function fittingLocks(
 }
 
 /**
+ * The locks a seating shows: those whose student sits on the locked seat. A
+ * lock on a seat its student has left is drawn nowhere, yet the next mix
+ * would still put the student back there. The same object when every lock
+ * holds.
+ */
+export function heldLocks(
+  locks: LockedPositions,
+  seating: SeatingArrangement,
+): LockedPositions {
+  const held: LockedPositions = {};
+  let changed = false;
+  for (const [studentId, position] of Object.entries(locks)) {
+    if (seating[position.table]?.[position.seat]?.id === studentId) {
+      held[studentId] = position;
+    } else {
+      changed = true;
+    }
+  }
+  return changed ? held : locks;
+}
+
+/**
+ * The locks moved along with their students: a lock whose student sits on
+ * another seat now goes there, one whose student sits nowhere goes. An undo
+ * of the room needs this — removing a table shifted the locks behind it, and
+ * the undo brings back the tables and the seating alone. The same object
+ * when every lock holds.
+ */
+export function locksFollowingStudents(
+  locks: LockedPositions,
+  seating: SeatingArrangement,
+): LockedPositions {
+  if (heldLocks(locks, seating) === locks) return locks;
+  const seats = new Map<string, { table: number; seat: number }>();
+  seating.forEach((table, tableIndex) => {
+    table?.forEach((student, seatIndex) => {
+      if (student)
+        seats.set(student.id, { table: tableIndex, seat: seatIndex });
+    });
+  });
+  const next: LockedPositions = {};
+  for (const studentId of Object.keys(locks)) {
+    const seat = seats.get(studentId);
+    if (seat) next[studentId] = seat;
+  }
+  return next;
+}
+
+/**
  * A change to a class's plans, mixes and rooms, made on its record — how
  * "Bibliothek" changes a class that is not open (decision 0024). The open
  * class takes the same changes through its live actions, by the same rules.

@@ -79,7 +79,12 @@ export function useRoomManagement({
   const { t } = useTranslation();
   const {
     studentState: { students },
-    historyState: { seatingHistory, setSeatingHistory, setMixHistory },
+    historyState: {
+      seatingHistory,
+      mixHistory,
+      setSeatingHistory,
+      setMixHistory,
+    },
     planState: {
       currentSeating,
       setCurrentSeating,
@@ -116,9 +121,21 @@ export function useRoomManagement({
   );
 
   // What is open now, for the actions a toast offers later on.
-  const latestRef = useRef({ rooms, activeRoomId, seatingHistory, working });
+  const latestRef = useRef({
+    rooms,
+    activeRoomId,
+    seatingHistory,
+    mixHistory,
+    working,
+  });
   useLayoutEffect(() => {
-    latestRef.current = { rooms, activeRoomId, seatingHistory, working };
+    latestRef.current = {
+      rooms,
+      activeRoomId,
+      seatingHistory,
+      mixHistory,
+      working,
+    };
   });
 
   /**
@@ -268,9 +285,9 @@ export function useRoomManagement({
           previousRoomId,
         );
         if (!next) return;
-        const untouched = !latest.seatingHistory.some(
-          (plan) => plan.roomId === roomId,
-        );
+        const untouched =
+          !latest.seatingHistory.some((plan) => plan.roomId === roomId) &&
+          !latest.mixHistory.some((entry) => entry.roomId === roomId);
         applyOpenRoom(
           untouched
             ? next.rooms.filter((room) => room.id !== roomId)
@@ -278,14 +295,9 @@ export function useRoomManagement({
           next.activeRoomId,
           next.working,
         );
-        if (untouched) {
-          setMixHistory((prev) =>
-            prev.filter((entry) => entry.roomId !== roomId),
-          );
-        }
       }
     },
-    [applyOpenRoom, setMixHistory],
+    [applyOpenRoom],
   );
   const undoNewRoomRef = useRef(undoNewRoom);
   useLayoutEffect(() => {

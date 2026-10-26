@@ -15,11 +15,13 @@ import {
   type ClassroomScene,
   type ClassroomTemplate,
   type ClassRecord,
+  type LockedPositions,
   type MixSettings,
   type SaveTemplateError,
   type SaveTemplateResult,
   type SavedPlan,
   type SaveSeatingPlanOptions,
+  type SeatingArrangement,
 } from '@/types';
 import type { CircleLayout, CircleExportData } from '@/types/Circle';
 import {
@@ -38,6 +40,7 @@ import {
   toIsoDate,
   uniqueName,
   MAX_NAME_LENGTH,
+  syncSeatingWithStudents,
 } from '@/utils';
 import { RepositoryErrorType, type ActiveClassSnapshot } from '@/repositories';
 import type { SeatingState } from './useSeatingState';
@@ -85,6 +88,12 @@ const DEFAULT_CLASS_MIX_SETTINGS = normalizeMixSettings(
   },
   neutralSettings,
 );
+
+/** What opening a saved plan put on screen. */
+export type OpenedPlan = {
+  seating: SeatingArrangement;
+  locks: LockedPositions;
+};
 
 export function useSeatingPersistence(state: SeatingState) {
   const {
@@ -590,14 +599,20 @@ export function useSeatingPersistence(state: SeatingState) {
     ],
   );
 
+  // The plan as the class is now: a student renamed since sits there under
+  // the new name, one who left leaves the seat empty — as opening a plan of
+  // another room has it (`useRoomManagement`). Returns what went on screen.
   const loadSeatingPlan = useCallback(
-    (plan: SavedPlan) => {
-      if (!plan || !plan.seating) return;
-      setCurrentSeating(plan.seating);
+    (plan: SavedPlan): OpenedPlan | null => {
+      if (!plan || !plan.seating) return null;
+      const seating = syncSeatingWithStudents(plan.seating, students);
       const ids = new Set(students.map((s) => s.id));
-      setLockedPositions(fittingLocks(plan.locks ?? {}, plan.seating, ids));
+      const locks = fittingLocks(plan.locks ?? {}, seating, ids);
+      setCurrentSeating(seating);
+      setLockedPositions(locks);
       setPlanName(plan.name);
       setActivePlanId(plan.id);
+      return { seating, locks };
     },
     [
       students,

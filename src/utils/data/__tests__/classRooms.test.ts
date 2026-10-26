@@ -22,7 +22,9 @@ import {
   ensureClassRooms,
   ensureCollectionRooms,
   fittingLocks,
+  heldLocks,
   keepParkedWork,
+  locksFollowingStudents,
   roomStateToOpen,
   switchRoomState,
   workingStateFromPlan,
@@ -320,6 +322,47 @@ describe('fittingLocks', () => {
     );
 
     expect(locks).toEqual({ ada: { table: 1, seat: 2 } });
+  });
+});
+
+describe('heldLocks and locksFollowingStudents', () => {
+  const bo = createMockStudent({ id: 'bo', name: 'Bo' });
+  const cy = createMockStudent({ id: 'cy', name: 'Cy' });
+  const seating = [
+    [bo, null],
+    [null, cy],
+  ];
+
+  it('keeps the locks whose student sits on the locked seat', () => {
+    const held = { bo: { table: 0, seat: 0 }, cy: { table: 1, seat: 1 } };
+    expect(heldLocks(held, seating)).toBe(held);
+    expect(locksFollowingStudents(held, seating)).toBe(held);
+  });
+
+  it('lets a lock go whose student sits elsewhere or nowhere', () => {
+    expect(
+      heldLocks(
+        {
+          bo: { table: 0, seat: 0 },
+          cy: { table: 0, seat: 1 },
+          gone: { table: 1, seat: 0 },
+        },
+        seating,
+      ),
+    ).toEqual({ bo: { table: 0, seat: 0 } });
+  });
+
+  it('moves a lock to where its student sits, and lets one go without a seat', () => {
+    expect(
+      locksFollowingStudents(
+        {
+          bo: { table: 0, seat: 0 },
+          cy: { table: 0, seat: 1 },
+          gone: { table: 1, seat: 0 },
+        },
+        seating,
+      ),
+    ).toEqual({ bo: { table: 0, seat: 0 }, cy: { table: 1, seat: 1 } });
   });
 });
 

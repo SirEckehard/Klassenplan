@@ -16,6 +16,7 @@ import {
 } from '@/utils/validation/backupValidation';
 import { DB_KEYS, PROJECT_LOCAL_STORAGE_KEYS } from '@/utils/data/storageKeys';
 import { neutralSettings, normalizeMixSettings } from '@/utils';
+import i18n, { ensureEnglishLoaded } from '@/i18n';
 
 const { delMock, setMock } = vi.hoisted(() => ({
   delMock: vi.fn().mockResolvedValue(undefined),
@@ -726,6 +727,37 @@ describe('importAllFromJson', () => {
     );
     expect(importedClass.mixSettings).toEqual(
       normalizeMixSettings(bundle.mixSettings, neutralSettings),
+    );
+  });
+
+  it('names the class of a backup from before classes in the app language', async () => {
+    const setClassCollection = vi.fn();
+    const setters = {
+      setStudents: vi.fn(),
+      setSeatingHistory: vi.fn(),
+      setMixHistory: vi.fn(),
+      setLockedPositions: vi.fn(),
+      setMixSettings: vi.fn(),
+      setClassroomScene: vi.fn(),
+      setCircleLayout: vi.fn(),
+      setCurrentSeating: vi.fn(),
+      setPlanName: vi.fn(),
+      setActivePlanId: vi.fn(),
+      setClassCollection,
+    };
+    const language = i18n.language;
+    await ensureEnglishLoaded();
+    await i18n.changeLanguage('en');
+    try {
+      await importAllFromJson(JSON.stringify(bundle), setters, {
+        merge: false,
+      });
+    } finally {
+      await i18n.changeLanguage(language);
+    }
+
+    expect(setClassCollection.mock.calls[0][0].classes[0].name).toBe(
+      'Imported Class',
     );
   });
 });
