@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.2.1] - 2026-10-26
+
 ### Added
 
 - "Theme as the system" in the settings menu: light or dark follows the device again, also when it turns dark in the evening. Switching the theme by hand still holds whatever the device does; a theme chosen in an earlier version is let go once, so every device starts on its system's
@@ -21,43 +23,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
-- After switching the theme by hand, a change of the device's theme no longer switches it back
-- Locking or unlocking a seat no longer changes the size of every other name in the plan
-- "Enlarge the plan" no longer draws the plan smaller than the whole room where the tables and cabinets reach to the walls
-- On a sheet framed on its tables, the board, windows and door no longer cover the photos above the seats where moving them aside leaves the plan as large as it was
-
-- Creating a class, or deleting another one, no longer clears the open class's undo
-- Edits made in the moment another class opens or the page is left, while a save was still being written, are no longer lost
-- After restoring a backup of the open class, its plan no longer reads as unsaved
-- Right after "Save as new plan", or saving a plan without a name, the plan no longer reads as unsaved, and leaving the plan layer no longer saves it a second time
-- A seating circle still being worked out when another class or room opens no longer lands in that class or room
-- Rearranging seats by hand and opening another plan, room or mix within a few seconds no longer counts the other one as used
-- The projection no longer shows a plan made for tables the room no longer has, nor counts it as presented
-- The layer switch no longer leads from the class straight to the plan while a student has no name; it says so, as the way to the room does
 - Two windows of Klassenplan – two browser tabs, or the installed app beside a tab – no longer undo each other's work: saving in one put every class the other had changed back to what it had been. Each window now keeps the class it has open, and opening a class reads what the other window saved
 - A window that comes back to the front shows what another window changed in its open class meanwhile and goes on from there, instead of saving its older class list or plan over it later; its undo starts afresh then, as after opening a class
-- A student's photo is no longer deleted when another class is opened after deleting the student and undoing it, after removing the photo and undoing it, or after removing a photo and adding a new one
-- A student deleted from the class leaves the seating circle too: the circle, its export and the projection no longer show them, and "Who's next?" no longer draws them there
+- Undo right after restoring a backup no longer writes the class list, the plan or the room from before the restore into the restored class: a restore that replaces everything starts the undo history afresh, as opening another class does
 - A storage read that fails no longer lets the next change wipe every class's record of the plans in use, its duties or the name game's statistics
 - With the device's storage full, Klassenplan still opens the stored classes instead of its first screen, and a class switch that cannot load the class says so
-- Undo right after restoring a backup no longer writes the class list, the plan or the room from before the restore into the restored class: a restore that replaces everything starts the undo history afresh, as opening another class does
-- A CSV import cut off at 36 students no longer leaves wish and distance partners pointing at students who did not come in
-- A PDF of a sheet without a title is named in the language the app shows ("Seating Plan", "Circle Plan") instead of always in German
+- Edits made in the moment another class opens or the page is left, while a save was still being written, are no longer lost
+- A student's photo is no longer deleted when another class is opened after deleting the student and undoing it, after removing the photo and undoing it, or after removing a photo and adding a new one
+- On an iPhone and an iPad a .klassenplan backup can be chosen for restoring; the Files app no longer greys it out
+- Creating a class, or deleting another one, no longer clears the open class's undo
 - Opening a saved plan of the open room, or undoing a step of the plan or the room, no longer brings back students deleted since, nor their old names, markers and photos
 - A seat lock no longer stays hidden yet binding after opening an older mix or undoing the removal of a table: after the undo it follows its student back to their seat, and a mix that seats the student elsewhere lets it go
-- "Where does who sit?" and "Who's next?" no longer answer from a plan made for tables the room no longer has, and the space bar on the projection no longer draws from one
-- A CSV import reads "sehr unruhig" or "sehr schüchtern" as restless or shy instead of asking for a front seat; only an entry about hearing, sight or glasses asks for one, and "gehört" no longer does
-- Taking back a room loaded from a template no longer deletes it when a mix was made in it
-- "Delete all data" also removes the seating circle's setting for its connections
-- A backup from before classes is imported under a name in the language the app shows ("Imported Class")
-- Working out the seating circle anew while it is still being worked out keeps its progress on screen until it is done
-- The export no longer takes a plan of empty seats alone for a plan and prints an empty sheet
+- A student deleted from the class leaves the seating circle too: the circle, its export and the projection no longer show them, and "Who's next?" no longer draws them there
 - Swapping two students by hand right after another change no longer goes without an undo step
-- On an iPhone and an iPad a .klassenplan backup can be chosen for restoring; the Files app no longer greys it out
+- Taking back a room loaded from a template no longer deletes it when a mix was made in it
+- A seating circle still being worked out when another class or room opens no longer lands in that class or room
+- After restoring a backup of the open class, its plan no longer reads as unsaved
+- Right after "Save as new plan", or saving a plan without a name, the plan no longer reads as unsaved, and leaving the plan layer no longer saves it a second time
+- Rearranging seats by hand and opening another plan, room or mix within a few seconds no longer counts the other one as used
+- The projection no longer shows a plan made for tables the room no longer has, nor counts it as presented
+- "Where does who sit?" and "Who's next?" no longer answer from a plan made for tables the room no longer has, and the space bar on the projection no longer draws from one
+- The export no longer takes a plan of empty seats alone for a plan and prints an empty sheet
+- The layer switch no longer leads from the class straight to the plan while a student has no name; it says so, as the way to the room does
 - "Print" on an iPhone and an iPad opens the PDF without a message about a blocked pop-up
 - "Back" on an empty projection answers a mouse click again
+- A CSV import reads "sehr unruhig" or "sehr schüchtern" as restless or shy instead of asking for a front seat; only an entry about hearing, sight or glasses asks for one, and "gehört" no longer does
+- A CSV import cut off at 36 students no longer leaves wish and distance partners pointing at students who did not come in
+- "Enlarge the plan" no longer draws the plan smaller than the whole room where the tables and cabinets reach to the walls
+- On a sheet framed on its tables, the board, windows and door no longer cover the photos above the seats where moving them aside leaves the plan as large as it was
+- Locking or unlocking a seat no longer changes the size of every other name in the plan
+- After switching the theme by hand, a change of the device's theme no longer switches it back
+- Working out the seating circle anew while it is still being worked out keeps its progress on screen until it is done
 - On a phone, the iPhone's installed app included, the opened student's panel keeps clear of the home indicator
 - On a phone, the table buttons under the room tell a screen reader which table they add, not only their number of seats
+- A PDF of a sheet without a title is named in the language the app shows ("Seating Plan", "Circle Plan") instead of always in German
+- A backup from before classes is imported under a name in the language the app shows ("Imported Class")
+- "Delete all data" also removes the seating circle's setting for its connections
 
 ## [3.2.0] - 2026-10-22
 
