@@ -30,17 +30,17 @@ it for Antigravity — edit this file, never those two.
 - Algorithm runtime: `npm run bench` (by hand, not in CI; figures in `docs/PERFORMANCE.md`)
 - Mix quality: `MIX_QUALITY=1 npx vitest run mixQuality` (by hand: five rooms, 30 seeds each, every criterion's fulfilment and the time per mix; figures in `docs/PERFORMANCE.md` and decision 0031)
 
-**Current Code Quality Status (2026-10-22):**
+**Current Code Quality Status (2026-10-26):**
 
 - ✅ ESLint: 0 errors, 0 warnings
 - ✅ TypeScript: 0 compilation errors (strict mode)
-- ✅ Tests: 3148 unit tests (321 test files, 1 skipped), 100% passing + 14 Playwright tests (3 smoke + 2 core flow + 1 rooms + 4 onboarding + 2 tablet + 1 phone + 1 whiteboard), all passing on 2026-10-22
+- ✅ Tests: 3245 unit tests (333 test files, 1 skipped), 100% passing on 2026-10-26 + 14 Playwright tests (3 smoke + 2 core flow + 1 rooms + 4 onboarding + 2 tablet + 1 phone + 1 whiteboard), all passing on 2026-10-22
 - 📊 Coverage: 81.0 % lines / 80.0 % statements / 71.8 % branches (`npm run test:coverage`, v8 provider, no thresholds enforced; measured before the criterion model of decision 0031)
 - ⚠️ Unused Exports: 50 modules ignoring type-only exports, held by a ratchet (`npm run check:unused`); the remainder are re-export barrels, `lazyWithRetry` default exports and shared test helpers
 - ✅ Test Infrastructure: Centralized accessibility helpers and toast matchers for robust testing
 - ✅ Architecture: Repository Pattern implemented, UI components reorganized into logical subdirectories
-- ✅ i18n: Bilingual support (German/English) fully implemented, DE/EN key parity 1:1 (2305 keys per language, none unused)
-- 📦 Bundle: initial payload 204 KB brotli / 747 KB raw over 35 files (the browser check included), largest chunk 57 KB brotli, CSS 14 KB brotli
+- ✅ i18n: Bilingual support (German/English) fully implemented, DE/EN key parity 1:1 (2349 keys per language, none unused)
+- 📦 Bundle: initial payload 205 KB brotli / 753 KB raw over 33 files (the browser check included), largest chunk 57 KB brotli, CSS 14 KB brotli
 
 ## Logging
 
