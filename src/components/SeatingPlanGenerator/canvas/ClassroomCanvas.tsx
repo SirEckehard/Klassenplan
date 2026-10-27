@@ -30,6 +30,7 @@ import type { RotationGestureHandler } from '@/hooks/canvas/useSelectionRotation
 import { useIsDarkMode } from '@/hooks/useIsDarkMode';
 import { useTouchScrollLock } from '@/hooks/ui/useTouchScrollLock';
 import type { SelectionBox } from '@/types/canvas';
+import { turnTransform, type PlanTurn } from '@/utils/canvas/turn';
 
 // Template labels will be translated in component using useTranslation
 
@@ -37,6 +38,13 @@ interface ClassroomCanvasProps {
   canvasRef: React.RefObject<SVGSVGElement | null>;
   canvasWidth: number;
   classroomHeight: number;
+  /**
+   * A quarter turn the room is drawn with on a screen held upright
+   * (`usePortraitTurn`). The whole drawing turns; the `<svg>` says so
+   * (`data-turn`), so the converters turn every pointer back into the stored
+   * room, and names, icons and handles are turned back upright.
+   */
+  turn?: PlanTurn | null;
   showGrid: boolean;
   featureVisibility?: FeatureVisibilityFlags;
   selectedFeatureIds?: string[];
@@ -92,6 +100,7 @@ const ClassroomCanvas = React.memo<ClassroomCanvasProps>(
     canvasRef,
     canvasWidth,
     classroomHeight,
+    turn = null,
     showGrid,
     featureVisibility,
     selectedFeatureIds = [],
@@ -232,7 +241,12 @@ const ClassroomCanvas = React.memo<ClassroomCanvasProps>(
       <>
         <svg
           ref={canvasRef}
-          viewBox={`0 0 ${canvasWidth} ${classroomHeight}`}
+          viewBox={
+            turn === null
+              ? `0 0 ${canvasWidth} ${classroomHeight}`
+              : `0 0 ${classroomHeight} ${canvasWidth}`
+          }
+          data-turn={turn ?? undefined}
           style={{
             backgroundColor,
             backgroundImage: showGrid
@@ -250,220 +264,233 @@ const ClassroomCanvas = React.memo<ClassroomCanvasProps>(
           onPointerDown={onPointerDown}
           onContextMenu={onContextMenu}
         >
-          {/* Structural features */}
-          {featureViewModels.map(({ feature, styles }) => {
-            const isActive = selectedFeatureIds.includes(feature.id);
-            // The rotate handle only makes sense for a single active feature.
-            const isSoleSelection = selectedFeatureIds.length === 1 && isActive;
-            const isRotatable = isRotatableFeature(feature);
-            const rotation =
-              feature.anchor === 'free' ? (feature.rotation ?? 0) : 0;
-            const showRotationHandle =
-              isRotatable &&
-              !!onFeatureRotateStart &&
-              (isSoleSelection || feature.id === hoveredFeatureId);
-            // Unlike rotation, every feature is resizable — including the
-            // wall-anchored ones (window, door, board, whiteboard).
-            const showResizeHandles =
-              !!onFeatureResizeStart &&
-              (isSoleSelection || feature.id === hoveredFeatureId);
+          <g
+            transform={
+              turn === null
+                ? undefined
+                : turnTransform(turn, canvasWidth, classroomHeight)
+            }
+          >
+            {/* Structural features */}
+            {featureViewModels.map(({ feature, styles }) => {
+              const isActive = selectedFeatureIds.includes(feature.id);
+              // The rotate handle only makes sense for a single active feature.
+              const isSoleSelection =
+                selectedFeatureIds.length === 1 && isActive;
+              const isRotatable = isRotatableFeature(feature);
+              const rotation =
+                feature.anchor === 'free' ? (feature.rotation ?? 0) : 0;
+              const showRotationHandle =
+                isRotatable &&
+                !!onFeatureRotateStart &&
+                (isSoleSelection || feature.id === hoveredFeatureId);
+              // Unlike rotation, every feature is resizable — including the
+              // wall-anchored ones (window, door, board, whiteboard).
+              const showResizeHandles =
+                !!onFeatureResizeStart &&
+                (isSoleSelection || feature.id === hoveredFeatureId);
 
-            return (
-              <FeatureShape
-                key={feature.id}
-                feature={feature}
-                styles={styles}
-                isActive={isActive}
-                rectProps={{
-                  className: 'cursor-grab active:cursor-grabbing',
-                  style: { touchAction: 'none' },
-                  onPointerDown: (event) =>
-                    onFeaturePointerDown?.(feature, event),
-                }}
-                groupProps={{
-                  onPointerEnter: () => setHoveredFeatureId(feature.id),
-                  onPointerLeave: () =>
-                    setHoveredFeatureId((current) =>
-                      current === feature.id ? null : current,
-                    ),
-                }}
-              >
-                {showRotationHandle && (
-                  <RotationHandle
-                    width={feature.width}
-                    height={feature.height}
-                    inverseRotation={-rotation}
-                    onRotateStart={(event) =>
-                      onFeatureRotateStart(feature, event)
-                    }
-                  />
-                )}
-                {showResizeHandles &&
-                  getFeatureResizeHandles(feature)
-                    // The rotate handle sits at the south-east corner, so
-                    // that resize grip is skipped when both are visible.
-                    .filter(
-                      (handle) => !(showRotationHandle && handle === 'se'),
-                    )
-                    .map((handle) => (
-                      <ResizeHandle
-                        key={handle}
-                        width={feature.width}
-                        height={feature.height}
-                        handle={handle}
-                        rotation={rotation}
-                        ariaLabel={
-                          handle === 'e' || handle === 'w'
-                            ? t('layout.resizeWidth', 'Breite anpassen')
-                            : handle === 'n' || handle === 's'
-                              ? t('layout.resizeHeight', 'Höhe anpassen')
-                              : t('layout.resize', 'Größe anpassen')
-                        }
-                        onResizeStart={(resizeHandle, event) =>
-                          onFeatureResizeStart(feature, resizeHandle, event)
-                        }
-                      />
-                    ))}
-              </FeatureShape>
-            );
-          })}
+              return (
+                <FeatureShape
+                  key={feature.id}
+                  feature={feature}
+                  styles={styles}
+                  isActive={isActive}
+                  extraIconRotation={turn ?? 0}
+                  rectProps={{
+                    className: 'cursor-grab active:cursor-grabbing',
+                    style: { touchAction: 'none' },
+                    onPointerDown: (event) =>
+                      onFeaturePointerDown?.(feature, event),
+                  }}
+                  groupProps={{
+                    onPointerEnter: () => setHoveredFeatureId(feature.id),
+                    onPointerLeave: () =>
+                      setHoveredFeatureId((current) =>
+                        current === feature.id ? null : current,
+                      ),
+                  }}
+                >
+                  {showRotationHandle && (
+                    <RotationHandle
+                      width={feature.width}
+                      height={feature.height}
+                      inverseRotation={-rotation - (turn ?? 0)}
+                      onRotateStart={(event) =>
+                        onFeatureRotateStart(feature, event)
+                      }
+                    />
+                  )}
+                  {showResizeHandles &&
+                    getFeatureResizeHandles(feature)
+                      // The rotate handle sits at the south-east corner, so
+                      // that resize grip is skipped when both are visible.
+                      .filter(
+                        (handle) => !(showRotationHandle && handle === 'se'),
+                      )
+                      .map((handle) => (
+                        <ResizeHandle
+                          key={handle}
+                          width={feature.width}
+                          height={feature.height}
+                          handle={handle}
+                          rotation={rotation + (turn ?? 0)}
+                          ariaLabel={
+                            handle === 'e' || handle === 'w'
+                              ? t('layout.resizeWidth', 'Breite anpassen')
+                              : handle === 'n' || handle === 's'
+                                ? t('layout.resizeHeight', 'Höhe anpassen')
+                                : t('layout.resize', 'Größe anpassen')
+                          }
+                          onResizeStart={(resizeHandle, event) =>
+                            onFeatureResizeStart(feature, resizeHandle, event)
+                          }
+                        />
+                      ))}
+                </FeatureShape>
+              );
+            })}
 
-          {/* Tables */}
-          {sceneTables.map((t, tIndex) => (
-            <TableIcon
-              key={tIndex}
-              table={t}
-              index={tIndex}
-              students={placeholderSeating[tIndex]}
-              allStudents={allStudents}
-              selected={selectedTableIds.includes(tIndex)}
-              onPointerDown={(e) => onTablePointerDown(e, tIndex)}
-              onRotate={(phase, delta) =>
-                onRotateGesture({ table: tIndex }, phase, delta)
-              }
-              editable
-              isDark={isDark}
-              seatMarkerMode="dots"
-            />
-          ))}
-
-          {/* Selection Box */}
-          {selectionBox && (
-            <rect
-              x={selectionBox.x}
-              y={selectionBox.y}
-              width={selectionBox.width}
-              height={selectionBox.height}
-              fill="var(--canvas-selection-fill)"
-              stroke="var(--canvas-selection)"
-              strokeWidth={2}
-              pointerEvents="none"
-            />
-          )}
-
-          {/* Live drag ghosts: translucent previews at the exact drop position */}
-          {templateDragPreview?.placement && (
-            <g opacity={0.5} pointerEvents="none" aria-hidden="true">
+            {/* Tables */}
+            {sceneTables.map((t, tIndex) => (
               <TableIcon
-                table={{
-                  ...templateDragPreview.placement,
-                  rotation: 0,
-                  locked: false,
-                  zIndex: 0,
-                  templateType: templateDragPreview.type,
-                }}
-                index={-1}
-                students={Array.from(
-                  { length: templateDragPreview.placement.seatCount },
-                  () => null,
-                )}
-                selected={false}
-                editable={false}
+                key={tIndex}
+                table={t}
+                index={tIndex}
+                students={placeholderSeating[tIndex]}
+                allStudents={allStudents}
+                selected={selectedTableIds.includes(tIndex)}
+                onPointerDown={(e) => onTablePointerDown(e, tIndex)}
+                onRotate={(phase, delta) =>
+                  onRotateGesture({ table: tIndex }, phase, delta)
+                }
+                editable
                 isDark={isDark}
                 seatMarkerMode="dots"
+                seatLabelRotation={-(turn ?? 0)}
               />
-            </g>
-          )}
-          {featureDragPreview?.placement && (
-            <g opacity={0.5} pointerEvents="none" aria-hidden="true">
-              {(() => {
-                // Reserved id keeps FeatureShape's clipPath unique against
-                // real features.
-                const ghost: ClassroomFeature = {
-                  id: '__drag-preview__',
-                  type: featureDragPreview.type,
-                  visible: true,
-                  ...featureDragPreview.placement,
-                };
-                return (
-                  <FeatureShape
-                    feature={ghost}
-                    styles={getFeatureStyles(ghost, isDark)}
-                  />
-                );
-              })()}
-            </g>
-          )}
+            ))}
 
-          {/* Alignment guides: full-length lines, canvas centers dashed */}
-          {alignmentGuides && alignmentGuides.length > 0 && (
-            <g
-              pointerEvents="none"
-              aria-hidden="true"
-              data-testid="alignment-guides"
-            >
-              {alignmentGuides.map((guide) => (
-                <line
-                  key={`${guide.orientation}-${guide.position}-${guide.kind}`}
-                  x1={guide.orientation === 'vertical' ? guide.position : 0}
-                  x2={
-                    guide.orientation === 'vertical'
-                      ? guide.position
-                      : canvasWidth
-                  }
-                  y1={guide.orientation === 'horizontal' ? guide.position : 0}
-                  y2={
-                    guide.orientation === 'horizontal'
-                      ? guide.position
-                      : classroomHeight
-                  }
-                  stroke={guideColor}
-                  strokeWidth={1.5}
-                  strokeDasharray={
-                    guide.kind === 'canvasCenter' ? '6 4' : undefined
-                  }
+            {/* Selection Box */}
+            {selectionBox && (
+              <rect
+                x={selectionBox.x}
+                y={selectionBox.y}
+                width={selectionBox.width}
+                height={selectionBox.height}
+                fill="var(--canvas-selection-fill)"
+                stroke="var(--canvas-selection)"
+                strokeWidth={2}
+                pointerEvents="none"
+              />
+            )}
+
+            {/* Live drag ghosts: translucent previews at the exact drop position */}
+            {templateDragPreview?.placement && (
+              <g opacity={0.5} pointerEvents="none" aria-hidden="true">
+                <TableIcon
+                  table={{
+                    ...templateDragPreview.placement,
+                    rotation: 0,
+                    locked: false,
+                    zIndex: 0,
+                    templateType: templateDragPreview.type,
+                  }}
+                  index={-1}
+                  students={Array.from(
+                    { length: templateDragPreview.placement.seatCount },
+                    () => null,
+                  )}
+                  selected={false}
+                  editable={false}
+                  isDark={isDark}
+                  seatMarkerMode="dots"
+                  seatLabelRotation={-(turn ?? 0)}
                 />
-              ))}
-            </g>
-          )}
+              </g>
+            )}
+            {featureDragPreview?.placement && (
+              <g opacity={0.5} pointerEvents="none" aria-hidden="true">
+                {(() => {
+                  // Reserved id keeps FeatureShape's clipPath unique against
+                  // real features.
+                  const ghost: ClassroomFeature = {
+                    id: '__drag-preview__',
+                    type: featureDragPreview.type,
+                    visible: true,
+                    ...featureDragPreview.placement,
+                  };
+                  return (
+                    <FeatureShape
+                      feature={ghost}
+                      styles={getFeatureStyles(ghost, isDark)}
+                      extraIconRotation={turn ?? 0}
+                    />
+                  );
+                })()}
+              </g>
+            )}
 
-          {/* Predicted photo collisions: dashed rings where photo avatars
+            {/* Alignment guides: full-length lines, canvas centers dashed */}
+            {alignmentGuides && alignmentGuides.length > 0 && (
+              <g
+                pointerEvents="none"
+                aria-hidden="true"
+                data-testid="alignment-guides"
+              >
+                {alignmentGuides.map((guide) => (
+                  <line
+                    key={`${guide.orientation}-${guide.position}-${guide.kind}`}
+                    x1={guide.orientation === 'vertical' ? guide.position : 0}
+                    x2={
+                      guide.orientation === 'vertical'
+                        ? guide.position
+                        : canvasWidth
+                    }
+                    y1={guide.orientation === 'horizontal' ? guide.position : 0}
+                    y2={
+                      guide.orientation === 'horizontal'
+                        ? guide.position
+                        : classroomHeight
+                    }
+                    stroke={guideColor}
+                    strokeWidth={1.5}
+                    strokeDasharray={
+                      guide.kind === 'canvasCenter' ? '6 4' : undefined
+                    }
+                  />
+                ))}
+              </g>
+            )}
+
+            {/* Predicted photo collisions: dashed rings where photo avatars
               would overlap each other or cross the classroom walls */}
-          {collidingPhotos.length > 0 && (
-            <g
-              pointerEvents="none"
-              aria-hidden="true"
-              data-testid="photo-overlap-warnings"
-            >
-              {collidingPhotos.map((circle) => (
-                <circle
-                  key={`${circle.tableIndex}-${circle.seatIndex}`}
-                  cx={circle.x}
-                  cy={circle.y}
-                  r={circle.radius + 2}
-                  fill="rgba(239,68,68,0.12)"
-                  stroke={collisionColor}
-                  strokeWidth={2}
-                  strokeDasharray="4 3"
-                  // Only the dashed ring is hoverable for the tooltip, so the
-                  // marked area itself stays click-through.
-                  pointerEvents="stroke"
-                >
-                  <title>{t('editor.photoCollision', 'Fotokollision')}</title>
-                </circle>
-              ))}
-            </g>
-          )}
+            {collidingPhotos.length > 0 && (
+              <g
+                pointerEvents="none"
+                aria-hidden="true"
+                data-testid="photo-overlap-warnings"
+              >
+                {collidingPhotos.map((circle) => (
+                  <circle
+                    key={`${circle.tableIndex}-${circle.seatIndex}`}
+                    cx={circle.x}
+                    cy={circle.y}
+                    r={circle.radius + 2}
+                    fill="rgba(239,68,68,0.12)"
+                    stroke={collisionColor}
+                    strokeWidth={2}
+                    strokeDasharray="4 3"
+                    // Only the dashed ring is hoverable for the tooltip, so the
+                    // marked area itself stays click-through.
+                    pointerEvents="stroke"
+                  >
+                    <title>{t('editor.photoCollision', 'Fotokollision')}</title>
+                  </circle>
+                ))}
+              </g>
+            )}
+          </g>
         </svg>
 
         {/* Template Drag Preview Indicator (overlay) */}

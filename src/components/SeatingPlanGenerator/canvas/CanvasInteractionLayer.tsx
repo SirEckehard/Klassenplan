@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
+import { usePortraitTurn } from '@/hooks/ui/usePortraitTurn';
 import type {
   ClassroomTable,
   ClassroomScene,
@@ -308,7 +309,9 @@ export default function CanvasInteractionLayer({
     finalizeDragInteraction,
   });
 
-  // Keyboard interaction hook
+  // Keyboard interaction hook. Held upright, the room is drawn turned
+  // (`usePortraitTurn`) and the arrows move on screen.
+  const screenTurn = usePortraitTurn(classroomScene);
   useKeyboardInteraction({
     selectedTableIds,
     sceneTables,
@@ -328,6 +331,7 @@ export default function CanvasInteractionLayer({
     pasteSelectionAt,
     closeCanvasContextMenu,
     canPaste,
+    screenTurn,
   });
 
   // Cleanup clipboard effect

@@ -16,6 +16,7 @@ import {
   collectRoomObstacles,
   findFreeSpot,
   releasePointerCaptureIfHeld,
+  convertClientPointToScene,
   type AlignmentGuide,
   type AlignmentRect,
 } from '@/utils';
@@ -167,16 +168,17 @@ export default function useTableInteraction({
   featureVisibility?: FeatureVisibilityFlags;
 }) {
   const capturedPointerId = React.useRef<number | null>(null);
+  // Through the shared converter, which turns a pointer on a room drawn
+  // turned for a screen held upright back into the stored room.
   const getPointerPosition = React.useCallback(
-    (svg: SVGSVGElement, clientX: number, clientY: number) => {
-      const rect = svg.getBoundingClientRect();
-      const scaleX = rect.width / canvasWidth;
-      const scaleY = rect.height / classroomHeight;
-      return {
-        x: (clientX - rect.left) / scaleX,
-        y: (clientY - rect.top) / scaleY,
-      };
-    },
+    (svg: SVGSVGElement, clientX: number, clientY: number) =>
+      convertClientPointToScene({
+        svg,
+        clientX,
+        clientY,
+        sceneWidth: canvasWidth,
+        sceneHeight: classroomHeight,
+      }),
     [canvasWidth, classroomHeight],
   );
 

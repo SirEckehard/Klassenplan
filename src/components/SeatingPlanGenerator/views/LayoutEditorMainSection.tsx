@@ -23,6 +23,9 @@ import {
 } from '@/components/shell/StatusBarFrame';
 import type { FeaturePaletteItem } from '@/hooks/canvas/useFeaturePaletteDrag';
 import { workspaceStageClass } from '@/components/shell/shellTokens';
+import { useTurnAnimation } from '@/hooks/ui/useTurnAnimation';
+import { TURNED_FRAME_MAX_WIDTH } from '@/utils/ui/portraitPlan';
+import type { PlanTurn } from '@/utils/canvas/turn';
 
 export type LayoutEditorContextMenuProps<T> = {
   state: T | null;
@@ -40,6 +43,8 @@ type LayoutEditorMainSectionProps = {
   canRedo: boolean;
   historyLength: number;
   canvasProps: React.ComponentProps<typeof ClassroomCanvas>;
+  /** The quarter turn the room is drawn with on a screen held upright. */
+  turn: PlanTurn | null;
   tableMenu: LayoutEditorContextMenuProps<TableContextMenuState>;
   canvasMenu: LayoutEditorContextMenuProps<CanvasContextMenuState>;
   featureMenu: LayoutEditorContextMenuProps<FeatureContextMenuState>;
@@ -72,6 +77,7 @@ const LayoutEditorMainSection = React.memo(function LayoutEditorMainSection({
   canRedo,
   historyLength,
   canvasProps,
+  turn,
   tableMenu,
   canvasMenu,
   featureMenu,
@@ -79,6 +85,8 @@ const LayoutEditorMainSection = React.memo(function LayoutEditorMainSection({
   mobileTemplatesProps,
 }: LayoutEditorMainSectionProps) {
   const { t } = useTranslation('generator');
+  // Turning the device turns the frame into its new lie, as on the plan.
+  useTurnAnimation(containerRef, turn);
   return (
     // A phone has no inspector column: the setup is in the drawer, opened by
     // the switch at the right end of the status bar, so nothing above the
@@ -90,8 +98,10 @@ const LayoutEditorMainSection = React.memo(function LayoutEditorMainSection({
         // The width comes from `canvas-fit`, the same for room, plan and
         // circle; an inline width would override its cap from `lg` up and push
         // the room's bottom edge out of sight.
-        className={`${canvasFrameClass} ${canvasFitClass} relative select-none`}
-        style={{ maxWidth: '100vw' }}
+        className={`${canvasFrameClass} ${canvasFitClass} relative select-none ${
+          turn === null ? '' : 'mx-auto'
+        }`}
+        style={{ maxWidth: turn === null ? '100vw' : TURNED_FRAME_MAX_WIDTH }}
         ref={containerRef}
       >
         {/* Undo/redo sit in the shell's status bar, where the other two

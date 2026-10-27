@@ -81,9 +81,9 @@ import type { MixOutcome } from '@/hooks/useSeatingMixHandler';
 import { usePlanShortcuts } from '@/hooks/plan/usePlanShortcuts';
 import { useFirstVisit } from '@/hooks/ui/useFirstVisit';
 import { useIsPhone } from '@/hooks/ui/useLayoutMode';
-import { useIsLgUp } from '@/hooks/ui/useIsLgUp';
-import { usePortraitViewport } from '@/hooks/ui/usePortraitViewport';
-import { portraitPlanTurn, turnPlanScene } from '@/utils/ui/portraitPlan';
+import { usePortraitTurn } from '@/hooks/ui/usePortraitTurn';
+import { useTurnAnimation } from '@/hooks/ui/useTurnAnimation';
+import { TURNED_FRAME_MAX_WIDTH, turnPlanScene } from '@/utils/ui/portraitPlan';
 import { createSuspendedWeights } from '@/hooks/ui/useMixCriteria';
 import { buildCriterionHighlightEntries } from '@/utils/algorithm/criterionHighlights';
 import {
@@ -285,11 +285,11 @@ export default function SeatingPlanEditorView({
   // A phone or a tablet held upright shows the plan turned a quarter, the
   // board at the bottom: a 3:2 room took a third of the stage there and left the
   // rest empty. Only the drawing turns — saving, the criteria and the
-  // highlights keep the stored room (`turnPlanScene`).
-  const isLgUp = useIsLgUp();
-  const portraitViewport = usePortraitViewport();
-  const planTurn =
-    !isLgUp && portraitViewport ? portraitPlanTurn(classroomScene) : null;
+  // highlights keep the stored room (`turnPlanScene`). The room layer turns
+  // the same way, and the turn of the device turns the frame into place.
+  const planTurn = usePortraitTurn(classroomScene);
+  const canvasFrameRef = React.useRef<HTMLDivElement | null>(null);
+  useTurnAnimation(canvasFrameRef, planTurn);
   const shownPlan = React.useMemo(
     () =>
       planTurn === null
@@ -1073,14 +1073,10 @@ export default function SeatingPlanEditorView({
                 className={`${canvasFrameClass} ${canvasFitClass} relative select-none ${
                   planTurn === null ? '' : 'mx-auto'
                 }`}
-                // Turned, the plan is half again as tall as wide: on a tablet
-                // the width is held to what fits between the header and the
-                // status bar, so the plan is seen whole without scrolling.
+                ref={canvasFrameRef}
                 style={{
                   maxWidth:
-                    planTurn === null
-                      ? '100vw'
-                      : 'min(100%, calc((100dvh - 3.5rem - var(--shell-bottom-inset, 3.5rem) - 2.5rem) * 2 / 3))',
+                    planTurn === null ? '100vw' : TURNED_FRAME_MAX_WIDTH,
                 }}
               >
                 {/* Phone only: everywhere the options rail fits, the values sit

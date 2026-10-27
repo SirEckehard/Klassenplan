@@ -48,10 +48,13 @@ import { useInspector } from '@/contexts/InspectorContext';
 import { useCanvasPreferences } from '@/contexts/seatingPlan/CanvasPreferencesContext';
 import { useFirstVisit } from '@/hooks/ui/useFirstVisit';
 import {
+  convertClientPointToScene,
+  convertScenePointToClient,
   createClientToSceneConverter,
   showToast,
   type AlignmentGuide,
 } from '@/utils';
+import { usePortraitTurn } from '@/hooks/ui/usePortraitTurn';
 import { type FeatureVisibilityFlags } from '@/utils/ui';
 import {
   buildFeatureVisibilityGroup,
@@ -362,6 +365,12 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
     [setFeatureVisible, setSelectedTableIds, setSelectedFeatureIds],
   );
 
+  // Held upright below `lg`, the room is drawn a quarter turned, the board at
+  // the bottom, as the plan is (`usePortraitTurn`). The drawing turns as a
+  // whole; every pointer is turned back by the converters below and the
+  // arrows by `useKeyboardInteraction`, so the stored room never turns.
+  const roomTurn = usePortraitTurn({ features: sceneFeatures ?? [] });
+
   const toSceneCoordinates = React.useMemo(
     () =>
       createClientToSceneConverter({
@@ -376,13 +385,12 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
       if (!canvas) {
         return null;
       }
-      const rect = canvas.getBoundingClientRect();
-      const scaleX = rect.width / canvasWidth;
-      const scaleY = rect.height / classroomHeight;
-      return {
-        x: rect.left + point.x * scaleX,
-        y: rect.top + point.y * scaleY,
-      };
+      return convertScenePointToClient({
+        svg: canvas,
+        point,
+        sceneWidth: canvasWidth,
+        sceneHeight: classroomHeight,
+      });
     },
     [canvasRef, canvasWidth, classroomHeight],
   );
@@ -647,12 +655,13 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
 
       closeTableContextMenu();
 
-      const svg = e.currentTarget as SVGSVGElement;
-      const rect = svg.getBoundingClientRect();
-      const scaleX = svg.viewBox.baseVal.width / rect.width;
-      const scaleY = svg.viewBox.baseVal.height / rect.height;
-      const sceneX = (e.clientX - rect.left) * scaleX;
-      const sceneY = (e.clientY - rect.top) * scaleY;
+      const { x: sceneX, y: sceneY } = convertClientPointToScene({
+        svg: e.currentTarget as SVGSVGElement,
+        clientX: e.clientX,
+        clientY: e.clientY,
+        sceneWidth: canvasWidth,
+        sceneHeight: classroomHeight,
+      });
 
       setCanvasContextMenu({
         clientX: e.clientX,
@@ -665,6 +674,8 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
     },
     [
       canPaste,
+      canvasWidth,
+      classroomHeight,
       closeTableContextMenu,
       closeCanvasContextMenu,
       closeFeatureContextMenu,
@@ -840,6 +851,7 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
     canvasRef,
     canvasWidth,
     classroomHeight,
+    turn: roomTurn,
     showGrid,
     featureVisibility,
     selectedFeatureIds,
@@ -968,6 +980,7 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
           canRedo={canRedo}
           historyLength={historyLength}
           canvasProps={canvasProps}
+          turn={roomTurn}
           tableMenu={tableMenuConfig}
           canvasMenu={canvasMenuConfig}
           featureMenu={featureMenuConfig}

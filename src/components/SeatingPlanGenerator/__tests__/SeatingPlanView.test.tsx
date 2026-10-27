@@ -131,6 +131,28 @@ describe('SeatingPlanView', () => {
       expect(plan()).toHaveAttribute('viewBox', '0 0 900 600');
     });
 
+    it('turns the room as the plan, saying so to the pointer converters', async () => {
+      setWindow(402, 874);
+      await act(async () => {
+        renderWithProvidersAndRouter(
+          <SeatingPlanView {...createMockSeatingPlanViewProps({ step: 2 })} />,
+        );
+      });
+      const room = screen
+        .getByTestId('classroom-canvas')
+        .querySelector('svg[data-turn]');
+
+      expect(room).toHaveAttribute('data-turn', '90');
+      expect(room).toHaveAttribute('viewBox', '0 0 600 900');
+
+      setWindow(874, 402);
+
+      const landscape = screen
+        .getByTestId('classroom-canvas')
+        .querySelector('svg[viewBox="0 0 900 600"]');
+      expect(landscape).not.toHaveAttribute('data-turn');
+    });
+
     it('leaves the plan as it is from lg up, whatever the window', async () => {
       setWindow(1024, 1366);
       await act(async () => {

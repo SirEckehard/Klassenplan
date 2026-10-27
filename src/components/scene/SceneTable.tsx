@@ -532,7 +532,9 @@ function SceneTable({
         <RotationHandle
           width={table.width}
           height={table.height}
-          inverseRotation={inverseRotation}
+          // Upright on screen, as the names are, also in a drawing turned
+          // for a screen held upright.
+          inverseRotation={seatTextRotation}
           onRotateStart={handleRotate}
         />
       )}

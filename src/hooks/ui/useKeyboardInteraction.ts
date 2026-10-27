@@ -20,6 +20,7 @@ import {
 } from '@/utils';
 import type { ClassroomTable, ClassroomScene, ClassroomFeature } from '@/types';
 import type { KeyboardDirection } from '@/stateMachines/canvas/keyboardInteractionMachine';
+import { unturnDirection, type PlanTurn } from '@/utils/canvas/turn';
 
 export interface UseKeyboardInteractionParams {
   selectedTableIds: number[];
@@ -43,6 +44,11 @@ export interface UseKeyboardInteractionParams {
   pasteSelectionAt: (coords?: { sceneX?: number; sceneY?: number }) => void;
   closeCanvasContextMenu: () => void;
   canPaste: boolean;
+  /**
+   * The quarter turn the room is drawn with on a screen held upright: the
+   * arrows move on screen, so they are turned back into the stored room.
+   */
+  screenTurn?: PlanTurn | null;
 }
 
 // Hook manages keyboard interactions internally through event listeners
@@ -89,7 +95,12 @@ export function useKeyboardInteraction({
   pasteSelectionAt,
   closeCanvasContextMenu,
   canPaste,
+  screenTurn = null,
 }: UseKeyboardInteractionParams): KeyboardInteractionHook {
+  const screenTurnRef = React.useRef(screenTurn);
+  React.useLayoutEffect(() => {
+    screenTurnRef.current = screenTurn;
+  }, [screenTurn]);
   const actionApiRef = React.useRef<KeyboardActionApi>({
     moveSelection: () => {},
     rotateSelection: () => {},
@@ -333,7 +344,7 @@ export function useKeyboardInteraction({
       const focusInInput = isFormElementFocused();
       const hasSystemModifier = event.ctrlKey || event.metaKey || event.altKey;
       syncStatus(focusInInput);
-      const direction = mapKeyToDirection(event.key);
+      const direction = mapKeyToDirection(event.key, screenTurnRef.current);
 
       if (direction) {
         // Without a selection the arrows are the page's: below `lg` they
@@ -405,7 +416,7 @@ export function useKeyboardInteraction({
     };
 
     const handleKeyUp = (event: KeyboardEvent) => {
-      const direction = mapKeyToDirection(event.key);
+      const direction = mapKeyToDirection(event.key, screenTurnRef.current);
       if (!direction) {
         return;
       }
@@ -427,16 +438,19 @@ export function useKeyboardInteraction({
   return {};
 }
 
-const mapKeyToDirection = (key: string): KeyboardDirection | null => {
+const mapKeyToDirection = (
+  key: string,
+  turn: PlanTurn | null,
+): KeyboardDirection | null => {
   switch (key) {
     case 'ArrowUp':
-      return 'up';
+      return unturnDirection(turn, 'up');
     case 'ArrowDown':
-      return 'down';
+      return unturnDirection(turn, 'down');
     case 'ArrowLeft':
-      return 'left';
+      return unturnDirection(turn, 'left');
     case 'ArrowRight':
-      return 'right';
+      return unturnDirection(turn, 'right');
     default:
       return null;
   }

@@ -96,6 +96,26 @@ describe('useKeyboardInteraction', () => {
     unmount();
   });
 
+  it('moves on screen while the room is drawn turned for a screen held upright', async () => {
+    const updateClassroomScene = vi.fn();
+    // Turned clockwise (board on the right to the bottom): up on screen is
+    // left in the stored room.
+    const params = createParams({ updateClassroomScene, screenTurn: 90 });
+    const { unmount } = renderHook(() => useKeyboardInteraction(params));
+
+    const user = userEvent.setup();
+    updateClassroomScene.mockClear();
+    await user.keyboard('{ArrowUp}');
+
+    const updatedScene = updateClassroomScene.mock
+      .calls[0][0] as ClassroomScene;
+    const firstTable = updatedScene.tables[0] as ClassroomTable;
+    expect(firstTable.x).toBe(99);
+    expect(firstTable.y).toBe(100);
+
+    unmount();
+  });
+
   it('handles delete key for selected tables', async () => {
     const params = createParams();
     const { unmount } = renderHook(() => useKeyboardInteraction(params));

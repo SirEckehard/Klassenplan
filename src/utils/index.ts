@@ -267,6 +267,7 @@ export {
 export {
   convertClientPointToScene,
   convertClientPointToSvgCoordinates,
+  convertScenePointToClient,
   createClientToSceneConverter,
 } from './canvas/coordinates';
 export {
