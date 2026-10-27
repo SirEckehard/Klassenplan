@@ -122,7 +122,10 @@ function PlanNotice({
       role={role}
       className="flex shrink-0 flex-wrap items-center justify-between gap-x-4 gap-y-2 rounded-lg border border-(--border-card) bg-(--surface-card) px-3 py-2 text-sm text-(--text-page)"
     >
-      <div className="flex min-w-0 flex-1 items-start gap-2">
+      {/* The words keep a width of their own: `flex-1` alone starts them at
+          none, so the row never wrapped and on a phone the buttons lay over
+          a column one word wide. Too narrow for both, the buttons go under. */}
+      <div className="flex min-w-64 flex-1 items-start gap-2">
         {icon}
         <div className="min-w-0">{children}</div>
       </div>
@@ -976,7 +979,7 @@ export default function SeatingPlanEditorView({
                   />
                 }
                 action={
-                  <div className="flex shrink-0 flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-2">
                     <button
                       type="button"
                       onClick={() => void handleMix()}
