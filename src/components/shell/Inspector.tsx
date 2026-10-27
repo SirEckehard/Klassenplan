@@ -38,6 +38,15 @@ const inspectorDrawerClass =
   'fixed top-14 right-0 bottom-(--shell-bottom-inset) z-40 flex w-full max-w-sm flex-col overflow-hidden border-l border-(--border-card) bg-(--surface-card) shadow-(--menu-shadow) focus:outline-none';
 
 /**
+ * A phone's sheet from the bottom: an opened student, and the class layer's
+ * ticked students, which look alike for it. Clear of the home indicator, as
+ * the status bar under it is: in the installed app the sheet's removal sat on
+ * it, where a swipe leaves.
+ */
+const phoneSheetClass =
+  'fixed inset-x-0 bottom-0 z-40 flex max-h-[80vh] flex-col overflow-hidden rounded-t-xl border-t border-(--border-card) bg-(--surface-card) pb-[env(safe-area-inset-bottom)] shadow-(--shadow-sheet)';
+
+/**
  * The properties of whatever is selected, in one place on the right.
  *
  * Two layers fill it, in the two ways that make sense for them. The class
@@ -74,6 +83,7 @@ export default function Inspector() {
     setSlotNode,
     portalMounted,
     portalLabel,
+    portalPresentation,
     folded,
     drawerOpen,
     setDrawerOpen,
@@ -108,24 +118,30 @@ export default function Inspector() {
   }, [clear, selection, student]);
 
   const isOpen = Boolean(student);
-  const sheetRef = useDialogA11y<HTMLDivElement>({ open: isPhone && isOpen });
-  const sheetLayer = useDialogLayer(isPhone && isOpen);
+  const hasPortal = step === 2 || step === 3 || portalMounted;
+  // The class layer's ticked students take the phone's sheet rather than the
+  // drawer, so they are edited where an opened student is.
+  const portalSheet = isPhone && hasPortal && portalPresentation.sheet === true;
+  const showsSheet = portalSheet && drawerOpen;
+  const showsDrawer = !isDesktop && hasPortal && drawerOpen && !portalSheet;
+  const sheetOpen = isPhone && (hasPortal ? showsSheet : isOpen);
+  const sheetRef = useDialogA11y<HTMLDivElement>({ open: sheetOpen });
+  const sheetLayer = useDialogLayer(sheetOpen);
 
   // The phone's sheet is a dialog, so the class list leaves Escape to it — and
   // it has to take the key itself, or nothing closes it without a finger.
+  // Closing the ticked students' sheet keeps them ticked; its ✕ lets them go.
   React.useEffect(() => {
-    if (!isPhone || !isOpen) return undefined;
+    if (!sheetOpen) return undefined;
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key !== 'Escape' || !isTopDialogLayer(sheetLayer)) return;
       event.stopPropagation();
-      clear();
+      if (hasPortal) setDrawerOpen(false);
+      else clear();
     };
     window.addEventListener('keydown', handleKeyDown, true);
     return () => window.removeEventListener('keydown', handleKeyDown, true);
-  }, [clear, isOpen, isPhone, sheetLayer]);
-
-  const hasPortal = step === 2 || step === 3 || portalMounted;
-  const showsDrawer = !isDesktop && hasPortal && drawerOpen;
+  }, [clear, hasPortal, setDrawerOpen, sheetLayer, sheetOpen]);
 
   // A tap beside the phone's sheet or the tablet's drawer puts the student
   // away, as Escape does; a tap on another row opens that one, since the row's
@@ -193,6 +209,12 @@ export default function Inspector() {
   useOutsideTap(drawerRef, closeDrawer, showsDrawer, {
     ignoreSelector: `[aria-controls="${INSPECTOR_DRAWER_ID}"], [data-student-list]`,
   });
+  // The sheet covers the list, so a tap on the list above it closes it, the
+  // ticks kept — and ticks the row tapped, which the row's click does after.
+  useOutsideTap(drawerRef, closeDrawer, showsSheet, {
+    ignoreSelector: `[aria-controls="${INSPECTOR_DRAWER_ID}"]`,
+    isBlocked: () => !isTopDialogLayer(sheetLayer),
+  });
 
   if (suspended) return null;
 
@@ -214,16 +236,26 @@ export default function Inspector() {
         // Folded, the column stays in the page as the portal's slot, only
         // out of sight.
         className={
-          showsDrawer
-            ? inspectorDrawerClass
-            : columnFolded
-              ? 'hidden'
-              : columnClass
+          showsSheet
+            ? phoneSheetClass
+            : showsDrawer
+              ? inspectorDrawerClass
+              : columnFolded || portalSheet
+                ? 'hidden'
+                : columnClass
         }
       >
         {/* The layers bring their own header strip and body through the
-            portal, so the slot is only the column they fill. */}
-        <div ref={setSlotNode} className="flex min-h-0 flex-1 flex-col" />
+            portal, so the slot is only the column they fill. The wrapper
+            stays in every form, so the slot is never remounted. */}
+        <div
+          ref={sheetRef}
+          role={showsSheet ? 'dialog' : undefined}
+          aria-label={showsSheet ? (portalLabel ?? undefined) : undefined}
+          className="flex min-h-0 flex-1 flex-col"
+        >
+          <div ref={setSlotNode} className="flex min-h-0 flex-1 flex-col" />
+        </div>
       </aside>
     );
   }
@@ -257,13 +289,8 @@ export default function Inspector() {
 
   if (isPhone) {
     if (!isOpen) return null;
-    // Clear of the home indicator, as the status bar under it is: in the
-    // installed app the sheet's removal sat on it, where a swipe leaves.
     return (
-      <div
-        ref={setStudentPanel}
-        className="fixed inset-x-0 bottom-0 z-40 flex max-h-[80vh] flex-col overflow-hidden rounded-t-xl border-t border-(--border-card) bg-(--surface-card) pb-[env(safe-area-inset-bottom)] shadow-(--shadow-sheet)"
-      >
+      <div ref={setStudentPanel} className={phoneSheetClass}>
         <div
           ref={sheetRef}
           role="dialog"

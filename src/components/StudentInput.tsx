@@ -2,7 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import React, { useState, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { InfoIcon, TableIcon } from '@phosphor-icons/react';
+import { InfoIcon, TableIcon, XIcon } from '@phosphor-icons/react';
 
 import { useStudentManagement } from '@/hooks/student/useStudentManagement';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
@@ -40,7 +40,7 @@ import NameColumnSelectionDialog from '@/components/students/NameColumnSelection
 import { useStudentListLayout } from '@/components/studentInput/hooks/useStudentListLayout';
 import { useStudentListView } from '@/components/studentInput/hooks/useStudentListView';
 import { useStudentSelection } from '@/components/studentInput/hooks/useStudentSelection';
-import StudentListToolsRow from '@/components/studentInput/StudentListToolsRow';
+import StudentListToolbar from '@/components/studentInput/StudentListToolbar';
 import StudentBulkInspector from '@/components/students/StudentBulkInspector';
 import StudentInspectorPanel from '@/components/students/StudentInspectorPanel';
 import InspectorPortal from '@/components/shell/InspectorPortal';
@@ -50,7 +50,6 @@ import { useInspector } from '@/contexts/InspectorContext';
 import AttributeFocusMode from '@/components/studentInput/AttributeFocusMode';
 import ListScrollFab from '@/components/studentInput/ListScrollFab';
 import { useIsLgUp } from '@/hooks/ui/useIsLgUp';
-import { useBreakpointUp } from '@/hooks/ui/useBreakpoint';
 import { useIsPhone } from '@/hooks/ui/useLayoutMode';
 import { useCsvImportWithDialog } from '@/hooks/csv/useCsvImportWithDialog';
 import { isAnyDialogOpen } from '@/hooks/ui/useDialogLayer';
@@ -90,7 +89,6 @@ function StudentInput({
   // Below `lg` the list flows in the page scroll and the phone gets a scroll
   // affordance; at `lg+` the list scrolls inside its card (`StudentList`).
   const isLgUp = useIsLgUp();
-  const isMdUp = useBreakpointUp('md');
   const { listTopRef, listEndRef, scrollHint, handleScrollHint } =
     useStudentListLayout({
       isMobile: !isLgUp,
@@ -259,15 +257,15 @@ function StudentInput({
   const showListTools = students.length >= STUDENT_LIST_TOOLS_THRESHOLD;
   const selectionActive =
     showListTools && listMode === 'list' && selection.selectedCount > 0;
-  // From `lg` up the inspector column is on screen, so the bulk controls take
-  // its place for as long as students are ticked; on a tablet they open as
-  // the inspector's drawer, which leaves the list's checkboxes in reach. A
-  // phone keeps them in the row above the list, its sheet would cover it.
-  const bulkInInspector = isMdUp;
+  // The ticked students are edited in the inspector: from `lg` up its column,
+  // on a tablet its drawer, which leaves the list's checkboxes in reach, and
+  // on a phone the sheet an opened student gets — from the status bar's
+  // switch alone, since a sheet that came with every tick would cover the
+  // list being ticked.
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
 
-  // The bulk bar needs the students themselves, not just the count: its flag
-  // chips show whether a flag holds for all, none or only some of them.
+  // The bulk panel needs the students themselves, not just the count: its
+  // switches show whether a flag holds for all, none or only some of them.
   const selectedStudents = useMemo(
     () => students.filter((student) => selection.selectedIds.has(student.id)),
     [students, selection.selectedIds],
@@ -280,7 +278,7 @@ function StudentInput({
   const showsClassInspector =
     hasActiveClass &&
     inspectorSelection?.kind !== 'student' &&
-    !(selectionActive && bulkInInspector);
+    !selectionActive;
   const removeStudent = useCallback(
     (id: string) => removeStudents([id]),
     [removeStudents],
@@ -408,23 +406,28 @@ function StudentInput({
         className={`${workspaceStageClass} scroll-mt-20 space-y-4 ${listMode === 'list' ? 'lg:flex lg:flex-col' : ''}`}
       >
         {showListTools && listMode === 'list' && (
-          <StudentListToolsRow
-            listView={listView}
-            selection={selection}
-            selectedStudents={selectedStudents}
+          <StudentListToolbar
+            query={listView.query}
+            onQueryChange={listView.setQuery}
+            onQuerySubmit={handleSearchSubmit}
+            sortMode={listView.sortMode}
+            onSortModeChange={listView.setSortMode}
+            filterMode={listView.filterMode}
+            onFilterModeChange={listView.setFilterMode}
+            visibleCount={listView.visibleStudents.length}
             totalCount={students.length}
-            onBulkApply={handleBulkApply}
-            onDeleteSelected={() => setBulkDeleteOpen(true)}
-            onSearchSubmit={handleSearchSubmit}
-            bulkInInspector={bulkInInspector}
+            isNarrowed={listView.isNarrowed}
+            onClear={listView.clear}
           />
         )}
-        {selectionActive && bulkInInspector && (
+        {selectionActive && (
           <InspectorPortal
             label={
               singleSelected ? t('inspector.title') : t('bulkEdit.regionLabel')
             }
             reveal
+            sheet
+            badge={selection.selectedCount}
           >
             {singleSelected ? (
               <StudentInspectorPanel
@@ -445,6 +448,22 @@ function StudentInput({
               />
             )}
           </InspectorPortal>
+        )}
+        {/* A phone's way to let the ticks go without opening the sheet,
+            where the class's count stands otherwise; the switch beside the
+            way on says how many are ticked. */}
+        {selectionActive && isPhone && (
+          <StatusBarPortal slot="status">
+            <button
+              type="button"
+              onClick={selection.clear}
+              aria-label={t('bulkEdit.clearSelection')}
+              title={t('bulkEdit.clearSelection')}
+              className={`${secondaryButtonClass} h-9 w-9 shrink-0 px-0`}
+            >
+              <XIcon className="h-4 w-4" aria-hidden="true" />
+            </button>
+          </StatusBarPortal>
         )}
         {/* With no student open, the inspector shows the class itself, as
             the room's shows the room; below `lg` it is the drawer the status
@@ -552,12 +571,25 @@ function StudentInput({
           ) : listMode === 'relations' ? (
             <RelationsView students={students} />
           ) : showListTools && listView.visibleStudents.length === 0 ? (
-            <p className="px-1 py-6 text-center text-sm text-(--text-muted)">
-              {t(
-                'listToolbar.noMatches',
-                'Keine Schüler passen zu Suche und Filter.',
+            <div className="flex flex-col items-center gap-3 px-1 py-6 text-center text-sm text-(--text-muted)">
+              <p>
+                {t(
+                  'listToolbar.noMatches',
+                  'Keine Schüler passen zu Suche und Filter.',
+                )}
+              </p>
+              {/* A phone's search line has no ✕ for it; the list's head,
+                  which says it otherwise, is not drawn without a student. */}
+              {isPhone && (
+                <button
+                  type="button"
+                  onClick={listView.clear}
+                  className={`${secondaryButtonClass} h-11 px-4`}
+                >
+                  {t('listToolbar.clear')}
+                </button>
               )}
-            </p>
+            </div>
           ) : (
             <StudentList
               students={listView.visibleStudents}
@@ -569,6 +601,11 @@ function StudentInput({
               allVisibleSelected={selection.allVisibleSelected}
               someVisibleSelected={selection.selectedCount > 0}
               onToggleAllVisible={selection.toggleAllVisible}
+              narrowing={
+                showListTools && listView.isNarrowed
+                  ? { totalCount: students.length, onClear: listView.clear }
+                  : undefined
+              }
             />
           )}
         </>

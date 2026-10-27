@@ -35,10 +35,8 @@ type Props = {
  * ours too — the menu rows every dropdown uses (`menu-item`), the chosen one
  * with a check at its end.
  *
- * Only the workbench row uses this. Inside the selection mode's popover the
- * plain `<select>` stays: a second floating layer over the first would close it
- * (the popover treats a click outside its own DOM as "dismiss"), and a form
- * column reads as a form anyway.
+ * Only the workbench row uses this; a phone has the two choices as the rows
+ * of one menu instead (`StudentListViewMenu`).
  */
 export default function WorkbenchSelect({
   label,

@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import { useTranslation } from 'react-i18next';
-import { XIcon } from '@phosphor-icons/react';
-import { quietIconButtonClass } from '@/utils';
+import { useIsPhone } from '@/hooks/ui/useLayoutMode';
 import StudentListFilterControls from '@/components/studentInput/StudentListFilterControls';
+import StudentListNarrowedCount from '@/components/studentInput/StudentListNarrowedCount';
 import type {
   StudentFilterMode,
   StudentSortMode,
@@ -31,9 +30,10 @@ interface StudentListToolbarProps {
  * row checkboxes it controls.
  *
  * Only rendered once the class is large enough for any of it to matter — for
- * five students a search field is noise. While students are selected the
- * workbench swaps this row for the bulk controls, which reach the same three
- * controls through a popover (see `StudentListToolsRow`).
+ * five students a search field is noise. It stays while students are
+ * ticked: the inspector edits them, on a phone in the sheet from the status
+ * bar's switch, so the row above the list never changes its height. On a
+ * phone it is one line, the search and a button for the filter and the sort.
  */
 export default function StudentListToolbar({
   query,
@@ -48,11 +48,12 @@ export default function StudentListToolbar({
   isNarrowed,
   onClear,
 }: StudentListToolbarProps) {
-  const { t } = useTranslation('students');
+  const isPhone = useIsPhone();
 
   return (
     <div className="flex flex-wrap items-center gap-2">
       <StudentListFilterControls
+        layout={isPhone ? 'phone' : 'inline'}
         query={query}
         onQueryChange={onQueryChange}
         onQuerySubmit={onQuerySubmit}
@@ -62,23 +63,13 @@ export default function StudentListToolbar({
         onSortModeChange={onSortModeChange}
       />
 
-      {isNarrowed && (
-        <span className="flex items-center gap-1 text-sm text-(--text-muted)">
-          {t('listToolbar.countNarrowed', {
-            visible: visibleCount,
-            total: totalCount,
-            defaultValue: '{{visible}} von {{total}}',
-          })}
-          <button
-            type="button"
-            onClick={onClear}
-            className={`${quietIconButtonClass} h-7 w-7`}
-            aria-label={t('listToolbar.clear', 'Suche und Filter zurücksetzen')}
-            title={t('listToolbar.clear', 'Suche und Filter zurücksetzen')}
-          >
-            <XIcon size={14} aria-hidden />
-          </button>
-        </span>
+      {/* A phone's row is the search alone; the list's head says it there. */}
+      {isNarrowed && !isPhone && (
+        <StudentListNarrowedCount
+          visibleCount={visibleCount}
+          totalCount={totalCount}
+          onClear={onClear}
+        />
       )}
     </div>
   );

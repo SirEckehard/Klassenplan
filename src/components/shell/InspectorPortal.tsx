@@ -23,6 +23,8 @@ import { isBreakpointUp } from '@/hooks/ui/useBreakpoint';
 export default function InspectorPortal({
   label,
   reveal = false,
+  sheet = false,
+  badge,
   children,
 }: {
   /** Names the inspector column while this content fills it. */
@@ -35,18 +37,30 @@ export default function InspectorPortal({
    * teacher left it.
    */
   reveal?: boolean;
+  /**
+   * On a phone, opens as the sheet from the bottom an opened student gets,
+   * and only from the status bar's switch: a sheet that came with every tick
+   * would cover the list being ticked. It still closes when this content
+   * leaves.
+   */
+  sheet?: boolean;
+  /** A number on the status bar's switch on a phone — how many are ticked. */
+  badge?: number;
   children: React.ReactNode;
 }) {
   const { slotNode, mountPortal, setFolded, setDrawerOpen } = useInspector();
-  React.useLayoutEffect(() => mountPortal(label), [label, mountPortal]);
+  React.useLayoutEffect(
+    () => mountPortal(label, { sheet, badge }),
+    [badge, label, mountPortal, sheet],
+  );
   React.useLayoutEffect(() => {
     if (!reveal) return undefined;
     if (isBreakpointUp('lg')) {
       setFolded(false);
       return undefined;
     }
-    setDrawerOpen(true);
+    if (!sheet || isBreakpointUp('md')) setDrawerOpen(true);
     return () => setDrawerOpen(false);
-  }, [reveal, setDrawerOpen, setFolded]);
+  }, [reveal, setDrawerOpen, setFolded, sheet]);
   return slotNode ? createPortal(children, slotNode) : null;
 }

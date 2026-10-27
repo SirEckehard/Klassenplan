@@ -44,8 +44,6 @@
   },
   "quoted": "„{{text}}“",
   "gender": {
-    "male": "Männlich",
-    "female": "Weiblich",
     "diverse": "Divers"
   },
   "studentFlags": {

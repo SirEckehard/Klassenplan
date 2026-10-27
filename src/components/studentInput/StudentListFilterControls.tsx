@@ -1,24 +1,17 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import { useTranslation } from 'react-i18next';
-import { MagnifyingGlassIcon, SortAscendingIcon } from '@phosphor-icons/react';
-import { inputFieldClass } from '@/utils';
+import { MagnifyingGlassIcon } from '@phosphor-icons/react';
 import { workbenchPillClass } from '@/components/students/classWorkbenchTokens';
 import WorkbenchSelect from '@/components/students/WorkbenchSelect';
+import StudentListViewMenu from '@/components/studentInput/StudentListViewMenu';
 import {
   STUDENT_FILTER_MODES,
+  STUDENT_SORT_LABEL_KEYS,
   STUDENT_SORT_MODES,
   type StudentFilterMode,
   type StudentSortMode,
 } from '@/components/studentInput/hooks/useStudentListView';
-
-const SORT_LABEL_KEYS: Record<StudentSortMode, string> = {
-  manual: 'listToolbar.sort.manual',
-  'name-asc': 'listToolbar.sort.nameAsc',
-  'name-desc': 'listToolbar.sort.nameDesc',
-  'lastName-asc': 'listToolbar.sort.lastNameAsc',
-  'lastName-desc': 'listToolbar.sort.lastNameDesc',
-};
 
 interface StudentListFilterControlsProps {
   query: string;
@@ -32,20 +25,17 @@ interface StudentListFilterControlsProps {
   /**
    * `inline` renders the three controls side by side in the workbench row,
    * shaped like the pills they share it with (labels stay screen-reader only);
-   * `stacked` fills a popover column as ordinary form fields and spells the
-   * labels out, where there is room for them.
+   * `phone` gives the search the line and puts the filter and the sort behind
+   * one button (`StudentListViewMenu`), where three fields took three lines.
    */
-  layout?: 'inline' | 'stacked';
+  layout?: 'inline' | 'phone';
 }
 
 /**
  * Search, filter and sort for the class list.
  *
- * Shared by the browse toolbar and the popover the selection mode collapses
- * them into, so both offer the exact same controls instead of drifting apart.
- *
- * The two choices are the row's own dropdown inline and a native `<select>` in
- * the popover — see `WorkbenchSelect` for why the popover keeps the native one.
+ * The two choices are the row's own dropdown, not a native `<select>` — see
+ * `WorkbenchSelect` — and on a phone the rows of one menu.
  */
 export default function StudentListFilterControls({
   query,
@@ -58,40 +48,20 @@ export default function StudentListFilterControls({
   layout = 'inline',
 }: StudentListFilterControlsProps) {
   const { t } = useTranslation('students');
-  const stacked = layout === 'stacked';
-
-  const labelClass = stacked
-    ? 'flex flex-col gap-1'
-    : 'flex items-center gap-2';
-  const captionClass = stacked
-    ? 'text-xs font-medium text-(--text-muted)'
-    : 'sr-only';
-
-  const searchLabel = t('listToolbar.searchLabel', 'Schüler suchen');
-  const filterLabel = t('listToolbar.filterLabel', 'Nach Merkmal filtern');
-  const sortLabel = t('listToolbar.sortLabel', 'Sortierung');
-
-  const filterOptions = STUDENT_FILTER_MODES.map((mode) => ({
-    value: mode,
-    label: t(`listToolbar.filters.${mode}`),
-  }));
-  const sortOptions = STUDENT_SORT_MODES.map((mode) => ({
-    value: mode,
-    label: t(SORT_LABEL_KEYS[mode]),
-  }));
+  const phone = layout === 'phone';
 
   const searchField = (
-    <label className={labelClass}>
-      <span className={captionClass}>{searchLabel}</span>
-      <span className={stacked ? 'relative block' : 'relative'}>
-        {/* The pill's `px-4` sits the icon a touch further in than the stacked
-            field's `px-3` does. */}
+    <label
+      className={
+        phone ? 'flex min-w-0 flex-1 items-center' : 'flex items-center gap-2'
+      }
+    >
+      <span className="sr-only">{t('listToolbar.searchLabel')}</span>
+      <span className={phone ? 'relative block w-full' : 'relative'}>
         <MagnifyingGlassIcon
           size={16}
           aria-hidden
-          className={`pointer-events-none absolute top-1/2 -translate-y-1/2 text-(--text-muted) ${
-            stacked ? 'left-3' : 'left-3.5'
-          }`}
+          className="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 text-(--text-muted)"
         />
         <input
           type="search"
@@ -102,85 +72,50 @@ export default function StudentListFilterControls({
             event.preventDefault();
             onQuerySubmit();
           }}
-          placeholder={t('listToolbar.searchPlaceholder', 'Name suchen…')}
-          className={
-            stacked
-              ? `${inputFieldClass} w-full pl-9`
-              : `${workbenchPillClass} w-48 pl-10`
-          }
+          placeholder={t('listToolbar.searchPlaceholder')}
+          className={`${workbenchPillClass} pl-10 ${phone ? 'w-full pointer-coarse:h-11' : 'w-48'}`}
         />
       </span>
     </label>
   );
 
-  if (!stacked) {
+  if (phone) {
     return (
-      <>
+      <div className="flex w-full items-center gap-2">
         {searchField}
-        <WorkbenchSelect
-          label={filterLabel}
-          value={filterMode}
-          options={filterOptions}
-          onChange={(value) => onFilterModeChange(value as StudentFilterMode)}
-          widthClass="w-36"
+        <StudentListViewMenu
+          filterMode={filterMode}
+          onFilterModeChange={onFilterModeChange}
+          sortMode={sortMode}
+          onSortModeChange={onSortModeChange}
         />
-        <WorkbenchSelect
-          label={sortLabel}
-          value={sortMode}
-          options={sortOptions}
-          onChange={(value) => onSortModeChange(value as StudentSortMode)}
-          widthClass="w-44"
-        />
-      </>
+      </div>
     );
   }
 
   return (
-    <div className="flex flex-col gap-3">
+    <>
       {searchField}
-
-      <label className={labelClass}>
-        <span className={captionClass}>{filterLabel}</span>
-        <select
-          value={filterMode}
-          onChange={(event) =>
-            onFilterModeChange(event.target.value as StudentFilterMode)
-          }
-          className={`${inputFieldClass} w-full`}
-          title={filterLabel}
-        >
-          {filterOptions.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-      </label>
-
-      <label className={labelClass}>
-        <span className={captionClass}>{sortLabel}</span>
-        <span className="relative block">
-          <SortAscendingIcon
-            size={16}
-            aria-hidden
-            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-(--text-muted)"
-          />
-          <select
-            value={sortMode}
-            onChange={(event) =>
-              onSortModeChange(event.target.value as StudentSortMode)
-            }
-            className={`${inputFieldClass} w-full pl-9`}
-            title={sortLabel}
-          >
-            {sortOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </span>
-      </label>
-    </div>
+      <WorkbenchSelect
+        label={t('listToolbar.filterLabel')}
+        value={filterMode}
+        options={STUDENT_FILTER_MODES.map((mode) => ({
+          value: mode,
+          label: t(`listToolbar.filters.${mode}`),
+        }))}
+        onChange={(value) => onFilterModeChange(value as StudentFilterMode)}
+        widthClass="w-36"
+      />
+      <WorkbenchSelect
+        label={t('listToolbar.sortLabel')}
+        value={sortMode}
+        options={STUDENT_SORT_MODES.map((mode) => ({
+          value: mode,
+          label: t(STUDENT_SORT_LABEL_KEYS[mode]),
+        }))}
+        onChange={(value) => onSortModeChange(value as StudentSortMode)}
+        widthClass="w-44"
+      />
+    </>
   );
 }

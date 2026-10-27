@@ -76,8 +76,18 @@ type InspectorContextValue = {
    * leaves the name to the layer.
    */
   portalLabel: string | null;
+  /**
+   * How the mounted portal asks to be shown on a phone (`PortalPresentation`):
+   * as the sheet from the bottom an opened student gets, and with a number on
+   * the status bar's switch. Both are off for the room, the plan and the
+   * circle, whose panels open as the drawer.
+   */
+  portalPresentation: PortalPresentation;
   /** Called by `InspectorPortal` on mount; returns the release for unmount. */
-  mountPortal: (label?: string) => () => void;
+  mountPortal: (
+    label?: string,
+    presentation?: PortalPresentation,
+  ) => () => void;
   /**
    * From `lg` up the column can be folded away on every layer, so the stage
    * takes its width: on an iPad in landscape the toolbar and a 320px column
@@ -102,6 +112,20 @@ type InspectorContextValue = {
    */
   inShell: boolean;
 };
+
+/**
+ * What a portal asks of the phone. The class layer's ticked students are
+ * edited in the sheet an opened student gets, so they look alike; the switch
+ * that opens it says how many are ticked.
+ */
+export type PortalPresentation = {
+  /** On a phone, open as the sheet from the bottom instead of the drawer. */
+  sheet?: boolean;
+  /** A number on the status bar's switch, on a phone. */
+  badge?: number;
+};
+
+const NO_PRESENTATION: PortalPresentation = {};
 
 const InspectorContext = React.createContext<InspectorContextValue | null>(
   null,
@@ -140,6 +164,8 @@ export function InspectorProvider({ children }: { children: React.ReactNode }) {
   const [slotNode, setSlotNode] = React.useState<HTMLElement | null>(null);
   const [portalCount, setPortalCount] = React.useState(0);
   const [portalLabel, setPortalLabel] = React.useState<string | null>(null);
+  const [portalPresentation, setPortalPresentation] =
+    React.useState<PortalPresentation>(NO_PRESENTATION);
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   // Read once, on the first render: the default decides how a device starts,
   // the stored choice everything after.
@@ -204,14 +230,19 @@ export function InspectorProvider({ children }: { children: React.ReactNode }) {
 
   const clear = React.useCallback(() => setSelection(null), []);
 
-  const mountPortal = React.useCallback((label?: string) => {
-    setPortalCount((count) => count + 1);
-    setPortalLabel(label ?? null);
-    return () => {
-      setPortalCount((count) => count - 1);
-      setPortalLabel(null);
-    };
-  }, []);
+  const mountPortal = React.useCallback(
+    (label?: string, presentation?: PortalPresentation) => {
+      setPortalCount((count) => count + 1);
+      setPortalLabel(label ?? null);
+      setPortalPresentation(presentation ?? NO_PRESENTATION);
+      return () => {
+        setPortalCount((count) => count - 1);
+        setPortalLabel(null);
+        setPortalPresentation(NO_PRESENTATION);
+      };
+    },
+    [],
+  );
 
   const value = React.useMemo(
     () => ({
@@ -227,6 +258,7 @@ export function InspectorProvider({ children }: { children: React.ReactNode }) {
       setSlotNode,
       portalMounted: portalCount > 0,
       portalLabel,
+      portalPresentation,
       mountPortal,
       folded,
       setFolded: setFoldedByHand,
@@ -241,6 +273,7 @@ export function InspectorProvider({ children }: { children: React.ReactNode }) {
       mountPortal,
       portalCount,
       portalLabel,
+      portalPresentation,
       selectStudent,
       selection,
       setFoldedByHand,
@@ -283,6 +316,7 @@ const FALLBACK: InspectorContextValue = {
   setSlotNode: noop,
   portalMounted: false,
   portalLabel: null,
+  portalPresentation: NO_PRESENTATION,
   mountPortal: () => noop,
   folded: false,
   setFolded: noop,

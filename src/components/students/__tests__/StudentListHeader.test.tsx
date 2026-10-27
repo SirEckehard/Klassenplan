@@ -66,4 +66,16 @@ describe('StudentListHeader', () => {
     const caption = screen.getByText(/^(Name)$/);
     expect(caption.closest('[aria-hidden="true"]')).not.toBeNull();
   });
+
+  it('says what a search left where it is given, beside the select-all', () => {
+    render(
+      <StudentListHeader
+        onToggleAllVisible={vi.fn()}
+        narrowing={<span>3 von 24</span>}
+      />,
+    );
+
+    expect(selectAll()).toBeInTheDocument();
+    expect(screen.getByText('3 von 24')).toBeInTheDocument();
+  });
 });

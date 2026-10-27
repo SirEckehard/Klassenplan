@@ -228,10 +228,12 @@ export default function AppStatusBar() {
     <StatusBarFrame
       start={
         <>
-          {/* What a view states itself: the plan layer's fulfilment. */}
+          {/* What a view states itself: the plan layer's fulfilment, and on
+              a phone the class layer's way to let its ticks go, which takes
+              the place of the count below (`peer`). */}
           <span
             ref={setStatusNode}
-            className="flex min-w-0 items-center empty:hidden"
+            className="peer flex min-w-0 items-center empty:hidden"
           />
           {teachersDay.visible && (
             <p
@@ -253,7 +255,7 @@ export default function AppStatusBar() {
           {!teachersDay.visible && segments.length > 0 && (
             <p
               data-tour={step === 2 ? TOUR_ANCHORS.layoutStatus : undefined}
-              className="flex min-w-0 items-center gap-1.5 text-xs tabular-nums text-(--text-muted) sm:text-sm"
+              className="flex min-w-0 items-center gap-1.5 text-xs tabular-nums text-(--text-muted) peer-not-empty:hidden sm:text-sm"
             >
               {short ? (
                 <span className="min-w-0 truncate" title={segments.join(' · ')}>

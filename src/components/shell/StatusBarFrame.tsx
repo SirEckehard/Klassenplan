@@ -110,6 +110,7 @@ export default function StatusBarFrame({
     suspended,
     portalMounted,
     portalLabel,
+    portalPresentation,
     drawerOpen,
     setDrawerOpen,
     folded,
@@ -266,7 +267,7 @@ export default function StatusBarFrame({
                   aria-controls={INSPECTOR_DRAWER_ID}
                   aria-label={inspectorName}
                   title={inspectorName}
-                  className={`${secondaryButtonClass} h-9 w-9 shrink-0 px-0 ${
+                  className={`${secondaryButtonClass} relative h-9 w-9 shrink-0 px-0 ${
                     inspectorShown ? statusBarPressedClass : ''
                   }`}
                 >
@@ -274,6 +275,16 @@ export default function StatusBarFrame({
                     className="h-4 w-4"
                     aria-hidden="true"
                   />
+                  {/* How many students are ticked: the one place a phone
+                      says it, since the sheet opens only from here. */}
+                  {portalPresentation.badge !== undefined && (
+                    <span
+                      aria-hidden="true"
+                      className="absolute -top-1.5 -right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-(--button-primary-bg) px-1 text-micro leading-none font-semibold text-white tabular-nums"
+                    >
+                      {portalPresentation.badge}
+                    </span>
+                  )}
                 </button>
               ) : (
                 <button

@@ -98,7 +98,9 @@ function StudentRow({
         // The checkbox sits in a cell as tall as the row, so a fingertip that
         // lands a little beside it ticks instead of opening the student; on a
         // touch screen the cell starts at the row's edge and is 44px wide.
-        <label className="flex shrink-0 cursor-pointer items-center self-stretch pointer-coarse:-ml-3 pointer-coarse:w-11 pointer-coarse:justify-center">
+        // Where the chips go under the name (below `@2xl`) the box stands on
+        // the name's line, not in the middle of the two.
+        <label className="flex shrink-0 cursor-pointer items-start self-stretch pt-4 pointer-coarse:-ml-3 pointer-coarse:w-11 pointer-coarse:justify-center pointer-coarse:pt-3.5 @2xl:items-center @2xl:pt-0 @2xl:pointer-coarse:pt-0">
           <input
             type="checkbox"
             checked={Boolean(selected)}
@@ -150,7 +152,8 @@ function StudentRow({
         <StudentChips
           student={student}
           allStudents={allStudents}
-          className="min-w-0 flex-1 basis-full @2xl:basis-auto"
+          // Under the name, not under the number, where they go below it.
+          className="min-w-0 flex-1 basis-full pl-20 @2xl:basis-auto @2xl:pl-0"
         />
       </button>
     </div>

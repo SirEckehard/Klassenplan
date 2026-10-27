@@ -5,6 +5,7 @@ import { useInspector } from '@/contexts/InspectorContext';
 import { useIsPhone } from '@/hooks/ui/useLayoutMode';
 import StudentRow from '@/components/students/StudentRow';
 import StudentListHeader from '@/components/students/StudentListHeader';
+import StudentListNarrowedCount from '@/components/studentInput/StudentListNarrowedCount';
 import { listContainerClass } from '@/utils';
 import type { Student } from '@/types';
 
@@ -26,6 +27,12 @@ type StudentListProps = {
   onToggleAllVisible?: () => void;
   /** Students are ticked: pressing a row ticks it too (see `StudentRow`). */
   selectionActive?: boolean;
+  /**
+   * What a search or a filter left of the class, and the way to let both go;
+   * the head says it on a phone (`StudentListHeader`). Omitted while the list
+   * shows everybody.
+   */
+  narrowing?: { totalCount: number; onClear: () => void };
 };
 
 /** Hides the focus ring (`data-quiet-focus`) until the element loses focus. */
@@ -57,6 +64,7 @@ const StudentList = ({
   someVisibleSelected,
   onToggleAllVisible,
   selectionActive = false,
+  narrowing,
 }: StudentListProps) => {
   const classRoster = allStudents ?? students;
   const { selectStudent } = useInspector();
@@ -133,6 +141,15 @@ const StudentList = ({
           allVisibleSelected={allVisibleSelected}
           someVisibleSelected={someVisibleSelected}
           onToggleAllVisible={onToggleSelected ? onToggleAllVisible : undefined}
+          narrowing={
+            narrowing && isPhone ? (
+              <StudentListNarrowedCount
+                visibleCount={students.length}
+                totalCount={narrowing.totalCount}
+                onClear={narrowing.onClear}
+              />
+            ) : undefined
+          }
         />
         {students.map((student, index) => (
           <StudentRow

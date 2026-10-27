@@ -39,11 +39,7 @@
     "title": "Geschlecht",
     "boy": "Männlich",
     "girl": "Weiblich",
-    "diverse": "Divers",
-    "noSelection": "Geschlecht: keine Angabe (optional)",
-    "noValue": "Keine Angabe",
-    "hint": "Geschlechtsangaben sind optional.",
-    "selection": "Geschlechtsauswahl"
+    "diverse": "Divers"
   },
   "studentFlags": {
     "restless": {
@@ -276,10 +272,10 @@
       "lastNameAsc": "Nachname A–Z",
       "lastNameDesc": "Nachname Z–A"
     },
+    "viewMenu": "Anzeigen und sortieren",
+    "viewMenuFilter": "Anzeigen",
+    "viewMenuSort": "Sortieren",
     "selectAll": "Alle auswählen",
-    "filterPopover": "Suche und Filter",
-    "activeFilters_one": "{{count}} Einschränkung aktiv",
-    "activeFilters_other": "{{count}} Einschränkungen aktiv",
     "countNarrowed": "{{visible}} von {{total}}",
     "clear": "Suche und Filter zurücksetzen",
     "noMatches": "Keine Schüler passen zu Suche und Filter.",
@@ -290,31 +286,11 @@
     "selectedCount_one": "{{count}} ausgewählt",
     "selectedCount_other": "{{count}} ausgewählt",
     "appliesToAll": "Gilt für alle Ausgewählten",
-    "setGender": "Geschlecht setzen",
-    "setHeight": "Körpergröße setzen",
-    "setLanguage": "Sprachniveau setzen",
-    "setRole": "Soziale Rolle setzen",
-    "setFlag": "Merkmal setzen",
     "flagState": {
-      "on": "bei allen",
-      "off": "bei keinem",
       "mixed": "gemischt"
     },
     "choiceMixed": "{{label}} (bei einigen)",
     "valueMixed": "Gemischt",
-    "flagSetHint": "Klicken, um es bei allen Ausgewählten zu setzen",
-    "flagClearHint": "Klicken, um es bei allen Ausgewählten zu entfernen",
-    "clearValue": "— entfernen —",
-    "flags": {
-      "performanceStrong": "Leistungsstark",
-      "performanceWeak": "Leistungsschwach",
-      "needsFrontSeat": "Vordere Plätze",
-      "restless": "Unruhig",
-      "shy": "Schüchtern",
-      "concentrationIssues": "Ablenkbar",
-      "prefersWindow": "Fensterplatz",
-      "prefersDoor": "Türplatz"
-    },
     "deleteSelected": "Löschen",
     "clearSelection": "Auswahl aufheben",
     "applied_one": "{{count}} Schüler aktualisiert.",

@@ -20,6 +20,8 @@ import {
 import { SeatingPlanGeneratorProvider } from '@/contexts/SeatingPlanContext';
 import { InspectorProvider, useInspector } from '@/contexts/InspectorContext';
 import Inspector from '@/components/shell/Inspector';
+import AppStatusBar from '@/components/shell/AppStatusBar';
+import { StatusBarSlotProvider } from '@/contexts/StatusBarSlotContext';
 import { STUDENT_LIST_TOOLS_THRESHOLD } from '@/utils';
 import type { Student } from '@/types';
 
@@ -164,8 +166,6 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
-// A phone has neither the column nor the drawer for them, so the bulk
-// controls take over the row above the list.
 describe('StudentInput list tools', () => {
   beforeEach(() => setWidth(600));
   afterEach(() => setWidth(LG_WIDTH));
@@ -214,208 +214,87 @@ describe('StudentInput list tools', () => {
     ).toBeInTheDocument();
   });
 
-  it('applies a bulk attribute to every selected student', async () => {
-    const updateStudents = vi.fn();
-    renderInput({ updateStudents });
+  const viewMenuButton = () =>
+    screen.queryByRole('button', {
+      name: /^(Anzeigen und sortieren|Show and sort):/i,
+    });
+
+  it('puts the filter and the sort behind one button on a phone', async () => {
+    const students = makeStudents();
+    students[2] = { ...students[2], restless: true };
+    renderInput({ students });
     const user = userEvent.setup();
 
-    const checkboxes = screen.getAllByRole('checkbox');
-    // First checkbox is the list header's select-all.
-    await user.click(checkboxes[1]);
-    await user.click(checkboxes[2]);
+    expect(
+      screen.queryByRole('button', { name: /^(Nach Merkmal|Filter by)/i }),
+    ).not.toBeInTheDocument();
+    await user.click(viewMenuButton() as HTMLElement);
+    const menu = await screen.findByRole('dialog', {
+      name: /Anzeigen und sortieren|Show and sort/i,
+    });
+    expect(
+      within(menu).getByRole('button', {
+        name: /^(Alle Schüler|All students)$/i,
+      }),
+    ).toHaveAttribute('aria-pressed', 'true');
 
     await user.click(
-      screen.getByRole('button', {
-        name: /Sprachniveau setzen|Set language level/i,
+      within(menu).getByRole('button', {
+        name: /^(Nur unruhige|Restless only)$/i,
       }),
     );
-    // The menu is a portal that only enters the a11y tree once positioned.
-    await user.click(
-      await screen.findByRole('menuitem', { name: /Fließend|Fluent/i }),
-    );
 
-    // One batched write, so the whole selection is a single undo step.
-    expect(updateStudents).toHaveBeenCalledExactlyOnceWith(['1', '2'], {
-      languageSkill: 'fluent',
-    });
+    expect(listItems().map((item) => item.textContent)).toEqual(['Cem']);
+    expect(
+      screen.queryByRole('dialog', {
+        name: /Anzeigen und sortieren|Show and sort/i,
+      }),
+    ).not.toBeInTheDocument();
+    expect(viewMenuButton()).toHaveAccessibleName(
+      /(Nur unruhige|Restless only)/i,
+    );
   });
 
-  it('clears an attribute for the whole selection', async () => {
-    const updateStudents = vi.fn();
-    renderInput({ updateStudents });
-    const user = userEvent.setup();
-
-    await user.click(screen.getAllByRole('checkbox')[1]);
-    await user.click(
-      screen.getByRole('button', { name: /Geschlecht setzen|Set gender/i }),
-    );
-    await user.click(
-      await screen.findByRole('menuitem', { name: /entfernen|clear/i }),
-    );
-
-    expect(updateStudents).toHaveBeenCalledWith(['1'], { gender: undefined });
-  });
-
-  it('opens an attribute menu from the keyboard and lands on its first entry', async () => {
+  it('lets a search that finds nobody go from the empty list on a phone', async () => {
     renderInput();
-    const user = userEvent.setup();
-
-    await user.click(screen.getAllByRole('checkbox')[1]);
-    screen
-      .getByRole('button', { name: /Geschlecht setzen|Set gender/i })
-      .focus();
-    await user.keyboard('{ArrowDown}');
-
-    // The menu enters the tree as soon as it is positioned; moving focus into
-    // it is a frame later.
-    const items = await screen.findAllByRole('menuitem');
-    await waitFor(() => expect(items[0]).toHaveFocus());
-
-    await user.keyboard('{ArrowDown}');
-    expect(items[1]).toHaveFocus();
-  });
-
-  it('leaves Escape to an open attribute menu instead of dropping the selection', async () => {
-    renderInput();
-    const user = userEvent.setup();
-
-    await user.click(screen.getAllByRole('checkbox')[1]);
-    const trigger = screen.getByRole('button', {
-      name: /Geschlecht setzen|Set gender/i,
-    });
-    await user.click(trigger);
-    await screen.findByRole('menu', {
-      name: /Geschlecht setzen|Set gender/i,
-    });
-
-    await user.keyboard('{Escape}');
-
-    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
-    expect(bulkBar()).toBeInTheDocument();
-    expect(trigger).toHaveFocus();
-  });
-
-  it('select-all only covers the students the search left visible', async () => {
-    const updateStudents = vi.fn();
-    renderInput({ updateStudents });
     const user = userEvent.setup();
 
     await user.type(
       screen.getByRole('searchbox', { name: /suchen|search/i }),
-      'an',
+      'zzz',
     );
     await user.click(
-      screen.getByRole('checkbox', { name: /Alle auswählen|Select all/i }),
+      screen.getByRole('button', {
+        name: /^(Suche und Filter zurücksetzen|Reset search and filter)$/i,
+      }),
     );
 
-    await user.click(screen.getByRole('button', { name: /Unruhig|Restless/i }));
-
-    expect(updateStudents).toHaveBeenCalledExactlyOnceWith(['1', '4'], {
-      restless: true,
-    });
+    expect(listItems()).toHaveLength(NAMES.length);
   });
 
-  it('clears a flag that every selected student already carries', async () => {
-    const updateStudents = vi.fn();
-    renderInput({
-      students: makeStudents().map((student) => ({
-        ...student,
-        restless: true,
-      })),
-      updateStudents,
-    });
-    const user = userEvent.setup();
+  it('keeps the two fields beside the search on a tablet', () => {
+    setWidth(900);
+    renderInput();
 
-    const checkboxes = screen.getAllByRole('checkbox');
-    await user.click(checkboxes[1]);
-    await user.click(checkboxes[2]);
-
-    const chip = screen.getByRole('button', { name: /Unruhig|Restless/i });
-    expect(chip).toHaveAttribute('aria-pressed', 'true');
-
-    await user.click(chip);
-
-    expect(updateStudents).toHaveBeenCalledExactlyOnceWith(['1', '2'], {
-      restless: false,
-    });
-  });
-
-  it('clears the opposite performance flag when setting one', async () => {
-    const updateStudents = vi.fn();
-    renderInput({ updateStudents });
-    const user = userEvent.setup();
-
-    const checkboxes = screen.getAllByRole('checkbox');
-    await user.click(checkboxes[1]);
-
-    await user.click(
-      screen.getByRole('button', { name: /Leistungsstark|High performer/i }),
-    );
-
-    expect(updateStudents).toHaveBeenCalledWith(['1'], {
-      performanceStrong: true,
-      performanceWeak: false,
-    });
-  });
-
-  it('marks a flag only some of the selection carries as mixed', async () => {
-    const students = makeStudents();
-    students[0] = { ...students[0], restless: true };
-    renderInput({ students });
-    const user = userEvent.setup();
-
-    const checkboxes = screen.getAllByRole('checkbox');
-    await user.click(checkboxes[1]);
-    await user.click(checkboxes[2]);
-
+    expect(viewMenuButton()).not.toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: /Unruhig|Restless/i }),
-    ).toHaveAttribute('aria-pressed', 'mixed');
+      screen.getByRole('button', { name: /^(Nach Merkmal|Filter by)/i }),
+    ).toBeInTheDocument();
   });
 
-  const bulkBar = () =>
-    screen.queryByRole('region', {
-      name: /Mehrfachbearbeitung|Bulk editing/i,
-    });
+  const ticked = (row: number) =>
+    (screen.getAllByRole('checkbox')[row] as HTMLInputElement).checked;
 
   it('drops the selection on Escape', async () => {
     renderInput();
     const user = userEvent.setup();
 
     await user.click(screen.getAllByRole('checkbox')[1]);
-    expect(bulkBar()).toBeInTheDocument();
+    expect(ticked(1)).toBe(true);
 
     await user.keyboard('{Escape}');
 
-    expect(bulkBar()).not.toBeInTheDocument();
-  });
-
-  it('leaves Escape to the filter popover instead of dropping the selection', async () => {
-    renderInput();
-    const user = userEvent.setup();
-
-    await user.click(screen.getAllByRole('checkbox')[1]);
-    // While students are selected, search/filter/sort sit behind the popover
-    // the bulk row collapses them into.
-    await user.click(
-      screen.getByRole('button', {
-        name: /Suche und Filter|Search and filter/i,
-      }),
-    );
-    // The popover is a portal that is not rendered until it has
-    // measured itself, so it only enters the a11y tree a frame later.
-    await user.click(
-      await screen.findByRole('searchbox', { name: /suchen|search/i }),
-    );
-
-    await user.keyboard('{Escape}');
-
-    expect(
-      screen.queryByRole('dialog', {
-        name: /Suche und Filter|Search and filter/i,
-      }),
-    ).not.toBeInTheDocument();
-    expect(bulkBar()).toBeInTheDocument();
+    expect(ticked(1)).toBe(false);
   });
 
   it('keeps the selection when Escape closes a dialog mounted before the list', async () => {
@@ -459,48 +338,148 @@ describe('StudentInput list tools', () => {
     await user.keyboard('{Escape}');
 
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-    expect(bulkBar()).toBeInTheDocument();
+    expect(ticked(1)).toBe(true);
+  });
+});
+
+// A phone edits the ticked students in the sheet an opened student gets,
+// opened from the status bar's switch alone, which says how many are ticked.
+describe('StudentInput bulk editing on a phone', () => {
+  beforeEach(() => setWidth(600));
+  afterEach(() => setWidth(LG_WIDTH));
+
+  /** As the shell mounts the class layer on a phone: sheet and status bar. */
+  const renderOnPhone = (props = {}) =>
+    render(
+      <MemoryRouter>
+        <SeatingPlanGeneratorProvider>
+          <ClassManagementContext.Provider value={classContext()}>
+            <InspectorProvider>
+              <StatusBarSlotProvider>
+                <StudentInput
+                  {...createMockStudentInputProps({
+                    students: makeStudents(),
+                    ...props,
+                  })}
+                />
+                <Inspector />
+                <AppStatusBar />
+              </StatusBarSlotProvider>
+            </InspectorProvider>
+          </ClassManagementContext.Provider>
+        </SeatingPlanGeneratorProvider>
+      </MemoryRouter>,
+    );
+
+  const selectionSwitch = () =>
+    screen.getByRole('button', {
+      name: /Mehrfachbearbeitung|Bulk editing/i,
+    });
+  const sheet = () =>
+    screen.queryByRole('dialog', { name: /Mehrfachbearbeitung|Bulk editing/i });
+  const ticked = (row: number) =>
+    (screen.getAllByRole('checkbox')[row] as HTMLInputElement).checked;
+
+  it('opens nothing on a tick, keeps the row for browsing and counts the ticks on the switch', async () => {
+    renderOnPhone();
+    const user = userEvent.setup();
+
+    await user.click(screen.getAllByRole('checkbox')[1]);
+    await user.click(screen.getAllByRole('checkbox')[2]);
+
+    expect(sheet()).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('searchbox', { name: /suchen|search/i }),
+    ).toBeInTheDocument();
+    expect(selectionSwitch()).toHaveTextContent('2');
+    expect(selectionSwitch()).toHaveAttribute('aria-expanded', 'false');
   });
 
-  it('keeps the selection when Escape closes the delete dialog', async () => {
-    renderInput();
+  it('sets a value for everyone in the sheet the switch opens', async () => {
+    const updateStudents = vi.fn();
+    renderOnPhone({ updateStudents });
+    const user = userEvent.setup();
+
+    await user.click(screen.getAllByRole('checkbox')[1]);
+    await user.click(screen.getAllByRole('checkbox')[2]);
+    await user.click(selectionSwitch());
+
+    const dialog = await waitFor(() => {
+      const found = sheet();
+      expect(found).toBeInTheDocument();
+      return found as HTMLElement;
+    });
+    expect(
+      within(dialog).getByRole('heading', { name: /2 ausgewählt|2 selected/i }),
+    ).toBeInTheDocument();
+
+    await user.click(
+      within(dialog).getByRole('switch', { name: /^(Unruhig|Restless)$/i }),
+    );
+
+    expect(updateStudents).toHaveBeenCalledExactlyOnceWith(['1', '2'], {
+      restless: true,
+    });
+  });
+
+  it('closes the sheet on Escape and keeps the ticks, the next Escape lets them go', async () => {
+    renderOnPhone();
+    const user = userEvent.setup();
+
+    await user.click(screen.getAllByRole('checkbox')[1]);
+    await user.click(screen.getAllByRole('checkbox')[2]);
+    await user.click(selectionSwitch());
+    await waitFor(() => expect(sheet()).toBeInTheDocument());
+
+    await user.keyboard('{Escape}');
+
+    await waitFor(() => expect(sheet()).not.toBeInTheDocument());
+    expect(ticked(1)).toBe(true);
+    expect(ticked(2)).toBe(true);
+
+    await user.keyboard('{Escape}');
+
+    expect(ticked(1)).toBe(false);
+  });
+
+  it('lets the ticks go from the status bar, where the count stands otherwise', async () => {
+    renderOnPhone();
     const user = userEvent.setup();
 
     await user.click(screen.getAllByRole('checkbox')[1]);
     await user.click(
-      screen.getByRole('button', { name: /^(Löschen|Delete)$/i }),
+      screen.getByRole('button', {
+        name: /Auswahl aufheben|Clear selection/i,
+      }),
     );
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
 
-    await user.keyboard('{Escape}');
-
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-    expect(bulkBar()).toBeInTheDocument();
+    expect(ticked(1)).toBe(false);
+    expect(
+      screen.queryByRole('button', {
+        name: /Auswahl aufheben|Clear selection/i,
+      }),
+    ).not.toBeInTheDocument();
+    // The switch opens the class again.
+    expect(
+      screen.getByRole('button', { name: /^(Klasse einblenden|Show class)$/i }),
+    ).not.toHaveTextContent(/\d/);
   });
 
-  it('asks before removing the selected students', async () => {
-    const removeStudents = vi.fn();
-    renderInput({ removeStudents });
+  it('shows a single ticked student in the sheet an opened one gets', async () => {
+    renderOnPhone();
     const user = userEvent.setup();
 
+    await user.click(screen.getAllByRole('checkbox')[2]);
     await user.click(
-      screen.getByRole('checkbox', { name: /Alle auswählen|Select all/i }),
-    );
-    await user.click(
-      screen.getByRole('button', { name: /^(Löschen|Delete)$/i }),
+      screen.getByRole('button', {
+        name: /^(Merkmale einblenden|Show attributes)$/i,
+      }),
     );
 
-    const dialog = screen.getByRole('dialog');
-    expect(removeStudents).not.toHaveBeenCalled();
-
-    await user.click(
-      within(dialog).getByRole('button', { name: /^(Löschen|Delete)$/i }),
-    );
-
-    // The whole selection goes in one write, undoable in one step.
-    expect(removeStudents).toHaveBeenCalledExactlyOnceWith(
-      NAMES.map((_, index) => String(index + 1)),
-    );
+    const dialog = await screen.findByRole('dialog', {
+      name: /Merkmale|Attributes/i,
+    });
+    expect(within(dialog).getByText('Ben')).toBeInTheDocument();
   });
 });
 
@@ -701,6 +680,49 @@ describe('StudentInput bulk editing in the inspector', () => {
     );
 
     expect(removeStudents).toHaveBeenCalledExactlyOnceWith(['1', '2']);
+  });
+
+  it('select-all only covers the students the search left visible', async () => {
+    const updateStudents = vi.fn();
+    renderWithInspector({ updateStudents });
+    const user = userEvent.setup();
+
+    await user.type(
+      screen.getByRole('searchbox', { name: /suchen|search/i }),
+      'an',
+    );
+    await user.click(
+      screen.getByRole('checkbox', { name: /Alle auswählen|Select all/i }),
+    );
+    const panel = await screen.findByRole('complementary', {
+      name: /Mehrfachbearbeitung|Bulk editing/i,
+    });
+    await user.click(
+      within(panel).getByRole('switch', { name: /^(Unruhig|Restless)$/i }),
+    );
+
+    expect(updateStudents).toHaveBeenCalledExactlyOnceWith(['1', '4'], {
+      restless: true,
+    });
+  });
+
+  it('keeps the selection when Escape closes the delete dialog', async () => {
+    renderWithInspector();
+    const user = userEvent.setup();
+
+    await tick(user, 1, 2);
+    const panel = await screen.findByRole('complementary', {
+      name: /Mehrfachbearbeitung|Bulk editing/i,
+    });
+    await user.click(
+      within(panel).getByRole('button', { name: /^(Löschen|Delete)$/i }),
+    );
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+
+    await user.keyboard('{Escape}');
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(selectionPanel()).toBeInTheDocument();
   });
 
   // With no student open, the inspector shows the class itself.

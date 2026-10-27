@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import {
-  dataFamilyClass,
-  mutedIconButtonClass,
-  type DataFamily,
-} from '@/utils';
+import { dataFamilyClass, type DataFamily } from '@/utils';
 
 /**
  * A student value in the inspector that opens a list rather than standing as
@@ -58,26 +54,3 @@ const partnerControl = familyValueControl('social');
 export const partnerButtonTokens = partnerControl;
 
 export const avoidPartnerButtonTokens = partnerControl;
-
-/**
- * The bulk bar's flag chips — the one place a student attribute is still set
- * for many students at once.
- *
- * Setting a flag is an action, so the chip takes the accent that means "you
- * did this" rather than the flag's own family: what the flag *is* stays with
- * its icon and its tooltip.
- */
-export const specialNeedsButtonTokens = {
-  // Eight of these sit in a single row that has to fit a 1280px layout, so
-  // they drop to 36px where a mouse points at them and keep the 44px touch
-  // target where a finger does. No `px-3` — with an icon-only chip the
-  // padding, not `min-w`, would decide the width.
-  bulkBaseClass: `${mutedIconButtonClass} flex min-h-9 min-w-9 shrink-0 items-center justify-center text-xs font-semibold pointer-coarse:min-h-11 pointer-coarse:min-w-11`,
-  activeStateClass:
-    'border-(--border-option-selected)! bg-(--surface-option-selected)! text-(--text-badge)!',
-  inactiveStateClass: 'text-(--text-page)!',
-  // Bulk editing only: some of the selected students carry the flag, others do
-  // not. Dashed so it never reads as a plain active toggle.
-  mixedStateClass:
-    'border-dashed! border-(--border-option-selected)! bg-(--surface-card)! text-(--text-badge)!',
-} as const;

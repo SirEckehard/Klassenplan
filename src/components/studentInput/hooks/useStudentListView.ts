@@ -21,6 +21,15 @@ export const STUDENT_SORT_MODES: StudentSortMode[] = [
   'lastName-desc',
 ];
 
+/** The i18n key that names each sort, in the row's field and the phone's menu. */
+export const STUDENT_SORT_LABEL_KEYS: Record<StudentSortMode, string> = {
+  manual: 'listToolbar.sort.manual',
+  'name-asc': 'listToolbar.sort.nameAsc',
+  'name-desc': 'listToolbar.sort.nameDesc',
+  'lastName-asc': 'listToolbar.sort.lastNameAsc',
+  'lastName-desc': 'listToolbar.sort.lastNameDesc',
+};
+
 /**
  * Attribute filters. Each maps to one predicate; `all` disables filtering.
  * Kept to a single-select so the toolbar stays one row on a laptop screen.

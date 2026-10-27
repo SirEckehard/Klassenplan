@@ -39,11 +39,7 @@
     "title": "Gender",
     "boy": "Male",
     "girl": "Female",
-    "diverse": "Diverse",
-    "noSelection": "Gender: not specified (optional)",
-    "noValue": "Not specified",
-    "hint": "Gender is optional.",
-    "selection": "Gender selection"
+    "diverse": "Diverse"
   },
   "studentFlags": {
     "restless": {
@@ -276,10 +272,10 @@
       "lastNameAsc": "Last name A–Z",
       "lastNameDesc": "Last name Z–A"
     },
+    "viewMenu": "Show and sort",
+    "viewMenuFilter": "Show",
+    "viewMenuSort": "Sort",
     "selectAll": "Select all",
-    "filterPopover": "Search and filter",
-    "activeFilters_one": "{{count}} constraint active",
-    "activeFilters_other": "{{count}} constraints active",
     "countNarrowed": "{{visible}} of {{total}}",
     "clear": "Reset search and filter",
     "noMatches": "No students match the search and filter.",
@@ -290,31 +286,11 @@
     "selectedCount_one": "{{count}} selected",
     "selectedCount_other": "{{count}} selected",
     "appliesToAll": "Applies to everyone selected",
-    "setGender": "Set gender",
-    "setHeight": "Set height",
-    "setLanguage": "Set language level",
-    "setRole": "Set social role",
-    "setFlag": "Set marker",
     "flagState": {
-      "on": "on for all",
-      "off": "off for all",
       "mixed": "mixed"
     },
     "choiceMixed": "{{label}} (some of them)",
     "valueMixed": "Mixed",
-    "flagSetHint": "Click to set it for everyone selected",
-    "flagClearHint": "Click to clear it for everyone selected",
-    "clearValue": "— clear —",
-    "flags": {
-      "performanceStrong": "High performer",
-      "performanceWeak": "Needs support",
-      "needsFrontSeat": "Front seat",
-      "restless": "Restless",
-      "shy": "Shy",
-      "concentrationIssues": "Easily distracted",
-      "prefersWindow": "Window seat",
-      "prefersDoor": "Door seat"
-    },
     "deleteSelected": "Delete",
     "clearSelection": "Clear selection",
     "applied_one": "{{count}} student updated.",
