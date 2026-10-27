@@ -8,6 +8,9 @@ import React from 'react';
  */
 export const DRAG_THRESHOLD_PX = { mouse: 4, touch: 8 } as const;
 
+const thresholdFor = (pointerType: string) =>
+  pointerType === 'touch' ? DRAG_THRESHOLD_PX.touch : DRAG_THRESHOLD_PX.mouse;
+
 type Point = { x: number; y: number };
 
 export type DragGestureHandlers = {
@@ -34,7 +37,8 @@ type Session = {
  * circle.
  *
  * A press that does not travel is a click or a tap and never becomes a drag,
- * so a tap on a badge or the lock does not also pick the student up. Once it
+ * so a tap on a badge or the lock does not also pick the student up — and a
+ * press that travels never counts as that tap (`useTapGesture`). Once it
  * travels, `onStart` fires and the drag runs until the pointer is released
  * (`onDrop`) or the drag is abandoned: Escape, a pointer the system takes
  * back (a scroll, a notification) or the view going away all end it in
@@ -62,10 +66,7 @@ export function useDragGesture(): {
       end('cancel');
 
       const pointerId = event.pointerId;
-      const threshold =
-        event.pointerType === 'touch'
-          ? DRAG_THRESHOLD_PX.touch
-          : DRAG_THRESHOLD_PX.mouse;
+      const threshold = thresholdFor(event.pointerType);
       const start = { x: event.clientX, y: event.clientY };
 
       const handleMove = (moveEvent: PointerEvent) => {
@@ -129,4 +130,61 @@ export function useDragGesture(): {
   React.useEffect(() => () => end('cancel'), [end]);
 
   return React.useMemo(() => ({ begin, cancel }), [begin, cancel]);
+}
+
+/**
+ * A press released where it began: the tap or click of a control drawn on
+ * something that can be dragged — the lock on a seat or a place of the
+ * circle. It acts on the release, and only when the press stayed within the
+ * drag threshold, so a press that travels picks the student up instead of
+ * locking them. A cancelled pointer, a second press or the view going away
+ * act on nothing.
+ */
+export function useTapGesture(): (
+  event: React.PointerEvent,
+  onTap: () => void,
+) => void {
+  const cleanupRef = React.useRef<(() => void) | null>(null);
+
+  const stop = React.useCallback(() => {
+    cleanupRef.current?.();
+    cleanupRef.current = null;
+  }, []);
+
+  React.useEffect(() => stop, [stop]);
+
+  return React.useCallback(
+    (event: React.PointerEvent, onTap: () => void) => {
+      stop();
+
+      const pointerId = event.pointerId;
+      const threshold = thresholdFor(event.pointerType);
+      const start = { x: event.clientX, y: event.clientY };
+      const travelled = (moveEvent: PointerEvent) =>
+        Math.hypot(moveEvent.clientX - start.x, moveEvent.clientY - start.y) >=
+        threshold;
+
+      const handleMove = (moveEvent: PointerEvent) => {
+        if (moveEvent.pointerId === pointerId && travelled(moveEvent)) stop();
+      };
+      const handleUp = (upEvent: PointerEvent) => {
+        if (upEvent.pointerId !== pointerId) return;
+        stop();
+        if (!travelled(upEvent)) onTap();
+      };
+      const handleCancel = (cancelEvent: PointerEvent) => {
+        if (cancelEvent.pointerId === pointerId) stop();
+      };
+
+      window.addEventListener('pointermove', handleMove);
+      window.addEventListener('pointerup', handleUp);
+      window.addEventListener('pointercancel', handleCancel);
+      cleanupRef.current = () => {
+        window.removeEventListener('pointermove', handleMove);
+        window.removeEventListener('pointerup', handleUp);
+        window.removeEventListener('pointercancel', handleCancel);
+      };
+    },
+    [stop],
+  );
 }

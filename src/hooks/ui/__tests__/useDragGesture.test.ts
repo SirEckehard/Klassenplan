@@ -3,7 +3,11 @@
 import type React from 'react';
 import { act, renderHook } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import { DRAG_THRESHOLD_PX, useDragGesture } from '../useDragGesture';
+import {
+  DRAG_THRESHOLD_PX,
+  useDragGesture,
+  useTapGesture,
+} from '../useDragGesture';
 
 const press = (pointerType: string) =>
   ({
@@ -85,5 +89,47 @@ describe('useDragGesture', () => {
     move('pointermove', 50);
     unmount();
     expect(leftBehind.onCancel).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('useTapGesture', () => {
+  it('acts on the release of a press that stayed put', () => {
+    const { result } = renderHook(() => useTapGesture());
+    const onTap = vi.fn();
+    act(() => result.current(press('touch'), onTap));
+    move('pointermove', DRAG_THRESHOLD_PX.touch - 1);
+    expect(onTap).not.toHaveBeenCalled();
+    move('pointerup', DRAG_THRESHOLD_PX.touch - 1);
+    expect(onTap).toHaveBeenCalledTimes(1);
+    move('pointerup', 0);
+    expect(onTap).toHaveBeenCalledTimes(1);
+  });
+
+  it('never acts on a press that travelled, even back to where it began', () => {
+    const { result } = renderHook(() => useTapGesture());
+    const onTap = vi.fn();
+    act(() => result.current(press('mouse'), onTap));
+    move('pointermove', DRAG_THRESHOLD_PX.mouse);
+    move('pointermove', 0);
+    move('pointerup', 0);
+    expect(onTap).not.toHaveBeenCalled();
+  });
+
+  it('ignores other pointers and acts on nothing after a cancel or an unmount', () => {
+    const { result, unmount } = renderHook(() => useTapGesture());
+
+    const cancelled = vi.fn();
+    act(() => result.current(press('mouse'), cancelled));
+    move('pointerup', 0, 8);
+    expect(cancelled).not.toHaveBeenCalled();
+    move('pointercancel', 0);
+    move('pointerup', 0);
+    expect(cancelled).not.toHaveBeenCalled();
+
+    const leftBehind = vi.fn();
+    act(() => result.current(press('mouse'), leftBehind));
+    unmount();
+    move('pointerup', 0);
+    expect(leftBehind).not.toHaveBeenCalled();
   });
 });

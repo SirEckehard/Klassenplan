@@ -10,7 +10,14 @@ import {
   type Mock,
 } from 'vitest';
 import type { ComponentProps } from 'react';
-import { act, render, screen, cleanup, within } from '@testing-library/react';
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  within,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import SimpleCircleView from '../SimpleCircleView';
 import type { CircleLayout } from '../../../types/Circle';
@@ -384,6 +391,35 @@ describe('SimpleCircleView', () => {
     );
     await user.keyboard('{Enter}{ArrowRight}{Enter}');
     expect(mockOnStudentMove).not.toHaveBeenCalled();
+  });
+
+  it('switches a lock on a tap and picks the student up from it on a drag', () => {
+    const onToggleLock = vi.fn();
+    render(
+      <SimpleCircleView
+        layout={mockLayout}
+        editable={true}
+        onStudentMove={mockOnStudentMove}
+        onToggleLock={onToggleLock}
+      />,
+    );
+    const [aliceLock] = screen.getAllByRole('button', {
+      name: /Sitzplatz sperren|Lock seat/,
+    });
+
+    fireEvent.pointerDown(aliceLock, { pointerId: 1, clientX: 5, clientY: 5 });
+    expect(onToggleLock).not.toHaveBeenCalled();
+    fireEvent.pointerUp(aliceLock, { pointerId: 1, clientX: 6, clientY: 5 });
+    expect(onToggleLock).toHaveBeenCalledWith('1');
+
+    onToggleLock.mockClear();
+    fireEvent.pointerDown(aliceLock, { pointerId: 2, clientX: 5, clientY: 5 });
+    const before = screen.getAllByText('Alice').length;
+    fireEvent.pointerMove(aliceLock, { pointerId: 2, clientX: 60, clientY: 5 });
+    // The drag ghost carries her name above the pointer.
+    expect(screen.getAllByText('Alice').length).toBeGreaterThan(before);
+    fireEvent.pointerUp(aliceLock, { pointerId: 2, clientX: 60, clientY: 5 });
+    expect(onToggleLock).not.toHaveBeenCalled();
   });
 
   it('handles non-editable mode correctly', () => {

@@ -4,6 +4,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { LockIcon, LockOpenIcon } from '@phosphor-icons/react';
 import { useIsCoarsePointer } from '@/hooks/ui/useCoarsePointer';
+import { useTapGesture } from '@/hooks/ui/useDragGesture';
 import type { StatisticHighlightMode, StatisticStatus, Student } from '@/types';
 import {
   describeBadge,
@@ -115,7 +116,7 @@ interface TableSeatProps {
    */
   swapPreviewStudent?: Student | null;
   onSeatPointerDown?: (
-    e: React.PointerEvent<SVGRectElement>,
+    e: React.PointerEvent<SVGElement>,
     seatIndex: number,
     locked: boolean,
     hasStudent: boolean,
@@ -125,7 +126,7 @@ interface TableSeatProps {
     flags: StudentBadge[],
   ) => void;
   onSeatPointerUp?: (
-    e: React.PointerEvent<SVGRectElement>,
+    e: React.PointerEvent<SVGElement>,
     seatIndex: number,
     locked: boolean,
   ) => void;
@@ -401,6 +402,7 @@ function TableSeat({
   // A fingertip gets a wider margin around the lock than the mouse's 24
   // units; more would eat into the seat a finger grabs to drag.
   const lockHitInset = useIsCoarsePointer() ? 7 : 2;
+  const beginLockTap = useTapGesture();
 
   // Keyboard move support: the touch target becomes a focusable button so the
   // seat drag has a keyboard alternative (Enter/Space grab & drop, Escape).
@@ -656,6 +658,8 @@ function TableSeat({
                   transition: 'opacity 150ms ease',
                   // No invisible click target while hidden (focus still works)
                   pointerEvents: lockVisible ? 'auto' : 'none',
+                  // A finger's tap must not turn into a scroll that cancels it
+                  touchAction: 'none',
                 }}
                 className="seat-lock"
                 role="button"
@@ -679,7 +683,21 @@ function TableSeat({
                 onPointerDown={(event) => {
                   event.stopPropagation();
                   event.preventDefault();
-                  toggleLock(student.id, tableIndex, seatIndex);
+                  // The lock switches on a tap alone; a press that travels
+                  // picks the student up, as one beside the lock does.
+                  beginLockTap(event, () =>
+                    toggleLock(student.id, tableIndex, seatIndex),
+                  );
+                  onSeatPointerDown?.(
+                    event,
+                    seatIndex,
+                    locked,
+                    true,
+                    seatWidth,
+                    seatHeight,
+                    appearance,
+                    flags,
+                  );
                 }}
                 onKeyDown={(event) => {
                   if (event.key === 'Enter' || event.key === ' ') {

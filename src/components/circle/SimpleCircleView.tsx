@@ -55,6 +55,7 @@ import {
 import { useCircleKeyboardMove } from '@/hooks/circle/useCircleKeyboardMove';
 import { useHasHoverPointer } from '@/hooks/ui/useHasHoverPointer';
 import { useTouchScrollLock } from '@/hooks/ui/useTouchScrollLock';
+import { useTapGesture } from '@/hooks/ui/useDragGesture';
 import DragGhost from '@/components/scene/DragGhost';
 import CircleSpotlight from '@/components/circle/CircleSpotlight';
 import { useLayoutMode } from '@/hooks/ui/useLayoutMode';
@@ -421,6 +422,7 @@ function SimpleCircleView({
   const [hoveredToken, setHoveredToken] = useState<number | null>(null);
   const [focusedToken, setFocusedToken] = useState<number | null>(null);
   const [focusedLock, setFocusedLock] = useState<number | null>(null);
+  const beginLockTap = useTapGesture();
   const [visibleFocusLock, setVisibleFocusLock] = useState<number | null>(null);
 
   const getCircleAppearance = (student: Student | null) => {
@@ -1022,7 +1024,11 @@ function SimpleCircleView({
                       onPointerDown={(event) => {
                         event.stopPropagation();
                         event.preventDefault();
-                        onToggleLock?.(student.id);
+                        // The lock switches on a tap alone; a press that
+                        // travels picks the student up, as one beside the
+                        // lock does.
+                        beginLockTap(event, () => onToggleLock?.(student.id));
+                        handlePointerDown(event, slot.position, student.id);
                       }}
                       onKeyDown={(event) => {
                         if (event.key === 'Enter' || event.key === ' ') {
@@ -1035,6 +1041,9 @@ function SimpleCircleView({
                         cursor: 'pointer',
                         opacity: lockVisible ? 1 : 0,
                         pointerEvents: lockVisible ? 'auto' : 'none',
+                        // A finger's tap must not turn into a scroll that
+                        // cancels it
+                        touchAction: 'none',
                         transition: 'opacity 150ms ease',
                       }}
                     >

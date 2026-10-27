@@ -23,7 +23,7 @@ type MoveStudentHandler = (
 ) => boolean;
 
 type SeatPointerDownHandler = (
-  e: React.PointerEvent<SVGRectElement>,
+  e: React.PointerEvent<SVGElement>,
   seatIndex: number,
   locked: boolean,
   hasStudent: boolean,
@@ -34,7 +34,7 @@ type SeatPointerDownHandler = (
 ) => void;
 
 type SeatPointerUpHandler = (
-  e: React.PointerEvent<SVGRectElement>,
+  e: React.PointerEvent<SVGElement>,
   seatIndex: number,
   locked: boolean,
 ) => void;

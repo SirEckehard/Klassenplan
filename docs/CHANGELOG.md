@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- Dragging a student no longer locks them by accident when the press starts on the lock in the seat's corner, in the seating plan as in the circle: the lock now switches when it is tapped or clicked and let go in place, and a press that moves picks the student up instead
 - On a phone and a tablet, the drawers no longer reach a few pixels over the status bar; they end where it begins, also with a larger text size set in the browser
 - On a phone, the note above the plan that the class has changed no longer squeezes its text into a column one word wide behind its buttons: the buttons now go below the text
 

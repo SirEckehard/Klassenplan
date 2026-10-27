@@ -171,9 +171,63 @@ describe('TableSeat component', () => {
     const lockButton = getByRole('button', {
       name: /sitzplatz sperren|lock seat/i,
     });
-    fireEvent.pointerDown(lockButton);
+    fireEvent.pointerDown(lockButton, { pointerId: 1, clientX: 5, clientY: 5 });
+    expect(toggleLock).not.toHaveBeenCalled();
+    fireEvent.pointerUp(lockButton, { pointerId: 1, clientX: 6, clientY: 5 });
 
     expect(toggleLock).toHaveBeenCalledWith('s1', 0, 0);
+  });
+
+  it('picks the student up instead of locking when a press on the lock travels', () => {
+    const toggleLock = vi.fn();
+    const onSeatPointerDown = vi.fn();
+    const { getByRole } = render(
+      <svg>
+        <TableSeat
+          student={baseStudent}
+          seatIndex={0}
+          tableIndex={0}
+          col={0}
+          row={0}
+          seatWidth={55}
+          seatHeight={65}
+          isDark={false}
+          locked={false}
+          isOriginSeat={false}
+          isHoverSeat={false}
+          isHoverLockedSeat={false}
+          isLockedFeedbackSeat={false}
+          showSpecialNeeds={true}
+          lockSeatLabelOrientation={true}
+          seatTextRotation={0}
+          toggleLock={toggleLock}
+          onSeatPointerDown={onSeatPointerDown}
+        />
+      </svg>,
+    );
+
+    const lockButton = getByRole('button', {
+      name: /sitzplatz sperren|lock seat/i,
+    });
+    fireEvent.pointerDown(lockButton, { pointerId: 1, clientX: 5, clientY: 5 });
+    expect(onSeatPointerDown).toHaveBeenCalledWith(
+      expect.anything(),
+      0,
+      false,
+      true,
+      55,
+      65,
+      expect.anything(),
+      expect.anything(),
+    );
+    fireEvent.pointerMove(lockButton, {
+      pointerId: 1,
+      clientX: 40,
+      clientY: 5,
+    });
+    fireEvent.pointerUp(lockButton, { pointerId: 1, clientX: 40, clientY: 5 });
+
+    expect(toggleLock).not.toHaveBeenCalled();
   });
 
   it('supports keyboard activation for locked seats', () => {

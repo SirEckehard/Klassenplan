@@ -55,9 +55,49 @@ describe('SceneTable seat locking', () => {
     const lockButton = getByRole('button', {
       name: /sitzplatz sperren|lock seat/i,
     });
-    fireEvent.pointerDown(lockButton);
+    fireEvent.pointerDown(lockButton, { pointerId: 1, clientX: 5, clientY: 5 });
+    fireEvent.pointerUp(lockButton, { pointerId: 1, clientX: 5, clientY: 5 });
 
     expect(toggleLock).toHaveBeenCalledWith('s1', 0, 0);
+  });
+
+  it('starts a drag rather than a lock when a press on the lock travels', () => {
+    const toggleLock = vi.fn();
+    const onSeatDragStart = vi.fn();
+
+    const { getByRole } = render(
+      <svg>
+        <TableIcon
+          table={baseTable}
+          index={0}
+          students={[student]}
+          selected={false}
+          draggable
+          isSeatLocked={() => false}
+          toggleLock={toggleLock}
+          moveStudent={() => true}
+          onSeatDragStart={onSeatDragStart}
+          editable={false}
+        />
+      </svg>,
+    );
+
+    const lockButton = getByRole('button', {
+      name: /sitzplatz sperren|lock seat/i,
+    });
+    fireEvent.pointerDown(lockButton, { pointerId: 1, clientX: 5, clientY: 5 });
+    fireEvent.pointerMove(lockButton, {
+      pointerId: 1,
+      clientX: 40,
+      clientY: 5,
+    });
+    fireEvent.pointerUp(lockButton, { pointerId: 1, clientX: 40, clientY: 5 });
+
+    expect(onSeatDragStart).toHaveBeenCalledWith(
+      student,
+      expect.objectContaining({ tableIndex: 0, seatIndex: 0 }),
+    );
+    expect(toggleLock).not.toHaveBeenCalled();
   });
 
   it('supports keyboard activation for locked seats', () => {
