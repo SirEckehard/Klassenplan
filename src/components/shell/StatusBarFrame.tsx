@@ -151,6 +151,7 @@ export default function StatusBarFrame({
     <div
       role="region"
       aria-label={t('shell.statusBarLabel')}
+      data-shell-status-bar=""
       className="sticky bottom-0 z-30 shrink-0 border-t border-(--border-card) bg-(--surface-card) pb-[env(safe-area-inset-bottom)]"
     >
       {/* What stands over the stage but belongs to the bar — the class list's

@@ -15,13 +15,15 @@
  */
 
 /**
- * How much of the window's bottom edge the status bar takes: its 36px
- * controls, the 38px undo/redo frame on most layers, padding and hairline come
- * to 53–55px. Whatever sits above the bar keeps clear of this much — the
- * drawers and the focus mode's thumb bar through `--shell-bottom-inset`, the
- * tablet's toolbar column through its measured height.
+ * How much of the window's bottom edge the status bar takes at the browser's
+ * default text size: its row is at least 44px (`min-h-11`), with 8px of
+ * padding above and below and the hairline on top, 61px. Whatever sits above
+ * the bar keeps clear of it — the drawers and the focus mode's thumb bar
+ * through `--shell-bottom-inset`, which `AppShell` sets from the bar's
+ * measured height (a larger text size makes it taller) and from this until it
+ * is measured; the tablet's toolbar column through its measured height.
  */
-export const SHELL_STATUS_BAR_HEIGHT = 56;
+export const SHELL_STATUS_BAR_HEIGHT = 61;
 
 /** The root of a layer: the toolbar and the stage side by side. */
 export const workspaceLayerClass =

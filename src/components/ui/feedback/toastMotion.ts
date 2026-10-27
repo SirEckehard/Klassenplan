@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
+import { MOTION_EASE } from '@/utils/ui/motion';
 
 /**
  * How a toast moves: it glides in from the right while the older ones make
@@ -7,29 +8,16 @@
  *
  * The Web Animations API rather than CSS keyframes, because the stack closes
  * up by a measured height, and because `animation.finished` tells the
- * provider when a card may leave the DOM. The global reduced-motion guard in
- * `index.css` only reaches CSS animations, so `toastMotionEnabled` asks the
- * media query itself — and jsdom, which has no `Element.animate`, gets the
- * instant behaviour the tests expect.
+ * provider when a card may leave the DOM. The curves are the app's own
+ * (`utils/ui/motion`), and so is the question whether to move at all.
  */
 
-const EASE_OUT = 'cubic-bezier(0.16, 1, 0.3, 1)';
-const EASE_IN = 'cubic-bezier(0.4, 0, 1, 1)';
-const SETTLE = 'cubic-bezier(0.2, 0.8, 0.2, 1)';
+const EASE_OUT = MOTION_EASE.arrive;
+const EASE_IN = MOTION_EASE.leave;
+const SETTLE = MOTION_EASE.settle;
 
 /** How far a card travels on its way in and out. */
 const SLIDE_PX = 28;
-
-export function toastMotionEnabled(): boolean {
-  if (
-    typeof Element === 'undefined' ||
-    typeof Element.prototype.animate !== 'function'
-  ) {
-    return false;
-  }
-  if (typeof window.matchMedia !== 'function') return true;
-  return !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-}
 
 /** The room a card takes in the stack: its own height and the gap after it. */
 function stackSpace(card: HTMLElement): number {

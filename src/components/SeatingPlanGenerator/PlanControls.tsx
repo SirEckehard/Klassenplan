@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import { useEffect, lazy, Suspense } from 'react';
+import { useEffect, useRef, lazy, Suspense } from 'react';
 import SectionErrorBoundary from '@/components/errors/SectionErrorBoundary';
 import StudentListErrorFallback from '@/components/errors/StudentListErrorFallback';
 import SeatingPlanErrorFallback from '@/components/errors/SeatingPlanErrorFallback';
@@ -13,6 +13,7 @@ import {
 import { prefetchGeneratorSteps } from '@/utils/performance/generatorPrefetch';
 import { isFormElementFocused, isSilencedCharacterKey } from '@/utils';
 import { isAnyDialogOpen } from '@/hooks/ui/useDialogLayer';
+import { useLayerFade } from '@/hooks/ui/useLayerFade';
 
 // Lazy load large components for better initial bundle size
 const StudentInput = lazy(() => import('@/components/StudentInput'));
@@ -164,6 +165,9 @@ export default function PlanControls() {
   // opens, or the open class was replaced from outside (a backup, another
   // window): their undo history, selection and canvas belong to what they
   // were made for, and an undo must never bring another room or plan back.
+  // Another layer fades in rather than standing there at once.
+  const layerRef = useRef<HTMLDivElement | null>(null);
+  useLayerFade(layerRef, step);
   const classViewKey = `${activeClass.id ?? 'no-class'}:${activeRoomId ?? 'no-room'}:${reloadGeneration}`;
   const studentBoundaryResetKeys: ReadonlyArray<number> = [students.length];
   const layoutBoundaryResetKeys: ReadonlyArray<number> = [
@@ -178,7 +182,7 @@ export default function PlanControls() {
   ];
 
   return (
-    <div className="flex flex-1 flex-col lg:min-h-0">
+    <div ref={layerRef} className="flex flex-1 flex-col lg:min-h-0">
       {step === 1 && (
         <Suspense fallback={<StudentListSkeleton />}>
           <SectionErrorBoundary

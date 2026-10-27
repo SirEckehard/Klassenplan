@@ -1,6 +1,6 @@
 # Design System – Klassenplan
 
-> **Status:** current · **Last reviewed:** 2026-10-25 · **Maintainer:** Eike
+> **Status:** current · **Last reviewed:** 2026-10-27 · **Maintainer:** Eike
 > Schäfer · **Describes:** Klassenplan 3.1.2
 
 This document describes the binding design tokens for Klassenplan. All values live in `src/index.css` and are reachable from TypeScript through `src/utils/ui/designTokens.ts`.
@@ -416,9 +416,27 @@ A dropdown is reached with the keyboard as well as the pointer (`usePopoverFocus
 
 A toast is a card of the app's paper (`toastSurfaceClass`): `--toast-bg` with a `--toast-border` hairline, `--radius-card`, `--toast-shadow`, 23 rem wide and as wide as a phone. Its colour is in its icon alone (`toastIconClass`, `--toast-accent-*`): a check for success, a circle for an error, a triangle for a warning, an "i" for information, a shield for the critical. The one button it may carry (`toastActionClass`) is quiet — a hairline on `--toast-action-bg`, beside the text and under it when the text is long — because blue is the screen's primary button. Text, icon and close button share one centre line, and on a touch screen both buttons take a 44 px target around their 28 px.
 
-They stack at the top right under the header, the newest on top. A new one glides 28 px in from the right and fades in while the older ones move down; one that goes glides out the same way and the stack closes up behind it (`components/ui/feedback/toastMotion.ts`, Web Animations: 380 ms in, 200 ms out). The same id again does not double: the card keeps its place, takes the new text, nudges and starts its time anew. A hairline along the bottom edge (`toastTimelineClass`) shows the time left. Every toast's time stands still while one is pointed at, holds the keyboard focus or is being swiped, and while the page is in the background (WCAG 2.2.1). A swipe to the right puts a toast away as its close button does. With "Reduce motion" set nothing moves: toasts come and go at once and the hairline is not drawn — the global guard in `index.css` reaches CSS only, so `toastMotionEnabled` asks the media query itself.
+They stack at the top right under the header, the newest on top. A new one glides 28 px in from the right and fades in while the older ones move down; one that goes glides out the same way and the stack closes up behind it (`components/ui/feedback/toastMotion.ts`, Web Animations: 380 ms in, 200 ms out). The same id again does not double: the card keeps its place, takes the new text, nudges and starts its time anew. A hairline along the bottom edge (`toastTimelineClass`) shows the time left. Every toast's time stands still while one is pointed at, holds the keyboard focus or is being swiped, and while the page is in the background (WCAG 2.2.1). A swipe to the right puts a toast away as its close button does. With "Reduce motion" set nothing moves: toasts come and go at once and the hairline is not drawn — the global guard in `index.css` reaches CSS only, so `motionEnabled` (`utils/ui/motion`) asks the media query itself.
 
 A control that stays in view answers in its own place rather than with a toast over it: the gear's update check says "Aktuell · v3.2.0" in its row for three seconds.
+
+## 6g. Motion
+
+Something moves where it changes its place or comes in from an edge, and nowhere else. One module holds the curves and the durations (`utils/ui/motion.ts`): `arrive` (`cubic-bezier(0.16, 1, 0.3, 1)`) for coming in, `leave` (`cubic-bezier(0.4, 0, 1, 1)`) for going out, `settle` (`cubic-bezier(0.2, 0.8, 0.2, 1)`) for moving from one place to another. Going out is quicker than coming in.
+
+| What                                              | How it moves                                                                                                                                  | Duration                         | Curve          |
+| ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- | -------------- |
+| A mix, an undo, a swap in the plan and the circle | every student who changed seats glides there, lifted a little half-way (`useSeatFlight`); the circle's go straight across                     | 420 ms                           | settle         |
+| A drawer, the phone's sheet                       | in from its own edge, back out over it (`usePanelMotion`)                                                                                     | 220 / 160 ms, sheet 260 / 180 ms | arrive / leave |
+| The inspector's column, the toolbar's width       | the column slides over the window's edge, the toolbar's width glides; the stage grows with them (`usePanelMotion` `column`, `useWidthMotion`) | 220 ms                           | arrive         |
+| A dropdown                                        | fades in, the last 4 px from its anchor's side (`FloatingDropdown`)                                                                           | 140 / 100 ms                     | arrive / leave |
+| Another layer                                     | the workspace between the bars fades in (`useLayerFade`)                                                                                      | 180 ms                           | linear         |
+| A screen turned upright or back                   | the frame turns into place from a quarter back (`useTurnAnimation`)                                                                           | 260 ms                           | settle         |
+| A toast                                           | see § 6f                                                                                                                                      | 380 / 200 ms                     | arrive / leave |
+
+Whatever moves only shows: the change itself happens at once. A student is in the new seat, a drawer is closed, a menu is gone, and focus, Escape and the tap beside a panel behave as they always did. Where the real element is already gone or hidden — a drawer closed, a menu shut, a seat clipped by its table — an inert copy (`inertCopy`: no ids, no focus, no name for a screen reader, no pointer) moves in its place and is removed when it arrives. A student a finger put down does not fly; only the one it displaced does. Nothing moves when the layout itself changes — a window resized past a breakpoint, a tablet turned —, on the first drawing, or under "Reduce motion": every one of these runs on the Web Animations API, which the global guard in `index.css` cannot reach, so each asks `motionEnabled` first. A layer fades rather than cross-fading through the browser's View Transitions, which would change the layer a frame late.
+
+Still on purpose: the class list as it is searched, filtered and sorted, the inspector stepping from student to student, chips, switches and the importance scale (colour only), every number in the status bar, the export sheet, the pages beside the app. Nothing moves on its own.
 
 ## 6e. Badges on a seat
 

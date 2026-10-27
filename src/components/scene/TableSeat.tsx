@@ -44,6 +44,13 @@ import {
 } from '@/utils';
 import type { NameDisplayMode, NameLabels } from '@/utils';
 import type { SeatKeyboardEventInfo } from '@/hooks/scene/useSeatKeyboardMove';
+import {
+  SEAT_CENTRE_ATTR,
+  SEAT_FLIGHT_ATTR,
+  SEAT_FLIGHT_PART_ATTR,
+  SEAT_STUDENT_ATTR,
+  seatFlightKey,
+} from '@/hooks/scene/useSeatFlight';
 
 interface TableSeatProps {
   student: Student | null;
@@ -446,7 +453,14 @@ function TableSeat({
   }
 
   return (
-    <g transform={`translate(${col * seatWidth} ${row * seatHeight})`}>
+    <g
+      transform={`translate(${col * seatWidth} ${row * seatHeight})`}
+      {...{
+        [SEAT_FLIGHT_ATTR]: seatFlightKey(tableIndex, seatIndex),
+        [SEAT_STUDENT_ATTR]: student?.id,
+        [SEAT_CENTRE_ATTR]: `${seatWidth / 2} ${seatHeight / 2}`,
+      }}
+    >
       {/* Hover is tracked on the group (not the touch-target rect): the group
           boundary covers the rect AND the lock toggle, so moving the pointer
           onto the hover-revealed lock doesn't fire a leave that would hide it
@@ -744,6 +758,8 @@ function TableSeat({
 
 interface TableSeatBadgeOverlayProps {
   student: Student | null;
+  /** The seat's name for a flight (`seatFlightKey`): the badges travel with it. */
+  flightKey?: string;
   col: number;
   row: number;
   seatWidth: number;
@@ -759,6 +775,7 @@ interface TableSeatBadgeOverlayProps {
 
 export const TableSeatBadgeOverlay = React.memo(function TableSeatBadgeOverlay({
   student,
+  flightKey,
   col,
   row,
   seatWidth,
@@ -809,7 +826,10 @@ export const TableSeatBadgeOverlay = React.memo(function TableSeatBadgeOverlay({
   const seatTextOpacity = isOriginSeat ? 0.35 : 1;
 
   return (
-    <g transform={`translate(${col * seatWidth} ${row * seatHeight})`}>
+    <g
+      transform={`translate(${col * seatWidth} ${row * seatHeight})`}
+      {...{ [SEAT_FLIGHT_PART_ATTR]: flightKey }}
+    >
       <g
         transform={seatLabelTransform}
         style={{

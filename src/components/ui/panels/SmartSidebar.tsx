@@ -18,6 +18,7 @@ import { useLayoutMode } from '@/hooks/ui/useLayoutMode';
 import { useAdaptiveViewportHeight } from '@/hooks/ui/useAdaptiveViewportHeight';
 import { isAnyDialogOpen } from '@/hooks/ui/useDialogLayer';
 import { useOutsideTap } from '@/hooks/ui/useOutsideTap';
+import { usePanelMotion, useWidthMotion } from '@/hooks/ui/usePanelMotion';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 import { SHELL_STATUS_BAR_HEIGHT } from '@/components/shell/shellTokens';
 
@@ -105,6 +106,9 @@ export default function SmartSidebar({
     ignoreSelector: `[aria-controls="${TOOL_RAIL_DRAWER_ID}"]`,
   });
 
+  // On a phone the toolbar comes in from the left and goes back there.
+  usePanelMotion(drawerRef, showsDrawer, 'left', layoutMode);
+
   // An action taken in the drawer — a view switched, an export started —
   // closes it, so the stage shows what it did. An entry that opens a panel or
   // a dialog of its own keeps it open behind that.
@@ -187,6 +191,10 @@ export default function SmartSidebar({
     isDesktopShell ? 'self-stretch' : 'self-start'
   }`;
 
+  // The width glides when the switch is pressed, never when the layout
+  // changes under it (a tablet turned, a window resized past `lg`).
+  useWidthMotion(containerRef, isExpanded, layoutMode);
+
   // Only the document layouts below `lg` need a measured ceiling.
   const sidebarStyle = React.useMemo<React.CSSProperties | undefined>(() => {
     if (maxHeight == null) {
@@ -245,7 +253,6 @@ export default function SmartSidebar({
       className={`
         ${isStickyColumn ? 'sticky top-20' : 'relative'} shrink-0 border-0
         ${isExpanded ? 'overflow-hidden' : 'overflow-x-hidden overflow-y-auto'}
-        transition-[width] duration-100 ease-out
         ${isExpanded ? expandedWidth : collapsedWidth}
         ${isExpanded ? expandedContainerClass : collapsedContainerClass}
         ${className}

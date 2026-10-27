@@ -27,6 +27,10 @@ import { seatTableCorners } from '@/utils/ui/seatMark';
 import RotationHandle from '@/components/scene/RotationHandle';
 import { useSeatDrag } from '@/hooks/scene/useSeatDrag';
 import {
+  SEAT_FLIGHT_PART_ATTR,
+  seatFlightKey,
+} from '@/hooks/scene/useSeatFlight';
+import {
   useTableRotation,
   type TableRotationHandler,
 } from '@/hooks/scene/useTableRotation';
@@ -461,6 +465,7 @@ function SceneTable({
             key={`chair-${dot.key}`}
             transform={uprightTransform}
             pointerEvents="none"
+            {...{ [SEAT_FLIGHT_PART_ATTR]: seatFlightKey(index, dot.key) }}
           >
             {/* Inner group carries the entrance animation (hover mode only) so
                 the rotate attribute above and the CSS transform don't collide. */}

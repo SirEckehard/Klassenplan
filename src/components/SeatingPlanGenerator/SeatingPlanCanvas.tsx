@@ -32,6 +32,7 @@ import FeatureShape from '@/components/scene/FeatureShape';
 import { useStudentPhotoUrls } from '@/hooks/student/useStudentPhoto';
 import { useNameLabels } from '@/hooks/student/useNameLabels';
 import { useSeatKeyboardMove } from '@/hooks/scene/useSeatKeyboardMove';
+import { seatFlightKey, useSeatFlight } from '@/hooks/scene/useSeatFlight';
 
 interface SeatingPlanCanvasProps {
   canvasWidth: number;
@@ -198,10 +199,32 @@ const SeatingPlanCanvas = React.memo(
         [onSeatDropped],
       ),
     });
+    // Whoever changed seats glides there; the student a finger put down is
+    // already where it belongs, so only the one it displaced flies.
+    const flightLayerRef = React.useRef<SVGGElement | null>(null);
+    const seatGeometry = React.useMemo(
+      () =>
+        [
+          `${canvasWidth}x${classroomHeight}`,
+          ...sceneTables.map(
+            (table) =>
+              `${table.x},${table.y},${table.width},${table.height},${table.rotation},${table.seatCount}`,
+          ),
+        ].join('|'),
+      [canvasWidth, classroomHeight, sceneTables],
+    );
+    const { holdStill } = useSeatFlight({
+      svgRef: canvasRef,
+      layerRef: flightLayerRef,
+      arrangement: currentSeating,
+      geometry: seatGeometry,
+    });
     const handlePointerDrop = React.useCallback(
-      (from: DragOrigin, to: DragOrigin) =>
-        onSeatDropped?.(from, to, 'pointer'),
-      [onSeatDropped],
+      (from: DragOrigin, to: DragOrigin) => {
+        holdStill(seatFlightKey(to.tableIndex, to.seatIndex));
+        onSeatDropped?.(from, to, 'pointer');
+      },
+      [holdStill, onSeatDropped],
     );
 
     // A pointer drag takes precedence: release any pending keyboard grab.
@@ -386,6 +409,9 @@ const SeatingPlanCanvas = React.memo(
               />
             ))}
           </g>
+
+          {/* Students on their way to another seat (`useSeatFlight`). */}
+          <g ref={flightLayerRef} aria-hidden="true" pointerEvents="none" />
 
           {selectionBox && (
             <rect

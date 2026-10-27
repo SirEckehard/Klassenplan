@@ -46,6 +46,12 @@ import {
   type SeatMarkKind,
 } from '@/utils/ui/seatMark';
 import { useCircleDragDrop } from '@/hooks/circle/useCircleDragDrop';
+import {
+  SEAT_CENTRE_ATTR,
+  SEAT_FLIGHT_ATTR,
+  SEAT_STUDENT_ATTR,
+  useSeatFlight,
+} from '@/hooks/scene/useSeatFlight';
 import { useCircleKeyboardMove } from '@/hooks/circle/useCircleKeyboardMove';
 import { useHasHoverPointer } from '@/hooks/ui/useHasHoverPointer';
 import { useTouchScrollLock } from '@/hooks/ui/useTouchScrollLock';
@@ -358,9 +364,34 @@ function SimpleCircleView({
   });
   const { announce } = keyboard;
 
+  // Drag and drop functionality
+  const { dragState, handlePointerDown, svgRef } = useCircleDragDrop({
+    layout,
+    editable,
+    onStudentMove,
+    slotPositions: studentSlots,
+    isPositionLocked,
+    onMoved: (from, to) => handlePointerMovedRef.current(from, to),
+  });
+
+  // Whoever changed places glides there in a straight line across the
+  // circle; the student a finger put down is already where it belongs.
+  const flightLayerRef = React.useRef<SVGGElement | null>(null);
+  const slotGeometry = React.useMemo(
+    () => studentSlots.map((slot) => `${slot.x},${slot.y}`).join('|'),
+    [studentSlots],
+  );
+  const { holdStill } = useSeatFlight({
+    svgRef,
+    layerRef: flightLayerRef,
+    arrangement: layout.students,
+    geometry: slotGeometry,
+  });
+
   // A pointer drop is said in the keyboard's live region too.
   const handlePointerMoved = useCallback(
     (from: number, to: number) => {
+      holdStill(String(to));
       handleMoved(from, to);
       announce(
         t('drag.announce.swapped', {
@@ -369,18 +400,12 @@ function SimpleCircleView({
         }),
       );
     },
-    [announce, handleMoved, layout.students, t],
+    [announce, handleMoved, holdStill, layout.students, t],
   );
-
-  // Drag and drop functionality
-  const { dragState, handlePointerDown, svgRef } = useCircleDragDrop({
-    layout,
-    editable,
-    onStudentMove,
-    slotPositions: studentSlots,
-    isPositionLocked,
-    onMoved: handlePointerMoved,
-  });
+  const handlePointerMovedRef = React.useRef(handlePointerMoved);
+  React.useLayoutEffect(() => {
+    handlePointerMovedRef.current = handlePointerMoved;
+  }, [handlePointerMoved]);
   // A finger dragging a student must not scroll the page instead.
   useTouchScrollLock(svgRef, editable);
 
@@ -724,7 +749,14 @@ function SimpleCircleView({
             : '';
 
           return (
-            <g key={slot.position}>
+            <g
+              key={slot.position}
+              {...{
+                [SEAT_FLIGHT_ATTR]: String(slot.position),
+                [SEAT_STUDENT_ATTR]: student?.id,
+                [SEAT_CENTRE_ATTR]: `${slot.x} ${slot.y}`,
+              }}
+            >
               {/* Student or empty slot */}
               {student ? (
                 <g
@@ -1075,6 +1107,8 @@ function SimpleCircleView({
             </g>
           );
         })}
+        {/* Students on their way to another place (`useSeatFlight`). */}
+        <g ref={flightLayerRef} aria-hidden="true" pointerEvents="none" />
         {spotlightSlot && (
           <CircleSpotlight
             cx={spotlightSlot.x}

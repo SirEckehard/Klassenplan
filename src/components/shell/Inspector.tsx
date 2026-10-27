@@ -11,6 +11,7 @@ import { INSPECTOR_DRAWER_ID, useInspector } from '@/contexts/InspectorContext';
 import { useLayoutMode } from '@/hooks/ui/useLayoutMode';
 import { useDialogA11y } from '@/hooks/ui/useDialogA11y';
 import { useOutsideTap } from '@/hooks/ui/useOutsideTap';
+import { usePanelMotion } from '@/hooks/ui/usePanelMotion';
 import {
   isAnyDialogOpen,
   isTopDialogLayer,
@@ -216,6 +217,36 @@ export default function Inspector() {
     isBlocked: () => !isTopDialogLayer(sheetLayer),
   });
 
+  // The drawer comes in from the right, the phone's sheet from the bottom,
+  // and each goes back the way it came.
+  usePanelMotion(
+    drawerRef,
+    showsDrawer || showsSheet,
+    showsSheet ? 'bottom' : 'right',
+    layoutMode,
+  );
+  usePanelMotion(
+    studentPanelRef,
+    isOpen && !isDesktop && !hasPortal && !suspended,
+    isPhone ? 'bottom' : 'right',
+    layoutMode,
+  );
+  // From `lg` up the column slides over the window's edge as it folds, and
+  // the stage beside it grows into the room.
+  // One column, whichever of the two panels fills it: opening a student on
+  // the class layer changes what it holds, not whether it is there.
+  const columnRef = React.useRef<HTMLElement | null>(null);
+  const setPortalPanel = React.useCallback((node: HTMLElement | null) => {
+    drawerRef.current = node;
+    columnRef.current = node;
+  }, []);
+  usePanelMotion(
+    columnRef,
+    isDesktop && !columnFolded && !suspended,
+    'column',
+    layoutMode,
+  );
+
   if (suspended) return null;
 
   // The room and plan layers fill the panel themselves, and so does the class
@@ -224,7 +255,7 @@ export default function Inspector() {
     return (
       <aside
         id={INSPECTOR_DRAWER_ID}
-        ref={drawerRef}
+        ref={setPortalPanel}
         data-tour={TOUR_ANCHORS.inspector}
         tabIndex={showsDrawer ? -1 : undefined}
         aria-label={
@@ -322,6 +353,7 @@ export default function Inspector() {
 
   return (
     <aside
+      ref={columnRef}
       id={INSPECTOR_DRAWER_ID}
       aria-label={t('students:inspector.title')}
       className={columnClass}

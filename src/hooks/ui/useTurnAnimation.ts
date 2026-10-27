@@ -2,14 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import type { PlanTurn } from '@/utils/canvas/turn';
-
-const TURN_DURATION_MS = 260;
-const TURN_EASING = 'cubic-bezier(0.2, 0.8, 0.2, 1)';
-
-const prefersReducedMotion = () =>
-  typeof window !== 'undefined' &&
-  typeof window.matchMedia === 'function' &&
-  window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+import { MOTION_DURATION, MOTION_EASE, motionEnabled } from '@/utils/ui/motion';
 
 /**
  * Turns the frame into its new lie when the device turns: the drawing starts a
@@ -27,8 +20,7 @@ export function useTurnAnimation(
     const from = previous.current;
     previous.current = turn;
     const node = frameRef.current;
-    if (from === turn || !node || typeof node.animate !== 'function') return;
-    if (prefersReducedMotion()) return;
+    if (from === turn || !node || !motionEnabled(node)) return;
     // The quarter between the two lies, the short way round.
     const angle = ((((from ?? 0) - (turn ?? 0) + 540) % 360) - 180) as number;
     const { width, height } = node.getBoundingClientRect();
@@ -40,7 +32,7 @@ export function useTurnAnimation(
         { transform: `rotate(${angle}deg) scale(${scale})` },
         { transform: 'none' },
       ],
-      { duration: TURN_DURATION_MS, easing: TURN_EASING },
+      { duration: MOTION_DURATION.turn, easing: MOTION_EASE.settle },
     );
   }, [frameRef, turn]);
 }

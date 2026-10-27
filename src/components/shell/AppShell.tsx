@@ -71,16 +71,39 @@ export default function AppShell({
   children: React.ReactNode;
 }) {
   const provided = React.useContext(ShellProvidedContext);
+  // What stands above the status bar ends where the bar really begins: its
+  // height grows with the browser's text size, and the safe area under it is
+  // part of it.
+  const frameRef = React.useRef<HTMLDivElement | null>(null);
+  const [statusBarHeight, setStatusBarHeight] = React.useState<number | null>(
+    null,
+  );
+  React.useLayoutEffect(() => {
+    const bar = frameRef.current?.querySelector<HTMLElement>(
+      ':scope > [data-shell-status-bar]',
+    );
+    if (!bar || typeof ResizeObserver === 'undefined') return undefined;
+    const observer = new ResizeObserver(([entry]) => {
+      const height = entry?.borderBoxSize?.[0]?.blockSize;
+      if (height) setStatusBarHeight(Math.ceil(height));
+    });
+    observer.observe(bar);
+    return () => observer.disconnect();
+  }, [statusBar]);
   const frame = (
     // The status bar's height, for what stands above it — the drawers, the
     // focus mode's thumb bar, the floating controls
     // (`useFloatingActionOffset`). The bar reaches into the bottom safe area,
-    // so that is part of its height.
+    // so that is part of its height, measured or not.
     <div
+      ref={frameRef}
       className="flex min-h-screen flex-col lg:h-dvh lg:min-h-0 lg:overflow-hidden"
       style={
         {
-          '--shell-bottom-inset': `calc(${SHELL_STATUS_BAR_HEIGHT}px + env(safe-area-inset-bottom))`,
+          '--shell-bottom-inset':
+            statusBarHeight === null
+              ? `calc(${SHELL_STATUS_BAR_HEIGHT}px + env(safe-area-inset-bottom))`
+              : `${statusBarHeight}px`,
         } as React.CSSProperties
       }
     >

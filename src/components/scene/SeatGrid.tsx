@@ -7,6 +7,7 @@ import type { NameDisplayMode, NameLabels } from '@/utils';
 import type { SeatBadgeView } from '@/utils/ui/seatBadges';
 import type { SeatHighlightTone } from '@/utils/ui/statisticsHighlight';
 import type { SeatCorners } from '@/utils/ui/seatMark';
+import { seatFlightKey } from '@/hooks/scene/useSeatFlight';
 
 type SeatPointerDownHandler = NonNullable<
   React.ComponentProps<typeof TableSeat>['onSeatPointerDown']
@@ -176,6 +177,7 @@ function SeatGrid({
             <TableSeatBadgeOverlay
               key={`badge-${config.seatIndex}`}
               student={config.student}
+              flightKey={seatFlightKey(tableIndex, config.seatIndex)}
               col={config.col}
               row={config.row}
               seatWidth={seatWidth}

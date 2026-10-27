@@ -29,8 +29,8 @@ import {
   animateToastIn,
   animateToastNudge,
   animateToastOut,
-  toastMotionEnabled,
 } from './toastMotion';
+import { motionEnabled } from '@/utils/ui/motion';
 
 const ICON_SIZE = 18;
 const CLOSE_ICON_SIZE = 16;
@@ -193,12 +193,12 @@ function ToastItem({
 
   React.useLayoutEffect(() => {
     const card = cardRef.current;
-    if (card && toastMotionEnabled()) animateToastIn(card);
+    if (card && motionEnabled()) animateToastIn(card);
   }, []);
 
   React.useLayoutEffect(() => {
     const card = cardRef.current;
-    if (revision > 0 && card && toastMotionEnabled()) animateToastNudge(card);
+    if (revision > 0 && card && motionEnabled()) animateToastNudge(card);
   }, [revision]);
 
   React.useLayoutEffect(() => {
@@ -208,7 +208,7 @@ function ToastItem({
     const done = () => {
       if (current) onExited(key);
     };
-    if (toastMotionEnabled()) {
+    if (motionEnabled()) {
       animateToastOut(card, swipedBy.current).then(done, done);
     } else {
       done();
@@ -295,7 +295,7 @@ function ToastItem({
     const from = { offset: swipe.offset, opacity: card.style.opacity || '1' };
     card.style.transform = '';
     card.style.opacity = '';
-    if (toastMotionEnabled()) animateToastBack(card, from);
+    if (motionEnabled()) animateToastBack(card, from);
   };
 
   return (
@@ -385,7 +385,7 @@ export function ToastProvider({
 
   const leave = React.useCallback(
     (matches: (toast: ToastInstance) => boolean) => {
-      const animate = toastMotionEnabled();
+      const animate = motionEnabled();
       setEntries((prev) => leaveEntries(prev, matches, animate));
     },
     [],

@@ -2,6 +2,12 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { createPortal } from 'react-dom';
+import {
+  inertCopy,
+  MOTION_DURATION,
+  MOTION_EASE,
+  motionEnabled,
+} from '@/utils/ui/motion';
 
 type HorizontalAlign = 'left' | 'right' | 'center';
 
@@ -37,6 +43,8 @@ const naturalHeight = (element: HTMLElement | null | undefined) =>
   element ? Math.max(element.offsetHeight, element.scrollHeight) : 0;
 
 const DEFAULT_OFFSET = 4;
+/** How far a dropdown slides as it fades: from its anchor's side. */
+const menuShift = (openAbove: boolean) => `translateY(${openAbove ? 4 : -4}px)`;
 const VIEWPORT_PADDING = 8;
 const DEFAULT_DROPDOWN_WIDTH = 240;
 
@@ -261,6 +269,54 @@ export default function FloatingDropdown({
     return () => observer.disconnect();
   }, [isRendered, resolvedPortalRef, updatePosition]);
 
+  // It fades in once it stands where it belongs, sliding the last few pixels
+  // from the anchor's side; closed, it is gone at once and a copy of it fades
+  // out in its place.
+  const isFinalized = position?.isFinalized === true;
+  const openAbove = position?.openAbove === true;
+  const hasAppearedRef = React.useRef(false);
+  const openAboveRef = React.useRef(openAbove);
+  React.useLayoutEffect(() => {
+    openAboveRef.current = openAbove;
+    const node = resolvedPortalRef.current;
+    if (!isFinalized || hasAppearedRef.current || !node) return;
+    hasAppearedRef.current = true;
+    if (!motionEnabled(node)) return;
+    node.animate(
+      [
+        { opacity: 0, transform: menuShift(openAbove) },
+        { opacity: 1, transform: 'none' },
+      ],
+      { duration: MOTION_DURATION.menuIn, easing: MOTION_EASE.arrive },
+    );
+  }, [isFinalized, openAbove, resolvedPortalRef]);
+
+  React.useLayoutEffect(() => {
+    const node = resolvedPortalRef.current;
+    if (!isRendered || !node) return undefined;
+    return () => {
+      if (!hasAppearedRef.current || !motionEnabled(node)) return;
+      const copy = inertCopy(node);
+      const shift = menuShift(openAboveRef.current);
+      // StrictMode rehearses an unmount and keeps the dropdown; only one that
+      // really left is faded out.
+      queueMicrotask(() => {
+        if (node.isConnected) return;
+        document.body.appendChild(copy);
+        copy
+          .animate([{ opacity: 1 }, { opacity: 0, transform: shift }], {
+            duration: MOTION_DURATION.menuOut,
+            easing: MOTION_EASE.leave,
+            fill: 'forwards',
+          })
+          .finished.then(
+            () => copy.remove(),
+            () => copy.remove(),
+          );
+      });
+    };
+  }, [isRendered, resolvedPortalRef]);
+
   if (typeof document === 'undefined' || !position) {
     return null;
   }
@@ -272,7 +328,7 @@ export default function FloatingDropdown({
       // text field takes the focus on itself when a finger opened it
       // (`usePopoverFocus`).
       tabIndex={-1}
-      className={`fixed z-40 transition-opacity duration-75 focus:outline-none ${position.isFinalized ? 'opacity-100' : 'pointer-events-none opacity-0'} ${className ?? ''}`.trim()}
+      className={`fixed z-40 focus:outline-none ${position.isFinalized ? 'opacity-100' : 'pointer-events-none opacity-0'} ${className ?? ''}`.trim()}
       style={{
         top: position.top,
         left: position.left,
