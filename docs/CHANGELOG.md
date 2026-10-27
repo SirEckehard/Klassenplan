@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - On a phone, ticked students are edited in the same sheet as a single student, with every attribute named and "mixed" where only some of them have it. Ticking opens nothing and leaves the list in view; the switch at the right of the status bar shows how many are ticked and opens the sheet, and the ✕ that takes the place of the class count lets them go. The bar of icons above the list is gone
 - On a phone, the class list starts sooner: the search takes the line above it, and one button beside it holds the filter and the sort, with a dot while a filter hides students. The list's head says "Select all" and how many students a search or filter left, and each row's checkbox stands beside the name, its markers under the name
+- On a phone or a tablet held upright, the seating plan turns a quarter with the board at the bottom, so it fills the screen instead of a third of it and the names are about half again as large. The room itself stays as it is; only the picture turns
 
 ### Fixed
 

@@ -81,6 +81,9 @@ import type { MixOutcome } from '@/hooks/useSeatingMixHandler';
 import { usePlanShortcuts } from '@/hooks/plan/usePlanShortcuts';
 import { useFirstVisit } from '@/hooks/ui/useFirstVisit';
 import { useIsPhone } from '@/hooks/ui/useLayoutMode';
+import { useIsLgUp } from '@/hooks/ui/useIsLgUp';
+import { usePortraitViewport } from '@/hooks/ui/usePortraitViewport';
+import { portraitPlanTurn, turnPlanScene } from '@/utils/ui/portraitPlan';
 import { createSuspendedWeights } from '@/hooks/ui/useMixCriteria';
 import { buildCriterionHighlightEntries } from '@/utils/algorithm/criterionHighlights';
 import {
@@ -279,6 +282,38 @@ export default function SeatingPlanEditorView({
   // Marks the visit (`spg.hasVisitedApp`) for the onboarding tour record.
   useFirstVisit();
   const isPhone = useIsPhone();
+  // A phone or a tablet held upright shows the plan turned a quarter, the
+  // board at the bottom: a 3:2 room took a third of the stage there and left the
+  // rest empty. Only the drawing turns — saving, the criteria and the
+  // highlights keep the stored room (`turnPlanScene`).
+  const isLgUp = useIsLgUp();
+  const portraitViewport = usePortraitViewport();
+  const planTurn =
+    !isLgUp && portraitViewport ? portraitPlanTurn(classroomScene) : null;
+  const shownPlan = React.useMemo(
+    () =>
+      planTurn === null
+        ? {
+            tables: sceneTables,
+            features: classroomScene.features ?? [],
+            width: canvasWidth,
+            height: classroomHeight,
+          }
+        : turnPlanScene(
+            sceneTables,
+            classroomScene.features ?? [],
+            planTurn,
+            canvasWidth,
+            classroomHeight,
+          ),
+    [
+      canvasWidth,
+      classroomHeight,
+      classroomScene.features,
+      planTurn,
+      sceneTables,
+    ],
+  );
   // The floor takes the canvas surface and the grid the hairline, both as
   // custom properties so light and dark come from the one place that defines
   // them — an inline style resolves `var()` like any other declaration.
@@ -706,11 +741,11 @@ export default function SeatingPlanEditorView({
       const rect = node.getBoundingClientRect();
       const width =
         rect.width || (typeof window !== 'undefined' ? window.innerWidth : 0);
-      if (width <= 0 || canvasWidth <= 0) {
+      if (width <= 0 || shownPlan.width <= 0) {
         setPreviewViewportScale(1);
         return;
       }
-      setPreviewViewportScale(width / canvasWidth);
+      setPreviewViewportScale(width / shownPlan.width);
     };
 
     calculateScale();
@@ -732,7 +767,7 @@ export default function SeatingPlanEditorView({
         window.removeEventListener('resize', calculateScale);
       }
     };
-  }, [canvasWidth]);
+  }, [shownPlan.width]);
 
   React.useEffect(() => {
     if (typeof window === 'undefined') {
@@ -1035,8 +1070,18 @@ export default function SeatingPlanEditorView({
               <div
                 data-testid="classroom-canvas"
                 data-tour={TOUR_ANCHORS.planCanvas}
-                className={`${canvasFrameClass} ${canvasFitClass} relative select-none`}
-                style={{ maxWidth: '100vw' }}
+                className={`${canvasFrameClass} ${canvasFitClass} relative select-none ${
+                  planTurn === null ? '' : 'mx-auto'
+                }`}
+                // Turned, the plan is half again as tall as wide: on a tablet
+                // the width is held to what fits between the header and the
+                // status bar, so the plan is seen whole without scrolling.
+                style={{
+                  maxWidth:
+                    planTurn === null
+                      ? '100vw'
+                      : 'min(100%, calc((100dvh - 3.5rem - var(--shell-bottom-inset, 3.5rem) - 2.5rem) * 2 / 3))',
+                }}
               >
                 {/* Phone only: everywhere the options rail fits, the values sit
                   beside the criteria instead. */}
@@ -1069,10 +1114,10 @@ export default function SeatingPlanEditorView({
                   className="h-auto w-full rounded-none"
                 >
                   <SeatingPlanCanvas
-                    canvasWidth={canvasWidth}
-                    classroomHeight={classroomHeight}
-                    sceneTables={sceneTables}
-                    features={classroomScene.features ?? []}
+                    canvasWidth={shownPlan.width}
+                    classroomHeight={shownPlan.height}
+                    sceneTables={shownPlan.tables}
+                    features={shownPlan.features}
                     currentSeating={effectiveSeating}
                     allStudents={students}
                     selectedTableIds={[]}

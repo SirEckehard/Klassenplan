@@ -3,7 +3,7 @@
 import '@testing-library/jest-dom/vitest';
 import React from 'react';
 import { screen, act, fireEvent, within } from '@testing-library/react';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import '@/i18n/i18n';
 import SeatingPlanView, {
   type Props as SeatingPlanViewProps,
@@ -81,6 +81,66 @@ describe('SeatingPlanView', () => {
     // and cut the room's bottom edge off.
     expect(canvas).toHaveClass(canvasFitClass);
     expect(canvas.style.width).toBe('');
+  });
+
+  describe('held upright', () => {
+    const setWindow = (width: number, height: number) => {
+      Object.defineProperty(window, 'innerWidth', {
+        configurable: true,
+        writable: true,
+        value: width,
+      });
+      Object.defineProperty(window, 'innerHeight', {
+        configurable: true,
+        writable: true,
+        value: height,
+      });
+      act(() => {
+        window.dispatchEvent(new Event('resize'));
+      });
+    };
+    const plan = () =>
+      within(screen.getByTestId('classroom-canvas')).getByRole('group', {
+        name: /Sitzplan|Seating plan/i,
+      });
+
+    afterEach(() => setWindow(1024, 768));
+
+    it('turns the plan a quarter on a phone, the board at the bottom', async () => {
+      setWindow(402, 874);
+      await act(async () => {
+        renderWithProvidersAndRouter(
+          <SeatingPlanView {...createMockSeatingPlanViewProps({ step: 3 })} />,
+        );
+      });
+
+      expect(plan()).toHaveAttribute('viewBox', '0 0 600 900');
+    });
+
+    it('turns it on a tablet in portrait too, and back when it is turned', async () => {
+      setWindow(820, 1180);
+      await act(async () => {
+        renderWithProvidersAndRouter(
+          <SeatingPlanView {...createMockSeatingPlanViewProps({ step: 3 })} />,
+        );
+      });
+      expect(plan()).toHaveAttribute('viewBox', '0 0 600 900');
+
+      setWindow(1180, 820);
+
+      expect(plan()).toHaveAttribute('viewBox', '0 0 900 600');
+    });
+
+    it('leaves the plan as it is from lg up, whatever the window', async () => {
+      setWindow(1024, 1366);
+      await act(async () => {
+        renderWithProvidersAndRouter(
+          <SeatingPlanView {...createMockSeatingPlanViewProps({ step: 3 })} />,
+        );
+      });
+
+      expect(plan()).toHaveAttribute('viewBox', '0 0 900 600');
+    });
   });
 
   it('renders mix controls sidebar with neutral settings', async () => {
