@@ -209,8 +209,10 @@ describe('Wer kommt dran?', () => {
     expect(status).toHaveTextContent(/zwischen .+ und |between .+ and /);
     expect(status).not.toHaveTextContent(/Tisch \d|Table \d/);
     // The circle is drawn with the drawn student's place lit, not the tables.
+    // The line names the neighbours too, so the drawn name is the one it
+    // starts with.
     const drawn = [ada, ben, cem].find((student) =>
-      status.textContent?.includes(student.name),
+      status.textContent?.startsWith(student.name),
     );
     expect(screen.getByTestId('circle-view')).toHaveAttribute(
       'data-spotlight',
