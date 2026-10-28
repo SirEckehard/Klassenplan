@@ -7,7 +7,7 @@ it for Antigravity — edit this file, never those two.
 ## Code Style & Formatting
 
 - Use TypeScript and React with ES Modules
-- Leverage npm 10.9+ and Node 24+ features
+- Leverage npm 10.9+ and Node 26+ features
 - Follow light and dark mode design patterns - maintain existing design language unless explicitly requested otherwise
 - Format code with Prettier (2 spaces, single quotes, semicolons)
 - Write all code comments in English

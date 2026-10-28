@@ -5,7 +5,7 @@
   "type": "module",
   "private": true,
   "engines": {
-    "node": ">=24",
+    "node": ">=26",
     "npm": ">=10.9"
   },
   "dependencies": {
@@ -81,7 +81,7 @@
     "@testing-library/jest-dom": "^7.0.0",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
-    "@types/node": "^25.9.1",
+    "@types/node": "^26.6.5",
     "@types/papaparse": "^5.3.16",
     "@types/react": "^19.1.12",
     "@types/react-dom": "^19.1.9",

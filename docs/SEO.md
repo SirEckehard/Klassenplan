@@ -45,7 +45,7 @@ usable on a machine without Chromium.
 
 `scripts/prerender.mjs` drives Playwright's Chromium. Install it once locally
 with `npx playwright install chromium`. The Docker builder stage runs on
-`node:24-bookworm-slim` rather than Alpine, which Playwright does not support.
+`node:26-bookworm-slim` rather than Alpine, which Playwright does not support.
 
 ## Single source of truth
 

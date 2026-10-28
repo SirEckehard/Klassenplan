@@ -1,6 +1,6 @@
 # Architecture
 
-> **Status:** current · **Last reviewed:** 2026-10-23 · **Maintainer:** Eike
+> **Status:** current · **Last reviewed:** 2026-10-28 · **Maintainer:** Eike
 > Schäfer · **Describes:** Klassenplan 3.1.2
 
 This is the entry point for anyone who wants to understand _why_ Klassenplan is
@@ -367,7 +367,7 @@ described yet.
 - `npm run build:static` builds with Vite, renders every route in both
   languages in Chromium, verifies the output and checks the bundle budgets
   ([SEO.md](SEO.md), [PERFORMANCE.md](PERFORMANCE.md)).
-- The Docker image builds on `node:24-bookworm-slim` and serves the result with
+- The Docker image builds on `node:26-bookworm-slim` and serves the result with
   nginx on `debian:trixie-slim`. Security headers come from
   `nginx-security-headers.conf`.
 - A push to `main` runs CI only. A `v*` tag publishes the multi-arch image to

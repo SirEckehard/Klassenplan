@@ -2,7 +2,7 @@
 # Debian rather than Alpine: the build prerenders every route in a real
 # Chromium (scripts/prerender.mjs) and Playwright does not support Alpine.
 # Only this stage grows — stage 2 copies nothing but /app/dist.
-FROM node:24-bookworm-slim AS builder
+FROM node:26-bookworm-slim AS builder
 
 WORKDIR /app
 
