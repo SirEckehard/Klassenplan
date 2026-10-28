@@ -9,9 +9,12 @@ import {
 } from '@phosphor-icons/react';
 import ToolPage, { ToolEmptyState } from '@/components/tools/ToolPage';
 import SeatLocationLine from '@/components/tools/SeatLocationLine';
+import PresentationScene from '@/components/scene/PresentationScene';
+import SimpleCircleView from '@/components/circle/SimpleCircleView';
 import { useSeatingPlanState } from '@/contexts/SeatingPlanContext';
 import { useRandomStudentPicker } from '@/hooks/ui/useRandomStudentPicker';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
+import { useIsDarkMode } from '@/hooks/useIsDarkMode';
 import {
   dataChipClass,
   dataFamilyClass,
@@ -45,6 +48,7 @@ export default function WhoIsNext() {
     seatingMode,
     circleLayout,
   } = useSeatingPlanState();
+  const isDark = useIsDarkMode();
 
   // While the class sits in the circle, the draw comes from the circle — it
   // takes every student, a seat at a table or not — and says who sits on
@@ -136,7 +140,9 @@ export default function WhoIsNext() {
           step={1}
         />
       ) : (
-        <div className="mx-auto flex max-w-xl flex-col gap-4">
+        // At least as tall as the page, so the plan under the answer can take
+        // whatever height the rest leaves.
+        <div className="mx-auto flex min-h-full max-w-xl flex-col gap-4 lg:max-w-3xl">
           <div
             role="status"
             aria-live="polite"
@@ -169,6 +175,48 @@ export default function WhoIsNext() {
               </span>
             )}
           </div>
+
+          {/* The drawn student lit in the plan, as "Wo sitzt wer?" shows a
+              found one: the line above is quicker to take in with the room
+              beside it. Outside the live region, so only the name and the
+              line are read out. The scene sits in an absolute box so its 100%
+              size resolves against what the flex layout handed out. */}
+          {picked && location && (
+            <div className="relative min-h-72 w-full flex-1 overflow-hidden rounded-xl border border-(--border-card) bg-(--surface-sunken)">
+              <div className="absolute inset-0">
+                {'kind' in location && circleLayout ? (
+                  <SimpleCircleView
+                    layout={circleLayout}
+                    editable={false}
+                    isDark={isDark}
+                    showSpecialNeeds={false}
+                    photoMode="off"
+                    nameDisplay="firstName"
+                    connectionMode="off"
+                    transparentBackground
+                    fit
+                    spotlightStudentId={picked.student.id}
+                  />
+                ) : 'tableIndex' in location ? (
+                  <PresentationScene
+                    scene={classroomScene}
+                    seating={tableSeating}
+                    students={students}
+                    perspective="teacher"
+                    showBadges={false}
+                    showPhotos={false}
+                    showFeatures
+                    nameDisplay="firstName"
+                    isDark={isDark}
+                    spotlight={{
+                      tableIndex: location.tableIndex,
+                      seatIndex: location.seatIndex,
+                    }}
+                  />
+                ) : null}
+              </div>
+            </div>
+          )}
 
           <div className="flex items-center justify-between gap-3 text-xs text-(--text-muted)">
             <span>

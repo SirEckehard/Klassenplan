@@ -49,6 +49,11 @@ vi.mock('@/services/export/pdfExportFunctions', () => ({
 vi.mock('@/components/scene/PresentationScene', () => ({
   default: () => <div data-testid="presentation-scene" />,
 }));
+vi.mock('@/components/circle/SimpleCircleView', () => ({
+  default: ({ spotlightStudentId }: { spotlightStudentId?: string | null }) => (
+    <div data-testid="circle-view" data-spotlight={spotlightStudentId ?? ''} />
+  ),
+}));
 
 const ada = { id: 'ada', name: 'Ada Lovelace' };
 const ben = { id: 'ben', name: 'Ben Berg' };
@@ -156,6 +161,18 @@ describe('Wer kommt dran?', () => {
     expect(screen.getByRole('status')).toHaveTextContent(/Tisch \d|Table \d/);
   });
 
+  // The plan with the drawn seat lit, as "Wo sitzt wer?" shows a found one —
+  // and only once somebody is drawn, since there is nothing to light before.
+  it('shows the plan with the drawn seat', () => {
+    withPlan();
+
+    renderPage(<WhoIsNext />);
+    expect(screen.queryByTestId('presentation-scene')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /Ziehen|Draw/ }));
+
+    expect(screen.getByTestId('presentation-scene')).toBeInTheDocument();
+  });
+
   it('draws from the class list while the plan is for tables that are gone', () => {
     withStalePlan();
 
@@ -166,6 +183,7 @@ describe('Wer kommt dran?', () => {
       /Ada Lovelace|Ben Berg|Cem Cakir/,
     );
     expect(screen.getByRole('status')).not.toHaveTextContent(/Tisch|Table/);
+    expect(screen.queryByTestId('presentation-scene')).not.toBeInTheDocument();
   });
 
   // In the circle there is no table to name: the answer is who sits on
@@ -190,6 +208,15 @@ describe('Wer kommt dran?', () => {
     expect(status).toHaveTextContent(/im Sitzkreis|in the circle/);
     expect(status).toHaveTextContent(/zwischen .+ und |between .+ and /);
     expect(status).not.toHaveTextContent(/Tisch \d|Table \d/);
+    // The circle is drawn with the drawn student's place lit, not the tables.
+    const drawn = [ada, ben, cem].find((student) =>
+      status.textContent?.includes(student.name),
+    );
+    expect(screen.getByTestId('circle-view')).toHaveAttribute(
+      'data-spotlight',
+      drawn?.id,
+    );
+    expect(screen.queryByTestId('presentation-scene')).not.toBeInTheDocument();
   });
 });
 
