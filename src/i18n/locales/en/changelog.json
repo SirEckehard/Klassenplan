@@ -1,4 +1,15 @@
 {
+  "v3_2_2": {
+    "0": "On a phone or a tablet held upright, the room and the seating plan turn a quarter with the board at the bottom, so they fill the screen instead of a third of it and tables, handles and names are about half again as large. Dragging, the arrow keys and every menu follow the turned picture, and turning the device turns the plan into place in a quarter of a second. What is saved stays as it is; only the picture turns",
+    "1": "After mixing, undoing or swapping, the students glide to their new seats instead of appearing there, in the seating plan as in the circle, so you can follow who went where. A student you drag with your finger lands where you put it down; only the one it displaced glides",
+    "2": "\"Who's next?\" shows the seating plan under the drawn name with their seat lit, as \"Where does who sit?\" does, and while the class sits in the circle the circle with their place lit",
+    "3": "On a phone, ticked students are edited in the same sheet as a single student, with every attribute named and \"mixed\" where only some of them have it. Ticking opens nothing and leaves the list in view; the switch at the right of the status bar shows how many are ticked and opens the sheet, and the ✕ that takes the place of the class count lets them go. The bar of icons above the list is gone",
+    "4": "On a phone, the class list starts sooner: the search takes the line above it, and one button beside it holds the filter and the sort, with a dot while a filter hides students. The list's head says \"Select all\" and how many students a search or filter left, and each row's checkbox stands beside the name, its markers under the name",
+    "5": "Drawers and the phone's sheet slide in from their edge and back out, the inspector's column and the toolbar glide as they fold, menus fade in, and switching between class, room and plan fades the new layer in. With \"Reduce motion\" set on the device, everything stays still as before",
+    "6": "Dragging a student no longer locks them by accident when the press starts on the lock in the seat's corner, in the seating plan as in the circle: the lock now switches when it is tapped or clicked and let go in place, and a press that moves picks the student up instead",
+    "7": "On a phone and a tablet, the drawers no longer reach a few pixels over the status bar; they end where it begins, also with a larger text size set in the browser",
+    "8": "On a phone, the note above the plan that the class has changed no longer squeezes its text into a column one word wide behind its buttons: the buttons now go below the text"
+  },
   "v3_2_1": {
     "0": "\"Theme as the system\" in the settings menu: light or dark follows the device again, also when it turns dark in the evening. Switching the theme by hand still holds whatever the device does; a theme chosen in an earlier version is let go once, so every device starts on its system's",
     "1": "A locked seat keeps its gender colour: it shows its lock in blue and a blue edge all round instead of a blue fill. The lock is a plain icon without its round plate, and the names beside it have a little more room",
