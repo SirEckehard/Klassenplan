@@ -31,6 +31,7 @@ import {
 import { useLayoutStore } from '@/stores/layoutStore';
 import {
   CIRCLE_ARRANGEMENT_MODE,
+  angleToPosition,
   calculateCircleDimensions,
   distributeStudentsInCircle,
   calculateCircleNeighbors,
@@ -169,6 +170,25 @@ function applyNeighborhoodMetadata(
 }
 
 /**
+ * Places every position evenly round the ring in its order, from
+ * `startAngle` on — the angle and coordinates a fresh circle of that size
+ * would give them.
+ */
+function respaceCirclePositions(
+  positions: CircleStudentPosition[],
+  center: CircleLayout['center'],
+  radius: CircleLayout['radius'],
+  startAngle: number,
+): CircleStudentPosition[] {
+  const step = 360 / positions.length;
+  return positions.map((position, index) => {
+    const angle = (startAngle + index * step) % 360;
+    const { x, y } = angleToPosition(angle, center, radius);
+    return { ...position, angle, x, y };
+  });
+}
+
+/**
  * Hook for managing circle seating functionality.
  * Integrates with the main seating generator system via CircleStateAdapter.
  *
@@ -259,9 +279,12 @@ function useCircleSeatingInternal(
   // The circle follows the class list: a student whose details changed sits
   // there as they are now, and one who left the class leaves the circle and
   // its locks, as they leave their seat at the tables. The ring closes up
-  // behind them — it is drawn from the order alone. Students and circle of a
-  // class arrive together (`applyPersistedState`), so a class switch never
-  // matches one class's circle against another's list.
+  // behind them — it is drawn from the order alone. A student who joined the
+  // class takes a place at the end of the ring, so the projection, the export
+  // and the draw do not leave them out; the places are spaced evenly again,
+  // as the editor draws them. Students and circle of a class arrive together
+  // (`applyPersistedState`), so a class switch never matches one class's
+  // circle against another's list.
   useEffect(() => {
     if (!circleLayout) {
       return;
@@ -293,21 +316,56 @@ function useCircleSeatingInternal(
         }
       });
 
-      if (!hasChanges) {
+      const seatedIds = new Set(
+        updatedStudents.map((position) => position.student?.id),
+      );
+      const joined = state.students.filter(
+        (student) => !seatedIds.has(student.id),
+      );
+
+      if (!hasChanges && joined.length === 0) {
         return currentLayout;
+      }
+
+      let radius = currentLayout.radius;
+      let students = updatedStudents;
+      if (joined.length > 0) {
+        const grown = calculateCircleDimensions(
+          updatedStudents.length + joined.length,
+        ).radius;
+        radius = {
+          horizontal: Math.max(radius.horizontal, grown.horizontal),
+          vertical: Math.max(radius.vertical, grown.vertical),
+        };
+        const startAngle = updatedStudents[0]?.angle ?? 0;
+        students = respaceCirclePositions(
+          [
+            ...updatedStudents,
+            ...joined.map((student) => ({
+              student,
+              angle: 0,
+              x: 0,
+              y: 0,
+              preservedNeighbors: [],
+              lostNeighbors: [],
+              newNeighbors: [],
+            })),
+          ],
+          currentLayout.center,
+          radius,
+          startAngle,
+        );
       }
 
       const next: CircleLayout = {
         ...currentLayout,
-        students: updatedStudents,
+        students,
+        radius,
         timestamp: currentLayout.timestamp,
       };
       if (currentLayout.lockedStudentIds) {
-        const remaining = new Set(
-          updatedStudents.map((position) => position.student?.id),
-        );
         next.lockedStudentIds = currentLayout.lockedStudentIds.filter((id) =>
-          remaining.has(id),
+          seatedIds.has(id),
         );
       }
       return next;

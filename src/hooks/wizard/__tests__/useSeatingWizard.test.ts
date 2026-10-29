@@ -24,8 +24,9 @@ import { resetAlgorithmStore } from '@/stores/algorithmStore';
 
 // Mock dependencies
 let mockLocationState: { step?: number } | null = null;
+let mockLocationKey = 'default';
 vi.mock('react-router-dom', () => ({
-  useLocation: () => ({ state: mockLocationState }),
+  useLocation: () => ({ state: mockLocationState, key: mockLocationKey }),
 }));
 
 const { showToastMock, logErrorMock } = vi.hoisted(() => ({
@@ -116,6 +117,7 @@ describe('useSeatingWizard', () => {
     vi.clearAllMocks();
     resetAlgorithmStore();
     mockLocationState = null;
+    mockLocationKey = 'default';
     mockSaveSeatingPlanWithCircle = vi.fn().mockReturnValue(true);
     markClassroomSyncedMock = vi.fn();
     syncSeatingSnapshotMock = vi.fn();
@@ -163,6 +165,49 @@ describe('useSeatingWizard', () => {
       });
 
       expect(result.current.step).toBe(2);
+    });
+
+    it('does not apply the step again when its history entry comes back', async () => {
+      mockLocationState = { step: 3 };
+      mockLocationKey = 'from-export';
+      const { result, rerender } = renderHook(() =>
+        useSeatingWizard(mockConfig),
+      );
+      await waitFor(() => expect(result.current.step).toBe(3));
+
+      act(() => {
+        result.current.setStep(1);
+      });
+      // A tool opened from the toolbar, then its way back.
+      mockLocationState = null;
+      mockLocationKey = 'tool';
+      rerender();
+      mockLocationState = { step: 3 };
+      mockLocationKey = 'from-export';
+      rerender();
+
+      expect(result.current.step).toBe(1);
+    });
+
+    it('does not open the plan layer while seats are missing for the class', async () => {
+      mockLocationState = { step: 3 };
+      mockLocationKey = 'from-library';
+      const crowded: WizardConfig = {
+        ...mockConfig,
+        students: ['1', '2', '3', '4', '5'].map((id) =>
+          createMockStudent(id, `Student ${id}`),
+        ),
+      };
+
+      const { result } = renderHook(() => useSeatingWizard(crowded));
+
+      await waitFor(() =>
+        expect(showToastMock).toHaveBeenCalledWith(
+          'error',
+          TOAST_MESSAGES.SEATS_INSUFFICIENT,
+        ),
+      );
+      expect(result.current.step).toBe(1);
     });
   });
 

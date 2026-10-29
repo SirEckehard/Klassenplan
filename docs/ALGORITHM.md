@@ -290,7 +290,7 @@ class's plans. Class id and class data now change in the same update
 from older saved plans still runs inside `applyPersistedState`
 (`src/hooks/useSeatingPersistence.ts`), where the id and the plans come from the
 same load, and a pending `edited` signal is dropped when the class changes.
-`sweepOrphanPlanUsage` is the backstop: on every load it drops records that name
+`sweepOrphanPlanUsage` is the backstop: at every start it drops records that name
 nobody from the class they sit under, which also repairs buckets contaminated by
 earlier versions.
 

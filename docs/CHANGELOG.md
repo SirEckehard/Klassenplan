@@ -17,6 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- Undoing the removal of a student brings their photo back too, also after a class was made or deleted in "Library" or a backup merged in the meantime; until now the photo was deleted from storage for good
+- A student added to the class after the circle was made takes a place at the end of the circle, so they are no longer missing from the circle, its projection, its export and "Who's next?"
+- "Mix" no longer leaves students out without a word when the room has fewer seats in the mix than the class has students: it says so, as the layer switch does, and the plan layer opened from "Library", the export or a class tool asks the same before it opens
+- Coming back from a class tool, the export or "Library" leaves the workspace on the layer it was on, instead of jumping back to a layer it was led to earlier
 - Ctrl/⌘+Enter mixes again after clicking a student in the seating plan, instead of picking the student up to move them
 - After mixing, the students no longer jump half-way at the start of their glide on a slower computer: they set off from their old seats and glide the whole way at an even pace
 - A student gliding to a new seat already has the rounded corners and the table's outline of the seat they land in, so nothing jumps when they arrive; the preview while dragging a student is rounded like the tables too

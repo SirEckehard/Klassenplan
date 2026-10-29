@@ -9,6 +9,7 @@ import type {
 } from '@/types';
 import { showToast, TOAST_MESSAGES, logError } from '@/utils';
 import type { AlgorithmRunOptions } from '@/hooks/useSeatingAlgorithm';
+import { countActiveSeats } from '@/utils/math/scene';
 
 interface SeatingMixHandlerConfig {
   settings: MixSettings;
@@ -36,6 +37,10 @@ const isAbortError = (error: unknown): boolean =>
  * Hook for handling seating plan mix operations with validation.
  *
  * Provides a unified handler for the "Mix" button that:
+ * - Refuses, as the layer switch does, while the room has fewer seats in the
+ *   mix than the class has students: the plan layer is reached by other ways
+ *   too ("Bibliothek", "Plan öffnen …", the history), and a mix would leave
+ *   the students without a seat out unannounced
  * - Mixes with the settings as they are: with no criterion on, the session
  *   deals the students onto the seats at random (decision 0031)
  * - Runs the mix, which refines the arrangement in the same session while a
@@ -50,6 +55,7 @@ const isAbortError = (error: unknown): boolean =>
  */
 export const useSeatingMixHandler = ({
   settings,
+  students,
   classroomScene,
   generateSeatingPlan,
   onMix,
@@ -70,6 +76,11 @@ export const useSeatingMixHandler = ({
   const handleMix = React.useCallback(async (): Promise<MixOutcome> => {
     if (isMixing) {
       return 'busy';
+    }
+
+    if (countActiveSeats(classroomScene) < students.length) {
+      showToast('error', TOAST_MESSAGES.SEATS_INSUFFICIENT);
+      return 'failed';
     }
 
     const abortController = new AbortController();
@@ -112,7 +123,14 @@ export const useSeatingMixHandler = ({
       );
     }
     return 'mixed';
-  }, [settings, generateSeatingPlan, classroomScene, onMix, isMixing]);
+  }, [
+    settings,
+    students,
+    generateSeatingPlan,
+    classroomScene,
+    onMix,
+    isMixing,
+  ]);
 
   return {
     isMixing,

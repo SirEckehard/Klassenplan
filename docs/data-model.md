@@ -1,6 +1,6 @@
 # Data Model
 
-> **Status:** current · **Last reviewed:** 2026-10-26 · **Source of truth:**
+> **Status:** current · **Last reviewed:** 2026-10-29 · **Source of truth:**
 > `src/utils/data/storageKeys.ts`, `src/types/`, `src/repositories/`
 
 Everything Klassenplan stores lives in the teacher's browser. This document
@@ -366,19 +366,22 @@ list is `PROJECT_LOCAL_STORAGE_KEYS` in `storageKeys.ts`. Groups:
 
 ## Retention and deletion
 
-| Data                 | Bound                 | Removed when                                                                             |
-| -------------------- | --------------------- | ---------------------------------------------------------------------------------------- |
-| Mix history          | 20 per class          | A new shuffle pushes out the oldest                                                      |
-| Plan usage records   | 40 per class          | A new record pushes out the oldest; records naming nobody in the class are swept on load |
-| Saved plans          | none                  | The teacher deletes them                                                                 |
-| Student photos       | one per student       | The deletion is committed after undo can no longer reach it; orphans are swept on load   |
-| Name game statistics | one entry per student | Orphans are swept on load                                                                |
-| Duty rounds          | 20 per class          | A new round pushes out the oldest; students no longer in the class are swept on load     |
-| A whole class        | —                     | The teacher deletes it; its photos, statistics and usage records go with the next sweep  |
+| Data                 | Bound                 | Removed when                                                                                 |
+| -------------------- | --------------------- | -------------------------------------------------------------------------------------------- |
+| Mix history          | 20 per class          | A new shuffle pushes out the oldest                                                          |
+| Plan usage records   | 40 per class          | A new record pushes out the oldest; records naming nobody in the class are swept at start-up |
+| Saved plans          | none                  | The teacher deletes them                                                                     |
+| Student photos       | one per student       | The deletion is committed after undo can no longer reach it; orphans are swept at start-up   |
+| Name game statistics | one entry per student | Orphans are swept at start-up                                                                |
+| Duty rounds          | 20 per class          | A new round pushes out the oldest; students no longer in the class are swept at start-up     |
+| A whole class        | —                     | The teacher deletes it; its photos, statistics and usage records go with the next sweep      |
 
 The orphan sweeps (`sweepOrphanPhotos`, `sweepOrphanNameGameStats`,
-`sweepOrphanPlanUsage`, `sweepOrphanDuties`) run whenever `useSeatingPersistence` applies a loaded
-class collection. Nothing expires by age.
+`sweepOrphanPlanUsage`, `sweepOrphanDuties`) run once, when `useSeatingPersistence`
+loads the classes at start-up — never on a later reload (a class made or deleted
+in "Bibliothek", a backup merged), which keeps the open class's undo history: a
+student it can still bring back is in no class until then, and the sweep would
+take their photo. Nothing expires by age.
 
 ### "Delete all data"
 

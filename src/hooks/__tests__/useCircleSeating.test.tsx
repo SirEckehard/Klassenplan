@@ -202,7 +202,9 @@ describe('useCircleSeating', () => {
         .spyOn(algorithmWorkerClient, 'callOperation')
         .mockImplementationOnce(async () => pendingResult);
 
-      const { result } = renderHook(() => useCircleSeating(mockState));
+      const { result } = renderHook(() =>
+        useCircleSeating({ ...mockState, students: [] }),
+      );
 
       let generationPromise!: Promise<CircleLayout | null>;
 
@@ -456,7 +458,12 @@ describe('useCircleSeating', () => {
     });
 
     it('should update student position by angle', () => {
-      const { result } = renderHook(() => useCircleSeating(mockState));
+      const { result } = renderHook(() =>
+        useCircleSeating({
+          ...mockState,
+          students: mockState.students.slice(0, 1),
+        }),
+      );
 
       // Manually set a layout
       act(() => {
@@ -559,7 +566,12 @@ describe('useCircleSeating', () => {
 
   describe('batchSwapStudentPositions', () => {
     it('should apply multiple swaps in sequence', () => {
-      const { result } = renderHook(() => useCircleSeating(mockState));
+      const { result } = renderHook(() =>
+        useCircleSeating({
+          ...mockState,
+          students: mockState.students.slice(0, 3),
+        }),
+      );
 
       const layout: CircleLayout = {
         students: [
@@ -650,7 +662,9 @@ describe('useCircleSeating', () => {
 
   describe('State Management', () => {
     it('should allow direct layout setting', () => {
-      const { result } = renderHook(() => useCircleSeating(mockState));
+      const { result } = renderHook(() =>
+        useCircleSeating({ ...mockState, students: [] }),
+      );
 
       const customLayout = {
         students: [],
@@ -812,7 +826,12 @@ describe('useCircleSeating', () => {
     });
 
     it('should handle invalid student position updates', () => {
-      const { result } = renderHook(() => useCircleSeating(mockState));
+      const { result } = renderHook(() =>
+        useCircleSeating({
+          ...mockState,
+          students: mockState.students.slice(0, 1),
+        }),
+      );
 
       act(() => {
         result.current.setCircleLayout({
@@ -905,15 +924,49 @@ describe('useCircleSeating', () => {
       expect(layout.lockedStudentIds).toEqual([bob.id]);
     });
 
-    it('leaves the circle alone while everyone in it is still in the class', () => {
+    it('leaves the circle alone while it holds the class as it is', () => {
       const { result } = renderHook(() => useCircleSeating(mockState));
-      const layout = layoutOf(mockState.students.slice(0, 2));
+      const layout = layoutOf(mockState.students);
 
       act(() => {
         result.current.setCircleLayout(layout);
       });
 
       expect(result.current.circleLayout).toEqual(layout);
+    });
+
+    it('gives a student who joined the class a place at the end of the ring', () => {
+      const [alice, bob, charlie] = mockState.students;
+      const { result, rerender } = renderHook(
+        ({ state }) => useCircleSeating(state),
+        {
+          initialProps: {
+            state: { ...mockState, students: [alice!, bob!, charlie!] },
+          },
+        },
+      );
+      act(() => {
+        result.current.setCircleLayout(
+          layoutOf([charlie!, alice!, bob!], [alice!.id]),
+        );
+      });
+
+      const emil = createMockStudent({ name: 'Emil', gender: 'boy' });
+      rerender({
+        state: { ...mockState, students: [alice!, bob!, charlie!, emil] },
+      });
+
+      const layout = result.current.circleLayout!;
+      expect(layout.students.map((position) => position.student.name)).toEqual([
+        'Charlie',
+        'Alice',
+        'Bob',
+        'Emil',
+      ]);
+      expect(layout.students.map((position) => position.angle)).toEqual([
+        0, 90, 180, 270,
+      ]);
+      expect(layout.lockedStudentIds).toEqual([alice!.id]);
     });
   });
 });

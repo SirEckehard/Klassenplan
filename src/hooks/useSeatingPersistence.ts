@@ -183,30 +183,36 @@ export function useSeatingPersistence(state: SeatingState) {
           (entry) => entry.id === collection.activeClassId,
         ) ?? collection.classes[0];
       setActiveClass(mapActiveClass(activeRecord));
-
-      // Remove photos, name-game stats, plan usage records and duties whose
-      // student or class no longer exists (e.g. after a class was deleted).
-      // Fire-and-forget; failures are handled internally.
-      const knownStudentIds = new Set<string>();
-      // Per class, ids and names alike: pair keys written before students
-      // carried ids fall back to the name.
-      const studentIdsByClass = new Map<string, Set<string>>();
-      for (const entry of collection.classes) {
-        const perClass = new Set<string>();
-        for (const student of entry.students ?? []) {
-          knownStudentIds.add(student.id);
-          perClass.add(student.id);
-          if (student.name) perClass.add(student.name);
-        }
-        studentIdsByClass.set(entry.id, perClass);
-      }
-      void sweepOrphanPhotos(knownStudentIds);
-      void sweepOrphanNameGameStats(knownStudentIds);
-      void sweepOrphanPlanUsage(studentIdsByClass);
-      void sweepOrphanDuties(studentIdsByClass);
     },
     [mapActiveClass, setActiveClass, setClassSummaries],
   );
+
+  // Remove photos, name-game stats, plan usage records and duties whose
+  // student or class no longer exists (e.g. after a class was deleted). Only
+  // at start-up: a reload later on — a class made or deleted in "Bibliothek",
+  // a backup merged — keeps the open class's undo history, and a student it
+  // can bring back is in no class until then; its photo waits in the photo
+  // trash (`studentPhotoTrash`), which this sweep would pass over.
+  // Fire-and-forget; failures are handled internally.
+  const sweepOrphans = useCallback((collection: ClassCollectionState) => {
+    const knownStudentIds = new Set<string>();
+    // Per class, ids and names alike: pair keys written before students
+    // carried ids fall back to the name.
+    const studentIdsByClass = new Map<string, Set<string>>();
+    for (const entry of collection.classes) {
+      const perClass = new Set<string>();
+      for (const student of entry.students ?? []) {
+        knownStudentIds.add(student.id);
+        perClass.add(student.id);
+        if (student.name) perClass.add(student.name);
+      }
+      studentIdsByClass.set(entry.id, perClass);
+    }
+    void sweepOrphanPhotos(knownStudentIds);
+    void sweepOrphanNameGameStats(knownStudentIds);
+    void sweepOrphanPlanUsage(studentIdsByClass);
+    void sweepOrphanDuties(studentIdsByClass);
+  }, []);
 
   const fetchPersistedState = useCallback(async (): Promise<LoadedSnapshot> => {
     const [classCollectionResult, activeClassSnapshotResult] =
@@ -488,6 +494,11 @@ export function useSeatingPersistence(state: SeatingState) {
         const snapshot = await fetchPersistedState();
         if (cancelled) return;
         applyPersistedState(snapshot);
+        if (snapshot.classCollectionResult.success) {
+          sweepOrphans(
+            snapshot.classCollectionResult.data as ClassCollectionState,
+          );
+        }
       } catch (e) {
         logError(
           'Repository load failed',
@@ -499,7 +510,7 @@ export function useSeatingPersistence(state: SeatingState) {
     return () => {
       cancelled = true;
     };
-  }, [applyPersistedState, fetchPersistedState]);
+  }, [applyPersistedState, fetchPersistedState, sweepOrphans]);
 
   // Use extracted class data persistence hook for auto-persist effects
   const { reloadCurrentClassData } = useClassDataPersistence(

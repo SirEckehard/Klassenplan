@@ -8,8 +8,16 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import '@/i18n';
+
+vi.mock('@/utils/ui/toast', async () => ({
+  ...(await vi.importActual<typeof import('@/utils/ui/toast')>(
+    '@/utils/ui/toast',
+  )),
+  showToast: vi.fn(),
+}));
+
 import { useSeatingMixHandler } from '../useSeatingMixHandler';
-import { neutralSettings } from '@/utils';
+import { neutralSettings, showToast, TOAST_MESSAGES } from '@/utils';
 import { createMockClassroomScene, createMockStudent } from '@/__tests__/utils';
 import type { ClassroomScene, MixSettings, SeatingArrangement } from '@/types';
 
@@ -18,7 +26,7 @@ const withCriteria = {
   avoidRestlessTogether: 5,
 } as MixSettings;
 
-const scene: ClassroomScene = createMockClassroomScene();
+const scene: ClassroomScene = createMockClassroomScene(1);
 const students = [
   createMockStudent({ id: 'a' }),
   createMockStudent({ id: 'b' }),
@@ -199,5 +207,34 @@ describe('useSeatingMixHandler', () => {
     // Without the abort, the resolved promise would push state into an
     // unmounted tree.
     expect(() => unmount()).not.toThrow();
+  });
+
+  it('refuses to mix while the room has fewer seats in the mix than students', async () => {
+    const generate = vi.fn(async () => arrangement);
+    const onMix = vi.fn();
+    const crowded = [...students, createMockStudent({ id: 'c' })];
+
+    const { result } = renderHook(() =>
+      useSeatingMixHandler({
+        settings: withCriteria,
+        students: crowded,
+        classroomScene: scene,
+        generateSeatingPlan: generate,
+        onMix,
+      }),
+    );
+
+    let outcome: string | undefined;
+    await act(async () => {
+      outcome = await result.current.handleMix();
+    });
+
+    expect(outcome).toBe('failed');
+    expect(generate).not.toHaveBeenCalled();
+    expect(onMix).not.toHaveBeenCalled();
+    expect(vi.mocked(showToast)).toHaveBeenCalledWith(
+      'error',
+      TOAST_MESSAGES.SEATS_INSUFFICIENT,
+    );
   });
 });

@@ -115,30 +115,13 @@ export function useSeatingWizard(
   );
   const locationStep =
     typeof location.state?.step === 'number' ? location.state.step : null;
-  const lastAppliedLocationStep = useRef<number | null>(null);
+  // The history entries whose step was applied. An entry comes back with its
+  // state — "Zurück" from a tool, the browser's back button — and must not
+  // undo the layer changes made since.
+  const appliedLocationKeys = useRef(new Set<string>());
   const autoMixTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [autoMixing, setAutoMixing] = useState(false);
   const [autoMixError, setAutoMixError] = useState<string | null>(null);
-  useEffect(() => {
-    if (locationStep === null) {
-      lastAppliedLocationStep.current = null;
-      return;
-    }
-
-    // Already applied this location step
-    if (lastAppliedLocationStep.current === locationStep) {
-      return;
-    }
-
-    // Mark as applied even if step already matches to prevent
-    // the effect from reverting manual step changes later
-    lastAppliedLocationStep.current = locationStep;
-
-    // Only actually change step if it differs
-    if (locationStep !== step) {
-      setStep(locationStep);
-    }
-  }, [locationStep, step, setStep]);
   const planNameInputRef = useRef<HTMLInputElement>(null);
 
   // Scroll to top on step change
@@ -377,6 +360,33 @@ export function useSeatingWizard(
       validateAndNavigateToStep3,
     ],
   );
+
+  // A page outside the workspace ("Bibliothek", the export, a tool) opens a
+  // layer through the router state, once per history entry. The way forward
+  // asks what the layer switch asks — names, tables, seats for everyone — so
+  // the plan layer is never reached with students it has no seat for.
+  useEffect(() => {
+    if (locationStep === null) return;
+    if (appliedLocationKeys.current.has(location.key)) return;
+    appliedLocationKeys.current.add(location.key);
+
+    if (locationStep === step) return;
+    if (locationStep === 2 && step < 2) {
+      validateAndNavigateToStep2();
+    } else if (locationStep === 3) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- the router's history entry is the external trigger; the first entry's mix starts with the step
+      validateAndNavigateToStep3();
+    } else {
+      setStep(locationStep);
+    }
+  }, [
+    location.key,
+    locationStep,
+    step,
+    setStep,
+    validateAndNavigateToStep2,
+    validateAndNavigateToStep3,
+  ]);
 
   return {
     step,
