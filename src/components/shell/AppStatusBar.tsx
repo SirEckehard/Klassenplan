@@ -292,11 +292,16 @@ export default function AppStatusBar() {
         // with the canvas state and fills the slot through `StatusBarPortal`.
         // Beside them what they take back: the plan layer's "Mischen" and
         // the circle's fitting and shuffle, which their views fill in the
-        // same way.
+        // same way. Below `md` the action hangs over the bar's middle
+        // instead, with its word: beside the toolbar's switch, undo/redo,
+        // the way back, the exits and the inspector's switch a 402px phone
+        // had no room for it, and it squeezed the switch under itself. It
+        // stays the bar's, so the drawers cover it as they cover the bar, and
+        // the stage keeps clear of it (`workspaceFitStageClass`).
         <div className="flex shrink-0 items-center gap-2">
           <span
             ref={setActionNode}
-            className="flex shrink-0 items-center gap-2 empty:hidden"
+            className="flex shrink-0 items-center gap-2 empty:hidden max-md:absolute max-md:bottom-full max-md:left-1/2 max-md:mb-3 max-md:w-max max-md:-translate-x-1/2"
           />
           {step === 1 && (
             <StudentHistoryToolbar

@@ -30,6 +30,18 @@ export const workspaceLayerClass =
   'flex flex-col gap-4 md:flex-row md:items-start lg:min-h-0 lg:flex-1 lg:items-stretch lg:gap-0';
 
 /**
+ * The plan layer's root and stage below `lg`, added to the two above: there
+ * the layer stays a page, but the plan and the circle fill what it leaves
+ * between the header and the status bar instead of growing it
+ * (`canvasFillClass`), so it scrolls only where the plan would otherwise get
+ * too small. Below `md` the stage keeps clear of the layer's actions, which
+ * hang from the status bar over its bottom edge (`AppStatusBar`).
+ */
+export const workspaceFitLayerClass = 'max-lg:flex-1';
+export const workspaceFitStageClass =
+  'max-lg:flex max-lg:flex-col max-lg:self-stretch max-md:pb-12';
+
+/**
  * The stage: the one column that belongs to the layer's own subject. It is the
  * sunken surface of the workspace, so the toolbar and the inspector read as the
  * paper around it.

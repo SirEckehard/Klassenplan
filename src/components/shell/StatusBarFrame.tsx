@@ -39,9 +39,10 @@ const statusBarPressedClass =
  * like the secondary buttons at the right end, the pair reads as a control of
  * its own, right under the thing it takes back.
  *
- * Below `sm` its buttons, the way back, the exits and "Mischen" are squares
- * of 36px and the bar drops its hairlines: a 402px iPhone otherwise had to
- * fit ~460px, and the middle covered the plan's fulfilment at the left end.
+ * Below `sm` its buttons, the way back and the exits are squares of 36px and
+ * the bar drops its hairlines: a 402px iPhone otherwise had to fit ~460px,
+ * and the middle covered the plan's fulfilment at the left end. "Mischen"
+ * leaves the bar below `md` altogether (`AppStatusBar`).
  */
 export const statusBarHistoryGroupClass =
   'flex items-center divide-x divide-(--button-secondary-border) overflow-hidden rounded-full border border-(--button-secondary-border) bg-(--button-secondary-bg) shadow-(--button-secondary-shadow)';

@@ -36,6 +36,8 @@ import {
   canvasFrameClass,
   canvasStageClass,
   canvasFitClass,
+  canvasFillClass,
+  canvasFitTurnedClass,
   getViewportMetrics,
   primaryButtonClass,
   secondaryButtonClass,
@@ -83,7 +85,7 @@ import { useFirstVisit } from '@/hooks/ui/useFirstVisit';
 import { useIsPhone } from '@/hooks/ui/useLayoutMode';
 import { usePortraitTurn } from '@/hooks/ui/usePortraitTurn';
 import { useTurnAnimation } from '@/hooks/ui/useTurnAnimation';
-import { TURNED_FRAME_MAX_WIDTH, turnPlanScene } from '@/utils/ui/portraitPlan';
+import { turnPlanScene } from '@/utils/ui/portraitPlan';
 import { createSuspendedWeights } from '@/hooks/ui/useMixCriteria';
 import { buildCriterionHighlightEntries } from '@/utils/algorithm/criterionHighlights';
 import {
@@ -98,6 +100,8 @@ import DragGhost from '@/components/scene/DragGhost';
 import { useHasHoverPointer } from '@/hooks/ui/useHasHoverPointer';
 import type { TemplateDragPreview } from '@/types/templateDrag';
 import {
+  workspaceFitLayerClass,
+  workspaceFitStageClass,
   workspaceLayerClass,
   workspaceStageClass,
 } from '@/components/shell/shellTokens';
@@ -844,11 +848,11 @@ export default function SeatingPlanEditorView({
   }, [students, settings, setMixSettings]);
 
   return (
-    <div className="space-y-6 lg:flex lg:min-h-0 lg:flex-1 lg:flex-col lg:space-y-0">
+    <div className="flex flex-1 flex-col lg:min-h-0">
       {/* The rail stands beside the canvas from `md` up, the step at which
           `useLayoutMode` stops making it a drawer (`BREAKPOINTS` mirrors
           Tailwind's scale), so the two cannot leave it stacked on top. */}
-      <div className={workspaceLayerClass}>
+      <div className={`${workspaceLayerClass} ${workspaceFitLayerClass}`}>
         <SmartSidebar tourAnchor={TOUR_ANCHORS.planSidebar}>
           {({ isExpanded }) => (
             <PlanToolPanel
@@ -895,10 +899,8 @@ export default function SeatingPlanEditorView({
         </InspectorPortal>
 
         {/* The layer's one primary action, in the middle of the status bar
-            beside undo/redo, which take a mix back. On a phone only the icon,
-            as the circle's fitting in the same place: the word pushed the
-            toolbar's switch under the button on a narrow screen. The
-            accessible name stays whole at every width. */}
+            beside undo/redo, which take a mix back; below `md` it hangs over
+            the bar's middle instead, where its word has room. */}
         <StatusBarPortal slot="action">
           <button
             type="button"
@@ -907,12 +909,12 @@ export default function SeatingPlanEditorView({
             disabled={mixingLocked}
             title={t('mixButton.shortcut')}
             aria-label={t('actions.mixAgain')}
-            className={`${primaryButtonClass} flex items-center gap-2 whitespace-nowrap max-sm:w-9 max-sm:px-0 ${
+            className={`${primaryButtonClass} flex items-center gap-2 whitespace-nowrap ${
               mixingLocked ? 'cursor-not-allowed opacity-60' : ''
             }`}
           >
             <ShuffleIcon className="h-4 w-4" aria-hidden="true" />
-            <span className="hidden sm:inline">{t('actions.mixAgain')}</span>
+            <span>{t('actions.mixAgain')}</span>
           </button>
         </StatusBarPortal>
 
@@ -944,8 +946,10 @@ export default function SeatingPlanEditorView({
           </StatusBarPortal>
         )}
 
-        <div className={`${workspaceStageClass} relative flex flex-col`}>
-          <div className="flex min-w-0 flex-col gap-4 lg:min-h-0 lg:flex-1">
+        <div
+          className={`${workspaceStageClass} ${workspaceFitStageClass} relative flex flex-col`}
+        >
+          <div className="flex min-w-0 flex-1 flex-col gap-4 lg:min-h-0">
             {!autoMixing && autoMixError && (
               <PlanNotice
                 role="alert"
@@ -1066,18 +1070,17 @@ export default function SeatingPlanEditorView({
             {/* The notices above take their height out of the stage, so the
                 plan is fitted into what is left rather than into the whole
                 stage, which would push its bottom edge out of sight. */}
-            <div className={`${canvasStageClass} lg:min-h-0 lg:flex-1`}>
+            <div
+              className={`${canvasStageClass} ${canvasFillClass} lg:min-h-0 lg:flex-1`}
+            >
               <div
                 data-testid="classroom-canvas"
                 data-tour={TOUR_ANCHORS.planCanvas}
                 className={`${canvasFrameClass} ${canvasFitClass} relative select-none ${
-                  planTurn === null ? '' : 'mx-auto'
+                  planTurn === null ? '' : `${canvasFitTurnedClass} mx-auto`
                 }`}
                 ref={canvasFrameRef}
-                style={{
-                  maxWidth:
-                    planTurn === null ? '100vw' : TURNED_FRAME_MAX_WIDTH,
-                }}
+                style={{ maxWidth: '100vw' }}
               >
                 {/* Phone only: everywhere the options rail fits, the values sit
                   beside the criteria instead. */}

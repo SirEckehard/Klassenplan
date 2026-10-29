@@ -97,7 +97,7 @@ export default function AppShell({
     // so that is part of its height, measured or not.
     <div
       ref={frameRef}
-      className="flex min-h-screen flex-col lg:h-dvh lg:min-h-0 lg:overflow-hidden"
+      className="flex min-h-dvh flex-col lg:h-dvh lg:min-h-0 lg:overflow-hidden"
       style={
         {
           '--shell-bottom-inset':

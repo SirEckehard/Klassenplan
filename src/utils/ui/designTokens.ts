@@ -124,6 +124,14 @@ export const canvasStageClass = 'canvas-stage';
 
 export const canvasFitClass = 'canvas-fit';
 
+/**
+ * A stage that fits its plan below `lg` too, rather than scrolling it, and
+ * the frame of a plan turned a quarter in it (`index.css`).
+ */
+export const canvasFillClass = 'canvas-fill';
+
+export const canvasFitTurnedClass = 'canvas-fit-turned';
+
 export const toastSurfaceClass = 'toast-surface';
 
 export const toastIconClass = 'toast-icon';

@@ -410,6 +410,8 @@ export {
   canvasFrameClass,
   canvasStageClass,
   canvasFitClass,
+  canvasFillClass,
+  canvasFitTurnedClass,
   toastSurfaceClass,
   toastIconClass,
   toastActionClass,

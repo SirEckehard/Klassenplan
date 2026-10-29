@@ -28,6 +28,8 @@ import {
   canvasFrameClass,
   canvasStageClass,
   canvasFitClass,
+  canvasFillClass,
+  canvasFitTurnedClass,
   primaryButtonClass,
   secondaryButtonClass,
 } from '@/utils';
@@ -42,8 +44,9 @@ import { usePlanExits } from '@/hooks/plan/usePlanExits';
 import { usePlanShortcuts } from '@/hooks/plan/usePlanShortcuts';
 import { usePortraitCircleTurn } from '@/hooks/ui/usePortraitTurn';
 import { useTurnAnimation } from '@/hooks/ui/useTurnAnimation';
-import { TURNED_FRAME_MAX_WIDTH } from '@/utils/ui/portraitPlan';
 import {
+  workspaceFitLayerClass,
+  workspaceFitStageClass,
   workspaceLayerClass,
   workspaceStageClass,
 } from '@/components/shell/shellTokens';
@@ -264,11 +267,11 @@ export default function EnhancedSeatingPlanView(
   // For circle mode, we need different controls and view
   if (isCircleView) {
     return (
-      <div className="space-y-6 lg:flex lg:min-h-0 lg:flex-1 lg:flex-col lg:space-y-0">
+      <div className="flex flex-1 flex-col lg:min-h-0">
         {/* The direction comes from the same hook that decides whether the
             sidebar is a rail or a phone sheet, so the two cannot disagree and
             stack the rail on top of the canvas. */}
-        <div className={workspaceLayerClass}>
+        <div className={`${workspaceLayerClass} ${workspaceFitLayerClass}`}>
           {/* A phone gets the sheet as the table plan does: the way back to
               the tables, the view settings and the foot every rail shares.
               Rebuilding the circle from the plan and shuffling it are the
@@ -289,16 +292,15 @@ export default function EnhancedSeatingPlanView(
               not built from them, so its panel says what the ring came to. */}
           <CircleInspector layout={circleLayout} nameDisplay={nameDisplay} />
 
-          <div className={`${workspaceStageClass} ${canvasStageClass} gap-4`}>
+          <div
+            className={`${workspaceStageClass} ${workspaceFitStageClass} ${canvasStageClass} ${canvasFillClass} gap-4`}
+          >
             <div
               ref={circleFrameRef}
               className={`${canvasFrameClass} ${canvasFitClass} select-none ${
-                circleTurn === null ? '' : 'mx-auto'
+                circleTurn === null ? '' : `${canvasFitTurnedClass} mx-auto`
               }`}
-              style={{
-                maxWidth:
-                  circleTurn === null ? '100vw' : TURNED_FRAME_MAX_WIDTH,
-              }}
+              style={{ maxWidth: '100vw' }}
             >
               {circleLayout ? (
                 <SimpleCircleView
@@ -368,9 +370,8 @@ export default function EnhancedSeatingPlanView(
                 button. Saving is in the toolbar, the two exits at the end of
                 the status bar. */}
             <StatusBarPortal slot="action">
-              {/* On a phone only the icon: the words took the bar's width and
-                  pushed the toolbar's switch out of reach. The accessible
-                  name stays whole at every width. */}
+              {/* Below `md` the two hang over the bar's middle, where their
+                  words have room (`AppStatusBar`). */}
               <button
                 type="button"
                 onClick={() => void generateCircleSeating()}
@@ -382,12 +383,8 @@ export default function EnhancedSeatingPlanView(
                   className="h-4 w-4"
                   aria-hidden="true"
                 />
-                <span className="hidden sm:inline">
-                  {t('circleView.syncButton')}
-                </span>
+                <span>{t('circleView.syncButton')}</span>
               </button>
-              {/* Its word where the fitting shows one; the accessible name
-                  holds the visible word at every width. */}
               <button
                 type="button"
                 onClick={handleShuffleCircle}
@@ -397,9 +394,7 @@ export default function EnhancedSeatingPlanView(
                 className={`${primaryButtonClass} flex items-center gap-2 whitespace-nowrap`}
               >
                 <ShuffleIcon className="h-4 w-4" aria-hidden="true" />
-                <span className="hidden sm:inline">
-                  {t('circleView.shuffleShort')}
-                </span>
+                <span>{t('circleView.shuffleShort')}</span>
               </button>
             </StatusBarPortal>
           </div>

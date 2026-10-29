@@ -9,7 +9,12 @@ import SeatingPlanView, {
   type Props as SeatingPlanViewProps,
 } from '../SeatingPlanView';
 import type { ClassroomScene, SeatingArrangement } from '@/types';
-import { DEFAULT_MIX_WEIGHTS, canvasFitClass } from '@/utils';
+import {
+  DEFAULT_MIX_WEIGHTS,
+  canvasFillClass,
+  canvasFitClass,
+  canvasFitTurnedClass,
+} from '@/utils';
 import {
   getButton,
   renderWithProvidersAndRouter,
@@ -115,6 +120,27 @@ describe('SeatingPlanView', () => {
       });
 
       expect(plan()).toHaveAttribute('viewBox', '0 0 600 900');
+    });
+
+    it('fits the turned plan into its stage instead of a width of its own', async () => {
+      setWindow(402, 874);
+      await act(async () => {
+        renderWithProvidersAndRouter(
+          <SeatingPlanView {...createMockSeatingPlanViewProps({ step: 3 })} />,
+        );
+      });
+      const frame = screen.getByTestId('classroom-canvas');
+
+      // The stage's height caps the frame (`index.css`), so the page does
+      // not scroll where the plan fits; a computed max-width would override
+      // it with a guess at the header's and the status bar's heights.
+      expect(frame).toHaveClass(canvasFitClass, canvasFitTurnedClass);
+      expect(frame.parentElement).toHaveClass(canvasFillClass);
+      expect(frame.style.maxWidth).toBe('100vw');
+
+      setWindow(874, 402);
+
+      expect(frame).not.toHaveClass(canvasFitTurnedClass);
     });
 
     it('turns it on a tablet in portrait too, and back when it is turned', async () => {

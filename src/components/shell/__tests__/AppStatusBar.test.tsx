@@ -334,6 +334,12 @@ describe('AppStatusBar', () => {
     expect(mix.compareDocumentPosition(back())).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING,
     );
+    // Below `md` it hangs centred over the bar, where its word has room.
+    expect(mix.parentElement).toHaveClass(
+      'max-md:absolute',
+      'max-md:bottom-full',
+      'max-md:left-1/2',
+    );
   });
 
   // The plan layer's fulfilment stands where the other layers state their

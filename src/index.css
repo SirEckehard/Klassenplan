@@ -1559,6 +1559,34 @@
   }
 }
 
+/*
+ * Below `lg` the layer is a page, and a plan as wide as the stage made it
+ * scroll wherever the height bound — a tablet in portrait, a phone with a
+ * notice above the plan. The plan and the circle fit it as the window does
+ * from `lg` up: their stage takes what the page leaves between the header and
+ * the status bar and the frame is capped by its height, a plan turned a
+ * quarter (`canvas-fit-turned`) at two thirds of it. Below 20rem — a phone
+ * held sideways — a plan that small is no use, so the stage stops shrinking
+ * there and the page scrolls.
+ */
+@media (width < 64rem) {
+  .canvas-stage.canvas-fill {
+    flex: 1 1 0%;
+    min-height: 20rem;
+    container-type: size;
+    justify-content: center;
+  }
+
+  .canvas-fill .canvas-fit {
+    width: min(100%, calc(100cqh * 3 / 2 - 1px));
+  }
+
+  /* Half again as tall as wide: (width - 2px) * 3/2 + 2px stays within. */
+  .canvas-fill .canvas-fit.canvas-fit-turned {
+    width: min(100%, calc(100cqh * 2 / 3));
+  }
+}
+
 @utility canvas-frame {
   position: relative;
   display: block;
