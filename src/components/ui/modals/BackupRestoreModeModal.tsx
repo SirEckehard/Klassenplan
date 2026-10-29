@@ -37,12 +37,12 @@ export default function BackupRestoreModeModal({
   const options = [
     {
       value: 'replace' as const,
-      label: t('backupRestore.replaceLabel', 'Alles ersetzen'),
+      label: t('backupRestore.replaceLabel'),
       hint: t('backupRestore.replaceHint'),
     },
     {
       value: 'merge' as const,
-      label: t('backupRestore.mergeLabel', 'Zusammenführen'),
+      label: t('backupRestore.mergeLabel'),
       hint: t('backupRestore.mergeHint'),
     },
   ];
@@ -51,21 +51,13 @@ export default function BackupRestoreModeModal({
     <Modal
       open={open}
       onClose={onCancel}
-      title={t('backupRestore.title', 'Backup wiederherstellen')}
-      subtitle={t(
-        'backupRestore.subtitle',
-        'Wie sollen die Daten aus dem Backup übernommen werden?',
-      )}
+      title={t('backupRestore.title')}
+      subtitle={t('backupRestore.subtitle')}
       icon={<DownloadSimpleIcon size={24} aria-hidden="true" />}
       size="md"
     >
       <fieldset className="space-y-3">
-        <legend className="sr-only">
-          {t(
-            'backupRestore.subtitle',
-            'Wie sollen die Daten aus dem Backup übernommen werden?',
-          )}
-        </legend>
+        <legend className="sr-only">{t('backupRestore.subtitle')}</legend>
         {options.map((option) => (
           <label key={option.value} className={optionCardClass}>
             <input
@@ -94,14 +86,14 @@ export default function BackupRestoreModeModal({
           className={secondaryButtonClass}
           onClick={onCancel}
         >
-          {t('buttons.cancel', 'Abbrechen')}
+          {t('buttons.cancel')}
         </button>
         <button
           type="button"
           className={primaryButtonClass}
           onClick={() => onConfirm(mode)}
         >
-          {t('backupRestore.submit', 'Wiederherstellen')}
+          {t('backupRestore.submit')}
         </button>
       </div>
     </Modal>

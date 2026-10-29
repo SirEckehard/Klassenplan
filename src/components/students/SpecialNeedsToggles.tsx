@@ -53,40 +53,29 @@ export default function SpecialNeedsToggles({
 
   return (
     <>
-      {flags.map(
-        ({
-          key,
-          tooltip: defaultTooltip,
-          label: defaultLabel,
-          icon,
-          family,
-          exclusiveWith,
-        }) => {
-          const label = t(`studentFlags.${key}.label`, defaultLabel);
-          const isMixed = mixed?.has(key) ?? false;
-          return (
-            <InspectorRow
-              key={key}
-              label={label}
-              hint={t(`studentFlags.${key}.tooltip`, defaultTooltip)}
-              icon={<InspectorIcon icon={icon} family={family} />}
-              labelsControl
-            >
-              <ToggleSwitch
-                checked={Boolean(student[key])}
-                mixed={isMixed}
-                onChange={() => handleToggle(key, exclusiveWith)}
-                label={
-                  isMixed
-                    ? `${label} (${t('bulkEdit.flagState.mixed')})`
-                    : label
-                }
-                size="sm"
-              />
-            </InspectorRow>
-          );
-        },
-      )}
+      {flags.map(({ key, icon, family, exclusiveWith }) => {
+        const label = t(`studentFlags.${key}.label`);
+        const isMixed = mixed?.has(key) ?? false;
+        return (
+          <InspectorRow
+            key={key}
+            label={label}
+            hint={t(`studentFlags.${key}.tooltip`)}
+            icon={<InspectorIcon icon={icon} family={family} />}
+            labelsControl
+          >
+            <ToggleSwitch
+              checked={Boolean(student[key])}
+              mixed={isMixed}
+              onChange={() => handleToggle(key, exclusiveWith)}
+              label={
+                isMixed ? `${label} (${t('bulkEdit.flagState.mixed')})` : label
+              }
+              size="sm"
+            />
+          </InspectorRow>
+        );
+      })}
     </>
   );
 }

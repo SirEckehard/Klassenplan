@@ -20,24 +20,12 @@ export default function SeatingPlanErrorFallback({
 
   const variantCopyTranslated = {
     layout: {
-      title: t(
-        'errors.layoutUnavailable',
-        'Layout-Editor vorübergehend nicht verfügbar',
-      ),
-      description: t(
-        'errors.layoutDescription',
-        'Beim Rendern des Klassenzimmer-Layouts ist ein Fehler aufgetreten. Bitte versuche es erneut oder lade die Seite neu.',
-      ),
+      title: t('errors.layoutUnavailable'),
+      description: t('errors.layoutDescription'),
     },
     plan: {
-      title: t(
-        'errors.planUnavailable',
-        'Sitzplan-Ansicht konnte nicht angezeigt werden',
-      ),
-      description: t(
-        'errors.planDescription',
-        'Beim Rendern des Sitzplans ist ein Fehler aufgetreten. Bitte versuche es erneut oder lade die Seite neu.',
-      ),
+      title: t('errors.planUnavailable'),
+      description: t('errors.planDescription'),
     },
   };
 
@@ -53,14 +41,14 @@ export default function SeatingPlanErrorFallback({
             onClick={onRetry}
             className="rounded-md bg-(--button-primary-bg) px-4 py-2 text-sm font-medium text-(--button-primary-text) transition hover:bg-(--button-primary-bg-hover) focus:outline-none focus:ring-2 focus:ring-(--focus-ring-primary) focus:ring-offset-2"
           >
-            {t('common.retry', 'Erneut versuchen')}
+            {t('common.retry')}
           </button>
           <button
             type="button"
             onClick={() => window.location.reload()}
             className="rounded-md border border-(--border-option-selected) px-4 py-2 text-sm font-medium text-(--text-badge) transition hover:bg-(--surface-option-selected) focus:outline-none focus:ring-2 focus:ring-(--focus-ring-primary) focus:ring-offset-2"
           >
-            {t('common.reloadPage', 'Seite neu laden')}
+            {t('common.reloadPage')}
           </button>
         </div>
         <ErrorReportLink
@@ -70,7 +58,7 @@ export default function SeatingPlanErrorFallback({
         />
         <details className="mt-4 text-xs text-(--text-muted)">
           <summary className="cursor-pointer font-medium">
-            {t('common.errorDetails', 'Fehlerdetails')}
+            {t('common.errorDetails')}
           </summary>
           <pre className="mt-2 whitespace-pre-wrap wrap-break-word rounded bg-(--surface-card) p-3 text-caption leading-relaxed text-(--text-muted) shadow-inner">
             {error.message}

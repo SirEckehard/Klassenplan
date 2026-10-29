@@ -57,7 +57,7 @@
       "itemNames": "Der Button „Namen“ schaltet die Anzeige zwischen Vorname, Vorname + Initial des Nachnamens sowie Vor- und Nachname um.",
       "itemContrast": "Der Kontrastmodus zeigt den Plan schwarz auf weiß mit dickeren Konturen – so bleibt er auch in hellen Räumen gut lesbar.",
       "item4": "Stelle die Größe mit dem Regler, dem Mausrad oder zwei Fingern ein und verschiebe die Ansicht durch Ziehen; das Zentrieren-Symbol setzt sie zurück.",
-      "item5": "Mit Alt/⌥+← kehrst du zum Generator zurück.",
+      "item5": "Mit Alt/⌥+← kehrst du zum Sitzplan zurück.",
       "item6": "„Wer kommt dran?“ zieht einen zufälligen Schüler und hebt seinen Platz hervor – jeder kommt einmal dran, bevor sich jemand wiederholt.",
       "item7": "Tastatur: F für Vollbild, Leertaste wählt einen zufälligen Schüler, Esc setzt die Auswahl zurück, + / − zoomen, 0 zentriert den Sitzplan.",
       "itemFullscreen": "Im Vollbild verschwindet die Leiste oben, die Leiste unten erscheint, sobald du mit dem Zeiger an den unteren Rand fährst oder dort tippst, und blendet sich kurz danach wieder aus."
@@ -114,7 +114,7 @@
     "zoomTitle": "Ansicht vergrößern oder verkleinern",
     "resetView": "Ansicht zentrieren und zurücksetzen",
     "back": "Zurück",
-    "backTitle": "Zurück zum Generator (Alt/⌥+←)",
+    "backTitle": "Zurück zum Sitzplan (Alt/⌥+←)",
     "empty": "Noch kein Sitzplan zum Präsentieren.",
     "pick": "Wer kommt dran?",
     "pickTitle": "Zufälligen Schüler auswählen – jeder kommt einmal dran (Leertaste)",
@@ -853,7 +853,7 @@
       },
       "setup": {
         "title": "Raum einrichten",
-        "body": "„Neu einrichten“ stellt so viele der ausgewählten Tische auf, wie deine Klasse braucht, unter „Räume“ legst du weitere Räume an – etwa einen Fachraum mit eigenen Plänen –, und unter „Vorlagen“ speicherst du den Raum auch für andere Klassen oder öffnest einen der gespeicherten Räume in der aktuellen Klasse."
+        "body": "„Neu einrichten“ stellt so viele der ausgewählten Tische auf, wie deine Klasse braucht, unter „Raum“ legst du mit „Neuer Raum“ weitere Räume an – etwa einen Fachraum mit eigenen Plänen –, und unter „Vorlagen“ speicherst du den Raum auch für andere Klassen oder öffnest einen der gespeicherten Räume in der aktuellen Klasse."
       },
       "status": {
         "title": "Plätze im Blick",

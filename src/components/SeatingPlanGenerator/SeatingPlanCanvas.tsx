@@ -346,7 +346,6 @@ const SeatingPlanCanvas = React.memo(
           aria-label={t('editor.canvasLabel', {
             occupied: occupiedSeats,
             total: totalSeats,
-            defaultValue: 'Sitzplan: {{occupied}} von {{total}} Plätzen belegt',
           })}
           onPointerDown={beginSelection}
           onPointerMove={handlePointerMove}

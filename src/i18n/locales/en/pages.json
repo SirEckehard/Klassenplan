@@ -314,7 +314,7 @@
       },
       "rooms": {
         "q": "Can a class have several seating plans – say, one for the science lab?",
-        "a": "Yes. A class can have several rooms, and every room keeps its own tables and plans. For the lab, add a new room under “Rooms” in the room view, or open a saved room under “Templates” – it then becomes a room of the class. Set up the tables there, mix, and save the plan. Under “Rooms” you switch between the rooms; each opens as you left it, with its seating and locked seats. A saved plan opens its room along with it."
+        "a": "Yes. A class can have several rooms, and every room keeps its own tables and plans. For the lab, add a new room with “New room” under “Room” in the room layer, or open a saved room under “Templates” – it then becomes a room of the class. Set up the tables there, mix, and save the plan. With “Open a room …” you switch between the rooms; each opens as you left it, with its seating and locked seats. A saved plan opens its room along with it."
       }
     },
     "settings": {
@@ -446,11 +446,11 @@
       },
       "dark": {
         "q": "Is there a Dark Mode?",
-        "a": "Yes. In the app, switch between the light and dark colour scheme with the gear at the top right; on the information pages, with the switch in the footer. Your choice is stored locally in the browser and loaded automatically on your next visit."
+        "a": "Yes. Switch between the light and dark colour scheme with the gear at the top right, in the app and on the information pages alike. Your choice is stored locally in the browser and loaded automatically on your next visit."
       },
       "tablet": {
         "q": "Can I use Klassenplan on a tablet or whiteboard?",
-        "a": "Yes. On a tablet and an interactive whiteboard everything works by finger: dragging tables, swapping students, and a long press opens the context menu in the room. Klassenplan needs a current browser – Chrome or Edge from version 111, Safari from 16.4, Firefox from 128. If a whiteboard’s built-in browser is older, try Chrome or Edge on the board’s PC. On a phone, the three tools “Who’s next?”, “Where does who sit?” and “Build groups” are meant for the lesson; class and room are better set up on a larger screen."
+        "a": "Yes. On a tablet and an interactive whiteboard everything works by finger: dragging tables, swapping students, and a long press opens the context menu in the room. Klassenplan needs a current browser – Chrome or Edge from version 111, Safari from 16.4, Firefox from 128. If a whiteboard’s built-in browser is older, try Chrome or Edge on the board’s PC. On a phone, the four tools “Who’s next?”, “Where does who sit?”, “Build groups” and “Hand out duties” are meant for the lesson; class and room are better set up on a larger screen."
       },
       "pwa": {
         "q": "Can I install Klassenplan like an app?",
@@ -480,7 +480,7 @@
       },
       "how": {
         "q": "How does the backup work?",
-        "a": "The export creates a file encrypted with your password (at least 8 characters) containing all classes, students including their photos, seating plans, mix and usage history, seating circle, classroom features, templates and settings. Without that password the file cannot be restored."
+        "a": "The export creates a file encrypted with your password (at least 8 characters) containing all classes, students including their photos, seating plans, mix and usage history, seating circle, room elements, templates and settings. Without that password the file cannot be restored."
       },
       "deviceChange": {
         "q": "How do I move my classes to a new computer?",
@@ -538,7 +538,7 @@
   "nameGame": {
     "title": "Name Game",
     "back": "Back",
-    "backTitle": "Back to the generator (Alt/⌥+←)",
+    "backTitle": "Back (Alt/⌥+←)",
     "backToMenuTitle": "Back to the game menu",
     "loading": "Loading photos…",
     "empty": {
@@ -597,7 +597,7 @@
       "item2": "Photo quiz: pick the matching name for a photo or vice versa. Uncertain names come up more often.",
       "item3": "Memory: reveal photo and name pairs – large classes play in several rounds.",
       "item4": "Your learning progress is stored locally on this device only.",
-      "item5": "Press Alt/⌥+← to return to the generator."
+      "item5": "Press Alt/⌥+← to return to where you opened it."
     }
   },
   "header": {

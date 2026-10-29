@@ -77,7 +77,6 @@ export const BACKUP_LIMITS = {
 // i18n keys (namespace `toast:backupValidation.*`) resolved by
 // showToast/getToastMessage at display time — utils stay language-free.
 export const BACKUP_ERROR_MESSAGES = {
-  fileTooLarge: 'toast:backupValidation.fileTooLarge',
   payloadTooLarge: 'toast:backupValidation.payloadTooLarge',
   unreadable: 'toast:backupValidation.unreadable',
   unsupportedVersion: 'toast:backupValidation.unsupportedVersion',

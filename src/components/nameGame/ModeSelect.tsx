@@ -27,16 +27,12 @@ export default function ModeSelect({
     <div className="flex h-full flex-col items-center justify-center gap-8 overflow-y-auto px-4 py-8">
       <div className="text-center">
         <p className="text-lg text-(--text-muted)">
-          {t(
-            'nameGame.menu.subtitle',
-            'Lerne die Namen deiner Schüler – mit ihren Fotos.',
-          )}
+          {t('nameGame.menu.subtitle')}
         </p>
         <p className="mt-2 text-sm font-semibold text-(--text-page)">
           {t('nameGame.menu.progress', {
             known: knownCount,
             total: playableCount,
-            defaultValue: '{{known}} von {{total}} Namen sicher',
           })}
         </p>
       </div>
@@ -49,13 +45,10 @@ export default function ModeSelect({
             className="text-(--text-badge) transition group-hover:scale-110 motion-reduce:transition-none"
           />
           <span className="text-xl font-bold text-(--text-page)">
-            {t('nameGame.menu.quizTitle', 'Foto-Quiz')}
+            {t('nameGame.menu.quizTitle')}
           </span>
           <span className="text-sm text-(--text-muted)">
-            {t(
-              'nameGame.menu.quizDescription',
-              'Sieh ein Foto und wähle den richtigen Namen – oder finde das passende Foto zum Namen.',
-            )}
+            {t('nameGame.menu.quizDescription')}
           </span>
         </button>
 
@@ -70,13 +63,10 @@ export default function ModeSelect({
             className="text-(--text-badge) transition group-hover:scale-110 motion-reduce:transition-none"
           />
           <span className="text-xl font-bold text-(--text-page)">
-            {t('nameGame.menu.memoryTitle', 'Memory')}
+            {t('nameGame.menu.memoryTitle')}
           </span>
           <span className="text-sm text-(--text-muted)">
-            {t(
-              'nameGame.menu.memoryDescription',
-              'Finde die Paare aus Foto und Name.',
-            )}
+            {t('nameGame.menu.memoryDescription')}
           </span>
         </button>
       </div>
@@ -84,7 +74,6 @@ export default function ModeSelect({
       <p className="text-sm text-(--text-muted)">
         {t('nameGame.menu.studentsWithPhoto', {
           count: playableCount,
-          defaultValue: '{{count}} Schüler mit Foto',
         })}
       </p>
     </div>

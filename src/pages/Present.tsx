@@ -271,57 +271,22 @@ export default function Present() {
             <AppearanceControls />
             <HelpButton
               faqSection="unterricht"
-              title={t('help.present.title', 'Präsentiermodus')}
+              title={t('help.present.title')}
               instructions={
                 <ul className="list-disc space-y-1 pl-4">
-                  <li>
-                    {t(
-                      'help.present.item1',
-                      'Wechsle oben zwischen Lehrer- und Schüleransicht sowie zwischen Sitzplan und Sitzkreis.',
-                    )}
-                  </li>
-                  <li>
-                    {t(
-                      'help.present.item2',
-                      'Die Schüleransicht zeigt den Plan aus Sicht der Klasse – ohne Merkmale und Fotos.',
-                    )}
-                  </li>
-                  <li>
-                    {t(
-                      'help.present.item3',
-                      'Blende über die Leiste unten Merkmale, Fotos, Farben und Raumelemente ein oder aus.',
-                    )}
-                  </li>
+                  <li>{t('help.present.item1')}</li>
+                  <li>{t('help.present.item2')}</li>
+                  <li>{t('help.present.item3')}</li>
                   <li>
                     {/* New keys carry no inline default (see AGENTS.md). */}
                     {t('help.present.itemNames')}
                   </li>
                   <li>{t('help.present.itemContrast')}</li>
-                  <li>
-                    {t(
-                      'help.present.item4',
-                      'Zoome per Regler oder Mausrad und verschiebe die Ansicht durch Ziehen; das Zentrieren-Symbol setzt die Ansicht zurück.',
-                    )}
-                  </li>
-                  <li>
-                    {t(
-                      'help.present.item6',
-                      '„Wer kommt dran?“ zieht einen zufälligen Schüler und hebt seinen Platz hervor – jeder kommt einmal dran, bevor sich jemand wiederholt.',
-                    )}
-                  </li>
-                  <li>
-                    {t(
-                      'help.present.item7',
-                      'Tastatur: F Vollbild, Leertaste zieht einen Schüler, Esc setzt die Auswahl zurück, + / − zoomen, 0 zentriert.',
-                    )}
-                  </li>
+                  <li>{t('help.present.item4')}</li>
+                  <li>{t('help.present.item6')}</li>
+                  <li>{t('help.present.item7')}</li>
                   <li>{t('help.present.itemFullscreen')}</li>
-                  <li>
-                    {t(
-                      'help.present.item5',
-                      'Mit Alt + ← kehrst du zum Generator zurück.',
-                    )}
-                  </li>
+                  <li>{t('help.present.item5')}</li>
                 </ul>
               }
             />
@@ -345,15 +310,14 @@ export default function Present() {
           <span className="text-sm text-(--text-muted)">
             {t('present.pickRemaining', {
               count: picker.remaining,
-              defaultValue: 'noch {{count}} übrig',
             })}
           </span>
           <button
             type="button"
             onClick={picker.reset}
             className={`${iconButtonClass} h-9 w-9`}
-            aria-label={t('present.pickReset', 'Auswahl zurücksetzen (Esc)')}
-            title={t('present.pickReset', 'Auswahl zurücksetzen (Esc)')}
+            aria-label={t('present.pickReset')}
+            title={t('present.pickReset')}
           >
             <ArrowCounterClockwiseIcon size={18} aria-hidden />
           </button>
@@ -423,19 +387,15 @@ export default function Present() {
           />
         ) : (
           <div className="flex h-full flex-col items-center justify-center gap-4 text-center text-(--text-muted)">
-            <p className="text-lg font-medium">
-              {t('present.empty', 'Noch kein Sitzplan zum Präsentieren.')}
-            </p>
+            <p className="text-lg font-medium">{t('present.empty')}</p>
             <button
               type="button"
               onClick={() => navigate('/generator')}
               className={`${primaryButtonClass} h-10 gap-2 px-4`}
-              title={t('present.backTitle', 'Zurück zum Generator (Alt + ←)')}
+              title={t('present.backTitle')}
             >
               <ArrowLeftIcon size={20} aria-hidden />
-              <span className="text-sm font-semibold">
-                {t('present.back', 'Zurück')}
-              </span>
+              <span className="text-sm font-semibold">{t('present.back')}</span>
             </button>
           </div>
         )}

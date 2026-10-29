@@ -1,49 +1,29 @@
 {
   "save": {
-    "success": "Saved successfully.",
     "error": "Your changes could not be saved. Klassenplan keeps trying – don't close the page yet.",
     "recovered": "Saving works again.",
     "templateSuccess": "Template saved successfully.",
     "templateError": "Error saving template."
   },
-  "load": {
-    "success": "Loaded successfully.",
-    "error": "Error loading.",
-    "templateSuccess": "Template loaded successfully",
-    "templateError": "Error loading template"
-  },
   "delete": {
-    "success": "Deleted successfully",
-    "error": "Error deleting",
     "templateSuccess": "Template deleted successfully",
     "templateError": "Error deleting template"
   },
   "template": {
     "nameEmpty": "Template name cannot be empty",
-    "nameInvalid": "Invalid template name",
     "nameExists": "A template with this name already exists",
     "renameSuccess": "Template renamed successfully",
-    "renameError": "Could not rename template. Name already exists or is invalid.",
     "updateSuccess": "Template updated successfully",
     "updateError": "Error updating template"
   },
   "export": {
-    "success": "Export successful",
     "error": "Export error",
-    "pdfSuccess": "PDF exported successfully",
     "pdfError": "Error exporting PDF"
   },
   "import": {
-    "success": "Import successful",
-    "error": "Import error",
-    "invalidFormat": "Invalid file format"
+    "error": "Import error"
   },
   "backup": {
-    "createSuccess": "Backup created successfully",
-    "createError": "Error creating backup",
-    "restoreSuccess": "Backup restored successfully",
-    "restoreError": "Error restoring backup",
-    "exported": "Backup exported",
     "webCryptoExportError": "Secure backup not possible: your browser does not support encryption.",
     "webCryptoImportError": "Decryption not possible: your browser does not support encryption.",
     "decryptFailed": "Decryption failed.",
@@ -52,12 +32,9 @@
     "mergedClasses_other": "{{count}} classes added from the backup.",
     "mergedTemplates_one": "The backup's classes are already here; {{count}} template was added.",
     "mergedTemplates_other": "The backup's classes are already here; {{count}} templates were added.",
-    "mergedNothing": "The backup's classes and templates are already here.",
-    "passwordTooShort": "The password must be at least 8 characters long.",
-    "passwordMismatch": "The passwords do not match."
+    "mergedNothing": "The backup's classes and templates are already here."
   },
   "backupValidation": {
-    "fileTooLarge": "Import failed. File is too large.",
     "payloadTooLarge": "Import failed. Content is too large.",
     "unreadable": "Import failed. Backup could not be read.",
     "unsupportedVersion": "Import failed. Backup version is not supported.",
@@ -93,35 +70,23 @@
     "chunkFailed": "This part of the app couldn't be loaded. Reload the page to try again."
   },
   "generation": {
-    "success": "Seating plan generated successfully",
     "error": "Error generating seating plan",
-    "noStudents": "No students available",
-    "noSeats": "No seats available",
-    "insufficientSeats": "There are fewer seats than students.",
     "circleError": "Could not create seating circle. Please try again.",
     "circleCancelled": "Seating circle creation was cancelled"
   },
   "validation": {
     "nameRequired": "Please enter a name.",
-    "passwordRequired": "Please enter a password.",
-    "fileTooLarge": "File is too large",
-    "invalidFile": "Invalid file"
+    "fileTooLarge": "File is too large"
   },
   "general": {
-    "copySuccess": "Copied to clipboard",
-    "copyError": "Error copying",
-    "updateSuccess": "Updated successfully",
     "updateError": "Error updating"
   },
   "class": {
-    "createSuccess": "New class created",
     "createError": "Could not create class",
     "nameExists": "A class with this name already exists",
-    "updateSuccess": "Class updated",
     "updateError": "Could not update class",
     "deleteSuccess": "Class deleted",
     "deleteError": "Could not delete class",
-    "switchSuccess": "Class switched",
     "switchError": "Could not switch class",
     "switchUnsaved": "There were unsaved changes in the previous class – they have been saved.",
     "unnamed": "this class",
@@ -130,25 +95,16 @@
     "createdName": "Class {{name}} created",
     "deletedName": "Class {{name}} deleted"
   },
-  "network": {
-    "error": "Network error",
-    "connectionError": "Connection error",
-    "timeout": "Timeout"
-  },
   "student": {
     "nameEmpty": "Name cannot be empty",
     "nameInvalid": "Invalid name",
     "nameExists": "A student with this name already exists",
     "maxReached": "Maximum number of students reached",
-    "addFirst": "Please add students first",
-    "incompleteData": "Please complete the missing names.",
-    "missingNames": "Please complete the missing names.",
-    "missingGender": "Note: Some gender information is missing. It is optional."
+    "addFirst": "Please add students first"
   },
   "csv": {
     "parseError": "“{{fileName}}” could not be read. Check that the file really is a table with commas as separators.",
     "readError": "Error reading CSV file",
-    "longNamesImported": "Names imported - some will be displayed shortened",
     "fileTypeExcel": "“{{fileName}}” is an Excel file. Open it in Excel and save it as CSV via “File > Save as”.",
     "fileTypeSpreadsheet": "“{{fileName}}” is a spreadsheet, but not a CSV. Export it as CSV in your spreadsheet app and upload it again.",
     "fileTypeBackup": "“{{fileName}}” looks like a Klassenplan backup. Use “Backup” in the toolbar for it.",
@@ -179,15 +135,12 @@
     "photoOverlap": "Student photos would overlap or extend beyond the room."
   },
   "plan": {
-    "nameChangeError": "Could not change name",
     "noneToSave": "No seating plan to save",
     "noneYet": "No seating plan yet — mix one on the plan layer first.",
     "saveFailed": "Could not save seating plan",
     "saved": "Seating plan “{{name}}” saved"
   },
   "mix": {
-    "deleted": "Mix result deleted",
-    "noneAvailable": "No mix result available",
     "doesNotFit": "This mix no longer fits the tables of its room."
   },
   "data": {

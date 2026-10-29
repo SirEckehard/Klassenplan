@@ -69,7 +69,7 @@
   "errors": {
     "generic": "Ein Fehler ist aufgetreten",
     "tryAgain": "Bitte versuche es erneut",
-    "layoutUnavailable": "Layout-Editor vorübergehend nicht verfügbar",
+    "layoutUnavailable": "Raum vorübergehend nicht verfügbar",
     "layoutDescription": "Beim Rendern des Klassenzimmer-Layouts ist ein Fehler aufgetreten. Bitte versuche es erneut oder lade die Seite neu.",
     "planUnavailable": "Sitzplan-Ansicht konnte nicht angezeigt werden",
     "planDescription": "Beim Rendern des Sitzplans ist ein Fehler aufgetreten. Bitte versuche es erneut oder lade die Seite neu.",

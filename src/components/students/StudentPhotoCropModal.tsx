@@ -207,11 +207,8 @@ function StudentPhotoCropModal({
     <Modal
       open={open}
       onClose={busy ? () => {} : onCancel}
-      title={t('photo.cropTitle', 'Foto zuschneiden')}
-      subtitle={t(
-        'photo.cropSubtitle',
-        'Ziehen zum Verschieben, Zoomen und Drehen – dann übernehmen.',
-      )}
+      title={t('photo.cropTitle')}
+      subtitle={t('photo.cropSubtitle')}
       icon={<CropIcon size={24} aria-hidden="true" />}
       size="sm"
       showCloseButton={!busy}
@@ -223,7 +220,7 @@ function StudentPhotoCropModal({
           onPointerMove={handlePointerMove}
           onPointerUp={endPointer}
           onPointerCancel={endPointer}
-          aria-label={t('photo.cropTitle', 'Foto zuschneiden')}
+          aria-label={t('photo.cropTitle')}
           className="aspect-square w-full max-w-65 cursor-grab touch-none rounded-2xl border border-(--border-card) active:cursor-grabbing"
         />
 
@@ -242,7 +239,7 @@ function StudentPhotoCropModal({
             onChange={(e) =>
               update({ ...transform, scale: Number(e.target.value) })
             }
-            aria-label={t('photo.zoom', 'Zoom')}
+            aria-label={t('photo.zoom')}
             className="h-2 w-full cursor-pointer appearance-none rounded-full bg-(--border-card) accent-(--accent-option)"
           />
         </div>
@@ -252,8 +249,8 @@ function StudentPhotoCropModal({
             type="button"
             onClick={() => rotateBy(-90)}
             className={iconButtonClass}
-            title={t('photo.rotateLeft', 'Nach links drehen')}
-            aria-label={t('photo.rotateLeft', 'Nach links drehen')}
+            title={t('photo.rotateLeft')}
+            aria-label={t('photo.rotateLeft')}
           >
             <ArrowCounterClockwiseIcon size={18} aria-hidden="true" />
           </button>
@@ -261,8 +258,8 @@ function StudentPhotoCropModal({
             type="button"
             onClick={() => rotateBy(90)}
             className={iconButtonClass}
-            title={t('photo.rotateRight', 'Nach rechts drehen')}
-            aria-label={t('photo.rotateRight', 'Nach rechts drehen')}
+            title={t('photo.rotateRight')}
+            aria-label={t('photo.rotateRight')}
           >
             <ArrowClockwiseIcon size={18} aria-hidden="true" />
           </button>
@@ -274,7 +271,7 @@ function StudentPhotoCropModal({
               className="flex h-10 cursor-pointer items-center gap-2 rounded-full border border-(--border-card) bg-(--surface-card) px-4 text-sm font-medium text-(--text-muted) transition hover:border-(--border-option-selected) hover:text-(--text-badge) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) disabled:cursor-not-allowed disabled:opacity-60"
             >
               <UploadSimpleIcon size={18} aria-hidden="true" />
-              {t('photo.replaceImage', 'Bild ersetzen')}
+              {t('photo.replaceImage')}
             </button>
           )}
         </div>
@@ -286,7 +283,7 @@ function StudentPhotoCropModal({
             disabled={busy}
             className="cursor-pointer rounded-full border border-(--border-card) bg-(--surface-card) px-5 py-2 text-sm font-medium text-(--text-muted) transition hover:bg-(--surface-sunken) disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {t('photo.cancel', 'Abbrechen')}
+            {t('photo.cancel')}
           </button>
           <button
             type="button"
@@ -301,7 +298,7 @@ function StudentPhotoCropModal({
                 aria-hidden="true"
               />
             )}
-            {t('photo.apply', 'Übernehmen')}
+            {t('photo.apply')}
           </button>
         </div>
       </div>

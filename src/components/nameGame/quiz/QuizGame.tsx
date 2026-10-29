@@ -107,12 +107,7 @@ export default function QuizGame({
   if (questions.length === 0) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-4 px-4 text-center text-(--text-muted)">
-        <p className="text-lg font-medium">
-          {t(
-            'nameGame.quiz.noQuestions',
-            'Aus dieser Klasse lassen sich keine Quizfragen erstellen.',
-          )}
-        </p>
+        <p className="text-lg font-medium">{t('nameGame.quiz.noQuestions')}</p>
       </div>
     );
   }
@@ -138,11 +133,9 @@ export default function QuizGame({
       ? lastAnswer?.correct
         ? t('nameGame.quiz.correct', {
             name: target.name,
-            defaultValue: 'Richtig: {{name}}',
           })
         : t('nameGame.quiz.wrong', {
             name: target.name,
-            defaultValue: 'Leider falsch – das ist {{name}}',
           })
       : '';
 
@@ -155,13 +148,11 @@ export default function QuizGame({
           {t('nameGame.quiz.progress', {
             current: index + 1,
             total: questions.length,
-            defaultValue: 'Frage {{current}} von {{total}}',
           })}
         </span>
         <span className="text-(--button-success-bg)">
           {t('nameGame.quiz.score', {
             score: correctCount,
-            defaultValue: '{{score}} richtig',
           })}
         </span>
       </div>

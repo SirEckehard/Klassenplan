@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Ctrl/⌘+Enter mixes again after clicking a student in the seating plan, instead of picking the student up to move them
 - After mixing, the students no longer jump half-way at the start of their glide on a slower computer: they set off from their old seats and glide the whole way at an even pace
 - A student gliding to a new seat already has the rounded corners and the table's outline of the seat they land in, so nothing jumps when they arrive; the preview while dragging a student is rounded like the tables too
+- The FAQ and the room's tour name the room's sections as they are — "Room", "New room", "Open a room …" —, find the theme switch in the gear on the information pages too, and count four classroom tools for the phone; the projection's way back says it leads to the seating plan, and the room's error card speaks of the room rather than a "layout editor"
 
 ## [3.2.2] - 2026-10-28
 

@@ -136,10 +136,10 @@ const ClassroomCanvas = React.memo<ClassroomCanvasProps>(
     // Translated template labels
     const TEMPLATE_LABELS: Record<TableTemplateType, string> = React.useMemo(
       () => ({
-        single: t('tableType.single', 'Einzelplatz'),
-        double: t('tableType.double', 'Doppelplatz'),
-        group4: t('tableType.group4', '4er-Gruppe'),
-        group6: t('tableType.group6', '6er-Gruppe'),
+        single: t('tableType.single'),
+        double: t('tableType.double'),
+        group4: t('tableType.group4'),
+        group6: t('tableType.group6'),
       }),
       [t],
     );
@@ -337,10 +337,10 @@ const ClassroomCanvas = React.memo<ClassroomCanvasProps>(
                           rotation={rotation + (turn ?? 0)}
                           ariaLabel={
                             handle === 'e' || handle === 'w'
-                              ? t('layout.resizeWidth', 'Breite anpassen')
+                              ? t('layout.resizeWidth')
                               : handle === 'n' || handle === 's'
-                                ? t('layout.resizeHeight', 'Höhe anpassen')
-                                : t('layout.resize', 'Größe anpassen')
+                                ? t('layout.resizeHeight')
+                                : t('layout.resize')
                           }
                           onResizeStart={(resizeHandle, event) =>
                             onFeatureResizeStart(feature, resizeHandle, event)
@@ -485,7 +485,7 @@ const ClassroomCanvas = React.memo<ClassroomCanvasProps>(
                     // marked area itself stays click-through.
                     pointerEvents="stroke"
                   >
-                    <title>{t('editor.photoCollision', 'Fotokollision')}</title>
+                    <title>{t('editor.photoCollision')}</title>
                   </circle>
                 ))}
               </g>

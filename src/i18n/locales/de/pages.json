@@ -314,7 +314,7 @@
       },
       "rooms": {
         "q": "Kann ich für eine Klasse mehrere Sitzpläne haben – etwa für den Fachraum?",
-        "a": "Ja. Eine Klasse kann mehrere Räume haben, und jeder Raum behält seine eigenen Tische und Pläne. Für den Fachraum legst du im Raum unter „Räume“ einen neuen Raum an oder öffnest unter „Vorlagen“ einen gespeicherten Raum – er wird dann ein eigener Raum der Klasse. Dort stellst du die Tische, mischst und speicherst den Plan. Unter „Räume“ wechselst du zwischen den Räumen; jeder öffnet sich so, wie du ihn verlassen hast, mit Sitzordnung und gesperrten Plätzen. Ein gespeicherter Plan öffnet seinen Raum mit."
+        "a": "Ja. Eine Klasse kann mehrere Räume haben, und jeder Raum behält seine eigenen Tische und Pläne. Für den Fachraum legst du in der Ebene Raum unter „Raum“ mit „Neuer Raum“ einen neuen Raum an oder öffnest unter „Vorlagen“ einen gespeicherten Raum – er wird dann ein eigener Raum der Klasse. Dort stellst du die Tische, mischst und speicherst den Plan. Über „Raum öffnen …“ wechselst du zwischen den Räumen; jeder öffnet sich so, wie du ihn verlassen hast, mit Sitzordnung und gesperrten Plätzen. Ein gespeicherter Plan öffnet seinen Raum mit."
       }
     },
     "settings": {
@@ -446,11 +446,11 @@
       },
       "dark": {
         "q": "Gibt es einen Dark Mode?",
-        "a": "Ja. In der App wechselst du über das Zahnrad oben rechts zwischen hellem und dunklem Farbschema, auf den Infoseiten über den Schalter unten in der Fußzeile. Deine Auswahl wird lokal im Browser gespeichert und beim nächsten Besuch automatisch geladen."
+        "a": "Ja. Über das Zahnrad oben rechts wechselst du zwischen hellem und dunklem Farbschema, in der App wie auf den Infoseiten. Deine Auswahl wird lokal im Browser gespeichert und beim nächsten Besuch automatisch geladen."
       },
       "tablet": {
         "q": "Kann ich Klassenplan am Tablet oder Whiteboard nutzen?",
-        "a": "Ja. Am Tablet und an der digitalen Tafel geht alles mit dem Finger: Tische ziehen, Schüler tauschen, langes Drücken öffnet im Raum das Kontextmenü. Klassenplan braucht einen aktuellen Browser – Chrome oder Edge ab Version 111, Safari ab 16.4, Firefox ab 128. Ist der eingebaute Browser einer Tafel älter, versuche es mit Chrome oder Edge auf dem Tafel-PC. Auf dem Smartphone sind die drei Werkzeuge „Wer kommt dran?“, „Wo sitzt wer?“ und „Gruppen bilden“ für den Unterricht gedacht; Klasse und Raum richtest du besser an einem größeren Bildschirm ein."
+        "a": "Ja. Am Tablet und an der digitalen Tafel geht alles mit dem Finger: Tische ziehen, Schüler tauschen, langes Drücken öffnet im Raum das Kontextmenü. Klassenplan braucht einen aktuellen Browser – Chrome oder Edge ab Version 111, Safari ab 16.4, Firefox ab 128. Ist der eingebaute Browser einer Tafel älter, versuche es mit Chrome oder Edge auf dem Tafel-PC. Auf dem Smartphone sind die vier Werkzeuge „Wer kommt dran?“, „Wo sitzt wer?“, „Gruppen bilden“ und „Dienste verteilen“ für den Unterricht gedacht; Klasse und Raum richtest du besser an einem größeren Bildschirm ein."
       },
       "pwa": {
         "q": "Kann ich Klassenplan wie eine App installieren?",
@@ -480,7 +480,7 @@
       },
       "how": {
         "q": "Wie funktioniert das Backup?",
-        "a": "Der Export erstellt eine mit deinem Passwort verschlüsselte Datei (mindestens 8 Zeichen) mit allen Klassen, Schülern samt Fotos, Sitzplänen, Misch- und Nutzungs-Historie, Sitzkreis, Klassenzimmer-Features, Vorlagen und Einstellungen. Ohne dieses Passwort lässt sich die Datei nicht wiederherstellen."
+        "a": "Der Export erstellt eine mit deinem Passwort verschlüsselte Datei (mindestens 8 Zeichen) mit allen Klassen, Schülern samt Fotos, Sitzplänen, Misch- und Nutzungs-Historie, Sitzkreis, Raumelementen, Vorlagen und Einstellungen. Ohne dieses Passwort lässt sich die Datei nicht wiederherstellen."
       },
       "deviceChange": {
         "q": "Wie nehme ich meine Daten auf einen neuen Rechner mit?",
@@ -538,7 +538,7 @@
   "nameGame": {
     "title": "Namensspiel",
     "back": "Zurück",
-    "backTitle": "Zurück zum Generator (Alt/⌥+←)",
+    "backTitle": "Zurück (Alt/⌥+←)",
     "backToMenuTitle": "Zurück zum Spielmenü",
     "loading": "Fotos werden geladen…",
     "empty": {
@@ -597,7 +597,7 @@
       "item2": "Foto-Quiz: Wähle den passenden Namen zum Foto oder umgekehrt. Unsichere Namen kommen häufiger dran.",
       "item3": "Memory: Decke Paare aus Foto und Name auf – große Klassen spielen in mehreren Runden.",
       "item4": "Dein Lernfortschritt wird nur lokal auf diesem Gerät gespeichert.",
-      "item5": "Mit Alt/⌥+← kehrst du zum Generator zurück."
+      "item5": "Mit Alt/⌥+← kehrst du dorthin zurück, wo du es geöffnet hast."
     }
   },
   "header": {

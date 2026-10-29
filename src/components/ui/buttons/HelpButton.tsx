@@ -76,13 +76,13 @@ export default function HelpButton({
     if (hasInstructions) {
       items.push({
         id: 'instructions',
-        label: t('help.instructions', 'Anleitung'),
+        label: t('help.instructions'),
       });
     }
     if (hasShortcuts) {
       items.push({
         id: 'shortcuts',
-        label: t('help.shortcuts', 'Tastenkürzel'),
+        label: t('help.shortcuts'),
       });
     }
     return items;
@@ -112,7 +112,7 @@ export default function HelpButton({
         onClick={() => setOpen(true)}
         className={triggerClassName}
         disabled={triggerDisabled}
-        title={t('help.title', 'Hilfe')}
+        title={t('help.title')}
         data-tour={TOUR_ANCHORS.help}
       >
         <QuestionIcon className="h-5 w-5" />
@@ -128,7 +128,7 @@ export default function HelpButton({
           <div className="mt-2 flex flex-col gap-4">
             <div
               role="tablist"
-              aria-label={t('help.title', 'Hilfe')}
+              aria-label={t('help.title')}
               className={tabContainerClass}
             >
               {tabs.map((tab) => (

@@ -7,17 +7,14 @@
 //
 //   1. Key drift — a key exists in one language but not the other, so the
 //      English UI silently falls back to German (`fallbackLng: 'de'`).
-//   2. Orphaned inline defaults — `t('some.key', 'Deutscher Text')` where
-//      `some.key` exists in no bundle at all. i18next then renders the second
-//      argument, which means German text ships to /en. This is not theoretical:
-//      it was the state of 18 call sites before this script existed.
-//   3. Unused keys — a key no code asks for any more. Every redesign left some
-//      behind (216 of them before this check existed), and each one is text
-//      that ships to every visitor and has to be kept in two languages.
-//
-// Inline defaults are tolerated (there are several hundred), but only as long
-// as they are unreachable. The moment one becomes the actual source of a
-// string, this fails.
+//   2. Inline defaults — `t('some.key', 'Deutscher Text')`. The second
+//      argument is German text that only shows when the key is missing, and
+//      then on /en as well; it drifts from the bundles unseen. The root error
+//      fallback is the one exception: it must render when the bundles did not
+//      load (`INLINE_DEFAULTS_ALLOWED`).
+//   3. Unused keys — a key no code asks for any more. A redesign leaves some
+//      behind, and each one is text that ships to every visitor and has to be
+//      kept in two languages.
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -204,6 +201,14 @@ function checkParity(sets) {
   return problems;
 }
 
+/**
+ * The root error fallback renders when anything failed, the translation
+ * bundles included, so its texts keep a German default.
+ */
+const INLINE_DEFAULTS_ALLOWED = new Set([
+  'src/components/RootErrorBoundary.tsx',
+]);
+
 async function checkInlineDefaults(sets) {
   const problems = [];
   let total = 0;
@@ -211,6 +216,7 @@ async function checkInlineDefaults(sets) {
   for (const file of await sourceFiles(srcDir)) {
     const contents = await fs.readFile(file, 'utf8');
     const relative = path.relative(rootDir, file);
+    const allowed = INLINE_DEFAULTS_ALLOWED.has(relative);
 
     for (const match of contents.matchAll(INLINE_DEFAULT_PATTERN)) {
       total += 1;
@@ -226,7 +232,7 @@ async function checkInlineDefaults(sets) {
         ? hasKey(sets, 'en', namespace, key)
         : hasKeyAnywhere(sets, 'en', key);
 
-      if (!found) {
+      if (!allowed || !found) {
         problems.push(`${relative}\n      t('${raw}') → "${fallbackText}"`);
       }
     }
@@ -261,8 +267,8 @@ async function run() {
 
   if (defaultProblems.length > 0) {
     logError(
-      'Inline defaults with no translation key — this German text renders on /en',
-      { orphaned: defaultProblems.length },
+      'Inline defaults — drop the second argument; the key belongs in both bundles',
+      { inlineDefaults: defaultProblems.length },
       SOURCE,
     );
     for (const problem of defaultProblems) {

@@ -177,17 +177,17 @@ export default function EnhancedSeatingPlanView(
     () => [
       {
         id: 'circle-connections',
-        title: t('circleView.connectionsTitle', 'Verbindungen'),
+        title: t('circleView.connectionsTitle'),
         options: [
           {
             // A row of the menu like the seating plan's workspace toggles.
             kind: 'checkList' as const,
             id: 'circle-connections-grid',
-            label: t('circleView.connectionsTitle', 'Verbindungen'),
+            label: t('circleView.connectionsTitle'),
             items: [
               {
                 id: 'circle-show-connections',
-                label: t('circleView.showConnections', 'Verbindungen anzeigen'),
+                label: t('circleView.showConnections'),
                 icon: <LinkSimpleIcon size={18} />,
                 checked: connectionMode !== 'off',
                 onChange: (next: boolean) =>
@@ -346,16 +346,10 @@ export default function EnhancedSeatingPlanView(
                         <circle cx="12" cy="12" r="1" fill="currentColor" />
                       </svg>
                       <h3 className="text-lg font-medium">
-                        {t(
-                          'circleView.generatingTitle',
-                          'Sitzkreis wird generiert...',
-                        )}
+                        {t('circleView.generatingTitle')}
                       </h3>
                       <p className="text-sm">
-                        {t(
-                          'circleView.generatingHint',
-                          'Der Sitzkreis wird automatisch basierend auf dem Tischplan erstellt.',
-                        )}
+                        {t('circleView.generatingHint')}
                       </p>
                     </div>
                   </div>

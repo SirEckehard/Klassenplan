@@ -162,20 +162,17 @@ export default function MemoryGame({
             {t('nameGame.memory.round', {
               current: roundIndex + 1,
               total: rounds.length,
-              defaultValue: 'Runde {{current}} von {{total}}',
             })}
           </span>
         )}
         <span>
           {t('nameGame.memory.moves', {
             count: state.moves,
-            defaultValue: 'Züge: {{count}}',
           })}
         </span>
         <span className="tabular-nums">
           {t('nameGame.memory.time', {
             time: formatDuration(roundResult?.timeMs ?? elapsedMs),
-            defaultValue: 'Zeit: {{time}}',
           })}
         </span>
       </div>
@@ -183,7 +180,7 @@ export default function MemoryGame({
       {state.phase === 'roundDone' ? (
         <div className="flex w-full flex-1 flex-col items-center justify-center gap-5">
           <h2 className="text-2xl font-bold text-(--text-page)">
-            {t('nameGame.memory.roundDone', 'Runde geschafft!')}
+            {t('nameGame.memory.roundDone')}
           </h2>
           <div
             className={`${cardSurfaceClass} flex flex-col items-center gap-2 p-6 text-center`}
@@ -192,13 +189,12 @@ export default function MemoryGame({
               {t('nameGame.memory.result', {
                 moves: state.moves,
                 time: formatDuration(roundResult?.timeMs ?? elapsedMs),
-                defaultValue: '{{moves}} Züge in {{time}}',
               })}
             </p>
             {roundResult?.outcome.isNewBest && (
               <p className="flex items-center gap-2 font-semibold text-(--text-page)">
                 <TrophyIcon size={20} aria-hidden />
-                {t('nameGame.memory.newBest', 'Neuer Bestwert!')}
+                {t('nameGame.memory.newBest')}
               </p>
             )}
             {roundResult && !roundResult.outcome.isNewBest && (
@@ -206,7 +202,6 @@ export default function MemoryGame({
                 {t('nameGame.memory.best', {
                   moves: roundResult.outcome.best.moves,
                   time: formatDuration(roundResult.outcome.best.timeMs),
-                  defaultValue: 'Bestwert: {{moves}} Züge · {{time}}',
                 })}
               </p>
             )}
@@ -220,7 +215,7 @@ export default function MemoryGame({
               >
                 <ArrowRightIcon size={20} aria-hidden />
                 <span className="text-sm font-semibold">
-                  {t('nameGame.memory.nextRound', 'Nächste Runde')}
+                  {t('nameGame.memory.nextRound')}
                 </span>
               </button>
             ) : (
@@ -231,7 +226,7 @@ export default function MemoryGame({
               >
                 <ArrowCounterClockwiseIcon size={20} aria-hidden />
                 <span className="text-sm font-semibold">
-                  {t('nameGame.memory.again', 'Nochmal spielen')}
+                  {t('nameGame.memory.again')}
                 </span>
               </button>
             )}
@@ -242,7 +237,7 @@ export default function MemoryGame({
             >
               <ListIcon size={20} aria-hidden />
               <span className="text-sm font-semibold">
-                {t('nameGame.memory.menu', 'Zurück zum Menü')}
+                {t('nameGame.memory.menu')}
               </span>
             </button>
           </div>

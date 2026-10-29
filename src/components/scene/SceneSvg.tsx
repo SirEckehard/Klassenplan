@@ -305,7 +305,7 @@ export default function SceneSvg({
   );
 
   const currentDate = formatDate(new Date(), i18n.language);
-  const displayTitle = title || t('mode.table', 'Sitzplan');
+  const displayTitle = title || t('mode.table');
 
   return (
     <svg
@@ -324,7 +324,7 @@ export default function SceneSvg({
       <ExportPageHeader
         layout={page}
         title={displayTitle}
-        dateLabel={`${t('circle.date', 'Datum')}: ${currentDate}`}
+        dateLabel={`${t('circle.date')}: ${currentDate}`}
         metadataLines={metadataLines}
       />
       <g transform={classroomTransform}>
@@ -375,7 +375,7 @@ export default function SceneSvg({
           layout={legendLayout}
           x={page.margin}
           y={page.legendY}
-          title={t('legend.title', 'Legende')}
+          title={t('legend.title')}
           fontSize={legendFontSize}
           iconSize={legendIconSize}
         />

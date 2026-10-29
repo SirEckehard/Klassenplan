@@ -164,15 +164,12 @@ export default function NameColumnSelectionDialog({
       onClose={onCancel}
       title={
         needsNameChoice
-          ? t('csvDialog.selectColumns', 'Namens-Spalten auswählen')
+          ? t('csvDialog.selectColumns')
           : t('csvDialog.selectClass')
       }
       subtitle={
         needsNameChoice
-          ? t(
-              'csvDialog.description',
-              'Die CSV-Datei enthält mehrere Namens-Spalten. Bitte wähle, welche Kombination importiert werden soll:',
-            )
+          ? t('csvDialog.description')
           : t('csvDialog.classDescription')
       }
       icon={<FileArrowUpIcon size={24} aria-hidden="true" />}
@@ -253,7 +250,7 @@ export default function NameColumnSelectionDialog({
       {/* Preview */}
       <div className={`${listContainerClass} space-y-2 p-4`}>
         <div className="border-b border-(--border-card) pb-2 text-sm font-semibold text-(--text-page)">
-          {t('csvDialog.preview', 'Vorschau')} (
+          {t('csvDialog.preview')} (
           {t('csvDialog.firstRows', { count: preview.length })})
         </div>
         <ul className="space-y-2 text-sm text-(--text-muted)">
@@ -266,7 +263,7 @@ export default function NameColumnSelectionDialog({
                 <span>{name}</span>
               ) : (
                 <em className="text-(--text-muted)">
-                  ({t('csvDialog.empty', 'leer')})
+                  ({t('csvDialog.empty')})
                 </em>
               )}
             </li>
@@ -277,11 +274,8 @@ export default function NameColumnSelectionDialog({
       {/* Privacy Notice */}
       <div className={`${cardSurfaceClass} p-4`}>
         <p className="text-xs text-(--text-page)">
-          <strong>{t('csvDialog.privacy', 'Datenschutz')}:</strong>{' '}
-          {t(
-            'csvDialog.privacyNote',
-            'Klassenplan speichert nur Name, Geschlecht und Lernbedürfnisse. Alle anderen Spalten werden ignoriert.',
-          )}
+          <strong>{t('csvDialog.privacy')}:</strong>{' '}
+          {t('csvDialog.privacyNote')}
         </p>
       </div>
 
@@ -292,14 +286,14 @@ export default function NameColumnSelectionDialog({
           onClick={onCancel}
           className={`${secondaryButtonClass} w-full justify-center`}
         >
-          {t('common.cancel', 'Abbrechen')}
+          {t('common.cancel')}
         </button>
         <button
           type="button"
           onClick={handleConfirm}
           className={`${primaryButtonClass} w-full justify-center`}
         >
-          {t('csvDialog.import', 'Importieren')}
+          {t('csvDialog.import')}
         </button>
       </div>
     </Modal>

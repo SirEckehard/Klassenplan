@@ -201,8 +201,7 @@ export default function Export() {
       ? Math.round(circleGenerationStatus.progress * 100)
       : null;
   const generationMessage =
-    circleGenerationStatus?.message ??
-    t('export.generatingCircle', 'Sitzkreis wird erstellt...');
+    circleGenerationStatus?.message ?? t('export.generatingCircle');
   // The sheet's title follows the plan's name until the teacher types one of
   // their own — renaming the plan, or switching the class in the header,
   // should not leave the old name printed on the sheet.
@@ -906,8 +905,8 @@ export default function Export() {
       ? noteListFilename
       : title ||
         (previewMode === 'circle'
-          ? t('export.circleDefaultFilename', 'Sitzkreis')
-          : t('export.tableDefaultFilename', 'Sitzplan'));
+          ? t('export.circleDefaultFilename')
+          : t('export.tableDefaultFilename'));
 
   // Printing opens the browser's dialog on the preview's own sheets, one per
   // page. Where a browser cannot print from a frame (iOS) the PDF opens in a
@@ -916,10 +915,7 @@ export default function Export() {
     if (!previewSvg) {
       exportError(
         new Error('print-preview-unavailable'),
-        t(
-          'export.errors.printPreviewUnavailable',
-          'Die Druckvorschau ist noch nicht bereit. Bitte warten Sie einen Moment und versuchen Sie es erneut.',
-        ),
+        t('export.errors.printPreviewUnavailable'),
       );
       return;
     }
@@ -957,21 +953,12 @@ export default function Export() {
       recordPreviewExport();
       if (!opened) {
         downloadPdfBlob(pdfBlob, printFilename);
-        showToast(
-          'info',
-          t(
-            'export.printDownloadedInfo',
-            'Pop-up blockiert - PDF wurde heruntergeladen. Bitte öffne die Datei zum Drucken.',
-          ),
-        );
+        showToast('info', t('export.printDownloadedInfo'));
       }
     } catch (error) {
       exportError(
         error instanceof Error ? error : new Error('print-pdf-failed'),
-        t(
-          'export.errors.printPreparationFailed',
-          'Drucken konnte nicht vorbereitet werden. Bitte versuchen Sie es erneut.',
-        ),
+        t('export.errors.printPreparationFailed'),
       );
     }
   }, [
@@ -1006,13 +993,7 @@ export default function Export() {
       });
       recordTablePlanExport();
     } catch (error) {
-      exportError(
-        error as Error,
-        t(
-          'export.errors.tablePdfFailed',
-          'Sitzplan PDF-Export fehlgeschlagen. Bitte versuchen Sie es erneut.',
-        ),
-      );
+      exportError(error as Error, t('export.errors.tablePdfFailed'));
     }
   }, [
     classroomScene,
@@ -1053,13 +1034,7 @@ export default function Export() {
         hiddenBadgeFamilies,
       });
     } catch (error) {
-      exportError(
-        error as Error,
-        t(
-          'export.errors.circlePdfFailed',
-          'Sitzkreis PDF-Export fehlgeschlagen. Bitte versuchen Sie es erneut.',
-        ),
-      );
+      exportError(error as Error, t('export.errors.circlePdfFailed'));
     }
   }, [
     ensureCircleLayout,
@@ -1091,9 +1066,7 @@ export default function Export() {
   // re-rendering, so they always match what the user is looking at.
   const imageExportBaseName =
     title.trim() ||
-    (previewMode === 'circle'
-      ? t('mode.circle', 'Sitzkreis')
-      : t('mode.table', 'Sitzplan'));
+    (previewMode === 'circle' ? t('mode.circle') : t('mode.table'));
   const imageOrientation =
     previewMode === 'circle' ? circleOrientation : tableOrientation;
 
@@ -1103,10 +1076,7 @@ export default function Export() {
     }
     exportError(
       new Error('image-preview-unavailable'),
-      t(
-        'export.errors.imagePreviewUnavailable',
-        'Die Vorschau ist noch nicht bereit. Bitte warte einen Moment und versuche es erneut.',
-      ),
+      t('export.errors.imagePreviewUnavailable'),
     );
     return null;
   }, [previewSvg, exportError, t]);
@@ -1120,13 +1090,7 @@ export default function Export() {
       await exportSvgAsPng(svg, imageExportBaseName, imageOrientation);
       recordPreviewExport();
     } catch (error) {
-      exportError(
-        error as Error,
-        t(
-          'export.errors.pngFailed',
-          'PNG-Export fehlgeschlagen. Bitte versuche es erneut.',
-        ),
-      );
+      exportError(error as Error, t('export.errors.pngFailed'));
     }
   }, [
     requirePreviewSvg,
@@ -1146,13 +1110,7 @@ export default function Export() {
       await exportSvgAsFile(svg, imageExportBaseName);
       recordPreviewExport();
     } catch (error) {
-      exportError(
-        error as Error,
-        t(
-          'export.errors.svgFailed',
-          'SVG-Export fehlgeschlagen. Bitte versuche es erneut.',
-        ),
-      );
+      exportError(error as Error, t('export.errors.svgFailed'));
     }
   }, [
     requirePreviewSvg,

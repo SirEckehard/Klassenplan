@@ -78,21 +78,15 @@ export default function BackupPasswordModal({
   const mismatch = isCreate && confirmation !== password;
   const error = (() => {
     if (!isCreate) {
-      return password.length === 0
-        ? t('backupPassword.errorEmpty', 'Bitte gib das Passwort ein.')
-        : null;
+      return password.length === 0 ? t('backupPassword.errorEmpty') : null;
     }
     if (tooShort) {
       return t('backupPassword.errorTooShort', {
         min: MIN_BACKUP_PASSWORD_LENGTH,
-        defaultValue: `Das Passwort muss mindestens ${MIN_BACKUP_PASSWORD_LENGTH} Zeichen lang sein.`,
       });
     }
     if (mismatch) {
-      return t(
-        'backupPassword.errorMismatch',
-        'Die Passwörter stimmen nicht überein.',
-      );
+      return t('backupPassword.errorMismatch');
     }
     return null;
   })();
@@ -115,19 +109,15 @@ export default function BackupPasswordModal({
       onClose={onCancel}
       title={
         isCreate
-          ? t('backupPassword.createTitle', 'Backup verschlüsseln')
-          : t('backupPassword.unlockTitle', 'Backup entschlüsseln')
+          ? t('backupPassword.createTitle')
+          : t('backupPassword.unlockTitle')
       }
       subtitle={
         isCreate
           ? t('backupPassword.createSubtitle', {
               min: MIN_BACKUP_PASSWORD_LENGTH,
-              defaultValue: `Das Backup wird mit deinem Passwort verschlüsselt (mindestens ${MIN_BACKUP_PASSWORD_LENGTH} Zeichen). Ohne dieses Passwort lässt sich die Datei nicht wiederherstellen.`,
             })
-          : t(
-              'backupPassword.unlockSubtitle',
-              'Gib das Passwort ein, mit dem dieses Backup verschlüsselt wurde.',
-            )
+          : t('backupPassword.unlockSubtitle')
       }
       icon={
         isCreate ? (
@@ -144,7 +134,7 @@ export default function BackupPasswordModal({
             htmlFor={passwordId}
             className="block text-sm font-medium text-(--text-page)"
           >
-            {t('backupPassword.passwordLabel', 'Passwort')}
+            {t('backupPassword.passwordLabel')}
           </label>
           <div className="relative">
             <input
@@ -162,11 +152,7 @@ export default function BackupPasswordModal({
               type="button"
               className={`${quietIconButtonClass} absolute right-3 top-1/2 -translate-y-1/2 p-1.5`}
               onClick={() => setRevealed((value) => !value)}
-              aria-label={
-                revealed
-                  ? t('password.hide', 'Passwort verbergen')
-                  : t('password.show', 'Passwort anzeigen')
-              }
+              aria-label={revealed ? t('password.hide') : t('password.show')}
             >
               {revealed ? (
                 <EyeSlashIcon className="h-4 w-4" aria-hidden="true" />
@@ -198,7 +184,6 @@ export default function BackupPasswordModal({
                 {password.length === 0
                   ? t('backupPassword.strengthHint', {
                       min: MIN_BACKUP_PASSWORD_LENGTH,
-                      defaultValue: `Mindestens ${MIN_BACKUP_PASSWORD_LENGTH} Zeichen; Länge und gemischte Zeichenarten erhöhen die Stärke.`,
                     })
                   : t(`backupPassword.strength.${strength}`)}
               </p>
@@ -212,7 +197,7 @@ export default function BackupPasswordModal({
               htmlFor={confirmationId}
               className="block text-sm font-medium text-(--text-page)"
             >
-              {t('backupPassword.confirmLabel', 'Passwort wiederholen')}
+              {t('backupPassword.confirmLabel')}
             </label>
             <input
               id={confirmationId}
@@ -241,12 +226,12 @@ export default function BackupPasswordModal({
             className={secondaryButtonClass}
             onClick={onCancel}
           >
-            {t('buttons.cancel', 'Abbrechen')}
+            {t('buttons.cancel')}
           </button>
           <button type="submit" className={primaryButtonClass}>
             {isCreate
-              ? t('backupPassword.submitCreate', 'Backup erstellen')
-              : t('backupPassword.submitUnlock', 'Entschlüsseln')}
+              ? t('backupPassword.submitCreate')
+              : t('backupPassword.submitUnlock')}
           </button>
         </div>
       </form>

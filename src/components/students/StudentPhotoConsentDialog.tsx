@@ -60,7 +60,7 @@ export default function StudentPhotoConsentDialog({
     <Modal
       open={open}
       onClose={handleCancel}
-      title={t('photo.consent.title', 'Hinweis zu Schülerfotos')}
+      title={t('photo.consent.title')}
       icon={<CameraIcon size={24} aria-hidden="true" />}
       size="sm"
     >
@@ -73,10 +73,7 @@ export default function StudentPhotoConsentDialog({
             aria-hidden="true"
             className="mt-0.5 shrink-0 text-(--button-success-bg)"
           />
-          {t(
-            'photo.consent.local',
-            'Fotos werden ausschließlich lokal auf diesem Gerät gespeichert und niemals übertragen.',
-          )}
+          {t('photo.consent.local')}
         </p>
         <p className="flex items-start gap-2">
           <UsersThreeIcon
@@ -84,10 +81,7 @@ export default function StudentPhotoConsentDialog({
             aria-hidden="true"
             className="mt-0.5 shrink-0 text-(--text-badge)"
           />
-          {t(
-            'photo.consent.permission',
-            'Für die Nutzung von Schülerfotos benötigst du das Einverständnis der Schulleitung sowie der betroffenen Schüler und ihrer Eltern.',
-          )}
+          {t('photo.consent.permission')}
         </p>
       </div>
 
@@ -98,10 +92,7 @@ export default function StudentPhotoConsentDialog({
           onChange={(e) => setDontShowAgain(e.target.checked)}
           className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer accent-(--accent-option)"
         />
-        {t(
-          'photo.consent.dontShowAgain',
-          'Verstanden – diesen Hinweis nicht mehr anzeigen',
-        )}
+        {t('photo.consent.dontShowAgain')}
       </label>
 
       <div className="flex flex-wrap justify-end gap-2">
@@ -110,7 +101,7 @@ export default function StudentPhotoConsentDialog({
           onClick={handleCancel}
           className={secondaryButtonClass}
         >
-          {t('photo.consent.cancel', 'Abbrechen')}
+          {t('photo.consent.cancel')}
         </button>
         <button
           ref={confirmButtonRef}
@@ -118,7 +109,7 @@ export default function StudentPhotoConsentDialog({
           onClick={handleConfirm}
           className={primaryButtonClass}
         >
-          {t('photo.consent.confirm', 'Fortfahren')}
+          {t('photo.consent.confirm')}
         </button>
       </div>
     </Modal>

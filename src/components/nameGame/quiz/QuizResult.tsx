@@ -38,13 +38,12 @@ export default function QuizResult({
   return (
     <div className="flex h-full flex-col items-center justify-center gap-6 overflow-y-auto px-4 py-8">
       <h2 className="text-2xl font-bold text-(--text-page)">
-        {t('nameGame.quiz.result.title', 'Runde geschafft!')}
+        {t('nameGame.quiz.result.title')}
       </h2>
       <p className="text-lg font-semibold text-(--text-page)">
         {t('nameGame.quiz.result.score', {
           correct: correctCount,
           total: answers.length,
-          defaultValue: '{{correct}} von {{total}} richtig',
         })}
       </p>
 
@@ -72,13 +71,13 @@ export default function QuizResult({
               {answer.correct ? (
                 <CheckIcon
                   size={20}
-                  aria-label={t('nameGame.quiz.result.knew', 'Richtig')}
+                  aria-label={t('nameGame.quiz.result.knew')}
                   className="text-(--button-success-bg)"
                 />
               ) : (
                 <XIcon
                   size={20}
-                  aria-label={t('nameGame.quiz.result.missed', 'Falsch')}
+                  aria-label={t('nameGame.quiz.result.missed')}
                   className="text-(--button-danger-bg)"
                 />
               )}
@@ -95,7 +94,7 @@ export default function QuizResult({
         >
           <ArrowCounterClockwiseIcon size={20} aria-hidden />
           <span className="text-sm font-semibold">
-            {t('nameGame.quiz.result.again', 'Noch eine Runde')}
+            {t('nameGame.quiz.result.again')}
           </span>
         </button>
         <button
@@ -105,7 +104,7 @@ export default function QuizResult({
         >
           <ListIcon size={20} aria-hidden />
           <span className="text-sm font-semibold">
-            {t('nameGame.quiz.result.menu', 'Zurück zum Menü')}
+            {t('nameGame.quiz.result.menu')}
           </span>
         </button>
       </div>

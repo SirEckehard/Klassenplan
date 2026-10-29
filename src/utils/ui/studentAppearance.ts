@@ -61,12 +61,8 @@ export const STUDENT_ATTRIBUTE_ICONS = {
   [key: string]: Icon | Record<string, Icon>;
 };
 
-// Badge labels/tooltips are user-facing and must follow the active language
-// (they end up in SVG <title> elements and exports). Fallbacks keep the badge
-// readable if a key is ever missing.
-const ts = (key: string, fallback: string) =>
-  i18n.t(key, { ns: 'students', defaultValue: fallback });
-/** The same lookup without a fallback, for keys that exist in both languages. */
+// Badge labels and tooltips follow the active language: they end up in SVG
+// <title> elements and exports.
 const tStudents = (key: string) => i18n.t(key, { ns: 'students' });
 
 /**
@@ -339,8 +335,14 @@ export type SocialRoleBadge = {
 /**
  * Combined badge type (special needs + partner badges + language + social role)
  */
+/** A yes/no attribute of the student, named in the active language. */
+export type FlagBadge = (typeof STUDENT_FLAGS)[number] & {
+  label: string;
+  tooltip: string;
+};
+
 export type StudentBadge =
-  | (typeof STUDENT_FLAGS)[number]
+  | FlagBadge
   | PartnerBadge
   | HeightBadge
   | EnvironmentBadge
@@ -557,21 +559,21 @@ export function calculateBadgePillLayout({
  * @example
  * ```typescript
  * const badges = getStudentBadges(student, true);
- * // Returns: [{ key: 'restless', label: 'unruhig', icon: Activity, ... }]
+ * // Returns: [{ key: 'restless', label: 'Unruhig', icon: ActivityIcon, ... }]
  * ```
  */
 export function getStudentBadges(
   student: Student | null,
   showSpecialNeeds = true,
-): typeof STUDENT_FLAGS {
+): FlagBadge[] {
   if (!student || !showSpecialNeeds) {
     return [];
   }
 
   return STUDENT_FLAGS.filter((flag) => student[flag.key]).map((flag) => ({
     ...flag,
-    label: ts(`studentFlags.${flag.key}.label`, flag.label),
-    tooltip: ts(`studentFlags.${flag.key}.tooltip`, flag.tooltip),
+    label: tStudents(`studentFlags.${flag.key}.label`),
+    tooltip: tStudents(`studentFlags.${flag.key}.tooltip`),
   }));
 }
 
@@ -609,7 +611,7 @@ function getPartnerBadges(
   // One badge per direction, naming every partner in priority order
   const wishNames = partnerNames(getWishPartnerIds(student), allStudents);
   if (wishNames.length > 0) {
-    const label = ts('partners.wishPartner', 'Wunschpartner');
+    const label = tStudents('partners.wishPartner');
     badges.push({
       key: 'wishPartner',
       label,
@@ -622,7 +624,7 @@ function getPartnerBadges(
 
   const avoidNames = partnerNames(getAvoidPartnerIds(student), allStudents);
   if (avoidNames.length > 0) {
-    const label = ts('partners.distancePartner', 'Distanzwunsch');
+    const label = tStudents('partners.distancePartner');
     badges.push({
       key: 'avoidPartner',
       label,
@@ -653,10 +655,10 @@ function getHeightBadge(student: Student | null): HeightBadge | null {
     return null; // Medium ist Neutralzustand
   }
 
-  const heightTitle = ts('height.title', 'Körpergröße');
+  const heightTitle = tStudents('height.title');
 
   if (student.height === 'small') {
-    const label = ts('height.small', 'Klein');
+    const label = tStudents('height.small');
     return {
       key: 'heightSmall',
       label,
@@ -667,7 +669,7 @@ function getHeightBadge(student: Student | null): HeightBadge | null {
   }
 
   // student.height === 'tall'
-  const label = ts('height.tall', 'Groß');
+  const label = tStudents('height.tall');
   return {
     key: 'heightTall',
     label,
@@ -690,9 +692,9 @@ function getEnvironmentBadges(
   if (student.prefersWindow) {
     badges.push({
       key: 'prefersWindow',
-      label: ts('listHeader.windowFull', 'Fensterplatz'),
+      label: tStudents('listHeader.windowFull'),
       icon: STUDENT_ATTRIBUTE_ICONS.prefersWindow,
-      tooltip: ts('environment.windowTooltip', 'Bevorzugt Plätze am Fenster'),
+      tooltip: tStudents('environment.windowTooltip'),
       family: 'space',
     });
   }
@@ -700,44 +702,15 @@ function getEnvironmentBadges(
   if (student.prefersDoor) {
     badges.push({
       key: 'prefersDoor',
-      label: ts('listHeader.doorFull', 'Türnähe'),
+      label: tStudents('listHeader.doorFull'),
       icon: STUDENT_ATTRIBUTE_ICONS.prefersDoor,
-      tooltip: ts('environment.doorTooltip', 'Bevorzugt Plätze in Türnähe'),
+      tooltip: tStudents('environment.doorTooltip'),
       family: 'space',
     });
   }
 
   return badges;
 }
-
-/**
- * Language skill configuration with icons
- */
-const LANGUAGE_SKILL_CONFIG: Record<
-  LanguageSkillLevel,
-  { icon: Icon; label: string }
-> = {
-  native: {
-    icon: STUDENT_ATTRIBUTE_ICONS.languageSkill.native,
-    label: 'Erstsprache',
-  },
-  fluent: {
-    icon: STUDENT_ATTRIBUTE_ICONS.languageSkill.fluent,
-    label: 'Fließend',
-  },
-  intermediate: {
-    icon: STUDENT_ATTRIBUTE_ICONS.languageSkill.intermediate,
-    label: 'Fortgeschritten',
-  },
-  beginner: {
-    icon: STUDENT_ATTRIBUTE_ICONS.languageSkill.beginner,
-    label: 'Anfänger',
-  },
-  daz: {
-    icon: STUDENT_ATTRIBUTE_ICONS.languageSkill.daz,
-    label: 'DaZ-Förderung',
-  },
-};
 
 /**
  * Get language skill badge
@@ -750,38 +723,15 @@ function getLanguageSkillBadge(
     return null;
   }
 
-  const config = LANGUAGE_SKILL_CONFIG[student.languageSkill];
-  const label = ts(`languageSkill.${student.languageSkill}`, config.label);
+  const label = tStudents(`languageSkill.${student.languageSkill}`);
   return {
     key: `languageSkill_${student.languageSkill}`,
     label,
-    icon: config.icon,
-    tooltip: `${ts('languageSkill.title', 'Sprachniveau')}: ${label}`,
+    icon: STUDENT_ATTRIBUTE_ICONS.languageSkill[student.languageSkill],
+    tooltip: `${tStudents('languageSkill.title')}: ${label}`,
     family: 'language',
   };
 }
-
-/**
- * Social role configuration with icons
- */
-const SOCIAL_ROLE_CONFIG: Record<SocialRole, { icon: Icon; label: string }> = {
-  mediator: {
-    icon: STUDENT_ATTRIBUTE_ICONS.socialRole.mediator,
-    label: 'Mediator',
-  },
-  leader: {
-    icon: STUDENT_ATTRIBUTE_ICONS.socialRole.leader,
-    label: 'Anführer',
-  },
-  loner: {
-    icon: STUDENT_ATTRIBUTE_ICONS.socialRole.loner,
-    label: 'Einzelgänger',
-  },
-  socialHub: {
-    icon: STUDENT_ATTRIBUTE_ICONS.socialRole.socialHub,
-    label: 'Mittelpunkt',
-  },
-};
 
 /**
  * Get social role badge
@@ -794,13 +744,12 @@ function getSocialRoleBadge(
     return null;
   }
 
-  const config = SOCIAL_ROLE_CONFIG[student.socialRole];
-  const label = ts(`socialRole.${student.socialRole}`, config.label);
+  const label = tStudents(`socialRole.${student.socialRole}`);
   return {
     key: `socialRole_${student.socialRole}`,
     label,
-    icon: config.icon,
-    tooltip: `${ts('socialRole.title', 'Soziale Rolle')}: ${label}`,
+    icon: STUDENT_ATTRIBUTE_ICONS.socialRole[student.socialRole],
+    tooltip: `${tStudents('socialRole.title')}: ${label}`,
     family: 'social',
   };
 }

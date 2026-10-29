@@ -5,7 +5,7 @@ bug reports, feature ideas, and pull requests — are welcome.
 
 ## Getting started
 
-- Node.js ≥ 24 and npm ≥ 10.9 are required (see `package.json` → `engines`).
+- Node.js ≥ 26 and npm ≥ 10.9 are required (see `package.json` → `engines`).
 - Install dependencies and start the dev server:
 
   ```bash
@@ -24,6 +24,7 @@ npm run typecheck:all
 npm run check:i18n
 npm run check:unused
 npm run check:docs
+npm run check:licenses
 npm run format
 ```
 

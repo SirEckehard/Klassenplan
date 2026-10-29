@@ -147,7 +147,7 @@ export default function CirclePrintView({
   const studentCoordinates = ring.positions;
 
   const currentDate = formatDate(new Date(), i18n.language);
-  const displayTitle = title || t('mode.circle', 'Sitzkreis');
+  const displayTitle = title || t('mode.circle');
 
   const badgeMinNameSpacing = 4;
   const badgeMinBottomSpacing = 4;
@@ -259,7 +259,7 @@ export default function CirclePrintView({
       <ExportPageHeader
         layout={page}
         title={displayTitle}
-        dateLabel={`${t('circle.date', 'Datum')}: ${currentDate}`}
+        dateLabel={`${t('circle.date')}: ${currentDate}`}
         metadataLines={metadataLines}
       />
 
@@ -418,7 +418,7 @@ export default function CirclePrintView({
           layout={legendLayout}
           x={page.margin}
           y={page.legendY}
-          title={t('legend.title', 'Legende')}
+          title={t('legend.title')}
           fontSize={legendFontSize}
           iconSize={legendIconSize}
         />

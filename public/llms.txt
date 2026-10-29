@@ -1,8 +1,8 @@
 # Klassenplan
 
 > Klassenplan ist ein kostenloser, datenschutzfreundlicher Sitzplan-Generator für Schulen.
-> Lehrkräfte erstellen damit individuelle Sitzpläne für flexibel einrichtbare Klassenräume
-> und mischen die Sitzordnung in wenigen Schritten nach pädagogischen Kriterien.
+> Lehrkräfte richten damit ihre Klassenräume ein und mischen Sitzpläne und Sitzkreise
+> nach pädagogischen Kriterien.
 > Alle Daten bleiben lokal im Browser (IndexedDB) – es gibt keine Server-Konten und kein Tracking.
 
 Klassenplan is a free, privacy-friendly seating-chart generator for schools. It runs entirely
@@ -10,25 +10,27 @@ in the browser as a Progressive Web App; student data never leaves the device.
 
 ## Funktionen / Features
 
-- Klassenlisten anlegen oder per CSV importieren (Schülernamen, Attribute)
-- Klassenraum frei einrichten (Tische, Sitzkreis, Anordnung per Drag & Drop)
-- Sitzplan automatisch nach pädagogischen Attributen mischen (Algorithmus)
-- Export als PDF oder direkter Druck (Sitzplan und Sitzkreis)
-- Mehrsprachig: Deutsch (Standard) und Englisch (/en)
-- Namensspiel: Schülernamen mit Foto-Quiz und Memory lernen
-- Offline nutzbar (PWA, Service Worker), installierbar
+- Klassenlisten anlegen oder per CSV importieren, auch die Exporte von WebUntis, Schulmanager Online und SchILD-NRW
+- Beliebig viele Klassen, jede mit eigenen Räumen, Sitzplänen und Mischungen; die Bibliothek zeigt sie als Ordner
+- Klassenraum frei einrichten: Tische, Tafel, Fenster, Türen und Möbel per Drag & Drop, Räume als Vorlagen für andere Klassen
+- Sitzplan nach sechzehn pädagogischen Kriterien mischen, etwa Wunsch- und Distanzpartner, Unruhe, vordere Plätze, Sprachstand und soziale Rollen; gesperrte Plätze bleiben, und wer in genutzten Plänen schon nebeneinandersaß, sitzt seltener wieder zusammen
+- Sitzkreis, der aus dem Sitzplan entsteht
+- Präsentieren an der digitalen Tafel oder am Beamer, aus Lehrer- oder Schülersicht
+- Export als PDF, PNG oder SVG und direkter Druck: Sitzplan, Sitzkreis und eine Liste mit Platz für Notizen
+- Klassenwerkzeuge: „Wer kommt dran?“, „Wo sitzt wer?“, „Gruppen bilden“, „Dienste verteilen“ und ein Namensspiel
+- Verschlüsseltes Backup zum Umziehen auf ein anderes Gerät
+- Zweisprachig: Deutsch (Standard) und Englisch (/en)
+- Offline nutzbar (PWA), installierbar; für Desktop, Tablet, Smartphone und digitale Tafel
 
 ## Wichtige Seiten / Key pages
 
 - [Startseite](https://klassenplan.de/): Überblick und Einstieg
-- [Generator](https://klassenplan.de/generator): Sitzpläne erstellen und mischen
-- [Export](https://klassenplan.de/export): Sitzpläne als PDF exportieren/drucken
+- [Generator](https://klassenplan.de/generator): Klassen, Räume und Sitzpläne
 - [FAQ](https://klassenplan.de/faq): Häufige Fragen zu Algorithmus und Bedienung
-- [Datenschutz](https://klassenplan.de/datenschutz): Datenschutzhinweise (lokal-first)
-- [Namensspiel](https://klassenplan.de/namensspiel): Schülernamen spielerisch lernen (Foto-Quiz, Memory)
 - [Changelog](https://klassenplan.de/changelog): Änderungen und neue Funktionen
+- [Datenschutz](https://klassenplan.de/datenschutz): Datenschutzhinweise (lokal-first)
 - [Impressum](https://klassenplan.de/impressum): Rechtliche Angaben
-- [Kontakt](https://klassenplan.de/feedback): Kontakt zum Team
+- [Kontakt](https://klassenplan.de/feedback): Feedback und Kontakt
 - [Unterstützen](https://klassenplan.de/support): Das Projekt unterstützen
 
 ## Englische Varianten / English versions

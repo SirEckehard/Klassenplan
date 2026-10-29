@@ -154,7 +154,7 @@ export default function NameGame() {
         </div>
 
         <h1 className="text-lg font-bold text-(--text-page)">
-          {t('nameGame.title', 'Namensspiel')}
+          {t('nameGame.title')}
         </h1>
 
         {/* The footer is hidden on fullscreen surfaces, so theme and language
@@ -163,39 +163,14 @@ export default function NameGame() {
           <AppearanceControls />
           <HelpButton
             faqSection="klassenliste"
-            title={t('nameGame.help.title', 'Namensspiel')}
+            title={t('nameGame.help.title')}
             instructions={
               <ul className="list-disc space-y-1 pl-4">
-                <li>
-                  {t(
-                    'nameGame.help.item1',
-                    'Es werden nur Schüler mit Foto verwendet.',
-                  )}
-                </li>
-                <li>
-                  {t(
-                    'nameGame.help.item2',
-                    'Foto-Quiz: Wähle den passenden Namen zum Foto oder umgekehrt. Unsichere Namen kommen häufiger dran.',
-                  )}
-                </li>
-                <li>
-                  {t(
-                    'nameGame.help.item3',
-                    'Memory: Decke Paare aus Foto und Name auf – große Klassen spielen in mehreren Runden.',
-                  )}
-                </li>
-                <li>
-                  {t(
-                    'nameGame.help.item4',
-                    'Dein Lernfortschritt wird nur lokal auf diesem Gerät gespeichert.',
-                  )}
-                </li>
-                <li>
-                  {t(
-                    'nameGame.help.item5',
-                    'Mit Alt + ← kehrst du zum Generator zurück.',
-                  )}
-                </li>
+                <li>{t('nameGame.help.item1')}</li>
+                <li>{t('nameGame.help.item2')}</li>
+                <li>{t('nameGame.help.item3')}</li>
+                <li>{t('nameGame.help.item4')}</li>
+                <li>{t('nameGame.help.item5')}</li>
               </ul>
             }
           />
@@ -205,9 +180,7 @@ export default function NameGame() {
       <div className="min-h-0 flex-1">
         {loading ? (
           <div className="flex h-full items-center justify-center text-(--text-muted)">
-            <p className="text-lg font-medium">
-              {t('nameGame.loading', 'Fotos werden geladen…')}
-            </p>
+            <p className="text-lg font-medium">{t('nameGame.loading')}</p>
           </div>
         ) : !hasEnoughPhotos ? (
           <div className="flex h-full flex-col items-center justify-center gap-4 px-4">
@@ -220,21 +193,16 @@ export default function NameGame() {
                 className="text-(--text-badge)"
               />
               <h2 className="text-xl font-bold text-(--text-page)">
-                {t('nameGame.empty.title', 'Noch nicht genug Fotos')}
+                {t('nameGame.empty.title')}
               </h2>
               <p className="text-(--text-muted)">
                 {t('nameGame.empty.description', {
                   min: NAME_GAME_MIN_PHOTOS,
                   count: playable.length,
-                  defaultValue:
-                    'Für das Namensspiel brauchst du mindestens {{min}} Schüler mit Foto. Aktuell: {{count}}.',
                 })}
               </p>
               <p className="text-sm text-(--text-muted)">
-                {t(
-                  'nameGame.empty.hint',
-                  'Fotos fügst du in der Klassenliste über das Porträt-Symbol neben jedem Schüler hinzu.',
-                )}
+                {t('nameGame.empty.hint')}
               </p>
               {/* Photos are added in the class list; the game opens from
                   every layer, so the workspace is told where to land. */}
@@ -245,7 +213,7 @@ export default function NameGame() {
               >
                 <ArrowLeftIcon size={20} aria-hidden />
                 <span className="text-sm font-semibold">
-                  {t('nameGame.empty.cta', 'Zur Klassenliste')}
+                  {t('nameGame.empty.cta')}
                 </span>
               </button>
             </div>
@@ -287,14 +255,12 @@ export default function NameGame() {
           className={`${neutralButtonClass} h-10 shrink-0 gap-2 px-4`}
           title={
             screen === 'menu'
-              ? t('nameGame.backTitle', 'Zurück zum Generator (Alt + ←)')
-              : t('nameGame.backToMenuTitle', 'Zurück zum Spielmenü')
+              ? t('nameGame.backTitle')
+              : t('nameGame.backToMenuTitle')
           }
         >
           <ArrowLeftIcon size={20} aria-hidden />
-          <span className="text-sm font-semibold">
-            {t('nameGame.back', 'Zurück')}
-          </span>
+          <span className="text-sm font-semibold">{t('nameGame.back')}</span>
         </button>
       </div>
     </main>

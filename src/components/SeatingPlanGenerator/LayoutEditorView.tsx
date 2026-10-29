@@ -718,40 +718,37 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
     () => [
       {
         id: 'layout-base',
-        title: t('editor.workspace', 'Arbeitsfläche'),
+        title: t('editor.workspace'),
         options: [
           {
             kind: 'checkList' as const,
             id: 'layout-base-grid',
-            label: t('editor.workspace', 'Arbeitsfläche'),
+            label: t('editor.workspace'),
             items: [
               {
                 id: 'snap-to-grid',
-                label: t('editor.snapToGrid', 'Am Raster ausrichten'),
+                label: t('editor.snapToGrid'),
                 icon: <MagnetIcon size={18} />,
                 checked: snapToGrid,
                 onChange: handleToggleSnapToGrid,
               },
               {
                 id: 'show-grid',
-                label: t('editor.showGrid', 'Raster anzeigen'),
+                label: t('editor.showGrid'),
                 icon: <GridNineIcon size={18} />,
                 checked: showGrid,
                 onChange: handleToggleShowGrid,
               },
               {
                 id: 'alignment-guides',
-                label: t('editor.alignmentGuides', 'Ausrichtungshilfen'),
+                label: t('editor.alignmentGuides'),
                 icon: <AlignCenterVerticalSimpleIcon size={18} />,
                 checked: showAlignmentGuides,
                 onChange: handleToggleAlignmentGuides,
               },
               {
                 id: 'photo-overlap-warning',
-                label: t(
-                  'editor.photoOverlapWarning',
-                  'Fotokollisionen anzeigen',
-                ),
+                label: t('editor.photoOverlapWarning'),
                 icon: <IntersectIcon size={18} />,
                 checked: showPhotoOverlapWarning,
                 onChange: handleTogglePhotoOverlapWarning,
@@ -762,7 +759,7 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
       },
       buildFeatureVisibilityGroup({
         id: 'layout-features',
-        title: t('layout.roomElements', 'Raumelemente'),
+        title: t('layout.roomElements'),
         t,
         isChecked: (type) =>
           featureAvailability[type] === true &&
@@ -801,17 +798,17 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
   const selectionMenuActions = React.useMemo(
     () => [
       {
-        label: t('common.copy', 'Kopieren'),
+        label: t('common.copy'),
         icon: CopyIcon,
         onSelect: withMenuClose(copySelection),
       },
       {
-        label: t('common.cut', 'Ausschneiden'),
+        label: t('common.cut'),
         icon: ScissorsIcon,
         onSelect: withMenuClose(cutSelection),
       },
       {
-        label: t('common.delete', 'Löschen'),
+        label: t('common.delete'),
         icon: TrashIcon,
         onSelect: withMenuClose(deleteSelection),
       },
@@ -838,7 +835,7 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
     const menuState = canvasContextMenu;
     return [
       {
-        label: t('canvas.paste', 'Einfügen'),
+        label: t('canvas.paste'),
         icon: ClipboardTextIcon,
         onSelect: () => handleCanvasMenuPaste(menuState),
       },

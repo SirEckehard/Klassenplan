@@ -1,49 +1,29 @@
 {
   "save": {
-    "success": "Erfolgreich gespeichert.",
     "error": "Deine Änderungen konnten nicht gespeichert werden. Klassenplan versucht es weiter – schließe die Seite noch nicht.",
     "recovered": "Speichern klappt wieder.",
     "templateSuccess": "Vorlage erfolgreich gespeichert.",
     "templateError": "Fehler beim Speichern der Vorlage."
   },
-  "load": {
-    "success": "Erfolgreich geladen.",
-    "error": "Fehler beim Laden.",
-    "templateSuccess": "Vorlage erfolgreich geladen",
-    "templateError": "Fehler beim Laden der Vorlage"
-  },
   "delete": {
-    "success": "Erfolgreich gelöscht",
-    "error": "Fehler beim Löschen",
     "templateSuccess": "Vorlage erfolgreich gelöscht",
     "templateError": "Fehler beim Löschen der Vorlage"
   },
   "template": {
     "nameEmpty": "Vorlagenname darf nicht leer sein",
-    "nameInvalid": "Ungültiger Vorlagenname",
     "nameExists": "Eine Vorlage mit diesem Namen existiert bereits",
     "renameSuccess": "Vorlage erfolgreich umbenannt",
-    "renameError": "Vorlage konnte nicht umbenannt werden. Name existiert bereits oder ist ungültig.",
     "updateSuccess": "Vorlage erfolgreich aktualisiert",
     "updateError": "Fehler beim Aktualisieren der Vorlage"
   },
   "export": {
-    "success": "Export erfolgreich",
     "error": "Fehler beim Export",
-    "pdfSuccess": "PDF erfolgreich exportiert",
     "pdfError": "Fehler beim PDF-Export"
   },
   "import": {
-    "success": "Import erfolgreich",
-    "error": "Fehler beim Import",
-    "invalidFormat": "Ungültiges Dateiformat"
+    "error": "Fehler beim Import"
   },
   "backup": {
-    "createSuccess": "Backup erfolgreich erstellt",
-    "createError": "Fehler beim Erstellen des Backups",
-    "restoreSuccess": "Backup erfolgreich wiederhergestellt",
-    "restoreError": "Fehler beim Wiederherstellen des Backups",
-    "exported": "Backup exportiert",
     "webCryptoExportError": "Sicheres Backup nicht möglich: Browser unterstützt keine Verschlüsselung.",
     "webCryptoImportError": "Entschlüsselung nicht möglich: Browser unterstützt keine Verschlüsselung.",
     "decryptFailed": "Entschlüsselung fehlgeschlagen.",
@@ -52,12 +32,9 @@
     "mergedClasses_other": "{{count}} Klassen aus dem Backup hinzugefügt.",
     "mergedTemplates_one": "Die Klassen aus dem Backup gibt es hier schon; {{count}} Vorlage kam hinzu.",
     "mergedTemplates_other": "Die Klassen aus dem Backup gibt es hier schon; {{count}} Vorlagen kamen hinzu.",
-    "mergedNothing": "Die Klassen und Vorlagen aus dem Backup gibt es hier schon.",
-    "passwordTooShort": "Das Passwort muss mindestens 8 Zeichen lang sein.",
-    "passwordMismatch": "Die Passwörter stimmen nicht überein."
+    "mergedNothing": "Die Klassen und Vorlagen aus dem Backup gibt es hier schon."
   },
   "backupValidation": {
-    "fileTooLarge": "Import fehlgeschlagen. Datei ist zu groß.",
     "payloadTooLarge": "Import fehlgeschlagen. Inhalt ist zu groß.",
     "unreadable": "Import fehlgeschlagen. Backup konnte nicht gelesen werden.",
     "unsupportedVersion": "Import fehlgeschlagen. Backup-Version wird nicht unterstützt.",
@@ -93,35 +70,23 @@
     "chunkFailed": "Dieser Teil der App ließ sich nicht laden. Lade die Seite neu, um es erneut zu versuchen."
   },
   "generation": {
-    "success": "Sitzplan erfolgreich generiert",
     "error": "Fehler bei der Sitzplan-Generierung",
-    "noStudents": "Keine Schüler vorhanden",
-    "noSeats": "Keine Sitzplätze vorhanden",
-    "insufficientSeats": "Es gibt weniger Sitzplätze als Schüler.",
     "circleError": "Sitzkreis konnte nicht erstellt werden. Bitte versuche es erneut.",
     "circleCancelled": "Sitzkreis-Erstellung wurde abgebrochen"
   },
   "validation": {
     "nameRequired": "Bitte gib einen Namen ein.",
-    "passwordRequired": "Bitte gib ein Passwort ein.",
-    "fileTooLarge": "Datei ist zu groß",
-    "invalidFile": "Ungültige Datei"
+    "fileTooLarge": "Datei ist zu groß"
   },
   "general": {
-    "copySuccess": "In Zwischenablage kopiert",
-    "copyError": "Fehler beim Kopieren",
-    "updateSuccess": "Erfolgreich aktualisiert",
     "updateError": "Fehler beim Aktualisieren"
   },
   "class": {
-    "createSuccess": "Neue Klasse erstellt",
     "createError": "Klasse konnte nicht erstellt werden",
     "nameExists": "Eine Klasse mit diesem Namen existiert bereits",
-    "updateSuccess": "Klasse aktualisiert",
     "updateError": "Klasse konnte nicht aktualisiert werden",
     "deleteSuccess": "Klasse gelöscht",
     "deleteError": "Klasse konnte nicht gelöscht werden",
-    "switchSuccess": "Klasse gewechselt",
     "switchError": "Klasse konnte nicht gewechselt werden",
     "switchUnsaved": "Es gab noch Änderungen in der vorherigen Klasse – sie wurden dort gespeichert.",
     "unnamed": "diese Klasse",
@@ -130,25 +95,16 @@
     "createdName": "Klasse {{name}} erstellt",
     "deletedName": "Klasse {{name}} gelöscht"
   },
-  "network": {
-    "error": "Netzwerkfehler",
-    "connectionError": "Verbindungsfehler",
-    "timeout": "Zeitüberschreitung"
-  },
   "student": {
     "nameEmpty": "Name darf nicht leer sein",
     "nameInvalid": "Ungültiger Name",
     "nameExists": "Schüler mit diesem Namen existiert bereits",
     "maxReached": "Maximale Schüleranzahl erreicht",
-    "addFirst": "Bitte zuerst Schüler hinzufügen",
-    "incompleteData": "Bitte ergänze die fehlenden Namen.",
-    "missingNames": "Bitte ergänze die fehlenden Namen.",
-    "missingGender": "Hinweis: Einige Geschlechtsangaben fehlen. Die Angabe ist optional."
+    "addFirst": "Bitte zuerst Schüler hinzufügen"
   },
   "csv": {
     "parseError": "„{{fileName}}“ konnte nicht gelesen werden. Prüfe, ob die Datei wirklich eine Tabelle mit Kommas als Trennzeichen ist.",
     "readError": "Fehler beim Lesen der CSV-Datei",
-    "longNamesImported": "Namen importiert - einige werden gekürzt dargestellt",
     "fileTypeExcel": "„{{fileName}}“ ist eine Excel-Datei. Öffne sie in Excel und speichere sie über „Datei > Speichern unter“ als CSV.",
     "fileTypeSpreadsheet": "„{{fileName}}“ ist eine Tabelle, aber keine CSV. Exportiere sie in deinem Tabellenprogramm als CSV und lade sie erneut hoch.",
     "fileTypeBackup": "„{{fileName}}“ sieht nach einem Klassenplan-Backup aus. Dafür gibt es „Backup“ in der Werkzeugleiste.",
@@ -179,15 +135,12 @@
     "photoOverlap": "Schülerfotos würden sich überlappen oder über den Raum hinausragen."
   },
   "plan": {
-    "nameChangeError": "Name konnte nicht geändert werden",
     "noneToSave": "Kein Sitzplan zum Speichern",
     "noneYet": "Noch kein Sitzplan vorhanden — misch zuerst einen auf der Ebene Sitzplan.",
     "saveFailed": "Sitzplan konnte nicht gespeichert werden",
     "saved": "Sitzplan „{{name}}“ gespeichert"
   },
   "mix": {
-    "deleted": "Misch-Ergebnis gelöscht",
-    "noneAvailable": "Kein Misch-Ergebnis vorhanden",
     "doesNotFit": "Diese Mischung passt nicht mehr zu den Tischen ihres Raums."
   },
   "data": {

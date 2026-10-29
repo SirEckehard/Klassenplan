@@ -9,29 +9,42 @@
 
 Lehrkräfte müssen regelmäßig Sitzpläne erstellen und anpassen – etwa nach Lernpartnerschaften,
 Verhalten, Sprachförderung oder bei Klassenarbeiten. Das manuelle Umsortieren ist mühsam.
-Klassenplan automatisiert das Mischen nach frei definierbaren pädagogischen Attributen und
-erzeugt druckfertige Pläne, ohne dass personenbezogene Daten an einen Server übertragen werden.
+Klassenplan mischt die Klasse nach pädagogischen Kriterien und erzeugt druckfertige Pläne,
+ohne dass personenbezogene Daten an einen Server übertragen werden.
 
 ## Typischer Ablauf / Typical workflow
 
-1. Klassenliste anlegen: Schülernamen manuell eingeben oder per CSV importieren; optional
-   Attribute (z. B. Förderbedarf, Gruppen) hinterlegen.
-2. Klassenraum einrichten: Tische und Sitzgruppen frei anordnen (Drag & Drop) oder einen
-   Sitzkreis erzeugen.
-3. Sitzplan generieren und nach Attributen mischen; Ergebnis bei Bedarf erneut mischen oder
-   einzelne Plätze manuell anpassen.
-4. Exportieren: als PDF speichern oder direkt drucken – sowohl für Sitzplan als auch Sitzkreis.
+Die Arbeitsfläche hat drei Ebenen: Klasse, Raum und Sitzplan.
+
+1. Klasse: Schülernamen eingeben oder per CSV importieren; bei Bedarf Merkmale wie Unruhe,
+   Wunschpartner, Sprachstand oder vordere Plätze hinterlegen.
+2. Raum: Tische, Tafel, Fenster und Türen anordnen oder mit „Neu einrichten“ so viele Tische
+   aufstellen, wie die Klasse braucht. Eine Klasse kann mehrere Räume haben, etwa einen Fachraum.
+3. Sitzplan: mischen, einzelne Plätze von Hand tauschen oder sperren, speichern; daneben der
+   Sitzkreis. Dann präsentieren oder exportieren.
 
 ## Funktionen im Detail / Features
 
-- Klassenverwaltung: mehrere Klassen/Pläne, lokale Speicherung, Verlauf.
-- CSV-Import: schnelles Einlesen vorhandener Klassenlisten.
-- Layout-Editor: flexible Raumgestaltung, Tische, Sitzkreis.
-- Misch-Algorithmus: verteilt Schüler nach gewählten Kriterien.
-- Export: hochwertige PDF-Ausgabe und Druckansicht.
+- Klassen: beliebig viele, jede mit eigenen Räumen, Plänen und letzten Mischungen; die Bibliothek
+  zeigt Klassen, Räume, Pläne und Raumvorlagen als Ordner in Spalten.
+- CSV-Import: auch die Exporte von WebUntis, Schulmanager Online und SchILD-NRW.
+- Raum: Tische und Raumelemente per Drag & Drop, Tastatur und Finger; Räume als Vorlagen für
+  andere Klassen.
+- Mischen: sechzehn Kriterien in vier Stufen von „Aus“ bis „Sehr wichtig“, Voreinstellungen für
+  typische Stunden, gesperrte Plätze; wer in genutzten Plänen schon nebeneinandersaß, sitzt
+  seltener wieder zusammen.
+  Die Erfüllung je Kriterium steht neben dem Plan.
+- Präsentieren: der Plan oder Sitzkreis groß an der digitalen Tafel, aus Lehrer- oder
+  Schülersicht, mit Kontrastmodus für helle Räume.
+- Export: PDF, PNG und SVG oder direkter Druck – Sitzplan, Sitzkreis und eine Liste mit Platz für
+  Notizen neben jedem Namen.
+- Klassenwerkzeuge: „Wer kommt dran?“, „Wo sitzt wer?“, „Gruppen bilden“, „Dienste verteilen“
+  und ein Namensspiel mit Foto-Quiz und Memory.
+- Backup: eine mit Passwort verschlüsselte Datei (AES-GCM) zum Umziehen auf ein anderes Gerät.
 - PWA: offline nutzbar, installierbar, schnelle Ladezeiten.
 - Mehrsprachigkeit: Deutsch (Standard) und Englisch unter dem Präfix /en.
-- Barrierearmut: semantisches HTML, Tastaturbedienung, Dark Mode.
+- Barrierearmut: Tastaturbedienung, Bildschirmleser, helles und dunkles Farbschema; für Desktop,
+  Tablet, Smartphone und digitale Tafel.
 
 ## Datenschutz / Privacy
 
@@ -45,13 +58,12 @@ erzeugt druckfertige Pläne, ohne dass personenbezogene Daten an einen Server ü
 
 - https://klassenplan.de/            – Startseite / overview
 - https://klassenplan.de/generator   – Sitzplan-Generator
-- https://klassenplan.de/export      – Export / Druck
 - https://klassenplan.de/faq         – Häufige Fragen
-- https://klassenplan.de/datenschutz – Datenschutz
 - https://klassenplan.de/changelog   – Changelog
-- https://klassenplan.de/support     – Unterstützen / Spenden
+- https://klassenplan.de/datenschutz – Datenschutz
 - https://klassenplan.de/impressum   – Impressum
 - https://klassenplan.de/feedback    – Kontakt
+- https://klassenplan.de/support     – Unterstützen / Spenden
 - Englische Varianten jeweils unter /en (z. B. https://klassenplan.de/en/generator)
 
 ## Technik / Tech

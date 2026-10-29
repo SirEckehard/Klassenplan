@@ -455,14 +455,12 @@ function TableSeat({
     ? t('seat.ariaOccupied', {
         name: getTooltipName(student.name),
         ...seatPosition,
-        defaultValue: `${getTooltipName(student.name)} – Tisch ${seatPosition.table}, Platz ${seatPosition.seat}`,
       })
     : t('seat.ariaEmpty', {
         ...seatPosition,
-        defaultValue: `Freier Platz – Tisch ${seatPosition.table}, Platz ${seatPosition.seat}`,
       });
   if (locked) {
-    seatAriaLabel += `, ${t('seat.ariaLocked', 'gesperrt')}`;
+    seatAriaLabel += `, ${t('seat.ariaLocked')}`;
   }
   // What the icons on the seat say, for everyone who cannot see them.
   if (student && flags.length > 0) {
@@ -694,11 +692,7 @@ function TableSeat({
                   setLockHasFocus(false);
                   setLockHasVisibleFocus(false);
                 }}
-                aria-label={
-                  locked
-                    ? t('seat.unlockSeat', 'Sitzplatz entsperren')
-                    : t('seat.lockSeat', 'Sitzplatz sperren')
-                }
+                aria-label={locked ? t('seat.unlockSeat') : t('seat.lockSeat')}
                 aria-pressed={locked}
                 onPointerDown={(event) => {
                   event.stopPropagation();
@@ -728,9 +722,7 @@ function TableSeat({
                 }}
               >
                 <title>
-                  {locked
-                    ? t('seat.unlockSeat', 'Sitzplatz entsperren')
-                    : t('seat.lockSeat', 'Sitzplatz sperren')}
+                  {locked ? t('seat.unlockSeat') : t('seat.lockSeat')}
                 </title>
                 {/* Invisible hit area over the toggle's 20-unit box (24
                     units, 34 for a finger): the icon is drawn without a

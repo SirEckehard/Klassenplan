@@ -57,7 +57,7 @@
       "itemNames": "The \"Names\" button switches the display between first name, first name + last name initial, and first and last name.",
       "itemContrast": "Contrast mode shows the plan black on white with thicker outlines – so it stays easy to read even in a bright room.",
       "item4": "Set the size with the slider, the mouse wheel or two fingers and drag to pan; the centre icon resets the view.",
-      "item5": "Press Alt/⌥+← to return to the generator.",
+      "item5": "Press Alt/⌥+← to return to the seating plan.",
       "item6": "\"Who's next?\" draws a random student and spotlights their seat – everyone gets a turn before anyone repeats.",
       "item7": "Keyboard: F for fullscreen, Space picks a random student, Esc resets the selection, + / − zoom, 0 centres the seating plan.",
       "itemFullscreen": "In fullscreen the strip on top goes away, and the bar at the bottom appears when the pointer nears the bottom edge or you tap there, then slides away again shortly after."
@@ -114,7 +114,7 @@
     "zoomTitle": "Zoom the view in or out",
     "resetView": "Recentre and reset view",
     "back": "Back",
-    "backTitle": "Back to the generator (Alt/⌥+←)",
+    "backTitle": "Back to the seating plan (Alt/⌥+←)",
     "empty": "No seating chart to present yet.",
     "pick": "Who's next?",
     "pickTitle": "Draw a random student – everyone gets one turn (Space)",
@@ -853,7 +853,7 @@
       },
       "setup": {
         "title": "Set up the room",
-        "body": "\"Set up from scratch\" places as many of the chosen tables as your class needs, under \"Rooms\" you add further rooms – a lab with plans of its own, say – and under \"Templates\" you save the room for other classes as well or open one of the saved rooms in the current class."
+        "body": "\"Set up from scratch\" places as many of the chosen tables as your class needs, under \"Room\" you add further rooms with \"New room\" – a lab with plans of its own, say – and under \"Templates\" you save the room for other classes as well or open one of the saved rooms in the current class."
       },
       "status": {
         "title": "Seats at a glance",

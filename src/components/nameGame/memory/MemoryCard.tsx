@@ -37,12 +37,10 @@ export default function MemoryCard({
     ? card.face === 'photo'
       ? t('nameGame.memory.photoOf', {
           name: student.name,
-          defaultValue: 'Foto von {{name}}',
         })
       : student.name
     : t('nameGame.memory.hiddenCard', {
         number: position,
-        defaultValue: 'Verdeckte Karte {{number}}',
       });
 
   const surface = faceUp

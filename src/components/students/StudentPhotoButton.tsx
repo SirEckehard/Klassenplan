@@ -91,13 +91,8 @@ function StudentPhotoButton({ student, updateStudent }: Props) {
     });
   }, []);
 
-  const privacyHint = t(
-    'photo.privacyHint',
-    'Fotos werden ausschließlich lokal auf diesem Gerät gespeichert und nie übertragen.',
-  );
-  const uploadLabel = student.hasPhoto
-    ? t('photo.change', 'Foto ändern')
-    : t('photo.add', 'Foto hinzufügen');
+  const privacyHint = t('photo.privacyHint');
+  const uploadLabel = student.hasPhoto ? t('photo.change') : t('photo.add');
 
   // Swap the decoded image into the editor, releasing a previously open one
   // (e.g. when "replace image" picks a new file while the editor is open).

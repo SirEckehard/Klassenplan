@@ -42,7 +42,7 @@ export const buildFeatureTemplates = (
 ): FeatureTemplate[] => [
   {
     type: 'window',
-    label: t('layout.window', 'Fenster'),
+    label: t('layout.window'),
     width: WINDOW_WIDTH,
     height: WINDOW_HEIGHT,
     movable: false,
@@ -50,7 +50,7 @@ export const buildFeatureTemplates = (
   },
   {
     type: 'door',
-    label: t('layout.door', 'Tür'),
+    label: t('layout.door'),
     width: DOOR_WIDTH,
     height: DOOR_HEIGHT,
     movable: false,
@@ -58,7 +58,7 @@ export const buildFeatureTemplates = (
   },
   {
     type: 'board',
-    label: t('layout.board', 'Tafel'),
+    label: t('layout.board'),
     width: BOARD_WIDTH,
     height: BOARD_HEIGHT,
     movable: false,
@@ -66,7 +66,7 @@ export const buildFeatureTemplates = (
   },
   {
     type: 'podium',
-    label: t('layout.podium', 'Pult'),
+    label: t('layout.podium'),
     width: PODIUM_WIDTH,
     height: PODIUM_HEIGHT,
     movable: true,
@@ -74,7 +74,7 @@ export const buildFeatureTemplates = (
   },
   {
     type: 'whiteboard',
-    label: t('layout.whiteboard', 'Whiteboard'),
+    label: t('layout.whiteboard'),
     width: WHITEBOARD_WIDTH,
     height: WHITEBOARD_HEIGHT,
     movable: false,
@@ -82,7 +82,7 @@ export const buildFeatureTemplates = (
   },
   {
     type: 'cabinet',
-    label: t('layout.cabinet', 'Schrank'),
+    label: t('layout.cabinet'),
     width: CABINET_WIDTH,
     height: CABINET_HEIGHT,
     movable: true,
@@ -90,7 +90,7 @@ export const buildFeatureTemplates = (
   },
   {
     type: 'divider',
-    label: t('layout.divider', 'Raumtrenner'),
+    label: t('layout.divider'),
     width: DIVIDER_WIDTH,
     height: DIVIDER_HEIGHT,
     movable: true,

@@ -280,7 +280,7 @@ test(
       });
 
       await expect(
-        page.getByText('Layout-Editor vorübergehend nicht verfügbar'),
+        page.getByText('Raum vorübergehend nicht verfügbar'),
       ).toHaveCount(0);
       await expect(tables).toHaveCount(12);
     });

@@ -16,15 +16,16 @@ A web-based tool for creating seating plans and seating circles for teachers. Kl
 - **Constraint-based mixing algorithm** with sixteen criteria set in words and presets, locked seats, distance and preferred-partner logic, and the plans already used kept apart – detected or marked by hand
 - **Seating circle mode** with its own export view and alignment with the table layout
 - **Presentation mode** for interactive whiteboards and projectors with teacher/student perspective, a contrast mode, pan & zoom, and pinch gestures
-- **Class tools** – "Who's next?", "Where does who sit?", "Build groups" and a name game – each a screen of its own
+- **Export** as PDF, PNG or SVG, or straight to the printer – the seating plan, the seating circle, and a note list with room to write beside every name
+- **Class tools** – "Who's next?", "Where does who sit?", "Build groups", "Hand out duties" and a name game – each a screen of its own
 - **Optional student photos** — stored locally only, automatically downscaled with metadata (EXIF/GPS) stripped
-- **Backup & restore** in encrypted JSON format (AES-GCM, password-protected) for moving between devices
+- **Backup & restore** as an encrypted `.klassenplan` file (AES-GCM, password-protected) for moving between devices
 - **Bilingual** (German/English) with full i18n coverage
 - **Accessible** with full keyboard control, screen-reader support, focus management, and layouts for desktop, tablet, phone and interactive whiteboard
 
 ## Prerequisites
 
-- Node.js ≥ 24
+- Node.js ≥ 26
 - npm ≥ 10.9
 
 ## Supported browsers

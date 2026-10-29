@@ -130,7 +130,7 @@ function StudentInput({
   const formatClassName = (name?: string | null) =>
     name && name.trim().length > 0
       ? t('common:quoted', { text: name.trim() })
-      : t('studentInput.yourClass', 'deine Klasse');
+      : t('studentInput.yourClass');
 
   // CSV import handler
   const handleCsvImport = useCallback(
@@ -317,7 +317,6 @@ function StudentInput({
         'success',
         t('bulkEdit.applied', {
           count: ids.length,
-          defaultValue: '{{count}} Schüler aktualisiert.',
         }),
       );
     },
@@ -485,45 +484,29 @@ function StudentInput({
                 <h3 className="text-lg font-semibold">
                   {t('studentInput.emptyClassTitle', {
                     className: formatClassName(activeClass.name),
-                    defaultValue: `${formatClassName(activeClass.name)} ist noch leer.`,
                   })}
                 </h3>
                 <p className="leading-relaxed">
-                  {t(
-                    'studentInput.emptyClassHint',
-                    'Lege Schüler an, indem du Platzhalter anlegst, sie einzeln hinzufügst oder eine bestehende CSV importierst. Alle Eingaben gelten nur für diese Klasse.',
-                  )}
+                  {t('studentInput.emptyClassHint')}
                 </p>
                 <p className="leading-relaxed">
                   {t('studentInput.emptyClassImportHint')}
                 </p>
                 <p className="leading-relaxed">
-                  {t(
-                    'studentInput.emptyClassCsvHintPrefix',
-                    'Wenn du bei null anfängst, nimm diese ',
-                  )}
+                  {t('studentInput.emptyClassCsvHintPrefix')}
                   <a
                     href="#"
                     onClick={(event) => {
                       event.preventDefault();
                       downloadCsvTemplate();
                     }}
-                    title={t(
-                      'csv.downloadTemplate',
-                      'CSV-Vorlage herunterladen',
-                    )}
-                    aria-label={t(
-                      'csv.downloadTemplate',
-                      'CSV-Vorlage herunterladen',
-                    )}
+                    title={t('csv.downloadTemplate')}
+                    aria-label={t('csv.downloadTemplate')}
                     className="font-semibold underline"
                   >
-                    {t('csv.templateLink', 'CSV-Vorlage')}
+                    {t('csv.templateLink')}
                   </a>
-                  {t(
-                    'studentInput.emptyClassCsvHintSuffix',
-                    ' und trage die Namen deiner Schüler ein. Klicke dann auf Import und lade die Datei hoch.',
-                  )}
+                  {t('studentInput.emptyClassCsvHintSuffix')}
                 </p>
                 <p className="leading-relaxed">
                   {t('studentInput.emptyClassCsvNoDownload')}
@@ -572,12 +555,7 @@ function StudentInput({
             <RelationsView students={students} />
           ) : showListTools && listView.visibleStudents.length === 0 ? (
             <div className="flex flex-col items-center gap-3 px-1 py-6 text-center text-sm text-(--text-muted)">
-              <p>
-                {t(
-                  'listToolbar.noMatches',
-                  'Keine Schüler passen zu Suche und Filter.',
-                )}
-              </p>
+              <p>{t('listToolbar.noMatches')}</p>
               {/* A phone's search line has no ✕ for it; the list's head,
                   which says it otherwise, is not drawn without a student. */}
               {isPhone && (
@@ -630,7 +608,7 @@ function StudentInput({
           count: selection.selectedCount,
         })}
         confirmLabel={t('bulkEdit.deleteSelected')}
-        cancelLabel={t('common.cancel', 'Abbrechen')}
+        cancelLabel={t('common.cancel')}
         onConfirm={handleBulkDelete}
         onCancel={() => setBulkDeleteOpen(false)}
       />

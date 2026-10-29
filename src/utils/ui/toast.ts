@@ -9,92 +9,49 @@ import i18n from '@/i18n';
  */
 export const TOAST_MESSAGES = {
   // Save operations
-  SAVE_SUCCESS: 'toast:save.success',
   SAVE_ERROR: 'toast:save.error',
   SAVE_RECOVERED: 'toast:save.recovered',
   SAVE_TEMPLATE_SUCCESS: 'toast:save.templateSuccess',
   SAVE_TEMPLATE_ERROR: 'toast:save.templateError',
 
-  // Load operations
-  LOAD_SUCCESS: 'toast:load.success',
-  LOAD_ERROR: 'toast:load.error',
-  LOAD_TEMPLATE_SUCCESS: 'toast:load.templateSuccess',
-  LOAD_TEMPLATE_ERROR: 'toast:load.templateError',
-
   // Delete operations
-  DELETE_SUCCESS: 'toast:delete.success',
-  DELETE_ERROR: 'toast:delete.error',
   DELETE_TEMPLATE_SUCCESS: 'toast:delete.templateSuccess',
   DELETE_TEMPLATE_ERROR: 'toast:delete.templateError',
 
   // Template operations
   TEMPLATE_NAME_EMPTY: 'toast:template.nameEmpty',
-  TEMPLATE_NAME_INVALID: 'toast:template.nameInvalid',
   TEMPLATE_NAME_EXISTS: 'toast:template.nameExists',
   TEMPLATE_RENAME_SUCCESS: 'toast:template.renameSuccess',
-  TEMPLATE_RENAME_ERROR: 'toast:template.renameError',
   TEMPLATE_UPDATE_SUCCESS: 'toast:template.updateSuccess',
   TEMPLATE_UPDATE_ERROR: 'toast:template.updateError',
 
   // Export operations
-  EXPORT_SUCCESS: 'toast:export.success',
   EXPORT_ERROR: 'toast:export.error',
-  EXPORT_PDF_SUCCESS: 'toast:export.pdfSuccess',
-  EXPORT_PDF_ERROR: 'toast:export.pdfError',
 
   // Import operations
-  IMPORT_SUCCESS: 'toast:import.success',
   IMPORT_ERROR: 'toast:import.error',
-  IMPORT_INVALID_FORMAT: 'toast:import.invalidFormat',
 
   // Backup operations
-  BACKUP_CREATE_SUCCESS: 'toast:backup.createSuccess',
-  BACKUP_CREATE_ERROR: 'toast:backup.createError',
-  BACKUP_RESTORE_SUCCESS: 'toast:backup.restoreSuccess',
-  BACKUP_RESTORE_ERROR: 'toast:backup.restoreError',
-  BACKUP_EXPORTED: 'toast:backup.exported',
-  BACKUP_WEB_CRYPTO_EXPORT_ERROR: 'toast:backup.webCryptoExportError',
-  BACKUP_WEB_CRYPTO_IMPORT_ERROR: 'toast:backup.webCryptoImportError',
-  BACKUP_DECRYPT_FAILED: 'toast:backup.decryptFailed',
   BACKUP_IMPORT_SUCCESS: 'toast:backup.importSuccess',
-  BACKUP_PASSWORD_TOO_SHORT: 'toast:backup.passwordTooShort',
-  BACKUP_PASSWORD_MISMATCH: 'toast:backup.passwordMismatch',
 
   // Generation operations
-  GENERATION_SUCCESS: 'toast:generation.success',
   GENERATION_ERROR: 'toast:generation.error',
-  GENERATION_NO_STUDENTS: 'toast:generation.noStudents',
-  GENERATION_NO_SEATS: 'toast:generation.noSeats',
-  GENERATION_INSUFFICIENT_SEATS: 'toast:generation.insufficientSeats',
   CIRCLE_GENERATION_ERROR: 'toast:generation.circleError',
   CIRCLE_GENERATION_CANCELLED: 'toast:generation.circleCancelled',
 
   // Validation errors
   VALIDATION_NAME_REQUIRED: 'toast:validation.nameRequired',
-  VALIDATION_PASSWORD_REQUIRED: 'toast:validation.passwordRequired',
   VALIDATION_FILE_TOO_LARGE: 'toast:validation.fileTooLarge',
-  VALIDATION_INVALID_FILE: 'toast:validation.invalidFile',
 
   // General operations
-  COPY_SUCCESS: 'toast:general.copySuccess',
-  COPY_ERROR: 'toast:general.copyError',
-  UPDATE_SUCCESS: 'toast:general.updateSuccess',
   UPDATE_ERROR: 'toast:general.updateError',
-  CLASS_CREATE_SUCCESS: 'toast:class.createSuccess',
   CLASS_CREATE_ERROR: 'toast:class.createError',
   CLASS_NAME_EXISTS: 'toast:class.nameExists',
-  CLASS_UPDATE_SUCCESS: 'toast:class.updateSuccess',
   CLASS_UPDATE_ERROR: 'toast:class.updateError',
   CLASS_DELETE_SUCCESS: 'toast:class.deleteSuccess',
   CLASS_DELETE_ERROR: 'toast:class.deleteError',
-  CLASS_SWITCH_SUCCESS: 'toast:class.switchSuccess',
   CLASS_SWITCH_ERROR: 'toast:class.switchError',
   CLASS_SWITCH_UNSAVED: 'toast:class.switchUnsaved',
-
-  // Network/Connection
-  NETWORK_ERROR: 'toast:network.error',
-  CONNECTION_ERROR: 'toast:network.connectionError',
-  TIMEOUT_ERROR: 'toast:network.timeout',
 
   // Student operations
   STUDENT_NAME_EMPTY: 'toast:student.nameEmpty',
@@ -102,14 +59,10 @@ export const TOAST_MESSAGES = {
   STUDENT_NAME_EXISTS: 'toast:student.nameExists',
   STUDENT_MAX_REACHED: 'toast:student.maxReached',
   STUDENT_ADD_FIRST: 'toast:student.addFirst',
-  STUDENT_INCOMPLETE_DATA: 'toast:student.incompleteData',
-  STUDENT_MISSING_NAMES: 'toast:student.missingNames',
-  STUDENT_MISSING_GENDER: 'toast:student.missingGender',
 
   // CSV operations
   CSV_PARSE_ERROR: 'toast:csv.parseError',
   CSV_READ_ERROR: 'toast:csv.readError',
-  CSV_LONG_NAMES_IMPORTED: 'toast:csv.longNamesImported',
 
   // Seating operations
   SEATS_INSUFFICIENT: 'toast:seating.seatsInsufficient',
@@ -117,14 +70,9 @@ export const TOAST_MESSAGES = {
   CLASSROOM_NOT_SETUP: 'toast:seating.classroomNotSetup',
 
   // Plan operations
-  PLAN_NAME_CHANGE_ERROR: 'toast:plan.nameChangeError',
   PLAN_NONE_TO_SAVE: 'toast:plan.noneToSave',
   PLAN_NONE_YET: 'toast:plan.noneYet',
   PLAN_SAVE_FAILED: 'toast:plan.saveFailed',
-
-  // Mix operations
-  MIX_DELETED: 'toast:mix.deleted',
-  MIX_NONE_AVAILABLE: 'toast:mix.noneAvailable',
 
   // Data operations
   DATA_DELETED: 'toast:data.deleted',

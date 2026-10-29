@@ -69,7 +69,7 @@
   "errors": {
     "generic": "An error occurred",
     "tryAgain": "Please try again",
-    "layoutUnavailable": "Layout Editor temporarily unavailable",
+    "layoutUnavailable": "Room temporarily unavailable",
     "layoutDescription": "An error occurred while rendering the classroom layout. Please try again or reload the page.",
     "planUnavailable": "Seating Plan view could not be displayed",
     "planDescription": "An error occurred while rendering the seating plan. Please try again or reload the page.",

@@ -82,11 +82,8 @@ export const buildMixCriteriaCategories = (
     criteria: [
       {
         key: 'avoidPreviousPairs',
-        label: t('mix.criteria.avoidPreviousPairs.label', 'Wiederholung'),
-        description: t(
-          'mix.criteria.avoidPreviousPairs.desc',
-          'Schüler, die zuletzt nebeneinander gemischt wurden, trennen',
-        ),
+        label: t('mix.criteria.avoidPreviousPairs.label'),
+        description: t('mix.criteria.avoidPreviousPairs.desc'),
       },
     ],
   },
@@ -96,11 +93,8 @@ export const buildMixCriteriaCategories = (
     criteria: [
       {
         key: 'preferGenderMix',
-        label: t('mix.criteria.preferGenderMix.label', 'Geschlechter'),
-        description: t(
-          'mix.criteria.preferGenderMix.desc',
-          'Geschlechter mischen für ausgewogene Tischbesetzung',
-        ),
+        label: t('mix.criteria.preferGenderMix.label'),
+        description: t('mix.criteria.preferGenderMix.desc'),
       },
     ],
   },
@@ -110,22 +104,13 @@ export const buildMixCriteriaCategories = (
     criteria: [
       {
         key: 'peerTutoring',
-        label: t('mix.criteria.peerTutoring.label', 'Fördern (heterogen)'),
-        description: t(
-          'mix.criteria.peerTutoring.desc',
-          'Schüler mit unterschiedlichem Leistungsniveau zusammen',
-        ),
+        label: t('mix.criteria.peerTutoring.label'),
+        description: t('mix.criteria.peerTutoring.desc'),
       },
       {
         key: 'homogeneousPerformanceGroups',
-        label: t(
-          'mix.criteria.homogeneousPerformanceGroups.label',
-          'Fördern (homogen)',
-        ),
-        description: t(
-          'mix.criteria.homogeneousPerformanceGroups.desc',
-          'Schüler mit ähnlichem Förderstand zusammen',
-        ),
+        label: t('mix.criteria.homogeneousPerformanceGroups.label'),
+        description: t('mix.criteria.homogeneousPerformanceGroups.desc'),
       },
     ],
   },
@@ -135,11 +120,8 @@ export const buildMixCriteriaCategories = (
     criteria: [
       {
         key: 'preferLanguageMixing',
-        label: t('mix.criteria.preferLanguageMixing.label', 'Sprachförderung'),
-        description: t(
-          'mix.criteria.preferLanguageMixing.desc',
-          'Sprachstarke Schüler neben Anfänger/DaZ setzen',
-        ),
+        label: t('mix.criteria.preferLanguageMixing.label'),
+        description: t('mix.criteria.preferLanguageMixing.desc'),
       },
     ],
   },
@@ -149,22 +131,13 @@ export const buildMixCriteriaCategories = (
     criteria: [
       {
         key: 'avoidRestlessTogether',
-        label: t('mix.criteria.avoidRestlessTogether.label', 'Unruhe'),
-        description: t(
-          'mix.criteria.avoidRestlessTogether.desc',
-          'Schüler mit Unruheverhalten trennen',
-        ),
+        label: t('mix.criteria.avoidRestlessTogether.label'),
+        description: t('mix.criteria.avoidRestlessTogether.desc'),
       },
       {
         key: 'avoidConcentrationTogether',
-        label: t(
-          'mix.criteria.avoidConcentrationTogether.label',
-          'Ablenkbarkeit',
-        ),
-        description: t(
-          'mix.criteria.avoidConcentrationTogether.desc',
-          'Schüler mit Konzentrationsschwierigkeiten trennen',
-        ),
+        label: t('mix.criteria.avoidConcentrationTogether.label'),
+        description: t('mix.criteria.avoidConcentrationTogether.desc'),
       },
     ],
   },
@@ -174,35 +147,23 @@ export const buildMixCriteriaCategories = (
     criteria: [
       {
         key: 'avoidShyAlone',
-        label: t('mix.criteria.avoidShyAlone.label', 'Schüchternheit'),
-        description: t(
-          'mix.criteria.avoidShyAlone.desc',
-          'Schüler mit zurückhaltendem Verhalten nicht alleine sitzen lassen',
-        ),
+        label: t('mix.criteria.avoidShyAlone.label'),
+        description: t('mix.criteria.avoidShyAlone.desc'),
       },
       {
         key: 'distributeSocialRoles',
-        label: t('mix.criteria.distributeSocialRoles.label', 'Soziale Rollen'),
-        description: t(
-          'mix.criteria.distributeSocialRoles.desc',
-          'Mediatoren, Anführer und Einzelgänger verteilen',
-        ),
+        label: t('mix.criteria.distributeSocialRoles.label'),
+        description: t('mix.criteria.distributeSocialRoles.desc'),
       },
       {
         key: 'considerWishPartners',
-        label: t('mix.criteria.considerWishPartners.label', 'Wunschpartner'),
-        description: t(
-          'mix.criteria.considerWishPartners.desc',
-          'Wunschpartner-Anfragen der Schüler',
-        ),
+        label: t('mix.criteria.considerWishPartners.label'),
+        description: t('mix.criteria.considerWishPartners.desc'),
       },
       {
         key: 'avoidConflictPartners',
-        label: t('mix.criteria.avoidConflictPartners.label', 'Distanzwünsche'),
-        description: t(
-          'mix.criteria.avoidConflictPartners.desc',
-          'Schüler mit Distanzwunsch trennen',
-        ),
+        label: t('mix.criteria.avoidConflictPartners.label'),
+        description: t('mix.criteria.avoidConflictPartners.desc'),
       },
     ],
   },
@@ -212,41 +173,23 @@ export const buildMixCriteriaCategories = (
     criteria: [
       {
         key: 'preferFrontForNeedsFrontSeat',
-        label: t(
-          'mix.criteria.preferFrontForNeedsFrontSeat.label',
-          'Vordere Plätze',
-        ),
-        description: t(
-          'mix.criteria.preferFrontForNeedsFrontSeat.desc',
-          'Schüler, die vorne sitzen sollen',
-        ),
+        label: t('mix.criteria.preferFrontForNeedsFrontSeat.label'),
+        description: t('mix.criteria.preferFrontForNeedsFrontSeat.desc'),
       },
       {
         key: 'preferFrontForSmallerStudents',
-        label: t(
-          'mix.criteria.preferFrontForSmallerStudents.label',
-          'Körpergröße',
-        ),
-        description: t(
-          'mix.criteria.preferFrontForSmallerStudents.desc',
-          'kleinere Schüler vorne, größere hinten',
-        ),
+        label: t('mix.criteria.preferFrontForSmallerStudents.label'),
+        description: t('mix.criteria.preferFrontForSmallerStudents.desc'),
       },
       {
         key: 'preferWindowSeats',
-        label: t('mix.criteria.preferWindowSeats.label', 'Fensterplätze'),
-        description: t(
-          'mix.criteria.preferWindowSeats.desc',
-          'Schüler mit Fenster-Präferenz näher am Fenster platzieren',
-        ),
+        label: t('mix.criteria.preferWindowSeats.label'),
+        description: t('mix.criteria.preferWindowSeats.desc'),
       },
       {
         key: 'preferDoorSeats',
-        label: t('mix.criteria.preferDoorSeats.label', 'Türnähe'),
-        description: t(
-          'mix.criteria.preferDoorSeats.desc',
-          'Schüler mit Tür-Präferenz nahe am Eingang platzieren',
-        ),
+        label: t('mix.criteria.preferDoorSeats.label'),
+        description: t('mix.criteria.preferDoorSeats.desc'),
       },
     ],
   },

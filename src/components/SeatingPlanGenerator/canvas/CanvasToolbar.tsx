@@ -54,10 +54,10 @@ const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
       canUndo={canUndo}
       onRedo={onRedo}
       canRedo={canRedo}
-      undoTitle={t('canvas.undo', 'Rückgängig (Strg/Cmd+Z)')}
-      redoTitle={t('canvas.redo', 'Wiederherstellen (Strg/Cmd+Y)')}
-      undoLabel={t('canvas.undoLabel', 'Letzte Aktion rückgängig machen')}
-      redoLabel={t('canvas.redoLabel', 'Letzte Aktion wiederherstellen')}
+      undoTitle={t('canvas.undo')}
+      redoTitle={t('canvas.redo')}
+      undoLabel={t('canvas.undoLabel')}
+      redoLabel={t('canvas.redoLabel')}
       buttonClass={buttonClass}
       groupClass={groupClass}
     />

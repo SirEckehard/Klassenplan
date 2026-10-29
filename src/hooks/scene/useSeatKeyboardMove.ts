@@ -132,9 +132,7 @@ export function useSeatKeyboardMove({
     }
     updateOrigin(null);
     optionsRef.current.onHoverChange?.(null);
-    setAnnouncement(
-      optionsRef.current.t('seat.keyboard.cancelled', 'Umsetzen abgebrochen.'),
-    );
+    setAnnouncement(optionsRef.current.t('seat.keyboard.cancelled'));
   }, [updateOrigin]);
 
   const handleSeatKeyDown = React.useCallback(
@@ -189,12 +187,7 @@ export function useSeatKeyboardMove({
           return;
         }
         if (info.locked) {
-          setAnnouncement(
-            translate(
-              'seat.keyboard.sourceLocked',
-              'Dieser Platz ist gesperrt und kann nicht aufgenommen werden.',
-            ),
-          );
+          setAnnouncement(translate('seat.keyboard.sourceLocked'));
           return;
         }
         updateOrigin({
@@ -210,7 +203,6 @@ export function useSeatKeyboardMove({
         setAnnouncement(
           translate('seat.keyboard.grabbed', {
             name: info.studentName ?? '',
-            defaultValue: `${info.studentName ?? ''} aufgenommen. Mit den Pfeiltasten zum Zielplatz wechseln, Eingabetaste zum Absetzen, Escape zum Abbrechen.`,
           }),
         );
         return;
@@ -237,7 +229,6 @@ export function useSeatKeyboardMove({
           translate('seat.keyboard.lockedTarget', {
             table: tableNumber,
             seat: seatNumber,
-            defaultValue: `Tisch ${tableNumber}, Platz ${seatNumber} ist gesperrt. Bitte anderen Platz wählen.`,
           }),
         );
         return;
@@ -267,13 +258,10 @@ export function useSeatKeyboardMove({
             name: activeOrigin.studentName,
             table: tableNumber,
             seat: seatNumber,
-            defaultValue: `${activeOrigin.studentName} auf Tisch ${tableNumber}, Platz ${seatNumber} abgesetzt.`,
           }),
         );
       } else {
-        setAnnouncement(
-          translate('seat.keyboard.moveFailed', 'Umsetzen nicht möglich.'),
-        );
+        setAnnouncement(translate('seat.keyboard.moveFailed'));
       }
     },
     [cancelKeyboardMove, updateOrigin],

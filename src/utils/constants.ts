@@ -193,8 +193,8 @@ export const DEFAULT_CLASSROOM_SCENE: ClassroomScene = {
   features: [DEFAULT_BOARD_FEATURE],
 };
 
-// Predefined student flags with icons and tooltips
-// Tooltips explain how mixing handles each special need
+// The yes/no attributes of a student, with their icons. Their names and
+// tooltips are `students:studentFlags.<key>.label` / `.tooltip`.
 export const STUDENT_FLAGS: {
   key: keyof Pick<
     Student,
@@ -205,9 +205,7 @@ export const STUDENT_FLAGS: {
     | 'performanceStrong'
     | 'performanceWeak'
   >;
-  label: string;
   icon: Icon;
-  tooltip: string;
   /** The pedagogical family the flag speaks in, wherever it is shown. */
   family: DataFamily;
   exclusiveWith?: 'performanceStrong' | 'performanceWeak';
@@ -217,47 +215,34 @@ export const STUDENT_FLAGS: {
     key: 'performanceStrong',
     family: 'learning',
     icon: TrendUpIcon,
-    label: 'Leistungsstark',
-    tooltip: 'Schüler ist leistungsstark',
     exclusiveWith: 'performanceWeak',
   },
   {
     key: 'performanceWeak',
     family: 'learning',
     icon: TrendDownIcon,
-    label: 'Leistungsschwach',
-    tooltip: 'Schüler ist leistungsschwach',
     exclusiveWith: 'performanceStrong',
   },
   {
     key: 'needsFrontSeat',
     family: 'space',
-    label: 'Vordere Plätze',
     icon: MapPinAreaIcon,
-    tooltip: 'Benötigt einen festen vorderen Platz',
   },
   // Behaviour, which depends on the situation
   {
     key: 'restless',
     family: 'behavior',
-    label: 'Unruhig',
     icon: ActivityIcon,
-    tooltip: 'Trennt unruhige Schüler voneinander',
   },
   {
     key: 'shy',
     family: 'social',
-    label: 'Schüchtern',
     icon: SmileyNervousIcon,
-    tooltip: 'Platziert schüchterne Schüler eher neben ruhigen Schülern',
   },
   {
     key: 'concentrationIssues',
     family: 'behavior',
-    label: 'Ablenkbar',
     icon: BrainIcon,
-    tooltip:
-      'Verteilt leicht ablenkbare Schüler im Raum und trennt sie von unruhigen Schülern',
   },
 ];
 

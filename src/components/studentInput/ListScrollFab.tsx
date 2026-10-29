@@ -36,8 +36,8 @@ export default function ListScrollFab({ hint, onScroll }: ListScrollFabProps) {
 
   const label =
     hint === 'up'
-      ? t('studentInput.scrollToListTop', 'Zum Listenanfang')
-      : t('studentInput.scrollToActions', 'Zum Ende der Liste');
+      ? t('studentInput.scrollToListTop')
+      : t('studentInput.scrollToActions');
   const ArrowIcon = hint === 'up' ? ArrowUpIcon : ArrowDownIcon;
 
   return (

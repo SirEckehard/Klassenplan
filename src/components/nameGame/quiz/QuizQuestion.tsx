@@ -56,11 +56,11 @@ export default function QuizQuestion({
           <PhotoCard
             student={target}
             photoUrl={photoUrls.get(target.id)}
-            alt={t('nameGame.quiz.photoAlt', 'Schülerfoto')}
+            alt={t('nameGame.quiz.photoAlt')}
           />
         </div>
         <p className="text-xl font-semibold text-(--text-page)">
-          {t('nameGame.quiz.photoToName', 'Wie heißt dieser Schüler?')}
+          {t('nameGame.quiz.photoToName')}
         </p>
         <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
           {question.optionIds.map((optionId) => {
@@ -88,7 +88,6 @@ export default function QuizQuestion({
       <p className="text-center text-xl font-semibold text-(--text-page)">
         {t('nameGame.quiz.nameToPhoto', {
           name: target.name,
-          defaultValue: 'Welches Foto gehört zu {{name}}?',
         })}
       </p>
       <div className="grid w-full grid-cols-2 gap-3">
@@ -104,7 +103,6 @@ export default function QuizQuestion({
               // The label must not reveal the student's name before answering.
               aria-label={t('nameGame.quiz.photoOption', {
                 letter: OPTION_LETTERS[index] ?? String(index + 1),
-                defaultValue: 'Foto {{letter}}',
               })}
               className={`aspect-square cursor-pointer overflow-hidden rounded-xl border-2 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) motion-reduce:transition-none disabled:cursor-not-allowed ${optionStateClass(optionId, picked, question.targetId)}`}
             >

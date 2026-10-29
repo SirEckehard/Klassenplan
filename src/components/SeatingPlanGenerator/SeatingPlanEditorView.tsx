@@ -361,16 +361,16 @@ export default function SeatingPlanEditorView({
     () => [
       {
         id: 'editor-canvas',
-        title: t('editor.workspace', 'Arbeitsfläche'),
+        title: t('editor.workspace'),
         options: [
           {
             kind: 'checkList' as const,
             id: 'editor-canvas-grid',
-            label: t('editor.workspace', 'Arbeitsfläche'),
+            label: t('editor.workspace'),
             items: [
               {
                 id: 'show-grid',
-                label: t('editor.showGrid', 'Raster anzeigen'),
+                label: t('editor.showGrid'),
                 icon: <GridNineIcon size={18} />,
                 checked: showGrid,
                 onChange: handleToggleGrid,
@@ -406,7 +406,7 @@ export default function SeatingPlanEditorView({
       }),
       buildFeatureVisibilityGroup({
         id: 'editor-features',
-        title: t('layout.roomElements', 'Raumelemente'),
+        title: t('layout.roomElements'),
         t,
         isChecked: (type) =>
           featureAvailability[type] === true &&
@@ -966,16 +966,11 @@ export default function SeatingPlanEditorView({
                     disabled={mixingLocked}
                     className={planNoticeActionClass}
                   >
-                    {t('actions.retryMix', 'Erneut mischen')}
+                    {t('actions.retryMix')}
                   </button>
                 }
               >
-                <p className="font-semibold">
-                  {t(
-                    'editor.autoMixFailed',
-                    'Automatisches Mischen fehlgeschlagen',
-                  )}
-                </p>
+                <p className="font-semibold">{t('editor.autoMixFailed')}</p>
                 <p className="text-(--text-muted)">{autoMixError}</p>
               </PlanNotice>
             )}
@@ -1025,7 +1020,7 @@ export default function SeatingPlanEditorView({
                       disabled={mixingLocked}
                       className={planNoticeActionClass}
                     >
-                      {t('actions.mixNow', 'Jetzt neu mischen')}
+                      {t('actions.mixNow')}
                     </button>
                     {onAcknowledgeStudentUpdates && (
                       <button
@@ -1033,20 +1028,15 @@ export default function SeatingPlanEditorView({
                         onClick={onAcknowledgeStudentUpdates}
                         className={planNoticeActionClass}
                       >
-                        {t('editor.hideNotice', 'Hinweis ausblenden')}
+                        {t('editor.hideNotice')}
                       </button>
                     )}
                   </div>
                 }
               >
-                <p className="font-semibold">
-                  {t('editor.classDataChanged', 'Klassendaten wurden geändert')}
-                </p>
+                <p className="font-semibold">{t('editor.classDataChanged')}</p>
                 <p className="text-(--text-muted)">
-                  {t(
-                    'editor.classDataChangedHint',
-                    'Deine Anpassungen sind sichtbar. Mische den Plan neu, damit der Algorithmus optimal reagieren kann.',
-                  )}
+                  {t('editor.classDataChangedHint')}
                 </p>
               </PlanNotice>
             )}
@@ -1157,13 +1147,7 @@ export default function SeatingPlanEditorView({
                     >
                       <div className="flex flex-col items-center gap-2 text-sm font-medium text-(--text-page)">
                         <SpinnerGapIcon className="h-5 w-5 animate-spin text-(--text-badge)" />
-                        <span>
-                          {t(
-                            'editor.autoMixRunning',
-                            'Automatisches Mischen läuft',
-                          )}{' '}
-                          …
-                        </span>
+                        <span>{t('editor.autoMixRunning')} …</span>
                       </div>
                     </div>
                   )}

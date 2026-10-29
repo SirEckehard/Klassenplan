@@ -23,7 +23,7 @@ it for Antigravity — edit this file, never those two.
 - TypeScript compilation check: `npm run typecheck` (app) and `npm run typecheck:test` (tests); both via `npm run typecheck:all`
 - Check for unused exports: `npm run check:unused` — a ratchet against the baseline in `scripts/check-unused-exports.mjs`; the count may fall, never rise. For the full list run `npx ts-unused-exports tsconfig.ts-unused.json --allowUnusedTypes --ignoreFiles='vite-env.d.ts|index.tsx|App.tsx'`
 - E2E: Playwright specs live in `e2e/` — smoke, the core flow, the rooms of a class in "Bibliothek" (`plans-library.spec.ts`) and the first-visit onboarding (sample class and tours) on a desktop, the tablet and phone layouts and the desktop layout worked by a finger on an interactive whiteboard (`touch-layouts.spec.ts`, projects `tablet`, `phone` and `whiteboard`, picked by the tags `@tablet` / `@phone` / `@whiteboard`) (`npm run test:e2e`; needs `npx playwright install chromium`)
-- i18n consistency: `npm run check:i18n` (DE/EN key parity + every `t(key, 'default')` resolves to a real key + no key that no code refers to)
+- i18n consistency: `npm run check:i18n` (DE/EN key parity + no `t(key, 'default')` inline default + no key that no code refers to)
 - Bundle budgets: `npm run check:bundle` (after a build; part of `npm run build:static`)
 - Live addressing: `npm run check:live-seo` (after a deploy, by hand: every sitemap address answers 200 and is its own canonical, slash/`http://`/`www.` spellings redirect permanently, unknown addresses are 404; decision 0029)
 - Licences: `npm run check:licenses` (every production package in the lockfile is under a licence of `ALLOWED_LICENSES` in `scripts/utils/thirdPartyLicenses.ts`; the build itself writes `dist/third-party-licenses.txt` and fails on the same; `docs/SECURITY.md` § 4)
@@ -157,12 +157,11 @@ its "Tour starten" makes every tour due again (`restartTours`) — decision 0015
 
 ### Inline defaults
 
-`t('some.key', 'Deutscher Text')` is widespread in this codebase (~306 call
-sites). The second argument is a _fallback_, not a translation: when the key is
-missing from the JSON, i18next renders that German string — on `/en` too. Do not
-add new inline defaults; `npm run check:i18n` fails as soon as one becomes the
-actual source of a string. Existing ones are verified unreachable and are left
-alone deliberately (removing 306 of them would be pure churn).
+Call `t('some.key')` without a second argument. A second string is a
+_fallback_, not a translation: when the key is missing from the JSON, i18next
+renders that German text — on `/en` too. `npm run check:i18n` fails on any
+inline default; the one exception is `RootErrorBoundary`, which must render when
+the bundles did not load.
 
 ### Keyboard shortcuts
 
@@ -257,7 +256,7 @@ import { generateId, logError, errorHandlers } from '@/utils';
 - `npm run generate:preview-images` - Full-size and downscaled (`-480/-960/-1440`) AVIF/WebP start page screenshots from the PNG masters in `public/preview/`, then stamps a hash of them into `src/data/previewImages.json` as `version`, which the carousel appends to every image URL (`?v=…`) — the file names never change, and nginx and the service worker cache them as immutable; run after replacing a screenshot and commit the JSON with the images (needs libwebp and libavif)
 - `npm run generate:glyph-widths` - Measures the advance widths of Atkinson Hyperlegible Next (weights 400 and 700) in Chromium and writes `src/data/nameGlyphWidths.json`, which lays out the names on the seats; run after updating `@fontsource-variable/atkinson-hyperlegible-next` (needs `npx playwright install chromium`)
 - `python3 scripts/generate-wordmark.py` - Sets "Klassenplan" in Onest Bold as outlines and rewrites `public/brand/wordmark`, `public/brand/lockup` and `src/components/kpWordmarkPaths.ts`; by hand, only when the wordmark changes (needs fonttools, brotli, uharfbuzz, rsvg-convert; usage at the top of the script)
-- `npm run check:i18n` - DE/EN key parity + orphaned inline defaults
+- `npm run check:i18n` - DE/EN key parity + no inline defaults + no unused keys
 - `npm run check:bundle` - Enforce bundle size budgets against `dist/` (run after a build)
 - `npm run check:unused` - Unused-export ratchet (baseline in `scripts/check-unused-exports.mjs`)
 - `npm run check:docs` - Links, heading anchors and repository paths in the Markdown docs resolve

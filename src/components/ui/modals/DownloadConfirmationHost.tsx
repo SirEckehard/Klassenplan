@@ -56,7 +56,7 @@ export default function DownloadConfirmationHost() {
     <Modal
       open={request !== null}
       onClose={() => settle(false)}
-      title={t('downloadConfirm.title', 'Datei herunterladen?')}
+      title={t('downloadConfirm.title')}
       icon={<DownloadSimpleIcon size={24} aria-hidden="true" />}
       size="sm"
     >
@@ -65,7 +65,6 @@ export default function DownloadConfirmationHost() {
       >
         {t('downloadConfirm.message', {
           filename: request?.filename ?? '',
-          defaultValue: '„{{filename}}“ wird auf dieses Gerät heruntergeladen.',
         })}
       </div>
       <div className="flex flex-wrap justify-end gap-2">
@@ -74,7 +73,7 @@ export default function DownloadConfirmationHost() {
           onClick={() => settle(false)}
           className={secondaryButtonClass}
         >
-          {t('downloadConfirm.cancel', 'Abbrechen')}
+          {t('downloadConfirm.cancel')}
         </button>
         <button
           ref={confirmButtonRef}
@@ -82,7 +81,7 @@ export default function DownloadConfirmationHost() {
           onClick={() => settle(true)}
           className={primaryButtonClass}
         >
-          {t('downloadConfirm.confirm', 'Herunterladen')}
+          {t('downloadConfirm.confirm')}
         </button>
       </div>
     </Modal>

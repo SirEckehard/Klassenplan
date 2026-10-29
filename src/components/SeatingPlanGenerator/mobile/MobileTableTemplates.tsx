@@ -55,21 +55,21 @@ const MobileTableTemplates: React.FC<MobileTableTemplatesProps> = ({
   const { t } = useTranslation('generator');
 
   const TABLE_TEMPLATE_LABELS: Record<TableTemplateType, string> = {
-    single: t('layout.singleSeat', 'Einzelplatz'),
-    double: t('layout.doubleSeat', 'Doppelplatz'),
-    group4: t('layout.group4', '4er-Gruppe'),
-    group6: t('layout.group6', '6er-Gruppe'),
+    single: t('layout.singleSeat'),
+    double: t('layout.doubleSeat'),
+    group4: t('layout.group4'),
+    group6: t('layout.group6'),
   };
 
   return (
     <div className="mt-4 px-2">
       <h3 className="text-sm font-semibold text-(--text-page) mb-2">
-        {t('layout.tableTypes', 'Tischtypen')}
+        {t('layout.tableTypes')}
       </h3>
       <div className="grid grid-cols-4 gap-1.5">
         {TEMPLATES.map((template) => {
           // The button shows only the seat count; its name says the table.
-          const name = `${TABLE_TEMPLATE_LABELS[template.type]} (${template.seatCount} ${t('common.seats', 'Plätze')})`;
+          const name = `${TABLE_TEMPLATE_LABELS[template.type]} (${template.seatCount} ${t('common.seats')})`;
           return (
             <button
               key={template.type}
@@ -96,7 +96,7 @@ const MobileTableTemplates: React.FC<MobileTableTemplatesProps> = ({
                 </div>
               </div>
               <span className="text-micro font-medium text-(--text-muted)">
-                {template.seatCount} {t('common.pl', 'Pl.')}
+                {template.seatCount} {t('common.pl')}
               </span>
 
               {/* Drag indicator */}
@@ -108,7 +108,7 @@ const MobileTableTemplates: React.FC<MobileTableTemplatesProps> = ({
       {featurePalette && featurePalette.length > 0 && (
         <div className="mt-3">
           <h4 className="text-xs font-semibold text-(--text-page) mb-1.5">
-            {t('layout.roomElements', 'Raumelemente')}
+            {t('layout.roomElements')}
           </h4>
           <div className="grid grid-cols-4 gap-1.5">
             {featurePalette.map((feature) => (

@@ -115,10 +115,7 @@ export default function Modal({
                           type="button"
                           onClick={onClose}
                           className="cursor-pointer rounded-lg p-2 text-(--text-muted) transition hover:bg-(--surface-sunken) hover:text-(--text-page) focus:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)"
-                          aria-label={t(
-                            'common.closeDialog',
-                            'Dialog schließen',
-                          )}
+                          aria-label={t('common.closeDialog')}
                         >
                           <XIcon size={20} aria-hidden="true" />
                         </button>

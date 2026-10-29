@@ -38,7 +38,7 @@ export function buildPhotoDisplayGroup({
   const offersHover = hasHover || value === 'hover';
   return {
     id,
-    title: t('editor.studentPhotos', 'Schülerfotos'),
+    title: t('editor.studentPhotos'),
     options: [
       {
         kind: 'segment',
@@ -48,21 +48,21 @@ export function buildPhotoDisplayGroup({
         choices: [
           {
             value: 'all',
-            label: t('editor.photoModeAll', 'An'),
+            label: t('editor.photoModeAll'),
             icon: <EyeIcon size={18} />,
           },
           ...(offersHover
             ? [
                 {
                   value: 'hover',
-                  label: t('editor.photoModeHover', 'Hover'),
+                  label: t('editor.photoModeHover'),
                   icon: <CursorIcon size={18} />,
                 },
               ]
             : []),
           {
             value: 'off',
-            label: t('editor.photoModeOff', 'Aus'),
+            label: t('editor.photoModeOff'),
             icon: <EyeSlashIcon size={18} />,
           },
         ],

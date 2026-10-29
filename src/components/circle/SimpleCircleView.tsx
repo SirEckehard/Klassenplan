@@ -656,10 +656,7 @@ function SimpleCircleView({
 
       {/* Text equivalent of the circle, in order. The editable circle's
           tokens are focusable as well; the projection's are not. */}
-      <ol
-        className="sr-only"
-        aria-label={t('circleView.orderLabel', 'Sitzreihenfolge im Sitzkreis')}
-      >
+      <ol className="sr-only" aria-label={t('circleView.orderLabel')}>
         {layout.students.map((studentPosition) => (
           <li key={studentPosition.student.id}>
             {studentPosition.student.name}

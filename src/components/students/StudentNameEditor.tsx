@@ -186,20 +186,20 @@ export default function StudentNameEditor({
             <button
               type="button"
               className={`${successIconButtonClass} h-6 w-6 p-1.5!`}
-              title={t('common.save', 'Speichern')}
+              title={t('common.save')}
               onPointerDown={(e) => e.preventDefault()}
               onClick={() => saveName()}
-              aria-label={t('nameEditor.saveName', 'Namen speichern')}
+              aria-label={t('nameEditor.saveName')}
             >
               <CheckIcon size={12} />
             </button>
             <button
               type="button"
               className={`${dangerIconButtonClass} h-6 w-6 p-1.5!`}
-              title={t('common.cancel', 'Abbrechen')}
+              title={t('common.cancel')}
               onPointerDown={(e) => e.preventDefault()}
               onClick={cancelEditing}
-              aria-label={t('nameEditor.cancelEdit', 'Bearbeitung abbrechen')}
+              aria-label={t('nameEditor.cancelEdit')}
             >
               <XIcon size={12} />
             </button>
@@ -223,10 +223,7 @@ export default function StudentNameEditor({
             tabIndex={0}
             role="button"
             aria-label={t('nameEditor.editName', { name: student.name })}
-            title={t(
-              'nameEditor.editTitle',
-              'Klick oder Eingabetaste zum Bearbeiten',
-            )}
+            title={t('nameEditor.editTitle')}
           >
             {student.name}
           </span>
@@ -238,7 +235,7 @@ export default function StudentNameEditor({
         <button
           type="button"
           className={`${mutedIconButtonClass} h-8 w-8 opacity-70 hover:opacity-100`}
-          title={t('nameEditor.editButton', 'Namen bearbeiten')}
+          title={t('nameEditor.editButton')}
           onClick={startEditing}
         >
           <PencilIcon size={12} />
