@@ -4,11 +4,11 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import {
-  ArchiveIcon,
+  BooksIcon,
   BroomIcon,
   ChalkboardTeacherIcon,
   DownloadIcon,
-  FoldersIcon,
+  FileLockIcon,
   GameControllerIcon,
   HandHeartIcon,
   HandPointingIcon,
@@ -247,7 +247,7 @@ function ToolRailFoot({ planPresent }: { planPresent: boolean }) {
       {/* The data lives in this browser only; both ways a backup travels
           sit behind one entry. */}
       <ToolRailButton
-        icon={<ArchiveIcon size={18} />}
+        icon={<FileLockIcon size={18} />}
         label={t('generator:storage.backup')}
         data-tour={TOUR_ANCHORS.backup}
         panel={(close) => (
@@ -328,7 +328,7 @@ function ToolRailLibrary() {
       }
     >
       <span className="shrink-0 text-(--text-muted)" aria-hidden="true">
-        <FoldersIcon size={18} />
+        <BooksIcon size={18} />
       </span>
       {!isCompact && <span className="min-w-0 flex-1 truncate">{label}</span>}
     </LocalizedLink>

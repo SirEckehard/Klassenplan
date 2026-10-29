@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
-import { ArrowRightIcon, FloppyDiskIcon } from '@phosphor-icons/react';
+import { ArrowRightIcon, FileLockIcon } from '@phosphor-icons/react';
 import { useTranslation } from 'react-i18next';
 import { LocalizedLink } from '@/components/LocalizedLink';
 import { useSeatingPlanActions } from '@/contexts/SeatingPlanContext';
@@ -53,7 +53,7 @@ export default function BackupReminder() {
     >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-5">
         <span className="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-(--surface-card) text-(--text-badge)">
-          <FloppyDiskIcon aria-hidden="true" className="h-6 w-6" />
+          <FileLockIcon aria-hidden="true" className="h-6 w-6" />
         </span>
         <div className="flex-1 space-y-3">
           <div>

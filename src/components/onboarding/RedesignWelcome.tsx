@@ -3,8 +3,8 @@
 import { useTranslation } from 'react-i18next';
 import {
   ArrowRightIcon,
+  BooksIcon,
   DoorOpenIcon,
-  FoldersIcon,
   LayoutIcon,
   SparkleIcon,
   type Icon,
@@ -109,7 +109,7 @@ export default function RedesignWelcome({
         <Point icon={DoorOpenIcon} title={t('redesign.rooms.title')}>
           <p className={body}>{t('redesign.rooms.body')}</p>
         </Point>
-        <Point icon={FoldersIcon} title={t('redesign.library.title')}>
+        <Point icon={BooksIcon} title={t('redesign.library.title')}>
           <p className={body}>{t('redesign.library.body')}</p>
         </Point>
       </div>
