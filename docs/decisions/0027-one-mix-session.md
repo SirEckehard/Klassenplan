@@ -36,7 +36,7 @@ mechanism from v1.5.0 that no document described: a second one after every
 mix, whose result never reached the mix history — history and screen differed
 after every mix, and the teacher waited for two runs of simulated annealing,
 although the measurement that removed "Verfeinern" in 3.0 had found a second
-refinement to be a coin toss ([PERFORMANCE.md](../PERFORMANCE.md#does-a-longer-refinement-help));
+refinement to be a coin toss ([appendix](#appendix-the-measurement-of-2026-09-14));
 one after the first mix on entering the plan layer; and one after a backup
 was restored, which rearranged the restored plan as the plan layer opened.
 
@@ -98,3 +98,28 @@ was restored, which rearranged the restored plan as the plan layer opened.
 - Under Vitest the annealing measures about a tenth slower than before, most
   of it the module runner's getters on the shared key functions, which the
   bundled app does not have ([PERFORMANCE.md](../PERFORMANCE.md#algorithm-runtime)).
+
+## Appendix: the measurement of 2026-09-14
+
+Whether a longer refinement helps, before this decision and before the
+criterion model ([decision 0031](0031-one-criterion-model.md)).
+
+Checked on 2026-09-14 with a temporary experiment on the fixture of `seatingAlgorithm.bench.ts`, timed under Vitest 4: 20 seeds per class size, scored by the weighted criteria fulfilment the statistics badge shows (higher is better).
+
+| Variant                                               | 24 students | 36 students | Time, 36 students |
+| ----------------------------------------------------- | ----------: | ----------: | ----------------: |
+| Construction only                                     |      54.5 % |      53.7 % |              1 ms |
+| "Mischen": construction and annealing                 |      59.7 % |      60.7 % |             60 ms |
+| "Verfeinern" afterwards, as today                     |      61.6 % |      59.9 % |             59 ms |
+| "Verfeinern" with three times the swaps per step      |      61.2 % |      59.8 % |            178 ms |
+| "Verfeinern" with slower cooling (0.99)               |      60.9 % |      60.2 % |            180 ms |
+| "Verfeinern" with both                                |      61.9 % |      59.9 % |            539 ms |
+| "Verfeinern" as greedy search, 1,800 tries × 4 passes |      61.1 % |      60.4 % |             71 ms |
+
+- **The refinement inside "Mischen" is what matters:** five to seven points over construction alone.
+- **A second refinement is a coin toss.** It gains one to two points for 24 students and loses up to one point for 36, where more runs got worse than better. The automatic second refinement after every "Mischen", which outlived the button until decision 0027, was the same coin toss.
+- **Longer schedules do not pay off.** They take three to nine times as long without a consistent gain, so the app's schedule stays as it is.
+- **Annealing optimised the internal table score, not the badge's percentage.** The two did not always move together, which is how a refinement could lower the value a teacher saw. Since decision 0031 both read the same terms.
+- **Consequence:** the "Verfeinern" button was removed on 2026-09-14. The rows above keep its name for the record.
+
+The fixture is one synthetic class in one room; differences of one or two points are small.

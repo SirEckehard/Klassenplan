@@ -2,8 +2,8 @@
 
 - **Status:** accepted
 - **In place since:** the performance layer was removed on 2026-09-05
-- **Sources:** [PERFORMANCE.md](../PERFORMANCE.md#what-was-removed-2026-09-05),
-  [LOGGING.md](../LOGGING.md#logger-api), [SECURITY.md](../SECURITY.md)
+- **Sources:** [PERFORMANCE.md](../PERFORMANCE.md#core-web-vitals-monitoring),
+  [LOGGING.md](../LOGGING.md#no-personal-data-and-nothing-leaves-the-browser), [SECURITY.md](../SECURITY.md)
 
 ## Context
 

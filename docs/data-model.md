@@ -195,7 +195,7 @@ everything writes what is queued first, then holds the queue shut
 (`isRestoringRef`) and reloads without writing
 (`reloadCurrentClassData({ discardPending: true })`): the backup's top-level
 fields go on screen during the import, and queued for the class open then,
-they used to land in that class of the restored collection.
+they would land in that class of the restored collection.
 
 A write that fails is said at once, one toast per run of failures
 (`usePersistErrorHandling`). Its jobs go back into the queue unless a newer job

@@ -238,9 +238,8 @@ The weights are the algorithm's; the words around them are the panel's
 
 - **`utils/mixImportance.ts`** maps each weight to one of four named levels and
   back, so a criterion is set as "Wichtig" rather than as 5. A weight inside the
-  band — a preset's, or one set before the fine tuning was removed — survives
-  being set to its own level. There is no slider any more: the four words are
-  the whole scale.
+  band — a preset's, or one stored by an earlier version — survives being set
+  to its own level. There is no slider: the four words are the whole scale.
 - **`utils/mixRecipes.ts`** holds five named mixes, the presets
   ("Voreinstellung"), that set all sixteen weights at once. Which one is
   active is derived from the weights, never stored.
@@ -469,8 +468,8 @@ the interface is held to this.
 
 ## Open questions
 
-Each entry names the problem, the options and the next step. Decisions move to
-a decision record once taken.
+Each entry names the problem, the options and the next step. A question leaves
+this list once answered; the decision record or the changelog keeps the answer.
 
 1. **Why 36 students?** The limit is explained as algorithm cost in one place
    and as an import cap in another. The benchmark rules out runtime as the
@@ -479,110 +478,6 @@ a decision record once taken.
    ([PERFORMANCE.md](PERFORMANCE.md#algorithm-runtime)). Larger classes were not
    measured, and the 900 × 600 room is sized for 36. _Next step:_ record the
    actual reason next to the constant.
-
-## Resolved questions
-
-**Partner wishes were read from the field they are no longer written to**
-(resolved 2026-09-19). Wishes became lists (`wishPartnerIds` /
-`avoidPartnerIds`), but the criterion availability check and
-`useAutoMixSettings` still asked for the single-value `wishPartnerId`. A class
-whose wishes lived only in the list — the sample class, among others — counted
-as having none: both partner criteria disappeared from the sidebar, their
-weights were cleared, the algorithm scored the wishes at zero and the
-statistics dropped the row. _Decision:_ `utils/student/partnerUtils.ts` is the
-one module that knows about the legacy fields; every reader goes through
-`getWishPartnerIds` / `getAvoidPartnerIds`, and the duplicates of that logic in
-statistics, scoring, `studentSync` and the unused `utils/data/studentMigration.ts`
-are gone.
-
-**The mix history kept the constructed arrangement** (resolved 2026-09-14).
-With criteria active, _Mischen_ refined after the result was added to the
-history, so "avoid previous pairs" counted pairs the teacher never saw, and
-loading an entry brought back the plan from before refinement. _Decision:_ the
-refinement that follows a mix replaces the entry's seating
-([decision 0014](decisions/0014-mix-history-records-refined-plan.md)), since
-2026-10-10 one mix session instead (below).
-
-**Construction and refinement decided by different facts** (resolved
-2026-10-10). The refinement ran as a call of its own after the construction
-had entered the mix history: it held the construction's own pairs against it,
-charged every earlier pair in full, drew its own tables' targets — and a
-second refinement followed every mix without reaching the history, so history
-and screen never agreed. _Decision:_ a mix is one session in one worker call,
-and nothing refines outside a mix
-([decision 0027](decisions/0027-one-mix-session.md)).
-
-**Every criterion was defined four times** (resolved 2026-10-18). The
-construction, the refinement, the fulfilment and the highlights each kept a
-definition of their own, and they disagreed: the refinement's running score
-drifted, single desks hid wishes and distance wishes from it, students needing
-a front seat were frozen side by side, and the fulfilment counted what nothing
-optimised. _Decision:_ one criterion model the four read
-([decision 0031](decisions/0031-one-criterion-model.md)).
-
-**The two performance criteria were either/or in the UI, not in the data**
-(resolved 2026-09-14). Settings could carry both weights; construction and
-refinement then broke a tie in opposite directions, and the table score followed
-`peerTutoring` regardless. _Decision:_ one rule picks the criterion in every
-phase, and settings hold only one of the two
-([decision 0013](decisions/0013-one-performance-criterion.md)).
-
-**_Verfeinern_ did the same work as _Mischen_** (resolved 2026-09-14). The
-button passed 1,800 tries in 4 passes, which annealing ignores, and refining a
-mixed plan again gained one to two points of criteria fulfilment for 24 students
-but lost up to one point for 36
-([PERFORMANCE.md](PERFORMANCE.md#does-a-longer-refinement-help)). _Decision:_
-the button, its texts and the `MANUAL_REFINE_*` constants are removed; the
-refinement inside _Mischen_ stays.
-
-**Docker builds shipped the committed sitemap and robots.txt** (resolved
-2026-09-14). `build:static` called `vite build` directly, so an image built with
-another `SITE_URL`, `IMPRINT_URL` or `PRIVACY_URL` still listed klassenplan.de
-and the pages it forwards. _Decision:_ `build:static` rewrites both files for a
-build that serves another site — without `<lastmod>` when git is missing, as in
-Docker — while klassenplan.de's own build keeps the committed files, so their
-dates only move with a commit ([SEO.md](SEO.md#build-pipeline)).
-
-**Retention is bounded by count, not time** (resolved 2026-09-14). Mix history
-and plan usage records are capped by number of entries, and nothing expires at
-the end of a school year. _Decision:_ it stays that way — 20 shuffles and 40
-plan usage records per class — so nothing disappears without the teacher doing
-something ([data-model.md](data-model.md#retention-and-deletion)).
-
-**The class switch relied on ordering** (resolved 2026-09-14). The class id was
-set from the class summary before the class data had loaded, so effects could
-briefly see the new id beside the previous class's plans, and preparing the
-switch emptied the persist queue, dropping edits made just before the switch.
-Duplicating a class marked the copy as active while the original stayed loaded.
-_Decision:_ `useClassManagement` no longer sets the class itself; the reload
-writes the queue first and then sets data and id together
-([Switching classes](#switching-classes)).
-
-**Some utils modules depended on layers above them** (resolved 2026-09-14).
-Backup, migration, PDF export, state reset and the route preloader imported
-repositories, hooks, stores, services or the page registry. _Decision:_ each
-moved to the layer it depends on — `services/backup`, `services/migration`,
-`services/export`, `stores/` and `pages/`
-([MODULE_BOUNDARIES.md](MODULE_BOUNDARIES.md#former-crossings)); ESLint now
-keeps every layer above out of `src/utils`.
-
-**The CSP allowed PayPal sources nothing used** (resolved 2026-09-14).
-`img-src` and `form-action` listed PayPal for donation graphics and a checkout
-form, but the support page only links there. _Decision:_ removed from
-`nginx-security-headers.conf` and from the dev server CSP in `vite.config.ts`;
-an embedded donation form would need them back ([SECURITY.md](SECURITY.md)).
-
-**Module boundaries were written down but not enforced** (resolved
-2026-09-14). [MODULE_BOUNDARIES.md](MODULE_BOUNDARIES.md) kept UI code out of
-`@/utils/algorithm` and `@/utils/data`, yet 19 files in `components/` and
-`pages/` imported from there, and the document named the wrong consumers for
-the other layers. _Decision:_ dependency-free helpers (`shuffleArray`, the
-storage keys) are surfaced through `@/utils`; the duplicate partner getters in
-`utils/data/studentMigration.ts` were removed in favour of the identical ones
-in `utils/student`; type imports and three pure display derivations stay
-allowed because they must show exactly what the algorithm scores. ESLint
-enforces the rest for `src/components` and `src/pages` and blocks component
-imports in `src/utils`.
 
 ## Related documents
 

@@ -11,7 +11,7 @@
  * fulfilment over the run. Not part of the normal run — it measures, it does
  * not check:
  *
- *   MIX_RUNS=1 npx vitest run mixRuns
+ *   MIX_RUNS=1 npx vitest run mixRuns --silent=false
  */
 import { describe, expect, it } from 'vitest';
 import type {

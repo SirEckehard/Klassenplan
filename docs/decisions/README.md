@@ -76,8 +76,8 @@ one — **before** implementing a change that
 
 A new button, a refactoring that keeps behaviour or a dependency update needs no
 record. When a change answers one of the open questions in
-[ARCHITECTURE.md](../ARCHITECTURE.md#open-questions), move that question to
-"Resolved questions" there as well.
+[ARCHITECTURE.md](../ARCHITECTURE.md#open-questions), take the question out
+there; the record or the changelog keeps the answer.
 
 ## Adding a record
 

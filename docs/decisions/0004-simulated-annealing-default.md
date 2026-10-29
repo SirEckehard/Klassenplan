@@ -32,3 +32,11 @@ directly — in a test, say — still defaults to the greedy search.
   measured yet.
 - Changing this default changes the plans teachers get for the same class, so
   it needs its own decision record.
+
+## Addendum of 2026-10-29: the only refinement
+
+Decision 0031 removed the greedy search, with its tries, passes and table
+selection, and `DEFAULT_REFINE_OPTIONS` with it: simulated annealing is the one
+refinement there is, so `refineSeatingLocal()` no longer falls back to anything
+else. The decision itself stands
+([decision 0031](0031-one-criterion-model.md)).

@@ -6,7 +6,7 @@
  * percentage, the weighted whole and the time per mix. Not part of the normal
  * run — it measures, it does not check:
  *
- *   MIX_QUALITY=1 npx vitest run mixQuality
+ *   MIX_QUALITY=1 npx vitest run mixQuality --silent=false
  */
 import { describe, expect, it } from 'vitest';
 import type {

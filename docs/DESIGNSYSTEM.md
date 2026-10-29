@@ -101,9 +101,9 @@ A segmented control is `SegmentedControl` (`components/ui/controls/`), which wra
 
 **Borders & shadows**
 
-- Every surface — panels and the canvas frame included — uses a 1 px border. The 2 px frame is gone; structure is carried by the line, not by the weight.
+- Every surface — panels and the canvas frame included — uses a 1 px border; structure is carried by the line, not by the weight.
 - Shadows are for things that genuinely float: `--menu-shadow` at `0 8px 24px -12px`, `--toast-shadow` a softer `0 10px 28px -14px` over a 1 px contact shadow. Resting surfaces use `0 1px 2px` at 5 % or nothing at all, and every button shadow token is `none`.
-- The glass look is gone: `--backdrop-blur-soft` and `--backdrop-blur-medium` both resolve to `none`. The variables stay so the utilities referencing them keep resolving and a future surface can opt back in.
+- There is no glass look: `--backdrop-blur-soft` and `--backdrop-blur-medium` both resolve to `none`. The variables stay so the utilities referencing them keep resolving and a future surface can opt back in.
 - All adjustments go through the variables; never hand a component its own `shadow-*` utility.
 
 ## 4. Focus, hover, and the two colour worlds
@@ -204,17 +204,14 @@ projector rather than for a screen.
 
 **Focus and hover**
 
-- A focus ring is a solid 2 px contour in `--focus-ring-primary` (danger and success variants exist), never a soft glow. The old translucent rings are gone.
+- A focus ring is a solid 2 px contour in `--focus-ring-primary` (danger and success variants exist), never a soft glow.
 - Buttons and icon buttons have defined hover states (e.g. `--button-primary-bg-hover`). These apply in dark mode too, because `@layer base` overrides the variables rather than the utilities.
 - A `secondary-button` that switches something on carries `aria-pressed`, and while it is `true` the button wears the selection colours (`--surface-option-selected`, `--border-option-selected`, `--text-badge`) — hovered or not. The state a screen reader hears is the state on screen; no call site paints its own.
 
 ## 5. Tokens for student toggles
 
 A student attribute is an `InspectorRow` with either `InspectorChoice` chips or
-a `ToggleSwitch` — neither of which needs a token of its own. The selectors
-used to carry four shapes each (compact, detailed, hybrid, row); only `row`
-ever reached a screen once the inspector existed, and the other three took
-2,500 lines of hand-written palette classes with them when they went.
+a `ToggleSwitch` — neither of which needs a token of its own.
 
 What is left in `src/components/students/studentStyleTokens.ts`:
 
@@ -223,9 +220,6 @@ What is left in `src/components/students/studentStyleTokens.ts`:
   family when they are set — a wish and a distance wish are told apart by the
   icon before the row's name, not by two different colours; the button itself
   carries only who it points at.
-- **Bulk bar chips** (`specialNeedsButtonTokens`): setting a flag for twelve
-  students at once is an action, so the chip takes the blue accent, and the
-  mixed state (some of them carry it) is the same chip with a dashed border.
 
 **Important:** The tokens already include minimum sizes and typography.
 Additional classes are only allowed for layout scaffolding (e.g. `grid`,
@@ -269,8 +263,7 @@ rotation and resize handles, a seat's keyboard focus — is `--canvas-selection`
 the interface's one blue (`--focus-ring-primary`), with
 `--canvas-selection-fill` for the rectangle; alignment guides are
 `--canvas-guide` (amber, so they never read as a selection) and a predicted
-photo collision is `--canvas-alert`. The drawing used to select in two blues of
-its own.
+photo collision is `--canvas-alert`. The drawing has no blue of its own.
 
 On a touch screen the handles and the seat's lock keep their painted size but
 take a larger transparent hit area (`useIsCoarsePointer`), and a long press —

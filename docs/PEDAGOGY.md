@@ -10,7 +10,6 @@ According to educational research, seating arrangements have a small but measura
 
 - Wannarka & Ruhl (2008): Row arrangements can reduce off-task behavior during individual work
 - Marx, Fuhrer & Hartig (1999): Seating layout influences question frequency (horseshoe > rows)
-- Hattie (2009, _Visible Learning_): Effect size of seating arrangement d ≈ 0.1–0.2 – well below feedback (d ≈ 0.73) or formative assessment
 
 Klassenplan's main value therefore lies not in the _optimal_ seating plan, but in **relieving the teacher's cognitive preparation load** and **structuring reflection** about class composition. The algorithm's output is a suggestion, not a decision.
 

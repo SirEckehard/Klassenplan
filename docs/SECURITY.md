@@ -69,7 +69,7 @@ object-src 'none';
 
 - `style-src 'unsafe-inline'` is needed for runtime style tooling (Tailwind utility insertions, dynamic component styles). No `unsafe-inline` for scripts.
 - Everything else is first-party. There is no third-party analytics, telemetry, or CDN.
-- The support page links to PayPal with a plain link, which the CSP does not restrict. `img-src` and `form-action` used to allow PayPal for donation graphics and a checkout form; those sources were removed on 2026-09-14 because nothing loaded them any more.
+- The support page links to PayPal with a plain link, which the CSP does not restrict. `img-src` and `form-action` allow no PayPal source: nothing on the page loads one, and an embedded donation form would need them back.
 
 > **Note:** If you deploy behind a different reverse proxy or static host, replicate the CSP and the security headers below in that environment's configuration.
 
@@ -278,7 +278,7 @@ import (center-crop, downscale to 160 px, JPEG). This guarantees that EXIF
 metadata — including GPS coordinates — is stripped before anything is stored.
 
 **Logs:** Log calls identify students by id and never carry names, attributes,
-photos or backup passwords (see [LOGGING.md](LOGGING.md#best-practices)). Logs
+photos or backup passwords (see [LOGGING.md](LOGGING.md#no-personal-data-and-nothing-leaves-the-browser)). Logs
 only reach the browser console — nothing is stored or transmitted.
 
 ### 2. Input Validation

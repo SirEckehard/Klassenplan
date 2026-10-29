@@ -59,9 +59,9 @@ describe('SeatingHistoryToolbar', () => {
     expect(contextValue.undoSeating).toHaveBeenCalledTimes(1);
   });
 
-  // Mixing is the status bar's primary action, not part of this pair; and
-  // "Verfeinern" was removed on 2026-09-14 because a second refinement gained
-  // nothing measurable (docs/PERFORMANCE.md#does-a-longer-refinement-help).
+  // Mixing is the status bar's primary action, not part of this pair, and
+  // there is no "Verfeinern": a second refinement gains nothing measurable
+  // (docs/decisions/0027-one-mix-session.md, appendix).
   it('carries nothing but undo and redo', () => {
     renderToolbar();
 

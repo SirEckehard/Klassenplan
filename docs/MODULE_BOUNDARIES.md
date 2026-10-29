@@ -1,6 +1,6 @@
 # Module Boundaries – Utils API & Import Guidelines
 
-> **Status:** current · **Last reviewed:** 2026-10-18
+> **Status:** current · **Last reviewed:** 2026-10-29
 
 ## Goal & background
 
@@ -62,18 +62,6 @@ Adding an exception means extending the allow-list in `eslint.config.js` and the
 - **`src/components` and `src/pages`** use `@typescript-eslint/no-restricted-imports`: `@/utils/algorithm` and `@/utils/data` are blocked, including their index modules and nested paths, except for type imports and the derivations listed above.
 - **`src/utils`** is the bottom layer: it imports no components, pages, hooks, contexts, stores, state machines, services, repositories or workers. Code that needs one of them belongs in that layer.
 - **Test files** are exempt from the layer rules.
-
-### Former crossings
-
-Until 2026-09-14 five utils modules imported layers above them. Each moved to the layer it depends on; the pure pieces they use (`tableMigration`, `backupValidation`, the storage helpers) stayed in utils.
-
-| Was in utils                           | Now                                          | Why there                                                          |
-| -------------------------------------- | -------------------------------------------- | ------------------------------------------------------------------ |
-| `utils/data/dataBackup.ts`             | `src/services/backup/dataBackup.ts`          | Reads and wipes through repositories, the photo store and cache    |
-| `utils/migration/migrationService.ts`  | `src/services/migration/migrationService.ts` | Reads and writes through `@/repositories/idbClient`                |
-| `utils/export/pdfExportFunctions.ts`   | `src/services/export/pdfExportFunctions.ts`  | Renders the scene with `sceneRenderer` and reads the photo cache   |
-| `utils/state/resetApplicationState.ts` | `src/stores/resetApplicationState.ts`        | Resets the stores                                                  |
-| `utils/performance/routePreloader.ts`  | `src/pages/routePreloader.ts`                | Shares the lazy components of `pages/lazyPages.ts` with the router |
 
 ## Import guidelines
 

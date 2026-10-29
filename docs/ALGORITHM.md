@@ -164,10 +164,8 @@ probability 1/n.
 ## Refinement Strategies
 
 The refinement is **simulated annealing** on the score of the criterion model
-([decision 0004](decisions/0004-simulated-annealing-default.md)). The greedy
-refinement that once stood beside it never ran in the app and is gone, with
-its tries, passes and table selection
-([decision 0031](decisions/0031-one-criterion-model.md)).
+([decision 0004](decisions/0004-simulated-annealing-default.md)); it is the
+only refinement there is ([decision 0031](decisions/0031-one-criterion-model.md)).
 
 **Concept**: The algorithm explores the solution space by trying random swaps
 — a student who may move, picked evenly, and any seat.
@@ -393,5 +391,5 @@ repetition at the recommended weights, so friends stay together unless
 something weighs more. The fulfilment leaves the pairs who wish each other out
 of "Wiederholung" (`wishEachOther`), since their staying together is what the
 class asked for rather than a repetition the plan failed to part; the mixing
-still counts them at half. `MIX_RUNS=1 npx vitest run mixRuns` measures a run
+still counts them at half. `MIX_RUNS=1 npx vitest run mixRuns --silent=false` measures a run
 of six plans.
