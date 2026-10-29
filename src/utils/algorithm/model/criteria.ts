@@ -158,16 +158,18 @@ export const relationWeight = (kind: number): number =>
   RELATION_WEIGHT_BY_KIND[kind] ?? 0;
 
 const PARTNER = kindIndex('partner');
+const CORNER = kindIndex('corner');
+const OPPOSITE = kindIndex('opposite');
 const TABLE = kindIndex('table');
 const BESIDE = kindIndex('beside');
 
 /** The kinds that make two students table mates: a pair the history keeps. */
 export const isTableKind = (kind: number): boolean =>
-  kind === PARTNER || kind === TABLE;
+  kind === PARTNER || kind === CORNER || kind === OPPOSITE || kind === TABLE;
 
 /** The kinds within which somebody does not sit alone or gets support. */
 export const isCloseKind = (kind: number): boolean =>
-  kind === PARTNER || kind === TABLE || kind === BESIDE;
+  isTableKind(kind) || kind === BESIDE;
 
 const rankFactor = (factors: readonly number[], rank: number): number =>
   factors[rank] ?? factors[factors.length - 1] ?? 1;
@@ -259,7 +261,7 @@ export const pairTerm = (
 
   if (
     weights.gender > 0 &&
-    (kind === PARTNER || kind === BESIDE) &&
+    (kind === PARTNER || kind === CORNER || kind === BESIDE) &&
     a.gender >= 0 &&
     a.gender === b.gender
   ) {

@@ -114,6 +114,7 @@ export default function FAQ() {
                   <li>{t('faq.allgemein.algo_neighbors.li2')}</li>
                   <li>{t('faq.allgemein.algo_neighbors.li3')}</li>
                   <li>{t('faq.allgemein.algo_neighbors.li4')}</li>
+                  <li>{t('faq.allgemein.algo_neighbors.li5')}</li>
                 </ul>
                 <p>{t('faq.allgemein.algo_neighbors.outro')}</p>
               </>

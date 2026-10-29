@@ -142,12 +142,13 @@
       },
       "algo_neighbors": {
         "q": "Wie bewertet der Algorithmus Nachbarn?",
-        "intro": "Wer neben wem sitzt, liest der Algorithmus in vier Abstufungen, immer von der Tafel aus gesehen:",
+        "intro": "Wer neben wem sitzt, liest der Algorithmus in fünf Abstufungen, immer von der Tafel aus gesehen:",
         "li1": "Tischpartner am selben Doppeltisch oder Sitzpaar (volles Gewicht)",
-        "li2": "die übrigen Plätze am selben Gruppentisch (starkes Gewicht)",
+        "li2": "über Eck oder gegenüber am selben Gruppentisch (starkes Gewicht)",
         "li3": "der Platz direkt daneben am Nachbartisch, ohne Gang dazwischen (mittleres Gewicht)",
-        "li4": "der Platz direkt davor oder dahinter in der nächsten Reihe (geringeres Gewicht)",
-        "outro": "Schräg versetzte Plätze und Plätze jenseits eines Gangs zählen nicht als Nachbarn. Dieselben Abstufungen gelten beim Mischen und in der Erfüllung, die dir der Inspektor zeigt."
+        "li4": "die übrigen Plätze am selben Gruppentisch, etwa schräg gegenüber (etwas geringeres Gewicht)",
+        "li5": "der Platz direkt davor oder dahinter in der nächsten Reihe (geringstes Gewicht)",
+        "outro": "Schräg versetzte Plätze an einem anderen Tisch und Plätze jenseits eines Gangs zählen nicht als Nachbarn. Dieselben Abstufungen gelten beim Mischen und in der Erfüllung, die dir der Inspektor zeigt."
       },
       "no_account": {
         "q": "Brauche ich ein Konto oder Internet?",
@@ -348,7 +349,7 @@
         "q": "Wie werden Prozentwerte bei Wunschpartnern berechnet?",
         "intro": "Jeder Schüler mit Wünschen zählt einmal, mit seinem am besten erfüllten Wunsch:",
         "li1": "Tischpartner = 100 % erfüllt",
-        "li2": "Am selben Gruppentisch (4er/6er) = 60 % erfüllt",
+        "li2": "Am selben Gruppentisch (4er/6er) über Eck oder gegenüber = 80 %, an einem anderen Platz dort = 40 % erfüllt",
         "li3": "Direkt daneben am Nachbartisch = 50 %, direkt davor oder dahinter = 30 % erfüllt",
         "li4": "Weiter entfernt = 0 % erfüllt",
         "example": "An Einzeltischen gibt es keinen Tischpartner: Dort ist „direkt daneben“ das Beste, was der Raum zulässt, und zählt als 100 %. Beispiel an Doppeltischen: Von 3 Schülern mit Wünschen sitzt einer neben seinem Wunschpartner (100 %), einer hat ihn direkt hinter sich (30 %), einer gar nicht in der Nähe (0 %) = (100 + 30 + 0) / 3 ≈ 43 %."

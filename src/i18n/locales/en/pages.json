@@ -142,12 +142,13 @@
       },
       "algo_neighbors": {
         "q": "How does the algorithm evaluate neighbors?",
-        "intro": "The algorithm reads who sits next to whom in four steps, always as seen from the board:",
+        "intro": "The algorithm reads who sits next to whom in five steps, always as seen from the board:",
         "li1": "the seat partner at the same double desk or seat pair (full weight)",
-        "li2": "the other seats at the same group table (strong weight)",
+        "li2": "round the corner or across at the same group table (strong weight)",
         "li3": "the seat directly beside at the next table, with no aisle in between (medium weight)",
-        "li4": "the seat directly in front or behind in the next row (lower weight)",
-        "outro": "Seats offset diagonally and seats across an aisle do not count as neighbors. The same steps apply when mixing and in the fulfilment the inspector shows you."
+        "li4": "the other seats at the same group table, such as diagonally across (slightly lower weight)",
+        "li5": "the seat directly in front or behind in the next row (lowest weight)",
+        "outro": "Seats offset diagonally at another table and seats across an aisle do not count as neighbors. The same steps apply when mixing and in the fulfilment the inspector shows you."
       },
       "no_account": {
         "q": "Do I need an account or internet?",
@@ -348,7 +349,7 @@
         "q": "How are percentages for preferred partners calculated?",
         "intro": "Every student with wishes counts once, by the wish met best:",
         "li1": "Seat partner = 100% fulfilled",
-        "li2": "At the same group table (4/6) = 60% fulfilled",
+        "li2": "At the same group table (4/6), round the corner or across = 80%, at another seat there = 40% fulfilled",
         "li3": "Directly beside at the next table = 50%, directly in front or behind = 30% fulfilled",
         "li4": "Further away = 0% fulfilled",
         "example": "At single desks there is no seat partner: there, “directly beside” is the best the room allows and counts as 100%. Example at double desks: of 3 students with wishes, one sits beside their preferred partner (100%), one has them directly behind (30%), one has them nowhere near (0%) = (100 + 30 + 0) / 3 ≈ 43%."

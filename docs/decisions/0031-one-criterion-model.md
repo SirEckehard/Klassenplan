@@ -202,3 +202,63 @@ second row as unmet):
 Beyond the tolerated row a row costs more than before, so the criterion
 holds harder against the back: wishes at single desks 74.7 → 69.5 %, the
 other criteria within a point.
+
+## Addendum of 2026-10-29: where a seat sits at a group table
+
+`table` weighed every seat of a group table but the partner's alike, 0.6: at a
+table of six the seat round the corner, shoulder to shoulder, counted as much
+as the seat at the far end of the diagonal, and the gender mix by pairs did not
+see the corner at all. Two restless students round a corner or face to face
+cost as much as two at opposite ends.
+
+- **Four relations at one table** (`seatRelations.ts`, `tableSeatKind`):
+  `partner` stays the seat pair by index; `corner` is a seat whose cell
+  touches at another edge, `opposite` one at the facing edge in the same
+  column or row, `table` every seat further away. They are read from the
+  template's grid and the edge each seat faces (`determineSeatEdge`), in the
+  table's own frame, so a turn changes nothing; a seat count no template knows
+  keeps the pair and the rest of the table (`hasTemplateSeatLayout`). A test
+  holds that the pairs by index are exactly the seats side by side at one
+  edge in every template.
+- **Three steps for the teacher** (maintainer): partner 1, round the corner
+  or across 0.8, further away at the table 0.4 — a little less than the seat
+  directly beside at the next table (0.5), which is closer than the far end
+  of a table of six. A table of four keeps its mean of 0.6 between the
+  across pairs and the diagonals.
+- **Every criterion reads the steps** (maintainer): one relation, one
+  weight, as before — repetition and tutoring too, which therefore count a
+  diagonal at a table of six less than before. All four relations count as
+  the same table for repetition, tutoring, shyness and language support.
+- **The gender mix by pairs counts the corner** (maintainer): partner,
+  corner and beside; across the table does not.
+
+Where pairs end up, counted by the seats' position alone and so comparable
+before and after (`arrangeTables` with five tables of six and seven of four,
+28 and 26 students, recommended weights, 30 seeds, per mix):
+
+| Table of six                                    | before | after |
+| ----------------------------------------------- | -----: | ----: |
+| Two restless students round a corner/across     |   1.13 |  0.17 |
+| Distractible and restless round a corner/across |   2.13 |  0.40 |
+| Wish as the seat partner                        |   9.50 |  8.73 |
+| Wish round the corner/across                    |   2.80 |  6.30 |
+| Wish further away at the table                  |   6.33 |  2.93 |
+| Same gender round the corner                    |   4.50 |  3.50 |
+
+At the tables of four the across pairs take the wishes from the diagonals
+(2.67 → 4.63 across, 2.20 → 1.20 diagonal) and no distractible student sits
+across from a restless one any more (0.30 → 0).
+
+The fulfilment over 80 other seeds (the percentages of wishes and restless
+students read the new weights, so they are not quite the same measure):
+
+| Room                 | Overall before → after | Social roles before → after |
+| -------------------- | ---------------------: | --------------------------: |
+| Group tables of four |          88.9 → 89.6 % |               78.3 → 72.6 % |
+| Group tables of six  |          85.7 → 86.9 % |               65.5 → 62.4 % |
+
+The social roles, a table term, lose because pairs at one table now differ
+more and the mixing trades a role for a better pair; raising their weight
+would move every room, the double and single desks too, so it stays as it is
+— "Sehr wichtig" gives the roles precedence. Double desks and single desks
+mix as before, and a mix takes no longer.

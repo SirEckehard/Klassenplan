@@ -5,6 +5,9 @@ import { ADJACENT_GAP, ROW_GAP } from '@/utils';
 import {
   calculateSeatLayout,
   calculateSeatPosition,
+  determineSeatEdge,
+  hasTemplateSeatLayout,
+  type SeatLayoutDetails,
 } from '@/utils/math/positionCalculations';
 import { getRotatedAabbHalfExtents } from '@/utils/math/rotation';
 import { seatPairsFor } from '@/utils/math/seatGeometry';
@@ -12,17 +15,21 @@ import { isTableActive } from '@/utils/math/scene';
 import { determineFrontDirection } from '../orientationUtils';
 
 /**
- * How two seats relate (decision 0031). `partner` and `table` follow the seat
- * indices of one table; `beside`, `ahead` and `behind` are seats of another
- * table directly next to this one, read relative to the board: `ahead` is the
- * seat between this one and the board, `behind` the one further from it.
+ * How two seats relate (decision 0031). At one table `partner` is the seat
+ * pair by index, `corner` the seat round the corner, `opposite` the seat
+ * across the table, `table` every seat further away; `beside`, `ahead` and
+ * `behind` are seats of another table directly next to this one, read
+ * relative to the board: `ahead` is the seat between this one and the board,
+ * `behind` the one further from it.
  */
 export type SeatRelationKind =
-  'partner' | 'table' | 'beside' | 'ahead' | 'behind';
+  'partner' | 'corner' | 'opposite' | 'table' | 'beside' | 'ahead' | 'behind';
 
 /** Every kind, in the order the typed lookups of the model index them. */
 export const SEAT_RELATION_KINDS: readonly SeatRelationKind[] = [
   'partner',
+  'corner',
+  'opposite',
   'table',
   'beside',
   'ahead',
@@ -66,10 +73,58 @@ export const kindIndex = (kind: SeatRelationKind): number =>
   SEAT_RELATION_KINDS.indexOf(kind);
 
 const PARTNER = kindIndex('partner');
+const CORNER = kindIndex('corner');
+const OPPOSITE = kindIndex('opposite');
 const TABLE = kindIndex('table');
 const BESIDE = kindIndex('beside');
 const AHEAD = kindIndex('ahead');
 const BEHIND = kindIndex('behind');
+
+/**
+ * How two seats of one table relate by where they sit at it: the seat pair by
+ * index, then from the template's grid and the edge each seat faces — across
+ * the table where the two face each other in one column or row, round the
+ * corner where their cells touch at different edges, otherwise further apart.
+ * Read in the table's own frame, so a turn changes nothing; a seat count the
+ * template does not know keeps the pair and the rest of the table.
+ */
+const tableSeatKind = (
+  table: ClassroomScene['tables'][number],
+  layout: SeatLayoutDetails,
+  isPartner: boolean,
+  a: number,
+  b: number,
+): number => {
+  if (isPartner) return PARTNER;
+  if (!hasTemplateSeatLayout(table)) return TABLE;
+  const positionA = layout.positions[a]!;
+  const positionB = layout.positions[b]!;
+  const edgeA = determineSeatEdge(
+    table.templateType,
+    positionA,
+    layout,
+    table.seatCount,
+  );
+  const edgeB = determineSeatEdge(
+    table.templateType,
+    positionB,
+    layout,
+    table.seatCount,
+  );
+  const edges = new Set([edgeA, edgeB]);
+  const acrossRows = edges.has('top') && edges.has('bottom');
+  const acrossColumns = edges.has('left') && edges.has('right');
+  if (
+    (acrossRows && positionA.col === positionB.col) ||
+    (acrossColumns && positionA.row === positionB.row)
+  ) {
+    return OPPOSITE;
+  }
+  const step =
+    Math.abs(positionA.col - positionB.col) +
+    Math.abs(positionA.row - positionB.row);
+  return edgeA !== edgeB && step === 1 ? CORNER : TABLE;
+};
 
 type SeatFootprint = {
   table: number;
@@ -151,15 +206,23 @@ const buildSeatLayout = (scene: ClassroomScene): SeatLayout => {
     kindBetween[b * size + a] = kindAtB;
   };
 
-  // Seat pairs follow the index, as everywhere else: (0,1), (2,3), (4,5).
+  // Seat pairs follow the index, as everywhere else: (0,1), (2,3), (4,5);
+  // the other seats of a table by where they sit at it.
   scene.tables.forEach((table, tableIndex) => {
     const first = offsets[tableIndex]!;
+    const layout = calculateSeatLayout(table);
     const partners = new Set(
       seatPairsFor(table.seatCount).map(([a, b]) => `${a}-${b}`),
     );
     for (let a = 0; a < table.seatCount; a++) {
       for (let b = a + 1; b < table.seatCount; b++) {
-        const kind = partners.has(`${a}-${b}`) ? PARTNER : TABLE;
+        const kind = tableSeatKind(
+          table,
+          layout,
+          partners.has(`${a}-${b}`),
+          a,
+          b,
+        );
         relate(first + a, first + b, kind, kind);
       }
     }

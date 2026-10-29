@@ -287,14 +287,17 @@ export const STUDENT_LIST_TOOLS_THRESHOLD = 8;
 
 /**
  * How closely two seats are related, for every criterion that asks who sits
- * near whom (decision 0031): the seat partner fully, the rest of a group table
- * strongly, the seat directly beside at the next table less, and the seat
- * directly in front or behind least. One table, read by the mixing and by the
- * fulfilment the teacher sees, so the two cannot disagree.
+ * near whom (decision 0031): the seat partner fully, the seat round the corner
+ * or across a group table strongly, the seat directly beside at the next table
+ * a little more than the rest of a group table, and the seat directly in
+ * front or behind least. One table, read by the mixing and by the fulfilment
+ * the teacher sees, so the two cannot disagree.
  */
 export const RELATION_WEIGHTS = {
   partner: 1,
-  table: 0.6,
+  corner: 0.8,
+  opposite: 0.8,
+  table: 0.4,
   beside: 0.5,
   ahead: 0.3,
   behind: 0.3,

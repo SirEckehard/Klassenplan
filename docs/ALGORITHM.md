@@ -1,6 +1,6 @@
 # Algorithm Documentation
 
-> **Status:** current · **Last reviewed:** 2026-10-19
+> **Status:** current · **Last reviewed:** 2026-10-29
 
 This document describes the algorithms used in the Klassenplan seating generator.
 
@@ -36,9 +36,17 @@ settled on — the one on screen, the plan the teacher actually got.
 
 `src/utils/algorithm/model/` holds it:
 
-- **`seatRelations.ts`** relates every two seats of a scene once: `partner`
-  (the seat pair by index — (0,1), (2,3), (4,5)), `table` (the rest of the
-  same table) and, at another table, only the nearest seat in each direction
+- **`seatRelations.ts`** relates every two seats of a scene once. At one
+  table: `partner` (the seat pair by index — (0,1), (2,3), (4,5)), `corner`
+  (round the corner: cells that touch at different edges), `opposite` (across
+  the table: facing edges in one column or row) and `table` (every seat
+  further away), read from the template's grid and the edge each seat faces,
+  so a turn changes nothing; a seat count no template knows keeps the pair
+  and the rest of the table. At a table of six the head's pair 0–1 meets 4
+  and 2 round the corner (0–4, 1–2), 4–2 and 5–3 face each other, the other
+  eight pairs are further away; at a table of four 0–2 and 1–3 face each
+  other and the diagonals are further away. At another table, only the
+  nearest seat in each direction
   — `beside` along the board, `ahead` towards it, `behind` away from it. The
   directions are read relative to the board (`determineFrontDirection`), not
   the screen, and a turned table meets its neighbours where it is drawn. A gap
@@ -50,9 +58,9 @@ settled on — the one on screen, the plan the teacher actually got.
 - **`criteria.ts`** writes every criterion down once, as a `pair` term (two
   students in a relation), a `seat` term (a student on a seat), a `table`
   term (who shares a table) or the language term (who sits around a student
-  needing support). A relation weighs by `RELATION_WEIGHTS` — partner 1, table
-  0.6, beside 0.5, ahead and behind 0.3 — and a criterion by its weight and
-  the multipliers in `CRITERION_WEIGHTS`.
+  needing support). A relation weighs by `RELATION_WEIGHTS` — partner 1,
+  corner and opposite 0.8, beside 0.5, table 0.4, ahead and behind 0.3 — and
+  a criterion by its weight and the multipliers in `CRITERION_WEIGHTS`.
 - **`objective.ts`** builds a context once per mix and sums the terms
   (`scoreArrangement`); `swapDelta` computes what a swap changes exactly, by
   every relation the two seats take part in; `placementCost` what placing a
@@ -60,22 +68,23 @@ settled on — the one on screen, the plan the teacher actually got.
 - **`fulfilment.ts`** turns the same terms into the cases the fulfilment and
   the highlights read (see [Fulfilment](#fulfilment)).
 
-What each criterion counts:
+What each criterion counts ("same table" is partner, corner, opposite and
+table):
 
-| Criterion                     | Term                                                                                    | Relations              |
-| :---------------------------- | :-------------------------------------------------------------------------------------- | :--------------------- |
-| Wunschpartner                 | reward per directed wish, by its place in the list (1 / 0.85 / 0.7)                     | all                    |
-| Distanzwünsche                | penalty per directed distance wish, twice a wish's weight (1 / 0.9 / 0.8)               | all                    |
-| Unruhe, Ablenkbarkeit         | penalty for two restless or two distractible students, by the larger special weight     | all                    |
-| Ablenkbar neben Unruhig       | penalty when one is distractible and the other restless, either way round               | all                    |
-| Wiederholung                  | penalty by the history's weight of the pair; none for a wish pair while wishes count    | partner, table         |
-| Geschlechter                  | per table the students by which a gender holds more than half; same gender side by side | partner, beside; table |
-| Fördern (heterogen / homogen) | reward for a strong and a weak student (or two of one level), penalty for the other     | partner, table         |
-| Schüchternheit                | penalty for a shy student with no taken seat close by                                   | partner, table, beside |
-| Sprachförderung               | reward for a student needing support by the closest strong speaker                      | partner, table, beside |
-| Soziale Rollen                | per table: the same role twice, loners and mediators, a leader beside a mediator        | table                  |
-| Vordere Plätze                | by the rows behind the front rows (see [Front seats](#front-seats))                     | —                      |
-| Körpergröße, Fenster, Tür     | by the seat's depth (0 at the back, 1 at the front) or distance to window and door      | —                      |
+| Criterion                     | Term                                                                                    | Relations                      |
+| :---------------------------- | :-------------------------------------------------------------------------------------- | :----------------------------- |
+| Wunschpartner                 | reward per directed wish, by its place in the list (1 / 0.85 / 0.7)                     | all                            |
+| Distanzwünsche                | penalty per directed distance wish, twice a wish's weight (1 / 0.9 / 0.8)               | all                            |
+| Unruhe, Ablenkbarkeit         | penalty for two restless or two distractible students, by the larger special weight     | all                            |
+| Ablenkbar neben Unruhig       | penalty when one is distractible and the other restless, either way round               | all                            |
+| Wiederholung                  | penalty by the history's weight of the pair; none for a wish pair while wishes count    | same table                     |
+| Geschlechter                  | per table the students by which a gender holds more than half; same gender side by side | partner, corner, beside; table |
+| Fördern (heterogen / homogen) | reward for a strong and a weak student (or two of one level), penalty for the other     | same table                     |
+| Schüchternheit                | penalty for a shy student with no taken seat close by                                   | same table, beside             |
+| Sprachförderung               | reward for a student needing support by the closest strong speaker                      | same table, beside             |
+| Soziale Rollen                | per table: the same role twice, loners and mediators, a leader beside a mediator        | table                          |
+| Vordere Plätze                | by the rows behind the front rows (see [Front seats](#front-seats))                     | —                              |
+| Körpergröße, Fenster, Tür     | by the seat's depth (0 at the back, 1 at the front) or distance to window and door      | —                              |
 
 Boys, girls and diverse students are three genders of their own; "not stated"
 counts for none. A criterion off costs nothing, and only one performance
@@ -359,8 +368,8 @@ single plan's weight, so the most frequent pairs are parted first
 ([decision 0031](decisions/0031-one-criterion-model.md)). The saved plans that
 stand in when no usage record counts are ranked by their date. The
 construction and the refinement charge a pair `avoidPreviousPairs` times its
-weight alike, at the seat partner fully and at the rest of a table by the
-table's relation weight; the fulfilment counts a pair as repeated up to its
+weight alike, at the seat partner fully and at the other seats of a table by
+their relation weight; the fulfilment counts a pair as repeated up to its
 first full weight.
 
 **A plan is no repetition of itself.** The fulfilment and the highlights read

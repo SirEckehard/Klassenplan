@@ -70,7 +70,7 @@ The fixture is one synthetic class in one room; differences of one or two points
 
 ### The criterion model
 
-`src/utils/algorithm/__tests__/mixQuality.test.ts` measures what a mix comes to by the fulfilment a teacher reads — five rooms, 30 seeds each, every criterion's mean percentage and the weighted whole — and runs only on request (`MIX_QUALITY=1 npx vitest run mixQuality`). On 2026-10-18, before and after [decision 0031](decisions/0031-one-criterion-model.md), both read by the new fulfilment:
+`src/utils/algorithm/__tests__/mixQuality.test.ts` measures what a mix comes to by the fulfilment a teacher reads — six rooms, 30 seeds each, every criterion's mean percentage and the weighted whole — and runs only on request (`MIX_QUALITY=1 npx vitest run mixQuality`). On 2026-10-18, before and after [decision 0031](decisions/0031-one-criterion-model.md), both read by the new fulfilment:
 
 | Room                                       | Before |  After | Time per mix, Vitest 5 |
 | ------------------------------------------ | -----: | -----: | ---------------------: |
@@ -79,6 +79,8 @@ The fixture is one synthetic class in one room; differences of one or two points
 | Group tables of four                       | 85.1 % | 88.8 % |            105 → 42 ms |
 | Mixed and turned tables                    | 82.0 % | 86.7 % |             53 → 41 ms |
 | Double desks with history and locks        | 83.4 % | 84.9 % |             62 → 27 ms |
+
+On 2026-10-29 a room of tables of six joined (`arrangeTables('group6', 5)`, 28 students), and the steps at a group table ([decision 0031, addendum of 2026-10-29](decisions/0031-one-criterion-model.md#addendum-of-2026-10-29-where-a-seat-sits-at-a-group-table)) moved the group tables: tables of four 88.8 → 89.7 %, tables of six 86.0 → 87.2 % (64 ms per mix), mixed and turned tables unchanged at 86.7 %, the double and single desks unchanged. The social roles at the group tables lose a few points, which the addendum explains.
 
 The schedule was checked again on the score itself, 20 seeds of 26 students at double desks: the default reached −173.5 (90.1 % fulfilment, 18 ms), cooling at 0.99 −176.1 (90.1 %, 48 ms), at 0.995 with 200 swaps per step −179.8 (91.0 %, 384 ms). One annealing comes close to its best, so the schedule stays and "Mischen" takes three starts instead, which settle what one leaves to chance for little time.
 

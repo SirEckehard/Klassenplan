@@ -135,7 +135,7 @@ describe('seatingStatistics', () => {
       expect(percentage('considerWishPartners')).toBe(100);
     });
 
-    it('counts the rest of a group table less, the desk behind least', () => {
+    it('counts across a group table less, diagonal less still, the desk behind least', () => {
       const ada = student('ada', { wishPartnerIds: ['grace'] });
       const grace = student('grace');
       const group = room([table(600, 100, 'group4')]);
@@ -143,7 +143,12 @@ describe('seatingStatistics', () => {
         fulfilment(group, [[ada, student('x'), grace, null]], {
           considerWishPartners: 8,
         }).percentage('considerWishPartners'),
-      ).toBeCloseTo(60, 5);
+      ).toBeCloseTo(80, 5);
+      expect(
+        fulfilment(group, [[ada, student('x'), null, grace]], {
+          considerWishPartners: 8,
+        }).percentage('considerWishPartners'),
+      ).toBeCloseTo(40, 5);
       expect(
         fulfilment(
           DESK_BEHIND_DESK,

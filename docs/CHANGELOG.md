@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Improved
 
+- At tables of four and six, mixing tells the seats apart: round the corner or across counts almost as close as the seat partner, a seat further away at the table a little less than the desk directly beside. Restless and distractible students no longer end up face to face or round a corner, wishes land closer together, and the gender mix also looks at the seat round the corner. A wish met round the corner or across counts 80 %, further away at the table 40 %
 - On a phone or a tablet held upright, the circle stands upright too, as the room and the seating plan do, so it fills the screen instead of a third of it and names and photos are about half again as large. Dragging follows the upright circle, and turning the device turns it into place; the order round the circle stays as it is
 - On a phone, "Mix" and "Align" stand with their words centred just above the status bar, within reach of the thumb, instead of squeezed into it beside the toolbar's switch, which they covered in the circle
 - On a phone and a tablet, the seating plan and the circle fit between the header and the status bar, so the page no longer scrolls a little way where the plan fits: on a tablet held upright, with a note above the plan, and in Safari on an iPhone. Only on a phone held sideways, where the plan would otherwise get too small, does the page still scroll

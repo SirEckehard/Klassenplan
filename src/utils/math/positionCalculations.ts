@@ -91,6 +91,16 @@ const getTemplateLayout = (
   return createFallbackLayout(seatCount);
 };
 
+/**
+ * Whether a table's seats sit as its template lays them out, rather than in
+ * the square grid a seat count the template does not know falls back to.
+ */
+export const hasTemplateSeatLayout = (
+  table: Pick<ClassroomTable, 'seatCount' | 'templateType'>,
+): boolean =>
+  TEMPLATE_SEAT_LAYOUTS[table.templateType ?? 'double']?.length ===
+  table.seatCount;
+
 const deriveGridMetrics = (positions: SeatLayoutPosition[]) => {
   let maxCol = 0;
   let maxRow = 0;

@@ -2,7 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 /**
  * How good the plans of "Mischen" are, by the fulfilment the teacher reads
- * (decision 0031): five rooms, thirty seeds each, every criterion's mean
+ * (decision 0031): six rooms, thirty seeds each, every criterion's mean
  * percentage, the weighted whole and the time per mix. Not part of the normal
  * run — it measures, it does not check:
  *
@@ -175,6 +175,11 @@ const fixtures: Fixture[] = [
     name: 'Vierertische (eingerichtet)',
     room: scene(arrangeTables('group4', 7)),
     students: 26,
+  },
+  {
+    name: 'Sechsertische (eingerichtet)',
+    room: scene(arrangeTables('group6', 5)),
+    students: 28,
   },
   {
     name: 'gemischt und gedreht',
