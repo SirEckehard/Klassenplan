@@ -107,6 +107,31 @@ describe('useSeatingGenerator releaseOpenPlan', () => {
     ]);
   });
 
+  it('opens the plan it let go of again when the room setup is undone', async () => {
+    const current = await renderGenerator();
+
+    act(() => {
+      current().actions.handleSaveSeatingPlan(
+        '7b Klassenraum',
+        current().state.classroomScene,
+      );
+    });
+    await waitFor(() => expect(current().state.activePlanId).not.toBeNull());
+    const planId = current().state.activePlanId!;
+
+    let released: string | null = null;
+    act(() => {
+      released = current().actions.releaseOpenPlan();
+    });
+    expect(released).toBe(planId);
+    await waitFor(() => expect(current().state.activePlanId).toBeNull());
+
+    act(() => current().actions.restoreOpenPlan(planId));
+
+    await waitFor(() => expect(current().state.activePlanId).toBe(planId));
+    expect(current().state.planName).toBe('7b Klassenraum');
+  });
+
   it('keeps the save before export from overwriting the plan it let go of', async () => {
     const current = await renderGenerator();
 

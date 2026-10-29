@@ -44,6 +44,7 @@ vi.mock('@/contexts/SeatingPlanContext', () => ({
     classroomScene: mocks.classroomScene,
     currentSeating: mocks.currentSeating,
     circleLayout: null,
+    lockedPositions: {},
     seatingMode: 'table',
     rooms: mocks.rooms,
     activeRoomId: mocks.activeRoomId,

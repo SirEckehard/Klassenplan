@@ -155,6 +155,7 @@ export function useSeatingPlanViewLogic({
     undo: undoScene,
     redo: redoScene,
     canRedo,
+    noteReleasedPlan,
   } = useSceneHistory({
     getCommittedSceneState,
     runSceneTransaction: runRestoreTransaction,
@@ -162,7 +163,17 @@ export function useSeatingPlanViewLogic({
     setAllFeatureVisibility,
     setSelectedTableIds,
     setSelectedFeatureIds,
+    restoreOpenPlan: seatingPlanActions?.restoreOpenPlan,
+    releaseOpenPlan: seatingPlanActions?.releaseOpenPlan,
   });
+
+  // Setting the room up anew lets the open plan go after its undo snapshot;
+  // the snapshot remembers it, so undoing the setup opens it again.
+  const releaseOpenPlan = seatingPlanActions?.releaseOpenPlan;
+  const handleRoomReplaced = React.useCallback(() => {
+    const released = releaseOpenPlan?.();
+    if (released) noteReleasedPlan(released);
+  }, [releaseOpenPlan, noteReleasedPlan]);
 
   const followLockedStudents = seatingPlanActions?.followLockedStudents;
   const undo = React.useCallback(() => {
@@ -524,7 +535,7 @@ export function useSeatingPlanViewLogic({
         onTableTypeChange={handleTypeChange}
         onTemplateChange={handleTemplateChangeWrapper}
         onLoadTemplateAsRoom={handleLoadTemplateAsRoom}
-        onRoomReplaced={seatingPlanActions?.releaseOpenPlan}
+        onRoomReplaced={handleRoomReplaced}
       />
     );
 

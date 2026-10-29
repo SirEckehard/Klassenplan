@@ -51,6 +51,13 @@ export interface ReloadClassDataOptions {
    * that carries the same id.
    */
   discardPending?: boolean;
+  /**
+   * The open class was only read back — another class was made or deleted
+   * beside it, a backup merged — so nothing in it changed: when the same
+   * class comes back, the name typed for a plan never saved and the notice
+   * that the class list changed since the last mix stay.
+   */
+  keepOpenClass?: boolean;
 }
 
 export interface ClassDataPersistenceReturn {
@@ -104,7 +111,10 @@ export function useClassDataPersistence(
   state: ClassDataState,
   queue: PersistQueueReturn,
   fetchPersistedState: () => Promise<LoadedSnapshot>,
-  applyPersistedState: (snapshot: LoadedSnapshot) => void,
+  applyPersistedState: (
+    snapshot: LoadedSnapshot,
+    options?: { keepOpenClass?: boolean },
+  ) => void,
   isRestoringRef: MutableRefObject<boolean>,
 ): ClassDataPersistenceReturn {
   const {
@@ -225,7 +235,9 @@ export function useClassDataPersistence(
         clearQueue();
 
         const snapshot = await fetchPersistedState();
-        applyPersistedState(snapshot);
+        applyPersistedState(snapshot, {
+          keepOpenClass: options?.keepOpenClass,
+        });
         const activeSnapshot = snapshot.activeClassSnapshotResult.success
           ? snapshot.activeClassSnapshotResult.data
           : null;

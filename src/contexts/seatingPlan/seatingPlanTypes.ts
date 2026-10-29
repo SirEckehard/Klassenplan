@@ -5,6 +5,7 @@ import type {
   Student,
   ClassroomScene,
   SeatingArrangement,
+  LockedPositions,
   MixSettings,
   SavedPlan,
   MixResult,
@@ -43,6 +44,8 @@ export interface SeatingPlanState {
   planName: string;
   /** The saved plan on screen, or null while it has never been saved. */
   activePlanId: string | null;
+  /** The seats locked in the table plan, which a saved plan keeps. */
+  lockedPositions: LockedPositions;
   /** The rooms of the open class (decision 0024). */
   rooms: RoomRecord[];
   /** The open room, whose tables, seating and plan are on screen. */
@@ -156,9 +159,15 @@ export interface SeatingPlanActions {
   deleteSeatingPlan: (id: string) => void;
   /**
    * Lets go of the open plan, name and all, so the next save starts a new
-   * entry — what replacing the room as a whole calls for.
+   * entry — what replacing the room as a whole calls for. Returns the plan let
+   * go of, or null when none was open.
    */
-  releaseOpenPlan: () => void;
+  releaseOpenPlan: () => string | null;
+  /**
+   * Opens the link to a saved plan again — what undoing the room's setup
+   * calls for; nothing happens when the plan is gone.
+   */
+  restoreOpenPlan: (id: string) => void;
   renameSeatingPlan: (id: string, name: string) => boolean;
   /**
    * Puts a mix back on screen in the room it was made in; `false` when it no

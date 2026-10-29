@@ -16,6 +16,7 @@ const mocks = vi.hoisted(() => ({
     currentSeating: [] as SeatingArrangement,
     seatingHistory: [] as SavedPlan[],
     circleLayout: null,
+    lockedPositions: {},
     seatingMode: 'table' as 'table' | 'circle',
   },
   handleSaveSeatingPlan: vi.fn(() => true),

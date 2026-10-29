@@ -141,6 +141,7 @@ export function useSeatingGenerator() {
     loadSeatingPlan,
     deleteSeatingPlan,
     releaseOpenPlan,
+    restoreOpenPlan,
     duplicateSeatingPlan,
     renameSeatingPlan,
     saveTemplate,
@@ -310,7 +311,9 @@ export function useSeatingGenerator() {
       const openBefore = activeClass?.id ?? null;
       setIsClassReloading(true);
       try {
-        const snapshot = await reloadCurrentClassData();
+        const snapshot = await reloadCurrentClassData({
+          keepOpenClass: !options?.replaced,
+        });
         // The same class read back as this window wrote it — another class
         // was created or deleted beside it — keeps its undo steps and what
         // is unsaved in it: nothing in it changed.
@@ -683,6 +686,7 @@ export function useSeatingGenerator() {
       hasUnsavedSeatingChanges,
       planName,
       activePlanId,
+      lockedPositions,
       rooms,
       activeRoomId,
       planNameError,
@@ -723,6 +727,7 @@ export function useSeatingGenerator() {
       hasUnsavedSeatingChanges,
       planName,
       activePlanId,
+      lockedPositions,
       rooms,
       activeRoomId,
       planNameError,
@@ -791,6 +796,7 @@ export function useSeatingGenerator() {
       handleHistoryLoad,
       deleteSeatingPlan,
       releaseOpenPlan,
+      restoreOpenPlan,
       renameSeatingPlan,
       openRoom,
       createRoom,
@@ -868,6 +874,7 @@ export function useSeatingGenerator() {
       handleHistoryLoad,
       deleteSeatingPlan,
       releaseOpenPlan,
+      restoreOpenPlan,
       renameSeatingPlan,
       openRoom,
       createRoom,

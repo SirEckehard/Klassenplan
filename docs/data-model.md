@@ -139,7 +139,9 @@ recommended 8 once. `neighborWeights` is still stored but no longer read.
   (`SavedPlan.scene`), so one class can hold a plan per room; loading a template
   or setting the room up anew clears `activePlanId` and the plan name
   (`releaseOpenPlan`), so the next save starts a new entry instead of writing
-  the new room over the open one.
+  the new room over the open one. Undoing the setup brings the old tables back
+  and opens the plan again (`restoreOpenPlan`, `HistorySnapshot.releasedPlanId`);
+  redoing it lets the plan go once more.
 - **`SavedPlan.date`** is an ISO date (`YYYY-MM-DD`). Older entries hold a
   pre-formatted German string; render both through `formatStoredDate`.
 - **`mixHistory`** keeps the last `MIX_HISTORY_LIMIT` (20) shuffle results, each

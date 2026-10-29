@@ -14,6 +14,13 @@ export interface HistorySnapshot {
   seating: SeatingArrangement;
   featureVisibility: FeatureVisibilityFlags;
   signature: string;
+  /**
+   * The plan setting the room up anew let go of: undoing to this snapshot
+   * opens it again, as the tables it was saved with come back.
+   */
+  releasedPlanId?: string;
+  /** Redoing to this snapshot lets that plan go again. */
+  releasesPlanId?: string;
 }
 
 export interface SceneHistoryHook {
@@ -24,6 +31,8 @@ export interface SceneHistoryHook {
   redo: () => void;
   canRedo: boolean;
   restoreFromSnapshot: (snap: HistorySnapshot) => void;
+  /** Notes on the last snapshot the plan that the step after it let go of. */
+  noteReleasedPlan: (planId: string) => void;
 }
 
 export interface UseSceneHistoryParams {
@@ -33,6 +42,10 @@ export interface UseSceneHistoryParams {
   setAllFeatureVisibility: (flags: FeatureVisibilityFlags) => void;
   setSelectedTableIds: React.Dispatch<React.SetStateAction<number[]>>;
   setSelectedFeatureIds: React.Dispatch<React.SetStateAction<string[]>>;
+  /** Opens the link to a saved plan again (`releasedPlanId`). */
+  restoreOpenPlan?: (planId: string) => void;
+  /** Lets the open plan go again (`releasesPlanId`). */
+  releaseOpenPlan?: () => void;
 }
 
 const FNV_OFFSET_BASIS = 0x811c9dc5;
@@ -183,6 +196,8 @@ export function useSceneHistory({
   setAllFeatureVisibility,
   setSelectedTableIds,
   setSelectedFeatureIds,
+  restoreOpenPlan,
+  releaseOpenPlan,
 }: UseSceneHistoryParams): SceneHistoryHook {
   const undoStackRef = React.useRef<HistorySnapshot[]>([]);
   const redoStackRef = React.useRef<HistorySnapshot[]>([]);
@@ -260,6 +275,15 @@ export function useSceneHistory({
     ],
   );
 
+  const noteReleasedPlan = React.useCallback((planId: string) => {
+    const stack = undoStackRef.current;
+    if (stack.length === 0) return;
+    stack[stack.length - 1] = {
+      ...stack[stack.length - 1],
+      releasedPlanId: planId,
+    };
+  }, []);
+
   const undo = React.useCallback(() => {
     const stack = undoStackRef.current;
     if (stack.length === 0) {
@@ -269,14 +293,18 @@ export function useSceneHistory({
     const target = stack[stack.length - 1];
     undoStackRef.current = stack.slice(0, -1);
 
-    // Preserve the live state so redo can return to it
-    redoStackRef.current = [...redoStackRef.current, captureCurrent()].slice(
+    // Preserve the live state so redo can return to it — and let the plan go
+    // again that this undo opens.
+    const live = captureCurrent();
+    if (target.releasedPlanId) live.releasesPlanId = target.releasedPlanId;
+    redoStackRef.current = [...redoStackRef.current, live].slice(
       -HISTORY_LIMIT,
     );
 
     restoreFromSnapshot(target);
+    if (target.releasedPlanId) restoreOpenPlan?.(target.releasedPlanId);
     syncMirrors();
-  }, [captureCurrent, restoreFromSnapshot, syncMirrors]);
+  }, [captureCurrent, restoreFromSnapshot, restoreOpenPlan, syncMirrors]);
 
   const redo = React.useCallback(() => {
     const stack = redoStackRef.current;
@@ -287,13 +315,16 @@ export function useSceneHistory({
     const target = stack[stack.length - 1];
     redoStackRef.current = stack.slice(0, -1);
 
-    undoStackRef.current = [...undoStackRef.current, captureCurrent()].slice(
+    const live = captureCurrent();
+    if (target.releasesPlanId) live.releasedPlanId = target.releasesPlanId;
+    undoStackRef.current = [...undoStackRef.current, live].slice(
       -HISTORY_LIMIT,
     );
 
     restoreFromSnapshot(target);
+    if (target.releasesPlanId) releaseOpenPlan?.();
     syncMirrors();
-  }, [captureCurrent, restoreFromSnapshot, syncMirrors]);
+  }, [captureCurrent, restoreFromSnapshot, releaseOpenPlan, syncMirrors]);
 
   const canUndo = history.length > 0;
   const canRedo = redoLength > 0;
@@ -306,5 +337,6 @@ export function useSceneHistory({
     redo,
     canRedo,
     restoreFromSnapshot,
+    noteReleasedPlan,
   };
 }

@@ -9,12 +9,18 @@ import { useOpenPlan } from '@/hooks/plan/useOpenPlan';
  * The saved plan on screen and whether the plan on screen differs from it.
  *
  * The mode decides which fields matter, so table plans keep ignoring the
- * circle layout. The exits save first when it differs (`usePlanExits`), and
+ * circle layout. A lock set or let go is a change too: the plan keeps its
+ * locks, and the next opening shows what was saved. The exits save first when it differs (`usePlanExits`), and
  * the plan's inspector states it under the plan's name.
  */
 export function usePlanSaveState() {
-  const { classroomScene, currentSeating, circleLayout, seatingMode } =
-    useSeatingPlanState();
+  const {
+    classroomScene,
+    currentSeating,
+    circleLayout,
+    lockedPositions,
+    seatingMode,
+  } = useSeatingPlanState();
   const openPlan = useOpenPlan();
 
   const hasUnsavedChanges = useCallback(() => {
@@ -22,10 +28,18 @@ export function usePlanSaveState() {
 
     if (!equal(openPlan.seating, currentSeating)) return true;
     if (!equal(openPlan.scene, classroomScene)) return true;
+    if (!equal(openPlan.locks ?? {}, lockedPositions)) return true;
     return (
       seatingMode === 'circle' && !equal(openPlan.circleLayout, circleLayout)
     );
-  }, [circleLayout, classroomScene, currentSeating, openPlan, seatingMode]);
+  }, [
+    circleLayout,
+    classroomScene,
+    currentSeating,
+    lockedPositions,
+    openPlan,
+    seatingMode,
+  ]);
 
   return { openPlan, hasUnsavedChanges };
 }

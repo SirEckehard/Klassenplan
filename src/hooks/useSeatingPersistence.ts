@@ -239,7 +239,7 @@ export function useSeatingPersistence(state: SeatingState) {
   }, [repository]);
 
   const applyPersistedState = useCallback(
-    (snapshot: LoadedSnapshot) => {
+    (snapshot: LoadedSnapshot, options?: { keepOpenClass?: boolean }) => {
       const { classCollectionResult, activeClassSnapshotResult } = snapshot;
 
       const nextActiveClassId =
@@ -252,6 +252,13 @@ export function useSeatingPersistence(state: SeatingState) {
             ? ((classCollectionResult.data as ClassCollectionState).classes[0]
                 ?.id ?? null)
             : null;
+
+      // The class on screen read back as it was written: what is not stored
+      // with it — the name of a plan never saved, the pending notice — stays.
+      const keepsOpenClass =
+        options?.keepOpenClass === true &&
+        nextActiveClassId !== null &&
+        nextActiveClassId === activeClassIdRef.current;
 
       isRestoringRef.current = true;
       if (nextActiveClassId) {
@@ -426,10 +433,12 @@ export function useSeatingPersistence(state: SeatingState) {
                   (plan) => plan.id === snapshotActivePlanId,
                 )?.name ?? '')
               : '';
-          setPlanName((prev) => {
-            if (prev === nextPlanName) return prev;
-            return nextPlanName;
-          });
+          if (!keepsOpenClass) {
+            setPlanName((prev) => {
+              if (prev === nextPlanName) return prev;
+              return nextPlanName;
+            });
+          }
         } else {
           // Fallback to safe empty state when no active class snapshot is available
           setStudents([]);
@@ -455,7 +464,9 @@ export function useSeatingPersistence(state: SeatingState) {
           );
         }
 
-        acknowledgeStudentUpdates();
+        if (!keepsOpenClass) {
+          acknowledgeStudentUpdates();
+        }
       });
 
       // Deactivate restore gate after the first post-render tick so queuePersist
@@ -660,14 +671,27 @@ export function useSeatingPersistence(state: SeatingState) {
   // room (a lab, a gym). Let go of the open one, name and all, so no save, the
   // one before export and present included, writes the new room over it: a
   // save then starts a new entry, and a name that stayed would be refused as
-  // taken. An undo of the room brings the room back but not this link; the
-  // next save starts a new plan rather than updating the old one, which loses
-  // nothing.
-  const releaseOpenPlan = useCallback(() => {
-    if (activePlanId === null) return;
+  // taken. Returns the plan let go of, so the room's undo can bring the link
+  // back with the tables (`restoreOpenPlan`) — without it, the exits saved the
+  // old tables as a second plan beside the first.
+  const releaseOpenPlan = useCallback((): string | null => {
+    if (activePlanId === null) return null;
     setActivePlanId(null);
     setPlanName('');
+    return activePlanId;
   }, [activePlanId, setActivePlanId, setPlanName]);
+
+  // Opens the link to a saved plan again — under the name it carries now —
+  // as long as the plan still exists.
+  const restoreOpenPlan = useCallback(
+    (id: string) => {
+      const plan = seatingHistory.find((entry) => entry.id === id);
+      if (!plan) return;
+      setActivePlanId(id);
+      setPlanName(plan.name);
+    },
+    [seatingHistory, setActivePlanId, setPlanName],
+  );
 
   // A copy of a saved plan beside it, under a free name ("September (2)"),
   // dated today; the open plan stays the one that was open.
@@ -846,7 +870,10 @@ export function useSeatingPersistence(state: SeatingState) {
           );
           throw new Error(result.error.message);
         }
-        await reloadCurrentClassData({ discardPending: replacing });
+        await reloadCurrentClassData({
+          discardPending: replacing,
+          keepOpenClass: !replacing,
+        });
       };
 
       // A merge builds on what is stored, so whatever the open class still
@@ -1157,6 +1184,7 @@ export function useSeatingPersistence(state: SeatingState) {
     loadSeatingPlan,
     deleteSeatingPlan,
     releaseOpenPlan,
+    restoreOpenPlan,
     duplicateSeatingPlan,
     renameSeatingPlan,
     saveTemplate,

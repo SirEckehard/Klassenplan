@@ -509,4 +509,65 @@ describe('useSceneHistory', () => {
     expect(result.current.history[0].scene.tables[0].x).toBe(100);
     expect(result.current.history[0].featureVisibility.board).toBe(true);
   });
+
+  it('opens the plan the room setup let go of when the setup is undone, and lets it go again on redo', () => {
+    const restoreOpenPlan = vi.fn();
+    const releaseOpenPlan = vi.fn();
+    const { result } = renderHook(() =>
+      useSceneHistory({
+        ...buildParams(),
+        restoreOpenPlan,
+        releaseOpenPlan,
+      }),
+    );
+
+    // "Neu einrichten": a snapshot, the open plan let go, new tables.
+    act(() => {
+      result.current.snapshot();
+      result.current.noteReleasedPlan('plan-1');
+    });
+    committedScene = { ...committedScene, tables: [createMockTable(5)] };
+
+    act(() => {
+      result.current.undo();
+    });
+    expect(restoreOpenPlan).toHaveBeenCalledWith('plan-1');
+    expect(releaseOpenPlan).not.toHaveBeenCalled();
+
+    act(() => {
+      result.current.redo();
+    });
+    expect(releaseOpenPlan).toHaveBeenCalledTimes(1);
+
+    act(() => {
+      result.current.undo();
+    });
+    expect(restoreOpenPlan).toHaveBeenCalledTimes(2);
+  });
+
+  it('leaves the open plan alone when an ordinary step is undone', () => {
+    const restoreOpenPlan = vi.fn();
+    const releaseOpenPlan = vi.fn();
+    const { result } = renderHook(() =>
+      useSceneHistory({
+        ...buildParams(),
+        restoreOpenPlan,
+        releaseOpenPlan,
+      }),
+    );
+
+    act(() => {
+      result.current.snapshot();
+    });
+    committedScene = { ...committedScene, totalStudents: 12 };
+    act(() => {
+      result.current.undo();
+    });
+    act(() => {
+      result.current.redo();
+    });
+
+    expect(restoreOpenPlan).not.toHaveBeenCalled();
+    expect(releaseOpenPlan).not.toHaveBeenCalled();
+  });
 });
