@@ -9,6 +9,7 @@ vi.mock('@/pages/lazyPages', () => {
     'startpage',
     'generator',
     'export',
+    'bibliothek',
     'present',
     'namensspiel',
     'wer-kommt-dran',

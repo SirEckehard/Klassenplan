@@ -12,6 +12,7 @@ vi.mock('idb-keyval', async () =>
 );
 
 import '@/i18n';
+import { unmountAndSettle } from '@/__tests__/utils/resetSeatingRepository';
 import { createMockStudent } from '@/__tests__/utils';
 import type { ClassCollectionState } from '@/types';
 import { createClassRecord } from '@/utils/data/classCollection';
@@ -69,7 +70,8 @@ describe('restoring a backup while another class is open', () => {
     } satisfies ClassCollectionState);
   });
 
-  afterEach(() => {
+  afterEach(async () => {
+    await unmountAndSettle();
     vi.unstubAllGlobals();
   });
 

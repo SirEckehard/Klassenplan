@@ -25,7 +25,10 @@ import LayoutEditorView from '@/components/SeatingPlanGenerator/LayoutEditorView
 import SeatingPlanEditorView from '@/components/SeatingPlanGenerator/SeatingPlanEditorView';
 import { useCanvasPreferences } from '@/contexts/seatingPlan/CanvasPreferencesContext';
 import { useOptionalSeatingPlanActions } from '@/contexts/SeatingPlanContext';
-import { useSceneHistory } from '@/hooks/scene/useSceneHistory';
+import {
+  useSceneHistory,
+  type SetupRelease,
+} from '@/hooks/scene/useSceneHistory';
 import { useSceneManager } from '@/hooks/scene/useSceneManager';
 import { useContextMenuIntegration } from '@/hooks/ui/useContextMenuIntegration';
 import { useFeatureVisibility } from '@/hooks/ui/useFeatureVisibility';
@@ -149,13 +152,34 @@ export function useSeatingPlanViewLogic({
     [runSceneTransaction, students],
   );
 
+  // Setting the room up anew lets go of the open plan and the locks, which
+  // belong to the tables it replaces; its undo snapshot keeps them, so undoing
+  // the setup puts them back and redoing it lets them go again.
+  const releaseOpenPlan = seatingPlanActions?.releaseOpenPlan;
+  const restoreOpenPlan = seatingPlanActions?.restoreOpenPlan;
+  const releaseLocks = seatingPlanActions?.releaseLocks;
+  const restoreLocks = seatingPlanActions?.restoreLocks;
+  const releaseForSetup = React.useCallback((): SetupRelease | null => {
+    const planId = releaseOpenPlan?.() ?? null;
+    const locks = releaseLocks?.() ?? {};
+    if (planId === null && Object.keys(locks).length === 0) return null;
+    return { planId, locks };
+  }, [releaseOpenPlan, releaseLocks]);
+  const restoreSetupRelease = React.useCallback(
+    ({ planId, locks }: SetupRelease) => {
+      if (planId) restoreOpenPlan?.(planId);
+      if (Object.keys(locks).length > 0) restoreLocks?.(locks);
+    },
+    [restoreOpenPlan, restoreLocks],
+  );
+
   const {
     history,
     snapshot,
     undo: undoScene,
     redo: redoScene,
     canRedo,
-    noteReleasedPlan,
+    noteSetupRelease,
   } = useSceneHistory({
     getCommittedSceneState,
     runSceneTransaction: runRestoreTransaction,
@@ -163,17 +187,14 @@ export function useSeatingPlanViewLogic({
     setAllFeatureVisibility,
     setSelectedTableIds,
     setSelectedFeatureIds,
-    restoreOpenPlan: seatingPlanActions?.restoreOpenPlan,
-    releaseOpenPlan: seatingPlanActions?.releaseOpenPlan,
+    restoreSetupRelease,
+    releaseForSetup,
   });
 
-  // Setting the room up anew lets the open plan go after its undo snapshot;
-  // the snapshot remembers it, so undoing the setup opens it again.
-  const releaseOpenPlan = seatingPlanActions?.releaseOpenPlan;
   const handleRoomReplaced = React.useCallback(() => {
-    const released = releaseOpenPlan?.();
-    if (released) noteReleasedPlan(released);
-  }, [releaseOpenPlan, noteReleasedPlan]);
+    const released = releaseForSetup();
+    if (released) noteSetupRelease(released);
+  }, [releaseForSetup, noteSetupRelease]);
 
   const followLockedStudents = seatingPlanActions?.followLockedStudents;
   const undo = React.useCallback(() => {

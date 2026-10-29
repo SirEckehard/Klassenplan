@@ -1,7 +1,12 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
-import type { ClassroomScene, SeatingArrangement, Student } from '@/types';
+import type {
+  ClassroomScene,
+  LockedPositions,
+  SeatingArrangement,
+  Student,
+} from '@/types';
 import { deepClone, getWishPartnerIds, getAvoidPartnerIds } from '@/utils';
 import { FEATURE_TYPES, type FeatureVisibilityFlags } from '@/utils/ui';
 import type {
@@ -15,12 +20,22 @@ export interface HistorySnapshot {
   featureVisibility: FeatureVisibilityFlags;
   signature: string;
   /**
-   * The plan setting the room up anew let go of: undoing to this snapshot
-   * opens it again, as the tables it was saved with come back.
+   * What setting the room up anew let go of: undoing to this snapshot puts it
+   * back, as the tables it belonged to come back.
    */
-  releasedPlanId?: string;
-  /** Redoing to this snapshot lets that plan go again. */
-  releasesPlanId?: string;
+  released?: SetupRelease;
+  /** Redoing to this snapshot sets the room up anew: it lets go again. */
+  releases?: boolean;
+}
+
+/**
+ * What setting the room up anew lets go of, since it belongs to the tables it
+ * replaces: the open plan, which no save may write the new tables over, and
+ * the locks, whose table and seat numbers name places that are gone.
+ */
+export interface SetupRelease {
+  planId: string | null;
+  locks: LockedPositions;
 }
 
 export interface SceneHistoryHook {
@@ -31,8 +46,8 @@ export interface SceneHistoryHook {
   redo: () => void;
   canRedo: boolean;
   restoreFromSnapshot: (snap: HistorySnapshot) => void;
-  /** Notes on the last snapshot the plan that the step after it let go of. */
-  noteReleasedPlan: (planId: string) => void;
+  /** Notes on the last snapshot what the step after it let go of. */
+  noteSetupRelease: (released: SetupRelease) => void;
 }
 
 export interface UseSceneHistoryParams {
@@ -42,10 +57,10 @@ export interface UseSceneHistoryParams {
   setAllFeatureVisibility: (flags: FeatureVisibilityFlags) => void;
   setSelectedTableIds: React.Dispatch<React.SetStateAction<number[]>>;
   setSelectedFeatureIds: React.Dispatch<React.SetStateAction<string[]>>;
-  /** Opens the link to a saved plan again (`releasedPlanId`). */
-  restoreOpenPlan?: (planId: string) => void;
-  /** Lets the open plan go again (`releasesPlanId`). */
-  releaseOpenPlan?: () => void;
+  /** Puts back what setting the room up anew let go of (`released`). */
+  restoreSetupRelease?: (released: SetupRelease) => void;
+  /** Lets it go again (`releases`), returning what it let go of. */
+  releaseForSetup?: () => SetupRelease | null;
 }
 
 const FNV_OFFSET_BASIS = 0x811c9dc5;
@@ -196,8 +211,8 @@ export function useSceneHistory({
   setAllFeatureVisibility,
   setSelectedTableIds,
   setSelectedFeatureIds,
-  restoreOpenPlan,
-  releaseOpenPlan,
+  restoreSetupRelease,
+  releaseForSetup,
 }: UseSceneHistoryParams): SceneHistoryHook {
   const undoStackRef = React.useRef<HistorySnapshot[]>([]);
   const redoStackRef = React.useRef<HistorySnapshot[]>([]);
@@ -275,13 +290,10 @@ export function useSceneHistory({
     ],
   );
 
-  const noteReleasedPlan = React.useCallback((planId: string) => {
+  const noteSetupRelease = React.useCallback((released: SetupRelease) => {
     const stack = undoStackRef.current;
     if (stack.length === 0) return;
-    stack[stack.length - 1] = {
-      ...stack[stack.length - 1],
-      releasedPlanId: planId,
-    };
+    stack[stack.length - 1] = { ...stack[stack.length - 1], released };
   }, []);
 
   const undo = React.useCallback(() => {
@@ -293,18 +305,18 @@ export function useSceneHistory({
     const target = stack[stack.length - 1];
     undoStackRef.current = stack.slice(0, -1);
 
-    // Preserve the live state so redo can return to it — and let the plan go
-    // again that this undo opens.
+    // Preserve the live state so redo can return to it — and let go again
+    // what this undo puts back.
     const live = captureCurrent();
-    if (target.releasedPlanId) live.releasesPlanId = target.releasedPlanId;
+    if (target.released) live.releases = true;
     redoStackRef.current = [...redoStackRef.current, live].slice(
       -HISTORY_LIMIT,
     );
 
     restoreFromSnapshot(target);
-    if (target.releasedPlanId) restoreOpenPlan?.(target.releasedPlanId);
+    if (target.released) restoreSetupRelease?.(target.released);
     syncMirrors();
-  }, [captureCurrent, restoreFromSnapshot, restoreOpenPlan, syncMirrors]);
+  }, [captureCurrent, restoreFromSnapshot, restoreSetupRelease, syncMirrors]);
 
   const redo = React.useCallback(() => {
     const stack = redoStackRef.current;
@@ -316,15 +328,17 @@ export function useSceneHistory({
     redoStackRef.current = stack.slice(0, -1);
 
     const live = captureCurrent();
-    if (target.releasesPlanId) live.releasedPlanId = target.releasesPlanId;
+    if (target.releases) {
+      const released = releaseForSetup?.();
+      if (released) live.released = released;
+    }
     undoStackRef.current = [...undoStackRef.current, live].slice(
       -HISTORY_LIMIT,
     );
 
     restoreFromSnapshot(target);
-    if (target.releasesPlanId) releaseOpenPlan?.();
     syncMirrors();
-  }, [captureCurrent, restoreFromSnapshot, releaseOpenPlan, syncMirrors]);
+  }, [captureCurrent, restoreFromSnapshot, releaseForSetup, syncMirrors]);
 
   const canUndo = history.length > 0;
   const canRedo = redoLength > 0;
@@ -337,6 +351,6 @@ export function useSceneHistory({
     redo,
     canRedo,
     restoreFromSnapshot,
-    noteReleasedPlan,
+    noteSetupRelease,
   };
 }

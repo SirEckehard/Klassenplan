@@ -3,7 +3,7 @@
 import React from 'react';
 import { act, render, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const { memory } = vi.hoisted(() => ({ memory: new Map<string, unknown>() }));
 
@@ -15,7 +15,10 @@ vi.mock('idb-keyval', async () =>
 
 import '@/i18n';
 import { createMockClassroomScene, createMockStudent } from '@/__tests__/utils';
-import { resetSeatingRepository } from '@/__tests__/utils/resetSeatingRepository';
+import {
+  resetSeatingRepository,
+  unmountAndSettle,
+} from '@/__tests__/utils/resetSeatingRepository';
 import type { ClassCollectionState, ClassroomTemplate } from '@/types';
 import { subscribeToToasts, type ToastInstance } from '@/utils/ui/toast';
 import {
@@ -49,7 +52,11 @@ describe('useSeatingGenerator rooms', () => {
     memory.clear();
     vi.stubGlobal('indexedDB', {});
     await resetSeatingRepository();
-    return () => vi.unstubAllGlobals();
+  });
+
+  afterEach(async () => {
+    await unmountAndSettle();
+    vi.unstubAllGlobals();
   });
 
   const renderGenerator = async () => {

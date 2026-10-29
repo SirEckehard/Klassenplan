@@ -3,7 +3,7 @@
 import React from 'react';
 import { act, render, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const { memory } = vi.hoisted(() => ({ memory: new Map<string, unknown>() }));
 
@@ -15,7 +15,10 @@ vi.mock('idb-keyval', async () =>
 
 import '@/i18n';
 import { createMockClassroomScene, createMockStudent } from '@/__tests__/utils';
-import { resetSeatingRepository } from '@/__tests__/utils/resetSeatingRepository';
+import {
+  resetSeatingRepository,
+  unmountAndSettle,
+} from '@/__tests__/utils/resetSeatingRepository';
 import {
   SeatingPlanGeneratorProvider,
   useSeatingPlanActions,
@@ -43,7 +46,11 @@ describe('useSeatingGenerator releaseOpenPlan', () => {
     memory.clear();
     vi.stubGlobal('indexedDB', {});
     await resetSeatingRepository();
-    return () => vi.unstubAllGlobals();
+  });
+
+  afterEach(async () => {
+    await unmountAndSettle();
+    vi.unstubAllGlobals();
   });
 
   const renderGenerator = async () => {
@@ -130,6 +137,32 @@ describe('useSeatingGenerator releaseOpenPlan', () => {
 
     await waitFor(() => expect(current().state.activePlanId).toBe(planId));
     expect(current().state.planName).toBe('7b Klassenraum');
+  });
+
+  it('lets every lock go for the new tables and puts them back on undo', async () => {
+    const current = await renderGenerator();
+
+    act(() => current().actions.toggleLock('s-0', 0, 0));
+    await waitFor(() =>
+      expect(current().state.lockedPositions).toEqual({
+        's-0': { table: 0, seat: 0 },
+      }),
+    );
+
+    let released = {};
+    act(() => {
+      released = current().actions.releaseLocks();
+    });
+    expect(released).toEqual({ 's-0': { table: 0, seat: 0 } });
+    await waitFor(() => expect(current().state.lockedPositions).toEqual({}));
+
+    act(() => current().actions.restoreLocks(released));
+
+    await waitFor(() =>
+      expect(current().state.lockedPositions).toEqual({
+        's-0': { table: 0, seat: 0 },
+      }),
+    );
   });
 
   it('keeps the save before export from overwriting the plan it let go of', async () => {

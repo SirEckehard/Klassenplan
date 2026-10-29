@@ -24,6 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Locking or unlocking a student in a saved plan counts as a change: the plan's inspector no longer says it is saved, and exporting or presenting saves it first, so the locks are there the next time the plan is opened
 - Making or deleting a class in "Library" or merging a backup keeps the name typed for a plan not saved yet and the note that the class has changed since the last mix
 - Undoing "Set up from scratch" in the room brings the plan that was open back as well, so exporting or presenting no longer saves it a second time under a new name
+- "Set up from scratch" lets go of the locks, which belonged to the tables it replaces: a locked student no longer ends up on whichever new seat happens to carry the old seat's number. Undoing the setup brings the locks back with the tables
+- "Where does who sit?" finds a name typed without its accents, as the class list does: "Celine" finds Céline, "Cagla" finds Çağla
 - Ctrl/⌘+Enter mixes again after clicking a student in the seating plan, instead of picking the student up to move them
 - After mixing, the students no longer jump half-way at the start of their glide on a slower computer: they set off from their old seats and glide the whole way at an even pace
 - A student gliding to a new seat already has the rounded corners and the table's outline of the seat they land in, so nothing jumps when they arrive; the preview while dragging a student is rounded like the tables too

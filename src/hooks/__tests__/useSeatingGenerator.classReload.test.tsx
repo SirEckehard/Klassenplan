@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import { act, cleanup, render, waitFor } from '@testing-library/react';
+import { act, render, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -14,7 +14,10 @@ vi.mock('idb-keyval', async () =>
 
 import '@/i18n';
 import { createMockStudent } from '@/__tests__/utils';
-import { resetSeatingRepository } from '@/__tests__/utils/resetSeatingRepository';
+import {
+  resetSeatingRepository,
+  unmountAndSettle,
+} from '@/__tests__/utils/resetSeatingRepository';
 import {
   SeatingPlanGeneratorProvider,
   useSeatingPlanActions,
@@ -44,8 +47,8 @@ describe('reading the open class back', () => {
     await resetSeatingRepository();
   });
 
-  afterEach(() => {
-    cleanup();
+  afterEach(async () => {
+    await unmountAndSettle();
     vi.unstubAllGlobals();
   });
 

@@ -26,7 +26,8 @@ interface UseRoomSetupParams {
   unfoldInspector: () => void;
   /**
    * The room was set up anew: what is on screen is another plan now, so the
-   * open one is let go and no save writes the new tables over it.
+   * open one is let go and no save writes the new tables over it, and so are
+   * the locks, whose seats are gone.
    */
   onRoomReplaced?: () => void;
 }
@@ -42,7 +43,8 @@ interface UseRoomSetupParams {
  *
  * Setting up replaces the tables of the open room in one go, so it takes an
  * undo snapshot first and lets go of the open plan — the next save starts a
- * new plan in this room rather than writing the new tables over the old one.
+ * new plan in this room rather than writing the new tables over the old one —
+ * and of the locks, which name seats of the tables replaced.
  * A template is a room of its own: loading one opens it as a new room of the
  * class (decision 0024), and the room left keeps its plan. Below `lg` the
  * drawer then steps aside to show the result. An empty room has one thing to

@@ -3,7 +3,7 @@
 import React from 'react';
 import { act, render, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const { memory } = vi.hoisted(() => ({ memory: new Map<string, unknown>() }));
 
@@ -19,7 +19,10 @@ import {
   createMockMixResult,
   createMockStudent,
 } from '@/__tests__/utils';
-import { resetSeatingRepository } from '@/__tests__/utils/resetSeatingRepository';
+import {
+  resetSeatingRepository,
+  unmountAndSettle,
+} from '@/__tests__/utils/resetSeatingRepository';
 import {
   SeatingPlanGeneratorProvider,
   useSeatingPlanActions,
@@ -50,7 +53,11 @@ describe('useSeatingGenerator puts back seating as the class is now', () => {
     memory.clear();
     vi.stubGlobal('indexedDB', {});
     await resetSeatingRepository();
-    return () => vi.unstubAllGlobals();
+  });
+
+  afterEach(async () => {
+    await unmountAndSettle();
+    vi.unstubAllGlobals();
   });
 
   const students = [

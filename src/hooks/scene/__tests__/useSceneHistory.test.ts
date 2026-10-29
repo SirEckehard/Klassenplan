@@ -510,49 +510,53 @@ describe('useSceneHistory', () => {
     expect(result.current.history[0].featureVisibility.board).toBe(true);
   });
 
-  it('opens the plan the room setup let go of when the setup is undone, and lets it go again on redo', () => {
-    const restoreOpenPlan = vi.fn();
-    const releaseOpenPlan = vi.fn();
+  it('puts back what the room setup let go of when it is undone, and lets it go again on redo', () => {
+    const released = {
+      planId: 'plan-1',
+      locks: { ada: { table: 0, seat: 1 } },
+    };
+    const restoreSetupRelease = vi.fn();
+    const releaseForSetup = vi.fn(() => released);
     const { result } = renderHook(() =>
       useSceneHistory({
         ...buildParams(),
-        restoreOpenPlan,
-        releaseOpenPlan,
+        restoreSetupRelease,
+        releaseForSetup,
       }),
     );
 
-    // "Neu einrichten": a snapshot, the open plan let go, new tables.
+    // "Neu einrichten": a snapshot, the plan and the locks let go, new tables.
     act(() => {
       result.current.snapshot();
-      result.current.noteReleasedPlan('plan-1');
+      result.current.noteSetupRelease(released);
     });
     committedScene = { ...committedScene, tables: [createMockTable(5)] };
 
     act(() => {
       result.current.undo();
     });
-    expect(restoreOpenPlan).toHaveBeenCalledWith('plan-1');
-    expect(releaseOpenPlan).not.toHaveBeenCalled();
+    expect(restoreSetupRelease).toHaveBeenCalledWith(released);
+    expect(releaseForSetup).not.toHaveBeenCalled();
 
     act(() => {
       result.current.redo();
     });
-    expect(releaseOpenPlan).toHaveBeenCalledTimes(1);
+    expect(releaseForSetup).toHaveBeenCalledTimes(1);
 
     act(() => {
       result.current.undo();
     });
-    expect(restoreOpenPlan).toHaveBeenCalledTimes(2);
+    expect(restoreSetupRelease).toHaveBeenCalledTimes(2);
   });
 
-  it('leaves the open plan alone when an ordinary step is undone', () => {
-    const restoreOpenPlan = vi.fn();
-    const releaseOpenPlan = vi.fn();
+  it('leaves the plan and the locks alone when an ordinary step is undone', () => {
+    const restoreSetupRelease = vi.fn();
+    const releaseForSetup = vi.fn(() => null);
     const { result } = renderHook(() =>
       useSceneHistory({
         ...buildParams(),
-        restoreOpenPlan,
-        releaseOpenPlan,
+        restoreSetupRelease,
+        releaseForSetup,
       }),
     );
 
@@ -567,7 +571,7 @@ describe('useSceneHistory', () => {
       result.current.redo();
     });
 
-    expect(restoreOpenPlan).not.toHaveBeenCalled();
-    expect(releaseOpenPlan).not.toHaveBeenCalled();
+    expect(restoreSetupRelease).not.toHaveBeenCalled();
+    expect(releaseForSetup).not.toHaveBeenCalled();
   });
 });

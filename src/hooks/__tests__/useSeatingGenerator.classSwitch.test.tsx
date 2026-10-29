@@ -14,6 +14,7 @@ vi.mock('idb-keyval', async () =>
 );
 
 import '@/i18n';
+import { unmountAndSettle } from '@/__tests__/utils/resetSeatingRepository';
 import { createMockStudent } from '@/__tests__/utils';
 import {
   SeatingPlanGeneratorProvider,
@@ -51,8 +52,9 @@ describe('useSeatingGenerator class switch', () => {
     (globalThis as ActEnvironment).IS_REACT_ACT_ENVIRONMENT = false;
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     (globalThis as ActEnvironment).IS_REACT_ACT_ENVIRONMENT = true;
+    await unmountAndSettle();
     vi.unstubAllGlobals();
   });
 

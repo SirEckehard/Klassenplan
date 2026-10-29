@@ -10,6 +10,7 @@ import { useSeatingPlanState } from '@/contexts/SeatingPlanContext';
 import { useIsDarkMode } from '@/hooks/useIsDarkMode';
 import {
   findSeatLocation,
+  foldForSearch,
   hasPlanForScene,
   inputFieldClass,
   quietIconButtonClass,
@@ -54,12 +55,14 @@ export default function SeatFinder() {
     return students.filter((student) => ids.has(student.id));
   }, [currentSeating, students]);
 
+  // Folded as the class list folds it: a name often known only by ear is
+  // typed without its accents ("Celine" finds "Céline").
   const matches = React.useMemo(() => {
-    const needle = query.trim().toLowerCase();
+    const needle = foldForSearch(query.trim());
     const pool = [...seated].sort((a, b) => a.name.localeCompare(b.name));
     if (!needle) return pool;
     return pool.filter((student) =>
-      student.name.toLowerCase().includes(needle),
+      foldForSearch(student.name).includes(needle),
     );
   }, [query, seated]);
 

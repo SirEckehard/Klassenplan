@@ -13,6 +13,7 @@ vi.mock('idb-keyval', async () =>
 
 import { set } from 'idb-keyval';
 import '@/i18n';
+import { unmountAndSettle } from '@/__tests__/utils/resetSeatingRepository';
 import { createMockStudent } from '@/__tests__/utils';
 import type { ClassCollectionState } from '@/types';
 import { createClassRecord } from '@/utils/data/classCollection';
@@ -50,7 +51,8 @@ describe('loading the classes', () => {
     });
   });
 
-  afterEach(() => {
+  afterEach(async () => {
+    await unmountAndSettle();
     vi.unstubAllGlobals();
   });
 

@@ -30,6 +30,7 @@ import { useStudentHistory } from './student/useStudentHistory';
 import type {
   ClassRecord,
   ClassroomScene as ClassroomSceneT,
+  LockedPositions,
   SeatingArrangement,
   Student,
 } from '@/types';
@@ -186,6 +187,22 @@ export function useSeatingGenerator() {
   const followLockedStudents = useCallback(
     (seating: SeatingArrangement) => {
       setLockedPositions((prev) => locksFollowingStudents(prev, seating));
+    },
+    [setLockedPositions],
+  );
+
+  // Setting the room up anew lets every lock go: its table and seat numbers
+  // name places of tables that are gone, and the next mix would put the
+  // student on whatever seat carries them now. The room's undo of the setup
+  // puts them back (`restoreLocks`).
+  const releaseLocks = useCallback((): LockedPositions => {
+    setLockedPositions({});
+    return lockedPositions;
+  }, [lockedPositions, setLockedPositions]);
+
+  const restoreLocks = useCallback(
+    (locks: LockedPositions) => {
+      setLockedPositions(locks);
     },
     [setLockedPositions],
   );
@@ -811,6 +828,8 @@ export function useSeatingGenerator() {
       setMixSettings,
       setCurrentSeating,
       followLockedStudents,
+      releaseLocks,
+      restoreLocks,
       importInputRef,
       triggerImport,
       handleExportAll,
@@ -889,6 +908,8 @@ export function useSeatingGenerator() {
       setMixSettings,
       setCurrentSeating,
       followLockedStudents,
+      releaseLocks,
+      restoreLocks,
       importInputRef,
       triggerImport,
       handleExportAll,

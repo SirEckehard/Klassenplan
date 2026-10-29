@@ -258,6 +258,18 @@ describe('Wo sitzt wer?', () => {
     expect(screen.getByTestId('presentation-scene')).toBeInTheDocument();
   });
 
+  it('finds a name whatever its accents, as the class list does', () => {
+    withPlan();
+
+    renderPage(<SeatFinder />);
+    fireEvent.change(screen.getByRole('searchbox'), {
+      target: { value: 'Çakir' },
+    });
+
+    expect(screen.getByText('Cem Cakir')).toBeInTheDocument();
+    expect(screen.getByText(/Tisch|Table/)).toBeInTheDocument();
+  });
+
   it('says so when nobody matches', () => {
     withPlan();
 

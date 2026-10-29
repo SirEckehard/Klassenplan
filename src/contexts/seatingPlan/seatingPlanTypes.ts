@@ -242,6 +242,10 @@ export interface SeatingPlanActions {
   setCurrentSeating: React.Dispatch<React.SetStateAction<SeatingArrangement>>;
   /** Moves each lock to where its student sits in `seating` (room undo). */
   followLockedStudents: (seating: SeatingArrangement) => void;
+  /** Lets every lock go and returns them — the room set up anew. */
+  releaseLocks: () => LockedPositions;
+  /** Puts locks let go of back — the room's setup undone. */
+  restoreLocks: (locks: LockedPositions) => void;
 }
 
 export type SeatingPlanSnapshot = {
