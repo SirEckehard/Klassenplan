@@ -140,7 +140,7 @@ export const STUDENT_COLORS = {
  * the back row can see. These are the only colours in the app that are not
  * tokens, on purpose: they are picked for a wall, not for a screen.
  */
-export const SEAT_CONTRAST_COLORS = {
+const SEAT_CONTRAST_COLORS = {
   fill: '#ffffff',
   emptyFill: '#ededed',
   stroke: '#000000',
@@ -215,7 +215,6 @@ export type StudentAppearance = {
   fill: string;
   stroke: string;
   text: string;
-  flags: typeof STUDENT_FLAGS;
 };
 
 /**
@@ -241,7 +240,7 @@ export function getStudentAppearance(
   locked = false,
   contrast = false,
   genderColors = false,
-): Omit<StudentAppearance, 'flags'> {
+): StudentAppearance {
   const mode = isDark ? 'dark' : 'light';
 
   // The projection's own palette outranks the theme and the seat's state:
@@ -596,7 +595,7 @@ const partnerNames = (ids: string[], allStudents: Student[]): string[] =>
  * // Returns: [{ key: 'wishPartner', label: 'Wunschpartner', icon: HeartHandshake, ... }]
  * ```
  */
-export function getPartnerBadges(
+function getPartnerBadges(
   student: Student | null,
   allStudents: Student[],
   showPartners = true,
@@ -649,7 +648,7 @@ export function getPartnerBadges(
  * // Returns: { key: 'heightSmall', label: 'Klein', icon: ArrowDown, ... } or null
  * ```
  */
-export function getHeightBadge(student: Student | null): HeightBadge | null {
+function getHeightBadge(student: Student | null): HeightBadge | null {
   if (!student?.height || student.height === 'medium') {
     return null; // Medium ist Neutralzustand
   }
@@ -678,7 +677,7 @@ export function getHeightBadge(student: Student | null): HeightBadge | null {
   };
 }
 
-export function getEnvironmentBadges(
+function getEnvironmentBadges(
   student: Student | null,
   showEnvironment = true,
 ): EnvironmentBadge[] {
@@ -743,7 +742,7 @@ const LANGUAGE_SKILL_CONFIG: Record<
 /**
  * Get language skill badge
  */
-export function getLanguageSkillBadge(
+function getLanguageSkillBadge(
   student: Student | null,
   showLanguage = true,
 ): LanguageSkillBadge | null {
@@ -787,7 +786,7 @@ const SOCIAL_ROLE_CONFIG: Record<SocialRole, { icon: Icon; label: string }> = {
 /**
  * Get social role badge
  */
-export function getSocialRoleBadge(
+function getSocialRoleBadge(
   student: Student | null,
   showSocialRole = true,
 ): SocialRoleBadge | null {
@@ -983,37 +982,4 @@ export function getAllStudentBadges(
   if (socialRoleBadge) badges.push(socialRoleBadge);
 
   return sortBadges(badges);
-}
-
-/**
- * Get complete student appearance including badges
- *
- * @param student - The student to get appearance for
- * @param isDark - Whether dark mode is active
- * @param options - Optional configuration
- * @returns Complete appearance object with colors and badges
- *
- * @example
- * ```typescript
- * const appearance = getCompleteStudentAppearance(student, isDark, {
- *   locked: false,
- *   showSpecialNeeds: true
- * });
- * // Returns: { fill, stroke, text, flags }
- * ```
- */
-export function getCompleteStudentAppearance(
-  student: Student | null,
-  isDark: boolean,
-  options?: {
-    locked?: boolean;
-    showSpecialNeeds?: boolean;
-  },
-): StudentAppearance {
-  const { locked = false, showSpecialNeeds = true } = options ?? {};
-
-  return {
-    ...getStudentAppearance(student, isDark, locked),
-    flags: getStudentBadges(student, showSpecialNeeds),
-  };
 }

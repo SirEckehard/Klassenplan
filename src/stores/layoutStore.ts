@@ -20,7 +20,7 @@ import { createFeatureStoreLogger } from './featureStores';
 import { evaluateStateUpdater } from './storeUtils';
 import type { CircleLayout, CircleGenerationStatus } from '@/types/Circle';
 
-export const createLayoutStore = (
+const createLayoutStore = (
   initialState?: Partial<LayoutStoreState>,
 ): LayoutStore => {
   const logger = createFeatureStoreLogger('layoutStore');

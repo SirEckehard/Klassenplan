@@ -9,12 +9,9 @@ export type {
 } from './seatingPlanTypes';
 
 export {
-  SeatingPlanStoreContext,
   shallowEqual,
-  useSeatingPlanStoreValue,
   useSeatingPlanSelector,
   useSeatingPlanState,
-  useOptionalSeatingPlanState,
   useOptionalSeatingPlanActions,
   useSeatingPlanActions,
   useSeatingPlan,

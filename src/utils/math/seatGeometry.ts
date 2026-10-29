@@ -152,17 +152,6 @@ const determineDirection = (a: SeatInfo, b: SeatInfo) => {
   return null;
 };
 
-export const filterNeighbors = (
-  neighbors: SeatNeighbor[] | undefined,
-  directions: SeatNeighborDirection[],
-) => {
-  if (!neighbors) {
-    return [];
-  }
-  const directionSet = new Set(directions);
-  return neighbors.filter((neighbor) => directionSet.has(neighbor.direction));
-};
-
 export const getSeatNeighborhoods = (() => {
   const cache = new WeakMap<ClassroomScene, SeatNeighborhoodMap>();
 

@@ -170,19 +170,6 @@ errorHandlers.storageError(
 );
 ```
 
-### 5.3 `safeTryCatch` for async boundaries
-
-At UI/service boundaries that consume external promises, [`safeTryCatch`](../src/utils/errorHandling.ts) provides a compact variant: run the operation, toast + log on failure, return undefined.
-
-```ts
-const result = await safeTryCatch(
-  () => exportPlanToPdf(plan),
-  ErrorCategory.EXPORT,
-  ErrorSeverity.ERROR,
-);
-if (!result) return; // Error has already been handled
-```
-
 ---
 
 ## 6. Anti-patterns

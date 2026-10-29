@@ -126,15 +126,3 @@ export function preloadLikelyRoutes(currentPath: string): void {
 
   scheduleIdleTask(preload, { timeout: 2000 });
 }
-
-/**
- * Preload route on link hover for instant navigation
- */
-export function preloadOnHover(routeName: string): (event: MouseEvent) => void {
-  return (event: MouseEvent) => {
-    // Only preload on hover for mouse devices (not touch)
-    if (event.type === 'mouseenter') {
-      preloadRoute(routeName);
-    }
-  };
-}

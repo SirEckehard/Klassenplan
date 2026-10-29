@@ -41,12 +41,3 @@ export const randomInt = (rng: RandomSource, maxExclusive: number): number => {
   if (maxExclusive <= 0) return 0;
   return Math.floor(rng() * maxExclusive);
 };
-
-/** Picks a random element, or `undefined` when the list is empty. */
-export const randomPick = <T>(
-  rng: RandomSource,
-  items: readonly T[],
-): T | undefined => {
-  if (items.length === 0) return undefined;
-  return items[randomInt(rng, items.length)];
-};

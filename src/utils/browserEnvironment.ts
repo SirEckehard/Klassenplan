@@ -9,7 +9,7 @@
 /**
  * Check whether a browser `window` object is available.
  */
-export function isBrowserEnvironment(): boolean {
+function isBrowserEnvironment(): boolean {
   return typeof window !== 'undefined';
 }
 
@@ -23,7 +23,7 @@ export function getBrowserWindow(): Window | undefined {
 /**
  * Execute a callback only when the browser `window` object is available.
  */
-export function withBrowserWindow<T>(
+function withBrowserWindow<T>(
   handler: (browserWindow: Window) => T,
   fallback?: T,
 ): T | undefined {
@@ -42,7 +42,7 @@ export function withBrowserWindow<T>(
 /**
  * Check whether `localStorage` is available.
  */
-export function hasBrowserLocalStorage(): boolean {
+function hasBrowserLocalStorage(): boolean {
   return withBrowserWindow((browserWindow) => {
     try {
       return typeof browserWindow.localStorage !== 'undefined';

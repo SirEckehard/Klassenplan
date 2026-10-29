@@ -59,18 +59,3 @@ export function getStudentValidationMessage(
     count: result.emptyNameCount,
   });
 }
-
-/**
- * Provide an informational hint for optional gender fields.
- * @param result Validation result from validateStudentsComplete
- * @returns Informational message string (empty string when no hint is needed)
- */
-export function getStudentGenderHintMessage(
-  result: StudentValidationResult,
-): string {
-  if (!result.hasMissingGender) return '';
-
-  return i18n.t('students:validation.genderHint', {
-    count: result.missingGenderCount,
-  });
-}

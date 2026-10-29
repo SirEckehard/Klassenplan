@@ -99,7 +99,7 @@ export const computePhotoCircles = (
  * classroom walls. Room features are ignored on purpose — they render behind
  * tables, so photos always cover them. Pairwise O(n²) is fine for ≤ 36 seats.
  */
-export const findPhotoCollisions = (
+const findPhotoCollisions = (
   circles: readonly PhotoCircle[],
 ): PhotoCircle[] => {
   const colliding = new Set<PhotoCircle>();

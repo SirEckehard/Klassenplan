@@ -4,7 +4,6 @@ import { describe, test, expect } from 'vitest';
 import {
   validateStudentsComplete,
   getStudentValidationMessage,
-  getStudentGenderHintMessage,
 } from '../studentValidation';
 import type { Student } from '../../../types';
 
@@ -306,51 +305,5 @@ describe('getStudentValidationMessage', () => {
     // Only the blocking issue (empty names) is reported; gender stays optional.
     expect(message).toContain('2');
     expect(message).not.toContain('3');
-  });
-});
-
-describe('getStudentGenderHintMessage', () => {
-  test('returns empty string when no gender is missing', () => {
-    const result = {
-      isValid: true,
-      hasEmptyNames: false,
-      hasMissingGender: false,
-      emptyNameCount: 0,
-      missingGenderCount: 0,
-    };
-
-    const message = getStudentGenderHintMessage(result);
-
-    expect(message).toBe('');
-  });
-
-  test('returns hint for single missing gender', () => {
-    const result = {
-      isValid: true,
-      hasEmptyNames: false,
-      hasMissingGender: true,
-      emptyNameCount: 0,
-      missingGenderCount: 1,
-    };
-
-    const message = getStudentGenderHintMessage(result);
-
-    expect(message).toMatch(/Geschlechtsangabe|gender information/i);
-    expect(message).toMatch(/optional/i);
-  });
-
-  test('returns hint for multiple missing genders', () => {
-    const result = {
-      isValid: true,
-      hasEmptyNames: false,
-      hasMissingGender: true,
-      emptyNameCount: 0,
-      missingGenderCount: 4,
-    };
-
-    const message = getStudentGenderHintMessage(result);
-
-    expect(message).toContain('4');
-    expect(message).toMatch(/Geschlechtsangaben|gender information/i);
   });
 });

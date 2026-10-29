@@ -7,7 +7,7 @@
 import { shuffleArray } from '@/utils';
 import type { Student } from '@/types';
 
-export const MEMORY_PAIRS_PER_ROUND = 8;
+const MEMORY_PAIRS_PER_ROUND = 8;
 const MIN_LAST_ROUND_PAIRS = 3;
 
 /**

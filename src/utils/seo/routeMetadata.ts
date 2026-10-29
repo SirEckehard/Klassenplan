@@ -56,15 +56,3 @@ export function getRouteMetadata(
     noindex: metadata.noindex,
   };
 }
-
-export function getAllRouteMetadata(): RouteMetadata[] {
-  return (routes as RawRouteMetadata[]).map((route) => ({
-    path: route.path,
-    title: route.title,
-    description: route.description,
-    changefreq: route.changefreq,
-    priority: route.priority,
-    ogType: route.ogType,
-    noindex: route.noindex,
-  }));
-}

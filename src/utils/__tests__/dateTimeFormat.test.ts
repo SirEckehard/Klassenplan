@@ -4,11 +4,9 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import {
   formatDate,
   formatDateAndTime,
-  formatDayMonth,
   formatLongDate,
   formatStoredDate,
   formatTime,
-  formatTimeWithSeconds,
   resetDateTimeFormatCache,
   resolveLocale,
   toIsoDate,
@@ -103,16 +101,10 @@ describe('dateTimeFormat', () => {
   describe('time formats', () => {
     it('formats German times as 24 hours', () => {
       expect(formatTime(REFERENCE, 'de')).toBe('14:05');
-      expect(formatTimeWithSeconds(REFERENCE, 'de')).toBe('14:05:03');
     });
 
     it('formats English times with a day period', () => {
       expect(formatTime(REFERENCE, 'en')).toMatch(/^02:05\sPM$/);
-    });
-
-    it('formats day and month only', () => {
-      expect(formatDayMonth(REFERENCE, 'de')).toBe('31.07.');
-      expect(formatDayMonth(REFERENCE, 'en')).toBe('07/31');
     });
   });
 

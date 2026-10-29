@@ -26,7 +26,6 @@ import {
   readValue,
   tryClearStore,
   tryDeleteValue,
-  tryDeleteValues,
   tryListEntries,
   tryListKeys,
   tryReadValue,
@@ -161,9 +160,6 @@ describe('Result variants', () => {
 
     idbMocks.del.mockRejectedValueOnce(new Error('x'));
     expect((await tryDeleteValue('a')).success).toBe(false);
-
-    idbMocks.del.mockRejectedValueOnce(new Error('x'));
-    expect((await tryDeleteValues(['a'])).success).toBe(false);
 
     idbMocks.keys.mockRejectedValueOnce(new Error('x'));
     expect((await tryListKeys()).success).toBe(false);

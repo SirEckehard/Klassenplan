@@ -199,8 +199,8 @@ Taste"), because speech input types words as keystrokes (WCAG 2.1.4).
 
 Never format a date with a hardcoded locale (`toLocaleDateString('de-DE')`).
 Use the helpers from `@/utils` (`formatDate`, `formatLongDate`, `formatTime`,
-`formatTimeWithSeconds`, `formatDayMonth`, `formatDateAndTime`), which resolve
-the locale from the active i18n language via `Intl.DateTimeFormat`.
+`formatDateAndTime`), which resolve the locale from the active i18n language
+via `Intl.DateTimeFormat`.
 `formatLongDate` spells the month out (`3. September 2026` / `September 3,
 2026`) and is what release dates render with.
 

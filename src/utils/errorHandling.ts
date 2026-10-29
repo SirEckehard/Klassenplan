@@ -224,45 +224,5 @@ export const errorHandlers = {
     ),
 };
 
-/**
- * Enhanced try-catch wrapper with automatic error handling
- *
- * @param operation - Async operation to execute
- * @param category - Error category
- * @param severity - Error severity (defaults to ERROR)
- * @param customMessage - Custom error message for users
- * @returns Promise that resolves with operation result or undefined on error
- */
-export async function safeTryCatch<T>(
-  operation: () => Promise<T>,
-  category: ErrorCategory,
-  severity: ErrorSeverity = ErrorSeverity.ERROR,
-  customMessage?: string,
-): Promise<T | undefined> {
-  try {
-    return await operation();
-  } catch (error) {
-    handleError(error as Error, category, severity, customMessage);
-    return undefined;
-  }
-}
-
-/**
- * Synchronous try-catch wrapper with automatic error handling
- */
-export function safeTryCatchSync<T>(
-  operation: () => T,
-  category: ErrorCategory,
-  severity: ErrorSeverity = ErrorSeverity.ERROR,
-  customMessage?: string,
-): T | undefined {
-  try {
-    return operation();
-  } catch (error) {
-    handleError(error as Error, category, severity, customMessage);
-    return undefined;
-  }
-}
-
 // Export enums for testing purposes only
 export { ErrorSeverity, ErrorCategory };

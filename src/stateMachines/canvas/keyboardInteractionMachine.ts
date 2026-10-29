@@ -39,7 +39,7 @@ export type KeyboardMachineEvent =
   | { type: 'SYNC_STATUS'; snapshot: KeyboardStatusSnapshot }
   | { type: 'RESET' };
 
-export const createKeyboardContext = (): KeyboardContext => ({
+const createKeyboardContext = (): KeyboardContext => ({
   selectionCount: 0,
   hasClipboardContent: false,
   focusInInput: false,

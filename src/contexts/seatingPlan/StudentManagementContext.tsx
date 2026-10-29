@@ -32,7 +32,7 @@ export const StudentManagementContext =
  * selectStudentManagementContext isolates student CRUD data/actions so the provider
  * can memoize a stable value without recomputing unrelated seating state.
  */
-export const selectStudentManagementContext = ({
+const selectStudentManagementContext = ({
   state,
   actions,
 }: SeatingPlanSnapshot): StudentManagementContextValue => ({

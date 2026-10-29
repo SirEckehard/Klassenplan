@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import { useCallback } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import type { NavigateOptions, To } from 'react-router-dom';
 import {
   createLocalizedPath,
@@ -46,14 +46,3 @@ export function useLocalizedNavigate() {
     [navigate, isEnglish],
   );
 }
-
-/**
- * Hook to get current path without language prefix.
- * Useful for language switching.
- */
-export const usePathWithoutLang = (): string => {
-  const location = useLocation();
-  return location.pathname.replace(/^\/(en|de)/, '') || '/';
-};
-
-export default useLocalizedNavigate;

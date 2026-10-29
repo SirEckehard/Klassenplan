@@ -51,7 +51,7 @@ const SeatingAlgorithmContext =
  * selectSeatingAlgorithmContext narrows the store snapshot to algorithm specific
  * state so the consumers only update when actual algorithm data changes.
  */
-export const selectSeatingAlgorithmContext = ({
+const selectSeatingAlgorithmContext = ({
   state,
   actions,
 }: SeatingPlanSnapshot): SeatingAlgorithmContextValue => ({

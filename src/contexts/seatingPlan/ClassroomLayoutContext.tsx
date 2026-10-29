@@ -39,7 +39,7 @@ const ClassroomLayoutContext =
  * selectClassroomLayoutContext exposes only layout specific state and actions
  * which keeps classroom consumers decoupled from student or algorithm updates.
  */
-export const selectClassroomLayoutContext = ({
+const selectClassroomLayoutContext = ({
   state,
   actions,
 }: SeatingPlanSnapshot): ClassroomLayoutContextValue => ({

@@ -78,22 +78,3 @@ export function createClientToSceneConverter({
       sceneHeight,
     });
 }
-
-export function convertClientPointToSvgCoordinates({
-  svg,
-  clientX,
-  clientY,
-}: {
-  svg: SVGSVGElement;
-  clientX: number;
-  clientY: number;
-}): { x: number; y: number } {
-  // The drawing's own units, turned or not.
-  const viewBox = svg.viewBox.baseVal;
-  const rect = svg.getBoundingClientRect();
-
-  return {
-    x: (clientX - rect.left) * (viewBox.width / rect.width) + viewBox.x,
-    y: (clientY - rect.top) * (viewBox.height / rect.height) + viewBox.y,
-  };
-}

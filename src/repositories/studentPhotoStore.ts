@@ -38,7 +38,7 @@ const LOG_SOURCE = 'studentPhotoStore';
 // Schema version of the photo store, kept under a reserved key inside the
 // store itself (mirrors CLASS_COLLECTION_VERSION for the class data). Bump it
 // when the stored format changes; readers can then branch on the old value.
-export const STUDENT_PHOTO_STORE_VERSION = 1;
+const STUDENT_PHOTO_STORE_VERSION = 1;
 const VERSION_KEY = '__photoStoreVersion';
 
 // Lazily created so importing this module never touches IndexedDB (keeps SSR

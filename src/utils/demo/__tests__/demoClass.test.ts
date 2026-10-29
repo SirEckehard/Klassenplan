@@ -9,8 +9,7 @@ import {
 import {
   getAvoidPartnerIds,
   getWishPartnerIds,
-  hasWishAvoidConflict,
-} from '@/utils/student';
+} from '@/utils/student/partnerUtils';
 import { countSeats } from '@/utils/math/scene';
 import { validateStudentsComplete } from '@/utils/validation';
 import {
@@ -66,8 +65,12 @@ describe('buildDemoStudents', () => {
         expect(ids.has(partnerId)).toBe(true);
         expect(partnerId).not.toBe(student.id);
       }
+      // Nobody wishes for a classmate who keeps their distance from them.
       for (const other of students) {
-        expect(hasWishAvoidConflict(student, other)).toBe(false);
+        const conflict =
+          wishes.includes(other.id) &&
+          getAvoidPartnerIds(other).includes(student.id);
+        expect(conflict).toBe(false);
       }
     }
   });

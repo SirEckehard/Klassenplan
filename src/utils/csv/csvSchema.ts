@@ -132,9 +132,3 @@ export const CSV_SOCIAL_ROLE_LABELS: Record<
     socialHub: 'Social hub',
   },
 };
-
-/**
- * Maximum number of names a wish/avoid partner cell may carry. The parser caps
- * at the same value; the template's example rows demonstrate it.
- */
-export const CSV_MAX_PARTNER_NAMES = 3;

@@ -7,7 +7,6 @@ import {
   getAdjacentSeats,
   getSeatPositions,
   getSeatNeighborhoods,
-  filterNeighbors,
 } from '../seatGeometry';
 import type { ClassroomScene } from '../../../types';
 import { createMockClassroomScene } from '../../../__tests__/utils';
@@ -887,7 +886,9 @@ describe('seatGeometry', () => {
 
       const neighborhoods = getSeatNeighborhoods(scene);
       const neighbors = neighborhoods.get('0-0');
-      const sideOnly = filterNeighbors(neighbors, ['side']);
+      const sideOnly = (neighbors ?? []).filter(
+        (neighbor) => neighbor.direction === 'side',
+      );
 
       expect(sideOnly.length).toBeGreaterThan(0);
       expect(sideOnly.every((neighbor) => neighbor.direction === 'side')).toBe(

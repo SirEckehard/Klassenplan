@@ -39,7 +39,7 @@ interface PhotoEntry {
  * callers are UI handlers that already show a toast on rejection — a silently
  * ignored failure would leave a photo visible that is not actually stored.
  */
-export class StudentPhotoStorageError extends Error {
+class StudentPhotoStorageError extends Error {
   readonly cause: RepositoryError;
 
   constructor(cause: RepositoryError) {

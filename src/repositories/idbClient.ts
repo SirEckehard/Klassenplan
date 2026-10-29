@@ -215,19 +215,6 @@ export const tryDeleteValue = async (
   }
 };
 
-/** {@link deleteValues} as a {@link Result}. */
-export const tryDeleteValues = async (
-  keys: readonly IDBValidKey[],
-  store?: IdbStore,
-): Promise<Result<void>> => {
-  try {
-    await deleteValues(keys, store);
-    return ResultHelpers.success(undefined);
-  } catch (error) {
-    return toStorageFailure(error, 'delete');
-  }
-};
-
 /** {@link listKeys} as a {@link Result}. */
 export const tryListKeys = async (
   store?: IdbStore,

@@ -7,7 +7,6 @@ import {
   getWishPartnerIds,
   getAvoidPartnerIds,
   isWishPair,
-  isMutualWish,
   withoutPartners,
 } from '../partnerUtils';
 
@@ -69,11 +68,6 @@ describe('partnerUtils', () => {
 
     it('is false when neither side wishes for the other', () => {
       expect(isWishPair(bob, createMockStudent({ id: 'carl' }))).toBe(false);
-    });
-
-    it('is wider than a mutual wish', () => {
-      expect(isMutualWish(alice, bob)).toBe(false);
-      expect(isWishPair(alice, bob)).toBe(true);
     });
   });
 

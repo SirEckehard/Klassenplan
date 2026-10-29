@@ -44,7 +44,7 @@ export interface LoggerCoreOptions {
   contextProvider?: LoggerContextProvider;
 }
 
-export function getLogLevelName(level: LogLevel): LogLevelName {
+function getLogLevelName(level: LogLevel): LogLevelName {
   return LOG_LEVEL_NAME_BY_VALUE[level];
 }
 

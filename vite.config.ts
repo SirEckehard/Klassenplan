@@ -559,7 +559,6 @@ export default defineConfig({
         'src/**/__tests__/**',
         'src/**/*.d.ts',
         'src/setupTests.ts',
-        'src/main.tsx',
         'src/vite-env.d.ts',
         // Pure re-export barrels have no logic to cover.
         'src/**/index.ts',

@@ -18,7 +18,6 @@ import {
   loadNameGameData,
   recordQuizAnswers,
   recordMemoryResult,
-  clearNameGameData,
   sweepOrphanNameGameStats,
 } from '../nameGameStatsStore';
 import { DB_KEYS } from '@/utils/data/storageKeys';
@@ -134,7 +133,6 @@ describe('without IndexedDB', () => {
 
     await recordQuizAnswers([{ studentId: 'a', correct: true }]);
     const best = await recordMemoryResult(8, 10, 1000);
-    await clearNameGameData();
 
     expect(best.moves).toBe(10);
     expect(await sweepOrphanNameGameStats([])).toBe(0);
@@ -144,14 +142,6 @@ describe('without IndexedDB', () => {
       memoryBest: {},
     });
     expect(memory.size).toBe(0);
-  });
-});
-
-describe('clearNameGameData', () => {
-  it('wipes the stored record', async () => {
-    await recordQuizAnswers([{ studentId: 'a', correct: true }]);
-    await clearNameGameData();
-    expect(memory.has(DB_KEYS.nameGameStats)).toBe(false);
   });
 });
 

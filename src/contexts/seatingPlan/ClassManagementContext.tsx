@@ -20,7 +20,7 @@ export interface ClassManagementContextValue {
 export const ClassManagementContext =
   React.createContext<ClassManagementContextValue | null>(null);
 
-export const selectClassManagementContext = ({
+const selectClassManagementContext = ({
   state,
   actions,
 }: SeatingPlanSnapshot): ClassManagementContextValue => ({

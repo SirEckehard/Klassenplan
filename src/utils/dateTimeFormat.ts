@@ -75,7 +75,7 @@ function toDate(value: Date | number | string): Date | null {
  * Returns an empty string for unparseable input so a broken timestamp cannot
  * render as `Invalid Date`.
  */
-export function formatDateTime(
+function formatDateTime(
   value: Date | number | string,
   options: Intl.DateTimeFormatOptions,
   language?: string,
@@ -114,14 +114,6 @@ export function formatLongDate(
   );
 }
 
-/** Day and month only, e.g. `31.07.` (de) / `07/31` (en). */
-export function formatDayMonth(
-  value: Date | number | string,
-  language?: string,
-): string {
-  return formatDateTime(value, { day: '2-digit', month: '2-digit' }, language);
-}
-
 /** Hours and minutes, e.g. `14:05` (de) / `2:05 PM` (en). */
 export function formatTime(
   value: Date | number | string,
@@ -130,18 +122,6 @@ export function formatTime(
   return formatDateTime(
     value,
     { hour: '2-digit', minute: '2-digit' },
-    language,
-  );
-}
-
-/** Hours, minutes and seconds. */
-export function formatTimeWithSeconds(
-  value: Date | number | string,
-  language?: string,
-): string {
-  return formatDateTime(
-    value,
-    { hour: '2-digit', minute: '2-digit', second: '2-digit' },
     language,
   );
 }

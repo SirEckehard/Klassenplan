@@ -171,26 +171,6 @@ export function isNameTruncated(
 }
 
 /**
- * Gets a preview of how a name will be displayed after truncation
- *
- * @param name - Full student name
- * @param context - Display context (defaults to 'table')
- * @returns Object with full name, truncated name, and whether truncation occurred
- */
-export function getNamePreview(
-  name: string,
-  context: DisplayContext = 'table',
-): { full: string; truncated: string; isTruncated: boolean } {
-  const full = name.trim();
-  const truncated = getDisplayName(name, context);
-  return {
-    full,
-    truncated,
-    isTruncated: truncated !== full,
-  };
-}
-
-/**
  * Uniform name display modes for the seating plan export.
  *
  * Unlike the context-based truncation above — which only shortens names that do

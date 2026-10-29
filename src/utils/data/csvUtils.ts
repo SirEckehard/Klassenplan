@@ -12,6 +12,7 @@ import {
   logDebug,
   logError,
   logWarn,
+  MAX_PARTNER_WISHES,
   MAX_STUDENT_NAME_LENGTH,
   MAX_STUDENTS,
 } from '@/utils';
@@ -1184,27 +1185,27 @@ export async function parseCsvFlexible(
 
     const students = studentsWithPartnerNames.map(
       ({ student, wishPartnerNames, avoidPartnerNames }) => {
-        // Resolve wish partner names to IDs (max 3)
+        // Resolve wish partner names to IDs, as many as the inspector allows
         const wishPartnerIds: string[] = [];
         for (const partnerName of wishPartnerNames) {
           const partnerId = nameToId.get(partnerName.toLowerCase());
           if (
             partnerId &&
             partnerId !== student.id &&
-            wishPartnerIds.length < 3
+            wishPartnerIds.length < MAX_PARTNER_WISHES
           ) {
             wishPartnerIds.push(partnerId);
           }
         }
 
-        // Resolve avoid partner names to IDs (max 3)
+        // Resolve avoid partner names to IDs, as many as the inspector allows
         const avoidPartnerIds: string[] = [];
         for (const partnerName of avoidPartnerNames) {
           const partnerId = nameToId.get(partnerName.toLowerCase());
           if (
             partnerId &&
             partnerId !== student.id &&
-            avoidPartnerIds.length < 3
+            avoidPartnerIds.length < MAX_PARTNER_WISHES
           ) {
             avoidPartnerIds.push(partnerId);
           }

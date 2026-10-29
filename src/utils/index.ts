@@ -40,10 +40,7 @@ export {
 
 // ===== Browser Environment =====
 export {
-  isBrowserEnvironment,
   getBrowserWindow,
-  withBrowserWindow,
-  hasBrowserLocalStorage,
   getBrowserLocalStorage,
   withBrowserLocalStorage,
   getBrowserDocument,
@@ -93,7 +90,6 @@ export {
   DEFAULT_WINDOW_FEATURES,
   DEFAULT_DOOR_FEATURES,
   DEFAULT_BOARD_FEATURE,
-  DEFAULT_PODIUM_FEATURE,
   PODIUM_WIDTH,
   PODIUM_HEIGHT,
   WHITEBOARD_WIDTH,
@@ -103,7 +99,6 @@ export {
   DIVIDER_WIDTH,
   DIVIDER_HEIGHT,
   MIN_FEATURE_SIZE,
-  WALL_FEATURE_THICKNESS,
   MIX_HISTORY_LIMIT,
   STUDENT_LIST_TOOLS_THRESHOLD,
   NAME_GAME_MIN_PHOTOS,
@@ -189,11 +184,7 @@ export {
   getAvoidPartnerIds,
   hasWishPartners,
   hasAvoidPartners,
-  wishesToSitWith,
-  wantsToAvoid,
   isWishPair,
-  isMutualWish,
-  hasWishAvoidConflict,
 } from './student/partnerUtils';
 
 // ===== Name Formatting =====
@@ -205,7 +196,6 @@ export {
   summarizeNameLabels,
   getTooltipName,
   isNameTruncated,
-  getNamePreview,
   foldForSearch,
   compareByLastName,
   isSameName,
@@ -225,12 +215,9 @@ export { createTimestampPlanName } from './planNames';
 export {
   formatDate,
   formatDateAndTime,
-  formatDateTime,
-  formatDayMonth,
   formatLongDate,
   formatStoredDate,
   formatTime,
-  formatTimeWithSeconds,
   resolveLocale,
   toIsoDate,
 } from './dateTimeFormat';
@@ -266,7 +253,6 @@ export {
 // ===== Canvas Utilities =====
 export {
   convertClientPointToScene,
-  convertClientPointToSvgCoordinates,
   convertScenePointToClient,
   createClientToSceneConverter,
 } from './canvas/coordinates';
@@ -291,7 +277,6 @@ export {
 } from './canvas/selectionRotation';
 export {
   ALIGNMENT_GUIDE_EPSILON,
-  ALIGNMENT_GUIDE_TOLERANCE,
   applyAlignmentToDelta,
   computeAlignmentSnap,
   getGroupAabb,
@@ -317,16 +302,11 @@ export { swallowReleaseClick } from './canvas/releaseClick';
 export { getRouteMetadata } from './seo/routeMetadata';
 
 // ===== Validation =====
-export {
-  stringValidation,
-  numberValidation,
-  emailValidation,
-} from './validation/schemas';
+export { stringValidation, numberValidation } from './validation/schemas';
 
 // ===== Criteria Validation =====
 export {
   isCriterionAvailable,
-  getAllCriteriaAvailability,
   type CriterionAvailability,
 } from './criteriaValidation';
 
@@ -421,7 +401,6 @@ export type { DataFamily } from './ui/designTokens';
 export {
   getViewportMetrics,
   onVisualViewport,
-  hasVisualViewport,
   type ViewportMetrics,
 } from './ui/viewport';
 

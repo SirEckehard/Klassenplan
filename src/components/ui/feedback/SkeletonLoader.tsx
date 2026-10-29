@@ -63,21 +63,3 @@ export function SkeletonCard({ className = '' }: SkeletonCardProps) {
     />
   );
 }
-
-interface SkeletonListProps {
-  rows?: number;
-  className?: string;
-}
-
-/**
- * A list of skeleton lines
- */
-export function SkeletonList({ rows = 5, className = '' }: SkeletonListProps) {
-  return (
-    <div className={`flex flex-col gap-3 ${className}`} aria-hidden="true">
-      {Array.from({ length: rows }).map((_, index) => (
-        <SkeletonLine key={index} width={index === rows - 1 ? '60%' : '100%'} />
-      ))}
-    </div>
-  );
-}

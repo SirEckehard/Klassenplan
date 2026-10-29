@@ -38,10 +38,10 @@ const loadBackupValidation = () =>
   import('@/utils/validation/backupValidation');
 
 const KDF_HASH = 'SHA-256';
-export const KDF_ITERATIONS = 600000;
+const KDF_ITERATIONS = 600000;
 // Backups written before the KDF parameters were stored in the envelope
 // were derived with this fixed iteration count and must stay importable.
-export const LEGACY_KDF_ITERATIONS = 250000;
+const LEGACY_KDF_ITERATIONS = 250000;
 
 /**
  * Chunk size for the Base64 conversion below. Well under the argument limit of

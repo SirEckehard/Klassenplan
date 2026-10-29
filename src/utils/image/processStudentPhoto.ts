@@ -190,22 +190,6 @@ export async function renderStudentPhotoBlob(
   return blob;
 }
 
-/**
- * Load, center-crop (square), downscale and JPEG-encode a user-selected image
- * with the default framing. Kept for the non-edited path; the crop editor uses
- * {@link loadImageBitmapFromFile} + {@link renderStudentPhotoBlob} directly.
- *
- * @throws {StudentPhotoError} for non-images, oversized inputs or decode errors.
- */
-export async function processStudentPhoto(file: File): Promise<Blob> {
-  const bitmap = await loadImageBitmapFromFile(file);
-  try {
-    return await renderStudentPhotoBlob(bitmap, defaultPhotoTransform());
-  } finally {
-    bitmap.close();
-  }
-}
-
 /** Convert a Blob to a base64 data URL (for SVG/PDF rendering and export). */
 export function blobToDataUrl(blob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {

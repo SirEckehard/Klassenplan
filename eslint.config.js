@@ -206,14 +206,7 @@ export default defineConfig([
 
   // Tooling-/Config-Dateien: Import-Regeln deaktivieren
   {
-    files: [
-      'vite.config.ts',
-      'playwright.config.ts',
-      'tailwind.config.ts',
-      'tailwind.config.js',
-      'postcss.config.js',
-      'eslint.config.js',
-    ],
+    files: ['vite.config.ts', 'playwright.config.ts', 'eslint.config.js'],
     languageOptions: {
       parserOptions: {
         project: null,

@@ -186,7 +186,7 @@ export const LEGACY_EXPORT_KEYS = {
  * stays in the cleanup list so a full data wipe removes it from existing
  * installations.
  */
-export const LEGACY_LANGUAGE_KEY = 'klassenplan-language';
+const LEGACY_LANGUAGE_KEY = 'klassenplan-language';
 
 // Type definitions
 export type LocalStorageKey = keyof typeof STORAGE_KEYS.localStorage;
@@ -263,24 +263,3 @@ export const PROJECT_LOCAL_STORAGE_KEYS = [
 
 export type ProjectLocalStorageKey =
   (typeof PROJECT_LOCAL_STORAGE_KEYS)[number];
-
-/**
- * Get all localStorage keys for the project
- */
-export function getLocalStorageKeys(): readonly string[] {
-  return PROJECT_LOCAL_STORAGE_KEYS;
-}
-
-/**
- * Get all IndexedDB keys for the project
- */
-export function getIndexedDBKeys(): readonly string[] {
-  return Object.values(STORAGE_KEYS.indexedDB);
-}
-
-/**
- * Get all storage keys (localStorage + IndexedDB) for the project
- */
-export function getAllStorageKeys(): readonly string[] {
-  return [...getLocalStorageKeys(), ...getIndexedDBKeys()];
-}

@@ -6,8 +6,6 @@ import {
   handleError,
   createAppError,
   errorHandlers,
-  safeTryCatch,
-  safeTryCatchSync,
   ErrorSeverity,
   ErrorCategory,
 } from '../errorHandling';
@@ -178,65 +176,6 @@ describe('errorHandling', () => {
 
       expect(showToastSpy).not.toHaveBeenCalled();
       expect(logInfo).toHaveBeenCalled();
-    });
-  });
-
-  describe('safeTryCatch', () => {
-    it('returns result when operation succeeds', async () => {
-      const operation = vi.fn().mockResolvedValue('success');
-
-      const result = await safeTryCatch(operation, ErrorCategory.STORAGE);
-
-      expect(result).toBe('success');
-      expect(showToastSpy).not.toHaveBeenCalled();
-    });
-
-    it('handles errors and returns undefined', async () => {
-      const operation = vi.fn().mockRejectedValue(new Error('failed'));
-
-      const result = await safeTryCatch(operation, ErrorCategory.STORAGE);
-
-      expect(result).toBeUndefined();
-      expect(showToastSpy).toHaveBeenCalled();
-    });
-
-    it('uses custom error message', async () => {
-      const operation = vi.fn().mockRejectedValue(new Error('failed'));
-
-      await safeTryCatch(
-        operation,
-        ErrorCategory.EXPORT,
-        ErrorSeverity.WARNING,
-        'Custom export message',
-      );
-
-      expect(showToastSpy).toHaveBeenCalledWith(
-        'warning',
-        'Custom export message',
-        { duration: 4000 },
-      );
-    });
-  });
-
-  describe('safeTryCatchSync', () => {
-    it('returns result when operation succeeds', () => {
-      const operation = vi.fn().mockReturnValue('success');
-
-      const result = safeTryCatchSync(operation, ErrorCategory.UI);
-
-      expect(result).toBe('success');
-      expect(showToastSpy).not.toHaveBeenCalled();
-    });
-
-    it('handles errors and returns undefined', () => {
-      const operation = vi.fn().mockImplementation(() => {
-        throw new Error('failed');
-      });
-
-      const result = safeTryCatchSync(operation, ErrorCategory.UI);
-
-      expect(result).toBeUndefined();
-      expect(showToastSpy).toHaveBeenCalled();
     });
   });
 });

@@ -4,8 +4,6 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import {
   isHapticFeedbackSupported,
   triggerHapticFeedback,
-  triggerCustomHapticFeedback,
-  stopHapticFeedback,
 } from '../hapticFeedback';
 
 // Mock navigator.vibrate
@@ -91,57 +89,6 @@ describe('hapticFeedback', () => {
 
       expect(() => triggerHapticFeedback('dragStart')).not.toThrow();
       expect(mockVibrate).toHaveBeenCalledWith(10);
-    });
-  });
-
-  describe('triggerCustomHapticFeedback', () => {
-    it('calls vibrate with custom pattern', () => {
-      triggerCustomHapticFeedback([100, 50, 100]);
-      expect(mockVibrate).toHaveBeenCalledWith([100, 50, 100]);
-    });
-
-    it('calls vibrate with single duration', () => {
-      triggerCustomHapticFeedback(200);
-      expect(mockVibrate).toHaveBeenCalledWith(200);
-    });
-
-    it('does not call vibrate when not supported', () => {
-      // @ts-expect-error - Testing undefined navigator
-      global.navigator = undefined;
-      triggerCustomHapticFeedback(100);
-      expect(mockVibrate).not.toHaveBeenCalled();
-    });
-
-    it('handles vibrate errors gracefully', () => {
-      mockVibrate.mockImplementation(() => {
-        throw new Error('Vibration not supported');
-      });
-
-      expect(() => triggerCustomHapticFeedback(100)).not.toThrow();
-      expect(mockVibrate).toHaveBeenCalledWith(100);
-    });
-  });
-
-  describe('stopHapticFeedback', () => {
-    it('calls vibrate with 0 to stop vibration', () => {
-      stopHapticFeedback();
-      expect(mockVibrate).toHaveBeenCalledWith(0);
-    });
-
-    it('does not call vibrate when not supported', () => {
-      // @ts-expect-error - Testing undefined navigator
-      global.navigator = undefined;
-      stopHapticFeedback();
-      expect(mockVibrate).not.toHaveBeenCalled();
-    });
-
-    it('handles vibrate errors gracefully', () => {
-      mockVibrate.mockImplementation(() => {
-        throw new Error('Vibration not supported');
-      });
-
-      expect(() => stopHapticFeedback()).not.toThrow();
-      expect(mockVibrate).toHaveBeenCalledWith(0);
     });
   });
 });

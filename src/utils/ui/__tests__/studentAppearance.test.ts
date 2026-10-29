@@ -7,7 +7,6 @@ import {
   getAvatarFrame,
   getStudentAppearance,
   getStudentBadges,
-  getCompleteStudentAppearance,
   getAllStudentBadges,
   getBadgeColor,
   DATA_FAMILY_TEXT_COLORS,
@@ -350,58 +349,6 @@ describe('studentAppearance', () => {
         'shy',
         'concentrationIssues',
       ]);
-    });
-  });
-
-  describe('getCompleteStudentAppearance', () => {
-    const studentWithFlags: Student = {
-      id: '1',
-      name: 'Alice',
-      gender: 'girl',
-      restless: true,
-      shy: false,
-      concentrationIssues: false,
-      needsFrontSeat: false,
-      performanceStrong: false,
-      performanceWeak: false,
-      wishPartnerId: null,
-    };
-
-    it('combines appearance and badges', () => {
-      const result = getCompleteStudentAppearance(studentWithFlags, false);
-      expect(result.fill).toBe('#ffffff');
-      expect(result.stroke).toBe('#cec8bb');
-      expect(result.text).toBe('#17181a');
-      expect(result.flags).toHaveLength(1);
-      expect(result.flags[0].key).toBe('restless');
-    });
-
-    it('respects locked option', () => {
-      const result = getCompleteStudentAppearance(studentWithFlags, false, {
-        locked: true,
-      });
-      expect(result.fill).toBe('#ffffff');
-      expect(result.stroke).toBe('#2563eb');
-    });
-
-    it('respects showSpecialNeeds option', () => {
-      const result = getCompleteStudentAppearance(studentWithFlags, false, {
-        showSpecialNeeds: false,
-      });
-      expect(result.flags).toHaveLength(0);
-    });
-
-    it('handles null student', () => {
-      const result = getCompleteStudentAppearance(null, false);
-      expect(result.fill).toBe('#f3f1ec');
-      expect(result.stroke).toBe('#e3dfd6');
-      expect(result.flags).toHaveLength(0);
-    });
-
-    it('uses default options when not provided', () => {
-      const result = getCompleteStudentAppearance(studentWithFlags, false);
-      expect(result.flags).toHaveLength(1);
-      expect(result.fill).toBe('#ffffff'); // Not locked
     });
   });
 

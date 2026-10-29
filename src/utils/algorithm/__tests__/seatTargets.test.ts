@@ -10,7 +10,6 @@ import {
   frontToBackTableOrder,
   seatTargetsFor,
   tableRowsFromFront,
-  swapOverfillsTable,
   tablesHeldByCount,
 } from '../seatTargets';
 import { generateSeatingPlan, refineSeatingLocal } from '../seatingAlgorithm';
@@ -187,42 +186,6 @@ describe('tablesHeldByCount', () => {
     );
 
     expect(held).toEqual(Array(9).fill(true));
-  });
-});
-
-describe('swapOverfillsTable', () => {
-  const [anna, ben, cem] = buildStudents(3);
-  const arrangement = [
-    [anna!, null],
-    [null, ben!],
-    [cem!, null],
-  ];
-  const targets = [2, 1, 1];
-  const held = [true, true, false];
-
-  it('refuses a student onto a held table that has its count', () => {
-    // Anna to the free front seat of table 1, beside Ben's locked back seat.
-    expect(swapOverfillsTable(arrangement, targets, held, 0, 0, 1, 0)).toBe(
-      true,
-    );
-  });
-
-  it('lets a student onto a held table below its count', () => {
-    expect(swapOverfillsTable(arrangement, targets, held, 1, 1, 0, 1)).toBe(
-      false,
-    );
-  });
-
-  it('leaves a table that is not held to the seat index', () => {
-    expect(swapOverfillsTable(arrangement, targets, held, 0, 0, 2, 1)).toBe(
-      false,
-    );
-  });
-
-  it('lets two students trade seats', () => {
-    expect(swapOverfillsTable(arrangement, targets, held, 0, 0, 1, 1)).toBe(
-      false,
-    );
   });
 });
 

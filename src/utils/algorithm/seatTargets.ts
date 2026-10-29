@@ -1,11 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import type {
-  ClassroomScene,
-  ClassroomTable,
-  SeatingArrangement,
-  Student,
-} from '@/types';
+import type { ClassroomScene, ClassroomTable, Student } from '@/types';
 import { CLASSROOM_HEIGHT, CLASSROOM_WIDTH } from '@/utils';
 import { evenTargetsFor } from '@/utils/distribution';
 import { isTableActive } from '../math/scene';
@@ -196,29 +191,4 @@ export function tablesHeldByCount(scene: ClassroomScene): boolean[] | null {
   if (scene.fillFromFront) return scene.tables.map(() => true);
   const held = scene.tables.map((table) => !isTableActive(table));
   return held.some(Boolean) ? held : null;
-}
-
-/**
- * Whether swapping seat `s1` of table `t1` with seat `s2` of table `t2` would
- * seat more students at a held table than its target. Only a student moving
- * onto an empty seat of another table changes the counts; a table already
- * over its target (a student put there by hand) may still lose students.
- */
-export function swapOverfillsTable(
-  arrangement: SeatingArrangement,
-  targets: number[],
-  held: boolean[],
-  t1: number,
-  s1: number,
-  t2: number,
-  s2: number,
-): boolean {
-  if (t1 === t2) return false;
-  const first = arrangement[t1]?.[s1];
-  const second = arrangement[t2]?.[s2];
-  if (Boolean(first) === Boolean(second)) return false;
-  const destination = first ? t2 : t1;
-  if (!held[destination]) return false;
-  const seated = arrangement[destination]?.filter(Boolean).length ?? 0;
-  return seated >= (targets[destination] ?? 0);
 }

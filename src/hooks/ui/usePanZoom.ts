@@ -276,5 +276,3 @@ export function usePanZoom({
     reset,
   };
 }
-
-export default usePanZoom;

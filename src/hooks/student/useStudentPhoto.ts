@@ -13,11 +13,7 @@ import {
   ensurePhotoLoaded,
 } from './studentPhotoCache';
 
-export {
-  getStudentPhoto,
-  getStudentPhotoDataUrl,
-  saveStudentPhoto,
-} from './studentPhotoCache';
+export { getStudentPhoto, saveStudentPhoto } from './studentPhotoCache';
 
 /**
  * Load and subscribe to a single student's photo.

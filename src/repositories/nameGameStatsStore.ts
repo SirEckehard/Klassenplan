@@ -13,7 +13,7 @@
  * without persistence. Failures are logged and swallowed here, at the one place
  * that knows they are harmless.
  */
-import { tryReadValue, tryWriteValue, tryDeleteValue } from './idbClient';
+import { tryReadValue, tryWriteValue } from './idbClient';
 import { DB_KEYS } from '@/utils/data/storageKeys';
 import { hasIndexedDB } from '@/utils/data/indexedDb';
 import { logError, logWarn } from '@/utils';
@@ -145,19 +145,6 @@ export async function recordMemoryResult(
   } catch (error) {
     logError('Failed to record memory result', { error }, LOG_SOURCE);
     return candidate;
-  }
-}
-
-/** Wipe all stored game data (quiz stats and memory best scores). */
-export async function clearNameGameData(): Promise<void> {
-  if (!hasIndexedDB()) return;
-  const result = await tryDeleteValue(DB_KEYS.nameGameStats);
-  if (!result.success) {
-    logError(
-      'Failed to clear name game data',
-      { error: result.error },
-      LOG_SOURCE,
-    );
   }
 }
 

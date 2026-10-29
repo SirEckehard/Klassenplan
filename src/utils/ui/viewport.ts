@@ -60,14 +60,3 @@ export function onVisualViewport(
   viewport.addEventListener(event, handler);
   return () => viewport.removeEventListener(event, handler);
 }
-
-/**
- * Check whether the current environment supports the VisualViewport API.
- */
-export function hasVisualViewport(): boolean {
-  if (typeof window === 'undefined') {
-    return false;
-  }
-
-  return Boolean(window.visualViewport);
-}

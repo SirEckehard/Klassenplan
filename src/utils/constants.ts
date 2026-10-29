@@ -96,7 +96,7 @@ export const CLASSROOM_HEIGHT = 600;
 // in the room, so they all share the same thickness and only resize in
 // length along their wall. Must stay >= MIN_ICON_EDGE in FeatureShape so the
 // feature icons render.
-export const WALL_FEATURE_THICKNESS = 20;
+const WALL_FEATURE_THICKNESS = 20;
 
 // Dimensions of the classroom board (pixels)
 export const BOARD_WIDTH = WALL_FEATURE_THICKNESS;
@@ -185,20 +185,6 @@ export const DEFAULT_BOARD_FEATURE: ClassroomFeature = {
   movable: false,
   label: 'board', // Use getFeatureLabel('board') for translated label
   rotation: 0,
-};
-
-export const DEFAULT_PODIUM_FEATURE: ClassroomFeature = {
-  id: 'podium-main',
-  type: 'podium',
-  visible: true,
-  x: Math.round(CLASSROOM_WIDTH / 2 - PODIUM_WIDTH / 2),
-  y: Math.round(CLASSROOM_HEIGHT * 0.08),
-  width: PODIUM_WIDTH,
-  height: PODIUM_HEIGHT,
-  anchor: 'free',
-  movable: true,
-  label: 'podium', // Use getFeatureLabel('podium') for translated label
-  rotation: 90,
 };
 
 export const DEFAULT_CLASSROOM_SCENE: ClassroomScene = {

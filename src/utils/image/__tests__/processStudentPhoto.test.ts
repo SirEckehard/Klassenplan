@@ -2,8 +2,9 @@
 // Copyright (C) 2026 Eike Schäfer
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import {
-  processStudentPhoto,
   loadImageBitmapFromBlob,
+  loadImageBitmapFromFile,
+  renderStudentPhotoBlob,
   clampPhotoTransform,
   defaultPhotoTransform,
   blobToDataUrl,
@@ -18,10 +19,10 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-describe('processStudentPhoto validation', () => {
+describe('loadImageBitmapFromFile', () => {
   it('rejects non-image files', async () => {
     const file = new File(['x'], 'note.txt', { type: 'text/plain' });
-    await expect(processStudentPhoto(file)).rejects.toThrowError(
+    await expect(loadImageBitmapFromFile(file)).rejects.toThrowError(
       new StudentPhotoError(STUDENT_PHOTO_ERRORS.notImage),
     );
   });
@@ -31,7 +32,7 @@ describe('processStudentPhoto validation', () => {
     Object.defineProperty(file, 'size', {
       value: MAX_INPUT_PHOTO_BYTES + 1,
     });
-    await expect(processStudentPhoto(file)).rejects.toThrowError(
+    await expect(loadImageBitmapFromFile(file)).rejects.toThrowError(
       new StudentPhotoError(STUDENT_PHOTO_ERRORS.tooLarge),
     );
   });
@@ -75,11 +76,10 @@ describe('loadImageBitmapFromBlob', () => {
   });
 });
 
-describe('processStudentPhoto pipeline', () => {
-  it('cover-fits the source centered and encodes JPEG, closing the bitmap', async () => {
-    const close = vi.fn();
+describe('renderStudentPhotoBlob', () => {
+  it('cover-fits the source centered and encodes JPEG', async () => {
     // Landscape source 400x300 -> cover base = 160 / min(400,300) = 160/300.
-    const bitmap = { width: 400, height: 300, close };
+    const bitmap = { width: 400, height: 300, close: vi.fn() };
     vi.stubGlobal(
       'createImageBitmap',
       vi.fn(async () => bitmap),
@@ -110,11 +110,13 @@ describe('processStudentPhoto pipeline', () => {
       });
 
     const file = new File(['img'], 'photo.png', { type: 'image/png' });
-    const result = await processStudentPhoto(file);
+    const result = await renderStudentPhotoBlob(
+      await loadImageBitmapFromFile(file),
+      defaultPhotoTransform(),
+    );
 
     expect(result.type).toBe('image/jpeg');
     expect(toBlob).toHaveBeenCalledOnce();
-    expect(close).toHaveBeenCalledOnce();
     // Cover-fit base scale applied uniformly, source drawn centered on origin.
     expect(scale).toHaveBeenCalledWith(160 / 300, 160 / 300);
     expect(drawImage).toHaveBeenCalledWith(bitmap, -200, -150);

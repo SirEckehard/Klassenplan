@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import { describe, expect, test } from 'vitest';
+import { MAX_PARTNER_WISHES } from '@/utils';
 import { buildCsvTemplate } from '@/utils/csv/csvTemplateDownload';
-import { CSV_MAX_PARTNER_NAMES, type CsvLanguage } from '@/utils/csv/csvSchema';
+import type { CsvLanguage } from '@/utils/csv/csvSchema';
 import { parseCsvFlexible } from '@/utils/data/csvUtils';
 
 const importTemplate = (language: CsvLanguage) => {
@@ -102,7 +103,7 @@ describe.each(['de', 'en'] as const)('CSV template (%s)', (language) => {
       idOf(names.tom),
     ]);
     expect(byName.get(names.lisa)?.wishPartnerIds).toHaveLength(
-      CSV_MAX_PARTNER_NAMES,
+      MAX_PARTNER_WISHES,
     );
     expect(byName.get(names.tom)?.avoidPartnerIds).toEqual([
       idOf(names.anna),

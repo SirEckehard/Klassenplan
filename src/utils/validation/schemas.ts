@@ -5,9 +5,6 @@
  * Ersetzt duplizierten Validierungscode in Components
  */
 
-// Re-export validation constants from backupLimits
-export { BACKUP_LIMITS } from './backupLimits';
-
 /**
  * Common validation result type
  */
@@ -110,35 +107,6 @@ export const stringValidation = {
       maxLength: 120, // From BACKUP_LIMITS
       trim: true,
     });
-  },
-};
-
-/**
- * Email validation utilities
- */
-export const emailValidation = {
-  // Common email regex pattern
-  EMAIL_PATTERN: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-
-  /**
-   * Validate email address
-   */
-  validate(value: unknown): ValidationResult {
-    const stringResult = stringValidation.validate(value, { required: true });
-    if (!stringResult.isValid) {
-      return stringResult;
-    }
-
-    const email = (value as string).trim();
-
-    if (!this.EMAIL_PATTERN.test(email)) {
-      return {
-        isValid: false,
-        error: 'Ungültige E-Mail-Adresse',
-      };
-    }
-
-    return { isValid: true };
   },
 };
 
@@ -254,81 +222,5 @@ export const numberValidation = {
       max: maxStudents,
       integer: true,
     });
-  },
-};
-
-/**
- * Array validation utilities
- */
-export const arrayValidation = {
-  /**
-   * Validate array length
-   */
-  validateLength(
-    array: unknown,
-    minLength = 0,
-    maxLength = Infinity,
-  ): ValidationResult {
-    if (!Array.isArray(array)) {
-      return {
-        isValid: false,
-        error: 'Wert muss ein Array sein',
-      };
-    }
-
-    if (array.length < minLength) {
-      return {
-        isValid: false,
-        error: `Mindestens ${minLength} Elemente erforderlich`,
-      };
-    }
-
-    if (array.length > maxLength) {
-      return {
-        isValid: false,
-        error: `Maximal ${maxLength} Elemente erlaubt`,
-      };
-    }
-
-    return { isValid: true };
-  },
-
-  /**
-   * Check if array is not empty
-   */
-  hasElements(array: unknown): ValidationResult {
-    return this.validateLength(array, 1);
-  },
-};
-
-/**
- * Form validation helper
- */
-export const formValidation = {
-  /**
-   * Validate multiple fields and return aggregated errors
-   */
-  validateFields(
-    fields: Record<
-      string,
-      { value: unknown; validators: (() => ValidationResult)[] }
-    >,
-  ): { isValid: boolean; errors: Record<string, string> } {
-    const errors: Record<string, string> = {};
-
-    for (const [fieldName, { validators }] of Object.entries(fields)) {
-      for (const validator of validators) {
-        const result = validator();
-        if (!result.isValid) {
-          errors[fieldName] = result.error || 'Ungültiger Wert';
-          break; // Stop at first error per field
-        }
-      }
-    }
-
-    return {
-      isValid: Object.keys(errors).length === 0,
-      errors,
-    };
   },
 };

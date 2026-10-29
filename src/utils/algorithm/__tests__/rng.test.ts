@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import { describe, it, expect } from 'vitest';
-import { createRng, randomInt, randomPick } from '../rng';
+import { createRng, randomInt } from '../rng';
 
 describe('createRng', () => {
   it('produces the same sequence for the same seed', () => {
@@ -66,19 +66,5 @@ describe('randomInt', () => {
     const rng = createRng(7);
     expect(randomInt(rng, 0)).toBe(0);
     expect(randomInt(rng, -3)).toBe(0);
-  });
-});
-
-describe('randomPick', () => {
-  it('picks an element of the list', () => {
-    const rng = createRng(42);
-    const items = ['a', 'b', 'c'];
-    for (let i = 0; i < 50; i++) {
-      expect(items).toContain(randomPick(rng, items));
-    }
-  });
-
-  it('returns undefined for an empty list', () => {
-    expect(randomPick(createRng(1), [])).toBeUndefined();
   });
 });

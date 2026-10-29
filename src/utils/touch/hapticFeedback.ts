@@ -85,33 +85,3 @@ export function triggerHapticFeedback(event: HapticEvent): void {
     // Silently fail if vibration is not supported or fails
   }
 }
-
-/**
- * Trigger haptic feedback with custom vibration pattern
- */
-export function triggerCustomHapticFeedback(pattern: number | number[]): void {
-  if (!isHapticFeedbackSupported()) {
-    return;
-  }
-
-  try {
-    navigator.vibrate(pattern);
-  } catch {
-    // Silently fail if vibration is not supported or fails
-  }
-}
-
-/**
- * Stop any ongoing haptic feedback
- */
-export function stopHapticFeedback(): void {
-  if (!isHapticFeedbackSupported()) {
-    return;
-  }
-
-  try {
-    navigator.vibrate(0);
-  } catch {
-    // Silently fail
-  }
-}

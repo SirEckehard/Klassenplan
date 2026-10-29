@@ -8,7 +8,7 @@ type NormalizePlanIdResult = { id: string; regenerated: boolean };
 const DEFAULT_LOG_SOURCE = 'planNormalization';
 const DEFAULT_LOG_MESSAGE = 'Adjusted seating plan IDs to ensure uniqueness';
 
-export function normalizePlanId(value: unknown): NormalizePlanIdResult {
+function normalizePlanId(value: unknown): NormalizePlanIdResult {
   if (typeof value === 'string' && value.trim()) {
     return { id: value, regenerated: false };
   }

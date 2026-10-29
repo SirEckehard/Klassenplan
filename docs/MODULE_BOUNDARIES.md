@@ -83,6 +83,6 @@ Until 2026-09-14 five utils modules imported layers above them. Each moved to th
    ```
 2. **Algorithm logic:** UI code reaches it through hooks and contexts; the exceptions are listed above.
 3. **Persistence:** Components interact with hooks and contexts, never with repositories or `@/utils/data` directly. Storage keys for UI preferences come from `@/utils`.
-4. **UI support:** UI components use `@/utils` for tokens and toasts. Special cases (e.g. `responsiveViewBox`) live in `@/utils/ui` and are only imported when they are not already available via the index.
+4. **UI support:** UI components use `@/utils` for tokens and toasts. Special cases (e.g. `seatBadges`) live in `@/utils/ui` and are only imported when they are not already available via the index.
 5. **No component imports in utils:** Anything that renders components belongs in `@/services`.
 6. **Tests:** May import namespace internals to set up fixtures; otherwise the same structure applies.

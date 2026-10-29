@@ -5,7 +5,7 @@ import type { FeatureVisibilityFlags } from '../ui/featureStyles';
 import { getRotatedAabbHalfExtents } from '../math/rotation';
 
 /** Snap distance to an alignment guide, in scene units (same as GRID_SNAP_SIZE). */
-export const ALIGNMENT_GUIDE_TOLERANCE = 5;
+const ALIGNMENT_GUIDE_TOLERANCE = 5;
 /**
  * Threshold treating a guide as exactly hit. Used for the render pass on the
  * final clamped position so only truly aligned guides are shown.

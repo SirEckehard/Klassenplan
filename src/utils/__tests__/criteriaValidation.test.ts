@@ -2,10 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import { describe, test, expect } from 'vitest';
 import type { Student } from '../../types';
-import {
-  isCriterionAvailable,
-  getAllCriteriaAvailability,
-} from '../criteriaValidation';
+import { isCriterionAvailable } from '../criteriaValidation';
 import { buildDemoStudents } from '../demo/demoClass';
 
 // Helper function to create test students
@@ -348,95 +345,6 @@ describe('criteriaValidation', () => {
       );
       expect(result.available).toBe(true);
       expect(result.reason).toBeUndefined();
-    });
-  });
-
-  describe('getAllCriteriaAvailability', () => {
-    test('returns availability for all criteria', () => {
-      const students = [
-        createStudent('1', {
-          wishPartnerId: '2',
-          avoidPartnerId: '3',
-          restless: true,
-          concentrationIssues: true,
-          shy: true,
-          performanceStrong: true,
-          needsFrontSeat: true,
-          height: 'small',
-          prefersWindow: true,
-          languageSkill: 'native',
-          socialRole: 'mediator',
-        }),
-        createStudent('2', {
-          restless: true,
-          concentrationIssues: true,
-          prefersDoor: true,
-          languageSkill: 'beginner',
-        }),
-        createStudent('3', { gender: 'girl' }),
-      ];
-
-      const result = getAllCriteriaAvailability(students);
-
-      expect(result.size).toBe(16);
-      expect(result.get('considerWishPartners')?.available).toBe(true);
-      expect(result.get('avoidConflictPartners')?.available).toBe(true);
-      expect(result.get('avoidPreviousPairs')?.available).toBe(true);
-      expect(result.get('avoidRestlessTogether')?.available).toBe(true);
-      expect(result.get('avoidConcentrationTogether')?.available).toBe(true);
-      expect(result.get('avoidConcentrationNearRestless')?.available).toBe(
-        true,
-      );
-      expect(result.get('preferGenderMix')?.available).toBe(true);
-      expect(result.get('avoidShyAlone')?.available).toBe(true);
-      expect(result.get('peerTutoring')?.available).toBe(true);
-      expect(result.get('homogeneousPerformanceGroups')?.available).toBe(true);
-      expect(result.get('preferFrontForNeedsFrontSeat')?.available).toBe(true);
-      expect(result.get('preferFrontForSmallerStudents')?.available).toBe(true);
-      expect(result.get('preferWindowSeats')?.available).toBe(true);
-      expect(result.get('preferDoorSeats')?.available).toBe(true);
-      expect(result.get('preferLanguageMixing')?.available).toBe(true);
-      expect(result.get('distributeSocialRoles')?.available).toBe(true);
-    });
-
-    test('returns all unavailable for students with no special attributes', () => {
-      const students = [createStudent('1'), createStudent('2')];
-
-      const result = getAllCriteriaAvailability(students);
-
-      expect(result.get('considerWishPartners')?.available).toBe(false);
-      expect(result.get('avoidConflictPartners')?.available).toBe(false);
-      expect(result.get('avoidRestlessTogether')?.available).toBe(false);
-      expect(result.get('avoidConcentrationTogether')?.available).toBe(false);
-      expect(result.get('avoidShyAlone')?.available).toBe(false);
-      expect(result.get('peerTutoring')?.available).toBe(false);
-      expect(result.get('homogeneousPerformanceGroups')?.available).toBe(false);
-      expect(result.get('preferFrontForNeedsFrontSeat')?.available).toBe(false);
-      expect(result.get('preferFrontForSmallerStudents')?.available).toBe(
-        false,
-      );
-
-      // Both are divers: one gender is nothing to mix.
-      expect(result.get('preferGenderMix')?.available).toBe(false);
-
-      // This one is always available
-      expect(result.get('avoidPreviousPairs')?.available).toBe(true);
-    });
-
-    test('marks preferGenderMix unavailable when fewer than two genders provided', () => {
-      const students = [
-        createStudent('1', { gender: undefined }),
-        createStudent('2', { gender: undefined }),
-        createStudent('3', { gender: undefined }),
-      ];
-
-      const result = getAllCriteriaAvailability(students);
-
-      const genderMixAvailability = result.get('preferGenderMix');
-      expect(genderMixAvailability?.available).toBe(false);
-      expect(genderMixAvailability?.reason).toBe(
-        'generator:mix.unavailable.preferGenderMix',
-      );
     });
   });
 });

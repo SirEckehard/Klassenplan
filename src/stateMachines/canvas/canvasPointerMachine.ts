@@ -7,7 +7,7 @@ import type {
   CanvasPointerMachineEvent,
 } from './canvasInteractionTypes';
 
-export const createCanvasPointerContext = (): CanvasPointerMachineContext => ({
+const createCanvasPointerContext = (): CanvasPointerMachineContext => ({
   activePointer: null,
   canvasPress: null,
   tablePress: null,

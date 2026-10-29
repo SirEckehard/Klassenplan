@@ -48,7 +48,7 @@ const applyStudentPatch = (student: Student, patch: Partial<Student>) => {
   return updated as Student;
 };
 
-export const createStudentsStore = (
+const createStudentsStore = (
   initialState?: Partial<StudentStoreState>,
 ): StudentStore => {
   const logger = createFeatureStoreLogger('studentsStore');
