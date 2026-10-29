@@ -538,6 +538,29 @@ describe('SimpleCircleView', () => {
     expect(svg()).toHaveAttribute('preserveAspectRatio', 'xMidYMid meet');
   });
 
+  // Held upright, the ring stands in a 600×900 room: a quarter turn of the
+  // places, which keep their order round it.
+  it('stands the ring upright when turned', () => {
+    const { container, rerender } = render(
+      <SimpleCircleView layout={mockLayout} photoMode="off" />,
+    );
+    const svg = () => container.querySelector('svg[viewBox]') as SVGElement;
+    const centres = () =>
+      Array.from(container.querySelectorAll('circle[r="30"]')).map((token) => ({
+        x: Number(token.getAttribute('cx')),
+        y: Number(token.getAttribute('cy')),
+      }));
+    const lying = centres();
+
+    rerender(
+      <SimpleCircleView layout={mockLayout} photoMode="off" turn={90} />,
+    );
+    expect(svg().getAttribute('viewBox')).toBe('0 0 600 900');
+    expect(svg().style.aspectRatio).toBe('600 / 900');
+    // Clockwise: what lay at (x, y) stands at (600 − y, x).
+    expect(centres()).toEqual(lying.map(({ x, y }) => ({ x: 600 - y, y: x })));
+  });
+
   it('lights the drawn student and dims the rest', () => {
     const { container, rerender } = render(
       <SimpleCircleView layout={mockLayout} fit />,

@@ -135,6 +135,37 @@ describe('useCircleDragDrop', () => {
     expect(params.onMoved).toHaveBeenCalledWith(0, 1);
   });
 
+  // Turned for a screen held upright, the circle is drawn in a 600×900 view
+  // box; here at half its size on screen.
+  it('reads the pointer against the view box it is drawn in', () => {
+    const upright = [
+      { x: 300, y: 100 },
+      { x: 300, y: 300 },
+      { x: 300, y: 500 },
+    ];
+    const { result } = renderHook(() =>
+      useCircleDragDrop({
+        ...params,
+        slotPositions: upright,
+        viewBox: { x: 0, y: 0, width: 600, height: 900 },
+      }),
+    );
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.getBoundingClientRect = () =>
+      ({ left: 0, top: 0, width: 300, height: 450 }) as DOMRect;
+    (result.current.svgRef as { current: SVGSVGElement | null }).current = svg;
+
+    act(() => result.current.handlePointerDown(press(150, 50), 0, 'a'));
+    pointer('pointermove', 150, 150);
+    expect(result.current.dragState).toMatchObject({
+      hoverPosition: 1,
+      viewportScale: 0.5,
+    });
+
+    pointer('pointerup', 150, 150);
+    expect(params.onStudentMove).toHaveBeenCalledWith('a', 1);
+  });
+
   it('never picks up a held student and refuses to drop on one', () => {
     const isPositionLocked = (index: number) => index === 1;
     const { result } = renderDrag({ isPositionLocked });

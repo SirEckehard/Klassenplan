@@ -6,9 +6,8 @@ import { triggerHapticFeedback } from '@/utils/touch/hapticFeedback';
 import { showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
 import { useDragGesture } from '@/hooks/ui/useDragGesture';
 
-/** The circle is drawn in a 900×600 view box. */
-const VIEW_WIDTH = 900;
-const VIEW_HEIGHT = 600;
+/** The view box the circle is drawn in, unless the view says otherwise. */
+const ROOM_VIEW = { x: 0, y: 0, width: 900, height: 600 };
 /** How far from a place, in view-box units, the pointer still means it. */
 const TARGET_RADIUS = 50;
 
@@ -22,6 +21,11 @@ export interface UseCircleDragDropParams {
    * drawn smaller than its layout says.
    */
   slotPositions: ReadonlyArray<{ x: number; y: number }>;
+  /**
+   * The SVG's view box: 900×600, or 600×900 for a circle turned for a screen
+   * held upright. A pointer is read against it.
+   */
+  viewBox?: { x: number; y: number; width: number; height: number };
   /** A held place: nothing leaves it and nothing lands on it. */
   isPositionLocked?: (position: number) => boolean;
   /** A student landed: from which place to which. */
@@ -72,6 +76,7 @@ export function useCircleDragDrop({
   editable,
   onStudentMove,
   slotPositions,
+  viewBox = ROOM_VIEW,
   isPositionLocked,
   onMoved,
 }: UseCircleDragDropParams): CircleDragDropHook {
@@ -83,8 +88,10 @@ export function useCircleDragDrop({
     (point: { x: number; y: number }, from: number): number | null => {
       const rect = svgRef.current?.getBoundingClientRect();
       if (!rect || rect.width === 0 || rect.height === 0) return null;
-      const x = ((point.x - rect.left) / rect.width) * VIEW_WIDTH;
-      const y = ((point.y - rect.top) / rect.height) * VIEW_HEIGHT;
+      const x =
+        viewBox.x + ((point.x - rect.left) / rect.width) * viewBox.width;
+      const y =
+        viewBox.y + ((point.y - rect.top) / rect.height) * viewBox.height;
 
       let closest: number | null = null;
       let minDistance = TARGET_RADIUS;
@@ -98,7 +105,7 @@ export function useCircleDragDrop({
       // The place the drag started from is no target.
       return closest === from ? null : closest;
     },
-    [slotPositions],
+    [slotPositions, viewBox.x, viewBox.y, viewBox.width, viewBox.height],
   );
 
   const handlePointerDown = useCallback(
@@ -124,7 +131,8 @@ export function useCircleDragDrop({
             isDragging: true,
             draggedPosition: position,
             pointer: point,
-            viewportScale: rect && rect.width > 0 ? rect.width / VIEW_WIDTH : 1,
+            viewportScale:
+              rect && rect.width > 0 ? rect.width / viewBox.width : 1,
           });
         },
         onMove: (point) => {
@@ -164,6 +172,7 @@ export function useCircleDragDrop({
       isPositionLocked,
       gesture,
       findTarget,
+      viewBox.width,
       onStudentMove,
       onMoved,
     ],

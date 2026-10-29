@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Improved
+
+- On a phone or a tablet held upright, the circle stands upright too, as the room and the seating plan do, so it fills the screen instead of a third of it and names and photos are about half again as large. Dragging follows the upright circle, and turning the device turns it into place; the order round the circle stays as it is
+
 ## [3.2.2] - 2026-10-28
 
 ### Improved

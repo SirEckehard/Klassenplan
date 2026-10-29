@@ -18,3 +18,15 @@ export function usePortraitTurn(
   const portrait = usePortraitViewport();
   return !isLgUp && portrait ? portraitPlanTurn(scene) : null;
 }
+
+/**
+ * The quarter turn the circle is drawn with: below `lg`, while the window is
+ * held upright. The ring has no board to keep at the bottom, so it always
+ * turns — the same way round as the default room, whose board is on the
+ * right.
+ */
+export function usePortraitCircleTurn(): PlanTurn | null {
+  const isLgUp = useIsLgUp();
+  const portrait = usePortraitViewport();
+  return !isLgUp && portrait ? 90 : null;
+}

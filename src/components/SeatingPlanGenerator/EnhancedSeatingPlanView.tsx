@@ -40,6 +40,9 @@ import { useEnsureCircleLayout } from '@/hooks/circle/useEnsureCircleLayout';
 import { circleShuffleSwaps } from '@/services/circleLayoutService';
 import { usePlanExits } from '@/hooks/plan/usePlanExits';
 import { usePlanShortcuts } from '@/hooks/plan/usePlanShortcuts';
+import { usePortraitCircleTurn } from '@/hooks/ui/usePortraitTurn';
+import { useTurnAnimation } from '@/hooks/ui/useTurnAnimation';
+import { TURNED_FRAME_MAX_WIDTH } from '@/utils/ui/portraitPlan';
 import {
   workspaceLayerClass,
   workspaceStageClass,
@@ -251,6 +254,12 @@ export default function EnhancedSeatingPlanView(
     onExport: exportPlan,
   });
 
+  // Held upright below `lg`, the ring stands as the room and the table plan
+  // do, and turns into place as the device turns.
+  const circleTurn = usePortraitCircleTurn();
+  const circleFrameRef = useRef<HTMLDivElement | null>(null);
+  useTurnAnimation(circleFrameRef, circleTurn);
+
   // Calculate actual neighborhood count (preserved neighbors from table seating)
   // For circle mode, we need different controls and view
   if (isCircleView) {
@@ -282,13 +291,20 @@ export default function EnhancedSeatingPlanView(
 
           <div className={`${workspaceStageClass} ${canvasStageClass} gap-4`}>
             <div
-              className={`${canvasFrameClass} ${canvasFitClass} select-none`}
-              style={{ maxWidth: '100vw' }}
+              ref={circleFrameRef}
+              className={`${canvasFrameClass} ${canvasFitClass} select-none ${
+                circleTurn === null ? '' : 'mx-auto'
+              }`}
+              style={{
+                maxWidth:
+                  circleTurn === null ? '100vw' : TURNED_FRAME_MAX_WIDTH,
+              }}
             >
               {circleLayout ? (
                 <SimpleCircleView
                   layout={circleLayout}
                   editable={true}
+                  turn={circleTurn}
                   onStudentMove={handleStudentPositionChange}
                   showSpecialNeeds={true}
                   showGrid={showGrid}

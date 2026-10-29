@@ -4,7 +4,8 @@ import React, { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { CircleLayout } from '@/types/Circle';
 import type { PhotoDisplayMode, Student } from '@/types';
-import { angleToPosition } from '@/utils/math/circleGeometry';
+import { angleToPosition, CLASSROOM_BOUNDS } from '@/utils/math/circleGeometry';
+import { turnPoint, type PlanTurn } from '@/utils/canvas/turn';
 import { summarizeCircle } from '@/utils/algorithm/circleSummary';
 import {
   GRID_SIZE,
@@ -102,6 +103,13 @@ type SimpleCircleViewProps = {
    * the exports share.
    */
   fit?: boolean;
+  /**
+   * A quarter turn for a screen held upright (`usePortraitCircleTurn`): the
+   * ring is drawn standing in a 600×900 room instead of lying in the 900×600
+   * one. Only the drawing turns — the places keep their order, and the
+   * tokens, names and photos stand upright as they always do.
+   */
+  turn?: PlanTurn | null;
   /** The student "Wer kommt dran?" drew: lit, the rest dimmed. */
   spotlightStudentId?: string | null;
   /**
@@ -152,6 +160,7 @@ function SimpleCircleView({
   showBadgeTooltip = true,
   onToggleLock,
   fit = false,
+  turn = null,
   spotlightStudentId = null,
   contrast = false,
 }: SimpleCircleViewProps) {
@@ -287,16 +296,44 @@ function SimpleCircleView({
     };
   }, [allStudents, fit, layout.radius, layout.center]);
 
+  // The room the ring is drawn in: the stored 900×600, or standing on its
+  // short side when the circle is turned for a screen held upright.
+  const roomWidth =
+    turn === null ? CLASSROOM_BOUNDS.width : CLASSROOM_BOUNDS.height;
+  const roomHeight =
+    turn === null ? CLASSROOM_BOUNDS.height : CLASSROOM_BOUNDS.width;
+  const drawnCenter = React.useMemo(
+    () =>
+      turn === null
+        ? layout.center
+        : turnPoint(
+            turn,
+            layout.center,
+            CLASSROOM_BOUNDS.width,
+            CLASSROOM_BOUNDS.height,
+          ),
+    [layout.center, turn],
+  );
+
   // Where every place is drawn. The drag finds its target among these, so it
   // agrees with the drawing — also when photos make the circle smaller.
   const studentSlots = React.useMemo(
     () =>
       Array.from({ length: layout.students.length }, (_, index) => {
         const angle = (360 / layout.students.length) * index;
-        const position = angleToPosition(angle, layout.center, renderRadius);
+        const stored = angleToPosition(angle, layout.center, renderRadius);
+        const position =
+          turn === null
+            ? stored
+            : turnPoint(
+                turn,
+                stored,
+                CLASSROOM_BOUNDS.width,
+                CLASSROOM_BOUNDS.height,
+              );
         return { position: index, angle, x: position.x, y: position.y };
       }),
-    [layout.students.length, layout.center, renderRadius],
+    [layout.students.length, layout.center, renderRadius, turn],
   );
 
   // The framed drawing's box: the ring's tokens, the photos docked outside
@@ -304,7 +341,7 @@ function SimpleCircleView({
   // instead of with the empty room around the ring.
   const viewBox = React.useMemo(() => {
     if (!fit || studentSlots.length === 0) {
-      return { x: 0, y: 0, width: 900, height: 600 };
+      return { x: 0, y: 0, width: roomWidth, height: roomHeight };
     }
     const showsPhotos =
       photoMode !== 'off' && allStudents.some((student) => student.hasPhoto);
@@ -320,7 +357,7 @@ function SimpleCircleView({
       width: Math.max(...xs) + reach - minX,
       height: Math.max(...ys) + reach - minY,
     };
-  }, [allStudents, fit, photoMode, studentSlots]);
+  }, [allStudents, fit, photoMode, roomHeight, roomWidth, studentSlots]);
   const spotlightSlot =
     spotlightStudentId === null
       ? null
@@ -371,6 +408,7 @@ function SimpleCircleView({
     editable,
     onStudentMove,
     slotPositions: studentSlots,
+    viewBox,
     isPositionLocked,
     onMoved: (from, to) => handlePointerMovedRef.current(from, to),
   });
@@ -642,7 +680,7 @@ function SimpleCircleView({
           count: layout.students.length,
         })}
         style={{
-          aspectRatio: fit ? undefined : '3 / 2',
+          aspectRatio: fit ? undefined : `${roomWidth} / ${roomHeight}`,
           backgroundColor: transparentBackground
             ? 'transparent'
             : 'var(--canvas-bg)',
@@ -663,17 +701,13 @@ function SimpleCircleView({
             const secondSlot = studentSlots[slotIndexById.get(secondId) ?? -1];
             if (!firstSlot || !secondSlot) return null;
 
-            // Calculate center of the circle
-            const centerX = 450; // Half of 900px viewport width
-            const centerY = 300; // Half of 600px viewport height
-
             const pathData = createArcPath(
               firstSlot.x,
               firstSlot.y,
               secondSlot.x,
               secondSlot.y,
-              centerX,
-              centerY,
+              drawnCenter.x,
+              drawnCenter.y,
             );
 
             return (
@@ -931,8 +965,8 @@ function SimpleCircleView({
                       hasPhoto: true,
                       nameFontSize: nameFit.fontSize,
                       outward: {
-                        dirX: slot.x - layout.center.x,
-                        dirY: slot.y - layout.center.y,
+                        dirX: slot.x - drawnCenter.x,
+                        dirY: slot.y - drawnCenter.y,
                         tokenRadius: seatRadius,
                       },
                     });
