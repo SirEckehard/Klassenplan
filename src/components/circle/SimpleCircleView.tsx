@@ -219,8 +219,8 @@ function SimpleCircleView({
   const seatRadius = 30;
   const seatDiameter = seatRadius * 2;
   // A fit constant, not a touch target: the badge rows have to stay inside the
-  // seat wherever the whole circle is scaled down. Keyed on the layout tier the
-  // width used to decide, so nothing about the drawing changes here.
+  // seat wherever the whole circle is scaled down. It follows the layout tier,
+  // not the pointer, so a mouse and a finger see the same drawing.
   const badgeBaseIconSize = layoutMode === 'desktop' ? 10 : 9;
   const badgeMinNameSpacing = 4;
   const badgeMinBottomSpacing = 4;
@@ -807,11 +807,10 @@ function SimpleCircleView({
                     transition: 'opacity 160ms ease',
                   }}
                 >
-                  {/* Drag target: sized for the pointer, not the viewport. A
-                      tablet in landscape is 1180px wide and used to get the
-                      mouse-sized circle although every drag is a fingertip.
-                      In the editable circle it is also the keyboard's
-                      handle on the student. */}
+                  {/* Drag target: sized for the pointer, not the viewport —
+                      a tablet in landscape is 1180px wide, and every drag on
+                      it is a fingertip. In the editable circle it is also the
+                      keyboard's handle on the student. */}
                   <circle
                     ref={
                       editable

@@ -48,8 +48,8 @@ interface UseRoomSetupParams {
  * A template is a room of its own: loading one opens it as a new room of the
  * class (decision 0024), and the room left keeps its plan. Below `lg` the
  * drawer then steps aside to show the result. An empty room has one thing to
- * do, so its panel shows by itself — below `lg` the drawer opens, from `lg`
- * up a folded column unfolds — as the setup used to open over the canvas.
+ * do, so its panel shows by itself: below `lg` the drawer opens, from `lg`
+ * up a folded column unfolds.
  */
 export function useRoomSetup({
   isRoomEmpty,

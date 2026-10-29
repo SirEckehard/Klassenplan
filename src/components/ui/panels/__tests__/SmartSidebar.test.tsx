@@ -146,8 +146,8 @@ describe('SmartSidebar layout tiers', () => {
 
     renderSidebar();
 
-    // The regression this guards: an iPad in portrait used to get the phone UI
-    // and could never see the options and the canvas at once.
+    // An iPad in portrait must not get the phone UI, or it could never see the
+    // options and the canvas at once.
     expect(sidebarColumn()).toBeInTheDocument();
     expect(openSheetButton()).not.toBeInTheDocument();
     // What the component sets once its work resolved settles inside act.

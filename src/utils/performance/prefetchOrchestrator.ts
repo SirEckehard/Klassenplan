@@ -1,13 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 /**
- * Logging wrapper around prefetch work.
- *
- * It used to keep a 40-entry telemetry ring and expose a start/complete/fail/
- * cancel lifecycle, all of which existed for the performance dashboard. Nothing
- * ever read the ring, and the three callers — `routePreloader`,
- * `generatorPrefetch` and `prefetchHints` — only ever used `trackJob` and
- * `recordHint`. What is left is those two.
+ * Logging wrapper around prefetch work: `trackJob` and `recordHint`, for
+ * `routePreloader`, `generatorPrefetch` and `prefetchHints`.
  */
 import { logDebug, logError } from '@/utils';
 

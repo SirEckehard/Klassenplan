@@ -274,8 +274,8 @@ describe('Export page', () => {
         ),
       );
 
-      // The regression this guards: the toggle used to live in plain
-      // `useState`, so every visit silently switched it back on.
+      // Kept across visits: in plain `useState` every visit would switch it
+      // back on.
       unmount();
       renderExport();
 

@@ -1531,8 +1531,8 @@ describe('seatingAlgorithm', () => {
 
 describe('reorderByWishPartners', () => {
   it('ignores a wish a student has for themselves', () => {
-    // A self-wish used to pair the student with themselves: they landed in the
-    // processing order twice and somebody else lost their seat.
+    // A self-wish must not pair the student with themselves: they would land
+    // in the processing order twice and somebody else would lose their seat.
     const anna = createMockStudent({ id: 'a', name: 'Anna' });
     const ben = createMockStudent({ id: 'b', name: 'Ben' });
     const withSelfWish = { ...anna, wishPartnerIds: ['a'] };

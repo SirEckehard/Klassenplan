@@ -194,7 +194,7 @@ export function getTopFulfilledCriteria(
         ) / concentrationMetrics.reduce((sum, metric) => sum + metric.weight, 0)
       : 0;
 
-  // Criteria ordered by Option A: Wiederholung → Identität → Fähigkeiten → Verhalten → Soziales → Raum
+  // A fixed order, kept as listed
   const list: CriterionFulfillment[] = [
     criterion('avoidPreviousPairs', 'Wiederholung'),
     criterion('preferGenderMix', 'Geschlechter'),
@@ -227,7 +227,7 @@ export function getTopFulfilledCriteria(
     criterion('preferDoorSeats', 'Türnähe'),
   ];
 
-  // Filter active criteria - preserve fixed Option A order (no sorting)
+  // Only the active criteria, in the order above (no sorting)
   const filtered = list.filter((entry) => entry.active);
 
   return typeof limit === 'number' ? filtered.slice(0, limit) : filtered;

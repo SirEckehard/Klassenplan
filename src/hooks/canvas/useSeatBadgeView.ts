@@ -12,8 +12,7 @@ import {
 
 /**
  * What the seats of the table plan and the circle show as badges, and which
- * badge a pointer is on — one derivation for both views, which used to write
- * it out each.
+ * badge a pointer is on — one derivation for both views.
  *
  * `badgeView` keeps the badges legible, with a "+N" for what does not fit, and
  * puts the ones whose criterion the mix weighs first. `badgeFocus` is the

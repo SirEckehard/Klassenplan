@@ -25,9 +25,9 @@ export interface KeyboardShortcutOptions {
  * Splits a shortcut into its key and its modifiers.
  *
  * The key is whatever follows the last "+". Two keys need care, because a
- * plain split on "+" followed by a trim loses them: the plus key itself
- * ("+", "ctrl++") and the space bar (" "). Both used to parse to an empty key
- * and so never fired. `space` and `plus` are accepted as readable aliases.
+ * plain split on "+" followed by a trim turns them into an empty key that
+ * never fires: the plus key itself ("+", "ctrl++") and the space bar (" ").
+ * `space` and `plus` are accepted as readable aliases.
  */
 function parseShortcut(shortcut: string) {
   const normalized = shortcut.toLowerCase();

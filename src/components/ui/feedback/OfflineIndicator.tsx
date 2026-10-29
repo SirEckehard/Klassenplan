@@ -21,7 +21,7 @@ const COLLAPSE_DELAY_MS = 5000;
  * Rendered app-wide (including the fullscreen surfaces, which hide the footer)
  * and anchored bottom-left so it never sits on the floating actions — except
  * where a status bar is on screen: the workspace and the export page say it
- * there, beside the toolbar's switch, which the badge used to cover.
+ * there, beside the toolbar's switch, which the badge would cover.
  */
 export default function OfflineIndicator() {
   const isOnline = useOnlineStatus();

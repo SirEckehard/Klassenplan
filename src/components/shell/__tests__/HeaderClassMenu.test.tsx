@@ -187,7 +187,7 @@ describe('HeaderClassMenu', () => {
     expect(mocks.create).not.toHaveBeenCalled();
   });
 
-  // The list is portalled to the end of the page; the keyboard used to tab
+  // The list is portalled to the end of the page; the keyboard must not tab
   // past it without ever reaching a class.
   it('takes the focus to the open class and steps on with the arrow keys', async () => {
     render(<HeaderClassMenu />);

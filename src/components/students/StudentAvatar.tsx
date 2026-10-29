@@ -20,10 +20,9 @@ type Props = {
 /**
  * A student's face, or the stand-in for one — to look at, not to press.
  *
- * The class list used to put `StudentPhotoButton` in every row, which made the
- * avatar a control in a row that is itself one thing to click. Uploading and
- * cropping belong to the one student the inspector is showing; the list only
- * has to say who this is. Its frame is the one the student's photo wears on
+ * The row is itself one thing to click, so the avatar is no control of its
+ * own: uploading and cropping belong to the one student the inspector is
+ * showing (`StudentPhotoButton`); the list only has to say who this is. Its frame is the one the student's photo wears on
  * the plan, in the gender's contour (`getAvatarFrame`).
  */
 function StudentAvatar({ student, size = 32, className = '' }: Props) {

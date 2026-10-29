@@ -3,10 +3,9 @@
 /**
  * How a name is laid out on a seat: one line or two, and how large.
  *
- * A seat is 55 × 65 scene units whatever its table, and a name used to be
- * fitted to its width on one line: "Paul Zimmermann" came out at the smallest
- * size while most of the seat's height stood empty. Here a name may break
- * into two lines — between words, or after a hyphen in a name without a
+ * A seat is 55 × 65 scene units whatever its table. Fitted to its width on
+ * one line, "Paul Zimmermann" would come out at the smallest size while most
+ * of the seat's height stood empty, so a name may break into two lines — between words, or after a hyphen in a name without a
  * space, never inside a word — when that makes it larger, and it takes the
  * height the seat has above its badges and beside its lock.
  *

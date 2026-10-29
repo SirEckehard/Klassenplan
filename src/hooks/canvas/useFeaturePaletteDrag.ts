@@ -1279,8 +1279,8 @@ export function useFeaturePaletteDrag({
 
       // A pointer the browser takes back — a swipe it scrolls the toolbar
       // with, a palm on the board — places nothing. Left listening, the drag
-      // used to stay open and put its element wherever the next finger
-      // lifted over the room.
+      // would stay open and put its element wherever the next finger lifted
+      // over the room.
       const handlePalettePointerCancel = (cancelEvent: PointerEvent) => {
         if (cancelEvent.pointerId === pointerId) {
           clearPaletteDrag(pointerId);

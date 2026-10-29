@@ -31,7 +31,7 @@ const singleErrorMessage = (): string => {
   const errors = mockedShowToast.mock.calls.filter(
     ([type]) => type === 'error',
   );
-  // One problem must produce exactly one toast — two used to stack up here.
+  // One problem must produce exactly one toast, not two stacked up.
   expect(errors).toHaveLength(1);
   return errors[0][1];
 };

@@ -234,8 +234,8 @@ describe('clearProjectLocalStorage', () => {
   });
 
   it('clears the export page preferences', () => {
-    // These used to be missing from the cleanup list, so "delete all data" left
-    // the export settings behind on the device.
+    // Missing from the cleanup list, they would survive "delete all data" on
+    // the device.
     const exportKeys = [
       ...Object.values(STORAGE_KEYS.localStorage).filter((key) =>
         key.startsWith('export.'),

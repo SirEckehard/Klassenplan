@@ -79,7 +79,7 @@ describe('OfflineIndicator', () => {
   });
 
   // The workspace and the export page say it in their status bar, where the
-  // badge used to cover the toolbar's switch.
+  // badge would cover the toolbar's switch.
   it('stands down while a status bar is on screen', () => {
     const bar = render(<StatusBarStandIn />);
     render(<OfflineIndicator />);

@@ -13,9 +13,9 @@ import { InspectorMenuButton } from '@/components/shell/InspectorPanel';
 /**
  * What the plan is being mixed for: one button the width of the inspector,
  * naming the recipe the weights match — or "Eigene Mischung" — that opens the
- * recipes as a menu. It used to fold the list out in place, which pushed every
- * criterion down by five recipes; the menu lies over them, as the student
- * inspector's values do (`InspectorSelect`).
+ * recipes as a menu. The menu lies over the criteria, as the student
+ * inspector's values do (`InspectorSelect`), instead of pushing every one of
+ * them down by five recipes.
  */
 export function MixRecipePanel({
   activeId,

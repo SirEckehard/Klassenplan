@@ -102,7 +102,7 @@ describe('ErrorReportLink', () => {
 
   test('prepares a mail even when the error message ends in an emoji', () => {
     // A message long enough to be cut right through a surrogate pair: the
-    // encode step used to throw here and take the whole error screen with it.
+    // encode step must not throw here and take the whole error screen with it.
     const message = `${'a'.repeat(299)}🙂 tail`;
 
     render(

@@ -75,6 +75,8 @@ export const STORAGE_KEYS = {
     // The year the status bar last thanked the teacher on World Teachers'
     // Day (5 October), so the greeting shows once a year.
     teachersDayGreeted: 'spg.teachersDayGreeted',
+    // Retired before 1.5: the sidebar's open tab. Nothing reads it; it stays
+    // listed so a wipe still removes what older versions wrote.
     sidebarActiveTab: 'spg.sidebarActiveTab',
     // Retired: whether the round criterion buttons had shown, once, that a
     // criterion's weight opens with a right click or a long press. The
@@ -90,8 +92,9 @@ export const STORAGE_KEYS = {
     // Which onboarding tours have been shown and whether they are switched off
     // (`hooks/onboarding/onboardingTourStore.ts`).
     onboardingTour: 'spg.onboardingTour',
-    // Set when the user dismisses the PWA install toast. The footer menu keeps
-    // offering the install as long as the browser reports the app installable.
+    // Set when the user dismisses the PWA install toast. The settings menu
+    // keeps offering the install as long as the browser reports the app
+    // installable.
     pwaInstallDismissed: 'pwa-install-dismissed',
     // Mirrors the migration version held in IndexedDB so the boot path can skip
     // opening the database when no migration can possibly be pending.

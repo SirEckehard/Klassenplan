@@ -193,7 +193,7 @@ describe('backupValidation: partner id lists', () => {
   });
 
   it('rejects a wish list that is not an array', () => {
-    // It used to pass through and throw a TypeError in the seating algorithm.
+    // Let through, it would throw a TypeError in the seating algorithm.
     expect(() =>
       parseExportBundle(withStudent({ wishPartnerIds: '2' })),
     ).toThrowError(

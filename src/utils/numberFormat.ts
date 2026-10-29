@@ -3,9 +3,9 @@
 /**
  * Locale-aware number formatting, the counterpart of `dateTimeFormat.ts`.
  *
- * Percentages used to be glued together by hand — "85%" in one place, "42 %"
- * in another, whatever the language. German sets a (non-breaking) space
- * before the sign, English does not; `Intl.NumberFormat` knows both.
+ * German sets a (non-breaking) space before the percent sign, English does
+ * not; `Intl.NumberFormat` knows both, so no percentage is glued together by
+ * hand.
  */
 import { resolveLocale } from './dateTimeFormat';
 

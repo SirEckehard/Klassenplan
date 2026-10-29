@@ -136,8 +136,8 @@ export default function EnhancedSeatingPlanView(
 
     ensureCircleLayout(mode);
 
-    // Note: We no longer clear circle layout when switching back to table mode
-    // This allows the circle to persist when switching between modes
+    // Switching back to the table plan keeps the circle layout, so the circle
+    // stays as it was between modes.
   };
 
   const handleStudentPositionChange = (

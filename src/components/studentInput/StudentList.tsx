@@ -51,8 +51,7 @@ const quietFocusRing = (element: HTMLElement) => {
  * The class list: one card of rows, the header with select-all on top.
  *
  * Every row is rendered. A class holds at most 36 students (`MAX_STUDENTS`),
- * which a list draws without help; the virtualizer that used to sit here only
- * switched on from 40 and so never ran.
+ * which a list draws without a virtualizer.
  */
 const StudentList = ({
   students,

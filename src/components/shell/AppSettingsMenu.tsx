@@ -62,10 +62,10 @@ const preloadSettingsItems = appSettingsItems.preload;
  * export page and on the first screen, which has no toolbar yet.
  *
  * The start page and the pages beside the app carry the same menu at the
- * right of their head, in place of the gear their footer used to hold, which
- * broke the footer onto a second line on an iPad: one gear, the same rows,
- * wherever it stands. The footer repeats the two legal pages as words — an
- * imprint behind a gear alone would not be "easily recognisable" (§ 5 DDG).
+ * right of their head — one gear, the same rows, wherever it stands; in their
+ * footer it would break the line on an iPad. The footer repeats the two legal
+ * pages as words — an imprint behind a gear alone would not be "easily
+ * recognisable" (§ 5 DDG).
  */
 export default function AppSettingsMenu() {
   const { t } = useTranslation('common');

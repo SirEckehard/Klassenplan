@@ -92,8 +92,8 @@ describe('useKeyboardShortcuts: which key a shortcut names', () => {
   const press = (init: KeyboardEventInit) =>
     window.dispatchEvent(new KeyboardEvent('keydown', init));
 
-  // "+" and the space bar used to parse to an empty key: the presentation's
-  // zoom and "Wer kommt dran?" never reacted to them.
+  // "+" and the space bar must not parse to an empty key, or the
+  // presentation's zoom and "Wer kommt dran?" never react to them.
   it.each([
     ['+', { key: '+' }],
     [' ', { key: ' ' }],

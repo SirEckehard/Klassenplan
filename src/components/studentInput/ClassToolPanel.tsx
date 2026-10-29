@@ -77,11 +77,10 @@ const menuIconClass = 'h-4 w-4 shrink-0 text-(--text-muted)';
  * The backup and the class tools are in the foot every rail shares
  * (`ToolRail`).
  *
- * These controls used to share one row above the list with the class switcher
- * and the search field, which meant the row grew a control every time the
- * class layer learnt something new. In the rail each has a fixed place, and
- * the ones that need a value — a name, a number of placeholders — ask for it
- * in a small panel instead of taking up the row permanently.
+ * In the rail each control has a fixed place, so the row above the list keeps
+ * to search, filter and sort however much the class layer learns; the ones
+ * that need a value — a name, a number of placeholders — ask for it in a
+ * small panel instead of taking up room permanently.
  */
 export default function ClassToolPanel({
   density,

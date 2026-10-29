@@ -611,8 +611,7 @@ function StudentInput({
         </>
 
         {/* The mobile scroll affordance uses this to mean "the end of the
-            list"; the Namensspiel button it used to hang on now sits in the
-            toolbar with the rest of what a whole class can undergo. */}
+            list". */}
         <div ref={listEndRef} aria-hidden="true" className="lg:hidden" />
       </div>
 

@@ -14,10 +14,9 @@ import { svgFontFamily } from '@/utils';
  * portrait and landscape alike: the margin, the header and the area left for
  * the plan. Units are PostScript points on a 72 dpi A4 page.
  *
- * The sheet used to keep 14 mm of margin in portrait and 25 mm in landscape,
- * with a landscape header of its own another 21 mm high, and the plan had what
- * was left. A printer needs about 5 mm; 10 mm is safe everywhere, and the
- * header is one line of title, brand and date in both orientations.
+ * A printer needs about 5 mm of margin; 10 mm is safe everywhere, and the
+ * header is one line of title, brand and date in both orientations, so the
+ * plan takes the rest of the page.
  */
 
 export type ExportOrientation = 'portrait' | 'landscape';

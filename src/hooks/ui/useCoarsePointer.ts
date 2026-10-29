@@ -5,11 +5,10 @@ import { useSyncExternalStore } from 'react';
 /**
  * Whether the primary pointer is a finger rather than a mouse.
  *
- * Hit areas used to be derived from the viewport width, which conflated two
- * unrelated questions. A tablet in landscape is 1180px wide and was handed
- * mouse-sized targets although every tap is a fingertip — and landscape is the
- * likely orientation for setting up a classroom. Width decides the *layout*
- * (see `useLayoutMode`), the pointer decides how big things have to be to hit.
+ * Width decides the *layout* (see `useLayoutMode`), the pointer decides how
+ * big things have to be to hit. Derived from the width, a tablet in
+ * landscape — 1180px wide, and the likely orientation for setting up a
+ * classroom — would get mouse-sized targets although every tap is a fingertip.
  *
  * Mirrors the `pointer-coarse:` variant already used in the markup, so CSS and
  * JS answer the same question the same way.

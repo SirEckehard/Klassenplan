@@ -3,9 +3,9 @@
 /**
  * Locale-aware date and time formatting.
  *
- * Every date in the UI used to be formatted with a hardcoded `'de-DE'`, so the
- * English build showed German dates (`31.07.2026` instead of `Jul 31, 2026`).
- * These helpers resolve the locale from the active i18n language instead.
+ * These helpers resolve the locale from the active i18n language, so the
+ * English pages show `Jul 31, 2026` where the German ones show `31.07.2026`;
+ * a hardcoded `'de-DE'` would show German dates on both.
  *
  * Formatters are memoized: `Intl.DateTimeFormat` construction is the expensive
  * part, and the mix history renders up to 20 timestamps at once.

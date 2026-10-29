@@ -93,7 +93,7 @@ describe('useFeaturePaletteDrag – a drag the browser takes back', () => {
   };
 
   // A swipe that scrolls the toolbar starts on an entry; the browser cancels
-  // the pointer. The next finger lifted over the room used to place the
+  // the pointer. The next finger lifted over the room must not place the
   // element the swipe had started with.
   it('places nothing once the pointer is cancelled', () => {
     const { result } = renderPalette();

@@ -29,11 +29,11 @@ const clamp = (value: number, min: number, max: number) =>
  * else below it — never under it.
  *
  * The finger that opened the menu lifts right after, and wherever it lifts
- * is where the browser may send its click. Clamped into the room, a menu for
- * a table near the top edge used to slide down under the finger, and the lift
- * chose whichever entry lay there. Above comes first because the hand lies
- * below the finger; the side keeps the menu in sight at the finger's height.
- * Only when none of the four fits is the menu clamped above it as before.
+ * is where the browser may send its click: a menu merely clamped into the
+ * room would slide down under the finger near the top edge, and the lift
+ * would choose whichever entry lay there. Above comes first because the hand
+ * lies below the finger; the side keeps the menu in sight at the finger's
+ * height. Only when none of the four fits is the menu clamped above it.
  */
 export function placeTouchMenu({
   x,

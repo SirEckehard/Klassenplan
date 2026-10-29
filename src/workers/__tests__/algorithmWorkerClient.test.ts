@@ -235,8 +235,8 @@ describe('cancellation and timeouts', () => {
     const worker = FakeWorker.instances[0]!;
     // A mix reports progress for the whole refinement, so the cancel button is
     // only ever pressed *after* the first update. The listener has to survive
-    // it — this used to be torn down on the first progress message, leaving
-    // "Abbrechen" silently inert.
+    // it; torn down on the first progress message, it would leave "Abbrechen"
+    // silently inert.
     worker.emit('message', {
       requestId: worker.lastRequestId,
       operation: 'mix:run',

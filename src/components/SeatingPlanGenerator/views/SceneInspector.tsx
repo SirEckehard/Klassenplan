@@ -184,17 +184,16 @@ function RotationField({
 /**
  * What can be done with the canvas selection besides dragging it.
  *
- * The panel used to state a table's place and size in pixels and let them be
- * typed. Nobody places a table by its x coordinate: dragging does all of that
- * directly, so the numbers were noise. What stays is what a drag cannot do in
- * one gesture — turning to an exact angle or in steps, duplicating, copying,
+ * It asks for no coordinates: nobody places a table by its x coordinate, and
+ * a drag places and sizes it directly. It offers what a drag cannot do in one
+ * gesture — turning to an exact angle or in steps, duplicating, copying,
  * cutting, removing — each with the shortcut that does the same on the
  * canvas, and each for one table as for a whole selection.
  *
  * Seat count and table type stay out of reach on purpose — changing them under
  * a finished plan would move students around without being asked. A room is
  * rebuilt as a whole: while nothing is selected the panel is the room's own,
- * with the setup and the templates that used to open over the canvas.
+ * with the setup and the templates.
  */
 export default function SceneInspector({
   tables,

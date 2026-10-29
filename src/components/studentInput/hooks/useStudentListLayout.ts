@@ -25,9 +25,8 @@ export const useStudentListLayout = ({
   isMobile,
   studentCount,
 }: UseStudentListLayoutOptions) => {
-  // Marks the end of the list for the phone's scroll affordance. It used to
-  // be the Namensspiel button; that moved to the toolbar, so what is left is
-  // an empty sentinel element.
+  // Marks the end of the list for the phone's scroll affordance: an empty
+  // sentinel element.
   const listEndRef = useRef<HTMLDivElement | null>(null);
   const listTopRef = useRef<HTMLDivElement | null>(null);
   const prefersReducedMotion = usePrefersReducedMotion();

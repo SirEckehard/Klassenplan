@@ -17,7 +17,7 @@ type SeatNameTextProps = {
 };
 
 /**
- * A name on a seat, as `fitNameInBox` / `fitNameInCircle` laid it out: one
+ * A name on a seat, as `fitNameOnSeat` / `fitNameInCircle` laid it out: one
  * line drawn as before, two as a `tspan` each, the block centred where the fit
  * put it. Every view that draws a seat — the plan, the circle, the projection,
  * the exports — draws its name through here.

@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 /**
- * Escape ownership used to be read out of the DOM: whoever carried
- * `role="dialog"` or `role="menu"` won. That made an ARIA role into application
- * state — adding the correct role to a new component silently changed what
- * Escape did in two unrelated views. These tests pin the explicit registry that
- * replaced it.
+ * Escape ownership comes from an explicit registry, not from the DOM: read
+ * from `role="dialog"` or `role="menu"`, an ARIA role would become application
+ * state, and adding the correct role to a new component would silently change
+ * what Escape does in two unrelated views. These tests pin the registry.
  */
 import { describe, it, expect, beforeEach } from 'vitest';
 import { renderHook } from '@testing-library/react';

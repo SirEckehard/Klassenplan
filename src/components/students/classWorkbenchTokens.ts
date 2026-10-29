@@ -5,11 +5,9 @@
  * The control every field above the class list is cut from — search, filter
  * and sort.
  *
- * They used to be blue-tinted pills painted by hand (`border-blue-200`,
- * `bg-white`, `dark:bg-gray-900`), which put a second blue on a surface where
- * blue means "you can act here" and left dark mode to a `dark:` variant per
- * property. They are paper with one hairline now, the same 36px row height as
- * a toolbar entry, and the tokens handle both modes.
+ * Paper with one hairline, the same 36px row height as a toolbar entry, and
+ * no blue of their own: blue means "you can act here". The tokens handle both
+ * modes.
  *
  * Layout (height is included, width and display are not) plus `cursor-pointer`
  * and any disabled handling are the caller's to add.

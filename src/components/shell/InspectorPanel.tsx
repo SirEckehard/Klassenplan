@@ -192,9 +192,8 @@ export function InspectorIcon({
 /**
  * One setting: what it is on the left, what it is set to on the right.
  *
- * The inspector used to stack 44px icon tiles with a word underneath, which
- * said what an attribute is but never what it is set to without reading the
- * colour. A row states both, and eleven of them read as one list.
+ * A row states what an attribute is and what it is set to without reading a
+ * colour, and eleven of them read as one list.
  */
 export function InspectorRow({
   label,

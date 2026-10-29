@@ -4,9 +4,8 @@
 /**
  * Turns a failed CSV import into a specific, actionable message.
  *
- * The import used to answer every problem with "Bitte gültige CSV-Datei
- * auswählen", which leaves a teacher who just dropped an Excel export with no
- * idea what to change. Each function here returns an i18n key plus the values
+ * A teacher who just dropped an Excel export needs to know what to change,
+ * not that the file is invalid. Each function here returns an i18n key plus the values
  * that make the message concrete (file name, found columns, row counts) — no
  * user-facing strings, per the utils rule; the caller resolves them.
  */

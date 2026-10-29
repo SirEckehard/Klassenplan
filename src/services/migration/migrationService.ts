@@ -57,9 +57,7 @@ export interface MigrationResult {
   errors: string[];
 }
 
-/**
- * Prüft ob eine Migration nötig ist
- */
+/** Whether the stored data still needs the migration. */
 async function checkMigrationNeeded(): Promise<boolean> {
   if (!hasIndexedDB()) return false;
 
@@ -83,24 +81,22 @@ async function checkMigrationNeeded(): Promise<boolean> {
     return true;
   } catch (error) {
     logWarn(
-      'Konnte Migrations-Version nicht prüfen',
+      'Could not read the migration version',
       { error },
       'migrationService',
     );
-    return true; // Bei Fehlern Migration ausführen
+    return true; // When in doubt, migrate
   }
 }
 
-/**
- * Migriert die hauptsächliche ClassroomScene
- */
+/** Migrates the stored classroom scene. */
 async function migrateMainClassroomScene(): Promise<MigrationStats | null> {
   try {
     const scene = (await idbGet(DB_KEYS.classroomScene)) as
       ClassroomScene | undefined;
 
     if (!scene || !needsMigration(scene)) {
-      return null; // Keine Migration nötig
+      return null; // Nothing to migrate
     }
 
     const migratedScene = migrateClassroomScene(scene);
@@ -108,30 +104,24 @@ async function migrateMainClassroomScene(): Promise<MigrationStats | null> {
 
     await idbSet(DB_KEYS.classroomScene, migratedScene);
 
-    logInfo('ClassroomScene migriert', { stats }, 'migrationService');
+    logInfo('Classroom scene migrated', { stats }, 'migrationService');
     return stats;
   } catch (error) {
-    logError(
-      'Fehler bei ClassroomScene Migration',
-      { error },
-      'migrationService',
-    );
-    throw new Error('ClassroomScene Migration fehlgeschlagen', {
+    logError('Classroom scene migration failed', { error }, 'migrationService');
+    throw new Error('ClassroomScene migration failed', {
       cause: error,
     });
   }
 }
 
-/**
- * Migriert alle gespeicherten Templates
- */
+/** Migrates every stored room template. */
 async function migrateClassroomTemplates(): Promise<number> {
   try {
     const templates = (await idbGet(DB_KEYS.classroomTemplates)) as
       ClassroomTemplate[] | undefined;
 
     if (!templates || templates.length === 0) {
-      return 0; // Keine Templates vorhanden
+      return 0; // No templates stored
     }
 
     let migratedCount = 0;
@@ -139,7 +129,7 @@ async function migrateClassroomTemplates(): Promise<number> {
       if (templateNeedsMigration(template)) {
         migratedCount++;
         logInfo(
-          'Template wird migriert',
+          'Migrating template',
           { templateId: template.id },
           'migrationService',
         );
@@ -151,7 +141,7 @@ async function migrateClassroomTemplates(): Promise<number> {
     if (migratedCount > 0) {
       await idbSet(DB_KEYS.classroomTemplates, migratedTemplates);
       logInfo(
-        `${migratedCount} Templates migriert`,
+        `${migratedCount} templates migrated`,
         { count: migratedCount },
         'migrationService',
       );
@@ -159,21 +149,19 @@ async function migrateClassroomTemplates(): Promise<number> {
 
     return migratedCount;
   } catch (error) {
-    logError('Fehler bei Template Migration', { error }, 'migrationService');
-    throw new Error('Template Migration fehlgeschlagen', { cause: error });
+    logError('Template migration failed', { error }, 'migrationService');
+    throw new Error('Template migration failed', { cause: error });
   }
 }
 
-/**
- * Migriert alle gespeicherten Pläne in der Seating History
- */
+/** Migrates every saved plan of the seating history. */
 async function migrateSeatingHistory(): Promise<number> {
   try {
     const seatingHistory = (await idbGet(DB_KEYS.seatingHistory)) as
       SavedPlan[] | undefined;
 
     if (!seatingHistory || seatingHistory.length === 0) {
-      return 0; // Keine gespeicherten Pläne
+      return 0; // No saved plans
     }
 
     let migratedCount = 0;
@@ -181,7 +169,7 @@ async function migrateSeatingHistory(): Promise<number> {
       if (needsMigration(plan.scene)) {
         migratedCount++;
         logInfo(
-          'Gespeicherter Plan wird migriert',
+          'Migrating saved plan',
           { planId: plan.id },
           'migrationService',
         );
@@ -196,7 +184,7 @@ async function migrateSeatingHistory(): Promise<number> {
     if (migratedCount > 0) {
       await idbSet(DB_KEYS.seatingHistory, migratedHistory);
       logInfo(
-        `${migratedCount} gespeicherte Pläne migriert`,
+        `${migratedCount} saved plans migrated`,
         { count: migratedCount },
         'migrationService',
       );
@@ -204,41 +192,33 @@ async function migrateSeatingHistory(): Promise<number> {
 
     return migratedCount;
   } catch (error) {
-    logError(
-      'Fehler bei Seating History Migration',
-      { error },
-      'migrationService',
-    );
-    throw new Error('Seating History Migration fehlgeschlagen', {
+    logError('Seating history migration failed', { error }, 'migrationService');
+    throw new Error('Seating history migration failed', {
       cause: error,
     });
   }
 }
 
-/**
- * Markiert die Migration als abgeschlossen
- */
+/** Records the migration as done, in IndexedDB and in its mirror. */
 async function markMigrationComplete(): Promise<void> {
   try {
     await idbSet(MIGRATION_VERSION_KEY, CURRENT_MIGRATION_VERSION);
     writeMirroredMigrationVersion(CURRENT_MIGRATION_VERSION);
   } catch (error) {
     logError(
-      'Konnte Migrations-Version nicht setzen',
+      'Could not store the migration version',
       { error },
       'migrationService',
     );
-    throw new Error('Migrations-Version speichern fehlgeschlagen', {
+    throw new Error('Storing the migration version failed', {
       cause: error,
     });
   }
 }
 
-/**
- * Führt die komplette Migration durch
- */
+/** Runs the whole migration once per installation. */
 export async function runMigration(): Promise<MigrationResult> {
-  logInfo('🔄 Starte Table Template Migration...');
+  logInfo('Starting the table template migration');
 
   const result: MigrationResult = {
     success: false,
@@ -250,17 +230,17 @@ export async function runMigration(): Promise<MigrationResult> {
   };
 
   try {
-    // Prüfe ob Migration nötig ist
+    // Check whether there is anything to do
     const migrationNeeded = await checkMigrationNeeded();
     if (!migrationNeeded) {
-      logInfo('✅ Keine Migration erforderlich');
+      logInfo('No migration needed');
       result.success = true;
       return result;
     }
 
-    logInfo('📋 Migration wird ausgeführt...');
+    logInfo('Running the migration');
 
-    // 1. ClassroomScene migrieren
+    // 1. The classroom scene
     try {
       const sceneStats = await migrateMainClassroomScene();
       if (sceneStats) {
@@ -270,66 +250,62 @@ export async function runMigration(): Promise<MigrationResult> {
       result.errors.push(`ClassroomScene: ${error}`);
     }
 
-    // 2. Templates migrieren
+    // 2. The room templates
     try {
       result.stats.templates = await migrateClassroomTemplates();
     } catch (error) {
       result.errors.push(`Templates: ${error}`);
     }
 
-    // 3. Seating History migrieren
+    // 3. The seating history
     try {
       result.stats.savedPlans = await migrateSeatingHistory();
     } catch (error) {
       result.errors.push(`Seating History: ${error}`);
     }
 
-    // Migration als abgeschlossen markieren
+    // Record the migration as done
     if (result.errors.length === 0) {
       await markMigrationComplete();
       result.success = true;
       logInfo(
-        '✅ Migration erfolgreich abgeschlossen',
+        'Migration completed',
         { stats: result.stats },
         'migrationService',
       );
     } else {
       logError(
-        '❌ Migration mit Fehlern abgeschlossen',
+        'Migration completed with errors',
         { errors: result.errors },
         'migrationService',
       );
     }
   } catch (error) {
-    result.errors.push(`Allgemeiner Fehler: ${error}`);
-    logError('❌ Migration fehlgeschlagen', { error }, 'migrationService');
+    result.errors.push(`General error: ${error}`);
+    logError('Migration failed', { error }, 'migrationService');
   }
 
   return result;
 }
 
-/**
- * Zurücksetzen der Migration (für Tests)
- */
+/** Resets the migration version (for tests). */
 export async function resetMigrationVersion(): Promise<void> {
   if (!hasIndexedDB()) return;
 
   try {
     await idbSet(MIGRATION_VERSION_KEY, 0);
     writeMirroredMigrationVersion(0);
-    logInfo('Migration Version zurückgesetzt');
+    logInfo('Migration version reset');
   } catch (error) {
     logError(
-      'Konnte Migration Version nicht zurücksetzen',
+      'Could not reset the migration version',
       { error },
       'migrationService',
     );
   }
 }
 
-/**
- * Aktuelle Migration Version abrufen
- */
+/** The stored migration version. */
 export async function getCurrentMigrationVersion(): Promise<number> {
   if (!hasIndexedDB()) return 0;
 
@@ -337,7 +313,7 @@ export async function getCurrentMigrationVersion(): Promise<number> {
     return (await idbGet<number>(MIGRATION_VERSION_KEY)) || 0;
   } catch (error) {
     logError(
-      'Konnte Migration Version nicht abrufen',
+      'Could not read the migration version',
       { error },
       'migrationService',
     );

@@ -170,7 +170,7 @@ async function run() {
 
   if (cssFiles.length === 0) {
     // A build with zero stylesheets is what a silently missing Tailwind plugin
-    // used to produce. vite.config.ts now throws instead, so this is a backstop.
+    // produces. vite.config.ts throws in that case, so this is a backstop.
     logWarn('Build contains no stylesheet at all', undefined, SOURCE);
     process.exitCode = 1;
     return;

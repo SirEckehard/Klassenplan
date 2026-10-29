@@ -286,7 +286,7 @@ test(
     });
 
     await test.step('the menu outlives the finger and pastes on a tap', async () => {
-      // Lifting the finger used to close the menu, so no entry could ever be
+      // Lifting the finger must not close the menu, or no entry could ever be
       // tapped.
       const paste = page
         .locator('[data-context-action-menu]')
@@ -306,7 +306,7 @@ test(
     await loadSampleClass(page);
 
     await test.step('the header keeps all three layers in reach', async () => {
-      // An iPhone 16 Pro is 402px wide; the class's name used to push the
+      // An iPhone 16 Pro is 402px wide; the class's name must not push the
       // layer switch off the header's left edge.
       const layers = page.getByRole('group', { name: /Ebene/ });
       for (const name of ['Klasse', 'Raum', 'Sitzplan']) {
@@ -403,7 +403,7 @@ test(
       });
 
       // It outlives the finger, lies clear of where it lifted — the lift
-      // used to pick the entry under it — and took no table with it.
+      // would pick the entry under it — and took no table with it.
       await expect(
         menu.getByRole('button', { name: 'Kopieren' }),
       ).toBeVisible();

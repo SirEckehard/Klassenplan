@@ -2,10 +2,10 @@
 // Copyright (C) 2026 Eike Schäfer
 /**
  * Two tabs of the app — or the installed app beside a browser tab — each have
- * a repository of their own on the same database. Each used to keep a copy of
- * the class collection and write it back whole, so the tab that wrote last
- * put every class back to what it had read: a student added in one tab was
- * gone after the other tab saved anything.
+ * a repository of their own on the same database. A repository that kept a
+ * copy of the class collection and wrote it back whole would let the tab that
+ * wrote last put every class back to what it had read: a student added in one
+ * tab would be gone after the other tab saved anything.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 

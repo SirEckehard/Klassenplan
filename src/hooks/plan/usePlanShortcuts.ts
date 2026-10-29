@@ -18,10 +18,10 @@ type PlanShortcutHandlers = {
  * Ctrl/⌘+S saves, Ctrl/⌘+E opens the export and, where the view mixes,
  * Ctrl/⌘+Enter mixes.
  *
- * They used to live in the table editor alone, so in the circle — whose help
- * lists saving and exporting as well — Ctrl+S fell through to the browser's
- * "save page" dialog. Mixing moved off Ctrl/⌘+M, which minimises the window
- * on a Mac before the page ever sees the key.
+ * The table plan and the circle share them: the circle's help lists saving
+ * and exporting as well, and an unregistered Ctrl+S falls through to the
+ * browser's "save page" dialog. Mixing is not on Ctrl/⌘+M, which minimises the
+ * window on a Mac before the page ever sees the key.
  *
  * A dialog owns the keyboard while it is up, and a text field keeps its keys:
  * the plan's name field saves on Ctrl/⌘+S by itself (`PlanSection`).

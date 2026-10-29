@@ -73,7 +73,7 @@ async function initializeApp() {
       const { stats } = migrationResult;
       if (stats.classroomScene || stats.templates > 0 || stats.savedPlans > 0) {
         logInfo(
-          '🎉 Migration abgeschlossen',
+          'Migration completed',
           {
             classroomScene: stats.classroomScene,
             templates: stats.templates,
@@ -84,18 +84,14 @@ async function initializeApp() {
       }
     } else {
       logWarn(
-        '⚠️ Migration mit Fehlern',
+        'Migration completed with errors',
         { errors: migrationResult.errors },
         'index',
       );
     }
   } catch (error) {
     // Migration failures should not block app startup
-    logError(
-      '❌ Migration fehlgeschlagen, App wird trotzdem gestartet',
-      { error },
-      'index',
-    );
+    logError('Migration failed, starting the app anyway', { error }, 'index');
   }
 
   // Start the application

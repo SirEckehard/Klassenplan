@@ -28,9 +28,9 @@ const PHOTO_DISPLAY_MODES: readonly PhotoDisplayMode[] = [
  * data. Toggling the grid must not re-render everything that reads the scene,
  * and reading the grid flag must not subscribe a component to scene edits.
  *
- * The table plan and the circle read the same values from here. Each used to
- * keep a copy of its own, and the circle's container — mounted for both
- * arrangements — never saw what was changed in the table plan.
+ * The table plan and the circle read the same values from here: the circle's
+ * container is mounted for both arrangements, and a copy of its own would
+ * never see what was changed in the table plan.
  */
 export interface CanvasPreferencesContextValue {
   snapToGrid: boolean;

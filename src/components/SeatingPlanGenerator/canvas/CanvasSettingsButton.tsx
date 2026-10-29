@@ -246,12 +246,10 @@ export const CanvasSettingsButton = React.forwardRef<
  * The settings themselves, as the inside of a dropdown menu: one row per
  * setting, an icon and a word, checked while it is on.
  *
- * They used to be a card of their own — a coloured heading, switches in
- * bordered tiles, a grid of bare icons whose meaning lived in their tooltips.
- * Next to a workspace that otherwise speaks in rows of icon and word, that read
- * like a second application. What holds the rows brings the menu surface; the
- * layer toolbars and the export page's canvas button both render this, so a new
- * option appears in every place the settings are reachable from.
+ * The workspace speaks in rows of icon and word, and so do the settings. What
+ * holds the rows brings the menu surface; the room's and the plan's toolbars
+ * both render this, so a new option appears in every place the settings are
+ * reachable from.
  */
 export function CanvasSettingsGroups({
   groups,

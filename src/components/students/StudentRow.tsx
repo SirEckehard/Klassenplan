@@ -31,12 +31,9 @@ type Props = {
  * One student, at a glance: photo, name, and the attributes that are actually
  * set.
  *
- * The row used to carry sixteen icon columns per student, then two buttons at
- * its end — inspect and delete — beside an avatar and a name that were both
- * controls of their own. For a class of twenty-four that is a hundred small
- * targets in a list whose only job is to answer "who is in this class and what
- * do I know about them". The row is now one button: pressing it opens the
- * student in the inspector, which is where a name, a photo and an attribute
+ * The list's only job is to answer "who is in this class and what do I know
+ * about them", so the row is one button rather than a hundred small targets
+ * for a class of twenty-four: pressing it opens the student in the inspector, which is where a name, a photo and an attribute
  * are changed, and where removing one lives. The checkbox stays beside it,
  * because a checkbox inside a button is not a checkbox. While a selection is
  * being built the row ticks instead, like a mail client's selection mode.

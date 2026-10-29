@@ -31,11 +31,10 @@ import {
 /**
  * Which class is open — as the document name of the whole workspace.
  *
- * The switcher used to be the heading of a card on the class layer, which made
- * the open class invisible from the room and the plan although everything
- * there belongs to it. In the header it states the same thing on all three
- * layers, and everything a class itself can undergo — create, rename, delete —
- * stays in its dropdown, next to the class it acts on.
+ * Everything on the room and the plan belongs to the open class, so the header
+ * states it on all three layers, and everything a class itself can undergo —
+ * create, rename, delete — stays in its dropdown, next to the class it acts
+ * on.
  */
 export default function HeaderClassMenu() {
   const { t } = useTranslation(['students', 'generator']);

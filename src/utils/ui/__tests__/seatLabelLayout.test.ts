@@ -245,8 +245,8 @@ describe('fitNameOnSeat', () => {
   });
 
   // A double desk turned 45° either way in the editor, with its lock and a
-  // pill of badges: the name used to shrink to the minimum and slide under
-  // the pill.
+  // pill of badges: the name must neither shrink to the minimum nor slide
+  // under the pill.
   describe.each([-45, 45, -135, 135])('on a seat turned %i°', (turn) => {
     const shape: SeatShape = { ...SEAT, rotation: -turn, lock: true };
     const pill = placeSeatBadgePill(shape, 28, 10);

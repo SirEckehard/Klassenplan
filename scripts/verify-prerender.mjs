@@ -2,8 +2,8 @@
 // Copyright (C) 2026 Eike Schäfer
 //
 // Asserts that the prerendered files in dist/ really carry per-route metadata.
-// This is the regression test for the bug that motivated prerendering: every
-// URL used to ship the same shell, with a canonical pointing at `/`.
+// It guards against what prerendering exists for: every URL shipping the same
+// shell, with a canonical pointing at `/`.
 //
 // Runs as the last step of `npm run build:static` and fails the build.
 import { promises as fs } from 'node:fs';

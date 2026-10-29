@@ -5,9 +5,9 @@ import { normalizeHeaderKey } from '@/utils/data/csvNormalization';
 /**
  * Every column heading Klassenplan understands, in one place.
  *
- * This used to live inside `utils/data/csvUtils.ts`. It moved out unchanged so
- * three callers can share it without pulling the parser (and with it Papa,
- * the logger and `generateId`) along: the parser itself, the preamble skipper
+ * It lives apart from `utils/data/csvUtils.ts` so three callers can share it
+ * without pulling the parser (and with it Papa, the logger and `generateId`)
+ * along: the parser itself, the preamble skipper
  * that also runs inside the CSV worker, and the import preset detection.
  *
  * All entries are written in {@link normalizeHeaderKey} form — lower case,

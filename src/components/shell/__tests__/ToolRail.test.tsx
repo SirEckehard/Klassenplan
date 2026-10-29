@@ -244,8 +244,8 @@ describe('ToolRail', () => {
     expect(actions.triggerImport).toHaveBeenCalledTimes(1);
   });
 
-  // The panel is portalled to the end of the page. A keyboard user used to
-  // tab from the entry to the next one and never reached the menu.
+  // The panel is portalled to the end of the page, so a keyboard user would
+  // otherwise tab from the entry to the next one and never reach the menu.
   it('takes the focus into an opened panel and gives it back on Escape', async () => {
     renderRail();
     const entry = getButton(/Klassenwerkzeuge|Class tools/i);

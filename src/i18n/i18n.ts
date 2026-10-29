@@ -28,11 +28,10 @@ const NAMESPACES = [...EAGER_NAMESPACES, 'changelog'] as const;
  * other path German (decision 0011). `LanguageWrapper` enforces the same rule
  * after navigation.
  *
- * This used to come from i18next-browser-languagedetector (stored preference,
- * then browser language). The detector cached its result — `de-DE` — before the
- * `=== 'de'` check below ran, so every first visit loaded the English bundle,
- * rendered the German start page in English and switched back a frame later:
- * a visible flash, a layout shift and six wasted requests.
+ * No language detector: one that caches its result (`de-DE`) before an
+ * `=== 'de'` check runs makes a first visit load the English bundle, render
+ * the German start page in English and switch back a frame later — a visible
+ * flash, a layout shift and six wasted requests.
  */
 export function languageForPath(pathname: string): 'de' | 'en' {
   return /^\/en(\/|$)/.test(pathname) ? 'en' : 'de';

@@ -3,12 +3,10 @@
 /**
  * Where the circle lands on a printed sheet, and how large its places are.
  *
- * The circle used to be fitted into the 900×600 room first and the room into
- * the page, with places of a fixed 16 to 30 points — on a portrait sheet the
- * ring stayed in a landscape box, and the places were small whatever the
- * class. Here the ring itself, with its places and the photos docked outside
- * them, is fitted to the area the page leaves for it, and a place is as large
- * as the gap to its nearest neighbour allows.
+ * The ring itself, with its places and the photos docked outside them, is
+ * fitted to the area the page leaves for it rather than the 900×600 room it is
+ * drawn in, which would keep it in a landscape box on a portrait sheet. A
+ * place is as large as the gap to its nearest neighbour allows.
  */
 
 /** Smallest place on paper, in points. */

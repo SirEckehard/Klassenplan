@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 /**
- * Zentrale Validierungs-Schemas für DRY-Prinzip
- * Ersetzt duplizierten Validierungscode in Components
+ * Shared validators for strings and numbers, so components do not repeat
+ * their own checks.
  */
 
 /**

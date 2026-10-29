@@ -307,8 +307,8 @@ export function useRoomManagement({
   /**
    * A template loaded into the class is a room of its own, named after it
    * (decision 0024): the room that was open keeps its plan, parked. The
-   * message after it offers the way back — Ctrl/⌘+Z used to bring the old
-   * tables back, and the old room is where they are now.
+   * message after it offers the way back to that room, where the old tables
+   * are.
    */
   const createRoomFromTemplate = useCallback(
     (template: ClassroomTemplate): string | null => {

@@ -3,12 +3,12 @@
 /**
  * The sample class behind "Beispielklasse laden".
  *
- * A first visit used to start with an empty wizard: nothing to look at until a
- * whole class had been typed in or imported. The sample class fills that gap
- * with 24 invented students whose attributes exercise every criterion the
- * algorithm knows — restlessness, partner wishes, language levels, social
- * roles, seat preferences, performance — plus a furnished room, so steps 2 and
- * 3 can be tried straight away.
+ * Without it a first visit has nothing to look at until a whole class has been
+ * typed in or imported. The sample class brings 24 invented students whose
+ * attributes exercise every criterion the algorithm knows — restlessness,
+ * partner wishes, language levels, social roles, seat preferences,
+ * performance — plus a furnished room, so the room and the plan can be tried
+ * straight away.
  *
  * Everything here is plain data. The class is stored like any other class: no
  * marker, no special case in the persistence layer or the backup format

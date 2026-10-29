@@ -22,7 +22,7 @@ import {
 const rootDir = fileURLToPath(new URL('.', import.meta.url));
 
 // Read from the manifest rather than from `npm_package_version`, which only
-// npm scripts set: `npx vite build` used to ship "0.0.0" as the version, and
+// npm scripts set: `npx vite build` would ship "0.0.0" as the version, and
 // the update check and the changelog badge compare against it.
 const appVersion = (
   JSON.parse(readFileSync(path.join(rootDir, 'package.json'), 'utf8')) as {
@@ -71,10 +71,9 @@ const wrapInSingleQuotes = (value: string) =>
   SINGLE_QUOTE + value + SINGLE_QUOTE;
 
 /**
- * Loads the Tailwind plugin. A missing or broken plugin used to be swallowed
- * into an inert stub, which produces a *successful* build of a completely
- * unstyled app — the kind of failure that is only noticed after deployment.
- * Now it fails the build and says why.
+ * Loads the Tailwind plugin, and fails the build saying why when it is missing
+ * or broken: an inert stub in its place would produce a *successful* build of
+ * a completely unstyled app, noticed only after deployment.
  */
 const resolveTailwindcssPlugin = async (): Promise<PluginOption> => {
   let module: typeof import('@tailwindcss/vite');

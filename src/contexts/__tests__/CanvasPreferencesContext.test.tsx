@@ -1,12 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 /**
- * The canvas view toggles used to be `useState`/`usePersistentState` inside
- * `useSeatingPlanViewLogic`, drilled into the editor views as eight props — and
- * `EnhancedSeatingPlanView` kept a second `usePersistentState` on the same
- * `showGrid` key. These tests pin what moving them into one context has to
- * preserve: the same defaults, the same storage keys, and the same distinction
- * between what survives a reload and what does not.
+ * The canvas view toggles live in one context. These tests pin its defaults,
+ * its storage keys, and which settings survive a reload and which do not.
  */
 import '@testing-library/jest-dom/vitest';
 import { renderHook, act } from '@testing-library/react';
@@ -104,9 +100,9 @@ describe('CanvasPreferencesContext', () => {
 });
 
 describe('CanvasPreferencesContext view settings', () => {
-  // The table plan and the circle both read these. They used to keep a copy
-  // each, and the circle's container — mounted for both arrangements — never
-  // saw a change made in the table plan.
+  // The table plan and the circle both read these; the circle's container is
+  // mounted for both arrangements and must see a change made in the table
+  // plan.
   it('gives the plan and the circle one value, changed in either', async () => {
     const { result } = renderHook(
       () => ({ plan: useCanvasPreferences(), circle: useCanvasPreferences() }),

@@ -42,7 +42,7 @@ type Props = {
  * The frame is the workspace's, so the settings and the toolbar's switch stay
  * where they were a click ago. The line says what will come out of the printer
  * — or, while the circle is still being built, how far that has got, with the
- * way to stop it beside it; it used to float over the preview. Printing is the
+ * way to stop it beside it. Printing is the
  * page's one primary action, with the way back to the plan beside it as on
  * every layer; the files to save sit in the toolbar.
  */

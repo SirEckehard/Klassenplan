@@ -149,13 +149,10 @@ type Props = {
 /**
  * The memo has no custom comparator on purpose.
  *
- * It used to carry a hand-written one over 45 props, which had already drifted:
- * `selectedFeatureIds` and nine other props were missing from it, so a changed
- * feature selection would have been swallowed had the comparison ever
- * succeeded. It never did — `canvasHandlers` is rebuilt by
- * `CanvasInteractionLayer` on every render, and the comparator checked it by
- * identity. React's own shallow compare cannot develop that kind of blind spot,
- * and now that the handlers object is memoised it actually skips renders.
+ * A hand-written one over 45 props drifts as props are added, and a prop it
+ * misses swallows a change. React's own shallow compare cannot develop that
+ * kind of blind spot, and with the handlers object memoised it does skip
+ * renders.
  */
 const LayoutEditorView = React.memo(function LayoutEditorView({
   alignmentGuides,

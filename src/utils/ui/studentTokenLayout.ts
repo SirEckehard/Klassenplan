@@ -19,8 +19,8 @@
  * Circle slots (Sitzkreis) instead dock the avatar **radially outside** the
  * token via the `outward` param: the photo sits just beyond the token's outer
  * edge so it never overlaps the name, and its radius is self-contained (it does
- * not depend on the cramped space above the name — that previously made the
- * avatar vanish in the smaller PDF/print circles).
+ * not depend on the cramped space above the name, where it would vanish in the
+ * smaller PDF/print circles).
  */
 
 export interface TokenPhotoLayout {

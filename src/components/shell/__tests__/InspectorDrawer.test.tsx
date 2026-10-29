@@ -99,8 +99,8 @@ afterEach(() => {
 });
 
 describe('Inspector below lg', () => {
-  // An iPad in portrait used to open students into a column that stayed
-  // hidden below `lg`.
+  // An iPad in portrait has no inspector column below `lg`; a student opens
+  // in the drawer.
   it('opens a picked student as a drawer on a tablet', () => {
     setWidth(820);
     mocks.state.step = 1;

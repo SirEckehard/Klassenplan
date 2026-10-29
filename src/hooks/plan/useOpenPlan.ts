@@ -9,9 +9,9 @@ import type { SavedPlan } from '@/types';
  * been saved.
  *
  * Found by `activePlanId`, the id a save writes to (`resolvePlanSlot`), not by
- * the name: the save panel and the exits used to look the plan up by name
- * while the persistence went by id, and wherever the two disagreed the panel
- * offered a rename the persistence then refused.
+ * the name: looked up by name while the persistence goes by id, the panel and
+ * the exits could see another plan than a save writes to, and the panel would
+ * offer a rename the persistence then refuses.
  */
 export function useOpenPlan(): SavedPlan | undefined {
   const { activePlanId, seatingHistory } = useSeatingPlanState();

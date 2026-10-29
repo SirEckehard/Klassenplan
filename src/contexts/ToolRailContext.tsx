@@ -12,11 +12,9 @@ import { isBreakpointUp } from '@/hooks/ui/useBreakpoint';
  * Whether the layer's toolbar shows its labels — one answer for the whole
  * workspace.
  *
- * The toolbar used to carry its own switch in a header above the tools, which
- * cost it a row and made it announce itself as a panel. The switch belongs
- * with the other things that act on the workspace rather than on the class, so
- * it sits in the status bar and the state has to be reachable from both ends
- * of the window.
+ * The toolbar has no header of its own: its switch belongs with the other
+ * things that act on the workspace rather than on the class, so it sits in the
+ * status bar and the state has to be reachable from both ends of the window.
  *
  * A phone has no column, only a drawer, and its switch sits in the status bar
  * too — so whether the drawer is open is shared state as well.

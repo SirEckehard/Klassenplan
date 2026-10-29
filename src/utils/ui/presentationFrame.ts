@@ -106,11 +106,10 @@ const alongWall = (
 /**
  * The room elements a projection framed on the tables draws, and where.
  *
- * The frame around the plan used to reach out to the walls, because that is
- * where the board and the windows hang: on an interactive whiteboard the
- * tables filled a quarter of the screen and the names came out half their
- * size. Each wall element — board, window, door — now keeps its side of the
- * room, the board in front and the windows on their side, but stands
+ * A frame reaching out to the walls, where the board and the windows hang,
+ * would leave the tables a quarter of an interactive whiteboard and the names
+ * half their size. So each wall element — board, window, door — keeps its
+ * side of the room, the board in front and the windows on their side, but stands
  * `WALL_GAP` from the outermost table; along its wall it is held within the
  * tables' extent (`alongWall`): a window front longer than the rows is cut to
  * them, and a door in a far corner is still hinted at the frame's edge. An

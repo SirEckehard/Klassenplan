@@ -212,7 +212,7 @@ export const STUDENT_FLAGS: {
   family: DataFamily;
   exclusiveWith?: 'performanceStrong' | 'performanceWeak';
 }[] = [
-  // Fähigkeiten/Eigenschaften (ändern sich selten)
+  // Abilities and traits, which change rarely
   {
     key: 'performanceStrong',
     family: 'learning',
@@ -236,7 +236,7 @@ export const STUDENT_FLAGS: {
     icon: MapPinAreaIcon,
     tooltip: 'Benötigt einen festen vorderen Platz',
   },
-  // Verhalten (kontextabhängig)
+  // Behaviour, which depends on the situation
   {
     key: 'restless',
     family: 'behavior',

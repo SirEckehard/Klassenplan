@@ -33,12 +33,11 @@ type Props<T extends string> = {
  *
  * The active option is a raised paper pill, never a blue one: blue means "you
  * can act here", and picking which of several views you are looking at is not
- * an action. Three places grew their own version of this before the token
- * existed — the layer switcher, the seating mode toggle and the dialog tabs.
+ * an action.
  *
- * To a screen reader it is a group of toggle buttons, one of them pressed. It
- * used to announce itself as tabs, which promised arrow-key navigation it never
- * had and tab panels it does not own.
+ * To a screen reader it is a group of toggle buttons, one of them pressed —
+ * not tabs, which would promise arrow-key navigation it does not have and tab
+ * panels it does not own.
  */
 export default function SegmentedControl<T extends string>({
   options,

@@ -24,8 +24,8 @@ type PhotoDisplayGroupOptions = {
 /**
  * The "Schülerfotos" group of the view settings: on, on hover, off. The table
  * plan and the circle share the setting (`CanvasPreferencesContext`) and so
- * the group, which used to be written out in both views. Plain function (not a
- * hook) so callers can use it inside their `useMemo`.
+ * the group. Plain function (not a hook) so callers can use it inside their
+ * `useMemo`.
  */
 export function buildPhotoDisplayGroup({
   id,

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 /**
- * Hit areas used to follow the viewport width, so a tablet in landscape — the
- * likely orientation for setting up a classroom — got mouse-sized drag targets
- * on a touch screen. This hook is the separate signal that fixes that.
+ * Hit areas follow the pointer, not the viewport width: a tablet in
+ * landscape — the likely orientation for setting up a classroom — must get
+ * finger-sized drag targets.
  */
 import { describe, it, expect, afterEach, vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react';

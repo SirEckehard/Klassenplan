@@ -909,9 +909,8 @@ function extractName(
     const firstName = readCell(nameInfo.firstNameKey);
     const lastName = readCell(nameInfo.lastNameKey);
     const combined = `${firstName} ${lastName}`.trim();
-    // Neither part present: fall back to the full-name column instead of
-    // dropping the name, which is what "combine" used to do on a file whose
-    // only name column is a combined one.
+    // Neither part present: fall back to the full-name column rather than
+    // drop the name — a file's only name column may be a combined one.
     return sanitizeStudentName(combined || readCell(nameInfo.fullNameKey));
   }
 

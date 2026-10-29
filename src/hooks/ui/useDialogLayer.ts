@@ -8,11 +8,10 @@ import { useEffect, useId, useSyncExternalStore } from 'react';
  * Two views need to know whether something is open above them before acting on
  * Escape: the student list would otherwise drop the whole selection behind an
  * open popover, and the layout editor would clear the canvas selection from
- * under a modal. Both used to ask the DOM — `document.querySelector('[role="dialog"],
- * [role="menu"]')` — which turned an ARIA role into application state: every new
- * component that legitimately carried one of those roles silently changed the
- * Escape behaviour of two unrelated views, and the overlays carried comments
- * explaining that they wore the role for that reason.
+ * under a modal. Neither asks the DOM for `[role="dialog"], [role="menu"]`:
+ * that would turn an ARIA role into application state, and every component
+ * that legitimately carries one of those roles would silently change the
+ * Escape behaviour of two unrelated views.
  *
  * Registration is explicit instead. Overlays call {@link useDialogLayer} while
  * they are open; the innermost registered layer owns Escape. Roles go back to

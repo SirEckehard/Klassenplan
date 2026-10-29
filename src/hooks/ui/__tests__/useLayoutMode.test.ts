@@ -2,9 +2,9 @@
 // Copyright (C) 2026 Eike Schäfer
 /**
  * The layout tier decides whether a teacher sees the classroom canvas and the
- * options at the same time. It used to be one boolean at `lg`, which handed
- * every iPad in portrait the phone UI — floating button, full-screen sheet, no
- * sidebar. These tests pin the three tiers to the widths that produce them.
+ * options at the same time. A single boolean at `lg` would hand every iPad in
+ * portrait the phone UI. These tests pin the three tiers to the widths that
+ * produce them.
  */
 import { describe, it, expect, afterEach } from 'vitest';
 import { act, renderHook } from '@testing-library/react';

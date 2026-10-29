@@ -45,7 +45,7 @@ describe('fitPrintRing', () => {
       withPhotos: false,
     });
     staysInside(ring, false);
-    // A place used to have a radius of 22 points for 24 students.
+    // Larger than the 22 points a fixed size would give 24 students.
     expect(ring.tokenRadius).toBeGreaterThan(25);
     // It fills the area in whichever direction binds, here the height.
     const ys = [...ring.positions.values()].map(({ y }) => y);

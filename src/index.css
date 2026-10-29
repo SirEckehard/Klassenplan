@@ -246,10 +246,9 @@
   --canvas-shadow: 0 1px 2px rgba(23, 24, 26, 0.05);
   /*
    * The room editor's own marks, which no export carries. Selection is the
-   * one accent, the blue that says "you act here" everywhere else; the
-   * drawing used to select in two other blues of its own. Guides stay amber
-   * so they never read as a selection, a predicted photo collision is the
-   * alert.
+   * one accent, the blue that says "you act here" everywhere else, never a
+   * blue of the drawing's own. Guides stay amber so they never read as a
+   * selection, a predicted photo collision is the alert.
    */
   --canvas-selection: var(--focus-ring-primary);
   --canvas-selection-fill: color-mix(
@@ -1322,10 +1321,9 @@
 }
 
 /*
- * One row of a dropdown menu. The settings menus used to hand-paint their rows
- * (`hover:bg-blue-50 dark:hover:bg-blue-950/40`), which put a second blue into
- * a surface that is meant to be paper — blue says "you can act here", and a
- * hovered row is not an action, it is a pointer.
+ * One row of a dropdown menu. A hovered row stays paper and never turns blue:
+ * blue says "you can act here", and a hovered row is not an action, it is a
+ * pointer.
  *
  * The focus ring lies inside the row: a menu that scrolls clips whatever
  * stands outside its rows.

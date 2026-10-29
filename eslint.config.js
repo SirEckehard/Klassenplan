@@ -46,12 +46,12 @@ const testFiles = [
 ];
 
 const UI_ALGORITHM_MESSAGE =
-  'UI-Code erreicht "@/utils/algorithm" über Hooks und Contexts. Erlaubt sind Typ-Importe sowie seatingStatistics, criterionHighlights und circleSummary (siehe docs/MODULE_BOUNDARIES.md).';
+  'UI code reaches "@/utils/algorithm" through hooks and contexts. Allowed are type imports and seatingStatistics, criterionHighlights and circleSummary (see docs/MODULE_BOUNDARIES.md).';
 const UI_DATA_MESSAGE =
-  'UI-Code erreicht "@/utils/data" über Hooks und Repositories. Erlaubt sind Typ-Importe sowie planUsage; Storage-Keys kommen aus "@/utils" (siehe docs/MODULE_BOUNDARIES.md).';
+  'UI code reaches "@/utils/data" through hooks and repositories. Allowed are type imports and planUsage; storage keys come from "@/utils" (see docs/MODULE_BOUNDARIES.md).';
 
 export default defineConfig([
-  // TypeScript, React, React-Hooks via FlatCompat (kein natives Flat Config)
+  // TypeScript, React and React Hooks through FlatCompat (no native flat config)
   ...fixupConfigRules(
     compat.extends(
       'eslint:recommended',
@@ -61,11 +61,11 @@ export default defineConfig([
     ),
   ),
 
-  // eslint-plugin-import-x: natives Flat Config, ESLint 10 kompatibel
+  // eslint-plugin-import-x: native flat config, works with ESLint 10
   importX.flatConfigs.recommended,
   importX.flatConfigs.typescript,
 
-  // Basiseinstellungen (ohne Parser!):
+  // Base settings (no parser here)
   {
     languageOptions: {
       ecmaVersion: 2020,
@@ -76,10 +76,10 @@ export default defineConfig([
       },
     },
     settings: {
-      // React-Warnung beheben:
+      // Detect the React version instead of warning about it
       react: { version: 'detect' },
 
-      // Resolver für import-x:
+      // Resolver for import-x
       'import-x/resolver': {
         typescript: {
           project: ['./tsconfig.json'],
@@ -111,7 +111,7 @@ export default defineConfig([
     },
   },
 
-  // Nur TS/TSX-Dateien bekommen den TS-Parser + project:
+  // Only TS/TSX files get the TypeScript parser and the project
   {
     files: ['**/*.ts', '**/*.tsx'],
     languageOptions: {
@@ -196,7 +196,7 @@ export default defineConfig([
                 'workers',
               ].flatMap((layer) => [`@/${layer}`, `@/${layer}/*`]),
               message:
-                'Utils sind die unterste Schicht und importieren weder UI noch Hooks, Contexts, Stores, State-Machines, Services, Repositories oder Worker (siehe docs/MODULE_BOUNDARIES.md).',
+                'Utils are the bottom layer and import no UI, hooks, contexts, stores, state machines, services, repositories or workers (see docs/MODULE_BOUNDARIES.md).',
             },
           ],
         },
@@ -204,7 +204,7 @@ export default defineConfig([
     },
   },
 
-  // Tooling-/Config-Dateien: Import-Regeln deaktivieren
+  // Tooling and config files: no import rules
   {
     files: ['vite.config.ts', 'playwright.config.ts', 'eslint.config.js'],
     languageOptions: {
@@ -220,7 +220,7 @@ export default defineConfig([
     },
   },
 
-  // Globale Ignores
+  // Global ignores
   globalIgnores([
     'node_modules/**',
     'dist/**',
@@ -230,7 +230,7 @@ export default defineConfig([
     'coverage/**',
   ]),
 
-  // Test-Dateien: Relaxed Rules
+  // Test files: relaxed rules
   {
     files: [
       'src/**/*.test.ts',

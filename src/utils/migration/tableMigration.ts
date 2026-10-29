@@ -8,42 +8,41 @@ import type {
 import { TABLE_PRESETS } from '@/utils';
 
 /**
- * Migriert einen einzelnen Tisch von 90° Rotation zu den neuen Dimensionen
+ * Migrates one table stored turned by 90° to the upright dimensions of its
+ * template.
  */
 function migrateTable(table: ClassroomTable): ClassroomTable {
-  // Nur single und double Tische sind betroffen
+  // Only single and double tables were stored turned
   if (table.templateType !== 'single' && table.templateType !== 'double') {
-    return table; // group4 Tische bleiben unverändert
+    return table; // Group tables stay as they are
   }
 
-  // Nur 90° rotierte Tische migrieren
+  // Only tables turned by 90° need it
   if (table.rotation !== 90) {
-    return table; // Bereits migrierte oder 0° Tische
+    return table; // Already migrated or upright
   }
 
   const newPreset = TABLE_PRESETS[table.templateType];
 
-  // Berechne das Zentrum des alten Tisches
+  // The old table's centre
   const centerX = table.x + table.width / 2;
   const centerY = table.y + table.height / 2;
 
-  // Neue Position mit neuen Dimensionen (zentriert um das alte Zentrum)
+  // The new dimensions, centred on the old centre
   const newX = centerX - newPreset.width / 2;
   const newY = centerY - newPreset.height / 2;
 
   return {
     ...table,
-    x: Math.max(0, newX), // Verhindere negative Positionen
+    x: Math.max(0, newX), // Never left of or above the room
     y: Math.max(0, newY),
     width: newPreset.width,
     height: newPreset.height,
-    rotation: 0, // Neue Tische haben 0° Rotation
+    rotation: 0, // Templates stand upright
   };
 }
 
-/**
- * Migriert eine komplette ClassroomScene
- */
+/** Migrates every table of a scene. */
 export function migrateClassroomScene(scene: ClassroomScene): ClassroomScene {
   return {
     ...scene,
@@ -51,9 +50,7 @@ export function migrateClassroomScene(scene: ClassroomScene): ClassroomScene {
   };
 }
 
-/**
- * Migriert ein ClassroomTemplate
- */
+/** Migrates the scene of a room template. */
 export function migrateClassroomTemplate(
   template: ClassroomTemplate,
 ): ClassroomTemplate {
@@ -63,9 +60,7 @@ export function migrateClassroomTemplate(
   };
 }
 
-/**
- * Prüft, ob eine Scene Migration benötigt
- */
+/** Whether a scene holds a table the migration turns. */
 export function needsMigration(scene: ClassroomScene): boolean {
   return scene.tables.some(
     (table) =>
@@ -74,16 +69,12 @@ export function needsMigration(scene: ClassroomScene): boolean {
   );
 }
 
-/**
- * Prüft, ob ein Template Migration benötigt
- */
+/** Whether a room template holds a table the migration turns. */
 export function templateNeedsMigration(template: ClassroomTemplate): boolean {
   return needsMigration(template.scene);
 }
 
-/**
- * Migrations-Statistiken für Debugging
- */
+/** What a migration changed, for the log. */
 export interface MigrationStats {
   totalTables: number;
   migratedTables: number;
@@ -92,9 +83,7 @@ export interface MigrationStats {
   group4Tables: number;
 }
 
-/**
- * Sammelt Statistiken über eine Migration
- */
+/** Counts the tables a migration saw and changed. */
 export function getMigrationStats(
   originalScene: ClassroomScene,
   migratedScene: ClassroomScene,
@@ -111,12 +100,12 @@ export function getMigrationStats(
     const original = originalTables[i];
     const migrated = migratedTables[i];
 
-    // Zähle nach Template-Typ
+    // Count by template
     if (original.templateType === 'single') singleCount++;
     else if (original.templateType === 'double') doubleCount++;
     else if (original.templateType === 'group4') group4Count++;
 
-    // Prüfe ob migriert wurde (Rotation von 90° auf 0° geändert)
+    // Migrated: turned from 90° to upright
     if (original.rotation === 90 && migrated.rotation === 0) {
       migratedCount++;
     }

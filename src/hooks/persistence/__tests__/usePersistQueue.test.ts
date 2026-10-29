@@ -350,7 +350,7 @@ describe('page lifecycle flush', () => {
       result.current.queuePersist('students', students);
     });
     // The idle callback never fired, so nothing has reached the database yet —
-    // this is the window in which closing the tab used to lose the edit.
+    // this is the window in which closing the tab must not lose the edit.
     expect(harness.repository.saveClassSnapshot).not.toHaveBeenCalled();
 
     await act(async () => {

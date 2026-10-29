@@ -45,10 +45,8 @@ type Props = {
 /**
  * Everything about one student, grouped and labelled.
  *
- * The controls are the same components the row used to carry — they already
- * knew how to edit a student, they were just wedged into sixteen unlabelled
- * columns. Here they get their `hybrid` variant (icon plus word) and a heading
- * that says which pedagogical family they belong to, in that family's colour.
+ * Each control stands in a row with its name, under a heading that says which
+ * pedagogical family it belongs to, in that family's colour.
  */
 export default function StudentInspector({
   student,
