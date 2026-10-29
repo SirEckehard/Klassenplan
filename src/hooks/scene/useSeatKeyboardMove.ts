@@ -173,6 +173,11 @@ export function useSeatKeyboardMove({
       if (event.key !== 'Enter' && event.key !== ' ') {
         return;
       }
+      // Ctrl/⌘+Enter mixes (`usePlanShortcuts`) — a clicked seat keeps the
+      // focus, so grabbing here would swallow the shortcut.
+      if (event.ctrlKey || event.metaKey || event.altKey) {
+        return;
+      }
       event.preventDefault();
       event.stopPropagation();
 

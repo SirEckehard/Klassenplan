@@ -68,6 +68,23 @@ describe('useSeatKeyboardMove', () => {
     expect(result.current.keyboardAnnouncement).toMatch(/Ada Lovelace/);
   });
 
+  it('leaves Ctrl/⌘+Enter to the mix shortcut', () => {
+    const { result } = setup();
+
+    for (const modifier of ['ctrlKey', 'metaKey'] as const) {
+      const event = {
+        ...createKeyEvent('Enter'),
+        [modifier]: true,
+      } as unknown as React.KeyboardEvent<SVGRectElement>;
+      act(() => {
+        result.current.handleSeatKeyDown(event, seatInfo());
+      });
+      expect(event.stopPropagation).not.toHaveBeenCalled();
+      expect(event.preventDefault).not.toHaveBeenCalled();
+    }
+    expect(result.current.keyboardMoveOrigin).toBeNull();
+  });
+
   it('moves the student when dropping on another seat with Space', () => {
     const { result } = setup();
 

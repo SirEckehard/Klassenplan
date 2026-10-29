@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- Ctrl/⌘+Enter mixes again after clicking a student in the seating plan, instead of picking the student up to move them
 - After mixing, the students no longer jump half-way at the start of their glide on a slower computer: they set off from their old seats and glide the whole way at an even pace
 - A student gliding to a new seat already has the rounded corners and the table's outline of the seat they land in, so nothing jumps when they arrive; the preview while dragging a student is rounded like the tables too
 

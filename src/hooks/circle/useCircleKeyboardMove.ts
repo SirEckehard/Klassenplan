@@ -81,6 +81,8 @@ export function useCircleKeyboardMove({
       }
 
       if (event.key !== 'Enter' && event.key !== ' ') return;
+      // A modified Enter is a shortcut of the plan layer, not a pick-up.
+      if (event.ctrlKey || event.metaKey || event.altKey) return;
       event.preventDefault();
 
       if (origin === null) {
