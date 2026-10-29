@@ -174,9 +174,12 @@ export const isCloseKind = (kind: number): boolean =>
 const rankFactor = (factors: readonly number[], rank: number): number =>
   factors[rank] ?? factors[factors.length - 1] ?? 1;
 
-/** Whether either of the two wishes the other — the wish belongs to the pair. */
-const factsWishEachOther = (a: StudentFacts, b: StudentFacts) =>
-  a.wishRank.has(b.id) || b.wishRank.has(a.id);
+/** Whether each of the two wishes the other while wishes count. */
+export const wishEachOther = (
+  weights: CriterionWeights,
+  a: StudentFacts,
+  b: StudentFacts,
+): boolean => weights.wish > 0 && a.wishRank.has(b.id) && b.wishRank.has(a.id);
 
 /**
  * The reward one directed wish earns: none while the wished classmate keeps a
@@ -199,14 +202,18 @@ const directedAvoid = (from: StudentFacts, to: StudentFacts): number => {
 };
 
 /**
- * Whether the history counts a pair: not while wishes count and the two wish
- * each other, since a pair the class asked for is no repetition to break up.
+ * How much the history counts a pair (decision 0033): fully, and while wishes
+ * count `mutualWishRepetition` for two students who wish each other — a
+ * friendship the class asked for holds longer. A one-sided wish counts in
+ * full, so the wished classmate is not tied to the one who wished, and a
+ * student with several wishes takes them in turn.
  */
-export const historyCounts = (
+const historyFactor = (
   weights: CriterionWeights,
   a: StudentFacts,
   b: StudentFacts,
-): boolean => !(weights.wish > 0 && factsWishEachOther(a, b));
+): number =>
+  wishEachOther(weights, a, b) ? CRITERION_WEIGHTS.mutualWishRepetition : 1;
 
 /** The history weight of a pair, see `buildPreviousPairs`. */
 export const historyWeight = (
@@ -269,9 +276,12 @@ export const pairTerm = (
   }
 
   if (isTableKind(kind)) {
-    if (weights.previous > 0 && historyCounts(weights, a, b)) {
+    if (weights.previous > 0) {
       score +=
-        weights.previous * historyWeight(previousPairs, a, b) * closeness;
+        weights.previous *
+        historyWeight(previousPairs, a, b) *
+        historyFactor(weights, a, b) *
+        closeness;
     }
     const mixed = (a.strong && b.weak) || (a.weak && b.strong);
     const sameLevel = (a.strong && b.strong) || (a.weak && b.weak);

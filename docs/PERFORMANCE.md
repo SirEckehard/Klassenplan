@@ -82,6 +82,8 @@ The fixture is one synthetic class in one room; differences of one or two points
 
 On 2026-10-29 a room of tables of six joined (`arrangeTables('group6', 5)`, 28 students), and the steps at a group table ([decision 0031, addendum of 2026-10-29](decisions/0031-one-criterion-model.md#addendum-of-2026-10-29-where-a-seat-sits-at-a-group-table)) moved the group tables: tables of four 88.8 → 89.7 %, tables of six 86.0 → 87.2 % (64 ms per mix), mixed and turned tables unchanged at 86.7 %, the double and single desks unchanged. The social roles at the group tables lose a few points, which the addendum explains.
 
+The same day [decision 0033](decisions/0033-wishes-take-turns.md) let wishes take turns: only the room with history and locks moves (85.0 → 84.9 %), where the one-sided wish pairs of its random history now cost and the mixing trades "Fördern (heterogen)" for "Sprachförderung". What the rule is for — a run of plans — is measured by `src/utils/algorithm/__tests__/mixRuns.test.ts` (`MIX_RUNS=1 npx vitest run mixRuns`): six plans one after the other in three rooms, 30 seeds each, about 20 s; its figures are in the decision.
+
 The schedule was checked again on the score itself, 20 seeds of 26 students at double desks: the default reached −173.5 (90.1 % fulfilment, 18 ms), cooling at 0.99 −176.1 (90.1 %, 48 ms), at 0.995 with 200 swaps per step −179.8 (91.0 %, 384 ms). One annealing comes close to its best, so the schedule stays and "Mischen" takes three starts instead, which settle what one leaves to chance for little time.
 
 ## Core Web Vitals monitoring

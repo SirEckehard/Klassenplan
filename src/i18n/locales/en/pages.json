@@ -286,7 +286,7 @@
       },
       "force": {
         "q": "Are preferred partners always considered?",
-        "a": "With the “Preferred Partners” criterion at “Consider” or higher, the algorithm seats pairs together unless other criteria speak more strongly against it. If the wished classmate has a distance request for the one wishing, the distance request comes first. A seat at the same group table or directly at the next table counts as partly met."
+        "a": "With the “Preferred Partners” criterion at “Consider” or higher, the algorithm seats pairs together unless other criteria speak more strongly against it. If the wished classmate has a distance request for the one wishing, the distance request comes first. A seat at the same group table or directly at the next table counts as partly met. Over several plans, wishes take turns while “Repetition” is on: whoever last sat beside their preferred partner is more likely to sit with another of their wishes next time. Students who wish each other mostly stay together."
       },
       "needs": {
         "q": "How does the system handle restless behavior, concentration difficulties, and distance wishes?",
@@ -362,7 +362,7 @@
         "li2_b": "Distance wishes:",
         "li2": "Share of distance requests kept (not at the same table and not directly beside, in front or behind)",
         "li3_b": "Repetition:",
-        "li3": "Share of new table pairs (no repetition from earlier plans; wish pairs do not count as repetition)",
+        "li3": "Share of new table pairs (no repetition from earlier plans; students who wish each other do not count as repetition)",
         "li4_b": "Restless Behavior/Concentration:",
         "li4": "Share of the students concerned without a neighbor concerned as well",
         "li5_b": "Genders:",
@@ -374,7 +374,7 @@
       },
       "repeat": {
         "q": "How does repeat avoidance work?",
-        "intro": "Repeat avoidance only counts seating charts that were really in use. Pairs from older plans count less with age; who sat together more often counts more. Mere mixes do not count: mixing several times in a row is just trying things out, and chance and the other criteria see to it that the next mix turns out differently.",
+        "intro": "Repeat avoidance only counts seating charts that were really in use. Pairs from older plans count less with age; who sat together more often counts more. Mere mixes do not count: mixing several times in a row is just trying things out, and chance and the other criteria see to it that the next mix turns out differently. A one-sided wish counts like any other pair, so that wishes take turns and nobody sits beside the classmate who wished for them week after week; a mutual wish counts only half.",
         "usageIntro": "Klassenplan keeps track of which seating charts were really in use. If you use automatic detection, Klassenplan watches for the following actions:",
         "usage1": "Showing a seating chart in presentation mode",
         "usage2": "Printing a seating chart or exporting it as PDF, PNG or SVG",

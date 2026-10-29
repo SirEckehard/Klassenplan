@@ -14,6 +14,7 @@ import type {
   ClassroomScene,
   ClassroomTable,
   MixSettings,
+  SavedPlan,
   SeatingArrangement,
   Student,
 } from '@/types';
@@ -402,6 +403,54 @@ describe('mixing after the review of 2026-10-18', () => {
       expect(plan[4]![1]?.id).toBe('s3');
       expect(plan[4]![0]).toBeNull();
       expect(plan[0]![0]?.id).toBe('s8');
+    }
+  });
+});
+
+describe('wish pairs and repetition (decision 0033)', () => {
+  /** A plan in use at the double desks: students two by two, in order. */
+  const planInUse = (students: Student[]): SavedPlan => ({
+    id: 'before',
+    name: 'Before',
+    date: '2026-10-01',
+    scene: doubles,
+    seating: doubles.tables.map((_, tableIndex) => [
+      students[2 * tableIndex] ?? null,
+      students[2 * tableIndex + 1] ?? null,
+    ]),
+  });
+  const mixAfter = (students: Student[], seed: number) =>
+    runMixSession(
+      students,
+      [planInUse(students)],
+      {},
+      settings({ considerWishPartners: 8, avoidPreviousPairs: 6 }),
+      doubles,
+      { rng: createRng(seed), refine: true },
+    );
+
+  it('takes the second wish when the first one sat beside the student last time', () => {
+    const students = Array.from({ length: 20 }, (_, index) =>
+      student(`s${index}`),
+    );
+    students[0]!.wishPartnerIds = ['s1', 's2'];
+    for (let seed = 1; seed <= 10; seed++) {
+      expect(relationOf(doubles, mixAfter(students, seed), 's0', 's2')).toBe(
+        'partner',
+      );
+    }
+  });
+
+  it('keeps two students who wish each other together', () => {
+    const students = Array.from({ length: 20 }, (_, index) =>
+      student(`s${index}`),
+    );
+    students[0]!.wishPartnerIds = ['s1', 's2'];
+    students[1]!.wishPartnerIds = ['s0'];
+    for (let seed = 1; seed <= 10; seed++) {
+      expect(relationOf(doubles, mixAfter(students, seed), 's0', 's1')).toBe(
+        'partner',
+      );
     }
   });
 });

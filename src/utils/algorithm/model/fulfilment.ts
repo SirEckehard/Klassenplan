@@ -18,11 +18,11 @@ import type { ScalarMixSettingKey } from '@/types';
 import { isTableActive } from '@/utils/math/scene';
 import {
   genderExcess,
-  historyCounts,
   historyWeight,
   isCloseKind,
   isTableKind,
   relationWeight,
+  wishEachOther,
   GENDER_COUNT,
 } from './criteria';
 import { frontRowsOf, toleratesRowBehind } from './frontPool';
@@ -262,7 +262,10 @@ export function evaluateCriteria(
     }
   }
 
-  // Repetition: the pairs at one table, by the history's weight.
+  // Repetition: the pairs at one table, by the history's weight. Two students
+  // who wish each other and stay together are what the class asked for, not
+  // a repetition the plan failed to part (decision 0033): the mixing counts
+  // them at `mutualWishRepetition`, the fulfilment leaves them out.
   const previous = new CaseCollector();
   for (let a = 0; a < size; a++) {
     const i = occupants[a]!;
@@ -271,7 +274,7 @@ export function evaluateCriteria(
       const b = relation.seat;
       if (b <= a || !isTableKind(relation.kind)) continue;
       const j = occupants[b]!;
-      if (j < 0 || !historyCounts(weights, facts[i]!, facts[j]!)) continue;
+      if (j < 0 || wishEachOther(weights, facts[i]!, facts[j]!)) continue;
       const weight = historyWeight(context.previousPairs, facts[i]!, facts[j]!);
       previous.add(1 - Math.min(1, weight) * relationWeight(relation.kind), [
         a,

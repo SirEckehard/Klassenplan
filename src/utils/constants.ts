@@ -329,6 +329,12 @@ export const CRITERION_WEIGHTS = {
   avoidRank: [1, 0.9, 0.8],
   /** A distance wish weighs twice a wish of the same level: avoid wins */
   avoid: 2,
+  /**
+   * How much a repetition of two students who wish each other counts, while
+   * wishes count (decision 0033): half, so a friendship holds longer than a
+   * one-sided wish, which counts like any pair.
+   */
+  mutualWishRepetition: 0.5,
   gender: {
     /** Per student by which a gender holds more than half of a table */
     tableExcess: 2,

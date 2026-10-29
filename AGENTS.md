@@ -28,7 +28,8 @@ it for Antigravity — edit this file, never those two.
 - Live addressing: `npm run check:live-seo` (after a deploy, by hand: every sitemap address answers 200 and is its own canonical, slash/`http://`/`www.` spellings redirect permanently, unknown addresses are 404; decision 0029)
 - Docs consistency: `npm run check:docs` (relative links, heading anchors and `src/…`-style paths in Markdown resolve; `docs/CHANGELOG.md` is skipped)
 - Algorithm runtime: `npm run bench` (by hand, not in CI; figures in `docs/PERFORMANCE.md`)
-- Mix quality: `MIX_QUALITY=1 npx vitest run mixQuality` (by hand: five rooms, 30 seeds each, every criterion's fulfilment and the time per mix; figures in `docs/PERFORMANCE.md` and decision 0031)
+- Mix quality: `MIX_QUALITY=1 npx vitest run mixQuality` (by hand: six rooms, 30 seeds each, every criterion's fulfilment and the time per mix; figures in `docs/PERFORMANCE.md` and decision 0031)
+- Mix runs: `MIX_RUNS=1 npx vitest run mixRuns` (by hand: six plans one after the other in three rooms, 30 seeds each — how wishes take turns, whether friends stay together, how pairs repeat and every criterion's fulfilment over the run; figures in decision 0033)
 
 **Current Code Quality Status (2026-10-26):**
 

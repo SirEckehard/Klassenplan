@@ -262,3 +262,29 @@ more and the mixing trades a role for a better pair; raising their weight
 would move every room, the double and single desks too, so it stays as it is
 — "Sehr wichtig" gives the roles precedence. Double desks and single desks
 mix as before, and a mix takes no longer.
+
+Repetition reads the same steps, while the history only knows who shared a
+table: a group put together again at the far seats of a table of six costs
+0.4 instead of 0.6. Measured over a run of five plans, each mixed with the
+ones before as its history (30 seeds, plans 2 to 5, pairs that wish to sit
+together left out, which were then no repetition), repeated table pairs per
+plan against every earlier plan:
+
+| Room, repetition at            | before | after | close (partner, corner, across) | further away |
+| ------------------------------ | -----: | ----: | ------------------------------: | -----------: |
+| Tables of six, recommended     |   7.03 |  7.87 |                     2.74 → 1.05 |  4.28 → 6.82 |
+| Tables of six, "Sehr wichtig"  |   5.24 |  5.93 |                     1.96 → 0.47 |  3.28 → 5.47 |
+| Tables of four, recommended    |   1.38 |  1.79 |                     0.77 → 0.30 |  0.61 → 1.49 |
+| Tables of four, "Sehr wichtig" |   0.39 |  0.84 |                     0.17 → 0.06 |  0.23 → 0.78 |
+
+A table of six seats about 50 pairs that do not wish each other; a random
+plan repeats about 11 of the plan before, the mixing 2.4 (2.0 before). So
+repetition is still held off firmly, and where a pair repeats it now sits at
+the far end of the table rather than shoulder to shoulder: close repetitions
+fall by about 60 %, the far ones rise. Read as the make-up of a group working
+at the whole table that is a small step back (+12 %), read as who talks to
+and distracts whom a step forward, and the second reading is the one the other
+criteria now follow. A flat weight for repetition alone would win back the
+0.8 pairs and most likely the close repetitions with them, so it stays as it
+is; "Sehr wichtig" holds the groups apart harder than the recommended level
+did before.

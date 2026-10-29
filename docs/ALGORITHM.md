@@ -77,7 +77,7 @@ table):
 | Distanzwünsche                | penalty per directed distance wish, twice a wish's weight (1 / 0.9 / 0.8)               | all                            |
 | Unruhe, Ablenkbarkeit         | penalty for two restless or two distractible students, by the larger special weight     | all                            |
 | Ablenkbar neben Unruhig       | penalty when one is distractible and the other restless, either way round               | all                            |
-| Wiederholung                  | penalty by the history's weight of the pair; none for a wish pair while wishes count    | same table                     |
+| Wiederholung                  | penalty by the history's weight of the pair; half for two who wish each other           | same table                     |
 | Geschlechter                  | per table the students by which a gender holds more than half; same gender side by side | partner, corner, beside; table |
 | Fördern (heterogen / homogen) | reward for a strong and a weak student (or two of one level), penalty for the other     | same table                     |
 | Schüchternheit                | penalty for a shy student with no taken seat close by                                   | same table, beside             |
@@ -379,12 +379,19 @@ presenting, exporting or saving a plan would turn its own pairs into
 repetitions and drop its "Wiederholung" towards 0 %. The mixing passes no
 `plan` — the plan on screen, once in use, is the newest plan to part.
 
-### Wish pairs are exempt
+### Wishes take turns
 
-A pair the class asked for is not a repetition worth breaking up: while
-`considerWishPartners` is active, `avoidPreviousPairs` skips its penalty for a
-wish pair — in the one pair term the construction, the refinement and the
-fulfilment share (`historyCounts` in `src/utils/algorithm/model/criteria.ts`). A wish in
-**either** direction is enough, because the wish belongs to the pair rather than
-to whoever wrote it down, and every wish of the list counts, not only the first
-one.
+A wish does not shield a pair from repetition
+([decision 0033](decisions/0033-wishes-take-turns.md)): `historyFactor` in
+`src/utils/algorithm/model/criteria.ts` counts every pair in full, and while
+`considerWishPartners` is active two students who wish each other at
+`CRITERION_WEIGHTS.mutualWishRepetition` = 0.5. A one-sided wish counts like
+any pair, so a student with several wishes takes them in turn and the
+classmate who was wished is not tied to the one who wished. A friendship holds
+anyway: both directions of the wish are rewarded, 16 against at most 12 for a
+repetition at the recommended weights, so friends stay together unless
+something weighs more. The fulfilment leaves the pairs who wish each other out
+of "Wiederholung" (`wishEachOther`), since their staying together is what the
+class asked for rather than a repetition the plan failed to part; the mixing
+still counts them at half. `MIX_RUNS=1 npx vitest run mixRuns` measures a run
+of six plans.

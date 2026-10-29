@@ -286,7 +286,7 @@
       },
       "force": {
         "q": "Werden Wunschpartner immer berücksichtigt?",
-        "a": "Steht das Kriterium „Wunschpartner“ auf „Beachten“ oder höher, setzt der Algorithmus Paare zusammen, sofern andere Kriterien nicht stärker dagegen sprechen. Hat der gewünschte Mitschüler einen Distanzwunsch zum Wünschenden, geht der Distanzwunsch vor. Ein Platz am selben Gruppentisch oder direkt am Nachbartisch zählt als teilweise erfüllt."
+        "a": "Steht das Kriterium „Wunschpartner“ auf „Beachten“ oder höher, setzt der Algorithmus Paare zusammen, sofern andere Kriterien nicht stärker dagegen sprechen. Hat der gewünschte Mitschüler einen Distanzwunsch zum Wünschenden, geht der Distanzwunsch vor. Ein Platz am selben Gruppentisch oder direkt am Nachbartisch zählt als teilweise erfüllt. Über mehrere Pläne wechseln Wünsche ab, solange „Wiederholung“ aktiv ist: Wer zuletzt neben seinem Wunschpartner saß, sitzt beim nächsten Mal eher bei einem anderen Wunsch. Wer sich gegenseitig wünscht, bleibt meist zusammen."
       },
       "needs": {
         "q": "Wie geht das System mit Unruheverhalten, Konzentrationsschwierigkeiten und Distanzwunsch um?",
@@ -362,7 +362,7 @@
         "li2_b": "Distanzwünsche:",
         "li2": "Anteil eingehaltener Distanzwünsche (nicht am selben Tisch und nicht direkt nebeneinander, davor oder dahinter)",
         "li3_b": "Wiederholung:",
-        "li3": "Anteil neuer Tischpaare (keine Wiederholung aus vorherigen Plänen; Wunschpaare zählen nicht als Wiederholung)",
+        "li3": "Anteil neuer Tischpaare (keine Wiederholung aus vorherigen Plänen; wer sich gegenseitig wünscht, zählt nicht als Wiederholung)",
         "li4_b": "Unruheverhalten/Konzentration:",
         "li4": "Anteil der betroffenen Schüler ohne einen ebenso betroffenen Nachbarn",
         "li5_b": "Geschlechter:",
@@ -374,7 +374,7 @@
       },
       "repeat": {
         "q": "Wie funktioniert die Wiederholungsvermeidung?",
-        "intro": "Die Wiederholungsvermeidung zählt nur Sitzpläne, die wirklich im Einsatz waren. Paare aus älteren Plänen zählen nach Alter abnehmend; wer öfter zusammensaß, zählt mehr. Bloße Mischungen zählen nicht: Wer mehrfach hintereinander mischt, probiert nur aus, und dass die nächste Mischung anders ausfällt, besorgen der Zufall und die übrigen Kriterien.",
+        "intro": "Die Wiederholungsvermeidung zählt nur Sitzpläne, die wirklich im Einsatz waren. Paare aus älteren Plänen zählen nach Alter abnehmend; wer öfter zusammensaß, zählt mehr. Bloße Mischungen zählen nicht: Wer mehrfach hintereinander mischt, probiert nur aus, und dass die nächste Mischung anders ausfällt, besorgen der Zufall und die übrigen Kriterien. Ein einseitiger Wunsch zählt wie jedes andere Paar, damit Wünsche abwechseln und niemand Woche für Woche neben jemandem sitzt, der sich ihn gewünscht hat; ein gegenseitiger Wunsch zählt nur halb.",
         "usageIntro": "Welche Sitzpläne im Einsatz waren, merkt sich Klassenplan im Hintergrund. Wenn du die automatische Erkennung nutzt, achtet Klassenplan auf folgende Aktionen:",
         "usage1": "Einen Sitzplan im Präsentationsmodus zeigen",
         "usage2": "Einen Sitzplan drucken oder als PDF, PNG oder SVG exportieren",

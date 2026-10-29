@@ -368,19 +368,32 @@ describe('seatingStatistics', () => {
       expect(percentage('avoidPreviousPairs')).toBe(0);
     });
 
-    it('exempts a wish pair while wishes count', () => {
+    it('counts a one-sided wish pair as any pair', () => {
       const wisher = student('ada', { wishPartnerIds: ['alan'] });
       const before: SeatingArrangement = [[wisher, alan], [grace, hedy], []];
       const plan: SeatingArrangement = [[alan, wisher], [], []];
-      const { criteria } = fulfilment(
+      const { percentage } = fulfilment(
         DESKS_IN_A_ROW,
         plan,
         { avoidPreviousPairs: 6, considerWishPartners: 8 },
         { planUsage: [used(before, 1)] },
       );
+      expect(percentage('avoidPreviousPairs')).toBe(0);
+    });
+
+    it('leaves out two students who wish each other while wishes count', () => {
+      const wisher = student('ada', { wishPartnerIds: ['alan'] });
+      const wished = student('alan', { wishPartnerIds: ['ada'] });
+      const before: SeatingArrangement = [[wisher, wished], [grace, hedy], []];
+      const plan: SeatingArrangement = [[wished, wisher], [], []];
+      const read = (weights: Partial<MixSettings>) =>
+        fulfilment(DESKS_IN_A_ROW, plan, weights, {
+          planUsage: [used(before, 1)],
+        }).percentage('avoidPreviousPairs');
       expect(
-        criteria.some((criterion) => criterion.key === 'avoidPreviousPairs'),
-      ).toBe(false);
+        read({ avoidPreviousPairs: 6, considerWishPartners: 8 }),
+      ).toBeUndefined();
+      expect(read({ avoidPreviousPairs: 6 })).toBe(0);
     });
   });
 
