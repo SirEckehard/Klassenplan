@@ -293,6 +293,30 @@ only reach the browser console — nothing is stored or transmitted.
 - ✅ Automated Dependabot updates configured in [`.github/dependabot.yml`](../.github/dependabot.yml) (weekly npm with minor/patch bumps grouped, monthly GitHub Actions)
 - ✅ Exact versions are locked in `package-lock.json`, and CI and the Docker build install with `npm ci`, so a build never resolves anything newer than the lockfile. `package.json` itself uses caret ranges — upgrades arrive as reviewable Dependabot PRs
 
+### 4. Third-Party Licences
+
+The minifier drops every licence comment, but the MIT, Apache-2.0 and OFL-1.1
+licences of the bundled packages ask that their notices travel with every copy
+of the app — klassenplan.de and the Docker image alike. So the build writes them
+itself:
+
+- ✅ `npm run build` writes `dist/third-party-licenses.txt`, served as
+  `/third-party-licenses.txt` (UTF-8, its own `location` in `nginx.conf`): name,
+  version, licence, source and the licence and NOTICE files of every package
+  whose code or fonts end up in `dist/` — the chunks, the workers, the fonts and
+  the service worker's Workbox runtime, collected by the Vite plugin in
+  `scripts/utils/thirdPartyLicenses.ts` from what was really bundled, not from
+  `package.json`
+- ✅ A bundled package under a licence outside `ALLOWED_LICENSES` (MIT, ISC,
+  0BSD, BSD-2/3-Clause, Apache-2.0, MPL-2.0, OFL-1.1, Zlib — all compatible with
+  the AGPL-3.0-or-later the app is published under) fails the build, and so does
+  one that ships no licence file. `npm run check:licenses` asks the same of every
+  production package in `package-lock.json` without building, in CI and before
+  a release. A new licence joins the list only after its compatibility has been
+  checked
+- The wordmark is set in Onest (OFL-1.1) but ships as outlines
+  (`scripts/generate-wordmark.py`), not as a font, so it carries no notice
+
 ## Security Contact
 
 For security issues, please contact:

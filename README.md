@@ -120,4 +120,6 @@ Contributions are welcome – please open issues and pull requests on GitHub. Be
 
 GNU Affero General Public License v3.0 or later (AGPL-3.0-or-later) – see [LICENSE](LICENSE).
 
+The build writes the licences of the third-party packages it bundles to `dist/third-party-licenses.txt`, served as `/third-party-licenses.txt` (see [SECURITY.md](docs/SECURITY.md#4-third-party-licences)).
+
 Copyright (C) 2026 Eike Schäfer. Klassenplan is free software: you can redistribute it and/or modify it under the terms of the AGPL. Note that the AGPL's network clause (§13) applies – if you run a modified version on a server, you must make the corresponding source code available to its users.

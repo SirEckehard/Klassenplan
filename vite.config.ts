@@ -13,6 +13,7 @@ import { fileURLToPath } from 'node:url';
 import type { Alias, PluginOption } from 'vite';
 import { readLegalPageUrls } from './src/config/legalPageUrls.ts';
 import { readContactEmail } from './src/config/contactEmail.ts';
+import { thirdPartyLicenses } from './scripts/utils/thirdPartyLicenses.ts';
 import {
   BACKUP_FILE_EXTENSION,
   BACKUP_FILE_MEDIA_TYPE,
@@ -165,6 +166,9 @@ const offlineFileList = (): PluginOption => ({
   },
 });
 
+// The licence texts of the bundled packages, `dist/third-party-licenses.txt`.
+const licenses = thirdPartyLicenses(rootDir);
+
 const isProductionBuild = process.env.NODE_ENV === 'production';
 
 export default defineConfig({
@@ -173,6 +177,7 @@ export default defineConfig({
     react(),
     preloadPrimaryFont(),
     offlineFileList(),
+    licenses.plugin,
     VitePWA({
       registerType: 'prompt',
       includeAssets: [
@@ -528,6 +533,7 @@ export default defineConfig({
   },
   worker: {
     format: 'es',
+    plugins: () => [licenses.workerPlugin()],
     rolldownOptions: {
       output: {
         entryFileNames: 'workers/[name]-[hash].js',

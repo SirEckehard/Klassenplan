@@ -26,6 +26,7 @@ it for Antigravity — edit this file, never those two.
 - i18n consistency: `npm run check:i18n` (DE/EN key parity + every `t(key, 'default')` resolves to a real key + no key that no code refers to)
 - Bundle budgets: `npm run check:bundle` (after a build; part of `npm run build:static`)
 - Live addressing: `npm run check:live-seo` (after a deploy, by hand: every sitemap address answers 200 and is its own canonical, slash/`http://`/`www.` spellings redirect permanently, unknown addresses are 404; decision 0029)
+- Licences: `npm run check:licenses` (every production package in the lockfile is under a licence of `ALLOWED_LICENSES` in `scripts/utils/thirdPartyLicenses.ts`; the build itself writes `dist/third-party-licenses.txt` and fails on the same; `docs/SECURITY.md` § 4)
 - Docs consistency: `npm run check:docs` (relative links, heading anchors and `src/…`-style paths in Markdown resolve; `docs/CHANGELOG.md` is skipped)
 - Algorithm runtime: `npm run bench` (by hand, not in CI; figures in `docs/PERFORMANCE.md`)
 - Mix quality: `MIX_QUALITY=1 npx vitest run mixQuality` (by hand: six rooms, 30 seeds each, every criterion's fulfilment and the time per mix; figures in `docs/PERFORMANCE.md` and decision 0031)
@@ -69,7 +70,8 @@ the image for both architectures, pushes the multi-arch manifest to GHCR as
 
 1. Run the gates on `update`: `npm test -- --run`, `npm run lint`,
    `npm run typecheck:all`, `npm run check:i18n`, `npm run check:unused`,
-   `npm run check:docs`, `npm run build` followed by `npm run check:bundle`.
+   `npm run check:docs`, `npm run check:licenses`, `npm run build` followed by
+   `npm run check:bundle`.
    Bring the docs up to date for what the release changed — the affected
    `docs/` pages with their **Last reviewed** date, and a decision record in
    `docs/decisions/` where one is needed (see its README)
@@ -259,6 +261,7 @@ import { generateId, logError, errorHandlers } from '@/utils';
 - `npm run check:bundle` - Enforce bundle size budgets against `dist/` (run after a build)
 - `npm run check:unused` - Unused-export ratchet (baseline in `scripts/check-unused-exports.mjs`)
 - `npm run check:docs` - Links, heading anchors and repository paths in the Markdown docs resolve
+- `npm run check:licenses` - Production dependencies under licences compatible with the AGPL (the build writes `dist/third-party-licenses.txt`)
 - `npm run check:live-seo` - The deployed site's addresses: one per page, permanent redirects, real 404 (`SITE_URL`, needs the network)
 - `npm run bench` - Seating algorithm runtime benchmark (by hand)
 - `vitest run --reporter=verbose` - Run tests with detailed output
